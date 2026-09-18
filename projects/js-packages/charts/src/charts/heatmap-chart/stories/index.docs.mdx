@@ -300,6 +300,10 @@ Add a legend by placing `<HeatmapChart.Legend />` as a child. The legend renders
 	</HeatmapChart>` }
 />
 
+`variant="bar"` joins the steps into one continuous band with rounded ends, for a scale that reads as a gradient rather than as sample cells.
+
+<Canvas of={ HeatmapStories.WithBarLegend } />
+
 ## Error / Empty State
 
 When `data` is empty the chart renders a "No data available" placeholder:
@@ -308,7 +312,7 @@ When `data` is empty the chart renders a "No data available" placeholder:
 
 ## Tooltips
 
-Enable `withTooltips` to show a tooltip on cell hover **and** during keyboard navigation (the arrow-selected cell shows its tooltip, like bar and line charts). The default tooltip shows the cell label and the value, formatted with `@automattic/number-formatters`. Supply `renderTooltip` to customize:
+Enable `withTooltips` to show a tooltip on cell hover **and** during keyboard navigation (the arrow-selected cell shows its tooltip, like bar and line charts). The default tooltip shows the cell label and the value, formatted with `@automattic/number-formatters`. Supply `renderTooltip` to customize the content:
 
 <Source
 	language="jsx"
@@ -324,6 +328,12 @@ Enable `withTooltips` to show a tooltip on cell hover **and** during keyboard na
 		) }
 	/>` }
 />
+
+`tooltipVariant="dark"` draws the box on the package's tooltip surface (`--a8c-charts-color-tooltip-surface`) instead of the plain white box.
+
+`tooltipStyle` merges inline styles onto the box, over the variant's own; tighten the padding of a one-line tooltip, for example.
+
+<Canvas of={ HeatmapStories.DarkTooltip } />
 
 ## Theming
 

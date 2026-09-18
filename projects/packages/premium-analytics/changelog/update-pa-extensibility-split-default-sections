@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Move the built-in dashboard sections out of the section API file. No user-facing change.

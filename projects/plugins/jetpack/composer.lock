@@ -3571,16 +3571,18 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "99cb7a2f6b4d3ef3ee101add846e9b8ab9b2c724"
+                "reference": "659c070b8eedbba3c9008074373bf73047c5b173"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-my-jetpack": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
+                "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.4"
             },
             "require-dev": {

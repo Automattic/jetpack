@@ -25,21 +25,29 @@ class Jetpack_Mu_Wpcom {
 	// Gutenberg plugin releases known to break with React 19.
 	const REACT_19_INCOMPATIBLE_GUTENBERG = array( '23.9.0' );
 
-	// Themes (by template slug) and plugins (by basename) known to break with React 19.
-	const REACT_19_INCOMPATIBLE_THEMES  = array( 'divi', 'woodmart' );
+	/*
+	 * Themes (by template slug) and plugins (by basename) known to break with React 19,
+	 * each mapped to the release that fixed it. Null means no fixed release exists yet.
+	 */
+	const REACT_19_INCOMPATIBLE_THEMES  = array(
+		'divi'     => null,
+		'woodmart' => '8.6.1',
+	);
 	const REACT_19_INCOMPATIBLE_PLUGINS = array(
-		'wp-table-builder/wp-table-builder.php',
-		'ultimate-blocks/ultimate-blocks.php',
-		'beehive-analytics/beehive-analytics.php',
-		'xspeed/xspeed.php',
-		'classified-listing/classified-listing.php',
-		'advanced-coupons-for-woocommerce-free/advanced-coupons-for-woocommerce-free.php',
-		'advanced-coupons-for-woocommerce/advanced-coupons-for-woocommerce.php',
-		'sb-analytics/sb-analytics-pro.php',
-		'brave-popup-builder/index.php',
-		'bravepopup-pro/index.php',
-		'astra-sites/astra-sites.php',
-		'llms-full-txt-generator/llms-txt-generator.php',
+		'wp-table-builder/wp-table-builder.php'          => null,
+		'ultimate-blocks/ultimate-blocks.php'            => '3.6.0',
+		'beehive-analytics/beehive-analytics.php'        => null,
+		'xspeed/xspeed.php'                              => null,
+		'classified-listing/classified-listing.php'      => null,
+		'advanced-coupons-for-woocommerce-free/advanced-coupons-for-woocommerce-free.php' => null,
+		'advanced-coupons-for-woocommerce/advanced-coupons-for-woocommerce.php' => null,
+		'sb-analytics/sb-analytics-pro.php'              => null,
+		'brave-popup-builder/index.php'                  => null,
+		'bravepopup-pro/index.php'                       => null,
+		'astra-sites/astra-sites.php'                    => null,
+		'llms-full-txt-generator/llms-txt-generator.php' => null,
+		'wp-post-author/aft-wp-post-author.php'          => null,
+		'adminify/adminify.php'                          => null,
 	);
 
 	/**
@@ -1163,17 +1171,45 @@ class Jetpack_Mu_Wpcom {
 			return true;
 		}
 
-		if ( in_array( strtolower( get_template() ), self::REACT_19_INCOMPATIBLE_THEMES, true ) ) {
-			return true;
+		$template = strtolower( get_template() );
+		if ( array_key_exists( $template, self::REACT_19_INCOMPATIBLE_THEMES ) ) {
+			$theme_version = (string) wp_get_theme( get_template() )->get( 'Version' );
+
+			if ( self::is_react_19_incompatible_version( $theme_version, self::REACT_19_INCOMPATIBLE_THEMES[ $template ] ) ) {
+				return true;
+			}
 		}
 
-		foreach ( self::REACT_19_INCOMPATIBLE_PLUGINS as $plugin_file ) {
-			if ( is_plugin_active( $plugin_file ) ) {
+		foreach ( self::REACT_19_INCOMPATIBLE_PLUGINS as $plugin_file => $fixed_in ) {
+			if ( ! is_plugin_active( $plugin_file ) ) {
+				continue;
+			}
+
+			$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_file, false, false );
+
+			if ( self::is_react_19_incompatible_version( (string) $plugin_data['Version'], $fixed_in ) ) {
 				return true;
 			}
 		}
 
 		return false;
+	}
+
+	/**
+	 * Whether an installed version predates the release that fixed its React 19 incompatibility.
+	 *
+	 * An unreadable version counts as incompatible, so a missing header can't opt a site in.
+	 *
+	 * @param string      $version  The installed version.
+	 * @param string|null $fixed_in The release that fixed the incompatibility, or null if there is none.
+	 * @return bool
+	 */
+	private static function is_react_19_incompatible_version( $version, $fixed_in ) {
+		if ( null === $fixed_in || '' === $version ) {
+			return true;
+		}
+
+		return version_compare( $version, $fixed_in, '<' );
 	}
 
 	/**

@@ -31,6 +31,10 @@ module.exports = {
 	// Mirror the TypeScript path aliases from tsconfig.json so tests can import
 	// modules that use the `$lib`/`$features`/`$layout`/`$svg` aliases.
 	moduleNameMapper: {
+		// The build externalizes this to a single `wp.components`, so shared React
+		// context works across packages. pnpm gives the plugin and the components
+		// package separate copies, which would break that context here.
+		'^@wordpress/components$': require.resolve( '@wordpress/components' ),
 		'^\\$lib/(.*)$': '<rootDir>/app/assets/src/js/lib/$1',
 		'^\\$features/(.*)$': '<rootDir>/app/assets/src/js/features/$1',
 		'^\\$layout/(.*)$': '<rootDir>/app/assets/src/js/layout/$1',

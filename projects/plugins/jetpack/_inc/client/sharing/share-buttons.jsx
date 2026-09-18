@@ -152,6 +152,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 							link: shouldShowSharingBlock
 								? getRedirectUrl( 'jetpack-support-sharing-block' )
 								: sharingModuleSupportUrl,
+							wpcomLink: 'https://wordpress.com/support/sharing/',
 						} }
 					>
 						<p>{ description }</p>
