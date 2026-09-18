@@ -231,8 +231,7 @@ function httpErrorSuggestion( code: number, count: number ): Suggestion {
  * @param {ErrorSet} set Set to check.
  */
 function requiresLogin( set: ErrorSet ): boolean {
-	// A set groups HTTP errors by status code alone, so a login-gated page can share it with an
-	// unrelated 403; the login copy is only right when it covers every page in the set.
+	// The login copy is only right when it covers every page in the set.
 	const errors = Object.values( set.byUrl );
 
 	return errors.length > 0 && errors.every( error => error.meta?.login_required === true );
