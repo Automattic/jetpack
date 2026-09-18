@@ -83,6 +83,10 @@ class Jetpack_Core_API_Module_Toggle_Endpoint extends Jetpack_Core_API_XMLRPC_Co
 			);
 		}
 
+		if ( 'search' === $module_slug ) {
+			( new Automattic\Jetpack\Search\Module_Control() )->refresh_plan_info_before_activation( $module_slug );
+		}
+
 		if ( ! Jetpack_Plan::supports( $module_slug ) ) {
 			return new WP_Error(
 				'not_supported',
@@ -793,6 +797,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						$updated = true;
 					} else {
 						$plan = new Automattic\Jetpack\Search\Plan();
+						$plan->ensure_plan_info_populated();
 						if ( ! $plan->supports_instant_search() ) {
 							$updated = new WP_Error( 'instant_search_not_supported', 'Instant Search is not supported by this site', array( 'status' => 400 ) );
 							$error   = $updated->get_error_message();

@@ -21,6 +21,47 @@ abstract class TestCase extends PHPUnit_TestCase {
 	const WPCOM_PRODUCTS_FIXTURE = '{"jetpack_free":{"product_id":2002,"product_name":"JetpackFree","product_slug":"jetpack_free","description":"","product_type":"jetpack","available":true,"is_domain_registration":false,"cost_display":"A$0.00","combined_cost_display":"A$0.00","cost":0,"currency_code":"AUD","price_tier_list":[],"price_tier_usage_quantity":null,"product_term":"onetime","price_tiers":[],"price_tier_slug":""},"jetpack_search":{"product_id":2104,"product_name":"JetpackSearch","product_slug":"jetpack_search","description":"","product_type":"search","available":true,"is_domain_registration":false,"cost_display":"A$83.40","combined_cost_display":"A$83.40","cost":83.4,"currency_code":"AUD","price_tier_list":[{"minimum_units":0,"maximum_units":100,"minimum_price":8340,"minimum_price_display":"A$83.40","minimum_price_monthly_display":"A$6.95","maximum_price":8340,"maximum_price_display":"A$83.40","maximum_price_monthly_display":"A$6.95"},{"minimum_units":101,"maximum_units":1000,"minimum_price":16680,"minimum_price_display":"A$166.80","minimum_price_monthly_display":"A$13.90","maximum_price":16680,"maximum_price_display":"A$166.80","maximum_price_monthly_display":"A$13.90"},{"minimum_units":1001,"maximum_units":10000,"minimum_price":41700,"minimum_price_display":"A$417","minimum_price_monthly_display":"A$34.75","maximum_price":41700,"maximum_price_display":"A$417","maximum_price_monthly_display":"A$34.75"},{"minimum_units":10001,"maximum_units":100000,"minimum_price":100080,"minimum_price_display":"A$1,000.80","minimum_price_monthly_display":"A$83.40","maximum_price":100080,"maximum_price_display":"A$1,000.80","maximum_price_monthly_display":"A$83.40"},{"minimum_units":100001,"maximum_units":1000000,"minimum_price":333600,"minimum_price_display":"A$3,336","minimum_price_monthly_display":"A$278","maximum_price":333600,"maximum_price_display":"A$3,336","maximum_price_monthly_display":"A$278"},{"minimum_units":1000001,"maximum_units":null,"minimum_price":667200,"minimum_price_display":"A$6,672","minimum_price_monthly_display":"A$556","maximum_price":0,"maximum_price_display":null,"maximum_price_monthly_display":null}],"price_tier_usage_quantity":null,"product_term":"year","price_tiers":[],"price_tier_slug":"","sale_cost":41.7,"combined_sale_cost_display":"A$41.70","sale_coupon":{"start_date":"2022-02-2800:00:00","expires":"2023-02-2800:00:00","discount":50,"purchase_types":[3],"product_ids":[2104],"allowed_for_domain_transfers":false,"allowed_for_renewals":false,"allowed_for_new_purchases":true,"code":"1d1efd26ac357573"}},"jetpack_search_monthly":{"product_id":2105,"product_name":"JetpackSearch","product_slug":"jetpack_search_monthly","description":"","product_type":"search","available":true,"is_domain_registration":false,"cost_display":"A$6.95","combined_cost_display":"A$6.95","cost":6.95,"currency_code":"AUD","price_tier_list":[{"minimum_units":0,"maximum_units":100,"minimum_price":8340,"minimum_price_display":"A$83.40","minimum_price_monthly_display":"A$6.95","maximum_price":8340,"maximum_price_display":"A$83.40","maximum_price_monthly_display":"A$6.95"},{"minimum_units":101,"maximum_units":1000,"minimum_price":16680,"minimum_price_display":"A$166.80","minimum_price_monthly_display":"A$13.90","maximum_price":16680,"maximum_price_display":"A$166.80","maximum_price_monthly_display":"A$13.90"},{"minimum_units":1001,"maximum_units":10000,"minimum_price":41700,"minimum_price_display":"A$417","minimum_price_monthly_display":"A$34.75","maximum_price":41700,"maximum_price_display":"A$417","maximum_price_monthly_display":"A$34.75"},{"minimum_units":10001,"maximum_units":100000,"minimum_price":100080,"minimum_price_display":"A$1,000.80","minimum_price_monthly_display":"A$83.40","maximum_price":100080,"maximum_price_display":"A$1,000.80","maximum_price_monthly_display":"A$83.40"},{"minimum_units":100001,"maximum_units":1000000,"minimum_price":333600,"minimum_price_display":"A$3,336","minimum_price_monthly_display":"A$278","maximum_price":333600,"maximum_price_display":"A$3,336","maximum_price_monthly_display":"A$278"},{"minimum_units":1000001,"maximum_units":null,"minimum_price":667200,"minimum_price_display":"A$6,672","minimum_price_monthly_display":"A$556","maximum_price":0,"maximum_price_display":null,"maximum_price_monthly_display":null}],"price_tier_usage_quantity":null,"product_term":"month","price_tiers":[],"price_tier_slug":""},"jetpack_scan":{"product_id":2106,"product_name":"JetpackScanDaily","product_slug":"jetpack_scan","description":"","product_type":"jetpack","available":true,"is_domain_registration":false,"cost_display":"A$155.40","combined_cost_display":"A$155.40","cost":155.4,"currency_code":"AUD","price_tier_list":[],"price_tier_usage_quantity":null,"product_term":"year","price_tiers":[],"price_tier_slug":"","introductory_offer":{"interval_unit":"year","interval_count":1,"usage_limit":null,"cost_per_interval":59.4,"transition_after_renewal_count":0,"should_prorate_when_offer_ends":false}}}';
 
 	/**
+	 * Plan hooks and static registration state saved for an isolated test.
+	 *
+	 * @var array
+	 */
+	private $plan_hook_state = array();
+
+	/**
+	 * Start a test with no Plan registration inherited from another test.
+	 */
+	protected function isolate_plan_hooks() {
+		$property = new \ReflectionProperty( Plan::class, 'update_plan_hook_initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$this->plan_hook_state['initialized'] = $property->getValue();
+		$property->setValue( null, false );
+		foreach ( array( 'jetpack_heartbeat' ) as $hook ) {
+			$this->plan_hook_state[ $hook ] = isset( $GLOBALS['wp_filter'][ $hook ] ) ? clone $GLOBALS['wp_filter'][ $hook ] : null;
+			unset( $GLOBALS['wp_filter'][ $hook ] );
+		}
+	}
+
+	/**
+	 * Restore the hooks and matching static flag together.
+	 */
+	protected function restore_plan_hooks() {
+		$property = new \ReflectionProperty( Plan::class, 'update_plan_hook_initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, $this->plan_hook_state['initialized'] );
+		foreach ( array( 'jetpack_heartbeat' ) as $hook ) {
+			if ( $this->plan_hook_state[ $hook ] === null ) {
+				unset( $GLOBALS['wp_filter'][ $hook ] );
+			} else {
+				$GLOBALS['wp_filter'][ $hook ] = $this->plan_hook_state[ $hook ];
+			}
+		}
+	}
+
+	/**
 	 * An Admin user id
 	 *
 	 * @var int
@@ -62,6 +103,7 @@ abstract class TestCase extends PHPUnit_TestCase {
 		wp_set_current_user( 0 );
 
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
+		( new \Automattic\Jetpack\Connection\Manager() )->reset_connection_status();
 		add_filter( 'pre_http_request', array( $this, 'plan_http_response_fixture' ), 10, 3 );
 	}
 
@@ -78,6 +120,7 @@ abstract class TestCase extends PHPUnit_TestCase {
 
 		remove_filter( 'pre_http_request', array( $this, 'plan_http_response_fixture' ) );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
+		( new \Automattic\Jetpack\Connection\Manager() )->reset_connection_status();
 	}
 
 	/**

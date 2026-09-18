@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: Avoid delaying page loads with remote plan checks.

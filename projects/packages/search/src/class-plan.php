@@ -35,11 +35,17 @@ class Plan {
 	protected static $update_plan_hook_initialized = false;
 
 	/**
+	 * Sites already refreshed in this request, to avoid duplicate activation lookups.
+	 *
+	 * @var array<int|string, true>
+	 */
+	protected static $fetch_attempted_this_request = array();
+
+	/**
 	 * Init hooks for updating plan info
 	 */
 	public function init_hooks() {
 		// Update plan info from WPCOM on Jetpack heartbeat.
-		// TODO: implement heartbeart for search.
 		if ( ! static::$update_plan_hook_initialized ) {
 			add_action( 'jetpack_heartbeat', array( $this, 'get_plan_info_from_wpcom' ) );
 			static::$update_plan_hook_initialized = true;
@@ -51,11 +57,10 @@ class Plan {
 	 */
 	public function get_plan_info_from_wpcom() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
-		// An unregistered site (or a stale cache view hiding the registration) has no
-		// blog ID: bail rather than requesting the malformed `/sites//…` path.
 		if ( ! $blog_id ) {
 			return new WP_Error( 'site_not_registered', 'Site not registered.' );
 		}
+		self::$fetch_attempted_this_request[ (string) $blog_id ] = true;
 		$response = Client::wpcom_json_api_request_as_blog(
 			'/sites/' . $blog_id . '/jetpack-search/plan',
 			'2',
@@ -71,19 +76,16 @@ class Plan {
 	}
 
 	/**
-	 * Get plan info.
+	 * Get cached plan info.
+	 * Only an explicit refresh makes a synchronous remote request.
 	 *
-	 * @param bool $force_refresh - Default to false. Set true to load from WPCOM.
+	 * @param bool $force_refresh Whether to refresh synchronously instead of using cached data.
 	 */
 	public function get_plan_info( $force_refresh = false ) {
 		if ( $force_refresh ) {
 			$this->get_plan_info_from_wpcom();
 		}
-		$plan_info = get_option( self::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
-		if ( false === $plan_info && ! $force_refresh ) {
-			$plan_info = $this->get_plan_info( true );
-		}
-		return $plan_info;
+		return get_option( self::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
 	}
 
 	/**
@@ -93,6 +95,20 @@ class Plan {
 	 */
 	public function has_jetpack_search_product() {
 		return (bool) get_option( 'has_jetpack_search_product' );
+	}
+
+	/**
+	 * Populate missing plan data synchronously for explicit activation actions.
+	 * Only attempts one fetch per site in a request.
+	 */
+	public function ensure_plan_info_populated() {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		if ( ! empty( self::$fetch_attempted_this_request[ (string) $blog_id ] ) ) {
+			return;
+		}
+		if ( false === get_option( self::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY ) ) {
+			$this->get_plan_info_from_wpcom();
+		}
 	}
 
 	/**
@@ -145,7 +161,7 @@ class Plan {
 	/**
 	 * Update `has_jetpack_search_product` regarding the plan information
 	 *
-	 * @param array|WP_Error $response - Resopnse from WPCOM.
+	 * @param array|WP_Error $response - Response from WPCOM.
 	 * @return bool - true on success, false on failure.
 	 */
 	public function update_search_plan_info( $response ) {
