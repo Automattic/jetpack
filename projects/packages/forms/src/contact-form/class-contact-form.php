@@ -3075,6 +3075,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( $is_test_submission ) {
 			$is_spam = false;
 		} else {
+			$plugin->reset_spam_verdict_source();
 			/** This filter is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			$is_spam = apply_filters( 'jetpack_contact_form_is_spam', false, $akismet_values );
 		}
@@ -3218,6 +3219,25 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 		$response->set_status( $feedback_status );
 
+		/*
+		 * Which check rejected the submission. Both checks feed one boolean, and a
+		 * disallowed-list hit is stored as trash while an Akismet hit is stored as spam,
+		 * so neither the boolean nor the status can answer "why" on its own.
+		 */
+		$spam_verdict = '';
+		if ( $in_comment_disallowed_list ) {
+			$spam_verdict = 'disallowed_list';
+		} elseif ( true === $is_spam ) {
+			$spam_verdict = $plugin->get_spam_verdict_source();
+			if ( '' === $spam_verdict ) {
+				$spam_verdict = 'filter';
+			}
+		}
+
+		if ( '' !== $spam_verdict ) {
+			do_action( 'jetpack_forms_log', 'submission_rejected_as_spam', $spam_verdict );
+		}
+
 		foreach ( (array) $akismet_values as $av_key => $av_value ) {
 			$akismet_values[ $av_key ] = Contact_Form_Plugin::strip_tags( $av_value );
 		}
@@ -3269,6 +3289,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 		remove_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10 );
 
 		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
+
+		if ( '' !== $spam_verdict ) {
+			update_post_meta( $post_id, '_feedback_spam_verdict', $spam_verdict );
+		}
 
 		if ( 'publish' === $feedback_status ) {
 			Contact_Form_Plugin::recalculate_unread_count();
