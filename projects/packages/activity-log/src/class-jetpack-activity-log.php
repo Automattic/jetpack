@@ -24,6 +24,7 @@ use function class_exists;
 use function current_user_can;
 use function did_action;
 use function do_action;
+use function get_current_screen;
 use function is_admin;
 use function is_multisite;
 use function sanitize_text_field;
@@ -94,6 +95,13 @@ class Jetpack_Activity_Log {
 	 * @var string
 	 */
 	const REFRESH_ACCESS_NONCE_ACTION = 'jetpack_activity_log_refresh_access';
+
+	/**
+	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
+	 *
+	 * @var string|null
+	 */
+	private static $wp_build_original_screen_id = null;
 
 	/**
 	 * Entry point. Idempotent: safe to call from multiple bootstraps.
@@ -205,14 +213,13 @@ class Jetpack_Activity_Log {
 
 		// Load wp-build only on the Activity Log request so its generated
 		// render function exists before the menu callback runs, and its
-		// enqueue pipeline/polyfills stay off every other admin page. Alias
-		// the screen id here too — `current_screen` fires before the
-		// `load-{$page_suffix}` hook that runs admin_init(), so registering
-		// the alias from admin_init() would be too late for wp-build's
-		// screen-matched enqueue callback.
+		// enqueue pipeline/polyfills stay off every other admin page.
 		if ( self::is_activity_log_admin_request() ) {
+			// Hooked either side of load_wp_build(), so the alias holds only for the generated
+			// enqueue check it registers at the same priority.
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 			self::load_wp_build();
-			add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
 		}
 
 		// The menu item must appear on every admin page, but the generated
@@ -327,16 +334,38 @@ class Jetpack_Activity_Log {
 	 * The wp-build-generated enqueue callback only fires when the screen id
 	 * equals the wp-build page slug. Our menu slug stays `jetpack-activity-log`,
 	 * so alias the screen id in place to make the check pass without changing
-	 * the user-facing URL. Hooked on `current_screen` only for the Activity Log
-	 * request, so this never affects any other screen.
+	 * the user-facing URL. Hooked only for the Activity Log request, so this
+	 * never affects any other screen.
 	 *
-	 * @param \WP_Screen|null $screen The current screen object (passed by WP).
+	 * @since $$next-version$$ Takes no argument; hooked on `admin_enqueue_scripts`.
+	 *
 	 * @return void
 	 */
-	public static function alias_screen_id_for_wp_build( $screen ) {
-		if ( is_object( $screen ) ) {
-			$screen->id = self::WP_BUILD_PAGE_SLUG;
+	public static function alias_screen_id_for_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
+			return;
 		}
+
+		self::$wp_build_original_screen_id = $screen->id;
+		$screen->id                        = self::WP_BUILD_PAGE_SLUG;
+	}
+
+	/**
+	 * Undo alias_screen_id_for_wp_build(), so code after the generated check sees the real screen ID.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function restore_screen_id_after_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen || null === self::$wp_build_original_screen_id ) {
+			return;
+		}
+
+		$screen->id                        = self::$wp_build_original_screen_id;
+		self::$wp_build_original_screen_id = null;
 	}
 
 	/**

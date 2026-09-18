@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Activity_Log;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Modules;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -22,7 +23,8 @@ class Jetpack_Activity_Log_Test extends TestCase {
 
 	protected function tearDown(): void {
 		$this->reset_bootstrap();
-		Jetpack_Options::delete_option( array( 'active_modules', Jetpack_Activity_Log::DEFAULT_ACTIVATED_OPTION ) );
+		$this->leave_activity_log_admin_request();
+		Jetpack_Options::delete_option( array( 'active_modules', Jetpack_Activity_Log::DEFAULT_ACTIVATED_OPTION, 'user_tokens' ) );
 		parent::tearDown();
 	}
 
@@ -51,6 +53,47 @@ class Jetpack_Activity_Log_Test extends TestCase {
 	private function set_active_modules( array $modules ) {
 		Jetpack_Options::update_option( Jetpack_Activity_Log::DEFAULT_ACTIVATED_OPTION, true );
 		Jetpack_Options::update_option( 'active_modules', $modules );
+	}
+
+	/**
+	 * Puts a connected administrator on the Activity Log admin page, so add_wp_admin_submenu() gets past is_available().
+	 *
+	 * @return void
+	 */
+	private function enter_activity_log_admin_request() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'activity_log_admin_' . wp_rand( 1, PHP_INT_MAX ),
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		Jetpack_Options::update_option( 'user_tokens', array( $user_id => "token.secret.$user_id" ) );
+
+		set_current_screen( 'jetpack_page_jetpack-activity-log' );
+		$_GET['page'] = Jetpack_Activity_Log::PAGE_SLUG;
+	}
+
+	/**
+	 * Undoes enter_activity_log_admin_request() and what add_wp_admin_submenu() registers.
+	 *
+	 * @return void
+	 */
+	private function leave_activity_log_admin_request() {
+		remove_action( 'admin_enqueue_scripts', array( Jetpack_Activity_Log::class, 'alias_screen_id_for_wp_build' ) );
+		remove_action( 'admin_enqueue_scripts', array( Jetpack_Activity_Log::class, 'restore_screen_id_after_wp_build' ) );
+		remove_all_actions( 'load-jetpack_page_jetpack-activity-log' );
+
+		$menu_items = new \ReflectionProperty( Admin_Menu::class, 'menu_items' );
+		if ( \PHP_VERSION_ID < 80100 ) {
+			// Required to access non-public members before PHP 8.1; deprecated no-op since PHP 8.5.
+			$menu_items->setAccessible( true );
+		}
+		$menu_items->setValue( null, array() );
+
+		unset( $_GET['page'], $GLOBALS['current_screen'] );
+		wp_set_current_user( 0 );
 	}
 
 	/**
@@ -161,5 +204,46 @@ class Jetpack_Activity_Log_Test extends TestCase {
 
 		$this->assertNotFalse( $deferred );
 		$this->assertFalse( $seeded );
+	}
+
+	public function test_add_wp_admin_submenu_hooks_the_screen_alias_around_the_generated_check() {
+		$this->enter_activity_log_admin_request();
+
+		Jetpack_Activity_Log::add_wp_admin_submenu();
+
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( Jetpack_Activity_Log::class, 'alias_screen_id_for_wp_build' ) ) );
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( Jetpack_Activity_Log::class, 'restore_screen_id_after_wp_build' ) ) );
+		$this->assertFalse( has_action( 'current_screen', array( Jetpack_Activity_Log::class, 'alias_screen_id_for_wp_build' ) ) );
+	}
+
+	/**
+	 * JITM reads the screen ID after `admin_enqueue_scripts`, to build its message path.
+	 */
+	public function test_screen_id_is_restored_after_admin_enqueue_scripts() {
+		$this->enter_activity_log_admin_request();
+
+		Jetpack_Activity_Log::add_wp_admin_submenu();
+		do_action( 'admin_enqueue_scripts', 'jetpack_page_jetpack-activity-log' );
+
+		$this->assertSame( 'jetpack_page_jetpack-activity-log', get_current_screen()->id );
+	}
+
+	/**
+	 * The alias and its restore pair up, and do nothing without a screen or an alias to undo.
+	 */
+	public function test_alias_screen_id_round_trip() {
+		unset( $GLOBALS['current_screen'] );
+		Jetpack_Activity_Log::alias_screen_id_for_wp_build();
+		Jetpack_Activity_Log::restore_screen_id_after_wp_build();
+
+		set_current_screen( 'jetpack_page_jetpack-activity-log' );
+		Jetpack_Activity_Log::restore_screen_id_after_wp_build();
+		$this->assertSame( 'jetpack_page_jetpack-activity-log', get_current_screen()->id );
+
+		Jetpack_Activity_Log::alias_screen_id_for_wp_build();
+		$this->assertSame( Jetpack_Activity_Log::WP_BUILD_PAGE_SLUG, get_current_screen()->id );
+
+		Jetpack_Activity_Log::restore_screen_id_after_wp_build();
+		$this->assertSame( 'jetpack_page_jetpack-activity-log', get_current_screen()->id );
 	}
 }
