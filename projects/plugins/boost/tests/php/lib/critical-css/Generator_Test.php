@@ -17,10 +17,31 @@ use WorDBless\BaseTestCase;
 class Generator_Test extends BaseTestCase {
 
 	/**
+	 * The REQUEST_URI the test suite runs with.
+	 *
+	 * @var string|null
+	 */
+	private $request_uri;
+
+	/**
+	 * Set up test environment.
+	 */
+	public function set_up() {
+		parent::set_up();
+		$this->request_uri = $_SERVER['REQUEST_URI'] ?? null;
+	}
+
+	/**
 	 * Tear down test environment.
 	 */
 	public function tear_down() {
 		unset( $_GET[ Generator::GENERATE_QUERY_ACTION ] );
+		unset( $_GET['rest_route'] );
+		if ( null === $this->request_uri ) {
+			unset( $_SERVER['REQUEST_URI'] );
+		} else {
+			$_SERVER['REQUEST_URI'] = $this->request_uri;
+		}
 		unset( $GLOBALS['current_screen'] );
 		$GLOBALS['pagenow'] = 'index.php';
 		remove_all_filters( 'wp_doing_ajax' );
@@ -305,6 +326,16 @@ class Generator_Test extends BaseTestCase {
 			'cron'         => array(
 				function () {
 					add_filter( 'wp_doing_cron', '__return_true' );
+				},
+			),
+			'rest route'   => array(
+				function () {
+					$_SERVER['REQUEST_URI'] = '/' . rest_get_url_prefix() . '/jetpack-boost-ds/critical-css-state?' . Generator::GENERATE_QUERY_ACTION . '=1700000000000';
+				},
+			),
+			'rest query'   => array(
+				function () {
+					$_GET['rest_route'] = '/jetpack-boost-ds/critical-css-state';
 				},
 			),
 		);

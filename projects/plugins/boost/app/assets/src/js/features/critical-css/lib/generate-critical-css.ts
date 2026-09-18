@@ -181,7 +181,7 @@ async function createBrowserInterface(
 
 			const response = await fetch( url, options );
 			if ( response.headers.get( LOGIN_REQUIRED_HEADER ) === 'login-required' ) {
-				loginRequiredUrls.add( url );
+				loginRequiredUrls.add( pageUrlKey( url, requestGetParameters ) );
 			}
 
 			return response;
@@ -312,7 +312,8 @@ async function generateForKeys(
 							url,
 							...details,
 						} as CriticalCssErrorDetails,
-						loginRequiredUrls
+						loginRequiredUrls,
+						requestGetParameters
 					)
 				);
 
@@ -404,18 +405,38 @@ async function generateForKeys(
 }
 
 /**
+ * Reduce a fetched URL to the page it was fetched for, so it can be compared to an error's URL.
+ *
+ * @param {string} url                  - URL to reduce.
+ * @param {Object} requestGetParameters - GET parameters generation appends to each request.
+ */
+function pageUrlKey( url: string, requestGetParameters: Record< string, string > ): string {
+	try {
+		const parsed = new URL( url, window.location.href );
+		for ( const parameter of Object.keys( requestGetParameters ) ) {
+			parsed.searchParams.delete( parameter );
+		}
+
+		return parsed.toString();
+	} catch {
+		return url;
+	}
+}
+
+/**
  * Flag an error the site raised because the page is only shown to a logged-in visitor, so the
  * dashboard can name that cause instead of describing a bare HTTP error.
  *
- * @param {Object} error             - The error to check.
- * @param {Set}    loginRequiredUrls - URLs the site answered with the login-required marker.
+ * @param {Object} error                - The error to check.
+ * @param {Set}    loginRequiredUrls    - Pages the site answered with the login-required marker.
+ * @param {Object} requestGetParameters - GET parameters generation appends to each request.
  */
 function markLoginRequired(
 	error: CriticalCssErrorDetails,
-	loginRequiredUrls: Set< string >
+	loginRequiredUrls: Set< string >,
+	requestGetParameters: Record< string, string >
 ): CriticalCssErrorDetails {
-	const blocked = [ ...loginRequiredUrls ].some( url => url.startsWith( error.url ) );
-	if ( ! blocked ) {
+	if ( ! loginRequiredUrls.has( pageUrlKey( error.url, requestGetParameters ) ) ) {
 		return error;
 	}
 

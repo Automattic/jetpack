@@ -216,13 +216,43 @@ class Generator {
 			return false;
 		}
 
-		if ( ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
+		if ( self::is_rest_request() || ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
 			return false;
 		}
 
 		$entry_points = array( 'wp-login.php', 'wp-register.php', 'wp-signup.php', 'wp-activate.php', 'wp-trackback.php', 'xmlrpc.php' );
 
 		return ! in_array( $GLOBALS['pagenow'] ?? '', $entry_points, true );
+	}
+
+	/**
+	 * Whether this request is served by the REST API.
+	 *
+	 * REST_REQUEST is only defined on parse_request, long after this class is set up on
+	 * plugins_loaded, so read the request itself rather than the constant.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private static function is_rest_request() {
+		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+			return true;
+		}
+
+		// A site on plain permalinks reaches the REST API through this query parameter instead.
+		if ( isset( $_GET['rest_route'] ) ) {
+			return true;
+		}
+
+		$request_path = wp_parse_url( isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '', PHP_URL_PATH );
+		$rest_path    = wp_parse_url( site_url( rest_get_url_prefix(), 'relative' ), PHP_URL_PATH );
+
+		if ( ! is_string( $request_path ) || ! is_string( $rest_path ) || '/' === $rest_path ) {
+			return false;
+		}
+
+		return 0 === strpos( trailingslashit( $request_path ), trailingslashit( $rest_path ) );
 	}
 
 	/**
