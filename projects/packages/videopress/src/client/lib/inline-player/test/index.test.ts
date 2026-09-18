@@ -1,4 +1,4 @@
-type InlinePlayerModule = typeof import('../index');
+type InlinePlayerModule = typeof import( '../index' );
 
 // The module caches the bundle promise and the preconnect state; every test starts from a fresh copy.
 let mod: InlinePlayerModule;

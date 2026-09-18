@@ -5,6 +5,7 @@ import { IconTooltip } from '@automattic/jetpack-components';
 import QualityControl from '../quality-control/quality-control';
 import { imageCdnSettingsSchema, useImageCdnQuality } from '../lib/stores';
 import { z } from 'zod';
+import { useTooltipLayer } from '$features/module/surface';
 import ModuleSubsection from '$features/ui/module-subsection/module-subsection';
 import { useMutationNotice } from '$features/ui/mutation-notice/mutation-notice';
 
@@ -122,8 +123,10 @@ const Header = () => (
 			offset={ 12 }
 			placement={ 'bottom' }
 			className={ styles[ 'info-icon' ] }
+			popoverClassName={ styles.popover }
 			title={ __( 'Image Quality', 'jetpack-boost' ) }
 			iconSize={ 22 }
+			{ ...useTooltipLayer() }
 		>
 			{ __(
 				'Select the quality for images served by the CDN. Choosing a lower quality will compress your images and load them faster. If you choose lossless, we will not compress your images.',

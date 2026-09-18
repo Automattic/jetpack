@@ -190,6 +190,7 @@ export const CornerstonePagesUpgradeCTA = () => {
 		<div className={ styles.wrapper }>
 			<InterstitialModalCTA
 				identifier="cornerstone-10-pages"
+				showLicenseKeyLink
 				description={ sprintf(
 					/* translators: %d is the number of cornerstone pages. */
 					__( 'Premium users can add up to %d cornerstone pages.', 'jetpack-boost' ),
@@ -265,7 +266,7 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 					__( 'Include %1$d of %2$d default pages (plan limit).', 'jetpack-boost' ),
 					pagesToLoad,
 					missingDefaults.length
-			  )
+				)
 			: sprintf(
 					/* translators: %d is the number of pages that will be included */
 					_n(
@@ -275,7 +276,7 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 						'jetpack-boost'
 					),
 					pagesToLoad
-			  );
+				);
 	};
 
 	const loadDefaultValue = () => {

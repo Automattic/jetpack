@@ -1,4 +1,8 @@
 import { test, expect } from '../../lib/fixtures/test';
+import type { Locator } from '@playwright/test';
+
+const topOf = ( locator: Locator ) =>
+	locator.evaluate( element => element.getBoundingClientRect().top );
 
 test.describe( 'Dashboard modernization', () => {
 	test.beforeAll( async ( { boostUtils } ) => {
@@ -9,6 +13,7 @@ test.describe( 'Dashboard modernization', () => {
 
 	test.afterEach( async ( { boostUtils } ) => {
 		await boostUtils.resetDashboardModernization();
+		await boostUtils.resetDashboardJitm();
 	} );
 
 	test.afterAll( async ( { boostUtils } ) => {
@@ -85,6 +90,85 @@ test.describe( 'Dashboard modernization', () => {
 
 		await page.getByRole( 'tab', { name: 'Overview', exact: true } ).click();
 		await expect( runSpeedTest ).toBeVisible();
+	} );
+
+	test( 'Show a targeted JITM on the modern dashboard', async ( {
+		boostUtils,
+		jetpackBoostPage,
+		page,
+	} ) => {
+		await boostUtils.setDashboardModernization( true );
+		await boostUtils.setDashboardJitm( true );
+		await jetpackBoostPage.visit();
+		const notices = page.locator( '#jp-admin-notices' );
+		const message = notices.locator( '.jitm-card' );
+		const overview = page.locator( '.jetpack-boost-overview' );
+		await expect( message ).toBeVisible();
+		await expect( message ).toContainText( 'Boost dashboard test message' );
+		await expect( overview ).toBeVisible();
+
+		const messageBox = await message.boundingBox();
+		const overviewBox = await overview.boundingBox();
+		expect( messageBox?.x ).toBeCloseTo( overviewBox?.x ?? NaN, 0 );
+		expect( messageBox?.width ).toBeCloseTo( overviewBox?.width ?? NaN, 0 );
+		expect( overviewBox?.y ).toBeGreaterThan(
+			( messageBox?.y ?? 0 ) + ( messageBox?.height ?? 0 )
+		);
+
+		await message.locator( '.jitm-banner__dismiss' ).click();
+		await expect( message ).toBeHidden();
+		await expect
+			.poll( async () => ( await topOf( overview ) ) - ( await topOf( notices ) ) )
+			.toBe( 0 );
+	} );
+
+	test( 'Collapse empty notices on the modern dashboard', async ( {
+		boostUtils,
+		jetpackBoostPage,
+		page,
+	} ) => {
+		await boostUtils.setDashboardModernization( true );
+		await boostUtils.setDashboardJitm( false );
+		await jetpackBoostPage.visit();
+		const notices = page.locator( '#jp-admin-notices' );
+		const overview = page.locator( '.jetpack-boost-overview' );
+		await expect( overview ).toBeVisible();
+		await expect( notices ).toHaveCount( 1 );
+		await expect( notices ).toBeEmpty();
+		await expect
+			.poll( async () => ( await topOf( overview ) ) - ( await topOf( notices ) ) )
+			.toBe( 0 );
+	} );
+
+	test( 'Keep the tabs clickable after scrolling Settings', async ( {
+		boostUtils,
+		jetpackBoostPage,
+		page,
+	} ) => {
+		await boostUtils.setDashboardModernization( true );
+		await page.setViewportSize( { width: 1280, height: 500 } );
+		await jetpackBoostPage.visit();
+		const overviewTab = page.getByRole( 'tab', { name: 'Overview', exact: true } );
+		await page.getByRole( 'tab', { name: 'Settings', exact: true } ).click();
+
+		const firstGroup = page
+			.locator( '.jb-modern-settings' )
+			.getByRole( 'heading', { name: 'Code loading optimization', exact: true } );
+		await expect( firstGroup ).toBeVisible();
+		const box = await overviewTab.boundingBox();
+		expect( box ).not.toBeNull();
+		const { x, y, width, height } = box as NonNullable< typeof box >;
+
+		// Scrolling to the bottom also passes Tips and the z-indexed controls under the tabs.
+		await firstGroup.hover();
+		await page.mouse.wheel( 0, 10000 );
+		await expect
+			.poll( async () => ( await firstGroup.boundingBox() )?.y ?? Infinity )
+			.toBeLessThan( y );
+
+		// Locator clicks scroll the target back into view on retry, which would hide the overlap.
+		await page.mouse.click( x + width / 2, y + height / 2 );
+		await expect( overviewTab ).toHaveAttribute( 'aria-selected', 'true' );
 	} );
 
 	test( 'Keep modern assets off other admin pages', async ( { boostUtils, admin, page } ) => {

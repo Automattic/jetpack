@@ -111,7 +111,7 @@ export function buildTimeSeriesChartData< T extends TimeSeriesData >( {
 			: formatDateRange( {
 					from: resolveBucketStamp( comparison.summary.date_start, zone ),
 					to: resolveBucketStamp( comparison.summary.date_end, zone ),
-			  } ) || __( 'Previous period', 'jetpack-premium-analytics-pkg' ),
+				} ) || __( 'Previous period', 'jetpack-premium-analytics-pkg' ),
 		data: mapTimeSeriesToLineChartData( comparison.data, metricKey, zone ),
 		group: 'primary',
 		options: {

@@ -52,7 +52,7 @@ import {
 	mockPostLikesData,
 	mockStatsSummaryData,
 	mockStatsSummaryComparisonData,
-	mockStatsSubscribersCountsData,
+	buildStatsSubscribersCountsData,
 	mockPlanUsageData,
 	buildEmailRateResponse,
 	buildEmailTimelineResponse,
@@ -246,6 +246,20 @@ export function setReportMockResponse( pathFragment: string, response: unknown |
 	} else {
 		mockResponseOverrides.set( pathFragment, response );
 	}
+	resetForcedStateQueries();
+}
+
+let mockSitePaidSubscribers = 0;
+
+/**
+ * Sets how many paid subscribers the mocked site has. One switch for
+ * `subscribers/counts` and the `stats/subscribers` series, so widgets reading
+ * either cannot disagree about whether the site sells subscriptions.
+ *
+ * @param count - Paid subscribers; 0 for a site with none.
+ */
+export function setMockSitePaidSubscribers( count: number ): void {
+	mockSitePaidSubscribers = Math.max( 0, count );
 	resetForcedStateQueries();
 }
 
@@ -835,7 +849,9 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 		const trend = ( absDay - anchorDay ) * 9;
 		const wave = 420 * Math.sin( absDay / 7 ) + 180 * Math.cos( absDay / 11 );
 		const subscribers = Math.max( 0, Math.round( 900 + trend + wave ) );
-		const paid = Math.max( 0, Math.round( subscribers * 0.32 + 120 * Math.sin( absDay / 6 ) ) );
+		const paid = mockSitePaidSubscribers
+			? Math.max( 0, Math.round( subscribers * 0.32 + 120 * Math.sin( absDay / 6 ) ) )
+			: 0;
 
 		return [ period, subscribers, paid ];
 	} );
@@ -1197,7 +1213,7 @@ function routeStatsReport( subPath: string, requestPath: string ): unknown {
 function getQueryParam( requestPath: string, key: string ): string | undefined {
 	const query = requestPath.split( '?' )[ 1 ];
 
-	return query ? new URLSearchParams( query ).get( key ) ?? undefined : undefined;
+	return query ? ( new URLSearchParams( query ).get( key ) ?? undefined ) : undefined;
 }
 
 /**
@@ -1523,7 +1539,7 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 	}
 
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_COUNTS_PATH ) ) {
-		return mockStatsSubscribersCountsData;
+		return buildStatsSubscribersCountsData( mockSitePaidSubscribers );
 	}
 
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_PATH ) ) {

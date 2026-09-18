@@ -107,7 +107,7 @@ export default function PricingInterstitial( { slug } ) {
 					// Calculate monthly prices from annual if needed
 					fullPricePerMonth: detail.pricingForUi.tiers.upgraded.fullPrice / 12,
 					discountPricePerMonth: detail.pricingForUi.tiers.upgraded.discountPrice / 12,
-			  }
+				}
 			: detail?.pricingForUi;
 	}, [ detail?.pricingForUi ] );
 
@@ -151,7 +151,7 @@ export default function PricingInterstitial( { slug } ) {
 				tier = null,
 				hasDiscount = false,
 			} = options || {};
-			const productSlug = customSlug ? customSlug : config?.bundle ?? slug;
+			const productSlug = customSlug ? customSlug : ( config?.bundle ?? slug );
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
 				product: productSlug,
 				product_slug: getProductSlugForTrackEvent( isFreePlan ),

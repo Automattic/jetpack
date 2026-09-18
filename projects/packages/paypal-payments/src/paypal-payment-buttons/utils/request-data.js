@@ -106,7 +106,7 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 								currency_code: currencyCode || 'USD',
 								value: price,
 							},
-					  } ),
+						} ),
 				...( productDescription ? { description: productDescription } : {} ),
 				...( productId?.trim() ? { product_id: productId.trim() } : {} ),
 				// The block owns the image: leaving it out here removes it at PayPal.
@@ -132,7 +132,7 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 									value: taxAmount,
 								},
 							],
-					  }
+						}
 					: {} ),
 				// FLAT is the only type PayPal takes here, and '0' is a fee it stores.
 				...( handlingEnabled && '' !== ( handlingValue ?? '' )
@@ -147,7 +147,7 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 							shipping: [
 								buildShipping( activeShippingMode, shippingValue, shippingAdditionalValue ),
 							],
-					  }
+						}
 					: {} ),
 				// PayPal turns address collection on for a request that omits this, so it goes out
 				// every time.

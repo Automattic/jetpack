@@ -14,7 +14,7 @@ import SearchSuggestionsControl from 'components/search-suggestions-control';
 import InstantSearchUpsellNudge from 'components/upsell-nudge';
 import { STORE_ID } from 'store';
 
-import 'scss/rna-styles.scss';
+import '../../scss/rna-styles.scss';
 import './style.scss';
 
 const SEARCH_DESCRIPTION = __(

@@ -91,7 +91,7 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 								'jetpack-premium-analytics-pkg'
 							),
 							onRetry: refetch,
-					  } )
+						} )
 					: null
 			}
 			empty={ {
@@ -102,7 +102,7 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 						: __(
 								'Open a post or page report to see its all-time traffic here.',
 								'jetpack-premium-analytics-pkg'
-						  ),
+							),
 			} }
 			renderLoading={ <HeatmapSkeleton /> }
 		>

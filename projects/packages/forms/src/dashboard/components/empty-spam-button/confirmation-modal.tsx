@@ -50,11 +50,11 @@ export default function EmptySpamConfirmationModal( {
 								'jetpack-forms'
 							),
 							formatNumber( totalItemsSpam )
-					  )
+						)
 					: __(
 							'All responses in spam will be deleted forever. This action cannot be undone.',
 							'jetpack-forms'
-					  ) }
+						) }
 			</p>
 		</ConfirmDialog>
 	);

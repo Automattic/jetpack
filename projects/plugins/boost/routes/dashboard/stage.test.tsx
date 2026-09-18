@@ -3,20 +3,19 @@ import 'jetpack-js-tools/jest/setup-jest-dom';
 // Test dependencies come from the plugin, not the wp-build route package.
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
-import { OVERVIEW_MODULES_CHANGE_EVENT } from '../../_inc/overview/lib/modules-state-bridge';
-import { requestDataSync } from '../../_inc/overview/lib/use-modules-state';
+import { MutationObserver, QueryClient } from '@tanstack/react-query';
+import {
+	observeLegacyModulesState,
+	ONBOARDING_SAVE_META,
+} from '../../_inc/overview/lib/modules-state-bridge';
+import { ONBOARDING_CHANGE_EVENT } from '../../_inc/runtime-contract';
 import { stage as Stage } from './stage';
 import type { ReactNode } from 'react';
 
 const mockNavigate = jest.fn();
 
-jest.mock( '../../_inc/overview/lib/use-modules-state', () => ( {
-	...jest.requireActual( '../../_inc/overview/lib/use-modules-state' ),
-	requestDataSync: jest.fn(),
-} ) );
-
 jest.mock( '../../_inc/overview/overview', () => {
-	const { useEffect } = jest.requireActual< typeof import('react') >( 'react' );
+	const { useEffect } = jest.requireActual< typeof import( 'react' ) >( 'react' );
 	return {
 		__esModule: true,
 		default: function MockOverview( {
@@ -82,15 +81,16 @@ beforeEach( () => {
 	Object.assign( window, { wpApiSettings: { root: '/wp-json/', nonce: 'test-nonce' } } );
 	mockNavigate.mockReset();
 	setGettingStarted( false );
-	jest.mocked( requestDataSync ).mockReset();
 } );
 
-afterEach( () => {
-	jest.useRealTimers();
-} );
+const changeOnboarding = ( value: boolean ) =>
+	window.dispatchEvent( new CustomEvent( ONBOARDING_CHANGE_EVENT, { detail: value } ) );
 
-const relayChange = ( key: string ) =>
-	window.dispatchEvent( new CustomEvent( OVERVIEW_MODULES_CHANGE_EVENT, { detail: key } ) );
+const observeLegacyGettingStarted = ( value: boolean ) => {
+	const legacy = new QueryClient();
+	legacy.setQueryData( [ 'getting_started' ], value );
+	return { legacy, stopObserving: observeLegacyModulesState( legacy ) };
+};
 
 const setGettingStarted = ( value: boolean ) => {
 	window.jetpack_boost_ds = {
@@ -233,7 +233,6 @@ describe( 'Boost dashboard stage', () => {
 		expect( getSubpageMount()?.hidden ).toBe( true );
 		expect( getSubpageMount() ).toBeEmptyDOMElement();
 		expect( getSettingsMount() ).not.toBeNull();
-		expect( requestDataSync ).not.toHaveBeenCalled();
 
 		act( () => {
 			window.history.replaceState( null, '', '/?page=jetpack-boost#/getting-started' );
@@ -246,78 +245,81 @@ describe( 'Boost dashboard stage', () => {
 		window.removeEventListener( 'jetpack-boost:route-ready', routeReady );
 	} );
 
-	it( 'keeps the loader through a pending save until the relayed read reports false', async () => {
-		jest.useFakeTimers();
+	it( 'keeps the loader through a pending save until it lands', async () => {
 		setGettingStarted( true );
-		jest
-			.mocked( requestDataSync )
-			.mockResolvedValueOnce( true )
-			.mockResolvedValueOnce( true )
-			.mockResolvedValue( false );
 		window.history.replaceState( null, '', '/?page=jetpack-boost#/getting-started' );
+		const { legacy, stopObserving } = observeLegacyGettingStarted( true );
 		render( <Stage /> );
+		const saves: Array< { resolve: ( value: boolean ) => void; reject: ( e: Error ) => void } > =
+			[];
+		const save = () =>
+			new MutationObserver< boolean, Error, boolean >( legacy, {
+				meta: ONBOARDING_SAVE_META,
+				mutationFn: () =>
+					new Promise< boolean >( ( resolve, reject ) => saves.push( { resolve, reject } ) ),
+				onMutate: () => legacy.setQueryData( [ 'getting_started' ], false ),
+				onSuccess: ( value: boolean ) => legacy.setQueryData( [ 'getting_started' ], value ),
+				onError: () => legacy.setQueryData( [ 'getting_started' ], true ),
+			} )
+				.mutate( false )
+				.catch( () => undefined );
 
 		await act( async () => {
+			void save();
 			window.history.replaceState( null, '', '/?page=jetpack-boost' );
 		} );
+		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
 
-		expect( requestDataSync ).toHaveBeenCalledTimes( 1 );
-		expect( requestDataSync ).toHaveBeenCalledWith( 'getting_started' );
+		await act( async () => saves[ 0 ].reject( new Error( 'Save failed' ) ) );
 		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
 
 		await act( async () => {
-			await jest.advanceTimersByTimeAsync( 30000 );
+			void save();
 		} );
-		expect( requestDataSync ).toHaveBeenCalledTimes( 1 );
+		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
 
-		await act( async () => {
-			relayChange( 'getting_started' );
-		} );
+		await act( async () => saves[ 1 ].resolve( false ) );
+		expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute( 'data-visible', 'true' );
+		expect( screen.queryByRole( 'status', { name: 'Loading' } ) ).not.toBeInTheDocument();
+		stopObserving();
+	} );
 
-		expect( requestDataSync ).toHaveBeenCalledTimes( 2 );
+	it( "follows the webpack app's getting_started value both ways", () => {
+		setGettingStarted( false );
+		render( <Stage /> );
+
+		act( () => changeOnboarding( true ) );
 		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
 
-		await act( async () => {
-			relayChange( 'getting_started' );
-		} );
-
-		expect( requestDataSync ).toHaveBeenCalledTimes( 3 );
-		await expect( screen.findByText( 'Performance Overview' ) ).resolves.toHaveAttribute(
-			'data-visible',
-			'true'
-		);
-		expect( screen.queryByRole( 'status', { name: 'Loading' } ) ).not.toBeInTheDocument();
-
-		await act( async () => {
-			await jest.advanceTimersByTimeAsync( 30000 );
-		} );
-		expect( requestDataSync ).toHaveBeenCalledTimes( 3 );
-	} );
-
-	it( 'clears the loader when a relayed getting_started change reads false', async () => {
-		setGettingStarted( true );
-		jest.mocked( requestDataSync ).mockResolvedValue( false );
-		render( <Stage /> );
-
-		await act( async () => {
-			relayChange( 'modules_state' );
-		} );
-
-		expect( requestDataSync ).not.toHaveBeenCalled();
-		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
-
-		await act( async () => {
-			relayChange( 'getting_started' );
-		} );
-
-		expect( requestDataSync ).toHaveBeenCalledWith( 'getting_started' );
-		await expect( screen.findByText( 'Performance Overview' ) ).resolves.toHaveAttribute(
-			'data-visible',
-			'true'
-		);
+		act( () => changeOnboarding( false ) );
+		expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute( 'data-visible', 'true' );
 		expect( screen.queryByRole( 'status', { name: 'Loading' } ) ).not.toBeInTheDocument();
 	} );
+
+	it.each( [
+		[ 'after Continue', true ],
+		[ 'without navigating', false ],
+	] )(
+		'leaves Purchase Success for Overview %s once the webpack app reads onboarding as done',
+		async ( _, navigate ) => {
+			setGettingStarted( true );
+			window.history.replaceState( null, '', '/?page=jetpack-boost#/purchase-successful' );
+			const { legacy, stopObserving } = observeLegacyGettingStarted( true );
+			render( <Stage /> );
+
+			await act( async () => {
+				await legacy.fetchQuery( { queryKey: [ 'getting_started' ], queryFn: async () => false } );
+			} );
+			if ( navigate ) {
+				act( () => window.history.pushState( null, '', '/?page=jetpack-boost' ) );
+			}
+
+			await expect( screen.findByText( 'Performance Overview' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByRole( 'status', { name: 'Loading' } ) ).not.toBeInTheDocument();
+			stopObserving();
+		}
+	);
 
 	it( 'shows Overview without a loader once onboarding is done', () => {
 		setGettingStarted( false );

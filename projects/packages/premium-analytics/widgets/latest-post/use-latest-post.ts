@@ -67,7 +67,7 @@ export function useLatestPost( authorId = 0 ): UseLatestPostResult {
 				views: postStatsResult.data?.views,
 				likeCount: postStatsResult.data?.like_count,
 				commentCount: postStatsResult.data?.post?.comment_count,
-		  }
+			}
 		: null;
 
 	return { post, isLoading, isFetching, isError, refetch };

@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { toAuthorId } from '@jetpack-premium-analytics/data';
-import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
 	PostHighlightCard,
 	type PostHighlightCardMetric,
@@ -10,9 +9,9 @@ import {
 	type ReportParamsFieldAttributes,
 	WidgetRoot,
 	WidgetState,
+	useWidgetNavigationSearch,
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { postList } from '@wordpress/icons';
 /**
@@ -62,10 +61,10 @@ function LatestPostReport( { authorScoped }: { authorScoped: boolean } ) {
 }
 
 function LatestPostCard( { authorId }: { authorId: number } ) {
-	const { reportParams } = useWidgetRootContext();
 	const { post, isLoading, isFetching, isError, refetch } = useLatestPost( authorId );
-	// The detail page opens on the dashboard's current window.
-	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
+	const detailSearch = useWidgetNavigationSearch( {
+		origin: authorId ? { report: 'authors' } : { report: 'posts', section: 'posts-pages' },
+	} );
 
 	const metrics: PostHighlightCardMetric[] = post
 		? [
@@ -80,7 +79,7 @@ function LatestPostCard( { authorId }: { authorId: number } ) {
 					label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
 					value: post.commentCount,
 				},
-		  ]
+			]
 		: [];
 
 	return (

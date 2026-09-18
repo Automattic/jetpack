@@ -20,7 +20,7 @@ type MockRouteLinkProps = {
 
 // `forwardRef`, because the design system link that renders this forwards a ref.
 jest.mock( '@wordpress/route', () => {
-	const { forwardRef } = jest.requireActual( 'react' ) as typeof import('react');
+	const { forwardRef } = jest.requireActual( 'react' ) as typeof import( 'react' );
 
 	return {
 		Link: forwardRef< HTMLAnchorElement, MockRouteLinkProps >(

@@ -1,12 +1,7 @@
 export type CellPosition = { column: number; row: number };
 
 export type NavigationKey =
-	| 'ArrowLeft'
-	| 'ArrowRight'
-	| 'ArrowUp'
-	| 'ArrowDown'
-	| 'PageUp'
-	| 'PageDown';
+	'ArrowLeft' | 'ArrowRight' | 'ArrowUp' | 'ArrowDown' | 'PageUp' | 'PageDown';
 
 /** A run of columns read as one page in calendar navigation; `end` is exclusive. */
 export type CellBlock = { start: number; end: number };

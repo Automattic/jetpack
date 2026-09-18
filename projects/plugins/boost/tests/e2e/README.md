@@ -50,7 +50,7 @@ However, Boost has some shortcuts to get the environment started and run all the
 
 ## History tooltip rendering regression
 
-`specs/base/history-tooltip-overlap.test.ts` bundles the production history card, Charts, and dashboard styles with deterministic data. It uses the runner's Chromium and includes My Jetpack's global tooltip styles to check the tooltip surface and annotation stacking.
+`specs/base/history-tooltip-overlap.test.ts` bundles the production history card, Charts, and dashboard styles with deterministic data. It uses the runner's Chromium and includes My Jetpack's global tooltip styles to check both daily bar charts, recorded-day tooltip scores and dots, empty days, and narrow-screen tooltip bounds.
 
 After installing the monorepo dependencies, run it without WordPress or authentication setup from this directory:
 
@@ -58,6 +58,15 @@ After installing the monorepo dependencies, run it without WordPress or authenti
 TEST_SITE=fixture NODE_CONFIG='{"testSites":{"fixture":{"url":"http://boost.test","username":"unused","password":"unused"}}}' \
   pnpm run test:run specs/base/history-tooltip-overlap.test.ts --project='jetpack boost e2e' --no-deps
 ```
+
+## Modern Settings tooltip clipping regression
+
+`specs/base/modern-settings-tooltip-clip.test.ts` bundles the modern Settings layout, one
+`@wordpress/ui` card and the Critical CSS premium tooltip, so the card's `overflow: clip` is the
+real one. It uses the runner's Chromium and checks that the popover is whole and on screen at
+1440, 782 and 390 in both directions, that the legacy dashboard keeps its inline popover and its
+70vw mobile width, and that focus and Escape still work. Run it with the command above,
+substituting this spec's path.
 
 ## Fixtures and Utilities
 

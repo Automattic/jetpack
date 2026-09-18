@@ -92,8 +92,7 @@ export function usePostSummary( postId: number ): PostSummary {
 			};
 
 			const entity = core.getEntityRecord( 'postType', type, postId, { context: 'view' } ) as
-				| { link?: string }
-				| undefined;
+				{ link?: string } | undefined;
 
 			return entity?.link;
 		},
