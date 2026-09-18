@@ -379,4 +379,55 @@ class Jetpack_Plan_Test extends TestCase {
 			),
 		);
 	}
+
+	/**
+	 * @dataProvider get_ai_plan_slugs
+	 */
+	#[DataProvider( 'get_ai_plan_slugs' )]
+	public function test_ai_standalone_plan_is_not_classified_as_free( $slug ) {
+		Jetpack_Plan::update_from_site_record( array( 'plan' => array( 'product_slug' => $slug ) ) );
+
+		$plan = Jetpack_Plan::get();
+
+		$this->assertSame( $slug, $plan['product_slug'] );
+		$this->assertSame( 'ai', $plan['class'], "Standalone AI plan '$slug' must be classified as 'ai', not 'free'." );
+	}
+
+	public static function get_ai_plan_slugs() {
+		return array(
+			'yearly'    => array( 'jetpack_ai_yearly' ),
+			'monthly'   => array( 'jetpack_ai_monthly' ),
+			'bi-yearly' => array( 'jetpack_ai_bi_yearly' ),
+		);
+	}
+
+	public function test_ai_plan_supports_ai_assistant_via_active_features() {
+		Jetpack_Plan::update_from_site_record(
+			array(
+				'plan' => array(
+					'product_slug' => 'jetpack_ai_yearly',
+					'features'     => array(
+						'active' => array( 'ai-assistant' ),
+					),
+				),
+			)
+		);
+
+		$this->assertTrue( Jetpack_Plan::supports( 'ai-assistant' ) );
+	}
+
+	public function test_non_ai_plan_does_not_inherit_ai_assistant_from_plan_data() {
+		Jetpack_Plan::update_from_site_record(
+			array(
+				'plan' => array(
+					'product_slug' => 'jetpack_personal',
+					'features'     => array(
+						'active' => array( 'support' ),
+					),
+				),
+			)
+		);
+
+		$this->assertFalse( Jetpack_Plan::supports( 'ai-assistant' ) );
+	}
 }
