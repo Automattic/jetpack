@@ -12,6 +12,7 @@ export default function LicenseKeyLink( { className }: LicenseKeyLinkProps ) {
 	const premiumFeatures = usePremiumFeatures();
 	const hasPlan = premiumFeatures && premiumFeatures.length > 0;
 
+	// Legacy keeps its own BoostAdminPage header button; modern moves redemption beside the prompts.
 	if ( detectMode() !== 'modern' || isWoaHosting() || hasPlan ) {
 		return null;
 	}

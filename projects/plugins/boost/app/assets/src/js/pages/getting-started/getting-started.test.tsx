@@ -43,7 +43,6 @@ test.each( [
 		expect( found[ 0 ]?.getAttribute( 'href' ) ).toBe(
 			links ? 'admin.php?page=my-jetpack#/add-license' : undefined
 		);
-		// Only modern renders the link-style body link; legacy keeps its own header button.
 		expect( found[ 0 ]?.classList.contains( 'is-link' ) ).toBe( links ? linkStyled : undefined );
 	}
 );
