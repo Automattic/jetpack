@@ -62,6 +62,8 @@ class Jetpack_Forms {
 
 		add_action( 'init', '\Automattic\Jetpack\Forms\ContactForm\Util::register_pattern' );
 
+		\Automattic\Jetpack\Forms\Service\Response_File_Links::init();
+
 		// Add hook to delete file attachments when a feedback post is deleted
 		add_action( 'before_delete_post', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'delete_feedback_files' ) );
 
