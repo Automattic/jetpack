@@ -35,9 +35,10 @@
 		top: 0;
 		left: -20px;
 		z-index: 9;
-
-		.warning-tooltip :global(.icon-tooltip-container .components-popover__content) {
-			width: 400px;
-		}
 	}
+}
+
+.warning-tooltip:global(.icon-tooltip-container) :global(.components-popover__content) {
+	width: 400px;
+	color: var(--jp-black);
 }

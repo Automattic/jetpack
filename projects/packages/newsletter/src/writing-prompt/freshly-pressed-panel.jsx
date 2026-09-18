@@ -24,13 +24,7 @@ const FreshlyPressedPost = ( { post, position, siteType } ) => {
 	}, [ post, position, siteType ] );
 
 	return (
-		<Link
-			tone="neutral"
-			href={ post.permalink }
-			openInNewTab
-			rel="noreferrer noopener"
-			onClick={ recordClick }
-		>
+		<Link tone="neutral" href={ post.permalink } openInNewTab onClick={ recordClick }>
 			{ decodeEntities( post.title ) }
 		</Link>
 	);
@@ -53,8 +47,11 @@ const FreshlyPressedPanel = ( { posts, siteType } ) => (
 		>
 			{ __( "Freshly Pressed highlights our team's favorite blog posts.", 'jetpack-newsletter' ) }
 		</Text>
-		<ul
+		<Stack
 			className="wpcom-daily-writing-prompt--freshly-pressed-list"
+			direction="column"
+			gap="sm"
+			render={ <ul /> }
 			aria-label={ __( 'Freshly Pressed posts', 'jetpack-newsletter' ) }
 		>
 			{ posts.map( ( post, position ) => (
@@ -62,7 +59,7 @@ const FreshlyPressedPanel = ( { posts, siteType } ) => (
 					<FreshlyPressedPost post={ post } position={ position } siteType={ siteType } />
 				</li>
 			) ) }
-		</ul>
+		</Stack>
 	</Stack>
 );
 

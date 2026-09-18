@@ -122,17 +122,7 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only pagination parameter.
 		$page_token = isset( $_GET['page_token'] ) ? sanitize_text_field( wp_unslash( $_GET['page_token'] ) ) : '';
 
-		// Cache list API responses for 60 seconds to reduce redundant API calls.
-		$cache_key = 'paypal_list_cache_' . md5( $page_token );
-		$result    = get_transient( $cache_key );
-
-		if ( false === $result ) {
-			$result = PayPal_API_Client::list_resources( self::PER_PAGE, $page_token );
-
-			if ( ! is_wp_error( $result ) ) {
-				set_transient( $cache_key, $result, 60 );
-			}
-		}
+		$result = PayPal_API_Client::list_resources_cached( self::PER_PAGE, $page_token );
 
 		if ( is_wp_error( $result ) ) {
 			$this->api_error = $result;
@@ -158,10 +148,13 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 			}
 		}
 
-		// PayPal paginates by cursor and returns no total, so count what this page holds.
+		// Fall back to the row count when a response has no total.
+		// total_pages is 1 because this table pages by cursor: core's numbered
+		// links navigate by `paged`, which prepare_items() ignores.
 		$this->set_pagination_args(
 			array(
-				'total_items' => count( $this->items ),
+				'total_items' => absint( $result['total_items'] ?? count( $this->items ) ),
+				'total_pages' => 1,
 				'per_page'    => self::PER_PAGE,
 			)
 		);

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { TZDate } from '@date-fns/tz';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
@@ -58,7 +59,7 @@ describe( 'performanceSentence', () => {
 		[ 'no range', undefined ],
 		[ 'an open start', { from: undefined, to: utcDate( 2026, 7, 15 ) } ],
 		[ 'an open end', { from: utcDate( 2026, 7, 9 ), to: undefined } ],
-		[ 'an unparseable bound', { from: new Date( 'nope' ), to: utcDate( 2026, 7, 15 ) } ],
+		[ 'an unparseable bound', { from: new TZDate( 'nope', 'UTC' ), to: utcDate( 2026, 7, 15 ) } ],
 	] )( 'states nothing for %s', ( _label, range ) => {
 		expect( performanceSentence( range ) ).toBeUndefined();
 	} );

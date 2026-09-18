@@ -142,7 +142,6 @@ const WritingPrompt = () => {
 					tone="neutral"
 					href={ readerUrl }
 					openInNewTab={ openReaderInNewTab }
-					rel={ openReaderInNewTab ? 'noreferrer noopener' : undefined }
 					onClick={ recordReaderClick }
 				>
 					{ __( 'Read the blogs and topics you follow', 'jetpack-newsletter' ) }

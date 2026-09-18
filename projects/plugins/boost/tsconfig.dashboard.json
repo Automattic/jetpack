@@ -1,9 +1,18 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"compilerOptions": {
+		"paths": {
+			"$lib/*": [ "./app/assets/src/js/lib/*" ],
+			"$features/*": [ "./app/assets/src/js/features/*" ],
+			"$layout/*": [ "./app/assets/src/js/layout/*" ],
+			"$svg/*": [ "./app/assets/src/js/svg/*" ]
+		}
+	},
 	"include": [
 		"_inc/**/*",
 		"routes/**/*",
 		"packages/init/src/**/*",
+		"app/assets/src/js/lib/modern/**/*",
 		"app/assets/src/js/global.d.ts"
 	]
 }

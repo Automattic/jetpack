@@ -83,6 +83,7 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 								'jetpack'
 							),
 							link: getRedirectUrl( 'wpcom-support-google-analytics' ),
+							wpcomLink: 'https://wordpress.com/support/google-analytics/',
 						} }
 					>
 						{ createInterpolateElement(
@@ -98,7 +99,7 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 												? this.props.siteAdminUrl + 'admin.php?page=jetpack#/stats'
 												: getRedirectUrl( 'calypso-stats-day', {
 														site: this.props.siteRawUrl,
-												  } )
+													} )
 										}
 									/>
 								),

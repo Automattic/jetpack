@@ -8,10 +8,6 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
-use Brain\Monkey\Functions;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-menu/wpcom-admin-menu.php';
 
@@ -57,7 +53,6 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		\Brain\Monkey\setUp();
 
 		global $menu, $submenu;
 		$menu    = array();
@@ -78,7 +73,6 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		Status_Cache::clear();
 		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
 
-		\Brain\Monkey\tearDown();
 		parent::tear_down();
 	}
 
@@ -213,109 +207,88 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Adds a WooCommerce top-level menu item to the global menu fixture.
+	 * Runs the retired Tools > Marketing redirect and reports where it tried to send
+	 * the request.
+	 *
+	 * The function calls `exit` once it has redirected, which would take the test
+	 * runner with it, so this throws from the `wp_redirect` filter to unwind before
+	 * that line is reached.
+	 *
+	 * @param string|null $page The `page` query arg to set, or null to omit it.
+	 * @return string|null The redirect target, or null when the request was left alone.
 	 */
-	private function add_woocommerce_menu_item() {
-		global $menu;
-		$menu[56] = array(
-			'WooCommerce',
-			'manage_woocommerce',
-			'woocommerce',
-			'WooCommerce',
-			'menu-top toplevel_page_woocommerce',
-			'toplevel_page_woocommerce',
-			'dashicons-store',
+	private function capture_retired_marketing_page_redirect( $page ) {
+		unset( $_GET['page'] );
+		if ( null !== $page ) {
+			$_GET['page'] = $page;
+		}
+
+		/**
+		 * Unwinds out of `wp_safe_redirect()` carrying the target, so the `exit` that
+		 * follows it is never reached.
+		 *
+		 * @param string $location The redirect target.
+		 * @return never
+		 * @throws RuntimeException Always, carrying the redirect target.
+		 */
+		$capture = static function ( $location ) {
+			throw new RuntimeException( $location );
+		};
+		add_filter( 'wp_redirect', $capture );
+
+		try {
+			wpcom_redirect_retired_marketing_page();
+			return null;
+		} catch ( RuntimeException $e ) {
+			return $e->getMessage();
+		} finally {
+			remove_filter( 'wp_redirect', $capture );
+			unset( $_GET['page'] );
+		}
+	}
+
+	/**
+	 * The page is gone, so the URL the Calypso sidebar used to point at has to land
+	 * somewhere sensible instead of core's "Cannot load wpcom-marketing-tools." screen.
+	 */
+	public function test_retired_marketing_page_redirects_to_the_dashboard() {
+		$this->assertSame(
+			admin_url(),
+			$this->capture_retired_marketing_page_redirect( 'wpcom-marketing-tools' ),
+			'The retired Tools > Marketing URL must land on the dashboard.'
 		);
 	}
 
 	/**
-	 * Stubs wpcom_get_site_purchases() with a single purchase of the given product slug.
-	 *
-	 * @param string $product_slug The purchased product slug.
+	 * The redirect keys off one slug, so every other admin page has to pass through
+	 * untouched.
 	 */
-	private function stub_site_purchase( $product_slug ) {
-		Functions\when( 'wpcom_get_site_purchases' )->justReturn(
-			array( (object) array( 'product_slug' => $product_slug ) )
+	public function test_retired_marketing_page_redirect_leaves_other_pages_alone() {
+		$this->assertNull(
+			$this->capture_retired_marketing_page_redirect( 'activitypub' ),
+			'An unrelated page slug must not be redirected.'
 		);
 	}
 
 	/**
-	 * Tests that the WooCommerce menu item is relabeled to "Store setup" on Commerce-plan sites.
-	 *
-	 * @dataProvider provide_commerce_plan_slugs
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 *
-	 * @param string $product_slug A Commerce plan product slug.
+	 * Most admin requests carry no `page` at all, and this runs on every one of them.
 	 */
-	#[DataProvider( 'provide_commerce_plan_slugs' )]
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_relabel_woocommerce_menu_on_commerce_plan( $product_slug ) {
-		global $menu;
-
-		$this->add_woocommerce_menu_item();
-		$this->stub_site_purchase( $product_slug );
-
-		wpcom_relabel_woocommerce_menu();
-
-		$this->assertSame( 'Store setup', $menu[56][0] );
-		// The slug is preserved so the menu still points at WooCommerce.
-		$this->assertSame( 'woocommerce', $menu[56][2] );
-		// Only the sidebar label changes; the page title is left untouched.
-		$this->assertSame( 'WooCommerce', $menu[56][3] );
-	}
-
-	/**
-	 * Tests that the WooCommerce menu item keeps its label on non-Commerce-plan sites.
-	 *
-	 * Legacy Woo Express plans are included here: those users keep the "WooCommerce" label.
-	 *
-	 * @dataProvider provide_non_commerce_plan_slugs
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 *
-	 * @param string $product_slug A non-Commerce plan product slug.
-	 */
-	#[DataProvider( 'provide_non_commerce_plan_slugs' )]
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_relabel_woocommerce_menu_keeps_label_without_commerce_plan( $product_slug ) {
-		global $menu;
-
-		$this->add_woocommerce_menu_item();
-		$this->stub_site_purchase( $product_slug );
-
-		wpcom_relabel_woocommerce_menu();
-
-		$this->assertSame( 'WooCommerce', $menu[56][0] );
-	}
-
-	/**
-	 * Data provider for Commerce plan slugs.
-	 *
-	 * @return array<string, array{string}>
-	 */
-	public static function provide_commerce_plan_slugs() {
-		return array(
-			'Commerce'         => array( 'ecommerce-bundle' ),
-			'Commerce monthly' => array( 'ecommerce-bundle-monthly' ),
-			'Commerce 2y'      => array( 'ecommerce-bundle-2y' ),
-			'Commerce 3y'      => array( 'ecommerce-bundle-3y' ),
-			'Commerce trial'   => array( 'ecommerce-trial-bundle-monthly' ),
+	public function test_retired_marketing_page_redirect_leaves_requests_without_a_page_alone() {
+		$this->assertNull(
+			$this->capture_retired_marketing_page_redirect( null ),
+			'A request with no page query arg must not be redirected.'
 		);
 	}
 
 	/**
-	 * Data provider for non-Commerce plan slugs that should keep the "WooCommerce" label.
-	 *
-	 * @return array<string, array{string}>
+	 * WordPress slashes `$_GET` on the way in, so the comparison unslashes before
+	 * matching. Guards against someone dropping the `wp_unslash()` call as redundant.
 	 */
-	public static function provide_non_commerce_plan_slugs() {
-		return array(
-			'Business'          => array( 'business-bundle' ),
-			'WooExpress small'  => array( 'wooexpress-small-bundle-yearly' ),
-			'WooExpress medium' => array( 'wooexpress-medium-bundle-monthly' ),
+	public function test_retired_marketing_page_redirect_unslashes_the_page_arg() {
+		$this->assertSame(
+			admin_url(),
+			$this->capture_retired_marketing_page_redirect( 'wpcom-marketing-tools\\' ),
+			'The slug must still match once the added slashes are stripped.'
 		);
 	}
 }

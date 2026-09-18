@@ -4,11 +4,11 @@ import { forwardRef } from 'react';
 
 /**
  * @typedef {object} WpcomSupportLinkProps
- * @property {string}                    supportLink   - Support link URL.
- * @property {number}                    supportPostId - Support post ID.
- * @property {import('react').ReactNode} [children]    - Support link content.
- * @property {Function}                  [onClick]     - Callback function to be called when the link is clicked.
- * @property {object}                    [style]       - CSS properties to be applied to the link.
+ * @property {string}                    supportLink     - Support link URL.
+ * @property {number}                    [supportPostId] - Support post ID.
+ * @property {import('react').ReactNode} [children]      - Support link content.
+ * @property {Function}                  [onClick]       - Callback function to be called when the link is clicked.
+ * @property {object}                    [style]         - CSS properties to be applied to the link.
  */
 
 export const WpcomSupportLink = forwardRef(

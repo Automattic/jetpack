@@ -1,16 +1,18 @@
 /**
  * Tests for variant pricing helpers.
  *
- * PayPal rejects a line item that carries `unit_amount` at both the product
- * level and the variant level, so per-option prices replace the product-level
- * price and are all-or-nothing across the group.
+ * PayPal rejects a line item that carries `unit_amount` at both the product level
+ * and the variant level, so per-option prices replace the product price. Only the
+ * primary group is priced, and one toggle marks it.
  *
  * @package
  */
 
 import {
+	getLowestVariantPrice,
 	getPrimaryDimension,
 	hasVariantPricing,
+	isVariantPricingOn,
 	validateVariants,
 } from '../../src/paypal-payment-buttons/components/variant-builder';
 
@@ -53,6 +55,57 @@ describe( 'getPrimaryDimension', () => {
 	} );
 } );
 
+// The preview's "From" price, and the price a flat discount is measured against.
+describe( 'getLowestVariantPrice', () => {
+	it( 'returns the cheapest priced option', () => {
+		expect( getLowestVariantPrice( variantsWithPrices( [ '20.00', '10.00', '15.00' ] ) ) ).toBe(
+			'10.00'
+		);
+	} );
+
+	it( 'compares prices as numbers', () => {
+		expect( getLowestVariantPrice( variantsWithPrices( [ '9.00', '10.00' ] ) ) ).toBe( '9.00' );
+		expect( getLowestVariantPrice( variantsWithPrices( [ '100.00', '20.00' ] ) ) ).toBe( '20.00' );
+	} );
+
+	it( 'skips options with no price', () => {
+		expect( getLowestVariantPrice( variantsWithPrices( [ '', '12.00', '   ' ] ) ) ).toBe( '12.00' );
+	} );
+
+	it( 'skips a price that is text', () => {
+		expect( getLowestVariantPrice( variantsWithPrices( [ 'abc', '12.00' ] ) ) ).toBe( '12.00' );
+	} );
+
+	it.each( [
+		[ 'nothing is priced', variantsWithPrices( [ '', '' ] ) ],
+		[ 'there are no options', variantsWithPrices( [] ) ],
+		[ 'no group is primary', { dimensions: [ { name: 'Size', primary: false, options: [] } ] } ],
+		[ 'there are no dimensions', {} ],
+		[ 'variants are null', null ],
+	] )( 'returns null when %s', ( _label, variants ) => {
+		expect( getLowestVariantPrice( variants ) ).toBeNull();
+	} );
+
+	it( 'ignores a cheaper option outside the primary group', () => {
+		const variants = {
+			dimensions: [
+				{
+					name: 'Color',
+					primary: false,
+					options: [ { label: 'Red', unit_amount: { currency_code: 'USD', value: '1.00' } } ],
+				},
+				{
+					name: 'Size',
+					primary: true,
+					options: [ { label: 'S', unit_amount: { currency_code: 'USD', value: '10.00' } } ],
+				},
+			],
+		};
+
+		expect( getLowestVariantPrice( variants ) ).toBe( '10.00' );
+	} );
+} );
+
 describe( 'hasVariantPricing', () => {
 	it( 'is true when any primary option has a price', () => {
 		expect( hasVariantPricing( true, variantsWithPrices( [ '10.00', '' ] ) ) ).toBe( true );
@@ -74,41 +127,90 @@ describe( 'hasVariantPricing', () => {
 	} );
 } );
 
+describe( 'isVariantPricingOn', () => {
+	it( 'is true as soon as a group is primary, before any price is typed', () => {
+		expect( isVariantPricingOn( true, variantsWithPrices( [ '', '' ] ) ) ).toBe( true );
+	} );
+
+	it( 'is false when no group is primary', () => {
+		const variants = variantsWithPrices( [ '10.00' ] );
+		variants.dimensions[ 0 ].primary = false;
+
+		expect( isVariantPricingOn( true, variants ) ).toBe( false );
+	} );
+
+	it( 'is false when variants are disabled', () => {
+		expect( isVariantPricingOn( false, variantsWithPrices( [ '10.00' ] ) ) ).toBe( false );
+	} );
+} );
+
 describe( 'validateVariants', () => {
 	it( 'accepts a group where every option is priced', () => {
 		expect( validateVariants( true, variantsWithPrices( [ '10.00', '20.00' ] ) ) ).toEqual( [] );
 	} );
 
-	it( 'accepts a group where no option is priced', () => {
-		expect( validateVariants( true, variantsWithPrices( [ '', '' ] ) ) ).toEqual( [] );
+	it( 'requires a price on every option once the group is primary', () => {
+		const errors = validateVariants( true, variantsWithPrices( [ '', '' ] ) );
+
+		expect( errors ).toEqual( [
+			{ group: 0, option: 0, field: 'price', message: 'Price is required.' },
+			{ group: 0, option: 1, field: 'price', message: 'Price is required.' },
+		] );
 	} );
 
-	it( 'rejects a partially priced group', () => {
+	it( 'asks for no price at all when no group is primary', () => {
+		const variants = variantsWithPrices( [ '', '' ] );
+		variants.dimensions[ 0 ].primary = false;
+
+		expect( validateVariants( true, variants ) ).toEqual( [] );
+	} );
+
+	it( 'ignores an amount left on a group that is not primary', () => {
+		const variants = {
+			dimensions: [
+				{
+					name: 'Color',
+					primary: true,
+					options: [ { label: 'Black', unit_amount: { currency_code: 'USD', value: '10.00' } } ],
+				},
+				{
+					name: 'Size',
+					primary: false,
+					options: [ { label: 'S', unit_amount: { currency_code: 'USD', value: 'nonsense' } } ],
+				},
+			],
+		};
+
+		expect( validateVariants( true, variants ) ).toEqual( [] );
+	} );
+
+	it( 'rejects a partially priced group, against the option that is missing a price', () => {
 		const errors = validateVariants( true, variantsWithPrices( [ '10.00', '' ] ) );
 
-		expect( errors ).toHaveLength( 1 );
-		expect( errors[ 0 ] ).toContain( 'required once any option in the group has its own price' );
+		expect( errors ).toEqual( [
+			{ group: 0, option: 1, field: 'price', message: 'Price is required.' },
+		] );
 	} );
 
 	it( 'rejects a non-positive price', () => {
 		const errors = validateVariants( true, variantsWithPrices( [ '10.00', '0' ] ) );
 
 		expect( errors ).toHaveLength( 1 );
-		expect( errors[ 0 ] ).toContain( 'must be a positive number' );
+		expect( errors[ 0 ].message ).toContain( 'must be a positive number' );
 	} );
 
 	it( 'rejects more than two decimals on an option price', () => {
 		const errors = validateVariants( true, variantsWithPrices( [ '10.00', '10.005' ] ) );
 
 		expect( errors ).toHaveLength( 1 );
-		expect( errors[ 0 ] ).toContain( 'at most 2 decimal places' );
+		expect( errors[ 0 ].message ).toContain( 'at most 2 decimal places' );
 	} );
 
 	it( 'rejects a decimal option price in a currency PayPal prices whole', () => {
 		const errors = validateVariants( true, variantsWithPrices( [ '1500', '1500.50' ] ), 'JPY' );
 
 		expect( errors ).toHaveLength( 1 );
-		expect( errors[ 0 ] ).toContain( 'Prices in JPY are whole numbers' );
+		expect( errors[ 0 ].message ).toContain( 'Prices in JPY are whole numbers' );
 	} );
 
 	it( 'accepts whole-number option prices in a currency PayPal prices whole', () => {
@@ -117,12 +219,33 @@ describe( 'validateVariants', () => {
 		);
 	} );
 
+	it( 'wants something to price in a group that carries the prices', () => {
+		const errors = validateVariants( true, {
+			dimensions: [ { name: 'Size', primary: true, options: [] } ],
+		} );
+
+		expect( errors ).toEqual( [
+			{
+				group: 0,
+				option: null,
+				field: 'options',
+				message: 'Add at least one option to price.',
+			},
+		] );
+	} );
+
 	it( 'still requires group names and option labels', () => {
 		const errors = validateVariants( true, {
 			dimensions: [ { name: '', primary: true, options: [ { label: '' } ] } ],
 		} );
 
-		expect( errors ).toHaveLength( 2 );
+		// The group name error belongs to no single option, so it carries option: null.
+		// The group is primary, so its option needs a price too.
+		expect( errors ).toEqual( [
+			{ group: 0, option: null, field: 'name', message: 'Variant name is required.' },
+			{ group: 0, option: 0, field: 'label', message: 'Option name is required.' },
+			{ group: 0, option: 0, field: 'price', message: 'Price is required.' },
+		] );
 	} );
 
 	it( 'returns no errors when variants are disabled', () => {

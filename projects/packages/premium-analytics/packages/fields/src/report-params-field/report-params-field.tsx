@@ -113,13 +113,13 @@ export function reportParamsAttributeField<
 	Attributes extends Partial< ReportParamsFieldAttributes >,
 >( options: ReportParamsFieldOptions = {} ): WidgetAttributeField< Attributes > {
 	return {
-		// Only the key needs the cast: `Attributes` is unresolved here, so TS
-		// cannot see that it carries `reportParams`.
+		// `Attributes` is unresolved here, so TS cannot see that it carries
+		// `reportParams`: the key and the control both need the cast.
 		id: 'reportParams' as keyof Attributes & string,
 		label: __( 'Date range', 'jetpack-premium-analytics-pkg' ),
 		// The host renders a high-relevance field in the widget's own header.
 		relevance: 'high',
-		Edit: createReportParamsField( options ),
+		Edit: createReportParamsField( options ) as WidgetAttributeField< Attributes >[ 'Edit' ],
 	};
 }
 

@@ -1,4 +1,5 @@
-import { flattenEarningsBreakdown, getEarningsStatus } from '../fields';
+import { filterSortAndPaginate, type View } from '@jetpack-premium-analytics/externals';
+import { flattenEarningsBreakdown, getEarningsStatus, getWordAdsHistoryFields } from '../fields';
 
 describe( 'getEarningsStatus', () => {
 	it( 'maps known WordAds statuses to labels', () => {
@@ -45,5 +46,70 @@ describe( 'flattenEarningsBreakdown', () => {
 		} );
 
 		expect( rows[ 0 ].status ).toBeUndefined();
+	} );
+} );
+
+describe( 'getWordAdsHistoryFields', () => {
+	const rows = [
+		{ id: '2025-12', period: '2025-12', amount: 10, pageviews: 100, status: 1 },
+		{ id: '2026-09', period: '2026-09', amount: 30, pageviews: 300, status: 0 },
+	];
+	const fields = getWordAdsHistoryFields();
+	const view = {
+		type: 'table',
+		page: 1,
+		perPage: 10,
+		fields: fields.map( field => field.id ),
+	} as View;
+
+	// The report page enables DataViews search, which matches only fields marked
+	// `enableGlobalSearch` — with none marked, every query empties the table.
+	it.each( [
+		[ 'a year', '2026' ],
+		[ 'a raw period key', '2026-09' ],
+	] )( 'searches %s', ( _label, search ) => {
+		const { data } = filterSortAndPaginate( rows, { ...view, search }, fields );
+
+		expect( data.map( row => row.period ) ).toEqual( [ '2026-09' ] );
+	} );
+
+	it( 'does not search status labels', () => {
+		const { data } = filterSortAndPaginate( rows, { ...view, search: 'Paid' }, fields );
+
+		expect( data ).toEqual( [] );
+	} );
+
+	it.each( [
+		[ 'Paid', '2025-12' ],
+		[ 'Unpaid', '2026-09' ],
+	] )( 'filters to exactly "%s"', ( value, period ) => {
+		const { data } = filterSortAndPaginate(
+			rows,
+			{ ...view, filters: [ { field: 'status', operator: 'is', value } ] } as View,
+			fields
+		);
+
+		expect( data.map( row => row.period ) ).toEqual( [ period ] );
+	} );
+
+	it( 'offers every status but a8c-only in the Status filter', () => {
+		const status = fields.find( field => field.id === 'status' );
+
+		expect( status?.elements?.map( element => element.value ) ).toEqual( [
+			'Unpaid',
+			'Paid',
+			'Pending (Missing Tax Info)',
+			'Pending (Invalid PayPal)',
+		] );
+	} );
+
+	it( 'sorts periods chronologically, newest first', () => {
+		const { data } = filterSortAndPaginate(
+			rows,
+			{ ...view, sort: { field: 'period', direction: 'desc' } } as View,
+			fields
+		);
+
+		expect( data.map( row => row.period ) ).toEqual( [ '2026-09', '2025-12' ] );
 	} );
 } );

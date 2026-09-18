@@ -36,7 +36,7 @@ export const API_MANAGED_BUTTONS_FLAG = 'paypal-payments-api-managed-buttons';
 function ApiManagedReadOnly( { attributes } ) {
 	const blockProps = useBlockProps();
 	const {
-		colorScheme,
+		format,
 		productName,
 		price,
 		currencyCode,
@@ -45,10 +45,14 @@ function ApiManagedReadOnly( { attributes } ) {
 		variantsEnabled,
 		variants,
 		imageUrl,
+		buttonText,
+		linkText,
+		qrShowCaption,
+		qrCaption,
 	} = attributes;
 
 	return (
-		<div { ...blockProps } data-color-scheme={ colorScheme || 'auto' }>
+		<div { ...blockProps }>
 			<Notice status="info" isDismissible={ false }>
 				{ __(
 					'This button is managed through your PayPal account and cannot be edited right now.',
@@ -57,6 +61,7 @@ function ApiManagedReadOnly( { attributes } ) {
 			</Notice>
 			<div className="jetpack-paypal-payment-buttons__preview">
 				<PayPalButtonPreview
+					format={ format }
 					productName={ productName }
 					price={ price }
 					currencyCode={ currencyCode }
@@ -65,6 +70,11 @@ function ApiManagedReadOnly( { attributes } ) {
 					variantsEnabled={ variantsEnabled }
 					variants={ variants }
 					imageUrl={ imageUrl }
+					buttonText={ buttonText }
+					linkText={ linkText }
+					qrShowCaption={ qrShowCaption }
+					qrCaption={ qrCaption }
+					attributes={ attributes }
 				/>
 			</div>
 		</div>

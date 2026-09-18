@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.12] - 2026-09-09
+### Fixed
+- Admin page layout: Stop the flex chain at the boot stage again, so a dashboard's sidebar panel keeps its side-by-side layout on boot 0.21 and later. [#52096]
+
 ## [1.2.11] - 2026-09-08
 ### Changed
 - Update package dependencies. [#51701]
@@ -565,6 +569,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Node 16.7.0 in tooling. This shouldn't change the behavior of the code itself.
 
+[1.2.12]: https://github.com/Automattic/jetpack-base-styles/compare/1.2.11...1.2.12
 [1.2.11]: https://github.com/Automattic/jetpack-base-styles/compare/1.2.10...1.2.11
 [1.2.10]: https://github.com/Automattic/jetpack-base-styles/compare/1.2.9...1.2.10
 [1.2.9]: https://github.com/Automattic/jetpack-base-styles/compare/1.2.8...1.2.9

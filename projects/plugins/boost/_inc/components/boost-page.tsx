@@ -4,15 +4,15 @@ import { Tabs } from '@wordpress/ui';
 import clsx from 'clsx';
 import './boost-page.scss';
 import type { ReactNode } from 'react';
-
-export type BoostTab = 'overview' | 'settings';
+import type { Tab } from '../runtime-contract';
 
 type Props = {
-	activeTab: BoostTab;
+	activeTab: Tab;
 	isSubpage: boolean;
 	onTabChange: ( tab: string | null ) => void;
 	children: ReactNode;
 	subpage: ReactNode;
+	actions?: ReactNode;
 };
 
 export default function BoostPage( {
@@ -21,11 +21,14 @@ export default function BoostPage( {
 	onTabChange,
 	children,
 	subpage,
+	actions,
 }: Props ) {
 	return (
 		<AdminPage
 			className={ clsx( 'jetpack-boost-page', { 'jetpack-boost-page--subpage': isSubpage } ) }
 			title="Boost"
+			subTitle={ __( 'Improve your site speed and performance.', 'jetpack-boost' ) }
+			actions={ actions }
 			apiRoot={ wpApiSettings.root }
 			apiNonce={ wpApiSettings.nonce }
 			showFooter={ ! isSubpage }
@@ -38,7 +41,11 @@ export default function BoostPage( {
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-boost' ) }</Tabs.Tab>
 						</Tabs.List>
 					</div>
-					<div className="jetpack-boost-page__content">{ children }</div>
+					<div className="jetpack-boost-page__content">
+						{ /* The JITM script moves its card here, since the page template hides the default spot. */ }
+						<div id="jp-admin-notices" className="jetpack-boost-page__notices" />
+						{ children }
+					</div>
 				</Tabs.Root>
 			</div>
 			{ subpage }

@@ -431,15 +431,6 @@
 
 		.dops-card.is-compact {
 			flex-grow: 0;
-
-			a.dops-notice__action {
-				margin-left: 0;
-				padding-left: 0;
-
-				@include breakpoints.breakpoint( "<480px" ) {
-					text-transform: none;
-				}
-			}
 		}
 	}
 

@@ -113,6 +113,22 @@ class Jetpack_Email_Design_Editor {
 	 */
 	public static function on_load() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+		add_filter( 'admin_body_class', array( __CLASS__, 'add_fullscreen_body_class' ) );
+	}
+
+	/**
+	 * Put the screen in fullscreen mode before the bundle has loaded.
+	 *
+	 * `wp-editor` hides the admin menu on this class, and the editor sets it from a React
+	 * component — so it cannot apply until the bundle has loaded and the bootstrap has answered,
+	 * and the page visibly reflows a few seconds in. Setting it here makes fullscreen the layout
+	 * from first paint. The admin bar is untouched, which keeps a way out if the editor fails.
+	 *
+	 * @param string $classes Space-separated admin body classes.
+	 * @return string
+	 */
+	public static function add_fullscreen_body_class( $classes ) {
+		return trim( $classes . ' is-fullscreen-mode' );
 	}
 
 	/**
@@ -182,16 +198,19 @@ class Jetpack_Email_Design_Editor {
 			#wpfooter { display: none; }
 			#' . self::HANDLE . ' {
 				position: fixed;
-				/* Above #adminmenuwrap (9990) and below #wpadminbar (100000): the editor paints
-				   notices and popovers against the viewport, so without this they land behind
-				   the admin menu. */
-				z-index: 9991;
+				/* Below #wpadminbar (99999) so the editor\'s own popovers and snackbars, which ask
+				   for 100000, cannot cover it — this caps everything inside. The admin menu is
+				   hidden on this screen, so there is nothing else left to clear. */
+				z-index: 99990;
 				inset-block: var(--wp-admin--admin-bar--height, 32px) 0;
-				inset-inline: 160px 0;
+				inset-inline: 0;
 			}
-			body.folded #' . self::HANDLE . ' { inset-inline-start: 36px; }
-			@media screen and (max-width: 782px) {
-				#' . self::HANDLE . ' { inset-inline-start: 0; }
+			/* wp-edit-post pins this and the screen does not load it, so without this the
+			   snackbar renders in flow beside the header instead of over the canvas. */
+			#' . self::HANDLE . ' .components-editor-notices__snackbar {
+				position: absolute;
+				inset-block-end: 20px;
+				inset-inline-start: 20px;
 			}
 		';
 	}

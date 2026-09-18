@@ -10,6 +10,7 @@ import {
 	reportingTimeZone,
 	type DateRange,
 	type PrimaryPresetId,
+	type TZDate,
 } from '@jetpack-premium-analytics/datetime';
 import { isValid } from 'date-fns';
 
@@ -20,7 +21,7 @@ import { isValid } from 'date-fns';
  * @param timezone - The timezone used by the picker.
  * @return The parsed date, or undefined when it is missing or malformed.
  */
-export function decodeDateSearchParam( value?: string, timezone?: string ): Date | undefined {
+export function decodeDateSearchParam( value?: string, timezone?: string ): TZDate | undefined {
 	if ( ! value ) {
 		return undefined;
 	}

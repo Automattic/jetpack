@@ -25,14 +25,29 @@ class Jetpack_Mu_Wpcom {
 	// Gutenberg plugin releases known to break with React 19.
 	const REACT_19_INCOMPATIBLE_GUTENBERG = array( '23.9.0' );
 
-	// Themes (by template slug) and plugins (by basename) known to break with React 19.
-	const REACT_19_INCOMPATIBLE_THEMES  = array( 'divi', 'woodmart' );
+	/*
+	 * Themes (by template slug) and plugins (by basename) known to break with React 19,
+	 * each mapped to the release that fixed it. Null means no fixed release exists yet.
+	 */
+	const REACT_19_INCOMPATIBLE_THEMES  = array(
+		'divi'     => null,
+		'woodmart' => '8.6.1',
+	);
 	const REACT_19_INCOMPATIBLE_PLUGINS = array(
-		'wp-table-builder/wp-table-builder.php',
-		'ultimate-blocks/ultimate-blocks.php',
-		'beehive-analytics/beehive-analytics.php',
-		'xspeed/xspeed.php',
-		'classified-listing/classified-listing.php',
+		'wp-table-builder/wp-table-builder.php'          => null,
+		'ultimate-blocks/ultimate-blocks.php'            => '3.6.0',
+		'beehive-analytics/beehive-analytics.php'        => null,
+		'xspeed/xspeed.php'                              => null,
+		'classified-listing/classified-listing.php'      => null,
+		'advanced-coupons-for-woocommerce-free/advanced-coupons-for-woocommerce-free.php' => null,
+		'advanced-coupons-for-woocommerce/advanced-coupons-for-woocommerce.php' => null,
+		'sb-analytics/sb-analytics-pro.php'              => null,
+		'brave-popup-builder/index.php'                  => null,
+		'bravepopup-pro/index.php'                       => null,
+		'astra-sites/astra-sites.php'                    => null,
+		'llms-full-txt-generator/llms-txt-generator.php' => null,
+		'wp-post-author/aft-wp-post-author.php'          => null,
+		'adminify/adminify.php'                          => null,
 	);
 
 	/**
@@ -91,10 +106,14 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_newspack_blocks' ) );
 
+		// At mu-plugin scope, because Comments::is_enabled() is resolved at plugins_loaded on both hosts.
+		add_filter( 'jetpack_comments_new_hotness', array( __CLASS__, 'enable_jetpack_comments_for_sticker' ) );
+
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_jetpack_ai' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_jetpack_comments_routes' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			// Registered at mu-plugin scope rather than on plugins_loaded, because
@@ -430,13 +449,10 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'init', array( \Automattic\Jetpack\Help_Center\Help_Center::class, 'init' ), 10, 0 );
 		}
 
-		// Every admin, not only WordPress.com users: one who cannot renew is told
-		// whose plan it is, and the legacy notice the feature replaces stands
-		// down only once this has loaded. Agency-managed sites keep their plans
-		// out of the customer's hands, so they stay excluded.
-		if ( ! is_fully_managed_agency_site() ) {
-			require_once __DIR__ . '/features/expiry-notices/expiry-notices.php';
-		}
+		// Every admin, not only WordPress.com users: one who cannot renew, such as
+		// the client of an agency-managed site, is told whose plan it is, and the
+		// legacy notice the feature replaces stands down only once this has loaded.
+		require_once __DIR__ . '/features/expiry-notices/expiry-notices.php';
 
 		if ( ! is_wpcom_user() ) {
 			require_once __DIR__ . '/features/replace-site-visibility/hide-site-visibility.php';
@@ -447,7 +463,6 @@ class Jetpack_Mu_Wpcom {
 		}
 		require_once __DIR__ . '/features/ai-assistant-banner/ai-assistant-banner.php';
 		require_once __DIR__ . '/features/html-block-restricted-tags/html-block-restricted-tags.php';
-		require_once __DIR__ . '/features/marketing/marketing.php';
 		require_once __DIR__ . '/features/pages/pages.php';
 		require_once __DIR__ . '/features/replace-site-visibility/replace-site-visibility.php';
 		require_once __DIR__ . '/features/stats/stats.php';
@@ -462,10 +477,10 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-media/wpcom-export-media-files.php';
 		require_once __DIR__ . '/features/wpcom-options-general/options-general.php';
 		require_once __DIR__ . '/features/wpcom-plugins/wpcom-plugins.php';
+		require_once __DIR__ . '/features/wpcom-plugins/wpcom-marketplace-tab.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
-		require_once __DIR__ . '/features/wpcom-content-research/class-wpcom-content-research.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-tracking.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
@@ -826,6 +841,38 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Register Jetpack Comments' browser-facing routes ahead of the comment
+	 * experience gates. admin-ajax is is_admin(), and a public-api request runs
+	 * plugins_loaded on the wrong blog, so load_verbum_comments() skips both.
+	 * Runs on every request, blog 1 and P2s included, on purpose: the routes
+	 * gate themselves on the feature filter, as Posts_To_Podcast_Endpoint does.
+	 */
+	public static function load_jetpack_comments_routes() {
+		if ( class_exists( '\Automattic\Jetpack\Comments\Checkpoint_Endpoint' ) ) {
+			\Automattic\Jetpack\Comments\Checkpoint_Endpoint::init();
+		}
+	}
+
+	/**
+	 * Turn on the rebuilt Jetpack Comments form for a Simple or Atomic site
+	 * carrying the rollout sticker.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $enabled Whether it is already on.
+	 * @return bool
+	 */
+	public static function enable_jetpack_comments_for_sticker( $enabled ) {
+		if ( $enabled ) {
+			return true;
+		}
+
+		$blog_id = (int) get_wpcom_blog_id();
+
+		return $blog_id > 0 && wpcom_has_blog_sticker( 'comment-new-hotness', $blog_id );
+	}
+
+	/**
 	 * Load Verbum Comments Settings.
 	 */
 	public static function load_verbum_comments_admin() {
@@ -994,7 +1041,7 @@ class Jetpack_Mu_Wpcom {
 			} elseif ( self::has_react_19_incompatible_extension() ) {
 				$is_enabled = false;
 			} else {
-				$current_segment = 20; // Segment of Atomic sites in the experiment, in %.
+				$current_segment = 40; // Segment of Atomic sites in the experiment, in %.
 				$site_segment    = $site_id % 100;
 
 				/*
@@ -1109,17 +1156,45 @@ class Jetpack_Mu_Wpcom {
 			return true;
 		}
 
-		if ( in_array( strtolower( get_template() ), self::REACT_19_INCOMPATIBLE_THEMES, true ) ) {
-			return true;
+		$template = strtolower( get_template() );
+		if ( array_key_exists( $template, self::REACT_19_INCOMPATIBLE_THEMES ) ) {
+			$theme_version = (string) wp_get_theme( get_template() )->get( 'Version' );
+
+			if ( self::is_react_19_incompatible_version( $theme_version, self::REACT_19_INCOMPATIBLE_THEMES[ $template ] ) ) {
+				return true;
+			}
 		}
 
-		foreach ( self::REACT_19_INCOMPATIBLE_PLUGINS as $plugin_file ) {
-			if ( is_plugin_active( $plugin_file ) ) {
+		foreach ( self::REACT_19_INCOMPATIBLE_PLUGINS as $plugin_file => $fixed_in ) {
+			if ( ! is_plugin_active( $plugin_file ) ) {
+				continue;
+			}
+
+			$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_file, false, false );
+
+			if ( self::is_react_19_incompatible_version( (string) $plugin_data['Version'], $fixed_in ) ) {
 				return true;
 			}
 		}
 
 		return false;
+	}
+
+	/**
+	 * Whether an installed version predates the release that fixed its React 19 incompatibility.
+	 *
+	 * An unreadable version counts as incompatible, so a missing header can't opt a site in.
+	 *
+	 * @param string      $version  The installed version.
+	 * @param string|null $fixed_in The release that fixed the incompatibility, or null if there is none.
+	 * @return bool
+	 */
+	private static function is_react_19_incompatible_version( $version, $fixed_in ) {
+		if ( null === $fixed_in || '' === $version ) {
+			return true;
+		}
+
+		return version_compare( $version, $fixed_in, '<' );
 	}
 
 	/**

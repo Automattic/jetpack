@@ -1,20 +1,23 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
-import BoostPage, { type BoostTab } from '../../_inc/components/boost-page';
+import BoostPage from '../../_inc/components/boost-page';
+import Overview from '../../_inc/overview/overview';
+import {
+	getSubpage,
+	LOCATION_CHANGE_EVENT,
+	LOCATION_EVENTS,
+	ONBOARDING_CHANGE_EVENT,
+	SETTINGS_SLOT_ID,
+	SUBPAGE_SLOT_ID,
+} from '../../_inc/runtime-contract';
+import type { Tab } from '../../_inc/runtime-contract';
 import './route.scss';
+import type { ReactNode } from 'react';
 
-const SUBPAGES = [
-	'cache-debug-log',
-	'critical-css-advanced',
-	'getting-started',
-	'purchase-successful',
-] as const;
-
-type Subpage = ( typeof SUBPAGES )[ number ];
-
-const LOCATION_CHANGE_EVENT = 'jetpack-boost:location-change';
 const HISTORY_WRAPPED_KEY = '__jetpackBoostLocationChangeWrapped';
 
 // Leave the wrapper installed for the page lifetime so later subscriptions reuse it.
@@ -39,25 +42,32 @@ function wrapHistoryOnce() {
 
 function subscribeToLocationChange( listener: () => void ) {
 	wrapHistoryOnce();
-	const events = [ 'hashchange', 'popstate', LOCATION_CHANGE_EVENT ];
-	events.forEach( event => window.addEventListener( event, listener ) );
-	return () => events.forEach( event => window.removeEventListener( event, listener ) );
-}
-
-function getSubpage( hash: string ): Subpage | null {
-	const path = hash.replace( /^#\/?/, '' ).split( '?' )[ 0 ].replace( /\/$/, '' );
-	return SUBPAGES.find( subpage => subpage === path ) ?? null;
+	LOCATION_EVENTS.forEach( event => window.addEventListener( event, listener ) );
+	return () => LOCATION_EVENTS.forEach( event => window.removeEventListener( event, listener ) );
 }
 
 function Stage() {
+	const [ queryClient ] = useState( () => new QueryClient() );
+
+	return (
+		<QueryClientProvider client={ queryClient }>
+			<DashboardStage />
+		</QueryClientProvider>
+	);
+}
+
+function DashboardStage() {
 	const search = useSearch( { from: '/' as never, strict: false } ) as { tab?: string };
 	const navigate = useNavigate();
-	const [ queryClient ] = useState( () => new QueryClient() );
 	const [ subpage, setSubpage ] = useState( () => getSubpage( window.location.hash ) );
 	const lastSubpage = useRef( subpage );
-	const activeTab: BoostTab = search.tab === 'settings' ? 'settings' : 'overview';
+	const [ onboarding, setOnboarding ] = useState(
+		() => window.jetpack_boost_ds?.getting_started?.value === true
+	);
+	const [ headerAction, setHeaderAction ] = useState< ReactNode >( null );
+	const activeTab: Tab = search.tab === 'settings' ? 'settings' : 'overview';
 	const goToTab = useCallback(
-		( next: BoostTab, replace = false ) => {
+		( next: Tab, replace = false ) => {
 			navigate( {
 				search: { tab: next === 'settings' ? 'settings' : undefined },
 				replace,
@@ -89,18 +99,39 @@ function Stage() {
 		} );
 	}, [ goToTab ] );
 
+	useEffect( () => {
+		const onOnboardingChange = ( event: Event ) =>
+			setOnboarding( ( event as CustomEvent< boolean > ).detail );
+		window.addEventListener( ONBOARDING_CHANGE_EVENT, onOnboardingChange );
+		return () => window.removeEventListener( ONBOARDING_CHANGE_EVENT, onOnboardingChange );
+	}, [] );
+
 	return (
 		<BoostPage
 			activeTab={ activeTab }
 			isSubpage={ subpage !== null }
 			onTabChange={ onTabChange }
-			subpage={ <div id="jb-subpage-mount" hidden={ subpage === null } /> }
+			actions={ headerAction }
+			subpage={ <div id={ SUBPAGE_SLOT_ID } hidden={ subpage === null } /> }
 		>
-			<Tabs.Panel value="overview">
-				<QueryClientProvider client={ queryClient }>{ null }</QueryClientProvider>
+			<Tabs.Panel value="overview" keepMounted>
+				{ onboarding ? (
+					<div
+						className="jetpack-boost-dashboard__loading"
+						role="status"
+						aria-label={ __( 'Loading', 'jetpack-boost' ) }
+					>
+						<Spinner />
+					</div>
+				) : (
+					<Overview
+						isVisible={ activeTab === 'overview' && subpage === null }
+						onHeaderActionChange={ setHeaderAction }
+					/>
+				) }
 			</Tabs.Panel>
 			<Tabs.Panel value="settings" keepMounted>
-				<div id="jb-settings-tab-mount" />
+				<div id={ SETTINGS_SLOT_ID } />
 			</Tabs.Panel>
 		</BoostPage>
 	);

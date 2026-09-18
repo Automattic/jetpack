@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Charts: Keep keyboard focus on the first or last data point when an arrow key reaches the end of a chart, return focus to the chart when Escape closes a tooltip, stop a focused chart from swallowing keys it does not use such as Page Down, and close the tooltip when the series it describes is hidden.

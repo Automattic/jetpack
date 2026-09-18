@@ -4,6 +4,7 @@
 import { reportingTimeZone } from './reporting-time-zone';
 import { readSiteTimestamp } from './site-timestamp';
 import { toLocalTZ } from './tz';
+import type { TZDate } from '@date-fns/tz';
 
 /**
  * Parse a timestamp in the timezone reports are read in.
@@ -14,9 +15,11 @@ import { toLocalTZ } from './tz';
  * @param value - The raw timestamp, or a `Date`.
  * @return The instant, or `undefined` when the value is missing or malformed.
  */
-export function parseSiteDateTime( value: unknown ): Date | undefined {
+export function parseSiteDateTime( value: unknown ): TZDate | undefined {
 	if ( value instanceof Date ) {
-		return isNaN( value.getTime() ) ? undefined : value;
+		// Re-anchored, not returned as-is: the same instant, read in the reporting
+		// zone whatever zone the caller's `Date` carried.
+		return isNaN( value.getTime() ) ? undefined : toLocalTZ( value.getTime(), reportingTimeZone() );
 	}
 
 	if ( typeof value !== 'string' ) {
@@ -31,6 +34,5 @@ export function parseSiteDateTime( value: unknown ): Date | undefined {
 
 	const parsed = toLocalTZ( timestamp.value, reportingTimeZone() );
 
-	// A plain `Date`, so callers keep reading its parts in their own zone as they did.
-	return isNaN( parsed.getTime() ) ? undefined : new Date( parsed.getTime() );
+	return isNaN( parsed.getTime() ) ? undefined : parsed;
 }

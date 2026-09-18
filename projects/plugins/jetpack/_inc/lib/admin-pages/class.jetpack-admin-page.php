@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Identity_Crisis;
+use Automattic\Jetpack\Plugin\Footer_Links;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -380,8 +381,9 @@ abstract class Jetpack_Admin_Page {
 						<span class="jp-footer__module-name"><?php esc_html_e( 'Jetpack', 'jetpack' ); ?></span>
 					</div>
 					<?php if ( ! ( new Host() )->is_wpcom_platform() ) : ?>
+						<?php $products_section = Footer_Links::get_my_jetpack_products_section(); ?>
 					<div class="jp-footer__menu">
-						<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/products' ) ); ?>" class="jp-footer__menu-item"><?php echo esc_html_x( 'Products', 'Navigation item', 'jetpack' ); ?></a>
+						<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/' . $products_section['slug'] ) ); ?>" class="jp-footer__menu-item"><?php echo esc_html( $products_section['label'] ); ?></a>
 						<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/help' ) ); ?>" class="jp-footer__menu-item"><?php echo esc_html_x( 'Help', 'Navigation item', 'jetpack' ); ?></a>
 					</div>
 					<?php endif; ?>

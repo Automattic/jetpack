@@ -1,9 +1,7 @@
 /**
  * Tests for PayPal Payment Buttons validation utilities.
  *
- * Covers client-side validation functions extracted from edit.js:
- * validatePrice, validateProductName, validateDescription,
- * getUserFriendlyError, and the VALID_CURRENCY_CODES constant.
+ * Tests for the client-side form validators.
  *
  * @package
  */
@@ -20,11 +18,25 @@ import {
 	validatePrice,
 	validateProductName,
 	validateDescription,
+	validateMoney,
+	validatePercentage,
+	validateDiscountPercentage,
+	validateDiscountAmount,
+	validateReturnUrl,
 	getUserFriendlyError,
-	VALID_CURRENCY_CODES,
 	MAX_NAME_LENGTH,
 	MAX_DESCRIPTION_LENGTH,
+	REQUIRED_FIELD_ERROR,
 } from '../../src/paypal-payment-buttons/utils/validation';
+
+// The only test that spells out the wording. The rest read the const.
+describe( 'REQUIRED_FIELD_ERROR', () => {
+	it( 'is the message shown under an empty required field', () => {
+		expect( REQUIRED_FIELD_ERROR ).toBe(
+			'To continue, add the requested info or turn off this feature.'
+		);
+	} );
+} );
 
 describe( 'validatePrice', () => {
 	it( 'returns an error when value is null', () => {
@@ -123,15 +135,195 @@ describe( 'validateDescription', () => {
 	} );
 
 	it( 'returns an error when value exceeds MAX_DESCRIPTION_LENGTH', () => {
-		const longDesc = 'a'.repeat( 257 );
+		const longDesc = 'a'.repeat( 2049 );
 		expect( validateDescription( longDesc ) ).toBe(
 			`Description must be ${ MAX_DESCRIPTION_LENGTH } characters or fewer.`
 		);
 	} );
 
 	it( 'returns null for a description at exactly MAX_DESCRIPTION_LENGTH', () => {
-		const maxDesc = 'a'.repeat( 256 );
+		const maxDesc = 'a'.repeat( 2048 );
 		expect( validateDescription( maxDesc ) ).toBeNull();
+	} );
+	it( 'accepts a description padded with blank lines', () => {
+		expect( validateDescription( `\n\n${ 'D'.repeat( MAX_DESCRIPTION_LENGTH ) }\n\n` ) ).toBeNull();
+	} );
+} );
+
+describe( 'validateMoney', () => {
+	const twoPlaces = 'Price can have at most 2 decimal places (e.g., "29.99").';
+
+	it.each( [ null, undefined, '', '   ' ] )( 'asks for the value when given %p', value => {
+		expect( validateMoney( value ) ).toBe( REQUIRED_FIELD_ERROR );
+	} );
+
+	// PayPal stores a 0 fee. The toggle is how a merchant skips one.
+	it( 'takes a zero amount', () => {
+		expect( validateMoney( '0' ) ).toBeNull();
+	} );
+
+	it( 'takes an amount above zero', () => {
+		expect( validateMoney( '8.25' ) ).toBeNull();
+	} );
+
+	it( 'takes the smallest amount above zero', () => {
+		expect( validateMoney( '0.01' ) ).toBeNull();
+	} );
+
+	it( 'takes an amount above the percentage ceiling', () => {
+		expect( validateMoney( '150' ) ).toBeNull();
+	} );
+
+	it( 'refuses a third decimal place', () => {
+		expect( validateMoney( '8.255', 'USD' ) ).toBe( twoPlaces );
+	} );
+
+	// Measured on JPY: 422 INVALID_DECIMAL_PRECISION, on every flat field.
+	it.each( [ 'JPY', 'HUF', 'TWD' ] )( 'refuses a decimal amount in %s', code => {
+		expect( validateMoney( '1500.50', code ) ).toBe(
+			`Prices in ${ code } are whole numbers (e.g., "1500").`
+		);
+	} );
+
+	it( 'takes a whole amount in a zero-decimal currency', () => {
+		expect( validateMoney( '1500', 'JPY' ) ).toBeNull();
+	} );
+
+	it( 'takes zero in a zero-decimal currency', () => {
+		expect( validateMoney( '0', 'JPY' ) ).toBeNull();
+	} );
+
+	it( 'takes a padded amount', () => {
+		expect( validateMoney( ' 1500 ', 'JPY' ) ).toBeNull();
+	} );
+
+	// The missing-value check runs first, so a negative reports as missing.
+	it.each( [ '-5', 'abc', '-0', '-0.00' ] )( 'asks for the value when given %p', value => {
+		expect( validateMoney( value, 'JPY' ) ).toBe( REQUIRED_FIELD_ERROR );
+	} );
+} );
+
+describe( 'validatePercentage', () => {
+	const ceiling = 'Rate must be less than 100%.';
+
+	it.each( [ null, undefined, '', '   ', '-5', 'abc', '-0', '-0.00' ] )(
+		'asks for the value when given %p',
+		value => {
+			expect( validatePercentage( value ) ).toBe( REQUIRED_FIELD_ERROR );
+		}
+	);
+
+	it( 'takes a zero rate', () => {
+		expect( validatePercentage( '0' ) ).toBeNull();
+	} );
+
+	it( 'takes two decimal places', () => {
+		expect( validatePercentage( '7.55' ) ).toBeNull();
+	} );
+
+	it( 'refuses a third decimal place', () => {
+		expect( validatePercentage( '7.555' ) ).toBe( 'Rate can have at most 2 decimal places.' );
+	} );
+
+	it( 'takes 99.99, just under the ceiling', () => {
+		expect( validatePercentage( '99.99' ) ).toBeNull();
+	} );
+
+	it.each( [ '100', '150' ] )( 'refuses %p for reaching 100%', value => {
+		expect( validatePercentage( value ) ).toBe( ceiling );
+	} );
+} );
+
+describe( 'validateDiscountPercentage', () => {
+	const whole = 'Discount percentage must be a whole number.';
+	const range = 'Discount must be between 1% and 99%.';
+
+	// Measured: "you cannot discount by 0%". Zero points back at the toggle.
+	it.each( [ null, undefined, '', '   ', 'abc', '-5', '0' ] )( 'asks for a value for %p', value => {
+		expect( validateDiscountPercentage( value ) ).toBe( REQUIRED_FIELD_ERROR );
+	} );
+
+	// PayPal rejects "1.0" too, so the check reads the string. The padded value
+	// covers the trim.
+	it.each( [ '0.5', '1.0', '15.5', '99.99', ' 15.5 ' ] )( 'rejects %p for its decimals', value => {
+		expect( validateDiscountPercentage( value ) ).toBe( whole );
+	} );
+
+	it.each( [ '100', '101', '150' ] )( 'rejects %p as over the ceiling', value => {
+		expect( validateDiscountPercentage( value ) ).toBe( range );
+	} );
+
+	it.each( [ '1', '15', '99', ' 15 ' ] )( 'accepts %p', value => {
+		expect( validateDiscountPercentage( value ) ).toBeNull();
+	} );
+} );
+
+describe( 'validateDiscountAmount', () => {
+	const tooBig = 'Discount must be less than the product price.';
+
+	// Measured: PayPal rejects a zero discount, where a zero tax rate stores.
+	it.each( [ null, undefined, '', '   ', 'abc', '-1', '0', '0.00' ] )(
+		'asks for a value for %p',
+		value => {
+			expect( validateDiscountAmount( value, '10.00' ) ).toBe( REQUIRED_FIELD_ERROR );
+		}
+	);
+
+	// PayPal returns 422 DISCOUNT_EXCEEDS_ITEM_PRICE when the two are equal.
+	it( 'rejects a discount that equals the price', () => {
+		expect( validateDiscountAmount( '10.00', '10.00' ) ).toBe( tooBig );
+	} );
+
+	it( 'rejects a discount above the price', () => {
+		expect( validateDiscountAmount( '15.00', '10.00' ) ).toBe( tooBig );
+	} );
+
+	it( 'accepts a discount under the price', () => {
+		expect( validateDiscountAmount( '2.00', '10.00' ) ).toBeNull();
+	} );
+
+	// The smallest discount PayPal takes, measured.
+	it( 'accepts one cent', () => {
+		expect( validateDiscountAmount( '0.01', '10.00' ) ).toBeNull();
+	} );
+
+	// With no price to compare against, only the format is checked.
+	it.each( [ '', null, undefined ] )( 'skips the comparison when the price is %p', price => {
+		expect( validateDiscountAmount( '999.00', price ) ).toBeNull();
+	} );
+
+	it( 'rejects a decimal in a zero-decimal currency', () => {
+		expect( validateDiscountAmount( '1.50', '1000', 'JPY' ) ).toBe(
+			'Prices in JPY are whole numbers (e.g., "1500").'
+		);
+	} );
+
+	it( 'rejects a third decimal place', () => {
+		expect( validateDiscountAmount( '2.001', '10.00', 'USD' ) ).toBe(
+			'Price can have at most 2 decimal places (e.g., "29.99").'
+		);
+	} );
+} );
+
+describe( 'validateReturnUrl', () => {
+	const httpsOnly = 'Return URL must use HTTPS (e.g., https://example.com/thank-you).';
+
+	// The field is optional, so no URL is a valid answer.
+	it.each( [ null, undefined, '' ] )( 'returns null for %p', value => {
+		expect( validateReturnUrl( value ) ).toBeNull();
+	} );
+
+	it( 'returns null for an HTTPS URL', () => {
+		expect( validateReturnUrl( 'https://example.com/thanks' ) ).toBeNull();
+	} );
+
+	it.each( [
+		[ 'plain HTTP', 'http://example.com/thanks' ],
+		[ 'a scheme-relative URL', '//example.com/thanks' ],
+		[ 'a bare host', 'example.com' ],
+		[ 'the scheme on its own', 'https://' ],
+	] )( 'returns an error for %s', ( _label, value ) => {
+		expect( validateReturnUrl( value ) ).toBe( httpsOnly );
 	} );
 } );
 
@@ -151,15 +343,5 @@ describe( 'getUserFriendlyError', () => {
 	it( 'returns a generic fallback for unknown errors', () => {
 		const err = {};
 		expect( getUserFriendlyError( err ) ).toBe( 'An unexpected error occurred. Please try again.' );
-	} );
-} );
-
-describe( 'VALID_CURRENCY_CODES', () => {
-	it.each( [ 'USD', 'EUR', 'GBP', 'JPY' ] )( 'contains %s', code => {
-		expect( VALID_CURRENCY_CODES.has( code ) ).toBe( true );
-	} );
-
-	it( 'does not contain an invalid currency code', () => {
-		expect( VALID_CURRENCY_CODES.has( 'XYZ' ) ).toBe( false );
 	} );
 } );

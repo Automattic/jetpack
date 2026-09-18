@@ -130,7 +130,7 @@ export default function useEmptyResponses( {
 									'jetpack-forms'
 								),
 								formatNumber( deleted )
-						  );
+							);
 
 				createSuccessNotice( successMessage, { type: 'snackbar', id: noticeId } );
 			} )

@@ -31,7 +31,7 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 		remove_all_filters( 'posts_pre_query' );
 
 		// Clear list table API response caches.
-		delete_transient( 'paypal_list_cache_' . md5( '' ) );
+		PayPal_API_Client::forget_cached_resources();
 	}
 
 	/**
@@ -61,6 +61,56 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 
 		$this->assertCount( 2, $table->items );
 		$this->assertNull( $table->api_error );
+	}
+
+	/**
+	 * Test the list is read fresh right after a delete, and from cache otherwise.
+	 */
+	public function test_prepare_items_reads_fresh_after_a_delete() {
+		$this->set_up_connected_state();
+		$items = $this->get_sample_items();
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( &$items ) {
+				if ( false !== strpos( $url, '/v1/oauth2/token' ) ) {
+					return $preempt;
+				}
+				if ( 'DELETE' === $args['method'] ) {
+					return array(
+						'response' => array(
+							'code'    => 204,
+							'message' => '',
+						),
+						'body'     => '',
+					);
+				}
+				return array(
+					'response' => array(
+						'code'    => 200,
+						'message' => '',
+					),
+					'body'     => wp_json_encode( array( 'resources' => $items ), JSON_UNESCAPED_SLASHES ),
+				);
+			},
+			10,
+			3
+		);
+
+		$table = new PayPal_Payment_Links_List_Table();
+		$table->prepare_items();
+		$this->assertCount( 2, $table->items );
+
+		// PayPal now has one item, but the cache is still warm.
+		array_pop( $items );
+		$table = new PayPal_Payment_Links_List_Table();
+		$table->prepare_items();
+		$this->assertCount( 2, $table->items );
+
+		PayPal_API_Client::delete_resource( 'PLB-DEF456' );
+
+		$table = new PayPal_Payment_Links_List_Table();
+		$table->prepare_items();
+		$this->assertCount( 1, $table->items );
 	}
 
 	/**
@@ -137,6 +187,55 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 		$table->prepare_items();
 
 		$this->assertNull( $table->next_page_token );
+	}
+
+	/**
+	 * Test that prepare_items counts every link, not just the page on screen.
+	 *
+	 * The table pages by cursor, so counting its own rows told a merchant with
+	 * more links than fit on a page that they had one page's worth.
+	 */
+	public function test_prepare_items_uses_paypals_total() {
+		$this->set_up_connected_state();
+		$this->mock_list_response( $this->get_sample_items(), 40 );
+
+		$table = new PayPal_Payment_Links_List_Table();
+		$table->prepare_items();
+
+		$this->assertSame( 40, $table->get_pagination_arg( 'total_items' ) );
+	}
+
+	/**
+	 * Test that prepare_items sets total_pages to 1, which keeps core's
+	 * numbered pagination off.
+	 *
+	 * Paging is by cursor and prepare_items() ignores `paged`, so links built
+	 * from a computed page count would go nowhere.
+	 */
+	public function test_prepare_items_sets_total_pages_to_one() {
+		$this->set_up_connected_state();
+		$this->mock_list_response( $this->get_sample_items(), 40 );
+
+		$table = new PayPal_Payment_Links_List_Table();
+		$table->prepare_items();
+
+		$this->assertSame( 1, $table->get_pagination_arg( 'total_pages' ) );
+	}
+
+	/**
+	 * Test that prepare_items falls back to the row count when the total is
+	 * missing.
+	 *
+	 * A cached or older response can come back with no total_items.
+	 */
+	public function test_prepare_items_falls_back_to_row_count() {
+		$this->set_up_connected_state();
+		$this->mock_list_response( $this->get_sample_items() );
+
+		$table = new PayPal_Payment_Links_List_Table();
+		$table->prepare_items();
+
+		$this->assertSame( 2, $table->get_pagination_arg( 'total_items' ) );
 	}
 
 	/**
@@ -338,9 +437,10 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 	/**
 	 * Mock a list_resources API response.
 	 *
-	 * @param array $items The items to return.
+	 * @param array    $items The items to return.
+	 * @param int|null $total Optional. The account total PayPal reports.
 	 */
-	private function mock_list_response( $items ) {
+	private function mock_list_response( $items, $total = null ) {
 		$this->mock_http_response(
 			200,
 			array(
@@ -351,7 +451,7 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 						'href' => 'https://api.paypal.com/v1/checkout/payment-resources?page_size=20',
 					),
 				),
-			)
+			) + ( null === $total ? array() : array( 'total_items' => $total ) )
 		);
 	}
 
