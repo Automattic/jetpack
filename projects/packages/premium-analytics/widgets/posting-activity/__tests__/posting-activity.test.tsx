@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useStatsStreak } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
@@ -91,12 +91,26 @@ describe( 'PostingActivityWidget', () => {
 		expect( months[ 11 ] ).toBe( 'Sep' );
 		expect( screen.getByRole( 'gridcell', { name: 'Tue, Sep 15, 2026: 1' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'gridcell', { name: /Sep 16, 2026/ } ) ).not.toBeInTheDocument();
-		// October 2025 opens on a Wednesday: the third weekday column from Monday.
-		expect( screen.getByRole( 'gridcell', { name: 'Wed, Oct 1, 2025: No data' } ) ).toHaveAttribute(
-			'data-column',
-			'2'
-		);
 		expect( screen.getByText( 'Fewer posts' ) ).toBeInTheDocument();
+	} );
+
+	it( 'steps the arrow keys day by day across a month boundary', async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		renderWidget();
+		const grid = screen.getByRole( 'grid', { name: 'Monthly posting activity' } );
+		const selectedName = () =>
+			within( grid )
+				.getAllByRole( 'gridcell' )
+				.find( cell => cell.id === grid.getAttribute( 'aria-activedescendant' ) )
+				?.getAttribute( 'aria-label' );
+
+		grid.focus();
+		await user.keyboard( '{ArrowRight}' );
+		expect( selectedName() ).toBe( 'Wed, Oct 1, 2025: No data' );
+		await user.keyboard( '{ArrowDown}{ArrowDown}{ArrowDown}{ArrowDown}{ArrowRight}{ArrowRight}' );
+		expect( selectedName() ).toBe( 'Fri, Oct 31, 2025: No data' );
+		await user.keyboard( '{ArrowRight}' );
+		expect( selectedName() ).toBe( 'Sat, Nov 1, 2025: No data' );
 	} );
 
 	it( 'keeps the post wording and leads the tooltip with the count', async () => {

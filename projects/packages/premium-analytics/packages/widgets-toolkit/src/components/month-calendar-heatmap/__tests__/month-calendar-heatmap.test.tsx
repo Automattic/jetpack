@@ -3,6 +3,7 @@
  */
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { resetLocaleData, setLocaleData } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -67,5 +68,29 @@ describe( 'MonthCalendarHeatmap', () => {
 
 		await user.hover( screen.getByRole( 'gridcell', { name: 'Sat, Oct 4, 2025: No data' } ) );
 		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'No postsSat, Oct 4, 2025' );
+	} );
+
+	describe( 'when the months overflow the tile', () => {
+		beforeEach( () => {
+			jest.spyOn( Element.prototype, 'scrollWidth', 'get' ).mockReturnValue( 900 );
+		} );
+
+		afterEach( () => {
+			jest.restoreAllMocks();
+			resetLocaleData();
+		} );
+
+		it( 'opens scrolled to the current month', () => {
+			render( <MonthCalendarHeatmap valueByDay={ VALUE_BY_DAY } range={ RANGE } { ...LABELS } /> );
+
+			expect( screen.getByRole( 'grid' ).scrollLeft ).toBe( 900 );
+		} );
+
+		it( 'scrolls the other way in RTL', () => {
+			setLocaleData( { 'text direction\u0004ltr': [ 'rtl' ] } );
+			render( <MonthCalendarHeatmap valueByDay={ VALUE_BY_DAY } range={ RANGE } { ...LABELS } /> );
+
+			expect( screen.getByRole( 'grid' ).scrollLeft ).toBe( -900 );
+		} );
 	} );
 } );

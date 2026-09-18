@@ -8,7 +8,8 @@ import {
 	type HeatmapTooltipData,
 	type MonthCalendarHeatmapRange,
 } from '@jetpack-premium-analytics/externals';
-import { useCallback } from 'react';
+import { isRTL } from '@wordpress/i18n';
+import { useCallback, useLayoutEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -53,6 +54,16 @@ export function MonthCalendarHeatmap( {
 	// to the site's.
 	const { data, columnGroups } = useMonthCalendarHeatmapData( valueByDay, range );
 
+	// A tile too narrow for every month scrolls; open on the current month, once,
+	// so a viewer who scrolls back is not snapped forward on resize.
+	const rootRef = useRef< HTMLDivElement >( null );
+	useLayoutEffect( () => {
+		const grid = rootRef.current?.querySelector< HTMLElement >( '[role="grid"]' );
+		if ( grid ) {
+			grid.scrollLeft = isRTL() ? -grid.scrollWidth : grid.scrollWidth;
+		}
+	}, [] );
+
 	const renderTooltip = useCallback(
 		( { value, cellLabel }: HeatmapTooltipData ) => (
 			<CalendarHeatmapTooltip
@@ -66,11 +77,12 @@ export function MonthCalendarHeatmap( {
 	);
 
 	return (
-		<div className={ styles.root }>
+		<div ref={ rootRef } className={ styles.root }>
 			<HeatmapChart
 				data={ data }
 				columnGroups={ columnGroups }
 				compact
+				keyboardNavigation="calendar"
 				ariaLabel={ ariaLabel }
 				primaryColor="var(--wp-admin-theme-color, #3858e9)"
 				withTooltips
