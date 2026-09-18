@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Stop using private --_gcd-heading-* CSS custom properties in the masthead.
