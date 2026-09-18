@@ -18,21 +18,16 @@ class WPCOM_Features {
 	const MANAGE_PLUGINS     = 'manage-plugins';
 
 	/**
-	 * Blog IDs this mock reports as being on the pre-2026 gating. Tests set it and reset it.
-	 *
-	 * @var int[]
-	 */
-	public static $legacy_gating_blog_ids = array();
-
-	/**
 	 * Mock the pre-2026 gating predicate, which on WordPress.com ranks two stickers against a blog
-	 * ID cutoff.
+	 * ID cutoff. Tests set the option; Phan excludes this file, so they cannot reach a member here.
 	 *
 	 * @param int $blog_id Blog ID being asked about.
 	 *
 	 * @return bool
 	 */
 	public static function is_legacy_gating_site( $blog_id ) {
-		return in_array( (int) $blog_id, self::$legacy_gating_blog_ids, true );
+		$legacy_blog_ids = array_map( 'intval', (array) get_option( 'jetpack_test_legacy_gating_blog_ids', array() ) );
+
+		return in_array( (int) $blog_id, $legacy_blog_ids, true );
 	}
 }

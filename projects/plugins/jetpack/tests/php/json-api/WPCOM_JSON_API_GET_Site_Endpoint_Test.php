@@ -46,10 +46,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 	 * Clean up after each test.
 	 */
 	public function tear_down() {
-		if ( property_exists( 'WPCOM_Features', 'legacy_gating_blog_ids' ) ) {
-			WPCOM_Features::$legacy_gating_blog_ids = array();
-		}
-
+		delete_option( 'jetpack_test_legacy_gating_blog_ids' );
 		$this->tear_down_rest_parity();
 		parent::tear_down();
 		WPCOM_JSON_API::init()->query         = array();
@@ -176,11 +173,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 	public function test_is_legacy_gating_site_renders_the_predicate_verdict() {
 		global $blog_id;
 
-		if ( ! property_exists( 'WPCOM_Features', 'legacy_gating_blog_ids' ) ) {
+		if ( '1' === getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
 			$this->markTestSkipped( 'The real WPCOM_Features is loaded here, so the predicate is not controllable.' );
 		}
 
-		WPCOM_Features::$legacy_gating_blog_ids = array( (int) $blog_id );
+		// The bootstrap mock reads this option; see tests/php/lib/class-wpcom-features.php.
+		update_option( 'jetpack_test_legacy_gating_blog_ids', array( (int) $blog_id ) );
 
 		list( $xmlrpc, $rest ) = $this->assert_rest_parity(
 			$this->get_endpoint(),

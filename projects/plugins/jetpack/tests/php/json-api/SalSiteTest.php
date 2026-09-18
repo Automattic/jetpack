@@ -30,9 +30,7 @@ class SalSiteTest extends WP_UnitTestCase {
 	 * Clean up after each test.
 	 */
 	public function tear_down() {
-		if ( property_exists( 'WPCOM_Features', 'legacy_gating_blog_ids' ) ) {
-			WPCOM_Features::$legacy_gating_blog_ids = array();
-		}
+		delete_option( 'jetpack_test_legacy_gating_blog_ids' );
 
 		parent::tear_down();
 	}
@@ -110,16 +108,17 @@ class SalSiteTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The predicate ships with WordPress.com; the bootstrap mock stands in for it here.
+	 * The predicate ships with WordPress.com; the bootstrap mock stands in for it, reading this
+	 * option. Under JETPACK_TEST_WPCOMSH the real class loads first and reads stickers instead.
 	 *
 	 * @param int[] $blog_ids Blog IDs the mock should report as being on the pre-2026 gating.
 	 */
 	private function stub_legacy_gating_sites( array $blog_ids ) {
-		if ( ! property_exists( 'WPCOM_Features', 'legacy_gating_blog_ids' ) ) {
+		if ( '1' === getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
 			$this->markTestSkipped( 'The real WPCOM_Features is loaded here, so the predicate is not controllable.' );
 		}
 
-		WPCOM_Features::$legacy_gating_blog_ids = $blog_ids;
+		update_option( 'jetpack_test_legacy_gating_blog_ids', $blog_ids );
 	}
 
 	/**

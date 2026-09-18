@@ -1589,7 +1589,6 @@ abstract class SAL_Site {
 			return false;
 		}
 
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only class, guarded above.
 		return (bool) WPCOM_Features::is_legacy_gating_site( $this->blog_id );
 	}
 
