@@ -230,9 +230,11 @@ class Jetpack_Redux_State_Helper {
 			),
 			'jetpackManage'                        => array(
 				'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
-				// Without this an agency nobody has looked up yet reads as "not an agency", which
-				// is what decides whether to offer them the agency signup they already completed.
-				'isAgencyAccount' => Jetpack_Manage::is_agency_account_now(),
+				// Looks an unknown agency up rather than offering them the signup they completed.
+				// Guarded: another plugin may have loaded an older My Jetpack that lacks it.
+				'isAgencyAccount' => method_exists( Jetpack_Manage::class, 'is_agency_account_now' )
+					? Jetpack_Manage::is_agency_account_now()
+					: Jetpack_Manage::is_agency_account(),
 			),
 			'hasSeenWCConnectionModal'             => Jetpack_Options::get_option( 'has_seen_wc_connection_modal', false ),
 			'newRecommendations'                   => Jetpack_Recommendations::get_new_conditional_recommendations(),
