@@ -808,6 +808,33 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * Test that reading a button says how many published posts embed it.
+	 */
+	public function test_get_button_counts_published_embeds() {
+		$this->set_up_connected_admin_state();
+		$this->embed_in_published_post( 1000, 'PLB-42' );
+		$this->mock_http_routes(
+			array(
+				'/v1/checkout/payment-resources' => $this->http_response( 200, array( 'id' => 'PLB-42' ) ),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+
+		$this->assertSame( 1, PayPal_REST_Controller::handle_get_button( $request )->get_data()['embeds'] );
+
+		$request->set_param( 'resource_id', 'PLB-99' );
+		$this->mock_http_routes(
+			array(
+				'/v1/checkout/payment-resources' => $this->http_response( 200, array( 'id' => 'PLB-99' ) ),
+			)
+		);
+
+		$this->assertSame( 0, PayPal_REST_Controller::handle_get_button( $request )->get_data()['embeds'] );
+	}
+
+	/**
 	 * Test that an API failure while listing is surfaced as a REST error.
 	 */
 	public function test_list_buttons_converts_api_error() {
