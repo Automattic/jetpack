@@ -86,7 +86,7 @@ beforeEach( () => {
 	jest.clearAllMocks();
 	jest.mocked( useViewportMatch ).mockReturnValue( false );
 	Object.assign( window, {
-		Jetpack_Boost: { site: { url: 'https://example.org', online: true } },
+		Jetpack_Boost: { site: { url: 'https://example.org', online: true, myJetpack: true } },
 		wpApiSettings: { root: 'https://example.org/wp-json/', nonce: 'wp-nonce' },
 		jetpack_boost_ds: {
 			rest_api: { value: 'https://example.org/wp-json/jetpack-boost-ds', nonce: 'wp-nonce' },
@@ -663,6 +663,7 @@ test( 'shows the free history upgrade without requesting history', async () => {
 	};
 	renderOverview();
 	await expect( screen.findByRole( 'button', { name: 'Upgrade now' } ) ).resolves.toBeTruthy();
+	expect( screen.getByText( 'Unlock historical performance' ) ).toBeInTheDocument();
 	await expect( screen.findByText( '91' ) ).resolves.toBeVisible();
 	expect( apiFetch ).not.toHaveBeenCalledWith(
 		expect.objectContaining( {
@@ -670,6 +671,30 @@ test( 'shows the free history upgrade without requesting history', async () => {
 		} )
 	);
 	expect( screen.queryByText( /Performance history will appear/ ) ).not.toBeInTheDocument();
+} );
+
+test( 'shows the empty history without upgrade copy when My Jetpack is unavailable', async () => {
+	window.Jetpack_Boost.site.myJetpack = false;
+	window.jetpack_boost_ds!.modules_state!.value = {
+		performance_history: { available: false, active: false },
+	};
+	window.jetpack_boost_ds!.dismissed_alerts!.value = {
+		performance_history_fresh_start: false,
+	};
+	renderOverview();
+	await expect( screen.findByTestId( 'history-chart' ) ).resolves.toBeInTheDocument();
+	await expect( screen.findByText( '91' ) ).resolves.toBeVisible();
+	expect( screen.queryByText( 'Unlock historical performance' ) ).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
+	expect(
+		screen.queryByText( /Jetpack Boost premium has been activated/ )
+	).not.toBeInTheDocument();
+	expect( screen.queryByText( 'Failed to load performance history' ) ).not.toBeInTheDocument();
+	expect( apiFetch ).not.toHaveBeenCalledWith(
+		expect.objectContaining( {
+			url: 'https://example.org/wp-json/jetpack-boost-ds/performance-history',
+		} )
+	);
 } );
 
 test( 'retains the free history state when a modules refetch fails with a fresh-start alert', async () => {

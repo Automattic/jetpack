@@ -10,7 +10,12 @@ import HistoryChartCard from './history-chart-card';
 import { bucketHistoryDays } from './lib/history-days';
 import { OVERVIEW_MODULES_CHANGE_EVENT, relayedQueryKeys } from './lib/modules-state-bridge';
 import { useHistoryRange } from './lib/use-history-range';
-import { isSiteOnline, useModulesState, useScoreRefreshState } from './lib/use-modules-state';
+import {
+	isMyJetpackAvailable,
+	isSiteOnline,
+	useModulesState,
+	useScoreRefreshState,
+} from './lib/use-modules-state';
 import {
 	performanceHistoryQueryKey,
 	useDismissibleAlertState,
@@ -205,8 +210,8 @@ function OverviewContent( {
 				isError={ history.isError && ! history.isFetching }
 				error={ history.error }
 				onRetry={ () => history.refetch() }
-				needsUpgrade={ modules.data !== undefined && ! historyAvailable }
-				isFreshStart={ ! freshStartCompleted }
+				needsUpgrade={ modules.data !== undefined && ! historyAvailable && isMyJetpackAvailable() }
+				isFreshStart={ historyAvailable && ! freshStartCompleted }
 				onDismissFreshStart={ dismissFreshStart }
 			/>
 		</div>
