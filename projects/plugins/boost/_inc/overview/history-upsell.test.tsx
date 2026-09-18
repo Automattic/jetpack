@@ -60,6 +60,9 @@ test( 'expands a non-interactive sample chart and remembers it for the session',
 	// eslint-disable-next-line testing-library/no-node-access -- The inert wrapper has no role.
 	expect( preview.firstElementChild ).toHaveAttribute( 'inert' );
 	expect( screen.getByRole( 'heading', { name: 'Last 30 days' } ) ).toBeInTheDocument();
+	for ( const name of [ 'Previous 30 days', 'Next 30 days' ] ) {
+		expect( screen.getByRole( 'button', { name } ) ).toHaveAttribute( 'aria-disabled', 'true' );
+	}
 	expect( window.sessionStorage.getItem( previewExpandedKey ) ).toBe( '1' );
 
 	unmount();
