@@ -761,11 +761,9 @@ describe( 'useRestore — a restore already running when the screen opens', () =
 
 		status = { ...status, status: 'finished', progress: 100 };
 
-		await waitFor( () => expect( result.current.state.phase ).toBe( 'success' ), {
-			timeout: 8000,
-		} );
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'success' ) );
 		expect( result.current.state ).toEqual( { phase: 'success' } );
-	}, 15000 );
+	} );
 
 	it( 'reports an adopted restore failing, rather than silently re-arming', async () => {
 		let status: Record< string, unknown > = {
@@ -796,9 +794,9 @@ describe( 'useRestore — a restore already running when the screen opens', () =
 
 		status = { ...status, status: 'failed', message: 'Restore aborted.' };
 
-		await waitFor( () => expect( result.current.state.phase ).toBe( 'error' ), { timeout: 8000 } );
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'error' ) );
 		expect( result.current.state ).toMatchObject( { message: 'Restore aborted.' } );
-	}, 15000 );
+	} );
 
 	it( 'drops the adoption when the candidate turns out to have finished', async () => {
 		// The collection's status vocabulary is not the status route's, so
@@ -1214,7 +1212,7 @@ describe( 'useRestore — a restore that starts after the screen loaded', () => 
 		expect( result.current.adopted ).toEqual( { rewindId: OTHER_ID } );
 		// The whole point: no restore was started.
 		expect( initiateCall() ).toBeUndefined();
-	}, 15000 );
+	} );
 
 	// The same guard, on the status the queue reports before it starts.
 	// A restore WordPress.com is holding is one the reader must not be
@@ -1250,7 +1248,7 @@ describe( 'useRestore — a restore that starts after the screen loaded', () => 
 
 		await waitFor( () => expect( result.current.adopted ).toEqual( { rewindId: OTHER_ID } ) );
 		expect( initiateCall() ).toBeUndefined();
-	}, 15000 );
+	} );
 
 	it( 'still starts the restore when the check cannot be read', async () => {
 		// Fail open on the read, closed on the evidence. Someone
@@ -1275,5 +1273,5 @@ describe( 'useRestore — a restore that starts after the screen loaded', () => 
 
 		await waitFor( () => expect( result.current.state.phase ).toBe( 'progress' ) );
 		expect( initiateCall() ).toBeDefined();
-	}, 15000 );
+	} );
 } );

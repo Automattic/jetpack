@@ -15,7 +15,9 @@ export const PRESET_LAST_12_MONTHS = 'last-12-months' as const;
 export const PRESET_LAST_YEAR = 'last-year' as const;
 
 /**
- * All selectable (non-custom) preset IDs, in display order.
+ * All selectable (non-custom) preset IDs, in display order. Wider than what the
+ * menu offers: a preset the design has dropped stays here so a saved layout or
+ * a bookmark naming it still resolves to its range.
  */
 export const SELECTABLE_PRESETS = [
 	PRESET_TODAY,
@@ -65,17 +67,9 @@ export type QuickSurfacePresetId = SelectablePresetId | typeof PRESET_ALL_TIME;
  * only some surfaces offer it.
  */
 export const MENU_SURFACE_PRESET_GROUPS = [
-	[
-		PRESET_TODAY,
-		PRESET_YESTERDAY,
-		PRESET_LAST_24_HOURS,
-		PRESET_LAST_7_DAYS,
-		PRESET_LAST_30_DAYS,
-		PRESET_LAST_90_DAYS,
-		PRESET_LAST_365_DAYS,
-	],
+	[ PRESET_TODAY, PRESET_YESTERDAY, PRESET_LAST_24_HOURS, PRESET_LAST_7_DAYS, PRESET_LAST_30_DAYS ],
 	[ PRESET_MONTH_TO_DATE, PRESET_LAST_MONTH ],
-	[ PRESET_YEAR_TO_DATE, PRESET_LAST_12_MONTHS, PRESET_LAST_YEAR ],
+	[ PRESET_YEAR_TO_DATE, PRESET_LAST_12_MONTHS ],
 	[ PRESET_ALL_TIME ],
 ] as const;
 

@@ -61,6 +61,7 @@ const defaultTheme: CompleteChartTheme = {
 	heatmapChart: {
 		compactCellGap: 2,
 		compactCellSize: 11,
+		groupGap: 24,
 	},
 };
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Complete PayPal onboarding using PayPal's own onboarding SDK, so connecting an account finishes instead of stopping at "Merchant integration info not available".

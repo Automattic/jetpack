@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Forms\Dashboard;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
@@ -100,6 +99,7 @@ class Dashboard {
 	 * Script handle for the JS file we enqueue in the Feedback admin page.
 	 *
 	 * @var string
+	 * @deprecated $$next-version$$ The legacy dashboard bundle was removed.
 	 */
 	const SCRIPT_HANDLE = 'jp-forms-dashboard';
 
@@ -128,106 +128,63 @@ class Dashboard {
 	public function init() {
 		add_action( 'admin_menu', array( $this, 'add_admin_submenu' ), self::MENU_PRIORITY );
 		add_action( 'admin_menu', array( __CLASS__, 'redirect_dashboard_url_cross_variant' ), 1 );
+		add_action( 'admin_notices', array( __CLASS__, 'announce_retired_filter' ) );
 
-		/**
-		 * Filter to enable or disable the wp-build-based Forms dashboard.
-		 *
-		 * Enabled by default since Central Forms Management is now available for all sites.
-		 * Can be disabled by returning false from this filter.
-		 *
-		 * @since 7.18.0
-		 *
-		 * @param bool $enabled Whether the wp-build dashboard is enabled. Default true.
-		 */
-		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', true );
-
-		if ( $is_wp_build_enabled ) {
-			self::load_wp_build();
-		}
+		self::load_wp_build();
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
-
-		// Removed all admin notices on the Jetpack Forms admin page.
-		if ( self::get_admin_query_page() === self::ADMIN_SLUG ) {
-			remove_all_actions( 'admin_notices' );
-		}
 	}
 
 	/**
-	 * Redirect dashboard URLs when the wp-build flag has changed since the link was generated.
+	 * Tell anyone still filtering `jetpack_forms_alpha` that it no longer does anything.
 	 *
-	 * Email links may point to the legacy or wp-build dashboard. If the flag has toggled,
-	 * the requested page may not exist. This redirects to the correct variant.
+	 * The filter gated the wp-build dashboard while it was in development. That dashboard
+	 * is now the only one, so a `false` return has nothing left to select and is ignored.
+	 *
+	 * Announced rather than applied: _deprecated_hook() reports the hook without honoring
+	 * it, where apply_filters_deprecated() would return a `false` this code can no longer
+	 * act on. Guarded by has_filter() so sites that never used it stay silent.
+	 *
+	 * Hooked to `admin_notices` rather than called from init(). This class loads at
+	 * `after_setup_theme` priority -2, so with WP_DEBUG display on the notice would print
+	 * — and send headers — before load_wp_build() and redirect_dashboard_url_cross_variant()
+	 * get to redirect, leaving both on "headers already sent" and a blank page.
+	 *
+	 * That hook also fires only while an admin screen renders, so the notice stays out of
+	 * admin-ajax and admin-post responses, which `is_admin()` would have let through. And
+	 * it runs late enough that has_filter() sees callbacks registered on `init`, not just
+	 * those added at file scope.
+	 *
+	 * @since 8.1.0
+	 */
+	public static function announce_retired_filter() {
+		if ( ! has_filter( 'jetpack_forms_alpha' ) ) {
+			return;
+		}
+
+		// Kept on one line: replace-next-version-tag.sh only recognizes the token in a
+		// single-line deprecation call, and errors the build out otherwise.
+		_deprecated_hook( 'jetpack_forms_alpha', 'jetpack-forms-8.1.0', '', 'The legacy Forms dashboard has been removed, so this filter no longer selects anything.' );
+	}
+
+	/**
+	 * Send legacy dashboard URLs to the wp-build dashboard.
+	 *
+	 * Load-bearing, not a courtesy for stale links: Creative Mail's JITMs and post-install
+	 * redirect, and My Jetpack's fallback URL, still emit the legacy slug today. Keep it.
 	 */
 	public static function redirect_dashboard_url_cross_variant() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
 
-		if ( $page !== self::ADMIN_SLUG && $page !== self::FORMS_WPBUILD_ADMIN_SLUG ) {
+		if ( $page !== self::ADMIN_SLUG ) {
 			return;
 		}
 
-		/** This filter is documented in class-dashboard.php::init */
-		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', true );
-
-		// Legacy URL requested but wp-build is now active → redirect to wp-build.
-		if ( $page === self::ADMIN_SLUG && $is_wp_build_enabled ) {
-			// The hash is never sent to the server. "inbox" used as default tab so we end up specifically in the responses
-			// route, where the client-side router will handle the redirect to the correct status in its beforeLoad hook.
-			$redirect = self::get_forms_admin_url( 'inbox' );
-			wp_safe_redirect( $redirect );
-			exit;
-		}
-
-		// WP-Build URL requested but legacy is now active → redirect to legacy.
-		if ( $page === self::FORMS_WPBUILD_ADMIN_SLUG && ! $is_wp_build_enabled ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$p                = isset( $_GET['p'] ) ? rawurldecode( sanitize_text_field( wp_unslash( $_GET['p'] ) ) ) : '';
-			$tab              = 'inbox';
-			$post_id          = null;
-			$has_mark_as_spam = false;
-
-			// Check if mark_as_spam is a separate query parameter (old email format).
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			if ( isset( $_GET['mark_as_spam'] ) ) {
-				$has_mark_as_spam = true;
-			}
-
-			if ( $p !== '' ) {
-				// Parse path like /responses/inbox?responseIds=["2879"] or /responses/inbox?responseIds=["2879"]&mark_as_spam or /forms.
-				if ( preg_match( '#^/responses/(inbox|spam|trash)(?:\?responseIds=\["(\d+)"\])?(.*)$#', $p, $m ) ) {
-					$tab     = $m[1];
-					$post_id = ! empty( $m[2] ) ? absint( $m[2] ) : null;
-
-					// Check if mark_as_spam parameter is present inside the path.
-					if ( ! empty( $m[3] ) && strpos( $m[3], 'mark_as_spam' ) !== false ) {
-						$has_mark_as_spam = true;
-					}
-				} elseif ( preg_match( '#^/response/(\d+)(?:\?(.*))?$#', $p, $m ) ) {
-					// Standalone single response page (wp-build only) — the legacy
-					// dashboard shows the response in the inbox list instead. The path
-					// is matched whole so trailing junk isn't read as a response ID,
-					// but it may legitimately carry the email's mark_as_spam trigger.
-					$post_id = absint( $m[1] );
-
-					if ( ! empty( $m[2] ) && strpos( $m[2], 'mark_as_spam' ) !== false ) {
-						$has_mark_as_spam = true;
-					}
-				} elseif ( preg_match( '#^/forms#', $p ) ) {
-					$tab = 'forms';
-				}
-			}
-
-			$redirect = self::get_forms_admin_url( $tab, $post_id );
-
-			// Add mark_as_spam parameter if it was present in the original URL (either format).
-			if ( $has_mark_as_spam ) {
-				$redirect .= '&mark_as_spam';
-			}
-
-			wp_safe_redirect( $redirect );
-			exit;
-		}
+		// The hash is never sent to the server. "inbox" used as default tab so we end up specifically in the responses
+		// route, where the client-side router will handle the redirect to the correct status in its beforeLoad hook.
+		wp_safe_redirect( self::get_forms_admin_url( 'inbox' ) );
+		exit;
 	}
 
 	/**
@@ -248,36 +205,17 @@ class Dashboard {
 			return;
 		}
 
-		// The wp-build (script-module) dashboard renders its own UI from build/pages/…,
-		// so the legacy SPA bundle is dead weight there. Only enqueue it on the legacy
-		// dashboard. The shared inline data below (connection initial state + REST
-		// preload) is instead attached to the always-present wp-api-fetch handle so the
-		// wp-build app still receives it.
-		if ( self::is_wp_build_dashboard_page() ) {
-			$inline_handle    = 'wp-api-fetch';
-			$preload_position = 'after';
+		// Attach the shared inline data (connection initial state + REST preload) to
+		// wp-api-fetch, which is always on the page.
+		$inline_handle    = 'wp-api-fetch';
+		$preload_position = 'after';
 
-			// The i18n loader is registered on every admin page by jetpack-assets but
-			// only enqueued when depended on; the esbuild bundles don't pull it in.
-			// Enqueue it so the wp-build dashboard's init module can download its JS
-			// translation catalogs.
-			if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
-				wp_enqueue_script( 'wp-jp-i18n-loader' );
-			}
-		} else {
-			$inline_handle    = self::SCRIPT_HANDLE;
-			$preload_position = 'before';
-
-			Assets::register_script(
-				self::SCRIPT_HANDLE,
-				'../../dist/dashboard/jetpack-forms-dashboard.js',
-				__FILE__,
-				array(
-					'in_footer'  => true,
-					'textdomain' => 'jetpack-forms',
-					'enqueue'    => true,
-				)
-			);
+		// The i18n loader is registered on every admin page by jetpack-assets but
+		// only enqueued when depended on; the esbuild bundles don't pull it in.
+		// Enqueue it so the wp-build dashboard's init module can download its JS
+		// translation catalogs.
+		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+			wp_enqueue_script( 'wp-jp-i18n-loader' );
 		}
 
 		if ( Contact_Form_Plugin::can_use_analytics() ) {
@@ -363,75 +301,66 @@ class Dashboard {
 	}
 
 	/**
-	 * Whether the current request targets the wp-build (script-module) Forms dashboard,
-	 * as opposed to the legacy SPA dashboard.
-	 *
-	 * When true, the legacy dashboard bundle should not be enqueued: the wp-build page
-	 * (build/pages/jetpack-forms-responses/…) provides its own UI and asset loading.
+	 * Whether the current request targets the Forms dashboard page.
 	 *
 	 * @return bool
 	 */
 	public static function is_wp_build_dashboard_page() {
-		/** This filter is documented in class-dashboard.php::init */
-		return apply_filters( 'jetpack_forms_alpha', true )
-			&& self::get_admin_query_page() === self::FORMS_WPBUILD_ADMIN_SLUG;
+		return self::get_admin_query_page() === self::FORMS_WPBUILD_ADMIN_SLUG;
 	}
 
 	/**
 	 * Register the dashboard admin submenu Forms under Jetpack menu.
 	 */
 	public function add_admin_submenu() {
-
-		/** This filter is documented in class-dashboard.php::init */
-		if ( apply_filters( 'jetpack_forms_alpha', true ) ) {
-
-			// Report a missing build here rather than only on the page itself, so a partial
-			// deploy shows up on the first admin request instead of waiting for someone to
-			// open Forms. Keyed on the file and not on the generated callback: load_wp_build()
-			// only requires build.php on the Forms page, so the callback is legitimately
-			// absent on every other admin screen, which runs this method too.
-			if ( ! file_exists( self::wp_build_index_path() ) ) {
-				_doing_it_wrong(
-					__METHOD__,
-					'The Jetpack Forms build output is missing: build/build.php is absent, so the dashboard has nothing to render. The package build did not run for this deploy.',
-					''
-				);
-			}
-
-			// `jetpack_forms_jetpack_forms_responses_wp_admin_render_page` is the callback generated
-			// by the WP build script, named after the page slug. It only exists once `build/build.php`
-			// is loaded. Without it the page has nothing to render, so show an explanation rather
-			// than the legacy mount point, whose bundle load_admin_scripts() does not enqueue here.
-			$callback = function_exists( 'jetpack_forms_jetpack_forms_responses_wp_admin_render_page' )
-				? 'jetpack_forms_jetpack_forms_responses_wp_admin_render_page'
-				: array( $this, 'render_wp_build_unavailable' );
-
-			Admin_Menu::add_menu(
-				/** "Jetpack Forms" and "Forms" are product names, do not translate. */
-				'Jetpack Forms',
-				'Forms',
-				'edit_pages',
-				self::FORMS_WPBUILD_ADMIN_SLUG,
-				$callback
+		// Report a missing build here rather than only on the page itself, so a partial
+		// deploy shows up on the first admin request instead of waiting for someone to
+		// open Forms. Keyed on the file and not on the generated callback: load_wp_build()
+		// only requires build.php on the Forms page, so the callback is legitimately
+		// absent on every other admin screen, which runs this method too.
+		if ( ! file_exists( self::wp_build_index_path() ) ) {
+			_doing_it_wrong(
+				__METHOD__,
+				'The Jetpack Forms build output is missing: build/build.php is absent, so the dashboard has nothing to render. The package build did not run for this deploy.',
+				''
 			);
-
-			return;
 		}
 
+		// `jetpack_forms_jetpack_forms_responses_wp_admin_render_page` is the callback generated
+		// by the WP build script, named after the page slug. It only exists once `build/build.php`
+		// is loaded. Without it the page has nothing to render, so show an explanation.
+		$callback = function_exists( 'jetpack_forms_jetpack_forms_responses_wp_admin_render_page' )
+			? 'jetpack_forms_jetpack_forms_responses_wp_admin_render_page'
+			: array( $this, 'render_wp_build_unavailable' );
+
 		Admin_Menu::add_menu(
-			/** "Jetpack Forms" and "Forms" are Product names, do not translate. */
+			/** "Jetpack Forms" and "Forms" are product names, do not translate. */
 			'Jetpack Forms',
 			'Forms',
 			'edit_pages',
-			self::ADMIN_SLUG,
-			array( $this, 'render_dashboard' )
+			self::FORMS_WPBUILD_ADMIN_SLUG,
+			$callback,
+			null,
+			// The key is not the slug: the page's URL still reads
+			// jetpack-forms-responses-wp-admin, which FORMS-795 tracks separately.
+			array(
+				'product' => 'jetpack-forms',
+				'key'     => 'jetpack-forms',
+			)
 		);
 	}
 
 	/**
-	 * Render the dashboard.
+	 * Render the legacy dashboard mount point.
+	 *
+	 * Nothing registers this any more — the legacy dashboard was retired and its bundle
+	 * is no longer enqueued, so the container it prints stays empty. Kept, and left
+	 * printing the same markup, so any caller outside this package behaves as before.
+	 *
+	 * @deprecated 8.1.0 The legacy dashboard was retired.
 	 */
 	public function render_dashboard() {
+		_deprecated_function( __METHOD__, 'jetpack-forms-8.1.0' );
 		?>
 		<div id="jp-forms-dashboard"></div>
 		<?php
@@ -443,7 +372,6 @@ class Dashboard {
 	 * The wp-build dashboard renders through a callback generated into `build/build.php`.
 	 * That file is missing when the package ships without a complete build, and it is
 	 * never loaded when a host application filters `jetpack_forms_load_wp_build` to false.
-	 * The legacy bundle is no fallback here: load_admin_scripts() skips it on this screen.
 	 * So report the problem instead of rendering a blank page.
 	 *
 	 * @since 7.25.0
@@ -606,24 +534,9 @@ class Dashboard {
 	 * @return string
 	 */
 	public static function get_forms_admin_url( $tab = null, $post_id = null ) {
-		/** This filter is documented in class-dashboard.php::init */
-		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', true );
-		$url                 = admin_url( 'admin.php' );
-
-		$url .= $is_wp_build_enabled
-			? '?page=' . self::FORMS_WPBUILD_ADMIN_SLUG
-			: '?page=' . self::ADMIN_SLUG;
-
-		if ( $is_wp_build_enabled ) {
-			$path = self::get_forms_admin_path_wp_build( $tab, $post_id );
-			$url .= '&p=' . rawurlencode( $path );
-		} else {
-			$suffix = self::get_forms_admin_suffix_legacy( $tab, $post_id );
-
-			if ( $suffix !== '' ) {
-				$url .= $suffix;
-			}
-		}
+		$url  = admin_url( 'admin.php' );
+		$url .= '?page=' . self::FORMS_WPBUILD_ADMIN_SLUG;
+		$url .= '&p=' . rawurlencode( self::get_forms_admin_path_wp_build( $tab, $post_id ) );
 
 		/**
 		 * Filters the Forms admin page URL.
@@ -643,9 +556,8 @@ class Dashboard {
 	/**
 	 * Returns the URL of the standalone single response page for a given response.
 	 *
-	 * The standalone page is a wp-build route (`/response/<id>`). The legacy
-	 * dashboard has no equivalent, so it falls back to the responses list with the
-	 * response selected — as does a missing/empty post ID.
+	 * The standalone page is a wp-build route (`/response/<id>`). A missing or empty
+	 * post ID falls back to the responses list.
 	 *
 	 * @since 7.25.0
 	 *
@@ -656,9 +568,6 @@ class Dashboard {
 	public static function get_single_response_admin_url( $post_id = null ) {
 		$post_id = ! empty( $post_id ) ? absint( $post_id ) : null;
 
-		// `get_forms_admin_url()` owns the URL scheme for both dashboards. The
-		// 'response' tab resolves to the standalone page on wp-build, and falls
-		// through to the responses list on legacy, which has no such route.
 		return self::get_forms_admin_url( $post_id ? 'response' : 'inbox', $post_id );
 	}
 
@@ -699,33 +608,6 @@ class Dashboard {
 	}
 
 	/**
-	 * Legacy (hash-based) URL suffix for the forms admin page.
-	 *
-	 * @param string|null $tab    Tab to open.
-	 * @param int|null    $post_id Post ID of response.
-	 * @return string URL suffix (e.g. '#/responses?status=inbox&r=123', or '#/forms').
-	 */
-	private static function get_forms_admin_suffix_legacy( $tab, $post_id ) {
-		$post_id    = ! empty( $post_id ) ? absint( $post_id ) : null;
-		$valid_tabs = array( 'spam', 'inbox', 'trash' );
-		$r_param    = ! empty( $post_id ) ? '&r=' . $post_id : '';
-
-		if ( in_array( $tab, $valid_tabs, true ) ) {
-			return '#/responses?status=' . $tab . $r_param;
-		}
-
-		if ( $tab === 'forms' ) {
-			return '#/forms';
-		}
-
-		if ( ! empty( $post_id ) ) {
-			return '#/responses?status=inbox' . $r_param;
-		}
-
-		return '';
-	}
-
-	/**
 	 * Returns true if the current screen is the Jetpack Forms admin page.
 	 *
 	 * @return boolean
@@ -741,12 +623,7 @@ class Dashboard {
 			return false;
 		}
 
-		$forms_admin_screens = array(
-			'jetpack_page_' . self::ADMIN_SLUG,
-			'jetpack_page_' . self::FORMS_WPBUILD_ADMIN_SLUG,
-		);
-
-		return in_array( $screen->id, $forms_admin_screens, true );
+		return $screen->id === 'jetpack_page_' . self::FORMS_WPBUILD_ADMIN_SLUG;
 	}
 
 	/**

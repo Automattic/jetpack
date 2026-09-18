@@ -1,34 +1,48 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 
-export function getScoreTier( score: number ): 'good' | 'medium' | 'poor' {
+export type ScoreTier = 'good' | 'medium' | 'poor';
+
+export function getScoreTier( score: number ): ScoreTier {
 	// Keep tiers aligned with js-packages/components/components/boost-score-bar/index.tsx.
 	return score > 70 ? 'good' : score > 50 ? 'medium' : 'poor';
 }
 
-export function getScoreTierLabel( score: number ): string {
+export function getScoreTierLabel( tier: ScoreTier ): string {
 	const labels = {
 		good: __( 'Good', 'jetpack-boost' ),
-		medium: __( 'Could be improved', 'jetpack-boost' ),
+		medium: __( 'Could improve', 'jetpack-boost' ),
 		poor: __( 'Poor', 'jetpack-boost' ),
 	};
-	return labels[ getScoreTier( score ) ];
+	return labels[ tier ];
 }
 
 export function getScoreDelta( current: number, noBoost?: number | null ): number | null {
 	return noBoost == null ? null : Math.round( current - noBoost );
 }
 
-export function getTrendDirection( delta: number ): 'up' | 'down' | 'neutral' {
-	return delta > 0 ? 'up' : delta < 0 ? 'down' : 'neutral';
+// Formats a score improvement relative to Boost being disabled.
+export function formatScoreDelta( delta: number ): string | null {
+	if ( delta <= 0 ) {
+		return null;
+	}
+
+	return sprintf(
+		// translators: %s is the improvement in a performance score, such as +10.
+		_n(
+			'%s point compared with Boost disabled',
+			'%s points compared with Boost disabled',
+			delta,
+			'jetpack-boost'
+		),
+		`+${ delta }`
+	);
 }
 
-export function formatScoreDelta( delta: number ): string {
-	if ( delta === 0 ) {
-		return __( 'No change', 'jetpack-boost' );
-	}
-	return sprintf(
-		// translators: %s is the signed change in a performance score, such as +10 or −1.
-		_n( '%s point', '%s points', Math.abs( delta ), 'jetpack-boost' ),
-		`${ delta > 0 ? '+' : '−' }${ Math.abs( delta ) }`
-	);
+export function getScoreTierColor( tier: ScoreTier ): string {
+	const colors = {
+		good: 'var(--jetpack-boost-score-good)',
+		medium: 'var(--jetpack-boost-score-medium)',
+		poor: 'var(--jetpack-boost-score-poor)',
+	};
+	return colors[ tier ];
 }

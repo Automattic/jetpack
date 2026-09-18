@@ -47,8 +47,6 @@ import type { BackupActivityItem } from '../src/dashboard/types/activity';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
-const SETTLE = { timeout: 10000 };
-
 const ITEM: BackupActivityItem = {
 	id: 'act-cloud',
 	kind: 'backup',
@@ -186,7 +184,7 @@ describe( 'Download link carrying the file selection', () => {
 			</QueryClientProvider>
 		);
 		await expect(
-			screen.findByRole( 'button', { name: 'File: wp-config.php' }, SETTLE )
+			screen.findByRole( 'button', { name: 'File: wp-config.php' } )
 		).resolves.toBeInTheDocument();
 
 		expect( screen.getByRole( 'link', { name: /Download backup/ } ) ).toHaveAttribute(
@@ -202,7 +200,7 @@ describe( 'Download link carrying the file selection', () => {
 			</QueryClientProvider>
 		);
 		await expect(
-			screen.findByRole( 'button', { name: 'File: wp-config.php' }, SETTLE )
+			screen.findByRole( 'button', { name: 'File: wp-config.php' } )
 		).resolves.toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Select wp-config.php' } ) );
@@ -237,7 +235,7 @@ describe( 'Download link carrying the file selection', () => {
 			</QueryClientProvider>
 		);
 		await expect(
-			screen.findByRole( 'button', { name: 'Folder: themes' }, SETTLE )
+			screen.findByRole( 'button', { name: 'Folder: themes' } )
 		).resolves.toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Select themes' } ) );
@@ -264,7 +262,7 @@ describe( 'Download link carrying the file selection', () => {
 			</QueryClientProvider>
 		);
 		await expect(
-			screen.findByRole( 'button', { name: 'File: orphan.php' }, SETTLE )
+			screen.findByRole( 'button', { name: 'File: orphan.php' } )
 		).resolves.toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Select orphan.php' } ) );
@@ -298,7 +296,7 @@ describe( 'Download screen without a file selection', () => {
 		// on it: the button exists and is armed, which only makes sense
 		// alongside a list of categories to arm it.
 		await expect(
-			screen.findByRole( 'button', { name: /Generate download/ }, SETTLE )
+			screen.findByRole( 'button', { name: /Generate download/ } )
 		).resolves.toBeInTheDocument();
 		for ( const label of ITEM_LABELS ) {
 			expect( screen.getByRole( 'checkbox', { name: label } ) ).toBeChecked();
@@ -324,7 +322,7 @@ describe( 'Download screen without a file selection', () => {
 		render( <DownloadStage /> );
 
 		await expect(
-			screen.findByRole( 'button', { name: /Generate download/ }, SETTLE )
+			screen.findByRole( 'button', { name: /Generate download/ } )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Preparing download…' ) ).not.toBeInTheDocument();
 		expect( postCalls() ).toHaveLength( 0 );
@@ -342,9 +340,7 @@ describe( 'Download screen with a file selection', () => {
 		// Sibling witness rather than bare absence: the screen has moved on
 		// to preparing the archive, which is the state that replaces the
 		// checklist. A screen that rendered nothing at all would fail here.
-		await expect(
-			screen.findByText( 'Preparing download…', undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Preparing download…' ) ).resolves.toBeInTheDocument();
 
 		for ( const label of ITEM_LABELS ) {
 			expect( screen.queryByRole( 'checkbox', { name: label } ) ).not.toBeInTheDocument();
@@ -358,7 +354,7 @@ describe( 'Download screen with a file selection', () => {
 		render( <DownloadStage /> );
 
 		// Exact, for the reason given in `restore-progress-message.test.tsx`.
-		await expect( screen.findByRole( 'status', undefined, SETTLE ) ).resolves.toHaveTextContent(
+		await expect( screen.findByRole( 'status' ) ).resolves.toHaveTextContent(
 			/^Preparing download…$/
 		);
 	} );
@@ -366,9 +362,7 @@ describe( 'Download screen with a file selection', () => {
 	it( 'asks WordPress.com for the archive once, without being clicked', async () => {
 		render( <DownloadStage /> );
 
-		await expect(
-			screen.findByText( 'Preparing download…', undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Preparing download…' ) ).resolves.toBeInTheDocument();
 
 		const posts = postCalls();
 		expect( posts ).toHaveLength( 1 );
@@ -379,9 +373,7 @@ describe( 'Download screen with a file selection', () => {
 	it( 'names the paths type and the entries, and no other category', async () => {
 		render( <DownloadStage /> );
 
-		await expect(
-			screen.findByText( 'Preparing download…', undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Preparing download…' ) ).resolves.toBeInTheDocument();
 
 		expect( initiateCalls()[ 0 ]?.data ).toEqual( {
 			types: { paths: true },
@@ -410,9 +402,9 @@ describe( 'Download screen with a file selection', () => {
 
 		render( <DownloadStage /> );
 
-		await userEvent.click( await screen.findByRole( 'button', { name: /Try again/ }, SETTLE ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: /Try again/ } ) );
 
-		await waitFor( () => expect( initiateCalls() ).toHaveLength( 2 ), SETTLE );
+		await waitFor( () => expect( initiateCalls() ).toHaveLength( 2 ) );
 		expect( initiateCalls()[ 1 ]?.data ).toEqual( {
 			types: { paths: true },
 			include_path_list: [ WP_CONFIG_ID, README_ID ],
@@ -433,10 +425,10 @@ describe( 'Download screen with a file selection', () => {
 		// the job queued — so waiting on the element alone would pass on a
 		// bar that never took a number from the poll. The polled value is
 		// the assertion that matters.
-		const bar = await screen.findByRole( 'progressbar', undefined, SETTLE );
+		const bar = await screen.findByRole( 'progressbar' );
 		// A number, not a string: `toHaveValue` on `<progress>` reads
 		// `element.value`, which the DOM has already coerced.
-		await waitFor( () => expect( bar ).toHaveValue( 36 ), SETTLE );
+		await waitFor( () => expect( bar ).toHaveValue( 36 ) );
 		// The spinner is the state the bar replaces, so its departure is
 		// half the behaviour. `Spinner` renders an explicit
 		// `role="presentation"`, which is the handle on it.
@@ -454,9 +446,7 @@ describe( 'Download screen with a file selection', () => {
 
 		// Wait for a live poll first, so the flip below lands on a screen
 		// that is genuinely waiting rather than one still mid-POST.
-		await expect(
-			screen.findByRole( 'progressbar', undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByRole( 'progressbar' ) ).resolves.toBeInTheDocument();
 
 		downloadStatus = {
 			id: 4242,
@@ -467,7 +457,7 @@ describe( 'Download screen with a file selection', () => {
 			error: '',
 		};
 
-		const link = await screen.findByRole( 'link', { name: 'Download the file' }, SETTLE );
+		const link = await screen.findByRole( 'link', { name: 'Download the file' } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/archive.zip' );
 		expect( link ).toHaveAttribute( 'download' );
 		// `Notice` also speaks its text through `wp.a11y.speak`, which
@@ -488,7 +478,7 @@ describe( 'Download screen with a file selection', () => {
 		render( <DownloadStage /> );
 
 		await expect(
-			screen.findByText( "This download link isn't valid.", undefined, SETTLE )
+			screen.findByText( "This download link isn't valid." )
 		).resolves.toBeInTheDocument();
 		expect( postCalls() ).toHaveLength( 0 );
 	} );
@@ -508,7 +498,7 @@ describe( 'From the file browser to the request', () => {
 			</QueryClientProvider>
 		);
 		await expect(
-			screen.findByRole( 'button', { name: 'Folder: themes' }, SETTLE )
+			screen.findByRole( 'button', { name: 'Folder: themes' } )
 		).resolves.toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Select themes' } ) );
@@ -522,9 +512,7 @@ describe( 'From the file browser to the request', () => {
 			files: new URLSearchParams( href.slice( href.indexOf( '?' ) ) ).get( 'files' ) ?? '',
 		} );
 		render( <DownloadStage /> );
-		await expect(
-			screen.findByText( 'Preparing download…', undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Preparing download…' ) ).resolves.toBeInTheDocument();
 
 		// Three entries for two ticked rows: the folder's id is itself a
 		// comma-joined pair.

@@ -1,20 +1,19 @@
-// The scroll container below the page header: the resource header scrolls away
-// with the sections instead of permanently occupying the viewport.
+// The scroll container below the page header, so the tabs scroll away with
+// the content while the resource header pins at its top. The scope is what
+// lets the header's pin marker reach the header beside it.
 .root {
 	flex: 1 1 auto;
 	min-block-size: 0;
 	overflow-y: auto;
-}
-
-.header {
-	// The header's own container query sizes its two halves; this only places
-	// the block on the page. Inline padding matches the widget grid; the block
-	// spacing is the design's breathing room around the header.
-	padding-block: var(--wpds-dimension-gap-3xl);
-	padding-inline: var(--wpds-dimension-padding-2xl);
+	timeline-scope: --section-header-pin;
 }
 
 .section {
+	// Caps every layer the widget grid raises (chart controls, the edit
+	// overlay, resizing tiles) under the pinned header, which then only has to
+	// outrank this box rather than z-index values it does not own.
+	isolation: isolate;
+
 	// Reserve paint space for the widget host's outer focus outline.
 	padding-block-start: calc(var(--wpds-border-width-focus) + 2px);
 	padding-block-end: var(--wpds-dimension-padding-2xl);

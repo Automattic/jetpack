@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fix inefficient regex. Note the regex as a whole doesn't make a whole lot of sense, but figuring out what it really needs to match is more of a Product decision.
-
-

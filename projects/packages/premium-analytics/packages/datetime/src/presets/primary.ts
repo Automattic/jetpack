@@ -48,18 +48,19 @@ import {
 	type YearSurfacePresetId,
 } from './types';
 import type { DateRange } from '../get-comparison-range';
+import type { TZDate } from '@date-fns/tz';
 
 /**
  * Shared date calculations used by multiple presets.
  */
 type DateContext = {
-	now: Date;
-	initOfToday: Date;
-	endOfToday: Date;
-	endOfYesterday: Date;
-	lastMonth: Date;
-	endOfLastMonth: Date;
-	lastYear: Date;
+	now: TZDate;
+	initOfToday: TZDate;
+	endOfToday: TZDate;
+	endOfYesterday: TZDate;
+	lastMonth: TZDate;
+	endOfLastMonth: TZDate;
+	lastYear: TZDate;
 	timeZone: string;
 };
 
@@ -232,7 +233,9 @@ function buildDateContext( timeZone: string ): DateContext {
 	const nowWithTZ = toLocalTZ( undefined, timeZone );
 	const initOfToday = startOfDay( nowWithTZ );
 	const endOfToday = endOfDay( nowWithTZ );
-	const endOfYesterday = endOfDay( subDays( initOfToday, 1 ) );
+	// A nested `date-fns` call has no contextual type, and widens the result to `Date`.
+	const initOfYesterday = subDays( initOfToday, 1 );
+	const endOfYesterday = endOfDay( initOfYesterday );
 	const lastMonth = subMonths( initOfToday, 1 );
 	const endOfLastMonth = endOfMonth( lastMonth );
 	const lastYear = subYears( initOfToday, 1 );

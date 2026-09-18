@@ -13,8 +13,32 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+// The API-managed buttons ship behind a flag; register it before anything reads it.
+PayPal_Payment_Buttons::register_feature_flags();
+add_filter( 'jetpack_block_editor_feature_flags', array( PayPal_Payment_Buttons::class, 'add_editor_feature_flags' ) );
+
 // Register the block.
 add_action( 'init', array( PayPal_Payment_Buttons::class, 'register_block' ), 9 );
+
+/*
+ * Register the PayPal REST routes (wpcom/v2/paypal/*) that the block editor calls
+ * to connect an account and manage payment links. Without them the block renders
+ * but every request the editor makes -- onboarding, connect, button CRUD -- 404s.
+ *
+ * Only the routes: init_api() also hooks sharing and the email sender, neither of
+ * which is wired up on Jetpack today. Both this and init_admin() no-op while the
+ * flag is off.
+ */
+PayPal_Payment_Buttons::init_rest_api();
+
+/*
+ * Register the Payment Links admin page. The standalone plugin wires this up in
+ * its own bootstrap; the Jetpack loader has to do the same or PayPal_Admin_Page
+ * never runs and the page does not exist in wp-admin.
+ */
+if ( is_admin() ) {
+	PayPal_Payment_Buttons::init_admin();
+}
 
 // Load scripts for the editing interface
 add_action( 'enqueue_block_editor_assets', array( PayPal_Payment_Buttons::class, 'load_editor_scripts' ), 9 );

@@ -1035,6 +1035,9 @@ function wpcom_write_render_admin_page() {
 			'formatUList'            => false,
 			'insideList'             => false,
 			'showRecoveryBanner'     => false,
+			// The first-visit note is opened by view.js, which owns the
+			// per-browser "already seen" flag; the server always renders it hidden.
+			'showEditorNote'         => false,
 			'unsupportedWarning'     => $unsupported_type,
 			'editorUrl'              => $editor_url,
 			'blockEditorUrl'         => $block_editor_url,
@@ -1079,20 +1082,62 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 
 	<!-- Top bar -->
 	<header class="bw-topbar" data-wp-class--has-topbar-message="state.hasMessage">
-		<a href="<?php echo esc_url( $back_url ); ?>" class="bw-back" title="<?php echo esc_attr__( 'Back', 'jetpack-mu-wpcom' ); ?>" aria-label="<?php echo esc_attr__( 'Back', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.handleBack"><?php wpcom_write_icon( 'back' ); ?></a>
+		<a href="<?php echo esc_url( $back_url ); ?>" class="bw-back" title="<?php esc_attr_e( 'Back', 'jetpack-mu-wpcom' ); ?>" aria-label="<?php esc_attr_e( 'Back', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.handleBack"><?php wpcom_write_icon( 'back' ); ?></a>
 		<div class="bw-help-wrap" data-wp-on--keydown="actions.handleHelpKeyDown" data-wp-on--focusout="actions.handleHelpFocusOut">
-		<button class="bw-help-toggle" data-wp-on--click="actions.toggleHelp" title="<?php echo esc_attr__( 'Tips', 'jetpack-mu-wpcom' ); ?>" aria-label="<?php echo esc_attr__( 'Tips', 'jetpack-mu-wpcom' ); ?>"><span class="bw-help-i" aria-hidden="true">i</span></button>
+		<button class="bw-help-toggle" data-wp-on--click="actions.toggleHelp" title="<?php esc_attr_e( 'Tips', 'jetpack-mu-wpcom' ); ?>" aria-label="<?php esc_attr_e( 'Tips', 'jetpack-mu-wpcom' ); ?>"><span class="bw-help-i" aria-hidden="true">i</span></button>
 		<div class="bw-help-popover" hidden data-wp-bind--hidden="!state.showHelp">
-			<div class="bw-help-title"><?php echo esc_html__( 'Tips', 'jetpack-mu-wpcom' ); ?></div>
-			<div class="bw-help-row"><kbd>/</kbd><span><?php echo esc_html__( 'Insert a heading, image, video, list, quote or divider', 'jetpack-mu-wpcom' ); ?></span></div>
-			<div class="bw-help-row"><kbd>Ctrl+B</kbd><span><?php echo esc_html__( 'Bold', 'jetpack-mu-wpcom' ); ?></span></div>
-			<div class="bw-help-row"><kbd>Ctrl+I</kbd><span><?php echo esc_html__( 'Italic', 'jetpack-mu-wpcom' ); ?></span></div>
-			<div class="bw-help-row"><kbd>Ctrl+K</kbd><span><?php echo esc_html__( 'Insert link', 'jetpack-mu-wpcom' ); ?></span></div>
-			<div class="bw-help-row"><kbd>Ctrl+S</kbd><span><?php echo esc_html__( 'Save', 'jetpack-mu-wpcom' ); ?></span></div>
-			<div class="bw-help-row"><kbd>Tab</kbd><span><?php echo esc_html__( 'Navigate slash menu options', 'jetpack-mu-wpcom' ); ?></span></div>
-			<div class="bw-help-row"><kbd>Shift+Tab</kbd><span><?php echo esc_html__( 'Focus formatting toolbar', 'jetpack-mu-wpcom' ); ?></span></div>
-			<div class="bw-help-row"><kbd>#tag</kbd><span><?php echo esc_html__( 'A line containing only #tags assigns them to the post on save', 'jetpack-mu-wpcom' ); ?></span></div>
-			<a class="bw-help-link" data-target="wpcom-help-center" href="https://wordpress.com/support/editors/write-editor/" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Read the Write editor guide', 'jetpack-mu-wpcom' ); ?> <span aria-hidden="true">&#8599;</span></a>
+			<div class="bw-help-note">
+				<p class="bw-help-note-text">
+				<?php
+				echo wp_kses(
+					sprintf(
+						/* translators: %1$s and %2$s are the opening and closing tags of a link to the Write editor guide. */
+						__( 'You’re using %1$sWrite%2$s, a simple editor for writing.', 'jetpack-mu-wpcom' ),
+						'<a class="bw-help-note-guide" data-target="wpcom-help-center" href="https://wordpress.com/support/editors/write-editor/" target="_blank" rel="noopener noreferrer">',
+						'</a>'
+					),
+					array(
+						'a' => array(
+							'class'       => array(),
+							'data-target' => array(),
+							'href'        => array(),
+							'target'      => array(),
+							'rel'         => array(),
+						),
+					)
+				);
+				?>
+				</p>
+				<p class="bw-help-note-switch">
+				<?php
+				echo wp_kses(
+					sprintf(
+						/* translators: %1$s and %2$s are the opening and closing tags of a button reading "Block editor". */
+						__( 'Use the %1$sBlock editor%2$s instead.', 'jetpack-mu-wpcom' ),
+						'<button type="button" class="bw-help-note-button" data-wp-on--click="actions.switchToBlockEditor">',
+						'</button>'
+					),
+					array(
+						'button' => array(
+							'type'              => array(),
+							'class'             => array(),
+							'data-wp-on--click' => array(),
+						),
+					)
+				);
+				?>
+				</p>
+			</div>
+			<div class="bw-help-title"><?php esc_html_e( 'Tips', 'jetpack-mu-wpcom' ); ?></div>
+			<div class="bw-help-row"><kbd>/</kbd><span><?php esc_html_e( 'Insert a heading, image, video, list, quote or divider', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div class="bw-help-row"><kbd>Ctrl+B</kbd><span><?php esc_html_e( 'Bold', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div class="bw-help-row"><kbd>Ctrl+I</kbd><span><?php esc_html_e( 'Italic', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div class="bw-help-row"><kbd>Ctrl+K</kbd><span><?php esc_html_e( 'Insert link', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div class="bw-help-row"><kbd>Ctrl+S</kbd><span><?php esc_html_e( 'Save', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div class="bw-help-row"><kbd>Tab</kbd><span><?php esc_html_e( 'Navigate slash menu options', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div class="bw-help-row"><kbd>Shift+Tab</kbd><span><?php esc_html_e( 'Focus formatting toolbar', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div class="bw-help-row"><kbd>#tag</kbd><span><?php esc_html_e( 'A line containing only #tags assigns them to the post on save', 'jetpack-mu-wpcom' ); ?></span></div>
+			<a class="bw-help-link" data-target="wpcom-help-center" href="https://wordpress.com/support/editors/write-editor/" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Read the Write editor guide', 'jetpack-mu-wpcom' ); ?> <span aria-hidden="true">&#8599;</span></a>
 		</div>
 		</div><!-- /.bw-help-wrap -->
 		<span class="bw-status" data-wp-text="state.displayStatus"></span>
@@ -1110,7 +1155,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				data-wp-bind--disabled="state.isSaving"
 				data-wp-bind--hidden="state.isPublishedPost"
 				<?php echo 'publish' === $post_status ? 'hidden' : ''; ?>
-			><?php echo esc_html__( 'Save draft', 'jetpack-mu-wpcom' ); ?></button>
+			><?php esc_html_e( 'Save draft', 'jetpack-mu-wpcom' ); ?></button>
 			<button
 				class="bw-btn bw-btn-publish"
 				data-wp-on--click="actions.publish"
@@ -1123,10 +1168,10 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 					aria-expanded="false"
 					data-wp-bind--aria-expanded="state.showMoreMenu"
 					data-wp-on--click="actions.toggleMoreMenu"
-					title="<?php echo esc_attr__( 'More options', 'jetpack-mu-wpcom' ); ?>"
-					aria-label="<?php echo esc_attr__( 'More options', 'jetpack-mu-wpcom' ); ?>"
+					title="<?php esc_attr_e( 'More options', 'jetpack-mu-wpcom' ); ?>"
+					aria-label="<?php esc_attr_e( 'More options', 'jetpack-mu-wpcom' ); ?>"
 				><span class="bw-more-dots"><?php wpcom_write_icon( 'kebab' ); ?></span></button>
-				<div class="bw-more-menu" role="menu" aria-label="<?php echo esc_attr__( 'More options', 'jetpack-mu-wpcom' ); ?>" hidden data-wp-bind--hidden="!state.showMoreMenu">
+				<div class="bw-more-menu" role="menu" aria-label="<?php esc_attr_e( 'More options', 'jetpack-mu-wpcom' ); ?>" hidden data-wp-bind--hidden="!state.showMoreMenu">
 					<button
 						class="bw-more-menu-item bw-more-save-draft"
 						role="menuitem"
@@ -1134,25 +1179,25 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 						data-wp-on--click="actions.saveDraftFromMenu"
 						data-wp-bind--hidden="state.isPublishedPost"
 						<?php echo 'publish' === $post_status ? 'hidden' : ''; ?>
-					><?php echo esc_html__( 'Save draft', 'jetpack-mu-wpcom' ); ?></button>
+					><?php esc_html_e( 'Save draft', 'jetpack-mu-wpcom' ); ?></button>
 					<button
 						class="bw-more-menu-item"
 						role="menuitem"
 						tabindex="-1"
 						data-wp-on--click="actions.openInBlockEditor"
-					><?php echo esc_html__( 'Open in block editor', 'jetpack-mu-wpcom' ); ?></button>
+					><?php esc_html_e( 'Open in Block editor', 'jetpack-mu-wpcom' ); ?></button>
 					<button
 						class="bw-more-menu-item"
 						role="menuitem"
 						tabindex="-1"
 						data-wp-on--click="actions.previewPost"
-					><?php echo esc_html__( 'Preview', 'jetpack-mu-wpcom' ); ?></button>
+					><?php esc_html_e( 'Preview', 'jetpack-mu-wpcom' ); ?></button>
 					<button
 						class="bw-more-menu-item"
 						role="menuitem"
 						tabindex="-1"
 						data-wp-on--click="actions.openPostPicker"
-					><?php echo esc_html__( 'Open post', 'jetpack-mu-wpcom' ); ?></button>
+					><?php esc_html_e( 'Open post', 'jetpack-mu-wpcom' ); ?></button>
 				</div>
 			</div>
 		</div>
@@ -1160,69 +1205,107 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 
 	<!-- Recovery banner -->
 	<div class="bw-recovery-banner" hidden data-wp-bind--hidden="!state.showRecoveryBanner">
-		<span class="bw-recovery-text"><?php echo esc_html__( 'You have a recent draft — continue editing?', 'jetpack-mu-wpcom' ); ?></span>
-		<button class="bw-recovery-btn" data-wp-on--click="actions.resumeDraft"><?php echo esc_html__( 'Resume editing', 'jetpack-mu-wpcom' ); ?></button>
-		<button class="bw-recovery-dismiss" data-wp-on--click="actions.dismissRecovery" aria-label="<?php echo esc_attr__( 'Dismiss draft recovery notice', 'jetpack-mu-wpcom' ); ?>">&times;</button>
+		<span class="bw-recovery-text"><?php esc_html_e( 'You have a recent draft — continue editing?', 'jetpack-mu-wpcom' ); ?></span>
+		<button class="bw-recovery-btn" data-wp-on--click="actions.resumeDraft"><?php esc_html_e( 'Resume editing', 'jetpack-mu-wpcom' ); ?></button>
+		<button class="bw-recovery-dismiss" data-wp-on--click="actions.dismissRecovery" aria-label="<?php esc_attr_e( 'Dismiss draft recovery notice', 'jetpack-mu-wpcom' ); ?>">&times;</button>
+	</div>
+
+	<!-- First-visit note. Sits after the recovery banner, which pushes it down. -->
+	<div
+		class="bw-editor-note"
+		role="dialog"
+		aria-label="<?php esc_attr_e( 'About the Write editor', 'jetpack-mu-wpcom' ); ?>"
+		aria-describedby="bw-editor-note-text"
+		tabindex="-1"
+		hidden
+		data-wp-bind--hidden="!state.showEditorNote"
+		data-wp-on--keydown="actions.handleEditorNoteKeyDown"
+	>
+		<p class="bw-editor-note-text" id="bw-editor-note-text">
+		<?php
+		echo wp_kses(
+			sprintf(
+				/* translators: %1$s and %2$s are the opening and closing tags of a link to the Write editor guide. */
+				__( 'You’re using %1$sWrite%2$s, a simple editor for writing.', 'jetpack-mu-wpcom' ),
+				'<a class="bw-editor-note-guide" data-target="wpcom-help-center" href="https://wordpress.com/support/editors/write-editor/" target="_blank" rel="noopener noreferrer">',
+				'</a>'
+			),
+			array(
+				'a' => array(
+					'class'       => array(),
+					'data-target' => array(),
+					'href'        => array(),
+					'target'      => array(),
+					'rel'         => array(),
+				),
+			)
+		);
+		?>
+		</p>
+		<div class="bw-editor-note-actions">
+			<button class="bw-editor-note-secondary" data-wp-on--click="actions.openInBlockEditorFromNote"><?php esc_html_e( 'Use the Block editor', 'jetpack-mu-wpcom' ); ?></button>
+			<button class="bw-editor-note-ok" data-wp-on--click="actions.dismissEditorNote"><?php esc_html_e( 'Got it', 'jetpack-mu-wpcom' ); ?></button>
+		</div>
 	</div>
 
 	<!-- Persistent formatting toolbar -->
 	<div
 		class="bw-toolbar"
 		role="toolbar"
-		aria-label="<?php echo esc_attr__( 'Formatting', 'jetpack-mu-wpcom' ); ?>"
+		aria-label="<?php esc_attr_e( 'Formatting', 'jetpack-mu-wpcom' ); ?>"
 		data-wp-on--mousedown="actions.preventToolbarBlur"
 		data-wp-on--keydown="actions.handleToolbarKeyDown"
 	>
 		<div class="bw-toolbar-scroll">
 			<!-- Undo / Redo -->
-			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Undo', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.undo" data-wp-bind--disabled="!state.canUndo" title="<?php echo esc_attr__( 'Undo', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'undo' ); ?></button>
-			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Redo', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.redo" data-wp-bind--disabled="!state.canRedo" title="<?php echo esc_attr__( 'Redo', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'redo' ); ?></button>
+			<button class="bw-tool" aria-label="<?php esc_attr_e( 'Undo', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.undo" data-wp-bind--disabled="!state.canUndo" title="<?php esc_attr_e( 'Undo', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'undo' ); ?></button>
+			<button class="bw-tool" aria-label="<?php esc_attr_e( 'Redo', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.redo" data-wp-bind--disabled="!state.canRedo" title="<?php esc_attr_e( 'Redo', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'redo' ); ?></button>
 			<span class="bw-tool-divider"></span>
 			<!-- Heading dropdown -->
 			<div class="bw-tool-dropdown-wrap">
-				<button class="bw-tool bw-tool-heading-toggle" aria-label="<?php echo esc_attr__( 'Text style', 'jetpack-mu-wpcom' ); ?>" aria-haspopup="menu" aria-expanded="false" tabindex="0" data-wp-bind--aria-expanded="state.showHeadingMenu" data-wp-on--click="actions.toggleHeadingMenu" data-wp-class--bw-tool-active="state.formatHeading" title="<?php echo esc_attr__( 'Text style', 'jetpack-mu-wpcom' ); ?>">
-					<span class="bw-tool-label" data-wp-text="state.headingLabel"><?php echo esc_html__( 'Normal', 'jetpack-mu-wpcom' ); ?></span>
+				<button class="bw-tool bw-tool-heading-toggle" aria-label="<?php esc_attr_e( 'Text style', 'jetpack-mu-wpcom' ); ?>" aria-haspopup="menu" aria-expanded="false" tabindex="0" data-wp-bind--aria-expanded="state.showHeadingMenu" data-wp-on--click="actions.toggleHeadingMenu" data-wp-class--bw-tool-active="state.formatHeading" title="<?php esc_attr_e( 'Text style', 'jetpack-mu-wpcom' ); ?>">
+					<span class="bw-tool-label" data-wp-text="state.headingLabel"><?php esc_html_e( 'Normal', 'jetpack-mu-wpcom' ); ?></span>
 					<span class="bw-tool-caret"><?php wpcom_write_icon( 'chevron-down' ); ?></span>
 				</button>
-				<div class="bw-heading-menu" role="menu" aria-label="<?php echo esc_attr__( 'Text style', 'jetpack-mu-wpcom' ); ?>" hidden data-wp-bind--hidden="!state.showHeadingMenu" data-wp-on--keydown="actions.handleSubmenuKeyDown">
-					<button class="bw-heading-option" role="menuitem" tabindex="-1" data-wp-on--click="actions.setHeadingNormal" data-wp-on--mousedown="actions.preventToolbarBlur"><span><?php echo esc_html__( 'Normal', 'jetpack-mu-wpcom' ); ?></span></button>
-					<button class="bw-heading-option bw-heading-option-h2" role="menuitem" tabindex="-1" data-wp-on--click="actions.setHeadingH2" data-wp-on--mousedown="actions.preventToolbarBlur"><span><?php echo esc_html__( 'Heading 2', 'jetpack-mu-wpcom' ); ?></span></button>
-					<button class="bw-heading-option bw-heading-option-h3" role="menuitem" tabindex="-1" data-wp-on--click="actions.setHeadingH3" data-wp-on--mousedown="actions.preventToolbarBlur"><span><?php echo esc_html__( 'Heading 3', 'jetpack-mu-wpcom' ); ?></span></button>
+				<div class="bw-heading-menu" role="menu" aria-label="<?php esc_attr_e( 'Text style', 'jetpack-mu-wpcom' ); ?>" hidden data-wp-bind--hidden="!state.showHeadingMenu" data-wp-on--keydown="actions.handleSubmenuKeyDown">
+					<button class="bw-heading-option" role="menuitem" tabindex="-1" data-wp-on--click="actions.setHeadingNormal" data-wp-on--mousedown="actions.preventToolbarBlur"><span><?php esc_html_e( 'Normal', 'jetpack-mu-wpcom' ); ?></span></button>
+					<button class="bw-heading-option bw-heading-option-h2" role="menuitem" tabindex="-1" data-wp-on--click="actions.setHeadingH2" data-wp-on--mousedown="actions.preventToolbarBlur"><span><?php esc_html_e( 'Heading 2', 'jetpack-mu-wpcom' ); ?></span></button>
+					<button class="bw-heading-option bw-heading-option-h3" role="menuitem" tabindex="-1" data-wp-on--click="actions.setHeadingH3" data-wp-on--mousedown="actions.preventToolbarBlur"><span><?php esc_html_e( 'Heading 3', 'jetpack-mu-wpcom' ); ?></span></button>
 				</div>
 			</div>
 			<span class="bw-tool-divider"></span>
 			<!-- Inline formatting -->
-			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Bold', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.formatBold" data-wp-class--bw-tool-active="state.formatBold" title="<?php echo esc_attr__( 'Bold', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'bold' ); ?></button>
-			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Italic', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.formatItalic" data-wp-class--bw-tool-active="state.formatItalic" title="<?php echo esc_attr__( 'Italic', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'italic' ); ?></button>
-			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Underline', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.formatUnderline" data-wp-class--bw-tool-active="state.formatUnderline" title="<?php echo esc_attr__( 'Underline', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'underline' ); ?></button>
-			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Strikethrough', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.formatStrikethrough" data-wp-class--bw-tool-active="state.formatStrikethrough" title="<?php echo esc_attr__( 'Strikethrough', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'strikethrough' ); ?></button>
+			<button class="bw-tool" aria-label="<?php esc_attr_e( 'Bold', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.formatBold" data-wp-class--bw-tool-active="state.formatBold" title="<?php esc_attr_e( 'Bold', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'bold' ); ?></button>
+			<button class="bw-tool" aria-label="<?php esc_attr_e( 'Italic', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.formatItalic" data-wp-class--bw-tool-active="state.formatItalic" title="<?php esc_attr_e( 'Italic', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'italic' ); ?></button>
+			<button class="bw-tool" aria-label="<?php esc_attr_e( 'Underline', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.formatUnderline" data-wp-class--bw-tool-active="state.formatUnderline" title="<?php esc_attr_e( 'Underline', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'underline' ); ?></button>
+			<button class="bw-tool" aria-label="<?php esc_attr_e( 'Strikethrough', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.formatStrikethrough" data-wp-class--bw-tool-active="state.formatStrikethrough" title="<?php esc_attr_e( 'Strikethrough', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'strikethrough' ); ?></button>
 			<!-- Text color -->
 			<div class="bw-tool-dropdown-wrap">
-				<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Text color', 'jetpack-mu-wpcom' ); ?>" aria-haspopup="menu" aria-expanded="false" tabindex="-1" data-wp-bind--aria-expanded="state.showTextColorMenu" data-wp-on--click="actions.toggleTextColorMenu" title="<?php echo esc_attr__( 'Text color', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'text-color' ); ?></button>
-				<div class="bw-color-menu" role="menu" aria-label="<?php echo esc_attr__( 'Text color', 'jetpack-mu-wpcom' ); ?>" hidden data-wp-bind--hidden="!state.showTextColorMenu" data-wp-on--mousedown="actions.preventToolbarBlur" data-wp-on--keydown="actions.handleSubmenuKeyDown">
-					<button class="bw-color-swatch" role="menuitem" tabindex="-1" style="background:#1a1a1a;" aria-label="<?php echo esc_attr__( 'Default', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.setTextColorDefault" title="<?php echo esc_attr__( 'Default', 'jetpack-mu-wpcom' ); ?>"></button>
-					<button class="bw-color-swatch" role="menuitem" tabindex="-1" style="background:#d63638;" aria-label="<?php echo esc_attr__( 'Red', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.setTextColorRed" title="<?php echo esc_attr__( 'Red', 'jetpack-mu-wpcom' ); ?>"></button>
-					<button class="bw-color-swatch" role="menuitem" tabindex="-1" style="background:#2171b1;" aria-label="<?php echo esc_attr__( 'Blue', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.setTextColorBlue" title="<?php echo esc_attr__( 'Blue', 'jetpack-mu-wpcom' ); ?>"></button>
-					<button class="bw-color-swatch" role="menuitem" tabindex="-1" style="background:#00a32a;" aria-label="<?php echo esc_attr__( 'Green', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.setTextColorGreen" title="<?php echo esc_attr__( 'Green', 'jetpack-mu-wpcom' ); ?>"></button>
-					<button class="bw-color-swatch" role="menuitem" tabindex="-1" style="background:#dba617;" aria-label="<?php echo esc_attr__( 'Yellow', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.setTextColorYellow" title="<?php echo esc_attr__( 'Yellow', 'jetpack-mu-wpcom' ); ?>"></button>
-					<button class="bw-color-swatch" role="menuitem" tabindex="-1" style="background:#8c5db0;" aria-label="<?php echo esc_attr__( 'Purple', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.setTextColorPurple" title="<?php echo esc_attr__( 'Purple', 'jetpack-mu-wpcom' ); ?>"></button>
+				<button class="bw-tool" aria-label="<?php esc_attr_e( 'Text color', 'jetpack-mu-wpcom' ); ?>" aria-haspopup="menu" aria-expanded="false" tabindex="-1" data-wp-bind--aria-expanded="state.showTextColorMenu" data-wp-on--click="actions.toggleTextColorMenu" title="<?php esc_attr_e( 'Text color', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'text-color' ); ?></button>
+				<div class="bw-color-menu" role="menu" aria-label="<?php esc_attr_e( 'Text color', 'jetpack-mu-wpcom' ); ?>" hidden data-wp-bind--hidden="!state.showTextColorMenu" data-wp-on--mousedown="actions.preventToolbarBlur" data-wp-on--keydown="actions.handleSubmenuKeyDown">
+					<button class="bw-color-swatch" role="menuitem" tabindex="-1" style="background:#1a1a1a;" aria-label="<?php esc_attr_e( 'Default', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.setTextColorDefault" title="<?php esc_attr_e( 'Default', 'jetpack-mu-wpcom' ); ?>"></button>
+					<button class="bw-color-swatch" role="menuitem" tabindex="-1" style="background:#d63638;" aria-label="<?php esc_attr_e( 'Red', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.setTextColorRed" title="<?php esc_attr_e( 'Red', 'jetpack-mu-wpcom' ); ?>"></button>
+					<button class="bw-color-swatch" role="menuitem" tabindex="-1" style="background:#2171b1;" aria-label="<?php esc_attr_e( 'Blue', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.setTextColorBlue" title="<?php esc_attr_e( 'Blue', 'jetpack-mu-wpcom' ); ?>"></button>
+					<button class="bw-color-swatch" role="menuitem" tabindex="-1" style="background:#00a32a;" aria-label="<?php esc_attr_e( 'Green', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.setTextColorGreen" title="<?php esc_attr_e( 'Green', 'jetpack-mu-wpcom' ); ?>"></button>
+					<button class="bw-color-swatch" role="menuitem" tabindex="-1" style="background:#dba617;" aria-label="<?php esc_attr_e( 'Yellow', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.setTextColorYellow" title="<?php esc_attr_e( 'Yellow', 'jetpack-mu-wpcom' ); ?>"></button>
+					<button class="bw-color-swatch" role="menuitem" tabindex="-1" style="background:#8c5db0;" aria-label="<?php esc_attr_e( 'Purple', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.setTextColorPurple" title="<?php esc_attr_e( 'Purple', 'jetpack-mu-wpcom' ); ?>"></button>
 				</div>
 			</div>
 			<span class="bw-tool-divider"></span>
 			<!-- Alignment -->
-			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Align left', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignLeft" data-wp-class--bw-tool-active="state.formatAlignLeft" data-wp-bind--disabled="state.insideList" title="<?php echo esc_attr__( 'Align left', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'align-left' ); ?></button>
-			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Align center', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignCenter" data-wp-class--bw-tool-active="state.formatAlignCenter" data-wp-bind--disabled="state.insideList" title="<?php echo esc_attr__( 'Align center', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'align-center' ); ?></button>
-			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Align right', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignRight" data-wp-class--bw-tool-active="state.formatAlignRight" data-wp-bind--disabled="state.insideList" title="<?php echo esc_attr__( 'Align right', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'align-right' ); ?></button>
-			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Justify', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignJustify" data-wp-class--bw-tool-active="state.formatAlignJustify" data-wp-bind--disabled="state.cannotJustify" title="<?php echo esc_attr__( 'Justify', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'align-justify' ); ?></button>
+			<button class="bw-tool" aria-label="<?php esc_attr_e( 'Align left', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignLeft" data-wp-class--bw-tool-active="state.formatAlignLeft" data-wp-bind--disabled="state.insideList" title="<?php esc_attr_e( 'Align left', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'align-left' ); ?></button>
+			<button class="bw-tool" aria-label="<?php esc_attr_e( 'Align center', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignCenter" data-wp-class--bw-tool-active="state.formatAlignCenter" data-wp-bind--disabled="state.insideList" title="<?php esc_attr_e( 'Align center', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'align-center' ); ?></button>
+			<button class="bw-tool" aria-label="<?php esc_attr_e( 'Align right', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignRight" data-wp-class--bw-tool-active="state.formatAlignRight" data-wp-bind--disabled="state.insideList" title="<?php esc_attr_e( 'Align right', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'align-right' ); ?></button>
+			<button class="bw-tool" aria-label="<?php esc_attr_e( 'Justify', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.alignJustify" data-wp-class--bw-tool-active="state.formatAlignJustify" data-wp-bind--disabled="state.cannotJustify" title="<?php esc_attr_e( 'Justify', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'align-justify' ); ?></button>
 			<span class="bw-tool-divider"></span>
 			<!-- Lists -->
-			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Bulleted list', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.formatUList" data-wp-class--bw-tool-active="state.formatUList" title="<?php echo esc_attr__( 'Bulleted list', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'list-bullets' ); ?></button>
-			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Numbered list', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.formatOList" data-wp-class--bw-tool-active="state.formatOList" title="<?php echo esc_attr__( 'Numbered list', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'list-numbered' ); ?></button>
+			<button class="bw-tool" aria-label="<?php esc_attr_e( 'Bulleted list', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.formatUList" data-wp-class--bw-tool-active="state.formatUList" title="<?php esc_attr_e( 'Bulleted list', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'list-bullets' ); ?></button>
+			<button class="bw-tool" aria-label="<?php esc_attr_e( 'Numbered list', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.formatOList" data-wp-class--bw-tool-active="state.formatOList" title="<?php esc_attr_e( 'Numbered list', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'list-numbered' ); ?></button>
 			<span class="bw-tool-divider"></span>
 			<!-- Block-level -->
-			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Link', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.toggleLinkInput" data-wp-class--bw-tool-active="state.showLinkInput" title="<?php echo esc_attr__( 'Link', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'link' ); ?></button>
-			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Quote', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.formatQuote" data-wp-class--bw-tool-active="state.formatQuote" title="<?php echo esc_attr__( 'Quote', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'quote' ); ?></button>
-			<button class="bw-tool" aria-label="<?php echo esc_attr__( 'Image', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.openImageModal" data-wp-bind--disabled="state.insideList" title="<?php echo esc_attr__( 'Image', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'image' ); ?></button>
+			<button class="bw-tool" aria-label="<?php esc_attr_e( 'Link', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.toggleLinkInput" data-wp-class--bw-tool-active="state.showLinkInput" title="<?php esc_attr_e( 'Link', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'link' ); ?></button>
+			<button class="bw-tool" aria-label="<?php esc_attr_e( 'Quote', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.formatQuote" data-wp-class--bw-tool-active="state.formatQuote" title="<?php esc_attr_e( 'Quote', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'quote' ); ?></button>
+			<button class="bw-tool" aria-label="<?php esc_attr_e( 'Image', 'jetpack-mu-wpcom' ); ?>" tabindex="-1" data-wp-on--click="actions.openImageModal" data-wp-bind--disabled="state.insideList" title="<?php esc_attr_e( 'Image', 'jetpack-mu-wpcom' ); ?>"><?php wpcom_write_icon( 'image' ); ?></button>
 		</div>
 	</div>
 
@@ -1231,12 +1314,12 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		<input
 			type="url"
 			class="bw-link-input"
-			placeholder="<?php echo esc_attr__( 'Paste or type a link...', 'jetpack-mu-wpcom' ); ?>"
+			placeholder="<?php esc_attr_e( 'Paste or type a link...', 'jetpack-mu-wpcom' ); ?>"
 			data-wp-bind--value="state.linkUrl"
 			data-wp-on--input="actions.updateLinkUrl"
 			data-wp-on--keydown="actions.handleLinkKeyDown"
 		/>
-		<button class="bw-link-apply" data-wp-on--click="actions.applyLink"><?php echo esc_html__( 'Apply', 'jetpack-mu-wpcom' ); ?></button>
+		<button class="bw-link-apply" data-wp-on--click="actions.applyLink"><?php esc_html_e( 'Apply', 'jetpack-mu-wpcom' ); ?></button>
 		<button class="bw-link-remove" data-wp-on--click="actions.removeLink">&times;</button>
 	</div>
 
@@ -1258,7 +1341,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				>
 					<span
 						class="bw-meta-cat-label"
-						data-placeholder="<?php echo esc_attr__( 'Select a category', 'jetpack-mu-wpcom' ); ?>"
+						data-placeholder="<?php esc_attr_e( 'Select a category', 'jetpack-mu-wpcom' ); ?>"
 						data-wp-text="state.catLabel"
 					><?php echo esc_html( $cat_label ); ?></span>
 					<span class="bw-meta-cat-caret" aria-hidden="true">&#9662;</span>
@@ -1289,7 +1372,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 
 			<textarea
 				class="bw-title"
-				placeholder="<?php echo esc_attr__( 'Title', 'jetpack-mu-wpcom' ); ?>"
+				placeholder="<?php esc_attr_e( 'Title', 'jetpack-mu-wpcom' ); ?>"
 				rows="1"
 				data-wp-on--input="actions.updateTitle"
 				data-wp-on--keydown="actions.handleTitleKeyDown"
@@ -1310,12 +1393,12 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				data-wp-on--dragleave="actions.handleEditorDragLeave"
 				data-wp-on--drop="actions.handleEditorDrop"
 				data-wp-on--dragend="actions.handleEditorDragEnd"
-				data-placeholder="<?php echo esc_attr__( 'Tell your story...', 'jetpack-mu-wpcom' ); ?>"
+				data-placeholder="<?php esc_attr_e( 'Tell your story...', 'jetpack-mu-wpcom' ); ?>"
 			><div
 				class="bw-content-inner"
 				contenteditable="true"
 				role="combobox"
-				aria-label="<?php echo esc_attr__( 'Post content', 'jetpack-mu-wpcom' ); ?>"
+				aria-label="<?php esc_attr_e( 'Post content', 'jetpack-mu-wpcom' ); ?>"
 				aria-autocomplete="list"
 				aria-haspopup="listbox"
 				aria-expanded="false"
@@ -1350,25 +1433,25 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 
 	<!-- Image insert modal: centered, blocking overlay for picking a new image. -->
 	<div class="bw-image-overlay" hidden data-wp-bind--hidden="!state.showImageInsertOverlay" data-wp-on--pointerdown="actions.handleOverlayPointerDown" data-wp-on--keydown="actions.handleImageModalKeyDown" data-wp-on--dragover="actions.handleOverlayDragOver" data-wp-on--drop="actions.handleOverlayDrop">
-		<div class="bw-image-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'Add an image', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.stopPropagation" data-wp-on--dragover="actions.handleOverlayDragOver" data-wp-on--drop="actions.handleOverlayDrop">
-			<h3><?php echo esc_html__( 'Add an image', 'jetpack-mu-wpcom' ); ?></h3>
+		<div class="bw-image-modal" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'Add an image', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.stopPropagation" data-wp-on--dragover="actions.handleOverlayDragOver" data-wp-on--drop="actions.handleOverlayDrop">
+			<h3><?php esc_html_e( 'Add an image', 'jetpack-mu-wpcom' ); ?></h3>
 			<label class="bw-upload-zone" id="bw-upload-zone" data-wp-on--dragover="actions.handleDragOver" data-wp-on--dragleave="actions.handleDragLeave" data-wp-on--drop="actions.handleDrop">
-				<span class="bw-upload-label"><?php echo esc_html__( 'Drop a file or click to upload', 'jetpack-mu-wpcom' ); ?></span>
-				<span class="bw-upload-saving" style="display:none;"><?php echo esc_html__( 'Uploading...', 'jetpack-mu-wpcom' ); ?></span>
+				<span class="bw-upload-label"><?php esc_html_e( 'Drop a file or click to upload', 'jetpack-mu-wpcom' ); ?></span>
+				<span class="bw-upload-saving" style="display:none;"><?php esc_html_e( 'Uploading...', 'jetpack-mu-wpcom' ); ?></span>
 				<input type="file" accept="image/*" data-wp-on--change="actions.uploadImage" class="bw-visually-hidden" />
 			</label>
 			<input
 				type="text"
 				class="bw-image-url-input bw-image-alt-input"
-				placeholder="<?php echo esc_attr__( 'Alt text (describe the image)...', 'jetpack-mu-wpcom' ); ?>"
+				placeholder="<?php esc_attr_e( 'Alt text (describe the image)...', 'jetpack-mu-wpcom' ); ?>"
 				data-wp-on--input="actions.updateImageAlt"
 				data-wp-bind--value="state.imageAlt"
 			/>
 			<label class="bw-featured-toggle">
 				<input type="checkbox" data-wp-on--change="actions.toggleFeaturedImage" data-wp-bind--checked="state.setAsFeatured" />
-				<span><?php echo esc_html__( 'Set as featured image', 'jetpack-mu-wpcom' ); ?></span>
+				<span><?php esc_html_e( 'Set as featured image', 'jetpack-mu-wpcom' ); ?></span>
 			</label>
-			<button class="bw-btn bw-btn-publish bw-insert-image-btn" data-wp-on--click="actions.insertImageFromUrl"><?php echo esc_html__( 'Insert image', 'jetpack-mu-wpcom' ); ?></button>
+			<button class="bw-btn bw-btn-publish bw-insert-image-btn" data-wp-on--click="actions.insertImageFromUrl"><?php esc_html_e( 'Insert image', 'jetpack-mu-wpcom' ); ?></button>
 
 			<!-- Secondary sources: collapsed by default. -->
 			<div class="bw-source-expanders">
@@ -1381,15 +1464,15 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 						data-wp-on--click="actions.toggleLibraryPicker"
 					>
 						<span class="bw-source-chevron" aria-hidden="true"></span>
-						<?php echo esc_html__( 'From your library', 'jetpack-mu-wpcom' ); ?>
+						<?php esc_html_e( 'From your library', 'jetpack-mu-wpcom' ); ?>
 					</button>
 					<div id="bw-library-section" class="bw-library-section" hidden data-wp-bind--hidden="!state.showLibraryPicker">
-						<label class="bw-visually-hidden" for="bw-library-search"><?php echo esc_html__( 'Search your media library', 'jetpack-mu-wpcom' ); ?></label>
+						<label class="bw-visually-hidden" for="bw-library-search"><?php esc_html_e( 'Search your media library', 'jetpack-mu-wpcom' ); ?></label>
 						<input
 							id="bw-library-search"
 							type="search"
 							class="bw-library-search"
-							placeholder="<?php echo esc_attr__( 'Search your library…', 'jetpack-mu-wpcom' ); ?>"
+							placeholder="<?php esc_attr_e( 'Search your library…', 'jetpack-mu-wpcom' ); ?>"
 							autocomplete="off"
 							data-wp-on--input="actions.searchLibrary"
 							data-wp-bind--value="state.librarySearch"
@@ -1398,7 +1481,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 							id="bw-library-grid"
 							class="bw-library-strip"
 							role="group"
-							aria-label="<?php echo esc_attr__( 'Your media library', 'jetpack-mu-wpcom' ); ?>"
+							aria-label="<?php esc_attr_e( 'Your media library', 'jetpack-mu-wpcom' ); ?>"
 							data-wp-on--click="actions.selectLibraryImage"
 						></div>
 						<div class="bw-library-status" role="status" aria-live="polite" data-wp-text="state.libraryStatus"></div>
@@ -1413,13 +1496,13 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 						data-wp-on--click="actions.toggleUrlInput"
 					>
 						<span class="bw-source-chevron" aria-hidden="true"></span>
-						<?php echo esc_html__( 'Paste an image URL', 'jetpack-mu-wpcom' ); ?>
+						<?php esc_html_e( 'Paste an image URL', 'jetpack-mu-wpcom' ); ?>
 					</button>
 					<div id="bw-url-section" class="bw-url-section" hidden data-wp-bind--hidden="!state.showUrlInput">
 						<input
 							type="url"
 							class="bw-image-url-input"
-							placeholder="<?php echo esc_attr__( 'https://…', 'jetpack-mu-wpcom' ); ?>"
+							placeholder="<?php esc_attr_e( 'https://…', 'jetpack-mu-wpcom' ); ?>"
 							data-wp-on--input="actions.updateImageUrl"
 							data-wp-bind--value="state.imageUrl"
 						/>
@@ -1442,131 +1525,131 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		data-wp-watch="callbacks.syncEditImageModalRadios"
 	>
 		<div class="bw-edit-panel-header">
-			<h3 id="bw-edit-panel-title" class="bw-edit-panel-title"><?php echo esc_html__( 'Edit image', 'jetpack-mu-wpcom' ); ?></h3>
-			<button class="bw-edit-panel-close" type="button" data-wp-on--click="actions.closeImageModal" aria-label="<?php echo esc_attr__( 'Close', 'jetpack-mu-wpcom' ); ?>" title="<?php echo esc_attr__( 'Close', 'jetpack-mu-wpcom' ); ?>">&times;</button>
+			<h3 id="bw-edit-panel-title" class="bw-edit-panel-title"><?php esc_html_e( 'Edit image', 'jetpack-mu-wpcom' ); ?></h3>
+			<button class="bw-edit-panel-close" type="button" data-wp-on--click="actions.closeImageModal" aria-label="<?php esc_attr_e( 'Close', 'jetpack-mu-wpcom' ); ?>" title="<?php esc_attr_e( 'Close', 'jetpack-mu-wpcom' ); ?>">&times;</button>
 		</div>
 
-		<label class="bw-edit-label" for="bw-edit-alt"><?php echo esc_html__( 'Alt text', 'jetpack-mu-wpcom' ); ?></label>
+		<label class="bw-edit-label" for="bw-edit-alt"><?php esc_html_e( 'Alt text', 'jetpack-mu-wpcom' ); ?></label>
 		<input
 			id="bw-edit-alt"
 			type="text"
 			class="bw-image-url-input"
-			placeholder="<?php echo esc_attr__( 'Describe this image…', 'jetpack-mu-wpcom' ); ?>"
+			placeholder="<?php esc_attr_e( 'Describe this image…', 'jetpack-mu-wpcom' ); ?>"
 			data-wp-on--input="actions.updateImageAlt"
 			data-wp-bind--value="state.imageAlt"
 		/>
 
 		<div class="bw-edit-section" hidden data-wp-bind--hidden="!state.editingImageHasMediaId">
-			<div class="bw-edit-label"><?php echo esc_html__( 'Size', 'jetpack-mu-wpcom' ); ?></div>
-			<div class="bw-edit-radios" role="radiogroup" aria-label="<?php echo esc_attr__( 'Image size', 'jetpack-mu-wpcom' ); ?>" data-wp-on--keydown="actions.handleEditRadiogroupKeyDown">
-				<button type="button" class="bw-edit-size-option" role="radio" aria-checked="false" tabindex="-1" value="thumbnail" data-wp-on--click="actions.setEditImageSize"><?php echo esc_html__( 'Thumbnail', 'jetpack-mu-wpcom' ); ?></button>
-				<button type="button" class="bw-edit-size-option" role="radio" aria-checked="false" tabindex="-1" value="medium" data-wp-on--click="actions.setEditImageSize"><?php echo esc_html__( 'Medium', 'jetpack-mu-wpcom' ); ?></button>
-				<button type="button" class="bw-edit-size-option" role="radio" aria-checked="false" tabindex="-1" value="large" data-wp-on--click="actions.setEditImageSize"><?php echo esc_html__( 'Large', 'jetpack-mu-wpcom' ); ?></button>
-				<button type="button" class="bw-edit-size-option" role="radio" aria-checked="false" tabindex="-1" value="full" data-wp-on--click="actions.setEditImageSize"><?php echo esc_html__( 'Full', 'jetpack-mu-wpcom' ); ?></button>
+			<div class="bw-edit-label"><?php esc_html_e( 'Size', 'jetpack-mu-wpcom' ); ?></div>
+			<div class="bw-edit-radios" role="radiogroup" aria-label="<?php esc_attr_e( 'Image size', 'jetpack-mu-wpcom' ); ?>" data-wp-on--keydown="actions.handleEditRadiogroupKeyDown">
+				<button type="button" class="bw-edit-size-option" role="radio" aria-checked="false" tabindex="-1" value="thumbnail" data-wp-on--click="actions.setEditImageSize"><?php esc_html_e( 'Thumbnail', 'jetpack-mu-wpcom' ); ?></button>
+				<button type="button" class="bw-edit-size-option" role="radio" aria-checked="false" tabindex="-1" value="medium" data-wp-on--click="actions.setEditImageSize"><?php esc_html_e( 'Medium', 'jetpack-mu-wpcom' ); ?></button>
+				<button type="button" class="bw-edit-size-option" role="radio" aria-checked="false" tabindex="-1" value="large" data-wp-on--click="actions.setEditImageSize"><?php esc_html_e( 'Large', 'jetpack-mu-wpcom' ); ?></button>
+				<button type="button" class="bw-edit-size-option" role="radio" aria-checked="false" tabindex="-1" value="full" data-wp-on--click="actions.setEditImageSize"><?php esc_html_e( 'Full', 'jetpack-mu-wpcom' ); ?></button>
 			</div>
 		</div>
 
 		<div class="bw-edit-section">
-			<div class="bw-edit-label"><?php echo esc_html__( 'Alignment', 'jetpack-mu-wpcom' ); ?></div>
-			<div class="bw-edit-radios" role="radiogroup" aria-label="<?php echo esc_attr__( 'Image alignment', 'jetpack-mu-wpcom' ); ?>" data-wp-on--keydown="actions.handleEditRadiogroupKeyDown">
-				<button type="button" class="bw-edit-align-option" role="radio" aria-checked="false" tabindex="-1" value="left" data-wp-on--click="actions.setEditImageAlign"><?php echo esc_html__( 'Left', 'jetpack-mu-wpcom' ); ?></button>
-				<button type="button" class="bw-edit-align-option" role="radio" aria-checked="false" tabindex="-1" value="center" data-wp-on--click="actions.setEditImageAlign"><?php echo esc_html__( 'Center', 'jetpack-mu-wpcom' ); ?></button>
-				<button type="button" class="bw-edit-align-option" role="radio" aria-checked="false" tabindex="-1" value="right" data-wp-on--click="actions.setEditImageAlign"><?php echo esc_html__( 'Right', 'jetpack-mu-wpcom' ); ?></button>
+			<div class="bw-edit-label"><?php esc_html_e( 'Alignment', 'jetpack-mu-wpcom' ); ?></div>
+			<div class="bw-edit-radios" role="radiogroup" aria-label="<?php esc_attr_e( 'Image alignment', 'jetpack-mu-wpcom' ); ?>" data-wp-on--keydown="actions.handleEditRadiogroupKeyDown">
+				<button type="button" class="bw-edit-align-option" role="radio" aria-checked="false" tabindex="-1" value="left" data-wp-on--click="actions.setEditImageAlign"><?php esc_html_e( 'Left', 'jetpack-mu-wpcom' ); ?></button>
+				<button type="button" class="bw-edit-align-option" role="radio" aria-checked="false" tabindex="-1" value="center" data-wp-on--click="actions.setEditImageAlign"><?php esc_html_e( 'Center', 'jetpack-mu-wpcom' ); ?></button>
+				<button type="button" class="bw-edit-align-option" role="radio" aria-checked="false" tabindex="-1" value="right" data-wp-on--click="actions.setEditImageAlign"><?php esc_html_e( 'Right', 'jetpack-mu-wpcom' ); ?></button>
 			</div>
 		</div>
 
 		<label class="bw-featured-toggle" hidden data-wp-bind--hidden="!state.editingImageHasMediaId">
 			<input type="checkbox" data-wp-on--change="actions.toggleFeaturedImage" data-wp-bind--checked="state.setAsFeatured" />
-			<span><?php echo esc_html__( 'Set as featured image', 'jetpack-mu-wpcom' ); ?></span>
+			<span><?php esc_html_e( 'Set as featured image', 'jetpack-mu-wpcom' ); ?></span>
 		</label>
 
-		<button class="bw-btn bw-btn-publish bw-edit-panel-done" type="button" data-wp-on--click="actions.closeImageModal"><?php echo esc_html__( 'Done', 'jetpack-mu-wpcom' ); ?></button>
+		<button class="bw-btn bw-btn-publish bw-edit-panel-done" type="button" data-wp-on--click="actions.closeImageModal"><?php esc_html_e( 'Done', 'jetpack-mu-wpcom' ); ?></button>
 	</div>
 
 	<!-- Leave confirmation — matches @wordpress/components ConfirmDialog -->
 	<div class="bw-leave-overlay" hidden data-wp-bind--hidden="!state.showLeaveConfirm" data-wp-on--click="actions.cancelLeave" data-wp-on--keydown="actions.handleLeaveModalKeyDown">
-		<div class="bw-leave-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'Unsaved changes', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.stopPropagation">
-			<p><?php echo esc_html__( 'Do you want to save your changes?', 'jetpack-mu-wpcom' ); ?></p>
+		<div class="bw-leave-modal" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'Unsaved changes', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.stopPropagation">
+			<p><?php esc_html_e( 'Do you want to save your changes?', 'jetpack-mu-wpcom' ); ?></p>
 			<div class="bw-leave-actions">
-				<button class="bw-leave-cancel" data-wp-on--click="actions.cancelLeave"><?php echo esc_html__( 'Cancel', 'jetpack-mu-wpcom' ); ?></button>
-				<button class="bw-leave-confirm" data-wp-on--click="actions.confirmLeave"><?php echo esc_html__( "Don't save", 'jetpack-mu-wpcom' ); ?></button>
-				<button class="bw-leave-save" data-wp-on--click="actions.saveAndLeave"><?php echo esc_html__( 'Save', 'jetpack-mu-wpcom' ); ?></button>
+				<button class="bw-leave-cancel" data-wp-on--click="actions.cancelLeave"><?php esc_html_e( 'Cancel', 'jetpack-mu-wpcom' ); ?></button>
+				<button class="bw-leave-confirm" data-wp-on--click="actions.confirmLeave"><?php esc_html_e( "Don't save", 'jetpack-mu-wpcom' ); ?></button>
+				<button class="bw-leave-save" data-wp-on--click="actions.saveAndLeave"><?php esc_html_e( 'Save', 'jetpack-mu-wpcom' ); ?></button>
 			</div>
 		</div>
 	</div>
 
 	<!-- Unsupported content warning -->
 	<div class="bw-unsupported-overlay" hidden data-wp-bind--hidden="!state.unsupportedWarning" data-wp-on--keydown="actions.handleUnsupportedKeyDown">
-		<div class="bw-unsupported-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'Unsupported formatting', 'jetpack-mu-wpcom' ); ?>" data-wp-bind--aria-describedby="state.unsupportedDescId" data-wp-on--click="actions.stopPropagation">
-			<p class="bw-unsupported-title"><?php echo esc_html__( 'This post has formatting that Write can\'t preserve', 'jetpack-mu-wpcom' ); ?></p>
-			<p class="bw-unsupported-desc" id="bw-unsupported-desc-classic" hidden data-wp-bind--hidden="!state.isClassicWarning"><?php echo esc_html__( 'This post was created in the classic editor. Editing in Write would convert it to the block format, which may change some formatting.', 'jetpack-mu-wpcom' ); ?></p>
-			<p class="bw-unsupported-desc" id="bw-unsupported-desc-block" hidden data-wp-bind--hidden="!state.isBlockEditorWarning"><?php echo esc_html__( 'This post uses block editor features that the Write editor doesn\'t support. Editing here could lose some of that formatting.', 'jetpack-mu-wpcom' ); ?></p>
+		<div class="bw-unsupported-modal" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'Unsupported formatting', 'jetpack-mu-wpcom' ); ?>" data-wp-bind--aria-describedby="state.unsupportedDescId" data-wp-on--click="actions.stopPropagation">
+			<p class="bw-unsupported-title"><?php esc_html_e( 'This post has formatting that Write can\'t preserve', 'jetpack-mu-wpcom' ); ?></p>
+			<p class="bw-unsupported-desc" id="bw-unsupported-desc-classic" hidden data-wp-bind--hidden="!state.isClassicWarning"><?php esc_html_e( 'This post was created in the classic editor. Editing in Write would convert it to the block format, which may change some formatting.', 'jetpack-mu-wpcom' ); ?></p>
+			<p class="bw-unsupported-desc" id="bw-unsupported-desc-block" hidden data-wp-bind--hidden="!state.isBlockEditorWarning"><?php esc_html_e( 'This post uses block editor features that the Write editor doesn\'t support. Editing here could lose some of that formatting.', 'jetpack-mu-wpcom' ); ?></p>
 			<div class="bw-unsupported-actions">
-				<button class="bw-unsupported-back" data-wp-on--click="actions.goBack"><?php echo esc_html__( 'Go back', 'jetpack-mu-wpcom' ); ?></button>
-				<button class="bw-unsupported-open-editor" hidden data-wp-bind--hidden="!state.isClassicWarning" data-wp-on--click="actions.openEditor"><?php echo esc_html__( 'Open in Classic Editor', 'jetpack-mu-wpcom' ); ?></button>
-				<button class="bw-unsupported-open-editor" hidden data-wp-bind--hidden="!state.isBlockEditorWarning" data-wp-on--click="actions.openEditor"><?php echo esc_html__( 'Open in Block Editor', 'jetpack-mu-wpcom' ); ?></button>
+				<button class="bw-unsupported-back" data-wp-on--click="actions.goBack"><?php esc_html_e( 'Go back', 'jetpack-mu-wpcom' ); ?></button>
+				<button class="bw-unsupported-open-editor" hidden data-wp-bind--hidden="!state.isClassicWarning" data-wp-on--click="actions.openEditor"><?php esc_html_e( 'Open in Classic Editor', 'jetpack-mu-wpcom' ); ?></button>
+				<button class="bw-unsupported-open-editor" hidden data-wp-bind--hidden="!state.isBlockEditorWarning" data-wp-on--click="actions.openEditor"><?php esc_html_e( 'Open in Block editor', 'jetpack-mu-wpcom' ); ?></button>
 			</div>
 		</div>
 	</div>
 
 	<!-- Slash command menu -->
-	<div class="bw-slash-menu" id="bw-slash-menu" role="listbox" aria-label="<?php echo esc_attr__( 'Insert block', 'jetpack-mu-wpcom' ); ?>" hidden data-wp-bind--hidden="!state.showSlashMenu">
+	<div class="bw-slash-menu" id="bw-slash-menu" role="listbox" aria-label="<?php esc_attr_e( 'Insert block', 'jetpack-mu-wpcom' ); ?>" hidden data-wp-bind--hidden="!state.showSlashMenu">
 		<div class="bw-slash-item" id="bw-slash-opt-heading" role="option" aria-selected="false" data-action="heading" data-wp-on--click="actions.insertHeading" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon" aria-hidden="true">H</span>
-			<div><strong><?php echo esc_html__( 'Heading', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'Large section heading', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div><strong><?php esc_html_e( 'Heading', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php esc_html_e( 'Large section heading', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
 		<div class="bw-slash-item" id="bw-slash-opt-image" role="option" aria-selected="false" data-action="image" data-wp-on--click="actions.insertImage" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon" aria-hidden="true">&#9653;</span>
-			<div><strong><?php echo esc_html__( 'Image', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'Upload or embed an image', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div><strong><?php esc_html_e( 'Image', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php esc_html_e( 'Upload or embed an image', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
 		<div class="bw-slash-item" id="bw-slash-opt-quote" role="option" aria-selected="false" data-action="quote" data-wp-on--click="actions.insertQuote" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon" aria-hidden="true">&ldquo;</span>
-			<div><strong><?php echo esc_html__( 'Quote', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'Highlight a quote', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div><strong><?php esc_html_e( 'Quote', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php esc_html_e( 'Highlight a quote', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
 		<div class="bw-slash-item" id="bw-slash-opt-bulleted-list" role="option" aria-selected="false" data-action="bulleted-list" data-wp-on--click="actions.insertBulletedList" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon" aria-hidden="true">&bull;</span>
-			<div><strong><?php echo esc_html__( 'Bulleted list', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'An unordered list', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div><strong><?php esc_html_e( 'Bulleted list', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php esc_html_e( 'An unordered list', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
 		<div class="bw-slash-item" id="bw-slash-opt-numbered-list" role="option" aria-selected="false" data-action="numbered-list" data-wp-on--click="actions.insertNumberedList" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon" aria-hidden="true">1.</span>
-			<div><strong><?php echo esc_html__( 'Numbered list', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'An ordered list', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div><strong><?php esc_html_e( 'Numbered list', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php esc_html_e( 'An ordered list', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
 		<div class="bw-slash-item" id="bw-slash-opt-video" role="option" aria-selected="false" data-action="video" data-wp-on--click="actions.insertVideo" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon" aria-hidden="true">&#9654;</span>
-			<div><strong><?php echo esc_html__( 'Video', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'Embed a YouTube or Vimeo video', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div><strong><?php esc_html_e( 'Video', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php esc_html_e( 'Embed a YouTube or Vimeo video', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
 		<div class="bw-slash-item" id="bw-slash-opt-divider" role="option" aria-selected="false" data-action="divider" data-wp-on--click="actions.insertDivider" data-wp-on--mousedown="actions.preventToolbarBlur">
 			<span class="bw-slash-icon" aria-hidden="true">&mdash;</span>
-			<div><strong><?php echo esc_html__( 'Divider', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php echo esc_html__( 'A horizontal separator', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div><strong><?php esc_html_e( 'Divider', 'jetpack-mu-wpcom' ); ?></strong><span class="bw-slash-desc"><?php esc_html_e( 'A horizontal separator', 'jetpack-mu-wpcom' ); ?></span></div>
 		</div>
 	</div>
 
 	<!-- Video modal -->
 	<div class="bw-image-overlay" hidden data-wp-bind--hidden="!state.showVideoModal" data-wp-on--pointerdown="actions.handleOverlayPointerDown" data-wp-on--keydown="actions.handleVideoModalKeyDown">
-		<div class="bw-image-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'Embed a video', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.stopPropagation">
-			<h3><?php echo esc_html__( 'Embed a video', 'jetpack-mu-wpcom' ); ?></h3>
+		<div class="bw-image-modal" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'Embed a video', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.stopPropagation">
+			<h3><?php esc_html_e( 'Embed a video', 'jetpack-mu-wpcom' ); ?></h3>
 			<input
 				type="url"
 				class="bw-image-url-input"
-				placeholder="<?php echo esc_attr__( 'Paste a YouTube or Vimeo URL...', 'jetpack-mu-wpcom' ); ?>"
+				placeholder="<?php esc_attr_e( 'Paste a YouTube or Vimeo URL...', 'jetpack-mu-wpcom' ); ?>"
 				data-wp-on--input="actions.updateVideoUrl"
 				data-wp-on--keydown="actions.handleVideoKeyDown"
 				data-wp-bind--value="state.videoUrl"
 			/>
-			<button class="bw-btn bw-btn-publish" data-wp-on--click="actions.insertVideoEmbed" style="width:100%;margin-top:12px;"><?php echo esc_html__( 'Embed video', 'jetpack-mu-wpcom' ); ?></button>
+			<button class="bw-btn bw-btn-publish" data-wp-on--click="actions.insertVideoEmbed" style="width:100%;margin-top:12px;"><?php esc_html_e( 'Embed video', 'jetpack-mu-wpcom' ); ?></button>
 		</div>
 	</div>
 
 	<!-- Post picker modal -->
 	<div class="bw-postpicker-overlay" hidden data-wp-bind--hidden="!state.showPostPicker" data-wp-on--pointerdown="actions.handlePostPickerOverlayClick" data-wp-on--keydown="actions.handlePostPickerKeyDown">
-		<div class="bw-postpicker-modal" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr__( 'Open post', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.stopPropagation">
-			<h3 class="bw-postpicker-title"><?php echo esc_html__( 'Open post', 'jetpack-mu-wpcom' ); ?></h3>
+		<div class="bw-postpicker-modal" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'Open post', 'jetpack-mu-wpcom' ); ?>" data-wp-on--click="actions.stopPropagation">
+			<h3 class="bw-postpicker-title"><?php esc_html_e( 'Open post', 'jetpack-mu-wpcom' ); ?></h3>
 
 			<p class="bw-postpicker-error" <?php echo $open_post_error ? '' : 'hidden'; ?> data-wp-bind--hidden="!state.openPostError" data-wp-text="state.openPostError"><?php echo esc_html( $open_post_error ); ?></p>
 
 			<?php if ( ! empty( $recent_drafts ) ) : ?>
-			<p class="bw-postpicker-label"><?php echo esc_html__( 'Last edited', 'jetpack-mu-wpcom' ); ?></p>
-			<div class="bw-postpicker-list" role="listbox" aria-label="<?php echo esc_attr__( 'Recent drafts', 'jetpack-mu-wpcom' ); ?>">
+			<p class="bw-postpicker-label"><?php esc_html_e( 'Last edited', 'jetpack-mu-wpcom' ); ?></p>
+			<div class="bw-postpicker-list" role="listbox" aria-label="<?php esc_attr_e( 'Recent drafts', 'jetpack-mu-wpcom' ); ?>">
 				<?php foreach ( $recent_drafts as $idx => $draft ) : ?>
 				<button
 					class="bw-postpicker-item"
@@ -1580,23 +1663,23 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 				</button>
 				<?php endforeach; ?>
 			</div>
-			<div class="bw-image-divider"><span><?php echo esc_html__( 'or', 'jetpack-mu-wpcom' ); ?></span></div>
+			<div class="bw-image-divider"><span><?php esc_html_e( 'or', 'jetpack-mu-wpcom' ); ?></span></div>
 			<?php else : ?>
-			<p class="bw-postpicker-empty"><?php echo esc_html__( 'No recent drafts', 'jetpack-mu-wpcom' ); ?></p>
+			<p class="bw-postpicker-empty"><?php esc_html_e( 'No recent drafts', 'jetpack-mu-wpcom' ); ?></p>
 			<?php endif; ?>
 
 			<div class="bw-postpicker-input-row">
-				<label for="bw-postpicker-url-input" class="bw-visually-hidden"><?php echo esc_html__( 'Post URL or ID', 'jetpack-mu-wpcom' ); ?></label>
+				<label for="bw-postpicker-url-input" class="bw-visually-hidden"><?php esc_html_e( 'Post URL or ID', 'jetpack-mu-wpcom' ); ?></label>
 				<input
 					id="bw-postpicker-url-input"
 					type="text"
 					class="bw-image-url-input"
-					placeholder="<?php echo esc_attr__( 'Paste a post URL or enter a post ID', 'jetpack-mu-wpcom' ); ?>"
+					placeholder="<?php esc_attr_e( 'Paste a post URL or enter a post ID', 'jetpack-mu-wpcom' ); ?>"
 					data-wp-bind--value="state.postPickerUrl"
 					data-wp-on--input="actions.updatePostPickerUrl"
 					data-wp-on--keydown="actions.handlePostPickerInputKeyDown"
 				/>
-				<button class="bw-btn bw-btn-publish bw-postpicker-go" data-wp-on--click="actions.submitPostPickerUrl"><?php echo esc_html__( 'Go', 'jetpack-mu-wpcom' ); ?></button>
+				<button class="bw-btn bw-btn-publish bw-postpicker-go" data-wp-on--click="actions.submitPostPickerUrl"><?php esc_html_e( 'Go', 'jetpack-mu-wpcom' ); ?></button>
 			</div>
 		</div>
 	</div>

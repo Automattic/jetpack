@@ -1,5 +1,6 @@
 import { createReduxStore, register } from '@wordpress/data';
 import { getPreloaded, SETTINGS_PATH } from './get-preloaded';
+import { normalizeTitleFormats } from './title-format-tokens';
 import type { SettingsResponse } from './settings-types';
 
 /**
@@ -25,8 +26,18 @@ interface SetSettingsAction {
 	settings: SettingsResponse;
 }
 
+/**
+ * Guard the one field whose server shape is looser than its type: a page type
+ * cleared through the site-settings API is stored, and can arrive, as `''`.
+ *
+ * @param settings - A settings snapshot from the bootstrap, a fetch, or a save.
+ * @return The snapshot with `title_formats` coerced to token lists.
+ */
+const sanitize = ( settings: SettingsResponse | null ): SettingsResponse | null =>
+	settings ? { ...settings, title_formats: normalizeTitleFormats( settings.title_formats ) } : null;
+
 const DEFAULT_STATE: State = {
-	settings: getPreloaded< SettingsResponse >( SETTINGS_PATH ) ?? null,
+	settings: sanitize( getPreloaded< SettingsResponse >( SETTINGS_PATH ) ?? null ),
 };
 
 const actions = {
@@ -56,7 +67,7 @@ const selectors = {
 const store = createReduxStore( STORE_NAME, {
 	reducer( state: State = DEFAULT_STATE, action: SetSettingsAction ): State {
 		if ( action.type === 'SET_SETTINGS' ) {
-			return { settings: action.settings };
+			return { settings: sanitize( action.settings ) };
 		}
 		return state;
 	},

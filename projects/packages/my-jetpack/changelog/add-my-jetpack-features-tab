@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a my-jetpack-features-tab feature flag that replaces the Products tab with a Features tab in the new dashboard.

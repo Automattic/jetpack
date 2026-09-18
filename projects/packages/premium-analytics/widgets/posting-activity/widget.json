@@ -3,7 +3,7 @@
 	"title": "Posting activity",
 	"description": "How often you publish — a calendar heatmap of posts per day.",
 	"help": {
-		"content": "Your posting activity, shown as a heatmap to help you spot your most and least active days."
+		"content": "One square per day — the darker the square, the more you published that day."
 	},
 	"category": "stats",
 	"presentation": "framed"

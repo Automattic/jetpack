@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Tests\Lib\Minify;
 
 use Automattic\Jetpack_Boost\Lib\Minify\Concatenate_JS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
 use WorDBless\BaseTestCase;
 use WP_HTML_Tag_Processor;
 use WP_Scripts;
@@ -74,6 +75,7 @@ class Concatenate_JS_Strategy_Test extends BaseTestCase {
 				'defer'        => $processor->get_attribute( 'defer' ),
 				'async'        => $processor->get_attribute( 'async' ),
 				'data-handles' => $processor->get_attribute( 'data-handles' ),
+				'ignored'      => $processor->get_attribute( 'data-jetpack-boost' ),
 			);
 		}
 		return $tags;
@@ -166,5 +168,42 @@ class Concatenate_JS_Strategy_Test extends BaseTestCase {
 		$this->assertMatchesRegularExpression( '~/(?:_jb_static/\?\?|boost-cache/static/)~', $tags[0]['src'] );
 		$this->assertNull( $tags[0]['defer'] );
 		$this->assertNull( $tags[0]['async'] );
+	}
+
+	public function exclude_consumer_from_defer( $handles ) {
+		$handles[] = 'boost-strategy-consumer';
+		return $handles;
+	}
+
+	/**
+	 * A script excluded from deferred JS must not be concatenated: concatenated scripts share one
+	 * tag, so it would have none of its own to carry the ignore attribute and would be moved.
+	 */
+	public function test_handle_excluded_from_defer_is_not_bundled() {
+		$defer = new Render_Blocking_JS();
+		$defer->setup();
+		add_filter( 'jetpack_boost_render_blocking_js_exclude_handles', array( $this, 'exclude_consumer_from_defer' ) );
+		add_filter( 'js_do_concat', array( $defer, 'should_concatenate' ), 10, 2 );
+		add_filter( 'script_loader_tag', array( $defer, 'handle_exclusions' ), 10, 2 );
+
+		$scripts = new Concatenate_JS( new WP_Scripts() );
+		$scripts->enqueue( $this->register( $scripts, 'consumer' ) );
+		$scripts->enqueue( $this->register( $scripts, 'other' ) );
+		$scripts->enqueue( $this->register( $scripts, 'last' ) );
+
+		$tags = $this->render( $scripts );
+
+		remove_filter( 'jetpack_boost_render_blocking_js_exclude_handles', array( $this, 'exclude_consumer_from_defer' ) );
+		remove_filter( 'js_do_concat', array( $defer, 'should_concatenate' ), 10 );
+		remove_filter( 'script_loader_tag', array( $defer, 'handle_exclusions' ), 10 );
+
+		$this->assertCount( 2, $tags );
+		$this->assertSame( 'boost-strategy-consumer-js', $tags[0]['id'] );
+		$this->assertStringContainsString( '/consumer.js', $tags[0]['src'] );
+		$this->assertSame( 'ignore', $tags[0]['ignored'] );
+
+		$this->assertStringNotContainsString( '/consumer.js', $tags[1]['src'] );
+		$this->assertStringNotContainsString( 'boost-strategy-consumer', (string) $tags[1]['data-handles'] );
+		$this->assertNull( $tags[1]['ignored'] );
 	}
 }

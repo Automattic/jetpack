@@ -478,19 +478,21 @@ describe( 'ComparativeBarChart', () => {
 			expect( recordedOptions().yScale?.domain ).toEqual( [ 0, 1 ] );
 		} );
 
-		it( 'reserves a left margin for a pinned domain', () => {
+		it( 'leaves the pinned domain to size its own gutter', () => {
 			render( <ComparativeBarChart series={ ZERO_SERIES } dataFormat={ DATA_FORMAT } /> );
 
-			// `useChartMargin` sizes the gutter from the data's own min/max, so the
-			// pinned domain's widest tick would otherwise be clipped.
-			expect( recordedProps().margin.left ).toBeGreaterThan( 0 );
+			// `useChartMargin` measures the pinned domain's own ticks, so there is
+			// nothing left for this component to override.
+			expect( recordedOptions().yScale.domain ).toBeDefined();
+			expect( recordedProps().margin ).toBeUndefined();
 		} );
 
 		it( 'lets the chart scale to the data otherwise', () => {
 			render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
 
 			expect( recordedOptions() ).not.toHaveProperty( 'yScale' );
-			expect( recordedProps().margin ).toEqual( { right: 0 } );
+			// No override, so the chart keeps the gutters `useChartMargin` measured.
+			expect( recordedProps().margin ).toBeUndefined();
 		} );
 	} );
 
@@ -503,8 +505,9 @@ describe( 'ComparativeBarChart', () => {
 
 			expect( recordedOptions().axis.y.display ).toBe( false );
 			expect( recordedProps().gridVisibility ).toBe( 'none' );
-			// The hidden axis frees its gutter for the bars.
-			expect( recordedProps().margin ).toEqual( { right: 0, left: 0 } );
+			// The hidden axis frees its gutter inside `useChartMargin`, so the bars
+			// gain the room without this component clipping the date labels away.
+			expect( recordedProps().margin ).toBeUndefined();
 			expect( screen.queryByTestId( 'bar-chart-legend' ) ).not.toBeInTheDocument();
 		} );
 
@@ -526,5 +529,63 @@ describe( 'ComparativeBarChart', () => {
 			expect( recordedOptions().axis.y ).not.toHaveProperty( 'display' );
 			expect( recordedProps().gridVisibility ).toBeUndefined();
 		} );
+	} );
+} );
+
+describe( 'ComparativeBarChart tooltip extras', () => {
+	const CPM_EXTRA = {
+		label: 'Average CPM',
+		data: [ { date: JULY_1, value: 0.15 } ],
+		dataFormat: { type: 'currency' as const, options: { decimals: 2 } },
+	};
+
+	beforeEach( () => {
+		mockBarSpy.mockClear();
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+	} );
+
+	it( "adds each extra's value for the hovered bar, and nothing for a date it lacks", () => {
+		render(
+			<ComparativeBarChart
+				series={ SERIES }
+				dataFormat={ DATA_FORMAT }
+				tooltipExtras={ [ CPM_EXTRA ] }
+			/>
+		);
+
+		expect( tooltipRowsFor( JULY_1 ) ).toEqual( { July: 100, 'Average CPM': 0.15 } );
+		expect( tooltipRowsFor( JULY_2 ) ).toEqual( { July: 100 } );
+	} );
+
+	it( 'names the drawn row once extras are listed beside it', () => {
+		render(
+			<ComparativeBarChart
+				series={ SERIES }
+				dataFormat={ DATA_FORMAT }
+				tooltipExtras={ [ CPM_EXTRA ] }
+			/>
+		);
+
+		expect( tooltipLabelFor( JULY_1 ) ).toBe( 'July · July 1, 2026' );
+	} );
+
+	it( 'keeps the tooltip on for an all-zero drawn series once an extra has data', () => {
+		render(
+			<ComparativeBarChart
+				series={ ZERO_SERIES }
+				dataFormat={ DATA_FORMAT }
+				tooltipExtras={ [ { ...CPM_EXTRA, data: [ { date: JULY_1, value: 0 } ] } ] }
+			/>
+		);
+		expect( recordedProps().withTooltips ).toBe( false );
+
+		render(
+			<ComparativeBarChart
+				series={ ZERO_SERIES }
+				dataFormat={ DATA_FORMAT }
+				tooltipExtras={ [ CPM_EXTRA ] }
+			/>
+		);
+		expect( recordedProps().withTooltips ).toBe( true );
 	} );
 } );

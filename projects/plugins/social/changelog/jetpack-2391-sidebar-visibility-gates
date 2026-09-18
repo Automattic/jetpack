@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Hide the Social sidebar item when Social is not active.
