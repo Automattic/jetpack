@@ -29,6 +29,7 @@ import {
 	resolveSeriesNames,
 	resolveTooltipNames,
 } from '../../helpers';
+import { useLockedPrimaryLegendItems } from '../../hooks/use-locked-primary-legend-items';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-line-chart.module.scss';
 import { alignSeriesDates } from './utils';
@@ -76,13 +77,17 @@ function applyStylesToSeries(
 		}
 
 		const { stroke, ...lineStyleProps } = style;
+		// An unset value must not shadow the theme's line style for that series.
+		const seriesLineStyle = Object.fromEntries(
+			Object.entries( lineStyleProps ).filter( ( [ , value ] ) => value !== undefined )
+		);
 
 		return {
 			...seriesItem,
 			options: {
 				...( seriesItem.options ?? {} ),
 				stroke,
-				seriesLineStyle: lineStyleProps,
+				...( Object.keys( seriesLineStyle ).length ? { seriesLineStyle } : {} ),
 			},
 		};
 	} );
@@ -125,9 +130,9 @@ export type ComparativeLineChartProps = {
 	compactWhenShort?: boolean;
 
 	/**
-	 * Let the reader click legend items to show and hide series. Off by default:
-	 * a chart drawing one metric has nothing to compare, and its periods collapse
-	 * into a single item, so clicking it would just empty the chart.
+	 * Let the reader click legend items to show and hide series; the first item stays
+	 * locked so the chart is never emptied. Off by default: a chart drawing one metric
+	 * has nothing to compare.
 	 */
 	legendInteractive?: boolean;
 
@@ -188,10 +193,10 @@ export function ComparativeLineChart( {
 	);
 
 	const { seriesNames, isPaired } = useMemo( () => resolveSeriesNames( series ), [ series ] );
-	// A legend item names a metric; the solid mark against its previous-period twin is
-	// what tells the periods apart, so a metric's two periods always collapse into one.
+	// A metric's two periods collapse into one item; a single static Comparison period
+	// item explains the dashed overlay instead.
 	const legendConfig = useMemo(
-		() => ( { collapseGroups: true, interactive: legendInteractive } ),
+		() => ( { collapseGroups: true, comparisonItem: true, interactive: legendInteractive } ),
 		[ legendInteractive ]
 	);
 
@@ -256,6 +261,8 @@ export function ComparativeLineChart( {
 		}
 		return applyStylesToSeries( alignedSeries, resolvedStyles );
 	}, [ stylesProp, alignedSeries, resolvedStyles ] );
+
+	const legendItems = useLockedPrimaryLegendItems( styledSeries, legendConfig, 'line' );
 
 	const isEmptyData = useMemo( () => isEmptyChartData( styledSeries ), [ styledSeries ] );
 	// An all-zero selected metric must not hide the extras that do have data.
@@ -322,10 +329,9 @@ export function ComparativeLineChart( {
 				onPointerUp={ onPointerUp }
 				onDatumActivate={ onDatumActivate }
 			>
-				{ /* Names the metrics; the solid line against its dashed overlay is what
-				     tells the current period from the previous one. */ }
 				{ ! isCompact && (
 					<LineChart.Legend
+						items={ legendItems }
 						interactive={ legendInteractive }
 						shape="line"
 						className={ styles.legend }

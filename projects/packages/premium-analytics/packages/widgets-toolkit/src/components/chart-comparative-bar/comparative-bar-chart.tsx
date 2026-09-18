@@ -29,6 +29,7 @@ import {
 	resolveSeriesNames,
 	resolveTooltipNames,
 } from '../../helpers';
+import { useLockedPrimaryLegendItems } from '../../hooks/use-locked-primary-legend-items';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-bar-chart.module.scss';
@@ -102,9 +103,9 @@ export type ComparativeBarChartProps = {
 	defaultHiddenSeries?: readonly string[];
 
 	/**
-	 * Let the reader click legend items to show and hide series. Off by default:
-	 * a chart drawing one metric has nothing to compare, and its periods collapse
-	 * into a single item, so clicking it would just empty the chart.
+	 * Let the reader click legend items to show and hide series; the first item stays
+	 * locked so the chart is never emptied. Off by default: a chart drawing one metric
+	 * has nothing to compare.
 	 */
 	legendInteractive?: boolean;
 
@@ -213,6 +214,7 @@ export function ComparativeBarChart( {
 		() => ( { collapseGroups: true, interactive: legendInteractive } ),
 		[ legendInteractive ]
 	);
+	const legendItems = useLockedPrimaryLegendItems( alignedSeries, legendConfig );
 
 	const { names: tooltipNames, namesRows } = useMemo(
 		() => resolveTooltipNames( seriesNames, isPaired, tooltipExtras ),
@@ -362,12 +364,12 @@ export function ComparativeBarChart( {
 				onPointerUp={ onPointerUp }
 				onDatumActivate={ onDatumActivate }
 			>
-				{ /* Circle swatches, not the bar's own shape: the legend only needs to name
-				     the metrics, since the chart itself tells the periods apart. */ }
+				{ /* Square swatches only name the metrics; the chart itself tells the periods apart. */ }
 				{ ! isCompact && (
 					<BarChart.Legend
+						items={ legendItems }
 						interactive={ legendInteractive }
-						shape="circle"
+						shape="rect"
 						className={ styles.legend }
 						itemClassName={ styles.legendItem }
 						itemStyles={ { margin: 0 } }
@@ -377,7 +379,7 @@ export function ComparativeBarChart( {
 							textOverflow: 'ellipsis',
 							margin: 0,
 						} }
-						shapeStyles={ { width: 8, height: 8, margin: 0 } }
+						shapeStyles={ { margin: 0 } }
 					/>
 				) }
 			</BarChart>

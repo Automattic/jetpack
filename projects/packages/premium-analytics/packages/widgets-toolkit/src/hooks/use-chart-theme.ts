@@ -39,7 +39,6 @@ export function useChartTheme(): ChartTheme {
 					},
 					{
 						transform: 'translate(0, 1px)',
-						strokeDasharray: '2, 2, 3, 2, 3, 2, 2',
 					},
 				],
 			},
@@ -61,15 +60,10 @@ export function useChartTheme(): ChartTheme {
 					},
 				},
 			},
+			// Comparison lines are styled by `lineChart.lineStyles.comparison`, never by index.
 			seriesLineStyles: [
 				{
 					strokeWidth: 2,
-				},
-				{
-					strokeDasharray: '4 4',
-					strokeWidth: 1.5,
-					strokeLinecap: 'square' as const,
-					strokeDashoffset: 2,
 				},
 			],
 		};
