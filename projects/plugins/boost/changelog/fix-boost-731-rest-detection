@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Critical CSS: Recognize REST requests whatever shape their path takes, so generation never starts on one.
