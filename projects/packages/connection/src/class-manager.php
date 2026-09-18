@@ -1437,11 +1437,14 @@ class Manager {
 				$status = self::PO_STATE_CAN_ESTABLISH;
 			}
 		} else {
-			$owner_id = $this->get_connection_owner_id();
+			$owner_id       = $this->get_connection_owner_id();
+			$owner_wpcom_id = $owner_id ? $this->resolve_wpcom_user_id( $owner_id ) : 0;
 
-			if ( ! $owner_id ) {
+			if ( ! $owner_wpcom_id ) {
+				// A zero is "could not determine", never "does not match", so an owner whose
+				// identity cannot be confirmed is reported as needing to reconnect, not replaced.
 				$status = self::PO_STATE_NEEDS_OWNER_RECONNECT;
-			} elseif ( $this->resolve_wpcom_user_id( $owner_id ) !== (int) $anchor['wpcom_user_id'] ) {
+			} elseif ( $owner_wpcom_id !== (int) $anchor['wpcom_user_id'] ) {
 				// Legitimate, not broken: the first admin to connect takes a vacant master slot,
 				// so an agency can hold it while the protected owner is away.
 				$status = self::PO_STATE_NEEDS_DIFFERENT_OWNER;

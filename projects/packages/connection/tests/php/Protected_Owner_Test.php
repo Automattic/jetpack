@@ -838,6 +838,21 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
+	 * A resolved zero means the owner could not be identified, which is not evidence of a
+	 * different one — the same account still holds the slot, with no token left to prove it.
+	 */
+	public function test_state_needs_an_owner_reconnect_when_the_owner_cannot_be_identified() {
+		$this->anchor();
+		Utils::set_wpcom_user_id( $this->owner_id, self::ANCHORED_WPCOM_ID );
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $this->owner_id, false, $this->never(), false );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_NEEDS_OWNER_RECONNECT, $state['status'] );
+	}
+
+	/**
 	 * An agency holding master while the protected owner is away is a gated state, not a broken
 	 * one, so it is reported as needing a different owner rather than a reconnect.
 	 */
