@@ -184,11 +184,15 @@ function SubscribersChartDashboardStory( {
 /**
  * Renders the real registered widget through the shared dashboard harness,
  * including the date control the widget declares in its own header.
+ *
+ * Full width, as the Subscribers default layout places it: narrower than that and
+ * the host collapses the header controls behind the settings icon.
  */
 export const WidgetDashboardWithWidget: StoryObj< SubscribersChartDashboardStoryProps > = {
 	render: args => <SubscribersChartDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		widgetWidth: 3,
 		...DEFAULT_CHART_ARGS,
 	},
 	argTypes: {
