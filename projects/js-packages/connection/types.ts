@@ -91,6 +91,11 @@ export type ConnectionScriptData = {
 	connectionErrors: Array< string | object >;
 	isOfflineMode: boolean;
 	isOwnershipTransferable: boolean;
+	/**
+	 * Protected owner state, or null when the viewer lacks the jetpack_connect capability.
+	 * Only `required` is present until a consumer actually asks for an owner.
+	 */
+	protectedOwner: ProtectedOwnerState | null;
 	/** Owner identity; null when unresolvable or when the viewer lacks the jetpack_connect capability. */
 	connectionOwner: ConnectionOwner | null;
 	/**
@@ -98,4 +103,27 @@ export type ConnectionScriptData = {
 	 * only the admin script data carries it, not `JP_CONNECTION_INITIAL_STATE`.
 	 */
 	assetsUrl?: string;
+};
+
+/** Why the protected owner gate is closed, and what would change it. */
+export type ProtectedOwnerStatus =
+	| 'NOT_ELIGIBLE'
+	| 'NEEDS_CONNECT_TO_ESTABLISH'
+	| 'CAN_ESTABLISH'
+	| 'NEEDS_OWNER_RECONNECT'
+	| 'NEEDS_DIFFERENT_OWNER'
+	| 'RE_EVALUATE';
+
+/**
+ * The protected owner state as the server reports it.
+ *
+ * Everything but `required` is absent while no consumer is asking for an owner, because
+ * classifying the state can cost a WordPress.com lookup the site should not pay for.
+ */
+export type ProtectedOwnerState = {
+	required: boolean;
+	protected?: boolean;
+	locked?: boolean;
+	status?: ProtectedOwnerStatus;
+	isCurrentUserTheOwner?: boolean;
 };

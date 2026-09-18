@@ -30,6 +30,7 @@ export { default as DisconnectDialog } from './components/disconnect-dialog';
 export { default as DisconnectCard } from './components/disconnect-card';
 export { default as useConnection } from './components/use-connection';
 export { default as ManageConnectionDialog } from './components/manage-connection-dialog';
+export { default as ProtectedOwnerDialog } from './components/protected-owner-dialog';
 
 /**
  * Helpers.
