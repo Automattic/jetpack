@@ -18,7 +18,7 @@ if ( isComingSoon ) {
 		'jetpack-mu-wpcom/coming-soon-post-publish-header',
 		( translation, text ) =>
 			text === 'is now live.'
-				? __( 'is published. Your site is still Coming Soon.', 'jetpack-mu-wpcom' )
+				? __( 'is published. Your site is in Coming Soon mode.', 'jetpack-mu-wpcom' )
 				: translation
 	);
 }
