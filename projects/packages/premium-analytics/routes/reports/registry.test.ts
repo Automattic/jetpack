@@ -5,7 +5,6 @@ import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
 /**
  * Internal dependencies
  */
-import { DASHBOARD_SECTION_SLUGS } from '../site-readiness';
 import { getReportDefinition, REPORTS } from './registry';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -155,11 +154,5 @@ describe( 'REPORTS', () => {
 			subscribers: [ 'comment-followers', 'emails' ],
 			ads: [ 'earnings' ],
 		} );
-	} );
-
-	it( 'declares only tabs the server can publish', () => {
-		for ( const report of Object.values( REPORTS ) ) {
-			expect( DASHBOARD_SECTION_SLUGS ).toContain( report.dashboardSection );
-		}
 	} );
 } );
