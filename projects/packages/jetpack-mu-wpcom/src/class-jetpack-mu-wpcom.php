@@ -127,6 +127,12 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_podcast' ) );
 		}
 
+		// The Backup page serves both platforms: it offers the transfer on Simple
+		// and the plan upgrade on WoA, and steps aside once backups are live.
+		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Constants::is_true( 'IS_ATOMIC' ) ) {
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_backup' ) );
+		}
+
 		// These features run only on atomic sites.
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );
@@ -886,6 +892,15 @@ class Jetpack_Mu_Wpcom {
 	public static function load_verbum_moderate() {
 		require_once __DIR__ . '/features/verbum-comments/assets/class-verbum-moderate.php';
 		new \Automattic\Jetpack\Verbum_Moderate();
+	}
+
+	/**
+	 * Load the Backup page on WordPress.com Simple and WoA sites.
+	 *
+	 * The file hooks its own `init`, where the plan lookup it gates on is ready.
+	 */
+	public static function load_wpcom_backup() {
+		require_once __DIR__ . '/features/wpcom-backup/wpcom-backup.php';
 	}
 
 	/**
