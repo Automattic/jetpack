@@ -27,7 +27,8 @@ class Configuration {
 	 * FQCN of the Analytics module shipped by the standalone WooCommerce Analytics plugin.
 	 *
 	 * Must track that plugin's class: if it drifts, both modules load under the same
-	 * name and every analytics event syncs twice.
+	 * name and every analytics event syncs twice. Moot once that plugin consumes the
+	 * shared module, since the class strings then match.
 	 *
 	 * @since $$next-version$$
 	 * @var string
@@ -145,10 +146,13 @@ class Configuration {
 	}
 
 	/**
-	 * Remove the shared module when the standalone plugin's Analytics module is present.
+	 * Drop the standalone plugin's Analytics module in favor of the shared one.
 	 *
-	 * Sync dedups by class name only, so both would load and sync every event twice. Runs at
-	 * PHP_INT_MAX because Data_Settings re-asserts its whole module list at priority 10.
+	 * Sync dedups by class name only, so both would load and sync every event twice. The shared
+	 * module wins because the released standalone one syncs no lookup data, while the sync package
+	 * advertises the lookup checksum tables for any module of this name.
+	 *
+	 * Runs at PHP_INT_MAX because Data_Settings re-asserts its whole module list at priority 10.
 	 *
 	 * @param array|mixed $modules Current Sync module class names.
 	 * @return array|mixed Updated Sync module class names.
@@ -159,11 +163,7 @@ class Configuration {
 			return $modules;
 		}
 
-		if ( in_array( self::ANALYTICS_PLUGIN_MODULE_FQCN, $modules, true ) ) {
-			return array_values( array_diff( $modules, array( WooCommerce_Analytics_Module::class ) ) );
-		}
-
-		return $modules;
+		return array_values( array_diff( $modules, array( self::ANALYTICS_PLUGIN_MODULE_FQCN ) ) );
 	}
 
 	/**
