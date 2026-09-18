@@ -10,29 +10,29 @@ This page covers sections only. Widget types and report pages have their own reg
 
 ## Vocabulary
 
-| Term           | Meaning                                                                                                                                               | Example                                       |
-| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| Dashboard name | The dashboard a section belongs to, as produced by the build pipeline. `DASHBOARD_NAME` in `src/dashboard-layout.php` names this package's dashboard. | `jetpack-premium-analytics_dashboard`         |
-| Section id     | Namespaced identifier, `<namespace>/<slug>`. The namespace names the owner.                                                                           | `analytics/traffic`, `woocommerce/store`      |
-| Slug           | The part after the namespace. Keys the section in `?section=`, the stored layouts and the client entity.                                              | `traffic`, `ads`                              |
-| Label, title   | The navigation item text and the heading above the widgets. A null title falls back to the label.                                                     | `Ads`, `Site traffic`                         |
-| Default layout | The widget instances a section shows until the reader customizes it.                                                                                  | see `get_dashboard_default_section_layouts()` |
-| Preview scope  | The customer preview exposes only an allow-list of slugs; every other mode exposes every section the site qualifies for.                              | `PREVIEW_SECTIONS`                            |
+| Term           | Meaning                                                                                                                                               | Example                                    |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| Dashboard name | The dashboard a section belongs to, as produced by the build pipeline. `DASHBOARD_NAME` in `src/dashboard-layout.php` names this package's dashboard. | `jetpack-premium-analytics_dashboard`      |
+| Section id     | Namespaced identifier, `<namespace>/<slug>`. The namespace names the owner.                                                                           | `analytics/traffic`, `woocommerce/store`   |
+| Slug           | The part after the namespace. Keys the section in `?section=`, the stored layouts and the client entity.                                              | `traffic`, `ads`                           |
+| Label, title   | The navigation item text and the heading above the widgets. A null title falls back to the label.                                                     | `Ads`, `Site traffic`                      |
+| Default layout | The widget instances a section shows until the reader customizes it.                                                                                  | see `get_traffic_section_default_layout()` |
+| Preview scope  | The customer preview exposes only an allow-list of slugs; every other mode exposes every section the site qualifies for.                              | `PREVIEW_SECTIONS`                         |
 
 ## Files
 
-| File                                               | Role                                                                                                                                                                                                            |
-| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/class-dashboard-section.php`                  | The section model: properties, `is_available()`, `get_default_layout()`, `to_array()`.                                                                                                                          |
-| `src/class-dashboard-section-registry.php`         | The registry: `register()` with its validations and the reads.                                                                                                                                                  |
-| `src/dashboard-sections.php`                       | The section API: the `register_dashboard_section()` family, the preview scope, the script data, the REST routes and their schema.                                                                               |
-| `src/dashboard-layout.php`                         | Default-layout resolution: `DASHBOARD_NAME`, the filter, `get_dashboard_default_layout_for()`, the bundled layout map keyed by section, the alias resolver and the seed callback.                               |
-| `src/default-dashboard-sections.php`               | The package's own sections: Traffic, Insights, Subscribers, Store, Ads, their gates with their layouts kept in the map in `src/dashboard-layout.php`, registered on `init` by `bootstrap_dashboard_sections()`. |
-| `src/class-analytics.php`                          | Loads the three files above on wp-admin requests (`load_dashboard_components()`).                                                                                                                               |
-| `src/class-dashboard-support-routes.php`           | Loads them on REST requests (`boot_routes()`), on connected sites and, called directly by WordPress.com, on Simple.                                                                                             |
-| `packages/data/src/entities/dashboard-entities.ts` | The `dashboardSection` core-data entity the client reads.                                                                                                                                                       |
-| `routes/dashboard/`                                | `useDashboardSections()`, `useActiveSection()`, `useDashboardSectionLayout()`, and the stage that renders the navigation.                                                                                       |
-| `routes/site-readiness.ts`                         | `isDashboardSectionInPreviewScope()`, the report routes' gate, fed by the inline script data, and `DASHBOARD_SECTION_SLUGS`, the list of section slugs the report registry is typed against.                    |
+| File                                               | Role                                                                                                                                                                                         |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/class-dashboard-section.php`                  | The section model: properties, `is_available()`, `get_default_layout()`, `to_array()`.                                                                                                       |
+| `src/class-dashboard-section-registry.php`         | The registry: `register()` with its validations and the reads.                                                                                                                               |
+| `src/dashboard-sections.php`                       | The section API: the `register_dashboard_section()` family, the preview scope, the script data, the REST routes and their schema.                                                            |
+| `src/dashboard-layout.php`                         | Layout primitives: `DASHBOARD_NAME`, the default-layout filter name, `get_dashboard_default_widget_instance()`, and the package's availability policy on default layouts.                    |
+| `src/default-dashboard-sections.php`               | The package's own sections: Traffic, Insights, Subscribers, Store, Ads, their gates and their default layouts, registered on `init` by `bootstrap_dashboard_sections()`.                     |
+| `src/class-analytics.php`                          | Loads the three files above on wp-admin requests (`load_dashboard_components()`).                                                                                                            |
+| `src/class-dashboard-support-routes.php`           | Loads them on REST requests (`boot_routes()`), on connected sites and, called directly by WordPress.com, on Simple.                                                                          |
+| `packages/data/src/entities/dashboard-entities.ts` | The `dashboardSection` core-data entity the client reads.                                                                                                                                    |
+| `routes/dashboard/`                                | `useDashboardSections()`, `useActiveSection()`, `useDashboardSectionLayout()`, and the stage that renders the navigation.                                                                    |
+| `routes/site-readiness.ts`                         | `isDashboardSectionInPreviewScope()`, the report routes' gate, fed by the inline script data, and `DASHBOARD_SECTION_SLUGS`, the list of section slugs the report registry is typed against. |
 
 ## When the section files load
 
@@ -118,23 +118,19 @@ The report registry types each report's section with `DashboardSectionSlug`, a u
 
 ## Default layouts
 
-![A section registration calls get_dashboard_default_layout_for() with its id; the filter starts from an empty array, the package seeds the bundled layout of the resolved section at priority 10, a plugin appends instances, and unsupported widget types are dropped after the filter before the layout reaches the client.](diagrams/sections-default-layout.svg)
+![A section declares its default layout; get_default_layout() runs it through the default-layout filter, where a plugin adds instances at priority 10 and the package removes unsupported widget types at priority 100, before it reaches the client as the fallback for the stored layout.](diagrams/sections-default-layout.svg)
 
-The package's registrations pass a `default_layout` callable that calls `get_dashboard_default_layout_for( $alias )` with the section id.
+A section owns its default layout. The registration passes the instances, built with `get_dashboard_default_widget_instance( $uuid, $type, $order, $width, $height, $attributes )`, as an array or as a callable returning one.
 
-That resolver applies `jetpack_premium_analytics_dashboard_default_layout` to an empty array with the alias it was given. `DASHBOARD_NAME`, a bare slug such as `traffic`, or a section id all resolve to one section through `get_dashboard_default_section_id_for()`.
+`Dashboard_Section::get_default_layout()` runs the declared array through `jetpack_premium_analytics_dashboard_default_layout` with the section id and the section, and returns whatever comes back as a list.
 
-At priority 10, `seed_default_dashboard_layout()` appends that section's bundled instances from `get_dashboard_default_section_layouts()`, deduplicated by uuid.
-
-After the filter, `remove_unsupported_widget_items()` drops the instances the site cannot serve, over `get_widget_support_context()`. A persisted layout keeps such an instance as a removable ghost widget, but a default must not seed one.
-
-A plugin adds an instance to a section through the same filter, switching on the alias it receives, which is the section id when the section entity is read:
+Two kinds of callbacks hook that filter. A plugin adds an instance to a section it does not own, switching on `$section_id`:
 
 ```php
 add_filter(
 	'jetpack_premium_analytics_dashboard_default_layout',
-	static function ( $layout, $dashboard_name ) {
-		if ( 'analytics/traffic' === $dashboard_name ) {
+	static function ( $layout, $section_id ) {
+		if ( 'analytics/traffic' === $section_id ) {
 			$layout[] = get_dashboard_default_widget_instance( 'videopress-top-videos', 'jpa/videopress', 8, 1, 2 );
 		}
 
@@ -145,7 +141,7 @@ add_filter(
 );
 ```
 
-A section registered by a plugin may pass its instances directly as `default_layout`. `Dashboard_Section::get_default_layout()` returns them as declared, without the filter or the policy, so only the resolver above applies them.
+The package removes the instances the site cannot serve at priority 100, `remove_unsupported_default_layout_items()` over `get_widget_support_context()`. A persisted layout keeps such an instance as a removable ghost widget, but a default must not seed one. Running late means an instance a plugin added gets the same treatment as a bundled one.
 
 The client stores customized layouts in the `dashboardSectionLayouts` preference, keyed by slug. `useDashboardSectionLayout()` renders the stored layout when there is one and the section's `default_layout` otherwise.
 
@@ -177,7 +173,7 @@ A section that fails either rule is absent from the sections route, from the scr
 | Behaviour                                                                               | Test                                                                 |
 | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
 | Registry rules, the built-in sections, preview scope, the sections route and its schema | `tests/php/Dashboard_Section_Test.php`                               |
-| The seed, the aliases and the bundled layouts                                           | `tests/php/Dashboard_Layout_Test.php`                                |
+| Default-layout primitives, the filter and the package's policy, the bundled layouts     | `tests/php/Dashboard_Layout_Test.php`                                |
 | The REST entry point WordPress.com calls                                                | `tests/php/Dashboard_Support_Routes_Test.php`                        |
 | Navigation, active section, stored layouts, section heading                             | `routes/dashboard/**/*.test.ts(x)`                                   |
 | Reports behind a hidden section                                                         | `routes/reports/registry.test.ts`, `tests/js/site-readiness.test.ts` |
