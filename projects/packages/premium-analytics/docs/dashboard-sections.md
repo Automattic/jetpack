@@ -21,18 +21,18 @@ This page covers sections only. Widget types and report pages have their own reg
 
 ## Files
 
-| File                                               | Role                                                                                                                                                                                                                                |
-| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/class-dashboard-section.php`                  | The section model: properties, `is_available()`, `get_default_layout()`, `to_array()`.                                                                                                                                              |
-| `src/class-dashboard-section-registry.php`         | The registry: `register()` with its validations and the reads.                                                                                                                                                                      |
-| `src/dashboard-sections.php`                       | The section API: the `register_dashboard_section()` family, the preview scope, the script data, the REST routes and their schema.                                                                                                   |
-| `src/dashboard-layout.php`                         | Default-layout resolution: `DASHBOARD_NAME`, the filter, `get_dashboard_default_layout_for()`, the bundled layout map keyed by section, the alias resolver and the seed callback, and the `dashboards/{name}/default-layout` route. |
-| `src/default-dashboard-sections.php`               | The package's own sections: Traffic, Insights, Subscribers, Store, Ads, their gates with their layouts kept in the map in `src/dashboard-layout.php`, registered on `init` by `bootstrap_dashboard_sections()`.                     |
-| `src/class-analytics.php`                          | Loads the three files above on wp-admin requests (`load_dashboard_components()`).                                                                                                                                                   |
-| `src/class-dashboard-support-routes.php`           | Loads them on REST requests (`boot_routes()`), on connected sites and, called directly by WordPress.com, on Simple.                                                                                                                 |
-| `packages/data/src/entities/dashboard-entities.ts` | The `dashboardSection` core-data entity the client reads.                                                                                                                                                                           |
-| `routes/dashboard/`                                | `useDashboardSections()`, `useActiveSection()`, `useDashboardSectionLayout()`, and the stage that renders the navigation.                                                                                                           |
-| `routes/site-readiness.ts`                         | `isDashboardSectionInPreviewScope()`, the report routes' gate, fed by the inline script data, and `DASHBOARD_SECTION_SLUGS`, the list of section slugs the report registry is typed against.                                        |
+| File                                               | Role                                                                                                                                                                                                            |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/class-dashboard-section.php`                  | The section model: properties, `is_available()`, `get_default_layout()`, `to_array()`.                                                                                                                          |
+| `src/class-dashboard-section-registry.php`         | The registry: `register()` with its validations and the reads.                                                                                                                                                  |
+| `src/dashboard-sections.php`                       | The section API: the `register_dashboard_section()` family, the preview scope, the script data, the REST routes and their schema.                                                                               |
+| `src/dashboard-layout.php`                         | Default-layout resolution: `DASHBOARD_NAME`, the filter, `get_dashboard_default_layout_for()`, the bundled layout map keyed by section, the alias resolver and the seed callback.                               |
+| `src/default-dashboard-sections.php`               | The package's own sections: Traffic, Insights, Subscribers, Store, Ads, their gates with their layouts kept in the map in `src/dashboard-layout.php`, registered on `init` by `bootstrap_dashboard_sections()`. |
+| `src/class-analytics.php`                          | Loads the three files above on wp-admin requests (`load_dashboard_components()`).                                                                                                                               |
+| `src/class-dashboard-support-routes.php`           | Loads them on REST requests (`boot_routes()`), on connected sites and, called directly by WordPress.com, on Simple.                                                                                             |
+| `packages/data/src/entities/dashboard-entities.ts` | The `dashboardSection` core-data entity the client reads.                                                                                                                                                       |
+| `routes/dashboard/`                                | `useDashboardSections()`, `useActiveSection()`, `useDashboardSectionLayout()`, and the stage that renders the navigation.                                                                                       |
+| `routes/site-readiness.ts`                         | `isDashboardSectionInPreviewScope()`, the report routes' gate, fed by the inline script data, and `DASHBOARD_SECTION_SLUGS`, the list of section slugs the report registry is typed against.                    |
 
 ## When the section files load
 
@@ -103,8 +103,6 @@ On the server, `get_available_dashboard_sections()` keeps the sections whose `is
 The route `GET /wpcom/v2/dashboards/{name}/sections` returns that array, and `GET …/sections/{section}/default-layout` returns one section's layout. Both are gated on `Capabilities::current_user_can_view_analytics()`, and `get_dashboard_section_schema()` documents the shape.
 
 The `wpcom/v2` namespace is what lets WordPress.com expose the route through public-api for Simple sites without a second registration.
-
-A third route, `GET …/dashboards/{name}/default-layout`, predates the sections route. It resolves a section from an alias through its own availability table, and the client no longer calls it.
 
 On the client, the boot init module registers the `dashboardSection` core-data entity (`key: slug`, `baseURL` pointing at that route). `useDashboardSections()` reads it with `per_page: -1` and reports `hasResolved`.
 
@@ -177,7 +175,7 @@ A section that fails either rule is absent from the sections route, from the scr
 | Behaviour                                                                               | Test                                                                 |
 | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
 | Registry rules, the built-in sections, preview scope, the sections route and its schema | `tests/php/Dashboard_Section_Test.php`                               |
-| The legacy default-layout route, the seed, the aliases and the bundled layouts          | `tests/php/Dashboard_Layout_Test.php`                                |
+| The seed, the aliases and the bundled layouts                                           | `tests/php/Dashboard_Layout_Test.php`                                |
 | The REST entry point WordPress.com calls                                                | `tests/php/Dashboard_Support_Routes_Test.php`                        |
 | Navigation, active section, stored layouts, section heading                             | `routes/dashboard/**/*.test.ts(x)`                                   |
 | Reports behind a hidden section                                                         | `routes/reports/registry.test.ts`, `tests/js/site-readiness.test.ts` |
