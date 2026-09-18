@@ -31,6 +31,34 @@ export interface WizardInput {
 	locale: string;
 }
 
+/**
+ * Copy the client writes into the site's own posts and pages, already translated into the site
+ * language by `GET /ai-launchpad` (`site.copy`), so it never goes through `__()` here.
+ * The `fallback_*` templates take the site name as their one `%s` placeholder.
+ */
+export interface SiteCopy {
+	about_page_title: string;
+	contact_page_title: string;
+	contact_page_heading: string;
+	contact_form_name_label: string;
+	contact_form_email_label: string;
+	contact_form_message_label: string;
+	events_page_title: string;
+	events_page_heading: string;
+	event_name_placeholder: string;
+	event_details_placeholder: string;
+	video_page_title: string;
+	video_page_heading: string;
+	gallery_page_title: string;
+	gallery_page_heading: string;
+	portfolio_piece_placeholder: string;
+	fallback_site_name: string;
+	fallback_post_title: string;
+	fallback_post_subtitle: string;
+	fallback_post_paragraphs: string[];
+	fallback_about_paragraphs: string[];
+}
+
 export interface TailoredTask {
 	id: string;
 	subtitle: string;

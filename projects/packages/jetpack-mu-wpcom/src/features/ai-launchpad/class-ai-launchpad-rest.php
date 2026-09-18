@@ -464,6 +464,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				'description' => get_bloginfo( 'description' ),
 				// Block themes open the Site Editor; classic themes fall back to the Customizer.
 				'edit_url'    => wp_is_block_theme() ? admin_url( 'site-editor.php' ) : admin_url( 'customize.php' ),
+				// The copy written into the pages the client creates, in the site language.
+				'copy'        => wpcom_ai_launchpad_site_copy(),
 			),
 		);
 	}
