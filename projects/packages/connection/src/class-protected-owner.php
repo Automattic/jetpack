@@ -103,7 +103,8 @@ class Protected_Owner {
 			return false;
 		}
 
-		if ( (int) $anchor['local_user_id'] === $local_user_id ) {
+		// Defaulted: `get()` only requires `wpcom_user_id`, so a partial anchor reaches here.
+		if ( (int) ( $anchor['local_user_id'] ?? 0 ) === $local_user_id ) {
 			return true;
 		}
 

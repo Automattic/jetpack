@@ -945,4 +945,24 @@ class Protected_Owner_Test extends TestCase {
 
 		remove_action( 'jetpack_user_authorized', array( $manager, 'promote_protected_owner_on_connect' ) );
 	}
+	/**
+	 * An anchor without the cached local ID re-points without a warning.
+	 */
+	public function test_repoint_tolerates_an_anchor_with_no_cached_local_id() {
+		Jetpack_Options::update_option(
+			Protected_Owner::OPTION,
+			array(
+				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
+				'locked'        => true,
+				'confirmed_at'  => '2026-01-01T00:00:00Z',
+				'confirmed_by'  => 'popup',
+			)
+		);
+
+		$this->assertTrue( Protected_Owner::repoint( $this->owner_id ) );
+
+		$anchor = Protected_Owner::get();
+		$this->assertIsArray( $anchor );
+		$this->assertSame( $this->owner_id, (int) $anchor['local_user_id'] );
+	}
 }
