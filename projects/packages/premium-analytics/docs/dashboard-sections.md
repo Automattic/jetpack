@@ -90,7 +90,7 @@ The mechanics behind it:
 - **Loading.** The file that declares it is required by hand on the paths above, not autoloaded. The function exists only once those files have loaded, so a plugin guards the call with `function_exists()`.
 - **Validation in `register()`.** The dashboard name must match `get_dashboard_name_pattern()`, the id must be namespaced (`get_dashboard_section_id_pattern()`), and the id must not be registered. Each failure is a `_doing_it_wrong()` and a `false` return.
 - **Slugs.** Two ids sharing a slug are not refused, and the client keys sections by slug, so a registrant must pick one no other section uses.
-- **Arguments.** `label`, `title`, `order`, `date_filter` (`range` or `year`), `date_filter_options` (`with_date_comparison`, `with_header_date_control`), `requires_sync`, `is_available` (a boolean or a callable receiving the section), and `default_layout` (an array of instances or a callable returning one). Unknown keys are ignored, and an unrecognized `date_filter` keeps the default. See `Dashboard_Section::set_props()`.
+- **Arguments.** `label`, `title`, `order`, `date_filter` (`range` or `year`), `date_filter_options` (`with_date_comparison`, `with_header_date_control`), `requires_sync`, `is_available` (a boolean or a callable receiving the section, `true` by default), and `default_layout` (an array of instances or a callable returning one). Unknown keys are ignored, and an unrecognized `date_filter` keeps the default. See `Dashboard_Section::set_props()`.
 
 ## From the registry to the client
 
@@ -165,6 +165,8 @@ Reset deletes the stored entry rather than copying the default into it, so a sec
 The sticker and filter overrides that switch the dashboard on for the team leave the option off, so they see every section.
 
 **The section's own rule** is a capability check, a plugin's presence, or a plan feature. Store checks WooCommerce and `view_woocommerce_reports`. Subscribers checks the subscriptions module. Ads checks the WordAds module, or the plan feature on the WordPress.com platform, and `manage_options`.
+
+A section that declares no rule is visible to anyone with analytics access, the gate of the sections route. A plugin registering one for a narrower audience passes its own `is_available`.
 
 Each of the three has a filter of its own (`jetpack_premium_analytics_<name>_dashboard_section_available`).
 
