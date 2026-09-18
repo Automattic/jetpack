@@ -55,7 +55,7 @@ function getGenericBlockingMessage(): string {
  * Errors that stop the transfer outright, shown as a single notice.
  *
  * Built on first call rather than at module scope so `__()` runs once the locale
- * data is loaded, then cached because every lookup below rebuilds it otherwise.
+ * data is loaded, then cached
  *
  * @return The messages, keyed by error code.
  */

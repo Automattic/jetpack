@@ -120,7 +120,7 @@ describe( 'holding errors', () => {
 		assert.deepEqual( findHoldingErrors( [ error( 'constructor' ) ] ), [] );
 	} );
 
-	// wpcom sends `is_staging_blog`; keying this on `is_staging_site` silently lost the copy.
+	// wpcom sends `is_staging_blog`; keying this on `is_staging_site` silently loses the copy.
 	it( 'matches the staging code wpcom really sends', () => {
 		const [ hold ] = findHoldingErrors( [ error( 'is_staging_blog' ) ] );
 

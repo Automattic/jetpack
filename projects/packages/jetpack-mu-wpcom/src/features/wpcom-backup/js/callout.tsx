@@ -5,11 +5,6 @@ import type { ComponentProps, ReactNode } from 'react';
 /**
  * Two-column feature panel: content on the left, illustration on the right.
  *
- * Ported from the WordPress.com dashboard's `Callout`
- * (`client/dashboard/components/callout`), which is what
- * `HostingFeatureGatedWithCallout` renders for this product when it is gated.
- * Every state of this page uses it, so they stay consistent with each other.
- *
  * @param props             - Component props.
  * @param props.icon        - Glyph above the title.
  * @param props.title       - Panel heading.

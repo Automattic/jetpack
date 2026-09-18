@@ -1,6 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName -- Feature entry file, named after the feature, also holds the WPCOM_Backup bootstrap class.
 /**
  * An in-wp-admin Backup page for WordPress.com Simple and WoA sites.
+ * Prompts for a plan upgrade or activation of backups.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -146,10 +147,6 @@ class WPCOM_Backup {
 	 * Register the Backup page, then take it back out of the Jetpack menu.
 	 * Removed from the menu until the mirroring Calypso page is deprecated.
 	 *
-	 * Removal is deferred on this page's own request because `get_admin_page_parent()`
-	 * finds the page's parent by searching `$submenu`: drop the entry before `admin.php`
-	 * resolves the hookname and the page stops rendering entirely.
-	 *
 	 * @return void
 	 */
 	public static function register_page() {
@@ -177,8 +174,8 @@ class WPCOM_Backup {
 			$callback
 		);
 
+		// On this page's own request, defer removal until after routing and before menu-header.php prints.
 		if ( self::is_backup_admin_request() ) {
-			// admin_head runs after routing and before menu-header.php prints.
 			add_action( 'admin_head', array( __CLASS__, 'hide_menu_entry' ), 0 );
 			return;
 		}
@@ -210,9 +207,6 @@ class WPCOM_Backup {
 	 *
 	 * The Jetpack plugin serves this slug through `Admin_Menu` at `admin_menu` priority
 	 * 1000 — before this page's own hook — so the entry is there to find.
-	 *
-	 * Index 2 is matched exactly as `remove_submenu_page()` matches it, because that call
-	 * is what this guards: a looser test would drift from it.
 	 *
 	 * @return bool
 	 */
@@ -326,13 +320,10 @@ class WPCOM_Backup {
 			return;
 		}
 
-		// Every consumer of this ID is reachable on Simple only, where WordPress and
-		// WordPress.com agree on it. The feature check, which does run on WoA where
-		// they disagree, takes no ID at all.
 		$blog_id = get_current_blog_id();
 		$user_id = get_current_user_id();
 		$domain  = wp_parse_url( home_url(), PHP_URL_HOST );
-		$state   = self::get_state( $blog_id, $user_id );
+		$state   = self::get_state( $blog_id );
 
 		// Only the activation prompt reads eligibility, and both lists come from the
 		// same result, so resolve it once and only for that state.
@@ -368,9 +359,9 @@ class WPCOM_Backup {
 			return false;
 		}
 
-		// No blog ID: WordPress numbers an Atomic single site 1, which is not its
-		// WordPress.com blog ID, and the lookup throws rather than correcting it.
-		// Passing none lets wpcom resolve the current site on either platform.
+		// Called without a blog ID.
+		// WoA sites would pass the local blog ID, which is not the WordPress.com blog ID.
+		// wpcom resolves the current site.
 		return (bool) wpcom_site_has_feature( \WPCOM_Features::BACKUPS_SELF_SERVE );
 	}
 
@@ -382,6 +373,11 @@ class WPCOM_Backup {
 	 */
 	public static function is_transfer_in_progress( $blog_id ) {
 		if ( ! function_exists( 'require_lib' ) ) {
+			return false;
+		}
+
+		// These checks are only relevant for simple sites.
+		if ( self::is_atomic() ) {
 			return false;
 		}
 
@@ -418,6 +414,11 @@ class WPCOM_Backup {
 			return null;
 		}
 
+		// These checks are only relevant for simple sites.
+		if ( self::is_atomic() ) {
+			return null;
+		}
+
 		require_lib( 'atomic' );
 
 		if ( ! function_exists( '\A8C\Atomic\Eligibility\get_status_for_site' ) ) {
@@ -432,10 +433,9 @@ class WPCOM_Backup {
 	 * Resolve which prompt the page should show.
 	 *
 	 * @param int $blog_id Blog ID.
-	 * @param int $user_id User ID.
 	 * @return string One of the STATE_* constants.
 	 */
-	public static function get_state( $blog_id, $user_id ) {
+	public static function get_state( $blog_id ) {
 		// On WoA the plan is the only question: the site is already on the
 		// infrastructure that runs backups, so there is nothing to transfer, and
 		// should_register() has already stepped the page aside if it has the plan.
@@ -449,16 +449,7 @@ class WPCOM_Backup {
 			$state = self::STATE_ACTIVATE;
 		}
 
-		/**
-		 * Filter the state rendered by the Backup page.
-		 *
-		 * Lets each prompt be previewed on a sandbox without arranging real state.
-		 *
-		 * @param string $state   One of the WPCOM_Backup::STATE_* constants.
-		 * @param int    $blog_id Blog ID.
-		 * @param int    $user_id User ID.
-		 */
-		return apply_filters( 'wpcom_backup_state', $state, $blog_id, $user_id );
+		return $state;
 	}
 
 	/**

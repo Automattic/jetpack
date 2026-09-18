@@ -28,7 +28,7 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	public function test_state_defaults_to_upgrade_without_wpcom_libraries() {
 		$this->assertSame(
 			WPCOM_Backup::STATE_UPGRADE,
-			WPCOM_Backup::get_state( 1, 1 )
+			WPCOM_Backup::get_state( 1 )
 		);
 	}
 
@@ -60,23 +60,6 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringEndsWith(
 			'/business',
 			WPCOM_Backup::get_upgrade_url( 'example.wordpress.com' )
-		);
-	}
-
-	/**
-	 * Each prompt has to be previewable on a sandbox without arranging real state.
-	 */
-	public function test_state_is_filterable() {
-		add_filter(
-			'wpcom_backup_state',
-			function () {
-				return WPCOM_Backup::STATE_IN_PROGRESS;
-			}
-		);
-
-		$this->assertSame(
-			WPCOM_Backup::STATE_IN_PROGRESS,
-			WPCOM_Backup::get_state( 1, 1 )
 		);
 	}
 

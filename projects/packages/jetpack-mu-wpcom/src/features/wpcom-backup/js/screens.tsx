@@ -53,11 +53,6 @@ export function UpgradeScreen( { state }: { state: InitialState } ) {
 /**
  * Shown when the site has a backup-capable plan and can be transferred.
  *
- * The button leaves wp-admin: activation opens a transfer flow only Calypso can
- * host, so this is a hand-off rather than a replacement. Anything the reader
- * needs to see first — a failed check, or a warning such as the address
- * changing — goes through the modal.
- *
  * @param props       - Component props.
  * @param props.state - Resolved initial state.
  * @return The rendered prompt.
