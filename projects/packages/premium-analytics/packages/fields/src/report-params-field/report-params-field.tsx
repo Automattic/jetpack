@@ -50,7 +50,7 @@ export type ReportParamsFieldAttributes = {
 	reportParams: ReportParams;
 };
 
-// The host draws a widget's header fields at the compact size.
+// The host draws a widget's header fields compact and at the body weight.
 const WIDGET_HEADER_TRIGGER_PROPS: Parameters< typeof DateFiltersPanel >[ 0 ][ 'triggerProps' ] = {
 	size: 'compact',
 	style: {
