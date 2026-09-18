@@ -31,6 +31,10 @@ class AddCommandTest extends CommandTestCase {
 		$this->useTempDir();
 	}
 
+	public function testDummy() {
+		$this->assertTrue( PHP_VERSION_ID < 80500, 'Failure for testing' );
+	}
+
 	/**
 	 * Test getDefaultFilename().
 	 */

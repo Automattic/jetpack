@@ -259,6 +259,10 @@ jobs:
                   fi
                 fi
 
+                # Can't just pipe, that prevents setting FAIL because the `while` is in a subprocess. Use a coprocess instead.
+                # The `>&3` and `3>&1` weirdness is because `coproc` redirects the normal stdout and we want it to pass through.
+                { coproc PREFIXER { sed -u '/^::/!s!^!['"$SLUG"'] !' >&3 }; } 3>&1
+
                 echo "::group::Running tests for $SLUG"
                 FAIL=
                 while true; do
@@ -292,7 +296,9 @@ jobs:
                   fi
                   composer run --timeout=0 --working-dir="$DIR" "$TEST_SCRIPT" || { FAIL="Tests for $SLUG failed"; break; }
                   break
-                done 2>&1 | sed -u '/^::/!s!^!['"$SLUG"'] !'
+                done 1>&${PREFIXER[1]} 2>&1
+                exec {PREFIXER[1]}>&-
+                wait $PREFIXER_PID
                 echo "::endgroup::"
                 if [[ -n "$FAIL" ]]; then
                   EXIT=1
