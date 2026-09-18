@@ -477,7 +477,7 @@ class Assets {
 	 * register twice. Callers must run before `wp_loaded`.
 	 *
 	 * @access private
-	 * @since $$next-version$$
+	 * @since 5.0.5
 	 */
 	public static function ensure_package_bootstrap() {
 		Shared_Stores_Assets::configure();

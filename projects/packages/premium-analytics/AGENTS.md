@@ -78,6 +78,14 @@ Add a route: create `routes/<name>/package.json` (with `route.path` + `route.pag
 
 Depends on `jetpack-connection`, `jetpack-stats`, `jetpack-sync`, `jetpack-config`.
 
+### Timing-dependent JS tests use fake timers
+
+Any Jest test that waits on time — `waitFor`, React Query updates, debounces, `setTimeout` — must
+call `jest.useFakeTimers()` and restore with `jest.useRealTimers()` in `afterEach`. On real timers
+a stalled CI runner can push the update past `waitFor`'s 1s deadline and flake the test. Tests
+driving `userEvent` also need `userEvent.setup( { advanceTimers: jest.advanceTimersByTime } )`.
+See `widgets/wordads-chart-tabs/__tests__/wordads-chart-tabs.test.tsx`.
+
 ## API
 
 Two local REST surfaces; almost all data comes from WordPress.com via one agnostic proxy.

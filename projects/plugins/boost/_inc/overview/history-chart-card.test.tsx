@@ -77,6 +77,11 @@ beforeAll( () => {
 		height: 300,
 		toJSON: () => ( {} ),
 	} );
+	// jsdom lacks the SVG transform visx uses to map pointer coordinates.
+	Object.defineProperty( SVGElement.prototype, 'getScreenCTM', {
+		configurable: true,
+		value: () => null,
+	} );
 	globalThis.ResizeObserver = class {
 		constructor( private callback: ResizeObserverCallback ) {}
 		observe( target: Element ) {
@@ -181,6 +186,156 @@ test( 'exposes the date, grade, and both device metrics through keyboard tooltip
 	] ) {
 		expect( tooltip ).toHaveTextContent( value );
 	}
+} );
+
+function hoverChart() {
+	const chart = screen.getByTestId( 'history-chart' );
+	fireEvent.mouseEnter( chart );
+	fireEvent.mouseMove( chart );
+	return chart;
+}
+
+test( 'keeps a recorded day popover open once the chart drops its highlight', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	const chart = hoverChart();
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	const popover = await screen.findByTestId( 'history-popover' );
+	expect( desktop ).not.toContainElement( popover );
+	expect( popover ).toHaveTextContent( dateI18n( 'F j, Y', timestamp, false ) );
+	expect( popover ).toHaveTextContent( '90/100' );
+	// Leaving the plot clears the chart's own selection while the popover stays reachable.
+	fireEvent.keyDown( desktop, { key: 'Tab' } );
+	fireEvent.blur( desktop );
+	await waitFor( () =>
+		expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument()
+	);
+	expect( screen.getByTestId( 'history-popover' ) ).toHaveTextContent( '90/100' );
+	fireEvent.mouseLeave( chart );
+	await waitFor( () =>
+		expect( screen.queryByTestId( 'history-popover' ) ).not.toBeInTheDocument()
+	);
+} );
+
+test( 'exposes a recorded day once while the popover repeats it visually', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	fireEvent.keyDown( screen.getAllByRole( 'grid' )[ 0 ], { key: 'ArrowRight' } );
+	const popover = await screen.findByTestId( 'history-popover' );
+	expect( popover ).toHaveTextContent( '90/100' );
+	const tooltip = screen.getByRole( 'tooltip' );
+	expect( screen.getAllByRole( 'definition' ) ).toEqual(
+		within( tooltip ).getAllByRole( 'definition' )
+	);
+} );
+
+test( 'keeps the held day open when the chart is clicked', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	const chart = hoverChart();
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	await expect( screen.findByTestId( 'history-popover' ) ).resolves.toHaveTextContent( '90/100' );
+	fireEvent.keyDown( desktop, { key: 'Tab' } );
+	fireEvent.blur( desktop );
+	// A click within 500ms of the hover opening counts as part of that same interaction.
+	await act( () => new Promise( resolve => setTimeout( resolve, 600 ) ) );
+	fireEvent.click( chart );
+	await waitFor( () =>
+		expect( screen.getByTestId( 'history-popover' ) ).toHaveTextContent( '90/100' )
+	);
+} );
+
+async function pressDay( index: number, pointerType: string ) {
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	const bar = await waitFor( () => {
+		const bars = getBars( screen.getAllByTestId( 'bar-chart' )[ 0 ] );
+		expect( bars ).toHaveLength( 30 );
+		return bars[ index ];
+	} );
+	const clientX = Number( bar.getAttribute( 'x' ) ) + Number( bar.getAttribute( 'width' ) ) / 2;
+	// visx owns the pointer capture rect and does not expose an attribute prop for it.
+	// eslint-disable-next-line testing-library/no-node-access
+	const target = desktop.querySelector( 'svg > rect[fill="transparent"]' );
+	for ( const type of [ 'pointermove', 'pointerdown' ] ) {
+		const event = new MouseEvent( type, { bubbles: true, clientX, clientY: 150 } );
+		fireEvent( target, Object.assign( event, { pointerType } ) );
+	}
+	fireEvent.click( target, { clientX, clientY: 150 } );
+}
+
+test( 'opens a recorded day when it is tapped by touch', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	await pressDay( 0, 'touch' );
+	await expect( screen.findByTestId( 'history-popover' ) ).resolves.toHaveTextContent( '90/100' );
+} );
+
+test( 'does not open a recorded day when it is clicked with a mouse', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	await pressDay( 0, 'mouse' );
+	await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent( '90/100' );
+	await expect( screen.findByTestId( 'history-popover' ) ).rejects.toThrow();
+} );
+
+test( 'shows nothing beyond the empty-day tooltip when an empty day is clicked', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	await pressDay( 3, 'mouse' );
+	await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
+		'No scores recorded for this day.'
+	);
+	await expect( screen.findByTestId( 'history-popover' ) ).rejects.toThrow();
+} );
+
+test( "keeps a keyboard-opened day showing through the chart's own keys", async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	await expect( screen.findByTestId( 'history-popover' ) ).resolves.toBeInTheDocument();
+	for ( const key of [ 'Enter', ' ', 'Home', 'a' ] ) {
+		fireEvent.keyDown( screen.getByTestId( 'chart-tooltip-0' ), { key } );
+		expect( screen.getByTestId( 'history-popover' ) ).toHaveTextContent( '90/100' );
+	}
+} );
+
+test( 'does not reopen the day the pointer left once the chart has no highlight', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	const chart = hoverChart();
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	await expect( screen.findByTestId( 'history-popover' ) ).resolves.toBeInTheDocument();
+	fireEvent.mouseLeave( chart );
+	fireEvent.keyDown( desktop, { key: 'Tab' } );
+	fireEvent.blur( desktop );
+	await waitFor( () =>
+		expect( screen.queryByTestId( 'history-highlight' ) ).not.toBeInTheDocument()
+	);
+	// Returning over a device heading selects no day, so nothing is left to show.
+	hoverChart();
+	await expect( screen.findByTestId( 'history-popover' ) ).rejects.toThrow();
+} );
+
+test( 'follows arrow keys while the pointer rests on the chart', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	hoverChart();
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	await expect( screen.findByTestId( 'history-popover' ) ).resolves.toHaveTextContent( '90/100' );
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	await waitFor( () =>
+		expect( screen.getByTestId( 'history-popover' ) ).toHaveTextContent( '70/100' )
+	);
+} );
+
+test( 'opens a recorded day popover by keyboard and closes it with Escape', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	const tooltip = await screen.findByTestId( 'chart-tooltip-0' );
+	await waitFor( () => expect( tooltip ).toHaveFocus() );
+	expect( screen.getByTestId( 'history-popover' ) ).toHaveTextContent( '80/100' );
+	fireEvent.keyDown( tooltip, { key: 'Escape' } );
+	await waitFor( () =>
+		expect( screen.queryByTestId( 'history-popover' ) ).not.toBeInTheDocument()
+	);
+	expect( desktop ).toHaveFocus();
 } );
 
 test( 'shows empty days after loading and explains them on keyboard focus', async () => {
