@@ -1,4 +1,5 @@
 Significance: patch
-Type: bugfix
+Type: other
+Comment: Tests only: cover sidebar ordering with the real product registrars.
 
-Sidebar: keep Jetpack menu items in alphabetical order, with My Jetpack first, even when a plugin passes an unsupported position.
+
