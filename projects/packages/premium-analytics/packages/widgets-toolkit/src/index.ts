@@ -89,8 +89,6 @@ export {
 	type PostTitleLinkProps,
 	PostDetailLink,
 	type PostDetailLinkProps,
-	AuthorDetailLink,
-	type AuthorDetailLinkProps,
 	HighlightField,
 	HighlightGroup,
 	type HighlightFieldProps,
