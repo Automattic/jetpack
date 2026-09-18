@@ -148,11 +148,9 @@ export default function SubscribersChart( {
 	attributes = {},
 	setError,
 }: SubscribersChartWidgetProps ) {
-	// Unsaved instances must not fall back to the section's URL date range.
 	const reportParams = attributes.reportParams ?? DEFAULT_REPORT_PARAMS;
 
 	return (
-		// Must wrap WidgetRoot: it strips comparison params against this scope.
 		<ReportScopeProvider offersComparison={ false }>
 			<WidgetRoot
 				attributes={ { ...attributes, reportParams } }
