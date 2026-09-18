@@ -17,6 +17,7 @@ import { Dropdown, MenuGroup, MenuItem, NavigableMenu, Tooltip } from '@wordpres
 import { useMediaQuery } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { calendar, check, chevronDown } from '@wordpress/icons';
+import clsx from 'clsx';
 import { useCallback, useMemo, useRef, useState, type CSSProperties } from 'react';
 /**
  * Internal dependencies
@@ -223,6 +224,7 @@ export function DatePeriodDropdown( {
 					<Button
 						{ ...DATE_CONTROL_TRIGGER_DEFAULTS }
 						{ ...triggerProps }
+						className={ clsx( 'date-period-dropdown__toggle', triggerProps?.className ) }
 						disabled={ disabled }
 						onClick={ onToggle }
 						aria-expanded={ isOpen }
