@@ -39,7 +39,7 @@
 		"test-extensions": "TZ=UTC jest --config=tests/jest.config.extensions.js",
 		"test-gui": "NODE_PATH=tests:_inc/client jest --config=tests/jest.config.gui.js",
 		"typecheck": "tsgo --noEmit",
-		"watch": "concurrently --names client-js,client-css,wp-build,extensions,widget-visibility 'webpack watch --config ./tools/webpack.config.js' 'webpack watch --config ./tools/webpack.config.css.js' 'pnpm:watch:wp-build' 'webpack watch --config ./tools/webpack.config.extensions.js' 'webpack watch --config ./tools/webpack.config.widget-visibility.js'",
+		"watch": "php tools/build-module-headings-translations.php && concurrently --names client-js,client-css,wp-build,extensions,widget-visibility 'webpack watch --config ./tools/webpack.config.js' 'webpack watch --config ./tools/webpack.config.css.js' 'pnpm:watch:wp-build' 'webpack watch --config ./tools/webpack.config.extensions.js' 'webpack watch --config ./tools/webpack.config.widget-visibility.js'",
 		"watch:wp-build": "wp-build --watch"
 	},
 	"browserslist": [
