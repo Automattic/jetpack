@@ -82,6 +82,7 @@ export {
 	type CalendarHeatmapPagerOverlayProps,
 	type CalendarHeatmapTooltipProps,
 } from './calendar-heatmap';
+export { MonthCalendarHeatmap, type MonthCalendarHeatmapProps } from './month-calendar-heatmap';
 export {
 	MonthlyHeatmap,
 	type MonthlyHeatmapProps,
@@ -195,6 +196,7 @@ export {
 	AnnualHighlightsSkeleton,
 	GenericSkeleton,
 	HeatmapSkeleton,
+	MonthCalendarHeatmapSkeleton,
 	MetricSparklineSkeleton,
 	type MetricSparklineSkeletonProps,
 	SkeletonRoot,

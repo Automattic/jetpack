@@ -3,11 +3,19 @@
 import { queryClient } from '@automattic/jetpack-react-data-sync-client';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { createRoot } from '@wordpress/element';
+import { detectMode } from '$lib/modern/mode';
+import { usePremiumFeatures } from '$lib/stores/premium-features';
+import { isWoaHosting } from '$lib/utils/hosting';
 import { OVERVIEW_MODULES_CHANGE_EVENT } from '../../../../_inc/overview/lib/modules-state-bridge';
 import { OVERVIEW_UPGRADE_EVENT } from '../../../../_inc/overview/lib/upgrade-bridge';
 import './modern-overview-upgrade';
 import type { UpgradeSlotRequest } from '../../../../_inc/overview/lib/upgrade-bridge';
 
+jest.mock( '$lib/modern/mode', () => ( { detectMode: jest.fn( () => 'modern' ) } ) );
+jest.mock( '$lib/stores/premium-features', () => ( {
+	usePremiumFeatures: jest.fn( () => [] ),
+} ) );
+jest.mock( '$lib/utils/hosting', () => ( { isWoaHosting: jest.fn( () => false ) } ) );
 jest.mock( '@automattic/jetpack-analytics', () => ( {} ) );
 jest.mock( '@wordpress/element', () => ( {
 	...jest.requireActual( '@wordpress/element' ),
@@ -139,3 +147,27 @@ test( 'relays module updates from the Data Sync client', () => {
 		queryClient.clear();
 	}
 } );
+
+test.each( [
+	{ mode: 'modern' as const, features: [], woa: false, visible: true },
+	{ mode: 'modern' as const, features: [ 'support' ], woa: false, visible: false },
+	{ mode: 'modern' as const, features: [], woa: true, visible: false },
+	{ mode: 'legacy' as const, features: [], woa: false, visible: false },
+] )(
+	'offers license redemption only for a modern free non-WoA site (%o)',
+	async ( { mode, features, woa, visible } ) => {
+		jest.mocked( detectMode ).mockReturnValue( mode );
+		jest.mocked( usePremiumFeatures ).mockReturnValue( features );
+		jest.mocked( isWoaHosting ).mockReturnValue( woa );
+		render( <div data-testid="upgrade-slot" /> );
+		const request: UpgradeSlotRequest = { container: screen.getByTestId( 'upgrade-slot' ) };
+		await act( async () => {
+			window.dispatchEvent( new CustomEvent( OVERVIEW_UPGRADE_EVENT, { detail: request } ) );
+		} );
+		const link = screen.queryByRole( 'link', { name: 'Use license key' } );
+		expect( link?.getAttribute( 'href' ) ).toBe(
+			visible ? 'admin.php?page=my-jetpack#/add-license' : undefined
+		);
+		await act( async () => request.unmount?.() );
+	}
+);

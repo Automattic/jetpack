@@ -49,7 +49,7 @@ function ScrollToTop() {
 }
 
 /**
- * The My Jetpack app tree, shared by the legacy entry and the wp-build stage.
+ * The My Jetpack app tree, rendered by the wp-build stage.
  *
  * @return {import('react').ReactElement} The App component.
  */

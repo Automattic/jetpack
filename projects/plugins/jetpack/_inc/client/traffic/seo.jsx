@@ -314,6 +314,7 @@ export const SEO = withModuleSettingsFormHelpers(
 									'jetpack'
 								),
 								link: getRedirectUrl( 'jetpack-support-seo-tools' ),
+								wpcomLink: 'https://wordpress.com/support/seo/seo-tools/',
 							} }
 						>
 							<p>
@@ -386,6 +387,8 @@ export const SEO = withModuleSettingsFormHelpers(
 								'jetpack'
 							),
 							link: getRedirectUrl( 'jetpack-support-canonical-urls' ),
+							wpcomLink:
+								'https://wordpress.com/support/seo/seo-tools/#add-canonical-urls-to-archive-pages',
 						} }
 					>
 						<ModuleToggle

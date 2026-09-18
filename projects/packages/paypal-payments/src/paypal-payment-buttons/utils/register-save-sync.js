@@ -7,13 +7,13 @@
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { dispatch, select } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor'; // eslint-disable-line import/no-unresolved
+import { store as editorStore } from '@wordpress/editor';
 import { addFilter } from '@wordpress/hooks';
 import { __, sprintf } from '@wordpress/i18n';
-import { store as noticesStore } from '@wordpress/notices'; // eslint-disable-line import/no-unresolved
 import metadata from '../block.json';
 import { API_BASE } from './api-base';
-import { deleteRemovedPayments, removedResourceIds, syncBlocksBeforeSave } from './sync-on-save';
+import { syncBlocksBeforeSave } from './sync-on-save';
+import { toast } from './toast';
 
 /**
  * Every PayPal block in the post, inner blocks included.
@@ -43,22 +43,6 @@ async function isConnected() {
 	}
 }
 
-// How long a save notice stays on screen.
-const TOAST_MS = 5000;
-
-/**
- * Show a short-lived snackbar, replacing an earlier one with the same id.
- *
- * @param {string} status  - 'error' or 'warning'.
- * @param {string} message - What to say.
- * @param {string} id      - Notice id, one per block and kind.
- */
-function toast( status, message, id ) {
-	const { createNotice, removeNotice } = dispatch( noticesStore );
-	createNotice( status, message, { type: 'snackbar', id } );
-	setTimeout( () => removeNotice( id ), TOAST_MS );
-}
-
 /**
  * Sync the PayPal payments before the post is saved.
  *
@@ -78,18 +62,13 @@ export function registerSaveSync( isEnabled ) {
 			}
 
 			const blocks = payPalBlocks();
-			const saved = select( editorStore ).getCurrentPost();
-			const savedContent = typeof saved?.content === 'string' ? saved.content : saved?.content?.raw;
-			const removed = removedResourceIds( savedContent, edits?.content );
 
-			if ( ! blocks.length && ! removed.length ) {
+			if ( ! blocks.length ) {
 				return edits;
 			}
 			if ( ! ( await isConnected() ) ) {
 				return edits;
 			}
-
-			await deleteRemovedPayments( removed, saved?.id, { request: apiFetch } );
 
 			const changed = await syncBlocksBeforeSave( blocks, {
 				request: apiFetch,

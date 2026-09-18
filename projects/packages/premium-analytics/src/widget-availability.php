@@ -136,7 +136,7 @@ function is_bookings_plugin_active() {
 /**
  * Registry-time callback: hides commerce categories without their plugin, reading
  * WooCommerce availability through the store section's signal so section and widgets
- * agree; both entry points load dashboard-sections.php before the registry hydrates.
+ * agree; both entry points load default-dashboard-sections.php before the registry hydrates.
  *
  * @param array $widget_candidates Manifest candidates.
  * @return array The candidates, minus commerce categories missing their plugin.

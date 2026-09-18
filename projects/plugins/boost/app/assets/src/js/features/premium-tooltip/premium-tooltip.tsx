@@ -1,14 +1,19 @@
 import { IconTooltip } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import styles from './premium-tooltip.module.scss';
+import { useTooltipLayer } from '$features/module/surface';
 import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
 
 const PremiumTooltip = () => {
+	const tooltipLayer = useTooltipLayer();
+
 	return (
 		<IconTooltip
 			title={ __( 'Manual Critical CSS regeneration', 'jetpack-boost' ) }
 			placement={ 'bottom' }
 			className={ styles.tooltip }
+			popoverClassName={ styles.popover }
+			{ ...tooltipLayer }
 			iconSize={ 22 }
 			wide={ true }
 			offset={ 12 }
