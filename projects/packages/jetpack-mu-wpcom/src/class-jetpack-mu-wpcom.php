@@ -46,6 +46,8 @@ class Jetpack_Mu_Wpcom {
 		'bravepopup-pro/index.php'                       => null,
 		'astra-sites/astra-sites.php'                    => null,
 		'llms-full-txt-generator/llms-txt-generator.php' => null,
+		'wp-post-author/aft-wp-post-author.php'          => null,
+		'adminify/adminify.php'                          => null,
 	);
 
 	/**
