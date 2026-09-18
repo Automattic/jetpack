@@ -11,7 +11,7 @@ import {
 	type PrimaryPresetId,
 	type QuickSurfacePresetId,
 } from '@jetpack-premium-analytics/datetime';
-import { Button, Icon } from '@jetpack-premium-analytics/externals';
+import { Button, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { formatDateRange, formatDateRangeNatural } from '@jetpack-premium-analytics/formatters';
 import { Dropdown, MenuGroup, MenuItem, NavigableMenu, Tooltip } from '@wordpress/components';
 import { useMediaQuery } from '@wordpress/compose';
@@ -214,7 +214,6 @@ export function DatePeriodDropdown( {
 
 	return (
 		<Dropdown
-			className="date-period-dropdown"
 			popoverProps={ { placement: 'bottom-start' } }
 			onToggle={ handleToggle }
 			renderToggle={ ( { isOpen, onToggle } ) => (
@@ -247,12 +246,10 @@ export function DatePeriodDropdown( {
 				</Tooltip>
 			) }
 			renderContent={ ( { onClose } ) => (
-				<div className="date-period-dropdown__panel">
-					<NavigableMenu
-						className="date-period-dropdown__menu"
-						role="menu"
-						aria-label={ __( 'Period', 'jetpack-premium-analytics-pkg' ) }
-					>
+				// Both halves stretch: the seam is drawn on the calendar, which would
+				// cut it short beside a longer list.
+				<Stack direction="row" align="stretch" className="date-period-dropdown__panel">
+					<NavigableMenu role="menu" aria-label={ __( 'Period', 'jetpack-premium-analytics-pkg' ) }>
 						{ groups.map( group => (
 							<MenuGroup key={ group[ 0 ].id }>
 								{ group.map( preset => {
@@ -311,7 +308,7 @@ export function DatePeriodDropdown( {
 							timeZone={ timeZone }
 						/>
 					) }
-				</div>
+				</Stack>
 			) }
 		/>
 	);

@@ -1,6 +1,0 @@
-// The wrapper of the date surface's menu triggers. `Dropdown` renders an
-// inline-block wrapper, and the inline-flex trigger inside it would sit on a
-// text baseline and add a descender's worth of height to the row.
-@mixin container {
-	display: flex;
-}

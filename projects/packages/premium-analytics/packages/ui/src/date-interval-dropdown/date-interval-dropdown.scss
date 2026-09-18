@@ -1,8 +1,0 @@
-@use "../styles/menu-trigger";
-
-// A glyph and nothing else, so its trigger is an icon button, squared off
-// against the row's height by its own size.
-.date-interval-dropdown {
-
-	@include menu-trigger.container;
-}

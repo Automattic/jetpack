@@ -1,12 +1,11 @@
 /**
  * External dependencies
  */
-import { Button, Icon } from '@jetpack-premium-analytics/externals';
+import { Button, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { Dropdown, MenuGroup, MenuItem, NavigableMenu, Tooltip } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { check, chevronDown, plus } from '@wordpress/icons';
-import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
@@ -18,7 +17,6 @@ import {
 } from '../utils/date-control-trigger';
 import type { ComparisonDateRangePreset } from '../use-comparison-date-presets';
 import type { ComparisonPresetId } from '@jetpack-premium-analytics/datetime';
-import './date-comparison-dropdown.scss';
 
 const NO_COMPARISON_VALUE = 'no-comparison';
 
@@ -105,9 +103,9 @@ export function DateComparisonDropdown( {
 	 * Names the preset, not the period.
 	 */
 	return (
-		<div className={ clsx( 'date-comparison-dropdown', { 'is-disabled': disabled } ) }>
+		<Stack direction="row" align="center" gap="md">
 			{ selectedPreset ? (
-				<span className="date-comparison-dropdown__prefix">
+				<span>
 					{ _x(
 						'vs',
 						'prefix naming what a report is compared against',
@@ -117,7 +115,6 @@ export function DateComparisonDropdown( {
 			) : null }
 
 			<Dropdown
-				className="date-comparison-dropdown__menu"
 				popoverProps={ { placement: 'bottom-start' } }
 				renderToggle={ ( { isOpen, onToggle } ) => (
 					// The window the abbreviation stands for. Over the additive state
@@ -126,7 +123,6 @@ export function DateComparisonDropdown( {
 						<Button
 							{ ...DATE_CONTROL_TRIGGER_DEFAULTS }
 							{ ...triggerProps }
-							className="date-comparison-dropdown__toggle"
 							disabled={ disabled }
 							onClick={ onToggle }
 							onKeyDown={ openOnArrowDown( { isOpen, onToggle, disabled } ) }
@@ -166,6 +162,6 @@ export function DateComparisonDropdown( {
 					</NavigableMenu>
 				) }
 			/>
-		</div>
+		</Stack>
 	);
 }

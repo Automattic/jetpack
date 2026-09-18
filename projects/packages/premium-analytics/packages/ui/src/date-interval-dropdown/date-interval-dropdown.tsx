@@ -14,7 +14,6 @@ import {
 	openOnArrowDown,
 	type DateControlTriggerProps,
 } from '../utils/date-control-trigger';
-import './date-interval-dropdown.scss';
 
 type DateIntervalDropdownProps = {
 	/**
@@ -94,7 +93,6 @@ export function DateIntervalDropdown( {
 
 	return (
 		<Dropdown
-			className="date-interval-dropdown"
 			popoverProps={ { placement: 'bottom-end' } }
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<IconButton
