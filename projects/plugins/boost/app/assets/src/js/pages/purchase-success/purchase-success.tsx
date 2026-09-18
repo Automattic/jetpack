@@ -89,7 +89,7 @@ const PurchaseSuccess: FC = () => {
 									link: <Link openInNewTab href={ wpcomPricingUrl } />,
 									strong: <strong />,
 								}
-						  )
+							)
 						: __( 'Dedicated email support', 'jetpack-boost' ) }
 				</li>
 			</ul>

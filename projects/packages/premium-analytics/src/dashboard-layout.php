@@ -496,25 +496,11 @@ function get_dashboard_default_section_layouts() {
 				3,
 				1
 			),
-			// Row 3: earnings, sponsored content, and adjustments history.
+			// Row 3: earnings history.
 			get_dashboard_default_widget_instance(
 				'default-wordads-earnings-history-widget-instance',
 				'jpa/wordads-earnings-history',
 				2,
-				1,
-				2
-			),
-			get_dashboard_default_widget_instance(
-				'default-wordads-sponsored-content-history-widget-instance',
-				'jpa/wordads-sponsored-content-history',
-				3,
-				1,
-				2
-			),
-			get_dashboard_default_widget_instance(
-				'default-wordads-adjustments-history-widget-instance',
-				'jpa/wordads-adjustments-history',
-				4,
 				1,
 				2
 			),

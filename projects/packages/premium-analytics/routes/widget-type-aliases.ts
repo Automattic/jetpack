@@ -41,7 +41,7 @@ export function withWidgetTypeAliases(
 					title: variant.getTitle(),
 					...( variant.getHelp ? { help: variant.getHelp() } : {} ),
 					...( variant.icon ? { icon: variant.icon } : {} ),
-			  } ) )
+				} ) )
 			: [];
 	} );
 

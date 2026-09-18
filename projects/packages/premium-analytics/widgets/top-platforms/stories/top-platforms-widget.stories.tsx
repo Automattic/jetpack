@@ -32,8 +32,7 @@ interface TopPlatformsStoryControls {
 }
 
 interface TopPlatformsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		TopPlatformsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, TopPlatformsStoryControls {}
 
 function getTopPlatformsAttributes( {
 	withComparison,

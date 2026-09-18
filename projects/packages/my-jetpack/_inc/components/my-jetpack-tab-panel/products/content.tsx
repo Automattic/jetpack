@@ -19,11 +19,11 @@ const ProductsContent = () => {
 					? __(
 							'Manage and explore Jetpack features that boost growth, performance, and security.',
 							'jetpack-my-jetpack'
-					  )
+						)
 					: __(
 							'Manage and explore Jetpack products that boost growth, performance, and security.',
 							'jetpack-my-jetpack'
-					  ) }
+						) }
 			</p>
 			<Products />
 		</section>

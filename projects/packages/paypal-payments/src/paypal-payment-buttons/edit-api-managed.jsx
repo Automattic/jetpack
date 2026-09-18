@@ -60,6 +60,8 @@ import { SUPPORTED_CURRENCIES } from './utils/currencies';
 import { CURRENCY_SYMBOLS, getPricePlaceholder, getPriceStep } from './utils/currency-symbols';
 import { withPartnerAttribution } from './utils/partner-attribution';
 import { RESOURCE_ATTRIBUTES, resetToDefaults, turnGateOff } from './utils/resource-sync';
+import { recordPaymentRead } from './utils/sync-on-save';
+import { toast } from './utils/toast';
 import {
 	getUserFriendlyError,
 	getValidationErrors,
@@ -163,9 +165,11 @@ const labelShippingFee = __( 'Enter shipping fee', 'jetpack-paypal-payments' );
  * @param {object}   props               - Block props.
  * @param {object}   props.attributes    - Block attributes.
  * @param {Function} props.setAttributes - Function to update block attributes.
+ * @param {string}   props.clientId      - The block's client id, renamed because
+ *                                       usePayPalConnection() returns PayPal's own clientId.
  * @return {Element} Block editor UI.
  */
-export default function ApiManagedEdit( { attributes, setAttributes } ) {
+export default function ApiManagedEdit( { attributes, setAttributes, clientId: blockClientId } ) {
 	const {
 		isApiManaged,
 		scriptSrc,
@@ -378,22 +382,14 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		variantErrors.length === 0 &&
 		customerNoteErrors.length === 0;
 
-	const {
-		isBusy,
-		error,
-		setError,
-		successMessage,
-		setSuccessMessage,
-		linkDeleted,
-		paymentChanged,
-		handleDeleteButton,
-		executeDeleteButton,
-	} = usePayPalResource( {
-		attributes,
-		setAttributes,
-		isConnected,
-		setShowDeleteConfirm,
-	} );
+	const { isBusy, linkDeleted, paymentChanged, handleDeleteButton, executeDeleteButton } =
+		usePayPalResource( {
+			attributes,
+			setAttributes,
+			isConnected,
+			clientId: blockClientId,
+			setShowDeleteConfirm,
+		} );
 
 	/**
 	 * Handle PayPal disconnect with confirmation.
@@ -422,7 +418,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 				imageUrl: undefined,
 				imageId: undefined,
 			} );
-			setSuccessMessage( __( 'PayPal account disconnected.', 'jetpack-paypal-payments' ) );
+			toast( 'success', __( 'PayPal account disconnected.', 'jetpack-paypal-payments' ) );
 		};
 
 		apiFetch( {
@@ -431,7 +427,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		} )
 			.then( doDisconnect )
 			.catch( doDisconnect ); // Still disconnect locally if API fails.
-	}, [ setAttributes, setIsConnected, setShowReconnect, setSuccessMessage, setWizardStep ] );
+	}, [ setAttributes, setIsConnected, setShowReconnect, setWizardStep ] );
 
 	/**
 	 * Whether the block has a created button to preview.
@@ -527,19 +523,23 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	const pickExistingLink = useCallback(
 		link => {
 			setIsPicking( true );
-			setError( null );
 			apiFetch( { path: `${ API_BASE }/buttons/${ link.id }` } )
 				.then( response => {
+					if ( ! response?.attributes ) {
+						return;
+					}
+					// The block just read the payment, so the save can write it without a second fetch.
+					recordPaymentRead( blockClientId, link.id );
 					setAttributes( {
 						isApiManaged: true,
 						resourceId: link.id,
-						...( response?.attributes || {} ),
+						...response.attributes,
 					} );
 				} )
-				.catch( err => setError( getUserFriendlyError( err ) ) )
+				.catch( err => toast( 'error', getUserFriendlyError( err ) ) )
 				.finally( () => setIsPicking( false ) );
 		},
-		[ setAttributes, setError ]
+		[ blockClientId, setAttributes ]
 	);
 
 	// The payment is written with the post, so the sidebar says what the save will do.
@@ -716,9 +716,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		</Notice>
 	) : null;
 
-	// A payment link can be shared by blocks on any post, so warn whenever there
-	// is one. It reads in the inspector rather than on the canvas, which stays a
-	// clean preview.
+	// A payment link can be shared by blocks on any post, so warn whenever there is one.
 	const sharedResourceNotice = hasButton ? (
 		<p className="jetpack-paypal-payment-buttons__shared-link-note">
 			{ __(
@@ -759,6 +757,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 
 	const formPanels = (
 		<>
+			{ /* Form-wide notices go here. A field's own notice renders next to that field. */ }
 			<InspectorControls>
 				<div className="jetpack-paypal-payment-buttons__form-actions">
 					<Notice status={ isFormValid ? 'info' : 'warning' } isDismissible={ false }>
@@ -792,7 +791,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 										__( '%1$d / %2$d characters', 'jetpack-paypal-payments' ),
 										( productName || '' ).length,
 										MAX_NAME_LENGTH
-								  )
+									)
 						}
 						className={
 							touchedFields.productName && validationErrors.productName
@@ -1112,7 +1111,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 													taxType: 'PREFERENCE',
 													...resetToDefaults( 'taxValue' ),
 													collectShippingAddress: true,
-											  }
+												}
 											: { taxType: 'PERCENTAGE' }
 									)
 								}
@@ -1358,6 +1357,8 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 					) }
 				</div>
 
+				{ /* The inspector only mounts when the block is selected, so notices about a
+				     broken block go on the canvas. */ }
 				{ disconnectedNotice }
 
 				{ linkDeleted && (
@@ -1366,18 +1367,6 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 							'This payment link was deleted from PayPal, so the published button shows nothing. Updating the post creates a new link with a new URL and QR code. Remove the block instead if you no longer sell this.',
 							'jetpack-paypal-payments'
 						) }
-					</Notice>
-				) }
-
-				{ error && (
-					<Notice status="error" isDismissible onDismiss={ () => setError( null ) }>
-						{ error }
-					</Notice>
-				) }
-
-				{ successMessage && (
-					<Notice status="success" isDismissible onDismiss={ () => setSuccessMessage( null ) }>
-						{ successMessage }
 					</Notice>
 				) }
 

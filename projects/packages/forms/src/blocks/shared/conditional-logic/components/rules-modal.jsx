@@ -102,12 +102,12 @@ const ConditionalLogicModal = ( {
 						? __(
 								'This field is visible by default, until the following conditions are met:',
 								'jetpack-forms'
-						  )
+							)
 						: __(
 								'This field is hidden by default, until the following conditions are met:',
 								'jetpack-forms',
 								0
-						  ) }
+							) }
 				</Text>
 
 				{ /* Named rather than merely counted, because fixing this means finding the

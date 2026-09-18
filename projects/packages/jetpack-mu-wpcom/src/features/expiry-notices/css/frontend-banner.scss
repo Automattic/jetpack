@@ -1,3 +1,4 @@
+@use "@wordpress/base-styles/breakpoints";
 @use "@wordpress/base-styles/colors";
 @use "@wordpress/base-styles/variables";
 
@@ -32,11 +33,6 @@ body.has-wpcom-expiry-banner {
 	// One below #wpadminbar, above everything a theme fixes to the top.
 	z-index: 99998;
 	box-sizing: border-box;
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	justify-content: center;
-	gap: variables.$grid-unit-10 variables.$grid-unit-20;
 	padding: variables.$grid-unit-10 variables.$grid-unit-20;
 	border-block-start: 1px solid rgba(255, 255, 255, 0.1);
 	background: colors.$gray-900;
@@ -49,12 +45,23 @@ body.has-wpcom-expiry-banner {
 		inset-block-start: variables.$admin-bar-height;
 	}
 
+	&__content {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: variables.$grid-unit-10 variables.$grid-unit-20;
+		max-inline-size: breakpoints.$break-xlarge;
+		margin-inline: auto;
+	}
+
 	&__text {
-		text-align: center;
+		flex: 1 1 auto;
+		text-wrap: balance;
 	}
 
 	&__cta {
 		flex-shrink: 0;
+		white-space: nowrap;
 		padding: 6px variables.$grid-unit-15;
 		border-radius: 2px;
 		background: $wpcom-blue;
@@ -69,16 +76,16 @@ body.has-wpcom-expiry-banner {
 		}
 	}
 
-	// Only post-grace has the close button, so only then is room kept for it,
-	// on both sides so the text stays centered.
+	// Only post-grace has the close button, so only then is room kept for it.
 	&--dismissible {
-		padding-inline: variables.$grid-unit-80;
+		padding-inline-end: variables.$grid-unit-80;
 	}
 
 	&__dismiss {
 		position: absolute;
 		inset-inline-end: variables.$grid-unit-20;
-		inset-block-start: variables.$grid-unit-10;
+		inset-block-start: 50%;
+		transform: translateY(-50%);
 		padding: variables.$grid-unit-05;
 		border: 0;
 		background: transparent;
@@ -92,6 +99,14 @@ body.has-wpcom-expiry-banner {
 	&__dismiss:focus-visible {
 		outline: 2px solid colors.$white;
 		outline-offset: 2px;
+	}
+}
+
+// Once the wrapper is narrower than its cap, balanced lines get too short.
+@media screen and (max-width: #{breakpoints.$break-xlarge}) {
+
+	.wpcom-expiry-frontend-banner__text {
+		text-wrap: pretty;
 	}
 }
 
@@ -112,5 +127,10 @@ body.has-wpcom-expiry-banner {
 	// Doubled to match the specificity used above.
 	.wpcom-expiry-frontend-banner.wpcom-expiry-frontend-banner {
 		position: absolute;
+	}
+
+	.wpcom-expiry-frontend-banner__content {
+		flex-direction: column;
+		align-items: flex-start;
 	}
 }

@@ -41,8 +41,8 @@ export function BandHighlight( { visible, horizontal, onChange }: Props ) {
 		}
 		return {
 			datum: nearest.datum as DataPointDate,
-			x: horizontal ? margin?.left ?? 0 : position,
-			y: horizontal ? position : margin?.top ?? 0,
+			x: horizontal ? ( margin?.left ?? 0 ) : position,
+			y: horizontal ? position : ( margin?.top ?? 0 ),
 			width: horizontal ? innerWidth : scale.bandwidth(),
 			height: horizontal ? scale.bandwidth() : innerHeight,
 		};

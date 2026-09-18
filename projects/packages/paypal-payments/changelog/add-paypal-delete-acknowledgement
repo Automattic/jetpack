@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Require an acknowledgement before a payment link is deleted, from the block and from the admin page, and document that PayPal cannot pause or restore a deleted link.

@@ -79,7 +79,7 @@ function TagsInner() {
 	} = useWidgetDrillDown< string >();
 
 	const selectedGroup = useMemo(
-		() => ( selectedLabel ? data.find( row => row.label === selectedLabel ) ?? null : null ),
+		() => ( selectedLabel ? ( data.find( row => row.label === selectedLabel ) ?? null ) : null ),
 		[ data, selectedLabel ]
 	);
 

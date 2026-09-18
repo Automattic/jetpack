@@ -465,7 +465,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 										className={ styles[ 'heatmap-chart__row-label' ] }
 										style={ { gridColumn: 1, gridRow } }
 									>
-										{ labelVisible ? rowLabels[ rowIndex ] ?? '' : '' }
+										{ labelVisible ? ( rowLabels[ rowIndex ] ?? '' ) : '' }
 									</span>
 									{ data.map( ( column, columnIndex ) => {
 										const cell = column.data[ rowIndex ];

@@ -75,6 +75,7 @@ describe( 'EmailsList', () => {
 		expect( url.pathname ).toBe( '/post/12' );
 		expect( url.searchParams.get( 'from' ) ).toBe( '2026-06-01' );
 		expect( url.searchParams.get( 'section' ) ).toBe( expectedSection );
+		expect( url.searchParams.get( 'ref' ) ).toBe( 'emails' );
 		expect( url.searchParams.get( 'post_url' ) ).toBe( 'https://example.com/newsletter/' );
 	} );
 
@@ -220,5 +221,6 @@ describe( 'EmailsList', () => {
 		expect( url.pathname ).toBe( '/post/71' );
 		expect( url.searchParams.get( 'post_url' ) ).toBe( 'https://example.com/api-newsletter/' );
 		expect( url.searchParams.get( 'section' ) ).toBe( 'email-opens' );
+		expect( url.searchParams.get( 'ref' ) ).toBe( 'emails' );
 	} );
 } );
