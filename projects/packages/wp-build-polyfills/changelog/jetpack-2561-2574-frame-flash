@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Keep the dashboard frame steady while it loads and when switching admin pages.
