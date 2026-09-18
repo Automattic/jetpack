@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Internal refactor to initialize the Instant Search store before mounting.
