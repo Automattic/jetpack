@@ -322,8 +322,8 @@ export default function HistoryChartCard( {
 				<Popover.Root
 					open={ Boolean( details && anchor ) }
 					onOpenChange={ ( isOpen, { reason } ) => {
-						// Clicking a bar is chart interaction, not a request to dismiss the details.
-						if ( ! isOpen && reason === 'trigger-press' ) {
+						// Clicking the chart is chart interaction: it neither shows nor dismisses the details.
+						if ( reason === 'trigger-press' ) {
 							return;
 						}
 						setHoverOpen( isOpen );
@@ -343,7 +343,14 @@ export default function HistoryChartCard( {
 						aria-expanded={ undefined }
 						render={ <div className="boost-daily-history" /> }
 						data-testid="history-chart"
-						onKeyDown={ event => setKeyboardOpen( event.key.startsWith( 'Arrow' ) ) }
+						onKeyDown={ event => {
+							// Only the keys that end the chart's own selection close the details.
+							if ( event.key.startsWith( 'Arrow' ) ) {
+								setKeyboardOpen( true );
+							} else if ( event.key === 'Tab' || event.key === 'Escape' ) {
+								setKeyboardOpen( false );
+							}
+						} }
 						onBlur={ event => {
 							// The chart moves focus to its own tooltip, which must not count as leaving.
 							if ( ! event.currentTarget.contains( event.relatedTarget ) ) {
@@ -436,7 +443,15 @@ export default function HistoryChartCard( {
 							data-testid="history-popover"
 							initialFocus={ false }
 							finalFocus={ false }
-							positioner={ <Popover.Positioner anchor={ anchor } /> }
+							// Beside the day, so a flip cannot land the box on the card's paging controls.
+							positioner={
+								<Popover.Positioner
+									anchor={ anchor }
+									side="inline-end"
+									align="start"
+									collisionPadding={ 0 }
+								/>
+							}
 						>
 							<HistoryTooltip period={ details.period } dateComponent={ PopoverDate } />
 						</Popover.Popup>

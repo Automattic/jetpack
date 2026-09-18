@@ -239,6 +239,17 @@ test( 'keeps the held day open when the chart is clicked', async () => {
 	);
 } );
 
+test( "keeps a keyboard-opened day showing through the chart's own keys", async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	await expect( screen.findByTestId( 'history-popover' ) ).resolves.toBeInTheDocument();
+	for ( const key of [ 'Enter', ' ', 'Home', 'a' ] ) {
+		fireEvent.keyDown( screen.getByTestId( 'chart-tooltip-0' ), { key } );
+		expect( screen.getByTestId( 'history-popover' ) ).toHaveTextContent( '90/100' );
+	}
+} );
+
 test( 'does not reopen the day the pointer left once the chart has no highlight', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
 	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
