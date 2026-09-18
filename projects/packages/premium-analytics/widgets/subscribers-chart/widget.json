@@ -1,7 +1,7 @@
 {
 	"name": "jpa/subscribers-chart",
 	"title": "Subscriber summary",
-	"description": "Track subscriber growth over the period you choose, with paid subscribers on their own tab.",
+	"description": "Track subscriber growth over the selected period.",
 	"help": {
 		"content": "A summary of your subscriber growth over time."
 	},
