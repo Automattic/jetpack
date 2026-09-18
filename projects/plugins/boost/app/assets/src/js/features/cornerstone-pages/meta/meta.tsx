@@ -190,6 +190,7 @@ export const CornerstonePagesUpgradeCTA = () => {
 		<div className={ styles.wrapper }>
 			<InterstitialModalCTA
 				identifier="cornerstone-10-pages"
+				showLicenseKeyLink
 				description={ sprintf(
 					/* translators: %d is the number of cornerstone pages. */
 					__( 'Premium users can add up to %d cornerstone pages.', 'jetpack-boost' ),
