@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Re-read the site's Backup entitlement when My Jetpack reports the feature, so a just-purchased plan is picked up without waiting for the cache to expire.
