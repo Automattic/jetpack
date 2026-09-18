@@ -6,7 +6,7 @@ import { buildSampleHistory } from './lib/sample-history';
 
 jest.mock( './upgrade-cta', () => ( {
 	__esModule: true,
-	default: () => <a href="admin.php?page=my-jetpack#/add-boost">Upgrade now</a>,
+	default: () => <span data-testid="upgrade-cta" />,
 } ) );
 
 const range = getHistoryWindow( 0 );
@@ -40,15 +40,12 @@ beforeAll( () => {
 beforeEach( () => window.sessionStorage.clear() );
 afterAll( () => jest.restoreAllMocks() );
 
-test( 'shows a collapsed one-line notice with the upgrade link and no chart', () => {
+test( 'shows a collapsed one-line notice with the upgrade slot and no chart', () => {
 	render( <HistoryUpsell range={ range } dayCount={ 30 } /> );
 	expect(
 		screen.getByText( 'Learn more about your site performance over time.', { exact: false } )
 	).toBeInTheDocument();
-	expect( screen.getByRole( 'link', { name: 'Upgrade now' } ) ).toHaveAttribute(
-		'href',
-		'admin.php?page=my-jetpack#/add-boost'
-	);
+	expect( screen.getByTestId( 'upgrade-cta' ) ).toBeInTheDocument();
 	expect( screen.getByRole( 'button', showPreview ) ).toHaveAttribute( 'aria-expanded', 'false' );
 	expect( screen.queryByRole( 'img', { name: /sample data/ } ) ).not.toBeInTheDocument();
 	expect( screen.queryByRole( 'grid' ) ).not.toBeInTheDocument();
