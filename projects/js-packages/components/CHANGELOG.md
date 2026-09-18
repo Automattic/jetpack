@@ -2,6 +2,17 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [3.1.0] - 2026-09-18
+### Added
+- IconTooltip: Add a `popoverClassName` prop to style the popover when it renders outside its wrapper. [#52465]
+
+### Changed
+- JetpackFooter: Link to the My Jetpack Features tab when it replaces the Products tab. [#52346]
+- Update package dependencies. [#52187]
+
+### Fixed
+- Notice, PricingTable: Keep the icons colored now that @wordpress/icons 16 draws them as strokes. [#52187]
+
 ## [3.0.3] - 2026-09-15
 ### Changed
 - Update package dependencies. [#52297]
@@ -1935,6 +1946,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[3.1.0]: https://github.com/Automattic/jetpack-components/compare/3.0.3...3.1.0
 [3.0.3]: https://github.com/Automattic/jetpack-components/compare/3.0.2...3.0.3
 [3.0.2]: https://github.com/Automattic/jetpack-components/compare/3.0.1...3.0.2
 [3.0.1]: https://github.com/Automattic/jetpack-components/compare/3.0.0...3.0.1

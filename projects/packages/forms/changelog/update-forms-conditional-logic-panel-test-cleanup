@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Tidy the conditional logic panel tests and trim a doc comment. No functional change.
+

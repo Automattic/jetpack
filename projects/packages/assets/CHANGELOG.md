@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.5] - 2026-09-18
+### Changed
+- Update package dependencies. [#52187]
+
+### Fixed
+- Register the shared data stores when an older copy of the package bootstraps first, so dependent admin scripts are no longer dropped. [#52362]
+
 ## [5.0.4] - 2026-09-15
 ### Changed
 - Update package dependencies. [#52297]
@@ -940,6 +947,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[5.0.5]: https://github.com/Automattic/jetpack-assets/compare/v5.0.4...v5.0.5
 [5.0.4]: https://github.com/Automattic/jetpack-assets/compare/v5.0.3...v5.0.4
 [5.0.3]: https://github.com/Automattic/jetpack-assets/compare/v5.0.2...v5.0.3
 [5.0.2]: https://github.com/Automattic/jetpack-assets/compare/v5.0.1...v5.0.2

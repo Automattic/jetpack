@@ -35,6 +35,7 @@ import ExportResponsesModal from '../../components/export-responses/modal';
 import { FormNameModal } from '../../components/form-name-modal';
 import { CreateFormModal } from '../../components/form-name-modal/create-form-modal';
 import { getFormStatusLabel } from '../../constants';
+import { type TopTab } from '../../constants.ts';
 import useCreateForm from '../../hooks/use-create-form';
 import useEmptySpam from '../../hooks/use-empty-spam';
 import useEmptyTrash from '../../hooks/use-empty-trash';
@@ -50,7 +51,7 @@ import type { ReactNode } from 'react';
 type ResponsesStatusView = 'inbox' | 'spam' | 'trash';
 
 type UsePageHeaderDetailsProps = {
-	screen: 'forms' | 'responses';
+	screen: TopTab;
 	statusView?: ResponsesStatusView;
 	sourceId?: string | number;
 	hasClassicForms?: boolean;
