@@ -40,6 +40,13 @@ class Jetpack_Manage_Test extends BaseTestCase {
 	protected $http_request_count = 0;
 
 	/**
+	 * URLs of the outgoing HTTP requests, in order.
+	 *
+	 * @var string[]
+	 */
+	protected $http_request_urls = array();
+
+	/**
 	 * Set up before each test.
 	 */
 	public function set_up() {
@@ -61,6 +68,7 @@ class Jetpack_Manage_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 
 		$this->http_request_count = 0;
+		$this->http_request_urls  = array();
 	}
 
 	/**
@@ -143,13 +151,16 @@ class Jetpack_Manage_Test extends BaseTestCase {
 	protected function mock_http( array $responses ) {
 		add_filter(
 			'pre_http_request',
-			function () use ( &$responses ) {
+			function ( $preempt, $args, $url ) use ( &$responses ) {
 				++$this->http_request_count;
+				$this->http_request_urls[] = $url;
 
 				// Never fall through to the network: a falsy return would let the request out, so
 				// an unexpected extra call would hang CI rather than fail the assertion below it.
 				return array_shift( $responses ) ?? new \WP_Error( 'unexpected_request', 'Unexpected HTTP request.' );
-			}
+			},
+			10,
+			3
 		);
 	}
 
@@ -198,9 +209,6 @@ class Jetpack_Manage_Test extends BaseTestCase {
 		$this->assertNull( Jetpack_Manage::add_submenu_jetpack() );
 	}
 
-	/**
-	 * An agency account keeps the menu item.
-	 */
 	public function test_add_submenu_jetpack_registers_for_an_agency_account() {
 		$this->connect_user( $this->admin_id );
 		$this->prime_site_count( $this->admin_id, 2 );
@@ -337,10 +345,11 @@ class Jetpack_Manage_Test extends BaseTestCase {
 
 		Jetpack_Manage::refresh_partner_type( $this->admin_id );
 		$this->assertSame( '', get_user_meta( $this->admin_id, Jetpack_Manage::PARTNER_TYPE_USER_META_KEY, true ) );
-		$this->assertSame( 1, $this->http_request_count, 'only the account lookup' );
+		$this->assertCount( 1, $this->http_request_urls );
+		$this->assertStringContainsString( 'jetpack-wpcom-user-data', $this->http_request_urls[0] );
 
 		Jetpack_Manage::refresh_partner_type_if_stale( $this->admin_id );
-		$this->assertSame( 1, $this->http_request_count, 'backed off' );
+		$this->assertCount( 1, $this->http_request_urls, 'backed off' );
 	}
 
 	/**
@@ -371,9 +380,6 @@ class Jetpack_Manage_Test extends BaseTestCase {
 		$this->assertSame( 1, $this->http_request_count );
 	}
 
-	/**
-	 * Test that one admin's answer does not answer for another.
-	 */
 	public function test_is_agency_account_reads_only_the_current_users_answer() {
 		$this->connect_user( $this->admin_id );
 		$this->connect_user( $this->editor_id );
@@ -390,9 +396,6 @@ class Jetpack_Manage_Test extends BaseTestCase {
 		$this->assertSame( 0, $this->http_request_count );
 	}
 
-	/**
-	 * Test that a user nobody has looked up reads as not an agency, without a request.
-	 */
 	public function test_is_agency_account_never_makes_a_request() {
 		$this->connect_user( $this->admin_id );
 		$this->mock_http( array() );
@@ -401,9 +404,6 @@ class Jetpack_Manage_Test extends BaseTestCase {
 		$this->assertSame( 0, $this->http_request_count );
 	}
 
-	/**
-	 * Test that forgetting a partner type clears the stored answer.
-	 */
 	public function test_unlinking_a_user_forgets_their_partner_type() {
 		$this->connect_user( $this->admin_id );
 		$this->store_partner_type( $this->admin_id, 'agency' );
@@ -427,7 +427,7 @@ class Jetpack_Manage_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that logging in queues a refresh.
+	 * Logging in is what normally queues the refresh.
 	 */
 	public function test_logging_in_queues_a_refresh() {
 		$this->connect_user( $this->admin_id );
@@ -449,7 +449,7 @@ class Jetpack_Manage_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that nothing is queued when it would have nothing to do.
+	 * Every queued refresh is a write to the autoloaded cron option.
 	 *
 	 * @dataProvider provide_pointless_refreshes
 	 *
@@ -533,7 +533,7 @@ class Jetpack_Manage_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that a lookup which produced no answer stores nothing.
+	 * Storing a non-answer would read as "not an agency" for a day.
 	 *
 	 * @dataProvider provide_non_answers
 	 *
@@ -580,9 +580,6 @@ class Jetpack_Manage_Test extends BaseTestCase {
 		$this->assertSame( 1, $this->http_request_count, 'second attempt, backed off' );
 	}
 
-	/**
-	 * Test that the backoff also stops a failing lookup being rescheduled.
-	 */
 	public function test_a_failed_lookup_backs_off_before_rescheduling() {
 		$this->connect_user( $this->admin_id );
 		$this->mock_http( array( $this->partners_response( array(), 500 ) ) );
@@ -593,9 +590,6 @@ class Jetpack_Manage_Test extends BaseTestCase {
 		$this->assertFalse( $this->queued_refresh( $this->admin_id ) );
 	}
 
-	/**
-	 * Test that an answer about another WordPress.com account is discarded.
-	 */
 	public function test_an_answer_bound_to_another_wpcom_account_is_discarded() {
 		$this->connect_user( $this->admin_id );
 		$this->store_partner_type( $this->admin_id, 'agency', 0, 111 );
@@ -604,9 +598,6 @@ class Jetpack_Manage_Test extends BaseTestCase {
 		$this->assertFalse( Jetpack_Manage::is_agency_account() );
 	}
 
-	/**
-	 * Test that the same account's own answer is kept.
-	 */
 	public function test_an_answer_bound_to_the_same_wpcom_account_is_kept() {
 		$this->connect_user( $this->admin_id );
 		$this->store_partner_type( $this->admin_id, 'agency', 0, $this->wpcom_id( $this->admin_id ) );
@@ -631,7 +622,7 @@ class Jetpack_Manage_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that a meta value this class did not write reads as not an agency.
+	 * A value this class did not write must not grant the link, or fatal.
 	 *
 	 * @dataProvider provide_unusable_stored_values
 	 *
@@ -659,7 +650,7 @@ class Jetpack_Manage_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Cron runs at `shutdown`, after `admin_init`, so a just-due refresh is about to run.
+	 * Cron normally runs at `shutdown`, after `admin_init`, so a just-due refresh is about to run.
 	 */
 	public function test_an_event_only_just_due_is_left_to_run() {
 		$this->connect_user( $this->admin_id );
@@ -669,6 +660,18 @@ class Jetpack_Manage_Test extends BaseTestCase {
 		Jetpack_Manage::maybe_schedule_partner_type_refresh( $this->admin_id );
 
 		$this->assertSame( $due, $this->queued_refresh( $this->admin_id ) );
+	}
+
+	/**
+	 * An event exactly an hour overdue is past the grace period.
+	 */
+	public function test_an_event_an_hour_overdue_is_replaced() {
+		$this->connect_user( $this->admin_id );
+		wp_schedule_single_event( time() - HOUR_IN_SECONDS, Jetpack_Manage::PARTNER_TYPE_REFRESH_HOOK, array( $this->admin_id ) );
+
+		Jetpack_Manage::maybe_schedule_partner_type_refresh( $this->admin_id );
+
+		$this->assertGreaterThan( time(), $this->queued_refresh( $this->admin_id ) );
 	}
 
 	/**
@@ -683,9 +686,6 @@ class Jetpack_Manage_Test extends BaseTestCase {
 		$this->assertGreaterThan( time(), $this->queued_refresh( $this->admin_id ) );
 	}
 
-	/**
-	 * Test that a refresh not yet due is left alone.
-	 */
 	public function test_a_pending_event_is_not_rescheduled() {
 		$this->connect_user( $this->admin_id );
 		$when = time() + HOUR_IN_SECONDS;
@@ -722,9 +722,6 @@ class Jetpack_Manage_Test extends BaseTestCase {
 		$this->assertTrue( Jetpack_Manage::get_jetpack_manage_data()->get_data()['isAgencyAccount'] );
 	}
 
-	/**
-	 * Test that a fresh answer is not re-asked.
-	 */
 	public function test_get_jetpack_manage_data_leaves_a_fresh_answer_alone() {
 		$this->connect_user( $this->admin_id );
 		$this->prime_site_count( $this->admin_id, 2 );
@@ -751,9 +748,6 @@ class Jetpack_Manage_Test extends BaseTestCase {
 		$this->assertSame( 0, $this->http_request_count );
 	}
 
-	/**
-	 * Test that the unlink action init() registers forgets the answer.
-	 */
 	public function test_the_unlink_hook_forgets_the_partner_type() {
 		$this->connect_user( $this->admin_id );
 		$this->store_partner_type( $this->admin_id, 'agency' );
@@ -764,9 +758,6 @@ class Jetpack_Manage_Test extends BaseTestCase {
 		$this->assertFalse( Jetpack_Manage::is_agency_account() );
 	}
 
-	/**
-	 * Test that forgetting a partner type also drops the queued refresh.
-	 */
 	public function test_forgetting_a_partner_type_clears_the_queued_refresh() {
 		$this->connect_user( $this->admin_id );
 		Jetpack_Manage::maybe_schedule_partner_type_refresh( $this->admin_id );
@@ -776,9 +767,6 @@ class Jetpack_Manage_Test extends BaseTestCase {
 		$this->assertFalse( $this->queued_refresh( $this->admin_id ) );
 	}
 
-	/**
-	 * Test that the login action init() registers queues a refresh.
-	 */
 	public function test_the_login_hook_queues_a_refresh() {
 		$this->connect_user( $this->admin_id );
 		Jetpack_Manage::init();
@@ -822,9 +810,6 @@ class Jetpack_Manage_Test extends BaseTestCase {
 		$this->assertSame( 0, $this->http_request_count );
 	}
 
-	/**
-	 * Test that the cron run refreshes a stale answer.
-	 */
 	public function test_the_cron_hook_refreshes_a_stale_answer() {
 		$this->connect_user( $this->admin_id );
 		$this->store_partner_type( $this->admin_id, 'none', DAY_IN_SECONDS + 1 );

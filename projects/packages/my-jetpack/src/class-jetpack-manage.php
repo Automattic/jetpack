@@ -103,8 +103,8 @@ class Jetpack_Manage {
 	/**
 	 * How long past its time a queued refresh is left alone before being treated as abandoned.
 	 *
-	 * WP-Cron runs at `shutdown`, after `admin_init`, so a refresh that has only just come due is
-	 * about to run and must not be rescheduled out from under it.
+	 * WP-Cron normally runs at `shutdown`, after `admin_init`, so a refresh that has only just come
+	 * due is about to run and must not be rescheduled out from under it.
 	 *
 	 * @var int
 	 */
