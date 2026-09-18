@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Reprint export: Salt the export credentials with the site's authentication salt, so on sites with real salts they cannot be written without read access to wp-config.php.
