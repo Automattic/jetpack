@@ -77,6 +77,11 @@ beforeAll( () => {
 		height: 300,
 		toJSON: () => ( {} ),
 	} );
+	// jsdom lacks the SVG transform visx uses to map pointer coordinates.
+	Object.defineProperty( SVGElement.prototype, 'getScreenCTM', {
+		configurable: true,
+		value: () => null,
+	} );
 	globalThis.ResizeObserver = class {
 		constructor( private callback: ResizeObserverCallback ) {}
 		observe( target: Element ) {
@@ -237,6 +242,39 @@ test( 'keeps the held day open when the chart is clicked', async () => {
 	await waitFor( () =>
 		expect( screen.getByTestId( 'history-popover' ) ).toHaveTextContent( '90/100' )
 	);
+} );
+
+async function pressDay( index: number, pointerType: string ) {
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	const bar = await waitFor( () => {
+		const bars = getBars( screen.getAllByTestId( 'bar-chart' )[ 0 ] );
+		expect( bars ).toHaveLength( 30 );
+		return bars[ index ];
+	} );
+	const clientX = Number( bar.getAttribute( 'x' ) ) + Number( bar.getAttribute( 'width' ) ) / 2;
+	// visx owns the pointer capture rect and does not expose an attribute prop for it.
+	// eslint-disable-next-line testing-library/no-node-access
+	const target = desktop.querySelector( 'svg > rect[fill="transparent"]' );
+	for ( const type of [ 'pointermove', 'pointerdown' ] ) {
+		const event = new MouseEvent( type, { bubbles: true, clientX, clientY: 150 } );
+		fireEvent( target, Object.assign( event, { pointerType } ) );
+	}
+	fireEvent.click( target, { clientX, clientY: 150 } );
+}
+
+test( 'opens a recorded day when it is tapped by touch', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	await pressDay( 0, 'touch' );
+	await expect( screen.findByTestId( 'history-popover' ) ).resolves.toHaveTextContent( '90/100' );
+} );
+
+test( 'shows nothing beyond the empty-day tooltip when an empty day is clicked', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	await pressDay( 3, 'mouse' );
+	await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
+		'No scores recorded for this day.'
+	);
+	await expect( screen.findByTestId( 'history-popover' ) ).rejects.toThrow();
 } );
 
 test( "keeps a keyboard-opened day showing through the chart's own keys", async () => {

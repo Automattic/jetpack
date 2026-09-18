@@ -7,7 +7,7 @@ import { dateI18n, getDate } from '@wordpress/date';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, desktop, mobile, Icon } from '@wordpress/icons';
 import { Button, Card, Notice, Popover, Tooltip, VisuallyHidden } from '@wordpress/ui';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { bucketHistoryDays, type HistoryDay, type HistoryWindow } from './lib/history-days';
 import { getScoreTier, getScoreTierColor } from './lib/score-utils';
 import UpgradeCTA from './upgrade-cta';
@@ -234,6 +234,7 @@ export default function HistoryChartCard( {
 	const [ keyboardOpen, setKeyboardOpen ] = useState( false );
 	const [ anchor, setAnchor ] = useState< HTMLDivElement | null >( null );
 	const [ lastRecorded, setLastRecorded ] = useState< DayDetails | null >( null );
+	const pointerType = useRef( '' );
 	useEffect( () => {
 		setActiveHighlight( null );
 		setHoverOpen( false );
@@ -322,8 +323,11 @@ export default function HistoryChartCard( {
 				<Popover.Root
 					open={ Boolean( details && anchor ) }
 					onOpenChange={ ( isOpen, { reason } ) => {
-						// Clicking the chart is chart interaction: it neither shows nor dismisses the details.
-						if ( reason === 'trigger-press' ) {
+						// A mouse click is chart interaction, but a tap is how touch and pen show the details.
+						if (
+							reason === 'trigger-press' &&
+							! ( isOpen && [ 'touch', 'pen' ].includes( pointerType.current ) )
+						) {
 							return;
 						}
 						setHoverOpen( isOpen );
@@ -343,6 +347,9 @@ export default function HistoryChartCard( {
 						aria-expanded={ undefined }
 						render={ <div className="boost-daily-history" /> }
 						data-testid="history-chart"
+						onPointerDown={ event => {
+							pointerType.current = event.pointerType;
+						} }
 						onKeyDown={ event => {
 							// Only the keys that end the chart's own selection close the details.
 							if ( event.key.startsWith( 'Arrow' ) ) {
@@ -449,6 +456,7 @@ export default function HistoryChartCard( {
 									anchor={ anchor }
 									side="inline-end"
 									align="start"
+									sideOffset={ 0 }
 									collisionPadding={ 0 }
 								/>
 							}

@@ -29,6 +29,50 @@ async function hoverDay( chart: Locator, index: number ) {
 }
 
 /**
+ * Assert the day details stay in view, clear of the highlighted day, card header and chevrons.
+ *
+ * @param page  - Fixture page.
+ * @param popup - Day details surface.
+ * @return Bounding boxes of the day details and the highlighted day.
+ */
+async function expectClearOfCard( page: Page, popup: Locator ) {
+	await expect( popup ).toBeInViewport( { ratio: 1 } );
+	const popupBox = ( await popup.boundingBox() )!;
+	const band = ( await page.locator( '.boost-daily-history__highlight' ).boundingBox() )!;
+	const controls = [
+		page.locator( '.boost-daily-history__card-header' ),
+		...( await page.getByRole( 'button', { name: /^(Previous|Next) \d+ days$/ } ).all() ),
+	];
+	expect( controls ).toHaveLength( 3 );
+	for ( const box of [ band, ...( await Promise.all( controls.map( c => c.boundingBox() ) ) ) ] ) {
+		expect(
+			popupBox.x >= Math.floor( box!.x + box!.width ) ||
+				popupBox.x + popupBox.width <= Math.ceil( box!.x ) ||
+				popupBox.y >= box!.y + box!.height ||
+				popupBox.y + popupBox.height <= box!.y
+		).toBe( true );
+	}
+	return { popupBox, band };
+}
+
+/**
+ * Assert the day details sit beside the highlighted day, aligned to the top of its band.
+ *
+ * @param page  - Fixture page.
+ * @param popup - Day details surface.
+ * @return Bounding box of the day details.
+ */
+async function expectBesideDay( page: Page, popup: Locator ) {
+	const { popupBox, band } = await expectClearOfCard( page, popup );
+	expect(
+		popupBox.x >= Math.floor( band.x + band.width ) ||
+			popupBox.x + popupBox.width <= Math.ceil( band.x )
+	).toBe( true );
+	expect( popupBox.y ).toBeCloseTo( band.y, 0 );
+	return popupBox;
+}
+
+/**
  * Resolve the empty-day token in the browser.
  *
  * @param page - Fixture page.
@@ -117,20 +161,15 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await expect( surface ).toHaveCSS( 'width', '265px' );
 		await expect( surface ).toHaveCSS( 'height', '382px' );
 		await expect( surface ).toHaveCSS( 'padding', '17px' );
-		await expect( surface ).toBeInViewport( { ratio: 1 } );
-		const popupBox = ( await surface.boundingBox() )!;
+		const popupBox = await expectBesideDay( page, surface );
 		const hoveredBar = ( await bars.nth( 21 ).boundingBox() )!;
-		expect(
-			popupBox.y >= hoveredBar.y + hoveredBar.height || popupBox.y + popupBox.height <= hoveredBar.y
-		).toBe( true );
 		const barCenter = hoveredBar.x + hoveredBar.width / 2;
-		// Straight at the popover: crossing other days on the way lets them take the card.
-		const target = { x: barCenter, y: popupBox.y + popupBox.height / 2 };
+		const barMiddle = hoveredBar.y + hoveredBar.height / 2;
+		expect( popupBox.x ).toBeGreaterThan( barCenter );
+		// Straight across into the popover: crossing other days on the way lets them take the card.
+		const targetX = popupBox.x + 20;
 		for ( let step = 1; step <= 10; step++ ) {
-			await page.mouse.move(
-				barCenter + ( ( target.x - barCenter ) * step ) / 10,
-				hoveredBar.y + ( ( target.y - hoveredBar.y ) * step ) / 10
-			);
+			await page.mouse.move( barCenter + ( ( targetX - barCenter ) * step ) / 10, barMiddle );
 		}
 		// The chart hides its own tooltip once the pointer has left the plot.
 		await expect( page.getByTestId( 'bounded-tooltip' ) ).toHaveCount( 0 );
@@ -222,19 +261,14 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		] as const ) {
 			await hoverDay( chart, index );
 			await expect( popover.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText( date );
-			await expect( popover ).toBeInViewport( { ratio: 1 } );
+			await expectClearOfCard( page, popover );
 		}
 		const zeroBar = bars.nth( 12 );
 		await expect( zeroBar ).toHaveAttribute( 'fill', 'var(--jetpack-boost-score-poor)' );
 		await expect( zeroBar ).not.toHaveCSS( 'fill', 'none' );
 		expect( ( await zeroBar.boundingBox() )!.height ).toBeGreaterThan( 0 );
 		await expect( popover ).toContainText( '0/100' );
-		const popupBox = ( await popover.boundingBox() )!;
-		const rightmostBar = ( await zeroBar.boundingBox() )!;
-		expect(
-			popupBox.y >= rightmostBar.y + rightmostBar.height ||
-				popupBox.y + popupBox.height <= rightmostBar.y
-		).toBe( true );
+		await expectBesideDay( page, popover );
 	} );
 }
 
