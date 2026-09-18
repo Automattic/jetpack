@@ -226,7 +226,6 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		\Jetpack_Options::update_option( 'id', 200 );
 
 		wpcom_add_jetpack_submenu();
-
 		$this->assertNull(
 			$this->get_jetpack_submenu_item( 'https://wordpress.com/activity-log/' . self::$domain ),
 			'The Calypso Activity Log link must not be added on Atomic sites.'
@@ -278,6 +277,37 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 			$native_item[4] ?? '',
 			'Simple sites must hide the native Activity Log page.'
 		);
+	}
+
+	/**
+	 * The Jetpack plugin's `jetpack-backup` page is hidden from the sidebar but stays registered.
+	 */
+	public function test_jetpack_submenu_hides_the_wp_admin_backup_page() {
+		global $submenu;
+
+		\Jetpack_Options::update_option( 'id', 200 );
+		$submenu['jetpack'][] = array( 'VaultPress Backup', 'manage_options', 'jetpack-backup', 'Jetpack VaultPress Backup' );
+
+		wpcom_add_jetpack_submenu();
+
+		$item = $this->get_jetpack_submenu_item( 'jetpack-backup' );
+
+		$this->assertNotNull( $item );
+		$this->assertStringContainsString( 'hide-if-js', $item[4] ?? '' );
+	}
+
+	/**
+	 * The Calypso Backup link stays visible.
+	 */
+	public function test_jetpack_submenu_keeps_the_calypso_backup_link_visible() {
+		\Jetpack_Options::update_option( 'id', 200 );
+
+		wpcom_add_jetpack_submenu();
+
+		$item = $this->get_jetpack_submenu_item( 'https://wordpress.com/backup/' . self::$domain );
+
+		$this->assertNotNull( $item );
+		$this->assertStringNotContainsString( 'hide-if-js', $item[4] ?? '' );
 	}
 
 	/**
