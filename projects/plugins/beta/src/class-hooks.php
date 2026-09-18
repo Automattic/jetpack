@@ -351,6 +351,10 @@ class Hooks {
 
 		// Delete dev plugin dirs.
 		foreach ( $plugins as $plugin ) {
+			// Ensure Beta Tester doesn't self-delete if `jetpack-beta-dev` is the only copy.
+			if ( $plugin->dev_plugin_slug() === JPBETA__PLUGIN_FOLDER ) {
+				continue;
+			}
 			$working_dir = dirname( $plugin->dev_plugin_path() );
 			if ( $wp_filesystem->is_dir( $working_dir ) ) {
 				$wp_filesystem->delete( $working_dir, true );
