@@ -1,8 +1,8 @@
 @use "../styles/menu-trigger";
 
-// A menu, not a form field, so it is built on `DropdownMenu`. The box and its
-// states come from the shared trigger mixin; what stays here is the typography
-// of a trigger that carries a label, which the interval control does not.
+// A menu, not a form field, so it is built on `Dropdown`. The box and its
+// states are the Button's own, set through `triggerProps`; what stays here is
+// the typography of a trigger that carries a label.
 .date-comparison-dropdown {
 	display: flex;
 	align-items: center;
@@ -24,10 +24,6 @@
 	}
 
 	.date-comparison-dropdown__toggle {
-
-		@include menu-trigger.toggle;
-
-		font-family: var(--wpds-typography-font-family-body);
 		// The input layout lifts small text to 16px on phones, so the select and
 		// this control stay the same size where the panel collapses.
 		font-size: max(var(--wpds-typography-font-size-md), 16px);

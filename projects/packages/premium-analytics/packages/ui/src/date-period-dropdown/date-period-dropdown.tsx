@@ -22,6 +22,10 @@ import { useCallback, useMemo, useRef, useState, type CSSProperties } from 'reac
  * Internal dependencies
  */
 import { DateRangePopoverContent } from '../date-range-popover';
+import {
+	DATE_CONTROL_TRIGGER_DEFAULTS,
+	type DateControlTriggerProps,
+} from '../utils/date-control-trigger';
 import './date-period-dropdown.scss';
 
 /**
@@ -111,6 +115,9 @@ type DatePeriodDropdownProps = {
 	/** Greys the trigger out but keeps it focusable: a passing state, not a missing control. */
 	disabled?: boolean;
 
+	/** The trigger's look, over a neutral outline at the default size. */
+	triggerProps?: DateControlTriggerProps;
+
 	/**
 	 * Notifies the parent as the menu opens and closes, so it can mirror the
 	 * draft-while-open behaviour for related controls (the comparison label,
@@ -144,6 +151,7 @@ export function DatePeriodDropdown( {
 	canApply,
 	withCustomRange = true,
 	disabled = false,
+	triggerProps,
 	onOpenChange,
 	attentionId,
 }: DatePeriodDropdownProps ) {
@@ -214,9 +222,9 @@ export function DatePeriodDropdown( {
 				// keeps them off the control's face.
 				<Tooltip text={ formatDateRange( appliedRange ) }>
 					<Button
+						{ ...DATE_CONTROL_TRIGGER_DEFAULTS }
+						{ ...triggerProps }
 						className="date-period-dropdown__toggle"
-						variant="minimal"
-						tone="neutral"
 						disabled={ disabled }
 						onClick={ onToggle }
 						aria-expanded={ isOpen }

@@ -51,6 +51,11 @@ export type ReportParamsFieldAttributes = {
 	reportParams: ReportParams;
 };
 
+// The host draws a widget's header fields at the compact size.
+const WIDGET_HEADER_TRIGGER_PROPS: Parameters< typeof DateFiltersPanel >[ 0 ][ 'triggerProps' ] = {
+	size: 'compact',
+};
+
 /**
  * How fine the widget's report is. The control offers nothing the report cannot
  * fill: a window with no data behind it, or a bucket the chart would clamp away.
@@ -298,6 +303,7 @@ function ReportParamsControl( {
 				canApply={ isDateRangeDirty }
 				onCancel={ revert }
 				timeZone={ reportingTimeZone() }
+				triggerProps={ WIDGET_HEADER_TRIGGER_PROPS }
 				presetIds={ presetIds }
 				withIntervalControl={ withIntervalControl }
 				interval={ interval }

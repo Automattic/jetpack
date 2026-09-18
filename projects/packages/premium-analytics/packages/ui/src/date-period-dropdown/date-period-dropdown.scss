@@ -1,18 +1,14 @@
 @use "../styles/menu-trigger";
 
 // A menu, not a form field, so it is built on `Dropdown`. The box and its
-// states come from the shared trigger mixin; what stays here is the trigger's
-// own layout, which carries a glyph, a label and a caret.
+// states are the Button's own, set through `triggerProps`; what stays here is
+// the trigger's own layout, which carries a glyph, a label and a caret.
 .date-period-dropdown {
 
 	@include menu-trigger.container;
 
 	&__toggle {
-
-		@include menu-trigger.toggle;
-
 		gap: var(--wpds-dimension-size-5xs);
-		font-family: var(--wpds-typography-font-family-body);
 		// The input layout lifts small text to 16px on phones, so the control
 		// stays the size of its row-mates where the panel collapses.
 		font-size: max(var(--wpds-typography-font-size-md), 16px);
@@ -26,7 +22,6 @@
 
 		// The attention fill sits behind the label; isolating keeps its negative
 		// z-index inside the button rather than under the page.
-		position: relative;
 		isolation: isolate;
 	}
 
