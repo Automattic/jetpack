@@ -30,9 +30,7 @@ export const LoggedIn = () => {
 			heading={
 				<>
 					<span className="jetpack-comments__signed-in-name">
-						{ strings.signedInAs
-							.replace( '%1$s', () => current.name )
-							.replace( '%2$s', () => strings.providers[ current.provider ] ) }
+						{ `${ current.name } - ${ strings.loggedInVia[ current.provider ] } -` }
 					</span>{ ' ' }
 					<button type="button" className="jetpack-comments__logout" onClick={ leave }>
 						{ strings.logOut }

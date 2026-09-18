@@ -105,7 +105,7 @@ export type Strings = {
 	logInOptional: string;
 	logInOptionalReply: string;
 	logInToReply: string;
-	signedInAs: string;
+	loggedInVia: Record< Provider, string >;
 	cancel: string;
 	settings: string;
 	close: string;
