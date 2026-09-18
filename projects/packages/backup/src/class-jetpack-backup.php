@@ -148,48 +148,79 @@ class Jetpack_Backup {
 	private static $rewind_state = null;
 
 	/**
-	 * Constructor.
+	 * Initialization options, and what a host plugin overrides them for.
+	 *
+	 * @var array
 	 */
-	public static function initialize() {
+	const DEFAULT_INIT_OPTIONS = array(
+		// A host that already ensured a connection under its own slug must not have it
+		// re-ensured here as `jetpack-backup`, which would rename the site's connection.
+		'manage_connection'   => true,
+		// The standalone plugin *is* the Backup product, so its menu is unconditional.
+		'require_backup_plan' => false,
+	);
+
+	/**
+	 * Whether the admin menu is gated on the site being entitled to Backup.
+	 *
+	 * @var bool
+	 */
+	private static $require_backup_plan = false;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param array $options Overrides for self::DEFAULT_INIT_OPTIONS.
+	 */
+	public static function initialize( array $options = array() ) {
 		if ( did_action( 'jetpack_backup_initialized' ) ) {
 			return;
 		}
 
-		// Set up the REST authentication hooks.
-		Connection_Rest_Authentication::init();
+		$options = array_merge( self::DEFAULT_INIT_OPTIONS, $options );
+
+		self::$require_backup_plan = (bool) $options['require_backup_plan'];
 
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		add_action( 'rest_api_init', array( \Automattic\Jetpack\Backup\V0005\REST\Rest_Controller::class, 'register_routes' ) );
 
+		// Runs before the menu is built: a link straight into the Backup page 404s
+		// unless the page was registered during this same request.
+		add_action( 'admin_menu', array( __CLASS__, 'maybe_refresh_backup_entitlement' ), 0 );
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
 
-		// Init Jetpack packages.
-		add_action(
-			'plugins_loaded',
-			function () {
-				$config = new Config();
-				// Connection package.
-				$config->ensure(
-					'connection',
-					array(
-						'slug'     => self::JETPACK_BACKUP_SLUG,
-						'name'     => self::JETPACK_BACKUP_NAME,
-						'url_info' => self::JETPACK_BACKUP_URI,
-					)
-				);
-				// Sync package.
-				$config->ensure( 'sync' );
+		if ( $options['manage_connection'] ) {
+			// Set up the REST authentication hooks.
+			Connection_Rest_Authentication::init();
 
-				// Identity crisis package.
-				$config->ensure( 'identity_crisis' );
-			},
-			1
-		);
+			// Init Jetpack packages.
+			add_action(
+				'plugins_loaded',
+				function () {
+					$config = new Config();
+					// Connection package.
+					$config->ensure(
+						'connection',
+						array(
+							'slug'     => self::JETPACK_BACKUP_SLUG,
+							'name'     => self::JETPACK_BACKUP_NAME,
+							'url_info' => self::JETPACK_BACKUP_URI,
+						)
+					);
+					// Sync package.
+					$config->ensure( 'sync' );
 
-		add_action( 'plugins_loaded', array( __CLASS__, 'maybe_upgrade_db' ), 20 );
+					// Identity crisis package.
+					$config->ensure( 'identity_crisis' );
+				},
+				1
+			);
 
-		add_filter( 'jetpack_connection_user_has_license', array( __CLASS__, 'jetpack_check_user_licenses' ), 10, 3 );
+			add_action( 'plugins_loaded', array( __CLASS__, 'maybe_upgrade_db' ), 20 );
+
+			add_filter( 'jetpack_connection_user_has_license', array( __CLASS__, 'jetpack_check_user_licenses' ), 10, 3 );
+		}
 
 		// Jetpack Backup abilities are registered from `actions.php` at package
 		// autoload time so the surface is available in every consumer that
@@ -205,9 +236,30 @@ class Jetpack_Backup {
 	}
 
 	/**
+	 * Re-read the entitlement when the Backup page itself is being opened.
+	 *
+	 * The one deliberately synchronous read: it decides whether the page about to
+	 * render gets registered at all, so a just-completed purchase is picked up on
+	 * the checkout's own return rather than a page load later.
+	 *
+	 * @return void
+	 */
+	public static function maybe_refresh_backup_entitlement() {
+		if ( ! self::$require_backup_plan || ! self::is_backup_admin_request() ) {
+			return;
+		}
+
+		Rewind_State_Cache::refresh();
+	}
+
+	/**
 	 * The page to be added to submenu
 	 */
 	public static function add_wp_admin_submenu() {
+		if ( self::$require_backup_plan && ! Rewind_State_Cache::has_backup() ) {
+			return;
+		}
+
 		$wp_build_active = self::is_wp_build_dashboard_active();
 		$callback        = $wp_build_active
 			? 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page'

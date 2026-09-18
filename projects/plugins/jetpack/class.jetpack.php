@@ -851,6 +851,45 @@ class Jetpack {
 	}
 
 	/**
+	 * Enable the bundled Backup dashboard, mirroring the standalone Jetpack VaultPress Backup plugin.
+	 *
+	 * The package ships with this plugin either way; this is what turns on its menu
+	 * and dashboard, for sites entitled to Backup. The standalone plugin initializes
+	 * the same package at file scope — before this runs on `plugins_loaded` — so when
+	 * both are active the standalone wins and this call is a no-op.
+	 *
+	 * Its only surfaces are the admin menu and REST routes, so it is deferred off the
+	 * front-end GET hot path the same way Import and Stats are — see
+	 * should_eager_load_packages().
+	 *
+	 * @return void
+	 */
+	public static function configure_backup_package() {
+		if ( ! self::should_eager_load_packages() && ! did_action( 'rest_api_init' ) ) {
+			add_action( 'rest_api_init', array( __CLASS__, 'configure_backup_package' ), 0 );
+			return;
+		}
+
+		$backup = 'Automattic\\Jetpack\\Backup\\V0005\\Jetpack_Backup';
+
+		/*
+		 * A package version predating the init options ignores the argument and would
+		 * ensure the connection under its own `jetpack-backup` slug, renaming this
+		 * plugin's connection. Leave Backup to the cloud link when that version wins.
+		 */
+		if ( ! class_exists( $backup ) || ! defined( $backup . '::DEFAULT_INIT_OPTIONS' ) ) {
+			return;
+		}
+
+		$backup::initialize(
+			array(
+				'manage_connection'   => false,
+				'require_backup_plan' => true,
+			)
+		);
+	}
+
+	/**
 	 * Whether the bundled Stats v2 dashboard is enabled.
 	 *
 	 * Stats v2 (formerly "Premium Analytics") ships with the plugin behind this
@@ -945,6 +984,8 @@ class Jetpack {
 		// only renders when the VideoPress module is active (Status::is_active()); when it
 		// is not, the menu item links to the My Jetpack interstitial to activate it.
 		$config->ensure( 'videopress', array( 'admin_ui' => true ) );
+
+		self::configure_backup_package();
 
 		/*
 		 * The Import package only registers `jetpack/v4/import` REST routes — it

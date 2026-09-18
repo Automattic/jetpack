@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Backup: show the VaultPress Backup dashboard in wp-admin for sites with a plan that supports backups, instead of linking out to Jetpack Cloud.

@@ -434,6 +434,15 @@ class Backup extends Hybrid_Product {
 			return admin_url( 'admin.php?page=jetpack-backup' );
 			// otherwise, check for the main Jetpack plugin
 		} elseif ( static::is_jetpack_plugin_active() ) {
+			/*
+			 * The Jetpack plugin hosts the Backup dashboard itself once the package is
+			 * initialized. Sending checkout back to it, rather than out to the cloud,
+			 * is also what re-reads the entitlement in time to draw the new menu item.
+			 */
+			if ( did_action( 'jetpack_backup_initialized' ) ) {
+				return admin_url( 'admin.php?page=jetpack-backup' );
+			}
+
 			return Redirect::get_url( 'my-jetpack-manage-backup' );
 		}
 	}
