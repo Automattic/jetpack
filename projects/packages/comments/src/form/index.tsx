@@ -19,25 +19,6 @@ type CommentFormProps = {
 // enough that a reader who navigates away mid-sentence keeps it.
 const DRAFT_DEBOUNCE_MS = 300;
 
-// Remembers, per site, that a signed-in reader has had the tray opened for them once.
-const traySeenKey = ( blogId: number ) => `jetpack-comments-tray-seen-${ blogId }`;
-
-const traySeen = ( blogId: number ) => {
-	try {
-		return window.localStorage.getItem( traySeenKey( blogId ) ) !== null;
-	} catch {
-		return true;
-	}
-};
-
-const markTraySeen = ( blogId: number ) => {
-	try {
-		window.localStorage.setItem( traySeenKey( blogId ), '1' );
-	} catch {
-		// Then it opens again next time, which is no worse than Verbum did.
-	}
-};
-
 const CommentForm = ( { form }: CommentFormProps ) => {
 	const {
 		formSettings,
@@ -49,7 +30,6 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 		isSignedIn,
 	} = useContext( CommentSignals );
 	const isSubmitting = useRef( false );
-	const { blogId } = JetpackComments.identity;
 
 	// A signed-in reader with nothing to set gets the tray held open: the way out lives in it.
 	useEffect( () => {
@@ -58,21 +38,12 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 		}
 	}, [ isSignedIn.value, isTrayOpen ] );
 
-	// Opens only as the comment goes from empty to not, so closing the tray mid-sentence
-	// sticks. Every time for a guest, who has to see the fields; once per site when
-	// signed in, so the options are noticed without being in the way after that.
+	// Opens only as the comment goes from empty to not, so closing the tray mid-sentence sticks.
 	useEffect( () => {
-		if ( isEmptyComment.value ) {
-			return;
-		}
-
-		if ( ! isSignedIn.value ) {
+		if ( ! isEmptyComment.value ) {
 			isTrayOpen.value = true;
-		} else if ( ! traySeen( blogId ) ) {
-			isTrayOpen.value = true;
-			markTraySeen( blogId );
 		}
-	}, [ isEmptyComment.value, isSignedIn.value, isTrayOpen, blogId ] );
+	}, [ isEmptyComment.value, isTrayOpen ] );
 
 	useEffect( () => {
 		const parentInput = form.querySelector< HTMLInputElement >( '#comment_parent' );
