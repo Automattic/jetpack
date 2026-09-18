@@ -410,11 +410,6 @@ class Help_Center {
 	 * @return bool
 	 */
 	private function resolve_get_help_label() {
-		// The Agents Manager replaces this entry point for the unified experience; those users must stay unassigned.
-		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
-			return false;
-		}
-
 		$experiment_name      = self::GET_HELP_EXPERIMENT;
 		$experiment_variation = self::GET_HELP_VARIATION;
 
