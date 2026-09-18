@@ -33,7 +33,7 @@ export interface SubscribersChartState {
 	current: SubscribersChartPoint[];
 	hasPaid: boolean;
 	isLoading: boolean;
-	/** True while either window is fetching, including granularity-switch refetches. */
+	/** True while fetching, including granularity-switch refetches. */
 	isFetching: boolean;
 	isError: boolean;
 	refetch: () => void;
