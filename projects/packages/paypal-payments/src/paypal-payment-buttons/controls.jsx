@@ -6,7 +6,6 @@
  */
 
 import { getAdminUrl } from '@automattic/jetpack-script-data';
-import { InspectorControls } from '@wordpress/block-editor';
 import { Button, ExternalLink, PanelBody } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
@@ -16,7 +15,9 @@ import { __ } from '@wordpress/i18n';
 const MANAGE_LINKS_PATH = 'admin.php?page=paypal-payment-links';
 
 /**
- * The Settings tab — connection info, and a link to the admin page that lists every link.
+ * The Settings panel — connection info, and a link to the admin page that lists every link.
+ *
+ * Panels only: the caller wraps them in the one fill the Settings tab uses.
  *
  * Embed as and everything that styles the output live in the Styles tab, in
  * components/format-controls.jsx.
@@ -29,7 +30,7 @@ const MANAGE_LINKS_PATH = 'admin.php?page=paypal-payment-links';
  * @param {Function} props.handleDeleteButton - Delete the PayPal payment.
  * @param {Function} props.handleDisconnect   - Disconnect the PayPal account.
  * @param {boolean}  props.hasButton          - Whether the block has a saved button.
- * @return {Element} The Settings tab.
+ * @return {Element} The connection panel.
  */
 export default function PayPalInspectorControls( {
 	isConnected,
@@ -41,7 +42,7 @@ export default function PayPalInspectorControls( {
 	hasButton,
 } ) {
 	return (
-		<InspectorControls>
+		<>
 			{ hasButton && (
 				<PanelBody
 					title={ __( 'PayPal Connection', 'jetpack-paypal-payments' ) }
@@ -96,6 +97,6 @@ export default function PayPalInspectorControls( {
 					) }
 				</PanelBody>
 			) }
-		</InspectorControls>
+		</>
 	);
 }

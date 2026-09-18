@@ -43,6 +43,9 @@ export function usePayPalResource( {
 	// What PayPal holds, with the site's own embed count - the details view reads it.
 	const [ resource, setResource ] = useState( null );
 
+	// The screen showing the warning decides when the merchant is done with it.
+	const dismissPaymentChanged = useCallback( () => setPaymentChanged( false ), [] );
+
 	// Two blocks can share one PayPal payment — a duplicate, or one product
 	// shown as a button, a link and a QR code — and only the block that saved
 	// last has seen what PayPal holds. Read it back so every block agrees.
@@ -168,6 +171,7 @@ export function usePayPalResource( {
 		isBusy,
 		linkDeleted,
 		paymentChanged,
+		dismissPaymentChanged,
 		handleDeleteButton,
 		executeDeleteButton,
 	};
