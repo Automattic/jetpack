@@ -425,6 +425,14 @@ class REST_Controller {
 			return true;
 		}
 
+		if ( true === $reader_chat && ! Search_Blocks::supports_paid_search() ) {
+			return new WP_Error(
+				'rest_forbidden',
+				esc_html__( 'Site Chat requires a paid Jetpack Search plan.', 'jetpack-search-pkg' ),
+				array( 'status' => 403 )
+			);
+		}
+
 		// AI Answers requires a paid Search plan; reject the write outright.
 		if ( true === $ai_answers_enabled && ! Search_Blocks::supports_paid_search() ) {
 			return new WP_Error(
