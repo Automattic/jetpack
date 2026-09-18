@@ -1,26 +1,29 @@
+import { __ } from '@wordpress/i18n';
 import type { GoalSlug, TailoredOutput, TailoredTask, WizardInput } from './types.ts';
 
 /**
- * English subtitles for catalog task IDs. Unmapped IDs get a generic subtitle so
- * subtitle's minLength:1 is always satisfied.
+ * Subtitles for catalog task IDs. Unmapped IDs get a generic subtitle so subtitle's minLength:1 is
+ * always satisfied. Built per call so each `__()` runs once the locale data is in place.
+ *
+ * @return The subtitle map.
  */
-const TASK_SUBTITLES: Record< string, string > = {
-	first_post_published: 'Write and publish your first post.',
-	woo_products: 'Add your first product to the store.',
-	woo_customize_store: 'Customize how your store looks.',
-	set_up_payments: 'Set up a way to get paid.',
-	add_10_email_subscribers: 'Grow your list to your first subscribers.',
-	site_theme_selected: 'Pick a theme that fits your site.',
-	add_about_page: 'Tell visitors who you are.',
-	design_edited: 'Make the design your own.',
-	complete_profile: 'Complete your public profile.',
-	verify_email: 'Confirm your email address.',
-	connect_social_media: 'Connect your social accounts.',
-	site_launched: 'Launch your site for the world to see.',
-	blog_launched: 'Launch your blog for the world to see.',
-};
-
-const GENERIC_SUBTITLE = 'Get this set up.';
+function taskSubtitles(): Record< string, string > {
+	return {
+		first_post_published: __( 'Write and publish your first post.', 'jetpack-mu-wpcom' ),
+		woo_products: __( 'Add your first product to the store.', 'jetpack-mu-wpcom' ),
+		woo_customize_store: __( 'Customize how your store looks.', 'jetpack-mu-wpcom' ),
+		set_up_payments: __( 'Set up a way to get paid.', 'jetpack-mu-wpcom' ),
+		add_10_email_subscribers: __( 'Grow your list to your first subscribers.', 'jetpack-mu-wpcom' ),
+		site_theme_selected: __( 'Pick a theme that fits your site.', 'jetpack-mu-wpcom' ),
+		add_about_page: __( 'Tell visitors who you are.', 'jetpack-mu-wpcom' ),
+		design_edited: __( 'Make the design your own.', 'jetpack-mu-wpcom' ),
+		complete_profile: __( 'Complete your public profile.', 'jetpack-mu-wpcom' ),
+		verify_email: __( 'Confirm your email address.', 'jetpack-mu-wpcom' ),
+		connect_social_media: __( 'Connect your social accounts.', 'jetpack-mu-wpcom' ),
+		site_launched: __( 'Launch your site for the world to see.', 'jetpack-mu-wpcom' ),
+		blog_launched: __( 'Launch your blog for the world to see.', 'jetpack-mu-wpcom' ),
+	};
+}
 
 /**
  * Per-goal task ID lists. Exactly six IDs each; the last is always a launch task.
@@ -83,9 +86,11 @@ const GOAL_TASK_IDS: Record< GoalSlug, string[] > = {
  * @return The six tasks for the goal.
  */
 function buildTasks( goal: GoalSlug ): TailoredTask[] {
+	const subtitles = taskSubtitles();
+	const generic = __( 'Get this set up.', 'jetpack-mu-wpcom' );
 	return GOAL_TASK_IDS[ goal ].map( id => ( {
 		id,
-		subtitle: TASK_SUBTITLES[ id ] ?? GENERIC_SUBTITLE,
+		subtitle: subtitles[ id ] ?? generic,
 	} ) );
 }
 

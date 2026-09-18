@@ -1,7 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import { createAboutPage } from '../lib/about-page.ts';
 import { createContactPage } from '../lib/contact-page.ts';
@@ -226,7 +226,10 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 	if ( ! tasks ) {
 		return (
 			<Layout
-				progressLabel={ __( 'Tailoring your checklist…', 'jetpack-mu-wpcom' ) }
+				progressLabel={
+					/* translators: shown while the checklist is being generated. A status, not an instruction to the user. */
+					__( 'Tailoring your checklist…', 'jetpack-mu-wpcom' )
+				}
 				goal={ effectiveGoal }
 				siteUrl={ siteUrl }
 				siteTitle={ siteTitle }
@@ -240,7 +243,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 	const completedCount = visibleTasks.filter( task => task.completed ).length;
 	const progressLabel = sprintf(
 		/* translators: 1: number of completed tasks, 2: total number of tasks. */
-		__( '%1$d of %2$d completed', 'jetpack-mu-wpcom' ),
+		_n( '%1$d of %2$d completed', '%1$d of %2$d completed', completedCount, 'jetpack-mu-wpcom' ),
 		completedCount,
 		visibleTasks.length
 	);
