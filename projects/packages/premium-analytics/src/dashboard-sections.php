@@ -320,8 +320,8 @@ function register_default_dashboard_sections() {
 			'title'               => __( 'Subscribers stats', 'jetpack-premium-analytics-pkg' ),
 			'order'               => 30,
 			'is_available'        => __NAMESPACE__ . '\\is_subscribers_dashboard_section_available',
-			// Only the summary chart reads a range, so it owns the control. The rest
-			// are cumulative, with no previous period to compare against.
+			// Only the summary chart reads a range, so it owns the control. Comparison
+			// is off per the design for this pattern, as on analytics/ads.
 			'date_filter_options' => array(
 				'with_date_comparison'     => false,
 				'with_header_date_control' => false,
