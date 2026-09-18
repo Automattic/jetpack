@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 538" width="1000" height="538" role="img" aria-label="A section registration calls get_dashboard_default_layout_for() with its id; the filter starts from an empty array, the package seeds the bundled layout of the resolved section at priority 10, a plugin appends instances, and unsupported widget types are dropped after the filter before the layout reaches the client.">
+  <style>
+    text { font: 12px ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; fill: #1f2328; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; }
+    .title { font-weight: 600; }
+    .muted { fill: #57606a; }
+    .box { fill: #ffffff; stroke: #1f2328; stroke-width: 1.2; }
+    .box-accent { fill: #ddf4ff; stroke: #0969da; stroke-width: 1.4; }
+    .box-muted { fill: #f6f8fa; stroke: #8c959f; stroke-width: 1.2; stroke-dasharray: 4 3; }
+    .lane { fill: #f6f8fa; stroke: #d0d7de; stroke-width: 1; }
+    .edge { stroke: #1f2328; stroke-width: 1.3; fill: none; }
+    .edge-dashed { stroke-dasharray: 5 4; }
+    .arrowhead { fill: #1f2328; }
+    @media (prefers-color-scheme: dark) {
+      text { fill: #e6edf3; }
+      .muted { fill: #8b949e; }
+      .box { fill: #0d1117; stroke: #e6edf3; }
+      .box-accent { fill: #0c2d6b; stroke: #58a6ff; }
+      .box-muted { fill: #161b22; stroke: #6e7681; }
+      .lane { fill: #161b22; stroke: #30363d; }
+      .edge { stroke: #e6edf3; }
+      .arrowhead { fill: #e6edf3; }
+    }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path class="arrowhead" d="M 0 0 L 10 5 L 0 10 z"/>
+    </marker>
+  </defs>
+  <rect class="box" x="20" y="30" width="190" height="70" rx="4"/>
+  <text class="title" x="115" y="53" text-anchor="middle">registration</text>
+  <text class="mono" x="115" y="69" text-anchor="middle">'default_layout' => fn()</text>
+  <text class="muted" x="115" y="85" text-anchor="middle">calls the resolver</text>
+  <rect class="box" x="240" y="30" width="270" height="70" rx="4"/>
+  <text class="title" x="375" y="53" text-anchor="middle">get_dashboard_default_layout_for(</text>
+  <text class="mono" x="375" y="69" text-anchor="middle">$alias )</text>
+  <text class="muted" x="375" y="85" text-anchor="middle">DASHBOARD_NAME, a slug or an id</text>
+  <rect class="box-accent" x="540" y="30" width="240" height="70" rx="4"/>
+  <text class="title" x="660" y="53" text-anchor="middle">apply_filters(</text>
+  <text class="mono" x="660" y="69" text-anchor="middle">…dashboard_default_layout,</text>
+  <text class="mono" x="660" y="85" text-anchor="middle">array(), $alias )</text>
+  <polyline class="edge" points="210,65 240,65" marker-end="url(#arrow)"/>
+  <polyline class="edge" points="510,65 540,65" marker-end="url(#arrow)"/>
+  <rect class="box" x="540" y="140" width="240" height="64" rx="4"/>
+  <text class="title" x="660" y="160" text-anchor="middle">priority 10, the package</text>
+  <text class="mono" x="660" y="176" text-anchor="middle">seed_default_dashboard_layout()</text>
+  <text class="muted" x="660" y="192" text-anchor="middle">appends the bundled map's section</text>
+  <polyline class="edge" points="660.0,100 660.0,140" marker-end="url(#arrow)"/>
+  <rect class="box" x="540" y="244" width="240" height="64" rx="4"/>
+  <text class="title" x="660" y="264" text-anchor="middle">any priority, a plugin</text>
+  <text class="muted" x="660" y="280" text-anchor="middle">appends an instance</text>
+  <text class="muted" x="660" y="296" text-anchor="middle">switching on $alias</text>
+  <polyline class="edge" points="660.0,204 660.0,244" marker-end="url(#arrow)"/>
+  <text class="muted" x="672.0" y="228" text-anchor="start">then</text>
+  <rect class="box" x="540" y="348" width="240" height="64" rx="4"/>
+  <text class="title" x="660" y="368" text-anchor="middle">after the filter</text>
+  <text class="mono" x="660" y="384" text-anchor="middle">remove_unsupported_widget_items()</text>
+  <text class="muted" x="660" y="400" text-anchor="middle">drops types the site cannot serve</text>
+  <polyline class="edge" points="660.0,308 660.0,348" marker-end="url(#arrow)"/>
+  <polyline class="edge" points="660.0,412 660.0,452" marker-end="url(#arrow)"/>
+  <rect class="box" x="20" y="452" width="960" height="66" rx="4"/>
+  <text class="title" x="500" y="473" text-anchor="middle">client: useDashboardSectionLayout()</text>
+  <text class="muted" x="500" y="489" text-anchor="middle">renders preferences[slug] when the reader saved a layout, otherwise the section's default_layout from to_array();</text>
+  <text class="muted" x="500" y="505" text-anchor="middle">Reset deletes the stored entry, so the section follows the default again</text>
+</svg>

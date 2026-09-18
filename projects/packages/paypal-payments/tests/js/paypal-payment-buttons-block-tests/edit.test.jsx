@@ -96,6 +96,13 @@ jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( { __unstableMarkNextChangeAsNotPersistent: mockMarkNotPersistent } ),
 } ) );
 
+// The real snackbar dispatches to @wordpress/notices, so in jsdom the call is all
+// there is to assert on.
+const mockToast = jest.fn();
+jest.mock( '../../../src/paypal-payment-buttons/utils/toast', () => ( {
+	toast: ( ...args ) => mockToast( ...args ),
+} ) );
+
 // What the media library hands back. jsdom has none, so the MediaUpload mock
 // passes this to onSelect.
 const mockSelectedMedia = { url: 'https://example.com/chosen.png', id: 42 };
@@ -1337,6 +1344,15 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			).resolves.toBeVisible();
 		}
 
+		it( 'reports the disconnect in the snackbar', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await onboardThenDisconnect( user );
+
+			expect( mockToast ).toHaveBeenCalledWith( 'success', 'PayPal account disconnected.' );
+		} );
+
 		it( 'drops the spent referral link when onboarding completes', async () => {
 			const user = userEvent.setup();
 			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
@@ -2025,7 +2041,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 		} );
 
-		it( 'shows the failure when a picked link cannot be read back', async () => {
+		it( 'reports a failed link pick in the snackbar', async () => {
 			const user = userEvent.setup();
 			apiFetch.mockImplementation( ( { path } ) => {
 				if ( path === listPath ) {
@@ -2041,7 +2057,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await user.click( await screen.findByRole( 'button', { name: /Croissant/ } ) );
 
-			await expect( screen.findByText( /PayPal is unavailable/ ) ).resolves.toBeInTheDocument();
+			await waitFor( () =>
+				expect( mockToast ).toHaveBeenCalledWith( 'error', 'PayPal is unavailable' )
+			);
 			expect( setAttributes ).not.toHaveBeenCalled();
 		} );
 
@@ -5302,7 +5320,45 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await waitFor( () => expect( deleteRequests() ).toHaveLength( 1 ) );
 			expect( deleteRequests()[ 0 ][ 0 ].path ).toContain( '/buttons/PLB-DELETE1' );
-			await expect( screen.findByText( 'Payment link deleted.' ) ).resolves.toBeInTheDocument();
+			await waitFor( () =>
+				expect( mockToast ).toHaveBeenCalledWith( 'success', 'Payment link deleted.' )
+			);
+		} );
+
+		// PayPal 404s a link already deleted from the admin page or another block.
+		it( 'clears the payment and reports success when PayPal already deleted the link', async () => {
+			const user = userEvent.setup();
+			apiFetch.mockImplementation( request => {
+				if ( request.path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				if ( 'DELETE' === request.method ) {
+					return Promise.reject( {
+						code: 'paypal_api_resource_not_found',
+						data: { status: 404 },
+					} );
+				}
+				return Promise.resolve( {} );
+			} );
+
+			renderForm( saved );
+
+			await user.click( await screen.findByTestId( 'toolbar-Delete payment link' ) );
+			await user.click( screen.getByLabelText( 'I understand this cannot be undone.' ) );
+			await user.click( screen.getByRole( 'button', { name: 'Delete permanently' } ) );
+
+			await waitFor( () =>
+				expect( mockToast ).toHaveBeenCalledWith(
+					'success',
+					'The payment link was already removed from PayPal.'
+				)
+			);
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				isApiManaged: false,
+				resourceId: undefined,
+				paymentLink: undefined,
+			} );
 		} );
 
 		it( 'cancelling closes the dialog without deleting', async () => {
@@ -5450,11 +5506,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					: respond( request )
 			);
 
-		// A save drops the merchant back on the preview, so the notice it leaves
-		// behind is a different one from the form's.
-		// A delete is refused without ever leaving the preview, so its error lands
-		// there rather than on the form.
-		it( 'clears the error notice on the preview when it is dismissed', async () => {
+		it( 'reports a refused delete in the snackbar and keeps the preview', async () => {
 			const user = userEvent.setup();
 			const refused = 'PayPal could not delete the payment.';
 			mockRoutes( ( { method } ) =>
@@ -5467,12 +5519,13 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await user.click( screen.getByLabelText( 'I understand this cannot be undone.' ) );
 			await user.click( screen.getByRole( 'button', { name: 'Delete permanently' } ) );
 
-			await expect( screen.findByText( refused ) ).resolves.toBeInTheDocument();
+			await waitFor( () => expect( mockToast ).toHaveBeenCalledWith( 'error', refused ) );
+
 			expect( screen.getByTestId( 'paypal-button-preview' ) ).toBeInTheDocument();
-
-			await user.click( screen.getByTestId( 'dismiss-notice' ) );
-
-			expect( screen.queryByText( refused ) ).not.toBeInTheDocument();
+			// The lone info notice is the save status.
+			expect(
+				screen.queryAllByTestId( 'notice' ).map( n => n.getAttribute( 'data-status' ) )
+			).toEqual( [ 'info' ] );
 		} );
 
 		// A saved button keeps its preview while PayPal is disconnected, so the
@@ -5483,10 +5536,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			renderForm( saved );
 
-			// The preview carries the shared-link notice too, so the action has to
-			// come out of the disconnected one.
-			const disconnected = ( await screen.findAllByTestId( 'notice' ) ).find(
-				body => body.getAttribute( 'data-status' ) === 'warning'
+			// Match on the copy - the canvas carries other warnings too, and the sidebar
+			// has its own Reconnect button, so scope the click.
+			const disconnected = ( await screen.findAllByTestId( 'notice' ) ).find( body =>
+				body.textContent.includes( 'Your PayPal account is disconnected' )
 			);
 			await user.click(
 				within( disconnected ).getByRole( 'button', { name: 'Reconnect PayPal' } )

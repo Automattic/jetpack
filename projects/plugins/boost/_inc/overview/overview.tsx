@@ -95,7 +95,7 @@ function OverviewContent( {
 
 	useEffect( () => {
 		if ( online && scoreState.status === 'loaded' ) {
-			// New scores only land in windows that end today, so older windows and the walk stay cached.
+			// New scores only land in windows that end today, so older windows and their check stay cached.
 			queryClient.invalidateQueries( {
 				queryKey: performanceHistoryQueryKey,
 				predicate: ( { queryKey } ) =>

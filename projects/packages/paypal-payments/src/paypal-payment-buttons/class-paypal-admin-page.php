@@ -87,7 +87,7 @@ class PayPal_Admin_Page {
 	 *
 	 * @since 0.9.0
 	 *
-	 * @param int $exclude_post_id A post to leave out, such as the one being saved.
+	 * @param int $exclude_post_id One post to leave out of the count.
 	 * @return array<string,int> Post counts keyed by resource id.
 	 */
 	public static function count_published_embeds( $exclude_post_id = 0 ) {

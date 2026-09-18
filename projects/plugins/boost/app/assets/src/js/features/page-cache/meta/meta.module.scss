@@ -90,9 +90,10 @@
 		top: 0;
 		left: -10px;
 		z-index: 9;
-
-		.tooltip :global(.icon-tooltip-container .components-popover__content) {
-			width: 150px;
-		}
 	}
+}
+
+.tooltip:global(.icon-tooltip-container) :global(.components-popover__content) {
+	width: 150px;
+	color: var(--jp-black);
 }

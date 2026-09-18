@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Move the dashboard route hooks into per-hook folders; no behaviour change.
