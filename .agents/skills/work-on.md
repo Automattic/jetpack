@@ -270,6 +270,11 @@ If any file under `projects/` changed, delegate to `.agents/skills/jetpack-chang
   it in. Candidates, not verdicts: judge them per `jetpack-review-pr.md` § Comment repetition and
   provenance rot. (`origin/trunk`, not `trunk`: a stale local ref silently widens the diff to
   other people's commits.)
+- Audit the tests the diff adds. For each, name the project that implements what it asserts, and
+  grep that project's own tests before keeping a copy. A consumer's suite keeps its data mapping,
+  its defaults, and one integration test per wiring point — never a second test of a shared
+  component's behaviour with its own config as the only input. Judge per `jetpack-review-pr.md`
+  § Duplicate test coverage.
 - If `/simplify` is available in the user's environment, invoke it.
 - Re-run Phase 6 gates if code moved. Re-run Phase 7 browser check if a UI file moved.
 

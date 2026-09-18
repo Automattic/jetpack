@@ -348,6 +348,40 @@ Known limitations — every one is a silent failure, so keep reading the diff yo
 
 ---
 
+#### Duplicate test coverage (standard + thorough)
+
+The same rule as repeated explanations, applied to assertions: **a test belongs in the project
+that implements what it asserts.** The shape to catch is a consumer's suite mounting a shared
+component and asserting that component's behaviour, with the consumer's own config as the only
+input. It reads as a specific test and is a second copy of a general one, so one defect fails two
+suites in two projects, and the copies drift until neither states the current rule.
+
+List what the diff adds, then name the file implementing each assertion:
+
+```bash
+gh pr diff <PR> | grep -E "^\+[[:space:]]*(it|test)\(|^\+[[:space:]]*public function test"
+```
+
+- **Implemented in another project** — grep that project's tests before keeping this one. If the
+  behaviour is covered there, cut. If it is not, move the test there and parameterise it: the only
+  coverage of a shared option should not live inside one of its callers, where the other callers'
+  cases can never be written.
+- **Implemented here** — keep it.
+
+A consumer legitimately keeps one integration test per wiring point: that it passes the right
+config, or composes the right provider. What it must not keep is a second test of what that
+config then does. A test that re-asserts a constant declared beside it proves nothing the
+typecheck does not.
+
+`[suggestion]`, naming the owning project and which copy stays — the same tie-break as repeated
+explanations, and "this is duplicated" with no proposed cut is not a finding. `[blocker]` only
+when the two already disagree, since then one is asserting a rule the code no longer has.
+
+Not this check: a project testing its own use of a dependency's *output*, table-driven cases that
+look alike, or a gap. Missing coverage is step 6.
+
+---
+
 #### Code simplicity, WP/PHP compatibility, and reuse (standard + thorough)
 
 *WordPress/Gutenberg reuse:*
@@ -453,7 +487,7 @@ If deps are missing, `jp install <project>` and retry once.
 If `jp phan` passes only because the diff added `@phan-suppress` annotations or grew `.phan/baseline.php`, that is itself a finding — apply *Static analysis suppressions* from step 4. A green Phan run earned by suppression is not a passing Phan run.
 
 **Test quality review** (read new/modified test files):
-- Coverage: are new public functions/endpoints tested?
+- Coverage: are new public functions/endpoints tested? Over-coverage counts too — apply *Duplicate test coverage* from step 4
 - One assertion per concept, flat structure, no logic in tests
 - Descriptive names, minimal setup, clear arrange/act/assert
 - Prefer integration tests over heavy mocking (WorDBless > mocks)
@@ -537,6 +571,7 @@ Review depth: **<depth>** (<lines> lines, <N> projects)
 ### RTL Issues
 ### Translation Issues
 ### Copy Review
+### Duplicate Test Coverage
 ### Comment Repetition / Provenance Rot
 ### Code Simplicity / WordPress Reuse
 ### Comment Budget
