@@ -9,8 +9,8 @@ This page covers sections only. Widget types and report pages have their own reg
 | Term           | Meaning                                                                                                                                               | Example                                    |
 | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
 | Dashboard name | The dashboard a section belongs to, as produced by the build pipeline. `DASHBOARD_NAME` in `src/dashboard-layout.php` names this package's dashboard. | `jetpack-premium-analytics_dashboard`      |
-| Section id     | Namespaced identifier, `<namespace>/<slug>`. The namespace names the owner.                                                                           | `analytics/traffic`, `woocommerce/store`   |
-| Slug           | The part after the namespace. Keys the tab in `?section=`, the stored layouts and the client entity.                                                  | `traffic`, `ads`                           |
+| Section id     | Namespaced identifier, `<namespace>/<slug>`. The namespace names the owner.                                                                           | `analytics/traffic`, `wordads/ads`         |
+| Slug           | The part after the namespace. Keys the tab in `?section=`, the stored layouts and the client entity. Unique per dashboard.                            | `traffic`, `ads`                           |
 | Label, title   | The tab text and the heading above the widgets. A null title falls back to the label.                                                                 | `Ads`, `Site traffic`                      |
 | Default layout | The widget instances a tab shows until the reader customizes it.                                                                                      | see `get_traffic_section_default_layout()` |
 | Preview scope  | The customer preview exposes only an allow-list of slugs; every other mode exposes every section the site qualifies for.                              | `PREVIEW_SECTIONS`                         |
@@ -23,7 +23,7 @@ This page covers sections only. Widget types and report pages have their own reg
 | `src/class-dashboard-section-registry.php`         | The registry: `register()` with its validations, the reads, and the lazy hydration that fires the registration action.                                                    |
 | `src/dashboard-sections.php`                       | The section API: the `register_dashboard_section()` family, the preview scope, the script data, the REST routes and their schema.                                         |
 | `src/dashboard-layout.php`                         | Layout primitives: `DASHBOARD_NAME`, the default-layout filter name, `get_dashboard_default_widget_instance()`, and the package's availability policy on default layouts. |
-| `src/default-dashboard-sections.php`               | The package's own tabs: Traffic, Insights, Subscribers, Store, Ads, their gates and their default layouts, registered through the action like any plugin's.               |
+| `src/default-dashboard-sections.php`               | The package's own tabs: Traffic, Insights, Subscribers, Store, their gates and their default layouts, registered through the action like any plugin's.                    |
 | `src/class-analytics.php`                          | Loads the three files above on wp-admin requests (`load_dashboard_components()`).                                                                                         |
 | `src/class-dashboard-support-routes.php`           | Loads them on REST requests (`boot_routes()`), on connected sites and, called directly by WordPress.com, on Simple.                                                       |
 | `packages/data/src/entities/dashboard-entities.ts` | The `dashboardSection` core-data entity the client reads.                                                                                                                 |
@@ -40,7 +40,7 @@ That is why the registration moment is not `init`: a registrant hooked on `init`
 
 ## Registering a section
 
-![The first read of the section registry latches, fires the registration action once, the package registers its tabs at priority 10 and a plugin registers at priority 20, and register() refuses unnamespaced and duplicate ids.](diagrams/sections-hydration.svg)
+![The first read of the section registry latches, fires the registration action once, the package registers its tabs at priority 10 and a plugin at priority 20 after checking the slug, and register() refuses unnamespaced, duplicate ids and duplicate slugs.](diagrams/sections-hydration.svg)
 
 A plugin registers a section from a callback on `jetpack_premium_analytics_register_dashboard_sections`:
 
@@ -53,6 +53,11 @@ use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 add_action(
 	'jetpack_premium_analytics_register_dashboard_sections',
 	static function ( $registry ) {
+		// Slugs key the tab URL and stored layouts, so another owner of the same tab wins.
+		if ( $registry->get_registered_by_slug( DASHBOARD_NAME, 'videos' ) ) {
+			return;
+		}
+
 		register_dashboard_section(
 			DASHBOARD_NAME,
 			'videopress/videos',
@@ -74,9 +79,9 @@ add_action(
 
 The mechanics behind it:
 
-- **Hydration.** `Dashboard_Section_Registry` fires `REGISTER_ACTION` from `ensure_hydrated()`, which `get_registered()` and `get_all_registered()` call. The latch is set before the action fires, so a callback that reads the registry does not re-enter it. `is_registered()` does not hydrate: `register()` relies on it, and a registrant may run before the action.
-- **Order.** The package's own tabs register at priority 10; a plugin that wants to see them registered first hooks later.
-- **Validation in `register()`.** The dashboard name must match `get_dashboard_name_pattern()`, the id must be namespaced (`get_dashboard_section_id_pattern()`), and the id must not be registered. Each failure is a `_doing_it_wrong()` and a `false` return. Two ids sharing a slug are not refused, and the client keys tabs by slug, so a registrant must pick one no other section uses.
+- **Hydration.** `Dashboard_Section_Registry` fires `REGISTER_ACTION` from `ensure_hydrated()`, which `get_registered()`, `get_registered_by_slug()` and `get_all_registered()` call. The latch is set before the action fires, so a callback that reads the registry does not re-enter it. `is_registered()` does not hydrate: `register()` relies on it, and a registrant may run before the action.
+- **Order.** The package's own tabs register at priority 10. A plugin that may collide with another owner of a tab, the way the Ads tab has two owners, hooks at priority 20 and checks the slug first.
+- **Validation in `register()`.** The dashboard name must match `get_dashboard_name_pattern()`, the id must be namespaced (`get_dashboard_section_id_pattern()`), the id must not be registered, and the slug must not be used by another id on the same dashboard. Each failure is a `_doing_it_wrong()` and a `false` return.
 - **Arguments.** `label`, `title`, `order`, `date_filter` (`range` or `year`), `date_filter_options` (`with_date_comparison`, `with_header_date_control`), `requires_sync`, `is_available` (a boolean or a callable receiving the section), and `default_layout` (an array of instances or a callable returning one). Unknown keys are ignored; an unrecognized `date_filter` keeps the default. See `Dashboard_Section::set_props()`.
 
 ## From the registry to the tab bar
@@ -121,19 +126,31 @@ The client stores customized layouts in the `dashboardSectionLayouts` preference
 `is_available()` combines two rules, in this order:
 
 1. **Preview scope**, which is about the rollout rather than the site. `is_dashboard_preview_scoped()` is true when the site's own `jetpack_premium_analytics_enabled` option switched the dashboard on, the customer preview. In that mode a section is exposed only when its slug is in `get_dashboard_preview_sections()`: `PREVIEW_SECTIONS` (`traffic`) extended by the `jetpack_premium_analytics_preview_sections` filter. `jetpack_premium_analytics_dashboard_preview_scope` then overrides the answer per section; `__return_true` gives a development site every tab. A dashboard other than this package's is never scoped. The sticker and filter overrides that switch the dashboard on for the team leave the option off, so they see every section.
-2. **The section's own rule**, `is_available` from the registration: a capability check, a plugin's presence, a plan feature. Store checks WooCommerce and `view_woocommerce_reports`; Subscribers checks the subscriptions module; Ads checks the WordAds module, or the plan feature on the WordPress.com platform, and `manage_options`. Each of the three has a filter of its own (`jetpack_premium_analytics_<name>_dashboard_section_available`).
+2. **The section's own rule**, `is_available` from the registration: a capability check, a plugin's presence, a plan feature. Store checks WooCommerce and `view_woocommerce_reports`; Subscribers checks the subscriptions module; the Ads tab checks `Capabilities::current_user_can_view_ad_reports()` from the registrant that decided WordAds is there.
 
 A section that fails either rule is absent from the sections route, from the script data and from the tab bar, and `GET …/sections/{section}/default-layout` answers 404 for it.
 
+## A real consumer: the Ads tab
+
+![The WordAds module registers the Ads tab on self-hosted and Atomic sites when active, jetpack-mu-wpcom registers it on Atomic and Simple by plan feature, both at priority 20 skipping an existing ads slug, and the standalone plugin has no registrant.](diagrams/sections-ads-owners.svg)
+
+WordAds is a module of the Jetpack plugin, so the module registers the tab: `modules/wordads/php/class-wordads-premium-analytics.php` hooks the action at priority 20 from `class-wordads.php`, which loads only while the module is active on a connected site. On WordPress.com the plan feature decides instead, because Simple runs no Jetpack plugin and on Atomic the module is routinely off while the plan includes WordAds: `jetpack-mu-wpcom` registers the same `wordads/ads` from `src/features/premium-analytics/wordads-section.php` when `wpcom_site_has_feature( 'wordads' )`.
+
+Both registrants skip when a section with slug `ads` already exists. On Atomic that keeps the two of them from colliding, and during a deploy skew it keeps a plugin from colliding with an older package that still registers the tab itself. The mu-wpcom registrant reads the slug through `get_registered_by_slug()` when the package offers it and through `get_all_registered()` otherwise, since the two ship on different cadences.
+
+The tab composes the package's `jpa/wordads-*` widgets, so both registrants declare the same layout until the widgets move to the module. The standalone `premium-analytics` plugin has no registrant, and no Ads tab.
+
 ## Where the tests are
 
-| Behaviour                                                                               | Test                                                                 |
-| --------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| Registry rules, hydration, the action, preview scope, the sections route and its schema | `tests/php/Dashboard_Section_Test.php`                               |
-| Default-layout primitives, the filter and the package's policy, the bundled layouts     | `tests/php/Dashboard_Layout_Test.php`                                |
-| The REST entry point WordPress.com calls                                                | `tests/php/Dashboard_Support_Routes_Test.php`                        |
-| Tab bar, active section, stored layouts, section heading                                | `routes/dashboard/**/*.test.ts(x)`                                   |
-| Reports behind a hidden tab                                                             | `routes/reports/registry.test.ts`, `tests/js/site-readiness.test.ts` |
+| Behaviour                                                                               | Test                                                                                               |
+| --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Registry rules, hydration, the action, preview scope, the sections route and its schema | `tests/php/Dashboard_Section_Test.php`                                                             |
+| Default-layout primitives, the filter and the package's policy, the bundled layouts     | `tests/php/Dashboard_Layout_Test.php`                                                              |
+| The REST entry point WordPress.com calls                                                | `tests/php/Dashboard_Support_Routes_Test.php`                                                      |
+| The WordAds module's registrant                                                         | `projects/plugins/jetpack/tests/php/modules/wordads/WordAds_Premium_Analytics_Test.php`            |
+| The WordPress.com registrant                                                            | `projects/packages/jetpack-mu-wpcom/tests/php/features/premium-analytics/Wordads_Section_Test.php` |
+| Tab bar, active section, stored layouts, section heading                                | `routes/dashboard/**/*.test.ts(x)`                                                                 |
+| Reports behind a hidden tab                                                             | `routes/reports/registry.test.ts`, `tests/js/site-readiness.test.ts`                               |
 
 ## Not covered here
 
