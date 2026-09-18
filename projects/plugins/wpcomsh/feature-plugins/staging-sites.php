@@ -29,7 +29,7 @@ add_filter( 'option_wpcom_is_staging_site', 'wpcomsh_is_staging_site_get_atomic_
 /**
  * Whether the site is running as a staging environment.
  *
- * @return bool True if the environment type is 'staging'.
+ * @return bool True if the site should be treated as staging.
  */
 function wpcomsh_is_staging_environment() {
 	/**

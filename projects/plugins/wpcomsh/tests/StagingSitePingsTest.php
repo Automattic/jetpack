@@ -12,6 +12,13 @@ class StagingSitePingsTest extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
+	 * Test that the helper defaults to core's environment type when unfiltered.
+	 */
+	public function test_is_staging_environment_defaults_to_core_environment_type() {
+		$this->assertSame( 'staging' === wp_get_environment_type(), wpcomsh_is_staging_environment() );
+	}
+
+	/**
 	 * Test that outgoing pings are disabled in staging environment.
 	 */
 	public function test_outgoing_pings_disabled_in_staging() {
