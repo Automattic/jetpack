@@ -670,6 +670,11 @@ test( 'shows the free history upgrade without requesting history', async () => {
 		} )
 	);
 	expect( screen.queryByText( /Performance history will appear/ ) ).not.toBeInTheDocument();
+	expect( screen.getByRole( 'button', { name: 'Show score history preview' } ) ).toHaveAttribute(
+		'aria-expanded',
+		'false'
+	);
+	expect( screen.queryByRole( 'grid' ) ).not.toBeInTheDocument();
 } );
 
 test( 'retains the free history state when a modules refetch fails with a fresh-start alert', async () => {
@@ -780,6 +785,9 @@ test.each( [
 					.getAttribute( 'aria-disabled' ) === 'true'
 			).toBe( scoresAt === undefined );
 			expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'button', { name: 'Show score history preview' } )
+			).not.toBeInTheDocument();
 		} finally {
 			geometry.mockRestore();
 			globalThis.ResizeObserver = resizeObserver;
