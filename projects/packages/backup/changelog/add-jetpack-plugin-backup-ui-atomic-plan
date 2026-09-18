@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Read the Backup entitlement from the site's plan on WordPress.com-hosted sites, so the dashboard appears there as soon as the plan includes backups.

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Backup\V0005;
 
 use Automattic\Jetpack\Backup\V0005\REST\Wpcom_Request_Mock;
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -21,6 +22,7 @@ use function remove_all_actions;
 use function update_option;
 
 require_once __DIR__ . '/trait-wpcom-request-mock.php';
+require_once __DIR__ . '/mock-wpcom-site-features.php';
 
 /**
  * Tests for the cached Backup entitlement.
@@ -38,6 +40,9 @@ class Rewind_State_Cache_Test extends TestCase {
 	public function tearDown(): void {
 		$this->reset_wpcom_request_mock();
 		$this->forget_rewind_state();
+
+		Constants::clear_single_constant( 'IS_ATOMIC' );
+		unset( $GLOBALS['jetpack_backup_test_site_features'] );
 
 		remove_all_actions( 'shutdown' );
 		WorDBless_Options::init()->clear_options();
@@ -264,6 +269,83 @@ class Rewind_State_Cache_Test extends TestCase {
 			array( 'empty active list', array( 'active' => array() ) ),
 			array( 'active is not a list', array( 'active' => 'backups' ) ),
 		);
+	}
+
+	/**
+	 * On WoA the plan feature is the answer, so no rewind read is made at all.
+	 *
+	 * The jetpack-mu-wpcom Backup page reads the same feature to decide whether to leave
+	 * the `jetpack-backup` slug to this plugin, and a slug claimed by neither is a page
+	 * that 404s — so the two have to be reading one signal.
+	 */
+	public function test_atomic_answers_from_the_plan_feature_without_calling_wpcom() {
+		$this->arrange_atomic( true );
+		$this->arrange_wpcom( array( 'state' => 'unavailable' ) );
+
+		$this->assertTrue( Rewind_State_Cache::has_backup() );
+		$this->assertSame( array(), $this->captured_urls );
+		$this->assertFalse( $this->refresh_is_queued() );
+	}
+
+	/**
+	 * And the same the other way: a stored answer must not outlive the plan that earned it.
+	 */
+	public function test_atomic_without_the_plan_feature_answers_false() {
+		$this->arrange_atomic( false );
+		$this->arrange_stored_answer( true );
+
+		$this->assertFalse( Rewind_State_Cache::has_backup() );
+		$this->assertSame( array(), $this->captured_urls );
+	}
+
+	/**
+	 * Opening the Backup page calls refresh() synchronously; on WoA there is nothing to
+	 * go and read.
+	 */
+	public function test_atomic_refresh_answers_from_the_plan_feature() {
+		$this->arrange_atomic( true );
+		$this->arrange_wpcom( array( 'state' => 'unavailable' ) );
+
+		$this->assertTrue( Rewind_State_Cache::refresh() );
+		$this->assertSame( array(), $this->captured_urls );
+		$this->assertSame( false, get_option( Rewind_State_Cache::OPTION ) );
+	}
+
+	/**
+	 * My Jetpack reads the site's features on most page loads, so the listener must not
+	 * write an option on each one where the cache it would refresh is not consulted.
+	 */
+	public function test_atomic_site_features_listener_stores_nothing() {
+		$this->arrange_atomic( false );
+
+		Rewind_State_Cache::maybe_refresh_from_site_features( array( 'active' => array( 'backups' ) ) );
+
+		$this->assertSame( false, get_option( Rewind_State_Cache::OPTION ) );
+		$this->assertFalse( $this->refresh_is_queued() );
+	}
+
+	/**
+	 * A self-hosted site has no such function, and has to keep reading the rewind state.
+	 */
+	public function test_self_hosted_still_reads_the_rewind_state() {
+		$this->arrange_wpcom( array( 'state' => 'active' ) );
+		$GLOBALS['jetpack_backup_test_site_features'] = array();
+
+		$this->assertTrue( Rewind_State_Cache::refresh() );
+		$this->assertCount( 1, $this->captured_urls );
+	}
+
+	/**
+	 * Put the site on Atomic infrastructure, with or without a plan that includes backups.
+	 *
+	 * @param bool $has_feature Whether WordPress.com reports the Backup feature.
+	 */
+	private function arrange_atomic( $has_feature ) {
+		Constants::set_constant( 'IS_ATOMIC', true );
+
+		$GLOBALS['jetpack_backup_test_site_features'] = $has_feature
+			? array( \WPCOM_Features::BACKUPS_SELF_SERVE )
+			: array();
 	}
 
 	/**

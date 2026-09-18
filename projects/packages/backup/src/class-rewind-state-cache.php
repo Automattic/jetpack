@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Backup\V0005;
 
+use Automattic\Jetpack\Constants;
 use function add_action;
 use function get_option;
 use function has_action;
@@ -66,6 +67,12 @@ class Rewind_State_Cache {
 	 * @return bool
 	 */
 	public static function has_backup() {
+		$host_answer = self::site_feature_answer();
+
+		if ( $host_answer !== null ) {
+			return $host_answer;
+		}
+
 		$stored = self::get_stored();
 
 		if ( $stored === null || self::is_stale( $stored ) ) {
@@ -84,6 +91,12 @@ class Rewind_State_Cache {
 	 * @return bool|\WP_Error True when the site has Backup, or a WP_Error if WordPress.com could not be read.
 	 */
 	public static function refresh() {
+		$host_answer = self::site_feature_answer();
+
+		if ( $host_answer !== null ) {
+			return $host_answer;
+		}
+
 		$stored = self::get_stored();
 
 		// Claim the attempt before the read, so a second request arriving while this
@@ -121,6 +134,11 @@ class Rewind_State_Cache {
 			return;
 		}
 
+		// A host that answers from the plan itself keeps nothing here to refresh.
+		if ( self::site_feature_answer() !== null ) {
+			return;
+		}
+
 		// Also queues its own refresh when nothing is stored yet, which is the whole job there.
 		if ( self::has_backup() ) {
 			return;
@@ -128,6 +146,31 @@ class Rewind_State_Cache {
 
 		self::mark_stale();
 		self::queue_refresh( self::get_stored() );
+	}
+
+	/**
+	 * WordPress.com's own answer for this site, or null on a host that cannot give one.
+	 *
+	 * A plan that includes backups only makes them live on Atomic infrastructure, so on WoA
+	 * the plan feature settles the question outright and no rewind read is made. It is also
+	 * what jetpack-mu-wpcom's Backup page reads to decide whether to leave the `jetpack-backup`
+	 * slug to this plugin, so reading the same signal is what keeps exactly one of the two
+	 * owning that page — a rewind state that disagreed would leave it owned by neither.
+	 *
+	 * @return bool|null
+	 */
+	private static function site_feature_answer() {
+		if ( ! Constants::is_true( 'IS_ATOMIC' ) ) {
+			return null;
+		}
+
+		if ( ! function_exists( 'wpcom_site_has_feature' ) || ! defined( '\WPCOM_Features::BACKUPS_SELF_SERVE' ) ) {
+			return null;
+		}
+
+		// Called without a blog ID: a WoA site would pass its local one, which is not the
+		// WordPress.com blog ID. wpcom resolves the current site itself.
+		return (bool) wpcom_site_has_feature( \WPCOM_Features::BACKUPS_SELF_SERVE );
 	}
 
 	/**
