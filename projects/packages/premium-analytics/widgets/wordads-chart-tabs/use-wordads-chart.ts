@@ -14,7 +14,7 @@ import { useMemo } from '@wordpress/element';
 import { WORDADS_CHART_METRICS } from './metrics';
 import { buildMetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
 
-export type WordAdsPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' | 'year' >;
+export type WordAdsPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
 
 /**
  * The WordAds fields as metric tabs, in the Calypso WordAds page's labels and order.

@@ -1918,9 +1918,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "169314ed1978ea1164455a925759880ab1ea4663"
+                "reference": "66fbda0e216b3334988a23decd6a5d1ce37a6fa7"
             },
             "require": {
+                "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
@@ -2241,9 +2242,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "ed0570cee3e4daffd9489909c4541e041905a281"
+                "reference": "fdc75850da54c9a732337b3ff799f2f6754993a3"
             },
             "require": {
+                "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-jitm": "@dev",

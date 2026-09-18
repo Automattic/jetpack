@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Export;
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
@@ -487,6 +488,9 @@ class Analytics {
 	 * Uses wp-build's `-wp-admin` variant so Core applies the menu capability check. Reports the
 	 * page and widget artifacts independently since the build loader includes each conditionally.
 	 *
+	 * Queued through Admin_Menu rather than registered here, so the entry is reachable by the
+	 * `jetpack_admin_menu_visibility` filter.
+	 *
 	 * @return void
 	 */
 	public static function register_admin_menu() {
@@ -521,15 +525,17 @@ class Analytics {
 
 		$menu_title = self::menu_title();
 
-		add_menu_page(
-			esc_html( $menu_title ),
-			esc_html( $menu_title ),
-			Capabilities::VIEW_ANALYTICS,
-			self::MENU_PAGE_SLUG,
-			$render_callback,
-			'dashicons-chart-bar',
-			2
-		);
+		$menu_title = esc_html( $menu_title );
+
+		// An older admin-ui, loaded first by another plugin, may predate add_top_level_menu().
+		if ( ! method_exists( Admin_Menu::class, 'add_top_level_menu' ) ) {
+			add_menu_page( $menu_title, $menu_title, Capabilities::VIEW_ANALYTICS, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', 2 );
+			return;
+		}
+
+		// A fixed key rather than the slug, which carries a build-specific suffix. No gate:
+		// the dashboard has no My Jetpack product class and no module to name.
+		Admin_Menu::add_top_level_menu( $menu_title, $menu_title, Capabilities::VIEW_ANALYTICS, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', 2, array( 'key' => 'jetpack-premium-analytics' ) );
 	}
 
 	/**
