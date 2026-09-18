@@ -125,6 +125,80 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * `is_legacy_gating_site` has to be emitted as a boolean when asked for by name.
+	 *
+	 * Clients read it to decide whether a plan change could move the site off the pre-2026 feature
+	 * gating, and skip that check entirely when it is false -- so a missing key or a non-boolean would
+	 * silently change behaviour for every site rather than erroring.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_is_legacy_gating_site_is_rendered_when_requested() {
+		list( $xmlrpc, $rest ) = $this->assert_rest_parity(
+			$this->get_endpoint(),
+			array(
+				'fields'  => 'ID,options',
+				'options' => 'is_legacy_gating_site',
+			)
+		);
+
+		foreach ( array(
+			'xmlrpc' => $xmlrpc,
+			'rest'   => $rest,
+		) as $transport => $body ) {
+			$this->assertArrayHasKey( 'options', $body, "get-site ($transport) did not render `options`." );
+			$options = (array) $body['options'];
+
+			$this->assertArrayHasKey(
+				'is_legacy_gating_site',
+				$options,
+				"`is_legacy_gating_site` must be emitted ($transport) when requested by name."
+			);
+			$this->assertIsBool(
+				$options['is_legacy_gating_site'],
+				"`is_legacy_gating_site` must be a boolean ($transport), not a truthy value."
+			);
+		}
+	}
+
+	/**
+	 * Off WordPress.com there is no WPCOM_Features to ask, and the documented fallback is false: a
+	 * site nothing is known about must not be reported as being on the legacy gating, or clients would
+	 * run the plan-change check for every Jetpack site.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_is_legacy_gating_site_falls_back_to_false_without_wpcom_features() {
+		if ( method_exists( 'WPCOM_Features', 'is_legacy_gating_site' ) ) {
+			$this->markTestSkipped(
+				'WPCOM_Features is loaded in this environment, so the fallback branch is unreachable here.'
+			);
+		}
+
+		list( $xmlrpc, $rest ) = $this->assert_rest_parity(
+			$this->get_endpoint(),
+			array(
+				'fields'  => 'ID,options',
+				'options' => 'is_legacy_gating_site',
+			)
+		);
+
+		foreach ( array(
+			'xmlrpc' => $xmlrpc,
+			'rest'   => $rest,
+		) as $transport => $body ) {
+			$options = (array) $body['options'];
+
+			$this->assertFalse(
+				$options['is_legacy_gating_site'],
+				"`is_legacy_gating_site` must fall back to false ($transport) when WPCOM_Features is absent."
+			);
+		}
+	}
+
+	/**
 	 * Test that WordPress.com-only fields are returned when explicitly requested.
 	 *
 	 * @group json-api

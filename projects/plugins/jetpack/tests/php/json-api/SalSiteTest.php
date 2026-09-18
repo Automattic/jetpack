@@ -71,4 +71,25 @@ class SalSiteTest extends WP_UnitTestCase {
 
 		delete_option( 'difm-lite-in-progress' );
 	}
+
+	/**
+	 * Unlike its neighbours this reads no sticker of its own: the pre-2026 gating verdict ranks two
+	 * markers and falls back to a blog-ID cutoff, so WPCOM_Features owns it. Off WordPress.com that
+	 * class does not exist, and the method has to answer false rather than warn about a site it knows
+	 * nothing about.
+	 */
+	public function test_is_legacy_gating_site_is_false_outside_wpcom() {
+		if ( method_exists( 'WPCOM_Features', 'is_legacy_gating_site' ) ) {
+			$this->markTestSkipped( 'WPCOM_Features is loaded here, so the fallback branch is unreachable.' );
+		}
+
+		$this->assertFalse( self::$site->is_legacy_gating_site() );
+	}
+
+	/**
+	 * A boolean either way, since clients branch on it directly.
+	 */
+	public function test_is_legacy_gating_site_returns_a_boolean() {
+		$this->assertIsBool( self::$site->is_legacy_gating_site() );
+	}
 }
