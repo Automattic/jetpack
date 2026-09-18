@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { normalizeReportParams } from '@jetpack-premium-analytics/data';
+import { ReportScopeProvider, normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
@@ -451,5 +451,45 @@ describe( 'buckets the widget cannot draw', () => {
 			screen.findByRole( 'menuitemradio', { name: 'By days' } )
 		).resolves.toHaveAttribute( 'aria-checked', 'true' );
 		expect( screen.queryByRole( 'menuitemradio', { name: 'By hours' } ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'comparison scope', () => {
+	function renderInScope( offersComparison: boolean | undefined, hostOffersComparison: boolean ) {
+		const { Edit } = reportParamsAttributeField< ReportParamsFieldAttributes >( {
+			offersComparison,
+		} );
+		const Field = Edit as ComponentType< DataFormControlProps< ReportParamsFieldAttributes > >;
+
+		render(
+			<ReportScopeProvider offersComparison={ hostOffersComparison }>
+				<Field
+					{ ...( {
+						data: ATTRIBUTES,
+						onChange: jest.fn(),
+					} as unknown as DataFormControlProps< ReportParamsFieldAttributes > ) }
+				/>
+			</ReportScopeProvider>
+		);
+	}
+
+	// The host renders the control outside the widget tree, so a widget whose body
+	// drops comparison has to say so here or the section's scope reaches it.
+	it( 'offers none for a widget that draws none, whatever the host allows', () => {
+		renderInScope( false, true );
+
+		expect( screen.queryByRole( 'button', { name: /compare/i } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'follows the host when the widget names no scope', () => {
+		renderInScope( undefined, true );
+
+		expect( screen.getByRole( 'button', { name: /compare/i } ) ).toBeVisible();
+	} );
+
+	it( 'offers none on a host that allows none', () => {
+		renderInScope( undefined, false );
+
+		expect( screen.queryByRole( 'button', { name: /compare/i } ) ).not.toBeInTheDocument();
 	} );
 } );
