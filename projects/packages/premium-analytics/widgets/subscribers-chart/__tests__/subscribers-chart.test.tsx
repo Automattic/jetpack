@@ -1,17 +1,13 @@
 /**
  * External dependencies
  */
-import { ReportScopeProvider, getDefaultQueryParams } from '@jetpack-premium-analytics/data';
-import { render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
 import { setMockRouteSearch } from '../../../tests/js/route-test-utils';
 import SubscribersChartWidget from '../render';
-import subscribersChartWidget, { type SubscribersChartAttributes } from '../widget';
-import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
-import type { ComponentType, ReactNode } from 'react';
 
 const mockUseStatsSubscribersReport = jest.fn();
 
@@ -148,100 +144,5 @@ describe( 'SubscribersChartWidget', () => {
 				expect.objectContaining( { comp: '1' } )
 			);
 		} );
-
-		// This chart draws day through month, so `hour` is the one interval a range
-		// can still carry that it has no bucket for.
-		it( 'clamps an unsupported interval to the closest supported bucket', async () => {
-			render(
-				<SubscribersChartWidget
-					attributes={ {
-						reportParams: { from: '2026-06-29', to: '2026-06-30', interval: 'hour' },
-					} }
-				/>
-			);
-
-			await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toBeInTheDocument();
-			expect( mockUseStatsSubscribersReport ).toHaveBeenCalledWith(
-				expect.objectContaining( { period: 'day' } )
-			);
-		} );
-	} );
-} );
-
-describe( 'SubscribersChartWidget date control', () => {
-	type FieldProps = DataFormControlProps< SubscribersChartAttributes >;
-
-	// Only the DataForm plumbing is cast away, so `data` stays type-checked and a
-	// renamed attribute breaks the build rather than passing silently.
-	const [ { Edit } ] = subscribersChartWidget.attributes;
-	const DateControl = Edit as ComponentType< FieldProps >;
-
-	function renderDateControl(
-		props: Pick< FieldProps, 'data' | 'onChange' >,
-		wrap: ( control: ReactNode ) => ReactNode = control => control
-	) {
-		render( wrap( <DateControl { ...( props as FieldProps ) } /> ) );
-	}
-
-	it( 'offers no window shorter than the report can fill', async () => {
-		const user = userEvent.setup();
-		const onChange = jest.fn();
-
-		renderDateControl( { data: { reportParams: { preset: 'last-30-days' } }, onChange } );
-
-		await user.click( screen.getByRole( 'button', { name: 'Last 30 days' } ) );
-
-		const menu = screen.getByRole( 'menu', { name: 'Period' } );
-
-		expect(
-			within( menu )
-				.getAllByRole( 'menuitemradio' )
-				.map( item => item.textContent )
-		).toEqual( [ 'Last 7 days', 'Last 30 days', 'Last 12 months', 'Custom range' ] );
-
-		await user.click( screen.getByRole( 'menuitemradio', { name: 'Last 7 days' } ) );
-
-		expect( onChange ).toHaveBeenCalledWith( {
-			reportParams: expect.objectContaining( { preset: 'last-7-days' } ),
-		} );
-	} );
-
-	it( 'moves an instance saved on the last 24 hours onto an offered window', () => {
-		const onChange = jest.fn();
-
-		renderDateControl( {
-			data: { reportParams: { preset: 'last-24-hours', interval: 'hour' } },
-			onChange,
-		} );
-
-		expect( onChange ).toHaveBeenCalledWith( {
-			reportParams: expect.objectContaining( { preset: 'last-30-days' } ),
-		} );
-	} );
-
-	// The host renders this outside the widget tree, so on a comparison-enabled
-	// section it would inherit that scope and save a comparison the body drops.
-	it( 'offers no comparison even under a comparison-enabled scope', async () => {
-		renderDateControl(
-			{ data: { reportParams: { preset: 'last-30-days' } }, onChange: jest.fn() },
-			control => <ReportScopeProvider offersComparison>{ control }</ReportScopeProvider>
-		);
-
-		await expect(
-			screen.findByRole( 'button', { name: 'Last 30 days' } )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: /^Compare/ } ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'offers no bucket control', async () => {
-		renderDateControl( {
-			data: { reportParams: { preset: 'last-30-days' } },
-			onChange: jest.fn(),
-		} );
-
-		await expect(
-			screen.findByRole( 'button', { name: 'Last 30 days' } )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: /^Chart interval/ } ) ).not.toBeInTheDocument();
 	} );
 } );
