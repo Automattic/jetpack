@@ -61,7 +61,11 @@ export function App() {
 		};
 	}, [] );
 
-	if ( view === null ) {
+	// The read always carries the site copy; without it neither the fallback drafts nor the page tasks
+	// could write anything, so a malformed response renders nothing rather than a launchpad that
+	// cannot finish.
+	const copy = initialData?.site?.copy;
+	if ( view === null || ! copy ) {
 		return null;
 	}
 
@@ -71,6 +75,7 @@ export function App() {
 				initialSiteName={ initialData?.site?.title }
 				initialIntent={ initialData?.site?.description }
 				siteUrl={ initialData?.site?.url }
+				copy={ copy }
 				onComplete={ ( input, tailoring ) => {
 					setPendingTailor( () => tailoring );
 					setGoal( input.goal );
@@ -97,6 +102,7 @@ export function App() {
 			initialData={ pendingTailor ? undefined : initialData }
 			site={ initialData?.site }
 			goal={ goal }
+			copy={ copy }
 		/>
 	);
 }

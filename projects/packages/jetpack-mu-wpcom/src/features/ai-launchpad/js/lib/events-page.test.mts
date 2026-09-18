@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createEventsPage } from './events-page.ts';
+import { ENGLISH_SITE_COPY } from './site-copy.fixture.mts';
 
 type PageData = { title: string; content: string; status: string; meta: object };
 type PageRequest = { path: string; method: string; data: PageData };
@@ -65,7 +66,11 @@ function blocks( content: string ): Array< { name: string; attrs: string; text: 
 describe( 'createEventsPage', () => {
 	it( 'creates a marked draft page: a heading, the AI intro, and three blank event entries', async () => {
 		const { fetcher, requests } = stubFetcher();
-		const result = await createEventsPage( 'Come and throw a pot with us.', fetcher );
+		const result = await createEventsPage(
+			'Come and throw a pot with us.',
+			ENGLISH_SITE_COPY,
+			fetcher
+		);
 
 		assert.deepEqual( result, { page_id: 42, edit_url: '/wp-admin/post.php?post=42&action=edit' } );
 		const request = requests[ 0 ];
@@ -104,7 +109,7 @@ describe( 'createEventsPage', () => {
 		// both declare a `placeholder` attribute that their RichText renders whenever the block's text
 		// is empty, selected or not, so every empty block here must carry one.
 		const { fetcher, requests } = stubFetcher();
-		await createEventsPage( 'What we have coming up.', fetcher );
+		await createEventsPage( 'What we have coming up.', ENGLISH_SITE_COPY, fetcher );
 
 		const empty = blocks( requests[ 0 ].data.content ).filter( block => '' === block.text );
 		assert.equal( empty.length, 6, 'three event entries, each a name and a details line' );
@@ -130,7 +135,7 @@ describe( 'createEventsPage', () => {
 		// example. Checked on the markup the reader sees AND on the placeholders, since an example
 		// smuggled into a placeholder is the same mistake one layer down.
 		const { fetcher, requests } = stubFetcher();
-		await createEventsPage( undefined, fetcher );
+		await createEventsPage( undefined, ENGLISH_SITE_COPY, fetcher );
 
 		const probes: Array< [ string, RegExp ] > = [
 			[ 'a date or a time', /\d/ ],
@@ -155,7 +160,7 @@ describe( 'createEventsPage', () => {
 
 	it( 'escapes the AI-written intro rather than emitting it as markup', async () => {
 		const { fetcher, requests } = stubFetcher();
-		await createEventsPage( 'Workshops for <all> levels & ages.', fetcher );
+		await createEventsPage( 'Workshops for <all> levels & ages.', ENGLISH_SITE_COPY, fetcher );
 
 		assert.match(
 			requests[ 0 ].data.content,
@@ -169,7 +174,7 @@ describe( 'createEventsPage', () => {
 		// The blank entries are what the task is for, so the page must arrive with them either way.
 		for ( const intro of [ undefined, '', '   ' ] ) {
 			const { fetcher, requests } = stubFetcher();
-			await createEventsPage( intro, fetcher );
+			await createEventsPage( intro, ENGLISH_SITE_COPY, fetcher );
 
 			const content = requests[ 0 ].data.content;
 			assert.equal( placeholders( content ).length, 6, 'the three entries must survive' );
@@ -178,5 +183,27 @@ describe( 'createEventsPage', () => {
 			// the intro's: no empty AI paragraph when there is no line to put in it.
 			assert.ok( ! content.includes( '<!-- wp:paragraph -->' ), 'no empty intro paragraph' );
 		}
+	} );
+
+	it( 'writes the title, heading and placeholders from the site-language copy', async () => {
+		const { fetcher, requests } = stubFetcher();
+		await createEventsPage(
+			undefined,
+			{
+				events_page_title: 'Eventi',
+				events_page_heading: 'Prossimi eventi',
+				event_name_placeholder: 'Nome dell’evento',
+				event_details_placeholder: 'Data, ora e luogo',
+			},
+			fetcher
+		);
+
+		const request = requests[ 0 ];
+		assert.equal( request.data.title, 'Eventi' );
+		assert.ok( request.data.content.includes( '>Prossimi eventi<' ) );
+		assert.deepEqual( placeholders( request.data.content ).slice( 0, 2 ), [
+			'Nome dell’evento',
+			'Data, ora e luogo',
+		] );
 	} );
 } );

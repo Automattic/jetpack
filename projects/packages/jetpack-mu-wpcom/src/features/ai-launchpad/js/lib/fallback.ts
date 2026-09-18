@@ -1,5 +1,5 @@
-import { __ } from '@wordpress/i18n';
-import type { GoalSlug, TailoredOutput, TailoredTask, WizardInput } from './types.ts';
+import { __, sprintf } from '@wordpress/i18n';
+import type { GoalSlug, SiteCopy, TailoredOutput, TailoredTask, WizardInput } from './types.ts';
 
 /**
  * Subtitles for catalog task IDs. Unmapped IDs get a generic subtitle so subtitle's minLength:1 is
@@ -106,13 +106,31 @@ function clamp( value: string, max: number ): string {
 }
 
 /**
+ * Fill the site name into a translated `%s` template. `@wordpress/i18n` types `sprintf`'s arguments
+ * from a literal format string, and these come from the server.
+ *
+ * @param template - The translated template.
+ * @param siteName - The site name.
+ * @return The filled-in text.
+ */
+function withSiteName( template: string, siteName: string ): string {
+	const filled = ( sprintf as ( format: string, ...args: string[] ) => string )(
+		template,
+		siteName
+	);
+	// A malformed translation (a stray `%`) makes sprintf hand the template back unfilled.
+	return filled === template ? template.replace( /%(1\$)?s/, siteName ) : filled;
+}
+
+/**
  * Deterministic fallback when the AI call fails or returns invalid output.
  *
  * @param input - The collected wizard input.
+ * @param copy  - The site-language copy for the post and page drafts.
  * @return A schema-valid tailored output.
  */
-export function selectFallback( input: WizardInput ): TailoredOutput {
-	const siteName = input.site_name.trim() || 'your new site';
+export function selectFallback( input: WizardInput, copy: SiteCopy ): TailoredOutput {
+	const siteName = input.site_name.trim() || copy.fallback_site_name;
 
 	return {
 		tasks: buildTasks( input.goal ),
@@ -121,23 +139,13 @@ export function selectFallback( input: WizardInput ): TailoredOutput {
 			brand_name: clamp( input.site_name, 80 ),
 		},
 		first_post_draft: {
-			title: clamp( 'Getting started with ' + siteName, 80 ),
-			subtitle: clamp( 'Introduce ' + siteName + ' to your readers.', 120 ),
-			paragraphs: [
-				'This is the first post on ' +
-					siteName +
-					'. It marks the starting point of something new, and there is plenty more to come.',
-				'Thanks for being here at the very beginning. Stay tuned for what comes next.',
-			],
+			title: clamp( withSiteName( copy.fallback_post_title, siteName ), 80 ),
+			subtitle: clamp( withSiteName( copy.fallback_post_subtitle, siteName ), 120 ),
+			paragraphs: copy.fallback_post_paragraphs.map( text => withSiteName( text, siteName ) ),
 		},
 		about_page_draft: {
-			title: 'About',
-			paragraphs: [
-				'This is where the story of ' +
-					siteName +
-					' begins. Use this page to share who is behind the site and what it is all about.',
-				'Tell visitors how it started, what they can expect to find here, and where it is headed next.',
-			],
+			title: copy.about_page_title,
+			paragraphs: copy.fallback_about_paragraphs.map( text => withSiteName( text, siteName ) ),
 		},
 	};
 }

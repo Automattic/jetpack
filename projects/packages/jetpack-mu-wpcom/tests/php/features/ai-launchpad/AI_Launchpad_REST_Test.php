@@ -287,6 +287,9 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( home_url(), $data['site']['url'] );
 		$this->assertSame( get_bloginfo( 'name' ), $data['site']['title'] );
 		$this->assertSame( get_bloginfo( 'description' ), $data['site']['description'] );
+		// The copy written into pages, for the public-facing content.
+		$this->assertSame( wpcom_ai_launchpad_site_copy(), $data['site']['copy'] );
+		$this->assertSame( 'Contact', $data['site']['copy']['contact_page_title'] );
 
 		$this->assertCount( 6, $data['tasks'] );
 

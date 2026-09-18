@@ -1,6 +1,6 @@
 import { useEffect, useRef } from '@wordpress/element';
 import { tailor } from './tailor.ts';
-import type { TailorResult, WizardInput } from './types.ts';
+import type { SiteCopy, TailorResult, WizardInput } from './types.ts';
 
 const PREWARM_DELAY_MS = 1_500;
 
@@ -38,8 +38,9 @@ function cacheKey( input: WizardInput ): string {
  * identical call is already cached.
  *
  * @param input - The wizard input.
+ * @param copy  - The site-language copy for the fallback drafts.
  */
-function startPrewarm( input: WizardInput ): void {
+function startPrewarm( input: WizardInput, copy: SiteCopy ): void {
 	const key = cacheKey( input );
 	if ( cache && cache.key === key ) {
 		return;
@@ -47,7 +48,7 @@ function startPrewarm( input: WizardInput ): void {
 	cache = {
 		key,
 		// Swallow rejections so the background fire never surfaces an unhandled rejection; the Finish handler handles errors on its own await.
-		promise: tailor( input ).catch( () => null as unknown as TailorResult ),
+		promise: tailor( input, copy ).catch( () => null as unknown as TailorResult ),
 	};
 }
 
@@ -56,8 +57,9 @@ function startPrewarm( input: WizardInput ): void {
  * promise for `getPrewarmedTailor` to reuse.
  *
  * @param state - The partial wizard input collected so far.
+ * @param copy  - The site-language copy for the fallback drafts.
  */
-export function usePrewarm( state: Partial< WizardInput > ): void {
+export function usePrewarm( state: Partial< WizardInput >, copy: SiteCopy ): void {
 	const timer = useRef< ReturnType< typeof setTimeout > >( undefined );
 
 	// Depend on the stable cache key, not the `state` object, which is fresh every render and would re-arm the debounce on every re-render.
@@ -68,7 +70,7 @@ export function usePrewarm( state: Partial< WizardInput > ): void {
 		if ( ! input ) {
 			return;
 		}
-		timer.current = setTimeout( () => startPrewarm( input ), PREWARM_DELAY_MS );
+		timer.current = setTimeout( () => startPrewarm( input, copy ), PREWARM_DELAY_MS );
 		return () => clearTimeout( timer.current );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ key ] );
@@ -79,12 +81,13 @@ export function usePrewarm( state: Partial< WizardInput > ): void {
  * settled, otherwise start a fresh tailor call.
  *
  * @param input - The collected wizard input.
+ * @param copy  - The site-language copy for the fallback drafts.
  * @return The tailored result.
  */
-export function getPrewarmedTailor( input: WizardInput ): Promise< TailorResult > {
+export function getPrewarmedTailor( input: WizardInput, copy: SiteCopy ): Promise< TailorResult > {
 	const key = cacheKey( input );
 	if ( cache && cache.key === key ) {
-		return cache.promise.then( result => result ?? tailor( input ) );
+		return cache.promise.then( result => result ?? tailor( input, copy ) );
 	}
-	return tailor( input );
+	return tailor( input, copy );
 }

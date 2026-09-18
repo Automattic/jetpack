@@ -396,6 +396,78 @@ if ( ! function_exists( 'wpcom_ai_launchpad_get_ai_task_ids' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wpcom_ai_launchpad_in_site_language' ) ) {
+	/**
+	 * Runs a callback with translations switched to the site language.
+	 *
+	 * Requests from wp-admin, its REST calls included, translate into the admin user's language. Copy
+	 * that ends up in the site's own posts and pages is public content and follows the site language.
+	 *
+	 * @param callable $callback The callback to run.
+	 * @return mixed The callback's return value.
+	 */
+	function wpcom_ai_launchpad_in_site_language( $callback ) {
+		$site_locale = get_locale();
+		$switched    = $site_locale !== determine_locale() && switch_to_locale( $site_locale );
+
+		try {
+			return $callback();
+		} finally {
+			if ( $switched ) {
+				restore_previous_locale();
+			}
+		}
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_site_copy' ) ) {
+	/**
+	 * The copy the client writes into the site's posts and pages, in the site language.
+	 *
+	 * The `fallback_*` templates take the site name as their `%s`; the client fills it in.
+	 *
+	 * @return array<string, string|string[]>
+	 */
+	function wpcom_ai_launchpad_site_copy() {
+		return wpcom_ai_launchpad_in_site_language(
+			static function () {
+				return array(
+					'about_page_title'            => _x( 'About', 'page title', 'jetpack-mu-wpcom' ),
+					'contact_page_title'          => _x( 'Contact', 'page title', 'jetpack-mu-wpcom' ),
+					'contact_page_heading'        => __( 'Get in touch', 'jetpack-mu-wpcom' ),
+					'contact_form_name_label'     => __( 'Name', 'jetpack-mu-wpcom' ),
+					'contact_form_email_label'    => __( 'Email', 'jetpack-mu-wpcom' ),
+					'contact_form_message_label'  => __( 'Message', 'jetpack-mu-wpcom' ),
+					'events_page_title'           => _x( 'Events', 'page title', 'jetpack-mu-wpcom' ),
+					'events_page_heading'         => __( 'Upcoming events', 'jetpack-mu-wpcom' ),
+					'event_name_placeholder'      => __( 'Event name', 'jetpack-mu-wpcom' ),
+					'event_details_placeholder'   => __( 'Date, time, and place', 'jetpack-mu-wpcom' ),
+					'video_page_title'            => _x( 'Videos', 'page title', 'jetpack-mu-wpcom' ),
+					'video_page_heading'          => _x( 'Watch', 'video page heading', 'jetpack-mu-wpcom' ),
+					'gallery_page_title'          => _x( 'Gallery', 'page title', 'jetpack-mu-wpcom' ),
+					'gallery_page_heading'        => _x( 'Take a look', 'gallery page heading', 'jetpack-mu-wpcom' ),
+					'portfolio_piece_placeholder' => __( 'What this project was, who it was for, and what you did.', 'jetpack-mu-wpcom' ),
+					'fallback_site_name'          => _x( 'your new site', 'stands in for a blank site name', 'jetpack-mu-wpcom' ),
+					/* translators: %s: the site name. */
+					'fallback_post_title'         => __( 'Getting started with %s', 'jetpack-mu-wpcom' ),
+					/* translators: %s: the site name. */
+					'fallback_post_subtitle'      => __( 'Introduce %s to your readers.', 'jetpack-mu-wpcom' ),
+					'fallback_post_paragraphs'    => array(
+						/* translators: %s: the site name. */
+						__( 'This is the first post on %s. It marks the starting point of something new, and there is plenty more to come.', 'jetpack-mu-wpcom' ),
+						__( 'Thanks for being here at the very beginning. Stay tuned for what comes next.', 'jetpack-mu-wpcom' ),
+					),
+					'fallback_about_paragraphs'   => array(
+						/* translators: %s: the site name. */
+						__( 'This is where the story of %s begins. Use this page to share who is behind the site and what it is all about.', 'jetpack-mu-wpcom' ),
+						__( 'Tell visitors how it started, what they can expect to find here, and where it is headed next.', 'jetpack-mu-wpcom' ),
+					),
+				);
+			}
+		);
+	}
+}
+
 if ( ! function_exists( 'wpcom_ai_launchpad_script_translations' ) ) {
 	/**
 	 * Inline JS that installs the translation catalogs of the page's wp-build bundles into `wp.i18n`.
