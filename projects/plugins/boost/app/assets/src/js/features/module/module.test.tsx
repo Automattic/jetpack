@@ -1,5 +1,5 @@
 /* No jest-dom in this project. */
-/* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-text-content, testing-library/no-container, testing-library/no-node-access */
+/* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-text-content, jest-dom/prefer-checked, jest-dom/prefer-enabled-disabled, testing-library/no-container, testing-library/no-node-access */
 import { render, screen } from '@testing-library/react';
 import Module from './module';
 import { ModuleSurfaceProvider } from './surface';
@@ -22,6 +22,7 @@ describe( 'Module', () => {
 	beforeEach( () => {
 		mockState = { active: true, available: true };
 		boostGlobal.site.online = true;
+		boostGlobal.site.host = '';
 		( globalThis as unknown as { Jetpack_Boost: typeof boostGlobal } ).Jetpack_Boost = boostGlobal;
 	} );
 
@@ -79,6 +80,41 @@ describe( 'Module', () => {
 				row
 			);
 			expect( screen.queryByText( 'Concatenate JS' ) ).toBeNull();
+			view.unmount();
+		}
+	} );
+
+	it.each( [ 'woa', 'atomic' ] )(
+		'shows unavailable Page Cache as on but disabled when the host is %s',
+		host => {
+			mockState = { active: false, available: false };
+			boostGlobal.site.host = host;
+
+			for ( const row of [ false, true ] ) {
+				const view = renderModule(
+					<Module slug="page_cache" title="Cache Site Pages" description="Desc" />,
+					row
+				);
+				const toggle = screen.getByRole( 'checkbox' ) as HTMLInputElement;
+				expect( toggle.checked ).toBe( true );
+				expect( toggle.disabled ).toBe( true );
+				view.unmount();
+			}
+		}
+	);
+
+	it( 'shows unavailable Page Cache as off and disabled on other hosts', () => {
+		mockState = { active: false, available: false };
+		boostGlobal.site.host = 'other';
+
+		for ( const row of [ false, true ] ) {
+			const view = renderModule(
+				<Module slug="page_cache" title="Cache Site Pages" description="Desc" />,
+				row
+			);
+			const toggle = screen.getByRole( 'checkbox' ) as HTMLInputElement;
+			expect( toggle.checked ).toBe( false );
+			expect( toggle.disabled ).toBe( true );
 			view.unmount();
 		}
 	} );

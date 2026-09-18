@@ -104,6 +104,7 @@ class Data {
 			'videopress_videos_private_for_site' => self::get_videopress_videos_private_for_site(),
 			'videopress_auto_subtitles_disabled' => self::get_videopress_auto_subtitles_disabled(),
 			'videopress_player_preload_disabled' => self::get_videopress_player_preload_disabled(),
+			'videopress_inline_player_enabled'   => self::get_videopress_inline_player_enabled(),
 			'site_is_private'                    => $site_is_private,
 			'site_type'                          => $site_type,
 		);

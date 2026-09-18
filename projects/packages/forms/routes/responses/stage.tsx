@@ -385,15 +385,15 @@ function StageInner() {
 						const secondValue: unknown = filterValue[ 1 ];
 						startDate = new Date(
 							typeof firstValue === 'string' ||
-							typeof firstValue === 'number' ||
-							firstValue instanceof Date
+								typeof firstValue === 'number' ||
+								firstValue instanceof Date
 								? firstValue
 								: ''
 						);
 						endDate = new Date(
 							typeof secondValue === 'string' ||
-							typeof secondValue === 'number' ||
-							secondValue instanceof Date
+								typeof secondValue === 'number' ||
+								secondValue instanceof Date
 								? secondValue
 								: ''
 						);
@@ -513,7 +513,7 @@ function StageInner() {
 							render: () => null,
 							getValue: () => null,
 						},
-				  ] ),
+					] ),
 			{
 				id: 'from',
 				label: __( 'From', 'jetpack-forms' ),

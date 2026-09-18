@@ -25,8 +25,7 @@ const SUPPORT_POST_ID = 4458;
  */
 export default function SupportLink( { children }: Props ) {
 	const helpCenter = useDispatch( 'automattic/help-center' ) as
-		| { setShowSupportDoc?: ( url: string, postId: number ) => void }
-		| undefined;
+		{ setShowSupportDoc?: ( url: string, postId: number ) => void } | undefined;
 	const setShowSupportDoc = helpCenter?.setShowSupportDoc;
 
 	const supportUrl = isWpcomPlatformSite()

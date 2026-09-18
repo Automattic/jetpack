@@ -5,15 +5,21 @@ import {
 	useSiteHomeUrl,
 	type StatsArchivesComparisonItem,
 	type StatsArchivesItem,
+	type PostThumbnailUrls,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
-import { Link as UiLink } from '@jetpack-premium-analytics/externals';
+import { Icon, Link as UiLink, Stack } from '@jetpack-premium-analytics/externals';
 import { createReportOriginSearch, pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { MetricWithComparison, PostTitleLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
+import { page as pageIcon, post as postIcon } from '@wordpress/icons';
 import { useSearch } from '@wordpress/route';
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+/**
+ * Internal dependencies
+ */
+import styles from './fields.module.css';
 import type { ReportPostsTabId } from './tabs';
 import type { Field } from '@jetpack-premium-analytics/externals';
 
@@ -21,6 +27,45 @@ const VIEWS_DATA_FORMAT = {
 	type: 'number',
 	options: { decimals: 0, useMultipliers: false },
 } as const;
+
+type PostTitleProps = {
+	item: StatsTopPostsComparisonItem;
+	originSection: ReportPostsTabId;
+	thumbnailUrl?: string;
+};
+
+/**
+ * Render a thumbnail or the post-type icon used by the detail header.
+ *
+ * @param props          - Component props.
+ * @param props.url      - Thumbnail URL.
+ * @param props.postType - Post type slug.
+ * @return The thumbnail slot.
+ */
+function PostThumbnail( { url, postType }: { url?: string; postType?: string } ): JSX.Element {
+	const [ failedUrl, setFailedUrl ] = useState< string >();
+	const showImage = Boolean( url && failedUrl !== url );
+	const handleError = useCallback( () => setFailedUrl( url ), [ url ] );
+
+	return (
+		<span className={ styles.thumbnailSlot }>
+			{ showImage ? (
+				<img
+					src={ url }
+					alt=""
+					width={ 32 }
+					height={ 32 }
+					className={ styles.thumbnail }
+					onError={ handleError }
+				/>
+			) : (
+				<span data-testid="post-thumbnail-placeholder">
+					<Icon icon={ postType === 'page' ? pageIcon : postIcon } size={ 16 } />
+				</span>
+			) }
+		</span>
+	);
+}
 
 /**
  * Render a post row's title. Rows with an ID drill into the internal post/page
@@ -32,18 +77,10 @@ const VIEWS_DATA_FORMAT = {
  * resolved from core settings. They never take the detail page: the homepage
  * is not a single post.
  *
- * @param props               - Component props.
- * @param props.item          - The posts report row.
- * @param props.originSection - The active Posts & Pages report tab.
+ * @param {PostTitleProps} props - Component props.
  * @return The linked or plain post title.
  */
-function PostTitle( {
-	item,
-	originSection,
-}: {
-	item: StatsTopPostsComparisonItem;
-	originSection: ReportPostsTabId;
-} ) {
+function PostTitle( { item, originSection, thumbnailUrl }: PostTitleProps ): JSX.Element {
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const detailSearch = useMemo(
 		() => ( {
@@ -58,12 +95,25 @@ function PostTitle( {
 	const title = String( item.label ?? '' );
 
 	return (
-		<PostTitleLink
-			id={ isHomepage ? undefined : item.id }
-			label={ title }
-			link={ isHomepage ? homeUrl : item.link }
-			search={ detailSearch }
-		/>
+		<Stack render={ <span /> } direction="row" gap="sm" align="center" className={ styles.title }>
+			<PostThumbnail
+				url={ thumbnailUrl }
+				postType={ typeof item.type === 'string' ? item.type : undefined }
+			/>
+			<PostTitleLink
+				id={ isHomepage ? undefined : item.id }
+				label={ title }
+				link={ isHomepage ? homeUrl : item.link }
+				search={ detailSearch }
+				classNames={ {
+					internal: styles.titleLink,
+					external: styles.titleLink,
+					plain: styles.titleLink,
+					text: styles.titleText,
+				} }
+				title={ title }
+			/>
+		</Stack>
 	);
 }
 
@@ -76,11 +126,13 @@ function PostTitle( {
  *
  * @param withComparison - Whether to render available period-over-period deltas.
  * @param originSection  - The active Posts & Pages report tab.
+ * @param thumbnailUrls  - Thumbnail URLs keyed by post ID.
  * @return The field config.
  */
 export function getPostsFields(
 	withComparison: boolean,
-	originSection: ReportPostsTabId
+	originSection: ReportPostsTabId,
+	thumbnailUrls: PostThumbnailUrls = {}
 ): Field< StatsTopPostsComparisonItem >[] {
 	return [
 		{
@@ -89,7 +141,13 @@ export function getPostsFields(
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => String( item.label ?? '' ),
-			render: ( { item } ) => <PostTitle item={ item } originSection={ originSection } />,
+			render: ( { item } ) => (
+				<PostTitle
+					item={ item }
+					originSection={ originSection }
+					thumbnailUrl={ thumbnailUrls[ Number( item.id ) ] }
+				/>
+			),
 		},
 		{
 			id: 'views',

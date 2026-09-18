@@ -70,7 +70,7 @@ const License = ( { errorNotice, successNotice, updateUserLicensesCounts } ) => 
 							'Button caption',
 							'jetpack',
 							/* dummy arg to avoid bad minification */ 0
-					  ) }
+						) }
 			</Button>
 		</div>
 	);

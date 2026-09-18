@@ -47,8 +47,7 @@ type StoreConversionRateBookingsStoryProps = StoreConversionRateBookingsWidgetPr
 	StoreConversionRateBookingsStoryControls;
 
 interface StoreConversionRateBookingsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		StoreConversionRateBookingsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, StoreConversionRateBookingsStoryControls {}
 
 function buildConversionRateMockResponse( isComparison: boolean ) {
 	const activeSessions = isComparison ? 4860 : 5480;

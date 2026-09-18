@@ -55,6 +55,9 @@ $paypal-blue: #0070ba;
 	font-size: 14px;
 	color: #757575;
 	margin-top: 4px;
+	// The editor takes line breaks in the description and PayPal stores
+	// them, so show them here.
+	white-space: pre-line;
 }
 
 .jetpack-paypal-button__product-price {

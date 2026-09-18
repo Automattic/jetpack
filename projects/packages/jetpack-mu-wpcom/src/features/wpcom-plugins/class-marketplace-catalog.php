@@ -19,14 +19,20 @@ use Automattic\Jetpack\Connection\Client;
 class Marketplace_Catalog {
 
 	/**
+	 * Bumped whenever the shape of a cached card or description changes, so sites
+	 * do not keep serving data built by the previous version until it expires.
+	 */
+	const CACHE_VERSION = 7;
+
+	/**
 	 * Transient holding the normalized product list.
 	 */
-	const LIST_CACHE_KEY = 'wpcom_marketplace_catalog';
+	const LIST_CACHE_KEY = 'wpcom_marketplace_catalog_v' . self::CACHE_VERSION;
 
 	/**
 	 * Transient prefix for a single product's full details.
 	 */
-	const PRODUCT_CACHE_PREFIX = 'wpcom_marketplace_product_';
+	const PRODUCT_CACHE_PREFIX = 'wpcom_marketplace_product_v' . self::CACHE_VERSION . '_';
 
 	/**
 	 * How long a successful read is cached for.
@@ -38,6 +44,75 @@ class Marketplace_Catalog {
 	 * not mean an outbound request per page load.
 	 */
 	const MISS_CACHE_TTL = 5 * MINUTE_IN_SECONDS;
+
+	/**
+	 * Block-level tags, used to work out which stripped tags owe a paragraph break.
+	 */
+	private const MODAL_BLOCK_TAGS = array(
+		'address',
+		'article',
+		'aside',
+		'blockquote',
+		'dd',
+		'div',
+		'dl',
+		'dt',
+		'fieldset',
+		'figcaption',
+		'figure',
+		'footer',
+		'h1',
+		'h2',
+		'h3',
+		'h4',
+		'h5',
+		'h6',
+		'header',
+		'li',
+		'main',
+		'nav',
+		'ol',
+		'p',
+		'pre',
+		'section',
+		'table',
+		'tbody',
+		'td',
+		'tfoot',
+		'th',
+		'thead',
+		'tr',
+		'ul',
+	);
+
+	/**
+	 * The markup a vendor description keeps once it reaches the details modal.
+	 *
+	 * Headings run to h6 because core's own `$plugins_allowedtags` does, so keeping
+	 * them costs nothing downstream. Everything absent from here is stripped, and
+	 * `to_modal_html()` derives from this which block tags owe a paragraph break.
+	 */
+	private const MODAL_TAGS = array(
+		'a'          => array(
+			'href'  => array(),
+			'title' => array(),
+		),
+		'blockquote' => array(),
+		'br'         => array(),
+		'code'       => array(),
+		'em'         => array(),
+		'h1'         => array(),
+		'h2'         => array(),
+		'h3'         => array(),
+		'h4'         => array(),
+		'h5'         => array(),
+		'h6'         => array(),
+		'li'         => array(),
+		'ol'         => array(),
+		'p'          => array(),
+		'strong'     => array(),
+		'ul'         => array(),
+	);
 
 	/**
 	 * Every purchasable plugin, keyed by slug, in the order wpcom returns them.
@@ -57,7 +132,7 @@ class Marketplace_Catalog {
 			return array();
 		}
 
-		$products = self::to_catalog( $response['results'] );
+		$products = self::attach_pricing( self::to_catalog( $response['results'] ), self::fetch_store_products() );
 
 		set_transient( self::LIST_CACHE_KEY, $products, self::CACHE_TTL );
 
@@ -66,6 +141,9 @@ class Marketplace_Catalog {
 
 	/**
 	 * Turns an endpoint response into the catalog we list.
+	 *
+	 * Order is load-bearing: wpcom ranks the response by active subscriptions, so
+	 * the best sellers arrive first. Do not sort or re-key what comes back.
 	 *
 	 * @param array $results Products as the marketplace endpoint returns them.
 	 * @return array<string, array> Normalized products, keyed by slug.
@@ -89,18 +167,6 @@ class Marketplace_Catalog {
 		}
 
 		return $products;
-	}
-
-	/**
-	 * Whether a slug belongs to the marketplace catalog.
-	 *
-	 * @param string $slug Plugin slug.
-	 * @return bool
-	 */
-	public static function has_product( $slug ) {
-		$products = self::get_products();
-
-		return isset( $products[ $slug ] );
 	}
 
 	/**
@@ -146,9 +212,16 @@ class Marketplace_Catalog {
 
 		$details = self::to_details( self::to_card( $product ) );
 
-		$description = is_string( $product['description'] ?? null ) ? $product['description'] : '';
+		$raw = is_string( $product['description'] ?? null ) ? $product['description'] : '';
+
+		$description = self::to_modal_html( $raw );
 		if ( '' !== $description ) {
 			$details['sections']['description'] = $description;
+		}
+
+		$screenshots = self::to_screenshots_html( $raw );
+		if ( '' !== $screenshots ) {
+			$details['sections']['screenshots'] = $screenshots;
 		}
 
 		set_transient( $cache_key, $details, self::CACHE_TTL );
@@ -173,17 +246,84 @@ class Marketplace_Catalog {
 	}
 
 	/**
+	 * Moves the vendor's images into a screenshots section.
+	 *
+	 * Core constrains images in `#section-screenshots` and nowhere else, which is why
+	 * WordPress.org plugins put them there rather than in the description. Rebuilt
+	 * from the source URLs alone so none of the vendor's own markup comes with them.
+	 *
+	 * @param string $html Description as the marketplace endpoint returns it.
+	 * @return string Section markup, or an empty string when there are no images.
+	 */
+	public static function to_screenshots_html( $html ) {
+		if ( '' === $html || ! preg_match_all( '#<img[^>]*?\s src=[\'"]([^\'"]+)[\'"]#ix', $html, $matches ) ) {
+			return '';
+		}
+
+		$items = '';
+		foreach ( array_unique( $matches[1] ) as $src ) {
+			$url = esc_url( $src );
+			if ( '' !== $url ) {
+				$items .= sprintf( '<li><img src="%s" alt="" /></li>', $url );
+			}
+		}
+
+		return '' === $items ? '' : '<ol>' . $items . '</ol>';
+	}
+
+	/**
+	 * Reduces a vendor description to markup core's details modal can render.
+	 *
+	 * These are WooCommerce.com product pages: layout divs, full-width figures and
+	 * inline styles, with the spacing living in a stylesheet the modal does not load.
+	 * Left alone they overflow its ~600px column and the text runs together.
+	 *
+	 * @param string $html Description as the marketplace endpoint returns it.
+	 * @return string
+	 */
+	public static function to_modal_html( $html ) {
+		if ( '' === $html ) {
+			return '';
+		}
+
+		/*
+		 * Core's own modal allowlist has no b or i, so that emphasis would be dropped
+		 * one filter later. Normalized first so it survives, and so neither tag is
+		 * still around when the block tags are counted below.
+		 */
+		$html = preg_replace( '#<(/?)b\b([^>]*)>#i', '<$1strong$2>', $html );
+		$html = preg_replace( '#<(/?)i\b([^>]*)>#i', '<$1em$2>', $html );
+
+		/*
+		 * A block tag that is about to be stripped keeps the break it implied, so the
+		 * structure the vendor laid out survives. Taken as the block tags minus the
+		 * ones we keep, which is what stops the two lists from disagreeing: before
+		 * this, a `</td>` lost both its tag and its break and glued that cell onto the
+		 * next one. Inline tags are deliberately not in here. The catalog carries 77
+		 * `</span>` and breaking on those would split sentences down the middle.
+		 */
+		$break = array_diff( self::MODAL_BLOCK_TAGS, array_keys( self::MODAL_TAGS ) );
+		$html  = preg_replace( '#</(?:' . implode( '|', $break ) . ')\s*>#i', "\n\n", $html );
+
+		$html = wp_kses( $html, self::MODAL_TAGS );
+
+		return trim( wpautop( trim( $html ) ) );
+	}
+
+	/**
 	 * Reads a wpcom marketplace endpoint.
 	 *
-	 * @param string $path Path below `wpcom/v2`, query string included.
+	 * @param string $path    Path below the namespace, query string included.
+	 * @param string $version API version.
+	 * @param string $base    API base, `wpcom` or `rest`.
 	 * @return array|null Decoded response body, or null on any failure.
 	 */
-	private static function request( $path ) {
+	private static function request( $path, $version = '2', $base = 'wpcom' ) {
 		if ( ! method_exists( Client::class, 'wpcom_json_api_request_as_blog' ) ) {
 			return null;
 		}
 
-		$response = Client::wpcom_json_api_request_as_blog( $path, '2', array(), null, 'wpcom' );
+		$response = Client::wpcom_json_api_request_as_blog( $path, $version, array(), null, $base );
 
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return null;
@@ -253,7 +393,193 @@ class Marketplace_Catalog {
 			'external'           => true,
 			'wpcom_marketplace'  => true,
 			'wpcom_product_slug' => $product_slug,
+			'wpcom_category'     => self::to_category( $product['tags'] ?? null ),
+			'wpcom_variations'   => self::to_variation_ids( $product['variations'] ?? null ),
+			'wpcom_pricing'      => array(),
+			'wpcom_saving'       => 0,
 		);
+	}
+
+	/**
+	 * Reads the store catalog, which is where a variation's slug and price live.
+	 *
+	 * The marketplace endpoint gives only a numeric product id, and checkout is
+	 * addressed by slug, so this is needed for the button as much as for the price.
+	 *
+	 * @return array<int, array> Keyed by product id.
+	 */
+	private static function fetch_store_products() {
+		// Site-scoped first, so prices come back in the site's own currency. Calypso
+		// reads the same two paths in the same order, for the same reason.
+		$blog_id  = self::blog_id();
+		$response = $blog_id > 0 ? self::request( '/sites/' . $blog_id . '/products', '1.1', 'rest' ) : null;
+
+		if ( ! is_array( $response ) ) {
+			$response = self::request( '/products', '1.1', 'rest' );
+		}
+
+		if ( ! is_array( $response ) ) {
+			return array();
+		}
+
+		$store = array();
+		foreach ( $response as $slug => $product ) {
+			if ( ! is_array( $product ) || empty( $product['product_id'] ) ) {
+				continue;
+			}
+
+			$store[ (int) $product['product_id'] ] = array(
+				'slug'  => (string) $slug,
+				'price' => (string) ( $product['cost_display'] ?? '' ),
+				'cost'  => isset( $product['cost'] ) ? (float) $product['cost'] : 0.0,
+			);
+		}
+
+		return $store;
+	}
+
+	/**
+	 * This site's WordPress.com blog id.
+	 *
+	 * `get_wpcom_blog_id()` only answers when IS_WPCOM or IS_ATOMIC is defined, which
+	 * a test cannot set without it leaking into every other test in the process. The
+	 * connection stores the same id, so falling back to it both covers a connected
+	 * site the helper says nothing about and leaves the site-scoped read testable.
+	 *
+	 * @return int Blog id, or 0 when this site does not have one.
+	 */
+	private static function blog_id() {
+		if ( function_exists( 'get_wpcom_blog_id' ) ) {
+			$blog_id = (int) get_wpcom_blog_id();
+
+			if ( $blog_id > 0 ) {
+				return $blog_id;
+			}
+		}
+
+		return class_exists( 'Jetpack_Options' ) ? (int) \Jetpack_Options::get_option( 'id' ) : 0;
+	}
+
+	/**
+	 * Resolves each product's variations against the store catalog.
+	 *
+	 * @param array<string, array> $products Normalized products, keyed by slug.
+	 * @param array<int, array>    $store    Store products, keyed by product id.
+	 * @return array<string, array>
+	 */
+	public static function attach_pricing( array $products, array $store ) {
+		foreach ( $products as $slug => $product ) {
+			$pricing = array();
+
+			foreach ( $product['wpcom_variations'] ?? array() as $term => $product_id ) {
+				if ( isset( $store[ $product_id ] ) ) {
+					$pricing[ $term ] = $store[ $product_id ];
+				}
+			}
+
+			$products[ $slug ]['wpcom_pricing'] = $pricing;
+			$products[ $slug ]['wpcom_saving']  = self::yearly_saving( $pricing );
+		}
+
+		return $products;
+	}
+
+	/**
+	 * How much cheaper a year is than twelve months, as a whole percentage.
+	 *
+	 * Worth showing because it is not a flat discount: across the catalog it runs from
+	 * nothing at all to a third off, so the number is the only honest way to say it.
+	 *
+	 * @param array $pricing Resolved pricing, keyed by term.
+	 * @return int Percentage saved, or 0 when there is nothing to compare or nothing saved.
+	 */
+	public static function yearly_saving( array $pricing ) {
+		$yearly  = (float) ( $pricing['yearly']['cost'] ?? 0 );
+		$monthly = (float) ( $pricing['monthly']['cost'] ?? 0 );
+
+		if ( $yearly <= 0 || $monthly <= 0 ) {
+			return 0;
+		}
+
+		$saving = (int) round( ( 1 - $yearly / ( $monthly * 12 ) ) * 100 );
+
+		return max( 0, $saving );
+	}
+
+	/**
+	 * The product's category, as something short enough to sit on a card.
+	 *
+	 * Tags arrive as slug => label. Nearly every product carries "Plugins", which
+	 * says nothing on a screen that only lists plugins, so the first tag after that
+	 * is the one worth showing.
+	 *
+	 * @param mixed $tags Tags as the marketplace endpoint returns them.
+	 * @return string Category label, or an empty string when there is nothing useful.
+	 */
+	private static function to_category( $tags ) {
+		foreach ( is_array( $tags ) ? $tags : array() as $slug => $label ) {
+			if ( 'plugins' !== $slug && is_string( $label ) && '' !== trim( $label ) ) {
+				return trim( $label );
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Flattens the endpoint's variations into term => product id.
+	 *
+	 * @param mixed $variations Variations as the marketplace endpoint returns them.
+	 * @return array<string, int>
+	 */
+	private static function to_variation_ids( $variations ) {
+		$ids = array();
+
+		foreach ( is_array( $variations ) ? $variations : array() as $term => $variation ) {
+			$product_id = is_array( $variation ) ? (int) ( $variation['product_id'] ?? 0 ) : 0;
+			if ( $product_id > 0 ) {
+				$ids[ (string) $term ] = $product_id;
+			}
+		}
+
+		return $ids;
+	}
+
+	/**
+	 * The checkout URL for one variation, which both buys and activates the plugin.
+	 *
+	 * @param array  $card     Normalized product data.
+	 * @param string $term     'yearly' or 'monthly'.
+	 * @param string $back_url Where checkout's Back link should return to. Must be on
+	 *                         this site's own host, or checkout ignores it.
+	 * @return string Checkout URL, or an empty string when there is no such variation.
+	 */
+	public static function checkout_url( array $card, $term, $back_url = '' ) {
+		$store_slug = $card['wpcom_pricing'][ $term ]['slug'] ?? '';
+		if ( '' === $store_slug ) {
+			return '';
+		}
+
+		$site_slug = wp_parse_url( home_url(), PHP_URL_HOST );
+
+		$url = sprintf(
+			'https://wordpress.com/checkout/%s/%s',
+			rawurlencode( (string) $site_slug ),
+			rawurlencode( $store_slug )
+		);
+
+		/*
+		 * Without this, Back leaves for whichever Calypso page the reader came from,
+		 * and for someone arriving straight from wp-admin that is the plan picker.
+		 * Checkout allows a back URL on the site's own host, which is where we are.
+		 * `add_query_arg()` does not encode values, so the URL is encoded here.
+		 */
+		if ( '' !== $back_url ) {
+			$url = add_query_arg( 'checkoutBackUrl', rawurlencode( $back_url ), $url );
+		}
+
+		// Jumps past the plan step, which a marketplace purchase does not have.
+		return $url . '#step2';
 	}
 
 	/**

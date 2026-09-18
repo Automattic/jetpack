@@ -43,6 +43,10 @@
 			"type": "string",
 			"default": ""
 		},
+		"productId": {
+			"type": "string",
+			"default": ""
+		},
 		"imageUrl": {
 			"type": "string"
 		},
@@ -106,19 +110,43 @@
 			"type": "string",
 			"default": ""
 		},
+		"handlingEnabled": {
+			"type": "boolean",
+			"default": false
+		},
+		"handlingValue": {
+			"type": "string",
+			"default": ""
+		},
+		"discountEnabled": {
+			"type": "boolean",
+			"default": false
+		},
+		"discountType": {
+			"type": "string",
+			"default": "FLAT"
+		},
+		"discountValue": {
+			"type": "string",
+			"default": ""
+		},
 		"collectShippingAddress": {
 			"type": "boolean",
-			"default": true
+			"default": false
 		},
 		"shippingEnabled": {
 			"type": "boolean",
 			"default": false
 		},
-		"shippingType": {
+		"shippingMode": {
 			"type": "string",
 			"default": "FLAT"
 		},
 		"shippingValue": {
+			"type": "string",
+			"default": ""
+		},
+		"shippingAdditionalValue": {
 			"type": "string",
 			"default": ""
 		},

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Activity Log: read and write the module state through the shared module option, so the toggle reports and changes what a standalone install actually serves.

@@ -72,20 +72,23 @@ export {
 export {
 	CELL_GAP as CALENDAR_HEATMAP_CELL_GAP,
 	HEADER_HEIGHT as CALENDAR_HEATMAP_HEADER_HEIGHT,
-	compactCalendarHeatmapCapacity,
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,
 	type CalendarHeatmapLayout,
 	type CalendarHeatmapLayoutInput,
 	type FitWeekColumnsInput,
 } from './calendar-heatmap-layout';
+export { formatEmailRate, isEmailRateKnown, type EmailRateSignals } from './format-email-rate';
 export { formatDailyViewCount, formatViewCount } from './format-view-count';
 export { MONTHS_IN_YEAR, monthOrder, type MonthKey } from './month-key';
 export {
+	MONTHLY_HEATMAP_METRICS,
 	monthlyHeatmapLabels,
+	monthlyHeatmapMetricAttributeField,
 	resolveMonthlyHeatmapMetric,
 	type MonthlyHeatmapMetric,
 } from './monthly-heatmap-metric';
+export { monthlyHeatmapLifeStart } from './monthly-heatmap-life-start';
 export { monthRange, yearRange, type PeriodBounds } from './period-range';
 export { siteChartFormatting } from './site-chart-formatting';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
@@ -95,8 +98,5 @@ export { appendTooltipExtras, resolveTooltipNames } from './tooltip-extras';
 export {
 	buildDenseDaySeries,
 	resolveCalendarHeatmapGridStart,
-	resolveCalendarHeatmapWindow,
-	resolveCalendarHeatmapWindowDays,
 	type CalendarHeatmapWindow,
-	type CalendarHeatmapWindowBounds,
 } from './calendar-heatmap-window';

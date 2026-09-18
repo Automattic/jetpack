@@ -202,6 +202,13 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 		$this->assertArrayNotHasKey( 'newLoggedOutInteractionsBotSlug', $data );
 	}
 
+	public function test_admin_bar_help_node_is_a_link_so_the_keyboard_can_reach_it() {
+		$node = $this->render_help_center_admin_bar_node();
+
+		// Without an href WordPress renders an `ab-empty-item` div, which is not focusable.
+		$this->assertNotEmpty( $node->href );
+	}
+
 	public function test_admin_bar_help_node_is_registered_without_a_script_enqueue() {
 		$node = $this->render_help_center_admin_bar_node();
 
