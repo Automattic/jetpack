@@ -19,6 +19,8 @@ use WorDBless\Options as WorDBless_Options;
 use WP_Error;
 use function add_filter;
 use function delete_transient;
+use function do_action;
+use function get_current_screen;
 use function get_current_user_id;
 use function has_action;
 use function remove_action;
@@ -51,8 +53,14 @@ class Admin_Modernization_Gating_Test extends TestCase {
 	/** @var string[] Handles registered elsewhere that the code under test only enqueues. */
 	private const BORROWED_SCRIPT_HANDLES = array( 'wp-jp-i18n-loader' );
 
-	/** @var array The `current_screen` callback `maybe_load_wp_build()` adds. */
+	/** @var array The `admin_enqueue_scripts` callback `maybe_load_wp_build()` adds before the generated check. */
 	private const SCREEN_ALIAS_CALLBACK = array( Jetpack_Backup::class, 'alias_screen_id_for_wp_build' );
+
+	/** @var array The `admin_enqueue_scripts` callback `maybe_load_wp_build()` adds after the generated check. */
+	private const SCREEN_RESTORE_CALLBACK = array( Jetpack_Backup::class, 'restore_screen_id_after_wp_build' );
+
+	/** @var string The screen ID of the Backup admin page. */
+	private const SCREEN_ID = 'jetpack_page_jetpack-backup';
 
 	/** @var array The `admin_print_scripts` callback `maybe_load_wp_build()` adds. */
 	private const INITIAL_STATE_CALLBACK = array( Jetpack_Backup::class, 'render_connection_initial_state' );
@@ -261,7 +269,8 @@ class Admin_Modernization_Gating_Test extends TestCase {
 
 		Jetpack_Backup::maybe_load_wp_build();
 
-		$this->assertFalse( has_action( 'current_screen', self::SCREEN_ALIAS_CALLBACK ) );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', self::SCREEN_ALIAS_CALLBACK ) );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', self::SCREEN_RESTORE_CALLBACK ) );
 		$this->assertFalse( has_action( 'admin_print_scripts', self::INITIAL_STATE_CALLBACK ) );
 	}
 
@@ -272,7 +281,8 @@ class Admin_Modernization_Gating_Test extends TestCase {
 
 		Jetpack_Backup::maybe_load_wp_build();
 
-		$this->assertFalse( has_action( 'current_screen', self::SCREEN_ALIAS_CALLBACK ) );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', self::SCREEN_ALIAS_CALLBACK ) );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', self::SCREEN_RESTORE_CALLBACK ) );
 		$this->assertFalse( has_action( 'admin_print_scripts', self::INITIAL_STATE_CALLBACK ) );
 	}
 
@@ -282,8 +292,37 @@ class Admin_Modernization_Gating_Test extends TestCase {
 
 		Jetpack_Backup::maybe_load_wp_build();
 
-		$this->assertNotFalse( has_action( 'current_screen', self::SCREEN_ALIAS_CALLBACK ) );
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', self::SCREEN_ALIAS_CALLBACK ) );
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', self::SCREEN_RESTORE_CALLBACK ) );
+		$this->assertFalse( has_action( 'current_screen', self::SCREEN_ALIAS_CALLBACK ) );
 		$this->assertNotFalse( has_action( 'admin_print_scripts', self::INITIAL_STATE_CALLBACK ) );
+	}
+
+	public function test_screen_id_is_restored_after_admin_enqueue_scripts() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+		$this->enter_backup_admin_request();
+
+		Jetpack_Backup::maybe_load_wp_build();
+		do_action( 'current_screen', get_current_screen() );
+		do_action( 'admin_enqueue_scripts', self::SCREEN_ID );
+
+		$this->assertSame( self::SCREEN_ID, get_current_screen()->id );
+	}
+
+	public function test_alias_screen_id_round_trip() {
+		unset( $GLOBALS['current_screen'] );
+		Jetpack_Backup::alias_screen_id_for_wp_build();
+		Jetpack_Backup::restore_screen_id_after_wp_build();
+
+		set_current_screen( self::SCREEN_ID );
+		Jetpack_Backup::restore_screen_id_after_wp_build();
+		$this->assertSame( self::SCREEN_ID, get_current_screen()->id, 'A restore with no alias to undo must leave the screen alone.' );
+
+		Jetpack_Backup::alias_screen_id_for_wp_build();
+		$this->assertSame( 'jetpack-backup-dashboard', get_current_screen()->id );
+
+		Jetpack_Backup::restore_screen_id_after_wp_build();
+		$this->assertSame( self::SCREEN_ID, get_current_screen()->id );
 	}
 
 	public function test_render_connection_initial_state_emits_the_connection_global() {
@@ -323,13 +362,14 @@ class Admin_Modernization_Gating_Test extends TestCase {
 
 	/** `is_backup_admin_request()` reads `is_admin()` and `$_GET['page']`. */
 	private function enter_backup_admin_request() {
-		set_current_screen( 'jetpack_page_jetpack-backup' );
+		set_current_screen( self::SCREEN_ID );
 		$_GET['page'] = Jetpack_Backup::JETPACK_BACKUP_SLUG;
 	}
 
 	/** Undo `enter_backup_admin_request()` and the hooks a successful load adds. */
 	private function leave_backup_admin_request() {
-		remove_action( 'current_screen', self::SCREEN_ALIAS_CALLBACK );
+		remove_action( 'admin_enqueue_scripts', self::SCREEN_ALIAS_CALLBACK );
+		remove_action( 'admin_enqueue_scripts', self::SCREEN_RESTORE_CALLBACK );
 		remove_action( 'admin_print_scripts', self::INITIAL_STATE_CALLBACK, 1 );
 
 		unset( $_GET['page'] );

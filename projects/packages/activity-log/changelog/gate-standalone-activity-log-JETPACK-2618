@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Only wire up the admin page and REST routes while the activity-log module is active.

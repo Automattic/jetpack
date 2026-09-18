@@ -2503,21 +2503,28 @@ class Jetpack {
 	/**
 	 * Return module name translation. Uses matching string created in modules/module-headings.php.
 	 *
+	 * The module list is globbed from `modules/` at runtime, so a module can be listed with no
+	 * entry in that generated file. Fall back to the untranslated header rather than overwriting
+	 * it with the null `jetpack_get_module_i18n()` returns for an unknown slug.
+	 *
 	 * @since 3.9.2
 	 *
 	 * @param array $modules Array of Jetpack modules.
 	 *
-	 * @return string|void
+	 * @return array
 	 */
 	public static function get_translated_modules( $modules ) {
 		foreach ( $modules as $index => $module ) {
 			$i18n_module = jetpack_get_module_i18n( $module['module'] );
-			if ( isset( $module['name'] ) ) {
-				$modules[ $index ]['name'] = $i18n_module['name'];
+			$name        = $i18n_module['name'] ?? null;
+			$description = $i18n_module['description'] ?? null;
+
+			if ( null !== $name && isset( $module['name'] ) ) {
+				$modules[ $index ]['name'] = $name;
 			}
-			if ( isset( $module['description'] ) ) {
-				$modules[ $index ]['description']       = $i18n_module['description'];
-				$modules[ $index ]['short_description'] = $i18n_module['description'];
+			if ( null !== $description && isset( $module['description'] ) ) {
+				$modules[ $index ]['description']       = $description;
+				$modules[ $index ]['short_description'] = $description;
 			}
 			if ( isset( $module['module_tags'] ) ) {
 				$modules[ $index ]['module_tags'] = array_map( 'jetpack_get_module_i18n_tag', $module['module_tags'] );

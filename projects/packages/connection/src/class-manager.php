@@ -45,7 +45,7 @@ class Manager {
 	 * `RE_EVALUATE` is the race: the gate said false, and by the time the state was classified the
 	 * owner matched after all. It is not a problem to report, it is an instruction to ask again.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.4.0
 	 */
 	const PO_STATE_NOT_ELIGIBLE               = 'NOT_ELIGIBLE';
 	const PO_STATE_NEEDS_CONNECT_TO_ESTABLISH = 'NEEDS_CONNECT_TO_ESTABLISH';
@@ -1410,7 +1410,7 @@ class Manager {
 	 * whoever holds the anchored ID, so it cannot be confused by a second user carrying the same
 	 * meta, and never costs a network call. It is a hint for copy, not a gate.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.4.0
 	 *
 	 * @return array{status: string, is_current_user_the_po: bool}
 	 */
