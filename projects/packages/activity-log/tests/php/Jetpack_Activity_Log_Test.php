@@ -83,6 +83,7 @@ class Jetpack_Activity_Log_Test extends TestCase {
 	private function leave_activity_log_admin_request() {
 		remove_action( 'admin_enqueue_scripts', array( Jetpack_Activity_Log::class, 'alias_screen_id_for_wp_build' ) );
 		remove_action( 'admin_enqueue_scripts', array( Jetpack_Activity_Log::class, 'restore_screen_id_after_wp_build' ) );
+		remove_filter( 'jetpack_display_jitms_on_screen', array( Jetpack_Activity_Log::class, 'hide_jitms_on_wp_build_dashboard' ) );
 		remove_all_actions( 'load-jetpack_page_jetpack-activity-log' );
 
 		$menu_items = new \ReflectionProperty( Admin_Menu::class, 'menu_items' );
@@ -245,5 +246,19 @@ class Jetpack_Activity_Log_Test extends TestCase {
 
 		Jetpack_Activity_Log::restore_screen_id_after_wp_build();
 		$this->assertSame( 'jetpack_page_jetpack-activity-log', get_current_screen()->id );
+	}
+
+	/**
+	 * The dashboard opts the screen it registered out of JITMs, and no other.
+	 */
+	public function test_dashboard_opts_its_screen_out_of_jitms() {
+		$this->enter_activity_log_admin_request();
+
+		$page_suffix = Jetpack_Activity_Log::add_wp_admin_submenu();
+
+		$this->assertSame( 'jetpack_page_jetpack-activity-log', $page_suffix );
+		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', true, $page_suffix ) );
+		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-social' ) );
+		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', false, 'jetpack_page_jetpack-social' ) );
 	}
 }

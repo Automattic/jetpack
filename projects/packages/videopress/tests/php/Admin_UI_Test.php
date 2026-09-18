@@ -28,6 +28,8 @@ class Admin_UI_Test extends BaseTestCase {
 		remove_action( 'admin_menu', array( Admin_UI::class, 'enable_menu' ), 1 );
 		remove_action( 'admin_enqueue_scripts', array( Admin_UI::class, 'alias_screen_id_for_wp_build' ) );
 		remove_action( 'admin_enqueue_scripts', array( Admin_UI::class, 'restore_screen_id_after_wp_build' ) );
+		remove_filter( 'jetpack_display_jitms_on_screen', array( Admin_UI::class, 'hide_jitms_on_wp_build_dashboard' ) );
+		remove_all_actions( 'load-jetpack_page_' . Admin_UI::ADMIN_PAGE_SLUG );
 		unset( $_GET['page'], $GLOBALS['current_screen'] );
 		$this->set_admin_menu_items( array() );
 		\Jetpack_Options::delete_option( 'id' );
@@ -296,5 +298,43 @@ class Admin_UI_Test extends BaseTestCase {
 
 		Admin_UI::restore_screen_id_after_wp_build();
 		$this->assertSame( 'jetpack_page_jetpack-videopress', get_current_screen()->id );
+	}
+
+	/**
+	 * The Simple registration opts the screen add_submenu_page() returns out of JITMs, and no other.
+	 */
+	public function test_add_wp_admin_submenu_opts_its_screen_out_of_jitms() {
+		$this->mock_connected_user();
+		// Stands in for the Jetpack parent menu wpcom-admin-menu.php creates.
+		add_menu_page( 'Jetpack', 'Jetpack', 'manage_options', 'jetpack', '__return_null' );
+
+		Admin_UI::add_wp_admin_submenu();
+
+		$this->assertNotFalse( has_action( 'load-jetpack_page_jetpack-videopress', array( Admin_UI::class, 'admin_init' ) ) );
+		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-videopress' ) );
+		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-social' ) );
+		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', false, 'jetpack_page_jetpack-social' ) );
+	}
+
+	/**
+	 * Self-hosted, the wp-build dashboard opts out of JITMs and the legacy one, which renders `#jp-admin-notices`, keeps them.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_enable_menu_opts_out_of_jitms_only_for_the_wp_build_dashboard() {
+		require_once __DIR__ . '/mocks/class-jetpack-videopress-plugin.php';
+
+		Admin_UI::enable_menu();
+		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-videopress' ) );
+		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-social' ) );
+
+		remove_filter( 'jetpack_display_jitms_on_screen', array( Admin_UI::class, 'hide_jitms_on_wp_build_dashboard' ) );
+		add_filter( Admin_UI::MODERNIZATION_FILTER, '__return_false' );
+
+		Admin_UI::enable_menu();
+		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-videopress' ) );
 	}
 }

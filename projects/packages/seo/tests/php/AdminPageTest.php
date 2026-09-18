@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\SEO;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -15,6 +16,26 @@ use PHPUnit\Framework\TestCase;
  */
 #[CoversClass( Admin_Page::class )]
 class AdminPageTest extends TestCase {
+
+	/**
+	 * Undo what maybe_load_wp_build() and add_menu_item() register.
+	 */
+	protected function tearDown(): void {
+		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'alias_screen_id_for_wp_build' ) );
+		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'restore_screen_id_after_wp_build' ) );
+		remove_filter( 'jetpack_admin_js_script_data', array( Admin_Page::class, 'inject_script_data' ) );
+		remove_filter( 'jetpack_display_jitms_on_screen', array( Admin_Page::class, 'hide_jitms_on_wp_build_dashboard' ) );
+		unset( $_GET['page'], $GLOBALS['current_screen'] );
+
+		$menu_items = new \ReflectionProperty( Admin_Menu::class, 'menu_items' );
+		if ( \PHP_VERSION_ID < 80100 ) {
+			// Required to access non-public members before PHP 8.1; deprecated no-op since PHP 8.5.
+			$menu_items->setAccessible( true );
+		}
+		$menu_items->setValue( null, array() );
+
+		parent::tearDown();
+	}
 
 	/**
 	 * The page's URL-facing slug is pinned: it's baked into redirect URLs
@@ -148,5 +169,68 @@ class AdminPageTest extends TestCase {
 		} finally {
 			$this->reset_wpcom_site();
 		}
+	}
+
+	/**
+	 * The alias and its restore bracket the generated enqueue check, at its priority.
+	 */
+	public function test_maybe_load_wp_build_hooks_the_screen_alias_around_the_generated_check() {
+		$this->enter_seo_admin_request();
+
+		Admin_Page::maybe_load_wp_build();
+
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'alias_screen_id_for_wp_build' ) ) );
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'restore_screen_id_after_wp_build' ) ) );
+		$this->assertFalse( has_action( 'current_screen', array( Admin_Page::class, 'alias_screen_id_for_wp_build' ) ) );
+	}
+
+	/**
+	 * JITM reads the screen ID after `admin_enqueue_scripts`, to build its message path.
+	 */
+	public function test_screen_id_is_restored_after_admin_enqueue_scripts() {
+		$this->enter_seo_admin_request();
+
+		Admin_Page::maybe_load_wp_build();
+		do_action( 'admin_enqueue_scripts', 'jetpack_page_jetpack-seo' );
+
+		$this->assertSame( 'jetpack_page_jetpack-seo', get_current_screen()->id );
+	}
+
+	/**
+	 * The alias and its restore pair up, and do nothing without a screen or an alias to undo.
+	 */
+	public function test_alias_screen_id_round_trip() {
+		unset( $GLOBALS['current_screen'] );
+		Admin_Page::alias_screen_id_for_wp_build();
+		Admin_Page::restore_screen_id_after_wp_build();
+
+		set_current_screen( 'jetpack_page_jetpack-seo' );
+		Admin_Page::restore_screen_id_after_wp_build();
+		$this->assertSame( 'jetpack_page_jetpack-seo', get_current_screen()->id );
+
+		Admin_Page::alias_screen_id_for_wp_build();
+		$this->assertSame( Admin_Page::WP_BUILD_SLUG, get_current_screen()->id );
+
+		Admin_Page::restore_screen_id_after_wp_build();
+		$this->assertSame( 'jetpack_page_jetpack-seo', get_current_screen()->id );
+	}
+
+	/**
+	 * The dashboard opts the screen Admin_Menu registers out of JITMs, and no other.
+	 */
+	public function test_dashboard_opts_its_screen_out_of_jitms() {
+		Admin_Page::add_menu_item();
+
+		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-seo' ) );
+		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-social' ) );
+		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', false, 'jetpack_page_jetpack-social' ) );
+	}
+
+	/**
+	 * Put the request on the SEO admin page.
+	 */
+	private function enter_seo_admin_request() {
+		set_current_screen( 'jetpack_page_jetpack-seo' );
+		$_GET['page'] = Admin_Page::MENU_SLUG;
 	}
 }

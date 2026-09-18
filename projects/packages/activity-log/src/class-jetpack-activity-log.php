@@ -104,6 +104,13 @@ class Jetpack_Activity_Log {
 	private static $wp_build_original_screen_id = null;
 
 	/**
+	 * The dashboard screen hide_jitms_on_wp_build_dashboard() opts out of JITMs.
+	 *
+	 * @var string|null
+	 */
+	private static $jitm_opt_out_screen_id = null;
+
+	/**
 	 * Entry point. Idempotent: safe to call from multiple bootstraps.
 	 *
 	 * Bootstraps only while the `activity-log` module is on, so the toggle
@@ -241,6 +248,7 @@ class Jetpack_Activity_Log {
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+			self::opt_out_of_jitms( $page_suffix );
 		}
 
 		return $page_suffix;
@@ -366,6 +374,36 @@ class Jetpack_Activity_Log {
 
 		$screen->id                        = self::$wp_build_original_screen_id;
 		self::$wp_build_original_screen_id = null;
+	}
+
+	/**
+	 * Opt the dashboard's screen out of JITMs.
+	 *
+	 * @param string $screen_id The hook suffix the page was registered under, which is its screen ID.
+	 * @return void
+	 */
+	private static function opt_out_of_jitms( $screen_id ) {
+		self::$jitm_opt_out_screen_id = $screen_id;
+		add_filter( 'jetpack_display_jitms_on_screen', array( __CLASS__, 'hide_jitms_on_wp_build_dashboard' ), 10, 2 );
+	}
+
+	/**
+	 * Keep JITMs off the wp-build dashboard, which has no `#jp-admin-notices` to show them in.
+	 *
+	 * Fetching a JITM records a view, so one the page hides would still be counted.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool   $show      Whether to show JITMs on the screen.
+	 * @param string $screen_id The screen ID.
+	 * @return bool
+	 */
+	public static function hide_jitms_on_wp_build_dashboard( $show, $screen_id ) {
+		if ( null !== self::$jitm_opt_out_screen_id && self::$jitm_opt_out_screen_id === $screen_id ) {
+			return false;
+		}
+
+		return $show;
 	}
 
 	/**

@@ -37,6 +37,11 @@ class Admin_Page_Test extends BaseTestCase {
 	protected function tearDown(): void {
 		Constants::clear_constants();
 		remove_all_actions( 'load-jetpack_page_' . Admin_Page::ADMIN_PAGE_SLUG );
+		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'alias_screen_id_for_wp_build' ) );
+		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'restore_screen_id_after_wp_build' ) );
+		remove_filter( 'jetpack_admin_js_script_data', array( Admin_Page::class, 'inject_podcast_script_data' ) );
+		remove_filter( 'jetpack_display_jitms_on_screen', array( Admin_Page::class, 'hide_jitms_on_wp_build_dashboard' ) );
+		unset( $_GET['page'], $GLOBALS['current_screen'] );
 		unset( $GLOBALS['menu'], $GLOBALS['submenu'] );
 		( new Connection_Manager() )->reset_connection_status();
 		WorDBless_Options::init()->clear_options();
@@ -224,5 +229,91 @@ class Admin_Page_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( 789, $data['site']['wpcom']['blog_id'] );
+	}
+
+	/**
+	 * The alias and its restore bracket the generated enqueue check, at its priority.
+	 */
+	public function test_maybe_load_wp_build_hooks_the_screen_alias_around_the_generated_check() {
+		$this->enter_podcast_admin_request();
+
+		Admin_Page::maybe_load_wp_build();
+
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'alias_screen_id_for_wp_build' ) ) );
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'restore_screen_id_after_wp_build' ) ) );
+		$this->assertFalse( has_action( 'current_screen', array( Admin_Page::class, 'alias_screen_id_for_wp_build' ) ) );
+	}
+
+	/**
+	 * JITM reads the screen ID after `admin_enqueue_scripts`, to build its message path.
+	 */
+	public function test_screen_id_is_restored_after_admin_enqueue_scripts() {
+		$this->enter_podcast_admin_request();
+
+		Admin_Page::maybe_load_wp_build();
+		do_action( 'admin_enqueue_scripts', 'jetpack_page_jetpack-podcast' );
+
+		$this->assertSame( 'jetpack_page_jetpack-podcast', get_current_screen()->id );
+	}
+
+	/**
+	 * The alias and its restore pair up, and do nothing without a screen or an alias to undo.
+	 */
+	public function test_alias_screen_id_round_trip() {
+		unset( $GLOBALS['current_screen'] );
+		Admin_Page::alias_screen_id_for_wp_build();
+		Admin_Page::restore_screen_id_after_wp_build();
+
+		set_current_screen( 'jetpack_page_jetpack-podcast' );
+		Admin_Page::restore_screen_id_after_wp_build();
+		$this->assertSame( 'jetpack_page_jetpack-podcast', get_current_screen()->id );
+
+		Admin_Page::alias_screen_id_for_wp_build();
+		$this->assertSame( Admin_Page::WP_BUILD_SLUG, get_current_screen()->id );
+
+		Admin_Page::restore_screen_id_after_wp_build();
+		$this->assertSame( 'jetpack_page_jetpack-podcast', get_current_screen()->id );
+	}
+
+	/**
+	 * Self-hosted, the dashboard opts the screen Admin_Menu registers out of JITMs, and no other.
+	 */
+	public function test_dashboard_opts_its_screen_out_of_jitms_on_self_hosted() {
+		Admin_Page::add_wp_admin_submenu();
+
+		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-podcast' ) );
+		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-social' ) );
+		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', false, 'jetpack_page_jetpack-social' ) );
+	}
+
+	/**
+	 * WPCOM, the dashboard opts the screen add_submenu_page() returns out of JITMs.
+	 */
+	public function test_dashboard_opts_its_screen_out_of_jitms_on_wpcom() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'podcast_admin_' . wp_rand( 1, PHP_INT_MAX ),
+					'user_pass'  => 'password',
+					'role'       => 'administrator',
+				)
+			)
+		);
+		add_menu_page( 'Jetpack', 'Jetpack', 'manage_options', 'jetpack', '__return_null' );
+
+		Admin_Page::add_wp_admin_submenu();
+
+		$this->assertNotFalse( has_action( 'load-jetpack_page_jetpack-podcast', array( Admin_Page::class, 'admin_init' ) ) );
+		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-podcast' ) );
+		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-social' ) );
+	}
+
+	/**
+	 * Put the request on the Podcast admin page.
+	 */
+	private function enter_podcast_admin_request(): void {
+		set_current_screen( 'jetpack_page_jetpack-podcast' );
+		$_GET['page'] = Admin_Page::ADMIN_PAGE_SLUG;
 	}
 }
