@@ -85,8 +85,7 @@ export const NoAuthorScope: Story = {
 };
 
 interface AuthorTopPostsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		AuthorTopPostsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, AuthorTopPostsStoryControls {}
 
 function AuthorTopPostsDashboardStory( {
 	hasAuthorScope,

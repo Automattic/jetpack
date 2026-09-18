@@ -53,7 +53,7 @@ export default function useAuthorTopPosts(
 		const maxValue = Math.max( ...posts.map( post => post.views ), 0 );
 
 		return posts.map( ( post, index ) => ( {
-			id: post.id != null ? String( post.id ) : post.link ?? `post-${ index }`,
+			id: post.id != null ? String( post.id ) : ( post.link ?? `post-${ index }` ),
 			postId: post.id ?? undefined,
 			title: String( post.label ?? '' ),
 			link: post.link ?? null,

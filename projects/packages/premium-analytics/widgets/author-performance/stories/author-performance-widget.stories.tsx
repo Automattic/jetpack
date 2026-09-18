@@ -107,8 +107,7 @@ export const NoAuthorScope: Story = {
 };
 
 interface AuthorPerformanceDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		AuthorPerformanceStoryControls {}
+	extends WidgetDashboardWithWidgetControls, AuthorPerformanceStoryControls {}
 
 function AuthorPerformanceDashboardStory( {
 	hasAuthorScope,

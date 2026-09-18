@@ -52,7 +52,14 @@ function AuthorTopPostsInner() {
 		() =>
 			rows.map( row => ( {
 				id: row.id,
-				label: <LeaderboardPostLabel id={ row.postId } label={ row.title } link={ row.link } />,
+				label: (
+					<LeaderboardPostLabel
+						id={ row.postId }
+						label={ row.title }
+						link={ row.link }
+						origin={ { report: 'authors' } }
+					/>
+				),
 				currentValue: row.views,
 				currentShare: row.share,
 			} ) ),
@@ -83,14 +90,14 @@ function AuthorTopPostsInner() {
 										'Open an author to see their top posts here.',
 										'jetpack-premium-analytics-pkg'
 									),
-							  }
+								}
 							: {
 									icon: postList,
 									description: __(
 										'No views recorded for this author’s posts in this period.',
 										'jetpack-premium-analytics-pkg'
 									),
-							  }
+								}
 					}
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>

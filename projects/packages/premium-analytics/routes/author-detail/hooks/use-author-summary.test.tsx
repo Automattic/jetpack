@@ -39,13 +39,13 @@ function mockQueries(
 					isSuccess: true,
 					refetch,
 					...summary,
-			  }
+				}
 			: {
 					data: { postCount: 4, firstPublishedDate: '2023-07-04T10:00:00' },
 					isLoading: false,
 					isError: false,
 					...posts,
-			  }
+				}
 	);
 }
 
