@@ -1,10 +1,18 @@
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import userEvent from '@testing-library/user-event';
+import { createReduxStore, register } from '@wordpress/data';
 import { render, screen } from 'test/test-utils';
 import SupportInfo from '../index';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isWpcomPlatformSite: jest.fn().mockReturnValue( false ),
+} ) );
+
+// Stand-in for the Help Center store that `WpcomSupportLink` dispatches to on WordPress.com.
+const setShowSupportDoc = jest.fn( ( link, postId ) => ( {
+	type: 'SHOW_SUPPORT_DOC',
+	link,
+	postId,
 } ) );
 
 describe( 'SupportInfo', () => {
@@ -63,6 +71,21 @@ describe( 'SupportInfo', () => {
 			expect(
 				screen.queryByRole( 'link', { name: /Privacy information/ } )
 			).not.toBeInTheDocument();
+		} );
+
+		it( 'should open the WordPress.com doc in the Help Center when its store is available', async () => {
+			isWpcomPlatformSite.mockReturnValue( true );
+			register(
+				createReduxStore( 'automattic/help-center', {
+					reducer: ( state = {} ) => state,
+					actions: { setShowSupportDoc },
+				} )
+			);
+			const user = userEvent.setup();
+			render( <SupportInfo { ...wpcomProps } wpcomPostId={ 123 } /> );
+			await user.click( screen.getByRole( 'button', { name: 'Learn more' } ) );
+			await user.click( screen.getByRole( 'link', { name: 'Learn more' } ) );
+			expect( setShowSupportDoc ).toHaveBeenCalledWith( 'https://wordpress.com/support/foo/', 123 );
 		} );
 	} );
 } );
