@@ -48,6 +48,16 @@ class Rewind_State_Cache {
 	const RETRY_INTERVAL = 5 * MINUTE_IN_SECONDS;
 
 	/**
+	 * WordPress.com's name for Backup in a site's feature list.
+	 *
+	 * Matches `My_Jetpack\Products\Backup::$feature_identifying_paid_plan`, which is
+	 * what My Jetpack itself reads.
+	 *
+	 * @var string
+	 */
+	const SITE_FEATURE = 'backups';
+
+	/**
 	 * Whether the site is entitled to Backup, answering an unread site as not entitled.
 	 *
 	 * Serves the stored answer and refreshes after the response, so no admin page
@@ -89,6 +99,61 @@ class Rewind_State_Cache {
 		self::store( $stored, (bool) $state );
 
 		return (bool) $state;
+	}
+
+	/**
+	 * Re-read the entitlement when My Jetpack has seen Backup on a site we believe has none.
+	 *
+	 * Optimistic and one-directional: a plan's feature list and the rewind state answer
+	 * different questions, so this can prompt a re-read but never revoke on its own.
+	 * Acting only on a disagreement also keeps My Jetpack's 15-second cache from
+	 * queueing a read every time someone browses that page.
+	 *
+	 * @param array $features Site features, with 'active' and 'available' keys.
+	 * @return void
+	 */
+	public static function maybe_refresh_from_site_features( $features ) {
+		if ( ! is_array( $features ) || empty( $features['active'] ) || ! is_array( $features['active'] ) ) {
+			return;
+		}
+
+		if ( ! in_array( self::SITE_FEATURE, $features['active'], true ) ) {
+			return;
+		}
+
+		// Also queues its own refresh when nothing is stored yet, which is the whole job there.
+		if ( self::has_backup() ) {
+			return;
+		}
+
+		self::mark_stale();
+		self::queue_refresh( self::get_stored() );
+	}
+
+	/**
+	 * Drop the answer's freshness without dropping the answer.
+	 *
+	 * Deleting the entry instead would answer "no Backup" for the rest of the request and
+	 * take the menu item away mid-session, which is what the stored answer exists to prevent.
+	 *
+	 * @return void
+	 */
+	private static function mark_stale() {
+		$stored = self::get_stored();
+
+		if ( $stored === null ) {
+			return;
+		}
+
+		update_option(
+			self::OPTION,
+			array(
+				'has_backup'   => $stored['has_backup'],
+				'checked_at'   => 0,
+				'attempted_at' => 0,
+			),
+			false
+		);
 	}
 
 	/**

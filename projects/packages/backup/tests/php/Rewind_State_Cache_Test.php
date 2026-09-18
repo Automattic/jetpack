@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Backup\V0005;
 
 use Automattic\Jetpack\Backup\V0005\REST\Wpcom_Request_Mock;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -177,6 +178,92 @@ class Rewind_State_Cache_Test extends TestCase {
 
 		$this->assertCount( 1, $this->captured_urls );
 		$this->assertTrue( Rewind_State_Cache::has_backup() );
+	}
+
+	/**
+	 * My Jetpack seeing Backup on a site we think has none queues a re-read.
+	 *
+	 * The post-checkout case: most purchases land the buyer back on My Jetpack, which
+	 * reads the site's features there.
+	 */
+	public function test_site_features_queue_a_reread_when_they_disagree() {
+		$this->arrange_stored_answer( false );
+		$this->arrange_wpcom( array( 'state' => 'active' ) );
+
+		Rewind_State_Cache::maybe_refresh_from_site_features( array( 'active' => array( 'backups' ) ) );
+
+		$this->assertTrue( $this->refresh_is_queued() );
+
+		do_action( 'shutdown' );
+
+		$this->assertTrue( Rewind_State_Cache::has_backup() );
+	}
+
+	/**
+	 * The stored answer survives until the re-read lands, so the menu does not flicker.
+	 */
+	public function test_site_features_do_not_drop_the_stored_answer() {
+		$this->arrange_stored_answer( true );
+
+		Rewind_State_Cache::maybe_refresh_from_site_features( array( 'active' => array( 'backups' ) ) );
+
+		$this->assertTrue( Rewind_State_Cache::has_backup() );
+	}
+
+	/**
+	 * Nothing to do when the two already agree — My Jetpack's 15-second cache would
+	 * otherwise queue a read on every page view.
+	 */
+	public function test_site_features_are_ignored_when_they_agree() {
+		$this->arrange_stored_answer( true );
+
+		Rewind_State_Cache::maybe_refresh_from_site_features( array( 'active' => array( 'backups' ) ) );
+
+		$this->assertFalse( $this->refresh_is_queued() );
+	}
+
+	/**
+	 * A feature list without Backup never revokes the entitlement.
+	 *
+	 * One-directional on purpose: only the rewind state decides that.
+	 */
+	public function test_site_features_never_revoke() {
+		$this->arrange_stored_answer( true );
+
+		Rewind_State_Cache::maybe_refresh_from_site_features( array( 'active' => array( 'scan', 'akismet' ) ) );
+
+		$this->assertTrue( Rewind_State_Cache::has_backup() );
+		$this->assertFalse( $this->refresh_is_queued() );
+	}
+
+	/**
+	 * A payload that is not a feature list is ignored rather than read as an answer.
+	 *
+	 * @param string $label   Human-readable case name.
+	 * @param mixed  $payload The unusable payload.
+	 * @dataProvider provide_unusable_feature_payloads
+	 */
+	#[DataProvider( 'provide_unusable_feature_payloads' )]
+	public function test_unusable_site_features_are_ignored( $label, $payload ) {
+		$this->arrange_stored_answer( false );
+
+		Rewind_State_Cache::maybe_refresh_from_site_features( $payload );
+
+		$this->assertFalse( $this->refresh_is_queued(), $label );
+	}
+
+	/**
+	 * Payloads the handler has to refuse.
+	 *
+	 * @return array<int, array{0: string, 1: mixed}>
+	 */
+	public static function provide_unusable_feature_payloads() {
+		return array(
+			array( 'not an array', 'backups' ),
+			array( 'no active key', array( 'available' => array( 'backups' ) ) ),
+			array( 'empty active list', array( 'active' => array() ) ),
+			array( 'active is not a list', array( 'active' => 'backups' ) ),
+		);
 	}
 
 	/**

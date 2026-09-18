@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a `my_jetpack_site_features_updated` action, fired when the site's features are read from WordPress.com.
