@@ -29,6 +29,18 @@ export const Plain = {
 };
 
 /**
+ * `restored` names the unit the figure leaves out, and keeps the tooltip on a
+ * figure that was never shortened.
+ */
+export const Labelled = {
+	args: {
+		value: 432,
+		dataFormat: { type: 'number', options: { useMultipliers: true } },
+		restored: '432 opens',
+	},
+};
+
+/**
  * The compact rule across magnitudes: full below 1,000, one decimal while the
  * mantissa has two digits, none from three.
  */

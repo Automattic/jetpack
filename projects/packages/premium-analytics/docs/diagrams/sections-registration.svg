@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" width="1000" height="300" role="img" aria-label="The package registers its five sections from bootstrap_dashboard_sections() at file scope, on init or at once when init has run; register() refuses an invalid dashboard name, an unnamespaced id and a duplicate id; a plugin calls register_dashboard_section() once the API file is loaded.">
+  <style>
+    text { font: 12px ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; fill: #1f2328; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; }
+    .title { font-weight: 600; }
+    .muted { fill: #57606a; }
+    .box { fill: #ffffff; stroke: #1f2328; stroke-width: 1.2; }
+    .box-accent { fill: #ddf4ff; stroke: #0969da; stroke-width: 1.4; }
+    .box-muted { fill: #f6f8fa; stroke: #8c959f; stroke-width: 1.2; stroke-dasharray: 4 3; }
+    .lane { fill: #f6f8fa; stroke: #d0d7de; stroke-width: 1; }
+    .edge { stroke: #1f2328; stroke-width: 1.3; fill: none; }
+    .edge-dashed { stroke-dasharray: 5 4; }
+    .arrowhead { fill: #1f2328; }
+    @media (prefers-color-scheme: dark) {
+      text { fill: #e6edf3; }
+      .muted { fill: #8b949e; }
+      .box { fill: #0d1117; stroke: #e6edf3; }
+      .box-accent { fill: #0c2d6b; stroke: #58a6ff; }
+      .box-muted { fill: #161b22; stroke: #6e7681; }
+      .lane { fill: #161b22; stroke: #30363d; }
+      .edge { stroke: #e6edf3; }
+      .arrowhead { fill: #e6edf3; }
+    }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path class="arrowhead" d="M 0 0 L 10 5 L 0 10 z"/>
+    </marker>
+  </defs>
+  <rect class="box" x="20" y="100" width="200" height="84" rx="4"/>
+  <text class="title" x="120" y="130" text-anchor="middle">default-dashboard-sections.php</text>
+  <text class="muted" x="120" y="146" text-anchor="middle">loaded by both entry points</text>
+  <text class="muted" x="120" y="162" text-anchor="middle">(see the loading paths)</text>
+  <rect class="box" x="250" y="100" width="230" height="84" rx="4"/>
+  <text class="title" x="365" y="130" text-anchor="middle">bootstrap_dashboard_sections()</text>
+  <text class="muted" x="365" y="146" text-anchor="middle">did init run? register now</text>
+  <text class="muted" x="365" y="162" text-anchor="middle">otherwise add_action( 'init', … )</text>
+  <rect class="box" x="510" y="100" width="240" height="84" rx="4"/>
+  <text class="title" x="630" y="130" text-anchor="middle">register_default_dashboard_sections()</text>
+  <text class="muted" x="630" y="146" text-anchor="middle">Traffic, Insights, Subscribers, Store, Ads</text>
+  <text class="muted" x="630" y="162" text-anchor="middle">each skipped when already registered</text>
+  <rect class="box" x="780" y="100" width="200" height="100" rx="4"/>
+  <text class="title" x="880" y="122" text-anchor="middle">register()</text>
+  <text class="muted" x="880" y="138" text-anchor="middle">dashboard name pattern</text>
+  <text class="muted" x="880" y="154" text-anchor="middle">id is namespaced</text>
+  <text class="muted" x="880" y="170" text-anchor="middle">id not registered</text>
+  <text class="muted" x="880" y="186" text-anchor="middle">else _doing_it_wrong(), false</text>
+  <rect class="box-muted" x="510" y="220" width="240" height="56" rx="4"/>
+  <text class="title" x="630" y="236" text-anchor="middle">a plugin</text>
+  <text class="mono" x="630" y="252" text-anchor="middle">register_dashboard_section( … )</text>
+  <text class="muted" x="630" y="268" text-anchor="middle">once the API file is loaded</text>
+  <polyline class="edge" points="220,142 250,142" marker-end="url(#arrow)"/>
+  <polyline class="edge" points="480,142 510,142" marker-end="url(#arrow)"/>
+  <polyline class="edge" points="750,142 780,142" marker-end="url(#arrow)"/>
+  <polyline class="edge" points="750,248 880,248 880,200" marker-end="url(#arrow)"/>
+</svg>

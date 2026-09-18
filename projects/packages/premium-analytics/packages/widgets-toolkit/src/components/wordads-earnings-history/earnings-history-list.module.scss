@@ -53,3 +53,8 @@
 	color: var(--wpds-color-foreground-content-neutral-weak);
 	text-align: end;
 }
+
+/* Negative amounts and unpaid periods. */
+.attention {
+	color: var(--wpds-color-foreground-content-error-weak);
+}

@@ -370,7 +370,7 @@ export const Waf = class extends Component {
 									'Upgrade to keep your site secure with up-to-date firewall rules',
 									'jetpack',
 									/* dummy arg to avoid bad minification */ 0
-							  ) }
+								) }
 						<InfoPopover
 							position="right"
 							screenReaderText={ __( 'Learn more', 'jetpack' ) }
@@ -380,12 +380,12 @@ export const Waf = class extends Component {
 								? __(
 										'The free version of the firewall only allows for use of manual rules.',
 										'jetpack'
-								  )
+									)
 								: __(
 										'The free version of the firewall does not receive updates to automatic firewall rules.',
 										'jetpack',
 										/* dummy arg to avoid bad minification */ 0
-								  ) }
+									) }
 						</InfoPopover>
 					</>
 				}

@@ -10,7 +10,9 @@ export {
 	HeatmapChart,
 	HeatmapChartUnresponsive,
 	buildCalendarHeatmapData,
+	buildMonthCalendarHeatmapData,
 	useCalendarHeatmapData,
+	useMonthCalendarHeatmapData,
 } from './charts/heatmap-chart';
 export { LeaderboardChart, LeaderboardChartUnresponsive } from './charts/leaderboard-chart';
 export { LineChart, LineChartUnresponsive } from './charts/line-chart';
@@ -112,10 +114,14 @@ export type {
 export type {
 	HeatmapChartProps,
 	HeatmapColumn,
+	HeatmapColumnGroup,
 	HeatmapCell,
 	HeatmapTooltipData,
 	CalendarHeatmapOptions,
 	CalendarHeatmapResult,
+	MonthCalendarHeatmapOptions,
+	MonthCalendarHeatmapRange,
+	MonthCalendarHeatmapResult,
 } from './charts/heatmap-chart';
 export type { LeaderboardChartProps } from './charts/leaderboard-chart';
 export type {

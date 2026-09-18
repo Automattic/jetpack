@@ -3,6 +3,8 @@ import { Snackbar } from '@wordpress/components';
 import { getUpgradeURL, useConnection } from '$lib/stores/connection';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { BoostPricingTable } from '$features/boost-pricing-table/boost-pricing-table';
+import { detectMode } from '$lib/modern/mode';
+import LicenseKeyLink from '$features/upgrade-cta/license-key-link';
 import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
 import styles from './getting-started.module.scss';
 import { useGettingStarted } from '$lib/stores/getting-started';
@@ -80,7 +82,7 @@ const GettingStarted: FC = () => {
 	}
 
 	return (
-		<BoostAdminPage>
+		<BoostAdminPage showActivateLicense={ detectMode() !== 'modern' }>
 			<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
 				<div className="jb-section jb-section--alt">
 					<div className="jb-container">
@@ -91,6 +93,7 @@ const GettingStarted: FC = () => {
 								chosenFreePlan={ selectedPlan === 'free' }
 								chosenPaidPlan={ selectedPlan === 'premium' }
 							/>
+							<LicenseKeyLink className={ styles[ 'license-key-link' ] } />
 							{ snackbarMessage !== '' && (
 								<Snackbar
 									children={ snackbarMessage }

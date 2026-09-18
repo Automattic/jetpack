@@ -85,7 +85,7 @@ function PostLikesInner() {
 							? __(
 									'Open a post or page report to see its likes here.',
 									'jetpack-premium-analytics-pkg'
-							  )
+								)
 							: __( 'There are no likes yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>

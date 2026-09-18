@@ -42,7 +42,6 @@ const renderCard = props => (
 			link: getRedirectUrl( 'jetpack-support-search' ),
 		} }
 		className={ props.className }
-		status={ props.status }
 		isModule={ props.pro_inactive }
 		pro={ true }
 		overrideContent={ props.overrideContent }
@@ -101,7 +100,6 @@ class DashSearch extends Component {
 	render() {
 		if ( this.props.isFetching ) {
 			return renderCard( {
-				status: '',
 				content: __( 'Loading…', 'jetpack' ),
 			} );
 		}
@@ -109,7 +107,6 @@ class DashSearch extends Component {
 		if ( this.props.isOfflineMode ) {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
-				status: 'no-pro-uninstalled-or-inactive',
 				pro_inactive: true,
 				content: __( 'Unavailable in Offline Mode', 'jetpack' ),
 			} );
@@ -118,7 +115,6 @@ class DashSearch extends Component {
 		if ( ! this.props.hasClassicSearch && ! this.props.hasInstantSearch ) {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
-				status: 'no-pro-uninstalled-or-inactive',
 				pro_inactive: true,
 				overrideContent: (
 					<JetpackBanner

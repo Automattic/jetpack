@@ -99,7 +99,7 @@ Deleting from the admin page does not edit your posts. Instead:
 - The admin page lists those posts after the delete, with edit links.
 - Opening one of those posts in the editor shows a warning on the block. Updating the post creates a new link with a new URL and QR code; remove the block instead if you no longer sell that product.
 
-Removing the last block that uses a link and updating the post also deletes the link on PayPal. If another published post still embeds it, the link is kept.
+Removing a block does not delete its payment link. The same link can be used by blocks on other posts, by an email, or by a printed QR code, so the link stays on PayPal and keeps working. Delete it from the block or the PayPal Payment Links admin page when you are finished with it.
 
 ### Legacy Buttons
 

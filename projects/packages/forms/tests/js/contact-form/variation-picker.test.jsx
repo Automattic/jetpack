@@ -124,9 +124,8 @@ await jest.unstable_mockModule( '../../../src/blocks/shared/util/constants.js', 
 	FORM_POST_TYPE: 'jetpack_form',
 } ) );
 
-const { default: VariationPicker } = await import(
-	'../../../src/blocks/contact-form/variation-picker.jsx'
-);
+const { default: VariationPicker } =
+	await import( '../../../src/blocks/contact-form/variation-picker.jsx' );
 
 const renderPicker = () =>
 	render(

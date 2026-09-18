@@ -39,8 +39,7 @@ interface OrdersOverTimeStoryControls {
 type OrdersOverTimeStoryProps = OrdersOverTimeWidgetProps & OrdersOverTimeStoryControls;
 
 interface OrdersOverTimeDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		OrdersOverTimeStoryControls {}
+	extends WidgetDashboardWithWidgetControls, OrdersOverTimeStoryControls {}
 
 function getOrdersOverTimeAttributes(
 	withComparison = false,
