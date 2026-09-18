@@ -1,5 +1,5 @@
 import { getSiteAdminUrl } from 'state/initial-state';
-import { productDescriptionRoutes, myJetpackRoutes } from './constants';
+import { myJetpackRoutes } from './constants';
 
 /**
  * This affects search "Upgrade" buttons, and changes them into "Start for free".
@@ -23,21 +23,18 @@ export const isSearchNewPricingLaunched202208 = () =>
  * @return {string} URL for a product or the .
  */
 export const getProductDescriptionUrl = ( state, productKey ) => {
-	const baseUrl = `${ getSiteAdminUrl( state ) }admin.php?page=jetpack#`;
-	const myJetpackUrl = `${ getSiteAdminUrl( state ) }admin.php?page=my-jetpack#`;
+	const adminUrl = getSiteAdminUrl( state );
 
 	// TODO: remove the && condition on Search new pricing launch.
 	if ( productKey === 'search' ) {
-		return `${ getSiteAdminUrl( state ) }admin.php?page=jetpack-search`;
+		return `${ adminUrl }admin.php?page=jetpack-search`;
 	}
+
+	const myJetpackUrl = `${ adminUrl }admin.php?page=my-jetpack`;
 
 	if ( myJetpackRoutes.includes( `/add-${ productKey }` ) ) {
-		return `${ myJetpackUrl }/add-${ productKey }`;
+		return `${ myJetpackUrl }#/add-${ productKey }`;
 	}
 
-	if ( productDescriptionRoutes.includes( `/product/${ productKey }` ) ) {
-		return `${ baseUrl }/product/${ productKey }`;
-	}
-
-	return `${ baseUrl }/dashboard`;
+	return myJetpackUrl;
 };
