@@ -170,9 +170,6 @@ class Social_Admin_Page_Test extends BaseTestCase {
 		Social_Admin_Page::init()->admin_init();
 	}
 
-	/**
-	 * The alias and its restore bracket the generated enqueue check, at its priority.
-	 */
 	public function test_maybe_load_wp_build_hooks_the_screen_alias_around_the_generated_check() {
 		set_current_screen( 'jetpack_page_jetpack-social' );
 		$_GET['page'] = 'jetpack-social';
@@ -184,22 +181,17 @@ class Social_Admin_Page_Test extends BaseTestCase {
 		$this->assertFalse( has_action( 'current_screen', array( Social_Admin_Page::class, 'alias_screen_id_for_wp_build' ) ) );
 	}
 
-	/**
-	 * JITM reads the screen ID after `admin_enqueue_scripts`, to build its message path.
-	 */
 	public function test_screen_id_is_restored_after_admin_enqueue_scripts() {
 		set_current_screen( 'jetpack_page_jetpack-social' );
 		$_GET['page'] = 'jetpack-social';
 
 		Social_Admin_Page::maybe_load_wp_build();
+		do_action( 'current_screen', get_current_screen() );
 		do_action( 'admin_enqueue_scripts', 'jetpack_page_jetpack-social' );
 
 		$this->assertSame( 'jetpack_page_jetpack-social', get_current_screen()->id );
 	}
 
-	/**
-	 * The alias and its restore pair up, and do nothing without a screen or an alias to undo.
-	 */
 	public function test_alias_screen_id_round_trip() {
 		unset( $GLOBALS['current_screen'] );
 		Social_Admin_Page::alias_screen_id_for_wp_build();

@@ -530,9 +530,6 @@ class Settings_Test extends BaseTestCase {
 		);
 	}
 
-	/**
-	 * The alias and its restore bracket the generated enqueue check, at its priority.
-	 */
 	public function test_maybe_load_wp_build_hooks_the_screen_alias_around_the_generated_check() {
 		$this->enter_newsletter_admin_request();
 
@@ -543,21 +540,16 @@ class Settings_Test extends BaseTestCase {
 		$this->assertFalse( has_action( 'current_screen', array( Settings::class, 'alias_screen_id_for_wp_build' ) ) );
 	}
 
-	/**
-	 * JITM reads the screen ID after `admin_enqueue_scripts`, to build its message path.
-	 */
 	public function test_screen_id_is_restored_after_admin_enqueue_scripts() {
 		$this->enter_newsletter_admin_request();
 
 		Settings::maybe_load_wp_build();
+		do_action( 'current_screen', get_current_screen() );
 		do_action( 'admin_enqueue_scripts', 'jetpack_page_jetpack-newsletter' );
 
 		$this->assertSame( 'jetpack_page_jetpack-newsletter', get_current_screen()->id );
 	}
 
-	/**
-	 * The alias and its restore pair up, and do nothing without a screen or an alias to undo.
-	 */
 	public function test_alias_screen_id_round_trip() {
 		$this->enter_newsletter_admin_request();
 		Settings::restore_screen_id_after_wp_build();
@@ -611,9 +603,6 @@ class Settings_Test extends BaseTestCase {
 		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-newsletter' ) );
 	}
 
-	/**
-	 * The legacy dashboard renders `#jp-admin-notices`, so it keeps its JITMs.
-	 */
 	public function test_legacy_dashboard_keeps_jitms() {
 		$this->connect_site_with_subscriptions();
 		add_filter( Settings::MODERNIZATION_FILTER, '__return_false' );

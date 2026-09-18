@@ -303,6 +303,7 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->enter_backup_admin_request();
 
 		Jetpack_Backup::maybe_load_wp_build();
+		do_action( 'current_screen', get_current_screen() );
 		do_action( 'admin_enqueue_scripts', self::SCREEN_ID );
 
 		$this->assertSame( self::SCREEN_ID, get_current_screen()->id );

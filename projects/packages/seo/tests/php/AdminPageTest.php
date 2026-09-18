@@ -171,9 +171,6 @@ class AdminPageTest extends TestCase {
 		}
 	}
 
-	/**
-	 * The alias and its restore bracket the generated enqueue check, at its priority.
-	 */
 	public function test_maybe_load_wp_build_hooks_the_screen_alias_around_the_generated_check() {
 		$this->enter_seo_admin_request();
 
@@ -184,21 +181,16 @@ class AdminPageTest extends TestCase {
 		$this->assertFalse( has_action( 'current_screen', array( Admin_Page::class, 'alias_screen_id_for_wp_build' ) ) );
 	}
 
-	/**
-	 * JITM reads the screen ID after `admin_enqueue_scripts`, to build its message path.
-	 */
 	public function test_screen_id_is_restored_after_admin_enqueue_scripts() {
 		$this->enter_seo_admin_request();
 
 		Admin_Page::maybe_load_wp_build();
+		do_action( 'current_screen', get_current_screen() );
 		do_action( 'admin_enqueue_scripts', 'jetpack_page_jetpack-seo' );
 
 		$this->assertSame( 'jetpack_page_jetpack-seo', get_current_screen()->id );
 	}
 
-	/**
-	 * The alias and its restore pair up, and do nothing without a screen or an alias to undo.
-	 */
 	public function test_alias_screen_id_round_trip() {
 		unset( $GLOBALS['current_screen'] );
 		Admin_Page::alias_screen_id_for_wp_build();

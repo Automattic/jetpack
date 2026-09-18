@@ -217,21 +217,16 @@ class Jetpack_Activity_Log_Test extends TestCase {
 		$this->assertFalse( has_action( 'current_screen', array( Jetpack_Activity_Log::class, 'alias_screen_id_for_wp_build' ) ) );
 	}
 
-	/**
-	 * JITM reads the screen ID after `admin_enqueue_scripts`, to build its message path.
-	 */
 	public function test_screen_id_is_restored_after_admin_enqueue_scripts() {
 		$this->enter_activity_log_admin_request();
 
 		Jetpack_Activity_Log::add_wp_admin_submenu();
+		do_action( 'current_screen', get_current_screen() );
 		do_action( 'admin_enqueue_scripts', 'jetpack_page_jetpack-activity-log' );
 
 		$this->assertSame( 'jetpack_page_jetpack-activity-log', get_current_screen()->id );
 	}
 
-	/**
-	 * The alias and its restore pair up, and do nothing without a screen or an alias to undo.
-	 */
 	public function test_alias_screen_id_round_trip() {
 		unset( $GLOBALS['current_screen'] );
 		Jetpack_Activity_Log::alias_screen_id_for_wp_build();

@@ -254,9 +254,6 @@ class Admin_UI_Test extends BaseTestCase {
 		$this->assertSame( array(), $this->get_admin_menu_items() );
 	}
 
-	/**
-	 * The alias and its restore bracket the generated enqueue check, at its priority.
-	 */
 	public function test_maybe_load_wp_build_hooks_the_screen_alias_around_the_generated_check() {
 		set_current_screen( 'jetpack_page_jetpack-videopress' );
 		$_GET['page'] = Admin_UI::ADMIN_PAGE_SLUG;
@@ -268,22 +265,17 @@ class Admin_UI_Test extends BaseTestCase {
 		$this->assertFalse( has_action( 'current_screen', array( Admin_UI::class, 'alias_screen_id_for_wp_build' ) ) );
 	}
 
-	/**
-	 * JITM reads the screen ID after `admin_enqueue_scripts`, to build its message path.
-	 */
 	public function test_screen_id_is_restored_after_admin_enqueue_scripts() {
 		set_current_screen( 'jetpack_page_jetpack-videopress' );
 		$_GET['page'] = Admin_UI::ADMIN_PAGE_SLUG;
 
 		Admin_UI::maybe_load_wp_build();
+		do_action( 'current_screen', get_current_screen() );
 		do_action( 'admin_enqueue_scripts', 'jetpack_page_jetpack-videopress' );
 
 		$this->assertSame( 'jetpack_page_jetpack-videopress', get_current_screen()->id );
 	}
 
-	/**
-	 * The alias and its restore pair up, and do nothing without a screen or an alias to undo.
-	 */
 	public function test_alias_screen_id_round_trip() {
 		unset( $GLOBALS['current_screen'] );
 		Admin_UI::alias_screen_id_for_wp_build();
@@ -317,7 +309,7 @@ class Admin_UI_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Self-hosted, the wp-build dashboard opts out of JITMs and the legacy one, which renders `#jp-admin-notices`, keeps them.
+	 * Self-hosted, only the wp-build dashboard opts out of JITMs.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
