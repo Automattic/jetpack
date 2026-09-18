@@ -265,6 +265,7 @@ $feature-icon-foreground: #0ced57;
 	display: none;
 }
 
+
 // Wider than wp-admin's own 782px breakpoint: its sidebar takes ~160px, so six
 // pills stop fitting on one row well before the viewport gets that narrow.
 @media (max-width: 960px) {
@@ -500,4 +501,31 @@ $feature-icon-foreground: #0ced57;
 
 .paid-routes {
 	margin-block-start: var(--wpds-dimension-gap-md);
+}
+
+// The artwork took nearly a third of the dialog's height at its desktop size,
+// which a small screen cannot spare.
+@media (max-width: 782px) {
+
+	.modal-band {
+		block-size: 9rem;
+	}
+}
+
+// Core's modal becomes a bottom sheet below 600px: full width, anchored to the
+// bottom, 40px of screen showing above it, top corners only. `@wordpress/ui`
+// centres its dialog with a transform, so undo that rather than resize it.
+@media (max-width: 599px) {
+
+	.modal-popup {
+		border-end-end-radius: 0;
+		border-end-start-radius: 0;
+		inline-size: 100%;
+		inset-block: auto 0;
+		inset-inline: 0 auto;
+		max-block-size: calc(100% - 2.5rem);
+		max-inline-size: none;
+		min-block-size: 0;
+		transform: none;
+	}
 }
