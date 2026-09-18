@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Run the WordAds chart hook tests on fake timers so a stalled CI runner cannot time out their waits.
+
