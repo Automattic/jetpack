@@ -223,6 +223,22 @@ test( 'exposes a recorded day once while the popover repeats it visually', async
 	);
 } );
 
+test( 'keeps the held day open when the chart is clicked', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	const chart = hoverChart();
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	await expect( screen.findByTestId( 'history-popover' ) ).resolves.toHaveTextContent( '90/100' );
+	fireEvent.keyDown( desktop, { key: 'Tab' } );
+	fireEvent.blur( desktop );
+	// A click within 500ms of the hover opening counts as part of that same interaction.
+	await act( () => new Promise( resolve => setTimeout( resolve, 600 ) ) );
+	fireEvent.click( chart );
+	await waitFor( () =>
+		expect( screen.getByTestId( 'history-popover' ) ).toHaveTextContent( '90/100' )
+	);
+} );
+
 test( 'does not reopen the day the pointer left once the chart has no highlight', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
 	const desktop = screen.getAllByRole( 'grid' )[ 0 ];

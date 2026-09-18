@@ -322,6 +322,10 @@ export default function HistoryChartCard( {
 				<Popover.Root
 					open={ Boolean( details && anchor ) }
 					onOpenChange={ ( isOpen, { reason } ) => {
+						// Clicking a bar is chart interaction, not a request to dismiss the details.
+						if ( ! isOpen && reason === 'trigger-press' ) {
+							return;
+						}
 						setHoverOpen( isOpen );
 						if ( ! isOpen && reason === 'escape-key' ) {
 							setKeyboardOpen( false );
