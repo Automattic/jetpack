@@ -400,7 +400,6 @@ class Jetpack_AI_Page {
 
 		$host            = new Host();
 		$has_my_jetpack  = self::has_my_jetpack();
-		$connection      = new Connection_Manager();
 		$is_offline_mode = $status->is_offline_mode();
 
 		/**
@@ -418,10 +417,10 @@ class Jetpack_AI_Page {
 				'showGatedViews'    => ! $host->is_vip_site()
 					&& ( ! $host->is_wpcom_platform() || ( $host->is_woa_site() && $is_internal_test ) ),
 				'showA12sBadge'     => $host->is_woa_site() && $is_internal_test,
-				'isUserConnected'   => $connection->is_user_connected(),
 				// The same verdicts the feature-settings endpoint reports. That call
 				// exists for the AI Features toggles; the notice must not wait on it.
-				'isConnected'       => $connection->has_connected_owner() && ! $is_offline_mode,
+				'isUserConnected'   => Jetpack_AI_Settings::user_is_connected(),
+				'isConnected'       => Jetpack_AI_Settings::site_is_connected(),
 				'hostAllowsAi'      => Jetpack_AI_Settings::host_allows_ai(),
 				'masterEnabled'     => Jetpack_AI_Settings::is_master_enabled(),
 				// The route, not a flag: each one documents a different hook.

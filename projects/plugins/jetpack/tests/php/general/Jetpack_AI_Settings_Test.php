@@ -818,4 +818,41 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		$this->assertFalse( $registered['jetpack_ai_enabled']['show_in_rest'], 'The master option is never exposed over core settings REST.' );
 		$this->assertTrue( (bool) $registered['jetpack_ai_writing_assistant_enabled']['show_in_rest'], 'Feature options stay REST-exposed off-Simple.' );
 	}
+
+	/**
+	 * Simple sites carry no Jetpack tokens, so the local check would read them
+	 * as disconnected.
+	 */
+	public function test_site_is_connected_short_circuits_on_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->assertTrue( Jetpack_AI_Settings::site_is_connected() );
+	}
+
+	/**
+	 * Off Simple the answer comes from the site's own connection.
+	 */
+	public function test_site_is_connected_without_a_connection_owner() {
+		Constants::set_constant( 'IS_WPCOM', false );
+
+		$this->assertFalse( Jetpack_AI_Settings::site_is_connected() );
+	}
+
+	/**
+	 * Simple short-circuits the user check for the same reason as the site one.
+	 */
+	public function test_user_is_connected_short_circuits_on_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->assertTrue( Jetpack_AI_Settings::user_is_connected() );
+	}
+
+	/**
+	 * Off Simple the answer comes from this user's own token.
+	 */
+	public function test_user_is_connected_without_a_linked_account() {
+		Constants::set_constant( 'IS_WPCOM', false );
+
+		$this->assertFalse( Jetpack_AI_Settings::user_is_connected() );
+	}
 }

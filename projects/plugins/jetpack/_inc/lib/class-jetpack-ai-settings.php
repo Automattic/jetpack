@@ -20,7 +20,9 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -323,6 +325,30 @@ class Jetpack_AI_Settings {
 		}
 
 		return ( new Modules() )->is_active( self::AI_MODULE );
+	}
+
+	/**
+	 * Whether the site's WordPress.com connection can carry AI. Offline mode
+	 * counts as disconnected even while the site holds its tokens, and Simple
+	 * sites are always connected.
+	 *
+	 * @return bool
+	 */
+	public static function site_is_connected() {
+		return ( new Host() )->is_wpcom_simple()
+			|| ( ( new Manager( 'jetpack' ) )->has_connected_owner()
+				&& ! ( new Status() )->is_offline_mode() );
+	}
+
+	/**
+	 * Whether the current user's own account is connected. Surfaces that proxy
+	 * as the requesting user need this on top of {@see self::site_is_connected()}.
+	 *
+	 * @return bool
+	 */
+	public static function user_is_connected() {
+		return ( new Host() )->is_wpcom_simple()
+			|| ( new Manager( 'jetpack' ) )->is_user_connected();
 	}
 
 	/**
