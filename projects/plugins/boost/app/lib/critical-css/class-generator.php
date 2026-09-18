@@ -58,7 +58,10 @@ class Generator {
 
 		foreach ( array( wp_login_url(), site_url( 'wp-login.php', 'login' ) ) as $login_url ) {
 			$login = self::normalize_url( $login_url );
-			if ( ! is_array( $login ) ) {
+
+			// A filter can return an empty or path-less login URL. Matching on "/" alone would block
+			// every root-bound redirect, but a root path carrying the login's own query is still usable.
+			if ( ! is_array( $login ) || ( '/' === $login['path'] && ! $login['query'] ) ) {
 				continue;
 			}
 
@@ -245,19 +248,27 @@ class Generator {
 			return true;
 		}
 
-		$request_path = wp_parse_url( isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '', PHP_URL_PATH );
-		if ( ! is_string( $request_path ) ) {
+		if ( ! isset( $_SERVER['REQUEST_URI'] ) ) {
 			return false;
 		}
 
-		$prefix = rest_get_url_prefix();
+		// REQUEST_URI is a path, so its query is split off by hand: wp_parse_url() would read a leading
+		// "//" as a host. Both sides then go through the same normalization as the login match, so a
+		// repeated slash, a dot segment, an encoded slash or a capital letter cannot hide a REST path.
+		$request_uri  = esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) );
+		$request_path = self::normalize_path( (string) strtok( $request_uri, '?#' ), false );
+		$prefix       = rest_get_url_prefix();
+
+		if ( '' === trim( $prefix, '/' ) ) {
+			return false;
+		}
 
 		// get_rest_url() builds REST URLs from home_url(), and puts the prefix behind index.php on
 		// index permalinks. $wp_rewrite does not exist yet, so accept either shape.
 		foreach ( array( $prefix, 'index.php/' . $prefix ) as $route ) {
-			$rest_path = wp_parse_url( home_url( $route, 'relative' ), PHP_URL_PATH );
+			$rest_path = self::normalize_path( (string) wp_parse_url( home_url( $route, 'relative' ), PHP_URL_PATH ), false );
 
-			if ( ! is_string( $rest_path ) || '/' === $rest_path ) {
+			if ( '/' === $rest_path ) {
 				continue;
 			}
 
