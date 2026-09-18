@@ -392,5 +392,22 @@ describe( 'useConnectionErrorNotice — error detection', () => {
 			const { result } = renderHook( () => useConnectionErrorNotice() );
 			expect( result.current.actions[ 0 ].label ).toBe( 'Restore Connection' );
 		} );
+
+		// `resolveActions: false` is how a status surface skips the CTA work. It drops
+		// the actions and nothing else: the error the caller reports on still has to
+		// come back whole.
+		it( 'resolves no CTA when the caller opted out, but still reports the error', () => {
+			mockConnection( {
+				connectionErrors: { invalid_token: { 7: fixable } },
+			} );
+
+			const { result } = renderHook( () => useConnectionErrorNotice( { resolveActions: false } ) );
+
+			expect( result.current.actions ).toEqual( [] );
+			expect( result.current.hasConnectionError ).toBe( true );
+			expect( result.current.displayableErrors ).toHaveLength( 1 );
+			expect( result.current.connectionError ).toBe( fixable );
+			expect( result.current.connectionErrorMessage ).toBe( 'Your token is broken.' );
+		} );
 	} );
 } );
