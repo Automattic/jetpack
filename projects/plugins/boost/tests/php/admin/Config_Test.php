@@ -114,10 +114,7 @@ class Config_Test extends TestCase {
 				}
 			);
 
-		Functions\expect( 'apply_filters' )
-			->once()
-			->with( 'jetpack_my_jetpack_should_initialize', true )
-			->andReturn( true );
+		Functions\when( 'did_action' )->justReturn( 1 );
 
 		// Mock Host class for this specific test
 		$host = Mockery::mock( 'overload:' . Host::class );
@@ -183,10 +180,7 @@ class Config_Test extends TestCase {
 				}
 			);
 
-		Functions\expect( 'apply_filters' )
-			->once()
-			->with( 'jetpack_my_jetpack_should_initialize', true )
-			->andReturn( true );
+		Functions\when( 'did_action' )->justReturn( 1 );
 
 		// Create a fresh Status mock for private site
 		$status = Mockery::mock( 'overload:' . Status::class );
@@ -212,28 +206,8 @@ class Config_Test extends TestCase {
 		);
 	}
 
-	public function test_my_jetpack_unavailable_when_filtered_off() {
-		$status = Mockery::mock( 'overload:' . Status::class );
-		$status->shouldReceive( 'is_offline_mode' )->andReturn( false );
-		Functions\expect( 'apply_filters' )
-			->once()
-			->with( 'jetpack_my_jetpack_should_initialize', true )
-			->andReturn( false );
-
-		$this->assertFalse( Config::is_my_jetpack_available() );
-	}
-
-	public function test_my_jetpack_unavailable_in_offline_mode() {
-		$status = Mockery::mock( 'overload:' . Status::class );
-		$status->shouldReceive( 'is_offline_mode' )->andReturn( true );
-		Functions\expect( 'apply_filters' )
-			->once()
-			->with( 'jetpack_my_jetpack_should_initialize', false )
-			->andReturnUsing(
-				function ( $hook, $should ) {
-					return $should;
-				}
-			);
+	public function test_my_jetpack_unavailable_when_not_initialized() {
+		Functions\expect( 'did_action' )->once()->with( 'my_jetpack_init' )->andReturn( 0 );
 
 		$this->assertFalse( Config::is_my_jetpack_available() );
 	}

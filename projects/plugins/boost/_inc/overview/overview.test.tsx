@@ -694,6 +694,17 @@ test( 'omits the history card when My Jetpack is unavailable on a free site', as
 	);
 } );
 
+test( 'keeps the paid history chart when My Jetpack is unavailable', async () => {
+	window.Jetpack_Boost.site.myJetpack = false;
+	window.jetpack_boost_ds!.modules_state!.value = {
+		performance_history: { available: true, active: true },
+	};
+	renderOverview();
+	await expect( screen.findByTestId( 'history-chart' ) ).resolves.toBeInTheDocument();
+	expect( screen.getByRole( 'heading', { name: /Last \d+ days/ } ) ).toBeInTheDocument();
+	expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
+} );
+
 test( 'retains the free history state when a modules refetch fails with a fresh-start alert', async () => {
 	window.jetpack_boost_ds!.modules_state!.value = {
 		performance_history: { available: false, active: false },

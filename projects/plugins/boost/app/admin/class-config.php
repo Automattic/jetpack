@@ -135,9 +135,9 @@ class Config {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return bool True if My Jetpack initializes, false otherwise.
+	 * @return bool True if My Jetpack initialized on this request, false otherwise.
 	 */
 	public static function is_my_jetpack_available() {
-		return class_exists( My_Jetpack_Initializer::class ) && My_Jetpack_Initializer::should_initialize();
+		return class_exists( My_Jetpack_Initializer::class ) && did_action( 'my_jetpack_init' ) > 0;
 	}
 }
