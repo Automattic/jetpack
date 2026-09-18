@@ -117,35 +117,6 @@ class Admin_Menu_Test extends TestCase {
 		wp_deregister_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
 		wp_dequeue_style( Admin_Menu::DESIGN_TOKENS_HANDLE );
 		wp_deregister_style( Admin_Menu::DESIGN_TOKENS_HANDLE );
-
-		$this->reset_admin_menu_statics(
-			array(
-				'menu_items'  => array(),
-				'initialized' => false,
-			)
-		);
-	}
-
-	/**
-	 * Resets Admin_Menu's static properties, which no test framework restores.
-	 *
-	 * @param array $properties Property name to the value it should be reset to.
-	 */
-	private function reset_admin_menu_statics( array $properties ) {
-		$reflection = new \ReflectionClass( Admin_Menu::class );
-
-		foreach ( $properties as $name => $value ) {
-			if ( ! $reflection->hasProperty( $name ) ) {
-				continue;
-			}
-
-			$property = $reflection->getProperty( $name );
-			// @todo Remove this call once we no longer need to support PHP <8.1.
-			if ( PHP_VERSION_ID < 80100 ) {
-				$property->setAccessible( true );
-			}
-			$property->setValue( null, $value );
-		}
 	}
 
 	/**
@@ -1619,13 +1590,7 @@ class Admin_Menu_Test extends TestCase {
 		$_parent_pages     = array();
 		$_registered_pages = array();
 
-		$this->reset_admin_menu_statics(
-			array(
-				'menu_items'  => array(),
-				'page_hooks'  => array(),
-				'initialized' => false,
-			)
-		);
+		Admin_Menu::reset();
 	}
 
 	/**
