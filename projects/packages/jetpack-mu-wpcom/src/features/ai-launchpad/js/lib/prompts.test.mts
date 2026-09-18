@@ -3,7 +3,14 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { buildTailorPrompt, chooseTailoringMenu, TASK_ANNOTATIONS, TASK_MENU } from './prompts.ts';
+import {
+	buildTailorPrompt,
+	chooseTailoringMenu,
+	isEnglishLocale,
+	languageDisplayName,
+	TASK_ANNOTATIONS,
+	TASK_MENU,
+} from './prompts.ts';
 import type { WizardInput } from './types.ts';
 
 const __dirname = dirname( fileURLToPath( import.meta.url ) );
@@ -349,4 +356,165 @@ describe( 'buildTailorPrompt', () => {
 			}
 		} );
 	}
+} );
+
+describe( 'buildTailorPrompt output language', () => {
+	const LANGUAGE_HEADER = '============ output language ============';
+
+	it( 'sends an all-English site and account the same prompt, with no language block', () => {
+		// The A/B's English cohort must see zero prompt change: the block is only ever added for other
+		// languages, and a missing locale counts as English.
+		const baseline = buildTailorPrompt( { ...INPUT, locale: 'en' } );
+		assert.ok( ! baseline.includes( LANGUAGE_HEADER ) );
+		for ( const locale of [ 'en_US', 'en-gb', 'EN_AU', '' ] ) {
+			assert.equal(
+				buildTailorPrompt( { ...INPUT, locale, ui_locale: locale } ),
+				baseline,
+				`locale "${ locale }"`
+			);
+		}
+		// Two DIFFERENT Englishes too. They are not the "same language" by the regional test, so the
+		// subtitle reminder would otherwise be appended pointing at a section that was never written.
+		for ( const [ locale, ui ] of [
+			[ 'en_US', 'en_GB' ],
+			[ 'en_GB', 'en_US' ],
+			[ 'en', 'en_AU' ],
+		] ) {
+			assert.equal(
+				buildTailorPrompt( { ...INPUT, locale, ui_locale: ui } ),
+				baseline,
+				`${ locale } / ${ ui }`
+			);
+		}
+	} );
+
+	it( 'names the site language and pins the slug fields to English for other locales', () => {
+		const prompt = buildTailorPrompt( { ...INPUT, locale: 'it_IT', ui_locale: 'it_IT' } );
+		const block = prompt.slice( prompt.indexOf( LANGUAGE_HEADER ) ).split( '\n\n' )[ 0 ];
+
+		assert.match( block, /Italian/ );
+		assert.ok( block.includes( '(locale "it_IT")' ) );
+		// Every field that is meant to be translated is listed, so a new one cannot silently ship in
+		// English.
+		for ( const field of [ 'subtitles', 'first_post_draft', 'about_page_draft', 'page_intros' ] ) {
+			assert.ok( block.includes( field ), `${ field } is not covered by the language block` );
+		}
+		// The server validates these against English enums, so the model must not translate them.
+		for ( const slug of [ '"goal"', '"inferred_goal"', '"theme_category"', '"id"' ] ) {
+			assert.ok( block.includes( slug ), `${ slug } is not pinned to English` );
+		}
+	} );
+
+	it( 'places the language block before the steps, right after the user input', () => {
+		const prompt = buildTailorPrompt( { ...INPUT, locale: 'fr_FR' } );
+
+		assert.ok( prompt.indexOf( LANGUAGE_HEADER ) < prompt.indexOf( 'STEP 1' ) );
+		assert.ok( prompt.indexOf( 'User description:' ) < prompt.indexOf( LANGUAGE_HEADER ) );
+	} );
+
+	it( 'no longer pins the first post to English', () => {
+		assert.ok( ! buildTailorPrompt( INPUT ).includes( 'Plain English' ) );
+	} );
+
+	it( 'treats only en* locales as English', () => {
+		for ( const locale of [ 'en', 'en_US', 'en-gb', 'EN' ] ) {
+			assert.ok( isEnglishLocale( locale ), locale );
+		}
+		for ( const locale of [ 'it_IT', 'es', 'eng', 'enm', 'pt_BR' ] ) {
+			assert.ok( ! isEnglishLocale( locale ), locale );
+		}
+	} );
+
+	it( 'splits the languages when the account language differs from the site language', () => {
+		// The rule this whole block exists for: subtitles are read in wp-admin by the person setting the
+		// site up, everything else becomes the site's own published content.
+		const prompt = buildTailorPrompt( { ...INPUT, locale: 'fr_FR', ui_locale: 'it_IT' } );
+		const block = prompt.slice( prompt.indexOf( LANGUAGE_HEADER ) ).split( '\n\n' )[ 0 ];
+
+		// The display name may carry a region ("Italian (Italy)"), so only the language leads the match.
+		assert.match( block, /"subtitle" values in Italian[^"]*\(locale "it_IT"\)/ );
+		assert.match(
+			block,
+			/about_page_draft and every page_intros line in French[^"]*\(locale "fr_FR"\)/
+		);
+		// The published-content fields must sit on the site-language side of the sentence.
+		const subtitleAt = block.indexOf( '"subtitle"' );
+		for ( const field of [ 'first_post_draft', 'about_page_draft', 'page_intros' ] ) {
+			assert.ok( block.indexOf( field ) > subtitleAt, `${ field } is on the wrong side` );
+		}
+	} );
+
+	it( 'repeats the subtitle language in STEP 2, where the field is defined', () => {
+		// The top-of-prompt block alone did not hold: STEP 2 talks about subtitles at length without
+		// naming a language, and the model followed the nearer instruction and wrote them in the site's.
+		const prompt = buildTailorPrompt( { ...INPUT, locale: 'fr_FR', ui_locale: 'it_IT' } );
+		const step2 = prompt.slice( prompt.indexOf( 'STEP 2' ), prompt.indexOf( 'STEP 3' ) );
+
+		assert.match( step2, /Write every subtitle in Italian/ );
+	} );
+
+	it( 'leaves STEP 2 alone when both languages match', () => {
+		const prompt = buildTailorPrompt( { ...INPUT, locale: 'it_IT', ui_locale: 'it_IT' } );
+		const step2 = prompt.slice( prompt.indexOf( 'STEP 2' ), prompt.indexOf( 'STEP 3' ) );
+
+		assert.ok( ! step2.includes( 'Write every subtitle in' ) );
+	} );
+
+	it( 'keeps the analytics fields in English, whatever the site speaks', () => {
+		// niche/vibe/audience ride on every Tracks event and are compared across sites, so a translated
+		// value splits one cohort into forty; tagline is stripped from the record entirely. None of the
+		// four is ever rendered, so there is nothing to gain by translating them either.
+		for ( const [ locale, ui ] of [
+			[ 'it_IT', 'it_IT' ],
+			[ 'fr_FR', 'it_IT' ],
+			[ 'ja', 'en_US' ],
+		] ) {
+			const prompt = buildTailorPrompt( { ...INPUT, locale, ui_locale: ui } );
+			const block = prompt.slice( prompt.indexOf( LANGUAGE_HEADER ) ).split( '\n\n' )[ 0 ];
+			const englishFrom = block.indexOf( 'Leave everything else in English' );
+
+			assert.ok( englishFrom > -1, `no English-pinning sentence for ${ locale }/${ ui }` );
+			for ( const field of [ '"niche"', '"vibe"', '"audience"', '"tagline"' ] ) {
+				assert.ok(
+					block.indexOf( field ) > englishFrom,
+					`${ field } is not pinned to English for ${ locale }/${ ui }`
+				);
+			}
+		}
+	} );
+
+	it( 'still splits when only one of the two languages is English', () => {
+		// An English site with an Italian admin, and the reverse: both need the block, or one half
+		// silently comes back in the wrong language.
+		const englishSite = buildTailorPrompt( { ...INPUT, locale: 'en_US', ui_locale: 'it_IT' } );
+		assert.match( englishSite, /"subtitle" values in Italian/ );
+		assert.match( englishSite, /about_page_draft and every page_intros line in [^"]*English/ );
+
+		const englishAdmin = buildTailorPrompt( { ...INPUT, locale: 'it_IT', ui_locale: 'en_US' } );
+		assert.match( englishAdmin, /"subtitle" values in [^"]*English/ );
+	} );
+
+	it( 'treats a short WordPress.com locale and its regional form as one language', () => {
+		// wpcom hands out both `it` and `it_IT` for Italian; a split instruction naming Italian twice
+		// would only confuse the model.
+		const prompt = buildTailorPrompt( { ...INPUT, locale: 'it', ui_locale: 'it_IT' } );
+
+		assert.ok( ! prompt.includes( 'Two languages are in play' ) );
+		assert.match( prompt, /The site's language is Italian/ );
+	} );
+
+	it( 'writes everything in the site language when no account language is persisted', () => {
+		// Outputs persisted before ui_locale existed, and any caller that omits it.
+		const prompt = buildTailorPrompt( { ...INPUT, locale: 'it_IT' } );
+
+		assert.ok( ! prompt.includes( 'Two languages are in play' ) );
+		assert.match( prompt, /Write these in that language: the task subtitles/ );
+	} );
+
+	it( 'resolves a WordPress locale to an English language name, or keeps the code', () => {
+		assert.match( languageDisplayName( 'it_IT' ), /^Italian/ );
+		assert.match( languageDisplayName( 'pt_BR' ), /Portuguese/ );
+		// An unresolvable tag is handed to the prompt as-is rather than throwing.
+		assert.equal( languageDisplayName( '!!' ), '!!' );
+	} );
 } );

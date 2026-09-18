@@ -31,7 +31,13 @@ const GOALS: GoalSlug[] = [ 'write', 'build', 'sell', 'newsletter', 'educate', '
  * @return The wizard input.
  */
 function inputFor( goal: GoalSlug ): WizardInput {
-	return { goal, site_name: 'Test Site', description: 'A test description.', locale: 'en' };
+	return {
+		goal,
+		site_name: 'Test Site',
+		description: 'A test description.',
+		locale: 'en',
+		ui_locale: 'en',
+	};
 }
 
 describe( 'selectFallback', () => {
@@ -69,6 +75,7 @@ describe( 'selectFallback', () => {
 				site_name: longName,
 				description: 'desc',
 				locale: 'en',
+				ui_locale: 'en',
 			},
 			ENGLISH_SITE_COPY
 		);

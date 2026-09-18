@@ -287,7 +287,10 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( home_url(), $data['site']['url'] );
 		$this->assertSame( get_bloginfo( 'name' ), $data['site']['title'] );
 		$this->assertSame( get_bloginfo( 'description' ), $data['site']['description'] );
-		// The copy written into pages, for the public-facing content.
+		// The site language and the copy written into pages, for the public-facing content.
+		$this->assertSame( get_locale(), $data['site']['language'] );
+		// The reader's own language, which the AI writes the task subtitles in.
+		$this->assertSame( determine_locale(), $data['user_language'] );
 		$this->assertSame( wpcom_ai_launchpad_site_copy(), $data['site']['copy'] );
 		$this->assertSame( 'Contact', $data['site']['copy']['contact_page_title'] );
 
@@ -2067,7 +2070,8 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 				'goal'        => 'write',
 				'site_name'   => 'Alpine Notes',
 				'description' => 'Personal blog about long-distance hiking in the Alps.',
-				'locale'      => 'en',
+				'locale'      => 'fr_FR',
+				'ui_locale'   => 'it_IT',
 			)
 		);
 
@@ -2079,7 +2083,10 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'write', $option['goal'] );
 		$this->assertSame( 'Alpine Notes', $option['site_name'] );
 		$this->assertSame( 'Personal blog about long-distance hiking in the Alps.', $option['description'] );
-		$this->assertSame( 'en', $option['locale'] );
+		// Both languages are recorded: the drafts were written in the site's, the subtitles in the
+		// account language of whoever ran the wizard.
+		$this->assertSame( 'fr_FR', $option['locale'] );
+		$this->assertSame( 'it_IT', $option['ui_locale'] );
 		$this->assertIsInt( $option['generated_at'] );
 	}
 

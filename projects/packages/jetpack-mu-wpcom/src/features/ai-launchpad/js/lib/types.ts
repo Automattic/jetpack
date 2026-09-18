@@ -28,7 +28,12 @@ export interface WizardInput {
 	goal: GoalSlug;
 	site_name: string;
 	description: string;
+	// The site language. The AI writes the drafts and page intros in it, because those become the
+	// site's own content.
 	locale: string;
+	// The account language of whoever runs the wizard. The AI writes the task subtitles in it,
+	// because those are read in wp-admin and never leave it.
+	ui_locale: string;
 }
 
 /**

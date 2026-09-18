@@ -19,7 +19,11 @@ let cache: PrewarmCache | null = null;
  */
 function isComplete( state: Partial< WizardInput > ): state is WizardInput {
 	return (
-		!! state.goal && typeof state.site_name === 'string' && !! state.description && !! state.locale
+		!! state.goal &&
+		typeof state.site_name === 'string' &&
+		!! state.description &&
+		!! state.locale &&
+		!! state.ui_locale
 	);
 }
 
@@ -30,7 +34,13 @@ function isComplete( state: Partial< WizardInput > ): state is WizardInput {
  * @return The cache key.
  */
 function cacheKey( input: WizardInput ): string {
-	return JSON.stringify( [ input.goal, input.site_name, input.description, input.locale ] );
+	return JSON.stringify( [
+		input.goal,
+		input.site_name,
+		input.description,
+		input.locale,
+		input.ui_locale,
+	] );
 }
 
 /**
