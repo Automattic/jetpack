@@ -104,7 +104,7 @@ export function FeatureModal( { state, onClose, onFilterByPlan }: FeatureModalPr
 
 				<Dialog.Content className={ styles[ 'modal-body' ] }>
 					<div className={ styles[ 'modal-step' ] }>
-						<Stack direction="row" align="center" gap="md">
+						<Stack direction="row" align="center" gap="md" wrap="wrap">
 							<FeatureIcon feature={ feature } />
 							<Stack direction="column" gap="xs">
 								<Dialog.Title>{ feature.name }</Dialog.Title>

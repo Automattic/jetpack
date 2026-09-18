@@ -260,6 +260,30 @@ $feature-icon-foreground: #0ced57;
 	min-inline-size: 16rem;
 }
 
+// The pills are the wide layout; the select is the narrow one. Only ever one.
+.filter-select {
+	display: none;
+}
+
+// Wider than wp-admin's own 782px breakpoint: its sidebar takes ~160px, so six
+// pills stop fitting on one row well before the viewport gets that narrow.
+@media (max-width: 960px) {
+
+	.pills {
+		display: none;
+	}
+
+	.filter-select {
+		display: block;
+		flex: 1 1 auto;
+	}
+
+	.search {
+		margin-inline-start: 0;
+		min-inline-size: 12rem;
+	}
+}
+
 .detail-links {
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
@@ -405,7 +429,14 @@ $feature-icon-foreground: #0ced57;
 
 // The switch and the way in, pushed to the end of the row the name starts.
 .modal-actions {
+	flex-shrink: 0;
 	margin-inline-start: auto;
+
+	// A narrow dialog must wrap the row, never the words inside a button.
+	a,
+	button {
+		white-space: nowrap;
+	}
 }
 
 // auto-fit rather than three fixed tracks: Activity Log, Blaze, Newsletter and

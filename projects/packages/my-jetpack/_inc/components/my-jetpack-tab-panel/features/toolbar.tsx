@@ -1,4 +1,4 @@
-import { SearchControl } from '@wordpress/components';
+import { SearchControl, SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -68,6 +68,11 @@ export function Toolbar( {
 	search,
 	onSearchChange,
 }: ToolbarProps ) {
+	const onSelectFilter = useCallback(
+		( value: string ) => onFilterChange( value as FeatureFilter ),
+		[ onFilterChange ]
+	);
+
 	return (
 		<div className={ styles.toolbar }>
 			<Stack direction="row" align="center" gap="md" wrap="wrap">
@@ -91,6 +96,22 @@ export function Toolbar( {
 						/>
 					) ) }
 				</Stack>
+
+				{ /* Below the breakpoint the pills above are hidden and this takes over: six
+				     of them stack one per row on a phone, which is most of the screen. */ }
+				<div className={ styles[ 'filter-select' ] }>
+					<SelectControl
+						__nextHasNoMarginBottom
+						label={ __( 'Filter features', 'jetpack-my-jetpack' ) }
+						hideLabelFromVision
+						value={ filter }
+						options={ getFeatureFilters().map( ( { value, label } ) => ( {
+							value,
+							label: `${ label } (${ counts[ value ] ?? 0 })`,
+						} ) ) }
+						onChange={ onSelectFilter }
+					/>
+				</div>
 
 				<SearchControl
 					__nextHasNoMarginBottom
