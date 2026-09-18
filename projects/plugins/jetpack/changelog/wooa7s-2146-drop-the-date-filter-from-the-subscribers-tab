@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Premium Analytics: Move the Subscribers date range control off the tab header and onto the Subscriber summary chart, which is the only widget there that reads a range. Subscriber counts are cumulative, so the tab no longer offers a previous-period comparison.
+Premium Analytics: Move the Subscribers date range control off the tab header and onto the Subscriber summary chart, which is the only widget there that reads a range. The tab no longer offers a previous-period comparison.
