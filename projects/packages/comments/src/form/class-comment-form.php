@@ -224,6 +224,10 @@ class Comment_Form {
 			return $submit_field;
 		}
 
+		if ( ! comments_open() ) {
+			return $submit_field;
+		}
+
 		// Fires after this filter, and would draw a subscribe option this form has no room for.
 		remove_action( 'comment_form', 'subscription_comment_form' );
 
@@ -239,6 +243,10 @@ class Comment_Form {
 	 */
 	public function render_must_log_in() {
 		if ( ! self::enabled_for_post_type() ) {
+			return;
+		}
+
+		if ( ! comments_open() ) {
 			return;
 		}
 
