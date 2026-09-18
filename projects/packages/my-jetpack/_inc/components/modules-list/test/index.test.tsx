@@ -46,7 +46,9 @@ describe( 'ModulesList', () => {
 			/>
 		);
 
-		expect( screen.getByText( 'Enabled by a site administrator' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( 'Turned on by your host or site administrator' )
+		).toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'checkbox', { name: 'Toggle Activity Log module' } )
 		).not.toBeInTheDocument();

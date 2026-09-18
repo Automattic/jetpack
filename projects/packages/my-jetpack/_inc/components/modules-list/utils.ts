@@ -16,14 +16,14 @@ export function getModuleStatus( $module: MyJetpackModule ) {
 	if ( $module.override === 'active' ) {
 		return {
 			isAvailable: false,
-			reason: __( 'Enabled by a site administrator', 'jetpack-my-jetpack' ),
+			reason: __( 'Turned on by your host or site administrator', 'jetpack-my-jetpack' ),
 		};
 	}
 
 	if ( $module.override === 'inactive' ) {
 		return {
 			isAvailable: false,
-			reason: __( 'Disabled by a site administrator', 'jetpack-my-jetpack' ),
+			reason: __( 'Turned off by your host or site administrator', 'jetpack-my-jetpack' ),
 		};
 	}
 
