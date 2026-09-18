@@ -162,12 +162,25 @@ class Admin_Sidebar_Link {
 	/**
 	 * Check if we should display the Backup menu item.
 	 *
-	 * It will only be displayed if site has Backup enabled and the stand-alone Backup plugin is not active, because it will have a menu item of its own.
+	 * It will only be displayed if site has Backup enabled and neither the stand-alone Backup plugin
+	 * nor this plugin's own bundled Backup dashboard is active, because either one has a menu item of its own.
 	 *
 	 * @return boolean
 	 */
 	private function should_show_backup() {
-		return $this->has_backup() && ! $this->has_backup_plugin();
+		return $this->has_backup() && ! $this->has_backup_plugin() && ! $this->has_local_backup_dashboard();
+	}
+
+	/**
+	 * Detects if a Backup dashboard is already registered in wp-admin.
+	 *
+	 * Fires for the standalone plugin too, which `has_backup_plugin()` covers
+	 * separately; what this adds is the bundled dashboard this plugin now hosts.
+	 *
+	 * @return boolean
+	 */
+	private function has_local_backup_dashboard() {
+		return (bool) did_action( 'jetpack_backup_initialized' );
 	}
 
 	/**
@@ -197,9 +210,18 @@ class Admin_Sidebar_Link {
 	/**
 	 * Detects if Backup is enabled.
 	 *
+	 * Prefers the Backup package's cache, which keeps the last clear answer when
+	 * WordPress.com cannot be read — the transient below instead reports every
+	 * failed or expired read as "no Backup", which is what made this link flicker.
+	 *
 	 * @return boolean
 	 */
 	private function has_backup() {
+		$cache = 'Automattic\\Jetpack\\Backup\\V0005\\Rewind_State_Cache';
+		if ( class_exists( $cache ) && method_exists( $cache, 'has_backup' ) ) {
+			return $cache::has_backup();
+		}
+
 		$this->maybe_refresh_transient_cache();
 		$rewind_state = get_transient( 'jetpack_rewind_state' );
 		if ( ! $rewind_state ) {

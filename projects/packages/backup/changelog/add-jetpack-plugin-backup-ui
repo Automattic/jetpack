@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Let a host plugin initialize the Backup dashboard without re-ensuring the connection, and cache the site's Backup entitlement so a failed read no longer hides the menu.
