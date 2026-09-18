@@ -207,10 +207,9 @@ describe( 'WordAdsChartTabsWidget', () => {
 
 	// Each saved interval is one the old bucket control could store for its window.
 	it.each( [
-		[ 'a day-long window', { from: '2026-06-29', to: '2026-06-30', interval: 'hour' }, 'day' ],
 		[ 'two months', { from: '2026-05-01', to: '2026-06-30', interval: 'week' }, 'day' ],
 		[ 'four months', { from: '2026-03-02', to: '2026-06-30', interval: 'month' }, 'week' ],
-		[ 'over a year', { from: '2025-05-27', to: '2026-06-30', interval: 'year' }, 'month' ],
+		[ 'over three years', { from: '2023-01-01', to: '2026-06-30', interval: 'year' }, 'month' ],
 	] as const )(
 		'buckets %s by its length, not by a saved interval',
 		async ( _window, reportParams, unit ) => {
@@ -222,6 +221,20 @@ describe( 'WordAdsChartTabsWidget', () => {
 			expect( requestedPath ).toContain( `unit=${ unit }` );
 		}
 	);
+
+	// A window under two days allows hours alone, which this chart has no bucket for.
+	it( 'draws a day-long window by day', async () => {
+		render(
+			<WordAdsChartTabsWidget
+				attributes={ { reportParams: { from: '2026-06-29', to: '2026-06-30' } } }
+			/>
+		);
+
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+
+		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
+		expect( requestedPath ).toContain( 'unit=day' );
+	} );
 
 	it( 'draws the chart type its attributes carry', async () => {
 		render(
