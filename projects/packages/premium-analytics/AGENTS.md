@@ -38,8 +38,8 @@ filters.
 ```text
 src/class-analytics.php                 # entry: loads build, registers menu + routes
 src/dashboard-sections.php              # section API: registry helpers, preview scope, REST
-src/default-dashboard-sections.php      # the package's own tabs, registered through that API
-docs/dashboard-sections.md              # how a tab is registered, served and rendered (diagrams)
+src/default-dashboard-sections.php      # the package's own sections, registered through that API
+docs/dashboard-sections.md              # how a section is registered, served and rendered (diagrams)
 src/REST/class-api-proxy-controller.php # the WPCOM data proxy (PREFIX_CONFIG)
 src/REST/class-notices-controller.php   # /notices route
 src/Sync/                               # interim woocommerce_analytics sync (WOOA7S-1550)
@@ -78,7 +78,7 @@ Add a route: create `routes/<name>/package.json` (with `route.path` + `route.pag
 Add a dashboard section, from this package or from another plugin: hook
 `jetpack_premium_analytics_register_dashboard_sections` and call `register_dashboard_section()`
 there. The section registry hydrates on its first read, from wp-admin or from REST, and fires
-that action once; `src/default-dashboard-sections.php` registers the package's own tabs the same
+that action once; `src/default-dashboard-sections.php` registers the package's own sections the same
 way. A section declares its default layout in the registration; the
 `jetpack_premium_analytics_dashboard_default_layout` filter lets another plugin add an instance to
 any section by id. `docs/dashboard-sections.md` walks through the whole path with diagrams.

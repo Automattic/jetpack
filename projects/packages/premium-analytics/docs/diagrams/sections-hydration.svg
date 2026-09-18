@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 290" width="1160" height="290" role="img" aria-label="The first read of the section registry latches, fires the registration action once, the package registers its tabs at priority 10 and a plugin at priority 20 after checking the slug, and register() refuses unnamespaced, duplicate ids and duplicate slugs.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 290" width="1160" height="290" role="img" aria-label="The first read of the section registry latches, fires the registration action once, the package registers its sections at priority 10 and a plugin at priority 20 after checking the slug, and register() refuses unnamespaced, duplicate ids and duplicate slugs.">
   <style>
     text { font: 12px ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; fill: #1f2328; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; }

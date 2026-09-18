@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 450" width="1120" height="450" role="img" aria-label="The registry is filtered by availability and serialized by the sections REST route; the client reads it as the dashboardSection core-data entity and builds the tab bar from it, while a slug list in the inline script data lets report routes redirect before any request.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 450" width="1120" height="450" role="img" aria-label="The registry is filtered by availability and serialized by the sections REST route; the client reads it as the dashboardSection core-data entity and builds the navigation from it, while a slug list in the inline script data lets report routes redirect before any request.">
   <style>
     text { font: 12px ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; fill: #1f2328; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; }
@@ -73,14 +73,14 @@
   <text class="muted" x="630" y="376" text-anchor="middle">sections + hasResolved</text>
   <rect class="box" x="765" y="290" width="150" height="100" rx="4"/>
   <text class="title" x="840" y="320" text-anchor="middle">stage.tsx</text>
-  <text class="muted" x="840" y="336" text-anchor="middle">tab bar: slug, label</text>
+  <text class="muted" x="840" y="336" text-anchor="middle">navigation: slug, label</text>
   <text class="muted" x="840" y="352" text-anchor="middle">?section= deep link</text>
   <text class="muted" x="840" y="368" text-anchor="middle">default_layout fallback</text>
   <rect class="box" x="940" y="290" width="150" height="100" rx="4"/>
   <text class="title" x="1015" y="320" text-anchor="middle">report routes</text>
   <text class="mono" x="1015" y="336" text-anchor="middle">isDashboardSection</text>
   <text class="mono" x="1015" y="352" text-anchor="middle">InPreviewScope()</text>
-  <text class="muted" x="1015" y="368" text-anchor="middle">redirect if tab hidden</text>
+  <text class="muted" x="1015" y="368" text-anchor="middle">redirect if hidden</text>
   <line class="edge edge-dashed" x1="15" y1="230" x2="1105" y2="230"/>
   <text class="muted" x="25" y="226" text-anchor="start">HTTP</text>
   <polyline class="edge" points="840,160 840,230 370,230 370,290" marker-end="url(#arrow)"/>
