@@ -97,6 +97,13 @@ class WP_Build_Polyfills {
 	private static $wp_version_threshold = '7.0';
 
 	/**
+	 * Overrides the build directory. Test seam, null in production.
+	 *
+	 * @var string|null
+	 */
+	private static $build_dir_override = null;
+
+	/**
 	 * Register polyfill scripts and modules.
 	 *
 	 * Call this early (e.g. during plugin load) — it hooks into wp_default_scripts
@@ -122,6 +129,7 @@ class WP_Build_Polyfills {
 	public static function register( $consumer, $polyfills, $wp_version_threshold = '7.0' ) {
 		WP_Build_Admin_Frame::register();
 
+		$added = array();
 		foreach ( $polyfills as $handle ) {
 			if ( ! in_array( $handle, self::SCRIPT_HANDLES, true ) && ! in_array( $handle, self::MODULE_IDS, true ) ) {
 				continue;
@@ -132,6 +140,7 @@ class WP_Build_Polyfills {
 			foreach ( $required as $required_handle ) {
 				if ( ! isset( self::$requested[ $required_handle ] ) ) {
 					self::$requested[ $required_handle ] = array();
+					$added[]                             = $required_handle;
 				}
 				if ( ! in_array( $consumer, self::$requested[ $required_handle ], true ) ) {
 					self::$requested[ $required_handle ][] = $consumer;
@@ -139,18 +148,24 @@ class WP_Build_Polyfills {
 			}
 		}
 
-		if ( version_compare( $wp_version_threshold, self::$wp_version_threshold, '>' ) ) {
+		$raised = version_compare( $wp_version_threshold, self::$wp_version_threshold, '>' );
+		if ( $raised ) {
 			self::$wp_version_threshold = $wp_version_threshold;
 		}
 
+		$package_root = dirname( __DIR__ );
+		$build_dir    = self::$build_dir_override ?? $package_root . '/build';
+		$base_file    = $package_root . '/composer.json';
+
 		if ( self::$hooked ) {
+			// Registration already ran, so apply this call's new polyfills and raised threshold to it.
+			if ( ( $raised || $added ) && did_action( 'wp_default_scripts' ) ) {
+				self::register_scripts( wp_scripts(), $build_dir, $base_file, self::$wp_version_threshold );
+				self::register_modules( $build_dir, $base_file, $added );
+			}
 			return;
 		}
 		self::$hooked = true;
-
-		$package_root = dirname( __DIR__ );
-		$build_dir    = $package_root . '/build';
-		$base_file    = $package_root . '/composer.json';
 
 		// `wp_default_scripts` fires once when the WP_Scripts singleton is
 		// instantiated. If something has already initialized `wp_scripts()` —
@@ -247,6 +262,14 @@ class WP_Build_Polyfills {
 				continue;
 			}
 
+			$src = plugins_url( 'build/scripts/' . $data['path'] . '/index.js', $base_file );
+
+			// Already ours from an earlier register() call; replacing it would drop anything attached since.
+			$registered = $scripts->query( $handle, 'registered' );
+			if ( $registered && $src === $registered->src ) {
+				continue;
+			}
+
 			$force_threshold = $data['force_threshold'] ?? null;
 			if ( null !== $force_threshold && version_compare( $wp_version_threshold, $force_threshold, '>' ) ) {
 				$force_threshold = $wp_version_threshold;
@@ -275,7 +298,7 @@ class WP_Build_Polyfills {
 
 			$scripts->add(
 				$handle,
-				plugins_url( 'build/scripts/' . $data['path'] . '/index.js', $base_file ),
+				$src,
 				$asset['dependencies'],
 				$asset['version'],
 				// Match Core's `wp_default_packages_scripts()`, which registers every
@@ -320,10 +343,11 @@ class WP_Build_Polyfills {
 	 * already registered module is left alone unless the active Gutenberg's copy is known to be
 	 * too old for this package's current build, in which case it is replaced.
 	 *
-	 * @param string $build_dir Absolute path to the build directory.
-	 * @param string $base_file File path for plugins_url() computation.
+	 * @param string        $build_dir  Absolute path to the build directory.
+	 * @param string        $base_file  File path for plugins_url() computation.
+	 * @param string[]|null $module_ids Only these requested module IDs, or null for all of them.
 	 */
-	private static function register_modules( $build_dir, $base_file ) {
+	private static function register_modules( $build_dir, $base_file, $module_ids = null ) {
 		if ( ! function_exists( 'wp_register_script_module' ) ) {
 			return;
 		}
@@ -346,6 +370,10 @@ class WP_Build_Polyfills {
 			$module_id = '@wordpress/' . $name;
 
 			if ( ! isset( self::$requested[ $module_id ] ) ) {
+				continue;
+			}
+
+			if ( null !== $module_ids && ! in_array( $module_id, $module_ids, true ) ) {
 				continue;
 			}
 
