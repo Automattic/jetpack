@@ -98,11 +98,26 @@
 		.visx-grid line {
 			stroke: var(--wpds-color-stroke-surface-neutral-weak);
 		}
+
+		[role="grid"]:focus-visible {
+			outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+			outline-offset: var(--wpds-border-width-focus);
+		}
 	}
 
 	.visx-tooltip {
 		padding: 0 !important;
 	}
+
+	// A recorded day's box only holds the screen-reader copy of the popover.
+	.visx-tooltip:has(.boost-daily-history__score-tooltip) {
+		background: none !important;
+		box-shadow: none !important;
+	}
+}
+
+.boost-daily-history,
+.boost-daily-history__popover {
 
 	.jetpack-boost-overview__history-tooltip {
 		color: var(--wpds-color-foreground-content-neutral);
@@ -140,14 +155,20 @@
 	}
 }
 
-.boost-daily-history .boost-daily-history__score-tooltip {
+.boost-daily-history__popover .boost-daily-history__score-tooltip {
 	inline-size: calc(var(--wpds-dimension-surface-width-xs) + var(--wpds-dimension-padding-2xl) + var(--wpds-border-width-xs));
 	padding: calc(var(--wpds-dimension-padding-lg) + var(--wpds-border-width-xs));
 	border: 0;
-	box-shadow: inset 0 0 0 var(--wpds-border-width-xs) var(--jetpack-boost-history-empty);
+	// It floats on the page, so it takes the popover surface, not the card one.
+	background: var(--wpds-color-background-surface-neutral-strong);
+	box-shadow:
+		inset 0 0 0 var(--wpds-border-width-xs) var(--jetpack-boost-history-empty),
+		0 var(--wpds-border-width-xs) var(--wpds-border-width-sm) color-mix(in sRGB, var(--wpds-color-foreground-content-neutral) 33%, transparent);
 	line-height: var(--wpds-typography-line-height-sm);
 
 	.jetpack-boost-overview__tooltip-date {
+		// Undo the popover title's heading type.
+		font: inherit;
 		font-weight: var(--wpds-typography-font-weight-default);
 		margin-block-end: var(--wpds-dimension-gap-md);
 	}

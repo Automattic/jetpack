@@ -29,6 +29,50 @@ async function hoverDay( chart: Locator, index: number ) {
 }
 
 /**
+ * Assert the day details stay in view, clear of the highlighted day, card header and chevrons.
+ *
+ * @param page  - Fixture page.
+ * @param popup - Day details surface.
+ * @return Bounding boxes of the day details and the highlighted day.
+ */
+async function expectClearOfCard( page: Page, popup: Locator ) {
+	await expect( popup ).toBeInViewport( { ratio: 1 } );
+	const popupBox = ( await popup.boundingBox() )!;
+	const band = ( await page.locator( '.boost-daily-history__highlight' ).boundingBox() )!;
+	const controls = [
+		page.locator( '.boost-daily-history__card-header' ),
+		...( await page.getByRole( 'button', { name: /^(Previous|Next) \d+ days$/ } ).all() ),
+	];
+	expect( controls ).toHaveLength( 3 );
+	for ( const box of [ band, ...( await Promise.all( controls.map( c => c.boundingBox() ) ) ) ] ) {
+		expect(
+			popupBox.x >= Math.floor( box!.x + box!.width ) ||
+				popupBox.x + popupBox.width <= Math.ceil( box!.x ) ||
+				popupBox.y >= box!.y + box!.height ||
+				popupBox.y + popupBox.height <= box!.y
+		).toBe( true );
+	}
+	return { popupBox, band };
+}
+
+/**
+ * Assert the day details sit beside the highlighted day, aligned to the top of its band.
+ *
+ * @param page  - Fixture page.
+ * @param popup - Day details surface.
+ * @return Bounding box of the day details.
+ */
+async function expectBesideDay( page: Page, popup: Locator ) {
+	const { popupBox, band } = await expectClearOfCard( page, popup );
+	expect(
+		popupBox.x >= Math.floor( band.x + band.width ) ||
+			popupBox.x + popupBox.width <= Math.ceil( band.x )
+	).toBe( true );
+	expect( popupBox.y ).toBeCloseTo( band.y, 0 );
+	return popupBox;
+}
+
+/**
  * Resolve the empty-day token in the browser.
  *
  * @param page - Fixture page.
@@ -106,49 +150,34 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await expect( page.getByText( 'Aug 11 – Sep 9, 2026', { exact: true } ) ).toBeVisible();
 		await expect( page.getByRole( 'button', { name: 'Next 30 days' } ) ).toBeDisabled();
 		await hoverDay( chart, 21 );
-		const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
+		const popover = page.locator( '.boost-daily-history__popover' );
+		const surface = popover.locator( '.jetpack-boost-overview__history-tooltip' );
 		await expect( surface ).toBeVisible();
-		await expect( surface ).toHaveCSS( 'background-color', /^rgb\(/ );
-		const coveredBars = await surface.evaluate( element => {
-			// Include the non-interactive tooltip in browser paint-order hit testing.
-			const surfaceElement = element as HTMLElement;
-			surfaceElement.style.pointerEvents = 'auto';
-			const popup = element.getBoundingClientRect();
-			const overlaps = Array.from( document.querySelectorAll( '.visx-bar' ) ).flatMap( bar => {
-				const rect = bar.getBoundingClientRect();
-				const left = Math.max( popup.left, rect.left );
-				const right = Math.min( popup.right, rect.right );
-				const top = Math.max( popup.top, rect.top );
-				const bottom = Math.min( popup.bottom, rect.bottom );
-				if ( left >= right || top >= bottom ) {
-					return [];
-				}
-				const painted = document.elementFromPoint( ( left + right ) / 2, ( top + bottom ) / 2 );
-				return [ element.contains( painted ) ];
-			} );
-			surfaceElement.style.removeProperty( 'pointer-events' );
-			return overlaps;
-		} );
-		expect( coveredBars.length ).toBeGreaterThan( 0 );
-		expect( coveredBars.every( covered => covered ) ).toBe( true );
 		await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText(
 			'September 1, 2026'
 		);
+		await expect( surface ).toHaveCSS( 'background-color', /^rgb\(/ );
 		await expect( surface ).toContainText( 'Overall score' );
 		await expect( surface ).toHaveCSS( 'width', '265px' );
 		await expect( surface ).toHaveCSS( 'height', '382px' );
 		await expect( surface ).toHaveCSS( 'padding', '17px' );
-		const popupBox = ( await surface.boundingBox() )!;
+		const popupBox = await expectBesideDay( page, surface );
 		const hoveredBar = ( await bars.nth( 21 ).boundingBox() )!;
-		const cardBox = ( await page.getByText( 'Last 30 days', { exact: true } ).boundingBox() )!;
-		expect(
-			popupBox.x >= Math.floor( hoveredBar.x + hoveredBar.width ) ||
-				popupBox.x + popupBox.width <= Math.ceil( hoveredBar.x )
-		).toBe( true );
-		const chartBounds = ( await chart.boundingBox() )!;
-		expect( popupBox.x ).toBeGreaterThanOrEqual( chartBounds.x );
-		expect( popupBox.x + popupBox.width ).toBeLessThanOrEqual( chartBounds.x + chartBounds.width );
-		expect( popupBox.y ).toBeLessThan( cardBox.y + cardBox.height );
+		const barCenter = hoveredBar.x + hoveredBar.width / 2;
+		const barMiddle = hoveredBar.y + hoveredBar.height / 2;
+		expect( popupBox.x ).toBeGreaterThan( barCenter );
+		// Straight across into the popover: crossing other days on the way lets them take the card.
+		const targetX = popupBox.x + 20;
+		for ( let step = 1; step <= 10; step++ ) {
+			await page.mouse.move( barCenter + ( ( targetX - barCenter ) * step ) / 10, barMiddle );
+		}
+		// The chart hides its own tooltip once the pointer has left the plot.
+		await expect( page.getByTestId( 'bounded-tooltip' ) ).toHaveCount( 0 );
+		await expect( popover ).toBeVisible();
+		await expect( surface ).toContainText( 'September 1, 2026' );
+		await page.mouse.move( 0, 0 );
+		await expect( popover ).toBeHidden();
+		await hoverDay( chart, 21 );
 		await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveCSS(
 			'font-weight',
 			'400'
@@ -225,25 +254,21 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await expect( surface ).toContainText( 'August 27, 2026' );
 		await page.keyboard.press( 'Escape' );
 		await expect( surface ).toBeHidden();
+		const popover = page.locator( '.boost-daily-history__popover' );
 		for ( const [ index, date ] of [
 			[ 6, 'September 1, 2026' ],
 			[ 12, 'September 7, 2026' ],
 		] as const ) {
 			await hoverDay( chart, index );
-			await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText( date );
-
-			const popup = ( await surface.boundingBox() )!;
-			expect( popup.x ).toBeGreaterThanOrEqual( 0 );
-			expect( popup.x + popup.width ).toBeLessThanOrEqual( 390 );
+			await expect( popover.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText( date );
+			await expectClearOfCard( page, popover );
 		}
 		const zeroBar = bars.nth( 12 );
 		await expect( zeroBar ).toHaveAttribute( 'fill', 'var(--jetpack-boost-score-poor)' );
 		await expect( zeroBar ).not.toHaveCSS( 'fill', 'none' );
 		expect( ( await zeroBar.boundingBox() )!.height ).toBeGreaterThan( 0 );
-		await expect( surface ).toContainText( '0/100' );
-		const flippedPopup = ( await surface.boundingBox() )!;
-		const rightmostBar = ( await zeroBar.boundingBox() )!;
-		expect( flippedPopup.x + flippedPopup.width ).toBeLessThan( rightmostBar.x );
+		await expect( popover ).toContainText( '0/100' );
+		await expectBesideDay( page, popover );
 	} );
 }
 
@@ -336,6 +361,36 @@ test( 'Tabbing between daily charts preserves focus and resets the previous tool
 	await expect( tooltip ).toHaveCount( 0 );
 	await page.keyboard.press( 'ArrowRight' );
 	await expect( tooltip ).toContainText( 'August 11, 2026' );
+} );
+
+test( 'Tab from the paging controls reaches the chart once the day details close', async ( {
+	page,
+} ) => {
+	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
+	const grid = chart.getByRole( 'grid' );
+	const next = page.getByRole( 'button', { name: 'Next 30 days' } );
+	const popover = page.locator( '.boost-daily-history__popover' );
+	const openByPointer = async () => {
+		await hoverDay( chart, 21 );
+		await expect( popover ).toBeVisible();
+		await page.mouse.move( 0, 0 );
+	};
+	const openByKeyboard = async () => {
+		await grid.focus();
+		for ( let day = 0; day <= 21; day++ ) {
+			await page.keyboard.press( 'ArrowRight' );
+		}
+		await expect( popover ).toBeVisible();
+		await page.keyboard.press( 'Escape' );
+	};
+	for ( const open of [ openByPointer, openByKeyboard ] ) {
+		await open();
+		await expect( popover ).toHaveCount( 0 );
+		await expect( page.locator( '[data-base-ui-focus-guard]' ) ).toHaveCount( 0 );
+		await next.focus();
+		await page.keyboard.press( 'Tab' );
+		await expect( grid ).toBeFocused();
+	}
 } );
 
 test( 'Hiding retained history removes a keyboard tooltip until another selection', async ( {
