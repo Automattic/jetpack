@@ -40,6 +40,7 @@ class Identity {
 				'displayCookie' => Passport::DISPLAY_COOKIE,
 				'cookiePath'    => COOKIEPATH,
 				'cookieDomain'  => COOKIE_DOMAIN ? COOKIE_DOMAIN : '',
+				'defaultAvatar' => Avatars::default_url( 74 ),
 				'refreshUrl'    => Checkpoint_Endpoint::connect_url(),
 				'logoutUrl'     => admin_url( 'admin-ajax.php' ),
 				'logoutAction'  => Checkpoint_Endpoint::LOGOUT_ACTION,

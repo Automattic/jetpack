@@ -61,10 +61,7 @@ describe( 'NoResultsEdit', () => {
 		mockSlots = [];
 	} );
 
-	// Every condition is created up front so an author sees all three empty
-	// states without adding anything.
-	// Selecting by store object rather than the 'core/block-editor' string
-	// keeps the dependency explicit and survives a store rename.
+	// Selecting by store object rather than the 'core/block-editor' string survives a store rename.
 	it( 'selects state through the block-editor store object', () => {
 		render( <NoResultsEdit clientId="nr-1" /> );
 
@@ -139,12 +136,10 @@ describe( 'NoResultsEdit', () => {
 		expect( screen.queryByRole( 'button', { name: 'Any empty search' } ) ).not.toBeInTheDocument();
 	} );
 
-	// Three dashed rows read as three unrelated things without an outline and a
-	// name around them.
-	it( 'labels the container so the messages read as one block', () => {
+	it( 'paints no label on the canvas', () => {
 		render( <NoResultsEdit clientId="nr-1" /> );
 
-		expect( screen.getByText( 'No Results' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'No Results' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'restricts inner blocks to variants and suppresses the default appender', () => {

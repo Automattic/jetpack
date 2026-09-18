@@ -73,7 +73,7 @@ class Licensing {
 	 * licensing UI: the activation screen also renders from the Jetpack plugin's
 	 * own route, so the illustrations need a URL there too.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.1.0
 	 *
 	 * @return void
 	 */
@@ -86,7 +86,7 @@ class Licensing {
 	 *
 	 * Other plugins' bundles request the activation screen's images from this copy, so never rename one.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.1.0
 	 *
 	 * @param array $data Script data.
 	 * @return array

@@ -732,8 +732,18 @@ class VideoPress_Player {
 				? ( $videopress_options['height'] / $videopress_options['width'] ) * 100
 				: null;
 
+			$guid = (string) $this->video->guid;
+
 			return "<div id='" . esc_attr( $video_container_id ) . "'>"
-				. Inline_Player::render( (string) $this->video->guid, Inline_Player::get_player_options( $attributes ), $ratio )
+				. Inline_Player::render(
+					$guid,
+					Inline_Player::get_player_options( $attributes ),
+					$ratio,
+					array(
+						'poster' => Inline_Player::get_poster_url( $guid ),
+						'title'  => isset( $this->video->title ) ? (string) $this->video->title : '',
+					)
+				)
 				. '</div>';
 		}
 	}

@@ -66,6 +66,9 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 		value && /^https?:\/\//.test( value ) ? value : undefined,
 } ) );
 
+// The core-data selector the stage's `useSelect` callback reaches.
+const mockGetEntityRecords = jest.fn( () => [] );
+
 jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
 
 // Proxies `@wordpress/data` lazily: `requireActual` at import time would
@@ -74,7 +77,10 @@ jest.mock(
 	'@wordpress/data',
 	() =>
 		new Proxy(
-			{ useSelect: () => [] },
+			{
+				useSelect: ( selector: ( select: unknown ) => unknown ) =>
+					selector( () => ( { getEntityRecords: mockGetEntityRecords } ) ),
+			},
 			{
 				get: ( overrides, prop ) =>
 					prop in overrides
@@ -348,6 +354,24 @@ describe( 'post detail stage', () => {
 		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( 'no attention' );
 		expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
 		jest.useRealTimers();
+	} );
+
+	it( 'returns to the top and parks focus on the heading when a card sets the period', async () => {
+		// jsdom has no Element.scrollTo; the layout's scroll area is what must move.
+		const scrollTo = jest.fn();
+		HTMLElement.prototype.scrollTo = scrollTo;
+		const user = userEvent.setup();
+		mockSummary();
+
+		render( stage() );
+		expect( scrollTo ).not.toHaveBeenCalled();
+
+		await user.click( screen.getByRole( 'button', { name: 'Open June from a card' } ) );
+
+		expect( scrollTo ).toHaveBeenCalledTimes( 1 );
+		expect( scrollTo ).toHaveBeenCalledWith( expect.objectContaining( { top: 0 } ) );
+		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveFocus();
+		Reflect.deleteProperty( HTMLElement.prototype, 'scrollTo' );
 	} );
 
 	it( 'reports the traffic tab over the applied URL range', () => {

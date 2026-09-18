@@ -434,9 +434,9 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 							? `metric ${ id }: point has no commit provenance (hash "unknown" — the measurement workspace lost its git metadata) — skipped`
 							: `metric ${ id }: malformed point (measuredAt ${ JSON.stringify(
 									p && p.measuredAt
-							  ) }, hash ${ JSON.stringify( p && p.hash ) }, isRegression ${ JSON.stringify(
+								) }, hash ${ JSON.stringify( p && p.hash ) }, isRegression ${ JSON.stringify(
 									p && p.isRegression
-							  ) }, value ${ JSON.stringify( p && p.value ) }) — skipped`
+								) }, value ${ JSON.stringify( p && p.value ) }) — skipped`
 					);
 				else if ( n === 6 )
 					console.error(
@@ -707,7 +707,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				// not even hold, so the "(flag from a re-run)" marker attributes its numbers
 				// instead. The gate itself never sees this value; its medians and anchors judge
 				// the kept series only.
-				to: self ? flagV ?? v : sib.v,
+				to: self ? ( flagV ?? v ) : sib.v,
 				reRun: self ? fIdxs !== undefined : true, // marks a flag whose event folded in a re-post/re-run row: its numbers or comparison base MAY come from that row (a same-time fold or an off-time merge), so the reader is not shown an attribution the kept data need not support
 			};
 			if ( win.verdict === 'pending' ) {
@@ -918,10 +918,10 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 					degraded
 						? `:grey_question: No sustained regressions among the data that could be read (${ readable } tracked metric${
 								readable === 1 ? '' : 's'
-						  }) — but the signal is degraded this week, see above.`
+							}) — but the signal is degraded this week, see above.`
 						: `:white_check_mark: No sustained metric regressions in the last ${ WINDOW_DAYS } days across ${ readable } tracked metric${
 								readable === 1 ? '' : 's'
-						  }.`
+							}.`
 				)
 			);
 		} else {

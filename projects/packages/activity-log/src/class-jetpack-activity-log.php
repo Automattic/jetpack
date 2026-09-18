@@ -15,9 +15,12 @@ use Automattic\Jetpack\Activity_Log\Initial_State as Activity_Log_Initial_State;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
+use Jetpack_Options;
 use function add_action;
 use function add_filter;
+use function class_exists;
 use function current_user_can;
 use function did_action;
 use function do_action;
@@ -44,6 +47,21 @@ class Jetpack_Activity_Log {
 	 * @var string
 	 */
 	const PAGE_SLUG = 'jetpack-activity-log';
+
+	/**
+	 * Slug of the Jetpack module that turns the Activity Log on and off.
+	 *
+	 * @var string
+	 */
+	const MODULE_SLUG = 'activity-log';
+
+	/**
+	 * Jetpack_Options key recording that the module was switched on for a site
+	 * with no Jetpack plugin. See `activate_standalone_default()`.
+	 *
+	 * @var string
+	 */
+	const DEFAULT_ACTIVATED_OPTION = 'activity_log_default_activated';
 
 	/**
 	 * Page slug for the wp-build dashboard. Distinct from the wp-admin menu
@@ -79,9 +97,15 @@ class Jetpack_Activity_Log {
 
 	/**
 	 * Entry point. Idempotent: safe to call from multiple bootstraps.
+	 *
+	 * Bootstraps only while the `activity-log` module is on, so the toggle
+	 * means the same thing to the Jetpack plugin and to every standalone
+	 * plugin that carries this package.
 	 */
 	public static function initialize() {
-		if ( did_action( 'jetpack_activity_log_initialized' ) ) {
+		self::register_module();
+
+		if ( did_action( 'jetpack_activity_log_initialized' ) || ! self::is_module_active() ) {
 			return;
 		}
 
@@ -95,6 +119,75 @@ class Jetpack_Activity_Log {
 		 * @since 0.1.0
 		 */
 		do_action( 'jetpack_activity_log_initialized' );
+	}
+
+	/**
+	 * Whether the Activity Log module is switched on.
+	 *
+	 * @return bool
+	 */
+	public static function is_module_active() {
+		return ( new Modules() )->is_active( self::MODULE_SLUG );
+	}
+
+	/**
+	 * Make the module controllable, and give a site with no Jetpack plugin the
+	 * same default-on state the Jetpack plugin gets from `Auto Activate: Yes`.
+	 *
+	 * @return void
+	 */
+	private static function register_module() {
+		add_filter( 'jetpack_get_available_standalone_modules', array( __CLASS__, 'add_standalone_module' ) );
+
+		// `class_exists( 'Jetpack' )` is only reliable once every plugin file has
+		// loaded: `jetpack-backup/` sorts before `jetpack/` in active_plugins, so
+		// Backup reaches initialize() while the Jetpack class is still undefined.
+		if ( did_action( 'plugins_loaded' ) ) {
+			self::activate_standalone_default();
+		} else {
+			add_action( 'plugins_loaded', array( __CLASS__, 'activate_standalone_default' ) );
+		}
+	}
+
+	/**
+	 * Make the module available to the module controller when the Jetpack
+	 * plugin is not installed, so `jetpack_active_modules` is not inert there.
+	 *
+	 * @param array $modules Available standalone module slugs.
+	 * @return array
+	 */
+	public static function add_standalone_module( $modules ) {
+		$modules[] = self::MODULE_SLUG;
+
+		return array_values( array_unique( $modules ) );
+	}
+
+	/**
+	 * Switch the module on once on a site with no Jetpack plugin.
+	 *
+	 * The Jetpack plugin activates the module for you via `Auto Activate: Yes`;
+	 * a standalone install has no equivalent, so without this the page would
+	 * disappear from every Backup/Boost/Protect/Search/VideoPress site on
+	 * upgrade. Recorded in an option rather than repeated, so a later opt-out
+	 * is not undone on the next request.
+	 *
+	 * @return void
+	 */
+	public static function activate_standalone_default() {
+		if ( class_exists( 'Jetpack' ) || Jetpack_Options::get_option( self::DEFAULT_ACTIVATED_OPTION ) ) {
+			return;
+		}
+
+		if ( ! ( new Modules() )->activate( self::MODULE_SLUG, false, false ) ) {
+			return;
+		}
+
+		// Record before re-entering initialize(), which calls back into here.
+		Jetpack_Options::update_option( self::DEFAULT_ACTIVATED_OPTION, true );
+
+		// initialize() ran before this and found the module off, so wire up now
+		// rather than leaving the page missing for the rest of the request.
+		self::initialize();
 	}
 
 	/**

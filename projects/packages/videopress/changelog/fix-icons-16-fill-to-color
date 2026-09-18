@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin: Keep the notice, video list and video card icons colored now that @wordpress/icons 16 draws them as strokes.
