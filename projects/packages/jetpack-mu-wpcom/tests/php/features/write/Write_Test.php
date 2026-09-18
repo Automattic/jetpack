@@ -5,7 +5,6 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-block-editor/functions.editor-type.php';
@@ -61,7 +60,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		wp_set_current_user( 0 );
 		delete_option( 'wpcom_write_rewrite_version' );
-		Constants::clear_constants();
+		Jetpack_Options::delete_option( 'id' );
 		parent::tear_down();
 	}
 
@@ -98,10 +97,11 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	 * Calypso surface they came from rather than to wp-admin.
 	 */
 	public function test_resolve_back_url_maps_writing_prompt_surfaces() {
-		Constants::set_constant( 'IS_WPCOM', true );
+		$this->assertSame( 1, get_current_blog_id(), 'Fixture expects the local blog ID to be 1.' );
+		Jetpack_Options::update_option( 'id', 123456 );
 
 		$this->assertSame(
-			'https://wordpress.com/home/' . get_current_blog_id(),
+			'https://wordpress.com/home/123456',
 			wpcom_write_resolve_back_url( 'writing_prompt_home' )
 		);
 		$this->assertSame(
@@ -111,19 +111,16 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that My Home falls back to the dashboard when the wpcom site id is
-	 * unknown, since a bare /home would land on the account's preferred landing
-	 * page rather than on this site.
+	 * Test that My Home falls back to the dashboard when the wpcom blog ID is unknown.
 	 */
-	public function test_resolve_back_url_falls_back_when_site_id_unknown() {
-		Constants::set_constant( 'IS_WPCOM', false );
+	public function test_resolve_back_url_falls_back_when_blog_id_unknown() {
+		$this->assertSame( 0, wpcom_write_wpcom_blog_id(), 'Fixture expects no wpcom blog ID.' );
 
 		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'writing_prompt_home' ) );
 	}
 
 	/**
-	 * Test that the bare token, which the wp-admin Daily Writing Prompt widget
-	 * sends from the dashboard, still resolves to the dashboard.
+	 * Test that the bare token the wp-admin prompt widget sends still resolves to the dashboard.
 	 */
 	public function test_resolve_back_url_keeps_dashboard_for_wp_admin_prompt_widget() {
 		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'writing_prompt' ) );

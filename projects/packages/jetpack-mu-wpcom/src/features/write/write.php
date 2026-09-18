@@ -13,6 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 if ( ! defined( 'WPCOM_WRITE_VERSION' ) ) {
@@ -66,6 +67,19 @@ function wpcom_write_url() {
 }
 
 /**
+ * The wpcom blog ID, which Atomic's local `get_current_blog_id()` is not.
+ *
+ * @return int Blog ID, or 0 when the site has no wpcom identity.
+ */
+function wpcom_write_wpcom_blog_id() {
+	if ( ! class_exists( Connection_Manager::class ) ) {
+		return 0;
+	}
+
+	return (int) Connection_Manager::get_site_id( true );
+}
+
+/**
  * Resolve the editor's back/close destination from the source the user arrived from.
  *
  * Maps a short allowlist of known source tokens to known internal destinations.
@@ -85,8 +99,8 @@ function wpcom_write_resolve_back_url( $source ) {
 	if ( 'writing_prompt_home' === $source ) {
 		// A bare /home resolves to whichever landing page the account prefers,
 		// which need not be this site, so the id has to be in the URL.
-		$site_id = ( new \Automattic\Jetpack\Status\Host() )->get_wpcom_site_id();
-		return $site_id ? 'https://wordpress.com/home/' . $site_id : admin_url();
+		$blog_id = wpcom_write_wpcom_blog_id();
+		return $blog_id ? 'https://wordpress.com/home/' . $blog_id : admin_url();
 	}
 
 	$destinations = array(
