@@ -57,6 +57,13 @@ class Dashboard_Section_Test extends BaseTestCase {
 	private $layout_filter = null;
 
 	/**
+	 * Registration action callback registered by a test.
+	 *
+	 * @var callable|null
+	 */
+	private $registration_callback = null;
+
+	/**
 	 * Set up a fresh REST server for each test.
 	 */
 	public function set_up() {
@@ -102,6 +109,17 @@ class Dashboard_Section_Test extends BaseTestCase {
 			remove_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, $this->layout_filter );
 			$this->layout_filter = null;
 		}
+
+		if ( null !== $this->registration_callback ) {
+			remove_action( Dashboard_Section_Registry::REGISTER_ACTION, $this->registration_callback );
+			$this->registration_callback = null;
+		}
+
+		// A test may unhook the package's own registrant; the file-scope hook is not re-run.
+		if ( false === has_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' ) ) {
+			add_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
+		}
+		remove_all_filters( DASHBOARD_PREVIEW_SECTIONS_FILTER );
 
 		Jetpack_Options::delete_option( 'active_modules' );
 		Constants::clear_constants();
@@ -169,6 +187,17 @@ class Dashboard_Section_Test extends BaseTestCase {
 				$this->doing_it_wrong[] = $function_name;
 			}
 		);
+	}
+
+	/**
+	 * Hook a registration action callback for the duration of the test.
+	 *
+	 * @param callable $callback Callback receiving the registry.
+	 * @return void
+	 */
+	private function on_registry_hydration( callable $callback ) {
+		$this->registration_callback = $callback;
+		add_action( Dashboard_Section_Registry::REGISTER_ACTION, $callback );
 	}
 
 	/**
@@ -1471,13 +1500,55 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * An unhydrated registry publishes nothing rather than an empty scope.
+	 * A registry nothing registered into publishes nothing rather than an empty scope.
 	 */
-	public function test_preview_scope_sections_are_absent_before_the_registry_is_hydrated() {
+	public function test_preview_scope_sections_are_absent_while_nothing_is_registered() {
+		remove_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
 		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
 		$this->assertNull( get_dashboard_preview_scope_sections() );
 		$this->assertSame( array(), inject_dashboard_preview_scope_script_data( array() ) );
+	}
+
+	/**
+	 * The preview exposes Traffic alone until a filter widens the list.
+	 */
+	public function test_preview_sections_default_to_traffic() {
+		$this->assertSame( array( 'traffic' ), get_dashboard_preview_sections() );
+	}
+
+	/**
+	 * A plugin exposes its own tab in the preview through the list filter.
+	 */
+	public function test_preview_sections_filter_exposes_another_tab() {
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+		add_filter(
+			DASHBOARD_PREVIEW_SECTIONS_FILTER,
+			static function ( $slugs ) {
+				$slugs[] = 'insights';
+
+				return $slugs;
+			}
+		);
+
+		register_default_dashboard_sections();
+
+		$this->assertSame( array( 'traffic', 'insights' ), get_dashboard_preview_scope_sections() );
+	}
+
+	/**
+	 * A filter that hands back no list leaves the preview with no tabs, not with every tab.
+	 */
+	public function test_preview_sections_filter_returning_no_list_exposes_nothing() {
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+		add_filter( DASHBOARD_PREVIEW_SECTIONS_FILTER, '__return_false' );
+
+		register_default_dashboard_sections();
+
+		$this->assertSame( array(), get_dashboard_preview_sections() );
+		$this->assertSame( array(), get_dashboard_preview_scope_sections() );
 	}
 
 	/**
@@ -1648,13 +1719,78 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Bootstrapping after init registers the default sections immediately.
+	 * The first read hydrates the registry with the package's own sections.
 	 */
-	public function test_bootstrap_registers_defaults_when_init_has_run() {
-		do_action( 'init' );
+	public function test_first_read_hydrates_the_registry_with_the_built_in_sections() {
+		$this->assertInstanceOf(
+			Dashboard_Section::class,
+			get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/traffic' )
+		);
+	}
 
-		bootstrap_dashboard_sections();
+	/**
+	 * The registration action fires once, hands over the registry, and tolerates a
+	 * registrant that reads the registry from inside the callback.
+	 */
+	public function test_registration_action_fires_once_with_the_registry() {
+		$calls = array();
 
+		$this->on_registry_hydration(
+			static function ( $registry ) use ( &$calls ) {
+				$calls[] = $registry;
+				$registry->get_all_registered( DASHBOARD_NAME );
+				register_dashboard_section( 'plugin_dashboard', 'plugin/section', array( 'label' => 'Plugin' ) );
+			}
+		);
+
+		$this->assertCount( 1, get_available_dashboard_sections( 'plugin_dashboard' ) );
+		$this->assertInstanceOf(
+			Dashboard_Section::class,
+			get_registered_dashboard_section( 'plugin_dashboard', 'plugin/section' )
+		);
+		$this->assertCount( 1, $calls );
+		$this->assertSame( Dashboard_Section_Registry::get_instance(), $calls[0] );
+	}
+
+	/**
+	 * A section registered on the action reaches the sections route like a built-in one.
+	 */
+	public function test_section_registered_on_the_action_reaches_the_sections_route() {
+		$this->on_registry_hydration(
+			static function () {
+				register_dashboard_section(
+					DASHBOARD_NAME,
+					'plugin/section',
+					array(
+						'label' => 'Plugin',
+						'order' => 15,
+					)
+				);
+			}
+		);
+		$this->set_admin_user();
+
+		$response = rest_get_server()->dispatch(
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/' . DASHBOARD_NAME . '/sections' )
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame(
+			array( 'analytics/traffic', 'plugin/section', 'analytics/insights' ),
+			array_slice( array_column( $response->get_data(), 'id' ), 0, 3 )
+		);
+	}
+
+	/**
+	 * A section registered before the first read survives hydration.
+	 */
+	public function test_section_registered_before_hydration_survives_it() {
+		register_dashboard_section( 'early_dashboard', 'plugin/early', array( 'label' => 'Early' ) );
+
+		$this->assertInstanceOf(
+			Dashboard_Section::class,
+			get_registered_dashboard_section( 'early_dashboard', 'plugin/early' )
+		);
 		$this->assertInstanceOf(
 			Dashboard_Section::class,
 			get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/traffic' )
