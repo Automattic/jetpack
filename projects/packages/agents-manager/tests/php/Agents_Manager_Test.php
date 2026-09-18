@@ -493,8 +493,46 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( '"isDevMode":true', $inline_script );
 		$this->assertStringContainsString( '"version":"wp-admin:abc123"', $inline_script );
+		$this->assertStringContainsString( '"isTrackingAllowed":true', $inline_script );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_variant', $force_variant );
+		delete_transient( 'agents-manager-asset-wp-admin.asset.json' );
+	}
+
+	/**
+	 * Tests that a host can turn tracking off for the frontend through the filter.
+	 */
+	public function test_enqueue_scripts_passes_the_hosts_tracking_opt_out() {
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard' );
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'agents_manager_tracking_allowed', '__return_false' );
+		$force_variant = static function () {
+			return 'wp-admin';
+		};
+		add_filter( 'agents_manager_variant', $force_variant );
+		set_transient(
+			'agents-manager-asset-wp-admin.asset.json',
+			array(
+				'version'      => 'abc123',
+				'dependencies' => array(),
+			)
+		);
+
+		$this->agents_manager->enqueue_scripts();
+
+		global $wp_scripts;
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
+		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString( '"isTrackingAllowed":false', $inline_script );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_tracking_allowed', '__return_false' );
 		remove_filter( 'agents_manager_variant', $force_variant );
 		delete_transient( 'agents-manager-asset-wp-admin.asset.json' );
 	}
