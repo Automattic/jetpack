@@ -11,6 +11,8 @@ use Jetpack_Options;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -933,18 +935,37 @@ class Protected_Owner_Test extends TestCase {
 	 * The callback is wired to the action it relies on.
 	 *
 	 * Every other test here calls the method directly, so a wrong hook name would leave the fix
-	 * inert in production while they all still pass.
+	 * inert in production while they all still pass. Runs in a separate process because
+	 * `configure()` registers many hooks and schedules cron as side effects.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
-	public function test_promotion_is_hooked_to_user_authorization() {
-		$manager = new Manager( 'jetpack' );
-		add_action( 'jetpack_user_authorized', array( $manager, 'promote_protected_owner_on_connect' ) );
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_configure_hooks_promotion_to_user_authorization() {
+		remove_all_actions( 'jetpack_user_authorized' );
 
-		$this->assertNotFalse(
-			has_action( 'jetpack_user_authorized', array( $manager, 'promote_protected_owner_on_connect' ) )
-		);
+		Manager::configure();
 
-		remove_action( 'jetpack_user_authorized', array( $manager, 'promote_protected_owner_on_connect' ) );
+		$hooked = false;
+
+		// Matched by class, not by instance: `configure()` builds its own Manager internally.
+		foreach ( $GLOBALS['wp_filter']['jetpack_user_authorized']->callbacks ?? array() as $priority ) {
+			foreach ( $priority as $registered ) {
+				$callback = $registered['function'];
+
+				if ( is_array( $callback ) && $callback[0] instanceof Manager && 'promote_protected_owner_on_connect' === $callback[1] ) {
+					$hooked = true;
+				}
+			}
+		}
+
+		$this->assertTrue( $hooked, 'configure() should hook promotion to jetpack_user_authorized.' );
+
+		remove_all_actions( 'jetpack_user_authorized' );
 	}
+
 	/**
 	 * An anchor without the cached local ID re-points without a warning.
 	 */
