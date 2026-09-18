@@ -21,6 +21,11 @@
 	padding: 0;
 }
 
+// Without this the link takes wp-admin's link blue.
+.jp-forms__inbox-response-meta-from-email a {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
 .jp-forms__inbox-response-meta-table {
 	color: var(--jp-gray-80, #2c3338);
 	font-size: 13px;
