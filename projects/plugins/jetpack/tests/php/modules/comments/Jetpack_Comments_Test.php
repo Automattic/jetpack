@@ -58,6 +58,41 @@ class Jetpack_Comments_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * comment_form_before() must not start an output buffer when comments are closed.
+	 */
+	public function test_comment_form_before_does_not_buffer_when_comments_closed() {
+		$GLOBALS['post'] = get_post(
+			self::factory()->post->create( array( 'comment_status' => 'closed' ) )
+		);
+
+		$level_before = ob_get_level();
+		Jetpack_Comments::init()->comment_form_before();
+		$level_after = ob_get_level();
+
+		unset( $GLOBALS['post'] );
+		$this->assertSame( $level_before, $level_after );
+	}
+
+	/**
+	 * comment_form_after() must not clean an output buffer when comments are closed.
+	 */
+	public function test_comment_form_after_does_not_clean_buffer_when_comments_closed() {
+		$GLOBALS['post'] = get_post(
+			self::factory()->post->create( array( 'comment_status' => 'closed' ) )
+		);
+
+		ob_start();
+		$level_before = ob_get_level();
+		Jetpack_Comments::init()->comment_form_after();
+		$level_after  = ob_get_level();
+		$buffered     = ob_get_clean();
+
+		unset( $GLOBALS['post'] );
+		$this->assertSame( $level_before, $level_after );
+		$this->assertSame( '', $buffered );
+	}
+
+	/**
 	 * An unsigned Highlander request (e.g. Carousel's nopriv AJAX) must not store identity meta.
 	 */
 	public function test_add_comment_meta_skips_unsigned_highlander_request() {

@@ -362,6 +362,10 @@ HTML;
 			return;
 		}
 
+		if ( ! comments_open() ) {
+			return;
+		}
+
 		// If the Jetpack connection is not healthy, bail.
 		if ( ! $this->get_blog_token() ) {
 			return;
@@ -382,6 +386,10 @@ HTML;
 	public function comment_form_after() {
 		/** This filter is documented in modules/comments/comments.php */
 		if ( ! apply_filters( 'jetpack_comment_form_enabled_for_' . get_post_type(), true ) ) {
+			return;
+		}
+
+		if ( ! comments_open() ) {
 			return;
 		}
 
