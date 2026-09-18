@@ -9,8 +9,9 @@
 
 const path = require( 'path' );
 
-// Where the copies come from: DataViews' prerelease dependencies name the newest, and its ranges
-// accept no older one, so anything resolvable there wins over the package's own resolution.
+// Where the copies come from: this package's own dependencies, so the suite runs the versions it
+// declares. DataViews' prerelease asks for newer `components`/`ui` than that, and does not get them
+// here — as in the browser, where WordPress serves one copy whatever a bundled library asked for.
 const DEDUPED_PACKAGES = [
 	'@wordpress/components',
 	'@wordpress/ui',
@@ -22,6 +23,9 @@ const DEDUPED_PACKAGES = [
 	'@wordpress/primitives',
 	'@wordpress/theme',
 	'@wordpress/rich-text',
+	// Owns the popup behaviour `@wordpress/ui` builds on: pinning one without the other pairs a
+	// control with a second copy's context, and its menus stop taking clicks.
+	'@base-ui/react',
 ];
 
 const escapeRegExp = value => value.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
@@ -33,18 +37,22 @@ const escapeRegExp = value => value.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
  * @return {Object<string, string>} Mapper entries, keyed by an anchored pattern for the bare import.
  */
 function singleCopyModuleMapper( rootDir ) {
-	let dataviewsDir;
-	try {
-		dataviewsDir = path.dirname(
-			require.resolve( '@wordpress/dataviews/package.json', { paths: [ rootDir ] } )
-		);
-	} catch {
-		dataviewsDir = rootDir;
+	// Anything the package does not depend on directly, such as `@base-ui/react`, is reached through
+	// the library that does.
+	const searchDirs = [ rootDir ];
+	for ( const name of [ '@wordpress/ui', '@wordpress/dataviews', '@wordpress/components' ] ) {
+		try {
+			searchDirs.push(
+				path.dirname( require.resolve( `${ name }/package.json`, { paths: [ rootDir ] } ) )
+			);
+		} catch {
+			// Not installed here; the remaining directories still cover the list.
+		}
 	}
 
 	const mapper = {};
 	for ( const name of DEDUPED_PACKAGES ) {
-		for ( const from of [ dataviewsDir, rootDir ] ) {
+		for ( const from of searchDirs ) {
 			try {
 				mapper[ `^${ escapeRegExp( name ) }$` ] = require.resolve( name, { paths: [ from ] } );
 				break;
