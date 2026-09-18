@@ -71,23 +71,17 @@ class Dashboard {
 			return;
 		}
 
-		$menu_args = array(
-			__( 'Stats', 'jetpack-stats-admin' ),
-			_x( 'Stats', 'product name shown in menu', 'jetpack-stats-admin' ),
-			$this->get_capability(),
-			'stats',
-			array( $this, 'render' ),
-			'dashicons-chart-bar',
-			2,
-		);
+		$page_title = __( 'Stats', 'jetpack-stats-admin' );
+		$menu_title = _x( 'Stats', 'product name shown in menu', 'jetpack-stats-admin' );
+		$capability = $this->get_capability();
+		$callback   = array( $this, 'render' );
 
 		// An older admin-ui, loaded first by another plugin, may predate add_top_level_menu().
 		if ( method_exists( Admin_Menu::class, 'add_top_level_menu' ) ) {
 			// The key the legacy Stats screen in the Jetpack plugin also declares, so hosts name Stats once.
-			$menu_args[] = array( 'key' => 'jetpack-stats' );
-			$page_suffix = Admin_Menu::add_top_level_menu( ...$menu_args );
+			$page_suffix = Admin_Menu::add_top_level_menu( $page_title, $menu_title, $capability, 'stats', $callback, 'dashicons-chart-bar', 2, array( 'key' => 'jetpack-stats' ) );
 		} else {
-			$page_suffix = add_menu_page( ...$menu_args );
+			$page_suffix = add_menu_page( $page_title, $menu_title, $capability, 'stats', $callback, 'dashicons-chart-bar', 2 );
 		}
 
 		if ( $page_suffix ) {

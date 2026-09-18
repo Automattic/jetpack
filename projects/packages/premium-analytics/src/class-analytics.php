@@ -525,26 +525,17 @@ class Analytics {
 
 		$menu_title = self::menu_title();
 
-		$menu_args = array(
-			esc_html( $menu_title ),
-			esc_html( $menu_title ),
-			Capabilities::VIEW_ANALYTICS,
-			self::MENU_PAGE_SLUG,
-			$render_callback,
-			'dashicons-chart-bar',
-			2,
-		);
+		$menu_title = esc_html( $menu_title );
 
 		// An older admin-ui, loaded first by another plugin, may predate add_top_level_menu().
 		if ( ! method_exists( Admin_Menu::class, 'add_top_level_menu' ) ) {
-			add_menu_page( ...$menu_args );
+			add_menu_page( $menu_title, $menu_title, Capabilities::VIEW_ANALYTICS, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', 2 );
 			return;
 		}
 
 		// A fixed key rather than the slug, which carries a build-specific suffix. No gate:
 		// the dashboard has no My Jetpack product class and no module to name.
-		$menu_args[] = array( 'key' => 'jetpack-premium-analytics' );
-		Admin_Menu::add_top_level_menu( ...$menu_args );
+		Admin_Menu::add_top_level_menu( $menu_title, $menu_title, Capabilities::VIEW_ANALYTICS, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', 2, array( 'key' => 'jetpack-premium-analytics' ) );
 	}
 
 	/**
