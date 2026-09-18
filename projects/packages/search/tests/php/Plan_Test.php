@@ -126,4 +126,27 @@ class Plan_Test extends Search_TestCase {
 		do_action( 'jetpack_heartbeat' );
 		$this->assertNotEmpty( get_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY ) );
 	}
+	/**
+	 * Testing `get_plan_info_from_wpcom` bails without a blog ID instead of
+	 * requesting the malformed `/sites//jetpack-search/plan` path.
+	 */
+	public function test_get_plan_info_from_wpcom_bails_without_blog_id() {
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10 );
+
+		$requested = false;
+		$spy       = function ( $preempt ) use ( &$requested ) {
+			$requested = true;
+			return $preempt;
+		};
+		add_filter( 'pre_http_request', $spy, 5 );
+
+		$result = static::$plan->get_plan_info_from_wpcom();
+
+		remove_filter( 'pre_http_request', $spy, 5 );
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'site_not_registered', $result->get_error_code() );
+		$this->assertFalse( $requested );
+	}
 }

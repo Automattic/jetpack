@@ -6,11 +6,13 @@ import { useSingleModuleState } from './lib/stores';
 import styles from './module.module.scss';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import { __ } from '@wordpress/i18n';
-import { isWoaHosting } from '$lib/utils/hosting';
+import { isAtomicPlatform } from '$lib/utils/hosting';
 import { useNotices } from '$features/notice/context';
 import { createInterpolateElement } from '@wordpress/element';
 import { Notice, Link } from '@wordpress/ui';
 import Pill from '$features/ui/pill/pill';
+import ModuleRow from './module-row';
+import { useModuleSurface } from './surface';
 import type { ReactNode } from 'react';
 
 type ModuleProps = {
@@ -39,6 +41,7 @@ const Module = ( {
 	onMountEnable,
 }: ModuleProps ) => {
 	const { site } = Jetpack_Boost;
+	const surface = useModuleSurface();
 	const { setNotice } = useNotices();
 	const [ status, setStatus ] = useSingleModuleState( slug, active => {
 		const activatedMessage = __( 'Module activated', 'jetpack-boost' );
@@ -57,9 +60,8 @@ const Module = ( {
 	} );
 	const isModuleActive = status?.active ?? false;
 	const isModuleAvailable = status?.available ?? false;
-	// Page Cache is not available for WoA sites, but since WoA sites
-	// have their own caching, we want to show that Page Cache is active.
-	const isFakeActive = ! isModuleAvailable && isWoaHosting() && slug === 'page_cache';
+	// When the Atomic platform's own cache makes Page Cache unavailable, show the module as active.
+	const isFakeActive = ! isModuleAvailable && isAtomicPlatform() && slug === 'page_cache';
 
 	const showOfflineMessage = ! site.online && ! worksOffline;
 	const offlineMessage = (
@@ -104,6 +106,38 @@ const Module = ( {
 		return null;
 	}
 
+	const label = (
+		<>
+			{ title }
+			{ Jetpack_Boost.developmentFeatures.includes( slug ) && (
+				<Pill text={ __( 'Under Development', 'jetpack-boost' ) } variant="red" />
+			) }
+		</>
+	);
+	const extras = showOfflineMessage ? offlineMessage : isModuleActive && children;
+
+	if ( surface === 'row' ) {
+		return (
+			<ModuleRow
+				testId={ `module-${ slug }` }
+				label={ label }
+				description={ description }
+				toggle={
+					toggle
+						? {
+								className: `jb-feature-toggle-${ slug }`,
+								checked: isModuleActive || isFakeActive,
+								disabled: ! isModuleAvailable,
+								onChange: handleToggle,
+							}
+						: undefined
+				}
+			>
+				{ extras }
+			</ModuleRow>
+		);
+	}
+
 	return (
 		<div className={ styles.module } data-testid={ `module-${ slug }` }>
 			<div className={ styles.toggle }>
@@ -119,58 +153,65 @@ const Module = ( {
 			</div>
 
 			<div className={ styles.content }>
-				<h3>
-					{ title }
-					{ Jetpack_Boost.developmentFeatures.includes( slug ) && (
-						<Pill text={ __( 'Under Development', 'jetpack-boost' ) } variant="red" />
-					) }
-				</h3>
+				<h3>{ label }</h3>
 
 				<div className={ styles.description }>{ description }</div>
 
-				{ showOfflineMessage ? offlineMessage : isModuleActive && children }
+				{ extras }
 			</div>
 		</div>
 	);
 };
 
-export default ( props: ModuleProps ) => {
+const FailedModuleNotice = ( { error }: { error: Error } ) => (
+	<Notice.Root intent="error">
+		<Notice.Title>{ __( 'Failed to load module', 'jetpack-boost' ) }</Notice.Title>
+		<Notice.Description>
+			<p>
+				{ createInterpolateElement(
+					__(
+						'We encountered an error while loading this module. Please refresh the page and try again. If the issue persists, <link>click here</link> to get help.',
+						'jetpack-boost'
+					),
+					{
+						link: (
+							<Link
+								openInNewTab
+								href={ getRedirectUrl( 'jetpack-boost-help-module-load-failed' ) }
+							/>
+						),
+					}
+				) }
+			</p>
+			<code>{ `${ error.constructor.name }: ${ error.message }` }</code>
+		</Notice.Description>
+	</Notice.Root>
+);
+
+const ModuleWithErrorBoundary = ( props: ModuleProps ) => {
+	const surface = useModuleSurface();
+
 	return (
 		<ErrorBoundary
-			fallback={ error => (
-				<div>
+			fallback={ error =>
+				surface === 'row' ? (
+					<ModuleRow label={ props.title } description={ <FailedModuleNotice error={ error } /> } />
+				) : (
 					<div>
-						<h3>{ props.title }</h3>
+						<div>
+							<h3>{ props.title }</h3>
 
-						<div className={ styles[ 'failed-module-notice' ] }>
-							<Notice.Root intent="error">
-								<Notice.Title>{ __( 'Failed to load module', 'jetpack-boost' ) }</Notice.Title>
-								<Notice.Description>
-									<p>
-										{ createInterpolateElement(
-											__(
-												'We encountered an error while loading this module. Please refresh the page and try again. If the issue persists, <link>click here</link> to get help.',
-												'jetpack-boost'
-											),
-											{
-												link: (
-													<Link
-														openInNewTab
-														href={ getRedirectUrl( 'jetpack-boost-help-module-load-failed' ) }
-													/>
-												),
-											}
-										) }
-									</p>
-									<code>{ `${ error.constructor.name }: ${ error.message }` }</code>
-								</Notice.Description>
-							</Notice.Root>
+							<div className={ styles[ 'failed-module-notice' ] }>
+								<FailedModuleNotice error={ error } />
+							</div>
 						</div>
 					</div>
-				</div>
-			) }
+				)
+			}
 		>
 			<Module { ...props } />
 		</ErrorBoundary>
 	);
 };
+
+export default ModuleWithErrorBoundary;

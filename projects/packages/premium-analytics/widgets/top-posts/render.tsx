@@ -27,6 +27,7 @@ import {
 	useWidgetDrillDown,
 	useWidgetNavigationSearch,
 	useWidgetRootContext,
+	withComparisonColumns,
 	type CsvColumn,
 	type LeaderboardChartData,
 	type LeaderboardRowAction,
@@ -240,26 +241,30 @@ function TopPostsReport() {
 		useStatsTopPosts( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo( () => toTopPostRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
-	const detailSearch = useWidgetNavigationSearch();
+	const detailSearch = useWidgetNavigationSearch( {
+		origin: { report: 'posts', section: 'posts-pages' },
+	} );
 	const withComparison = hasComparison;
 
 	// Serialize whatever the leaderboard has loaded, mirroring the Jetpack Stats
 	// client-side "Download CSV" (bounded to the rows already in the browser).
-	const csvColumns = useMemo< CsvColumn< TopPostRow >[] >( () => {
-		const base: CsvColumn< TopPostRow >[] = [
-			{ label: __( 'Title', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
-			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.value },
-			{ label: __( 'Type', 'jetpack-premium-analytics-pkg' ), getValue: row => row.type },
-			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.href },
-		];
-		if ( withComparison ) {
-			base.splice( 2, 0, {
-				label: __( 'Previous views', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.previousValue,
-			} );
-		}
-		return base;
-	}, [ withComparison ] );
+	const csvColumns = useMemo< CsvColumn< TopPostRow >[] >(
+		() =>
+			withComparisonColumns(
+				[
+					{ label: __( 'Title', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
+					{
+						label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
+						getValue: row => row.value,
+						getPreviousValue: row => row.previousValue,
+					},
+					{ label: __( 'Type', 'jetpack-premium-analytics-pkg' ), getValue: row => row.type },
+					{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.href },
+				],
+				withComparison
+			),
+		[ withComparison ]
+	);
 
 	// Stats queries keep placeholder rows during a refetch; the shared hook hides
 	// export until rows belong to the active date range.

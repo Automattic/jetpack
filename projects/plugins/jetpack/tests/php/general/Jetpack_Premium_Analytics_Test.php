@@ -24,6 +24,7 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+		Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
 		self::reset_flag_cache();
 	}
 
@@ -32,6 +33,8 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		delete_option( 'jetpack_premium_analytics_enabled' );
+		unregister_setting( 'general', 'jetpack_premium_analytics_enabled' );
+		Jetpack_Options::delete_option( 'active_modules' );
 		self::reset_flag_cache();
 		remove_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 		parent::tear_down();
@@ -121,6 +124,30 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 		update_option( 'jetpack_premium_analytics_enabled', 0 );
 
 		$this->assertFalse( Jetpack::is_premium_analytics_enabled() );
+	}
+
+	/**
+	 * Off while the Stats module is inactive, without even consulting the flag; back once it is active again.
+	 */
+	public function test_follows_the_stats_module() {
+		update_option( 'jetpack_premium_analytics_enabled', 1 );
+		Jetpack_Options::update_option( 'active_modules', array() );
+
+		$not_consulted = function () {
+			$this->fail( 'The flag must not be consulted while the Stats module is inactive.' );
+		};
+		add_filter( 'jetpack_premium_analytics_enabled', $not_consulted );
+
+		try {
+			$this->assertFalse( Jetpack::is_premium_analytics_enabled() );
+		} finally {
+			remove_filter( 'jetpack_premium_analytics_enabled', $not_consulted );
+		}
+
+		self::reset_flag_cache();
+		Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
+
+		$this->assertTrue( Jetpack::is_premium_analytics_enabled() );
 	}
 
 	/**
@@ -245,5 +272,17 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 		stats_load();
 
 		$this->assertNotFalse( has_action( 'jetpack_admin_menu', 'stats_admin_menu' ) );
+	}
+
+	/**
+	 * The opt-in is exposed while the dashboard is still off — it is the setting that turns it on,
+	 * so registering it behind the flag would leave nothing able to flip it.
+	 */
+	public function test_enablement_setting_is_registered_while_the_dashboard_is_off() {
+		$this->assertFalse( Jetpack::is_premium_analytics_enabled() );
+
+		Jetpack::register_premium_analytics_enablement_setting();
+
+		$this->assertArrayHasKey( 'jetpack_premium_analytics_enabled', get_registered_settings() );
 	}
 }

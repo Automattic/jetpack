@@ -252,7 +252,12 @@ declare global {
 			setCount: ( menuSlug: string, count: number ) => void;
 		};
 		/** Set by Form_Editor::enqueue_welcome_guide(); absent off the form editor. */
-		jetpackFormsWelcomeGuide?: { isEligible: boolean; isCoreGuidePending: boolean };
+		jetpackFormsWelcomeGuide?: {
+			isEligible: boolean;
+			isCoreGuidePending: boolean;
+			/** Build-dir URL webpack prepends to the guide's artwork; see welcome-guide/public-path.ts. */
+			assetsUrl?: string;
+		};
 	}
 }
 

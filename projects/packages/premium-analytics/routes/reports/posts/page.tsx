@@ -1,7 +1,10 @@
 /**
  * External dependencies
  */
-import { type StatsTopPostsComparisonItem } from '@jetpack-premium-analytics/data';
+import {
+	usePostThumbnails,
+	type StatsTopPostsComparisonItem,
+} from '@jetpack-premium-analytics/data';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
@@ -16,7 +19,7 @@ import {
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -40,6 +43,8 @@ import {
 const ROUTE_FROM = route.path;
 
 type ReportCsvRow = StatsTopPostsComparisonItem | ArchiveRow;
+
+const EMPTY_POST_ROWS: StatsTopPostsComparisonItem[] = [];
 
 const sortReportCsvRows = ( a: ReportCsvRow, b: ReportCsvRow ) => b.views - a.views;
 
@@ -104,10 +109,22 @@ function PostsReport(): JSX.Element {
 
 	const records = usePostsReportRecords( activeTab, reportParams );
 	const retry = useReportRetry( records.refetch );
+	const [ visiblePostRows, setVisiblePostRows ] = useState< StatsTopPostsComparisonItem[] >( [] );
+	const handleVisiblePostRowsChange = useCallback( ( rows: StatsTopPostsComparisonItem[] ) => {
+		// Preserve the array when only thumbnail-backed fields changed, or this callback loops.
+		setVisiblePostRows( previous =>
+			previous.length === rows.length && previous.every( ( row, index ) => row === rows[ index ] )
+				? previous
+				: rows
+		);
+	}, [] );
+	const thumbnailUrls = usePostThumbnails(
+		activeTab === 'posts-pages' ? visiblePostRows : EMPTY_POST_ROWS
+	);
 
 	const postsFields = useMemo(
-		() => getPostsFields( records.posts.hasComparison, activeTab ),
-		[ activeTab, records.posts.hasComparison ]
+		() => getPostsFields( records.posts.hasComparison, activeTab, thumbnailUrls ),
+		[ activeTab, records.posts.hasComparison, thumbnailUrls ]
 	);
 	const archivesFields = useMemo(
 		() => getArchivesFields( records.archives.hasComparison ),
@@ -166,6 +183,7 @@ function PostsReport(): JSX.Element {
 				isLoading={ records.posts.isLoading || records.posts.isFetching }
 				initialView={ RECORDS_VIEW }
 				searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
+				onChangePageItems={ handleVisiblePostRowsChange }
 			/>
 		) : (
 			<ReportDrilldownTable< ArchiveRow >
@@ -185,10 +203,8 @@ function PostsReport(): JSX.Element {
 
 	return (
 		<ReportPageShell
-			tabbed
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
-			subTitle={ __( 'All your posts and archive pages.', 'jetpack-premium-analytics-pkg' ) }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />

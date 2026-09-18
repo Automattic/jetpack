@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Follow the WordPress admin color scheme for series colors, and move the palette to five --a8c-charts-color-series-* custom properties. theme.colors is deprecated.

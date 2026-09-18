@@ -37,13 +37,6 @@ export type DashboardSection = {
 	title?: string | null;
 
 	/**
-	 * Translated section description, rendered as the page subtitle while this
-	 * section is active. Missing or `null` renders no subtitle — there is no
-	 * default copy behind it.
-	 */
-	description?: string | null;
-
-	/**
 	 * Sort order (ascending).
 	 */
 	order: number;

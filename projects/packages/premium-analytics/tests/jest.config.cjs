@@ -3,6 +3,7 @@ const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
 // Shared with the guard test in `js/test-groups.test.ts`, so the two can never
 // disagree about which suites a group claims.
 const { GROUPS_DIR, groupedMemberFiles } = require( './group-members.cjs' );
+const { singleCopyModuleMapper } = require( './single-copy-modules.cjs' );
 
 const rootDir = path.join( __dirname, '..' );
 
@@ -36,11 +37,17 @@ const groupingIgnorePatterns = useGroups
 module.exports = {
 	...baseConfig,
 	rootDir,
+	// A jsdom suite rendering real components runs tens of times slower on a CI runner sharing its
+	// cores with every other project's workers, which took two suites past Jest's 5s default.
+	testTimeout: 20_000,
 	testPathIgnorePatterns: [ ...baseConfig.testPathIgnorePatterns, ...groupingIgnorePatterns ],
 	moduleNameMapper: {
 		...baseConfig.moduleNameMapper,
-		// Stub CSS imports (e.g. `@automattic/ui/style.css` pulled in via
-		// widgets-toolkit, or local `*.module.css`). jest's transformIgnorePatterns
+		...singleCopyModuleMapper( rootDir ),
+		// Reached only through `@wordpress/core-data`'s editor features, and costly to load.
+		'^@wordpress/block-editor$': path.join( __dirname, 'block-editor-mock.cjs' ),
+		// Stub CSS imports (e.g. `@automattic/charts/style.css` pulled in via
+		// externals, or local `*.module.css`). jest's transformIgnorePatterns
 		// skips nested node_modules CSS, so it would otherwise be parsed as JS.
 		'\\.s?css$': path.join( __dirname, 'style-stub.cjs' ),
 		// Resolve internal `packages/*` imports to their TypeScript source.

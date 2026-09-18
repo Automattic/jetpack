@@ -13,8 +13,8 @@ export const SUBPIXEL_TOLERANCE = 0.5;
  * Counts how many leading rows fit inside the content container.
  *
  * Rows are read from the DOM rather than derived from constants: row height
- * depends on the theme's row gap, label wrapping, and whatever a caller renders
- * as a label, so any restated number would drift.
+ * depends on `--a8c-charts-dimension-leaderboard-row-gap`, label wrapping, and
+ * whatever a caller renders as a label, so any restated number would drift.
  *
  * Every row is a direct grid child marked with `data-row-index`; interactive rows
  * use a button wrapper and non-interactive rows use a div wrapper.

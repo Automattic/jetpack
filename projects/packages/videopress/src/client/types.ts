@@ -52,8 +52,7 @@ export type VideoTracksListResponseBodyProps =
 	  };
 
 export type VideoTracksResponseBodyProps =
-	| VideoTracksLegacyResponseBodyProps
-	| VideoTracksListResponseBodyProps;
+	VideoTracksLegacyResponseBodyProps | VideoTracksListResponseBodyProps;
 
 type STDVideoFileProps = {
 	mp4: string;

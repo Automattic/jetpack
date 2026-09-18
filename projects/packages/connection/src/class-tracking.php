@@ -89,6 +89,7 @@ class Tracking {
 				403,
 				JSON_UNESCAPED_SLASHES
 			);
+			exit; // @phan-suppress-current-line PhanPluginUnreachableCode -- @todo Remove when WP 7.1 is the minimum version.
 		}
 
 		$tracks_data = array();

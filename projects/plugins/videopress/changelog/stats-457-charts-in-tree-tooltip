@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: keep chart tooltips under sticky and fixed page elements.

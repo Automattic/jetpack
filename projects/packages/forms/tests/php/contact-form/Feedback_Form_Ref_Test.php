@@ -122,7 +122,7 @@ class Feedback_Form_Ref_Test extends BaseTestCase {
 		// Submit form with form_id set
 		$result = $this->create_and_submit_form( $form_id );
 
-		$this->assertTrue( is_string( $result ), 'Form submission should be successful' );
+		$this->assertIsString( $result, 'Form submission should be successful' );
 
 		// Get final feedback count
 		$final_posts = Posts::init()->posts;

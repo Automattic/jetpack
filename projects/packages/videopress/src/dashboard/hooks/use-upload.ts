@@ -40,6 +40,7 @@ export type UploadItem = {
 	progress: number; // 0..1
 	status: UploadStatus;
 	error?: string;
+	errorCode?: string;
 };
 
 const STORE_KEY = '__jetpackVideopressUploadStore' as const;
@@ -205,9 +206,16 @@ export function useUpload() {
 			} else if ( typeof err === 'string' ) {
 				message = err;
 			}
+			// Errors reach here from two places — the token step and tus — and only
+			// some carry a code. Read it off whatever arrived rather than narrowing
+			// to a type, since an uncoded error is a normal outcome here, not a bug.
+			const errorCode =
+				typeof ( err as { code?: unknown } )?.code === 'string'
+					? ( err as { code: string } ).code
+					: undefined;
 			mutateQueue( prev =>
 				prev.map( item =>
-					item.id === id ? { ...item, status: 'failed', error: message } : item
+					item.id === id ? { ...item, status: 'failed', error: message, errorCode } : item
 				)
 			);
 			// Failed items stay in the queue so the user can retry. Move
@@ -243,7 +251,9 @@ export function useUpload() {
 			}
 			mutateQueue( prev =>
 				prev.map( q =>
-					q.id === id ? { ...q, status: 'pending', progress: 0, error: undefined } : q
+					q.id === id
+						? { ...q, status: 'pending', progress: 0, error: undefined, errorCode: undefined }
+						: q
 				)
 			);
 			// Dispatch immediately if idle; otherwise wait for the

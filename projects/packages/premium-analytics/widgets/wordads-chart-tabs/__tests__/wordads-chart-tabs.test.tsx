@@ -26,7 +26,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
-		pointsAreWallClocks,
+		tooltipMetrics,
 	}: {
 		metrics: {
 			key: string;
@@ -36,12 +36,12 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			dataFormat?: { type: string };
 		}[];
 		chartType?: string;
-		pointsAreWallClocks?: boolean;
+		tooltipMetrics?: string;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
 			data-chart-type={ String( chartType ) }
-			data-wall-clocks={ String( pointsAreWallClocks ) }
+			data-tooltip-metrics={ String( tooltipMetrics ) }
 			data-metrics={ JSON.stringify(
 				metrics.map( metric => ( {
 					key: metric.key,
@@ -87,12 +87,15 @@ function wrapper( { children }: { children: ReactNode } ) {
 
 describe( 'useWordAdsChart', () => {
 	beforeEach( () => {
+		jest.useFakeTimers();
 		// The data package's query client is a module-level singleton; drop its
 		// cache so each test starts from a fresh fetch.
 		queryClient.clear();
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( PRIMARY_RESPONSE );
 	} );
+
+	afterEach( () => jest.useRealTimers() );
 
 	it( 'builds Ads Served, Average CPM, and Revenue tabs from the summary totals', async () => {
 		const reportParams: ReportParams = {
@@ -297,19 +300,18 @@ describe( 'WordAdsChartTabsWidget date control', () => {
 			onChange,
 		} );
 
-		const toolbar = screen.getByRole( 'toolbar', { name: 'Date range' } );
+		await user.click( screen.getByRole( 'button', { name: 'Last 30 days' } ) );
+
+		const menu = screen.getByRole( 'menu', { name: 'Period' } );
 
 		expect(
-			within( toolbar )
-				.getAllByRole( 'button' )
-				.map( button => button.textContent )
-		).toEqual( [ '7 days', '30 days', '12 months', 'Custom' ] );
-		expect( screen.getByRole( 'button', { name: '30 days' } ) ).toHaveAttribute(
-			'aria-pressed',
-			'true'
-		);
+			within( menu )
+				.getAllByRole( 'menuitemradio' )
+				.map( item => item.textContent )
+		).toEqual( [ 'Last 7 days', 'Last 30 days', 'Last 12 months', 'Custom range' ] );
+		expect( screen.getByRole( 'menuitemradio', { name: 'Last 30 days' } ) ).toBeChecked();
 
-		await user.click( screen.getByRole( 'button', { name: '7 days' } ) );
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'Last 7 days' } ) );
 
 		expect( onChange ).toHaveBeenCalledWith( {
 			reportParams: expect.objectContaining( { preset: 'last-7-days' } ),
@@ -327,5 +329,67 @@ describe( 'WordAdsChartTabsWidget date control', () => {
 		expect( onChange ).toHaveBeenCalledWith( {
 			reportParams: expect.objectContaining( { preset: 'last-30-days' } ),
 		} );
+	} );
+
+	// The menu and `render.tsx` read the same grain, so this fails if the widget
+	// stops handing it over.
+	it( 'offers no bucket the chart cannot draw', async () => {
+		const user = userEvent.setup();
+
+		// Two to six days is the window that puts hours on offer.
+		renderDateControl( {
+			data: {
+				reportParams: { from: '2026-06-01', to: '2026-06-03T23:59:59', interval: 'day' },
+			},
+			onChange: jest.fn(),
+		} );
+
+		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
+
+		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
+			'By days',
+		] );
+	} );
+
+	it( 'offers months alone on its longest window', async () => {
+		const user = userEvent.setup();
+
+		renderDateControl( {
+			data: { reportParams: { preset: 'last-12-months', interval: 'month' } },
+			onChange: jest.fn(),
+		} );
+
+		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
+
+		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
+			'By months',
+		] );
+	} );
+} );
+
+describe( 'WordAdsChartTabsWidget tooltip', () => {
+	beforeEach( () => {
+		queryClient.clear();
+		mockApiFetch.mockReset();
+		mockApiFetch.mockResolvedValue( PRIMARY_RESPONSE );
+	} );
+
+	afterEach( () => setMockRouteSearch( {} ) );
+
+	// Classic's WordAds chart lists ads served, CPM and revenue together on hover,
+	// whichever tab is selected.
+	it( 'reads every metric out on hover', async () => {
+		render(
+			<WordAdsChartTabsWidget
+				attributes={ {
+					reportParams: { from: '2026-05-01', to: '2026-06-30', interval: 'day' },
+				} }
+			/>
+		);
+
+		await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toHaveAttribute(
+			'data-tooltip-metrics',
+			'all'
+		);
 	} );
 } );

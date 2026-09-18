@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep the product card, interstitial and close icons colored now that @wordpress/icons 16 draws them as strokes.

@@ -20,7 +20,7 @@ Main component for rendering minimal trend visualizations.
 | `width` | `number` | `100` | Width of the sparkline in pixels |
 | `height` | `number` | `40` | Height of the sparkline in pixels |
 | `size` | `number` | - | Size for responsive variant (equivalent to width for square charts) |
-| `color` | `string` | theme color | Color for the line stroke (hex or CSS color) |
+| `color` | `string` | `--a8c-charts-color-series-1` | Color for the line stroke (hex or CSS color) |
 | `strokeWidth` | `number` | `1.5` | Line stroke width in pixels |
 | `withGradientFill` | `boolean` | `true` | Whether to render the gradient fill beneath the line |
 | `gradient` | `GradientConfig` | auto | Gradient configuration for area fill |
@@ -48,7 +48,7 @@ Simple numeric value for plotting.
 type GradientConfig = {
 	/** Start color for gradient (defaults to color prop) */
 	from?: string;
-	/** End color for gradient (defaults to theme backgroundColor) */
+	/** End color for gradient (defaults to `--a8c-charts-color-background`) */
 	to?: string;
 	/** Start opacity (0-1), defaults to 0.5 */
 	fromOpacity?: number;
@@ -182,8 +182,7 @@ import { GlobalChartsProvider } from '@automattic/charts';
 
 The default line color, used when the `color` prop is not provided, is the first series palette color — set in CSS as `--a8c-charts-color-series-1`, not through the theme object.
 
-**Theme Properties Used:**
-- `backgroundColor`: Default gradient `to` color
+The gradient's default `to` color is `--a8c-charts-color-background`, declared in CSS the same way.
 
 ## TypeScript Usage
 

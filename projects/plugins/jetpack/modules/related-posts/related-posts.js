@@ -76,67 +76,70 @@
 				anchor.setAttribute( 'rel', post.rel );
 			}
 
-			var div = document.createElement( 'div' );
-			div.appendChild( anchor );
-
-			var anchorHTML = div.innerHTML;
-			return [ anchorHTML.substring( 0, anchorHTML.length - 4 ), '</a>' ];
+			return anchor;
 		},
 
-		generateMinimalHtml: function ( posts, options ) {
+		cleanHtml: function ( str ) {
+			var div = document.createElement( 'div' );
+			div.innerHTML = str;
+			return div.textContent || div.innerText || '';
+		},
+
+		generateMinimalDiv: function ( posts, options ) {
 			var self = this;
-			var html = '';
+			var div = document.createElement( 'div' );
+			div.setAttribute(
+				'class',
+				'jp-relatedposts-items jp-relatedposts-items-minimal jp-relatedposts-' + options.layout
+			);
 
 			posts.forEach( function ( post, index ) {
-				var anchor = self.getAnchor( post, 'jp-relatedposts-post-a' );
 				var classes = 'jp-relatedposts-post jp-relatedposts-post' + index;
 
 				if ( post.classes.length > 0 ) {
 					classes += ' ' + post.classes.join( ' ' );
 				}
 
-				html +=
-					'<p class="' +
-					classes +
-					'" data-post-id="' +
-					post.id +
-					'" data-post-format="' +
-					post.format +
-					'">';
-				html +=
-					'<span class="jp-relatedposts-post-title">' +
-					anchor[ 0 ] +
-					post.title +
-					anchor[ 1 ] +
-					'</span>';
+				var p = document.createElement( 'p' );
+				p.setAttribute( 'class', classes );
+				p.setAttribute( 'data-post-id', post.id );
+				p.setAttribute( 'data-post-format', post.format );
+				div.appendChild( p );
+
+				var titleSpan = document.createElement( 'span' );
+				titleSpan.setAttribute( 'class', 'jp-relatedposts-post-title' );
+				p.appendChild( titleSpan );
+
+				var anchor = self.getAnchor( post, 'jp-relatedposts-post-a' );
+				titleSpan.appendChild( anchor );
+				anchor.textContent = self.cleanHtml( post.title );
+
 				if ( options.showDate ) {
-					html +=
-						'<time class="jp-relatedposts-post-date" datetime="' +
-						post.date +
-						'">' +
-						post.date +
-						'</time>';
+					var timeElt = document.createElement( 'time' );
+					timeElt.setAttribute( 'class', 'jp-relatedposts-post-date' );
+					timeElt.setAttribute( 'datetime', post.date );
+					timeElt.textContent = post.date;
+					p.appendChild( timeElt );
 				}
 				if ( options.showContext ) {
-					html += '<span class="jp-relatedposts-post-context">' + post.context + '</span>';
+					var contextSpan = document.createElement( 'span' );
+					contextSpan.setAttribute( 'class', 'jp-relatedposts-post-context' );
+					contextSpan.textContent = self.cleanHtml( post.context );
+					p.appendChild( contextSpan );
 				}
-				html += '</p>';
 			} );
-			return (
-				'<div class="jp-relatedposts-items jp-relatedposts-items-minimal jp-relatedposts-' +
-				options.layout +
-				' ">' +
-				html +
-				'</div>'
-			);
+			return div;
 		},
 
-		generateVisualHtml: function ( posts, options ) {
+		generateVisualDiv: function ( posts, options ) {
 			var self = this;
-			var html = '';
+			var div = document.createElement( 'div' );
+			div.setAttribute(
+				'class',
+				'jp-relatedposts-items jp-relatedposts-items-visual jp-relatedposts-' + options.layout
+			);
 
 			posts.forEach( function ( post, index ) {
-				var anchor = self.getAnchor( post, 'jp-relatedposts-post-a' );
 				var classes = 'jp-relatedposts-post jp-relatedposts-post' + index;
 
 				if ( post.classes.length > 0 ) {
@@ -149,71 +152,65 @@
 					classes += ' jp-relatedposts-post-thumbs';
 				}
 
-				var dummyContainer = document.createElement( 'p' );
-				dummyContainer.innerHTML = post.excerpt;
-				var excerpt = dummyContainer.textContent;
+				var innerDiv = document.createElement( 'div' );
+				innerDiv.setAttribute( 'class', classes );
+				innerDiv.setAttribute( 'data-post-id', post.id );
+				innerDiv.setAttribute( 'data-post-format', post.format );
+				div.appendChild( innerDiv );
 
-				html +=
-					'<div class="' +
-					classes +
-					'" data-post-id="' +
-					post.id +
-					'" data-post-format="' +
-					post.format +
-					'">';
 				if ( post.img.src ) {
-					html +=
-						anchor[ 0 ] +
-						'<img class="jp-relatedposts-post-img" loading="lazy" src="' +
-						post.img.src +
-						'" width="' +
-						post.img.width +
-						'" height="' +
-						post.img.height +
-						( post.img.srcset ? '" srcset="' + post.img.srcset : '' ) +
-						( post.img.sizes ? '" sizes="' + post.img.sizes : '' ) +
-						'" alt="' +
-						post.img.alt_text +
-						'" />' +
-						anchor[ 1 ];
+					var imgAnchor = self.getAnchor( post, 'jp-relatedposts-post-a' );
+					innerDiv.appendChild( imgAnchor );
+
+					var img = document.createElement( 'img' );
+					img.setAttribute( 'class', 'jp-relatedposts-post-img' );
+					img.setAttribute( 'loading', 'lazy' );
+					img.setAttribute( 'src', post.img.src );
+					img.setAttribute( 'width', post.img.width );
+					img.setAttribute( 'height', post.img.height );
+					if ( post.img.srcset ) {
+						img.setAttribute( 'srcset', post.img.srcset );
+					}
+					if ( post.img.sizes ) {
+						img.setAttribute( 'sizes', post.img.sizes );
+					}
+					img.setAttribute( 'alt', post.img.alt_text );
+					imgAnchor.appendChild( img );
 				} else {
 					var anchor_overlay = self.getAnchor(
 						post,
 						'jp-relatedposts-post-a jp-relatedposts-post-aoverlay'
 					);
-					html += anchor_overlay[ 0 ] + anchor_overlay[ 1 ];
+					innerDiv.appendChild( anchor_overlay );
 				}
-				html +=
-					'<' +
-					related_posts_js_options.post_heading +
-					' class="jp-relatedposts-post-title">' +
-					anchor[ 0 ] +
-					post.title +
-					anchor[ 1 ] +
-					'</' +
-					related_posts_js_options.post_heading +
-					'>';
-				html += '<p class="jp-relatedposts-post-excerpt">' + excerpt + '</p>';
+				var heading = document.createElement( related_posts_js_options.post_heading );
+				heading.setAttribute( 'class', 'jp-relatedposts-post-title' );
+				innerDiv.appendChild( heading );
+
+				var headingAnchor = self.getAnchor( post, 'jp-relatedposts-post-a' );
+				headingAnchor.textContent = self.cleanHtml( post.title );
+				heading.appendChild( headingAnchor );
+
+				var p = document.createElement( 'p' );
+				p.setAttribute( 'class', 'jp-relatedposts-post-excerpt' );
+				p.textContent = self.cleanHtml( post.excerpt );
+				innerDiv.appendChild( p );
+
 				if ( options.showDate ) {
-					html +=
-						'<time class="jp-relatedposts-post-date" datetime="' +
-						post.date +
-						'">' +
-						post.date +
-						'</time>';
+					var timeElt = document.createElement( 'time' );
+					timeElt.setAttribute( 'class', 'jp-relatedposts-post-date' );
+					timeElt.setAttribute( 'datetime', post.date );
+					timeElt.textContent = post.date;
+					innerDiv.appendChild( timeElt );
 				}
 				if ( options.showContext ) {
-					html += '<p class="jp-relatedposts-post-context">' + post.context + '</p>';
+					var contextP = document.createElement( 'p' );
+					contextP.setAttribute( 'class', 'jp-relatedposts-post-context' );
+					contextP.textContent = self.cleanHtml( post.context );
+					innerDiv.appendChild( contextP );
 				}
-				html += '</div>';
 			} );
-			return (
-				'<div class="jp-relatedposts-items jp-relatedposts-items-visual jp-relatedposts-' +
-				options.layout +
-				' ">' +
-				html +
-				'</div>'
-			);
+			return div;
 		},
 
 		/**
@@ -320,8 +317,7 @@
 
 					jprp.response = response;
 
-					var html,
-						showThumbnails,
+					var showThumbnails,
 						options = {};
 
 					if ( 'undefined' !== typeof wp && wp.customize ) {
@@ -338,13 +334,11 @@
 						options.layout = response.layout;
 					}
 
-					html = ! showThumbnails
-						? jprp.generateMinimalHtml( response.items, options )
-						: jprp.generateVisualHtml( response.items, options );
+					var div = ! showThumbnails
+						? jprp.generateMinimalDiv( response.items, options )
+						: jprp.generateVisualDiv( response.items, options );
 
-					var div = document.createElement( 'div' );
 					relatedPosts.appendChild( div );
-					div.outerHTML = html;
 
 					if ( options.showDate ) {
 						var dates = relatedPosts.querySelectorAll( '.jp-relatedposts-post-date' );

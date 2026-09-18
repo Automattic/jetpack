@@ -266,12 +266,12 @@ const ProductDetailCard = ( {
 					/* translators: %s: product name. */
 					__( 'Install %s', 'jetpack-my-jetpack' ),
 					productMoniker
-			  )
+				)
 			: sprintf(
 					/* translators: %s: the product name. */
 					__( 'Get %s', 'jetpack-my-jetpack' ),
 					productMoniker
-			  );
+				);
 	const ctaLabel = ctaButtonLabel || defaultCtaLabel;
 
 	const clickHandler = useCallback( () => {
@@ -424,7 +424,7 @@ const ProductDetailCard = ( {
 											/* translators: %s: the call-to-action label. */
 											__( '%s or Start for free', 'jetpack-my-jetpack' ),
 											ctaLabel
-									  )
+										)
 									: ctaLabel
 							}
 						/>

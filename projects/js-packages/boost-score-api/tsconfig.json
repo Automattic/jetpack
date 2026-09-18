@@ -1,11 +1,13 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.tsc.json",
-	"include": [ "./src" ],
+	// Sources and tests, so `typecheck` covers both. The build narrows this down again in
+	// tsconfig.build.json, which is what produces ./build.
+	"include": [ "./src", "./tests" ],
 	"compilerOptions": {
 		"target": "es2022",
 		"typeRoots": [ "./node_modules/@types/", "src/*" ],
 		"sourceMap": true,
 		"outDir": "./build/",
-		"rootDir": "./src"
+		"rootDir": "./"
 	}
 }

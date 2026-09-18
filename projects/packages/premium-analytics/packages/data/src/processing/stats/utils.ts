@@ -14,6 +14,10 @@ import type {
 } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
+/** Inclusive day bounds, in the offset-less second-precision shape Stats responses carry. */
+export const DAY_START_TIME = '00:00:00';
+export const DAY_END_TIME = '23:59:59';
+
 type StatsComparisonKey = string | number;
 
 type StatsComparisonEntry< TComparison > = {
@@ -244,7 +248,7 @@ export function mergeStatsTreeComparisonRows<
 				const childContext = getChildContext?.( mappedRow, levelParentContext );
 				const children = mergeLevel(
 					getPrimaryChildren( row ) ?? [],
-					context.comparisonItem ? getComparisonChildren( context.comparisonItem ) ?? [] : [],
+					context.comparisonItem ? ( getComparisonChildren( context.comparisonItem ) ?? [] ) : [],
 					childContext
 				);
 
@@ -317,8 +321,8 @@ export function getStatsIntervalFields( date: string, period?: string ): StatsIn
 
 	return {
 		time_interval: date,
-		date_start: formatDatePartWithTime( startDate, '00:00:00' ),
-		date_end: formatDatePartWithTime( endDate, '23:59:59' ),
+		date_start: formatDatePartWithTime( startDate, DAY_START_TIME ),
+		date_end: formatDatePartWithTime( endDate, DAY_END_TIME ),
 	};
 }
 
@@ -337,8 +341,8 @@ export function getStatsSummaryIntervalFields(
 	const endDate = getStatsEndDateParam( query ) ?? responseDate ?? getDatePart( query?.start_date );
 
 	return {
-		...( startDate ? { date_start: formatDatePartWithTime( startDate, '00:00:00' ) } : {} ),
-		...( endDate ? { date_end: formatDatePartWithTime( endDate, '23:59:59' ) } : {} ),
+		...( startDate ? { date_start: formatDatePartWithTime( startDate, DAY_START_TIME ) } : {} ),
+		...( endDate ? { date_end: formatDatePartWithTime( endDate, DAY_END_TIME ) } : {} ),
 	};
 }
 
@@ -372,7 +376,7 @@ export function normalizeStatsReportSummary(
 					excludedKeys
 				),
 				...getStatsSummaryIntervalFields( query, response ),
-		  }
+			}
 		: {};
 }
 
@@ -390,8 +394,17 @@ export function getStatsBuckets( response: unknown, query: StatsQueryParams = {}
 		return [ [ endDate, coerceStatsRecord( days[ endDate ] ) ] ] as const;
 	}
 
+	// A week or month bucket is keyed at its calendar start, which a window
+	// opening mid-period precedes; keep every bucket that overlaps the window.
 	return Object.entries( days )
-		.filter( ( [ key ] ) => ( ! startDate || key >= startDate ) && ( ! endDate || key <= endDate ) )
+		.filter( ( [ key ] ) => {
+			const bucket = getDateIntervalDateParts( key, query.period );
+
+			return (
+				( ! startDate || bucket.endDate >= startDate ) &&
+				( ! endDate || bucket.startDate <= endDate )
+			);
+		} )
 		.map( ( [ key, value ] ) => [ key, coerceStatsRecord( value ) ] ) as Array<
 		readonly [ string, StatsRecord ]
 	>;
@@ -435,7 +448,7 @@ export function createStatsListDataPoint< TItem extends StatsNormalizedItem >(
 					time_interval: '',
 					date_start: '',
 					date_end: '',
-			  } ),
+				} ),
 		...getStatsSummaryIntervalFields( query, response ),
 		items,
 	};

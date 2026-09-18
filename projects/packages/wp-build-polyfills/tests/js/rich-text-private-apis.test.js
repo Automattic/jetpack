@@ -29,6 +29,7 @@ const { existsSync, readFileSync } = require( 'node:fs' );
 const { describe, it } = require( 'node:test' );
 const vm = require( 'node:vm' );
 const path = require( 'path' );
+const WP_70_ALLOWLIST = require( './fixtures/wp-70-private-apis-allowlist.js' );
 
 const PACKAGE_ROOT = path.resolve( __dirname, '..', '..' );
 const scriptDir = name => path.join( PACKAGE_ROOT, 'build', 'scripts', name );
@@ -50,46 +51,6 @@ const REQUIRED_PRIVATE_APIS = [
 	'InputEventContext',
 	'shortcutsListener',
 	'inputEventsListener',
-];
-
-// The allowlist shipped in WordPress 7.0.1's `wp-includes/js/dist/private-apis.js`
-// (`CORE_MODULES_USING_PRIVATE_APIS`). Verbatim fixture: it is the newest Core
-// allowlist the polyfill has to coexist with, and the reason the rich-text
-// polyfill cannot run against Core's `wp-private-apis`.
-const WP_70_ALLOWLIST = [
-	'@wordpress/block-directory',
-	'@wordpress/block-editor',
-	'@wordpress/block-library',
-	'@wordpress/blocks',
-	'@wordpress/boot',
-	'@wordpress/commands',
-	'@wordpress/components',
-	'@wordpress/connectors',
-	'@wordpress/core-commands',
-	'@wordpress/core-data',
-	'@wordpress/customize-widgets',
-	'@wordpress/data',
-	'@wordpress/dataviews',
-	'@wordpress/editor',
-	'@wordpress/edit-post',
-	'@wordpress/edit-site',
-	'@wordpress/edit-widgets',
-	'@wordpress/fields',
-	'@wordpress/font-list-route',
-	'@wordpress/format-library',
-	'@wordpress/global-styles-ui',
-	'@wordpress/lazy-editor',
-	'@wordpress/media-utils',
-	'@wordpress/patterns',
-	'@wordpress/preferences',
-	'@wordpress/reusable-blocks',
-	'@wordpress/rich-text',
-	'@wordpress/route',
-	'@wordpress/router',
-	'@wordpress/routes',
-	'@wordpress/sync',
-	'@wordpress/upload-media',
-	'@wordpress/workflows',
 ];
 
 /**

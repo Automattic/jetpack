@@ -288,7 +288,9 @@ class REST_Controller {
 			? sanitize_text_field( $request_body['experience'] )
 			: null;
 		$reader_chat                   = array_key_exists( 'reader_chat', $request_body ) ? (bool) $request_body['reader_chat'] : null;
-		$ai_answers_enabled            = isset( $request_body['ai_answers_enabled'] ) ? (bool) $request_body['ai_answers_enabled'] : null;
+		// rest_sanitize_boolean(), not (bool): this value now drives the paid-plan
+		// gate below, and a plain (bool) cast reads a JSON `"false"` string as true.
+		$ai_answers_enabled = isset( $request_body['ai_answers_enabled'] ) ? rest_sanitize_boolean( $request_body['ai_answers_enabled'] ) : null;
 
 		$search_suggestions_enabled = isset( $request_body['search_suggestions_enabled'] ) ? (bool) $request_body['search_suggestions_enabled'] : null;
 
@@ -422,6 +424,16 @@ class REST_Controller {
 			}
 			return true;
 		}
+
+		// AI Answers requires a paid Search plan; reject the write outright.
+		if ( true === $ai_answers_enabled && ! Search_Blocks::supports_paid_search() ) {
+			return new WP_Error(
+				'rest_forbidden',
+				esc_html__( 'AI Answers requires a paid Jetpack Search plan.', 'jetpack-search-pkg' ),
+				array( 'status' => 403 )
+			);
+		}
+
 		if (
 			$module_active === null &&
 			$instant_search_enabled === null &&

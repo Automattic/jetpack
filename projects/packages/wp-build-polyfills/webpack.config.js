@@ -183,6 +183,9 @@ const classicPolyfills = [
 		name: 'private-apis',
 		packageName: '@wordpress/private-apis',
 		library: [ 'wp', 'privateApis' ],
+		// Re-allows the Core modules that the WordPress versions this polyfill
+		// replaces private-apis on still opt in with; see the wrapper.
+		entry: path.join( packageRoot, 'src', 'js', 'private-apis.mjs' ),
 	},
 	{
 		name: 'rich-text',
@@ -230,7 +233,7 @@ const iifeConfigs = classicPolyfills.map( polyfill => ( {
 	name: `script-${ polyfill.name }`,
 	...sharedConfig,
 	entry: {
-		index: resolveEntry( polyfill.packageName ),
+		index: polyfill.entry ?? resolveEntry( polyfill.packageName ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,

@@ -110,7 +110,12 @@ describe( 'ClicksReportPage', () => {
 		render( <ClicksReportPage /> );
 
 		expect( reportDrilldownTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( { data: [ row ], isLoading: false } )
+			expect.objectContaining( {
+				data: [ row ],
+				isLoading: false,
+				collapsible: true,
+				defaultExpanded: 'none',
+			} )
 		);
 	} );
 } );

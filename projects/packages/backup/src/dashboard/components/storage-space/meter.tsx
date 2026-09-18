@@ -66,11 +66,9 @@ export default function StorageMeter( { storageUsed, storageLimit, usageLevel }:
 	return (
 		<div className="jpb-storage-meter">
 			{ /*
-			 * `<ProgressBar>` hardcodes `aria-label="Loading …"` but
-			 * spreads the caller's props after it, so this replaces it.
-			 * Without the override a screen reader announces the storage
-			 * meter as a loading indicator — which is what the legacy
-			 * dashboard's bar does today.
+			 * Named because nothing else on the card is associated with the
+			 * bar; the legacy dashboard's meter still announces itself as a
+			 * loading indicator. See `tests/progress-bar-names.test.tsx`.
 			 */ }
 			<ProgressBar
 				className={ classNames.join( ' ' ) }

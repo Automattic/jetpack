@@ -43,12 +43,12 @@ jobs:
       # But it doesn't have to be checked out.
       - name: Deepen to merge base
         if: github.event_name == 'pull_request'
-        uses: ./.github/actions/deepen-to-merge-base
+        uses: $/.github/actions/deepen-to-merge-base
         with:
           checkout: false
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           php: false
 
@@ -121,7 +121,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
 
       - name: Pnpm install
         run: pnpm install
@@ -232,10 +232,6 @@ jobs:
       ( needs.build_all.result == 'success' || needs.build_wpcom.result == 'success' || needs.build_nonwpcom.result == 'success' )
 
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          path: monorepo
-
       - name: Download build artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
@@ -270,6 +266,10 @@ jobs:
             rm -rf build
           done
           mv merged build
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          path: monorepo
 
       - name: Filter mirror list for release branch
         if: github.ref == 'refs/heads/prerelease' || contains( github.ref, '/branch-' )
@@ -512,10 +512,6 @@ jobs:
     timeout-minutes: 10  # 2026-05-21: Successful runs seem to take a few minutes
 
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          path: monorepo
-
       - name: Download build artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
@@ -528,8 +524,12 @@ jobs:
           grep -Fx -e 'Automattic/jetpack-production' -e 'Automattic/jetpack-mu-wpcom-plugin' build/mirrors.txt > build/mirrors.txt.tmp || true
           mv build/mirrors.txt.tmp build/mirrors.txt
 
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          path: monorepo
+
       - name: Push changed projects
-        uses: ./monorepo/projects/github-actions/push-to-mirrors
+        uses: $/projects/github-actions/push-to-mirrors
         with:
           source-directory: ${{ github.workspace }}/monorepo
           token: ${{ secrets.API_TOKEN_GITHUB }}
@@ -575,10 +575,6 @@ jobs:
       needs.merge_artifacts.result == 'success'
 
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          path: monorepo
-
       - name: Download build artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
@@ -592,8 +588,12 @@ jobs:
           grep -vFx -e 'Automattic/jetpack-production' -e 'Automattic/jetpack-mu-wpcom-plugin' build/mirrors.txt > build/mirrors.txt.tmp || true
           mv build/mirrors.txt.tmp build/mirrors.txt
 
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          path: monorepo
+
       - name: Push changed projects
-        uses: ./monorepo/projects/github-actions/push-to-mirrors
+        uses: $/projects/github-actions/push-to-mirrors
         with:
           source-directory: ${{ github.workspace }}/monorepo
           token: ${{ secrets.API_TOKEN_GITHUB }}

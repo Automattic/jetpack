@@ -146,6 +146,8 @@ class Publicize extends Publicize_Base {
 	 */
 	public function receive_updated_publicize_connections( $publicize_connections ) {
 
+		$publicize_connections = self::filter_usable_connections( $publicize_connections );
+
 		// Populate the cache with the new data.
 		Connections::get_all( array( 'ignore_cache' => true ) );
 
@@ -162,7 +164,44 @@ class Publicize extends Publicize_Base {
 	}
 
 	/**
+	 * Drop connections we cannot attribute to a user.
+	 *
+	 * A missing user ID reads as "shared with everyone" in is_global_connection(), so such a
+	 * connection would be exposed to every user on the site. User ID 0 is a genuine shared
+	 * connection and is kept; unknown fields pass through, as WPCOM adds to this payload.
+	 *
+	 * @param mixed $publicize_connections Connections, keyed by service name.
+	 * @return array
+	 */
+	private static function filter_usable_connections( $publicize_connections ) {
+		// An empty payload is valid - it means the site has no connections left.
+		if ( ! is_array( $publicize_connections ) ) {
+			return array();
+		}
+
+		$usable_connections = array();
+
+		foreach ( $publicize_connections as $service_name => $connections_for_service ) {
+			if ( ! is_array( $connections_for_service ) ) {
+				continue;
+			}
+
+			foreach ( $connections_for_service as $id => $connection ) {
+				if ( ! isset( $connection['connection_data']['user_id'] ) || ! is_numeric( $connection['connection_data']['user_id'] ) ) {
+					continue;
+				}
+
+				$usable_connections[ $service_name ][ $id ] = $connection;
+			}
+		}
+
+		return $usable_connections;
+	}
+
+	/**
 	 * Add method to update Publicize connections.
+	 *
+	 * @todo Kept as a fallback for the jetpack/v4/publicize/connections/sync REST endpoint that replaced it; remove after a few releases (CONNECT-446).
 	 *
 	 * @param array $methods Array of registered methods.
 	 * @return array

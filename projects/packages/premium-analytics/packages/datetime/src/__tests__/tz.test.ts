@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 /**
  * Internal dependencies
  */
-import { toLocalTZ } from '../tz';
+import { formatToTimezoneNaiveString, toLocalTZ } from '../tz';
 
 /**
  * The calendar day and clock time the value resolves to in its own zone.
@@ -151,5 +151,17 @@ describe( 'toLocalTZ', () => {
 
 		expect( now ).toBeGreaterThanOrEqual( before );
 		expect( now ).toBeLessThanOrEqual( Date.now() );
+	} );
+} );
+
+describe( 'formatToTimezoneNaiveString', () => {
+	it( 'writes an instant as the wall time it names in the zone', () => {
+		expect(
+			formatToTimezoneNaiveString( new Date( '2026-06-29T13:30:00Z' ), 'America/New_York' )
+		).toBe( '2026-06-29T09:30:00.000' );
+	} );
+
+	it( 'refuses an invalid date', () => {
+		expect( () => formatToTimezoneNaiveString( new Date( NaN ), 'America/New_York' ) ).toThrow();
 	} );
 } );
