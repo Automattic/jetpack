@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Sidebar: keep Jetpack menu items in alphabetical order, with My Jetpack first, even when a plugin passes an unsupported position.

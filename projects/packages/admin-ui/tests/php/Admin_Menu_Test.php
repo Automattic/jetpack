@@ -87,8 +87,12 @@ class Admin_Menu_Test extends TestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		global $submenu;
-		$submenu = array();
+		// A leftover top-level `jetpack` makes core add a second parent copy to the submenu.
+		global $menu, $submenu, $_parent_pages, $_registered_pages;
+		$menu              = array();
+		$submenu           = array();
+		$_parent_pages     = array();
+		$_registered_pages = array();
 		delete_option( 'jetpack_active_plan' );
 		delete_option( 'jetpack_site_products' );
 		update_option( 'jetpack_options', array( 'id' => 123456 ) );
@@ -327,7 +331,7 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Tests that the first registered menu item is returned correctly.
+	 * The item claiming POSITION_FIRST becomes the top level Jetpack link.
 	 *
 	 * @return void
 	 */
@@ -335,11 +339,9 @@ class Admin_Menu_Test extends TestCase {
 		wp_set_current_user( self::$admin_user_id );
 
 		Admin_Menu::init();
-		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_1', '__return_null', 3 );
-		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_2', '__return_null', 1 );
-		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_3', '__return_null', 4 );
-		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_4', '__return_null', 5 );
-		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_5', '__return_null', 6 );
+		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_1', '__return_null' );
+		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_2', '__return_null', Admin_Menu::POSITION_FIRST );
+		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_3', '__return_null' );
 
 		do_action( 'admin_menu' );
 
@@ -368,8 +370,8 @@ class Admin_Menu_Test extends TestCase {
 		);
 
 		Admin_Menu::init();
-		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'first-hidden', '__return_null', 1 );
-		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'second-shown', '__return_null', 2 );
+		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'first-hidden', '__return_null', Admin_Menu::POSITION_FIRST );
+		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'second-shown', '__return_null' );
 
 		do_action( 'admin_menu' );
 
@@ -395,8 +397,8 @@ class Admin_Menu_Test extends TestCase {
 		);
 
 		Admin_Menu::init();
-		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'all-hidden-a', '__return_null', 1 );
-		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'all-hidden-b', '__return_null', 2 );
+		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'all-hidden-a', '__return_null' );
+		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'all-hidden-b', '__return_null' );
 
 		do_action( 'admin_menu' );
 
@@ -1510,20 +1512,46 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * An explicit position opts an item out of alphabetical order, which is how it was overwritten before.
+	 * A position outside the tiers is ignored, so the item keeps its alphabetical slot.
 	 *
-	 * Asserted loosely on purpose: core splices a small int a second time inside
-	 * add_submenu_page(), so where it lands matches neither the alphabet nor the number asked for.
+	 * @param mixed $position A value add_menu() must not treat as a tier.
+	 *
+	 * @dataProvider unrecognized_position_data
 	 */
-	public function test_an_explicit_position_removes_an_item_from_the_alphabetical_run() {
-		$alphabetical = array( 'My Jetpack', 'Backup', 'Forms', 'VideoPress' );
-		$products     = self::products( array( 'my-jetpack', 'backup', 'forms', 'videopress' ) );
+	#[DataProvider( 'unrecognized_position_data' )]
+	public function test_an_unrecognized_position_is_ignored( $position ) {
+		$products    = self::products( array( 'my-jetpack', 'backup', 'forms', 'videopress' ) );
+		$products[1] = array( 'Backup', 'jetpack-backup', $position );
 
-		$this->assertSame( $alphabetical, $this->render_items( $products ) );
+		$this->assertSame( array( 'My Jetpack', 'Backup', 'Forms', 'VideoPress' ), $this->render_items( $products ) );
+	}
 
-		$products[3] = array( 'VideoPress', 'jetpack-videopress', 3 );
+	/**
+	 * Positions a caller could pass that are not a tier.
+	 *
+	 * @return array
+	 */
+	public static function unrecognized_position_data() {
+		return array(
+			'small int'      => array( 3 ),
+			'between tiers'  => array( 16 ),
+			'negative'       => array( -1 ),
+			'numeric string' => array( '5' ),
+			'upgrade slot'   => array( Admin_Menu::POSITION_UPGRADE ),
+			'non-numeric'    => array( 'top' ),
+		);
+	}
 
-		$this->assertNotSame( $alphabetical, $this->render_items( $products ), 'An explicit position should take VideoPress out of the alphabetical run.' );
+	/**
+	 * POSITION_DEFAULT passed explicitly sorts with the products instead of above My Jetpack.
+	 *
+	 * Core prepends any position of 0 or less, so this only holds while add_menu() keeps positions from core.
+	 */
+	public function test_explicit_default_position_sorts_with_the_products() {
+		$products    = self::products( array( 'my-jetpack', 'backup', 'forms', 'videopress' ) );
+		$products[1] = array( 'Backup', 'jetpack-backup', Admin_Menu::POSITION_DEFAULT );
+
+		$this->assertSame( array( 'My Jetpack', 'Backup', 'Forms', 'VideoPress' ), $this->render_items( $products ) );
 	}
 
 	/**

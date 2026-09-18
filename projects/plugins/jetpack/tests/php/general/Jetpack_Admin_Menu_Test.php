@@ -116,8 +116,6 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		$jetpack_backup = new Jetpack_Backup();
 		$jetpack_backup->initialize();
 
-		// Scan, VaultPress Backup, Jetpack Manage and Subscribers only register under a condition,
-		// and they are the call sites the two curation PRs before #52003 renumbered.
 		$this->satisfy_conditional_registrar_gates();
 		Admin_Sidebar_Link::instance()->maybe_add_admin_link();
 		Jetpack_Manage::add_submenu_jetpack();
@@ -193,10 +191,7 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 
 		$this->assertSame( $alphabetical, $internal, 'Jetpack submenu items should be ordered alphabetically by menu title.' );
 
-		/*
-		 * An off-tier position on an external link leaves it after the internal pages, so the
-		 * check above misses it. Renumbering them is what PRs #47417 and #50104 actually did.
-		 */
+		// The external links sort among themselves too, which the check above cannot see.
 		$this->assertGreaterThan( 1, count( $external ), 'Expected several external links, otherwise their ordering proves nothing.' );
 
 		$alphabetical_external = $external;
