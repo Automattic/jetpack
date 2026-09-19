@@ -463,6 +463,10 @@ describe( 'GATED_ATTRIBUTES', () => {
 		// Shown under the shipping toggle, but PayPal stores it on every payment, so the
 		// toggle leaves it alone.
 		'collectShippingAddress',
+		// Neither is a form field at all: both are read back off the payment and
+		// re-sent, so no gate owns them.
+		'integrationMode',
+		'scriptSrc',
 	];
 
 	it( 'accounts for every resource attribute exactly once', () => {

@@ -633,6 +633,13 @@ class PayPal_REST_Controller {
 			return self::api_error_to_rest_error( $result );
 		}
 
+		// The 201 carries code_snippets, but only handle_get_button() shaped a
+		// response the block could read. Attach the same key here, or a brand-new
+		// stacked block saves an empty scriptSrc and the published page is blank —
+		// and it does not self-heal, because the mount GET lands after the post has
+		// already been serialized.
+		$result['attributes'] = PayPal_Attribute_Mapper::api_response_to_attributes( $result );
+
 		return new WP_REST_Response( $result, 201 );
 	}
 
@@ -701,6 +708,22 @@ class PayPal_REST_Controller {
 
 		if ( is_wp_error( $result ) ) {
 			return self::api_error_to_rest_error( $result );
+		}
+
+		// A PUT answers 204 and update_resource() echoes the request back, so the
+		// echo never carries code_snippets. Switching a block to stacked would sit
+		// blank until the post was reloaded. Re-read the resource instead — only in
+		// BUTTON mode, so the LINK and QR paths keep their single round trip.
+		//
+		// `attributes` is attached only on that re-read. Mapping the echo instead
+		// would be actively harmful: the echo has no `id`, so resourceId would come
+		// back empty and the block would merge a blank id over its own.
+		if ( 'BUTTON' === ( $resource_data['integration_mode'] ?? '' ) ) {
+			$fresh = PayPal_API_Client::get_resource( $resource_id );
+			if ( ! is_wp_error( $fresh ) ) {
+				$result               = $fresh;
+				$result['attributes'] = PayPal_Attribute_Mapper::api_response_to_attributes( $result );
+			}
 		}
 
 		return new WP_REST_Response( $result, 200 );

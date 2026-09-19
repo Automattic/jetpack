@@ -17,6 +17,7 @@ import {
 } from '../components/variant-builder';
 import { API_BASE } from './api-base';
 import { buildRequestData } from './request-data';
+import { RESOURCE_ATTRIBUTES } from './resource-sync';
 import { firstBlockingError, getUserFriendlyError, getValidationErrors } from './validation';
 
 // The last body each block sent, so an unchanged block is not re-sent on every save.
@@ -129,7 +130,41 @@ async function createPayment( request, clientId, body ) {
 	// This request is what PayPal now has, so the next save can update it without a read.
 	recordPaymentRead( clientId, response.id );
 
-	return { isApiManaged: true, resourceId: response.id, paymentLink: response.payment_link };
+	return {
+		isApiManaged: true,
+		resourceId: response.id,
+		paymentLink: response.payment_link,
+		// Everything PayPal decided rather than echoed — the SDK URL out of
+		// code_snippets, and the mode it settled on. Without this a brand-new
+		// stacked block serializes an empty scriptSrc and the published page is
+		// blank, and it never self-heals: the mount GET that would fix it lands
+		// after preSavePost has serialized, and marks its change non-persistent,
+		// so the post is never dirtied and nobody is prompted to save again.
+		...resourceAttributesOf( response ),
+	};
+}
+
+/**
+ * The attributes a create or update response carries, if it carries any.
+ *
+ * Only the server attaches these, and only where it has really read the resource
+ * back — a PUT echo has no `id`, so mapping one would blank the block's resourceId.
+ *
+ * @param {object} response - The API response.
+ * @return {object} Attributes to merge, empty when there are none.
+ */
+function resourceAttributesOf( response ) {
+	const attributes = response?.attributes;
+	if ( ! attributes ) {
+		return {};
+	}
+
+	return Object.fromEntries(
+		RESOURCE_ATTRIBUTES.filter( key => attributes[ key ] !== undefined ).map( key => [
+			key,
+			attributes[ key ],
+		] )
+	);
 }
 
 /**
@@ -188,11 +223,21 @@ async function syncBlock(
 			try {
 				// A PUT replaces the payment outright, and the form models every line item field
 				// PayPal stores, so the body goes out as built.
-				await request( {
+				const response = await request( {
 					path: `${ API_BASE }/buttons/${ resourceId }`,
 					method: 'PUT',
 					data: body,
 				} );
+
+				// PayPal answers a PUT with 204 and no body, so the server re-reads the
+				// resource when the mode is BUTTON and hands back the real thing. That is
+				// the only way a block switching to stacked gets its scriptSrc in the same
+				// save rather than sitting blank until the post is reloaded.
+				const updates = resourceAttributesOf( response );
+				if ( Object.keys( updates ).length > 0 ) {
+					updateBlockAttributes( clientId, updates );
+					changed = true;
+				}
 			} catch ( err ) {
 				if ( ! isNotFound( err ) ) {
 					throw err;

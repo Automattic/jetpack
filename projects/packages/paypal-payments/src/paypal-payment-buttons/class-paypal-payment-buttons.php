@@ -80,6 +80,13 @@ class PayPal_Payment_Buttons {
 	public const STYLE_HANDLE = 'jetpack-block-paypal-payment-buttons';
 
 	/**
+	 * The admin-post.php action serving the page the editor nests the PayPal SDK in.
+	 *
+	 * @var string
+	 */
+	public const SDK_HOST_ACTION = 'jetpack_paypal_sdk_host';
+
+	/**
 	 * Register the feature flags this package owns.
 	 *
 	 * Call it from every bootstrap before `init`, so the flag exists on every
@@ -809,8 +816,10 @@ class PayPal_Payment_Buttons {
 		$qr_caption          = trim( (string) ( $attributes['qrCaption'] ?? '' ) );
 		$link_text           = trim( (string) ( $attributes['linkText'] ?? '' ) );
 
-		// Validate — only known format values are accepted.
-		if ( ! in_array( $format, array( 'BUTTON', 'LINK', 'QR' ), true ) ) {
+		// Validate — only known format values are accepted. STACKED is listed
+		// unconditionally, never behind ENABLE_STACKED: a block published while the
+		// const was true has to keep rendering after it is turned off.
+		if ( ! in_array( $format, array( 'BUTTON', 'LINK', 'QR', 'STACKED' ), true ) ) {
 			$format = 'BUTTON';
 		}
 
@@ -838,6 +847,14 @@ class PayPal_Payment_Buttons {
 
 		// Append BN code for revenue attribution tracking.
 		$action_url = esc_url( self::add_partner_attribution( $sanitized_payment_url ) );
+
+		// ─── STACKED format: PayPal draws the whole card ─────────────────
+		// Sits alongside the LINK and QR early returns rather than above them: a
+		// BUTTON-mode payment still carries its payment_link, so it passes the
+		// guards above, and skipping them would lose the deleted-resource check.
+		if ( 'STACKED' === $format ) {
+			return self::render_stacked_buttons( $attributes['scriptSrc'] ?? '', $resource_id );
+		}
 
 		// ─── LINK format: plain anchor ───────────────────────────────────
 		if ( 'LINK' === $format ) {
@@ -1114,6 +1131,96 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
+	 * The stacked PayPal / Venmo / Checkout card.
+	 *
+	 * PayPal draws the whole card from this one container — product name, price,
+	 * the buttons and the payment-method logo row — so nothing of ours goes around
+	 * it. Shared by the legacy paste-code path and the API-managed one, which pass
+	 * their own id and SDK URL but otherwise want identical markup.
+	 *
+	 * @param string $script_src       The PayPal SDK URL, read back from the payment.
+	 * @param string $hosted_button_id The hosted button id. For an API-managed block this is the PLB resource id.
+	 * @return string|void The container markup, or nothing when the inputs are unusable.
+	 */
+	private static function render_stacked_buttons( $script_src, $hosted_button_id ) {
+		if ( empty( $script_src ) || empty( $hosted_button_id ) ) {
+			return;
+		}
+
+		// Sanitize the script URL to ensure it's from an allowed PayPal domain.
+		$sanitized_url = self::sanitize_paypal_script_url( $script_src );
+		if ( false === $sanitized_url ) {
+			return;
+		}
+
+		// PayPal keys the markup it injects by button id — `js-sdk-container-<id>`
+		// and `form-container-<id>` — so a second render of the SAME id in one
+		// document finds the first block's elements and injects there. The result is
+		// one doubled stack and one card with no PayPal or Venmo button, with no
+		// console error and nothing else to notice it by. Our own container id
+		// collides identically. Render the first one and say nothing more.
+		static $rendered_ids = array();
+		if ( isset( $rendered_ids[ $hosted_button_id ] ) ) {
+			return '<!-- PayPal stacked buttons: this payment is already on the page -->';
+		}
+		$rendered_ids[ $hosted_button_id ] = true;
+
+		self::register_hooks();
+
+		// One fixed handle, deliberately: a second SDK <script> in one document
+		// breaks both blocks silently, and it does so whatever the URLs are. The
+		// fixed handle makes WordPress drop every URL after the first.
+		// No version argument — a `?ver=` on the PayPal SDK URL causes a 400.
+		wp_enqueue_script( 'paypal-payment-buttons-block-head', $sanitized_url, array(), null, false ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+
+		// Generate the button HTML and inline script.
+		$container_id = 'paypal-container-' . $hosted_button_id;
+		$button_html  = '<div id="' . esc_attr( $container_id ) . '"></div>';
+
+		$inline_script = sprintf(
+			'(window.paypal_payment_buttons || window.paypal).HostedButtons({
+					hostedButtonId: %s,
+				}).render(%s);',
+			wp_json_encode( $hosted_button_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ),
+			wp_json_encode( '#' . $container_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
+		);
+
+		wp_add_inline_script( 'paypal-payment-buttons-block-head', $inline_script );
+
+		return $button_html;
+	}
+
+	/**
+	 * Tag the PayPal SDK script with the namespace and the partner attribution id.
+	 *
+	 * Registered once from register_hooks(). It used to be added inside the render
+	 * function, so two stacked blocks on a page added two identical closures.
+	 *
+	 * @param string $tag    The script tag.
+	 * @param string $handle The script handle.
+	 * @return string The tag.
+	 */
+	public static function tag_paypal_sdk_script( $tag, $handle ) {
+		if ( 'paypal-payment-buttons-block-head' !== $handle ) {
+			return $tag;
+		}
+
+		// Namespace it so another PayPal SDK on the page cannot collide with ours.
+		if ( false === strpos( $tag, 'data-namespace' ) ) {
+			$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-namespace="paypal_payment_buttons" src=$2', $tag );
+		}
+
+		// The SDK's own attribution channel. This is NOT the payment link's at_code —
+		// the header is unsupported on the Payment Links API, which is why the link
+		// path uses a query parameter instead. Stacked uses this one and no at_code.
+		if ( false === strpos( $tag, 'data-paypal-partner-attribution-id' ) ) {
+			$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-paypal-partner-attribution-id="' . self::PAYPAL_PARTNER_ATTRIBUTION_ID . '" src=$2', $tag );
+		}
+
+		return $tag;
+	}
+
+	/**
 	 * Render a legacy paste-code button (V1 backward compatibility).
 	 *
 	 * @param array $attributes The block attributes.
@@ -1140,48 +1247,7 @@ class PayPal_Payment_Buttons {
 		}
 
 		if ( 'stacked' === $button_type ) {
-			// Sanitize the script URL to ensure it's from an allowed PayPal domain
-			$sanitized_url = self::sanitize_paypal_script_url( $script_src );
-			if ( false === $sanitized_url ) {
-				return;
-			}
-
-			// We can't include the version number here. If we do, it is appended to the URL and causes a 400 response.
-			wp_enqueue_script( 'paypal-payment-buttons-block-head', $sanitized_url, array(), null, false ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
-			add_filter(
-				'script_loader_tag',
-				function ( $tag, $handle, $src ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-					if ( 'paypal-payment-buttons-block-head' === $handle ) {
-						// Add namespace to avoid conflicts with other PayPal SDK versions
-						if ( false === strpos( $tag, 'data-namespace' ) ) {
-							$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-namespace="paypal_payment_buttons" src=$2', $tag );
-						}
-						// Add partner attribution ID
-						if ( false === strpos( $tag, 'data-paypal-partner-attribution-id' ) ) {
-							$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-paypal-partner-attribution-id="' . self::PAYPAL_PARTNER_ATTRIBUTION_ID . '" src=$2', $tag );
-						}
-					}
-					return $tag;
-				},
-				10,
-				3
-			);
-
-			// Generate the button HTML and inline script
-			$container_id = 'paypal-container-' . $hosted_button_id;
-			$button_html  = '<div id="' . esc_attr( $container_id ) . '"></div>';
-
-			$inline_script = sprintf(
-				'(window.paypal_payment_buttons || window.paypal).HostedButtons({
-					hostedButtonId: %s,
-				}).render(%s);',
-				wp_json_encode( $hosted_button_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ),
-				wp_json_encode( '#' . $container_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
-			);
-
-			wp_add_inline_script( 'paypal-payment-buttons-block-head', $inline_script );
-
-			return $button_html;
+			return self::render_stacked_buttons( $script_src, $hosted_button_id );
 		}
 
 		// Single button type - generate the complete form HTML
@@ -1245,6 +1311,73 @@ class PayPal_Payment_Buttons {
 				'css_path'   => null,
 			)
 		);
+
+		// The stacked preview needs a same-origin URL it can point an iframe at.
+		wp_add_inline_script(
+			'jp-paypal-payments-ncps-blocks',
+			'window.jetpackPayPalPaymentsSdkHostUrl = ' . wp_json_encode( self::get_sdk_host_url(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+			'before'
+		);
+	}
+
+	/**
+	 * URL of the blank page the editor nests the PayPal SDK inside.
+	 *
+	 * The editor appends `&isolated=1` to it — see render_sdk_host().
+	 *
+	 * @return string
+	 */
+	public static function get_sdk_host_url() {
+		return admin_url( 'admin-post.php?action=' . self::SDK_HOST_ACTION );
+	}
+
+	/**
+	 * Emit the blank page the editor nests the PayPal SDK inside.
+	 *
+	 * Nothing runs here: the editor owns the frame's contents. It has to be a real
+	 * same-origin URL because the SDK's zoid layer reads `location.host`, which is
+	 * empty in the editor's blob: canvas.
+	 *
+	 * A static file would do, except that Gutenberg's client-side media processing
+	 * puts `Document-Isolation-Policy: isolate-and-credentialless` on the editor
+	 * screen. A frame whose isolation does not match its parent's gets its own agent
+	 * cluster, and the parent then reads `contentDocument` as null — which breaks it
+	 * both ways round, so the editor passes its own state in and we mirror it. Only
+	 * a PHP response can send a header back.
+	 *
+	 * @see https://github.com/WordPress/gutenberg/blob/trunk/lib/media/load.php
+	 * @return never
+	 */
+	public static function render_sdk_host() {
+		nocache_headers();
+
+		if ( ! headers_sent() ) {
+			header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
+
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only: picks a response header to match the editor document, mutates nothing.
+			if ( ! empty( $_GET['isolated'] ) ) {
+				header( 'Document-Isolation-Policy: isolate-and-credentialless' );
+			}
+		}
+
+		// `margin: 0` matters. The frame is sized from a ResizeObserver on the
+		// container div, and body margins would make it 16px too short.
+		?>
+<!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+	<meta charset="<?php echo esc_attr( get_option( 'blog_charset' ) ); ?>" />
+	<title><?php esc_html_e( 'PayPal buttons preview', 'jetpack-paypal-payments' ); ?></title>
+	<style>
+		body {
+			margin: 0;
+		}
+	</style>
+</head>
+<body></body>
+</html>
+		<?php
+		exit;
 	}
 
 	/**
@@ -1271,6 +1404,7 @@ class PayPal_Payment_Buttons {
 		$registered = true;
 
 		add_filter( 'safe_style_css', array( __CLASS__, 'add_style_display' ) );
+		add_filter( 'script_loader_tag', array( __CLASS__, 'tag_paypal_sdk_script' ), 10, 2 );
 	}
 
 	/**
@@ -1416,6 +1550,11 @@ class PayPal_Payment_Buttons {
 
 				PayPal_Admin_Page::maybe_init();
 				PayPal_Email_Sender::maybe_init();
+
+				// The stacked preview's frame, served from admin-post.php so it can
+				// carry a Document-Isolation-Policy header. Editor-only, so there is
+				// no `admin_post_nopriv_` twin.
+				add_action( 'admin_post_' . self::SDK_HOST_ACTION, array( __CLASS__, 'render_sdk_host' ) );
 			}
 		);
 	}

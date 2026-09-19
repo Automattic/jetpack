@@ -1209,3 +1209,32 @@
 	margin: 0;
 	color: #757575;
 }
+
+// ─── Stacked format ──────────────────────────────────────────────────────────
+
+// The SDK host frame is positioned so the click overlay can sit over it.
+.jetpack-paypal-button-preview--stacked {
+	position: relative;
+}
+
+// Nothing to draw until the payment is in BUTTON mode and its snippet has been
+// read back, which happens on the first save. Sized to the design's
+// three-button stack so the common case does not jump when the SDK lands.
+// TODO(WOOPTP-496): the QR placeholder shimmers while it waits. Sharing
+// that means lifting its gradient into a `%` placeholder both extend.
+// Worth doing; skipped here to keep the POC diff small.
+.jetpack-paypal-button-preview--stacked-pending {
+	background-color: #eeeff5; // the QR placeholder's tint
+	border-radius: 4px;
+}
+
+// Core's embed overlay, verbatim: all four insets, opacity 0 so it is still
+// hit-tested, and deliberately no z-index — document order alone wins.
+.jetpack-paypal-button-preview__interactive-overlay {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	opacity: 0;
+}
