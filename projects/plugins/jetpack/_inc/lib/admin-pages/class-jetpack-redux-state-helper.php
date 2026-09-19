@@ -19,7 +19,6 @@ use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Licensing\Endpoints as Licensing_Endpoints;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Partner;
-use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Publicize\Keyring_Helper;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
@@ -132,7 +131,6 @@ class Jetpack_Redux_State_Helper {
 			'WP_API_nonce'                         => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce'                    => '', // Not used, keeping it for compatibility reasons, see https://github.com/Automattic/jetpack/pull/42076
 			'purchaseToken'                        => self::get_purchase_token(),
-			'partnerCoupon'                        => Jetpack_Partner_Coupon::get_coupon(),
 			'pluginBaseUrl'                        => plugins_url( '', JETPACK__PLUGIN_FILE ),
 			'connectionStatus'                     => $connection_status,
 			'connectedPlugins'                     => Connection_Plugin_Storage::get_all(),
