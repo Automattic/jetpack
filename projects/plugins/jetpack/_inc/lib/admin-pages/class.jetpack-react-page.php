@@ -398,7 +398,7 @@ JS;
 		}
 
 		$allowed_paths = array(
-			'product-purchased' => admin_url( '/admin.php?page=jetpack#/recommendations/product-purchased' ),
+			'product-purchased' => admin_url( 'admin.php?page=jetpack' ),
 		);
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
