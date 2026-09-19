@@ -11,7 +11,11 @@ jest.unstable_mockModule( '../../../utils/assignLocation', () => {
 	};
 } );
 
-const { default: RedeemPartnerCouponPostConnection } = await import( '../' );
+const {
+	default: RedeemPartnerCouponPostConnection,
+	DISMISS_LS_ITEM_NAME,
+	isDismissed,
+} = await import( '../' );
 const { assignLocation: locationAssignSpy } = await import( '../../../utils/assignLocation' );
 
 const partnerCoupon = {
@@ -47,6 +51,7 @@ describe( 'RedeemPartnerCouponPostConnection', () => {
 	beforeEach( () => {
 		locationAssignSpy.mockReset().mockReturnValue();
 		recordEventStub.mockReset().mockReturnValue();
+		localStorage.removeItem( DISMISS_LS_ITEM_NAME );
 	} );
 
 	it( 'shows partner logo', () => {
@@ -169,5 +174,22 @@ describe( 'RedeemPartnerCouponPostConnection', () => {
 			preset: 'TST',
 			connected: 'yes',
 		} );
+	} );
+
+	it( 'reports "Remind me later" to the host and hides itself', async () => {
+		const user = userEvent.setup();
+		const onRemindMeLater = jest.fn();
+		render(
+			<RedeemPartnerCouponPostConnection { ...requiredProps } onRemindMeLater={ onRemindMeLater } />
+		);
+
+		expect( isDismissed() ).toBe( false );
+		await user.click( screen.getByRole( 'button', { name: 'Remind me later' } ) );
+
+		expect( onRemindMeLater ).toHaveBeenCalledTimes( 1 );
+		expect( isDismissed() ).toBe( true );
+		expect(
+			screen.queryByRole( 'button', { name: 'Redeem Awesome Product' } )
+		).not.toBeInTheDocument();
 	} );
 } );

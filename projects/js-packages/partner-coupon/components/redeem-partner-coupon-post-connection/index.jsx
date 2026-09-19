@@ -18,7 +18,7 @@ export const DISMISS_LS_ITEM_MAX_AGE = 3 * 24 * 60 * 60; // 3 days
  *
  * @return {boolean} Is the redeem CTA dismissed?
  */
-function isDismissed() {
+export function isDismissed() {
 	const dismissedAt = localStorage.getItem( DISMISS_LS_ITEM_NAME );
 
 	if (
@@ -41,8 +41,15 @@ function dismiss() {
 }
 
 const RedeemPartnerCouponPostConnection = props => {
-	const { connectionStatus, partnerCoupon, assetBaseUrl, siteRawUrl, tracksUserData, analytics } =
-		props;
+	const {
+		connectionStatus,
+		partnerCoupon,
+		assetBaseUrl,
+		siteRawUrl,
+		tracksUserData,
+		analytics,
+		onRemindMeLater,
+	} = props;
 	const [ dismissed, setDismissed ] = useState( isDismissed() );
 
 	const onClick = usePartnerCouponRedemption(
@@ -53,10 +60,11 @@ const RedeemPartnerCouponPostConnection = props => {
 		analytics
 	);
 
-	const onRemindMeLater = useCallback( () => {
+	const handleRemindMeLater = useCallback( () => {
 		dismiss();
 		setDismissed( isDismissed() );
-	}, [ setDismissed ] );
+		onRemindMeLater?.();
+	}, [ setDismissed, onRemindMeLater ] );
 
 	if ( dismissed ) {
 		return null;
@@ -139,7 +147,7 @@ const RedeemPartnerCouponPostConnection = props => {
 						<div>
 							<button
 								className="jetpack-redeem-partner-coupon-post-connection__remind-me-later"
-								onClick={ onRemindMeLater }
+								onClick={ handleRemindMeLater }
 							>
 								{ __( 'Remind me later', 'jetpack-partner-coupon' ) }
 							</button>
@@ -158,6 +166,7 @@ RedeemPartnerCouponPostConnection.propTypes = {
 	siteRawUrl: PropTypes.string.isRequired,
 	tracksUserData: PropTypes.bool.isRequired,
 	analytics: PropTypes.object,
+	onRemindMeLater: PropTypes.func,
 };
 
 export default RedeemPartnerCouponPostConnection;
