@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove unused Zendesk chat REST endpoints and related front-end constants left after the widget was turned off.
