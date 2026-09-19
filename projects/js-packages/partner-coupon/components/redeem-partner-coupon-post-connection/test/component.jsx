@@ -155,6 +155,27 @@ describe( 'RedeemPartnerCouponPostConnection', () => {
 		} );
 	} );
 
+	it( 'does not re-fire the view event when props are new objects with the same values', () => {
+		const { rerender } = render( <RedeemPartnerCouponPostConnection { ...requiredProps } /> );
+		expect( recordEventStub ).toHaveBeenCalledTimes( 1 );
+
+		rerender(
+			<RedeemPartnerCouponPostConnection
+				{ ...requiredProps }
+				connectionStatus={ { ...requiredProps.connectionStatus } }
+				partnerCoupon={ { ...partnerCoupon } }
+			/>
+		);
+
+		expect( recordEventStub ).toHaveBeenCalledTimes( 1 );
+		expect( recordEventStub ).toHaveBeenCalledWith( 'jetpack_partner_coupon_redeem_view', {
+			coupon: 'TEST_TST_1234',
+			partner: 'TEST',
+			preset: 'TST',
+			connected: 'yes',
+		} );
+	} );
+
 	it( 'is triggering jetpack_partner_coupon_redeem_click tracking event', async () => {
 		const user = userEvent.setup();
 		expect( recordEventStub ).not.toHaveBeenCalled();
