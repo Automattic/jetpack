@@ -80,6 +80,13 @@ class PayPal_Payment_Buttons {
 	public const STYLE_HANDLE = 'jetpack-block-paypal-payment-buttons';
 
 	/**
+	 * The admin-post.php action serving the page the editor nests the PayPal SDK in.
+	 *
+	 * @var string
+	 */
+	public const SDK_HOST_ACTION = 'jetpack_paypal_sdk_host';
+
+	/**
 	 * Register the feature flags this package owns.
 	 *
 	 * Call it from every bootstrap before `init`, so the flag exists on every
@@ -1306,9 +1313,6 @@ class PayPal_Payment_Buttons {
 		);
 
 		// The stacked preview needs a same-origin URL it can point an iframe at.
-		// Resolved here rather than in JS: plugins_url() resolves against the
-		// nearest plugin directory, which is what makes the path come out right
-		// under jetpack_vendor/ on WordPress.com Simple.
 		wp_add_inline_script(
 			'jp-paypal-payments-ncps-blocks',
 			'window.jetpackPayPalPaymentsSdkHostUrl = ' . wp_json_encode( self::get_sdk_host_url(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
@@ -1319,15 +1323,61 @@ class PayPal_Payment_Buttons {
 	/**
 	 * URL of the blank page the editor nests the PayPal SDK inside.
 	 *
+	 * The editor appends `&isolated=1` to it — see render_sdk_host().
+	 *
 	 * @return string
 	 */
 	public static function get_sdk_host_url() {
-		// normalize_path() goes on the OUTSIDE: it collapses the `../../` once the
-		// URL is built. Applied to the relative path instead it does nothing, and
-		// plugins_url() concatenates the `..` segments into the URL verbatim.
-		return Assets::normalize_path(
-			plugins_url( '../../dist/paypal-payment-buttons/sdk-host.html', __FILE__ )
-		);
+		return admin_url( 'admin-post.php?action=' . self::SDK_HOST_ACTION );
+	}
+
+	/**
+	 * Emit the blank page the editor nests the PayPal SDK inside.
+	 *
+	 * Nothing runs here: the editor owns the frame's contents. It has to be a real
+	 * same-origin URL because the SDK's zoid layer reads `location.host`, which is
+	 * empty in the editor's blob: canvas.
+	 *
+	 * A static file would do, except that Gutenberg's client-side media processing
+	 * puts `Document-Isolation-Policy: isolate-and-credentialless` on the editor
+	 * screen. A frame whose isolation does not match its parent's gets its own agent
+	 * cluster, and the parent then reads `contentDocument` as null — which breaks it
+	 * both ways round, so the editor passes its own state in and we mirror it. Only
+	 * a PHP response can send a header back.
+	 *
+	 * @see https://github.com/WordPress/gutenberg/blob/trunk/lib/media/load.php
+	 * @return never
+	 */
+	public static function render_sdk_host() {
+		nocache_headers();
+
+		if ( ! headers_sent() ) {
+			header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
+
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only: picks a response header to match the editor document, mutates nothing.
+			if ( ! empty( $_GET['isolated'] ) ) {
+				header( 'Document-Isolation-Policy: isolate-and-credentialless' );
+			}
+		}
+
+		// `margin: 0` matters. The frame is sized from a ResizeObserver on the
+		// container div, and body margins would make it 16px too short.
+		?>
+<!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+	<meta charset="<?php echo esc_attr( get_option( 'blog_charset' ) ); ?>" />
+	<title><?php esc_html_e( 'PayPal buttons preview', 'jetpack-paypal-payments' ); ?></title>
+	<style>
+		body {
+			margin: 0;
+		}
+	</style>
+</head>
+<body></body>
+</html>
+		<?php
+		exit;
 	}
 
 	/**
@@ -1500,6 +1550,11 @@ class PayPal_Payment_Buttons {
 
 				PayPal_Admin_Page::maybe_init();
 				PayPal_Email_Sender::maybe_init();
+
+				// The stacked preview's frame, served from admin-post.php so it can
+				// carry a Document-Isolation-Policy header. Editor-only, so there is
+				// no `admin_post_nopriv_` twin.
+				add_action( 'admin_post_' . self::SDK_HOST_ACTION, array( __CLASS__, 'render_sdk_host' ) );
 			}
 		);
 	}

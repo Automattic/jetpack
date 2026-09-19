@@ -103,13 +103,6 @@ module.exports = [
 						to: 'paypal-payment-buttons/[name][ext]',
 						noErrorOnMissing: true,
 					},
-					// The editor canvas nests an iframe at this page to give the
-					// PayPal SDK a document with a real host — see sdk-host.html.
-					{
-						from: 'src/paypal-payment-buttons/sdk-host.html',
-						to: 'paypal-payment-buttons/[name][ext]',
-						noErrorOnMissing: true,
-					},
 				],
 			} ),
 		],

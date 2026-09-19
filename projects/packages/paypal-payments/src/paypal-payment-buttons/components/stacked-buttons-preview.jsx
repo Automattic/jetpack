@@ -13,8 +13,7 @@
  * instead does not help either — the SDK resolves its container through the
  * document its own script tag lives in, so it never sees the canvas. The shape
  * that works is a nested iframe pointing at a real same-origin URL, with the
- * script injected into that frame. That page is `sdk-host.html`, copied into
- * dist/ by webpack and resolved in PHP.
+ * script injected into that frame. PHP serves that page from admin-post.php.
  *
  * There is also no teardown API: `HostedButtons()` returns an object whose only
  * own property is `render`. So this boots once per mount and never re-renders in
@@ -73,7 +72,14 @@ export default function StackedButtonsPreview( {
 		// canvas, so this resolves against wp-admin rather than the blob:.
 		const frame = frameRef.current;
 		if ( frame && ! frame.getAttribute( 'src' ) ) {
-			frame.setAttribute( 'src', window.jetpackPayPalPaymentsSdkHostUrl );
+			// Gutenberg's client-side media processing puts a Document-Isolation-Policy
+			// header on the editor screen, and a frame on the other side of that gets
+			// its own agent cluster — contentDocument reads as null. Tell PHP which
+			// side we are on so the host page can match; it breaks both ways round.
+			frame.setAttribute(
+				'src',
+				window.jetpackPayPalPaymentsSdkHostUrl + ( window.crossOriginIsolated ? '&isolated=1' : '' )
+			);
 		}
 	}, [ pending ] );
 
