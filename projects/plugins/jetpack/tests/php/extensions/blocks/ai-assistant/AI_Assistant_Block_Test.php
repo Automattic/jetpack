@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\AIAssistant;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/blocks/ai-assistant/ai-assistant.php';
 
@@ -16,6 +17,7 @@ require_once JETPACK__PLUGIN_DIR . '/extensions/blocks/ai-assistant/ai-assistant
 class AI_Assistant_Block_Test extends WP_UnitTestCase {
 	use Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use \Activates_Ai_Module;
+	use \Reads_Block_Availability;
 
 	const BLOCK_NAME = 'jetpack/ai-assistant';
 
@@ -72,6 +74,8 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 		delete_option( 'jetpack_ai_writing_assistant_enabled' );
 		delete_option( 'jetpack_ai_image_editor_enabled' );
 		remove_filter( 'jetpack_offline_mode', '__return_false' );
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
 		remove_filter( 'ai_seo_enhancer_enabled', '__return_false' );
 		Jetpack_Gutenberg::reset();
 
@@ -91,7 +95,8 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The writing toggle prevents the block from registering.
+	 * The writing toggle prevents the block from registering and tells the
+	 * editor which setting is off, so it can show a placeholder for saved blocks.
 	 */
 	public function test_block_not_registered_when_writing_disabled() {
 		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
@@ -100,6 +105,43 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 		AIAssistant\register_block();
 
 		$this->assertFalse( Blocks::is_registered( self::BLOCK_NAME ) );
+
+		$availability = $this->get_block_availability( 'ai-assistant' );
+		$this->assertFalse( $availability['available'] );
+		$this->assertSame( 'ai_disabled', $availability['unavailable_reason'] );
+		$this->assertSame( array( 'gate' => 'writing_assistant' ), $availability['details'] );
+	}
+
+	/**
+	 * The master toggle reports itself as the gate, separately from the writing toggle.
+	 */
+	public function test_block_reports_master_gate_when_master_disabled() {
+		$this->force_master_enforcement_for_test();
+		$this->deactivate_ai_module_for_test();
+
+		AIAssistant\register_block();
+
+		$availability = $this->get_block_availability( 'ai-assistant' );
+		$this->assertFalse( $availability['available'] );
+		$this->assertSame( 'ai_disabled', $availability['unavailable_reason'] );
+		$this->assertSame( array( 'gate' => 'master' ), $availability['details'] );
+	}
+
+	/**
+	 * Offline mode keeps the generic reason: the block is missing for a reason
+	 * the AI settings placeholder must not claim as its own.
+	 */
+	public function test_block_keeps_generic_reason_in_offline_mode() {
+		remove_filter( 'jetpack_offline_mode', '__return_false' );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		// Status caches the offline check per process, so drop the value set_up produced.
+		StatusCache::clear();
+
+		AIAssistant\register_block();
+
+		$availability = $this->get_block_availability( 'ai-assistant' );
+		$this->assertFalse( $availability['available'] );
+		$this->assertSame( 'missing_module', $availability['unavailable_reason'] );
 	}
 
 	/**
