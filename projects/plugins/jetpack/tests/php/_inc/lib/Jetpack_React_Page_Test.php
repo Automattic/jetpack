@@ -128,60 +128,87 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that a connected site asked to show its partner coupon is not redirected.
+	 * Tests that a coupon redemption link forwards every route to the coupon screen in My Jetpack.
 	 */
-	public function test_connected_site_asked_to_show_its_partner_coupon_is_not_redirected() {
+	public function test_coupon_redemption_link_forwards_every_route_to_my_jetpack() {
 		$this->set_up_partner_coupon();
 		$_GET['showCouponRedemption'] = '1';
 
-		$this->assertFalse( Jetpack_React_Page::should_redirect_legacy_routes() );
-	}
-
-	/**
-	 * Tests that asking for coupon redemption without a stored coupon still redirects.
-	 */
-	public function test_coupon_redemption_request_without_a_coupon_is_redirected() {
-		$_GET['showCouponRedemption'] = '1';
-
+		$this->assertSame( $this->coupon_forward(), Jetpack_React_Page::get_legacy_route_redirects() );
 		$this->assertTrue( Jetpack_React_Page::should_redirect_legacy_routes() );
 	}
 
 	/**
-	 * Tests that an unconnected site showing a partner coupon is not redirected.
+	 * Tests that an unconnected site with a partner coupon forwards to the coupon screen.
 	 */
-	public function test_unconnected_site_with_a_partner_coupon_is_not_redirected() {
-		Jetpack_Options::delete_option( 'blog_token' );
-		Jetpack_Options::delete_option( 'id' );
+	public function test_unconnected_site_with_a_partner_coupon_forwards_to_my_jetpack() {
+		foreach ( array( 'blog_token', 'id', 'master_user', 'user_tokens' ) as $option ) {
+			Jetpack_Options::delete_option( $option );
+		}
+		( new Connection_Manager() )->reset_connection_status();
+		$this->set_up_partner_coupon();
+
+		$this->assertSame( $this->coupon_forward(), Jetpack_React_Page::get_legacy_route_redirects() );
+	}
+
+	/**
+	 * Tests that a blog token without a connected owner still forwards (the gate is has_connected_owner()).
+	 */
+	public function test_site_with_blog_token_but_no_connected_owner_forwards_to_my_jetpack() {
 		Jetpack_Options::delete_option( 'master_user' );
 		Jetpack_Options::delete_option( 'user_tokens' );
 		( new Connection_Manager() )->reset_connection_status();
 		$this->set_up_partner_coupon();
 
-		$this->assertFalse( Jetpack_React_Page::should_redirect_legacy_routes() );
+		$this->assertSame( $this->coupon_forward(), Jetpack_React_Page::get_legacy_route_redirects() );
 	}
 
 	/**
-	 * Tests that a site with a blog token but no connected owner is not redirected while a coupon shows.
-	 *
-	 * The SPA gates the coupon screen on `isSiteConnected`, which is `has_connected_owner()`,
-	 * not on `is_connected()` (which only requires a blog token).
+	 * Tests that a connected owner without a redemption link gets the normal table.
 	 */
-	public function test_site_with_blog_token_but_no_connected_owner_and_a_partner_coupon_is_not_redirected() {
+	public function test_connected_site_with_a_partner_coupon_keeps_the_normal_table() {
+		$this->set_up_partner_coupon();
+
+		$this->assertSame( admin_url( 'admin.php?page=my-jetpack' ), Jetpack_React_Page::get_legacy_route_redirects()['fallback'] );
+	}
+
+	/**
+	 * Tests that a coupon redemption link without a stored coupon gets the normal table.
+	 */
+	public function test_coupon_redemption_link_without_a_coupon_keeps_the_normal_table() {
+		$_GET['showCouponRedemption'] = '1';
+
+		$this->assertSame( admin_url( 'admin.php?page=my-jetpack' ), Jetpack_React_Page::get_legacy_route_redirects()['fallback'] );
+		$this->assertTrue( Jetpack_React_Page::should_redirect_legacy_routes() );
+	}
+
+	/**
+	 * Tests that the coupon screen is dropped where My Jetpack is off.
+	 */
+	public function test_partner_coupon_is_dropped_where_my_jetpack_is_off() {
 		Jetpack_Options::delete_option( 'master_user' );
 		Jetpack_Options::delete_option( 'user_tokens' );
 		( new Connection_Manager() )->reset_connection_status();
 		$this->set_up_partner_coupon();
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
 
-		$this->assertFalse( Jetpack_React_Page::should_redirect_legacy_routes() );
+		$table = Jetpack_React_Page::get_legacy_route_redirects();
+
+		$this->assertNull( $table['fallback'] );
+		$this->assertSame( array( '/plans', '/plans-prompt' ), array_keys( $table['routes'] ) );
 	}
 
 	/**
-	 * Tests that a connected site is redirected even with a partner coupon present.
+	 * Tests that non-admins are not forwarded to the coupon screen.
 	 */
-	public function test_connected_site_is_redirected() {
+	public function test_partner_coupon_is_not_forwarded_for_non_admins() {
+		Jetpack_Options::delete_option( 'master_user' );
+		Jetpack_Options::delete_option( 'user_tokens' );
+		( new Connection_Manager() )->reset_connection_status();
 		$this->set_up_partner_coupon();
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 
-		$this->assertTrue( Jetpack_React_Page::should_redirect_legacy_routes() );
+		$this->assertNull( Jetpack_React_Page::get_legacy_route_redirects()['fallback'] );
 	}
 
 	/**
@@ -210,16 +237,33 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that nothing is printed during coupon redemption.
+	 * Tests that the coupon forward is printed into the inline script.
 	 */
-	public function test_prints_nothing_during_coupon_redemption() {
+	public function test_prints_the_coupon_forward() {
 		$this->set_up_partner_coupon();
 		$_GET['showCouponRedemption'] = '1';
 
 		ob_start();
 		( new Jetpack_React_Page() )->print_legacy_route_redirect();
+		$output = ob_get_clean();
 
-		$this->assertSame( '', ob_get_clean() );
+		$this->assertStringContainsString(
+			wp_json_encode( admin_url( 'admin.php?page=my-jetpack&showCouponRedemption=1' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ),
+			$output
+		);
+	}
+
+	/**
+	 * The table that sends every route to the coupon screen.
+	 *
+	 * @return array
+	 */
+	private function coupon_forward() {
+		return array(
+			'keep'     => array(),
+			'routes'   => array(),
+			'fallback' => admin_url( 'admin.php?page=my-jetpack&showCouponRedemption=1' ),
+		);
 	}
 
 	/**
