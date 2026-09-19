@@ -16,7 +16,7 @@ export type EarningsHistoryRow = {
 	id: string;
 	period: string;
 	amount: number;
-	pageviews: number;
+	pageviews: number | undefined;
 	status: number | undefined;
 };
 
@@ -163,7 +163,9 @@ export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 		{
 			id: 'pageviews',
 			label: __( 'Ads Served', 'jetpack-premium-analytics-pkg' ),
-			render: ( { item } ) => <>{ formatMetricValue( item.pageviews, 'number' ) }</>,
+			render: ( { item } ) => (
+				<>{ item.pageviews === undefined ? '—' : formatMetricValue( item.pageviews, 'number' ) }</>
+			),
 		},
 		{
 			id: 'status',
