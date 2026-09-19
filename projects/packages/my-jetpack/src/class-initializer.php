@@ -592,6 +592,7 @@ class Initializer {
 				'products'               => array(
 					'items' => Products::get_products(),
 				),
+				'mainFeatures'           => self::is_features_tab_enabled() ? Main_Features::get_state() : null,
 				'plugins'                => Plugins_Installer::get_plugins(),
 				'themes'                 => Sync_Functions::get_themes(),
 				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
@@ -872,6 +873,10 @@ class Initializer {
 		new REST_Zendesk_Chat();
 		( new REST_Jetpack_AI_JWT() )->register_rest_route();
 		new REST_Recommendations_Evaluation();
+
+		if ( self::is_features_tab_enabled() ) {
+			new REST_Main_Features();
+		}
 
 		Products::register_product_endpoints();
 		Historically_Active_Modules::register_rest_endpoints();

@@ -7,10 +7,43 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Plugins_Installer;
+
 /**
  * Describes the main Jetpack features: their copy, links and how a site owner gets each one.
+ *
+ * The descriptive half of an entry (name, description, icon) is expected to move to a
+ * WordPress.com public-api endpoint in a later iteration; the state half (status,
+ * manage_url) must stay local, because only the site knows what is active on it.
  */
 class Main_Features {
+
+	/**
+	 * Feature is running and has a page of its own to visit.
+	 */
+	const STATUS_ACTIVE = 'active';
+
+	/**
+	 * Feature is available but switched off, so we offer to explain it.
+	 */
+	const STATUS_INACTIVE = 'inactive';
+
+	/**
+	 * A plugin is not on the site at all.
+	 */
+	const PLUGIN_NOT_INSTALLED = 'not-installed';
+
+	/**
+	 * A plugin is installed and switched off.
+	 */
+	const PLUGIN_INACTIVE = 'inactive';
+
+	/**
+	 * A plugin is installed and running.
+	 */
+	const PLUGIN_ACTIVE = 'active';
 
 	/**
 	 * The static feature catalog.
@@ -40,6 +73,7 @@ class Main_Features {
 				'long_description' => __( 'When something breaks, see exactly what changed and who changed it, from published posts to plugin updates and logins. Every connected site gets its 20 most recent events for free.', 'jetpack-my-jetpack' ),
 				'icon'             => 'list',
 				'admin_page'       => 'jetpack-activity-log',
+				'module'           => 'activity-log',
 				'paid_highlights'  => array(
 					__( '30 days of history with VaultPress Backup or Jetpack Security, a full year with Jetpack Complete', 'jetpack-my-jetpack' ),
 					__( 'Filter events by activity type and date range', 'jetpack-my-jetpack' ),
@@ -103,7 +137,7 @@ class Main_Features {
 				'info_url'         => 'https://jetpack.com/blaze/',
 				'docs_url'         => 'https://jetpack.com/support/blaze/',
 				'image'            => 'https://jetpack.com/wp-content/uploads/2024/03/68752-43696-hero-blaze-2x-1.png',
-				'name'             => __( 'Blaze', 'jetpack-my-jetpack' ),
+				'name'             => __( 'Blaze Ads', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Put your best posts in front of new readers on WordPress.com and Tumblr.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Turn a post or page into an ad shown across Tumblr and WordPress.com, aimed at the locations, languages and interests you choose. There is no plan to buy: set a budget for each campaign and pay only for the ad views you get.', 'jetpack-my-jetpack' ),
 				'icon'             => 'megaphone',
@@ -169,7 +203,7 @@ class Main_Features {
 				'info_url'         => 'https://jetpack.com/ai/',
 				'docs_url'         => 'https://jetpack.com/support/create-better-content-with-jetpack-ai/',
 				'image'            => 'https://jetpack.com/wp-content/uploads/2024/09/b76cf-48ca0-image-hero.png',
-				'name'             => __( 'Jetpack AI Assistant', 'jetpack-my-jetpack' ),
+				'name'             => __( 'Jetpack AI', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Turn your ideas into ready-to-publish content without leaving the editor.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Generate posts, tables, forms and images from a prompt, then change the tone, translate, or fix unclear sentences to make your writing easier to read. Before you publish, improve your title and create a featured image in one click.', 'jetpack-my-jetpack' ),
 				'icon'             => 'star',
@@ -218,6 +252,7 @@ class Main_Features {
 				'long_description' => __( 'Subscribers get each new post by email as soon as you publish, or in a daily or weekly digest they choose. You can also earn from your writing with paid subscriptions for exclusive posts.', 'jetpack-my-jetpack' ),
 				'icon'             => 'envelope',
 				'product'          => 'newsletter',
+				'module'           => 'subscriptions',
 				'paid_highlights'  => array(
 					__( 'Keep more of what you earn with lower fees on paid subscriptions', 'jetpack-my-jetpack' ),
 					__( 'Import as many subscribers as you like', 'jetpack-my-jetpack' ),
@@ -371,5 +406,253 @@ class Main_Features {
 				'paid_product'     => __( 'Jetpack VideoPress', 'jetpack-my-jetpack' ),
 			),
 		);
+	}
+
+	/**
+	 * The paid bundles that include a feature, named for display.
+	 *
+	 * Membership follows what the bundle products themselves declare they support, so
+	 * this stays right when a bundle's contents change.
+	 *
+	 * @param array $definition One feature's catalog entry.
+	 * @return array List of slug/name pairs.
+	 */
+	private static function get_plan_badges( $definition ) {
+		$names = array(
+			'security' => __( 'Jetpack Security', 'jetpack-my-jetpack' ),
+			'complete' => __( 'Jetpack Complete', 'jetpack-my-jetpack' ),
+			'growth'   => __( 'Jetpack Growth', 'jetpack-my-jetpack' ),
+		);
+
+		$badges = array();
+
+		foreach ( $definition['plans'] ?? array() as $slug ) {
+			if ( isset( $names[ $slug ] ) ) {
+				$badges[] = array(
+					'slug' => $slug,
+					'name' => $names[ $slug ],
+				);
+			}
+		}
+
+		return $badges;
+	}
+
+	/**
+	 * How each feature reaches a site: through a module in the Jetpack plugin, as a
+	 * standalone plugin, or both.
+	 *
+	 * `jetpack` means the feature is switched by a Jetpack module while the Jetpack plugin is
+	 * active; `plugin` is the WordPress.org slug of its standalone plugin. Protect and VaultPress
+	 * Backup ship inside Jetpack too, but their switch is their own plugin, so they list only it.
+	 *
+	 * @return array<string, array{jetpack: bool, plugin: string}> Keyed by feature slug.
+	 */
+	public static function get_availability() {
+		return array(
+			'activity-log'  => array(
+				'jetpack' => true,
+				'plugin'  => '',
+			),
+			'anti-spam'     => array(
+				'jetpack' => false,
+				'plugin'  => 'akismet',
+			),
+			'backup'        => array(
+				'jetpack' => false,
+				'plugin'  => 'jetpack-backup',
+			),
+			'blaze'         => array(
+				'jetpack' => true,
+				'plugin'  => 'blaze-ads',
+			),
+			'boost'         => array(
+				'jetpack' => false,
+				'plugin'  => 'jetpack-boost',
+			),
+			'crm'           => array(
+				'jetpack' => false,
+				'plugin'  => 'zero-bs-crm',
+			),
+			'jetpack-ai'    => array(
+				'jetpack' => true,
+				'plugin'  => '',
+			),
+			'jetpack-forms' => array(
+				'jetpack' => true,
+				'plugin'  => '',
+			),
+			'newsletter'    => array(
+				'jetpack' => true,
+				'plugin'  => '',
+			),
+			'podcast'       => array(
+				'jetpack' => true,
+				'plugin'  => '',
+			),
+			'protect'       => array(
+				'jetpack' => false,
+				'plugin'  => 'jetpack-protect',
+			),
+			'search'        => array(
+				'jetpack' => true,
+				'plugin'  => 'jetpack-search',
+			),
+			'social'        => array(
+				'jetpack' => true,
+				'plugin'  => 'jetpack-social',
+			),
+			'stats'         => array(
+				'jetpack' => true,
+				'plugin'  => '',
+			),
+			'videopress'    => array(
+				'jetpack' => true,
+				'plugin'  => 'jetpack-videopress',
+			),
+		);
+	}
+
+	/**
+	 * The plugins the Features tab may install or switch: every standalone plugin in the map,
+	 * and Jetpack itself.
+	 *
+	 * @return string[] WordPress.org plugin slugs.
+	 */
+	public static function get_switchable_plugins() {
+		$plugins = array_filter( array_column( self::get_availability(), 'plugin' ) );
+
+		return array_values( array_unique( array_merge( array( Product::JETPACK_PLUGIN_SLUG ), $plugins ) ) );
+	}
+
+	/**
+	 * Whether a plugin is missing, installed and off, or running.
+	 *
+	 * @param string $slug WordPress.org plugin slug.
+	 * @return string One of the PLUGIN_* constants.
+	 */
+	public static function get_plugin_status( $slug ) {
+		// Jetpack also runs from a -dev folder, which a lookup by slug would miss.
+		if ( Product::JETPACK_PLUGIN_SLUG === $slug ) {
+			if ( ! Product::is_jetpack_plugin_installed() ) {
+				return self::PLUGIN_NOT_INSTALLED;
+			}
+
+			return Product::is_jetpack_plugin_active() ? self::PLUGIN_ACTIVE : self::PLUGIN_INACTIVE;
+		}
+
+		$file = Plugins_Installer::get_plugin_id_by_slug( $slug );
+
+		if ( ! $file ) {
+			return self::PLUGIN_NOT_INSTALLED;
+		}
+
+		return Plugins_Installer::is_plugin_active( $file ) ? self::PLUGIN_ACTIVE : self::PLUGIN_INACTIVE;
+	}
+
+	/**
+	 * Everything the Features tab renders from: the Jetpack plugin's status and each feature.
+	 *
+	 * @return array{jetpack: string, features: array} The state.
+	 */
+	public static function get_state() {
+		return array(
+			'jetpack'  => self::get_plugin_status( Product::JETPACK_PLUGIN_SLUG ),
+			'features' => self::get_features(),
+		);
+	}
+
+	/**
+	 * The feature catalog merged with each feature's live state, sorted by name.
+	 *
+	 * @return array List of features, each with slug, name, description, icon, status,
+	 *               manage_url, learn_more_route and the product/module join keys.
+	 */
+	public static function get_features() {
+		$features = array();
+
+		$availability = self::get_availability();
+
+		foreach ( self::get_feature_definitions() as $slug => $definition ) {
+			$plugin     = $availability[ $slug ]['plugin'] ?? '';
+			$features[] = array(
+				'slug'             => $slug,
+				'name'             => $definition['name'],
+				'description'      => $definition['description'],
+				'long_description' => $definition['long_description'] ?? '',
+				'icon'             => $definition['icon'],
+				'status'           => self::get_feature_status( $definition ),
+				'manage_url'       => self::get_feature_manage_url( $definition ),
+				'learn_more_route' => $definition['interstitial'] ?? '',
+				'essential'        => ! empty( $definition['essential'] ),
+				'in_jetpack'       => $availability[ $slug ]['jetpack'] ?? false,
+				'plugin'           => $plugin,
+				'plugin_status'    => $plugin ? self::get_plugin_status( $plugin ) : self::PLUGIN_NOT_INSTALLED,
+				'paid_highlights'  => $definition['paid_highlights'] ?? array(),
+				'plans'            => self::get_plan_badges( $definition ),
+				'paid_product'     => $definition['paid_product'] ?? '',
+				'delivery'         => $definition['delivery'] ?? array(),
+				'screenshot'       => $definition['image'],
+				'info_url'         => $definition['info_url'],
+				'docs_url'         => $definition['docs_url'],
+				// Join keys: the UI reads live, post-mutation state from the product and
+				// module stores rather than from the `status` resolved above.
+				'product'          => $definition['product'] ?? '',
+				'module'           => $definition['module'] ?? '',
+			);
+		}
+
+		usort(
+			$features,
+			function ( $a, $b ) {
+				return strnatcasecmp( $a['name'], $b['name'] );
+			}
+		);
+
+		return $features;
+	}
+
+	/**
+	 * Resolve whether a feature is currently running on this site.
+	 *
+	 * @param array $definition A single entry from the feature catalog.
+	 * @return string One of the STATUS_* constants.
+	 */
+	private static function get_feature_status( array $definition ) {
+		if ( isset( $definition['product'] ) ) {
+			$product_class = Products::get_product_class( $definition['product'] );
+
+			return $product_class && $product_class::is_active() ? self::STATUS_ACTIVE : self::STATUS_INACTIVE;
+		}
+
+		if ( isset( $definition['module'] ) ) {
+			return ( new Modules() )->is_active( $definition['module'] ) ? self::STATUS_ACTIVE : self::STATUS_INACTIVE;
+		}
+
+		// Features with neither a product nor a module are hosted on WordPress.com and
+		// need the site connection to show anything at all.
+		return ( new Connection_Manager() )->is_connected() ? self::STATUS_ACTIVE : self::STATUS_INACTIVE;
+	}
+
+	/**
+	 * Where an active feature lives.
+	 *
+	 * @param array $definition A single entry from the feature catalog.
+	 * @return string Admin URL, or an empty string when the feature has nowhere to go.
+	 */
+	private static function get_feature_manage_url( array $definition ) {
+		if ( isset( $definition['admin_page'] ) ) {
+			return admin_url( 'admin.php?page=' . $definition['admin_page'] );
+		}
+
+		if ( isset( $definition['product'] ) ) {
+			$product_class = Products::get_product_class( $definition['product'] );
+
+			if ( $product_class ) {
+				return (string) $product_class::get_manage_url();
+			}
+		}
+
+		return '';
 	}
 }

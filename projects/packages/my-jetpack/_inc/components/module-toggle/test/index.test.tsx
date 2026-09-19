@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MyJetpackModule } from '../../../types';
 import { setPendingSuccessNotice } from '../../my-jetpack-tab-panel/products/pending-notice';
@@ -185,6 +185,47 @@ describe( 'ModuleToggle', () => {
 		);
 		expect( reloadPage ).toHaveBeenCalled();
 		expect( mockCreateSuccessNotice ).not.toHaveBeenCalled();
+	} );
+
+	it( 'stays on the page for a menu-registering module when asked not to reload', async () => {
+		render(
+			<ModuleToggle
+				module={ buildModule( { module: 'podcast', name: 'Podcast' } ) }
+				reloadAfterToggle={ false }
+			/>
+		);
+
+		await userEvent.click( screen.getByRole( 'checkbox' ) );
+
+		expect( mockToggleModule ).toHaveBeenCalledWith( { name: 'podcast', active: false } );
+		expect( reloadPage ).not.toHaveBeenCalled();
+		expect( setPendingSuccessNotice ).not.toHaveBeenCalled();
+		expect( mockCreateSuccessNotice ).toHaveBeenCalled();
+	} );
+
+	it( 'sends a second module update only after the first has settled', async () => {
+		let settleFirst: ( value: boolean ) => void = () => undefined;
+		mockToggleModule.mockImplementationOnce(
+			() => new Promise( resolve => ( settleFirst = resolve ) )
+		);
+
+		render(
+			<>
+				<ModuleToggle module={ buildModule( { module: 'podcast', name: 'Podcast' } ) } />
+				<ModuleToggle module={ buildModule( { module: 'sitemaps', name: 'Sitemaps' } ) } />
+			</>
+		);
+
+		const [ podcast, sitemaps ] = screen.getAllByRole( 'checkbox' );
+		await userEvent.click( podcast );
+		await userEvent.click( sitemaps );
+
+		expect( mockToggleModule ).toHaveBeenCalledTimes( 1 );
+
+		settleFirst( true );
+
+		await waitFor( () => expect( mockToggleModule ).toHaveBeenCalledTimes( 2 ) );
+		expect( mockToggleModule ).toHaveBeenLastCalledWith( { name: 'sitemaps', active: false } );
 	} );
 
 	it( 'does not reload for a regular module and shows an inline notice instead', async () => {

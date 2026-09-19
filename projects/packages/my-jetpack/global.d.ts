@@ -462,8 +462,45 @@ type VideopressData = {
 	videoCount: number;
 };
 
+type MainFeaturePluginStatus = 'not-installed' | 'inactive' | 'active';
+
+type MainFeaturesState = {
+	jetpack: MainFeaturePluginStatus;
+	features: MainFeature[];
+};
+
+type MainFeature = {
+	slug: string;
+	name: string;
+	description: string;
+	long_description: string;
+	icon: string;
+	status: 'active' | 'inactive';
+	manage_url: string;
+	learn_more_route: string;
+	essential: boolean;
+	in_jetpack: boolean;
+	plugin: string;
+	plugin_status: MainFeaturePluginStatus;
+	paid_highlights: string[];
+	plans: Array< { slug: string; name: string } >;
+	paid_product: string;
+	delivery: {
+		in_jetpack?: boolean;
+		standalone?: string;
+		standalone_url?: string;
+		free?: boolean;
+	};
+	screenshot: string;
+	info_url: string;
+	docs_url: string;
+	product: string;
+	module: string;
+};
+
 interface Window {
 	myJetpackInitialState?: {
+		mainFeatures: MainFeaturesState | null;
 		siteSuffix: string;
 		siteUrl: string;
 		latestBoostSpeedScores: {

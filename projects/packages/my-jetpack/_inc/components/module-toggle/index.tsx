@@ -16,6 +16,8 @@ import type { ChangeEvent } from 'react';
 export type ModuleToggleProps = {
 	module: MyJetpackModule;
 	describedby?: string;
+	/** False keeps the page in place, leaving the sidebar to catch up on the next load. */
+	reloadAfterToggle?: boolean;
 };
 
 // Modules that register a server-rendered wp-admin sidebar item. Toggling them
@@ -23,18 +25,42 @@ export type ModuleToggleProps = {
 // notice is persisted so it survives the reload.
 const MODULES_REQUIRING_RELOAD = [ 'activity-log', 'podcast', 'subscriptions', 'wpcom-reader' ];
 
+// The server read-modify-writes one option for active modules and another for active
+// plugins, so two requests in flight can each drop the other's change. Send one at a time.
+let pendingActivation: Promise< unknown > = Promise.resolve();
+
 /**
- * Renders a toggle for a Jetpack module.
+ * Run an activation request once every request queued before it has settled.
  *
- * @param {ModuleToggleProps} props - The component props.
- *
- * @return The rendered component.
+ * @param request - The request to run.
+ * @return The request's result.
  */
-export function ModuleToggle( { module: $module, describedby }: ModuleToggleProps ) {
+export function queueActivationRequest< T >( request: () => Promise< T > ): Promise< T > {
+	const run = pendingActivation.then( request, request );
+	pendingActivation = run.catch( () => undefined );
+
+	return run;
+}
+
+/**
+ * Switch a Jetpack module on or off, however the surface chooses to present that.
+ *
+ * Shared with the Features modal, which offers buttons rather than a switch: both must
+ * run the same mutation, notices and post-activation reload.
+ *
+ * @param $module        - The module to switch.
+ * @param options        - Hook options.
+ * @param options.reload - False skips the sidebar reload, for surfaces where several
+ *                       switches are flipped in a row.
+ * @return The handler and whether a mutation is in flight.
+ */
+export function useModuleActivation(
+	$module: MyJetpackModule,
+	{ reload = true }: { reload?: boolean } = {}
+) {
 	const { updateJetpackModuleStatus: toggleModule } = useDispatch( modulesStore );
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	const { trackProductAction } = useProductFiltersContext() || {};
-	const blockThemeMigration = getBlockThemeMigration( $module );
 
 	const isUpdating = useSelect(
 		select => select( modulesStore ).isModuleUpdating( $module.module ),
@@ -92,12 +118,14 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 				} );
 			}
 
-			const success = await toggleModule( {
-				name: $module.module,
-				active,
-			} );
+			const success = await queueActivationRequest( () =>
+				toggleModule( {
+					name: $module.module,
+					active,
+				} )
+			);
 
-			if ( success && MODULES_REQUIRING_RELOAD.includes( $module.module ) ) {
+			if ( success && reload && MODULES_REQUIRING_RELOAD.includes( $module.module ) ) {
 				setPendingSuccessNotice(
 					active
 						? getModuleActivationMessage( $module.module, $module.name )
@@ -116,8 +144,28 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 				action: active ? 'activation' : 'deactivation',
 			} );
 		},
-		[ toggleModule, $module, showToggleNotice, trackProductAction ]
+		[ toggleModule, $module, showToggleNotice, trackProductAction, reload ]
 	);
+
+	return { setModuleActive, isUpdating };
+}
+
+/**
+ * Renders a toggle for a Jetpack module.
+ *
+ * @param {ModuleToggleProps} props - The component props.
+ *
+ * @return The rendered component.
+ */
+export function ModuleToggle( {
+	module: $module,
+	describedby,
+	reloadAfterToggle = true,
+}: ModuleToggleProps ) {
+	const { setModuleActive, isUpdating } = useModuleActivation( $module, {
+		reload: reloadAfterToggle,
+	} );
+	const blockThemeMigration = getBlockThemeMigration( $module );
 
 	const onChange = useCallback(
 		( event: ChangeEvent< HTMLInputElement > ) => setModuleActive( event.target.checked ),

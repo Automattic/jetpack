@@ -44,9 +44,9 @@ class Main_Features_Test extends TestCase {
 
 	/**
 	 * A feature switched by neither a product nor a module has nothing to toggle and can
-	 * only be linked to. Only Activity Log is allowed in that state.
+	 * only be linked to. Every feature now carries one, Activity Log included.
 	 */
-	public function test_only_activity_log_has_no_product_or_module() {
+	public function test_every_feature_has_a_product_or_a_module() {
 		$unswitchable = array_keys(
 			array_filter(
 				Main_Features::get_feature_definitions(),
@@ -54,7 +54,7 @@ class Main_Features_Test extends TestCase {
 			)
 		);
 
-		$this->assertSame( array( 'activity-log' ), $unswitchable );
+		$this->assertSame( array(), $unswitchable, 'These features offer nothing to switch.' );
 	}
 
 	/**
@@ -233,5 +233,104 @@ class Main_Features_Test extends TestCase {
 				);
 			}
 		}
+	}
+
+	/**
+	 * The grid renders in the order it arrives, so sorting is the catalog's job.
+	 */
+	public function test_features_are_sorted_alphabetically_by_name() {
+		$names = array_column( Main_Features::get_features(), 'name' );
+
+		$sorted = $names;
+		usort( $sorted, 'strnatcasecmp' );
+
+		$this->assertSame( $sorted, $names );
+	}
+
+	/**
+	 * A feature with no interstitial must say so rather than emit a route that 404s.
+	 */
+	public function test_features_without_an_interstitial_have_an_empty_learn_more_route() {
+		$features = array_column( Main_Features::get_features(), 'learn_more_route', 'slug' );
+
+		$this->assertSame( '/add-backup', $features['backup'] );
+		$this->assertSame( '', $features['activity-log'] );
+		$this->assertSame( '', $features['podcast'] );
+	}
+
+	/**
+	 * The pills filter on plan membership, so every feature has to carry the key they read.
+	 */
+	public function test_every_feature_carries_the_keys_the_grid_reads() {
+		foreach ( Main_Features::get_features() as $feature ) {
+			foreach ( array( 'slug', 'name', 'description', 'icon', 'status', 'essential', 'plans', 'in_jetpack', 'plugin', 'plugin_status' ) as $key ) {
+				$this->assertArrayHasKey( $key, $feature, "Feature {$feature['slug']} is missing {$key}" );
+			}
+
+			$this->assertContains(
+				$feature['status'],
+				array( Main_Features::STATUS_ACTIVE, Main_Features::STATUS_INACTIVE )
+			);
+			$this->assertIsArray( $feature['plans'] );
+		}
+	}
+
+	/**
+	 * The map and the catalog must name the same features, or a card would get no control.
+	 */
+	public function test_availability_covers_every_feature() {
+		$this->assertEqualsCanonicalizing(
+			array_keys( Main_Features::get_feature_definitions() ),
+			array_keys( Main_Features::get_availability() )
+		);
+	}
+
+	/**
+	 * A feature Jetpack does not switch must have a plugin to install instead.
+	 */
+	public function test_every_feature_can_be_switched_somewhere() {
+		foreach ( Main_Features::get_availability() as $slug => $availability ) {
+			$this->assertTrue(
+				$availability['jetpack'] || '' !== $availability['plugin'],
+				"Feature {$slug} can be switched neither in Jetpack nor by a plugin"
+			);
+		}
+	}
+
+	/**
+	 * A mapped plugin must be the product's own standalone plugin, or Install fetches the wrong one.
+	 */
+	public function test_plugins_match_the_product_standalone_plugin() {
+		$availability = Main_Features::get_availability();
+
+		foreach ( Main_Features::get_feature_definitions() as $slug => $definition ) {
+			$plugin        = $availability[ $slug ]['plugin'];
+			$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
+
+			if ( '' === $plugin || ! $product_class || ! $product_class::$has_standalone_plugin ) {
+				continue;
+			}
+
+			$this->assertSame( $product_class::$plugin_slug, $plugin, "Feature {$slug} maps to the wrong plugin" );
+		}
+	}
+
+	/**
+	 * The REST route accepts exactly these, so the list is its allowlist.
+	 */
+	public function test_switchable_plugins_are_jetpack_and_the_mapped_plugins() {
+		$plugins = Main_Features::get_switchable_plugins();
+
+		$this->assertContains( 'jetpack', $plugins );
+		$this->assertContains( 'blaze-ads', $plugins );
+		$this->assertNotContains( '', $plugins );
+		$this->assertSame( array_values( array_unique( $plugins ) ), $plugins );
+	}
+
+	/**
+	 * A plugin that is not on disk reads as not installed rather than inactive.
+	 */
+	public function test_a_missing_plugin_reads_as_not_installed() {
+		$this->assertSame( Main_Features::PLUGIN_NOT_INSTALLED, Main_Features::get_plugin_status( 'zero-bs-crm' ) );
 	}
 }
