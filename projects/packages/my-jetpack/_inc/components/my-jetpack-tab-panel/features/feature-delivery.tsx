@@ -1,13 +1,69 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Stack, Text } from '@wordpress/ui';
-import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
-import { getProductLifecycleAction } from '../products/product-card-action';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
 
 type FeatureDeliveryProps = {
 	state: FeatureState;
 };
+
+/**
+ * The note under "How to get it", naming what the modal's button will do.
+ *
+ * @param state      - Live state for the feature.
+ * @param pluginName - The standalone plugin's name.
+ * @return The note, or an empty string when there is nothing to explain.
+ */
+function getNote( state: FeatureState, pluginName: string ): string {
+	const { feature, control } = state;
+
+	switch ( control.kind ) {
+		case 'install-plugin':
+			return sprintf(
+				/* translators: 1: a plugin name, 2: a feature name. */
+				__(
+					'Install adds the %1$s plugin, then turns %2$s on for your site. It does not buy anything.',
+					'jetpack-my-jetpack'
+				),
+				pluginName,
+				feature.name
+			);
+
+		case 'plugin':
+			return sprintf(
+				/* translators: 1: a plugin name, 2: a feature name. */
+				__(
+					'Activate switches on the %1$s plugin, already installed here, and turns %2$s on for your site.',
+					'jetpack-my-jetpack'
+				),
+				pluginName,
+				feature.name
+			);
+
+		case 'module':
+			return sprintf(
+				/* translators: %s is a feature name, such as "Stats". */
+				__(
+					'Activate turns %s on for your site. There is nothing to install, and it does not buy anything.',
+					'jetpack-my-jetpack'
+				),
+				feature.name
+			);
+
+		case 'install-jetpack':
+			return sprintf(
+				/* translators: %s is a feature name, such as "Stats". */
+				__(
+					'%s is part of the Jetpack plugin. Installing Jetpack turns it on; it does not buy anything.',
+					'jetpack-my-jetpack'
+				),
+				feature.name
+			);
+
+		default:
+			return '';
+	}
+}
 
 /**
  * Where an inactive feature comes from, and what the button will do to get it.
@@ -20,68 +76,16 @@ type FeatureDeliveryProps = {
  * @return The rendered component.
  */
 export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
-	const { feature, product } = state;
-	// Saying "In Jetpack" to someone already running Jetpack tells them nothing.
-	const inJetpack = !! feature.delivery?.in_jetpack && ! isJetpackPluginActive();
-	const { standalone } = feature.delivery ?? {};
+	const { feature } = state;
 
 	if ( state.status === 'active' ) {
 		return null;
 	}
 
-	// The product's own plugin slug is the wordpress.org one.
-	const repoUrl = product?.pluginSlug
-		? `https://wordpress.org/plugins/${ product.pluginSlug }/`
-		: '';
+	const pluginName = feature.delivery?.standalone || feature.name;
+	const note = getNote( state, pluginName );
 
-	const action = product ? getProductLifecycleAction( product ) : null;
-	// Only claim a plugin is involved when this product actually has one waiting.
-	const installedStandalone =
-		!! standalone && !! product?.standalonePluginInfo?.isStandaloneInstalled;
-
-	// Named for the button it describes, so the two cannot be read as different things.
-	const consequence = () => {
-		if ( action === 'install' && standalone ) {
-			return sprintf(
-				/* translators: 1: a plugin name, 2: a feature name. */
-				__(
-					'Install adds the %1$s plugin, then turns %2$s on for your site. It does not buy anything.',
-					'jetpack-my-jetpack'
-				),
-				standalone,
-				feature.name
-			);
-		}
-
-		if ( action === 'activate' && installedStandalone ) {
-			return sprintf(
-				/* translators: 1: a plugin name, 2: a feature name. */
-				__(
-					'Activate switches on the %1$s plugin, already installed here, and turns %2$s on for your site.',
-					'jetpack-my-jetpack'
-				),
-				standalone,
-				feature.name
-			);
-		}
-
-		if ( action ) {
-			return sprintf(
-				/* translators: %s is a feature name, such as "Protect". */
-				__(
-					'Activate turns %s on for your site. There is nothing to install, and it does not buy anything.',
-					'jetpack-my-jetpack'
-				),
-				feature.name
-			);
-		}
-
-		return '';
-	};
-
-	const note = consequence();
-
-	if ( ! inJetpack && ! standalone && ! note ) {
+	if ( ! feature.in_jetpack && ! feature.plugin && ! note ) {
 		return null;
 	}
 
@@ -92,25 +96,24 @@ export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 			</Text>
 
 			<Stack direction="row" align="center" gap="sm" wrap="wrap">
-				{ inJetpack ? (
+				{ feature.in_jetpack ? (
 					<Badge intent="stable">{ __( 'In Jetpack', 'jetpack-my-jetpack' ) }</Badge>
 				) : null }
-				{ standalone && repoUrl ? (
+				{ feature.plugin ? (
 					<a
-						href={ repoUrl }
+						href={ `https://wordpress.org/plugins/${ feature.plugin }/` }
 						target="_blank"
 						rel="noreferrer"
 						className={ styles[ 'badge-link' ] }
 						title={ sprintf(
 							/* translators: %s is a plugin name, such as "Jetpack Protect". */
 							__( 'View %s on WordPress.org', 'jetpack-my-jetpack' ),
-							standalone
+							pluginName
 						) }
 					>
-						<Badge intent="informational">{ standalone }</Badge>
+						<Badge intent="informational">{ pluginName }</Badge>
 					</a>
 				) : null }
-				{ standalone && ! repoUrl ? <Badge intent="informational">{ standalone }</Badge> : null }
 			</Stack>
 
 			{ note ? <Text variant="body-sm">{ note }</Text> : null }

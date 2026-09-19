@@ -1157,9 +1157,7 @@ abstract class Product {
 		 *
 		 * If the standalone plugin is not installed and the user can install plugins, proceed with the installation.
 		 */
-		// `self::`, not `static::`: a hybrid product's override also counts Jetpack as installed,
-		// which would skip installing the standalone plugin whenever Jetpack is present.
-		if ( ! self::is_plugin_installed() ) {
+		if ( ! static::is_plugin_installed() ) {
 			/**
 			 * Check for permissions
 			 */

@@ -1,7 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
-import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { FeatureItem } from './feature-item';
 import { FeatureModal } from './feature-modal';
 import { useFeatureStates } from './feature-state';
@@ -9,6 +8,7 @@ import styles from './styles.module.scss';
 import { Toolbar } from './toolbar';
 import { getFeatureFilters, isFeatureFilter, matchesFilter } from './use-feature-filter';
 import { useFeatureSearch } from './use-feature-search';
+import { useMainFeatures } from './use-main-features';
 import type { FeatureFilter } from './use-feature-filter';
 
 /**
@@ -20,11 +20,7 @@ import type { FeatureFilter } from './use-feature-filter';
  * @return The rendered component.
  */
 export function FeaturesContent() {
-	const features = useMemo(
-		() => getMyJetpackWindowInitialState( 'mainFeatures' ) || [],
-		[]
-	) as MainFeature[];
-	const states = useFeatureStates( features );
+	const states = useFeatureStates( useMainFeatures() );
 
 	const [ searchParams, setSearchParams ] = useSearchParams();
 

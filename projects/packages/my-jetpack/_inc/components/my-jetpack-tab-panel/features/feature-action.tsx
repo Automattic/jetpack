@@ -1,21 +1,13 @@
 import { FormToggle } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
-import { useInterstitialsState } from '../../../hooks/use-interstitials-state';
-import ActionButton from '../../action-button';
+import { Button } from '@wordpress/ui';
+import { useCallback } from 'react';
 import { ModuleToggle } from '../../module-toggle';
-import { ActivationToggle, getProductActivation } from '../products/product-card-action';
-import { hasNothingLocalToSwitch } from './feature-state';
-import { useStandaloneSwitch } from './use-standalone-switch';
+import { useFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
-import type { ProductCamelCase } from '../../../data/types';
 
-type FeatureActionProps = {
-	state: FeatureState;
-};
-
-type StandaloneToggleProps = {
-	product: ProductCamelCase;
+type PluginToggleProps = {
+	plugin: string;
 	isOn: boolean;
 	name: string;
 };
@@ -23,14 +15,15 @@ type StandaloneToggleProps = {
 /**
  * The card switch for a feature switched by its standalone plugin.
  *
- * @param {StandaloneToggleProps} props         - The component props.
- * @param {ProductCamelCase}      props.product - The product whose plugin is the switch.
- * @param {boolean}               props.isOn    - Whether the plugin is installed and active.
- * @param {string}                props.name    - The feature's name, for the label.
+ * @param {PluginToggleProps} props        - The component props.
+ * @param {string}            props.plugin - The plugin's slug.
+ * @param {boolean}           props.isOn   - Whether the plugin is active.
+ * @param {string}            props.name   - The feature's name, for the label and notice.
  * @return The rendered component.
  */
-function StandaloneToggle( { product, isOn, name }: StandaloneToggleProps ) {
-	const { setActive, isBusy } = useStandaloneSwitch( product, isOn );
+function PluginToggle( { plugin, isOn, name }: PluginToggleProps ) {
+	const { run, isBusy } = useFeaturePlugin( plugin, name );
+	const onChange = useCallback( () => run( isOn ? 'deactivate' : 'activate' ), [ isOn, run ] );
 	// Bound before the branch, for the reason given in feature-modal-actions.tsx.
 	const deactivateLabel = sprintf(
 		/* translators: %s is the feature name. */
@@ -47,82 +40,112 @@ function StandaloneToggle( { product, isOn, name }: StandaloneToggleProps ) {
 		<FormToggle
 			checked={ isOn }
 			disabled={ isBusy }
-			onChange={ setActive }
+			onChange={ onChange }
 			aria-label={ isOn ? deactivateLabel : activateLabel }
 		/>
 	);
 }
 
+type InstallButtonProps = {
+	plugin: string;
+	name: string;
+	label: string;
+	action: 'install' | 'activate';
+};
+
 /**
+ * A compact button that installs, or activates, the plugin a feature is waiting on.
  *
- * @param root0
- * @param root0.state
+ * @param {InstallButtonProps} props        - The component props.
+ * @param {string}             props.plugin - The plugin's slug, or `jetpack`.
+ * @param {string}             props.name   - What to call it in the notice.
+ * @param {string}             props.label  - The button's text.
+ * @param {string}             props.action - Install when missing, activate when installed.
+ * @return The rendered component.
  */
+export function InstallButton( { plugin, name, label, action }: InstallButtonProps ) {
+	const { run, isBusy } = useFeaturePlugin( plugin, name );
+	const onClick = useCallback( () => run( action ), [ action, run ] );
+
+	return (
+		<Button variant="outline" size="compact" disabled={ isBusy } onClick={ onClick }>
+			{ label }
+		</Button>
+	);
+}
+
+type FeatureActionProps = {
+	state: FeatureState;
+};
+
 /**
- * The control that switches a feature on, or moves it towards being switchable.
+ * The card's control, as the feature map decides it.
  *
- * Every part of this is a control the rest of My Jetpack already uses — the Products
- * tab's activation toggle, the Modules screen's module toggle, and the action button the
- * product cards and interstitials share — so a feature behaves the same way here as it
- * does there, down to which products offer a toggle at all. A product that cannot simply
- * be switched falls back to that button, which says what it needs next ("Install
- * Plugin", "Activate", "Upgrade") rather than leaving the feature with no action.
+ * No switch here reloads the page, though the Products tab's do: a reload keeps the wp-admin
+ * sidebar current, but it makes flipping several features in a row impossible. The sidebar
+ * catches up on the next page load instead.
  *
  * @param {FeatureActionProps} props       - The component props.
  * @param {FeatureState}       props.state - Live state for the feature.
  * @return The rendered component, or null when nothing here can switch the feature.
  */
 export function FeatureAction( { state }: FeatureActionProps ) {
-	const { data: interstitials } = useInterstitialsState();
-	const { showAiModuleToggle = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
+	const { control, feature } = state;
+	const pluginName = feature.delivery?.standalone || feature.name;
 
-	if ( state.product && state.feature.standalone_switch ) {
-		return (
-			<StandaloneToggle
-				product={ state.product }
-				isOn={ state.status === 'active' }
-				name={ state.feature.name }
-			/>
-		);
+	switch ( control.kind ) {
+		case 'module':
+			return <ModuleToggle module={ control.module } reloadAfterToggle={ false } />;
+
+		case 'plugin':
+			return (
+				<PluginToggle
+					plugin={ control.plugin }
+					isOn={ state.status === 'active' }
+					name={ pluginName }
+				/>
+			);
+
+		case 'install-plugin':
+			return (
+				<InstallButton
+					plugin={ control.plugin }
+					name={ pluginName }
+					label={ __( 'Install', 'jetpack-my-jetpack' ) }
+					action="install"
+				/>
+			);
+
+		case 'install-jetpack':
+			return <JetpackButton installed={ control.installed } />;
+
+		default:
+			return null;
 	}
+}
 
-	const activation = state.product
-		? getProductActivation(
-				state.product,
-				state.module,
-				!! interstitials?.[ state.product.slug ],
-				showAiModuleToggle
-			)
-		: null;
+type JetpackButtonProps = {
+	installed: boolean;
+};
 
-	// No switch here reloads the page, though the Products tab's do: a reload keeps the
-	// wp-admin sidebar current, but it makes flipping several features in a row
-	// impossible. The sidebar catches up on the next page load instead.
-	//
-	// Every feature backed by a module gets a switch, whatever its product needs: the
-	// module is the part of it this site can turn on and off, and what `feature-state`
-	// reports, so the switch and the badge always agree.
-	if ( state.module?.available ) {
-		return <ModuleToggle module={ state.module } reloadAfterToggle={ false } />;
-	}
+/**
+ * Install, or activate, the Jetpack plugin for a feature only Jetpack ships.
+ *
+ * @param {JetpackButtonProps} props           - The component props.
+ * @param {boolean}            props.installed - Whether Jetpack is installed but inactive.
+ * @return The rendered component.
+ */
+export function JetpackButton( { installed }: JetpackButtonProps ) {
+	// Bound before the branch, for the reason given in feature-modal-actions.tsx.
+	const activateLabel = __( 'Activate Jetpack', 'jetpack-my-jetpack' );
+	const installLabel = __( 'Install Jetpack', 'jetpack-my-jetpack' );
 
-	// Reaching here means no module can be switched, so the product is the whole feature
-	// and nothing about a missing module should hold its switch shut.
-	if ( state.product && activation && ! hasNothingLocalToSwitch( state ) ) {
-		return (
-			<ActivationToggle
-				product={ state.product }
-				{ ...activation }
-				disabled={ false }
-				reloadOnToggle={ false }
-				showBadge={ false }
-			/>
-		);
-	}
-
-	// A separate plugin, so there is nothing here to switch until it is installed. One
-	// compact, quiet button: a grid of solid primary buttons drowns out the switches.
-	return state.product ? (
-		<ActionButton slug={ state.product.slug as JetpackModule } variant="secondary" />
-	) : null;
+	return (
+		<InstallButton
+			plugin="jetpack"
+			name="Jetpack"
+			label={ installed ? activateLabel : installLabel }
+			action={ installed ? 'activate' : 'install' }
+		/>
+	);
 }

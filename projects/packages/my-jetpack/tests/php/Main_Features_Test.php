@@ -263,7 +263,7 @@ class Main_Features_Test extends TestCase {
 	 */
 	public function test_every_feature_carries_the_keys_the_grid_reads() {
 		foreach ( Main_Features::get_features() as $feature ) {
-			foreach ( array( 'slug', 'name', 'description', 'icon', 'status', 'essential', 'plans' ) as $key ) {
+			foreach ( array( 'slug', 'name', 'description', 'icon', 'status', 'essential', 'plans', 'in_jetpack', 'plugin', 'plugin_status' ) as $key ) {
 				$this->assertArrayHasKey( $key, $feature, "Feature {$feature['slug']} is missing {$key}" );
 			}
 
@@ -273,5 +273,64 @@ class Main_Features_Test extends TestCase {
 			);
 			$this->assertIsArray( $feature['plans'] );
 		}
+	}
+
+	/**
+	 * The map and the catalog must name the same features, or a card would get no control.
+	 */
+	public function test_availability_covers_every_feature() {
+		$this->assertEqualsCanonicalizing(
+			array_keys( Main_Features::get_feature_definitions() ),
+			array_keys( Main_Features::get_availability() )
+		);
+	}
+
+	/**
+	 * A feature Jetpack does not switch must have a plugin to install instead.
+	 */
+	public function test_every_feature_can_be_switched_somewhere() {
+		foreach ( Main_Features::get_availability() as $slug => $availability ) {
+			$this->assertTrue(
+				$availability['jetpack'] || '' !== $availability['plugin'],
+				"Feature {$slug} can be switched neither in Jetpack nor by a plugin"
+			);
+		}
+	}
+
+	/**
+	 * A mapped plugin must be the product's own standalone plugin, or Install fetches the wrong one.
+	 */
+	public function test_plugins_match_the_product_standalone_plugin() {
+		$availability = Main_Features::get_availability();
+
+		foreach ( Main_Features::get_feature_definitions() as $slug => $definition ) {
+			$plugin        = $availability[ $slug ]['plugin'];
+			$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
+
+			if ( '' === $plugin || ! $product_class || ! $product_class::$has_standalone_plugin ) {
+				continue;
+			}
+
+			$this->assertSame( $product_class::$plugin_slug, $plugin, "Feature {$slug} maps to the wrong plugin" );
+		}
+	}
+
+	/**
+	 * The REST route accepts exactly these, so the list is its allowlist.
+	 */
+	public function test_switchable_plugins_are_jetpack_and_the_mapped_plugins() {
+		$plugins = Main_Features::get_switchable_plugins();
+
+		$this->assertContains( 'jetpack', $plugins );
+		$this->assertContains( 'blaze-ads', $plugins );
+		$this->assertNotContains( '', $plugins );
+		$this->assertSame( array_values( array_unique( $plugins ) ), $plugins );
+	}
+
+	/**
+	 * A plugin that is not on disk reads as not installed rather than inactive.
+	 */
+	public function test_a_missing_plugin_reads_as_not_installed() {
+		$this->assertSame( Main_Features::PLUGIN_NOT_INSTALLED, Main_Features::get_plugin_status( 'zero-bs-crm' ) );
 	}
 }

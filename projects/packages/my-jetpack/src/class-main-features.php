@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Plugins_Installer;
 
 /**
  * Describes the main Jetpack features: their copy, links and how a site owner gets each one.
@@ -30,6 +31,21 @@ class Main_Features {
 	const STATUS_INACTIVE = 'inactive';
 
 	/**
+	 * A plugin is not on the site at all.
+	 */
+	const PLUGIN_NOT_INSTALLED = 'not-installed';
+
+	/**
+	 * A plugin is installed and switched off.
+	 */
+	const PLUGIN_INACTIVE = 'inactive';
+
+	/**
+	 * A plugin is installed and running.
+	 */
+	const PLUGIN_ACTIVE = 'active';
+
+	/**
 	 * The static feature catalog.
 	 *
 	 * Keys are feature slugs. `product` names the My Jetpack product behind a feature;
@@ -42,8 +58,7 @@ class Main_Features {
 	 * `delivery.standalone` and `delivery.standalone_url` name a separate plugin that does and
 	 * its WordPress.org page, and `delivery.free` says it can be used without paying.
 	 * `paid_highlights` lists what paying adds, `paid_product` names what to buy, and `plans`
-	 * lists the bundles that include it. `standalone_switch` makes the feature's switch install
-	 * and activate its standalone plugin rather than toggle the module named after it.
+	 * lists the bundles that include it.
 	 *
 	 * @return array<string, array<string, mixed>> Feature definitions keyed by feature slug.
 	 */
@@ -71,29 +86,28 @@ class Main_Features {
 				'paid_product'     => __( 'Jetpack VaultPress Backup', 'jetpack-my-jetpack' ),
 			),
 			'anti-spam'     => array(
-				'info_url'          => 'https://akismet.com/',
-				'docs_url'          => 'https://akismet.com/support/',
-				'image'             => 'https://akismet.com/wp-content/uploads/2023/04/social-media.png',
-				'name'              => __( 'Akismet Anti-spam', 'jetpack-my-jetpack' ),
-				'description'       => __( 'Stop comment and form spam without making visitors solve CAPTCHAs.', 'jetpack-my-jetpack' ),
-				'long_description'  => __( 'Akismet filters spam out of your comments and form submissions in the background, so you stop moderating junk and visitors never have to prove they are human. When it gets one wrong, mark it and Akismet learns from your correction.', 'jetpack-my-jetpack' ),
-				'icon'              => 'comment',
-				'product'           => 'anti-spam',
-				'standalone_switch' => true,
-				'interstitial'      => '/add-akismet',
-				'paid_highlights'   => array(
+				'info_url'         => 'https://akismet.com/',
+				'docs_url'         => 'https://akismet.com/support/',
+				'image'            => 'https://akismet.com/wp-content/uploads/2023/04/social-media.png',
+				'name'             => __( 'Akismet Anti-spam', 'jetpack-my-jetpack' ),
+				'description'      => __( 'Stop comment and form spam without making visitors solve CAPTCHAs.', 'jetpack-my-jetpack' ),
+				'long_description' => __( 'Akismet filters spam out of your comments and form submissions in the background, so you stop moderating junk and visitors never have to prove they are human. When it gets one wrong, mark it and Akismet learns from your correction.', 'jetpack-my-jetpack' ),
+				'icon'             => 'comment',
+				'product'          => 'anti-spam',
+				'interstitial'     => '/add-akismet',
+				'paid_highlights'  => array(
 					__( 'Use it on business and commercial sites', 'jetpack-my-jetpack' ),
 					__( 'Advanced stats and diagnostics for your spam activity', 'jetpack-my-jetpack' ),
 					__( 'Email support', 'jetpack-my-jetpack' ),
 				),
-				'delivery'          => array(
+				'delivery'         => array(
 					'in_jetpack'     => false,
 					'standalone'     => __( 'Akismet Anti-spam', 'jetpack-my-jetpack' ),
 					'standalone_url' => 'https://wordpress.org/plugins/akismet/',
 					'free'           => true,
 				),
-				'plans'             => array( 'security', 'complete' ),
-				'paid_product'      => __( 'Jetpack Akismet Anti-spam', 'jetpack-my-jetpack' ),
+				'plans'            => array( 'security', 'complete' ),
+				'paid_product'     => __( 'Jetpack Akismet Anti-spam', 'jetpack-my-jetpack' ),
 			),
 			'backup'        => array(
 				'info_url'         => 'https://jetpack.com/backup/',
@@ -137,55 +151,53 @@ class Main_Features {
 				),
 			),
 			'boost'         => array(
-				'info_url'          => 'https://jetpack.com/boost/',
-				'docs_url'          => 'https://jetpack.com/support/jetpack-boost/',
-				'image'             => 'https://jetpack.com/wp-content/uploads/2026/08/2c483-boost_performance-2x.png',
-				'name'              => __( 'Boost', 'jetpack-my-jetpack' ),
-				'description'       => __( 'Make your site load faster in a few clicks, no developer required.', 'jetpack-my-jetpack' ),
-				'long_description'  => __( 'Your pages reach visitors sooner: Boost caches them, defers non-essential JavaScript and serves resized images from a worldwide network. Mobile and desktop performance scores show you the impact of each change.', 'jetpack-my-jetpack' ),
-				'icon'              => 'trending-up',
-				'product'           => 'boost',
-				'standalone_switch' => true,
-				'essential'         => true,
-				'interstitial'      => '/add-boost',
-				'paid_highlights'   => array(
+				'info_url'         => 'https://jetpack.com/boost/',
+				'docs_url'         => 'https://jetpack.com/support/jetpack-boost/',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2026/08/2c483-boost_performance-2x.png',
+				'name'             => __( 'Boost', 'jetpack-my-jetpack' ),
+				'description'      => __( 'Make your site load faster in a few clicks, no developer required.', 'jetpack-my-jetpack' ),
+				'long_description' => __( 'Your pages reach visitors sooner: Boost caches them, defers non-essential JavaScript and serves resized images from a worldwide network. Mobile and desktop performance scores show you the impact of each change.', 'jetpack-my-jetpack' ),
+				'icon'             => 'trending-up',
+				'product'          => 'boost',
+				'essential'        => true,
+				'interstitial'     => '/add-boost',
+				'paid_highlights'  => array(
 					__( 'Critical CSS that updates automatically as your site changes', 'jetpack-my-jetpack' ),
 					__( 'Performance history for mobile and desktop, including Core Web Vitals', 'jetpack-my-jetpack' ),
 					__( 'Control over the quality and size of images from the image CDN', 'jetpack-my-jetpack' ),
 				),
-				'delivery'          => array(
+				'delivery'         => array(
 					'in_jetpack'     => false,
 					'standalone'     => __( 'Jetpack Boost', 'jetpack-my-jetpack' ),
 					'standalone_url' => 'https://wordpress.org/plugins/jetpack-boost/',
 					'free'           => true,
 				),
-				'plans'             => array( 'complete' ),
-				'paid_product'      => __( 'Jetpack Boost', 'jetpack-my-jetpack' ),
+				'plans'            => array( 'complete' ),
+				'paid_product'     => __( 'Jetpack Boost', 'jetpack-my-jetpack' ),
 			),
 			'crm'           => array(
-				'info_url'          => 'https://jetpackcrm.com/',
-				'docs_url'          => 'https://kb.jetpackcrm.com/article-categories/getting-started/',
-				'image'             => 'https://jetpackcrm.com/wp-content/uploads/2022/02/jpcrm-styled-1.png',
-				'name'              => __( 'Jetpack CRM', 'jetpack-my-jetpack' ),
-				'description'       => __( 'Keep every lead and customer in one place, right inside WordPress.', 'jetpack-my-jetpack' ),
-				'long_description'  => __( 'Track leads, send quotes and invoices, and see each customer’s full history from your dashboard. Because it runs on your own site, your customer data stays yours.', 'jetpack-my-jetpack' ),
-				'icon'              => 'people',
-				'product'           => 'crm',
-				'standalone_switch' => true,
-				'interstitial'      => '/add-crm',
-				'paid_highlights'   => array(
+				'info_url'         => 'https://jetpackcrm.com/',
+				'docs_url'         => 'https://kb.jetpackcrm.com/article-categories/getting-started/',
+				'image'            => 'https://jetpackcrm.com/wp-content/uploads/2022/02/jpcrm-styled-1.png',
+				'name'             => __( 'Jetpack CRM', 'jetpack-my-jetpack' ),
+				'description'      => __( 'Keep every lead and customer in one place, right inside WordPress.', 'jetpack-my-jetpack' ),
+				'long_description' => __( 'Track leads, send quotes and invoices, and see each customer’s full history from your dashboard. Because it runs on your own site, your customer data stays yours.', 'jetpack-my-jetpack' ),
+				'icon'             => 'people',
+				'product'          => 'crm',
+				'interstitial'     => '/add-crm',
+				'paid_highlights'  => array(
 					__( 'A sales dashboard, sales funnels and automations to follow up on leads', 'jetpack-my-jetpack' ),
 					__( 'Take payments through Stripe and PayPal', 'jetpack-my-jetpack' ),
 					__( 'Sync contacts from Gravity Forms, Contact Form 7 and Mailchimp', 'jetpack-my-jetpack' ),
 				),
-				'delivery'          => array(
+				'delivery'         => array(
 					'in_jetpack'     => false,
 					'standalone'     => __( 'Jetpack CRM', 'jetpack-my-jetpack' ),
 					'standalone_url' => 'https://wordpress.org/plugins/zero-bs-crm/',
 					'free'           => true,
 				),
-				'plans'             => array( 'complete' ),
-				'paid_product'      => __( 'Jetpack CRM Entrepreneur', 'jetpack-my-jetpack' ),
+				'plans'            => array( 'complete' ),
+				'paid_product'     => __( 'Jetpack CRM Entrepreneur', 'jetpack-my-jetpack' ),
 			),
 			'jetpack-ai'    => array(
 				'info_url'         => 'https://jetpack.com/ai/',
@@ -275,30 +287,29 @@ class Main_Features {
 				'paid_product'     => __( 'Jetpack Growth', 'jetpack-my-jetpack' ),
 			),
 			'protect'       => array(
-				'info_url'          => 'https://jetpack.com/protect/',
-				'docs_url'          => 'https://jetpack.com/support/jetpack-protect/',
-				'image'             => 'https://jetpack.com/wp-content/uploads/2024/05/6c5c0-d16e7-hero-scan-2x.png',
-				'name'              => __( 'Protect', 'jetpack-my-jetpack' ),
-				'description'       => __( 'Get warned about vulnerable plugins and stop login attacks on your site.', 'jetpack-my-jetpack' ),
-				'long_description'  => __( 'Your WordPress version, plugins and themes are checked daily against a database of known vulnerabilities, with results in your dashboard. Login attacks are blocked automatically, and you can block specific IP addresses yourself.', 'jetpack-my-jetpack' ),
-				'icon'              => 'shield',
-				'product'           => 'protect',
-				'standalone_switch' => true,
-				'essential'         => true,
-				'interstitial'      => '/add-protect',
-				'paid_highlights'   => array(
+				'info_url'         => 'https://jetpack.com/protect/',
+				'docs_url'         => 'https://jetpack.com/support/jetpack-protect/',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2024/05/6c5c0-d16e7-hero-scan-2x.png',
+				'name'             => __( 'Protect', 'jetpack-my-jetpack' ),
+				'description'      => __( 'Get warned about vulnerable plugins and stop login attacks on your site.', 'jetpack-my-jetpack' ),
+				'long_description' => __( 'Your WordPress version, plugins and themes are checked daily against a database of known vulnerabilities, with results in your dashboard. Login attacks are blocked automatically, and you can block specific IP addresses yourself.', 'jetpack-my-jetpack' ),
+				'icon'             => 'shield',
+				'product'          => 'protect',
+				'essential'        => true,
+				'interstitial'     => '/add-protect',
+				'paid_highlights'  => array(
 					__( 'Daily malware scanning with one-click fixes for most threats', 'jetpack-my-jetpack' ),
 					__( 'Automatic firewall rules that block harmful requests', 'jetpack-my-jetpack' ),
 					__( 'Instant email alerts when a threat is found', 'jetpack-my-jetpack' ),
 				),
-				'delivery'          => array(
+				'delivery'         => array(
 					'in_jetpack'     => true,
 					'standalone'     => __( 'Jetpack Protect', 'jetpack-my-jetpack' ),
 					'standalone_url' => 'https://wordpress.org/plugins/jetpack-protect/',
 					'free'           => true,
 				),
-				'plans'             => array( 'security', 'complete' ),
-				'paid_product'      => __( 'Jetpack Scan', 'jetpack-my-jetpack' ),
+				'plans'            => array( 'security', 'complete' ),
+				'paid_product'     => __( 'Jetpack Scan', 'jetpack-my-jetpack' ),
 			),
 			'search'        => array(
 				'info_url'         => 'https://jetpack.com/search/',
@@ -428,6 +439,130 @@ class Main_Features {
 	}
 
 	/**
+	 * How each feature reaches a site: through a module in the Jetpack plugin, as a
+	 * standalone plugin, or both.
+	 *
+	 * `jetpack` means the feature is switched by a Jetpack module while the Jetpack plugin is
+	 * active; `plugin` is the WordPress.org slug of its standalone plugin. Protect and VaultPress
+	 * Backup ship inside Jetpack too, but their switch is their own plugin, so they list only it.
+	 *
+	 * @return array<string, array{jetpack: bool, plugin: string}> Keyed by feature slug.
+	 */
+	public static function get_availability() {
+		return array(
+			'activity-log'  => array(
+				'jetpack' => true,
+				'plugin'  => '',
+			),
+			'anti-spam'     => array(
+				'jetpack' => false,
+				'plugin'  => 'akismet',
+			),
+			'backup'        => array(
+				'jetpack' => false,
+				'plugin'  => 'jetpack-backup',
+			),
+			'blaze'         => array(
+				'jetpack' => true,
+				'plugin'  => 'blaze-ads',
+			),
+			'boost'         => array(
+				'jetpack' => false,
+				'plugin'  => 'jetpack-boost',
+			),
+			'crm'           => array(
+				'jetpack' => false,
+				'plugin'  => 'zero-bs-crm',
+			),
+			'jetpack-ai'    => array(
+				'jetpack' => true,
+				'plugin'  => '',
+			),
+			'jetpack-forms' => array(
+				'jetpack' => true,
+				'plugin'  => '',
+			),
+			'newsletter'    => array(
+				'jetpack' => true,
+				'plugin'  => '',
+			),
+			'podcast'       => array(
+				'jetpack' => true,
+				'plugin'  => '',
+			),
+			'protect'       => array(
+				'jetpack' => false,
+				'plugin'  => 'jetpack-protect',
+			),
+			'search'        => array(
+				'jetpack' => true,
+				'plugin'  => 'jetpack-search',
+			),
+			'social'        => array(
+				'jetpack' => true,
+				'plugin'  => 'jetpack-social',
+			),
+			'stats'         => array(
+				'jetpack' => true,
+				'plugin'  => '',
+			),
+			'videopress'    => array(
+				'jetpack' => true,
+				'plugin'  => 'jetpack-videopress',
+			),
+		);
+	}
+
+	/**
+	 * The plugins the Features tab may install or switch: every standalone plugin in the map,
+	 * and Jetpack itself.
+	 *
+	 * @return string[] WordPress.org plugin slugs.
+	 */
+	public static function get_switchable_plugins() {
+		$plugins = array_filter( array_column( self::get_availability(), 'plugin' ) );
+
+		return array_values( array_unique( array_merge( array( Product::JETPACK_PLUGIN_SLUG ), $plugins ) ) );
+	}
+
+	/**
+	 * Whether a plugin is missing, installed and off, or running.
+	 *
+	 * @param string $slug WordPress.org plugin slug.
+	 * @return string One of the PLUGIN_* constants.
+	 */
+	public static function get_plugin_status( $slug ) {
+		// Jetpack also runs from a -dev folder, which a lookup by slug would miss.
+		if ( Product::JETPACK_PLUGIN_SLUG === $slug ) {
+			if ( ! Product::is_jetpack_plugin_installed() ) {
+				return self::PLUGIN_NOT_INSTALLED;
+			}
+
+			return Product::is_jetpack_plugin_active() ? self::PLUGIN_ACTIVE : self::PLUGIN_INACTIVE;
+		}
+
+		$file = Plugins_Installer::get_plugin_id_by_slug( $slug );
+
+		if ( ! $file ) {
+			return self::PLUGIN_NOT_INSTALLED;
+		}
+
+		return Plugins_Installer::is_plugin_active( $file ) ? self::PLUGIN_ACTIVE : self::PLUGIN_INACTIVE;
+	}
+
+	/**
+	 * Everything the Features tab renders from: the Jetpack plugin's status and each feature.
+	 *
+	 * @return array{jetpack: string, features: array} The state.
+	 */
+	public static function get_state() {
+		return array(
+			'jetpack'  => self::get_plugin_status( Product::JETPACK_PLUGIN_SLUG ),
+			'features' => self::get_features(),
+		);
+	}
+
+	/**
 	 * The feature catalog merged with each feature's live state, sorted by name.
 	 *
 	 * @return array List of features, each with slug, name, description, icon, status,
@@ -436,29 +571,34 @@ class Main_Features {
 	public static function get_features() {
 		$features = array();
 
+		$availability = self::get_availability();
+
 		foreach ( self::get_feature_definitions() as $slug => $definition ) {
+			$plugin     = $availability[ $slug ]['plugin'] ?? '';
 			$features[] = array(
-				'slug'              => $slug,
-				'name'              => $definition['name'],
-				'description'       => $definition['description'],
-				'long_description'  => $definition['long_description'] ?? '',
-				'icon'              => $definition['icon'],
-				'status'            => self::get_feature_status( $definition ),
-				'manage_url'        => self::get_feature_manage_url( $definition ),
-				'learn_more_route'  => $definition['interstitial'] ?? '',
-				'essential'         => ! empty( $definition['essential'] ),
-				'standalone_switch' => ! empty( $definition['standalone_switch'] ),
-				'paid_highlights'   => $definition['paid_highlights'] ?? array(),
-				'plans'             => self::get_plan_badges( $definition ),
-				'paid_product'      => $definition['paid_product'] ?? '',
-				'delivery'          => $definition['delivery'] ?? array(),
-				'screenshot'        => $definition['image'],
-				'info_url'          => $definition['info_url'],
-				'docs_url'          => $definition['docs_url'],
+				'slug'             => $slug,
+				'name'             => $definition['name'],
+				'description'      => $definition['description'],
+				'long_description' => $definition['long_description'] ?? '',
+				'icon'             => $definition['icon'],
+				'status'           => self::get_feature_status( $definition ),
+				'manage_url'       => self::get_feature_manage_url( $definition ),
+				'learn_more_route' => $definition['interstitial'] ?? '',
+				'essential'        => ! empty( $definition['essential'] ),
+				'in_jetpack'       => $availability[ $slug ]['jetpack'] ?? false,
+				'plugin'           => $plugin,
+				'plugin_status'    => $plugin ? self::get_plugin_status( $plugin ) : self::PLUGIN_NOT_INSTALLED,
+				'paid_highlights'  => $definition['paid_highlights'] ?? array(),
+				'plans'            => self::get_plan_badges( $definition ),
+				'paid_product'     => $definition['paid_product'] ?? '',
+				'delivery'         => $definition['delivery'] ?? array(),
+				'screenshot'       => $definition['image'],
+				'info_url'         => $definition['info_url'],
+				'docs_url'         => $definition['docs_url'],
 				// Join keys: the UI reads live, post-mutation state from the product and
 				// module stores rather than from the `status` resolved above.
-				'product'           => $definition['product'] ?? '',
-				'module'            => $definition['module'] ?? '',
+				'product'          => $definition['product'] ?? '',
+				'module'           => $definition['module'] ?? '',
 			);
 		}
 

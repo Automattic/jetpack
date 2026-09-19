@@ -462,6 +462,13 @@ type VideopressData = {
 	videoCount: number;
 };
 
+type MainFeaturePluginStatus = 'not-installed' | 'inactive' | 'active';
+
+type MainFeaturesState = {
+	jetpack: MainFeaturePluginStatus;
+	features: MainFeature[];
+};
+
 type MainFeature = {
 	slug: string;
 	name: string;
@@ -472,7 +479,9 @@ type MainFeature = {
 	manage_url: string;
 	learn_more_route: string;
 	essential: boolean;
-	standalone_switch: boolean;
+	in_jetpack: boolean;
+	plugin: string;
+	plugin_status: MainFeaturePluginStatus;
 	paid_highlights: string[];
 	plans: Array< { slug: string; name: string } >;
 	paid_product: string;
@@ -491,7 +500,7 @@ type MainFeature = {
 
 interface Window {
 	myJetpackInitialState?: {
-		mainFeatures: MainFeature[];
+		mainFeatures: MainFeaturesState | null;
 		siteSuffix: string;
 		siteUrl: string;
 		latestBoostSpeedScores: {

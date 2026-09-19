@@ -24,107 +24,6 @@ export type ProductCardActionProps = {
 	module?: MyJetpackModule;
 };
 
-export type ProductActivation = {
-	active?: boolean;
-	disabled?: boolean;
-	reloadOnToggle?: boolean;
-};
-
-/**
- * What the lifecycle button will do to a product that cannot simply be toggled.
- *
- * Mirrors the statuses `ActionButton` turns into "Install Plugin" and "Activate", so
- * copy describing that button stays true to the button itself.
- *
- * @param product - Live product record from the products store.
- * @return The action, or null when the button does something else (upgrade, connect).
- */
-export function getProductLifecycleAction(
-	product: ProductCamelCase
-): 'install' | 'activate' | null {
-	switch ( product.status ) {
-		case PRODUCT_STATUSES.ABSENT:
-		case PRODUCT_STATUSES.ABSENT_WITH_PLAN:
-			return 'install';
-
-		case PRODUCT_STATUSES.INACTIVE:
-		case PRODUCT_STATUSES.MODULE_DISABLED:
-		case PRODUCT_STATUSES.NEEDS_ACTIVATION:
-			return 'activate';
-
-		default:
-			return null;
-	}
-}
-
-/**
- * Decide whether a product offers an activation toggle, and how it should behave.
- *
- * Shared with the Features grid so both surfaces answer this the same way; null means
- * the product cannot be switched from here, and the caller offers an upgrade instead.
- *
- * @param product            - Live product record from the products store.
- * @param $module            - The module behind the product, when it has one.
- * @param hasInterstitial    - Whether an interstitial is registered for the product.
- * @param showAiModuleToggle - Whether the pre-release Jetpack AI master toggle is on.
- * @return The toggle's props, or null when there is nothing to switch.
- */
-export function getProductActivation(
-	product: ProductCamelCase,
-	$module: MyJetpackModule | undefined,
-	hasInterstitial: boolean,
-	showAiModuleToggle: boolean
-): ProductActivation | null {
-	const reloadOnToggle = PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE.includes( product.slug );
-
-	// Forms and AI surface the activation toggle directly instead of a "Learn more"
-	// upsell link. Forms is a free module with no interstitial; AI is the site-wide
-	// master switch, and the Content AI settings design shows the card with an inline
-	// Active/off toggle in both states (the AI upsell lives on the AI page, not on
-	// this master control). The AI toggle is limited to internal testing environments
-	// until the AI settings page goes public (pre-release gate); everyone else keeps
-	// the standard card action.
-	if (
-		product.slug === 'jetpack-forms' ||
-		( product.slug === 'jetpack-ai' && showAiModuleToggle )
-	) {
-		// Drive on/off from the module's real activated state, not product.status:
-		// a free product that also has a paid tier (Jetpack AI) reports
-		// "can_upgrade" even when its module is active, which would leave the master
-		// toggle stuck in the off position while AI is actually running.
-		return {
-			active: $module?.activated ?? product.status === PRODUCT_STATUSES.ACTIVE,
-			disabled: ! $module?.available,
-			reloadOnToggle,
-		};
-	}
-
-	if ( ! product.hasPaidPlanForProduct && ! hasInterstitial ) {
-		return null;
-	}
-
-	// If we already have a standalone plugin installed, we render the activation toggle
-	if (
-		PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN.includes( product.slug ) &&
-		product.standalonePluginInfo?.isStandaloneInstalled
-	) {
-		return { active: product.standalonePluginInfo.isStandaloneActive, reloadOnToggle };
-	}
-
-	switch ( product.status ) {
-		case PRODUCT_STATUSES.INACTIVE:
-		case PRODUCT_STATUSES.MODULE_DISABLED:
-		case PRODUCT_STATUSES.NEEDS_ACTIVATION:
-		case PRODUCT_STATUSES.ABSENT_WITH_PLAN:
-		case PRODUCT_STATUSES.ABSENT:
-		case PRODUCT_STATUSES.NEEDS_PLAN:
-			return null;
-
-		default:
-			return { disabled: ! $module?.available, reloadOnToggle };
-	}
-}
-
 /**
  * Renders the upgrade action for a product card
  *
@@ -134,10 +33,10 @@ export function getProductActivation(
  */
 function UpgradeAction( { product }: ProductCardActionProps ) {
 	const navigate = useNavigate();
-	const { trackProductAction } = useProductFiltersContext() || {};
+	const { trackProductAction } = useProductFiltersContext();
 
 	const onClick = useCallback( () => {
-		trackProductAction?.( {
+		trackProductAction( {
 			action: 'learn_more',
 			productSlug: product.slug,
 			productType: 'product',
@@ -161,32 +60,25 @@ function UpgradeAction( { product }: ProductCardActionProps ) {
  *
  * @return The rendered component
  */
-/**
- * Switch a product on or off, however the surface chooses to present that.
- *
- * Shared with the Features modal, which offers buttons rather than a switch: both must
- * run the same mutation, tracking and post-activation reload.
- *
- * @param {object}           props                - The hook arguments.
- * @param {ProductCamelCase} props.product        - The product to switch.
- * @param {boolean}          props.active         - Whether it is currently on.
- * @param {boolean}          props.reloadOnToggle - Whether switching needs a page reload.
- * @return The handler and whether a mutation is in flight.
- */
-export function useProductActivation( {
+function ActivationToggle( {
 	product,
 	active = true,
+	disabled = false,
 	reloadOnToggle = false,
-}: ProductCardActionProps & ProductActivation ) {
+}: ProductCardActionProps & {
+	active?: boolean;
+	disabled?: boolean;
+	reloadOnToggle?: boolean;
+} ) {
 	const { deactivate, isPending: isDeactivating } = useDeactivatePlugins( product.slug );
 	const { activate, isPending: isActivating } = useActivatePlugins( product.slug );
-	const { trackProductAction } = useProductFiltersContext() || {};
+	const { trackProductAction } = useProductFiltersContext();
 
 	const { isLoading, isRefetching } = useProduct( product.slug );
 
-	const setActive = useCallback( () => {
+	const onChange = useCallback( () => {
 		const action = active ? 'deactivate' : 'activate';
-		trackProductAction?.( {
+		trackProductAction( {
 			action,
 			productSlug: product.slug,
 			productType: 'product',
@@ -216,37 +108,13 @@ export function useProductActivation( {
 		active ? deactivate( undefined, mutateOptions ) : activate( undefined, mutateOptions );
 	}, [ deactivate, activate, active, product, trackProductAction, reloadOnToggle ] );
 
-	return {
-		setActive,
-		isBusy: isDeactivating || isActivating || isLoading || isRefetching,
-	};
-}
-
-/**
- * Renders the (plugin) activation toggle for a product card
- *
- * @param {ProductCardActionProps} props - Component props
- *
- * @return The rendered component
- */
-export function ActivationToggle( {
-	product,
-	active = true,
-	disabled = false,
-	reloadOnToggle = false,
-	showBadge = true,
-}: ProductCardActionProps & ProductActivation & { showBadge?: boolean } ) {
-	const { setActive, isBusy } = useProductActivation( { product, active, reloadOnToggle } );
-
 	return (
 		<Flex gap={ 4 }>
-			{ active && showBadge ? (
-				<Badge intent="stable">{ __( 'Active', 'jetpack-my-jetpack' ) }</Badge>
-			) : null }
+			{ active ? <Badge intent="stable">{ __( 'Active', 'jetpack-my-jetpack' ) }</Badge> : null }
 			<FormToggle
-				disabled={ disabled || isBusy }
+				disabled={ disabled || isDeactivating || isActivating || isLoading || isRefetching }
 				checked={ active }
-				onChange={ setActive }
+				onChange={ onChange }
 				aria-label={
 					active
 						? sprintf(
@@ -274,18 +142,69 @@ export function ActivationToggle( {
  */
 export function ProductCardAction( { product, module: $module }: ProductCardActionProps ) {
 	const { data: interstitials } = useInterstitialsState();
+	const reloadOnToggle = PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE.includes( product.slug );
 	const { showAiModuleToggle = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 
-	const activation = getProductActivation(
-		product,
-		$module,
-		!! interstitials?.[ product.slug ],
-		showAiModuleToggle
-	);
+	// Forms and AI surface the activation toggle directly instead of a "Learn more"
+	// upsell link. Forms is a free module with no interstitial; AI is the site-wide
+	// master switch, and the Content AI settings design shows the card with an inline
+	// Active/off toggle in both states (the AI upsell lives on the AI page, not on
+	// this master control). The AI toggle is limited to internal testing environments
+	// until the AI settings page goes public (pre-release gate); everyone else keeps
+	// the standard card action.
+	if (
+		product.slug === 'jetpack-forms' ||
+		( product.slug === 'jetpack-ai' && showAiModuleToggle )
+	) {
+		// Drive on/off from the module's real activated state, not product.status:
+		// a free product that also has a paid tier (Jetpack AI) reports
+		// "can_upgrade" even when its module is active, which would leave the master
+		// toggle stuck in the off position while AI is actually running.
+		const isActive = $module?.activated ?? product.status === PRODUCT_STATUSES.ACTIVE;
+		return (
+			<ActivationToggle
+				product={ product }
+				active={ isActive }
+				disabled={ ! $module?.available }
+				reloadOnToggle={ reloadOnToggle }
+			/>
+		);
+	}
 
-	if ( ! activation ) {
+	if ( ! product.hasPaidPlanForProduct && ! interstitials?.[ product.slug ] ) {
 		return <UpgradeAction product={ product } />;
 	}
 
-	return <ActivationToggle product={ product } { ...activation } />;
+	// If we already have a standalone plugin installed, we render the activation toggle
+	if (
+		PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN.includes( product.slug ) &&
+		product.standalonePluginInfo?.isStandaloneInstalled
+	) {
+		return (
+			<ActivationToggle
+				product={ product }
+				active={ product.standalonePluginInfo.isStandaloneActive }
+				reloadOnToggle={ reloadOnToggle }
+			/>
+		);
+	}
+
+	switch ( product.status ) {
+		case PRODUCT_STATUSES.INACTIVE:
+		case PRODUCT_STATUSES.MODULE_DISABLED:
+		case PRODUCT_STATUSES.NEEDS_ACTIVATION:
+		case PRODUCT_STATUSES.ABSENT_WITH_PLAN:
+		case PRODUCT_STATUSES.ABSENT:
+		case PRODUCT_STATUSES.NEEDS_PLAN:
+			return <UpgradeAction product={ product } />;
+
+		default:
+			return (
+				<ActivationToggle
+					product={ product }
+					disabled={ ! $module?.available }
+					reloadOnToggle={ reloadOnToggle }
+				/>
+			);
+	}
 }

@@ -25,19 +25,19 @@ export type ModuleToggleProps = {
 // notice is persisted so it survives the reload.
 const MODULES_REQUIRING_RELOAD = [ 'activity-log', 'podcast', 'subscriptions', 'wpcom-reader' ];
 
-// The server read-modify-writes one option holding every active module, so two
-// requests in flight at once can each drop the other's change. Send them one at a time.
-let pendingModuleUpdate: Promise< unknown > = Promise.resolve();
+// The server read-modify-writes one option for active modules and another for active
+// plugins, so two requests in flight can each drop the other's change. Send one at a time.
+let pendingActivation: Promise< unknown > = Promise.resolve();
 
 /**
- * Run a module update once every update queued before it has settled.
+ * Run an activation request once every request queued before it has settled.
  *
- * @param update - The update to run.
- * @return The update's result.
+ * @param request - The request to run.
+ * @return The request's result.
  */
-export function queueModuleUpdate< T >( update: () => Promise< T > ): Promise< T > {
-	const run = pendingModuleUpdate.then( update, update );
-	pendingModuleUpdate = run.catch( () => undefined );
+export function queueActivationRequest< T >( request: () => Promise< T > ): Promise< T > {
+	const run = pendingActivation.then( request, request );
+	pendingActivation = run.catch( () => undefined );
 
 	return run;
 }
@@ -118,7 +118,7 @@ export function useModuleActivation(
 				} );
 			}
 
-			const success = await queueModuleUpdate( () =>
+			const success = await queueActivationRequest( () =>
 				toggleModule( {
 					name: $module.module,
 					active,
