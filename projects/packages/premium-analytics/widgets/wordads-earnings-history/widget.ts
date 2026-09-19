@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { chartBar } from '@wordpress/icons';
+import { receipt } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -20,7 +20,7 @@ export type WordAdsEarningsHistoryAttributes = Record< never, never >;
  * site.
  */
 export default {
-	icon: chartBar,
+	icon: receipt,
 	attributes: [] as WidgetAttributeField< WordAdsEarningsHistoryAttributes >[],
 	example: {
 		attributes: {},

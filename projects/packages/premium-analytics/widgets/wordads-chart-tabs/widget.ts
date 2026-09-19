@@ -12,7 +12,7 @@ import {
 /**
  * WordPress dependencies
  */
-import { chartBar } from '@wordpress/icons';
+import { megaphone } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -37,7 +37,7 @@ export type WordAdsChartTabsAttributes = Partial< ReportParamsFieldAttributes > 
  * size follows the selected window, so the date field offers the window alone.
  */
 export default {
-	icon: chartBar,
+	icon: megaphone,
 	attributes: [
 		reportParamsAttributeField< WordAdsChartTabsAttributes >( { grain: WORDADS_GRAIN } ),
 		chartTypeAttributeField(),

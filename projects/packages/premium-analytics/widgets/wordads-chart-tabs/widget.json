@@ -1,6 +1,6 @@
 {
 	"name": "jpa/wordads-chart-tabs",
-	"title": "WordAds",
+	"title": "Ads summary",
 	"description": "Track ads served, average CPM, and revenue over the selected period.",
 	"help": {
 		"content": "Track ads served, average CPM, and revenue over the selected period."
