@@ -37,21 +37,11 @@ export function isVideoPressAvailable(): boolean {
 }
 
 /**
- * URL-facing slugs of the dashboard tabs, mirroring what `register_default_dashboard_sections()`
- * registers in `src/default-dashboard-sections.php`.
- *
- * A rename on the PHP side would hide every report behind that tab in silence, so
- * `Dashboard_Section_Test::test_preview_scope_sections_list_every_tab_when_unscoped` pins it there.
+ * URL-facing slug of a dashboard tab, e.g. `traffic`. The server registers the tabs, so
+ * this is an open string: a surface behind a slug the server does not publish is hidden
+ * by `isDashboardSectionInPreviewScope()` rather than refused at compile time.
  */
-export const DASHBOARD_SECTION_SLUGS = [
-	'traffic',
-	'insights',
-	'subscribers',
-	'store',
-	'ads',
-] as const;
-
-export type DashboardSectionSlug = ( typeof DASHBOARD_SECTION_SLUGS )[ number ];
+export type DashboardSectionSlug = string;
 
 /**
  * Check whether the dashboard exposes a section.
