@@ -2,7 +2,6 @@ import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import ConnectScreenBody from '@automattic/jetpack-my-jetpack/components/connection-screen/body';
-import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 import { withDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import jQuery from 'jquery';
@@ -44,7 +43,6 @@ import {
 	getCurrentVersion,
 	getTracksUserData,
 	getPluginBaseUrl,
-	getPartnerCoupon,
 	userIsSubscriber,
 } from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
@@ -155,45 +153,6 @@ class Main extends Component {
 	}
 
 	renderMainContent = route => {
-		/*
-		 * Show "Partner Coupon Redeem" screen instead of regular main content/pre-connection.
-		 */
-		if ( this.props.partnerCoupon ) {
-			const forceShow = new URLSearchParams( window.location.search ).get( 'showCouponRedemption' );
-
-			/*
-			 * There are two conditions (groups of conditions, really) where we would want to
-			 * show the partner coupon redeem screen:
-			 *
-			 * 1. The site is not yet connected to WPCOM, but has the jetpack_partner_coupon
-			 * option set in the database (this.props.partnerCoupon in redux). This is likely a
-			 * partner-user who has just arrived here from a CTA within a partner's dashboard
-			 * or other ecosystem.
-			 *
-			 * 2. The site is already connected to WPCOM, but the jetpack_partner_coupon option
-			 * is still set in the database. This means the user connected their site, but never
-			 * redeemed the coupon. If this is the case, we don't want to override the dashboard
-			 * or at a glance pages with the redemption screen. Instead, we'll catch a URL
-			 * parameter that JITMs will set (showCouponRedemption=true), and show the screen only
-			 * when the user came from a a JITM.
-			 */
-			if ( ! this.props.isOfflineMode && ( ! this.props.isSiteConnected || forceShow ) ) {
-				return (
-					<PartnerCouponRedeem
-						apiNonce={ this.props.apiNonce }
-						registrationNonce=""
-						apiRoot={ this.props.apiRoot }
-						assetBaseUrl={ this.props.pluginBaseUrl }
-						connectionStatus={ this.props.connectionStatus }
-						partnerCoupon={ this.props.partnerCoupon }
-						siteRawUrl={ this.props.siteRawUrl }
-						tracksUserData={ !! this.props.tracksUserData }
-						analytics={ analytics }
-					/>
-				);
-			}
-		}
-
 		if (
 			this.isUserConnectScreen() &&
 			( this.props.userCanManageModules || this.props.hasConnectedOwner )
@@ -447,7 +406,6 @@ export default connect(
 			pluginBaseUrl: getPluginBaseUrl( state ),
 			connectingUserFeatureLabel: getConnectingUserFeatureLabel( state ),
 			connectingUserFrom: getConnectingUserFrom( state ),
-			partnerCoupon: getPartnerCoupon( state ),
 			isSubscriber: userIsSubscriber( state ),
 		};
 	},
