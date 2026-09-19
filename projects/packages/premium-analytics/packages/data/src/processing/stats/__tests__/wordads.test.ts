@@ -89,6 +89,18 @@ describe( 'Stats WordAds normalizers', () => {
 		} );
 	} );
 
+	it( 'keeps a non-numeric or absent Ads Served value absent rather than zero', () => {
+		const { wordads, adjustment } = sanitizeStatsWordAdsEarningsResponse( {
+			earnings: {
+				wordads: { '2012-03': { amount: '1.00', pageviews: 'N/A', status: 1 } },
+				adjustment: { '2026-06': { amount: '-2.50', status: 1 } },
+			},
+		} );
+
+		expect( wordads[ '2012-03' ].pageviews ).toBeUndefined();
+		expect( adjustment[ '2026-06' ].pageviews ).toBeUndefined();
+	} );
+
 	it( 'returns numeric defaults and empty breakdowns for missing earnings fields', () => {
 		expect( sanitizeStatsWordAdsEarningsResponse( wordAdsEarningsEmptyFixture ) ).toEqual( {
 			total_earnings: 0,

@@ -65,6 +65,19 @@ describe( 'EarningsReportPage', () => {
 		expect( screen.getByText( /Ads Served is the number of ads/ ) ).toBeInTheDocument();
 	} );
 
+	it( 'renders a dash rather than zero when a row has no Ads Served count', () => {
+		useRecordsMock.mockReturnValue(
+			buildRecords( {
+				rows: [ { ...earningsRow, id: '2012-03', period: '2012-03', pageviews: undefined } ],
+			} )
+		);
+
+		render( <EarningsReportPage /> );
+
+		expect( screen.getByText( '—' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '0' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'surfaces the error and retry instead of stale rows', () => {
 		useRecordsMock.mockReturnValue( buildRecords( { rows: [ earningsRow ], isError: true } ) );
 
