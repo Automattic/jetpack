@@ -232,7 +232,7 @@ class Initializer {
 
 		// Redirect to Jetpack dashboard for partner coupon redemption
 		if ( $show_coupon_redemption ) {
-			wp_safe_redirect( admin_url( 'admin.php?page=jetpack&showCouponRedemption=1#/dashboard' ) );
+			wp_safe_redirect( admin_url( 'admin.php?page=jetpack&showCouponRedemption=1' ) );
 			exit( 0 );
 		}
 

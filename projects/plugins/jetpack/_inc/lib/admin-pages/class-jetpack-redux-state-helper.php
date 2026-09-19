@@ -7,7 +7,6 @@
  */
 
 use Automattic\Jetpack\Blaze;
-use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\REST_Connector;
@@ -19,7 +18,6 @@ use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Licensing\Endpoints as Licensing_Endpoints;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
-use Automattic\Jetpack\My_Jetpack\Jetpack_Manage;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Publicize\Keyring_Helper;
@@ -127,8 +125,6 @@ class Jetpack_Redux_State_Helper {
 
 		$connection_status = array_merge( REST_Connector::connection_status( false ), $connection_status );
 
-		$speed_score_history = new Speed_Score_History( wp_parse_url( get_site_url(), PHP_URL_HOST ) );
-
 		$block_availability = Jetpack_Gutenberg::get_cached_availability();
 
 		return array(
@@ -185,12 +181,10 @@ class Jetpack_Redux_State_Helper {
 				'plan'                       => Jetpack_Plan::get(),
 				'showBackups'                => Jetpack::show_backups_ui(),
 				'showScan'                   => Jetpack::show_scan_ui(),
-				'showRecommendations'        => Jetpack_Recommendations::is_enabled(),
 				/** This filter is documented in my-jetpack/src/class-initializer.php */
 				'showMyJetpack'              => My_Jetpack_Initializer::should_initialize(),
 				'isMultisite'                => is_multisite(),
 				'dateFormat'                 => get_option( 'date_format' ),
-				'latestBoostSpeedScores'     => $speed_score_history->latest(),
 				'isSharingBlockAvailable'    => isset( $block_availability['sharing-buttons'] )
 					&& $block_availability['sharing-buttons']['available'],
 				'isLikeBlockAvailable'       => isset( $block_availability['like'] )
@@ -218,8 +212,6 @@ class Jetpack_Redux_State_Helper {
 			'lastPostUrl'                          => esc_url( $last_post ),
 			'externalServicesConnectUrls'          => self::get_external_services_connect_urls(),
 			'calypsoEnv'                           => ( new Host() )->get_calypso_env(),
-			'products'                             => Jetpack::get_products_for_purchase(),
-			'recommendationsStep'                  => Jetpack_Core_Json_Api_Endpoints::get_recommendations_step()['step'],
 			'isSafari'                             => $is_safari || User_Agent_Info::is_opera_desktop(), // @todo Rename isSafari everywhere.
 			'doNotUseConnectionIframe'             => Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
 			'licensing'                            => array(
@@ -228,14 +220,6 @@ class Jetpack_Redux_State_Helper {
 				'userCounts'              => Licensing_Endpoints::get_user_license_counts(),
 				'activationNoticeDismiss' => Licensing::instance()->get_license_activation_notice_dismiss(),
 			),
-			'jetpackManage'                        => array(
-				'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
-				'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
-			),
-			'hasSeenWCConnectionModal'             => Jetpack_Options::get_option( 'has_seen_wc_connection_modal', false ),
-			'newRecommendations'                   => Jetpack_Recommendations::get_new_conditional_recommendations(),
-			// Check if WooCommerce plugin is active (based on https://docs.woocommerce.com/document/create-a-plugin/).
-			'isWooCommerceActive'                  => in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ), true ),
 			'useMyJetpackLicensingUI'              => My_Jetpack_Initializer::is_licensing_ui_enabled(),
 			'isOdysseyStatsEnabled'                => Stats_Options::get_option( 'enable_odyssey_stats' ),
 			'shouldInitializeBlaze'                => Blaze::should_initialize(),
