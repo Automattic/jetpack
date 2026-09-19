@@ -36,7 +36,7 @@ const PartnerCouponGate: FC< { children: ReactNode } > = ( { children } ) => {
 			connectionStatus={ connection }
 			partnerCoupon={ partnerCoupon.coupon }
 			siteRawUrl={ siteSuffix }
-			tracksUserData={ !! isUserConnected }
+			tracksUserData={ !! ( isUserConnected && ID && login ) }
 			analytics={ jetpackAnalytics }
 			onRemindMeLater={ onRemindMeLater }
 		/>

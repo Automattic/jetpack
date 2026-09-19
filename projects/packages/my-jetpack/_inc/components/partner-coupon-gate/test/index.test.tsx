@@ -1,4 +1,4 @@
-import { isPartnerCouponDismissed } from '@automattic/jetpack-partner-coupon';
+import { isPartnerCouponDismissed, PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
@@ -12,11 +12,11 @@ jest.mock( '../../../hooks/use-my-jetpack-connection', () => ( {
 jest.mock( '@automattic/jetpack-partner-coupon', () => ( {
 	__esModule: true,
 	isPartnerCouponDismissed: jest.fn( () => false ),
-	PartnerCouponRedeem: ( { onRemindMeLater } ) => (
+	PartnerCouponRedeem: jest.fn( ( { onRemindMeLater } ) => (
 		<button data-testid="partner-coupon-screen" onClick={ onRemindMeLater }>
 			Remind me later
 		</button>
-	),
+	) ),
 } ) );
 
 const partnerCoupon = {
@@ -48,10 +48,12 @@ describe( 'PartnerCouponGate', () => {
 			isUserConnected: false,
 		} );
 		( isPartnerCouponDismissed as jest.Mock ).mockReturnValue( false );
+		( PartnerCouponRedeem as unknown as jest.Mock ).mockClear();
 	} );
 
 	afterEach( () => {
 		delete window.myJetpackInitialState.partnerCoupon;
+		delete window.myJetpackInitialState.siteSuffix;
 	} );
 
 	it( 'renders the dashboard when no coupon screen applies', () => {
@@ -99,5 +101,48 @@ describe( 'PartnerCouponGate', () => {
 		renderGate();
 
 		expect( screen.getByTestId( 'partner-coupon-screen' ) ).toBeInTheDocument();
+	} );
+
+	it( 'forwards connection, coupon and asset details to the coupon screen', () => {
+		( useMyJetpackConnection as jest.Mock ).mockReturnValue( {
+			hasConnectedOwner: true,
+			isUserConnected: true,
+			apiRoot: 'https://example.org/wp-json/',
+			apiNonce: 'nonce-abc',
+			userConnectionData: { currentUser: { wpcomUser: { ID: 123, login: 'test-user' } } },
+		} );
+		window.myJetpackInitialState.siteSuffix = 'example.wordpress.com';
+		window.myJetpackInitialState.partnerCoupon = partnerCoupon;
+
+		renderGate();
+
+		expect( ( PartnerCouponRedeem as unknown as jest.Mock ).mock.calls[ 0 ][ 0 ] ).toEqual(
+			expect.objectContaining( {
+				apiRoot: 'https://example.org/wp-json/',
+				apiNonce: 'nonce-abc',
+				registrationNonce: '',
+				assetBaseUrl: partnerCoupon.assetBaseUrl,
+				partnerCoupon: partnerCoupon.coupon,
+				siteRawUrl: 'example.wordpress.com',
+				tracksUserData: true,
+			} )
+		);
+	} );
+
+	it( 'does not track coupon events without a known wpcom identity', () => {
+		( useMyJetpackConnection as jest.Mock ).mockReturnValue( {
+			hasConnectedOwner: true,
+			isUserConnected: true,
+			apiRoot: 'https://example.org/wp-json/',
+			apiNonce: 'nonce-abc',
+			userConnectionData: { currentUser: {} },
+		} );
+		window.myJetpackInitialState.partnerCoupon = partnerCoupon;
+
+		renderGate();
+
+		expect( ( PartnerCouponRedeem as unknown as jest.Mock ).mock.calls[ 0 ][ 0 ] ).toEqual(
+			expect.objectContaining( { tracksUserData: false } )
+		);
 	} );
 } );

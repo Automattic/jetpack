@@ -693,7 +693,7 @@ interface Window {
 			showCard: boolean;
 			redirect: string;
 		};
-		// Set only while the partner coupon screen replaces the dashboard.
+		// Null unless the partner coupon screen replaces the dashboard.
 		partnerCoupon?: {
 			coupon: {
 				coupon_code: string;
