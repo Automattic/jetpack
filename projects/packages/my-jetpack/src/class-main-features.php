@@ -12,9 +12,8 @@ use Automattic\Jetpack\Plugins_Installer;
 /**
  * Describes the main Jetpack features: their copy, links and how a site owner gets each one.
  *
- * The descriptive half of an entry (name, description, icon) is expected to move to a
- * WordPress.com public-api endpoint in a later iteration; the state half (status,
- * manage_url) must stay local, because only the site knows what is active on it.
+ * The descriptive fields may later come from a WordPress.com endpoint; what a feature is
+ * delivered by stays local, since only the site knows what is installed on it.
  */
 class Main_Features {
 

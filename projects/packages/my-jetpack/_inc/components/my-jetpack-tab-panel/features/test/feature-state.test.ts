@@ -5,7 +5,6 @@ const buildFeature = ( overrides: Partial< MainFeature > = {} ) =>
 	( {
 		slug: 'feature',
 		name: 'Feature',
-		status: 'inactive',
 		in_jetpack: false,
 		plugin: '',
 		plugin_status: 'not-installed',

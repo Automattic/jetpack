@@ -95,9 +95,8 @@ type FeatureActionProps = {
 /**
  * The card's control, as the feature map decides it.
  *
- * No switch here reloads the page, though the Products tab's do: a reload keeps the wp-admin
- * sidebar current, but it makes flipping several features in a row impossible. The sidebar
- * catches up on the next page load instead.
+ * Nothing here reloads the page, though the Products tab's switches do, so that several
+ * features can be flipped in a row; the wp-admin sidebar catches up on the next load.
  *
  * @param {FeatureActionProps} props       - The component props.
  * @param {FeatureState}       props.state - Live state for the feature.
@@ -150,7 +149,7 @@ type JetpackButtonProps = {
  * @return The rendered component.
  */
 export function JetpackButton( { installed }: JetpackButtonProps ) {
-	// Bound before the branch, for the reason given in feature-modal-actions.tsx.
+	// Bound before the branch, for the reason given by getSwitchLabel().
 	const activateLabel = __( 'Activate Jetpack', 'jetpack-my-jetpack' );
 	const installLabel = __( 'Install Jetpack', 'jetpack-my-jetpack' );
 

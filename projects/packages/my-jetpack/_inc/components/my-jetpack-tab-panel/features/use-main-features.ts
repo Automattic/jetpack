@@ -1,5 +1,5 @@
 import { useGlobalNotices } from '@automattic/jetpack-components';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useIsMutating, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
@@ -11,6 +11,20 @@ import { reloadPage } from '../products/reload-page';
 const QUERY_KEY = [ 'my-jetpack-main-features' ];
 
 const EMPTY_STATE: MainFeaturesState = { jetpack: 'not-installed', features: [] };
+
+/**
+ * The state the page was rendered with, or an empty one.
+ *
+ * `getMyJetpackWindowInitialState()` answers `{}` for a key it does not have, which a
+ * plugin carrying an older copy of this package would hand us.
+ *
+ * @return The state.
+ */
+function initialState(): MainFeaturesState {
+	const state = getMyJetpackWindowInitialState( 'mainFeatures' );
+
+	return state && Array.isArray( state.features ) ? state : EMPTY_STATE;
+}
 
 export type PluginAction = 'install' | 'activate' | 'deactivate';
 
@@ -25,8 +39,8 @@ export type PluginAction = 'install' | 'activate' | 'deactivate';
 export function useMainFeatures(): MainFeaturesState {
 	const { data } = useQuery( {
 		queryKey: QUERY_KEY,
-		queryFn: () => getMyJetpackWindowInitialState( 'mainFeatures' ) ?? EMPTY_STATE,
-		initialData: () => getMyJetpackWindowInitialState( 'mainFeatures' ) ?? EMPTY_STATE,
+		queryFn: initialState,
+		initialData: initialState,
 		staleTime: Infinity,
 	} );
 
@@ -44,7 +58,9 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 	const queryClient = useQueryClient();
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 
-	const { mutate, isPending } = useMutation( {
+	const mutationKey = [ 'my-jetpack-feature-plugin', plugin ];
+	const { mutate } = useMutation( {
+		mutationKey,
 		mutationFn: ( action: PluginAction ) =>
 			queueActivationRequest( () =>
 				apiFetch< MainFeaturesState >( {
@@ -56,7 +72,7 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 		onSuccess: ( state, action ) => {
 			queryClient.setQueryData( QUERY_KEY, state );
 
-			// Bound before the branch, for the reason given in feature-modal-actions.tsx.
+			// Bound before the branch, for the reason given by getSwitchLabel().
 			const deactivated = sprintf(
 				/* translators: %s is a plugin or feature name. */
 				__( '%s deactivated.', 'jetpack-my-jetpack' ),
@@ -90,7 +106,10 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 		},
 	} );
 
+	// Keyed by plugin rather than by component: the card's switch and the modal's button
+	// are two mounts of the same action, and both have to look busy while either runs.
+	const isBusy = useIsMutating( { mutationKey } ) > 0;
 	const run = useCallback( ( action: PluginAction ) => mutate( action ), [ mutate ] );
 
-	return { run, isBusy: isPending };
+	return { run, isBusy };
 }

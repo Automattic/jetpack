@@ -25,8 +25,7 @@ type SwitchButtonProps = {
  * @return The rendered component.
  */
 function SwitchButton( { isOn, name, disabled, onClick }: SwitchButtonProps ) {
-	// Bound before the branch: minification folds `c ? __( a ) : __( b )` into one call
-	// with a ternary msgid, which the i18n build check rejects.
+	// Bound before the branch, for the reason given by getSwitchLabel().
 	const deactivateText = __( 'Deactivate', 'jetpack-my-jetpack' );
 	const activateText = __( 'Activate', 'jetpack-my-jetpack' );
 

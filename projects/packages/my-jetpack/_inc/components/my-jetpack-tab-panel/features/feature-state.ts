@@ -23,6 +23,8 @@ export type FeatureControl =
 
 export type FeatureState = {
 	feature: MainFeature;
+	// Whether the feature is switched on here, which is not whether a plan covers it:
+	// the wp-admin sidebar asks the same question, and the two have to agree.
 	status: 'active' | 'inactive';
 	control: FeatureControl;
 	// The product behind the feature, for the modal's copy.

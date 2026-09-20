@@ -101,6 +101,28 @@ class Main_Features_Rest_Test extends TestCase {
 		$this->assertSame( Main_Features::PLUGIN_INACTIVE, $this->boost_status( $deactivated ) );
 	}
 
+	/**
+	 * Switching a plugin on has to run the product's own activation step too, or a
+	 * product that needs more than its plugin comes up half on.
+	 */
+	public function test_runs_the_products_own_activation_step() {
+		// Boost writes this option from do_product_specific_activation() and nowhere else.
+		// Watching the write rather than the value, which is false either way.
+		$written = 0;
+		add_filter(
+			'pre_update_option_jb_get_started',
+			function ( $value ) use ( &$written ) {
+				++$written;
+				return $value;
+			}
+		);
+
+		$this->send( 'jetpack-boost', 'activate' );
+		remove_all_filters( 'pre_update_option_jb_get_started' );
+
+		$this->assertSame( 1, $written );
+	}
+
 	public function test_refuses_a_plugin_the_map_does_not_name() {
 		$this->assertSame( 400, $this->send( 'hello-dolly', 'activate' )->get_status() );
 	}
