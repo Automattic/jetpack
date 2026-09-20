@@ -57,9 +57,6 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 
 		readParent();
 
-		// #comment_parent is a hidden input, whose `value` IDL attribute writes
-		// straight through to the content attribute, so the assignment core's
-		// comment-reply.js makes is one this sees.
 		const observer = new MutationObserver( readParent );
 		observer.observe( parentInput, { attributes: true, attributeFilter: [ 'value' ] } );
 
