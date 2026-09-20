@@ -7,8 +7,7 @@ import { getBucketResolution } from '../../../utils/bucket-info';
 import { createDateFormatter } from '../../../utils/date-formatting';
 import { getBandTickValues, getFormatter } from '../../private/time-axis';
 import { TruncatedXTickComponent, TruncatedYTickComponent } from './truncated-tick-component';
-import { getValueScaleDomain } from './value-domain';
-import type { EnhancedDataPoint } from '../../../hooks/use-zero-value-display';
+import { getBarValue, getValueScaleDomain } from './value-domain';
 import type {
 	DataPointDate,
 	BaseChartProps,
@@ -224,15 +223,6 @@ export function useBarChartOptions(
 
 		const bandDomain = timeTickFormatter ? getBandDomain( data, isSeriesRendered ) : null;
 
-		const valueAccessor = ( d: DataPointDate | EnhancedDataPoint ): number => {
-			// Use visualValue for bar rendering if available (for zero values), otherwise use value
-			const enhancedPoint = d as EnhancedDataPoint;
-			const value = enhancedPoint?.visualValue !== undefined ? enhancedPoint.visualValue : d?.value;
-			// visx skips a bar whose scaled value is not a number. A null would scale to zero and
-			// draw an invisible rect that still answers the pointer.
-			return value ?? NaN;
-		};
-
 		return {
 			timeAxis: bandDomain &&
 				timeTickFormatter && {
@@ -244,7 +234,7 @@ export function useBarChartOptions(
 				yTickFormat: valueFormatter,
 				tooltipLabelFormatter: tooltipDatumFormatter,
 				xAccessor: bucketAccessor,
-				yAccessor: valueAccessor,
+				yAccessor: getBarValue,
 				gridVisibility: 'x',
 				xScale: bandScale,
 				yScale: linearScale,
@@ -253,7 +243,7 @@ export function useBarChartOptions(
 				xTickFormat: valueFormatter,
 				yTickFormat: labelFormatter,
 				tooltipLabelFormatter: tooltipDatumFormatter,
-				xAccessor: valueAccessor,
+				xAccessor: getBarValue,
 				yAccessor: bucketAccessor,
 				gridVisibility: 'y',
 				xScale: linearScale,

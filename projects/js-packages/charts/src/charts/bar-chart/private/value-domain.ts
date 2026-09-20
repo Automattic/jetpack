@@ -1,7 +1,42 @@
-import type { SeriesData } from '../../../types';
+import type { EnhancedDataPoint } from '../../../hooks/use-zero-value-display';
+import type { DataPoint, DataPointDate, SeriesData } from '../../../types';
 
 /** Domain for a value axis that has nothing to scale, so its ticks still read 0 to 1. */
 const EMPTY_DOMAIN: [ number, number ] = [ 0, 1 ];
+
+/**
+ * The value a bar is drawn at, preferring `visualValue` so a zero still shows a sliver.
+ *
+ * visx skips a bar whose scaled value is not a number. A null would scale to zero and
+ * draw an invisible rect that still answers the pointer, so it becomes NaN instead.
+ *
+ * @param point - A data point handed to visx.
+ * @return The bar value, or NaN when the bucket has no reading.
+ */
+export const getBarValue = ( point: DataPoint | DataPointDate | EnhancedDataPoint ): number => {
+	const enhanced = point as EnhancedDataPoint;
+	const value = enhanced?.visualValue !== undefined ? enhanced.visualValue : point?.value;
+	return value ?? NaN;
+};
+
+/**
+ * Whether visx renders a bar for a point.
+ *
+ * @param point - A data point handed to visx.
+ * @return True when the point has a finite bar value.
+ */
+export const isBarRendered = ( point: DataPoint | DataPointDate | EnhancedDataPoint ): boolean =>
+	Number.isFinite( getBarValue( point ) );
+
+/**
+ * How many bars visx renders for a list of points.
+ *
+ * @param points - Data points handed to visx.
+ * @return The number of points that get a bar.
+ */
+export const countRenderedBars = (
+	points: ReadonlyArray< DataPoint | DataPointDate | EnhancedDataPoint >
+): number => points.filter( isBarRendered ).length;
 
 /**
  * An explicit domain for the value scale, or null to let visx fit one to the data.
@@ -22,9 +57,8 @@ export const getValueScaleDomain = (
 
 	for ( const series of data ) {
 		for ( const point of series.data ) {
-			const enhanced = point as { visualValue?: number };
-			const value = enhanced.visualValue !== undefined ? enhanced.visualValue : point.value;
-			if ( typeof value !== 'number' || ! Number.isFinite( value ) ) {
+			const value = getBarValue( point );
+			if ( ! Number.isFinite( value ) ) {
 				continue;
 			}
 			min = Math.min( min, value );

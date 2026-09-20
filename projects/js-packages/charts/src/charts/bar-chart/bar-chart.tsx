@@ -39,6 +39,8 @@ import {
 	MAX_GROUP_PADDING,
 	COMPARISON_TICK_GAP_FACTOR,
 	BASE_BAND_PADDING_INNER,
+	countRenderedBars,
+	isBarRendered,
 } from './private';
 import type { ComparisonSeriesEntry } from './private';
 import type {
@@ -485,34 +487,33 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const createKeyboardHighlightStyle = useCallback( () => {
 		if ( selectedIndex === undefined ) return '';
 
-		// Use only primary entries — comparison series have no .visx-bar elements so
+		// Use only primary entries: comparison series have no .visx-bar elements, so
 		// their indices must not appear in the nth-child selector.
 		// Pattern: [series1[0], series2[0], series3[0], series1[1], series2[1], series3[1], ...]
 		const primaryCount = primaryEntries.length;
-		const maxDataPoints = Math.max( ...primaryEntries.map( e => e.series.data.length ) );
+		if ( ! primaryCount ) {
+			return '';
+		}
 		const dataPointIndex = Math.floor( selectedIndex / primaryCount );
 		const seriesIndex = selectedIndex % primaryCount;
-
-		// Only highlight if we're within valid bounds
-		if ( dataPointIndex >= maxDataPoints || seriesIndex >= primaryCount ) {
-			return '';
-		}
-
 		const seriesData = primaryEntries[ seriesIndex ]?.series;
-		if ( ! seriesData || dataPointIndex >= seriesData.data.length ) {
+		const datum = seriesData?.data[ dataPointIndex ];
+
+		if ( ! seriesData || ! datum || ! isBarRendered( datum ) ) {
 			return '';
 		}
 
-		// Based on the DOM structure analysis:
-		// - All bars are in a single .visx-bar-group
-		// - Bars are ordered as: [series1[0], series1[1], series2[0], series2[1], ...]
-		// - So we need to calculate the actual bar index in the DOM
-		const actualBarIndex = seriesIndex * maxDataPoints + dataPointIndex;
+		// The single .visx-bar-group holds series after series, and only the points visx drew a bar for.
+		const domBarIndex =
+			primaryEntries
+				.slice( 0, seriesIndex )
+				.reduce( ( count, { series } ) => count + countRenderedBars( series.data ), 0 ) +
+			countRenderedBars( seriesData.data.slice( 0, dataPointIndex ) );
 
 		// Use a CSS class selector instead of ID since useId() generates invalid CSS ID characters
 		const generatedStyles = `
 			.bar-chart[data-chart-id="bar-chart-${ chartId }"] .visx-bar-group .visx-bar:nth-child(${
-				actualBarIndex + 1
+				domBarIndex + 1
 			}) {
 				stroke: #005fcc;
 				stroke-width: 2px;
@@ -674,7 +675,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											</>
 										) }
 
-										{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
+										{ highlightedBarStyle && (
+											<style data-testid="bar-chart-keyboard-highlight">
+												{ highlightedBarStyle }
+											</style>
+										) }
 
 										{ allSeriesHidden ? (
 											<SvgEmptyState

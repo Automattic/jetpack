@@ -1861,6 +1861,44 @@ describe( 'BarChart', () => {
 				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toBeInTheDocument();
 				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
 			} );
+
+			describe( 'with a leading bucket that has no reading', () => {
+				const data = [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: null as number | null, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+							{ date: new Date( '2024-01-03' ), value: 30, label: 'Jan 3' },
+						],
+						options: {},
+					},
+				];
+
+				test( 'outlines nothing when the selected bucket has no bar', async () => {
+					const user = userEvent.setup();
+					renderWithTheme( { withTooltips: true, data } );
+
+					screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+					await user.keyboard( '{ArrowRight}' );
+
+					expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'No data' );
+					expect( screen.queryByTestId( 'bar-chart-keyboard-highlight' ) ).not.toBeInTheDocument();
+				} );
+
+				test( 'outlines the first rendered bar for the first bucket with a reading', async () => {
+					const user = userEvent.setup();
+					renderWithTheme( { withTooltips: true, data } );
+
+					screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+					await user.keyboard( '{ArrowRight}{ArrowRight}' );
+
+					expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( '20' );
+					expect( screen.getByTestId( 'bar-chart-keyboard-highlight' ) ).toHaveTextContent(
+						/\.visx-bar:nth-child\(1\) \{/
+					);
+				} );
+			} );
 		} );
 
 		test( 'keyboard navigation works with custom tooltip renderer', async () => {
