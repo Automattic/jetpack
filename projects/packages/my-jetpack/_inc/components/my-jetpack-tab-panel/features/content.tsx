@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
+import { Skeleton } from '../products/skeleton';
 import { FeatureItem } from './feature-item';
 import { FeatureModal } from './feature-modal';
 import { useFeatureStates } from './feature-state';
@@ -20,7 +21,7 @@ import type { FeatureFilter } from './use-feature-filter';
  * @return The rendered component.
  */
 export function FeaturesContent() {
-	const states = useFeatureStates( useMainFeatures() );
+	const { states, isLoading } = useFeatureStates( useMainFeatures() );
 
 	const [ searchParams, setSearchParams ] = useSearchParams();
 
@@ -79,7 +80,10 @@ export function FeaturesContent() {
 	);
 
 	const onFilterChange = useCallback(
-		( next: FeatureFilter ) => updateParams( { filter: next === 'all' ? null : next } ),
+		// Clears the search: a term in play replaces the grid outright, so a pill picked
+		// while searching would otherwise light up and change nothing.
+		( next: FeatureFilter ) =>
+			updateParams( { filter: next === 'all' ? null : next, search: null } ),
 		[ updateParams ]
 	);
 
@@ -90,6 +94,10 @@ export function FeaturesContent() {
 	);
 
 	const open = states.find( item => item.feature.slug === openSlug );
+
+	if ( isLoading ) {
+		return <Skeleton />;
+	}
 
 	return (
 		<section className={ styles.content }>

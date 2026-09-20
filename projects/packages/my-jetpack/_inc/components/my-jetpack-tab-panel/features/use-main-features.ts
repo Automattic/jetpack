@@ -1,6 +1,8 @@
 import { useGlobalNotices } from '@automattic/jetpack-components';
+import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { useIsMutating, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
+import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { queueActivationRequest } from '../../../data/queue-activation-request';
@@ -39,12 +41,14 @@ export type PluginAction = 'install' | 'activate' | 'deactivate';
 export function useMainFeatures(): MainFeaturesState {
 	const { data } = useQuery( {
 		queryKey: QUERY_KEY,
-		queryFn: initialState,
-		initialData: initialState,
+		queryFn: () => apiFetch< MainFeaturesState >( { path: '/my-jetpack/v1/site/features' } ),
+		// The page's own copy renders the grid immediately; it is never cached, so a remount
+		// reads the site again rather than restoring a snapshot the site has moved past.
+		placeholderData: initialState,
 		staleTime: Infinity,
 	} );
 
-	return data;
+	return data ?? EMPTY_STATE;
 }
 
 /**
@@ -57,6 +61,7 @@ export function useMainFeatures(): MainFeaturesState {
 export function useFeaturePlugin( plugin: string, name: string ) {
 	const queryClient = useQueryClient();
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
+	const { invalidateResolution } = useDispatch( modulesStore );
 
 	const mutationKey = [ 'my-jetpack-feature-plugin', plugin ];
 	const { mutate } = useMutation( {
@@ -71,6 +76,10 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 			),
 		onSuccess: ( state, action ) => {
 			queryClient.setQueryData( QUERY_KEY, state );
+
+			// A product switches its Jetpack module along with its plugin, so the modules
+			// store the Products tab reads from is now behind.
+			invalidateResolution( 'getJetpackModules', [] );
 
 			// Bound before the branch, for the reason given by getSwitchLabel().
 			const deactivated = sprintf(
@@ -96,6 +105,11 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 			createSuccessNotice( message );
 		},
 		onError: () => {
+			// The plugin may well have been switched before whatever failed, so read the
+			// site again rather than leaving the grid offering an action already taken.
+			queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
+			invalidateResolution( 'getJetpackModules', [] );
+
 			createErrorNotice(
 				sprintf(
 					/* translators: %s is a plugin or feature name. */

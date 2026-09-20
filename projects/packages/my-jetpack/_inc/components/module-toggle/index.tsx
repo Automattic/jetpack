@@ -3,7 +3,7 @@ import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { FormToggle } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { queueActivationRequest } from '../../data/queue-activation-request';
 import { MyJetpackModule } from '../../types';
 import { getBlockThemeMigration } from '../../utils/block-theme-migration';
@@ -46,10 +46,16 @@ export function useModuleActivation(
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	const { trackProductAction } = useProductFiltersContext() || {};
 
-	const isUpdating = useSelect(
+	const storeIsUpdating = useSelect(
 		select => select( modulesStore ).isModuleUpdating( $module.module ),
 		[ $module.module ]
 	);
+
+	// The store only counts a module as updating once its request starts, and a queued
+	// request has not started yet. Without this a switch waiting its turn looks untouched
+	// and stays clickable, which is how a second, contradicting request gets sent.
+	const [ isQueued, setIsQueued ] = useState( false );
+	const isUpdating = isQueued || storeIsUpdating;
 
 	const showToggleNotice = useCallback(
 		async ( {
@@ -102,12 +108,19 @@ export function useModuleActivation(
 				} );
 			}
 
-			const success = await queueActivationRequest( () =>
-				toggleModule( {
-					name: $module.module,
-					active,
-				} )
-			);
+			setIsQueued( true );
+
+			let success;
+			try {
+				success = await queueActivationRequest( () =>
+					toggleModule( {
+						name: $module.module,
+						active,
+					} )
+				);
+			} finally {
+				setIsQueued( false );
+			}
 
 			if ( success && reload && MODULES_REQUIRING_RELOAD.includes( $module.module ) ) {
 				setPendingSuccessNotice(

@@ -124,7 +124,45 @@ class Main_Features_Rest_Test extends TestCase {
 	}
 
 	public function test_refuses_a_plugin_the_map_does_not_name() {
-		$this->assertSame( 400, $this->send( 'hello-dolly', 'activate' )->get_status() );
+		$response = $this->send( 'hello-dolly', 'activate' );
+
+		// The enum is what confines this route to the map, so assert the argument was
+		// rejected rather than the 400 an uninstalled plugin would earn anyway.
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Installing is a bigger act than switching, so it takes a capability of its own.
+	 */
+	public function test_forbids_installing_without_the_capability() {
+		$deny = function ( $caps ) {
+			$caps['install_plugins'] = false;
+			return $caps;
+		};
+		add_filter( 'user_has_cap', $deny );
+
+		$response = $this->send( 'jetpack-boost', 'install' );
+
+		remove_filter( 'user_has_cap', $deny );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'not_allowed', $response->get_data()['code'] );
+	}
+
+	/**
+	 * A module that refuses to switch on does not undo the plugin that is now active, so
+	 * the route reports the state rather than an error the caller would retry forever.
+	 */
+	public function test_a_failed_module_activation_does_not_fail_the_plugin_action() {
+		add_filter( 'jetpack_get_available_standalone_modules', '__return_empty_array' );
+
+		$response = $this->send( 'jetpack-boost', 'activate' );
+
+		remove_filter( 'jetpack_get_available_standalone_modules', '__return_empty_array' );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( Main_Features::PLUGIN_ACTIVE, $this->boost_status( $response ) );
 	}
 
 	public function test_refuses_to_deactivate_jetpack() {

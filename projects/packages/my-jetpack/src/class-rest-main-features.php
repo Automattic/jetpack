@@ -19,8 +19,20 @@ class REST_Main_Features {
 
 	/**
 	 * Register the route.
+	 *
+	 * @return void
 	 */
-	public function __construct() {
+	public function register_rest_routes() {
+		register_rest_route(
+			'my-jetpack/v1',
+			'site/features',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_state',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
+
 		register_rest_route(
 			'my-jetpack/v1',
 			'site/features/plugin',
@@ -55,6 +67,18 @@ class REST_Main_Features {
 	}
 
 	/**
+	 * The Features tab's state, read fresh from the site.
+	 *
+	 * The page is rendered with a copy of this, but that copy ages: it is a snapshot from
+	 * the load, and anything switched since — here or anywhere else — has moved past it.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function get_state() {
+		return rest_ensure_response( Main_Features::get_state() );
+	}
+
+	/**
 	 * Install, activate or deactivate one plugin from the feature map.
 	 *
 	 * @param WP_REST_Request $request The request.
@@ -64,10 +88,16 @@ class REST_Main_Features {
 		$slug   = $request->get_param( 'plugin' );
 		$action = $request->get_param( 'action' );
 
-		// The Features tab runs inside Jetpack's own admin; switching Jetpack off from it
-		// would pull the page out from under itself.
-		if ( Product::JETPACK_PLUGIN_SLUG === $slug && 'deactivate' === $action ) {
-			return new WP_Error( 'not_allowed', __( 'Jetpack cannot be deactivated from here.', 'jetpack-my-jetpack' ), array( 'status' => 400 ) );
+		// Switching off the plugin that renders this page would pull it out from under
+		// itself. That is Jetpack on most sites, but My Jetpack also ships in Boost,
+		// Protect, Social, Search and VideoPress, and any of them can be the host.
+		if ( 'deactivate' === $action
+			&& ( Product::JETPACK_PLUGIN_SLUG === $slug || Main_Features::get_hosting_plugin_slug() === $slug ) ) {
+			return new WP_Error(
+				'not_allowed',
+				__( 'This plugin runs the page you are on, so it cannot be deactivated from here.', 'jetpack-my-jetpack' ),
+				array( 'status' => 400 )
+			);
 		}
 
 		if ( 'install' === $action && ! current_user_can( 'install_plugins' ) ) {
@@ -77,7 +107,12 @@ class REST_Main_Features {
 		$result = self::run( $slug, $action );
 
 		if ( is_wp_error( $result ) ) {
-			$result->add_data( array( 'status' => 400 ) );
+			$data = $result->get_error_data();
+
+			if ( ! is_array( $data ) || ! isset( $data['status'] ) ) {
+				$result->add_data( array( 'status' => 400 ), $result->get_error_code() );
+			}
+
 			return $result;
 		}
 
@@ -136,12 +171,12 @@ class REST_Main_Features {
 
 		// A plugin alone is not the whole product: Search still has to switch Instant Search
 		// on, Boost to mark itself started, and the Hybrid products to enable their module.
+		//
+		// A module that refuses is not a failed request. The plugin is active either way, so
+		// reporting an error here would contradict the state this route returns, and leave
+		// the caller retrying an activation that has already happened.
 		if ( $product_class ) {
-			$result = $product_class::do_product_specific_activation( true );
-
-			if ( is_wp_error( $result ) ) {
-				return $result;
-			}
+			$product_class::do_product_specific_activation( true );
 		}
 
 		return true;

@@ -1,4 +1,7 @@
+import { PRODUCT_STATUSES } from '../../../../constants';
+import { PRODUCT_MODULES } from '../../products/mappings';
 import { resolveFeatureState } from '../feature-state';
+import type { ProductCamelCase } from '../../../../data/types';
 import type { MyJetpackModule } from '../../../../types';
 
 const buildFeature = ( overrides: Partial< MainFeature > = {} ) =>
@@ -108,5 +111,44 @@ describe( 'resolveFeatureState', () => {
 				plugin: 'jetpack-search',
 			} );
 		} );
+	} );
+} );
+
+describe( 'resolveFeatureState, for a product the module map has dropped', () => {
+	// The AI pre-release gate removes the entry rather than mapping it, and the product
+	// slug is not a module slug, so falling back to it would resolve nothing.
+	const gated = ( () => {
+		const map = { ...PRODUCT_MODULES };
+		delete map[ 'jetpack-ai' ];
+		return map;
+	} )();
+
+	const ai = buildFeature( { slug: 'jetpack-ai', in_jetpack: true, product: 'jetpack-ai' } );
+	const aiModules = { ai: buildModule( { module: 'ai' } ) } as Record< string, MyJetpackModule >;
+
+	it( 'offers no switch while the gate hides the module', () => {
+		expect( resolveFeatureState( ai, 'active', undefined, aiModules, gated ).control.kind ).toBe(
+			'none'
+		);
+	} );
+
+	it( 'still reports the product as running, so the card does not call it Inactive', () => {
+		const product = { status: PRODUCT_STATUSES.ACTIVE } as ProductCamelCase;
+
+		expect( resolveFeatureState( ai, 'active', product, aiModules, gated ).status ).toBe(
+			'active'
+		);
+		expect( resolveFeatureState( ai, 'active', undefined, aiModules, gated ).status ).toBe(
+			'inactive'
+		);
+	} );
+
+	it( 'uses the mapped module for a product the gate left alone', () => {
+		const social = buildFeature( { in_jetpack: true, product: 'social' } );
+		const modules = { publicize: buildModule( { module: 'publicize' } ) };
+
+		expect( resolveFeatureState( social, 'active', undefined, modules, gated ).control.kind ).toBe(
+			'module'
+		);
 	} );
 } );

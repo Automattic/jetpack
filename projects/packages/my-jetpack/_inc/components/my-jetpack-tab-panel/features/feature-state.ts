@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { PRODUCT_STATUSES } from '../../../constants';
 import { useAllProducts } from '../../../data/products/use-all-products';
 import { getProductModules } from '../products/mappings';
 import { useAllJetpackModules } from '../products/use-all-jetpack-modules';
@@ -94,8 +95,14 @@ export function resolveFeatureState(
 		};
 	}
 
-	// Jetpack is active but the feature's module is not available here.
-	return { feature, product, status: 'inactive', control: { kind: 'none' } };
+	// Nothing here switches the feature: Jetpack ships it but exposes no module, as with a
+	// product still behind a pre-release gate. The product still knows whether it is running.
+	return {
+		feature,
+		product,
+		status: product?.status === PRODUCT_STATUSES.ACTIVE ? 'active' : 'inactive',
+		control: { kind: 'none' },
+	};
 }
 
 /**
@@ -104,12 +111,19 @@ export function resolveFeatureState(
  * @param state - The Features tab's state: Jetpack's status and the catalog.
  * @return One state per feature, in catalog order.
  */
-export function useFeatureStates( state: MainFeaturesState ): FeatureState[] {
+export function useFeatureStates( state: MainFeaturesState ): {
+	states: FeatureState[];
+	isLoading: boolean;
+} {
 	const { data: products } = useAllProducts();
-	const { modules } = useAllJetpackModules();
+	const { modules, isLoading } = useAllJetpackModules();
 	const productModules = getProductModules();
 
-	return useMemo(
+	// Until the modules land, every module lookup misses and a feature Jetpack runs would
+	// read as "install its plugin instead". Only Jetpack-active sites consult them.
+	const isLoadingModules = state.jetpack === 'active' && isLoading;
+
+	const states = useMemo(
 		() =>
 			state.features.map( feature =>
 				resolveFeatureState(
@@ -123,4 +137,6 @@ export function useFeatureStates( state: MainFeaturesState ): FeatureState[] {
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- productModules is rebuilt each render from a constant map.
 		[ state, products, modules ]
 	);
+
+	return { states, isLoading: isLoadingModules };
 }

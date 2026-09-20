@@ -228,6 +228,32 @@ describe( 'ModuleToggle', () => {
 		expect( mockToggleModule ).toHaveBeenLastCalledWith( { name: 'sitemaps', active: false } );
 	} );
 
+	it( 'disables a switch whose request is still waiting its turn', async () => {
+		let release: ( value: boolean ) => void = () => undefined;
+		mockToggleModule.mockImplementationOnce(
+			() => new Promise( resolve => ( release = resolve ) )
+		);
+
+		render(
+			<>
+				<ModuleToggle module={ buildModule( { module: 'podcast', name: 'Podcast' } ) } />
+				<ModuleToggle module={ buildModule( { module: 'sitemaps', name: 'Sitemaps' } ) } />
+			</>
+		);
+
+		const [ podcast, sitemaps ] = screen.getAllByRole( 'checkbox' );
+		await userEvent.click( podcast );
+		await userEvent.click( sitemaps );
+
+		// The second request has not reached the store, so only this flag can say it is busy.
+		await waitFor( () => expect( sitemaps ).toBeDisabled() );
+		expect( mockToggleModule ).toHaveBeenCalledTimes( 1 );
+
+		// The queue is module-global: leaving this in flight would stall the next test.
+		release( true );
+		await waitFor( () => expect( mockToggleModule ).toHaveBeenCalledTimes( 2 ) );
+	} );
+
 	it( 'does not reload for a regular module and shows an inline notice instead', async () => {
 		render( <ModuleToggle module={ buildModule( { module: 'sitemaps', name: 'Sitemaps' } ) } /> );
 

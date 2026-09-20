@@ -540,7 +540,7 @@ class Main_Features {
 	 */
 	public static function get_plugin_file( $slug, $product_class = null ) {
 		if ( Product::JETPACK_PLUGIN_SLUG === $slug ) {
-			return Product::get_installed_plugin_filename( 'jetpack' );
+			return Product::get_installed_plugin_filename( 'jetpack' ) ?? false;
 		}
 
 		if ( $product_class && $product_class::$has_standalone_plugin ) {
@@ -548,6 +548,39 @@ class Main_Features {
 		}
 
 		return Plugins_Installer::get_plugin_id_by_slug( $slug );
+	}
+
+	/**
+	 * The plugin this copy of My Jetpack is running from.
+	 *
+	 * My Jetpack ships inside Jetpack, Boost, Protect, Social, Search and VideoPress, and
+	 * whichever one wins the autoloader renders this page — so that is the plugin a switch
+	 * here must never turn off.
+	 *
+	 * @return string The plugin's folder name, or an empty string when it is not under one.
+	 */
+	public static function get_hosting_plugin_slug() {
+		return self::plugin_slug_from_path( WP_PLUGIN_DIR, __DIR__ );
+	}
+
+	/**
+	 * The plugin folder a path sits in.
+	 *
+	 * @param string $plugins_dir The plugin directory, as WP_PLUGIN_DIR gives it.
+	 * @param string $path        The path to place.
+	 * @return string The plugin's folder name, or an empty string when the path is outside.
+	 */
+	public static function plugin_slug_from_path( $plugins_dir, $path ) {
+		$plugins_dir = wp_normalize_path( trailingslashit( $plugins_dir ) );
+		$path        = wp_normalize_path( $path );
+
+		if ( ! str_starts_with( $path, $plugins_dir ) ) {
+			return '';
+		}
+
+		$segments = explode( '/', substr( $path, strlen( $plugins_dir ) ) );
+
+		return $segments[0];
 	}
 
 	/**

@@ -274,6 +274,49 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * The badges name the bundles a feature is sold in, so an empty list would quietly
+	 * drop the only thing the modal says about buying it.
+	 */
+	public function test_plan_badges_name_the_bundles_that_include_a_feature() {
+		$features = array_column( Main_Features::get_features(), 'plans', 'slug' );
+		$backup   = array_column( $features['backup'], 'name', 'slug' );
+
+		$this->assertArrayHasKey( 'security', $backup );
+		$this->assertNotEmpty( $backup['security'] );
+		$this->assertArrayHasKey( 'complete', $backup );
+		// Blaze is not sold in a bundle, so it earns no badges.
+		$this->assertSame( array(), $features['blaze'] );
+	}
+
+	/**
+	 * My Jetpack runs from whichever plugin bundles it, and that is the one plugin a
+	 * switch here must never turn off.
+	 */
+	public function test_the_hosting_plugin_is_read_from_the_package_path() {
+		$this->assertSame(
+			'jetpack-boost',
+			Main_Features::plugin_slug_from_path(
+				'/srv/wp-content/plugins',
+				'/srv/wp-content/plugins/jetpack-boost/jetpack_vendor/automattic/jetpack-my-jetpack/src'
+			)
+		);
+
+		$this->assertSame(
+			'jetpack',
+			Main_Features::plugin_slug_from_path(
+				'/srv/wp-content/plugins/',
+				'/srv/wp-content/plugins/jetpack/jetpack_vendor/automattic/jetpack-my-jetpack/src'
+			)
+		);
+
+		// A package loaded from outside the plugin directory hosts nothing.
+		$this->assertSame(
+			'',
+			Main_Features::plugin_slug_from_path( '/srv/wp-content/plugins', '/srv/monorepo/packages/my-jetpack/src' )
+		);
+	}
+
+	/**
 	 * The map and the catalog must name the same features, or a card would get no control.
 	 */
 	public function test_availability_covers_every_feature() {

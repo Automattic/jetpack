@@ -875,7 +875,7 @@ class Initializer {
 		new REST_Recommendations_Evaluation();
 
 		if ( self::is_features_tab_enabled() ) {
-			new REST_Main_Features();
+			( new REST_Main_Features() )->register_rest_routes();
 		}
 
 		Products::register_product_endpoints();
