@@ -100,9 +100,8 @@ const validateData = ( data: SeriesData[] ) => {
 	const hasInvalidData = data.some( series =>
 		series.data.some(
 			point =>
-				isNaN( point.value as number ) ||
-				point.value === null ||
-				point.value === undefined ||
+				// A null value is a bucket with no reading, which the chart draws as a gap.
+				( point.value !== null && isNaN( point.value as number ) ) ||
 				( ! point.label &&
 					( ! ( 'date' in point && point.date ) || isNaN( point.date.getTime() ) ) )
 		)

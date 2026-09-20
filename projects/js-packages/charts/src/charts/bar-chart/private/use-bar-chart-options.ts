@@ -223,10 +223,13 @@ export function useBarChartOptions(
 
 		const bandDomain = timeTickFormatter ? getBandDomain( data, isSeriesRendered ) : null;
 
-		const valueAccessor = ( d: DataPointDate | EnhancedDataPoint ) => {
+		const valueAccessor = ( d: DataPointDate | EnhancedDataPoint ): number => {
 			// Use visualValue for bar rendering if available (for zero values), otherwise use value
 			const enhancedPoint = d as EnhancedDataPoint;
-			return enhancedPoint?.visualValue !== undefined ? enhancedPoint.visualValue : d?.value;
+			const value = enhancedPoint?.visualValue !== undefined ? enhancedPoint.visualValue : d?.value;
+			// visx skips a bar whose scaled value is not a number. A null would scale to zero and
+			// draw an invisible rect that still answers the pointer.
+			return value ?? NaN;
 		};
 
 		return {

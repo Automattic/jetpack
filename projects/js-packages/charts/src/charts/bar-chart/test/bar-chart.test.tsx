@@ -330,18 +330,52 @@ describe( 'BarChart', () => {
 			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
 		} );
 
-		test( 'handles null or undefined values', () => {
+		test( 'renders a bucket with no reading instead of failing the whole chart', () => {
 			renderWithTheme( {
 				data: [
 					{
 						label: 'Series A',
 						data: [
 							{ date: new Date( '2024-01-01' ), value: null as number | null, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+						options: {},
+					},
+				],
+			} );
+			expect( screen.queryByText( /invalid data/i ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+		} );
+
+		test( 'draws no bar for a bucket with no reading', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: null as number | null, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+							{ date: new Date( '2024-01-03' ), value: 30, label: 'Jan 3' },
+						],
+						options: {},
+					},
+				],
+			} );
+			expect( getBarRects() ).toHaveLength( 2 );
+		} );
+
+		test( 'still rejects undefined values', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [
 							{
-								date: new Date( '2024-01-02' ),
+								date: new Date( '2024-01-01' ),
 								value: undefined as number | undefined,
-								label: 'Jan 2',
+								label: 'Jan 1',
 							},
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
 						],
 						options: {},
 					},
