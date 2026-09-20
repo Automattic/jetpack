@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 
 /**
@@ -19,16 +17,6 @@ use Automattic\Jetpack\Plugins_Installer;
  * manage_url) must stay local, because only the site knows what is active on it.
  */
 class Main_Features {
-
-	/**
-	 * Feature is running and has a page of its own to visit.
-	 */
-	const STATUS_ACTIVE = 'active';
-
-	/**
-	 * Feature is available but switched off, so we offer to explain it.
-	 */
-	const STATUS_INACTIVE = 'inactive';
 
 	/**
 	 * A plugin is not on the site at all.
@@ -411,26 +399,22 @@ class Main_Features {
 	/**
 	 * The paid bundles that include a feature, named for display.
 	 *
-	 * Membership follows what the bundle products themselves declare they support, so
-	 * this stays right when a bundle's contents change.
+	 * Named by the bundle products themselves, so the Features tab and the Products tab
+	 * call a plan the same thing.
 	 *
 	 * @param array $definition One feature's catalog entry.
 	 * @return array List of slug/name pairs.
 	 */
 	private static function get_plan_badges( $definition ) {
-		$names = array(
-			'security' => __( 'Jetpack Security', 'jetpack-my-jetpack' ),
-			'complete' => __( 'Jetpack Complete', 'jetpack-my-jetpack' ),
-			'growth'   => __( 'Jetpack Growth', 'jetpack-my-jetpack' ),
-		);
-
 		$badges = array();
 
 		foreach ( $definition['plans'] ?? array() as $slug ) {
-			if ( isset( $names[ $slug ] ) ) {
+			$bundle_class = Products::get_product_class( $slug );
+
+			if ( $bundle_class ) {
 				$badges[] = array(
 					'slug' => $slug,
-					'name' => $names[ $slug ],
+					'name' => $bundle_class::get_title(),
 				);
 			}
 		}
@@ -528,26 +512,67 @@ class Main_Features {
 	/**
 	 * Whether a plugin is missing, installed and off, or running.
 	 *
-	 * @param string $slug WordPress.org plugin slug.
+	 * @param string      $slug          WordPress.org plugin slug.
+	 * @param string|null $product_class The product behind the plugin, when it has one.
 	 * @return string One of the PLUGIN_* constants.
 	 */
-	public static function get_plugin_status( $slug ) {
-		// Jetpack also runs from a -dev folder, which a lookup by slug would miss.
-		if ( Product::JETPACK_PLUGIN_SLUG === $slug ) {
-			if ( ! Product::is_jetpack_plugin_installed() ) {
-				return self::PLUGIN_NOT_INSTALLED;
-			}
-
-			return Product::is_jetpack_plugin_active() ? self::PLUGIN_ACTIVE : self::PLUGIN_INACTIVE;
-		}
-
-		$file = Plugins_Installer::get_plugin_id_by_slug( $slug );
+	public static function get_plugin_status( $slug, $product_class = null ) {
+		$file = self::get_plugin_file( $slug, $product_class );
 
 		if ( ! $file ) {
 			return self::PLUGIN_NOT_INSTALLED;
 		}
 
-		return Plugins_Installer::is_plugin_active( $file ) ? self::PLUGIN_ACTIVE : self::PLUGIN_INACTIVE;
+		// A network-activated plugin is running here, whatever this site's own list says.
+		return 'inactive' === Plugins_Installer::get_plugin_status( $file )
+			? self::PLUGIN_INACTIVE
+			: self::PLUGIN_ACTIVE;
+	}
+
+	/**
+	 * The installed file for a plugin, by the names its product declares where there is one.
+	 *
+	 * A product lists every folder its plugin ships under, including the -dev checkout a
+	 * lookup by slug alone would miss.
+	 *
+	 * @param string      $slug          WordPress.org plugin slug.
+	 * @param string|null $product_class The product behind the plugin, when it has one.
+	 * @return string|false The plugin file, or false when it is not installed.
+	 */
+	public static function get_plugin_file( $slug, $product_class = null ) {
+		if ( Product::JETPACK_PLUGIN_SLUG === $slug ) {
+			return Product::get_installed_plugin_filename( 'jetpack' );
+		}
+
+		if ( $product_class && $product_class::$has_standalone_plugin ) {
+			return $product_class::get_installed_plugin_filename();
+		}
+
+		return Plugins_Installer::get_plugin_id_by_slug( $slug );
+	}
+
+	/**
+	 * The product class behind a plugin in the map, for surfaces holding only its slug.
+	 *
+	 * @param string $slug WordPress.org plugin slug.
+	 * @return string|null The product class, or null when no product ships that plugin.
+	 */
+	public static function get_product_class_for_plugin( $slug ) {
+		$availability = self::get_availability();
+
+		foreach ( self::get_feature_definitions() as $feature => $definition ) {
+			if ( ( $availability[ $feature ]['plugin'] ?? '' ) !== $slug || ! isset( $definition['product'] ) ) {
+				continue;
+			}
+
+			$product_class = Products::get_product_class( $definition['product'] );
+
+			if ( $product_class && $product_class::$has_standalone_plugin ) {
+				return $product_class;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -565,8 +590,8 @@ class Main_Features {
 	/**
 	 * The feature catalog merged with each feature's live state, sorted by name.
 	 *
-	 * @return array List of features, each with slug, name, description, icon, status,
-	 *               manage_url, learn_more_route and the product/module join keys.
+	 * @return array List of features, each with slug, name, description, icon, manage_url,
+	 *               the plugin it ships as and the product/module join keys.
 	 */
 	public static function get_features() {
 		$features = array();
@@ -574,29 +599,31 @@ class Main_Features {
 		$availability = self::get_availability();
 
 		foreach ( self::get_feature_definitions() as $slug => $definition ) {
-			$plugin     = $availability[ $slug ]['plugin'] ?? '';
+			$plugin        = $availability[ $slug ]['plugin'] ?? '';
+			$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
+			$delivery      = $definition['delivery'] ?? array();
+
 			$features[] = array(
 				'slug'             => $slug,
 				'name'             => $definition['name'],
 				'description'      => $definition['description'],
 				'long_description' => $definition['long_description'] ?? '',
 				'icon'             => $definition['icon'],
-				'status'           => self::get_feature_status( $definition ),
-				'manage_url'       => self::get_feature_manage_url( $definition ),
-				'learn_more_route' => $definition['interstitial'] ?? '',
+				'manage_url'       => self::get_feature_manage_url( $definition, $product_class ),
 				'essential'        => ! empty( $definition['essential'] ),
 				'in_jetpack'       => $availability[ $slug ]['jetpack'] ?? false,
 				'plugin'           => $plugin,
-				'plugin_status'    => $plugin ? self::get_plugin_status( $plugin ) : self::PLUGIN_NOT_INSTALLED,
+				'plugin_name'      => $plugin ? ( $delivery['standalone'] ?? $definition['name'] ) : '',
+				'plugin_url'       => $plugin ? ( $delivery['standalone_url'] ?? '' ) : '',
+				'plugin_status'    => $plugin ? self::get_plugin_status( $plugin, $product_class ) : self::PLUGIN_NOT_INSTALLED,
 				'paid_highlights'  => $definition['paid_highlights'] ?? array(),
 				'plans'            => self::get_plan_badges( $definition ),
 				'paid_product'     => $definition['paid_product'] ?? '',
-				'delivery'         => $definition['delivery'] ?? array(),
 				'screenshot'       => $definition['image'],
 				'info_url'         => $definition['info_url'],
 				'docs_url'         => $definition['docs_url'],
-				// Join keys: the UI reads live, post-mutation state from the product and
-				// module stores rather than from the `status` resolved above.
+				// Join keys: the UI reads live state from the module and plugin it names,
+				// so the catalog never ships a status of its own.
 				'product'          => $definition['product'] ?? '',
 				'module'           => $definition['module'] ?? '',
 			);
@@ -613,44 +640,19 @@ class Main_Features {
 	}
 
 	/**
-	 * Resolve whether a feature is currently running on this site.
-	 *
-	 * @param array $definition A single entry from the feature catalog.
-	 * @return string One of the STATUS_* constants.
-	 */
-	private static function get_feature_status( array $definition ) {
-		if ( isset( $definition['product'] ) ) {
-			$product_class = Products::get_product_class( $definition['product'] );
-
-			return $product_class && $product_class::is_active() ? self::STATUS_ACTIVE : self::STATUS_INACTIVE;
-		}
-
-		if ( isset( $definition['module'] ) ) {
-			return ( new Modules() )->is_active( $definition['module'] ) ? self::STATUS_ACTIVE : self::STATUS_INACTIVE;
-		}
-
-		// Features with neither a product nor a module are hosted on WordPress.com and
-		// need the site connection to show anything at all.
-		return ( new Connection_Manager() )->is_connected() ? self::STATUS_ACTIVE : self::STATUS_INACTIVE;
-	}
-
-	/**
 	 * Where an active feature lives.
 	 *
-	 * @param array $definition A single entry from the feature catalog.
+	 * @param array       $definition    A single entry from the feature catalog.
+	 * @param string|null $product_class The product behind the feature, when it has one.
 	 * @return string Admin URL, or an empty string when the feature has nowhere to go.
 	 */
-	private static function get_feature_manage_url( array $definition ) {
+	private static function get_feature_manage_url( array $definition, $product_class = null ) {
 		if ( isset( $definition['admin_page'] ) ) {
 			return admin_url( 'admin.php?page=' . $definition['admin_page'] );
 		}
 
-		if ( isset( $definition['product'] ) ) {
-			$product_class = Products::get_product_class( $definition['product'] );
-
-			if ( $product_class ) {
-				return (string) $product_class::get_manage_url();
-			}
+		if ( $product_class ) {
+			return (string) $product_class::get_manage_url();
 		}
 
 		return '';

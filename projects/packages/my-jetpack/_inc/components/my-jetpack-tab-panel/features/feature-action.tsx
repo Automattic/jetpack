@@ -6,6 +6,31 @@ import { ModuleToggle } from '../../module-toggle';
 import { useFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
 
+/**
+ * The label for a control that switches a feature on or off.
+ *
+ * Both labels are bound before the branch: minification folds `c ? __( a ) : __( b )`
+ * into one call with a ternary msgid, which the i18n build check rejects.
+ *
+ * @param isOn - Whether the feature is currently on.
+ * @param name - The feature's name.
+ * @return The label for what the control will do.
+ */
+export function getSwitchLabel( isOn: boolean, name: string ): string {
+	const deactivateLabel = sprintf(
+		/* translators: %s is the feature name. */
+		__( 'Deactivate %s', 'jetpack-my-jetpack' ),
+		name
+	);
+	const activateLabel = sprintf(
+		/* translators: %s is the feature name. */
+		__( 'Activate %s', 'jetpack-my-jetpack' ),
+		name
+	);
+
+	return isOn ? deactivateLabel : activateLabel;
+}
+
 type PluginToggleProps = {
 	plugin: string;
 	isOn: boolean;
@@ -24,24 +49,13 @@ type PluginToggleProps = {
 function PluginToggle( { plugin, isOn, name }: PluginToggleProps ) {
 	const { run, isBusy } = useFeaturePlugin( plugin, name );
 	const onChange = useCallback( () => run( isOn ? 'deactivate' : 'activate' ), [ isOn, run ] );
-	// Bound before the branch, for the reason given in feature-modal-actions.tsx.
-	const deactivateLabel = sprintf(
-		/* translators: %s is the feature name. */
-		__( 'Deactivate %s', 'jetpack-my-jetpack' ),
-		name
-	);
-	const activateLabel = sprintf(
-		/* translators: %s is the feature name. */
-		__( 'Activate %s', 'jetpack-my-jetpack' ),
-		name
-	);
 
 	return (
 		<FormToggle
 			checked={ isOn }
 			disabled={ isBusy }
 			onChange={ onChange }
-			aria-label={ isOn ? deactivateLabel : activateLabel }
+			aria-label={ getSwitchLabel( isOn, name ) }
 		/>
 	);
 }
@@ -91,7 +105,7 @@ type FeatureActionProps = {
  */
 export function FeatureAction( { state }: FeatureActionProps ) {
 	const { control, feature } = state;
-	const pluginName = feature.delivery?.standalone || feature.name;
+	const pluginName = feature.plugin_name || feature.name;
 
 	switch ( control.kind ) {
 		case 'module':

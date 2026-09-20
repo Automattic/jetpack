@@ -93,7 +93,7 @@ export function resolveFeatureState(
 	}
 
 	// Jetpack is active but the feature's module is not available here.
-	return { feature, product, status: feature.status, control: { kind: 'none' } };
+	return { feature, product, status: 'inactive', control: { kind: 'none' } };
 }
 
 /**

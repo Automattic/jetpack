@@ -82,7 +82,7 @@ export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 		return null;
 	}
 
-	const pluginName = feature.delivery?.standalone || feature.name;
+	const pluginName = feature.plugin_name || feature.name;
 	const note = getNote( state, pluginName );
 
 	if ( ! feature.in_jetpack && ! feature.plugin && ! note ) {
@@ -99,9 +99,9 @@ export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 				{ feature.in_jetpack ? (
 					<Badge intent="stable">{ __( 'In Jetpack', 'jetpack-my-jetpack' ) }</Badge>
 				) : null }
-				{ feature.plugin ? (
+				{ feature.plugin && feature.plugin_url ? (
 					<a
-						href={ `https://wordpress.org/plugins/${ feature.plugin }/` }
+						href={ feature.plugin_url }
 						target="_blank"
 						rel="noreferrer"
 						className={ styles[ 'badge-link' ] }

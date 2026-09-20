@@ -499,10 +499,6 @@ $feature-icon-foreground: #0ced57;
 }
 
 
-// Matches the rendered width of a FormToggle, so cards without
-// one keep the same heading width. Raised over the stretched title, or the row
-// would swallow the switch's own clicks.
-
 .badge-link {
 	background: none;
 	border: 0;

@@ -85,7 +85,7 @@ class REST_Main_Features {
 	}
 
 	/**
-	 * Carry out the action on the plugin.
+	 * Carry out the action on the plugin, through the product that owns it where there is one.
 	 *
 	 * @param string $slug   WordPress.org plugin slug.
 	 * @param string $action One of install, activate or deactivate.
@@ -96,30 +96,54 @@ class REST_Main_Features {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		// Jetpack may be installed from a -dev folder, which a lookup by slug would miss and
-		// then install a second copy beside.
-		if ( 'install' === $action && Product::JETPACK_PLUGIN_SLUG === $slug && Product::is_jetpack_plugin_installed() ) {
-			$action = 'activate';
+		$product_class = Main_Features::get_product_class_for_plugin( $slug );
+		$file          = Main_Features::get_plugin_file( $slug, $product_class );
+
+		if ( 'deactivate' === $action ) {
+			if ( ! $file ) {
+				return new WP_Error( 'not_installed', __( 'That plugin is not installed.', 'jetpack-my-jetpack' ) );
+			}
+
+			// The product knows what else it switched on, such as the Jetpack module behind it.
+			if ( $product_class ) {
+				$deactivated = $product_class::deactivate();
+				return is_wp_error( $deactivated ) ? $deactivated : true;
+			}
+
+			deactivate_plugins( $file );
+			return true;
 		}
 
-		if ( 'install' === $action ) {
-			return Plugins_Installer::install_and_activate_plugin( $slug );
-		}
+		// Installing what is already here would put a second copy beside it, which is what
+		// a plugin in a -dev folder looks like to a lookup by slug.
+		if ( 'install' === $action && ! $file ) {
+			$installed = Plugins_Installer::install_and_activate_plugin( $slug );
 
-		$file = Product::JETPACK_PLUGIN_SLUG === $slug
-			? Product::get_installed_plugin_filename( 'jetpack' )
-			: Plugins_Installer::get_plugin_id_by_slug( $slug );
+			if ( is_wp_error( $installed ) ) {
+				return $installed;
+			}
+		} else {
+			if ( ! $file ) {
+				return new WP_Error( 'not_installed', __( 'That plugin is not installed.', 'jetpack-my-jetpack' ) );
+			}
 
-		if ( ! $file ) {
-			return new WP_Error( 'not_installed', __( 'That plugin is not installed.', 'jetpack-my-jetpack' ) );
-		}
-
-		if ( 'activate' === $action ) {
 			$activated = activate_plugin( $file );
-			return is_wp_error( $activated ) ? $activated : true;
+
+			if ( is_wp_error( $activated ) ) {
+				return $activated;
+			}
 		}
 
-		deactivate_plugins( $file );
+		// A plugin alone is not the whole product: Search still has to switch Instant Search
+		// on, Boost to mark itself started, and the Hybrid products to enable their module.
+		if ( $product_class ) {
+			$result = $product_class::do_product_specific_activation( true );
+
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+		}
+
 		return true;
 	}
 }

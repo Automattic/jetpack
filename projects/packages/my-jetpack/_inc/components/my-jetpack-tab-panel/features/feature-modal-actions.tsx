@@ -1,8 +1,8 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Button, LinkButton } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { useModuleActivation } from '../../module-toggle';
-import { InstallButton, JetpackButton } from './feature-action';
+import { getSwitchLabel, InstallButton, JetpackButton } from './feature-action';
 import { useFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
 import type { MyJetpackModule } from '../../../types';
@@ -29,16 +29,6 @@ function SwitchButton( { isOn, name, disabled, onClick }: SwitchButtonProps ) {
 	// with a ternary msgid, which the i18n build check rejects.
 	const deactivateText = __( 'Deactivate', 'jetpack-my-jetpack' );
 	const activateText = __( 'Activate', 'jetpack-my-jetpack' );
-	const deactivateLabel = sprintf(
-		/* translators: %s is the feature name. */
-		__( 'Deactivate %s', 'jetpack-my-jetpack' ),
-		name
-	);
-	const activateLabel = sprintf(
-		/* translators: %s is the feature name. */
-		__( 'Activate %s', 'jetpack-my-jetpack' ),
-		name
-	);
 
 	return (
 		<Button
@@ -46,7 +36,7 @@ function SwitchButton( { isOn, name, disabled, onClick }: SwitchButtonProps ) {
 			size="compact"
 			disabled={ disabled }
 			onClick={ onClick }
-			aria-label={ isOn ? deactivateLabel : activateLabel }
+			aria-label={ getSwitchLabel( isOn, name ) }
 		>
 			{ isOn ? deactivateText : activateText }
 		</Button>
@@ -118,7 +108,7 @@ type FeatureModalActionsProps = {
 export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 	const { feature, control } = state;
 	const isActive = state.status === 'active';
-	const pluginName = feature.delivery?.standalone || feature.name;
+	const pluginName = feature.plugin_name || feature.name;
 
 	return (
 		<>

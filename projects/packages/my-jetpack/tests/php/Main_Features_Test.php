@@ -248,14 +248,16 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * A feature with no interstitial must say so rather than emit a route that 404s.
+	 * The plugin name and link are what the modal offers to install, so a feature
+	 * delivered by a plugin has to carry both, and one delivered only by Jetpack neither.
 	 */
-	public function test_features_without_an_interstitial_have_an_empty_learn_more_route() {
-		$features = array_column( Main_Features::get_features(), 'learn_more_route', 'slug' );
+	public function test_plugin_backed_features_name_and_link_their_plugin() {
+		$features = array_column( Main_Features::get_features(), null, 'slug' );
 
-		$this->assertSame( '/add-backup', $features['backup'] );
-		$this->assertSame( '', $features['activity-log'] );
-		$this->assertSame( '', $features['podcast'] );
+		$this->assertSame( 'Akismet Anti-spam', $features['anti-spam']['plugin_name'] );
+		$this->assertSame( 'https://wordpress.org/plugins/akismet/', $features['anti-spam']['plugin_url'] );
+		$this->assertSame( '', $features['stats']['plugin_name'] );
+		$this->assertSame( '', $features['stats']['plugin_url'] );
 	}
 
 	/**
@@ -263,14 +265,10 @@ class Main_Features_Test extends TestCase {
 	 */
 	public function test_every_feature_carries_the_keys_the_grid_reads() {
 		foreach ( Main_Features::get_features() as $feature ) {
-			foreach ( array( 'slug', 'name', 'description', 'icon', 'status', 'essential', 'plans', 'in_jetpack', 'plugin', 'plugin_status' ) as $key ) {
+			foreach ( array( 'slug', 'name', 'description', 'icon', 'essential', 'plans', 'in_jetpack', 'plugin', 'plugin_status' ) as $key ) {
 				$this->assertArrayHasKey( $key, $feature, "Feature {$feature['slug']} is missing {$key}" );
 			}
 
-			$this->assertContains(
-				$feature['status'],
-				array( Main_Features::STATUS_ACTIVE, Main_Features::STATUS_INACTIVE )
-			);
 			$this->assertIsArray( $feature['plans'] );
 		}
 	}

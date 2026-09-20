@@ -3,8 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
+import { queueActivationRequest } from '../../../data/queue-activation-request';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
-import { queueActivationRequest } from '../../module-toggle';
 import { setPendingSuccessNotice } from '../products/pending-notice';
 import { reloadPage } from '../products/reload-page';
 

@@ -4,6 +4,7 @@ import { FormToggle } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
+import { queueActivationRequest } from '../../data/queue-activation-request';
 import { MyJetpackModule } from '../../types';
 import { getBlockThemeMigration } from '../../utils/block-theme-migration';
 import { getModuleActivationMessage } from '../../utils/module-benefit-messages';
@@ -24,23 +25,6 @@ export type ModuleToggleProps = {
 // needs a full page reload for the sidebar to reflect the change; the success
 // notice is persisted so it survives the reload.
 const MODULES_REQUIRING_RELOAD = [ 'activity-log', 'podcast', 'subscriptions', 'wpcom-reader' ];
-
-// The server read-modify-writes one option for active modules and another for active
-// plugins, so two requests in flight can each drop the other's change. Send one at a time.
-let pendingActivation: Promise< unknown > = Promise.resolve();
-
-/**
- * Run an activation request once every request queued before it has settled.
- *
- * @param request - The request to run.
- * @return The request's result.
- */
-export function queueActivationRequest< T >( request: () => Promise< T > ): Promise< T > {
-	const run = pendingActivation.then( request, request );
-	pendingActivation = run.catch( () => undefined );
-
-	return run;
-}
 
 /**
  * Switch a Jetpack module on or off, however the surface chooses to present that.
