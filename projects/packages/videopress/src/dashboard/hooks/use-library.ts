@@ -23,11 +23,13 @@ export type ApiMediaItem = {
 	date?: string;
 	mime_type?: string;
 	media_details?: {
+		original?: string;
 		length?: number;
 		filesize?: number;
 		width?: number;
 		height?: number;
 		videopress?: {
+			original?: string;
 			duration?: number;
 			poster?: string;
 			finished?: boolean;
@@ -264,6 +266,7 @@ export function toLibraryItem( raw: ApiMediaItem, simple: boolean ): LibraryItem
 		allowDownloads: Boolean( vp?.allow_download ),
 		shortcode: buildShortcode( vp?.guid, raw.media_details?.width, raw.media_details?.height ),
 		sourceUrl: raw.source_url,
+		originalUrl: vpDetails?.original || details?.original || undefined,
 		playbackUrl: pickPlaybackUrl( vpDetails ),
 		isProcessing,
 		orientation,

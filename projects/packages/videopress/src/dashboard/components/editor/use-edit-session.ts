@@ -1,0 +1,180 @@
+import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
+import { useQueryClient } from '@tanstack/react-query';
+import { __ } from '@wordpress/i18n';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import {
+	createHistory,
+	withHistory,
+} from '../../../client/components/chapters-editor/state/history';
+import { LIBRARY_QUERY_KEY } from '../../hooks/use-library';
+import { useRestoreOriginal } from '../../hooks/use-restore-original';
+import { EditsConflictError, useSaveVideoEdits } from '../../hooks/use-save-video-edits';
+import { useVideoEdits } from '../../hooks/use-video-edits';
+import { createEditSession, editSessionReducer, sessionEditsEqual } from './state/edit-session';
+import { isDirty, sessionToOperations } from './state/serialize';
+import type { EditSession, EditSessionAction } from './state/edit-session';
+import type { HistoryAction } from '../../../client/components/chapters-editor/state/history';
+import type { SaveEditsResponse, VideoEdits } from '../../types/edits';
+import type { LibraryItem } from '../../types/library';
+
+const reducer = withHistory< EditSession, EditSessionAction >( editSessionReducer, {
+	clearOn: action => action.type === 'LOAD' || action.type === 'RESET',
+	equals: sessionEditsEqual,
+} );
+
+/**
+ * Keep local edits against the revision they were made on until a processing job commits.
+ *
+ * @param video - The attachment being edited.
+ * @return The edit session, processing state, and save/restore actions.
+ */
+export function useEditSession( video: LibraryItem ) {
+	const query = useVideoEdits( video.guid );
+	const saveMutation = useSaveVideoEdits();
+	const restoreMutation = useRestoreOriginal();
+	const client = useQueryClient();
+	const notices = useGlobalNotices();
+	const noticesRef = useRef( notices );
+	noticesRef.current = notices;
+	const [ history, dispatch ] = useReducer( reducer, video.durationSeconds, duration =>
+		createHistory( createEditSession( duration * 1000 ) )
+	);
+	const [ baseline, setBaseline ] = useState< VideoEdits | null >( null );
+	const [ pending, setPending ] = useState< SaveEditsResponse | null >( null );
+	const baselineRef = useRef< VideoEdits | null >( null );
+	const pendingRef = useRef< SaveEditsResponse | null >( null );
+	const handledJobRef = useRef< string | null >( null );
+	const [ conflict, setConflict ] = useState( false );
+	const [ lastAction, setLastAction ] = useState< 'save' | 'restore' >( 'save' );
+	const [ requestPending, setRequestPending ] = useState( false );
+	const requestRef = useRef( false );
+	const session = history.present;
+	const dirty = baseline !== null && isDirty( session, baseline.operations );
+	const locked =
+		! baseline || requestPending || Boolean( pending ) || query.edits?.job.status === 'processing';
+	const stateRef = useRef( { session, baseline, locked, dirty, conflict } );
+	stateRef.current = { session, baseline, locked, dirty, conflict };
+
+	const adopt = useCallback( ( edits: VideoEdits ) => {
+		baselineRef.current = edits;
+		dispatch( {
+			type: 'LOAD',
+			operations: edits.operations,
+			durationMs: edits.original_duration_ms,
+		} );
+		setBaseline( edits );
+		setConflict( false );
+	}, [] );
+
+	useEffect( () => {
+		const edits = query.edits;
+		if ( ! edits ) {
+			return;
+		}
+		const current = stateRef.current;
+		const currentBaseline = baselineRef.current;
+		const pendingJob = pendingRef.current;
+		const ownJob = pendingJob && edits.job.id === pendingJob.job.id;
+		if ( ownJob && ( edits.job.status === 'complete' || edits.job.status === 'failed' ) ) {
+			const jobKey = `${ edits.guid }:${ edits.job.id }:${ edits.job.status }`;
+			if ( handledJobRef.current === jobKey ) {
+				return;
+			}
+			// External stores can render synchronously before the queued React state updates commit.
+			handledJobRef.current = jobKey;
+			pendingRef.current = null;
+			setPending( null );
+			if ( edits.job.status === 'complete' ) {
+				adopt( edits );
+				void client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
+				noticesRef.current.createSuccessNotice(
+					__( 'Video edits applied.', 'jetpack-videopress-pkg' )
+				);
+			}
+		} else if ( ! currentBaseline ) {
+			adopt( edits );
+		} else if ( edits.revision !== currentBaseline.revision ) {
+			if ( pendingJob || current.dirty ) {
+				pendingRef.current = null;
+				setConflict( true );
+				setPending( null );
+			} else {
+				adopt( edits );
+			}
+		}
+	}, [ query.edits, pending, adopt, client ] );
+
+	const guardedDispatch = useCallback( ( action: HistoryAction< EditSessionAction > ) => {
+		if ( ! stateRef.current.locked && ! stateRef.current.conflict ) {
+			dispatch( action );
+		}
+	}, [] );
+
+	const discard = useCallback( () => {
+		if ( stateRef.current.baseline ) {
+			adopt( stateRef.current.baseline );
+		}
+	}, [ adopt ] );
+
+	const submit = useCallback(
+		async ( restore = false ) => {
+			const current = stateRef.current;
+			if ( requestRef.current || current.locked || current.conflict || ! current.baseline ) {
+				return;
+			}
+			requestRef.current = true;
+			setRequestPending( true );
+			setLastAction( restore ? 'restore' : 'save' );
+			try {
+				const response = restore
+					? await restoreMutation.mutateAsync( { guid: video.guid } )
+					: await saveMutation.mutateAsync( {
+							guid: video.guid,
+							baseRevision: current.baseline.revision,
+							operations: sessionToOperations(
+								current.session,
+								current.baseline.original_duration_ms
+							),
+						} );
+				pendingRef.current = response;
+				setPending( response );
+			} catch ( error ) {
+				if ( error instanceof EditsConflictError ) {
+					setConflict( true );
+				} else {
+					noticesRef.current.createErrorNotice(
+						__( 'Unable to apply video edits. Please try again.', 'jetpack-videopress-pkg' )
+					);
+				}
+			} finally {
+				requestRef.current = false;
+				setRequestPending( false );
+			}
+		},
+		[ video.guid, saveMutation, restoreMutation ]
+	);
+
+	const reload = useCallback( async () => {
+		const result = await query.refetch();
+		if ( result.data ) {
+			pendingRef.current = null;
+			setPending( null );
+			adopt( result.data );
+		}
+	}, [ query.refetch, adopt ] );
+
+	return {
+		baseline,
+		history,
+		session,
+		dirty,
+		locked,
+		conflict,
+		lastAction,
+		dispatch: guardedDispatch,
+		discard,
+		submit,
+		reload,
+		...query,
+	};
+}

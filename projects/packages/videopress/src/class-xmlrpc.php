@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use WP_Error;
 use WP_User;
 
 /**
@@ -67,10 +68,25 @@ class XMLRPC {
 		}
 
 		$methods['jetpack.createMediaItem']             = array( $this, 'create_media_item' );
+		$methods['jetpack.createVideoPressCopy']        = array( $this, 'create_videopress_copy' );
 		$methods['jetpack.updateVideoPressMediaItem']   = array( $this, 'update_videopress_media_item' );
 		$methods['jetpack.updateVideoPressPosterImage'] = array( $this, 'update_poster_image' );
 
 		return $methods;
+	}
+
+	/**
+	 * Create one idempotent copy attachment; older clients reject this method before inserting a row.
+	 *
+	 * @since $$next-version$$
+	 * @param array $media A single media item carrying its copy request identifier.
+	 * @return array The attachment or an error response.
+	 */
+	public function create_videopress_copy( $media ) {
+		if ( ! is_array( $media ) || count( $media ) !== 1 || ! isset( $media[0] ) || ! is_array( $media[0] ) || ! array_key_exists( 'videopress_copy_request_id', $media[0] ) ) {
+			return array( 'errors' => array( 'videopress_copy_invalid_request' => __( 'Invalid video copy request.', 'jetpack-videopress-pkg' ) ) );
+		}
+		return $this->create_media_item( $media );
 	}
 
 	/**
@@ -93,6 +109,16 @@ class XMLRPC {
 				? sanitize_text_field( $media_item['title'] )
 				: sanitize_title( basename( $url ) );
 			$guid  = $media['guid'] ?? null;
+
+			if ( array_key_exists( 'videopress_copy_request_id', $media_item ) ) {
+				$media_id = $this->create_copy_attachment( $title, $media_item['videopress_copy_request_id'] );
+				if ( is_wp_error( $media_id ) ) {
+					return array( 'errors' => array( $media_id->get_error_code() => $media_id->get_error_message() ) );
+				}
+				$media_item['post']                           = get_post( $media_id );
+				$media_item['videopress_copy_request_id_ack'] = $media_item['videopress_copy_request_id'];
+				continue;
+			}
 
 			$media_id = videopress_create_new_media_item( $title, $guid );
 
@@ -121,6 +147,42 @@ class XMLRPC {
 		}
 
 		return array( 'media' => $media );
+	}
+
+	/**
+	 * Reserve a copy request before inserting its attachment so retries cannot create duplicates.
+	 *
+	 * @param string $title Attachment title.
+	 * @param mixed  $request_id Source GUID and copy request UUID.
+	 * @return int|WP_Error The existing or newly created attachment ID.
+	 */
+	private function create_copy_attachment( $title, $request_id ) {
+		if ( ! is_string( $request_id ) || ! preg_match( '/^[A-Za-z0-9]{8}:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/D', $request_id ) ) {
+			return new WP_Error( 'videopress_copy_invalid_request', __( 'Invalid video copy request identifier.', 'jetpack-videopress-pkg' ) );
+		}
+
+		$option = 'videopress_copy_attachment_' . hash( 'sha256', $request_id );
+		if ( ! add_option( $option, 0, '', false ) ) {
+			$attachment_id = (int) get_option( $option, 0 );
+			if ( ! $attachment_id ) {
+				return new WP_Error( 'videopress_copy_attachment_pending', __( 'The video copy attachment is still being created.', 'jetpack-videopress-pkg' ) );
+			}
+			if ( 'attachment' !== get_post_type( $attachment_id ) || get_post_meta( $attachment_id, '_videopress_copy_request_id', true ) !== $request_id ) {
+				return new WP_Error( 'videopress_copy_attachment_unavailable', __( 'The video copy attachment is unavailable.', 'jetpack-videopress-pkg' ) );
+			}
+			return $attachment_id;
+		}
+
+		// A pending reservation never expires: a timed-out insert may already have created the attachment.
+		$attachment_id = videopress_create_new_media_item( $title );
+		if ( is_wp_error( $attachment_id ) || ! $attachment_id ) {
+			return new WP_Error( 'videopress_copy_attachment_failed', __( 'The video copy attachment could not be created.', 'jetpack-videopress-pkg' ) );
+		}
+		wp_update_attachment_metadata( $attachment_id, array( 'original' => array( 'url' => '' ) ) );
+		if ( ! add_post_meta( $attachment_id, '_videopress_copy_request_id', $request_id, true ) || ! update_option( $option, $attachment_id, false ) ) {
+			return new WP_Error( 'videopress_copy_attachment_failed', __( 'The video copy attachment could not be recorded.', 'jetpack-videopress-pkg' ) );
+		}
+		return $attachment_id;
 	}
 
 	/**

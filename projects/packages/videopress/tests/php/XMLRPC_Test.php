@@ -76,4 +76,81 @@ class XMLRPC_Test extends BaseTestCase {
 
 		$this->assertSame( sanitize_title( 'original-file-name.mp4' ), $result['media'][0]['post']->post_title );
 	}
+
+	/**
+	 * Copy retries return the same attachment without resetting its completed metadata.
+	 */
+	public function test_copy_request_reuses_the_attachment() {
+		$request_id = 'source12:32457391-3ebf-4c67-ac58-a34dd71399bf';
+		$media      = array(
+			array(
+				'title'                      => 'New video',
+				'videopress_copy_request_id' => $request_id,
+			),
+		);
+		$first      = XMLRPC::init()->create_videopress_copy( $media );
+		$post_id    = $first['media'][0]['post']->ID;
+		$metadata   = array(
+			'videopress' => array(
+				'guid'     => 'newcopy1',
+				'finished' => true,
+			),
+		);
+		wp_update_attachment_metadata( $post_id, $metadata );
+		$second = XMLRPC::init()->create_videopress_copy( $media );
+
+		$this->assertSame( $post_id, $second['media'][0]['post']->ID );
+		$this->assertSame( $request_id, $second['media'][0]['videopress_copy_request_id_ack'] );
+		$this->assertSame( $request_id, get_post_meta( $post_id, '_videopress_copy_request_id', true ) );
+		$this->assertSame( $metadata, wp_get_attachment_metadata( $post_id ) );
+	}
+
+	/**
+	 * An in-flight or uncertain creation is never replaced by a duplicate attachment.
+	 */
+	public function test_copy_request_keeps_an_uncertain_reservation() {
+		$request_id = 'source12:32457391-3ebf-4c67-ac58-a34dd71399b0';
+		$option     = 'videopress_copy_attachment_' . hash( 'sha256', $request_id );
+		add_option( $option, 0, '', false );
+		$result = XMLRPC::init()->create_videopress_copy( array( array( 'videopress_copy_request_id' => $request_id ) ) );
+
+		$this->assertArrayHasKey( 'videopress_copy_attachment_pending', $result['errors'] );
+		$this->assertSame( 0, (int) get_option( $option ) );
+	}
+
+	/**
+	 * A deleted copy is not recreated by replaying an old request.
+	 */
+	public function test_copy_request_does_not_recreate_a_deleted_attachment() {
+		$request_id = 'source12:32457391-3ebf-4c67-ac58-a34dd71399b1';
+		$media      = array(
+			array(
+				'title'                      => 'New video',
+				'videopress_copy_request_id' => $request_id,
+			),
+		);
+		$first      = XMLRPC::init()->create_videopress_copy( $media );
+		wp_delete_post( $first['media'][0]['post']->ID, true );
+		$second = XMLRPC::init()->create_videopress_copy( $media );
+
+		$this->assertArrayHasKey( 'videopress_copy_attachment_unavailable', $second['errors'] );
+	}
+
+	/**
+	 * Malformed copy identifiers are rejected before creating a media item.
+	 */
+	public function test_copy_request_rejects_an_invalid_identifier() {
+		$result = XMLRPC::init()->create_videopress_copy( array( array( 'videopress_copy_request_id' => '../../invalid' ) ) );
+
+		$this->assertArrayHasKey( 'videopress_copy_invalid_request', $result['errors'] );
+	}
+
+	/**
+	 * The copy-only method rejects ordinary uploads before creating an attachment.
+	 */
+	public function test_copy_method_requires_its_idempotency_identifier() {
+		$result = XMLRPC::init()->create_videopress_copy( array( array( 'title' => 'Incomplete copy request' ) ) );
+
+		$this->assertArrayHasKey( 'videopress_copy_invalid_request', $result['errors'] );
+	}
 }

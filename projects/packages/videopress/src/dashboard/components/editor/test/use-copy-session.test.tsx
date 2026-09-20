@@ -1,0 +1,151 @@
+import { act, renderHook } from '@testing-library/react';
+import { useSaveVideoCopy, useVideoCopyStatus } from '../../../hooks/use-save-video-copy';
+import { EditsConflictError } from '../../../hooks/use-save-video-edits';
+import { useCopySession } from '../use-copy-session';
+import type { SaveVideoCopyResponse, SaveVideoCopyVars } from '../../../hooks/use-save-video-copy';
+
+jest.mock( '../../../hooks/use-save-video-copy', () => ( {
+	useSaveVideoCopy: jest.fn(),
+	useVideoCopyStatus: jest.fn(),
+} ) );
+
+const mutate = jest.fn();
+const request: SaveVideoCopyVars = {
+	guid: 'source12',
+	baseRevision: 2,
+	operations: [ { type: 'cut', start_ms: 3000, end_ms: 5000 } ],
+	requestId: '32457391-3ebf-4c67-ac58-a34dd71399bf',
+	title: 'Video copy',
+};
+const accepted: SaveVideoCopyResponse = {
+	source_guid: request.guid,
+	request_id: request.requestId,
+	guid: null,
+	attachment_id: null,
+	job: { id: 'copy-job', status: 'processing', target_revision: null, progress: null, error: null },
+};
+let status: SaveVideoCopyResponse | undefined;
+
+beforeEach( () => {
+	jest.clearAllMocks();
+	status = undefined;
+	mutate.mockResolvedValue( accepted );
+	jest.mocked( useSaveVideoCopy ).mockReturnValue( { mutateAsync: mutate } as never );
+	jest.mocked( useVideoCopyStatus ).mockImplementation(
+		( guid, requestId ) =>
+			( {
+				data: requestId ? status : undefined,
+			} ) as never
+	);
+} );
+
+describe( 'useCopySession', () => {
+	it( 'prevents duplicate submissions while the POST is unsettled', async () => {
+		let resolve: ( value: SaveVideoCopyResponse ) => void;
+		mutate.mockImplementation(
+			() =>
+				new Promise( resolveRequest => {
+					resolve = resolveRequest;
+				} )
+		);
+		const { result } = renderHook( () => useCopySession( request.guid ) );
+		act( () => {
+			void result.current.submit( request );
+		} );
+		expect( result.current.locked ).toBe( true );
+		expect( result.current.submitting ).toBe( true );
+		await act( async () => result.current.submit( { ...request, requestId: 'another-copy' } ) );
+		expect( mutate ).toHaveBeenCalledTimes( 1 );
+		await act( async () => resolve( accepted ) );
+		expect( result.current.submitting ).toBe( false );
+	} );
+
+	it( 'does not replace an accepted processing request with a second copy', async () => {
+		const { result, rerender } = renderHook( () => useCopySession( request.guid ) );
+		await act( async () => result.current.submit( request ) );
+		status = accepted;
+		rerender();
+		await act( async () => result.current.submit( { ...request, requestId: 'another-copy' } ) );
+		expect( mutate ).toHaveBeenCalledTimes( 1 );
+		expect( result.current.request?.requestId ).toBe( request.requestId );
+	} );
+
+	it( 'retains the exact request and source draft after an uncertain failure and retry', async () => {
+		const sourceDraft = JSON.parse( JSON.stringify( request.operations ) );
+		const failure = new Error( 'Response interrupted' );
+		mutate.mockRejectedValueOnce( failure ).mockResolvedValueOnce( accepted );
+		const { result } = renderHook( () => useCopySession( request.guid ) );
+		await act( async () => result.current.submit( request ) );
+		expect( result.current.error ).toBe( failure );
+		expect( result.current.locked ).toBe( true );
+		await act( async () => result.current.retry() );
+		expect( mutate ).toHaveBeenNthCalledWith( 1, request );
+		expect( mutate ).toHaveBeenNthCalledWith( 2, request );
+		expect( request.operations ).toEqual( sourceDraft );
+		expect( result.current.error ).toBeNull();
+	} );
+
+	it.each( [ 'failed', 'complete' ] as const )(
+		'handles a terminal %s copy while preserving the request',
+		async nextStatus => {
+			const { result, rerender } = renderHook( () => useCopySession( request.guid ) );
+			await act( async () => result.current.submit( request ) );
+			status = accepted;
+			rerender();
+			expect( result.current.locked ).toBe( true );
+			status = {
+				...accepted,
+				guid: nextStatus === 'complete' ? 'newcopy1' : null,
+				attachment_id: nextStatus === 'complete' ? 17 : null,
+				job: { ...accepted.job, status: nextStatus },
+			};
+			rerender();
+			expect( result.current.locked ).toBe( nextStatus === 'complete' );
+			expect( result.current.request ).toEqual( request );
+		}
+	);
+
+	it.each( [ 'copy_attachment_unconfirmed', 'copy_attachment_pending' ] )(
+		'retries %s with the captured request while keeping edits locked',
+		async code => {
+			const { result, rerender } = renderHook( () => useCopySession( request.guid ) );
+			await act( async () => result.current.submit( request ) );
+			status = {
+				...accepted,
+				job: {
+					...accepted.job,
+					status: 'failed',
+					error: { code, message: 'Attachment unconfirmed' },
+				},
+			};
+			rerender();
+			expect( result.current.recoverable ).toBe( true );
+			expect( result.current.failed ).toBe( false );
+			expect( result.current.locked ).toBe( true );
+			act( () => result.current.clear() );
+			expect( result.current.request ).toBe( request );
+			await act( async () => result.current.retry() );
+			expect( mutate ).toHaveBeenNthCalledWith( 2, request );
+			expect( result.current.request?.operations ).toEqual( request.operations );
+		}
+	);
+
+	it( 'releases the lock and exposes a source revision conflict', async () => {
+		mutate.mockRejectedValueOnce( new EditsConflictError() );
+		const { result } = renderHook( () => useCopySession( request.guid ) );
+		await act( async () => result.current.submit( request ) );
+		expect( result.current.conflict ).toBe( true );
+		expect( result.current.locked ).toBe( false );
+		expect( result.current.request?.operations ).toEqual( request.operations );
+	} );
+
+	it( 'keeps tracking an accepted job when clear is called before it finishes', async () => {
+		const { result, rerender } = renderHook( () => useCopySession( request.guid ) );
+		await act( async () => result.current.submit( request ) );
+		status = accepted;
+		rerender();
+		act( () => result.current.clear() );
+		expect( result.current.request?.requestId ).toBe( request.requestId );
+		expect( result.current.locked ).toBe( true );
+	} );
+} );

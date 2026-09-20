@@ -1,21 +1,38 @@
-/**
- * Tools rail for the editor screen, ported from the Studio editor redesign:
- * a 224px "Edit" section of icon + label items, the active one filled with
- * the accent color. Chapters is the only extracted tool today, so the rail
- * renders a single, always-active entry with no selection state — the list
- * shape is deliberate so further tools (e.g. Trim & cut) slot in as more
- * items without a layout change.
- */
 import { __ } from '@wordpress/i18n';
-import { Icon, listView } from '@wordpress/icons';
-import type { ReactElement } from 'react';
+import { Icon, listView, reusableBlock } from '@wordpress/icons';
+import { isChaptersEditorEnabled } from '../../src/dashboard/utils/chapters-editor';
+import { isTrimCutEnabled } from '../../src/dashboard/utils/trim-cut';
+
+export type EditorTool = 'chapters' | 'trim';
+
+type Props = {
+	activeTool?: EditorTool;
+	onSelect?: ( tool: EditorTool ) => void;
+};
 
 /**
- * The editor's tools rail.
+ * Select an available video editing tool.
  *
- * @return The rail element.
+ * @param props            - Component props.
+ * @param props.activeTool - Selected tool.
+ * @param props.onSelect   - Select a tool.
+ * @return The tools rail.
  */
-export default function EditorOperationsPanel(): ReactElement {
+export default function EditorOperationsPanel( { activeTool = 'chapters', onSelect }: Props ) {
+	const tools = [
+		{
+			id: 'trim' as const,
+			label: __( 'Trim & cut', 'jetpack-videopress-pkg' ),
+			icon: reusableBlock,
+			enabled: isTrimCutEnabled(),
+		},
+		{
+			id: 'chapters' as const,
+			label: __( 'Chapters', 'jetpack-videopress-pkg' ),
+			icon: listView,
+			enabled: isChaptersEditorEnabled(),
+		},
+	];
 	return (
 		<div className="vp-video-editor__operations">
 			<h5 className="vp-video-editor__operations-heading">
@@ -25,23 +42,26 @@ export default function EditorOperationsPanel(): ReactElement {
 				className="vp-video-editor__operations-list"
 				aria-label={ __( 'Editing tools', 'jetpack-videopress-pkg' ) }
 			>
-				<li>
-					<button
-						type="button"
-						className="vp-video-editor__operation vp-video-editor__operation--active"
-						// The label span is visually hidden when the rail collapses to
-						// icons on narrow viewports; the aria-label keeps the
-						// accessible name constant across both presentations.
-						aria-label={ __( 'Chapters', 'jetpack-videopress-pkg' ) }
-						aria-current="true"
-						data-testid="video-editor-tool-chapters"
-					>
-						<Icon icon={ listView } size={ 24 } />
-						<span className="vp-video-editor__operation-label">
-							{ __( 'Chapters', 'jetpack-videopress-pkg' ) }
-						</span>
-					</button>
-				</li>
+				{ tools
+					.filter( tool => tool.enabled )
+					.map( tool => (
+						<li key={ tool.id }>
+							<button
+								type="button"
+								className={
+									'vp-video-editor__operation' +
+									( activeTool === tool.id ? ' vp-video-editor__operation--active' : '' )
+								}
+								aria-label={ tool.label }
+								aria-current={ activeTool === tool.id ? 'true' : undefined }
+								data-testid={ `video-editor-tool-${ tool.id }` }
+								onClick={ () => onSelect?.( tool.id ) }
+							>
+								<Icon icon={ tool.icon } size={ 24 } />
+								<span className="vp-video-editor__operation-label">{ tool.label }</span>
+							</button>
+						</li>
+					) ) }
 			</ul>
 		</div>
 	);

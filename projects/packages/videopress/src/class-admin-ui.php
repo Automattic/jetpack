@@ -778,7 +778,7 @@ class Admin_UI {
 	 * @return void
 	 */
 	public static function maybe_strip_chapters_editor_routes() {
-		if ( self::is_chapters_editor_enabled() ) {
+		if ( self::is_chapters_editor_enabled() || self::is_trim_cut_enabled() ) {
 			return;
 		}
 
@@ -901,6 +901,22 @@ class Admin_UI {
 	 */
 	public static function is_modernized() {
 		return (bool) apply_filters( self::MODERNIZATION_FILTER, true );
+	}
+
+	/**
+	 * Whether the trim and cut editor and its REST endpoints are available.
+	 *
+	 * @since $$next-version$$
+	 * @return bool
+	 */
+	public static function is_trim_cut_enabled() {
+		/**
+		 * Enable trim and cut after the video editing service is available for this site.
+		 *
+		 * @since $$next-version$$
+		 * @param bool $enabled Whether trim and cut is enabled. Default false.
+		 */
+		return (bool) apply_filters( 'jetpack_videopress_trim_cut', false );
 	}
 
 	/**

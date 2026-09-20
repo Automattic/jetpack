@@ -24,6 +24,11 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 	default: jest.fn(),
 } ) );
 
+jest.mock( '../../../src/dashboard/components/editor/editor-screen', () => ( {
+	__esModule: true,
+	default: () => <div data-testid="trim-cut-editor" />,
+} ) );
+
 jest.mock( '@wordpress/route', () => ( {
 	__esModule: true,
 	useNavigate: jest.fn(),
@@ -308,6 +313,35 @@ describe( 'video-editor stage', () => {
 		expect( getApiFetchMock() ).not.toHaveBeenCalled();
 	} );
 
+	it( 'keeps chapters as the default when trim is enabled', async () => {
+		setFeatures( { trimCut: true } );
+		installApi( { media: makeRawMedia(), metaPosts: [] } );
+		await renderReadyChapters();
+		expect( screen.queryByTestId( 'trim-cut-editor' ) ).not.toBeInTheDocument();
+		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Trim & cut' } ) );
+		expect( screen.getByTestId( 'trim-cut-editor' ) ).toBeInTheDocument();
+	} );
+
+	it( 'opens trim when chapters are disabled', async () => {
+		setFeatures( { chaptersEditor: false, trimCut: true } );
+		installApi( { media: makeRawMedia(), metaPosts: [] } );
+		render( <Stage />, { wrapper: createTestWrapper( mockTestClient ) } );
+		await expect( screen.findByTestId( 'trim-cut-editor' ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( 'preserves unsaved chapters when switching tools is cancelled', async () => {
+		setFeatures( { trimCut: true } );
+		installApi( { media: makeRawMedia(), metaPosts: [] } );
+		await renderReadyChapters();
+		await renameFirstChapter( userEvent.setup() );
+		const confirm = jest.spyOn( window, 'confirm' ).mockReturnValue( false );
+		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Trim & cut' } ) );
+		expect( confirm ).toHaveBeenCalledTimes( 1 );
+		expect( screen.getByLabelText( 'Chapter 1 title' ) ).toHaveValue( 'Renamed' );
+		expect( screen.queryByTestId( 'trim-cut-editor' ) ).not.toBeInTheDocument();
+		confirm.mockRestore();
+	} );
+
 	it( 'shows a loading placeholder while the video is fetched', () => {
 		mockApiFetch( () => new Promise( () => {} ) );
 
@@ -339,7 +373,7 @@ describe( 'video-editor stage', () => {
 
 		await expect(
 			screen.findByText(
-				'This video is still processing. Chapters will be available once it finishes.'
+				'This video is still processing. The editor will be available once it finishes.'
 			)
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByTestId( 'chapters' ) ).not.toBeInTheDocument();
@@ -359,7 +393,7 @@ describe( 'video-editor stage', () => {
 
 		await expect(
 			screen.findByText(
-				'This video is still processing. Chapters will be available once it finishes.'
+				'This video is still processing. The editor will be available once it finishes.'
 			)
 		).resolves.toBeInTheDocument();
 	} );

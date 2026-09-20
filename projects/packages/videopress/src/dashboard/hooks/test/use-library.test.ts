@@ -378,6 +378,23 @@ describe( 'on WordPress.com Simple', () => {
 			expect( withDimensions( 1920, undefined ).orientation ).toBeNull();
 		} );
 
+		it( 'keeps the original upload separate from the rendered playback source', () => {
+			const raw = {
+				id: 11,
+				source_url: 'https://example.com/edited.mp4',
+				media_details: {
+					original: 'https://example.com/simple-original.mov',
+					videopress: { original: 'https://example.com/original.mov' },
+				},
+			};
+			expect( toLibraryItem( raw, false ).originalUrl ).toBe( 'https://example.com/original.mov' );
+			expect(
+				toLibraryItem( { ...raw, media_details: { original: raw.media_details.original } }, true )
+					.originalUrl
+			).toBe( 'https://example.com/simple-original.mov' );
+			expect( toLibraryItem( { ...raw, media_details: {} }, false ).originalUrl ).toBeUndefined();
+		} );
+
 		it( 'picks the best MP4 rendition for playbackUrl (dvd → std → hd)', () => {
 			// The original upload (`source_url`) may be an HEVC .mov most
 			// browsers can't decode; playbackUrl prefers the H.264 ladder,
