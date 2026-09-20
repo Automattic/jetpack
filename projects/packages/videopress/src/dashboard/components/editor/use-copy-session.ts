@@ -29,13 +29,18 @@ export function useCopySession( guid: string ) {
 	);
 	const recoverable =
 		status.data?.job.status === 'failed' &&
-		[ 'copy_attachment_unconfirmed', 'copy_attachment_pending' ].includes(
-			status.data.job.error?.code ?? ''
-		);
-	const failed = status.data?.job.status === 'failed' && ! recoverable;
+		status.data.job.error?.code === 'copy_attachment_unconfirmed';
+	const needsAssistance =
+		status.data?.job.status === 'failed' &&
+		status.data.job.error?.code === 'copy_attachment_pending';
+	const failed = status.data?.job.status === 'failed' && ! recoverable && ! needsAssistance;
 
 	const submit = async ( nextRequest: SaveVideoCopyVars ) => {
-		if ( submittingRef.current || ( requestRef.current && nextRequest !== requestRef.current ) ) {
+		if (
+			needsAssistance ||
+			submittingRef.current ||
+			( requestRef.current && nextRequest !== requestRef.current )
+		) {
 			return;
 		}
 		submittingRef.current = true;
@@ -65,6 +70,7 @@ export function useCopySession( guid: string ) {
 		submitting,
 		error,
 		recoverable,
+		needsAssistance,
 		conflict,
 		rejected,
 		failed,

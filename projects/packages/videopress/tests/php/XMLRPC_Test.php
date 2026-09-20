@@ -36,7 +36,70 @@ class XMLRPC_Test extends BaseTestCase {
 	public function tearDown(): void {
 		XMLRPC::init()->xmlrpc_methods( array(), array(), new \WP_User( 0 ) );
 		wp_set_current_user( 0 );
+		delete_transient( 'videopress_get_post_id_by_guid_source12' );
+		wp_cache_delete( 'get_post_by_guid_source12', 'videopress' );
 		parent::tearDown();
+	}
+
+	/**
+	 * @dataProvider copy_authorization_roles
+	 * @param string $role The connected creator's role, or empty for no user.
+	 * @param bool   $owns_source Whether the creator owns the source attachment.
+	 * @param bool   $expected Whether the copy is permitted.
+	 */
+	#[DataProvider( 'copy_authorization_roles' )]
+	public function test_copy_preflight_requires_upload_and_source_edit_permissions( $role, $owns_source, $expected ) {
+		$actor   = $role ? wp_insert_user(
+			array(
+				'user_login' => 'copy-permission-actor',
+				'user_pass'  => 'password',
+				'role'       => $role,
+			)
+		) : 0;
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_status'    => 'inherit',
+				'post_mime_type' => 'video/videopress',
+				'post_author'    => $owns_source ? $actor : $this->author_id,
+			)
+		);
+		// WorDBless does not emulate the resolver's meta query.
+		set_transient( 'videopress_get_post_id_by_guid_source12', $post_id, HOUR_IN_SECONDS );
+		XMLRPC::init()->xmlrpc_methods( array(), array(), new \WP_User( $actor ) );
+		wp_set_current_user( $this->author_id );
+		$result = XMLRPC::init()->authorize_videopress_copy( 'source12' );
+		if ( $expected ) {
+			$this->assertSame(
+				array(
+					'authorized' => true,
+					'guid'       => 'source12',
+				),
+				$result
+			);
+		} else {
+			$this->assertArrayHasKey( 'videopress_copy_forbidden', $result['errors'] );
+		}
+		$this->assertCount( 1, Posts::init()->posts );
+	}
+
+	/** @return array Creator permissions on the source attachment. */
+	public static function copy_authorization_roles() {
+		return array(
+			'Owner author'      => array( 'author', true, true ),
+			'Other author'      => array( 'author', false, false ),
+			'Editor'            => array( 'editor', false, true ),
+			'Subscriber owner'  => array( 'subscriber', true, false ),
+			'Contributor owner' => array( 'contributor', true, false ),
+			'No signer'         => array( '', false, false ),
+		);
+	}
+
+	/** Malformed or unmapped sources cannot be authorized. */
+	public function test_copy_preflight_rejects_unknown_sources() {
+		$this->assertArrayHasKey( 'videopress_copy_forbidden', XMLRPC::init()->authorize_videopress_copy( 'invalid' )['errors'] );
+		$this->assertArrayHasKey( 'videopress_copy_forbidden', XMLRPC::init()->authorize_videopress_copy( 'unknown1' )['errors'] );
+		$this->assertEmpty( Posts::init()->posts );
 	}
 
 	/**
@@ -240,6 +303,7 @@ class XMLRPC_Test extends BaseTestCase {
 
 		$this->assertSame( $existing['existing.method'], $methods['existing.method'] );
 		$this->assertIsCallable( $methods['jetpack.createVideoPressCopy'] );
+		$this->assertIsCallable( $methods['jetpack.authorizeVideoPressCopy'] );
 		$result = call_user_func( $methods['jetpack.createVideoPressCopy'], array() );
 		$this->assertArrayHasKey( 'videopress_copy_invalid_request', $result['errors'] );
 		$this->assertEmpty( Posts::init()->posts );

@@ -70,7 +70,9 @@ export function useSaveVideoCopy() {
 				}
 				if (
 					[ 400, 401, 403, 404, 405, 413, 422 ].includes( restError?.data?.status ?? 0 ) ||
-					restError?.code === 'copy_source_unavailable'
+					[ 'copy_source_unavailable', 'copy_authorization_unavailable' ].includes(
+						restError?.code ?? ''
+					)
 				) {
 					throw new VideoCopyRejectedError( restError.code ?? 'copy_rejected', restError.message );
 				}

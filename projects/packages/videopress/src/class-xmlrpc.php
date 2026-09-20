@@ -69,10 +69,34 @@ class XMLRPC {
 
 		$methods['jetpack.createMediaItem']             = array( $this, 'create_media_item' );
 		$methods['jetpack.createVideoPressCopy']        = array( $this, 'create_videopress_copy' );
+		$methods['jetpack.authorizeVideoPressCopy']     = array( $this, 'authorize_videopress_copy' );
 		$methods['jetpack.updateVideoPressMediaItem']   = array( $this, 'update_videopress_media_item' );
 		$methods['jetpack.updateVideoPressPosterImage'] = array( $this, 'update_poster_image' );
 
 		return $methods;
+	}
+
+	/**
+	 * Check permissions on the real attachment before WordPress.com copies its retained master.
+	 *
+	 * @since $$next-version$$
+	 * @param string $guid The source VideoPress GUID.
+	 * @return array Permission acknowledgement or an error response.
+	 */
+	public function authorize_videopress_copy( $guid ) {
+		$this->authenticate_user();
+		if ( ! is_string( $guid ) || ! preg_match( '/^[A-Za-z0-9]{8}$/D', $guid )
+			|| ! $this->current_user || ! $this->current_user->exists() || ! current_user_can( 'upload_files' ) ) {
+			return array( 'errors' => array( 'videopress_copy_forbidden' => __( 'You cannot copy this video.', 'jetpack-videopress-pkg' ) ) );
+		}
+		$post_id = WPCOM_REST_API_V2_Endpoint_VideoPress::get_video_attachment_id( $guid );
+		if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+			return array( 'errors' => array( 'videopress_copy_forbidden' => __( 'You cannot copy this video.', 'jetpack-videopress-pkg' ) ) );
+		}
+		return array(
+			'authorized' => true,
+			'guid'       => $guid,
+		);
 	}
 
 	/**

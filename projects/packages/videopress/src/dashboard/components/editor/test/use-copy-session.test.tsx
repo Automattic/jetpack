@@ -1,10 +1,12 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, render, renderHook, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import {
 	useSaveVideoCopy,
 	useVideoCopyStatus,
 	VideoCopyRejectedError,
 } from '../../../hooks/use-save-video-copy';
 import { EditsConflictError } from '../../../hooks/use-save-video-edits';
+import CopyStatusBanner from '../copy-status-banner';
 import { useCopySession } from '../use-copy-session';
 import type { SaveVideoCopyResponse, SaveVideoCopyVars } from '../../../hooks/use-save-video-copy';
 
@@ -15,6 +17,7 @@ jest.mock( '../../../hooks/use-save-video-copy', () => ( {
 } ) );
 
 const mutate = jest.fn();
+const refetch = jest.fn();
 const request: SaveVideoCopyVars = {
 	guid: 'source12',
 	baseRevision: 2,
@@ -40,30 +43,35 @@ beforeEach( () => {
 		( guid, requestId ) =>
 			( {
 				data: requestId ? status : undefined,
+				refetch,
 			} ) as never
 	);
 } );
 
 describe( 'useCopySession', () => {
-	it( 'unlocks a rejected request without polling and allows saving the preserved draft again', async () => {
-		const failure = new VideoCopyRejectedError( 'copy_storage_limit', 'Storage is full.' );
-		mutate.mockRejectedValueOnce( failure );
-		const { result } = renderHook( () => useCopySession( request.guid ) );
-		await act( async () => result.current.submit( request ) );
-		expect( result.current.rejected ).toBe( true );
-		expect( result.current.locked ).toBe( false );
-		expect( useVideoCopyStatus ).toHaveBeenLastCalledWith( request.guid, null );
-		expect( result.current.request?.operations ).toEqual( request.operations );
-		act( () => result.current.clear() );
-		expect( result.current.request ).toBeNull();
-		const next = { ...request, requestId: 'another-copy' };
-		await act( async () => result.current.submit( next ) );
-		expect( mutate ).toHaveBeenLastCalledWith( next );
-		expect( result.current.locked ).toBe( true );
-	} );
+	it.each( [ 'copy_storage_limit', 'copy_authorization_unavailable' ] )(
+		'unlocks a rejected %s request without polling and allows saving the preserved draft again',
+		async code => {
+			const failure = new VideoCopyRejectedError( code, 'Cannot create a copy.' );
+			mutate.mockRejectedValueOnce( failure );
+			const { result } = renderHook( () => useCopySession( request.guid ) );
+			await act( async () => result.current.submit( request ) );
+			expect( result.current.rejected ).toBe( true );
+			expect( result.current.locked ).toBe( false );
+			expect( useVideoCopyStatus ).toHaveBeenLastCalledWith( request.guid, null );
+			expect( result.current.request?.operations ).toEqual( request.operations );
+			act( () => result.current.clear() );
+			expect( result.current.request ).toBeNull();
+			const next = { ...request, requestId: 'another-copy' };
+			await act( async () => result.current.submit( next ) );
+			expect( mutate ).toHaveBeenLastCalledWith( next );
+			expect( result.current.locked ).toBe( true );
+		}
+	);
 
 	it.each( [
 		new VideoCopyRejectedError( 'rest_cookie_invalid_nonce' ),
+		new VideoCopyRejectedError( 'copy_authorization_unavailable' ),
 		new EditsConflictError(),
 	] )( 'keeps an uncertain request locked when a retry returns %s', async retryError => {
 		mutate
@@ -145,30 +153,71 @@ describe( 'useCopySession', () => {
 		}
 	);
 
-	it.each( [ 'copy_attachment_unconfirmed', 'copy_attachment_pending' ] )(
-		'retries %s with the captured request while keeping edits locked',
-		async code => {
-			const { result, rerender } = renderHook( () => useCopySession( request.guid ) );
-			await act( async () => result.current.submit( request ) );
-			status = {
-				...accepted,
-				job: {
-					...accepted.job,
-					status: 'failed',
-					error: { code, message: 'Attachment unconfirmed' },
-				},
-			};
-			rerender();
-			expect( result.current.recoverable ).toBe( true );
-			expect( result.current.failed ).toBe( false );
-			expect( result.current.locked ).toBe( true );
-			act( () => result.current.clear() );
-			expect( result.current.request ).toBe( request );
-			await act( async () => result.current.retry() );
-			expect( mutate ).toHaveBeenNthCalledWith( 2, request );
-			expect( result.current.request?.operations ).toEqual( request.operations );
-		}
-	);
+	it( 'retries an unconfirmed remote attachment with the captured request while keeping edits locked', async () => {
+		const { result, rerender } = renderHook( () => useCopySession( request.guid ) );
+		await act( async () => result.current.submit( request ) );
+		status = {
+			...accepted,
+			job: {
+				...accepted.job,
+				status: 'failed',
+				error: { code: 'copy_attachment_unconfirmed', message: 'Attachment unconfirmed' },
+			},
+		};
+		rerender();
+		expect( result.current.recoverable ).toBe( true );
+		expect( result.current.failed ).toBe( false );
+		expect( result.current.locked ).toBe( true );
+		act( () => result.current.clear() );
+		expect( result.current.request ).toBe( request );
+		await act( async () => result.current.retry() );
+		expect( mutate ).toHaveBeenNthCalledWith( 2, request );
+		expect( result.current.request?.operations ).toEqual( request.operations );
+	} );
+
+	it( 'preserves a pending attachment request without retrying and accepts a late completion', async () => {
+		const { result, rerender } = renderHook( () => useCopySession( request.guid ) );
+		await act( async () => result.current.submit( request ) );
+		status = {
+			...accepted,
+			job: {
+				...accepted.job,
+				status: 'failed',
+				error: { code: 'copy_attachment_pending', message: 'Attachment pending' },
+			},
+		};
+		rerender();
+		expect( result.current.needsAssistance ).toBe( true );
+		expect( result.current.recoverable ).toBe( false );
+		expect( result.current.failed ).toBe( false );
+		expect( result.current.locked ).toBe( true );
+		act( () => result.current.clear() );
+		await act( async () => result.current.retry() );
+		await act( async () => result.current.submit( { ...request, requestId: 'another-copy' } ) );
+		expect( mutate ).toHaveBeenCalledTimes( 1 );
+		expect( result.current.request ).toBe( request );
+		expect( useVideoCopyStatus ).toHaveBeenLastCalledWith( request.guid, request.requestId );
+
+		render( <CopyStatusBanner session={ result.current } onReload={ jest.fn() } /> );
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Your current video is unchanged.' );
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent(
+			'contact support if it remains unconfirmed'
+		);
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Back to editing' } ) ).not.toBeInTheDocument();
+		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Check status' } ) );
+		expect( refetch ).toHaveBeenCalledTimes( 1 );
+
+		status = {
+			...accepted,
+			guid: 'newcopy1',
+			attachment_id: 17,
+			job: { ...accepted.job, status: 'complete' },
+		};
+		rerender();
+		expect( result.current.needsAssistance ).toBe( false );
+		expect( result.current.status.data?.guid ).toBe( 'newcopy1' );
+	} );
 
 	it( 'releases the lock and exposes a source revision conflict', async () => {
 		mutate.mockRejectedValueOnce( new EditsConflictError() );

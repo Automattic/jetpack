@@ -45,6 +45,7 @@ describe( 'useSaveVideoCopy', () => {
 	it.each( [
 		[ 'copy_storage_limit', 403 ],
 		[ 'copy_source_unavailable', 409 ],
+		[ 'copy_authorization_unavailable', 424 ],
 		[ 'invalid_title', 400 ],
 		[ 'unknown_media', 404 ],
 	] )(
@@ -66,6 +67,7 @@ describe( 'useSaveVideoCopy', () => {
 		[ 'copy_request_pending', 409 ],
 		[ 'copy_request_conflict', 409 ],
 		[ 'videopress_edits_request_failed', 502 ],
+		[ 'unknown_dependency_failure', 424 ],
 	] )( 'retains uncertain acceptance for %s', async ( code, status ) => {
 		const failure = { code, data: { status } };
 		jest.mocked( apiFetch ).mockRejectedValue( failure );

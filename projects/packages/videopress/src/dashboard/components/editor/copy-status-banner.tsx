@@ -44,7 +44,12 @@ export default function CopyStatusBanner( { session, onReload }: Props ) {
 			</Button>
 		);
 	} else if ( ! session.submitting ) {
-		if (
+		if ( session.needsAssistance ) {
+			message = __(
+				'We could not confirm whether the new video was created. Your current video is unchanged. Check its status, and contact support if it remains unconfirmed.',
+				'jetpack-videopress-pkg'
+			);
+		} else if (
 			session.recoverable ||
 			( ( session.error || session.status.isError ) && ! session.status.data )
 		) {
@@ -55,11 +60,12 @@ export default function CopyStatusBanner( { session, onReload }: Props ) {
 		}
 		action = (
 			<>
-				{ ( session.recoverable || ( session.error && ! session.status.data ) ) && (
-					<Button size="compact" variant="outline" onClick={ () => void session.retry() }>
-						{ __( 'Retry', 'jetpack-videopress-pkg' ) }
-					</Button>
-				) }
+				{ ! session.needsAssistance &&
+					( session.recoverable || ( session.error && ! session.status.data ) ) && (
+						<Button size="compact" variant="outline" onClick={ () => void session.retry() }>
+							{ __( 'Retry', 'jetpack-videopress-pkg' ) }
+						</Button>
+					) }
 				<Button size="compact" variant="outline" onClick={ () => void session.status.refetch() }>
 					{ __( 'Check status', 'jetpack-videopress-pkg' ) }
 				</Button>
@@ -69,7 +75,7 @@ export default function CopyStatusBanner( { session, onReload }: Props ) {
 	return (
 		<div
 			className="vp-video-editor__banner"
-			role={ session.error || session.failed ? 'alert' : 'status' }
+			role={ session.error || session.failed || session.needsAssistance ? 'alert' : 'status' }
 		>
 			<Stack direction="row" gap="md" align="center">
 				<Text>{ message }</Text>
