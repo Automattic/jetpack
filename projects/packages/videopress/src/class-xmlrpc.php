@@ -160,6 +160,9 @@ class XMLRPC {
 		if ( ! is_string( $request_id ) || ! preg_match( '/^[A-Za-z0-9]{8}:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/D', $request_id ) ) {
 			return new WP_Error( 'videopress_copy_invalid_request', __( 'Invalid video copy request identifier.', 'jetpack-videopress-pkg' ) );
 		}
+		if ( ! $this->current_user || ! $this->current_user->exists() || ! current_user_can( 'upload_files' ) ) {
+			return new WP_Error( 'videopress_copy_forbidden', __( 'You cannot create a video copy.', 'jetpack-videopress-pkg' ) );
+		}
 
 		$option = 'videopress_copy_attachment_' . hash( 'sha256', $request_id );
 		if ( ! add_option( $option, 0, '', false ) ) {

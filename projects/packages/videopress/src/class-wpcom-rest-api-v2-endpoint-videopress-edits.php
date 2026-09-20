@@ -209,7 +209,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits {
 		if ( isset( $request['title'] ) ) {
 			$body['title'] = $request['title'];
 		}
-		return $this->proxy_request( sprintf( 'videos/%s/edits/copy', $request['guid'] ), 'POST', $body );
+		return $this->proxy_request( sprintf( 'videos/%s/edits/copy', $request['guid'] ), 'POST', $body, true );
 	}
 
 	/**
@@ -248,16 +248,21 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits {
 	 * @param string     $path   WordPress.com REST v1.1 path.
 	 * @param string     $method HTTP method.
 	 * @param array|null $body   JSON request data.
+	 * @param bool       $as_user Preserve the connected actor when creating a copy.
 	 * @return WP_REST_Response|WP_Error
 	 */
-	private function proxy_request( $path, $method = 'GET', $body = null ) {
+	private function proxy_request( $path, $method = 'GET', $body = null, $as_user = false ) {
 		$args = array( 'method' => $method );
 		if ( null !== $body ) {
 			$args['headers'] = array( 'content-type' => 'application/json' );
 			$body            = wp_json_encode( $body, JSON_UNESCAPED_SLASHES );
 		}
 
-		$response = Client::wpcom_json_api_request_as_blog( $path, '1.1', $args, $body, 'rest' );
+		if ( $as_user && ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+			$response = Client::wpcom_json_api_request_as_user( $path, '1.1', $args, $body, 'rest' );
+		} else {
+			$response = Client::wpcom_json_api_request_as_blog( $path, '1.1', $args, $body, 'rest' );
+		}
 		if ( is_wp_error( $response ) ) {
 			return new WP_Error( 'videopress_edits_request_failed', $response->get_error_message(), array( 'status' => 502 ) );
 		}

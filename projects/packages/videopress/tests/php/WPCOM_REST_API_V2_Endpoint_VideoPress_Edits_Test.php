@@ -245,8 +245,27 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits_Test extends BaseTestCase {
 		$this->assertSame( 202, $this->dispatch( 'POST', $body + array( 'unrelated' => 'ignored' ), 'edits/copy' )->get_status() );
 		$this->assertSame( $body, json_decode( $this->requests[0]['args']['body'], true ) );
 		$this->assertStringContainsString( '/rest/v1.1/videos/AbCd1234/edits/copy', $this->requests[0]['url'] );
+		$this->assertStringContainsString( 'token="key:1:' . $this->owner_id . '"', $this->requests[0]['args']['headers']['Authorization'] );
 		$this->dispatch( 'GET', null, 'edits/copy/' . $request_id );
 		$this->assertStringContainsString( '/rest/v1.1/videos/AbCd1234/edits/copy/' . $request_id, $this->requests[1]['url'] );
+		$this->assertStringContainsString( 'token="asdasd:1:0"', $this->requests[1]['args']['headers']['Authorization'] );
+	}
+
+	/** A missing creator connection cannot fall back to the blog token for a copy. */
+	public function test_copy_requires_the_initiating_users_token() {
+		\Jetpack_Options::delete_option( 'user_tokens' );
+		( new Connection_Manager() )->reset_connection_status();
+		$response = $this->dispatch(
+			'POST',
+			array(
+				'base_revision' => 0,
+				'operations'    => array(),
+				'request_id'    => 'a1b2c3d4-1234-4567-890a-b1c2d3e4f567',
+			),
+			'edits/copy'
+		);
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertEmpty( $this->requests );
 	}
 
 	/**
