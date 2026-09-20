@@ -336,7 +336,8 @@ The chart gracefully handles various error states and edge cases:
 
 **Supported scenarios:**
 - Empty data arrays
-- Invalid data values (null, NaN, undefined)
+- Invalid data values (NaN, undefined)
+- Buckets with no reading (null), drawn as a gap rather than rejected
 - Missing data properties
 - Invalid date formats
 - Single data points
