@@ -3202,6 +3202,17 @@ p {
 	}
 
 	/**
+	 * Reconcile the SEO sitemap option before an activation attempt can return early.
+	 *
+	 * @param string $module Module slug.
+	 */
+	public static function sync_seo_sitemap_option_before_activation( $module ) {
+		if ( 'sitemaps' === $module ) {
+			self::sync_seo_sitemap_option();
+		}
+	}
+
+	/**
 	 * Records whether the standalone Canonical URLs module is active so the setting survives
 	 * the module's removal.
 	 *
@@ -3286,6 +3297,7 @@ p {
 	 */
 	public static function register_seo_module_migration_hooks() {
 		add_action( 'updating_jetpack_version', array( 'Jetpack', 'migrate_sitemaps_module_to_seo_option' ) );
+		add_action( 'jetpack_pre_activate_module', array( 'Jetpack', 'sync_seo_sitemap_option_before_activation' ) );
 		add_action( 'jetpack_activate_module_sitemaps', array( 'Jetpack', 'sync_seo_sitemap_option' ) );
 		add_action( 'jetpack_deactivate_module_sitemaps', array( 'Jetpack', 'sync_seo_sitemap_option' ) );
 

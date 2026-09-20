@@ -229,6 +229,7 @@ class SEO_Canonical_URLs_Migration_Test extends WP_UnitTestCase {
 	public function test_register_seo_module_migration_hooks_wires_all_hooks() {
 		$hooks = array(
 			array( 'updating_jetpack_version', array( 'Jetpack', 'migrate_sitemaps_module_to_seo_option' ) ),
+			array( 'jetpack_pre_activate_module', array( 'Jetpack', 'sync_seo_sitemap_option_before_activation' ) ),
 			array( 'jetpack_activate_module_sitemaps', array( 'Jetpack', 'sync_seo_sitemap_option' ) ),
 			array( 'jetpack_deactivate_module_sitemaps', array( 'Jetpack', 'sync_seo_sitemap_option' ) ),
 			array( 'updating_jetpack_version', array( 'Jetpack', 'migrate_canonical_urls_module_to_seo_option' ) ),

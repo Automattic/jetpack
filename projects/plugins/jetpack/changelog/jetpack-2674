@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+SEO: Keep the sitemap toggle synchronized when the sitemap module is already active.

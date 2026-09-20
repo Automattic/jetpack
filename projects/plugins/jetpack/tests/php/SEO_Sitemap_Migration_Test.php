@@ -254,6 +254,17 @@ class SEO_Sitemap_Migration_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * An idempotent activation request repairs a stale disabled SEO option.
+	 */
+	public function test_activation_request_repairs_stale_option_when_sitemaps_already_active() {
+		$this->set_active_modules( array( 'sitemaps' ) );
+		update_option( $this->option, false );
+
+		$this->assertTrue( ( new \Automattic\Jetpack\Modules() )->activate( 'sitemaps', false, false ) );
+		$this->assertTrue( (bool) get_option( $this->option ) );
+	}
+
+	/**
 	 * Permanent overrides remain authoritative even while wpcomsh's temporary private-site
 	 * suppression is present.
 	 */
