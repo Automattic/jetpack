@@ -1689,6 +1689,63 @@ describe( 'BarChart', () => {
 				expect( tooltip ).toHaveTextContent( 'Previous period' );
 				expect( tooltip ).toHaveTextContent( '25' );
 			} );
+
+			test( 'reports a bucket with no reading as having no data', async () => {
+				const user = userEvent.setup();
+				renderWithTheme( {
+					withTooltips: true,
+					data: [
+						{
+							label: 'Series A',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: null as number | null, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+							],
+							options: {},
+						},
+					],
+				} );
+
+				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				await user.keyboard( '{ArrowRight}' );
+
+				const tooltip = screen.getByTestId( 'chart-tooltip-0' );
+				expect( tooltip ).toHaveTextContent( 'Jan 1: No data' );
+				expect( tooltip ).not.toHaveTextContent( 'Jan 1: 0' );
+			} );
+
+			test( 'keeps both periods in the tooltip when the comparison period has no reading', async () => {
+				const user = userEvent.setup();
+				renderWithTheme( {
+					withTooltips: true,
+					data: [
+						{
+							label: 'This period',
+							group: 'views',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+							],
+						},
+						{
+							label: 'Previous period',
+							group: 'views',
+							options: { type: 'comparison' as const },
+							data: [
+								{ date: new Date( '2024-01-01' ), value: null as number | null, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+							],
+						},
+					],
+				} );
+
+				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				await user.keyboard( '{ArrowRight}' );
+
+				const tooltip = screen.getByTestId( 'chart-tooltip-0' );
+				expect( tooltip ).toHaveTextContent( 'This period: 10' );
+				expect( tooltip ).toHaveTextContent( 'Previous period: No data' );
+			} );
 		} );
 
 		describe( 'Tab Key Navigation', () => {

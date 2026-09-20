@@ -126,6 +126,10 @@ const renderTooltipRow = ( label: string | undefined, value: string ) => (
 	</div>
 );
 
+// formatNumber( null ) is "0", which would claim a reading of zero for a bucket that has none.
+const formatTooltipValue = ( value: number | null | undefined ) =>
+	value == null ? __( 'No data', 'jetpack-charts' ) : formatNumber( value );
+
 const BarChartInternal: FC< BarChartProps > = ( {
 	data,
 	chartId: providedChartId,
@@ -403,14 +407,14 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 			// With a paired comparison value, show the category as the header and one row
 			// per period (primary + comparison).
-			if ( comparisonEntry && comparisonDatum && comparisonDatum.value != null ) {
+			if ( comparisonEntry && comparisonDatum ) {
 				return (
 					<div className={ styles[ 'bar-chart__tooltip' ] }>
 						<div className={ styles[ 'bar-chart__tooltip-header' ] }>{ categoryLabel }</div>
-						{ renderTooltipRow( primaryKey, formatNumber( nearestDatum.value as number ) ) }
+						{ renderTooltipRow( primaryKey, formatTooltipValue( nearestDatum.value ) ) }
 						{ renderTooltipRow(
 							comparisonEntry.series.label,
-							formatNumber( comparisonDatum.value as number )
+							formatTooltipValue( comparisonDatum.value )
 						) }
 					</div>
 				);
@@ -419,7 +423,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			return (
 				<div className={ styles[ 'bar-chart__tooltip' ] }>
 					<div className={ styles[ 'bar-chart__tooltip-header' ] }>{ primaryKey }</div>
-					{ renderTooltipRow( categoryLabel, formatNumber( nearestDatum.value as number ) ) }
+					{ renderTooltipRow( categoryLabel, formatTooltipValue( nearestDatum.value ) ) }
 				</div>
 			);
 		},
