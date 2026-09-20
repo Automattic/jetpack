@@ -46,16 +46,22 @@ export const countRenderedBars = (
  *
  * @param data                - Every series handed to the chart.
  * @param hasComparisonSeries - Whether a comparison series is present.
+ * @param isSeriesRendered    - Whether visx mounts a series, i.e. the legend shows it.
  * @return Value domain, or null when visx should fit its own.
  */
 export const getValueScaleDomain = (
 	data: SeriesData[],
-	hasComparisonSeries: boolean
+	hasComparisonSeries: boolean,
+	isSeriesRendered: ( series: SeriesData ) => boolean
 ): [ number, number ] | null => {
 	let min = Infinity;
 	let max = -Infinity;
 
 	for ( const series of data ) {
+		// Comparison series still count: the comparison rule below widens the domain for them.
+		if ( ! isSeriesRendered( series ) ) {
+			continue;
+		}
 		for ( const point of series.data ) {
 			const value = getBarValue( point );
 			if ( ! Number.isFinite( value ) ) {

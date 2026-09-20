@@ -268,7 +268,9 @@ export function useBarChartOptions(
 		const valueAxisIsY = ! horizontal;
 		const userDomain = valueAxisIsY ? stableOptions.yScale?.domain : stableOptions.xScale?.domain;
 		const hasComparisonSeries = data.some( s => s.options?.type === 'comparison' );
-		const domain = userDomain ? null : getValueScaleDomain( data, hasComparisonSeries );
+		const domain = userDomain
+			? null
+			: getValueScaleDomain( data, hasComparisonSeries, isSeriesRendered );
 		const valueScaleDomainOverride: { domain?: [ number, number ] } = domain ? { domain } : {};
 
 		const xScale = {
@@ -336,5 +338,5 @@ export function useBarChartOptions(
 				labelFormatter: dateAxisTickFormat || defaultTooltipLabelFormatter,
 			},
 		};
-	}, [ defaultOptions, axisConfig, stableOptions, horizontal, data ] );
+	}, [ defaultOptions, axisConfig, stableOptions, horizontal, data, isSeriesRendered ] );
 }
