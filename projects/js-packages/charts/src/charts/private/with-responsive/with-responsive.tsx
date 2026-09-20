@@ -94,7 +94,7 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 		// Cap the available width at maxWidth unless an explicit width pins it. Before
 		// measurement resolves, fall back to the explicit width.
 		const cap = width === undefined ? maxWidth : Infinity;
-		const availableWidth = parentWidth > 0 ? Math.min( parentWidth, cap ) : width ?? 0;
+		const availableWidth = parentWidth > 0 ? Math.min( parentWidth, cap ) : ( width ?? 0 );
 
 		let boxWidth = availableWidth;
 		let boxHeight: number;
@@ -107,7 +107,7 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 				boxHeight = derivedHeight;
 			}
 		} else {
-			boxHeight = parentHeight > 0 ? parentHeight : height ?? 0;
+			boxHeight = parentHeight > 0 ? parentHeight : ( height ?? 0 );
 		}
 
 		// Decide containment from the wrapper's real height, measured after layout.

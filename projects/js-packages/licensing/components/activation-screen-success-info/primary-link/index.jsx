@@ -40,7 +40,7 @@ const PrimaryLink = props => {
 					siteAdminUrl +
 					( isJetpackActive
 						? 'admin.php?page=jetpack#/recommendations/' +
-						  ( productGroup === 'jetpack_social_advanced'
+							( productGroup === 'jetpack_social_advanced'
 								? 'welcome-social-advanced'
 								: 'welcome-social-basic' )
 						: 'admin.php?page=jetpack-social' )

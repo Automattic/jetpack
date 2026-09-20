@@ -35,8 +35,7 @@ interface BookingsByStatusStoryControls {
 type BookingsByStatusStoryProps = BookingsByStatusRenderProps & BookingsByStatusStoryControls;
 
 interface BookingsByStatusDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		BookingsByStatusStoryControls {}
+	extends WidgetDashboardWithWidgetControls, BookingsByStatusStoryControls {}
 
 function getBookingsByStatusAttributes(
 	withComparison = false,

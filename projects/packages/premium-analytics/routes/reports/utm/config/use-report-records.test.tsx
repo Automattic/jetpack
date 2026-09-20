@@ -80,7 +80,7 @@ describe( 'useUtmReportRecords', () => {
 											},
 										],
 									},
-							  ]
+								]
 							: [],
 						hasComparison: options?.enabled ?? false,
 					},

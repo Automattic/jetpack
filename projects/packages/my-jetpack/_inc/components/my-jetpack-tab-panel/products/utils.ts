@@ -390,6 +390,9 @@ export function buildCards(
 /**
  * Filter and sort modules based on their name.
  *
+ * A module the site could not translate arrives with a null name, so sort off the slug rather
+ * than let one comparison take down the whole tab.
+ *
  * @param {Array<MyJetpackModule>} modules - The modules to filter and sort.
  * @return The filtered and sorted modules.
  */
@@ -400,7 +403,8 @@ export function filterAndSortModules(
 		.filter( Boolean )
 		.filter( m => ! LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE.includes( m.module ) || m.activated );
 
-	$modules.sort( ( a, b ) => a.name.localeCompare( b.name ) );
+	const sortKey = ( m: MyJetpackModule ) => m.name || m.module;
+	$modules.sort( ( a, b ) => sortKey( a ).localeCompare( sortKey( b ) ) );
 
 	return $modules;
 }

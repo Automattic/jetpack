@@ -11,7 +11,6 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 require_once __DIR__ . '/dashboard-grammar.php';
-require_once __DIR__ . '/rest-namespace.php';
 // Availability policy for default layout instances: defaults are read outside
 // the widget registry bootstrap, so the policy must be loaded here explicitly.
 require_once __DIR__ . '/widget-type-support.php';
@@ -19,7 +18,7 @@ require_once __DIR__ . '/widget-type-support.php';
 /**
  * Identifier of the Premium Analytics dashboard, formatted as `<plugin>_<page>`
  * to match the underscore form produced by the wp-build pipeline. Used as the
- * `{name}` segment of the REST route.
+ * `{name}` segment of the sections REST route.
  */
 const DASHBOARD_NAME = 'jetpack-premium-analytics_dashboard';
 
@@ -70,77 +69,14 @@ function get_dashboard_default_layout_for( $dashboard_name ) {
 }
 
 /**
- * Returns availability gates for conditional dashboard tabs.
+ * No-op kept for older copies of the package: they guard their include of this file on this
+ * symbol and call it from boot_routes(), so a newer copy loading first must still define it.
  *
- * The callbacks are used directly because the section registry may not be
- * initialized when this route runs.
- *
- * @since 0.3.0
- *
- * @return callable[] Resolved tab ID mapped to its availability callback.
- */
-function get_dashboard_default_layout_gates() {
-	return array(
-		DASHBOARD_STORE_SECTION_ID       => array( Capabilities::class, 'current_user_can_view_store_reports' ),
-		DASHBOARD_SUBSCRIBERS_SECTION_ID => __NAMESPACE__ . '\\is_subscribers_dashboard_section_available',
-		DASHBOARD_ADS_SECTION_ID         => __NAMESPACE__ . '\\is_ads_dashboard_section_available_to_current_user',
-	);
-}
-
-/**
- * REST callback returning the default layout for the requested dashboard.
- *
- * Availability is checked after resolving the name because tabs can be
- * requested by alias or full section ID.
- *
- * @param \WP_REST_Request $request REST request carrying the dashboard name.
- * @return \WP_REST_Response|\WP_Error Response wrapping the default layout array.
- */
-function get_dashboard_default_layout_response( $request ) {
-	$dashboard_name = $request['name'];
-	$gates          = get_dashboard_default_layout_gates();
-	$section_id     = get_dashboard_default_section_id_for( $dashboard_name );
-
-	$out_of_preview = null !== $section_id
-		&& ! is_dashboard_section_in_preview_scope( DASHBOARD_NAME, $section_id );
-
-	$gate_fails = null !== $section_id
-		&& isset( $gates[ $section_id ] )
-		&& ! call_user_func( $gates[ $section_id ] );
-
-	if ( $out_of_preview || $gate_fails ) {
-		return new \WP_Error(
-			'dashboard_section_unavailable',
-			__( 'Dashboard section is not available.', 'jetpack-premium-analytics-pkg' ),
-			array( 'status' => 404 )
-		);
-	}
-
-	return rest_ensure_response( get_dashboard_default_layout_for( $dashboard_name ) );
-}
-
-/**
- * Registers the REST route that exposes per-dashboard default layouts.
+ * @since $$next-version$$ Registers nothing; the route it registered is gone.
  *
  * @return void
  */
-function register_dashboard_default_layout_route() {
-	register_rest_route(
-		DASHBOARD_REST_NAMESPACE,
-		'/dashboards/(?P<name>' . get_dashboard_name_pattern() . ')/default-layout',
-		array(
-			'methods'             => \WP_REST_Server::READABLE,
-			'callback'            => __NAMESPACE__ . '\\get_dashboard_default_layout_response',
-			'permission_callback' => array( Capabilities::class, 'current_user_can_view_analytics' ),
-			'args'                => array(
-				'name' => array(
-					'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics-pkg' ),
-					'type'        => 'string',
-				),
-			),
-		)
-	);
-}
+function register_dashboard_default_layout_route() {}
 
 /**
  * Builds a widget instance for bundled dashboard defaults.
@@ -338,10 +274,11 @@ function get_dashboard_default_section_layouts() {
 				3,
 				1
 			),
-			// Row 5: daily views heatmap. Two rows tall so the cells fit each day's count.
+			// Row 5: the all-time views table, one row per year. Two rows tall so a
+			// few years fit before the grid scrolls.
 			get_dashboard_default_widget_instance(
-				'default-traffic-views-activity-widget-instance',
-				'jpa/traffic-views-activity',
+				'default-views-over-years-widget-instance',
+				'jpa/views-over-years',
 				7,
 				3,
 				2
@@ -495,25 +432,11 @@ function get_dashboard_default_section_layouts() {
 				3,
 				1
 			),
-			// Row 3: earnings, sponsored content, and adjustments history.
+			// Row 3: earnings history.
 			get_dashboard_default_widget_instance(
 				'default-wordads-earnings-history-widget-instance',
 				'jpa/wordads-earnings-history',
 				2,
-				1,
-				2
-			),
-			get_dashboard_default_widget_instance(
-				'default-wordads-sponsored-content-history-widget-instance',
-				'jpa/wordads-sponsored-content-history',
-				3,
-				1,
-				2
-			),
-			get_dashboard_default_widget_instance(
-				'default-wordads-adjustments-history-widget-instance',
-				'jpa/wordads-adjustments-history',
-				4,
 				1,
 				2
 			),

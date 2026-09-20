@@ -16,7 +16,7 @@ import './style.scss';
 // Check if we're handling a URL parameter case
 const url = new URL( document.location.href );
 const isNewPost = url.pathname.endsWith( '/wp-admin/post-new.php' );
-const answerPrompt = isNewPost ? url.searchParams.get( 'answer_prompt' ) ?? '0' : '0';
+const answerPrompt = isNewPost ? ( url.searchParams.get( 'answer_prompt' ) ?? '0' ) : '0';
 const answerPromptId = parseInt( answerPrompt );
 
 // Common registration settings

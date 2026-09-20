@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { PERIOD_CHANGE_ATTENTION_MS } from '@jetpack-premium-analytics/data';
 import {
 	computePrimaryRange,
 	getMenuSurfacePresetGroups,
@@ -16,7 +17,7 @@ import { Dropdown, MenuGroup, MenuItem, NavigableMenu, Tooltip } from '@wordpres
 import { useMediaQuery } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { calendar, check, chevronDown } from '@wordpress/icons';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState, type CSSProperties } from 'react';
 /**
  * Internal dependencies
  */
@@ -31,6 +32,11 @@ import './date-period-dropdown.scss';
  * popover and is bounded by the window rather than by the row it opens from.
  */
 const WIDE_MENU_THRESHOLD = 820;
+
+// The stylesheet reads the duration from here, so the fade ends with the id.
+const ATTENTION_STYLE = {
+	'--date-period-dropdown-attention-duration': `${ PERIOD_CHANGE_ATTENTION_MS }ms`,
+} as CSSProperties;
 
 type DatePeriodDropdownProps = {
 	/**
@@ -111,6 +117,13 @@ type DatePeriodDropdownProps = {
 	 * which follows the primary range).
 	 */
 	onOpenChange?: ( isOpen: boolean ) => void;
+
+	/**
+	 * Draws attention to the trigger while set: a fill in the brand color that
+	 * fades, for a period a navigation set rather than the reader. Each new id
+	 * restarts it.
+	 */
+	attentionId?: number;
 };
 
 /**
@@ -132,6 +145,7 @@ export function DatePeriodDropdown( {
 	withCustomRange = true,
 	disabled = false,
 	onOpenChange,
+	attentionId,
 }: DatePeriodDropdownProps ) {
 	// The menu floats free of the row it opens from, so the window is what says
 	// whether a second month fits beside the list.
@@ -208,6 +222,15 @@ export function DatePeriodDropdown( {
 						aria-expanded={ isOpen }
 						aria-haspopup="true"
 					>
+						{ attentionId !== undefined && (
+							// Keyed so a newer id starts the fade over without remounting the button.
+							<span
+								key={ attentionId }
+								className="date-period-dropdown__attention"
+								style={ ATTENTION_STYLE }
+								aria-hidden="true"
+							/>
+						) }
 						<Icon className="date-period-dropdown__glyph" icon={ calendar } size={ 18 } />
 						{ /* Own element so a label too wide for the trigger can ellipsize. */ }
 						<span className="date-period-dropdown__label">{ triggerLabel }</span>

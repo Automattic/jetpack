@@ -137,7 +137,7 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
 	}
 
 	const rawSortField = view.sort?.field;
-	const sortField = rawSortField ? SORT_FIELD_MAP[ rawSortField ] ?? rawSortField : undefined;
+	const sortField = rawSortField ? ( SORT_FIELD_MAP[ rawSortField ] ?? rawSortField ) : undefined;
 	if ( sortField && SUPPORTED_ORDERBY.has( sortField ) ) {
 		args.orderby = sortField;
 		args.order = view.sort?.direction ?? 'desc';
@@ -223,7 +223,7 @@ export function toLibraryItem( raw: ApiMediaItem, simple: boolean ): LibraryItem
 	const vpDetails = details?.videopress;
 	const durationMs = simple ? details?.duration_milliseconds : vpDetails?.duration;
 	const durationSeconds =
-		durationMs !== undefined ? Math.floor( durationMs / 1000 ) : details?.length ?? 0;
+		durationMs !== undefined ? Math.floor( durationMs / 1000 ) : ( details?.length ?? 0 );
 	// On Simple `media_details.thumb` is a bare filename, not a URL — the ready
 	// poster lives on the VideoPress CDN keyed by the video guid (same URL shape
 	// the editor uses for chapter/thumbnail files).

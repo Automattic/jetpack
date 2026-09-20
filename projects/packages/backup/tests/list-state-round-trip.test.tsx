@@ -265,7 +265,7 @@ beforeEach( () => {
 				| ( ( previous: Record< string, unknown > ) => Record< string, unknown > );
 		} ) => {
 			const next = options?.search;
-			routerSearch = typeof next === 'function' ? next( routerSearch ) : next ?? {};
+			routerSearch = typeof next === 'function' ? next( routerSearch ) : ( next ?? {} );
 		}
 	);
 	mockParams.mockReset();

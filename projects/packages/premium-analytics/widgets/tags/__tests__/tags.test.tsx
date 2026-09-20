@@ -5,7 +5,7 @@ import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/d
 import { WIDGET_ROW_LIMIT } from '@jetpack-premium-analytics/widgets-toolkit';
 import { fireEvent, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import { category, tag } from '@wordpress/icons';
+import { file as categoryGlyph, tag } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -81,7 +81,7 @@ describe( 'TagsWidget', () => {
 
 		await expect( screen.findByText( 'Recipes' ) ).resolves.toBeInTheDocument();
 
-		const categoryPath = iconPath( category );
+		const categoryPath = iconPath( categoryGlyph );
 		const tagPath = iconPath( tag );
 
 		expect( categoryPath ).not.toBe( tagPath );
@@ -118,7 +118,7 @@ describe( 'TagsWidget', () => {
 			'href',
 			'https://example.com/category/desserts/'
 		);
-		expect( rowGlyphPath( 'Desserts' ) ).toBe( iconPath( category ) );
+		expect( rowGlyphPath( 'Desserts' ) ).toBe( iconPath( categoryGlyph ) );
 		expect( rowGlyphPath( 'chocolate' ) ).toBe( iconPath( tag ) );
 
 		fireEvent.click( screen.getByRole( 'button', { name: /all tags & categories/i } ) ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.

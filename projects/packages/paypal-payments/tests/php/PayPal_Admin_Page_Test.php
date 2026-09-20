@@ -148,8 +148,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 	}
 
 	/**
-	 * The post being saved can be left out of the count, so its own block does not
-	 * keep the link alive.
+	 * One post can be left out of the count.
 	 */
 	public function test_count_published_embeds_can_leave_one_post_out() {
 		$post = new \WP_Post(
