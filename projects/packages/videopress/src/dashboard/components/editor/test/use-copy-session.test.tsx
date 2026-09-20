@@ -1,10 +1,15 @@
 import { act, renderHook } from '@testing-library/react';
-import { useSaveVideoCopy, useVideoCopyStatus } from '../../../hooks/use-save-video-copy';
+import {
+	useSaveVideoCopy,
+	useVideoCopyStatus,
+	VideoCopyRejectedError,
+} from '../../../hooks/use-save-video-copy';
 import { EditsConflictError } from '../../../hooks/use-save-video-edits';
 import { useCopySession } from '../use-copy-session';
 import type { SaveVideoCopyResponse, SaveVideoCopyVars } from '../../../hooks/use-save-video-copy';
 
 jest.mock( '../../../hooks/use-save-video-copy', () => ( {
+	...jest.requireActual( '../../../hooks/use-save-video-copy' ),
 	useSaveVideoCopy: jest.fn(),
 	useVideoCopyStatus: jest.fn(),
 } ) );
@@ -40,6 +45,41 @@ beforeEach( () => {
 } );
 
 describe( 'useCopySession', () => {
+	it( 'unlocks a rejected request without polling and allows saving the preserved draft again', async () => {
+		const failure = new VideoCopyRejectedError( 'copy_storage_limit', 'Storage is full.' );
+		mutate.mockRejectedValueOnce( failure );
+		const { result } = renderHook( () => useCopySession( request.guid ) );
+		await act( async () => result.current.submit( request ) );
+		expect( result.current.rejected ).toBe( true );
+		expect( result.current.locked ).toBe( false );
+		expect( useVideoCopyStatus ).toHaveBeenLastCalledWith( request.guid, null );
+		expect( result.current.request?.operations ).toEqual( request.operations );
+		act( () => result.current.clear() );
+		expect( result.current.request ).toBeNull();
+		const next = { ...request, requestId: 'another-copy' };
+		await act( async () => result.current.submit( next ) );
+		expect( mutate ).toHaveBeenLastCalledWith( next );
+		expect( result.current.locked ).toBe( true );
+	} );
+
+	it.each( [
+		new VideoCopyRejectedError( 'rest_cookie_invalid_nonce' ),
+		new EditsConflictError(),
+	] )( 'keeps an uncertain request locked when a retry returns %s', async retryError => {
+		mutate
+			.mockRejectedValueOnce( new Error( 'Response interrupted' ) )
+			.mockRejectedValueOnce( retryError );
+		const { result } = renderHook( () => useCopySession( request.guid ) );
+		await act( async () => result.current.submit( request ) );
+		await act( async () => result.current.retry() );
+		expect( result.current.rejected ).toBe( false );
+		expect( result.current.conflict ).toBe( false );
+		expect( result.current.locked ).toBe( true );
+		expect( useVideoCopyStatus ).toHaveBeenLastCalledWith( request.guid, request.requestId );
+		act( () => result.current.clear() );
+		expect( result.current.request ).toBe( request );
+	} );
+
 	it( 'prevents duplicate submissions while the POST is unsettled', async () => {
 		let resolve: ( value: SaveVideoCopyResponse ) => void;
 		mutate.mockImplementation(

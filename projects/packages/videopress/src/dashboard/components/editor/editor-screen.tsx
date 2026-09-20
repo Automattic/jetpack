@@ -56,7 +56,12 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 		Math.abs( sourceDuration - editor.edits.original_duration_ms ) > 1000
 	);
 	const locked =
-		editor.locked || copySession.locked || editor.conflict || ! sourceReady || durationMismatch;
+		editor.locked ||
+		copySession.locked ||
+		editor.conflict ||
+		copySession.conflict ||
+		! sourceReady ||
+		durationMismatch;
 	const confirmNavigation = useCallback(
 		() =>
 			! dirtyRef.current ||
@@ -185,7 +190,7 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 						onDiscard={ () => setConfirm( 'discard' ) }
 						canSave={ editor.dirty && ! locked }
 						onSave={ () => {
-							if ( copySession.failed ) {
+							if ( copySession.failed || copySession.rejected ) {
 								copySession.clear();
 							}
 							setConfirm( 'save' );
@@ -194,6 +199,7 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 							Boolean( editor.edits?.can_restore_original ) &&
 							! editor.locked &&
 							! editor.conflict &&
+							! copySession.conflict &&
 							! copySession.locked
 						}
 						onRestoreOriginal={ () => setConfirm( 'restore' ) }

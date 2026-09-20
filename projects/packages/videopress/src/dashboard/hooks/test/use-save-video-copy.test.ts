@@ -6,7 +6,12 @@ import {
 	LIBRARY_POLL_INTERVAL_MS,
 	PROCESSING_POLL_MAX_MS,
 } from '../use-library';
-import { useSaveVideoCopy, useVideoCopyStatus, VIDEO_COPY_QUERY_KEY } from '../use-save-video-copy';
+import {
+	useSaveVideoCopy,
+	useVideoCopyStatus,
+	VIDEO_COPY_QUERY_KEY,
+	VideoCopyRejectedError,
+} from '../use-save-video-copy';
 import { EditsConflictError } from '../use-save-video-edits';
 import { EDITS_QUERY_KEY } from '../use-video-edits';
 import type { SaveVideoCopyResponse, SaveVideoCopyVars } from '../use-save-video-copy';
@@ -37,6 +42,39 @@ afterEach( () => {
 } );
 
 describe( 'useSaveVideoCopy', () => {
+	it.each( [
+		[ 'copy_storage_limit', 403 ],
+		[ 'copy_source_unavailable', 409 ],
+		[ 'invalid_title', 400 ],
+		[ 'unknown_media', 404 ],
+	] )(
+		'distinguishes a rejected %s request from an uncertain acceptance',
+		async ( code, status ) => {
+			jest
+				.mocked( apiFetch )
+				.mockRejectedValue( { code, message: 'Cannot copy this video.', data: { status } } );
+			const { result } = renderHook( useSaveVideoCopy, { wrapper: createTestWrapper() } );
+			await act( async () => {
+				await expect( result.current.mutateAsync( request ) ).rejects.toEqual(
+					new VideoCopyRejectedError( code as string, 'Cannot copy this video.' )
+				);
+			} );
+		}
+	);
+
+	it.each( [
+		[ 'copy_request_pending', 409 ],
+		[ 'copy_request_conflict', 409 ],
+		[ 'videopress_edits_request_failed', 502 ],
+	] )( 'retains uncertain acceptance for %s', async ( code, status ) => {
+		const failure = { code, data: { status } };
+		jest.mocked( apiFetch ).mockRejectedValue( failure );
+		const { result } = renderHook( useSaveVideoCopy, { wrapper: createTestWrapper() } );
+		await act( async () => {
+			await expect( result.current.mutateAsync( request ) ).rejects.toBe( failure );
+		} );
+	} );
+
 	it( 'submits an idempotent copy request and leaves the source edit cache unchanged', async () => {
 		jest.mocked( apiFetch ).mockResolvedValue( accepted );
 		const client = createTestQueryClient();

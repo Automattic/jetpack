@@ -399,7 +399,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits_Test extends BaseTestCase {
 		define( 'IS_WPCOM', true );
 		\Brain\Monkey\Functions\when( 'wpcom_rest_api_v2_load_plugin' )->alias(
 			static function ( $class ) {
-				new $class();
+				return new $class();
 			}
 		);
 		remove_all_actions( 'rest_api_init' );

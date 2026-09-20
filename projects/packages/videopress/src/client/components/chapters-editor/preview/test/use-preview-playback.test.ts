@@ -140,6 +140,20 @@ function renderPlayback( options: UsePreviewPlaybackOptions = {} ) {
 
 describe( 'usePreviewPlayback', () => {
 	describe( 'initial state and metadata', () => {
+		it( 'recovers metadata when the browser omits the loadedmetadata event', () => {
+			jest.useFakeTimers();
+			try {
+				const { result, video, unmount } = renderPlayback( { fallbackDurationMs: 60000 } );
+				video.duration = 42;
+				act( () => jest.advanceTimersByTime( 250 ) );
+				expect( result.current.hasMetadata ).toBe( true );
+				expect( result.current.durationMs ).toBe( 42000 );
+				unmount();
+			} finally {
+				jest.useRealTimers();
+			}
+		} );
+
 		it( 'starts paused at zero with the fallback duration', () => {
 			const { result } = renderPlayback( { fallbackDurationMs: 60000 } );
 			expect( result.current.currentMs ).toBe( 0 );
@@ -173,6 +187,34 @@ describe( 'usePreviewPlayback', () => {
 	} );
 
 	describe( 'transport', () => {
+		it( 'reports a synchronous unsupported-format failure without starting playback', () => {
+			const { result, video } = renderPlayback();
+			jest.spyOn( video, 'play' ).mockImplementation( () => {
+				throw new DOMException( 'Unsupported source', 'NotSupportedError' );
+			} );
+			act( () => result.current.play() );
+			expect( result.current.playing ).toBe( false );
+			expect( result.current.playbackError ).toBe(
+				'This video format is not supported by the browser.'
+			);
+			expect( pendingFrames() ).toBe( 0 );
+		} );
+
+		it( 'reads newly available metadata when playback starts', () => {
+			const { result, video } = renderPlayback();
+			video.duration = 42;
+			act( () => result.current.play() );
+			expect( result.current.hasMetadata ).toBe( true );
+			expect( result.current.durationMs ).toBe( 42000 );
+		} );
+
+		it( 'does not play when resolving the restart position still produces an empty output', () => {
+			const { result, video } = renderPlayback( { resolvePlayback: () => ( { ended: true } ) } );
+			act( () => result.current.play() );
+			expect( video.playCalls ).toBe( 0 );
+			expect( result.current.playing ).toBe( false );
+		} );
+
 		it( 'play() starts the element and the frame loop', () => {
 			const { result, video } = renderPlayback();
 			act( () => result.current.play() );
@@ -244,6 +286,14 @@ describe( 'usePreviewPlayback', () => {
 	} );
 
 	describe( 'seeking', () => {
+		it.each( [ NaN, Infinity, -Infinity ] )( 'ignores a non-finite seek (%s)', invalidTime => {
+			const { result, video } = renderPlayback( { fallbackDurationMs: 60000 } );
+			act( () => result.current.seekTo( 1000 ) );
+			act( () => result.current.seekTo( invalidTime ) );
+			expect( result.current.currentMs ).toBe( 1000 );
+			expect( video.currentTime ).toBe( 1 );
+		} );
+
 		it( 'seekTo() moves the element and currentMs', () => {
 			const { result, video } = renderPlayback( { fallbackDurationMs: 60000 } );
 			act( () => result.current.seekTo( 12345 ) );

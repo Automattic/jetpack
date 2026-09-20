@@ -31,11 +31,13 @@ export default function CopyStatusBanner( { session, onReload }: Props ) {
 				{ __( 'Reload latest', 'jetpack-videopress-pkg' ) }
 			</Button>
 		);
-	} else if ( session.failed ) {
-		message = __(
-			'The new video could not be created. Your current video and edits are unchanged.',
-			'jetpack-videopress-pkg'
-		);
+	} else if ( session.failed || session.rejected ) {
+		message =
+			( session.rejected && session.error?.message ) ||
+			__(
+				'The new video could not be created. Your current video and edits are unchanged.',
+				'jetpack-videopress-pkg'
+			);
 		action = (
 			<Button size="compact" variant="outline" onClick={ session.clear }>
 				{ __( 'Back to editing', 'jetpack-videopress-pkg' ) }

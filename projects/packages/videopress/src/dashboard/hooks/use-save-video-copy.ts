@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
+import { __ } from '@wordpress/i18n';
 import { useEffect, useRef } from 'react';
 import { LIBRARY_QUERY_KEY, nextProcessingPoll } from './use-library';
 import { EditsConflictError } from './use-save-video-edits';
@@ -8,6 +9,17 @@ import type { SaveVideoEditsVars } from './use-save-video-edits';
 import type { EditsJob } from '../types/edits';
 
 export const VIDEO_COPY_QUERY_KEY = 'videopress-video-copy';
+
+/** A request rejected before the service could create a copy. */
+export class VideoCopyRejectedError extends Error {
+	constructor(
+		public code: string,
+		message?: string
+	) {
+		super( message || __( 'The new video could not be created.', 'jetpack-videopress-pkg' ) );
+		this.name = 'VideoCopyRejectedError';
+	}
+}
 
 export type SaveVideoCopyVars = SaveVideoEditsVars & {
 	/** Reuse this identifier when retrying an uncertain request. */
@@ -48,13 +60,19 @@ export function useSaveVideoCopy() {
 				const restError = error as {
 					code?: string;
 					message?: string;
-					data?: { current_revision?: number };
+					data?: { current_revision?: number; status?: number };
 				};
 				if ( restError?.code === 'edits_conflict' ) {
 					throw new EditsConflictError(
 						restError.message,
 						restError.data?.current_revision ?? null
 					);
+				}
+				if (
+					[ 400, 401, 403, 404, 405, 413, 422 ].includes( restError?.data?.status ?? 0 ) ||
+					restError?.code === 'copy_source_unavailable'
+				) {
+					throw new VideoCopyRejectedError( restError.code ?? 'copy_rejected', restError.message );
 				}
 				throw error;
 			}

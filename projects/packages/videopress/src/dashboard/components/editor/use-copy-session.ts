@@ -1,5 +1,9 @@
 import { useRef, useState } from 'react';
-import { useSaveVideoCopy, useVideoCopyStatus } from '../../hooks/use-save-video-copy';
+import {
+	useSaveVideoCopy,
+	useVideoCopyStatus,
+	VideoCopyRejectedError,
+} from '../../hooks/use-save-video-copy';
 import { EditsConflictError } from '../../hooks/use-save-video-edits';
 import type { SaveVideoCopyVars } from '../../hooks/use-save-video-copy';
 
@@ -16,8 +20,13 @@ export function useCopySession( guid: string ) {
 	const [ error, setError ] = useState< Error | null >( null );
 	const submittingRef = useRef( false );
 	const requestRef = useRef< SaveVideoCopyVars | null >( null );
-	const status = useVideoCopyStatus( guid, submitting ? null : ( request?.requestId ?? null ) );
-	const conflict = error instanceof EditsConflictError;
+	const acceptanceUncertainRef = useRef( false );
+	const rejected = error instanceof VideoCopyRejectedError && ! acceptanceUncertainRef.current;
+	const conflict = error instanceof EditsConflictError && ! acceptanceUncertainRef.current;
+	const status = useVideoCopyStatus(
+		guid,
+		submitting || rejected || conflict ? null : ( request?.requestId ?? null )
+	);
 	const recoverable =
 		status.data?.job.status === 'failed' &&
 		[ 'copy_attachment_unconfirmed', 'copy_attachment_pending' ].includes(
@@ -36,7 +45,14 @@ export function useCopySession( guid: string ) {
 		requestRef.current = nextRequest;
 		try {
 			await mutation.mutateAsync( nextRequest );
+			acceptanceUncertainRef.current = true;
 		} catch ( caught ) {
+			// A later rejection cannot disprove acceptance of an earlier interrupted request.
+			if ( ! (
+				caught instanceof VideoCopyRejectedError || caught instanceof EditsConflictError
+			) ) {
+				acceptanceUncertainRef.current = true;
+			}
 			setError( caught as Error );
 		} finally {
 			submittingRef.current = false;
@@ -50,16 +66,21 @@ export function useCopySession( guid: string ) {
 		error,
 		recoverable,
 		conflict,
+		rejected,
 		failed,
-		locked: Boolean( request ) && ! failed && ! conflict,
+		locked: Boolean( request ) && ! failed && ! conflict && ! rejected,
 		status,
 		submit,
 		retry: () => request && submit( request ),
 		clear: () => {
-			if ( submittingRef.current || ( requestRef.current && ! failed && ! conflict ) ) {
+			if (
+				submittingRef.current ||
+				( requestRef.current && ! failed && ! conflict && ! rejected )
+			) {
 				return;
 			}
 			requestRef.current = null;
+			acceptanceUncertainRef.current = false;
 			setRequest( null );
 			setError( null );
 		},
