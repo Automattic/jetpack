@@ -261,11 +261,11 @@ Tooltips are automatically enabled and positioned for optimal readability.
 
 The chart automatically scales colors based on data values:
 
-- **No data**: Countries without values use the default theme color (`datalessRegionColor`)
+- **No data**: Countries without values use `--a8c-charts-color-surface-secondary` (`datalessRegionColor`)
 - **Low values**: Displayed with lighter colors
-- **High values**: Displayed with the full primary theme color
+- **High values**: Displayed with the full first palette color
 
-The color scale is configured via Google Charts' `colorAxis` option, using the theme's primary color range.
+The color scale is configured via Google Charts' `colorAxis` option, from `--a8c-charts-color-series-1` and a lightened version of it.
 
 ## Styling and Customization
 
@@ -289,7 +289,7 @@ Add custom styles using the `className` prop:
 
 ## Theming Integration
 
-Geo Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+Geo Charts integrate seamlessly with the chart theming system. The default theme has neutral styling, and is automatically applied to all charts unless a custom theme is provided.
 
 **The color axis range comes from the first palette custom property, not the theme object:**
 
@@ -300,33 +300,19 @@ Geo Charts integrate seamlessly with the chart theming system. The default theme
 	}` }
 />
 
-Everything else is set by wrapping your chart in `GlobalChartsProvider` and passing a theme object with the properties you want to override to the `theme` prop:
+Every other color works the same way — declare its catalog role. The closest declaration inside the provider tree wins, so scope the rule to one dashboard, or to `.a8c-charts-scope` to move every chart on the page:
 
 <Source
-	language="tsx"
-	code={ `import { GlobalChartsProvider, GeoChart, type ChartTheme } from '@automattic/charts';
-
-	const customTheme: ChartTheme = {
-		backgroundColor: '#f5f5f5',
-		geoChart: {
-			featureFillColor: '#e0e0e0',
-		},
-	};
-
-	<GlobalChartsProvider theme={customTheme}>
-		<GeoChart
-			data={ ordersByCountry }
-			width={ 800 }
-			height={ 500 }
-		/>
-	</GlobalChartsProvider>` }
-
+	language="css"
+	code={ `.my-dashboard {
+		/* Behind the map: */
+		--a8c-charts-color-background: #f5f5f5;
+		/* Countries with no data: */
+		--a8c-charts-color-surface-secondary: #e0e0e0;
+	}` }
 />
 
-The chart uses the following theme properties:
-
-- **`backgroundColor`**: Background color for the map
-- **`geoChart.featureFillColor`**: Fill color for countries without data
+Google Charts takes a resolved hex rather than a `var()` chain, so `GeoChart` reads both roles at render and does not repaint on a theme change until it re-renders. Every other chart follows the cascade live.
 
 ## Responsive Behavior
 

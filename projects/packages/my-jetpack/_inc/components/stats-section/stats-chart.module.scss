@@ -5,9 +5,13 @@
 }
 
 .chart-container {
+	display: block;
 	position: relative;
 	box-sizing: border-box;
-	cursor: pointer;
+
+	&[href] {
+		cursor: var(--wpds-cursor-control);
+	}
 
 	.chart-empty {
 		align-items: center;

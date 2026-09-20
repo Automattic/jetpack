@@ -18,6 +18,10 @@
 	line-height: 1.5;
 }
 
+.popover {
+	color: var(--jp-black);
+}
+
 .info-icon {
 	vertical-align: text-top;
 	// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values

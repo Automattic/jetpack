@@ -35,6 +35,7 @@ const OFF_RAMP_TEXT = 'Using a different SEO solution?';
 const buildOverview = (): OverviewResponse => ( {
 	site_visibility: {
 		search_engines_visible: true,
+		site_is_private: false,
 		sitemap_active: true,
 		seo_tools_active: true,
 	},

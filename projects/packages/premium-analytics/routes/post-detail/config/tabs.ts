@@ -16,13 +16,6 @@ export const POST_DETAIL_TAB_IDS = [ 'post-traffic', 'email-opens', 'email-click
 export type PostDetailTabId = ( typeof POST_DETAIL_TAB_IDS )[ number ];
 
 /**
- * The tabs that describe the post's newsletter send rather than the post
- * itself. The header keys its email identity off this list, so a future tab
- * defaults to the post identity unless it is added here.
- */
-export const EMAIL_TAB_IDS: readonly PostDetailTabId[] = [ 'email-opens', 'email-clicks' ];
-
-/**
  * Default tab shown when the URL has no (or an unknown) tab param.
  */
 export const DEFAULT_TAB_ID: PostDetailTabId = 'post-traffic';
@@ -40,11 +33,39 @@ export type PostDetailTab = {
 const TAB_DEFINITIONS: ReadonlyArray< {
 	id: PostDetailTabId;
 	getLabel: () => string;
+	/**
+	 * Which window the tab reports over: the URL date range, or the fixed
+	 * send window pinned by `useEmailTabScope`. `send-window` tabs also take
+	 * the email header identity and hide the date filter.
+	 */
+	scope: 'url' | 'send-window';
 } > = [
-	{ id: 'post-traffic', getLabel: () => __( 'Post traffic', 'jetpack-premium-analytics-pkg' ) },
-	{ id: 'email-opens', getLabel: () => __( 'Email opens', 'jetpack-premium-analytics-pkg' ) },
-	{ id: 'email-clicks', getLabel: () => __( 'Email clicks', 'jetpack-premium-analytics-pkg' ) },
+	{
+		id: 'post-traffic',
+		getLabel: () => __( 'Post traffic', 'jetpack-premium-analytics-pkg' ),
+		scope: 'url',
+	},
+	{
+		id: 'email-opens',
+		getLabel: () => __( 'Email opens', 'jetpack-premium-analytics-pkg' ),
+		scope: 'send-window',
+	},
+	{
+		id: 'email-clicks',
+		getLabel: () => __( 'Email clicks', 'jetpack-premium-analytics-pkg' ),
+		scope: 'send-window',
+	},
 ];
+
+/**
+ * The tabs that describe the post's newsletter send rather than the post
+ * itself — derived from the definitions' `scope`, so a new tab declares its
+ * window once and the header identity, date filter, and widget params all
+ * follow.
+ */
+export const EMAIL_TAB_IDS: readonly PostDetailTabId[] = TAB_DEFINITIONS.filter(
+	tab => tab.scope === 'send-window'
+).map( tab => tab.id );
 
 /**
  * Get the translated display label for a tab.

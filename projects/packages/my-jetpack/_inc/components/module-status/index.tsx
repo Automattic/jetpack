@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { Badge } from '@wordpress/ui';
 import { MyJetpackModule } from '../../types';
-import { getSharingBlockEditorUrl } from '../../utils/sharing-block';
+import { getBlockThemeMigration } from '../../utils/block-theme-migration';
 
 export type ModuleStatusProps = {
 	module: MyJetpackModule;
@@ -15,9 +15,9 @@ export type ModuleStatusProps = {
  * @return The rendered component.
  */
 export function ModuleStatus( { module: $module }: ModuleStatusProps ) {
-	// On block themes the sharing-block action replaces the toggle, so an "Active"
-	// badge next to it would only be confusing.
-	if ( getSharingBlockEditorUrl( $module ) ) {
+	// On block themes the block action replaces the toggle, so an "Active" badge
+	// next to it would only be confusing.
+	if ( getBlockThemeMigration( $module ) ) {
 		return null;
 	}
 

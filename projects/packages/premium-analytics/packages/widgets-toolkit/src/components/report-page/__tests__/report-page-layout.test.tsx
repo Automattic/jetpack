@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
+import { toLocalTZ } from '@jetpack-premium-analytics/datetime';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import { render, screen } from '@testing-library/react';
-import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
@@ -18,19 +18,15 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 
 const dateFiltersPanelMock = jest.mocked( DateFiltersPanel );
 
-// Captured before any test installs settings, so repeats do not compound.
-const DEFAULT_SETTINGS = getSettings();
-
 const APPLIED_RANGE = {
-	from: new Date( Date.UTC( 2024, 0, 8 ) ),
-	to: new Date( Date.UTC( 2024, 0, 14, 23, 59, 59, 999 ) ),
+	from: toLocalTZ( Date.UTC( 2024, 0, 8 ), 'UTC' ),
+	to: toLocalTZ( Date.UTC( 2024, 0, 14, 23, 59, 59, 999 ), 'UTC' ),
 };
 
-// Another year, so a subtitle reading the draft instead of the applied range
-// is unmistakable.
+// A draft over the applied window, so the controller reaches the panel mid-edit.
 const STAGED_RANGE = {
-	from: new Date( Date.UTC( 2019, 0, 7 ) ),
-	to: new Date( Date.UTC( 2019, 0, 13, 23, 59, 59, 999 ) ),
+	from: toLocalTZ( Date.UTC( 2019, 0, 7 ), 'UTC' ),
+	to: toLocalTZ( Date.UTC( 2019, 0, 13, 23, 59, 59, 999 ), 'UTC' ),
 };
 
 /** A controller mid-edit: a staged range and comparison over an applied window. */
@@ -48,7 +44,6 @@ function buildDateFilters(): ReportDateFilters {
 		onChange: jest.fn(),
 		onComparisonChange: jest.fn(),
 		onIntervalChange: jest.fn(),
-		onStep: jest.fn(),
 		onApply: jest.fn(),
 		onCancel: jest.fn(),
 		canApply: true,
@@ -61,11 +56,6 @@ function buildDateFilters(): ReportDateFilters {
 describe( 'ReportPageLayout', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		setSettings( {
-			...DEFAULT_SETTINGS,
-			formats: { ...DEFAULT_SETTINGS.formats, date: 'F j, Y' },
-			timezone: { offset: 0, offsetFormatted: '0', string: 'UTC', abbr: 'UTC' },
-		} );
 	} );
 
 	it( 'renders the report title as the section heading', () => {
@@ -87,31 +77,6 @@ describe( 'ReportPageLayout', () => {
 		expect( dateFiltersPanelMock.mock.calls[ 0 ][ 0 ] ).toEqual(
 			expect.objectContaining( dateFilters )
 		);
-	} );
-
-	// Holds still while an edit is open; moves only on Apply.
-	it( 'describes the applied window rather than the staged draft', () => {
-		render(
-			<ReportPageLayout title="Posts & Pages" dateFilters={ buildDateFilters() }>
-				table
-			</ReportPageLayout>
-		);
-
-		expect( screen.getByText( /2024/ ) ).not.toHaveTextContent( '2019' );
-	} );
-
-	// The header offers a control for neither, so it describes neither.
-	it( 'names neither the chart interval nor the comparison the controller carries', () => {
-		render(
-			<ReportPageLayout title="Posts & Pages" dateFilters={ buildDateFilters() }>
-				table
-			</ReportPageLayout>
-		);
-
-		const subtitle = screen.getByText( /2024/ );
-
-		expect( subtitle ).not.toHaveTextContent( /hourly|daily|weekly|monthly|yearly/ );
-		expect( subtitle ).not.toHaveTextContent( /vs\.|Previous period|Previous month/ );
 	} );
 
 	// Whether the panel draws the comparison control is the report route's scope; the
@@ -136,10 +101,9 @@ describe( 'ReportPageLayout', () => {
 		expect( dateFilters.onIntervalChange ).not.toHaveBeenCalled();
 	} );
 
-	it( 'leaves the header the title alone on a report with no date window', () => {
-		const { container } = render( <ReportPageLayout title="Emails">table</ReportPageLayout> );
+	it( 'mounts no date picker on a report with no date window', () => {
+		render( <ReportPageLayout title="Emails">table</ReportPageLayout> );
 
 		expect( screen.queryByTestId( 'date-filters-panel' ) ).not.toBeInTheDocument();
-		expect( container ).not.toHaveTextContent( /\(\d/ );
 	} );
 } );

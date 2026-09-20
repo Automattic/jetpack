@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Newsletter;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -21,9 +22,14 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.12.7';
+	const PACKAGE_VERSION = '0.15.0';
 
 	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
+
+	/**
+	 * Slug of the retired Subscribers page, kept only to redirect stale bookmarks.
+	 */
+	const RETIRED_SUBSCRIBERS_PAGE_SLUG = 'jetpack-subscribers';
 
 	/**
 	 * Filter name that gates the wp-build–based dashboard.
@@ -34,6 +40,11 @@ class Settings {
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_newsletter';
 
 	/**
+	 * Feature flag for the Newsletter Overview tab.
+	 */
+	const OVERVIEW_FEATURE_FLAG = 'newsletter-overview';
+
+	/**
 	 * Whether the class has been initialized
 	 *
 	 * @var boolean
@@ -41,9 +52,41 @@ class Settings {
 	private static $initialized = false;
 
 	/**
+	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
+	 *
+	 * @var string|null
+	 */
+	private static $wp_build_original_screen_id = null;
+
+	/**
+	 * The dashboard screen hide_jitms_on_wp_build_dashboard() opts out of JITMs.
+	 *
+	 * @var string|null
+	 */
+	private static $jitm_opt_out_screen_id = null;
+
+	/**
+	 * Register Newsletter feature flags.
+	 *
+	 * @return void
+	 */
+	public static function register_feature_flags() {
+		Feature_Flags::register(
+			self::OVERVIEW_FEATURE_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Enable the Newsletter Overview tab.',
+				'owner'       => 'jetpack-newsletter',
+			)
+		);
+	}
+
+	/**
 	 * Init Newsletter Settings if it wasn't already.
 	 */
 	public static function init() {
+		self::register_feature_flags();
+
 		if ( ! self::$initialized ) {
 			self::$initialized = true;
 			( new self() )->init_hooks();
@@ -83,15 +126,8 @@ class Settings {
 	 * Subscribe to necessary hooks.
 	 */
 	public function init_hooks() {
-		// Transitional Subscribers announcement page (active only while the
-		// modernization filter is on): registers its AJAX/admin-post handlers
-		// and wp-build loading here so they exist on admin-ajax.php and
-		// admin-post.php requests. The menu itself is added by the Jetpack
-		// plugin's subscriptions module, which owns the Subscribers placement.
-		// init() self-gates on Subscribers_Announcement::is_enabled(), which is
-		// also what the menu-registration entry points consult, so the handlers
-		// and the menu can never disagree about whether the feature is on.
-		Subscribers_Announcement::init();
+		// Priority 1 so this runs before the menu is built and the request is denied.
+		add_action( 'admin_menu', array( __CLASS__, 'redirect_retired_subscribers_page' ), 1 );
 
 		// Add the Reading settings notice as long as subscriptions are active.
 		if ( $this->is_subscriptions_active() ) {
@@ -121,6 +157,18 @@ class Settings {
 
 		$host = new Host();
 
+		// Admin-ajax rather than `/wp/v2/users/me`: WordPress.com's public API drops user meta it hasn't allowlisted.
+		if ( $host->is_wpcom_platform() ) {
+			add_action(
+				'wp_ajax_jetpack_newsletter_dismiss_subscriber_count_notice',
+				static function () {
+					check_ajax_referer( 'jetpack_newsletter_dismiss_subscriber_count_notice' );
+					update_user_meta( get_current_user_id(), 'jetpack_newsletter_subscriber_count_notice_dismissed', 1 );
+					wp_send_json_success( null, 200, JSON_UNESCAPED_SLASHES );
+				}
+			);
+		}
+
 		// On wpcom Simple, the Jetpack menu is created at priority 999999 by wpcom-admin-menu.php,
 		// which will call add_wp_admin_submenu() directly. Skip adding the menu here to avoid
 		// trying to add a submenu before the parent menu exists.
@@ -132,6 +180,27 @@ class Settings {
 		// Use priority 999 to ensure menu items are queued BEFORE Admin_Menu::admin_menu_hook_callback
 		// runs at priority 1000 to process all queued items.
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 999 );
+	}
+
+	/**
+	 * Send the retired Subscribers page to Newsletter, which absorbed it.
+	 *
+	 * The slug was live for about three months, so it is still in browser histories,
+	 * where it would otherwise hit WordPress's generic "not allowed to access this
+	 * page" and read as a permissions error rather than a move.
+	 *
+	 * @return void
+	 */
+	public static function redirect_retired_subscribers_page() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
+		if ( self::RETIRED_SUBSCRIBERS_PAGE_SLUG !== $page || ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=' . self::ADMIN_PAGE_SLUG ) );
+		exit( 0 );
 	}
 
 	/**
@@ -149,7 +218,11 @@ class Settings {
 			return;
 		}
 
+		// Hooked either side of load_wp_build(), so the alias holds only for the generated
+		// enqueue check it registers at the same priority.
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 		self::load_wp_build();
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
 
 		// wp-build registers standalone modules (e.g. the init module) on
 		// wp_default_scripts, which has already fired by admin_menu. Register them
@@ -157,8 +230,6 @@ class Settings {
 		if ( function_exists( 'jetpack_newsletter_register_script_modules' ) ) {
 			jetpack_newsletter_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
 		}
-
-		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 	}
 
 	/**
@@ -202,7 +273,11 @@ class Settings {
 				'manage_options',
 				'jetpack-newsletter',
 				$callback,
-				10
+				null,
+				array(
+					'product' => 'newsletter',
+					'key'     => 'jetpack-newsletter',
+				)
 			);
 		} else {
 			$page_suffix = add_submenu_page(
@@ -218,6 +293,7 @@ class Settings {
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+			self::maybe_opt_out_of_jitms( $page_suffix );
 		}
 	}
 
@@ -251,6 +327,7 @@ class Settings {
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+			self::maybe_opt_out_of_jitms( $page_suffix );
 		}
 	}
 
@@ -296,10 +373,13 @@ class Settings {
 			'dateExample'                     => gmdate( get_option( 'date_format' ), time() ),
 			'subscriberManagementUrl'         => $this->get_subscriber_management_url( $wp_admin_subscriber_management_enabled, $is_wpcom, $site_suffix, $blog_id ),
 			'subscriberManagementEnabled'     => (bool) $wp_admin_subscriber_management_enabled,
+			'overviewEnabled'                 => Feature_Flags::is_enabled( self::OVERVIEW_FEATURE_FLAG ),
 			'isSubscriptionSiteEditSupported' => $is_block_theme,
 			'setupPaymentPlansUrl'            => $setup_payment_plan_url,
 			'isSitePublic'                    => ! $status->is_private_site() && ! $status->is_coming_soon(),
 			'tracksUserData'                  => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+			'showSubscriberCountNotice'       => $is_wpcom && ! get_user_meta( $current_user->ID, 'jetpack_newsletter_subscriber_count_notice_dismissed', true ),
+			'subscriberCountNoticeNonce'      => $is_wpcom ? wp_create_nonce( 'jetpack_newsletter_dismiss_subscriber_count_notice' ) : '',
 		);
 
 		return $data;
@@ -515,15 +595,70 @@ class Settings {
 	 * Hooked only when modernization is on AND we're on the Newsletter admin page,
 	 * so this never affects any other request.
 	 *
-	 * @param \WP_Screen|null $screen The current screen object (passed by WP).
+	 * @since $$next-version$$ Takes no argument; hooked on `admin_enqueue_scripts`.
+	 *
 	 * @return void
 	 */
-	public static function alias_screen_id_for_wp_build( $screen ) {
-		if ( ! is_object( $screen ) ) {
+	public static function alias_screen_id_for_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
 			return;
 		}
 
-		$screen->id = 'jetpack-newsletter-dashboard';
+		self::$wp_build_original_screen_id = $screen->id;
+		$screen->id                        = 'jetpack-newsletter-dashboard';
+	}
+
+	/**
+	 * Undo alias_screen_id_for_wp_build(), so code after the generated check sees the real screen ID.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function restore_screen_id_after_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen || null === self::$wp_build_original_screen_id ) {
+			return;
+		}
+
+		$screen->id                        = self::$wp_build_original_screen_id;
+		self::$wp_build_original_screen_id = null;
+	}
+
+	/**
+	 * Opt the dashboard's screen out of JITMs while the wp-build dashboard serves it.
+	 *
+	 * @param string $screen_id The hook suffix the page was registered under, which is its screen ID.
+	 * @return void
+	 */
+	private static function maybe_opt_out_of_jitms( $screen_id ) {
+		// The legacy dashboard renders `#jp-admin-notices`, so it keeps its JITMs.
+		if ( ! self::is_modernized() ) {
+			return;
+		}
+
+		self::$jitm_opt_out_screen_id = $screen_id;
+		add_filter( 'jetpack_display_jitms_on_screen', array( __CLASS__, 'hide_jitms_on_wp_build_dashboard' ), 10, 2 );
+	}
+
+	/**
+	 * Keep JITMs off the wp-build dashboard, which has no `#jp-admin-notices` to show them in.
+	 *
+	 * Fetching a JITM records a view, so one the page hides would still be counted.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool   $show      Whether to show JITMs on the screen.
+	 * @param string $screen_id The screen ID.
+	 * @return bool
+	 */
+	public static function hide_jitms_on_wp_build_dashboard( $show, $screen_id ) {
+		if ( null !== self::$jitm_opt_out_screen_id && self::$jitm_opt_out_screen_id === $screen_id ) {
+			return false;
+		}
+
+		return $show;
 	}
 
 	/**

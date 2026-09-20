@@ -14,14 +14,11 @@ import {
 	PRESET_TODAY,
 	PRESET_YESTERDAY,
 	isIntervalType,
+	localTZDate,
 	type IntervalType,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { differenceInCalendarDays, differenceInHours } from 'date-fns';
-/**
- * Internal dependencies
- */
-import { localTZDate } from './date';
 
 export type { IntervalType };
 
@@ -78,8 +75,9 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 /**
  * Allowed intervals for a preset, default first.
  *
- * Also what the interval control lists, so the menu can never offer a bucket
- * the range would coerce away.
+ * Where the interval control starts, before a widget narrows it to what its
+ * chart can draw (`drawableIntervals`). Callers pass the range being edited,
+ * not the applied one: a bucket it would coerce away springs back on Apply.
  */
 export function getAllowedIntervalsForPreset(
 	preset: PrimaryPresetId | undefined,

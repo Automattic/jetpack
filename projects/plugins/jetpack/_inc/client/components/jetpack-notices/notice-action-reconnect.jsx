@@ -72,15 +72,10 @@ const NoticeActionReconnect = props => {
 		analytics.tracks.recordEvent( 'jetpack_termination_error_notice_view', getEventProps() );
 	}, [ getEventProps ] );
 
-	return (
-		<NoticeAction icon={ props.icon } onClick={ handleDisconnectClick }>
-			{ props.children }
-		</NoticeAction>
-	);
+	return <NoticeAction onClick={ handleDisconnectClick }>{ props.children }</NoticeAction>;
 };
 
 NoticeActionReconnect.propTypes = {
-	icon: PropTypes.string,
 	errorCode: PropTypes.string,
 	errorData: PropTypes.object,
 	action: PropTypes.string,

@@ -59,11 +59,8 @@
 
 # Packages
 /projects/packages/premium-analytics @Automattic/jetpack-stats 
-/projects/packages/premium-analytics/changelog # No owner - too noisy on cross-project PRs
 /projects/packages/stats @Automattic/jetpack-stats
-/projects/packages/stats/changelog # No owner - too noisy on cross-project PRs
 /projects/packages/stats-admin @Automattic/jetpack-stats
-/projects/packages/stats-admin/changelog # No owner - too noisy on cross-project PRs
 /projects/packages/search/src/wpes @Automattic/prometheus
 /projects/packages/connection/src @Automattic/jetpack-connection
 /projects/packages/connection/legacy @Automattic/jetpack-connection
@@ -76,9 +73,11 @@
 # Plugins
 
 /projects/plugins/premium-analytics @Automattic/jetpack-stats 
-/projects/plugins/premium-analytics/changelog # No owner - too noisy on cross-project PRs
+/projects/plugins/premium-analytics/composer.lock # No owner - too noisy
+/projects/plugins/premium-analytics/changelog # No owner - to go with the above
 /projects/plugins/stats @Automattic/jetpack-stats
-/projects/plugins/stats/changelog # No owner - too noisy on cross-project PRs
+/projects/plugins/stats/composer.lock # No owner - too noisy
+/projects/plugins/stats/changelog # No owner - to go with the above
 /projects/plugins/boost @Automattic/jetpack-boost
 
 # Functionality that is important to our partners

@@ -7,7 +7,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log as Activity_Log_Init;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Config;
@@ -744,6 +743,7 @@ class Jetpack {
 		add_action( 'jetpack_site_registered', array( $this, 'activate_default_modules_on_site_register' ) );
 		add_action( 'jetpack_site_registered', array( $this, 'handle_unique_registrations_stats' ) );
 		add_action( 'jetpack_site_registered', array( Reader_Link::class, 'activate_on_connection' ), 9 );
+		add_action( 'jetpack_site_registered', array( \Automattic\Jetpack\Reprint_Export\Reprint_Exporter::class, 'discard_credentials' ) );
 
 		// Actions for Manager::authorize().
 		add_action( 'jetpack_authorize_starting', array( $this, 'authorize_starting' ) );
@@ -857,8 +857,9 @@ class Jetpack {
 	 * flag while it rolls out (WOOA7S-1595). When enabled it adds its own admin
 	 * menu alongside the existing Stats UI; it never replaces or hides the
 	 * legacy Stats menu, admin-bar entries, post-list column, or WP dashboard
-	 * widget. The Stats module's tracking is unaffected either way — Stats v2
-	 * depends on it.
+	 * widget. The Stats module's tracking is unaffected either way, and Stats v2
+	 * reads what that module collects, so while the module is off the plugin
+	 * answers false here before even reading the flag.
 	 *
 	 * The package has to be loadable for this to be true, so a site with the
 	 * flag on but a missing package answers false here and never adds the
@@ -873,12 +874,18 @@ class Jetpack {
 			return self::$premium_analytics_enabled;
 		}
 
+		if ( ! self::is_module_active( 'stats' ) ) {
+			self::$premium_analytics_enabled = false;
+			return false;
+		}
+
 		/**
 		 * Filters whether the bundled Premium Analytics dashboard is enabled.
 		 *
-		 * Resolved once, from `Jetpack::configure()` on `plugins_loaded`. Register
-		 * this from a mu-plugin or a plugin's main file — a callback added on
-		 * `plugins_loaded` or later runs too late to be seen.
+		 * Resolved once, from `Jetpack::configure()` on `plugins_loaded`, and only
+		 * while the Stats module is active. Register this from a mu-plugin or a
+		 * plugin's main file — a callback added on `plugins_loaded` or later runs
+		 * too late to be seen.
 		 *
 		 * @since 16.1
 		 *
@@ -896,6 +903,22 @@ class Jetpack {
 		}
 
 		return self::$premium_analytics_enabled;
+	}
+
+	/**
+	 * Expose the setting that turns the Premium Analytics dashboard on and off.
+	 *
+	 * Deliberately not behind is_premium_analytics_enabled(): this is the setting that flips that
+	 * check, so it has to answer while the dashboard is still off.
+	 *
+	 * @since 16.2
+	 *
+	 * @return void
+	 */
+	public static function register_premium_analytics_enablement_setting() {
+		if ( class_exists( 'Automattic\Jetpack\PremiumAnalytics\Enablement_Setting' ) ) {
+			\Automattic\Jetpack\PremiumAnalytics\Enablement_Setting::register();
+		}
 	}
 
 	/**
@@ -1002,20 +1025,15 @@ class Jetpack {
 			);
 		}
 
-		/*
-		 * Stats v2 (WOOA7S-1595): bundled behind a flag while it rolls out.
-		 * Unlike Stats above it must initialize on every request when enabled:
-		 * its WooCommerce store-event tracker listens on the front end and its
-		 * REST surfaces self-gate on rest_api_init. It adds its own admin menu
-		 * alongside the existing Stats UI (see modules/stats.php) rather than
-		 * replacing it.
-		 */
+		// Stats v2 (WOOA7S-1595). Unlike Stats above it cannot be deferred when enabled — see
+		// Analytics::init() for why, and for why it takes no menu_title here.
 		if ( self::is_premium_analytics_enabled() ) {
-			// No menu_title here: the package labels its own menu on admin_menu.
-			// Translating at this point would load the textdomain before
-			// after_setup_theme, which core flags as too early.
 			\Automattic\Jetpack\PremiumAnalytics\Analytics::init();
 		}
+
+		// Outside the check above on purpose — see Enablement_Setting. Deferred like Stats, to keep
+		// the autoload off the front-end hot path.
+		add_action( 'rest_api_init', array( __CLASS__, 'register_premium_analytics_enablement_setting' ), 0 );
 
 		$config->ensure(
 			'connection',
@@ -1125,7 +1143,6 @@ class Jetpack {
 			add_action( 'rest_api_init', array( My_Jetpack_Initializer::class, 'init' ), 0 );
 		}
 
-		Activity_Log_Init::initialize();
 		Scan_Page_Init::initialize();
 		Jetpack_SEO_Initializer::init();
 
@@ -2025,7 +2042,11 @@ class Jetpack {
 	 * @todo Store the result in core's object cache maybe?
 	 */
 	public static function get_active_plugins() {
-		// Delegates to the canonical implementation in the Connection package.
+		// Older Connection copies can load first and lack this method.
+		if ( ! method_exists( Heartbeat::class, 'get_active_plugins' ) ) {
+			return array();
+		}
+
 		return Heartbeat::get_active_plugins();
 	}
 
@@ -2482,21 +2503,28 @@ class Jetpack {
 	/**
 	 * Return module name translation. Uses matching string created in modules/module-headings.php.
 	 *
+	 * The module list is globbed from `modules/` at runtime, so a module can be listed with no
+	 * entry in that generated file. Fall back to the untranslated header rather than overwriting
+	 * it with the null `jetpack_get_module_i18n()` returns for an unknown slug.
+	 *
 	 * @since 3.9.2
 	 *
 	 * @param array $modules Array of Jetpack modules.
 	 *
-	 * @return string|void
+	 * @return array
 	 */
 	public static function get_translated_modules( $modules ) {
 		foreach ( $modules as $index => $module ) {
 			$i18n_module = jetpack_get_module_i18n( $module['module'] );
-			if ( isset( $module['name'] ) ) {
-				$modules[ $index ]['name'] = $i18n_module['name'];
+			$name        = $i18n_module['name'] ?? null;
+			$description = $i18n_module['description'] ?? null;
+
+			if ( null !== $name && isset( $module['name'] ) ) {
+				$modules[ $index ]['name'] = $name;
 			}
-			if ( isset( $module['description'] ) ) {
-				$modules[ $index ]['description']       = $i18n_module['description'];
-				$modules[ $index ]['short_description'] = $i18n_module['description'];
+			if ( null !== $description && isset( $module['description'] ) ) {
+				$modules[ $index ]['description']       = $description;
+				$modules[ $index ]['short_description'] = $description;
 			}
 			if ( isset( $module['module_tags'] ) ) {
 				$modules[ $index ]['module_tags'] = array_map( 'jetpack_get_module_i18n_tag', $module['module_tags'] );
@@ -2897,6 +2925,8 @@ p {
 		update_option( 'jetpack_activation_source', self::get_activation_source( wp_get_referer() ) );
 
 		Health::on_jetpack_activated();
+
+		\Automattic\Jetpack\Reprint_Export\Reprint_Exporter::discard_credentials();
 
 		if ( self::is_connection_ready() && method_exists( 'Automattic\Jetpack\Sync\Actions', 'do_only_first_initial_sync' ) ) {
 			Sync_Actions::do_only_first_initial_sync();
@@ -3453,6 +3483,8 @@ p {
 	public static function jetpack_site_disconnected() {
 		Identity_Crisis::clear_all_idc_options();
 
+		\Automattic\Jetpack\Reprint_Export\Reprint_Exporter::discard_credentials();
+
 		// Delete all the sync related data. Since it could be taking up space.
 		Sender::get_instance()->uninstall();
 
@@ -3643,8 +3675,10 @@ p {
 	public static function get_stat_data( $encode = true, $extended = true ) {
 		_deprecated_function( __METHOD__, 'jetpack-16.2', 'Automattic\\Jetpack\\Heartbeat::generate_stats_array' );
 
-		// Site environment stats now live in the Connection package; merge them with the Jetpack-specific stats.
-		$data = array_merge( Jetpack_Heartbeat::generate_stats_array(), Heartbeat::get_environment_stats() );
+		$env_stats = method_exists( Heartbeat::class, 'get_environment_stats' )
+			? Heartbeat::get_environment_stats()
+			: array();
+		$data      = array_merge( Jetpack_Heartbeat::generate_stats_array(), $env_stats );
 
 		if ( $extended ) {
 			$additional_data = self::get_additional_stat_data();
@@ -4233,6 +4267,26 @@ p {
 	 */
 
 	/**
+	 * Build the user-facing description stored alongside a registration error code.
+	 *
+	 * @since 16.2
+	 *
+	 * @param string $error_code The WP_Error code.
+	 * @param string $message    The WP_Error message.
+	 * @return string The description, empty when the message is not user-facing copy.
+	 */
+	public static function get_registration_error_description( $error_code, $message ) {
+		// Manager::validate_remote_register_response() does not always put user-facing copy in the
+		// message slot: wpcom_5??, wpcom_408 and wpcom_bad_response store the HTTP status there,
+		// and jetpack_id stores the raw response body, which can also overflow the state cookie.
+		if ( 'jetpack_id' === $error_code || is_numeric( $message ) ) {
+			return '';
+		}
+
+		return mb_substr( (string) $message, 0, 250 );
+	}
+
+	/**
 	 * Handles the page load events for the Jetpack admin page
 	 */
 	public function admin_page_load() {
@@ -4270,7 +4324,8 @@ p {
 					if ( is_wp_error( $registered ) ) {
 						$error = $registered->get_error_code();
 						self::state( 'error', $error );
-						self::state( 'error', $registered->get_error_message() );
+
+						self::state( 'error_description', self::get_registration_error_description( $error, $registered->get_error_message() ) );
 
 						/**
 						 * Jetpack registration Error.
@@ -5168,7 +5223,11 @@ endif;
 	 * @since 2.3.3
 	 */
 	public static function permit_ssl( $force_recheck = false ) {
-		// Delegates to the canonical SSL check in the Connection package.
+		if ( ! method_exists( Heartbeat::class, 'permit_ssl' ) ) {
+			// Skip the SSL-fail notice when the check cannot run.
+			return true;
+		}
+
 		return Heartbeat::permit_ssl( $force_recheck );
 	}
 
@@ -5183,6 +5242,10 @@ endif;
 	 * @return string The localized message, or an empty string when there is no failure.
 	 */
 	public static function get_ssl_test_message() {
+		if ( ! method_exists( Heartbeat::class, 'get_ssl_test_error' ) ) {
+			return '';
+		}
+
 		$error = Heartbeat::get_ssl_test_error();
 
 		switch ( $error['code'] ) {
@@ -6153,9 +6216,12 @@ endif;
 		 * effects (Connection\Manager::add_stats_to_heartbeat() consumes and deletes the `xmlrpc_errors` option)
 		 * and return non-scalar values, neither of which is appropriate for this read-only diagnostic.
 		 */
-		$raw_data = array_merge(
+		$env_stats = method_exists( Heartbeat::class, 'get_environment_stats' )
+			? Heartbeat::get_environment_stats()
+			: array();
+		$raw_data  = array_merge(
 			Jetpack_Heartbeat::generate_stats_array(),
-			Heartbeat::get_environment_stats(),
+			$env_stats,
 			array( 'identitycrisis' => Identity_Crisis::check_identity_crisis() ? 'yes' : 'no' )
 		);
 

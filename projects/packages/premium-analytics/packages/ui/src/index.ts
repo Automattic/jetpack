@@ -8,9 +8,16 @@ export {
 } from './dataviews-drilldown-native';
 export { DateFiltersPanel } from './date-filters-panel';
 export { DateIntervalDropdown } from './date-interval-dropdown';
-export { DatePeriodNavigation } from './date-period-navigation';
+export { DatePeriodDropdown } from './date-period-dropdown';
+export { PeriodChangeStatus } from './period-change-status';
 export { DateYearFilter, type DateYearFilterProps } from './date-year-filter';
+export {
+	OnboardingWelcomeModal,
+	type OnboardingDismissReason,
+	type OnboardingWelcomeModalProps,
+} from './onboarding-welcome-modal';
 export { safeHttpUrl } from './utils/safe-http-url';
+export { tagRowGlyph } from './utils/tag-row-glyph';
 export {
 	SectionTabPanel,
 	SectionTabs,
@@ -18,8 +25,14 @@ export {
 	type SectionTabPanelProps,
 	type SectionTabsProps,
 } from './section-tabs/section-tabs';
-export { SectionHeader } from './section-header/section-header';
-export { getSectionSubtitle } from './section-header/get-section-subtitle';
+export { SectionHeader, type SectionHeaderProps } from './section-header/section-header';
+export {
+	SpotlightStep,
+	type SpotlightDismissReason,
+	type SpotlightStepProps,
+} from './spotlight-step';
 export { StaleDataNotice } from './stale-data-notice';
 export { StatsBreadcrumbs, type StatsBreadcrumbsProps } from './stats-breadcrumbs';
 export { StatsPageIcon } from './stats-page-icon';
+export { usePaginatedView, type PaginatedView } from './use-paginated-view';
+export { WidgetGridAnimation, type WidgetGridAnimationProps } from './widget-grid-animation';

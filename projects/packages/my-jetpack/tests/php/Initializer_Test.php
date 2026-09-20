@@ -129,25 +129,9 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The admin page marks the container with the onboarding route when
-	 * onboarding is requested and available.
+	 * The admin page renders the onboarding container when onboarding is requested and available.
 	 */
-	public function test_admin_page_renders_onboarding_route_when_available() {
-		$_GET['step'] = 'onboarding';
-
-		ob_start();
-		Initializer::admin_page();
-		$output = ob_get_clean();
-
-		$this->assertStringContainsString( 'data-route="onboarding"', $output );
-	}
-
-	/**
-	 * The admin page never marks the container with the onboarding route on
-	 * WordPress.com Simple sites, even when the redirect did not run.
-	 */
-	public function test_admin_page_does_not_render_onboarding_route_on_wpcom_simple() {
-		Constants::set_constant( 'IS_WPCOM', true );
+	public function test_admin_page_renders_the_onboarding_container_when_available() {
 		$_GET['step'] = 'onboarding';
 
 		ob_start();
@@ -155,7 +139,21 @@ class Initializer_Test extends BaseTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( 'id="my-jetpack-container"', $output );
-		$this->assertStringNotContainsString( 'data-route', $output );
+	}
+
+	/**
+	 * The admin page never renders the onboarding container on WordPress.com Simple sites,
+	 * even when the redirect did not run.
+	 */
+	public function test_admin_page_does_not_render_the_onboarding_container_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$_GET['step'] = 'onboarding';
+
+		ob_start();
+		Initializer::admin_page();
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'my-jetpack-container', $output );
 	}
 
 	/**
@@ -239,16 +237,9 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The AI card's pre-release toggle flag follows the Jetpack plugin's
-	 * internal-testing helper.
+	 * The AI card keeps its legacy action without a compatible Jetpack plugin.
 	 */
-	public function test_my_jetpack_flags_gate_the_ai_module_toggle() {
-		$GLOBALS['jetpack_mock_internal_testing_environment'] = true;
-		$this->assertTrue( Initializer::get_my_jetpack_flags()['showAiModuleToggle'] );
-
-		$GLOBALS['jetpack_mock_internal_testing_environment'] = false;
+	public function test_my_jetpack_flags_hide_the_ai_module_toggle_without_compatible_jetpack() {
 		$this->assertFalse( Initializer::get_my_jetpack_flags()['showAiModuleToggle'] );
-
-		unset( $GLOBALS['jetpack_mock_internal_testing_environment'] );
 	}
 }

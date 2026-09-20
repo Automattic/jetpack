@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: Let screen readers announce a date field's own label instead of the date picker instructions.

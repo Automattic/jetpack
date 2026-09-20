@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Gutenberg: Keep the React 19 experiment disabled on sites running Gutenberg 23.9.0.

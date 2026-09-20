@@ -266,4 +266,90 @@ class Jetpack_RelatedPosts_Test extends WP_UnitTestCase {
 
 		$this->assertEquals( $empty_options, Jetpack_RelatedPosts::init()->parse_options( $options ) );
 	}
+
+	private const GATED_BODY = 'Secret paragraph that paying subscribers alone are supposed to read. It runs well past the fifty word trim so the leak is visible in the excerpt: alpha bravo charlie delta echo foxtrot golf hotel india juliett kilo lima mike november oscar papa quebec romeo sierra tango uniform victor whiskey xray yankee zulu one two three four five six seven eight nine ten.';
+
+	/**
+	 * Creates a post and gives it a Newsletter access level.
+	 *
+	 * @param array  $args   Arguments for the post factory.
+	 * @param string $access Newsletter access level, or '' to leave the post ungated.
+	 * @return int Post ID.
+	 */
+	private function create_post( array $args = array(), $access = 'subscribers' ) {
+		$post_id = self::factory()->post->create(
+			array_merge(
+				array(
+					'post_title'   => 'A gated post',
+					'post_content' => self::GATED_BODY,
+					'post_excerpt' => '',
+				),
+				$args
+			)
+		);
+
+		if ( '' !== $access ) {
+			update_post_meta( $post_id, '_jetpack_newsletter_access', $access );
+		}
+
+		return $post_id;
+	}
+
+	public function test_gated_post_excerpt_is_not_built_from_the_body() {
+		$data = Jetpack_RelatedPosts::init()->get_related_post_data_for_post( $this->create_post(), 0, 0 );
+
+		$this->assertSame( '', $data['excerpt'] );
+	}
+
+	public function test_ungated_post_excerpt_is_still_built_from_the_body() {
+		$data = Jetpack_RelatedPosts::init()->get_related_post_data_for_post( $this->create_post( array(), '' ), 0, 0 );
+
+		$this->assertStringContainsString( 'Secret paragraph', $data['excerpt'] );
+	}
+
+	public function test_gated_post_keeps_its_manual_excerpt() {
+		$post_id = $this->create_post( array( 'post_excerpt' => 'A summary the author chose to publish.' ) );
+
+		$data = Jetpack_RelatedPosts::init()->get_related_post_data_for_post( $post_id, 0, 0 );
+
+		$this->assertSame( 'A summary the author chose to publish.', $data['excerpt'] );
+	}
+
+	public function test_gated_post_title_does_not_fall_back_to_the_body() {
+		$post_id = $this->create_post( array( 'post_title' => '' ) );
+
+		$data = Jetpack_RelatedPosts::init()->get_related_post_data_for_post( $post_id, 0, 0 );
+
+		$this->assertSame( 'Untitled Post', $data['title'] );
+	}
+
+	public function test_untitled_ungated_post_title_still_falls_back_to_the_body() {
+		$post_id = $this->create_post( array( 'post_title' => '' ), '' );
+
+		$data = Jetpack_RelatedPosts::init()->get_related_post_data_for_post( $post_id, 0, 0 );
+
+		$this->assertStringContainsString( 'Secret', $data['title'] );
+	}
+
+	public function test_gated_post_image_is_not_taken_from_the_body() {
+		$post_id = $this->create_post(
+			array( 'post_content' => '<img src="https://example.org/in-the-body.jpg" width="800" height="600" alt="In the body" />' )
+		);
+
+		$data = Jetpack_RelatedPosts::init()->get_related_post_data_for_post( $post_id, 0, 0 );
+
+		$this->assertSame( '', $data['img']['src'] );
+		$this->assertSame( '', $data['img']['alt_text'] );
+	}
+
+	public function test_ungated_post_image_is_still_taken_from_the_body() {
+		$post_id = $this->create_post(
+			array( 'post_content' => '<img src="https://example.org/in-the-body.jpg" width="800" height="600" alt="In the body" />' ),
+			''
+		);
+
+		$data = Jetpack_RelatedPosts::init()->get_related_post_data_for_post( $post_id, 0, 0 );
+
+		$this->assertStringContainsString( 'in-the-body.jpg', $data['img']['src'] );
+	}
 }

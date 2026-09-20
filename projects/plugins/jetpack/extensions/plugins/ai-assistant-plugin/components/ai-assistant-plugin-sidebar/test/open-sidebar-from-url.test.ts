@@ -104,6 +104,20 @@ describe( 'open-sidebar-from-url', () => {
 			expect( result.current ).toBe( false );
 			expect( dispatchMock ).not.toHaveBeenCalled();
 		} );
+
+		test( 'stays quiet when the caller has nothing left to show', () => {
+			jest.useFakeTimers();
+			window.history.pushState( {}, '', '/wp-admin/post-new.php?openSidebar=jetpack-ai-assistant' );
+			const openGeneralSidebar = jest.fn();
+			dispatchMock.mockReturnValue( { openGeneralSidebar } );
+
+			const { result } = renderHook( () => useSidebarOpenFromUrl( false ) );
+			jest.runAllTimers();
+
+			expect( result.current ).toBe( false );
+			expect( openGeneralSidebar ).not.toHaveBeenCalled();
+			jest.useRealTimers();
+		} );
 	} );
 
 	test( 'importing the module does not touch the stores', async () => {

@@ -88,7 +88,9 @@ export async function tokenBridgeHandler(
 		return;
 	}
 
-	if ( ! isAllowedOrigin( event.origin ) ) {
+	// An inline player (Inline_Player) runs in this very window, so its request
+	// carries the page's own origin; iframes must come from VideoPress.
+	if ( event.source !== window && ! isAllowedOrigin( event.origin ) ) {
 		debug( '(%s) Invalid origin', context );
 		return;
 	}

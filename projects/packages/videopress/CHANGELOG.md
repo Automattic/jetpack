@@ -5,6 +5,67 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.51.0] - 2026-09-18
+### Added
+- Add an inline player mode that loads the VideoPress player once per page instead of once per embedded frame. [#52244]
+- Inline player: show each video's poster and load the player only when it is played. [#52011]
+- Inline player mode: the block editor previews video blocks with the same shared player instead of one frame per block. [#52052]
+
+### Changed
+- Exclude source map files from the distributed package. [#52304]
+- Update package dependencies. [#52187]
+- Welcome modal: body copy stepped up to the design system's lg size with the lede in the same colour as the value cards, and the dialog now sits at true center. Library: the upload dropzone text matches the design system's empty state, and the header's Upload button steps aside while that dropzone is the only thing to upload into. [#52061]
+
+### Fixed
+- Admin: Keep the notice, video list and video card icons colored now that @wordpress/icons 16 draws them as strokes. [#52187]
+- Dashboard: Keep the video editor footer at the bottom of the page. [#52489]
+
+## [0.50.2] - 2026-09-15
+### Added
+- Add a "Learn more" support link to the admin page. [#52111]
+
+### Changed
+- Dashboard: Display video library thumbnails in a 16:9 aspect ratio. [#52318]
+- Hide the VideoPress sidebar item when VideoPress is not active. [#52156]
+- Inline player: Let the `jetpack_videopress_player_use_iframe` filter switch video blocks, shortcodes and embeds to the shared in-page player. [#52242]
+- Update package dependencies. [#52200] [#52297]
+
+### Fixed
+- Fix selecting thumbnail frames from private videos and prefer browser-compatible video renditions. [#52158]
+- Follow the admin color scheme for the support link. [#52222]
+
+## [0.50.1] - 2026-09-09
+### Changed
+- Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+
+## [0.50.0] - 2026-09-08
+### Added
+- Add a site-wide setting to turn off player preloading for every embed. [#51991]
+
+### Changed
+- Dashboard: Open the file picker directly from the welcome modal's Upload a video button, then land on the Library to follow the upload's progress. [#51791]
+- Update package dependencies. [#51701]
+
+### Fixed
+- Avoid incorrect limits and upgrade prompts when site features cannot be loaded. [#52050]
+- Dashboard: Make the welcome=1 review parameter reopen the welcome modal after it has been dismissed. [#51791]
+- Fix the dashboard rendering blank on WordPress 7.0.x. [#51847]
+- Playlist block: Wrap long unbroken video titles and decode HTML entities in titles on the front end. [#51849]
+- Register the "Add to a post or page" default content handler when the Jetpack VideoPress module is active, not only when the standalone plugin is present. [#51996]
+
+## [0.49.0] - 2026-09-01
+### Added
+- Dashboard: Give the empty Library an upload dropzone empty state. [#51717]
+- Enable the chapters editor on all sites. [#51296]
+
+### Changed
+- Update package dependencies. [#51303] [#51802]
+
+### Fixed
+- Dashboard: Say when an upload failed because of a Jetpack connection problem, instead of only "Upload failed". [#51541]
+- Dashboard: Show the Jetpack connection error notice on the modernized dashboard. [#51541]
+- Video block: Say when an upload failed because of a Jetpack connection problem, instead of only "Failed to upload your video". [#51541]
+
 ## [0.48.0] - 2026-08-26
 ### Added
 - Dashboard: Add a first-run onboarding modal. [#51520]
@@ -2194,6 +2255,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.51.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.50.2...v0.51.0
+[0.50.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.50.1...v0.50.2
+[0.50.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.50.0...v0.50.1
+[0.50.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.49.0...v0.50.0
+[0.49.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.48.0...v0.49.0
 [0.48.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.47.2...v0.48.0
 [0.47.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.47.1...v0.47.2
 [0.47.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.47.0...v0.47.1

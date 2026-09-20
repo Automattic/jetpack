@@ -21,17 +21,14 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
 	MetricTabsChart: ( {
 		metrics,
-		pointsAreWallClocks,
 	}: {
 		metrics: { key: string; value: number; current: { date: Date; value: number }[] }[];
-		pointsAreWallClocks?: boolean;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
 			data-metric-keys={ metrics.map( metric => metric.key ).join( ',' ) }
 			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
 			data-days={ metrics[ 0 ]?.current.map( point => point.date.getDate() ).join( ',' ) }
-			data-wall-clocks={ String( pointsAreWallClocks ) }
 		/>
 	),
 } ) );
@@ -56,9 +53,9 @@ describe( 'SubscribersChartWidget', () => {
 		mockUseStatsSubscribersReport.mockReset();
 	} );
 
-	// Pinned west of UTC on purpose: under a UTC runner the wall-clock reading
-	// and the old instant reading coincide, so this would pass either way.
-	it( 'builds chart points as the wall clocks the buckets name, declared to the chart', async () => {
+	// Pinned west of UTC on purpose: under a UTC runner the site and runner
+	// readings coincide, so this would pass either way.
+	it( 'builds chart points on the bucket days the site names', async () => {
 		const env = process.env as Record< string, string | undefined >;
 		const runnerTimeZone = env.TZ;
 		env.TZ = 'America/Los_Angeles';
@@ -76,11 +73,10 @@ describe( 'SubscribersChartWidget', () => {
 			);
 
 			const chart = await screen.findByTestId( 'metric-tabs-chart' );
-			// The old `localTZDate` reading anchors the buckets away from the
-			// local frame, so these read as the previous day (3,4) under it.
+			// Reading these buckets in the runner's zone would report the previous
+			// day (3,4).
 			expect( chart ).toHaveAttribute( 'data-days', '4,5' );
 			expect( chart ).toHaveAttribute( 'data-values', '5,6' );
-			expect( chart ).toHaveAttribute( 'data-wall-clocks', 'true' );
 		} finally {
 			if ( runnerTimeZone === undefined ) {
 				delete env.TZ;

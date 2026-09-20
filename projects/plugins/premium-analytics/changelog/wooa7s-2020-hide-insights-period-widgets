@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Insights: Remove Total views, Total visitors, Popular days and Popular hours from the default layout, and hold the four widgets back from every widget picker for now.

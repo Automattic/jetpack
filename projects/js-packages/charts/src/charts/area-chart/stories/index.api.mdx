@@ -25,7 +25,7 @@ Stacked-by-default area chart component with responsive behaviour.
 | `withTooltips` | `boolean` | `true` | Enable interactive tooltips |
 | `withTooltipCrosshairs` | `{ showVertical?: boolean; showHorizontal?: boolean }?` | - | Show crosshair guides with tooltips |
 | `zoomable` | `boolean?` | `false` | Enable drag-to-zoom on the X axis. Dragging horizontally rescales the X axis to the selected range; a "Reset zoom" button appears in the top-right while zoomed |
-| `renderTooltip` | `(params: RenderTooltipParams) => ReactNode?` | - | Custom tooltip render function |
+| `renderTooltip` | `(params: RenderTooltipParams<DataPointDate> & { bucketInfo?: BucketInfo }) => ReactNode?` | - | Custom tooltip render function. `bucketInfo` carries the chart's date bucket classification |
 | `animation` | `boolean` | `false` | Enable entry animation. Respects `prefers-reduced-motion` |
 | `showLegend` | `boolean` | `false` | Display chart legend |
 | `legend` | `SeriesChartLegendConfig` | - | Legend configuration object. See [SeriesChartLegendConfig](#serieschartlegendconfig-type) |

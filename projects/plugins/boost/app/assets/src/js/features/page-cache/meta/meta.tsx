@@ -9,8 +9,8 @@ import { usePageCache, useClearPageCacheAction } from '$lib/stores/page-cache';
 import clsx from 'clsx';
 import { useMutationNotice } from '$features/ui';
 import { useDataSyncSubset } from '@automattic/jetpack-react-data-sync-client';
+import { useTooltipLayer } from '$features/module/surface';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
-import ErrorNotice from '$features/error-notice/error-notice';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
 import type { ChangeEvent, ReactNode } from 'react';
@@ -61,7 +61,7 @@ const Meta = () => {
 						/* translators: %d is the number of cache bypass patterns. */
 						_n( '%d exception.', '%d exceptions.', totalBypassPatterns, 'jetpack-boost' ),
 						totalBypassPatterns
-				  )
+					)
 				: __( 'No exceptions.', 'jetpack-boost' ) ) +
 			' ' +
 			loggingMessage
@@ -266,6 +266,7 @@ type BypassPatternsExampleProps = {
 
 const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 	const [ show, setShow ] = useState( false );
+	const tooltipLayer = useTooltipLayer();
 
 	return (
 		<div className={ styles[ 'example-wrapper' ] }>
@@ -287,7 +288,8 @@ const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 					popoverAnchorStyle="wrapper"
 					forceShow={ show }
 					offset={ -10 }
-					className={ styles.tooltip }
+					popoverClassName={ styles.tooltip }
+					{ ...tooltipLayer }
 				>
 					<strong>{ __( 'Example:', 'jetpack-boost' ) }</strong>
 					<br />
@@ -306,10 +308,12 @@ export default () => {
 	return (
 		<ErrorBoundary
 			fallback={ _error => (
-				<ErrorNotice
-					title={ __( 'Error', 'jetpack-boost' ) }
-					error={ new Error( __( 'Unable to load Cache settings.', 'jetpack-boost' ) ) }
-				/>
+				<Notice.Root intent="error">
+					<Notice.Title>{ __( 'Error', 'jetpack-boost' ) }</Notice.Title>
+					<Notice.Description>
+						{ __( 'Unable to load Cache settings.', 'jetpack-boost' ) }
+					</Notice.Description>
+				</Notice.Root>
 			) }
 		>
 			<Meta />

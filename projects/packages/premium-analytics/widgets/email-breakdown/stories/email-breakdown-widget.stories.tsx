@@ -204,8 +204,7 @@ export const NoEmailSelected: Story = {
 };
 
 interface EmailBreakdownDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		EmailBreakdownStoryControls {}
+	extends WidgetDashboardWithWidgetControls, EmailBreakdownStoryControls {}
 
 function EmailBreakdownDashboardStory( {
 	view,

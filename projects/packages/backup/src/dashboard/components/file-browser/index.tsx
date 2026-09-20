@@ -13,8 +13,10 @@ import {
 } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
 import { useFileTree } from '../../hooks/use-file-tree';
+import useNarrowElement from '../../hooks/use-narrow-element';
 import { isFolder } from '../../types/file-tree';
 import FileInfoCard from '../file-info-card';
+import FileInfoDialog from '../file-info-dialog';
 import QueryError from '../query-error';
 import './style.scss';
 import type { FileNode, FileNodeFile } from '../../types/file-tree';
@@ -40,11 +42,22 @@ export const EMPTY_FILE_SELECTION: FileSelection = {
 	deselected: new Set(),
 };
 
+const CARD_TRACK = 280;
+const COLUMN_GAP = 16;
+// Floor for the tree: a nested row spends ~120px on indent, checkbox, chevron
+// and glyph before a single character of filename.
+const MIN_TREE = 344;
+
+// Panel width at which the card can take a column beside the tree. Below it
+// the card leaves the tree ~100px and filenames truncate to `wp…`, so the
+// preview moves into `<FileInfoDialog>` instead.
+const TWO_COLUMN_MIN = CARD_TRACK + COLUMN_GAP + MIN_TREE;
+
 type Props = {
 	rewindId: string;
 	selection: FileSelection;
 	onSelectionChange: ( next: FileSelection ) => void;
-	onSelectionCountChange?: ( count: number ) => void;
+	onSelectionIdsChange?: ( ids: string[] ) => void;
 };
 
 /**
@@ -261,7 +274,8 @@ function propagateSelectUp(
 }
 
 /**
- * Counts effectively-selected leaves in the loaded subtree of `roots`.
+ * Collects the effectively-selected leaves in the loaded subtree of
+ * `roots`, in tree order.
  *
  * A "leaf" here is what the server would download as one opaque unit:
  * a file, or a folder whose children we haven't loaded yet (whatever
@@ -271,18 +285,23 @@ function propagateSelectUp(
  * descendants underneath them — neither the partial folder nor the
  * deselected branches count.
  *
+ * A ticked but unexpanded folder is therefore one entry standing for
+ * however many files it holds. That is what upstream wants — the same
+ * shape Calypso builds — so this list is both the label's count and the
+ * download's include list.
+ *
  * @param roots          - Top-level nodes to start from.
  * @param selection      - Current selection sets.
  * @param loadedChildren - Map of folder path → loaded children list.
- * @return Count of effectively-selected leaves.
+ * @return The effectively-selected leaf nodes.
  */
-function countSelectedInLoadedTree(
+function collectSelectedInLoadedTree(
 	roots: FileNode[],
 	selection: FileSelection,
 	loadedChildren: ReadonlyMap< string, FileNode[] >
-): number {
+): FileNode[] {
 	const { selected, deselected } = selection;
-	let count = 0;
+	const leaves: FileNode[] = [];
 	const walk = ( nodes: FileNode[], inheritedSelected: boolean ) => {
 		for ( const node of nodes ) {
 			const ownSelected = selected.has( node.path );
@@ -295,12 +314,12 @@ function countSelectedInLoadedTree(
 			} else if ( eff ) {
 				// File, or a folder whose contents we haven't loaded:
 				// the server treats either as a single downloadable unit.
-				count += 1;
+				leaves.push( node );
 			}
 		}
 	};
 	walk( roots, false );
-	return count;
+	return leaves;
 }
 
 /**
@@ -313,20 +332,21 @@ function countSelectedInLoadedTree(
  * buttons can swap between "Download backup" and "Download N selected
  * files" using the same `FileSelection` shape that this tree drives.
  *
- * @param props                        - Component props.
- * @param props.rewindId               - The selected backup's rewindId; surfaced as a data attribute today, the future REST hook will use it.
- * @param props.selection              - Current selection state (selected + deselected sets).
- * @param props.onSelectionChange      - Called with the next state when any row toggles.
- * @param props.onSelectionCountChange - Called whenever the visible-selected leaf count changes.
+ * @param props                      - Component props.
+ * @param props.rewindId             - The selected backup's rewindId; surfaced as a data attribute today, the future REST hook will use it.
+ * @param props.selection            - Current selection state (selected + deselected sets).
+ * @param props.onSelectionChange    - Called with the next state when any row toggles.
+ * @param props.onSelectionIdsChange - Called whenever the selected leaves change, with the `ls` entry ids a download request could name them by.
  * @return The rendered tree.
  */
 export default function FileBrowser( {
 	rewindId,
 	selection,
 	onSelectionChange,
-	onSelectionCountChange,
+	onSelectionIdsChange,
 }: Props ) {
 	const [ openFile, setOpenFile ] = useState< FileNodeFile | null >( null );
+	const [ panelRef, isNarrow ] = useNarrowElement( TWO_COLUMN_MIN );
 	const {
 		children: rootsData,
 		isLoading: rootsLoading,
@@ -401,14 +421,25 @@ export default function FileBrowser( {
 		[ selected, deselected, loadedChildren, onSelectionChange ]
 	);
 
-	const selectedCount = useMemo(
-		() => countSelectedInLoadedTree( roots, selection, loadedChildren ),
+	const selectedLeaves = useMemo(
+		() => collectSelectedInLoadedTree( roots, selection, loadedChildren ),
 		[ roots, selection, loadedChildren ]
+	);
+	// The header counts every selected leaf; the ids reported upward are only what
+	// a request can name. An entry upstream gave no `id` is in the first list and
+	// not the second, which is why the caller labels from the ids.
+	const selectedCount = selectedLeaves.length;
+	const selectedIds = useMemo(
+		() =>
+			selectedLeaves
+				.map( leaf => leaf.id )
+				.filter( ( id ): id is string => typeof id === 'string' && id !== '' ),
+		[ selectedLeaves ]
 	);
 
 	useEffect( () => {
-		onSelectionCountChange?.( selectedCount );
-	}, [ selectedCount, onSelectionCountChange ] );
+		onSelectionIdsChange?.( selectedIds );
+	}, [ selectedIds, onSelectionIdsChange ] );
 
 	// The selection summary's checkbox doubles as a "select all / clear"
 	// toggle: clicking it with anything selected clears both sets,
@@ -441,6 +472,13 @@ export default function FileBrowser( {
 		openerRef.current?.focus();
 	}, [] );
 
+	// The card only takes a column when it is actually rendered there; a bare
+	// tree keeps the full panel width so zebra rows run edge to edge.
+	const layoutClassName =
+		openFile && ! isNarrow
+			? 'jpb-file-browser__layout jpb-file-browser__layout--with-card'
+			: 'jpb-file-browser__layout';
+
 	// A failed root tree is indistinguishable from a backup that contains
 	// nothing: `children` is null either way, so the tree renders empty
 	// under a "0 items selected" header that invites the reader to select
@@ -448,7 +486,7 @@ export default function FileBrowser( {
 	// selection header is meaningless without a tree to select from.
 	if ( rootsError ) {
 		return (
-			<div className="jpb-file-browser" data-rewind-id={ rewindId }>
+			<div className="jpb-file-browser" ref={ panelRef } data-rewind-id={ rewindId }>
 				<QueryError
 					title={ __( "We couldn't load this backup's files.", 'jetpack-backup-pkg' ) }
 					error={ rootsError }
@@ -460,7 +498,7 @@ export default function FileBrowser( {
 	}
 
 	return (
-		<div className="jpb-file-browser" data-rewind-id={ rewindId }>
+		<div className="jpb-file-browser" ref={ panelRef } data-rewind-id={ rewindId }>
 			<Stack direction="row" align="center" gap="sm" className="jpb-file-browser__selection">
 				<CheckboxControl
 					checked={ selected.size > 0 }
@@ -473,7 +511,7 @@ export default function FileBrowser( {
 					__nextHasNoMarginBottom
 				/>
 			</Stack>
-			<div className="jpb-file-browser__layout">
+			<div className={ layoutClassName }>
 				<div className="jpb-file-browser__tree">
 					{ rootsLoading && (
 						<div className="jpb-file-browser__loading">
@@ -496,8 +534,9 @@ export default function FileBrowser( {
 							/>
 						) ) }
 				</div>
-				{ openFile && <FileInfoCard file={ openFile } onClose={ closeInfoCard } /> }
+				{ openFile && ! isNarrow && <FileInfoCard file={ openFile } onClose={ closeInfoCard } /> }
 			</div>
+			{ openFile && isNarrow && <FileInfoDialog file={ openFile } onClose={ closeInfoCard } /> }
 		</div>
 	);
 }
@@ -630,6 +669,10 @@ function NodeRow( {
 					) }
 					__nextHasNoMarginBottom
 				/>
+				{ /*
+				 * `dir` isolates the names below: an RTL page otherwise moves a
+				 * leading dot to the visual end, so `.htaccess` reads `htaccess.`.
+				 */ }
 				{ nodeIsFolder ? (
 					// The glyphs are `aria-hidden`, so the folder/file distinction they
 					// carry visually has to be spelled out for assistive tech.
@@ -651,7 +694,7 @@ function NodeRow( {
 					>
 						<Icon icon={ open ? chevronDown : chevronRight } size={ 16 } />
 						<Icon icon={ folderIcon } size={ 18 } />
-						<span>{ node.name }</span>
+						<span dir="ltr">{ node.name }</span>
 					</button>
 				) : (
 					<button
@@ -665,7 +708,7 @@ function NodeRow( {
 						onClick={ handleOpenFile }
 					>
 						<Icon icon={ fileIcon } size={ 18 } />
-						<span>{ node.name }</span>
+						<span dir="ltr">{ node.name }</span>
 					</button>
 				) }
 			</div>
@@ -718,7 +761,7 @@ function NodeRow( {
 					>
 						{ ! isLoading && ! error && ( children ?? [] ).length === 0
 							? /* translators: shown inside an expanded folder in the backup file browser when the folder contains no files. */
-							  __( 'Empty', 'jetpack-backup-pkg' )
+								__( 'Empty', 'jetpack-backup-pkg' )
 							: '' }
 					</div>
 					{ ! isLoading &&

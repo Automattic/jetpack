@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Move the Critical CSS recommendations logic and collapse animation into feature components.
+
+

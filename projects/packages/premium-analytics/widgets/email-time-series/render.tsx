@@ -9,6 +9,7 @@ import {
 	STATS_CHART_BUCKET_PERIODS,
 	type StatsEmailTimeSeriesReport,
 } from '@jetpack-premium-analytics/data';
+import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTabsChart,
@@ -16,7 +17,6 @@ import {
 	WidgetRoot,
 	WidgetState,
 	defaultPeriodForInterval,
-	toChartDate,
 	useWidgetRootContext,
 	type MetricTab,
 	type ReportParamsFieldAttributes,
@@ -51,8 +51,8 @@ const METRIC_FIELDS: Record< EmailTimeSeriesMetric, 'opens_count' | 'clicks_coun
 
 function metricLabel( metric: EmailTimeSeriesMetric ): string {
 	return metric === 'clicks'
-		? __( 'Total clicks', 'jetpack-premium-analytics-pkg' )
-		: __( 'Total opens', 'jetpack-premium-analytics-pkg' );
+		? __( 'Clicks', 'jetpack-premium-analytics-pkg' )
+		: __( 'Opens', 'jetpack-premium-analytics-pkg' );
 }
 
 type EmailTimeSeriesReportProps = {
@@ -107,12 +107,13 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 	}, [ report, period, field ] );
 
 	// The headline is the window total: buckets are per-period sums, so their sum
-	// is the range's opens/clicks. Point dates are wall clocks — see `chart-date.ts`.
+	// is the range's opens/clicks.
 	const metricTabs = useMemo< MetricTab[] >( () => {
-		const points = ( chartReport?.data ?? [] ).map( point => ( {
-			date: toChartDate( point.date_start ),
-			value: Number( point[ field ] ?? 0 ),
-		} ) );
+		const points = ( chartReport?.data ?? [] ).flatMap( point => {
+			const date = resolveBucketStamp( point.date_start, active.timezone );
+
+			return date ? [ { date, value: Number( point[ field ] ?? 0 ) } ] : [];
+		} );
 
 		return [
 			{
@@ -122,7 +123,7 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 				current: points,
 			},
 		];
-	}, [ chartReport, field, metric ] );
+	}, [ chartReport, field, metric, active.timezone ] );
 	const hasPoints = ( chartReport?.data?.length ?? 0 ) > 0;
 
 	return (
@@ -146,7 +147,7 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 						: __(
 								'Open an email report to see its timeline here.',
 								'jetpack-premium-analytics-pkg'
-						  ),
+							),
 				} }
 				// The chart is the whole content here, so its block replaces the
 				// generic stacked lines.
@@ -156,7 +157,6 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
-					pointsAreWallClocks
 				/>
 			</WidgetState>
 		</div>

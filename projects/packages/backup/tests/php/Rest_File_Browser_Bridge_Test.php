@@ -578,31 +578,48 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * A preview cut short by the byte cap is forwarded exactly as it arrived,
-	 * mid-character and all.
+	 * The preview payload as the REST server would really serve it.
 	 *
-	 * The transport counts bytes with no idea where characters begin, so the cut can land
-	 * inside a multi-byte sequence: 65,535 ASCII bytes followed by U+65E5 is 65,538, and
-	 * the cut at 65,536 keeps the lead byte and drops its two continuations.
+	 * `get_data()` is the wrong layer to assert an intact preview at: the corruption
+	 * this guards against happens in `wp_json_encode()`, on the way out.
 	 *
-	 * What is under test is what the bridge does with that: nothing. Re-cutting or
-	 * repairing it would be a silently different file from the one on disk, which is
-	 * worse in a preview than a visibly damaged tail.
+	 * @param \WP_REST_Response $response The bridge's response.
+	 * @return array<string, mixed>
 	 */
-	public function test_file_content_forwards_a_body_cut_mid_character_unrepaired() {
-		// Checked before allocating: the fixture is the cap's own size, so a cap raised
-		// into the megabytes would fatal the run rather than fail this test.
+	private static function served( $response ) {
+		// `JSON_UNESCAPED_SLASHES` is `WP_REST_Server::serve_request()`'s own flag.
+		return json_decode( wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES ), true );
+	}
+
+	/**
+	 * Guard the fixtures below: they allocate the cap's own size, so a cap raised into
+	 * the megabytes should fail here rather than fatal the run.
+	 */
+	private function assert_preview_cap_is_testable() {
 		$this->assertLessThanOrEqual(
 			1024 * 1024,
 			File_Browser_Bridge::PREVIEW_MAX_BYTES,
 			'A preview cap this large cannot be exercised in a unit test, and should not be buffered in PHP memory on a real site either.'
 		);
+	}
 
-		$cut = substr(
-			str_repeat( 'a', File_Browser_Bridge::PREVIEW_MAX_BYTES - 1 ) . "\xE6\x97\xA5",
-			0,
-			File_Browser_Bridge::PREVIEW_MAX_BYTES
-		);
+	/**
+	 * A body cut mid-character by the byte cap loses the half-written character and
+	 * comes back marked truncated.
+	 *
+	 * Left in place, the bytes the cut keeps would fail the UTF-8 check and report a
+	 * perfectly good text file as unpreviewable.
+	 *
+	 * @param string $character A multi-byte character the cap lands inside of.
+	 * @param int    $kept      How many of its bytes survive the cut.
+	 * @dataProvider provide_characters_the_cap_cuts
+	 */
+	#[DataProvider( 'provide_characters_the_cap_cuts' )]
+	public function test_file_content_drops_the_character_the_byte_cap_cut_in_half( $character, $kept ) {
+		$this->assert_preview_cap_is_testable();
+
+		$whole = str_repeat( 'a', File_Browser_Bridge::PREVIEW_MAX_BYTES - $kept );
+		$cut   = substr( $whole . $character, 0, File_Browser_Bridge::PREVIEW_MAX_BYTES );
 
 		$this->arrange_wpcom_answers(
 			array(
@@ -611,16 +628,140 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 			)
 		);
 
-		$response = File_Browser_Bridge::get_file_content( self::file_content_request() );
+		$served = self::served( File_Browser_Bridge::get_file_content( self::file_content_request() ) );
 
-		$this->assertNotInstanceOf( WP_Error::class, $response );
-		$content = $response->get_data()['content'];
-		$this->assertSame( $cut, $content );
-		$this->assertSame( File_Browser_Bridge::PREVIEW_MAX_BYTES, strlen( $content ) );
-		// Both halves of "the cut landed inside a character". A bridge that repaired or
-		// re-cut the body would pass the length check and fail these.
-		$this->assertSame( "\xE6", substr( $content, -1 ) );
-		$this->assertFalse( mb_check_encoding( $content, 'UTF-8' ) );
+		$this->assertTrue( $served['truncated'] );
+		$this->assertTrue( $served['is_text'] );
+		$this->assertSame( $whole, $served['content'] );
+	}
+
+	/**
+	 * Every count of leftover bytes a cut can produce, up to the three a four-byte
+	 * character leaves — the count the repair loop's own bound is set to.
+	 *
+	 * @return array<string, array{0: string, 1: int}>
+	 */
+	public static function provide_characters_the_cap_cuts() {
+		return array(
+			'one byte of three'   => array( "\xE6\x97\xA5", 1 ),
+			'two bytes of four'   => array( "\xF0\x9F\x92\xA9", 2 ),
+			'three bytes of four' => array( "\xF0\x9F\x92\xA9", 3 ),
+		);
+	}
+
+	/**
+	 * A body that fills the cap without being cut mid-character is still marked
+	 * truncated, and keeps every byte.
+	 *
+	 * An implementation that only flagged the mid-character case would leave a clipped
+	 * ASCII file looking complete.
+	 */
+	public function test_file_content_marks_a_body_that_fills_the_cap_as_truncated() {
+		$this->assert_preview_cap_is_testable();
+
+		$full = str_repeat( 'a', File_Browser_Bridge::PREVIEW_MAX_BYTES );
+
+		$this->arrange_wpcom_answers(
+			array(
+				array( 'body' => self::signed_url_body() ),
+				array( 'body' => $full ),
+			)
+		);
+
+		$served = self::served( File_Browser_Bridge::get_file_content( self::file_content_request() ) );
+
+		$this->assertTrue( $served['truncated'] );
+		$this->assertSame( $full, $served['content'] );
+	}
+
+	/**
+	 * A file that fits under the cap is not marked truncated, and survives the wire
+	 * byte for byte.
+	 *
+	 * The negative half of the flag, and the reason multi-byte text is in the fixture:
+	 * a check that rejected valid UTF-8 would blank out every file with an accent in it.
+	 */
+	public function test_file_content_serves_a_short_utf8_file_whole_and_unflagged() {
+		$body = "<?php\n// \xC3\xA9t\xC3\xA9 \xE6\x97\xA5\xE6\x9C\xAC\n";
+
+		$this->arrange_wpcom_answers(
+			array(
+				array( 'body' => self::signed_url_body() ),
+				array( 'body' => $body ),
+			)
+		);
+
+		$served = self::served( File_Browser_Bridge::get_file_content( self::file_content_request() ) );
+
+		$this->assertSame( $body, $served['content'] );
+		$this->assertTrue( $served['is_text'] );
+		$this->assertFalse( $served['truncated'] );
+	}
+
+	/**
+	 * Bytes that are not UTF-8 text, as the REST server would serve them.
+	 *
+	 * `wp_json_encode()`'s sanity fallback re-encodes invalid UTF-8 rather than failing,
+	 * so the serve error branch never runs and the `?`-substituted body goes out as 200.
+	 *
+	 * @param string $label What kind of body this is.
+	 * @param string $body  Raw bytes the storage host answered with.
+	 * @dataProvider provide_bodies_that_are_not_text
+	 */
+	#[DataProvider( 'provide_bodies_that_are_not_text' )]
+	public function test_file_content_withholds_bytes_it_cannot_serve_as_text( $label, $body ) {
+		$this->arrange_wpcom_answers(
+			array(
+				array( 'body' => self::signed_url_body() ),
+				array( 'body' => $body ),
+			)
+		);
+
+		$served = self::served( File_Browser_Bridge::get_file_content( self::file_content_request() ) );
+
+		$this->assertFalse( $served['is_text'], $label );
+		$this->assertNull( $served['content'], $label );
+	}
+
+	/**
+	 * Bodies the storage host can answer with that must never reach a `<pre>`.
+	 *
+	 * @return array<string, array{0: string, 1: string}>
+	 */
+	public static function provide_bodies_that_are_not_text() {
+		return array(
+			// `\xC3\x28`: a lead byte followed by something that cannot continue it.
+			'latin-1 text' => array( 'latin-1 text', "valid \xC3\x28 tail" ),
+			'a PNG header' => array( 'a PNG header', "\x89PNG\r\n\x1A\n\x00\x00\x00\rIHDR" ),
+			// Valid UTF-8 byte for byte, so the NUL check is the only thing that
+			// refuses it — and rendered as text it is every other character blank.
+			'UTF-16LE'     => array( 'UTF-16LE', "h\x00i\x00\n\x00" ),
+		);
+	}
+
+	/**
+	 * A file that is both over the cap and not text is refused, not repaired into
+	 * something that looks like text.
+	 *
+	 * Dropping the trailing partial character runs before the text check, so a large
+	 * binary reaches that check three bytes shorter — it must still be refused.
+	 */
+	public function test_file_content_withholds_a_capped_binary_body() {
+		$this->assert_preview_cap_is_testable();
+
+		$binary = str_repeat( "\x89PNG\r\n\x1A\n", (int) ceil( File_Browser_Bridge::PREVIEW_MAX_BYTES / 8 ) );
+
+		$this->arrange_wpcom_answers(
+			array(
+				array( 'body' => self::signed_url_body() ),
+				array( 'body' => substr( $binary, 0, File_Browser_Bridge::PREVIEW_MAX_BYTES ) ),
+			)
+		);
+
+		$served = self::served( File_Browser_Bridge::get_file_content( self::file_content_request() ) );
+
+		$this->assertFalse( $served['is_text'] );
+		$this->assertNull( $served['content'] );
 	}
 
 	/**

@@ -1,9 +1,9 @@
 {
 	"name": "jpa/most-commented-posts",
-	"title": "Top commented posts",
+	"title": "All-time most commented posts",
 	"description": "The posts and pages that receive the most comments.",
 	"help": {
-		"content": "Your posts and pages, ranked by the number of comments they have received.",
+		"content": "The posts and pages that received the most comments.",
 		"links": [
 			{
 				"label": "Learn more",

@@ -31,6 +31,7 @@ Some errors describe a broken connection state that a successful outgoing reques
 
 * `invalid_connection_owner` — reported by `Manager::get_connection_owner()` when the connection owner cannot be resolved (missing owner token, or the owner's WP user was deleted). The evidence is the site's own database.
 * `xmlrpc_request_blocked` — reported by the connection health tests (`Connection_Health_Tests::evaluate_wpcom_connection_result()`) when WordPress.com reports that its request to the site was rejected (firewall, WAF, or server rule blocking `xmlrpc.php`). The evidence is WordPress.com's response to a signed request this site initiated. This error is invisible to both request flows above — the failing incoming requests never arrive, and outgoing requests keep succeeding — which is exactly why the health test reports it explicitly.
+* `wpcom_ssl_verification_failed` — reported by the same health-test path when WordPress.com reports that it could not verify the site's SSL certificate while connecting to it (expired or self-signed certificate, or an incomplete chain — its probe dies with e.g. `cURL error 60`). Like the blocked error, it is invisible to both request flows: the failing incoming requests die in the TLS handshake before PHP runs, and outgoing requests keep succeeding — WordPress.com's response to the signed test-connection request is the only evidence.
 
 ## Error classification
 
@@ -49,7 +50,7 @@ Only a fixed list of error codes is handled: the `Error_Handler::$known_errors` 
 * **Incoming and outgoing token problems** — `malformed_token`, the one code reported on both sides: `Manager::internal_verify_xml_rpc_signature()` reports it for an incoming request whose token is empty/garbled or version-mismatched, and `Client::build_signed_request()` reports the same code when the local token has no secret half before it can sign an outgoing request. The two are distinguished by `error_direction` (`incoming` vs `outgoing`), not by code.
 * **Locally stored token problems** — the token stored on this site is missing or corrupt (e.g. `no_user_tokens`, `token_malformed`, `no_valid_blog_token`).
 * **Signature problems** — signing or signature verification failed, either for an incoming request or reported by WordPress.com for an outgoing one (e.g. `invalid_token`, `signature_mismatch`, `invalid_nonce`).
-* **Connection state problems** — the connection state is broken in a way requests can't disprove (`invalid_connection_owner`, `xmlrpc_request_blocked`).
+* **Connection state problems** — the connection state is broken in a way requests can't disprove (`invalid_connection_owner`, `xmlrpc_request_blocked`, `wpcom_ssl_verification_failed`).
 
 If WordPress.com starts returning a new error code, it will be invisible to this system until the code is added to the allowlist. When debugging missing errors, check the response body against this list first (see [Debugging](#debugging)).
 
@@ -97,7 +98,7 @@ Storage limits and hygiene:
 
 * At most 5 user IDs are kept per error code; the oldest is evicted when a sixth arrives.
 * Errors expire 24 hours after being stored (checked on read).
-* A reporting gate only processes each error code once per hour, protecting both the site and WordPress.com from error storms. The `jetpack_connection_bypass_error_reporting_gate` filter can disable the gate (useful in tests).
+* A reporting gate only processes each error code once per hour, protecting both the site and WordPress.com from error storms. The gate is keyed by error code **and direction**: an outgoing error of a given code is verified locally and reported immediately, and that must not block an incoming error of the same code from independently clearing its own hourly gate to reach the WordPress.com verification round-trip (see [Incoming requests](#incoming-requests-wordpresscom--site)) — and vice versa. The `jetpack_connection_bypass_error_reporting_gate` filter can disable the gate (useful in tests).
 * Only [supported error codes](#supported-error-codes) are stored — anything else is silently discarded.
 
 ## Displaying errors
@@ -107,7 +108,7 @@ Verified, displayable errors reach the front end through two channels, built fro
 * **A generic wp-admin notice**, rendered by `handle_verified_errors()` on `admin_init`. This is a PHP-only fallback: plain text as well as a single action link for some codes (see [Display configuration](#display-configuration) below). It has no knowledge of React, and nothing to do with the JS consumers described next.
 * **`connectionErrors` in the React initial state**, populated by `Initial_State::get_data()` (`Automattic\Jetpack\Connection\Initial_State`) from the same `get_displayable_errors()` call but via `jetpack_react_dashboard_error()`, and printed to the page as `window.JP_CONNECTION_INITIAL_STATE.connectionErrors` (or merged into a consuming plugin's own `JetpackScriptData.connection.connectionErrors` via `set_connection_script_data()`). This is the channel every React-based consumer reads from.
 
-Only a subset of error codes is user-displayable (see `get_error_display_configs()`), and each displayable error is classified by audience — `site` (blog token), `owner` (the connection owner's token), or `user` (another user's token) — so consumers can render viewer-appropriate copy.
+Only a subset of error codes is user-displayable (see `get_error_display_configs()`), and each displayable error is classified by audience — `site` (blog token), `owner` (the connection owner's token), or `user` (a non-owner user's token, which only that user is ever shown — see the [viewer capability gate](#viewer-capability-gate)) — so consumers can render viewer-appropriate copy, and by the [viewer capability gate](#viewer-capability-gate) below.
 
 ### React/JS consumers: `@automattic/jetpack-connection`
 
@@ -131,7 +132,24 @@ Recognized config keys, all optional:
 
 ### Special-cased error codes
 
-The one code with special-cased copy today is `invalid_connection_owner`, via `get_invalid_connection_owner_message()`: it distinguishes a merely-missing owner token (the original owner can just reconnect) from an owner whose WordPress user was deleted entirely (nobody can reconnect *as* them; a different admin has to become the new owner). `get_displayable_errors()` further tailors this message per viewer: the owner reading their own missing-token error gets first-person copy (the deleted-user flavor has no such case — an owner who no longer exists can't be the viewer), while a secondary admin's copy of an owner error — and whether they get a reconnect CTA at all — depends on whether `Manager::is_ownership_transferable()` says ownership can move to them; when it can't, the CTA is suppressed with `action = 'none'`. `xmlrpc_request_blocked` remains the other special code: reconnecting would be rejected by the same firewall rule that broke the connection, so its display config sets `support_link` and its (deliberately brief) message names the real cause and points at Site Health — the source of truth with the detailed diagnosis — which the admin notice also links to via `notice_link`. It also sets `survives_owner_promotion`, since a blocked request isn't a token problem the owner reconnecting would fix.
+The one code with special-cased copy today is `invalid_connection_owner`, via `get_invalid_connection_owner_message()`: it distinguishes a merely-missing owner token (the original owner can just reconnect) from an owner whose WordPress user was deleted entirely (nobody can reconnect *as* them; a different admin has to become the new owner). `get_displayable_errors()` further tailors this message per viewer: the owner reading their own missing-token error gets first-person copy (the deleted-user flavor has no such case — an owner who no longer exists can't be the viewer), while a secondary admin's copy of an owner error — and whether they get a reconnect CTA at all — depends on whether `Manager::is_ownership_transferable()` says ownership can move to them; when it can't, the CTA is suppressed with `action = 'none'`. `xmlrpc_request_blocked` and `wpcom_ssl_verification_failed` are the other special codes, for the same reason: reconnecting cannot fix them — the former because the reconnect would be rejected by the same firewall rule, the latter because it would run over the same broken TLS. Their (deliberately brief) messages name the real cause and point at Site Health — the source of truth with the detailed diagnosis — which the admin notice also links to via `notice_link`. Both set `survives_owner_promotion`, since neither is a token problem the owner reconnecting would fix.
+
+### Viewer capability gate
+
+`get_displayable_errors()` is viewer-specific: an error is dropped entirely for a viewer who lacks the capability to resolve it, rather than being shown without its call to action.
+
+Before capabilities are consulted at all, a `user`-audience error belonging to someone other than the viewer is skipped outright — another user's broken token is invisible, not merely non-actionable. `invalid_connection_owner` is exempt, since it lands in the `user` audience by ID alone when there is no current owner to compare against.
+
+The capability split then follows the scope of the remedy:
+
+* `user` audience (the viewer's own broken token, excluding `invalid_connection_owner`) needs `jetpack_connect_user`, which non-admins hold once the site has a connected owner — relinking their own account is self-service.
+* `site` and `owner` audiences, and `invalid_connection_owner` at any audience, need `jetpack_connect`. Their remedy is `Manager::restore()`, which for a broken blog token tears down the whole site connection and re-registers it — a `manage_options` action, and destructive for every other connected user.
+
+One case is kept but defused: a viewer holding only `jetpack_connect_user` sees their own token error with `action = 'none'`, because the notice's reconnect CTA is the site-scoped one they cannot use. The message stays; the working control is My Jetpack's connection card, which offers "Connect my account" to exactly these viewers.
+
+The gate applies only when there is a current user. Contexts with none (cron, WP-CLI, unauthenticated requests) render no UI and keep the unfiltered set. Errors injected by consumers through `jetpack_connection_get_verified_errors` run after the gate and are not subject to it; the wp-admin notice keeps its own `jetpack_connect` check for that reason.
+
+Because the result is viewer-dependent, the in-request cache is keyed by user ID.
 
 ### Owner-promotion reduction
 
@@ -143,7 +161,7 @@ An error's *action* (`error_data['action']`, e.g. `'none'` to suppress the recon
 
 The filters and action below customize only the plain wp-admin notice from `handle_verified_errors()`; they have no effect on the `connectionErrors` React data or on the [`@automattic/jetpack-connection` consumers](#reactjs-consumers-automatticjetpack-connection) that read it — those are customized through the hook's own `actionHandlers`/`customActions` props instead.
 
-By default, no admin notice text is shown — except for error codes whose [display config](#display-configuration) opts into a default message (currently `xmlrpc_request_blocked`, which would otherwise be invisible outside Site Health). To enable text for other errors, or to override a default, use the `jetpack_connection_error_notice_message` filter. The second argument is an array with the details of all the errors (if more than one).
+By default, no admin notice text is shown — except for error codes whose [display config](#display-configuration) opts into a default message (currently `xmlrpc_request_blocked` and `wpcom_ssl_verification_failed`, which would otherwise be invisible outside Site Health). To enable text for other errors, or to override a default, use the `jetpack_connection_error_notice_message` filter. The second argument is an array with the details of all the errors (if more than one).
 
 This basic example shows how to display a simple error message no matter the specific error type:
 
@@ -230,7 +248,7 @@ Check [the class file](../src/class-error-handler.php) for further documentation
 
 Stored errors are deleted automatically when the connection is restored or torn down — on site registration, reconnection, disconnection, token deletion, user unlink, and user-token update. Additionally, a successful API request (`jetpack_get_site_data_success`) clears all `xmlrpc` and `rest` type errors via `delete_all_api_errors()`; `local_state`-type errors are deliberately kept there, because a successful API round-trip refutes token/signature problems but says nothing about state such as a missing connection owner or WordPress.com being blocked from reaching the site.
 
-`local_state` errors are instead cleared by whatever detects their condition. For `xmlrpc_request_blocked`, a passing WP.com connection test deletes the error via `delete_error_by_code()`; the test runs on Site Health page loads, Core's weekly Site Health cron, and a daily check on the `jetpack_heartbeat` cron (see the [connection health tests doc](connection-health-tests.md)), so the error both stays fresh while the blockage persists and clears within a day of the host resolving it. As a safety net, all errors expire 24 hours after they were last stored.
+`local_state` errors are instead cleared by whatever detects their condition. For `xmlrpc_request_blocked` and `wpcom_ssl_verification_failed`, a passing WP.com connection test deletes the error via `delete_error_by_code()`; the test runs on Site Health page loads, Core's weekly Site Health cron, and a daily check on the `jetpack_heartbeat` cron (see the [connection health tests doc](connection-health-tests.md)), so the errors both stay fresh while the condition persists and clear within a day of the host resolving it. Results WordPress.com marks `inconclusive` (probe failures it could not classify, such as timeouts) preserve stored errors rather than clearing them. As a safety net, all errors expire 24 hours after they were last stored.
 
 ## Debugging
 

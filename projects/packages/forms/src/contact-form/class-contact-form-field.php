@@ -192,7 +192,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * Building it once, where the input's aria-describedby is built, is what
 	 * keeps the emitted ids and the referenced ids identical.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.0.0
 	 *
 	 * @var string|null
 	 */
@@ -1371,7 +1371,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	/**
 	 * The author-supplied help text for this field, or null when unset.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.0.0
 	 *
 	 * @return string|null
 	 */
@@ -1405,7 +1405,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * Note this keys off the field's own `type` attribute, not the type passed
 	 * to the render helpers — the date field renders a `text` input.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.0.0
 	 *
 	 * @return string|null
 	 */
@@ -1426,7 +1426,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * advisory text; its span is empty until there is an error, so it costs
 	 * nothing the rest of the time.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.0.0
 	 *
 	 * @param string $id   - the field ID.
 	 * @param string $type - the description type (matches the emitted element ids).
@@ -1451,7 +1451,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * and a describedby pointing at an id that was never emitted is exactly
 	 * the failure this class already fixes elsewhere.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.0.0
 	 *
 	 * @param string $id   - the field ID.
 	 * @param string $type - the description type (matches get_described_by()).
@@ -1493,7 +1493,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * ever built here — with the same $type the input used for its
 	 * aria-describedby.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.0.0
 	 *
 	 * @param string $id   - the field ID.
 	 * @param string $type - the description type (matches get_described_by()).
@@ -2359,7 +2359,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * PHP as author-supplied shortcode text, and both the rendered `multiple` attribute and the
 	 * submission-time count check are derived from it.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.0.0
 	 *
 	 * @return int A number between 1 and FILE_FIELD_MAX_FILES_LIMIT.
 	 */
@@ -2376,7 +2376,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	/**
 	 * The highest number of files an author may set a single file upload field to.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.0.0
 	 *
 	 * @return int A number between 1 and FILE_FIELD_MAX_FILES_ABSOLUTE_LIMIT.
 	 */
@@ -2397,7 +2397,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 * submission for holding too many files — the endpoint's per-site budgets log and alert but
 		 * store the file regardless — so this ceiling is the only thing standing in the way.
 		 *
-		 * @since $$next-version$$
+		 * @since 8.0.0
 		 *
 		 * @param int $limit The highest number of files an author may choose.
 		 */
@@ -2412,7 +2412,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	/**
 	 * The largest file a file upload field accepts, in bytes.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.0.0
 	 *
 	 * @return int Size in bytes.
 	 */
@@ -2434,7 +2434,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 * The result reaches the browser as the `maxUploadSize` config value, and the "file is too
 		 * large" message is built from the same number, so the two cannot disagree.
 		 *
-		 * @since $$next-version$$
+		 * @since 8.0.0
 		 *
 		 * @param int $max_upload_size Maximum size of a single file, in bytes.
 		 */
@@ -2452,7 +2452,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * Shared by the input's `accept` attribute and by the field's `fieldExtra` config, so the
 	 * browser-side picker filter and the client-side check can never drift apart.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.0.0
 	 *
 	 * @return string[] List of accepted MIME types.
 	 */
@@ -2733,7 +2733,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 *
 	 * WARNING: sync data with DATE_FORMATS in src/blocks/shared/util/constants.js
 	 *
-	 * @since $$next-version$$
+	 * @since 8.0.0
 	 *
 	 * @return array
 	 */
@@ -2754,7 +2754,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * Shared by the visible hint and the `data-format` attribute that drives
 	 * the picker, so the two cannot disagree about which format is in effect.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.0.0
 	 *
 	 * @return string
 	 */

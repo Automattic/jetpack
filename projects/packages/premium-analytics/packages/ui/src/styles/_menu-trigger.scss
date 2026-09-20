@@ -33,6 +33,14 @@
 		color: var(--wpds-color-foreground-interactive-neutral);
 	}
 
+	// Both Buttons paint their disabled colors under this box's border and
+	// text, so the state is restated here in the surface's own tokens.
+	&:disabled,
+	&[aria-disabled="true"] {
+		border-color: var(--wpds-color-stroke-interactive-neutral-disabled);
+		color: var(--wpds-color-foreground-interactive-neutral-disabled);
+	}
+
 	// The shipped Button draws focus as an accent-colored shadow. Every other
 	// control on this surface draws the outset ring instead.
 	&:focus:not(:active) {

@@ -229,16 +229,25 @@ class Jetpack_AMP_Support {
 	 * @return array Metadata.
 	 */
 	private static function add_image_to_metadata( $metadata, $post ) {
-		$image = Images::get_image(
-			$post->ID,
-			array(
-				'fallback_to_avatars' => true,
-				'avatar_size'         => 200,
-				// AMP already attempts these.
-				'from_thumbnail'      => false,
-				'from_attachment'     => false,
-			)
+		$image_args = array(
+			'fallback_to_avatars' => true,
+			'avatar_size'         => 200,
+			// AMP already attempts these.
+			'from_thumbnail'      => false,
+			'from_attachment'     => false,
 		);
+
+		// Every source left enabled above is parsed out of the body.
+		if ( \Automattic\Jetpack\SEO\Content_Gate::is_gated( $post ) ) {
+			$image_args += array(
+				'from_slideshow' => false,
+				'from_gallery'   => false,
+				'from_blocks'    => false,
+				'from_html'      => false,
+			);
+		}
+
+		$image = Images::get_image( $post->ID, $image_args );
 
 		if ( empty( $image ) ) {
 			return self::add_fallback_image_to_metadata( $metadata );
