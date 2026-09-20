@@ -11,10 +11,8 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 import { SelectField } from '@jetpack-premium-analytics/fields';
 
 /**
- * Configurable attributes for the Most viewed widget. Mirrors the
- * `attributes` declared on the widget definition below; the host passes the
- * selected values through to `render.tsx`. The date range is owned by the
- * dashboard picker and read from report params, not from attributes.
+ * Mirrors the widget definition's `attributes` below. The date range is
+ * owned by the dashboard picker, not by these attributes.
  */
 export type TopPostsAttributes = {
 	/**
@@ -26,14 +24,9 @@ export type TopPostsAttributes = {
 };
 
 /**
- * Widget type definition.
- *
- * Ported from the Jetpack Stats "Most viewed" card: a leaderboard of the
- * most-viewed posts & pages, switchable to archive pages. The active view is
- * the `contentView` attribute (`relevance: 'high'`), so the widget host
- * renders its control in the frame header.
- *
- * New instances default to the Posts & pages view.
+ * Ported from the Jetpack Stats "Most viewed" card. The active view is the
+ * `contentView` attribute (`relevance: 'high'`), so the widget host renders
+ * its control in the frame header.
  */
 export default {
 	icon: page,

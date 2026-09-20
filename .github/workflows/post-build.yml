@@ -45,18 +45,16 @@ jobs:
         run: |
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
       - name: Get token
         id: get_token
-        uses: ./.github/actions/gh-app-token
+        uses: $/.github/actions/gh-app-token
         with:
           app_id: ${{ secrets.JP_LAUNCH_CONTROL_ID }}
           private_key: ${{ secrets.JP_LAUNCH_CONTROL_KEY }}
 
       - name: 'Create "Test plugin upgrades" check'
         id: upgrade_check
-        uses: ./.github/actions/check-run
+        uses: $/.github/actions/check-run
         with:
           name: Test plugin upgrades
           sha: ${{ github.event.workflow_run.head_sha }}
@@ -68,7 +66,7 @@ jobs:
 
       - name: 'Create "Test wpcom filename restrictions" check'
         id: wpcom_filename_check
-        uses: ./.github/actions/check-run
+        uses: $/.github/actions/check-run
         with:
           name: Test wpcom filename restrictions
           sha: ${{ github.event.workflow_run.head_sha }}
@@ -85,17 +83,15 @@ jobs:
     if: github.event.workflow_run.conclusion != 'success'
     timeout-minutes: 2  # 2025-11-20: Seems like it should be fast.
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
       - name: Get token
         id: get_token
-        uses: ./.github/actions/gh-app-token
+        uses: $/.github/actions/gh-app-token
         with:
           app_id: ${{ secrets.JP_LAUNCH_CONTROL_ID }}
           private_key: ${{ secrets.JP_LAUNCH_CONTROL_KEY }}
 
       - name: 'Mark "Test plugin upgrades" cancelled'
-        uses: ./.github/actions/check-run
+        uses: $/.github/actions/check-run
         with:
           id: ${{ needs.setup.outputs.upgrade_check }}
           conclusion: cancelled
@@ -107,7 +103,7 @@ jobs:
           token: ${{ steps.get_token.outputs.token }}
 
       - name: 'Mark "Test wpcom filename restrictions" cancelled'
-        uses: ./.github/actions/check-run
+        uses: $/.github/actions/check-run
         with:
           id: ${{ needs.setup.outputs.wpcom_filename_check }}
           conclusion: cancelled
@@ -129,8 +125,6 @@ jobs:
       artifact_filename: ${{ steps.run.outputs.artifact_filename }}
       any_plugins: ${{ steps.run.outputs.any_plugins }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
       - name: Find artifact
         id: run
         env:
@@ -151,15 +145,9 @@ jobs:
 
             PLUGINS="$(jq -r '.artifacts[] | select( .name == "plugins.tsv" )' <<<"$JSON")"
 
-            # 2026-03-02: Temporarily look for both old and new artifacts.
             if jq -e '.artifacts[] | select( .name == "jetpack-build.tar.xz" )' <<<"$JSON" &>/dev/null; then
               ARTIFACT_NAME=jetpack-build.tar.xz
               ARTIFACT_FILENAME=jetpack-build.tar.xz
-              break
-            fi
-            if jq -e '.artifacts[] | select( .name == "jetpack-build" )' <<<"$JSON" &>/dev/null; then
-              ARTIFACT_NAME=jetpack-build
-              ARTIFACT_FILENAME=build.tar.xz
               break
             fi
           done
@@ -178,13 +166,13 @@ jobs:
       - name: Get token
         id: get_token
         if: ${{ ! success() }}
-        uses: ./.github/actions/gh-app-token
+        uses: $/.github/actions/gh-app-token
         with:
           app_id: ${{ secrets.JP_LAUNCH_CONTROL_ID }}
           private_key: ${{ secrets.JP_LAUNCH_CONTROL_KEY }}
       - name: 'Mark "Test plugin upgrades" failed'
         if: ${{ ! success() }}
-        uses: ./.github/actions/check-run
+        uses: $/.github/actions/check-run
         with:
           id: ${{ needs.setup.outputs.upgrade_check }}
           conclusion: failure
@@ -196,7 +184,7 @@ jobs:
           token: ${{ steps.get_token.outputs.token }}
       - name: 'Mark "Test wpcom filename restrictions" failed'
         if: ${{ ! success() }}
-        uses: ./.github/actions/check-run
+        uses: $/.github/actions/check-run
         with:
           id: ${{ needs.setup.outputs.wpcom_filename_check }}
           conclusion: failure
@@ -214,17 +202,15 @@ jobs:
     if: needs.find_artifact.outputs.any_plugins == 'false'
     timeout-minutes: 2  # 2025-11-20: Takes a few seconds.
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
       - name: Get token
         id: get_token
-        uses: ./.github/actions/gh-app-token
+        uses: $/.github/actions/gh-app-token
         with:
           app_id: ${{ secrets.JP_LAUNCH_CONTROL_ID }}
           private_key: ${{ secrets.JP_LAUNCH_CONTROL_KEY }}
 
       - name: 'Mark "Test plugin upgrades" skipped'
-        uses: ./.github/actions/check-run
+        uses: $/.github/actions/check-run
         with:
           id: ${{ needs.setup.outputs.upgrade_check }}
           conclusion: skipped
@@ -236,7 +222,7 @@ jobs:
           token: ${{ steps.get_token.outputs.token }}
 
       - name: 'Mark "Test wpcom filename restrictions" skipped'
-        uses: ./.github/actions/check-run
+        uses: $/.github/actions/check-run
         with:
           id: ${{ needs.setup.outputs.wpcom_filename_check }}
           conclusion: skipped
@@ -257,11 +243,9 @@ jobs:
     timeout-minutes: 5  # 2025-11-20: Takes a few seconds.
 
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
       - name: Get token
         id: get_token
-        uses: ./.github/actions/gh-app-token
+        uses: $/.github/actions/gh-app-token
         env:
           # Work around a weird node 16/openssl 3 issue in the docker env
           OPENSSL_CONF: '/dev/null'
@@ -270,7 +254,7 @@ jobs:
           private_key: ${{ secrets.JP_LAUNCH_CONTROL_KEY }}
 
       - name: Notify check in progress
-        uses: ./.github/actions/check-run
+        uses: $/.github/actions/check-run
         with:
           id: ${{ needs.setup.outputs.upgrade_check }}
           status: in_progress
@@ -318,7 +302,7 @@ jobs:
       PLUGIN_SLUG: ${{ matrix.slug }}
     services:
       db:
-        image: mariadb:lts
+        image: ghcr.io/mariadb/mariadb:lts
         env:
           MARIADB_ROOT_PASSWORD: wordpress
         ports:
@@ -341,19 +325,6 @@ jobs:
         - 80:80
 
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          path: trunk
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          ref: ${{ github.event.workflow_run.head_commit.id }}
-          path: commit
-          allow-unsafe-pr-checkout: true
-          # .github/files/test-plugin-update/prepare-zips.sh needs just this one file.
-          sparse-checkout-cone-mode: false
-          sparse-checkout: |
-            ${{ env.PLUGIN_SRC }}/composer.json
-
       - name: Download build artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
@@ -367,6 +338,19 @@ jobs:
           ARTIFACT_FILENAME: ${{ runner.temp }}/artifact/${{ needs.find_artifact.outputs.artifact_filename }}
         shell: bash
         run: tar --xz -xvvf "$ARTIFACT_FILENAME" build
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          path: trunk
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event.workflow_run.head_commit.id }}
+          path: commit
+          allow-unsafe-pr-checkout: true
+          # .github/files/test-plugin-update/prepare-zips.sh needs just this one file.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            ${{ env.PLUGIN_SRC }}/composer.json
 
       - name: Setup WordPress
         run: trunk/.github/files/test-plugin-update/setup.sh
@@ -385,11 +369,9 @@ jobs:
     timeout-minutes: 5  # 2025-11-20: Takes a few seconds.
 
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
       - name: Get token
         id: get_token
-        uses: ./.github/actions/gh-app-token
+        uses: $/.github/actions/gh-app-token
         env:
           # Work around a weird node 16/openssl 3 issue in the docker env
           OPENSSL_CONF: '/dev/null'
@@ -398,7 +380,7 @@ jobs:
           private_key: ${{ secrets.JP_LAUNCH_CONTROL_KEY }}
 
       - name: Notify final status
-        uses: ./.github/actions/check-run
+        uses: $/.github/actions/check-run
         with:
           id: ${{ needs.setup.outputs.upgrade_check }}
           conclusion: ${{ case( needs.upgrade_test.result == 'abandoned', 'cancelled', needs.upgrade_test.result ) }}
@@ -416,30 +398,15 @@ jobs:
     if: needs.find_artifact.outputs.any_plugins == 'true'
     timeout-minutes: 15  # 2025-11-20: Less than a minute, but leave time for the downloads.
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          path: trunk
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          ref: ${{ github.event.workflow_run.head_commit.id }}
-          path: commit
-          allow-unsafe-pr-checkout: true
-          # We don't need any files for this check, just the tree. A non-cone sparse checkout with a custom filter does the trick.
-          sparse-checkout-cone-mode: false
-          sparse-checkout: .
-          filter: 'tree:0'
-          # We do need all the commits, but `fetch-depth: 0` wants to fetch all branches and tags rather than just the one we want, sigh.
-          fetch-depth: 2147483647
-
       - name: Get token
         id: get_token
-        uses: ./trunk/.github/actions/gh-app-token
+        uses: $/.github/actions/gh-app-token
         with:
           app_id: ${{ secrets.JP_LAUNCH_CONTROL_ID }}
           private_key: ${{ secrets.JP_LAUNCH_CONTROL_KEY }}
 
       - name: Notify check in progress
-        uses: ./trunk/.github/actions/check-run
+        uses: $/.github/actions/check-run
         with:
           id: ${{ needs.setup.outputs.wpcom_filename_check }}
           status: in_progress
@@ -464,13 +431,28 @@ jobs:
         shell: bash
         run: tar --xz -xvvf "$ARTIFACT_FILENAME" build
 
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          path: trunk
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event.workflow_run.head_commit.id }}
+          path: commit
+          allow-unsafe-pr-checkout: true
+          # We don't need any files for this check, just the tree. A non-cone sparse checkout with a custom filter does the trick.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: .
+          filter: 'tree:0'
+          # We do need all the commits, but `fetch-depth: 0` wants to fetch all branches and tags rather than just the one we want, sigh.
+          fetch-depth: 2147483647
+
       - name: Test filename restrictions
         id: tests
         run: trunk/.github/files/test-wpcom-filename-restrictions.sh
 
       - name: Notify final status
         if: always()
-        uses: ./trunk/.github/actions/check-run
+        uses: $/.github/actions/check-run
         with:
           id: ${{ needs.setup.outputs.wpcom_filename_check }}
           conclusion: ${{ case( job.status == 'abandoned', 'cancelled', job.status ) }}

@@ -39,9 +39,8 @@ describe( 'resolvePresetForSurface', () => {
 } );
 
 describe( 'Date-filter surface constants', () => {
-	// An unrecognized surface falls back to `range` silently, so a typo here
-	// would go unnoticed. A surface added on the PHP side only fails in
-	// `Dashboard_Section_Test::test_sections_schema_documents_the_date_filter`.
+	// An unrecognized surface silently falls back to `range`, so a typo here goes
+	// unnoticed; a PHP-side addition is only caught by `Dashboard_Section_Test`.
 	it( 'pins the surface literals the PHP constants use', () => {
 		expect( DATE_FILTER_RANGE ).toBe( 'range' );
 		expect( DATE_FILTER_YEAR ).toBe( 'year' );

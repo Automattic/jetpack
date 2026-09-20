@@ -7,10 +7,8 @@ import { megaphone } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
- * The earnings cards the widget can show, in display order: the persisted id and
- * label of each metric. Single source for the settings checkboxes and the
- * rendered tiles so the two cannot drift apart; `render.tsx` maps the ids to
- * icons and earnings fields.
+ * Earnings cards the widget can show, in display order. Single source for the
+ * settings checkboxes and rendered tiles so the two cannot drift apart.
  */
 export const WORDADS_EARNINGS_METRICS = [
 	{ id: 'earnings', label: __( 'Earnings', 'jetpack-premium-analytics-pkg' ) },
@@ -42,12 +40,8 @@ export const DEFAULT_WORDADS_EARNINGS_METRICS: WordAdsEarningsMetricId[] =
 	WORDADS_EARNINGS_METRICS.map( metric => metric.id );
 
 /**
- * Widget type definition.
- *
- * `help` surfaces as an info popover in the widget header; its copy mirrors the
- * Calypso WordAds payout notice explaining the payout threshold and timing.
- * `example.attributes` doubles as the defaults applied to new instances: every
- * card enabled.
+ * `help` mirrors the Calypso WordAds payout notice (threshold and timing).
+ * `example.attributes` doubles as the defaults for new instances.
  */
 export default {
 	icon: megaphone,

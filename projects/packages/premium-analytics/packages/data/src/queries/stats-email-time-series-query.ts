@@ -32,17 +32,14 @@ const hasValidPostId = ( postId: number ) => Number.isInteger( postId ) && postI
 const toEmailPeriod = ( period?: string ): StatsEmailTimeSeriesPeriod =>
 	period === 'hour' ? 'hour' : 'day';
 
-// The endpoint anchors hourly buckets on the start day's midnight regardless
-// of the time of day `date` carries (see bucket-window.ts), so an hourly
-// request must span that midnight through the window's end hour; the
-// sanitizer trims the leading out-of-window buckets.
+// Hourly buckets are anchored on the start day's midnight whatever time `date`
+// carries, so the request must span it; the sanitizer trims the leading ones.
 const hourlyQuantity = ( days: number, endDate?: string ) =>
 	Math.max( 1, 24 * ( days - 1 ) + windowEndHour( endDate ) + 1 );
 
-// Mirror Calypso's requestEmailStats: the timeline is period-scoped and always sends period,
-// quantity, date, and stats_fields=timeline. Unlike the other stats endpoints (where `date`
-// is the window's END), the email timeline reads `date` as the window's START and returns
-// `quantity` buckets going forward — one per day, or 24 per day for hourly.
+// Mirrors Calypso's requestEmailStats. Unlike the other stats endpoints (where
+// `date` is the window's END), this one reads `date` as the window's START and
+// returns `quantity` buckets going forward.
 function emailTimeSeriesQuery(
 	statType: 'opens' | 'clicks',
 	postId: number,

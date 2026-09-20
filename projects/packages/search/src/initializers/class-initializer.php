@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status\Host;
 use WP_Error;
 /**
  * Base class for the initializer pattern.
@@ -36,6 +37,10 @@ class Initializer {
 	 * The method is called from the `Config` class.
 	 */
 	public static function init() {
+		// Ahead of the abort filter below, so the flag stays listable by
+		// `wp companion feature-flag` even where Search initialization bails.
+		Dashboard::register_feature_flags();
+
 		// Load compatibility files - at this point all plugins are already loaded.
 		static::include_compatibility_files();
 
@@ -118,7 +123,9 @@ class Initializer {
 	 * Extra tweaks to make Jetpack Search play well with others.
 	 */
 	public static function include_compatibility_files() {
-		if ( class_exists( 'Jetpack' ) ) {
+		// WordPress.com Simple defines its own unrelated `Jetpack` class, so the class name
+		// alone does not mean the Jetpack plugin, and this shim would fatal there.
+		if ( class_exists( 'Jetpack' ) && ! ( new Host() )->is_wpcom_simple() ) {
 			require_once Package::get_installed_path() . 'compatibility/jetpack.php';
 		}
 		require_once Package::get_installed_path() . 'compatibility/search-0.15.2.php';

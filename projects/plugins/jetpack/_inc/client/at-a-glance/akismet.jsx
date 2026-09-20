@@ -217,7 +217,6 @@ class DashAkismet extends Component {
 				label={ labelName }
 				module="akismet"
 				support={ support }
-				status="is-working"
 				pro={ true }
 			>
 				{ getAkismetCounter( akismetData ) }

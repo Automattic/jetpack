@@ -1,8 +1,6 @@
 /**
- * The stories render the data-connected widget fed by the shared
- * report-mock harness. `registerReportMocks` routes the `stats/` site summary
- * (`/proxy/v1.1/stats`) — including the `views_best_day*` fields this widget
- * reads — through `routeStatsReport()`, so no story-scoped middleware is needed.
+ * `registerReportMocks` already routes the `/proxy/v1.1/stats` site summary this
+ * widget reads, so no story-scoped middleware is needed.
  */
 /**
  * External dependencies
@@ -41,14 +39,9 @@ const MOST_POPULAR_DAY_RENDER_MODULE = 'storybook/most-popular-day';
 const SITE_SUMMARY_PATH_FRAGMENT = 'proxy/v1.1/stats';
 
 /**
- * Forces the site-summary request into the given state for a story's lifetime.
- *
- * `useStatsSite()` has a constant query key — the all-time summary ignores the
- * dashboard date range — so distinct date presets cannot give the forced-state
- * stories their own cache entries. Instead, drop the cached summary from the
- * shared query client so the widget re-fetches and hits the forced mock, and
- * drop it again on cleanup so a forced empty/error result doesn't leak into the
- * other stories' shared cache entry.
+ * `useStatsSite()` has a constant query key, so distinct date presets cannot give
+ * the forced-state stories their own cache entries. Evict the cached summary
+ * instead — on entry so the forced mock is hit, on cleanup so it does not leak.
  */
 function forceSiteSummaryState( state: ReportMockState ) {
 	queryClient.removeQueries( { queryKey: [ 'stats', 'site' ] } );

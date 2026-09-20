@@ -253,9 +253,9 @@ span: hour ticks within a day, hour ticks dated at midnight for sub-daily data s
 to a week, calendar dates within a year, and years beyond that. An explicit
 `options.axis.x.tickFormat` still overrides (`axis.y` on a horizontal chart).
 
-Because bars sit on a band scale, which has no ticks of its own, the tick values are
-chosen rather than sampled evenly by index — otherwise the axis would routinely skip the
-bucket that prints the year or dates the day, and could repeat a label. Over spans long
+The tick values are chosen rather than sampled evenly by index, the same selection line
+and area charts use — otherwise the axis would routinely skip the bucket that prints the
+year or dates the day, and could repeat a label. Over spans long
 enough that nothing closer together reaches a boundary, the ticks fall on whole days or
 whole years instead. `numTicks` caps how many it picks.
 
@@ -364,13 +364,40 @@ Enable rich interactive tooltips that display detailed information on hover:
 	/>` }
 />
 
+### Band Highlight
+
+Set `withBandHighlight` alongside `withTooltips` to shade the active band across the plot. Hover a bar or use arrow keys after focusing the chart. Escape clears the keyboard selection and its tooltip; a hover highlight remains.
+
+<Canvas of={ BarChartStories.BandHighlight } />
+
+For an overlay outside the chart, `onBandHighlightChange` reports the active datum and the band rectangle in SVG coordinates, or `null` on dismissal. The callback also works without rendering the built-in highlight.
+
+### Beside Tooltips
+
+Use `tooltipPlacement="beside"` to offset the tooltip horizontally from the active band center on vertical bar charts without vertical flipping. It flips horizontally near an edge and stays within the viewport or clipping ancestor. Its top follows the selected datum unless `tooltipAnchorTop` overrides it. This override also applies to `"auto"` placement, which can still flip vertically. The anchor uses SVG coordinates: values less than `margin.top` are above the plot, and negative values are above the SVG.
+
+<Canvas of={ BarChartStories.BesideTooltip } />
+
+<Source
+	language="tsx"
+	code={ `import { BarChart } from '@automattic/charts';
+
+	<BarChart
+		data={ data }
+		withTooltips={ true }
+		withBandHighlight={ true }
+		tooltipPlacement="beside"
+		tooltipAnchorTop={ 40 }
+	/>` }
+/>
+
 ### Keyboard Navigation
 
 Charts are fully keyboard accessible:
 - **Tab**: Focus the chart
 - **Arrow Keys**: Navigate between bars
 - **Enter/Space**: Activate tooltips
-- **Escape**: Close active tooltips
+- **Escape**: Close active tooltips and return focus to the chart
 
 ## Legends
 
@@ -393,7 +420,7 @@ Use `defaultHiddenSeries` to hide selected series initially while keeping them a
 
 ## Theming Integration
 
-Bar Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+Bar Charts integrate seamlessly with the chart theming system. The default theme has neutral styling, and is automatically applied to all charts unless a custom theme is provided.
 
 **Series colors come from the palette custom properties, not the theme object.** Set as many of the five slots as you need; an unset slot is skipped, and charts generates accessible colors beyond whatever you set:
 
@@ -406,19 +433,17 @@ Bar Charts integrate seamlessly with the chart theming system. The default theme
 	}` }
 />
 
-Everything else is set by wrapping your chart in `GlobalChartsProvider` and passing a theme object with the properties you want to override to the `theme` prop:
+Set a data point's optional `color` to override the series color for that bar. Points without a color retain the series color. When `withPatterns` is enabled, pattern fills take precedence over point colors. The shared point types expose this field, but only BarChart uses it.
+
+<Canvas of={ BarChartStories.PerPointColors } />
+
+For other catalog colors, declare the corresponding role. The closest declaration inside the provider tree wins, so scope the rule to one dashboard, or to `.a8c-charts-scope` to move every chart on the page:
 
 <Source
-	language="tsx"
-	code={ `import { GlobalChartsProvider, BarChart, type ChartTheme } from '@automattic/charts';
-
-	const customTheme: ChartTheme = {
-		gridStyles: { stroke: '#E0E0E0' },
-	};
-
-	<GlobalChartsProvider theme={customTheme}>
-		<BarChart data={data} />
-	</GlobalChartsProvider>` }
+	language="css"
+	code={ `.my-dashboard {
+		--a8c-charts-color-grid: #E0E0E0;
+	}` }
 />
 
 ## Responsive Behavior
@@ -543,12 +568,7 @@ Advanced configuration for scales and axes:
 
 ## Accessibility
 
-### Keyboard Navigation
-
-- **Tab**: Focus the chart container
-- **Arrow Keys**: Navigate between individual bars
-- **Enter/Space**: Activate tooltips or interactive elements
-- **Escape**: Close active tooltips
+See [Keyboard Navigation](#keyboard-navigation) for supported keys and focus behavior.
 
 ### Screen Reader Support
 

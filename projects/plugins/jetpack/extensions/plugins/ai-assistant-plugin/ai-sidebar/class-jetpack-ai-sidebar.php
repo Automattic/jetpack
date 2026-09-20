@@ -14,6 +14,7 @@ namespace Automattic\Jetpack\Extensions\AiAssistantPlugin;
 
 use Automattic\Jetpack\Agents_Manager\Agents_Manager;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\SEO\Ai_Seo;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -31,6 +32,8 @@ const AI_SIDEBAR_RTL_CSS_URL              = 'https://' . AM_ASSET_BASE_PATH . 'j
 const AI_SIDEBAR_PROVIDER_URL             = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.provider.mjs';
 const AI_SIDEBAR_AGENT_ID                 = 'wp-orchestrator';
 const AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION = 'ai-sidebar-toolbar-button';
+const AI_SIDEBAR_AGENT_NOTICE_EXTENSION   = 'ai-sidebar-agent-notice';
+const AI_SIDEBAR_AGENT_SUPPORT_EXTENSION  = 'ai-sidebar-agent-support';
 
 /**
  * Initializes the Agents Manager package and registers the Jetpack AI
@@ -44,6 +47,9 @@ class Jetpack_AI_Sidebar {
 	 * @return void
 	 */
 	public static function init(): void {
+		// Ahead of the sidebar gate: the notice also shows on sites merely eligible for the Agent.
+		add_action( 'jetpack_register_gutenberg_extensions', array( __CLASS__, 'register_agent_notice_extension' ), 99 );
+
 		// Gate the whole sidebar entrypoint on the preview surface, which is
 		// itself overridable via the jetpack_ai_sidebar_enabled filter.
 		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() ) {
@@ -314,19 +320,25 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * UI feature flag for the public Jetpack AI Sidebar Preview surface.
-	 *
-	 * Defaults to enabled only on WordPress.com platform sites (Simple or WoA)
-	 * that have the Big Sky plugin present and enabled. Big Sky defaults on for
-	 * Simple sites and off on WoA/Atomic. The jetpack_ai_sidebar_enabled filter
-	 * is a host-level override of that default, respected by init() and every
-	 * sidebar surface that gates on this method. Independently of the filter,
-	 * the sidebar requires at least one of its features (writing assistant or
-	 * SEO enhancer) to be enabled.
+	 * UI feature flag for the public Jetpack AI Sidebar Preview surface: this
+	 * host loads the sidebar, and at least one feature it surfaces is on.
 	 *
 	 * @return bool
 	 */
 	private static function is_jetpack_ai_sidebar_preview_enabled(): bool {
+		return self::is_host_enabled() && self::has_enabled_sidebar_features();
+	}
+
+	/**
+	 * Whether this host loads the sidebar at all: a WordPress.com platform site
+	 * with Big Sky enabled, past the filter and the master switch. Public and
+	 * feature-free so the AI SEO gate can ask without asking back through it.
+	 *
+	 * @since 16.2
+	 *
+	 * @return bool
+	 */
+	public static function is_host_enabled(): bool {
 		$host = new Host();
 
 		$enabled = false;
@@ -349,12 +361,10 @@ class Jetpack_AI_Sidebar {
 		 */
 		$enabled = (bool) apply_filters( 'jetpack_ai_sidebar_enabled', $enabled );
 
-		// Re-asserted after the filter so a later filter cannot surface a
-		// sidebar whose features are all off, or one blocked by the host or
-		// master gates — the gates are final, as with is_ai_enabled().
-		return $enabled
-			&& \Jetpack_AI_Settings::apply_master_gates( true )
-			&& self::has_enabled_sidebar_features();
+		// Re-asserted after the filter so a later filter cannot surface a sidebar
+		// blocked by the host or master gates — the gates are final, as with
+		// is_ai_enabled().
+		return $enabled && \Jetpack_AI_Settings::apply_master_gates( true );
 	}
 
 	/**
@@ -446,8 +456,10 @@ class Jetpack_AI_Sidebar {
 		$features['blockTransformations'] = (bool) $features['blockTransformations'] && $writing_on;
 
 		return array(
-			'enabled'  => self::is_jetpack_ai_sidebar_preview_enabled(),
-			'features' => $features,
+			'enabled'                    => self::is_jetpack_ai_sidebar_preview_enabled(),
+			'features'                   => $features,
+			// Not in $features, which is public and host-filterable.
+			'agentNoticeActionAvailable' => self::is_agent_action_available(),
 		);
 	}
 
@@ -485,6 +497,113 @@ class Jetpack_AI_Sidebar {
 		}
 
 		\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION );
+	}
+
+	/**
+	 * Whether the legacy AI panel should point people at the WordPress Agent.
+	 *
+	 * True once there is a working agent to open, or earlier, once the site is
+	 * eligible to turn one on.
+	 *
+	 * @return bool
+	 */
+	public static function is_agent_notice_enabled(): bool {
+		if ( self::is_agent_action_available() ) {
+			return true;
+		}
+
+		return self::is_wordpress_agent_eligible()
+			&& self::is_supported_provider_surface()
+			&& self::has_ai_features()
+			&& ! self::is_agents_manager_disconnected();
+	}
+
+	/**
+	 * Whether the site has turned the WordPress Agent on, whatever Jetpack's own
+	 * sidebar gate says.
+	 *
+	 * The Big Sky plugin's own Settings > Writing checkbox can turn it off while
+	 * the plugin stays active, so the option counts as well as the class.
+	 *
+	 * @return bool
+	 */
+	private static function is_wordpress_agent_enabled(): bool {
+		$host = new Host();
+
+		if ( ! $host->is_wpcom_platform() || ! class_exists( 'Big_Sky' ) ) {
+			return false;
+		}
+
+		$default = $host->is_wpcom_simple() ? '1' : '0';
+
+		return (bool) get_option( 'big_sky_enable', $default );
+	}
+
+	/**
+	 * Whether the site is eligible to turn the WordPress Agent on, whether or not
+	 * it has done so yet.
+	 *
+	 * Prefers the wpcom mu-plugin functions: the plan check cannot see the free
+	 * trial. Not gated on the Big_Sky class, which on Simple only loads once the
+	 * Agent is on.
+	 *
+	 * @return bool
+	 */
+	private static function is_wordpress_agent_eligible(): bool {
+		$host = new Host();
+
+		if ( ! $host->is_wpcom_platform() ) {
+			return false;
+		}
+
+		if ( function_exists( 'big_sky_is_available_for_site' ) && function_exists( 'big_sky_is_enabled' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Provided by WPCOM's Big Sky mu-plugin; guarded by function_exists() above.
+			return big_sky_is_available_for_site() || big_sky_is_enabled();
+		}
+
+		// Off Simple the plugin is only installed once the site qualifies.
+		return class_exists( 'Big_Sky' ) || Current_Plan::supports( 'big-sky' );
+	}
+
+	/**
+	 * Register the WordPress Agent notice feature.
+	 *
+	 * @return void
+	 */
+	public static function register_agent_notice_extension(): void {
+		if ( ! self::is_agent_notice_enabled() ) {
+			// Its own reason, so the payload tells this apart from the toolbar button.
+			\Jetpack_Gutenberg::set_extension_unavailable(
+				AI_SIDEBAR_AGENT_NOTICE_EXTENSION,
+				'jetpack_ai_sidebar_agent_notice_disabled'
+			);
+			return;
+		}
+
+		\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_AGENT_NOTICE_EXTENSION );
+
+		// Tells the notice whether to offer to enable the Agent or to open it.
+		if ( self::is_wordpress_agent_enabled() ) {
+			\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_AGENT_SUPPORT_EXTENSION );
+			return;
+		}
+
+		\Jetpack_Gutenberg::set_extension_unavailable(
+			AI_SIDEBAR_AGENT_SUPPORT_EXTENSION,
+			'jetpack_ai_sidebar_agent_disabled'
+		);
+	}
+
+	/**
+	 * Whether the notice's action button has a working agent to send people to.
+	 *
+	 * Narrower than is_agent_notice_enabled(): an eligible site shows the notice,
+	 * but only an enabled one has a chat to open.
+	 *
+	 * @return bool
+	 */
+	public static function is_agent_action_available(): bool {
+		return self::should_expose_provider() && ! self::is_agents_manager_disconnected();
 	}
 
 	/**

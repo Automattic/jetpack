@@ -9,14 +9,13 @@ function decodeHtmlEntities( value: string ): string {
 }
 
 /**
- * Decode the HTML entities WordPress and WPCOM return in user-authored titles
- * and names, while preserving non-string values.
+ * Decode the HTML entities WordPress and WPCOM return in user-authored titles.
  *
- * Decoding belongs in the data layer rather than in a row component because the
- * same value also reaches report tables, CSV exports, and `title` attributes.
+ * In the data layer rather than a row component because the same value reaches
+ * report tables, CSV exports, and `title` attributes.
  */
 export function decodeHtmlText< T >( value: T ): T | string;
 export function decodeHtmlText( value: unknown, fallback: string ): string;
 export function decodeHtmlText< T >( value: T, fallback?: string ): T | string {
-	return typeof value === 'string' ? decodeHtmlEntities( value ) : fallback ?? value;
+	return typeof value === 'string' ? decodeHtmlEntities( value ) : ( fallback ?? value );
 }

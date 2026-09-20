@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Backup\V0005\REST;
 
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use WP_Error;
 use function add_filter;
 use function get_current_user_id;
@@ -25,12 +26,13 @@ use function wp_set_current_user;
  * and each was being rebuilt per test file. Consumers must call
  * `reset_wpcom_request_mock()` from their own `tearDown()`.
  *
- * One thing worth knowing before adding tests with this: the callbacks
- * are invoked directly rather than dispatched through the REST server.
- * `Rest_Controller::permission_check()` additionally requires a
- * user-level WPCOM connection that WorDBless cannot stand up, so a
- * dispatch never reaches the callback body. The permission boundary
- * itself is covered separately, by each file's `manage_options` test.
+ * The `user_tokens` this installs are enough for `Rest_Controller::permission_check()`
+ * to pass, so a test may call a bridge callback directly or dispatch through the REST
+ * server. Dispatch when the route's arg schema, regex or permission callback is part of
+ * what is asserted; call directly when the point is one branch inside a callback.
+ *
+ * Dispatch wraps a `WP_Error` in a response envelope, moving the code to
+ * `get_data()['code']` and the reason to `get_data()['data']['wpcom']`.
  */
 trait Wpcom_Request_Mock {
 
@@ -64,6 +66,17 @@ trait Wpcom_Request_Mock {
 	protected $captured_body = null;
 
 	/**
+	 * The parsed `wp_remote_*` arguments of every request a bridge made, in call order.
+	 *
+	 * What `$captured_body` cannot answer: whether the bridge asked for something *about*
+	 * the request rather than sending it. `get_file_content()`'s `limit_response_size`
+	 * never appears in a body.
+	 *
+	 * @var array<int, array<string, mixed>>
+	 */
+	protected $captured_request_args = array();
+
+	/**
 	 * Sign in as an administrator and make `Client` able to sign a request.
 	 *
 	 * @return int The administrator's user id.
@@ -80,6 +93,16 @@ trait Wpcom_Request_Mock {
 
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10, 2 );
 
+		// Without this the *first* outbound `Client` call in a process fails before
+		// reaching `pre_http_request`: `JETPACK__WPCOM_JSON_API_BASE` is undefined until
+		// `Client::build_signed_request()` installs the filter supplying it, so the URL
+		// is built with no host and refused as malformed. Every bridge reports that as a
+		// 502, which makes a test's result depend on what ran before it.
+		//
+		// Only tests using this trait are covered, which is why `Backup_Abilities_Test`
+		// calls this too.
+		Connection_Utils::init_default_constants();
+
 		return $admin_id;
 	}
 
@@ -95,9 +118,7 @@ trait Wpcom_Request_Mock {
 		add_filter(
 			'pre_http_request',
 			function ( $preempt, $args, $url ) use ( $body, $status ) {
-				$this->captured_url    = $url;
-				$this->captured_urls[] = $url;
-				$this->captured_body   = isset( $args['body'] ) ? json_decode( $args['body'], true ) : null;
+				$this->record_request( $args, $url );
 				return array(
 					'response' => self::mock_response_headers( $status ),
 					'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
@@ -130,14 +151,7 @@ trait Wpcom_Request_Mock {
 		add_filter(
 			'pre_http_request',
 			function ( $preempt, $args, $url ) use ( $body, $status ) {
-				$this->captured_url    = $url;
-				$this->captured_urls[] = $url;
-				// Recorded here too, or `captured_body` would mean both
-				// "no request was made" and "a request was made and this
-				// helper did not look" — and the trait documents the
-				// former as how a test proves a guard refused before
-				// reaching the network.
-				$this->captured_body = isset( $args['body'] ) ? json_decode( $args['body'], true ) : null;
+				$this->record_request( $args, $url );
 				return array(
 					'response' => self::mock_response_headers( $status ),
 					'body'     => $body,
@@ -146,6 +160,67 @@ trait Wpcom_Request_Mock {
 			10,
 			3
 		);
+	}
+
+	/**
+	 * Sign in and have WPCOM answer each outbound call differently.
+	 *
+	 * `get_file_content()` is why this exists: it makes two calls, and the single canned
+	 * answer the other arrangers install serves both, so a failure belonging to only one
+	 * leg is unreachable through them.
+	 *
+	 * Answers are consumed in call order. A call past the end of the list is a transport
+	 * failure rather than a repeat, so fetching more than expected fails visibly.
+	 *
+	 * @param array<int, array{body?: string, status?: int|string}|WP_Error> $answers One answer per outbound call, in order.
+	 */
+	protected function arrange_wpcom_answers( array $answers ) {
+		$this->sign_in_as_admin();
+
+		$remaining = $answers;
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( &$remaining ) {
+				$this->record_request( $args, $url );
+
+				if ( ! $remaining ) {
+					return new WP_Error(
+						'test_unexpected_request',
+						sprintf( 'The bridge made an outbound request this test did not arrange an answer for: %s', $url )
+					);
+				}
+
+				$answer = array_shift( $remaining );
+				if ( $answer instanceof WP_Error ) {
+					return $answer;
+				}
+
+				return array(
+					'response' => self::mock_response_headers( $answer['status'] ?? 200 ),
+					'body'     => $answer['body'] ?? '',
+				);
+			},
+			10,
+			3
+		);
+	}
+
+	/**
+	 * Record one outbound request.
+	 *
+	 * `captured_body` means "the body of the last request", so it is overwritten rather
+	 * than appended to, and is `null` both when no request was made and when the last
+	 * one carried no body. Read `captured_request_args` when that distinction matters.
+	 *
+	 * @param array<string, mixed> $args Parsed `wp_remote_*` arguments.
+	 * @param string               $url  Request URL.
+	 */
+	private function record_request( $args, $url ) {
+		$this->captured_url            = $url;
+		$this->captured_urls[]         = $url;
+		$this->captured_request_args[] = $args;
+		$this->captured_body           = isset( $args['body'] ) ? json_decode( $args['body'], true ) : null;
 	}
 
 	/**
@@ -202,9 +277,10 @@ trait Wpcom_Request_Mock {
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10 );
 		wp_set_current_user( 0 );
 
-		$this->captured_url  = '';
-		$this->captured_urls = array();
-		$this->captured_body = null;
+		$this->captured_url          = '';
+		$this->captured_urls         = array();
+		$this->captured_body         = null;
+		$this->captured_request_args = array();
 	}
 
 	/**

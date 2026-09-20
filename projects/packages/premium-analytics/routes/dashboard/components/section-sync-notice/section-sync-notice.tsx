@@ -9,7 +9,6 @@ import { __, sprintf } from '@wordpress/i18n';
 import styles from './section-sync-notice.module.scss';
 
 type SectionSyncNoticeProps = {
-	/** Sync progress, 0–100. */
 	percentage: number;
 	hasError: boolean;
 	onRetry: () => void;
@@ -17,11 +16,10 @@ type SectionSyncNoticeProps = {
 };
 
 /**
- * Banner above a section whose data is still being synced to WordPress.com.
+ * Banner above a section whose data is still syncing to WordPress.com.
  *
- * The widgets below it render throughout, so the copy says the numbers are
- * incomplete rather than only that a sync is running: until it finishes they
- * read as zeros, which is a claim about the store rather than about the sync.
+ * The widgets below read as zeros until sync finishes, so the copy says the
+ * numbers are incomplete rather than that a sync is merely running.
  *
  * @param props            - Component props.
  * @param props.percentage - Sync progress, 0–100.
@@ -44,18 +42,16 @@ export function SectionSyncNotice( {
 		'Something went wrong while syncing your store data, so the numbers below are incomplete.',
 		'jetpack-premium-analytics-pkg'
 	);
-	// A retry clears the error before it settles, so reading `hasError` alone
-	// would drop the failure layout mid-click: the button the user just pressed
-	// unmounts, and the announcement flips to "still syncing" and back.
+	// A retry clears the error before it settles, so reading `hasError` alone would
+	// drop the failure layout mid-click and flip the announcement back and forth.
 	const showError = hasError || isRetrying;
 	let message: string = syncingMessage;
 
 	if ( showError ) {
 		message = errorMessage;
 	} else if ( percentage > 0 && percentage < 100 ) {
-		// 100 before the milestone lands means everything queued has been sent and
-		// WordPress.com has yet to confirm it — "still syncing (100%)" reads as a
-		// finished sync nagging the user, so the plain sentence covers that window.
+		// "still syncing (100%)" — everything sent, WordPress.com yet to confirm —
+		// reads as a finished sync nagging the user, so the plain sentence covers it.
 		message = sprintf(
 			/* translators: %d: sync progress percentage. */
 			__(
@@ -68,9 +64,8 @@ export function SectionSyncNotice( {
 
 	return (
 		/*
-		 * Announce only status changes. The visible percentage updates every poll,
-		 * but repeating the full sentence that often would overwhelm screen-reader
-		 * users; the action label is already exposed by its button.
+		 * Announce only status changes: the percentage updates every poll, and
+		 * repeating the full sentence that often would overwhelm screen readers.
 		 */
 		<Notice.Root
 			intent={ showError ? 'error' : 'info' }

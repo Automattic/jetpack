@@ -10,21 +10,20 @@ import { TooltipRow } from './tooltip-row';
 import { isChartDatumEntry } from './utils';
 import type { DataFormat } from '../../types';
 
-/**
- * Style configuration for tooltip indicators.
- * Matches SeriesStyle pattern from chart components.
- */
+/** Swatch box per indicator type; a supplementary row's spacer takes the width. */
+const INDICATOR_SIZE = {
+	line: { width: 16, height: 15 },
+	rect: { width: 8, height: 8 },
+} as const;
+
+/** Mirrors the `SeriesStyle` shape the chart components use. */
 export type TooltipStyle = {
-	/** Color for the indicator */
 	stroke: string;
 
-	/** Stroke width (for line indicator) */
 	strokeWidth?: string | number;
 
-	/** Stroke dash array (for line indicator) */
 	strokeDasharray?: string | number;
 
-	/** Stroke dash offset (for line indicator) */
 	strokeDashoffset?: string | number;
 
 	/** Indicator opacity, so a swatch can match a mark the chart drew translucent. */
@@ -45,36 +44,31 @@ function defaultGetValue( datum: unknown ): number {
 }
 
 export type ChartTooltipProps< TDatum = unknown > = {
-	/**
-	 * Tooltip data from visx chart
-	 */
+	/** Tooltip data from the visx chart. */
 	tooltipData?: {
 		datumByKey?: Record< string, unknown >;
 	};
 
 	dataFormat: DataFormat;
 
-	/**
-	 * Array of styles for each series (required).
-	 * Index corresponds to series index.
-	 */
+	/** One style per series, indexed by series position. */
 	seriesStyles: TooltipStyle[];
 
 	/**
-	 * Series keys in the same order as `seriesStyles`, used to pair a row with
-	 * its style by key instead of by position. Charts emit their tooltip rows in
-	 * their own order — a bar chart drawing two metrics lists both current
-	 * periods before either previous period — so a positional lookup hands rows
-	 * the wrong swatch as soon as the two orders diverge. Omit for charts whose
-	 * rows always arrive in series order.
+	 * Series keys in the same order as `seriesStyles`, pairing a row with its style by
+	 * key rather than position — charts emit rows in their own order, so a positional
+	 * lookup hands rows the wrong swatch. Omit when rows arrive in series order.
 	 */
 	seriesKeys?: string[];
 
-	/**
-	 * Indicator type: 'line' for line charts, 'rect' for bar charts
-	 * Uses chart library's LineShape and RectShape components.
-	 */
 	indicatorType: 'line' | 'rect';
+
+	/**
+	 * Rows read out for context rather than drawn, keyed by row key: no series
+	 * swatch, and a format of their own where the chart's does not fit them (a
+	 * count listed beside currencies). `undefined` keeps the chart's format.
+	 */
+	supplementaryRows?: Record< string, DataFormat | undefined >;
 
 	getLabel?: ( datum: TDatum, index: number, key: string ) => string;
 
@@ -91,6 +85,7 @@ export function ChartTooltip< TDatum >( {
 	seriesStyles,
 	seriesKeys,
 	indicatorType,
+	supplementaryRows,
 	getLabel = defaultGetLabel,
 	getValue = defaultGetValue,
 }: ChartTooltipProps< TDatum > ) {
@@ -111,15 +106,34 @@ export function ChartTooltip< TDatum >( {
 					return null;
 				}
 
-				// No positional fallback once `seriesKeys` is given: that lookup is the
-				// bug the prop exists to fix, and reinstating it on a miss would paint
-				// the row a wrong-but-plausible swatch rather than an obviously odd one.
+				const label = getLabel( entry.datum, index, entry.key );
+				const value = getValue( entry.datum );
+
+				if ( supplementaryRows && entry.key in supplementaryRows ) {
+					return (
+						<TooltipRow
+							key={ entry.key }
+							// Holds the swatch's width, so the labels stay aligned.
+							indicator={
+								<span
+									className={ styles.indicatorSpacer }
+									style={ { inlineSize: INDICATOR_SIZE[ indicatorType ].width } }
+									aria-hidden="true"
+								/>
+							}
+							label={ label }
+							value={ value }
+							dataFormat={ supplementaryRows[ entry.key ] ?? dataFormat }
+						/>
+					);
+				}
+
+				// No positional fallback once `seriesKeys` is given: that lookup is the bug
+				// the prop exists to fix, and on a miss it paints a plausible wrong swatch.
 				const style = seriesKeys
 					? seriesStyles[ seriesKeys.indexOf( entry.key ) ]
 					: seriesStyles[ index ];
 				const { stroke, ...lineShapeStyle } = style || seriesStyles[ 0 ];
-				const label = getLabel( entry.datum, index, entry.key );
-				const value = getValue( entry.datum );
 
 				return (
 					<TooltipRow
@@ -128,15 +142,15 @@ export function ChartTooltip< TDatum >( {
 							indicatorType === 'line' ? (
 								<LineShape
 									fill={ stroke || 'currentColor' }
-									width={ 16 }
-									height={ 15 }
+									width={ INDICATOR_SIZE.line.width }
+									height={ INDICATOR_SIZE.line.height }
 									style={ lineShapeStyle }
 								/>
 							) : (
 								<RectShape
 									fill={ stroke || 'currentColor' }
-									height={ 8 }
-									width={ 8 }
+									height={ INDICATOR_SIZE.rect.height }
+									width={ INDICATOR_SIZE.rect.width }
 									style={ { opacity: lineShapeStyle.opacity } }
 								/>
 							)

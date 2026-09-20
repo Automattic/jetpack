@@ -34,9 +34,8 @@ type MostCommentedPostsWidgetProps = WidgetRenderProps< MostCommentedPostsRender
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
 /**
- * Top commented posts inner component. The comment counts come from the
- * all-time `stats/comments` report, so there is no date range or comparison
- * period to read from context.
+ * Counts come from the all-time `stats/comments` report, so there is no date
+ * range or comparison period to read from context.
  */
 function MostCommentedPostsInner() {
 	const { rows, isLoading, isFetching, isError, error, refetch } = useStatsCommentsRows( {
@@ -49,7 +48,14 @@ function MostCommentedPostsInner() {
 
 		return rows.map( row => ( {
 			id: row.id,
-			label: <LeaderboardPostLabel id={ row.postId } label={ row.label } link={ row.link } />,
+			label: (
+				<LeaderboardPostLabel
+					id={ row.postId }
+					label={ row.label }
+					link={ row.link }
+					origin={ { report: 'comments', section: 'posts' } }
+				/>
+			),
 			currentValue: row.value,
 			currentShare: sharePercentage( row.value, maxValue ),
 		} ) );
@@ -99,10 +105,6 @@ function MostCommentedPostsInner() {
 }
 
 /**
- * Top commented posts widget: the posts and pages that receive the most
- * comments, ranked by comment count. Each row opens the post detail page, and
- * falls back to the published post when the report carries no post ID.
- *
  * One half of the Jetpack Stats "Comments" module; `jpa/most-commented-authors`
  * covers the other. Both read the same `stats/comments` response through
  * `useStatsCommentsRows`, so showing both costs a single request.

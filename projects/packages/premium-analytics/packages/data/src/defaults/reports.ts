@@ -1,14 +1,16 @@
 /**
  * External dependencies
  */
-import { getComparisonRangeFromPreset } from '@jetpack-premium-analytics/datetime';
+import {
+	dateToISOStringWithLocalTZ,
+	getComparisonRangeFromPreset,
+	localTZDate,
+} from '@jetpack-premium-analytics/datetime';
 import { differenceInCalendarDays, startOfDay } from 'date-fns';
 /**
  * Internal dependencies
  */
 import {
-	localTZDate,
-	dateToISOStringWithLocalTZ,
 	getDefaultIntervalForPeriod,
 	computeDateRangeFromPreset,
 	type PresetType,
@@ -19,13 +21,7 @@ import { getStoreInfo } from './store-info';
 const DEFAULT_PRESET: PresetType = 'last-30-days';
 
 /**
- * Pick the default date-range preset based on how long
- * the store has been live.
- *
- * - Not launched / unknown → last-30-days (safe default)
- * - Launched today         → today
- * - Launched ≤ 7 days ago  → last-7-days
- * - Launched > 7 days ago  → last-30-days
+ * Pick the default date-range preset based on how long the store has been live.
  */
 export function getDefaultPreset( launchedDate?: string ): PresetType {
 	if ( ! launchedDate ) {
@@ -58,11 +54,8 @@ export function getDefaultReportParams(): { preset: PresetType } {
 }
 
 /**
- * Build report query parameters (from, to, interval, preset) for the given date-range
- * preset, optionally including the previous-period comparison range.
- *
- * Callers that need a dynamic default (e.g. based on store
- * age) should resolve the preset externally and pass it in.
+ * Build report query parameters for the given preset, optionally with the
+ * previous-period comparison range.
  */
 export const getDefaultQueryParams = (
 	withComparison: boolean = false,
@@ -87,16 +80,12 @@ export const getDefaultQueryParams = (
 		};
 	}
 
-	const from = localTZDate( new Date( fromString ) );
-	const to = localTZDate( new Date( toString ) );
+	const from = localTZDate( fromString );
+	const to = localTZDate( toString );
 
-	const comparisonParams = getComparisonRangeFromPreset(
-		{
-			from,
-			to,
-		},
-		'previous-period'
-	);
+	const comparisonParams = getComparisonRangeFromPreset( { from, to }, 'previous-period', {
+		primaryPresetId: preset,
+	} );
 
 	return {
 		from: fromString,

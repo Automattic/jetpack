@@ -3,9 +3,8 @@
  */
 import type { HeatmapTooltipData } from '@jetpack-premium-analytics/externals';
 
-// The chart's own payload fields are picked, not restated: every caller forwards
-// them straight from a `HeatmapTooltipData`, and the package builds without
-// `strictNullChecks`, so a copy that drifted from upstream would not error here.
+// Picked, not restated: the package builds without `strictNullChecks`, so a copy
+// that drifted from the upstream payload would not error here.
 export type CalendarHeatmapTooltipProps = Pick< HeatmapTooltipData, 'value' | 'cellLabel' > & {
 	/** Shown in place of a count when there is no value. */
 	emptyLabel: string;
@@ -15,11 +14,8 @@ export type CalendarHeatmapTooltipProps = Pick< HeatmapTooltipData, 'value' | 'c
 
 /**
  * A calendar heatmap cell tooltip, leading with the count where the chart's own
- * tooltip would lead with the date.
- *
- * The copy stays with the caller because `__()` and `_n()` need literal arguments
- * to be extracted, so neither the empty label nor the plural forms can be built
- * here.
+ * tooltip would lead with the date. The copy stays with the caller because `__()`
+ * and `_n()` need literal arguments to be extracted.
  */
 export function CalendarHeatmapTooltip( {
 	value,

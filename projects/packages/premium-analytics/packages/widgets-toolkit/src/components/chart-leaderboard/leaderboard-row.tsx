@@ -79,9 +79,8 @@ export type LeaderboardRowChartProps =
 /**
  * Resolve raw row navigation facts into one mutually exclusive action.
  *
- * Child rows take precedence over an external URL because chart rows cannot
- * be buttons and contain interactive link content at the same time. A URL is
- * therefore used only for a childless row; otherwise the row stays static.
+ * Child rows take precedence over an external URL because a chart row cannot be a
+ * button and hold interactive link content at the same time.
  *
  * @return The single action that the leaderboard row should expose.
  */
@@ -102,9 +101,8 @@ export function resolveLeaderboardRowAction(
 /**
  * Render the shared leaderboard row chrome around a label.
  *
- * Drill-down actions stay non-interactive here because `LeaderboardChart` turns
- * the whole row into a button; `buildLeaderboardRow` passes that action to the
- * chart.
+ * Drill-down actions stay non-interactive here because `LeaderboardChart` turns the
+ * whole row into a button.
  *
  * @return A single label element accepted by `LeaderboardEntry.label`.
  */

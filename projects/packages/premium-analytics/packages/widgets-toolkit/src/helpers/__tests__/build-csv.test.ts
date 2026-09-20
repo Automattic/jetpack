@@ -1,7 +1,13 @@
 /**
  * Internal dependencies
  */
-import { buildCsv, buildCsvDateRangeFilename, saveCsv, type CsvColumn } from '../build-csv';
+import {
+	buildCsv,
+	buildCsvDateRangeFilename,
+	saveCsv,
+	withComparisonColumns,
+	type CsvColumn,
+} from '../build-csv';
 
 type Row = {
 	label: string;
@@ -71,6 +77,59 @@ describe( 'buildCsv', () => {
 	it( 'neutralizes non-finite numbers that start with a sign', () => {
 		const csv = buildCsv( [ { label: 'A', getValue: row => row.a } ], [ { a: -Infinity } ] );
 		expect( csv.split( '\n' )[ 1 ] ).toBe( '"\'-Infinity"' );
+	} );
+} );
+
+describe( 'withComparisonColumns', () => {
+	type MetricRow = {
+		label: string;
+		views: number;
+		previousViews?: number;
+		plays: number;
+		previousPlays?: number;
+	};
+
+	const metricColumns: CsvColumn< MetricRow >[] = [
+		{ label: 'Title', getValue: row => row.label },
+		{ label: 'Views', getValue: row => row.views, getPreviousValue: row => row.previousViews },
+		{ label: 'Plays', getValue: row => row.plays, getPreviousValue: row => row.previousPlays },
+	];
+
+	it( 'returns the same columns when there is no comparison', () => {
+		expect( withComparisonColumns( metricColumns, false ) ).toBe( metricColumns );
+	} );
+
+	it( 'appends every comparison column after the primary columns', () => {
+		const exported = withComparisonColumns( metricColumns, true );
+		expect( exported.map( column => column.label ) ).toEqual( [
+			'Title',
+			'Views',
+			'Plays',
+			'Views (Previous Period)',
+			'Plays (Previous Period)',
+		] );
+	} );
+
+	it( 'reads previous values through getPreviousValue', () => {
+		const csv = buildCsv( withComparisonColumns( metricColumns, true ), [
+			{ label: 'Hello', views: 4, previousViews: 2, plays: 9, previousPlays: 7 },
+		] );
+		expect( csv.split( '\n' )[ 1 ] ).toBe( '"Hello","4","9","2","7"' );
+	} );
+
+	// A row outside the comparison period's top rows is unmeasured, not a zero.
+	it( 'leaves the cell blank for rows missing from the comparison period', () => {
+		const csv = buildCsv( withComparisonColumns( metricColumns, true ), [
+			{ label: 'Only now', views: 4, plays: 9 },
+		] );
+		expect( csv.split( '\n' )[ 1 ] ).toBe( '"Only now","4","9","",""' );
+	} );
+
+	it( 'leaves columns without a previous value out of the comparison block', () => {
+		const titleOnly = [
+			{ label: 'Title', getValue: row => row.label },
+		] as CsvColumn< MetricRow >[];
+		expect( withComparisonColumns( titleOnly, true ) ).toBe( titleOnly );
 	} );
 } );
 

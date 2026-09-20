@@ -68,21 +68,20 @@ class Report_Csv_Generator {
 
 			// Use try/finally so the file handle is always closed, even if the formatter throws.
 			try {
-				// Write BOM for UTF-8 (helps Excel recognize encoding).
+				// Helps Excel recognize the UTF-8 encoding.
 				$this->write_bom( $handle );
 
-				// Write header row (labels are our own strings, but escape for consistency).
+				// Labels are our own strings, but escape them for consistency.
 				$this->write_csv_row( $handle, array_map( array( self::class, 'escape_csv_value' ), array_values( $columns ) ) );
 
 				foreach ( $rows as $row ) {
 					$formatted_row = call_user_func( $formatter, $row );
 
-					// Skip empty rows (when formatter returns empty array).
+					// An empty array is the formatter's skip signal.
 					if ( empty( $formatted_row ) ) {
 						continue;
 					}
 
-					// Extract values in the same order as columns, neutralizing CSV formula injection.
 					$csv_row = array();
 					foreach ( array_keys( $columns ) as $column_key ) {
 						$csv_row[] = self::escape_csv_value( $formatted_row[ $column_key ] ?? '' );
@@ -120,9 +119,8 @@ class Report_Csv_Generator {
 	/**
 	 * Neutralize CSV formula injection.
 	 *
-	 * Spreadsheet apps execute a cell whose value begins with =, +, -, @, tab, or CR.
-	 * Prefixing with a single quote renders it as literal text. Exported values (e.g.
-	 * product names) are store data and must not be trusted.
+	 * Spreadsheet apps execute a cell starting with =, +, -, @, tab, or CR; a leading single
+	 * quote renders it as literal text. Exported values (e.g. product names) are untrusted store data.
 	 *
 	 * @param mixed $value The cell value.
 	 * @return string The escaped value.
@@ -205,8 +203,8 @@ class Report_Csv_Generator {
 		// Drop directory-listing/access protection so exports are not enumerable or web-served.
 		$this->protect_export_dir( $export_dir );
 
-		// Sanitize filename, add an unguessable suffix, and add extension. Files are delivered as
-		// email attachments; the random suffix is defense-in-depth against URL guessing.
+		// Files are delivered as email attachments; the random suffix is defense-in-depth
+		// against URL guessing.
 		$safe_filename = sanitize_file_name( $filename ) . '-' . wp_generate_password( 12, false ) . '.csv';
 
 		return trailingslashit( $export_dir ) . $safe_filename;

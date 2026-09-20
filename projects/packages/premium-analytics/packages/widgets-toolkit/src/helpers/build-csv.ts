@@ -13,6 +13,7 @@
  */
 import { saveBlob } from '@jetpack-premium-analytics/data';
 import { getDatePart } from '@jetpack-premium-analytics/datetime';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * A single CSV column: how to read a row value and the header label to print.
@@ -27,7 +28,54 @@ export type CsvColumn< Row > = {
 	 * Header label printed on the first line.
 	 */
 	label: string;
+
+	/**
+	 * Read the previous-period value. Inert unless the columns are passed
+	 * through `withComparisonColumns()`; `buildCsv` itself never reads it.
+	 */
+	getPreviousValue?: ( row: Row ) => number | undefined;
 };
+
+/**
+ * Append previous-period columns for an active comparison.
+ *
+ * Column labels and ordering follow the server-side WooCommerce export.
+ * Missing values stay blank rather than `0`: both periods are ranked and capped
+ * independently, so an absent row means "outside the comparison period's top
+ * rows", not a measured zero.
+ *
+ * @param columns       - Primary columns; those with `getPreviousValue` gain a twin.
+ * @param hasComparison - Whether the report loaded comparison rows.
+ * @return The columns to serialize.
+ */
+export function withComparisonColumns< Row >(
+	columns: CsvColumn< Row >[],
+	hasComparison: boolean
+): CsvColumn< Row >[] {
+	if ( ! hasComparison ) {
+		return columns;
+	}
+
+	const comparisonColumns = columns.flatMap( column => {
+		const getPreviousValue = column.getPreviousValue;
+		if ( ! getPreviousValue ) {
+			return [];
+		}
+
+		return [
+			{
+				label: sprintf(
+					/* translators: %s: the column label, e.g. "Views". */
+					__( '%s (Previous Period)', 'jetpack-premium-analytics-pkg' ),
+					column.label
+				),
+				getValue: getPreviousValue,
+			},
+		];
+	} );
+
+	return comparisonColumns.length ? [ ...columns, ...comparisonColumns ] : columns;
+}
 
 /**
  * Date range used to label a CSV export.

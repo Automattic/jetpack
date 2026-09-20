@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-SEO Tools: Fix og:description leaking the first post's custom SEO description on archive and latest-posts homepage views.

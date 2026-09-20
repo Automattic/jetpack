@@ -2,23 +2,40 @@
  * External dependencies
  */
 import {
+	addDays,
+	addMonths,
+	differenceInCalendarMonths,
 	differenceInDays,
 	differenceInMilliseconds,
 	endOfDay,
 	endOfMonth,
 	isFirstDayOfMonth,
 	isLastDayOfMonth,
+	isSameDay,
 	startOfDay,
-	startOfMonth,
 	subDays,
 	subMilliseconds,
 	subMonths,
+	subWeeks,
 	subYears,
 } from 'date-fns';
+/**
+ * Internal dependencies
+ */
+import { completeToDateRange } from './to-date-range';
+import type { PrimaryPresetId } from './presets/types';
+import type { TZDate } from '@date-fns/tz';
 
-export type DateRange = { from?: Date; to?: Date };
+/**
+ * An inclusive range of instants, each anchored to the zone it was read in.
+ *
+ * Zoned rather than plain, so `getDateRangeSpan` cuts day boundaries on the
+ * site's clock; a plain `Date` cuts them on the browser's and lands a day out.
+ */
+export type DateRange = { from?: TZDate; to?: TZDate };
 
 export const COMPARISON_PREVIOUS_PERIOD = 'previous-period' as const;
+export const COMPARISON_PREVIOUS_WEEK = 'previous-week' as const;
 export const COMPARISON_PREVIOUS_MONTH = 'previous-month' as const;
 export const COMPARISON_PREVIOUS_YEAR = 'previous-year' as const;
 
@@ -27,6 +44,7 @@ export const COMPARISON_PREVIOUS_YEAR = 'previous-year' as const;
  */
 export const COMPARISON_PRESETS = [
 	COMPARISON_PREVIOUS_PERIOD,
+	COMPARISON_PREVIOUS_WEEK,
 	COMPARISON_PREVIOUS_MONTH,
 	COMPARISON_PREVIOUS_YEAR,
 ] as const;
@@ -50,33 +68,76 @@ export function isComparisonPresetId( value: unknown ): value is ComparisonPrese
  * @param to   - Range end.
  * @return The inclusive day count.
  */
-function getInclusiveDayCount( from: Date, to: Date ): number {
+function getInclusiveDayCount( from: TZDate, to: TZDate ): number {
 	return differenceInDays( to, from ) + 1;
 }
 
 /**
- * Returns a comparison DateRange (as Date objects) derived from a reference range
- * and a given preset.
+ * Whole calendar months a day-aligned range covers, or null when it is not a
+ * whole number of months. Detected by round trip against the day after the
+ * range ends, and again from the start stepped back by that count: a start a
+ * month step cannot undo (31 January two months back clamps to 30 November)
+ * measures in days instead. Shared by the previous-period shift and its
+ * label, so both take the same branch; unlike
+ * `getDateRangeSpan`, a single month counts.
  *
- * - This function is pure and has no side effects.
- * - It does not apply any timezone adjustments; day boundaries are resolved in
- *   the frame of the incoming dates (pass TZDate instances for site-local math).
- * - Day-aligned references (midnight to end of day) produce day-aligned
- *   comparison ranges. Sub-day references (rolling windows like the last 24
- *   hours) mirror the exact window instead.
- * - Comparison ranges match the reference duration, except that whole-month
- *   `previous-month` and `previous-year` ranges preserve calendar boundaries.
- *   Whole months are detected from the range shape alone, so a rolling window
- *   that happens to land on one (April 1-30 from a "last 30 days" preset) also
- *   compares calendar-to-calendar, against all 31 days of March.
+ * @param from - Range start.
+ * @param to   - Range end.
+ * @return The month count, or null.
+ */
+export function getWholeMonthCount( from: TZDate, to: TZDate ): number | null {
+	const isDayAligned =
+		from.getTime() === startOfDay( from ).getTime() && to.getTime() === endOfDay( to ).getTime();
+
+	if ( ! isDayAligned ) {
+		return null;
+	}
+
+	const dayAfterTo = startOfDay( addDays( to, 1 ) );
+	const months = differenceInCalendarMonths( dayAfterTo, from );
+
+	if ( months < 1 || ! isSameDay( addMonths( from, months ), dayAfterTo ) ) {
+		return null;
+	}
+
+	return isSameDay( addMonths( subMonths( from, months ), months ), from ) ? months : null;
+}
+
+/**
+ * Context the comparison is derived in.
+ */
+export type ComparisonRangeOptions = {
+	/**
+	 * The preset the reference range came from. A to-date preset is measured
+	 * by the day it is read on, so its previous period steps by the length of
+	 * the completed window: "12 months" moves back twelve months, not 354 days.
+	 */
+	primaryPresetId?: PrimaryPresetId;
+};
+
+/**
+ * Returns a comparison DateRange derived from a reference range and a preset.
+ *
+ * - Day boundaries are resolved in the frame of the incoming dates; pass TZDate
+ *   instances for site-local math.
+ * - A range starting on the 1st compares with the same calendar dates a month
+ *   or a year earlier (a whole month with the whole month before it); any
+ *   other partial-month range keeps its day count.
+ * - Whole months are detected from the range shape alone, so a rolling window
+ *   that happens to land on one also compares calendar-to-calendar.
+ * - `previous-period` ends the day before the reference starts; a reference
+ *   still running its final month stops as many days short, so the two windows
+ *   are the same length.
  *
  * @param reference - The reference range to compare against (must include both `from` and `to`).
  * @param presetId  - One of the supported preset identifiers.
+ * @param options   - The context the reference range was produced in.
  * @return A new DateRange for the comparison period, or `undefined` if inputs are invalid.
  */
 export function getComparisonRangeFromPreset(
 	reference: DateRange,
-	presetId: ComparisonPresetId
+	presetId: ComparisonPresetId,
+	options: ComparisonRangeOptions = {}
 ): DateRange | undefined {
 	if ( ! reference?.from || ! reference?.to ) {
 		return undefined;
@@ -89,18 +150,18 @@ export function getComparisonRangeFromPreset(
 		refFrom.getTime() === startOfDay( refFrom ).getTime() &&
 		refTo.getTime() === endOfDay( refTo ).getTime();
 
-	// Sub-day windows shift only their end, then rebuild `from` from the
-	// original duration: calendar shifts clamp day-of-month (Mar 31 - 1 month
-	// = Feb 28) and would otherwise shrink or collapse the window.
+	// Sub-day windows shift only their end, then rebuild `from` from the original
+	// duration: a calendar shift clamps day-of-month and would collapse the window.
 	if ( ! isDayAligned ) {
 		const windowMs = differenceInMilliseconds( refTo, refFrom );
-		let to: Date;
+		let to: TZDate;
 
 		if ( presetId === COMPARISON_PREVIOUS_PERIOD ) {
-			// Both ends are inclusive, so the window lasts `windowMs + 1`. Shifting
-			// by `windowMs` alone lands `to` on `refFrom` itself, inside the
-			// reference window, which reads one bucket late at hourly granularity.
+			// Both ends are inclusive, so the window lasts `windowMs + 1`; shifting
+			// by `windowMs` alone lands `to` inside the reference window.
 			to = subMilliseconds( refTo, windowMs + 1 );
+		} else if ( presetId === COMPARISON_PREVIOUS_WEEK ) {
+			to = subWeeks( refTo, 1 );
 		} else if ( presetId === COMPARISON_PREVIOUS_MONTH ) {
 			to = subMonths( refTo, 1 );
 		} else if ( presetId === COMPARISON_PREVIOUS_YEAR ) {
@@ -115,25 +176,61 @@ export function getComparisonRangeFromPreset(
 		};
 	}
 
-	const clampDayBound = ( date: Date, bound: 0 | 1 ) =>
+	// Annotated: a nested `date-fns` call has no contextual type to infer the
+	// zoned subclass from, and would widen the result back to a plain `Date`.
+	const clampDayBound = ( date: TZDate, bound: 0 | 1 ): TZDate =>
 		bound === 1 ? endOfDay( startOfDay( date ) ) : startOfDay( date );
 
 	if ( presetId === COMPARISON_PREVIOUS_PERIOD ) {
-		const daysInclusive = getInclusiveDayCount( refFrom, refTo );
+		// Measured on the window a to-date preset covers once its running month
+		// closes, so "12 months" steps back twelve months rather than 354 days.
+		// The previous month and year shift the dates as read, so a to-date
+		// window compares with the same days a month or a year earlier.
+		const completed = completeToDateRange( { from: refFrom, to: refTo }, options.primaryPresetId );
+		const completedTo = completed.to ?? refTo;
+
+		// The previous period stops as many days short as the reference itself
+		// does: a window still running compares with one of its own length, not
+		// with the whole period it sits in.
+		const daysStillToRun = differenceInDays( completedTo, refTo );
+
+		// A whole-months window steps back by its month count — Last month lands
+		// on the previous calendar month, Last year on the previous calendar
+		// year — where a day-count shift would skew across unequal month and
+		// year lengths (365-day 2025 against 366-day 2024).
+		const wholeMonths = getWholeMonthCount( refFrom, completedTo );
+		if ( wholeMonths ) {
+			const dayAfterTo = startOfDay( addDays( completedTo, 1 ) );
+			return {
+				from: clampDayBound( subMonths( refFrom, wholeMonths ), 0 ),
+				to: clampDayBound( subDays( subMonths( dayAfterTo, wholeMonths ), 1 + daysStillToRun ), 1 ),
+			};
+		}
+
+		const daysInclusive = getInclusiveDayCount( refFrom, completedTo );
 		return {
 			from: clampDayBound( subDays( refFrom, daysInclusive ), 0 ),
 			to: clampDayBound( subDays( refTo, daysInclusive ), 1 ),
 		};
 	}
 
+	if ( presetId === COMPARISON_PREVIOUS_WEEK ) {
+		return {
+			from: clampDayBound( subWeeks( refFrom, 1 ), 0 ),
+			to: clampDayBound( subWeeks( refTo, 1 ), 1 ),
+		};
+	}
+
 	if ( presetId === COMPARISON_PREVIOUS_MONTH || presetId === COMPARISON_PREVIOUS_YEAR ) {
 		const shiftBack = presetId === COMPARISON_PREVIOUS_MONTH ? subMonths : subYears;
 
-		// Keep whole-month comparisons aligned to calendar boundaries.
-		if ( isFirstDayOfMonth( refFrom ) && isLastDayOfMonth( refTo ) ) {
+		// A 1st-of-month start keeps its calendar dates (whole months on month bounds):
+		// a day-count rebuild across a leap February starts Year to date on 31 December.
+		if ( isFirstDayOfMonth( refFrom ) ) {
+			const shiftedTo = shiftBack( refTo, 1 );
 			return {
-				from: clampDayBound( startOfMonth( shiftBack( refFrom, 1 ) ), 0 ),
-				to: clampDayBound( endOfMonth( shiftBack( refTo, 1 ) ), 1 ),
+				from: clampDayBound( shiftBack( refFrom, 1 ), 0 ),
+				to: clampDayBound( isLastDayOfMonth( refTo ) ? endOfMonth( shiftedTo ) : shiftedTo, 1 ),
 			};
 		}
 

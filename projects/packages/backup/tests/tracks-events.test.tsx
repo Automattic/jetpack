@@ -77,6 +77,24 @@ function mockEndpointsForButton() {
 	} );
 }
 
+/**
+ * Answer the two routes `<NextScheduledBackup>` reads before it renders.
+ *
+ * Without both, there is no link to click and the test passes vacuously.
+ */
+function mockEndpointsForSchedule() {
+	mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
+		const path = options?.path ?? '';
+		if ( path.includes( '/site/backup/schedule' ) ) {
+			return Promise.resolve( { ok: true, scheduled_hour: 10 } );
+		}
+		if ( path.includes( '/site/backup/size' ) ) {
+			return Promise.resolve( { ok: true, backups_stopped: false } );
+		}
+		return Promise.resolve( {} );
+	} );
+}
+
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
 const ORIGINAL_STATE = window.JP_CONNECTION_INITIAL_STATE;
@@ -161,6 +179,16 @@ describe( 'Overview page view', () => {
 
 	beforeEach( async () => {
 		( await import( '../src/dashboard/screens/overview' ) ).resetPageViewForTesting();
+		// Declared, not incidental: these tests are what pin the page view firing on a
+		// plan-less visit, which is why the event sits above `<Gates>`. The bare
+		// `mockResolvedValue( null )` produced the same verdict, but silently.
+		mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
+			const path = options?.path ?? '';
+			if ( path.includes( '/site/capabilities' ) ) {
+				return Promise.resolve( { hasBackupPlan: false, hasScan: false } );
+			}
+			return Promise.resolve( null );
+		} );
 	} );
 
 	it( 'records one page view per visit', async () => {
@@ -258,6 +286,143 @@ describe( 'Back up now', () => {
 		await expect(
 			screen.findByRole( 'button', { name: /back up now/i } )
 		).resolves.toBeInTheDocument();
+		expect( mockRecordEvent ).not.toHaveBeenCalled();
+	} );
+} );
+
+describe( 'Modify schedule', () => {
+	/**
+	 * Render the next-backup line inside the dashboard's query client.
+	 *
+	 * @return The Testing Library render result.
+	 */
+	async function renderScheduleLine() {
+		mockEndpointsForSchedule();
+		const NextScheduledBackup = (
+			await import( '../src/dashboard/components/next-scheduled-backup' )
+		).default;
+
+		return render(
+			<QueryClientProvider>
+				<NextScheduledBackup />
+			</QueryClientProvider>
+		);
+	}
+
+	/**
+	 * The "Modify" link, once the two reads behind the line have landed.
+	 *
+	 * Matched on a name fragment: `Link` appends "(opens in a new tab)".
+	 *
+	 * @return The anchor.
+	 */
+	function modifyLink(): Promise< HTMLElement > {
+		return screen.findByRole( 'link', { name: /Modify/ } );
+	}
+
+	// JETPACK-2329. Legacy records this on the same link, and it is the only
+	// measurement of readers leaving for `cloud.jetpack.com/settings`.
+	it( 'records the reader leaving for the schedule settings', async () => {
+		await renderScheduleLine();
+
+		await userEvent.click( await modifyLink() );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_backup_schedule_modify_click' );
+		// Once, not merely at least once: a row that later grew a second click
+		// target would double-count every Modify click in Tracks, silently.
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'records nothing until the reader actually clicks', async () => {
+		await renderScheduleLine();
+
+		// Settled on the link being there to click, so this is a click that did
+		// not happen rather than a component that never rendered.
+		await expect( modifyLink() ).resolves.toBeInTheDocument();
+		expect( mockRecordEvent ).not.toHaveBeenCalled();
+	} );
+} );
+
+describe( 'Upgrade from the no-plan gate', () => {
+	const SITE_SUFFIX = 'example.com';
+
+	let defaultPrevented: boolean | null = null;
+
+	/**
+	 * Stop jsdom trying to navigate, and note whether the click was already
+	 * cancelled by the time it got here.
+	 *
+	 * Bound on the document, so it runs after React's own handler — which is
+	 * what makes `defaultPrevented` a witness rather than a coincidence.
+	 *
+	 * @param event - The click on its way up from the anchor.
+	 */
+	function cancelNavigation( event: MouseEvent ) {
+		defaultPrevented = event.defaultPrevented;
+		event.preventDefault();
+	}
+
+	/**
+	 * Render the purchase button for a site, or for a global carrying no site.
+	 *
+	 * @param siteSuffix - The site to put on the connection global.
+	 * @return The purchase link.
+	 */
+	async function upgradeCta( siteSuffix: string | undefined ) {
+		window.JP_CONNECTION_INITIAL_STATE = {
+			...window.JP_CONNECTION_INITIAL_STATE,
+			siteSuffix,
+		} as unknown as typeof window.JP_CONNECTION_INITIAL_STATE;
+
+		const UpgradeButton = ( await import( '../src/dashboard/components/gates/upgrade-button' ) )
+			.default;
+
+		render( <UpgradeButton /> );
+
+		return screen.findByRole( 'link', { name: /^Get VaultPress Backup$/ } );
+	}
+
+	beforeEach( () => {
+		defaultPrevented = null;
+		document.addEventListener( 'click', cancelNavigation );
+	} );
+
+	afterEach( () => {
+		document.removeEventListener( 'click', cancelNavigation );
+	} );
+
+	// JETPACK-2500 — a name or payload that drifted from legacy's would read in
+	// Tracks as conversions stopping rather than telemetry stopping.
+	it( 'records the reader deciding to buy, with the site they came from', async () => {
+		await userEvent.click( await upgradeCta( SITE_SUFFIX ) );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_backup_plugin_upgrade_click', {
+			site: SITE_SUFFIX,
+		} );
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'still lets the click reach checkout', async () => {
+		// The CTA is an anchor, so a handler that cancelled the event would
+		// record the intent and then strand the reader on this screen.
+		const cta = await upgradeCta( SITE_SUFFIX );
+
+		await userEvent.click( cta );
+
+		expect( defaultPrevented ).toBe( false );
+		expect( cta ).toHaveAttribute( 'href', expect.stringContaining( 'jetpack.com/redirect' ) );
+	} );
+
+	it( 'omits the site rather than reporting the word "undefined"', async () => {
+		await userEvent.click( await upgradeCta( undefined ) );
+
+		const [ , payload ] = mockRecordEvent.mock.calls[ 0 ];
+		expect( payload ).toBeUndefined();
+	} );
+
+	it( 'records nothing until the reader actually clicks', async () => {
+		await expect( upgradeCta( SITE_SUFFIX ) ).resolves.toBeInTheDocument();
+
 		expect( mockRecordEvent ).not.toHaveBeenCalled();
 	} );
 } );

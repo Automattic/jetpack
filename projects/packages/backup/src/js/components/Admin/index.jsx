@@ -255,10 +255,7 @@ const ReviewMessage = connectionLoaded => {
 		reviewText = __( 'Was it easy to restore your site?', 'jetpack-backup-pkg' );
 	} else if ( hasFiveSuccessfulBackups() ) {
 		requestReason = 'backups';
-		reviewText = __(
-			'Do you enjoy the peace of mind of having real-time backups?',
-			'jetpack-backup-pkg'
-		);
+		reviewText = __( 'Do you enjoy the peace of mind of having backups?', 'jetpack-backup-pkg' );
 	}
 
 	const [ dismissedReview, dismissMessage ] = useDismissedReviewRequest(

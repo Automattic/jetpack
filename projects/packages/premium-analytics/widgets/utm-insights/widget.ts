@@ -25,13 +25,9 @@ export type UtmInsightsAttributes = {
 };
 
 /**
- * UTM Insights widget type definition.
- *
- * Shows traffic breakdown by UTM parameter via the PA proxy at
- * `stats/utm/{utmParam}`. The active dimension is the `utmDimension`
- * attribute (`relevance: 'high'`), so the widget host renders its
- * control. Date range comes from WidgetRoot's reportParams (the
- * shared dashboard date picker).
+ * Shows traffic breakdown by UTM parameter via `stats/utm/{utmParam}`. The
+ * active dimension is `utmDimension` (`relevance: 'high'`), so the widget
+ * host renders its control.
  */
 export default {
 	icon: megaphone,

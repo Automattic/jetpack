@@ -326,6 +326,7 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 
 		Filters\expectAdded( 'jetpack_boost_output_filtering_last_buffer' )->never();
 		Filters\expectAdded( 'script_loader_tag' )->never();
+		Filters\expectAdded( 'js_do_concat' )->never();
 		Filters\expectRemoved( 'do_shortcode_tag' )->once();
 
 		$initial_ob_level = ob_get_level();
@@ -348,6 +349,7 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 
 		Filters\expectAdded( 'jetpack_boost_output_filtering_last_buffer' )->once();
 		Filters\expectAdded( 'script_loader_tag' )->once();
+		Filters\expectAdded( 'js_do_concat' )->once();
 
 		$initial_ob_level = ob_get_level();
 
@@ -507,5 +509,34 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 		}
 
 		return $method->invoke( $this->instance );
+	}
+
+	/**
+	 * A handle excluded from deferral must not be concatenated either, or the exclusion is
+	 * dropped and the script gets moved anyway.
+	 */
+	public function test_excluded_handle_is_kept_out_of_concatenation() {
+		Filters\expectApplied( 'jetpack_boost_render_blocking_js_exclude_handles' )
+			->twice()
+			->andReturn( array( 'jetpack_likes_queuehandler' ) );
+
+		$this->assertFalse( $this->instance->should_concatenate( true, 'jetpack_likes_queuehandler' ) );
+		$this->assertTrue( $this->instance->should_concatenate( true, 'some-other-handle' ) );
+	}
+
+	/**
+	 * A handle this module does not own keeps whatever the previous filter returned: Concatenate_JS
+	 * acts only on `true === $do_concat`, so promoting a truthy 1 would concatenate a kept-out script.
+	 */
+	public function test_concatenation_decision_is_passed_through_untouched() {
+		Filters\expectApplied( 'jetpack_boost_render_blocking_js_exclude_handles' )
+			->once()
+			->andReturn( array( 'jetpack_likes_queuehandler' ) );
+
+		$this->assertSame( 1, $this->instance->should_concatenate( 1, 'some-other-handle' ) );
+
+		// A falsy decision comes straight back without the list being consulted at all.
+		$this->assertFalse( $this->instance->should_concatenate( false, 'some-other-handle' ) );
+		$this->assertSame( 0, $this->instance->should_concatenate( 0, 'jetpack_likes_queuehandler' ) );
 	}
 }

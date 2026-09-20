@@ -146,9 +146,8 @@ export function sanitizeStatsArchivesResponse(
 	};
 }
 
-// Archive nodes match across periods by label within the same parent —
-// merging children against the matched parent's children means same-named
-// terms under different parents cannot cross-match.
+// Labels are only unique within a parent; children merge against the matched
+// parent's children, so same-named terms elsewhere cannot cross-match.
 function getStatsArchiveKey( item: StatsArchivesItem ): string | null {
 	const label = getStatsLabel( item.label );
 	return label === '' ? null : label;

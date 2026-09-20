@@ -21,13 +21,9 @@ import { useSegmentStyles } from '../common';
 import styles from '../common/donut-widget.module.scss';
 
 /**
- * Displays a donut chart showing the breakdown of fulfilled vs unfulfilled
- * order counts over the selected time period.
- *
- * Makes two separate API calls with different fulfillment status filters
- * since fulfillment data is not pre-aggregated in the orders summary.
- *
- * Must be used within a WidgetRoot which provides reportParams via context.
+ * Donut chart of fulfilled vs unfulfilled order counts. Makes two separate API
+ * calls with different fulfillment filters, since fulfillment isn't
+ * pre-aggregated in the orders summary.
  */
 export function OrdersFulfillmentWidget() {
 	const { reportParams } = useWidgetRootContext();
@@ -54,13 +50,13 @@ export function OrdersFulfillmentWidget() {
 						total: 0,
 						comparisonTotal: 0,
 						legendData: [],
-				  }
+					}
 				: buildOrdersFulfillmentData(
 						fulfilled.primary.data,
 						unfulfilled.primary.data,
 						fulfilled.comparison.data,
 						unfulfilled.comparison.data
-				  ),
+					),
 		[
 			isLoading,
 			fulfilled.primary.data,
@@ -85,9 +81,8 @@ export function OrdersFulfillmentWidget() {
 		<WidgetState
 			isLoading={ isLoading }
 			isFetching={ isFetching }
-			// The report queries keep the previous period's data as placeholders
-			// across range changes, so only surface the error when there is
-			// nothing to show.
+			// The report queries keep placeholders from the previous period across
+			// range changes, so only surface the error when nothing is left to show.
 			isError={ isError && ! hasData }
 			isEmpty={ isEmptyPieChartData( chartData ) }
 			error={ {

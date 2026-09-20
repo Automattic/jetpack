@@ -83,7 +83,7 @@ function toAuthorPostRows( posts: StatsTopAuthorsPostComparisonItem[] ): AuthorP
 		const previousValue = post.previousViews;
 
 		return {
-			id: post.id != null ? String( post.id ) : post.link ?? `post-${ index }`,
+			id: post.id != null ? String( post.id ) : ( post.link ?? `post-${ index }` ),
 			postId: post.id ?? undefined,
 			title: typeof post.label === 'string' ? post.label : String( post.label ?? '' ),
 			link: post.link ?? null,

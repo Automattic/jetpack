@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import domReady from '@wordpress/dom-ready';
+import { decodeEntities } from '@wordpress/html-entities';
 /**
  * Internal dependencies
  */
@@ -106,8 +107,9 @@ export function hydratePlaylistMetadata( root: HTMLElement ): Promise< void[] > 
 				// reuse its translated label as the entry title in place of the
 				// positional fallback.
 				entry.classList.add( 'is-locked' );
-				const lockLabel = entry.querySelector( '.videopress-playlist__entry-lock-label' )
-					?.textContent;
+				const lockLabel = entry.querySelector(
+					'.videopress-playlist__entry-lock-label'
+				)?.textContent;
 				if ( lockLabel ) {
 					entry.dataset.title = lockLabel;
 					const titleElement = entry.querySelector( '.videopress-playlist__entry-title' );
@@ -124,10 +126,12 @@ export function hydratePlaylistMetadata( root: HTMLElement ): Promise< void[] > 
 			const metadata = result;
 
 			if ( typeof metadata.title === 'string' && metadata.title ) {
-				entry.dataset.title = metadata.title;
+				// The API returns titles HTML-encoded; decode them like the editor does.
+				const title = decodeEntities( metadata.title );
+				entry.dataset.title = title;
 				const titleElement = entry.querySelector( '.videopress-playlist__entry-title' );
 				if ( titleElement ) {
-					titleElement.textContent = metadata.title;
+					titleElement.textContent = title;
 				}
 			}
 

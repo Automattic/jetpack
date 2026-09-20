@@ -14,15 +14,12 @@ export interface SkeletonRootProps {
 }
 
 /**
- * Deliberately no `aria-busy`: on a live region it means "hold updates until I
- * say otherwise", and this node is unmounted the moment the data lands, so it
- * would never say otherwise — the announcement it exists to make could be held
- * forever. Marking the region that is actually being updated is `WidgetState`'s
- * job, on a wrapper that outlives the fetch.
+ * Not a live region: a `role="status"` mounting with its text already in place is
+ * announced inconsistently at best, so the label only serves a reader who lands on it.
  */
 export function SkeletonRoot( { children }: SkeletonRootProps ) {
 	return (
-		<div role="status" className={ styles.root }>
+		<div className={ styles.root } data-testid="widget-skeleton">
 			<VisuallyHidden>{ __( 'Loading…', 'jetpack-premium-analytics-pkg' ) }</VisuallyHidden>
 			{ children }
 		</div>

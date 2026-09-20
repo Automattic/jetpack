@@ -10,16 +10,10 @@ namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 use Automattic\Jetpack\Sync\Modules;
 
 /**
- * Listens for the end of the analytics full sync, persists a one-time milestone
- * option, and exposes that milestone to the frontend both at page load (via
- * `JetpackScriptData.premium_analytics`) and live on Jetpack's
- * `/jetpack/v4/sync/status` REST response.
+ * Listens for the end of the analytics full sync and persists a one-time milestone option.
  *
- * Why this exists: /jetpack/v4/sync/status reports current sync state, but not
- * whether the analytics full sync has completed at least once, which tells the
- * dashboard's store section whether its numbers are complete. The milestone
- * also lets consumer plugins (e.g. WooCommerce Analytics) fire one-time
- * side-effects like the full-sync-complete email, via the action hook below.
+ * /jetpack/v4/sync/status reports current sync state but not whether the analytics full sync
+ * has completed at least once — which is what tells the dashboard's store section its numbers are complete.
  */
 class Sync_Status_Tracker {
 
@@ -30,11 +24,8 @@ class Sync_Status_Tracker {
 	const INITIAL_ANALYTICS_SYNC_OPTION = 'jetpack_premium_analytics_initial_analytics_sync_finished';
 
 	/**
-	 * Default sync-module names whose end-of-sync event flips the milestone.
-	 * Currently provided by WooCommerce Analytics, which registers a custom
-	 * full-sync module under this key. Consumers can extend or override the set
-	 * via the `jetpack_premium_analytics_sync_modules` filter — see
-	 * {@see get_analytics_sync_modules()}.
+	 * Default sync-module names whose end-of-sync event flips the milestone. Provided by
+	 * WooCommerce Analytics, which registers a custom full-sync module under this key.
 	 *
 	 * @var string[]
 	 */
@@ -50,8 +41,7 @@ class Sync_Status_Tracker {
 	const MILESTONE_ACTION = 'jetpack_premium_analytics_initial_full_sync_finished';
 
 	/**
-	 * Jetpack core's sync-status REST route. We enrich this existing response with
-	 * the milestone rather than registering a dedicated endpoint.
+	 * Jetpack core's sync-status REST route, enriched with the milestone.
 	 */
 	const SYNC_STATUS_ROUTE = '/jetpack/v4/sync/status';
 
@@ -69,13 +59,10 @@ class Sync_Status_Tracker {
 	}
 
 	/**
-	 * Append the milestone to Jetpack core's GET /jetpack/v4/sync/status response
-	 * so the dashboard can read it on every poll, not just at page load.
+	 * Append the milestone to Jetpack core's GET /jetpack/v4/sync/status response.
 	 *
-	 * Page-load script-data ({@see inject_script_data()}) is a one-time snapshot;
-	 * reading the milestone here keeps it live for in-session completion without a
-	 * dedicated endpoint. Only the already-authorized, successful status payload is
-	 * touched — other routes and error responses pass through untouched.
+	 * Unlike the one-time script-data snapshot ({@see inject_script_data()}), this stays live for
+	 * in-session completion — but touches only the already-authorized, successful status payload.
 	 *
 	 * @param mixed $response Result to send to the client. Usually a WP_REST_Response.
 	 * @param mixed $server   The REST server instance (unused).
@@ -139,13 +126,10 @@ class Sync_Status_Tracker {
 	}
 
 	/**
-	 * Pure-logic counterpart to on_sync_processed_actions(): decide whether the
-	 * supplied full-sync status + actions list represents the analytics sync
-	 * ending, and flip the milestone if so.
+	 * Decide whether the supplied full-sync status and actions represent the analytics sync ending.
 	 *
-	 * Only a full sync whose config includes an analytics module counts, so a
-	 * generic sync can't mark the store data complete. Split out so unit
-	 * tests can exercise the decision without the Jetpack sync module registry.
+	 * Only a full sync whose config includes an analytics module counts — a generic sync can't mark
+	 * store data complete; split out so tests can exercise it without the sync module registry.
 	 *
 	 * @param array $full_status Result of Full_Sync_Immediately::get_status().
 	 * @param array $actions     Processed sync actions.
@@ -172,14 +156,12 @@ class Sync_Status_Tracker {
 			return;
 		}
 
-		// The last update_status() call in Full_Sync_Immediately::send() runs
-		// after jetpack_full_sync_end fires, so the action's own timestamp is
-		// the most reliable "finished at" value. Note: Year 2038 problem.
+		// The last update_status() call in Full_Sync_Immediately::send() runs after jetpack_full_sync_end
+		// fires, so the action's own timestamp is the most reliable "finished at" value (Year 2038 problem aside).
 		$finished_at = isset( $end_action[3] ) ? (int) $end_action[3] : 0;
 		if ( $finished_at <= 0 ) {
-			// Defensive: avoid persisting a zero timestamp, which would equal
-			// the "not yet set" sentinel and cause the listener to re-trigger
-			// on the next batch.
+			// Defensive: avoid persisting a zero timestamp, which would equal the "not yet set" sentinel
+			// and cause the listener to re-trigger on the next batch.
 			return;
 		}
 		$full_status['finished'] = $finished_at;

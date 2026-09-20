@@ -42,9 +42,8 @@ describe( 'buildEmailTimelineResponse', () => {
 	} );
 
 	it( 'anchors hourly buckets on the start day midnight whatever time of day date carries', () => {
-		// The production endpoint resolves `date` to its calendar day and
-		// buckets from midnight; a mid-day last-24-hours request must roll into
-		// the next day at hour 0, not start at the requested hour.
+		// The production endpoint resolves `date` to its calendar day and buckets
+		// from midnight; a mid-day request must roll into the next day at hour 0.
 		const response = buildEmailTimelineResponse(
 			'clicks',
 			'/stats/clicks/emails/1234?period=hour&quantity=26&date=2026-06-17T09%3A00%3A00.000-04%3A00&stats_fields=timeline'

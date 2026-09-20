@@ -38,11 +38,11 @@ class Download_Bridge {
 				'callback'            => array( __CLASS__, 'initiate_download' ),
 				'permission_callback' => array( Rest_Controller::class, 'permission_check' ),
 				'args'                => array(
-					'rewind_id' => array(
+					'rewind_id'         => array(
 						'type'     => 'string',
 						'required' => true,
 					),
-					'types'     => array(
+					'types'             => array(
 						'type'                 => 'object',
 						// Values must be booleans. WordPress validates
 						// `object` with `rest_is_object()`, which is just
@@ -53,6 +53,16 @@ class Download_Bridge {
 						// runs; `Rest_Controller::named_types()` makes the
 						// shape guarantee that a value check cannot.
 						'additionalProperties' => array( 'type' => 'boolean' ),
+					),
+					// Opaque `/rewind/backup/ls` entry ids, only meaningful
+					// alongside `types: { paths: true }` — see `initiate_download()`.
+					'include_path_list' => array(
+						'type'  => 'array',
+						'items' => array( 'type' => 'string' ),
+					),
+					'exclude_path_list' => array(
+						'type'  => 'array',
+						'items' => array( 'type' => 'string' ),
 					),
 				),
 			)
@@ -104,6 +114,39 @@ class Download_Bridge {
 		$rewind_id = (string) $request->get_param( 'rewind_id' );
 		$types     = $request->get_param( 'types' );
 
+		$named_types = Rest_Controller::named_types( $types );
+		$include     = self::path_list( $request, 'include_path_list' );
+		$exclude     = self::path_list( $request, 'exclude_path_list' );
+
+		// Nothing upstream checks this pairing: VaultPress reads the path
+		// lists only for the `paths` type, so a list beside any other
+		// category answers 200 with a *full-site* archive.
+		//
+		// `has_param()` too, for both keys: `path_list()` trims a blank list
+		// away, and a caller that named files must not fall through as one
+		// that named none.
+		if ( $include || $exclude
+			|| $request->has_param( 'include_path_list' )
+			|| $request->has_param( 'exclude_path_list' ) ) {
+			if ( array( 'paths' ) !== array_keys( $named_types ) ) {
+				return new WP_Error(
+					'path_list_needs_paths_type',
+					__( 'A file selection can only be downloaded on its own.', 'jetpack-backup-pkg' ),
+					array( 'status' => 400 )
+				);
+			}
+		}
+
+		if ( ! $include && ! $exclude && isset( $named_types['paths'] ) ) {
+			// The mirror image, and just as silent upstream: `paths` with
+			// nothing to scope it by yields an archive of everything.
+			return new WP_Error(
+				'paths_type_needs_path_list',
+				__( 'No files were named for this download.', 'jetpack-backup-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		// A supplied `types` that names nothing is refused rather than
 		// dropped. Omitting the key is not "download nothing" — WPCOM
 		// reads an absent `types` as every category, so forwarding an
@@ -121,9 +164,16 @@ class Download_Bridge {
 		$body = array( 'rewindId' => $rewind_id );
 		// Absent when the caller named no categories at all, which is how
 		// a whole-archive download is spelled upstream.
-		$named_types = Rest_Controller::named_types( $types );
 		if ( ! empty( $named_types ) ) {
 			$body['types'] = $named_types;
+		}
+		// Arrays, not the comma-joined string upstream also takes: that branch
+		// sanitises the whole string before splitting, so `"a, b"` arrives as `" b"`.
+		if ( $include ) {
+			$body['include_path_list'] = $include;
+		}
+		if ( $exclude ) {
+			$body['exclude_path_list'] = $exclude;
 		}
 
 		$response = Client::wpcom_json_api_request_as_user(
@@ -164,6 +214,35 @@ class Download_Bridge {
 		}
 
 		return rest_ensure_response( array( 'id' => $download_id ) );
+	}
+
+	/**
+	 * One path-list parameter as a clean list of entries.
+	 *
+	 * Entries are trimmed and empties dropped, and the result is a PHP
+	 * list so `wp_json_encode()` emits a JSON array rather than an object.
+	 *
+	 * @param WP_REST_Request $request The REST request.
+	 * @param string          $key     Parameter name.
+	 * @return string[] The entries, empty when the parameter is absent or names nothing.
+	 */
+	private static function path_list( WP_REST_Request $request, $key ) {
+		$value = $request->get_param( $key );
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+
+		$entries = array();
+		foreach ( $value as $entry ) {
+			if ( ! is_scalar( $entry ) ) {
+				continue;
+			}
+			$entry = trim( (string) $entry );
+			if ( '' !== $entry ) {
+				$entries[] = $entry;
+			}
+		}
+		return $entries;
 	}
 
 	/**

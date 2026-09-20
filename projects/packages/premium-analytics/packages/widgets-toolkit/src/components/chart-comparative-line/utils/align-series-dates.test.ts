@@ -105,9 +105,7 @@ describe( 'alignSeriesDates', () => {
 		} );
 
 		it( 'handles weekly intervals with different start days', () => {
-			// This is the key scenario: weeks that don't start on the same day
-			// Primary: Sep 12 (Thu) - period starts mid-week
-			// Comparison: Jun 14 (Sat) - period starts on different day
+			// The key scenario: the two periods start on different weekdays.
 			const primary = createSeries( 'Current Period', [
 				new Date( '2024-09-12' ), // Week 1 starts Thu
 				new Date( '2024-09-16' ), // Week 2 starts Mon

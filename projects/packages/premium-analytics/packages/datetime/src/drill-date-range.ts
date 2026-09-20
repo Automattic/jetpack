@@ -16,6 +16,7 @@ import {
  */
 import type { DateRange } from './get-comparison-range';
 import type { IntervalType } from './interval';
+import type { TZDate } from '@date-fns/tz';
 
 /**
  * Bucket boundaries per interval a chart can draw.
@@ -24,7 +25,7 @@ import type { IntervalType } from './interval';
  * drawn in hours has nothing below it to open.
  */
 const BUCKET_BOUNDS: Partial<
-	Record< IntervalType, { start: ( date: Date ) => Date; end: ( date: Date ) => Date } >
+	Record< IntervalType, { start: ( date: TZDate ) => TZDate; end: ( date: TZDate ) => TZDate } >
 > = {
 	day: { start: startOfDay, end: endOfDay },
 	// ISO weeks, matching how the report's own week buckets are cut.
@@ -36,13 +37,6 @@ const BUCKET_BOUNDS: Partial<
 /**
  * The window behind one chart bucket: the range a click on it should open.
  *
- * The caller applies the result through the usual range machinery, which
- * re-resolves the interval — a bucket's own length never allows the interval
- * that drew it, so the reading always lands one level finer.
- *
- * The end is clamped at `now`, so opening the bucket in progress shows the part
- * of it that exists rather than a window running into the future.
- *
  * Boundaries are cut in `date`'s own timezone, so a `TZDate` carrying the site
  * zone closes its buckets on the site's clock rather than the browser's.
  *
@@ -51,7 +45,11 @@ const BUCKET_BOUNDS: Partial<
  * @param now      - The current instant, for the clamp.
  * @return The bucket's range, or null when the interval has nothing below it.
  */
-export function drillDateRange( date: Date, interval: IntervalType, now: Date ): DateRange | null {
+export function drillDateRange(
+	date: TZDate,
+	interval: IntervalType,
+	now: TZDate
+): DateRange | null {
 	const bounds = BUCKET_BOUNDS[ interval ];
 
 	if ( ! bounds ) {

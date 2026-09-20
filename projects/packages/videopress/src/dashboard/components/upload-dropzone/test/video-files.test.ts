@@ -1,0 +1,291 @@
+/**
+ * Unit tests for the shared accepted-video-file filter. Moved here from
+ * routes/library/test/upload-drop.test.ts when the filter moved out of the
+ * Library route so /upload and Home could reject the same files.
+ */
+
+import { makeRenamedTextFile, makeVideoFile } from '../../../test-utils/video-file';
+import { describeRefusal, filterVideoFiles, videoFileAccept } from '../video-files';
+
+// A file whose BYTES are a real container header, so only the name/type under
+// test decides the outcome. `[ 'x' ]` won't do any more: the filter reads the
+// leading bytes and checks them against the container the extension claims.
+const file = ( name: string, type = '' ): File => makeVideoFile( name, type );
+
+// The ISO-BMFF family shares one signature, so .mov/.m4v/.3gp use the header
+// above too; these are the other two containers the filter knows.
+const ebmlFile = ( name: string, type = '' ): File =>
+	new File( [ new Uint8Array( [ 0x1a, 0x45, 0xdf, 0xa3, 0x01, 0x00, 0x00, 0x00 ] ) ], name, {
+		type,
+	} );
+// 'OggS' plus the version and header-type bytes of a real first page (BOS).
+// Written as bytes rather than pasted into a string literal: the raw NULs made
+// git treat this whole file as binary, so every diff of it read "Bin 7499 ->
+// 11987 bytes" instead of showing the tests.
+const oggFile = ( name: string, type = '' ): File =>
+	new File( [ new Uint8Array( [ 0x4f, 0x67, 0x67, 0x53, 0x00, 0x02, 0x00, 0x00 ] ) ], name, {
+		type,
+	} );
+
+const setAllowedVideoExtensions = ( map: Record< string, string > | undefined ) => {
+	( window as unknown as { JPVIDEOPRESS_INITIAL_STATE?: unknown } ).JPVIDEOPRESS_INITIAL_STATE = map
+		? { allowedVideoExtensions: map }
+		: undefined;
+};
+
+// Clear the initial state between tests so cases that don't set it fall back to
+// the static (server-mirroring) extension list deterministically.
+afterEach( () => {
+	setAllowedVideoExtensions( undefined );
+} );
+
+describe( 'filterVideoFiles', () => {
+	it( 'keeps only files with an allowed video extension', async () => {
+		const result = await filterVideoFiles( [
+			file( 'clip.mp4' ),
+			file( 'photo.jpg' ),
+			file( 'movie.MOV' ), // case-insensitive
+			file( 'doc.pdf' ),
+		] );
+		expect( result.map( f => f.name ) ).toEqual( [ 'clip.mp4', 'movie.MOV' ] );
+	} );
+
+	it( 'accepts .mov files (regression: video/quicktime must pass)', async () => {
+		expect(
+			( await filterVideoFiles( [ file( 'clip.mov', 'video/quicktime' ) ] ) ).map( f => f.name )
+		).toEqual( [ 'clip.mov' ] );
+		// And via the extension fallback when the browser leaves the type empty.
+		expect( ( await filterVideoFiles( [ file( 'clip.mov' ) ] ) ).map( f => f.name ) ).toEqual( [
+			'clip.mov',
+		] );
+	} );
+
+	it( 'rejects extensions the backend does not accept (e.g. .webm/.mkv)', async () => {
+		// `.webm`/`.mkv` are valid video MIME types but absent from the server
+		// allow-list, so the drop filter rejects them rather than starting an
+		// upload the backend would fail.
+		await expect( filterVideoFiles( [ ebmlFile( 'clip.webm', 'video/webm' ) ] ) ).resolves.toEqual(
+			[]
+		);
+		await expect(
+			filterVideoFiles( [ ebmlFile( 'clip.mkv', 'video/x-matroska' ) ] )
+		).resolves.toEqual( [] );
+	} );
+
+	it( 'sources the accepted extensions from the server allow-list', async () => {
+		// A site whose backend advertises `.flv` accepts it; one that omits
+		// `.mp4` rejects it — proving the list comes from the initial state.
+		setAllowedVideoExtensions( { flv: 'video/x-flv' } );
+		expect(
+			( await filterVideoFiles( [ file( 'a.flv', 'video/x-flv' ) ] ) ).map( f => f.name )
+		).toEqual( [ 'a.flv' ] );
+		await expect( filterVideoFiles( [ file( 'a.mp4', 'video/mp4' ) ] ) ).resolves.toEqual( [] );
+	} );
+
+	it( 'rejects non-video MIME types', async () => {
+		await expect( filterVideoFiles( [ file( 'photo.jpg', 'image/jpeg' ) ] ) ).resolves.toEqual(
+			[]
+		);
+	} );
+
+	it( 'does not accept a non-video MIME type just because the name ends in a video extension', async () => {
+		// A reported MIME type is authoritative when it contradicts the name: a
+		// PDF renamed to `.mp4` must not slip through the extension fallback.
+		await expect( filterVideoFiles( [ file( 'evil.mp4', 'application/pdf' ) ] ) ).resolves.toEqual(
+			[]
+		);
+		await expect(
+			filterVideoFiles( [ file( 'not-a-video.mp4', 'text/plain' ) ] )
+		).resolves.toEqual( [] );
+	} );
+
+	it( 'rejects a renamed text file that REPORTS video/mp4', async () => {
+		// The bug both testers reproduced, and the reason the MIME check above
+		// isn't enough on its own: Chromium derives `File.type` from the
+		// extension, so a `.txt` renamed `.mp4` reports `video/mp4` exactly like
+		// a real one. It then uploaded end to end, landed on a real edit screen,
+		// sat at "Processing" forever and consumed the free plan's only slot.
+		// Only the bytes tell the two apart.
+		const renamed = makeRenamedTextFile( 'not-a-video.mp4' );
+		expect( renamed.type ).toBe( 'video/mp4' );
+		await expect( filterVideoFiles( [ renamed ] ) ).resolves.toEqual( [] );
+	} );
+
+	it( 'rejects renamed text across the whole ISO-BMFF family', async () => {
+		await expect(
+			filterVideoFiles( [
+				makeRenamedTextFile( 'a.mov', 'video/quicktime' ),
+				makeRenamedTextFile( 'b.m4v', 'video/x-m4v' ),
+				makeRenamedTextFile( 'c.3gp', 'video/3gpp' ),
+			] )
+		).resolves.toEqual( [] );
+	} );
+
+	it( 'keeps the real video out of a mixed drop with a renamed impostor', async () => {
+		const real = makeVideoFile( 'holiday.mp4' );
+		const result = await filterVideoFiles( [ makeRenamedTextFile( 'fake.mp4' ), real ] );
+		expect( result ).toEqual( [ real ] );
+	} );
+
+	it( 'accepts a QuickTime .mov that does not open with an ftyp box', async () => {
+		// Older QuickTime files legitimately start with another top-level atom.
+		// Insisting on `ftyp` would refuse a real video, which is the one
+		// outcome this check must never produce.
+		const mdatFirst = new File(
+			[ new Uint8Array( [ 0x00, 0x00, 0x10, 0x00, 0x6d, 0x64, 0x61, 0x74 ] ) ],
+			'legacy.mov',
+			{ type: 'video/quicktime' }
+		);
+		expect( ( await filterVideoFiles( [ mdatFirst ] ) ).map( f => f.name ) ).toEqual( [
+			'legacy.mov',
+		] );
+	} );
+
+	it( 'checks WebM and Ogg against their own signatures', async () => {
+		setAllowedVideoExtensions( { webm: 'video/webm', ogv: 'video/ogg' } );
+
+		expect(
+			(
+				await filterVideoFiles( [
+					ebmlFile( 'real.webm', 'video/webm' ),
+					oggFile( 'real.ogv', 'video/ogg' ),
+				] )
+			).map( f => f.name )
+		).toEqual( [ 'real.webm', 'real.ogv' ] );
+
+		await expect(
+			filterVideoFiles( [
+				makeRenamedTextFile( 'fake.webm', 'video/webm' ),
+				makeRenamedTextFile( 'fake.ogv', 'video/ogg' ),
+			] )
+		).resolves.toEqual( [] );
+	} );
+
+	it( 'fails open on a format it holds no signature for', async () => {
+		// `.avi` is on the allow-list but has no verifier, so it rides on its
+		// extension. Deliberate: a signature we half-remember would refuse real
+		// videos, and a false accept is only ever a failed upload — a false
+		// reject is someone's footage turned away.
+		const avi = makeRenamedTextFile( 'clip.avi', 'video/x-msvideo' );
+		expect( ( await filterVideoFiles( [ avi ] ) ).map( f => f.name ) ).toEqual( [ 'clip.avi' ] );
+	} );
+
+	it( 'fails open when the file cannot be read at all', async () => {
+		const unreadable = makeRenamedTextFile( 'unreadable.mp4' );
+		// A file that has moved or been unmounted since the drop throws here.
+		jest.spyOn( unreadable, 'slice' ).mockImplementation( () => {
+			throw new Error( 'NotReadableError' );
+		} );
+
+		expect( ( await filterVideoFiles( [ unreadable ] ) ).map( f => f.name ) ).toEqual( [
+			'unreadable.mp4',
+		] );
+	} );
+
+	it( 'does not match an extension that is merely a substring', async () => {
+		// "notmp4" ends with "mp4" but not ".mp4" — the dot guards against it.
+		await expect( filterVideoFiles( [ file( 'video.notmp4' ) ] ) ).resolves.toEqual( [] );
+	} );
+} );
+
+describe( 'describeRefusal', () => {
+	const NOT_A_VIDEO = 'Only video files can be uploaded.';
+
+	it( 'does not tell someone their real WebM is not a video', async () => {
+		// The bug both testers found independently. `.webm` is genuinely refused —
+		// it is not on the server allow-list, so the upload would fail — but the
+		// answer they got was "Only video files can be uploaded." about a real
+		// video, with nothing to do about it.
+		const real = ebmlFile( 'holiday.webm', 'video/webm' );
+
+		await expect( filterVideoFiles( [ real ] ) ).resolves.toEqual( [] );
+		await expect( describeRefusal( [ real ] ) ).resolves.toBe(
+			'WEBM files can’t be uploaded. Convert your video to MP4 or MOV, then try again.'
+		);
+	} );
+
+	it( 'names Matroska the same way', async () => {
+		await expect( describeRefusal( [ ebmlFile( 'clip.mkv', 'video/x-matroska' ) ] ) ).resolves.toBe(
+			'MKV files can’t be uploaded. Convert your video to MP4 or MOV, then try again.'
+		);
+	} );
+
+	it( 'keeps the plain message for something that never was a video', async () => {
+		// A `.txt` renamed `.mp4` is on the allow-list and fails the byte check:
+		// "that isn't a video" is the true sentence there, and must not be
+		// replaced by advice about converting formats.
+		await expect( describeRefusal( [ makeRenamedTextFile( 'not-a-video.mp4' ) ] ) ).resolves.toBe(
+			NOT_A_VIDEO
+		);
+		await expect( describeRefusal( [ file( 'doc.pdf', 'application/pdf' ) ] ) ).resolves.toBe(
+			NOT_A_VIDEO
+		);
+	} );
+
+	it( 'uses the bytes, not the name, to decide which sentence is true', async () => {
+		// A `.txt` wearing a `.webm` name reports `video/webm` in Chromium, so
+		// only the EBML signature separates it from the real thing. This is the
+		// job the `webm`/`mkv`/`ogg` entries in CONTAINER_CHECKS do today, and the
+		// reason they are not dead code.
+		const impostor = makeRenamedTextFile( 'fake.webm', 'video/webm' );
+		expect( impostor.type ).toBe( 'video/webm' );
+		await expect( describeRefusal( [ impostor ] ) ).resolves.toBe( NOT_A_VIDEO );
+	} );
+
+	it( 'falls back to the reported type for a container it holds no signature for', async () => {
+		// `.flv` has no verifier here, so the only evidence is the type the
+		// browser derived from the extension. Wrong guesses only change the
+		// wording of a refusal that stands either way.
+		await expect( describeRefusal( [ file( 'clip.flv', 'video/x-flv' ) ] ) ).resolves.toBe(
+			'FLV files can’t be uploaded. Convert your video to MP4 or MOV, then try again.'
+		);
+	} );
+
+	it( 'answers a mixed drop about the video, not the junk beside it', async () => {
+		// The `.webm` is the file the user meant to upload and the only one with
+		// anything to do about it.
+		await expect(
+			describeRefusal( [
+				file( 'notes.pdf', 'application/pdf' ),
+				ebmlFile( 'clip.webm', 'video/webm' ),
+			] )
+		).resolves.toBe(
+			'WEBM files can’t be uploaded. Convert your video to MP4 or MOV, then try again.'
+		);
+	} );
+
+	it( 'still says what to do when there is no extension to name', async () => {
+		await expect( describeRefusal( [ file( 'clip', 'video/webm' ) ] ) ).resolves.toBe(
+			'That video format can’t be uploaded. Convert your video to MP4 or MOV, then try again.'
+		);
+	} );
+
+	it( 'does not offer advice about a format the site actually accepts', async () => {
+		// A backend that advertises `.webm` accepts it, so there is nothing to
+		// convert — and nothing refused to describe.
+		setAllowedVideoExtensions( { webm: 'video/webm' } );
+		const real = ebmlFile( 'holiday.webm', 'video/webm' );
+		expect( ( await filterVideoFiles( [ real ] ) ).map( f => f.name ) ).toEqual( [
+			'holiday.webm',
+		] );
+	} );
+} );
+
+describe( 'videoFileAccept', () => {
+	it( 'offers exactly the extensions the backend accepts', () => {
+		setAllowedVideoExtensions( { mp4: 'video/mp4', mov: 'video/quicktime' } );
+		expect( videoFileAccept() ).toBe( '.mp4,.mov' );
+	} );
+
+	it( 'never widens back to video/*', () => {
+		// `accept="video/*"` was the trap: the OS dialog offered `.webm` and
+		// `.mkv`, which the drop handler then had to refuse. A MIME pattern in
+		// this attribute re-opens it.
+		const accept = videoFileAccept();
+		expect( accept ).not.toContain( 'video/' );
+		expect( accept ).not.toContain( '*' );
+		// The server's default list, so `.webm` is absent and `.mov` present.
+		expect( accept.split( ',' ) ).toContain( '.mov' );
+		expect( accept.split( ',' ) ).not.toContain( '.webm' );
+	} );
+} );

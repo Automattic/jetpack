@@ -109,23 +109,13 @@ function toFileDownloadRows( items: StatsFileDownloadsComparisonItem[] ): FileDo
 }
 
 export type FileDownloadsLeaderboardProps = {
-	/**
-	 * Normalized download rows to render.
-	 */
 	rows?: FileDownloadRow[];
-	/**
-	 * When true, render previous-period deltas.
-	 */
 	withComparison?: boolean;
 };
 
 /**
- * Presentational leaderboard for the "File downloads" widget.
- *
- * Accepts already-fetched rows and renders only the populated (ready) state —
- * loading, error, and empty are handled by `<WidgetState>` in the
- * data-connected inner component. Exported so Storybook can render fixture
- * rows without needing a live WordPress backend.
+ * Renders only the populated state — the data-connected inner component owns the
+ * rest. Exported so Storybook can render fixture rows without a live backend.
  */
 export function FileDownloadsLeaderboard( {
 	rows = [],
@@ -159,9 +149,8 @@ function FileDownloadsInner() {
 				<WidgetState
 					isLoading={ isLoading }
 					isFetching={ isFetching }
-					// The Stats queries carry `placeholderData`, so a failed range change
-					// keeps the prior period's rows visible; only surface the error when
-					// there is nothing to show.
+					// `placeholderData` keeps the prior period's rows on screen, so a
+					// transient refetch failure should not replace them with an error.
 					isError={ rows.length === 0 && isError }
 					isEmpty={ rows.length === 0 }
 					error={ {

@@ -9,14 +9,10 @@
 // just left. Clicking to page 2 changed nothing on screen until the
 // response landed.
 //
-// The fix reports `isLoading || isFetching`. That it cannot swallow the
-// error state is not obvious and is worth stating: DataViews 17.3.0
-// initialises `hasInitiallyLoaded` to `!isLoading` and latches it true
-// on the first non-loading render, and the spinner branch that would
-// replace the `empty` slot — where `QueryError` lives — is gated on
-// `!hasInitiallyLoaded`. After the first load that branch is dead, so a
-// truthy `isLoading` only reaches the footer. What the error slot does
-// across a retry is held by `error-persists-during-retry.test.tsx`.
+// What the list reports, and why it cannot swallow the error slot, is
+// owned by the comment on `isBusy` in `activity-list/index.tsx`. What the
+// error slot does across a retry is held by
+// `error-persists-during-retry.test.tsx`.
 
 const mockApiFetch = jest.fn();
 
@@ -35,24 +31,13 @@ import userEvent from '@testing-library/user-event';
 import { useCallback, useState } from '@wordpress/element';
 import ActivityList from '../src/dashboard/components/activity-list';
 import { queryClient } from '../src/dashboard/data/query-client';
-import { ACTIVITY_LOG_DEFAULT_PER_PAGE } from '../src/dashboard/hooks/use-activity-log';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
+import { INITIAL_VIEW } from '../src/dashboard/screens/overview';
 import type { View } from '@wordpress/dataviews';
 
 const noop = () => {};
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
-
-const INITIAL_VIEW: View = {
-	type: 'list',
-	page: 1,
-	perPage: ACTIVITY_LOG_DEFAULT_PER_PAGE,
-	filters: [],
-	titleField: 'title',
-	mediaField: 'icon',
-	descriptionField: 'description',
-	fields: [],
-};
 
 /**
  * One raw rewindable-activity row for the page under test.
@@ -115,13 +100,6 @@ function Harness() {
 function list() {
 	return document.querySelector( '.jpb-activity-list' ) as HTMLElement;
 }
-
-// jsdom implements no scrolling, and DataViews' list layout calls
-// `scrollIntoView` on the selected row.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
 
 beforeEach( () => {
 	queryClient.clear();

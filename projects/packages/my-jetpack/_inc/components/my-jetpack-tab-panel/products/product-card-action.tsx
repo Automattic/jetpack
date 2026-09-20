@@ -95,12 +95,12 @@ function ActivationToggle( {
 							/* translators: %s is the product name */
 							__( '%s deactivated successfully!', 'jetpack-my-jetpack' ),
 							product.name
-					  )
+						)
 					: sprintf(
 							/* translators: %s is the product name */
 							__( '%s activated successfully!', 'jetpack-my-jetpack' ),
 							product.name
-					  )
+						)
 			);
 			reloadPage();
 		};
@@ -121,12 +121,12 @@ function ActivationToggle( {
 								/* translators: %s is the product name */
 								__( 'Deactivate %s', 'jetpack-my-jetpack' ),
 								product.name
-						  )
+							)
 						: sprintf(
 								/* translators: %s is the product name */
 								__( 'Activate %s', 'jetpack-my-jetpack' ),
 								product.name
-						  )
+							)
 				}
 			/>
 		</Flex>

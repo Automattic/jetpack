@@ -21,10 +21,8 @@ import { dateToISOStringWithTZ } from '../tz';
 const TIME_ZONE = 'America/New_York';
 
 /*
- * Pinned clock. The module derives the current year in `TIME_ZONE` while the
- * test runner reads it in its own zone, and around New Year the two disagree
- * for as long as the offset between them. Midday mid-year is far from both the
- * year boundary and any DST transition, so the two readings can't diverge.
+ * Pinned to midday mid-year: the module derives the current year in `TIME_ZONE`
+ * while the runner reads its own zone, and near New Year the two disagree.
  */
 const NOW = new Date( '2026-06-15T12:00:00.000Z' );
 const CURRENT_YEAR = NOW.getUTCFullYear();
@@ -73,7 +71,7 @@ describe( 'getPresetLabel', () => {
 	} );
 
 	it( 'still labels the rolling presets', () => {
-		expect( getPresetLabel( 'last-7-days' ) ).toBe( '7 days' );
+		expect( getPresetLabel( 'last-7-days' ) ).toBe( 'Last 7 days' );
 		expect( getPresetLabel( 'custom' ) ).toBeNull();
 	} );
 } );
@@ -204,9 +202,8 @@ describe( 'computePrimaryRange for the year surface', () => {
 	} );
 
 	it( 'holds the last-24-hours range steady as the clock moves within the hour', () => {
-		// The range lands in start_date/end_date, which are sent verbatim and key
-		// the request cache. Off a raw `now` these drift by milliseconds between
-		// callers, so identical requests never dedupe and never hit the cache.
+		// The range is sent verbatim and keys the request cache; off a raw `now` it
+		// drifts by milliseconds and identical requests never dedupe.
 		const before = rangeOf( 'last-24-hours', TIME_ZONE );
 
 		jest.setSystemTime( new Date( NOW.getTime() + 20 * 60 * 1000 ) );

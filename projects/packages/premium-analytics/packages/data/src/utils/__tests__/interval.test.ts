@@ -16,19 +16,16 @@ describe( 'getDaysBetweenInclusive', () => {
 	} );
 
 	it( 'counts an offset-bearing range exactly as its bare equivalent', () => {
-		// Request params are no longer trimmed to a bare day before reaching
-		// here. Left unextracted, the ISO datetime concatenates into an invalid
-		// date, the NaN guard returns 1, and every range silently collapses to a
-		// single day.
+		// Offset-bearing params reach here untrimmed; without the NaN guard the
+		// ISO datetime would parse invalid and every range would collapse to 1 day.
 		expect(
 			getDaysBetweenInclusive( '2026-06-01T00:00:00.000-07:00', '2026-06-07T23:59:59.999-07:00' )
 		).toBe( 7 );
 	} );
 
 	it( 'reads the site-local calendar day at either offset extreme', () => {
-		// 23:00 on 2026-06-30 at -07:00 is already 2026-07-01 in UTC, and 00:30
-		// on 2026-06-01 at +13:00 is still 2026-05-31 there. Counting off the UTC
-		// day would add a bucket at one end and drop one at the other.
+		// -07:00 at 23:00 is already the next UTC day; +13:00 at 00:30 is still
+		// the previous one. Counting off the UTC day would misplace a bucket either way.
 		expect(
 			getDaysBetweenInclusive( '2026-06-01T00:00:00.000-07:00', '2026-06-30T23:00:00.000-07:00' )
 		).toBe( 30 );

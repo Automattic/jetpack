@@ -46,9 +46,8 @@ const DATA_FORMAT = {
 	options: { useMultipliers: true, decimals: 0 },
 };
 
-// Ordered finest to coarsest, as `defaultPeriodForInterval` requires. Mirrors
-// `getStatsPeriodFromInterval` + `toSubscribersUnit` in the data layer, narrowed
-// to the dropdown's options.
+// Mirrors `getStatsPeriodFromInterval` + `toSubscribersUnit` in the data layer,
+// narrowed to the dropdown's options.
 const SUBSCRIBERS_PERIODS = [
 	'day',
 	'week',
@@ -156,7 +155,6 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
 					groupLabel={ groupLabel }
-					pointsAreWallClocks
 				/>
 			</WidgetState>
 		</div>

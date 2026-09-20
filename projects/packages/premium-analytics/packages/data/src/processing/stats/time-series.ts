@@ -1,11 +1,13 @@
-import { formatDatePartWithTime, getDatePart } from '@jetpack-premium-analytics/datetime';
+import {
+	formatDatePartWithTime,
+	getDatePart,
+	parseExactLabel,
+} from '@jetpack-premium-analytics/datetime';
 import {
 	endOfISOWeek,
 	endOfMonth,
 	endOfYear,
 	format,
-	isValid,
-	parse,
 	startOfISOWeek,
 	startOfMonth,
 	startOfYear,
@@ -15,6 +17,8 @@ import { createStatsBucketWindowFilter, type StatsBucketFilter } from './bucket-
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
+	DAY_END_TIME,
+	DAY_START_TIME,
 	getStatsIntervalFields,
 	normalizeStatsSummary,
 } from './utils';
@@ -37,7 +41,6 @@ export type StatsTimeSeriesReport = StatsNormalizedReport & {
 
 const nonMetricFields = [ 'period', 'time_interval', 'date', 'date_start', 'date_end', 'hour' ];
 const dateFormat = 'yyyy-MM-dd';
-const referenceDate = new Date( 2001, 0, 1 );
 
 function numericTimeSeriesRow( row: StatsRecord ) {
 	return Object.fromEntries(
@@ -117,8 +120,8 @@ function getPrimaryMetricValue( row: StatsRecord ) {
 function getDateFnsIntervalFields( startDate: Date, endDate: Date ) {
 	return {
 		time_interval: format( startDate, dateFormat ),
-		date_start: formatDatePartWithTime( format( startDate, dateFormat ), '00:00:00' ),
-		date_end: formatDatePartWithTime( format( endDate, dateFormat ), '23:59:59' ),
+		date_start: formatDatePartWithTime( format( startDate, dateFormat ), DAY_START_TIME ),
+		date_end: formatDatePartWithTime( format( endDate, dateFormat ), DAY_END_TIME ),
 	};
 }
 
@@ -130,9 +133,9 @@ function getWeekIntervalFields( period: string ) {
 	}
 
 	const normalizedPeriod = `${ match[ 1 ] }-W${ match[ 2 ].padStart( 2, '0' ) }`;
-	const parsed = parse( normalizedPeriod, "RRRR-'W'II", referenceDate );
+	const parsed = parseExactLabel( normalizedPeriod, "RRRR-'W'II" );
 
-	if ( ! isValid( parsed ) || format( parsed, "RRRR-'W'II" ) !== normalizedPeriod ) {
+	if ( ! parsed ) {
 		return null;
 	}
 
@@ -148,13 +151,9 @@ function getWpcomWeekIntervalFields( period: string ) {
 		return null;
 	}
 
-	const parsed = parse(
-		`${ match[ 1 ] }-${ match[ 2 ] }-${ match[ 3 ] }`,
-		'yyyy-MM-dd',
-		referenceDate
-	);
+	const parsed = parseExactLabel( `${ match[ 1 ] }-${ match[ 2 ] }-${ match[ 3 ] }`, dateFormat );
 
-	if ( ! isValid( parsed ) ) {
+	if ( ! parsed ) {
 		return null;
 	}
 
@@ -162,9 +161,9 @@ function getWpcomWeekIntervalFields( period: string ) {
 }
 
 function getMonthIntervalFields( period: string ) {
-	const parsed = parse( period, 'yyyy-MM', referenceDate );
+	const parsed = parseExactLabel( period, 'yyyy-MM' );
 
-	if ( ! isValid( parsed ) || format( parsed, 'yyyy-MM' ) !== period ) {
+	if ( ! parsed ) {
 		return null;
 	}
 
@@ -172,9 +171,9 @@ function getMonthIntervalFields( period: string ) {
 }
 
 function getYearIntervalFields( period: string ) {
-	const parsed = parse( period, 'yyyy', referenceDate );
+	const parsed = parseExactLabel( period, 'yyyy' );
 
-	if ( ! isValid( parsed ) || format( parsed, 'yyyy' ) !== period ) {
+	if ( ! parsed ) {
 		return null;
 	}
 
@@ -225,14 +224,6 @@ function getRowIntervalFields( row: StatsRecord, rawPeriod: unknown, unit: strin
 		return getHourIntervalFields( rawPeriod, row.hour );
 	}
 
-	if ( typeof row.date_start === 'string' && typeof row.date_end === 'string' ) {
-		return {
-			time_interval: row.date_start,
-			date_start: row.date_start,
-			date_end: row.date_end,
-		};
-	}
-
 	if ( unit === 'hour' && typeof rawPeriod === 'string' ) {
 		const packed = rawPeriod.match( packedHourlyPeriod );
 
@@ -245,10 +236,8 @@ function getRowIntervalFields( row: StatsRecord, rawPeriod: unknown, unit: strin
 }
 
 // Rebuild a summary bound from a query date when no rows came back. Rows stamp
-// `date_start`/`date_end` as timezone-naive wall times (see
-// getStatsIntervalFields), so the query's own site-local offset can't be passed
-// through verbatim — a real offset would get converted rather than read as the
-// bucket's label. Mirrors getStatsSummaryIntervalFields.
+// their bounds as timezone-naive wall times, so the query's own offset cannot be
+// passed through verbatim — it would be converted, not read as a label.
 function toSummaryBound( value: string | undefined, time: string ) {
 	const datePart = getDatePart( value );
 
@@ -293,9 +282,8 @@ export function sanitizeStatsTimeSeriesResponse(
 
 		return { row, range: getRowIntervalFields( row, rawPeriod, unit ) };
 	} );
-	// Filter before the summary, so dropped buckets inflate neither the totals
-	// nor the chart. Only an endpoint-specific sanitizer supplies a filter (see
-	// bucket-window.ts); the shared path keeps every bucket.
+	// Filter before the summary, so dropped buckets inflate neither the totals nor
+	// the chart. Only an endpoint-specific sanitizer supplies a filter.
 	const kept = keepBucket ? buckets.filter( ( { range } ) => keepBucket( range ) ) : buckets;
 	const summary = kept.reduce< Record< string, number > >( ( totals, { row } ) => {
 		Object.entries( row ).forEach( ( [ key, value ] ) => {
@@ -319,8 +307,7 @@ export function sanitizeStatsTimeSeriesResponse(
 			};
 		} )
 		// `stats/visits` returns buckets oldest first, `stats/subscribers` newest
-		// first, but everything downstream reads `data[0]` as the oldest bucket —
-		// starting with the summary bounds below.
+		// first, but everything downstream reads `data[0]` as the oldest.
 		.sort( ( a, b ) => compareBucketBounds( a.date_start, b.date_start ) );
 	const firstRow = data[ 0 ];
 	const lastRow = data[ data.length - 1 ];
@@ -329,8 +316,8 @@ export function sanitizeStatsTimeSeriesResponse(
 		summary: {
 			...getTimeSeriesSummarySidecars( response ),
 			...summary,
-			date_start: firstRow?.date_start ?? toSummaryBound( query?.start_date, '00:00:00' ),
-			date_end: lastRow?.date_end ?? toSummaryBound( query?.end_date ?? query?.date, '23:59:59' ),
+			date_start: firstRow?.date_start ?? toSummaryBound( query?.start_date, DAY_START_TIME ),
+			date_end: lastRow?.date_end ?? toSummaryBound( query?.end_date ?? query?.date, DAY_END_TIME ),
 		},
 		data,
 	};
@@ -360,10 +347,8 @@ export function sanitizeStatsEmailTimeSeriesResponse(
 	const timeline = coerceStatsRecord( coerceStatsRecord( payload ).timeline );
 	const fields = coerceStatsArray< string >( timeline.fields );
 
-	// The real hourly timeline labels its hour column ([ 'date', 'hour', '<metric>_count' ]), which
-	// the normalizer resolves into per-hour buckets. As a fallback, an unlabeled trailing hour
-	// column is named here so older/alternate payloads still resolve (matching Calypso's
-	// parseEmailChartData).
+	// Names an unlabeled trailing hour column so older/alternate payloads still
+	// resolve into per-hour buckets (matching Calypso's parseEmailChartData).
 	const normalizedTimeline =
 		timeline.unit === 'hour' && fields.length && ! fields.includes( 'hour' )
 			? { ...timeline, fields: [ ...fields, 'hour' ] }

@@ -35,13 +35,10 @@ function accept_tos() {
 	if ( is_wp_error( $response ) ) {
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 		wp_send_json_error( array( 'message' => __( 'Could not accept the Terms of Service. Please try again later.', 'jetpack' ) ), null, JSON_UNESCAPED_SLASHES );
-		wp_die();
 	}
 
 	// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 	wp_send_json_success( $response, null, JSON_UNESCAPED_SLASHES );
-
-	wp_die();
 }
 
 add_action( 'wp_ajax_jetpack_accept_tos', __NAMESPACE__ . '\accept_tos' );

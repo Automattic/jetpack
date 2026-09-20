@@ -70,8 +70,7 @@ const meta: Meta< typeof WidgetState > = {
 		},
 	},
 	// Every story renders inside the mock widget card; `withChartTheme` supplies
-	// the charts context so the mock `BarChart` renders, mirroring what
-	// `WidgetRoot` provides at the top of the widget tree in the app.
+	// the charts context, mirroring what `WidgetRoot` provides in the app.
 	decorators: [ withWidgetCard, withChartTheme ],
 };
 

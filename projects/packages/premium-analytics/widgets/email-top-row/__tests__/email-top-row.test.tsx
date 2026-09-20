@@ -8,6 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import EmailTopRowWidget, { hasEmailMetrics, toEmailTopRowMetrics } from '../render';
+import emailTopRowWidgetType from '../widget';
 import type { StatsEmailBreakdown } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
@@ -32,7 +33,8 @@ const CLICKS_RATE_RESPONSE = {
 };
 
 function routeRateResponse( options: unknown ) {
-	const path = typeof options === 'string' ? options : ( options as { path?: string } )?.path ?? '';
+	const path =
+		typeof options === 'string' ? options : ( ( options as { path?: string } )?.path ?? '' );
 
 	if ( path.includes( '/clicks/emails/' ) ) {
 		return Promise.resolve( CLICKS_RATE_RESPONSE );
@@ -225,5 +227,15 @@ describe( 'hasEmailMetrics', () => {
 	it( 'is true when a metric field is present, including zero', () => {
 		expect( hasEmailMetrics( asSummary( { total_sends: 0 } ) ) ).toBe( true );
 		expect( hasEmailMetrics( asSummary( { total_opens: 400 } ) ) ).toBe( true );
+	} );
+} );
+
+describe( 'EmailTopRow widget type', () => {
+	it( 'declares no drawer-only attribute, so the host renders no settings button', () => {
+		// Mirrors the host's predicate: the settings button appears as soon as any
+		// attribute is not exposed inline (`relevance: 'high'`).
+		expect(
+			emailTopRowWidgetType.attributes.every( attribute => attribute.relevance === 'high' )
+		).toBe( true );
 	} );
 } );

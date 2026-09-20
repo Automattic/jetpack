@@ -136,9 +136,8 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 	/**
 	 * Check if user has permission to export reports.
 	 *
-	 * Must match the capability the analytics proxy enforces (the `analytics` prefix
-	 * in Api_Proxy_Controller); otherwise the route would advertise access the async
-	 * data fetch cannot honor, scheduling a job that then fails.
+	 * Must match the capability the analytics proxy enforces (Api_Proxy_Controller's `analytics`
+	 * prefix) — otherwise the route advertises access the async data fetch can't honor.
 	 *
 	 * @return bool True if user has permission.
 	 */
@@ -274,7 +273,7 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 
 		$to_timestamp = strtotime( $value );
 
-		// Check that the date is not beyond today (compare at day level, not time level).
+		// Compare at day level, not time level.
 		$to_date_only    = wp_date( 'Y-m-d', $to_timestamp );
 		$today_date_only = current_datetime()->format( 'Y-m-d' );
 
@@ -344,7 +343,7 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 
 		$compare_to_timestamp = strtotime( $value );
 
-		// Check that the date is not beyond today (compare at day level, not time level).
+		// Compare at day level, not time level.
 		$compare_to_date_only = wp_date( 'Y-m-d', $compare_to_timestamp );
 		$today_date_only      = current_datetime()->format( 'Y-m-d' );
 		if ( $compare_to_date_only > $today_date_only ) {
@@ -370,10 +369,8 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 	/**
 	 * Validate the comparison period date order.
 	 *
-	 * The comparison window does not need to match the original period length: the merge
-	 * strategies align by position (time-series) or matching field (ranked) and pad any
-	 * gap, so uneven windows are handled downstream without a strict length check (which
-	 * also mis-rejected DST-crossing ranges compared by raw seconds).
+	 * The comparison window need not match the original period's length: merge strategies align
+	 * by position/field and pad gaps, and a strict check also mis-rejected DST-crossing ranges.
 	 *
 	 * @param string $compare_from The compare_from date.
 	 * @param string $compare_to   The compare_to date.
@@ -404,15 +401,13 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 		$report_type     = $request->get_param( 'report_type' );
 		$delivery_method = $request->get_param( 'delivery_method' );
 
-		// Validate the report type. Also enforced by validate_report_type() at the route
-		// layer; kept here as a guard for direct callers.
+		// Also enforced by validate_report_type() at the route layer; kept for direct callers.
 		$controller = $this->registry->get_controller( $report_type );
 		if ( is_wp_error( $controller ) ) {
 			return $controller;
 		}
 
-		// Extract request parameters. Controller-specific additional params (date_type,
-		// orderby, limit, etc.) are merged once in Report_Data_Fetcher::fetch().
+		// Controller-specific params (orderby, limit, …) are merged in Report_Data_Fetcher::fetch().
 		$params = array(
 			'from'         => $request->get_param( 'from' ),
 			'to'           => $request->get_param( 'to' ),
@@ -439,7 +434,6 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 	 * @return WP_REST_Response|WP_Error Response or error.
 	 */
 	private function generate_download_export( string $report_type, array $params ) {
-		// Controller drives the data endpoint, requested fields, and merge strategy.
 		$controller = $this->registry->get_controller( $report_type );
 		if ( is_wp_error( $controller ) ) {
 			return $controller;
@@ -452,7 +446,6 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 
 		$is_comparison = $this->is_comparison_request( $params );
 
-		// Interval drives time-series column labels and row formatting.
 		$interval = $params['interval'] ?? null;
 
 		$columns = $this->registry->get_columns( $report_type, $is_comparison, $interval );
@@ -486,9 +479,8 @@ class Csv_Export_Controller extends WC_REST_Controller implements Registrable_In
 
 		$this->csv_generator->delete_file( $file_path );
 
-		// The file body has already been written to the output buffer; terminate so the REST
-		// stack does not append a JSON response. (Streaming a file is inherently a non-REST
-		// response; there is no cleaner hook once headers + body are sent.)
+		// The file body is already in the output buffer; terminate so the REST stack does not
+		// append a JSON response.
 		exit;
 	}
 

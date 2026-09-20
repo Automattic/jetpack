@@ -1,7 +1,23 @@
 import domReady from '@wordpress/dom-ready';
 import './style.scss';
 
+/*
+ * Share popups here are a parallel implementation of the delegated handler in
+ * modules/sharedaddy/sharing.js, which serves the classic (non-block) buttons.
+ * That file carries the rationale; a change to either usually belongs in both.
+ */
 let sharingWindowOpen;
+const sharingWindowNames = {};
+
+function getSharingWindowName( service ) {
+	if ( typeof sharingWindowNames[ service ] !== 'string' ) {
+		sharingWindowNames[ service ] = `wpcom${ service }-${ Math.random()
+			.toString( 36 )
+			.slice( 2 ) }`;
+	}
+
+	return sharingWindowNames[ service ];
+}
 
 function isWebShareAPIEnabled( data ) {
 	if (
@@ -61,7 +77,7 @@ if ( typeof window !== 'undefined' ) {
 
 				sharingWindowOpen = window.open(
 					link.getAttribute( 'href' ),
-					`wpcom${ service }`,
+					getSharingWindowName( service ),
 					'menubar=1,resizable=1,width=600,height=400'
 				);
 

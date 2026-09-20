@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-09-18
+### Added
+- Register activity-log as a standalone module, and switch it on by default on sites with no Jetpack plugin. [#52409]
+
+### Changed
+- Exclude source map files from the distributed package. [#52304]
+- Only wire up the admin page and REST routes while the activity-log module is active. [#52409]
+- Update package dependencies. [#52187]
+- Update package dependencies. [#52401]
+- Update package dependencies. [#52402]
+
+### Fixed
+- Keep the event and actor icons colored now that @wordpress/icons 16 draws them as strokes. [#52187]
+
+## [0.3.5] - 2026-09-15
+### Changed
+- Update dependencies. [#50841]
+
+## [0.3.4] - 2026-09-14
+### Changed
+- Internal updates.
+
+## [0.3.3] - 2026-09-09
+### Changed
+- Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+
+## [0.3.2] - 2026-09-08
+### Changed
+- Update package dependencies. [#51701]
+
+## [0.3.1] - 2026-09-01
+### Changed
+- Update package dependencies. [#51303] [#51802]
+
 ## [0.3.0] - 2026-08-26
 ### Removed
 - Minimum supported PHP version is now 7.4. [#51515]
@@ -130,6 +164,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial release.
 
+[0.4.0]: https://github.com/Automattic/jetpack-activity-log/compare/v0.3.5...v0.4.0
+[0.3.5]: https://github.com/Automattic/jetpack-activity-log/compare/v0.3.4...v0.3.5
+[0.3.4]: https://github.com/Automattic/jetpack-activity-log/compare/v0.3.3...v0.3.4
+[0.3.3]: https://github.com/Automattic/jetpack-activity-log/compare/v0.3.2...v0.3.3
+[0.3.2]: https://github.com/Automattic/jetpack-activity-log/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/Automattic/jetpack-activity-log/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/Automattic/jetpack-activity-log/compare/v0.2.6...v0.3.0
 [0.2.6]: https://github.com/Automattic/jetpack-activity-log/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/Automattic/jetpack-activity-log/compare/v0.2.4...v0.2.5

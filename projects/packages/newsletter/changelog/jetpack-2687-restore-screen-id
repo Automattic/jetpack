@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Restore the admin screen ID after the wp-build enqueue check.

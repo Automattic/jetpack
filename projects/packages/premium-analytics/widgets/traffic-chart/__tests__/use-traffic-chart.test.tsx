@@ -87,10 +87,9 @@ function routeRequests( comparison?: ComparisonFixtures ) {
 }
 
 /**
- * The `stats/visits` requests the hook issued. `apiFetch` is mocked wholesale, so
- * it also records core-data's own `/wp/v2/settings` traffic (the site timezone
- * resolves through it) — counting raw calls would make these assertions depend on
- * when that happens to be warmed.
+ * The `stats/visits` requests the hook issued. `apiFetch` is mocked wholesale
+ * and also records core-data's `/wp/v2/settings` traffic, so raw call counts
+ * would depend on when that warms.
  *
  * @return One path per visits request, in call order.
  */
@@ -125,10 +124,8 @@ describe( 'useTrafficChart', () => {
 			'comments',
 			'likes',
 		] );
-		// This only proves `value` is each metric's correct total (not a
-		// hardcoded or swapped field) — sanitizeStatsTimeSeriesResponse derives
-		// the summary by summing these same rows, so it can't tell a
-		// summary-read apart from a re-sum of the points.
+		// Proves `value` is each metric's correct total, not that it's read from the
+		// summary field — sanitizeStatsTimeSeriesResponse sums these same rows either way.
 		expect( metrics[ 0 ].value ).toBe( 2000 );
 		expect( metrics[ 1 ].value ).toBe( 1500 );
 		expect( metrics[ 2 ].value ).toBe( 20 );
@@ -183,9 +180,8 @@ describe( 'useTrafficChart', () => {
 		expect( byKey.views.previous ).toHaveLength( 1 );
 	} );
 
-	// The misleading-zero guard: an empty comparison response must read as "no
-	// previous period", not as a previous total of 0 (which would render a
-	// -100% delta against a real current value).
+	// Misleading-zero guard: an empty comparison response must read as "no
+	// previous period", not a previous total of 0 (would render a false -100% delta).
 	it( 'omits the previous period when the comparison request returns no rows', async () => {
 		// Shared between the views/visitors and likes/comments requests below, so
 		// `fields` names neither pair specifically; `data: []` means it's never read.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: Explain when fields share a Name/ID rather than offering them as conditional logic conditions that cannot be told apart.

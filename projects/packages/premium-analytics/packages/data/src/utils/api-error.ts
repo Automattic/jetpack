@@ -79,11 +79,9 @@ export function isAccessDenied( error: unknown ): boolean {
 }
 
 /**
- * Whether offering the reader a Retry can plausibly help.
- *
- * Distinct from `shouldRetryApiError`, the query client's automatic policy: a
- * 401 or 404 is worth a deliberate retry from the reader even though retrying it
- * three times unprompted is not.
+ * Whether offering the reader a Retry can plausibly help — distinct from
+ * `shouldRetryApiError`'s automatic policy: a 401/404 is worth a manual retry
+ * even though auto-retrying it three times unprompted is not.
  */
 export function isUserRetryableError( error: unknown ): boolean {
 	return ! ( error instanceof StatsResponseShapeError ) && ! isAccessDenied( error );

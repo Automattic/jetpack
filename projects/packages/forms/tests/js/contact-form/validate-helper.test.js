@@ -172,29 +172,8 @@ describe( 'validateField', () => {
 		} );
 	} );
 
-	describe( 'file validation', () => {
-		test( 'validates file format', () => {
-			expect( validateField( 'file', [], false ) ).toBe( 'yes' );
-			expect(
-				validateField( 'file', [ { name: 'file.txt', size: 12345, isUploaded: true } ], false )
-			).toBe( 'yes' );
-			expect(
-				validateField( 'file', [ { name: 'file.txt', size: 12345, isUploaded: true } ], true )
-			).toBe( 'yes' );
-		} );
-
-		test( 'invalidates incorrect file formats', () => {
-			expect( validateField( 'file', [ { error: true } ], true ) ).toBe(
-				'invalid_file_has_errors'
-			);
-			expect( validateField( 'file', [ { isUploaded: false } ], true ) ).toBe(
-				'invalid_file_uploading'
-			);
-			expect( validateField( 'file', [ { isUploaded: false } ], false ) ).toBe(
-				'invalid_file_uploading'
-			);
-		} );
-	} );
+	// File validation lives with the file field itself, as `state.validators.file` in
+	// src/modules/file-field/view.js. See tests/js/modules/file-field/view.test.js.
 
 	describe( 'url validation', () => {
 		test( 'validates correct url formats', () => {

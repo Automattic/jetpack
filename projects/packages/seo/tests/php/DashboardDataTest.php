@@ -262,6 +262,56 @@ class DashboardDataTest extends SeoTestCase {
 	}
 
 	/**
+	 * A page type cleared through the site-settings API is stored as an empty
+	 * string; the Settings tab must receive an empty list for it, not a string.
+	 */
+	public function test_get_settings_data_coerces_cleared_title_formats_to_lists() {
+		update_option(
+			'advanced_seo_title_formats',
+			array(
+				'front_page' => '',
+				'posts'      => array(
+					array(
+						'type'  => 'token',
+						'value' => 'post_title',
+					),
+					'not a token',
+				),
+				'pages'      => 'garbage',
+				'archives'   => array(
+					'type'  => 'token',
+					'value' => 'archive_title',
+				),
+			)
+		);
+
+		$formats = (array) Dashboard_Data::get_settings_data()['title_formats'];
+
+		$this->assertSame( array(), $formats['front_page'] );
+		$this->assertSame(
+			array(
+				array(
+					'type'  => 'token',
+					'value' => 'post_title',
+				),
+			),
+			$formats['posts']
+		);
+		$this->assertSame( array(), $formats['pages'] );
+		// An associative entry is one token's shape at the wrong depth, not a list.
+		$this->assertSame( array(), $formats['archives'] );
+	}
+
+	/**
+	 * A non-array option value yields no formats rather than a fatal.
+	 */
+	public function test_normalize_title_formats_rejects_non_arrays() {
+		$this->assertSame( array(), Dashboard_Data::normalize_title_formats( '' ) );
+		$this->assertSame( array(), Dashboard_Data::normalize_title_formats( false ) );
+		$this->assertSame( array(), Dashboard_Data::normalize_title_formats( 'a:1:{}' ) );
+	}
+
+	/**
 	 * Stored title formats stay visible but read-only while conflicting SEO output
 	 * disables Jetpack SEO, preventing a blank dashboard save from erasing them.
 	 */

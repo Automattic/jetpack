@@ -6,118 +6,55 @@ import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import {
+	AbbreviatedValue,
 	describeError,
+	HighlightField,
+	HighlightGroup,
 	summaryCount,
 	WidgetRoot,
 	WidgetState,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack, Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
+import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
 import type { MostPopularDayAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ReactNode } from 'react';
 
-// Report params are dashboard-driven — WidgetRoot resolves them from the date
-// picker — but this highlight is site-wide and ignores them. The host (and
-// Storybook) may still inject them via `attributes`, so accept them here.
+// The highlight is site-wide and ignores report params, but the host may still
+// inject them via `attributes`, so the shape has to accept them.
 type MostPopularDayRenderAttributes = MostPopularDayAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type MostPopularDayWidgetProps = WidgetRenderProps< MostPopularDayRenderAttributes >;
 
 type MostPopularDayHighlightProps = {
-	/**
-	 * The all-time best day for views.
-	 */
+	/** The all-time best day for views. */
 	date: Date;
-	/**
-	 * The number of views recorded on `date`.
-	 */
 	views: number;
-	/**
-	 * The share of all-time views that fall on `date`, as a fraction (0–1), or
-	 * `undefined` when the summary carries no all-time total to divide by.
-	 */
+	/** Fraction (0–1) of all-time views, or `undefined` with no all-time total. */
 	share?: number;
 };
 
-type MostPopularDayFieldProps = {
-	label: string;
-	value: ReactNode;
-	/** The unabbreviated value, exposed as a tooltip. */
-	valueTitle?: string;
-	caption?: string;
-};
+const VIEWS_FORMAT = { type: 'number' as const, options: { useMultipliers: true } };
 
 /**
- * A single labelled highlight: a small label, the prominent value, and a muted
- * caption beneath it (e.g. "Day" / "August 18" / "2020").
- */
-const MostPopularDayField = ( { label, value, valueTitle, caption }: MostPopularDayFieldProps ) => (
-	<Stack direction="column" gap="xs">
-		{ /* Heading, matching the Most popular time card this one sits beside: the
-		     labels carry the card's structure, so they should read as structure to
-		     a screen reader too. */ }
-		<Text variant="heading-md" render={ <h4 /> }>
-			{ label }
-		</Text>
-		<Text variant="heading-2xl" title={ valueTitle }>
-			{ value }
-		</Text>
-		{ caption !== undefined && (
-			<Text variant="body-md" className={ styles.caption }>
-				{ caption }
-			</Text>
-		) }
-	</Stack>
-);
-
-// `decimals: 0` would round 102,631 to "103K"; the design's headline keeps the
-// digit ("102.6K"). Below the first multiplier that digit is only ever ".0", so
-// the count renders whole there — the same split Total views makes.
-const ABBREVIATED_COUNT_OPTIONS = { useMultipliers: true, decimals: 1 };
-const PLAIN_COUNT_OPTIONS = { decimals: 0 };
-
-/**
- * Presentational body for the "Most popular day" widget: the all-time best day
- * for views and how many views it drew. Loading / error / empty are handled by
- * `<WidgetState>` in the report component, so this only renders the populated
- * highlight.
+ * Presentational body for the "Most popular day" widget. Loading / error / empty
+ * are handled by `<WidgetState>` in the report component.
  */
 export const MostPopularDayHighlight = ( { date, views, share }: MostPopularDayHighlightProps ) => {
-	const fullViews = formatMetricValue( views, 'number', PLAIN_COUNT_OPTIONS );
-	const headlineViews = formatMetricValue(
-		views,
-		'number',
-		views >= 1000 ? ABBREVIATED_COUNT_OPTIONS : PLAIN_COUNT_OPTIONS
-	);
-
 	return (
-		<Stack className={ styles.highlight } direction="column" gap="xl" justify="center">
-			<MostPopularDayField
+		<HighlightGroup>
+			<HighlightField
 				label={ __( 'Day', 'jetpack-premium-analytics-pkg' ) }
 				value={ formatDate( date, 'short' ) }
 				caption={ formatDate( date, 'year' ) }
 			/>
-			<MostPopularDayField
+			<HighlightField
 				label={ __( 'Views', 'jetpack-premium-analytics-pkg' ) }
-				// An abbreviated headline is read aloud as "102.6 K", so the exact
-				// count is what reaches a screen reader.
-				value={
-					headlineViews === fullViews ? (
-						headlineViews
-					) : (
-						<>
-							<span aria-hidden="true">{ headlineViews }</span>
-							<VisuallyHidden>{ fullViews }</VisuallyHidden>
-						</>
-					)
-				}
-				valueTitle={ fullViews }
+				value={ <AbbreviatedValue value={ views } dataFormat={ VIEWS_FORMAT } /> }
 				// A summary without an all-time total gives no share to state; "0% of
 				// views" would read as a measurement rather than a missing one.
 				caption={
@@ -127,10 +64,10 @@ export const MostPopularDayHighlight = ( { date, views, share }: MostPopularDayH
 								/* translators: %s is a percentage, e.g. "0.32%". */
 								__( '%s of views', 'jetpack-premium-analytics-pkg' ),
 								formatMetricValue( share, 'percentage', { decimals: 2, signDisplay: 'never' } )
-						  )
+							)
 				}
 			/>
-		</Stack>
+		</HighlightGroup>
 	);
 };
 
