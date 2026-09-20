@@ -1,9 +1,9 @@
+import { GravatarQuickEditorCore } from '@gravatar-com/quick-editor';
 import clsx from 'clsx';
 import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
 import { hasSubscriptionOptions } from '../subscriptions';
 import { GearIcon } from './checkpoint/icons';
-import { openGravatarEditor } from './gravatar-editor';
 
 import './style.scss';
 
@@ -58,6 +58,7 @@ const UserSettings = ( { current }: UserSettingsProps ) => {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ stamp, setStamp ] = useState( 0 );
 	const timer = useRef< ReturnType< typeof setTimeout > | null >( null );
+	const editor = useRef< GravatarQuickEditorCore | null >( null );
 	const hasOptions = hasSubscriptionOptions();
 
 	useEffect( () => {
@@ -71,19 +72,32 @@ const UserSettings = ( { current }: UserSettingsProps ) => {
 	const editAvatar = ( event: Event ) => {
 		event.preventDefault();
 
-		openGravatarEditor( current.email, () => {
-			setIsLoading( true );
+		if ( ! editor.current ) {
+			const { locale } = JetpackComments;
 
-			if ( timer.current !== null ) {
-				clearTimeout( timer.current );
-			}
+			editor.current = new GravatarQuickEditorCore( {
+				scope: [ 'avatars' ],
+				email: current.email,
+				// Gravatar serves the editor from a per-language subdomain; only Chinese has a regional one.
+				locale: locale === 'zh_TW' ? 'zh-TW' : locale.replace( /_.*$/, '' ),
+				utm: 'jetpack-comments',
+				onProfileUpdated: () => {
+					setIsLoading( true );
 
-			timer.current = setTimeout( () => {
-				setIsLoading( false );
-				setStamp( Date.now() );
-				timer.current = null;
-			}, AVATAR_REFRESH_MS );
-		} );
+					if ( timer.current !== null ) {
+						clearTimeout( timer.current );
+					}
+
+					timer.current = setTimeout( () => {
+						setIsLoading( false );
+						setStamp( Date.now() );
+						timer.current = null;
+					}, AVATAR_REFRESH_MS );
+				},
+			} );
+		}
+
+		editor.current.open( current.email );
 	};
 
 	return (
