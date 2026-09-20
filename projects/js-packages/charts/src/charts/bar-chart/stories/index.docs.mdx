@@ -311,6 +311,12 @@ Configure custom formatting for time-series or numerical axes:
 	/>` }
 />
 
+### Buckets With No Data
+
+Set a point's `value` to `null` when its bucket has no reading, such as the days before a site launched. The bucket keeps its place on the axis, so the chart still spans the full range, but it draws no bar and its tooltip reads "No data" rather than 0. Use `0` only for a real reading of zero.
+
+<Canvas of={ BarChartStories.BucketsWithNoData } />
+
 ## Zero Value Display
 
 ### Visual Enhancement for Zero Values

@@ -2,3 +2,4 @@ Significance: patch
 Type: fixed
 
 Bar chart: Draw a gap for a period with no data instead of refusing to render the chart.
+Bar chart: Give a flat or single-bucket series a value axis with height, so its bars are visible.
