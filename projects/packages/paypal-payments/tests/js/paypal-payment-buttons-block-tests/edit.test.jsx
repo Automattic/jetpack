@@ -87,6 +87,7 @@ jest.mock( '@wordpress/icons', () => {
 		chevronRight: icon( 'chevron-right' ),
 		moreVertical: icon( 'more-vertical' ),
 		pencil: icon( 'pencil' ),
+		replace: icon( 'replace' ),
 	};
 } );
 
@@ -309,7 +310,12 @@ jest.mock( '@wordpress/components', () => ( {
 			{ children
 				? children( { onClose: () => {} } )
 				: ( controls || [] ).flat().map( control => (
-						<button key={ control.title } type="button" onClick={ control.onClick }>
+						<button
+							key={ control.title }
+							type="button"
+							onClick={ control.onClick }
+							disabled={ control.isDisabled }
+						>
 							{ control.title }
 						</button>
 					) ) }
@@ -7032,6 +7038,275 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			// The PanelBody mock renders closed panels too, so a second copy of the id would show.
 			expect( screen.getByText( 'Environment:' ) ).toBeInTheDocument();
 			expect( screen.getAllByText( 'PLB-DETAIL1' ) ).toHaveLength( 1 );
+		} );
+	} );
+
+	describe( 'Change item', () => {
+		const listPath = '/wpcom/v2/paypal/buttons?page_size=100';
+		const saved = {
+			isApiManaged: true,
+			resourceId: 'PLB-A1',
+			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-A1',
+			productName: 'Croissant',
+			price: '12.00',
+			currencyCode: 'USD',
+		};
+
+		/**
+		 * A payment resource as the list route returns it.
+		 *
+		 * @param {string} id   - Resource id.
+		 * @param {string} name - Product name.
+		 * @return {object} The resource.
+		 */
+		const resource = ( id, name ) => ( {
+			id,
+			create_time: '2026-09-01T10:00:00Z',
+			payment_link: `https://www.paypal.com/ncp/payment/${ id }`,
+			line_items: [ { name, unit_amount: { value: '12.00', currency_code: 'USD' } } ],
+		} );
+
+		/**
+		 * Reply connected, with these links on the account and this behind each link read.
+		 *
+		 * @param {Array}  links      - Resources the list route returns.
+		 * @param {object} attributes - What reading a link back returns, keyed by id.
+		 */
+		const mockLinks = ( links, attributes = {} ) => {
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				if ( path === listPath ) {
+					return Promise.resolve( { resources: links } );
+				}
+				const id = path.match( /\/buttons\/(PLB-\w+)$/ )?.[ 1 ];
+				if ( id ) {
+					return Promise.resolve( {
+						id,
+						attributes: attributes[ id ] || { ...saved, resourceId: id },
+					} );
+				}
+				return Promise.resolve( {} );
+			} );
+		};
+
+		beforeEach( () => {
+			forgetSyncedRequests();
+		} );
+
+		const listRequests = () =>
+			apiFetch.mock.calls.filter( ( [ request ] ) => request.path === listPath );
+
+		/**
+		 * Render the saved block as the selected one, which is when the sidebar is up.
+		 *
+		 * @param {object} attributes - Attributes to set on top of the saved link.
+		 * @return {object} Testing Library render result.
+		 */
+		const renderSelected = ( attributes = {} ) =>
+			render(
+				<Edit
+					attributes={ { ...saved, ...attributes } }
+					setAttributes={ setAttributes }
+					clientId="a"
+					isSelected
+				/>
+			);
+
+		const changeItem = () => screen.getByRole( 'button', { name: 'Change item' } );
+
+		it( 'is greyed out while the account has no other link', async () => {
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ] );
+
+			renderSelected();
+
+			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
+			await waitFor( () => expect( changeItem() ).toBeDisabled() );
+			expect( screen.getByRole( 'button', { name: 'Edit' } ) ).toBeEnabled();
+		} );
+
+		it( 'is greyed out while PayPal is disconnected', async () => {
+			apiFetch.mockResolvedValue( { connected: false, environment: 'sandbox' } );
+
+			renderSelected();
+
+			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
+			expect( changeItem() ).toBeDisabled();
+			expect( listRequests() ).toHaveLength( 0 );
+		} );
+
+		it( 'reads the list once the block is selected, not for every block on the canvas', async () => {
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ] );
+
+			const { rerender } = render(
+				<Edit attributes={ saved } setAttributes={ setAttributes } clientId="a" />
+			);
+
+			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
+			expect( listRequests() ).toHaveLength( 0 );
+
+			rerender(
+				<Edit attributes={ saved } setAttributes={ setAttributes } clientId="a" isSelected />
+			);
+
+			await waitFor( () => expect( listRequests() ).toHaveLength( 1 ) );
+			await waitFor( () => expect( changeItem() ).toBeEnabled() );
+		} );
+
+		it( 'offers the other links, without the one the block has, and goes back to the details', async () => {
+			const user = userEvent.setup();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ] );
+
+			renderSelected();
+
+			await waitFor( () => expect( changeItem() ).toBeEnabled() );
+			await user.click( changeItem() );
+
+			expect( screen.getByText( 'Other payment links (1)' ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: /Baguette/ } ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: /Croissant/ } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'Create new' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Hosted ID' ) ).not.toBeInTheDocument();
+			// The current button stays on the canvas while another link is picked.
+			expect( screen.getByTestId( 'paypal-button-preview' ) ).toBeInTheDocument();
+
+			await user.click( screen.getByRole( 'button', { name: 'Change item' } ) );
+
+			expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
+			expect( setAttributes ).not.toHaveBeenCalled();
+		} );
+
+		it( 'switches the block to the picked link, with what PayPal holds for it and nothing of the old one', async () => {
+			const user = userEvent.setup();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ], {
+				'PLB-B2': {
+					isApiManaged: true,
+					resourceId: 'PLB-B2',
+					paymentLink: 'https://www.paypal.com/ncp/payment/PLB-B2',
+					productName: 'Baguette',
+					price: '3.50',
+					currencyCode: 'EUR',
+				},
+			} );
+
+			renderSelected( {
+				taxEnabled: true,
+				taxType: 'PERCENTAGE',
+				taxValue: '7.5',
+				imageUrl: 'https://example.com/croissant.png',
+				imageId: 7,
+			} );
+
+			await waitFor( () => expect( changeItem() ).toBeEnabled() );
+			await user.click( changeItem() );
+			await user.click( screen.getByRole( 'button', { name: /Baguette/ } ) );
+
+			await waitFor( () =>
+				expect( setAttributes ).toHaveBeenCalledWith(
+					expect.objectContaining( {
+						isApiManaged: true,
+						resourceId: 'PLB-B2',
+						paymentLink: 'https://www.paypal.com/ncp/payment/PLB-B2',
+						productName: 'Baguette',
+						price: '3.50',
+						currencyCode: 'EUR',
+						// Back to block.json's defaults, with the block-owned image cleared.
+						taxEnabled: false,
+						taxValue: '',
+						imageUrl: undefined,
+						imageId: undefined,
+					} )
+				)
+			);
+		} );
+
+		// The switch reads the payment, so the next save can write it.
+		it( 'lets the post save write the payment it switched to', async () => {
+			const user = userEvent.setup();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ] );
+
+			renderSelected();
+
+			await waitFor( () => expect( changeItem() ).toBeEnabled() );
+			await user.click( changeItem() );
+			await user.click( screen.getByRole( 'button', { name: /Baguette/ } ) );
+			await waitFor( () =>
+				expect( setAttributes ).toHaveBeenCalledWith(
+					expect.objectContaining( { resourceId: 'PLB-B2' } )
+				)
+			);
+
+			const request = jest.fn( () => Promise.resolve( {} ) );
+			const reportHeldBack = jest.fn();
+			await syncBlocksBeforeSave(
+				[ { clientId: 'a', attributes: { ...saved, resourceId: 'PLB-B2' } } ],
+				{ request, updateBlockAttributes: jest.fn(), reportError: jest.fn(), reportHeldBack }
+			);
+
+			expect( reportHeldBack ).not.toHaveBeenCalled();
+			expect( request ).toHaveBeenCalledWith(
+				expect.objectContaining( { path: '/wpcom/v2/paypal/buttons/PLB-B2', method: 'PUT' } )
+			);
+		} );
+
+		it( 'says so when the list comes back with no other link', async () => {
+			const user = userEvent.setup();
+			let resolveList;
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path === listPath ) {
+					return new Promise( resolve => {
+						resolveList = resolve;
+					} );
+				}
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				return Promise.resolve( { id: 'PLB-A1', attributes: saved } );
+			} );
+
+			renderSelected();
+
+			// Still reading the list, so the menu cannot say there is nothing to switch to.
+			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
+			expect( changeItem() ).toBeEnabled();
+			await user.click( changeItem() );
+			expect( within( panel( 'Payment link' ) ).getByTestId( 'spinner' ) ).toBeInTheDocument();
+
+			await act( async () => resolveList( { resources: [ resource( 'PLB-A1', 'Croissant' ) ] } ) );
+
+			expect( screen.getByText( 'Other payment links (0)' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'No other payment links available.' ) ).toBeInTheDocument();
+		} );
+
+		it( 'reports a failed switch in the snackbar and keeps the block as it was', async () => {
+			const user = userEvent.setup();
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				if ( path === listPath ) {
+					return Promise.resolve( {
+						resources: [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ],
+					} );
+				}
+				if ( path.endsWith( '/buttons/PLB-B2' ) ) {
+					return Promise.reject( { message: 'PayPal is unavailable' } );
+				}
+				return Promise.resolve( { id: 'PLB-A1', attributes: saved } );
+			} );
+
+			renderSelected();
+
+			await waitFor( () => expect( changeItem() ).toBeEnabled() );
+			await user.click( changeItem() );
+			await user.click( screen.getByRole( 'button', { name: /Baguette/ } ) );
+
+			await waitFor( () =>
+				expect( mockToast ).toHaveBeenCalledWith( 'error', 'PayPal is unavailable' )
+			);
+			expect( setAttributes ).not.toHaveBeenCalled();
+			expect( screen.getByRole( 'button', { name: /Baguette/ } ) ).toBeEnabled();
 		} );
 	} );
 

@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-no-bind */
 /**
- * PayPal Payment Buttons — The first step of a new block: reuse a link or create one.
+ * PayPal Payment Buttons — The account's existing links, offered to a new block or
+ * to a saved one switching links.
  *
  * @package
  */
@@ -36,43 +37,67 @@ export function filterLinks( links, search ) {
 	} );
 }
 
+// The comments sit on the calls, where the minifier keeps them with the string.
+const titleReuse =
+	/* translators: %d: number of payment links the account already has */
+	__( 'Or reuse an existing link (%d)', 'jetpack-paypal-payments' );
+const titleSwitch =
+	/* translators: %d: number of payment links the block can switch to */
+	__( 'Other payment links (%d)', 'jetpack-paypal-payments' );
+const emptyNoMatch = __( 'No payment links match your search.', 'jetpack-paypal-payments' );
+const emptyNoOther = __( 'No other payment links available.', 'jetpack-paypal-payments' );
+
 /**
- * The sidebar step that offers the account's existing links before the form.
+ * The sidebar step that offers the account's existing links.
  *
- * @param {object}   props             - Component props.
- * @param {Array}    props.links       - Payment resources from the list route.
- * @param {Function} props.onCreateNew - Go on to the empty form.
- * @param {Function} props.onPick      - Reuse one link; receives the resource.
- * @param {boolean}  props.isPicking   - Whether a picked link is being read back.
+ * With onCreateNew it is a new block's first step, before the form. Without it,
+ * it is a saved block switching to another of the account's links.
+ *
+ * @param {object}   props               - Component props.
+ * @param {Array}    props.links         - Payment resources from the list route.
+ * @param {boolean}  props.isLoading     - Whether the list is still being read.
+ * @param {Function} [props.onCreateNew] - Go on to the empty form.
+ * @param {Function} props.onPick        - Reuse one link; receives the resource.
+ * @param {boolean}  props.isPicking     - Whether a picked link is being read back.
  * @return {Element} The step.
  */
-export default function ExistingLinksStep( { links, onCreateNew, onPick, isPicking } ) {
+export default function ExistingLinksStep( { links, isLoading, onCreateNew, onPick, isPicking } ) {
 	const [ search, setSearch ] = useState( '' );
 	const shown = useMemo( () => filterLinks( links, search ), [ links, search ] );
+	const isSwitch = ! onCreateNew;
+
+	if ( isLoading ) {
+		return (
+			<PanelBody title={ __( 'Payment link', 'jetpack-paypal-payments' ) } initialOpen={ true }>
+				<Spinner />
+			</PanelBody>
+		);
+	}
 
 	return (
 		<PanelBody title={ __( 'Payment link', 'jetpack-paypal-payments' ) } initialOpen={ true }>
-			<p className="jetpack-paypal-payment-buttons__links-intro">
-				{ __(
-					'Create a new payment link for this block, or reuse one you already have.',
-					'jetpack-paypal-payments'
-				) }
-			</p>
-			<Button
-				variant="primary"
-				onClick={ onCreateNew }
-				disabled={ isPicking }
-				className="jetpack-paypal-payment-buttons__links-create"
-			>
-				{ __( 'Create new', 'jetpack-paypal-payments' ) }
-			</Button>
-			<div className="jetpack-paypal-payment-buttons__links-section">
+			{ ! isSwitch && (
+				<>
+					<p className="jetpack-paypal-payment-buttons__links-intro">
+						{ __(
+							'Create a new payment link for this block, or reuse one you already have.',
+							'jetpack-paypal-payments'
+						) }
+					</p>
+					<Button
+						variant="primary"
+						onClick={ onCreateNew }
+						disabled={ isPicking }
+						className="jetpack-paypal-payment-buttons__links-create"
+					>
+						{ __( 'Create new', 'jetpack-paypal-payments' ) }
+					</Button>
+				</>
+			) }
+			{ /* The section's divider separates the list from Create new, so it goes with it. */ }
+			<div className={ isSwitch ? undefined : 'jetpack-paypal-payment-buttons__links-section' }>
 				<h3 className="jetpack-paypal-payment-buttons__links-title">
-					{ sprintf(
-						/* translators: %d: number of payment links the account already has */
-						__( 'Or reuse an existing link (%d)', 'jetpack-paypal-payments' ),
-						links.length
-					) }
+					{ isSwitch ? sprintf( titleSwitch, links.length ) : sprintf( titleReuse, links.length ) }
 				</h3>
 				{ links.length > SEARCH_THRESHOLD && (
 					<SearchControl
@@ -109,7 +134,7 @@ export default function ExistingLinksStep( { links, onCreateNew, onPick, isPicki
 				</ul>
 				{ shown.length === 0 && (
 					<p className="jetpack-paypal-payment-buttons__links-empty">
-						{ __( 'No payment links match your search.', 'jetpack-paypal-payments' ) }
+						{ links.length === 0 ? emptyNoOther : emptyNoMatch }
 					</p>
 				) }
 			</div>
