@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Critical CSS: Avoid duplicate status polling for CSS and LCP generation in the modern dashboard.
+Critical CSS: Avoid duplicate status requests for CSS and LCP generation in the modern dashboard.

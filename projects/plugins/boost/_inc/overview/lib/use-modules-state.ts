@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { skipToken, useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { z } from 'zod';
 import { isCriticalCssEnabled } from '../../../app/assets/src/js/features/critical-css/lib/is-critical-css-enabled';
@@ -139,7 +139,13 @@ function useGenerationState( key: 'critical_css_state' | 'lcp_state', enabled: b
 		bootstrap === undefined ? undefined : generationSchemas[ key ].safeParse( bootstrap );
 	return useQuery( {
 		queryKey: [ key ],
-		queryFn: async () => generationSchemas[ key ].parse( await requestDataSync( key ) ),
+		queryFn:
+			bootstrap === undefined
+				? async () => generationSchemas[ key ].parse( await requestDataSync( key ) )
+				: skipToken,
+		staleTime: Infinity,
+		refetchOnMount: false,
+		refetchOnWindowFocus: false,
 		initialData: initial?.success ? initial.data : undefined,
 		enabled: enabled && isSiteOnline(),
 	} );

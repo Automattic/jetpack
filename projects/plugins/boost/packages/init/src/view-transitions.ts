@@ -1,22 +1,22 @@
-/** Observe the chassis transitions for the lifetime of the Boost admin page. */
+const installed = new WeakSet< typeof document.startViewTransition >();
+
+/** The Advanced no-issues redirect can skip the chassis's preceding hash transition. */
 export function handleSkippedViewTransitions(): void {
 	const startViewTransition = document.startViewTransition;
-	if ( ! startViewTransition ) {
+	if ( ! startViewTransition || installed.has( startViewTransition ) ) {
 		return;
 	}
 
 	document.startViewTransition = function ( ...args ) {
 		const transition = startViewTransition.apply( this, args );
 		void transition.ready.catch( error => {
-			if (
-				error instanceof DOMException &&
-				error.name === 'AbortError' &&
-				error.message === 'Transition was skipped. New ViewTransition started'
-			) {
+			if ( error?.name === 'AbortError' ) {
 				return;
 			}
-			throw error;
+			// Update failures still reject finished and updateCallbackDone; do not create another rejection.
+			return error;
 		} );
 		return transition;
 	};
+	installed.add( document.startViewTransition );
 }

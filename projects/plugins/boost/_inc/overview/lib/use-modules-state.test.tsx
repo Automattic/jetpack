@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { focusManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { createElement, type PropsWithChildren } from 'react';
@@ -129,22 +129,29 @@ it.each( [
 			value: { status: 'pending', updated: 1 },
 		};
 		fetchMock.mockResolvedValue( { status: 'success', JSON: { status: 'pending', updated: 1 } } );
-		const { result } = renderHook(
+		const { result, unmount } = renderHook(
 			() => useScoreRefreshState( { [ module ]: { active: true, available: true } } ),
 			{ wrapper }
 		);
 		const pendingConfig = result.current.config;
 		await act( async () => jest.advanceTimersByTimeAsync( 6500 ) );
 		expect( result.current.isPending ).toBe( true );
-		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+		expect( fetchMock ).not.toHaveBeenCalled();
 		await act( async () => {
 			queryClient.setQueryData( [ key ], { status: settled, updated: 2 } );
+			focusManager.setFocused( false );
+			focusManager.setFocused( true );
 			await jest.advanceTimersByTimeAsync( 31000 );
 		} );
 		expect( result.current.isPending ).toBe( false );
 		expect( result.current.config ).not.toBe( pendingConfig );
-		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+		unmount();
+		renderHook( () => useScoreRefreshState( { [ module ]: { active: true, available: true } } ), {
+			wrapper,
+		} );
+		expect( fetchMock ).not.toHaveBeenCalled();
 	} finally {
+		focusManager.setFocused( undefined );
 		jest.useRealTimers();
 	}
 } );
@@ -201,4 +208,19 @@ it( 'preserves the server message from Data Sync errors', async () => {
 it.each( [ true, false, undefined ] )( 'normalizes add-license availability (%s)', addLicense => {
 	Object.defineProperty( globalThis, 'Jetpack_Boost', { value: { site: { addLicense } } } );
 	expect( isAddLicenseAvailable() ).toBe( addLicense === true );
+} );
+
+it.each( [
+	[ 'critical_css_state', 'critical_css', 'generated' ],
+	[ 'lcp_state', 'lcp', 'analyzed' ],
+] as const )( 'fetches %s once when bootstrap data is absent', async ( key, module, status ) => {
+	window.jetpack_boost_ds![ key ] = { nonce: 'generation-nonce', value: undefined };
+	fetchMock.mockResolvedValue( { status: 'success', JSON: { status, updated: 1 } } );
+	const { result } = renderHook(
+		() => useScoreRefreshState( { [ module ]: { active: true, available: true } } ),
+		{ wrapper }
+	);
+	await waitFor( () => expect( result.current.isPending ).toBe( false ) );
+	expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+	expect( queryClient.getQueryData( [ key ] ) ).toEqual( { status, updated: 1 } );
 } );

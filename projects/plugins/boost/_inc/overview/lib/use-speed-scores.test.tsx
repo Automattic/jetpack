@@ -265,3 +265,29 @@ test( 'stops posting pending scores when Purchase Success opens', async () => {
 		jest.useRealTimers();
 	}
 } );
+
+test( 'refreshes a configuration change after leaving a subpage', async () => {
+	jest.useFakeTimers();
+	try {
+		const { rerender } = renderHook(
+			( { enabled, config } ) => useSpeedScores( { config, isPending: false }, enabled ),
+			{ wrapper, initialProps: { enabled: true, config: 'initial' } }
+		);
+		await act( async () => jest.advanceTimersByTimeAsync( 1 ) );
+		jest.mocked( requestSpeedScores ).mockClear();
+		rerender( { enabled: false, config: 'changed' } );
+		await act( async () => jest.advanceTimersByTimeAsync( 2500 ) );
+		expect( requestSpeedScores ).not.toHaveBeenCalled();
+		rerender( { enabled: true, config: 'changed' } );
+		await act( async () => jest.advanceTimersByTimeAsync( 2500 ) );
+		expect( requestSpeedScores ).toHaveBeenLastCalledWith(
+			true,
+			wpApiSettings.root,
+			expect.any( String ),
+			wpApiSettings.nonce,
+			{ signal: expect.any( AbortSignal ) }
+		);
+	} finally {
+		jest.useRealTimers();
+	}
+} );

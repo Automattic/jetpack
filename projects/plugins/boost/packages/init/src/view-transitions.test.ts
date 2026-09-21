@@ -7,9 +7,7 @@ afterEach( () => {
 } );
 
 it( 'preserves navigation and handles the ready rejection when a redirect skips a transition', async () => {
-	const ready = Promise.reject(
-		new DOMException( 'Transition was skipped. New ViewTransition started', 'AbortError' )
-	);
+	const ready = Promise.reject( new DOMException( 'Skipped transition', 'AbortError' ) );
 	const caught = jest.spyOn( ready, 'catch' );
 	const transition = { ready };
 	const start = jest.fn().mockReturnValue( transition );
@@ -25,18 +23,27 @@ it( 'preserves navigation and handles the ready rejection when a redirect skips 
 
 it.each( [
 	new Error( 'Navigation failed' ),
-	new DOMException( 'Another abort', 'AbortError' ),
 	new DOMException( 'Transition was skipped. New ViewTransition started', 'InvalidStateError' ),
-] )( 'preserves unexpected transition errors: %s', async error => {
+] )( 'does not create a rejection when the caller handles an update failure: %s', async error => {
 	const ready = Promise.reject( error );
 	const caught = jest.spyOn( ready, 'catch' );
-	const start = jest.fn().mockReturnValue( { ready } );
+	const transition = {
+		ready,
+		finished: Promise.reject( error ),
+		updateCallbackDone: Promise.reject( error ),
+	};
+	const start = jest.fn().mockReturnValue( transition );
 	document.startViewTransition = start;
 	handleSkippedViewTransitions();
 
 	document.startViewTransition();
 
-	await expect( caught.mock.results[ 0 ].value ).rejects.toBe( error );
+	await Promise.all(
+		[ ready, transition.finished, transition.updateCallbackDone ].map( promise =>
+			expect( promise ).rejects.toBe( error )
+		)
+	);
+	await expect( caught.mock.results[ 0 ].value ).resolves.toBe( error );
 } );
 
 it( 'leaves browsers without View Transitions unchanged', () => {
@@ -47,4 +54,16 @@ it( 'leaves browsers without View Transitions unchanged', () => {
 	} );
 	handleSkippedViewTransitions();
 	expect( document.startViewTransition ).toBeUndefined();
+} );
+
+it( 'installs only once', () => {
+	Object.defineProperty( document, 'startViewTransition', {
+		configurable: true,
+		writable: true,
+		value: jest.fn(),
+	} );
+	handleSkippedViewTransitions();
+	const wrapped = document.startViewTransition;
+	handleSkippedViewTransitions();
+	expect( document.startViewTransition ).toBe( wrapped );
 } );

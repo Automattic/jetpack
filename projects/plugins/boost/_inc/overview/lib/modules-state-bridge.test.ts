@@ -53,6 +53,11 @@ test.each( [ 'critical_css_state', 'lcp_state' ] )( 'relays polled results for %
 	expect( onChange ).toHaveBeenCalledWith( expect.objectContaining( { detail: { key, data } } ) );
 } );
 
+test( 'does not relay fetched modules_state results', async () => {
+	await client.fetchQuery( { queryKey: [ 'modules_state' ], queryFn: async () => ( {} ) } );
+	expect( onChange ).not.toHaveBeenCalled();
+} );
+
 test( 'does not relay updates to unrelated keys', () => {
 	client.setQueryData( [ 'performance_history' ], {} );
 	client.setQueryData( [ 'getting_started' ], false );
