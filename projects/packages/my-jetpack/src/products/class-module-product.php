@@ -190,7 +190,8 @@ abstract class Module_Product extends Product {
 
 		$result = Jetpack::deactivate_module( static::$module_name );
 
-		if ( $result && static::is_module_active() ) {
+		// A module that was never saved as active leaves nothing to change, so check the outcome.
+		if ( static::is_module_active() ) {
 			return new WP_Error(
 				'module_forced',
 				sprintf(

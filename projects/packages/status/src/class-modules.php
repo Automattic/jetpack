@@ -496,7 +496,7 @@ class Modules {
 	 *
 	 * @param string $module Module slug.
 	 *
-	 * @return bool Whether the saved list leaves the module out.
+	 * @return bool Whether the saved list changed.
 	 */
 	public function deactivate( $module ) {
 		/**
@@ -508,9 +508,7 @@ class Modules {
 		 */
 		do_action( 'jetpack_pre_deactivate_module', $module );
 
-		$this->update_active( array_filter( array_diff( $this->get_saved_active(), (array) $module ) ) );
-
-		return ! array_intersect( (array) $module, $this->get_saved_active() );
+		return $this->update_active( array_filter( array_diff( $this->get_saved_active(), (array) $module ) ) );
 	}
 
 	/**

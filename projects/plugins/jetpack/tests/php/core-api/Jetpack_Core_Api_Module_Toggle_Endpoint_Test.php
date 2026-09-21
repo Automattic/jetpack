@@ -92,7 +92,10 @@ class Jetpack_Core_Api_Module_Toggle_Endpoint_Test extends WP_UnitTestCase {
 	public function test_bulk_activation_counts_a_module_a_host_forced_off_as_failed() {
 		$this->forced_off = array( self::MODULE );
 
-		$result = Jetpack_Core_API_Module_List_Endpoint::activate_modules( array( 'modules' => array( self::MODULE ) ) );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/module/all/active' );
+		$request->set_param( 'modules', array( self::MODULE ) );
+
+		$result = Jetpack_Core_API_Module_List_Endpoint::activate_modules( $request );
 
 		$this->assertWPError( $result );
 	}

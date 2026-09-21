@@ -161,15 +161,18 @@ class Jetpack_Core_API_Module_Toggle_Endpoint extends Jetpack_Core_API_XMLRPC_Co
 			);
 		}
 
-		if ( Jetpack::deactivate_module( $module_slug ) ) {
-			if ( Jetpack::is_module_active( $module_slug ) ) {
-				return new WP_Error(
-					'module_forced',
-					esc_html__( 'The requested Jetpack module is enabled by your host or site administrator, so it stays on.', 'jetpack' ),
-					array( 'status' => 409 )
-				);
-			}
+		$deactivated = Jetpack::deactivate_module( $module_slug );
 
+		// A module that was never saved as active leaves nothing to change, so check the outcome.
+		if ( Jetpack::is_module_active( $module_slug ) ) {
+			return new WP_Error(
+				'module_forced',
+				esc_html__( 'The requested Jetpack module is enabled by your host or site administrator, so it stays on.', 'jetpack' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		if ( $deactivated ) {
 			return rest_ensure_response(
 				array(
 					'code'    => 'success',

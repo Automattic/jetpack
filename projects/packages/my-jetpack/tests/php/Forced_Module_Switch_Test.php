@@ -97,10 +97,11 @@ class Forced_Module_Switch_Test extends BaseTestCase {
 		$this->assertTrue( $modules->is_active( 'activity-log' ) );
 	}
 
-	public function test_deactivating_a_module_that_was_never_saved_still_reports_the_saved_choice() {
+	public function test_deactivating_a_forced_module_that_was_never_saved_changes_nothing() {
 		$this->host( array( 'stats' ), array( 'activity-log' ) );
 
-		$this->assertTrue( ( new Modules() )->deactivate( 'activity-log' ) );
+		$this->assertFalse( ( new Modules() )->deactivate( 'activity-log' ) );
 		$this->assertSame( array( 'stats' ), $this->saved() );
+		$this->assertSame( array(), self::$activated );
 	}
 }
