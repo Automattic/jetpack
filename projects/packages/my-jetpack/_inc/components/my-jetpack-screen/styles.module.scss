@@ -34,6 +34,12 @@
 .snackbar-notices {
 
 	@include gb.snackbar-container();
+
+	// CSS Modules hashes the `.components-snackbar` selector the mixin nests, so
+	// its centering never matches. Re-declare it against the global class.
+	:global(.components-snackbar) {
+		margin-inline: auto;
+	}
 }
 
 .notice {
