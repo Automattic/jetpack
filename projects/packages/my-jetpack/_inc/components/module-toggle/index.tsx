@@ -5,6 +5,10 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
 import { queueActivationRequest } from '../../data/queue-activation-request';
+import {
+	setRequestedModuleState,
+	useRequestedModuleState,
+} from '../../data/requested-module-state';
 import { MyJetpackModule } from '../../types';
 import { getBlockThemeMigration } from '../../utils/block-theme-migration';
 import { getModuleActivationMessage } from '../../utils/module-benefit-messages';
@@ -60,7 +64,7 @@ export function useModuleActivation(
 	// The store only learns the new value once the request comes back, so the switch
 	// takes the value the click asked for and holds it until then. Cleared either way:
 	// on success the store now agrees, and on failure it still holds the old value.
-	const [ requested, setRequested ] = useState< boolean | null >( null );
+	const requested = useRequestedModuleState( $module.module );
 	const isActive = requested ?? $module.activated;
 
 	const showToggleNotice = useCallback(
@@ -115,7 +119,7 @@ export function useModuleActivation(
 			}
 
 			setIsQueued( true );
-			setRequested( active );
+			setRequestedModuleState( $module.module, active );
 
 			let success;
 			try {
@@ -127,7 +131,7 @@ export function useModuleActivation(
 				);
 			} finally {
 				setIsQueued( false );
-				setRequested( null );
+				setRequestedModuleState( $module.module, null );
 			}
 
 			if ( success && reload && MODULES_REQUIRING_RELOAD.includes( $module.module ) ) {

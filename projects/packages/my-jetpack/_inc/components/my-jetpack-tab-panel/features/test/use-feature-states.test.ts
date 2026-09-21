@@ -1,4 +1,5 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
+import { setRequestedModuleState } from '../../../../data/requested-module-state';
 import { useFeatureStates } from '../feature-state';
 
 const mockModules = jest.fn();
@@ -59,5 +60,43 @@ describe( 'useFeatureStates', () => {
 
 		expect( result.current.isLoading ).toBe( false );
 		expect( result.current.states[ 0 ].control.kind ).toBe( 'install-plugin' );
+	} );
+} );
+
+describe( 'useFeatureStates, while a module switch is answering a click', () => {
+	const inJetpack = { ...social, plugin: '', plugin_status: 'not-installed' } as MainFeature;
+
+	beforeEach( () => {
+		mockModules.mockReturnValue( {
+			modules: { publicize: { module: 'publicize', available: true, activated: true } },
+			isLoading: false,
+		} );
+	} );
+
+	// Cleared through act(): the store is shared, so mounted cards re-render on it.
+	afterEach( () => act( () => setRequestedModuleState( 'publicize', null ) ) );
+
+	it( 'reports the value the click asked for, so the badge can follow the switch', () => {
+		const { result } = renderHook( () =>
+			useFeatureStates( { jetpack: 'active', features: [ inJetpack ] } as MainFeaturesState )
+		);
+
+		expect( result.current.states[ 0 ].status ).toBe( 'active' );
+
+		act( () => setRequestedModuleState( 'publicize', false ) );
+
+		expect( result.current.states[ 0 ].status ).toBe( 'inactive' );
+		expect( result.current.states[ 0 ].pending ).toBeFalsy();
+	} );
+
+	it( 'goes back to the store once nothing is in flight', () => {
+		const { result } = renderHook( () =>
+			useFeatureStates( { jetpack: 'active', features: [ inJetpack ] } as MainFeaturesState )
+		);
+
+		act( () => setRequestedModuleState( 'publicize', false ) );
+		act( () => setRequestedModuleState( 'publicize', null ) );
+
+		expect( result.current.states[ 0 ].status ).toBe( 'active' );
 	} );
 } );

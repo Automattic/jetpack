@@ -7,7 +7,6 @@ import { getActivationStatusLabel } from '../utils';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
 import styles from './styles.module.scss';
-import { useFeatureBusy } from './use-feature-busy';
 import type { FeatureState } from './feature-state';
 
 type FeatureItemProps = {
@@ -32,9 +31,9 @@ export function FeatureItem( { state, onOpen }: FeatureItemProps ) {
 	const chevron = isRTL() ? chevronLeft : chevronRight;
 	const onClick = useCallback( () => onOpen( feature.slug ), [ feature.slug, onOpen ] );
 	const statusId = `feature-status-${ feature.slug }`;
-	// Mid-switch the badge would be asserting a state the request has not confirmed.
-	const isBusy = useFeatureBusy( state );
-	const isSettling = Boolean( state.pending ) || isBusy;
+	// Only while the state is first being read. A switch answers its own click, so
+	// mid-request the badge has a value to show and should show it.
+	const isSettling = Boolean( state.pending );
 
 	return (
 		<div className={ styles[ 'feature-item' ] } data-feature={ feature.slug }>

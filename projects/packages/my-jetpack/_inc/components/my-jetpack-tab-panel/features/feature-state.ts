@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
 import { useAllProducts } from '../../../data/products/use-all-products';
+import { useRequestedModuleStates } from '../../../data/requested-module-state';
 import { getProductModules } from '../products/mappings';
 import { useAllJetpackModules } from '../products/use-all-jetpack-modules';
 import type { ProductCamelCase } from '../../../data/types';
@@ -131,21 +132,48 @@ export function useFeatureStates( state: MainFeaturesState ): {
 	// read as "install its plugin instead". Only Jetpack-active sites consult them.
 	const isLoadingModules = state.jetpack === 'active' && isLoading;
 
+	// A module's switch answers a click before the store does, and the card's badge has to
+	// say the same thing. The plugin path needs no equivalent: its optimistic write goes
+	// through the query cache, which is already what `state.features` is read from.
+	const requestedModules = useRequestedModuleStates();
+
 	const states = useMemo(
 		() =>
-			state.features.map( feature =>
-				resolveFeatureState(
-					feature,
-					state.jetpack,
-					feature.product ? products?.[ feature.product ] : undefined,
-					modules,
-					productModules,
-					isLoadingModules
+			state.features
+				.map( feature =>
+					resolveFeatureState(
+						feature,
+						state.jetpack,
+						feature.product ? products?.[ feature.product ] : undefined,
+						modules,
+						productModules,
+						isLoadingModules
+					)
 				)
-			),
+				.map( resolved => applyRequestedModule( resolved, requestedModules ) ),
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- productModules is rebuilt each render from a constant map.
-		[ state, products, modules, isLoadingModules ]
+		[ state, products, modules, isLoadingModules, requestedModules ]
 	);
 
 	return { states, isLoading: isLoadingModules };
+}
+
+/**
+ * Show the value a module's switch asked for, until its store catches up.
+ *
+ * @param state     - The feature's resolved state.
+ * @param requested - Module slug to the value asked of it.
+ * @return The state, with the asked-for status where one is in flight.
+ */
+function applyRequestedModule(
+	state: FeatureState,
+	requested: Record< string, boolean >
+): FeatureState {
+	if ( state.control.kind !== 'module' ) {
+		return state;
+	}
+
+	const asked = requested[ state.control.module.module ];
+
+	return asked === undefined ? state : { ...state, status: asked ? 'active' : 'inactive' };
 }
