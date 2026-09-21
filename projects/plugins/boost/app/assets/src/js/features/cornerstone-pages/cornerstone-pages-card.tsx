@@ -11,10 +11,6 @@ import {
 import Prerender from './prerender/prerender';
 import styles from './cornerstone-pages-card.module.scss';
 
-/**
- * The Cornerstone Pages group on the modern Settings page: the description,
- * a collapsible page editor, then the pre-render control as a row.
- */
 const CornerstonePagesCard = () => {
 	const [ moduleState ] = useSingleModuleState( 'speculation_rules' );
 	const isSpeculationRulesAvailable = moduleState?.available ?? false;
