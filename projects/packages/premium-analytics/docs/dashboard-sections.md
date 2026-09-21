@@ -4,6 +4,8 @@ How a section of the Premium Analytics dashboard is registered, filtered, served
 
 Sections are registered on the server by whoever owns them, the package for its own sections and another plugin for its section, through a single registry, and the client renders whatever the server publishes.
 
+The package owns the dashboard, not the features: a section belongs to the code that knows its feature is there. Traffic and Insights are the package's own, since the dashboard is the Stats feature. A section that depends on another feature being present registers from that feature's code, in the plugin, the module or, on the WordPress.com platform, in `jetpack-mu-wpcom`.
+
 This page covers sections only. Widget types and report pages have their own registration paths, described at the end.
 
 ## Vocabulary
