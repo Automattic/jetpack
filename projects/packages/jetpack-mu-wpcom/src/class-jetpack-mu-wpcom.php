@@ -483,6 +483,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-tracking.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
+		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes-tab.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
 		require_once __DIR__ . '/features/wpcom-videopress/wpcom-videopress.php';
 
