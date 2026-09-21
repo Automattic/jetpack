@@ -59,12 +59,27 @@ describe( 'BarChart', () => {
 		);
 	};
 
-	test.each( [ 'vertical', 'horizontal' ] )(
-		'adds datum classes without changing %s bar geometry',
-		async orientation => {
+	test.each(
+		[ 'vertical', 'horizontal' ].flatMap( orientation =>
+			[
+				[ 10, 20, 30 ],
+				[ -20, -10, -30 ],
+				[ -20, 10, 30 ],
+			].map( values => ( { orientation, values } ) )
+		)
+	)(
+		'adds datum classes without changing $orientation bar geometry for $values',
+		async ( { orientation, values } ) => {
+			const series = {
+				...defaultProps.data[ 0 ],
+				data: defaultProps.data[ 0 ].data.map( ( datum, index ) => ( {
+					...datum,
+					value: values[ index ],
+				} ) ),
+			};
 			const props = {
 				orientation,
-				data: [ ...defaultProps.data, { ...defaultProps.data[ 0 ], label: 'Series B' } ],
+				data: [ series, { ...series, label: 'Series B' } ],
 			};
 			const view = renderWithTheme( props );
 			await waitFor( () => expect( getBarRects() ).toHaveLength( 6 ) );
@@ -77,7 +92,7 @@ describe( 'BarChart', () => {
 			renderWithTheme( {
 				...props,
 				barClassName: ( datum: DataPointDate ) =>
-					datum.value === 10 ? 'first-value' : undefined,
+					datum.value === values[ 0 ] ? 'first-value' : undefined,
 			} );
 			await waitFor( () => expect( getBarRects() ).toHaveLength( 6 ) );
 			expect( geometry() ).toEqual( original );

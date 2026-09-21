@@ -69,11 +69,14 @@ The simplest bar chart requires only a `data` prop with categorical data:
 - **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
 - **`resizeDebounceTime`**: Debounce delay for resize events in ms (default: `300`)
 
-**Visual Styling:**
-
 `barClassName` receives each primary bar's datum and returns an additional CSS class. Use it to style empty or zero-value marks independently of their fill color.
 
 <Canvas of={ BarChartStories.DatumClasses } />
+
+**Visual Styling:**
+
+- **`barClassName`**: A callback returning an additional CSS class for each primary bar datum
+- **`tooltipStyle`**: Inline style overrides for the tooltip box
 - **`orientation`**: Bar orientation (`'vertical'` or `'horizontal'`, defaults to `'vertical'`)
 - **`withPatterns`**: Use pattern fills instead of solid colors (`false` by default)
 - **`gridVisibility`**: Grid line visibility (`'x'`, `'y'`, `'xy'`, or `'none'`)

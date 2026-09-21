@@ -33,6 +33,7 @@ type Props = {
 };
 
 const emptyColor = 'var(--jetpack-boost-history-empty)';
+const tooltipStyle = { padding: 0, backgroundColor: 'transparent', boxShadow: 'none' };
 
 export function buildHistorySeries( days: HistoryDay[] ): SeriesData[] {
 	return ( [ 'desktop', 'mobile' ] as const ).map( device => ( {
@@ -395,13 +396,7 @@ export default function HistoryChartCard( {
 														: undefined
 													: 'boost-daily-history__bar--empty'
 											}
-											tooltipStyle={ {
-												padding: 0,
-												...( highlightedPeriod && {
-													backgroundColor: 'transparent',
-													boxShadow: 'none',
-												} ),
-											} }
+											tooltipStyle={ tooltipStyle }
 											withTooltips
 											gridVisibility="x"
 											onBandHighlightChange={ selection => updateHighlight( index, selection ) }
