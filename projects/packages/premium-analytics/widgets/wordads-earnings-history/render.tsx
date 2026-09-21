@@ -12,7 +12,7 @@ import {
 	flattenEarningsBreakdown,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -36,6 +36,9 @@ function WordAdsEarningsHistoryReport() {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsWordAdsEarnings();
 
 	const rows = useMemo( () => flattenEarningsBreakdown( data?.wordads ), [ data ] );
+	// Adjustments are why the all-time balance can differ from the WordAds rows,
+	// and the report is their only home now; most sites have none.
+	const adjustmentCount = Object.keys( data?.adjustment ?? {} ).length;
 
 	return (
 		<Stack className={ styles.root }>
@@ -61,6 +64,25 @@ function WordAdsEarningsHistoryReport() {
 					<EarningsHistoryList rows={ rows } />
 				</WidgetState>
 			</div>
+			{ adjustmentCount > 0 && (
+				<div className={ styles.adjustments }>
+					<ReportLink
+						report="earnings"
+						section="adjustments"
+						label={ sprintf(
+							/* translators: %d: number of adjustment rows in the site's earnings history. */
+							_n(
+								'Includes %d adjustment',
+								'Includes %d adjustments',
+								adjustmentCount,
+								'jetpack-premium-analytics-pkg'
+							),
+							adjustmentCount
+						) }
+						ariaLabel={ __( 'View adjustments history', 'jetpack-premium-analytics-pkg' ) }
+					/>
+				</div>
+			) }
 			<WidgetFooter>
 				<ReportLink
 					report="earnings"

@@ -12,3 +12,9 @@
 	flex: 1 1 0;
 	min-block-size: 0;
 }
+
+/* Above the footer rule, so the list gives up a row rather than the link. */
+.adjustments {
+	flex: 0 0 auto;
+	padding-block-start: var(--wpds-dimension-padding-sm);
+}
