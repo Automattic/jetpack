@@ -153,9 +153,11 @@ class Password_Checker {
 				'explanation' => __( 'This password is too easy to guess: you can improve it by making it longer.', 'jetpack-password-checker' ),
 			);
 
-			// Run the regex tests so we can suggest improvements.
-			$suggestions       = $this->run_tests( $password, $this->get_tests( 'preg_match' ) );
-			$results['failed'] = array_merge( $results['failed'], $suggestions['failed'] );
+			// Suggest improvements from the regex rules the first pass skipped; without $required_only they already ran.
+			if ( $required_only ) {
+				$suggestions       = $this->run_tests( $password, $this->get_tests( 'preg_match' ) );
+				$results['failed'] = array_merge( $results['failed'], $suggestions['failed'] );
+			}
 		}
 
 		return ( array(

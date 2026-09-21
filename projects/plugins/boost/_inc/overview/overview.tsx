@@ -111,10 +111,13 @@ function OverviewContent( {
 		}
 	}, [ online, scoreState.status, queryClient ] );
 
-	const onRefresh = useCallback( () => {
-		recordBoostEvent( 'speed_score_refresh_clicked', {} );
-		refreshScores( true );
-	}, [ refreshScores ] );
+	const onRefresh = useCallback(
+		( source: 'header' | 'score_card' ) => {
+			recordBoostEvent( 'speed_score_refresh_clicked', { source } );
+			refreshScores( true );
+		},
+		[ refreshScores ]
+	);
 
 	useEffect( () => {
 		if ( ! isVisible || ! online ) {
@@ -129,7 +132,7 @@ function OverviewContent( {
 				variant="solid"
 				size="compact"
 				disabled={ isLoading }
-				onClick={ onRefresh }
+				onClick={ () => onRefresh( 'header' ) }
 			>
 				{ __( 'Run speed test', 'jetpack-boost' ) }
 			</Button>
@@ -174,7 +177,7 @@ function OverviewContent( {
 				isLoading={ isLoading }
 				hasScores={ scoreState.hasScores }
 				error={ scoreState.error }
-				onRetry={ onRefresh }
+				onRetry={ () => onRefresh( 'score_card' ) }
 				isVisible={ isVisible }
 			/>
 			<ScoreAlert

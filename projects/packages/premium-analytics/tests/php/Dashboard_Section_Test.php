@@ -1322,15 +1322,15 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The customer preview exposes the Traffic tab and nothing else.
+	 * The customer preview exposes the Traffic and Insights tabs and nothing else.
 	 */
-	public function test_preview_scope_leaves_only_the_traffic_section() {
+	public function test_preview_scope_leaves_only_the_traffic_and_insights_sections() {
 		$this->enable_every_section();
 		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
 		register_default_dashboard_sections();
 
-		$this->assertSame( array( 'analytics/traffic' ), $this->available_section_ids() );
+		$this->assertSame( array( 'analytics/traffic', 'analytics/insights' ), $this->available_section_ids() );
 	}
 
 	/**
@@ -1375,7 +1375,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		add_filter(
 			DASHBOARD_PREVIEW_SCOPE_FILTER,
 			static function ( $in_scope, $slug ) {
-				return 'insights' === $slug ? true : $in_scope;
+				return 'subscribers' === $slug ? true : $in_scope;
 			},
 			10,
 			2
@@ -1384,7 +1384,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		register_default_dashboard_sections();
 
 		$this->assertSame(
-			array( 'analytics/traffic', 'analytics/insights' ),
+			array( 'analytics/traffic', 'analytics/insights', 'analytics/subscribers' ),
 			$this->available_section_ids()
 		);
 	}
@@ -1451,7 +1451,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 			'requires_sync'
 		);
 
-		$this->assertSame( array( false ), $requires_sync );
+		$this->assertSame( array( false, false ), $requires_sync );
 	}
 
 	/**
@@ -1474,7 +1474,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		register_default_dashboard_sections();
 
-		$section = get_available_dashboard_section_for_route( DASHBOARD_NAME, 'analytics/insights' );
+		$section = get_available_dashboard_section_for_route( DASHBOARD_NAME, 'analytics/subscribers' );
 
 		$this->assertInstanceOf( \WP_Error::class, $section );
 		$this->assertSame( 'dashboard_section_unavailable', $section->get_error_code() );
@@ -1489,7 +1489,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		register_default_dashboard_sections();
 
-		$this->assertSame( array( 'traffic' ), get_dashboard_preview_scope_sections() );
+		$this->assertSame( array( 'traffic', 'insights' ), get_dashboard_preview_scope_sections() );
 	}
 
 	/**
@@ -1557,7 +1557,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$data = apply_filters( 'jetpack_admin_js_script_data', array() );
 
-		$this->assertSame( array( 'traffic' ), $data['premium_analytics']['preview_sections'] );
+		$this->assertSame( array( 'traffic', 'insights' ), $data['premium_analytics']['preview_sections'] );
 	}
 
 	/**
@@ -1574,7 +1574,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'has_videopress'   => true,
-				'preview_sections' => array( 'traffic' ),
+				'preview_sections' => array( 'traffic', 'insights' ),
 			),
 			$data['premium_analytics']
 		);

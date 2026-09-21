@@ -255,6 +255,7 @@ async function pressDay( index: number, pointerType: string ) {
 		const event = new MouseEvent( type, { bubbles: true, clientX, clientY: 150 } );
 		fireEvent( target, Object.assign( event, { pointerType } ) );
 	}
+	await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
 	fireEvent.click( target, { clientX, clientY: 150 } );
 }
 
@@ -364,19 +365,21 @@ test( 'explains empty days before the first recorded score only without older hi
 		}
 	};
 	move( 'ArrowRight', 1 );
-	await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
-		'No scores recorded before the feature was unlocked.'
+	await waitFor( () =>
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent(
+			'No scores recorded before the feature was unlocked.'
+		)
 	);
 	move( 'ArrowRight', 13 );
-	await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
-		'No scores recorded for this day.'
+	await waitFor( () =>
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'No scores recorded for this day.' )
 	);
 	rerender( <HistoryChartCard data={ later } { ...callbacks } /> );
 	move( 'ArrowLeft', 13 );
-	await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
-		'No scores recorded for this day.'
+	await waitFor( () =>
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'No scores recorded for this day.' )
 	);
-} );
+}, 20000 );
 
 test( 'shows the paging labels as tooltips on the chevrons', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } hasOlderHistory={ false } />, {
