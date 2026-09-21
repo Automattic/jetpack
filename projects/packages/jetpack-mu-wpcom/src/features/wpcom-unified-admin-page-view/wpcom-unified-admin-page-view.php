@@ -37,6 +37,7 @@ function wpcom_unified_track_admin_page_views() {
 	$event_props = array(
 		'route'           => $current_screen->id,
 		'source'          => 'wp-admin',
+		'site_type'       => $is_simple_site ? 'simple' : 'atomic',
 		'is_block_editor' => $current_screen->is_block_editor,
 		'blog_id'         => $blog_id,
 		'user_type'       => implode( ',', $user_types ),

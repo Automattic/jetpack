@@ -66,7 +66,7 @@ class WPCOM_Unified_Admin_Page_View_Test extends \WorDBless\BaseTestCase {
 		);
 		$this->assertIsInt( $user_id );
 		$GLOBALS['current_user'] = get_userdata( $user_id );
-		set_current_screen( 'dashboard' );
+		set_current_screen( $is_network_admin ? 'dashboard-network' : 'dashboard' );
 
 		if ( $is_wpcom ) {
 			require_once ABSPATH . WPINC . '/class-wp-site.php';
@@ -97,6 +97,7 @@ class WPCOM_Unified_Admin_Page_View_Test extends \WorDBless\BaseTestCase {
 			array(
 				'route'           => $is_network_admin ? 'dashboard-network' : 'dashboard',
 				'source'          => 'wp-admin',
+				'site_type'       => $is_wpcom ? 'simple' : 'atomic',
 				'is_block_editor' => false,
 				'blog_id'         => $is_wpcom ? '123' : 123,
 				'user_type'       => $is_wpcom ? 'Paid' : '',
