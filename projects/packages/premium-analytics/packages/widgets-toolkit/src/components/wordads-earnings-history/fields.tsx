@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+import { Badge } from '@jetpack-premium-analytics/externals';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -9,7 +10,8 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import type { StatsWordAdsEarningsBreakdown } from '@jetpack-premium-analytics/data';
-import type { Field, View } from '@jetpack-premium-analytics/externals';
+import type { Field } from '@jetpack-premium-analytics/externals';
+import type { ComponentProps } from 'react';
 
 /** A single WordAds earnings-history row (one period). */
 export type EarningsHistoryRow = {
@@ -20,59 +22,74 @@ export type EarningsHistoryRow = {
 	status: number | undefined;
 };
 
+type EarningsStatusIntent = NonNullable< ComponentProps< typeof Badge >[ 'intent' ] >;
+
+type EarningsStatus = { label: string; tooltip?: string; intent: EarningsStatusIntent };
+
+/** Automattic-internal status: never shown to site owners, so kept out of the Status filter. */
+const A8C_ONLY_STATUS = 2;
+
 /**
- * Map a WordAds payment status code to its label and tooltip, ported verbatim
- * from the Jetpack Stats WordAds `getStatus` map
- * (wp-calypso client/my-sites/stats/wordads/earnings.jsx).
+ * WordAds payment statuses by code, ported verbatim from the Jetpack Stats WordAds
+ * `getStatus` map (wp-calypso client/my-sites/stats/wordads/earnings.jsx).
+ *
+ * @return The label, optional tooltip and badge intent for each known code.
+ */
+function getEarningsStatuses(): Record< number, EarningsStatus > {
+	return {
+		// Unpaid is red as in the design and the widget; the pending codes wait on
+		// the site owner, so they get the warning tint instead.
+		0: {
+			label: __( 'Unpaid', 'jetpack-premium-analytics-pkg' ),
+			tooltip: __(
+				'Payment is on hold until the end of the current month.',
+				'jetpack-premium-analytics-pkg'
+			),
+			intent: 'high',
+		},
+		1: {
+			label: __( 'Paid', 'jetpack-premium-analytics-pkg' ),
+			tooltip: __( 'Payment has been processed through PayPal.', 'jetpack-premium-analytics-pkg' ),
+			intent: 'stable',
+		},
+		[ A8C_ONLY_STATUS ]: {
+			label: __( 'a8c-only', 'jetpack-premium-analytics-pkg' ),
+			intent: 'draft',
+		},
+		3: {
+			label: __( 'Pending (Missing Tax Info)', 'jetpack-premium-analytics-pkg' ),
+			tooltip: __(
+				'Payment is pending due to missing information. You can provide tax information in the settings screen.',
+				'jetpack-premium-analytics-pkg'
+			),
+			intent: 'medium',
+		},
+		4: {
+			label: __( 'Pending (Invalid PayPal)', 'jetpack-premium-analytics-pkg' ),
+			tooltip: __(
+				'Payment processing has failed due to invalid PayPal address. You can correct the PayPal address in the settings screen.',
+				'jetpack-premium-analytics-pkg'
+			),
+			intent: 'medium',
+		},
+	};
+}
+
+/**
+ * Map a WordAds payment status code to its label, tooltip and badge intent.
  *
  * An unknown or absent status falls through to `?` rather than a label that
  * would assert something about the payment we were never told.
  *
  * @param status - The numeric status from the earnings payload, if any.
- * @return The label and optional tooltip.
+ * @return The label, optional tooltip and badge intent.
  */
-export function getEarningsStatus( status: number | undefined ): {
-	label: string;
-	tooltip?: string;
-} {
-	switch ( status ) {
-		case 0:
-			return {
-				label: __( 'Unpaid', 'jetpack-premium-analytics-pkg' ),
-				tooltip: __(
-					'Payment is on hold until the end of the current month.',
-					'jetpack-premium-analytics-pkg'
-				),
-			};
-		case 1:
-			return {
-				label: __( 'Paid', 'jetpack-premium-analytics-pkg' ),
-				tooltip: __(
-					'Payment has been processed through PayPal.',
-					'jetpack-premium-analytics-pkg'
-				),
-			};
-		case 2:
-			return { label: __( 'a8c-only', 'jetpack-premium-analytics-pkg' ) };
-		case 3:
-			return {
-				label: __( 'Pending (Missing Tax Info)', 'jetpack-premium-analytics-pkg' ),
-				tooltip: __(
-					'Payment is pending due to missing information. You can provide tax information in the settings screen.',
-					'jetpack-premium-analytics-pkg'
-				),
-			};
-		case 4:
-			return {
-				label: __( 'Pending (Invalid PayPal)', 'jetpack-premium-analytics-pkg' ),
-				tooltip: __(
-					'Payment processing has failed due to invalid PayPal address. You can correct the PayPal address in the settings screen.',
-					'jetpack-premium-analytics-pkg'
-				),
-			};
-		default:
-			return { label: '?' };
-	}
+export function getEarningsStatus( status: number | undefined ): EarningsStatus {
+	const statuses = getEarningsStatuses();
+
+	return status !== undefined && Object.hasOwn( statuses, status )
+		? statuses[ status ]
+		: { label: '?', intent: 'none' };
 }
 
 /**
@@ -132,6 +149,25 @@ export function EarningsStatusLabel( { status }: { status: number | undefined } 
 }
 
 /**
+ * A payment status as a badge, with its explanation in a tooltip when there is
+ * one. The report table's rendering; the widget list keeps the plain label.
+ *
+ * @param props        - The component props.
+ * @param props.status - The numeric status from the earnings payload, if any.
+ * @return The rendered badge.
+ */
+export function EarningsStatusBadge( { status }: { status: number | undefined } ) {
+	const { label, tooltip, intent } = getEarningsStatus( status );
+	const badge = (
+		<Badge intent={ intent } tabIndex={ tooltip ? 0 : undefined }>
+			{ label }
+		</Badge>
+	);
+
+	return tooltip ? <Tooltip text={ tooltip }>{ badge }</Tooltip> : badge;
+}
+
+/**
  * DataViews field config for the earnings-history table. Built as a getter (not
  * a module constant) so labels translate after the i18n locale data loads,
  * mirroring `routes/reports/posts/config/fields.tsx`.
@@ -164,24 +200,14 @@ export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 		{
 			id: 'status',
 			label: __( 'Status', 'jetpack-premium-analytics-pkg' ),
-			enableGlobalSearch: true,
-			// Sorts and searches by the visible label rather than the numeric code.
+			// A filter rather than search: a substring match for "Paid" also finds "Unpaid".
+			// Sorts and filters by the visible label rather than the numeric code.
 			getValue: ( { item } ) => getEarningsStatus( item.status ).label,
-			render: ( { item } ) => <EarningsStatusLabel status={ item.status } />,
+			elements: Object.entries( getEarningsStatuses() )
+				.filter( ( [ code ] ) => Number( code ) !== A8C_ONLY_STATUS )
+				.map( ( [ , { label } ] ) => ( { value: label, label } ) ),
+			filterBy: { operators: [ 'is' ] },
+			render: ( { item } ) => <EarningsStatusBadge status={ item.status } />,
 		},
 	];
 }
-
-/** Default view: newest period first, with responsive equal-width columns. */
-export const EARNINGS_HISTORY_VIEW: Partial< View > = {
-	sort: { field: 'period', direction: 'desc' },
-	layout: {
-		density: 'compact',
-		styles: {
-			period: { width: '25%' },
-			amount: { align: 'end', width: '25%' },
-			pageviews: { align: 'end', width: '25%' },
-			status: { width: '25%' },
-		},
-	},
-};

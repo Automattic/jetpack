@@ -1,5 +1,6 @@
+@use "$css/main/mixins";
+
 .settings {
-	inline-size: 100%;
-	max-inline-size: var(--wpds-dimension-surface-width-xl);
-	margin-inline: auto;
+
+	@include mixins.content-column;
 }

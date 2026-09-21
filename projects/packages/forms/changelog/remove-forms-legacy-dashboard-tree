@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Dashboard: Remove the legacy dashboard code and the deprecated Dashboard_View_Switch class; deprecate Dashboard::SCRIPT_HANDLE.

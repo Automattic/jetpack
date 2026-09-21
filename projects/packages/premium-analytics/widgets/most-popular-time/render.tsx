@@ -88,7 +88,7 @@ function MostPopularTimeReport() {
 									'jetpack-premium-analytics-pkg'
 								),
 								onRetry: refetch,
-						  } )
+							} )
 						: null
 				}
 				empty={ {

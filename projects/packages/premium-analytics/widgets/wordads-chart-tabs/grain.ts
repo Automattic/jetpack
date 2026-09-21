@@ -19,5 +19,5 @@ import type { WordAdsPeriod } from './use-wordads-chart';
  */
 export const WORDADS_GRAIN = {
 	presetIds: [ PRESET_LAST_7_DAYS, PRESET_LAST_30_DAYS, PRESET_LAST_12_MONTHS ],
-	periods: [ 'day', 'week', 'month', 'year' ],
+	periods: [ 'day', 'week', 'month' ],
 } as const satisfies ReportGrain & { periods: readonly WordAdsPeriod[] };

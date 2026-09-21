@@ -61,3 +61,15 @@ export function getPriceStep( currencyCode ) {
 export function getPricePlaceholder( currencyCode ) {
 	return ZERO_DECIMAL_CURRENCIES.has( currencyCode ) ? '1500' : '29.99';
 }
+
+/**
+ * Format a price with its currency symbol.
+ *
+ * @param {string} priceValue   - The price value string.
+ * @param {string} currencyCode - The ISO currency code.
+ * @return {string} Formatted price string.
+ */
+export function formatPrice( priceValue, currencyCode ) {
+	const symbol = CURRENCY_SYMBOLS[ currencyCode ] || currencyCode;
+	return `${ symbol }${ priceValue }`;
+}

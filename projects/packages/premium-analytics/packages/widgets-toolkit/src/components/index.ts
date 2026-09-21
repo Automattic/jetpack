@@ -82,6 +82,7 @@ export {
 	type CalendarHeatmapPagerOverlayProps,
 	type CalendarHeatmapTooltipProps,
 } from './calendar-heatmap';
+export { MonthCalendarHeatmap, type MonthCalendarHeatmapProps } from './month-calendar-heatmap';
 export {
 	MonthlyHeatmap,
 	type MonthlyHeatmapProps,
@@ -154,6 +155,7 @@ export {
 export {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
+	DETAIL_HEADER_GLYPH_SIZE,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageShell,
@@ -184,7 +186,6 @@ export {
 } from './download-csv';
 export { WidgetDataTable, type WidgetDataTableProps } from './widget-data-table';
 export {
-	EARNINGS_HISTORY_VIEW,
 	EarningsHistoryList,
 	type EarningsHistoryListProps,
 	flattenEarningsBreakdown,
@@ -196,6 +197,7 @@ export {
 	AnnualHighlightsSkeleton,
 	GenericSkeleton,
 	HeatmapSkeleton,
+	MonthCalendarHeatmapSkeleton,
 	MetricSparklineSkeleton,
 	type MetricSparklineSkeletonProps,
 	SkeletonRoot,

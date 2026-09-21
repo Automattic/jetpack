@@ -79,7 +79,9 @@ A live preview appears showing exactly how your button will look on the publishe
 
 ### Editing and Deleting Payment Links
 
-- **Edit:** Update the product details in the block settings sidebar, then update or publish the post
+Once a block has a saved link, selecting it opens the block settings sidebar on the link's details: its name and price, then when it was created, its Hosted ID, how many published posts use it, and the maximum quantity when buyers can pick one.
+
+- **Edit:** Open the menu beside the link's name and choose **Edit** to get the product form. Update the details, then update or publish the post. **Edit Button** at the top of the form goes back; a link with something to fix opens on the form instead
 - **Manage all links:** Once a block has a saved link, the PayPal Connection panel in the block settings sidebar has a "Manage PayPal Payment Links" link. It opens the PayPal Payment Links admin page in a new tab, so the post you are editing stays where it is
 - **Delete:** Click "Delete payment link" in the block toolbar or the PayPal Connection panel, or use the Delete action on the PayPal Payment Links admin page
 
@@ -99,7 +101,7 @@ Deleting from the admin page does not edit your posts. Instead:
 - The admin page lists those posts after the delete, with edit links.
 - Opening one of those posts in the editor shows a warning on the block. Updating the post creates a new link with a new URL and QR code; remove the block instead if you no longer sell that product.
 
-Removing the last block that uses a link and updating the post also deletes the link on PayPal. If another published post still embeds it, the link is kept.
+Removing a block does not delete its payment link. The same link can be used by blocks on other posts, by an email, or by a printed QR code, so the link stays on PayPal and keeps working. Delete it from the block or the PayPal Payment Links admin page when you are finished with it.
 
 ### Legacy Buttons
 

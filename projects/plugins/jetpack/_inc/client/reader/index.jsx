@@ -147,7 +147,7 @@ function Reader( props ) {
 							'Discover and follow your favorite sites with the WordPress.com Reader.',
 							'jetpack',
 							/* dummy arg to avoid bad minification */ 0
-					  ) }
+						) }
 			</h2>
 			<SettingsCard
 				{ ...props }

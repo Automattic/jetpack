@@ -84,7 +84,7 @@ const ProtectApp = () => {
 					// translators: %d is the number of threats found.
 					__( 'Scan (%d)', 'jetpack-protect' ),
 					numThreats
-			  )
+				)
 			: __( 'Scan', 'jetpack-protect' );
 
 	return (

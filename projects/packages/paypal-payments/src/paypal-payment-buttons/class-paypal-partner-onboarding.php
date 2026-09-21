@@ -83,6 +83,13 @@ class PayPal_Partner_Onboarding {
 	const MERCHANT_ID_OPTION_KEY = 'jetpack_paypal_payment_buttons_merchant_id';
 
 	/**
+	 * Option key for storing the onboarded merchant's PayPal email.
+	 *
+	 * @var string
+	 */
+	const MERCHANT_EMAIL_OPTION_KEY = 'jetpack_paypal_payment_buttons_merchant_email';
+
+	/**
 	 * Option key for storing the onboarding method used.
 	 *
 	 * @var string
@@ -152,6 +159,15 @@ class PayPal_Partner_Onboarding {
 	 */
 	public static function get_merchant_id() {
 		return get_option( self::MERCHANT_ID_OPTION_KEY, '' );
+	}
+
+	/**
+	 * Get the onboarded merchant's PayPal email. Only Partner Referrals merchants have one.
+	 *
+	 * @return string The email, or empty string if not onboarded through Partner Referrals.
+	 */
+	public static function get_merchant_email() {
+		return get_option( self::MERCHANT_EMAIL_OPTION_KEY, '' );
 	}
 
 	/**
@@ -551,6 +567,9 @@ class PayPal_Partner_Onboarding {
 			return self::abandon_onboarding( $api_access );
 		}
 
+		// Cache the account email for the account menu; a failure here only costs it a sub-label.
+		self::check_merchant_status();
+
 		return true;
 	}
 
@@ -568,6 +587,7 @@ class PayPal_Partner_Onboarding {
 	private static function abandon_onboarding( $error ) {
 		PayPal_OAuth::delete_credentials();
 		delete_option( self::MERCHANT_ID_OPTION_KEY );
+		delete_option( self::MERCHANT_EMAIL_OPTION_KEY );
 		delete_option( self::ONBOARDING_METHOD_OPTION_KEY );
 
 		return $error;
@@ -638,6 +658,12 @@ class PayPal_Partner_Onboarding {
 			);
 		}
 
+		// Cache the email so get_connection_status() can serve it without another PayPal call.
+		$primary_email = sanitize_email( $data['primary_email'] ?? '' );
+		if ( '' !== $primary_email ) {
+			update_option( self::MERCHANT_EMAIL_OPTION_KEY, $primary_email, false );
+		}
+
 		return array(
 			'merchant_id'             => $merchant_id,
 			'payments_receivable'     => ! empty( $data['payments_receivable'] ),
@@ -656,6 +682,7 @@ class PayPal_Partner_Onboarding {
 	public static function cleanup() {
 		delete_transient( self::SELLER_NONCE_TRANSIENT_KEY );
 		delete_option( self::MERCHANT_ID_OPTION_KEY );
+		delete_option( self::MERCHANT_EMAIL_OPTION_KEY );
 		delete_option( self::ONBOARDING_METHOD_OPTION_KEY );
 		// Note: Partner ID is not deleted — it's a site-level config, not per-merchant.
 	}

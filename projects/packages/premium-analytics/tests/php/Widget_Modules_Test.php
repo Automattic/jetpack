@@ -11,11 +11,13 @@ use PHPUnit\Framework\TestCase;
 use WP_REST_Server;
 
 require_once __DIR__ . '/../../src/widget-modules.php';
+require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 
 /**
  * Tests for Premium Analytics widget module discovery.
  */
 class Widget_Modules_Test extends TestCase {
+	use Widget_Manifest_Fixture_Trait;
 
 	const ROUTE        = '/wpcom/v2/widget-modules';
 	const LEGACY_ROUTE = '/jetpack/v4/widget-modules';
@@ -73,7 +75,12 @@ class Widget_Modules_Test extends TestCase {
 	 * the process has touched the registry yet.
 	 */
 	public function test_response_hydrates_the_registry_on_first_use() {
-		$response = get_widget_modules_response();
+		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
+		try {
+			$response = get_widget_modules_response();
+		} finally {
+			remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
+		}
 
 		$this->assertInstanceOf( \WP_REST_Response::class, $response );
 		$this->assertIsArray( $response->get_data() );

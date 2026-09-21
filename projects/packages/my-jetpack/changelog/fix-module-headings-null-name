@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Products: keep the tab working when a module name is unavailable.

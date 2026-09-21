@@ -563,7 +563,7 @@ export const LongGroupTitle: Story = {
 				? {
 						...row,
 						referrer: `${ row.referrer } and Aggregators, Syndication Partners and Every Other Long-Winded Category Name a Site Might Report`,
-				  }
+					}
 				: row
 		),
 	},
