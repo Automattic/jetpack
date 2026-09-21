@@ -56,9 +56,7 @@ export function EarningsHistoryList( { rows = [], className }: EarningsHistoryLi
 						hidden={ index >= visibleCount }
 					>
 						<span className={ styles.period }>{ formatEarningsPeriod( row.period ) }</span>
-						<span className={ clsx( styles.amount, row.amount < 0 && styles.attention ) }>
-							{ formatMetricValue( row.amount, 'currency' ) }
-						</span>
+						<span className={ styles.amount }>{ formatMetricValue( row.amount, 'currency' ) }</span>
 						<span className={ styles.status }>
 							<EarningsStatusBadge status={ row.status } />
 						</span>
