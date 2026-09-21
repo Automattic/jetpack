@@ -157,9 +157,8 @@ class Jetpack_Backup_Init_Options_Test extends TestCase {
 		update_option(
 			Backup_Feature_Check::OPTION,
 			array(
-				'has_backup'   => $has_backup,
-				'checked_at'   => time(),
-				'attempted_at' => time(),
+				'has_backup'    => $has_backup,
+				'refresh_after' => time() + Backup_Feature_Check::TTL,
 			),
 			false
 		);

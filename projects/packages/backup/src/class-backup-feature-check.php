@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Backup\V0005;
 use Automattic\Jetpack\My_Jetpack\Product as My_Jetpack_Product;
 use function add_action;
 use function get_option;
-use function has_action;
 use function is_wp_error;
 use function time;
 use function update_option;
@@ -29,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Backup_Feature_Check {
 
 	/**
-	 * Option holding the last answer My Jetpack gave.
+	 * Option holding the last answer My Jetpack gave, and when to ask again.
 	 *
 	 * Deliberately unversioned, unlike the namespace: two active plugins carrying
 	 * different versions of this package must share one answer, not two.
@@ -39,14 +38,14 @@ class Backup_Feature_Check {
 	const OPTION = 'jetpack_backup_feature_check';
 
 	/**
-	 * How long a stored answer is served before a refresh is queued.
+	 * How long an answer is served before it is refreshed.
 	 *
 	 * @var int
 	 */
 	const TTL = HOUR_IN_SECONDS;
 
 	/**
-	 * How long to wait before retrying after an attempt.
+	 * How long to wait before asking again after a read that answered nothing.
 	 *
 	 * @var int
 	 */
@@ -73,50 +72,41 @@ class Backup_Feature_Check {
 	public static function has_backup() {
 		$stored = self::get_stored();
 
-		if ( $stored === null || self::is_stale( $stored ) ) {
-			self::queue_refresh( $stored );
+		if ( self::is_due( $stored ) ) {
+			// Re-adding the same static callback replaces it rather than stacking a
+			// second one, so this needs no guard of its own.
+			add_action( 'shutdown', array( __CLASS__, 'refresh_if_due' ) );
 		}
 
-		return $stored !== null && (bool) $stored['has_backup'];
+		return $stored !== null && $stored['has_backup'];
 	}
 
 	/**
-	 * Asks My Jetpack again and stores what it says.
+	 * Asks My Jetpack and stores what it says.
 	 *
 	 * Also the `my_jetpack_site_features_updated` listener: that action fires once My Jetpack
 	 * has read and cached the feature list, so the read below is answered without a request.
+	 * Takes no argument on purpose — the action passes one, and a parameter here would
+	 * silently collect it.
 	 *
 	 * @return void
 	 */
 	public static function refresh() {
-		$has_backup = self::read_feature();
-
-		if ( $has_backup === null ) {
-			// Recorded even though nothing was answered, which is what makes the backoff work.
-			self::store( self::get_stored(), null );
-
-			return;
-		}
-
-		self::record( $has_backup );
+		self::store( self::read_feature() );
 	}
 
 	/**
-	 * Refreshes only if the stored answer still wants it, which the queued path does not know.
+	 * The queued refresh, which asks only if the answer is still due.
 	 *
-	 * Something else — most often the listener above — can answer between the moment a
-	 * refresh is queued and the moment it runs.
+	 * Something else — the listener above, or the Backup page — can answer between the
+	 * moment a refresh is queued and the moment it runs.
 	 *
 	 * @return void
 	 */
-	public static function refresh_if_stale() {
-		$stored = self::get_stored();
-
-		if ( $stored !== null && ! self::is_stale( $stored ) ) {
-			return;
+	public static function refresh_if_due() {
+		if ( self::is_due( self::get_stored() ) ) {
+			self::refresh();
 		}
-
-		self::refresh();
 	}
 
 	/**
@@ -141,22 +131,16 @@ class Backup_Feature_Check {
 	}
 
 	/**
-	 * Stores an answer, skipping the write when the stored one already says the same thing.
+	 * Whether it is time to ask again. Nothing stored is always due.
 	 *
-	 * My Jetpack reads its feature list on most page loads, and every read fires the listener
-	 * above — so one answer would otherwise be rewritten several times a request.
+	 * One clock covers both waits: `store()` sets it a full TTL out for an answer and a
+	 * short retry out for a failure, so there is no second condition to keep in step.
 	 *
-	 * @param bool $has_backup Whether the site's plan includes Backup.
-	 * @return void
+	 * @param array|null $stored The stored entry, if any.
+	 * @return bool
 	 */
-	private static function record( $has_backup ) {
-		$stored = self::get_stored();
-
-		if ( $stored !== null && (bool) $stored['has_backup'] === $has_backup && ! self::is_stale( $stored ) ) {
-			return;
-		}
-
-		self::store( $stored, $has_backup );
+	private static function is_due( $stored ) {
+		return $stored === null || time() >= $stored['refresh_after'];
 	}
 
 	/**
@@ -172,66 +156,39 @@ class Backup_Feature_Check {
 		}
 
 		return array(
-			'has_backup'   => $stored['has_backup'],
-			'checked_at'   => isset( $stored['checked_at'] ) ? (int) $stored['checked_at'] : 0,
-			'attempted_at' => isset( $stored['attempted_at'] ) ? (int) $stored['attempted_at'] : 0,
+			'has_backup'    => (bool) $stored['has_backup'],
+			'refresh_after' => isset( $stored['refresh_after'] ) ? (int) $stored['refresh_after'] : 0,
 		);
 	}
 
 	/**
-	 * Writes the entry, preserving the last clear answer when this attempt did not produce one.
+	 * Writes the answer, or carries the last one forward when the read produced none.
 	 *
 	 * A read that failed is not an answer. Keeping the previous one is what stops a
-	 * WordPress.com blip from taking the menu item away mid-session.
+	 * WordPress.com blip from taking the menu item away mid-session; it is asked again
+	 * after the short retry rather than the full TTL.
 	 *
-	 * @param array|null $stored     The entry being replaced, if any.
-	 * @param bool|null  $has_backup The answer, or null when the read failed.
+	 * @param bool|null $has_backup The answer, or null when the read failed.
 	 * @return void
 	 */
-	private static function store( $stored, $has_backup ) {
-		$now      = time();
-		$answered = is_bool( $has_backup );
+	private static function store( $has_backup ) {
+		$stored = self::get_stored();
+		$failed = $has_backup === null;
+		$answer = $failed ? ( $stored !== null && $stored['has_backup'] ) : $has_backup;
+
+		// My Jetpack reads its feature list on most page loads and every read lands here, so
+		// an unchanged answer that is not due yet must not restamp the option each time.
+		if ( $stored !== null && $stored['has_backup'] === $answer && ! self::is_due( $stored ) ) {
+			return;
+		}
 
 		update_option(
 			self::OPTION,
 			array(
-				'has_backup'   => $answered ? $has_backup : ( $stored === null ? null : $stored['has_backup'] ),
-				'checked_at'   => $answered ? $now : ( $stored === null ? 0 : $stored['checked_at'] ),
-				'attempted_at' => $now,
+				'has_backup'    => $answer,
+				'refresh_after' => time() + ( $failed ? self::RETRY_INTERVAL : self::TTL ),
 			),
 			false
 		);
-	}
-
-	/**
-	 * Whether the stored answer is old enough to want refreshing.
-	 *
-	 * @param array $stored The stored entry.
-	 * @return bool
-	 */
-	private static function is_stale( array $stored ) {
-		return ( time() - $stored['checked_at'] ) >= self::TTL;
-	}
-
-	/**
-	 * Refreshes at the end of the request, backing off so a failing read is not retried every page load.
-	 *
-	 * Deliberately not WP-Cron: a site with `DISABLE_WP_CRON`, a blocked loopback
-	 * request, or a cleared queue would never run the event, and an answer that is
-	 * never read for the first time is a menu item that never appears.
-	 *
-	 * @param array|null $stored The stored entry, if any.
-	 * @return void
-	 */
-	private static function queue_refresh( $stored ) {
-		if ( $stored !== null && ( time() - $stored['attempted_at'] ) < self::RETRY_INTERVAL ) {
-			return;
-		}
-
-		if ( has_action( 'shutdown', array( __CLASS__, 'refresh_if_stale' ) ) !== false ) {
-			return;
-		}
-
-		add_action( 'shutdown', array( __CLASS__, 'refresh_if_stale' ) );
 	}
 }

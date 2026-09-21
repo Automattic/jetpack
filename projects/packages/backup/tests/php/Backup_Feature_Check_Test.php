@@ -123,10 +123,10 @@ class Backup_Feature_Check_Test extends TestCase {
 	}
 
 	/**
-	 * A stale answer is still served while its refresh is queued.
+	 * An answer that is due is still served while its refresh is queued.
 	 */
-	public function test_stale_answer_is_served_while_a_refresh_is_queued() {
-		$this->arrange_stored_answer( true, time() - Backup_Feature_Check::TTL - 1 );
+	public function test_due_answer_is_served_while_a_refresh_is_queued() {
+		$this->arrange_stored_answer( true, time() - 1 );
 		$this->arrange_wpcom_features( array( 'backups' ) );
 
 		$this->assertTrue( Backup_Feature_Check::has_backup() );
@@ -135,9 +135,9 @@ class Backup_Feature_Check_Test extends TestCase {
 	}
 
 	/**
-	 * A fresh answer queues nothing.
+	 * An answer that is not yet due queues nothing.
 	 */
-	public function test_fresh_answer_queues_no_refresh() {
+	public function test_answer_not_yet_due_queues_no_refresh() {
 		$this->arrange_stored_answer( true );
 
 		$this->assertTrue( Backup_Feature_Check::has_backup() );
@@ -163,19 +163,43 @@ class Backup_Feature_Check_Test extends TestCase {
 	}
 
 	/**
-	 * A read that failed before any clear answer leaves the question open, not answered no.
+	 * A read that failed before any answer is recorded, so it is not retried every page load.
 	 */
-	public function test_failure_before_any_answer_stores_nothing_clear() {
+	public function test_failure_before_any_answer_comes_back_on_the_short_retry() {
 		$this->arrange_wpcom( array(), 500 );
 
 		Backup_Feature_Check::refresh();
 
 		$stored = get_option( Backup_Feature_Check::OPTION );
-		$this->assertNull( $stored['has_backup'] );
-		$this->assertSame( 0, $stored['checked_at'] );
+		$this->assertFalse( $stored['has_backup'] );
+		$this->assertGreaterThan( time(), $stored['refresh_after'] );
+		$this->assertLessThanOrEqual( time() + Backup_Feature_Check::RETRY_INTERVAL, $stored['refresh_after'] );
+	}
 
-		// Recorded even though nothing was answered, which is what makes the backoff work.
-		$this->assertNotSame( 0, $stored['attempted_at'] );
+	/**
+	 * A failed read comes back on the short retry, not the full TTL.
+	 */
+	public function test_a_failed_read_shortens_the_wait() {
+		$this->arrange_stored_answer( true, time() - 1 );
+		$this->arrange_wpcom( array(), 500 );
+
+		Backup_Feature_Check::refresh();
+
+		$stored = get_option( Backup_Feature_Check::OPTION );
+		$this->assertTrue( $stored['has_backup'], 'The last clear answer must survive a failed read.' );
+		$this->assertLessThanOrEqual( time() + Backup_Feature_Check::RETRY_INTERVAL, $stored['refresh_after'] );
+	}
+
+	/**
+	 * An answer is held for the full TTL, not the short retry.
+	 */
+	public function test_an_answer_is_held_for_the_full_ttl() {
+		$this->arrange_wpcom_features( array( 'backups' ) );
+
+		Backup_Feature_Check::refresh();
+
+		$stored = get_option( Backup_Feature_Check::OPTION );
+		$this->assertGreaterThan( time() + Backup_Feature_Check::RETRY_INTERVAL, $stored['refresh_after'] );
 	}
 
 	/**
@@ -244,18 +268,17 @@ class Backup_Feature_Check_Test extends TestCase {
 	/**
 	 * Store an answer as though My Jetpack had just given it.
 	 *
-	 * @param bool     $has_backup The answer to store.
-	 * @param int|null $checked_at When it was given. Defaults to now.
+	 * @param bool     $has_backup    The answer to store.
+	 * @param int|null $refresh_after When it falls due. Defaults to a full TTL from now.
 	 */
-	private function arrange_stored_answer( $has_backup, $checked_at = null ) {
-		$checked_at ??= time();
+	private function arrange_stored_answer( $has_backup, $refresh_after = null ) {
+		$refresh_after ??= time() + Backup_Feature_Check::TTL;
 
 		update_option(
 			Backup_Feature_Check::OPTION,
 			array(
-				'has_backup'   => $has_backup,
-				'checked_at'   => $checked_at,
-				'attempted_at' => $checked_at,
+				'has_backup'    => $has_backup,
+				'refresh_after' => $refresh_after,
 			),
 			false
 		);
@@ -267,6 +290,6 @@ class Backup_Feature_Check_Test extends TestCase {
 	 * @return bool
 	 */
 	private function refresh_is_queued() {
-		return has_action( 'shutdown', array( Backup_Feature_Check::class, 'refresh_if_stale' ) ) !== false;
+		return has_action( 'shutdown', array( Backup_Feature_Check::class, 'refresh_if_due' ) ) !== false;
 	}
 }
