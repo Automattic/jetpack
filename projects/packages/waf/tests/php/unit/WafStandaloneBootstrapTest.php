@@ -239,11 +239,11 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 						return strpos( $file_contents, "define( 'JETPACK_WAF_MODE', 'mockModeOption' );" ) !== false
 							&& strpos( $file_contents, "define( 'JETPACK_WAF_DIR', '/awesome/dir/jetpack-waf' );" ) !== false
 							// Checking the classmap path fuzzy because it will vary depending on the system that the test is executed on.
-							&& preg_match( '/\$jetpack_waf_classmap_file = \'.*\/vendor\/composer\/autoload_classmap\.php\';/', $file_contents ) === 1
+							&& preg_match( '/\$classmap_file = \'.*\/vendor\/composer\/autoload_classmap\.php\';/', $file_contents ) === 1
 							&& strpos( $file_contents, 'require_once' ) === false
-							&& strpos( $file_contents, 'spl_autoload_register( $jetpack_waf_autoloader );' ) !== false
+							&& strpos( $file_contents, 'spl_autoload_register( $autoloader );' ) !== false
 							&& preg_match( '/Automattic\\\Jetpack\\\Waf\\\Waf_Runner::initialize/', $file_contents ) === 1
-							&& strpos( $file_contents, 'spl_autoload_unregister( $jetpack_waf_autoloader );' ) !== false;
+							&& strpos( $file_contents, 'spl_autoload_unregister( $autoloader );' ) !== false;
 					}
 				)
 			)

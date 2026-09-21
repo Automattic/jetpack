@@ -161,6 +161,7 @@ class Waf_Standalone_Bootstrap {
 
 		// Autoload from the classmap alone rather than `vendor/autoload.php`: Composer's loader would also run every
 		// package's `files` entries and mark them loaded, so the Jetpack autoloader later skips its own, possibly newer, copies.
+		// The closure keeps every variable, including the classmap's own `$vendorDir`/`$baseDir`, out of the global scope.
 		$template = <<<'PHP'
 		<?php
 		define( 'DISABLE_JETPACK_WAF', {{disable}} );
@@ -171,21 +172,21 @@ class Waf_Standalone_Bootstrap {
 		define( 'JETPACK_WAF_DIR', {{dir}} );
 		define( 'JETPACK_WAF_WPCONFIG', {{wpconfig}} );
 		define( 'JETPACK_WAF_ENTRYPOINT', {{entrypoint}} );
-		$jetpack_waf_classmap_file = {{classmap_file}};
-		if ( ! is_file( $jetpack_waf_classmap_file ) ) {
-			unset( $jetpack_waf_classmap_file );
-			return;
-		}
-		$jetpack_waf_classmap = require $jetpack_waf_classmap_file;
-		$jetpack_waf_autoloader = function ( $class_name ) use ( $jetpack_waf_classmap ) {
-			if ( isset( $jetpack_waf_classmap[ $class_name ] ) ) {
-				require $jetpack_waf_classmap[ $class_name ];
+		( static function () {
+			$classmap_file = {{classmap_file}};
+			if ( ! is_file( $classmap_file ) ) {
+				return;
 			}
-		};
-		spl_autoload_register( $jetpack_waf_autoloader );
-		Automattic\Jetpack\Waf\Waf_Runner::initialize();
-		spl_autoload_unregister( $jetpack_waf_autoloader );
-		unset( $jetpack_waf_classmap_file, $jetpack_waf_classmap, $jetpack_waf_autoloader );
+			$classmap   = require $classmap_file;
+			$autoloader = static function ( $class_name ) use ( $classmap ) {
+				if ( isset( $classmap[ $class_name ] ) ) {
+					require $classmap[ $class_name ];
+				}
+			};
+			spl_autoload_register( $autoloader );
+			Automattic\Jetpack\Waf\Waf_Runner::initialize();
+			spl_autoload_unregister( $autoloader );
+		} )();
 
 		PHP;
 
