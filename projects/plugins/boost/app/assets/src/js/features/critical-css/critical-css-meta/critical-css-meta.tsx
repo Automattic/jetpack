@@ -53,9 +53,10 @@ export default function CriticalCssMeta() {
 					isGenerating={ isGenerating }
 					progress={ progress }
 				/>
-				{ ! isGenerating && cssState.status === 'generated' && (
-					<RegenerateCriticalCssSuggestion regenerateReason={ regenerateReason } />
-				) }
+				{ ! isGenerating &&
+					( cssState.status === 'generated' || cssState.status === 'not_generated' ) && (
+						<RegenerateCriticalCssSuggestion regenerateReason={ regenerateReason } />
+					) }
 			</>
 		);
 	}

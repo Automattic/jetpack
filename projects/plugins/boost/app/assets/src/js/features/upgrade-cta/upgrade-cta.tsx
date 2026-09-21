@@ -1,7 +1,7 @@
 import { getCurrencyObject } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
-import { Button, Notice } from '@wordpress/ui';
+import { Button, Link, Notice } from '@wordpress/ui';
 import { useModuleSurface } from '$features/module/surface';
 import RightArrow from '$svg/right-arrow';
 import { recordBoostEvent } from '$lib/utils/analytics';
@@ -48,13 +48,14 @@ const UpgradeCTA = ( {
 			<Notice.Root intent="info" icon={ lock }>
 				<Notice.Description>
 					{ description }{ ' ' }
-					<Notice.ActionLink
-						render={ <Button variant="unstyled" /> }
-						className={ styles[ 'notice-action' ] }
+					<Link
+						render={ <Button variant="unstyled" type="button" /> }
+						tone="brand"
+						style={ { textDecoration: 'underline' } }
 						onClick={ onClickHandler }
 					>
 						{ __( 'Upgrade now', 'jetpack-boost' ) }
-					</Notice.ActionLink>
+					</Link>
 				</Notice.Description>
 			</Notice.Root>
 		);

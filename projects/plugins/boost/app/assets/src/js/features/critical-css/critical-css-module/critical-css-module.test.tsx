@@ -61,7 +61,7 @@ test.each( [ 'row', 'block' ] as const )(
 	surface => {
 		mockRegenerate.mockClear();
 		Object.assign( globalThis, {
-			Jetpack_Boost: { site: { online: false, myJetpack: false, host: 'unknown' } },
+			Jetpack_Boost: { site: { online: true, myJetpack: true, host: 'unknown' } },
 		} );
 		render(
 			<ModuleSurfaceProvider value={ surface }>
@@ -73,3 +73,21 @@ test.each( [ 'row', 'block' ] as const )(
 		expect( mockRegenerate ).toHaveBeenCalledTimes( surface === 'row' ? 0 : 1 );
 	}
 );
+
+test( 'preserves the legacy Critical CSS upsell description and monthly price', () => {
+	Object.assign( globalThis, {
+		Jetpack_Boost: { site: { online: true, myJetpack: true, host: 'unknown' } },
+		myJetpackInitialState: { products: { items: { boost: { slug: 'boost', title: 'Boost' } } } },
+		JP_CONNECTION_INITIAL_STATE: {},
+	} );
+	render(
+		<ModuleSurfaceProvider value="block">
+			<CriticalCssModule />
+		</ModuleSurfaceProvider>
+	);
+	expect(
+		screen.getByRole( 'button', {
+			name: /Save time by upgrading to Automatic Critical CSS generation\. Upgrade now only _ per month/,
+		} )
+	).toBeTruthy();
+} );
