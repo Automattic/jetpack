@@ -64,8 +64,13 @@ function WordAdsEarningsHistoryReport() {
 					<EarningsHistoryList rows={ rows } />
 				</WidgetState>
 			</div>
-			{ adjustmentCount > 0 && (
-				<div className={ styles.adjustments }>
+			<WidgetFooter>
+				<ReportLink
+					report="earnings"
+					ariaLabel={ __( 'View all earnings history', 'jetpack-premium-analytics-pkg' ) }
+				/>
+				{ /* Second in the footer: View all keeps its place, this takes the far end. */ }
+				{ adjustmentCount > 0 && (
 					<ReportLink
 						report="earnings"
 						section="adjustments"
@@ -81,13 +86,7 @@ function WordAdsEarningsHistoryReport() {
 						) }
 						ariaLabel={ __( 'View adjustments history', 'jetpack-premium-analytics-pkg' ) }
 					/>
-				</div>
-			) }
-			<WidgetFooter>
-				<ReportLink
-					report="earnings"
-					ariaLabel={ __( 'View all earnings history', 'jetpack-premium-analytics-pkg' ) }
-				/>
+				) }
 			</WidgetFooter>
 		</Stack>
 	);
