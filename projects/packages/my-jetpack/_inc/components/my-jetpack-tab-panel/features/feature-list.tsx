@@ -1,11 +1,23 @@
 import { CheckboxControl } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Button, Text } from '@wordpress/ui';
+import { Button, Text, VisuallyHidden } from '@wordpress/ui';
 import { useCallback, useMemo, useState } from 'react';
 import { FeatureItem } from './feature-item';
 import styles from './styles.module.scss';
 import { isBulkSwitchable, useBulkFeatureSwitch } from './use-bulk-feature-switch';
 import type { FeatureState } from './feature-state';
+
+// Explains every disabled row checkbox, so the reason is written once.
+const UNSWITCHABLE_ID = 'feature-list-unswitchable';
+
+/**
+ * Why a row cannot be picked for a bulk action.
+ *
+ * @return The translated reason.
+ */
+function getUnswitchableReason(): string {
+	return __( 'Change this feature from its own control.', 'jetpack-my-jetpack' );
+}
 
 type RowCheckboxProps = {
 	state: FeatureState;
@@ -31,17 +43,21 @@ function RowCheckbox( { state, isSelected, onSelect }: RowCheckboxProps ) {
 	);
 
 	return (
-		<CheckboxControl
-			__nextHasNoMarginBottom
-			checked={ canSelect && isSelected }
-			disabled={ ! canSelect }
-			onChange={ onChange }
-			aria-label={ sprintf(
-				/* translators: %s is the feature name. */
-				__( 'Select %s', 'jetpack-my-jetpack' ),
-				name
-			) }
-		/>
+		// The title is on the wrapper: a disabled input gets no hover events of its own.
+		<span title={ canSelect ? undefined : getUnswitchableReason() }>
+			<CheckboxControl
+				__nextHasNoMarginBottom
+				checked={ canSelect && isSelected }
+				disabled={ ! canSelect }
+				onChange={ onChange }
+				aria-label={ sprintf(
+					/* translators: %s is the feature name. */
+					__( 'Select %s', 'jetpack-my-jetpack' ),
+					name
+				) }
+				aria-describedby={ canSelect ? undefined : UNSWITCHABLE_ID }
+			/>
+		</span>
 	);
 }
 
@@ -61,6 +77,8 @@ type FeatureListProps = {
 export function FeatureList( { states, onOpen }: FeatureListProps ) {
 	const [ selected, setSelected ] = useState< Set< string > >( () => new Set() );
 	const { run, isRunning } = useBulkFeatureSwitch();
+	// Rows in flight also count, so a run started before the view last changed still holds the bar.
+	const isBusy = isRunning || states.some( state => state.isSwitching );
 
 	const selectable = useMemo( () => states.filter( isBulkSwitchable ), [ states ] );
 	// Only what is on screen and still switchable: a filter or search hides the rest.
@@ -110,11 +128,11 @@ export function FeatureList( { states, onOpen }: FeatureListProps ) {
 					__nextHasNoMarginBottom
 					checked={ allPicked }
 					indeterminate={ picked.length > 0 && ! allPicked }
-					disabled={ ! selectable.length || isRunning }
+					disabled={ ! selectable.length || isBusy }
 					onChange={ onSelectAll }
 					aria-label={ __( 'Select all features', 'jetpack-my-jetpack' ) }
 				/>
-				<Text variant="body-md" className={ styles[ 'bulk-bar__count' ] }>
+				<Text variant="body-md" className={ styles[ 'bulk-bar__count' ] } role="status">
 					{ picked.length
 						? sprintf(
 								/* translators: %d is how many features are selected. */
@@ -126,7 +144,7 @@ export function FeatureList( { states, onOpen }: FeatureListProps ) {
 				<Button
 					variant="outline"
 					size="compact"
-					disabled={ isRunning || ! canActivate }
+					disabled={ isBusy || ! canActivate }
 					onClick={ onActivate }
 				>
 					{ __( 'Activate', 'jetpack-my-jetpack' ) }
@@ -134,12 +152,14 @@ export function FeatureList( { states, onOpen }: FeatureListProps ) {
 				<Button
 					variant="outline"
 					size="compact"
-					disabled={ isRunning || ! canDeactivate }
+					disabled={ isBusy || ! canDeactivate }
 					onClick={ onDeactivate }
 				>
 					{ __( 'Deactivate', 'jetpack-my-jetpack' ) }
 				</Button>
 			</div>
+
+			<VisuallyHidden id={ UNSWITCHABLE_ID }>{ getUnswitchableReason() }</VisuallyHidden>
 
 			{ states.map( state => (
 				<FeatureItem

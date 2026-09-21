@@ -2,15 +2,10 @@ import { useGlobalNotices } from '@automattic/jetpack-components';
 import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { useQueryClient } from '@tanstack/react-query';
 import { useDispatch } from '@wordpress/data';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
-import {
-	clearRequestedSwitch,
-	pluginSwitchKey,
-	setRequestedSwitch,
-} from '../../../data/requested-switch-state';
-import { hasPlainSwitch, requestModuleSwitch } from '../../module-toggle';
-import { QUERY_KEY, postFeaturePlugin } from './use-main-features';
+import { hasPlainSwitch, requestModuleSwitch } from '../../../data/module-switch';
+import { QUERY_KEY, getSwitchErrorMessage, requestPluginSwitch } from './use-main-features';
 import type { FeatureState } from './feature-state';
 
 /**
@@ -47,28 +42,33 @@ export function useBulkFeatureSwitch() {
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	const [ isRunning, setIsRunning ] = useState( false );
 
+	// Resolves to null on success, or to what to tell the user on failure.
 	const switchOne = useCallback(
-		( { control }: FeatureState, active: boolean ): Promise< boolean > => {
+		async ( { control, feature }: FeatureState, active: boolean ): Promise< string | null > => {
+			const failed = getSwitchErrorMessage( undefined, feature.name );
+
 			if ( control.kind === 'module' ) {
-				return requestModuleSwitch( updateJetpackModuleStatus, control.module.module, active );
+				const ok = await requestModuleSwitch(
+					updateJetpackModuleStatus,
+					control.module.module,
+					active
+				);
+				return ok ? null : failed;
 			}
 
 			if ( control.kind !== 'plugin' ) {
-				return Promise.resolve( false );
+				return failed;
 			}
 
-			const key = pluginSwitchKey( control.plugin );
-			const token = setRequestedSwitch( key, active );
-
-			return postFeaturePlugin( control.plugin, active ? 'activate' : 'deactivate' )
-				.then(
-					next => {
-						queryClient.setQueryData( QUERY_KEY, next );
-						return true;
-					},
-					() => false
-				)
-				.finally( () => clearRequestedSwitch( key, token ) );
+			return requestPluginSwitch(
+				queryClient,
+				control.plugin,
+				active ? 'activate' : 'deactivate'
+			).then(
+				() => null,
+				( error: { message?: string } ) =>
+					getSwitchErrorMessage( error, feature.plugin_name || feature.name )
+			);
 		},
 		[ queryClient, updateJetpackModuleStatus ]
 	);
@@ -93,8 +93,8 @@ export function useBulkFeatureSwitch() {
 			invalidateResolution( 'getJetpackModules', [] );
 			setIsRunning( false );
 
-			const failed = targets.filter( ( _state, index ) => ! results[ index ] );
-			const succeeded = targets.length - failed.length;
+			const errors = results.filter( ( error ): error is string => error !== null );
+			const succeeded = targets.length - errors.length;
 
 			if ( succeeded ) {
 				const activated = sprintf(
@@ -115,15 +115,10 @@ export function useBulkFeatureSwitch() {
 				createSuccessNotice( active ? activated : deactivated );
 			}
 
-			if ( failed.length ) {
+			if ( errors.length ) {
 				queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
-				createErrorNotice(
-					sprintf(
-						/* translators: %s is a comma-separated list of feature names. */
-						__( 'Could not change: %s. Please try again.', 'jetpack-my-jetpack' ),
-						failed.map( state => state.feature.name ).join( ', ' )
-					)
-				);
+				// One notice per failure, each naming what went wrong where the site said.
+				errors.forEach( error => createErrorNotice( error ) );
 			}
 		},
 		[ createErrorNotice, createSuccessNotice, invalidateResolution, queryClient, switchOne ]
