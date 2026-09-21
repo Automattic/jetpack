@@ -15,7 +15,8 @@ import type { ReactNode } from 'react';
 const mockNavigate = jest.fn();
 const mockScrollIntoView = jest.fn();
 const mockDisconnect = jest.fn();
-let resizeCallback: () => void;
+let resizeCallback: ResizeObserverCallback;
+let resizeObserver: ResizeObserver;
 
 beforeEach( () => {
 	Element.prototype.scrollIntoView = mockScrollIntoView;
@@ -23,7 +24,8 @@ beforeEach( () => {
 	mockDisconnect.mockClear();
 	jest.spyOn( window, 'ResizeObserver' ).mockImplementation( callback => {
 		resizeCallback = callback;
-		return { observe: jest.fn(), disconnect: mockDisconnect };
+		resizeObserver = { observe: jest.fn(), unobserve: jest.fn(), disconnect: mockDisconnect };
+		return resizeObserver;
 	} );
 } );
 
@@ -291,7 +293,7 @@ describe( 'Boost dashboard stage', () => {
 		window.history.replaceState( null, '', `/?page=jetpack-boost${ SETTINGS_ARG }` );
 		const { unmount } = render( <Stage /> );
 		mockScrollIntoView.mockClear();
-		act( () => resizeCallback() );
+		act( () => resizeCallback( [], resizeObserver ) );
 		expect( mockScrollIntoView.mock.contexts[ 0 ] ).toBe(
 			screen.getByRole( 'region', { name: 'Optimize your speed' } )
 		);
