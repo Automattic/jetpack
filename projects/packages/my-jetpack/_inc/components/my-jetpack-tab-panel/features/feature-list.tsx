@@ -42,6 +42,15 @@ function RowCheckbox( { state, isSelected, onSelect }: RowCheckboxProps ) {
 		[ slug, onSelect ]
 	);
 
+	// A forced module has no control to point at, so it gets no checkbox; the hidden one holds the column.
+	if ( state.control.kind === 'module' && state.control.module.override ) {
+		return (
+			<span className={ styles[ 'row-checkbox-placeholder' ] } aria-hidden="true">
+				<CheckboxControl __nextHasNoMarginBottom checked={ false } disabled onChange={ onChange } />
+			</span>
+		);
+	}
+
 	return (
 		// The title is on the wrapper: a disabled input gets no hover events of its own.
 		<span title={ canSelect ? undefined : getUnswitchableReason() }>

@@ -194,20 +194,40 @@ describe( 'FeatureModalActions', () => {
 		expect( screen.getByRole( 'button', { name: 'Deactivate Boost' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows a note instead of Activate or Deactivate for a module a host forced on', () => {
+	it( 'offers Open and says why there is no switch, for a module a host forced on', () => {
 		render(
 			<FeatureModalActions
-				state={ buildState( { kind: 'module', module: forcedModule }, { status: 'active' } ) }
+				state={ buildState(
+					{ kind: 'module', module: forcedModule },
+					{
+						status: 'active',
+						feature: buildFeature( { manage_url: '/wp-admin/admin.php?page=stats' } ),
+					}
+				) }
 			/>
 		);
 
+		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Enabled by your host or site administrator' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'leaves the reason for a module forced off to "How to get it"', () => {
+		const forcedOff = {
+			...forcedModule,
+			activated: false,
+			override: 'inactive',
+		} as MyJetpackModule;
+
+		render( <FeatureModalActions state={ buildState( { kind: 'module', module: forcedOff } ) } /> );
+
+		expect( screen.queryByText( /by your host or site administrator/ ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
 } );
 
 describe( 'FeatureItem', () => {
-	it( 'shows the note for a module a host forced on under the description, not in the switch slot', () => {
+	it( 'shows only the status for a module a host forced on: no switch, no note', () => {
 		const state = buildState(
 			{ kind: 'module', module: forcedModule },
 			{
@@ -218,12 +238,8 @@ describe( 'FeatureItem', () => {
 
 		render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
 
-		// The switch slot renders nothing for it (see FeatureAction), so the note following the
-		// description means it sits in the text column.
-		const order = screen
-			.getAllByText( /See who visits\.|Enabled by your host/ )
-			.map( el => el.textContent );
-		expect( order ).toEqual( [ 'See who visits.', 'Enabled by your host or site administrator' ] );
+		expect( screen.getByText( 'Active' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /by your host or site administrator/ ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 	} );
 } );

@@ -75,10 +75,6 @@ $feature-icon-foreground: #0ced57;
 	min-inline-size: 0;
 }
 
-.feature-item__note {
-	align-self: flex-start;
-}
-
 .feature-item__heading {
 	align-items: center;
 	display: flex;
@@ -154,6 +150,10 @@ $feature-icon-foreground: #0ced57;
 	display: flex;
 	position: relative;
 	z-index: 1;
+}
+
+.row-checkbox-placeholder {
+	visibility: hidden;
 }
 
 // Placeholders for the parts of a card that wait on live state: the status

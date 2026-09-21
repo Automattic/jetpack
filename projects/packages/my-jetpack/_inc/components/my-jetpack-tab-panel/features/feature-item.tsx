@@ -4,7 +4,6 @@ import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { Badge, Icon, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
-import { getModuleStatus } from '../../modules-list/utils';
 import { getActivationStatusLabel } from '../utils';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
@@ -41,10 +40,6 @@ export function FeatureItem( { state, onOpen, leading, className }: FeatureItemP
 	// Only while the state is first being read. A switch answers its own click, so
 	// mid-request the badge has a value to show and should show it.
 	const isSettling = Boolean( state.pending );
-	const forcedNote =
-		state.control.kind === 'module' && state.control.module.override
-			? getModuleStatus( state.control.module ).reason
-			: null;
 
 	return (
 		<div className={ clsx( styles[ 'feature-item' ], className ) } data-feature={ feature.slug }>
@@ -99,12 +94,6 @@ export function FeatureItem( { state, onOpen, leading, className }: FeatureItemP
 				<Text variant="body-md" className={ styles[ 'feature-item__description' ] }>
 					{ feature.description }
 				</Text>
-
-				{ forcedNote ? (
-					<Badge intent="medium" className={ styles[ 'feature-item__note' ] }>
-						{ forcedNote }
-					</Badge>
-				) : null }
 			</span>
 
 			<span className={ styles[ 'feature-action-slot' ] }>

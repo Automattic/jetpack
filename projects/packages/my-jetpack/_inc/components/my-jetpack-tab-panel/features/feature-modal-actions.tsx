@@ -2,9 +2,9 @@ import { __ } from '@wordpress/i18n';
 import { Badge, Button, LinkButton } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { useModuleActivation } from '../../module-toggle';
-import { getModuleStatus } from '../../modules-list/utils';
 import { getSwitchLabel } from '../utils';
 import { InstallButton, JetpackButton } from './feature-action';
+import { getForcedReason } from './feature-state';
 import { useFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
 import type { MyJetpackModule } from '../../../types';
@@ -110,6 +110,7 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 	const { feature, control } = state;
 	const isActive = state.status === 'active';
 	const pluginName = feature.plugin_name || feature.name;
+	const forcedReason = getForcedReason( state );
 
 	return (
 		<>
@@ -119,11 +120,10 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 				</LinkButton>
 			) : null }
 
-			{ control.kind === 'module' && control.module.override ? (
-				<Badge intent="medium">{ getModuleStatus( control.module ).reason }</Badge>
-			) : null }
+			{ /* Forced off explains itself under "How to get it"; forced on has no such section. */ }
+			{ forcedReason && isActive ? <Badge intent="medium">{ forcedReason }</Badge> : null }
 
-			{ control.kind === 'module' && ! control.module.override ? (
+			{ control.kind === 'module' && ! forcedReason ? (
 				<ModuleSwitch module={ control.module } name={ feature.name } />
 			) : null }
 

@@ -375,6 +375,31 @@ class Main_Features_Rest_Test extends TestCase {
 	}
 
 	/**
+	 * A bulk action's fresh state must not hand back a feature a host hid.
+	 */
+	public function test_bulk_state_leaves_out_what_a_host_hid() {
+		$this->activate_jetpack();
+		$hide = function ( $states ) {
+			$states['search'] = 'hidden';
+			return $states;
+		};
+		add_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => true,
+				'plugins' => array( 'jetpack-boost' ),
+			)
+		);
+
+		remove_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+
+		$slugs = array_column( $response->get_data()['state']['features'], 'slug' );
+		$this->assertNotContains( 'search', $slugs );
+		$this->assertContains( 'boost', $slugs );
+	}
+
+	/**
 	 * One refusal must not stop the rest of the batch, and must say why it was refused.
 	 */
 	public function test_bulk_reports_a_refusal_and_carries_on() {
