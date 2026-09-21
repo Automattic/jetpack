@@ -264,7 +264,7 @@ export default function McpHub( {
 				<CardBody>
 					<Stack direction="column" gap="md">
 						<Stack direction="column" gap="xs">
-							<Text as="h3" weight={ 600 }>
+							<Text as="h2" weight={ 600 }>
 								{ __( 'External AI agent access', 'jetpack' ) }
 							</Text>
 							<Text variant="muted">
