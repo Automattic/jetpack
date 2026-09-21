@@ -14,7 +14,7 @@ import analytics from 'lib/analytics';
 
 const BLOCK_THEME_WPCOM_SUPPORT_LINK = 'https://wordpress.com/support/related-posts/';
 
-class RelatedPostsComponent extends Component {
+export class RelatedPostsComponent extends Component {
 	/**
 	 * Get options for initial state.
 	 *

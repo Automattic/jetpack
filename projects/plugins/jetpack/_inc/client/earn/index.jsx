@@ -25,7 +25,7 @@ import { Ads } from './ads';
  * @param {object} props - Component props.
  * @return {import('react').Component} Feature description and CTA.
  */
-function EarnFeatureButton( props ) {
+export function EarnFeatureButton( props ) {
 	const {
 		buttonText,
 		featureConstant = '',
