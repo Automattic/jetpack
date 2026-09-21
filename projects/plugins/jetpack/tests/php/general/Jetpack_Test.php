@@ -1285,4 +1285,26 @@ EXPECTED;
 
 		$this->assertSame( 'Secure Sign On', $translated['sso']['name'] );
 	}
-} // end class
+
+	/**
+	 * Tests that jetpack_feature_policy's default states change the default modules.
+	 */
+	public function test_get_default_modules_honors_feature_policy() {
+		$policy = function ( $policy ) {
+			$policy['carousel'] = array( 'activation' => 'default-on' );
+			$policy['blocks']   = array( 'activation' => 'default-off' );
+			return $policy;
+		};
+
+		$this->assertNotContains( 'carousel', Jetpack::get_default_modules() );
+		$this->assertContains( 'blocks', Jetpack::get_default_modules() );
+
+		add_filter( 'jetpack_feature_policy', $policy );
+		$defaults = Jetpack::get_default_modules();
+		remove_filter( 'jetpack_feature_policy', $policy );
+		\Automattic\Jetpack\Feature_Policy::reset();
+
+		$this->assertContains( 'carousel', $defaults );
+		$this->assertNotContains( 'blocks', $defaults );
+	}
+}

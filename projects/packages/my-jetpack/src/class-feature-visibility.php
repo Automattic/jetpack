@@ -8,12 +8,13 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Feature_Policy;
 
 /**
  * The Features page counterpart to the sidebar's `jetpack_admin_menu_visibility`.
  *
  * Display only: forcing a module on or off is `jetpack_active_modules`, which the page
- * already honors by dropping the toggle.
+ * already honors by dropping the toggle. `jetpack_feature_policy` feeds both filters.
  */
 class Feature_Visibility {
 
@@ -23,6 +24,10 @@ class Feature_Visibility {
 	 * @return string[] Product card and module slugs, in the order the host named them.
 	 */
 	public static function get_hidden() {
+		if ( method_exists( Feature_Policy::class, 'ensure_hooks' ) ) {
+			Feature_Policy::ensure_hooks();
+		}
+
 		/**
 		 * Filters which items appear on the My Jetpack Features page.
 		 *
