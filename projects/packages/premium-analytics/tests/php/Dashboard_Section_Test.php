@@ -1714,8 +1714,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 			Dashboard_Section::class,
 			get_registered_dashboard_section( 'plugin_dashboard', 'plugin/section' )
 		);
-		$this->assertCount( 1, $calls );
-		$this->assertSame( Dashboard_Section_Registry::get_instance(), $calls[0] );
+		$this->assertSame( array( Dashboard_Section_Registry::get_instance() ), $calls );
 	}
 
 	/**
