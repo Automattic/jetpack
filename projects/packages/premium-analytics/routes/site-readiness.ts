@@ -37,7 +37,8 @@ export function isVideoPressAvailable(): boolean {
 }
 
 /**
- * URL-facing slugs of the dashboard tabs, mirroring the section ids in `src/dashboard-layout.php`.
+ * URL-facing slugs of the dashboard tabs, mirroring what `register_default_dashboard_sections()`
+ * registers in `src/default-dashboard-sections.php`.
  *
  * A rename on the PHP side would hide every report behind that tab in silence, so
  * `Dashboard_Section_Test::test_preview_scope_sections_list_every_tab_when_unscoped` pins it there.
