@@ -21,8 +21,8 @@ export type SubscribersPeriod = Extract< StatsSubscribersUnit, 'day' | 'week' | 
  */
 export interface SubscribersChartPoint {
 	date: Date;
-	subscribers: number;
-	paid: number;
+	subscribers: number | null;
+	paid: number | null;
 }
 
 /**
@@ -45,13 +45,15 @@ function toPoints(
 ): SubscribersChartPoint[] {
 	return ( report?.data ?? [] ).flatMap( point => {
 		const date = resolveBucketStamp( point.date_start, zone );
+		const subscribers = point.subscribers as number | null | undefined;
+		const paid = point.subscribers_paid as number | null | undefined;
 
 		return date
 			? [
 					{
 						date,
-						subscribers: Number( point.subscribers ?? point.value ?? 0 ),
-						paid: Number( point.subscribers_paid ?? 0 ),
+						subscribers: subscribers === null ? null : Number( subscribers ?? point.value ?? 0 ),
+						paid: paid === null ? null : Number( paid ?? 0 ),
 					},
 				]
 			: [];
@@ -77,7 +79,7 @@ export default function useSubscribersChart(
 
 	return {
 		current,
-		hasPaid: current.some( point => point.paid > 0 ),
+		hasPaid: current.some( point => ( point.paid ?? 0 ) > 0 ),
 		isLoading: report.isLoading,
 		isFetching: report.isFetching,
 		// `placeholderData` keeps stale points in `current` after a failed refetch; only

@@ -51,9 +51,9 @@ const DATA_FORMAT = {
  */
 function latest(
 	points: SubscribersChartPoint[],
-	accessor: ( point: SubscribersChartPoint ) => number
+	accessor: ( point: SubscribersChartPoint ) => number | null
 ): number {
-	return points.length ? accessor( points[ points.length - 1 ] ) : 0;
+	return points.length ? ( accessor( points[ points.length - 1 ] ) ?? 0 ) : 0;
 }
 
 /**
@@ -62,7 +62,7 @@ function latest(
  */
 const METRIC_ACCESSORS: Record<
 	SubscribersChartMetricId,
-	( point: SubscribersChartPoint ) => number
+	( point: SubscribersChartPoint ) => number | null
 > = {
 	subscribers: point => point.subscribers,
 	paid: point => point.paid,
@@ -73,7 +73,13 @@ const METRIC_ACCESSORS: Record<
  * subscribers only when the site has any. Each tab carries its headline total
  * and the per-period points for the chart.
  */
-function buildMetrics( state: SubscribersChartState ): MetricTab[] {
+function buildMetrics(
+	state: SubscribersChartState,
+	chartType: SubscribersChartType | undefined
+): MetricTab[] {
+	// Only the bar chart can draw a bucket with no reading as a gap (CHARTS-281); the line chart still needs a number until CHARTS-284.
+	const keepGaps = chartType === 'bar';
+
 	return SUBSCRIBERS_CHART_METRICS.filter( ( { id } ) => id !== 'paid' || state.hasPaid ).map(
 		( { id, label } ) => {
 			const accessor = METRIC_ACCESSORS[ id ];
@@ -81,7 +87,10 @@ function buildMetrics( state: SubscribersChartState ): MetricTab[] {
 				key: id,
 				label,
 				value: latest( state.current, accessor ),
-				current: state.current.map( point => ( { date: point.date, value: accessor( point ) } ) ),
+				current: state.current.map( point => {
+					const value = accessor( point );
+					return { date: point.date, value: ( keepGaps ? value : ( value ?? 0 ) ) as number };
+				} ),
 			};
 		}
 	);
@@ -105,7 +114,7 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 	const period: SubscribersPeriod = chartInterval( reportParams, SUBSCRIBERS_GRAIN.periods );
 
 	const state = useSubscribersChart( reportParams, period );
-	const metricTabs = useMemo( () => buildMetrics( state ), [ state ] );
+	const metricTabs = useMemo( () => buildMetrics( state, chartType ), [ state, chartType ] );
 	const groupLabel = __( 'Subscriber metric', 'jetpack-premium-analytics-pkg' );
 
 	return (
