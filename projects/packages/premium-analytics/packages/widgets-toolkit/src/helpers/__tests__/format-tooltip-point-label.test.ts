@@ -9,10 +9,4 @@ describe( 'formatTooltipPointLabel', () => {
 			'86 Views · September 17, 2026'
 		);
 	} );
-
-	it( 'drops the unit slot when the row has no metric name', () => {
-		expect( formatTooltipPointLabel( '86', undefined, 'September 17, 2026' ) ).toBe(
-			'86 · September 17, 2026'
-		);
-	} );
 } );

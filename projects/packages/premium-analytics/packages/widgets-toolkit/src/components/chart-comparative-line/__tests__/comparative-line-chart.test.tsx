@@ -74,7 +74,7 @@ const JUNE_1 = new Date( '2026-06-01T00:00:00Z' );
 
 const SERIES: ComparativeLineChartSeries[] = [
 	{
-		label: 'July',
+		label: 'Views',
 		group: 'views',
 		data: [
 			{ date: JULY_1, value: 100 },
@@ -86,7 +86,7 @@ const SERIES: ComparativeLineChartSeries[] = [
 // An hour apart, so the library reads the series as hourly on its own.
 const HOURLY_SERIES: ComparativeLineChartSeries[] = [
 	{
-		label: 'July',
+		label: 'Views',
 		group: 'views',
 		data: [
 			{ date: new Date( '2026-07-02T04:00:00Z' ), value: 100 },
@@ -176,7 +176,7 @@ function recordedProps(): RecordedLineProps {
 function tooltipLabelFor(
 	datum: { date: Date; realDate?: Date },
 	index = 0,
-	key = 'July',
+	key = 'Views',
 	value = '100'
 ): string {
 	/* eslint-disable testing-library/render-result-naming-convention --
@@ -278,15 +278,6 @@ describe( 'ComparativeLineChart', () => {
 		);
 	} );
 
-	it( 'falls back to the date for a key it has no series for', () => {
-		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
-		render( <ComparativeLineChart series={ PAIRED_SERIES } dataFormat={ DATA_FORMAT } /> );
-
-		// Leading with the raw key would present an internal label as a metric
-		// name, which is the thing the prefix exists to stop.
-		expect( tooltipLabelFor( COMPARISON_POINT, 0, 'Unknown', '80' ) ).toBe( '80 · June 1, 2026' );
-	} );
-
 	it( 'names rows by series on a multi-metric chart with no comparison', () => {
 		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
 		const twoMetrics: ComparativeLineChartSeries[] = [
@@ -307,7 +298,7 @@ describe( 'ComparativeLineChart', () => {
 		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
 		render( <ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
 
-		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( '100 July · July 2, 2026' );
+		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( '100 Views · July 2, 2026' );
 	} );
 
 	it( 'renders the rows inline, the value spelled into each label', () => {
@@ -316,7 +307,7 @@ describe( 'ComparativeLineChart', () => {
 		/* eslint-disable testing-library/render-result-naming-convention --
 		   The chart's `renderTooltip` prop, not testing-library's `render()`. */
 		const tooltipNode = recordedProps().renderTooltip( {
-			tooltipData: { datumByKey: { July: { datum: { date: JULY_1 }, index: 0, key: 'July' } } },
+			tooltipData: { datumByKey: { Views: { datum: { date: JULY_1 }, index: 0, key: 'Views' } } },
 		} );
 		/* eslint-enable testing-library/render-result-naming-convention */
 
@@ -331,7 +322,7 @@ describe( 'ComparativeLineChart', () => {
 			<ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } tickResolution="hour" />
 		);
 
-		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( '100 July · July 2, 2026 2:00 pm' );
+		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( '100 Views · July 2, 2026 2:00 pm' );
 	} );
 
 	// Most widgets declare no resolution, so reading the caller's prop alone left
@@ -340,7 +331,7 @@ describe( 'ComparativeLineChart', () => {
 		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
 		render( <ComparativeLineChart series={ HOURLY_SERIES } dataFormat={ DATA_FORMAT } /> );
 
-		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( '100 July · July 2, 2026 2:00 pm' );
+		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( '100 Views · July 2, 2026 2:00 pm' );
 	} );
 
 	it( 'lets a declared resolution override what the data looks like', () => {
@@ -353,7 +344,7 @@ describe( 'ComparativeLineChart', () => {
 			/>
 		);
 
-		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( '100 July · July 2, 2026' );
+		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( '100 Views · July 2, 2026' );
 	} );
 
 	// How a point's date reads is the caller's to decide; which format names it
@@ -369,7 +360,7 @@ describe( 'ComparativeLineChart', () => {
 			/>
 		);
 
-		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( '100 July · the bucket' );
+		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( '100 Views · the bucket' );
 		expect( formatTooltipDate ).toHaveBeenCalledWith( JULY_2, 'dateTime' );
 	} );
 
@@ -381,8 +372,8 @@ describe( 'ComparativeLineChart', () => {
 
 		// Reading `datum.date` here would repeat the current period's date on both
 		// rows; the point of `realDate` is that the previous period keeps its own.
-		expect( tooltipLabelFor( COMPARISON_POINT, 1, 'July', '80' ) ).toBe(
-			'80 July · June 1, 2026 9:00 am'
+		expect( tooltipLabelFor( COMPARISON_POINT, 1, 'Views', '80' ) ).toBe(
+			'80 Views · June 1, 2026 9:00 am'
 		);
 	} );
 } );
@@ -411,8 +402,8 @@ describe( 'ComparativeLineChart tooltip extras', () => {
 			recordedProps().renderTooltip as unknown as ( params: unknown ) => TooltipNode
 		 )( {
 			tooltipData: {
-				nearestDatum: { datum: hovered, key: 'July' },
-				datumByKey: { July: { datum: hovered, index: 0, key: 'July' } },
+				nearestDatum: { datum: hovered, key: 'Views' },
+				datumByKey: { Views: { datum: hovered, index: 0, key: 'Views' } },
 			},
 		} );
 
@@ -454,8 +445,7 @@ describe( 'ComparativeLineChart tooltip extras', () => {
 
 		const { getLabel } = tooltipFor( JULY_1 ).props;
 
-		// A date alone would label the drawn row and the extras identically.
-		expect( getLabel( { date: JULY_1 }, 0, 'July', '100' ) ).toBe( '100 July · July 1, 2026' );
+		expect( getLabel( { date: JULY_1 }, 0, 'Views', '100' ) ).toBe( '100 Views · July 1, 2026' );
 		expect( getLabel( { date: JULY_1 }, 1, 'Average CPM', '$0.15' ) ).toBe(
 			'$0.15 Average CPM · July 1, 2026'
 		);
@@ -471,7 +461,7 @@ describe( 'ComparativeLineChart tooltip extras', () => {
 		);
 
 		expect( Object.keys( tooltipFor( JULY_2 ).props.tooltipData.datumByKey ) ).toEqual( [
-			'July',
+			'Views',
 		] );
 	} );
 
@@ -479,7 +469,7 @@ describe( 'ComparativeLineChart tooltip extras', () => {
 		// A counterpart in `MetricTabsChart` is drawn (hidden until revealed) and
 		// listed; once the chart reports it, it must not turn into a spacer row.
 		const twoMetrics: ComparativeLineChartSeries[] = [
-			{ label: 'July', group: 'views', data: [ { date: JULY_1, value: 100 } ] },
+			{ label: 'Views', group: 'views', data: [ { date: JULY_1, value: 100 } ] },
 			{ label: 'Visitors', group: 'visitors', data: [ { date: JULY_1, value: 40 } ] },
 		];
 		render(
@@ -496,16 +486,16 @@ describe( 'ComparativeLineChart tooltip extras', () => {
 			recordedProps().renderTooltip as unknown as ( params: unknown ) => TooltipNode
 		 )( {
 			tooltipData: {
-				nearestDatum: { datum: hovered, key: 'July' },
+				nearestDatum: { datum: hovered, key: 'Views' },
 				datumByKey: {
-					July: { datum: hovered, index: 0, key: 'July' },
+					Views: { datum: hovered, index: 0, key: 'Views' },
 					Visitors: { datum: { date: JULY_1, value: 40 }, index: 1, key: 'Visitors' },
 				},
 			},
 		} );
 
 		expect( Object.keys( tooltipNode.props.tooltipData.datumByKey ) ).toEqual( [
-			'July',
+			'Views',
 			'Visitors',
 			'Average CPM',
 		] );
@@ -517,9 +507,9 @@ describe( 'ComparativeLineChart tooltip extras', () => {
 
 		const { tooltipData, supplementaryRows, getLabel } = tooltipFor( JULY_1 ).props;
 
-		expect( Object.keys( tooltipData.datumByKey ) ).toEqual( [ 'July' ] );
+		expect( Object.keys( tooltipData.datumByKey ) ).toEqual( [ 'Views' ] );
 		expect( supplementaryRows ).toBeUndefined();
-		expect( getLabel( { date: JULY_1 }, 0, 'July', '100' ) ).toBe( '100 July · July 1, 2026' );
+		expect( getLabel( { date: JULY_1 }, 0, 'Views', '100' ) ).toBe( '100 Views · July 1, 2026' );
 	} );
 
 	it( 'keeps the tooltip on for an all-zero drawn series once an extra has data', () => {

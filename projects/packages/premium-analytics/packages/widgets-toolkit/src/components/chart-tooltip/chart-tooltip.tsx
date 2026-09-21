@@ -83,6 +83,44 @@ export type ChartTooltipProps< TDatum = unknown > = {
 	getValue?: ( datum: TDatum ) => number;
 };
 
+// No positional fallback once `seriesKeys` is given: that lookup is the bug
+// the prop exists to fix, and on a miss it paints a plausible wrong swatch.
+function seriesStyleFor(
+	key: string,
+	index: number,
+	seriesStyles: TooltipStyle[],
+	seriesKeys: string[] | undefined
+): TooltipStyle {
+	const style = seriesKeys ? seriesStyles[ seriesKeys.indexOf( key ) ] : seriesStyles[ index ];
+	return style || seriesStyles[ 0 ];
+}
+
+function SeriesIndicator( {
+	indicatorType,
+	style,
+}: {
+	indicatorType: ChartTooltipProps[ 'indicatorType' ];
+	style: TooltipStyle;
+} ) {
+	const { stroke, ...lineShapeStyle } = style;
+
+	return indicatorType === 'line' ? (
+		<LineShape
+			fill={ stroke || 'currentColor' }
+			width={ INDICATOR_SIZE.line.width }
+			height={ INDICATOR_SIZE.line.height }
+			style={ lineShapeStyle }
+		/>
+	) : (
+		<RectShape
+			fill={ stroke || 'currentColor' }
+			height={ INDICATOR_SIZE.rect.height }
+			width={ INDICATOR_SIZE.rect.width }
+			style={ { opacity: lineShapeStyle.opacity } }
+		/>
+	);
+}
+
 /**
  * Self-contained chart tooltip. Indicators use the chart library's own
  * `LineShape` / `RectShape` so they match the series they describe.
@@ -127,49 +165,21 @@ export function ChartTooltip< TDatum >( {
 				);
 				const rowValue = layout === 'inline' ? undefined : value;
 
-				if ( isSupplementary ) {
-					return (
-						<TooltipRow
-							key={ entry.key }
-							// Holds the swatch's width, so the labels stay aligned.
-							indicator={
+				return (
+					<TooltipRow
+						key={ entry.key }
+						indicator={
+							isSupplementary ? (
+								// Holds the swatch's width, so the labels stay aligned.
 								<span
 									className={ styles.indicatorSpacer }
 									style={ { inlineSize: INDICATOR_SIZE[ indicatorType ].width } }
 									aria-hidden="true"
 								/>
-							}
-							label={ label }
-							value={ rowValue }
-							dataFormat={ rowFormat }
-						/>
-					);
-				}
-
-				// No positional fallback once `seriesKeys` is given: that lookup is the bug
-				// the prop exists to fix, and on a miss it paints a plausible wrong swatch.
-				const style = seriesKeys
-					? seriesStyles[ seriesKeys.indexOf( entry.key ) ]
-					: seriesStyles[ index ];
-				const { stroke, ...lineShapeStyle } = style || seriesStyles[ 0 ];
-
-				return (
-					<TooltipRow
-						key={ entry.key }
-						indicator={
-							indicatorType === 'line' ? (
-								<LineShape
-									fill={ stroke || 'currentColor' }
-									width={ INDICATOR_SIZE.line.width }
-									height={ INDICATOR_SIZE.line.height }
-									style={ lineShapeStyle }
-								/>
 							) : (
-								<RectShape
-									fill={ stroke || 'currentColor' }
-									height={ INDICATOR_SIZE.rect.height }
-									width={ INDICATOR_SIZE.rect.width }
-									style={ { opacity: lineShapeStyle.opacity } }
+								<SeriesIndicator
+									indicatorType={ indicatorType }
+									style={ seriesStyleFor( entry.key, index, seriesStyles, seriesKeys ) }
 								/>
 							)
 						}

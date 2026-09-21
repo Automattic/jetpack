@@ -60,7 +60,7 @@ const renderTooltip = params => (
 | `seriesKeys`    | `string[]`                                 | No       | Series keys in the same order as `seriesStyles`. Pairs a row with its style by key rather than by position, for charts that emit rows out of series order (a bar chart drawing two metrics lists both current periods before either previous period) |
 | `indicatorType` | `'line' \| 'rect'`                         | Yes      | Shape indicator: line for line charts, rect for bars                                                                                                                                                                                                 |
 | `layout`        | `'split' \| 'inline'`                      | No       | `split` (default) sets the label left and the value right; `inline` renders the label alone, for a `getLabel` that spells the value into it                                                                                                          |
-| `getLabel`      | `(datum, index, key, value) => string`     | No       | Custom label extractor. `key` is the series key/label; `value` is the row's value spelled out in full, in the row's own format (default: `datum.label`)                                                                                              |
+| `getLabel`      | `(datum, index, key, value) => string`     | No       | Custom label extractor (default: `datum.label`). `key` is the series key/label; `value` is the row's value spelled out in full, in the row's own format                                                                                              |
 | `getValue`      | `(datum) => number`                        | No       | Custom value extractor (default: `datum.value`)                                                                                                                                                                                                      |
 
 ## TooltipStyle Type
@@ -103,7 +103,7 @@ const getLabel = ( datum, _index, key, value ) => {
 	// a chart can draw more than one current-period metric, so index 1+ is not
 	// necessarily a comparison.
 	const displayDate = datum.realDate ?? datum.date;
-	return formatTooltipPointLabel( value, tooltipNames.get( key ), formatDate( displayDate ) );
+	return formatTooltipPointLabel( value, tooltipNames.get( key ) ?? key, formatDate( displayDate ) );
 };
 ```
 

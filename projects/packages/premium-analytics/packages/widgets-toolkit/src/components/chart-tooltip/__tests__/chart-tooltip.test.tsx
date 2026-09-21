@@ -5,6 +5,7 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { MetricValue } from '../../metric-value';
 import { ChartTooltip } from '../chart-tooltip';
 
 // The library's shape components need a provider jsdom cannot lay out, so stand
@@ -14,6 +15,17 @@ jest.mock( '@jetpack-premium-analytics/externals', () => ( {
 	RectShape: ( { fill }: { fill: string } ) => <span data-testid="swatch" data-fill={ fill } />,
 	Stack: ( { children }: { children?: React.ReactNode } ) => <div>{ children }</div>,
 } ) );
+
+// Wrapped, not replaced: `MetricValue` renders an empty span for `undefined`, so
+// only its call count tells an inline row from a split row with a blank value.
+jest.mock( '../../metric-value', () => {
+	const actual = jest.requireActual( '../../metric-value' );
+	return { ...actual, MetricValue: jest.fn( actual.MetricValue ) };
+} );
+
+beforeEach( () => {
+	jest.mocked( MetricValue ).mockClear();
+} );
 
 const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
 
@@ -205,7 +217,7 @@ describe( 'ChartTooltip', () => {
 		);
 
 		expect( screen.getByText( '100 Views' ) ).toBeInTheDocument();
-		expect( screen.queryByText( '100' ) ).not.toBeInTheDocument();
+		expect( MetricValue ).not.toHaveBeenCalled();
 	} );
 
 	it( 'renders a supplementary row inline too, with no value column', () => {
@@ -228,6 +240,6 @@ describe( 'ChartTooltip', () => {
 		);
 
 		expect( screen.getByText( '$0.15 Average CPM' ) ).toBeInTheDocument();
-		expect( screen.queryByText( '$0.15' ) ).not.toBeInTheDocument();
+		expect( MetricValue ).not.toHaveBeenCalled();
 	} );
 } );

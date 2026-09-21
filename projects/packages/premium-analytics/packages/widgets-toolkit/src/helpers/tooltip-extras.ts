@@ -66,8 +66,8 @@ export function appendTooltipExtras< T extends TooltipData >(
 }
 
 /**
- * The names the tooltip leads each row with: the drawn series' own, plus each
- * extra the chart did not already name, named after itself.
+ * The metric name for each tooltip row: the drawn series' own, plus each extra
+ * the chart did not already name, named after itself.
  *
  * @param seriesNames - The drawn series' names, keyed by series label.
  * @param extras      - The series to read out without drawing.
