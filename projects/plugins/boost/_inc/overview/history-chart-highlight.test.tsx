@@ -14,6 +14,8 @@ jest.mock( '@automattic/charts', () => ( {
 				onClick={ () =>
 					onBandHighlightChange?.( {
 						datum: data[ 0 ].data[ 0 ],
+						key: data[ 0 ].label,
+						index: 0,
 						x: 20,
 						y: 0,
 						width: 10,
