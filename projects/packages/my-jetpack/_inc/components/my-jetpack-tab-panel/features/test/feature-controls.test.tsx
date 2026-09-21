@@ -42,6 +42,12 @@ const buildState = ( control: FeatureState[ 'control' ], overrides = {} ): Featu
 	( { feature: buildFeature(), status: 'inactive', control, ...overrides } ) as FeatureState;
 
 const $module = { module: 'stats', available: true, activated: true } as MyJetpackModule;
+const forcedModule = {
+	module: 'activity-log',
+	available: true,
+	activated: true,
+	override: 'active',
+} as MyJetpackModule;
 
 beforeEach( () => {
 	mockRun.mockClear();
@@ -127,6 +133,15 @@ describe( 'FeatureAction', () => {
 		expect( countControls() ).toBe( 0 );
 	} );
 
+	it( 'shows a note instead of a switch for a module a host forced on', () => {
+		render( <FeatureAction state={ buildState( { kind: 'module', module: forcedModule } ) } /> );
+
+		expect(
+			screen.getByText( 'Turned on by your host or site administrator' )
+		).toBeInTheDocument();
+		expect( countControls() ).toBe( 0 );
+	} );
+
 	it( 'renders nothing when this site cannot switch the feature', () => {
 		const { container } = render( <FeatureAction state={ buildState( { kind: 'none' } ) } /> );
 
@@ -177,5 +192,18 @@ describe( 'FeatureModalActions', () => {
 
 		expect( screen.queryByRole( 'link', { name: 'Open' } ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Deactivate Boost' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows a note instead of Activate or Deactivate for a module a host forced on', () => {
+		render(
+			<FeatureModalActions
+				state={ buildState( { kind: 'module', module: forcedModule }, { status: 'active' } ) }
+			/>
+		);
+
+		expect(
+			screen.getByText( 'Turned on by your host or site administrator' )
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
 } );

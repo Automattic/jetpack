@@ -621,8 +621,15 @@ class Main_Features {
 	 */
 	public static function get_features() {
 		$features = array();
+		$hidden   = Feature_Visibility::get_hidden();
 
 		foreach ( self::get_feature_definitions() as $slug => $definition ) {
+			// A host can name the feature by its own slug or by its product's or module's.
+			$names = array_filter( array( $slug, $definition['product'] ?? '', $definition['module'] ?? '' ) );
+			if ( array_intersect( $names, $hidden ) ) {
+				continue;
+			}
+
 			$delivery      = $definition['delivery'] ?? array();
 			$plugin        = $delivery['plugin'] ?? '';
 			$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;

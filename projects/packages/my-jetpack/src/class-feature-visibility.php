@@ -26,9 +26,9 @@ class Feature_Visibility {
 		/**
 		 * Filters which items appear on the My Jetpack Features page.
 		 *
-		 * Keys are product card or module slugs. 'hidden' keeps the item off the page, including
-		 * its search results; 'default', or leaving the item out, lists it as usual. The whole
-		 * map is passed so that two mu-plugins setting different keys merge rather than clobber.
+		 * Keys are product or module slugs, and a Features grid entry also answers to its own
+		 * slug. 'hidden' keeps the item off the page, search included; anything else lists it.
+		 * The whole map is passed so that two mu-plugins setting different keys merge.
 		 *
 		 * @since $$next-version$$
 		 *

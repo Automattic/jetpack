@@ -371,4 +371,24 @@ class Main_Features_Test extends TestCase {
 	public function test_a_missing_plugin_reads_as_not_installed() {
 		$this->assertSame( Main_Features::PLUGIN_NOT_INSTALLED, Main_Features::get_plugin_status( 'zero-bs-crm' ) );
 	}
+
+	/**
+	 * A feature a host hid is left out, by its own slug or by its module's.
+	 */
+	public function test_features_a_host_hid_are_left_out() {
+		$hide = function ( $states ) {
+			$states['search']        = 'hidden';
+			$states['subscriptions'] = 'hidden';
+			return $states;
+		};
+		add_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+
+		$slugs = array_column( Main_Features::get_features(), 'slug' );
+
+		remove_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+
+		$this->assertNotContains( 'search', $slugs );
+		$this->assertNotContains( 'newsletter', $slugs );
+		$this->assertContains( 'stats', $slugs );
+	}
 }

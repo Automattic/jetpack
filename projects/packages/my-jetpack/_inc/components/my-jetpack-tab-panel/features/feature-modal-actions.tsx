@@ -1,7 +1,8 @@
 import { __ } from '@wordpress/i18n';
-import { Button, LinkButton } from '@wordpress/ui';
+import { Badge, Button, LinkButton } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { useModuleActivation } from '../../module-toggle';
+import { getModuleStatus } from '../../modules-list/utils';
 import { getSwitchLabel } from '../utils';
 import { InstallButton, JetpackButton } from './feature-action';
 import { useFeaturePlugin } from './use-main-features';
@@ -118,7 +119,11 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 				</LinkButton>
 			) : null }
 
-			{ control.kind === 'module' ? (
+			{ control.kind === 'module' && control.module.override ? (
+				<Badge intent="medium">{ getModuleStatus( control.module ).reason }</Badge>
+			) : null }
+
+			{ control.kind === 'module' && ! control.module.override ? (
 				<ModuleSwitch module={ control.module } name={ feature.name } />
 			) : null }
 

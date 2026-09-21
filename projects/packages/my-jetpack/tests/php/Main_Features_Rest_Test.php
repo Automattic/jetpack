@@ -120,6 +120,26 @@ class Main_Features_Rest_Test extends TestCase {
 	}
 
 	/**
+	 * The grid refreshes from this route, so a hidden feature must stay out of it too.
+	 */
+	public function test_the_features_route_leaves_out_what_a_host_hid() {
+		$hide = function ( $states ) {
+			$states['search'] = 'hidden';
+			return $states;
+		};
+		add_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/wpcom/v2/my-jetpack/site/features' ) );
+
+		remove_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+
+		$this->assertSame( 200, $response->get_status() );
+		$slugs = array_column( $response->get_data()['features'], 'slug' );
+		$this->assertNotContains( 'search', $slugs );
+		$this->assertContains( 'boost', $slugs );
+	}
+
+	/**
 	 * The boost feature's plugin status in a response.
 	 *
 	 * @param \WP_REST_Response $response The response.
