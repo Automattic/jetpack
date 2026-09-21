@@ -988,13 +988,27 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		// Nothing to compare against.
 		$this->assertSame( 0, Marketplace_Catalog::yearly_saving( array( 'yearly' => array( 'cost' => 132.0 ) ) ) );
 
-		// A year that costs more than twelve months is not a saving.
+		// A year that costs more than twelve months is not a saving. This is Nelio:
+		// $2,748 a year against $99 a month.
 		$this->assertSame(
 			0,
 			Marketplace_Catalog::yearly_saving(
 				array(
-					'yearly'  => array( 'cost' => 200.0 ),
-					'monthly' => array( 'cost' => 10.0 ),
+					'yearly'  => array( 'cost' => 2748.0 ),
+					'monthly' => array( 'cost' => 99.0 ),
+				)
+			)
+		);
+
+		// And a gap too large to be two billing terms of one product is refused
+		// rather than stated. This is MailPoet: $312 a year against $140 a month,
+		// which the arithmetic calls 81% off.
+		$this->assertSame(
+			0,
+			Marketplace_Catalog::yearly_saving(
+				array(
+					'yearly'  => array( 'cost' => 312.0 ),
+					'monthly' => array( 'cost' => 140.0 ),
 				)
 			)
 		);
@@ -1081,6 +1095,84 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertSame( '', $only_plugins['wpcom_category'] );
+	}
+
+	/**
+	 * A referral card, as the store shapes one: variations priced like anything else,
+	 * with the product type as the only thing saying it is not ours to sell.
+	 *
+	 * @return array
+	 */
+	private function referral_card() {
+		$card = $this->priced_card();
+
+		$card['wpcom_pricing']['yearly']['type']  = 'saas_plugin';
+		$card['wpcom_pricing']['monthly']['type'] = 'saas_plugin';
+		$card['wpcom_referral_url']               = 'https://example.com/vendor-pricing';
+
+		return $card;
+	}
+
+	/**
+	 * The product type is what marks a referral. Nothing about the shape of the
+	 * payload does: it carries variations and prices like any other product.
+	 */
+	public function test_a_saas_product_type_marks_a_referral() {
+		$this->assertTrue( Marketplace_Catalog::is_referral( $this->referral_card() ) );
+		$this->assertFalse( Marketplace_Catalog::is_referral( $this->priced_card() ) );
+		$this->assertFalse( Marketplace_Catalog::is_referral( Marketplace_Catalog::to_card( self::PRODUCT ) ) );
+	}
+
+	/**
+	 * A referral is bought from the vendor on the vendor's terms, so the figures the
+	 * store holds are not what this reader would pay. Saying nothing beats saying
+	 * something wrong, and Nelio's $2,748 is what saying something wrong looked like.
+	 */
+	public function test_a_referral_shows_no_price() {
+		ob_start();
+		wpcom_marketplace_render_price( $this->referral_card() );
+
+		$this->assertSame( '', ob_get_clean() );
+	}
+
+	/**
+	 * Checkout cannot complete a referral, so the action goes to the vendor instead.
+	 */
+	public function test_a_referral_links_to_the_vendor_not_checkout() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		$button = wpcom_marketplace_card_button( $this->referral_card() );
+
+		$this->assertStringContainsString( 'https://example.com/vendor-pricing', $button );
+		$this->assertStringContainsString( 'Get started', $button );
+		$this->assertStringNotContainsString( 'wordpress.com/checkout', $button );
+		$this->assertStringNotContainsString( 'Purchase', $button );
+	}
+
+	/**
+	 * With nowhere to send someone, no action is better than one that goes nowhere.
+	 */
+	public function test_a_referral_without_a_vendor_url_renders_no_action() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		$card                       = $this->referral_card();
+		$card['wpcom_referral_url'] = '';
+
+		$this->assertSame( '', wpcom_marketplace_card_button( $card ) );
+	}
+
+	/**
+	 * The referral URL comes through from the endpoint's own field.
+	 */
+	public function test_the_referral_url_is_read_from_the_payload() {
+		$card = Marketplace_Catalog::to_card(
+			array_merge( self::PRODUCT, array( 'saas_landing_page' => 'https://example.com/vendor' ) )
+		);
+
+		$this->assertSame( 'https://example.com/vendor', $card['wpcom_referral_url'] );
+		$this->assertSame( '', Marketplace_Catalog::to_card( self::PRODUCT )['wpcom_referral_url'] );
 	}
 
 	/**

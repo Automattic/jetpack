@@ -261,6 +261,16 @@ function wpcom_marketplace_render_card( array $card ) {
  * @return void
  */
 function wpcom_marketplace_render_price( array $card ) {
+	/*
+	 * A referral is bought from the vendor, on whatever terms the vendor sets, so the
+	 * figures the store holds for it are not what this reader would pay. Saying
+	 * nothing is the honest option, and it matches Calypso, which shows no price for
+	 * these either.
+	 */
+	if ( Marketplace_Catalog::is_referral( $card ) ) {
+		return;
+	}
+
 	$pricing = $card['wpcom_pricing'] ?? array();
 	$yearly  = (string) ( $pricing[ WPCOM_MARKETPLACE_TERM ]['price'] ?? '' );
 	$monthly = (string) ( $pricing['monthly']['price'] ?? '' );
@@ -324,6 +334,26 @@ function wpcom_marketplace_card_button( array $card ) {
 		return function_exists( 'wp_get_plugin_action_button' )
 			? wp_get_plugin_action_button( $name, $card, true, true )
 			: '';
+	}
+
+	/*
+	 * Checkout cannot complete a referral: the subscription is the vendor's to sell.
+	 * Sending someone there would take payment for the wrong thing.
+	 */
+	if ( Marketplace_Catalog::is_referral( $card ) ) {
+		$referral = (string) ( $card['wpcom_referral_url'] ?? '' );
+
+		if ( '' === $referral ) {
+			return '';
+		}
+
+		return sprintf(
+			'<a class="button" href="%s" target="_blank" rel="noopener noreferrer" aria-label="%s">%s</a>',
+			esc_url( $referral ),
+			/* translators: %s: Plugin name. */
+			esc_attr( sprintf( __( 'Get started with %s on the vendor site', 'jetpack-mu-wpcom' ), $name ) ),
+			esc_html__( 'Get started', 'jetpack-mu-wpcom' )
+		);
 	}
 
 	$checkout = Marketplace_Catalog::checkout_url( $card, WPCOM_MARKETPLACE_TERM, wpcom_marketplace_tab_url() );
