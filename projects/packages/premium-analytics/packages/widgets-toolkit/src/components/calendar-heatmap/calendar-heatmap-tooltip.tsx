@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Icon, type HeatmapTooltipData } from '@jetpack-premium-analytics/externals';
+import { Icon, Stack, type HeatmapTooltipData } from '@jetpack-premium-analytics/externals';
 import { _x, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -52,12 +52,12 @@ export function CalendarHeatmapTooltip( {
 	}
 
 	return (
-		<div className={ styles.tooltip }>
+		<Stack direction="column" gap="sm" className={ styles.tooltip }>
 			<strong>{ cellLabel }</strong>
-			<span className={ styles.count }>
+			<Stack direction="row" align="center" gap="sm">
 				{ icon && <Icon icon={ icon } size={ 20 } className={ styles.icon } /> }
 				{ count }
-			</span>
-		</div>
+			</Stack>
+		</Stack>
 	);
 }
