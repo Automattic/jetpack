@@ -228,6 +228,38 @@ describe( 'ModuleToggle', () => {
 		expect( mockToggleModule ).toHaveBeenLastCalledWith( { name: 'sitemaps', active: false } );
 	} );
 
+	it( 'shows the value the click asked for while the request is still in flight', async () => {
+		let release: ( value: boolean ) => void = () => undefined;
+		mockToggleModule.mockImplementationOnce(
+			() => new Promise( resolve => ( release = resolve ) )
+		);
+
+		render( <ModuleToggle module={ buildModule( { module: 'podcast', name: 'Podcast' } ) } /> );
+
+		const toggle = screen.getByRole( 'checkbox' );
+		expect( toggle ).toBeChecked();
+
+		await userEvent.click( toggle );
+
+		// The store still holds the old value; the switch shows the asked-for one.
+		await waitFor( () => expect( toggle ).not.toBeChecked() );
+
+		release( true );
+		await waitFor( () => expect( mockToggleModule ).toHaveBeenCalledTimes( 1 ) );
+	} );
+
+	it( 'goes back to the stored value when the request fails', async () => {
+		mockToggleModule.mockResolvedValueOnce( false );
+
+		render( <ModuleToggle module={ buildModule( { module: 'podcast', name: 'Podcast' } ) } /> );
+
+		const toggle = screen.getByRole( 'checkbox' );
+		await userEvent.click( toggle );
+
+		// The store never changed, so dropping the asked-for value restores the old one.
+		await waitFor( () => expect( toggle ).toBeChecked() );
+	} );
+
 	it( 'disables a switch whose request is still waiting its turn', async () => {
 		let release: ( value: boolean ) => void = () => undefined;
 		mockToggleModule.mockImplementationOnce(

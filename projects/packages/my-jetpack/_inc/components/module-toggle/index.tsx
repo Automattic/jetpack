@@ -36,7 +36,7 @@ const MODULES_REQUIRING_RELOAD = [ 'activity-log', 'podcast', 'subscriptions', '
  * @param options        - Hook options.
  * @param options.reload - False skips the sidebar reload, for surfaces where several
  *                       switches are flipped in a row.
- * @return The handler and whether a mutation is in flight.
+ * @return The handler, whether a mutation is in flight, and the value to show meanwhile.
  */
 export function useModuleActivation(
 	$module: MyJetpackModule,
@@ -56,6 +56,12 @@ export function useModuleActivation(
 	// and stays clickable, which is how a second, contradicting request gets sent.
 	const [ isQueued, setIsQueued ] = useState( false );
 	const isUpdating = isQueued || storeIsUpdating;
+
+	// The store only learns the new value once the request comes back, so the switch
+	// takes the value the click asked for and holds it until then. Cleared either way:
+	// on success the store now agrees, and on failure it still holds the old value.
+	const [ requested, setRequested ] = useState< boolean | null >( null );
+	const isActive = requested ?? $module.activated;
 
 	const showToggleNotice = useCallback(
 		async ( {
@@ -109,6 +115,7 @@ export function useModuleActivation(
 			}
 
 			setIsQueued( true );
+			setRequested( active );
 
 			let success;
 			try {
@@ -120,6 +127,7 @@ export function useModuleActivation(
 				);
 			} finally {
 				setIsQueued( false );
+				setRequested( null );
 			}
 
 			if ( success && reload && MODULES_REQUIRING_RELOAD.includes( $module.module ) ) {
@@ -144,7 +152,7 @@ export function useModuleActivation(
 		[ toggleModule, $module, showToggleNotice, trackProductAction, reload ]
 	);
 
-	return { setModuleActive, isUpdating };
+	return { setModuleActive, isUpdating, isActive };
 }
 
 /**
@@ -159,7 +167,7 @@ export function ModuleToggle( {
 	describedby,
 	reloadAfterToggle = true,
 }: ModuleToggleProps ) {
-	const { setModuleActive, isUpdating } = useModuleActivation( $module, {
+	const { setModuleActive, isUpdating, isActive } = useModuleActivation( $module, {
 		reload: reloadAfterToggle,
 	} );
 	const blockThemeMigration = getBlockThemeMigration( $module );
@@ -171,7 +179,7 @@ export function ModuleToggle( {
 	const deactivateModule = useCallback( () => setModuleActive( false ), [ setModuleActive ] );
 
 	if ( blockThemeMigration ) {
-		if ( $module.activated ) {
+		if ( isActive ) {
 			return (
 				<SecondaryButton
 					label={ blockThemeMigration.switchLabel }
@@ -193,7 +201,7 @@ export function ModuleToggle( {
 	return (
 		<FormToggle
 			disabled={ isUpdating || !! $module.override }
-			checked={ $module.activated }
+			checked={ isActive }
 			onChange={ onChange }
 			aria-label={ sprintf(
 				/* translators: %s is the module name */

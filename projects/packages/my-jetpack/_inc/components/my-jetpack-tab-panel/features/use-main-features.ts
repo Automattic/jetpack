@@ -41,7 +41,7 @@ export type PluginAction = 'install' | 'activate' | 'deactivate';
 export function useMainFeatures(): MainFeaturesState {
 	const { data } = useQuery( {
 		queryKey: QUERY_KEY,
-		queryFn: () => apiFetch< MainFeaturesState >( { path: '/my-jetpack/v1/site/features' } ),
+		queryFn: () => apiFetch< MainFeaturesState >( { path: '/wpcom/v2/my-jetpack/site/features' } ),
 		// The page's own copy renders the grid immediately; it is never cached, so a remount
 		// reads the site again rather than restoring a snapshot the site has moved past.
 		placeholderData: initialState,
@@ -66,10 +66,29 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 	const mutationKey = [ 'my-jetpack-feature-plugin', plugin ];
 	const { mutate } = useMutation( {
 		mutationKey,
+		// Show the answer the click asked for straight away. The request still decides:
+		// onSuccess replaces this with the server's state, onError puts back what was here.
+		onMutate: async ( action: PluginAction ) => {
+			await queryClient.cancelQueries( { queryKey: QUERY_KEY } );
+
+			const previous = queryClient.getQueryData< MainFeaturesState >( QUERY_KEY );
+			const status: MainFeaturePluginStatus = action === 'deactivate' ? 'inactive' : 'active';
+
+			if ( previous ) {
+				queryClient.setQueryData< MainFeaturesState >( QUERY_KEY, {
+					...previous,
+					features: previous.features.map( feature =>
+						feature.plugin === plugin ? { ...feature, plugin_status: status } : feature
+					),
+				} );
+			}
+
+			return { previous };
+		},
 		mutationFn: ( action: PluginAction ) =>
 			queueActivationRequest( () =>
 				apiFetch< MainFeaturesState >( {
-					path: '/my-jetpack/v1/site/features/plugin',
+					path: '/wpcom/v2/my-jetpack/site/features/plugin',
 					method: 'POST',
 					data: { plugin, action },
 				} )
@@ -103,9 +122,14 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 
 			createSuccessNotice( message );
 		},
-		onError: () => {
-			// The plugin may well have been switched before whatever failed, so read the
-			// site again rather than leaving the grid offering an action already taken.
+		onError: ( _error, _action, context ) => {
+			// Put back what the optimistic write replaced, then read the site: the plugin
+			// may well have been switched before whatever failed, so neither the old value
+			// nor the asked-for one is certain.
+			if ( context?.previous ) {
+				queryClient.setQueryData( QUERY_KEY, context.previous );
+			}
+
 			queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
 			invalidateResolution( 'getJetpackModules', [] );
 

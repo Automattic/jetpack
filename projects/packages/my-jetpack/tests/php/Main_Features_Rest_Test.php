@@ -14,7 +14,7 @@ class Main_Features_Rest_Test extends TestCase {
 
 	const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . Initializer::FEATURES_TAB_FEATURE_FLAG;
 
-	const ROUTE = '/my-jetpack/v1/site/features/plugin';
+	const ROUTE = '/wpcom/v2/my-jetpack/site/features/plugin';
 
 	/**
 	 * A standalone plugin on disk, in the folder the feature map names.

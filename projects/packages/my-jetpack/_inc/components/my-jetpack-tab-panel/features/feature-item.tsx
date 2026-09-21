@@ -7,6 +7,7 @@ import { getActivationStatusLabel } from '../utils';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
 import styles from './styles.module.scss';
+import { useFeatureBusy } from './use-feature-busy';
 import type { FeatureState } from './feature-state';
 
 type FeatureItemProps = {
@@ -31,6 +32,9 @@ export function FeatureItem( { state, onOpen }: FeatureItemProps ) {
 	const chevron = isRTL() ? chevronLeft : chevronRight;
 	const onClick = useCallback( () => onOpen( feature.slug ), [ feature.slug, onOpen ] );
 	const statusId = `feature-status-${ feature.slug }`;
+	// Mid-switch the badge would be asserting a state the request has not confirmed.
+	const isBusy = useFeatureBusy( state );
+	const isSettling = Boolean( state.pending ) || isBusy;
 
 	return (
 		<div className={ styles[ 'feature-item' ] } data-feature={ feature.slug }>
@@ -61,7 +65,7 @@ export function FeatureItem( { state, onOpen }: FeatureItemProps ) {
 						{ feature.name }
 					</Text>
 
-					{ state.pending ? (
+					{ isSettling ? (
 						<LoadingPlaceholder
 							width={ 58 }
 							height={ 20 }

@@ -18,14 +18,22 @@ use WP_REST_Server;
 class REST_Main_Features {
 
 	/**
+	 * The namespace these routes live in.
+	 *
+	 * `wpcom/v2` rather than `my-jetpack/v1`, which WordPress.com Simple does not serve —
+	 * and the Features tab runs there too.
+	 */
+	const ROUTE_NAMESPACE = 'wpcom/v2';
+
+	/**
 	 * Register the route.
 	 *
 	 * @return void
 	 */
 	public function register_rest_routes() {
 		register_rest_route(
-			'my-jetpack/v1',
-			'site/features',
+			self::ROUTE_NAMESPACE,
+			'my-jetpack/site/features',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_state',
@@ -34,8 +42,8 @@ class REST_Main_Features {
 		);
 
 		register_rest_route(
-			'my-jetpack/v1',
-			'site/features/plugin',
+			self::ROUTE_NAMESPACE,
+			'my-jetpack/site/features/plugin',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => __CLASS__ . '::switch_plugin',
