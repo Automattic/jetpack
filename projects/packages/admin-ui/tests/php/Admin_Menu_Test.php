@@ -87,8 +87,12 @@ class Admin_Menu_Test extends TestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		global $submenu;
-		$submenu = array();
+		// A leftover top-level `jetpack` makes core add a second parent copy to the submenu.
+		global $menu, $submenu, $_parent_pages, $_registered_pages;
+		$menu              = array();
+		$submenu           = array();
+		$_parent_pages     = array();
+		$_registered_pages = array();
 		delete_option( 'jetpack_active_plan' );
 		delete_option( 'jetpack_site_products' );
 		update_option( 'jetpack_options', array( 'id' => 123456 ) );
@@ -100,6 +104,7 @@ class Admin_Menu_Test extends TestCase {
 		Admin_Menu::set_connection_manager( $connection );
 		Admin_Menu::set_visibility_resolver( null );
 		remove_all_filters( 'jetpack_admin_menu_visibility' );
+		Admin_Menu::reset();
 		remove_all_filters( 'jetpack_offline_mode' );
 		if ( class_exists( '\Automattic\Jetpack\Status\Cache' ) ) {
 			\Automattic\Jetpack\Status\Cache::clear();
@@ -110,26 +115,8 @@ class Admin_Menu_Test extends TestCase {
 		wp_deregister_script( 'jetpack-admin-ui-upgrade-menu' );
 		wp_dequeue_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
 		wp_deregister_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
-
-		$reflection = new \ReflectionClass( Admin_Menu::class );
-
-		if ( $reflection->hasProperty( 'menu_items' ) ) {
-			$menu_items = $reflection->getProperty( 'menu_items' );
-			// @todo Remove this call once we no longer need to support PHP <8.1.
-			if ( PHP_VERSION_ID < 80100 ) {
-				$menu_items->setAccessible( true );
-			}
-			$menu_items->setValue( null, array() );
-		}
-
-		if ( $reflection->hasProperty( 'initialized' ) ) {
-			$initialized = $reflection->getProperty( 'initialized' );
-			// @todo Remove this call once we no longer need to support PHP <8.1.
-			if ( PHP_VERSION_ID < 80100 ) {
-				$initialized->setAccessible( true );
-			}
-			$initialized->setValue( null, false );
-		}
+		wp_dequeue_style( Admin_Menu::DESIGN_TOKENS_HANDLE );
+		wp_deregister_style( Admin_Menu::DESIGN_TOKENS_HANDLE );
 	}
 
 	/**
@@ -318,7 +305,7 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Tests that the first registered menu item is returned correctly.
+	 * The item claiming POSITION_FIRST becomes the top level Jetpack link.
 	 *
 	 * @return void
 	 */
@@ -326,11 +313,9 @@ class Admin_Menu_Test extends TestCase {
 		wp_set_current_user( self::$admin_user_id );
 
 		Admin_Menu::init();
-		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_1', '__return_null', 3 );
-		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_2', '__return_null', 1 );
-		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_3', '__return_null', 4 );
-		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_4', '__return_null', 5 );
-		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_5', '__return_null', 6 );
+		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_1', '__return_null' );
+		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_2', '__return_null', Admin_Menu::POSITION_FIRST );
+		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_3', '__return_null' );
 
 		do_action( 'admin_menu' );
 
@@ -359,8 +344,8 @@ class Admin_Menu_Test extends TestCase {
 		);
 
 		Admin_Menu::init();
-		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'first-hidden', '__return_null', 1 );
-		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'second-shown', '__return_null', 2 );
+		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'first-hidden', '__return_null', Admin_Menu::POSITION_FIRST );
+		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'second-shown', '__return_null' );
 
 		do_action( 'admin_menu' );
 
@@ -386,8 +371,8 @@ class Admin_Menu_Test extends TestCase {
 		);
 
 		Admin_Menu::init();
-		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'all-hidden-a', '__return_null', 1 );
-		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'all-hidden-b', '__return_null', 2 );
+		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'all-hidden-a', '__return_null' );
+		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'all-hidden-b', '__return_null' );
 
 		do_action( 'admin_menu' );
 
@@ -1231,6 +1216,329 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
+	 * A top-level item registers at the sidebar's top level, not under Jetpack.
+	 */
+	public function test_add_top_level_menu_registers_a_top_level_page() {
+		wp_set_current_user( self::$admin_user_id );
+
+		Admin_Menu::add_top_level_menu( 'Top', 'Top', 'manage_options', 'top-plain', '__return_null', 'dashicons-chart-bar', 2 );
+
+		$this->render_menu();
+
+		$this->assertContains( 'top-plain', $this->get_top_level_slugs() );
+		$this->assertNotContains( 'top-plain', $this->get_submenu_slugs() );
+	}
+
+	/**
+	 * The returned hook suffix matches the one core derives for a top-level page.
+	 *
+	 * @param string $menu_slug The slug of the menu being added.
+	 *
+	 * @dataProvider top_level_suffix_data
+	 */
+	#[DataProvider( 'top_level_suffix_data' )]
+	public function test_add_top_level_menu_returns_the_core_hook_suffix( $menu_slug ) {
+		wp_set_current_user( self::$admin_user_id );
+
+		$our_suffix = Admin_Menu::add_top_level_menu( 'Top', 'Top', 'manage_options', $menu_slug, '__return_null' );
+		$wp_suffix  = add_menu_page( 'Top', 'Top', 'manage_options', $menu_slug, '__return_null' );
+
+		$this->assertSame( $wp_suffix, $our_suffix );
+	}
+
+	/**
+	 * Slugs for test_add_top_level_menu_returns_the_core_hook_suffix.
+	 *
+	 * Core strips ".php" anywhere in the slug, not only at the end.
+	 *
+	 * @return array
+	 */
+	public static function top_level_suffix_data() {
+		return array(
+			'plain'         => array( 'top-hook' ),
+			'php extension' => array( 'top-hook.php' ),
+			'php mid-slug'  => array( 'top.phpish' ),
+		);
+	}
+
+	/**
+	 * A declared gate the resolver reports as satisfied keeps the top-level item.
+	 */
+	public function test_satisfied_gate_keeps_the_top_level_item() {
+		wp_set_current_user( self::$admin_user_id );
+		Admin_Menu::set_visibility_resolver( '__return_true' );
+
+		Admin_Menu::add_top_level_menu( 'Gated', 'Gated', 'manage_options', 'top-gate-on', '__return_null', '', null, array( 'product' => 'stats' ) );
+
+		$this->render_menu();
+
+		$this->assertContains( 'top-gate-on', $this->get_top_level_slugs() );
+	}
+
+	/**
+	 * A declared gate the resolver reports as unsatisfied removes the top-level item.
+	 */
+	public function test_unsatisfied_gate_removes_the_top_level_item() {
+		wp_set_current_user( self::$admin_user_id );
+		Admin_Menu::set_visibility_resolver( '__return_false' );
+
+		Admin_Menu::add_top_level_menu( 'Gated', 'Gated', 'manage_options', 'top-gate-off', '__return_null', '', null, array( 'product' => 'stats' ) );
+
+		$this->render_menu();
+
+		$this->assertNotContains( 'top-gate-off', $this->get_top_level_slugs() );
+	}
+
+	/**
+	 * A hidden top-level item leaves the sidebar but keeps its page loadable.
+	 */
+	public function test_hidden_top_level_item_keeps_its_page_reachable() {
+		global $_registered_pages, $pagenow, $plugin_page;
+
+		wp_set_current_user( self::$admin_user_id );
+		$_registered_pages = array();
+		Admin_Menu::set_visibility_resolver( '__return_false' );
+
+		Admin_Menu::add_top_level_menu( 'Hidden', 'Hidden', 'manage_options', 'top-reachable', '__return_null', '', null, array( 'product' => 'stats' ) );
+
+		do_action( 'admin_menu' );
+
+		$pagenow     = 'admin.php'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$plugin_page = 'top-reachable'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$this->assertArrayHasKey( 'toplevel_page_top-reachable', $_registered_pages );
+		$this->assertTrue( user_can_access_admin_page() );
+
+		ob_start();
+		do_action( 'admin_head' );
+		ob_end_clean();
+
+		$this->assertNotContains( 'top-reachable', $this->get_top_level_slugs() );
+
+		$pagenow     = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$plugin_page = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+	}
+
+	/**
+	 * A host can hide a top-level item that declares no gate.
+	 */
+	public function test_host_can_hide_a_top_level_item() {
+		wp_set_current_user( self::$admin_user_id );
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) {
+				$states['top-host-hidden'] = Admin_Menu::VISIBILITY_HIDDEN;
+				return $states;
+			}
+		);
+
+		Admin_Menu::add_top_level_menu( 'Host', 'Host', 'manage_options', 'top-host-hidden', '__return_null' );
+
+		$this->render_menu();
+
+		$this->assertNotContains( 'top-host-hidden', $this->get_top_level_slugs() );
+	}
+
+	/**
+	 * A host can force a top-level item in despite an unsatisfied gate.
+	 */
+	public function test_host_can_force_an_inactive_top_level_item_visible() {
+		wp_set_current_user( self::$admin_user_id );
+		Admin_Menu::set_visibility_resolver( '__return_false' );
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) {
+				$states['top-host-forced'] = Admin_Menu::VISIBILITY_VISIBLE;
+				return $states;
+			}
+		);
+
+		Admin_Menu::add_top_level_menu( 'Forced', 'Forced', 'manage_options', 'top-host-forced', '__return_null', '', null, array( 'product' => 'stats' ) );
+
+		$this->render_menu();
+
+		$this->assertContains( 'top-host-forced', $this->get_top_level_slugs() );
+	}
+
+	/**
+	 * Top-level items reach the filter alongside the submenu ones.
+	 */
+	public function test_filter_receives_top_level_items() {
+		wp_set_current_user( self::$admin_user_id );
+		$seen = array();
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) use ( &$seen ) {
+				$seen = $states;
+				return $states;
+			}
+		);
+
+		Admin_Menu::add_top_level_menu( 'Top', 'Top', 'manage_options', 'top-in-filter', '__return_null', '', null, array( 'key' => 'top-key' ) );
+		Admin_Menu::add_menu( 'Sub', 'Sub', 'manage_options', 'sub-in-filter', '__return_null' );
+
+		$this->render_menu();
+
+		$this->assertArrayHasKey( 'top-key', $seen );
+		$this->assertArrayHasKey( 'sub-in-filter', $seen );
+	}
+
+	/**
+	 * A top-level item is not under Jetpack, so it cannot keep an otherwise empty Jetpack menu alive.
+	 */
+	public function test_a_top_level_item_does_not_keep_the_jetpack_menu_alive() {
+		if ( class_exists( 'Jetpack_React_Page' ) ) {
+			$this->markTestSkipped( 'Top level menu belongs to the Jetpack plugin when it is present.' );
+		}
+
+		wp_set_current_user( self::$admin_user_id );
+
+		Admin_Menu::add_top_level_menu( 'Alone', 'Alone', 'manage_options', 'top-alone', '__return_null' );
+
+		$this->render_menu();
+
+		$slugs = $this->get_top_level_slugs();
+		$this->assertContains( 'top-alone', $slugs, 'The top-level item itself should still register.' );
+		$this->assertNotContains( 'jetpack', $slugs );
+	}
+
+	/**
+	 * A top-level item is not offered to a user without the capability.
+	 */
+	public function test_top_level_item_respects_capability() {
+		Admin_Menu::add_top_level_menu( 'Caps', 'Caps', 'manage_options', 'top-caps', '__return_null' );
+
+		wp_set_current_user( self::$editor_user_id );
+		$this->render_menu();
+
+		$this->assertNotContains( 'top-caps', $this->get_top_level_slugs() );
+	}
+
+	/**
+	 * Registering a top-level item does not opt its page into the core-notice CSS.
+	 *
+	 * The page owner decides that, via the public hide_core_admin_notices() API.
+	 */
+	public function test_add_top_level_menu_does_not_hide_core_admin_notices() {
+		wp_set_current_user( self::$admin_user_id );
+
+		Admin_Menu::add_top_level_menu( 'Quiet', 'Quiet', 'manage_options', 'top-notices', '__return_null' );
+
+		$this->assertFalse( has_action( 'load-toplevel_page_top-notices', array( Admin_Menu::class, 'hide_core_admin_notices' ) ) );
+	}
+
+	/**
+	 * Registering a top-level item does not opt its page into the design tokens.
+	 */
+	public function test_add_top_level_menu_does_not_enqueue_design_tokens() {
+		wp_set_current_user( self::$admin_user_id );
+
+		Admin_Menu::add_top_level_menu( 'Tokens', 'Tokens', 'manage_options', 'top-tokens', '__return_null' );
+		Admin_Menu::maybe_enqueue_design_tokens( 'toplevel_page_top-tokens' );
+
+		$this->assertFalse( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
+	}
+
+	/**
+	 * Without the Jetpack plugin, a top-level item must not register the Jetpack menu's page.
+	 *
+	 * Removing an entry only drops it from $menu, so a registered page stays loadable as a blank screen.
+	 */
+	public function test_a_top_level_item_alone_registers_no_jetpack_page() {
+		global $_registered_pages;
+
+		if ( class_exists( 'Jetpack_React_Page' ) ) {
+			$this->markTestSkipped( 'Top level menu belongs to the Jetpack plugin when it is present.' );
+		}
+
+		wp_set_current_user( self::$admin_user_id );
+		$_registered_pages = array();
+
+		Admin_Menu::add_top_level_menu( 'Alone', 'Alone', 'manage_options', 'top-alone-page', '__return_null' );
+
+		$this->render_menu();
+
+		$this->assertArrayHasKey( 'toplevel_page_top-alone-page', $_registered_pages, 'The item itself should register.' );
+		$this->assertArrayNotHasKey( 'toplevel_page_jetpack', $_registered_pages );
+	}
+
+	/**
+	 * A top-level item alone does not start the Jetpack menu, which also moves Akismet and adds upsell assets.
+	 */
+	public function test_a_top_level_item_alone_does_not_start_the_jetpack_menu() {
+		Admin_Menu::add_top_level_menu( 'Alone', 'Alone', 'manage_options', 'top-alone-hooks', '__return_null' );
+
+		$this->assertFalse( has_action( 'admin_menu', array( Admin_Menu::class, 'admin_menu_hook_callback' ) ) );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', array( Admin_Menu::class, 'add_upgrade_menu_item_styles' ) ) );
+	}
+
+	/**
+	 * Forcing a top-level item visible does not hand it to a user who lacks the capability.
+	 */
+	public function test_forced_visible_top_level_item_still_respects_capability() {
+		global $_registered_pages;
+
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) {
+				$states['top-forced-caps'] = Admin_Menu::VISIBILITY_VISIBLE;
+				return $states;
+			}
+		);
+		Admin_Menu::add_top_level_menu( 'Forced', 'Forced', 'manage_options', 'top-forced-caps', '__return_null' );
+
+		wp_set_current_user( self::$admin_user_id );
+		$this->render_menu();
+		$this->assertContains( 'top-forced-caps', $this->get_top_level_slugs(), 'An admin should see the forced item, or the editor case below proves nothing.' );
+
+		global $menu;
+		$menu              = array();
+		$_registered_pages = array();
+		wp_set_current_user( self::$editor_user_id );
+		$this->render_menu();
+
+		$this->assertNotContains( 'top-forced-caps', $this->get_top_level_slugs() );
+		$this->assertArrayNotHasKey( 'toplevel_page_top-forced-caps', $_registered_pages );
+	}
+
+	/**
+	 * Two top-level items asking for the same free position register in the order they were queued.
+	 */
+	public function test_top_level_items_sharing_a_position_register_in_queue_order() {
+		global $menu;
+
+		wp_set_current_user( self::$admin_user_id );
+
+		Admin_Menu::add_top_level_menu( 'Zulu', 'Zulu', 'manage_options', 'top-order-first', '__return_null', '', 71 );
+		Admin_Menu::add_top_level_menu( 'Alpha', 'Alpha', 'manage_options', 'top-order-second', '__return_null', '', 71 );
+
+		$this->render_menu();
+
+		$this->assertSame( 'top-order-first', $menu[71][2], 'The first item queued takes the position it asked for.' );
+		$positions = array_flip( array_column( $menu, 2 ) );
+		$keys      = array_keys( $menu );
+		$this->assertGreaterThan( $keys[ $positions['top-order-first'] ], $keys[ $positions['top-order-second'] ] );
+	}
+
+	/**
+	 * Reset drops every queued item and the hooks that would have registered them.
+	 */
+	public function test_reset_clears_queued_items_and_their_hooks() {
+		global $submenu;
+
+		wp_set_current_user( self::$admin_user_id );
+		Admin_Menu::add_menu( 'Sub', 'Sub', 'manage_options', 'reset-sub', '__return_null' );
+		Admin_Menu::add_top_level_menu( 'Top', 'Top', 'manage_options', 'reset-top', '__return_null' );
+
+		Admin_Menu::reset();
+		$this->render_menu();
+
+		$this->assertFalse( has_action( 'admin_menu', array( Admin_Menu::class, 'admin_menu_hook_callback' ) ) );
+		$this->assertFalse( has_action( 'admin_menu', array( Admin_Menu::class, 'top_level_menu_hook_callback' ) ) );
+		$this->assertNotContains( 'reset-top', $this->get_top_level_slugs() );
+		$this->assertNotContains( 'reset-sub', array_column( $submenu['jetpack'] ?? array(), 2 ) );
+	}
+
+	/**
 	 * Fires the two hooks between which the sidebar is built and then trimmed for rendering.
 	 *
 	 * @return void
@@ -1251,5 +1559,351 @@ class Admin_Menu_Test extends TestCase {
 		global $submenu;
 
 		return array_column( $submenu['jetpack'] ?? array(), 2 );
+	}
+
+	/**
+	 * Returns the slugs currently registered at the sidebar's top level.
+	 *
+	 * @return array
+	 */
+	private function get_top_level_slugs() {
+		global $menu;
+
+		return array_column( $menu ?? array(), 2 );
+	}
+
+	/**
+	 * Suffix production appends to menu titles that leave wp-admin.
+	 */
+	private const EXTERNAL_MARK = ' <span aria-hidden="true">↗</span>';
+
+	/**
+	 * Clears every piece of state a previous render left behind.
+	 *
+	 * Core's add_submenu_page() writes to four globals and WorDBless restores none of them, so a
+	 * second render in the same test would otherwise re-sort the first render's items with its own.
+	 */
+	private function reset_menu_state() {
+		global $menu, $submenu, $_parent_pages, $_registered_pages;
+		$menu              = array();
+		$submenu           = array();
+		$_parent_pages     = array();
+		$_registered_pages = array();
+
+		Admin_Menu::reset();
+	}
+
+	/**
+	 * Registers a set of menu items the way a request would, and reports the order they came out in.
+	 *
+	 * @param array $items    Triples of [ menu title, menu slug, position ]; omit the position to land in the alphabetical tier.
+	 * @param int   $priority Priority to register on, to prove the sort does not care.
+	 * @return array Menu titles, in the order WordPress ended up rendering them.
+	 */
+	private function render_items( array $items, $priority = 10 ) {
+		$this->reset_menu_state();
+		wp_set_current_user( self::$admin_user_id );
+
+		$register = static function () use ( $items ) {
+			foreach ( $items as $item ) {
+				Admin_Menu::add_menu( $item[0], $item[0], 'manage_options', $item[1], '__return_null', $item[2] ?? null );
+			}
+		};
+
+		// Each closure is a distinct callback, so leaving it hooked would make the next render
+		// re-register this one's items on top of its own.
+		add_action( 'admin_menu', $register, $priority );
+		do_action( 'admin_menu' );
+		remove_action( 'admin_menu', $register, $priority );
+
+		global $submenu;
+		$titles = empty( $submenu['jetpack'] ) ? array() : array_column( $submenu['jetpack'], 0 );
+
+		// The free-plan upsell is appended after the sort, so it is not part of the ordering contract.
+		return array_values(
+			array_filter(
+				$titles,
+				static function ( $title ) {
+					return 'Upgrade Jetpack' !== $title;
+				}
+			)
+		);
+	}
+
+	/**
+	 * The products a Jetpack site can put in the sidebar, with the titles and tiers they register with.
+	 *
+	 * @return array Product key to [ menu title, menu slug, position ] triple.
+	 */
+	private static function product_fixtures() {
+		return array(
+			'my-jetpack'   => array( 'My Jetpack', 'my-jetpack', -10 ),
+			'activity-log' => array( 'Activity Log', 'jetpack-activity-log' ),
+			'ai'           => array( 'Jetpack AI', 'jetpack-ai' ),
+			'akismet'      => array( 'Akismet Anti-spam', 'akismet-key-config' ),
+			'backup'       => array( 'Backup', 'jetpack-backup' ),
+			'blaze'        => array( 'Blaze Ads', 'advertising' ),
+			'boost'        => array( 'Boost', 'jetpack-boost' ),
+			'forms'        => array( 'Forms', 'jetpack-forms' ),
+			'newsletter'   => array( 'Newsletter', 'jetpack-newsletter' ),
+			'podcast'      => array( 'Podcast', 'jetpack-podcast' ),
+			'protect'      => array( 'Protect', 'jetpack-protect' ),
+			'scan'         => array( 'Scan', 'jetpack-scan' ),
+			'search'       => array( 'Search', 'jetpack-search' ),
+			'seo'          => array( 'SEO', 'jetpack-seo' ),
+			'social'       => array( 'Social', 'jetpack-social' ),
+			'videopress'   => array( 'VideoPress', 'jetpack-videopress' ),
+			'manage'       => array( 'Jetpack Manage' . self::EXTERNAL_MARK, 'https://example.org/manage', 100 ),
+			'subscribers'  => array( 'Subscribers' . self::EXTERNAL_MARK, 'https://example.org/subscribers', 100 ),
+			'beta'         => array( 'Beta Tester', 'jetpack-beta', 998 ),
+			'settings'     => array( 'Settings', 'jetpack#/settings', 998 ),
+		);
+	}
+
+	/**
+	 * Builds a registration list from product keys.
+	 *
+	 * @param array $keys Keys into product_fixtures().
+	 * @return array Registration triples.
+	 */
+	private static function products( array $keys ) {
+		$fixtures = self::product_fixtures();
+
+		return array_values(
+			array_map(
+				static function ( $key ) use ( $fixtures ) {
+					return $fixtures[ $key ];
+				},
+				$keys
+			)
+		);
+	}
+
+	/**
+	 * Product combinations a site can be in, and the order the sidebar should come out in.
+	 *
+	 * @return array
+	 */
+	public static function product_combinations_data() {
+		return array(
+			'only my jetpack'                    => array(
+				array( 'my-jetpack' ),
+				array( 'My Jetpack' ),
+			),
+			'scattered middle'                   => array(
+				array( 'my-jetpack', 'videopress', 'backup', 'forms', 'subscribers', 'settings' ),
+				array( 'My Jetpack', 'Backup', 'Forms', 'VideoPress', 'Subscribers' . self::EXTERNAL_MARK, 'Settings' ),
+			),
+			'everything active'                  => array(
+				array(
+					'my-jetpack',
+					'activity-log',
+					'ai',
+					'akismet',
+					'backup',
+					'blaze',
+					'boost',
+					'forms',
+					'newsletter',
+					'podcast',
+					'protect',
+					'scan',
+					'search',
+					'seo',
+					'social',
+					'videopress',
+					'manage',
+					'subscribers',
+					'beta',
+					'settings',
+				),
+				array(
+					'My Jetpack',
+					'Activity Log',
+					'Akismet Anti-spam',
+					'Backup',
+					'Blaze Ads',
+					'Boost',
+					'Forms',
+					'Jetpack AI',
+					'Newsletter',
+					'Podcast',
+					'Protect',
+					'Scan',
+					'Search',
+					'SEO',
+					'Social',
+					'VideoPress',
+					'Jetpack Manage' . self::EXTERNAL_MARK,
+					'Subscribers' . self::EXTERNAL_MARK,
+					'Beta Tester',
+					'Settings',
+				),
+			),
+			'no products, only the pinned tiers' => array(
+				array( 'my-jetpack', 'settings' ),
+				array( 'My Jetpack', 'Settings' ),
+			),
+		);
+	}
+
+	/**
+	 * The sidebar order holds across the product combinations a site can be in.
+	 *
+	 * @param array $keys     Product keys to register.
+	 * @param array $expected Menu titles in the order they should render.
+	 *
+	 * @dataProvider product_combinations_data
+	 */
+	#[DataProvider( 'product_combinations_data' )]
+	public function test_menu_order_across_product_combinations( array $keys, array $expected ) {
+		$order = $this->render_items( self::products( $keys ) );
+
+		$this->assertSame( $expected, $order );
+		$this->assertSame( 'My Jetpack', $order[0], 'My Jetpack should be pinned first in every combination.' );
+	}
+
+	/**
+	 * Activating a product drops it into its alphabetical slot rather than onto the end.
+	 */
+	public function test_activating_a_product_inserts_it_alphabetically() {
+		$without = self::products( array( 'my-jetpack', 'backup', 'newsletter', 'videopress' ) );
+		$with    = self::products( array( 'my-jetpack', 'backup', 'newsletter', 'videopress', 'forms' ) );
+
+		$this->assertSame( array( 'My Jetpack', 'Backup', 'Newsletter', 'VideoPress' ), $this->render_items( $without ) );
+		$this->assertSame( array( 'My Jetpack', 'Backup', 'Forms', 'Newsletter', 'VideoPress' ), $this->render_items( $with ) );
+	}
+
+	/**
+	 * Deactivating a product leaves the rest of the sidebar in order.
+	 */
+	public function test_deactivating_a_product_leaves_the_rest_in_order() {
+		$with    = self::products( array( 'my-jetpack', 'backup', 'forms', 'newsletter', 'videopress' ) );
+		$without = self::products( array( 'my-jetpack', 'backup', 'newsletter', 'videopress' ) );
+
+		$this->assertSame( array( 'My Jetpack', 'Backup', 'Forms', 'Newsletter', 'VideoPress' ), $this->render_items( $with ) );
+		$this->assertSame( array( 'My Jetpack', 'Backup', 'Newsletter', 'VideoPress' ), $this->render_items( $without ) );
+	}
+
+	/**
+	 * The same active set gives the same order whichever plugin registered first.
+	 */
+	public function test_menu_order_is_independent_of_registration_order() {
+		$keys     = array( 'my-jetpack', 'videopress', 'backup', 'forms', 'seo', 'subscribers', 'settings' );
+		$products = self::products( $keys );
+		$expected = $this->render_items( $products );
+
+		$this->assertSame( array( 'My Jetpack', 'Backup', 'Forms', 'SEO', 'VideoPress', 'Subscribers' . self::EXTERNAL_MARK, 'Settings' ), $expected );
+		$this->assertSame( $expected, $this->render_items( array_reverse( $products ) ) );
+		$this->assertSame( $expected, $this->render_items( self::products( array( 'settings', 'forms', 'my-jetpack', 'subscribers', 'seo', 'videopress', 'backup' ) ) ) );
+	}
+
+	/**
+	 * Nor does it depend on which hook or priority an item registered on.
+	 *
+	 * This is the mechanism the sort relies on: add_menu() only collects, and the single usort runs
+	 * at admin_menu priority 1000, after every registration below it has been gathered.
+	 */
+	public function test_menu_order_is_independent_of_hook_and_priority() {
+		$products = self::products( array( 'my-jetpack', 'videopress', 'backup', 'forms' ) );
+		$expected = array( 'My Jetpack', 'Backup', 'Forms', 'VideoPress' );
+
+		foreach ( array( 1, 9, 500 ) as $priority ) {
+			$this->assertSame( $expected, $this->render_items( $products, $priority ), "Registering at admin_menu priority {$priority} should not change the order." );
+		}
+	}
+
+	/**
+	 * A position outside the tiers is ignored, so the item keeps its alphabetical slot.
+	 *
+	 * @param mixed $position A value add_menu() must not treat as a tier.
+	 *
+	 * @dataProvider unrecognized_position_data
+	 */
+	#[DataProvider( 'unrecognized_position_data' )]
+	public function test_an_unrecognized_position_is_ignored( $position ) {
+		$products    = self::products( array( 'my-jetpack', 'backup', 'forms', 'videopress' ) );
+		$products[1] = array( 'Backup', 'jetpack-backup', $position );
+
+		$this->assertSame( array( 'My Jetpack', 'Backup', 'Forms', 'VideoPress' ), $this->render_items( $products ) );
+	}
+
+	/**
+	 * Positions a caller could pass that are not a tier.
+	 *
+	 * @return array
+	 */
+	public static function unrecognized_position_data() {
+		return array(
+			'small int'      => array( 3 ),
+			'between tiers'  => array( 16 ),
+			'negative'       => array( -1 ),
+			'numeric string' => array( '5' ),
+			'upgrade slot'   => array( Admin_Menu::POSITION_UPGRADE ),
+			'non-numeric'    => array( 'top' ),
+		);
+	}
+
+	/**
+	 * POSITION_DEFAULT passed explicitly sorts with the products instead of above My Jetpack.
+	 *
+	 * Core prepends any position of 0 or less, so this only holds while add_menu() keeps positions from core.
+	 */
+	public function test_explicit_default_position_sorts_with_the_products() {
+		$products    = self::products( array( 'my-jetpack', 'backup', 'forms', 'videopress' ) );
+		$products[1] = array( 'Backup', 'jetpack-backup', Admin_Menu::POSITION_DEFAULT );
+
+		$this->assertSame( array( 'My Jetpack', 'Backup', 'Forms', 'VideoPress' ), $this->render_items( $products ) );
+	}
+
+	/**
+	 * A translation that reorders the labels reorders the sidebar.
+	 *
+	 * The slugs are left in the opposite order to the translations, so a sort that read them
+	 * instead of the menu title would fail here.
+	 */
+	public function test_titles_sort_on_the_translated_label() {
+		$translations = array(
+			'Alpha'   => 'Zuletzt',
+			'Bravo'   => 'Mittig',
+			'Charlie' => 'Anfang',
+		);
+
+		$filter = static function ( $translated, $text ) use ( $translations ) {
+			return $translations[ $text ] ?? $translated;
+		};
+
+		add_filter( 'gettext', $filter, 10, 2 );
+
+		$order = $this->render_items(
+			array(
+				array( __( 'Alpha', 'jetpack-admin-ui' ), 'locale-alpha' ),
+				array( __( 'Bravo', 'jetpack-admin-ui' ), 'locale-bravo' ),
+				array( __( 'Charlie', 'jetpack-admin-ui' ), 'locale-charlie' ),
+			)
+		);
+
+		remove_filter( 'gettext', $filter, 10 );
+
+		$this->assertSame( array( 'Anfang', 'Mittig', 'Zuletzt' ), $order );
+	}
+
+	/**
+	 * Accented labels sort after Z, which is the collation tradeoff we accepted.
+	 *
+	 * The comparator compares bytes, so every multi-byte leading character lands past the ASCII
+	 * range. A Collator would file Éclair with the Es. Verified identical on PHP 7.4 and 8.5.
+	 */
+	public function test_accented_titles_sort_after_z() {
+		$order = $this->render_items(
+			array(
+				array( 'Übersicht', 'collation-u' ),
+				array( 'Éclair', 'collation-e' ),
+				array( 'Zebra', 'collation-z' ),
+				array( 'Apfel', 'collation-a' ),
+			)
+		);
+
+		$this->assertSame( array( 'Apfel', 'Zebra', 'Éclair', 'Übersicht' ), $order );
 	}
 }

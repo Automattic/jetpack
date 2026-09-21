@@ -155,6 +155,7 @@ export {
 export {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
+	DETAIL_HEADER_GLYPH_SIZE,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageShell,

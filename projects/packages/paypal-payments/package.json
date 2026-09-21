@@ -42,6 +42,7 @@
 		"@wordpress/element": "8.7.0",
 		"@wordpress/hooks": "4.55.0",
 		"@wordpress/i18n": "6.28.0",
+		"@wordpress/icons": "16.0.0",
 		"@wordpress/notices": "5.55.0",
 		"@wordpress/ui": "0.22.0",
 		"@wordpress/widgets": "4.55.0",

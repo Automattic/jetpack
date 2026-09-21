@@ -39,7 +39,7 @@
 		"test-extensions": "TZ=UTC jest --config=tests/jest.config.extensions.js",
 		"test-gui": "NODE_PATH=tests:_inc/client jest --config=tests/jest.config.gui.js",
 		"typecheck": "tsgo --noEmit",
-		"watch": "concurrently --names client-js,client-css,wp-build,extensions,widget-visibility 'webpack watch --config ./tools/webpack.config.js' 'webpack watch --config ./tools/webpack.config.css.js' 'pnpm:watch:wp-build' 'webpack watch --config ./tools/webpack.config.extensions.js' 'webpack watch --config ./tools/webpack.config.widget-visibility.js'",
+		"watch": "php tools/build-module-headings-translations.php && concurrently --names client-js,client-css,wp-build,extensions,widget-visibility 'webpack watch --config ./tools/webpack.config.js' 'webpack watch --config ./tools/webpack.config.css.js' 'pnpm:watch:wp-build' 'webpack watch --config ./tools/webpack.config.extensions.js' 'webpack watch --config ./tools/webpack.config.widget-visibility.js'",
 		"watch:wp-build": "wp-build --watch"
 	},
 	"browserslist": [
@@ -51,10 +51,8 @@
 		"@automattic/jetpack-ai-client": "workspace:*",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
-		"@automattic/jetpack-boost-score-api": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
-		"@automattic/jetpack-licensing": "workspace:*",
 		"@automattic/jetpack-my-jetpack": "workspace:*",
 		"@automattic/jetpack-partner-coupon": "workspace:*",
 		"@automattic/jetpack-publicize": "workspace:*",
@@ -110,7 +108,6 @@
 		"email-validator": "2.0.4",
 		"events": "3.3.0",
 		"filesize": "10.1.6",
-		"focus-trap": "6.3.0",
 		"gridicons": "3.4.3",
 		"jmpress": "0.4.5",
 		"jquery-cycle": "3.0.3",

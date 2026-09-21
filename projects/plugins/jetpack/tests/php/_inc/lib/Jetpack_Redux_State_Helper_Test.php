@@ -75,4 +75,17 @@ class Jetpack_Redux_State_Helper_Test extends WP_UnitTestCase {
 
 		$this->assertFalse( $redux_state['isAiEnabled'], 'The inactive ai module reads as master off.' );
 	}
+
+	/**
+	 * The removed dashboard's keys are no longer built.
+	 */
+	public function test_initial_state_omits_the_removed_dashboard_keys() {
+		$state = Jetpack_Redux_State_Helper::get_initial_state();
+
+		foreach ( array( 'products', 'recommendationsStep', 'jetpackManage', 'hasSeenWCConnectionModal', 'newRecommendations', 'isWooCommerceActive' ) as $key ) {
+			$this->assertArrayNotHasKey( $key, $state );
+		}
+		$this->assertArrayNotHasKey( 'showRecommendations', $state['siteData'] );
+		$this->assertArrayNotHasKey( 'latestBoostSpeedScores', $state['siteData'] );
+	}
 }

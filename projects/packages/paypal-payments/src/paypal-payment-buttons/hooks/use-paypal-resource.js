@@ -26,7 +26,7 @@ import { getUserFriendlyError } from '../utils/validation';
  * @param {boolean}  props.isConnected          - Whether the site is connected to PayPal.
  * @param {string}   props.clientId             - The block's client id.
  * @param {Function} props.setShowDeleteConfirm - Setter for the delete confirmation dialog.
- * @return {object} Resource state and the delete handlers.
+ * @return {object} The payment as last read, resource state, and the delete handlers.
  */
 export function usePayPalResource( {
 	attributes,
@@ -40,6 +40,11 @@ export function usePayPalResource( {
 	const [ isBusy, setIsBusy ] = useState( false );
 	const [ linkDeleted, setLinkDeleted ] = useState( false );
 	const [ paymentChanged, setPaymentChanged ] = useState( false );
+	// What PayPal holds, with the site's own embed count - the details view reads it.
+	const [ resource, setResource ] = useState( null );
+
+	// The screen showing the warning decides when the merchant is done with it.
+	const dismissPaymentChanged = useCallback( () => setPaymentChanged( false ), [] );
 
 	// Two blocks can share one PayPal payment — a duplicate, or one product
 	// shown as a button, a link and a QR code — and only the block that saved
@@ -63,10 +68,15 @@ export function usePayPalResource( {
 
 		let cancelled = false;
 		const atRequest = latestAttributes.current;
+		setResource( null );
 
 		apiFetch( { path: `${ API_BASE }/buttons/${ resourceId }` } )
 			.then( response => {
-				if ( cancelled || ! response?.attributes ) {
+				if ( cancelled ) {
+					return;
+				}
+				setResource( response || null );
+				if ( ! response?.attributes ) {
 					return;
 				}
 				// The block now has PayPal's values, so the save can write this payment.
@@ -157,9 +167,11 @@ export function usePayPalResource( {
 	}, [ resourceId, setAttributes, setShowDeleteConfirm ] );
 
 	return {
+		resource,
 		isBusy,
 		linkDeleted,
 		paymentChanged,
+		dismissPaymentChanged,
 		handleDeleteButton,
 		executeDeleteButton,
 	};

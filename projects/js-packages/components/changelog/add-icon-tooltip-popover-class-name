@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-IconTooltip: Add a `popoverClassName` prop to style the popover when it renders outside its wrapper.

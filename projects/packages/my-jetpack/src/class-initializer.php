@@ -45,7 +45,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.3.0';
+	const PACKAGE_VERSION = '6.4.0';
 
 	/**
 	 * Feature flag that swaps the My Jetpack Products tab for a Features tab.
@@ -232,7 +232,7 @@ class Initializer {
 
 		// Redirect to Jetpack dashboard for partner coupon redemption
 		if ( $show_coupon_redemption ) {
-			wp_safe_redirect( admin_url( 'admin.php?page=jetpack&showCouponRedemption=1#/dashboard' ) );
+			wp_safe_redirect( admin_url( 'admin.php?page=jetpack&showCouponRedemption=1' ) );
 			exit( 0 );
 		}
 
@@ -347,7 +347,7 @@ class Initializer {
 	/**
 	 * Whether the dashboard shows a Features tab in place of the Products tab.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.4.0
 	 *
 	 * @return bool
 	 */
@@ -360,7 +360,7 @@ class Initializer {
 	 *
 	 * Null while the tab is unchanged, so links keep their own translated "Products" label.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.4.0
 	 *
 	 * @return array{slug: string, label: string}|null
 	 */
@@ -592,6 +592,7 @@ class Initializer {
 				'products'               => array(
 					'items' => Products::get_products(),
 				),
+				'mainFeatures'           => self::is_features_tab_enabled() ? Main_Features::get_state() : null,
 				'plugins'                => Plugins_Installer::get_plugins(),
 				'themes'                 => Sync_Functions::get_themes(),
 				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
@@ -872,6 +873,10 @@ class Initializer {
 		new REST_Zendesk_Chat();
 		( new REST_Jetpack_AI_JWT() )->register_rest_route();
 		new REST_Recommendations_Evaluation();
+
+		if ( self::is_features_tab_enabled() ) {
+			( new REST_Main_Features() )->register_rest_routes();
+		}
 
 		Products::register_product_endpoints();
 		Historically_Active_Modules::register_rest_endpoints();

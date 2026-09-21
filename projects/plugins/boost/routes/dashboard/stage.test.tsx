@@ -37,10 +37,16 @@ jest.mock( '../../_inc/overview/overview', () => {
 	};
 } );
 
+// The router keeps its route, path and query, inside the `p` wp-admin arg; a tab beside it is not a route.
 jest.mock( '@wordpress/route', () => ( {
-	useSearch: () => ( { tab: new URLSearchParams( globalThis.location.search ).get( 'tab' ) } ),
+	useSearch: () => {
+		const route = new URLSearchParams( globalThis.location.search ).get( 'p' ) ?? '/';
+		return { tab: new URLSearchParams( route.split( '?' )[ 1 ] ).get( 'tab' ) };
+	},
 	useNavigate: () => mockNavigate,
 } ) );
+
+const SETTINGS_ARG = '&p=%2F%3Ftab%3Dsettings';
 
 jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 	__esModule: true,
@@ -102,7 +108,8 @@ const setGettingStarted = ( value: boolean ) => {
 describe( 'Boost dashboard stage', () => {
 	it.each( [
 		[ '', 'Overview' ],
-		[ '&tab=settings', 'Settings' ],
+		[ SETTINGS_ARG, 'Settings' ],
+		[ '&tab=settings', 'Overview' ],
 	] )( 'selects %s as the %s tab', ( query, tab ) => {
 		window.history.replaceState( null, '', `/?page=jetpack-boost${ query }` );
 		render( <Stage /> );
@@ -130,7 +137,7 @@ describe( 'Boost dashboard stage', () => {
 	it.each(
 		subpages.flatMap( hash => [
 			[ hash, '' ],
-			[ hash, '&tab=settings' ],
+			[ hash, SETTINGS_ARG ],
 		] )
 	)( 'shows #%s in the full-page slot with query %s', ( hash, query ) => {
 		window.history.replaceState( null, '', `/?page=jetpack-boost${ query }#/${ hash }` );
@@ -160,7 +167,7 @@ describe( 'Boost dashboard stage', () => {
 	);
 
 	it( 'follows pushState navigation into and out of a subpage', () => {
-		window.history.replaceState( null, '', '/?page=jetpack-boost&tab=settings' );
+		window.history.replaceState( null, '', `/?page=jetpack-boost${ SETTINGS_ARG }` );
 		render( <Stage /> );
 		expect( getSubpageMount()?.hidden ).toBe( true );
 
@@ -168,7 +175,7 @@ describe( 'Boost dashboard stage', () => {
 			window.history.pushState(
 				null,
 				'',
-				'/?page=jetpack-boost&tab=settings#/critical-css-advanced'
+				`/?page=jetpack-boost${ SETTINGS_ARG }#/critical-css-advanced`
 			);
 		} );
 
@@ -177,7 +184,7 @@ describe( 'Boost dashboard stage', () => {
 		expect( mockNavigate ).not.toHaveBeenCalled();
 
 		act( () => {
-			window.history.pushState( null, '', '/?page=jetpack-boost&tab=settings#/' );
+			window.history.pushState( null, '', `/?page=jetpack-boost${ SETTINGS_ARG }#/` );
 		} );
 
 		expect( getSubpageMount()?.hidden ).toBe( true );
@@ -192,9 +199,9 @@ describe( 'Boost dashboard stage', () => {
 		const subpageMount = getSubpageMount();
 
 		for ( const url of [
-			'/?page=jetpack-boost&tab=settings',
-			'/?page=jetpack-boost&tab=settings#/critical-css-advanced',
-			'/?page=jetpack-boost&tab=settings#/',
+			`/?page=jetpack-boost${ SETTINGS_ARG }`,
+			`/?page=jetpack-boost${ SETTINGS_ARG }#/critical-css-advanced`,
+			`/?page=jetpack-boost${ SETTINGS_ARG }#/`,
 			'/?page=jetpack-boost',
 		] ) {
 			act( () => {
@@ -331,7 +338,7 @@ describe( 'Boost dashboard stage', () => {
 
 	it( 'does not re-navigate when the Settings redirect rewrites history', () => {
 		mockNavigate.mockImplementation( () => {
-			window.history.replaceState( null, '', '/?page=jetpack-boost&tab=settings#/' );
+			window.history.replaceState( null, '', `/?page=jetpack-boost${ SETTINGS_ARG }#/` );
 		} );
 		render( <Stage /> );
 

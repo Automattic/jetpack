@@ -110,6 +110,7 @@ export {
 	type SubscriberListSkeletonProps,
 	SemiCircleChart,
 	type SemiCircleChartData,
+	DETAIL_HEADER_GLYPH_SIZE,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageActions,
@@ -190,7 +191,7 @@ export {
 /**
  * Constants
  */
-export { COLOR_GRAY_100, WIDGET_ROW_LIMIT } from './constants';
+export { WIDGET_ROW_LIMIT } from './constants';
 
 /**
  * Widget edit fields
@@ -240,7 +241,6 @@ export {
 	CALENDAR_HEATMAP_HEADER_HEIGHT,
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,
-	formatDailyViewCount,
 	formatEmailRate,
 	formatViewCount,
 	isEmailRateKnown,

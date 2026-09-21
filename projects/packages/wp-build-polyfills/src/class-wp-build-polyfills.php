@@ -2,9 +2,8 @@
 /**
  * Polyfill registration for Core packages not available or incomplete in older WordPress versions.
  *
- * Conditionally registers wp-notices, wp-private-apis, wp-theme (classic scripts) and
- * `@wordpress/boot`, `@wordpress/route`, `@wordpress/a11y`, `@wordpress/widget-primitives`
- * (script modules) ONLY when they are not already provided by Core or Gutenberg.
+ * On WordPress 7.0 at the default threshold, only wp-private-apis and wp-rich-text replace Core's
+ * copies; every other polyfill fills in what Core lacks, or replaces a Gutenberg copy too old to use.
  *
  * @package automattic/jetpack-wp-build-polyfills
  */
@@ -31,11 +30,11 @@ class WP_Build_Polyfills {
 	 *
 	 * These bundles call `__dangerousOptInToUnstableAPIsOnlyForCoreModules()` at
 	 * module scope, which throws unless the `wp-private-apis` implementation that
-	 * actually loads allowlists their package name. Core's allowlist does not:
-	 * WP 6.9 omits `@wordpress/rich-text`, `@wordpress/theme` and
-	 * `@wordpress/views`, and WP 7.0 still omits `@wordpress/compose` (bundled
-	 * into the rich-text polyfill). Requesting one of these without
-	 * `wp-private-apis` therefore throws at load time and blanks the page.
+	 * actually loads allowlists their package name. WP 7.0's allowlist omits
+	 * `@wordpress/views` and `@wordpress/compose` (bundled into the rich-text
+	 * polyfill), so requesting either polyfill without `wp-private-apis` blanks
+	 * the page. It does allow `@wordpress/theme`, and WP 7.0 registers `wp-theme`
+	 * itself, so the theme polyfill never loads there.
 	 *
 	 * The `wp-private-apis` script dependency in each `.asset.php` is not enough
 	 * on its own — it makes WordPress enqueue the *handle*, which resolves to
@@ -81,7 +80,7 @@ class WP_Build_Polyfills {
 	private static $requested = array();
 
 	/**
-	 * Whether the wp_default_scripts hook has already been added.
+	 * Whether registration has already run, or been hooked to wp_default_scripts.
 	 *
 	 * @var bool
 	 */
@@ -95,6 +94,13 @@ class WP_Build_Polyfills {
 	 * @var string
 	 */
 	private static $wp_version_threshold = '7.0';
+
+	/**
+	 * Overrides the build directory. Test seam, null in production.
+	 *
+	 * @var string|null
+	 */
+	private static $build_dir_override = null;
 
 	/**
 	 * Register polyfill scripts and modules.
@@ -122,6 +128,7 @@ class WP_Build_Polyfills {
 	public static function register( $consumer, $polyfills, $wp_version_threshold = '7.0' ) {
 		WP_Build_Admin_Frame::register();
 
+		$added = array();
 		foreach ( $polyfills as $handle ) {
 			if ( ! in_array( $handle, self::SCRIPT_HANDLES, true ) && ! in_array( $handle, self::MODULE_IDS, true ) ) {
 				continue;
@@ -132,6 +139,7 @@ class WP_Build_Polyfills {
 			foreach ( $required as $required_handle ) {
 				if ( ! isset( self::$requested[ $required_handle ] ) ) {
 					self::$requested[ $required_handle ] = array();
+					$added[]                             = $required_handle;
 				}
 				if ( ! in_array( $consumer, self::$requested[ $required_handle ], true ) ) {
 					self::$requested[ $required_handle ][] = $consumer;
@@ -139,26 +147,28 @@ class WP_Build_Polyfills {
 			}
 		}
 
-		if ( version_compare( $wp_version_threshold, self::$wp_version_threshold, '>' ) ) {
+		$raised = version_compare( $wp_version_threshold, self::$wp_version_threshold, '>' );
+		if ( $raised ) {
 			self::$wp_version_threshold = $wp_version_threshold;
 		}
 
+		$package_root = dirname( __DIR__ );
+		$build_dir    = self::$build_dir_override ?? $package_root . '/build';
+		$base_file    = $package_root . '/composer.json';
+
 		if ( self::$hooked ) {
+			// Registration already ran, so apply this call's new polyfills and raised threshold to it.
+			if ( ( $raised || $added ) && did_action( 'wp_default_scripts' ) ) {
+				self::register_scripts( wp_scripts(), $build_dir, $base_file, self::$wp_version_threshold );
+				self::register_modules( $build_dir, $base_file, $added );
+			}
 			return;
 		}
 		self::$hooked = true;
 
-		$package_root = dirname( __DIR__ );
-		$build_dir    = $package_root . '/build';
-		$base_file    = $package_root . '/composer.json';
-
-		// `wp_default_scripts` fires once when the WP_Scripts singleton is
-		// instantiated. If something has already initialized `wp_scripts()` —
-		// common on admin requests where WP or other plugins register scripts
-		// before `admin_menu` priority 1 runs — adding this hook here is too
-		// late and the polyfills never register. Detect that case and run the
-		// registration synchronously so consumers can rely on the script
-		// handles and module IDs being available regardless of init order.
+		// `wp_default_scripts` fires when `wp_scripts()` creates the WP_Scripts singleton, and again on
+		// `init` if it was created before then. Once it has fired (common on admin requests by
+		// `admin_menu`), a hook added now may never run, so register synchronously instead.
 		if ( did_action( 'wp_default_scripts' ) ) {
 			self::register_scripts( wp_scripts(), $build_dir, $base_file, self::$wp_version_threshold );
 			self::register_modules( $build_dir, $base_file );
@@ -201,32 +211,28 @@ class WP_Build_Polyfills {
 			'wp-notices'      => array(
 				'path'            => 'notices',
 				'force_threshold' => '7.0',
-				// Only force-replace on older WP without Gutenberg: older Core
-				// versions ship notices without SnackbarNotices and InlineNotices
-				// component exports that @wordpress/boot depends on.
+				// WP 7.0 ships the SnackbarNotices and InlineNotices exports
+				// @wordpress/boot depends on, so on a supported site this forces only
+				// when a consumer raises the threshold, and never with Gutenberg active.
 			),
 			'wp-private-apis' => array(
 				'path'                  => 'private-apis',
 				'force_threshold'       => '7.1',
 				'gutenberg_min_version' => self::GUTENBERG_PRIVATE_APIS_MIN_VERSION,
-				// WP 7.0 and older versions ship private-apis with an incomplete
-				// allowlist that rejects @wordpress/theme, @wordpress/route, and
-				// newer dashboard packages. Active Gutenberg is only a safe
-				// substitute once its private-apis allowlist includes those
-				// dashboard packages too.
+				// WP 7.0's private-apis allowlist rejects newer dashboard packages
+				// such as @wordpress/views and @wordpress/widget-dashboard. Active
+				// Gutenberg is only a safe substitute once its private-apis
+				// allowlist includes those dashboard packages too.
 			),
 			'wp-rich-text'    => array(
 				'path'                  => 'rich-text',
 				'force_threshold'       => '7.1',
 				'gutenberg_min_version' => self::GUTENBERG_RICH_TEXT_MIN_VERSION,
-				// WP 7.0 and older ship a rich-text whose `privateApis` current
-				// dashboard dependencies cannot use (e.g. @wordpress/dataviews
-				// >= 17.2 dataform controls, which unlock it at module scope).
-				// WP 6.9 exports no `privateApis` at all, which throws "Cannot
-				// unlock an undefined object"; WP 7.0 exports one locked with
-				// only `useRichText`, so destructuring the other keys yields
-				// undefined. Either way the page blanks. Older Gutenberg is not
-				// a safe substitute either — see the constant's doc.
+				// WP 7.0 ships a rich-text that locks only `useRichText` into
+				// `privateApis`, so current dashboard dependencies that unlock more
+				// keys at module scope (e.g. @wordpress/dataviews >= 17.2 dataform
+				// controls) get undefined and the page blanks. Older Gutenberg is
+				// not a safe substitute either — see the constant's doc.
 			),
 			'wp-theme'        => array(
 				'path' => 'theme',
@@ -244,6 +250,14 @@ class WP_Build_Polyfills {
 			$asset_file = $build_dir . '/scripts/' . $data['path'] . '/index.asset.php';
 
 			if ( ! file_exists( $asset_file ) ) {
+				continue;
+			}
+
+			$src = plugins_url( 'build/scripts/' . $data['path'] . '/index.js', $base_file );
+
+			// Already ours from an earlier register() call; replacing it would drop anything attached since.
+			$registered = $scripts->query( $handle, 'registered' );
+			if ( $registered && $src === $registered->src ) {
 				continue;
 			}
 
@@ -275,7 +289,7 @@ class WP_Build_Polyfills {
 
 			$scripts->add(
 				$handle,
-				plugins_url( 'build/scripts/' . $data['path'] . '/index.js', $base_file ),
+				$src,
 				$asset['dependencies'],
 				$asset['version'],
 				// Match Core's `wp_default_packages_scripts()`, which registers every
@@ -320,10 +334,11 @@ class WP_Build_Polyfills {
 	 * already registered module is left alone unless the active Gutenberg's copy is known to be
 	 * too old for this package's current build, in which case it is replaced.
 	 *
-	 * @param string $build_dir Absolute path to the build directory.
-	 * @param string $base_file File path for plugins_url() computation.
+	 * @param string        $build_dir  Absolute path to the build directory.
+	 * @param string        $base_file  File path for plugins_url() computation.
+	 * @param string[]|null $module_ids Only these requested module IDs, or null for all of them.
 	 */
-	private static function register_modules( $build_dir, $base_file ) {
+	private static function register_modules( $build_dir, $base_file, $module_ids = null ) {
 		if ( ! function_exists( 'wp_register_script_module' ) ) {
 			return;
 		}
@@ -346,6 +361,10 @@ class WP_Build_Polyfills {
 			$module_id = '@wordpress/' . $name;
 
 			if ( ! isset( self::$requested[ $module_id ] ) ) {
+				continue;
+			}
+
+			if ( null !== $module_ids && ! in_array( $module_id, $module_ids, true ) ) {
 				continue;
 			}
 

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createContactPage } from './contact-page.ts';
+import { ENGLISH_SITE_COPY } from './site-copy.fixture.mts';
 
 type PageData = { title: string; content: string; status: string; meta: object };
 type PageRequest = { path: string; method: string; data: PageData };
@@ -24,6 +25,7 @@ describe( 'createContactPage', () => {
 		const { fetcher, requests } = stubFetcher();
 		const result = await createContactPage(
 			'Commission a piece, or ask about a wholesale order.',
+			ENGLISH_SITE_COPY,
 			fetcher
 		);
 
@@ -51,9 +53,41 @@ describe( 'createContactPage', () => {
 		);
 	} );
 
+	it( 'escapes translated copy into the markup rather than letting it break out', async () => {
+		// The one place a translation can corrupt a page rather than merely read oddly: these labels land
+		// inside block-attribute JSON, where a quote or a comment closer would end the delimiter early.
+		// Stands for all five page builders, which escape through the same two helpers.
+		const { fetcher, requests } = stubFetcher();
+		await createContactPage(
+			undefined,
+			{
+				contact_page_title: 'Contatti',
+				contact_page_heading: 'Scrivici <subito> & presto',
+				contact_form_name_label: 'Nome "completo"',
+				contact_form_email_label: 'E-mail',
+				contact_form_message_label: 'Messaggio -- breve',
+			},
+			fetcher
+		);
+
+		const request = requests[ 0 ];
+		assert.equal( request.data.title, 'Contatti' );
+		assert.ok(
+			request.data.content.includes(
+				'<h2 class="wp-block-heading">Scrivici &lt;subito&gt; &amp; presto</h2>'
+			)
+		);
+		assert.ok(
+			request.data.content.includes( '{"label":"Nome \\u0022completo\\u0022","required":true}' )
+		);
+		assert.ok( request.data.content.includes( '{"label":"E-mail","required":true}' ) );
+		assert.ok( request.data.content.includes( '{"label":"Messaggio \\u002d\\u002d breve"}' ) );
+		assert.ok( ! request.data.content.includes( '-->' + ' breve' ) );
+	} );
+
 	it( 'escapes the AI-written intro rather than emitting it as markup', async () => {
 		const { fetcher, requests } = stubFetcher();
-		await createContactPage( 'Ask about <bespoke> orders & timings.', fetcher );
+		await createContactPage( 'Ask about <bespoke> orders & timings.', ENGLISH_SITE_COPY, fetcher );
 
 		assert.match(
 			requests[ 0 ].data.content,
@@ -67,7 +101,7 @@ describe( 'createContactPage', () => {
 		// The form is what the task is for, so the page must arrive with it either way.
 		for ( const intro of [ undefined, '', '   ' ] ) {
 			const { fetcher, requests } = stubFetcher();
-			await createContactPage( intro, fetcher );
+			await createContactPage( intro, ENGLISH_SITE_COPY, fetcher );
 
 			const content = requests[ 0 ].data.content;
 			assert.ok( content.includes( '<!-- wp:jetpack/contact-form -->' ), 'the form must survive' );
@@ -81,7 +115,7 @@ describe( 'createContactPage', () => {
 		// have been picked carries a hardcoded address, phone number, and map pin. A confident wrong
 		// detail on a real business's contact page is worse than none, so the form is the only channel.
 		const { fetcher, requests } = stubFetcher();
-		await createContactPage( undefined, fetcher );
+		await createContactPage( undefined, ENGLISH_SITE_COPY, fetcher );
 
 		const content = requests[ 0 ].data.content;
 		assert.ok( ! /\d{3}[\s.-]?\d{3,4}/.test( content ), 'no phone-shaped digits' );

@@ -7,10 +7,16 @@ import ScoreAlert from './score-alert';
 import ErrorBoundary from '../../app/assets/src/js/features/error-boundary/error-boundary';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import HistoryChartCard from './history-chart-card';
+import HistoryUpsell from './history-upsell';
 import { bucketHistoryDays } from './lib/history-days';
 import { OVERVIEW_MODULES_CHANGE_EVENT, relayedQueryKeys } from './lib/modules-state-bridge';
 import { useHistoryRange } from './lib/use-history-range';
-import { isSiteOnline, useModulesState, useScoreRefreshState } from './lib/use-modules-state';
+import {
+	canOfferUpgrade,
+	isSiteOnline,
+	useModulesState,
+	useScoreRefreshState,
+} from './lib/use-modules-state';
 import {
 	performanceHistoryQueryKey,
 	useDismissibleAlertState,
@@ -65,6 +71,7 @@ function OverviewContent( {
 	const refreshState = useScoreRefreshState( modules.data );
 	const [ scoreState, refreshScores ] = useSpeedScores( refreshState );
 	const historyAvailable = modules.data?.performance_history?.available === true;
+	const needsUpgrade = modules.data !== undefined && ! historyAvailable;
 	const { range, olderRanges, dayCount, onPrevious, onNext, canGoNext } = useHistoryRange();
 	const history = usePerformanceHistory( historyAvailable && isVisible, range );
 	const [ freshStartCompleted, dismissFreshStart ] = useDismissibleAlertState(
@@ -104,10 +111,13 @@ function OverviewContent( {
 		}
 	}, [ online, scoreState.status, queryClient ] );
 
-	const onRefresh = useCallback( () => {
-		recordBoostEvent( 'speed_score_refresh_clicked', {} );
-		refreshScores( true );
-	}, [ refreshScores ] );
+	const onRefresh = useCallback(
+		( source: 'header' | 'score_card' ) => {
+			recordBoostEvent( 'speed_score_refresh_clicked', { source } );
+			refreshScores( true );
+		},
+		[ refreshScores ]
+	);
 
 	useEffect( () => {
 		if ( ! isVisible || ! online ) {
@@ -122,7 +132,7 @@ function OverviewContent( {
 				variant="solid"
 				size="compact"
 				disabled={ isLoading }
-				onClick={ onRefresh }
+				onClick={ () => onRefresh( 'header' ) }
 			>
 				{ __( 'Run speed test', 'jetpack-boost' ) }
 			</Button>
@@ -167,7 +177,7 @@ function OverviewContent( {
 				isLoading={ isLoading }
 				hasScores={ scoreState.hasScores }
 				error={ scoreState.error }
-				onRetry={ onRefresh }
+				onRetry={ () => onRefresh( 'score_card' ) }
 				isVisible={ isVisible }
 			/>
 			<ScoreAlert
@@ -192,23 +202,28 @@ function OverviewContent( {
 					</Notice.Actions>
 				</Notice.Root>
 			) }
-			<HistoryChartCard
-				range={ range }
-				dayCount={ dayCount }
-				onPrevious={ onPrevious }
-				onNext={ onNext }
-				canGoNext={ canGoNext }
-				hasOlderHistory={ hasOlderHistory }
-				isVisible={ isVisible }
-				data={ modules.isPending ? undefined : history.data }
-				isLoading={ modules.isPending || ( historyAvailable && history.isPending ) }
-				isError={ history.isError && ! history.isFetching }
-				error={ history.error }
-				onRetry={ () => history.refetch() }
-				needsUpgrade={ modules.data !== undefined && ! historyAvailable }
-				isFreshStart={ ! freshStartCompleted }
-				onDismissFreshStart={ dismissFreshStart }
-			/>
+			{ needsUpgrade ? (
+				canOfferUpgrade() && (
+					<HistoryUpsell range={ range } dayCount={ dayCount } isVisible={ isVisible } />
+				)
+			) : (
+				<HistoryChartCard
+					range={ range }
+					dayCount={ dayCount }
+					onPrevious={ onPrevious }
+					onNext={ onNext }
+					canGoNext={ canGoNext }
+					hasOlderHistory={ hasOlderHistory }
+					isVisible={ isVisible }
+					data={ modules.isPending ? undefined : history.data }
+					isLoading={ modules.isPending || ( historyAvailable && history.isPending ) }
+					isError={ history.isError && ! history.isFetching }
+					error={ history.error }
+					onRetry={ () => history.refetch() }
+					isFreshStart={ ! freshStartCompleted }
+					onDismissFreshStart={ dismissFreshStart }
+				/>
+			) }
 		</div>
 	);
 }

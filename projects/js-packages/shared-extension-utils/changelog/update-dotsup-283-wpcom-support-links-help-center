@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-WpcomSupportLink: Mark the `supportPostId` prop as optional in the type definition.
