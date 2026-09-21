@@ -173,3 +173,35 @@ test( 'the premium tooltip takes focus and closes on Escape', async ( { page } )
 	await page.keyboard.press( 'Escape' );
 	await expect( content ).toBeHidden();
 } );
+
+test( 'Page Cache closes after keyboard departure from its portaled tooltip', async ( { page } ) => {
+	await page.goto( 'http://boost-settings.test/' );
+	await page.getByRole( 'button', { name: 'Show Options' } ).click();
+	const trigger = page.getByRole( 'button', { name: 'See an example' } );
+	await page.keyboard.press( 'Tab' );
+	await page.keyboard.press( 'Tab' );
+	await expect( trigger ).toBeFocused();
+	await page.keyboard.press( 'Enter' );
+	const content = page.locator( '.icon-tooltip-container .components-popover__content' );
+	await expect( content ).toBeVisible();
+	await expect( content ).toContainText( 'Example:' );
+	await page.keyboard.press( 'Shift+Tab' );
+	await page.keyboard.press( 'Escape' );
+	await expect( content ).toBeHidden();
+	await expect( trigger ).toHaveAttribute( 'aria-expanded', 'false' );
+
+	await trigger.click();
+	await expect( content ).toBeVisible();
+	await page.keyboard.press( 'Escape' );
+	await expect( content ).toBeHidden();
+	await expect( trigger ).toBeFocused();
+	await page.keyboard.press( 'Enter' );
+	await expect( content ).toBeVisible();
+	await trigger.hover();
+	await page.mouse.down();
+	await expect( trigger ).toBeFocused();
+	await page.waitForTimeout( 100 );
+	await expect( content ).toBeVisible();
+	await page.mouse.up();
+	await expect( content ).toBeHidden();
+} );

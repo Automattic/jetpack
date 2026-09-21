@@ -49,6 +49,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	const POPOVER_HELPER_WIDTH = 124;
 	const [ isVisible, setIsVisible ] = useState( false );
 	const [ hoverTimeout, setHoverTimeout ] = useState( null );
+	const popoverRef = useRef< HTMLDivElement >( null );
 	const pointerReturningToTrigger = useRef( false );
 	const hideTooltip = useCallback( () => {
 		setIsVisible( false );
@@ -84,6 +85,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		flip: false,
 		offset, // The distance (in px) between the anchor and the popover.
 		focusOnMount: true,
+		ref: popoverRef,
 		onClose: hideTooltip,
 		onFocusOutside: event => {
 			if (
@@ -116,8 +118,11 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		const handleMouseDown = ( event: MouseEvent ) => {
 			pointerReturningToTrigger.current = trigger.contains( event.target as Node );
 		};
-		const handleTriggerFocus = () => {
-			if ( ! pointerReturningToTrigger.current ) {
+		const handleFocus = ( event: FocusEvent ) => {
+			if (
+				! popoverRef.current?.contains( event.target as Node ) &&
+				! ( pointerReturningToTrigger.current && trigger.contains( event.target as Node ) )
+			) {
 				hideTooltip();
 			}
 		};
@@ -128,12 +133,12 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 				hideTooltip();
 			}
 		};
-		trigger.addEventListener( 'focusin', handleTriggerFocus );
+		ownerDocument.addEventListener( 'focusin', handleFocus );
 		ownerDocument.addEventListener( 'mousedown', handleMouseDown, true );
 		ownerDocument.addEventListener( 'keydown', handleTriggerKeyDown, true );
 		return () => {
 			pointerReturningToTrigger.current = false;
-			trigger.removeEventListener( 'focusin', handleTriggerFocus );
+			ownerDocument.removeEventListener( 'focusin', handleFocus );
 			ownerDocument.removeEventListener( 'mousedown', handleMouseDown, true );
 			ownerDocument.removeEventListener( 'keydown', handleTriggerKeyDown, true );
 		};

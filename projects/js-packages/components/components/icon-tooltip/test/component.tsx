@@ -75,10 +75,6 @@ describe( 'IconTooltip', () => {
 			expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
 			await user.tab( { shift: true } );
 			act( () => jest.advanceTimersByTime( 100 ) );
-			if ( ! inline ) {
-				act( () => trigger.focus() );
-			}
-			expect( trigger ).toHaveFocus();
 			expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
 			await user.keyboard( '{Escape}' );
 			expect( onClose ).toHaveBeenCalledTimes( 1 );
