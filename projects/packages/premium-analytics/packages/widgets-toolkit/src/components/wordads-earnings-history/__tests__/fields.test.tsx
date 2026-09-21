@@ -54,14 +54,11 @@ describe( 'EarningsStatusBadge', () => {
 		expect( screen.getByText( 'a8c-only' ) ).not.toHaveAttribute( 'tabindex' );
 	} );
 
-	it( 'puts a pending reason in an info icon beside a one-word badge', () => {
+	it( 'puts a pending reason in an info button beside a one-word badge', () => {
 		render( <EarningsStatusBadge status={ 3 } /> );
 
 		expect( screen.getByText( 'Pending' ) ).not.toHaveAttribute( 'tabindex' );
-		expect( screen.getByRole( 'img', { name: 'Missing tax info' } ) ).toHaveAttribute(
-			'tabindex',
-			'0'
-		);
+		expect( screen.getByRole( 'button', { name: 'Missing tax info' } ) ).toBeInTheDocument();
 	} );
 } );
 

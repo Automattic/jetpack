@@ -9,5 +9,14 @@
 
 .info {
 	display: inline-flex;
+	align-items: center;
+	border: none;
+	padding: 0;
+	background: none;
 	color: var(--wpds-color-foreground-content-neutral-weak);
+	cursor: pointer;
+}
+
+.popup {
+	max-inline-size: 20rem;
 }

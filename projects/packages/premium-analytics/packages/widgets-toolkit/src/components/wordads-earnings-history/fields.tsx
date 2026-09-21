@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
-import { Badge, Icon } from '@jetpack-premium-analytics/externals';
+import { Badge, Icon, Popover, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -170,13 +170,26 @@ export function EarningsStatusBadge( { status }: { status: number | undefined } 
 	const { label, tooltip, intent, detail } = getEarningsStatus( status );
 
 	if ( detail ) {
+		// The same hover-or-click tip as a report chart's help icon; the
+		// components Tooltip waits on a long hover and ignores clicks.
 		return (
 			<span className={ styles.root }>
-				<Tooltip text={ tooltip ?? detail }>
-					<span tabIndex={ 0 } role="img" aria-label={ detail } className={ styles.info }>
+				<Popover.Root>
+					<Popover.Trigger
+						openOnHover
+						delay={ 200 }
+						closeDelay={ 200 }
+						aria-label={ detail }
+						className={ styles.info }
+					>
 						<Icon icon={ info } size={ 16 } />
-					</span>
-				</Tooltip>
+					</Popover.Trigger>
+					<Popover.Popup className={ styles.popup }>
+						<Popover.Arrow />
+						<VisuallyHidden render={ <Popover.Title /> }>{ detail }</VisuallyHidden>
+						<Popover.Description>{ tooltip ?? detail }</Popover.Description>
+					</Popover.Popup>
+				</Popover.Root>
 				<Badge intent={ intent }>{ label }</Badge>
 			</span>
 		);
