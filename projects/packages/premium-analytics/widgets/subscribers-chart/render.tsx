@@ -73,13 +73,7 @@ const METRIC_ACCESSORS: Record<
  * subscribers only when the site has any. Each tab carries its headline total
  * and the per-period points for the chart.
  */
-function buildMetrics(
-	state: SubscribersChartState,
-	chartType: SubscribersChartType | undefined
-): MetricTab[] {
-	// Only the bar chart can draw a bucket with no reading as a gap (CHARTS-281); the line chart still needs a number until CHARTS-284.
-	const keepGaps = chartType === 'bar';
-
+function buildMetrics( state: SubscribersChartState ): MetricTab[] {
 	return SUBSCRIBERS_CHART_METRICS.filter( ( { id } ) => id !== 'paid' || state.hasPaid ).map(
 		( { id, label } ) => {
 			const accessor = METRIC_ACCESSORS[ id ];
@@ -87,10 +81,7 @@ function buildMetrics(
 				key: id,
 				label,
 				value: latest( state.current, accessor ),
-				current: state.current.map( point => {
-					const value = accessor( point );
-					return { date: point.date, value: ( keepGaps ? value : ( value ?? 0 ) ) as number };
-				} ),
+				current: state.current.map( point => ( { date: point.date, value: accessor( point ) } ) ),
 			};
 		}
 	);
@@ -114,7 +105,7 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 	const period: SubscribersPeriod = chartInterval( reportParams, SUBSCRIBERS_GRAIN.periods );
 
 	const state = useSubscribersChart( reportParams, period );
-	const metricTabs = useMemo( () => buildMetrics( state, chartType ), [ state, chartType ] );
+	const metricTabs = useMemo( () => buildMetrics( state ), [ state ] );
 	const groupLabel = __( 'Subscriber metric', 'jetpack-premium-analytics-pkg' );
 
 	return (
