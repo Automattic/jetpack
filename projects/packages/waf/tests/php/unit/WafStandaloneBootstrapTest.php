@@ -50,10 +50,10 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 	 */
 	protected function tearDown(): void {
 		if ( $this->content_dir ) {
-			foreach ( glob( $this->content_dir . '/jetpack-waf/*' ) as $file ) {
+			foreach ( glob( $this->content_dir . '/jetpack-waf/{,rules/}*.php', GLOB_BRACE ) as $file ) {
 				unlink( $file );
 			}
-			foreach ( array( $this->content_dir . '/jetpack-waf', $this->content_dir ) as $dir ) {
+			foreach ( array( $this->content_dir . '/jetpack-waf/rules', $this->content_dir . '/jetpack-waf', $this->content_dir ) as $dir ) {
 				if ( is_dir( $dir ) ) {
 					rmdir( $dir );
 				}
@@ -89,19 +89,40 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 	/**
 	 * Runs a bootstrap file in a fresh PHP process, as `auto_prepend_file` would, and returns what it reports.
 	 *
-	 * @param string $bootstrap_file Path to the bootstrap file.
+	 * Under the CLI SAPI the firewall defines its constants but does not evaluate rules; pass `$php_cgi` to run
+	 * the same fixture as a web request, which reaches the runtime and the rules entrypoint.
+	 *
+	 * @param string      $bootstrap_file Path to the bootstrap file.
+	 * @param string|null $php_cgi        Path to a php-cgi binary to run under, or null for `PHP_BINARY`.
 	 * @return array The decoded report from `fixtures/run-bootstrap.php`, plus `exit_code` and `stderr`.
 	 * @throws RuntimeException If the process cannot be started.
 	 */
-	private function run_bootstrap_in_child_process( $bootstrap_file ) {
+	private function run_bootstrap_in_child_process( $bootstrap_file, $php_cgi = null ) {
+		$fixture = __DIR__ . '/fixtures/run-bootstrap.php';
+		$options = array( '-d', 'display_errors=stderr', '-d', 'error_reporting=E_ALL' );
+		$env     = array( 'JETPACK_WAF_TEST_BOOTSTRAP' => $bootstrap_file );
+
+		if ( null === $php_cgi ) {
+			$command = array_merge( array( PHP_BINARY ), $options, array( $fixture ) );
+		} else {
+			$command = array_merge( array( $php_cgi ), $options );
+			$env    += array(
+				'SCRIPT_FILENAME' => $fixture,
+				'REQUEST_METHOD'  => 'GET',
+				'REDIRECT_STATUS' => '200',
+			);
+		}
+
 		$process = proc_open(
-			array( PHP_BINARY, '-d', 'display_errors=stderr', '-d', 'error_reporting=E_ALL', __DIR__ . '/fixtures/run-bootstrap.php', $bootstrap_file ),
+			$command,
 			array(
 				array( 'pipe', 'r' ),
 				array( 'pipe', 'w' ),
 				array( 'pipe', 'w' ),
 			),
-			$pipes
+			$pipes,
+			null,
+			$env + array( 'PATH' => getenv( 'PATH' ) )
 		);
 		if ( ! is_resource( $process ) ) {
 			throw new RuntimeException( 'proc_open failed' );
@@ -113,13 +134,33 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		fclose( $pipes[2] );
 		$exit_code = proc_close( $process );
 
-		$report = json_decode( $stdout, true );
+		// php-cgi prints CGI headers ahead of the report.
+		$json   = strstr( $stdout, '{' );
+		$report = false === $json ? null : json_decode( $json, true );
 		$this->assertIsArray( $report, "Child process produced no report. stdout: $stdout stderr: $stderr" );
 
 		return $report + array(
 			'exit_code' => $exit_code,
 			'stderr'    => $stderr,
 		);
+	}
+
+	/**
+	 * Finds a php-cgi binary matching the running PHP, or null when none is installed.
+	 *
+	 * @return string|null
+	 */
+	private function find_php_cgi() {
+		$names = array( 'php-cgi' . PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION, 'php-cgi' );
+		$dirs  = array_merge( array( dirname( PHP_BINARY ) ), explode( PATH_SEPARATOR, (string) getenv( 'PATH' ) ) );
+		foreach ( $dirs as $dir ) {
+			foreach ( $names as $name ) {
+				if ( is_executable( "$dir/$name" ) ) {
+					return "$dir/$name";
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -135,6 +176,35 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		$this->assertSame( '', $report['stderr'] );
 		$this->assertSame( 'preload', $report['run'] );
 		$this->assertTrue( $report['runner_loaded'] );
+		$this->assertSame( 0, $report['autoloaders'] );
+		$this->assertSame( array(), $report['variables'] );
+		$this->assertSame( array(), $report['package_files'] );
+	}
+
+	/**
+	 * Test that, on a web request, the loader serves the runtime classes and the rules entrypoint runs before the loader is removed.
+	 *
+	 * @runInSeparateProcess
+	 */
+	#[RunInSeparateProcess]
+	public function testGeneratedBootstrapRunsTheRulesOnAWebRequest() {
+		$php_cgi = $this->find_php_cgi();
+		if ( null === $php_cgi ) {
+			$this->markTestSkipped( 'php-cgi is not installed; the web SAPI run cannot be exercised.' );
+		}
+
+		$bootstrap_file = $this->generate_real_bootstrap();
+		mkdir( dirname( $bootstrap_file ) . '/rules' );
+		file_put_contents( dirname( $bootstrap_file ) . '/rules/rules.php', "<?php\ndefine( 'JETPACK_WAF_TEST_RULES_WAF', get_class( \$waf ) );\n" );
+
+		$report = $this->run_bootstrap_in_child_process( $bootstrap_file, $php_cgi );
+
+		$this->assertSame( 0, $report['exit_code'] );
+		$this->assertSame( '', $report['stderr'] );
+		$this->assertNotSame( 'cli', $report['sapi'] );
+		$this->assertSame( 'preload', $report['run'] );
+		$this->assertSame( 'Automattic\\Jetpack\\Waf\\Waf_Runtime', $report['rules_waf'] );
+		$this->assertTrue( $report['runtime_loaded'] );
 		$this->assertSame( 0, $report['autoloaders'] );
 		$this->assertSame( array(), $report['variables'] );
 		$this->assertSame( array(), $report['package_files'] );

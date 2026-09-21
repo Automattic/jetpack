@@ -2,23 +2,40 @@
 /**
  * Runs a generated standalone bootstrap the way `auto_prepend_file` would and reports what it left behind.
  *
+ * The bootstrap path comes from the JETPACK_WAF_TEST_BOOTSTRAP environment variable, or the first argument under the CLI SAPI.
+ *
  * @package automattic/jetpack-waf
  */
 
+$bootstrap = getenv( 'JETPACK_WAF_TEST_BOOTSTRAP' );
+if ( ! $bootstrap ) {
+	$bootstrap = $argv[1];
+}
 $before = array_keys( get_defined_vars() );
 
-require $argv[1];
+require $bootstrap;
 
-$leaked      = array_values( array_diff( array_keys( get_defined_vars() ), $before, array( 'before' ) ) );
+// Superglobals appear in get_defined_vars() once first used, so they are not leaks.
+$leaked      = array_values(
+	array_filter(
+		array_diff( array_keys( get_defined_vars() ), $before, array( 'before' ) ),
+		function ( $name ) {
+			return 'GLOBALS' !== $name && ! preg_match( '/^_[A-Z]+$/', $name );
+		}
+	)
+);
 $autoloaders = spl_autoload_functions();
 
 echo json_encode(
 	array(
-		'run'           => defined( 'JETPACK_WAF_RUN' ) ? JETPACK_WAF_RUN : null,
-		'autoloaders'   => $autoloaders ? count( $autoloaders ) : 0,
-		'variables'     => $leaked,
-		'runner_loaded' => class_exists( Automattic\Jetpack\Waf\Waf_Runner::class, false ),
-		'package_files' => array_values(
+		'sapi'           => PHP_SAPI,
+		'run'            => defined( 'JETPACK_WAF_RUN' ) ? JETPACK_WAF_RUN : null,
+		'rules_waf'      => defined( 'JETPACK_WAF_TEST_RULES_WAF' ) ? JETPACK_WAF_TEST_RULES_WAF : null,
+		'autoloaders'    => $autoloaders ? count( $autoloaders ) : 0,
+		'variables'      => $leaked,
+		'runner_loaded'  => class_exists( Automattic\Jetpack\Waf\Waf_Runner::class, false ),
+		'runtime_loaded' => class_exists( Automattic\Jetpack\Waf\Waf_Runtime::class, false ),
+		'package_files'  => array_values(
 			array_filter(
 				get_included_files(),
 				function ( $file ) {
