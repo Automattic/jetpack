@@ -48,7 +48,7 @@ import clsx from 'clsx';
 import GridiconPlus from 'gridicons/dist/plus-small';
 import PayPalAccountHeader from './components/account-header';
 import AmountField from './components/amount-field';
-import ConfirmDialogs from './components/confirm-dialogs';
+import ConfirmDialogs, { UnsavedChangesDialog } from './components/confirm-dialogs';
 import ConnectionWizard, { OnboardingFrame } from './components/connection-wizard';
 import ExistingLinksStep from './components/existing-links-step';
 import PayPalFormatControls from './components/format-controls';
@@ -69,8 +69,13 @@ import { API_BASE } from './utils/api-base';
 import { SUPPORTED_CURRENCIES } from './utils/currencies';
 import { CURRENCY_SYMBOLS, getPricePlaceholder, getPriceStep } from './utils/currency-symbols';
 import { withPartnerAttribution } from './utils/partner-attribution';
-import { RESOURCE_ATTRIBUTES, resetToDefaults, turnGateOff } from './utils/resource-sync';
-import { recordPaymentRead } from './utils/sync-on-save';
+import {
+	isSameValue,
+	RESOURCE_ATTRIBUTES,
+	resetToDefaults,
+	turnGateOff,
+} from './utils/resource-sync';
+import { recordPaymentRead, syncBlocksBeforeSave } from './utils/sync-on-save';
 import { toast } from './utils/toast';
 import {
 	getUserFriendlyError,
@@ -86,6 +91,12 @@ import {
 
 // Button type is always 'single' — the hosted payment page handles
 // payment method selection (PayPal, cards, wallets, etc.).
+
+// What the form edits: the payment's own attributes and the block's image, which
+// is sent with them.
+const FORM_FIELDS = [ ...RESOURCE_ATTRIBUTES, 'imageUrl', 'imageId' ];
+const formFieldsOf = attributes =>
+	Object.fromEntries( FORM_FIELDS.map( key => [ key, attributes[ key ] ] ) );
 
 // Touched marks key on the row index. A stable `_key` would make every mount report a
 // change, since resource-sync.js strips `_key` from variants only.
@@ -545,6 +556,7 @@ export default function ApiManagedEdit( {
 	useEffect( () => {
 		setIsEditing( ! formIsValid.current );
 		setIsSwitching( false );
+		setShowUnsavedConfirm( false );
 	}, [ resourceId ] );
 	// An undo, or a read writing back a value that fails validation, can break the
 	// link later on, and the details have nowhere to show it. Opening only, so the
@@ -556,6 +568,71 @@ export default function ApiManagedEdit( {
 	}, [ isFormValid ] );
 	const showDetails = hasButton && ! isEditing;
 	const showSwitch = hasButton && isSwitching;
+
+	// The form's fields as it opened, so leaving with them changed can ask first.
+	// Retaken when PayPal's own values arrive while the form is open: those are not
+	// the merchant's changes.
+	const formOpenedWith = useRef( null );
+	const latestAttributes = useRef( attributes );
+	latestAttributes.current = attributes;
+	useEffect( () => {
+		if ( isEditing ) {
+			formOpenedWith.current = formFieldsOf( latestAttributes.current );
+		}
+	}, [ isEditing, paymentChanged ] );
+	const hasUnsavedChanges =
+		isEditing &&
+		!! formOpenedWith.current &&
+		FORM_FIELDS.some(
+			key => ! isSameValue( key, attributes[ key ], formOpenedWith.current[ key ] )
+		);
+	const [ showUnsavedConfirm, setShowUnsavedConfirm ] = useState( false );
+	const [ isSavingPayment, setIsSavingPayment ] = useState( false );
+
+	/**
+	 * Back from the form to the details, asking first when there is something to lose.
+	 */
+	const leaveForm = () => {
+		if ( hasUnsavedChanges ) {
+			setShowUnsavedConfirm( true );
+		} else {
+			setIsEditing( false );
+		}
+	};
+
+	/**
+	 * Put the link back as the form found it, and leave.
+	 */
+	const discardChanges = () => {
+		setAttributes( formOpenedWith.current );
+		setShowUnsavedConfirm( false );
+		setIsEditing( false );
+	};
+
+	/**
+	 * Write the payment now, as the post save would, and leave once it is written.
+	 * A failure is reported in the snackbar and keeps the form, so it can be fixed.
+	 */
+	const savePayment = async () => {
+		setIsSavingPayment( true );
+		let failed = false;
+		const report = status => ( _block, message ) => {
+			failed = true;
+			toast( status, message );
+		};
+		await syncBlocksBeforeSave( [ { clientId: blockClientId, attributes } ], {
+			request: apiFetch,
+			updateBlockAttributes: ( _clientId, updates ) => setAttributes( updates ),
+			reportError: report( 'error' ),
+			reportHeldBack: report( 'warning' ),
+		} );
+		setIsSavingPayment( false );
+		setShowUnsavedConfirm( false );
+		if ( ! failed ) {
+			toast( 'success', __( 'Payment link saved.', 'jetpack-paypal-payments' ) );
+			setIsEditing( false );
+		}
+	};
 
 	// The changed-at-PayPal warning is done once the merchant leaves the details
 	// screen it was raised on. Keyed to that screen rather than to selection, which
@@ -940,7 +1017,7 @@ export default function ApiManagedEdit( {
 					{ hasButton && (
 						<Button
 							icon={ isRTL() ? chevronRight : chevronLeft }
-							onClick={ () => setIsEditing( false ) }
+							onClick={ leaveForm }
 							className="jetpack-paypal-payment-buttons__back-to-details"
 						>
 							{ __( 'Edit Button', 'jetpack-paypal-payments' ) }
@@ -1587,6 +1664,15 @@ export default function ApiManagedEdit( {
 			</div>
 
 			{ confirmDialogs }
+			{ showUnsavedConfirm && (
+				<UnsavedChangesDialog
+					canSave={ isFormValid }
+					isSaving={ isSavingPayment }
+					onSave={ savePayment }
+					onDiscard={ discardChanges }
+					onCancel={ () => setShowUnsavedConfirm( false ) }
+				/>
+			) }
 		</div>
 	);
 }

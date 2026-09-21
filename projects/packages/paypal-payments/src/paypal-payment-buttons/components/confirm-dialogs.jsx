@@ -101,6 +101,55 @@ export function LogOutDialog( { onConfirm, onCancel } ) {
 }
 
 /**
+ * The unsaved-changes confirmation, for leaving a saved link's form with changes
+ * PayPal has not been sent.
+ *
+ * @param {object}   props           - Component props.
+ * @param {boolean}  props.canSave   - Whether the form is valid, so the payment can be written.
+ * @param {boolean}  props.isSaving  - Whether the payment is being written.
+ * @param {Function} props.onSave    - Write the payment, then leave.
+ * @param {Function} props.onDiscard - Put the link back as it was, then leave.
+ * @param {Function} props.onCancel  - Close and stay on the form.
+ * @return {Element} The dialog.
+ */
+export function UnsavedChangesDialog( { canSave, isSaving, onSave, onDiscard, onCancel } ) {
+	return (
+		<Modal
+			title={ __( 'Changes made', 'jetpack-paypal-payments' ) }
+			onRequestClose={ onCancel }
+			size="medium"
+			className="jetpack-paypal-payment-buttons__unsaved-dialog"
+		>
+			<p>
+				{ __(
+					'Do you want to save before leaving? If not, all the changes you’ve made will be lost.',
+					'jetpack-paypal-payments'
+				) }
+			</p>
+			<div className="jetpack-paypal-payment-buttons__unsaved-dialog-actions">
+				<Button
+					__next40pxDefaultSize
+					variant="tertiary"
+					onClick={ onDiscard }
+					disabled={ isSaving }
+				>
+					{ __( 'Don’t save', 'jetpack-paypal-payments' ) }
+				</Button>
+				<Button
+					__next40pxDefaultSize
+					variant="primary"
+					onClick={ onSave }
+					disabled={ ! canSave || isSaving }
+					isBusy={ isSaving }
+				>
+					{ __( 'Save', 'jetpack-paypal-payments' ) }
+				</Button>
+			</div>
+		</Modal>
+	);
+}
+
+/**
  * The confirmation dialogs for destructive actions — delete, disconnect and log out.
  *
  * @param {object}   props                          - Component props.
