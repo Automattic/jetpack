@@ -20,11 +20,17 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-akismet-admin-chr
  *
  * @covers Akismet_Admin_Chrome
  * @covers Automattic\Jetpack\Plugin\Footer_Links::get_my_jetpack_products_section
+ * @covers Automattic\Jetpack\Plugin\Footer_Links::is_my_jetpack_available
  */
 #[CoversClass( Akismet_Admin_Chrome::class )]
 #[CoversMethod( Footer_Links::class, 'get_my_jetpack_products_section' )]
+#[CoversMethod( Footer_Links::class, 'is_my_jetpack_available' )]
 class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
+	private $registered_pages;
+	private $actions;
+	private $user_id;
 
 	/**
 	 * Reset the status cache, which memoizes both the offline-mode and the
@@ -33,6 +39,14 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		Status_Cache::clear();
+
+		global $_registered_pages, $wp_actions;
+		$this->registered_pages = $_registered_pages;
+		$this->actions          = $wp_actions;
+		$this->user_id          = get_current_user_id();
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		do_action( 'my_jetpack_init' );
+		$_registered_pages[ get_plugin_page_hookname( 'my-jetpack', 'jetpack' ) ] = true;
 	}
 
 	/**
@@ -42,6 +56,10 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_feature_flag_enabled_my-jetpack-features-tab' );
 		Constants::clear_single_constant( 'IS_WPCOM' );
 		Status_Cache::clear();
+		global $_registered_pages, $wp_actions;
+		$_registered_pages = $this->registered_pages;
+		$wp_actions        = $this->actions;
+		wp_set_current_user( $this->user_id );
 		parent::tear_down();
 	}
 
@@ -151,6 +169,22 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( 'page=my-jetpack', $wpcom );
 		// The byline itself still renders on WordPress.com.
 		$this->assertStringContainsString( 'class="jp-akismet-footer__a8c"', $wpcom );
+	}
+
+	/**
+	 * The shared wrapper gates the PHP footer on My Jetpack's registered page.
+	 */
+	public function test_unavailable_my_jetpack_hides_footer_links() {
+		global $_registered_pages;
+
+		$this->assertTrue( Footer_Links::is_my_jetpack_available() );
+		unset( $_registered_pages[ get_plugin_page_hookname( 'my-jetpack', 'jetpack' ) ] );
+		$this->assertFalse( Footer_Links::is_my_jetpack_available() );
+
+		$footer = $this->render( array( new Akismet_Admin_Chrome(), 'render_footer' ) );
+
+		$this->assertStringNotContainsString( 'page=my-jetpack', $footer );
+		$this->assertStringContainsString( 'class="jp-akismet-footer__a8c"', $footer );
 	}
 
 	/**

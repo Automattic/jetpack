@@ -685,15 +685,28 @@ class Initializer {
 	 * @return array
 	 */
 	public static function add_admin_script_data( $data ) {
-		global $_registered_pages;
-
-		$data['myJetpack']['isAvailable']     = did_action( 'my_jetpack_init' ) > 0
-			&& isset( $_registered_pages['jetpack_page_my-jetpack'] )
-			&& current_user_can( 'edit_posts' );
+		$data['myJetpack']['isAvailable']     = self::is_admin_page_available();
 		$data['myJetpack']['assetsUrl']       = self::get_assets_url();
 		$data['myJetpack']['productsSection'] = self::get_products_section();
 
 		return $data;
+	}
+
+	/**
+	 * Whether My Jetpack's admin page is available to the current user.
+	 *
+	 * Meaningful only after admin_menu has registered the page.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_admin_page_available() {
+		global $_registered_pages;
+
+		return did_action( 'my_jetpack_init' ) > 0
+			&& isset( $_registered_pages[ get_plugin_page_hookname( 'my-jetpack', 'jetpack' ) ] )
+			&& current_user_can( 'edit_posts' );
 	}
 
 	/**

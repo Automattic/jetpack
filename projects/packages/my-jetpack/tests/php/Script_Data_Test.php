@@ -48,6 +48,7 @@ class Script_Data_Test extends BaseTestCase {
 		$registered_pages = $_registered_pages;
 		$actions          = $wp_actions;
 		$user_id          = get_current_user_id();
+		$page_hook        = get_plugin_page_hookname( 'my-jetpack', 'jetpack' );
 		$editor_id        = wp_insert_user(
 			array(
 				'user_login' => 'footer-editor',
@@ -59,14 +60,14 @@ class Script_Data_Test extends BaseTestCase {
 		try {
 			wp_set_current_user( $editor_id );
 			unset( $wp_actions['my_jetpack_init'] );
-			$_registered_pages['jetpack_page_my-jetpack'] = true;
+			$_registered_pages[ $page_hook ] = true;
 			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack']['isAvailable'] );
 
 			do_action( 'my_jetpack_init' );
-			unset( $_registered_pages['jetpack_page_my-jetpack'] );
+			unset( $_registered_pages[ $page_hook ] );
 			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack']['isAvailable'] );
 
-			$_registered_pages['jetpack_page_my-jetpack'] = true;
+			$_registered_pages[ $page_hook ] = true;
 			$this->assertTrue( Initializer::add_admin_script_data( array() )['myJetpack']['isAvailable'] );
 
 			wp_set_current_user( 0 );
