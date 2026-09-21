@@ -78,7 +78,10 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 		// Record what the click asked for. Kept outside the cached state on purpose: a
 		// response carries the whole site, so writing it here would let one feature's
 		// response overwrite another that is still being toggled.
-		onMutate: ( action: PluginAction ) => {
+		onMutate: async ( action: PluginAction ) => {
+			// A read already in flight would land after this request and overwrite what it
+			// returns, with the asked-for value already cleared and nothing left to mask it.
+			await queryClient.cancelQueries( { queryKey: QUERY_KEY } );
 			setRequestedSwitch( pluginSwitchKey( plugin ), action !== 'deactivate' );
 		},
 		onSuccess: ( state, action ) => {

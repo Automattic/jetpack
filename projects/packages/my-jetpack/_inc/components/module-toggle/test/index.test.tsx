@@ -260,6 +260,18 @@ describe( 'ModuleToggle', () => {
 		await waitFor( () => expect( toggle ).toBeChecked() );
 	} );
 
+	it( 'explains itself when a request never answers', async () => {
+		mockToggleModule.mockRejectedValueOnce( new Error( 'took too long' ) );
+
+		render( <ModuleToggle module={ buildModule( { module: 'podcast', name: 'Podcast' } ) } /> );
+
+		await userEvent.click( screen.getByRole( 'checkbox' ) );
+
+		// A rejection is a failure like any other, not a silent snap back.
+		await waitFor( () => expect( mockCreateErrorNotice ).toHaveBeenCalled() );
+		expect( screen.getByRole( 'checkbox' ) ).toBeChecked();
+	} );
+
 	it( 'disables a switch whose request is still waiting its turn', async () => {
 		let release: ( value: boolean ) => void = () => undefined;
 		mockToggleModule.mockImplementationOnce(

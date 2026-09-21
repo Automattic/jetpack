@@ -78,10 +78,10 @@ class Main_Features_Test extends TestCase {
 	public function test_urls_are_absolute_https() {
 		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
 			$urls = array(
-				'image'          => $feature['image'],
-				'info_url'       => $feature['info_url'],
-				'docs_url'       => $feature['docs_url'],
-				'standalone_url' => $feature['delivery']['standalone_url'] ?? '',
+				'image'      => $feature['image'],
+				'info_url'   => $feature['info_url'],
+				'docs_url'   => $feature['docs_url'],
+				'plugin_url' => $feature['delivery']['plugin_url'] ?? '',
 			);
 
 			foreach ( array_filter( $urls ) as $key => $url ) {
@@ -156,8 +156,8 @@ class Main_Features_Test extends TestCase {
 	public function test_standalone_name_and_url_come_together() {
 		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
 			$this->assertSame(
-				empty( $feature['delivery']['standalone'] ),
-				empty( $feature['delivery']['standalone_url'] ),
+				empty( $feature['delivery']['plugin_name'] ),
+				empty( $feature['delivery']['plugin_url'] ),
 				"Feature {$slug} has a standalone plugin name or URL without the other."
 			);
 		}

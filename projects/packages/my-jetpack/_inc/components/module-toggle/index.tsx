@@ -130,6 +130,10 @@ export function useModuleActivation(
 						active,
 					} )
 				);
+			} catch {
+				// The queue gives up on a request that never answers. Treated as a failure
+				// so the switch explains itself rather than silently going back.
+				success = false;
 			} finally {
 				setIsQueued( false );
 				setRequestedSwitch( moduleSwitchKey( $module.module ), null );
@@ -184,7 +188,9 @@ export function ModuleToggle( {
 	const deactivateModule = useCallback( () => setModuleActive( false ), [ setModuleActive ] );
 
 	if ( blockThemeMigration ) {
-		if ( isActive ) {
+		// The stored value, not the asked-for one: the two branches are different actions,
+		// so answering the click early would swap the button for a link to somewhere else.
+		if ( $module.activated ) {
 			return (
 				<SecondaryButton
 					label={ blockThemeMigration.switchLabel }

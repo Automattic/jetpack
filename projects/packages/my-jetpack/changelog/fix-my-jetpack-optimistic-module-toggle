@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Module switches answer a click straight away and explain themselves if it fails.

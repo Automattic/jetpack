@@ -7,6 +7,9 @@ import type { FeatureState } from '../feature-state';
 
 const mockRun = jest.fn();
 
+// What a click has asked of the module, when a test wants it to differ from the store.
+let mockAskedFor: boolean | null = null;
+
 jest.mock( '../use-main-features', () => ( {
 	useFeaturePlugin: ( plugin: string, name: string ) => ( {
 		run: ( action: string ) => mockRun( { plugin, name, action } ),
@@ -17,7 +20,12 @@ jest.mock( '../use-main-features', () => ( {
 jest.mock( '../../../module-toggle', () => ( {
 	// ds-allow: input -- stands in for the real ModuleToggle, which reaches the modules store.
 	ModuleToggle: () => <input type="checkbox" aria-label="Module toggle" readOnly />,
-	useModuleActivation: () => ( { setModuleActive: jest.fn(), isUpdating: false } ),
+	// Mirrors the hook: `isActive` is the value the switch shows, asked-for or stored.
+	useModuleActivation: ( $module: { activated: boolean } ) => ( {
+		setModuleActive: jest.fn(),
+		isUpdating: false,
+		isActive: mockAskedFor ?? $module.activated,
+	} ),
 } ) );
 
 const buildFeature = ( overrides: Partial< MainFeature > = {} ) =>
@@ -35,7 +43,10 @@ const buildState = ( control: FeatureState[ 'control' ], overrides = {} ): Featu
 
 const $module = { module: 'stats', available: true, activated: true } as MyJetpackModule;
 
-beforeEach( () => mockRun.mockClear() );
+beforeEach( () => {
+	mockRun.mockClear();
+	mockAskedFor = null;
+} );
 
 const countControls = () =>
 	screen.queryAllByRole( 'checkbox' ).length + screen.queryAllByRole( 'button' ).length;
@@ -150,6 +161,15 @@ describe( 'FeatureModalActions', () => {
 			screen.getByRole( 'button', { name: 'Deactivate Jetpack Boost' } )
 		).toBeInTheDocument();
 		expect( countControls() ).toBe( 1 );
+	} );
+
+	it( 'follows the value the click asked of the module, not the stored one', () => {
+		// Mid-request the store still says on; the button has to say what the card says.
+		mockAskedFor = false;
+
+		render( <FeatureModalActions state={ buildState( { kind: 'module', module: $module } ) } /> );
+
+		expect( screen.getByRole( 'button', { name: 'Activate Boost' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'offers no Open for a module-backed feature with nowhere to go', () => {

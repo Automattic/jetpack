@@ -56,8 +56,9 @@ type ModuleSwitchProps = {
  * @return The rendered component.
  */
 function ModuleSwitch( { module: $module, name }: ModuleSwitchProps ) {
-	const { setModuleActive, isUpdating } = useModuleActivation( $module, { reload: false } );
-	const isActive = $module.activated;
+	const { setModuleActive, isUpdating, isActive } = useModuleActivation( $module, {
+		reload: false,
+	} );
 	const onClick = useCallback( () => setModuleActive( ! isActive ), [ isActive, setModuleActive ] );
 
 	return (

@@ -23,6 +23,13 @@ class Main_Features_Rest_Test extends TestCase {
 
 	private $server;
 
+	/**
+	 * Plugin folders created by a test, removed in tearDown.
+	 *
+	 * @var string[]
+	 */
+	private $carriers = array();
+
 	public function setUp(): void {
 		parent::setUp();
 
@@ -61,6 +68,23 @@ class Main_Features_Rest_Test extends TestCase {
 		remove_all_filters( self::FLAG_FILTER );
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
+
+		foreach ( $this->carriers as $root ) {
+			foreach (
+				array(
+					$root . '/jetpack_vendor/automattic/jetpack-my-jetpack',
+					$root . '/jetpack_vendor/automattic',
+					$root . '/jetpack_vendor',
+					$root,
+				) as $dir
+			) {
+				if ( is_dir( $dir ) ) {
+					rmdir( $dir );
+				}
+			}
+		}
+
+		$this->carriers = array();
 
 		unlink( self::PLUGIN_DIR . '/jetpack-boost.php' );
 		rmdir( self::PLUGIN_DIR );
@@ -124,25 +148,54 @@ class Main_Features_Rest_Test extends TestCase {
 	}
 
 	/**
+	 * A plugin that carries My Jetpack, for the provider scan to find.
+	 *
+	 * @param string $folder The plugin's folder name.
+	 * @return string The folder's path, for removal.
+	 */
+	private function add_carrier( $folder ) {
+		$root = WP_PLUGIN_DIR . '/' . $folder;
+
+		if ( ! is_dir( $root . '/jetpack_vendor/automattic/jetpack-my-jetpack' ) ) {
+			mkdir( $root . '/jetpack_vendor/automattic/jetpack-my-jetpack', 0777, true );
+		}
+
+		$this->carriers[] = $root;
+
+		return $root;
+	}
+
+	/**
 	 * Several plugins carry My Jetpack and the autoloader picks one, so the one serving
 	 * the page can be switched off while another is there to take over.
 	 */
-	public function test_allows_deactivating_the_host_when_another_plugin_carries_my_jetpack() {
-		$root   = WP_PLUGIN_DIR . '/my-jetpack-carrier';
-		$vendor = $root . '/jetpack_vendor/automattic/jetpack-my-jetpack';
-		mkdir( $vendor, 0777, true );
+	public function test_another_active_plugin_carrying_my_jetpack_is_found() {
+		$this->add_carrier( 'my-jetpack-carrier' );
 		update_option( 'active_plugins', array( 'my-jetpack-carrier/my-jetpack-carrier.php' ) );
 
 		$this->assertFalse( Main_Features::is_only_my_jetpack_provider( 'jetpack-boost' ) );
+	}
 
-		// Nothing else active carries it, so now the page would have nowhere to come from.
-		update_option( 'active_plugins', array() );
+	/**
+	 * The plugin being switched off does not count as its own replacement — without that
+	 * the last copy of My Jetpack could be deactivated and take the page with it.
+	 */
+	public function test_the_plugin_being_deactivated_does_not_count_as_another_carrier() {
+		// A folder of its own: the scan reads folder names, and reusing a real plugin's
+		// would mean removing a directory this test did not create.
+		$this->add_carrier( 'my-jetpack-host' );
+		update_option( 'active_plugins', array( 'my-jetpack-host/my-jetpack-host.php' ) );
+
+		$this->assertTrue( Main_Features::is_only_my_jetpack_provider( 'my-jetpack-host' ) );
+	}
+
+	/**
+	 * An active plugin that does not carry My Jetpack is no replacement either.
+	 */
+	public function test_an_active_plugin_without_my_jetpack_is_not_a_carrier() {
+		update_option( 'active_plugins', array( 'hello-dolly/hello.php' ) );
 
 		$this->assertTrue( Main_Features::is_only_my_jetpack_provider( 'jetpack-boost' ) );
-
-		foreach ( array( $vendor, dirname( $vendor ), dirname( $vendor, 2 ), $root ) as $dir ) {
-			rmdir( $dir );
-		}
 	}
 
 	public function test_refuses_a_plugin_the_map_does_not_name() {

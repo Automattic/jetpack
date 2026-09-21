@@ -52,7 +52,18 @@ class Main_Features {
 	 * @return array<string, array<string, mixed>> Feature definitions keyed by feature slug.
 	 */
 	public static function get_feature_definitions() {
-		return array(
+		// Built once per locale: the REST route asks for it on every `rest_api_init` to
+		// bound its plugin argument, and rebuilding a hundred translated strings for that
+		// is a cost every request to the site pays, not just this page.
+		static $definitions = array();
+
+		$locale = get_user_locale();
+
+		if ( isset( $definitions[ $locale ] ) ) {
+			return $definitions[ $locale ];
+		}
+
+		$definitions[ $locale ] = array(
 			'activity-log'  => array(
 				'info_url'         => 'https://jetpack.com/security/activity-log/',
 				'docs_url'         => 'https://jetpack.com/support/activity-log/',
@@ -410,6 +421,8 @@ class Main_Features {
 				'paid_product'     => __( 'Jetpack VideoPress', 'jetpack-my-jetpack' ),
 			),
 		);
+
+		return $definitions[ $locale ];
 	}
 
 	/**
