@@ -29,6 +29,8 @@ export type FeatureState = {
 	// True while this feature's live state is still being fetched. Its copy is already
 	// right; its status and control are not known yet.
 	pending?: boolean;
+	// True while this feature's own switch has a request out.
+	isSwitching?: boolean;
 	// Whether the feature is switched on here, which is not whether a plan covers it:
 	// the wp-admin sidebar asks the same question, and the two have to agree.
 	status: 'active' | 'inactive';
@@ -56,20 +58,21 @@ export function resolveFeatureState(
 	productModules: Record< string, string >,
 	modulesLoading = false
 ): FeatureState {
+	// A product's module is rarely named after it (Social runs 'publicize'). Resolved the
+	// way the Products tab builds its cards, which also keeps the pre-release gate on
+	// Jetpack AI: with the flag off that map drops AI, so no module resolves.
+	const moduleSlug =
+		feature.module ||
+		( feature.product ? productModules[ feature.product ] || feature.product : '' );
+	const $module =
+		moduleSlug && jetpack === 'active' ? modules?.[ moduleSlug as JetpackModuleSlug ] : undefined;
+
 	if ( feature.in_jetpack && jetpack === 'active' ) {
 		// Answering from an empty module list would offer to install a plugin for a
 		// feature Jetpack is already running.
 		if ( modulesLoading ) {
 			return { feature, product, pending: true, status: 'inactive', control: { kind: 'none' } };
 		}
-
-		// A product's module is rarely named after it (Social runs 'publicize'). Resolved
-		// the way the Products tab builds its cards, which also keeps the pre-release gate
-		// on Jetpack AI: with the flag off that map drops AI, so no module resolves.
-		const moduleSlug =
-			feature.module ||
-			( feature.product ? productModules[ feature.product ] || feature.product : '' );
-		const $module = moduleSlug ? modules?.[ moduleSlug as JetpackModuleSlug ] : undefined;
 
 		if ( $module?.available ) {
 			return {
@@ -82,11 +85,16 @@ export function resolveFeatureState(
 	}
 
 	if ( feature.plugin ) {
+		// Read for status even where a plugin is the switch: the wp-admin sidebar counts a
+		// Hybrid product as on when either its plugin or its module is, and a card that
+		// disagreed with the sidebar would be wrong on any Jetpack site running the module.
+		const moduleIsOn = Boolean( $module?.available && $module.activated );
+
 		if ( feature.plugin_status === 'not-installed' ) {
 			return {
 				feature,
 				product,
-				status: 'inactive',
+				status: moduleIsOn ? 'active' : 'inactive',
 				control: { kind: 'install-plugin', plugin: feature.plugin },
 			};
 		}
@@ -94,7 +102,7 @@ export function resolveFeatureState(
 		return {
 			feature,
 			product,
-			status: feature.plugin_status === 'active' ? 'active' : 'inactive',
+			status: feature.plugin_status === 'active' || moduleIsOn ? 'active' : 'inactive',
 			control: { kind: 'plugin', plugin: feature.plugin },
 		};
 	}
@@ -134,7 +142,12 @@ export function useFeatureStates( state: MainFeaturesState ): {
 
 	// Until the modules land, every module lookup misses and a feature Jetpack runs would
 	// read as "install its plugin instead". Only Jetpack-active sites consult them.
-	const isLoadingModules = state.jetpack === 'active' && isLoading;
+	//
+	// An empty map counts as not-yet-known for the same reason: a fetch that failed leaves
+	// `isLoading` false and nothing to read, which is indistinguishable here from a site
+	// with no modules, and guessing wrong offers the wrong control.
+	const isLoadingModules =
+		state.jetpack === 'active' && ( isLoading || Object.keys( modules ?? {} ).length === 0 );
 
 	// What each switch with a request out asked for. Applied over the fetched state rather
 	// than written into it, so a response carrying the whole site cannot overwrite a
@@ -155,7 +168,12 @@ export function useFeatureStates( state: MainFeaturesState ): {
 						isLoadingModules
 					)
 				)
-				.map( resolved => applyRequestedModule( resolved, requested ) ),
+				.map( resolved => applyRequestedModule( resolved, requested ) )
+				.map( resolved =>
+					requested[ pluginSwitchKey( resolved.feature.plugin ) ] === undefined
+						? resolved
+						: { ...resolved, isSwitching: true }
+				),
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- productModules is rebuilt each render from a constant map.
 		[ state, products, modules, isLoadingModules, requested ]
 	);
@@ -180,7 +198,9 @@ function applyRequestedModule(
 
 	const asked = requested[ moduleSwitchKey( state.control.module.module ) ];
 
-	return asked === undefined ? state : { ...state, status: asked ? 'active' : 'inactive' };
+	return asked === undefined
+		? state
+		: { ...state, isSwitching: true, status: asked ? 'active' : 'inactive' };
 }
 
 /**

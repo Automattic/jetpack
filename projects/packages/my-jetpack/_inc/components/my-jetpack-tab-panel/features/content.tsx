@@ -50,7 +50,12 @@ export function FeaturesContent() {
 	// term in play takes the filter's place rather than narrowing alongside it.
 	const results = useFeatureSearch( states, search );
 	const visible = useMemo(
-		() => results ?? states.filter( state => matchesFilter( state, filter ) ),
+		() =>
+			results ??
+			// A feature being switched stays put: its status has moved to what the click
+			// asked for, and dropping the card out of the list mid-request takes away the
+			// control and the place any error notice refers to.
+			states.filter( state => matchesFilter( state, filter ) || state.isSwitching ),
 		[ filter, results, states ]
 	);
 
@@ -59,12 +64,12 @@ export function FeaturesContent() {
 	const counts = useMemo(
 		() =>
 			Object.fromEntries(
-				getFeatureFilters().map( ( { value } ) => [
+				getFeatureFilters( filter ).map( ( { value } ) => [
 					value,
 					states.filter( state => matchesFilter( state, value ) ).length,
 				] )
 			) as Record< FeatureFilter, number >,
-		[ states ]
+		[ states, filter ]
 	);
 
 	const openFeature = useCallback(

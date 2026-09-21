@@ -12,18 +12,25 @@ export const isFeatureFilter = ( value: string ): value is FeatureFilter =>
 /**
  * The filters offered as pills, in the order they are shown.
  *
- * Complete is absent by choice: it stays a valid filter so a link can select it, but it
- * does not earn a pill of its own.
+ * Complete earns no pill of its own, but it is a valid filter a plan badge can select —
+ * so it joins the list while it is the active one, or the narrow layout's select, built
+ * from this list, would have nothing to show for what is filtering the grid.
  *
+ * @param active - The filter in play, if any.
  * @return One entry per filter, each with its label.
  */
-export const getFeatureFilters = (): Array< { value: FeatureFilter; label: string } > => [
+export const getFeatureFilters = (
+	active?: FeatureFilter
+): Array< { value: FeatureFilter; label: string } > => [
 	{ value: 'all', label: __( 'All', 'jetpack-my-jetpack' ) },
 	{ value: 'active', label: __( 'Active', 'jetpack-my-jetpack' ) },
 	{ value: 'inactive', label: __( 'Inactive', 'jetpack-my-jetpack' ) },
 	{ value: 'essential', label: __( 'Essential', 'jetpack-my-jetpack' ) },
 	{ value: 'security', label: __( 'Security', 'jetpack-my-jetpack' ) },
 	{ value: 'growth', label: __( 'Growth', 'jetpack-my-jetpack' ) },
+	...( 'complete' === active
+		? [ { value: 'complete' as FeatureFilter, label: __( 'Complete', 'jetpack-my-jetpack' ) } ]
+		: [] ),
 ];
 
 /**

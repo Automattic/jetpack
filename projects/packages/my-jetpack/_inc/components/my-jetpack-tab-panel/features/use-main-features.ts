@@ -6,7 +6,11 @@ import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { queueActivationRequest } from '../../../data/queue-activation-request';
-import { pluginSwitchKey, setRequestedSwitch } from '../../../data/requested-switch-state';
+import {
+	clearRequestedSwitch,
+	pluginSwitchKey,
+	setRequestedSwitch,
+} from '../../../data/requested-switch-state';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { setPendingSuccessNotice } from '../products/pending-notice';
 import { reloadPage } from '../products/reload-page';
@@ -40,16 +44,20 @@ export type PluginAction = 'install' | 'activate' | 'deactivate';
  * @return The state.
  */
 export function useMainFeatures(): MainFeaturesState {
-	const { data } = useQuery( {
+	const { data, isError } = useQuery( {
 		queryKey: QUERY_KEY,
 		queryFn: () => apiFetch< MainFeaturesState >( { path: '/wpcom/v2/my-jetpack/site/features' } ),
 		// The page's own copy renders the grid immediately; it is never cached, so a remount
 		// reads the site again rather than restoring a snapshot the site has moved past.
+		// Something switched elsewhere — the Products tab, the Plugins screen — is picked up
+		// on the next mount rather than only on a full page load.
 		placeholderData: initialState,
-		staleTime: Infinity,
+		staleTime: 30_000,
 	} );
 
-	return data ?? EMPTY_STATE;
+	// A failed read drops the placeholder, which would empty the grid and read as "this
+	// site has no features". The page's own copy is stale but it is not nothing.
+	return data ?? ( isError ? initialState() : EMPTY_STATE );
 }
 
 /**
@@ -82,11 +90,12 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 			// A read already in flight would land after this request and overwrite what it
 			// returns, with the asked-for value already cleared and nothing left to mask it.
 			await queryClient.cancelQueries( { queryKey: QUERY_KEY } );
-			setRequestedSwitch( pluginSwitchKey( plugin ), action !== 'deactivate' );
+			return { token: setRequestedSwitch( pluginSwitchKey( plugin ), action !== 'deactivate' ) };
 		},
-		onSuccess: ( state, action ) => {
-			// This request has answered, so its feature settles on what the site reports.
-			setRequestedSwitch( pluginSwitchKey( plugin ), null );
+		onSuccess: ( state, action, context ) => {
+			// This request has answered, so its feature settles on what the site reports —
+			// unless a later click has asked for something else since.
+			clearRequestedSwitch( pluginSwitchKey( plugin ), context?.token ?? 0 );
 			queryClient.setQueryData( QUERY_KEY, state );
 
 			// A product switches its Jetpack module along with its plugin, so the modules
@@ -115,20 +124,24 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 
 			createSuccessNotice( message );
 		},
-		onError: () => {
+		onError: ( error: { message?: string }, _action, context ) => {
 			// Drop the asked-for value, so the feature shows what the site last reported,
 			// and read the site again: the plugin may well have been switched before
 			// whatever failed.
-			setRequestedSwitch( pluginSwitchKey( plugin ), null );
+			clearRequestedSwitch( pluginSwitchKey( plugin ), context?.token ?? 0 );
 			queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
 			invalidateResolution( 'getJetpackModules', [] );
 
+			// The route hands back what actually failed — a missing plugin, a refused
+			// install, whatever the installer said. Repeating "try again" instead of
+			// saying DISALLOW_FILE_MODS is set just invites the same click.
 			createErrorNotice(
-				sprintf(
-					/* translators: %s is a plugin or feature name. */
-					__( 'Could not change %s. Please try again.', 'jetpack-my-jetpack' ),
-					name
-				)
+				error?.message ||
+					sprintf(
+						/* translators: %s is a plugin or feature name. */
+						__( 'Could not change %s. Please try again.', 'jetpack-my-jetpack' ),
+						name
+					)
 			);
 		},
 	} );

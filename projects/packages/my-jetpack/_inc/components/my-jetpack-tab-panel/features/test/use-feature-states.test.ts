@@ -1,5 +1,9 @@
 import { renderHook, act } from '@testing-library/react';
-import { moduleSwitchKey, setRequestedSwitch } from '../../../../data/requested-switch-state';
+import {
+	clearRequestedSwitch,
+	moduleSwitchKey,
+	setRequestedSwitch,
+} from '../../../../data/requested-switch-state';
 import { useFeatureStates } from '../feature-state';
 
 const mockModules = jest.fn();
@@ -65,6 +69,7 @@ describe( 'useFeatureStates', () => {
 
 describe( 'useFeatureStates, while a module switch is answering a click', () => {
 	const inJetpack = { ...social, plugin: '', plugin_status: 'not-installed' } as MainFeature;
+	let token = 0;
 
 	beforeEach( () => {
 		mockModules.mockReturnValue( {
@@ -74,7 +79,7 @@ describe( 'useFeatureStates, while a module switch is answering a click', () => 
 	} );
 
 	// Cleared through act(): the store is shared, so mounted cards re-render on it.
-	afterEach( () => act( () => setRequestedSwitch( moduleSwitchKey( 'publicize' ), null ) ) );
+	afterEach( () => act( () => clearRequestedSwitch( moduleSwitchKey( 'publicize' ), token ) ) );
 
 	it( 'reports the value the click asked for, so the badge can follow the switch', () => {
 		const { result } = renderHook( () =>
@@ -83,7 +88,9 @@ describe( 'useFeatureStates, while a module switch is answering a click', () => 
 
 		expect( result.current.states[ 0 ].status ).toBe( 'active' );
 
-		act( () => setRequestedSwitch( moduleSwitchKey( 'publicize' ), false ) );
+		act( () => {
+			token = setRequestedSwitch( moduleSwitchKey( 'publicize' ), false );
+		} );
 
 		expect( result.current.states[ 0 ].status ).toBe( 'inactive' );
 		expect( result.current.states[ 0 ].pending ).toBeFalsy();
@@ -94,8 +101,10 @@ describe( 'useFeatureStates, while a module switch is answering a click', () => 
 			useFeatureStates( { jetpack: 'active', features: [ inJetpack ] } as MainFeaturesState )
 		);
 
-		act( () => setRequestedSwitch( moduleSwitchKey( 'publicize' ), false ) );
-		act( () => setRequestedSwitch( moduleSwitchKey( 'publicize' ), null ) );
+		act( () => {
+			token = setRequestedSwitch( moduleSwitchKey( 'publicize' ), false );
+		} );
+		act( () => clearRequestedSwitch( moduleSwitchKey( 'publicize' ), token ) );
 
 		expect( result.current.states[ 0 ].status ).toBe( 'active' );
 	} );

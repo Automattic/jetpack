@@ -152,3 +152,38 @@ describe( 'resolveFeatureState, for a product the module map has dropped', () =>
 		);
 	} );
 } );
+
+describe( 'resolveFeatureState, for a feature its own plugin switches', () => {
+	// Protect ships in Jetpack and as a plugin, and the map names the plugin as the
+	// switch. The sidebar still counts the module, so the badge has to as well.
+	const protect = buildFeature( {
+		slug: 'protect',
+		in_jetpack: false,
+		plugin: 'jetpack-protect',
+		plugin_status: 'not-installed',
+		module: 'protect',
+	} );
+
+	const runningModule = { protect: buildModule( { module: 'protect' } ) };
+
+	it( 'reads the module for status while still offering to install the plugin', () => {
+		const state = resolveFeatureState( protect, 'active', undefined, runningModule, {} );
+
+		expect( state.status ).toBe( 'active' );
+		expect( state.control.kind ).toBe( 'install-plugin' );
+	} );
+
+	it( 'is inactive when neither the plugin nor the module is running', () => {
+		const off = { protect: buildModule( { module: 'protect', activated: false } ) };
+
+		expect( resolveFeatureState( protect, 'active', undefined, off, {} ).status ).toBe(
+			'inactive'
+		);
+	} );
+
+	it( 'ignores the module on a site without Jetpack', () => {
+		expect(
+			resolveFeatureState( protect, 'not-installed', undefined, runningModule, {} ).status
+		).toBe( 'inactive' );
+	} );
+} );

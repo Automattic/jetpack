@@ -3,9 +3,10 @@ import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { FormToggle } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { queueActivationRequest } from '../../data/queue-activation-request';
 import {
+	clearRequestedSwitch,
 	moduleSwitchKey,
 	setRequestedSwitch,
 	useRequestedSwitch,
@@ -56,17 +57,15 @@ export function useModuleActivation(
 		[ $module.module ]
 	);
 
-	// The store only counts a module as updating once its request starts, and a queued
-	// request has not started yet. Without this a switch waiting its turn looks untouched
-	// and stays clickable, which is how a second, contradicting request gets sent.
-	const [ isQueued, setIsQueued ] = useState( false );
-	const isUpdating = isQueued || storeIsUpdating;
-
-	// The store only learns the new value once the request comes back, so the switch
-	// takes the value the click asked for and holds it until then. Cleared either way:
-	// on success the store now agrees, and on failure it still holds the old value.
+	// The store only learns the new value once the request comes back, so the switch takes
+	// the value the click asked for and holds it until then.
 	const requested = useRequestedSwitch( moduleSwitchKey( $module.module ) );
 	const isActive = requested ?? $module.activated;
+
+	// Busy from the click, not from the request starting: the store only counts a module
+	// as updating once its turn comes, and a queued switch that looks untouched stays
+	// clickable. Read from the shared value, so the card and the modal agree.
+	const isUpdating = requested !== null || storeIsUpdating;
 
 	const showToggleNotice = useCallback(
 		async ( {
@@ -119,8 +118,7 @@ export function useModuleActivation(
 				} );
 			}
 
-			setIsQueued( true );
-			setRequestedSwitch( moduleSwitchKey( $module.module ), active );
+			const token = setRequestedSwitch( moduleSwitchKey( $module.module ), active );
 
 			let success;
 			try {
@@ -135,8 +133,7 @@ export function useModuleActivation(
 				// so the switch explains itself rather than silently going back.
 				success = false;
 			} finally {
-				setIsQueued( false );
-				setRequestedSwitch( moduleSwitchKey( $module.module ), null );
+				clearRequestedSwitch( moduleSwitchKey( $module.module ), token );
 			}
 
 			if ( success && reload && MODULES_REQUIRING_RELOAD.includes( $module.module ) ) {

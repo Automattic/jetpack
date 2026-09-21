@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-My Jetpack: module switches answer a click straight away and explain themselves if it fails.
+My Jetpack: answer module switch clicks immediately, and explain what happened when a change fails.

@@ -13,7 +13,7 @@ type FeatureBandProps = {
  * The artwork across the top of a feature's modal, served from jetpack.com.
  *
  * The band paints its own ground, so a missing or moved image leaves the feature's
- * glyph on brand colour rather than a hole.
+ * glyph on brand color rather than a hole.
  *
  * @param {FeatureBandProps} props         - The component props.
  * @param {MainFeature}      props.feature - The feature to illustrate.

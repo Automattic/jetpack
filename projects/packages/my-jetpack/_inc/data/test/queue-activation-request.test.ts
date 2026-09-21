@@ -43,22 +43,36 @@ describe( 'queueActivationRequest', () => {
 		);
 	} );
 
-	it( 'gives up on a request that never settles, so the queue keeps moving', async () => {
+	it( 'tells the caller when a request has not answered, without starting the next one', async () => {
 		jest.useFakeTimers();
 
-		const stuck = queueActivationRequest( () => new Promise< string >( () => undefined ) );
-		const after = queueActivationRequest( () => Promise.resolve( 'after' ) );
+		let release: ( value: string ) => void = () => undefined;
+		let secondStarted = false;
 
-		// Caught before the clock moves, or the rejection lands with no handler attached.
-		const stuckSettled = stuck.catch( ( error: Error ) => error );
+		const stuck = queueActivationRequest( () => new Promise< string >( r => ( release = r ) ) );
+		const after = queueActivationRequest( () => {
+			secondStarted = true;
+			return Promise.resolve( 'after' );
+		} );
+
+		// Both handlers attached before the clock moves, or the rejections land unhandled.
+		const settled = stuck.catch( ( error: Error ) => error );
+		const afterSettled = after.catch( ( error: Error ) => error );
 
 		await jest.advanceTimersByTimeAsync( 90_000 );
 
-		const settled = await stuckSettled;
+		expect( ( ( await settled ) as Error ).message ).toContain( 'took too long' );
 
-		expect( settled ).toBeInstanceOf( Error );
-		expect( ( settled as Error ).message ).toContain( 'took too long' );
-		await expect( after ).resolves.toBe( 'after' );
+		// Giving up waiting does not stop the server writing, so the next request waits.
+		expect( secondStarted ).toBe( false );
+
+		// The second caller was told too, so its request is dropped rather than applied
+		// late against a switch that has already gone back.
+		release( 'done' );
+		await jest.advanceTimersByTimeAsync( 0 );
+
+		expect( ( ( await afterSettled ) as Error ).message ).toContain( 'took too long' );
+		expect( secondStarted ).toBe( false );
 
 		jest.useRealTimers();
 	} );

@@ -35,19 +35,9 @@ class Main_Features {
 	/**
 	 * The static feature catalog.
 	 *
-	 * Keys are feature slugs. `product` names the My Jetpack product behind a feature;
-	 * features without one carry `admin_page` instead, plus `module` when a Jetpack module
-	 * governs them. `essential` marks a feature every site should run. `icon` is a short
-	 * icon key such as `shield`, and `interstitial` a My Jetpack route from `_inc/constants.ts`.
-	 * `image`, `info_url` and `docs_url` point at the feature's own public pages.
-	 *
-	 * `delivery` says what switches the feature on a site: `jetpack` that a Jetpack module
-	 * does while the Jetpack plugin is active, and `plugin` the WordPress.org slug of its
-	 * standalone plugin, with `plugin_name` and `plugin_url` naming that plugin. Protect and
+	 * Keyed by feature slug. `delivery` says what switches the feature: Protect and
 	 * VaultPress Backup ship inside Jetpack too, but their switch is their own plugin, so
-	 * they list only that.
-	 * `paid_highlights` lists what paying adds, `paid_product` names what to buy, and `plans`
-	 * lists the bundles that include it.
+	 * they set `jetpack` false and name only that.
 	 *
 	 * @return array<string, array<string, mixed>> Feature definitions keyed by feature slug.
 	 */
@@ -486,8 +476,7 @@ class Main_Features {
 	/**
 	 * The installed file for a plugin, by the names its product declares where there is one.
 	 *
-	 * A product lists every folder its plugin ships under, including the -dev checkout a
-	 * lookup by slug alone would miss.
+	 * A product lists every folder its plugin ships under, including the -dev checkout.
 	 *
 	 * @param string      $slug          WordPress.org plugin slug.
 	 * @param string|null $product_class The product behind the plugin, when it has one.
@@ -516,6 +505,27 @@ class Main_Features {
 	 */
 	public static function get_hosting_plugin_slug() {
 		return self::plugin_slug_from_path( WP_PLUGIN_DIR, __DIR__ );
+	}
+
+	/**
+	 * Whether a plugin slug names the plugin this copy of My Jetpack runs from.
+	 *
+	 * Compared by folder rather than by slug: a checkout in `jetpack-protect-dev` serves
+	 * the page just as well, and never equals the `jetpack-protect` a request carries.
+	 *
+	 * @param string $slug WordPress.org plugin slug.
+	 * @return bool True when the plugin is the one this page is being served from.
+	 */
+	public static function is_hosting_plugin( $slug ) {
+		$host = self::get_hosting_plugin_slug();
+
+		if ( '' === $host ) {
+			return false;
+		}
+
+		$file = self::get_plugin_file( $slug, self::get_product_class_for_plugin( $slug ) );
+
+		return $file ? dirname( (string) $file ) === $host : $host === $slug;
 	}
 
 	/**

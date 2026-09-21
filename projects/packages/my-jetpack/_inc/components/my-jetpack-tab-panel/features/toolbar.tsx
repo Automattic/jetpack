@@ -101,7 +101,7 @@ export function Toolbar( {
 					aria-label={ __( 'Filter features', 'jetpack-my-jetpack' ) }
 					className={ styles.pills }
 				>
-					{ getFeatureFilters().map( ( { value, label } ) => (
+					{ getFeatureFilters( filter ).map( ( { value, label } ) => (
 						<FilterPill
 							key={ value }
 							value={ value }
@@ -122,7 +122,7 @@ export function Toolbar( {
 						label={ __( 'Filter features', 'jetpack-my-jetpack' ) }
 						hideLabelFromVision
 						value={ filter }
-						options={ getFeatureFilters().map( ( { value, label } ) => ( {
+						options={ getFeatureFilters( filter ).map( ( { value, label } ) => ( {
 							value,
 							// No count until it is a count; the pills alongside do the same.
 							label:

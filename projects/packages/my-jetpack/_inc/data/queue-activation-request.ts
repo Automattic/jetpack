@@ -2,8 +2,9 @@
 // plugins, so two requests in flight can each drop the other's change. Send one at a time.
 let pendingActivation: Promise< unknown > = Promise.resolve();
 
-// A request that never settles would hold the queue for the life of the page, leaving every
-// later switch inert. Installs are the slow case and finish well inside this.
+// How long a caller waits before being told the request has not answered. The request
+// itself keeps going, and the queue keeps waiting for it. Installs are the slow case and
+// finish well inside this.
 const QUEUE_TIMEOUT_MS = 90_000;
 
 /**
@@ -32,11 +33,24 @@ function withTimeout< T >( request: Promise< T > ): Promise< T > {
  * @return The request's result.
  */
 export function queueActivationRequest< T >( request: () => Promise< T > ): Promise< T > {
-	const run = pendingActivation.then(
-		() => withTimeout( request() ),
-		() => withTimeout( request() )
-	);
-	pendingActivation = run.catch( () => undefined );
+	let abandoned = false;
 
-	return run;
+	// Told to give up before its turn came, this request never goes out at all, so the
+	// error its caller was shown stays true. One already in flight cannot be recalled.
+	const run = () =>
+		abandoned
+			? Promise.reject( new Error( 'The request was abandoned before it was sent.' ) )
+			: request();
+
+	const settled = pendingActivation.then( run, run );
+
+	// The queue waits on the request itself, never on the timeout: giving up waiting does
+	// not stop the server writing, so releasing the next request on a timeout would put
+	// two of them in flight — the thing this module exists to prevent.
+	pendingActivation = settled.catch( () => undefined );
+
+	return withTimeout( settled ).catch( ( error: Error ) => {
+		abandoned = true;
+		throw error;
+	} );
 }

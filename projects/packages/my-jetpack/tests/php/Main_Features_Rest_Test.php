@@ -198,6 +198,36 @@ class Main_Features_Rest_Test extends TestCase {
 		$this->assertTrue( Main_Features::is_only_my_jetpack_provider( 'jetpack-boost' ) );
 	}
 
+	/**
+	 * A plugin in a -dev folder serves the page just as well, and its folder never
+	 * equals the slug a request carries.
+	 */
+	public function test_the_hosting_plugin_is_matched_by_folder_not_by_slug() {
+		$this->assertFalse( Main_Features::is_hosting_plugin( 'jetpack-boost' ) );
+	}
+
+	/**
+	 * Switching on what is already on must not re-run the product's activation step.
+	 */
+	public function test_activating_an_active_plugin_does_nothing_further() {
+		$this->send( 'jetpack-boost', 'activate' );
+
+		$written = 0;
+		add_filter(
+			'pre_update_option_jb_get_started',
+			function ( $value ) use ( &$written ) {
+				++$written;
+				return $value;
+			}
+		);
+
+		$response = $this->send( 'jetpack-boost', 'activate' );
+		remove_all_filters( 'pre_update_option_jb_get_started' );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 0, $written );
+	}
+
 	public function test_refuses_a_plugin_the_map_does_not_name() {
 		$response = $this->send( 'hello-dolly', 'activate' );
 

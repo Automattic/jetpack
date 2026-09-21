@@ -102,8 +102,8 @@ class REST_Main_Features {
 		// another active plugin will simply take over on the next load.
 		if ( 'deactivate' === $action
 			&& ( Product::JETPACK_PLUGIN_SLUG === $slug
-				|| ( Main_Features::get_hosting_plugin_slug() === $slug
-					&& Main_Features::is_only_my_jetpack_provider( $slug ) ) ) ) {
+				|| ( Main_Features::is_hosting_plugin( $slug )
+					&& Main_Features::is_only_my_jetpack_provider( Main_Features::get_hosting_plugin_slug() ) ) ) ) {
 			return new WP_Error(
 				'not_allowed',
 				__( 'This plugin runs the page you are on, so it cannot be deactivated from here.', 'jetpack-my-jetpack' ),
@@ -157,6 +157,13 @@ class REST_Main_Features {
 			}
 
 			deactivate_plugins( $file );
+			return true;
+		}
+
+		// Already on: nothing to do, and re-running the product's activation step would
+		// reset what it set the first time — Boost's jb_get_started, Search's Instant
+		// Search. Reachable whenever a request is retried.
+		if ( $file && Main_Features::PLUGIN_ACTIVE === Main_Features::get_plugin_status( $slug, $product_class ) ) {
 			return true;
 		}
 

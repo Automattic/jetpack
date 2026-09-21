@@ -1,32 +1,55 @@
 import { useSyncExternalStore } from 'react';
 
-// The value a click asked of a switch, held until that click's own request resolves.
-//
-// Shared rather than component state for two reasons: the card's badge, its switch and
-// the modal's button are three mounts that have to agree, and a response carrying the
-// whole site's state would otherwise overwrite a feature someone is still toggling.
-//
-// Keys are namespaced by what is being switched -- `module:stats`, `plugin:akismet`.
-const requested = new Map< string, boolean >();
+// The value a click asked of a switch, held until that click's own request resolves, and
+// read by every mount showing that switch.
+const requested = new Map< string, { active: boolean; token: number } >();
+let writes = 0;
 const listeners = new Set< () => void >();
 
 // Rebuilt only when something changes, so `useSyncExternalStore` sees a stable value.
 let snapshot: Record< string, boolean > = {};
 
 /**
- * Record, or clear, the value a click asked of a switch.
+ * Record the value a click asked of a switch.
  *
  * @param key    - The switch's key, as `module:<slug>` or `plugin:<slug>`.
- * @param active - The asked-for value, or null once its request has resolved.
+ * @param active - The asked-for value.
+ * @return A token to pass to `clearRequestedSwitch` when the request resolves.
  */
-export function setRequestedSwitch( key: string, active: boolean | null ): void {
-	if ( active === null ) {
-		requested.delete( key );
-	} else {
-		requested.set( key, active );
+export function setRequestedSwitch( key: string, active: boolean ): number {
+	const token = ++writes;
+
+	requested.set( key, { active, token } );
+	publish();
+
+	return token;
+}
+
+/**
+ * Clear a value, if this caller is still the one that wrote it.
+ *
+ * A second click on the same switch supersedes the first, and the first request settling
+ * afterwards must not drop the value the second is waiting on.
+ *
+ * @param key   - The switch's key.
+ * @param token - The token `setRequestedSwitch` returned.
+ */
+export function clearRequestedSwitch( key: string, token: number ): void {
+	if ( requested.get( key )?.token !== token ) {
+		return;
 	}
 
-	snapshot = Object.fromEntries( requested );
+	requested.delete( key );
+	publish();
+}
+
+/**
+ * Rebuild the snapshot and tell everyone reading it.
+ */
+function publish(): void {
+	snapshot = Object.fromEntries(
+		Array.from( requested, ( [ key, value ] ) => [ key, value.active ] )
+	);
 	listeners.forEach( listener => listener() );
 }
 
@@ -52,7 +75,7 @@ function subscribe( listener: () => void ): () => void {
  */
 export function useRequestedSwitch( key: string ): boolean | null {
 	return useSyncExternalStore( subscribe, () =>
-		key && requested.has( key ) ? Boolean( requested.get( key ) ) : null
+		key && requested.has( key ) ? Boolean( requested.get( key )?.active ) : null
 	);
 }
 
@@ -70,6 +93,9 @@ export function useRequestedSwitches(): Record< string, boolean > {
 
 /**
  * The key a module's switch is recorded under.
+ *
+ * Namespaced by what is switched, so a module and a plugin of the same name cannot
+ * collide -- `module:stats`, `plugin:akismet`.
  *
  * @param module - The module's slug.
  * @return The key, or an empty string when there is no module.
