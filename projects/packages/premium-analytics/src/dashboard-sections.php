@@ -108,7 +108,7 @@ function is_dashboard_section_in_preview_scope( $dashboard_name, $slug ) {
  * Slugs of the tabs the dashboard exposes, for the client's report routes.
  *
  * Reads the same sections the tab list does, so a report cannot outlive the tab it sits
- * behind. Null, never `array()`, before the registry is hydrated: an empty array is a
+ * behind. Null, never `array()`, while nothing is registered: an empty array is a
  * published scope that exposes nothing.
  *
  * @since 0.6.0

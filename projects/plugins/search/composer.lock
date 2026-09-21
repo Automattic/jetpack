@@ -1760,14 +1760,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "659c070b8eedbba3c9008074373bf73047c5b173"
+                "reference": "0a7b32fa2a35644edfa2b8ca4554e646d67ffd50"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
-                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-my-jetpack": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",

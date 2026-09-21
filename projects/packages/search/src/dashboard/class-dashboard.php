@@ -8,10 +8,8 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
@@ -21,11 +19,6 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  * @package Automattic\Jetpack\Search
  */
 class Dashboard {
-	/**
-	 * Feature flag enabling the modernized, wp-build-served dashboard.
-	 */
-	const WP_BUILD_FEATURE_FLAG = 'search-wp-build';
-
 	/**
 	 * Slug emitted by `@wordpress/build` (`wpPlugin.pages[0].id`). Must differ from the
 	 * `jetpack-search` menu slug: the generated page.php takes over, and exits, any request
@@ -41,7 +34,7 @@ class Dashboard {
 	const WP_BUILD_RENDER_FN = 'jetpack_search_jetpack_search_dashboard_wp_admin_render_page';
 
 	/**
-	 * Classic script handle with no source, registered only so the wp-build path has
+	 * Classic script handle with no source, registered only so the dashboard has
 	 * something to hang {@see Initial_State} and the connection initial state on.
 	 */
 	const DATA_SCRIPT_HANDLE = 'jetpack-search-dashboard-data';
@@ -117,8 +110,8 @@ class Dashboard {
 	public function init_hooks() {
 		if ( ! self::$initialized ) {
 			self::$initialized = true;
-			// Any priority works: the predicate's readers, render() and load_admin_scripts(),
-			// both run after admin_menu — and the wpcom subclass overrides this to 100000.
+			// Any priority works: render() reads the loaded build after admin_menu, and the
+			// wpcom subclass overrides this to 100000.
 			add_action( 'admin_menu', array( $this, 'maybe_load_wp_build' ), $this->search_menu_priority );
 			add_action( 'admin_menu', array( $this, 'add_wp_admin_submenu' ), $this->search_menu_priority );
 			// Check if the site plan changed and deactivate module accordingly.
@@ -127,13 +120,12 @@ class Dashboard {
 	}
 
 	/**
-	 * Load the wp-build dashboard bundle for this request, when the site opted in.
+	 * Load the wp-build dashboard bundle for this request.
 	 *
-	 * A no-op unless the flag is on, this is the Search page, and `build/build.php`
-	 * exists; {@see self::is_wp_build_dashboard_active()} falls back otherwise.
+	 * A no-op unless this is the Search page and `build/build.php` exists.
 	 */
 	public function maybe_load_wp_build() {
-		if ( ! $this->is_modernized() || ! $this->is_search_admin_request() ) {
+		if ( ! $this->is_search_admin_request() ) {
 			return;
 		}
 
@@ -161,48 +153,8 @@ class Dashboard {
 	}
 
 	/**
-	 * Register the package's feature flags.
-	 *
-	 * Called from {@see Initializer::init()} rather than this class, so the flag stays
-	 * listable by `wp companion feature-flag` on requests that never build the dashboard.
-	 *
-	 * @return void
-	 */
-	public static function register_feature_flags() {
-		Feature_Flags::register(
-			self::WP_BUILD_FEATURE_FLAG,
-			array(
-				'default'     => false,
-				'description' => 'Serve the Jetpack Search dashboard through the wp-build pipeline.',
-				'owner'       => 'jetpack-search',
-			)
-		);
-	}
-
-	/**
-	 * Whether the site opted into the modernized dashboard.
-	 *
-	 * @return bool
-	 */
-	protected function is_modernized() {
-		return Feature_Flags::is_enabled( self::WP_BUILD_FEATURE_FLAG );
-	}
-
-	/**
-	 * Returns true when the modernization filter is on AND the wp-build dashboard loaded.
-	 *
-	 * Both render() and load_admin_scripts() read this one predicate, so they can never
-	 * disagree about which dashboard is live — see #51436, which broke Backup this way.
-	 *
-	 * @return bool
-	 */
-	protected function is_wp_build_dashboard_active() {
-		return $this->is_modernized() && function_exists( $this->wp_build_render_function() );
-	}
-
-	/**
-	 * Name of the generated render function. A seam: tests override it to reach the
-	 * wp-build branch without depending on whether the package happens to be built.
+	 * Name of the generated render function. A seam: tests override it to render
+	 * the dashboard without depending on whether the package happens to be built.
 	 *
 	 * @return string
 	 */
@@ -292,21 +244,15 @@ class Dashboard {
 	}
 
 	/**
-	 * Override render funtion
+	 * Render the dashboard page.
 	 *
-	 * Both add_wp_admin_submenu() branches register this same callback, so gating
-	 * the wp-build swap here keeps them from being able to disagree about it.
+	 * The generated render function is missing where the package was never built.
 	 */
 	public function render() {
-		if ( $this->is_wp_build_dashboard_active() ) {
-			call_user_func( $this->wp_build_render_function() );
-			return;
+		$render_function = $this->wp_build_render_function();
+		if ( function_exists( $render_function ) ) {
+			call_user_func( $render_function );
 		}
-		?>
-		<div id="jp-search-dashboard" class="jp-search-dashboard">
-			<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Search dashboard requires JavaScript to function properly.', 'jetpack-search-pkg' ); ?></div>
-		</div>
-		<?php
 	}
 
 	/**
@@ -348,44 +294,27 @@ class Dashboard {
 			Tracking::register_tracks_functions_scripts( true );
 		}
 
-		if ( $this->is_wp_build_dashboard_active() ) {
-			// wp-build enqueues the app itself; this empty handle exists only to
-			// print the initial state before boot runs on DOMContentLoaded.
-			wp_register_script( self::DATA_SCRIPT_HANDLE, false, array(), Package::VERSION, true );
-			wp_enqueue_script( self::DATA_SCRIPT_HANDLE );
+		// wp-build enqueues the app itself; this empty handle exists only to
+		// print the initial state before boot runs on DOMContentLoaded.
+		wp_register_script( self::DATA_SCRIPT_HANDLE, false, array(), Package::VERSION, true );
+		wp_enqueue_script( self::DATA_SCRIPT_HANDLE );
 
-			// The i18n loader is registered on every admin page but only enqueued
-			// when depended on; the esbuild bundle doesn't pull it in.
-			if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
-				wp_enqueue_script( 'wp-jp-i18n-loader' );
-			}
-
-			$data_handle = self::DATA_SCRIPT_HANDLE;
-		} else {
-			Assets::register_script(
-				'jp-search-dashboard',
-				'../../build/dashboard/jp-search-dashboard.js',
-				__FILE__,
-				array(
-					'in_footer'  => true,
-					'textdomain' => 'jetpack-search-pkg',
-				)
-			);
-			Assets::enqueue_script( 'jp-search-dashboard' );
-
-			$data_handle = 'jp-search-dashboard';
+		// The i18n loader is registered on every admin page but only enqueued
+		// when depended on; the esbuild bundle doesn't pull it in.
+		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+			wp_enqueue_script( 'wp-jp-i18n-loader' );
 		}
 
 		// Add objects to be passed to the initial state of the app.
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 		wp_add_inline_script(
-			$data_handle,
+			self::DATA_SCRIPT_HANDLE,
 			( new Initial_State() )->render(),
 			'before'
 		);
 
 		// Connection initial state.
-		Connection_Initial_State::render_script( $data_handle );
+		Connection_Initial_State::render_script( self::DATA_SCRIPT_HANDLE );
 	}
 
 	/**
