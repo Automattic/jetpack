@@ -1,12 +1,24 @@
 import { useGlobalNotices } from '@automattic/jetpack-components';
 import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { useQueryClient } from '@tanstack/react-query';
+import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
-import { _n, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
-import { hasPlainSwitch, requestModuleSwitch } from '../../../data/module-switch';
-import { QUERY_KEY, getSwitchErrorMessage, requestPluginSwitch } from './use-main-features';
+import { hasPlainSwitch } from '../../../data/module-switch';
+import { queueActivationRequest } from '../../../data/queue-activation-request';
+import {
+	clearRequestedSwitch,
+	moduleSwitchKey,
+	pluginSwitchKey,
+	setRequestedSwitch,
+} from '../../../data/requested-switch-state';
+import { QUERY_KEY } from './use-main-features';
 import type { FeatureState } from './feature-state';
+
+type BulkFailure = { type: 'module' | 'plugin'; slug: string; message: string };
+
+type BulkResponse = { state: MainFeaturesState; failed: BulkFailure[] };
 
 /**
  * Whether a feature's switch can be flipped as part of a bulk action.
@@ -32,46 +44,29 @@ export function isBulkSwitchable( state: FeatureState ): boolean {
 }
 
 /**
- * Switch many features on or off at once, with one notice for the lot.
+ * What a feature is switched by, as the bulk route names it.
+ *
+ * @param state - The feature's live state.
+ * @return The kind of switch and its slug.
+ */
+function getSwitch( state: FeatureState ): { type: 'module' | 'plugin'; slug: string } {
+	const { control } = state;
+
+	return control.kind === 'module'
+		? { type: 'module', slug: control.module.module }
+		: { type: 'plugin', slug: control.kind === 'plugin' ? control.plugin : '' };
+}
+
+/**
+ * Switch many features on or off at once, in one request, with one notice for the lot.
  *
  * @return The handler, and whether a bulk switch is running.
  */
 export function useBulkFeatureSwitch() {
 	const queryClient = useQueryClient();
-	const { updateJetpackModuleStatus, invalidateResolution } = useDispatch( modulesStore );
+	const { fetchModules } = useDispatch( modulesStore );
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	const [ isRunning, setIsRunning ] = useState( false );
-
-	// Resolves to null on success, or to what to tell the user on failure.
-	const switchOne = useCallback(
-		async ( { control, feature }: FeatureState, active: boolean ): Promise< string | null > => {
-			const failed = getSwitchErrorMessage( undefined, feature.name );
-
-			if ( control.kind === 'module' ) {
-				const ok = await requestModuleSwitch(
-					updateJetpackModuleStatus,
-					control.module.module,
-					active
-				);
-				return ok ? null : failed;
-			}
-
-			if ( control.kind !== 'plugin' ) {
-				return failed;
-			}
-
-			return requestPluginSwitch(
-				queryClient,
-				control.plugin,
-				active ? 'activate' : 'deactivate'
-			).then(
-				() => null,
-				( error: { message?: string } ) =>
-					getSwitchErrorMessage( error, feature.plugin_name || feature.name )
-			);
-		},
-		[ queryClient, updateJetpackModuleStatus ]
-	);
 
 	const run = useCallback(
 		async ( states: FeatureState[], active: boolean ) => {
@@ -83,45 +78,88 @@ export function useBulkFeatureSwitch() {
 				return;
 			}
 
+			const switches = targets.map( getSwitch );
+			const slugsOf = ( type: BulkFailure[ 'type' ] ) =>
+				switches.filter( item => item.type === type ).map( item => item.slug );
+
+			// Every row takes the asked-for value at once, and keeps it until the whole batch
+			// has landed, so the batch reads as one change rather than one feature at a time.
+			const held = switches.map( ( { type, slug } ) => {
+				const key = type === 'module' ? moduleSwitchKey( slug ) : pluginSwitchKey( slug );
+				return { key, token: setRequestedSwitch( key, active ) };
+			} );
+
 			setIsRunning( true );
-			// A read already in flight would land after these requests and undo what they return.
-			await queryClient.cancelQueries( { queryKey: QUERY_KEY } );
 
-			const results = await Promise.all( targets.map( state => switchOne( state, active ) ) );
+			try {
+				// A read already in flight would land after this request and undo what it returns.
+				await queryClient.cancelQueries( { queryKey: QUERY_KEY } );
 
-			// Plugins switch their product's module along with them.
-			invalidateResolution( 'getJetpackModules', [] );
-			setIsRunning( false );
-
-			const errors = results.filter( ( error ): error is string => error !== null );
-			const succeeded = targets.length - errors.length;
-
-			if ( succeeded ) {
-				const activated = sprintf(
-					/* translators: %d is how many features were switched on. */
-					_n( '%d feature activated.', '%d features activated.', succeeded, 'jetpack-my-jetpack' ),
-					succeeded
+				const { state, failed } = await queueActivationRequest( () =>
+					apiFetch< BulkResponse >( {
+						path: '/wpcom/v2/my-jetpack/site/features/bulk',
+						method: 'POST',
+						data: { active, modules: slugsOf( 'module' ), plugins: slugsOf( 'plugin' ) },
+					} )
 				);
-				const deactivated = sprintf(
-					/* translators: %d is how many features were switched off. */
-					_n(
-						'%d feature deactivated.',
-						'%d features deactivated.',
-						succeeded,
-						'jetpack-my-jetpack'
-					),
-					succeeded
-				);
-				createSuccessNotice( active ? activated : deactivated );
-			}
 
-			if ( errors.length ) {
+				queryClient.setQueryData( QUERY_KEY, state );
+				// Modules are read from their own store, which has to catch up before the rows
+				// let go of the asked-for value, or they flicker back to the old one first.
+				await fetchModules();
+
+				const succeeded = targets.length - failed.length;
+
+				if ( succeeded ) {
+					const activated = sprintf(
+						/* translators: %d is how many features were switched on. */
+						_n(
+							'%d feature activated.',
+							'%d features activated.',
+							succeeded,
+							'jetpack-my-jetpack'
+						),
+						succeeded
+					);
+					const deactivated = sprintf(
+						/* translators: %d is how many features were switched off. */
+						_n(
+							'%d feature deactivated.',
+							'%d features deactivated.',
+							succeeded,
+							'jetpack-my-jetpack'
+						),
+						succeeded
+					);
+					createSuccessNotice( active ? activated : deactivated );
+				}
+
+				failed.forEach( ( { type, slug, message } ) => {
+					const index = switches.findIndex( item => item.type === type && item.slug === slug );
+
+					createErrorNotice(
+						sprintf(
+							/* translators: %1$s is a feature name, %2$s is why it could not be changed. */
+							__( '%1$s: %2$s', 'jetpack-my-jetpack' ),
+							targets[ index ]?.feature.name ?? slug,
+							message
+						)
+					);
+				} );
+			} catch ( error ) {
+				// The request as a whole failed, so the site may have switched some, all or none.
 				queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
-				// One notice per failure, each naming what went wrong where the site said.
-				errors.forEach( error => createErrorNotice( error ) );
+				await fetchModules();
+				createErrorNotice(
+					( error as { message?: string } )?.message ||
+						__( 'Could not change the selected features. Please try again.', 'jetpack-my-jetpack' )
+				);
+			} finally {
+				held.forEach( ( { key, token } ) => clearRequestedSwitch( key, token ) );
+				setIsRunning( false );
 			}
 		},
-		[ createErrorNotice, createSuccessNotice, invalidateResolution, queryClient, switchOne ]
+		[ createErrorNotice, createSuccessNotice, fetchModules, queryClient ]
 	);
 
 	return { run, isRunning };

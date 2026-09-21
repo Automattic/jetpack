@@ -72,7 +72,7 @@ export function useMainFeatures(): MainFeaturesState {
  * @param action      - What to do with it.
  * @return The site's features after the action; rejects with the server's error.
  */
-export function requestPluginSwitch(
+function requestPluginSwitch(
 	queryClient: QueryClient,
 	plugin: string,
 	action: PluginAction
@@ -92,28 +92,6 @@ export function requestPluginSwitch(
 			return state;
 		} )
 		.finally( () => clearRequestedSwitch( key, token ) );
-}
-
-/**
- * What to tell someone when a switch fails.
- *
- * The route hands back what actually failed — a missing plugin, a refused install, whatever
- * the installer said. Repeating "try again" instead of saying DISALLOW_FILE_MODS is set just
- * invites the same click.
- *
- * @param error - The rejection from the request, if it carried one.
- * @param name  - The plugin or feature name.
- * @return The notice text.
- */
-export function getSwitchErrorMessage( error: { message?: string } | undefined, name: string ) {
-	return (
-		error?.message ||
-		sprintf(
-			/* translators: %s is a plugin or feature name. */
-			__( 'Could not change %s. Please try again.', 'jetpack-my-jetpack' ),
-			name
-		)
-	);
 }
 
 /**
@@ -168,7 +146,18 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 			// Read the site again: the plugin may well have been switched before whatever failed.
 			queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
 			invalidateResolution( 'getJetpackModules', [] );
-			createErrorNotice( getSwitchErrorMessage( error, name ) );
+
+			// The route hands back what actually failed — a missing plugin, a refused
+			// install, whatever the installer said. Repeating "try again" instead of
+			// saying DISALLOW_FILE_MODS is set just invites the same click.
+			createErrorNotice(
+				error?.message ||
+					sprintf(
+						/* translators: %s is a plugin or feature name. */
+						__( 'Could not change %s. Please try again.', 'jetpack-my-jetpack' ),
+						name
+					)
+			);
 		},
 	} );
 

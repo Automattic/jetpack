@@ -1,13 +1,16 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import apiFetch from '@wordpress/api-fetch';
+import { useRequestedSwitches } from '../../../../data/requested-switch-state';
 import { isBulkSwitchable, useBulkFeatureSwitch } from '../use-bulk-feature-switch';
 import type { FeatureState } from '../feature-state';
 import type { ReactNode } from 'react';
 
 const mockSuccess = jest.fn();
 const mockError = jest.fn();
-const mockRequestModule = jest.fn();
-const mockRequestPlugin = jest.fn();
+const mockFetchModules = jest.fn();
+
+jest.mock( '@wordpress/api-fetch' );
 
 jest.mock( '@automattic/jetpack-components', () => ( {
 	useGlobalNotices: () => ( { createSuccessNotice: mockSuccess, createErrorNotice: mockError } ),
@@ -16,22 +19,14 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: 'modules-store' } ) );
 
 jest.mock( '@wordpress/data', () => ( {
-	useDispatch: () => ( { updateJetpackModuleStatus: jest.fn(), invalidateResolution: jest.fn() } ),
+	useDispatch: () => ( { fetchModules: mockFetchModules } ),
 } ) );
 
-jest.mock( '../../../../data/module-switch', () => ( {
-	...jest.requireActual( '../../../../data/module-switch' ),
-	requestModuleSwitch: ( ...args: unknown[] ) => mockRequestModule( ...args ),
-} ) );
-
-jest.mock( '../use-main-features', () => ( {
-	...jest.requireActual( '../use-main-features' ),
-	requestPluginSwitch: ( ...args: unknown[] ) => mockRequestPlugin( ...args ),
-} ) );
+const mockApiFetch = apiFetch as unknown as jest.Mock;
 
 const moduleState = ( slug: string, status: 'active' | 'inactive', overrides = {} ) =>
 	( {
-		feature: { slug, name: slug },
+		feature: { slug, name: `${ slug } feature` },
 		status,
 		control: {
 			kind: 'module',
@@ -41,7 +36,7 @@ const moduleState = ( slug: string, status: 'active' | 'inactive', overrides = {
 
 const pluginState = ( slug: string, status: 'active' | 'inactive' ) =>
 	( {
-		feature: { slug, name: slug, plugin_name: `${ slug } plugin` },
+		feature: { slug, name: `${ slug } feature` },
 		status,
 		control: { kind: 'plugin', plugin: slug },
 	} ) as FeatureState;
@@ -49,17 +44,22 @@ const pluginState = ( slug: string, status: 'active' | 'inactive' ) =>
 const renderBulk = () => {
 	const client = new QueryClient();
 
-	return renderHook( () => useBulkFeatureSwitch(), {
-		wrapper: ( { children }: { children: ReactNode } ) => (
-			<QueryClientProvider client={ client }>{ children }</QueryClientProvider>
-		),
-	} );
+	return renderHook(
+		() => ( { bulk: useBulkFeatureSwitch(), requested: useRequestedSwitches() } ),
+		{
+			wrapper: ( { children }: { children: ReactNode } ) => (
+				<QueryClientProvider client={ client }>{ children }</QueryClientProvider>
+			),
+		}
+	);
 };
+
+const settled = ( failed: unknown[] = [] ) => Promise.resolve( { state: {}, failed } );
 
 beforeEach( () => {
 	jest.clearAllMocks();
-	mockRequestModule.mockResolvedValue( true );
-	mockRequestPlugin.mockResolvedValue( {} );
+	mockApiFetch.mockImplementation( () => settled() );
+	mockFetchModules.mockResolvedValue( true );
 } );
 
 describe( 'isBulkSwitchable', () => {
@@ -93,11 +93,11 @@ describe( 'isBulkSwitchable', () => {
 } );
 
 describe( 'useBulkFeatureSwitch', () => {
-	it( 'switches only the features not already in the asked-for state', async () => {
+	it( 'switches everything in one request, leaving out what is already in the asked-for state', async () => {
 		const { result } = renderBulk();
 
 		await act( () =>
-			result.current.run(
+			result.current.bulk.run(
 				[
 					moduleState( 'stats', 'inactive' ),
 					moduleState( 'likes', 'active' ),
@@ -107,67 +107,88 @@ describe( 'useBulkFeatureSwitch', () => {
 			)
 		);
 
-		expect( mockRequestModule ).toHaveBeenCalledTimes( 1 );
-		expect( mockRequestModule ).toHaveBeenCalledWith( expect.anything(), 'stats', true );
-		expect( mockRequestPlugin ).toHaveBeenCalledWith( expect.anything(), 'akismet', 'activate' );
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/wpcom/v2/my-jetpack/site/features/bulk',
+			method: 'POST',
+			data: { active: true, modules: [ 'stats' ], plugins: [ 'akismet' ] },
+		} );
 		expect( mockSuccess ).toHaveBeenCalledWith( '2 features activated.' );
 		expect( mockError ).not.toHaveBeenCalled();
 	} );
 
-	it( 'does nothing when every feature is already in the asked-for state', async () => {
-		const { result } = renderBulk();
-
-		await act( () => result.current.run( [ moduleState( 'stats', 'inactive' ) ], false ) );
-
-		expect( mockRequestModule ).not.toHaveBeenCalled();
-		expect( mockSuccess ).not.toHaveBeenCalled();
-	} );
-
-	it( 'reports what succeeded, and each failure with the reason the site gave', async () => {
-		mockRequestModule.mockResolvedValue( false );
-		mockRequestPlugin.mockImplementation( ( _client, plugin: string ) =>
-			plugin === 'akismet'
-				? Promise.reject( new Error( 'This plugin runs the page you are on.' ) )
-				: Promise.resolve( {} )
-		);
-
-		const { result } = renderBulk();
-
-		await act( () =>
-			result.current.run(
-				[
-					moduleState( 'stats', 'active' ),
-					pluginState( 'akismet', 'active' ),
-					pluginState( 'jetpack-boost', 'active' ),
-				],
-				false
-			)
-		);
-
-		expect( mockSuccess ).toHaveBeenCalledWith( '1 feature deactivated.' );
-		expect( mockError ).toHaveBeenCalledWith( 'Could not change stats. Please try again.' );
-		expect( mockError ).toHaveBeenCalledWith( 'This plugin runs the page you are on.' );
-		expect( mockError ).toHaveBeenCalledTimes( 2 );
-	} );
-
-	it( 'is running until every request has settled', async () => {
-		let settle: ( value: boolean ) => void = () => undefined;
-		mockRequestModule.mockReturnValue( new Promise( resolve => ( settle = resolve ) ) );
+	it( 'holds every row at the asked-for value until the batch and the modules have landed', async () => {
+		let answer: ( value: unknown ) => void = () => undefined;
+		let refreshed: ( value: boolean ) => void = () => undefined;
+		mockApiFetch.mockImplementation( () => new Promise( resolve => ( answer = resolve ) ) );
+		mockFetchModules.mockImplementation( () => new Promise( resolve => ( refreshed = resolve ) ) );
 
 		const { result } = renderBulk();
 
 		let run: Promise< void > = Promise.resolve();
 		act( () => {
-			run = result.current.run( [ moduleState( 'stats', 'inactive' ) ], true );
+			run = result.current.bulk.run(
+				[ moduleState( 'stats', 'active' ), pluginState( 'akismet', 'active' ) ],
+				false
+			);
 		} );
 
-		expect( result.current.isRunning ).toBe( true );
+		const bothHeld = { 'module:stats': false, 'plugin:akismet': false };
+
+		expect( result.current.requested ).toEqual( bothHeld );
+		expect( result.current.bulk.isRunning ).toBe( true );
+
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+		await act( async () => answer( { state: {}, failed: [] } ) );
+
+		// The response is in, but the modules store has not caught up yet.
+		expect( result.current.requested ).toEqual( bothHeld );
 
 		await act( async () => {
-			settle( true );
+			refreshed( true );
 			await run;
 		} );
 
-		expect( result.current.isRunning ).toBe( false );
+		expect( result.current.requested ).toEqual( {} );
+		expect( result.current.bulk.isRunning ).toBe( false );
+	} );
+
+	it( 'names each feature the site could not switch, with the reason it gave', async () => {
+		mockApiFetch.mockImplementation( () =>
+			settled( [ { type: 'plugin', slug: 'akismet', message: 'This plugin runs the page.' } ] )
+		);
+
+		const { result } = renderBulk();
+
+		await act( () =>
+			result.current.bulk.run(
+				[ moduleState( 'stats', 'active' ), pluginState( 'akismet', 'active' ) ],
+				false
+			)
+		);
+
+		expect( mockSuccess ).toHaveBeenCalledWith( '1 feature deactivated.' );
+		expect( mockError ).toHaveBeenCalledWith( 'akismet feature: This plugin runs the page.' );
+	} );
+
+	it( 'reports a request that fails outright, and lets go of every row', async () => {
+		mockApiFetch.mockImplementation( () => Promise.reject( new Error( 'Server error.' ) ) );
+
+		const { result } = renderBulk();
+
+		await act( () => result.current.bulk.run( [ moduleState( 'stats', 'inactive' ) ], true ) );
+
+		expect( mockError ).toHaveBeenCalledWith( 'Server error.' );
+		expect( mockSuccess ).not.toHaveBeenCalled();
+		expect( result.current.requested ).toEqual( {} );
+	} );
+
+	it( 'does nothing when every feature is already in the asked-for state', async () => {
+		const { result } = renderBulk();
+
+		await act( () => result.current.bulk.run( [ moduleState( 'stats', 'inactive' ) ], false ) );
+
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+		expect( mockSuccess ).not.toHaveBeenCalled();
 	} );
 } );

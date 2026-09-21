@@ -16,6 +16,8 @@ class Main_Features_Rest_Test extends TestCase {
 
 	const ROUTE = '/wpcom/v2/my-jetpack/site/features/plugin';
 
+	const BULK_ROUTE = '/wpcom/v2/my-jetpack/site/features/bulk';
+
 	/**
 	 * A standalone plugin on disk, in the folder the feature map names.
 	 */
@@ -289,5 +291,202 @@ class Main_Features_Rest_Test extends TestCase {
 		);
 
 		$this->assertSame( 403, $this->send( 'jetpack-boost', 'activate' )->get_status() );
+	}
+
+	/**
+	 * Send one bulk request.
+	 *
+	 * @param array $params The request body.
+	 * @return \WP_REST_Response
+	 */
+	private function send_bulk( $params ) {
+		$request = new WP_REST_Request( 'POST', self::BULK_ROUTE );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( wp_json_encode( $params, JSON_UNESCAPED_SLASHES ) );
+
+		return $this->server->dispatch( $request );
+	}
+
+	/**
+	 * Let the current user manage modules, which the sync package would otherwise grant.
+	 *
+	 * @param array $caps The user's capabilities.
+	 * @return array
+	 */
+	public function grant_manage_modules( $caps ) {
+		$caps['jetpack_manage_modules'] = true;
+		return $caps;
+	}
+
+	public function test_bulk_switches_plugins_and_returns_the_fresh_state() {
+		$on = $this->send_bulk(
+			array(
+				'active'  => true,
+				'plugins' => array( 'jetpack-boost' ),
+			)
+		);
+
+		$this->assertSame( 200, $on->get_status() );
+		$this->assertSame( array(), $on->get_data()['failed'] );
+		$this->assertSame( Main_Features::PLUGIN_ACTIVE, $this->boost_status( new \WP_REST_Response( $on->get_data()['state'] ) ) );
+
+		$off = $this->send_bulk(
+			array(
+				'active'  => false,
+				'plugins' => array( 'jetpack-boost' ),
+			)
+		);
+
+		$this->assertSame( Main_Features::PLUGIN_INACTIVE, $this->boost_status( new \WP_REST_Response( $off->get_data()['state'] ) ) );
+	}
+
+	/**
+	 * One refusal must not stop the rest of the batch, and must say why it was refused.
+	 */
+	public function test_bulk_reports_a_refusal_and_carries_on() {
+		$this->send( 'jetpack-boost', 'activate' );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => false,
+				'plugins' => array( 'jetpack', 'jetpack-boost' ),
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame(
+			array(
+				array(
+					'type'    => 'plugin',
+					'slug'    => 'jetpack',
+					'message' => 'This plugin runs the page you are on, so it cannot be deactivated from here.',
+				),
+			),
+			$response->get_data()['failed']
+		);
+		$this->assertSame( Main_Features::PLUGIN_INACTIVE, $this->boost_status( new \WP_REST_Response( $response->get_data()['state'] ) ) );
+	}
+
+	public function test_bulk_switches_a_module() {
+		$this->offer_stats_module();
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
+		Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => false,
+				'modules' => array( 'stats' ),
+			)
+		);
+
+		$this->withdraw_stats_module();
+		remove_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
+
+		$this->assertSame( array(), $response->get_data()['failed'] );
+		$this->assertNotContains( 'stats', Jetpack_Options::get_option( 'active_modules', array() ) );
+	}
+
+	/**
+	 * Offer the stats module, through whichever filter applies: Jetpack's own list when the
+	 * Jetpack plugin is present, the standalone list otherwise.
+	 *
+	 * @return void
+	 */
+	private function offer_stats_module() {
+		add_filter( 'jetpack_get_available_modules', array( $this, 'add_stats_with_version' ) );
+		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'add_stats' ) );
+	}
+
+	/**
+	 * Stop offering the stats module.
+	 *
+	 * @return void
+	 */
+	private function withdraw_stats_module() {
+		remove_filter( 'jetpack_get_available_modules', array( $this, 'add_stats_with_version' ) );
+		remove_filter( 'jetpack_get_available_standalone_modules', array( $this, 'add_stats' ) );
+	}
+
+	/**
+	 * Available modules as the Jetpack plugin reports them: slug => version.
+	 *
+	 * @param array $modules Available modules.
+	 * @return array
+	 */
+	public function add_stats_with_version( $modules ) {
+		$modules['stats'] = '0.0.0';
+		return $modules;
+	}
+
+	/**
+	 * Available modules as a standalone plugin reports them: a list of slugs.
+	 *
+	 * @param array $modules Available module slugs.
+	 * @return array
+	 */
+	public function add_stats( $modules ) {
+		$modules[] = 'stats';
+		return array_values( array_unique( $modules ) );
+	}
+
+	/**
+	 * Switching modules takes the capability Jetpack's own module route asks for.
+	 */
+	public function test_bulk_refuses_modules_without_the_capability() {
+		$this->offer_stats_module();
+		Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => false,
+				'modules' => array( 'stats' ),
+			)
+		);
+
+		$this->withdraw_stats_module();
+
+		$this->assertSame( 'module', $response->get_data()['failed'][0]['type'] );
+		$this->assertContains( 'stats', Jetpack_Options::get_option( 'active_modules', array() ) );
+	}
+
+	public function test_bulk_reports_an_unknown_module() {
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => true,
+				'modules' => array( 'not-a-module' ),
+			)
+		);
+
+		remove_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
+
+		$this->assertSame( 'That Jetpack module was not found.', $response->get_data()['failed'][0]['message'] );
+	}
+
+	public function test_bulk_refuses_a_plugin_the_map_does_not_name() {
+		$response = $this->send_bulk(
+			array(
+				'active'  => true,
+				'plugins' => array( 'hello-dolly' ),
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+	}
+
+	public function test_bulk_forbids_users_who_cannot_activate_plugins() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'bulk_editor',
+					'user_pass'  => '123',
+					'role'       => 'editor',
+				)
+			)
+		);
+
+		$this->assertSame( 403, $this->send_bulk( array( 'active' => true ) )->get_status() );
 	}
 }

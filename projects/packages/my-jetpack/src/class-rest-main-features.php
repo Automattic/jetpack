@@ -7,13 +7,14 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
 
 /**
- * Installs, activates and deactivates the plugins in the feature map.
+ * Installs, activates and deactivates the plugins and modules in the feature map.
  */
 class REST_Main_Features {
 
@@ -63,6 +64,35 @@ class REST_Main_Features {
 				),
 			)
 		);
+
+		register_rest_route(
+			self::ROUTE_NAMESPACE,
+			'my-jetpack/site/features/bulk',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => __CLASS__ . '::switch_many',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+				'args'                => array(
+					'active'  => array(
+						'type'     => 'boolean',
+						'required' => true,
+					),
+					'plugins' => array(
+						'type'    => 'array',
+						'default' => array(),
+						'items'   => array(
+							'type' => 'string',
+							'enum' => Main_Features::get_switchable_plugins(),
+						),
+					),
+					'modules' => array(
+						'type'    => 'array',
+						'default' => array(),
+						'items'   => array( 'type' => 'string' ),
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -96,19 +126,9 @@ class REST_Main_Features {
 		$slug   = $request->get_param( 'plugin' );
 		$action = $request->get_param( 'action' );
 
-		// Switching off the last plugin carrying My Jetpack would pull this page out from
-		// under itself. Which plugin that is varies: the autoloader picks one of however
-		// many are active, so being the one serving the page is not enough to refuse —
-		// another active plugin will simply take over on the next load.
-		if ( 'deactivate' === $action
-			&& ( Product::JETPACK_PLUGIN_SLUG === $slug
-				|| ( Main_Features::is_hosting_plugin( $slug )
-					&& Main_Features::is_only_my_jetpack_provider( Main_Features::get_hosting_plugin_slug() ) ) ) ) {
-			return new WP_Error(
-				'not_allowed',
-				__( 'This plugin runs the page you are on, so it cannot be deactivated from here.', 'jetpack-my-jetpack' ),
-				array( 'status' => 400 )
-			);
+		$refused = self::refuse_deactivation( $slug, $action );
+		if ( $refused ) {
+			return $refused;
 		}
 
 		if ( 'install' === $action && ! current_user_can( 'install_plugins' ) ) {
@@ -128,6 +148,122 @@ class REST_Main_Features {
 		}
 
 		return rest_ensure_response( Main_Features::get_state() );
+	}
+
+	/**
+	 * Switch several plugins and modules on or off in one request.
+	 *
+	 * Each is tried in turn and a failure does not stop the rest, so the response carries the
+	 * fresh state together with what could not be switched and why.
+	 *
+	 * @param WP_REST_Request $request The request.
+	 * @return \WP_REST_Response The Features tab's fresh state, and a list of failures.
+	 */
+	public static function switch_many( $request ) {
+		$active = (bool) $request->get_param( 'active' );
+		$action = $active ? 'activate' : 'deactivate';
+		$failed = array();
+
+		foreach ( array_unique( (array) $request->get_param( 'plugins' ) ) as $slug ) {
+			$result = self::refuse_deactivation( $slug, $action );
+			$result = $result ? $result : self::run( $slug, $action );
+
+			if ( is_wp_error( $result ) ) {
+				$failed[] = array(
+					'type'    => 'plugin',
+					'slug'    => $slug,
+					'message' => $result->get_error_message(),
+				);
+			}
+		}
+
+		foreach ( array_unique( (array) $request->get_param( 'modules' ) ) as $slug ) {
+			$result = self::switch_module( $slug, $active );
+
+			if ( is_wp_error( $result ) ) {
+				$failed[] = array(
+					'type'    => 'module',
+					'slug'    => $slug,
+					'message' => $result->get_error_message(),
+				);
+			}
+		}
+
+		return rest_ensure_response(
+			array(
+				'state'  => Main_Features::get_state(),
+				'failed' => $failed,
+			)
+		);
+	}
+
+	/**
+	 * Switch one Jetpack module, with the checks Jetpack's own module route makes.
+	 *
+	 * @param string $slug   Module slug.
+	 * @param bool   $active Whether to switch it on.
+	 * @return true|WP_Error
+	 */
+	private static function switch_module( $slug, $active ) {
+		if ( ! current_user_can( 'jetpack_manage_modules' ) ) {
+			return new WP_Error( 'not_allowed', __( 'You are not allowed to manage Jetpack modules on this site.', 'jetpack-my-jetpack' ) );
+		}
+
+		$modules = new Modules();
+
+		if ( ! $modules->is_module( $slug ) ) {
+			return new WP_Error( 'not_found', __( 'That Jetpack module was not found.', 'jetpack-my-jetpack' ) );
+		}
+
+		// Already where it was asked to be: nothing to do, as with plugins above.
+		if ( $modules->is_active( $slug ) === $active ) {
+			return true;
+		}
+
+		$switched = $active ? $modules->activate( $slug, false, false ) : $modules->deactivate( $slug );
+
+		if ( ! $switched ) {
+			return new WP_Error(
+				'switch_failed',
+				sprintf(
+					/* translators: %s is a Jetpack module slug. */
+					__( 'The %s module could not be changed.', 'jetpack-my-jetpack' ),
+					$slug
+				)
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Refuse to switch off the plugin this page cannot do without.
+	 *
+	 * Switching off the last plugin carrying My Jetpack would pull this page out from under
+	 * itself. Which plugin that is varies: the autoloader picks one of however many are
+	 * active, so being the one serving the page is not enough to refuse — another active
+	 * plugin will simply take over on the next load.
+	 *
+	 * @param string $slug   WordPress.org plugin slug.
+	 * @param string $action One of install, activate or deactivate.
+	 * @return WP_Error|null The refusal, or null when the action may go ahead.
+	 */
+	private static function refuse_deactivation( $slug, $action ) {
+		if ( 'deactivate' !== $action ) {
+			return null;
+		}
+
+		if ( Product::JETPACK_PLUGIN_SLUG === $slug
+			|| ( Main_Features::is_hosting_plugin( $slug )
+				&& Main_Features::is_only_my_jetpack_provider( Main_Features::get_hosting_plugin_slug() ) ) ) {
+			return new WP_Error(
+				'not_allowed',
+				__( 'This plugin runs the page you are on, so it cannot be deactivated from here.', 'jetpack-my-jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return null;
 	}
 
 	/**
