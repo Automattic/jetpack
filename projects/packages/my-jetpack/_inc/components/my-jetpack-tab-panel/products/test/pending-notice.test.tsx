@@ -6,6 +6,7 @@ import {
 } from '../pending-notice';
 
 const mockCreateSuccessNotice = jest.fn();
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( { createSuccessNotice: mockCreateSuccessNotice } ),
 } ) );

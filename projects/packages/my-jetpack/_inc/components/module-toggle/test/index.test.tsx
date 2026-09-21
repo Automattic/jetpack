@@ -12,6 +12,7 @@ const mockCreateSuccessNotice = jest.fn();
 const mockCreateErrorNotice = jest.fn();
 
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: {} } ) );
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( {
