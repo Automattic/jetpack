@@ -73,7 +73,7 @@ class WordAds_Premium_Analytics {
 					'with_date_comparison'     => false,
 					'with_header_date_control' => false,
 				),
-				'default_layout'      => array( __CLASS__, 'get_default_layout' ),
+				'default_layout'      => 'Automattic\\Jetpack\\PremiumAnalytics\\get_ads_section_default_layout',
 			)
 		);
 	}
@@ -101,23 +101,5 @@ class WordAds_Premium_Analytics {
 		}
 
 		return false;
-	}
-
-	/**
-	 * The tab's default widget layout: the package's WordAds widgets on the three-column grid.
-	 *
-	 * @return array Widget instances.
-	 */
-	public static function get_default_layout() {
-		$instance = 'Automattic\Jetpack\PremiumAnalytics\get_dashboard_default_widget_instance';
-
-		return array(
-			// Row 1: WordAds chart.
-			$instance( 'default-wordads-chart-tabs-widget-instance', 'jpa/wordads-chart-tabs', 0, 3, 2 ),
-			// Row 2: all-time balance.
-			$instance( 'default-wordads-highlights-widget-instance', 'jpa/wordads-highlights', 1, 3, 1 ),
-			// Row 3: earnings history.
-			$instance( 'default-wordads-earnings-history-widget-instance', 'jpa/wordads-earnings-history', 2, 1, 2 ),
-		);
 	}
 }

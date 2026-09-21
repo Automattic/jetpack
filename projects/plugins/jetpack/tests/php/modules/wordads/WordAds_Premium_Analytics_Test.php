@@ -5,9 +5,11 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section;
 use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
 use PHPUnit\Framework\Attributes\CoversClass;
+use function Automattic\Jetpack\PremiumAnalytics\get_ads_section_default_layout;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
@@ -36,6 +38,7 @@ class WordAds_Premium_Analytics_Test extends WP_UnitTestCase {
 		$instance->setValue( null, null );
 
 		wp_set_current_user( 0 );
+		Constants::clear_constants();
 
 		parent::tear_down();
 	}
@@ -74,12 +77,8 @@ class WordAds_Premium_Analytics_Test extends WP_UnitTestCase {
 		);
 		$this->assertTrue( $section->is_available() );
 		$this->assertSame(
-			array(
-				'jpa/wordads-chart-tabs',
-				'jpa/wordads-highlights',
-				'jpa/wordads-earnings-history',
-			),
-			array_column( $section->get_default_layout(), 'type' )
+			array_column( get_ads_section_default_layout(), 'uuid' ),
+			array_column( $section->get_default_layout(), 'uuid' )
 		);
 	}
 
@@ -92,6 +91,16 @@ class WordAds_Premium_Analytics_Test extends WP_UnitTestCase {
 
 		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, 'wordads/ads' ) );
 		$this->assertInstanceOf( Dashboard_Section::class, get_registered_dashboard_section( DASHBOARD_NAME, 'other/ads' ) );
+	}
+
+	/**
+	 * On WordPress.com Simple and Atomic, jetpack-mu-wpcom owns the section, so the module skips.
+	 */
+	public function test_skips_on_the_wordpress_com_platform() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		WordAds_Premium_Analytics::init();
+
+		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, 'wordads/ads' ) );
 	}
 
 	/**

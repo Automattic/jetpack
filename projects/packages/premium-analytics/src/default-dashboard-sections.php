@@ -407,6 +407,41 @@ function get_store_section_default_layout() {
 }
 
 /**
+ * The Ads section's default widget layout, shared by its registrants: the WordAds module and
+ * jetpack-mu-wpcom compose the section from the package's WordAds widgets until those move.
+ *
+ * @return array Widget instances.
+ */
+function get_ads_section_default_layout() {
+	return array(
+		// Row 1: WordAds chart.
+		get_dashboard_default_widget_instance(
+			'default-wordads-chart-tabs-widget-instance',
+			'jpa/wordads-chart-tabs',
+			0,
+			3,
+			2
+		),
+		// Row 2: all-time balance.
+		get_dashboard_default_widget_instance(
+			'default-wordads-highlights-widget-instance',
+			'jpa/wordads-highlights',
+			1,
+			3,
+			1
+		),
+		// Row 3: earnings history.
+		get_dashboard_default_widget_instance(
+			'default-wordads-earnings-history-widget-instance',
+			'jpa/wordads-earnings-history',
+			2,
+			1,
+			2
+		),
+	);
+}
+
+/**
  * Registers the default Premium Analytics dashboard sections.
  *
  * Hooked on the registration action and safe to call directly: a section already registered

@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section;
 use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
+use function Automattic\Jetpack\PremiumAnalytics\get_ads_section_default_layout;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
@@ -17,6 +18,7 @@ require_once __DIR__ . '/wpcom-site-has-feature-stub.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'vendor/automattic/jetpack-premium-analytics/src/class-capabilities.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'vendor/automattic/jetpack-premium-analytics/src/class-enablement-setting.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'vendor/automattic/jetpack-premium-analytics/src/dashboard-sections.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'vendor/automattic/jetpack-premium-analytics/src/default-dashboard-sections.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/premium-analytics/wordads-section.php';
 
 /**
@@ -72,7 +74,10 @@ class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'Ads', $section->label );
 		$this->assertSame( 50, $section->order );
 		$this->assertTrue( $section->is_available() );
-		$this->assertContains( 'jpa/wordads-highlights', array_column( $section->get_default_layout(), 'type' ) );
+		$this->assertSame(
+			array_column( get_ads_section_default_layout(), 'uuid' ),
+			array_column( $section->get_default_layout(), 'uuid' )
+		);
 	}
 
 	/**

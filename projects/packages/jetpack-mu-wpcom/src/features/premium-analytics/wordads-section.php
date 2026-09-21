@@ -41,7 +41,7 @@ function wpcom_premium_analytics_register_wordads_section( $registry ) {
 				'with_date_comparison'     => false,
 				'with_header_date_control' => false,
 			),
-			'default_layout'      => 'wpcom_premium_analytics_get_wordads_section_default_layout',
+			'default_layout'      => 'Automattic\\Jetpack\\PremiumAnalytics\\get_ads_section_default_layout',
 		)
 	);
 }
@@ -71,24 +71,6 @@ function wpcom_premium_analytics_dashboard_has_section_slug( $registry, $dashboa
 	}
 
 	return false;
-}
-
-/**
- * The tab's default widget layout: the package's WordAds widgets on the three-column grid.
- *
- * @return array Widget instances.
- */
-function wpcom_premium_analytics_get_wordads_section_default_layout() {
-	$instance = 'Automattic\Jetpack\PremiumAnalytics\get_dashboard_default_widget_instance';
-
-	return array(
-		// Row 1: WordAds chart.
-		$instance( 'default-wordads-chart-tabs-widget-instance', 'jpa/wordads-chart-tabs', 0, 3, 2 ),
-		// Row 2: all-time balance.
-		$instance( 'default-wordads-highlights-widget-instance', 'jpa/wordads-highlights', 1, 3, 1 ),
-		// Row 3: earnings history.
-		$instance( 'default-wordads-earnings-history-widget-instance', 'jpa/wordads-earnings-history', 2, 1, 2 ),
-	);
 }
 
 // After the package's own sections (priority 10), so an existing `ads` slug is found and left alone.
