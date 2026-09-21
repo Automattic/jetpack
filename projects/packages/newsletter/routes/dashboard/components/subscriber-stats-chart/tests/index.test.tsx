@@ -15,6 +15,10 @@ jest.mock( '@automattic/charts', () => ( {
 
 jest.mock( '@automattic/charts/style.css', () => ( {} ), { virtual: true } );
 
+jest.mock( '@wordpress/date', () => ( {
+	dateI18n: () => '2026-09-21',
+} ) );
+
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getScriptData: () => ( {
 		user: { current_user: { display_name: 'Bob Sacramento' } },
@@ -99,8 +103,11 @@ describe( 'SubscriberStatsChart', () => {
 
 		await waitFor( () => {
 			expect( mockApiFetch ).toHaveBeenCalledWith( {
-				path: '/jetpack/v4/newsletter/stats/recent-posts',
+				path: expect.stringContaining( 'date=2026-09-21' ),
 			} );
+		} );
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/jetpack/v4/newsletter/stats/recent-posts',
 		} );
 		expect( mockApiFetch.mock.calls ).not.toContainEqual( [
 			expect.objectContaining( { path: expect.stringContaining( '/emails/summary' ) } ),

@@ -72,7 +72,7 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 				'args'                => array(
 					'unit'        => array(
 						'type'    => 'string',
-						'enum'    => array( 'day', 'week', 'month', 'year' ),
+						'enum'    => array( 'day', 'week', 'month' ),
 						'default' => 'day',
 					),
 					'quantity'    => array(
@@ -82,9 +82,10 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 						'default' => 30,
 					),
 					'date'        => array(
-						'type'              => 'string',
-						'required'          => true,
-						'sanitize_callback' => 'sanitize_text_field',
+						'description' => __( 'Most recent day to include in results (YYYY-MM-DD).', 'jetpack-newsletter' ),
+						'type'        => 'string',
+						'format'      => 'date',
+						'required'    => true,
 					),
 					'stat_fields' => array(
 						'type'    => 'string',
@@ -103,11 +104,6 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 				'callback'            => array( $this, 'get_email_summary' ),
 				'permission_callback' => array( $this, 'can_view' ),
 				'args'                => array(
-					'period'     => array(
-						'type'    => 'string',
-						'enum'    => array( 'alltime' ),
-						'default' => 'alltime',
-					),
 					'quantity'   => array(
 						'type'    => 'integer',
 						'minimum' => 1,
@@ -142,71 +138,113 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 	/**
 	 * Request Stats from a host override or WordPress.com's Stats REST API.
 	 *
-	 * @param WP_REST_Request $request  Local REST request.
-	 * @param string          $endpoint Relative Stats endpoint.
+	 * @param WP_REST_Request $request        Local REST request.
+	 * @param string          $endpoint       Relative Stats endpoint.
+	 * @param string[]        $allowed_params Query keys forwarded to the host or WordPress.com.
 	 * @return mixed
 	 */
-	private function request_stats( $request, $endpoint ) {
+	private function request_stats( $request, $endpoint, $allowed_params ) {
+		$query_args = array_intersect_key(
+			$request->get_query_params(),
+			array_flip( $allowed_params )
+		);
+
 		/**
 		 * Allows a host to provide Newsletter Stats without calling WordPress.com directly.
 		 *
-		 * Not required for WordPress.com Simple sites: `proxy_stats_to_wpcom()` already resolves
-		 * there without a Jetpack connection. Kept as an optional override/testing seam.
+		 * WordPress.com Simple must implement this: Direct only dispatches WP REST (`/wpcom/v2`),
+		 * not the classic JSON API (`/rest/v1.1`) that `proxy_stats_to_wpcom()` calls.
 		 *
 		 * @since $$next-version$$
 		 *
 		 * @param mixed|null $response   Host response, or null to use the default proxy.
 		 * @param string     $endpoint   Relative Stats endpoint.
-		 * @param array      $query_args Validated request query arguments.
+		 * @param array      $query_args Allowlisted request query arguments.
 		 */
 		$response = apply_filters(
 			'jetpack_newsletter_stats_pre_request',
 			null,
 			$endpoint,
-			$request->get_query_params()
+			$query_args
 		);
 
-		return $response ?? $this->proxy_stats_to_wpcom( $request, $endpoint );
+		return $response ?? $this->proxy_stats_to_wpcom( $endpoint, $query_args );
 	}
 
 	/**
-	 * Call WordPress.com's Stats REST API directly, mirroring `WPCOM_Stats::fetch_remote_stats()`.
+	 * Call WordPress.com's Stats REST API, mirroring `WPCOM_Stats::fetch_remote_stats()`.
 	 *
-	 * `Client::wpcom_json_api_request_as_blog()` already resolves in-process on WordPress.com
-	 * Simple sites (see its `IS_WPCOM` branch), so gating on `Manager::is_connected()` -- as the
-	 * generic `WPCOM_REST_API_Proxy_Request` trait does -- would block a case that needs no block.
+	 * Do not gate on `Manager::is_connected()`: Simple has no Jetpack connection and uses
+	 * `jetpack_newsletter_stats_pre_request` instead of this blog-token path.
 	 *
-	 * @param WP_REST_Request $request  Local REST request.
-	 * @param string          $endpoint Relative Stats endpoint.
+	 * @param string $endpoint   Relative Stats endpoint.
+	 * @param array  $query_args Allowlisted query arguments.
 	 * @return mixed|WP_Error
 	 */
-	private function proxy_stats_to_wpcom( $request, $endpoint ) {
-		$query_params = $request->get_query_params();
-		unset( $query_params['rest_route'] );
-
+	private function proxy_stats_to_wpcom( $endpoint, $query_args ) {
 		$path = add_query_arg(
-			$query_params,
+			$query_args,
 			sprintf( '/sites/%d/%s/%s', (int) \Jetpack_Options::get_option( 'id' ), $this->rest_base, ltrim( $endpoint, '/' ) )
 		);
 
-		$response = Client::wpcom_json_api_request_as_blog( $path, self::STATS_API_VERSION );
+		$response = Client::wpcom_json_api_request_as_blog(
+			$path,
+			self::STATS_API_VERSION,
+			array( 'timeout' => 20 )
+		);
 
 		if ( is_wp_error( $response ) ) {
-			return $response;
+			return $this->maybe_map_connection_error( $response );
 		}
 
-		$status = wp_remote_retrieve_response_code( $response );
-		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
+		$status     = wp_remote_retrieve_response_code( $response );
+		$body       = json_decode( wp_remote_retrieve_body( $response ), true );
+		$error_code = is_array( $body ) ? ( $body['error'] ?? $body['code'] ?? null ) : null;
+
+		if ( in_array( $error_code, array( 'invalid_token', 'unknown_token', 'signature_mismatch' ), true ) ) {
+			return $this->site_not_connected_error();
+		}
 
 		if ( $status >= 400 ) {
+			$message = is_array( $body )
+				? ( $body['message'] ?? __( 'An unknown error occurred.', 'jetpack-newsletter' ) )
+				: __( 'An unknown error occurred.', 'jetpack-newsletter' );
+
 			return new WP_Error(
-				$body['code'] ?? 'unknown_error',
-				$body['message'] ?? __( 'An unknown error occurred.', 'jetpack-newsletter' ),
+				$error_code ?? 'unknown_error',
+				$message,
 				array( 'status' => $status )
 			);
 		}
 
 		return $body;
+	}
+
+	/**
+	 * Map local token failures to a REST 400 so they are not reported as server faults.
+	 *
+	 * @param WP_Error $error Connection client error.
+	 * @return WP_Error
+	 */
+	private function maybe_map_connection_error( $error ) {
+		if ( in_array( $error->get_error_code(), array( 'missing_token', 'no_possible_tokens', 'malformed_token' ), true ) ) {
+			return $this->site_not_connected_error();
+		}
+
+		return $error;
+	}
+
+	/**
+	 * Error for a site that cannot authenticate with WordPress.com.
+	 *
+	 * @return WP_Error
+	 */
+	private function site_not_connected_error() {
+		return new WP_Error(
+			'site_not_connected',
+			__( 'This site is not connected to WordPress.com.', 'jetpack-newsletter' ),
+			array( 'status' => 400 )
+		);
 	}
 
 	/**
@@ -216,7 +254,7 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 	 * @return mixed
 	 */
 	public function get_subscribers( $request ) {
-		return $this->request_stats( $request, 'subscribers' );
+		return $this->request_stats( $request, 'subscribers', array( 'unit', 'quantity', 'date', 'stat_fields' ) );
 	}
 
 	/**
@@ -228,7 +266,7 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 	 * @return mixed
 	 */
 	public function get_email_summary( $request ) {
-		return $this->request_stats( $request, 'emails/summary' );
+		return $this->request_stats( $request, 'emails/summary', array( 'quantity', 'sort_field', 'sort_order' ) );
 	}
 
 	/**
@@ -251,7 +289,6 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 		$summary_request = new WP_REST_Request( 'GET' );
 		$summary_request->set_query_params(
 			array(
-				'period'     => 'alltime',
 				'quantity'   => 30,
 				'sort_field' => 'post_date',
 				'sort_order' => 'desc',

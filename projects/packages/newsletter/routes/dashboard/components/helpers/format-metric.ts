@@ -23,5 +23,5 @@ export function formatRate( value: number | null | undefined ): string {
 				/* translators: %d: Percentage value without the percent sign. */
 				__( '%d%%', 'jetpack-newsletter' ),
 				Math.round( value )
-		  );
+			);
 }

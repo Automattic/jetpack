@@ -58,6 +58,7 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		remove_all_actions( 'rest_api_init' );
 		remove_all_filters( 'jetpack_newsletter_stats_pre_request' );
 		remove_all_filters( 'posts_pre_query' );
+		wp_set_current_user( 0 );
 		parent::tear_down();
 	}
 
@@ -71,7 +72,14 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 	#[DataProvider( 'provide_stats_callbacks' )]
 	public function test_host_can_short_circuit_stats_requests( $method, $endpoint ) {
 		$request = new WP_REST_Request( 'GET' );
-		$request->set_query_params( array( 'quantity' => 30 ) );
+		$request->set_query_params(
+			array(
+				'quantity'   => 30,
+				'rest_route' => '/jetpack/v4/newsletter/stats/' . $endpoint,
+				'period'     => 'alltime',
+				'evil'       => '1',
+			)
+		);
 
 		add_filter(
 			'jetpack_newsletter_stats_pre_request',
@@ -94,9 +102,8 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Without a host override, an unconnected site should fail on the missing blog token,
-	 * not on a `Manager::is_connected()` gate -- WordPress.com Simple sites have no such
-	 * connection and must still be able to reach WordPress.com's Stats REST API directly.
+	 * Without a host override, an unconnected site fails as `site_not_connected`
+	 * (HTTP 400), not as an unauthorized REST error from a connection gate.
 	 *
 	 * @param string $method   Controller method.
 	 * @param string $endpoint Unused; required by the shared data provider's shape.
@@ -110,8 +117,8 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		$response = $this->controller->$method( $request );
 
 		$this->assertInstanceOf( WP_Error::class, $response );
-		$this->assertNotSame( 'rest_unauthorized', $response->get_error_code() );
-		$this->assertSame( 'no_possible_tokens', $response->get_error_code() );
+		$this->assertSame( 'site_not_connected', $response->get_error_code() );
+		$this->assertSame( 400, $response->get_error_data()['status'] );
 	}
 
 	public function test_registers_recent_posts_route() {
@@ -152,6 +159,31 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( 401, $response->get_status() );
+	}
+
+	public function test_subscribers_route_rejects_invalid_date() {
+		$this->login_as_admin();
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/newsletter/stats/subscribers' );
+		$request->set_query_params( array( 'date' => 'not-a-date' ) );
+
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+	}
+
+	public function test_subscribers_route_rejects_year_unit() {
+		$this->login_as_admin();
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/newsletter/stats/subscribers' );
+		$request->set_query_params(
+			array(
+				'date' => gmdate( 'Y-m-d' ),
+				'unit' => 'year',
+			)
+		);
+
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
 	}
 
 	public function test_returns_ten_newest_published_posts_and_drafts() {
@@ -235,6 +267,24 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		$this->assertSame( $post_id, $response['posts'][0]['id'] );
 		$this->assertNull( $response['posts'][0]['recipients'] );
 		$this->assertNull( $response['emailTotals'] );
+	}
+
+	/**
+	 * Create an administrator and set them as the current user.
+	 */
+	private function login_as_admin() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'newsletter_stats_admin_' . wp_rand(),
+				'user_pass'  => 'password',
+				'user_email' => 'newsletter-stats-admin-' . wp_rand() . '@example.com',
+				'role'       => 'administrator',
+			)
+		);
+		if ( is_wp_error( $user_id ) ) {
+			$this->fail( $user_id->get_error_message() );
+		}
+		wp_set_current_user( $user_id );
 	}
 
 	/**

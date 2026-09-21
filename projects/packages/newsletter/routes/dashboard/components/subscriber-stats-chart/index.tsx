@@ -4,6 +4,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useViewportMatch } from '@wordpress/compose';
+import { dateI18n } from '@wordpress/date';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
@@ -161,7 +162,7 @@ function getGreeting(): string {
 				/* translators: %s: Current user's display name. */
 				__( 'Welcome, %s', 'jetpack-newsletter' ),
 				displayName
-		  )
+			)
 		: __( 'Welcome', 'jetpack-newsletter' );
 }
 
@@ -174,7 +175,7 @@ export default function SubscriberStatsChart(): JSX.Element {
 	const isMobile = useViewportMatch( 'small', '<' );
 	const metricDirection = isMobile ? 'row' : 'column';
 	const metricJustify = isMobile ? 'space-between' : undefined;
-	const date = new Date().toISOString().slice( 0, 10 );
+	const date = dateI18n( 'Y-m-d' );
 	const subscribersPath = addQueryArgs( '/jetpack/v4/newsletter/stats/subscribers', {
 		unit: 'day',
 		quantity: DAYS_TO_SHOW,
