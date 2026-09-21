@@ -41,6 +41,8 @@ src/class-analytics.php                 # entry: loads build, registers menu + r
 src/dashboard-sections.php              # section API: registry helpers, preview scope, REST
 src/default-dashboard-sections.php      # the package's own sections, registered through that API
 docs/dashboard-sections.md              # how a section is registered, served and rendered (diagrams)
+src/widget-types.php                    # widget type API: registry helpers, metadata, availability filters
+docs/dashboard-widgets.md               # how a widget type is registered, served and imported (diagram)
 src/REST/class-api-proxy-controller.php # the WPCOM data proxy (PREFIX_CONFIG)
 src/REST/class-notices-controller.php   # /notices route
 src/Sync/                               # interim woocommerce_analytics sync (WOOA7S-1550)
@@ -84,6 +86,11 @@ REST, and fires that action once; `src/default-dashboard-sections.php` registers
 way. A section declares its default layout in the registration; the
 `jetpack_premium_analytics_dashboard_default_layout` filter lets another plugin add an instance to
 any section by id. `docs/dashboard-sections.md` walks through the whole path with diagrams.
+
+Add a widget type from another plugin: hook `jetpack_premium_analytics_register_widget_types` and
+call `register_widget_type()` there. The widget type registry hydrates on its first read, from the
+page boot dependencies or from REST, and fires that action once; `src/widget-types.php` registers the
+package's own build manifest the same way. `docs/dashboard-widgets.md` walks through the path.
 
 Depends on `jetpack-connection`, `jetpack-stats`, `jetpack-sync`, `jetpack-config`.
 
