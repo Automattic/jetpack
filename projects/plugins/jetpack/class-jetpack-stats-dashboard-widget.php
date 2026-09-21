@@ -43,7 +43,8 @@ class Jetpack_Stats_Dashboard_Widget {
 	public static function wp_dashboard_setup() {
 		// WordPress.com Simple sites load this class next to the stats-admin copy in jetpack-mu-wpcom, which can predate register_widget().
 		if ( method_exists( Dashboard_Stats_Widget::class, 'register_widget' ) ) {
-			if ( Dashboard_Stats_Widget::register_widget() ) {
+			// Atomic filters readiness to require a connected owner, which the package's own connection check does not see.
+			if ( Jetpack::is_connection_ready() && Dashboard_Stats_Widget::register_widget() ) {
 				add_action( 'admin_head', array( static::class, 'admin_head' ) );
 			}
 			return;

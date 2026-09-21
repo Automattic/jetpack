@@ -36,6 +36,7 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		( new Connection_Manager() )->reset_connection_status();
+		remove_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
 	}
 
 	/**
@@ -114,6 +115,17 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Report the Stats module as active.
+	 *
+	 * @param array $modules Active module slugs.
+	 * @return array
+	 */
+	public function activate_stats( $modules ) {
+		$modules[] = 'stats';
+		return $modules;
 	}
 
 	/**
@@ -315,6 +327,7 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	 */
 	public function test_connected_site_gets_the_admin_bar_posts_column_and_dashboard_widget() {
 		$this->fake_connection();
+		add_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
 
 		Jetpack_Stats_Plugin::initialize_other_packages();
 
@@ -322,6 +335,19 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 		$this->assertNotFalse( has_action( 'wp_head', array( Stats_Admin_Bar::class, 'maybe_add_chart' ) ) );
 		$this->assertNotFalse( has_action( 'wp_dashboard_setup', array( WP_Dashboard_Odyssey_Widget::class, 'register_widget' ) ) );
 		$this->assertTrue( $this->post_list_column_is_registered() );
+	}
+
+	/**
+	 * The widget checks the module itself when the dashboard loads, so only the admin bar and the column are left out here.
+	 */
+	public function test_connected_site_with_stats_off_gets_no_admin_bar_or_posts_column() {
+		$this->fake_connection();
+
+		Jetpack_Stats_Plugin::initialize_other_packages();
+
+		$this->assertFalse( has_action( 'wp_before_admin_bar_render', array( Stats_Admin_Bar::class, 'add_site_menu_link' ) ) );
+		$this->assertFalse( has_action( 'wp_head', array( Stats_Admin_Bar::class, 'maybe_add_chart' ) ) );
+		$this->assertFalse( $this->post_list_column_is_registered() );
 	}
 
 	/**

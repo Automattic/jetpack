@@ -747,7 +747,20 @@ function stats_admin_bar_head() {
  */
 function stats_get_image_chart_src( $chart, $args = array() ) {
 	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats_Admin\Admin_Bar::get_chart_src' );
-	return add_query_arg( $args, Stats_Admin_Bar::get_chart_src( $chart ) );
+
+	$url = add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) );
+
+	return add_query_arg(
+		array_merge(
+			array(
+				'noheader' => '',
+				'proxy'    => '',
+				'chart'    => $chart,
+			),
+			$args
+		),
+		$url
+	);
 }
 
 /**

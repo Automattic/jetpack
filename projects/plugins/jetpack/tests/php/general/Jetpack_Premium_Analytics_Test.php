@@ -226,11 +226,13 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 			return false;
 		};
 		add_filter( 'jetpack_stats_dashboard_widget_show_to_user', $spy );
+		add_filter( 'jetpack_is_connection_ready', '__return_true' );
 
 		try {
 			Jetpack_Stats_Dashboard_Widget::wp_dashboard_setup();
 		} finally {
 			remove_filter( 'jetpack_stats_dashboard_widget_show_to_user', $spy );
+			remove_filter( 'jetpack_is_connection_ready', '__return_true' );
 		}
 
 		$this->assertTrue( $reached, 'wp_dashboard_setup() should reach its own visibility check regardless of the flag.' );
@@ -247,11 +249,13 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 			return false;
 		};
 		add_filter( 'jetpack_stats_dashboard_widget_show_to_user', $spy );
+		add_filter( 'jetpack_is_connection_ready', '__return_true' );
 
 		try {
 			Jetpack_Stats_Dashboard_Widget::wp_dashboard_setup();
 		} finally {
 			remove_filter( 'jetpack_stats_dashboard_widget_show_to_user', $spy );
+			remove_filter( 'jetpack_is_connection_ready', '__return_true' );
 		}
 
 		$this->assertTrue( $reached );

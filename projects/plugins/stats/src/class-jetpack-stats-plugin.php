@@ -99,8 +99,10 @@ class Jetpack_Stats_Plugin {
 
 		if ( ( new Connection_Manager() )->is_connected() ) {
 			Stats_Dashboard::init();
-			Stats_Admin_Bar::init();
-			Admin_Post_List_Column::register();
+			if ( ( new Modules() )->is_active( 'stats' ) ) {
+				Stats_Admin_Bar::init();
+				Admin_Post_List_Column::register();
+			}
 			add_action( 'wp_dashboard_setup', array( WP_Dashboard_Odyssey_Widget::class, 'register_widget' ) );
 		}
 	}
