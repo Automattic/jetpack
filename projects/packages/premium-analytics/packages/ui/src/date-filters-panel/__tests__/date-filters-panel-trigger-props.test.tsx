@@ -1,7 +1,7 @@
 import { TZDate } from '@date-fns/tz';
 import { render, screen } from '@testing-library/react';
 import { DateFiltersPanel } from '../date-filters-panel';
-import type { ComponentProps } from 'react';
+import type { DateFiltersPanelProps } from '../date-filters-panel';
 
 // The stylesheets are stubbed, so the look a trigger was given is read off the
 // props it received rather than off classes the Button never gets.
@@ -28,7 +28,7 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 
 const TRIGGER_NAMES = [ 'Last 30 days', 'Compare', 'Chart interval: By days' ];
 
-function renderPanel( props: Partial< ComponentProps< typeof DateFiltersPanel > > = {} ) {
+function renderPanel( props: Partial< DateFiltersPanelProps > = {} ) {
 	return render(
 		<DateFiltersPanel
 			range={ {

@@ -20,6 +20,7 @@ import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import { DateIntervalDropdown } from '../date-interval-dropdown';
 import { DatePeriodDropdown } from '../date-period-dropdown';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
+import type { DateControlTriggerProps } from '../utils/date-control-trigger';
 
 import './date-filters-panel.scss';
 
@@ -122,7 +123,7 @@ export type DateFiltersPanelProps = {
 	disabled?: boolean;
 
 	/** The look of every trigger in the row, e.g. compact in a widget header. */
-	triggerProps?: DatePeriodDropdownProps[ 'triggerProps' ];
+	triggerProps?: DateControlTriggerProps;
 
 	/** Passed to the period trigger; see `DatePeriodDropdown`. */
 	attentionId?: DatePeriodDropdownProps[ 'attentionId' ];

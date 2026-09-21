@@ -30,7 +30,7 @@ import {
 	hasPrimaryDateDraft,
 	useStagedValue,
 } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { DateFiltersPanel, type DateControlTriggerProps } from '@jetpack-premium-analytics/ui';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 /**
@@ -57,7 +57,7 @@ export type ReportParamsFieldAttributes = {
 };
 
 // The host draws a widget's header fields compact.
-const WIDGET_HEADER_TRIGGER_PROPS: Parameters< typeof DateFiltersPanel >[ 0 ][ 'triggerProps' ] = {
+const WIDGET_HEADER_TRIGGER_PROPS: DateControlTriggerProps = {
 	size: 'compact',
 	className: styles.trigger,
 };

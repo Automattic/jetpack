@@ -13,9 +13,9 @@ import {
 	resolveStoryInterval,
 } from '../../date-interval-dropdown/stories/story-interval-options';
 import { DateFiltersPanel } from '../date-filters-panel';
+import type { DateControlTriggerProps } from '../../utils/date-control-trigger';
 import type { DateRange } from '../date-filters-panel';
 import type { Meta, StoryObj } from '@storybook/react';
-import type { ComponentProps } from 'react';
 
 const STORYBOOK_TIMEZONE = 'America/New_York';
 
@@ -83,7 +83,7 @@ type DateFiltersPanelStoryProps = {
 	/** The detail-page surface: all time first, no custom range. */
 	detailSurface?: boolean;
 	disabled?: boolean;
-	triggerProps?: ComponentProps< typeof DateFiltersPanel >[ 'triggerProps' ];
+	triggerProps?: DateControlTriggerProps;
 };
 
 // The day the detail story's resource was published: where its all time starts.
