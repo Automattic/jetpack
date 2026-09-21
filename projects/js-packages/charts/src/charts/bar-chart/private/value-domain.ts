@@ -57,8 +57,8 @@ export const getValueScaleDomain = (
 	let min = Infinity;
 	let max = -Infinity;
 
+	// Only hidden series are skipped. Comparison series count too: the comparison rule below widens the domain for them.
 	for ( const series of data ) {
-		// Comparison series still count: the comparison rule below widens the domain for them.
 		if ( ! isSeriesRendered( series ) ) {
 			continue;
 		}
@@ -73,13 +73,13 @@ export const getValueScaleDomain = (
 	}
 
 	if ( min === Infinity ) {
-		return EMPTY_DOMAIN;
+		return [ ...EMPTY_DOMAIN ];
 	}
 
 	// Keep zero in the domain so bar length stays proportional to value. A non-zero
 	// baseline would exaggerate differences between periods.
 	if ( min === max ) {
-		return min === 0 ? EMPTY_DOMAIN : [ Math.min( 0, min ), Math.max( 0, max ) ];
+		return min === 0 ? [ ...EMPTY_DOMAIN ] : [ Math.min( 0, min ), Math.max( 0, max ) ];
 	}
 
 	// visx only sees primary BarSeries and would compute a domain too narrow for the
