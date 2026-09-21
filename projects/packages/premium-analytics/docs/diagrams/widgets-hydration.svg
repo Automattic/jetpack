@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 290" width="1160" height="290" role="img" aria-label="The first read of the widget type registry after init latches, fires the registration action once, the package registers the manifest widgets at priority 10 and a plugin registers at priority 20, and register() refuses unnamespaced and duplicate names.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 290" width="1160" height="290" role="img" aria-label="The first read of the widget type registry after init latches, fires the registration action once, the package registers its manifest at priority 10 and a plugin registers its own manifest at priority 20, and register() refuses unnamespaced and duplicate names.">
   <style>
     text { font: 12px ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; fill: #1f2328; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; }
@@ -41,25 +41,25 @@
   <text class="mono" x="505" y="138" text-anchor="middle">jetpack_premium_analytics_</text>
   <text class="mono" x="505" y="154" text-anchor="middle">register_widget_types,</text>
   <text class="mono" x="505" y="170" text-anchor="middle">$registry )</text>
-  <rect class="box" x="640" y="30" width="260" height="64" rx="4"/>
-  <text class="title" x="770" y="50" text-anchor="middle">priority 10, the package</text>
-  <text class="mono" x="770" y="66" text-anchor="middle">register_widget_types( $registry )</text>
-  <text class="muted" x="770" y="82" text-anchor="middle">build/widgets.php, filtered, translated</text>
-  <rect class="box" x="640" y="140" width="260" height="80" rx="4"/>
-  <text class="title" x="770" y="168" text-anchor="middle">priority 20, a plugin</text>
-  <text class="mono" x="770" y="184" text-anchor="middle">register_widget_type( … )</text>
-  <text class="muted" x="770" y="200" text-anchor="middle">after the package's widget types</text>
-  <rect class="box" x="930" y="100" width="210" height="100" rx="4"/>
-  <text class="title" x="1035" y="130" text-anchor="middle">register()</text>
-  <text class="muted" x="1035" y="146" text-anchor="middle">name is namespace/name</text>
-  <text class="muted" x="1035" y="162" text-anchor="middle">name not registered</text>
-  <text class="muted" x="1035" y="178" text-anchor="middle">else _doing_it_wrong(), false</text>
+  <rect class="box" x="640" y="30" width="290" height="64" rx="4"/>
+  <text class="title" x="785" y="50" text-anchor="middle">priority 10, the package</text>
+  <text class="mono" x="785" y="66" text-anchor="middle">register_widget_types( $registry )</text>
+  <text class="muted" x="785" y="82" text-anchor="middle">build/widgets.php, filtered, translated</text>
+  <rect class="box" x="640" y="140" width="290" height="80" rx="4"/>
+  <text class="title" x="785" y="168" text-anchor="middle">priority 20, a plugin</text>
+  <text class="mono" x="785" y="184" text-anchor="middle">register_widget_types_from_manifest( … )</text>
+  <text class="muted" x="785" y="200" text-anchor="middle">its own build manifest, same pipeline</text>
+  <rect class="box" x="950" y="100" width="200" height="100" rx="4"/>
+  <text class="title" x="1050" y="130" text-anchor="middle">register()</text>
+  <text class="muted" x="1050" y="146" text-anchor="middle">name is namespace/name</text>
+  <text class="muted" x="1050" y="162" text-anchor="middle">name not registered</text>
+  <text class="muted" x="1050" y="178" text-anchor="middle">else _doing_it_wrong(), false</text>
   <polyline class="edge" points="200,142 225,142" marker-end="url(#arrow)"/>
   <polyline class="edge" points="375,142 400,142" marker-end="url(#arrow)"/>
   <polyline class="edge" points="610,130 640,62" marker-end="url(#arrow)"/>
   <polyline class="edge" points="610,155 640,180" marker-end="url(#arrow)"/>
-  <polyline class="edge" points="900,62 930,130" marker-end="url(#arrow)"/>
-  <polyline class="edge" points="900,180 930,160" marker-end="url(#arrow)"/>
-  <polyline class="edge edge-dashed" points="1035,200 1035,260 110,260 110,184" marker-end="url(#arrow)"/>
+  <polyline class="edge" points="930,62 950,130" marker-end="url(#arrow)"/>
+  <polyline class="edge" points="930,180 950,160" marker-end="url(#arrow)"/>
+  <polyline class="edge edge-dashed" points="1050,200 1050,260 110,260 110,184" marker-end="url(#arrow)"/>
   <text class="muted" x="570" y="255" text-anchor="middle">the read then answers from the populated registry</text>
 </svg>
