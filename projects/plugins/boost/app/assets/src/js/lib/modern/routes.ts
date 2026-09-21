@@ -22,7 +22,7 @@ export type ModernRoute = {
 
 export type ResolvedRoute = {
 	route: ModernRoute;
-	/** Tidied URL to replaceState onto when a tab was carried in the hash. */
+	/** Tidied URL to replaceState onto when a former dashboard hash needs normalization. */
 	normalizedUrl: string | null;
 };
 
@@ -30,7 +30,7 @@ export type ResolvedRoute = {
  * Resolve a URL to the route it shows.
  *
  * @param href - URL to resolve. Defaults to the current location.
- * @return The route, plus a normalized URL when the hash carried a tab.
+ * @return The route, plus a normalized URL for a former dashboard hash.
  */
 export function resolveRoute( href: string = window.location.href ): ResolvedRoute {
 	const url = new URL( href );
@@ -67,10 +67,10 @@ function tabFromQuery( query: URLSearchParams ): Tab {
 }
 
 /**
- * Read the tab the chassis is on, from the route it keeps in the route arg.
+ * Read the scroll destination from the route query's retained tab parameter.
  *
  * @param search - Query holding the route arg.
- * @return The tab.
+ * @return The scroll destination.
  */
 function readTab( search: URLSearchParams ): Tab {
 	return tabFromQuery( splitHash( search.get( ROUTE_ARG ) ?? '' ).query );
