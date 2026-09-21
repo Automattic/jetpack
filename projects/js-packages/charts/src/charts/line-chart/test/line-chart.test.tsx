@@ -8,7 +8,9 @@ import { GlobalChartsProvider, defaultTheme } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
 import LineChart, { LineChartUnresponsive } from '../line-chart';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
+import type { DataPointDate } from '../../../types';
 import type { ChartInstanceRef } from '../../private/chart-instance-context';
+import type { RenderLineGlyphProps } from '../types';
 
 // Mock useElementSize to return non-zero dimensions in jsdom so charts render
 const mockRefCallback = jest.fn();
@@ -1097,6 +1099,42 @@ describe( 'LineChart', () => {
 			// For a single data point, the end glyph should be rendered at that point
 			const endGlyphs = screen.getAllByTestId( /end-glyph/i );
 			expect( endGlyphs ).toHaveLength( 1 );
+		} );
+
+		test( 'puts the start and end glyphs on the first and last real reading', () => {
+			const recorded: { position?: 'start' | 'end'; value: number | null; y: number }[] = [];
+
+			renderWithTheme( {
+				withStartGlyphs: true,
+				withEndGlyphs: true,
+				renderGlyph: ( props: RenderLineGlyphProps< DataPointDate > ) => {
+					recorded.push( {
+						position: props.position,
+						value: props.datum.value ?? null,
+						y: props.y,
+					} );
+					return null;
+				},
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: null as number | null },
+							{ date: new Date( '2024-01-02' ), value: 10 },
+							{ date: new Date( '2024-01-03' ), value: 20 },
+							{ date: new Date( '2024-01-04' ), value: null as number | null },
+						],
+					},
+				],
+			} );
+
+			const start = recorded.find( entry => entry.position === 'start' );
+			const end = recorded.find( entry => entry.position === 'end' );
+
+			expect( start?.value ).toBe( 10 );
+			expect( end?.value ).toBe( 20 );
+			expect( Number.isFinite( start?.y ) ).toBe( true );
+			expect( Number.isFinite( end?.y ) ).toBe( true );
 		} );
 	} );
 
