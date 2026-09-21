@@ -604,12 +604,9 @@ export default function ApiManagedEdit( {
 					// The block just read the payment, so the save can write it without a second fetch.
 					recordPaymentRead( blockClientId, link.id );
 					// The read only carries what the payment has, so what the last link had
-					// goes back to its default first. The image belongs to the block, and
-					// it showed the last link's product.
+					// goes back to its default first. The image stays: it belongs to the block.
 					setAttributes( {
 						...resetToDefaults( ...RESOURCE_ATTRIBUTES ),
-						imageUrl: undefined,
-						imageId: undefined,
 						isApiManaged: true,
 						resourceId: link.id,
 						...response.attributes,

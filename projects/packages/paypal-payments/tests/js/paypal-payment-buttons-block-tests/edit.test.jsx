@@ -7177,7 +7177,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( setAttributes ).not.toHaveBeenCalled();
 		} );
 
-		it( 'switches the block to the picked link, with what PayPal holds for it and nothing of the old one', async () => {
+		it( 'switches the block to the picked link, with what PayPal holds for it, and keeps the image', async () => {
 			const user = userEvent.setup();
 			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ], {
 				'PLB-B2': {
@@ -7211,14 +7211,13 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 						productName: 'Baguette',
 						price: '3.50',
 						currencyCode: 'EUR',
-						// Back to block.json's defaults, with the block-owned image cleared.
+						// What the old link had goes back to block.json's defaults.
 						taxEnabled: false,
 						taxValue: '',
-						imageUrl: undefined,
-						imageId: undefined,
 					} )
 				)
 			);
+			expect( setAttributes.mock.calls[ 0 ][ 0 ] ).not.toHaveProperty( 'imageUrl' );
 		} );
 
 		// The switch reads the payment, so the next save can write it.
