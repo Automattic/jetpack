@@ -717,7 +717,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												) ) }
 											</BarGroup>
 										) }
-										{ /* Do not reorder: for one key the last showTooltip wins, so this must run after BarGroup. */ }
+										{ /* Do not reorder: for one key the last showTooltip wins, so this must run after the primary series. */ }
 										{ ( withTooltips || onPointerDown || onPointerUp ) && (
 											<BandTooltip
 												keys={ primaryKeys }
