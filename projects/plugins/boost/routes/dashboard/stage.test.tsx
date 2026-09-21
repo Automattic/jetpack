@@ -302,6 +302,36 @@ describe( 'Boost dashboard stage', () => {
 		unmount();
 	} );
 
+	it( 'stops following after a programmatic scroll until the next activation', () => {
+		const { rerender } = render( <Stage /> );
+		const content = screen.getByRole( 'region', { name: 'Optimize your speed' } ).parentElement!;
+		content.parentElement!.scrollTop = 900;
+		mockScrollIntoView.mockClear();
+		act( () => resizeCallback( [], resizeObserver ) );
+		expect( mockDisconnect ).toHaveBeenCalled();
+		expect( mockScrollIntoView ).not.toHaveBeenCalled();
+
+		content.parentElement!.scrollTop = 0;
+		act( () => resizeCallback( [], resizeObserver ) );
+		expect( mockScrollIntoView ).not.toHaveBeenCalled();
+
+		act( () => window.history.replaceState( null, '', `/?page=jetpack-boost${ SETTINGS_ARG }` ) );
+		rerender( <Stage /> );
+		expect( mockScrollIntoView ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'retires the loading observer after a bounded interval', () => {
+		jest.useFakeTimers();
+		const { unmount } = render( <Stage /> );
+		mockScrollIntoView.mockClear();
+		act( () => jest.advanceTimersByTime( 5000 ) );
+		expect( mockDisconnect ).toHaveBeenCalled();
+		act( () => resizeCallback( [], resizeObserver ) );
+		expect( mockScrollIntoView ).not.toHaveBeenCalled();
+		unmount();
+		jest.useRealTimers();
+	} );
+
 	it( 'shows a loader instead of Overview while onboarding', () => {
 		setGettingStarted( true );
 		const routeReady = jest.fn();

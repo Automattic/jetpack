@@ -3,6 +3,7 @@ import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
+import { Text } from '@wordpress/ui';
 import BoostPage from '../../_inc/components/boost-page';
 import Overview from '../../_inc/overview/overview';
 import { resolveRoute } from '../../app/assets/src/js/lib/modern/routes';
@@ -17,6 +18,8 @@ import {
 import type { Tab } from '../../_inc/runtime-contract';
 import './route.scss';
 import type { ReactNode } from 'react';
+
+const SCROLL_FOLLOW_DURATION = 5000;
 
 const HISTORY_WRAPPED_KEY = '__jetpackBoostLocationChangeWrapped';
 
@@ -66,6 +69,7 @@ function DashboardStage() {
 	);
 	const [ headerAction, setHeaderAction ] = useState< ReactNode >( null );
 	const pageRef = useRef< HTMLDivElement >( null );
+	const scrollFollow = useRef( { active: false } );
 	const settingsRef = useRef< HTMLElement >( null );
 	const destination: Tab = search.tab === 'settings' ? 'settings' : 'overview';
 	const goToDestination = useCallback(
@@ -112,14 +116,34 @@ function DashboardStage() {
 			destination === 'settings'
 				? settingsRef.current
 				: pageRef.current?.closest( '.jetpack-boost-page__content' );
-		const scroll = () => target?.scrollIntoView( { block: 'start', behavior: 'instant' } );
-		scroll();
-		// Keep the destination aligned while the two runtimes load, until the user takes control.
+		const follow = { active: true };
+		scrollFollow.current = follow;
+		const positions = new Map< HTMLElement, number >();
+		for ( let parent = pageRef.current?.parentElement; parent; parent = parent.parentElement ) {
+			positions.set( parent, parent.scrollTop );
+		}
+		const scroll = () => {
+			if ( scrollFollow.current !== follow || ! follow.active ) {
+				return;
+			}
+			if ( [ ...positions ].some( ( [ element, top ] ) => element.scrollTop !== top ) ) {
+				stop();
+				return;
+			}
+			target?.scrollIntoView( { block: 'start', behavior: 'instant' } );
+			positions.forEach( ( _, element ) => positions.set( element, element.scrollTop ) );
+		};
 		const observer = new ResizeObserver( scroll );
+		const timeout = setTimeout( stop, SCROLL_FOLLOW_DURATION );
+		function stop() {
+			follow.active = false;
+			observer.disconnect();
+			clearTimeout( timeout );
+		}
+		scroll();
 		if ( pageRef.current ) {
 			observer.observe( pageRef.current );
 		}
-		const stop = () => observer.disconnect();
 		const events = [ 'wheel', 'touchstart', 'pointerdown', 'keydown' ];
 		events.forEach( event => window.addEventListener( event, stop, { passive: true } ) );
 		return () => {
@@ -156,9 +180,13 @@ function DashboardStage() {
 					aria-labelledby="jetpack-boost-optimize-heading"
 					hidden={ onboarding }
 				>
-					<h2 id="jetpack-boost-optimize-heading">
+					<Text
+						variant="heading-xl"
+						render={ <h2 className="jetpack-boost-dashboard__heading" /> }
+						id="jetpack-boost-optimize-heading"
+					>
 						{ __( 'Optimize your speed', 'jetpack-boost' ) }
-					</h2>
+					</Text>
 					<div id={ SETTINGS_SLOT_ID } />
 				</section>
 			</div>
