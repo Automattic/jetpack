@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats_Admin\TestCase as Stats_TestCase;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -369,5 +370,84 @@ class REST_Controller_Test extends Stats_TestCase {
 			'unknown remote error',
 			$error->get_error_message()
 		);
+	}
+
+	public function test_settings_read_returns_the_values_and_the_site_roles() {
+		wp_set_current_user( $this->admin_id );
+
+		$response = $this->dispatch_settings_request( 'GET' );
+
+		$this->assertSame( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertSame( array( 'admin_bar', 'roles', 'count_roles', 'wpcom_reader_views_enabled' ), array_keys( $data['settings'] ) );
+		$this->assertContains( 'editor', wp_list_pluck( $data['roles'], 'slug' ) );
+	}
+
+	public function test_settings_save_changes_who_can_view_and_whose_views_count() {
+		wp_set_current_user( $this->admin_id );
+
+		$response = $this->dispatch_settings_request(
+			'POST',
+			array(
+				'admin_bar'   => false,
+				'roles'       => array( 'administrator', 'editor' ),
+				'count_roles' => array( 'editor' ),
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertFalse( Stats_Options::get_option( 'admin_bar' ) );
+		$this->assertSame( array( 'administrator', 'editor' ), Stats_Options::get_option( 'roles' ) );
+		$this->assertSame( array( 'editor' ), Stats_Options::get_option( 'count_roles' ) );
+	}
+
+	public function test_settings_save_refuses_an_unknown_role() {
+		wp_set_current_user( $this->admin_id );
+
+		$response = $this->dispatch_settings_request( 'POST', array( 'roles' => array( 'administrator', 'ghost' ) ) );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( array( 'administrator' ), Stats_Options::get_option( 'roles' ) );
+	}
+
+	public function test_settings_save_turns_reader_views_off() {
+		wp_set_current_user( $this->admin_id );
+
+		$response = $this->dispatch_settings_request( 'POST', array( 'wpcom_reader_views_enabled' => false ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertFalse( $response->get_data()['settings']['wpcom_reader_views_enabled'] );
+	}
+
+	public function test_settings_save_refused_for_editor_who_can_view_stats() {
+		wp_set_current_user( $this->editor_id );
+		$grant_view_stats = static function ( $caps ) {
+			$caps['view_stats'] = true;
+			return $caps;
+		};
+		add_filter( 'user_has_cap', $grant_view_stats );
+
+		$response = $this->dispatch_settings_request( 'POST', array( 'roles' => array( 'administrator', 'editor' ) ) );
+		remove_filter( 'user_has_cap', $grant_view_stats );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( array( 'administrator' ), Stats_Options::get_option( 'roles' ) );
+	}
+
+	/**
+	 * Send a request to the Stats settings route.
+	 *
+	 * @param string $method GET or POST.
+	 * @param array  $body   JSON body for a POST.
+	 * @return \WP_REST_Response
+	 */
+	private function dispatch_settings_request( $method, $body = array() ) {
+		$request = new WP_REST_Request( $method, '/jetpack/v4/stats-app/sites/999/jetpack-stats/settings' );
+		if ( $body ) {
+			$request->set_header( 'content-type', 'application/json' );
+			$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
+		}
+
+		return $this->server->dispatch( $request );
 	}
 }
