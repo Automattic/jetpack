@@ -160,4 +160,51 @@ describe( 'ChartTooltip', () => {
 		expect( swatchFills() ).toEqual( [ '#views' ] );
 		expect( screen.getByText( '40' ) ).toBeInTheDocument();
 	} );
+
+	it( "hands getLabel each row's value spelled out in that row's format", () => {
+		const getLabel = jest.fn( ( _datum, _index, key: string ) => key );
+
+		render(
+			<ChartTooltip
+				tooltipData={ {
+					datumByKey: {
+						'Ads Served': { datum: { value: 18432 }, index: 0, key: 'Ads Served' },
+						'Average CPM': { datum: { value: 0.15 }, index: 1, key: 'Average CPM' },
+					},
+				} }
+				dataFormat={ { type: 'number', options: { useMultipliers: true } } }
+				seriesStyles={ STYLES }
+				seriesKeys={ [ 'Ads Served' ] }
+				indicatorType="line"
+				supplementaryRows={ { 'Average CPM': { type: 'currency', options: { decimals: 2 } } } }
+				getLabel={ getLabel }
+			/>
+		);
+
+		expect( getLabel ).toHaveBeenCalledWith( { value: 18432 }, 0, 'Ads Served', '18,432' );
+		expect( getLabel ).toHaveBeenCalledWith(
+			{ value: 0.15 },
+			1,
+			'Average CPM',
+			expect.stringMatching( /\$0\.15/ )
+		);
+	} );
+
+	it( 'renders an inline row as the label alone, with no value column', () => {
+		render(
+			<ChartTooltip
+				tooltipData={ {
+					datumByKey: { Views: { datum: { value: 100 }, index: 0, key: 'Views' } },
+				} }
+				dataFormat={ DATA_FORMAT }
+				seriesStyles={ STYLES }
+				indicatorType="line"
+				layout="inline"
+				getLabel={ ( _datum, _index, key, value ) => `${ value } ${ key }` }
+			/>
+		);
+
+		expect( screen.getByText( '100 Views' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '100' ) ).not.toBeInTheDocument();
+	} );
 } );

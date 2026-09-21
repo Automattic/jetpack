@@ -66,23 +66,19 @@ export function appendTooltipExtras< T extends TooltipData >(
 }
 
 /**
- * The names the tooltip leads each row with once extras join the drawn series:
- * an extra the chart did not already name is named after itself, and with any
- * present the drawn rows are named too, so a date alone never labels two rows
- * identically.
+ * The names the tooltip leads each row with: the drawn series' own, plus each
+ * extra the chart did not already name, named after itself.
  *
  * @param seriesNames - The drawn series' names, keyed by series label.
- * @param isPaired    - Whether the chart draws more than one metric.
  * @param extras      - The series to read out without drawing.
- * @return The names keyed by row key, and whether rows lead with a name.
+ * @return The names keyed by row key.
  */
 export function resolveTooltipNames(
 	seriesNames: Map< string, string >,
-	isPaired: boolean,
 	extras: readonly TooltipExtraSeries[] | undefined
-): { names: Map< string, string >; namesRows: boolean } {
+): Map< string, string > {
 	if ( ! extras?.length ) {
-		return { names: seriesNames, namesRows: isPaired };
+		return seriesNames;
 	}
 
 	const names = new Map( seriesNames );
@@ -92,5 +88,5 @@ export function resolveTooltipNames(
 		}
 	} );
 
-	return { names, namesRows: true };
+	return names;
 }

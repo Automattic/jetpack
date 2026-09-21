@@ -147,7 +147,13 @@ type TooltipProps = {
 	tooltipData: { datumByKey: Record< string, { datum: { value: number } } > };
 	seriesStyles: { stroke: string; opacity?: number }[];
 	seriesKeys?: string[];
-	getLabel: ( datum: { date?: Date; realDate?: Date }, index: number, key: string ) => string;
+	getLabel: (
+		datum: { date?: Date; realDate?: Date },
+		index: number,
+		key: string,
+		value: string
+	) => string;
+	layout?: string;
 };
 
 /** Every prop the most recent chart render received. */
@@ -216,7 +222,7 @@ function tooltipLabelFor( hoveredDate: Date ): string {
 		},
 	} );
 
-	return tooltipNode.props.getLabel( hovered, 0, 'July' );
+	return tooltipNode.props.getLabel( hovered, 0, 'July', '100' );
 	/* eslint-enable testing-library/render-result-naming-convention */
 }
 
@@ -268,7 +274,7 @@ describe( 'ComparativeBarChart', () => {
 		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
 		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
 
-		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( 'July 2, 2026' );
+		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( '100 July · July 2, 2026' );
 	} );
 
 	// A date alone names 24 hourly buckets, so it cannot identify the one hovered
@@ -279,7 +285,7 @@ describe( 'ComparativeBarChart', () => {
 			<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } tickResolution="hour" />
 		);
 
-		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( 'July 2, 2026 2:00 pm' );
+		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( '100 July · July 2, 2026 2:00 pm' );
 	} );
 
 	// Most widgets declare no resolution, so reading the caller's prop alone left
@@ -288,7 +294,7 @@ describe( 'ComparativeBarChart', () => {
 		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
 		render( <ComparativeBarChart series={ HOURLY_SERIES } dataFormat={ DATA_FORMAT } /> );
 
-		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( 'July 2, 2026 2:00 pm' );
+		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( '100 July · July 2, 2026 2:00 pm' );
 	} );
 
 	it( 'lets a declared resolution override what the data looks like', () => {
@@ -301,7 +307,7 @@ describe( 'ComparativeBarChart', () => {
 			/>
 		);
 
-		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( 'July 2, 2026' );
+		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( '100 July · July 2, 2026' );
 	} );
 
 	// How a point's date reads is the caller's to decide; which format names it
@@ -317,7 +323,7 @@ describe( 'ComparativeBarChart', () => {
 			/>
 		);
 
-		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( 'the bucket' );
+		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( '100 July · the bucket' );
 		expect( formatTooltipDate ).toHaveBeenCalledWith( JULY_2_2PM_TOKYO, 'dateTime' );
 	} );
 
@@ -351,17 +357,31 @@ describe( 'ComparativeBarChart', () => {
 			tooltipData: { nearestDatum: { datum: { date: JULY_1, value: 100 }, key: 'July' } },
 		} ).props;
 
-		// Every row on a paired chart covers the same hovered date, so a date alone would
-		// label two of them identically.
-		expect( getLabel( { date: JULY_1 }, 0, 'July' ) ).toBe( 'July · July 1, 2026' );
-		expect( getLabel( { date: JULY_1 }, 2, 'Visitors' ) ).toBe( 'Visitors · July 1, 2026' );
+		expect( getLabel( { date: JULY_1 }, 0, 'July', '100' ) ).toBe( '100 July · July 1, 2026' );
+		expect( getLabel( { date: JULY_1 }, 2, 'Visitors', '40' ) ).toBe(
+			'40 Visitors · July 1, 2026'
+		);
+		// A comparison row borrows its group's current-period name.
 		expect(
 			getLabel(
 				{ date: JULY_1, realDate: new Date( '2026-06-01T00:00:00Z' ) },
 				3,
-				'Visitors · June'
+				'Visitors · June',
+				'30'
 			)
-		).toBe( 'Visitors · June 1, 2026' );
+		).toBe( '30 Visitors · June 1, 2026' );
+	} );
+
+	it( 'renders the rows inline, the value spelled into each label', () => {
+		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
+
+		/* eslint-disable-next-line testing-library/render-result-naming-convention --
+		   The chart's `renderTooltip` prop, not testing-library's `render()`. */
+		const tooltip = recordedProps().renderTooltip( {
+			tooltipData: { nearestDatum: { datum: { date: JULY_1, value: 100 }, key: 'July' } },
+		} );
+
+		expect( tooltip.props.layout ).toBe( 'inline' );
 	} );
 
 	it( 'keys the tooltip styles so rows keep their own swatch', () => {
@@ -566,7 +586,7 @@ describe( 'ComparativeBarChart tooltip extras', () => {
 			/>
 		);
 
-		expect( tooltipLabelFor( JULY_1 ) ).toBe( 'July · July 1, 2026' );
+		expect( tooltipLabelFor( JULY_1 ) ).toBe( '100 July · July 1, 2026' );
 	} );
 
 	it( 'keeps the tooltip on for an all-zero drawn series once an extra has data', () => {

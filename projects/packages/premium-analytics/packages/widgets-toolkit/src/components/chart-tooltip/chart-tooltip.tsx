@@ -2,12 +2,13 @@
  * External dependencies
  */
 import { LineShape, RectShape, Stack } from '@jetpack-premium-analytics/externals';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 /**
  * Internal dependencies
  */
 import styles from './chart-tooltip.module.scss';
 import { TooltipRow } from './tooltip-row';
-import { isChartDatumEntry } from './utils';
+import { exactFormatOf, isChartDatumEntry } from './utils';
 import type { DataFormat } from '../../types';
 
 /** Swatch box per indicator type; a supplementary row's spacer takes the width. */
@@ -70,7 +71,14 @@ export type ChartTooltipProps< TDatum = unknown > = {
 	 */
 	supplementaryRows?: Record< string, DataFormat | undefined >;
 
-	getLabel?: ( datum: TDatum, index: number, key: string ) => string;
+	/**
+	 * `split` sets the label left and the value right; `inline` renders the label
+	 * alone, for a `getLabel` that already spells the value into it.
+	 */
+	layout?: 'split' | 'inline';
+
+	/** `value` is the row's value spelled out in full, in the row's own format. */
+	getLabel?: ( datum: TDatum, index: number, key: string, value: string ) => string;
 
 	getValue?: ( datum: TDatum ) => number;
 };
@@ -86,6 +94,7 @@ export function ChartTooltip< TDatum >( {
 	seriesKeys,
 	indicatorType,
 	supplementaryRows,
+	layout = 'split',
 	getLabel = defaultGetLabel,
 	getValue = defaultGetValue,
 }: ChartTooltipProps< TDatum > ) {
@@ -106,10 +115,19 @@ export function ChartTooltip< TDatum >( {
 					return null;
 				}
 
-				const label = getLabel( entry.datum, index, entry.key );
 				const value = getValue( entry.datum );
+				const isSupplementary = supplementaryRows !== undefined && entry.key in supplementaryRows;
+				const rowFormat = ( isSupplementary && supplementaryRows[ entry.key ] ) || dataFormat;
+				const exactFormat = exactFormatOf( rowFormat );
+				const label = getLabel(
+					entry.datum,
+					index,
+					entry.key,
+					formatMetricValue( value, exactFormat.type, exactFormat.options )
+				);
+				const rowValue = layout === 'inline' ? undefined : value;
 
-				if ( supplementaryRows && entry.key in supplementaryRows ) {
+				if ( isSupplementary ) {
 					return (
 						<TooltipRow
 							key={ entry.key }
@@ -122,8 +140,8 @@ export function ChartTooltip< TDatum >( {
 								/>
 							}
 							label={ label }
-							value={ value }
-							dataFormat={ supplementaryRows[ entry.key ] ?? dataFormat }
+							value={ rowValue }
+							dataFormat={ rowFormat }
 						/>
 					);
 				}
@@ -156,8 +174,8 @@ export function ChartTooltip< TDatum >( {
 							)
 						}
 						label={ label }
-						value={ value }
-						dataFormat={ dataFormat }
+						value={ rowValue }
+						dataFormat={ rowFormat }
 					/>
 				);
 			} ) }
