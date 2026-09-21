@@ -54,13 +54,7 @@ function VideoEmbedsList( { pages }: VideoEmbedsListProps ) {
 				return (
 					<li key={ `${ index }-${ page.link }` } className={ styles.item }>
 						{ href ? (
-							<Link
-								className={ styles.link }
-								href={ href }
-								variant="unstyled"
-								openInNewTab
-								title={ page.label }
-							>
+							<Link className={ styles.link } href={ href } openInNewTab title={ page.label }>
 								{ page.label }
 							</Link>
 						) : (
