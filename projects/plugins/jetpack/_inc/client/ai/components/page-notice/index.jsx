@@ -85,6 +85,7 @@ export function getPageNoticeState( {
 
 const HOST_OFF_SLUG = 'jetpack-ai-hub-notice-host-off';
 const OFFLINE_SLUG = 'jetpack-support-development-mode';
+const SITE_DISCONNECTED_VIP_SLUG = 'jetpack-ai-hub-notice-site-disconnected-vip';
 
 // Custom code reaches the same state by more than one route, and each route has
 // its own documentation page. VIP documents the filter as its own off switch.
@@ -143,10 +144,19 @@ function getNoticeContent( state, pageData ) {
 					'Your feature settings are saved and will apply again once the site is connected.',
 					'jetpack'
 				),
-				action: {
-					href: pageData.userConnectionUrl,
-					label: __( 'Connect Jetpack', 'jetpack' ),
-				},
+				// Authorizing here would make the admin the connection owner, displacing
+				// the machine user VIP manages the connection with — so VIP gets the
+				// same Learn-more pattern as the other host-specific routes above.
+				action: pageData.isVip
+					? {
+							href: getRedirectUrl( SITE_DISCONNECTED_VIP_SLUG ),
+							label: __( 'Learn more', 'jetpack' ),
+							openInNewTab: true,
+						}
+					: {
+							href: pageData.userConnectionUrl,
+							label: __( 'Connect Jetpack', 'jetpack' ),
+						},
 			};
 
 		case PAGE_NOTICE_STATES.USER_UNLINKED:
@@ -188,6 +198,7 @@ function getNoticeContent( state, pageData ) {
  * @param {string}      [props.userConnectionUrl] - Where this host links an account.
  * @param {string}      [props.manageUrl]         - Where this host manages the AI module.
  * @param {boolean}     [props.hasMyJetpack]      - Whether My Jetpack is loaded on this host.
+ * @param {boolean}     [props.isVip]             - Whether this is a VIP site.
  * @return {object|null} Component markup.
  */
 export default function PageNotice( props ) {

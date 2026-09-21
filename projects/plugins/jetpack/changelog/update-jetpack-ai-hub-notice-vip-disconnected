@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Jetpack AI: On VIP sites, point the disconnected-site notice at VIP's connection documentation instead of a connect link.

@@ -291,13 +291,39 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * The notice drops its connect link on VIP, which needs the host in page data.
+	 */
+	public function test_vip_site_is_flagged_in_page_data() {
+		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['isVip'] );
+	}
+
+	/**
+	 * Only VIP sets the flag, so a host that merely lacks My Jetpack must not.
+	 */
+	public function test_non_vip_site_is_not_flagged_in_page_data() {
+		$this->given_woa( false );
+		// `hasMyJetpack` is false here too, so a flag derived from it would read
+		// this host as VIP.
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['hasMyJetpack'] );
+		$this->assertFalse( $settings['isVip'] );
+	}
+
+	/**
 	 * Every notice input reaches the page. Each one defaults permissive in the
 	 * client, so a dropped key silences the notice instead of erring.
 	 */
 	public function test_notice_inputs_are_injected() {
 		$settings = $this->get_injected_settings();
 
-		foreach ( array( 'isConnected', 'hostAllowsAi', 'masterEnabled', 'masterForcedOff' ) as $key ) {
+		foreach ( array( 'isConnected', 'hostAllowsAi', 'masterEnabled', 'masterForcedOff', 'isVip' ) as $key ) {
 			$this->assertArrayHasKey( $key, $settings );
 		}
 
@@ -305,6 +331,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$this->assertIsBool( $settings['hostAllowsAi'] );
 		$this->assertIsBool( $settings['masterEnabled'] );
 		$this->assertSame( '', $settings['masterForcedOff'] );
+		$this->assertIsBool( $settings['isVip'] );
 	}
 
 	/**
@@ -363,6 +390,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		remove_filter( 'jetpack_ai_admin_config', $filter );
 		$this->assertSame( '', $settings['userConnectionUrl'] );
 		$this->assertSame( '', $settings['manageUrl'] );
+		$this->assertFalse( $settings['isVip'] );
 	}
 
 	/**
