@@ -8,7 +8,7 @@ import { dateI18n } from '@wordpress/date';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
-import { Button, Icon, Stack, Text } from '@wordpress/ui';
+import { Button, Icon, Stack, Text, Tooltip } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 import { formatMetric, formatRate } from '../helpers/format-metric';
 import RecentPosts, { type RecentPost } from '../recent-posts';
@@ -47,6 +47,7 @@ type SubscriberPoint = {
 };
 
 const DAYS_TO_SHOW = 30;
+const STATS_STALE_TIME_MS = 5 * 60 * 1000;
 
 /**
  * Normalize a numeric API value.
@@ -167,6 +168,32 @@ function getGreeting(): string {
 }
 
 /**
+ * Paid-subscribers metric info control.
+ *
+ * @return Focusable info icon with a tooltip.
+ */
+function PaidSubscribersInfo(): JSX.Element {
+	const description = __( 'Subscribers with a paid subscription.', 'jetpack-newsletter' );
+
+	return (
+		<Tooltip.Root>
+			<Tooltip.Trigger
+				render={
+					<span
+						className="jetpack-newsletter-stats__metric-info"
+						tabIndex={ 0 }
+						aria-label={ description }
+					/>
+				}
+			>
+				<Icon icon={ info } size={ 18 } />
+			</Tooltip.Trigger>
+			<Tooltip.Popup>{ description }</Tooltip.Popup>
+		</Tooltip.Root>
+	);
+}
+
+/**
  * Render the Newsletter Stats dashboard.
  *
  * @return Stats dashboard content.
@@ -185,10 +212,12 @@ export default function SubscriberStatsChart(): JSX.Element {
 	const subscribersQuery = useQuery< SubscribersStatsResponse >( {
 		queryKey: [ 'newsletter-stats', 'subscribers', subscribersPath ],
 		queryFn: () => apiFetch( { path: subscribersPath } ),
+		staleTime: STATS_STALE_TIME_MS,
 	} );
 	const recentPostsQuery = useQuery< RecentPostsResponse >( {
 		queryKey: [ 'newsletter-stats', 'recent-posts' ],
 		queryFn: () => apiFetch( { path: '/jetpack/v4/newsletter/stats/recent-posts' } ),
+		staleTime: STATS_STALE_TIME_MS,
 	} );
 	const subscriberStats = subscribersQuery.data ? toSubscriberStats( subscribersQuery.data ) : null;
 	const emailRates = toEmailRates( recentPostsQuery.data?.emailTotals );
@@ -342,15 +371,7 @@ export default function SubscriberStatsChart(): JSX.Element {
 						className="jetpack-newsletter-stats__metric-label"
 					>
 						{ __( 'Paid subscribers', 'jetpack-newsletter' ) }
-						<Stack
-							direction="row"
-							align="center"
-							render={ <span /> }
-							className="jetpack-newsletter-stats__metric-info"
-							title={ __( 'Subscribers with a paid subscription.', 'jetpack-newsletter' ) }
-						>
-							<Icon icon={ info } size={ 18 } />
-						</Stack>
+						<PaidSubscribersInfo />
 					</Stack>
 					<strong className="jetpack-newsletter-stats__metric-value">
 						{ formatMetric( subscriberStats?.paidSubscribers ) }

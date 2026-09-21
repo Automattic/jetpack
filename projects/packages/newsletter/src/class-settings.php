@@ -80,7 +80,7 @@ class Settings {
 			self::OVERVIEW_FEATURE_FLAG,
 			array(
 				'default'     => false,
-				'description' => 'Enable the Newsletter Overview tab.',
+				'description' => 'Enable the Newsletter Overview and Stats tabs.',
 				'owner'       => 'jetpack-newsletter',
 			)
 		);

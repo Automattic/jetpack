@@ -109,6 +109,7 @@ describe( 'SubscriberStatsChart', () => {
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
 			path: '/jetpack/v4/newsletter/stats/recent-posts',
 		} );
+		expect( screen.getByLabelText( 'Subscribers with a paid subscription.' ) ).toBeInTheDocument();
 		expect( mockApiFetch.mock.calls ).not.toContainEqual( [
 			expect.objectContaining( { path: expect.stringContaining( '/emails/summary' ) } ),
 		] );

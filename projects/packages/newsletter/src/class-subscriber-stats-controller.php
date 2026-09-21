@@ -82,10 +82,12 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 						'default' => 30,
 					),
 					'date'        => array(
-						'description' => __( 'Most recent day to include in results (YYYY-MM-DD).', 'jetpack-newsletter' ),
-						'type'        => 'string',
-						'format'      => 'date',
-						'required'    => true,
+						'description'       => __( 'Most recent day to include in results (YYYY-MM-DD).', 'jetpack-newsletter' ),
+						'type'              => 'string',
+						'pattern'           => '^\d{4}-\d{2}-\d{2}$',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => array( $this, 'is_valid_stats_date' ),
 					),
 					'stat_fields' => array(
 						'type'    => 'string',
@@ -144,10 +146,13 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 	 * @return mixed
 	 */
 	private function request_stats( $request, $endpoint, $allowed_params ) {
-		$query_args = array_intersect_key(
-			$request->get_query_params(),
-			array_flip( $allowed_params )
-		);
+		$query_args = array();
+		foreach ( $allowed_params as $key ) {
+			$value = $request->get_param( $key );
+			if ( null !== $value ) {
+				$query_args[ $key ] = $value;
+			}
+		}
 
 		/**
 		 * Allows a host to provide Newsletter Stats without calling WordPress.com directly.
@@ -169,6 +174,25 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 		);
 
 		return $response ?? $this->proxy_stats_to_wpcom( $endpoint, $query_args );
+	}
+
+	/**
+	 * Reject dates that are not a real YYYY-MM-DD calendar day.
+	 *
+	 * @param mixed           $value   Raw date.
+	 * @param WP_REST_Request $request Request.
+	 * @param string          $param   Parameter name.
+	 * @return true|WP_Error
+	 */
+	public function is_valid_stats_date( $value, $request, $param ) {
+		$valid = rest_validate_request_arg( $value, $request, $param );
+		if ( true !== $valid ) {
+			return $valid;
+		}
+
+		$parsed = \DateTime::createFromFormat( 'Y-m-d', (string) $value );
+
+		return $parsed && $value === $parsed->format( 'Y-m-d' );
 	}
 
 	/**

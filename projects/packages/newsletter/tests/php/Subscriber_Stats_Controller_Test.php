@@ -161,6 +161,28 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		$this->assertSame( 401, $response->get_status() );
 	}
 
+	public function test_subscribers_route_forbids_editors() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'newsletter_stats_editor_' . wp_rand(),
+				'user_pass'  => 'password',
+				'user_email' => 'newsletter-stats-editor-' . wp_rand() . '@example.com',
+				'role'       => 'editor',
+			)
+		);
+		if ( is_wp_error( $user_id ) ) {
+			$this->fail( $user_id->get_error_message() );
+		}
+		wp_set_current_user( $user_id );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/newsletter/stats/subscribers' );
+		$request->set_query_params( array( 'date' => gmdate( 'Y-m-d' ) ) );
+
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 403, $response->get_status() );
+	}
+
 	public function test_subscribers_route_rejects_invalid_date() {
 		$this->login_as_admin();
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/newsletter/stats/subscribers' );
@@ -169,6 +191,18 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		$response = rest_get_server()->dispatch( $request );
 
 		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+	}
+
+	public function test_subscribers_route_rejects_impossible_calendar_date() {
+		$this->login_as_admin();
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/newsletter/stats/subscribers' );
+		$request->set_query_params( array( 'date' => '2026-02-31' ) );
+
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
 	}
 
 	public function test_subscribers_route_rejects_year_unit() {
@@ -184,6 +218,38 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		$response = rest_get_server()->dispatch( $request );
 
 		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+	}
+
+	public function test_emails_summary_forwards_declared_defaults() {
+		$this->login_as_admin();
+		$captured = null;
+		add_filter(
+			'jetpack_newsletter_stats_pre_request',
+			function ( $response, $endpoint, $query_args ) use ( &$captured ) {
+				$this->assertNull( $response );
+				$this->assertSame( 'emails/summary', $endpoint );
+				$captured = $query_args;
+
+				return array( 'posts' => array() );
+			},
+			10,
+			3
+		);
+
+		$response = rest_get_server()->dispatch(
+			new WP_REST_Request( 'GET', '/jetpack/v4/newsletter/stats/emails/summary' )
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame(
+			array(
+				'quantity'   => 30,
+				'sort_field' => 'post_date',
+				'sort_order' => 'desc',
+			),
+			$captured
+		);
 	}
 
 	public function test_returns_ten_newest_published_posts_and_drafts() {

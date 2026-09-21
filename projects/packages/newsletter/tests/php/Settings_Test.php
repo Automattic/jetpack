@@ -274,7 +274,7 @@ class Settings_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'default'     => false,
-				'description' => 'Enable the Newsletter Overview tab.',
+				'description' => 'Enable the Newsletter Overview and Stats tabs.',
 				'owner'       => 'jetpack-newsletter',
 				'name'        => Settings::OVERVIEW_FEATURE_FLAG,
 			),
