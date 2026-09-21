@@ -37,6 +37,7 @@ import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
+import { isInvalidReading } from '../private/readings';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType } from '../private/time-axis';
 import { buildTimeAxisOptions } from '../private/time-axis-options';
@@ -158,19 +159,17 @@ export const renderDefaultTooltip = (
 };
 
 const validateData = ( data: SeriesData[] ) => {
-	if ( ! data?.length ) return 'No data available';
+	if ( ! data?.length ) return __( 'No data available', 'jetpack-charts' );
 
 	const hasInvalidData = data.some( series =>
 		series.data.some(
 			( point: DataPointDate | DataPoint ) =>
-				isNaN( point.value as number ) ||
-				point.value === null ||
-				point.value === undefined ||
+				isInvalidReading( point.value, { allowMissing: true } ) ||
 				( 'date' in point && point.date && isNaN( point.date.getTime() ) )
 		)
 	);
 
-	if ( hasInvalidData ) return 'Invalid data';
+	if ( hasInvalidData ) return __( 'Invalid data', 'jetpack-charts' );
 	return null;
 };
 

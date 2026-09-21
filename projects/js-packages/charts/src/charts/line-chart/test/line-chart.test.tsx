@@ -254,23 +254,57 @@ describe( 'LineChart', () => {
 			expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toBeInTheDocument();
 		} );
 
-		test( 'handles null or undefined values', () => {
+		test( 'renders a bucket with no reading instead of failing the whole chart', () => {
 			renderWithTheme( {
 				data: [
 					{
 						label: 'Series A',
 						data: [
-							{ date: new Date( '2024-01-01' ), value: null as number | null, label: 'Jan 1' },
-							{
-								date: new Date( '2024-01-02' ),
-								value: undefined as number | undefined,
-								label: 'Jan 2',
-							},
+							{ date: new Date( '2024-01-01' ), value: null as number | null },
+							{ date: new Date( '2024-01-02' ), value: 20 },
+						],
+					},
+				],
+			} );
+			expect( screen.queryByText( /invalid data/i ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toBeInTheDocument();
+		} );
+
+		test( 'still rejects undefined values', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: undefined as number | undefined },
+							{ date: new Date( '2024-01-02' ), value: 20 },
 						],
 					},
 				],
 			} );
 			expect( screen.getByText( /invalid data/i ) ).toBeInTheDocument();
+		} );
+
+		test( 'breaks the line at a bucket with no reading', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10 },
+							{ date: new Date( '2024-01-02' ), value: null as number | null },
+							{ date: new Date( '2024-01-03' ), value: 20 },
+							{ date: new Date( '2024-01-04' ), value: 30 },
+						],
+					},
+				],
+			} );
+
+			const grid = screen.getByRole( 'grid', { name: /line chart/i } );
+			// eslint-disable-next-line testing-library/no-node-access -- visx's stroke is a <path class="visx-line">; the axis and grid lines are plain <line> elements sharing that class.
+			const linePath = grid.querySelector( 'path.visx-line' );
+			const gapCount = linePath?.getAttribute( 'd' )?.match( /M/g )?.length;
+			expect( gapCount ).toBe( 2 );
 		} );
 
 		test( 'handles invalid date values', () => {

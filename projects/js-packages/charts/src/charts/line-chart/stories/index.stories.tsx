@@ -343,10 +343,7 @@ export const ErrorStates: StoryObj< StoryArgs > = {
 					data={ [
 						{
 							label: 'Invalid Values',
-							data: [
-								{ date: new Date( '2024-01-01' ), value: NaN },
-								{ date: new Date( '2024-01-02' ), value: null as number | null },
-							],
+							data: [ { date: new Date( '2024-01-01' ), value: NaN } ],
 							options: {},
 						},
 					] }
