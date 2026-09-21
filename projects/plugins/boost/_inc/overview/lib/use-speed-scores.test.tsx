@@ -4,6 +4,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { createElement, type PropsWithChildren } from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { useSpeedScores } from './use-speed-scores';
+import { recordBoostEvent } from '../../../app/assets/src/js/lib/utils/analytics';
 
 declare global {
 	interface Window {
@@ -179,4 +180,46 @@ test( 'refreshes scores for live cornerstone changes on mount and refetch', asyn
 			wpApiSettings.nonce
 		)
 	);
+} );
+
+test( 'makes no score requests while disabled and resumes when the subpage closes', async () => {
+	jest.useFakeTimers();
+	jest.mocked( recordBoostEvent ).mockClear();
+	try {
+		const { result, rerender } = renderHook(
+			( { enabled, config } ) => useSpeedScores( { config, isPending: false }, enabled ),
+			{ wrapper, initialProps: { enabled: false, config: 'initial' } }
+		);
+		rerender( { enabled: false, config: 'changed' } );
+		await act( async () => {
+			await result.current[ 1 ]( true );
+			await jest.advanceTimersByTimeAsync( 5000 );
+		} );
+		expect( requestSpeedScores ).not.toHaveBeenCalled();
+		expect( apiFetch ).not.toHaveBeenCalled();
+		expect( recordBoostEvent ).not.toHaveBeenCalled();
+		rerender( { enabled: true, config: 'changed' } );
+		await act( async () => jest.advanceTimersByTimeAsync( 1 ) );
+		expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
+	} finally {
+		jest.useRealTimers();
+	}
+} );
+
+test( 'ignores a pending score failure after entering a subpage', async () => {
+	jest.mocked( recordBoostEvent ).mockClear();
+	let rejectRequest: ( error: Error ) => void = () => undefined;
+	jest.mocked( requestSpeedScores ).mockImplementation(
+		() =>
+			new Promise( ( _, reject ) => {
+				rejectRequest = reject;
+			} )
+	);
+	const { rerender } = renderHook( enabled => useSpeedScores( undefined, enabled ), {
+		wrapper,
+		initialProps: true,
+	} );
+	rerender( false );
+	await act( async () => rejectRequest( new Error( 'Service unavailable' ) ) );
+	expect( recordBoostEvent ).not.toHaveBeenCalled();
 } );

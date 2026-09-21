@@ -33,6 +33,7 @@ import './overview.scss';
 import type { ReactNode } from 'react';
 
 type Props = {
+	scoresEnabled?: boolean;
 	isVisible?: boolean;
 	onHeaderActionChange: ( action: ReactNode ) => void;
 };
@@ -67,13 +68,14 @@ export default function Overview( props: Props ) {
 }
 
 function OverviewContent( {
+	scoresEnabled = true,
 	isVisible = true,
 	onHeaderActionChange,
 	focusFallback,
 }: Props & { focusFallback: () => void } ) {
 	const modules = useModulesState();
 	const refreshState = useScoreRefreshState( modules.data );
-	const [ scoreState, refreshScores ] = useSpeedScores( refreshState );
+	const [ scoreState, refreshScores ] = useSpeedScores( refreshState, scoresEnabled );
 	const historyAvailable = modules.data?.performance_history?.available === true;
 	const needsUpgrade = modules.data !== undefined && ! historyAvailable;
 	const { range, olderRanges, dayCount, onPrevious, onNext, canGoNext } = useHistoryRange();

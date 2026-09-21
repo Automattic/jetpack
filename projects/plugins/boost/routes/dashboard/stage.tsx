@@ -130,6 +130,7 @@ function DashboardStage() {
 					</div>
 				) : (
 					<Overview
+						scoresEnabled={ subpage === null }
 						isVisible={ activeTab === 'overview' && subpage === null }
 						onHeaderActionChange={ setHeaderAction }
 					/>

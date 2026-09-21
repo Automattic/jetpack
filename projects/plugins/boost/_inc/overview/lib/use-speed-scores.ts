@@ -17,7 +17,7 @@ export type SpeedScoreState = {
 
 const cornerstonePagesSchema = z.object( { predefined_pages: z.array( z.string() ) } );
 
-export function useSpeedScores( refreshState?: ScoreRefreshState ) {
+export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true ) {
 	const { online } = Jetpack_Boost.site;
 	const initial = cornerstonePagesSchema.safeParse(
 		window.jetpack_boost_ds?.cornerstone_pages_properties?.value
@@ -27,7 +27,7 @@ export function useSpeedScores( refreshState?: ScoreRefreshState ) {
 		queryFn: async () =>
 			cornerstonePagesSchema.parse( await requestDataSync( 'cornerstone_pages_properties' ) ),
 		initialData: initial.success ? initial.data : undefined,
-		enabled: online,
+		enabled: online && enabled,
 	} );
 	const url = properties?.predefined_pages[ 0 ] || Jetpack_Boost.site.url;
 	const [ state, setState ] = useState< SpeedScoreState >( {
@@ -42,7 +42,7 @@ export function useSpeedScores( refreshState?: ScoreRefreshState ) {
 	}, [] );
 	const refresh = useCallback(
 		async ( regenerate = false ) => {
-			if ( ! online ) {
+			if ( ! online || ! enabled ) {
 				return;
 			}
 			const id = ++requestId.current;
@@ -71,17 +71,17 @@ export function useSpeedScores( refreshState?: ScoreRefreshState ) {
 				setState( previous => ( { ...previous, status: 'error', error } ) );
 			}
 		},
-		[ online, url ]
+		[ online, url, enabled ]
 	);
 
 	useEffect( () => {
-		if ( online ) {
+		if ( online && enabled ) {
 			refresh();
-		} else {
+		} else if ( ! online ) {
 			setState( previous => ( { ...previous, status: 'offline', error: undefined } ) );
 		}
 		return cancelPending;
-	}, [ online, refresh, cancelPending ] );
+	}, [ online, enabled, refresh, cancelPending ] );
 
 	const config = refreshState?.config;
 	const isPending = refreshState?.isPending;
@@ -92,7 +92,7 @@ export function useSpeedScores( refreshState?: ScoreRefreshState ) {
 		if ( lastConfig.current === undefined ) {
 			lastConfig.current = config;
 		}
-		if ( ! online || isPending || config === lastConfig.current ) {
+		if ( ! enabled || ! online || isPending || config === lastConfig.current ) {
 			return;
 		}
 		const timer = window.setTimeout( () => {
@@ -100,7 +100,7 @@ export function useSpeedScores( refreshState?: ScoreRefreshState ) {
 			refresh( true );
 		}, 2000 );
 		return () => window.clearTimeout( timer );
-	}, [ config, isPending, online, refresh ] );
+	}, [ config, isPending, online, enabled, refresh ] );
 
 	return [ state, refresh ] as const;
 }

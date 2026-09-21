@@ -20,9 +20,11 @@ jest.mock( '../../_inc/overview/overview', () => {
 		__esModule: true,
 		default: function MockOverview( {
 			isVisible,
+			scoresEnabled,
 			onHeaderActionChange,
 		}: {
 			isVisible: boolean;
+			scoresEnabled: boolean;
 			onHeaderActionChange: ( action: ReactNode ) => void;
 		} ) {
 			useEffect( () => {
@@ -32,7 +34,11 @@ jest.mock( '../../_inc/overview/overview', () => {
 				onHeaderActionChange( <button>Run speed test</button> );
 				return () => onHeaderActionChange( null );
 			}, [ isVisible, onHeaderActionChange ] );
-			return <div data-visible={ isVisible }>Performance Overview</div>;
+			return (
+				<div data-visible={ isVisible } data-scores-enabled={ scoresEnabled }>
+					Performance Overview
+				</div>
+			);
 		},
 	};
 } );
@@ -122,6 +128,10 @@ describe( 'Boost dashboard stage', () => {
 			'data-visible',
 			String( tab === 'Overview' )
 		);
+		expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute(
+			'data-scores-enabled',
+			'true'
+		);
 		expect( getSettingsMount() ).not.toBeNull();
 		expect( screen.getByRole( 'tabpanel' ).tabIndex ).toBe( 0 );
 		expect( screen.getByRole( 'tabpanel' ).contains( getSettingsMount() ) ).toBe(
@@ -145,6 +155,10 @@ describe( 'Boost dashboard stage', () => {
 
 		expect( getSubpageMount()?.hidden ).toBe( false );
 		expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute( 'data-visible', 'false' );
+		expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute(
+			'data-scores-enabled',
+			'false'
+		);
 		expect( getSubpageMount()?.closest( '[role="tabpanel"]' ) ).toBeNull();
 		expect( screen.queryAllByRole( 'tablist' ) ).toHaveLength( 0 );
 		expect( getSettingsMount() ).not.toBeNull();
