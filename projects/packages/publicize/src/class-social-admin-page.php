@@ -229,7 +229,7 @@ class Social_Admin_Page {
 	 * Hooked only when we're on the Social admin page, so this never affects any
 	 * other request.
 	 *
-	 * @since $$next-version$$ Takes no argument; hooked on `admin_enqueue_scripts`.
+	 * @since 0.87.1 Takes no argument; hooked on `admin_enqueue_scripts`.
 	 *
 	 * @return void
 	 */
@@ -246,7 +246,7 @@ class Social_Admin_Page {
 	/**
 	 * Undo alias_screen_id_for_wp_build(), so code after the generated check sees the real screen ID.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.87.1
 	 *
 	 * @return void
 	 */

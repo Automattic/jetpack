@@ -326,42 +326,38 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.3-a.1 - 2026-09-15
+### 16.3-a.3 - 2026-09-21
 #### Enhancements
-- Admin Menu: Hide a Jetpack sidebar item when its feature is turned off.
-- AI: Add ChatGPT and Codex setup instructions to the MCP agent setup page.
-- AI: Load the "Scheduled tasks" tab only when it is opened, cutting the AI page script by two thirds.
-- Connection: Show an admin notice and a clearer Site Health result when WordPress.com cannot verify the site's SSL certificate.
-- Connection: Show every connection error in one notice, each with the account it affects, and link to Site Health when a firewall is blocking WordPress.com.
-- Likes: Guide block-theme users from legacy Like buttons to the Like block in Jetpack Settings and My Jetpack.
-- Newsletter: Add a "Freshly Pressed" tab to the Daily Writing Prompt dashboard widget, listing the posts WordPress.com is currently featuring.
-- Newsletter: Add an Overview dashboard for getting started and finding guides.
-- Notices: Render Jetpack admin and My Jetpack dashboard notices with the WordPress design system Notice component.
-- VideoPress: Add a "Learn more" support link to the admin page.
-- VideoPress: Show video library thumbnails in a 16:9 aspect ratio.
-- VideoPress: Use the shared in-page player on sites that return `false` from the `jetpack_videopress_player_use_iframe` filter, instead of one inline script per video.
+- Activity Log: Make it a Jetpack module so it can be turned on and off from My Jetpack, hiding the sidebar entry when off.
+- AI: Hide the legacy AI panel once a site is eligible to turn on the WordPress Agent, and offer to open or enable the Agent in its place.
+- AI: Serve the Jetpack AI page through the standard Jetpack admin frame.
+- AI: Show one notice explaining why Jetpack AI is unavailable, worded the same on the Overview and AI Features tabs.
+- Daily Writing Prompt: Stop offering the Write editor after a switch to the Block editor.
+- Donations Form: Replace the "Accept Donations with Stripe" modal with a link to Stripe's donation requirements.
+- Forms: Add a Done button to the conditional logic rules dialog, and open the Conditional logic panel by default on a field that has conditions.
+- Forms: Reopen the dashboard on the last tab used instead of always the default.
+- My Jetpack: Show the dashboard in the new rounded admin page frame.
+- My Jetpack: Show the Jetpack menu notification badge when a connection error is detected.
+- Newsletter: Show the email itself in the email design canvas, and limit editing there to the Styles panel.
+- Search: Show each of the No Results block's empty-state messages as it will appear to visitors while editing, and tell the messages apart by name when browsing the page structure.
+- Settings: On WordPress.com sites, open the "Learn more" links in the Help Center as WordPress.com support docs.
+- Stats: Hide WordPress admin notices on the Stats dashboard, and let hosts show or hide the Stats sidebar entry.
+- VideoPress: Add a setting to render players from one shared player script instead of one frame per video.
 
 #### Bug fixes
-- Admin: Match the Jetpack menu logo's first paint to the active admin color scheme.
-- Charts: Fix unreadable axis labels in high-contrast (forced colors) mode.
-- Charts: Return keyboard focus to line and area charts after closing a tooltip with Escape.
-- Charts: Stop the first and last dates on a chart's horizontal axis from being cut off.
-- Connection: Fix a stale connection error notice that could persist on healthy sites.
-- Connection: Hide connection error notices from users who cannot fix the connection.
-- Editor: Stop offering to activate the legacy Likes and Sharing buttons modules on block themes, where the corresponding blocks should be added to a template instead.
-- Forms: Prevent extra forms from being created when the block placeholder is clicked more than once.
-- Goodreads: Fix the block rendering empty on the front end of WordPress.com Simple sites.
-- Likes: Hide the "Loading…" placeholder from the widget itself, so it disappears even when the Likes stylesheet fails to load.
-- Likes: Load like buttons that a late page reflow brings into view, instead of waiting for the reader to scroll.
-- Modules: Show other plugins' admin notices above the module list instead of inside it.
-- My Jetpack: Offer to activate Search, rather than to buy a plan, when the site already owns it and the module is switched off.
-- Reader: Show the body of a reposted comment instead of an empty quote.
-- Search: Fix AI Search errors showing a generic server error instead of the real cause.
-- Search: Fix a leaked scroll handler in Instant Search that could trigger stray page loads after several searches.
-- Search: Show an upgrade prompt when editing the AI Search block on sites without a paid Search plan.
-- Sharing: Open the post template instead of the template list when linking to the Site Editor.
-- Sharing Buttons block: Use an unpredictable name for share popups, matching the classic sharing buttons.
-- VideoPress: Fix selecting thumbnail frames from private videos and prefer browser-compatible video renditions.
+- Charts: Fix keyboard focus and tooltip selection.
+- Dashboards: Stop the frame from flashing while loading and when switching admin pages.
+- Fix Jetpack admin pages and Jetpack blocks in the editor failing to load on WordPress.com-hosted sites.
+- Forms: Open the Forms tab when it is requested directly instead of falling back to Responses.
+- Heartbeat: Prevent fatal errors when another plugin loads an older Connection package.
+- Jetpack Manage: Only show the sidebar link to agency accounts.
+- My Jetpack: Restore the link from the stats card heading and chart to the Stats page.
+- SEO: Fix the Settings tab failing to load after a page title structure was cleared from WordPress.com.
+- Site Verification: Reject invalid verification codes instead of reporting a successful save.
+- Social: Pre-fill the Bluesky handle field when reconnecting an account.
+- Social: Show contextual messages on the dashboard again.
+- VideoPress: Keep the video editor footer at the bottom of the page.
+- VideoPress: Show specific validation messages for chapters entered in video descriptions.
 
 --------
 

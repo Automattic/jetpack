@@ -2,6 +2,63 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 16.3-a.3 - 2026-09-21
+### Enhancements
+- Activity Log: Make it a Jetpack module so it can be turned on and off from My Jetpack, hiding the sidebar entry when off. [#49591]
+- AI: Hide the legacy AI panel once a site is eligible to turn on the WordPress Agent, and offer to open or enable the Agent in its place. [#51819]
+- AI: Serve the Jetpack AI page through the standard Jetpack admin frame. [#52411]
+- AI: Show one notice explaining why Jetpack AI is unavailable, worded the same on the Overview and AI Features tabs. [#52260]
+- Daily Writing Prompt: Stop offering the Write editor after a switch to the Block editor. [#52230]
+- Donations Form: Replace the "Accept Donations with Stripe" modal with a link to Stripe's donation requirements. [#52313]
+- Forms: Add a Done button to the conditional logic rules dialog, and open the Conditional logic panel by default on a field that has conditions. [#52347]
+- Forms: Reopen the dashboard on the last tab used instead of always the default. [#52249]
+- My Jetpack: Show the dashboard in the new rounded admin page frame. [#52446]
+- My Jetpack: Show the Jetpack menu notification badge when a connection error is detected. [#52332]
+- Newsletter: Show the email itself in the email design canvas, and limit editing there to the Styles panel. [#52283]
+- Search: Show each of the No Results block's empty-state messages as it will appear to visitors while editing, and tell the messages apart by name when browsing the page structure. [#51530]
+- Settings: On WordPress.com sites, open the "Learn more" links in the Help Center as WordPress.com support docs. [#52436]
+- Stats: Hide WordPress admin notices on the Stats dashboard, and let hosts show or hide the Stats sidebar entry. [#52351]
+- VideoPress: Add a setting to render players from one shared player script instead of one frame per video. [#52244] [#52011] [#52052]
+
+### Bug fixes
+- Charts: Fix keyboard focus and tooltip selection. [#50140] [#52234]
+- Dashboards: Stop the frame from flashing while loading and when switching admin pages. [#52235]
+- Fix Jetpack admin pages and Jetpack blocks in the editor failing to load on WordPress.com-hosted sites. [#52362]
+- Forms: Open the Forms tab when it is requested directly instead of falling back to Responses. [#52249]
+- Heartbeat: Prevent fatal errors when another plugin loads an older Connection package. [#52390]
+- Jetpack Manage: Only show the sidebar link to agency accounts. [#52336]
+- My Jetpack: Restore the link from the stats card heading and chart to the Stats page. [#52121]
+- SEO: Fix the Settings tab failing to load after a page title structure was cleared from WordPress.com. [#52100]
+- Site Verification: Reject invalid verification codes instead of reporting a successful save. [#52238]
+- Social: Pre-fill the Bluesky handle field when reconnecting an account. [#52187]
+- Social: Show contextual messages on the dashboard again. [#52471]
+- VideoPress: Keep the video editor footer at the bottom of the page. [#52489]
+- VideoPress: Show specific validation messages for chapters entered in video descriptions. [#52488]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin pages: Link the footer to the My Jetpack Features tab when it replaces the Products tab. [#52346]
+- Modules: Keep a module's name and description when no translation entry exists for it. [#52469]
+- PayPal Payment Buttons: Add a PayPal account menu to the top of the block settings sidebar. [#52509]
+- PayPal Payment Buttons: Add a Product ID field, shipping and handling fees, a discount, and flat-amount tax to payment links. [#52301]
+- PayPal Payment Buttons: Keep a block's payment link at PayPal when the block is removed. [#52463]
+- PayPal Payment Buttons: Open a saved payment link on its details in the block settings sidebar, with the form behind "Edit". [#52372]
+- PayPal Payment Buttons: Show a notice when opening a post picks up changes made to the payment link elsewhere. [#52302]
+- PayPal Payment Buttons: Show the result of deleting a link, disconnecting, or picking an existing link in a snackbar. [#52464]
+- PayPal Payment Buttons: Stop a save overwriting payment link settings before the block has loaded them, and keep a value edited while the link is still loading. [#52418]
+- Premium Analytics: Add post thumbnails to the Posts & Pages report, and show opens and clicks beside their rates in Latest emails sent. [#52384] [#52256]
+- Premium Analytics: Expand the Earnings history report with payment status, sponsored content and adjustment earnings, and link the Earnings History widget to it. [#52327] [#52437] [#52389] [#52420]
+- Premium Analytics: Group the WordAds chart by the selected period, add a line or bar chart toggle, and rename the WordAds widgets. [#52483] [#52511] [#52421]
+- Premium Analytics: Improve post detail navigation, and draw attention to the date control when a card or table cell sets the period. [#52255] [#52320] [#52430]
+- Premium Analytics: Let hosts show or hide the Analytics sidebar entry. [#52351]
+- Premium Analytics: Move the Subscribers date range control onto the Subscriber summary chart, and rework the Subscriber highlights card. [#52421] [#52310] [#52413]
+- Premium Analytics: Refine the Insights post cards and the leaderboard row labels. [#52319] [#52317]
+- Premium Analytics: Replace the daily heatmap on the Insights tab with a Views over years table, and refine heatmap styling and keyboard navigation. [#52217] [#52364] [#52369] [#52259] [#52309]
+- Premium Analytics: Show Posting activity's last 12 months as one mini calendar per month. [#52265]
+- Premium Analytics: Show the Insights tab beside Traffic while the site is running the Stats preview. [#52525]
+- Sites: Expose `is_legacy_gating_site` so clients can tell whether a plan change would move the site off the pre-2026 feature gating. [#52467]
+- Update package dependencies. [#49934] [#52187] [#52401] [#52402]
+- VideoPress: Refine the welcome modal and empty-library dropzone text, and drop the duplicate header Upload button while the dropzone is showing. [#52061]
+
 ## 16.3-a.1 - 2026-09-15
 ### Enhancements
 - Admin Menu: Hide feature menu items from sidebar when features are turned off. [#52156]

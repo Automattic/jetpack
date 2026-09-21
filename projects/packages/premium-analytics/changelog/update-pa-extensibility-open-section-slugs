@@ -1,3 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Stop mirroring the dashboard tab slugs in the client; the server publishes them. No user-facing change.

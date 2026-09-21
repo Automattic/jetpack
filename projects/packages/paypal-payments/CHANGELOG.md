@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-09-21
+### Added
+- Add a PayPal account menu to the top of the block settings sidebar, with links to PayPal's checkout settings and transactions, and a "Log out" item showing the connected account. [#52509]
+- Add a Product ID field, shipping and handling fees, a discount, and flat-amount tax, and check fees and tax rates against what the currency allows. [#52301]
+
+### Changed
+- Open a saved payment link on its details in the block settings sidebar, with the form behind "Edit". [#52372]
+- Show the result of deleting a link, disconnecting, or picking an existing link in a snackbar. [#52464]
+- Update package dependencies. [#52187]
+
+### Fixed
+- Keep a block's payment link at PayPal when the block is removed. [#52463]
+- Show a notice when opening a post picks up changes made to the payment link elsewhere. [#52302]
+- Stop a save overwriting payment link settings before the block has loaded them, and keep a value edited while the link is still loading. [#52418]
+
 ## [0.9.0] - 2026-09-15
 ### Added
 - Accept only whole-number prices in currencies that do not use decimals. [#51656]
@@ -339,6 +354,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Simple Payments: Move Simple Payments block to PayPal Payments package. [#43413]
 
+[0.10.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.8.2...v0.9.0
 [0.8.2]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.8.0...v0.8.1

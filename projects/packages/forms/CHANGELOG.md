@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.2.0] - 2026-09-21
+### Added
+- Conditional logic: Add a Done button to the rules dialog. [#52347]
+
+### Changed
+- Conditional logic: Open the Conditional logic panel by default on a field that has conditions. [#52347]
+- Dashboard: Reopen on the last tab used instead of always the default. [#52249]
+- Exclude source map files from the distributed package. [#52304]
+- Update package dependencies. [#52187]
+
+### Deprecated
+- Dashboard: Deprecate `Dashboard::SCRIPT_HANDLE`. [#52296]
+
+### Removed
+- Dashboard: Remove the legacy dashboard code and the deprecated `Dashboard_View_Switch` class. [#52296]
+
+### Fixed
+- Dashboard: Open the Forms tab when it is requested directly instead of falling back to Responses. [#52249]
+
 ## [8.1.0] - 2026-09-15
 ### Changed
 - Form editor: Add additional analytics to welcome guide. [#52148]
@@ -2738,6 +2757,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[8.2.0]: https://github.com/automattic/jetpack-forms/compare/v8.1.0...v8.2.0
 [8.1.0]: https://github.com/automattic/jetpack-forms/compare/v8.0.3...v8.1.0
 [8.0.3]: https://github.com/automattic/jetpack-forms/compare/v8.0.2...v8.0.3
 [8.0.2]: https://github.com/automattic/jetpack-forms/compare/v8.0.1...v8.0.2
