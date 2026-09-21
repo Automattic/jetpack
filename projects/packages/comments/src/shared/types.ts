@@ -61,9 +61,13 @@ export type SubscriptionState = {
 	};
 };
 
-export type SubscriptionChange =
-	| { field: 'email_posts' | 'email_comments' | 'notify_posts'; value: boolean }
-	| { field: 'frequency'; value: Frequency };
+/** What to set. Anything left out is left alone. */
+export type SubscriptionChange = {
+	email_posts?: boolean;
+	email_comments?: boolean;
+	notify_posts?: boolean;
+	frequency?: Frequency;
+};
 
 export type SubscriptionSettings = {
 	blog: boolean;

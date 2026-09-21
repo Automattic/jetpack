@@ -35,10 +35,8 @@ export const fetchSubscriptions = async (
 		fields.code = code;
 	}
 
-	if ( change ) {
-		fields.field = change.field;
-		fields.value =
-			typeof change.value === 'boolean' ? String( Number( change.value ) ) : change.value;
+	for ( const [ name, value ] of Object.entries( change ?? {} ) ) {
+		fields[ name ] = typeof value === 'boolean' ? String( Number( value ) ) : value;
 	}
 
 	const failed: Answer = { ok: false, signedOut: false };

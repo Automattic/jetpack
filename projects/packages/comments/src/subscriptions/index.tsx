@@ -132,7 +132,7 @@ export const SubscriptionOptions = () => {
 					offerNotifications
 						? {
 								checked: state.notification.send_posts,
-								onChange: value => apply( { field: 'notify_posts', value } ),
+								onChange: value => apply( { notify_posts: value } ),
 						  }
 						: undefined
 				}
@@ -141,8 +141,8 @@ export const SubscriptionOptions = () => {
 						? {
 								checked: state.email.send_posts,
 								frequency: state.email.post_delivery_frequency,
-								onChange: value => apply( { field: 'email_posts', value } ),
-								onFrequency: value => apply( { field: 'frequency', value } ),
+								onChange: value => apply( { email_posts: value } ),
+								onFrequency: value => apply( { frequency: value } ),
 						  }
 						: undefined
 				}
@@ -150,7 +150,7 @@ export const SubscriptionOptions = () => {
 					settings.comments
 						? {
 								checked: state.email.send_comments,
-								onChange: value => apply( { field: 'email_comments', value } ),
+								onChange: value => apply( { email_comments: value } ),
 						  }
 						: undefined
 				}
@@ -175,13 +175,11 @@ export const GuestSubscriptionOptions = () => {
 				}
 				comments={ settings.comments ? { checked: comments, onChange: setComments } : undefined }
 			/>
-			{ comments && <input type="hidden" name="subscribe" value="subscribe" /> }
-			{ comments && <input type="hidden" name="subscribe_comments" value="subscribe" /> }
+			{ comments && <input type="hidden" name="jetpack_comments_email_comments" value="1" /> }
 			{ posts && (
 				<>
-					<input type="hidden" name="subscribe_blog" value="subscribe" />
-					<input type="hidden" name="delivery_frequency" value={ frequency } />
-					<input type="hidden" name="sub-type" value="jetpack-comments-toggle" />
+					<input type="hidden" name="jetpack_comments_email_posts" value="1" />
+					<input type="hidden" name="jetpack_comments_frequency" value={ frequency } />
 				</>
 			) }
 		</>
