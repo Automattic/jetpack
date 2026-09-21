@@ -164,8 +164,15 @@ class REST_Main_Features {
 		$action = $active ? 'activate' : 'deactivate';
 		$failed = array();
 
+		// Jetpack carries My Jetpack and is never switched off here, so while it is active no
+		// batch can take this page with it. Without it, any plugin in the batch might be the last
+		// carrier, and checking them one by one lets a batch switch off every carrier in turn.
+		$plugins_refused = ! $active && Main_Features::PLUGIN_ACTIVE !== Main_Features::get_plugin_status( Product::JETPACK_PLUGIN_SLUG )
+			? new WP_Error( 'not_allowed', __( 'Plugins can only be deactivated together while the Jetpack plugin is active. Deactivate them one at a time instead.', 'jetpack-my-jetpack' ) )
+			: null;
+
 		foreach ( array_unique( (array) $request->get_param( 'plugins' ) ) as $slug ) {
-			$result = self::refuse_deactivation( $slug, $action );
+			$result = $plugins_refused ? $plugins_refused : self::refuse_deactivation( $slug, $action );
 			$result = $result ? $result : self::run( $slug, $action );
 
 			if ( is_wp_error( $result ) ) {
@@ -177,8 +184,12 @@ class REST_Main_Features {
 			}
 		}
 
+		$modules_refused = current_user_can( 'jetpack_manage_modules' )
+			? null
+			: new WP_Error( 'not_allowed', __( 'You are not allowed to manage Jetpack modules on this site.', 'jetpack-my-jetpack' ) );
+
 		foreach ( array_unique( (array) $request->get_param( 'modules' ) ) as $slug ) {
-			$result = self::switch_module( $slug, $active );
+			$result = $modules_refused ? $modules_refused : self::switch_module( $slug, $active );
 
 			if ( is_wp_error( $result ) ) {
 				$failed[] = array(
@@ -205,10 +216,6 @@ class REST_Main_Features {
 	 * @return true|WP_Error
 	 */
 	private static function switch_module( $slug, $active ) {
-		if ( ! current_user_can( 'jetpack_manage_modules' ) ) {
-			return new WP_Error( 'not_allowed', __( 'You are not allowed to manage Jetpack modules on this site.', 'jetpack-my-jetpack' ) );
-		}
-
 		$modules = new Modules();
 
 		if ( ! $modules->is_module( $slug ) ) {
@@ -220,29 +227,19 @@ class REST_Main_Features {
 			return true;
 		}
 
+		// Gotcha: activate() still redirects and exits when a legacy plugin it replaces (such as
+		// stats/stats.php) is active, which ends this request, as it does Jetpack's own route.
 		$switched = $active ? $modules->activate( $slug, false, false ) : $modules->deactivate( $slug );
 
 		if ( ! $switched ) {
-			return new WP_Error(
-				'switch_failed',
-				sprintf(
-					/* translators: %s is a Jetpack module slug. */
-					__( 'The %s module could not be changed.', 'jetpack-my-jetpack' ),
-					$slug
-				)
-			);
+			return new WP_Error( 'switch_failed', __( 'It could not be changed. Please try again.', 'jetpack-my-jetpack' ) );
 		}
 
 		return true;
 	}
 
 	/**
-	 * Refuse to switch off the plugin this page cannot do without.
-	 *
-	 * Switching off the last plugin carrying My Jetpack would pull this page out from under
-	 * itself. Which plugin that is varies: the autoloader picks one of however many are
-	 * active, so being the one serving the page is not enough to refuse — another active
-	 * plugin will simply take over on the next load.
+	 * Refuse to switch off Jetpack, or the plugin serving this page when nothing else carries My Jetpack.
 	 *
 	 * @param string $slug   WordPress.org plugin slug.
 	 * @param string $action One of install, activate or deactivate.
@@ -253,6 +250,8 @@ class REST_Main_Features {
 			return null;
 		}
 
+		// The autoloader picks one of the active carriers, so the one serving this request is
+		// refused only when nothing else could take over on the next load.
 		if ( Product::JETPACK_PLUGIN_SLUG === $slug
 			|| ( Main_Features::is_hosting_plugin( $slug )
 				&& Main_Features::is_only_my_jetpack_provider( Main_Features::get_hosting_plugin_slug() ) ) ) {

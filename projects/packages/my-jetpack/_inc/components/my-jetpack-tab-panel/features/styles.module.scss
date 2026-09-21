@@ -339,8 +339,8 @@ $feature-icon-foreground: #0ced57;
 }
 
 
-// Measured on the toolbar, not the viewport: below this, six pills (~557px in
-// English), the search at its floor and the layout buttons no longer fit a row.
+// Measured on the toolbar: below this, the pills, the search at its floor and
+// the layout buttons no longer fit one row.
 @container features-toolbar (max-width: 55rem) {
 
 	.pills {

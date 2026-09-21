@@ -171,6 +171,29 @@ describe( 'useBulkFeatureSwitch', () => {
 		expect( mockError ).toHaveBeenCalledWith( 'akismet feature: This plugin runs the page.' );
 	} );
 
+	it( 'gives features held back for the same reason one notice between them', async () => {
+		const reason = 'Plugins can only be deactivated together while the Jetpack plugin is active.';
+		mockApiFetch.mockImplementation( () =>
+			settled( [
+				{ type: 'plugin', slug: 'akismet', message: reason },
+				{ type: 'plugin', slug: 'boost', message: reason },
+			] )
+		);
+
+		const { result } = renderBulk();
+
+		await act( () =>
+			result.current.bulk.run(
+				[ pluginState( 'akismet', 'active' ), pluginState( 'boost', 'active' ) ],
+				false
+			)
+		);
+
+		expect( mockError ).toHaveBeenCalledTimes( 1 );
+		expect( mockError ).toHaveBeenCalledWith( `akismet feature, boost feature: ${ reason }` );
+		expect( mockSuccess ).not.toHaveBeenCalled();
+	} );
+
 	it( 'reports a request that fails outright, and lets go of every row', async () => {
 		mockApiFetch.mockImplementation( () => Promise.reject( new Error( 'Server error.' ) ) );
 

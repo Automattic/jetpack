@@ -134,18 +134,23 @@ export function useBulkFeatureSwitch() {
 					createSuccessNotice( active ? activated : deactivated );
 				}
 
+				// One notice per reason, naming every feature it held back.
+				const namesByReason = new Map< string, string[] >();
 				failed.forEach( ( { type, slug, message } ) => {
 					const index = switches.findIndex( item => item.type === type && item.slug === slug );
-
+					const name = targets[ index ]?.feature.name ?? slug;
+					namesByReason.set( message, [ ...( namesByReason.get( message ) ?? [] ), name ] );
+				} );
+				namesByReason.forEach( ( names, message ) =>
 					createErrorNotice(
 						sprintf(
-							/* translators: %1$s is a feature name, %2$s is why it could not be changed. */
+							/* translators: %1$s is a comma-separated list of feature names, %2$s is why they could not be changed. */
 							__( '%1$s: %2$s', 'jetpack-my-jetpack' ),
-							targets[ index ]?.feature.name ?? slug,
+							names.join( ', ' ),
 							message
 						)
-					);
-				} );
+					)
+				);
 			} catch ( error ) {
 				// The request as a whole failed, so the site may have switched some, all or none.
 				queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
