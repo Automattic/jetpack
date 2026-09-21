@@ -1,7 +1,7 @@
 import { Popover } from '@wordpress/components';
 import { Icon, info } from '@wordpress/icons';
 import clsx from 'clsx';
-import { useCallback, useState, ReactElement, FC, KeyboardEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, ReactElement, FC, KeyboardEvent } from 'react';
 import Button from '../button/index.tsx';
 import { IconTooltipProps, Placement, Position } from './types.ts';
 
@@ -49,6 +49,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	const POPOVER_HELPER_WIDTH = 124;
 	const [ isVisible, setIsVisible ] = useState( false );
 	const [ hoverTimeout, setHoverTimeout ] = useState( null );
+	const pointerReturningToTrigger = useRef( false );
 	const hideTooltip = useCallback( () => {
 		setIsVisible( false );
 		onClose?.();
@@ -65,9 +66,12 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		( event: KeyboardEvent< HTMLButtonElement > ) => {
 			if ( event.key === 'Enter' || event.key === ' ' ) {
 				toggleTooltip( event );
+			} else if ( event.key === 'Escape' && isVisible ) {
+				event.stopPropagation();
+				hideTooltip();
 			}
 		},
-		[ toggleTooltip ]
+		[ toggleTooltip, isVisible, hideTooltip ]
 	);
 
 	const args = {
@@ -82,7 +86,10 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		focusOnMount: true,
 		onClose: hideTooltip,
 		onFocusOutside: event => {
-			if ( ! triggerRef?.current?.contains( event.relatedTarget as Node ) ) {
+			if (
+				! pointerReturningToTrigger.current ||
+				! triggerRef?.current?.contains( event.relatedTarget as Node )
+			) {
 				hideTooltip();
 			}
 		},
@@ -99,6 +106,38 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	};
 
 	const isForcedToShow = isAnchorWrapper && forceShow;
+
+	useEffect( () => {
+		const trigger = triggerRef?.current;
+		if ( ! trigger || ! ( isForcedToShow || isVisible ) ) {
+			return;
+		}
+		const ownerDocument = trigger.ownerDocument;
+		const handleMouseDown = ( event: MouseEvent ) => {
+			pointerReturningToTrigger.current = trigger.contains( event.target as Node );
+		};
+		const handleTriggerFocus = () => {
+			if ( ! pointerReturningToTrigger.current ) {
+				hideTooltip();
+			}
+		};
+		const handleTriggerKeyDown = ( event: globalThis.KeyboardEvent ) => {
+			pointerReturningToTrigger.current = false;
+			if ( event.key === 'Escape' && trigger.contains( event.target as Node ) ) {
+				event.stopPropagation();
+				hideTooltip();
+			}
+		};
+		trigger.addEventListener( 'focusin', handleTriggerFocus );
+		ownerDocument.addEventListener( 'mousedown', handleMouseDown, true );
+		ownerDocument.addEventListener( 'keydown', handleTriggerKeyDown, true );
+		return () => {
+			pointerReturningToTrigger.current = false;
+			trigger.removeEventListener( 'focusin', handleTriggerFocus );
+			ownerDocument.removeEventListener( 'mousedown', handleMouseDown, true );
+			ownerDocument.removeEventListener( 'keydown', handleTriggerKeyDown, true );
+		};
+	}, [ triggerRef, isForcedToShow, isVisible, hideTooltip ] );
 
 	const handleMouseEnter = useCallback( () => {
 		if ( hoverShow ) {

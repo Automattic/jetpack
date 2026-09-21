@@ -27,9 +27,10 @@ describe( 'IconTooltip', () => {
 		expect( onClose ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it.each( [ true, false ] )( 'preserves controlled mouse toggling with inline=%s', async inline => {
+	it.each( [ true, false ] )( 'preserves controlled mouse and keyboard dismissal with inline=%s', async inline => {
 		jest.useFakeTimers();
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		const onClose = jest.fn();
 		const ControlledTooltip = () => {
 			const [ show, setShow ] = useState( false );
 			const triggerRef = useRef< HTMLButtonElement >( null );
@@ -43,7 +44,10 @@ describe( 'IconTooltip', () => {
 						popoverAnchorStyle="wrapper"
 						forceShow={ show }
 						triggerRef={ triggerRef }
-						onClose={ () => setShow( false ) }
+						onClose={ () => {
+							onClose();
+							setShow( false );
+						} }
 						inline={ inline }
 					/>
 					<button>Outside</button>
@@ -66,6 +70,30 @@ describe( 'IconTooltip', () => {
 			await user.keyboard( '{Escape}' );
 			expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
 			expect( trigger ).toHaveFocus();
+			onClose.mockClear();
+			await user.keyboard( '{Enter}' );
+			expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
+			await user.tab( { shift: true } );
+			act( () => jest.advanceTimersByTime( 100 ) );
+			if ( ! inline ) {
+				act( () => trigger.focus() );
+			}
+			expect( trigger ).toHaveFocus();
+			expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
+			await user.keyboard( '{Escape}' );
+			expect( onClose ).toHaveBeenCalledTimes( 1 );
+			await user.click( trigger );
+			await user.pointer( { target: trigger, keys: '[MouseLeft>]' } );
+			act( () => jest.advanceTimersByTime( 100 ) );
+			expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
+			onClose.mockClear();
+			await user.keyboard( '{Escape}' );
+			expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
+			expect( onClose ).toHaveBeenCalledTimes( 1 );
+			await user.pointer( {
+				target: screen.getByRole( 'button', { name: 'Outside' } ),
+				keys: '[/MouseLeft]',
+			} );
 			await user.click( trigger );
 			act( () => screen.getByRole( 'button', { name: 'Outside' } ).focus() );
 			act( () => jest.advanceTimersByTime( 100 ) );
