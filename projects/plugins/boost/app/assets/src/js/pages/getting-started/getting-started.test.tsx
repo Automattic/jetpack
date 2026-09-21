@@ -31,7 +31,15 @@ test.each( [
 	'offers license redemption beside the pricing table on modern free sites (%o)',
 	( { rootId, features, links, linkStyled } ) => {
 		Object.assign( globalThis, {
-			Jetpack_Boost: { site: { domain: 'example.com', online: true, host: 'unknown' } },
+			Jetpack_Boost: {
+				site: {
+					domain: 'example.com',
+					online: true,
+					myJetpack: true,
+					addLicense: true,
+					host: 'unknown',
+				},
+			},
 		} );
 		jest.mocked( usePremiumFeatures ).mockReturnValue( features );
 		render( <div id={ rootId } data-testid="dashboard-root" /> );
@@ -46,3 +54,20 @@ test.each( [
 		expect( found[ 0 ]?.classList.contains( 'is-link' ) ).toBe( links ? linkStyled : undefined );
 	}
 );
+
+test.each( [
+	{ rootId: LEGACY_ROOT_ID, myJetpack: false, addLicense: true },
+	{ rootId: MODERN_ROOT_ID, myJetpack: false, addLicense: true },
+	{ rootId: LEGACY_ROOT_ID, myJetpack: true, addLicense: false },
+	{ rootId: MODERN_ROOT_ID, myJetpack: true, addLicense: false },
+] )( 'hides unavailable license screens (%o)', ( { rootId, myJetpack, addLicense } ) => {
+	Object.assign( globalThis, {
+		Jetpack_Boost: {
+			site: { domain: 'example.com', online: true, myJetpack, addLicense, host: 'unknown' },
+		},
+	} );
+	jest.mocked( usePremiumFeatures ).mockReturnValue( [] );
+	render( <div id={ rootId } data-testid="dashboard-root" /> );
+	render( <GettingStarted />, { container: screen.getByTestId( 'dashboard-root' ) } );
+	expect( screen.queryByRole( 'link', { name: 'Use license key' } ) ).toBeNull();
+} );
