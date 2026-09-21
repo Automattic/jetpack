@@ -1,4 +1,4 @@
-import { formatNumberCompact, formatNumber } from '@automattic/number-formatters';
+import { formatNumberCompact } from '@automattic/number-formatters';
 import { LinearGradient } from '@visx/gradient';
 import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
@@ -37,7 +37,7 @@ import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
-import { isInvalidReading } from '../private/readings';
+import { formatReading, isInvalidReading } from '../private/readings';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType } from '../private/time-axis';
 import { buildTimeAxisOptions } from '../private/time-axis-options';
@@ -46,7 +46,7 @@ import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../priva
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
 import styles from './line-chart.module.scss';
 import { LineChartAnnotation, LineChartAnnotationsOverlay, LineChartGlyph } from './private';
-import type { RenderLineGlyphProps, LineChartProps, TooltipDatum } from './types';
+import type { RenderLineGlyphProps, LineChartProps } from './types';
 import type {
 	BucketInfo,
 	DataPoint,
@@ -121,12 +121,19 @@ export const renderDefaultTooltip = (
 	const nearestDatum = tooltipData?.nearestDatum?.datum;
 	if ( ! nearestDatum ) return null;
 
-	const tooltipPoints: TooltipDatum[] = Object.entries( tooltipData?.datumByKey || {} )
+	const tooltipPoints: { key: string; value: number | null }[] = Object.entries(
+		tooltipData?.datumByKey || {}
+	)
 		.map( ( [ key, { datum } ] ) => ( {
 			key,
-			value: datum.value as number,
+			value: datum.value ?? null,
 		} ) )
-		.sort( ( a, b ) => b.value - a.value );
+		.sort( ( a, b ) => {
+			if ( a.value === null && b.value === null ) return 0;
+			if ( a.value === null ) return 1;
+			if ( b.value === null ) return -1;
+			return b.value - a.value;
+		} );
 
 	return (
 		<div
@@ -150,7 +157,7 @@ export const renderDefaultTooltip = (
 				>
 					<span className={ styles[ 'line-chart__tooltip-label' ] }>{ point.key }:</span>
 					<span className={ styles[ 'line-chart__tooltip-value' ] }>
-						{ formatNumber( point.value ) }
+						{ formatReading( point.value ) }
 					</span>
 				</Stack>
 			) ) }

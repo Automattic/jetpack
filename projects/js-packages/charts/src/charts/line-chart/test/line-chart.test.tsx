@@ -270,6 +270,28 @@ describe( 'LineChart', () => {
 			expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toBeInTheDocument();
 		} );
 
+		test( 'tooltip reads No data for a bucket with no reading', async () => {
+			const user = userEvent.setup();
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: null as number | null },
+							{ date: new Date( '2024-01-02' ), value: 20 },
+						],
+					},
+				],
+			} );
+
+			screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+			await user.keyboard( '{ArrowRight}' );
+
+			const tooltip = screen.getByTestId( 'chart-tooltip-0' );
+			expect( tooltip ).toHaveTextContent( 'No data' );
+			expect( tooltip ).not.toHaveTextContent( 'Series A:0' );
+		} );
+
 		test( 'still rejects undefined values', () => {
 			renderWithTheme( {
 				data: [
