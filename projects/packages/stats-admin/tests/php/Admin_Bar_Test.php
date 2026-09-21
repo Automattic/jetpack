@@ -38,7 +38,7 @@ class Admin_Bar_Test extends Stats_TestCase {
 		remove_filter( 'show_admin_bar', '__return_true' );
 		remove_all_actions( 'admin_bar_menu' );
 		remove_all_filters( 'pre_http_request' );
-		unset( $_GET['page'], $_GET['chart'] );
+		unset( $_GET['page'], $_GET['chart'], $_GET['noheader'], $_GET['proxy'], $_GET['height'] );
 		$GLOBALS['current_screen'] = null;
 		Constants::clear_constants();
 		Status_Cache::clear();
@@ -163,6 +163,17 @@ class Admin_Bar_Test extends Stats_TestCase {
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 		$_GET['page']  = 'stats';
 		$_GET['chart'] = 'visits';
+
+		$this->assertFalse( $this->serve_chart_and_report_fetch() );
+	}
+
+	public function test_legacy_proxy_chart_request_is_left_to_the_jetpack_handler() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		$_GET['page']     = 'stats';
+		$_GET['chart']    = 'admin-bar-hours-scale';
+		$_GET['noheader'] = '';
+		$_GET['proxy']    = '';
+		$_GET['height']   = '48';
 
 		$this->assertFalse( $this->serve_chart_and_report_fetch() );
 	}

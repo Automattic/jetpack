@@ -154,6 +154,11 @@ class Admin_Bar {
 	 * @return void
 	 */
 	public static function maybe_serve_chart() {
+		// URLs with `proxy` come from the Jetpack plugin's deprecated stats_get_image_chart_src(), and its own handler forwards their extra parameters.
+		if ( isset( $_GET['proxy'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- An image request carries no nonce, and it changes nothing.
+			return;
+		}
+
 		$chart = self::get_requested_chart();
 		if ( null === $chart || ! current_user_can( 'view_stats' ) ) {
 			return;
