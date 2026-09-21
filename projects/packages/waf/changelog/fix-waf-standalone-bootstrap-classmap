@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Standalone mode: Load classes from the Composer classmap in the generated bootstrap so package hook files are not run, and skipped later, before WordPress loads.
