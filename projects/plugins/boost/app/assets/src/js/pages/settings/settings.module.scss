@@ -4,3 +4,8 @@
 
 	@include mixins.content-column;
 }
+
+.rows > * + * {
+	border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	padding-block-start: var(--wpds-dimension-gap-xl);
+}
