@@ -92,6 +92,22 @@ test.describe( 'Dashboard modernization', () => {
 		await expect( runSpeedTest ).toBeVisible();
 	} );
 
+	test( 'Show free sites a collapsed score history notice instead of the chart', async ( {
+		boostUtils,
+		jetpackBoostPage,
+		page,
+	} ) => {
+		await boostUtils.unMockPremiumFeatures();
+		await boostUtils.setDashboardModernization( true );
+		await jetpackBoostPage.visit();
+		const upsell = page.locator( '.jetpack-boost-overview__history-upsell' );
+		await expect( upsell.getByRole( 'link', { name: 'Upgrade now', exact: true } ) ).toBeVisible();
+		await expect(
+			upsell.getByRole( 'button', { name: 'Show score history preview' } )
+		).toHaveAttribute( 'aria-expanded', 'false' );
+		await expect( page.locator( '.jetpack-boost-overview .visx-bar' ) ).toHaveCount( 0 );
+	} );
+
 	test( 'Show a targeted JITM on the modern dashboard', async ( {
 		boostUtils,
 		jetpackBoostPage,

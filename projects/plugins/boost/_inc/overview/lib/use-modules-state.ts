@@ -55,6 +55,19 @@ export function isSiteOnline(): boolean {
 	return typeof Jetpack_Boost !== 'undefined' && Jetpack_Boost.site.online;
 }
 
+export function isMyJetpackAvailable(): boolean {
+	return typeof Jetpack_Boost !== 'undefined' && Jetpack_Boost.site.myJetpack === true;
+}
+
+export function isAddLicenseAvailable(): boolean {
+	return typeof Jetpack_Boost !== 'undefined' && Jetpack_Boost.site.addLicense === true;
+}
+
+// The upgrade flow lives in My Jetpack, which offline and filtered-off sites cannot open.
+export function canOfferUpgrade(): boolean {
+	return isSiteOnline() && isMyJetpackAvailable();
+}
+
 export async function requestDataSync(
 	key: DataSyncKey,
 	value?: unknown,
