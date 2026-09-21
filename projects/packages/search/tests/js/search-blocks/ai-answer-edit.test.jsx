@@ -148,7 +148,7 @@ describe( 'AiAnswerEdit', () => {
 		expect( screen.getByTestId( 'placeholder' ) ).toBeInTheDocument();
 		expect(
 			screen.getByText(
-				'Jetpack AI is turned off for this site, so visitors won’t see this block. Turn Jetpack AI on to show AI-generated answers in your search results.'
+				'Jetpack AI is disabled so visitors won’t see this block. Enable Jetpack AI to show AI-generated answers in your search results.'
 			)
 		).toBeInTheDocument();
 		expect( screen.queryByText( 'Getting started with WordPress' ) ).not.toBeInTheDocument();
