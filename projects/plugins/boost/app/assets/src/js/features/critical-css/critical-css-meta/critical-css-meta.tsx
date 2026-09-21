@@ -1,5 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
+import { useModuleSurface } from '$features/module/surface';
+import ModernCriticalCssStatus from './modern-critical-css-status';
 import Status from '../status/status';
 import ProgressBar from '$features/ui/progress-bar/progress-bar';
 import styles from './critical-css-meta.module.scss';
@@ -13,9 +15,10 @@ import { isFatalError } from '../lib/critical-css-errors';
  * Settings page when the feature is enabled.
  */
 export default function CriticalCssMeta() {
+	const isModern = useModuleSurface() === 'row';
 	const [ cssState ] = useCriticalCssState();
 	const [ { data: regenerateReason } ] = useRegenerationReason();
-	const { isGenerating, progress, stoppedRun } = useLocalCriticalCssGenerator();
+	const { isGenerating, progress, stoppedRun } = useLocalCriticalCssGenerator( ! isModern );
 	const showFatalError = isFatalError( cssState );
 
 	if ( stoppedRun?.sessionExpired ) {
@@ -39,6 +42,21 @@ export default function CriticalCssMeta() {
 				isCloud={ false }
 				showFatalError={ true }
 			/>
+		);
+	}
+
+	if ( isModern && ! showFatalError ) {
+		return (
+			<>
+				<ModernCriticalCssStatus
+					cssState={ cssState }
+					isGenerating={ isGenerating }
+					progress={ progress }
+				/>
+				{ ! isGenerating && cssState.status === 'generated' && (
+					<RegenerateCriticalCssSuggestion regenerateReason={ regenerateReason } />
+				) }
+			</>
 		);
 	}
 

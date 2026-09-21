@@ -1,5 +1,8 @@
 import { getCurrencyObject } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
+import { lock } from '@wordpress/icons';
+import { Button, Notice } from '@wordpress/ui';
+import { useModuleSurface } from '$features/module/surface';
 import RightArrow from '$svg/right-arrow';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import styles from './upgrade-cta.module.scss';
@@ -18,6 +21,7 @@ const UpgradeCTA = ( {
 	onClick,
 	eventName = 'upsell_cta_from_settings_page_in_plugin',
 }: UpgradeCTAProps ) => {
+	const surface = useModuleSurface();
 	// No need to show the upgrade CTA if the site is unreachable.
 	if ( ! Jetpack_Boost.site.online ) {
 		return null;
@@ -38,6 +42,23 @@ const UpgradeCTA = ( {
 	const priceString = currencyObjectAfter
 		? currencyObjectAfter.symbol + currencyObjectAfter.integer + currencyObjectAfter.fraction
 		: '_';
+
+	if ( surface === 'row' ) {
+		return (
+			<Notice.Root intent="info" icon={ lock }>
+				<Notice.Description>
+					{ description }{ ' ' }
+					<Notice.ActionLink
+						render={ <Button variant="unstyled" /> }
+						className={ styles[ 'notice-action' ] }
+						onClick={ onClickHandler }
+					>
+						{ __( 'Upgrade now', 'jetpack-boost' ) }
+					</Notice.ActionLink>
+				</Notice.Description>
+			</Notice.Root>
+		);
+	}
 
 	return (
 		<button className={ styles[ 'upgrade-cta' ] } onClick={ onClickHandler }>

@@ -1,7 +1,8 @@
 /* No jest-dom in this project. */
 /* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-text-content */
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { DataSyncError } from '@automattic/jetpack-react-data-sync-client';
+import { ModuleSurfaceProvider } from '$features/module/surface';
 import CriticalCssProvider from './critical-css-context-provider';
 import CriticalCssMeta from '../critical-css-meta/critical-css-meta';
 import { runLocalGenerator } from '../lib/generate-critical-css';
@@ -9,6 +10,7 @@ import type { CriticalCssState } from '../lib/stores/critical-css-state-types';
 
 let mockCssState: CriticalCssState;
 const mockSetCssState = jest.fn();
+const mockRegenerate = jest.fn();
 const mockSetProviderErrors = jest.fn();
 
 jest.mock( '../lib/stores/critical-css-state', () => ( {
@@ -17,7 +19,7 @@ jest.mock( '../lib/stores/critical-css-state', () => ( {
 	useProxyNonce: () => 'proxy-nonce',
 	useSetProviderCssAction: () => ( { mutateAsync: jest.fn() } ),
 	useSetProviderErrorsAction: () => ( { mutateAsync: mockSetProviderErrors } ),
-	useRegenerateCriticalCssAction: () => ( { mutate: jest.fn() } ),
+	useRegenerateCriticalCssAction: () => ( { mutate: mockRegenerate } ),
 } ) );
 jest.mock( '../lib/generate-critical-css', () => ( { runLocalGenerator: jest.fn() } ) );
 jest.mock( '..', () => ( {
@@ -132,4 +134,33 @@ describe( 'Local Critical CSS generator failures', () => {
 		expect( mockSetCssState ).not.toHaveBeenCalled();
 		expect( screen.getAllByText( 'Your session has expired' ) ).toHaveLength( 1 );
 	} );
+} );
+
+test( 'waits for Generate before starting initial generation on the modern surface', () => {
+	jest.clearAllMocks();
+	mockCssState = { status: 'not_generated', providers: [] };
+	render(
+		<ModuleSurfaceProvider value="row">
+			<CriticalCssProvider>
+				<CriticalCssMeta />
+			</CriticalCssProvider>
+		</ModuleSurfaceProvider>
+	);
+	expect( mockRegenerate ).not.toHaveBeenCalled();
+	expect( screen.queryByRole( 'progressbar' ) ).toBeNull();
+	// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
+	fireEvent.click( screen.getByRole( 'button', { name: 'Generate' } ) );
+	expect( mockRegenerate ).toHaveBeenCalledTimes( 1 );
+} );
+
+test( 'starts initial generation automatically on the legacy surface', () => {
+	jest.clearAllMocks();
+	mockCssState = { status: 'not_generated', providers: [] };
+	render(
+		<CriticalCssProvider>
+			<CriticalCssMeta />
+		</CriticalCssProvider>
+	);
+	expect( screen.queryByRole( 'button', { name: 'Generate' } ) ).toBeNull();
+	expect( mockRegenerate ).toHaveBeenCalledTimes( 1 );
 } );
