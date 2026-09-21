@@ -35,6 +35,10 @@ describe( 'getWholeNumberTickValues', () => {
 	it( 'leaves a range with no whole tick to visx', () => {
 		expect( getWholeNumberTickValues( linear( [ 0.2, 0.8 ] ), 4 ) ).toBeUndefined();
 	} );
+
+	it( 'leaves a range with only one whole tick to visx', () => {
+		expect( getWholeNumberTickValues( linear( [ 0, 0.8 ] ), 4 ) ).toBeUndefined();
+	} );
 } );
 
 describe( 'hasOnlyWholeNumbers', () => {

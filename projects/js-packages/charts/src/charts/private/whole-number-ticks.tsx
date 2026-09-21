@@ -41,7 +41,7 @@ export const getWholeNumberTickValues = ( scale: unknown, count = 4 ): number[] 
 		return undefined;
 	}
 	const whole = ticks.filter( tick => Number.isInteger( tick ) );
-	return whole.length && whole.length < ticks.length ? whole : undefined;
+	return whole.length > 1 && whole.length < ticks.length ? whole : undefined;
 };
 
 type WholeNumberTicksProps = {
