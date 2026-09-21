@@ -76,43 +76,43 @@ class Waf_Standalone_Bootstrap {
 	private function locate_classmap_file() {
 		global $jetpack_autoloader_loader;
 
-		$vendor_dir = null;
+		$vendor_dirs = array();
 
 		// Try the Jetpack autoloader.
 		if ( isset( $jetpack_autoloader_loader ) ) {
 			$class_file = $jetpack_autoloader_loader->find_class_file( Waf_Runner::class );
 			if ( $class_file ) {
-				$vendor_dir = dirname( $class_file, 5 ) . '/vendor';
+				$vendor_dirs[] = dirname( $class_file, 5 ) . '/vendor';
 			}
 		}
 
 		// Try Composer's autoloader.
-		if ( null === $vendor_dir
-			&& is_callable( array( InstalledVersions::class, 'getInstallPath' ) )
+		if ( is_callable( array( InstalledVersions::class, 'getInstallPath' ) )
 			&& InstalledVersions::isInstalled( 'automattic/jetpack-waf' )
 		) {
 			$package_file = InstalledVersions::getInstallPath( 'automattic/jetpack-waf' );
 			if ( substr( $package_file, -23 ) === '/automattic/jetpack-waf' ) {
-				$vendor_dir = dirname( $package_file, 3 ) . '/vendor';
+				$vendor_dirs[] = dirname( $package_file, 3 ) . '/vendor';
 			}
 		}
 
 		// Guess. First look for being in a `vendor/automattic/jetpack-waf/src/', then see if we're standalone with our own vendor dir.
-		if ( null === $vendor_dir ) {
-			$vendor_dir = dirname( __DIR__, 4 ) . '/vendor';
-			if ( ! file_exists( $vendor_dir . '/composer/autoload_classmap.php' ) ) {
-				$vendor_dir = dirname( __DIR__ ) . '/vendor';
+		$vendor_dirs[] = dirname( __DIR__, 4 ) . '/vendor';
+		$vendor_dirs[] = dirname( __DIR__ ) . '/vendor';
+
+		// A candidate can exist without containing this package, e.g. a monorepo's root vendor dir.
+		foreach ( $vendor_dirs as $vendor_dir ) {
+			$classmap_file = $vendor_dir . '/composer/autoload_classmap.php';
+			if ( ! file_exists( $classmap_file ) ) {
+				continue;
+			}
+			$classmap = require $classmap_file;
+			if ( isset( $classmap[ Waf_Runner::class ] ) ) {
+				return $classmap_file;
 			}
 		}
 
-		$classmap_file = $vendor_dir . '/composer/autoload_classmap.php';
-
-		// Check that the determined file actually exists.
-		if ( ! file_exists( $classmap_file ) ) {
-			throw new Waf_Exception( 'Cannot find the Composer classmap, and the WAF standalone boostrap will not work without it.' );
-		}
-
-		return $classmap_file;
+		throw new Waf_Exception( 'Cannot find the Composer classmap, and the WAF standalone bootstrap will not work without it.' );
 	}
 
 	/**

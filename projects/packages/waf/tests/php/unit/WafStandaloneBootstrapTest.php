@@ -19,11 +19,148 @@ interface WafStandaloneBootstrapTest_filesystem_mock {
 	public function put_contents( $path, $contents );
 }
 
+// phpcs:ignore PEAR.NamingConventions.ValidClassName.Invalid
+class WafStandaloneBootstrapTest_real_filesystem implements WafStandaloneBootstrapTest_filesystem_mock {
+	public function is_dir( $path ) {
+		return is_dir( $path );
+	}
+	public function mkdir( $path ) {
+		return mkdir( $path );
+	}
+	public function put_contents( $path, $contents ) {
+		return false !== file_put_contents( $path, $contents );
+	}
+}
+
 /**
  * Runtime test suite.
  */
 #[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
+
+	/**
+	 * Temporary WP_CONTENT_DIR created by `generate_real_bootstrap()`, removed on teardown.
+	 *
+	 * @var string|null
+	 */
+	private $content_dir;
+
+	/**
+	 * Remove the temporary WP_CONTENT_DIR, if any.
+	 */
+	protected function tearDown(): void {
+		if ( $this->content_dir ) {
+			foreach ( glob( $this->content_dir . '/jetpack-waf/*' ) as $file ) {
+				unlink( $file );
+			}
+			foreach ( array( $this->content_dir . '/jetpack-waf', $this->content_dir ) as $dir ) {
+				if ( is_dir( $dir ) ) {
+					rmdir( $dir );
+				}
+			}
+		}
+		parent::tearDown();
+	}
+
+	/**
+	 * Generates a real bootstrap file under a fresh temporary WP_CONTENT_DIR.
+	 *
+	 * @return string Path to the generated bootstrap file.
+	 */
+	private function generate_real_bootstrap() {
+		$content_dir       = sys_get_temp_dir() . '/jetpack-waf-bootstrap-test-' . uniqid();
+		$this->content_dir = $content_dir;
+		mkdir( $content_dir );
+
+		define( 'ABSPATH', $content_dir . '/' );
+		define( 'WP_CONTENT_DIR', $content_dir );
+		add_test_option( 'jetpack_waf_mode', 'normal' );
+
+		global $wp_filesystem;
+		$wp_filesystem = new WafStandaloneBootstrapTest_real_filesystem();
+
+		$sut = $this->getMockBuilder( Waf_Standalone_Bootstrap::class )
+			->onlyMethods( array( 'initialize_filesystem' ) )
+			->getMock();
+
+		return $sut->generate();
+	}
+
+	/**
+	 * Runs a bootstrap file in a fresh PHP process, as `auto_prepend_file` would, and returns what it reports.
+	 *
+	 * @param string $bootstrap_file Path to the bootstrap file.
+	 * @return array The decoded report from `fixtures/run-bootstrap.php`, plus `exit_code` and `stderr`.
+	 * @throws RuntimeException If the process cannot be started.
+	 */
+	private function run_bootstrap_in_child_process( $bootstrap_file ) {
+		$process = proc_open(
+			array( PHP_BINARY, '-d', 'display_errors=stderr', '-d', 'error_reporting=E_ALL', __DIR__ . '/fixtures/run-bootstrap.php', $bootstrap_file ),
+			array(
+				array( 'pipe', 'r' ),
+				array( 'pipe', 'w' ),
+				array( 'pipe', 'w' ),
+			),
+			$pipes
+		);
+		if ( ! is_resource( $process ) ) {
+			throw new RuntimeException( 'proc_open failed' );
+		}
+		fclose( $pipes[0] );
+		$stdout = stream_get_contents( $pipes[1] );
+		$stderr = stream_get_contents( $pipes[2] );
+		fclose( $pipes[1] );
+		fclose( $pipes[2] );
+		$exit_code = proc_close( $process );
+
+		$report = json_decode( $stdout, true );
+		$this->assertIsArray( $report, "Child process produced no report. stdout: $stdout stderr: $stderr" );
+
+		return $report + array(
+			'exit_code' => $exit_code,
+			'stderr'    => $stderr,
+		);
+	}
+
+	/**
+	 * Test that the generated bootstrap runs the firewall before WordPress without loading package files or leaving an autoloader registered.
+	 *
+	 * @runInSeparateProcess
+	 */
+	#[RunInSeparateProcess]
+	public function testGeneratedBootstrapRunsTheFirewallAndLeavesNothingBehind() {
+		$report = $this->run_bootstrap_in_child_process( $this->generate_real_bootstrap() );
+
+		$this->assertSame( 0, $report['exit_code'] );
+		$this->assertSame( '', $report['stderr'] );
+		$this->assertSame( 'preload', $report['run'] );
+		$this->assertTrue( $report['runner_loaded'] );
+		$this->assertSame( 0, $report['autoloaders'] );
+		$this->assertSame( array(), $report['variables'] );
+		$this->assertSame( array(), $report['package_files'] );
+	}
+
+	/**
+	 * Test that the generated bootstrap skips the firewall run instead of fataling when its classmap is gone.
+	 *
+	 * @runInSeparateProcess
+	 */
+	#[RunInSeparateProcess]
+	public function testGeneratedBootstrapSkipsTheRunWhenTheClassmapIsMissing() {
+		$bootstrap_file = $this->generate_real_bootstrap();
+		file_put_contents(
+			$bootstrap_file,
+			str_replace( 'autoload_classmap.php', 'autoload_classmap_gone.php', file_get_contents( $bootstrap_file ) )
+		);
+
+		$report = $this->run_bootstrap_in_child_process( $bootstrap_file );
+
+		$this->assertSame( 0, $report['exit_code'] );
+		$this->assertSame( '', $report['stderr'] );
+		$this->assertNull( $report['run'] );
+		$this->assertFalse( $report['runner_loaded'] );
+		$this->assertSame( 0, $report['autoloaders'] );
+	}
 
 	/**
 	 * Test guarding against running outside of WP context.

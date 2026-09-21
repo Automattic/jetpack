@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Standalone mode: Load classes from the Composer classmap in the generated bootstrap so package hook files are not run, and skipped later, before WordPress loads.
+Standalone mode: Fix blank Jetpack admin pages when the bootstrap file points at an older copy of the plugin, and skip the firewall run instead of fataling when that copy is gone.
