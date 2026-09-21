@@ -2,16 +2,20 @@ import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { Badge, Icon, Text } from '@wordpress/ui';
+import clsx from 'clsx';
 import { useCallback } from 'react';
 import { getActivationStatusLabel } from '../utils';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
+import type { ReactNode } from 'react';
 
 type FeatureItemProps = {
 	state: FeatureState;
 	onOpen: ( slug: string ) => void;
+	leading?: ReactNode;
+	className?: string;
 };
 
 /**
@@ -20,12 +24,14 @@ type FeatureItemProps = {
  * The title carries the click target and stretches over the whole card, so the action
  * has to sit above it to stay its own control.
  *
- * @param {FeatureItemProps} props        - The component props.
- * @param {FeatureState}     props.state  - Live state for the feature.
- * @param {Function}         props.onOpen - Opens the feature's details.
+ * @param {FeatureItemProps} props           - The component props.
+ * @param {FeatureState}     props.state     - Live state for the feature.
+ * @param {Function}         props.onOpen    - Opens the feature's details.
+ * @param {ReactNode}        props.leading   - A control before the icon, raised above the click target.
+ * @param {string}           props.className - Extra class for the card.
  * @return The rendered component.
  */
-export function FeatureItem( { state, onOpen }: FeatureItemProps ) {
+export function FeatureItem( { state, onOpen, leading, className }: FeatureItemProps ) {
 	const { feature } = state;
 	const isActive = state.status === 'active';
 	const chevron = isRTL() ? chevronLeft : chevronRight;
@@ -36,7 +42,9 @@ export function FeatureItem( { state, onOpen }: FeatureItemProps ) {
 	const isSettling = Boolean( state.pending );
 
 	return (
-		<div className={ styles[ 'feature-item' ] } data-feature={ feature.slug }>
+		<div className={ clsx( styles[ 'feature-item' ], className ) } data-feature={ feature.slug }>
+			{ leading && <span className={ styles[ 'feature-action-slot' ] }>{ leading }</span> }
+
 			<span className={ styles[ 'feature-item__icon' ] } aria-hidden="true">
 				<FeatureIcon feature={ feature } />
 			</span>

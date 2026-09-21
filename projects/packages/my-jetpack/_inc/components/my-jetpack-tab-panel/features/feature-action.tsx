@@ -12,6 +12,7 @@ import type { FeatureState } from './feature-state';
 type PluginToggleProps = {
 	plugin: string;
 	isOn: boolean;
+	isSwitching?: boolean;
 	name: string;
 	describedby?: string;
 };
@@ -22,18 +23,19 @@ type PluginToggleProps = {
  * @param {PluginToggleProps} props             - The component props.
  * @param {string}            props.plugin      - The plugin's slug.
  * @param {boolean}           props.isOn        - Whether the plugin is active.
+ * @param {boolean}           props.isSwitching - Whether a bulk switch has a request out for it.
  * @param {string}            props.name        - The feature's name, for the label and notice.
  * @param {string}            props.describedby - Id of the element stating whether it is on.
  * @return The rendered component.
  */
-function PluginToggle( { plugin, isOn, name, describedby }: PluginToggleProps ) {
+function PluginToggle( { plugin, isOn, isSwitching, name, describedby }: PluginToggleProps ) {
 	const { run, isBusy } = useFeaturePlugin( plugin, name );
 	const onChange = useCallback( () => run( isOn ? 'deactivate' : 'activate' ), [ isOn, run ] );
 
 	return (
 		<FormToggle
 			checked={ isOn }
-			disabled={ isBusy }
+			disabled={ isBusy || isSwitching }
 			onChange={ onChange }
 			aria-label={ getSwitchLabel( isOn, name ) }
 			aria-describedby={ describedby }
@@ -111,6 +113,7 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 				<PluginToggle
 					plugin={ control.plugin }
 					isOn={ state.status === 'active' }
+					isSwitching={ state.isSwitching }
 					name={ pluginName }
 					describedby={ describedby }
 				/>

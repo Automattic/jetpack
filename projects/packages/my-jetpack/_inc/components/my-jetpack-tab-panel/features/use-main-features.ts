@@ -15,7 +15,7 @@ import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpa
 import { setPendingSuccessNotice } from '../products/pending-notice';
 import { reloadPage } from '../products/reload-page';
 
-const QUERY_KEY = [ 'my-jetpack-main-features' ];
+export const QUERY_KEY = [ 'my-jetpack-main-features' ];
 
 const EMPTY_STATE: MainFeaturesState = { jetpack: 'not-installed', features: [] };
 

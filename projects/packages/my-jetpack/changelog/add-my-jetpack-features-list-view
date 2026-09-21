@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a list view to the Features tab that switches several features on or off at once, behind the my-jetpack-features-tab feature flag.

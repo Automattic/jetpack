@@ -279,6 +279,47 @@ $feature-icon-foreground: #0ced57;
 	min-inline-size: 16rem;
 }
 
+// Round, like the filter pills beside them.
+.view-button {
+	border-radius: 999px;
+}
+
+.feature-list {
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-lg);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.bulk-bar {
+	align-items: center;
+	border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-md);
+	padding-block: var(--wpds-dimension-padding-md);
+	padding-inline: var(--wpds-dimension-padding-xl);
+}
+
+.bulk-bar__count {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	flex: 1;
+	margin: 0;
+}
+
+// The card, flattened into a row of the list: the list draws the border.
+.feature-item.feature-row {
+	align-items: center;
+	border: 0;
+	border-radius: 0;
+
+	& + & {
+		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	}
+}
+
 // The pills are the wide layout; the select is the narrow one. Only ever one.
 .filter-select {
 	display: none;
