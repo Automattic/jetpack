@@ -1,3 +1,4 @@
+/* eslint-disable jest-dom/prefer-in-document -- This Jest project does not load jest-dom. */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ModuleSurfaceProvider } from '$features/module/surface';
 import { useModulesState } from '$features/module/lib/stores';
@@ -29,4 +30,19 @@ test( 'names the modern auto-resize toggle and saves its value', () => {
 	expect( mutate ).toHaveBeenCalledWith( {
 		image_cdn_liar: { active: true, available: true },
 	} );
+} );
+
+test( 'keeps the unlabelled toggle and h4 heading on the default legacy surface', () => {
+	jest
+		.mocked( useModulesState )
+		.mockReturnValue( [
+			{ data: { image_cdn_liar: { active: false, available: true } } },
+			{ mutate: jest.fn() },
+		] as unknown as ReturnType< typeof useModulesState > );
+	render( <ImageCdnLiar isPremium /> );
+
+	expect( screen.getByRole( 'checkbox', { name: '' } ) ).toBeTruthy();
+	expect(
+		screen.getByRole( 'heading', { name: 'Auto-Resize Lazy Images', level: 4 } )
+	).toBeTruthy();
 } );

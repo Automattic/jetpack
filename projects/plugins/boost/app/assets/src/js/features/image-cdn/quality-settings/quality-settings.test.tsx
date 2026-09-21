@@ -74,3 +74,12 @@ test( 'expands existing quality values and preserves other formats when saving q
 		png: { quality: 60, lossless: false },
 	} );
 } );
+
+test( 'keeps the Image Quality heading and summary on the default legacy surface', () => {
+	render( <QualitySettings isPremium /> );
+
+	expect( screen.getByRole( 'heading', { name: 'Image Quality', level: 4 } ) ).toBeTruthy();
+	expect(
+		screen.getByText( 'JPEG Quality: 75, PNG Quality: lossless, WEBP Quality: 65' )
+	).toBeTruthy();
+} );

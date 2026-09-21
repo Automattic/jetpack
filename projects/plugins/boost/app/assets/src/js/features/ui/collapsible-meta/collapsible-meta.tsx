@@ -1,6 +1,7 @@
 import styles from './collapsible-meta.module.scss';
 import { Button } from '@automattic/jetpack-components';
 import { useState } from 'react';
+import clsx from 'clsx';
 import type { ReactNode } from 'react';
 import ChevronDown from '$svg/chevron-down';
 import ChevronUp from '$svg/chevron-up';
@@ -12,6 +13,7 @@ type CollapsibleMetaProps = {
 	summary?: ReactNode;
 	toggleText: string;
 	headerText?: string;
+	headerClassName?: string;
 	tracksEvent?: string;
 	extraButtons?: ReactNode;
 	onToggleHandler?: ( isExpanded: boolean ) => void;
@@ -28,6 +30,7 @@ const CollapsibleMeta = ( {
 	tracksEvent = '',
 	extraButtons = null,
 	headerText = '',
+	headerClassName,
 	onToggleHandler = () => {},
 }: CollapsibleMetaProps ) => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
@@ -48,7 +51,7 @@ const CollapsibleMeta = ( {
 	 * It displays the header, extra buttons and the toggle button.
 	 */
 	const sectionHeader = (
-		<div className={ styles.header }>
+		<div className={ clsx( styles.header, headerClassName ) }>
 			{ header ? header : <div className={ styles.summary }>{ headerText }</div> }
 			<div className={ styles.actions }>
 				{ extraButtons && extraButtons }{ ' ' }

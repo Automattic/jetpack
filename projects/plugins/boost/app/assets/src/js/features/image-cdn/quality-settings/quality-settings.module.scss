@@ -34,13 +34,14 @@
 .well {
 	padding: var(--wpds-dimension-padding-lg);
 	border-radius: var(--wpds-border-radius-lg);
-	background: var(--wpds-color-background-surface-neutral-weak);
+	background: var(--wpds-color-background-surface-neutral);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	font-size: var(--wpds-typography-font-size-md);
 	line-height: var(--wpds-typography-line-height-sm);
 }
 
 .well-body {
-	padding-block-start: var(--wpds-dimension-padding-md);
+	padding-block-start: var(--wpds-dimension-padding-sm);
 }
 
 .well .section-title {
@@ -52,4 +53,8 @@
 		font-weight: var(--wpds-typography-font-weight-emphasis);
 		line-height: var(--wpds-typography-line-height-sm);
 	}
+}
+
+.well .well-header {
+	margin-block-end: 0;
 }
