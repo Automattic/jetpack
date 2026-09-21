@@ -28,13 +28,13 @@ class Jetpack_Stats_Dashboard_Widget_Test extends WP_UnitTestCase {
 			return false;
 		};
 		add_filter( 'jetpack_stats_dashboard_widget_show_to_user', $spy );
-		add_filter( 'jetpack_is_connection_ready', '__return_false' );
+		add_filter( 'jetpack_is_connection_ready', '__return_false', PHP_INT_MAX );
 
 		try {
 			Jetpack_Stats_Dashboard_Widget::wp_dashboard_setup();
 		} finally {
 			remove_filter( 'jetpack_stats_dashboard_widget_show_to_user', $spy );
-			remove_filter( 'jetpack_is_connection_ready', '__return_false' );
+			remove_filter( 'jetpack_is_connection_ready', '__return_false', PHP_INT_MAX );
 		}
 
 		$this->assertFalse( $reached );
