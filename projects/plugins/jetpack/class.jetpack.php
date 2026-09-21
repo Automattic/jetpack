@@ -858,18 +858,9 @@ class Jetpack {
 	 * the same package at file scope — before this runs on `plugins_loaded` — so when
 	 * both are active the standalone wins and this call is a no-op.
 	 *
-	 * Its only surfaces are the admin menu and REST routes, so it is deferred off the
-	 * front-end GET hot path the same way Import and Stats are — see
-	 * should_eager_load_packages().
-	 *
 	 * @return void
 	 */
 	public static function configure_backup_package() {
-		if ( ! self::should_eager_load_packages() && ! did_action( 'rest_api_init' ) ) {
-			add_action( 'rest_api_init', array( __CLASS__, 'configure_backup_package' ), 0 );
-			return;
-		}
-
 		$backup = 'Automattic\\Jetpack\\Backup\\V0005\\Jetpack_Backup';
 
 		/*
@@ -985,7 +976,17 @@ class Jetpack {
 		// is not, the menu item links to the My Jetpack interstitial to activate it.
 		$config->ensure( 'videopress', array( 'admin_ui' => true ) );
 
-		self::configure_backup_package();
+		/*
+		 * The bundled Backup dashboard's only surfaces are an admin menu and REST routes,
+		 * so it is gated like Import below: a plain front-end GET loads none of it, and the
+		 * REST branch waits for `rest_api_init` because a REST request cannot be identified
+		 * at `plugins_loaded`.
+		 */
+		if ( self::should_eager_load_packages() ) {
+			self::configure_backup_package();
+		} else {
+			add_action( 'rest_api_init', array( __CLASS__, 'configure_backup_package' ), 0 );
+		}
 
 		/*
 		 * The Import package only registers `jetpack/v4/import` REST routes — it

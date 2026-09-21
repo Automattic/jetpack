@@ -168,7 +168,7 @@ class Jetpack_Backup {
 	);
 
 	/**
-	 * Whether the admin menu is gated on the site being entitled to Backup.
+	 * Whether the admin menu is gated on the site's plan including Backup.
 	 *
 	 * @var bool
 	 */
@@ -193,7 +193,7 @@ class Jetpack_Backup {
 
 		// Runs before the menu is built: a link straight into the Backup page 404s
 		// unless the page was registered during this same request.
-		add_action( 'admin_menu', array( __CLASS__, 'maybe_refresh_backup_entitlement' ), 0 );
+		add_action( 'admin_menu', array( __CLASS__, 'maybe_refresh_backup_feature_check' ), 0 );
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
 
@@ -243,7 +243,7 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Re-read the entitlement when the Backup page itself is being opened.
+	 * Re-read the Backup feature check when the page itself is being opened.
 	 *
 	 * The one deliberately synchronous read: it decides whether the page about to
 	 * render gets registered at all, so a just-completed purchase is picked up on
@@ -251,21 +251,21 @@ class Jetpack_Backup {
 	 *
 	 * @return void
 	 */
-	public static function maybe_refresh_backup_entitlement() {
+	public static function maybe_refresh_backup_feature_check() {
 		// `admin_menu` fires before WordPress checks who may see the page, so without the
 		// capability check any logged-in user could drive this unthrottled remote read.
 		if ( ! self::$require_backup_plan || ! current_user_can( 'manage_options' ) || ! self::is_backup_admin_request() ) {
 			return;
 		}
 
-		Backup_Entitlement::refresh();
+		Backup_Feature_Check::refresh();
 	}
 
 	/**
 	 * The page to be added to submenu
 	 */
 	public static function add_wp_admin_submenu() {
-		if ( self::$require_backup_plan && ! Backup_Entitlement::has_backup() ) {
+		if ( self::$require_backup_plan && ! Backup_Feature_Check::has_backup() ) {
 			return;
 		}
 
