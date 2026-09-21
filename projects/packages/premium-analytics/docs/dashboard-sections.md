@@ -60,6 +60,7 @@ A plugin registers a section from a callback on `jetpack_premium_analytics_regis
 use Automattic\Jetpack\PremiumAnalytics\Capabilities;
 use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
 use function Automattic\Jetpack\PremiumAnalytics\get_dashboard_default_widget_instance;
+use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 
 add_action(
 	'jetpack_premium_analytics_register_dashboard_sections',
@@ -69,7 +70,7 @@ add_action(
 			return;
 		}
 
-		$registry->register(
+		register_dashboard_section(
 			DASHBOARD_NAME,
 			'videopress/videos',
 			array(
@@ -90,7 +91,7 @@ add_action(
 
 The mechanics behind it:
 
-- **The contract.** The action hands over the `Dashboard_Section_Registry` being hydrated, and `$registry->register()` is what a plugin calls. `register_dashboard_section()` and the other functions in the `Automattic\Jetpack\PremiumAnalytics` namespace are the package's own helpers over the main instance, which is that same registry in production.
+- **The contract.** A plugin calls `register_dashboard_section()` from its callback, the way `wp_register_ability()` is called on `wp_abilities_api_init`. The callback also receives the `Dashboard_Section_Registry` being hydrated, for lookups such as `get_registered_by_slug()`; the package's own registrant writes to it directly, the way `wp_default_scripts` callbacks write to `$scripts`. Both forms reach the same registry in production.
 - **Loading.** The files are required by hand on the paths above, not autoloaded. The action fires from the registry those files load, so a callback on it runs only once the API is there and needs no `function_exists()` guard.
 - **Validation in `register()`.** The dashboard name must match `get_dashboard_name_pattern()`, the id must be namespaced (`get_dashboard_section_id_pattern()`), the id must not be registered, and the slug must not be used by another id on the same dashboard. Each failure is a `_doing_it_wrong()` and a `false` return.
 - **Slugs.** Two ids may not share a slug on one dashboard: the client keys sections, `?section=` and stored layouts by slug, so `register()` refuses the second. A registrant that may run beside another owner of the same section, the way Ads has one owner per environment plus an older package during a deploy skew, checks `get_registered_by_slug()` first.

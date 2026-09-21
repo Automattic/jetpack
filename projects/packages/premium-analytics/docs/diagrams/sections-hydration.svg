@@ -49,7 +49,7 @@
   <rect class="box" x="640" y="140" width="260" height="80" rx="4"/>
   <text class="title" x="770" y="168" text-anchor="middle">priority 20, a plugin</text>
   <text class="mono" x="770" y="184" text-anchor="middle">get_registered_by_slug( … ) ? skip :</text>
-  <text class="mono" x="770" y="200" text-anchor="middle">$registry-&gt;register( … )</text>
+  <text class="mono" x="770" y="200" text-anchor="middle">register_dashboard_section( … )</text>
   <rect class="box" x="930" y="100" width="210" height="100" rx="4"/>
   <text class="title" x="1035" y="122" text-anchor="middle">register()</text>
   <text class="muted" x="1035" y="138" text-anchor="middle">id is namespaced</text>
