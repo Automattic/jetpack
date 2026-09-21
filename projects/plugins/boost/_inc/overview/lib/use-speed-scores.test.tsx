@@ -239,9 +239,11 @@ test( 'stops posting pending scores when Purchase Success opens', async () => {
 		text: async () => JSON.stringify( { status: 'pending' } ),
 	} );
 	globalThis.fetch = post;
-	jest.mocked( requestSpeedScores ).mockImplementation(
-		jest.requireActual( '@automattic/jetpack-boost-score-api' ).requestSpeedScores
-	);
+	jest
+		.mocked( requestSpeedScores )
+		.mockImplementation(
+			jest.requireActual( '@automattic/jetpack-boost-score-api' ).requestSpeedScores
+		);
 	try {
 		const { rerender } = renderHook( enabled => useSpeedScores( undefined, enabled ), {
 			wrapper,
