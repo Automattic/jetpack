@@ -148,6 +148,8 @@ The client stores customized layouts in the `dashboardSectionLayouts` preference
 
 Reset deletes the stored entry rather than copying the default into it, so a section that was reset follows later changes to the default.
 
+A section that declares no layout opens in customize mode on the empty state, since `WidgetDashboard` treats an empty layout as "no widgets". A section meant to be read declares one.
+
 ## Availability and the preview
 
 `is_available()` combines two rules, in this order:
