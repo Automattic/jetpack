@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
-import { Badge, Icon, Popover } from '@jetpack-premium-analytics/externals';
+import { Badge, Icon, Popover, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -179,8 +179,11 @@ export function EarningsStatusBadge( { status }: { status: number | undefined } 
 					</Popover.Trigger>
 					<Popover.Popup className={ styles.popup }>
 						<Popover.Arrow />
-						<Popover.Title>{ detail }</Popover.Title>
-						{ tooltip && <Popover.Description>{ tooltip }</Popover.Description> }
+						<VisuallyHidden render={ <Popover.Title /> }>{ detail }</VisuallyHidden>
+						<Popover.Description>
+							<span className={ styles.reason }>{ detail }</span>
+							{ tooltip }
+						</Popover.Description>
 					</Popover.Popup>
 				</Popover.Root>
 				<Badge intent={ intent }>{ label }</Badge>

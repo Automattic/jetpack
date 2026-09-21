@@ -20,3 +20,11 @@
 .popup {
 	max-inline-size: 20rem;
 }
+
+/* The reason leads the explanation; the popover title is heading-sized,
+ * so it stays hidden. */
+.reason {
+	display: block;
+	margin-block-end: var(--wpds-dimension-gap-xs);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
