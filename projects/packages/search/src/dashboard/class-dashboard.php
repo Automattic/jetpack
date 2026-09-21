@@ -150,18 +150,14 @@ class Dashboard {
 	}
 
 	/**
-	 * Hook the screen-id alias before requiring $build_index and the restore
-	 * after, at the same priority as wp-build's generated enqueue check, so
-	 * exactly one callback sees the aliased ID.
+	 * Require the generated build file with the screen ID aliased across its enqueue check.
 	 *
+	 * @see WP_Build_Screen_Id::load_with_alias()
 	 * @param string $build_index Path to the generated `build.php`.
 	 * @return void
 	 */
 	private static function require_wp_build_with_screen_alias( $build_index ) {
-		// An older wp-build-polyfills, loaded first by another plugin under the
-		// jetpack-autoloader, may predate WP_Build_Screen_Id::load_with_alias(). The
-		// two add_action() calls below are the same ordering it wraps, kept as a
-		// fallback.
+		// Fallback: an older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
 		if ( method_exists( WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
 			WP_Build_Screen_Id::load_with_alias(
 				array( __CLASS__, 'alias_screen_id_for_wp_build' ),

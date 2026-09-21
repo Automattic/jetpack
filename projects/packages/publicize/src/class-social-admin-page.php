@@ -221,10 +221,7 @@ class Social_Admin_Page {
 	 * @return void
 	 */
 	private static function load_wp_build_with_screen_alias() {
-		// An older wp-build-polyfills, loaded first by another plugin under the
-		// jetpack-autoloader, may predate WP_Build_Screen_Id::load_with_alias(). The
-		// two add_action() calls below are the same ordering it wraps, kept as a
-		// fallback.
+		// Fallback: an older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
 		if ( method_exists( \Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
 			\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id::load_with_alias(
 				array( __CLASS__, 'alias_screen_id_for_wp_build' ),
