@@ -216,7 +216,6 @@ class SiteStatsComponent extends Component {
 			wpcomLink: 'https://wordpress.com/support/stats/',
 		};
 
-		// The Stats dashboard has its own Settings tab, so the settings are changed only there.
 		if ( this.props.isOdysseyStatsEnabled ) {
 			return (
 				<SettingsCard

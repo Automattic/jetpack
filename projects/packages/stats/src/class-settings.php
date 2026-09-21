@@ -47,7 +47,6 @@ class Settings {
 	 * @return array|WP_Error `changed` and the `settings` after the save, or why the values were refused.
 	 */
 	public static function update( array $values, array $keys ) {
-		// At least one of the whitelisted keys must be present.
 		$provided = array_intersect_key( $values, array_flip( $keys ) );
 		if ( empty( $provided ) ) {
 			return new WP_Error(
@@ -60,10 +59,6 @@ class Settings {
 			);
 		}
 
-		// Validate role slugs against registered roles — but only load the role list
-		// if the caller is actually writing a role field. Boolean-only writes skip
-		// the wp_roles() resolution entirely. Role fields are detected from the
-		// option's default value type (array → role list).
 		$defaults    = Options::get_defaults();
 		$known_roles = null;
 		foreach ( $keys as $role_field ) {
@@ -86,9 +81,7 @@ class Settings {
 					)
 				);
 			}
-			// `roles` gates `view_stats` — an empty array would lock every user out, including
-			// the caller. Schema validation enforces minItems=1 on REST input, but direct PHP
-			// callers bypass that path; reject explicitly here.
+			// An empty `roles` list would take `view_stats` from everyone, and direct PHP callers skip the REST schema's `minItems` check.
 			if ( 'roles' === $role_field && empty( $provided[ $role_field ] ) ) {
 				return new WP_Error(
 					self::ERROR_PREFIX . 'invalid_roles',
@@ -138,11 +131,8 @@ class Settings {
 			$changes[ $key ] = $value;
 		}
 
-		// `changed` is derived from the POST-WRITE snapshot, not from `$changes` alone —
-		// if update_option fails or refuses to persist for any reason (DB error,
-		// serialization mismatch), we must not claim a change that didn't happen.
+		// `changed` compares the values read before and after the write, so a write that did not persist is not reported.
 		if ( ! empty( $changes ) ) {
-			// One merged write instead of N get+update cycles via set_option.
 			Options::set_options( $changes );
 		}
 
