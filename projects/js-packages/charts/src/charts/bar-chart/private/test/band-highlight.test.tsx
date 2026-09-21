@@ -7,7 +7,7 @@ import { GlobalChartsProvider } from '../../../../providers';
 import { CATALOG_POINTERS } from '../../../../providers/chart-context/private/catalog-pointers';
 import { BarChartUnresponsive } from '../../bar-chart';
 import { BandHighlight } from '../band-highlight';
-import type { BandHighlightSelection } from '../../bar-chart';
+import type { BandHighlightSelection } from '../../types';
 
 const xScale = scaleBand( { domain: [ 'Jan', 'Feb' ], range: [ 10, 210 ] } );
 const dataContext = {
@@ -25,7 +25,7 @@ const Fixture = ( { label = 'Jan', onChange } ) => {
 				value={
 					{
 						tooltipOpen: true,
-						tooltipData: { nearestDatum: { key: 'scores', datum: { label, value: 50 } } },
+						tooltipData: { nearestDatum: { key: 'scores', index: 0, datum: { label, value: 50 } } },
 					} as never
 				}
 			>
@@ -38,6 +38,20 @@ const Fixture = ( { label = 'Jan', onChange } ) => {
 };
 
 describe( 'BandHighlight', () => {
+	test( 'reports the initial selection and clears it on unmount', () => {
+		const onChange = jest.fn();
+		const { unmount } = render( <Fixture onChange={ onChange } /> );
+		expect( onChange ).toHaveBeenLastCalledWith(
+			expect.objectContaining( {
+				key: 'scores',
+				index: 0,
+				datum: { label: 'Jan', value: 50 },
+			} )
+		);
+		unmount();
+		expect( onChange ).toHaveBeenLastCalledWith( null );
+	} );
+
 	test( 'uses the catalog surface fill', () => {
 		render( <Fixture onChange={ undefined } /> );
 		expect( screen.getByTestId( 'bar-chart-band-highlight' ) ).toHaveAttribute(
@@ -79,6 +93,7 @@ describe( 'BandHighlight', () => {
 	test.each( [ { withTooltips: false }, { data: [] } ] )(
 		'clears the selected band when the highlight unmounts with %j',
 		async props => {
+			const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
 			const user = userEvent.setup();
 			const onChange = jest.fn();
 			const chartProps = {
@@ -103,6 +118,8 @@ describe( 'BandHighlight', () => {
 					<BarChartUnresponsive { ...chartProps } { ...props } />
 				</GlobalChartsProvider>
 			);
+			expect( warn ).toHaveBeenCalledTimes( 'withTooltips' in props ? 1 : 0 );
+			warn.mockRestore();
 			expect( onChange ).toHaveBeenLastCalledWith( null );
 		}
 	);

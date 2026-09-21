@@ -3,7 +3,7 @@ import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@vi
 import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useContext, useState, useRef, useMemo } from 'react';
+import { useCallback, useContext, useState, useRef, useMemo, useEffect } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
@@ -41,45 +41,15 @@ import {
 	BASE_BAND_PADDING_INNER,
 } from './private';
 import type { ComparisonSeriesEntry } from './private';
-import type {
-	BaseChartProps,
-	DataPointDate,
-	SeriesData,
-	SeriesChartLegendConfig,
-	SeriesVisibilityProps,
-	Optional,
-} from '../../types';
+import type { BarChartProps } from './types';
+import type { DataPointDate, SeriesData, Optional } from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
 import type { ResponsiveConfig } from '../private/with-responsive';
-import type { FC, ReactNode, ComponentType } from 'react';
+import type { FC, ComponentType } from 'react';
 
-export type BandHighlightSelection = {
-	datum: DataPointDate;
-	x: number;
-	y: number;
-	width: number;
-	height: number;
-};
+export type { BarChartProps, BandHighlightSelection } from './types';
 
-export interface BarChartProps extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps {
-	/**
-	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
-	 */
-	legend?: SeriesChartLegendConfig;
-	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
-	/** Place the tooltip beside its category without vertical flipping. */
-	tooltipPlacement?: 'auto' | 'beside';
-	/** Tooltip top anchor in SVG coordinates; negative offsets are supported. */
-	tooltipAnchorTop?: number;
-	orientation?: 'horizontal' | 'vertical';
-	withPatterns?: boolean;
-	showZeroValues?: boolean;
-	/** Highlight the active band across the plot when tooltips are enabled. */
-	withBandHighlight?: boolean;
-	/** Receive active band bounds in SVG coordinates, or null when dismissed. */
-	onBandHighlightChange?: ( selection: BandHighlightSelection | null ) => void;
-	children?: ReactNode;
-}
+declare const process: { env: Record< string, string | undefined > };
 
 // Base props type with optional responsive properties
 type BarChartBaseProps = Optional< BarChartProps, 'width' | 'height' | 'size' >;
@@ -155,6 +125,17 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	onPointerUp,
 	onDatumActivate,
 } ) => {
+	useEffect( () => {
+		if (
+			process.env.NODE_ENV !== 'production' &&
+			! withTooltips &&
+			( withBandHighlight || onBandHighlightChange )
+		) {
+			// eslint-disable-next-line no-console
+			console.warn( 'BarChart: withBandHighlight and onBandHighlightChange require withTooltips.' );
+		}
+	}, [ withTooltips, withBandHighlight, onBandHighlightChange ] );
+
 	const legendInteractive = legend.interactive ?? false;
 	const legendCollapseGroups = legend.collapseGroups ?? false;
 	const horizontal = orientation === 'horizontal';

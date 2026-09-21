@@ -44,6 +44,11 @@ describe( 'BarChart', () => {
 		return screen.getByRole( 'grid' ).querySelectorAll( '.visx-bar-group rect' );
 	};
 
+	const getGridLines = () => {
+		// eslint-disable-next-line testing-library/no-node-access -- visx grid lines cannot receive test IDs.
+		return screen.getByRole( 'grid' ).querySelectorAll( '.visx-rows line' );
+	};
+
 	const renderWithTheme = ( props = {}, children = undefined ) => {
 		return render(
 			<GlobalChartsProvider>
@@ -134,7 +139,7 @@ describe( 'BarChart', () => {
 			expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
 		} );
 
-		test( 'selects the nearer padded band before and after an unrelated rerender', async () => {
+		test( 'keeps band correction after BarGroup subscriptions on mount and rerender', async () => {
 			const chart = ( className: string ) => (
 				<GlobalChartsProvider>
 					<BarChart { ...defaultProps } withTooltips className={ className } />
@@ -151,6 +156,58 @@ describe( 'BarChart', () => {
 			hover( clientX, 150 );
 			await waitFor( () => expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Jan 1' ) );
 		} );
+
+		test( 'clears the highlight callback when the pointer leaves the plot', async () => {
+			const onBandHighlightChange = jest.fn();
+			renderWithTheme( { withTooltips: true, withBandHighlight: true, onBandHighlightChange } );
+			const [ [ x, , width ] ] = barGeometry();
+			hover( x + width / 2, 150 );
+			await expect(
+				screen.findByTestId( 'bar-chart-band-highlight' )
+			).resolves.toBeInTheDocument();
+			pointer( 'pointerout', x + width / 2, 150 );
+			await waitFor( () => expect( onBandHighlightChange ).toHaveBeenLastCalledWith( null ) );
+			expect( screen.queryByTestId( 'bar-chart-band-highlight' ) ).not.toBeInTheDocument();
+		} );
+
+		test.each( [ 'comparison', 'hidden' ] )(
+			'selects the visible primary band with a %s series',
+			async mode => {
+				const onBandHighlightChange = jest.fn();
+				const onPointerUp = jest.fn();
+				renderWithTheme( {
+					withTooltips: true,
+					withBandHighlight: true,
+					onBandHighlightChange,
+					onPointerUp,
+					defaultHiddenSeries: mode === 'hidden' ? [ 'Other' ] : [],
+					data: [
+						{ ...defaultProps.data[ 0 ], group: 'scores' },
+						{
+							label: 'Other',
+							group: 'scores',
+							options: mode === 'comparison' ? { type: 'comparison' } : {},
+							data: defaultProps.data[ 0 ].data,
+						},
+					],
+				} );
+				const [ [ x, , width ] ] = barGeometry();
+				hover( x + width / 2, 150 );
+				await expect(
+					screen.findByTestId( 'bar-chart-band-highlight' )
+				).resolves.toBeInTheDocument();
+				pointer( 'pointerup', x + width / 2, 150 );
+				for ( const callback of [ onBandHighlightChange, onPointerUp ] ) {
+					expect( callback ).toHaveBeenLastCalledWith(
+						expect.objectContaining( {
+							key: 'Series A',
+							index: 0,
+							datum: defaultProps.data[ 0 ].data[ 0 ],
+						} )
+					);
+				}
+			}
+		);
 
 		test( 'reports the tooltip datum when pressing and releasing in a padded gap', async () => {
 			const onPointerDown = jest.fn();
@@ -224,6 +281,22 @@ describe( 'BarChart', () => {
 		);
 	} );
 
+	test( 'warns when highlight options lack tooltips while still rendering the chart', () => {
+		const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
+		try {
+			const onBandHighlightChange = jest.fn();
+			renderWithTheme( { withBandHighlight: true, onBandHighlightChange } );
+			expect( screen.getByRole( 'grid' ) ).toBeInTheDocument();
+			expect( warn ).toHaveBeenCalledWith(
+				'BarChart: withBandHighlight and onBandHighlightChange require withTooltips.'
+			);
+			expect( onBandHighlightChange ).not.toHaveBeenCalled();
+			expect( screen.queryByTestId( 'bar-chart-band-highlight' ) ).not.toBeInTheDocument();
+		} finally {
+			warn.mockRestore();
+		}
+	} );
+
 	test( 'reports band bounds without drawing an overlay and clears them on Escape', async () => {
 		const user = userEvent.setup();
 		const onBandHighlightChange = jest.fn();
@@ -233,6 +306,8 @@ describe( 'BarChart', () => {
 		expect( onBandHighlightChange ).toHaveBeenLastCalledWith(
 			expect.objectContaining( {
 				datum: expect.objectContaining( { value: 10 } ),
+				key: 'Series A',
+				index: 0,
 				x: expect.any( Number ),
 				y: expect.any( Number ),
 				width: expect.any( Number ),
@@ -282,16 +357,14 @@ describe( 'BarChart', () => {
 	);
 
 	test( 'aligns horizontal grid lines with explicit value ticks', () => {
-		const { container } = renderWithTheme( {
+		renderWithTheme( {
 			gridVisibility: 'x',
 			options: {
 				axis: { y: { tickValues: [ 0, 50, 100 ] } },
 				scale: { y: { domain: [ 0, 100 ] } },
 			},
 		} );
-		// See the visx node constraint at getBarRects.
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-		const lines = container.querySelectorAll( '.visx-rows line' );
+		const lines = getGridLines();
 		expect( lines ).toHaveLength( 3 );
 	} );
 

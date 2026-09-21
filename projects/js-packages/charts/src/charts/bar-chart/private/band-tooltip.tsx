@@ -2,7 +2,7 @@ import { DataContext, TooltipContext, useEventEmitter } from '@visx/xychart';
 import { useCallback, useContext, useMemo } from 'react';
 import { createGroupScale } from './band-scale';
 import type { BandScale } from './band-scale';
-import type { BarChartProps } from '../bar-chart';
+import type { BarChartProps } from '../types';
 
 type PointerHandler = NonNullable< Parameters< typeof useEventEmitter >[ 1 ] >;
 type PointerSelection = Parameters< NonNullable< BarChartProps[ 'onPointerUp' ] > >[ 0 ];
