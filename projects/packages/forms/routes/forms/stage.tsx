@@ -3,6 +3,7 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { formatNumber } from '@automattic/number-formatters';
+import { Page } from '@wordpress/admin-ui';
 import {
 	Button,
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -35,7 +36,7 @@ import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-
 import { getFormEditUrl } from '../../src/dashboard/utils.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import FormsHelpModal from '../../src/dashboard/wp-build/components/forms-help-modal';
-import FormsPage from '../../src/dashboard/wp-build/components/page';
+import { PAGE_COMPONENTS } from '../../src/dashboard/wp-build/components/route-link';
 import useFormItemActions from '../../src/dashboard/wp-build/hooks/use-form-item-actions';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
 import { useRenameForm } from '../../src/dashboard/wp-build/hooks/use-rename-form';
@@ -620,15 +621,15 @@ function StageInner() {
 	);
 
 	return (
-		<FormsPage
+		<Page
 			visual={ visual }
 			breadcrumbs={ breadcrumbs }
 			navigation={ navigation }
+			components={ PAGE_COMPONENTS }
 			title={ title }
 			subTitle={ subtitle }
 			actions={ headerActions }
 			hasPadding={ false }
-			showFooter={ false }
 		>
 			<DataViews
 				paginationInfo={ paginationInfo }
@@ -719,7 +720,7 @@ function StageInner() {
 				context="dashboard"
 			/>
 			<FormsHelpModal isOpen={ isFormsHelpModalOpen } onClose={ closeFormsHelpModal } />
-		</FormsPage>
+		</Page>
 	);
 }
 

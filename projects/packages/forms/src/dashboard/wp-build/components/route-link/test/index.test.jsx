@@ -16,7 +16,7 @@ await jest.unstable_mockModule( '@wordpress/route', () => ( {
 	},
 } ) );
 
-const { default: RouteLink } = await import( '../route-link.tsx' );
+const { default: RouteLink } = await import( '../index.tsx' );
 
 beforeEach( () => {
 	jest.clearAllMocks();

@@ -6,6 +6,7 @@ import { formatNumber } from '@automattic/number-formatters';
 /**
  * WordPress dependencies
  */
+import { Page } from '@wordpress/admin-ui';
 import { __experimentalText as Text } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useEvent, useViewportMatch } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
@@ -39,7 +40,7 @@ import {
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import { getFormEditUrl } from '../../src/dashboard/utils.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
-import FormsPage from '../../src/dashboard/wp-build/components/page';
+import { PAGE_COMPONENTS } from '../../src/dashboard/wp-build/components/route-link';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
 import useTopNavigation from '../../src/dashboard/wp-build/hooks/use-top-navigation.ts';
 import useConfigValue from '../../src/hooks/use-config-value';
@@ -812,17 +813,17 @@ function StageInner() {
 	const navigation = useTopNavigation( { activeTab: 'responses', isSingleFormView } );
 
 	return (
-		<FormsPage
+		<Page
 			visual={ visual }
 			breadcrumbs={ breadcrumbs }
 			badges={ badges }
 			navigation={ navigation }
+			components={ PAGE_COMPONENTS }
 			title={ title }
 			ariaLabel={ ariaLabel }
 			subTitle={ subtitle }
 			actions={ headerActions }
 			hasPadding={ false }
-			showFooter={ false }
 		>
 			{ isFormNotCollecting && hasAnyResponses && (
 				<Notice.Root
@@ -904,7 +905,7 @@ function StageInner() {
 				refreshIntegrations={ refreshIntegrations }
 				context="dashboard"
 			/>
-		</FormsPage>
+		</Page>
 	);
 }
 

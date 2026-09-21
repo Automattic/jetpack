@@ -5,6 +5,7 @@ import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 /**
  * WordPress dependencies
  */
+import { Page } from '@wordpress/admin-ui';
 import {
 	Modal,
 	Spinner,
@@ -29,7 +30,6 @@ import ResponseNavigation from '../../src/dashboard/components/inspector/respons
 import { getDisplayName } from '../../src/dashboard/components/inspector/utils.ts';
 import useMarkAsReadOnView from '../../src/dashboard/hooks/use-mark-as-read-on-view.ts';
 import { useMarkAsSpam } from '../../src/dashboard/hooks/use-mark-as-spam.ts';
-import FormsPage from '../../src/dashboard/wp-build/components/page';
 import SingleResponseBreadcrumbs from './breadcrumbs.tsx';
 import SingleResponseActions from './page-actions.tsx';
 import pickResponseRecord from './pick-record.ts';
@@ -275,14 +275,13 @@ function Stage(): React.JSX.Element {
 	// Keep the breadcrumb (with the "Forms" link) on the loading/not-found states
 	// so the user can always navigate back to the responses list and reorient.
 	const renderMessagePage = ( currentLabel: string, ariaLabel: string, child: React.ReactNode ) => (
-		<FormsPage
+		<Page
 			visual={ <JetpackLogo showText={ false } height={ 20 } /> }
 			breadcrumbs={ <SingleResponseBreadcrumbs currentLabel={ currentLabel } pinned={ pinned } /> }
 			ariaLabel={ ariaLabel }
-			showFooter={ false }
 		>
 			<div className="jp-forms__single-response-message">{ child }</div>
-		</FormsPage>
+		</Page>
 	);
 
 	// Only show the spinner when there is genuinely nothing to show — which, now that
@@ -313,7 +312,7 @@ function Stage(): React.JSX.Element {
 	const subTitle = `${ displayName } · ${ dateI18n( dateSettings.formats.date, response.date ) }`;
 
 	return (
-		<FormsPage
+		<Page
 			visual={ <JetpackLogo showText={ false } height={ 20 } /> }
 			breadcrumbs={
 				<SingleResponseBreadcrumbs
@@ -352,7 +351,6 @@ function Stage(): React.JSX.Element {
 					/>
 				</Stack>
 			}
-			showFooter={ false }
 		>
 			<div className="jp-forms__single-response">
 				<div className="jp-forms__single-response-card">
@@ -380,7 +378,7 @@ function Stage(): React.JSX.Element {
 			>
 				{ markAsSpamConfirmationMessage }
 			</ConfirmDialog>
-		</FormsPage>
+		</Page>
 	);
 }
 

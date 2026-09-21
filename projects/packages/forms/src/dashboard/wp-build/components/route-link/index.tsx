@@ -43,3 +43,9 @@ export default function RouteLink( { href, ...props }: NavigationLinkProps ) {
 		<Link to={ href } activeOptions={ ACTIVE_OPTIONS } onClick={ rememberSection } { ...props } />
 	);
 }
+
+/**
+ * `Page`'s `components` override, hoisted so a screen passes the same object on
+ * every render.
+ */
+export const PAGE_COMPONENTS: PageComponents = { link: RouteLink };
