@@ -570,7 +570,7 @@ test( 'tracks score errors and offers a successful retry', async () => {
 		jest
 			.mocked( recordBoostEvent )
 			.mock.calls.filter( ( [ event ] ) => event.includes( 'refresh' ) )
-	).toEqual( [ [ 'speed_score_refresh_clicked', { source: 'header' } ] ] );
+	).toEqual( [ [ 'speed_score_refresh_clicked', { source: 'score_card' } ] ] );
 	expect( screen.queryByText( 'Score service unavailable' ) ).not.toBeInTheDocument();
 } );
 
