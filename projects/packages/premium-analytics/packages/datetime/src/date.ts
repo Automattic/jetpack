@@ -38,6 +38,8 @@ export function parseExactLabel( label: string, labelFormat: string ): Date | nu
  * @param value - Date-like string, commonly `YYYY-MM-DD` or an ISO datetime.
  * @return Date part when present.
  */
+export function getDatePart( value: string ): string;
+export function getDatePart( value: unknown ): string | undefined;
 export function getDatePart( value: unknown ): string | undefined {
 	return typeof value === 'string' ? value.split( 'T' )[ 0 ] : undefined;
 }

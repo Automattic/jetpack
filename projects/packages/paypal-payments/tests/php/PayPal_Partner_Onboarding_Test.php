@@ -30,6 +30,7 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		delete_transient( PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY );
 		delete_option( PayPal_Partner_Onboarding::PARTNER_ID_OPTION_KEY );
 		delete_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY );
+		delete_option( PayPal_Partner_Onboarding::MERCHANT_EMAIL_OPTION_KEY );
 		delete_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY );
 		delete_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY );
 		delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );
@@ -906,6 +907,49 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	}
 
 	/**
+	 * Test the merchant's email is cached for the account menu, trimmed by sanitize_email().
+	 */
+	public function test_check_merchant_status_caches_the_account_email() {
+		$this->set_up_partner_state();
+		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1' );
+		$this->mock_http_routes(
+			array(
+				'/merchant-integrations/' => $this->http_response(
+					200,
+					array(
+						'payments_receivable' => true,
+						'primary_email'       => ' Junior@Sports.com ',
+					)
+				),
+			)
+		);
+
+		PayPal_Partner_Onboarding::check_merchant_status();
+
+		$this->assertSame( 'Junior@Sports.com', PayPal_Partner_Onboarding::get_merchant_email() );
+	}
+
+	/**
+	 * Test the account email stays empty when PayPal's response omits it.
+	 */
+	public function test_check_merchant_status_leaves_the_account_email_empty_when_paypal_omits_it() {
+		$this->set_up_partner_state();
+		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1' );
+		$this->mock_http_routes(
+			array(
+				'/merchant-integrations/' => $this->http_response(
+					200,
+					array( 'payments_receivable' => true )
+				),
+			)
+		);
+
+		PayPal_Partner_Onboarding::check_merchant_status();
+
+		$this->assertSame( '', PayPal_Partner_Onboarding::get_merchant_email() );
+	}
+
+	/**
 	 * Test that a missing products key defaults to an empty array rather than a notice.
 	 */
 	public function test_check_merchant_status_defaults_missing_products() {
@@ -960,12 +1004,14 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	public function test_cleanup_removes_onboarding_data() {
 		set_transient( PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY, 'test_nonce', 30 * MINUTE_IN_SECONDS );
 		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'test_merchant' );
+		update_option( PayPal_Partner_Onboarding::MERCHANT_EMAIL_OPTION_KEY, 'junior@sports.com' );
 		update_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, 'partner_referrals' );
 
 		PayPal_Partner_Onboarding::cleanup();
 
 		$this->assertFalse( get_transient( PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY ) );
 		$this->assertFalse( get_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY ) );
+		$this->assertFalse( get_option( PayPal_Partner_Onboarding::MERCHANT_EMAIL_OPTION_KEY ) );
 		$this->assertFalse( get_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY ) );
 	}
 

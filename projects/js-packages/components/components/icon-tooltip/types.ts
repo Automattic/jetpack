@@ -11,6 +11,10 @@ export type IconTooltipProps = {
 	 * The wrapper class name of this IconTooltip component.
 	 */
 	className?: string;
+	/**
+	 * The class name applied to the Popover, which is outside the wrapper when not inline.
+	 */
+	popoverClassName?: string;
 
 	/**
 	 * The class name applied to the icon.
@@ -73,7 +77,8 @@ export type IconTooltipProps = {
 	hoverShow?: boolean;
 
 	/**
-	 * Uses a wider content area when enabled.
+	 * Uses a wider content area when enabled. Has no effect when `inline` is false: it widens the
+	 * wrapper element the popover leaves behind, so a portalled popover needs its own width.
 	 */
 	wide?: boolean;
 

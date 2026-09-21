@@ -92,6 +92,7 @@ export class VerificationServicesComponent extends Component {
 							'jetpack'
 						),
 						link: getRedirectUrl( 'jetpack-support-site-verification-tools' ),
+						wpcomLink: 'https://wordpress.com/support/site-verification-services/',
 					} }
 				>
 					<ModuleToggle

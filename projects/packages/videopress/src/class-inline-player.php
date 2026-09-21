@@ -268,7 +268,7 @@ class Inline_Player {
 		/**
 		 * Filter whether inline VideoPress players start as a poster facade and load the player on click.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.51.0
 		 *
 		 * @param bool  $use_facade Whether to render the facade.
 		 * @param array $options    The player options for this video.
@@ -305,7 +305,7 @@ class Inline_Player {
 		/**
 		 * Filter the poster shown by an inline VideoPress player's facade.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.51.0
 		 *
 		 * @param string|null $poster     Poster URL, or null for a plain dark facade.
 		 * @param string      $guid       Video GUID.

@@ -68,6 +68,8 @@ export {
 	type CalendarHeatmapPager,
 	type CalendarHeatmapPagerOverlayProps,
 	type CalendarHeatmapTooltipProps,
+	MonthCalendarHeatmap,
+	type MonthCalendarHeatmapProps,
 	MonthlyHeatmap,
 	type MonthlyHeatmapProps,
 	type MonthlyHeatmapRow,
@@ -108,6 +110,7 @@ export {
 	type SubscriberListSkeletonProps,
 	SemiCircleChart,
 	type SemiCircleChartData,
+	DETAIL_HEADER_GLYPH_SIZE,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageActions,
@@ -178,6 +181,7 @@ export {
 	AnnualHighlightsSkeleton,
 	GenericSkeleton,
 	HeatmapSkeleton,
+	MonthCalendarHeatmapSkeleton,
 	MetricSparklineSkeleton,
 	type MetricSparklineSkeletonProps,
 	SkeletonRoot,
@@ -187,7 +191,7 @@ export {
 /**
  * Constants
  */
-export { COLOR_GRAY_100, WIDGET_ROW_LIMIT } from './constants';
+export { WIDGET_ROW_LIMIT } from './constants';
 
 /**
  * Widget edit fields
@@ -255,13 +259,10 @@ export {
 	type PeriodBounds,
 	buildDenseDaySeries,
 	resolveCalendarHeatmapGridStart,
-	resolveCalendarHeatmapWindow,
-	resolveCalendarHeatmapWindowDays,
 	type CalendarHeatmapLayout,
 	type CalendarHeatmapLayoutInput,
 	type FitWeekColumnsInput,
 	type CalendarHeatmapWindow,
-	type CalendarHeatmapWindowBounds,
 } from './helpers';
 
 /**
@@ -277,7 +278,6 @@ export {
 	useSeriesStyles,
 	useStoredDetailLayout,
 	useTrackEvent,
-	useViewportWidth,
 	useWidgetDrillDown,
 } from './hooks';
 

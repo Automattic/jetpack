@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Keep the event and actor icons colored now that @wordpress/icons 16 draws them as strokes.
