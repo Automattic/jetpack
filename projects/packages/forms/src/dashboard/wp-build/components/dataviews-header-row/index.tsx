@@ -1,28 +1,14 @@
 /**
- * External dependencies
- */
-import { formatNumberCompact } from '@automattic/number-formatters';
-/**
  * WordPress dependencies
  */
-import { useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
-import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { useNavigate } from '@wordpress/route';
-import { Badge, Stack, Tabs } from '@wordpress/ui';
-import useConfigValue from '../../../../hooks/use-config-value.ts';
-import { type TopTab } from '../../../constants.ts';
-import useFormStatusCounts from '../../../hooks/use-form-status-counts.ts';
-import { saveLastTab } from '../../../last-tab-cookie.ts';
-import { store as dashboardStore } from '../../../store/index.js';
+import { Stack } from '@wordpress/ui';
 import InboxStatusToggle from '../inbox-status-toggle';
 import './style.scss';
 
 type StatusTab = 'inbox' | 'spam' | 'trash';
 
 type DataViewsHeaderRowProps = {
-	activeTab: TopTab;
 	isSingleFormView?: boolean;
 	activeStatus?: StatusTab;
 	statusCounts?: { inbox: number; spam: number; trash: number };
@@ -31,16 +17,14 @@ type DataViewsHeaderRowProps = {
 
 /**
  * Shared wp-build DataViews header row:
- * - Left: Forms | Responses tabs (only when Central Form Management is enabled)
- * - Single-form special case: show Inbox/Spam/Trash tabs instead
+ * - Left: Inbox/Spam/Trash tabs, on a single-form responses view only
  * - Right: DataViews controls (Search + ViewConfig)
  * - Below: DataViews filter pills row (collapses when empty)
  *
- * When Central Form Management is disabled, the Forms tab is hidden and
- * no tab bar is rendered — only the DataViews controls are shown.
+ * Moving between Forms and Responses is section navigation, not a tab switch, so
+ * it lives in the page header (see `useTopNavigation`).
  *
  * @param props                  - Props.
- * @param props.activeTab        - Which top tab is active.
  * @param props.isSingleFormView - Whether this screen is showing a single-form responses view.
  * @param props.activeStatus     - Current status for the single-form status tabs.
  * @param props.statusCounts     - Status counts for the single-form status tabs.
@@ -48,74 +32,23 @@ type DataViewsHeaderRowProps = {
  * @return Header row markup for wp-build DataViews screens.
  */
 export default function DataViewsHeaderRow( {
-	activeTab,
 	isSingleFormView = false,
 	activeStatus,
 	statusCounts,
 	onStatusChange,
 }: DataViewsHeaderRowProps ): JSX.Element {
-	const navigate = useNavigate();
-	const isCFMEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
-	const { all: formsCount } = useFormStatusCounts();
-
-	const responsesInboxCount = useSelect( select => {
-		// Pass an explicit empty object so @wordpress/data resolver deduplication
-		// matches other call-sites (useInboxData, preload). Without this,
-		// getCounts() and getCounts({}) are treated as different resolutions.
-		select( dashboardStore ).getCounts( {} );
-		return select( dashboardStore ).getInboxCount( {} ) ?? 0;
-	}, [] );
-
-	const onTabChange = useCallback(
-		( nextValue: TopTab ) => {
-			// Only a deliberate tab click is remembered, so arriving on a response through
-			// an email link cannot quietly change which tab the dashboard reopens on.
-			saveLastTab( nextValue );
-
-			if ( nextValue === 'forms' ) {
-				navigate( { href: '/forms' } );
-				return;
-			}
-
-			// In the wp-build environment we always treat Responses as `/responses/inbox`.
-			navigate( { href: '/responses/inbox' } );
-		},
-		[ navigate ]
-	);
-
 	return (
 		<>
 			<Stack className="jp-forms-dataviews__view-actions" justify="space-between">
+				{ /* Rendered even when empty: `space-between` needs two children to keep
+				     the controls on the end edge. */ }
 				<Stack align="center" gap="sm">
-					{ isSingleFormView ? (
+					{ isSingleFormView && (
 						<InboxStatusToggle
 							activeStatus={ activeStatus ?? 'inbox' }
 							counts={ statusCounts ?? { inbox: 0, spam: 0, trash: 0 } }
 							onChange={ onStatusChange ?? ( () => {} ) }
 						/>
-					) : (
-						isCFMEnabled && (
-							<Tabs.Root value={ activeTab } onValueChange={ onTabChange }>
-								<Tabs.List variant="minimal">
-									<Tabs.Tab value="forms">
-										<span>
-											{ __( 'Forms', 'jetpack-forms' ) }
-											<Badge intent="draft" className="jp-forms-tabs-count">
-												{ formatNumberCompact( formsCount || 0 ) }
-											</Badge>
-										</span>
-									</Tabs.Tab>
-									<Tabs.Tab value="responses">
-										<span>
-											{ __( 'Responses', 'jetpack-forms' ) }
-											<Badge intent="draft" className="jp-forms-tabs-count">
-												{ formatNumberCompact( responsesInboxCount || 0 ) }
-											</Badge>
-										</span>
-									</Tabs.Tab>
-								</Tabs.List>
-							</Tabs.Root>
-						)
 					) }
 				</Stack>
 				<Stack align="center" gap="sm">

@@ -66,6 +66,14 @@ export const TOP_TABS = [ 'forms', 'responses' ] as const;
 export type TopTab = ( typeof TOP_TABS )[ number ];
 
 /**
+ * Where each top tab lives. Responses always opens on the inbox list.
+ */
+export const TOP_TAB_HREFS: Record< TopTab, string > = {
+	forms: '/forms',
+	responses: '/responses/inbox',
+};
+
+/**
  * The response lists, named as the `/responses/$view` route segment names them.
  */
 export const RESPONSE_VIEWS = [ 'inbox', 'spam', 'trash' ] as const;

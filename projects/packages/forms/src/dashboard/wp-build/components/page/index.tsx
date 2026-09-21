@@ -3,6 +3,7 @@
  */
 import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
 import { Page } from '@wordpress/admin-ui';
+import RouteLink from './route-link.tsx';
 import type { ComponentProps, ReactNode } from 'react';
 
 type PageProps = ComponentProps< typeof Page >;
@@ -11,6 +12,8 @@ type FormsPageProps = PageProps & {
 	children: ReactNode;
 	showFooter?: boolean;
 };
+
+const DEFAULT_COMPONENTS: PageProps[ 'components' ] = { link: RouteLink };
 
 /**
  * Thin chrome wrapper for the wp-build Forms dashboard routes.
@@ -24,8 +27,12 @@ type FormsPageProps = PageProps & {
  * `hasPadding`) and rely on `<Page>` rendering their DataViews children directly
  * rather than inside `<AdminPage>`'s `<Container><Col>` wrap.
  *
+ * `components.link` defaults to the router link the header's section navigation
+ * needs, so a screen only has to pass `navigation`.
+ *
  * @param props            - All `<Page>` props are forwarded through.
  * @param props.children   - Page content (rendered inside `<Page>`, above the footer).
+ * @param props.components - `<Page>` element overrides; `link` defaults to `RouteLink`.
  * @param props.showFooter - Whether to render the trailing `<JetpackFooter>`. Defaults to
  *                         `true`; pass `false` on full-height routes (e.g. the DataViews
  *                         Responses inbox) where the footer competes with the view's own
@@ -35,11 +42,12 @@ type FormsPageProps = PageProps & {
 export default function FormsPage( {
 	children,
 	showFooter = true,
+	components = DEFAULT_COMPONENTS,
 	...pageProps
 }: FormsPageProps ): JSX.Element {
 	return (
 		<div className="jp-admin-page">
-			<Page className="jp-admin-page__page" { ...pageProps }>
+			<Page className="jp-admin-page__page" components={ components } { ...pageProps }>
 				{ children }
 				{ showFooter && <JetpackFooter /> }
 			</Page>

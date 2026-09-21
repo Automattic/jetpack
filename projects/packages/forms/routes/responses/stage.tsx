@@ -41,6 +41,7 @@ import { getFormEditUrl } from '../../src/dashboard/utils.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import FormsPage from '../../src/dashboard/wp-build/components/page';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
+import useTopNavigation from '../../src/dashboard/wp-build/hooks/use-top-navigation.ts';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
 import { getRowActions } from './actions';
@@ -808,11 +809,14 @@ function StageInner() {
 		[ selectResponse ]
 	);
 
+	const navigation = useTopNavigation( { activeTab: 'responses', isSingleFormView } );
+
 	return (
 		<FormsPage
 			visual={ visual }
 			breadcrumbs={ breadcrumbs }
 			badges={ badges }
+			navigation={ navigation }
 			title={ title }
 			ariaLabel={ ariaLabel }
 			subTitle={ subtitle }
@@ -878,7 +882,6 @@ function StageInner() {
 					actions={ actions as Action< unknown >[] }
 				>
 					<DataViewsHeaderRow
-						activeTab="responses"
 						isSingleFormView={ isSingleFormView }
 						activeStatus={ statusView }
 						statusCounts={ {

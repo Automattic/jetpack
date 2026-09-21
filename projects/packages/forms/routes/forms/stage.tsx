@@ -39,6 +39,7 @@ import FormsPage from '../../src/dashboard/wp-build/components/page';
 import useFormItemActions from '../../src/dashboard/wp-build/hooks/use-form-item-actions';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
 import { useRenameForm } from '../../src/dashboard/wp-build/hooks/use-rename-form';
+import useTopNavigation from '../../src/dashboard/wp-build/hooks/use-top-navigation.ts';
 import '../../src/dashboard/wp-build/style.scss';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
@@ -608,6 +609,8 @@ function StageInner() {
 	const hasActiveFilters =
 		!! view.search?.trim() || ( !! statusFilterValue && statusFilterValue !== 'all' );
 
+	const navigation = useTopNavigation( { activeTab: 'forms' } );
+
 	const getItemId = useCallback( ( item: FormListItem ) => String( item.id ), [] );
 	const onClickItem = useCallback(
 		( item: FormListItem ) => {
@@ -620,6 +623,7 @@ function StageInner() {
 		<FormsPage
 			visual={ visual }
 			breadcrumbs={ breadcrumbs }
+			navigation={ navigation }
 			title={ title }
 			subTitle={ subtitle }
 			actions={ headerActions }
@@ -694,7 +698,7 @@ function StageInner() {
 								) }
 					</p>
 				</ConfirmDialog>
-				<DataViewsHeaderRow activeTab="forms" />
+				<DataViewsHeaderRow />
 				<DataViews.Layout />
 				<DataViews.Footer />
 			</DataViews>

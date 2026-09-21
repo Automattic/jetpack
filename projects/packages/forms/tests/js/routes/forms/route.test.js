@@ -12,10 +12,6 @@ await jest.unstable_mockModule( '@wordpress/data', () => ( {
 
 await jest.unstable_mockModule( '@wordpress/route', () => ( { redirect: mockRedirect } ) );
 
-await jest.unstable_mockModule( '../../../../src/dashboard/wp-build/utils/preload', () => ( {
-	preloadGlobalTabCounts: () => Promise.resolve(),
-} ) );
-
 // Mocked rather than imported: the real module registers a Redux store at import time,
 // dragging in the whole data layer for a guard that only needs the store's name.
 await jest.unstable_mockModule( '../../../../src/store/config/index.ts', () => ( {
@@ -68,11 +64,5 @@ describe( 'forms route guard', () => {
 		mockGetConfig.mockResolvedValue( {} );
 
 		await expect( guard() ).resolves.toBe( '/responses/inbox' );
-	} );
-
-	// Returning a promise here would make the router hold the previous screen for a round
-	// trip before anything moved.
-	it( 'does not block navigation on the tab counts', () => {
-		expect( formsRoute.loader() ).toBeUndefined();
 	} );
 } );

@@ -7,7 +7,7 @@ import { redirect } from '@wordpress/route';
  * Internal dependencies
  */
 import { DEFAULT_RESPONSES_QUERY, getResponseStatusFilter } from '../../src/dashboard/constants.ts';
-import { preloadGlobalTabCounts } from '../../src/dashboard/wp-build/utils/preload';
+import { preloadGlobalInboxCounts } from '../../src/dashboard/wp-build/utils/preload';
 
 export const route = {
 	/**
@@ -48,8 +48,8 @@ export const route = {
 			} )
 			.catch( () => {} );
 
-		// Preload global header tab counts.
-		preloadGlobalTabCounts().catch( () => {} );
+		// Preload the inbox/spam/trash totals the list's status filters report.
+		preloadGlobalInboxCounts().catch( () => {} );
 	},
 
 	/**

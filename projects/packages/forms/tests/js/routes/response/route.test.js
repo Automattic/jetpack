@@ -11,8 +11,10 @@ await jest.unstable_mockModule( '@wordpress/data', () => ( {
 
 await jest.unstable_mockModule( '@wordpress/route', () => ( { redirect: jest.fn() } ) );
 
+// The real module registers a Redux store at import time, which these loader tests
+// have no use for.
 await jest.unstable_mockModule( '../../../../src/dashboard/wp-build/utils/preload', () => ( {
-	preloadGlobalTabCounts: () => Promise.resolve(),
+	preloadGlobalInboxCounts: () => Promise.resolve(),
 } ) );
 
 const { route: responseRoute } = await import( '../../../../routes/response/route.tsx' );

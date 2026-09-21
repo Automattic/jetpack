@@ -10,19 +10,12 @@ import { STORE_NAME as FORM_RESPONSES_STORE_NAME } from '../../store/index.js';
 /**
  * Preload global inbox/spam/trash counts.
  *
- * This warms the `FORM_RESPONSES` store cache used by the wp-build header tabs.
+ * Warms the `FORM_RESPONSES` store cache the responses list reads its totals from.
  */
 export async function preloadGlobalInboxCounts(): Promise< void > {
 	// Pass an explicit empty object so @wordpress/data resolver deduplication
-	// matches other call-sites (useInboxData, DataViewsHeaderRow) that also
-	// pass `{}`. Without this, getCounts() → args [] vs getCounts({}) → args [{}]
-	// are treated as different resolutions, causing a duplicate network request.
+	// matches the other call-site (useInboxData), which also passes `{}`. Without
+	// this, getCounts() → args [] vs getCounts({}) → args [{}] are treated as
+	// different resolutions, causing a duplicate network request.
 	await resolveSelect( FORM_RESPONSES_STORE_NAME ).getCounts( {} );
-}
-
-/**
- * Preload global data needed for the wp-build "Forms / Responses" header tab counts.
- */
-export async function preloadGlobalTabCounts(): Promise< void > {
-	await preloadGlobalInboxCounts();
 }

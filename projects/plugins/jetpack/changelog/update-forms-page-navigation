@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Forms: move the Forms and Responses navigation into the page header, as links. The counts that sat beside them are no longer shown.
