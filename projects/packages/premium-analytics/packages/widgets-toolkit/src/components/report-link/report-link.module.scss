@@ -10,6 +10,13 @@
 	text-decoration: underline;
 }
 
+// A badge or other element stands in for the text; underlining it reads as
+// a glitch.
+.hasContent,
+.hasContent:hover {
+	text-decoration: none;
+}
+
 // Widgets clip their own overflow and the footer sits flush against that edge,
 // so the design system's outset ring is cut off on the inline-start side. Draw
 // it inset instead. The block padding gives the ring room around the text

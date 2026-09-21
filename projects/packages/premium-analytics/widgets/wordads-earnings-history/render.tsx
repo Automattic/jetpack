@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useStatsWordAdsEarnings } from '@jetpack-premium-analytics/data';
-import { Stack } from '@jetpack-premium-analytics/externals';
+import { Badge, Stack } from '@jetpack-premium-analytics/externals';
 import {
 	EarningsHistoryList,
 	ReportLink,
@@ -74,18 +74,21 @@ function WordAdsEarningsHistoryReport() {
 					<ReportLink
 						report="earnings"
 						section="adjustments"
-						label={ sprintf(
-							/* translators: %d: number of adjustment rows in the site's earnings history. */
-							_n(
-								'Includes %d adjustment',
-								'Includes %d adjustments',
-								adjustmentCount,
-								'jetpack-premium-analytics-pkg'
-							),
-							adjustmentCount
-						) }
 						ariaLabel={ __( 'View adjustments history', 'jetpack-premium-analytics-pkg' ) }
-					/>
+					>
+						<Badge intent="high">
+							{ sprintf(
+								/* translators: %d: number of adjustment rows in the site's earnings history. */
+								_n(
+									'%d adjustment',
+									'%d adjustments',
+									adjustmentCount,
+									'jetpack-premium-analytics-pkg'
+								),
+								adjustmentCount
+							) }
+						</Badge>
+					</ReportLink>
 				) }
 			</WidgetFooter>
 		</Stack>

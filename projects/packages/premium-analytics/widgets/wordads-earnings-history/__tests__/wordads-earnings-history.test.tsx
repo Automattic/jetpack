@@ -119,10 +119,10 @@ describe( 'WordAdsEarningsHistory', () => {
 	} );
 
 	it.each( [
-		[ 1, 'Includes 1 adjustment', { '2026-03': { amount: '-2.50', pageviews: 0, status: 1 } } ],
+		[ 1, '1 adjustment', { '2026-03': { amount: '-2.50', pageviews: 0, status: 1 } } ],
 		[
 			2,
-			'Includes 2 adjustments',
+			'2 adjustments',
 			{
 				'2026-03': { amount: '-2.50', pageviews: 0, status: 1 },
 				'2025-11': { amount: '12.00', pageviews: 0, status: 0 },
