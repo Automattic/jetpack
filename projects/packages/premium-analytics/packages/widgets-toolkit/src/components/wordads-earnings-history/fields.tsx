@@ -188,7 +188,11 @@ export function EarningsStatusBadge( { status }: { status: number | undefined } 
 		</Badge>
 	);
 
-	return tooltip ? <Tooltip text={ tooltip }>{ badge }</Tooltip> : badge;
+	return (
+		<span className={ styles.root }>
+			{ tooltip ? <Tooltip text={ tooltip }>{ badge }</Tooltip> : badge }
+		</span>
+	);
 }
 
 /**
