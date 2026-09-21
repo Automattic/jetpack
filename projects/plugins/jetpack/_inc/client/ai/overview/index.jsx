@@ -10,7 +10,7 @@ import { ExternalLink, ProgressBar, VisuallyHidden } from '@wordpress/components
 import { useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { list } from '@wordpress/icons';
-import { Card, Link, LinkButton, Notice, Skeleton, Stack, Text } from '@wordpress/ui';
+import { Card, LinkButton, Notice, Skeleton, Stack, Text } from '@wordpress/ui';
 import assetUrl from '../asset-url';
 import NavRow from '../components/nav-row';
 import { EVENTS, recordAiHubEvent, useRecordOnce } from '../tracks';
@@ -291,19 +291,19 @@ function UsageCard( { upgradeUrl, planName } ) {
 											'Upgrade Jetpack AI Assistant',
 											'jetpack',
 											/* dummy arg to avoid bad minification */ 0
-									  ) }
+										) }
 							</Text>
 							<Text render={ <p /> } variant="body-md" className="jetpack-ai-overview__muted">
 								{ isDepleted
 									? __(
 											'Upgrade to keep drafting, rewriting, and illustrating without leaving the editor.',
 											'jetpack'
-									  )
+										)
 									: __(
 											'Draft, rewrite, and illustrate posts without leaving the editor. Upgrade before you run out.',
 											'jetpack',
 											/* dummy arg to avoid bad minification */ 0
-									  ) }
+										) }
 							</Text>
 						</div>
 						{ /* The usage-cell primitive: eyebrow pinned top, readout
@@ -333,83 +333,35 @@ function UsageCard( { upgradeUrl, planName } ) {
  * Overview view.
  *
  * @param {object}  props                   - Component props.
- * @param {number}  [props.blogId]          - Current site's blog ID; falsy when not connected.
  * @param {string}  [props.activityLogUrl]  - URL for the site's activity log; row hidden without it.
  * @param {string}  [props.upgradeUrl]      - Upgrade destination for the usage card.
  * @param {string}  [props.planName]        - Purchase name granting AI, from the page data.
  * @param {boolean} [props.showActivityLog] - Whether the activity-log row applies: the row's
  *                                          copy promises AI-agent actions, which need MCP.
- * @param {boolean} [props.hostAllowsAi]    - The host's AI switch; when explicitly false, no
- *                                          usage is shown and no upgrade is ever offered.
- * @param {boolean} [props.isUserConnected] - Whether the current user's own WordPress.com
- *                                          account is linked; the usage fetch needs it.
+ * @param {boolean} [props.canLoadUsage]    - Whether the usage endpoint can answer for this
+ *                                          site; when it cannot, usage is neither shown nor asked for.
  * @return {object} Component markup.
  */
 export default function AiOverview( {
-	blogId,
 	activityLogUrl,
 	upgradeUrl,
 	planName,
 	showActivityLog,
-	hostAllowsAi,
-	isUserConnected,
+	canLoadUsage = true,
 } ) {
-	const hostBlocked = hostAllowsAi === false;
-	const userUnlinked = isUserConnected === false;
 	useRecordOnce( EVENTS.VIEWED, { tab: 'overview' } );
 	const recordLinkClick = ( linkType, slug ) => () =>
 		recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: linkType, link: slug } );
 	return (
 		<Stack direction="column" gap="3xl">
-			{ /* Connection notices first, then the banner, then the usage card:
-			     the three share a tighter rhythm than the titled sections below.
-			     On plans where nothing in here renders (banner dismissed, usage
-			     card null after the fetch), the stylesheet's :empty rule drops
-			     the wrapper so the outer 3xl gap doesn't double. */ }
+			{ /* The banner and the usage card share a tighter rhythm than the
+			     titled sections below. When neither renders, the stylesheet's
+			     :empty rule drops the wrapper so the outer 3xl gap doesn't double. */ }
 			<Stack direction="column" gap="xl" className="jetpack-ai-overview__intro">
-				{ !! blogId && hostBlocked && (
-					<Notice.Root intent="warning">
-						<Notice.Description>
-							{ __( 'Jetpack AI is not available for this site.', 'jetpack' ) }{ ' ' }
-							<ExternalLink href={ getRedirectUrl( 'jetpack-ai-hub-docs-wp-supports-ai' ) }>
-								{ __( 'Learn more', 'jetpack' ) }
-							</ExternalLink>
-						</Notice.Description>
-					</Notice.Root>
-				) }
-				{ !! blogId && ! hostBlocked && userUnlinked && (
-					// The usage endpoint proxies as the current user, so without a
-					// linked account the fetch can only fail — say so instead.
-					<Notice.Root intent="warning">
-						<Notice.Title>
-							{ __( 'Your WordPress.com account isn’t connected.', 'jetpack' ) }
-						</Notice.Title>
-						<Notice.Description>
-							<Link href="admin.php?page=my-jetpack#/connection">
-								{ __( 'Connect your user account to see your AI usage.', 'jetpack' ) }
-							</Link>
-						</Notice.Description>
-					</Notice.Root>
-				) }
-				{ ! blogId && (
-					// Disconnected: skip the fetch (it can only fail) and explain
-					// the actual problem instead of a fetch error.
-					<Notice.Root intent="warning">
-						<Notice.Title>
-							{ __( 'Jetpack is not connected to WordPress.com.', 'jetpack' ) }
-						</Notice.Title>
-						<Notice.Description>
-							{ __( 'Connect the site to see your AI usage.', 'jetpack' ) }{ ' ' }
-							<Link href="admin.php?page=my-jetpack#/connection">
-								{ __( 'Connect Jetpack', 'jetpack' ) }
-							</Link>
-						</Notice.Description>
-					</Notice.Root>
-				) }
 				<AssistantBanner />
-				{ !! blogId && ! hostBlocked && ! userUnlinked && (
-					<UsageCard upgradeUrl={ upgradeUrl } planName={ planName } />
-				) }
+				{ /* Nothing to say about usage while the notice is saying why AI is
+				     unavailable — and no request that could only fail. */ }
+				{ canLoadUsage && <UsageCard upgradeUrl={ upgradeUrl } planName={ planName } /> }
 			</Stack>
 
 			<Stack direction="column" gap="lg">

@@ -35,8 +35,7 @@ interface PaymentStatusStoryControls {
 type PaymentStatusStoryProps = PaymentStatusWidgetProps & PaymentStatusStoryControls;
 
 interface PaymentStatusDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		PaymentStatusStoryControls {}
+	extends WidgetDashboardWithWidgetControls, PaymentStatusStoryControls {}
 
 function getPaymentStatusAttributes(
 	withComparison = false,

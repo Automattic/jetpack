@@ -39,7 +39,7 @@
 		"test-extensions": "TZ=UTC jest --config=tests/jest.config.extensions.js",
 		"test-gui": "NODE_PATH=tests:_inc/client jest --config=tests/jest.config.gui.js",
 		"typecheck": "tsgo --noEmit",
-		"watch": "concurrently --names client-js,client-css,wp-build,extensions,widget-visibility 'webpack watch --config ./tools/webpack.config.js' 'webpack watch --config ./tools/webpack.config.css.js' 'pnpm:watch:wp-build' 'webpack watch --config ./tools/webpack.config.extensions.js' 'webpack watch --config ./tools/webpack.config.widget-visibility.js'",
+		"watch": "php tools/build-module-headings-translations.php && concurrently --names client-js,client-css,wp-build,extensions,widget-visibility 'webpack watch --config ./tools/webpack.config.js' 'webpack watch --config ./tools/webpack.config.css.js' 'pnpm:watch:wp-build' 'webpack watch --config ./tools/webpack.config.extensions.js' 'webpack watch --config ./tools/webpack.config.widget-visibility.js'",
 		"watch:wp-build": "wp-build --watch"
 	},
 	"browserslist": [
@@ -64,8 +64,8 @@
 		"@automattic/number-formatters": "workspace:*",
 		"@automattic/popup-monitor": "1.0.2",
 		"@automattic/social-previews": "workspace:*",
-		"@automattic/viewport": "1.0.0",
-		"@date-fns/tz": "1.4.1",
+		"@automattic/viewport": "1.1.1",
+		"@date-fns/tz": "1.5.0",
 		"@react-spring/web": "10.1.1",
 		"@visx/curve": "4.0.0",
 		"@visx/legend": "^4.0.0",
@@ -102,7 +102,7 @@
 		"component-uid": "0.0.2",
 		"cookie": "1.0.2",
 		"copy-webpack-plugin": "14.0.0",
-		"date-fns": "4.1.0",
+		"date-fns": "4.4.0",
 		"debounce": "2.2.0",
 		"debug": "4.4.3",
 		"deepmerge": "4.3.1",

@@ -3,15 +3,6 @@ export { useDashboardGridSettings } from './use-dashboard-grid-settings';
 export { useDashboardPolicy } from './use-dashboard-policy';
 export { useDashboardSectionLayout } from './use-dashboard-section-layout';
 export { useDashboardSections } from './use-dashboard-sections';
-export {
-	useFeedbackBanner,
-	type FeedbackBanner,
-	type FeedbackBannerOptions,
-} from './use-feedback-banner';
-export {
-	useOnboarding,
-	type Onboarding,
-	type OnboardingDismissReason,
-	type OnboardingPhase,
-} from './use-onboarding';
+export { useFeedbackBanner } from './use-feedback-banner';
+export { useOnboarding } from './use-onboarding';
 export { useSectionDateFilter } from './use-section-date-filter';

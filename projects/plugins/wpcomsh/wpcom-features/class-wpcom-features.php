@@ -1013,6 +1013,8 @@ class WPCOM_Features {
 		self::LOGS                              => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+			self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
+			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 		self::MAILPOET_BUSINESS                 => array(
 			self::WPCOM_BUSINESS_PLANS,

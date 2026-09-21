@@ -16,7 +16,7 @@ use Jetpack_Options;
  * expect, so ownership stops following whoever connected first. Identity is always matched on
  * `wpcom_user_id` — `local_user_id` is a re-pointable cache, never the match key.
  *
- * @since $$next-version$$
+ * @since 9.3.0
  */
 class Protected_Owner {
 
@@ -25,7 +25,7 @@ class Protected_Owner {
 	/**
 	 * Get the anchor.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @return array|null The anchor, or null when none is usable.
 	 */
@@ -42,7 +42,7 @@ class Protected_Owner {
 	/**
 	 * Record a confirmed protected owner and lock the anchor.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @param int    $wpcom_user_id The owner's WordPress.com user ID, as confirmed by WordPress.com.
 	 * @param int    $local_user_id The owner's local WordPress user ID. Required here, though the
@@ -83,12 +83,47 @@ class Protected_Owner {
 	}
 
 	/**
+	 * Point the anchor's cached local user ID at a different local user.
+	 *
+	 * The match key is `wpcom_user_id`; `local_user_id` is a cache of where that identity lives on
+	 * this site, and it legitimately moves when the owner reconnects under another local account.
+	 * Deliberately narrow: `confirmed_at` and `confirmed_by` record how the owner was originally
+	 * confirmed, and re-pointing a cache is not a new confirmation.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $local_user_id The local user the anchored identity now holds.
+	 * @return bool Whether the anchor now names that local user.
+	 */
+	public static function repoint( $local_user_id ) {
+		$local_user_id = absint( $local_user_id );
+		$anchor        = self::get();
+
+		if ( ! $anchor || ! $local_user_id ) {
+			return false;
+		}
+
+		// Defaulted: `get()` only requires `wpcom_user_id`, so a partial anchor reaches here.
+		if ( (int) ( $anchor['local_user_id'] ?? 0 ) === $local_user_id ) {
+			return true;
+		}
+
+		$anchor['local_user_id'] = $local_user_id;
+
+		if ( Jetpack_Options::update_option( self::OPTION, $anchor ) ) {
+			return true;
+		}
+
+		return Jetpack_Options::get_option( self::OPTION ) === $anchor;
+	}
+
+	/**
 	 * Drop the anchor, unlocking ownership.
 	 *
 	 * Leaves `master_user` alone: clearing the lock does not change who the owner is.
 	 *
 	 * @internal Recovery and support flows only. Consumers must not call this.
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @return bool Whether the anchor was deleted.
 	 */
@@ -102,7 +137,7 @@ class Protected_Owner {
 	 * An unlocked anchor names an owner without preventing ownership moving, so it protects
 	 * nobody and callers gating on protection must not see it.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @return array|null The locked anchor, or null when there is none.
 	 */
@@ -118,7 +153,7 @@ class Protected_Owner {
 	 * Deliberately independent of whether the current owner matches it: a mismatch is when
 	 * ownership most needs to stay locked.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @return bool
 	 */

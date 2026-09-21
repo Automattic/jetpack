@@ -83,12 +83,12 @@ export function createStoryWidgetType(
 						icon: undefined,
 						relevance: action.relevance as WidgetRelevance | undefined,
 					} ) ),
-			  }
+				}
 			: {} ),
 		...( manifest.presentation
 			? {
 					presentation: manifest.presentation as WidgetType[ 'presentation' ],
-			  }
+				}
 			: {} ),
 	};
 }

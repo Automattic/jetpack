@@ -63,6 +63,9 @@ class Analytics_Test extends TestCase {
 		);
 
 		unset( $GLOBALS['jpa_test_build_loaded'], $GLOBALS['jpa_test_interceptor_priority'] );
+
+		\Automattic\Jetpack\Admin_UI\Admin_Menu::reset();
+		remove_all_filters( 'jetpack_admin_menu_visibility' );
 	}
 
 	/**
@@ -807,7 +810,9 @@ class Analytics_Test extends TestCase {
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
 		$this->capture_doing_it_wrong();
-		Analytics::register_admin_menu();
+		// init() hooked register_admin_menu; dispatching reaches it and then Admin_Menu's
+		// registration pass at priority 1000, which is what puts the page in the menu.
+		do_action( 'admin_menu' );
 		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
 		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 
@@ -836,7 +841,9 @@ class Analytics_Test extends TestCase {
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
 		$this->capture_doing_it_wrong();
-		Analytics::register_admin_menu();
+		// init() hooked register_admin_menu; dispatching reaches it and then Admin_Menu's
+		// registration pass at priority 1000, which is what puts the page in the menu.
+		do_action( 'admin_menu' );
 		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
 		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 
@@ -890,6 +897,47 @@ class Analytics_Test extends TestCase {
 	 * @param string $manifest_filter Method on this class supplying the manifest path.
 	 * @return array|null The registered menu entry.
 	 */
+	/**
+	 * A host can take the dashboard out of the sidebar through the shared Jetpack filter.
+	 */
+	public function test_a_host_can_hide_the_dashboard_menu() {
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $items ) {
+				$items['jetpack-premium-analytics'] = 'hidden';
+				return $items;
+			}
+		);
+
+		$this->register_admin_menu_without_build();
+
+		ob_start(); // Core prints head markup on admin_head.
+		do_action( 'admin_head' );
+		ob_end_clean();
+
+		$this->assertNotContains( self::MENU_SLUG, array_column( $GLOBALS['menu'], 2 ) );
+	}
+
+	/**
+	 * Hiding the entry leaves the page registered, so links into the dashboard keep working.
+	 */
+	public function test_a_hidden_dashboard_keeps_its_page_registered() {
+		global $_registered_pages;
+		$_registered_pages = array();
+
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $items ) {
+				$items['jetpack-premium-analytics'] = 'hidden';
+				return $items;
+			}
+		);
+
+		$this->register_admin_menu_without_build();
+
+		$this->assertArrayHasKey( self::MENU_HOOKNAME, $_registered_pages );
+	}
+
 	private function register_admin_menu_without_build( $manifest_filter = 'use_fixture_widget_manifest' ) {
 		$GLOBALS['menu'] = array();
 
@@ -903,6 +951,8 @@ class Analytics_Test extends TestCase {
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		$this->capture_doing_it_wrong();
 		Analytics::register_admin_menu();
+		// Admin_Menu queues the item and registers what it has at admin_menu priority 1000.
+		do_action( 'admin_menu' );
 		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, $manifest_filter ) );
 

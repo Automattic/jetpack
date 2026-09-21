@@ -1,8 +1,10 @@
 import { WidgetCard } from '../../../stories/widget-card';
+import { withChartTheme } from '../../../stories/with-chart-theme';
 import { AnnualHighlightsSkeleton } from '../annual-highlights-skeleton';
 import { GenericSkeleton } from '../generic-skeleton';
 import { HeatmapSkeleton } from '../heatmap-skeleton';
 import { MetricSparklineSkeleton } from '../metric-sparkline-skeleton';
+import { MonthCalendarHeatmapSkeleton } from '../month-calendar-heatmap-skeleton';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof GenericSkeleton > = {
@@ -69,8 +71,8 @@ export const MetricSparklineShortTile: MetricSparklineStory = {
 type HeatmapStory = StoryObj< typeof HeatmapSkeleton >;
 
 /**
- * The shape the calendar-heatmap widgets (Traffic activity, Posting activity,
- * Post traffic activity) pass through `WidgetState`'s `renderLoading`: a fixed
+ * The shape the calendar-heatmap widgets (Traffic activity, Post traffic
+ * activity) pass through `WidgetState`'s `renderLoading`: a fixed
  * 28-column, 3-row grid of square cells, centred in the body.
  */
 export const Heatmap: HeatmapStory = {
@@ -89,6 +91,34 @@ export const HeatmapShortTile: HeatmapStory = {
 	render: () => (
 		<WidgetCard width="720px" height="140px">
 			<HeatmapSkeleton />
+		</WidgetCard>
+	),
+};
+
+type MonthCalendarHeatmapStory = StoryObj< typeof MonthCalendarHeatmapSkeleton >;
+
+/**
+ * The shape the Posting activity widget passes through `WidgetState`'s
+ * `renderLoading`: twelve month blocks sharing the width, a label under each.
+ */
+export const MonthCalendarHeatmap: MonthCalendarHeatmapStory = {
+	decorators: [ withChartTheme ],
+	render: () => (
+		<WidgetCard width="1200px" height="320px">
+			<MonthCalendarHeatmapSkeleton />
+		</WidgetCard>
+	),
+};
+
+/**
+ * A height-1 dashboard tile: the blocks keep their size, so the row is what
+ * fits the body and the rest clips where the loaded grid would scroll.
+ */
+export const MonthCalendarHeatmapShortTile: MonthCalendarHeatmapStory = {
+	decorators: [ withChartTheme ],
+	render: () => (
+		<WidgetCard width="720px" height="140px">
+			<MonthCalendarHeatmapSkeleton />
 		</WidgetCard>
 	),
 };

@@ -38,6 +38,30 @@ describe( 'PayPalButtonPreview', () => {
 		expect( screen.getByText( '$29.99' ) ).toBeInTheDocument();
 	} );
 
+	// An empty currencyCode is '' rather than undefined, so the prop default never fires
+	// and the fallback in the option list is the one that does.
+	it( 'prices the options in USD when the block carries no currency', () => {
+		render(
+			<PayPalButtonPreview
+				{ ...defaultProps }
+				price=""
+				currencyCode=""
+				variantsEnabled={ true }
+				variants={ {
+					dimensions: [
+						{
+							name: 'Size',
+							primary: true,
+							options: [ { label: 'Small', unit_amount: { value: '4.50' } } ],
+						},
+					],
+				} }
+			/>
+		);
+
+		expect( screen.getByText( '$4.50' ) ).toBeInTheDocument();
+	} );
+
 	it( 'renders the description when provided', () => {
 		render( <PayPalButtonPreview { ...defaultProps } /> );
 		expect( screen.getByText( 'A high-quality widget for your needs.' ) ).toBeInTheDocument();

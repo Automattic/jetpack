@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Break the PayPal disconnect confirmation into a short summary and a list, so its consequences are readable at a glance.

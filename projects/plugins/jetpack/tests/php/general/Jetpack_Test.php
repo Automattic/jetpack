@@ -1245,4 +1245,44 @@ EXPECTED;
 		$this->assertSame( str_repeat( 'é', 250 ), $description );
 		$this->assertSame( 250, mb_strlen( $description ) );
 	}
+
+	/**
+	 * The module list is globbed from `modules/` at runtime while the names come from the
+	 * generated `module-headings.php`, so a module can exist with no entry in that map. The
+	 * untranslated header has to survive that, or the name reaches clients as null.
+	 */
+	public function test_get_translated_modules_keeps_the_header_text_when_there_is_no_translation() {
+		$modules = array(
+			'nope' => array(
+				'module'            => 'nope',
+				'name'              => 'Untranslated Module',
+				'description'       => 'Ships before the headings are rebuilt.',
+				'short_description' => 'Ships before the headings…',
+				'module_tags'       => array( 'Recommended' ),
+			),
+		);
+
+		$translated = Jetpack::get_translated_modules( $modules );
+
+		$this->assertSame( 'Untranslated Module', $translated['nope']['name'] );
+		$this->assertSame( 'Ships before the headings are rebuilt.', $translated['nope']['description'] );
+		$this->assertSame( 'Ships before the headings…', $translated['nope']['short_description'] );
+		$this->assertSame( array( 'Recommended' ), $translated['nope']['module_tags'] );
+	}
+
+	/**
+	 * A module that is in the map keeps being translated.
+	 */
+	public function test_get_translated_modules_translates_a_module_it_has_an_entry_for() {
+		$modules = array(
+			'sso' => array(
+				'module' => 'sso',
+				'name'   => 'Placeholder',
+			),
+		);
+
+		$translated = Jetpack::get_translated_modules( $modules );
+
+		$this->assertSame( 'Secure Sign On', $translated['sso']['name'] );
+	}
 } // end class

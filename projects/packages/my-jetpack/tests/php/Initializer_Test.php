@@ -129,25 +129,9 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The admin page marks the container with the onboarding route when
-	 * onboarding is requested and available.
+	 * The admin page renders the onboarding container when onboarding is requested and available.
 	 */
-	public function test_admin_page_renders_onboarding_route_when_available() {
-		$_GET['step'] = 'onboarding';
-
-		ob_start();
-		Initializer::admin_page();
-		$output = ob_get_clean();
-
-		$this->assertStringContainsString( 'data-route="onboarding"', $output );
-	}
-
-	/**
-	 * The admin page never marks the container with the onboarding route on
-	 * WordPress.com Simple sites, even when the redirect did not run.
-	 */
-	public function test_admin_page_does_not_render_onboarding_route_on_wpcom_simple() {
-		Constants::set_constant( 'IS_WPCOM', true );
+	public function test_admin_page_renders_the_onboarding_container_when_available() {
 		$_GET['step'] = 'onboarding';
 
 		ob_start();
@@ -155,7 +139,21 @@ class Initializer_Test extends BaseTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( 'id="my-jetpack-container"', $output );
-		$this->assertStringNotContainsString( 'data-route', $output );
+	}
+
+	/**
+	 * The admin page never renders the onboarding container on WordPress.com Simple sites,
+	 * even when the redirect did not run.
+	 */
+	public function test_admin_page_does_not_render_the_onboarding_container_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$_GET['step'] = 'onboarding';
+
+		ob_start();
+		Initializer::admin_page();
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'my-jetpack-container', $output );
 	}
 
 	/**

@@ -186,7 +186,7 @@ function useSiteSwitcherCommandLoader( { search } ) {
 							( site.name && site.name.toLowerCase().includes( cleanedSearch ) ) ||
 							domain.toLowerCase().includes( cleanedSearch )
 						);
-				  } );
+					} );
 
 		// Filter out sites with invalid URLs (can't navigate to them anyway)
 		const validSites = filteredSites.filter( site => {
@@ -216,12 +216,12 @@ function useSiteSwitcherCommandLoader( { search } ) {
 						__( 'Switch to %1$s (%2$s)', 'jetpack' ),
 						site.name,
 						domain
-				  )
+					)
 				: sprintf(
 						/* translators: %s: site domain */
 						__( 'Switch to %s', 'jetpack' ),
 						domain
-				  );
+					);
 
 			return {
 				name: `jetpack/switch-to-site-${ domain }`,

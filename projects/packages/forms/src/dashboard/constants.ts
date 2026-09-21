@@ -57,6 +57,15 @@ export function getFormStatusLabel( status: string ): string {
 }
 
 /**
+ * The dashboard's top tabs, named as the routes name them.
+ *
+ * Mirrored by `Dashboard::TOP_TABS`, which gates the cookie these are remembered in.
+ */
+export const TOP_TABS = [ 'forms', 'responses' ] as const;
+
+export type TopTab = ( typeof TOP_TABS )[ number ];
+
+/**
  * The response lists, named as the `/responses/$view` route segment names them.
  */
 export const RESPONSE_VIEWS = [ 'inbox', 'spam', 'trash' ] as const;

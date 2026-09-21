@@ -3,7 +3,7 @@
  */
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { PostDetailLink } from '@jetpack-premium-analytics/widgets-toolkit';
+import { formatEmailRate, PostDetailLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -20,32 +20,6 @@ import type { Field } from '@jetpack-premium-analytics/externals';
  */
 function formatNumber( value: number ): string {
 	return formatMetricValue( value, 'number', { decimals: 0, useMultipliers: false } );
-}
-
-/**
- * Format a rate for display. The summary endpoint reports rates as 0–100
- * percentages (unlike the per-post rate breakdown's 0–1 fractions), so the
- * value is scaled back to a fraction for `percentage` formatting, which
- * supplies a locale-correct percent sign.
- *
- * Rates count *unique* recipients against sends. When events exist but none
- * could be attributed to a recipient (e.g. link-scanner or view-in-browser
- * clicks: `total > 0` with `unique === 0`), a literal `0%` would misread as
- * "the clicks were ignored" — render an em dash instead, mirroring the legacy
- * Emails module's not-attributable fallback.
- *
- * @param rate   - The 0–100 rate.
- * @param total  - Total event count.
- * @param unique - Unique (attributed) event count.
- * @return The formatted percentage, or an em dash when not attributable.
- */
-function formatRate( rate: number, total: number, unique: number ): string {
-	if ( total > 0 && unique === 0 ) {
-		return '—';
-	}
-
-	// `signDisplay` is forced to `auto` so a rate is not rendered as `+12%`.
-	return formatMetricValue( rate / 100, 'percentage', { decimals: 2, signDisplay: 'auto' } );
 }
 
 /**
@@ -135,7 +109,15 @@ export function getEmailsFields(): Field< StatsEmailSummaryItem >[] {
 			id: 'opens_rate',
 			label: __( 'Open rate', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.opens_rate,
-			render: ( { item } ) => <>{ formatRate( item.opens_rate, item.opens, item.unique_opens ) }</>,
+			render: ( { item } ) => (
+				<>
+					{ formatEmailRate( item.opens_rate, {
+						total: item.opens,
+						unique: item.unique_opens,
+						sends: item.total_sends,
+					} ) }
+				</>
+			),
 		},
 		{
 			id: 'clicks',
@@ -148,7 +130,13 @@ export function getEmailsFields(): Field< StatsEmailSummaryItem >[] {
 			label: __( 'Click rate', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.clicks_rate,
 			render: ( { item } ) => (
-				<>{ formatRate( item.clicks_rate, item.clicks, item.unique_clicks ) }</>
+				<>
+					{ formatEmailRate( item.clicks_rate, {
+						total: item.clicks,
+						unique: item.unique_clicks,
+						sends: item.total_sends,
+					} ) }
+				</>
 			),
 		},
 	];

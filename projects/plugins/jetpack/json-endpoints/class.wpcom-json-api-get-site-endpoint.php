@@ -227,6 +227,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_difm_lite_in_progress',
 		'difm_lite_site_options',
 		'is_gating_business_q1',
+		'is_legacy_gating_site',
 		'site_intent',
 		'site_partner_bundle',
 		'onboarding_segment',
@@ -965,6 +966,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'is_gating_business_q1':
 					$options[ $key ] = $site->is_gating_business_q1();
+					break;
+				case 'is_legacy_gating_site':
+					$options[ $key ] = $site->is_legacy_gating_site();
 					break;
 				case 'site_intent':
 					$options[ $key ] = $site->get_site_intent();

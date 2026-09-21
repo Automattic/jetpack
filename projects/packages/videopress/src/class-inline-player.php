@@ -143,7 +143,7 @@ class Inline_Player {
 		/**
 		 * Filter the options passed to an inline VideoPress player.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.50.2
 		 *
 		 * @param array $options    Player options.
 		 * @param array $attributes The block or shortcode attributes they were built from.
@@ -208,6 +208,18 @@ class Inline_Player {
 	}
 
 	/**
+	 * Versioned URLs of the player bundle and its stylesheet, for anything that loads the player itself.
+	 *
+	 * @return array{script: string, style: string}
+	 */
+	public static function get_asset_config() {
+		return array(
+			'script' => add_query_arg( 'ver', Package_Version::PACKAGE_VERSION, self::PLAYER_SCRIPT_URL ),
+			'style'  => add_query_arg( 'ver', Package_Version::PACKAGE_VERSION, self::PLAYER_STYLE_URL ),
+		);
+	}
+
+	/**
 	 * Enqueue the boot script and, unless every player on the page sits behind a facade, the shared player assets.
 	 *
 	 * The boot script never depends on the player handle: behind a facade it fetches the
@@ -228,13 +240,7 @@ class Inline_Player {
 			self::$config_printed = true;
 			wp_add_inline_script(
 				self::BOOT_HANDLE,
-				'window.jetpackVideoPressInlinePlayer = ' . wp_json_encode(
-					array(
-						'script' => add_query_arg( 'ver', Package_Version::PACKAGE_VERSION, self::PLAYER_SCRIPT_URL ),
-						'style'  => add_query_arg( 'ver', Package_Version::PACKAGE_VERSION, self::PLAYER_STYLE_URL ),
-					),
-					JSON_UNESCAPED_SLASHES
-				) . ';',
+				'window.jetpackVideoPressInlinePlayer = ' . wp_json_encode( self::get_asset_config(), JSON_UNESCAPED_SLASHES ) . ';',
 				'before'
 			);
 		}
@@ -262,7 +268,7 @@ class Inline_Player {
 		/**
 		 * Filter whether inline VideoPress players start as a poster facade and load the player on click.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.51.0
 		 *
 		 * @param bool  $use_facade Whether to render the facade.
 		 * @param array $options    The player options for this video.
@@ -299,7 +305,7 @@ class Inline_Player {
 		/**
 		 * Filter the poster shown by an inline VideoPress player's facade.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.51.0
 		 *
 		 * @param string|null $poster     Poster URL, or null for a plain dark facade.
 		 * @param string      $guid       Video GUID.

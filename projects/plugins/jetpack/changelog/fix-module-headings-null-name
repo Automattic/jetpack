@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Modules: keep a module's name and description when no translation entry exists for it.

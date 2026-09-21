@@ -1,0 +1,33 @@
+/* Cell size and gaps arrive from the chart theme as custom properties. The
+ * blocks share the leftover width down to the group gap plus a cell gap either
+ * side, as the loaded grid does; past that the row clips where it would
+ * scroll. */
+$weekdays: 7;
+$weeks: 6;
+
+.months {
+	display: flex;
+	justify-content: space-between;
+	gap: calc(var(--jpa-month-group-gap) + 2 * var(--jpa-month-cell-gap));
+	margin-block: auto;
+	overflow: hidden;
+}
+
+.month {
+	display: flex;
+	flex: 0 0 auto;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs);
+}
+
+.grid {
+	inline-size: calc($weekdays * var(--jpa-month-cell-size) + ($weekdays - 1) * var(--jpa-month-cell-gap));
+	block-size: calc($weeks * var(--jpa-month-cell-size) + ($weeks - 1) * var(--jpa-month-cell-gap));
+	border-radius: var(--wpds-border-radius-sm);
+}
+
+.label {
+	inline-size: 28px;
+	block-size: var(--wpds-typography-line-height-xs);
+}

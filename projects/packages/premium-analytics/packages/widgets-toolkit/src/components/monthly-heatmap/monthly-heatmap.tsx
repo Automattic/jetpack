@@ -18,6 +18,8 @@ import { MONTHS_IN_YEAR } from '../../helpers/month-key';
 import { CalendarHeatmapTooltip } from '../calendar-heatmap';
 import styles from './monthly-heatmap.module.scss';
 
+const TOOLTIP_STYLE = { padding: 'var(--jpa-heatmap-tooltip-padding)' };
+
 export type MonthlyHeatmapRow = {
 	year: number;
 	/**
@@ -154,16 +156,17 @@ export function MonthlyHeatmap( {
 				// or the year alone for its roll-up.
 				cellLabel={
 					columns[ column ]?.summary
-						? rowLabel ?? ''
+						? ( rowLabel ?? '' )
 						: sprintf(
 								/* translators: 1: abbreviated month name, e.g. "Aug"; 2: year, e.g. "2026". */
 								_x( '%1$s %2$s', 'month and year', 'jetpack-premium-analytics-pkg' ),
 								columnLabel ?? '',
 								rowLabel ?? ''
-						  ).trim()
+							).trim()
 				}
 				emptyLabel={ emptyLabel }
 				formatValue={ formatValue }
+				inline
 			/>
 		),
 		[ columns, emptyLabel, formatValue ]
@@ -186,12 +189,14 @@ export function MonthlyHeatmap( {
 				maxCellHeight={ MAX_CELL_HEIGHT }
 				primaryColor="var(--wp-admin-theme-color, #3858e9)"
 				withTooltips
+				tooltipVariant="dark"
+				tooltipStyle={ TOOLTIP_STYLE }
 				renderTooltip={ renderTooltip }
 				className={ styles.chart }
 			>
 				{ /* Wrapped so the scale sits centred: the chart lays its trailing content out full width. */ }
 				<Stack direction="row" justify="center">
-					<HeatmapChart.Legend lessLabel={ lessLabel } moreLabel={ moreLabel } />
+					<HeatmapChart.Legend variant="bar" lessLabel={ lessLabel } moreLabel={ moreLabel } />
 				</Stack>
 			</HeatmapChart>
 		</div>
