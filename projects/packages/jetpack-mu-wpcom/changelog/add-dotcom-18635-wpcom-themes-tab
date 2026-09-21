@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Themes: add a WordPress.com tab to the Add Themes screen. Behind the wpcom-themes-marketplace-tab feature flag, off by default.
+Themes: add a WordPress.com tab to the Add Themes screen, listing partner themes. Behind the wpcom-themes-marketplace-tab feature flag, off by default.

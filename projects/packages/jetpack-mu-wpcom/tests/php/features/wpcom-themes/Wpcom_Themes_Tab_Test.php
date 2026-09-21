@@ -5,6 +5,8 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-themes/wpcom-themes-tab.php';
@@ -22,13 +24,62 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	private const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . WPCOM_THEMES_TAB_FLAG;
 
 	/**
-	 * Remove the flag override after each test.
+	 * A theme as `/wpcom/v2/themes` returns it, trimmed to the fields we read.
+	 *
+	 * @var array
+	 */
+	private const THEME = array(
+		'id'          => 'organic-stax',
+		'stylesheet'  => 'organic-stax',
+		'name'        => 'STAX',
+		'author'      => 'Organic Themes',
+		'description' => 'A premium block theme.',
+		'version'     => '1.0',
+		'screenshot'  => 'https://theme.files.wordpress.com/2023/02/stax-featured.jpg',
+		'demo_uri'    => 'https://stax.organicthemes.com/',
+	);
+
+	/**
+	 * Every URL requested during a test, in order.
+	 *
+	 * @var string[]
+	 */
+	private $requests = array();
+
+	/**
+	 * Give the site enough of a connection to sign a request.
+	 *
+	 * @return void
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		$this->requests = array();
+
+		// The token has to contain a dot: signing splits it into secret and id.
+		( new Tokens() )->update_blog_token( 'test.blogtoken' );
+		\Jetpack_Options::update_option( 'id', 123 );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+	}
+
+	/**
+	 * Clean up.
 	 *
 	 * @return void
 	 */
 	public function tear_down() {
 		remove_all_filters( self::FLAG_FILTER );
+		remove_all_filters( 'pre_http_request' );
+		remove_all_filters( 'jetpack_constant_default_value' );
+		Constants::clear_constants();
 		wp_deregister_script( 'wpcom-themes-tab' );
+
+		delete_transient( wpcom_themes_tab_cache_key( 1 ) );
+		delete_transient( wpcom_themes_tab_cache_key( 2 ) );
+
+		\Jetpack_Options::delete_option( 'blog_token' );
+		\Jetpack_Options::delete_option( 'id' );
+
 		parent::tear_down();
 	}
 
@@ -42,6 +93,52 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Answers every request the same way, recording the URL.
+	 *
+	 * @param int    $code HTTP status code.
+	 * @param string $body Response body.
+	 * @return void
+	 */
+	private function answer_wpcom_with( $code, $body ) {
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $code, $body ) {
+				$this->requests[] = $url;
+
+				return array(
+					'response' => array(
+						'code'    => $code,
+						'message' => 200 === $code ? 'OK' : 'Error',
+					),
+					'body'     => $body,
+				);
+			},
+			10,
+			3
+		);
+	}
+
+	/**
+	 * Answers with a page of themes.
+	 *
+	 * @param array[] $themes Themes on the page.
+	 * @param int     $found  Total across all pages.
+	 * @return void
+	 */
+	private function answer_with_themes( array $themes, $found ) {
+		$this->answer_wpcom_with(
+			200,
+			wp_json_encode(
+				array(
+					'themes' => $themes,
+					'found'  => $found,
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+	}
+
+	/**
 	 * Query the themes API as core's theme.js does for a tab.
 	 *
 	 * @param array $args Request arguments.
@@ -52,16 +149,24 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The tab's query is answered from the WordPress.com catalog.
+	 * The tab's query is answered from the WordPress.com themes endpoint.
 	 */
-	public function test_serves_catalog_for_the_tab() {
+	public function test_serves_themes_from_wpcom() {
 		$this->enable_tab();
+		$this->answer_with_themes( array( self::THEME ), 1 );
 
 		$result = $this->query( array( 'browse' => WPCOM_THEMES_TAB ) );
 
-		$this->assertIsObject( $result );
-		$this->assertSameSize( wpcom_themes_tab_get_catalog(), $result->themes );
-		$this->assertSame( count( $result->themes ), $result->info['results'] );
+		$this->assertCount( 1, $this->requests );
+		$this->assertStringContainsString( '/wpcom/v2/themes', $this->requests[0] );
+		$this->assertStringContainsString( 'tier=' . WPCOM_THEMES_TAB_TIER, $this->requests[0] );
+
+		$theme = $result->themes[0];
+		$this->assertSame( 'organic-stax', $theme->slug );
+		$this->assertSame( 'STAX', $theme->name );
+		$this->assertSame( 'Organic Themes', $theme->author['display_name'] );
+		$this->assertSame( self::THEME['screenshot'], $theme->screenshot_url );
+		$this->assertSame( self::THEME['demo_uri'], $theme->preview_url );
 	}
 
 	/**
@@ -69,6 +174,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_themes_have_the_fields_core_reads() {
 		$this->enable_tab();
+		$this->answer_with_themes( array( array( 'id' => 'sparse' ) ), 1 );
 
 		$theme = $this->query( array( 'browse' => WPCOM_THEMES_TAB ) )->themes[0];
 
@@ -79,10 +185,23 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Scrolling the grid must not append the catalog a second time.
+	 * Themes without a usable id cannot be installed or linked, so they are dropped.
 	 */
-	public function test_later_pages_are_empty() {
+	public function test_skips_themes_without_an_id() {
 		$this->enable_tab();
+		$this->answer_with_themes( array( self::THEME, array( 'name' => 'No id' ), 'not-a-theme' ), 3 );
+
+		$result = $this->query( array( 'browse' => WPCOM_THEMES_TAB ) );
+
+		$this->assertCount( 1, $result->themes );
+	}
+
+	/**
+	 * Scrolling the grid asks WordPress.com for the matching page.
+	 */
+	public function test_passes_the_page_through() {
+		$this->enable_tab();
+		$this->answer_with_themes( array( self::THEME ), WPCOM_THEMES_TAB_PER_PAGE + 1 );
 
 		$result = $this->query(
 			array(
@@ -91,7 +210,39 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		$this->assertSame( array(), $result->themes );
+		$this->assertStringContainsString( 'page=2', $this->requests[0] );
+		$this->assertSame( 2, $result->info['pages'] );
+		$this->assertSame( WPCOM_THEMES_TAB_PER_PAGE + 1, $result->info['results'] );
+	}
+
+	/**
+	 * A second view within the cache window does not call WordPress.com again.
+	 */
+	public function test_caches_the_catalog() {
+		$this->enable_tab();
+		$this->answer_with_themes( array( self::THEME ), 1 );
+
+		$this->query( array( 'browse' => WPCOM_THEMES_TAB ) );
+		$result = $this->query( array( 'browse' => WPCOM_THEMES_TAB ) );
+
+		$this->assertCount( 1, $this->requests );
+		$this->assertCount( 1, $result->themes );
+	}
+
+	/**
+	 * A failed read shows an empty tab, and is cached so an outage is not retried on every view.
+	 */
+	public function test_failure_is_empty_and_cached() {
+		$this->enable_tab();
+		$this->answer_wpcom_with( 500, '{}' );
+
+		$first  = $this->query( array( 'browse' => WPCOM_THEMES_TAB ) );
+		$second = $this->query( array( 'browse' => WPCOM_THEMES_TAB ) );
+
+		$this->assertSame( array(), $first->themes );
+		$this->assertSame( 0, $first->info['results'] );
+		$this->assertSame( array(), $second->themes );
+		$this->assertCount( 1, $this->requests );
 	}
 
 	/**
@@ -99,17 +250,22 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_leaves_other_tabs_to_core() {
 		$this->enable_tab();
+		$this->answer_with_themes( array( self::THEME ), 1 );
 
 		$this->assertFalse( $this->query( array( 'browse' => 'popular' ) ) );
 		$this->assertFalse( $this->query( array( 'search' => 'blog' ) ) );
-		$this->assertFalse( wpcom_themes_tab_serve_themes_api( false, 'theme_information', (object) array( 'slug' => 'assembler' ) ) );
+		$this->assertFalse( wpcom_themes_tab_serve_themes_api( false, 'theme_information', (object) array( 'slug' => 'organic-stax' ) ) );
+		$this->assertSame( array(), $this->requests );
 	}
 
 	/**
-	 * With the flag off, neither the tab nor its results appear.
+	 * With the flag off, neither the tab nor its results appear, and nothing is fetched.
 	 */
 	public function test_does_nothing_when_flag_is_off() {
+		$this->answer_with_themes( array( self::THEME ), 1 );
+
 		$this->assertFalse( $this->query( array( 'browse' => WPCOM_THEMES_TAB ) ) );
+		$this->assertSame( array(), $this->requests );
 
 		wpcom_themes_tab_enqueue_script();
 		$this->assertFalse( wp_script_is( 'wpcom-themes-tab', 'enqueued' ) );
