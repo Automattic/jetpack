@@ -30,3 +30,10 @@
 	align-self: flex-start;
 	margin-block: 8px 0;
 }
+
+.notice-action {
+	padding: 0;
+	color: var(--wpds-color-foreground-interactive-brand);
+	text-decoration: underline;
+	cursor: pointer;
+}
