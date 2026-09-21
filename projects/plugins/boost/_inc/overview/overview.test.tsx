@@ -348,7 +348,7 @@ test( 'loads online scores and regenerates them with refresh tracking and histor
 		jest
 			.mocked( recordBoostEvent )
 			.mock.calls.filter( ( [ event ] ) => event.includes( 'refresh' ) )
-	).toEqual( [ [ 'speed_score_refresh_clicked', {} ] ] );
+	).toEqual( [ [ 'speed_score_refresh_clicked', { source: 'header' } ] ] );
 	expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 );
 	await waitFor( () =>
 		expect( invalidate ).toHaveBeenCalledWith(
@@ -570,7 +570,7 @@ test( 'tracks score errors and offers a successful retry', async () => {
 		jest
 			.mocked( recordBoostEvent )
 			.mock.calls.filter( ( [ event ] ) => event.includes( 'refresh' ) )
-	).toEqual( [ [ 'speed_score_refresh_clicked', {} ] ] );
+	).toEqual( [ [ 'speed_score_refresh_clicked', { source: 'score_card' } ] ] );
 	expect( screen.queryByText( 'Score service unavailable' ) ).not.toBeInTheDocument();
 } );
 
