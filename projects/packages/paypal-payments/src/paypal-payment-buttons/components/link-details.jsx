@@ -50,8 +50,10 @@ export default function LinkDetails( {
 
 	const rows = [
 		[ __( 'Created', 'jetpack-paypal-payments' ), linkDate( resource ) || unknown ],
-		// Plain text like its siblings: wp-admin gives every `code` a grey monospace box.
-		[ __( 'Hosted ID', 'jetpack-paypal-payments' ), resourceId ],
+		// PayPal's hosted button id is the resource id without its PLB- prefix, as in the
+		// payment link's path. Plain text like its siblings: wp-admin gives every `code`
+		// a grey monospace box.
+		[ __( 'Hosted ID', 'jetpack-paypal-payments' ), ( resourceId || '' ).replace( /^PLB-/, '' ) ],
 		[ __( 'Link used on', 'jetpack-paypal-payments' ), usedOn ],
 	];
 	if ( adjustableQuantity ) {
