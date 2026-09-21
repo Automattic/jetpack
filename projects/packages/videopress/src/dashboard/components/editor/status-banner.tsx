@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { Notice } from '@wordpress/ui';
 import type { EditsJob } from '../../types/edits';
 import type { ReactElement } from 'react';
 
@@ -33,61 +33,48 @@ export default function StudioEditorStatusBanner( {
 	onReloadLatest,
 	onCheckStatus,
 }: Props ): ReactElement | null {
-	if ( conflict ) {
-		return (
-			<div className="vp-video-editor__banner vp-video-editor__banner--conflict" role="alert">
-				<Stack direction="row" gap="md" align="center">
-					<Text>
-						{ __(
-							'This video was edited somewhere else since you opened the editor.',
-							'jetpack-videopress-pkg'
-						) }
-					</Text>
-					<Button size="compact" variant="outline" onClick={ onReloadLatest }>
-						{ __( 'Reload latest', 'jetpack-videopress-pkg' ) }
-					</Button>
-				</Stack>
-			</div>
-		);
+	const processing = job?.status === 'processing';
+	if ( ! conflict && ! processing && job?.status !== 'failed' ) {
+		return null;
 	}
-
-	if ( job?.status === 'processing' ) {
-		return (
-			<div className="vp-video-editor__banner vp-video-editor__banner--processing" role="status">
-				<Stack direction="row" gap="md" align="center">
-					<Text>{ __( 'Applying edits…', 'jetpack-videopress-pkg' ) }</Text>
-					<Button size="compact" variant="outline" onClick={ onCheckStatus }>
-						{ __( 'Check status', 'jetpack-videopress-pkg' ) }
-					</Button>
+	let message =
+		job?.error?.message ||
+		__( 'Something went wrong applying your edits.', 'jetpack-videopress-pkg' );
+	let action = onRetry;
+	let label: string = __( 'Retry', 'jetpack-videopress-pkg' );
+	let intent: 'error' | 'warning' | 'info' = 'error';
+	if ( conflict ) {
+		message = __(
+			'This video was edited somewhere else since you opened the editor.',
+			'jetpack-videopress-pkg'
+		);
+		action = onReloadLatest;
+		label = __( 'Reload latest', 'jetpack-videopress-pkg' );
+		intent = 'warning';
+	} else if ( processing ) {
+		message = __( 'Applying edits…', 'jetpack-videopress-pkg' );
+		action = onCheckStatus;
+		label = __( 'Check status', 'jetpack-videopress-pkg' );
+		intent = 'info';
+	}
+	return (
+		<Notice.Root intent={ intent } className="vp-video-editor__notice" spokenMessage={ message }>
+			<Notice.Description>
+				{ message }
+				{ processing && ! conflict && (
 					<progress
-						className="vp-video-editor__banner-progress"
+						className="vp-video-editor__progress"
+						aria-label={ message }
 						max={ 1 }
-						// An indeterminate bar (no value) when the server didn't
-						// report progress.
 						value={ job.progress ?? undefined }
 					/>
-				</Stack>
-			</div>
-		);
-	}
-
-	if ( job?.status === 'failed' ) {
-		return (
-			<div className="vp-video-editor__banner vp-video-editor__banner--failed" role="alert">
-				<Stack direction="row" gap="md" align="center">
-					<Text>
-						{ job.error?.message ||
-							__( 'Something went wrong applying your edits.', 'jetpack-videopress-pkg' ) }
-					</Text>
-					{ onRetry && (
-						<Button size="compact" variant="outline" onClick={ onRetry }>
-							{ __( 'Retry', 'jetpack-videopress-pkg' ) }
-						</Button>
-					) }
-				</Stack>
-			</div>
-		);
-	}
-
-	return null;
+				) }
+			</Notice.Description>
+			{ action && (
+				<Notice.Actions>
+					<Notice.ActionButton onClick={ action }>{ label }</Notice.ActionButton>
+				</Notice.Actions>
+			) }
+		</Notice.Root>
+	);
 }

@@ -199,12 +199,20 @@ describe( 'useCopySession', () => {
 		expect( useVideoCopyStatus ).toHaveBeenLastCalledWith( request.guid, request.requestId );
 
 		render( <CopyStatusBanner session={ result.current } onReload={ jest.fn() } /> );
-		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Your current video is unchanged.' );
-		expect( screen.getByRole( 'alert' ) ).toHaveTextContent(
-			'contact support if it remains unconfirmed'
-		);
+		expect(
+			screen.getByText( 'Your current video is unchanged.', {
+				exact: false,
+				ignore: '.a11y-speak-region, .a11y-speak-region *',
+			} )
+		).toBeInTheDocument();
+		expect(
+			screen.getByText( 'contact support if it remains unconfirmed', {
+				exact: false,
+				ignore: '.a11y-speak-region, .a11y-speak-region *',
+			} )
+		).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Back to editing' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Dismiss' } ) ).not.toBeInTheDocument();
 		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Check status' } ) );
 		expect( refetch ).toHaveBeenCalledTimes( 1 );
 

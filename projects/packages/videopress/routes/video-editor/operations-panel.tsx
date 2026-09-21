@@ -7,6 +7,7 @@ export type EditorTool = 'chapters' | 'trim';
 
 type Props = {
 	activeTool?: EditorTool;
+	disabled?: boolean;
 	onSelect?: ( tool: EditorTool ) => void;
 };
 
@@ -15,10 +16,15 @@ type Props = {
  *
  * @param props            - Component props.
  * @param props.activeTool - Selected tool.
+ * @param props.disabled   - Prevent switching tools while processing.
  * @param props.onSelect   - Select a tool.
  * @return The tools rail.
  */
-export default function EditorOperationsPanel( { activeTool = 'chapters', onSelect }: Props ) {
+export default function EditorOperationsPanel( {
+	activeTool = 'chapters',
+	disabled = false,
+	onSelect,
+}: Props ) {
 	const tools = [
 		{
 			id: 'trim' as const,
@@ -48,6 +54,7 @@ export default function EditorOperationsPanel( { activeTool = 'chapters', onSele
 						<li key={ tool.id }>
 							<button
 								type="button"
+								disabled={ disabled }
 								className={
 									'vp-video-editor__operation' +
 									( activeTool === tool.id ? ' vp-video-editor__operation--active' : '' )

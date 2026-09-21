@@ -1,7 +1,7 @@
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Button, Text } from '@wordpress/ui';
+import { Button, Notice, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import EditorOperationsPanel from '../../../../routes/video-editor/operations-panel';
 import { usePreviewTransport } from '../../../client/components/chapters-editor/preview/use-preview-transport';
@@ -208,12 +208,14 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 			>
 				<div className="vp-video-editor vp-chapters-tokens">
 					{ durationMismatch && (
-						<div role="alert" className="vp-video-editor__banner vp-video-editor__banner--failed">
-							{ __(
-								'The original video does not match the editing timeline. Reload the editor before making changes.',
-								'jetpack-videopress-pkg'
-							) }
-						</div>
+						<Notice.Root intent="error" className="vp-video-editor__notice">
+							<Notice.Description>
+								{ __(
+									'The original video does not match the editing timeline. Reload the editor before making changes.',
+									'jetpack-videopress-pkg'
+								) }
+							</Notice.Description>
+						</Notice.Root>
 					) }
 					<CopyStatusBanner session={ copySession } onReload={ () => setConfirm( 'reload' ) } />
 					<StatusBanner
@@ -232,6 +234,7 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 					<div className="vp-video-editor__body">
 						<EditorOperationsPanel
 							activeTool="trim"
+							disabled={ editor.locked || copySession.locked }
 							onSelect={ tool => {
 								if ( tool !== 'trim' && confirmNavigation() ) {
 									onSelectTool( tool );

@@ -296,7 +296,12 @@ it( 'submits the current edits against their loaded revision and waits for the c
 	);
 	setEdits( { job: { ...processingJob, progress: 0.4 } } );
 	refresh();
-	expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Applying edits' );
+	expect(
+		screen.getByText( 'Applying edits', {
+			exact: false,
+			ignore: '.a11y-speak-region, .a11y-speak-region *',
+		} )
+	).toBeInTheDocument();
 	expect( screen.getByRole( 'progressbar' ) ).toHaveValue( 0.4 );
 	await user.click( screen.getByRole( 'button', { name: 'Check status' } ) );
 	expect( refetch ).toHaveBeenCalledTimes( 1 );
@@ -339,7 +344,12 @@ it( 'restores the original only after confirmation and retries the failed restor
 		},
 	} );
 	refresh();
-	expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Transcoding failed.' );
+	expect(
+		screen.getByText( 'Transcoding failed.', {
+			exact: false,
+			ignore: '.a11y-speak-region, .a11y-speak-region *',
+		} )
+	).toBeInTheDocument();
 	await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 	expect( screen.getByRole( 'dialog', { name: 'Restore original?' } ) ).toBeInTheDocument();
 	await user.click( screen.getByRole( 'button', { name: 'Restore original' } ) );
@@ -352,9 +362,12 @@ it( 'offers a save retry for a failed edit job without discarding the local draf
 	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
 	setEdits( { job: { ...processingJob, status: 'failed' } } );
 	refresh();
-	expect( screen.getByRole( 'alert' ) ).toHaveTextContent(
-		'Something went wrong applying your edits.'
-	);
+	expect(
+		screen.getByText( 'Something went wrong applying your edits.', {
+			exact: false,
+			ignore: '.a11y-speak-region, .a11y-speak-region *',
+		} )
+	).toBeInTheDocument();
 	await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 	await user.click( screen.getByRole( 'button', { name: 'Update video' } ) );
 	expect( save ).toHaveBeenCalledWith(
@@ -367,7 +380,12 @@ it( 'requires confirmation before replacing a conflicting draft with the latest 
 	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
 	setEdits( { revision: 3 } );
 	refresh();
-	expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'This video was edited somewhere else' );
+	expect(
+		screen.getByText( 'This video was edited somewhere else', {
+			exact: false,
+			ignore: '.a11y-speak-region, .a11y-speak-region *',
+		} )
+	).toBeInTheDocument();
 	expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
 		'aria-disabled',
 		'true'
@@ -380,7 +398,12 @@ it( 'requires confirmation before replacing a conflicting draft with the latest 
 		within( screen.getByRole( 'dialog' ) ).getByRole( 'button', { name: 'Reload latest' } )
 	);
 	expect( refetch ).toHaveBeenCalledTimes( 1 );
-	expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+	expect(
+		screen.queryByText( 'This video was edited somewhere else', {
+			exact: false,
+			ignore: '.a11y-speak-region, .a11y-speak-region *',
+		} )
+	).not.toBeInTheDocument();
 	expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
 		'aria-disabled',
 		'true'
@@ -396,7 +419,12 @@ it( 'allows reloading after the initial edits request fails', async () => {
 		.mocked( useVideoEdits )
 		.mockReturnValue( { edits: undefined, isError: true, refetch } as never );
 	const { user } = renderEditor( false );
-	expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Video edits could not be loaded.' );
+	expect(
+		screen.getByText( 'Video edits could not be loaded.', {
+			exact: false,
+			ignore: '.a11y-speak-region, .a11y-speak-region *',
+		} )
+	).toBeInTheDocument();
 	expect( screen.queryByLabelText( 'Original video preview' ) ).not.toBeInTheDocument();
 	await user.click( screen.getByRole( 'button', { name: 'Try again' } ) );
 	expect( refetch ).toHaveBeenCalledTimes( 1 );
@@ -405,15 +433,23 @@ it( 'allows reloading after the initial edits request fails', async () => {
 it( 'blocks an original with the wrong duration but tolerates metadata rounding', () => {
 	renderEditor();
 	loadOriginal( 11.001 );
-	expect( screen.getByRole( 'alert' ) ).toHaveTextContent(
-		'The original video does not match the editing timeline.'
-	);
+	expect(
+		screen.getByText( 'The original video does not match the editing timeline.', {
+			exact: false,
+			ignore: '.a11y-speak-region, .a11y-speak-region *',
+		} )
+	).toBeInTheDocument();
 	expect( screen.getByRole( 'button', { name: 'New cut' } ) ).toHaveAttribute(
 		'aria-disabled',
 		'true'
 	);
 	loadOriginal( 10.1 );
-	expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+	expect(
+		screen.queryByText( 'The original video does not match the editing timeline.', {
+			exact: false,
+			ignore: '.a11y-speak-region, .a11y-speak-region *',
+		} )
+	).not.toBeInTheDocument();
 	expect( screen.getByRole( 'button', { name: 'New cut' } ) ).not.toHaveAttribute(
 		'aria-disabled',
 		'true'
@@ -444,11 +480,19 @@ it( 'creates a separate video and navigates only once its attachment is ready', 
 	} );
 	setCopyStatus( copyResponse() );
 	refresh();
-	expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Your current video stays unchanged.' );
+	expect(
+		screen.getByText( 'Your current video stays unchanged.', {
+			exact: false,
+			ignore: '.a11y-speak-region, .a11y-speak-region *',
+		} )
+	).toBeInTheDocument();
 	expect( screen.getByRole( 'button', { name: 'New cut' } ) ).toHaveAttribute(
 		'aria-disabled',
 		'true'
 	);
+	expect( screen.getByRole( 'button', { name: 'Chapters' } ) ).toBeDisabled();
+	await user.click( screen.getByRole( 'button', { name: 'Chapters' } ) );
+	expect( selectTool ).not.toHaveBeenCalled();
 	await user.click( screen.getByRole( 'button', { name: 'Check status' } ) );
 	expect( refetchCopy ).toHaveBeenCalledTimes( 1 );
 	const complete = copyResponse( { ...processingJob, status: 'complete' } );
@@ -477,9 +521,12 @@ it( 'keeps an unconfirmed copy locked and retries the same captured request', as
 	copy.mockRejectedValue( new Error( 'Connection lost' ) );
 	const { user } = renderEditor();
 	await saveCopy( user );
-	expect( screen.getByRole( 'alert' ) ).toHaveTextContent(
-		'We could not confirm the new video’s status.'
-	);
+	expect(
+		screen.getByText( 'We could not confirm the new video’s status.', {
+			exact: false,
+			ignore: '.a11y-speak-region, .a11y-speak-region *',
+		} )
+	).toBeInTheDocument();
 	expect( screen.getByRole( 'button', { name: 'Discard changes' } ) ).toHaveAttribute(
 		'aria-disabled',
 		'true'
@@ -489,7 +536,7 @@ it( 'keeps an unconfirmed copy locked and retries the same captured request', as
 	expect( copy.mock.calls[ 1 ][ 0 ] ).toBe( copy.mock.calls[ 0 ][ 0 ] );
 	await user.click( screen.getByRole( 'button', { name: 'Check status' } ) );
 	expect( refetchCopy ).toHaveBeenCalledTimes( 1 );
-	expect( screen.queryByRole( 'button', { name: 'Back to editing' } ) ).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'button', { name: 'Dismiss' } ) ).not.toBeInTheDocument();
 	expect( save ).not.toHaveBeenCalled();
 } );
 
@@ -498,9 +545,12 @@ it( 'allows polling after an accepted copy status request fails without offering
 	await saveCopy( user );
 	setCopyStatus( undefined, true );
 	refresh();
-	expect( screen.getByRole( 'status' ) ).toHaveTextContent(
-		'We could not confirm the new video’s status.'
-	);
+	expect(
+		screen.getByText( 'We could not confirm the new video’s status.', {
+			exact: false,
+			ignore: '.a11y-speak-region, .a11y-speak-region *',
+		} )
+	).toBeInTheDocument();
 	expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	await user.click( screen.getByRole( 'button', { name: 'Check status' } ) );
 	expect( refetchCopy ).toHaveBeenCalledTimes( 1 );
@@ -518,19 +568,22 @@ it( 'keeps a recoverable attachment error locked and offers a safe retry', async
 		} )
 	);
 	refresh();
-	expect( screen.getByRole( 'status' ) ).toHaveTextContent(
-		'We could not confirm the new video’s status.'
-	);
+	expect(
+		screen.getByText( 'We could not confirm the new video’s status.', {
+			exact: false,
+			ignore: '.a11y-speak-region, .a11y-speak-region *',
+		} )
+	).toBeInTheDocument();
 	expect( screen.getByRole( 'button', { name: 'New cut' } ) ).toHaveAttribute(
 		'aria-disabled',
 		'true'
 	);
 	await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 	expect( copy.mock.calls[ 1 ][ 0 ] ).toBe( copy.mock.calls[ 0 ][ 0 ] );
-	expect( screen.queryByRole( 'button', { name: 'Back to editing' } ) ).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'button', { name: 'Dismiss' } ) ).not.toBeInTheDocument();
 } );
 
-it.each( [ 'Back to editing', 'Save' ] )(
+it.each( [ 'Dismiss', 'Save' ] )(
 	'preserves the draft after a failed copy when choosing %s',
 	async action => {
 		const { user, refresh } = renderEditor();
@@ -543,11 +596,19 @@ it.each( [ 'Back to editing', 'Save' ] )(
 			} )
 		);
 		refresh();
-		expect( screen.getByRole( 'alert' ) ).toHaveTextContent(
-			'Your current video and edits are unchanged.'
-		);
+		expect(
+			screen.getByText( 'Your current video and edits are unchanged.', {
+				exact: false,
+				ignore: '.a11y-speak-region, .a11y-speak-region *',
+			} )
+		).toBeInTheDocument();
 		await user.click( screen.getByRole( 'button', { name: action } ) );
-		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByText( 'Your current video and edits are unchanged.', {
+				exact: false,
+				ignore: '.a11y-speak-region, .a11y-speak-region *',
+			} )
+		).not.toBeInTheDocument();
 		if ( action === 'Save' ) {
 			await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
 		}
@@ -573,7 +634,12 @@ it( 'requires reloading the source after a copy revision conflict', async () => 
 	const { user } = renderEditor();
 	expect( screen.getByRole( 'button', { name: 'More actions' } ) ).toBeInTheDocument();
 	await saveCopy( user );
-	expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'The source video changed.' );
+	expect(
+		screen.getByText( 'The source video changed.', {
+			exact: false,
+			ignore: '.a11y-speak-region, .a11y-speak-region *',
+		} )
+	).toBeInTheDocument();
 	expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
 		'aria-disabled',
 		'true'
@@ -596,7 +662,12 @@ it( 'requires reloading the source after a copy revision conflict', async () => 
 		within( screen.getByRole( 'dialog' ) ).getByRole( 'button', { name: 'Reload latest' } )
 	);
 	expect( refetch ).toHaveBeenCalledTimes( 1 );
-	expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+	expect(
+		screen.queryByText( 'The source video changed.', {
+			exact: false,
+			ignore: '.a11y-speak-region, .a11y-speak-region *',
+		} )
+	).not.toBeInTheDocument();
 	expect( screen.getByRole( 'button', { name: 'New cut' } ) ).not.toHaveAttribute(
 		'aria-disabled',
 		'true'
@@ -612,7 +683,12 @@ it( 'prevents duplicate submission and edits while copy acceptance is pending', 
 	copy.mockReturnValue( new Promise( () => {} ) );
 	const { user } = renderEditor();
 	await saveCopy( user );
-	expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Creating your new video' );
+	expect(
+		screen.getByText( 'Creating your new video', {
+			exact: false,
+			ignore: '.a11y-speak-region, .a11y-speak-region *',
+		} )
+	).toBeInTheDocument();
 	expect( screen.queryByRole( 'button', { name: 'Check status' } ) ).not.toBeInTheDocument();
 	await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 	await user.click( screen.getByRole( 'button', { name: 'Discard changes' } ) );
@@ -621,7 +697,7 @@ it( 'prevents duplicate submission and edits while copy acceptance is pending', 
 	expect( copy ).toHaveBeenCalledTimes( 1 );
 } );
 
-it.each( [ 'Back to editing', 'Save' ] )(
+it.each( [ 'Dismiss', 'Save' ] )(
 	'preserves the draft after a rejected copy when choosing %s',
 	async action => {
 		copy.mockRejectedValue(
@@ -629,14 +705,24 @@ it.each( [ 'Back to editing', 'Save' ] )(
 		);
 		const { user } = renderEditor();
 		await saveCopy( user );
-		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Not enough video storage.' );
+		expect(
+			screen.getByText( 'Not enough video storage.', {
+				exact: false,
+				ignore: '.a11y-speak-region, .a11y-speak-region *',
+			} )
+		).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'New cut' } ) ).not.toHaveAttribute(
 			'aria-disabled',
 			'true'
 		);
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 		await user.click( screen.getByRole( 'button', { name: action } ) );
-		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByText( 'Not enough video storage.', {
+				exact: false,
+				ignore: '.a11y-speak-region, .a11y-speak-region *',
+			} )
+		).not.toBeInTheDocument();
 		if ( action === 'Save' ) {
 			await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
 		}
@@ -663,9 +749,12 @@ it( 'shows indeterminate server progress and does not offer edits during process
 it( 'does not retry a failed server job when there are no local edits to submit', () => {
 	setEdits( { job: { ...processingJob, status: 'failed' } } );
 	renderEditor();
-	expect( screen.getByRole( 'alert' ) ).toHaveTextContent(
-		'Something went wrong applying your edits.'
-	);
+	expect(
+		screen.getByText( 'Something went wrong applying your edits.', {
+			exact: false,
+			ignore: '.a11y-speak-region, .a11y-speak-region *',
+		} )
+	).toBeInTheDocument();
 	expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 } );
 

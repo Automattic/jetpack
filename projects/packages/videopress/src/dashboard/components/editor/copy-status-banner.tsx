@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { Notice } from '@wordpress/ui';
 import type { useCopySession } from './use-copy-session';
 
 type Props = { session: ReturnType< typeof useCopySession >; onReload: () => void };
@@ -27,9 +27,9 @@ export default function CopyStatusBanner( { session, onReload }: Props ) {
 			'jetpack-videopress-pkg'
 		);
 		action = (
-			<Button size="compact" variant="outline" onClick={ onReload }>
+			<Notice.ActionButton onClick={ onReload }>
 				{ __( 'Reload latest', 'jetpack-videopress-pkg' ) }
-			</Button>
+			</Notice.ActionButton>
 		);
 	} else if ( session.failed || session.rejected ) {
 		message =
@@ -38,11 +38,6 @@ export default function CopyStatusBanner( { session, onReload }: Props ) {
 				'The new video could not be created. Your current video and edits are unchanged.',
 				'jetpack-videopress-pkg'
 			);
-		action = (
-			<Button size="compact" variant="outline" onClick={ session.clear }>
-				{ __( 'Back to editing', 'jetpack-videopress-pkg' ) }
-			</Button>
-		);
 	} else if ( ! session.submitting ) {
 		if ( session.needsAssistance ) {
 			message = __(
@@ -62,25 +57,40 @@ export default function CopyStatusBanner( { session, onReload }: Props ) {
 			<>
 				{ ! session.needsAssistance &&
 					( session.recoverable || ( session.error && ! session.status.data ) ) && (
-						<Button size="compact" variant="outline" onClick={ () => void session.retry() }>
+						<Notice.ActionButton onClick={ () => void session.retry() }>
 							{ __( 'Retry', 'jetpack-videopress-pkg' ) }
-						</Button>
+						</Notice.ActionButton>
 					) }
-				<Button size="compact" variant="outline" onClick={ () => void session.status.refetch() }>
+				<Notice.ActionButton onClick={ () => void session.status.refetch() }>
 					{ __( 'Check status', 'jetpack-videopress-pkg' ) }
-				</Button>
+				</Notice.ActionButton>
 			</>
 		);
 	}
+	const terminalError = session.failed || session.rejected;
+	const uncertain =
+		session.needsAssistance || session.recoverable || session.error || session.status.isError;
+	let intent: 'error' | 'warning' | 'info' = 'info';
+	if ( terminalError ) {
+		intent = 'error';
+	} else if ( session.conflict || uncertain ) {
+		intent = 'warning';
+	}
 	return (
-		<div
-			className="vp-video-editor__banner"
-			role={ session.error || session.failed || session.needsAssistance ? 'alert' : 'status' }
-		>
-			<Stack direction="row" gap="md" align="center">
-				<Text>{ message }</Text>
-				{ action }
-			</Stack>
-		</div>
+		<Notice.Root intent={ intent } className="vp-video-editor__notice" spokenMessage={ message }>
+			<Notice.Description>
+				{ message }
+				{ ! terminalError && ! session.conflict && ! uncertain && (
+					<progress
+						className="vp-video-editor__progress"
+						aria-label={ __( 'Creating video', 'jetpack-videopress-pkg' ) }
+						max={ 1 }
+						value={ session.status.data?.job.progress || undefined }
+					/>
+				) }
+			</Notice.Description>
+			{ action && <Notice.Actions>{ action }</Notice.Actions> }
+			{ terminalError && <Notice.CloseIcon onClick={ session.clear } /> }
+		</Notice.Root>
 	);
 }

@@ -93,7 +93,12 @@
 		fill: currentColor;
 	}
 
-	&:hover {
+	&:disabled {
+		opacity: 0.5;
+		cursor: default;
+	}
+
+	&:hover:not(:disabled) {
 		background: var(--vp-gray-100);
 	}
 
