@@ -173,7 +173,10 @@ export default function ExistingLinksStep( {
 										linkName( link )
 									) }
 									toggleProps={ { size: 'small', disabled: isBusy } }
-									popoverProps={ { placement: 'bottom-end' } }
+									popoverProps={ {
+										placement: 'bottom-end',
+										className: 'jetpack-paypal-payment-buttons__link-menu',
+									} }
 								>
 									{ ( { onClose } ) => (
 										<MenuGroup>

@@ -183,6 +183,16 @@
 	}
 }
 
+// The menu focuses its first item as it opens, and the button style paints a
+// ring on any focus. Keep the ring for the keyboard only.
+.jetpack-paypal-payment-buttons__account-menu,
+.jetpack-paypal-payment-buttons__link-menu {
+
+	.components-menu-item__button:focus:not(:focus-visible) {
+		box-shadow: none;
+	}
+}
+
 // ---------------------------------------------------------------
 // Connection Wizard
 // ---------------------------------------------------------------
