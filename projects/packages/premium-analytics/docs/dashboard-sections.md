@@ -46,7 +46,7 @@ Each include is guarded by a symbol the file declares, because two copies of the
 
 That is why the registration moment is not `init`: a registrant hooked on `init` reaches the navigation in wp-admin and misses the REST response the navigation is built from. The registry hydrates on its first read, whichever path reads it, and fires one action then.
 
-A read before `init` is a `_doing_it_wrong()`: it answers empty and does not latch, so the registrants hooked later still run on the first read after `init`.
+A read before `init` is a `_doing_it_wrong()`: it answers only what was registered directly, and does not latch, so the registrants hooked later still run on the first read after `init`.
 
 ## Registering a section
 
@@ -85,7 +85,7 @@ add_action(
 
 The mechanics behind it:
 
-- **The function.** `register_dashboard_section()` lives in the `Automattic\Jetpack\PremiumAnalytics` namespace, so a plugin imports it with `use function` or calls it fully qualified. It is a one-line wrapper over `Dashboard_Section_Registry::get_instance()->register()`; inside the action, `$registry` is that instance, so both forms write to it.
+- **The contract.** The action hands over the `Dashboard_Section_Registry` being hydrated, and `$registry->register()` is what a plugin calls. `register_dashboard_section()` and the other functions in the `Automattic\Jetpack\PremiumAnalytics` namespace are the package's own helpers over the main instance, which is that same registry in production.
 - **Loading.** The files are required by hand on the paths above, not autoloaded. The action fires from the registry those files load, so a callback on it runs only once the API is there and needs no `function_exists()` guard.
 - **Validation in `register()`.** The dashboard name must match `get_dashboard_name_pattern()`, the id must be namespaced (`get_dashboard_section_id_pattern()`), and the id must not be registered. Each failure is a `_doing_it_wrong()` and a `false` return.
 - **Slugs.** Two ids sharing a slug are not refused, and the client keys sections by slug, so a registrant must pick one no other section uses.

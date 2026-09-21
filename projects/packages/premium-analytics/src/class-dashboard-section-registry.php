@@ -183,9 +183,9 @@ final class Dashboard_Section_Registry {
 			return;
 		}
 
-		// Latching this early would drop every registrant hooked later, so the read answers empty.
+		// Latching this early would drop every registrant hooked later, so the read skips the action.
 		if ( ! did_action( 'init' ) ) {
-			$message = __( 'Dashboard sections are read after init. A read before it answers empty and does not hydrate the registry.', 'jetpack-premium-analytics-pkg' );
+			$message = __( 'Dashboard sections are read after init. A read before it does not hydrate the registry and answers only what was registered directly.', 'jetpack-premium-analytics-pkg' );
 			// One line: tools/replace-next-version-tag.sh only rewrites the token in a single-line call.
 			_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-premium-analytics-$$next-version$$' );
 			return;

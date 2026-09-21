@@ -1779,7 +1779,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A read before init is a _doing_it_wrong() that answers empty and leaves the latch open.
+	 * A read before init is a _doing_it_wrong() that skips the action and leaves the latch open.
 	 */
 	public function test_read_before_init_does_not_hydrate_the_registry() {
 		global $wp_actions;
