@@ -25,6 +25,9 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		// Test the self-hosted path: wpcomsh hides My Jetpack on non-classic WoA sites.
+		remove_all_filters( 'jetpack_my_jetpack_should_initialize' );
+
 		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
 
@@ -35,6 +38,7 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 
 		// Manager::is_connected() caches in a static that option changes don't invalidate in tests.
 		( new Connection_Manager() )->reset_connection_status();
+		Status_Cache::clear();
 	}
 
 	/**
@@ -47,6 +51,7 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 		unset( $_GET['showCouponRedemption'] );
 
 		( new Connection_Manager() )->reset_connection_status();
+		Status_Cache::clear();
 
 		parent::tear_down();
 	}
@@ -114,15 +119,12 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 	 * Tests that offline-mode sites only get the plans routes, since My Jetpack requires a connection.
 	 */
 	public function test_offline_mode_only_has_plans_routes() {
-		Status_Cache::clear(); // is_offline_mode() memoizes; earlier tests cached the default.
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 
 		$table = Jetpack_React_Page::get_legacy_route_redirects();
 
 		$this->assertNull( $table['fallback'] );
 		$this->assertSame( array( '/plans', '/plans-prompt' ), array_keys( $table['routes'] ) );
-
-		Status_Cache::clear();
 	}
 
 	/**
