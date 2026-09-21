@@ -30,10 +30,11 @@ function register_widget_modules_rest_route() {
 }
 
 /**
- * Load and hydrate the widget type registry, once.
+ * Load the widget type API and the build manifest, once, ahead of the registry's first read.
  *
  * Deferred to the registry's only two readers rather than run at boot: on Simple this file's
- * registration runs on every WPCOM public-api request, and most never read the registry.
+ * registration runs on every WPCOM public-api request, and most never read the registry. The
+ * registry hydrates itself on that read, from the registration action.
  *
  * @return void
  */
@@ -53,8 +54,6 @@ function ensure_widget_registry_ready() {
 	if ( file_exists( $widgets_manifest ) ) {
 		require_once $widgets_manifest;
 	}
-
-	bootstrap_widget_types();
 }
 
 /**
