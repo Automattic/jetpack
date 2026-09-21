@@ -114,6 +114,8 @@ class Config_Test extends TestCase {
 				}
 			);
 
+		Functions\when( 'did_action' )->justReturn( 1 );
+
 		// Mock Host class for this specific test
 		$host = Mockery::mock( 'overload:' . Host::class );
 		$host->shouldReceive( 'is_woa_site' )->andReturn( false );
@@ -128,6 +130,7 @@ class Config_Test extends TestCase {
 		$this->assertEquals( 'http://example.com', $result['site']['url'] );
 		$this->assertEquals( 'atomic', $result['site']['host'] );
 		$this->assertTrue( $result['site']['online'] );
+		$this->assertTrue( $result['site']['myJetpack'] );
 	}
 
 	public function test_constants_private_site() {
@@ -177,6 +180,8 @@ class Config_Test extends TestCase {
 				}
 			);
 
+		Functions\when( 'did_action' )->justReturn( 1 );
+
 		// Create a fresh Status mock for private site
 		$status = Mockery::mock( 'overload:' . Status::class );
 		$status->shouldReceive( 'get_site_suffix' )->andReturn( 'example.com' );
@@ -199,6 +204,12 @@ class Config_Test extends TestCase {
 			$result['site']['online'],
 			'Site should be offline when Status::is_private_site() returns true'
 		);
+	}
+
+	public function test_my_jetpack_unavailable_when_not_initialized() {
+		Functions\expect( 'did_action' )->once()->with( 'my_jetpack_init' )->andReturn( 0 );
+
+		$this->assertFalse( Config::is_my_jetpack_available() );
 	}
 
 	public function test_get_hosting_provider_woa() {

@@ -55,6 +55,10 @@ export function isSiteOnline(): boolean {
 	return typeof Jetpack_Boost !== 'undefined' && Jetpack_Boost.site.online;
 }
 
+export function isMyJetpackAvailable(): boolean {
+	return typeof Jetpack_Boost !== 'undefined' && Jetpack_Boost.site.myJetpack === true;
+}
+
 export async function requestDataSync(
 	key: DataSyncKey,
 	value?: unknown,
