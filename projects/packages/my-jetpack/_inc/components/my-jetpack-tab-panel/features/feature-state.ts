@@ -1,7 +1,11 @@
 import { useMemo } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
 import { useAllProducts } from '../../../data/products/use-all-products';
-import { useRequestedModuleStates } from '../../../data/requested-module-state';
+import {
+	moduleSwitchKey,
+	pluginSwitchKey,
+	useRequestedSwitches,
+} from '../../../data/requested-switch-state';
 import { getProductModules } from '../products/mappings';
 import { useAllJetpackModules } from '../products/use-all-jetpack-modules';
 import type { ProductCamelCase } from '../../../data/types';
@@ -132,14 +136,15 @@ export function useFeatureStates( state: MainFeaturesState ): {
 	// read as "install its plugin instead". Only Jetpack-active sites consult them.
 	const isLoadingModules = state.jetpack === 'active' && isLoading;
 
-	// A module's switch answers a click before the store does, and the card's badge has to
-	// say the same thing. The plugin path needs no equivalent: its optimistic write goes
-	// through the query cache, which is already what `state.features` is read from.
-	const requestedModules = useRequestedModuleStates();
+	// What each switch with a request out asked for. Applied over the fetched state rather
+	// than written into it, so a response carrying the whole site cannot overwrite a
+	// feature someone is still toggling — each one settles when its own request resolves.
+	const requested = useRequestedSwitches();
 
 	const states = useMemo(
 		() =>
 			state.features
+				.map( feature => applyRequestedPlugin( feature, requested ) )
 				.map( feature =>
 					resolveFeatureState(
 						feature,
@@ -150,9 +155,9 @@ export function useFeatureStates( state: MainFeaturesState ): {
 						isLoadingModules
 					)
 				)
-				.map( resolved => applyRequestedModule( resolved, requestedModules ) ),
+				.map( resolved => applyRequestedModule( resolved, requested ) ),
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- productModules is rebuilt each render from a constant map.
-		[ state, products, modules, isLoadingModules, requestedModules ]
+		[ state, products, modules, isLoadingModules, requested ]
 	);
 
 	return { states, isLoading: isLoadingModules };
@@ -162,7 +167,7 @@ export function useFeatureStates( state: MainFeaturesState ): {
  * Show the value a module's switch asked for, until its store catches up.
  *
  * @param state     - The feature's resolved state.
- * @param requested - Module slug to the value asked of it.
+ * @param requested - Switch key to the value asked of it.
  * @return The state, with the asked-for status where one is in flight.
  */
 function applyRequestedModule(
@@ -173,7 +178,29 @@ function applyRequestedModule(
 		return state;
 	}
 
-	const asked = requested[ state.control.module.module ];
+	const asked = requested[ moduleSwitchKey( state.control.module.module ) ];
 
 	return asked === undefined ? state : { ...state, status: asked ? 'active' : 'inactive' };
+}
+
+/**
+ * Show the plugin status a switch asked for, before resolving what the card offers.
+ *
+ * Applied to the feature rather than to the resolved state, because the plugin's status
+ * decides which control the card gets: an install that has been asked for should offer
+ * the switch it is about to become, not the Install button it no longer is.
+ *
+ * @param feature   - The feature, as the site last reported it.
+ * @param requested - Switch key to the value asked of it.
+ * @return The feature, with the asked-for plugin status where a request is in flight.
+ */
+function applyRequestedPlugin(
+	feature: MainFeature,
+	requested: Record< string, boolean >
+): MainFeature {
+	const asked = requested[ pluginSwitchKey( feature.plugin ) ];
+
+	return asked === undefined
+		? feature
+		: { ...feature, plugin_status: asked ? 'active' : 'inactive' };
 }

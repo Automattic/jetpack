@@ -6,6 +6,7 @@ import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { queueActivationRequest } from '../../../data/queue-activation-request';
+import { pluginSwitchKey, setRequestedSwitch } from '../../../data/requested-switch-state';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { setPendingSuccessNotice } from '../products/pending-notice';
 import { reloadPage } from '../products/reload-page';
@@ -66,25 +67,6 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 	const mutationKey = [ 'my-jetpack-feature-plugin', plugin ];
 	const { mutate } = useMutation( {
 		mutationKey,
-		// Show the answer the click asked for straight away. The request still decides:
-		// onSuccess replaces this with the server's state, onError puts back what was here.
-		onMutate: async ( action: PluginAction ) => {
-			await queryClient.cancelQueries( { queryKey: QUERY_KEY } );
-
-			// A placeholder is not in the cache, so before the first read of the site lands
-			// there is nothing here to amend — the page's own copy is what the grid shows.
-			const previous = queryClient.getQueryData< MainFeaturesState >( QUERY_KEY ) ?? initialState();
-			const status: MainFeaturePluginStatus = action === 'deactivate' ? 'inactive' : 'active';
-
-			queryClient.setQueryData< MainFeaturesState >( QUERY_KEY, {
-				...previous,
-				features: previous.features.map( feature =>
-					feature.plugin === plugin ? { ...feature, plugin_status: status } : feature
-				),
-			} );
-
-			return { previous };
-		},
 		mutationFn: ( action: PluginAction ) =>
 			queueActivationRequest( () =>
 				apiFetch< MainFeaturesState >( {
@@ -93,7 +75,15 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 					data: { plugin, action },
 				} )
 			),
+		// Record what the click asked for. Kept outside the cached state on purpose: a
+		// response carries the whole site, so writing it here would let one feature's
+		// response overwrite another that is still being toggled.
+		onMutate: ( action: PluginAction ) => {
+			setRequestedSwitch( pluginSwitchKey( plugin ), action !== 'deactivate' );
+		},
 		onSuccess: ( state, action ) => {
+			// This request has answered, so its feature settles on what the site reports.
+			setRequestedSwitch( pluginSwitchKey( plugin ), null );
 			queryClient.setQueryData( QUERY_KEY, state );
 
 			// A product switches its Jetpack module along with its plugin, so the modules
@@ -122,14 +112,11 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 
 			createSuccessNotice( message );
 		},
-		onError: ( _error, _action, context ) => {
-			// Put back what the optimistic write replaced, then read the site: the plugin
-			// may well have been switched before whatever failed, so neither the old value
-			// nor the asked-for one is certain.
-			if ( context?.previous ) {
-				queryClient.setQueryData( QUERY_KEY, context.previous );
-			}
-
+		onError: () => {
+			// Drop the asked-for value, so the feature shows what the site last reported,
+			// and read the site again: the plugin may well have been switched before
+			// whatever failed.
+			setRequestedSwitch( pluginSwitchKey( plugin ), null );
 			queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
 			invalidateResolution( 'getJetpackModules', [] );
 

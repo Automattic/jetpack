@@ -526,6 +526,37 @@ class Main_Features {
 	}
 
 	/**
+	 * Whether this plugin is the only active one carrying My Jetpack.
+	 *
+	 * Several plugins bundle it and the autoloader picks one, so the plugin serving this
+	 * page is often not the only one that could. Switching that one off is only a problem
+	 * when nothing else is left to take over.
+	 *
+	 * @param string $slug The plugin's folder name.
+	 * @return bool True when no other active plugin carries My Jetpack.
+	 */
+	public static function is_only_my_jetpack_provider( $slug ) {
+		$active = array_merge(
+			(array) get_option( 'active_plugins', array() ),
+			array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) )
+		);
+
+		foreach ( $active as $file ) {
+			$folder = dirname( (string) $file );
+
+			if ( '.' === $folder || $folder === $slug ) {
+				continue;
+			}
+
+			if ( is_dir( WP_PLUGIN_DIR . '/' . $folder . '/jetpack_vendor/automattic/jetpack-my-jetpack' ) ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * The product class behind a plugin in the map, for surfaces holding only its slug.
 	 *
 	 * @param string $slug WordPress.org plugin slug.

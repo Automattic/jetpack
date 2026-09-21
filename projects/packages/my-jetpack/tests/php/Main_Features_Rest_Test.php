@@ -123,6 +123,28 @@ class Main_Features_Rest_Test extends TestCase {
 		$this->assertSame( 1, $written );
 	}
 
+	/**
+	 * Several plugins carry My Jetpack and the autoloader picks one, so the one serving
+	 * the page can be switched off while another is there to take over.
+	 */
+	public function test_allows_deactivating_the_host_when_another_plugin_carries_my_jetpack() {
+		$root   = WP_PLUGIN_DIR . '/my-jetpack-carrier';
+		$vendor = $root . '/jetpack_vendor/automattic/jetpack-my-jetpack';
+		mkdir( $vendor, 0777, true );
+		update_option( 'active_plugins', array( 'my-jetpack-carrier/my-jetpack-carrier.php' ) );
+
+		$this->assertFalse( Main_Features::is_only_my_jetpack_provider( 'jetpack-boost' ) );
+
+		// Nothing else active carries it, so now the page would have nowhere to come from.
+		update_option( 'active_plugins', array() );
+
+		$this->assertTrue( Main_Features::is_only_my_jetpack_provider( 'jetpack-boost' ) );
+
+		foreach ( array( $vendor, dirname( $vendor ), dirname( $vendor, 2 ), $root ) as $dir ) {
+			rmdir( $dir );
+		}
+	}
+
 	public function test_refuses_a_plugin_the_map_does_not_name() {
 		$response = $this->send( 'hello-dolly', 'activate' );
 

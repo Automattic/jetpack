@@ -96,11 +96,14 @@ class REST_Main_Features {
 		$slug   = $request->get_param( 'plugin' );
 		$action = $request->get_param( 'action' );
 
-		// Switching off the plugin that renders this page would pull it out from under
-		// itself. That is Jetpack on most sites, but My Jetpack also ships in Boost,
-		// Protect, Social, Search and VideoPress, and any of them can be the host.
+		// Switching off the last plugin carrying My Jetpack would pull this page out from
+		// under itself. Which plugin that is varies: the autoloader picks one of however
+		// many are active, so being the one serving the page is not enough to refuse —
+		// another active plugin will simply take over on the next load.
 		if ( 'deactivate' === $action
-			&& ( Product::JETPACK_PLUGIN_SLUG === $slug || Main_Features::get_hosting_plugin_slug() === $slug ) ) {
+			&& ( Product::JETPACK_PLUGIN_SLUG === $slug
+				|| ( Main_Features::get_hosting_plugin_slug() === $slug
+					&& Main_Features::is_only_my_jetpack_provider( $slug ) ) ) ) {
 			return new WP_Error(
 				'not_allowed',
 				__( 'This plugin runs the page you are on, so it cannot be deactivated from here.', 'jetpack-my-jetpack' ),

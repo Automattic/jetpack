@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { setRequestedModuleState } from '../../../../data/requested-module-state';
+import { moduleSwitchKey, setRequestedSwitch } from '../../../../data/requested-switch-state';
 import { useFeatureStates } from '../feature-state';
 
 const mockModules = jest.fn();
@@ -74,7 +74,7 @@ describe( 'useFeatureStates, while a module switch is answering a click', () => 
 	} );
 
 	// Cleared through act(): the store is shared, so mounted cards re-render on it.
-	afterEach( () => act( () => setRequestedModuleState( 'publicize', null ) ) );
+	afterEach( () => act( () => setRequestedSwitch( moduleSwitchKey( 'publicize' ), null ) ) );
 
 	it( 'reports the value the click asked for, so the badge can follow the switch', () => {
 		const { result } = renderHook( () =>
@@ -83,7 +83,7 @@ describe( 'useFeatureStates, while a module switch is answering a click', () => 
 
 		expect( result.current.states[ 0 ].status ).toBe( 'active' );
 
-		act( () => setRequestedModuleState( 'publicize', false ) );
+		act( () => setRequestedSwitch( moduleSwitchKey( 'publicize' ), false ) );
 
 		expect( result.current.states[ 0 ].status ).toBe( 'inactive' );
 		expect( result.current.states[ 0 ].pending ).toBeFalsy();
@@ -94,8 +94,8 @@ describe( 'useFeatureStates, while a module switch is answering a click', () => 
 			useFeatureStates( { jetpack: 'active', features: [ inJetpack ] } as MainFeaturesState )
 		);
 
-		act( () => setRequestedModuleState( 'publicize', false ) );
-		act( () => setRequestedModuleState( 'publicize', null ) );
+		act( () => setRequestedSwitch( moduleSwitchKey( 'publicize' ), false ) );
+		act( () => setRequestedSwitch( moduleSwitchKey( 'publicize' ), null ) );
 
 		expect( result.current.states[ 0 ].status ).toBe( 'active' );
 	} );
