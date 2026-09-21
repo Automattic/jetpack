@@ -7,11 +7,12 @@ import ScoreAlert from './score-alert';
 import ErrorBoundary from '../../app/assets/src/js/features/error-boundary/error-boundary';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import HistoryChartCard from './history-chart-card';
+import HistoryUpsell from './history-upsell';
 import { bucketHistoryDays } from './lib/history-days';
 import { OVERVIEW_MODULES_CHANGE_EVENT, relayedQueryKeys } from './lib/modules-state-bridge';
 import { useHistoryRange } from './lib/use-history-range';
 import {
-	isMyJetpackAvailable,
+	canOfferUpgrade,
 	isSiteOnline,
 	useModulesState,
 	useScoreRefreshState,
@@ -198,7 +199,11 @@ function OverviewContent( {
 					</Notice.Actions>
 				</Notice.Root>
 			) }
-			{ ( ! needsUpgrade || isMyJetpackAvailable() ) && (
+			{ needsUpgrade ? (
+				canOfferUpgrade() && (
+					<HistoryUpsell range={ range } dayCount={ dayCount } isVisible={ isVisible } />
+				)
+			) : (
 				<HistoryChartCard
 					range={ range }
 					dayCount={ dayCount }
@@ -212,7 +217,6 @@ function OverviewContent( {
 					isError={ history.isError && ! history.isFetching }
 					error={ history.error }
 					onRetry={ () => history.refetch() }
-					needsUpgrade={ needsUpgrade }
 					isFreshStart={ ! freshStartCompleted }
 					onDismissFreshStart={ dismissFreshStart }
 				/>

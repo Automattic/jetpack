@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { OVERVIEW_UPGRADE_EVENT, type UpgradeSlotRequest } from './lib/upgrade-bridge';
-import { isMyJetpackAvailable, isSiteOnline } from './lib/use-modules-state';
+import { canOfferUpgrade } from './lib/use-modules-state';
 
 export default function UpgradeCTA() {
-	const container = useRef< HTMLDivElement >( null );
+	const container = useRef< HTMLSpanElement >( null );
 	useEffect( () => {
 		if ( ! container.current ) {
 			return;
@@ -12,9 +12,8 @@ export default function UpgradeCTA() {
 		window.dispatchEvent( new CustomEvent( OVERVIEW_UPGRADE_EVENT, { detail: request } ) );
 		return () => request.unmount?.();
 	}, [] );
-	// The upgrade flow lives in My Jetpack, which offline and filtered-off sites cannot open.
-	if ( ! isSiteOnline() || ! isMyJetpackAvailable() ) {
+	if ( ! canOfferUpgrade() ) {
 		return null;
 	}
-	return <div ref={ container } />;
+	return <span ref={ container } />;
 }

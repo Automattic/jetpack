@@ -663,8 +663,10 @@ test( 'shows the free history upgrade without requesting history', async () => {
 	};
 	renderOverview();
 	await expect( screen.findByRole( 'button', { name: 'Upgrade now' } ) ).resolves.toBeTruthy();
-	expect( screen.getByText( 'Unlock historical performance' ) ).toBeInTheDocument();
-	expect( screen.getByRole( 'heading', { name: /Last \d+ days/ } ) ).toBeInTheDocument();
+	expect(
+		screen.getByText( 'Learn more about your site performance over time.', { exact: false } )
+	).toBeInTheDocument();
+	expect( screen.queryByTestId( 'history-chart' ) ).not.toBeInTheDocument();
 	await expect( screen.findByText( '91' ) ).resolves.toBeVisible();
 	expect( apiFetch ).not.toHaveBeenCalledWith(
 		expect.objectContaining( {
@@ -672,9 +674,14 @@ test( 'shows the free history upgrade without requesting history', async () => {
 		} )
 	);
 	expect( screen.queryByText( /Performance history will appear/ ) ).not.toBeInTheDocument();
+	expect( screen.getByRole( 'button', { name: 'Show score history preview' } ) ).toHaveAttribute(
+		'aria-expanded',
+		'false'
+	);
+	expect( screen.queryByRole( 'grid' ) ).not.toBeInTheDocument();
 } );
 
-test( 'omits the history card when My Jetpack is unavailable on a free site', async () => {
+test( 'omits the history notice when My Jetpack is unavailable on a free site', async () => {
 	window.Jetpack_Boost.site.myJetpack = false;
 	window.jetpack_boost_ds!.modules_state!.value = {
 		performance_history: { available: false, active: false },
@@ -682,9 +689,13 @@ test( 'omits the history card when My Jetpack is unavailable on a free site', as
 	renderOverview();
 	await expect( screen.findByText( '91' ) ).resolves.toBeVisible();
 	await waitFor( () =>
-		expect( screen.queryByRole( 'heading', { name: /Last \d+ days/ } ) ).not.toBeInTheDocument()
+		expect(
+			screen.queryByRole( 'button', { name: 'Show score history preview' } )
+		).not.toBeInTheDocument()
 	);
-	expect( screen.queryByText( 'Unlock historical performance' ) ).not.toBeInTheDocument();
+	expect(
+		screen.queryByText( 'Learn more about your site performance over time.', { exact: false } )
+	).not.toBeInTheDocument();
 	expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
 	expect( screen.queryByTestId( 'history-chart' ) ).not.toBeInTheDocument();
 	expect( apiFetch ).not.toHaveBeenCalledWith(
@@ -813,6 +824,9 @@ test.each( [
 					.getAttribute( 'aria-disabled' ) === 'true'
 			).toBe( scoresAt === undefined );
 			expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'button', { name: 'Show score history preview' } )
+			).not.toBeInTheDocument();
 		} finally {
 			geometry.mockRestore();
 			globalThis.ResizeObserver = resizeObserver;
