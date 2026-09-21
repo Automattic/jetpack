@@ -412,6 +412,38 @@ BucketsWithNoData.parameters = {
 	},
 };
 
+const wholeNumberRange: SeriesData[] = [
+	{
+		label: 'Errors',
+		data: [
+			{ date: new Date( 2026, 0, 1 ), value: 0 },
+			{ date: new Date( 2026, 1, 1 ), value: 1 },
+			{ date: new Date( 2026, 2, 1 ), value: 1 },
+			{ date: new Date( 2026, 3, 1 ), value: 0 },
+			{ date: new Date( 2026, 4, 1 ), value: 1 },
+			{ date: new Date( 2026, 5, 1 ), value: 1 },
+		],
+	},
+];
+
+export const SmallWholeNumberRange: StoryObj< StoryArgs > = Template.bind( {} );
+SmallWholeNumberRange.args = {
+	...Default.args,
+	data: wholeNumberRange,
+};
+SmallWholeNumberRange.argTypes = {
+	// The series-count control swaps in the sample data, which isn't a whole-number range.
+	seriesCount: { table: { disable: true } },
+};
+SmallWholeNumberRange.parameters = {
+	docs: {
+		description: {
+			story:
+				'When every visible value is a whole number, the value axis places ticks only on whole numbers, instead of repeating a rounded label at fractional steps. Pass `options.axis.y.tickValues` to choose the ticks yourself.',
+		},
+	},
+};
+
 export const WithoutSmoothing: StoryObj< StoryArgs > = Template.bind( {} );
 WithoutSmoothing.args = {
 	...lineChartStoryArgs,
