@@ -201,9 +201,7 @@ describe( 'FeatureModalActions', () => {
 			/>
 		);
 
-		expect(
-			screen.getByText( 'Turned on by your host or site administrator' )
-		).toBeInTheDocument();
+		expect( screen.getByText( 'Enabled by your host or site administrator' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
 } );
@@ -223,12 +221,9 @@ describe( 'FeatureItem', () => {
 		// The switch slot renders nothing for it (see FeatureAction), so the note following the
 		// description means it sits in the text column.
 		const order = screen
-			.getAllByText( /See who visits\.|Turned on by your host/ )
+			.getAllByText( /See who visits\.|Enabled by your host/ )
 			.map( el => el.textContent );
-		expect( order ).toEqual( [
-			'See who visits.',
-			'Turned on by your host or site administrator',
-		] );
+		expect( order ).toEqual( [ 'See who visits.', 'Enabled by your host or site administrator' ] );
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 	} );
 } );

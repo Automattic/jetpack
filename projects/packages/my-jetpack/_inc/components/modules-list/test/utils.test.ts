@@ -30,7 +30,7 @@ describe( 'getModuleStatus', () => {
 	it( 'takes the control away from a module forced on', () => {
 		expect( getModuleStatus( buildModule( { override: 'active' } ) ) ).toEqual( {
 			isAvailable: false,
-			reason: 'Turned on by your host or site administrator',
+			reason: 'Enabled by your host or site administrator',
 		} );
 	} );
 
@@ -38,7 +38,7 @@ describe( 'getModuleStatus', () => {
 		expect( getModuleStatus( buildModule( { activated: false, override: 'inactive' } ) ) ).toEqual(
 			{
 				isAvailable: false,
-				reason: 'Turned off by your host or site administrator',
+				reason: 'Disabled by your host or site administrator',
 			}
 		);
 	} );

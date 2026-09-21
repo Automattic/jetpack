@@ -46,12 +46,12 @@ describe( 'ProductCard', () => {
 
 		// Matches come back in document order, so the note has to follow the description.
 		const order = screen
-			.getAllByText( /See how many people visit your site\.|Turned on by your host/ )
+			.getAllByText( /See how many people visit your site\.|Enabled by your host/ )
 			.map( el => el.textContent );
 
 		expect( order ).toEqual( [
 			'See how many people visit your site.',
-			'Turned on by your host or site administrator',
+			'Enabled by your host or site administrator',
 		] );
 		expect( screen.getByRole( 'heading', { name: 'Stats' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();

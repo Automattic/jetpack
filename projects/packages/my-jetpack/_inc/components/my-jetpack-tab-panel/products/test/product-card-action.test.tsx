@@ -182,7 +182,7 @@ describe( 'ProductCardAction', () => {
 			render( <ProductCardAction product={ product } module={ forcedModule } /> );
 
 			expect(
-				screen.getByText( 'Turned on by your host or site administrator' )
+				screen.getByText( 'Enabled by your host or site administrator' )
 			).toBeInTheDocument();
 			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 		}
