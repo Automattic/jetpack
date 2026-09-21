@@ -486,10 +486,16 @@ function get_ads_section_default_layout() {
 /**
  * Registers the default Premium Analytics dashboard sections.
  *
+ * Hooked on the registration action and safe to call directly: a section already registered
+ * is skipped.
+ *
+ * @param Dashboard_Section_Registry|null $registry Optional. The registry being hydrated. Defaults to the main instance.
  * @return void
  */
-function register_default_dashboard_sections() {
-	$registry = Dashboard_Section_Registry::get_instance();
+function register_default_dashboard_sections( $registry = null ) {
+	if ( ! $registry instanceof Dashboard_Section_Registry ) {
+		$registry = Dashboard_Section_Registry::get_instance();
+	}
 
 	$sections = array(
 		'analytics/traffic'     => array(
@@ -498,6 +504,7 @@ function register_default_dashboard_sections() {
 			'order'          => 10,
 			'default_layout' => __NAMESPACE__ . '\\get_traffic_section_default_layout',
 		),
+
 		'analytics/insights'    => array(
 			'label'               => __( 'Insights', 'jetpack-premium-analytics-pkg' ),
 			'title'               => __( 'Site insights', 'jetpack-premium-analytics-pkg' ),
@@ -512,6 +519,7 @@ function register_default_dashboard_sections() {
 			),
 			'default_layout'      => __NAMESPACE__ . '\\get_insights_section_default_layout',
 		),
+
 		'analytics/subscribers' => array(
 			'label'               => __( 'Subscribers', 'jetpack-premium-analytics-pkg' ),
 			'title'               => __( 'Subscribers stats', 'jetpack-premium-analytics-pkg' ),
@@ -525,6 +533,7 @@ function register_default_dashboard_sections() {
 			),
 			'default_layout'      => __NAMESPACE__ . '\\get_subscribers_section_default_layout',
 		),
+
 		// Store registers no heading of its own, so it falls back to the label.
 		'woocommerce/store'     => array(
 			'label'          => __( 'Store', 'jetpack-premium-analytics-pkg' ),
@@ -535,6 +544,7 @@ function register_default_dashboard_sections() {
 			'requires_sync'  => true,
 			'default_layout' => __NAMESPACE__ . '\\get_store_section_default_layout',
 		),
+
 		'analytics/ads'         => array(
 			'label'               => __( 'Ads', 'jetpack-premium-analytics-pkg' ),
 			'order'               => 50,
@@ -551,22 +561,10 @@ function register_default_dashboard_sections() {
 
 	foreach ( $sections as $id => $args ) {
 		if ( ! $registry->is_registered( DASHBOARD_NAME, $id ) ) {
-			register_dashboard_section( DASHBOARD_NAME, $id, $args );
+			$registry->register( DASHBOARD_NAME, $id, $args );
 		}
 	}
 }
 
-/**
- * Hydrates the dashboard section registry with the package's own sections.
- *
- * @return void
- */
-function bootstrap_dashboard_sections() {
-	if ( did_action( 'init' ) ) {
-		register_default_dashboard_sections();
-	} else {
-		add_action( 'init', __NAMESPACE__ . '\\register_default_dashboard_sections' );
-	}
-}
-
-bootstrap_dashboard_sections();
+// Registered when the registry hydrates, through the same action a plugin extending the dashboard uses.
+add_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
