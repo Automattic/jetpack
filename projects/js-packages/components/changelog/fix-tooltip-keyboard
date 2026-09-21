@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Tooltips: Support keyboard activation and controlled dismissal.
+Tooltips: Support keyboard activation and controlled dismissal, return focus after tabbing out, and keep hover tooltips from taking focus.

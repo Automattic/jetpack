@@ -27,6 +27,41 @@ describe( 'IconTooltip', () => {
 		expect( onClose ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it.each( [ false, true ] )( 'returns focus after tabbing out (shift: %s)', async shift => {
+		const user = userEvent.setup();
+		const onClose = jest.fn();
+		render(
+			<>
+				<IconTooltip { ...testProps } onClose={ onClose } inline={ false } />
+				<button>Outside</button>
+			</>
+		);
+		await user.tab();
+		const trigger = screen.getAllByRole( 'button' )[ 0 ];
+		await user.keyboard( '{Enter}' );
+		await user.tab( { shift } );
+		expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
+		expect( trigger ).toHaveFocus();
+		await user.keyboard( '{Escape}' );
+		expect( trigger ).toHaveAttribute( 'aria-expanded', 'false' );
+		expect( onClose ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'keeps input focus when a tooltip opens on hover', async () => {
+		const user = userEvent.setup();
+		render(
+			<>
+				<input aria-label="Field" />
+				<IconTooltip { ...testProps } hoverShow />
+			</>
+		);
+		const field = screen.getByRole( 'textbox' );
+		await user.click( field );
+		await user.hover( screen.getByTestId( 'icon-tooltip_wrapper' ) );
+		expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
+		expect( field ).toHaveFocus();
+	} );
+
 	it.each( [ true, false ] )(
 		'preserves controlled mouse and keyboard dismissal with inline=%s',
 		async inline => {

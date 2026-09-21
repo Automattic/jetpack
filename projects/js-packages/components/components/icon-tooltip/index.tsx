@@ -1,4 +1,5 @@
 import { Popover } from '@wordpress/components';
+import { focus } from '@wordpress/dom';
 import { Icon, info } from '@wordpress/icons';
 import clsx from 'clsx';
 import {
@@ -57,16 +58,27 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 } ) => {
 	const POPOVER_HELPER_WIDTH = 124;
 	const [ isVisible, setIsVisible ] = useState( false );
+	const [ openedByHover, setOpenedByHover ] = useState( false );
 	const [ hoverTimeout, setHoverTimeout ] = useState( null );
 	const popoverRef = useRef< HTMLDivElement >( null );
+	const contentRef = useRef< HTMLDivElement >( null );
+	const iconTriggerRef = useRef< HTMLButtonElement >( null );
+	const activeTriggerRef = triggerRef ?? iconTriggerRef;
+	const returnFocusOnClose = useRef( false );
+	const onCloseRef = useRef( onClose );
+	// A held pointer press must leave the controlled trigger open until its click toggles it.
 	const pointerReturningToTrigger = useRef( false );
+	useEffect( () => {
+		onCloseRef.current = onClose;
+	}, [ onClose ] );
 	const hideTooltip = useCallback( () => {
 		setIsVisible( false );
-		onClose?.();
-	}, [ onClose ] );
+		onCloseRef.current?.();
+	}, [] );
 	const toggleTooltip = useCallback(
 		e => {
 			e.preventDefault();
+			setOpenedByHover( false );
 			setIsVisible( ! isVisible );
 		},
 		[ isVisible, setIsVisible ]
@@ -84,6 +96,27 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		[ toggleTooltip, isVisible, hideTooltip ]
 	);
 
+	const handlePopoverKeyDown = useCallback(
+		( event: KeyboardEvent< HTMLDivElement > ) => {
+			if ( event.key !== 'Tab' || ! contentRef.current ) {
+				return;
+			}
+			const tabbables = focus.tabbable.find( contentRef.current );
+			const boundary = event.shiftKey ? tabbables[ 0 ] : tabbables[ tabbables.length - 1 ];
+			if (
+				! tabbables.length ||
+				event.target === boundary ||
+				( event.shiftKey && event.target === popoverRef.current )
+			) {
+				event.preventDefault();
+				event.stopPropagation();
+				returnFocusOnClose.current = true;
+				hideTooltip();
+			}
+		},
+		[ hideTooltip ]
+	);
+
 	const args = {
 		// To be compatible with deprecating prop `position`.
 		position: placementsToPositions( placement ),
@@ -93,7 +126,8 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		resize: false,
 		flip: false,
 		offset, // The distance (in px) between the anchor and the popover.
-		focusOnMount: true,
+		focusOnMount: forceShow || ! openedByHover,
+		onKeyDownCapture: handlePopoverKeyDown,
 		ref: popoverRef,
 		onClose: hideTooltip,
 		onFocusOutside: event => {
@@ -119,6 +153,10 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	const isForcedToShow = isAnchorWrapper && forceShow;
 
 	useEffect( () => {
+		if ( ! ( isForcedToShow || isVisible ) && returnFocusOnClose.current ) {
+			returnFocusOnClose.current = false;
+			activeTriggerRef.current?.focus();
+		}
 		const trigger = triggerRef?.current;
 		if ( ! trigger || ! ( isForcedToShow || isVisible ) ) {
 			return;
@@ -128,6 +166,9 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 			pointerReturningToTrigger.current = trigger.contains( event.target as Node );
 		};
 		const handleFocus = ( event: FocusEvent ) => {
+			if ( returnFocusOnClose.current ) {
+				return;
+			}
 			if (
 				! popoverRef.current?.contains( event.target as Node ) &&
 				! ( pointerReturningToTrigger.current && trigger.contains( event.target as Node ) )
@@ -144,6 +185,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		};
 		ownerDocument.addEventListener( 'focusin', handleFocus );
 		ownerDocument.addEventListener( 'mousedown', handleMouseDown, true );
+		// Capture Escape before the trigger or portaled popover can stop its propagation.
 		ownerDocument.addEventListener( 'keydown', handleTriggerKeyDown, true );
 		return () => {
 			pointerReturningToTrigger.current = false;
@@ -151,7 +193,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 			ownerDocument.removeEventListener( 'mousedown', handleMouseDown, true );
 			ownerDocument.removeEventListener( 'keydown', handleTriggerKeyDown, true );
 		};
-	}, [ triggerRef, isForcedToShow, isVisible, hideTooltip ] );
+	}, [ activeTriggerRef, triggerRef, isForcedToShow, isVisible, hideTooltip ] );
 
 	const handleMouseEnter = useCallback( () => {
 		if ( hoverShow ) {
@@ -159,9 +201,12 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 				clearTimeout( hoverTimeout );
 				setHoverTimeout( null );
 			}
-			setIsVisible( true );
+			if ( ! isVisible ) {
+				setOpenedByHover( true );
+				setIsVisible( true );
+			}
 		}
-	}, [ hoverShow, hoverTimeout ] );
+	}, [ hoverShow, hoverTimeout, isVisible ] );
 
 	const handleMouseLeave = useCallback( () => {
 		if ( hoverShow ) {
@@ -182,6 +227,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		>
 			{ ! isAnchorWrapper && (
 				<Button
+					ref={ iconTriggerRef }
 					variant="link"
 					aria-expanded={ isVisible }
 					onMouseDown={ toggleTooltip }
@@ -196,7 +242,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 			>
 				{ ( isForcedToShow || isVisible ) && (
 					<Popover { ...args }>
-						<div>
+						<div ref={ contentRef }>
 							{ title && <div className="icon-tooltip-title">{ title }</div> }
 							<div className="icon-tooltip-content">{ children }</div>
 						</div>

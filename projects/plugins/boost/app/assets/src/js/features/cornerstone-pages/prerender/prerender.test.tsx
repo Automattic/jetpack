@@ -1,6 +1,6 @@
 /* No jest-dom or user-event in this project. */
 /* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-checked, jest-dom/prefer-to-have-text-content, jest-dom/prefer-to-have-attribute, testing-library/prefer-user-event, testing-library/no-container, testing-library/no-node-access */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ModuleSurfaceProvider } from '$features/module/surface';
 import Prerender from './prerender';
 
@@ -86,6 +86,35 @@ describe( 'Prerender', () => {
 		expect( screen.queryByText( 'Warning' ) ).toBeNull();
 		expect( trigger.ownerDocument.activeElement ).toBe( trigger );
 		expect( trigger.getAttribute( 'aria-expanded' ) ).toBe( 'false' );
+	} );
+
+	it.each( [ false, true ] )( 'keeps a held warning open across a rerender (row: %s)', row => {
+		jest.useFakeTimers();
+		try {
+			const { rerender } = renderPrerender( row );
+			const trigger = screen.getByRole( 'button', { name: 'be mindful' } );
+			trigger.focus();
+			fireEvent.click( trigger );
+			fireEvent.mouseDown( trigger );
+			rerender(
+				row ? (
+					<ModuleSurfaceProvider value="row">
+						<Prerender />
+					</ModuleSurfaceProvider>
+				) : (
+					<Prerender />
+				)
+			);
+			act( () => trigger.focus() );
+			act( () => jest.advanceTimersByTime( 100 ) );
+			expect( screen.getByText( 'Warning' ) ).toBeTruthy();
+			fireEvent.mouseUp( trigger );
+			fireEvent.click( trigger );
+			expect( screen.queryByText( 'Warning' ) ).toBeNull();
+			expect( trigger.getAttribute( 'aria-expanded' ) ).toBe( 'false' );
+		} finally {
+			jest.useRealTimers();
+		}
 	} );
 
 	it( 'reflects an enabled module', () => {
