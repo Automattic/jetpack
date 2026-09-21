@@ -294,6 +294,69 @@ describe( 'LineChart', () => {
 			expect( tooltip ).not.toHaveTextContent( 'Series A:0' );
 		} );
 
+		test( 'keeps a y axis when every visible bucket has no reading', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: null as number | null },
+							{ date: new Date( '2024-01-02' ), value: null as number | null },
+							{ date: new Date( '2024-01-03' ), value: null as number | null },
+						],
+					},
+				],
+			} );
+
+			expect( screen.queryByText( /invalid data/i ) ).not.toBeInTheDocument();
+
+			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent ?? '' );
+			expect( ticks.length ).toBeGreaterThan( 0 );
+			ticks.forEach( tick => {
+				expect( Number.isFinite( Number( tick.replace( /,/g, '' ) ) ) ).toBe( true );
+			} );
+		} );
+
+		test( 'pins the value axis to a hidden series with real values, not the empty-domain fallback, when rescaleYOnVisibilityChange is false', () => {
+			const ref = createRef< ChartInstanceRef >();
+
+			renderUnwrappedWithTheme(
+				{
+					rescaleYOnVisibilityChange: false,
+					defaultHiddenSeries: [ 'Series A' ],
+					data: [
+						{
+							label: 'Series A',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 10 },
+								{ date: new Date( '2024-01-02' ), value: 20 },
+							],
+						},
+						{
+							label: 'Series B',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: null as number | null },
+								{ date: new Date( '2024-01-02' ), value: null as number | null },
+							],
+						},
+					],
+				},
+				'default',
+				ref
+			);
+
+			const domain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+
+			expect( domain ).toBeDefined();
+			expect( domain ).not.toEqual( [ 0, 1 ] );
+			expect( Math.max( ...( domain ?? [] ) ) ).toBeGreaterThan( 1 );
+		} );
+
 		test( 'still rejects undefined values', () => {
 			renderWithTheme( {
 				data: [

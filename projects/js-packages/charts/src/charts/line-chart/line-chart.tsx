@@ -371,6 +371,18 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			preventTooltipScroll: tooltipPlacement === 'below-axis',
 		} );
 
+		// visx's d3.extent skips null/undefined/NaN, so a window where every visible bucket
+		// is null (e.g. entirely before a site launched) leaves the y scale with no domain.
+		const hasVisibleReading = useMemo( () => {
+			return dataSorted.some(
+				series =>
+					isSeriesVisible( series.label ) &&
+					series.data.some(
+						point => typeof point?.value === 'number' && Number.isFinite( point.value )
+					)
+			);
+		}, [ dataSorted, isSeriesVisible ] );
+
 		const chartOptions = useMemo( () => {
 			return {
 				axis: {
@@ -401,11 +413,21 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 					type: 'linear' as const,
 					nice: true,
 					zero: false,
+					...( hasVisibleReading ? {} : { domain: [ 0, 1 ] as [ number, number ] } ),
 					...( stableYDomain ? { domain: stableYDomain } : {} ),
 					...options?.yScale,
 				},
 			};
-		}, [ options, dataSorted, width, zoom.domain, stableYDomain, formatting, isSeriesVisible ] );
+		}, [
+			options,
+			dataSorted,
+			width,
+			zoom.domain,
+			stableYDomain,
+			hasVisibleReading,
+			formatting,
+			isSeriesVisible,
+		] );
 
 		// Classified from the rendered series, like the axis above: a hidden
 		// hourly line must not leave the tooltip naming an hour the axis dropped.
