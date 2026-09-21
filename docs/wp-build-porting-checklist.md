@@ -82,11 +82,11 @@ Run the [JETPACK-2573](https://linear.app/a8c/issue/JETPACK-2573) verification: 
 2. **Diff computed styles and geometry, not screenshots — scriptable.** Compare `#wpbody-content`, the page root, header, footer, `font-family`, and one control's box. A 4px shift is invisible in a screenshot and obvious in a number.
 3. **Diff the network panel — scriptable.** Same requests, same status codes. This caught a `design-tokens.css` 404 and a renamed JITM message path in the My Jetpack pilot — both zero-pixel changes.
 4. **Load every deep link in a fresh tab, not by clicking through the app — human.** Hash routes bypass the app's own router when they arrive from WordPress.com, support docs, or email.
-5. **RTL pass on one route — human.** Confirm the content column isn't clipped under the admin menu ([#51963](https://github.com/Automattic/jetpack/pull/51963) shipped this regression on an already-ported dashboard).
-6. **Non-default admin colour scheme — human.** The backdrop must follow the menu colour ([#51619](https://github.com/Automattic/jetpack/pull/51619)).
+5. **RTL pass on one route — human.** Confirm the content column isn't clipped under the admin menu. Physical `left`/`right` offsets in `admin-page-layout.scss` did exactly that on an already-ported dashboard, fixed in [#51963](https://github.com/Automattic/jetpack/pull/51963).
+6. **Non-default admin colour scheme — human.** The backdrop must follow the menu colour. It went near-black next to a coloured menu on every WordPress.com scheme, fixed in [#51619](https://github.com/Automattic/jetpack/pull/51619).
 7. **Delete `build/` and reload — human.** The page must fall back to the legacy screen (or show a visible error, per §8), never blank.
 
-Nothing in CI runs steps 4 through 7 today. Re-run steps 2, 5, and 6 across every ported dashboard after any `@wordpress/boot` version bump — both known post-ship regressions ([#51963](https://github.com/Automattic/jetpack/pull/51963), [#52096](https://github.com/Automattic/jetpack/pull/52096)) came from one.
+Nothing in CI runs steps 4 through 7 today. Re-run steps 2, 5 and 6 across every ported dashboard after any `@wordpress/boot` version bump: boot 0.21 turned its layout styles into CSS Modules and renamed the classes, which pushed dashboard sidebars below the content on three shipped dashboards ([#52096](https://github.com/Automattic/jetpack/pull/52096)). The other known post-ship regression, RTL clipping ([#51963](https://github.com/Automattic/jetpack/pull/51963)), had nothing to do with boot — it was our own physical CSS properties, and steps 5 and 6 are worth re-running whether or not boot moved.
 
 - [ ] Changelog entries for the project, and for every plugin whose users would notice — see `AGENTS.md` § "User-Facing Changes Outside a Plugin Also Need Plugin Entries".
 
