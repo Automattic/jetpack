@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -1392,6 +1393,36 @@ class Search_Blocks_Test extends TestCase {
 				'enqueue_editor_assets must call wp_set_script_translations() with the jetpack-search-pkg domain'
 			);
 		} finally {
+			wp_deregister_script( $handle );
+			$cleanup();
+		}
+	}
+
+	/**
+	 * Pass the AI restriction to the editor independently of the plan.
+	 */
+	public function test_editor_ai_flag_respects_host_restrictions() {
+		$cleanup = $this->stub_editor_asset_file( array() );
+		$handle  = 'jetpack-search-blocks-register';
+		try {
+			foreach ( array( true, false ) as $allowed ) {
+				$filter = $allowed ? '__return_true' : '__return_false';
+				add_filter( 'wp_supports_ai', $filter );
+				Constants::set_constant( 'WP_AI_SUPPORT', $allowed );
+				Search_Blocks::enqueue_editor_assets();
+
+				$scripts = wp_scripts()->get_data( $handle, 'before' );
+				$config  = json_decode( substr( end( $scripts ), strlen( 'window.JetpackSearchBlocksConfig = ' ), -1 ), true );
+				$this->assertIsArray( $config );
+				$this->assertSame( $allowed, $config['aiMasterEnabled'] );
+
+				remove_filter( 'wp_supports_ai', $filter );
+				wp_deregister_script( $handle );
+			}
+		} finally {
+			remove_filter( 'wp_supports_ai', '__return_true' );
+			remove_filter( 'wp_supports_ai', '__return_false' );
+			Constants::clear_single_constant( 'WP_AI_SUPPORT' );
 			wp_deregister_script( $handle );
 			$cleanup();
 		}

@@ -238,6 +238,16 @@ class Ai_Answer_Render_Test extends TestCase {
 		$this->assertStringNotContainsString( 'data-wp-interactive', $markup );
 	}
 
+	public function test_renders_nothing_when_ai_answers_are_filtered_off() {
+		$this->turn_ai_master_on();
+		add_filter( 'jetpack_search_ai_answers_enabled', '__return_false' );
+		try {
+			$this->assertSame( '', trim( $this->render() ) );
+		} finally {
+			remove_filter( 'jetpack_search_ai_answers_enabled', '__return_false' );
+		}
+	}
+
 	public function test_renders_with_the_master_on_independent_of_site_option() {
 		// The contract's Search row: with the master on, the site option only
 		// governs the overlay — the embedded block renders either way.
