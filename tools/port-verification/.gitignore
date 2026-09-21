@@ -1,0 +1,3 @@
+node_modules/
+*.snapshot.json
+*-report.md
