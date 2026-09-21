@@ -97,7 +97,7 @@ type BarChartResponsiveComponent = FC< BarChartBaseProps & ResponsiveConfig > &
 
 // Validation function similar to LineChart
 const validateData = ( data: SeriesData[] ) => {
-	if ( ! data?.length ) return 'No data available';
+	if ( ! data?.length ) return __( 'No data available', 'jetpack-charts' );
 
 	const hasInvalidData = data.some( series =>
 		series.data.some(
@@ -109,7 +109,7 @@ const validateData = ( data: SeriesData[] ) => {
 		)
 	);
 
-	if ( hasInvalidData ) return 'Invalid data';
+	if ( hasInvalidData ) return __( 'Invalid data', 'jetpack-charts' );
 	return null;
 };
 
