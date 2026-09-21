@@ -55,7 +55,7 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 		<CollapsibleMeta
 			toggleText={ __( 'Adjust Quality', 'jetpack-boost' ) }
 			header={ <Header /> }
-			headerClassName={ surface === 'row' ? styles[ 'well-header' ] : undefined }
+			compactHeader={ surface === 'row' }
 			summary={ surface === 'row' ? undefined : <Summary imageCdnQuality={ imageCdnQuality } /> }
 			tracksEvent="image_cdn_panel_toggle"
 		>

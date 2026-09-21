@@ -6,6 +6,10 @@ import { ModuleSurfaceProvider } from '$features/module/surface';
 import { useImageCdnQuality } from '../lib/stores';
 import QualitySettings from './quality-settings';
 
+jest.mock( './quality-settings.module.scss', () => ( { well: 'well' } ) );
+jest.mock( '$features/ui/module-subsection/module-subsection.module.scss', () => ( {
+	wrapper: 'module-subsection',
+} ) );
 jest.mock( '../lib/stores', () => ( { useImageCdnQuality: jest.fn() } ) );
 jest.mock( '$features/ui/mutation-notice/mutation-notice', () => ( {
 	useMutationNotice: jest.fn(),
@@ -76,8 +80,11 @@ test( 'expands existing quality values and preserves other formats when saving q
 } );
 
 test( 'keeps the Image Quality heading and summary on the default legacy surface', () => {
-	render( <QualitySettings isPremium /> );
+	const { container } = render( <QualitySettings isPremium /> );
 
+	expect( container.firstElementChild?.className ).toBe( 'module-subsection' );
+	// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The well is a presentation container.
+	expect( container.querySelector( '.well' ) ).toBeNull();
 	expect( screen.getByRole( 'heading', { name: 'Image Quality', level: 4 } ) ).toBeTruthy();
 	expect(
 		screen.getByText( 'JPEG Quality: 75, PNG Quality: lossless, WEBP Quality: 65' )
