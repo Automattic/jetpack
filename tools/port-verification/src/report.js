@@ -44,6 +44,29 @@ function geometryRow( { key, label, status, before, details }, targets ) {
 }
 
 /**
+ * Targets that produced no diff entry at all, because their selector matched in neither
+ * capture. Without a row the report reads the same as a passing check -- most often when
+ * --control-selector was left off, so step 2's box model was never measured.
+ *
+ * @param {object[]} geometry - From `diffGeometry()`.
+ * @param {object}   targets  - Selector config.
+ * @return {Array<{key: string, row: string, required: boolean}>}
+ */
+function unmeasuredTargets( geometry, targets ) {
+	const measured = new Set( geometry.map( g => g.key ) );
+	return Object.entries( targets )
+		.filter( ( [ key ] ) => ! measured.has( key ) )
+		.map( ( [ key, target ] ) => {
+			const required = target.required ?? false;
+			const reason = target.selector
+				? 'selector matched in neither capture'
+				: 'no selector given (--control-selector)';
+			const status = required ? 'NOT MEASURED' : 'skipped (optional)';
+			return { key, required, row: `| ${ target.label } | ${ status } | ${ reason } |` };
+		} );
+}
+
+/**
  * @param {object[]} requests
  * @param {object}   [options] - Passed to `redactUrl()`, so displayed URLs match the ignore list used for matching.
  * @return {string} One Markdown bullet list line per request, or a single "none" line.
@@ -53,12 +76,15 @@ function requestList( requests, options ) {
 		return '  - none';
 	}
 	return requests
-		.map( r => `  - \`${ r.method } ${ redactUrl( r.url, options ) }\` -> ${ r.status }` )
+		.map( r => {
+			const repeats = r.count > 1 ? ` (fired ${ r.count }x)` : '';
+			return `  - \`${ r.method } ${ redactUrl( r.url, options ) }\` -> ${ r.status }${ repeats }`;
+		} )
 		.join( '\n' );
 }
 
 /**
- * @param {{key: string, before: object, after: object}[]} changes - From `diffNetwork().statusChanged`.
+ * @param {{key: string, beforeStatuses: number[], afterStatuses: number[]}[]} changes - From `diffNetwork().statusChanged`.
  * @return {string} One Markdown bullet list line per changed request, or a single "none" line.
  */
 function statusChangeList( changes ) {
@@ -66,7 +92,23 @@ function statusChangeList( changes ) {
 		return '  - none';
 	}
 	return changes
-		.map( c => `  - \`${ c.key }\`: ${ c.before.status } -> ${ c.after.status }` )
+		.map(
+			c =>
+				`  - \`${ c.key }\`: ${ c.beforeStatuses.join( ', ' ) } -> ${ c.afterStatuses.join( ', ' ) }`
+		)
+		.join( '\n' );
+}
+
+/**
+ * @param {{key: string, beforeCount: number, afterCount: number}[]} changes - From `diffNetwork().countChanged`.
+ * @return {string} One Markdown bullet list line per request, or a single "none" line.
+ */
+function countChangeList( changes ) {
+	if ( changes.length === 0 ) {
+		return '  - none';
+	}
+	return changes
+		.map( c => `  - \`${ c.key }\`: fired ${ c.beforeCount }x -> ${ c.afterCount }x` )
 		.join( '\n' );
 }
 
@@ -88,20 +130,25 @@ export function formatReport(
 	options = {}
 ) {
 	const { geometry, network } = diffResult;
-	const geometryFindings = geometry.filter( g => {
-		if ( g.status === 'changed' ) {
-			return true;
-		}
-		if ( g.status === 'missing' ) {
-			return targets[ g.key ]?.required ?? false;
-		}
-		if ( g.status === 'hidden-changed' ) {
-			return ! ( targets[ g.key ]?.allowHidden ?? false );
-		}
-		return false;
-	} ).length;
+	const unmeasured = unmeasuredTargets( geometry, targets );
+	const geometryFindings =
+		geometry.filter( g => {
+			if ( g.status === 'changed' ) {
+				return true;
+			}
+			if ( g.status === 'missing' ) {
+				return targets[ g.key ]?.required ?? false;
+			}
+			if ( g.status === 'hidden-changed' ) {
+				return ! ( targets[ g.key ]?.allowHidden ?? false );
+			}
+			return false;
+		} ).length + unmeasured.filter( u => u.required ).length;
 	const networkFindings =
-		network.onlyBefore.length + network.onlyAfter.length + network.statusChanged.length;
+		network.onlyBefore.length +
+		network.onlyAfter.length +
+		network.statusChanged.length +
+		network.countChanged.length;
 
 	const lines = [
 		'## Port verification -- steps 2 & 3 (JETPACK-2685)',
@@ -116,6 +163,7 @@ export function formatReport(
 		'| Element | Status | Details |',
 		'| --- | --- | --- |',
 		...geometry.map( g => geometryRow( g, targets ) ),
+		...unmeasured.map( u => u.row ),
 		'',
 		'### Step 3 -- network panel',
 		'',
@@ -125,6 +173,8 @@ export function formatReport(
 		requestList( network.onlyAfter, options ),
 		`- Status code changed (${ network.statusChanged.length }):`,
 		statusChangeList( network.statusChanged ),
+		`- Request count changed (${ network.countChanged.length }):`,
+		countChangeList( network.countChanged ),
 		'',
 		'### Summary',
 		'',

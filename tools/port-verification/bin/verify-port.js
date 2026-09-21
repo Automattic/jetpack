@@ -8,10 +8,10 @@
 
 import fs from 'fs';
 import readline from 'readline/promises';
-import { parseArgs } from 'util';
 import { diffSnapshots } from '../src/diff.js';
+import { parseOptions } from '../src/options.js';
 import { formatReport } from '../src/report.js';
-import { DEFAULT_IGNORED_QUERY_PARAMS, DEFAULT_TOLERANCE_PX } from '../src/selectors.js';
+import { DEFAULT_IGNORED_QUERY_PARAMS } from '../src/selectors.js';
 
 // Loaded lazily (only by `capture` and `run`) so `--help` and `diff` -- which need no
 // browser -- still work without Playwright installed.
@@ -35,48 +35,6 @@ Credentials also read from WP_ADMIN_USER / WP_ADMIN_PASS.
 --ignore-query-param <name> (repeatable) adds to the default ignored list
 (${ DEFAULT_IGNORED_QUERY_PARAMS.join( ', ' ) }) for step 3's request matching and display.
 See README.md for the full walkthrough, including how to flip the flag between captures.`;
-
-const OPTION_SPEC = {
-	url: { type: 'string' },
-	flag: { type: 'string' },
-	user: { type: 'string' },
-	pass: { type: 'string' },
-	'control-selector': { type: 'string' },
-	'wait-selector': { type: 'string' },
-	tolerance: { type: 'string' },
-	'ignore-query-param': { type: 'string', multiple: true, default: [] },
-	out: { type: 'string' },
-	before: { type: 'string' },
-	after: { type: 'string' },
-	headed: { type: 'boolean', default: false },
-	help: { type: 'boolean', default: false },
-};
-
-/**
- * @param {string[]} argv - Everything after the subcommand.
- * @return {object} Parsed options, camel-cased from `OPTION_SPEC`'s kebab-case keys.
- */
-function parseOptions( argv ) {
-	const { values } = parseArgs( { args: argv, options: OPTION_SPEC, allowPositionals: false } );
-	const extraIgnoreParams = values[ 'ignore-query-param' ];
-	return {
-		url: values.url,
-		flag: values.flag,
-		username: values.user ?? process.env.WP_ADMIN_USER,
-		password: values.pass ?? process.env.WP_ADMIN_PASS,
-		controlSelector: values[ 'control-selector' ],
-		waitForSelector: values[ 'wait-selector' ],
-		tolerancePx: values.tolerance ? Number( values.tolerance ) : DEFAULT_TOLERANCE_PX,
-		ignoreQueryParams: extraIgnoreParams.length
-			? [ ...DEFAULT_IGNORED_QUERY_PARAMS, ...extraIgnoreParams ]
-			: undefined,
-		out: values.out,
-		before: values.before,
-		after: values.after,
-		headless: ! values.headed,
-		help: values.help,
-	};
-}
 
 /**
  * @param {string} path
@@ -195,6 +153,6 @@ async function main() {
 }
 
 main().catch( err => {
-	console.error( err.stack ?? err.message );
+	console.error( process.env.DEBUG ? ( err.stack ?? err.message ) : err.message );
 	process.exit( 1 );
 } );

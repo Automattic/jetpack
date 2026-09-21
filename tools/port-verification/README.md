@@ -18,9 +18,11 @@ that rule stay manual -- see "Not covered" below.
 - **Step 3, network.** Every request the page fires, matched flag-off to flag-on by method +
   path (nonces and cache-busting query params -- see `DEFAULT_IGNORED_QUERY_PARAMS` in
   `src/selectors.js` -- are stripped before matching and before display, so the report never
-  quotes a live nonce). Reports requests that only fired one time, and requests whose status
-  code changed. This is what caught a `design-tokens.css` 404 and a renamed JITM message path
-  in the My Jetpack pilot -- both zero-pixel changes.
+  quotes a live nonce). Reports requests that fired on one side only, requests whose set of
+  status codes changed, and requests that fired a different number of times. This is what
+  caught a `design-tokens.css` 404 and a renamed JITM message path in the My Jetpack pilot --
+  both zero-pixel changes. The login and Dashboard page loads are dropped before the diff, so
+  only the page you pointed it at is compared.
 
 The one difference JETPACK-2573 accepts is a uniform 8px inset from boot's stage gutter on the
 page root. The report says so in its footer; it does not try to auto-approve that one row.
@@ -60,17 +62,17 @@ above).
 
 ### Options
 
-| Flag                   | Meaning                                                                                                                                                                                                                                                                                                            |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `--url`                | Page to capture. Required.                                                                                                                                                                                                                                                                                         |
-| `--flag`               | Feature flag name, printed in the pause prompt and the report header. Optional.                                                                                                                                                                                                                                    |
-| `--user` / `--pass`    | wp-admin login. Falls back to `WP_ADMIN_USER` / `WP_ADMIN_PASS`. Omit to capture without logging in (e.g. the site is already authenticated).                                                                                                                                                                      |
-| `--control-selector`   | CSS selector for the one control to box-model (step 2). Skipped if omitted.                                                                                                                                                                                                                                        |
-| `--wait-selector`      | Extra selector to wait for after navigation, e.g. the boot mount, so a slow-hydrating page isn't captured mid-render.                                                                                                                                                                                              |
-| `--tolerance`          | Geometry tolerance in px. Default `0.5` -- rounding noise, not a real shift.                                                                                                                                                                                                                                       |
-| `--ignore-query-param` | Repeatable. Adds a query param to the default ignore list for step 3 matching and display (`_wpnonce`, `ver`, `_`, `_locale`). Use it for a site-specific volatile param -- generic names like `v` or `t` are deliberately not ignored by default, since they can carry real state (an API version, a tab filter). |
-| `--out`                | Write the report to a file (in addition to stdout).                                                                                                                                                                                                                                                                |
-| `--headed`             | Run the browser headed, for watching the capture happen.                                                                                                                                                                                                                                                           |
+| Flag                   | Meaning                                                                                                                                                                                                                                                                                                                                     |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--url`                | Page to capture. Required.                                                                                                                                                                                                                                                                                                                  |
+| `--flag`               | Feature flag name, printed in the pause prompt and the report header. Optional.                                                                                                                                                                                                                                                             |
+| `--user` / `--pass`    | wp-admin login. Falls back to `WP_ADMIN_USER` / `WP_ADMIN_PASS`. Each capture starts a fresh browser profile with no cookies, so omit these only when the URL authenticates by itself -- a Jurassic Ninja autologin link. Otherwise the capture aborts on landing at `wp-login.php`.                                                        |
+| `--control-selector`   | CSS selector for the one control to box-model (step 2). Omit it and the report says the control was skipped.                                                                                                                                                                                                                                |
+| `--wait-selector`      | Extra selector to wait for after navigation, e.g. the boot mount, so a slow-hydrating page isn't captured mid-render.                                                                                                                                                                                                                       |
+| `--tolerance`          | Geometry tolerance in px. Default `0.5` -- rounding noise, not a real shift. A non-numeric value is rejected rather than silently disabling step 2.                                                                                                                                                                                         |
+| `--ignore-query-param` | Repeatable. Adds a query param to the default ignore list for step 3 matching and display (`_wpnonce`, `_ajax_nonce`, `_nonce`, `ver`, `_`, `_locale`). Use it for a site-specific volatile param -- generic names like `v` or `t` are deliberately not ignored by default, since they can carry real state (an API version, a tab filter). |
+| `--out`                | Write the report to a file (in addition to stdout).                                                                                                                                                                                                                                                                                         |
+| `--headed`             | Run the browser headed, for watching the capture happen.                                                                                                                                                                                                                                                                                    |
 
 ### Two-step alternative
 
@@ -111,6 +113,8 @@ node bin/verify-port.js diff --before off.json --after on.json --out report.md
 - Only with flag on (1):
   - `GET https://example.jurassic.ninja/wp-content/plugins/jetpack/design-tokens.css` -> 404
 - Status code changed (0):
+  - none
+- Request count changed (0):
   - none
 
 ### Summary

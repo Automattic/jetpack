@@ -6,9 +6,11 @@ import {
 	flagOnSnapshot,
 	flagOnSnapshotWith404,
 	flagOnSnapshotWithGeometryShift,
+	flagOnSnapshotWithRetried404,
 	flagOnSnapshotWithUnexpectedlyHiddenHeader,
 } from './fixtures.js';
 import { formatReport } from './report.js';
+import { DEFAULT_GEOMETRY_TARGETS } from './selectors.js';
 
 describe( 'formatReport', () => {
 	it( 'includes the page, flag and capture timestamps in the header', () => {
@@ -43,7 +45,6 @@ describe( 'formatReport', () => {
 			/\| Footer \(#wpfooter\) \| OK \(hidden by design\) \| visibility: visible -> hidden \|/
 		);
 		assert.doesNotMatch( report, /Footer \(#wpfooter\) \| CHANGED/ );
-		// The bug this guards: before the fix this row showed bogus px deltas like "width: 1120px -> 0px".
 		assert.doesNotMatch( report, /width: 1120px -> 0px/ );
 	} );
 
@@ -91,10 +92,16 @@ describe( 'formatReport', () => {
 		assert.match( report, /Only with flag off \(0\):\n {2}- none/ );
 	} );
 
-	it( 'summary counts findings, excluding the missing-but-optional control', () => {
+	it( 'summary counts nothing when the only configured target is the optional control', () => {
 		const before = { geometry: {}, network: [] };
 		const after = { geometry: {}, network: [] };
-		const report = formatReport( diffSnapshots( before, after ), { url: 'x' } );
+		const report = formatReport(
+			diffSnapshots( before, after ),
+			{ url: 'x' },
+			{
+				control: DEFAULT_GEOMETRY_TARGETS.control,
+			}
+		);
 		assert.match( report, /0 geometry finding\(s\), 0 network finding\(s\)\./ );
 	} );
 
@@ -104,7 +111,13 @@ describe( 'formatReport', () => {
 			network: [],
 		};
 		const after = { geometry: {}, network: [] };
-		const report = formatReport( diffSnapshots( before, after ), { url: 'x' } );
+		const report = formatReport(
+			diffSnapshots( before, after ),
+			{ url: 'x' },
+			{
+				header: DEFAULT_GEOMETRY_TARGETS.header,
+			}
+		);
 		assert.match( report, /\| Header \(#wpadminbar\) \| MISSING \|/ );
 		assert.match( report, /1 geometry finding\(s\)/ );
 	} );
@@ -115,8 +128,64 @@ describe( 'formatReport', () => {
 			network: [],
 		};
 		const after = { geometry: {}, network: [] };
-		const report = formatReport( diffSnapshots( before, after ), { url: 'x' } );
+		const report = formatReport(
+			diffSnapshots( before, after ),
+			{ url: 'x' },
+			{
+				control: DEFAULT_GEOMETRY_TARGETS.control,
+			}
+		);
 		assert.match( report, /\| Control \| ok \(not present, optional\) \|/ );
 		assert.match( report, /0 geometry finding\(s\)/ );
+	} );
+
+	it( 'says the control was skipped rather than leaving its row out', () => {
+		const before = flagOffSnapshot();
+		const after = flagOnSnapshot();
+		delete before.geometry.control;
+		delete after.geometry.control;
+		const report = formatReport( diffSnapshots( before, after ), { url: 'x' } );
+		assert.match(
+			report,
+			/\| Control \| skipped \(optional\) \| no selector given \(--control-selector\) \|/
+		);
+		// Only root's accepted inset; a skipped optional target is not a finding.
+		assert.match( report, /1 geometry finding\(s\)/ );
+	} );
+
+	it( 'counts a required target that matched in neither capture as NOT MEASURED', () => {
+		const before = flagOffSnapshot();
+		const after = flagOnSnapshot();
+		delete before.geometry.header;
+		delete after.geometry.header;
+		const report = formatReport( diffSnapshots( before, after ), { url: 'x' } );
+		assert.match(
+			report,
+			/\| Header \(#wpadminbar\) \| NOT MEASURED \| selector matched in neither capture \|/
+		);
+		assert.match( report, /2 geometry finding\(s\)/ );
+	} );
+
+	it( 'renders a status-code change as the two status lists', () => {
+		const before = flagOffSnapshot();
+		const after = flagOnSnapshotWithRetried404();
+		before.network.push( {
+			url: 'https://example.jurassic.ninja/wp-content/plugins/jetpack/design-tokens.css',
+			method: 'GET',
+			status: 200,
+			resourceType: 'stylesheet',
+		} );
+		const report = formatReport( diffSnapshots( before, after ), { url: 'x' } );
+		assert.match( report, /Status code changed \(1\):/ );
+		assert.match( report, /design-tokens\.css`: 200 -> 200, 404/ );
+	} );
+
+	it( 'reports a request that fired a different number of times', () => {
+		const before = flagOffSnapshot();
+		const after = flagOnSnapshot();
+		before.network.push( { ...before.network[ 0 ] } );
+		const report = formatReport( diffSnapshots( before, after ), { url: 'x' } );
+		assert.match( report, /Request count changed \(1\):/ );
+		assert.match( report, /dashboard\.js`: fired 2x -> 1x/ );
 	} );
 } );

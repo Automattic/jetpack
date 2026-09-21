@@ -50,8 +50,8 @@ async function login( page, siteUrl, username, password ) {
 function extractGeometryInPage( targetsArg ) {
 	/**
 	 * `display: none` (or `visibility: hidden`) collapses `getBoundingClientRect()` to all
-	 * zeros, which would otherwise read as a bogus geometry shift rather than a visibility
-	 * change (see the #wpfooter case selectors.js documents).
+	 * zeros. Recording the fact separately lets the diff report a visibility change instead
+	 * of four bogus px deltas.
 	 *
 	 * @param {Element} el
 	 * @return {boolean}
@@ -126,8 +126,8 @@ function extractGeometryInPage( targetsArg ) {
 
 /**
  * Capture one snapshot: navigate (logging in first if credentials are given), wait for
- * the page to settle, then read geometry for `targets` and every response since navigation
- * started.
+ * the page to settle, then read geometry for `targets` and every response the target page
+ * fired.
  *
  * @param {object}  options
  * @param {string}  options.url               - Page to capture.
@@ -173,18 +173,24 @@ export async function capturePage( options ) {
 		if ( username && password ) {
 			await login( page, url, username, password );
 		}
+		// Step 3 compares the target page's requests. Drop everything wp-login.php and the
+		// post-login Dashboard fired, or their (partly non-deterministic) traffic is diffed too.
+		network.length = 0;
 
 		await page.goto( url, { waitUntil: 'networkidle' } );
+		if ( page.url().includes( 'wp-login.php' ) ) {
+			throw new Error(
+				`Landed on wp-login.php instead of ${ url } -- pass --user/--pass, or use a URL that carries its own autologin token.`
+			);
+		}
 		if ( waitForSelector ) {
 			await page.waitForSelector( waitForSelector, { state: 'visible' } );
 			await page.waitForLoadState( 'networkidle' );
 		}
 
-		const geometry = await page.evaluate( extractGeometryInPage, resolvedTargets );
-
 		return {
 			meta: { url, capturedAt: new Date().toISOString() },
-			geometry,
+			geometry: await page.evaluate( extractGeometryInPage, resolvedTargets ),
 			network,
 		};
 	} finally {

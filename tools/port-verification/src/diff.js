@@ -65,14 +65,10 @@ function diffStyle( before, after, tolerancePx ) {
 }
 
 /**
- * Diff step 2's geometry snapshots: one entry per configured target (root, header,
- * footer, #wpbody-content, control).
+ * Diff step 2's geometry snapshots, one entry per target captured on either side.
  *
- * A target hidden on either side (`display: none` / `visibility: hidden`) skips the rect
- * and style diff entirely -- `getBoundingClientRect()` on a hidden element is all zeros,
- * which would otherwise read as a bogus geometry shift. A visibility change is reported as
- * its own `'hidden-changed'` status instead; the caller decides whether that particular
- * target is allowed to do that (see report.js: `allowHidden`, for #wpfooter).
+ * A target hidden on either side skips the rect and style diff and reports
+ * `'hidden-changed'` instead; report.js decides whether that target is allowed to do that.
  *
  * @param {object} before                - `{ [targetKey]: { label, hidden?, rect?, style? } }`.
  * @param {object} after                 - Same shape, from the flag-on capture.
@@ -183,34 +179,80 @@ export function redactUrl( url, options = {} ) {
 }
 
 /**
- * Diff step 3's network captures: which requests only fired with the flag off, which
- * only fired with it on, and which fired both times but with a different status code.
+ * Group requests by normalized key, keeping every occurrence rather than the last one:
+ * a path fetched twice in one load can carry two different statuses, and collapsing them
+ * hides exactly the 404 step 3 exists to find.
+ *
+ * @param {object[]} requests
+ * @param {object}   [options] - Passed to `normalizeRequestKey()`.
+ * @return {Map<string, object[]>}
+ */
+function groupByKey( requests, options ) {
+	const groups = new Map();
+	for ( const request of requests ) {
+		const key = normalizeRequestKey( request, options );
+		const group = groups.get( key );
+		if ( group ) {
+			group.push( request );
+		} else {
+			groups.set( key, [ request ] );
+		}
+	}
+	return groups;
+}
+
+/**
+ * Distinct, not per-occurrence: a differing occurrence count would otherwise always read as
+ * a status change and hide the count difference behind it.
+ *
+ * @param {object[]} group - One key's requests.
+ * @return {number[]} The status codes it saw, ascending.
+ */
+function statusesOf( group ) {
+	return [ ...new Set( group.map( r => r.status ) ) ].sort( ( x, y ) => x - y );
+}
+
+/**
+ * Diff step 3's network captures: which requests only fired with the flag off, which only
+ * fired with it on, which fired both times with a different set of status codes, and which
+ * fired a different number of times.
  *
  * @param {Array<object>} before    - `[{ url, method, status, resourceType }]`.
  * @param {Array<object>} after     - Same shape, from the flag-on capture.
  * @param {object}        [options]
- * @return {{onlyBefore: object[], onlyAfter: object[], statusChanged: object[]}}
+ * @return {{onlyBefore: object[], onlyAfter: object[], statusChanged: object[], countChanged: object[]}}
  */
 export function diffNetwork( before = [], after = [], options = {} ) {
-	const beforeMap = new Map( before.map( r => [ normalizeRequestKey( r, options ), r ] ) );
-	const afterMap = new Map( after.map( r => [ normalizeRequestKey( r, options ), r ] ) );
+	const beforeGroups = groupByKey( before, options );
+	const afterGroups = groupByKey( after, options );
 
 	const onlyBefore = [];
+	const onlyAfter = [];
 	const statusChanged = [];
-	for ( const [ key, b ] of beforeMap ) {
-		const a = afterMap.get( key );
+	const countChanged = [];
+
+	for ( const [ key, b ] of beforeGroups ) {
+		const a = afterGroups.get( key );
 		if ( ! a ) {
-			onlyBefore.push( b );
-		} else if ( a.status !== b.status ) {
-			statusChanged.push( { key, before: b, after: a } );
+			onlyBefore.push( { ...b[ 0 ], count: b.length } );
+			continue;
+		}
+		const beforeStatuses = statusesOf( b );
+		const afterStatuses = statusesOf( a );
+		if ( beforeStatuses.join( ',' ) !== afterStatuses.join( ',' ) ) {
+			statusChanged.push( { key, beforeStatuses, afterStatuses } );
+		} else if ( b.length !== a.length ) {
+			countChanged.push( { key, beforeCount: b.length, afterCount: a.length } );
 		}
 	}
 
-	const onlyAfter = [ ...afterMap.entries() ]
-		.filter( ( [ key ] ) => ! beforeMap.has( key ) )
-		.map( ( [ , r ] ) => r );
+	for ( const [ key, a ] of afterGroups ) {
+		if ( ! beforeGroups.has( key ) ) {
+			onlyAfter.push( { ...a[ 0 ], count: a.length } );
+		}
+	}
 
-	return { onlyBefore, onlyAfter, statusChanged };
+	return { onlyBefore, onlyAfter, statusChanged, countChanged };
 }
 
 /**

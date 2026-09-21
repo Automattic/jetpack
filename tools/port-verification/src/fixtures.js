@@ -5,9 +5,7 @@
  * matching the two real bugs JETPACK-2573 cites from the My Jetpack pilot.
  */
 
-/**
- *
- */
+/** The flag-off baseline every other fixture is built from. */
 export function flagOffSnapshot() {
 	return {
 		meta: {
@@ -81,8 +79,7 @@ export function flagOffSnapshot() {
 
 /**
  * A clean port: the page root shifts by the one accepted 8px stage-gutter inset, and
- * #wpfooter goes `display: none` (boot hides it by design -- see
- * projects/js-packages/base-styles/admin-page-layout.scss). Nothing else moves.
+ * #wpfooter goes hidden (which boot does by design -- see selectors.js). Nothing else moves.
  */
 export function flagOnSnapshot() {
 	const snapshot = flagOffSnapshot();
@@ -91,7 +88,6 @@ export function flagOnSnapshot() {
 		...snapshot.geometry.root,
 		rect: { x: 8, y: 8, width: 1264, height: 884 },
 	};
-	// A real display:none collapses getBoundingClientRect() to all zeros.
 	snapshot.geometry.footer = {
 		...snapshot.geometry.footer,
 		hidden: true,
@@ -116,6 +112,20 @@ export function flagOnSnapshotWith404() {
 	return snapshot;
 }
 
+/**
+ * The same 404, but on a path that is then fetched again successfully. Keying the diff by
+ * method + path alone would let the 200 overwrite the 404 and report nothing.
+ */
+export function flagOnSnapshotWithRetried404() {
+	const snapshot = flagOnSnapshot();
+	const url = 'https://example.jurassic.ninja/wp-content/plugins/jetpack/design-tokens.css';
+	snapshot.network.push(
+		{ url, method: 'GET', status: 404, resourceType: 'stylesheet' },
+		{ url, method: 'GET', status: 200, resourceType: 'stylesheet' }
+	);
+	return snapshot;
+}
+
 /** Reproduces a real geometry regression: #wpbody-content grows 12px wider than trunk. */
 export function flagOnSnapshotWithGeometryShift() {
 	const snapshot = flagOnSnapshot();
@@ -127,9 +137,9 @@ export function flagOnSnapshotWithGeometryShift() {
 }
 
 /**
- * An UNEXPECTED visibility regression: the header goes `display: none` too. Unlike the
- * footer, `header` has no `allowHidden` in `DEFAULT_GEOMETRY_TARGETS`, so this must surface
- * as a finding.
+ * An UNEXPECTED visibility regression: the header goes hidden too. Unlike the footer,
+ * `header` has no `allowHidden` in `DEFAULT_GEOMETRY_TARGETS`, so this must surface as a
+ * finding.
  */
 export function flagOnSnapshotWithUnexpectedlyHiddenHeader() {
 	const snapshot = flagOnSnapshot();

@@ -12,6 +12,7 @@ import {
 	flagOnSnapshot,
 	flagOnSnapshotWith404,
 	flagOnSnapshotWithGeometryShift,
+	flagOnSnapshotWithRetried404,
 	flagOnSnapshotWithUnexpectedlyHiddenHeader,
 } from './fixtures.js';
 
@@ -86,10 +87,6 @@ describe( 'diffGeometry', () => {
 		const [ result ] = diffGeometry( before, after );
 		assert.equal( result.status, 'hidden-changed' );
 		assert.deepEqual( result.details, [ 'visibility: visible -> hidden' ] );
-		// The regression this guards: before the fix, this printed "width: 1120px -> 0px" and
-		// similar bogus deltas for every rect field, since getBoundingClientRect() on a
-		// display:none element is all zeros.
-		assert.ok( ! result.details.some( line => /width:|height:|^x:|^y:/.test( line ) ) );
 	} );
 
 	it( 'reports a hidden-to-visible transition the other direction', () => {
@@ -146,6 +143,18 @@ describe( 'normalizeRequestKey', () => {
 		assert.equal( normalizeRequestKey( a, options ), normalizeRequestKey( b, options ) );
 	} );
 
+	it( 'strips _ajax_nonce too -- admin-ajax.php carries its nonce under that name', () => {
+		const a = {
+			url: 'https://site.test/wp-admin/admin-ajax.php?action=x&_ajax_nonce=aaa',
+			method: 'POST',
+		};
+		const b = {
+			url: 'https://site.test/wp-admin/admin-ajax.php?action=x&_ajax_nonce=bbb',
+			method: 'POST',
+		};
+		assert.equal( normalizeRequestKey( a ), normalizeRequestKey( b ) );
+	} );
+
 	it( 'falls back to a raw compare for a non-absolute URL', () => {
 		assert.equal(
 			normalizeRequestKey( { url: '/relative/path', method: 'GET' } ),
@@ -159,6 +168,14 @@ describe( 'redactUrl', () => {
 		const redacted = redactUrl( 'https://site.test/wp-json/x?_wpnonce=deadbeef1234&foo=1' );
 		assert.ok( ! redacted.includes( 'deadbeef1234' ) );
 		assert.ok( redacted.includes( 'foo=1' ) );
+	} );
+
+	it( 'strips an _ajax_nonce value as well', () => {
+		const redacted = redactUrl(
+			'https://site.test/wp-admin/admin-ajax.php?action=x&_ajax_nonce=cafebabe5678'
+		);
+		assert.ok( ! redacted.includes( 'cafebabe5678' ) );
+		assert.ok( redacted.includes( 'action=x' ) );
 	} );
 
 	it( 'keeps a param that was not marked as ignorable', () => {
@@ -175,7 +192,12 @@ describe( 'diffNetwork', () => {
 	it( 'finds no differences for identical request lists', () => {
 		const requests = [ { url: 'https://site.test/a.js', method: 'GET', status: 200 } ];
 		const result = diffNetwork( requests, requests );
-		assert.deepEqual( result, { onlyBefore: [], onlyAfter: [], statusChanged: [] } );
+		assert.deepEqual( result, {
+			onlyBefore: [],
+			onlyAfter: [],
+			statusChanged: [],
+			countChanged: [],
+		} );
 	} );
 
 	it( 'catches a request that only fires after the flag flips (the design-tokens.css 404 case)', () => {
@@ -195,8 +217,43 @@ describe( 'diffNetwork', () => {
 		const after = [ { url: 'https://site.test/a.js', method: 'GET', status: 500 } ];
 		const result = diffNetwork( before, after );
 		assert.equal( result.statusChanged.length, 1 );
-		assert.equal( result.statusChanged[ 0 ].before.status, 200 );
-		assert.equal( result.statusChanged[ 0 ].after.status, 500 );
+		assert.deepEqual( result.statusChanged[ 0 ].beforeStatuses, [ 200 ] );
+		assert.deepEqual( result.statusChanged[ 0 ].afterStatuses, [ 500 ] );
+	} );
+
+	it( 'does not let a later 200 on the same path hide an earlier 404', () => {
+		const url = 'https://site.test/design-tokens.css';
+		const before = [ { url, method: 'GET', status: 200 } ];
+		const after = [
+			{ url, method: 'GET', status: 404 },
+			{ url, method: 'GET', status: 200 },
+		];
+		const result = diffNetwork( before, after );
+		assert.equal( result.statusChanged.length, 1 );
+		assert.deepEqual( result.statusChanged[ 0 ].beforeStatuses, [ 200 ] );
+		assert.deepEqual( result.statusChanged[ 0 ].afterStatuses, [ 200, 404 ] );
+	} );
+
+	it( 'reports a request that fires a different number of times', () => {
+		const url = 'https://site.test/wp-json/jetpack/v4/settings';
+		const before = [ 1, 2, 3 ].map( () => ( { url, method: 'GET', status: 200 } ) );
+		const after = [ { url, method: 'GET', status: 200 } ];
+		const result = diffNetwork( before, after );
+		assert.deepEqual( result.countChanged, [
+			{ key: 'GET /wp-json/jetpack/v4/settings', beforeCount: 3, afterCount: 1 },
+		] );
+		assert.equal( result.statusChanged.length, 0 );
+	} );
+
+	it( 'counts repeats of a request that fires on one side only', () => {
+		const url = 'https://site.test/legacy.js';
+		const before = [
+			{ url, method: 'GET', status: 200 },
+			{ url, method: 'GET', status: 200 },
+		];
+		const result = diffNetwork( before, [] );
+		assert.equal( result.onlyBefore.length, 1 );
+		assert.equal( result.onlyBefore[ 0 ].count, 2 );
 	} );
 
 	it( 'catches a request that disappears after the flag flips', () => {
@@ -217,6 +274,7 @@ describe( 'diffSnapshots (fixtures)', () => {
 		assert.deepEqual( network.onlyBefore, [] );
 		assert.deepEqual( network.onlyAfter, [] );
 		assert.deepEqual( network.statusChanged, [] );
+		assert.deepEqual( network.countChanged, [] );
 
 		const root = geometry.find( g => g.key === 'root' );
 		assert.equal( root.status, 'changed' );
@@ -235,6 +293,13 @@ describe( 'diffSnapshots (fixtures)', () => {
 		assert.equal( network.onlyAfter.length, 1 );
 		assert.match( network.onlyAfter[ 0 ].url, /design-tokens\.css/ );
 		assert.equal( network.onlyAfter[ 0 ].status, 404 );
+	} );
+
+	it( 'still flags the 404 when the same path is refetched successfully right after', () => {
+		const { network } = diffSnapshots( flagOffSnapshot(), flagOnSnapshotWithRetried404() );
+		assert.equal( network.onlyAfter.length, 1 );
+		assert.match( network.onlyAfter[ 0 ].url, /design-tokens\.css/ );
+		assert.equal( network.onlyAfter[ 0 ].count, 2 );
 	} );
 
 	it( 'flags a #wpbody-content geometry shift beyond tolerance', () => {
