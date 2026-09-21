@@ -19,6 +19,12 @@ const CornerstonePages = () => {
 					title={
 						<div>
 							<h3>{ __( 'Cornerstone Pages', 'jetpack-boost' ) }</h3>
+							<p className={ styles.description }>
+								{ __(
+									'Choose the pages that matter most on your site so Boost can give them its most targeted optimizations.',
+									'jetpack-boost'
+								) }
+							</p>
 							{ summary }
 						</div>
 					}
