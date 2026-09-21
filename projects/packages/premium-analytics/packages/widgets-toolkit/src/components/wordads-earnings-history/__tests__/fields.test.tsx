@@ -103,6 +103,23 @@ describe( 'getWordAdsHistoryFields', () => {
 		] );
 	} );
 
+	it.each( [
+		[ 'asc', [ '2025-12', '2026-09', '2012-03' ] ],
+		[ 'desc', [ '2026-09', '2025-12', '2012-03' ] ],
+	] as const )( 'sorts Ads Served %s with rows lacking a count last', ( direction, periods ) => {
+		const withMissing = [
+			...rows,
+			{ id: '2012-03', period: '2012-03', amount: 1, pageviews: undefined, status: 1 },
+		];
+		const { data } = filterSortAndPaginate(
+			withMissing,
+			{ ...view, sort: { field: 'pageviews', direction } } as View,
+			fields
+		);
+
+		expect( data.map( row => row.period ) ).toEqual( periods );
+	} );
+
 	it( 'sorts periods chronologically, newest first', () => {
 		const { data } = filterSortAndPaginate(
 			rows,
