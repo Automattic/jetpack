@@ -9,21 +9,12 @@ import { __ } from '@wordpress/i18n';
  */
 import { useFeedbackBanner } from '../../hooks/use-feedback-banner';
 import styles from './feedback-banner.module.scss';
-import type { DashboardSectionSlug } from '../../../site-readiness';
-
-/** The tabs the copy speaks for; the banner stays off every other section. */
-const FEEDBACK_BANNER_SECTIONS: readonly DashboardSectionSlug[] = [ 'traffic', 'insights' ];
 
 type FeedbackBannerProps = {
 	/**
 	 * Whether the surface the banner belongs to is ready; nothing shows until then.
 	 */
 	enabled: boolean;
-
-	/**
-	 * The slug of the section the banner would stand on.
-	 */
-	section: string;
 };
 
 /**
@@ -33,9 +24,9 @@ type FeedbackBannerProps = {
  * @param {FeedbackBannerProps} props - Component props.
  * @return The banner, the modal it opens, or nothing.
  */
-export function FeedbackBanner( { enabled, section }: FeedbackBannerProps ): JSX.Element {
+export function FeedbackBanner( { enabled }: FeedbackBannerProps ): JSX.Element {
 	const { isVisible, isFeedbackOpen, open, complete, close, dismiss } = useFeedbackBanner( {
-		enabled: enabled && ( FEEDBACK_BANNER_SECTIONS as readonly string[] ).includes( section ),
+		enabled,
 	} );
 
 	const message = __(

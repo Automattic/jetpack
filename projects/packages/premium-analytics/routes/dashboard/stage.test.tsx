@@ -260,10 +260,10 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 
 jest.mock( './components', () => ( {
 	DashboardSections: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
-	// A marker, not the real banner, which owns its own preference and which
-	// tabs it speaks for. Covered here: when the stage offers it, and where.
-	FeedbackBanner: ( { enabled, section }: { enabled: boolean; section: string } ) =>
-		enabled ? <div data-testid="feedback-banner" data-section={ section } /> : null,
+	// A marker, not the real banner, which owns its own preference. Covered
+	// here: which section the stage offers it on, and when.
+	FeedbackBanner: ( { enabled }: { enabled: boolean } ) =>
+		enabled ? <div data-testid="feedback-banner" /> : null,
 	OnboardingTour: () => <div data-testid="onboarding-tour" />,
 	onboardingTourSteps: () => [],
 	// A marker, not the real notice, which reads a query cache these tests do not
@@ -534,18 +534,17 @@ describe( 'Dashboard feedback banner', () => {
 		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
 	} );
 
-	it( 'stands above the widgets of the active section', () => {
+	it( 'stands above the widgets of the default section', () => {
 		render( <Dashboard /> );
 
 		// `offers comparison` is where the widgets render; the banner reads above them.
 		const banner = screen.getByTestId( 'feedback-banner' );
-		expect( banner ).toHaveAttribute( 'data-section', 'traffic' );
 		expect( banner.compareDocumentPosition( screen.getByText( 'offers comparison' ) ) ).toBe(
 			Node.DOCUMENT_POSITION_FOLLOWING
 		);
 	} );
 
-	it( 'is offered on every tab, and told which one', () => {
+	it( 'holds off on a section the copy does not speak for', () => {
 		useDashboardSectionsMock.mockReturnValue( {
 			sections: [
 				{ slug: 'traffic', label: 'Traffic', title: 'Traffic', date_filter: DATE_FILTER_RANGE },
@@ -559,7 +558,7 @@ describe( 'Dashboard feedback banner', () => {
 
 		render( <Dashboard /> );
 
-		expect( screen.getByTestId( 'feedback-banner' ) ).toHaveAttribute( 'data-section', 'insights' );
+		expect( screen.queryByTestId( 'feedback-banner' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'waits for the onboarding journey that introduces the tab', () => {

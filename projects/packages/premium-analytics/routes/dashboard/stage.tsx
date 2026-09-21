@@ -316,8 +316,11 @@ function Dashboard(): JSX.Element {
 												{ /* Behind the onboarding journey: it introduces the tabs
 												     the banner asks about. */ }
 												<FeedbackBanner
-													section={ section.slug }
-													enabled={ ! editMode && onboarding.phase === 'closed' }
+													enabled={
+														! editMode &&
+														section.slug === defaultSection &&
+														onboarding.phase === 'closed'
+													}
 												/>
 
 												{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
