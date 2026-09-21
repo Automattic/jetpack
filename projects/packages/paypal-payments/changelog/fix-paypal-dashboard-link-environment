@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Send the "Open PayPal Dashboard" link to the sandbox app list when connecting in sandbox, instead of always opening the live one.

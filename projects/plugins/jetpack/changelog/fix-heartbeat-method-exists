@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Heartbeat: Guard Connection Heartbeat method calls with method_exists() to prevent fatals when another plugin loads an older Connection package.

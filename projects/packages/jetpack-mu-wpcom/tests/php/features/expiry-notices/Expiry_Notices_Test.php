@@ -7,9 +7,11 @@
 
 declare( strict_types = 1 );
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Wpcom;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/expiry-notices.php';
 require_once __DIR__ . '/trait-expiry-notices-fixtures.php';
@@ -49,6 +51,44 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( array( true, 100 ), $received );
 	}
 
+	public function test_the_reverted_transfer_lookup_is_not_called_once_remembered(): void {
+		// Same cache-key shape wpcom_expiry_get_reverted_transfer() uses for a blog id.
+		$cache_key = 'wpcom_expiry_notices_reverted_transfer_12345';
+		set_transient(
+			$cache_key,
+			wp_json_encode(
+				array(
+					'reverted_at'      => 111,
+					'for_expired_plan' => true,
+				),
+				JSON_UNESCAPED_SLASHES
+			),
+			HOUR_IN_SECONDS
+		);
+
+		try {
+			$lookup_called = false;
+			$value         = Expiry_Wpcom::remember(
+				$cache_key,
+				static function () use ( &$lookup_called ): ?string {
+					$lookup_called = true;
+					return null;
+				}
+			);
+
+			$this->assertFalse( $lookup_called, 'a remembered answer must not re-run the lookup' );
+			$this->assertSame(
+				array(
+					'reverted_at'      => 111,
+					'for_expired_plan' => true,
+				),
+				json_decode( (string) $value, true )
+			);
+		} finally {
+			delete_transient( $cache_key );
+		}
+	}
+
 	public function test_eligible_state_needs_an_admin_on_a_regular_site_with_a_lapsing_plan(): void {
 		$this->set_purchase( 5 );
 		$this->assertNotNull( wpcom_expiry_notices_eligible_state() );
@@ -69,6 +109,18 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 		wp_set_current_user( $this->subscriber_id );
 		$this->flush_expiry_memos();
 		$this->assertNull( wpcom_expiry_notices_eligible_state(), 'only admins are told' );
+	}
+
+	public function test_the_store_sandbox_holds_the_notices_back_on_simple(): void {
+		$this->set_purchase( 5 );
+		Constants::set_constant( 'IS_WPCOM', true );
+		$GLOBALS['store_sandbox_test_value'] = true;
+		$this->flush_expiry_memos();
+		$this->assertNull( wpcom_expiry_notices_eligible_state(), 'the sandbox store has no renewal lifecycle, so its expiry data is noise' );
+
+		Constants::set_constant( 'IS_WPCOM', false );
+		$this->flush_expiry_memos();
+		$this->assertNotNull( wpcom_expiry_notices_eligible_state(), 'an Atomic site never sees the sandbox' );
 	}
 
 	public function test_registers_the_dismiss_meta_in_admin_but_not_on_the_front_end(): void {
@@ -197,7 +249,7 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 					'state'          => Expiry_Data::STATE_EXPIRED,
 					'days_remaining' => -45,
 				),
-				'Your site has been moved to the Free plan. You no longer have access to plugins, custom themes, or 50 GB of storage. Upgrade your plan to restore your site.',
+				'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or 50 GB of storage. Contact support to get help restoring it.',
 			),
 			array(
 				array( 'product_slug' => 'mystery-bundle' ),
@@ -229,28 +281,60 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_after_the_revert_the_body_and_cta_ask_for_support(): void {
-		$this->pretend_reverted();
 		$state = $this->message_state(
 			array(
 				'state'          => Expiry_Data::STATE_EXPIRED,
-				'days_remaining' => -45,
+				'days_remaining' => -15,
+				'product_slug'   => '',
 			)
 		);
 
 		$this->assertSame(
-			'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or 50 GB of storage. Contact support to get help restoring it.',
+			'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or additional storage. Contact support to get help restoring it.',
 			wpcom_expiry_notices_banner_body( $state, true )
 		);
+		$this->assertSame( 'Your plan has expired', wpcom_expiry_notices_expired_heading( $state ) );
 
 		$cta = wpcom_expiry_notices_banner_urls( $state, '' )['primary'];
 		$this->assertSame( 'Contact support', $cta['label'] );
-		$this->assertSame( 'My Business plan expired and I need your help getting it restored.', $cta['message'] );
+		$this->assertSame( 'My plan expired and I need your help getting it restored.', $cta['message'] );
 		$this->assertStringContainsString( 'wordpress.com/help', $cta['url'] );
+	}
 
-		$this->assertSame(
-			'My plan expired and I need your help getting it restored.',
-			wpcom_expiry_notices_support_cta( array( 'product_slug' => 'mystery-bundle' ) )['message']
+	public function test_a_present_purchase_past_its_date_keeps_the_grace_copy_on_atomic(): void {
+		Constants::set_constant( 'IS_ATOMIC', true );
+		$state = $this->message_state(
+			array(
+				'state'          => Expiry_Data::STATE_EXPIRED_GRACE,
+				'days_remaining' => -45,
+			)
 		);
+
+		$this->assertStringStartsWith( 'Your site will move to the Free plan.', wpcom_expiry_notices_banner_body( $state, true ) );
+		$this->assertSame( 'Renew now', wpcom_expiry_notices_banner_urls( $state, '' )['primary']['label'] );
+	}
+
+	public function test_the_keys_are_registered_again_once_the_api_has_switched_to_the_site(): void {
+		$this->assertNotFalse( has_filter( 'rest_request_before_callbacks', 'wpcom_expiry_notices_register_meta_for_request' ) );
+
+		$key = Expiry_Notice_Dismiss::banner_meta_key();
+		$this->assertFalse( registered_meta_key_exists( 'user', $key ) );
+
+		$response = new \WP_REST_Response();
+		$this->assertSame( $response, wpcom_expiry_notices_register_meta_for_request( $response ) );
+		$this->assertTrue( registered_meta_key_exists( 'user', $key ) );
+	}
+
+	public function test_the_dismiss_request_needs_an_admin_and_a_known_key(): void {
+		$key = Expiry_Notice_Dismiss::banner_meta_key();
+
+		$this->assertSame( 403, wpcom_expiry_notices_dismiss( $key, $this->subscriber_id )['status'] );
+		$this->assertSame( '', get_user_meta( $this->subscriber_id, $key, true ) );
+
+		$this->assertSame( 400, wpcom_expiry_notices_dismiss( 'description', $this->admin_id )['status'] );
+
+		$this->assertSame( 200, wpcom_expiry_notices_dismiss( $key, $this->admin_id )['status'] );
+		$this->assertEqualsWithDelta( time(), (int) get_user_meta( $this->admin_id, $key, true ), 2 );
 	}
 
 	public function test_the_sentence_joins_heading_and_body(): void {

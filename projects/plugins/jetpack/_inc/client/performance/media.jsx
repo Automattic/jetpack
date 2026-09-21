@@ -61,12 +61,12 @@ class Media extends Component {
 				? __(
 						'1 free video available. Upgrade now to unlock more videos and 1TB of storage.',
 						'jetpack'
-				  )
+					)
 				: __(
 						'You have used your free video. Upgrade now to unlock more videos and 1TB of storage.',
 						'jetpack',
 						/* dummy arg to avoid bad minification */ 0
-				  );
+					);
 
 		const videoPressSettings = (
 			<SettingsGroup
@@ -75,6 +75,7 @@ class Media extends Component {
 				module={ videoPress }
 				support={ {
 					link: getRedirectUrl( 'jetpack-support-videopress' ),
+					wpcomLink: 'https://wordpress.com/support/videopress/',
 				} }
 			>
 				<FormLegend className="jp-form-label-wide">{ __( 'VideoPress', 'jetpack' ) }</FormLegend>

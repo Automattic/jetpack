@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { localTZDate } from '@jetpack-premium-analytics/datetime';
+import { format, subDays } from 'date-fns';
+/**
  * Internal dependencies
  */
 import { getPeriodsBetweenInclusive, reportParamsToStatsQueryParams } from '../utils/stats-params';
@@ -70,6 +75,18 @@ export const statsSubscribersReportQuery = (
 		enabled: !! endDate,
 	};
 };
+
+/**
+ * The subscriber count on the site-local day `daysAgo` days before today.
+ */
+export const statsSubscribersDaysAgoQuery = (
+	daysAgo: number
+): StatsReportQueryOptions< 'subscribers' > =>
+	statsSubscribersQuery( {
+		unit: 'day',
+		quantity: 1,
+		date: format( subDays( localTZDate(), daysAgo ), 'yyyy-MM-dd' ),
+	} );
 
 export const statsSubscribersCountsQuery = (
 	params: StatsSubscribersCountsParams = {}

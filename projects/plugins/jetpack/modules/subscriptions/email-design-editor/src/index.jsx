@@ -14,10 +14,10 @@ import { ExperimentalEmailEditor } from '@woocommerce/email-editor';
 import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps } from '@wordpress/block-editor';
 import { getBlockType, registerBlockType } from '@wordpress/blocks';
-import { Notice } from '@wordpress/components';
+import { Disabled, Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { dispatch, select } from '@wordpress/data';
-import { createRoot, StrictMode } from '@wordpress/element';
+import { createRoot, RawHTML, StrictMode } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { addQueryArgs } from '@wordpress/url';
@@ -33,6 +33,10 @@ const TEMPLATE_POST_TYPE = 'wp_template';
 // The editor assigns these straight to `window.location.href`, so `javascript:`
 // and `data:` would execute rather than navigate.
 const NAVIGABLE_PROTOCOLS = [ 'http:', 'https:' ];
+
+// Addressed by name rather than by importing the store descriptor: importing it pulls
+// `@wordpress/block-editor`'s own store module, which resolves core's private APIs at load time.
+const BLOCK_EDITOR_STORE = 'core/block-editor';
 
 // A save arrives as any of these, depending on whether core-data creates or updates.
 const WRITE_METHODS = [ 'POST', 'PUT', 'PATCH' ];
@@ -110,7 +114,14 @@ export function buildEditorConfig( bundle, data ) {
 		// on this, which hides the admin menu — without it a full-viewport editor sits beside a menu
 		// whose flyouts open over the canvas, and no z-index satisfies both. Forced rather than the
 		// `fullscreenMode` preference so it is not a per-user toggle; it also brings the back button.
-		editorSettings: { ...bundle.editor_settings, ...editorSettings, isFullScreenForced: true },
+		editorSettings: withCanvasStyles(
+			{
+				...bundle.editor_settings,
+				...editorSettings,
+				isFullScreenForced: true,
+			},
+			bundle
+		),
 		theme: bundle.editor_theme,
 		urls,
 		userEmail,
@@ -121,6 +132,37 @@ export function buildEditorConfig( bundle, data ) {
 		// canvas while editing. Bundle first because it is a WordPress.com post id; the page stays
 		// a fallback. See NL-871.
 		globalStylesPostId: getGlobalStylesPostId( bundle ) ?? globalStylesPostId ?? null,
+	};
+}
+
+/**
+ * Add the canvas rules that depend on what the bundle reported, keeping the ones it sent.
+ *
+ * Appended to `styles` rather than replacing it: WordPress.com ships the email's own stylesheet
+ * through that same array, and the package reads the whole of it.
+ *
+ * The one rule so far hides the featured image. `core/post-featured-image` is a core block, so
+ * WordPress.com deliberately leaves it out of `blocks` — sending core definitions would replace
+ * this site's working implementations with placeholders — and no `preview_html` can reach it.
+ * Only WordPress.com knows whether a send carries the image, so the bundle reports that instead.
+ *
+ * @param {object} settings - The editor settings assembled so far.
+ * @param {object} bundle   - The response from the bootstrap route.
+ * @return {object} The settings, with any extra canvas rules appended.
+ */
+function withCanvasStyles( settings, bundle ) {
+	// Strictly false. A bundle from before WordPress.com reported this omits the key, and hiding
+	// the image on that reading would be a regression on every blog that does send one.
+	if ( false !== bundle?.shows_featured_image ) {
+		return settings;
+	}
+
+	return {
+		...settings,
+		styles: [
+			...( Array.isArray( settings.styles ) ? settings.styles : [] ),
+			{ css: '.wp-block-post-featured-image { display: none; }' },
+		],
 	};
 }
 
@@ -313,8 +355,9 @@ export function getTemplateId( bundle ) {
  * a site is still free to have registered one itself, so anything already registered is left
  * alone rather than replaced by a placeholder.
  *
- * Dynamic blocks with no client-side edit, so the canvas shows a labelled placeholder. What the
- * subscriber receives is rendered server-side and is unaffected.
+ * Dynamic blocks with no client-side edit. Where WordPress.com sent the block's rendered structure
+ * the canvas shows that; otherwise it falls back to a labelled placeholder. What the subscriber
+ * receives is rendered server-side and is unaffected either way.
  *
  * @param {object} bundle - The response from the bootstrap route.
  * @return {void}
@@ -332,9 +375,26 @@ export function registerEmailBlocks( bundle ) {
 		// throws rather than rendering.
 		const title = typeof block.title === 'string' && block.title ? block.title : block.name;
 
+		// Server-rendered markup, trusted on the same footing as the rest of the bundle: it reaches
+		// us from WordPress.com over the route that already supplies `editor_settings`.
+		const preview =
+			typeof block.preview_html === 'string' && block.preview_html ? block.preview_html : '';
+
 		// Named and capitalised so it reads as a component: `useBlockProps` is a hook, and an
 		// anonymous arrow here trips rules-of-hooks.
-		const EmailBlockPlaceholder = () => <div { ...useBlockProps() }>{ title }</div>;
+		const EmailBlockEdit = () => (
+			<div { ...useBlockProps() }>
+				{ preview ? (
+					// `inert`, so clicking the email's own links selects the block rather than
+					// navigating, and tabbing skips them. The outline stays on the wrapper above.
+					<Disabled>
+						<RawHTML>{ preview }</RawHTML>
+					</Disabled>
+				) : (
+					title
+				) }
+			</div>
+		);
 
 		registerBlockType( block.name, {
 			apiVersion: 3,
@@ -346,10 +406,38 @@ export function registerEmailBlocks( bundle ) {
 			// Template furniture rather than blocks a creator adds by hand.
 			supports: { ...( block.supports || {} ), html: false, inserter: false },
 
-			edit: EmailBlockPlaceholder,
+			edit: EmailBlockEdit,
 			save: () => null,
 		} );
 	} );
+}
+
+/**
+ * Take block editing away from the canvas, leaving the Styles panel as the only control.
+ *
+ * The template's core blocks arrive with their own inspector controls — a background on the
+ * "Email Content" group, say — and nothing on this screen saves template edits, so every one of
+ * them is offered and then silently does nothing. `templateLock` does not help: it stops blocks
+ * being moved or removed and leaves the settings panel exactly where it was.
+ *
+ * Set on the root, which the store's derived modes propagate down to every descendant, so this
+ * covers blocks the bundle never describes. Marked not-persistent because a mode is a view
+ * setting: without it the editor opens holding an undo step and believing it has changes to save.
+ *
+ * @return {void}
+ */
+export function lockCanvasEditing() {
+	// `dispatch()` answers null for a store the registry does not hold. Controls that do nothing are
+	// a worse screen; no screen at all is worse still, so this declines rather than throwing into
+	// the mount's catch.
+	const blockEditor = dispatch( BLOCK_EDITOR_STORE );
+
+	if ( ! blockEditor ) {
+		return;
+	}
+
+	blockEditor.__unstableMarkNextChangeAsNotPersistent();
+	blockEditor.setBlockEditingMode( '', 'disabled' );
 }
 
 /**
@@ -508,6 +596,7 @@ export async function mountEmailDesignEditor() {
 		// resolved against the registry at that moment. Registering later leaves the same
 		// unsupported-block errors, which looks identical to this never running.
 		registerEmailBlocks( bundle );
+		lockCanvasEditing();
 		reportInactiveEmailDesign( bundle );
 
 		const postId = getTemplateId( bundle );

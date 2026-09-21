@@ -7,6 +7,7 @@ use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack_Boost\Admin\Config;
 use Brain\Monkey\Functions;
 use Mockery;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
@@ -94,7 +95,11 @@ class Config_Test extends TestCase {
 		$status->shouldReceive( 'is_private_site' )->andReturn( false );
 	}
 
-	public function test_constants() {
+	/**
+	 * @dataProvider licensing_states
+	 */
+	#[DataProvider( 'licensing_states' )]
+	public function test_constants( $my_jetpack_available, $licensing_enabled ) {
 		$this->setupCommonMocks();
 
 		// Set up filter expectations in correct order
@@ -102,6 +107,11 @@ class Config_Test extends TestCase {
 			->once()
 			->with( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' )
 			->andReturn( 'app/assets/dist/' );
+
+		Functions\expect( 'apply_filters' )
+			->times( $my_jetpack_available ? 1 : 0 )
+			->with( 'jetpack_my_jetpack_should_enable_add_license_screen', true )
+			->andReturn( $licensing_enabled );
 
 		// This filter needs to return the constants array
 		Functions\expect( 'apply_filters' )
@@ -113,6 +123,8 @@ class Config_Test extends TestCase {
 					return $constants; // Return the array unchanged
 				}
 			);
+
+		Functions\when( 'did_action' )->justReturn( (int) $my_jetpack_available );
 
 		// Mock Host class for this specific test
 		$host = Mockery::mock( 'overload:' . Host::class );
@@ -128,6 +140,16 @@ class Config_Test extends TestCase {
 		$this->assertEquals( 'http://example.com', $result['site']['url'] );
 		$this->assertEquals( 'atomic', $result['site']['host'] );
 		$this->assertTrue( $result['site']['online'] );
+		$this->assertSame( $my_jetpack_available, $result['site']['myJetpack'] );
+		$this->assertSame( $licensing_enabled, $result['site']['addLicense'] );
+	}
+
+	public static function licensing_states() {
+		return array(
+			'enabled'     => array( true, true ),
+			'disabled'    => array( true, false ),
+			'unavailable' => array( false, false ),
+		);
 	}
 
 	public function test_constants_private_site() {
@@ -177,6 +199,8 @@ class Config_Test extends TestCase {
 				}
 			);
 
+		Functions\when( 'did_action' )->justReturn( 1 );
+
 		// Create a fresh Status mock for private site
 		$status = Mockery::mock( 'overload:' . Status::class );
 		$status->shouldReceive( 'get_site_suffix' )->andReturn( 'example.com' );
@@ -199,6 +223,12 @@ class Config_Test extends TestCase {
 			$result['site']['online'],
 			'Site should be offline when Status::is_private_site() returns true'
 		);
+	}
+
+	public function test_my_jetpack_unavailable_when_not_initialized() {
+		Functions\expect( 'did_action' )->once()->with( 'my_jetpack_init' )->andReturn( 0 );
+
+		$this->assertFalse( Config::is_my_jetpack_available() );
 	}
 
 	public function test_get_hosting_provider_woa() {

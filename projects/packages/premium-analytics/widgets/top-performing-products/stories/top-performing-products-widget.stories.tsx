@@ -152,8 +152,7 @@ type TopPerformingProductsStoryProps = TopPerformingProductsWidgetProps &
 	TopPerformingProductsStoryControls;
 
 interface TopPerformingProductsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		TopPerformingProductsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, TopPerformingProductsStoryControls {}
 
 function getTopPerformingProductsAttributes(
 	withComparison = false,

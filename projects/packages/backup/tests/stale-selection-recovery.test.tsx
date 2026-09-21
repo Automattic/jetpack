@@ -47,10 +47,6 @@ import { resetListStateForTesting } from '../src/dashboard/screens/overview';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
-// Testing Library's default `findBy` window is one second, which these stages
-// have exceeded on a loaded runner under coverage.
-const SETTLE = { timeout: 10000 };
-
 const REWIND_ID = '1786644531.100';
 const STALE_ID = '1700000000.999';
 const PAGE_TWO_ID = '1786558131.200';
@@ -220,13 +216,13 @@ describe( 'A selection the activity log cannot resolve', () => {
 
 		// The message is the positive: without it the button below could be
 		// missing because the pane never reached this branch — or threw.
-		await expect( screen.findByText( NOT_FOUND, undefined, SETTLE ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( NOT_FOUND ) ).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: CLEAR } ) ).toBeInTheDocument();
 	} );
 
 	it( 'drops only `selected`, through the router', async () => {
 		render( <OverviewStage /> );
-		await userEvent.click( await screen.findByRole( 'button', { name: CLEAR }, SETTLE ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: CLEAR } ) );
 
 		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
 		const options = mockNavigate.mock.calls[ 0 ][ 0 ] as {
@@ -240,7 +236,7 @@ describe( 'A selection the activity log cannot resolve', () => {
 
 	it( 'leaves the dead end once the router applies it', async () => {
 		const { rerender } = render( <OverviewStage /> );
-		await userEvent.click( await screen.findByRole( 'button', { name: CLEAR }, SETTLE ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: CLEAR } ) );
 
 		// The updater's own output, not a hand-written `{}` — otherwise this asserts
 		// the fallback rather than the recovery, and passes with `selected` kept.
@@ -251,14 +247,14 @@ describe( 'A selection the activity log cannot resolve', () => {
 		rerender( <OverviewStage /> );
 
 		await expect(
-			screen.findByRole( 'heading', { name: 'Backup complete' }, SETTLE )
+			screen.findByRole( 'heading', { name: 'Backup complete' } )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( NOT_FOUND ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'hands focus to the two-pane region, so the next Tab is in the list', async () => {
 		render( <OverviewStage /> );
-		await userEvent.click( await screen.findByRole( 'button', { name: CLEAR }, SETTLE ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: CLEAR } ) );
 
 		// The region is the positive: focus cannot be verified as "not lost"
 		// without naming where it went.
@@ -289,9 +285,7 @@ describe( 'A selection on a page nothing has loaded', () => {
 
 		// The button is the positive control: it renders in this branch either
 		// way, so a missing claim below cannot be a pane that never rendered.
-		await expect(
-			screen.findByRole( 'button', { name: CLEAR }, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByRole( 'button', { name: CLEAR } ) ).resolves.toBeInTheDocument();
 		// Page 1 answering says nothing about page 2, which holds this row and
 		// which nothing has fetched.
 		expect( screen.queryByText( GONE_CLAIM ) ).not.toBeInTheDocument();
@@ -302,16 +296,16 @@ describe( 'A selection on a page nothing has loaded', () => {
 	// checks, and would read the same way if page 2 held no such row.
 	it( 'resolves the row once the list reaches the page holding it', async () => {
 		render( <OverviewStage /> );
-		await userEvent.click( await screen.findByRole( 'button', { name: 'Next page' }, SETTLE ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: 'Next page' } ) );
 
 		await expect(
-			screen.findByRole( 'heading', { name: 'Backup complete (page 2)' }, SETTLE )
+			screen.findByRole( 'heading', { name: 'Backup complete (page 2)' } )
 		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'leaves the cleared selection on the back stack', async () => {
 		render( <OverviewStage /> );
-		await userEvent.click( await screen.findByRole( 'button', { name: CLEAR }, SETTLE ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: CLEAR } ) );
 
 		// The selection may be perfectly good, so Back has to bring it back.
 		const options = mockNavigate.mock.calls[ 0 ][ 0 ] as { replace?: boolean };
@@ -325,9 +319,7 @@ describe( 'Choosing a row', () => {
 		mockSearch.mockReturnValue( { page: '3' } );
 
 		render( <OverviewStage /> );
-		await userEvent.click(
-			await screen.findByRole( 'button', { name: /^Post published / }, SETTLE )
-		);
+		await userEvent.click( await screen.findByRole( 'button', { name: /^Post published / } ) );
 
 		const options = mockNavigate.mock.calls[ 0 ][ 0 ] as {
 			search: ( previous: Record< string, unknown > ) => Record< string, unknown >;
@@ -346,9 +338,7 @@ describe( 'No selection yet', () => {
 
 		render( <OverviewStage /> );
 
-		await expect(
-			screen.findByText( NO_SELECTION, undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( NO_SELECTION ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: CLEAR } ) ).not.toBeInTheDocument();
 	} );
 } );
@@ -370,7 +360,7 @@ describe( 'A selection the activity log has not answered for', () => {
 
 		// The placeholder is the positive: "no button" passes for a pane that
 		// never rendered at all.
-		await expect( screen.findByText( LOADING, undefined, SETTLE ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( LOADING ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( NOT_FOUND ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: CLEAR } ) ).not.toBeInTheDocument();
 	} );
@@ -380,9 +370,7 @@ describe( 'A selection the activity log has not answered for', () => {
 
 		render( <OverviewStage /> );
 
-		await expect(
-			screen.findByText( LOAD_FAILED, undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( LOAD_FAILED ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( NOT_FOUND ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: CLEAR } ) ).not.toBeInTheDocument();
 	} );

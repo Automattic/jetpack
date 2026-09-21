@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop the dashboard frame from flashing while loading and when switching admin pages.

@@ -621,6 +621,9 @@
 	// also appears in the link's `share-<service>` class. Sharing_Source::js_dialog()
 	// prints that map in an inline script after this file, and the one delegated
 	// listener below serves every service, with only one popup open at a time.
+	//
+	// The Sharing Buttons block runs a parallel popup handler in
+	// extensions/blocks/sharing-buttons/view.js; a change here usually belongs there too.
 	var sharePopup;
 	var sharePopupNames = {};
 

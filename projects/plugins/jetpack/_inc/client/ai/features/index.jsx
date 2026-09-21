@@ -12,7 +12,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ToggleControl } from '@wordpress/components';
 import { Fragment, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Badge, Card, Link, Notice, Popover, Stack, Text, VisuallyHidden } from '@wordpress/ui';
+import { Badge, Card, Link, Popover, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import { EVENTS, recordAiHubEvent } from '../tracks';
 
 // Server-computed target for the AI SEO row: the dedicated Jetpack SEO page
@@ -211,26 +211,22 @@ function FeatureRow( {
 /**
  * AI Features view component.
  *
- * @param {object}   props            - Component props.
- * @param {object}   props.settings   - Full settings shape from the feature-settings endpoint.
- * @param {Set}      props.savingKeys - Keys currently being saved.
- * @param {Function} props.onUpdate   - Called with a partial settings update payload; resolves true when the save succeeded.
+ * @param {object}   props                 - Component props.
+ * @param {object}   props.settings        - Full settings shape from the feature-settings endpoint.
+ * @param {boolean}  props.isUserConnected - Whether this user's WordPress.com account is linked.
+ * @param {Set}      props.savingKeys      - Keys currently being saved.
+ * @param {Function} props.onUpdate        - Called with a partial settings update payload; resolves true when the save succeeded.
  * @return {object} Component markup.
  */
-export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
+export default function AiFeatures( { settings, isUserConnected = true, savingKeys, onUpdate } ) {
 	const features = settings?.features ?? {};
-	// Children keep their saved values while the master switch is off — they
-	// render greyed (under the page-level master-off notice main.jsx owns)
-	// instead of misreporting the user's choices as off.
+	// Children keep their saved values while the master switch is off, rather
+	// than misreporting the user's choices as off. PageNotice explains why.
 	const masterEnabled = settings?.master_enabled !== false;
-	// The connection gate sits outside the master switch: false covers both a
-	// site without a connected owner and one in offline mode, and in either
-	// case no AI feature can load. Saved values stay visible but inert, and
-	// the connection ask comes before any upgrade messaging.
+	// False covers both a site without a connected owner and one in offline
+	// mode; either way no AI feature can load, so saved values stay inert.
 	const isConnected = settings?.is_connected !== false;
-	// The user gate is separate: the site can be connected while this admin's
-	// own account is not.
-	const isUserConnected = settings?.is_user_connected !== false;
+
 	// There is no site-wide plan gate: a plan without paid Jetpack AI still has
 	// the free tier, so a connected site can always run the free-tier features.
 	// Paid-only features are gated per-feature via requires_upgrade instead.
@@ -253,7 +249,7 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 				'Requires Jetpack Search or Complete plans',
 				'jetpack',
 				/* dummy arg to avoid bad minification */ 0
-		  );
+			);
 
 	const sections = visibleSections( SECTIONS, features );
 
@@ -288,35 +284,6 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 
 	return (
 		<Stack direction="column" gap="md">
-			{ ! isConnected && (
-				<Notice.Root intent="warning">
-					<Notice.Title>
-						{ __( 'Jetpack is not connected to WordPress.com.', 'jetpack' ) }
-					</Notice.Title>
-					<Notice.Description>
-						{ __(
-							'AI features need a connection to run. Your saved settings will apply once the site is connected.',
-							'jetpack'
-						) }{ ' ' }
-						<Link href="admin.php?page=my-jetpack#/connection">
-							{ __( 'Connect Jetpack', 'jetpack' ) }
-						</Link>
-					</Notice.Description>
-				</Notice.Root>
-			) }
-			{ isConnected && ! isUserConnected && (
-				// One ask at a time: a disconnected site gets the site notice above.
-				<Notice.Root intent="warning">
-					<Notice.Title>
-						{ __( 'Your WordPress.com account isn’t connected.', 'jetpack' ) }
-					</Notice.Title>
-					<Notice.Description>
-						<Link href="admin.php?page=my-jetpack#/connection">
-							{ __( 'Connect your user account to manage AI features.', 'jetpack' ) }
-						</Link>
-					</Notice.Description>
-				</Notice.Root>
-			) }
 			{ sections.length > 0 && (
 				<Card.Root className="jetpack-ai-features__card">
 					{ /* Single Card.Content, no Card.Header: the FullBleed dividers must

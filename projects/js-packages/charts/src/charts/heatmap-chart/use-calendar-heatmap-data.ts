@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useChartFormatting } from '../../providers';
-import { buildCalendarHeatmapData } from './private';
-import type { CalendarHeatmapOptions, CalendarHeatmapResult } from './private';
+import { buildCalendarHeatmapData } from './build-calendar-data';
+import type { CalendarHeatmapOptions, CalendarHeatmapResult } from './types';
 import type { DataPointDate } from '../../types';
 
 /**

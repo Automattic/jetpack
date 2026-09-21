@@ -16,7 +16,7 @@ module.exports = ( babel, opts ) => {
 	const coreJsPrefix = opts.absoluteImports
 		? npath.dirname(
 				require.resolve( 'core-js/package.json', { paths: [ opts.absoluteImports ] } )
-		  ) + '/'
+			) + '/'
 		: 'core-js/';
 
 	return {

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Speed Score: Restore the with and without Boost comparison and the score change notice on sites whose score has not moved.

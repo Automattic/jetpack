@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Conditional logic: Add a Done button to the rules dialog, and open the Conditional logic panel by default on a field that has conditions.

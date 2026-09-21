@@ -166,4 +166,12 @@ describe( 'DateFiltersPanel', () => {
 			expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
 		} );
 	} );
+
+	it( 'hands the attention to the period trigger', () => {
+		renderPanel( { appliedPresetId: 'last-30-days', attentionId: 3 } );
+
+		const trigger = screen.getByRole( 'button', { name: 'Last 30 days' } );
+		// eslint-disable-next-line testing-library/no-node-access -- the fill is aria-hidden by design, so the DOM is the only place to reach it.
+		expect( trigger.querySelector( '.date-period-dropdown__attention' ) ).not.toBeNull();
+	} );
 } );

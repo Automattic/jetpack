@@ -47,6 +47,18 @@ if ( ! function_exists( 'wpcom_expiry_get_purchases' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wpcom_expiry_get_reverted_transfer' ) ) {
+	/**
+	 * Test source of revert data for the expiry-notices feature. See
+	 * wpcom_expiry_get_purchases() above for why it is pre-defined here.
+	 *
+	 * @return array{reverted_at:int,for_expired_plan:bool}|null
+	 */
+	function wpcom_expiry_get_reverted_transfer(): ?array {
+		return $GLOBALS['wpcom_expiry_reverted_transfer_test_value'] ?? null;
+	}
+}
+
 if ( ! function_exists( 'wpcom_is_vip' ) ) {
 	/**
 	 * A drop-in for a WordPress.com function. Defaults to false, matching a

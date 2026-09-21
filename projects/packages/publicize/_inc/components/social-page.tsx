@@ -87,6 +87,18 @@ export default function SocialPage( {
 		[ navigate ]
 	);
 
+	const content = (
+		<div className="jetpack-social-page__content jetpack-social-page__content--padded">
+			{ /* The JITM script moves its card here, since the page template hides the default spot. */ }
+			<div
+				id="jp-admin-notices"
+				className={ `jetpack-social-jitm-card jetpack-social-jitm-card--${ activeTab }` }
+				data-testid="jetpack-social-jitm-card"
+			/>
+			{ children }
+		</div>
+	);
+
 	return (
 		<Tooltip.Provider delay={ 0 }>
 			<AdminPage
@@ -113,14 +125,10 @@ export default function SocialPage( {
 									</Tabs.Tab>
 								</Tabs.List>
 							</div>
-							<div className="jetpack-social-page__content jetpack-social-page__content--padded">
-								{ children }
-							</div>
+							{ content }
 						</Tabs.Root>
 					) : (
-						<div className="jetpack-social-page__content jetpack-social-page__content--padded">
-							{ children }
-						</div>
+						content
 					) }
 				</SocialGate>
 			</AdminPage>

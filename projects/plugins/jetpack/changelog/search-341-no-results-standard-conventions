@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Search: Show each of the No Results block's empty-state messages as it will appear to visitors while editing, and tell the messages apart by name when browsing the page structure.

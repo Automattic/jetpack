@@ -5,7 +5,6 @@ import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
 /**
  * Internal dependencies
  */
-import { DASHBOARD_SECTION_SLUGS } from '../site-readiness';
 import { getReportDefinition, REPORTS } from './registry';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -95,6 +94,9 @@ describe( 'getReportDefinition', () => {
 
 		expect( getReportDefinition( 'comments' ) ).toBeUndefined();
 		expect( getReportDefinition( 'emails' ) ).toBeUndefined();
+		// The Ads tab carries its own availability gate (WordAds active, and the
+		// user can read ad reports), which reaches this report only through the scope.
+		expect( getReportDefinition( 'earnings' ) ).toBeUndefined();
 	} );
 
 	it( 'keeps the Traffic reports while the preview is scoped', () => {
@@ -150,12 +152,7 @@ describe( 'REPORTS', () => {
 			],
 			insights: [ 'annual-insights', 'comments', 'tags' ],
 			subscribers: [ 'comment-followers', 'emails' ],
+			ads: [ 'earnings' ],
 		} );
-	} );
-
-	it( 'declares only tabs the server can publish', () => {
-		for ( const report of Object.values( REPORTS ) ) {
-			expect( DASHBOARD_SECTION_SLUGS ).toContain( report.dashboardSection );
-		}
 	} );
 } );

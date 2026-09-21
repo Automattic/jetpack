@@ -117,27 +117,39 @@ describe( 'formatMetricValue', () => {
 		} );
 
 		it( 'formats currency with multipliers', () => {
-			const result = formatMetricValue( 192088.05, 'currency', {
-				useMultipliers: true,
-				decimals: 2,
-			} );
-			expect( result ).toBe( '$192.09K' );
+			const result = formatMetricValue( 192088.05, 'currency', { useMultipliers: true } );
+			expect( result ).toBe( '$192K' );
+		} );
+
+		it( 'ignores decimals: the currency decides its minor units', () => {
+			expect( formatMetricValue( 1500, 'currency', { decimals: 0 } ) ).toBe(
+				formatMetricValue( 1500, 'currency' )
+			);
+			expect( formatCurrency ).toHaveBeenLastCalledWith( 1500, 'USD' );
+			expect(
+				formatMetricValue( 192088.05, 'currency', { useMultipliers: true, decimals: 2 } )
+			).toBe( '$192K' );
+		} );
+
+		it( 'formats below 1,000 exactly as without multipliers', () => {
+			expect( formatMetricValue( 472.13, 'currency', { useMultipliers: true } ) ).toBe(
+				formatMetricValue( 472.13, 'currency' )
+			);
+			expect( formatCurrency ).toHaveBeenLastCalledWith( 472.13, 'USD' );
 		} );
 
 		it( 'formats currency with multipliers and signDisplay', () => {
-			const negativeResult = formatMetricValue( -192088.05, 'currency', {
+			const negativeResult = formatMetricValue( -19208.05, 'currency', {
 				useMultipliers: true,
 				signDisplay: 'always',
-				decimals: 2,
 			} );
-			expect( negativeResult ).toBe( '-$192.09K' );
+			expect( negativeResult ).toBe( '-$19.2K' );
 
-			const positiveResult = formatMetricValue( 192088.05, 'currency', {
+			const positiveResult = formatMetricValue( 19208.05, 'currency', {
 				useMultipliers: true,
 				signDisplay: 'always',
-				decimals: 2,
 			} );
-			expect( positiveResult ).toBe( '+$192.09K' );
+			expect( positiveResult ).toBe( '+$19.2K' );
 		} );
 
 		it( 'formats currency with signDisplay', () => {
@@ -325,21 +337,47 @@ describe( 'formatMetricValue', () => {
 			expect( formatMetricValue( 9876.543, 'number' ) ).toBe( '9,877' );
 		} );
 
-		it( 'formats number with multipliers (default 0 decimals)', () => {
-			expect(
-				formatMetricValue( 1500, 'number', {
-					useMultipliers: true,
-				} )
-			).toBe( '2K' );
+		it.each( [
+			[ 0, '0' ],
+			[ 999, '999' ],
+			[ 1000, '1K' ],
+			[ 1234, '1.2K' ],
+			[ 1500, '1.5K' ],
+			[ 54321, '54.3K' ],
+			[ 99949, '99.9K' ],
+			[ 99950, '100K' ],
+			[ 234567, '235K' ],
+			[ 453000, '453K' ],
+			[ 999949, '1M' ],
+			[ 1234567, '1.2M' ],
+			[ 123456789, '123M' ],
+			[ -1234, '-1.2K' ],
+		] )( 'compacts %d as %s', ( value, expected ) => {
+			expect( formatMetricValue( value, 'number', { useMultipliers: true } ) ).toBe( expected );
 		} );
 
-		it( 'formats number with multipliers and specific decimals', () => {
+		it( 'formats below 1,000 exactly as without multipliers', () => {
+			expect( formatMetricValue( 999.6, 'number', { useMultipliers: true } ) ).toBe(
+				formatMetricValue( 999.6, 'number' )
+			);
+			expect( formatMetricValue( 999.6, 'number', { useMultipliers: true, decimals: 1 } ) ).toBe(
+				'999.6'
+			);
+		} );
+
+		it( 'ignores decimals in compact notation', () => {
+			expect( formatMetricValue( 1234, 'number', { useMultipliers: true, decimals: 0 } ) ).toBe(
+				'1.2K'
+			);
+			expect( formatMetricValue( 234567, 'number', { useMultipliers: true, decimals: 2 } ) ).toBe(
+				'235K'
+			);
+		} );
+
+		it( 'keeps the compact sign display', () => {
 			expect(
-				formatMetricValue( 1500, 'number', {
-					useMultipliers: true,
-					decimals: 1,
-				} )
-			).toBe( '1.5K' );
+				formatMetricValue( 1234, 'number', { useMultipliers: true, signDisplay: 'always' } )
+			).toBe( '+1.2K' );
 		} );
 	} );
 } );

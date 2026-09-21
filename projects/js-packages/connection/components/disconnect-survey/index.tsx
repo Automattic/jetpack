@@ -170,7 +170,7 @@ const DisconnectSurvey = ( props: DisconnectSurveyProps ) => {
 								'jetpack-connection-js',
 								// @ts-expect-error Dummy arg to avoid bad minification; ignored at runtime.
 								0
-						  ) }
+							) }
 				</Button>
 			</p>
 		</Fragment>

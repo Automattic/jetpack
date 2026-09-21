@@ -6,6 +6,7 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { setMockRouteSearch } from '../../../tests/js/route-test-utils';
 import SubscribersChartWidget from '../render';
 
 const mockUseStatsSubscribersReport = jest.fn();
@@ -97,5 +98,51 @@ describe( 'SubscribersChartWidget', () => {
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		expect( chart ).toHaveAttribute( 'data-metric-keys', 'subscribers,paid' );
+	} );
+
+	describe( 'widget-owned date range', () => {
+		beforeEach( () => {
+			mockUseStatsSubscribersReport.mockReturnValue(
+				reportWith( [ { date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: 0 } ] )
+			);
+		} );
+
+		// A failed assertion would skip a reset written into the test body, leaking
+		// the URL state to whatever runs next.
+		afterEach( () => setMockRouteSearch( {} ) );
+
+		// The Subscribers default layout saves this widget with no attributes;
+		// `render.tsx`'s own fallback must win over WidgetRoot's URL fallback.
+		it( 'ignores the URL range for an instance saved without report params', async () => {
+			setMockRouteSearch( { from: '2020-01-01', to: '2020-01-31', interval: 'month' } );
+
+			render( <SubscribersChartWidget attributes={ {} } /> );
+
+			await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toBeInTheDocument();
+			expect( mockUseStatsSubscribersReport ).not.toHaveBeenCalledWith(
+				expect.objectContaining( { to: '2020-01-31' } )
+			);
+		} );
+
+		it( 'drops a comparison its attributes carry', async () => {
+			render(
+				<SubscribersChartWidget
+					attributes={ {
+						reportParams: {
+							from: '2026-05-01',
+							to: '2026-06-30',
+							comp: '1',
+							compare_from: '2026-03-01',
+							compare_to: '2026-03-31',
+						},
+					} }
+				/>
+			);
+
+			await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toBeInTheDocument();
+			expect( mockUseStatsSubscribersReport ).not.toHaveBeenCalledWith(
+				expect.objectContaining( { comp: '1' } )
+			);
+		} );
 	} );
 } );

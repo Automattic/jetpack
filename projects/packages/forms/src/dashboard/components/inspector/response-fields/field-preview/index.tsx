@@ -42,7 +42,7 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 	const { label, value, type } = field;
 	// For legacy responses without a proper type (undefined or "basic"), try to infer from label
 	const fieldType: FieldType =
-		type && type !== 'basic' ? type : inferFieldTypeFromLabel( label ) ?? 'text';
+		type && type !== 'basic' ? type : ( inferFieldTypeFromLabel( label ) ?? 'text' );
 	// The icon and the value are two views of one answer, so they read it once.
 	const isUntickedCheckbox = fieldType === 'checkbox' && ! isCheckedValue( value );
 	const icon = getFieldIcon( fieldType, isUntickedCheckbox );

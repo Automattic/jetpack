@@ -2,10 +2,24 @@ export { AnalyticsQueryClientProvider, queryClient } from './providers/query-cli
 export { GlobalErrorProvider, useGlobalError } from './providers/global-error-context';
 export { globalErrorManager, type GlobalErrorType } from './providers/global-error-manager';
 export { ReportScopeProvider, useReportScope, type ReportScope } from './providers/report-scope';
+export {
+	PERIOD_CHANGE_ATTENTION_MS,
+	PeriodChangeSignalProvider,
+	postSurface,
+	useRaisePeriodChange,
+	useSettlePeriodChange,
+} from './providers/period-change-signal';
 export * from './hooks';
 export { ensureDashboardEntities } from './entities/dashboard-entities';
-export { latestPostQuery, postContentQuery } from './queries/latest-post-query';
+export { latestPostQuery, postContentQuery, postsContentQuery } from './queries/latest-post-query';
 export type { LatestPost, LatestPostResponse } from './processing/latest-post';
+export { authorSummaryQuery } from './queries/author-summary-query';
+export { authorPostsQuery } from './queries/author-posts-query';
+export type {
+	AuthorPostsRecord,
+	AuthorSummaryRecord,
+	AuthorSummaryResponse,
+} from './processing/author';
 export { statsInsightsQuery } from './queries/stats-insights-query';
 export { type StatsVideoPlaysSummaryParams } from './queries/stats-video-plays-summary-query';
 export {
@@ -43,11 +57,13 @@ export {
 	computeDateRangeFromPreset,
 	getApiErrorCode,
 	getApiErrorStatus,
+	findAuthorRow,
 	isAccessDenied,
 	isUserRetryableError,
 	saveBlob,
 	shouldRetryApiError,
 	StatsResponseShapeError,
+	toAuthorId,
 	toPostId,
 	useSiteHomeUrl,
 	withoutComparison,

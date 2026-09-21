@@ -2,6 +2,10 @@
  * External dependencies
  */
 import { Icon, Skeleton, VisuallyHidden } from '@jetpack-premium-analytics/externals';
+import {
+	DETAIL_HEADER_GLYPH_SIZE,
+	type DetailPageHeaderSlots,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { video } from '@wordpress/icons';
@@ -12,7 +16,6 @@ import { formatPublishedDate, performanceSentence } from '../../../detail-header
 import placeholders from '../../../detail-header.module.scss';
 import type { VideoSummary } from '../../hooks';
 import type { DateRange } from '@jetpack-premium-analytics/datetime';
-import type { DetailPageHeaderSlots } from '@jetpack-premium-analytics/widgets-toolkit';
 
 type VideoHeaderSlotsArgs = {
 	summary: VideoSummary;
@@ -35,7 +38,7 @@ function VideoPoster( { posterUrl }: { posterUrl?: string } ) {
 	return posterUrl && posterUrl !== failedPosterUrl ? (
 		<img src={ posterUrl } alt="" onError={ hidePoster } />
 	) : (
-		<Icon icon={ video } size={ 28 } />
+		<Icon icon={ video } size={ DETAIL_HEADER_GLYPH_SIZE } />
 	);
 }
 
@@ -54,7 +57,7 @@ export function videoHeaderSlots( {
 	summary,
 	performanceRange,
 }: VideoHeaderSlotsArgs ): DetailPageHeaderSlots {
-	const glyph = <Icon icon={ video } size={ 28 } />;
+	const glyph = <Icon icon={ video } size={ DETAIL_HEADER_GLYPH_SIZE } />;
 
 	// The title lands on its own request, so the header would otherwise read as
 	// blank until well after the grid has drawn (WOOA7S-2059).
@@ -90,7 +93,7 @@ export function videoHeaderSlots( {
 				/* translators: %s: the video upload date, e.g. "Aug 19, 2025". */
 				__( 'Video uploaded on %s.', 'jetpack-premium-analytics-pkg' ),
 				formattedDate
-		  )
+			)
 		: undefined;
 
 	const subtitle = [ publishedSentence, performanceSentence( performanceRange ) ]

@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.1] - 2026-09-18
+### Changed
+- Update package dependencies. [#52187]
+
+## [0.12.0] - 2026-09-15
+### Added
+- Sidebar: Let menu items declare their gate and a stable key, and add the `jetpack_admin_menu_visibility` filter so hosts can show or hide an item. [#52102]
+
+## [0.11.4] - 2026-09-14
+### Fixed
+- Admin menu: Match the Jetpack logo's first paint to the active admin color scheme. [#52086]
+
 ## [0.11.3] - 2026-09-09
 ### Changed
 - Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
@@ -362,6 +374,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing menu visibility issues.
 
+[0.12.1]: https://github.com/Automattic/jetpack-admin-ui/compare/0.12.0...0.12.1
+[0.12.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.11.4...0.12.0
+[0.11.4]: https://github.com/Automattic/jetpack-admin-ui/compare/0.11.3...0.11.4
 [0.11.3]: https://github.com/Automattic/jetpack-admin-ui/compare/0.11.2...0.11.3
 [0.11.2]: https://github.com/Automattic/jetpack-admin-ui/compare/0.11.1...0.11.2
 [0.11.1]: https://github.com/Automattic/jetpack-admin-ui/compare/0.11.0...0.11.1
