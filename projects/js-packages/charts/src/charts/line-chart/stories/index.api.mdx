@@ -117,7 +117,7 @@ The `gradient` option in `SeriesData.options` accepts the following configuratio
 type DataPointDate = {
 	date?: Date;
 	dateString?: string; // Multiple formats supported
-	value: number | null;
+	value: number | null; // null: the bucket has no reading, breaking the line at that point
 	label?: string;
 };
 ```

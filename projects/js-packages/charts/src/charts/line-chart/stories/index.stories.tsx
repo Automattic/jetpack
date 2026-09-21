@@ -378,6 +378,38 @@ export const ErrorStates: StoryObj< StoryArgs > = {
 	},
 };
 
+const siteLaunchedInApril: SeriesData[] = [
+	{
+		label: 'Subscribers',
+		data: [
+			{ date: new Date( 2026, 0, 1 ), value: null },
+			{ date: new Date( 2026, 1, 1 ), value: null },
+			{ date: new Date( 2026, 2, 1 ), value: null },
+			{ date: new Date( 2026, 3, 1 ), value: 12 },
+			{ date: new Date( 2026, 4, 1 ), value: 31 },
+			{ date: new Date( 2026, 5, 1 ), value: 58 },
+		],
+	},
+];
+
+export const BucketsWithNoData: StoryObj< StoryArgs > = Template.bind( {} );
+BucketsWithNoData.args = {
+	...Default.args,
+	data: siteLaunchedInApril,
+};
+BucketsWithNoData.argTypes = {
+	// The series-count control swaps in the sample data, which has no gaps to show.
+	seriesCount: { table: { disable: true } },
+};
+BucketsWithNoData.parameters = {
+	docs: {
+		description: {
+			story:
+				'A null value is a bucket with no reading. It keeps its place on the axis so the chart still spans the selected range, but breaks the line and its gradient fill at that point, and its tooltip reads "No data" rather than zero.',
+		},
+	},
+};
+
 export const WithoutSmoothing: StoryObj< StoryArgs > = Template.bind( {} );
 WithoutSmoothing.args = {
 	...lineChartStoryArgs,

@@ -437,6 +437,12 @@ Values are automatically formatted as:
 - **1K and above**: "1k"
 - **Below 1K**: "1,234"
 
+### Buckets With No Data
+
+Set a point's `value` to `null` when its bucket has no reading, such as the days before a site launched. The bucket keeps its place on the axis, so the chart still spans the full range, but the line and its gradient fill break at that point instead of connecting across it, and its tooltip reads "No data" rather than 0. The start and end glyphs land on the first and last bucket that has a reading, skipping any null buckets at either end. If every visible series has no reading anywhere in view, the y axis falls back to a `[0, 1]` range. Use `0` only for a real reading of zero.
+
+<Canvas of={ LineChartStories.BucketsWithNoData } />
+
 ## Error Handling
 
 The chart gracefully handles various error states and edge cases:
@@ -446,7 +452,8 @@ The chart gracefully handles various error states and edge cases:
 **Supported scenarios:**
 - Empty data arrays
 - Invalid date values
-- Null or NaN numeric values
+- NaN numeric values
+- Buckets with no reading (null), breaking the line rather than rejected
 - Single data points
 - Missing data properties
 
