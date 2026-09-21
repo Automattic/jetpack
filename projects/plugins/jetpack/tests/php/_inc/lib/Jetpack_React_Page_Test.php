@@ -128,12 +128,22 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that the coupon redemption screen is never redirected.
+	 * Tests that a connected site asked to show its partner coupon is not redirected.
 	 */
-	public function test_coupon_redemption_is_never_redirected() {
+	public function test_connected_site_asked_to_show_its_partner_coupon_is_not_redirected() {
+		$this->set_up_partner_coupon();
 		$_GET['showCouponRedemption'] = '1';
 
 		$this->assertFalse( Jetpack_React_Page::should_redirect_legacy_routes() );
+	}
+
+	/**
+	 * Tests that asking for coupon redemption without a stored coupon still redirects.
+	 */
+	public function test_coupon_redemption_request_without_a_coupon_is_redirected() {
+		$_GET['showCouponRedemption'] = '1';
+
+		$this->assertTrue( Jetpack_React_Page::should_redirect_legacy_routes() );
 	}
 
 	/**
@@ -203,6 +213,7 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 	 * Tests that nothing is printed during coupon redemption.
 	 */
 	public function test_prints_nothing_during_coupon_redemption() {
+		$this->set_up_partner_coupon();
 		$_GET['showCouponRedemption'] = '1';
 
 		ob_start();

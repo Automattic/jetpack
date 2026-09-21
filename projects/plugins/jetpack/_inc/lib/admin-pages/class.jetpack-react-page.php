@@ -192,20 +192,17 @@ JS;
 	 * @return bool
 	 */
 	public static function should_redirect_legacy_routes() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only decides whether to print a redirect.
-		if ( isset( $_GET['showCouponRedemption'] ) ) {
-			return false;
-		}
-
 		// A pending error only renders via the SPA's state notices; losing it would strand the admin.
 		if ( Jetpack::state( 'error' ) ) {
 			return false;
 		}
 
+		// Same gate as the coupon screen in `renderMainContent()`, `_inc/client/main.jsx`.
 		return ! (
 			Partner_Coupon::get_coupon()
 			&& ! ( new Status() )->is_offline_mode()
-			&& ! ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only decides whether to print a redirect.
+			&& ( isset( $_GET['showCouponRedemption'] ) || ! ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() )
 		);
 	}
 
