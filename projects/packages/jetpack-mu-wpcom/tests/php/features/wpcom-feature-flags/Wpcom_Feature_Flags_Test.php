@@ -46,6 +46,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 
 		self::$bootstrap_wiring = array(
 			'filter' => has_filter( 'jetpack_feature_flag_enabled', array( Wpcom_Feature_Flags::class, 'filter_enabled' ) ),
+			'switch' => has_action( 'switch_blog', array( Wpcom_Feature_Flags::class, 'reset_overrides_cache' ) ),
 			'action' => has_action( 'admin_menu', array( Wpcom_Feature_Flags::class, 'register_admin_page' ) ),
 		);
 	}
@@ -63,6 +64,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		// These tests write the option directly, which save_overrides() is not there to notice.
 		Wpcom_Feature_Flags::reset_overrides_cache();
 		remove_all_filters( 'jetpack_feature_flag_enabled' );
+		remove_action( 'switch_blog', array( Wpcom_Feature_Flags::class, 'reset_overrides_cache' ) );
 		remove_all_filters( 'jetpack_feature_flag_enabled_my-feature' );
 		remove_all_filters( 'wp_die_handler' );
 		Feature_Flags::reset();
@@ -118,6 +120,10 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		$this->assertNotFalse(
 			self::$bootstrap_wiring['filter'],
 			'Jetpack_Mu_Wpcom::init() must call Wpcom_Feature_Flags::init() so overrides answer the resolution filter.'
+		);
+		$this->assertNotFalse(
+			self::$bootstrap_wiring['switch'],
+			'Jetpack_Mu_Wpcom::init() must call Wpcom_Feature_Flags::init() so overrides are re-read after a blog switch.'
 		);
 		$this->assertNotFalse(
 			self::$bootstrap_wiring['action'],
@@ -389,6 +395,25 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		Wpcom_Feature_Flags::init();
 
 		$this->assertTrue( Feature_Flags::is_enabled( 'not-registered-anywhere' ) );
+	}
+
+	/**
+	 * WordPress.com's public API resolves flags before it switches to the
+	 * requested site, so the override map memoized for the first blog must be
+	 * dropped on switch_blog or the requested site's overrides never apply.
+	 */
+	public function test_overrides_are_reread_after_a_blog_switch() {
+		Wpcom_Feature_Flags::save_overrides( array( 'my-feature' => false ) );
+		Wpcom_Feature_Flags::init();
+		$this->assertFalse( Feature_Flags::is_enabled( 'my-feature' ) );
+
+		// The next blog's option, written behind the cache the way a real switch changes it.
+		update_option( Wpcom_Feature_Flags::OVERRIDES_OPTION, array( 'my-feature' => true ) );
+		$this->assertFalse( Feature_Flags::is_enabled( 'my-feature' ), 'The memoized map answers until the blog switches.' );
+
+		do_action( 'switch_blog', 2, 1, 'switch' );
+
+		$this->assertTrue( Feature_Flags::is_enabled( 'my-feature' ) );
 	}
 
 	/**

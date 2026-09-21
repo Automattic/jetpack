@@ -81,10 +81,13 @@ class Wpcom_Feature_Flags {
 	const CAPABILITY = 'manage_options';
 
 	/**
-	 * Request-scoped cache of the sanitized override map.
+	 * Cache of the current blog's sanitized override map.
 	 *
 	 * Null means "not read from the option yet", which is distinct from the empty
-	 * array a site with no overrides legitimately has.
+	 * array a site with no overrides legitimately has. Dropped on `switch_blog`,
+	 * because the option it mirrors belongs to one blog: WordPress.com's public API
+	 * resolves flags before it switches to the requested site, and the map read
+	 * then must not answer for that site.
 	 *
 	 * @var array<array-key, bool>|null
 	 */
@@ -97,6 +100,7 @@ class Wpcom_Feature_Flags {
 	 */
 	public static function init() {
 		add_filter( 'jetpack_feature_flag_enabled', array( self::class, 'filter_enabled' ), 10, 2 );
+		add_action( 'switch_blog', array( self::class, 'reset_overrides_cache' ) );
 		add_action( 'admin_menu', array( self::class, 'register_admin_page' ) );
 	}
 
@@ -192,7 +196,8 @@ class Wpcom_Feature_Flags {
 	/**
 	 * Forget the memoized override map.
 	 *
-	 * Intended for tests, which write the option directly rather than through
+	 * Runs on `switch_blog`, so the next resolution reads the new blog's option.
+	 * Also for tests, which write the option directly rather than through
 	 * save_overrides(). Mirrors Feature_Flags::reset() in the registry package.
 	 *
 	 * @return void
