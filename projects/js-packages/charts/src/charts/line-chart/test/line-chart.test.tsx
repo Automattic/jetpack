@@ -340,6 +340,34 @@ describe( 'LineChart', () => {
 			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
 		} );
 
+		test( 'ignores a hidden fractional series when checking for whole numbers', () => {
+			renderWithTheme( {
+				defaultHiddenSeries: [ 'Series B' ],
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 1, 1, 0 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+					{
+						label: 'Series B',
+						data: [ 0.5, 0.5, 0.5, 0.5 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+				],
+			} );
+
+			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
+		} );
+
 		test( 'keeps fractional ticks when the data has fractions', () => {
 			renderWithTheme( {
 				data: [
