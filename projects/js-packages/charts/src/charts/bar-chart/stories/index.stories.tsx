@@ -709,7 +709,7 @@ export const SmallWholeNumberRange: Story = {
 		docs: {
 			description: {
 				story:
-					'When every visible value is a whole number, the value axis places ticks only on whole numbers, instead of repeating a rounded label at fractional steps. Pass `options.axis.y.tickValues` to choose the ticks yourself.',
+					'When every visible value is a whole number, the value axis places ticks only on whole numbers, instead of repeating a rounded label at fractional steps. Pass `options.axis.y.tickValues` to choose the ticks yourself (`axis.x` on a horizontal chart).',
 			},
 		},
 	},
