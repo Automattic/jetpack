@@ -9,6 +9,7 @@ import {
 	useRegenerateCriticalCssAction,
 } from '../lib/stores/critical-css-state';
 import { runLocalGenerator } from '../lib/generate-critical-css';
+import { isExpiredSessionError } from '../lib/is-expired-session-error';
 import { CriticalCssErrorDetails } from '../lib/stores/critical-css-state-types';
 import maskContent from '$lib/utils/mask-content';
 
@@ -22,6 +23,19 @@ type CriticalCssContextValues = {
 	// Whether we've retried generating critical CSS after an error.
 	hasRetriedAfterError: boolean;
 	setHasRetriedAfterError: ( hasRetried: boolean ) => void;
+
+	failedRun: FailedRun | null;
+	setFailedRun: ( failedRun: FailedRun | null ) => void;
+};
+
+/**
+ * A local generator run that failed in this page session.
+ */
+export type FailedRun = {
+	// The `created` time of the generation request the run belonged to.
+	created?: number;
+	message: string;
+	sessionExpired: boolean;
 };
 
 type ProviderProps = {
@@ -40,6 +54,7 @@ export default function CriticalCssProvider( { children }: ProviderProps ) {
 	const [ isGenerating, setGenerating ] = useState< boolean >( false );
 	const [ providerProgress, setProviderProgress ] = useState< number >( 0 );
 	const [ hasRetriedAfterError, setHasRetriedAfterError ] = useState< boolean >( false );
+	const [ failedRun, setFailedRun ] = useState< FailedRun | null >( null );
 
 	const value = {
 		// Local Generator status.
@@ -51,6 +66,9 @@ export default function CriticalCssProvider( { children }: ProviderProps ) {
 		// Whether we've retried generating critical CSS after an error.
 		hasRetriedAfterError,
 		setHasRetriedAfterError,
+
+		failedRun,
+		setFailedRun,
 	};
 
 	return <CriticalCssContext.Provider value={ value }>{ children }</CriticalCssContext.Provider>;
@@ -93,8 +111,14 @@ const COMPLETION_HOLD_MS = 750;
  */
 export function useLocalCriticalCssGenerator() {
 	// Local Generator status context.
-	const { isGenerating, setGenerating, providerProgress, setProviderProgress } =
-		useCriticalCssContext();
+	const {
+		isGenerating,
+		setGenerating,
+		providerProgress,
+		setProviderProgress,
+		failedRun,
+		setFailedRun,
+	} = useCriticalCssContext();
 
 	// Critical CSS state and actions.
 	const [ cssState, setCssState ] = useCriticalCssState();
@@ -108,12 +132,31 @@ export function useLocalCriticalCssGenerator() {
 	useEffect(
 		() => {
 			if ( cssState.status === 'pending' && cssState.providers.length > 0 ) {
+				// A failed error save rolls the state back to the same pending request; only a new request may run.
+				if ( failedRun && failedRun.created === cssState.created ) {
+					return;
+				}
+
 				let abortController: AbortController | undefined;
 				let holdTimerId: ReturnType< typeof setTimeout > | undefined;
+				let sessionExpired = false;
+
+				const saving = < T, >( request: Promise< T > ) =>
+					request.catch( async ( error: unknown ) => {
+						sessionExpired = sessionExpired || ( await isExpiredSessionError( error ) );
+						throw error;
+					} );
 
 				setGenerating( true );
 				abortController = runLocalGenerator( cssState.providers, proxyNonce, {
-					onError: ( error: Error ) => setCssState( criticalCssErrorState( error.message ) ),
+					onError: ( error: Error ) => {
+						setFailedRun( { created: cssState.created, message: error.message, sessionExpired } );
+
+						// Saving the error would fail the same way without a valid login.
+						if ( ! sessionExpired ) {
+							setCssState( criticalCssErrorState( error.message ) );
+						}
+					},
 
 					onFinished: ( succeeded: boolean ) => {
 						if ( holdTimerId ) {
@@ -140,11 +183,11 @@ export function useLocalCriticalCssGenerator() {
 					},
 
 					setProviderCss: ( key: string, css: string ) => {
-						return setProviderCssAction.mutateAsync( { key, css: maskContent( css ) } );
+						return saving( setProviderCssAction.mutateAsync( { key, css: maskContent( css ) } ) );
 					},
 
 					setProviderErrors: ( key: string, errors: CriticalCssErrorDetails[] ) =>
-						setProviderErrorsAction.mutateAsync( { key, errors } ),
+						saving( setProviderErrorsAction.mutateAsync( { key, errors } ) ),
 
 					setProviderProgress,
 				} );
@@ -160,16 +203,22 @@ export function useLocalCriticalCssGenerator() {
 			}
 		},
 
-		// Only run this Effect when the Critical CSS status actually changes (e.g. from generated to pending).
+		// Only run this Effect when the Critical CSS status or generation request actually changes (e.g. from generated to pending).
 		// This effect triggers an actual process that is costly to start and stop, so we don't want to start/stop it
 		// every time an object ref like `cssState` is changed for a trivial reason.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[ cssState.status, cssState.providers.length ]
+		[ cssState.status, cssState.providers.length, cssState.created ]
 	);
 
 	// Always calculate progress so it reflects the true state even after
 	// the server status flips to 'generated' but isGenerating is still true.
 	const progress = calculateCriticalCssProgress( cssState.providers, providerProgress );
 
-	return { isGenerating, progress };
+	// The run this page stopped, while the state still shows its pending request.
+	const stoppedRun =
+		failedRun && cssState.status === 'pending' && failedRun.created === cssState.created
+			? failedRun
+			: null;
+
+	return { isGenerating, progress, stoppedRun };
 }

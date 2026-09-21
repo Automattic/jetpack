@@ -293,7 +293,7 @@ class PayPal_REST_Controller {
 						'post_id'     => array(
 							'type'        => 'integer',
 							'default'     => 0,
-							'description' => __( 'The post being saved, which does not count as still embedding the link.', 'jetpack-paypal-payments' ),
+							'description' => __( 'One post to leave out of the embed count.', 'jetpack-paypal-payments' ),
 						),
 					),
 				),
@@ -581,11 +581,12 @@ class PayPal_REST_Controller {
 
 		return new WP_REST_Response(
 			array(
-				'connected'   => true,
-				'environment' => PayPal_OAuth::get_environment(),
-				'merchant_id' => PayPal_Partner_Onboarding::get_merchant_id(),
-				'method'      => 'partner_referrals',
-				'message'     => __( 'PayPal account connected successfully via Connect with PayPal.', 'jetpack-paypal-payments' ),
+				'connected'     => true,
+				'environment'   => PayPal_OAuth::get_environment(),
+				'merchant_id'   => PayPal_Partner_Onboarding::get_merchant_id(),
+				'account_email' => PayPal_Partner_Onboarding::get_merchant_email(),
+				'method'        => 'partner_referrals',
+				'message'       => __( 'PayPal account connected successfully via Connect with PayPal.', 'jetpack-paypal-payments' ),
 			),
 			200
 		);
@@ -670,8 +671,10 @@ class PayPal_REST_Controller {
 		}
 
 		// The editor reads a payment back to line its block up with what PayPal
-		// holds, so hand it the block shape alongside the raw resource.
+		// holds, so hand it the block shape alongside the raw resource, and the
+		// published posts embedding it for the link details view.
 		$result['attributes'] = PayPal_Attribute_Mapper::api_response_to_attributes( $result );
+		$result['embeds']     = PayPal_Admin_Page::count_published_embeds()[ $resource_id ] ?? 0;
 
 		return new WP_REST_Response( $result, 200 );
 	}
@@ -712,8 +715,7 @@ class PayPal_REST_Controller {
 	public static function handle_delete_button( WP_REST_Request $request ) {
 		$resource_id = $request->get_param( 'resource_id' );
 
-		// The editor deletes a link when a post is saved without its block, but a
-		// link is shared by every block that points at it, on any post.
+		// Spare a link another published post still embeds.
 		if ( $request->get_param( 'unused_only' ) ) {
 			$embeds = PayPal_Admin_Page::count_published_embeds( absint( $request->get_param( 'post_id' ) ) );
 			$others = $embeds[ $resource_id ] ?? 0;

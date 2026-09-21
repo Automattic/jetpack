@@ -1,5 +1,11 @@
 import { filterSortAndPaginate, type View } from '@jetpack-premium-analytics/externals';
-import { flattenEarningsBreakdown, getEarningsStatus, getWordAdsHistoryFields } from '../fields';
+import { render, screen } from '@testing-library/react';
+import {
+	EarningsStatusBadge,
+	flattenEarningsBreakdown,
+	getEarningsStatus,
+	getWordAdsHistoryFields,
+} from '../fields';
 
 describe( 'getEarningsStatus', () => {
 	it( 'maps known WordAds statuses to labels', () => {
@@ -18,6 +24,28 @@ describe( 'getEarningsStatus', () => {
 	it( 'carries a tooltip for paid/unpaid', () => {
 		expect( getEarningsStatus( 0 ).tooltip ).toContain( 'on hold' );
 		expect( getEarningsStatus( 2 ).tooltip ).toBeUndefined();
+	} );
+
+	it.each( [
+		[ 0, 'high' ],
+		[ 1, 'stable' ],
+		[ 2, 'draft' ],
+		[ 3, 'medium' ],
+		[ 4, 'medium' ],
+		[ 99, 'none' ],
+		[ undefined, 'none' ],
+	] )( 'gives status %s the %s badge intent', ( status, intent ) => {
+		expect( getEarningsStatus( status ).intent ).toBe( intent );
+	} );
+} );
+
+describe( 'EarningsStatusBadge', () => {
+	it( 'is focusable only when there is a tooltip to reach', () => {
+		render( <EarningsStatusBadge status={ 0 } /> );
+		expect( screen.getByText( 'Unpaid' ) ).toHaveAttribute( 'tabindex', '0' );
+
+		render( <EarningsStatusBadge status={ 2 } /> );
+		expect( screen.getByText( 'a8c-only' ) ).not.toHaveAttribute( 'tabindex' );
 	} );
 } );
 
@@ -101,6 +129,23 @@ describe( 'getWordAdsHistoryFields', () => {
 			'Pending (Missing Tax Info)',
 			'Pending (Invalid PayPal)',
 		] );
+	} );
+
+	it.each( [
+		[ 'asc', [ '2025-12', '2026-09', '2012-03' ] ],
+		[ 'desc', [ '2026-09', '2025-12', '2012-03' ] ],
+	] as const )( 'sorts Ads Served %s with rows lacking a count last', ( direction, periods ) => {
+		const withMissing = [
+			...rows,
+			{ id: '2012-03', period: '2012-03', amount: 1, pageviews: undefined, status: 1 },
+		];
+		const { data } = filterSortAndPaginate(
+			withMissing,
+			{ ...view, sort: { field: 'pageviews', direction } } as View,
+			fields
+		);
+
+		expect( data.map( row => row.period ) ).toEqual( periods );
 	} );
 
 	it( 'sorts periods chronologically, newest first', () => {

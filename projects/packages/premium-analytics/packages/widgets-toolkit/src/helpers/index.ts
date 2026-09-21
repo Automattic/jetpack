@@ -72,7 +72,6 @@ export {
 export {
 	CELL_GAP as CALENDAR_HEATMAP_CELL_GAP,
 	HEADER_HEIGHT as CALENDAR_HEATMAP_HEADER_HEIGHT,
-	compactCalendarHeatmapCapacity,
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,
 	type CalendarHeatmapLayout,
@@ -80,7 +79,7 @@ export {
 	type FitWeekColumnsInput,
 } from './calendar-heatmap-layout';
 export { formatEmailRate, isEmailRateKnown, type EmailRateSignals } from './format-email-rate';
-export { formatDailyViewCount, formatViewCount } from './format-view-count';
+export { formatViewCount } from './format-view-count';
 export { MONTHS_IN_YEAR, monthOrder, type MonthKey } from './month-key';
 export {
 	MONTHLY_HEATMAP_METRICS,
@@ -99,8 +98,5 @@ export { appendTooltipExtras, resolveTooltipNames } from './tooltip-extras';
 export {
 	buildDenseDaySeries,
 	resolveCalendarHeatmapGridStart,
-	resolveCalendarHeatmapWindow,
-	resolveCalendarHeatmapWindowDays,
 	type CalendarHeatmapWindow,
-	type CalendarHeatmapWindowBounds,
 } from './calendar-heatmap-window';

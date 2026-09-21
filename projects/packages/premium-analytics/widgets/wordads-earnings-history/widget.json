@@ -1,6 +1,6 @@
 {
 	"name": "jpa/wordads-earnings-history",
-	"title": "Earnings History",
+	"title": "WordAds earnings",
 	"description": "Your WordAds earnings by period, with amounts and payment status.",
 	"help": {
 		"content": "Each row is one payment period, with what you earned and whether it has been paid. Open the full report for ads served and the rest of the history."

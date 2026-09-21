@@ -126,7 +126,7 @@ class Site_Health {
 	 * these name what was tested rather than stating an outcome. Results that want
 	 * to state an outcome set their own label, which takes precedence.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.4.0
 	 *
 	 * @return array Map of test name => label.
 	 */
@@ -155,7 +155,7 @@ class Site_Health {
 	 * for tests other plugins register through the jetpack_connection_tests_loaded
 	 * action and which therefore cannot appear in the map.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.4.0
 	 *
 	 * @param string $test_name Test name, e.g. "test__blog_token_if_exists".
 	 *

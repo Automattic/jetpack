@@ -808,6 +808,33 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * Test that reading a button says how many published posts embed it.
+	 */
+	public function test_get_button_counts_published_embeds() {
+		$this->set_up_connected_admin_state();
+		$this->embed_in_published_post( 1000, 'PLB-42' );
+		$this->mock_http_routes(
+			array(
+				'/v1/checkout/payment-resources' => $this->http_response( 200, array( 'id' => 'PLB-42' ) ),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+
+		$this->assertSame( 1, PayPal_REST_Controller::handle_get_button( $request )->get_data()['embeds'] );
+
+		$request->set_param( 'resource_id', 'PLB-99' );
+		$this->mock_http_routes(
+			array(
+				'/v1/checkout/payment-resources' => $this->http_response( 200, array( 'id' => 'PLB-99' ) ),
+			)
+		);
+
+		$this->assertSame( 0, PayPal_REST_Controller::handle_get_button( $request )->get_data()['embeds'] );
+	}
+
+	/**
 	 * Test that an API failure while listing is surfaced as a REST error.
 	 */
 	public function test_list_buttons_converts_api_error() {
@@ -976,8 +1003,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * A post saved without its block asks for the link to go, but only if no other
-	 * published post still embeds it.
+	 * A delete carrying unused_only keeps a link another published post still embeds.
 	 */
 	public function test_delete_button_keeps_a_link_other_published_posts_use() {
 		$this->set_up_connected_admin_state();
@@ -1000,9 +1026,9 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * The post being saved does not count: its block is the one going away.
+	 * The post named in post_id is left out of the embeds that keep a link.
 	 */
-	public function test_delete_button_ignores_the_post_being_saved() {
+	public function test_delete_button_ignores_the_post_named_in_post_id() {
 		$this->set_up_connected_admin_state();
 		$this->embed_in_published_post( 1000, 'PLB-42' );
 
@@ -1022,7 +1048,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * The delete route declares the guard the editor sends.
+	 * The delete route declares the unused_only guard.
 	 */
 	public function test_delete_route_declares_the_unused_only_guard() {
 		$routes = $this->register_paypal_routes();

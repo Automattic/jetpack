@@ -1580,6 +1580,19 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Whether the site is still on the pre-2026 feature gating.
+	 *
+	 * @return bool
+	 */
+	public function is_legacy_gating_site() {
+		if ( ! method_exists( 'WPCOM_Features', 'is_legacy_gating_site' ) ) {
+			return false;
+		}
+
+		return (bool) WPCOM_Features::is_legacy_gating_site( $this->blog_id );
+	}
+
+	/**
 	 * Get the option of site intent which value is coming from the Hero Flow
 	 *
 	 * @return string

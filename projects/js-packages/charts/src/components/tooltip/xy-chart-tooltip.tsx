@@ -3,7 +3,7 @@ import { DataContext, TooltipContext } from '@visx/xychart';
 import { useCallback, useContext, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { isValidHexColor } from '../../utils';
-import { BoundedTooltip } from './private/bounded-tooltip';
+import { BoundedTooltip, TOOLTIP_Z_INDEX } from './private/bounded-tooltip';
 import type {
 	CrosshairStyle,
 	RenderTooltipGlyphProps,
@@ -36,9 +36,6 @@ const crosshairPaintProps = ( props: CrosshairStyle = {} ) => {
 };
 const DEFAULT_GLYPH_RADIUS = 4;
 const FALLBACK_COLOR = '#222';
-// Above the chart's own overlays (the zoom reset button sits at 2). The chart
-// wrapper isolates its stacking context, so this never competes with page chrome.
-const DEFAULT_TOOLTIP_Z_INDEX = 3;
 // Portal-era options, accepted for compatibility and dropped before the box
 // renders: it sits in the chart wrapper and moves with it, and nothing
 // measures it any more.
@@ -111,7 +108,7 @@ const XyChartTooltipContent = < Datum extends object >( {
 	detectBounds = true,
 	tooltipPlacement = 'auto',
 	tooltipAnchorTop,
-	zIndex = DEFAULT_TOOLTIP_Z_INDEX,
+	zIndex = TOOLTIP_Z_INDEX,
 	style,
 	...rest
 }: XyChartTooltipContentProps< Datum > ) => {

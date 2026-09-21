@@ -1,0 +1,13 @@
+.tooltip,
+.inline {
+	white-space: nowrap;
+}
+
+.inline {
+	font-size: var(--wpds-typography-font-size-sm);
+}
+
+.icon {
+	flex: 0 0 auto;
+	fill: currentColor;
+}

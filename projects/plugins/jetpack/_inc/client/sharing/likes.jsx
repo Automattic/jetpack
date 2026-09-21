@@ -131,6 +131,7 @@ export const Likes = withModuleSettingsFormHelpers(
 							link: shouldShowLikeBlock
 								? getRedirectUrl( 'jetpack-support-like-block' )
 								: getRedirectUrl( 'jetpack-support-likes' ),
+							wpcomLink: 'https://wordpress.com/support/likes/',
 						} }
 					>
 						<p>{ description }</p>

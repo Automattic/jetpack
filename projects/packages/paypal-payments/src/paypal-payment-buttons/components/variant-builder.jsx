@@ -126,27 +126,13 @@ export function hasVariantPricing( enabled, variants ) {
 }
 
 /**
- * Whether per-variant pricing is turned on.
- *
- * The form reads this for which fields to show and whether an empty option price
- * is an error. `hasVariantPricing` above reads the prices actually entered, which
- * is what the request builder and the server sanitiser use.
- *
- * @param {boolean} enabled  - Whether variants are enabled.
- * @param {object}  variants - The variants data.
- * @return {boolean} True when a group is marked primary.
- */
-export function isVariantPricingOn( enabled, variants ) {
-	return !! enabled && !! getPrimaryDimension( variants );
-}
-
-/**
  * Find the cheapest per-option price in the primary option group.
  *
- * PayPal prices the primary group alone, so that is where the "From" price comes from.
+ * PayPal only prices the primary group, so an amount left on another group is
+ * not a price a buyer can pay and must not become the headline.
  *
- * @param {object} variants - The variants attribute.
- * @return {string|null} The lowest option price, or null when none is priced.
+ * @param {object} variants - Variants data with dimensions.
+ * @return {string|null} The lowest option price, or null when none are priced.
  */
 export function getLowestVariantPrice( variants ) {
 	let lowest = null;
@@ -162,6 +148,21 @@ export function getLowestVariantPrice( variants ) {
 	} );
 
 	return lowest;
+}
+
+/**
+ * Whether per-variant pricing is turned on.
+ *
+ * The form reads this for which fields to show and whether an empty option price
+ * is an error. `hasVariantPricing` above reads the prices actually entered, which
+ * is what the request builder and the server sanitiser use.
+ *
+ * @param {boolean} enabled  - Whether variants are enabled.
+ * @param {object}  variants - The variants data.
+ * @return {boolean} True when a group is marked primary.
+ */
+export function isVariantPricingOn( enabled, variants ) {
+	return !! enabled && !! getPrimaryDimension( variants );
 }
 
 /**

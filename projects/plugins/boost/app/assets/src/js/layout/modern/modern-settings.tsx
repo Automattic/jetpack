@@ -1,3 +1,4 @@
+import { Popover, SlotFillProvider } from '@wordpress/components';
 import clsx from 'clsx';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import NoticeManager from '$features/notice/manager';
@@ -18,16 +19,22 @@ const ModernSettings = ( { hidden = false }: ModernSettingsProps ) => {
 	const premiumFeatures = usePremiumFeatures();
 	const hasPrioritySupport = premiumFeatures && premiumFeatures.includes( 'support' );
 
+	// Popovers portal into this slot, outside the cards that clip them.
 	return (
-		<div className={ clsx( 'jb-modern-settings', styles.settings ) } hidden={ hidden }>
-			<Settings />
+		<SlotFillProvider>
+			<div className={ clsx( 'jb-modern-settings', styles.settings ) } hidden={ hidden }>
+				<Settings />
 
-			<Tips />
+				<Tips />
 
-			{ hasPrioritySupport && <Support /> }
+				{ hasPrioritySupport && <Support /> }
 
-			<NoticeManager />
-		</div>
+				<NoticeManager />
+			</div>
+			<div className="jb-modern-settings-popovers">
+				<Popover.Slot />
+			</div>
+		</SlotFillProvider>
 	);
 };
 

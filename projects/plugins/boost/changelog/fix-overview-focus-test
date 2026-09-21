@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Tests: Stabilize Overview focus checks and clean up query clients.
