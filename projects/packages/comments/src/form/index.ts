@@ -18,12 +18,22 @@ import '../ui/style.scss';
 // on screen, so the wait is spent scrolling rather than looking at a gap.
 const ROOT_MARGIN = '600px';
 
+// Scrolling and focus can both ask for the same form, and mounting it twice
+// would throw away whatever the reader had typed.
+const loaded = new WeakSet< HTMLElement >();
+
 /**
  * Fetch the form and draw it.
  *
  * @param element - The mount point.
  */
 const load = ( element: HTMLElement ) => {
+	if ( loaded.has( element ) ) {
+		return;
+	}
+
+	loaded.add( element );
+
 	import( /* webpackChunkName: "comments-form" */ './mount' ).then(
 		( { mount } ) => mount( element ),
 		// A chunk that never arrives leaves the reader exactly where a script that
@@ -51,4 +61,16 @@ if ( typeof IntersectionObserver === 'undefined' ) {
 	);
 
 	elements.forEach( element => observer.observe( element ) );
+
+	// Nothing in the form can take focus until it loads, so keyboard and screen
+	// reader users could move straight past it without the observer firing. They
+	// start at the top of the page, so their first focus is early enough.
+	document.addEventListener(
+		'focusin',
+		() => {
+			observer.disconnect();
+			elements.forEach( load );
+		},
+		{ once: true }
+	);
 }
