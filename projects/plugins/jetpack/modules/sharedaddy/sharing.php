@@ -8,7 +8,10 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler;
 use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config;
+use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page;
+use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -360,6 +363,13 @@ function sharing_admin_init() {
 	global $sharing_admin;
 
 	$sharing_admin = new Sharing_Admin();
+
+	// load-jetpack.php registers the screen everywhere else, but does not run on
+	// WordPress.com Simple, where this file is the only Sharing code loaded.
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		Settings_Page::init();
+		Post_Handler::init();
+	}
 }
 
 add_action( 'init', 'sharing_admin_init' );
