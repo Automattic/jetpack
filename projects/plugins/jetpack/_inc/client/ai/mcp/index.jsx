@@ -25,6 +25,7 @@ import {
 } from '@wordpress/icons';
 import { Badge, Button, Stack } from '@wordpress/ui';
 import { isWriteTool } from './categories';
+import McpHowItWorks from './how-it-works';
 import { recordMcpTracksEvent } from './tracks';
 import {
 	getAccountMcpAbilities,
@@ -258,6 +259,7 @@ export default function McpHub( {
 
 	return (
 		<>
+			<McpHowItWorks />
 			<Card className="jetpack-ai-mcp__access-card">
 				<CardBody>
 					<Stack direction="column" gap="md">
