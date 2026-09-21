@@ -22,10 +22,12 @@ require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
  * @covers \Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry
  * @covers ::Automattic\Jetpack\PremiumAnalytics\register_widget_type
  * @covers ::Automattic\Jetpack\PremiumAnalytics\register_widget_types
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\register_widget_types_from_manifest
  */
 #[CoversClass( Widget_Type_Registry::class )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_widget_type' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_widget_types' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_widget_types_from_manifest' )]
 class Widget_Type_Registry_Test extends BaseTestCase {
 	use Widget_Manifest_Fixture_Trait;
 
@@ -262,6 +264,108 @@ class Widget_Type_Registry_Test extends BaseTestCase {
 		$this->assertFalse( register_widget_type( 'widget' ) );
 		$this->assertSame( array( Widget_Type_Registry::class . '::register' ), $this->doing_it_wrong );
 		$this->assertFalse( Widget_Type_Registry::get_instance()->is_registered( 'widget' ) );
+	}
+
+	/**
+	 * A plugin's manifest registers with its own text domain, unless a candidate declares one.
+	 */
+	public function test_manifest_helper_translates_with_the_given_textdomain() {
+		$calls    = array();
+		$callback = static function ( $translation, $text, $context, $domain ) use ( &$calls ) {
+			$calls[] = array( $text, $context, $domain );
+			return $translation;
+		};
+		add_filter( 'gettext_with_context', $callback, 10, 4 );
+
+		try {
+			register_widget_types_from_manifest(
+				array(
+					array(
+						'name'          => 'plugin/first',
+						'render_module' => 'plugin/first/render',
+						'title'         => 'First',
+					),
+					array(
+						'name'          => 'plugin/second',
+						'render_module' => 'plugin/second/render',
+						'title'         => 'Second',
+						'textdomain'    => 'second-domain',
+					),
+				),
+				array( 'textdomain' => 'plugin-domain' )
+			);
+		} finally {
+			remove_filter( 'gettext_with_context', $callback );
+		}
+
+		$this->assertContains( array( 'First', 'widget title', 'plugin-domain' ), $calls );
+		$this->assertContains( array( 'Second', 'widget title', 'second-domain' ), $calls );
+		$this->assertSame( 'First', Widget_Type_Registry::get_instance()->get_registered( 'plugin/first' )->title );
+	}
+
+	/**
+	 * A plugin's manifest goes through the registry-time filter like the package's.
+	 */
+	public function test_manifest_helper_applies_the_registry_time_filter() {
+		$drop_second = static function ( $widgets ) {
+			return array_values(
+				array_filter(
+					$widgets,
+					static function ( $widget ) {
+						return 'plugin/second' !== ( $widget['name'] ?? '' );
+					}
+				)
+			);
+		};
+		add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, $drop_second );
+
+		try {
+			register_widget_types_from_manifest(
+				array(
+					array( 'name' => 'plugin/first' ),
+					array( 'name' => 'plugin/second' ),
+					array( 'render_module' => 'plugin/unnamed/render' ),
+				)
+			);
+		} finally {
+			remove_filter( REGISTRABLE_WIDGET_TYPES_FILTER, $drop_second );
+		}
+
+		$registry = Widget_Type_Registry::get_instance();
+		$this->assertTrue( $registry->is_registered( 'plugin/first' ) );
+		$this->assertFalse( $registry->is_registered( 'plugin/second' ) );
+	}
+
+	/**
+	 * The helper writes into the registry it is given, and sanitizes on the way in.
+	 */
+	public function test_manifest_helper_registers_into_the_given_registry() {
+		$registry = new Widget_Type_Registry();
+
+		register_widget_types_from_manifest(
+			array(
+				array(
+					'name' => 'plugin/first',
+					'help' => array( 'content' => 'Read <em>this</em> <script>carefully</script>.' ),
+					'icon' => 'Not/Valid',
+				),
+			),
+			array(),
+			$registry
+		);
+
+		$widget_type = $registry->get_registered( 'plugin/first' );
+		$this->assertInstanceOf( Widget_Type::class, $widget_type );
+		$this->assertSame( array( 'content' => 'Read <em>this</em> carefully.' ), $widget_type->help );
+		$this->assertNull( $widget_type->icon );
+		$this->assertFalse( Widget_Type_Registry::get_instance()->is_registered( 'plugin/first' ) );
+	}
+
+	/**
+	 * The contract version a consumer compares against is a semantic version.
+	 */
+	public function test_widget_api_version_is_a_semantic_version() {
+		$this->assertMatchesRegularExpression( '/^\d+\.\d+\.\d+$/', WIDGET_API_VERSION );
 	}
 
 	/**
