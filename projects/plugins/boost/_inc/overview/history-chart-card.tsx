@@ -32,7 +32,6 @@ type Props = {
 	onDismissFreshStart: () => void;
 };
 
-// The empty-bar selector in history-chart-card.scss matches this fill.
 const emptyColor = 'var(--jetpack-boost-history-empty)';
 
 export function buildHistorySeries( days: HistoryDay[] ): SeriesData[] {
@@ -389,6 +388,20 @@ export default function HistoryChartCard( {
 										<BarChart
 											key={ `${ range.startDate }-${ range.endDate }` }
 											data={ [ deviceSeries ] }
+											barClassName={ datum =>
+												days.find( day => day.date === datum.label )?.period
+													? datum.value === 0
+														? 'boost-daily-history__bar--zero'
+														: undefined
+													: 'boost-daily-history__bar--empty'
+											}
+											tooltipStyle={ {
+												padding: 0,
+												...( highlightedPeriod && {
+													backgroundColor: 'transparent',
+													boxShadow: 'none',
+												} ),
+											} }
 											withTooltips
 											gridVisibility="x"
 											onBandHighlightChange={ selection => updateHighlight( index, selection ) }

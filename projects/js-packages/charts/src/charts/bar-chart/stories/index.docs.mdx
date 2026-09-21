@@ -70,6 +70,10 @@ The simplest bar chart requires only a `data` prop with categorical data:
 - **`resizeDebounceTime`**: Debounce delay for resize events in ms (default: `300`)
 
 **Visual Styling:**
+
+`barClassName` receives each primary bar's datum and returns an additional CSS class. Use it to style empty or zero-value marks independently of their fill color.
+
+<Canvas of={ BarChartStories.DatumClasses } />
 - **`orientation`**: Bar orientation (`'vertical'` or `'horizontal'`, defaults to `'vertical'`)
 - **`withPatterns`**: Use pattern fills instead of solid colors (`false` by default)
 - **`gridVisibility`**: Grid line visibility (`'x'`, `'y'`, `'xy'`, or `'none'`)
@@ -351,6 +355,8 @@ The chart gracefully handles various error states and edge cases:
 ## Interactive Features
 
 ### Tooltips
+
+Use `tooltipStyle` to override tooltip box styles, including padding, without CSS priority overrides.
 
 Enable rich interactive tooltips that display detailed information on hover:
 

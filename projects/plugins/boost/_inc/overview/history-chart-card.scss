@@ -79,12 +79,12 @@
 		isolation: isolate;
 
 		// Keep zeros visible without lifting empty marks above the baseline.
-		.visx-bar[height="0"] {
+		.boost-daily-history__bar--zero {
 			height: var(--wpds-border-width-sm);
 			transform: translateY(calc(-1 * var(--wpds-border-width-sm)));
 		}
 
-		.visx-bar[fill="var(--jetpack-boost-history-empty)"] {
+		.boost-daily-history__bar--empty {
 			height: var(--wpds-dimension-gap-xs);
 			transform: translateY(calc(-1 * var(--wpds-dimension-gap-xs)));
 			rx: var(--wpds-border-radius-sm);
@@ -103,16 +103,6 @@
 			outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
 			outline-offset: var(--wpds-border-width-focus);
 		}
-	}
-
-	.visx-tooltip {
-		padding: 0 !important;
-	}
-
-	// A recorded day's box only holds the screen-reader copy of the popover.
-	.visx-tooltip:has(.boost-daily-history__score-tooltip) {
-		background: none !important;
-		box-shadow: none !important;
 	}
 }
 

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Score history: Replace attribute-based chart styling with explicit classes and simplify history input coverage.
+
+

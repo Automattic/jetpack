@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add per-datum bar classes and tooltip box style overrides to BarChart.

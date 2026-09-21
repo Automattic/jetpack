@@ -13,7 +13,7 @@ import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/u
 import BarChart, { BarChartUnresponsive } from '../bar-chart';
 import { useBarChartOptions } from '../private';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
-import type { SeriesData } from '../../../types';
+import type { DataPointDate, SeriesData } from '../../../types';
 
 // Mock useElementSize to return non-zero dimensions in jsdom so charts render
 const mockRefCallback = jest.fn();
@@ -58,6 +58,53 @@ describe( 'BarChart', () => {
 			</GlobalChartsProvider>
 		);
 	};
+
+	test.each( [ 'vertical', 'horizontal' ] )(
+		'adds datum classes without changing %s bar geometry',
+		async orientation => {
+			const props = {
+				orientation,
+				data: [ ...defaultProps.data, { ...defaultProps.data[ 0 ], label: 'Series B' } ],
+			};
+			const view = renderWithTheme( props );
+			await waitFor( () => expect( getBarRects() ).toHaveLength( 6 ) );
+			const geometry = () =>
+				Array.from( getBarRects(), bar =>
+					[ 'x', 'y', 'width', 'height', 'fill' ].map( attribute => bar.getAttribute( attribute ) )
+				);
+			const original = geometry();
+			view.unmount();
+			renderWithTheme( {
+				...props,
+				barClassName: ( datum: DataPointDate ) =>
+					datum.value === 10 ? 'first-value' : undefined,
+			} );
+			await waitFor( () => expect( getBarRects() ).toHaveLength( 6 ) );
+			expect( geometry() ).toEqual( original );
+			expect( getBarRects()[ 0 ] ).toHaveClass( 'visx-bar', 'first-value' );
+			expect( getBarRects()[ 1 ] ).not.toHaveClass( 'first-value' );
+			expect( getBarRects()[ 3 ] ).toHaveClass( 'first-value' );
+		}
+	);
+
+	test( 'applies tooltip style overrides while keeping keyboard tooltip content', async () => {
+		const user = userEvent.setup();
+		renderWithTheme( {
+			withTooltips: true,
+			barClassName: () => 'styled-bar',
+			tooltipStyle: { padding: 0, backgroundColor: 'transparent', boxShadow: 'none' },
+		} );
+		await user.tab();
+		await user.keyboard( '{ArrowRight}' );
+		const tooltip = await screen.findByRole( 'tooltip' );
+		expect( tooltip ).toHaveTextContent( 'Jan 1' );
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+			padding: '0px',
+			// jsdom normalizes transparent in computed styles.
+			'background-color': 'rgba(0, 0, 0, 0)',
+			'box-shadow': 'none',
+		} );
+	} );
 
 	describe( 'pointer selection and focus return', () => {
 		const screenTransform = Object.getOwnPropertyDescriptor( SVGElement.prototype, 'getScreenCTM' );

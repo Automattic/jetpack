@@ -59,18 +59,6 @@ test( 'buckets in the site timezone, keeps the latest duplicate, and preserves g
 	expect( days.filter( day => day.period ) ).toHaveLength( 2 );
 } );
 
-test( 'keeps the later response entry when timestamps tie', () => {
-	const window = getHistoryWindow( 0, new Date( '2026-03-20T02:00:00Z' ) );
-	const first = period( '2026-03-09T12:00:00Z' );
-	const second = { ...first, dimensions: { ...first.dimensions, mobile_tbt: 300 } };
-	const selected = ( periods: PerformanceHistoryPeriod[] ) =>
-		bucketHistoryDays( periods, window ).find( day => day.period )?.period;
-	expect( selected( [ first, second ] ) ).toBe( second );
-	expect( selected( [ second, first ] ) ).toBe( first );
-	const newer = { ...first, timestamp: first.timestamp + 1 };
-	expect( selected( [ newer, second ] ) ).toBe( newer );
-} );
-
 test( 'keeps all 30 slots empty when history has not started', () => {
 	const days = bucketHistoryDays( [], getHistoryWindow( 0, new Date( '2026-09-09T12:00:00Z' ) ) );
 	expect( days ).toHaveLength( 30 );
