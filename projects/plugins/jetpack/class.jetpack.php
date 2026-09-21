@@ -556,6 +556,9 @@ class Jetpack {
 					add_option( 'wpcom_newsletter_send_default', 1 );
 				}
 
+				// Its handler went with the Recommendations assistant.
+				wp_clear_scheduled_hook( 'jetpack_recommend_videopress' );
+
 				if ( did_action( 'wp_loaded' ) ) {
 					self::upgrade_on_load();
 				} else {
