@@ -1894,4 +1894,13 @@ abstract class SAL_Site {
 		$status = get_option( 'jetpack_recovery_mode_status' );
 		return is_array( $status ) ? $status : null;
 	}
+
+	/**
+	 * Whether WordPress.com accounts must have two-step authentication to log in through SSO.
+	 *
+	 * @return bool
+	 */
+	public function get_jetpack_sso_require_two_step() {
+		return (bool) get_option( 'jetpack_sso_require_two_step' );
+	}
 }
