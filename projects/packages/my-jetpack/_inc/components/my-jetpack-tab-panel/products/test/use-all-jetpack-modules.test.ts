@@ -1,6 +1,24 @@
-import { withoutPluginForcedOverrides } from '../use-all-jetpack-modules';
+import { renderHook } from '@testing-library/react';
+import { useAllJetpackModules, withoutPluginForcedOverrides } from '../use-all-jetpack-modules';
 import type { ProductCamelCase } from '../../../../data/types';
 import type { MyJetpackModule } from '../../../../types';
+
+const mockModules: { current: Record< string, MyJetpackModule > } = { current: {} };
+const mockProducts: { current: Record< string, ProductCamelCase > } = { current: {} };
+
+jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: 'modules-store' } ) );
+
+jest.mock( '@wordpress/data', () => ( {
+	useSelect: ( selector: ( select: unknown ) => unknown ) =>
+		selector( () => ( {
+			getJetpackModules: () => mockModules.current,
+			areModulesLoading: () => false,
+		} ) ),
+} ) );
+
+jest.mock( '../../../../data/products/use-all-products', () => ( {
+	useAllProducts: () => ( { data: mockProducts.current } ),
+} ) );
 
 const mod = ( module: string, override: MyJetpackModule[ 'override' ] ) =>
 	( { module, available: true, activated: override !== 'inactive', override } ) as MyJetpackModule;
@@ -57,5 +75,25 @@ describe( 'withoutPluginForcedOverrides', () => {
 		const result = withoutPluginForcedOverrides( modules, { stats: product( 'stats', false ) } );
 
 		expect( result.stats ).toBe( modules.stats );
+	} );
+} );
+
+describe( 'useAllJetpackModules', () => {
+	beforeEach( () => {
+		window.myJetpackInitialState = { myJetpackFlags: {} } as typeof window.myJetpackInitialState;
+	} );
+
+	it( 'hands back the store modules without the override a standalone plugin causes', () => {
+		mockModules.current = {
+			videopress: mod( 'videopress', 'active' ),
+			stats: mod( 'stats', 'active' ),
+		};
+		mockProducts.current = { videopress: product( 'videopress', true ) };
+
+		const { result } = renderHook( () => useAllJetpackModules() );
+
+		expect( result.current.isLoading ).toBe( false );
+		expect( result.current.modules.videopress.override ).toBe( false );
+		expect( result.current.modules.stats.override ).toBe( 'active' );
 	} );
 } );
