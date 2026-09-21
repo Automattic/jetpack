@@ -68,11 +68,17 @@ function diffStyle( before, after, tolerancePx ) {
  * Diff step 2's geometry snapshots: one entry per configured target (root, header,
  * footer, #wpbody-content, control).
  *
- * @param {object} before                - `{ [targetKey]: { label, rect?, style? } }`.
+ * A target hidden on either side (`display: none` / `visibility: hidden`) skips the rect
+ * and style diff entirely -- `getBoundingClientRect()` on a hidden element is all zeros,
+ * which would otherwise read as a bogus geometry shift. A visibility change is reported as
+ * its own `'hidden-changed'` status instead; the caller decides whether that particular
+ * target is allowed to do that (see report.js: `allowHidden`, for #wpfooter).
+ *
+ * @param {object} before                - `{ [targetKey]: { label, hidden?, rect?, style? } }`.
  * @param {object} after                 - Same shape, from the flag-on capture.
  * @param {object} [options]
  * @param {number} [options.tolerancePx] - See `DEFAULT_TOLERANCE_PX`.
- * @return {Array<object>} `{ key, label, status: 'ok'|'changed'|'missing', details }`, one per target present on either side.
+ * @return {Array<object>} `{ key, label, status: 'ok'|'changed'|'missing'|'hidden-changed', details }`, one per target present on either side.
  */
 export function diffGeometry( before = {}, after = {}, options = {} ) {
 	const tolerancePx = options.tolerancePx ?? DEFAULT_TOLERANCE_PX;
@@ -98,6 +104,21 @@ export function diffGeometry( before = {}, after = {}, options = {} ) {
 			continue;
 		}
 
+		if ( b.hidden || a.hidden ) {
+			if ( Boolean( b.hidden ) === Boolean( a.hidden ) ) {
+				results.push( { key, label, status: 'ok', details: [] } );
+			} else {
+				const visibility = b.hidden ? 'hidden -> visible' : 'visible -> hidden';
+				results.push( {
+					key,
+					label,
+					status: 'hidden-changed',
+					details: [ `visibility: ${ visibility }` ],
+				} );
+			}
+			continue;
+		}
+
 		const details = [
 			...diffRect( b.rect, a.rect, tolerancePx ),
 			...diffStyle( b.style, a.style, tolerancePx ),
@@ -106,6 +127,18 @@ export function diffGeometry( before = {}, after = {}, options = {} ) {
 	}
 
 	return results;
+}
+
+/**
+ * @param {URL}      parsedUrl
+ * @param {string[]} ignoreQueryParams
+ * @return {URL} The same `URL`, mutated in place with those params removed.
+ */
+function stripQueryParams( parsedUrl, ignoreQueryParams ) {
+	for ( const param of ignoreQueryParams ) {
+		parsedUrl.searchParams.delete( param );
+	}
+	return parsedUrl;
 }
 
 /**
@@ -121,15 +154,31 @@ export function diffGeometry( before = {}, after = {}, options = {} ) {
 export function normalizeRequestKey( request, options = {} ) {
 	const ignoreQueryParams = options.ignoreQueryParams ?? DEFAULT_IGNORED_QUERY_PARAMS;
 	try {
-		const parsed = new URL( request.url );
-		for ( const param of ignoreQueryParams ) {
-			parsed.searchParams.delete( param );
-		}
+		const parsed = stripQueryParams( new URL( request.url ), ignoreQueryParams );
 		parsed.searchParams.sort();
 		return `${ request.method } ${ parsed.pathname }${ parsed.search }`;
 	} catch {
 		// Not an absolute URL (e.g. already a bare path in a fixture). Compare as-is.
 		return `${ request.method } ${ request.url }`;
+	}
+}
+
+/**
+ * Strip the same ignored query params from a URL for display. Report output is pasted into
+ * a public PR (this is a public repo), and a `_wpnonce` value is still a nonce even after
+ * it stopped mattering for matching -- see `normalizeRequestKey`.
+ *
+ * @param {string}   url
+ * @param {object}   [options]
+ * @param {string[]} [options.ignoreQueryParams] - See `DEFAULT_IGNORED_QUERY_PARAMS`.
+ * @return {string} The URL with those params removed, or the input unchanged if it does not parse.
+ */
+export function redactUrl( url, options = {} ) {
+	const ignoreQueryParams = options.ignoreQueryParams ?? DEFAULT_IGNORED_QUERY_PARAMS;
+	try {
+		return stripQueryParams( new URL( url ), ignoreQueryParams ).toString();
+	} catch {
+		return url;
 	}
 }
 

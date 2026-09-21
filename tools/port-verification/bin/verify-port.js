@@ -11,7 +11,7 @@ import readline from 'readline/promises';
 import { parseArgs } from 'util';
 import { diffSnapshots } from '../src/diff.js';
 import { formatReport } from '../src/report.js';
-import { DEFAULT_TOLERANCE_PX } from '../src/selectors.js';
+import { DEFAULT_IGNORED_QUERY_PARAMS, DEFAULT_TOLERANCE_PX } from '../src/selectors.js';
 
 // Loaded lazily (only by `capture` and `run`) so `--help` and `diff` -- which need no
 // browser -- still work without Playwright installed.
@@ -32,6 +32,8 @@ const USAGE = `Usage:
                       [--tolerance <px>] [--out <report.md>]
 
 Credentials also read from WP_ADMIN_USER / WP_ADMIN_PASS.
+--ignore-query-param <name> (repeatable) adds to the default ignored list
+(${ DEFAULT_IGNORED_QUERY_PARAMS.join( ', ' ) }) for step 3's request matching and display.
 See README.md for the full walkthrough, including how to flip the flag between captures.`;
 
 const OPTION_SPEC = {
@@ -42,6 +44,7 @@ const OPTION_SPEC = {
 	'control-selector': { type: 'string' },
 	'wait-selector': { type: 'string' },
 	tolerance: { type: 'string' },
+	'ignore-query-param': { type: 'string', multiple: true, default: [] },
 	out: { type: 'string' },
 	before: { type: 'string' },
 	after: { type: 'string' },
@@ -55,6 +58,7 @@ const OPTION_SPEC = {
  */
 function parseOptions( argv ) {
 	const { values } = parseArgs( { args: argv, options: OPTION_SPEC, allowPositionals: false } );
+	const extraIgnoreParams = values[ 'ignore-query-param' ];
 	return {
 		url: values.url,
 		flag: values.flag,
@@ -63,6 +67,9 @@ function parseOptions( argv ) {
 		controlSelector: values[ 'control-selector' ],
 		waitForSelector: values[ 'wait-selector' ],
 		tolerancePx: values.tolerance ? Number( values.tolerance ) : DEFAULT_TOLERANCE_PX,
+		ignoreQueryParams: extraIgnoreParams.length
+			? [ ...DEFAULT_IGNORED_QUERY_PARAMS, ...extraIgnoreParams ]
+			: undefined,
 		out: values.out,
 		before: values.before,
 		after: values.after,
@@ -115,12 +122,17 @@ function runDiff( options ) {
  */
 function printReport( before, after, options ) {
 	const diffResult = diffSnapshots( before, after, options );
-	const report = formatReport( diffResult, {
-		url: after.meta?.url ?? before.meta?.url ?? options.url,
-		flag: options.flag,
-		beforeCapturedAt: before.meta?.capturedAt,
-		afterCapturedAt: after.meta?.capturedAt,
-	} );
+	const report = formatReport(
+		diffResult,
+		{
+			url: after.meta?.url ?? before.meta?.url ?? options.url,
+			flag: options.flag,
+			beforeCapturedAt: before.meta?.capturedAt,
+			afterCapturedAt: after.meta?.capturedAt,
+		},
+		undefined,
+		options
+	);
 	if ( options.out ) {
 		fs.writeFileSync( options.out, report + '\n' );
 		console.log( `Report written to ${ options.out }` );

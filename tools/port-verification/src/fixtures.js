@@ -17,26 +17,31 @@ export function flagOffSnapshot() {
 		geometry: {
 			root: {
 				label: 'Page root (#wpwrap)',
+				hidden: false,
 				rect: { x: 0, y: 0, width: 1280, height: 900 },
 				style: { fontFamily: 'Arial, sans-serif' },
 			},
 			wpbodyContent: {
 				label: '#wpbody-content',
+				hidden: false,
 				rect: { x: 160, y: 32, width: 1120, height: 860 },
 				style: { fontFamily: 'Arial, sans-serif' },
 			},
 			header: {
 				label: 'Header (#wpadminbar)',
+				hidden: false,
 				rect: { x: 0, y: 0, width: 1280, height: 32 },
 				style: { fontFamily: 'Arial, sans-serif' },
 			},
 			footer: {
 				label: 'Footer (#wpfooter)',
+				hidden: false,
 				rect: { x: 160, y: 880, width: 1120, height: 20 },
 				style: { fontFamily: 'Arial, sans-serif' },
 			},
 			control: {
 				label: 'Control',
+				hidden: false,
 				rect: { width: 100, height: 36 },
 				style: {
 					fontFamily: 'Arial, sans-serif',
@@ -74,13 +79,23 @@ export function flagOffSnapshot() {
 	};
 }
 
-/** A clean port: the page root shifts by the one accepted 8px stage-gutter inset, nothing else moves. */
+/**
+ * A clean port: the page root shifts by the one accepted 8px stage-gutter inset, and
+ * #wpfooter goes `display: none` (boot hides it by design -- see
+ * projects/js-packages/base-styles/admin-page-layout.scss). Nothing else moves.
+ */
 export function flagOnSnapshot() {
 	const snapshot = flagOffSnapshot();
 	snapshot.meta.capturedAt = '2026-09-21T12:03:00.000Z';
 	snapshot.geometry.root = {
 		...snapshot.geometry.root,
 		rect: { x: 8, y: 8, width: 1264, height: 884 },
+	};
+	// A real display:none collapses getBoundingClientRect() to all zeros.
+	snapshot.geometry.footer = {
+		...snapshot.geometry.footer,
+		hidden: true,
+		rect: { x: 0, y: 0, width: 0, height: 0 },
 	};
 	snapshot.network[ 1 ] = {
 		...snapshot.network[ 1 ],
@@ -89,11 +104,11 @@ export function flagOnSnapshot() {
 	return snapshot;
 }
 
-/** Reproduces the pilot's design-tokens.css 404: a new request, same everything else. */
+/** Reproduces the pilot's design-tokens.css 404: a new request carrying a nonce, same everything else. */
 export function flagOnSnapshotWith404() {
 	const snapshot = flagOnSnapshot();
 	snapshot.network.push( {
-		url: 'https://example.jurassic.ninja/wp-content/plugins/jetpack/design-tokens.css',
+		url: 'https://example.jurassic.ninja/wp-content/plugins/jetpack/design-tokens.css?_wpnonce=deadbeef1234',
 		method: 'GET',
 		status: 404,
 		resourceType: 'stylesheet',
@@ -107,6 +122,21 @@ export function flagOnSnapshotWithGeometryShift() {
 	snapshot.geometry.wpbodyContent = {
 		...snapshot.geometry.wpbodyContent,
 		rect: { ...snapshot.geometry.wpbodyContent.rect, width: 1132 },
+	};
+	return snapshot;
+}
+
+/**
+ * An UNEXPECTED visibility regression: the header goes `display: none` too. Unlike the
+ * footer, `header` has no `allowHidden` in `DEFAULT_GEOMETRY_TARGETS`, so this must surface
+ * as a finding.
+ */
+export function flagOnSnapshotWithUnexpectedlyHiddenHeader() {
+	const snapshot = flagOnSnapshot();
+	snapshot.geometry.header = {
+		...snapshot.geometry.header,
+		hidden: true,
+		rect: { x: 0, y: 0, width: 0, height: 0 },
 	};
 	return snapshot;
 }

@@ -12,10 +12,15 @@ that rule stay manual -- see "Not covered" below.
   `box-sizing`, `font-size`). These are core wp-admin markup present whether the flag is off
   or on, so a diff catches the port shifting the frame around its content -- the failure mode
   JETPACK-2573 calls out: "a 4px shift is invisible in a screenshot and obvious in a number."
+  A target that goes `display: none` (e.g. `#wpfooter`, which boot hides by design -- see
+  `projects/js-packages/base-styles/admin-page-layout.scss`) is reported as a visibility
+  change, not a bogus zero-rect geometry shift.
 - **Step 3, network.** Every request the page fires, matched flag-off to flag-on by method +
-  path (nonces and cache-busting query params are ignored). Reports requests that only fired
-  one time, and requests whose status code changed. This is what caught a `design-tokens.css`
-  404 and a renamed JITM message path in the My Jetpack pilot -- both zero-pixel changes.
+  path (nonces and cache-busting query params -- see `DEFAULT_IGNORED_QUERY_PARAMS` in
+  `src/selectors.js` -- are stripped before matching and before display, so the report never
+  quotes a live nonce). Reports requests that only fired one time, and requests whose status
+  code changed. This is what caught a `design-tokens.css` 404 and a renamed JITM message path
+  in the My Jetpack pilot -- both zero-pixel changes.
 
 The one difference JETPACK-2573 accepts is a uniform 8px inset from boot's stage gutter on the
 page root. The report says so in its footer; it does not try to auto-approve that one row.
@@ -55,16 +60,17 @@ above).
 
 ### Options
 
-| Flag                 | Meaning                                                                                                                                       |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--url`              | Page to capture. Required.                                                                                                                    |
-| `--flag`             | Feature flag name, printed in the pause prompt and the report header. Optional.                                                               |
-| `--user` / `--pass`  | wp-admin login. Falls back to `WP_ADMIN_USER` / `WP_ADMIN_PASS`. Omit to capture without logging in (e.g. the site is already authenticated). |
-| `--control-selector` | CSS selector for the one control to box-model (step 2). Skipped if omitted.                                                                   |
-| `--wait-selector`    | Extra selector to wait for after navigation, e.g. the boot mount, so a slow-hydrating page isn't captured mid-render.                         |
-| `--tolerance`        | Geometry tolerance in px. Default `0.5` -- rounding noise, not a real shift.                                                                  |
-| `--out`              | Write the report to a file (in addition to stdout).                                                                                           |
-| `--headed`           | Run the browser headed, for watching the capture happen.                                                                                      |
+| Flag                   | Meaning                                                                                                                                                                                                                                                                                                            |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `--url`                | Page to capture. Required.                                                                                                                                                                                                                                                                                         |
+| `--flag`               | Feature flag name, printed in the pause prompt and the report header. Optional.                                                                                                                                                                                                                                    |
+| `--user` / `--pass`    | wp-admin login. Falls back to `WP_ADMIN_USER` / `WP_ADMIN_PASS`. Omit to capture without logging in (e.g. the site is already authenticated).                                                                                                                                                                      |
+| `--control-selector`   | CSS selector for the one control to box-model (step 2). Skipped if omitted.                                                                                                                                                                                                                                        |
+| `--wait-selector`      | Extra selector to wait for after navigation, e.g. the boot mount, so a slow-hydrating page isn't captured mid-render.                                                                                                                                                                                              |
+| `--tolerance`          | Geometry tolerance in px. Default `0.5` -- rounding noise, not a real shift.                                                                                                                                                                                                                                       |
+| `--ignore-query-param` | Repeatable. Adds a query param to the default ignore list for step 3 matching and display (`_wpnonce`, `ver`, `_`, `_locale`). Use it for a site-specific volatile param -- generic names like `v` or `t` are deliberately not ignored by default, since they can carry real state (an API version, a tab filter). |
+| `--out`                | Write the report to a file (in addition to stdout).                                                                                                                                                                                                                                                                |
+| `--headed`             | Run the browser headed, for watching the capture happen.                                                                                                                                                                                                                                                           |
 
 ### Two-step alternative
 
@@ -95,7 +101,7 @@ node bin/verify-port.js diff --before off.json --after on.json --out report.md
 | Page root (#wpwrap) | CHANGED | x: 0px -> 8px (Δ8.0px)<br>y: 0px -> 8px (Δ8.0px)<br>width: 1280px -> 1264px (Δ16.0px)<br>height: 900px -> 884px (Δ16.0px) |
 | #wpbody-content | OK | — |
 | Header (#wpadminbar) | OK | — |
-| Footer (#wpfooter) | OK | — |
+| Footer (#wpfooter) | OK (hidden by design) | visibility: visible -> hidden |
 | Control | OK | — |
 
 ### Step 3 -- network panel

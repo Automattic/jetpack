@@ -6,6 +6,7 @@ import {
 	flagOnSnapshot,
 	flagOnSnapshotWith404,
 	flagOnSnapshotWithGeometryShift,
+	flagOnSnapshotWithUnexpectedlyHiddenHeader,
 } from './fixtures.js';
 import { formatReport } from './report.js';
 
@@ -30,8 +31,33 @@ describe( 'formatReport', () => {
 		assert.match( report, /\| Page root \(#wpwrap\) \| CHANGED \|/ );
 		assert.match( report, /\| #wpbody-content \| OK \|/ );
 		assert.match( report, /\| Header \(#wpadminbar\) \| OK \|/ );
-		assert.match( report, /\| Footer \(#wpfooter\) \| OK \|/ );
 		assert.match( report, /\| Control \| OK \|/ );
+	} );
+
+	it( 'renders the footer going hidden by design as OK, not a bogus geometry CHANGED row', () => {
+		const report = formatReport( diffSnapshots( flagOffSnapshot(), flagOnSnapshot() ), {
+			url: 'x',
+		} );
+		assert.match(
+			report,
+			/\| Footer \(#wpfooter\) \| OK \(hidden by design\) \| visibility: visible -> hidden \|/
+		);
+		assert.doesNotMatch( report, /Footer \(#wpfooter\) \| CHANGED/ );
+		// The bug this guards: before the fix this row showed bogus px deltas like "width: 1120px -> 0px".
+		assert.doesNotMatch( report, /width: 1120px -> 0px/ );
+	} );
+
+	it( 'counts an unexpectedly hidden header (no allowHidden) as a geometry finding, unlike the footer', () => {
+		const report = formatReport(
+			diffSnapshots( flagOffSnapshot(), flagOnSnapshotWithUnexpectedlyHiddenHeader() ),
+			{ url: 'x' }
+		);
+		assert.match(
+			report,
+			/\| Header \(#wpadminbar\) \| CHANGED \| visibility: visible -> hidden \|/
+		);
+		// root's accepted 8px inset (1) + the unexpected header hidden-change (1) = 2.
+		assert.match( report, /2 geometry finding\(s\)/ );
 	} );
 
 	it( 'surfaces a geometry regression as a CHANGED row with the pixel delta', () => {
@@ -47,6 +73,14 @@ describe( 'formatReport', () => {
 			url: 'x',
 		} );
 		assert.match( report, /Only with flag on \(1\):/ );
+		assert.match( report, /design-tokens\.css` -> 404/ );
+	} );
+
+	it( 'never prints a nonce value from a network URL -- this report is pasted into a public PR', () => {
+		const report = formatReport( diffSnapshots( flagOffSnapshot(), flagOnSnapshotWith404() ), {
+			url: 'x',
+		} );
+		assert.ok( ! report.includes( 'deadbeef1234' ) );
 		assert.match( report, /design-tokens\.css` -> 404/ );
 	} );
 

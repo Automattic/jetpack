@@ -1,11 +1,18 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { diffGeometry, diffNetwork, diffSnapshots, normalizeRequestKey } from './diff.js';
+import {
+	diffGeometry,
+	diffNetwork,
+	diffSnapshots,
+	normalizeRequestKey,
+	redactUrl,
+} from './diff.js';
 import {
 	flagOffSnapshot,
 	flagOnSnapshot,
 	flagOnSnapshotWith404,
 	flagOnSnapshotWithGeometryShift,
+	flagOnSnapshotWithUnexpectedlyHiddenHeader,
 } from './fixtures.js';
 
 describe( 'diffGeometry', () => {
@@ -68,6 +75,45 @@ describe( 'diffGeometry', () => {
 		const results = diffGeometry( {}, {} );
 		assert.deepEqual( results, [] );
 	} );
+
+	it( 'reports a visible-to-hidden transition as hidden-changed, not a bogus zero-rect delta', () => {
+		const before = {
+			footer: { label: 'Footer', hidden: false, rect: { x: 160, y: 880, width: 1120, height: 20 } },
+		};
+		const after = {
+			footer: { label: 'Footer', hidden: true, rect: { x: 0, y: 0, width: 0, height: 0 } },
+		};
+		const [ result ] = diffGeometry( before, after );
+		assert.equal( result.status, 'hidden-changed' );
+		assert.deepEqual( result.details, [ 'visibility: visible -> hidden' ] );
+		// The regression this guards: before the fix, this printed "width: 1120px -> 0px" and
+		// similar bogus deltas for every rect field, since getBoundingClientRect() on a
+		// display:none element is all zeros.
+		assert.ok( ! result.details.some( line => /width:|height:|^x:|^y:/.test( line ) ) );
+	} );
+
+	it( 'reports a hidden-to-visible transition the other direction', () => {
+		const before = {
+			footer: { label: 'Footer', hidden: true, rect: { x: 0, y: 0, width: 0, height: 0 } },
+		};
+		const after = {
+			footer: { label: 'Footer', hidden: false, rect: { x: 160, y: 880, width: 1120, height: 20 } },
+		};
+		const [ result ] = diffGeometry( before, after );
+		assert.equal( result.status, 'hidden-changed' );
+		assert.deepEqual( result.details, [ 'visibility: hidden -> visible' ] );
+	} );
+
+	it( 'reports ok, not a finding, when a target is hidden on both sides', () => {
+		const before = {
+			footer: { label: 'Footer', hidden: true, rect: { x: 0, y: 0, width: 0, height: 0 } },
+		};
+		const after = {
+			footer: { label: 'Footer', hidden: true, rect: { x: 0, y: 0, width: 0, height: 0 } },
+		};
+		const [ result ] = diffGeometry( before, after );
+		assert.equal( result.status, 'ok' );
+	} );
 } );
 
 describe( 'normalizeRequestKey', () => {
@@ -83,11 +129,45 @@ describe( 'normalizeRequestKey', () => {
 		assert.notEqual( normalizeRequestKey( a ), normalizeRequestKey( b ) );
 	} );
 
+	it( "does not ignore 'v' or 't' by default -- generic enough to carry real state (an API version, a tab)", () => {
+		const v1 = { url: 'https://site.test/wp-json/x?v=1', method: 'GET' };
+		const v2 = { url: 'https://site.test/wp-json/x?v=2', method: 'GET' };
+		assert.notEqual( normalizeRequestKey( v1 ), normalizeRequestKey( v2 ) );
+
+		const t1 = { url: 'https://site.test/wp-json/x?t=inbox', method: 'GET' };
+		const t2 = { url: 'https://site.test/wp-json/x?t=sent', method: 'GET' };
+		assert.notEqual( normalizeRequestKey( t1 ), normalizeRequestKey( t2 ) );
+	} );
+
+	it( 'ignores an extra param only when the caller opts in via ignoreQueryParams', () => {
+		const a = { url: 'https://site.test/wp-json/x?v=1', method: 'GET' };
+		const b = { url: 'https://site.test/wp-json/x?v=2', method: 'GET' };
+		const options = { ignoreQueryParams: [ 'v' ] };
+		assert.equal( normalizeRequestKey( a, options ), normalizeRequestKey( b, options ) );
+	} );
+
 	it( 'falls back to a raw compare for a non-absolute URL', () => {
 		assert.equal(
 			normalizeRequestKey( { url: '/relative/path', method: 'GET' } ),
 			'GET /relative/path'
 		);
+	} );
+} );
+
+describe( 'redactUrl', () => {
+	it( 'strips a nonce from a URL before it would be shown in a report', () => {
+		const redacted = redactUrl( 'https://site.test/wp-json/x?_wpnonce=deadbeef1234&foo=1' );
+		assert.ok( ! redacted.includes( 'deadbeef1234' ) );
+		assert.ok( redacted.includes( 'foo=1' ) );
+	} );
+
+	it( 'keeps a param that was not marked as ignorable', () => {
+		const redacted = redactUrl( 'https://site.test/wp-json/x?type=post' );
+		assert.ok( redacted.includes( 'type=post' ) );
+	} );
+
+	it( 'returns a non-absolute URL unchanged', () => {
+		assert.equal( redactUrl( '/relative/path?_wpnonce=aaa' ), '/relative/path?_wpnonce=aaa' );
 	} );
 } );
 
@@ -128,10 +208,12 @@ describe( 'diffNetwork', () => {
 } );
 
 describe( 'diffSnapshots (fixtures)', () => {
-	it( 'a clean port reports no geometry or network findings beyond the accepted root inset', () => {
+	it( 'a clean port reports no geometry or network findings beyond the accepted root inset and the footer going hidden', () => {
 		const { geometry, network } = diffSnapshots( flagOffSnapshot(), flagOnSnapshot() );
-		const nonRootFindings = geometry.filter( g => g.key !== 'root' && g.status !== 'ok' );
-		assert.deepEqual( nonRootFindings, [] );
+		const otherFindings = geometry.filter(
+			g => g.key !== 'root' && g.key !== 'footer' && g.status !== 'ok'
+		);
+		assert.deepEqual( otherFindings, [] );
 		assert.deepEqual( network.onlyBefore, [] );
 		assert.deepEqual( network.onlyAfter, [] );
 		assert.deepEqual( network.statusChanged, [] );
@@ -139,9 +221,16 @@ describe( 'diffSnapshots (fixtures)', () => {
 		const root = geometry.find( g => g.key === 'root' );
 		assert.equal( root.status, 'changed' );
 		assert.match( root.details.join( ' ' ), /x: 0px -> 8px/ );
+
+		// #wpfooter goes display:none by design (see fixtures.js) -- a raw hidden-changed fact
+		// at this pure-diff level; report.js's allowHidden config is what excludes it from
+		// counting as a finding for a reviewer.
+		const footer = geometry.find( g => g.key === 'footer' );
+		assert.equal( footer.status, 'hidden-changed' );
+		assert.deepEqual( footer.details, [ 'visibility: visible -> hidden' ] );
 	} );
 
-	it( 'flags the pilot-style design-tokens.css 404 as a network-only finding', () => {
+	it( 'flags the pilot-style design-tokens.css 404 as a network-only finding, with the nonce stripped from the match', () => {
 		const { network } = diffSnapshots( flagOffSnapshot(), flagOnSnapshotWith404() );
 		assert.equal( network.onlyAfter.length, 1 );
 		assert.match( network.onlyAfter[ 0 ].url, /design-tokens\.css/ );
@@ -153,5 +242,15 @@ describe( 'diffSnapshots (fixtures)', () => {
 		const finding = geometry.find( g => g.key === 'wpbodyContent' );
 		assert.equal( finding.status, 'changed' );
 		assert.match( finding.details.join( ' ' ), /width: 1120px -> 1132px \(Δ12\.0px\)/ );
+	} );
+
+	it( 'flags an unexpectedly hidden header as hidden-changed (raw diff fact, regardless of allowHidden policy)', () => {
+		const { geometry } = diffSnapshots(
+			flagOffSnapshot(),
+			flagOnSnapshotWithUnexpectedlyHiddenHeader()
+		);
+		const finding = geometry.find( g => g.key === 'header' );
+		assert.equal( finding.status, 'hidden-changed' );
+		assert.deepEqual( finding.details, [ 'visibility: visible -> hidden' ] );
 	} );
 } );

@@ -3,6 +3,7 @@
  * port PR. No browser here either -- plain data in, a string out.
  */
 
+import { redactUrl } from './diff.js';
 import { DEFAULT_GEOMETRY_TARGETS } from './selectors.js';
 
 const STATUS_LABEL = {
@@ -15,14 +16,21 @@ const STATUS_LABEL = {
  * @param {object}   geometryDiff         - One entry from `diffGeometry()`.
  * @param {string}   geometryDiff.key     - Target key (e.g. `wpbodyContent`).
  * @param {string}   geometryDiff.label   - Human-readable target name.
- * @param {string}   geometryDiff.status  - `'ok'` | `'changed'` | `'missing'`.
+ * @param {string}   geometryDiff.status  - `'ok'` | `'changed'` | `'missing'` | `'hidden-changed'`.
  * @param {?object}  geometryDiff.before  - The flag-off capture's entry for this target, or null.
  * @param {string[]} geometryDiff.details - Lines describing what changed.
- * @param {object}   targets              - Selector config, for `required`.
+ * @param {object}   targets              - Selector config, for `required` and `allowHidden`.
  * @return {string} A single Markdown table row.
  */
 function geometryRow( { key, label, status, before, details }, targets ) {
 	const required = targets[ key ]?.required ?? false;
+
+	if ( status === 'hidden-changed' ) {
+		const allowed = targets[ key ]?.allowHidden ?? false;
+		const effectiveStatus = allowed ? 'OK (hidden by design)' : 'CHANGED';
+		return `| ${ label } | ${ effectiveStatus } | ${ details.join( '<br>' ) } |`;
+	}
+
 	const effectiveStatus =
 		status === 'missing' && ! required ? 'ok (not present, optional)' : STATUS_LABEL[ status ];
 	let detailText = '—';
@@ -37,13 +45,16 @@ function geometryRow( { key, label, status, before, details }, targets ) {
 
 /**
  * @param {object[]} requests
+ * @param {object}   [options] - Passed to `redactUrl()`, so displayed URLs match the ignore list used for matching.
  * @return {string} One Markdown bullet list line per request, or a single "none" line.
  */
-function requestList( requests ) {
+function requestList( requests, options ) {
 	if ( requests.length === 0 ) {
 		return '  - none';
 	}
-	return requests.map( r => `  - \`${ r.method } ${ r.url }\` -> ${ r.status }` ).join( '\n' );
+	return requests
+		.map( r => `  - \`${ r.method } ${ redactUrl( r.url, options ) }\` -> ${ r.status }` )
+		.join( '\n' );
 }
 
 /**
@@ -67,15 +78,28 @@ function statusChangeList( changes ) {
  * @param {string}                                [meta.beforeCapturedAt] - ISO timestamp of the flag-off capture.
  * @param {string}                                [meta.afterCapturedAt]  - ISO timestamp of the flag-on capture.
  * @param {object}                                [targets]               - Selector config; defaults to `DEFAULT_GEOMETRY_TARGETS`.
+ * @param {object}                                [options]               - Passed to `redactUrl()` for the network section; also accepted by `diffSnapshots()`.
  * @return {string} Markdown, ready to paste into a PR description.
  */
-export function formatReport( diffResult, meta = {}, targets = DEFAULT_GEOMETRY_TARGETS ) {
+export function formatReport(
+	diffResult,
+	meta = {},
+	targets = DEFAULT_GEOMETRY_TARGETS,
+	options = {}
+) {
 	const { geometry, network } = diffResult;
-	const geometryFindings = geometry.filter(
-		g =>
-			g.status === 'changed' ||
-			( g.status === 'missing' && ( targets[ g.key ]?.required ?? false ) )
-	).length;
+	const geometryFindings = geometry.filter( g => {
+		if ( g.status === 'changed' ) {
+			return true;
+		}
+		if ( g.status === 'missing' ) {
+			return targets[ g.key ]?.required ?? false;
+		}
+		if ( g.status === 'hidden-changed' ) {
+			return ! ( targets[ g.key ]?.allowHidden ?? false );
+		}
+		return false;
+	} ).length;
 	const networkFindings =
 		network.onlyBefore.length + network.onlyAfter.length + network.statusChanged.length;
 
@@ -96,9 +120,9 @@ export function formatReport( diffResult, meta = {}, targets = DEFAULT_GEOMETRY_
 		'### Step 3 -- network panel',
 		'',
 		`- Only with flag off (${ network.onlyBefore.length }):`,
-		requestList( network.onlyBefore ),
+		requestList( network.onlyBefore, options ),
 		`- Only with flag on (${ network.onlyAfter.length }):`,
-		requestList( network.onlyAfter ),
+		requestList( network.onlyAfter, options ),
 		`- Status code changed (${ network.statusChanged.length }):`,
 		statusChangeList( network.statusChanged ),
 		'',

@@ -22,10 +22,21 @@ async function login( page, siteUrl, username, password ) {
 	await page.goto( `${ origin }/wp-login.php`, { waitUntil: 'networkidle' } );
 	await page.fill( '#user_login', username );
 	await page.fill( '#user_pass', password );
-	await Promise.all( [
-		page.waitForNavigation( { waitUntil: 'networkidle' } ),
-		page.click( '#wp-submit' ),
-	] );
+
+	try {
+		await Promise.all( [
+			page.waitForURL( '**/wp-admin/**', { waitUntil: 'networkidle' } ),
+			page.click( '#wp-submit' ),
+		] );
+		// Confirm login landed in wp-admin (the Dashboard is the post-login screen) rather than
+		// proceeding to capture wp-login.php's own failure page, which would otherwise report
+		// every required target as MISSING. Mirrors tools/performance/scripts/measure-lcp.js.
+		await page.waitForSelector( '#dashboard-widgets, #wpbody', { timeout: 30000 } );
+	} catch {
+		throw new Error(
+			`Login did not land in wp-admin (still on ${ page.url() }) -- check --user/--pass.`
+		);
+	}
 }
 
 /**
@@ -33,10 +44,23 @@ async function login( page, siteUrl, username, password ) {
  * `page.evaluate`, so it can only use DOM APIs -- no imports from this module reach it.
  *
  * @param {object} targetsArg - `{ [key]: { label, selector } }`, control's selector resolved by the caller.
- * @return {object} `{ [key]: { label, rect, style } }` for every target whose selector matched.
+ * @return {object} `{ [key]: { label, hidden, rect, style } }` for every target whose selector matched.
  */
 /* c8 ignore start -- runs inside the browser context; exercised only by a live capture. */
 function extractGeometryInPage( targetsArg ) {
+	/**
+	 * `display: none` (or `visibility: hidden`) collapses `getBoundingClientRect()` to all
+	 * zeros, which would otherwise read as a bogus geometry shift rather than a visibility
+	 * change (see the #wpfooter case selectors.js documents).
+	 *
+	 * @param {Element} el
+	 * @return {boolean}
+	 */
+	function isHidden( el ) {
+		const cs = window.getComputedStyle( el );
+		return cs.display === 'none' || cs.visibility === 'hidden';
+	}
+
 	/**
 	 * @param {Element} el
 	 * @return {{x: number, y: number, width: number, height: number}}
@@ -91,6 +115,7 @@ function extractGeometryInPage( targetsArg ) {
 		}
 		out[ key ] = {
 			label: target.label,
+			hidden: isHidden( el ),
 			rect: readRect( el ),
 			style: readStyle( el, key === 'control' ),
 		};
