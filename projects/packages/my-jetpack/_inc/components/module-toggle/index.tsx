@@ -78,7 +78,7 @@ export function useModuleActivation(
 								/* translators: %s is the module name */
 								__( '%s has been deactivated.', 'jetpack-my-jetpack' ),
 								$module.name
-						  );
+							);
 				createSuccessNotice( message, { type: 'snackbar' } );
 			} else {
 				const message =
