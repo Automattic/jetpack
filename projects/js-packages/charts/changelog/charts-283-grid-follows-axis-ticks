@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Line and area charts: Draw the value gridlines at the ticks set by `options.axis.y.numTicks` and `options.axis.y.tickValues`, matching the axis labels.
