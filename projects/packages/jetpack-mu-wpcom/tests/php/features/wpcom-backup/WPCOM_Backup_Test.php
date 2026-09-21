@@ -172,6 +172,30 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Run the enqueue pass and hand back what it localized for the page script.
+	 *
+	 * @return array|null The payload, or null when nothing was localized.
+	 */
+	private function localized_initial_state() {
+		$handle = WPCOM_Backup::WP_BUILD_PAGE . '-wp-admin-prerequisites';
+
+		// The script registry outlives a test, and with it anything an earlier one localized.
+		wp_deregister_script( $handle );
+		wp_register_script( $handle, 'https://example.org/prerequisites.js', array(), '1', true );
+
+		WPCOM_Backup::enqueue_initial_state();
+
+		$data  = wp_scripts()->get_data( $handle, 'data' );
+		$start = is_string( $data ) ? strpos( $data, '{' ) : false;
+
+		if ( false === $start ) {
+			return null;
+		}
+
+		return json_decode( substr( (string) $data, $start, -1 ), true );
+	}
+
+	/**
 	 * Leave the admin globals as they were found.
 	 *
 	 * @return void
@@ -445,5 +469,62 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 			'/checkout/example.com%2Fevil/business',
 			WPCOM_Backup::get_upgrade_url( 'example.com/evil' )
 		);
+	}
+
+	/**
+	 * Everything the page can show is decided here and read from this one global,
+	 * so a key that stops arriving takes a whole prompt down with it.
+	 */
+	public function test_initial_state_reaches_the_page_script() {
+		$this->set_up_admin_menu();
+		$this->set_up_backup_request();
+		WPCOM_Backup::register_page();
+
+		$payload = $this->localized_initial_state();
+
+		$this->assertSame(
+			array( 'state', 'domain', 'isEligible', 'errors', 'warnings', 'upgradeUrl', 'activateUrl', 'supportUrl' ),
+			array_keys( (array) $payload )
+		);
+		$this->assertSame( WPCOM_Backup::STATE_UPGRADE, $payload['state'] );
+		$this->assertSame( wp_parse_url( home_url(), PHP_URL_HOST ), $payload['domain'] );
+		// wp_localize_script() stringifies scalars, so the page reads "1" and "" for the flag.
+		$this->assertSame( '1', $payload['isEligible'] );
+	}
+
+	/**
+	 * Eligibility is fetched directly here rather than through the wpcom endpoint
+	 * that gates it, so the capability check has to be restated.
+	 */
+	public function test_initial_state_is_withheld_from_users_who_cannot_manage_options() {
+		$this->set_up_admin_menu();
+		$this->set_up_backup_request();
+		WPCOM_Backup::register_page();
+
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'wpcom_backup_subscriber',
+					'user_pass'  => 'password',
+					'role'       => 'subscriber',
+				)
+			)
+		);
+
+		$this->assertNull( $this->localized_initial_state() );
+	}
+
+	/**
+	 * When the Jetpack plugin owns the slug it renders its own Backup page, which
+	 * would be handed a state describing a page it is not showing.
+	 */
+	public function test_initial_state_is_withheld_when_another_plugin_owns_the_page() {
+		$this->set_up_admin_menu();
+		$this->set_up_backup_request();
+		$GLOBALS['submenu']['jetpack'][] = array( 'VaultPress Backup', 'manage_options', WPCOM_Backup::MENU_SLUG, 'Jetpack VaultPress Backup' );
+
+		WPCOM_Backup::register_page();
+
+		$this->assertNull( $this->localized_initial_state() );
 	}
 }
