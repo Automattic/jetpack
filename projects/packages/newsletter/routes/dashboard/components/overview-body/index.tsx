@@ -19,7 +19,7 @@ export default function OverviewBody(): JSX.Element {
 				/* translators: %s: Current user's display name. */
 				__( 'Welcome, %s', 'jetpack-newsletter' ),
 				displayName
-		  )
+			)
 		: __( 'Welcome', 'jetpack-newsletter' );
 
 	return (

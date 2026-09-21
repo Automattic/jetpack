@@ -1,8 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useRef, useState } from 'react';
 import { LineChartUnresponsive } from '../../../charts/line-chart/line-chart';
 import { GlobalChartsProvider } from '../../../providers';
 import { ChartScopeContext } from '../../../providers/chart-scope';
+import { useKeyboardNavigation } from '../accessible-tooltip';
 import type { ReactNode } from 'react';
 
 // A real chart is the harness rather than the subject: the crosshairs render only once visx has a data context and an open tooltip. The unresponsive export is what lets the test own the scope element — `withResponsive` otherwise provides its own wrapper as the scope.
@@ -86,9 +88,167 @@ describe( 'AccessibleTooltip', () => {
 		}
 	} );
 
+	it.each( [
+		[ 'Tab', '{Tab}' ],
+		[ 'Escape', '{Escape}' ],
+	] )( 'requests scroll suppression when returning focus after %s', async ( _name, keys ) => {
+		const user = userEvent.setup();
+		renderChart( undefined, 'below-axis' );
+		await openTooltip();
+		const focus = jest.spyOn( screen.getByRole( 'grid' ), 'focus' );
+		try {
+			await user.keyboard( keys );
+			expect( focus ).toHaveBeenCalledWith( { preventScroll: true } );
+		} finally {
+			focus.mockRestore();
+		}
+	} );
+
+	it.each( [
+		[ 'Tab', '{Tab}' ],
+		[ 'Escape', '{Escape}' ],
+	] )( 'keeps default focus scrolling when returning focus after %s', async ( _name, keys ) => {
+		const user = userEvent.setup();
+		renderChart();
+		await openTooltip();
+		const focus = jest.spyOn( screen.getByRole( 'grid' ), 'focus' );
+		try {
+			await user.keyboard( keys );
+			expect( focus ).toHaveBeenCalledWith();
+		} finally {
+			focus.mockRestore();
+		}
+	} );
+
 	it( 'falls back to the catalog default when the role is unset', async () => {
 		renderChart();
 
 		await expect( openTooltip() ).resolves.toHaveAttribute( 'stroke', '#dbdbdb' );
+	} );
+} );
+
+// Mirrors the charts' markup: the focusable grid wraps the element `chartRef` points at.
+const NavigationHarness = ( { totalPoints }: { totalPoints: number } ) => {
+	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >();
+	const [ isNavigating, setIsNavigating ] = useState( false );
+	const chartRef = useRef< HTMLDivElement >( null );
+	const { onChartKeyDown } = useKeyboardNavigation( {
+		selectedIndex,
+		setSelectedIndex,
+		isNavigating,
+		setIsNavigating,
+		chartRef,
+		totalPoints,
+	} );
+
+	return (
+		<>
+			<div role="grid" aria-label="Harness" tabIndex={ 0 } onKeyDown={ onChartKeyDown }>
+				<div ref={ chartRef } data-testid="selected-index">
+					{ selectedIndex ?? 'none' }
+					<button type="button">Inside</button>
+				</div>
+			</div>
+			<button type="button">Outside</button>
+		</>
+	);
+};
+
+describe( 'useKeyboardNavigation', () => {
+	const navigate = async ( presses: number ) => {
+		const user = userEvent.setup();
+		const view = render( <NavigationHarness totalPoints={ 6 } /> );
+
+		screen.getByRole( 'grid', { name: 'Harness' } ).focus();
+		for ( let i = 0; i < presses; i++ ) {
+			await user.keyboard( '{ArrowRight}' );
+		}
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( String( presses - 1 ) );
+
+		return { user, view };
+	};
+
+	it( 'moves the selection to the last point when the count shrinks while the grid has focus', async () => {
+		const { view } = await navigate( 6 );
+
+		view.rerender( <NavigationHarness totalPoints={ 3 } /> );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( '2' );
+		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
+	} );
+
+	// In range rather than past the end: the effect reconciles on any count change, not only an overflow.
+	it( 'clears an in-range selection when the count changes after focus has left the chart', async () => {
+		const { view } = await navigate( 2 );
+
+		screen.getByRole( 'button', { name: 'Outside' } ).focus();
+		view.rerender( <NavigationHarness totalPoints={ 3 } /> );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
+	} );
+
+	it( 'returns focus to the grid on Escape when there are no points', async () => {
+		const user = userEvent.setup();
+		render( <NavigationHarness totalPoints={ 0 } /> );
+
+		screen.getByRole( 'button', { name: 'Inside' } ).focus();
+		await user.keyboard( '{Escape}' );
+
+		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
+	} );
+
+	it( 'returns focus to the grid when the count drops to zero while focus is in the chart', async () => {
+		const { view } = await navigate( 2 );
+
+		screen.getByRole( 'button', { name: 'Inside' } ).focus();
+		view.rerender( <NavigationHarness totalPoints={ 0 } /> );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
+		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
+	} );
+
+	// The page sees the event after the handler, so this is what a surrounding scroll or Modal gets.
+	const recordPageKeyDown = () => {
+		const onKeyDown = jest.fn< void, [ KeyboardEvent ] >();
+		document.addEventListener( 'keydown', onKeyDown );
+		return { onKeyDown, stop: () => document.removeEventListener( 'keydown', onKeyDown ) };
+	};
+
+	it( 'leaves keys it does not handle available to the page', async () => {
+		const user = userEvent.setup();
+		render( <NavigationHarness totalPoints={ 6 } /> );
+		const { onKeyDown, stop } = recordPageKeyDown();
+
+		try {
+			screen.getByRole( 'grid', { name: 'Harness' } ).focus();
+			await user.keyboard( '{ArrowDown}{PageDown}[Space]' );
+
+			expect( onKeyDown ).toHaveBeenCalledTimes( 3 );
+			for ( const [ event ] of onKeyDown.mock.calls ) {
+				expect( event.defaultPrevented ).toBe( false );
+			}
+		} finally {
+			stop();
+		}
+	} );
+
+	// `@wordpress/components` Modal skips its own close-on-Escape once the event is defaultPrevented.
+	it( 'leaves Escape to the page when there is no selection to dismiss', async () => {
+		const user = userEvent.setup();
+		render( <NavigationHarness totalPoints={ 6 } /> );
+		const { onKeyDown, stop } = recordPageKeyDown();
+
+		try {
+			screen.getByRole( 'grid', { name: 'Harness' } ).focus();
+			await user.keyboard( '{Escape}' );
+
+			expect( onKeyDown.mock.calls[ 0 ][ 0 ].defaultPrevented ).toBe( false );
+
+			await user.keyboard( '{ArrowRight}{Escape}' );
+
+			expect( onKeyDown.mock.calls.at( -1 )?.[ 0 ].defaultPrevented ).toBe( true );
+		} finally {
+			stop();
+		}
 	} );
 } );

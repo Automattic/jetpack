@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Remove the Tax name field. PayPal labels the tax itself, so the buyer sees Tax whatever the merchant types.

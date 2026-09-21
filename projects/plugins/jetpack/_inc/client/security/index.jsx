@@ -110,7 +110,7 @@ export class Security extends Component {
 								'Your site is protected by Jetpack. You’ll be notified if anything needs attention.',
 								'jetpack',
 								/* dummy arg to avoid bad minification */ 0
-						  ) }
+							) }
 				</h2>
 				{ foundBackups && backupsContent }
 				{ foundMonitor && <Monitor { ...commonProps } /> }

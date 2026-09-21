@@ -1,8 +1,12 @@
 /**
  * External dependencies
  */
-import { useSiteHomeUrl, type StatsTopPostsComparisonItem } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import {
+	useSiteHomeUrl,
+	type PostThumbnailUrls,
+	type StatsTopPostsComparisonItem,
+} from '@jetpack-premium-analytics/data';
+import { fireEvent, render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -44,11 +48,15 @@ const homepage: StatsTopPostsComparisonItem = {
 /**
  * Mount the posts title field's render component for a table row.
  *
- * @param item - The top-posts row to render the title cell for.
+ * @param item          - The top-posts row to render the title cell for.
+ * @param thumbnailUrls - Thumbnail URLs keyed by post ID.
  * @return The Testing Library render result.
  */
-function renderTitleField( item: StatsTopPostsComparisonItem ) {
-	const field = getPostsFields( false, 'posts-pages' ).find(
+function renderTitleField(
+	item: StatsTopPostsComparisonItem,
+	thumbnailUrls: PostThumbnailUrls = {}
+) {
+	const field = getPostsFields( false, 'posts-pages', thumbnailUrls ).find(
 		candidate => candidate.id === 'title'
 	);
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
@@ -122,6 +130,31 @@ function renderArchiveViewsField( item: ArchiveRow, withComparison = false ) {
 describe( 'posts title field', () => {
 	beforeEach( () => {
 		mockUseSiteHomeUrl.mockReset();
+	} );
+
+	it( 'renders the post thumbnail beside its title', () => {
+		renderTitleField(
+			{
+				id: 42,
+				label: 'Hello world',
+				views: 12,
+				link: 'https://example.com/hello-world/',
+				type: 'post',
+			},
+			{ 42: 'https://example.com/thumb.jpg' }
+		);
+
+		const thumbnail = screen.getByRole( 'presentation' );
+		expect( thumbnail ).toHaveAttribute( 'src', 'https://example.com/thumb.jpg' );
+
+		fireEvent.error( thumbnail );
+		expect( screen.getByTestId( 'post-thumbnail-placeholder' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the post-type placeholder when a row has no thumbnail', () => {
+		renderTitleField( homepage );
+
+		expect( screen.getByTestId( 'post-thumbnail-placeholder' ) ).toBeInTheDocument();
 	} );
 
 	it( 'links the homepage row to the site home URL', () => {

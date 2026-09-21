@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Boost\App\Contracts\Is_Dev_Feature;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack_Boost\Lib\Cache_Compatibility;
@@ -30,11 +31,12 @@ class Config {
 			'assetPath'           => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
 			'canResizeImages'     => wp_image_editor_supports( array( 'methods' => array( 'resize' ) ) ),
 			'site'                => array(
-				'url'      => get_home_url(),
-				'domain'   => ( new Status() )->get_site_suffix(),
-				'online'   => self::is_website_public(),
-				'host'     => $this->get_hosting_provider(),
-				'hasCache' => Cache_Compatibility::has_cache(),
+				'url'       => get_home_url(),
+				'domain'    => ( new Status() )->get_site_suffix(),
+				'online'    => self::is_website_public(),
+				'myJetpack' => self::is_my_jetpack_available(),
+				'host'      => $this->get_hosting_provider(),
+				'hasCache'  => Cache_Compatibility::has_cache(),
 			),
 			'api'                 => array(
 				'namespace' => JETPACK_BOOST_REST_NAMESPACE,
@@ -126,5 +128,16 @@ class Config {
 	 */
 	public static function is_website_public() {
 		return ! ( new Status() )->is_offline_mode() && ! ( new Status() )->is_private_site();
+	}
+
+	/**
+	 * Checks if My Jetpack pages, where the upgrade flow lives, are available on this site.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool True if My Jetpack initialized on this request, false otherwise.
+	 */
+	public static function is_my_jetpack_available() {
+		return class_exists( My_Jetpack_Initializer::class ) && did_action( 'my_jetpack_init' ) > 0;
 	}
 }

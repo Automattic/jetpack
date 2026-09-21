@@ -13,6 +13,7 @@ type DataSyncKey =
 	| 'modules_state'
 	| 'performance_history'
 	| 'dismissed_alerts'
+	| 'getting_started'
 	| 'critical_css_state'
 	| 'lcp_state';
 
@@ -52,6 +53,10 @@ export function parseDataSyncEnvelope( response: unknown ): unknown {
 
 export function isSiteOnline(): boolean {
 	return typeof Jetpack_Boost !== 'undefined' && Jetpack_Boost.site.online;
+}
+
+export function isMyJetpackAvailable(): boolean {
+	return typeof Jetpack_Boost !== 'undefined' && Jetpack_Boost.site.myJetpack === true;
 }
 
 export async function requestDataSync(
@@ -156,8 +161,8 @@ export function useScoreRefreshState( modules?: ModulesState ): ScoreRefreshStat
 	return {
 		config: JSON.stringify( [
 			moduleStates,
-			cssEnabled ? css.data?.updated ?? 0 : 0,
-			lcpEnabled ? lcp.data?.updated ?? 0 : 0,
+			cssEnabled ? ( css.data?.updated ?? 0 ) : 0,
+			lcpEnabled ? ( lcp.data?.updated ?? 0 ) : 0,
 		] ),
 		isPending,
 	};

@@ -66,7 +66,7 @@ function toWindowBound( value: unknown, edge: keyof typeof EDGE_FALLBACKS ) {
 	const time = hasTime
 		? `${ padTimePart( hours ) }:${ padTimePart( minutes ) }:${
 				hasSeconds ? padTimePart( seconds ) : EDGE_FALLBACKS[ edge ].seconds
-		  }`
+			}`
 		: EDGE_FALLBACKS[ edge ].time;
 
 	return formatDatePartWithTime( datePart, time );

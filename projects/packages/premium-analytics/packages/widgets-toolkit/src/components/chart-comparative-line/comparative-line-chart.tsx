@@ -21,16 +21,18 @@ import { type ComponentProps } from 'react';
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
+	appendTooltipExtras,
 	formatTooltipSeriesLabel,
 	isEmptyChartData,
 	getFixedYAxis,
 	dateFormatForResolution,
 	resolveSeriesNames,
+	resolveTooltipNames,
 } from '../../helpers';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-line-chart.module.scss';
 import { alignSeriesDates } from './utils';
-import type { ComparativeLineChartSeries, SeriesStyle } from './types';
+import type { ComparativeLineChartSeries, SeriesStyle, TooltipExtraSeries } from './types';
 import type { DataFormat } from '../../types';
 
 /** Series styles, with the explicit `styles` prop taking priority over `series[].options`. */
@@ -128,6 +130,12 @@ export type ComparativeLineChartProps = {
 	 * into a single item, so clicking it would just empty the chart.
 	 */
 	legendInteractive?: boolean;
+
+	/**
+	 * Series the tooltip reads out but the chart does not draw; see
+	 * `TooltipExtraSeries` for what listing one changes about the rows.
+	 */
+	tooltipExtras?: TooltipExtraSeries[];
 } & Omit<
 	ComponentProps< typeof LineChart >,
 	| 'data'
@@ -155,6 +163,7 @@ export function ComparativeLineChart( {
 	compactWhenShort = false,
 	defaultHiddenSeries,
 	legendInteractive = false,
+	tooltipExtras,
 	onPointerDown,
 	onPointerUp,
 	onDatumActivate,
@@ -186,18 +195,23 @@ export function ComparativeLineChart( {
 		[ legendInteractive ]
 	);
 
+	const { names: tooltipNames, namesRows } = useMemo(
+		() => resolveTooltipNames( seriesNames, isPaired, tooltipExtras ),
+		[ seriesNames, isPaired, tooltipExtras ]
+	);
+
 	// Comparison points share the primary series' dates, so the tooltip reads back
 	// `realDate`; multi-metric charts also prefix each row so two rows don't share a date.
 	const getTooltipLabel = useCallback(
 		( datum: { date: Date; realDate?: Date }, _index: number, key: string ): string => {
-			const name = seriesNames.get( key );
+			const name = tooltipNames.get( key );
 			const displayDate = datum.realDate ?? datum.date;
 			const date = formatTooltipDate( displayDate, tooltipDateFormat );
 			// Without a name the row would otherwise lead with an internal label,
 			// so fall back to the date, which is always meaningful.
-			return isPaired && name ? formatTooltipSeriesLabel( name, date ) : date;
+			return namesRows && name ? formatTooltipSeriesLabel( name, date ) : date;
 		},
-		[ seriesNames, isPaired, formatTooltipDate, tooltipDateFormat ]
+		[ tooltipNames, namesRows, formatTooltipDate, tooltipDateFormat ]
 	);
 
 	// `resolvedStyles` follows `series`; the tooltip's rows need not, so pair them
@@ -206,18 +220,24 @@ export function ComparativeLineChart( {
 
 	const renderTooltip = useCallback(
 		( params: RenderTooltipParams ) => {
+			const { tooltipData, supplementaryRows } = appendTooltipExtras(
+				params.tooltipData,
+				tooltipExtras
+			);
+
 			return (
 				<ChartTooltip
-					tooltipData={ params.tooltipData }
+					tooltipData={ tooltipData }
 					dataFormat={ dataFormat }
 					seriesStyles={ resolvedStyles }
 					seriesKeys={ seriesKeys }
 					indicatorType="line"
+					supplementaryRows={ supplementaryRows }
 					getLabel={ getTooltipLabel }
 				/>
 			);
 		},
-		[ dataFormat, resolvedStyles, seriesKeys, getTooltipLabel ]
+		[ dataFormat, resolvedStyles, seriesKeys, getTooltipLabel, tooltipExtras ]
 	);
 
 	// Multipliers keep the tick labels short.
@@ -238,6 +258,11 @@ export function ComparativeLineChart( {
 	}, [ stylesProp, alignedSeries, resolvedStyles ] );
 
 	const isEmptyData = useMemo( () => isEmptyChartData( styledSeries ), [ styledSeries ] );
+	// An all-zero selected metric must not hide the extras that do have data.
+	const hasTooltipRows = useMemo(
+		() => ! isEmptyData || ! isEmptyChartData( tooltipExtras ?? [] ),
+		[ isEmptyData, tooltipExtras ]
+	);
 
 	// A pinned domain for percentage metrics and all-zero periods. Null lets the
 	// chart scale to the data.
@@ -291,7 +316,7 @@ export function ComparativeLineChart( {
 				showLegend={ false }
 				curveType="monotone"
 				withGradientFill
-				withTooltips={ !! renderTooltip && ! isEmptyData }
+				withTooltips={ !! renderTooltip && hasTooltipRows }
 				renderTooltip={ renderTooltip }
 				onPointerDown={ onPointerDown }
 				onPointerUp={ onPointerUp }

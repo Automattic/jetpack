@@ -98,8 +98,7 @@ class Jetpack_Search_Plugin {
 		Connection_Rest_Authentication::init();
 		// Initialize My Jetpack.
 		My_Jetpack_Initializer::init();
-		// Activity Log. Idempotent, so it no-ops when the Jetpack plugin already
-		// initialized the package on this request.
+		// Activity Log. No-ops while the `activity-log` module is off.
 		Jetpack_Activity_Log::initialize();
 	}
 

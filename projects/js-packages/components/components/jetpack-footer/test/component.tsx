@@ -8,6 +8,7 @@ describe( 'JetpackFooter', () => {
 
 	afterEach( () => {
 		delete window.JetpackNetworkAdminData;
+		delete window.JetpackScriptData;
 	} );
 
 	describe( 'Render the component', () => {
@@ -86,6 +87,21 @@ describe( 'JetpackFooter', () => {
 
 			expect( screen.queryByRole( 'link', { name: 'Products' } ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'link', { name: 'Help' } ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'should link to the products tab My Jetpack publishes', () => {
+			window.JetpackScriptData = {
+				site: { admin_url: '/wp-admin/' },
+				myJetpack: { productsSection: { slug: 'features', label: 'Features' } },
+			} as unknown as typeof window.JetpackScriptData;
+
+			render( <JetpackFooter /> );
+
+			expect( screen.getByRole( 'link', { name: 'Features' } ) ).toHaveAttribute(
+				'href',
+				'/wp-admin/admin.php?page=my-jetpack#/features'
+			);
+			expect( screen.queryByRole( 'link', { name: 'Products' } ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'should match the snapshot', () => {

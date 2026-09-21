@@ -20,7 +20,9 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -52,6 +54,30 @@ class Jetpack_AI_Settings {
 	 * @var string
 	 */
 	const AI_MODULE = 'ai';
+
+	/**
+	 * The `jetpack_ai_enabled` route custom code can take to hold AI off, as
+	 * reported by {@see self::get_master_forced_off_route()}. Each route names a
+	 * different hook, so each needs its own documentation link.
+	 *
+	 * @var string
+	 */
+	const FORCED_OFF_ROUTE_FILTER = 'filter';
+
+	/**
+	 * The module-filter route; see {@see self::FORCED_OFF_ROUTE_FILTER}.
+	 *
+	 * @var string
+	 */
+	const FORCED_OFF_ROUTE_MODULES = 'modules';
+
+	/**
+	 * The filter route on VIP, which documents this filter as its own supported
+	 * off switch and so owns the page to send the reader to.
+	 *
+	 * @var string
+	 */
+	const FORCED_OFF_ROUTE_FILTER_VIP = 'filter-vip';
 
 	/**
 	 * Feature key => option name for every toggle on the AI settings page.
@@ -98,6 +124,14 @@ class Jetpack_AI_Settings {
 	 * @var bool
 	 */
 	private static $initialized = false;
+
+	/**
+	 * Whether apply_master_gates() should step aside; see
+	 * {@see self::get_master_forced_off_route()}.
+	 *
+	 * @var bool
+	 */
+	private static $probing_third_party = false;
 
 	/**
 	 * Hook everything up. Must run on every request (front-end, editor, REST):
@@ -202,6 +236,12 @@ class Jetpack_AI_Settings {
 	 * @return bool
 	 */
 	public static function apply_master_gates( $enabled ) {
+		// Stand aside while get_master_forced_off_route() asks the chain what
+		// everyone else says; our own verdict would drown theirs out.
+		if ( self::$probing_third_party ) {
+			return (bool) $enabled;
+		}
+
 		return (bool) $enabled
 			&& self::host_allows_ai()
 			&& ( ! self::should_enforce_ai_controls() || self::is_master_enabled() );
@@ -285,6 +325,77 @@ class Jetpack_AI_Settings {
 		}
 
 		return ( new Modules() )->is_active( self::AI_MODULE );
+	}
+
+	/**
+	 * Whether the site's WordPress.com connection can carry AI. Offline mode
+	 * counts as disconnected even while the site holds its tokens, and Simple
+	 * sites are always connected.
+	 *
+	 * @return bool
+	 */
+	public static function site_is_connected() {
+		return ( new Host() )->is_wpcom_simple()
+			|| ( ( new Manager( 'jetpack' ) )->has_connected_owner()
+				&& ! ( new Status() )->is_offline_mode() );
+	}
+
+	/**
+	 * Whether the current user's own account is connected. Surfaces that proxy
+	 * as the requesting user need this on top of {@see self::site_is_connected()}.
+	 *
+	 * @return bool
+	 */
+	public static function user_is_connected() {
+		return ( new Host() )->is_wpcom_simple()
+			|| ( new Manager( 'jetpack' ) )->is_user_connected();
+	}
+
+	/**
+	 * Which hook custom code used to hold AI off, so the notice can link to the
+	 * matching documentation. Always empty on WordPress.com Simple, which runs
+	 * no modules.
+	 *
+	 * @return string One of the FORCED_OFF_ROUTE_* constants, or '' when nothing
+	 *                holds AI off.
+	 */
+	public static function get_master_forced_off_route() {
+		$host = new Host();
+
+		if ( $host->is_wpcom_simple() ) {
+			return '';
+		}
+
+		// Ask the chain with our own gates stood down, so a deactivated module
+		// cannot mask a filter that would keep AI off however the module is set.
+		$third_party_off           = false;
+		self::$probing_third_party = true;
+		try {
+			$third_party_off = ! apply_filters( 'jetpack_ai_enabled', true );
+		} finally {
+			self::$probing_third_party = false;
+		}
+
+		if ( $third_party_off ) {
+			return $host->is_vip_site()
+				? self::FORCED_OFF_ROUTE_FILTER_VIP
+				: self::FORCED_OFF_ROUTE_FILTER;
+		}
+
+		if ( self::is_master_enabled() ) {
+			return '';
+		}
+
+		// Removed from the available list by `jetpack_get_available_modules`.
+		if ( ! in_array( self::AI_MODULE, ( new Modules() )->get_available(), true ) ) {
+			return self::FORCED_OFF_ROUTE_MODULES;
+		}
+
+		// Forced off through `option_jetpack_active_modules` or `jetpack_active_modules`.
+		$overridden = class_exists( 'Jetpack_Modules_Overrides' )
+			&& 'inactive' === Jetpack_Modules_Overrides::instance()->get_module_override( self::AI_MODULE );
+
+		return $overridden ? self::FORCED_OFF_ROUTE_MODULES : '';
 	}
 
 	/**

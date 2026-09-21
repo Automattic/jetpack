@@ -249,7 +249,18 @@ function stats_admin_menu() {
 		// Show old Jetpack Stats interface for:
 		// - When the "enable_odyssey_stats" option is disabled.
 		// - When being shown in the adminbar outside of wp-admin.
-		$hook = Admin_Menu::add_menu( __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', 'jetpack_admin_ui_stats_report_page_wrapper' );
+		$hook = Admin_Menu::add_menu(
+			__( 'Stats', 'jetpack' ),
+			__( 'Stats', 'jetpack' ),
+			'view_stats',
+			'stats',
+			'jetpack_admin_ui_stats_report_page_wrapper',
+			null,
+			array(
+				'product' => 'stats',
+				'key'     => 'jetpack-stats',
+			)
+		);
 		add_action( "load-$hook", 'stats_reports_load' );
 	} else {
 		// Enable the new Odyssey Stats experience.

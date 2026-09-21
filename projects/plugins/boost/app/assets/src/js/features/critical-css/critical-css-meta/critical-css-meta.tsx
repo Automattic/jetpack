@@ -1,8 +1,9 @@
 import { __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import Status from '../status/status';
 import ProgressBar from '$features/ui/progress-bar/progress-bar';
 import styles from './critical-css-meta.module.scss';
-import { useCriticalCssState } from '../lib/stores/critical-css-state';
+import { criticalCssErrorState, useCriticalCssState } from '../lib/stores/critical-css-state';
 import { RegenerateCriticalCssSuggestion, useRegenerationReason } from '..';
 import { useLocalCriticalCssGenerator } from '../critical-css-context/critical-css-context-provider';
 import { isFatalError } from '../lib/critical-css-errors';
@@ -14,8 +15,32 @@ import { isFatalError } from '../lib/critical-css-errors';
 export default function CriticalCssMeta() {
 	const [ cssState ] = useCriticalCssState();
 	const [ { data: regenerateReason } ] = useRegenerationReason();
-	const { isGenerating, progress } = useLocalCriticalCssGenerator();
+	const { isGenerating, progress, stoppedRun } = useLocalCriticalCssGenerator();
 	const showFatalError = isFatalError( cssState );
+
+	if ( stoppedRun?.sessionExpired ) {
+		return (
+			<Notice.Root intent="error">
+				<Notice.Title>{ __( 'Your session has expired', 'jetpack-boost' ) }</Notice.Title>
+				<Notice.Description>
+					{ __(
+						'Critical CSS generation has stopped. Log in again, then reload this page to continue.',
+						'jetpack-boost'
+					) }
+				</Notice.Description>
+			</Notice.Root>
+		);
+	}
+
+	if ( stoppedRun ) {
+		return (
+			<Status
+				cssState={ criticalCssErrorState( stoppedRun.message ) }
+				isCloud={ false }
+				showFatalError={ true }
+			/>
+		);
+	}
 
 	// Keep the progress bar visible while the local generator is still finishing,
 	// even if the server status has already flipped to 'generated'.  This ensures

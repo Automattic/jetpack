@@ -4,11 +4,11 @@ import {
 	usePerformanceHistoryQuery,
 } from './lib/hooks';
 import GraphComponent from './graph-component/graph-component';
-import ErrorNotice from '$features/error-notice/error-notice';
 import { __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import { Panel, PanelBody, PanelRow } from '@wordpress/components';
 import { PerformanceHistoryData } from './lib/types';
-import { Button } from '@automattic/jetpack-components';
+import { standardizeError } from '@automattic/jetpack-boost-score-api';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import styles from './performance-history.module.scss';
 import { useEffect } from 'react';
@@ -32,15 +32,15 @@ const PerformanceHistoryBody = () => {
 
 	if ( isError && ! isFetching ) {
 		return (
-			<ErrorNotice
-				title={ __( 'Failed to load performance history', 'jetpack-boost' ) }
-				error={ error }
-				data={ JSON.stringify( error, null, 2 ) }
-				suggestion={ __( '<action>Try again</action>', 'jetpack-boost' ) }
-				vars={ {
-					action: <Button variant="link" onClick={ refetch } />,
-				} }
-			/>
+			<Notice.Root intent="error">
+				<Notice.Title>{ __( 'Failed to load performance history', 'jetpack-boost' ) }</Notice.Title>
+				<Notice.Description>{ standardizeError( error ).message }</Notice.Description>
+				<Notice.Actions>
+					<Notice.ActionButton onClick={ refetch }>
+						{ __( 'Try again', 'jetpack-boost' ) }
+					</Notice.ActionButton>
+				</Notice.Actions>
+			</Notice.Root>
 		);
 	}
 

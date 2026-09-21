@@ -2,9 +2,8 @@
 /**
  * Attribute mapper between WordPress block attributes and PayPal Pay Links & Buttons API.
  *
- * Handles bidirectional mapping:
- * - Block attributes → PayPal API request body (for create/update)
- * - PayPal API response → Block attributes (for storing after create/update/get)
+ * Maps a PayPal API response onto block attributes, and validates them before a save.
+ * The block builds its own request body in utils/request-data.js.
  *
  * @package automattic/jetpack-paypal-payments
  * @since 0.8.0
@@ -66,7 +65,7 @@ class PayPal_Attribute_Mapper {
 	/**
 	 * Maximum number of option groups (variant dimensions) per product.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @var int
 	 */
@@ -75,7 +74,7 @@ class PayPal_Attribute_Mapper {
 	/**
 	 * Maximum number of options per option group.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @var int
 	 */
@@ -106,10 +105,16 @@ class PayPal_Attribute_Mapper {
 	const MAX_BUTTON_TEXT_LENGTH = 50;
 
 	/**
+	 * Maximum product id (SKU) length.
+	 *
+	 * @var int
+	 */
+	const MAX_PRODUCT_ID_LENGTH = 50;
+
+	/**
 	 * Convert block attributes to a PayPal API request body.
 	 *
-	 * Takes the flat block attributes from the editor and transforms them
-	 * into the nested structure required by the PayPal Pay Links & Buttons API.
+	 * Only the tests call this.
 	 *
 	 * @param array $attributes Block attributes from the editor.
 	 * @return array PayPal API request body.
@@ -139,7 +144,7 @@ class PayPal_Attribute_Mapper {
 			$line_item['description'] = sanitize_text_field( $attributes['productDescription'] );
 		}
 
-		// Adjustable quantity (WOOPTP-170).
+		// Adjustable quantity.
 		if ( ! empty( $attributes['adjustableQuantity'] ) && ! empty( $attributes['maxQuantity'] ) ) {
 			$max = absint( $attributes['maxQuantity'] );
 			if ( $max >= 2 ) {
@@ -147,7 +152,7 @@ class PayPal_Attribute_Mapper {
 			}
 		}
 
-		// Customer notes / custom fields (WOOPTP-171).
+		// Customer notes / custom fields.
 		if ( ! empty( $attributes['customerNotes'] ) && is_array( $attributes['customerNotes'] ) ) {
 			$notes = array();
 			foreach ( $attributes['customerNotes'] as $note ) {
@@ -164,7 +169,7 @@ class PayPal_Attribute_Mapper {
 			}
 		}
 
-		// Tax configuration (WOOPTP-172).
+		// Tax configuration.
 		if ( ! empty( $attributes['taxEnabled'] ) && ! empty( $attributes['taxName'] ) ) {
 			$tax_type = sanitize_text_field( $attributes['taxType'] ?? 'PERCENTAGE' );
 			$tax      = array(
@@ -181,7 +186,7 @@ class PayPal_Attribute_Mapper {
 			$line_item['taxes'] = array( $tax );
 		}
 
-		// Shipping configuration (WOOPTP-173).
+		// Shipping configuration.
 		if ( ! empty( $attributes['shippingEnabled'] ) ) {
 			$shipping_type = sanitize_text_field( $attributes['shippingType'] ?? 'FLAT' );
 
@@ -245,11 +250,16 @@ class PayPal_Attribute_Mapper {
 			}
 
 			if ( ! empty( $line_item['description'] ) ) {
-				$attributes['productDescription'] = sanitize_text_field( $line_item['description'] );
+				// Keep the line breaks PayPal sent back - sanitize_text_field() flattens them.
+				$attributes['productDescription'] = sanitize_textarea_field( $line_item['description'] );
 			}
 
 			if ( ! empty( $line_item['image_url'] ) ) {
 				$attributes['imageUrl'] = esc_url_raw( $line_item['image_url'] );
+			}
+
+			if ( isset( $line_item['product_id'] ) && '' !== $line_item['product_id'] ) {
+				$attributes['productId'] = sanitize_text_field( $line_item['product_id'] );
 			}
 
 			if ( ! empty( $line_item['variants']['dimensions'] ) ) {
@@ -265,13 +275,13 @@ class PayPal_Attribute_Mapper {
 				}
 			}
 
-			// Adjustable quantity (WOOPTP-170).
+			// Adjustable quantity.
 			if ( ! empty( $line_item['adjustable_quantity']['maximum'] ) ) {
 				$attributes['adjustableQuantity'] = true;
 				$attributes['maxQuantity']        = absint( $line_item['adjustable_quantity']['maximum'] );
 			}
 
-			// Customer notes (WOOPTP-171).
+			// Customer notes.
 			if ( ! empty( $line_item['customer_notes'] ) && is_array( $line_item['customer_notes'] ) ) {
 				$attributes['customerNotes'] = array_map(
 					function ( $note ) {
@@ -284,7 +294,7 @@ class PayPal_Attribute_Mapper {
 				);
 			}
 
-			// Tax configuration (WOOPTP-172).
+			// Tax configuration.
 			if ( ! empty( $line_item['taxes'] ) && is_array( $line_item['taxes'] ) ) {
 				$tax                      = $line_item['taxes'][0];
 				$attributes['taxEnabled'] = true;
@@ -293,16 +303,51 @@ class PayPal_Attribute_Mapper {
 				$attributes['taxValue']   = 'PREFERENCE' === $attributes['taxType'] ? '' : sanitize_text_field( $tax['value'] ?? '' );
 			}
 
-			// Shipping configuration (WOOPTP-173).
+			// Shipping configuration. PayPal stores a type and a value, so the
+			// block's mode comes from both.
 			if ( ! empty( $line_item['shipping'] ) && is_array( $line_item['shipping'] ) ) {
-				$shipping                      = $line_item['shipping'][0];
+				$shipping = $line_item['shipping'][0];
+				$type     = sanitize_text_field( $shipping['type'] ?? 'FLAT' );
+				$value    = sanitize_text_field( $shipping['value'] ?? '' );
+				$extra    = sanitize_text_field( $shipping['additional_unit_value'] ?? '' );
+
 				$attributes['shippingEnabled'] = true;
-				$attributes['shippingType']    = sanitize_text_field( $shipping['type'] ?? 'FLAT' );
-				$attributes['shippingValue']   = 'PREFERENCE' === $attributes['shippingType'] ? '' : sanitize_text_field( $shipping['value'] ?? '' );
+
+				if ( 'PREFERENCE' === $type ) {
+					// `value` tells PROFILE from FREE_SHIPPING. Both modes hide the fee
+					// field, so clear it.
+					$attributes['shippingMode']  = 'FREE_SHIPPING' === $value ? 'FREE' : 'PROFILE';
+					$attributes['shippingValue'] = '';
+				} else {
+					// `additional_unit_value` tells QUANTITY from FLAT, so a quantity fee
+					// that left it blank reads back as FLAT. Same charge either way.
+					$attributes['shippingMode']  = '' !== $extra ? 'QUANTITY' : 'FLAT';
+					$attributes['shippingValue'] = $value;
+					if ( '' !== $extra ) {
+						$attributes['shippingAdditionalValue'] = $extra;
+					}
+				}
 			}
 
-			// Map it even when the key is absent: the block attribute defaults to
-			// on, so a missing key has to read as off.
+			// Handling fee. The type is always FLAT, so the amount is all that comes back.
+			if ( ! empty( $line_item['handling'] ) && is_array( $line_item['handling'] ) ) {
+				$handling                      = $line_item['handling'][0];
+				$attributes['handlingEnabled'] = true;
+				$attributes['handlingValue']   = sanitize_text_field( $handling['value'] ?? '' );
+			}
+
+			// Discount. Store the type as PayPal sent it so a type set in PayPal's
+			// dashboard survives a save from the block.
+			if ( ! empty( $line_item['discounts'] ) && is_array( $line_item['discounts'] ) ) {
+				$discount = $line_item['discounts'][0] ?? null;
+				if ( is_array( $discount ) ) {
+					$attributes['discountEnabled'] = true;
+					$attributes['discountType']    = sanitize_text_field( $discount['type'] ?? 'FLAT' );
+					$attributes['discountValue']   = sanitize_text_field( $discount['value'] ?? '' );
+				}
+			}
+
+			// The payment is the source of truth, so an absent key reads as off.
 			$attributes['collectShippingAddress'] = ! empty( $line_item['collect_shipping_address'] );
 		}
 
@@ -334,8 +379,11 @@ class PayPal_Attribute_Mapper {
 	 * @return true|WP_Error True if valid, WP_Error with details on failure.
 	 */
 	public static function validate_attributes( array $attributes ) {
+		// trim() throws on an array, so only a string counts as a name.
+		$product_name = is_string( $attributes['productName'] ?? null ) ? $attributes['productName'] : '';
+
 		// Required: product name (reject empty and whitespace-only).
-		if ( empty( $attributes['productName'] ) || '' === trim( $attributes['productName'] ) ) {
+		if ( empty( $product_name ) || '' === trim( $product_name ) ) {
 			return new WP_Error(
 				'missing_product_name',
 				__( 'Product name is required.', 'jetpack-paypal-payments' ),
@@ -343,8 +391,7 @@ class PayPal_Attribute_Mapper {
 			);
 		}
 
-		$product_name = sanitize_text_field( $attributes['productName'] );
-		if ( mb_strlen( $product_name ) > self::MAX_NAME_LENGTH ) {
+		if ( mb_strlen( sanitize_text_field( $product_name ) ) > self::MAX_NAME_LENGTH ) {
 			return new WP_Error(
 				'product_name_too_long',
 				/* translators: %d: maximum allowed characters */
@@ -407,12 +454,27 @@ class PayPal_Attribute_Mapper {
 
 		// Optional: description length.
 		if ( ! empty( $attributes['productDescription'] ) ) {
-			$description = sanitize_text_field( $attributes['productDescription'] );
+			// Count it as the merchant wrote it - sanitize_text_field() collapses
+			// newlines, so a long description measures short.
+			$description = sanitize_textarea_field( $attributes['productDescription'] );
 			if ( mb_strlen( $description ) > self::MAX_DESCRIPTION_LENGTH ) {
 				return new WP_Error(
 					'description_too_long',
 					/* translators: %d: maximum allowed characters */
 					sprintf( __( 'Description must be %d characters or fewer.', 'jetpack-paypal-payments' ), self::MAX_DESCRIPTION_LENGTH ),
+					array( 'status' => 400 )
+				);
+			}
+		}
+
+		// Optional: product id length.
+		if ( ! empty( $attributes['productId'] ) ) {
+			$product_id = sanitize_text_field( $attributes['productId'] );
+			if ( mb_strlen( $product_id ) > self::MAX_PRODUCT_ID_LENGTH ) {
+				return new WP_Error(
+					'product_id_too_long',
+					/* translators: %d: maximum allowed characters */
+					sprintf( __( 'Product ID must be %d characters or fewer.', 'jetpack-paypal-payments' ), self::MAX_PRODUCT_ID_LENGTH ),
 					array( 'status' => 400 )
 				);
 			}
@@ -499,7 +561,7 @@ class PayPal_Attribute_Mapper {
 	 * PayPal rejects a decimal amount in these currencies outright rather than
 	 * rounding it. The legacy currency table already records which they are.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param string $currency ISO currency code.
 	 * @return bool True for JPY, HUF and TWD.
@@ -515,7 +577,7 @@ class PayPal_Attribute_Mapper {
 	/**
 	 * The message for a price PayPal would not accept in the given currency.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param string $currency ISO currency code.
 	 * @return string Translated message.
@@ -564,7 +626,7 @@ class PayPal_Attribute_Mapper {
 	/**
 	 * Find the currency the per-option prices are in.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param array|null $variants Variants structure (block or API shape).
 	 * @return string|null The first priced option's currency code, or null when none is priced.
@@ -589,7 +651,7 @@ class PayPal_Attribute_Mapper {
 	 * Once any option in the primary dimension has its own amount, the
 	 * product-level amount must be omitted.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param array|null $variants Variants structure (block or API shape).
 	 * @return bool True when at least one option carries its own amount.
@@ -617,10 +679,9 @@ class PayPal_Attribute_Mapper {
 	/**
 	 * Validate the shape of a variants structure.
 	 *
-	 * Mirrors what sanitize_variants() discards, so a save cannot pass
-	 * validation on options that are then dropped before reaching PayPal.
+	 * Checks group and option names and counts. validate_variant_pricing() covers the amounts.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param array $variants Variants structure (block or API shape).
 	 * @return true|WP_Error True when valid, WP_Error otherwise.
@@ -677,7 +738,7 @@ class PayPal_Attribute_Mapper {
 	 * all-or-nothing: every option in the primary dimension must carry a
 	 * valid amount once any of them does.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param array|null $variants Variants structure (block or API shape).
 	 * @param string     $currency ISO currency code the option prices are in.

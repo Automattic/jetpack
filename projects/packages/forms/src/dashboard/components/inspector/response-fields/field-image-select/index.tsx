@@ -45,7 +45,7 @@ const ImageSelectButton = ( { choice, handleFilePreview } ) => {
 							file_id: choice.image.id,
 							name: label,
 							url: choice.image.src,
-					  } )
+						} )
 					: undefined
 			}
 			className={ `jp-forms__image-select-preview ${ hasImage ? 'has-image' : '' }` }

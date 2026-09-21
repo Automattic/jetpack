@@ -68,7 +68,11 @@ export { mockSearchTermsData, mockSearchTermsComparisonData } from './search-ter
 export { buildPostContentResponse } from './post-content';
 export { mockSingleVideoData } from './single-video';
 export { mockTagsData } from './tags';
-export { mockTopAuthorsData, mockTopAuthorsComparisonData } from './top-authors';
+export {
+	buildTopAuthorsDaysData,
+	mockTopAuthorsData,
+	mockTopAuthorsComparisonData,
+} from './top-authors';
 
 export { mockSiteSummary } from './site-summary';
 
@@ -81,7 +85,7 @@ export { mockPostCommentsData } from './post-comments';
 
 export { mockStatsSummaryData, mockStatsSummaryComparisonData } from './summary';
 
-export { mockStatsSubscribersCountsData } from './subscriber-counts';
+export { MOCK_PAID_SUBSCRIBERS, buildStatsSubscribersCountsData } from './subscriber-counts';
 
 export { mockPlanUsageData, mockPlanUsageOverLimitData } from './plan-usage';
 
