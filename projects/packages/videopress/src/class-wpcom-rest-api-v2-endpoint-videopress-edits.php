@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Constants;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -35,7 +36,8 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits {
 	 * Register the feature-gated editor routes.
 	 */
 	public function register_routes() {
-		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ! Admin_UI::is_trim_cut_enabled() ) {
+		// WordPress.com checks the rollout on the target site in the upstream endpoint.
+		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) && ! Admin_UI::is_trim_cut_enabled() ) {
 			return;
 		}
 
@@ -258,7 +260,20 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits {
 			$body            = wp_json_encode( $body, JSON_UNESCAPED_SLASHES );
 		}
 
-		if ( $as_user ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			try {
+				$token = VideoPressToken::videopress_onetime_upload_token();
+			} catch ( Upload_Exception $e ) {
+				return new WP_Error( 'videopress_edits_request_failed', $e->getMessage(), array( 'status' => 502 ) );
+			}
+			$args['headers']['Authorization'] = sprintf( 'X_UPLOAD_TOKEN token="%s" blog_id="%s"', $token, VideoPressToken::blog_id() );
+			$args['body']                     = $body;
+			$args['timeout']                  = 30;
+			$args['redirection']              = 0;
+			$url                              = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/rest/v1.1/' . $path;
+			// @phan-suppress-next-line PhanAccessMethodInternal -- Use the poster transport; the direct client only dispatches v2 routes.
+			$response = Client::_wp_remote_request( $url, $args );
+		} elseif ( $as_user ) {
 			$response = Client::wpcom_json_api_request_as_user( $path, '1.1', $args, $body, 'rest' );
 		} else {
 			$response = Client::wpcom_json_api_request_as_blog( $path, '1.1', $args, $body, 'rest' );
@@ -288,4 +303,8 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits {
 
 		return new WP_REST_Response( $decoded, $status );
 	}
+}
+
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	wpcom_rest_api_v2_load_plugin( __NAMESPACE__ . '\\WPCOM_REST_API_V2_Endpoint_VideoPress_Edits' );
 }

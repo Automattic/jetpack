@@ -408,19 +408,80 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits_Test extends BaseTestCase {
 	}
 
 	/**
-	 * WordPress.com owns its native editing endpoints.
-	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_wpcom_does_not_register_the_remote_proxy() {
+	public function test_wpcom_uses_authenticated_http_for_every_edit_route() {
 		define( 'IS_WPCOM', true );
-		$this->register_routes();
-		$this->assertArrayNotHasKey(
-			'/wpcom/v2/videopress/(?P<guid>[A-Za-z0-9]{8})/edits',
-			rest_get_server()->get_routes()
-		);
+		\Brain\Monkey\setUp();
+		try {
+			\Brain\Monkey\Functions\when( 'wpcom_rest_api_v2_load_plugin' )->justReturn( null );
+			\Brain\Monkey\Functions\when( 'video_get_info_by_guid' )->justReturn(
+				(object) array(
+					'blog_id' => get_current_blog_id(),
+					'post_id' => get_transient( 'videopress_get_post_id_by_guid_AbCd1234' ),
+				)
+			);
+			$token = \Mockery::mock( 'alias:' . VideoPressToken::class );
+			$token->shouldReceive( 'videopress_onetime_upload_token' )->times( 6 )->andReturn( 'wpcom-test-token' );
+			$token->shouldReceive( 'blog_id' )->times( 6 )->andReturn( get_current_blog_id() );
+			remove_filter( 'jetpack_videopress_trim_cut', '__return_true' );
+			$this->register_routes();
+			$body   = array(
+				'base_revision' => 0,
+				'operations'    => array(
+					array(
+						'type'     => 'trim',
+						'start_ms' => 0,
+						'end_ms'   => 5000,
+					),
+				),
+				'request_id'    => 'a1b2c3d4-1234-4567-890a-b1c2d3e4f567',
+			);
+			$routes = array(
+				array( 'GET', 'edits', 'edits' ),
+				array( 'GET', 'storyboard', 'storyboard' ),
+				array( 'POST', 'edits', 'edits' ),
+				array( 'DELETE', 'edits', 'edits/delete' ),
+				array( 'POST', 'edits/copy', 'edits/copy' ),
+				array( 'GET', 'edits/copy/' . $body['request_id'], 'edits/copy/' . $body['request_id'] ),
+			);
+			foreach ( $routes as $index => $route ) {
+				$this->assertSame( 200, $this->dispatch( $route[0], 'POST' === $route[0] ? $body : null, $route[1] )->get_status() );
+				$request = $this->requests[ $index ];
+				$this->assertSame( 'https://public-api.wordpress.com/rest/v1.1/videos/AbCd1234/' . $route[2], $request['url'] );
+				$this->assertSame( 'DELETE' === $route[0] ? 'POST' : $route[0], $request['args']['method'] );
+				$this->assertSame( 'X_UPLOAD_TOKEN token="wpcom-test-token" blog_id="' . get_current_blog_id() . '"', $request['args']['headers']['Authorization'] );
+				$this->assertSame( 0, $request['args']['redirection'] );
+			}
+			$this->assertSame( $body, json_decode( $this->requests[4]['args']['body'], true ) );
+		} finally {
+			\Brain\Monkey\tearDown();
+		}
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_wpcom_token_failure_does_not_send_an_unauthenticated_request() {
+		define( 'IS_WPCOM', true );
+		\Brain\Monkey\setUp();
+		try {
+			$token = \Mockery::mock( 'alias:' . VideoPressToken::class );
+			$token->shouldReceive( 'videopress_onetime_upload_token' )->once()->andThrow( new Upload_Exception( 'Token unavailable' ) );
+			$request         = new WP_REST_Request();
+			$request['guid'] = 'AbCd1234';
+			$response        = ( new WPCOM_REST_API_V2_Endpoint_VideoPress_Edits() )->get_edits( $request );
+			$this->assertSame( 'videopress_edits_request_failed', $response->get_error_code() );
+			$this->assertSame( array( 'status' => 502 ), $response->get_error_data() );
+			$this->assertEmpty( $this->requests );
+		} finally {
+			\Brain\Monkey\tearDown();
+		}
 	}
 }
