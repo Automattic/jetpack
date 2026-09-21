@@ -525,13 +525,26 @@ class WPCOM_Backup {
 	 * Checkout, with the plan that includes backups already in the cart.
 	 *
 	 * Matches the dashboard's upsell CTA, which sells the plan rather than opening
-	 * a comparison the reader has to navigate.
+	 * a comparison the reader has to navigate. `redirect_to` returns the buyer here,
+	 * where the page now offers the activation the new plan just unlocked.
 	 *
 	 * @param string $domain Site domain.
 	 * @return string
 	 */
 	public static function get_upgrade_url( $domain ) {
-		return 'https://wordpress.com/checkout/' . rawurlencode( (string) $domain ) . '/business';
+		return add_query_arg(
+			array( 'redirect_to' => rawurlencode( self::get_page_url() ) ),
+			'https://wordpress.com/checkout/' . rawurlencode( (string) $domain ) . '/business'
+		);
+	}
+
+	/**
+	 * This page's own address, for the round trips off to WordPress.com and back.
+	 *
+	 * @return string
+	 */
+	public static function get_page_url() {
+		return admin_url( 'admin.php?page=' . self::MENU_SLUG );
 	}
 
 	/**
@@ -547,9 +560,7 @@ class WPCOM_Backup {
 			array(
 				'siteId'                    => get_current_blog_id(),
 				'initiate_transfer_context' => self::TRANSFER_CONTEXT,
-				'redirect_to'               => rawurlencode(
-					admin_url( 'admin.php?page=' . self::MENU_SLUG )
-				),
+				'redirect_to'               => rawurlencode( self::get_page_url() ),
 			),
 			self::TRANSFER_FLOW_URL
 		);

@@ -53,13 +53,25 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	 * The upsell hands the reader a cart, not a plan comparison.
 	 */
 	public function test_upgrade_url_goes_straight_to_checkout() {
-		$this->assertStringContainsString(
-			'/checkout/',
-			WPCOM_Backup::get_upgrade_url( 'example.wordpress.com' )
+		$url = WPCOM_Backup::get_upgrade_url( 'example.wordpress.com' );
+
+		$this->assertStringContainsString( '/checkout/', $url );
+		$this->assertStringContainsString( '/business?', $url );
+	}
+
+	/**
+	 * Checkout is a detour, not a destination: a buyer who lands anywhere else has
+	 * to find their way back to finish activating what they just paid for.
+	 */
+	public function test_upgrade_url_returns_the_buyer_to_this_page() {
+		parse_str(
+			(string) wp_parse_url( WPCOM_Backup::get_upgrade_url( 'example.wordpress.com' ), PHP_URL_QUERY ),
+			$args
 		);
-		$this->assertStringEndsWith(
-			'/business',
-			WPCOM_Backup::get_upgrade_url( 'example.wordpress.com' )
+
+		$this->assertStringContainsString(
+			'page=' . WPCOM_Backup::MENU_SLUG,
+			rawurldecode( $args['redirect_to'] )
 		);
 	}
 
