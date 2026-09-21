@@ -77,12 +77,12 @@
 /* The design system renders the external-link arrow as a sibling of the
    label, so the colour has to go on the anchor to reach it. */
 .rowLink:hover,
-.rowLink:focus {
+.rowLink:focus-visible {
 	color: var(--wpds-color-foreground-interactive-brand);
 }
 
 .rowLink:hover .label,
-.rowLink:focus .label {
+.rowLink:focus-visible .label {
 	text-decoration: underline;
 }
 

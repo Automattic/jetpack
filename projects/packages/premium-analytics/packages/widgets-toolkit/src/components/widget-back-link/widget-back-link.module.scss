@@ -20,8 +20,8 @@
 }
 
 .backLink:hover,
-.backLink:focus {
-	color: var(--wp-admin-theme-color);
+.backLink:focus-visible {
+	color: var(--wpds-color-foreground-interactive-brand);
 	text-decoration: none;
 }
 
