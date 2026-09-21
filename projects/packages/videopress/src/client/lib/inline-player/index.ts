@@ -7,6 +7,7 @@
  */
 
 import { ensurePlayer, parsePlaceholderOptions, releasePlayerId } from './loader';
+import { resolvePoster } from './poster';
 import type { PlayerFactory, PlayerOptions } from './loader';
 
 export { ensurePlayer, parsePlaceholderOptions };
@@ -14,6 +15,7 @@ export { ensurePlayer, parsePlaceholderOptions };
 export const PLACEHOLDER_SELECTOR = '.jetpack-videopress-player__inline[data-videopress-guid]';
 const FACADE_ATTRIBUTE = 'data-videopress-facade';
 const FACADE_CLASS = 'jetpack-videopress-player__facade';
+const POSTER_CLASS = `${ FACADE_CLASS }-poster`;
 const PRECONNECT_ORIGINS = [
 	'https://public-api.wordpress.com',
 	'https://videos.files.wordpress.com',
@@ -82,7 +84,60 @@ function mount(
 }
 
 /**
+ * Run `callback` once `el` is within 200px of the viewport, or at once where that cannot be observed.
+ *
+ * @param el       - The element to watch.
+ * @param callback - What to run.
+ */
+function whenNear( el: HTMLElement, callback: () => void ): void {
+	if ( typeof IntersectionObserver !== 'function' ) {
+		callback();
+		return;
+	}
+	const observer = new IntersectionObserver(
+		entries => {
+			if ( entries.some( entry => entry.isIntersecting ) ) {
+				observer.disconnect();
+				callback();
+			}
+		},
+		{ rootMargin: '200px' }
+	);
+	observer.observe( el );
+}
+
+/**
+ * Look the poster up in the browser and show it, unless the player has mounted meanwhile.
+ *
+ * @param placeholder - The facade's placeholder element.
+ * @param button      - The facade button the poster goes into.
+ */
+function fillPoster( placeholder: HTMLElement, button: HTMLElement ): void {
+	if ( placeholder.dataset.videopressPosterResolved ) {
+		return;
+	}
+	placeholder.dataset.videopressPosterResolved = '1';
+
+	resolvePoster( placeholder.dataset.videopressGuid as string )
+		.then( src => {
+			if ( ! src || placeholder.dataset.videopressMounted || ! button.isConnected ) {
+				return;
+			}
+			const img = placeholder.ownerDocument.createElement( 'img' );
+			img.className = POSTER_CLASS;
+			img.alt = '';
+			img.decoding = 'async';
+			img.src = src;
+			// The play glyph comes later in the DOM and paints on top.
+			button.insertBefore( img, button.firstChild );
+		} )
+		.catch( () => {} );
+}
+
+/**
  * Make a facade load the bundle and mount its player on click, warming connections on hover.
+ *
+ * A facade the server could not give a poster gets one from the browser before it is played.
  *
  * @param placeholder - The facade's placeholder element.
  */
@@ -105,6 +160,25 @@ function wireFacade( placeholder: HTMLElement ): void {
 			.then( videopress => mount( placeholder, videopress, { autoPlay: true } ) )
 			.catch( () => button?.classList.remove( 'is-loading' ) );
 	} );
+
+	if ( ! button ) {
+		return;
+	}
+	const poster = button.querySelector< HTMLImageElement >( `.${ POSTER_CLASS }` );
+	if ( ! poster ) {
+		whenNear( placeholder, () => fillPoster( placeholder, button ) );
+		return;
+	}
+	const replace = () => {
+		poster.remove();
+		fillPoster( placeholder, button );
+	};
+	// The image may have failed before this script ran; a failed image is complete with no size.
+	if ( poster.complete && poster.naturalWidth === 0 ) {
+		replace();
+	} else {
+		poster.addEventListener( 'error', replace, { once: true } );
+	}
 }
 
 /**

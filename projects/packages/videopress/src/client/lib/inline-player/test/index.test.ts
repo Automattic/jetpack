@@ -1,11 +1,18 @@
+jest.mock( '../poster', () => ( { resolvePoster: jest.fn() } ) );
+
 type InlinePlayerModule = typeof import( '../index' );
+type PosterModule = typeof import( '../poster' );
 
 // The module caches the bundle promise and the preconnect state; every test starts from a fresh copy.
 let mod: InlinePlayerModule;
+let resolvePoster: jest.MockedFunction< PosterModule[ 'resolvePoster' ] >;
 const loadModule = () => {
 	jest.resetModules();
-	// eslint-disable-next-line @typescript-eslint/no-require-imports
+	/* eslint-disable @typescript-eslint/no-require-imports */
 	mod = require( '../index' ) as InlinePlayerModule;
+	resolvePoster = ( require( '../poster' ) as PosterModule ).resolvePoster as typeof resolvePoster;
+	/* eslint-enable @typescript-eslint/no-require-imports */
+	resolvePoster.mockResolvedValue( null );
 };
 const ensurePlayer = ( ...args: Parameters< InlinePlayerModule[ 'ensurePlayer' ] > ) =>
 	mod.ensurePlayer( ...args );
@@ -27,7 +34,7 @@ beforeEach( () => {
 const SCRIPT = 'https://v0.wordpress.com/js/videojs/videopress.js?ver=1.0.0';
 const STYLE = 'https://v0.wordpress.com/js/videojs/videopress.css?ver=1.0.0';
 
-const placeholder = ( guid: string, options?: string, facade = false ) => {
+const placeholder = ( guid: string, options?: string, facade = false, poster = true ) => {
 	const el = document.createElement( 'div' );
 	el.className = 'jetpack-videopress-player__inline' + ( facade ? ' is-facade' : '' );
 	el.dataset.videopressGuid = guid;
@@ -37,10 +44,22 @@ const placeholder = ( guid: string, options?: string, facade = false ) => {
 	if ( facade ) {
 		el.setAttribute( 'data-videopress-facade', '1' );
 		el.innerHTML =
-			'<button type="button" class="jetpack-videopress-player__facade"><img class="jetpack-videopress-player__facade-poster" src="https://example.com/p.jpg" alt=""><span class="jetpack-videopress-player__facade-play"></span></button>';
+			'<button type="button" class="jetpack-videopress-player__facade">' +
+			( poster
+				? '<img class="jetpack-videopress-player__facade-poster" src="https://example.com/p.jpg" alt="">'
+				: '' ) +
+			'<span class="jetpack-videopress-player__facade-play"></span></button>';
 	}
 	document.body.appendChild( el );
 	return el;
+};
+
+const facadePoster = ( el: HTMLElement ) =>
+	el.querySelector< HTMLImageElement >( '.jetpack-videopress-player__facade-poster' );
+
+const settle = async () => {
+	await Promise.resolve();
+	await Promise.resolve();
 };
 
 const injectedScript = () =>
@@ -203,6 +222,108 @@ describe( 'mountInlinePlayers', () => {
 		await Promise.resolve();
 		expect( factory ).toHaveBeenCalledTimes( 2 );
 		expect( document.scripts ).toHaveLength( 1 );
+	} );
+
+	it( 'gives a facade without a poster one from the browser, ahead of the play glyph', async () => {
+		window.jetpackVideoPressInlinePlayer = { script: SCRIPT, style: STYLE };
+		resolvePoster.mockResolvedValue( 'https://example.com/resolved.jpg' );
+		const el = placeholder( 'abcDEF12', undefined, true, false );
+		const withPoster = placeholder( 'ghiJKL34', undefined, true );
+
+		mountInlinePlayers();
+		await settle();
+
+		expect( resolvePoster ).toHaveBeenCalledTimes( 1 );
+		expect( resolvePoster ).toHaveBeenCalledWith( 'abcDEF12' );
+		const img = facadePoster( el ) as HTMLImageElement;
+		expect( img.src ).toBe( 'https://example.com/resolved.jpg' );
+		expect( img.alt ).toBe( '' );
+		expect( img.nextElementSibling ).toHaveClass( 'jetpack-videopress-player__facade-play' );
+		expect( injectedScript() ).toBeUndefined();
+		// The server-rendered poster is left as it is.
+		expect( facadePoster( withPoster )?.src ).toBe( 'https://example.com/p.jpg' );
+
+		// Wiring the page again does not look the poster up twice.
+		mountInlinePlayers();
+		await settle();
+		expect( resolvePoster ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'replaces a server-rendered poster that fails to load', async () => {
+		window.jetpackVideoPressInlinePlayer = { script: SCRIPT, style: STYLE };
+		resolvePoster.mockResolvedValue( 'https://example.com/resolved.jpg' );
+		const el = placeholder( 'abcDEF12', undefined, true );
+		mountInlinePlayers();
+		expect( resolvePoster ).not.toHaveBeenCalled();
+
+		( facadePoster( el ) as HTMLImageElement ).dispatchEvent( new Event( 'error' ) );
+		await settle();
+
+		expect( resolvePoster ).toHaveBeenCalledWith( 'abcDEF12' );
+		expect( el.querySelectorAll( '.jetpack-videopress-player__facade-poster' ) ).toHaveLength( 1 );
+		expect( facadePoster( el )?.src ).toBe( 'https://example.com/resolved.jpg' );
+	} );
+
+	it( 'leaves the facade bare when no poster can be found', async () => {
+		window.jetpackVideoPressInlinePlayer = { script: SCRIPT, style: STYLE };
+		const el = placeholder( 'abcDEF12', undefined, true, false );
+		mountInlinePlayers();
+		await settle();
+
+		expect( resolvePoster ).toHaveBeenCalledTimes( 1 );
+		expect( facadePoster( el ) ).toBeNull();
+		expect( el.querySelector( '.jetpack-videopress-player__facade' ) ).not.toBeNull();
+	} );
+
+	it( 'does not add a poster to a facade that was played while the lookup ran', async () => {
+		window.jetpackVideoPressInlinePlayer = { script: SCRIPT, style: STYLE };
+		let finish: ( src: string ) => void = () => {};
+		resolvePoster.mockReturnValue( new Promise( resolve => ( finish = resolve ) ) );
+		const el = placeholder( 'abcDEF12', undefined, true, false );
+		mountInlinePlayers();
+
+		( el.querySelector( '.jetpack-videopress-player__facade' ) as HTMLElement ).click();
+		await finishLoading( factory );
+		expect( factory ).toHaveBeenCalledTimes( 1 );
+
+		finish( 'https://example.com/resolved.jpg' );
+		await settle();
+		expect( el.querySelector( 'img' ) ).toBeNull();
+	} );
+
+	it( 'waits for a facade to come near the viewport before looking its poster up', async () => {
+		window.jetpackVideoPressInlinePlayer = { script: SCRIPT, style: STYLE };
+		resolvePoster.mockResolvedValue( 'https://example.com/resolved.jpg' );
+		const observed: HTMLElement[] = [];
+		let callback: ( entries: Array< { isIntersecting: boolean } > ) => void = () => {};
+		const disconnect = jest.fn();
+		class FakeObserver {
+			constructor( cb: typeof callback, options: { rootMargin?: string } ) {
+				callback = cb;
+				expect( options.rootMargin ).toBe( '200px' );
+			}
+			observe( el: HTMLElement ) {
+				observed.push( el );
+			}
+			disconnect = disconnect;
+		}
+		window.IntersectionObserver = FakeObserver as unknown as typeof IntersectionObserver;
+		try {
+			const el = placeholder( 'abcDEF12', undefined, true, false );
+			mountInlinePlayers();
+			expect( observed ).toEqual( [ el ] );
+			expect( resolvePoster ).not.toHaveBeenCalled();
+
+			callback( [ { isIntersecting: false } ] );
+			expect( resolvePoster ).not.toHaveBeenCalled();
+
+			callback( [ { isIntersecting: true } ] );
+			await settle();
+			expect( disconnect ).toHaveBeenCalled();
+			expect( facadePoster( el )?.src ).toBe( 'https://example.com/resolved.jpg' );
+		} finally {
+			delete ( window as { IntersectionObserver?: unknown } ).IntersectionObserver;
+		}
 	} );
 
 	it( 'warms connections once on the first hover over a facade', () => {
