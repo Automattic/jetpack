@@ -71,17 +71,17 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 		onMutate: async ( action: PluginAction ) => {
 			await queryClient.cancelQueries( { queryKey: QUERY_KEY } );
 
-			const previous = queryClient.getQueryData< MainFeaturesState >( QUERY_KEY );
+			// A placeholder is not in the cache, so before the first read of the site lands
+			// there is nothing here to amend — the page's own copy is what the grid shows.
+			const previous = queryClient.getQueryData< MainFeaturesState >( QUERY_KEY ) ?? initialState();
 			const status: MainFeaturePluginStatus = action === 'deactivate' ? 'inactive' : 'active';
 
-			if ( previous ) {
-				queryClient.setQueryData< MainFeaturesState >( QUERY_KEY, {
-					...previous,
-					features: previous.features.map( feature =>
-						feature.plugin === plugin ? { ...feature, plugin_status: status } : feature
-					),
-				} );
-			}
+			queryClient.setQueryData< MainFeaturesState >( QUERY_KEY, {
+				...previous,
+				features: previous.features.map( feature =>
+					feature.plugin === plugin ? { ...feature, plugin_status: status } : feature
+				),
+			} );
 
 			return { previous };
 		},
