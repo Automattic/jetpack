@@ -71,7 +71,8 @@ class Jetpack_Site_Json_Api_Endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The `jetpack_sso_require_two_step` option is returned as a boolean site option.
+	 * The `jetpack_sso_require_two_step` site option reports what SSO enforces: the saved
+	 * setting, or `true` when the `jetpack_sso_require_two_step` filter forces it.
 	 */
 	public function test_get_site_jetpack_sso_require_two_step_option() {
 		global $blog_id;
@@ -95,6 +96,12 @@ class Jetpack_Site_Json_Api_Endpoints_Test extends WP_UnitTestCase {
 		$this->assertTrue( ( (array) $response['options'] )['jetpack_sso_require_two_step'] );
 
 		delete_option( 'jetpack_sso_require_two_step' );
+		add_filter( 'jetpack_sso_require_two_step', '__return_true' );
+
+		$response = $endpoint->callback( '', $blog_id );
+		$this->assertTrue( ( (array) $response['options'] )['jetpack_sso_require_two_step'] );
+
+		remove_filter( 'jetpack_sso_require_two_step', '__return_true' );
 	}
 
 	/**

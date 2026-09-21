@@ -1898,9 +1898,13 @@ abstract class SAL_Site {
 	/**
 	 * Whether WordPress.com accounts must have two-step authentication to log in through SSO.
 	 *
+	 * Mirrors what SSO enforces: the saved setting, run through the `jetpack_sso_require_two_step`
+	 * filter that Force_2FA hooks into. Only meaningful while the SSO module is active.
+	 *
 	 * @return bool
 	 */
 	public function get_jetpack_sso_require_two_step() {
-		return (bool) get_option( 'jetpack_sso_require_two_step' );
+		/** This filter is documented in projects/packages/connection/src/sso/class-helpers.php */
+		return (bool) apply_filters( 'jetpack_sso_require_two_step', get_option( 'jetpack_sso_require_two_step', false ) );
 	}
 }
