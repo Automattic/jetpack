@@ -1,16 +1,18 @@
 <?php
 /**
- * The Ads tab of the Premium Analytics dashboard on the WordPress.com platform.
+ * The Ads section of the Premium Analytics dashboard on the WordPress.com platform.
  *
  * Simple runs no Jetpack plugin, and on Atomic the WordAds module is routinely off while the plan
- * includes WordAds, so the plan feature decides here where the module does on self-hosted sites.
+ * includes WordAds, so the plan feature decides here and the module registrant skips the platform.
  *
  * @package automattic/jetpack-mu-wpcom
  */
 
 /**
- * Register the Ads tab on a site whose plan includes WordAds, unless another owner already holds
- * the `ads` slug: the WordAds module on Atomic, or a dashboard package still registering the tab.
+ * Register the Ads section on a site whose plan includes WordAds, unless another owner already
+ * holds the `ads` slug: an older dashboard package still registering the section itself.
+ *
+ * @since $$next-version$$
  *
  * @param \Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry $registry The registry being hydrated.
  * @return void
@@ -20,17 +22,13 @@ function wpcom_premium_analytics_register_wordads_section( $registry ) {
 		return;
 	}
 
-	if ( ! function_exists( 'Automattic\Jetpack\PremiumAnalytics\register_dashboard_section' ) ) {
-		return;
-	}
-
 	$dashboard_name = \Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
 
 	if ( wpcom_premium_analytics_dashboard_has_section_slug( $registry, $dashboard_name, 'ads' ) ) {
 		return;
 	}
 
-	\Automattic\Jetpack\PremiumAnalytics\register_dashboard_section(
+	$registry->register(
 		$dashboard_name,
 		'wordads/ads',
 		array(
@@ -54,9 +52,11 @@ function wpcom_premium_analytics_register_wordads_section( $registry ) {
  * Reads the registry through the slug lookup when the package offers it, and through the full
  * list otherwise: the package and this file ship on different cadences.
  *
- * @param \Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry $registry       The registry.
- * @param string                                                          $dashboard_name Dashboard identifier.
- * @param string                                                          $slug           Section slug.
+ * @since $$next-version$$
+ *
+ * @param object $registry       The registry being hydrated.
+ * @param string $dashboard_name Dashboard identifier.
+ * @param string $slug           Section slug.
  * @return bool
  */
 function wpcom_premium_analytics_dashboard_has_section_slug( $registry, $dashboard_name, $slug ) {
@@ -91,5 +91,5 @@ function wpcom_premium_analytics_get_wordads_section_default_layout() {
 	);
 }
 
-// After the package's own tabs (priority 10), so an existing `ads` tab is found and left alone.
+// After the package's own sections (priority 10), so an existing `ads` slug is found and left alone.
 add_action( 'jetpack_premium_analytics_register_dashboard_sections', 'wpcom_premium_analytics_register_wordads_section', 20 );
