@@ -320,6 +320,33 @@ describe( 'LineChart', () => {
 			} );
 		} );
 
+		test( 'keeps a positive y domain on a log scale when every visible bucket has no reading', () => {
+			const ref = createRef< ChartInstanceRef >();
+
+			renderUnwrappedWithTheme(
+				{
+					options: { yScale: { type: 'log' } },
+					data: [
+						{
+							label: 'Series A',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: null as number | null },
+								{ date: new Date( '2024-01-02' ), value: null as number | null },
+							],
+						},
+					],
+				},
+				'default',
+				ref
+			);
+
+			const domain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+
+			expect( domain ).toEqual( [ 1, 10 ] );
+		} );
+
 		test( 'pins the value axis to a hidden series with real values, not the empty-domain fallback, when rescaleYOnVisibilityChange is false', () => {
 			const ref = createRef< ChartInstanceRef >();
 

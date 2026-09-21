@@ -384,6 +384,10 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 		}, [ dataSorted, isSeriesVisible ] );
 
 		const chartOptions = useMemo( () => {
+			// A log scale cannot reach zero, so its empty axis starts at 1.
+			const emptyYDomain: [ number, number ] =
+				options?.yScale?.type === 'log' ? [ 1, 10 ] : [ 0, 1 ];
+
 			return {
 				axis: {
 					x: buildTimeAxisOptions( {
@@ -413,7 +417,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 					type: 'linear' as const,
 					nice: true,
 					zero: false,
-					...( hasVisibleReading ? {} : { domain: [ 0, 1 ] as [ number, number ] } ),
+					...( hasVisibleReading ? {} : { domain: emptyYDomain } ),
 					...( stableYDomain ? { domain: stableYDomain } : {} ),
 					...options?.yScale,
 				},
