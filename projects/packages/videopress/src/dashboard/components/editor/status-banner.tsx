@@ -1,3 +1,4 @@
+import { ProgressBar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import type { EditsJob } from '../../types/edits';
@@ -12,7 +13,6 @@ type Props = {
 	onRetry?: () => void;
 	/** Refetch and re-baseline on the server state (conflict banner). */
 	onReloadLatest: () => void;
-	onCheckStatus: () => void;
 };
 
 /**
@@ -23,7 +23,6 @@ type Props = {
  * @param props.conflict       - Whether a revision conflict is active.
  * @param props.onRetry        - Called when Retry is activated.
  * @param props.onReloadLatest - Called when "Reload latest" is activated.
- * @param props.onCheckStatus  - Refresh a processing job.
  * @return The banner element, or null when there is nothing to report.
  */
 export default function StudioEditorStatusBanner( {
@@ -31,7 +30,6 @@ export default function StudioEditorStatusBanner( {
 	conflict,
 	onRetry,
 	onReloadLatest,
-	onCheckStatus,
 }: Props ): ReactElement | null {
 	const processing = job?.status === 'processing';
 	if ( ! conflict && ! processing && job?.status !== 'failed' ) {
@@ -53,8 +51,7 @@ export default function StudioEditorStatusBanner( {
 		intent = 'warning';
 	} else if ( processing ) {
 		message = __( 'Applying edits…', 'jetpack-videopress-pkg' );
-		action = onCheckStatus;
-		label = __( 'Check status', 'jetpack-videopress-pkg' );
+		action = undefined;
 		intent = 'info';
 	}
 	return (
@@ -62,11 +59,10 @@ export default function StudioEditorStatusBanner( {
 			<Notice.Description>
 				{ message }
 				{ processing && ! conflict && (
-					<progress
+					<ProgressBar
 						className="vp-video-editor__progress"
 						aria-label={ message }
-						max={ 1 }
-						value={ job.progress ?? undefined }
+						value={ job.progress == null ? undefined : job.progress * 100 }
 					/>
 				) }
 			</Notice.Description>

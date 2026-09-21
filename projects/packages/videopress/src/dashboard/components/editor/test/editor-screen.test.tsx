@@ -302,9 +302,8 @@ it( 'submits the current edits against their loaded revision and waits for the c
 			ignore: '.a11y-speak-region, .a11y-speak-region *',
 		} )
 	).toBeInTheDocument();
-	expect( screen.getByRole( 'progressbar' ) ).toHaveValue( 0.4 );
-	await user.click( screen.getByRole( 'button', { name: 'Check status' } ) );
-	expect( refetch ).toHaveBeenCalledTimes( 1 );
+	expect( screen.getByRole( 'progressbar' ) ).toHaveValue( 40 );
+	expect( screen.queryByRole( 'button', { name: 'Check status' } ) ).not.toBeInTheDocument();
 	setEdits( {
 		revision: 3,
 		operations: [ { type: 'cut', start_ms: 0, end_ms: 2000 } ],
@@ -493,8 +492,7 @@ it( 'creates a separate video and navigates only once its attachment is ready', 
 	expect( screen.getByRole( 'button', { name: 'Chapters' } ) ).toBeDisabled();
 	await user.click( screen.getByRole( 'button', { name: 'Chapters' } ) );
 	expect( selectTool ).not.toHaveBeenCalled();
-	await user.click( screen.getByRole( 'button', { name: 'Check status' } ) );
-	expect( refetchCopy ).toHaveBeenCalledTimes( 1 );
+	expect( screen.queryByRole( 'button', { name: 'Check status' } ) ).not.toBeInTheDocument();
 	const complete = copyResponse( { ...processingJob, status: 'complete' } );
 	setCopyStatus( complete );
 	refresh();
@@ -534,8 +532,7 @@ it( 'keeps an unconfirmed copy locked and retries the same captured request', as
 	await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 	expect( copy ).toHaveBeenCalledTimes( 2 );
 	expect( copy.mock.calls[ 1 ][ 0 ] ).toBe( copy.mock.calls[ 0 ][ 0 ] );
-	await user.click( screen.getByRole( 'button', { name: 'Check status' } ) );
-	expect( refetchCopy ).toHaveBeenCalledTimes( 1 );
+	expect( screen.queryByRole( 'button', { name: 'Check status' } ) ).not.toBeInTheDocument();
 	expect( screen.queryByRole( 'button', { name: 'Dismiss' } ) ).not.toBeInTheDocument();
 	expect( save ).not.toHaveBeenCalled();
 } );
@@ -552,8 +549,7 @@ it( 'allows polling after an accepted copy status request fails without offering
 		} )
 	).toBeInTheDocument();
 	expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
-	await user.click( screen.getByRole( 'button', { name: 'Check status' } ) );
-	expect( refetchCopy ).toHaveBeenCalledTimes( 1 );
+	expect( screen.queryByRole( 'button', { name: 'Check status' } ) ).not.toBeInTheDocument();
 	expect( copy ).toHaveBeenCalledTimes( 1 );
 } );
 
@@ -581,6 +577,29 @@ it( 'keeps a recoverable attachment error locked and offers a safe retry', async
 	await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 	expect( copy.mock.calls[ 1 ][ 0 ] ).toBe( copy.mock.calls[ 0 ][ 0 ] );
 	expect( screen.queryByRole( 'button', { name: 'Dismiss' } ) ).not.toBeInTheDocument();
+} );
+
+it( 'distinguishes a created copy from a failed transcode', async () => {
+	const { user, refresh } = renderEditor();
+	await saveCopy( user );
+	setCopyStatus( {
+		...copyResponse( {
+			...processingJob,
+			status: 'failed',
+			error: { code: 'transcode_failed', message: 'Transcoding failed.' },
+		} ),
+		guid: 'copy1234',
+		attachment_id: 99,
+	} );
+	refresh();
+	expect(
+		screen.getByText( 'The new video was created, but its edits could not be processed.', {
+			exact: false,
+			ignore: '.a11y-speak-region, .a11y-speak-region *',
+		} )
+	).toBeInTheDocument();
+	expect( navigate ).not.toHaveBeenCalled();
+	expect( screen.getByRole( 'button', { name: 'Dismiss' } ) ).toBeInTheDocument();
 } );
 
 it.each( [ 'Dismiss', 'Save' ] )(

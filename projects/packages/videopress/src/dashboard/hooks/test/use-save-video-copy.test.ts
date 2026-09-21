@@ -151,7 +151,8 @@ describe( 'useSaveVideoCopy', () => {
 } );
 
 describe( 'useVideoCopyStatus', () => {
-	it( 'treats a null job as an uncertain status and can recover on refetch', async () => {
+	it( 'automatically recovers after a response with a null job', async () => {
+		jest.useFakeTimers();
 		jest
 			.mocked( apiFetch )
 			.mockResolvedValueOnce( { ...accepted, job: null } )
@@ -161,11 +162,36 @@ describe( 'useVideoCopyStatus', () => {
 		} );
 		await waitFor( () => expect( result.current.isError ).toBe( true ) );
 		expect( result.current.data ).toBeUndefined();
-		await act( async () => {
-			await result.current.refetch();
-		} );
+		await act( async () => jest.advanceTimersByTime( LIBRARY_POLL_INTERVAL_MS ) );
 		await waitFor( () => expect( result.current.data ).toEqual( accepted ) );
 	} );
+
+	it.each( [ 'copy_attachment_pending', 'copy_attachment_unconfirmed' ] )(
+		'continues polling %s until the copy completes',
+		async code => {
+			jest.useFakeTimers();
+			jest
+				.mocked( apiFetch )
+				.mockResolvedValueOnce( {
+					...accepted,
+					job: { ...accepted.job, status: 'failed', error: { code, message: 'Unconfirmed' } },
+				} )
+				.mockResolvedValue( {
+					...accepted,
+					guid: 'copy1234',
+					attachment_id: 17,
+					job: { ...accepted.job, status: 'complete' },
+				} );
+			const { result } = renderHook( () => useVideoCopyStatus( request.guid, request.requestId ), {
+				wrapper: createTestWrapper(),
+			} );
+			await waitFor( () => expect( result.current.data?.job.error?.code ).toBe( code ) );
+			await act( async () => jest.advanceTimersByTime( LIBRARY_POLL_INTERVAL_MS ) );
+			await waitFor( () => expect( result.current.data?.job.status ).toBe( 'complete' ) );
+			await act( async () => jest.advanceTimersByTime( LIBRARY_POLL_INTERVAL_MS * 3 ) );
+			expect( apiFetch ).toHaveBeenCalledTimes( 2 );
+		}
+	);
 
 	it( 'waits for a request before querying', () => {
 		renderHook( () => useVideoCopyStatus( request.guid, null ), { wrapper: createTestWrapper() } );

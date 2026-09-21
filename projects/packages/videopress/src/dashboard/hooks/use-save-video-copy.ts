@@ -37,6 +37,23 @@ export type SaveVideoCopyResponse = {
 };
 
 /**
+ * Keep checking until the service can confirm a terminal result.
+ *
+ * @param response - The latest copy status, if available.
+ * @return Whether the copy still needs status updates.
+ */
+function isCopyPending( response?: SaveVideoCopyResponse ): boolean {
+	return (
+		! response ||
+		response.job.status === 'processing' ||
+		( response.job.status === 'failed' &&
+			[ 'copy_attachment_pending', 'copy_attachment_unconfirmed' ].includes(
+				response.job.error?.code ?? ''
+			) )
+	);
+}
+
+/**
  * Keep incomplete service responses out of the copy status cache.
  *
  * @param response - The copy API response.
@@ -127,13 +144,13 @@ export function useVideoCopyStatus( guid: string, requestId: string | null ) {
 		refetchInterval: state => {
 			const { anchor, interval } = nextProcessingPoll(
 				processingStartRef.current,
-				state.state.data?.job?.status === 'processing' ? [ `${ guid }:${ requestId }` ] : [],
+				isCopyPending( state.state.data ) ? [ `${ guid }:${ requestId }` ] : [],
 				Date.now()
 			);
 			processingStartRef.current = anchor;
 			return interval;
 		},
-		refetchOnWindowFocus: state => state.state.data?.job?.status === 'processing',
+		refetchOnWindowFocus: state => isCopyPending( state.state.data ),
 	} );
 	const attachmentId = query.data?.attachment_id;
 	const status = query.data?.job?.status;

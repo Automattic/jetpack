@@ -1,5 +1,4 @@
 import { act, render, renderHook, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import {
 	useSaveVideoCopy,
 	useVideoCopyStatus,
@@ -213,8 +212,7 @@ describe( 'useCopySession', () => {
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Dismiss' } ) ).not.toBeInTheDocument();
-		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Check status' } ) );
-		expect( refetch ).toHaveBeenCalledTimes( 1 );
+		expect( screen.queryByRole( 'button', { name: 'Check status' } ) ).not.toBeInTheDocument();
 
 		status = {
 			...accepted,

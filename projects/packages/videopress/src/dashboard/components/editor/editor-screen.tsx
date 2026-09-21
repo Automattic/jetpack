@@ -220,7 +220,6 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 					<CopyStatusBanner session={ copySession } onReload={ () => setConfirm( 'reload' ) } />
 					<StatusBanner
 						job={ editor.edits?.job }
-						onCheckStatus={ () => void editor.refetch() }
 						conflict={ editor.conflict }
 						onRetry={
 							! editor.locked &&
