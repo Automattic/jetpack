@@ -262,7 +262,10 @@ describe( 'PageNotice', () => {
 		).toBeInTheDocument();
 		// The disconnected reader is the likeliest to think their toggles were wiped.
 		expect(
-			screen.getByText( 'Your saved settings will apply once the site is connected.', IGNORE_A11Y )
+			screen.getByText(
+				'Your feature settings are saved and will apply again once the site is connected.',
+				IGNORE_A11Y
+			)
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Connect Jetpack' } ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Connect Jetpack' } ) ).toHaveAttribute(

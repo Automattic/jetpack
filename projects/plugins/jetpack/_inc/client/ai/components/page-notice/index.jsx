@@ -139,7 +139,10 @@ function getNoticeContent( state, pageData ) {
 		case PAGE_NOTICE_STATES.SITE_DISCONNECTED:
 			return {
 				title: __( 'This site is not connected to WordPress.com.', 'jetpack' ),
-				description: __( 'Your saved settings will apply once the site is connected.', 'jetpack' ),
+				description: __(
+					'Your feature settings are saved and will apply again once the site is connected.',
+					'jetpack'
+				),
 				action: {
 					href: pageData.userConnectionUrl,
 					label: __( 'Connect Jetpack', 'jetpack' ),
