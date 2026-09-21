@@ -9,7 +9,7 @@ import { useMemo } from 'react';
  */
 import { useElementSize } from '../../hooks/use-element-size';
 import styles from './earnings-history-list.module.scss';
-import { EarningsStatusLabel, formatEarningsPeriod, type EarningsHistoryRow } from './fields';
+import { EarningsStatusBadge, formatEarningsPeriod, type EarningsHistoryRow } from './fields';
 
 export type EarningsHistoryListProps = {
 	rows?: EarningsHistoryRow[];
@@ -59,8 +59,8 @@ export function EarningsHistoryList( { rows = [], className }: EarningsHistoryLi
 						<span className={ clsx( styles.amount, row.amount < 0 && styles.attention ) }>
 							{ formatMetricValue( row.amount, 'currency' ) }
 						</span>
-						<span className={ clsx( styles.status, row.status === 0 && styles.attention ) }>
-							<EarningsStatusLabel status={ row.status } />
+						<span className={ styles.status }>
+							<EarningsStatusBadge status={ row.status } />
 						</span>
 					</li>
 				) ) }

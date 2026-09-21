@@ -95,8 +95,12 @@ function EarningsReport(): JSX.Element {
 				: [] ),
 			{
 				label: __( 'Status', 'jetpack-premium-analytics-pkg' ),
-				// The numeric code says nothing to a reader of the export.
-				getValue: row => getEarningsStatus( row.status ).label,
+				// The numeric code says nothing to a reader of the export; a pending
+				// row keeps its reason, which the table shows in an icon.
+				getValue: row => {
+					const { label, detail } = getEarningsStatus( row.status );
+					return detail ? `${ label } (${ detail })` : label;
+				},
 			},
 		],
 		[ showAdsServed ]

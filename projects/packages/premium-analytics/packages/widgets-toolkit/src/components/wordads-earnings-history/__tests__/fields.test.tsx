@@ -12,8 +12,14 @@ describe( 'getEarningsStatus', () => {
 		expect( getEarningsStatus( 0 ).label ).toBe( 'Unpaid' );
 		expect( getEarningsStatus( 1 ).label ).toBe( 'Paid' );
 		expect( getEarningsStatus( 2 ).label ).toBe( 'a8c-only' );
-		expect( getEarningsStatus( 3 ).label ).toBe( 'Pending (Missing Tax Info)' );
-		expect( getEarningsStatus( 4 ).label ).toBe( 'Pending (Invalid PayPal)' );
+		expect( getEarningsStatus( 3 ).label ).toBe( 'Pending' );
+		expect( getEarningsStatus( 4 ).label ).toBe( 'Pending' );
+	} );
+
+	it( 'keeps the pending reason beside the label, not in it', () => {
+		expect( getEarningsStatus( 3 ).detail ).toBe( 'Missing tax info' );
+		expect( getEarningsStatus( 4 ).detail ).toBe( 'Invalid PayPal' );
+		expect( getEarningsStatus( 0 ).detail ).toBeUndefined();
 	} );
 
 	it( 'falls back to "?" for unknown or absent statuses', () => {
@@ -46,6 +52,16 @@ describe( 'EarningsStatusBadge', () => {
 
 		render( <EarningsStatusBadge status={ 2 } /> );
 		expect( screen.getByText( 'a8c-only' ) ).not.toHaveAttribute( 'tabindex' );
+	} );
+
+	it( 'puts a pending reason in an info icon beside a one-word badge', () => {
+		render( <EarningsStatusBadge status={ 3 } /> );
+
+		expect( screen.getByText( 'Pending' ) ).not.toHaveAttribute( 'tabindex' );
+		expect( screen.getByRole( 'img', { name: 'Missing tax info' } ) ).toHaveAttribute(
+			'tabindex',
+			'0'
+		);
 	} );
 } );
 
@@ -120,15 +136,29 @@ describe( 'getWordAdsHistoryFields', () => {
 		expect( data.map( row => row.period ) ).toEqual( [ period ] );
 	} );
 
-	it( 'offers every status but a8c-only in the Status filter', () => {
+	it( 'offers every status but a8c-only in the Status filter, pending once', () => {
 		const status = fields.find( field => field.id === 'status' );
 
 		expect( status?.elements?.map( element => element.value ) ).toEqual( [
 			'Unpaid',
 			'Paid',
-			'Pending (Missing Tax Info)',
-			'Pending (Invalid PayPal)',
+			'Pending',
 		] );
+	} );
+
+	it( 'filters "Pending" to both pending codes', () => {
+		const pending = [
+			...rows,
+			{ id: '2026-03', period: '2026-03', amount: 1, pageviews: 1, status: 3 },
+			{ id: '2026-04', period: '2026-04', amount: 1, pageviews: 1, status: 4 },
+		];
+		const { data } = filterSortAndPaginate(
+			pending,
+			{ ...view, filters: [ { field: 'status', operator: 'is', value: 'Pending' } ] } as View,
+			fields
+		);
+
+		expect( data.map( row => row.period ) ).toEqual( [ '2026-03', '2026-04' ] );
 	} );
 
 	it.each( [

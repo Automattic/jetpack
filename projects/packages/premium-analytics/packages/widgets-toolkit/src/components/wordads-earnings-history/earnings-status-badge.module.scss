@@ -1,0 +1,11 @@
+/* Inline so a cell's text-align still places the pair. */
+.root {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs);
+}
+
+.info {
+	display: inline-flex;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
