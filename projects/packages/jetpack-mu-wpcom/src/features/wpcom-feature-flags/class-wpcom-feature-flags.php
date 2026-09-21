@@ -81,17 +81,22 @@ class Wpcom_Feature_Flags {
 	const CAPABILITY = 'manage_options';
 
 	/**
-	 * Cache of the current blog's sanitized override map.
+	 * Cache of one blog's sanitized override map; valid only for $overrides_blog_id.
 	 *
-	 * Null means "not read from the option yet", which is distinct from the empty
-	 * array a site with no overrides legitimately has. Dropped on `switch_blog`,
-	 * because the option it mirrors belongs to one blog: WordPress.com's public API
-	 * resolves flags before it switches to the requested site, and the map read
-	 * then must not answer for that site.
+	 * Keyed by blog rather than dropped on `switch_blog`: WordPress.com's public API
+	 * resolves flags before switching to the requested site, and a hook would miss
+	 * earlier callbacks and re-read the non-autoloaded option on every restore.
 	 *
 	 * @var array<array-key, bool>|null
 	 */
 	private static $overrides = null;
+
+	/**
+	 * The blog $overrides was read for. Null means nothing is cached.
+	 *
+	 * @var int|null
+	 */
+	private static $overrides_blog_id = null;
 
 	/**
 	 * Register the hooks this feature needs.
@@ -100,7 +105,6 @@ class Wpcom_Feature_Flags {
 	 */
 	public static function init() {
 		add_filter( 'jetpack_feature_flag_enabled', array( self::class, 'filter_enabled' ), 10, 2 );
-		add_action( 'switch_blog', array( self::class, 'reset_overrides_cache' ) );
 		add_action( 'admin_menu', array( self::class, 'register_admin_page' ) );
 	}
 
@@ -151,7 +155,7 @@ class Wpcom_Feature_Flags {
 	/**
 	 * Return this site's flag overrides.
 	 *
-	 * Memoized for the request. filter_enabled() runs once per flag resolution,
+	 * Memoized per blog. filter_enabled() runs once per flag resolution,
 	 * and the screen resolves every listed flag to fill its Effective column, so
 	 * without this the option read, the per-entry preg_match(), and the ksort()
 	 * in sanitize_overrides() all repeat for every flag checked. The option
@@ -162,13 +166,16 @@ class Wpcom_Feature_Flags {
 	 * @return array<array-key, bool> Map of flag name to forced value.
 	 */
 	public static function get_overrides() {
-		if ( null !== self::$overrides ) {
+		$blog_id = get_current_blog_id();
+
+		if ( null !== self::$overrides && self::$overrides_blog_id === $blog_id ) {
 			return self::$overrides;
 		}
 
 		$stored = get_option( self::OVERRIDES_OPTION );
 
-		self::$overrides = is_array( $stored ) ? self::sanitize_overrides( $stored ) : array();
+		self::$overrides         = is_array( $stored ) ? self::sanitize_overrides( $stored ) : array();
+		self::$overrides_blog_id = $blog_id;
 
 		return self::$overrides;
 	}
@@ -182,7 +189,8 @@ class Wpcom_Feature_Flags {
 	public static function save_overrides( array $overrides ) {
 		$overrides = self::sanitize_overrides( $overrides );
 
-		self::$overrides = null;
+		self::$overrides         = null;
+		self::$overrides_blog_id = null;
 
 		if ( empty( $overrides ) ) {
 			delete_option( self::OVERRIDES_OPTION );
@@ -196,14 +204,14 @@ class Wpcom_Feature_Flags {
 	/**
 	 * Forget the memoized override map.
 	 *
-	 * Runs on `switch_blog`, so the next resolution reads the new blog's option.
-	 * Also for tests, which write the option directly rather than through
+	 * Intended for tests, which write the option directly rather than through
 	 * save_overrides(). Mirrors Feature_Flags::reset() in the registry package.
 	 *
 	 * @return void
 	 */
 	public static function reset_overrides_cache() {
-		self::$overrides = null;
+		self::$overrides         = null;
+		self::$overrides_blog_id = null;
 	}
 
 	/**
