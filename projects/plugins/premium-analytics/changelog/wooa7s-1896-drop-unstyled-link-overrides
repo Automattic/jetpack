@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Underline the links in the video embeds widget, and stop row links and drill-down back links keeping their hover colour after a click.
