@@ -167,11 +167,17 @@ function register_default_dashboard_sections() {
 			},
 		),
 		'analytics/subscribers' => array(
-			'label'          => __( 'Subscribers', 'jetpack-premium-analytics-pkg' ),
-			'title'          => __( 'Subscribers stats', 'jetpack-premium-analytics-pkg' ),
-			'order'          => 30,
-			'is_available'   => __NAMESPACE__ . '\\is_subscribers_dashboard_section_available',
-			'default_layout' => static function () {
+			'label'               => __( 'Subscribers', 'jetpack-premium-analytics-pkg' ),
+			'title'               => __( 'Subscribers stats', 'jetpack-premium-analytics-pkg' ),
+			'order'               => 30,
+			'is_available'        => __NAMESPACE__ . '\\is_subscribers_dashboard_section_available',
+			// Only the summary chart supports dates, so it owns the control. No
+			// Subscribers widget supports comparison.
+			'date_filter_options' => array(
+				'with_date_comparison'     => false,
+				'with_header_date_control' => false,
+			),
+			'default_layout'      => static function () {
 				return get_dashboard_default_layout_for( 'analytics/subscribers' );
 			},
 		),

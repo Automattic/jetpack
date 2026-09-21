@@ -39,7 +39,10 @@ export type WordAdsChartTabsAttributes = Partial< ReportParamsFieldAttributes > 
 export default {
 	icon: chartBar,
 	attributes: [
-		reportParamsAttributeField< WordAdsChartTabsAttributes >( { grain: WORDADS_GRAIN } ),
+		reportParamsAttributeField< WordAdsChartTabsAttributes >( {
+			grain: WORDADS_GRAIN,
+			offersComparison: false,
+		} ),
 		chartTypeAttributeField(),
 	] as WidgetAttributeField< WordAdsChartTabsAttributes >[],
 	example: {
