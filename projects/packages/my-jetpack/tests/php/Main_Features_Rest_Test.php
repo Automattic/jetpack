@@ -444,6 +444,30 @@ class Main_Features_Rest_Test extends TestCase {
 	}
 
 	/**
+	 * A module a host forces on is reported as staying on, not switched off.
+	 */
+	public function test_bulk_reports_a_module_a_host_forced_on() {
+		$this->offer_stats_module();
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
+		Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
+		$force = fn( $modules ) => array_values( array_unique( array_merge( $modules, array( 'stats' ) ) ) );
+		add_filter( 'jetpack_active_modules', $force );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => false,
+				'modules' => array( 'stats' ),
+			)
+		);
+
+		remove_filter( 'jetpack_active_modules', $force );
+
+		$failed = $response->get_data()['failed'];
+		$this->assertCount( 1, $failed );
+		$this->assertStringContainsString( 'enabled by your host or site administrator', $failed[0]['message'] );
+	}
+
+	/**
 	 * Offer the stats module, through whichever filter applies: Jetpack's own list when the
 	 * Jetpack plugin is present, the standalone list otherwise.
 	 *

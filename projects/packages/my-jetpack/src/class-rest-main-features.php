@@ -239,6 +239,13 @@ class REST_Main_Features {
 				: new WP_Error( 'switch_failed', __( 'Could not be switched off.', 'jetpack-my-jetpack' ) );
 		}
 
+		// Saved, but a jetpack_active_modules callback can still hold it where it was.
+		if ( $modules->is_active( $slug ) !== $active ) {
+			return $active
+				? new WP_Error( 'module_forced', __( 'Stays off: disabled by your host or site administrator.', 'jetpack-my-jetpack' ) )
+				: new WP_Error( 'module_forced', __( 'Stays on: enabled by your host or site administrator.', 'jetpack-my-jetpack' ) );
+		}
+
 		return true;
 	}
 
