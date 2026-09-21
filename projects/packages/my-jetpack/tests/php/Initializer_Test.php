@@ -272,7 +272,7 @@ class Initializer_Test extends BaseTestCase {
 
 		$screen = Initializer::get_partner_coupon_screen();
 
-		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable -- set_up_partner_coupon() guarantees a non-null screen here.
+		$this->assertIsArray( $screen );
 		$this->assertSame( 'JPTST_JPTA_abc123', $screen['coupon']['coupon_code'] );
 		$this->assertSame( plugins_url( '', WP_PLUGIN_DIR . '/jetpack/jetpack.php' ), $screen['assetBaseUrl'] );
 	}
