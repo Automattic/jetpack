@@ -1149,8 +1149,12 @@
 	border-radius: 2px;
 }
 
+// The row is the pick button and, on a new block, the link's menu beside it.
 .jetpack-paypal-payment-buttons__links-item {
+	display: flex;
+	align-items: center;
 	margin: 0;
+	padding-inline-end: 4px;
 
 	& + & {
 		border-block-start: 1px solid #ddd;
@@ -1161,7 +1165,8 @@
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
-	inline-size: 100%;
+	flex: 1;
+	min-inline-size: 0;
 	block-size: auto;
 	padding: 8px 12px;
 	border-radius: 0;
