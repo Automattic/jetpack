@@ -385,9 +385,10 @@ const siteLaunchedInApril: SeriesData[] = [
 			{ date: new Date( 2026, 0, 1 ), value: null },
 			{ date: new Date( 2026, 1, 1 ), value: null },
 			{ date: new Date( 2026, 2, 1 ), value: null },
-			{ date: new Date( 2026, 3, 1 ), value: 12 },
-			{ date: new Date( 2026, 4, 1 ), value: 31 },
-			{ date: new Date( 2026, 5, 1 ), value: 58 },
+			{ date: new Date( 2026, 3, 1 ), value: 0 },
+			{ date: new Date( 2026, 4, 1 ), value: 12 },
+			{ date: new Date( 2026, 5, 1 ), value: 31 },
+			{ date: new Date( 2026, 6, 1 ), value: 58 },
 		],
 	},
 ];
@@ -405,7 +406,7 @@ BucketsWithNoData.parameters = {
 	docs: {
 		description: {
 			story:
-				'A null value is a bucket with no reading. It keeps its place on the axis so the chart still spans the selected range, but breaks the line and its gradient fill at that point, and its tooltip reads "No data" rather than zero.',
+				'A null value is a bucket with no reading. It keeps its place on the axis so the chart still spans the selected range, but breaks the line and its gradient fill at that point, and its tooltip reads "No data" rather than zero. April is a real zero, so the line starts there, at 0, rather than in May.',
 		},
 	},
 };
