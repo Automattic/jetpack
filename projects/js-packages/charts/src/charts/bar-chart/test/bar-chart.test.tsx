@@ -297,7 +297,7 @@ describe( 'BarChart', () => {
 		}
 	} );
 
-	test( 'reports band bounds without drawing an overlay and clears them on Escape', async () => {
+	test( 'reports band bounds and point indexes during keyboard navigation and clears them on Escape', async () => {
 		const user = userEvent.setup();
 		const onBandHighlightChange = jest.fn();
 		renderWithTheme( { withTooltips: true, onBandHighlightChange } );
@@ -315,6 +315,14 @@ describe( 'BarChart', () => {
 			} )
 		);
 		expect( screen.queryByTestId( 'bar-chart-band-highlight' ) ).not.toBeInTheDocument();
+		await user.keyboard( '{ArrowRight}' );
+		expect( onBandHighlightChange ).toHaveBeenLastCalledWith(
+			expect.objectContaining( {
+				datum: expect.objectContaining( { value: 20 } ),
+				key: 'Series A',
+				index: 1,
+			} )
+		);
 		await user.keyboard( '{Escape}' );
 		await waitFor( () => expect( onBandHighlightChange ).toHaveBeenLastCalledWith( null ) );
 	} );
