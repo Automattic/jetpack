@@ -1898,6 +1898,39 @@ describe( 'BarChart', () => {
 						/\.visx-bar:nth-child\(1\) \{/
 					);
 				} );
+
+				test( 'skips the bars an earlier series left out when outlining a later series', async () => {
+					const user = userEvent.setup();
+					const twoSeries = [
+						{
+							label: 'Series A',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: null as number | null, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+								{ date: new Date( '2024-01-03' ), value: 30, label: 'Jan 3' },
+							],
+							options: {},
+						},
+						{
+							label: 'Series B',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 5, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 15, label: 'Jan 2' },
+								{ date: new Date( '2024-01-03' ), value: 25, label: 'Jan 3' },
+							],
+							options: {},
+						},
+					];
+					renderWithTheme( { withTooltips: true, data: twoSeries } );
+
+					screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+					await user.keyboard( '{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}' );
+
+					expect( screen.getByTestId( 'chart-tooltip-3' ) ).toHaveTextContent( '15' );
+					expect( screen.getByTestId( 'bar-chart-keyboard-highlight' ) ).toHaveTextContent(
+						/\.visx-bar:nth-child\(4\) \{/
+					);
+				} );
 			} );
 		} );
 
