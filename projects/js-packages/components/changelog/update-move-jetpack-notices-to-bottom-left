@@ -1,4 +1,4 @@
-Significance: patch
-Type: removed
+Significance: minor
+Type: deprecated
 
-Remove GlobalNotices and useGlobalNotices in favor of core SnackbarNotices.
+Deprecate GlobalNotices and useGlobalNotices. Use SnackbarNotices from @wordpress/notices instead.
