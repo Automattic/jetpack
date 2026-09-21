@@ -631,7 +631,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 															numTicks={ chartOptions.axis.x.numTicks }
 															{ ...{
 																tickValues:
-																	( horizontal && valueTicks ) || chartOptions.axis.x.tickValues,
+																	( horizontal ? valueTicks : undefined ) ??
+																	chartOptions.axis.x.tickValues,
 															} }
 														/>
 														<Grid
@@ -640,7 +641,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 															numTicks={ chartOptions.axis.y.numTicks }
 															{ ...{
 																tickValues:
-																	( ! horizontal && valueTicks ) || chartOptions.axis.y.tickValues,
+																	( horizontal ? undefined : valueTicks ) ??
+																	chartOptions.axis.y.tickValues,
 															} }
 														/>
 													</>
