@@ -91,7 +91,8 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 
 	if ( state.pending ) {
 		return (
-			<LoadingPlaceholder width={ 36 } height={ 20 } className={ styles[ 'skeleton-switch' ] } />
+			// The size of the FormToggle it stands in for, so the row does not resize.
+			<LoadingPlaceholder width={ 32 } height={ 16 } className={ styles[ 'skeleton-switch' ] } />
 		);
 	}
 

@@ -66,9 +66,11 @@ export function FeatureItem( { state, onOpen }: FeatureItemProps ) {
 					</Text>
 
 					{ isSettling ? (
+						// The box a rendered Badge takes, measured: the heading row is laid out
+						// around it, so a shorter placeholder resizes every card on load.
 						<LoadingPlaceholder
-							width={ 58 }
-							height={ 20 }
+							width={ 51 }
+							height={ 24 }
 							className={ styles[ 'skeleton-badge' ] }
 						/>
 					) : (
