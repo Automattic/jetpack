@@ -4,7 +4,6 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Partner_Coupon;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
@@ -151,11 +150,21 @@ JS;
 	 * Where links into the removed dashboard routes land.
 	 *
 	 * Admins go to My Jetpack wherever it runs. Everyone else stays in the app,
-	 * whose unknown-route handler opens Settings.
+	 * whose unknown-route handler opens Settings. While the partner coupon screen
+	 * applies, every route goes there.
 	 *
 	 * @return array{keep: string[], routes: array<string, string>, fallback: string|null}
 	 */
 	public static function get_legacy_route_redirects() {
+		$coupon_screen = self::get_partner_coupon_redirect();
+		if ( $coupon_screen ) {
+			return array(
+				'keep'     => array(),
+				'routes'   => array(),
+				'fallback' => $coupon_screen,
+			);
+		}
+
 		$pricing_url = Redirect::get_url( 'jetpack-plans' );
 		$routes      = array(
 			'/plans'        => $pricing_url,
@@ -187,23 +196,11 @@ JS;
 	/**
 	 * Whether this request may be sent away from the app.
 	 *
-	 * The partner coupon screen renders on any route while it shows, so it must stay.
-	 *
 	 * @return bool
 	 */
 	public static function should_redirect_legacy_routes() {
 		// A pending error only renders via the SPA's state notices; losing it would strand the admin.
-		if ( Jetpack::state( 'error' ) ) {
-			return false;
-		}
-
-		// Same gate as the coupon screen in `renderMainContent()`, `_inc/client/main.jsx`.
-		return ! (
-			Partner_Coupon::get_coupon()
-			&& ! ( new Status() )->is_offline_mode()
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only decides whether to print a redirect.
-			&& ( isset( $_GET['showCouponRedemption'] ) || ! ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() )
-		);
+		return ! Jetpack::state( 'error' );
 	}
 
 	/**
@@ -238,6 +235,25 @@ JS;
 			&& class_exists( 'Automattic\Jetpack\My_Jetpack\Initializer' )
 			&& method_exists( 'Automattic\Jetpack\My_Jetpack\Initializer', 'should_initialize' )
 			&& \Automattic\Jetpack\My_Jetpack\Initializer::should_initialize();
+	}
+
+	/**
+	 * The My Jetpack coupon screen, while it should replace this page.
+	 *
+	 * An older My Jetpack bounces showCouponRedemption back here, so only forward to one that renders it.
+	 *
+	 * @return string|null
+	 */
+	private static function get_partner_coupon_redirect() {
+		if (
+			! class_exists( 'Automattic\Jetpack\My_Jetpack\Initializer' )
+			|| ! method_exists( 'Automattic\Jetpack\My_Jetpack\Initializer', 'get_partner_coupon_screen' )
+			|| null === \Automattic\Jetpack\My_Jetpack\Initializer::get_partner_coupon_screen()
+		) {
+			return null;
+		}
+
+		return admin_url( 'admin.php?page=my-jetpack&showCouponRedemption=1' );
 	}
 
 	/**

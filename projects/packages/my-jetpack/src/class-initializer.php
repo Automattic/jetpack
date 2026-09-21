@@ -25,6 +25,7 @@ use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Menu_Badges\Menu_Badges;
 use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Partner_Coupon;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host as Status_Host;
@@ -227,15 +228,6 @@ class Initializer {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
 		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Checking for partner coupon redemption flow
-		$show_coupon_redemption = isset( $_GET['showCouponRedemption'] );
-
-		// Redirect to Jetpack dashboard for partner coupon redemption
-		if ( $show_coupon_redemption ) {
-			wp_safe_redirect( admin_url( 'admin.php?page=jetpack&showCouponRedemption=1' ) );
-			exit( 0 );
-		}
-
 		// Handle onboarding redirects based on connection status
 		$redirect_args = self::get_onboarding_redirect_args( $step, $connection->is_connected(), self::is_onboarding_available() );
 
@@ -265,14 +257,48 @@ class Initializer {
 	 *
 	 * WordPress.com Simple sites are connected by definition and don't manage their
 	 * connection through My Jetpack, so the onboarding flow (which asks the user to
-	 * connect) never applies there.
+	 * connect) never applies there. A pending partner coupon brings its own connect screen.
 	 *
 	 * @internal Not part of the package's public API.
 	 *
 	 * @return bool
 	 */
 	public static function is_onboarding_available() {
-		return ! ( new Status_Host() )->is_wpcom_simple();
+		return ! ( new Status_Host() )->is_wpcom_simple() && null === self::get_partner_coupon_screen();
+	}
+
+	/**
+	 * The partner coupon screen's data, when it should replace the dashboard.
+	 *
+	 * Coupons exist only with the Jetpack plugin, which supplies their products and images.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array{coupon: array, assetBaseUrl: string}|null
+	 */
+	public static function get_partner_coupon_screen() {
+		if (
+			! self::should_initialize()
+			|| ! current_user_can( 'manage_options' )
+			|| ! Jetpack_Constants::is_defined( 'JETPACK__PLUGIN_FILE' )
+		) {
+			return null;
+		}
+
+		$coupon = Partner_Coupon::get_coupon();
+		if ( ! $coupon ) {
+			return null;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only picks which screen renders.
+		if ( ! isset( $_GET['showCouponRedemption'] ) && ( new Connection_Manager() )->has_connected_owner() ) {
+			return null;
+		}
+
+		return array(
+			'coupon'       => $coupon,
+			'assetBaseUrl' => plugins_url( '', Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
+		);
 	}
 
 	/**
@@ -630,6 +656,7 @@ class Initializer {
 				'isJetpackPluginActive'  => class_exists( 'Jetpack' ),
 				'latestBoostSpeedScores' => $latest_score,
 				'seoOptIn'               => self::get_seo_opt_in_state(),
+				'partnerCoupon'          => self::get_partner_coupon_screen(),
 			)
 		);
 

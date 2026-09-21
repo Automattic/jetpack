@@ -693,6 +693,25 @@ interface Window {
 			showCard: boolean;
 			redirect: string;
 		};
+		// Null unless the partner coupon screen replaces the dashboard.
+		partnerCoupon?: {
+			coupon: {
+				coupon_code: string;
+				preset: string;
+				partner: {
+					name: string;
+					prefix: string;
+					logo?: { src: string; width: number; height: number } | null;
+				};
+				product: {
+					title: string;
+					slug: string;
+					description: string;
+					features: string[];
+				};
+			};
+			assetBaseUrl: string;
+		} | null;
 	};
 	myJetpackRest?: {
 		apiRoot: string;
