@@ -172,7 +172,10 @@ class Waf_Standalone_Bootstrap {
 		define( 'JETPACK_WAF_WPCONFIG', {{wpconfig}} );
 		define( 'JETPACK_WAF_ENTRYPOINT', {{entrypoint}} );
 		$jetpack_waf_classmap_file = {{classmap_file}};
-		if ( ! is_file( $jetpack_waf_classmap_file ) ) return;
+		if ( ! is_file( $jetpack_waf_classmap_file ) ) {
+			unset( $jetpack_waf_classmap_file );
+			return;
+		}
 		$jetpack_waf_classmap = require $jetpack_waf_classmap_file;
 		$jetpack_waf_autoloader = function ( $class_name ) use ( $jetpack_waf_classmap ) {
 			if ( isset( $jetpack_waf_classmap[ $class_name ] ) ) {

@@ -160,6 +160,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		$this->assertNull( $report['run'] );
 		$this->assertFalse( $report['runner_loaded'] );
 		$this->assertSame( 0, $report['autoloaders'] );
+		$this->assertSame( array(), $report['variables'] );
 	}
 
 	/**
