@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Tests: Stabilize chart interactions and speed score refresh checks.
