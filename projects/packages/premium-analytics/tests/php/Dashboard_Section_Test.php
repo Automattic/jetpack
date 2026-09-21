@@ -119,7 +119,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 		if ( false === has_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' ) ) {
 			add_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
 		}
-		remove_all_filters( DASHBOARD_PREVIEW_SECTIONS_FILTER );
 
 		Jetpack_Options::delete_option( 'active_modules' );
 		Constants::clear_constants();
@@ -1516,47 +1515,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertNull( get_dashboard_preview_scope_sections() );
 		$this->assertSame( array(), inject_dashboard_preview_scope_script_data( array() ) );
-	}
-
-	/**
-	 * The preview exposes Traffic alone until a filter widens the list.
-	 */
-	public function test_preview_sections_default_to_traffic() {
-		$this->assertSame( array( 'traffic' ), get_dashboard_preview_sections() );
-	}
-
-	/**
-	 * A plugin exposes its own tab in the preview through the list filter.
-	 */
-	public function test_preview_sections_filter_exposes_another_tab() {
-		$this->enable_every_section();
-		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
-		add_filter(
-			DASHBOARD_PREVIEW_SECTIONS_FILTER,
-			static function ( $slugs ) {
-				$slugs[] = 'insights';
-
-				return $slugs;
-			}
-		);
-
-		register_default_dashboard_sections();
-
-		$this->assertSame( array( 'traffic', 'insights' ), get_dashboard_preview_scope_sections() );
-	}
-
-	/**
-	 * A filter that hands back no list leaves the preview with no tabs, not with every tab.
-	 */
-	public function test_preview_sections_filter_returning_no_list_exposes_nothing() {
-		$this->enable_every_section();
-		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
-		add_filter( DASHBOARD_PREVIEW_SECTIONS_FILTER, '__return_false' );
-
-		register_default_dashboard_sections();
-
-		$this->assertSame( array(), get_dashboard_preview_sections() );
-		$this->assertSame( array(), get_dashboard_preview_scope_sections() );
 	}
 
 	/**

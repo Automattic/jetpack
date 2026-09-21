@@ -22,14 +22,9 @@ require_once __DIR__ . '/class-dashboard-section-registry.php';
 const DASHBOARD_PREVIEW_SCOPE_FILTER = 'jetpack_premium_analytics_dashboard_preview_scope';
 
 /**
- * Filter through which the preview's section list is resolved.
- */
-const DASHBOARD_PREVIEW_SECTIONS_FILTER = 'jetpack_premium_analytics_preview_sections';
-
-/**
- * Section slugs the customer preview exposes as tabs, before the list filter. A section still
- * rolling out to some sites is opened through the scope filter instead. Widget types are
- * registered independently of this, as they are of the per-section availability checks.
+ * Section slugs the customer preview exposes as tabs. A section still rolling out to some
+ * sites is opened through the filter instead. Widget types are registered independently of
+ * this, as they are of the per-section availability checks.
  */
 const PREVIEW_SECTIONS = array( 'traffic' );
 
@@ -81,29 +76,6 @@ function is_dashboard_preview_scoped() {
 }
 
 /**
- * Section slugs the customer preview exposes as tabs.
- *
- * @since $$next-version$$
- *
- * @return string[] URL-facing section slugs.
- */
-function get_dashboard_preview_sections() {
-	/**
-	 * Filters the section slugs the customer preview exposes as tabs.
-	 *
-	 * A plugin registering a section adds its slug here once the section is ready for the
-	 * preview. Outside the preview every section the site qualifies for is exposed regardless.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string[] $slugs URL-facing section slugs.
-	 */
-	$slugs = apply_filters( DASHBOARD_PREVIEW_SECTIONS_FILTER, PREVIEW_SECTIONS );
-
-	return is_array( $slugs ) ? array_values( array_filter( $slugs, 'is_string' ) ) : array();
-}
-
-/**
  * Whether the preview exposes a dashboard section.
  *
  * @since 0.6.0
@@ -115,7 +87,7 @@ function get_dashboard_preview_sections() {
 function is_dashboard_section_in_preview_scope( $dashboard_name, $slug ) {
 	$in_scope = DASHBOARD_NAME !== $dashboard_name
 		|| ! is_dashboard_preview_scoped()
-		|| in_array( $slug, get_dashboard_preview_sections(), true );
+		|| in_array( $slug, PREVIEW_SECTIONS, true );
 
 	/**
 	 * Filters whether the preview exposes a dashboard section.
