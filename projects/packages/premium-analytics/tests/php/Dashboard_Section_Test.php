@@ -1234,7 +1234,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		register_default_dashboard_sections();
 
-		$this->assertSame( array( 'analytics/traffic' ), $this->available_section_ids() );
+		$this->assertSameSize( PREVIEW_SECTIONS, $this->available_section_ids() );
+		$this->assertNotContains( 'analytics/ads', $this->available_section_ids() );
 	}
 
 	/**
