@@ -1806,6 +1806,31 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A read before init is a _doing_it_wrong() that answers empty and leaves the latch open.
+	 */
+	public function test_read_before_init_does_not_hydrate_the_registry() {
+		global $wp_actions;
+		$init_runs = $wp_actions['init'] ?? null;
+		unset( $wp_actions['init'] );
+		$this->capture_doing_it_wrong();
+
+		try {
+			$early = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/traffic' );
+		} finally {
+			if ( null !== $init_runs ) {
+				$wp_actions['init'] = $init_runs;
+			}
+		}
+
+		$this->assertNull( $early );
+		$this->assertSame( array( Dashboard_Section_Registry::class . '::ensure_hydrated' ), $this->doing_it_wrong );
+		$this->assertInstanceOf(
+			Dashboard_Section::class,
+			get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/traffic' )
+		);
+	}
+
+	/**
 	 * Sections route returns available sections.
 	 */
 	public function test_sections_route_returns_available_sections_sorted_by_order() {
