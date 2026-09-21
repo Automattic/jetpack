@@ -223,6 +223,7 @@ class Initial_State_Test extends TestCase {
 				'role'       => 'contributor',
 			)
 		);
+		$this->assertIsInt( $contributor_id, 'Test setup failed: contributor not created.' );
 		wp_set_current_user( $contributor_id );
 
 		$data = self::get_data();
