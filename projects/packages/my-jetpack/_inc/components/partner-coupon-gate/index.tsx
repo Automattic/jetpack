@@ -12,7 +12,7 @@ const PartnerCouponGate: FC< { children: ReactNode } > = ( { children } ) => {
 	const { hasConnectedOwner, isUserConnected, userConnectionData } = connection;
 	const { ID, login } = userConnectionData?.currentUser?.wpcomUser ?? {};
 	const [ remindLater, setRemindLater ] = useState(
-		() => !! hasConnectedOwner && isPartnerCouponDismissed()
+		() => !! partnerCoupon && !! hasConnectedOwner && isPartnerCouponDismissed()
 	);
 	const onRemindMeLater = useCallback( () => setRemindLater( true ), [] );
 

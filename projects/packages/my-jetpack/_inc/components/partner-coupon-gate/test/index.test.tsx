@@ -47,6 +47,7 @@ describe( 'PartnerCouponGate', () => {
 			hasConnectedOwner: true,
 			isUserConnected: false,
 		} );
+		( isPartnerCouponDismissed as jest.Mock ).mockClear();
 		( isPartnerCouponDismissed as jest.Mock ).mockReturnValue( false );
 		( PartnerCouponRedeem as unknown as jest.Mock ).mockClear();
 	} );
@@ -61,6 +62,12 @@ describe( 'PartnerCouponGate', () => {
 
 		expect( screen.getByTestId( 'dashboard' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'partner-coupon-screen' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'does not read the stored dismissal without a coupon', () => {
+		renderGate();
+
+		expect( isPartnerCouponDismissed ).not.toHaveBeenCalled();
 	} );
 
 	it( 'renders the coupon screen in place of the dashboard', () => {
