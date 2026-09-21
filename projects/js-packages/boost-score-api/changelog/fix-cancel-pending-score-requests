@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Allow cancelling pending speed score polling.

@@ -7,7 +7,7 @@ import { recordBoostEvent } from '../../../app/assets/src/js/lib/utils/analytics
 import { castToString } from '../../../app/assets/src/js/lib/utils/cast-to-string';
 import { requestDataSync, type ScoreRefreshState } from './use-modules-state';
 
-export type SpeedScoresSet = Awaited< ReturnType< typeof requestSpeedScores > >;
+export type SpeedScoresSet = NonNullable< Awaited< ReturnType< typeof requestSpeedScores > > >;
 export type SpeedScoreState = {
 	status: 'loading' | 'loaded' | 'error' | 'offline';
 	error?: Error;
@@ -36,25 +36,31 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 		scores: { current: { mobile: 0, desktop: 0 }, noBoost: null, isStale: false },
 	} );
 	const requestId = useRef( 0 );
+	const requestController = useRef< AbortController >();
 	const lastConfig = useRef< string >();
 	const cancelPending = useCallback( () => {
 		++requestId.current;
+		requestController.current?.abort();
 	}, [] );
 	const refresh = useCallback(
 		async ( regenerate = false ) => {
 			if ( ! online || ! enabled ) {
 				return;
 			}
-			const id = ++requestId.current;
+			cancelPending();
+			const id = requestId.current;
+			const controller = new AbortController();
+			requestController.current = controller;
 			setState( previous => ( { ...previous, status: 'loading', error: undefined } ) );
 			try {
 				const scores = await requestSpeedScores(
 					regenerate,
 					wpApiSettings.root,
 					url,
-					wpApiSettings.nonce
+					wpApiSettings.nonce,
+					{ signal: controller.signal }
 				);
-				if ( id === requestId.current ) {
+				if ( id === requestId.current && scores ) {
 					setState( { status: 'loaded', hasScores: true, scores } );
 				}
 			} catch ( cause ) {
@@ -71,7 +77,7 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 				setState( previous => ( { ...previous, status: 'error', error } ) );
 			}
 		},
-		[ online, url, enabled ]
+		[ online, url, enabled, cancelPending ]
 	);
 
 	useEffect( () => {

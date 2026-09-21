@@ -326,7 +326,8 @@ test( 'loads online scores and regenerates them with refresh tracking and histor
 		false,
 		wpApiSettings.root,
 		Jetpack_Boost.site.url,
-		wpApiSettings.nonce
+		wpApiSettings.nonce,
+		{ signal: expect.any( AbortSignal ) }
 	);
 	const invalidate = jest.spyOn( client, 'invalidateQueries' );
 	await waitFor( () =>
@@ -341,7 +342,8 @@ test( 'loads online scores and regenerates them with refresh tracking and histor
 			true,
 			wpApiSettings.root,
 			Jetpack_Boost.site.url,
-			wpApiSettings.nonce
+			wpApiSettings.nonce,
+			{ signal: expect.any( AbortSignal ) }
 		)
 	);
 	expect(
@@ -512,7 +514,8 @@ test( 'regenerates scores after a Settings toggle and return to the mounted Over
 			true,
 			wpApiSettings.root,
 			Jetpack_Boost.site.url,
-			wpApiSettings.nonce
+			wpApiSettings.nonce,
+			{ signal: expect.any( AbortSignal ) }
 		);
 	} finally {
 		stopObserving();
@@ -563,7 +566,8 @@ test( 'tracks score errors and offers a successful retry', async () => {
 		true,
 		wpApiSettings.root,
 		Jetpack_Boost.site.url,
-		wpApiSettings.nonce
+		wpApiSettings.nonce,
+		{ signal: expect.any( AbortSignal ) }
 	);
 	expect(
 		jest
@@ -934,7 +938,8 @@ test( 'debounces optimization changes and waits for generation to finish', async
 			true,
 			wpApiSettings.root,
 			Jetpack_Boost.site.url,
-			wpApiSettings.nonce
+			wpApiSettings.nonce,
+			{ signal: expect.any( AbortSignal ) }
 		);
 		unmount();
 	} finally {

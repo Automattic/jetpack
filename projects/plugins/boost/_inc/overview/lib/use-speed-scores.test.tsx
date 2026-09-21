@@ -67,14 +67,16 @@ test( 'preserves the exact cornerstone URL for cached and regenerated scores', a
 		false,
 		wpApiSettings.root,
 		'https://example.org/',
-		wpApiSettings.nonce
+		wpApiSettings.nonce,
+		{ signal: expect.any( AbortSignal ) }
 	);
 	await act( async () => result.current[ 1 ]( true ) );
 	expect( requestSpeedScores ).toHaveBeenLastCalledWith(
 		true,
 		wpApiSettings.root,
 		'https://example.org/',
-		wpApiSettings.nonce
+		wpApiSettings.nonce,
+		{ signal: expect.any( AbortSignal ) }
 	);
 } );
 
@@ -88,7 +90,8 @@ test.each( [ undefined, { predefined_pages: [] }, { predefined_pages: [ '' ] } ]
 			false,
 			wpApiSettings.root,
 			'https://example.org',
-			wpApiSettings.nonce
+			wpApiSettings.nonce,
+			{ signal: expect.any( AbortSignal ) }
 		);
 	}
 );
@@ -140,7 +143,8 @@ test( 'regenerates after changed module configuration settles and waits two seco
 			true,
 			wpApiSettings.root,
 			'https://example.org',
-			wpApiSettings.nonce
+			wpApiSettings.nonce,
+			{ signal: expect.any( AbortSignal ) }
 		);
 	} finally {
 		jest.useRealTimers();
@@ -162,7 +166,8 @@ test( 'refreshes scores for live cornerstone changes on mount and refetch', asyn
 			false,
 			wpApiSettings.root,
 			'https://example.org/current/',
-			wpApiSettings.nonce
+			wpApiSettings.nonce,
+			{ signal: expect.any( AbortSignal ) }
 		)
 	);
 	jest.mocked( apiFetch ).mockResolvedValue( {
@@ -177,7 +182,8 @@ test( 'refreshes scores for live cornerstone changes on mount and refetch', asyn
 			false,
 			wpApiSettings.root,
 			'https://example.org/updated/',
-			wpApiSettings.nonce
+			wpApiSettings.nonce,
+			{ signal: expect.any( AbortSignal ) }
 		)
 	);
 } );
@@ -222,4 +228,38 @@ test( 'ignores a pending score failure after entering a subpage', async () => {
 	rerender( false );
 	await act( async () => rejectRequest( new Error( 'Service unavailable' ) ) );
 	expect( recordBoostEvent ).not.toHaveBeenCalled();
+} );
+
+test( 'stops posting pending scores when Purchase Success opens', async () => {
+	jest.useFakeTimers();
+	jest.mocked( recordBoostEvent ).mockClear();
+	const originalFetch = globalThis.fetch;
+	const post = jest.fn().mockResolvedValue( {
+		ok: true,
+		text: async () => JSON.stringify( { status: 'pending' } ),
+	} );
+	globalThis.fetch = post;
+	jest.mocked( requestSpeedScores ).mockImplementation(
+		jest.requireActual( '@automattic/jetpack-boost-score-api' ).requestSpeedScores
+	);
+	try {
+		const { rerender } = renderHook( enabled => useSpeedScores( undefined, enabled ), {
+			wrapper,
+			initialProps: false,
+		} );
+		rerender( true );
+		await act( async () => jest.advanceTimersByTimeAsync( 5001 ) );
+		expect( post ).toHaveBeenCalledTimes( 2 );
+		expect( post ).toHaveBeenLastCalledWith(
+			expect.stringContaining( '/speed-scores' ),
+			expect.objectContaining( { method: 'post' } )
+		);
+		rerender( false );
+		await act( async () => jest.advanceTimersByTimeAsync( 240000 ) );
+		expect( post ).toHaveBeenCalledTimes( 2 );
+		expect( recordBoostEvent ).not.toHaveBeenCalled();
+	} finally {
+		globalThis.fetch = originalFetch;
+		jest.useRealTimers();
+	}
 } );
