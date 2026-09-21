@@ -205,6 +205,23 @@ describe( 'Boost dashboard stage', () => {
 		}
 	);
 
+	it( 'navigates to Settings when leaving a subpage for an Overview URL', () => {
+		window.history.replaceState(
+			null,
+			'',
+			`/?page=jetpack-boost${ SETTINGS_ARG }#/cache-debug-log`
+		);
+		render( <Stage /> );
+
+		act( () => {
+			window.history.pushState( null, '', '/?page=jetpack-boost&p=%2F%3Ftab%3Doverview' );
+		} );
+
+		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
+		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: true } );
+		expect( getSubpageMount()?.hidden ).toBe( true );
+	} );
+
 	it( 'follows pushState navigation into and out of a subpage', () => {
 		window.history.replaceState( null, '', `/?page=jetpack-boost${ SETTINGS_ARG }` );
 		render( <Stage /> );
@@ -227,8 +244,7 @@ describe( 'Boost dashboard stage', () => {
 		} );
 
 		expect( getSubpageMount()?.hidden ).toBe( true );
-		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
-		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: true } );
+		expect( mockNavigate ).not.toHaveBeenCalled();
 	} );
 
 	it( 'keeps Overview and both mount nodes across tab changes and subpage visits', () => {
