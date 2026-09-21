@@ -45,9 +45,16 @@ final class Environment {
 	 * Whether sharing buttons can still produce output.
 	 *
 	 * Simple has no modules: `post-flair.php` loads sharedaddy unconditionally.
+	 * Elsewhere the module needs no connection, but `Jetpack::load_modules()`
+	 * loads nothing at all on a site that is neither connected nor offline, so
+	 * an active module there still renders no buttons.
 	 */
 	public static function sharing_enabled(): bool {
-		return self::is_simple_site() || ( new Modules() )->is_active( 'sharedaddy' );
+		if ( self::is_simple_site() ) {
+			return true;
+		}
+
+		return self::modules_load() && ( new Modules() )->is_active( 'sharedaddy' );
 	}
 
 	/**
@@ -58,10 +65,15 @@ final class Environment {
 	 * would do nothing.
 	 */
 	public static function can_activate_modules(): bool {
-		if ( self::is_simple_site() ) {
-			return true;
-		}
+		return self::is_simple_site() || self::modules_load();
+	}
 
+	/**
+	 * Whether the plugin loads its active modules at all.
+	 *
+	 * The guard `Jetpack::load_modules()` applies before it includes anything.
+	 */
+	private static function modules_load(): bool {
 		return self::connection_ready() || ( new Status() )->is_offline_mode();
 	}
 

@@ -107,4 +107,20 @@ class Sharing_Section_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'activate-sharing', $markup );
 		$this->assertStringContainsString( 'Connect your site to WordPress.com', $markup );
 	}
+
+	/**
+	 * A disconnected site keeps the module in its active list while
+	 * `Jetpack::load_modules()` loads nothing, so `Sharing_Service` never
+	 * exists there. Reading the module alone rendered a heading over an empty
+	 * body; the section has to take its off variant instead.
+	 */
+	public function test_takes_the_off_variant_where_the_module_is_listed_but_cannot_load(): void {
+		$this->given_connection( false );
+		$this->given_modules( array( 'sharedaddy' ) );
+
+		$markup = $this->render();
+
+		$this->assertStringContainsString( 'Sharing buttons are turned off for this site.', $markup );
+		$this->assertStringNotContainsString( 'currently appear on', $markup );
+	}
 }

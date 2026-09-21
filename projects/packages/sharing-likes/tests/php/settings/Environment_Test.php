@@ -183,13 +183,28 @@ class Environment_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Sharing does not require a connection, so a disconnected site running the
-	 * module keeps its buttons and its settings.
+	 * Sharing needs no connection, but `Jetpack::load_modules()` loads nothing
+	 * on a site that is neither connected nor offline, so the active module
+	 * renders no buttons there and the section must not offer to configure them.
 	 */
-	public function test_sharing_stays_enabled_on_a_disconnected_site(): void {
+	public function test_sharing_is_disabled_on_a_disconnected_site_that_still_lists_the_module(): void {
 		$this->given_site( array( 'sharedaddy' ), false );
 
-		$this->assertTrue( Environment::sharing_enabled() );
+		$this->assertFalse( Environment::sharing_enabled() );
+	}
+
+	/**
+	 * Offline mode is the route by which a disconnected site still loads the module.
+	 */
+	public function test_sharing_stays_enabled_offline(): void {
+		$this->given_site( array( 'sharedaddy' ), false );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$sharing_enabled = Environment::sharing_enabled();
+
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$this->assertTrue( $sharing_enabled );
 	}
 
 	/**
