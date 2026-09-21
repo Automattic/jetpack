@@ -225,6 +225,50 @@ $feature-icon-foreground: #0ced57;
 	text-decoration: underline;
 }
 
+// Jetpack's other modules: the main cards' shape without their icon, click
+// target or hover, since nothing here opens.
+.more-features {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg);
+	margin-block-start: var(--wpds-dimension-gap-xl);
+
+	h2 {
+		margin: 0;
+	}
+}
+
+.more-features__group {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md);
+}
+
+.more-features__inactive {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-md);
+}
+
+.more-feature-item {
+	align-items: flex-start;
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-lg);
+	display: flex;
+	gap: var(--wpds-dimension-gap-md);
+	padding: var(--wpds-dimension-padding-lg);
+}
+
+.more-feature-item__action {
+	align-self: center;
+	display: flex;
+	flex-shrink: 0;
+}
+
+.empty-heading {
+
 // EmptyState caps its own measure but sets no auto margins, so it needs both to
 // sit in the middle of the grid's column. The wider measure keeps the search
 // state's link on one line.
@@ -330,12 +374,12 @@ $feature-icon-foreground: #0ced57;
 
 .bulk-bar {
 	align-items: center;
-	border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--wpds-dimension-gap-md);
-	padding-block: var(--wpds-dimension-padding-md);
-	padding-inline: var(--wpds-dimension-padding-xl);
+	margin-block-start: var(--wpds-dimension-gap-md);
+	padding-block-start: var(--wpds-dimension-padding-md);
 }
 
 .bulk-bar__count {
@@ -349,6 +393,18 @@ $feature-icon-foreground: #0ced57;
 	align-items: center;
 	border: 0;
 	border-radius: 0;
+
+	& + & {
+		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	}
+}
+
+// A module card flattened into a list row, like the feature row above it.
+.more-feature-item.feature-row {
+	align-items: center;
+	border: 0;
+	border-radius: 0;
+	padding: var(--wpds-dimension-padding-xl);
 
 	& + & {
 		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);

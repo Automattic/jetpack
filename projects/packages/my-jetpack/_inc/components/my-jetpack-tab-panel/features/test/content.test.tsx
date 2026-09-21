@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
@@ -25,12 +26,18 @@ jest.mock( '../feature-state', () => ( {
 jest.mock( '../feature-item', () => ( { FeatureItem: () => <div>grid card</div> } ) );
 jest.mock( '../feature-list', () => ( { FeatureList: () => <div>list rows</div> } ) );
 jest.mock( '../feature-modal', () => ( { FeatureModal: () => null } ) );
+jest.mock( '../use-more-features', () => ( {
+	...jest.requireActual( '../use-more-features' ),
+	useMoreFeatures: () => [],
+} ) );
 
 const renderAt = ( url: string ) =>
 	render(
-		<MemoryRouter initialEntries={ [ url ] }>
-			<FeaturesContent />
-		</MemoryRouter>
+		<QueryClientProvider client={ new QueryClient() }>
+			<MemoryRouter initialEntries={ [ url ] }>
+				<FeaturesContent />
+			</MemoryRouter>
+		</QueryClientProvider>
 	);
 
 describe( 'FeaturesContent', () => {
