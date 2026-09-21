@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\PremiumAnalytics\Capabilities;
 use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Registers the Ads tab on the Premium Analytics dashboard.
@@ -29,8 +30,9 @@ class WordAds_Premium_Analytics {
 	/**
 	 * Hook the registration on the dashboard's registry action.
 	 *
-	 * Priority 20, after the package's own tabs: a package that still registers the tab itself,
-	 * or WordPress.com registering it by plan feature, is found by slug and left alone.
+	 * Priority 20, after the package's own sections: an older package that still registers the
+	 * section itself is found by slug and left alone. On the WordPress.com platform jetpack-mu-wpcom
+	 * owns the section and this registrant skips.
 	 *
 	 * @return void
 	 */
@@ -45,6 +47,11 @@ class WordAds_Premium_Analytics {
 	 * @return void
 	 */
 	public static function register_dashboard_section( $registry ) {
+		// Simple and Atomic decide by plan feature, from jetpack-mu-wpcom.
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			return;
+		}
+
 		if ( ! function_exists( 'Automattic\Jetpack\PremiumAnalytics\register_dashboard_section' ) ) {
 			return;
 		}
