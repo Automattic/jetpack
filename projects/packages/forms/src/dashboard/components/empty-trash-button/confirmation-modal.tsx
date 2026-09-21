@@ -50,11 +50,11 @@ export default function EmptyTrashConfirmationModal( {
 								'jetpack-forms'
 							),
 							formatNumber( totalItemsTrash )
-					  )
+						)
 					: __(
 							'All responses in trash will be deleted forever. This action cannot be undone.',
 							'jetpack-forms'
-					  ) }
+						) }
 			</p>
 		</ConfirmDialog>
 	);

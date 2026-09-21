@@ -87,6 +87,17 @@ class Stats_Product_Test extends TestCase {
 		\Jetpack::$mock_premium_analytics_enabled = $enabled;
 	}
 
+	/**
+	 * Stats reads as off without the Jetpack plugin, which the standalone Stats plugin runs without.
+	 *
+	 * @see \Automattic\Jetpack\Stats_Admin\Dashboard::add_wp_admin_menu()
+	 */
+	public function test_is_activated_is_false_without_the_jetpack_plugin() {
+		deactivate_plugins( 'jetpack/jetpack.php' );
+
+		$this->assertFalse( Stats::is_activated() );
+	}
+
 	public function test_manage_url_points_at_the_stats_page_by_default() {
 		$this->set_premium_analytics_enabled( false );
 

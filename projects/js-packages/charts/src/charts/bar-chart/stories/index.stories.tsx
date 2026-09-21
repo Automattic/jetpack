@@ -94,6 +94,18 @@ export const Default: Story = {
 	},
 };
 
+export const ForcedColors: Story = {
+	...Default,
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'In Chrome DevTools, open Rendering and set "Emulate CSS media feature forced-colors" to "active". Set prefers-color-scheme to dark, then light: both axes should follow the system text color. This uses the same axis catalog roles as Line Chart, Area Chart, and Bar List Chart.',
+			},
+		},
+	},
+};
+
 export const FixedDimensions: Story = {
 	args: {
 		...Default.args,
@@ -119,6 +131,70 @@ export const SingleSeries: Story = {
 		docs: {
 			description: {
 				story: 'Bar chart with a single data series.',
+			},
+		},
+	},
+};
+
+export const PerPointColors: Story = {
+	args: {
+		...SingleSeries.args,
+		options: { yScale: { zero: true } },
+		data: [
+			{
+				label: 'Daily score',
+				data: [
+					{ label: 'Monday', value: 92, color: 'var(--a8c-charts-color-trend-up)' },
+					{ label: 'Tuesday', value: 35, color: 'var(--a8c-charts-color-trend-down)' },
+					{ label: 'Wednesday', value: 88, color: 'var(--a8c-charts-color-trend-up)' },
+					{ label: 'Thursday', value: 65 },
+				],
+			},
+		],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Point colors override the series fill. Thursday has no override and keeps the series color. Enable patterns to check that they take precedence.',
+			},
+		},
+	},
+};
+
+export const BandHighlight: Story = {
+	args: {
+		...SingleSeries.args,
+		withBandHighlight: true,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Hover a bar or focus the chart and use arrow keys to highlight its band across the plot. Escape clears the keyboard selection and its tooltip; a hover highlight remains.',
+			},
+		},
+	},
+};
+
+export const BesideTooltip: Story = {
+	args: {
+		...BandHighlight.args,
+		tooltipPlacement: 'beside',
+		tooltipAnchorTop: 40,
+	},
+	argTypes: {
+		tooltipPlacement: {
+			control: 'radio',
+			options: [ 'auto', 'beside' ],
+		},
+		tooltipAnchorTop: { control: 'number' },
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Hover the first and last bars to check horizontal flipping. The tooltip stays at the SVG top anchor, subject to clipping bounds. Change tooltipAnchorTop to move that anchor, including above the SVG with negative values.',
 			},
 		},
 	},

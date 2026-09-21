@@ -193,22 +193,27 @@ const UploadDropzone = ( {
 				 * top of the one this surface already has.
 				 */ }
 				<EmptyState.Icon icon={ upload } className="vp-upload-dropzone__icon" />
-				<Text variant="body-lg" className="vp-upload-dropzone__hint">
+				{ /*
+				 * Same type as the design system's own empty state (the
+				 * treatment Jetpack Social's "Auto-sharing is turned off" uses):
+				 * heading-lg for the hint, body-md for the sub copy.
+				 */ }
+				<Text variant="heading-lg" className="vp-upload-dropzone__hint">
 					{ plural
 						? __( 'Drag and drop your videos here', 'jetpack-videopress-pkg' )
 						: __( 'Drag and drop your video here', 'jetpack-videopress-pkg' ) }
 				</Text>
-				<Text variant="body-sm" className="vp-upload-dropzone__sub">
+				<Text variant="body-md" className="vp-upload-dropzone__sub">
 					{ subCopy ??
 						( plural
 							? __(
 									'Add one or several. Each upload gets automatic captions, a player you fully own, and a link to share anywhere. No ads, no algorithm.',
 									'jetpack-videopress-pkg'
-							  )
+								)
 							: __(
 									'Add one video. Each upload gets automatic captions, a player you fully own, and a link to share anywhere. No ads, no algorithm.',
 									'jetpack-videopress-pkg'
-							  ) ) }
+								) ) }
 				</Text>
 				{ /*
 				 * `aria-disabled`, not `disabled`. The two halves of this one

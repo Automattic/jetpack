@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.21.1] - 2026-09-08
+### Fixed
+- Return uncached connection errors for Stats requests with missing or rejected blog tokens so requests recover when the connection is restored. [#51998]
+
 ## [0.21.0] - 2026-09-01
 ### Removed
 - Minimum supported PHP version is now 7.4. [#51515]
@@ -384,6 +388,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing static method which was called without self reference. [#26640]
 
+[0.21.1]: https://github.com/Automattic/jetpack-stats/compare/v0.21.0...v0.21.1
 [0.21.0]: https://github.com/Automattic/jetpack-stats/compare/v0.20.4...v0.21.0
 [0.20.4]: https://github.com/Automattic/jetpack-stats/compare/v0.20.3...v0.20.4
 [0.20.3]: https://github.com/Automattic/jetpack-stats/compare/v0.20.2...v0.20.3

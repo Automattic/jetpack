@@ -9,8 +9,8 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 /**
- * Registers the dashboard's REST support routes (widget modules, default
- * layout, sections) for a host that never calls Analytics::init().
+ * Registers the dashboard's REST support routes (widget modules, sections)
+ * for a host that never calls Analytics::init().
  *
  * WordPress.com Simple serves the dashboard from WPCOM, not the site (see
  * Analytics::init_wpcom_simple()), so WPCOM's public-api process calls this
@@ -37,11 +37,10 @@ class Dashboard_Support_Routes {
 	 * Deferred here (rest_api_init), not run from register() itself: register()
 	 * runs on every request that boots this package, and on WPCOM Simple that's
 	 * every request across all of WPCOM's public-api process, most of which
-	 * never dispatch a Premium Analytics route. dashboard-sections.php hydrates
-	 * its own section registry at file scope, which should not run before
-	 * WordPress has decided this request is actually dispatching a REST route.
-	 * widget-modules.php hydrates the widget type registry itself, lazily,
-	 * only when its REST callback or the boot-deps filter actually runs.
+	 * never dispatch a Premium Analytics route. Both registries hydrate lazily,
+	 * on their first read: the section registry fires its registration action
+	 * then, and widget-modules.php hydrates the widget type registry only when
+	 * its REST callback or the boot-deps filter actually runs.
 	 *
 	 * @return void
 	 */
@@ -55,11 +54,14 @@ class Dashboard_Support_Routes {
 		if ( ! function_exists( __NAMESPACE__ . '\\register_widget_modules_rest_route' ) ) {
 			require_once __DIR__ . '/widget-modules.php';
 		}
-		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_default_layout_route' ) ) {
+		if ( ! function_exists( __NAMESPACE__ . '\\get_dashboard_default_widget_instance' ) ) {
 			require_once __DIR__ . '/dashboard-layout.php';
 		}
 		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_section' ) ) {
 			require_once __DIR__ . '/dashboard-sections.php';
+		}
+		if ( ! function_exists( __NAMESPACE__ . '\\register_default_dashboard_sections' ) ) {
+			require_once __DIR__ . '/default-dashboard-sections.php';
 		}
 
 		// These routes are gated on the dashboard capability, and WPCOM Simple boots
@@ -67,7 +69,6 @@ class Dashboard_Support_Routes {
 		Capabilities::register();
 
 		register_widget_modules_rest_route();
-		register_dashboard_default_layout_route();
 		register_dashboard_sections_rest_routes();
 	}
 }

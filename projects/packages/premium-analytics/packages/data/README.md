@@ -356,48 +356,9 @@ src/
 5. **Cache Management**: React Query handles caching, background updates,
    and invalidation
 
-## Date Utilities
+## Core Settings
 
-This package provides timezone-aware date utilities that integrate with
-WordPress site settings:
-
-### `localTZDate( value?, timezone? )`
-
-Creates a timezone-aware date in the reporting timezone by default.
-
-```typescript
-import { localTZDate } from '@jetpack-premium-analytics/data';
-
-const now = localTZDate(); // Current time in the reporting timezone
-const custom = localTZDate( '2024-01-15', 'America/New_York' );
-```
-
-**Parameters:**
-
-- `value` (optional): `number | string | Date` - Date value to convert
-- `timezone` (optional): `string` - Target timezone (defaults to the
-  reporting timezone)
-
-**Returns:** `TZDate` - Timezone-aware date object
-
-### `dateToISOStringWithLocalTZ( date )`
-
-Converts a date to ISO string with the reporting timezone's offset applied.
-
-```typescript
-const withTZ = dateToISOStringWithLocalTZ( new Date() );
-// Returns: "2024-01-15T14:30:00.000-05:00" (with the reporting timezone's offset)
-```
-
-**Parameters:**
-
-- `date`: `Date` - Date to convert
-
-**Returns:** `string` - ISO string with timezone offset
-
-**Note:** The reporting timezone comes from `reportingTimeZone()` in
-`@jetpack-premium-analytics/datetime`, which reads the WordPress date
-settings that ship with the page. It needs no await.
+Timezone-aware date helpers live in `@jetpack-premium-analytics/datetime`.
 
 ### `ensureCoreSettingsReady()`
 
@@ -445,10 +406,8 @@ This package exports the following public API:
 - `resolveIntervalForRange` - Keep a still-valid candidate interval, else the range default
 - `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the range
 
-### Date Utilities
+### Core Settings
 
-- `localTZDate` - Create timezone-aware dates
-- `dateToISOStringWithLocalTZ` - Convert to ISO with timezone
 - `ensureCoreSettingsReady` - Ensure core settings records are resolved
 
 ### Constants

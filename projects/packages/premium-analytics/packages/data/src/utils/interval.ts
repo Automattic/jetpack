@@ -14,14 +14,11 @@ import {
 	PRESET_TODAY,
 	PRESET_YESTERDAY,
 	isIntervalType,
+	localTZDate,
 	type IntervalType,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { differenceInCalendarDays, differenceInHours } from 'date-fns';
-/**
- * Internal dependencies
- */
-import { localTZDate } from './date';
 
 export type { IntervalType };
 

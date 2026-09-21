@@ -36,8 +36,7 @@ interface ReferrersStoryControls {
 }
 
 interface ReferrersDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		ReferrersStoryControls {}
+	extends WidgetDashboardWithWidgetControls, ReferrersStoryControls {}
 
 function renderReferrersWidget( { withComparison }: ReferrersStoryControls ) {
 	return (

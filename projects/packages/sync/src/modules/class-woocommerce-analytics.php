@@ -624,7 +624,7 @@ class WooCommerce_Analytics extends Module {
 		/**
 		 * Filters the prefix used for order attribution meta keys.
 		 *
-		 * @since $$next-version$$
+		 * @since 5.1.0
 		 *
 		 * @param string $prefix The order attribution meta key prefix.
 		 */

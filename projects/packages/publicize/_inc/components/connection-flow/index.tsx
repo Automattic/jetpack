@@ -84,7 +84,7 @@ const ConnectionFlowDialog = () => {
 		return {
 			step: getConnectionFlowStep(),
 			canGoBack: canGoToPreviousConnectionFlowStep(),
-			serviceLabel: serviceId ? getService( serviceId )?.label ?? '' : '',
+			serviceLabel: serviceId ? ( getService( serviceId )?.label ?? '' ) : '',
 		};
 	}, [] );
 

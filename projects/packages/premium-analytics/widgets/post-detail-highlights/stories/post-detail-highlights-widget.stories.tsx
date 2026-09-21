@@ -184,8 +184,7 @@ export const Empty: Story = {
 };
 
 interface PostDetailHighlightsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		PostDetailHighlightsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, PostDetailHighlightsStoryControls {}
 
 /**
  * Mounts the real `WidgetDashboard` with this single widget so it renders
@@ -213,7 +212,7 @@ export const WidgetDashboardWithWidget: StoryObj< PostDetailHighlightsDashboardS
 	render: args => <PostDetailHighlightsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		widgetWidth: 4,
+		widgetWidth: 3,
 		widgetHeight: 1,
 		withComparison: true,
 		hasPostScope: true,

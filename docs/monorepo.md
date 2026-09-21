@@ -416,7 +416,7 @@ Most projects in the monorepo should have a mirror repository holding a built ve
 4. If there are any files included in the monorepo that should not be included in the mirror, use `.gitattributes` to tag them with "production-exclude".
 5. If there are any built files in `.gitignore` that should be included in the mirror, use `.gitattributes` to tag them with "production-include".
 6. Set `.extra.mirror-repo` in your project's `composer.json` to the name of the repo.
-   * When you push the PR making this change to `composer.json`, pay attention to the Build workflow. Download the "jetpack-build" artifact and make sure it contains your project, and that there are no extra or missing files.
+   * When you push the PR making this change to `composer.json`, pay attention to the Build workflow. Download the "jetpack-build.tar.xz" artifact and make sure it contains your project, and that there are no extra or missing files.
 
 ### Autotagger
 

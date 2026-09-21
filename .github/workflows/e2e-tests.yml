@@ -31,7 +31,7 @@ jobs:
   create-test-matrix:
     name: "Determine tests matrix"
     runs-on: ubuntu-latest
-    timeout-minutes: 15  # 2026-09-04: Temporary, pnpm/action-setup is taking up to 7 minutes.
+    timeout-minutes: 5  # 2025-11-20: The pnpm install may take a few minutes on cache miss.
     # Only run tests in the main repository
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
     outputs:
@@ -43,10 +43,10 @@ jobs:
       # For pull requests, list-changed-projects.sh needs the merge base.
       - name: Deepen to merge base
         if: github.event_name == 'pull_request'
-        uses: ./.github/actions/deepen-to-merge-base
+        uses: $/.github/actions/deepen-to-merge-base
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           php: false
 
@@ -95,7 +95,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
 
       - name: Install monorepo
         run: pnpm install
@@ -187,7 +187,7 @@ jobs:
           tar -xvvf "$BUILD_GROUP.tar.xz" .
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
 
       - name: Install cloudflared
         if: env.USE_CLOUDFLARE_TUNNEL
@@ -373,7 +373,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Set up tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
 
       - name: Build action
         env:

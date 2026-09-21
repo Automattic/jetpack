@@ -24,8 +24,10 @@ export interface StatsReferrersItem extends StatsNormalizedItemBase< StatsReferr
 	actionMenu?: number;
 }
 
-export interface StatsReferrersComparisonItem
-	extends Omit< StatsReferrersItem, 'children' | 'label' > {
+export interface StatsReferrersComparisonItem extends Omit<
+	StatsReferrersItem,
+	'children' | 'label'
+> {
 	/** Always resolved to a display string by the merge helper. */
 	label: string;
 	previousValue?: number;

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Ads: show a dash instead of zero in the Earnings report when a period has no Ads Served count.

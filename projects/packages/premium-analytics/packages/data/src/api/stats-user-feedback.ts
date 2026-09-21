@@ -7,7 +7,7 @@ import { fetchStatsProxy } from './stats-proxy-fetch';
 export type StatsFeedbackRating = 1 | 2 | 3 | 4 | 5;
 
 export type StatsUserFeedback = {
-	rating: StatsFeedbackRating;
+	rating?: StatsFeedbackRating;
 	comment: string;
 	productName: string;
 };
@@ -23,7 +23,7 @@ export type StatsUserFeedback = {
  * co-author's earlier submission silently drops this one. Tracks still has it.
  *
  * @param feedback             - The reader's submission.
- * @param feedback.rating      - Where the reader placed the new tab on the comparison scale.
+ * @param feedback.rating      - Where the reader placed the new tab on the comparison scale, if anywhere.
  * @param feedback.comment     - The reader's message. Must not be empty.
  * @param feedback.productName - The surface being reviewed. Reaches Happiness as the email
  *                             subject line, so it has to stand alone.
@@ -38,7 +38,7 @@ export function submitStatsUserFeedback( { rating, comment, productName }: Stats
 			source_url: window.location.href,
 			product_name: productName,
 			feedback: comment,
-			rating,
+			...( rating === undefined ? {} : { rating } ),
 		},
 	} );
 }

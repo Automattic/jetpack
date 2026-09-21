@@ -28,7 +28,40 @@ export interface WizardInput {
 	goal: GoalSlug;
 	site_name: string;
 	description: string;
+	// The site language. The AI writes the drafts and page intros in it, because those become the
+	// site's own content.
 	locale: string;
+	// The account language of whoever runs the wizard. The AI writes the task subtitles in it,
+	// because those are read in wp-admin and never leave it.
+	ui_locale: string;
+}
+
+/**
+ * Copy the client writes into the site's own posts and pages, already translated into the site
+ * language by `GET /ai-launchpad` (`site.copy`), so it never goes through `__()` here.
+ * The `fallback_*` templates take the site name as their one `%s` placeholder.
+ */
+export interface SiteCopy {
+	about_page_title: string;
+	contact_page_title: string;
+	contact_page_heading: string;
+	contact_form_name_label: string;
+	contact_form_email_label: string;
+	contact_form_message_label: string;
+	events_page_title: string;
+	events_page_heading: string;
+	event_name_placeholder: string;
+	event_details_placeholder: string;
+	video_page_title: string;
+	video_page_heading: string;
+	gallery_page_title: string;
+	gallery_page_heading: string;
+	portfolio_piece_placeholder: string;
+	fallback_site_name: string;
+	fallback_post_title: string;
+	fallback_post_subtitle: string;
+	fallback_post_paragraphs: string[];
+	fallback_about_paragraphs: string[];
 }
 
 export interface TailoredTask {
@@ -43,7 +76,6 @@ export interface TailoredInferred {
 	theme_category?: ThemeCategorySlug;
 	vibe?: string;
 	audience?: string;
-	tagline?: string;
 	// The goal the AI infers from the site name and description alone. Analytics
 	// only: never consumed by tailoring or read-side logic.
 	inferred_goal?: GoalSlug;
@@ -67,10 +99,7 @@ export interface AboutPageDraft {
  * here and in both copies of the schema.
  */
 export type PageIntroTaskId =
-	| 'add_contact_page'
-	| 'add_events_page'
-	| 'add_video_page'
-	| 'add_gallery_page';
+	'add_contact_page' | 'add_events_page' | 'add_video_page' | 'add_gallery_page';
 
 /**
  * Opening lines for the page tasks, keyed by the task id they belong to.

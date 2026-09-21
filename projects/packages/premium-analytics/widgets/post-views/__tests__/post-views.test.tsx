@@ -120,9 +120,9 @@ describe( 'PostViewsWidget', () => {
 		// two in-window days; the 6/25 day falls outside the window.
 		expect( metrics[ 0 ].values ).toEqual( [ 0, 5, 0, 7, 0, 0, 0 ] );
 		// The metric headline is the window total, and the chart type
-		// defaults to line.
+		// defaults to bars.
 		expect( metrics[ 0 ].value ).toBe( 12 );
-		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( 'stats/post/779' );
@@ -161,13 +161,13 @@ describe( 'PostViewsWidget', () => {
 		expect( chartedMetrics( chart )[ 0 ].values ).toEqual( [ 9, 12, 0, 0 ] );
 	} );
 
-	it( 'draws bars when the chartType attribute says so', async () => {
+	it( 'draws a line when the chartType attribute says so', async () => {
 		mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
 
-		render( <PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS, chartType: 'bar' } } /> );
+		render( <PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS, chartType: 'line' } } /> );
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
 	} );
 
 	it( 'ignores comparison report params: one request, single series', async () => {

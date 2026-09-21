@@ -6,8 +6,10 @@ import './style.scss';
 // `children` is omitted: the card renders a fixed set of decorative panes, so
 // there is nowhere to put consumer children. `aria-hidden` is omitted because
 // the component hardcodes it — see the render below.
-export interface DecorativeCardProps
-	extends Omit< ComponentProps< 'div' >, 'children' | 'aria-hidden' > {
+export interface DecorativeCardProps extends Omit<
+	ComponentProps< 'div' >,
+	'children' | 'aria-hidden'
+> {
 	/**
 	 * The format of the card (horizontal or vertical)
 	 */

@@ -603,6 +603,16 @@ class Jetpack_Ai extends Module_Product {
 	}
 
 	/**
+	 * Checks whether the site has switched the product on, respecting the jetpack_ai_enabled filter.
+	 *
+	 * @return boolean
+	 */
+	public static function is_activated() {
+		/** This filter is documented in projects/packages/my-jetpack/src/products/class-jetpack-ai.php */
+		return apply_filters( 'jetpack_ai_enabled', true ) && parent::is_activated();
+	}
+
+	/**
 	 * Whether the 'ai' module backs this product's UI state.
 	 *
 	 * @return bool

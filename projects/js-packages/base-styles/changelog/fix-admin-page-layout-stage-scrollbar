@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin page layout: Clip the wp-build stage so content outside the scrolling area cannot add a second scrollbar.

@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { addFilter, removeFilter } from '@wordpress/hooks';
 import ButtonControls from '../controls';
@@ -73,8 +73,12 @@ beforeEach( () => {
 
 describe( 'Inspector settings', () => {
 	describe( 'Color settings when gradients are not available', () => {
-		test( 'loads and displays Color Settings panel', () => {
+		test( 'loads and displays Color Settings panel', async () => {
 			render( <ButtonControls { ...defaultProps } /> );
+
+			// Drain ariakit's post-mount microtasks. See also https://github.com/testing-library/react-testing-library/pull/1214
+			// eslint-disable-next-line testing-library/no-unnecessary-act -- No user action to wrap; this settles internal ariakit state
+			await act( async () => {} );
 
 			expect(
 				screen.getByRole( 'heading', { name: 'Background & Text Color' } )
@@ -131,8 +135,12 @@ describe( 'Inspector settings', () => {
 	} );
 
 	describe( 'Color settings when gradients are available', () => {
-		test( 'loads and displays Gradient Color Settings panel', () => {
+		test( 'loads and displays Gradient Color Settings panel', async () => {
 			render( <ButtonControls { ...defaultProps } isGradientAvailable={ true } /> );
+
+			// Drain ariakit's post-mount microtasks. See also https://github.com/testing-library/react-testing-library/pull/1214
+			// eslint-disable-next-line testing-library/no-unnecessary-act -- No user action to wrap; this settles internal ariakit state
+			await act( async () => {} );
 
 			expect(
 				screen.getByRole( 'heading', { name: 'Background & Text Color' } )
@@ -206,8 +214,12 @@ describe( 'Inspector settings', () => {
 	} );
 
 	describe( 'Border settings', () => {
-		test( 'loads and displays border radius', () => {
+		test( 'loads and displays border radius', async () => {
 			render( <ButtonControls { ...defaultProps } /> );
+
+			// Drain ariakit's post-mount microtasks. See also https://github.com/testing-library/react-testing-library/pull/1214
+			// eslint-disable-next-line testing-library/no-unnecessary-act -- No user action to wrap; this settles internal ariakit state
+			await act( async () => {} );
 
 			expect( screen.getByText( 'Border Settings' ) ).toBeInTheDocument();
 		} );

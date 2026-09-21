@@ -38,7 +38,7 @@ jobs:
     needs: create-matrix
     services:
       database:
-        image: mariadb:12.0
+        image: ghcr.io/mariadb/mariadb:lts
         env:
           MARIADB_ROOT_PASSWORD: root
         ports:
@@ -76,12 +76,12 @@ jobs:
       # But it doesn't have to be checked out.
       - name: Deepen to merge base
         if: github.event_name == 'pull_request'
-        uses: ./.github/actions/deepen-to-merge-base
+        uses: $/.github/actions/deepen-to-merge-base
         with:
           checkout: false
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           php: ${{ matrix.php }}
           coverage: ${{ case( matrix.coverage-group == 'php', 'pcov', 'none' ) }}
@@ -324,7 +324,7 @@ jobs:
   publish-coverage-data:
     name: Publish coverage data
     runs-on: ubuntu-latest
-    timeout-minutes: 15  # 2026-09-04: Temporary, pnpm/action-setup is taking up to 7 minutes.
+    timeout-minutes: 10 # 2025-11-20 Takes about 2 minutes.
     needs: run-tests
     if: always() && needs.run-tests.outputs.did-coverage == 'true' && github.repository == 'Automattic/jetpack' && ( github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name || github.event_name == 'push' && github.ref == 'refs/heads/trunk' )
     steps:
@@ -333,13 +333,13 @@ jobs:
       - name: Get token
         id: get_token
         if: github.event_name == 'pull_request'
-        uses: ./.github/actions/gh-app-token
+        uses: $/.github/actions/gh-app-token
         with:
           app_id: ${{ secrets.JP_LAUNCH_CONTROL_ID }}
           private_key: ${{ secrets.JP_LAUNCH_CONTROL_KEY }}
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
 
       - name: Download coverage artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
@@ -376,12 +376,12 @@ jobs:
       # But it doesn't have to be checked out.
       - name: Deepen to merge base
         if: github.event_name == 'pull_request'
-        uses: ./.github/actions/deepen-to-merge-base
+        uses: $/.github/actions/deepen-to-merge-base
         with:
           checkout: false
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           php: false
 
@@ -420,11 +420,11 @@ jobs:
   plugin-deps:
     name: Check plugin monorepo dep versions
     runs-on: ubuntu-latest
-    timeout-minutes: 15  # 2026-09-04: Temporary, pnpm/action-setup is taking up to 7 minutes.
+    timeout-minutes: 5 # 2025-11-20: Takes less than a minute.
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           node: false
       - name: Run check

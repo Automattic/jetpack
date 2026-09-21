@@ -23,6 +23,27 @@
 		@media (min-width: 600px) {
 			font-size: var(--wpds-typography-font-size-md);
 		}
+
+		// The attention fill sits behind the label; isolating keeps its negative
+		// z-index inside the button rather than under the page.
+		position: relative;
+		isolation: isolate;
+	}
+
+	// A period set by a navigation, not the reader: the trigger fills with the
+	// brand color and lets it go, the way a pressed preset looks. The outline
+	// focus ring is drawn outside the box, so the fill never covers it.
+	&__attention {
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		border-radius: inherit;
+		background: var(--wpds-color-background-interactive-brand-weak-active);
+		pointer-events: none;
+
+		@media (prefers-reduced-motion: no-preference) {
+			animation: date-period-dropdown-attention var(--date-period-dropdown-attention-duration) ease-out both;
+		}
 	}
 
 	// The only part that gives when the trigger runs short.
@@ -38,10 +59,11 @@
 	}
 
 	// The calendar opens beside the list rather than replacing it, so the panel
-	// is the row holding both.
+	// is the row holding both. Both halves stretch: the seam below is drawn on
+	// the calendar, so a calendar shorter than the list would cut it short.
 	&__panel {
 		display: flex;
-		align-items: flex-start;
+		align-items: stretch;
 	}
 
 	// Owned here rather than by the calendar: it is the seam between the
@@ -67,5 +89,12 @@
 	from {
 		opacity: 0;
 		transform: translateX(calc(-1 * var(--wpds-dimension-size-5xs)));
+	}
+}
+
+@keyframes date-period-dropdown-attention {
+
+	to {
+		opacity: 0;
 	}
 }

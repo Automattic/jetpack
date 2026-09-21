@@ -132,5 +132,6 @@ describe( 'AuthorsWidget', () => {
 
 		expect( url.pathname ).toBe( '/post/123' );
 		expect( url.searchParams.get( 'post_url' ) ).toBe( 'https://example.com/quarterly-update/' );
+		expect( url.searchParams.get( 'ref' ) ).toBe( 'authors' );
 	} );
 } );

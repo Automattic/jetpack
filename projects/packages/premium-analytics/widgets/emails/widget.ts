@@ -10,10 +10,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  */
 import { SelectField } from '@jetpack-premium-analytics/fields';
 
-/**
- * Which rate the leaderboard displays. Rows stay in newest-first order
- * regardless; this only changes the value shown and the overlay bar width.
- */
+/** Which count and rate each row shows. Rows stay in newest-first order either way. */
 export type EmailMetric = 'opens' | 'clicks';
 
 /**
@@ -40,11 +37,11 @@ export default {
 			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'By open rate', 'jetpack-premium-analytics-pkg' ),
+					label: __( 'Opened', 'jetpack-premium-analytics-pkg' ),
 					value: 'opens',
 				},
 				{
-					label: __( 'By click rate', 'jetpack-premium-analytics-pkg' ),
+					label: __( 'Clicked', 'jetpack-premium-analytics-pkg' ),
 					value: 'clicks',
 				},
 			],

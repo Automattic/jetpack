@@ -28,7 +28,7 @@ class Admin_Page {
 	/**
 	 * Slug emitted by `@wordpress/build` (`wpPlugin.pages[0]`). wp-build's
 	 * auto-generated enqueue callback only fires when `$screen->id` matches
-	 * this value, so we alias the screen id to it via `current_screen` without
+	 * this value, so we alias the screen id to it around that check without
 	 * changing the user-facing URL.
 	 */
 	const WP_BUILD_SLUG = 'jetpack-seo-dashboard';
@@ -39,6 +39,20 @@ class Admin_Page {
 	 * `{wpPlugin.name}_{page-with-underscores}_wp_admin_render_page`.
 	 */
 	const WP_BUILD_RENDER_FN = 'jetpack_seo_jetpack_seo_dashboard_wp_admin_render_page';
+
+	/**
+	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
+	 *
+	 * @var string|null
+	 */
+	private static $wp_build_original_screen_id = null;
+
+	/**
+	 * The dashboard screen hide_jitms_on_wp_build_dashboard() opts out of JITMs.
+	 *
+	 * @var string|null
+	 */
+	private static $jitm_opt_out_screen_id = null;
 
 	/**
 	 * Register the admin menu item.
@@ -56,14 +70,23 @@ class Admin_Page {
 			? self::WP_BUILD_RENDER_FN
 			: array( __CLASS__, 'render_fallback' );
 
-		Admin_Menu::add_menu(
+		$page_suffix = Admin_Menu::add_menu(
 			'SEO',
 			'SEO',
 			'manage_options',
 			self::MENU_SLUG,
 			$callback,
-			2
+			null,
+			// SEO has no My Jetpack product class, so the module is the only gate available.
+			array(
+				'module' => 'seo-tools',
+				'key'    => 'jetpack-seo',
+			)
 		);
+
+		if ( $page_suffix ) {
+			self::opt_out_of_jitms( $page_suffix );
+		}
 	}
 
 	/**
@@ -80,8 +103,11 @@ class Admin_Page {
 			return;
 		}
 
+		// Hooked either side of load_wp_build(), so the alias holds only for the generated
+		// enqueue check it registers at the same priority.
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 		self::load_wp_build();
-		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_script_data' ) );
 	}
 
@@ -111,15 +137,65 @@ class Admin_Page {
 	 * Alias the current screen id to wp-build's expected slug so its
 	 * auto-generated enqueue callback fires for our user-facing page.
 	 *
-	 * @param \WP_Screen|null $screen The current screen object (passed by WP).
+	 * @since $$next-version$$ Takes no argument; hooked on `admin_enqueue_scripts`.
+	 *
 	 * @return void
 	 */
-	public static function alias_screen_id_for_wp_build( $screen ) {
-		if ( ! is_object( $screen ) ) {
+	public static function alias_screen_id_for_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
 			return;
 		}
 
-		$screen->id = self::WP_BUILD_SLUG;
+		self::$wp_build_original_screen_id = $screen->id;
+		$screen->id                        = self::WP_BUILD_SLUG;
+	}
+
+	/**
+	 * Undo alias_screen_id_for_wp_build(), so code after the generated check sees the real screen ID.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function restore_screen_id_after_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen || null === self::$wp_build_original_screen_id ) {
+			return;
+		}
+
+		$screen->id                        = self::$wp_build_original_screen_id;
+		self::$wp_build_original_screen_id = null;
+	}
+
+	/**
+	 * Opt the dashboard's screen out of JITMs.
+	 *
+	 * @param string $screen_id The hook suffix the page was registered under, which is its screen ID.
+	 * @return void
+	 */
+	private static function opt_out_of_jitms( $screen_id ) {
+		self::$jitm_opt_out_screen_id = $screen_id;
+		add_filter( 'jetpack_display_jitms_on_screen', array( __CLASS__, 'hide_jitms_on_wp_build_dashboard' ), 10, 2 );
+	}
+
+	/**
+	 * Keep JITMs off the wp-build dashboard, which has no `#jp-admin-notices` to show them in.
+	 *
+	 * Fetching a JITM records a view, so one the page hides would still be counted.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool   $show      Whether to show JITMs on the screen.
+	 * @param string $screen_id The screen ID.
+	 * @return bool
+	 */
+	public static function hide_jitms_on_wp_build_dashboard( $show, $screen_id ) {
+		if ( null !== self::$jitm_opt_out_screen_id && self::$jitm_opt_out_screen_id === $screen_id ) {
+			return false;
+		}
+
+		return $show;
 	}
 
 	/**

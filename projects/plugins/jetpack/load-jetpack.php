@@ -64,7 +64,7 @@ Jetpack_Application_Password_Extras::init();
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-settings.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-feature-flags.php';
 
-require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-recommendations.php';
+\Automattic\Jetpack\Newsletter\Settings::register_feature_flags();
 
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
