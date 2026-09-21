@@ -59,6 +59,23 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * A module listed twice, or one a main feature already switches, would never show where it is listed.
+	 */
+	public function test_module_groups_list_each_module_once_and_skip_main_features() {
+		$grouped = array_merge( ...array_column( Main_Features::get_module_groups(), 'modules' ) );
+		$covered = array_filter(
+			array_map(
+				fn( $feature ) => $feature['module'] ?? $feature['product'] ?? '',
+				Main_Features::get_feature_definitions()
+			)
+		);
+
+		$this->assertSame( array_unique( $grouped ), $grouped );
+		$this->assertSame( array(), array_values( array_intersect( $grouped, $covered ) ) );
+		$this->assertSame( Main_Features::get_module_groups(), Main_Features::get_state()['module_groups'] );
+	}
+
+	/**
 	 * The essential set is what a site is nudged towards, so it is asserted explicitly
 	 * rather than left to whoever edits the catalog next.
 	 */
