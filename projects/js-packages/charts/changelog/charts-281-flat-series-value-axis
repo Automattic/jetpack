@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Bar chart: Give a flat or single-bucket series a value axis with height, so its bars are visible.

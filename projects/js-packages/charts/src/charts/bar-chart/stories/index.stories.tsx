@@ -439,10 +439,7 @@ export const ErrorStates: Story = {
 						data={ [
 							{
 								label: 'Invalid Series',
-								data: [
-									{ date: new Date( 'invalid' ), value: 10, label: 'Invalid Date' },
-									{ date: new Date( '2024-01-02' ), value: null, label: 'Null Value' },
-								],
+								data: [ { date: new Date( 'invalid' ), value: 10 } ],
 								options: {},
 							},
 						] }
@@ -645,6 +642,42 @@ export const ZeroValueComparison: Story = {
 				story:
 					'Comparison showing the difference between disabled and enabled zero value display modes. The feature preserves data integrity by keeping the original value for tooltips while providing visual feedback through minimum bar heights. Zero-value bars remain visible even in small chart heights.',
 			},
+		},
+	},
+};
+
+const siteLaunchedInApril: SeriesData[] = [
+	{
+		label: 'Subscribers',
+		data: [
+			{ date: new Date( 2026, 0, 1 ), value: null },
+			{ date: new Date( 2026, 1, 1 ), value: null },
+			{ date: new Date( 2026, 2, 1 ), value: null },
+			{ date: new Date( 2026, 3, 1 ), value: 0 },
+			{ date: new Date( 2026, 4, 1 ), value: 12 },
+			{ date: new Date( 2026, 5, 1 ), value: 31 },
+			{ date: new Date( 2026, 6, 1 ), value: 58 },
+		],
+	},
+];
+
+export const BucketsWithNoData: Story = {
+	args: {
+		...Default.args,
+		data: siteLaunchedInApril,
+		showZeroValues: true,
+	},
+	argTypes: {
+		// The series-count control swaps in the medal data, which has no gaps to show.
+		seriesCount: { table: { disable: true } },
+	},
+};
+
+BucketsWithNoData.parameters = {
+	docs: {
+		description: {
+			story:
+				'A null value is a bucket with no reading. It keeps its place on the axis so the chart still spans the selected range, draws no bar, and its tooltip reads "No data" rather than zero. April is a real zero: with `showZeroValues` on it keeps a short stub, so a month with none reads differently from a month with no record.',
 		},
 	},
 };

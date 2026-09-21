@@ -330,18 +330,52 @@ describe( 'BarChart', () => {
 			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
 		} );
 
-		test( 'handles null or undefined values', () => {
+		test( 'renders a bucket with no reading instead of failing the whole chart', () => {
 			renderWithTheme( {
 				data: [
 					{
 						label: 'Series A',
 						data: [
 							{ date: new Date( '2024-01-01' ), value: null as number | null, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+						options: {},
+					},
+				],
+			} );
+			expect( screen.queryByText( /invalid data/i ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+		} );
+
+		test( 'draws no bar for a bucket with no reading', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: null as number | null, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+							{ date: new Date( '2024-01-03' ), value: 30, label: 'Jan 3' },
+						],
+						options: {},
+					},
+				],
+			} );
+			expect( getBarRects() ).toHaveLength( 2 );
+		} );
+
+		test( 'still rejects undefined values', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [
 							{
-								date: new Date( '2024-01-02' ),
+								date: new Date( '2024-01-01' ),
 								value: undefined as number | undefined,
-								label: 'Jan 2',
+								label: 'Jan 1',
 							},
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
 						],
 						options: {},
 					},
@@ -1655,6 +1689,90 @@ describe( 'BarChart', () => {
 				expect( tooltip ).toHaveTextContent( 'Previous period' );
 				expect( tooltip ).toHaveTextContent( '25' );
 			} );
+
+			test( 'reports a bucket with no reading as having no data', async () => {
+				const user = userEvent.setup();
+				renderWithTheme( {
+					withTooltips: true,
+					data: [
+						{
+							label: 'Series A',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: null as number | null, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+							],
+							options: {},
+						},
+					],
+				} );
+
+				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				await user.keyboard( '{ArrowRight}' );
+
+				const tooltip = screen.getByTestId( 'chart-tooltip-0' );
+				expect( tooltip ).toHaveTextContent( 'Jan 1: No data' );
+				expect( tooltip ).not.toHaveTextContent( 'Jan 1: 0' );
+			} );
+
+			test( 'keeps both periods in the tooltip when the comparison period has no reading', async () => {
+				const user = userEvent.setup();
+				renderWithTheme( {
+					withTooltips: true,
+					data: [
+						{
+							label: 'This period',
+							group: 'views',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+							],
+						},
+						{
+							label: 'Previous period',
+							group: 'views',
+							options: { type: 'comparison' as const },
+							data: [
+								{ date: new Date( '2024-01-01' ), value: null as number | null, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+							],
+						},
+					],
+				} );
+
+				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				await user.keyboard( '{ArrowRight}' );
+
+				const tooltip = screen.getByTestId( 'chart-tooltip-0' );
+				expect( tooltip ).toHaveTextContent( 'This period: 10' );
+				expect( tooltip ).toHaveTextContent( 'Previous period: No data' );
+			} );
+
+			test( 'draws no comparison shadow for a comparison bucket with no reading', () => {
+				renderWithTheme( {
+					data: [
+						{
+							label: 'This period',
+							group: 'views',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+							],
+						},
+						{
+							label: 'Previous period',
+							group: 'views',
+							options: { type: 'comparison' as const },
+							data: [
+								{ date: new Date( '2024-01-01' ), value: null as number | null, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+							],
+						},
+					],
+				} );
+
+				expect( screen.queryByTestId( 'bar-chart-comparison-1-0' ) ).not.toBeInTheDocument();
+				expect( screen.getByTestId( 'bar-chart-comparison-1-1' ) ).toBeInTheDocument();
+			} );
 		} );
 
 		describe( 'Tab Key Navigation', () => {
@@ -1769,6 +1887,77 @@ describe( 'BarChart', () => {
 				// Verify tooltip is showing (which indicates highlighting is working)
 				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toBeInTheDocument();
 				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
+			} );
+
+			describe( 'with a leading bucket that has no reading', () => {
+				const data = [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: null as number | null, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+							{ date: new Date( '2024-01-03' ), value: 30, label: 'Jan 3' },
+						],
+						options: {},
+					},
+				];
+
+				test( 'outlines nothing when the selected bucket has no bar', async () => {
+					const user = userEvent.setup();
+					renderWithTheme( { withTooltips: true, data } );
+
+					screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+					await user.keyboard( '{ArrowRight}' );
+
+					expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'No data' );
+					expect( screen.queryByTestId( 'bar-chart-keyboard-highlight' ) ).not.toBeInTheDocument();
+				} );
+
+				test( 'outlines the first rendered bar for the first bucket with a reading', async () => {
+					const user = userEvent.setup();
+					renderWithTheme( { withTooltips: true, data } );
+
+					screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+					await user.keyboard( '{ArrowRight}{ArrowRight}' );
+
+					expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( '20' );
+					expect( screen.getByTestId( 'bar-chart-keyboard-highlight' ) ).toHaveTextContent(
+						/\.visx-bar:nth-child\(1\) \{/
+					);
+				} );
+
+				test( 'skips the bars an earlier series left out when outlining a later series', async () => {
+					const user = userEvent.setup();
+					const twoSeries = [
+						{
+							label: 'Series A',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: null as number | null, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+								{ date: new Date( '2024-01-03' ), value: 30, label: 'Jan 3' },
+							],
+							options: {},
+						},
+						{
+							label: 'Series B',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 5, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 15, label: 'Jan 2' },
+								{ date: new Date( '2024-01-03' ), value: 25, label: 'Jan 3' },
+							],
+							options: {},
+						},
+					];
+					renderWithTheme( { withTooltips: true, data: twoSeries } );
+
+					screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+					await user.keyboard( '{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}' );
+
+					expect( screen.getByTestId( 'chart-tooltip-3' ) ).toHaveTextContent( '15' );
+					expect( screen.getByTestId( 'bar-chart-keyboard-highlight' ) ).toHaveTextContent(
+						/\.visx-bar:nth-child\(4\) \{/
+					);
+				} );
 			} );
 		} );
 
