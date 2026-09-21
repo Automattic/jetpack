@@ -10,6 +10,7 @@ import { isDashboardSectionInPreviewScope, isVideoPressAvailable } from '../site
 // Import from `config/tabs` directly, not the `config` barrel — it re-exports JSX,
 // and `route.ts` imports this registry in `beforeLoad`, which must stay React-free.
 import { resolveTabId as resolveCommentsTabId } from './comments/config/tabs';
+import { resolveSection as resolveEarningsSection } from './earnings/config/tabs';
 import { resolveSection as resolveLocationsSection } from './locations/config/tabs';
 import { resolveTabId } from './posts/config/tabs';
 import { resolveSection as resolveUtmSection } from './utm/config/tabs';
@@ -127,6 +128,7 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		dashboardSection: 'ads',
 		getLabel: () => __( 'Earnings history', 'jetpack-premium-analytics-pkg' ),
 		getTitle: () => __( 'Earnings history report', 'jetpack-premium-analytics-pkg' ),
+		resolveSection: resolveEarningsSection,
 		load: () => import( './earnings/page' ),
 	},
 	emails: {

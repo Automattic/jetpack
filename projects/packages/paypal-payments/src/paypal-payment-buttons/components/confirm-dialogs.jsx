@@ -65,13 +65,51 @@ export function DeleteLinkDialog( { onConfirm, onCancel } ) {
 }
 
 /**
- * The confirmation dialogs for destructive actions — delete and disconnect.
+ * The account menu's log-out confirmation.
+ *
+ * The same disconnect the PayPal Connection panel runs, worded for the menu.
+ *
+ * @param {object}   props           - Component props.
+ * @param {Function} props.onConfirm - Log out of PayPal.
+ * @param {Function} props.onCancel  - Close without logging out.
+ * @return {Element} The dialog.
+ */
+export function LogOutDialog( { onConfirm, onCancel } ) {
+	return (
+		<Modal
+			title={ __( 'Log out from PayPal', 'jetpack-paypal-payments' ) }
+			onRequestClose={ onCancel }
+			size="medium"
+			className="jetpack-paypal-payment-buttons__log-out-dialog"
+		>
+			<p>
+				{ __(
+					'You won’t be able to add, edit, or view payment buttons while using WordPress after you log out of PayPal.',
+					'jetpack-paypal-payments'
+				) }
+			</p>
+			<div className="jetpack-paypal-payment-buttons__log-out-dialog-actions">
+				<Button __next40pxDefaultSize variant="tertiary" onClick={ onCancel }>
+					{ __( 'Cancel', 'jetpack-paypal-payments' ) }
+				</Button>
+				<Button __next40pxDefaultSize variant="primary" onClick={ onConfirm }>
+					{ __( 'Log out', 'jetpack-paypal-payments' ) }
+				</Button>
+			</div>
+		</Modal>
+	);
+}
+
+/**
+ * The confirmation dialogs for destructive actions — delete, disconnect and log out.
  *
  * @param {object}   props                          - Component props.
  * @param {boolean}  props.showDeleteConfirm        - Whether the delete confirmation is open.
  * @param {Function} props.setShowDeleteConfirm     - Setter for the delete confirmation.
  * @param {boolean}  props.showDisconnectConfirm    - Whether the disconnect confirmation is open.
  * @param {Function} props.setShowDisconnectConfirm - Setter for the disconnect confirmation.
+ * @param {boolean}  props.showLogOutConfirm        - Whether the log-out confirmation is open.
+ * @param {Function} props.setShowLogOutConfirm     - Setter for the log-out confirmation.
  * @param {Function} props.executeDeleteButton      - Delete the payment after the user confirms.
  * @param {Function} props.executeDisconnect        - Disconnect PayPal after the user confirms.
  * @return {Element} The confirmation dialogs.
@@ -81,11 +119,22 @@ export default function ConfirmDialogs( {
 	setShowDeleteConfirm,
 	showDisconnectConfirm,
 	setShowDisconnectConfirm,
+	showLogOutConfirm,
+	setShowLogOutConfirm,
 	executeDeleteButton,
 	executeDisconnect,
 } ) {
 	return (
 		<>
+			{ showLogOutConfirm && (
+				<LogOutDialog
+					onConfirm={ () => {
+						setShowLogOutConfirm( false );
+						executeDisconnect();
+					} }
+					onCancel={ () => setShowLogOutConfirm( false ) }
+				/>
+			) }
 			{ showDeleteConfirm && (
 				<DeleteLinkDialog
 					onConfirm={ executeDeleteButton }

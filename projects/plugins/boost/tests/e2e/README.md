@@ -50,7 +50,7 @@ However, Boost has some shortcuts to get the environment started and run all the
 
 ## History tooltip rendering regression
 
-`specs/base/history-tooltip-overlap.test.ts` bundles the production history card, Charts, and dashboard styles with deterministic data. It uses the runner's Chromium and includes My Jetpack's global tooltip styles to check both daily bar charts, recorded-day tooltip scores and dots, empty days, and narrow-screen tooltip bounds.
+`specs/base/history-tooltip-overlap.test.ts` bundles the production history card, Charts, and dashboard styles with deterministic data. It uses the runner's Chromium and includes My Jetpack's global tooltip styles to check both daily bar charts, the recorded-day popover's scores, dots and hoverability, empty days, and narrow-screen bounds.
 
 After installing the monorepo dependencies, run it without WordPress or authentication setup from this directory:
 
@@ -159,6 +159,6 @@ Open `/wp-admin/admin.php?page=jetpack-boost`. Restore the default dashboard wit
 pnpm jetpack docker --type e2e --name t1 wp -- plugin deactivate e2e-dashboard-modernization
 ```
 
-Run the foundation smoke tests from this directory with
+Run the modern dashboard foundation and feature tests from this directory with
 `pnpm test:run specs/modernization`. CI discovers this directory through
 `.github/files/e2e-tests/e2e-matrix.js`.

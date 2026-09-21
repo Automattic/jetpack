@@ -75,6 +75,7 @@ class Media extends Component {
 				module={ videoPress }
 				support={ {
 					link: getRedirectUrl( 'jetpack-support-videopress' ),
+					wpcomLink: 'https://wordpress.com/support/videopress/',
 				} }
 			>
 				<FormLegend className="jp-form-label-wide">{ __( 'VideoPress', 'jetpack' ) }</FormLegend>

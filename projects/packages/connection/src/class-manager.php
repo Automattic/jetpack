@@ -40,6 +40,21 @@ class Manager {
 	const SITE_DATA_TRANSIENT_PREFIX = 'jetpack_site_data_';
 
 	/**
+	 * Why `has_protected_owner()` answered false, and what would change it.
+	 *
+	 * `RE_EVALUATE` is the race: the gate said false, and by the time the state was classified the
+	 * owner matched after all. It is not a problem to report, it is an instruction to ask again.
+	 *
+	 * @since 9.4.0
+	 */
+	const PO_STATE_NOT_ELIGIBLE               = 'NOT_ELIGIBLE';
+	const PO_STATE_NEEDS_CONNECT_TO_ESTABLISH = 'NEEDS_CONNECT_TO_ESTABLISH';
+	const PO_STATE_CAN_ESTABLISH              = 'CAN_ESTABLISH';
+	const PO_STATE_NEEDS_OWNER_RECONNECT      = 'NEEDS_OWNER_RECONNECT';
+	const PO_STATE_NEEDS_DIFFERENT_OWNER      = 'NEEDS_DIFFERENT_OWNER';
+	const PO_STATE_RE_EVALUATE                = 'RE_EVALUATE';
+
+	/**
 	 * A copy of the raw POST data for signature verification purposes.
 	 *
 	 * @var string
@@ -173,6 +188,7 @@ class Manager {
 		Webhooks::init( $manager );
 
 		add_action( 'pre_update_jetpack_option_user_tokens', array( $manager, 'unbind_wpcom_user_ids_for_new_tokens' ), 10, 2 );
+		add_action( 'jetpack_user_authorized', array( $manager, 'promote_protected_owner_on_connect' ) );
 
 		// Unlink user before deleting the user from WP.com.
 		add_action( 'deleted_user', array( $manager, 'disconnect_user_force' ), 9, 1 );
@@ -1382,6 +1398,106 @@ class Manager {
 		}
 
 		return $this->resolve_wpcom_user_id( $owner_id ) === (int) $anchor['wpcom_user_id'];
+	}
+
+	/**
+	 * Classify why `has_protected_owner()` answered false, and what would change it.
+	 *
+	 * Deliberately inspects only what the gate inspects — the anchor and the current connection
+	 * owner — so the two can never disagree about the same site. Anything needing a user search or
+	 * a reachability probe is a different question and is not answered here.
+	 *
+	 * `is_current_user_the_po` reads the current user's own stored binding, never a search for
+	 * whoever holds the anchored ID, so it cannot be confused by a second user carrying the same
+	 * meta, and never costs a network call. It is a hint for copy, not a gate.
+	 *
+	 * @since 9.4.0
+	 *
+	 * @return array{status: string, is_current_user_the_po: bool}
+	 */
+	public function resolve_protected_owner_state() {
+		$anchor     = Protected_Owner::get_locked();
+		$current_id = get_current_user_id();
+
+		// Only meaningful against an anchor: with none, there is nothing for the user to be.
+		// Reads the stored binding rather than resolving it, so classifying a state never costs a
+		// WordPress.com round trip. An unbound user reads as false and gets the generic copy.
+		$is_current_user_the_po = $anchor
+			&& Utils::get_wpcom_user_id( $current_id ) === (int) $anchor['wpcom_user_id'];
+
+		if ( ! $anchor ) {
+			$roles = new Roles();
+
+			if ( ! current_user_can( 'jetpack_connect' ) || ! current_user_can( $roles->translate_role_to_cap( 'administrator' ) ) ) {
+				// Eligibility is being an admin, not holding the master slot.
+				$status = self::PO_STATE_NOT_ELIGIBLE;
+			} elseif ( ! $this->is_user_connected( $current_id ) ) {
+				// A WordPress.com identity has to exist before it can be confirmed and locked.
+				$status = self::PO_STATE_NEEDS_CONNECT_TO_ESTABLISH;
+			} else {
+				$status = self::PO_STATE_CAN_ESTABLISH;
+			}
+		} else {
+			$owner_id       = $this->get_connection_owner_id();
+			$owner_wpcom_id = $owner_id ? $this->resolve_wpcom_user_id( $owner_id ) : 0;
+
+			if ( ! $owner_wpcom_id ) {
+				// A zero is "could not determine", never "does not match", so an owner whose
+				// identity cannot be confirmed is reported as needing to reconnect, not replaced.
+				$status = self::PO_STATE_NEEDS_OWNER_RECONNECT;
+			} elseif ( $owner_wpcom_id !== (int) $anchor['wpcom_user_id'] ) {
+				// Legitimate, not broken: the first admin to connect takes a vacant master slot,
+				// so an agency can hold it while the protected owner is away.
+				$status = self::PO_STATE_NEEDS_DIFFERENT_OWNER;
+			} else {
+				$status = self::PO_STATE_RE_EVALUATE;
+			}
+		}
+
+		return array(
+			'status'                 => $status,
+			'is_current_user_the_po' => $is_current_user_the_po,
+		);
+	}
+
+	/**
+	 * Re-point the connection owner at the protected owner when they connect.
+	 *
+	 * Local only: it promotes an owner WordPress.com has already confirmed, and never establishes.
+	 * The binding is resolved rather than read because the token written moments earlier
+	 * invalidated any stored one.
+	 *
+	 * @internal Hooked on `jetpack_user_authorized`.
+	 * @since $$next-version$$
+	 */
+	public function promote_protected_owner_on_connect() {
+		$anchor = Protected_Owner::get_locked();
+
+		if ( ! $anchor ) {
+			return;
+		}
+
+		$user_id = get_current_user_id();
+
+		if ( ! $user_id ) {
+			return;
+		}
+
+		// `jetpack_connect_user` drops to `read` once an owner exists, so any user can authorize.
+		if ( ! user_can( $user_id, ( new Roles() )->translate_role_to_cap( 'administrator' ) ) ) {
+			return;
+		}
+
+		if ( $this->resolve_wpcom_user_id( $user_id ) !== (int) $anchor['wpcom_user_id'] ) {
+			return;
+		}
+
+		// The cached local ID moves with the owner even when the master slot already agrees.
+		Protected_Owner::repoint( $user_id );
+
+		if ( (int) \Jetpack_Options::get_option( 'master_user' ) !== $user_id ) {
+			\Jetpack_Options::update_option( 'master_user', $user_id );
+		}
 	}
 
 	/**

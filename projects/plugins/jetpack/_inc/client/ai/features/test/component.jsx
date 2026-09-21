@@ -9,7 +9,7 @@ import AiFeatures from '../index';
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
 
 describe( 'AiFeatures rendering', () => {
-	const renderFeatures = ( overrides = {} ) =>
+	const renderFeatures = ( { isUserConnected = true, ...overrides } = {} ) =>
 		render(
 			<AiFeatures
 				settings={ {
@@ -21,6 +21,7 @@ describe( 'AiFeatures rendering', () => {
 					},
 					...overrides,
 				} }
+				isUserConnected={ isUserConnected }
 				savingKeys={ new Set() }
 				onUpdate={ jest.fn() }
 			/>
@@ -71,14 +72,6 @@ describe( 'AiFeatures rendering', () => {
 
 		expect( screen.queryByRole( 'region' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'separator' ) ).not.toBeInTheDocument();
-	} );
-
-	test( 'the connect notice survives the card disappearing', () => {
-		renderFeatures( { is_connected: false, features: {} } );
-
-		// The notice lives outside the card and must not go down with it.
-		expect( screen.getByText( 'Jetpack is not connected to WordPress.com.' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'region' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'the AI SEO row renders from the ai_seo feature key inside the SEO group', () => {
@@ -195,14 +188,8 @@ describe( 'AiFeatures rendering', () => {
 		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'not connected: connect notice, toggles keep saved values but disable, links and badge hidden', () => {
+	test( 'not connected: toggles keep saved values but disable, links and badge hidden', () => {
 		renderFeatures( { is_connected: false } );
-
-		expect( screen.getByText( 'Jetpack is not connected to WordPress.com.' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Connect Jetpack' } ) ).toHaveAttribute(
-			'href',
-			'admin.php?page=my-jetpack#/connection'
-		);
 
 		// The saved value stays visible — the toggle must not misreport it as off.
 		const toggle = screen.getByRole( 'checkbox', { name: /Writing Assistant/ } );
@@ -215,17 +202,8 @@ describe( 'AiFeatures rendering', () => {
 		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'user not linked: connect notice, toggles keep saved values but disable, links and badge hidden', () => {
-		renderFeatures( { is_connected: true, is_user_connected: false } );
-
-		expect( screen.getByText( 'Your WordPress.com account isn’t connected.' ) ).toBeInTheDocument();
-		expect(
-			screen.getByRole( 'link', { name: 'Connect your user account to manage AI features.' } )
-		).toHaveAttribute( 'href', 'admin.php?page=my-jetpack#/connection' );
-		// The site is connected, so the site-level ask must not show as well.
-		expect(
-			screen.queryByText( 'Jetpack is not connected to WordPress.com.' )
-		).not.toBeInTheDocument();
+	test( 'user not linked: toggles keep saved values but disable, links and badge hidden', () => {
+		renderFeatures( { isUserConnected: false } );
 
 		const toggle = screen.getByRole( 'checkbox', { name: /Writing Assistant/ } );
 		expect( toggle ).toBeChecked();
@@ -235,22 +213,10 @@ describe( 'AiFeatures rendering', () => {
 		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'is_user_connected absent: no user notice, toggles stay usable', () => {
+	test( 'no account answer yet: toggles stay usable', () => {
 		renderFeatures( { is_connected: true } );
 
-		expect(
-			screen.queryByText( 'Your WordPress.com account isn’t connected.' )
-		).not.toBeInTheDocument();
 		expect( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) ).toBeEnabled();
-	} );
-
-	test( 'site and user both unlinked: only the site notice shows', () => {
-		renderFeatures( { is_connected: false, is_user_connected: false } );
-
-		expect( screen.getByText( 'Jetpack is not connected to WordPress.com.' ) ).toBeInTheDocument();
-		expect(
-			screen.queryByText( 'Your WordPress.com account isn’t connected.' )
-		).not.toBeInTheDocument();
 	} );
 
 	// A plan without paid Jetpack AI still has the free tier (every connected
@@ -304,10 +270,10 @@ describe( 'AiFeatures rendering', () => {
 
 	// Gated toggles must be inert, not merely styled disabled.
 	test.each( [
-		[ 'not connected', { is_connected: false } ],
-		[ 'user not linked', { is_user_connected: false } ],
-		[ 'master off', { master_enabled: false } ],
-	] )( '%s fires no save and no Tracks event', async ( _label, overrides ) => {
+		[ 'not connected', { is_connected: false }, true ],
+		[ 'user not linked', {}, false ],
+		[ 'master off', { master_enabled: false }, true ],
+	] )( '%s fires no save and no Tracks event', async ( _label, overrides, isUserConnected ) => {
 		analytics.tracks.recordEvent.mockClear();
 		const onUpdate = jest.fn().mockResolvedValue( true );
 		render(
@@ -318,6 +284,7 @@ describe( 'AiFeatures rendering', () => {
 					features: { writing_assistant: { enabled: true } },
 					...overrides,
 				} }
+				isUserConnected={ isUserConnected }
 				savingKeys={ new Set() }
 				onUpdate={ onUpdate }
 			/>

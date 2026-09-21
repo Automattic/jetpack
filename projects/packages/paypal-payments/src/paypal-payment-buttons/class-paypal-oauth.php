@@ -595,6 +595,7 @@ class PayPal_OAuth {
 	 *     @type string $environment                 Current environment ('sandbox' or 'production').
 	 *     @type string $onboarding_method           How the merchant connected, when that is known.
 	 *     @type string $merchant_id                 The merchant's PayPal ID, when that is known.
+	 *     @type string $account_email               The merchant's PayPal email, when that is known.
 	 *     @type bool   $partner_referrals_available Whether this site can start onboarding through WordPress.com.
 	 * }
 	 */
@@ -613,6 +614,12 @@ class PayPal_OAuth {
 		$merchant_id = get_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, '' );
 		if ( ! empty( $merchant_id ) ) {
 			$status['merchant_id'] = $merchant_id;
+		}
+
+		// Partner Referrals merchants only; the account menu shows it under Log out.
+		$account_email = get_option( PayPal_Partner_Onboarding::MERCHANT_EMAIL_OPTION_KEY, '' );
+		if ( ! empty( $account_email ) ) {
+			$status['account_email'] = $account_email;
 		}
 
 		// Partner Referrals goes through WordPress.com: on WordPress.com the call is

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix the VideoPress block failing to load in the editor on WordPress.com-hosted sites.

@@ -4,6 +4,65 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 3.5 - 2026-09-18
+### Added
+- Add a "Learn more" support link to the admin page. [#52111]
+- Add a setting to render players in the page from one shared player script instead of one frame per video. [#52244]
+- Add a site-wide setting to turn off player preloading for every embed. [#51991]
+- Connection: Surface SSL certificate verification failures reported by WordPress.com as a connection error notice. [#52035]
+- Invite the first upload with a dropzone when the video library is empty. [#51717]
+- My Jetpack: Allow the Automattic for Agencies banner to be dismissed. [#51441]
+- With the inline player setting on, show each video's poster and load the player only when it is played. [#52011]
+- With the shared player setting on, the block editor previews video blocks with the same shared player instead of one frame per block. [#52052]
+
+### Changed
+- Boost: Wait up to four minutes for slow speed tests in My Jetpack instead of timing out after two. [#51605]
+- Charts: follow the WordPress admin color scheme for chart series colors. [#51535]
+- Charts: update chart grid, axis and label colors immediately when the theme changes. [#51687]
+- Connection: Show every connection error in one notice, each with the account it affects, and link to Site Health when a firewall is blocking WordPress.com. [#51504]
+- Dashboard: Display video library thumbnails in a 16:9 aspect ratio. [#52318]
+- Dashboard: Open the file picker directly from the welcome modal's Upload a video button, then land on the Library to follow the upload's progress. [#51791]
+- Hide the VideoPress sidebar item when VideoPress is not active. [#52156]
+- My Jetpack: Restyle dashboard notices to match the WordPress design system. [#52290]
+- My Jetpack: Show the dashboard in the new rounded admin page frame. [#52446]
+- My Jetpack: Show the Jetpack menu notification badge when a connection error is detected. [#52332]
+- Sidebar: sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+- Update package dependencies. [#51701]
+- Update package dependencies. [#51802]
+- Update package dependencies. [#52187]
+- VideoPress: refine the welcome modal type scale, match the upload dropzone text to the design system's empty state, and drop the duplicate header Upload button while the empty-library dropzone is showing. [#52061]
+
+### Fixed
+- Activity Log: Fix the page overlapping the admin menu in right-to-left languages. [#51963]
+- Activity Log: honor the module setting, so the page can be turned off. [#52409]
+- Admin dashboards: Keep the page header and content in view when the wp-admin menu is taller than the window. [#51696]
+- Avoid free-plan limits and upgrade prompts when site features cannot be loaded. [#52050]
+- Charts: Fix unreadable axis labels in forced-colors mode. [#52268]
+- Charts: keep chart tooltips under sticky and fixed page elements. [#51640]
+- Charts: Place line and area chart date ticks on the site's time zone boundaries, name the hour in tooltips on hourly data, and read hour labels in the site's own locale rather than a forced 12-hour clock. [#51813]
+- Charts: Restore keyboard focus after dismissing line chart tooltips. [#52284]
+- Charts: Stop the first and last dates on a chart's horizontal axis from being cut off. [#52112]
+- Connection: Fix a stale connection error notice that could persist on healthy sites. [#52264]
+- Connection: Hide connection error notices from users who cannot fix the connection. [#52049]
+- Dashboard: Continue the wp-admin menu color behind the page frame on WordPress.com and third-party admin color schemes. [#51619]
+- Dashboard: Keep the video editor footer at the bottom of the page. [#52489]
+- Dashboard: Make the welcome=1 review parameter reopen the welcome modal after it has been dismissed. [#51791]
+- Fix selecting thumbnail frames from private videos and prefer browser-compatible video renditions. [#52158]
+- Fix the dashboard rendering blank on WordPress 7.0.x, where the welcome modal crashed on the missing public ThemeProvider export. [#51847]
+- Fix the VideoPress block failing to load in the editor on WordPress.com-hosted sites. [#52362]
+- JITM: Fix missing messages and a console error on sites without the Jetpack plugin active. [#51733]
+- Keep admin icons colored after the @wordpress/icons 16 update, which draws them as strokes. [#52187]
+- Keep keyboard focus on the first or last data point when an arrow key reaches the end of the views trends chart, return focus to the chart when Escape closes a tooltip, stop a focused chart from swallowing keys it does not use such as Page Down, and close the tooltip when the series it describes is hidden. [#50140]
+- My Jetpack: Keep the Automattic for Agencies banner hidden after dismissing it and switching tabs. [#51441]
+- My Jetpack: Show the right product status as soon as fresher plan data is available, instead of reusing an earlier lookup. [#52009]
+- My Jetpack: Stop repeating the partner lookup request on every page load. [#51441]
+- Playlist block: Wrap long unbroken video titles and decode HTML entities in titles on the front end. [#51849]
+- Say when a video upload failed because of a Jetpack connection problem, instead of only "Upload failed". [#51541]
+- Say when a video upload from the Video block failed because of a Jetpack connection problem, instead of only "Failed to upload your video". [#51541]
+- Show the Jetpack connection error notice on the VideoPress dashboard again. [#51541]
+- Status: Detect a site served on any 127.0.0.0/8 loopback address, or on 0.0.0.0, as a local site. [#51311]
+- Stop the dashboard frame from flashing while loading and when switching admin pages. [#52235]
+
 ## 3.4.1 - 2026-08-26
 ### Added
 - Add a first-run welcome modal to the dashboard. [#51520]

@@ -1,10 +1,10 @@
-import { Button } from '@automattic/jetpack-components';
 import { DataSyncProvider, queryClient } from '@automattic/jetpack-react-data-sync-client';
 import { createRoot } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { observeLegacyModulesState } from '../../../../_inc/overview/lib/modules-state-bridge';
 import { OVERVIEW_UPGRADE_EVENT } from '../../../../_inc/overview/lib/upgrade-bridge';
-import LicenseKeyLink from './features/upgrade-cta/license-key-link';
+import { licenseKeyHref, useCanRedeemLicenseKey } from './features/upgrade-cta/license-key-link';
 import './modern-overview-upgrade.scss';
 import { recordBoostEvent, recordBoostEventAndRedirect } from './lib/utils/analytics';
 import type { MouseEvent } from 'react';
@@ -26,6 +26,13 @@ async function handleUpgrade( event: MouseEvent< HTMLAnchorElement > ) {
 	);
 }
 
+function OverviewLicenseKeyLink() {
+	if ( ! useCanRedeemLicenseKey() ) {
+		return null;
+	}
+	return <Link href={ licenseKeyHref }>{ __( 'Use license key', 'jetpack-boost' ) }</Link>;
+}
+
 window.addEventListener( OVERVIEW_UPGRADE_EVENT, ( event: Event ) => {
 	const request = ( event as CustomEvent< UpgradeSlotRequest > ).detail;
 	let disposed = false;
@@ -43,12 +50,12 @@ window.addEventListener( OVERVIEW_UPGRADE_EVENT, ( event: Event ) => {
 		root = createRoot( request.container );
 		root.render(
 			<DataSyncProvider>
-				<div className="jb-modern-upgrade-actions">
-					<Button href="admin.php?page=my-jetpack#/add-boost" onClick={ handleUpgrade }>
+				<span className="jb-modern-upgrade-actions">
+					<Link href="admin.php?page=my-jetpack#/add-boost" onClick={ handleUpgrade }>
 						{ __( 'Upgrade now', 'jetpack-boost' ) }
-					</Button>
-					<LicenseKeyLink />
-				</div>
+					</Link>
+					<OverviewLicenseKeyLink />
+				</span>
 			</DataSyncProvider>
 		);
 	} );

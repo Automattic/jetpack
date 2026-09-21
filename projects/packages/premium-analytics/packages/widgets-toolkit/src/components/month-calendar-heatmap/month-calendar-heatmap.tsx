@@ -3,6 +3,7 @@
  */
 import {
 	HeatmapChart,
+	Icon,
 	Stack,
 	useMonthCalendarHeatmapData,
 	type HeatmapTooltipData,
@@ -30,6 +31,8 @@ export type MonthCalendarHeatmapProps = {
 	formatValue: ( value: number ) => string;
 	/** Shown in the tooltip in place of a value when there is none. */
 	emptyLabel: string;
+	/** Drawn beside the count in the tooltip, naming what it counts. */
+	icon?: React.ComponentProps< typeof Icon >[ 'icon' ];
 	/** Label at the low end of the legend scale. */
 	lessLabel: string;
 	/** Label at the high end of the legend scale. */
@@ -47,6 +50,7 @@ export function MonthCalendarHeatmap( {
 	ariaLabel,
 	formatValue,
 	emptyLabel,
+	icon,
 	lessLabel,
 	moreLabel,
 }: MonthCalendarHeatmapProps ) {
@@ -71,9 +75,10 @@ export function MonthCalendarHeatmap( {
 				cellLabel={ cellLabel }
 				emptyLabel={ emptyLabel }
 				formatValue={ formatValue }
+				icon={ icon }
 			/>
 		),
-		[ emptyLabel, formatValue ]
+		[ emptyLabel, formatValue, icon ]
 	);
 
 	return (
@@ -86,11 +91,12 @@ export function MonthCalendarHeatmap( {
 				ariaLabel={ ariaLabel }
 				primaryColor="var(--wp-admin-theme-color, #3858e9)"
 				withTooltips
+				tooltipVariant="dark"
 				renderTooltip={ renderTooltip }
 				className={ styles.chart }
 			>
 				<Stack direction="row" justify="center" className={ styles.legend }>
-					<HeatmapChart.Legend lessLabel={ lessLabel } moreLabel={ moreLabel } />
+					<HeatmapChart.Legend variant="bar" lessLabel={ lessLabel } moreLabel={ moreLabel } />
 				</Stack>
 			</HeatmapChart>
 		</div>
