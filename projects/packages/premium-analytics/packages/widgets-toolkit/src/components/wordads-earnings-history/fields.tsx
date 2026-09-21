@@ -170,18 +170,11 @@ export function EarningsStatusBadge( { status }: { status: number | undefined } 
 	const { label, tooltip, intent, detail } = getEarningsStatus( status );
 
 	if ( detail ) {
-		// The same hover-or-click tip as a report chart's help icon; the
-		// components Tooltip waits on a long hover and ignores clicks.
+		// The same click-open tip as the widget header's info icon.
 		return (
 			<span className={ styles.root }>
-				<Popover.Root>
-					<Popover.Trigger
-						openOnHover
-						delay={ 200 }
-						closeDelay={ 200 }
-						aria-label={ detail }
-						className={ styles.info }
-					>
+				<Popover.Root modal="trap-focus">
+					<Popover.Trigger aria-label={ detail } className={ styles.info }>
 						<Icon icon={ info } size={ 16 } />
 					</Popover.Trigger>
 					<Popover.Popup className={ styles.popup }>
