@@ -1197,10 +1197,9 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Hook the screen-id alias before load_wp_build() and the restore after, at
-	 * the same priority as wp-build's generated enqueue check, so exactly one
-	 * callback sees the aliased ID.
+	 * Load wp-build with the screen ID aliased across its generated enqueue check.
 	 *
+	 * @see WP_Build_Screen_Id::load_with_alias()
 	 * @return void
 	 */
 	private static function load_wp_build_with_screen_alias() {
