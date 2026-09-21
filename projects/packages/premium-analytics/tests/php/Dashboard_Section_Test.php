@@ -1806,6 +1806,21 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The package registers into the registry the action hands over, not only the main instance.
+	 */
+	public function test_built_in_sections_register_into_the_hydrating_registry() {
+		$registry = new Dashboard_Section_Registry();
+
+		$this->assertInstanceOf(
+			Dashboard_Section::class,
+			$registry->get_registered( DASHBOARD_NAME, 'analytics/traffic' )
+		);
+		$this->assertFalse(
+			Dashboard_Section_Registry::get_instance()->is_registered( DASHBOARD_NAME, 'analytics/traffic' )
+		);
+	}
+
+	/**
 	 * A read before init is a _doing_it_wrong() that answers empty and leaves the latch open.
 	 */
 	public function test_read_before_init_does_not_hydrate_the_registry() {

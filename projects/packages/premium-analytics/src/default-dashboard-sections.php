@@ -486,10 +486,16 @@ function get_ads_section_default_layout() {
 /**
  * Registers the default Premium Analytics dashboard sections.
  *
+ * Hooked on the registration action and safe to call directly: a section already registered
+ * is skipped.
+ *
+ * @param Dashboard_Section_Registry|null $registry Optional. The registry being hydrated. Defaults to the main instance.
  * @return void
  */
-function register_default_dashboard_sections() {
-	$registry = Dashboard_Section_Registry::get_instance();
+function register_default_dashboard_sections( $registry = null ) {
+	if ( ! $registry instanceof Dashboard_Section_Registry ) {
+		$registry = Dashboard_Section_Registry::get_instance();
+	}
 
 	$sections = array(
 		'analytics/traffic'     => array(
@@ -549,18 +555,16 @@ function register_default_dashboard_sections() {
 				'with_date_comparison'     => false,
 				'with_header_date_control' => false,
 			),
-
 			'default_layout'      => __NAMESPACE__ . '\\get_ads_section_default_layout',
 		),
 	);
 
 	foreach ( $sections as $id => $args ) {
 		if ( ! $registry->is_registered( DASHBOARD_NAME, $id ) ) {
-			register_dashboard_section( DASHBOARD_NAME, $id, $args );
+			$registry->register( DASHBOARD_NAME, $id, $args );
 		}
 	}
 }
 
-// Registered when the registry hydrates, through the same action a plugin extending the
-// dashboard uses. The callback skips sections already registered, so a direct call is safe too.
+// Registered when the registry hydrates, through the same action a plugin extending the dashboard uses.
 add_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
