@@ -1,8 +1,10 @@
 /* The height chain from the tile down: WidgetState's blocks are 100%, so is
- * this, and the chart below fills it rather than hugging its rows. The tooltip
- * is a one-line pill, so it takes the compact padding of a plain tooltip; the
- * chart reads it inline, and only a stylesheet gets the token fallbacks. */
+ * this, and the chart below fills it rather than hugging its rows. */
 .root {
+
+	/* The tooltip is a one-line pill, so it takes the compact padding of a plain
+	 * tooltip; the chart reads it inline, and only a stylesheet gets the token
+	 * fallbacks. */
 	--jpa-heatmap-tooltip-padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
 
 	block-size: 100%;
@@ -19,7 +21,7 @@
 	z-index: 1;
 	box-shadow:
 		0 0 0 1px color-mix(in sRGB, var(--a8c-charts-color-surface) 60%, transparent),
-		0 2px 8px rgba(0, 0, 0, 0.24);
+		var(--a8c-charts-elevation-sm);
 }
 
 /* A height-capped chart sizes itself to its rows. Here it fills the tile so
@@ -30,11 +32,12 @@
 }
 
 /* `align-content: start`: the label row is the grid's only auto track, so
- * stretching would hand it the leftover height.
- * Each row is one contiguous band: no gap between cells and no rounding, with
- * the totals column flush against December. Scoped to the grid so the legend
- * keeps the rounded band the radius token also shapes. */
+ * stretching would hand it the leftover height. */
 .root .chart [role="grid"] {
+
+	/* Each row is one contiguous band: no gap between cells and no rounding, with
+	 * the totals column flush against December. Scoped to the grid so the legend
+	 * keeps the rounded band the radius token also shapes. */
 	--a8c-charts-dimension-heatmap-cell-gap: 0px;
 	--a8c-charts-border-radius-cell: 0;
 
@@ -68,7 +71,9 @@
 .root .chart [role="row"][aria-hidden="true"] > span,
 .root .chart [role="row"][aria-rowindex] > span:first-child {
 	position: sticky;
-	z-index: 1;
+
+	/* Above a hovered cell (1); the tooltip (3) comes later in the DOM. */
+	z-index: 2;
 	font-size: var(--wpds-typography-font-size-md);
 	line-height: var(--jpa-heatmap-label-row);
 
@@ -109,5 +114,5 @@
 
 .root .chart [role="row"][aria-hidden="true"] > span:first-child {
 	inset-inline-start: 0;
-	z-index: 2;
+	z-index: 3;
 }
