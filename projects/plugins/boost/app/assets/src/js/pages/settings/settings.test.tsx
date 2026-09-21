@@ -78,6 +78,7 @@ describe( 'Settings', () => {
 		expect( modulesIn( 'Cornerstone pages' ) ).toEqual( [ 'prerender' ] );
 		expect( screen.getAllByRole( 'heading', { name: 'Cornerstone pages' } ) ).toHaveLength( 1 );
 		expect( screen.getAllByText( 'cornerstone description' ) ).toHaveLength( 1 );
+		expect( screen.getAllByText( 'Added: Homepage' ) ).toHaveLength( 1 );
 	} );
 
 	it( 'starts with only Cornerstone collapsed and lets each section toggle independently', () => {
