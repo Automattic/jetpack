@@ -32,6 +32,7 @@ use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
 use Jetpack;
 use WP_Error;
 
@@ -512,11 +513,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function load_wp_build( $build_index ) {
-		// Hooked on either side of the require, so the alias holds only for the generated
-		// enqueue check it registers at the same priority.
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
-		require_once $build_index;
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
+		self::require_wp_build_with_screen_alias( $build_index );
 
 		// wp-build hooks module registration to wp_default_scripts, which has
 		// already fired by admin_menu — call it directly or the init module
@@ -529,6 +526,35 @@ class Initializer {
 			'my-jetpack',
 			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
 		);
+	}
+
+	/**
+	 * Hook the screen-id alias before requiring $build_index and the restore
+	 * after, at the same priority as wp-build's generated enqueue check, so
+	 * exactly one callback sees the aliased ID.
+	 *
+	 * @param string $build_index Path to the generated `build.php`.
+	 * @return void
+	 */
+	private static function require_wp_build_with_screen_alias( $build_index ) {
+		// An older wp-build-polyfills, loaded first by another plugin under the
+		// jetpack-autoloader, may predate WP_Build_Screen_Id::load_with_alias(). The
+		// two add_action() calls below are the same ordering it wraps, kept as a
+		// fallback.
+		if ( method_exists( WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
+			WP_Build_Screen_Id::load_with_alias(
+				array( __CLASS__, 'alias_screen_id_for_wp_build' ),
+				array( __CLASS__, 'restore_screen_id_after_wp_build' ),
+				function () use ( $build_index ) {
+					require_once $build_index;
+				}
+			);
+			return;
+		}
+
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		require_once $build_index;
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
 	}
 
 	/**

@@ -74,11 +74,7 @@ class Social_Admin_Page {
 			return;
 		}
 
-		// Hooked either side of load_wp_build(), so the alias holds only for the generated
-		// enqueue check it registers at the same priority.
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
-		self::load_wp_build();
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
+		self::load_wp_build_with_screen_alias();
 
 		// wp-build registers standalone modules (e.g. the init module) on
 		// wp_default_scripts, which has already fired by admin_menu. Register them
@@ -216,6 +212,34 @@ class Social_Admin_Page {
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
 			)
 		);
+	}
+
+	/**
+	 * Hook the screen-id alias before load_wp_build() and the restore after, at
+	 * the same priority as wp-build's generated enqueue check, so exactly one
+	 * callback sees the aliased ID.
+	 *
+	 * @return void
+	 */
+	private static function load_wp_build_with_screen_alias() {
+		// An older wp-build-polyfills, loaded first by another plugin under the
+		// jetpack-autoloader, may predate WP_Build_Screen_Id::load_with_alias(). The
+		// two add_action() calls below are the same ordering it wraps, kept as a
+		// fallback.
+		if ( method_exists( \Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
+			\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id::load_with_alias(
+				array( __CLASS__, 'alias_screen_id_for_wp_build' ),
+				array( __CLASS__, 'restore_screen_id_after_wp_build' ),
+				function () {
+					self::load_wp_build();
+				}
+			);
+			return;
+		}
+
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		self::load_wp_build();
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
 	}
 
 	/**
