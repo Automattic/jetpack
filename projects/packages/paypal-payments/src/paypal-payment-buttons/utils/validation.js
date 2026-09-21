@@ -19,6 +19,8 @@ import { ZERO_DECIMAL_CURRENCIES } from './currency-symbols';
  */
 export const MAX_NAME_LENGTH = 127;
 export const MAX_DESCRIPTION_LENGTH = 2048;
+// PayPal rejects a longer return URL, and an editor URL can run past this.
+export const MAX_RETURN_URL_LENGTH = 127;
 // Caps the Product ID input. The server answers a longer one with product_id_too_long.
 export const MAX_PRODUCT_ID_LENGTH = 50;
 // PayPal rejects a third custom checkout field with a 400.
@@ -280,14 +282,26 @@ function validateDiscount( type, value, comparisonPrice, currencyCode ) {
  * @return {string|null} Error message or null if valid.
  */
 export function validateReturnUrl( value ) {
-	if ( ! value || /^https:\/\/.+/.test( value ) ) {
+	if ( ! value ) {
 		return null;
 	}
 
-	return __(
-		'Return URL must use HTTPS (e.g., https://example.com/thank-you).',
-		'jetpack-paypal-payments'
-	);
+	if ( ! /^https:\/\/.+/.test( value ) ) {
+		return __(
+			'Return URL must use HTTPS (e.g., https://example.com/thank-you).',
+			'jetpack-paypal-payments'
+		);
+	}
+
+	if ( value.length > MAX_RETURN_URL_LENGTH ) {
+		return sprintf(
+			/* translators: %d: maximum number of characters allowed for the return URL */
+			__( 'Return URL must be %d characters or fewer.', 'jetpack-paypal-payments' ),
+			MAX_RETURN_URL_LENGTH
+		);
+	}
+
+	return null;
 }
 
 /**
