@@ -21,6 +21,8 @@ return make_phan_config(
 		'exclude_file_regex' => array(
 			'build/',
 			'tests/php/stubs/wp-build-render-page\.php',
+			// The `wpcom` stub set above already declares these two functions.
+			'tests/php/stubs/wpcom-feature-functions\.php',
 		),
 		'parse_file_list'    => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.

@@ -34,6 +34,11 @@ if ( empty( $_SERVER['HTTP_HOST'] ) ) {
 	$_SERVER['HTTP_HOST'] = 'example.org';
 }
 
+// Stand in for the WordPress.com feature-gating functions the platform provides, so the
+// WordPress.com branch of Product::does_site_have_feature() is reachable. Inert by default.
+require_once __DIR__ . '/stubs/class-wpcom-test-features.php';
+require_once __DIR__ . '/stubs/wpcom-feature-functions.php';
+
 define( 'WP_DEBUG', true );
 define( 'JETPACK_ENABLE_MY_JETPACK', true );
 

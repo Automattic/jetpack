@@ -423,12 +423,45 @@ abstract class Product {
 			return false;
 		}
 
+		$wpcom_answer = self::does_wpcom_site_have_feature( $feature );
+		if ( $wpcom_answer !== null ) {
+			return $wpcom_answer;
+		}
+
 		$features = self::get_site_features_from_wpcom();
 		if ( is_wp_error( $features ) ) {
 			return false;
 		}
 
 		return in_array( $feature, $features['active'], true );
+	}
+
+	/**
+	 * The platform's own answer on a WordPress.com-hosted site, or null where it cannot give one.
+	 *
+	 * WordPress.com gates features from the same data `/sites/%d/features` is built from, and on
+	 * Atomic wpcomsh exposes that lookup in-process — so the request, and the fifteen seconds of
+	 * caching that exist to soften it, are both avoidable there. Mirrors how
+	 * {@see \Automattic\Jetpack\Current_Plan::supports()} hijacks the same two functions.
+	 *
+	 * `wpcom_feature_exists()` is what keeps this safe: a slug WordPress.com does not gate falls
+	 * through to the feature list rather than being answered "no" by a registry that never had it.
+	 *
+	 * @param string $feature The feature slug.
+	 * @return bool|null
+	 */
+	private static function does_wpcom_site_have_feature( $feature ) {
+		if (
+			! function_exists( 'wpcom_site_has_feature' ) ||
+			! function_exists( 'wpcom_feature_exists' ) ||
+			! wpcom_feature_exists( $feature )
+		) {
+			return null;
+		}
+
+		// Called without a blog ID: a WoA site would pass its local one, which is not the
+		// WordPress.com blog ID. wpcom resolves the current site itself.
+		return (bool) wpcom_site_has_feature( $feature );
 	}
 
 	/**

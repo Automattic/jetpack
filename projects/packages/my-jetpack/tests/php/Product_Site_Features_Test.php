@@ -49,6 +49,7 @@ class Product_Site_Features_Test extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'succeed_http_request' ) );
 		remove_filter( 'pre_set_transient_' . Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, '__return_false' );
 		Product::reset_site_features_cache();
+		\Wpcom_Test_Features::reset();
 
 		WorDBless_Options::init()->clear_options();
 	}
@@ -152,5 +153,74 @@ class Product_Site_Features_Test extends TestCase {
 		$this->assertIsArray( $features );
 		$this->assertSame( array( 'backups' ), $features['active'] );
 		$this->assertTrue( Product::does_site_have_feature( 'backups' ) );
+	}
+
+	/**
+	 * On a WordPress.com host the platform answers in-process, so nothing is fetched.
+	 */
+	public function test_wpcom_host_answers_a_held_feature_without_a_request() {
+		add_filter( 'pre_http_request', array( $this, 'succeed_http_request' ) );
+		$this->simulate_wpcom_site( array( 'scan' ) );
+
+		$this->assertTrue( Product::does_site_have_feature( 'scan' ) );
+		$this->assertSame( 0, $this->http_calls );
+	}
+
+	/**
+	 * And answers a feature the site does not hold just as directly.
+	 */
+	public function test_wpcom_host_answers_a_missing_feature_without_a_request() {
+		add_filter( 'pre_http_request', array( $this, 'succeed_http_request' ) );
+		$this->simulate_wpcom_site( array() );
+
+		$this->assertFalse( Product::does_site_have_feature( 'scan' ) );
+		$this->assertSame( 0, $this->http_calls );
+	}
+
+	/**
+	 * The answer no longer depends on WordPress.com being reachable, which is the
+	 * correctness half of this: a failed fetch used to read as "no feature".
+	 */
+	public function test_wpcom_host_is_unaffected_by_a_failing_request() {
+		add_filter( 'pre_http_request', array( $this, 'fail_http_request' ) );
+		$this->simulate_wpcom_site( array( 'scan' ) );
+
+		$this->assertTrue( Product::does_site_have_feature( 'scan' ) );
+		$this->assertSame( 0, $this->http_calls );
+	}
+
+	/**
+	 * A slug WordPress.com does not gate must not be answered "no" by a registry that
+	 * never had it — it falls through to the site's feature list as before.
+	 */
+	public function test_a_feature_wpcom_does_not_gate_still_uses_the_feature_list() {
+		add_filter( 'pre_http_request', array( $this, 'succeed_http_request' ) );
+		$this->simulate_wpcom_site( array( 'scan' ) );
+
+		$this->assertTrue( Product::does_site_have_feature( 'backups' ) );
+		$this->assertSame( 1, $this->http_calls );
+	}
+
+	/**
+	 * Off WordPress.com the functions do not exist, so the feature list still answers.
+	 */
+	public function test_self_hosted_still_uses_the_feature_list() {
+		add_filter( 'pre_http_request', array( $this, 'succeed_http_request' ) );
+
+		$this->assertTrue( Product::does_site_have_feature( 'backups' ) );
+		$this->assertSame( 1, $this->http_calls );
+	}
+
+	/**
+	 * Put the site on WordPress.com, gating the slugs this suite asks about.
+	 *
+	 * `scan` is gated and `backups` deliberately is not, so one simulated site covers both
+	 * the answered-locally and the fall-through paths.
+	 *
+	 * @param string[] $entitled Feature slugs the site holds.
+	 */
+	private function simulate_wpcom_site( array $entitled ) {
+		\Wpcom_Test_Features::$known    = array( 'scan' );
+		\Wpcom_Test_Features::$entitled = $entitled;
 	}
 }

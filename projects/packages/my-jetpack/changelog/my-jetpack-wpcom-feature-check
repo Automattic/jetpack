@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Answer feature checks from WordPress.com itself on WordPress.com-hosted sites, rather than fetching the site's feature list.
