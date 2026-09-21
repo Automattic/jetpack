@@ -69,15 +69,14 @@ type ParsedApiResponse = {
 };
 
 /**
- * Kick off a request to generate speed scores for this site. Will automatically
- * poll for a response until the task is done, returning a SpeedScores object.
+ * Request speed scores for this site, polling until completion or cancellation.
  *
  * @param {boolean}     force          - Force regenerate speed scores.
  * @param {string}      rootUrl        - Root URL for the HTTP request.
  * @param {string}      siteUrl        - URL of the site.
  * @param {string}      nonce          - Nonce to use for authentication.
  * @param {object}      options        - Request options.
- * @param {AbortSignal} options.signal - Signal to stop polling.
+ * @param {AbortSignal} options.signal - Stop polling without aborting an in-flight HTTP request.
  * @return {SpeedScoresSet | undefined} Speed scores, or undefined when aborted.
  */
 export function requestSpeedScores(
