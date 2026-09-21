@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import CriticalCssMeta from '$features/critical-css/critical-css-meta/critical-css-meta';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
@@ -80,7 +80,7 @@ const CriticalCssModule = () => {
 				showLicenseKeyLink
 				description={
 					isModern
-						? __( 'Save time and unlock automatic Critical CSS generation.', 'jetpack-boost' )
+						? _x( 'Save time and unlock automatic Critical CSS generation.', '', 'jetpack-boost' )
 						: __( 'Save time by upgrading to Automatic Critical CSS generation.', 'jetpack-boost' )
 				}
 			/>

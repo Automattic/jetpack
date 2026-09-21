@@ -1,5 +1,5 @@
 import { createInterpolateElement } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { Button, Notice, Stack, Text } from '@wordpress/ui';
 import { getProvidersWithErrors } from '../lib/critical-css-errors';
 import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
@@ -44,7 +44,9 @@ export default function ModernCriticalCssStatus( { cssState, isGenerating, progr
 								onClick={ generate }
 								disabled={ regenerateAction.isPending }
 							>
-								{ idle ? __( 'Generate', 'jetpack-boost' ) : __( 'Regenerate', 'jetpack-boost' ) }
+								{ idle
+									? _x( 'Generate', '', 'jetpack-boost' )
+									: __( 'Regenerate', 'jetpack-boost' ) }
 							</Button>
 						) }
 					</Stack>
