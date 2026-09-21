@@ -1,4 +1,5 @@
-import { getSiteAdminUrl } from 'state/initial-state';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getSiteAdminUrl, getSiteRawUrl, showMyJetpack } from 'state/initial-state';
 import { myJetpackRoutes } from './constants';
 
 /**
@@ -20,7 +21,7 @@ export const isSearchNewPricingLaunched202208 = () =>
  *
  * @param {object} state      - The site state
  * @param {string} productKey - Product key to redirect to.
- * @return {string} URL for a product or the .
+ * @return {string} URL for the product's upgrade flow.
  */
 export const getProductDescriptionUrl = ( state, productKey ) => {
 	const adminUrl = getSiteAdminUrl( state );
@@ -28,6 +29,11 @@ export const getProductDescriptionUrl = ( state, productKey ) => {
 	// TODO: remove the && condition on Search new pricing launch.
 	if ( productKey === 'search' ) {
 		return `${ adminUrl }admin.php?page=jetpack-search`;
+	}
+
+	// Where My Jetpack is off (offline, VIP, non-classic WoA), its page isn't registered.
+	if ( ! showMyJetpack( state ) ) {
+		return getRedirectUrl( 'jetpack-plans', { site: getSiteRawUrl( state ) } );
 	}
 
 	const myJetpackUrl = `${ adminUrl }admin.php?page=my-jetpack`;

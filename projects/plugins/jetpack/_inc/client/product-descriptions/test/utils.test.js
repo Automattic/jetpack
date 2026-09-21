@@ -15,6 +15,22 @@ describe( 'getProductDescriptionUrl', () => {
 		);
 	} );
 
+	it( 'sends sites without My Jetpack to the pricing page', () => {
+		const withoutMyJetpack = {
+			jetpack: {
+				initialState: {
+					...state.jetpack.initialState,
+					rawUrl: 'example.com',
+					siteData: { showMyJetpack: false },
+				},
+			},
+		};
+
+		expect( getProductDescriptionUrl( withoutMyJetpack, 'security' ) ).toBe(
+			'https://jetpack.com/redirect/?source=jetpack-plans&site=example.com'
+		);
+	} );
+
 	it( 'keeps Search on its own admin page', () => {
 		expect( getProductDescriptionUrl( state, 'search' ) ).toBe(
 			'https://example.com/wp-admin/admin.php?page=jetpack-search'
