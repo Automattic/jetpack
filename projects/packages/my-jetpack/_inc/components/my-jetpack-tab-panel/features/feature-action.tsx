@@ -1,10 +1,9 @@
 import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { FormToggle } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Badge, Button } from '@wordpress/ui';
+import { Button } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { ModuleToggle } from '../../module-toggle';
-import { getModuleStatus } from '../../modules-list/utils';
 import { getSwitchLabel } from '../utils';
 import styles from './styles.module.scss';
 import { useFeaturePlugin } from './use-main-features';
@@ -99,8 +98,9 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 
 	switch ( control.kind ) {
 		case 'module':
+			// FeatureItem shows why, under the description: this slot does not shrink.
 			if ( control.module.override ) {
-				return <Badge intent="medium">{ getModuleStatus( control.module ).reason }</Badge>;
+				return null;
 			}
 
 			return (

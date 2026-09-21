@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FeatureAction } from '../feature-action';
+import { FeatureItem } from '../feature-item';
 import { FeatureModalActions } from '../feature-modal-actions';
 import type { MyJetpackModule } from '../../../../types';
 import type { FeatureState } from '../feature-state';
@@ -133,13 +134,12 @@ describe( 'FeatureAction', () => {
 		expect( countControls() ).toBe( 0 );
 	} );
 
-	it( 'shows a note instead of a switch for a module a host forced on', () => {
-		render( <FeatureAction state={ buildState( { kind: 'module', module: forcedModule } ) } /> );
+	it( 'leaves the switch slot empty for a module a host forced on', () => {
+		const { container } = render(
+			<FeatureAction state={ buildState( { kind: 'module', module: forcedModule } ) } />
+		);
 
-		expect(
-			screen.getByText( 'Turned on by your host or site administrator' )
-		).toBeInTheDocument();
-		expect( countControls() ).toBe( 0 );
+		expect( container ).toBeEmptyDOMElement();
 	} );
 
 	it( 'renders nothing when this site cannot switch the feature', () => {
@@ -205,5 +205,30 @@ describe( 'FeatureModalActions', () => {
 			screen.getByText( 'Turned on by your host or site administrator' )
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'FeatureItem', () => {
+	it( 'shows the note for a module a host forced on under the description, not in the switch slot', () => {
+		const state = buildState(
+			{ kind: 'module', module: forcedModule },
+			{
+				status: 'active',
+				feature: buildFeature( { slug: 'stats', name: 'Stats', description: 'See who visits.' } ),
+			}
+		);
+
+		render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
+
+		// The switch slot renders nothing for it (see FeatureAction), so the note following the
+		// description means it sits in the text column.
+		const order = screen
+			.getAllByText( /See who visits\.|Turned on by your host/ )
+			.map( el => el.textContent );
+		expect( order ).toEqual( [
+			'See who visits.',
+			'Turned on by your host or site administrator',
+		] );
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 	} );
 } );

@@ -75,6 +75,10 @@ $feature-icon-foreground: #0ced57;
 	min-inline-size: 0;
 }
 
+.feature-item__note {
+	align-self: flex-start;
+}
+
 .feature-item__heading {
 	align-items: center;
 	display: flex;
