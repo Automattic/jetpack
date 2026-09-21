@@ -1746,6 +1746,33 @@ describe( 'BarChart', () => {
 				expect( tooltip ).toHaveTextContent( 'This period: 10' );
 				expect( tooltip ).toHaveTextContent( 'Previous period: No data' );
 			} );
+
+			test( 'draws no comparison shadow for a comparison bucket with no reading', () => {
+				renderWithTheme( {
+					data: [
+						{
+							label: 'This period',
+							group: 'views',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+							],
+						},
+						{
+							label: 'Previous period',
+							group: 'views',
+							options: { type: 'comparison' as const },
+							data: [
+								{ date: new Date( '2024-01-01' ), value: null as number | null, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+							],
+						},
+					],
+				} );
+
+				expect( screen.queryByTestId( 'bar-chart-comparison-1-0' ) ).not.toBeInTheDocument();
+				expect( screen.getByTestId( 'bar-chart-comparison-1-1' ) ).toBeInTheDocument();
+			} );
 		} );
 
 		describe( 'Tab Key Navigation', () => {

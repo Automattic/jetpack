@@ -7,8 +7,8 @@ const EMPTY_DOMAIN: [ number, number ] = [ 0, 1 ];
 /**
  * The value a bar is drawn at, preferring `visualValue` so a zero still shows a sliver.
  *
- * visx skips a bar whose scaled value is not a number. A null would scale to zero and
- * draw an invisible rect that still answers the pointer, so it becomes NaN instead.
+ * A missing reading is NaN, not null: `ComparisonBars` coerces the value with `Number()`,
+ * which turns null into 0 and would draw a comparison shadow at the baseline.
  *
  * @param point - A data point handed to visx.
  * @return The bar value, or NaN when the bucket has no reading.
