@@ -1,7 +1,16 @@
 import { Popover } from '@wordpress/components';
 import { Icon, info } from '@wordpress/icons';
 import clsx from 'clsx';
-import { useCallback, useEffect, useRef, useState, ReactElement, FC, KeyboardEvent } from 'react';
+import {
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+	ReactElement,
+	FC,
+	KeyboardEvent,
+	FocusEvent as ReactFocusEvent,
+} from 'react';
 import Button from '../button/index.tsx';
 import { IconTooltipProps, Placement, Position } from './types.ts';
 
@@ -90,7 +99,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		onFocusOutside: event => {
 			if (
 				! pointerReturningToTrigger.current ||
-				! triggerRef?.current?.contains( event.relatedTarget as Node )
+				! triggerRef?.current?.contains( ( event as ReactFocusEvent ).relatedTarget as Node )
 			) {
 				hideTooltip();
 			}
