@@ -1,7 +1,7 @@
 import { Popover } from '@wordpress/components';
 import { Icon, info } from '@wordpress/icons';
 import clsx from 'clsx';
-import { useCallback, useState, ReactElement, FC } from 'react';
+import { useCallback, useState, ReactElement, FC, KeyboardEvent } from 'react';
 import Button from '../button/index.tsx';
 import { IconTooltipProps, Placement, Position } from './types.ts';
 
@@ -39,6 +39,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	children,
 	popoverAnchorStyle = 'icon',
 	forceShow = false,
+	onClose,
 	hoverShow = false,
 	wide = false,
 	inline = true,
@@ -47,13 +48,25 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	const POPOVER_HELPER_WIDTH = 124;
 	const [ isVisible, setIsVisible ] = useState( false );
 	const [ hoverTimeout, setHoverTimeout ] = useState( null );
-	const hideTooltip = useCallback( () => setIsVisible( false ), [ setIsVisible ] );
+	const hideTooltip = useCallback( () => {
+		setIsVisible( false );
+		onClose?.();
+	}, [ onClose ] );
 	const toggleTooltip = useCallback(
 		e => {
 			e.preventDefault();
 			setIsVisible( ! isVisible );
 		},
 		[ isVisible, setIsVisible ]
+	);
+
+	const handleKeyDown = useCallback(
+		( event: KeyboardEvent< HTMLButtonElement > ) => {
+			if ( event.key === 'Enter' || event.key === ' ' ) {
+				toggleTooltip( event );
+			}
+		},
+		[ toggleTooltip ]
 	);
 
 	const args = {
@@ -65,7 +78,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		resize: false,
 		flip: false,
 		offset, // The distance (in px) between the anchor and the popover.
-		focusOnMount: 'firstElement',
+		focusOnMount: true,
 		onClose: hideTooltip,
 		className: clsx( 'icon-tooltip-container', popoverClassName ),
 		inline,
@@ -109,7 +122,12 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 			onMouseLeave={ handleMouseLeave }
 		>
 			{ ! isAnchorWrapper && (
-				<Button variant="link" onMouseDown={ toggleTooltip }>
+				<Button
+					variant="link"
+					aria-expanded={ isVisible }
+					onMouseDown={ toggleTooltip }
+					onKeyDown={ handleKeyDown }
+				>
 					<Icon className={ iconClassName } icon={ iconCode } size={ iconSize } />
 				</Button>
 			) }

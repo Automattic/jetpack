@@ -72,6 +72,11 @@ export type IconTooltipProps = {
 	forceShow?: boolean;
 
 	/**
+	 * Called when the popover requests dismissal, including Escape.
+	 */
+	onClose?: () => void;
+
+	/**
 	 * Enables the Popover to show on hover.
 	 */
 	hoverShow?: boolean;

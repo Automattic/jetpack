@@ -17,11 +17,6 @@ jest.mock( '$features/notice/context', () => ( {
 	useNotices: () => ( { setNotice: mockSetNotice } ),
 } ) );
 jest.mock( '$lib/utils/analytics', () => ( { recordBoostEvent: jest.fn() } ) );
-jest.mock( '@automattic/jetpack-components', () => ( {
-	getRedirectUrl: ( slug: string ) => `https://jetpack.com/redirect/?source=${ slug }`,
-	IconTooltip: ( { forceShow, children }: { forceShow: boolean; children: React.ReactNode } ) =>
-		forceShow ? <div role="tooltip">{ children }</div> : null,
-} ) );
 
 let mockState: { active: boolean; available: boolean } | undefined;
 const mockSetState = jest.fn();
@@ -81,6 +76,18 @@ describe( 'Prerender', () => {
 		);
 	} );
 
+	it.each( [ false, true ] )( 'dismisses the controlled warning on Escape (row: %s)', row => {
+		renderPrerender( row );
+		const trigger = screen.getByRole( 'button', { name: 'be mindful' } );
+		trigger.focus();
+		fireEvent.keyDown( trigger, { key: ' ' } );
+		expect( screen.getByText( 'Warning' ) ).toBeTruthy();
+		fireEvent.keyDown( screen.getByText( 'Warning' ), { key: 'Escape' } );
+		expect( screen.queryByText( 'Warning' ) ).toBeNull();
+		expect( trigger.ownerDocument.activeElement ).toBe( trigger );
+		expect( trigger.getAttribute( 'aria-expanded' ) ).toBe( 'false' );
+	} );
+
 	it( 'reflects an enabled module', () => {
 		mockState = { active: true, available: true };
 		renderPrerender( false );
@@ -92,18 +99,18 @@ describe( 'Prerender', () => {
 		const { recordBoostEvent } = jest.requireMock( '$lib/utils/analytics' );
 		renderPrerender( false );
 
-		expect( screen.queryByRole( 'tooltip' ) ).toBeNull();
-		fireEvent.click( screen.getByRole( 'link', { name: 'be mindful' } ) );
+		expect( screen.queryByText( 'Warning' ) ).toBeNull();
+		fireEvent.click( screen.getByRole( 'button', { name: 'be mindful' } ) );
 
 		expect( recordBoostEvent ).toHaveBeenCalledWith( 'prerender_warning_message_clicked', {} );
-		expect( screen.getByRole( 'tooltip' ).textContent ).toContain(
+		expect( screen.getByText( /Prerendering pages can be unsafe/ ).textContent ).toContain(
 			'Prerendering pages can be unsafe'
 		);
 		expect( screen.getByRole( 'link', { name: /^Learn more/ } ).getAttribute( 'href' ) ).toContain(
 			'jetpack-boost-unsafe-speculation-rules'
 		);
 
-		fireEvent.click( screen.getByRole( 'link', { name: 'be mindful' } ) );
-		expect( screen.queryByRole( 'tooltip' ) ).toBeNull();
+		fireEvent.click( screen.getByRole( 'button', { name: 'be mindful' } ) );
+		expect( screen.queryByText( 'Warning' ) ).toBeNull();
 	} );
 } );

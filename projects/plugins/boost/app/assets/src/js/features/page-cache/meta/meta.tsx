@@ -273,6 +273,14 @@ const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 			{ /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
 			<a
 				href="#"
+				role="button"
+				aria-expanded={ show }
+				onKeyDown={ event => {
+					if ( event.key === ' ' ) {
+						event.preventDefault();
+						event.currentTarget.click();
+					}
+				} }
 				className={ styles[ 'example-button' ] }
 				onClick={ e => {
 					recordBoostEvent( 'page_cache_see_example_clicked', {} );
@@ -287,6 +295,9 @@ const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 					placement="bottom-start"
 					popoverAnchorStyle="wrapper"
 					forceShow={ show }
+					onClose={ () => {
+						setShow( false );
+					} }
 					offset={ -10 }
 					popoverClassName={ styles.tooltip }
 					{ ...tooltipLayer }
