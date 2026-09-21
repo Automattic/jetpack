@@ -2,10 +2,12 @@
  * External dependencies
  */
 import {
+	ReportScopeProvider,
 	chartInterval,
 	drawableIntervals,
 	getAllowedIntervalsForPreset,
 	getDefaultPreset,
+	getDefaultReportParams,
 	getStoreInfo,
 	hasComparisonEnabled,
 	normalizeReportParams,
@@ -78,7 +80,28 @@ type ReportParamsFieldOptions = {
 	 * How fine the widget's report is.
 	 */
 	grain?: ReportGrain;
+	/** Omit to inherit the host's scope. */
+	offersComparison?: boolean;
 };
+
+/**
+ * The params a widget that owns its date range starts on, clamped to its grain.
+ *
+ * The store default follows how long the site has been live, so a site launched
+ * today starts on `today` — a window a widget whose report has no sub-daily
+ * bucket does not offer, and would draw as a single point.
+ *
+ * @param grain           - How fine the widget's report is.
+ * @param grain.presetIds - The windows the widget offers.
+ * @return The starting report params.
+ */
+export function defaultReportParamsForGrain( { presetIds }: ReportGrain = {} ): ReportParams {
+	const { preset } = getDefaultReportParams();
+
+	return presetIds && ! ( presetIds as readonly string[] ).includes( preset )
+		? { preset: presetIds[ 0 ] }
+		: { preset };
+}
 
 // A widget saved before the field existed carries no params; the picker falls
 // back to the store defaults through `normalizeReportParams`.
@@ -91,16 +114,31 @@ const NO_REPORT_PARAMS: ReportParams = {};
  * @param {ReportParamsFieldOptions} options - Field options.
  * @return A DataForm control component.
  */
-function createReportParamsField( { withIntervalControl, grain }: ReportParamsFieldOptions = {} ) {
+function createReportParamsField( {
+	withIntervalControl,
+	grain,
+	offersComparison = true,
+}: ReportParamsFieldOptions = {} ) {
 	return function ReportParamsFieldControl(
 		props: DataFormControlProps< Partial< ReportParamsFieldAttributes > >
 	) {
-		return (
+		const control = (
 			<ReportParamsControl
 				{ ...props }
 				withIntervalControl={ withIntervalControl }
 				grain={ grain }
 			/>
+		);
+
+		/*
+		 * The host renders this outside the widget tree, so it inherits the section's
+		 * scope: on a comparison-enabled section it would offer and save a comparison
+		 * the widget body then discards.
+		 */
+		return offersComparison ? (
+			control
+		) : (
+			<ReportScopeProvider offersComparison={ false }>{ control }</ReportScopeProvider>
 		);
 	};
 }
@@ -174,9 +212,7 @@ function ReportParamsControl( {
 	 * to that window. A custom range or a year is not ours to rewrite.
 	 */
 	const offeredPresetIds = presetIds as readonly string[] | undefined;
-	const fallbackPreset = offeredPresetIds?.includes( defaultPreset )
-		? defaultPreset
-		: presetIds?.[ 0 ];
+	const { preset: fallbackPreset } = defaultReportParamsForGrain( grain );
 
 	const appliedPreset = appliedParams.preset;
 	const isUnofferedPreset =
