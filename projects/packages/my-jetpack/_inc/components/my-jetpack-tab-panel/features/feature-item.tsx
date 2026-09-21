@@ -1,3 +1,4 @@
+import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { Badge, Icon, Text } from '@wordpress/ui';
@@ -60,9 +61,17 @@ export function FeatureItem( { state, onOpen }: FeatureItemProps ) {
 						{ feature.name }
 					</Text>
 
-					<Badge id={ statusId } intent={ isActive ? 'stable' : 'none' }>
-						{ getActivationStatusLabel( isActive ) }
-					</Badge>
+					{ state.pending ? (
+						<LoadingPlaceholder
+							width={ 58 }
+							height={ 20 }
+							className={ styles[ 'skeleton-badge' ] }
+						/>
+					) : (
+						<Badge id={ statusId } intent={ isActive ? 'stable' : 'none' }>
+							{ getActivationStatusLabel( isActive ) }
+						</Badge>
+					) }
 
 					{ feature.essential ? (
 						<Badge intent="informational">{ __( 'Essential', 'jetpack-my-jetpack' ) }</Badge>

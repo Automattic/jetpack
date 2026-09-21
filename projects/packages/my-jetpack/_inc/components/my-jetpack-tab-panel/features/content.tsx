@@ -1,7 +1,6 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
-import { Skeleton } from '../products/skeleton';
 import { FeatureItem } from './feature-item';
 import { FeatureModal } from './feature-modal';
 import { useFeatureStates } from './feature-state';
@@ -95,16 +94,13 @@ export function FeaturesContent() {
 
 	const open = states.find( item => item.feature.slug === openSlug );
 
-	if ( isLoading ) {
-		return <Skeleton />;
-	}
-
 	return (
 		<section className={ styles.content }>
 			<Toolbar
 				filter={ filter }
 				onFilterChange={ onFilterChange }
 				counts={ counts }
+				countsPending={ isLoading }
 				search={ search }
 				onSearchChange={ onSearchChange }
 			/>

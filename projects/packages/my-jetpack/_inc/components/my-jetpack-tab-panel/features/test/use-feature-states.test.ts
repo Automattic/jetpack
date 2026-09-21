@@ -33,6 +33,10 @@ describe( 'useFeatureStates', () => {
 		const { result } = renderHook( () => useFeatureStates( state( 'active' ) ) );
 
 		expect( result.current.isLoading ).toBe( true );
+
+		// The copy is already right, so the card renders; only its live half waits.
+		expect( result.current.states[ 0 ].pending ).toBe( true );
+		expect( result.current.states[ 0 ].control.kind ).toBe( 'none' );
 	} );
 
 	it( 'resolves the module once the modules have landed', () => {

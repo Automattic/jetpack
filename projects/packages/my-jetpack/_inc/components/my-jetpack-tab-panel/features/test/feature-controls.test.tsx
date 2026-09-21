@@ -109,6 +109,13 @@ describe( 'FeatureAction', () => {
 		expect( screen.getByRole( 'button', { name: 'Activate Jetpack' } ) ).toBeInTheDocument();
 	} );
 
+	it( 'holds the slot with a placeholder while the live state is still loading', () => {
+		render( <FeatureAction state={ buildState( { kind: 'none' }, { pending: true } ) } /> );
+
+		// No control at all until the state that decides which one is known.
+		expect( countControls() ).toBe( 0 );
+	} );
+
 	it( 'renders nothing when this site cannot switch the feature', () => {
 		const { container } = render( <FeatureAction state={ buildState( { kind: 'none' } ) } /> );
 

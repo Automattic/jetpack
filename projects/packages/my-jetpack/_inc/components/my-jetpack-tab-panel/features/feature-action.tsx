@@ -1,9 +1,11 @@
+import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { FormToggle } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { ModuleToggle } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
+import styles from './styles.module.scss';
 import { useFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
 
@@ -86,6 +88,12 @@ type FeatureActionProps = {
 export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 	const { control, feature } = state;
 	const pluginName = feature.plugin_name || feature.name;
+
+	if ( state.pending ) {
+		return (
+			<LoadingPlaceholder width={ 36 } height={ 20 } className={ styles[ 'skeleton-switch' ] } />
+		);
+	}
 
 	switch ( control.kind ) {
 		case 'module':

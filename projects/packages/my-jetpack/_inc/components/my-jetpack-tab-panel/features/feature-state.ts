@@ -21,6 +21,9 @@ export type FeatureControl =
 
 export type FeatureState = {
 	feature: MainFeature;
+	// True while this feature's live state is still being fetched. Its copy is already
+	// right; its status and control are not known yet.
+	pending?: boolean;
 	// Whether the feature is switched on here, which is not whether a plan covers it:
 	// the wp-admin sidebar asks the same question, and the two have to agree.
 	status: 'active' | 'inactive';
@@ -37,6 +40,7 @@ export type FeatureState = {
  * @param product        - The product behind the feature, if any.
  * @param modules        - Every Jetpack module on the site.
  * @param productModules - Product slug to module slug, where the two differ.
+ * @param modulesLoading - Whether the module list is still being fetched.
  * @return The feature's state.
  */
 export function resolveFeatureState(
@@ -44,9 +48,16 @@ export function resolveFeatureState(
 	jetpack: MainFeaturePluginStatus,
 	product: ProductCamelCase | undefined,
 	modules: Record< string, MyJetpackModule > | undefined,
-	productModules: Record< string, string >
+	productModules: Record< string, string >,
+	modulesLoading = false
 ): FeatureState {
 	if ( feature.in_jetpack && jetpack === 'active' ) {
+		// Answering from an empty module list would offer to install a plugin for a
+		// feature Jetpack is already running.
+		if ( modulesLoading ) {
+			return { feature, product, pending: true, status: 'inactive', control: { kind: 'none' } };
+		}
+
 		// A product's module is rarely named after it (Social runs 'publicize'). Resolved
 		// the way the Products tab builds its cards, which also keeps the pre-release gate
 		// on Jetpack AI: with the flag off that map drops AI, so no module resolves.
@@ -128,11 +139,12 @@ export function useFeatureStates( state: MainFeaturesState ): {
 					state.jetpack,
 					feature.product ? products?.[ feature.product ] : undefined,
 					modules,
-					productModules
+					productModules,
+					isLoadingModules
 				)
 			),
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- productModules is rebuilt each render from a constant map.
-		[ state, products, modules ]
+		[ state, products, modules, isLoadingModules ]
 	);
 
 	return { states, isLoading: isLoadingModules };

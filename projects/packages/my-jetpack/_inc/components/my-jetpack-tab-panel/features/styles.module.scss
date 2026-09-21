@@ -143,6 +143,22 @@ $feature-icon-foreground: #0ced57;
 	z-index: 1;
 }
 
+// Placeholders for the parts of a card that wait on live state: the status
+// badge, its switch, and the counts on the filter pills.
+.skeleton-badge {
+	border-radius: var(--wpds-border-radius-sm);
+}
+
+.skeleton-count {
+	border-radius: var(--wpds-border-radius-sm);
+	display: inline-block;
+}
+
+// Half the placeholder's height, to read as the switch it replaces.
+.skeleton-switch {
+	border-radius: 10px;
+}
+
 .feature-icon {
 	align-items: center;
 	block-size: 2.25rem;
@@ -255,7 +271,10 @@ $feature-icon-foreground: #0ced57;
 	}
 }
 
-.search {
+// Two names for one box: a test stub replaces this stylesheet with a
+// string, where `styles.search` resolves to String.prototype.search.
+.search,
+.skeleton-search {
 	margin-inline-start: auto;
 	min-inline-size: 16rem;
 }
