@@ -58,6 +58,23 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Filter that keeps `ai` out of the active list, as an allowlist would.
+	 *
+	 * @var callable|null
+	 */
+	private $force_ai_inactive_filter = null;
+
+	/**
+	 * Filter `ai` out of the active module list.
+	 */
+	private function force_ai_module_inactive() {
+		$this->force_ai_inactive_filter = static function ( $modules ) {
+			return array_values( array_diff( (array) $modules, array( 'ai' ) ) );
+		};
+		add_filter( 'jetpack_active_modules', $this->force_ai_inactive_filter );
+	}
+
+	/**
 	 * Make the current request look like WordPress.com Atomic.
 	 */
 	private function force_atomic_site() {
@@ -83,10 +100,16 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		}
 		remove_filter( 'jetpack_ai_writing_assistant_enabled', '__return_false' );
 		remove_filter( 'wp_supports_ai', '__return_false' );
+		remove_filter( 'jetpack_ai_enabled', '__return_false' );
 		remove_filter( 'jetpack_ai_enabled', '__return_true', PHP_INT_MAX );
 		remove_filter( 'jetpack_ai_enabled', '__return_true', 11 );
 		remove_filter( 'jetpack_is_connection_ready', '__return_true' );
 
+		if ( $this->force_ai_inactive_filter !== null ) {
+			remove_filter( 'jetpack_active_modules', $this->force_ai_inactive_filter );
+			$this->force_ai_inactive_filter = null;
+		}
+		Jetpack_Modules_Overrides::instance()->clear_cache();
 		if ( $this->force_ai_active_filter !== null ) {
 			remove_filter( 'jetpack_active_modules', $this->force_ai_active_filter );
 			$this->force_ai_active_filter = null;
@@ -94,6 +117,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 
 		// Reset the platform: every test in this class defaults to off-Simple.
 		Constants::clear_single_constant( 'IS_WPCOM' );
+		Constants::clear_single_constant( 'WPCOM_IS_VIP_ENV' );
 		Status_Cache::clear();
 		\Jetpack_Options::update_option( 'active_modules', array() );
 
@@ -256,6 +280,154 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		update_option( Jetpack_AI_Settings::MASTER_OPTION, 0 );
 		$this->force_ai_module_active();
 		$this->assertTrue( Jetpack_AI_Settings::is_master_enabled(), 'An active module means master on even with the option off.' );
+	}
+
+	/**
+	 * A filter that strips `ai` from the active list forces it off.
+	 */
+	public function test_master_forced_off_when_a_filter_removes_the_module() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+		$this->force_ai_module_inactive();
+
+		$this->assertFalse( Jetpack_AI_Settings::is_master_enabled(), 'Precondition: the filter reports the master off.' );
+		$this->assertSame( 'modules', Jetpack_AI_Settings::get_master_forced_off_route() );
+	}
+
+	/**
+	 * The filter is caught even when the stored list never had `ai`.
+	 */
+	public function test_master_forced_off_when_a_filter_removes_the_module_never_stored() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array() );
+		$this->force_ai_module_inactive();
+
+		$this->assertSame( 'modules', Jetpack_AI_Settings::get_master_forced_off_route() );
+	}
+
+	/**
+	 * A filter that removes `ai` from the available list forces it off.
+	 */
+	public function test_master_forced_off_when_a_filter_removes_the_module_from_available() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+		$remove = static function ( $modules ) {
+			unset( $modules['ai'] );
+			return $modules;
+		};
+		add_filter( 'jetpack_get_available_modules', $remove );
+
+		$route = Jetpack_AI_Settings::get_master_forced_off_route();
+
+		remove_filter( 'jetpack_get_available_modules', $remove );
+		$this->assertSame( 'modules', $route );
+	}
+
+	/**
+	 * Custom code can hold AI off through `jetpack_ai_enabled` alone, leaving the
+	 * module active.
+	 */
+	public function test_master_forced_off_when_a_filter_disables_ai_with_the_module_active() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+		$this->force_ai_module_active();
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		$this->assertTrue( Jetpack_AI_Settings::is_master_enabled(), 'Precondition: the module is still active.' );
+		$this->assertSame( 'filter', Jetpack_AI_Settings::get_master_forced_off_route() );
+	}
+
+	/**
+	 * The two routes are named apart so the notice can link to the right hook.
+	 */
+	public function test_master_forced_off_route_names_the_filter() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+		$this->force_ai_module_active();
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		$this->assertSame( 'filter', Jetpack_AI_Settings::get_master_forced_off_route() );
+	}
+
+	/**
+	 * VIP documents this filter as its own off switch, so a VIP site is sent to
+	 * VIP's page rather than the generic hook reference.
+	 */
+	public function test_master_forced_off_route_names_the_vip_filter() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+		$this->force_ai_module_active();
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		$this->assertSame( 'filter-vip', Jetpack_AI_Settings::get_master_forced_off_route() );
+	}
+
+	/**
+	 * A module allowlist reports the module route, not the filter one.
+	 */
+	public function test_master_forced_off_route_names_the_modules() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+		$this->force_ai_module_inactive();
+
+		$this->assertSame( 'modules', Jetpack_AI_Settings::get_master_forced_off_route() );
+	}
+
+	/**
+	 * A deactivated module must not hide a filter that would keep AI off anyway:
+	 * turning the module back on would not help, so this is not a plain opt-out.
+	 */
+	public function test_master_forced_off_route_names_the_filter_with_the_module_off_too() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array() );
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		$this->assertFalse( Jetpack_AI_Settings::is_master_enabled(), 'Precondition: the module reads off.' );
+		$this->assertSame( 'filter', Jetpack_AI_Settings::get_master_forced_off_route() );
+	}
+
+	/**
+	 * A site nothing holds off reports no route.
+	 */
+	public function test_master_forced_off_route_empty_when_not_forced_off() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array() );
+
+		$this->assertSame( '', Jetpack_AI_Settings::get_master_forced_off_route() );
+	}
+
+	/**
+	 * A module that is simply deactivated is an ordinary opt-out, not forced off.
+	 */
+	public function test_master_not_forced_off_when_module_is_plainly_inactive() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array() );
+
+		$this->assertFalse( Jetpack_AI_Settings::is_master_enabled(), 'Precondition: the module reads off.' );
+		$this->assertSame( '', Jetpack_AI_Settings::get_master_forced_off_route() );
+	}
+
+	/**
+	 * An active master is never forced off.
+	 */
+	public function test_master_not_forced_off_when_module_active() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+		$this->force_ai_module_active();
+
+		$this->assertSame( '', Jetpack_AI_Settings::get_master_forced_off_route() );
+	}
+
+	/**
+	 * Never forced off on WordPress.com Simple.
+	 */
+	public function test_master_never_forced_off_on_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		update_option( Jetpack_AI_Settings::MASTER_OPTION, 0 );
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+
+		$this->assertSame( '', Jetpack_AI_Settings::get_master_forced_off_route() );
 	}
 
 	/**
@@ -645,5 +817,42 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 
 		$this->assertFalse( $registered['jetpack_ai_enabled']['show_in_rest'], 'The master option is never exposed over core settings REST.' );
 		$this->assertTrue( (bool) $registered['jetpack_ai_writing_assistant_enabled']['show_in_rest'], 'Feature options stay REST-exposed off-Simple.' );
+	}
+
+	/**
+	 * Simple sites carry no Jetpack tokens, so the local check would read them
+	 * as disconnected.
+	 */
+	public function test_site_is_connected_short_circuits_on_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->assertTrue( Jetpack_AI_Settings::site_is_connected() );
+	}
+
+	/**
+	 * Off Simple the answer comes from the site's own connection.
+	 */
+	public function test_site_is_connected_without_a_connection_owner() {
+		Constants::set_constant( 'IS_WPCOM', false );
+
+		$this->assertFalse( Jetpack_AI_Settings::site_is_connected() );
+	}
+
+	/**
+	 * Simple short-circuits the user check for the same reason as the site one.
+	 */
+	public function test_user_is_connected_short_circuits_on_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->assertTrue( Jetpack_AI_Settings::user_is_connected() );
+	}
+
+	/**
+	 * Off Simple the answer comes from this user's own token.
+	 */
+	public function test_user_is_connected_without_a_linked_account() {
+		Constants::set_constant( 'IS_WPCOM', false );
+
+		$this->assertFalse( Jetpack_AI_Settings::user_is_connected() );
 	}
 }
