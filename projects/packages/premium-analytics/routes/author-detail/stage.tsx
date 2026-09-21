@@ -3,6 +3,7 @@
  */
 import {
 	AnalyticsQueryClientProvider,
+	getApiErrorStatus,
 	GlobalErrorProvider,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
@@ -113,14 +114,23 @@ function AuthorDetail(): JSX.Element {
 	let notice: JSX.Element | null = null;
 
 	if ( summary.isError ) {
-		// Same split as the widgets: access denied gets no Retry, anything else does.
-		const { description, actions = [] } = describeError( summary.error, {
-			retryDescription: __(
-				"We couldn't load this author. Please try again in a moment.",
-				'jetpack-premium-analytics-pkg'
-			),
-			onRetry: summary.refetch,
-		} );
+		// Same split as the widgets, plus a 404: sites that hide the users
+		// endpoint answer with one, and no Retry brings it back.
+		const { description, actions = [] } =
+			getApiErrorStatus( summary.error ) === 404
+				? {
+						description: __(
+							"This site doesn't share author profiles.",
+							'jetpack-premium-analytics-pkg'
+						),
+					}
+				: describeError( summary.error, {
+						retryDescription: __(
+							"We couldn't load this author. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						),
+						onRetry: summary.refetch,
+					} );
 
 		notice = (
 			<Stack direction="column" align="flex-start" gap="sm">

@@ -1,4 +1,5 @@
-Significance: minor
-Type: enhancement
+Significance: patch
+Type: other
+Comment: Premium Analytics: add an author detail page that is not linked from anywhere yet.
 
-Premium Analytics: Add an author detail page with the author's views, popular and latest posts, and top viewed posts.
+
