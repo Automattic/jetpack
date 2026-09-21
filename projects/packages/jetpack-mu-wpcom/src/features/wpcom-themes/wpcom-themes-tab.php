@@ -5,6 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
@@ -17,6 +18,16 @@ const WPCOM_THEMES_TAB = 'wpcom';
  * Feature flag gating the tab.
  */
 const WPCOM_THEMES_TAB_FLAG = 'wpcom-themes-marketplace-tab';
+
+/**
+ * The theme tier the tab lists, as `/wpcom/v2/themes` names it. Empty lists every tier.
+ */
+const WPCOM_THEMES_TAB_TIER = 'partner';
+
+/**
+ * Themes per request, which is also the grid's page size.
+ */
+const WPCOM_THEMES_TAB_PER_PAGE = 100;
 
 /**
  * Registers the feature flag.
@@ -94,17 +105,16 @@ function wpcom_themes_tab_serve_themes_api( $result, $action, $args ) {
 		return $result;
 	}
 
-	// The whole catalog goes out on page 1; theme.js asks for page 2 when the grid is scrolled.
-	$page   = isset( $args->page ) ? (int) $args->page : 1;
-	$themes = $page > 1 ? array() : array_map( 'wpcom_themes_tab_to_api_theme', wpcom_themes_tab_get_catalog() );
+	$page    = isset( $args->page ) ? max( 1, (int) $args->page ) : 1;
+	$catalog = wpcom_themes_tab_get_catalog( $page );
 
 	return (object) array(
 		'info'   => array(
 			'page'    => $page,
-			'pages'   => 1,
-			'results' => count( $themes ),
+			'pages'   => (int) ceil( $catalog['found'] / WPCOM_THEMES_TAB_PER_PAGE ),
+			'results' => $catalog['found'],
 		),
-		'themes' => $themes,
+		'themes' => array_map( 'wpcom_themes_tab_to_api_theme', $catalog['themes'] ),
 	);
 }
 add_filter( 'themes_api', 'wpcom_themes_tab_serve_themes_api', 10, 3 );
@@ -119,11 +129,11 @@ function wpcom_themes_tab_to_api_theme( array $theme ) {
 	return (object) array(
 		'slug'           => $theme['slug'],
 		'name'           => $theme['name'],
-		'version'        => '',
+		'version'        => $theme['version'],
 		'author'         => array( 'display_name' => $theme['author'] ),
 		'description'    => $theme['description'],
 		'screenshot_url' => $theme['screenshot_url'],
-		'preview_url'    => '',
+		'preview_url'    => $theme['preview_url'],
 		'rating'         => 0,
 		'num_ratings'    => 0,
 		'requires'       => false,
@@ -132,32 +142,97 @@ function wpcom_themes_tab_to_api_theme( array $theme ) {
 }
 
 /**
- * The themes the tab lists.
+ * The transient caching one page of the catalog.
  *
- * Placeholder until the WordPress.com themes API is wired in.
- *
- * @return array[]
+ * @param int $page Page number.
+ * @return string
  */
-function wpcom_themes_tab_get_catalog() {
-	$themes = array(
-		'assembler'        => 'Assembler',
-		'twentytwentyfive' => 'Twenty Twenty-Five',
-		'jaida'            => 'Jaida',
-		'creatio'          => 'Creatio',
-		'poesis'           => 'Poesis',
-		'course'           => 'Course',
+function wpcom_themes_tab_cache_key( $page ) {
+	return 'wpcom_themes_tab_v1_' . WPCOM_THEMES_TAB_TIER . '_' . $page;
+}
+
+/**
+ * One page of the themes the tab lists, cached.
+ *
+ * @param int $page Page number.
+ * @return array{themes: array[], found: int} Empty when WordPress.com cannot be read.
+ */
+function wpcom_themes_tab_get_catalog( $page = 1 ) {
+	$cache_key = wpcom_themes_tab_cache_key( $page );
+	$cached    = get_transient( $cache_key );
+	if ( is_array( $cached ) ) {
+		return $cached;
+	}
+
+	$catalog = wpcom_themes_tab_fetch_catalog( $page );
+	if ( null === $catalog ) {
+		// Cache the miss briefly, so an outage costs one request per five minutes, not one per view.
+		$catalog = array(
+			'themes' => array(),
+			'found'  => 0,
+		);
+		set_transient( $cache_key, $catalog, 5 * MINUTE_IN_SECONDS );
+
+		return $catalog;
+	}
+
+	set_transient( $cache_key, $catalog, 6 * HOUR_IN_SECONDS );
+
+	return $catalog;
+}
+
+/**
+ * Reads one page of themes from `/wpcom/v2/themes`.
+ *
+ * @param int $page Page number.
+ * @return array{themes: array[], found: int}|null Null on any failure.
+ */
+function wpcom_themes_tab_fetch_catalog( $page ) {
+	if ( ! method_exists( Client::class, 'wpcom_json_api_request_as_blog' ) ) {
+		return null;
+	}
+
+	$path = add_query_arg(
+		array_filter(
+			array(
+				'tier'   => WPCOM_THEMES_TAB_TIER,
+				'number' => WPCOM_THEMES_TAB_PER_PAGE,
+				'page'   => $page,
+			)
+		),
+		'/themes'
 	);
 
-	$catalog = array();
-	foreach ( $themes as $slug => $name ) {
-		$catalog[] = array(
-			'slug'           => $slug,
-			'name'           => $name,
-			'author'         => 'Automattic',
-			'description'    => '',
-			'screenshot_url' => "https://s0.wp.com/wp-content/themes/pub/$slug/screenshot.png",
+	$response = Client::wpcom_json_api_request_as_blog( $path, '2', array(), null, 'wpcom' );
+	if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		return null;
+	}
+
+	$body = json_decode( wp_remote_retrieve_body( $response ), true );
+	if ( ! is_array( $body ) || ! is_array( $body['themes'] ?? null ) ) {
+		return null;
+	}
+
+	$themes = array();
+	foreach ( $body['themes'] as $theme ) {
+		// `id` is the bare directory name; `stylesheet` can carry a `pub/` prefix for WordPress.com's own themes.
+		if ( ! is_array( $theme ) || empty( $theme['id'] ) || ! is_string( $theme['id'] ) ) {
+			continue;
+		}
+
+		$themes[] = array(
+			'slug'           => $theme['id'],
+			'name'           => (string) ( $theme['name'] ?? $theme['id'] ),
+			'author'         => (string) ( $theme['author'] ?? '' ),
+			'description'    => (string) ( $theme['description'] ?? '' ),
+			'version'        => (string) ( $theme['version'] ?? '' ),
+			'screenshot_url' => (string) ( $theme['screenshot'] ?? '' ),
+			'preview_url'    => (string) ( $theme['demo_uri'] ?? '' ),
 		);
 	}
 
-	return $catalog;
+	return array(
+		'themes' => $themes,
+		'found'  => (int) ( $body['found'] ?? count( $themes ) ),
+	);
 }
