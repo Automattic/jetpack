@@ -16,7 +16,7 @@ const WPCOM_THEMES_TAB = 'wpcom';
 /**
  * Feature flag gating the tab.
  */
-const WPCOM_THEMES_TAB_FLAG = 'wpcom-themes-tab';
+const WPCOM_THEMES_TAB_FLAG = 'wpcom-themes-marketplace-tab';
 
 /**
  * Registers the feature flag.
