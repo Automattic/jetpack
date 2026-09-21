@@ -159,11 +159,15 @@ it( 'records distinct Page Cache Except and Show Options toggle events', () => {
 	} );
 } );
 
-it.each( [ false, true ] )(
-	'shows only logging in the modern Page Cache options summary (logging %s)',
-	logging => {
+it.each( [
+	{ logging: false, values: [ 'checkout', 'about' ] },
+	{ logging: true, values: [ 'checkout', 'about' ] },
+	{ logging: false, values: [] },
+] )(
+	'shows only logging in the modern Page Cache options summary (logging $logging, values $values)',
+	( { logging, values } ) => {
 		mockLogging = logging;
-		mockValues = [ 'checkout', 'about' ];
+		mockValues = values;
 		render(
 			<ModuleSurfaceProvider value="row">
 				<PageCacheMeta />
