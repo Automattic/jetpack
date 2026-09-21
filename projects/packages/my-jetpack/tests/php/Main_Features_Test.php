@@ -21,7 +21,8 @@ class Main_Features_Test extends TestCase {
 				$this->assertNotEmpty( $feature[ $key ] ?? null, "Feature {$slug} has no {$key}." );
 			}
 
-			$this->assertIsBool( $feature['delivery']['in_jetpack'] ?? null, "Feature {$slug} has no in_jetpack flag." );
+			$this->assertIsBool( $feature['delivery']['jetpack'] ?? null, "Feature {$slug} has no jetpack flag." );
+			$this->assertIsString( $feature['delivery']['plugin'] ?? null, "Feature {$slug} has no plugin slug." );
 			$this->assertIsBool( $feature['delivery']['free'] ?? null, "Feature {$slug} has no free flag." );
 		}
 	}
@@ -103,7 +104,7 @@ class Main_Features_Test extends TestCase {
 	public function test_standalone_plugins_are_the_expected_set() {
 		$urls = array_filter(
 			array_map(
-				fn( $feature ) => $feature['delivery']['standalone_url'] ?? '',
+				fn( $feature ) => $feature['delivery']['plugin_url'] ?? '',
 				Main_Features::get_feature_definitions()
 			)
 		);
@@ -143,7 +144,7 @@ class Main_Features_Test extends TestCase {
 
 			$this->assertSame(
 				$expected,
-				$feature['delivery']['standalone_url'] ?? '',
+				$feature['delivery']['plugin_url'] ?? '',
 				"Feature {$slug} links to the wrong standalone plugin."
 			);
 		}
@@ -317,22 +318,12 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * The map and the catalog must name the same features, or a card would get no control.
-	 */
-	public function test_availability_covers_every_feature() {
-		$this->assertEqualsCanonicalizing(
-			array_keys( Main_Features::get_feature_definitions() ),
-			array_keys( Main_Features::get_availability() )
-		);
-	}
-
-	/**
 	 * A feature Jetpack does not switch must have a plugin to install instead.
 	 */
 	public function test_every_feature_can_be_switched_somewhere() {
-		foreach ( Main_Features::get_availability() as $slug => $availability ) {
+		foreach ( Main_Features::get_feature_definitions() as $slug => $definition ) {
 			$this->assertTrue(
-				$availability['jetpack'] || '' !== $availability['plugin'],
+				$definition['delivery']['jetpack'] || '' !== $definition['delivery']['plugin'],
 				"Feature {$slug} can be switched neither in Jetpack nor by a plugin"
 			);
 		}
@@ -342,17 +333,23 @@ class Main_Features_Test extends TestCase {
 	 * A mapped plugin must be the product's own standalone plugin, or Install fetches the wrong one.
 	 */
 	public function test_plugins_match_the_product_standalone_plugin() {
-		$availability = Main_Features::get_availability();
-
 		foreach ( Main_Features::get_feature_definitions() as $slug => $definition ) {
-			$plugin        = $availability[ $slug ]['plugin'];
 			$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
 
-			if ( '' === $plugin || ! $product_class || ! $product_class::$has_standalone_plugin ) {
+			if ( ! $product_class ) {
 				continue;
 			}
 
-			$this->assertSame( $product_class::$plugin_slug, $plugin, "Feature {$slug} maps to the wrong plugin" );
+			// Asserted both ways round: a product that ships a plugin must name it, and one
+			// that does not must name nothing. Skipping the empty case would let a feature
+			// lose its plugin — and with it the only control its card would offer.
+			$expected = $product_class::$has_standalone_plugin ? $product_class::$plugin_slug : '';
+
+			$this->assertSame(
+				$expected,
+				$definition['delivery']['plugin'],
+				"Feature {$slug} names the wrong standalone plugin"
+			);
 		}
 	}
 
