@@ -109,8 +109,23 @@ beforeEach( () => {
 	} ) );
 } );
 
+const queryClients: QueryClient[] = [];
+
+function createQueryClient() {
+	const client = new QueryClient( {
+		defaultOptions: { queries: { retry: false, gcTime: Infinity } },
+	} );
+	queryClients.push( client );
+	return client;
+}
+
+afterEach( () => {
+	queryClients.forEach( client => client.clear() );
+	queryClients.length = 0;
+} );
+
 function queryWrapper() {
-	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
+	const client = createQueryClient();
 	return ( { children }: { children: React.ReactNode } ) => (
 		<QueryClientProvider client={ client }>{ children }</QueryClientProvider>
 	);
@@ -127,7 +142,7 @@ function OverviewWithHeader( { isVisible }: { isVisible?: boolean } ) {
 }
 
 function renderOverview() {
-	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
+	const client = createQueryClient();
 	const view = render(
 		<QueryClientProvider client={ client }>
 			<OverviewWithHeader />
@@ -141,16 +156,19 @@ test( 'contains a render failure with the Overview error fallback', () => {
 		throw new Error( 'Score rendering failed' );
 	} );
 	const consoleError = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+	let view: ReturnType< typeof renderOverview > | undefined;
 	try {
-		renderOverview();
+		view = renderOverview();
 		expect(
 			screen.getByText( 'Unable to display performance scores', { selector: 'span' } )
 		).toBeInTheDocument();
 		expect( screen.getByText( 'Score rendering failed' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Run speed test' } ) ).not.toBeInTheDocument();
 	} finally {
+		view?.unmount();
 		scoreHook.mockRestore();
 		consoleError.mockRestore();
+		view?.client.clear();
 	}
 } );
 
@@ -194,12 +212,13 @@ test.each( [
 					: fetch( options )
 			);
 	}
-	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
+	const client = createQueryClient();
 	const wrapper = ( { children }: { children: React.ReactNode } ) => (
 		<QueryClientProvider client={ client }>{ children }</QueryClientProvider>
 	);
+	let view: ReturnType< typeof render > | undefined;
 	try {
-		const { rerender } = render(
+		view = render(
 			<div hidden>
 				<Overview isVisible={ false } onHeaderActionChange={ () => {} } />
 			</div>,
@@ -217,13 +236,14 @@ test.each( [
 		} );
 		expect( region ).toBeEmptyDOMElement();
 		await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
-		rerender(
+		view.rerender(
 			<div>
 				<Overview isVisible onHeaderActionChange={ () => {} } />
 			</div>
 		);
 		await waitFor( () => expect( region ).toHaveTextContent( message ) );
 	} finally {
+		view?.unmount();
 		scoreHook?.mockRestore();
 		consoleError?.mockRestore();
 		client.clear();
@@ -231,18 +251,26 @@ test.each( [
 } );
 
 test( 'moves focus from Run speed test to the error fallback when a render failure removes it', async () => {
-	const { client, rerender } = renderOverview();
-	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
-	const action = screen.getByRole( 'button', { name: 'Run speed test' } );
-	act( () => action.focus() );
-	fireEvent.click( action );
-	await waitFor( () => expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 ) );
-	expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveFocus();
-	const scoreHook = jest.spyOn( speedScores, 'useSpeedScores' ).mockImplementation( () => {
-		throw new Error( 'Score rendering failed' );
-	} );
-	const consoleError = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+	const { client, rerender, unmount } = renderOverview();
+	let scoreHook: jest.SpyInstance | undefined;
+	let consoleError: jest.SpyInstance | undefined;
 	try {
+		await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+		await waitFor( () =>
+			expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'false'
+			)
+		);
+		const action = screen.getByRole( 'button', { name: 'Run speed test' } );
+		act( () => action.focus() );
+		fireEvent.click( action );
+		await waitFor( () => expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 ) );
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveFocus();
+		scoreHook = jest.spyOn( speedScores, 'useSpeedScores' ).mockImplementation( () => {
+			throw new Error( 'Score rendering failed' );
+		} );
+		consoleError = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
 		rerender(
 			<QueryClientProvider client={ client }>
 				<OverviewWithHeader />
@@ -253,14 +281,15 @@ test( 'moves focus from Run speed test to the error fallback when a render failu
 		// eslint-disable-next-line testing-library/no-node-access
 		expect( fallback.closest( '[tabindex="-1"]' ) ).toHaveFocus();
 	} finally {
-		scoreHook.mockRestore();
-		consoleError.mockRestore();
+		unmount();
+		scoreHook?.mockRestore();
+		consoleError?.mockRestore();
 		client.clear();
 	}
 } );
 
 test( 'leaves focus alone when a render failure removes Run speed test without focus', async () => {
-	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
+	const client = createQueryClient();
 	const dashboard = () => (
 		<QueryClientProvider client={ client }>
 			<button>Overview</button>
@@ -268,21 +297,24 @@ test( 'leaves focus alone when a render failure removes Run speed test without f
 		</QueryClientProvider>
 	);
 	const view = render( dashboard() );
-	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
-	const tab = screen.getByRole( 'button', { name: 'Overview' } );
-	act( () => tab.focus() );
-	const scoreHook = jest.spyOn( speedScores, 'useSpeedScores' ).mockImplementation( () => {
-		throw new Error( 'Score rendering failed' );
-	} );
-	const consoleError = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+	let scoreHook: jest.SpyInstance | undefined;
+	let consoleError: jest.SpyInstance | undefined;
 	try {
+		await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+		const tab = screen.getByRole( 'button', { name: 'Overview' } );
+		act( () => tab.focus() );
+		scoreHook = jest.spyOn( speedScores, 'useSpeedScores' ).mockImplementation( () => {
+			throw new Error( 'Score rendering failed' );
+		} );
+		consoleError = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
 		view.rerender( dashboard() );
 		expect( screen.queryByRole( 'button', { name: 'Run speed test' } ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Score rendering failed' ) ).toBeInTheDocument();
 		expect( tab ).toHaveFocus();
 	} finally {
-		scoreHook.mockRestore();
-		consoleError.mockRestore();
+		view.unmount();
+		scoreHook?.mockRestore();
+		consoleError?.mockRestore();
 		client.clear();
 	}
 } );
@@ -326,7 +358,7 @@ test( 'loads online scores and regenerates them with refresh tracking and histor
 } );
 
 test( 'offers Run speed test in the page header only while the Overview is visible', async () => {
-	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
+	const client = createQueryClient();
 	const dashboard = ( isVisible: boolean ) => (
 		<QueryClientProvider client={ client }>
 			<OverviewWithHeader isVisible={ isVisible } />
@@ -448,7 +480,7 @@ test( 'regenerates scores after a Settings toggle and return to the mounted Over
 			<button onClick={ () => setState( ! state?.active ) }>Defer Non-Essential JavaScript</button>
 		);
 	}
-	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
+	const client = createQueryClient();
 	const dashboard = ( isOverview: boolean ) => (
 		<>
 			<div hidden={ ! isOverview }>
