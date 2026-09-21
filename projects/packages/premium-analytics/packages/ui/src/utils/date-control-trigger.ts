@@ -10,7 +10,7 @@ import type { ComponentProps, KeyboardEvent } from 'react';
  */
 export type DateControlTriggerProps = Pick<
 	ComponentProps< typeof Button >,
-	'variant' | 'tone' | 'size' | 'className' | 'style'
+	'variant' | 'tone' | 'size' | 'className'
 >;
 
 /** A bordered neutral box, so every trigger on a row reads as one control set. */
