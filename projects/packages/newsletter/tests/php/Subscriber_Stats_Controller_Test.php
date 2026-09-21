@@ -234,8 +234,11 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		$request = new WP_REST_Request( 'GET' );
 		$request->set_query_params( array( 'quantity' => 30 ) );
 
-		$this->assertSame( $payload, $this->controller->get_email_summary( $request ) );
-		$this->assertSame( $payload, $this->controller->get_email_summary( $request ) );
+		$from_http  = $this->controller->get_email_summary( $request );
+		$from_cache = $this->controller->get_email_summary( $request );
+
+		$this->assertSame( $payload, $from_http );
+		$this->assertSame( $payload, $from_cache );
 		$this->assertSame( 1, $calls );
 	}
 
