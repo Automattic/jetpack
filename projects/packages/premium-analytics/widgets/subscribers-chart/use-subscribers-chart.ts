@@ -26,15 +26,14 @@ export interface SubscribersChartPoint {
 }
 
 /**
- * Current and previous period subscriber series. Per-metric headline totals are
- * derived in the widget from the last point of each window.
+ * The subscriber series for the selected window. Per-metric headline totals are
+ * derived in the widget from its last point.
  */
 export interface SubscribersChartState {
 	current: SubscribersChartPoint[];
-	previous: SubscribersChartPoint[];
 	hasPaid: boolean;
 	isLoading: boolean;
-	/** True while either window is fetching, including granularity-switch refetches. */
+	/** True while fetching, including granularity-switch refetches. */
 	isFetching: boolean;
 	isError: boolean;
 	refetch: () => void;
@@ -60,8 +59,8 @@ function toPoints(
 }
 
 /**
- * Fetches the subscribers time series for the dashboard's date range and
- * bucket size, including the comparison window when the dashboard requests it.
+ * Fetches the subscribers time series for the widget's date range and bucket
+ * size. The widget scopes itself out of comparison, so there is no second window.
  */
 export default function useSubscribersChart(
 	reportParams: ReportParams,
@@ -75,14 +74,9 @@ export default function useSubscribersChart(
 		() => toPoints( report.primary.data, zone ),
 		[ report.primary.data, zone ]
 	);
-	const previous = useMemo(
-		() => toPoints( report.comparison.data, zone ),
-		[ report.comparison.data, zone ]
-	);
 
 	return {
 		current,
-		previous,
 		hasPaid: current.some( point => point.paid > 0 ),
 		isLoading: report.isLoading,
 		isFetching: report.isFetching,

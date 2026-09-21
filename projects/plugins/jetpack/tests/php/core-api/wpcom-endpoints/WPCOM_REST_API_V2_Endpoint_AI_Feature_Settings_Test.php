@@ -94,6 +94,8 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
 		StatusCache::clear();
+		// Module overrides are cached per request, which spans the whole test run.
+		Jetpack_Modules_Overrides::instance()->clear_cache();
 		\Jetpack_Options::delete_option( array( 'master_user', 'user_tokens' ) );
 		( new Connection_Manager( 'jetpack' ) )->reset_connection_status();
 

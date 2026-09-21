@@ -13,6 +13,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { postContent } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -101,6 +102,7 @@ function PostingActivityInner() {
 				ariaLabel={ __( 'Monthly posting activity', 'jetpack-premium-analytics-pkg' ) }
 				formatValue={ formatPostCount }
 				emptyLabel={ __( 'No posts', 'jetpack-premium-analytics-pkg' ) }
+				icon={ postContent }
 				lessLabel={ __( 'Fewer posts', 'jetpack-premium-analytics-pkg' ) }
 				moreLabel={ __( 'More posts', 'jetpack-premium-analytics-pkg' ) }
 			/>

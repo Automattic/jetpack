@@ -86,6 +86,30 @@ async function insertPayPalBlock( page ) {
 }
 
 /**
+ * Record every create request the page makes from now on.
+ *
+ * The payment is written with the post, so a button held back means the save ran and
+ * no create request went out.
+ *
+ * @param {import('@playwright/test').Page} page - Playwright page instance.
+ * @return {Array} The create requests, filled in as they happen.
+ */
+function recordCreateRequests( page ) {
+	const created = [];
+
+	page.on( 'request', request => {
+		if (
+			request.method() === 'POST' &&
+			/\/wp-json\/wpcom\/v2\/paypal\/buttons(\?|$)/.test( request.url() )
+		) {
+			created.push( request.url() );
+		}
+	} );
+
+	return created;
+}
+
+/**
  * Navigate from the Welcome step through Dashboard to the Credentials step.
  * Assumes the block is already inserted and on the Welcome step.
  *
@@ -476,12 +500,26 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 		test( 'holds the payment back while the form is empty', async ( { page } ) => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
-			await insertPayPalBlock( page );
+			const canvas = await insertPayPalBlock( page );
+			const created = recordCreateRequests( page );
 
-			// The payment is written with the post, so the sidebar says what the save will do.
-			await expect( page.locator( '.jetpack-paypal-payment-buttons__form-actions' ) ).toContainText(
-				'Complete the highlighted fields'
+			await page.getByRole( 'button', { name: 'Save draft' } ).click();
+
+			// The save sync says which button it skipped and why.
+			await expect( page.locator( '.components-snackbar' ) ).toContainText(
+				'The PayPal button "Untitled" was not sent to PayPal:',
+				{ timeout: 10000 }
 			);
+			await expect( page.locator( '.editor-post-saved-state' ) ).toContainText( 'Saved', {
+				timeout: 10000,
+			} );
+
+			expect( created ).toEqual( [] );
+			await expect(
+				canvas.locator(
+					'.wp-block-jetpack-paypal-payment-buttons .jetpack-paypal-button-preview__checkout-button'
+				)
+			).toBeHidden();
 		} );
 
 		test( 'creates the button on save and shows the preview', async ( { page } ) => {
@@ -492,9 +530,6 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await fillButtonForm( page, { name: 'Test Product', price: '29.99' } );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-			await expect( page.locator( '.jetpack-paypal-payment-buttons__form-actions' ) ).toContainText(
-				'created on PayPal when you save'
-			);
 
 			// Saving the post creates the payment.
 			await page.getByRole( 'button', { name: 'Save draft' } ).click();
@@ -545,7 +580,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 	// 4. Error Flow
 	// ---------------------------------------------------------------
 	test.describe( 'Error Flow', () => {
-		test( 'Create button disabled when product name is empty', async ( { page } ) => {
+		test( 'holds the payment back when the product name is empty', async ( { page } ) => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
 			const canvas = await insertPayPalBlock( page );
@@ -555,12 +590,21 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			// Fill only price, leave name empty.
 			await block.locator( 'input[placeholder="29.99"]' ).fill( '10.00' );
 
-			await expect( page.locator( '.jetpack-paypal-payment-buttons__form-actions' ) ).toContainText(
-				'Complete the highlighted fields'
+			const created = recordCreateRequests( page );
+			await page.getByRole( 'button', { name: 'Save draft' } ).click();
+
+			await expect( page.locator( '.components-snackbar' ) ).toContainText(
+				'The PayPal button "Untitled" was not sent to PayPal: Product name is required.',
+				{ timeout: 10000 }
 			);
+			await expect( page.locator( '.editor-post-saved-state' ) ).toContainText( 'Saved', {
+				timeout: 10000,
+			} );
+
+			expect( created ).toEqual( [] );
 		} );
 
-		test( 'Create button disabled when price is zero', async ( { page } ) => {
+		test( 'holds the payment back when the price is zero', async ( { page } ) => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
 			const canvas = await insertPayPalBlock( page );
@@ -573,9 +617,18 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			// Blur the price field to trigger validation.
 			await block.locator( 'input[placeholder="e.g., Premium Widget"]' ).click();
 
-			await expect( page.locator( '.jetpack-paypal-payment-buttons__form-actions' ) ).toContainText(
-				'Complete the highlighted fields'
+			const created = recordCreateRequests( page );
+			await page.getByRole( 'button', { name: 'Save draft' } ).click();
+
+			await expect( page.locator( '.components-snackbar' ) ).toContainText(
+				'The PayPal button "Test" was not sent to PayPal:',
+				{ timeout: 10000 }
 			);
+			await expect( page.locator( '.editor-post-saved-state' ) ).toContainText( 'Saved', {
+				timeout: 10000,
+			} );
+
+			expect( created ).toEqual( [] );
 		} );
 
 		test( 'shows field validation error after blurring empty product name', async ( { page } ) => {

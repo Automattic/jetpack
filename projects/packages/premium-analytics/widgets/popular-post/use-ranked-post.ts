@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	findAuthorRow,
 	postContentQuery,
 	postsContentQuery,
 	useStatsQuery,
@@ -100,9 +101,7 @@ export function useAuthorRankedPost(
 		if ( ! enabled ) {
 			return [];
 		}
-		const author = ranking.comparisonRows?.rows.find(
-			row => String( row.id ) === String( authorId )
-		);
+		const author = findAuthorRow( ranking.comparisonRows?.rows, authorId );
 
 		return author?.children ?? [];
 	}, [ enabled, ranking.comparisonRows, authorId ] );

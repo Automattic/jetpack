@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Staging sites: Add a wpcomsh_is_staging_environment filter to override staging environment detection.

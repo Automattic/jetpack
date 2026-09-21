@@ -59,15 +59,15 @@ describe( 'MonthCalendarHeatmap', () => {
 		expect( screen.getAllByTestId( 'heatmap-cell-placeholder' ) ).toHaveLength( 16 );
 	} );
 
-	it( 'leads the tooltip with the count, or the empty label', async () => {
+	it( 'titles the tooltip with the date, then the count or the empty label', async () => {
 		const user = userEvent.setup();
 		render( <MonthCalendarHeatmap valueByDay={ VALUE_BY_DAY } range={ RANGE } { ...LABELS } /> );
 
 		await user.hover( screen.getByRole( 'gridcell', { name: 'Fri, Oct 3, 2025: 2' } ) );
-		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( '2 postsFri, Oct 3, 2025' );
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Fri, Oct 3, 20252 posts' );
 
 		await user.hover( screen.getByRole( 'gridcell', { name: 'Sat, Oct 4, 2025: No data' } ) );
-		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'No postsSat, Oct 4, 2025' );
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Sat, Oct 4, 2025No posts' );
 	} );
 
 	describe( 'when the months overflow the tile', () => {

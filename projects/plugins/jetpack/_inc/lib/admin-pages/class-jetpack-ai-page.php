@@ -26,6 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once dirname( __DIR__ ) . '/class-jetpack-ai-feature-flags.php';
+require_once dirname( __DIR__ ) . '/class-jetpack-ai-settings.php';
 
 /**
  * Builds the Jetpack AI admin page and its sidebar menu entry.
@@ -393,11 +394,13 @@ class Jetpack_AI_Page {
 			Tracking::register_tracks_functions_scripts( true );
 		}
 
-		if ( $show_scheduled_tasks_view ) {
-			Connection_Initial_State::render_script( 'jetpack-ai-admin' );
-		}
+		// Unconditional, as on the other Jetpack admin pages: the connection store
+		// reads it, and only Scheduled tasks used to need it here.
+		Connection_Initial_State::render_script( 'jetpack-ai-admin' );
 
-		$host = new Host();
+		$host            = new Host();
+		$has_my_jetpack  = self::has_my_jetpack();
+		$is_offline_mode = $status->is_offline_mode();
 
 		/**
 		 * Filters the host-specific AI Hub configuration.
@@ -414,11 +417,24 @@ class Jetpack_AI_Page {
 				'showGatedViews'    => ! $host->is_vip_site()
 					&& ( ! $host->is_wpcom_platform() || ( $host->is_woa_site() && $is_internal_test ) ),
 				'showA12sBadge'     => $host->is_woa_site() && $is_internal_test,
-				'isUserConnected'   => ( new Connection_Manager() )->is_user_connected(),
-				// My Jetpack is removed on VIP, so that route dead-ends there.
-				'userConnectionUrl' => $host->is_vip_site()
-					? 'admin.php?page=jetpack#/connect-user'
-					: 'admin.php?page=my-jetpack#/connection',
+				// The same verdicts the feature-settings endpoint reports. That call
+				// exists for the AI Features toggles; the notice must not wait on it.
+				'isUserConnected'   => Jetpack_AI_Settings::user_is_connected(),
+				'isConnected'       => Jetpack_AI_Settings::site_is_connected(),
+				'hostAllowsAi'      => Jetpack_AI_Settings::host_allows_ai(),
+				'masterEnabled'     => Jetpack_AI_Settings::is_master_enabled(),
+				// The route, not a flag: each one documents a different hook.
+				'masterForcedOff'   => Jetpack_AI_Settings::get_master_forced_off_route(),
+				'isOfflineMode'     => $is_offline_mode,
+				// These three answer one question; a filter changing one alone leaves
+				// a label pointing at a page that is not there.
+				'hasMyJetpack'      => $has_my_jetpack,
+				'userConnectionUrl' => $has_my_jetpack
+					? 'admin.php?page=my-jetpack#/connection'
+					: 'admin.php?page=jetpack#/connect-user',
+				'manageUrl'         => $has_my_jetpack
+					? 'admin.php?page=my-jetpack#/products'
+					: 'admin.php?page=jetpack_modules',
 				'mcpSettingsApi'    => array(
 					'path'   => '/wpcom/v2/jetpack-ai/mcp-settings',
 					'format' => 'jetpack',
@@ -435,7 +451,22 @@ class Jetpack_AI_Page {
 			'activityLogUrl'    => $activity_log_url,
 			'seoSettingsUrl'    => $seo_settings_url,
 			'siteAdminUrl'      => admin_url(),
-			'userConnectionUrl' => esc_url_raw( $config['userConnectionUrl'] ),
+			'userConnectionUrl' => esc_url_raw( $config['userConnectionUrl'] ?? '' ),
+			'manageUrl'         => esc_url_raw( $config['manageUrl'] ?? '' ),
+			'hasMyJetpack'      => ! empty( $config['hasMyJetpack'] ),
+			'isConnected'       => ! empty( $config['isConnected'] ),
+			'hostAllowsAi'      => ! empty( $config['hostAllowsAi'] ),
+			'masterEnabled'     => ! empty( $config['masterEnabled'] ),
+			'masterForcedOff'   => in_array(
+				$config['masterForcedOff'] ?? '',
+				array(
+					Jetpack_AI_Settings::FORCED_OFF_ROUTE_FILTER,
+					Jetpack_AI_Settings::FORCED_OFF_ROUTE_FILTER_VIP,
+					Jetpack_AI_Settings::FORCED_OFF_ROUTE_MODULES,
+				),
+				true
+			) ? $config['masterForcedOff'] : '',
+			'isOfflineMode'     => ! empty( $config['isOfflineMode'] ),
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'pluginUrl'         => plugins_url( '', JETPACK__PLUGIN_FILE ),
@@ -466,7 +497,7 @@ class Jetpack_AI_Page {
 			// Identity for Tracks; the lookup can call WordPress.com on a
 			// cache miss, so it shares the sender's guard.
 			'tracksUserData'    => $can_send_tracks ? self::get_tracks_user_data() : null,
-			'mcpSettingsApi'    => $config['mcpSettingsApi'],
+			'mcpSettingsApi'    => $config['mcpSettingsApi'] ?? array(),
 		);
 
 		wp_add_inline_script(
@@ -538,6 +569,24 @@ class Jetpack_AI_Page {
 			: '';
 
 		return '' !== $email && '@automattic.com' === substr( $email, -15 );
+	}
+
+	/**
+	 * Whether My Jetpack is loaded on this host.
+	 *
+	 * Hosts drop it with the `jetpack_my_jetpack_should_initialize` filter, and
+	 * VIP removes it from outside this codebase, where that filter cannot answer.
+	 *
+	 * @return bool
+	 */
+	private static function has_my_jetpack() {
+		if ( ( new Host() )->is_vip_site() ) {
+			return false;
+		}
+
+		return class_exists( 'Automattic\\Jetpack\\My_Jetpack\\Initializer' )
+			&& method_exists( 'Automattic\\Jetpack\\My_Jetpack\\Initializer', 'should_initialize' )
+			&& \Automattic\Jetpack\My_Jetpack\Initializer::should_initialize();
 	}
 
 	/**
