@@ -194,8 +194,9 @@ test( 'Page Cache closes after keyboard departure from its portaled tooltip', as
 	await page.keyboard.press( 'Escape' );
 	await expect( content ).toBeHidden();
 	await expect( trigger ).toBeFocused();
-	await page.keyboard.press( 'Enter' );
+	await trigger.click();
 	await expect( content ).toBeVisible();
+	await expect( page.locator( '.icon-tooltip-container' ) ).toBeFocused();
 	await trigger.hover();
 	await page.mouse.down();
 	await expect( trigger ).toBeFocused();
