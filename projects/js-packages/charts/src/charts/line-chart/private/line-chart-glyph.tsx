@@ -20,8 +20,7 @@ const LineChartGlyph: FC< LineChartGlyphProps > = ( {
 	const { xScale, yScale } = useContext( DataContext ) || {};
 	if ( ! xScale || ! yScale ) return null;
 
-	// A `null` bucket scales to `undefined`, not `NaN`, so `find`/`findLast` skip it
-	// to land the edge glyph on the nearest real reading instead of dropping it.
+	// Skip buckets with no reading so the edge glyph lands on the nearest real one.
 	const hasFiniteY = ( datum: ( typeof data.data )[ number ] ) => {
 		const scaledY = yScale( accessors.yAccessor( datum ) );
 		return typeof scaledY === 'number' && Number.isFinite( scaledY );
