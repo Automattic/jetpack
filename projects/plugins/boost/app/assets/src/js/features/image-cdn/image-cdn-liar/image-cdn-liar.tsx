@@ -1,6 +1,7 @@
 import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import styles from './image-cdn-liar.module.scss';
+import { useModuleSurface } from '$features/module/surface';
 import ModuleSubsection from '$features/ui/module-subsection/module-subsection';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { useMutationNotice } from '$features/ui/mutation-notice/mutation-notice';
@@ -11,6 +12,7 @@ type ImageCdnLiarProps = {
 };
 
 export default function ImageCdnLiar( { isPremium }: ImageCdnLiarProps ) {
+	const surface = useModuleSurface();
 	if ( ! isPremium ) {
 		return;
 	}
@@ -37,6 +39,23 @@ export default function ImageCdnLiar( { isPremium }: ImageCdnLiarProps ) {
 
 		recordBoostEvent( 'image_cdn_liar_toggle', { enabled: Number( value ) } );
 	};
+
+	if ( surface === 'row' ) {
+		return (
+			<div className={ styles.well }>
+				<ToggleControl
+					label={ __( 'Auto-Resize Lazy Images', 'jetpack-boost' ) }
+					help={ __(
+						'Automatically resize images that are lazily loaded to fit the exact dimensions they occupy on the page.',
+						'jetpack-boost'
+					) }
+					checked={ imageCdnLiar }
+					onChange={ handleToggle }
+					__nextHasNoMarginBottom
+				/>
+			</div>
+		);
+	}
 
 	return (
 		<ModuleSubsection>
