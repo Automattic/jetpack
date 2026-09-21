@@ -22,7 +22,7 @@ const renderHub = ( { siteLevelEnabled = true } = {} ) =>
 
 const COLUMNS = [
 	[ 'Enable MCP', 'Give your AI agent access to the site and control what it can read and write.' ],
-	[ 'Connect agent', 'Connect your agent of choice: Claude, ChatGPT, VS Code, and others.' ],
+	[ 'Connect agent', 'Connect your agent of choice: Claude, ChatGPT, and others.' ],
 	[ 'Manage via chat', 'Create content, get reports, and manage your site from the conversation.' ],
 ];
 

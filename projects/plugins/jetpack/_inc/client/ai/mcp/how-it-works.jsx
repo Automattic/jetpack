@@ -21,10 +21,7 @@ const STEPS = [
 		key: 'connect',
 		icon: connection,
 		title: __( 'Connect agent', 'jetpack' ),
-		description: __(
-			'Connect your agent of choice: Claude, ChatGPT, VS Code, and others.',
-			'jetpack'
-		),
+		description: __( 'Connect your agent of choice: Claude, ChatGPT, and others.', 'jetpack' ),
 	},
 	{
 		key: 'manage',
