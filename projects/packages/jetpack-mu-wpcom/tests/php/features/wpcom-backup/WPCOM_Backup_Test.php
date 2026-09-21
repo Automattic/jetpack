@@ -480,11 +480,11 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 		$this->set_up_backup_request();
 		WPCOM_Backup::register_page();
 
-		$payload = $this->localized_initial_state();
+		$payload = (array) $this->localized_initial_state();
 
 		$this->assertSame(
 			array( 'state', 'domain', 'isEligible', 'errors', 'warnings', 'upgradeUrl', 'activateUrl', 'supportUrl' ),
-			array_keys( (array) $payload )
+			array_keys( $payload )
 		);
 		$this->assertSame( WPCOM_Backup::STATE_UPGRADE, $payload['state'] );
 		$this->assertSame( wp_parse_url( home_url(), PHP_URL_HOST ), $payload['domain'] );
