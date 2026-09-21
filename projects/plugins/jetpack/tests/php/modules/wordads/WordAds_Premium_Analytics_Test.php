@@ -34,7 +34,9 @@ class WordAds_Premium_Analytics_Test extends WP_UnitTestCase {
 		remove_action( WordAds_Premium_Analytics::REGISTER_ACTION, array( 'WordAds_Premium_Analytics', 'register_dashboard_section' ), 20 );
 
 		$instance = new ReflectionProperty( Dashboard_Section_Registry::class, 'instance' );
-		$instance->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance->setAccessible( true );
+		}
 		$instance->setValue( null, null );
 
 		wp_set_current_user( 0 );
