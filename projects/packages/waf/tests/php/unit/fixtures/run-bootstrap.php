@@ -54,6 +54,9 @@ echo "\nJETPACK_WAF_REPORT:", json_encode(
 		'variables'      => $leaked,
 		'runner_loaded'  => class_exists( Automattic\Jetpack\Waf\Waf_Runner::class, false ),
 		'runtime_loaded' => class_exists( Automattic\Jetpack\Waf\Waf_Runtime::class, false ),
+		// Neither class is loaded during a run; only the WAF one should still resolve afterwards.
+		'loads_waf'      => class_exists( Automattic\Jetpack\Waf\Waf_Blocklog_Manager::class ),
+		'loads_other'    => class_exists( Automattic\Jetpack\Modules::class ),
 		'package_files'  => array_values(
 			array_filter(
 				get_included_files(),

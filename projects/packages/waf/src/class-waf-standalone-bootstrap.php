@@ -161,8 +161,6 @@ class Waf_Standalone_Bootstrap {
 
 		// Autoload from the classmap alone rather than `vendor/autoload.php`: Composer's loader would also run every
 		// package's `files` entries and mark them loaded, so the Jetpack autoloader later skips its own, possibly newer, copies.
-		// The loader stays registered as a last resort behind the Jetpack autoloader, which prepends itself, so a class the
-		// preloaded WAF references that the active plugin's older copy lacks still resolves instead of fataling.
 		// The closure keeps every variable, including the classmap's own `$vendorDir`/`$baseDir`, out of the global scope.
 		$template = <<<'PHP'
 		<?php
@@ -187,6 +185,24 @@ class Waf_Standalone_Bootstrap {
 			};
 			spl_autoload_register( $autoloader );
 			Automattic\Jetpack\Waf\Waf_Runner::initialize();
+			spl_autoload_unregister( $autoloader );
+
+			// The preloaded WAF classes keep running once WordPress starts, and the active plugin's older copy may lack a class
+			// they reference. Keep resolving WAF classes from here, behind the Jetpack autoloader, which prepends itself.
+			$waf_classmap = array_filter(
+				$classmap,
+				static function ( $class_name ) {
+					return 0 === strpos( $class_name, 'Automattic\Jetpack\Waf\\' );
+				},
+				ARRAY_FILTER_USE_KEY
+			);
+			spl_autoload_register(
+				static function ( $class_name ) use ( $waf_classmap ) {
+					if ( isset( $waf_classmap[ $class_name ] ) ) {
+						require $waf_classmap[ $class_name ];
+					}
+				}
+			);
 		} )();
 
 		PHP;
