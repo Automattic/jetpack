@@ -19,7 +19,7 @@ import { useDispatch } from '@wordpress/data';
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, Icon } from '@wordpress/icons';
-import { store as noticesStore, SnackbarNotices } from '@wordpress/notices';
+import { store as noticesStore } from '@wordpress/notices';
 import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
 import ChunkErrorBoundary from './components/chunk-error-boundary/index';
 import LoadingSpinner from './components/loading-spinner/index';
@@ -202,7 +202,7 @@ export default function App() {
 		showA12sBadge = false,
 	} = window?.jetpackAiSettings ?? {};
 	const [ view, setView ] = useState( getViewFromHash );
-	// Save feedback goes through core SnackbarNotices (@wordpress/notices).
+	// Save feedback goes through the snackbars boot's layout renders.
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const mcpViewedRecorded = useRef( false );
@@ -434,7 +434,6 @@ export default function App() {
 				{ isSubView && (
 					<BackEyebrow label={ VIEW_TITLES[ activeTab ] } onNavigate={ navigateToParent } />
 				) }
-				<SnackbarNotices className="jetpack-ai-admin__snackbar-notices" />
 
 				<PageNotice
 					state={ noticeState }

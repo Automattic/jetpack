@@ -3,7 +3,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch, select } from '@wordpress/data';
-import { store as noticesStore } from '@wordpress/notices';
+import { SnackbarNotices, store as noticesStore } from '@wordpress/notices';
 import analytics from 'lib/analytics';
 import App from '../main';
 // Compiles the lazy tab module before the tests run, so the flag test's 1s wait
@@ -13,6 +13,16 @@ import '../scheduled-tasks/index';
 // main.jsx imports the webpack-aliased 'lib/analytics', which doesn't resolve
 // under jest — provide it virtually. (jest.mock is hoisted above the imports.)
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
+
+// boot's layout renders the page's snackbars, so the app no longer mounts a
+// list of its own. Pair them here to keep asserting on what a user reads.
+const renderWithSnackbars = () =>
+	render(
+		<>
+			<App />
+			<SnackbarNotices />
+		</>
+	);
 jest.mock( '@automattic/jetpack-ai-client/jwt', () => ( {
 	__esModule: true,
 	default: jest.fn(),
@@ -570,7 +580,7 @@ describe( 'AI admin page (main.jsx)', () => {
 	test( 'save-confirmation: a successful AI-settings save shows a success snackbar', async () => {
 		mockApiFetch( { featurePost: () => Promise.resolve( enabledSettings() ) } );
 
-		render( <App /> );
+		renderWithSnackbars();
 
 		const toggle = await screen.findByRole( 'checkbox', { name: /Writing Assistant/ } );
 		await userEvent.click( toggle );
@@ -590,7 +600,7 @@ describe( 'AI admin page (main.jsx)', () => {
 	test( 'save-confirmation: a failed AI-settings save shows an explicit-dismiss error snackbar', async () => {
 		mockApiFetch( { featurePost: () => Promise.reject( new Error( 'nope' ) ) } );
 
-		render( <App /> );
+		renderWithSnackbars();
 
 		const toggle = await screen.findByRole( 'checkbox', { name: /Writing Assistant/ } );
 		await userEvent.click( toggle );
@@ -623,7 +633,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			},
 		} );
 
-		render( <App /> );
+		renderWithSnackbars();
 
 		const toggle = await screen.findByRole( 'checkbox', { name: /Writing Assistant/ } );
 		await userEvent.click( toggle );
