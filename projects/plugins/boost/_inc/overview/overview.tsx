@@ -9,7 +9,11 @@ import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import HistoryChartCard from './history-chart-card';
 import HistoryUpsell from './history-upsell';
 import { bucketHistoryDays } from './lib/history-days';
-import { OVERVIEW_MODULES_CHANGE_EVENT, relayedQueryKeys } from './lib/modules-state-bridge';
+import {
+	OVERVIEW_MODULES_CHANGE_EVENT,
+	relayedQueryKeys,
+	type ModulesStateChange,
+} from './lib/modules-state-bridge';
 import { useHistoryRange } from './lib/use-history-range';
 import {
 	canOfferUpgrade,
@@ -91,9 +95,11 @@ function OverviewContent( {
 
 	useEffect( () => {
 		const onModulesChange = ( event: Event ) => {
-			const key = ( event as CustomEvent< string > ).detail;
-			if ( relayedQueryKeys.includes( key ) ) {
+			const { key, data } = ( event as CustomEvent< ModulesStateChange > ).detail;
+			if ( key === 'modules_state' ) {
 				queryClient.invalidateQueries( { queryKey: [ key ] } );
+			} else if ( relayedQueryKeys.includes( key ) ) {
+				queryClient.setQueryData( [ key ], data );
 			}
 		};
 		window.addEventListener( OVERVIEW_MODULES_CHANGE_EVENT, onModulesChange );

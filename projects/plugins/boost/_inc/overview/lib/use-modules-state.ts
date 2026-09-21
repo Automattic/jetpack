@@ -142,12 +142,6 @@ function useGenerationState( key: 'critical_css_state' | 'lcp_state', enabled: b
 		queryFn: async () => generationSchemas[ key ].parse( await requestDataSync( key ) ),
 		initialData: initial?.success ? initial.data : undefined,
 		enabled: enabled && isSiteOnline(),
-		refetchInterval: query => {
-			if ( ! enabled || ! isSiteOnline() ) {
-				return false;
-			}
-			return query.state.data?.status === 'pending' ? 2000 : 30000;
-		},
 	} );
 }
 

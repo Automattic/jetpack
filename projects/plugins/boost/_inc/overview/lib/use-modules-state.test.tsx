@@ -118,48 +118,32 @@ it( 'selects available cloud CSS over local CSS and gates generation requests of
 	expect( fetchMock ).not.toHaveBeenCalled();
 } );
 
-it( 'polls pending LCP every two seconds, updates its stamp, and polls settled state every thirty seconds', async () => {
+it.each( [
+	[ 'critical_css_state', 'critical_css', 'generated' ],
+	[ 'lcp_state', 'lcp', 'analyzed' ],
+] as const )( 'reads %s cache updates without polling', async ( key, module, settled ) => {
 	jest.useFakeTimers();
 	try {
-		window.jetpack_boost_ds!.lcp_state = {
-			nonce: 'lcp-nonce',
+		window.jetpack_boost_ds![ key ] = {
+			nonce: 'generation-nonce',
 			value: { status: 'pending', updated: 1 },
 		};
-		fetchMock.mockResolvedValueOnce( {
-			status: 'success',
-			JSON: { status: 'pending', updated: 1 },
-		} );
-		fetchMock.mockResolvedValue( { status: 'success', JSON: { status: 'analyzed', updated: 2 } } );
+		fetchMock.mockResolvedValue( { status: 'success', JSON: { status: 'pending', updated: 1 } } );
 		const { result } = renderHook(
-			() => useScoreRefreshState( { lcp: { active: true, available: true } } ),
+			() => useScoreRefreshState( { [ module ]: { active: true, available: true } } ),
 			{ wrapper }
 		);
 		const pendingConfig = result.current.config;
+		await act( async () => jest.advanceTimersByTimeAsync( 6500 ) );
 		expect( result.current.isPending ).toBe( true );
-		await act( async () => {
-			await jest.advanceTimersByTimeAsync( 1 );
-		} );
 		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
 		await act( async () => {
-			await jest.advanceTimersByTimeAsync( 2000 );
+			queryClient.setQueryData( [ key ], { status: settled, updated: 2 } );
+			await jest.advanceTimersByTimeAsync( 31000 );
 		} );
-		expect( fetchMock ).toHaveBeenCalledTimes( 2 );
 		expect( result.current.isPending ).toBe( false );
 		expect( result.current.config ).not.toBe( pendingConfig );
-		await act( async () => {
-			await jest.advanceTimersByTimeAsync( 29000 );
-		} );
-		expect( fetchMock ).toHaveBeenCalledTimes( 2 );
-		await act( async () => {
-			await jest.advanceTimersByTimeAsync( 999 );
-		} );
-		expect( fetchMock ).toHaveBeenCalledTimes( 3 );
-		expect( fetchMock ).toHaveBeenLastCalledWith( {
-			url: 'https://example.org/wp-json/jetpack-boost-ds/lcp-state',
-			method: 'GET',
-			credentials: 'same-origin',
-			headers: { 'X-WP-Nonce': 'rest-nonce', 'X-Jetpack-WP-JS-Sync-Nonce': 'lcp-nonce' },
-		} );
+		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
 	} finally {
 		jest.useRealTimers();
 	}
