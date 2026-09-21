@@ -2,8 +2,8 @@
  * URL rules for the modern chassis.
  *
  * The chassis router keeps its whole route — path and query — inside the `p`
- * wp-admin query arg, so the tab lives in there rather than beside it.
- * Sub-pages keep today's hashes, and a recognised hash wins over the tab.
+ * wp-admin query arg, so the scroll destination lives in there rather than beside it.
+ * Former tabs now select the top or Settings section; sub-page hashes still take precedence.
  */
 
 import {
@@ -40,8 +40,13 @@ export function resolveRoute( href: string = window.location.href ): ResolvedRou
 		return { route: { subpage, tab: readTab( url.searchParams ) }, normalizedUrl: null };
 	}
 
-	const hashTab = tabFromQuery( splitHash( url.hash ).query );
-	if ( hashTab === 'settings' ) {
+	const { path, query } = splitHash( url.hash );
+	if ( ! path && query.get( 'tab' ) === 'overview' ) {
+		url.hash = '';
+		url.searchParams.set( ROUTE_ARG, '/' );
+		return { route: { subpage: null, tab: 'overview' }, normalizedUrl: url.toString() };
+	}
+	if ( ! path && ( url.hash === '#/' || query.get( 'tab' ) === 'settings' ) ) {
 		return {
 			route: { subpage: null, tab: 'settings' },
 			normalizedUrl: settingsUrl( url.toString() ),
@@ -72,7 +77,7 @@ function readTab( search: URLSearchParams ): Tab {
 }
 
 /**
- * Build the URL for Settings: the hash cleared, the tab set.
+ * Build the Settings section URL, preserving the former tab URL contract.
  *
  * @param href - URL to derive from. Defaults to the current location.
  * @return The Settings URL.

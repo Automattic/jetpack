@@ -3,7 +3,6 @@ import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
-import { Tabs } from '@wordpress/ui';
 import BoostPage from '../../_inc/components/boost-page';
 import Overview from '../../_inc/overview/overview';
 import {
@@ -65,8 +64,10 @@ function DashboardStage() {
 		() => window.jetpack_boost_ds?.getting_started?.value === true
 	);
 	const [ headerAction, setHeaderAction ] = useState< ReactNode >( null );
-	const activeTab: Tab = search.tab === 'settings' ? 'settings' : 'overview';
-	const goToTab = useCallback(
+	const pageRef = useRef< HTMLDivElement >( null );
+	const settingsRef = useRef< HTMLElement >( null );
+	const destination: Tab = search.tab === 'settings' ? 'settings' : 'overview';
+	const goToDestination = useCallback(
 		( next: Tab, replace = false ) => {
 			navigate( {
 				search: { tab: next === 'settings' ? 'settings' : undefined },
@@ -74,14 +75,6 @@ function DashboardStage() {
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
 		[ navigate ]
-	);
-	const onTabChange = useCallback(
-		( next: string | null ) => {
-			if ( next === 'overview' || next === 'settings' ) {
-				goToTab( next );
-			}
-		},
-		[ goToTab ]
 	);
 
 	useEffect( () => {
@@ -94,10 +87,10 @@ function DashboardStage() {
 			lastSubpage.current = next;
 			setSubpage( next );
 			if ( ! next && ( previous === 'cache-debug-log' || previous === 'critical-css-advanced' ) ) {
-				goToTab( 'settings', true );
+				goToDestination( 'settings', true );
 			}
 		} );
-	}, [ goToTab ] );
+	}, [ goToDestination ] );
 
 	useEffect( () => {
 		const onOnboardingChange = ( event: Event ) =>
@@ -106,15 +99,37 @@ function DashboardStage() {
 		return () => window.removeEventListener( ONBOARDING_CHANGE_EVENT, onOnboardingChange );
 	}, [] );
 
+	useEffect( () => {
+		if ( subpage || onboarding ) {
+			return;
+		}
+		const target =
+			destination === 'settings'
+				? settingsRef.current
+				: pageRef.current?.closest( '.jetpack-boost-page__content' );
+		const scroll = () => target?.scrollIntoView( { block: 'start', behavior: 'instant' } );
+		scroll();
+		// Keep the destination aligned while the two runtimes load, until the user takes control.
+		const observer = new ResizeObserver( scroll );
+		if ( pageRef.current ) {
+			observer.observe( pageRef.current );
+		}
+		const stop = () => observer.disconnect();
+		const events = [ 'wheel', 'touchstart', 'pointerdown', 'keydown' ];
+		events.forEach( event => window.addEventListener( event, stop, { passive: true } ) );
+		return () => {
+			stop();
+			events.forEach( event => window.removeEventListener( event, stop ) );
+		};
+	}, [ destination, subpage, onboarding ] );
+
 	return (
 		<BoostPage
-			activeTab={ activeTab }
 			isSubpage={ subpage !== null }
-			onTabChange={ onTabChange }
 			actions={ headerAction }
 			subpage={ <div id={ SUBPAGE_SLOT_ID } hidden={ subpage === null } /> }
 		>
-			<Tabs.Panel value="overview" keepMounted>
+			<div ref={ pageRef }>
 				{ onboarding ? (
 					<div
 						className="jetpack-boost-dashboard__loading"
@@ -124,15 +139,20 @@ function DashboardStage() {
 						<Spinner />
 					</div>
 				) : (
-					<Overview
-						isVisible={ activeTab === 'overview' && subpage === null }
-						onHeaderActionChange={ setHeaderAction }
-					/>
+					<Overview isVisible={ subpage === null } onHeaderActionChange={ setHeaderAction } />
 				) }
-			</Tabs.Panel>
-			<Tabs.Panel value="settings" keepMounted>
-				<div id={ SETTINGS_SLOT_ID } />
-			</Tabs.Panel>
+				<section
+					ref={ settingsRef }
+					className="jetpack-boost-dashboard__settings"
+					aria-labelledby="jetpack-boost-optimize-heading"
+					hidden={ onboarding }
+				>
+					<h2 id="jetpack-boost-optimize-heading">
+						{ __( 'Optimize your speed', 'jetpack-boost' ) }
+					</h2>
+					<div id={ SETTINGS_SLOT_ID } />
+				</section>
+			</div>
 		</BoostPage>
 	);
 }
