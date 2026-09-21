@@ -14,15 +14,18 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-akismet-admin-chrome.php';
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-admin-page.php';
 
 /**
  * Class for testing the unified Jetpack chrome rendered on Akismet's admin pages.
  *
  * @covers Akismet_Admin_Chrome
+ * @covers Jetpack_Admin_Page::wrap_ui
  * @covers Automattic\Jetpack\Plugin\Footer_Links::get_my_jetpack_products_section
  * @covers Automattic\Jetpack\Plugin\Footer_Links::is_my_jetpack_available
  */
 #[CoversClass( Akismet_Admin_Chrome::class )]
+#[CoversMethod( Jetpack_Admin_Page::class, 'wrap_ui' )]
 #[CoversMethod( Footer_Links::class, 'get_my_jetpack_products_section' )]
 #[CoversMethod( Footer_Links::class, 'is_my_jetpack_available' )]
 class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
@@ -185,6 +188,28 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 
 		$this->assertStringNotContainsString( 'page=my-jetpack', $footer );
 		$this->assertStringContainsString( 'class="jp-akismet-footer__a8c"', $footer );
+	}
+
+	/**
+	 * The Jetpack admin footer hides My Jetpack links when its page is unavailable.
+	 */
+	public function test_wrap_ui_footer_requires_available_my_jetpack() {
+		global $_registered_pages;
+
+		$render_footer = function () {
+			$markup = $this->render(
+				static function () {
+					Jetpack_Admin_Page::wrap_ui( '__return_empty_string' );
+				}
+			);
+			return substr( $markup, strpos( $markup, '<div class="jp-footer jp-footer--static">' ) );
+		};
+
+		$this->assertStringContainsString( 'page=my-jetpack#/', $render_footer() );
+		unset( $_registered_pages[ get_plugin_page_hookname( 'my-jetpack', 'jetpack' ) ] );
+		$footer = $render_footer();
+		$this->assertStringNotContainsString( 'page=my-jetpack', $footer );
+		$this->assertStringContainsString( 'class="jp-footer__a8c-logo"', $footer );
 	}
 
 	/**
