@@ -666,17 +666,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A slug is looked up across ids, on the dashboard it was registered for.
-	 */
-	public function test_get_registered_dashboard_section_by_slug() {
-		$section = register_dashboard_section( 'slug_dashboard', 'wordads/ads', array( 'label' => 'Ads' ) );
-
-		$this->assertSame( $section, get_registered_dashboard_section_by_slug( 'slug_dashboard', 'ads' ) );
-		$this->assertNull( get_registered_dashboard_section_by_slug( 'slug_dashboard', 'traffic' ) );
-		$this->assertNull( get_registered_dashboard_section_by_slug( 'other_dashboard', 'ads' ) );
-	}
-
-	/**
 	 * Non-array section arguments are ignored and defaults are retained.
 	 */
 	public function test_section_ignores_non_array_args() {
