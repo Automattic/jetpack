@@ -29,7 +29,7 @@ jest.mock( 'jetpackConfig', () => ( { consumer_slug: 'jetpack-boost' } ), { virt
 
 test( 'shows one license link in the Critical CSS card with its premium tooltip open', () => {
 	Object.assign( globalThis, {
-		Jetpack_Boost: { site: { online: true, host: 'unknown' } },
+		Jetpack_Boost: { site: { online: true, myJetpack: true, addLicense: true, host: 'unknown' } },
 		myJetpackInitialState: { products: { items: { boost: { slug: 'boost', title: 'Boost' } } } },
 		JP_CONNECTION_INITIAL_STATE: {},
 	} );

@@ -3,6 +3,7 @@ import { ProductInterstitialMyJetpack } from '@automattic/jetpack-my-jetpack/com
 import boostImage from '@automattic/jetpack-my-jetpack/components/product-interstitial/assets/boost.webp';
 import { __ } from '@wordpress/i18n';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
+import { isMyJetpackAvailable } from '../../../../../../_inc/overview/lib/use-modules-state';
 import LicenseKeyLink from './license-key-link';
 import styles from './upgrade-cta.module.scss';
 import type { ReactNode } from 'react';
@@ -20,8 +21,7 @@ const InterstitialModalCTA = ( {
 	customModalTrigger,
 	showLicenseKeyLink = false,
 }: InterstitialModalCTAProps ) => {
-	// Non-public sites get no upsell, and offline sites have no My Jetpack routes for the modal's on-mount products fetch.
-	if ( ! Jetpack_Boost.site.online ) {
+	if ( ! Jetpack_Boost.site.online || ! isMyJetpackAvailable() ) {
 		return null;
 	}
 

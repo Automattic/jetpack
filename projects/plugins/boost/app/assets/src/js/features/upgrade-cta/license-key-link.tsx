@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { detectMode } from '$lib/modern/mode';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { isWoaHosting } from '$lib/utils/hosting';
+import { isMyJetpackAvailable } from '../../../../../../_inc/overview/lib/use-modules-state';
 
 type LicenseKeyLinkProps = {
 	className?: string;
@@ -15,7 +16,13 @@ export function useCanRedeemLicenseKey() {
 	const hasPlan = premiumFeatures && premiumFeatures.length > 0;
 
 	// Legacy keeps its own BoostAdminPage header button; modern moves redemption beside the prompts.
-	return detectMode() === 'modern' && ! isWoaHosting() && ! hasPlan;
+	return (
+		detectMode() === 'modern' &&
+		! isWoaHosting() &&
+		! hasPlan &&
+		isMyJetpackAvailable() &&
+		Jetpack_Boost.site.addLicense
+	);
 }
 
 export default function LicenseKeyLink( { className }: LicenseKeyLinkProps ) {
