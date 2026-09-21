@@ -8,3 +8,14 @@
 	justify-content: center;
 	padding-block: var(--wpds-dimension-padding-2xl);
 }
+
+.jetpack-boost-dashboard__settings {
+	max-inline-size: var(--wpds-dimension-surface-width-xl);
+	margin-inline: auto;
+	margin-block-start: var(--wpds-dimension-gap-2xl);
+	scroll-margin-block-start: var(--wpds-dimension-padding-2xl);
+
+	h2 {
+		margin-block: 0 var(--wpds-dimension-gap-xl);
+	}
+}
