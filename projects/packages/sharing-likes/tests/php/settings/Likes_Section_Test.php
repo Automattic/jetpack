@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -36,6 +37,7 @@ class Likes_Section_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		$this->tear_down_site();
+		Constants::clear_constants();
 
 		parent::tear_down();
 	}
@@ -82,6 +84,26 @@ class Likes_Section_Test extends BaseTestCase {
 
 		$this->assertNotEmpty( $matches, 'The form carries no nonce.' );
 		$this->assertSame( 1, wp_verify_nonce( $matches[1], Likes_Section::NONCE_ACTION ) );
+	}
+
+	/**
+	 * Simple has no Comment Likes module to keep switchable, so the gate that
+	 * holds the block route back for it elsewhere does not apply there: a block
+	 * theme gets the nudge, and only the Site Editor link, since there is no
+	 * module to switch off either.
+	 */
+	public function test_nudges_toward_the_block_on_simple_despite_comment_likes(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->given_block_theme();
+		$this->given_block( 'jetpack/like' );
+
+		$markup = $this->render();
+
+		$this->assertStringContainsString( 'Use the Like block', $markup );
+		$this->assertStringContainsString( 'site-editor.php', $markup );
+		$this->assertStringNotContainsString( 'switch-to-block-likes', $markup );
+		$this->assertStringContainsString( 'name="wpl_default"', $markup );
+		$this->assertStringContainsString( 'name="jetpack_comment_likes_enabled"', $markup );
 	}
 
 	/**

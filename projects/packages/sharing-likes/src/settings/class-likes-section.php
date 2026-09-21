@@ -81,12 +81,13 @@ final class Likes_Section {
 	 * A block theme alone is not enough: without the block or a resolvable
 	 * template there is nowhere to send anyone, so those sites keep the
 	 * classic behaviour. Comment Likes has no block equivalent, so a site
-	 * running it is never sent down this route either.
+	 * running its module is never sent down this route either. Simple has no
+	 * module to switch off, so Comment Likes staying on costs it nothing there.
 	 */
 	private static function can_offer_block(): bool {
 		return Environment::is_block_theme()
 			&& Environment::has_like_block()
-			&& ! Environment::comment_likes_enabled()
+			&& ( Environment::is_simple_site() || ! Environment::comment_likes_enabled() )
 			&& '' !== Environment::post_template_url();
 	}
 
