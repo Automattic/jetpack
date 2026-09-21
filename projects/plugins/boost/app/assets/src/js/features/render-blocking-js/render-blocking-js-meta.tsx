@@ -1,3 +1,4 @@
+import { useModuleSurface } from '$features/module/surface';
 import { useEffect, useState } from 'react';
 import { Button } from '@automattic/jetpack-components';
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
@@ -34,6 +35,7 @@ const useExcludesQuery = ( onSuccess?: ( newState: string[] ) => void ) => {
 };
 
 const RenderBlockingJsMeta = () => {
+	const isRow = useModuleSurface() === 'row';
 	const noticeId = `render-blocking-js-meta-${ datasyncKey }`;
 
 	const [ values, updateValues ] = useExcludesQuery( newState => {
@@ -95,7 +97,7 @@ const RenderBlockingJsMeta = () => {
 	}
 
 	const content = (
-		<div className={ styles.section }>
+		<div className={ styles.section } data-except-content={ isRow || undefined }>
 			<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
 			<div className={ styles[ 'manage-excludes' ] }>
 				<label className={ styles[ 'sub-header' ] } htmlFor={ htmlId }>
@@ -146,6 +148,7 @@ const RenderBlockingJsMeta = () => {
 	return (
 		<div className={ styles.wrapper } data-testid={ `meta-${ datasyncKey }` }>
 			<CollapsibleMeta
+				exceptions={ isRow ? values : undefined }
 				headerText={ summary }
 				toggleText={ __( 'Exclude URL patterns', 'jetpack-boost' ) }
 				tracksEvent="defer_js_excludes_panel_toggle"

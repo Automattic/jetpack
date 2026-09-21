@@ -1,3 +1,5 @@
+import { useModuleSurface } from '$features/module/surface';
+import ExceptPanel from './except-panel';
 import styles from './collapsible-meta.module.scss';
 import { Button } from '@automattic/jetpack-components';
 import { useState } from 'react';
@@ -8,6 +10,8 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 
 type CollapsibleMetaProps = {
 	children: ReactNode;
+	exceptions?: string[];
+	countExceptions?: boolean;
 	header?: ReactNode;
 	summary?: ReactNode;
 	toggleText: string;
@@ -22,6 +26,8 @@ type CollapsibleMetaProps = {
  */
 const CollapsibleMeta = ( {
 	children,
+	exceptions,
+	countExceptions = false,
 	header = null,
 	summary = null,
 	toggleText = '',
@@ -31,6 +37,7 @@ const CollapsibleMeta = ( {
 	onToggleHandler = () => {},
 }: CollapsibleMetaProps ) => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
+	const surface = useModuleSurface();
 
 	const onToggle = () => {
 		const newIsExpanded = ! isExpanded;
@@ -42,6 +49,19 @@ const CollapsibleMeta = ( {
 			} );
 		}
 	};
+
+	if ( surface === 'row' && exceptions ) {
+		return (
+			<ExceptPanel
+				exceptions={ exceptions }
+				countExceptions={ countExceptions }
+				isExpanded={ isExpanded }
+				onToggle={ onToggle }
+			>
+				{ children }
+			</ExceptPanel>
+		);
+	}
 
 	/*
 	 * The header of the collapsible meta section.
