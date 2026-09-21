@@ -678,7 +678,6 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 												{ tickValues => (
 													<>
 														{ ! allSeriesHidden && gridVisibility !== 'none' && (
-															// Visx forwards tickValues to its grid primitives but omits it from GridProps.
 															<Grid
 																columns={ false }
 																numTicks={ chartOptions.axis.y.numTicks }
