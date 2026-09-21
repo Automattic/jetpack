@@ -1,12 +1,16 @@
 import { CheckboxControl } from '@wordpress/components';
-import { __, _n, sprintf } from '@wordpress/i18n';
-import { Button, Text, VisuallyHidden } from '@wordpress/ui';
-import { useCallback, useMemo, useState } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
+import { VisuallyHidden } from '@wordpress/ui';
+import { Fragment, useCallback } from 'react';
 import { FeatureItem } from './feature-item';
 import { getForcedReason } from './feature-state';
 import styles from './styles.module.scss';
-import { isBulkSwitchable, useBulkFeatureSwitch } from './use-bulk-feature-switch';
+import { isBulkSwitchable } from './use-bulk-feature-switch';
 import type { FeatureState } from './feature-state';
+import type { FeatureSelection } from './use-feature-selection';
+import type { ReactNode } from 'react';
+
+const noop = () => {};
 
 // Explains every disabled row checkbox, so the reason is written once.
 const UNSWITCHABLE_ID = 'feature-list-unswitchable';
@@ -72,147 +76,48 @@ function RowCheckbox( { state, isSelected, onSelect }: RowCheckboxProps ) {
 }
 
 type FeatureListProps = {
+	selection: FeatureSelection;
 	states: FeatureState[];
-	onOpen: ( slug: string ) => void;
-	canDeactivatePlugins?: boolean;
+	onOpen?: ( slug: string ) => void;
+	renderRow?: ( state: FeatureState, leading: ReactNode ) => ReactNode;
 };
 
 /**
- * The features as full-width rows, each with a checkbox for switching several at once.
+ * The features as full-width rows, each with a checkbox for the tab's bulk bar.
  *
- * @param {FeatureListProps} props                      - The component props.
- * @param {FeatureState[]}   props.states               - The features to show.
- * @param {Function}         props.onOpen               - Opens a feature's details.
- * @param {boolean}          props.canDeactivatePlugins - Whether plugins may be switched off in bulk, which the site allows only while Jetpack is active.
+ * @param {FeatureListProps} props           - The component props.
+ * @param {FeatureSelection} props.selection - The selection shared with the bulk bar.
+ * @param {FeatureState[]}   props.states    - The features to show.
+ * @param {Function}         props.onOpen    - Opens a feature's details, for the default row.
+ * @param {Function}         props.renderRow - Renders a row in place of the feature card, given its checkbox.
  * @return The rendered component.
  */
-export function FeatureList( { states, onOpen, canDeactivatePlugins = true }: FeatureListProps ) {
-	const [ selected, setSelected ] = useState< Set< string > >( () => new Set() );
-	const { run, isRunning } = useBulkFeatureSwitch();
-	// Rows in flight also count, so a run started before the view last changed still holds the bar.
-	const isBusy = isRunning || states.some( state => state.isSwitching );
-
-	const selectable = useMemo( () => states.filter( isBulkSwitchable ), [ states ] );
-	// Only what is on screen and still switchable: a filter or search hides the rest.
-	const picked = useMemo(
-		() => selectable.filter( state => selected.has( state.feature.slug ) ),
-		[ selectable, selected ]
-	);
-	const allPicked = selectable.length > 0 && picked.length === selectable.length;
-
-	const onSelect = useCallback( ( slug: string, isPicked: boolean ) => {
-		setSelected( previous => {
-			const next = new Set( previous );
-
-			if ( isPicked ) {
-				next.add( slug );
-			} else {
-				next.delete( slug );
-			}
-
-			return next;
-		} );
-	}, [] );
-
-	const onSelectAll = useCallback(
-		( checked: boolean ) =>
-			setSelected( checked ? new Set( selectable.map( state => state.feature.slug ) ) : new Set() ),
-		[ selectable ]
-	);
-
-	const toActivate = picked.filter( state => state.status !== 'active' );
-	const toDeactivate = picked.filter(
-		state =>
-			state.status === 'active' && ( canDeactivatePlugins || state.control.kind !== 'plugin' )
-	);
-	const pluginsHeldBack =
-		! canDeactivatePlugins &&
-		picked.some( state => state.status === 'active' && state.control.kind === 'plugin' );
-
-	// Clears only what was sent, so a row picked mid-run survives, and keeps failures for a retry.
-	const switchStates = useCallback(
-		async ( targets: FeatureState[], active: boolean ) => {
-			const failed = await run( targets, active );
-			setSelected( previous => {
-				const next = new Set( previous );
-				targets.forEach( state => next.delete( state.feature.slug ) );
-				failed.forEach( slug => next.add( slug ) );
-				return next;
-			} );
-		},
-		[ run ]
-	);
-	const onActivate = useCallback(
-		() => switchStates( toActivate, true ),
-		[ switchStates, toActivate ]
-	);
-	const onDeactivate = useCallback(
-		() => switchStates( toDeactivate, false ),
-		[ switchStates, toDeactivate ]
-	);
-
-	const count = sprintf(
-		/* translators: %d is how many features are selected. */
-		_n( '%d selected', '%d selected', picked.length, 'jetpack-my-jetpack' ),
-		picked.length
-	);
-	const heldBackNote = __(
-		'Plugins can only be deactivated together while the Jetpack plugin is active.',
-		'jetpack-my-jetpack'
-	);
-
+export function FeatureList( { selection, states, onOpen, renderRow }: FeatureListProps ) {
 	return (
 		<div className={ styles[ 'feature-list' ] }>
-			<div className={ styles[ 'bulk-bar' ] }>
-				<CheckboxControl
-					__nextHasNoMarginBottom
-					checked={ allPicked }
-					indeterminate={ picked.length > 0 && ! allPicked }
-					disabled={ ! selectable.length || isBusy }
-					onChange={ onSelectAll }
-					aria-label={ __( 'Select all features', 'jetpack-my-jetpack' ) }
-				/>
-				<Text variant="body-md" className={ styles[ 'bulk-bar__count' ] } role="status">
-					{ picked.length
-						? count
-						: __( 'Select features to switch several at once', 'jetpack-my-jetpack' ) }
-					{ pluginsHeldBack ? ` ${ heldBackNote }` : null }
-				</Text>
-				<Button
-					variant="outline"
-					size="compact"
-					disabled={ isBusy || ! toActivate.length }
-					onClick={ onActivate }
-				>
-					{ __( 'Activate', 'jetpack-my-jetpack' ) }
-				</Button>
-				<Button
-					variant="outline"
-					size="compact"
-					disabled={ isBusy || ! toDeactivate.length }
-					onClick={ onDeactivate }
-				>
-					{ __( 'Deactivate', 'jetpack-my-jetpack' ) }
-				</Button>
-			</div>
-
 			<VisuallyHidden id={ UNSWITCHABLE_ID }>{ getUnswitchableReason() }</VisuallyHidden>
 
-			{ states.map( state => (
-				<FeatureItem
-					key={ state.feature.slug }
-					state={ state }
-					onOpen={ onOpen }
-					className={ styles[ 'feature-row' ] }
-					leading={
-						<RowCheckbox
-							state={ state }
-							isSelected={ selected.has( state.feature.slug ) }
-							onSelect={ onSelect }
-						/>
-					}
-				/>
-			) ) }
+			{ states.map( state => {
+				const leading = (
+					<RowCheckbox
+						state={ state }
+						isSelected={ selection.isSelected( state.feature.slug ) }
+						onSelect={ selection.onSelect }
+					/>
+				);
+
+				return renderRow ? (
+					<Fragment key={ state.feature.slug }>{ renderRow( state, leading ) }</Fragment>
+				) : (
+					<FeatureItem
+						key={ state.feature.slug }
+						state={ state }
+						onOpen={ onOpen ?? noop }
+						className={ styles[ 'feature-row' ] }
+						leading={ leading }
+					/>
+				);
+			} ) }
 		</div>
 	);
 }
