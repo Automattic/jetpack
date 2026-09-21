@@ -112,7 +112,7 @@ function OverviewContent( {
 	}, [ online, scoreState.status, queryClient ] );
 
 	const onRefresh = useCallback( () => {
-		recordBoostEvent( 'speed_score_refresh_clicked', {} );
+		recordBoostEvent( 'speed_score_refresh_clicked', { source: 'header' } );
 		refreshScores( true );
 	}, [ refreshScores ] );
 
