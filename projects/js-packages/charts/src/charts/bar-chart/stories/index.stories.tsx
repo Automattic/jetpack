@@ -661,11 +661,14 @@ const siteLaunchedInApril: SeriesData[] = [
 ];
 
 export const BucketsWithNoData: Story = {
-	render: () => (
-		<div style={ { width: '600px', height: '300px' } }>
-			<BarChart data={ siteLaunchedInApril } withTooltips gridVisibility="x" />
-		</div>
-	),
+	args: {
+		...Default.args,
+		data: siteLaunchedInApril,
+	},
+	argTypes: {
+		// The series-count control swaps in the medal data, which has no gaps to show.
+		seriesCount: { table: { disable: true } },
+	},
 };
 
 BucketsWithNoData.parameters = {
