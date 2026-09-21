@@ -40,6 +40,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	popoverAnchorStyle = 'icon',
 	forceShow = false,
 	onClose,
+	triggerRef,
 	hoverShow = false,
 	wide = false,
 	inline = true,
@@ -80,6 +81,11 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		offset, // The distance (in px) between the anchor and the popover.
 		focusOnMount: true,
 		onClose: hideTooltip,
+		onFocusOutside: event => {
+			if ( ! triggerRef?.current?.contains( event.relatedTarget as Node ) ) {
+				hideTooltip();
+			}
+		},
 		className: clsx( 'icon-tooltip-container', popoverClassName ),
 		inline,
 		shift,

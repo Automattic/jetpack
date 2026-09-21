@@ -1,5 +1,5 @@
 import type { Icon } from '@wordpress/icons';
-import type { ComponentProps, ReactNode } from 'react';
+import type { ComponentProps, ReactNode, RefObject } from 'react';
 
 export type Placement = 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
 
@@ -75,6 +75,8 @@ export type IconTooltipProps = {
 	 * Called when the popover requests dismissal, including Escape.
 	 */
 	onClose?: () => void;
+
+	triggerRef?: RefObject< HTMLElement >;
 
 	/**
 	 * Enables the Popover to show on hover.

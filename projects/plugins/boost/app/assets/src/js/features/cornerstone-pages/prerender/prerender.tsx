@@ -2,7 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { ToggleControl } from '@wordpress/components';
 import styles from './prerender.module.scss';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { createInterpolateElement, useState } from '@wordpress/element';
+import { createInterpolateElement, useRef, useState } from '@wordpress/element';
 
 import { Link } from '@wordpress/ui';
 
@@ -79,12 +79,14 @@ type BypassPatternsExampleProps = {
 
 const PrerenderWarningMessage = ( { children }: BypassPatternsExampleProps ) => {
 	const [ show, setShow ] = useState( false );
+	const triggerRef = useRef< HTMLAnchorElement >( null );
 	const tooltipLayer = useTooltipLayer();
 
 	return (
 		<div className={ styles[ 'warning-wrapper' ] }>
 			{ /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
 			<a
+				ref={ triggerRef }
 				href="#"
 				role="button"
 				aria-expanded={ show }
@@ -108,6 +110,7 @@ const PrerenderWarningMessage = ( { children }: BypassPatternsExampleProps ) => 
 					placement="bottom-end"
 					popoverAnchorStyle="wrapper"
 					forceShow={ show }
+					triggerRef={ triggerRef }
 					onClose={ () => {
 						setShow( false );
 					} }
