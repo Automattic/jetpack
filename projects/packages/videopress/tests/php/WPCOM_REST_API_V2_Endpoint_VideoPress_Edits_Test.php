@@ -408,93 +408,17 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits_Test extends BaseTestCase {
 	}
 
 	/**
-	 * WordPress.com must use its local service adapter instead of the v2-only direct client.
+	 * WordPress.com owns its native editing endpoints.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_wpcom_dispatches_all_edit_actions_locally() {
+	public function test_wpcom_does_not_register_the_remote_proxy() {
 		define( 'IS_WPCOM', true );
-		$endpoint = new WPCOM_REST_API_V2_Endpoint_VideoPress_Edits();
-		$request  = new WP_REST_Request();
-		$request->set_param( 'guid', 'AbCd1234' );
-		$request->set_param( 'base_revision', 2 );
-		$request->set_param( 'operations', array() );
-		$request->set_param( 'request_id', 'a1b2c3d4-1234-4567-890a-b1c2d3e4f567' );
-		$request->set_param( 'title', 'Edited copy' );
-
-		$unavailable = $endpoint->get_edits( $request );
-		$this->assertInstanceOf( WP_Error::class, $unavailable );
-		$this->assertSame( array( 'status' => 503 ), $unavailable->get_error_data() );
-
-		$received = array();
-		$response = new \WP_REST_Response( array( 'guid' => 'AbCd1234' ), 202 );
-		add_filter(
-			'jetpack_videopress_local_edit_request',
-			static function ( $default, $path, $method, $body ) use ( &$received, $response ) {
-				$received[] = array( $path, $method, $body );
-				return $response;
-			},
-			10,
-			4
-		);
-		foreach ( array( 'get_edits', 'get_storyboard', 'save_edits', 'restore_original', 'copy_edits', 'get_copy' ) as $callback ) {
-			$this->assertSame( $response, $endpoint->$callback( $request ) );
-		}
-		$this->assertSame(
-			array(
-				array( 'videos/AbCd1234/edits', 'GET', null ),
-				array( 'videos/AbCd1234/storyboard', 'GET', null ),
-				array(
-					'videos/AbCd1234/edits',
-					'POST',
-					array(
-						'base_revision' => 2,
-						'operations'    => array(),
-					),
-				),
-				array( 'videos/AbCd1234/edits/delete', 'POST', null ),
-				array(
-					'videos/AbCd1234/edits/copy',
-					'POST',
-					array(
-						'base_revision' => 2,
-						'operations'    => array(),
-						'request_id'    => $request['request_id'],
-						'title'         => 'Edited copy',
-					),
-				),
-				array( 'videos/AbCd1234/edits/copy/' . $request['request_id'], 'GET', null ),
-			),
-			$received
-		);
-		$this->assertSame( array(), $this->requests );
-	}
-
-	/**
-	 * Test WordPress.com's endpoint-only bootstrap includes the editing routes.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_wpcom_partial_bootstrap_registers_edit_routes() {
-		define( 'IS_WPCOM', true );
-		\Brain\Monkey\Functions\when( 'wpcom_rest_api_v2_load_plugin' )->alias(
-			static function ( $class ) {
-				return new $class();
-			}
-		);
-		remove_all_actions( 'rest_api_init' );
-		$GLOBALS['wp_rest_server'] = new WP_REST_Server();
-
-		require __DIR__ . '/../../src/class-wpcom-rest-api-v2-endpoint-videopress.php';
-		do_action( 'rest_api_init' );
-
-		$this->assertArrayHasKey(
+		$this->register_routes();
+		$this->assertArrayNotHasKey(
 			'/wpcom/v2/videopress/(?P<guid>[A-Za-z0-9]{8})/edits',
 			rest_get_server()->get_routes()
 		);

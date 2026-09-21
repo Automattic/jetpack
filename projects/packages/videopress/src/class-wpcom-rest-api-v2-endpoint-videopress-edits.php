@@ -35,7 +35,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits {
 	 * Register the feature-gated editor routes.
 	 */
 	public function register_routes() {
-		if ( ! Admin_UI::is_trim_cut_enabled() ) {
+		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ! Admin_UI::is_trim_cut_enabled() ) {
 			return;
 		}
 
@@ -252,25 +252,6 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	private function proxy_request( $path, $method = 'GET', $body = null, $as_user = false ) {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			/**
-			 * Handle edits locally on WordPress.com, whose direct REST client only supports v2 routes.
-			 *
-			 * @since $$next-version$$
-			 * @param WP_REST_Response|WP_Error $response Default unavailable response.
-			 * @param string                   $path     Video editing API path.
-			 * @param string                   $method   Request method.
-			 * @param array|null               $body     Request data.
-			 */
-			return apply_filters(
-				'jetpack_videopress_local_edit_request',
-				new WP_Error( 'unavailable', __( 'Video editing is not available yet.', 'jetpack-videopress-pkg' ), array( 'status' => 503 ) ),
-				$path,
-				$method,
-				$body
-			);
-		}
-
 		$args = array( 'method' => $method );
 		if ( null !== $body ) {
 			$args['headers'] = array( 'content-type' => 'application/json' );

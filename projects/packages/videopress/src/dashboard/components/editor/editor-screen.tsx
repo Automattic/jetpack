@@ -96,7 +96,7 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 	useEffect( () => {
 		const result = copySession.status.data;
 		if (
-			result?.job.status !== 'complete' ||
+			result?.job?.status !== 'complete' ||
 			! result.attachment_id ||
 			completedCopyRef.current === result.request_id
 		) {

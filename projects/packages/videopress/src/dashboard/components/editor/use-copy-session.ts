@@ -28,12 +28,12 @@ export function useCopySession( guid: string ) {
 		submitting || rejected || conflict ? null : ( request?.requestId ?? null )
 	);
 	const recoverable =
-		status.data?.job.status === 'failed' &&
+		status.data?.job?.status === 'failed' &&
 		status.data.job.error?.code === 'copy_attachment_unconfirmed';
 	const needsAssistance =
-		status.data?.job.status === 'failed' &&
+		status.data?.job?.status === 'failed' &&
 		status.data.job.error?.code === 'copy_attachment_pending';
-	const failed = status.data?.job.status === 'failed' && ! recoverable && ! needsAssistance;
+	const failed = status.data?.job?.status === 'failed' && ! recoverable && ! needsAssistance;
 
 	const submit = async ( nextRequest: SaveVideoCopyVars ) => {
 		if (

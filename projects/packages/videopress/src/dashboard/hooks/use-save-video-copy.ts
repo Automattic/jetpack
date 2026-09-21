@@ -37,6 +37,24 @@ export type SaveVideoCopyResponse = {
 };
 
 /**
+ * Keep incomplete service responses out of the copy status cache.
+ *
+ * @param response - The copy API response.
+ * @return The response with a confirmed job shape.
+ */
+function validateCopyResponse( response: SaveVideoCopyResponse ): SaveVideoCopyResponse {
+	if (
+		! response?.job ||
+		! [ 'processing', 'complete', 'failed' ].includes( response.job.status )
+	) {
+		throw new Error(
+			__( 'The video service did not return a valid copy status.', 'jetpack-videopress-pkg' )
+		);
+	}
+	return response;
+}
+
+/**
  * Create a separate edited video without changing the source's edit session.
  *
  * @return The copy mutation; callers retain the request ID for retries and polling.
@@ -46,16 +64,18 @@ export function useSaveVideoCopy() {
 	return useMutation< SaveVideoCopyResponse, Error, SaveVideoCopyVars >( {
 		mutationFn: async ( { guid, baseRevision, operations, requestId, title } ) => {
 			try {
-				return await apiFetch< SaveVideoCopyResponse >( {
-					path: `/wpcom/v2/videopress/${ guid }/edits/copy`,
-					method: 'POST',
-					data: {
-						base_revision: baseRevision,
-						operations,
-						request_id: requestId,
-						...( title === undefined ? {} : { title } ),
-					},
-				} );
+				return validateCopyResponse(
+					await apiFetch< SaveVideoCopyResponse >( {
+						path: `/wpcom/v2/videopress/${ guid }/edits/copy`,
+						method: 'POST',
+						data: {
+							base_revision: baseRevision,
+							operations,
+							request_id: requestId,
+							...( title === undefined ? {} : { title } ),
+						},
+					} )
+				);
 			} catch ( error ) {
 				const restError = error as {
 					code?: string;
@@ -97,24 +117,26 @@ export function useVideoCopyStatus( guid: string, requestId: string | null ) {
 	const processingStartRef = useRef< ProcessingPollAnchor | null >( null );
 	const query = useQuery< SaveVideoCopyResponse >( {
 		queryKey: [ VIDEO_COPY_QUERY_KEY, guid, requestId ],
-		queryFn: () =>
-			apiFetch< SaveVideoCopyResponse >( {
-				path: `/wpcom/v2/videopress/${ guid }/edits/copy/${ requestId }`,
-			} ),
+		queryFn: async () =>
+			validateCopyResponse(
+				await apiFetch< SaveVideoCopyResponse >( {
+					path: `/wpcom/v2/videopress/${ guid }/edits/copy/${ requestId }`,
+				} )
+			),
 		enabled: Boolean( guid && requestId ),
 		refetchInterval: state => {
 			const { anchor, interval } = nextProcessingPoll(
 				processingStartRef.current,
-				state.state.data?.job.status === 'processing' ? [ `${ guid }:${ requestId }` ] : [],
+				state.state.data?.job?.status === 'processing' ? [ `${ guid }:${ requestId }` ] : [],
 				Date.now()
 			);
 			processingStartRef.current = anchor;
 			return interval;
 		},
-		refetchOnWindowFocus: state => state.state.data?.job.status === 'processing',
+		refetchOnWindowFocus: state => state.state.data?.job?.status === 'processing',
 	} );
 	const attachmentId = query.data?.attachment_id;
-	const status = query.data?.job.status;
+	const status = query.data?.job?.status;
 	useEffect( () => {
 		if ( attachmentId ) {
 			void client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );

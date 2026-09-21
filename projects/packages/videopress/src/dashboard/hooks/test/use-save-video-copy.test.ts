@@ -42,6 +42,20 @@ afterEach( () => {
 } );
 
 describe( 'useSaveVideoCopy', () => {
+	it( 'does not cache a null job or treat it as a definitive rejection', async () => {
+		jest.mocked( apiFetch ).mockResolvedValue( { ...accepted, job: null } );
+		const client = createTestQueryClient();
+		const { result } = renderHook( useSaveVideoCopy, { wrapper: createTestWrapper( client ) } );
+		await act( async () => {
+			await expect( result.current.mutateAsync( request ) ).rejects.not.toBeInstanceOf(
+				VideoCopyRejectedError
+			);
+		} );
+		expect(
+			client.getQueryData( [ VIDEO_COPY_QUERY_KEY, request.guid, request.requestId ] )
+		).toBeUndefined();
+	} );
+
 	it.each( [
 		[ 'copy_storage_limit', 403 ],
 		[ 'copy_source_unavailable', 409 ],
@@ -137,6 +151,22 @@ describe( 'useSaveVideoCopy', () => {
 } );
 
 describe( 'useVideoCopyStatus', () => {
+	it( 'treats a null job as an uncertain status and can recover on refetch', async () => {
+		jest
+			.mocked( apiFetch )
+			.mockResolvedValueOnce( { ...accepted, job: null } )
+			.mockResolvedValueOnce( accepted );
+		const { result } = renderHook( () => useVideoCopyStatus( request.guid, request.requestId ), {
+			wrapper: createTestWrapper(),
+		} );
+		await waitFor( () => expect( result.current.isError ).toBe( true ) );
+		expect( result.current.data ).toBeUndefined();
+		await act( async () => {
+			await result.current.refetch();
+		} );
+		await waitFor( () => expect( result.current.data ).toEqual( accepted ) );
+	} );
+
 	it( 'waits for a request before querying', () => {
 		renderHook( () => useVideoCopyStatus( request.guid, null ), { wrapper: createTestWrapper() } );
 		expect( apiFetch ).not.toHaveBeenCalled();

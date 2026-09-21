@@ -85,7 +85,7 @@ export default function CopyStatusBanner( { session, onReload }: Props ) {
 						className="vp-video-editor__progress"
 						aria-label={ __( 'Creating video', 'jetpack-videopress-pkg' ) }
 						max={ 1 }
-						value={ session.status.data?.job.progress || undefined }
+						value={ session.status.data?.job?.progress || undefined }
 					/>
 				) }
 			</Notice.Description>
