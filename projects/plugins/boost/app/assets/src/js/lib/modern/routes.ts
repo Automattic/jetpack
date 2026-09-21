@@ -57,10 +57,10 @@ export function resolveRoute( href: string = window.location.href ): ResolvedRou
 }
 
 /**
- * Read the tab out of any query, defaulting to Overview.
+ * Read the scroll destination from a retained tab query, defaulting to Overview.
  *
  * @param query - Query to read.
- * @return The tab.
+ * @return The scroll destination.
  */
 function tabFromQuery( query: URLSearchParams ): Tab {
 	return query.get( 'tab' ) === 'settings' ? 'settings' : 'overview';
