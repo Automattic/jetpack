@@ -1,14 +1,25 @@
 /* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute -- This Jest project does not load jest-dom. */
 import { fireEvent, render, screen } from '@testing-library/react';
+import { ModuleSurfaceProvider } from '$features/module/surface';
+import CriticalCssMeta from './critical-css-meta';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import ModernCriticalCssStatus from './modern-critical-css-status';
 import type { CriticalCssState } from '../lib/stores/critical-css-state-types';
 
 const mockRegenerate = jest.fn();
+let mockRegenerationReason: string | null = 'switched_theme';
 jest.mock( '../lib/stores/critical-css-state', () => ( {
 	useRegenerateCriticalCssAction: () => ( { mutate: mockRegenerate } ),
+	useCriticalCssState: () => [ { status: 'not_generated', providers: [] } ],
 } ) );
 jest.mock( '$lib/utils/analytics', () => ( { recordBoostEvent: jest.fn() } ) );
+
+jest.mock( '../lib/stores/suggest-regenerate', () => ( {
+	useRegenerationReason: () => [ { data: mockRegenerationReason } ],
+} ) );
+jest.mock( '../critical-css-context/critical-css-context-provider', () => ( {
+	useLocalCriticalCssGenerator: () => ( { isGenerating: false, progress: 0 } ),
+} ) );
 
 const generated: CriticalCssState = {
 	status: 'generated',
@@ -59,4 +70,27 @@ test( 'shows partial failures with a warning and the existing recommendations de
 	// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
 	fireEvent.click( link );
 	expect( recordBoostEvent ).toHaveBeenCalledWith( 'critical_css_advanced_link_clicked', {} );
+} );
+
+test( 'shows an idle regeneration suggestion only when an invalidation reason exists', () => {
+	mockRegenerationReason = 'switched_theme';
+	const meta = (
+		<ModuleSurfaceProvider value="row">
+			<CriticalCssMeta />
+		</ModuleSurfaceProvider>
+	);
+	const { rerender } = render( meta );
+	expect(
+		screen.getByText(
+			"We noticed you've recently updated your theme that may affect your site's HTML/CSS structure."
+		)
+	).toBeTruthy();
+	expect( screen.getByRole( 'button', { name: 'Generate', exact: true } ) ).toBeTruthy();
+	mockRegenerationReason = null;
+	rerender(
+		<ModuleSurfaceProvider value="row">
+			<CriticalCssMeta />
+		</ModuleSurfaceProvider>
+	);
+	expect( screen.queryByText( 'Regenerate Critical CSS' ) ).toBeNull();
 } );
