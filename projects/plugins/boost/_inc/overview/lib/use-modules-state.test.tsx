@@ -3,6 +3,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { createElement, type PropsWithChildren } from 'react';
 import {
+	isAddLicenseAvailable,
 	parseDataSyncEnvelope,
 	parseModulesState,
 	useModulesState,
@@ -211,4 +212,9 @@ it( 'preserves the server message from Data Sync errors', async () => {
 	const { result } = renderHook( useModulesState, { wrapper } );
 	await waitFor( () => expect( result.current.isError ).toBe( true ) );
 	expect( result.current.error?.message ).toBe( 'History is temporarily unavailable.' );
+} );
+
+it.each( [ true, false, undefined ] )( 'normalizes add-license availability (%s)', addLicense => {
+	Object.defineProperty( globalThis, 'Jetpack_Boost', { value: { site: { addLicense } } } );
+	expect( isAddLicenseAvailable() ).toBe( addLicense === true );
 } );

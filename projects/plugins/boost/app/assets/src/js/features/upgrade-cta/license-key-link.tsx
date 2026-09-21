@@ -3,7 +3,10 @@ import { __ } from '@wordpress/i18n';
 import { detectMode } from '$lib/modern/mode';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { isWoaHosting } from '$lib/utils/hosting';
-import { isMyJetpackAvailable } from '../../../../../../_inc/overview/lib/use-modules-state';
+import {
+	isAddLicenseAvailable,
+	isMyJetpackAvailable,
+} from '../../../../../../_inc/overview/lib/use-modules-state';
 
 type LicenseKeyLinkProps = {
 	className?: string;
@@ -11,7 +14,7 @@ type LicenseKeyLinkProps = {
 
 export const licenseKeyHref = 'admin.php?page=my-jetpack#/add-license';
 
-export function useCanRedeemLicenseKey() {
+export function useCanRedeemLicenseKey(): boolean {
 	const premiumFeatures = usePremiumFeatures();
 	const hasPlan = premiumFeatures && premiumFeatures.length > 0;
 
@@ -21,7 +24,7 @@ export function useCanRedeemLicenseKey() {
 		! isWoaHosting() &&
 		! hasPlan &&
 		isMyJetpackAvailable() &&
-		Jetpack_Boost.site.addLicense
+		isAddLicenseAvailable()
 	);
 }
 

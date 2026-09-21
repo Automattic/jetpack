@@ -3,7 +3,10 @@ import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { isWoaHosting } from '$lib/utils/hosting';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
-import { isMyJetpackAvailable } from '../../../../../../_inc/overview/lib/use-modules-state';
+import {
+	isAddLicenseAvailable,
+	isMyJetpackAvailable,
+} from '../../../../../../_inc/overview/lib/use-modules-state';
 import type { ReactNode } from 'react';
 
 type BoostAdminPageProps = {
@@ -24,7 +27,7 @@ const BoostAdminPage = ( {
 	const licenseAction =
 		showActivateLicense &&
 		isMyJetpackAvailable() &&
-		Jetpack_Boost.site.addLicense &&
+		isAddLicenseAvailable() &&
 		! isWoaHosting() &&
 		! hasPlan ? (
 			<Button size="compact" variant="secondary" href={ activateLicenseUrl }>

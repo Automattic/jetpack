@@ -3,7 +3,7 @@ import { ProductInterstitialMyJetpack } from '@automattic/jetpack-my-jetpack/com
 import boostImage from '@automattic/jetpack-my-jetpack/components/product-interstitial/assets/boost.webp';
 import { __ } from '@wordpress/i18n';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
-import { isMyJetpackAvailable } from '../../../../../../_inc/overview/lib/use-modules-state';
+import { canOfferUpgrade } from '../../../../../../_inc/overview/lib/use-modules-state';
 import LicenseKeyLink from './license-key-link';
 import styles from './upgrade-cta.module.scss';
 import type { ReactNode } from 'react';
@@ -21,7 +21,8 @@ const InterstitialModalCTA = ( {
 	customModalTrigger,
 	showLicenseKeyLink = false,
 }: InterstitialModalCTAProps ) => {
-	if ( ! Jetpack_Boost.site.online || ! isMyJetpackAvailable() ) {
+	// Mounting the modal fetches products from My Jetpack.
+	if ( ! canOfferUpgrade() ) {
 		return null;
 	}
 
