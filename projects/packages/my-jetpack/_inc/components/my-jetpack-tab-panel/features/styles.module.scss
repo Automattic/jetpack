@@ -374,29 +374,32 @@ $feature-icon-foreground: #0ced57;
 	min-block-size: min(34rem, calc(100dvh - 5rem));
 }
 
-// One feature replacing another: a fade, with nothing moving, so the dialog
-// does not appear to slide while its own size settles.
-.modal-step {
-	animation:
-		jetpack-feature-step var(--wpds-motion-duration-lg)
-		var(--wpds-motion-easing-subtle);
+// Rise into place instead of `@wordpress/ui`'s scale(0.9), which resamples the
+// text and renders it blurry until the dialog settles.
+@media (min-width: 600px) and (prefers-reduced-motion: no-preference) {
+
+	.modal-popup {
+		animation:
+			jetpack-feature-modal-rise var(--wpds-motion-duration-md)
+			var(--wpds-motion-easing-expressive) backwards;
+	}
+
+	// Sinks back down on close, where the transition does run.
+	.modal-popup[data-ending-style] {
+		transform: translate(-50%, calc(-50% + 0.75rem));
+	}
 }
 
-@keyframes jetpack-feature-step {
+@keyframes jetpack-feature-modal-rise {
 
 	from {
 		opacity: 0;
+		transform: translate(-50%, calc(-50% + 0.75rem));
 	}
 
 	to {
 		opacity: 1;
-	}
-}
-
-@media (prefers-reduced-motion: reduce) {
-
-	.modal-step {
-		animation: none;
+		transform: translate(-50%, -50%);
 	}
 }
 
