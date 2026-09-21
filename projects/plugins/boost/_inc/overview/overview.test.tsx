@@ -619,6 +619,13 @@ test( 'retains loaded scores and Run speed test alongside a subsequent score err
 		)
 	);
 	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+	await waitFor( () => expect( requestSpeedScores ).toHaveBeenCalledTimes( 3 ) );
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'false'
+		)
+	);
 	await waitFor( () => expect( screen.queryByText( 'Refresh failed' ) ).not.toBeInTheDocument() );
 	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
 } );
