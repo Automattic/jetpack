@@ -171,10 +171,8 @@ class REST_Main_Features {
 
 		// A plugin alone is not the whole product: Search still has to switch Instant Search
 		// on, Boost to mark itself started, and the Hybrid products to enable their module.
-		//
-		// A module that refuses is not a failed request. The plugin is active either way, so
-		// reporting an error here would contradict the state this route returns, and leave
-		// the caller retrying an activation that has already happened.
+		// A refusal is not fatal here — the plugin is on either way, so failing the request
+		// would contradict the state it returns and invite a retry of what already happened.
 		if ( $product_class ) {
 			$product_class::do_product_specific_activation( true );
 		}

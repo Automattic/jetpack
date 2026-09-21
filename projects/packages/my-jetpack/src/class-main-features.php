@@ -425,9 +425,8 @@ class Main_Features {
 	 * How each feature reaches a site: through a module in the Jetpack plugin, as a
 	 * standalone plugin, or both.
 	 *
-	 * `jetpack` means the feature is switched by a Jetpack module while the Jetpack plugin is
-	 * active; `plugin` is the WordPress.org slug of its standalone plugin. Protect and VaultPress
-	 * Backup ship inside Jetpack too, but their switch is their own plugin, so they list only it.
+	 * Protect and VaultPress Backup ship inside Jetpack too, but their switch is their own
+	 * plugin, so they list only that.
 	 *
 	 * @return array<string, array{jetpack: bool, plugin: string}> Keyed by feature slug.
 	 */

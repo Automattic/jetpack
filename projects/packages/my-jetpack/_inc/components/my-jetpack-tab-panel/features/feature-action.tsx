@@ -1,52 +1,30 @@
 import { FormToggle } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { ModuleToggle } from '../../module-toggle';
+import { getSwitchLabel } from '../utils';
 import { useFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
-
-/**
- * The label for a control that switches a feature on or off.
- *
- * Both labels are bound before the branch: minification folds `c ? __( a ) : __( b )`
- * into one call with a ternary msgid, which the i18n build check rejects.
- *
- * @param isOn - Whether the feature is currently on.
- * @param name - The feature's name.
- * @return The label for what the control will do.
- */
-export function getSwitchLabel( isOn: boolean, name: string ): string {
-	const deactivateLabel = sprintf(
-		/* translators: %s is the feature name. */
-		__( 'Deactivate %s', 'jetpack-my-jetpack' ),
-		name
-	);
-	const activateLabel = sprintf(
-		/* translators: %s is the feature name. */
-		__( 'Activate %s', 'jetpack-my-jetpack' ),
-		name
-	);
-
-	return isOn ? deactivateLabel : activateLabel;
-}
 
 type PluginToggleProps = {
 	plugin: string;
 	isOn: boolean;
 	name: string;
+	describedby?: string;
 };
 
 /**
  * The card switch for a feature switched by its standalone plugin.
  *
- * @param {PluginToggleProps} props        - The component props.
- * @param {string}            props.plugin - The plugin's slug.
- * @param {boolean}           props.isOn   - Whether the plugin is active.
- * @param {string}            props.name   - The feature's name, for the label and notice.
+ * @param {PluginToggleProps} props             - The component props.
+ * @param {string}            props.plugin      - The plugin's slug.
+ * @param {boolean}           props.isOn        - Whether the plugin is active.
+ * @param {string}            props.name        - The feature's name, for the label and notice.
+ * @param {string}            props.describedby - Id of the element stating whether it is on.
  * @return The rendered component.
  */
-function PluginToggle( { plugin, isOn, name }: PluginToggleProps ) {
+function PluginToggle( { plugin, isOn, name, describedby }: PluginToggleProps ) {
 	const { run, isBusy } = useFeaturePlugin( plugin, name );
 	const onChange = useCallback( () => run( isOn ? 'deactivate' : 'activate' ), [ isOn, run ] );
 
@@ -56,6 +34,7 @@ function PluginToggle( { plugin, isOn, name }: PluginToggleProps ) {
 			disabled={ isBusy }
 			onChange={ onChange }
 			aria-label={ getSwitchLabel( isOn, name ) }
+			aria-describedby={ describedby }
 		/>
 	);
 }
@@ -90,25 +69,33 @@ export function InstallButton( { plugin, name, label, action }: InstallButtonPro
 
 type FeatureActionProps = {
 	state: FeatureState;
+	describedby?: string;
 };
 
 /**
  * The card's control, as the feature map decides it.
  *
- * Nothing here reloads the page, though the Products tab's switches do, so that several
- * features can be flipped in a row; the wp-admin sidebar catches up on the next load.
+ * Nothing here reloads the page, unlike the Products tab's switches, so several features
+ * can be flipped in a row; the wp-admin sidebar catches up on the next load.
  *
- * @param {FeatureActionProps} props       - The component props.
- * @param {FeatureState}       props.state - Live state for the feature.
+ * @param {FeatureActionProps} props             - The component props.
+ * @param {FeatureState}       props.state       - Live state for the feature.
+ * @param {string}             props.describedby - Id of the element stating whether it is on.
  * @return The rendered component, or null when nothing here can switch the feature.
  */
-export function FeatureAction( { state }: FeatureActionProps ) {
+export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 	const { control, feature } = state;
 	const pluginName = feature.plugin_name || feature.name;
 
 	switch ( control.kind ) {
 		case 'module':
-			return <ModuleToggle module={ control.module } reloadAfterToggle={ false } />;
+			return (
+				<ModuleToggle
+					module={ control.module }
+					reloadAfterToggle={ false }
+					describedby={ describedby }
+				/>
+			);
 
 		case 'plugin':
 			return (
@@ -116,6 +103,7 @@ export function FeatureAction( { state }: FeatureActionProps ) {
 					plugin={ control.plugin }
 					isOn={ state.status === 'active' }
 					name={ pluginName }
+					describedby={ describedby }
 				/>
 			);
 
@@ -149,7 +137,6 @@ type JetpackButtonProps = {
  * @return The rendered component.
  */
 export function JetpackButton( { installed }: JetpackButtonProps ) {
-	// Bound before the branch, for the reason given by getSwitchLabel().
 	const activateLabel = __( 'Activate Jetpack', 'jetpack-my-jetpack' );
 	const installLabel = __( 'Install Jetpack', 'jetpack-my-jetpack' );
 

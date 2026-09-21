@@ -81,7 +81,6 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 			// store the Products tab reads from is now behind.
 			invalidateResolution( 'getJetpackModules', [] );
 
-			// Bound before the branch, for the reason given by getSwitchLabel().
 			const deactivated = sprintf(
 				/* translators: %s is a plugin or feature name. */
 				__( '%s deactivated.', 'jetpack-my-jetpack' ),

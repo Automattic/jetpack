@@ -42,4 +42,24 @@ describe( 'queueActivationRequest', () => {
 			'after'
 		);
 	} );
+
+	it( 'gives up on a request that never settles, so the queue keeps moving', async () => {
+		jest.useFakeTimers();
+
+		const stuck = queueActivationRequest( () => new Promise< string >( () => undefined ) );
+		const after = queueActivationRequest( () => Promise.resolve( 'after' ) );
+
+		// Caught before the clock moves, or the rejection lands with no handler attached.
+		const stuckSettled = stuck.catch( ( error: Error ) => error );
+
+		await jest.advanceTimersByTimeAsync( 90_000 );
+
+		const settled = await stuckSettled;
+
+		expect( settled ).toBeInstanceOf( Error );
+		expect( ( settled as Error ).message ).toContain( 'took too long' );
+		await expect( after ).resolves.toBe( 'after' );
+
+		jest.useRealTimers();
+	} );
 } );

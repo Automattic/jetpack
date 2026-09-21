@@ -7,13 +7,10 @@ import type { ProductCamelCase } from '../../../data/types';
 import type { JetpackModuleSlug, MyJetpackModule } from '../../../types';
 
 /**
- * What a feature's card offers, decided by the feature map and what is on the site:
+ * What a feature's card offers, decided by the feature map and what is on the site.
  *
- * - `module`: Jetpack is active and ships the feature, so its module is the switch.
- * - `plugin`: its standalone plugin is installed, so the plugin is the switch.
- * - `install-plugin`: its standalone plugin is not installed yet.
- * - `install-jetpack`: only Jetpack ships it, and Jetpack is not active.
- * - `none`: nothing on this site can switch it.
+ * Resolved in the order listed: a module Jetpack already runs wins over the feature's
+ * standalone plugin, so an installed plugin is only the switch when no module applies.
  */
 export type FeatureControl =
 	| { kind: 'module'; module: MyJetpackModule }

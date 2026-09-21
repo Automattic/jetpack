@@ -2,7 +2,8 @@ import { __ } from '@wordpress/i18n';
 import { Button, LinkButton } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { useModuleActivation } from '../../module-toggle';
-import { getSwitchLabel, InstallButton, JetpackButton } from './feature-action';
+import { getSwitchLabel } from '../utils';
+import { InstallButton, JetpackButton } from './feature-action';
 import { useFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
 import type { MyJetpackModule } from '../../../types';
@@ -25,7 +26,6 @@ type SwitchButtonProps = {
  * @return The rendered component.
  */
 function SwitchButton( { isOn, name, disabled, onClick }: SwitchButtonProps ) {
-	// Bound before the branch, for the reason given by getSwitchLabel().
 	const deactivateText = __( 'Deactivate', 'jetpack-my-jetpack' );
 	const activateText = __( 'Activate', 'jetpack-my-jetpack' );
 

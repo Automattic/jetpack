@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import { Skeleton } from '../products/skeleton';
@@ -109,6 +109,15 @@ export function FeaturesContent() {
 				onSearchChange={ onSearchChange }
 			/>
 
+			{ /* Always rendered, so a screen reader is listening before the count changes. */ }
+			<p className="screen-reader-text" role="status">
+				{ sprintf(
+					/* translators: %d is how many features the filter or search matched. */
+					_n( '%d feature shown', '%d features shown', visible.length, 'jetpack-my-jetpack' ),
+					visible.length
+				) }
+			</p>
+
 			{ visible.length > 0 ? (
 				<div className={ styles[ 'feature-grid' ] }>
 					{ visible.map( state => (
@@ -116,7 +125,7 @@ export function FeaturesContent() {
 					) ) }
 				</div>
 			) : (
-				<h3 className={ styles[ 'empty-heading' ] } role="status">
+				<h3 className={ styles[ 'empty-heading' ] }>
 					{ __( 'No features found.', 'jetpack-my-jetpack' ) }
 				</h3>
 			) }

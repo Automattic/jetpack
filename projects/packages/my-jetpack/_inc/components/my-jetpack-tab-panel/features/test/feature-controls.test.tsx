@@ -1,11 +1,17 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { FeatureAction } from '../feature-action';
 import { FeatureModalActions } from '../feature-modal-actions';
 import type { MyJetpackModule } from '../../../../types';
 import type { FeatureState } from '../feature-state';
 
+const mockRun = jest.fn();
+
 jest.mock( '../use-main-features', () => ( {
-	useFeaturePlugin: () => ( { run: jest.fn(), isBusy: false } ),
+	useFeaturePlugin: ( plugin: string, name: string ) => ( {
+		run: ( action: string ) => mockRun( { plugin, name, action } ),
+		isBusy: false,
+	} ),
 } ) );
 
 jest.mock( '../../../module-toggle', () => ( {
@@ -29,6 +35,8 @@ const buildState = ( control: FeatureState[ 'control' ], overrides = {} ): Featu
 
 const $module = { module: 'stats', available: true, activated: true } as MyJetpackModule;
 
+beforeEach( () => mockRun.mockClear() );
+
 const countControls = () =>
 	screen.queryAllByRole( 'checkbox' ).length + screen.queryAllByRole( 'button' ).length;
 
@@ -51,6 +59,38 @@ describe( 'FeatureAction', () => {
 
 		expect( screen.getByRole( 'checkbox', { name: 'Deactivate Jetpack Boost' } ) ).toBeChecked();
 		expect( countControls() ).toBe( 1 );
+	} );
+
+	it( 'installs the named plugin when its Install button is pressed', async () => {
+		render(
+			<FeatureAction state={ buildState( { kind: 'install-plugin', plugin: 'jetpack-boost' } ) } />
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Install' } ) );
+
+		expect( mockRun ).toHaveBeenCalledWith( {
+			plugin: 'jetpack-boost',
+			name: 'Jetpack Boost',
+			action: 'install',
+		} );
+	} );
+
+	it( 'deactivates a running plugin, and activates a stopped one', async () => {
+		const { unmount } = render(
+			<FeatureAction
+				state={ buildState( { kind: 'plugin', plugin: 'jetpack-boost' }, { status: 'active' } ) }
+			/>
+		);
+
+		await userEvent.click( screen.getByRole( 'checkbox' ) );
+		expect( mockRun ).toHaveBeenCalledWith( expect.objectContaining( { action: 'deactivate' } ) );
+
+		unmount();
+		mockRun.mockClear();
+		render( <FeatureAction state={ buildState( { kind: 'plugin', plugin: 'jetpack-boost' } ) } /> );
+
+		await userEvent.click( screen.getByRole( 'checkbox' ) );
+		expect( mockRun ).toHaveBeenCalledWith( expect.objectContaining( { action: 'activate' } ) );
 	} );
 
 	it( 'offers to install Jetpack for a feature only Jetpack ships', () => {

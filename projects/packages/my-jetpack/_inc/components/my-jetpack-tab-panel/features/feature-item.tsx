@@ -16,10 +16,8 @@ type FeatureItemProps = {
 /**
  * A single card in the features grid.
  *
- * Built as the navigation row the AI Hub uses — leading glyph, title and description,
- * trailing chevron — so a feature reads as one place to go rather than a panel of
- * separate controls. The title carries the click target and stretches over the whole
- * card; the action sits above it so it stays its own control.
+ * The title carries the click target and stretches over the whole card, so the action
+ * has to sit above it to stay its own control.
  *
  * @param {FeatureItemProps} props        - The component props.
  * @param {FeatureState}     props.state  - Live state for the feature.
@@ -31,6 +29,7 @@ export function FeatureItem( { state, onOpen }: FeatureItemProps ) {
 	const isActive = state.status === 'active';
 	const chevron = isRTL() ? chevronLeft : chevronRight;
 	const onClick = useCallback( () => onOpen( feature.slug ), [ feature.slug, onOpen ] );
+	const statusId = `feature-status-${ feature.slug }`;
 
 	return (
 		<div className={ styles[ 'feature-item' ] } data-feature={ feature.slug }>
@@ -61,7 +60,7 @@ export function FeatureItem( { state, onOpen }: FeatureItemProps ) {
 						{ feature.name }
 					</Text>
 
-					<Badge intent={ isActive ? 'stable' : 'none' }>
+					<Badge id={ statusId } intent={ isActive ? 'stable' : 'none' }>
 						{ getActivationStatusLabel( isActive ) }
 					</Badge>
 
@@ -76,7 +75,7 @@ export function FeatureItem( { state, onOpen }: FeatureItemProps ) {
 			</span>
 
 			<span className={ styles[ 'feature-action-slot' ] }>
-				<FeatureAction state={ state } />
+				<FeatureAction state={ state } describedby={ statusId } />
 			</span>
 
 			{ /* Left under the stretched title on purpose: it points at the card's own
