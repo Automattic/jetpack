@@ -107,8 +107,8 @@ abstract class Jetpack_Admin_Page {
 			return;
 		}
 
-		// Check if we are looking at the main dashboard.
-		if ( isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- View logic.
+		// The Settings app draws its own header and footer.
+		if ( isset( $_GET['page'] ) && 'jetpack-settings' === $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- View logic.
 			$this->page_render();
 			return;
 		}
@@ -162,6 +162,26 @@ abstract class Jetpack_Admin_Page {
 			apply_filters( 'rest_enabled', true ) &&
 			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
 			apply_filters( 'rest_authentication_errors', true );
+	}
+
+	/**
+	 * Fallback redirect meta tag if the REST API is disabled.
+	 *
+	 * @return void
+	 */
+	public function add_fallback_head_meta() {
+		echo '<meta http-equiv="refresh" content="0; url=?page=jetpack_modules">';
+	}
+
+	/**
+	 * Fallback meta tag wrapped in noscript tags for all browsers in case they have JavaScript disabled.
+	 *
+	 * @return void
+	 */
+	public function add_noscript_head_meta() {
+		echo '<noscript>';
+		$this->add_fallback_head_meta();
+		echo '</noscript>';
 	}
 
 	/**
