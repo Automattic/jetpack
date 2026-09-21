@@ -35,4 +35,13 @@ class Jetpack_Admin_Page_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( esc_url( admin_url( 'admin.php?page=jetpack-settings#/settings' ) ), $output );
 		$this->assertStringNotContainsString( '>' . __( 'Dashboard', 'jetpack' ) . '<', $output );
 	}
+
+	/**
+	 * Tests that the plan check runs on the Settings page, as it did at page=jetpack.
+	 */
+	public function test_plan_check_runs_on_the_settings_page() {
+		$result = ( new Jetpack_Settings_React_Page() )->check_plan_deactivate_modules( WP_Screen::get( 'jetpack_page_jetpack-settings' ) );
+
+		$this->assertIsArray( $result );
+	}
 }

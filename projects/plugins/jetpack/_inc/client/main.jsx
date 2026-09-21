@@ -144,7 +144,7 @@ class Main extends Component {
 		// in offline mode.
 		if ( prevProps.siteConnectionStatus !== this.props.siteConnectionStatus ) {
 			const $items = jQuery( '#toplevel_page_jetpack' ).find( 'ul.wp-submenu li' );
-			$items.find( 'a[href$="#/settings"]' ).hide();
+			$items.find( 'a[href$="page=jetpack-settings"]' ).hide();
 			$items.find( 'a[href$="admin.php?page=stats"]' ).hide();
 			$items.find( 'a[href$="admin.php?page=jetpack-search"]' ).hide();
 		}
@@ -431,20 +431,9 @@ export default connect(
 );
 
 /**
- * Highlights the Settings sub-nav item on the left sidebar when the React app changes routes.
+ * Binds the Settings app's delegated click handlers; WordPress highlights its menu entry itself.
  */
 window.wpNavMenuClassChange = function () {
-	const hash = window.location.hash.split( '?' )[ 0 ].replace( /#/, '' );
-
-	// Clear currently highlighted sub-nav item
-	jQuery( '.current' ).each( function ( i, obj ) {
-		jQuery( obj ).removeClass( 'current' );
-	} );
-
-	if ( settingsRoutes.includes( hash ) ) {
-		jQuery( '#toplevel_page_jetpack a[href$="#/settings"]' ).parent().addClass( 'current' );
-	}
-
 	const $body = jQuery( 'body' );
 
 	$body.on( 'click', 'a[href$="#/settings"]', function () {

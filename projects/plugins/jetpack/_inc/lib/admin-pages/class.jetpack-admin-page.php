@@ -200,6 +200,7 @@ abstract class Jetpack_Admin_Page {
 				$page->base,
 				array(
 					'toplevel_page_jetpack',
+					'jetpack_page_jetpack-settings',
 					'admin_page_jetpack_modules',
 					'jetpack_page_vaultpress',
 					'jetpack_page_stats',
