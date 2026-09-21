@@ -276,7 +276,6 @@ abstract class Jetpack_Admin_Page {
 		// If Jetpack is connected OR in offline mode, this will be false.
 		$connectable = ! Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode();
 
-		$jetpack_admin_url = admin_url( 'admin.php?page=jetpack' );
 		$jetpack_about_url = ! $connectable
 			? admin_url( 'admin.php?page=jetpack_about' )
 			: Redirect::get_url( 'jetpack' );
@@ -346,16 +345,9 @@ abstract class Jetpack_Admin_Page {
 									}
 									?>
 								</span>
-							<?php } else { ?>
+							<?php } elseif ( current_user_can( 'jetpack_manage_modules' ) ) { ?>
 								<span class="dops-button-group">
-									<a href="<?php echo esc_url( $jetpack_admin_url ); ?>" type="button" class="dops-button is-compact"><?php esc_html_e( 'Dashboard', 'jetpack' ); ?></a>
-														<?php
-														if ( current_user_can( 'jetpack_manage_modules' ) ) {
-															?>
-										<a href="<?php echo esc_url( $jetpack_admin_url . '#/settings' ); ?>" type="button" class="dops-button is-compact"><?php esc_html_e( 'Settings', 'jetpack' ); ?></a>
-															<?php
-														}
-														?>
+									<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack-settings#/settings' ) ); ?>" type="button" class="dops-button is-compact"><?php esc_html_e( 'Settings', 'jetpack' ); ?></a>
 								</span>
 							<?php } ?>
 						</div>
