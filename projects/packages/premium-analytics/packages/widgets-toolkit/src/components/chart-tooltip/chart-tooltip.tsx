@@ -32,7 +32,7 @@ export type TooltipStyle = {
 };
 
 type DatumWithLabel = { label: string };
-type DatumWithValue = { value: number };
+type DatumWithValue = { value: number | null };
 
 // The default extractors assume the common datum shape; charts with other
 // shapes (dates on line charts, for one) pass their own via `getLabel`.
@@ -40,8 +40,8 @@ function defaultGetLabel( datum: unknown ): string {
 	return ( datum as DatumWithLabel ).label ?? '';
 }
 
-function defaultGetValue( datum: unknown ): number {
-	return ( datum as DatumWithValue ).value;
+function defaultGetValue( datum: unknown ): number | null {
+	return ( datum as DatumWithValue ).value ?? null;
 }
 
 export type ChartTooltipProps< TDatum = unknown > = {
@@ -80,7 +80,7 @@ export type ChartTooltipProps< TDatum = unknown > = {
 	/** `value` is the row's value spelled out in full, in the row's own format. */
 	getLabel?: ( datum: TDatum, index: number, key: string, value: string ) => string;
 
-	getValue?: ( datum: TDatum ) => number;
+	getValue?: ( datum: TDatum ) => number | null;
 };
 
 // No positional fallback once `seriesKeys` is given: that lookup is the bug
