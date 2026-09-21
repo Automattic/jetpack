@@ -1,0 +1,4 @@
+1280: HTML identical: True
+1280: pixels identical: True; dimensions (1280, 4500); differing bounds None
+782: HTML identical: True
+782: pixels identical: True; dimensions (782, 5500); differing bounds None
