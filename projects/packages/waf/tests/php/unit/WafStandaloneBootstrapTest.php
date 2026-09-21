@@ -164,7 +164,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * Test that the generated bootstrap runs the firewall before WordPress without loading package files or leaving an autoloader registered.
+	 * Test that the generated bootstrap runs the firewall before WordPress, loading no package files and leaving only its own classmap loader registered.
 	 *
 	 * @runInSeparateProcess
 	 */
@@ -176,13 +176,13 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		$this->assertSame( '', $report['stderr'] );
 		$this->assertSame( 'preload', $report['run'] );
 		$this->assertTrue( $report['runner_loaded'] );
-		$this->assertSame( 0, $report['autoloaders'] );
+		$this->assertSame( array( 'Closure' ), $report['autoloaders'] );
 		$this->assertSame( array(), $report['variables'] );
 		$this->assertSame( array(), $report['package_files'] );
 	}
 
 	/**
-	 * Test that, on a web request, the loader serves the runtime classes and the rules entrypoint runs before the loader is removed.
+	 * Test that, on a web request, the loader serves the runtime classes and the rules entrypoint runs.
 	 *
 	 * @runInSeparateProcess
 	 */
@@ -205,7 +205,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		$this->assertSame( 'preload', $report['run'] );
 		$this->assertSame( 'Automattic\\Jetpack\\Waf\\Waf_Runtime', $report['rules_waf'] );
 		$this->assertTrue( $report['runtime_loaded'] );
-		$this->assertSame( 0, $report['autoloaders'] );
+		$this->assertSame( array( 'Closure' ), $report['autoloaders'] );
 		$this->assertSame( array(), $report['variables'] );
 		$this->assertSame( array(), $report['package_files'] );
 	}
@@ -229,7 +229,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		$this->assertSame( '', $report['stderr'] );
 		$this->assertNull( $report['run'] );
 		$this->assertFalse( $report['runner_loaded'] );
-		$this->assertSame( 0, $report['autoloaders'] );
+		$this->assertSame( array(), $report['autoloaders'] );
 		$this->assertSame( array(), $report['variables'] );
 	}
 
@@ -312,8 +312,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 							&& preg_match( '/\$classmap_file = \'.*\/vendor\/composer\/autoload_classmap\.php\';/', $file_contents ) === 1
 							&& strpos( $file_contents, 'require_once' ) === false
 							&& strpos( $file_contents, 'spl_autoload_register( $autoloader );' ) !== false
-							&& preg_match( '/Automattic\\\Jetpack\\\Waf\\\Waf_Runner::initialize/', $file_contents ) === 1
-							&& strpos( $file_contents, 'spl_autoload_unregister( $autoloader );' ) !== false;
+							&& preg_match( '/Automattic\\\Jetpack\\\Waf\\\Waf_Runner::initialize/', $file_contents ) === 1;
 					}
 				)
 			)

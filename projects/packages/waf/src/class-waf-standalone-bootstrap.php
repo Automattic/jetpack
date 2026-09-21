@@ -161,6 +161,8 @@ class Waf_Standalone_Bootstrap {
 
 		// Autoload from the classmap alone rather than `vendor/autoload.php`: Composer's loader would also run every
 		// package's `files` entries and mark them loaded, so the Jetpack autoloader later skips its own, possibly newer, copies.
+		// The loader stays registered as a last resort behind the Jetpack autoloader, which prepends itself, so a class the
+		// preloaded WAF references that the active plugin's older copy lacks still resolves instead of fataling.
 		// The closure keeps every variable, including the classmap's own `$vendorDir`/`$baseDir`, out of the global scope.
 		$template = <<<'PHP'
 		<?php
@@ -185,7 +187,6 @@ class Waf_Standalone_Bootstrap {
 			};
 			spl_autoload_register( $autoloader );
 			Automattic\Jetpack\Waf\Waf_Runner::initialize();
-			spl_autoload_unregister( $autoloader );
 		} )();
 
 		PHP;

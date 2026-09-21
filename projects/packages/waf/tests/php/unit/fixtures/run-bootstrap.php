@@ -25,13 +25,21 @@ $leaked      = array_values(
 	)
 );
 $autoloaders = spl_autoload_functions();
+if ( ! $autoloaders ) {
+	$autoloaders = array();
+}
 
 echo json_encode(
 	array(
 		'sapi'           => PHP_SAPI,
 		'run'            => defined( 'JETPACK_WAF_RUN' ) ? JETPACK_WAF_RUN : null,
 		'rules_waf'      => defined( 'JETPACK_WAF_TEST_RULES_WAF' ) ? JETPACK_WAF_TEST_RULES_WAF : null,
-		'autoloaders'    => $autoloaders ? count( $autoloaders ) : 0,
+		'autoloaders'    => array_map(
+			function ( $autoloader ) {
+				return is_object( $autoloader ) ? get_class( $autoloader ) : 'callable';
+			},
+			$autoloaders
+		),
 		'variables'      => $leaked,
 		'runner_loaded'  => class_exists( Automattic\Jetpack\Waf\Waf_Runner::class, false ),
 		'runtime_loaded' => class_exists( Automattic\Jetpack\Waf\Waf_Runtime::class, false ),
