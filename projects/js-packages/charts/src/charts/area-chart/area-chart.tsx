@@ -37,6 +37,7 @@ import { ChartLayout } from '../private/chart-layout';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType } from '../private/time-axis';
 import { buildTimeAxisOptions } from '../private/time-axis-options';
+import { hasOnlyWholeNumbers, WholeNumberTicks } from '../private/whole-number-ticks';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
@@ -140,6 +141,15 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 		const allSeriesHidden = useMemo(
 			() => seriesWithVisibility.every( ( { isVisible } ) => ! isVisible ),
 			[ seriesWithVisibility ]
+		);
+
+		// A normalized stack (expand/wiggle/silhouette) turns whole-number data into
+		// fractions, so the filter is skipped for every offset but 'none'.
+		const hasWholeNumberValues = useMemo(
+			() =>
+				( ! stacked || stackOffset === 'none' ) &&
+				hasOnlyWholeNumbers( dataSorted.filter( series => isSeriesVisible( series.label ) ) ),
+			[ dataSorted, isSeriesVisible, stacked, stackOffset ]
 		);
 
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
@@ -439,15 +449,33 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 											{ /* With every series hidden the value scale collapses, so the grid and axes
 											     are dropped while the empty state stands in — otherwise they render
 											     squished at the top. */ }
-											{ ! allSeriesHidden && gridVisibility !== 'none' && (
-												<Grid columns={ false } numTicks={ 4 } />
-											) }
-											{ ! allSeriesHidden && chartOptions.axis.x.display && (
-												<Axis { ...chartOptions.axis.x } />
-											) }
-											{ ! allSeriesHidden && chartOptions.axis.y.display && (
-												<Axis { ...chartOptions.axis.y } />
-											) }
+											<WholeNumberTicks
+												axis="y"
+												numTicks={ chartOptions.axis.y.numTicks }
+												enabled={ hasWholeNumberValues && ! chartOptions.axis.y.tickValues }
+											>
+												{ tickValues => (
+													<>
+														{ ! allSeriesHidden && gridVisibility !== 'none' && (
+															// Visx forwards tickValues to its grid primitives but omits it from GridProps.
+															<Grid
+																columns={ false }
+																numTicks={ chartOptions.axis.y.numTicks }
+																{ ...{ tickValues: tickValues ?? chartOptions.axis.y.tickValues } }
+															/>
+														) }
+														{ ! allSeriesHidden && chartOptions.axis.x.display && (
+															<Axis { ...chartOptions.axis.x } />
+														) }
+														{ ! allSeriesHidden && chartOptions.axis.y.display && (
+															<Axis
+																{ ...chartOptions.axis.y }
+																{ ...( tickValues ? { tickValues } : {} ) }
+															/>
+														) }
+													</>
+												) }
+											</WholeNumberTicks>
 
 											{ allSeriesHidden ? (
 												<SvgEmptyState

@@ -1,4 +1,4 @@
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, within, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createRef } from 'react';
 import { GlobalChartsProvider } from '../../../providers';
@@ -185,6 +185,55 @@ describe( 'AreaChart', () => {
 			} );
 
 			expect( screen.getAllByText( /^tick-\d+$/ ).length ).toBeGreaterThan( 0 );
+		} );
+	} );
+
+	describe( 'Y-Axis Ticks', () => {
+		test( 'labels a whole-number range smaller than the tick count once per whole number', () => {
+			renderWithProvider( {
+				stacked: false,
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 1, 1, 0 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+				],
+			} );
+
+			const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
+		} );
+
+		test( 'keeps fractional ticks for a normalized stack even when the data is whole numbers', () => {
+			renderWithProvider( {
+				stacked: true,
+				stackOffset: 'expand',
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 1, 1, 0 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+					{
+						label: 'Series B',
+						data: [ 1, 0, 0, 1 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+				],
+			} );
+
+			const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+			expect( within( chart ).getAllByText( /^-?[\d.,]+$/ ).length ).toBeGreaterThan( 2 );
 		} );
 	} );
 
