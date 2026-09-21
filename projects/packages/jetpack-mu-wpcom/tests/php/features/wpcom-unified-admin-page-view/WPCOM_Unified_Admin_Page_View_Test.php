@@ -82,6 +82,7 @@ class WPCOM_Unified_Admin_Page_View_Test extends \WorDBless\BaseTestCase {
 			);
 		}
 
+		$output = '';
 		ob_start();
 		try {
 			wpcom_unified_track_admin_page_views();
