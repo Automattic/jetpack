@@ -21,7 +21,10 @@ Jetpack dashboard drops its own module toggle on exactly those sites — see
 Adding a way back there reopens a door the dashboard closed on purpose.
 
 `load-jetpack.php` does not run on WordPress.com Simple, so the registration
-above does not happen there. Simple's own registration is a wpcom-side change.
+above does not happen there. `sharing_admin_init()` in
+`modules/sharedaddy/sharing.php`, the one Sharing file wpcom loads, registers
+the screen and `Post_Handler` under an `is_wpcom_simple()` guard instead. That
+bridge goes once wpcom registers the screen itself (CM-913).
 
 The screen is plain wp-admin chrome. It deliberately does not render inside
 `Jetpack_Admin_Page::wrap_ui()`, which is what keeps this package free of the
@@ -81,7 +84,10 @@ two-repo change, not a rename.
 `Modules::get_active()` intersects with `get_available()`, which is called with
 no arguments, so nothing is filtered on connection. A site that cannot render a
 Like button will still answer `true` to `is_active( 'likes' )`. That is what
-`Environment::likes_supported()` is for.
+`Environment::likes_supported()` is for. Sharing needs no connection, but
+`Jetpack::load_modules()` includes nothing on a site that is neither connected
+nor offline, so `Environment::sharing_enabled()` applies the same guard: an
+active-but-unloaded module has no `Sharing_Service` to configure.
 
 ## Hooks that must keep firing
 
