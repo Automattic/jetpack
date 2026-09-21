@@ -1,0 +1,49 @@
+.panel {
+	background: var(--wpds-color-background-surface-neutral-weak);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-md);
+	margin-block-end: var(--wpds-dimension-gap-md);
+
+	.toggle {
+		display: flex;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-sm);
+		inline-size: 100%;
+		padding: var(--wpds-dimension-padding-lg);
+		border: 0;
+		border-radius: inherit;
+		background: transparent;
+		color: inherit;
+		font: inherit;
+		text-align: start;
+		cursor: pointer;
+
+		svg {
+			flex-shrink: 0;
+		}
+	}
+
+	.summary {
+		flex: 1;
+		min-inline-size: 0;
+		overflow-wrap: anywhere;
+	}
+
+	.content {
+		padding: 0 var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-lg);
+
+		&[hidden] {
+			display: none;
+		}
+
+		> div {
+			margin-block: 0;
+		}
+
+		div[data-except-content] {
+			margin: 0;
+			padding: 0;
+			background: transparent;
+		}
+	}
+}
