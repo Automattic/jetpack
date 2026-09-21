@@ -48,7 +48,7 @@ abstract class Sharing_Source {
 	/**
 	 * Sharing unique ID.
 	 *
-	 * @var int
+	 * @var string
 	 */
 	protected $id;
 
@@ -755,7 +755,7 @@ abstract class Deprecated_Sharing_Source extends Sharing_Source {
 	/**
 	 * Sharing unique ID.
 	 *
-	 * @var int
+	 * @var string
 	 */
 	protected $id;
 
