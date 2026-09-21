@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Stats\Abilities;
 
 use Automattic\Jetpack\Stats\Main;
 use Automattic\Jetpack\Stats\Options;
+use Automattic\Jetpack\Stats\Settings;
 use Automattic\Jetpack\Stats\StatsBaseTestCase;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -21,8 +22,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
  *   composer phpunit -- --filter Stats_Abilities_Test
  *
  * @covers \Automattic\Jetpack\Stats\Abilities\Stats_Abilities
+ * @covers \Automattic\Jetpack\Stats\Settings
  */
 #[CoversClass( Stats_Abilities::class )]
+#[CoversClass( Settings::class )]
 class Stats_Abilities_Test extends StatsBaseTestCase {
 
 	/**
@@ -1046,6 +1049,19 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$result = Stats_Abilities::update_settings( array( 'roles' => array( 'robot' ) ) );
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertSame( 'jetpack_stats_invalid_role', $result->get_error_code() );
+	}
+
+	public function test_update_settings_refuses_roles_given_as_a_string_instead_of_emptying_them(): void {
+		$result = Stats_Abilities::update_settings( array( 'roles' => 'editor' ) );
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_stats_invalid_roles', $result->get_error_code() );
+	}
+
+	public function test_update_settings_saves_the_counted_roles(): void {
+		$result = Stats_Abilities::update_settings( array( 'count_roles' => array( 'editor', 'author' ) ) );
+
+		$this->assertSame( array( 'editor', 'author' ), $result['settings']['count_roles'] );
+		$this->assertSame( array( 'editor', 'author' ), Options::get_option( 'count_roles' ) );
 	}
 
 	public function test_update_settings_rejects_empty_roles_to_prevent_lockout(): void {
