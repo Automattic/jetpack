@@ -171,6 +171,8 @@ A section that declares no layout opens in customize mode on the empty state, si
 
 The sticker and filter overrides that switch the dashboard on for the team leave the option off, so they see every section.
 
+To see every section on a customer's preview site without changing what its owner sees, switch on the `premium-analytics-a11n-all-sections` feature flag in Tools → Feature Flags (a8c). It opens the scope only for a visitor `jetpack-mu-wpcom` identifies as an Automattician, so it does nothing on a self-hosted site.
+
 **The section's own rule** is a capability check, a plugin's presence, or a plan feature. Store checks WooCommerce and `manage_options` or `view_woocommerce_reports`. Subscribers checks the subscriptions module. Ads checks `Capabilities::current_user_can_view_ad_reports()` from the registrant that decided WordAds is there.
 
 A section that declares no rule is visible to anyone with analytics access, the gate of the sections route. A plugin registering one for a narrower audience passes its own `is_available`.

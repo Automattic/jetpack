@@ -96,6 +96,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( DASHBOARD_PREVIEW_SCOPE_FILTER );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . DASHBOARD_A11N_ALL_SECTIONS_FLAG );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
 		delete_option( Enablement_Setting::ENABLED_OPTION );
 
@@ -1221,6 +1222,38 @@ class Dashboard_Section_Test extends BaseTestCase {
 			array( 'analytics/traffic', 'analytics/insights', 'analytics/subscribers' ),
 			$this->available_section_ids()
 		);
+	}
+
+	/**
+	 * Without the WordPress.com gate there is no Automattician, so the flag leaves the preview alone.
+	 */
+	public function test_a11n_all_sections_flag_keeps_the_preview_for_a_site_owner() {
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+		add_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_A11N_ALL_SECTIONS_FLAG, '__return_true' );
+
+		register_default_dashboard_sections();
+
+		$this->assertSame( array( 'analytics/traffic' ), $this->available_section_ids() );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_a11n_all_sections_flag_shows_an_automattician_every_section() {
+		require_once __DIR__ . '/fixtures/class-wpcom-feature-flags.php';
+		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Feature_Flags::$is_a11n = true;
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+		add_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_A11N_ALL_SECTIONS_FLAG, '__return_true' );
+
+		register_default_dashboard_sections();
+
+		$this->assertCount( 5, $this->available_section_ids() );
+		$this->assertContains( 'ads', get_dashboard_preview_scope_sections() );
 	}
 
 	/**
