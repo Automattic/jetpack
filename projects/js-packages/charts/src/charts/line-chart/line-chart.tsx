@@ -371,8 +371,8 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			preventTooltipScroll: tooltipPlacement === 'below-axis',
 		} );
 
-		// visx's d3.extent skips null/undefined/NaN, so a window where every visible bucket
-		// is null (e.g. entirely before a site launched) leaves the y scale with no domain.
+		// visx's d3.extent skips null/undefined/NaN, so when every visible series is all null
+		// (e.g. entirely before a site launched) the y scale has no domain. Zoom filters nothing.
 		const hasVisibleReading = useMemo( () => {
 			return dataSorted.some(
 				series =>

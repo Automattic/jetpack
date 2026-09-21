@@ -9,8 +9,10 @@ import { __ } from '@wordpress/i18n';
  * @param options.allowMissing - Whether `null` is a bucket with no reading rather than a fault.
  * @return True when the value is invalid.
  */
-export const isInvalidReading = ( value: unknown, { allowMissing }: { allowMissing: boolean } ) =>
-	value === null ? ! allowMissing : isNaN( value as number );
+export const isInvalidReading = (
+	value: number | null | undefined,
+	{ allowMissing }: { allowMissing: boolean }
+) => ( value === null ? ! allowMissing : value === undefined || isNaN( value ) );
 
 /**
  * Formats a reading for a tooltip.
