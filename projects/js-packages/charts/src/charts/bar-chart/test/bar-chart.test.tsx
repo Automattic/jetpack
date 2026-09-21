@@ -394,6 +394,56 @@ describe( 'BarChart', () => {
 		expect( lines ).toHaveLength( 3 );
 	} );
 
+	describe( 'Whole-number value ticks', () => {
+		const wholeNumberData: SeriesData[] = [
+			{
+				label: 'Series A',
+				data: [
+					{ label: 'Mon', value: 0 },
+					{ label: 'Tue', value: 1 },
+					{ label: 'Wed', value: 1 },
+				],
+			},
+		];
+
+		test( 'labels a whole-number range smaller than the tick count once per whole number', () => {
+			renderWithTheme( { data: wholeNumberData } );
+			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
+		} );
+
+		test( 'labels a horizontal whole-number range once per whole number', () => {
+			renderWithTheme( { data: wholeNumberData, orientation: 'horizontal' } );
+			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
+		} );
+
+		test( 'draws a flat series of ones on a 0 and 1 axis', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ label: 'Mon', value: 1 },
+							{ label: 'Tue', value: 1 },
+						],
+					},
+				],
+			} );
+			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
+		} );
+	} );
+
 	describe( 'Data Validation', () => {
 		test( 'handles empty data array', () => {
 			renderWithTheme( { data: [] } );
