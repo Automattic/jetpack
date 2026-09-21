@@ -108,7 +108,7 @@ const COMPLETION_HOLD_MS = 750;
 
 /**
  * For Critical CSS UI: Actually run the local generator and return its status.
- * @param autoStart
+ * @param autoStart - Whether to start generation automatically when CSS has not been generated.
  */
 export function useLocalCriticalCssGenerator( autoStart = true ) {
 	// Local Generator status context.
