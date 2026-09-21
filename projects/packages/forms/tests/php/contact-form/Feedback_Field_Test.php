@@ -799,8 +799,7 @@ class Feedback_Field_Test extends BaseTestCase {
 	// ─── Email HTML rendering tests ───
 
 	/**
-	 * A visitor picks a rating from radio inputs whose value is "<selected>/<max>",
-	 * so the scale is POST data and a forged one must not become a loop bound.
+	 * Test the email HTML caps a forged rating scale and keeps the selected value.
 	 */
 	public function test_rating_field_clamps_forged_scale_in_email_html_context() {
 		$field = new Feedback_Field( 'rating_key', 'Rating', '3/5000', 'rating', array( 'iconStyle' => 'stars' ) );

@@ -7,7 +7,6 @@ const countIcons = markup => ( markup.match( /<svg/g ) || [] ).length;
 
 const countFilled = markup => ( markup.match( /is-filled/g ) || [] ).length;
 
-// The scale arrives from submitted data, so a forged one must not become a loop bound.
 describe( 'renderRatingIconsHtml', () => {
 	it( 'renders one icon per point on a normal scale', () => {
 		expect( countIcons( renderRatingIconsHtml( 3, 5, 'stars' ) ) ).toBe( 5 );
