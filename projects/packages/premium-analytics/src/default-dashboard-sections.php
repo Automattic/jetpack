@@ -462,7 +462,6 @@ function register_default_dashboard_sections( $registry = null ) {
 			'order'          => 10,
 			'default_layout' => __NAMESPACE__ . '\\get_traffic_section_default_layout',
 		),
-
 		'analytics/insights'    => array(
 			'label'               => __( 'Insights', 'jetpack-premium-analytics-pkg' ),
 			'title'               => __( 'Site insights', 'jetpack-premium-analytics-pkg' ),
@@ -477,7 +476,6 @@ function register_default_dashboard_sections( $registry = null ) {
 			),
 			'default_layout'      => __NAMESPACE__ . '\\get_insights_section_default_layout',
 		),
-
 		'analytics/subscribers' => array(
 			'label'               => __( 'Subscribers', 'jetpack-premium-analytics-pkg' ),
 			'title'               => __( 'Subscribers stats', 'jetpack-premium-analytics-pkg' ),
@@ -491,7 +489,6 @@ function register_default_dashboard_sections( $registry = null ) {
 			),
 			'default_layout'      => __NAMESPACE__ . '\\get_subscribers_section_default_layout',
 		),
-
 		// Store registers no heading of its own, so it falls back to the label.
 		'woocommerce/store'     => array(
 			'label'          => __( 'Store', 'jetpack-premium-analytics-pkg' ),
@@ -502,7 +499,6 @@ function register_default_dashboard_sections( $registry = null ) {
 			'requires_sync'  => true,
 			'default_layout' => __NAMESPACE__ . '\\get_store_section_default_layout',
 		),
-
 	);
 
 	foreach ( $sections as $id => $args ) {

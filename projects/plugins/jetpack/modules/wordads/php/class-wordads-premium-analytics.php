@@ -60,7 +60,7 @@ class WordAds_Premium_Analytics {
 			return;
 		}
 
-		$registry->register(
+		\Automattic\Jetpack\PremiumAnalytics\register_dashboard_section(
 			$dashboard_name,
 			self::SECTION_ID,
 			array(

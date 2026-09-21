@@ -28,7 +28,7 @@ function wpcom_premium_analytics_register_wordads_section( $registry ) {
 		return;
 	}
 
-	$registry->register(
+	\Automattic\Jetpack\PremiumAnalytics\register_dashboard_section(
 		$dashboard_name,
 		'wordads/ads',
 		array(
