@@ -95,7 +95,7 @@ function defaultGetValue( datum: unknown ): number {
 
 ### When to Use Custom Extractors
 
-**Line charts with dates**: Pass a custom `getLabel` with `layout="inline"`, so a row reads as value, metric, then date (`86 Views · September 17, 2026`):
+**Line charts with dates**: Pass a custom `getLabel` with `layout="inline"`, so a row reads as value, metric, then date (`86 Views · September 17, 2026`). `tooltipNames` is the map `resolveTooltipNames( seriesNames, tooltipExtras )` returns, so an extra's key resolves too:
 
 ```tsx
 const getLabel = ( datum, _index, key, value ) => {
@@ -103,7 +103,7 @@ const getLabel = ( datum, _index, key, value ) => {
 	// a chart can draw more than one current-period metric, so index 1+ is not
 	// necessarily a comparison.
 	const displayDate = datum.realDate ?? datum.date;
-	return formatTooltipPointLabel( value, seriesNames.get( key ), formatDate( displayDate ) );
+	return formatTooltipPointLabel( value, tooltipNames.get( key ), formatDate( displayDate ) );
 };
 ```
 
