@@ -57,8 +57,8 @@ describe( 'FeedbackBanner', () => {
 		);
 	} );
 
-	it( 'asks for feedback on the new tab', () => {
-		const { container } = render( <FeedbackBanner enabled /> );
+	it( 'asks for feedback on the new tabs', () => {
+		const { container } = render( <FeedbackBanner enabled section="traffic" /> );
 
 		// The notice speaks its message through `@wordpress/a11y`, which mirrors
 		// the text into a live region on `document.body`.
@@ -67,15 +67,27 @@ describe( 'FeedbackBanner', () => {
 		);
 	} );
 
+	it( 'stands on Insights too, the other tab the copy speaks for', () => {
+		render( <FeedbackBanner enabled section="insights" /> );
+
+		expect( screen.getByRole( 'button', { name: 'Leave feedback' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'stays off a section the copy does not speak for', () => {
+		const { container } = render( <FeedbackBanner enabled section="subscribers" /> );
+
+		expect( container ).toBeEmptyDOMElement();
+	} );
+
 	it( 'renders nothing until the surface is ready', () => {
-		const { container } = render( <FeedbackBanner enabled={ false } /> );
+		const { container } = render( <FeedbackBanner enabled={ false } section="traffic" /> );
 
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
 	it( 'hands the reader the modal and waits behind it', async () => {
 		const user = userEvent.setup();
-		render( <FeedbackBanner enabled /> );
+		render( <FeedbackBanner enabled section="traffic" /> );
 
 		await user.click( screen.getByRole( 'button', { name: 'Leave feedback' } ) );
 
@@ -85,7 +97,7 @@ describe( 'FeedbackBanner', () => {
 
 	it( 'is still there for a reader who backs out of the modal', async () => {
 		const user = userEvent.setup();
-		render( <FeedbackBanner enabled /> );
+		render( <FeedbackBanner enabled section="traffic" /> );
 
 		await user.click( screen.getByRole( 'button', { name: 'Leave feedback' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
@@ -96,7 +108,7 @@ describe( 'FeedbackBanner', () => {
 
 	it( 'goes away once the answer is sent, before the modal is done thanking', async () => {
 		const user = userEvent.setup();
-		const { container } = render( <FeedbackBanner enabled /> );
+		const { container } = render( <FeedbackBanner enabled section="traffic" /> );
 
 		await user.click( screen.getByRole( 'button', { name: 'Leave feedback' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
@@ -110,7 +122,7 @@ describe( 'FeedbackBanner', () => {
 
 	it( 'goes away when dismissed', async () => {
 		const user = userEvent.setup();
-		const { container } = render( <FeedbackBanner enabled /> );
+		const { container } = render( <FeedbackBanner enabled section="traffic" /> );
 
 		await user.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
 
