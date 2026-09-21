@@ -17,6 +17,12 @@ import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 import { isOdysseyStatsEnabled } from 'state/initial-state';
 
+// Kept out of the ternary below: the minifier merges `c ? __( a ) : __( b )` into `__( c ? a : b )`, which breaks string extraction.
+const STATS_SETTINGS_DESCRIPTION = __(
+	'Choose who can view your Stats, which views are counted, and more.',
+	'jetpack'
+);
+
 class SiteStatsComponent extends Component {
 	constructor( props ) {
 		super( props );
@@ -223,10 +229,7 @@ class SiteStatsComponent extends Component {
 						<p>
 							{ unavailableInOfflineMode
 								? __( 'Unavailable in Offline Mode', 'jetpack' )
-								: __(
-										'Choose who can view your Stats, which views are counted, and more.',
-										'jetpack'
-									) }
+								: STATS_SETTINGS_DESCRIPTION }
 						</p>
 					</SettingsGroup>
 					{ ! unavailableInOfflineMode && (
