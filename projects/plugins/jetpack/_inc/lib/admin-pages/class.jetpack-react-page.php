@@ -32,7 +32,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	/**
 	 * Hash routes the Settings app still renders; the legacy route redirect leaves them alone.
 	 *
-	 * Keep in sync with `settingsRoutes` in `_inc/client/main.jsx`.
+	 * Mirrors `settingsRoutes` in `_inc/client/main.jsx`, plus the app's other unredirected
+	 * paths: `/newsletter`, the connection screens and the admin skip-link anchors.
 	 *
 	 * @var string[]
 	 */
