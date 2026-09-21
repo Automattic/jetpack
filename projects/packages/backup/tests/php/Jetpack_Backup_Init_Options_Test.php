@@ -61,16 +61,16 @@ class Jetpack_Backup_Init_Options_Test extends TestCase {
 	}
 
 	/**
-	 * A host that gates on the plan draws no menu for a site without Backup.
+	 * A host that gates on the plan draws no menu for a site whose plan lacks Backup.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_gated_menu_is_absent_without_an_entitlement() {
+	public function test_gated_menu_is_absent_without_the_feature() {
 		Jetpack_Backup::initialize( array( 'require_backup_plan' => true ) );
-		$this->arrange_entitlement( false );
+		$this->arrange_stored_answer( false );
 
 		Jetpack_Backup::add_wp_admin_submenu();
 
@@ -78,16 +78,16 @@ class Jetpack_Backup_Init_Options_Test extends TestCase {
 	}
 
 	/**
-	 * The same host draws it once the site is entitled.
+	 * The same host draws it once the site's plan includes Backup.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_gated_menu_is_present_with_an_entitlement() {
+	public function test_gated_menu_is_present_with_the_feature() {
 		Jetpack_Backup::initialize( array( 'require_backup_plan' => true ) );
-		$this->arrange_entitlement( true );
+		$this->arrange_stored_answer( true );
 
 		Jetpack_Backup::add_wp_admin_submenu();
 
@@ -142,23 +142,23 @@ class Jetpack_Backup_Init_Options_Test extends TestCase {
 		Jetpack_Backup::initialize();
 
 		Jetpack_Backup::initialize( array( 'require_backup_plan' => true ) );
-		$this->arrange_entitlement( false );
+		$this->arrange_stored_answer( false );
 		Jetpack_Backup::add_wp_admin_submenu();
 
 		$this->assertNotFalse( has_action( self::MENU_LOAD_HOOK, array( Jetpack_Backup::class, 'admin_init' ) ) );
 	}
 
 	/**
-	 * Store an entitlement as though WordPress.com had just given it.
+	 * Store an answer as though My Jetpack had just given it.
 	 *
-	 * @param bool $has_backup Whether the site has Backup.
+	 * @param bool $has_backup Whether the site's plan includes Backup.
 	 */
-	private function arrange_entitlement( $has_backup ) {
+	private function arrange_stored_answer( $has_backup ) {
 		update_option(
 			Backup_Feature_Check::OPTION,
 			array(
-				'has_backup'    => $has_backup,
-				'refresh_after' => time() + Backup_Feature_Check::TTL,
+				'has_backup'  => $has_backup,
+				'stale_after' => time() + Backup_Feature_Check::TTL,
 			),
 			false
 		);

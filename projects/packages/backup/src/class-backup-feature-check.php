@@ -28,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Backup_Feature_Check {
 
 	/**
-	 * Option holding the last answer My Jetpack gave, and when to ask again.
+	 * Option holding the last answer My Jetpack gave, and when it goes stale.
 	 *
 	 * Deliberately unversioned, unlike the namespace: two active plugins carrying
 	 * different versions of this package must share one answer, not two.
@@ -72,10 +72,10 @@ class Backup_Feature_Check {
 	public static function has_backup() {
 		$stored = self::get_stored();
 
-		if ( self::is_due( $stored ) ) {
+		if ( self::is_stale( $stored ) ) {
 			// Re-adding the same static callback replaces it rather than stacking a
 			// second one, so this needs no guard of its own.
-			add_action( 'shutdown', array( __CLASS__, 'refresh_if_due' ) );
+			add_action( 'shutdown', array( __CLASS__, 'refresh_if_stale' ) );
 		}
 
 		return $stored !== null && $stored['has_backup'];
@@ -96,15 +96,15 @@ class Backup_Feature_Check {
 	}
 
 	/**
-	 * The queued refresh, which asks only if the answer is still due.
+	 * The queued refresh, which asks only if the answer is still stale.
 	 *
 	 * Something else — the listener above, or the Backup page — can answer between the
 	 * moment a refresh is queued and the moment it runs.
 	 *
 	 * @return void
 	 */
-	public static function refresh_if_due() {
-		if ( self::is_due( self::get_stored() ) ) {
+	public static function refresh_if_stale() {
+		if ( self::is_stale( self::get_stored() ) ) {
 			self::refresh();
 		}
 	}
@@ -131,7 +131,7 @@ class Backup_Feature_Check {
 	}
 
 	/**
-	 * Whether it is time to ask again. Nothing stored is always due.
+	 * Whether the stored answer wants refreshing. Nothing stored is always stale.
 	 *
 	 * One clock covers both waits: `store()` sets it a full TTL out for an answer and a
 	 * short retry out for a failure, so there is no second condition to keep in step.
@@ -139,8 +139,8 @@ class Backup_Feature_Check {
 	 * @param array|null $stored The stored entry, if any.
 	 * @return bool
 	 */
-	private static function is_due( $stored ) {
-		return $stored === null || time() >= $stored['refresh_after'];
+	private static function is_stale( $stored ) {
+		return $stored === null || time() >= $stored['stale_after'];
 	}
 
 	/**
@@ -156,8 +156,8 @@ class Backup_Feature_Check {
 		}
 
 		return array(
-			'has_backup'    => (bool) $stored['has_backup'],
-			'refresh_after' => isset( $stored['refresh_after'] ) ? (int) $stored['refresh_after'] : 0,
+			'has_backup'  => (bool) $stored['has_backup'],
+			'stale_after' => isset( $stored['stale_after'] ) ? (int) $stored['stale_after'] : 0,
 		);
 	}
 
@@ -177,16 +177,16 @@ class Backup_Feature_Check {
 		$answer = $failed ? ( $stored !== null && $stored['has_backup'] ) : $has_backup;
 
 		// My Jetpack reads its feature list on most page loads and every read lands here, so
-		// an unchanged answer that is not due yet must not restamp the option each time.
-		if ( $stored !== null && $stored['has_backup'] === $answer && ! self::is_due( $stored ) ) {
+		// an unchanged answer that is still fresh must not restamp the option each time.
+		if ( $stored !== null && $stored['has_backup'] === $answer && ! self::is_stale( $stored ) ) {
 			return;
 		}
 
 		update_option(
 			self::OPTION,
 			array(
-				'has_backup'    => $answer,
-				'refresh_after' => time() + ( $failed ? self::RETRY_INTERVAL : self::TTL ),
+				'has_backup'  => $answer,
+				'stale_after' => time() + ( $failed ? self::RETRY_INTERVAL : self::TTL ),
 			),
 			false
 		);

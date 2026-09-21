@@ -123,9 +123,9 @@ class Backup_Feature_Check_Test extends TestCase {
 	}
 
 	/**
-	 * An answer that is due is still served while its refresh is queued.
+	 * A stale answer is still served while its refresh is queued.
 	 */
-	public function test_due_answer_is_served_while_a_refresh_is_queued() {
+	public function test_stale_answer_is_served_while_a_refresh_is_queued() {
 		$this->arrange_stored_answer( true, time() - 1 );
 		$this->arrange_wpcom_features( array( 'backups' ) );
 
@@ -135,9 +135,9 @@ class Backup_Feature_Check_Test extends TestCase {
 	}
 
 	/**
-	 * An answer that is not yet due queues nothing.
+	 * A fresh answer queues nothing.
 	 */
-	public function test_answer_not_yet_due_queues_no_refresh() {
+	public function test_fresh_answer_queues_no_refresh() {
 		$this->arrange_stored_answer( true );
 
 		$this->assertTrue( Backup_Feature_Check::has_backup() );
@@ -172,8 +172,8 @@ class Backup_Feature_Check_Test extends TestCase {
 
 		$stored = get_option( Backup_Feature_Check::OPTION );
 		$this->assertFalse( $stored['has_backup'] );
-		$this->assertGreaterThan( time(), $stored['refresh_after'] );
-		$this->assertLessThanOrEqual( time() + Backup_Feature_Check::RETRY_INTERVAL, $stored['refresh_after'] );
+		$this->assertGreaterThan( time(), $stored['stale_after'] );
+		$this->assertLessThanOrEqual( time() + Backup_Feature_Check::RETRY_INTERVAL, $stored['stale_after'] );
 	}
 
 	/**
@@ -187,7 +187,7 @@ class Backup_Feature_Check_Test extends TestCase {
 
 		$stored = get_option( Backup_Feature_Check::OPTION );
 		$this->assertTrue( $stored['has_backup'], 'The last clear answer must survive a failed read.' );
-		$this->assertLessThanOrEqual( time() + Backup_Feature_Check::RETRY_INTERVAL, $stored['refresh_after'] );
+		$this->assertLessThanOrEqual( time() + Backup_Feature_Check::RETRY_INTERVAL, $stored['stale_after'] );
 	}
 
 	/**
@@ -199,7 +199,7 @@ class Backup_Feature_Check_Test extends TestCase {
 		Backup_Feature_Check::refresh();
 
 		$stored = get_option( Backup_Feature_Check::OPTION );
-		$this->assertGreaterThan( time() + Backup_Feature_Check::RETRY_INTERVAL, $stored['refresh_after'] );
+		$this->assertGreaterThan( time() + Backup_Feature_Check::RETRY_INTERVAL, $stored['stale_after'] );
 	}
 
 	/**
@@ -268,17 +268,17 @@ class Backup_Feature_Check_Test extends TestCase {
 	/**
 	 * Store an answer as though My Jetpack had just given it.
 	 *
-	 * @param bool     $has_backup    The answer to store.
-	 * @param int|null $refresh_after When it falls due. Defaults to a full TTL from now.
+	 * @param bool     $has_backup  The answer to store.
+	 * @param int|null $stale_after When it goes stale. Defaults to a full TTL from now.
 	 */
-	private function arrange_stored_answer( $has_backup, $refresh_after = null ) {
-		$refresh_after ??= time() + Backup_Feature_Check::TTL;
+	private function arrange_stored_answer( $has_backup, $stale_after = null ) {
+		$stale_after ??= time() + Backup_Feature_Check::TTL;
 
 		update_option(
 			Backup_Feature_Check::OPTION,
 			array(
-				'has_backup'    => $has_backup,
-				'refresh_after' => $refresh_after,
+				'has_backup'  => $has_backup,
+				'stale_after' => $stale_after,
 			),
 			false
 		);
@@ -290,6 +290,6 @@ class Backup_Feature_Check_Test extends TestCase {
 	 * @return bool
 	 */
 	private function refresh_is_queued() {
-		return has_action( 'shutdown', array( Backup_Feature_Check::class, 'refresh_if_due' ) ) !== false;
+		return has_action( 'shutdown', array( Backup_Feature_Check::class, 'refresh_if_stale' ) ) !== false;
 	}
 }
