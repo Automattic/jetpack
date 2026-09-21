@@ -12,7 +12,7 @@ $autoloaders = spl_autoload_functions();
 echo json_encode(
 	array(
 		'run'           => defined( 'JETPACK_WAF_RUN' ) ? JETPACK_WAF_RUN : null,
-		'autoloaders'   => is_array( $autoloaders ) ? count( $autoloaders ) : 0,
+		'autoloaders'   => $autoloaders ? count( $autoloaders ) : 0,
 		'variables'     => array_values( array_intersect( array_keys( get_defined_vars() ), array( 'jetpack_waf_classmap_file', 'jetpack_waf_classmap', 'jetpack_waf_autoloader' ) ) ),
 		'runner_loaded' => class_exists( Automattic\Jetpack\Waf\Waf_Runner::class, false ),
 		'package_files' => array_values(
