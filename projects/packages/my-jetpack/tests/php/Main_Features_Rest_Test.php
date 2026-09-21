@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Current_Plan;
 use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -78,6 +79,7 @@ class Main_Features_Rest_Test extends TestCase {
 		remove_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
 		$this->withdraw_stats_module();
 		$this->remove_jetpack();
+		$this->set_plan_cache( null );
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 
@@ -592,5 +594,42 @@ class Main_Features_Rest_Test extends TestCase {
 		);
 		$this->assertSame( Main_Features::PLUGIN_INACTIVE, $this->boost_status( new \WP_REST_Response( $response->get_data()['state'] ) ) );
 		$this->assertNotContains( 'stats', Jetpack_Options::get_option( 'active_modules', array() ) );
+	}
+
+	/**
+	 * The activate direction runs through Modules::activate(), which does the most work.
+	 */
+	public function test_bulk_switches_a_module_on() {
+		$this->offer_stats_module();
+		// Once another test has loaded the Jetpack mock, activation also asks the plan.
+		$plan             = Current_Plan::get();
+		$plan['supports'] = array_merge( (array) ( $plan['supports'] ?? array() ), array( 'stats' ) );
+		$this->set_plan_cache( $plan );
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => true,
+				'modules' => array( 'stats' ),
+			)
+		);
+
+		$this->assertSame( array(), $response->get_data()['failed'] );
+		$this->assertContains( 'stats', Jetpack_Options::get_option( 'active_modules', array() ) );
+	}
+
+	/**
+	 * Write Current_Plan's request-scoped cache, which has no setter.
+	 *
+	 * @param array|null $plan Plan details, or null to clear.
+	 * @return void
+	 */
+	private function set_plan_cache( $plan ) {
+		$cache = new \ReflectionProperty( Current_Plan::class, 'active_plan_cache' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$cache->setAccessible( true );
+		}
+		$cache->setValue( null, $plan );
 	}
 }

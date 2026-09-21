@@ -125,7 +125,7 @@ describe( 'useBulkFeatureSwitch', () => {
 
 		const { result } = renderBulk();
 
-		let run: Promise< void > = Promise.resolve();
+		let run: Promise< string[] > = Promise.resolve( [] );
 		act( () => {
 			run = result.current.bulk.run(
 				[ moduleState( 'stats', 'active' ), pluginState( 'akismet', 'active' ) ],
@@ -169,6 +169,24 @@ describe( 'useBulkFeatureSwitch', () => {
 
 		expect( mockSuccess ).toHaveBeenCalledWith( '1 feature deactivated.' );
 		expect( mockError ).toHaveBeenCalledWith( 'akismet feature: This plugin runs the page.' );
+	} );
+
+	it( 'resolves to the features that failed, so they can be kept for a retry', async () => {
+		mockApiFetch.mockImplementation( () =>
+			settled( [ { type: 'plugin', slug: 'akismet', message: 'Nope.' } ] )
+		);
+
+		const { result } = renderBulk();
+
+		let failed: string[] = [];
+		await act( async () => {
+			failed = await result.current.bulk.run(
+				[ moduleState( 'stats', 'active' ), pluginState( 'akismet', 'active' ) ],
+				false
+			);
+		} );
+
+		expect( failed ).toEqual( [ 'akismet' ] );
 	} );
 
 	it( 'gives features held back for the same reason one notice between them', async () => {

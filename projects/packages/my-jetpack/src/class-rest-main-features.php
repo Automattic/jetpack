@@ -218,7 +218,8 @@ class REST_Main_Features {
 	private static function switch_module( $slug, $active ) {
 		$modules = new Modules();
 
-		if ( ! $modules->is_module( $slug ) ) {
+		// Not is_module(): with no modules on offer, its allow-list is skipped and any slug passes.
+		if ( ! in_array( $slug, (array) $modules->get_available(), true ) ) {
 			return new WP_Error( 'not_found', __( 'That Jetpack module was not found.', 'jetpack-my-jetpack' ) );
 		}
 
@@ -231,8 +232,11 @@ class REST_Main_Features {
 		// stats/stats.php) is active, which ends this request, as it does Jetpack's own route.
 		$switched = $active ? $modules->activate( $slug, false, false ) : $modules->deactivate( $slug );
 
+		// Read after a feature name, alone or in a list; a retry rarely helps, so none is offered.
 		if ( ! $switched ) {
-			return new WP_Error( 'switch_failed', __( 'It could not be changed. Please try again.', 'jetpack-my-jetpack' ) );
+			return $active
+				? new WP_Error( 'switch_failed', __( 'Could not be switched on. It may need a Jetpack connection, or a plan that includes it.', 'jetpack-my-jetpack' ) )
+				: new WP_Error( 'switch_failed', __( 'Could not be switched off.', 'jetpack-my-jetpack' ) );
 		}
 
 		return true;

@@ -41,7 +41,7 @@ const isDisabled = ( name: string ) => button( name ).getAttribute( 'aria-disabl
 
 beforeEach( () => {
 	mockRun.mockReset();
-	mockRun.mockResolvedValue( undefined );
+	mockRun.mockResolvedValue( [] );
 } );
 
 describe( 'FeatureList', () => {
@@ -98,5 +98,35 @@ describe( 'FeatureList', () => {
 
 		expect( isDisabled( 'Activate' ) ).toBe( true );
 		expect( checkbox( 'Select all features' ) ).toBeDisabled();
+	} );
+
+	it( 'keeps the features that failed selected, for a retry', async () => {
+		mockRun.mockResolvedValue( [ 'akismet' ] );
+		render(
+			<FeatureList
+				states={ [ akismet, pluginState( 'jetpack-search', 'inactive' ) ] }
+				onOpen={ jest.fn() }
+			/>
+		);
+
+		await userEvent.click( checkbox( 'Select akismet' ) );
+		await userEvent.click( checkbox( 'Select jetpack-search' ) );
+		await userEvent.click( button( 'Activate' ) );
+
+		await waitFor( () => expect( checkbox( 'Select jetpack-search' ) ).not.toBeChecked() );
+		expect( checkbox( 'Select akismet' ) ).toBeChecked();
+	} );
+
+	it( 'holds plugins out of a bulk Deactivate while Jetpack is inactive, and says why', async () => {
+		render(
+			<FeatureList states={ [ boost ] } onOpen={ jest.fn() } canDeactivatePlugins={ false } />
+		);
+
+		await userEvent.click( checkbox( 'Select boost' ) );
+
+		expect( isDisabled( 'Deactivate' ) ).toBe( true );
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent(
+			'Plugins can only be deactivated together while the Jetpack plugin is active.'
+		);
 	} );
 } );

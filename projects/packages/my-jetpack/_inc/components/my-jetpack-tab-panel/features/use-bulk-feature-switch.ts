@@ -60,7 +60,7 @@ function getSwitch( state: FeatureState ): { type: 'module' | 'plugin'; slug: st
 /**
  * Switch many features on or off at once, in one request, with one notice for the lot.
  *
- * @return The handler, and whether a bulk switch is running.
+ * @return The handler, which resolves to the slugs of the features that failed, and whether a bulk switch is running.
  */
 export function useBulkFeatureSwitch() {
 	const queryClient = useQueryClient();
@@ -69,13 +69,13 @@ export function useBulkFeatureSwitch() {
 	const [ isRunning, setIsRunning ] = useState( false );
 
 	const run = useCallback(
-		async ( states: FeatureState[], active: boolean ) => {
+		async ( states: FeatureState[], active: boolean ): Promise< string[] > => {
 			const targets = states.filter(
 				state => isBulkSwitchable( state ) && ( state.status === 'active' ) !== active
 			);
 
 			if ( ! targets.length ) {
-				return;
+				return [];
 			}
 
 			const switches = targets.map( getSwitch );
@@ -90,6 +90,7 @@ export function useBulkFeatureSwitch() {
 			} );
 
 			setIsRunning( true );
+			let failedSlugs: string[] = [];
 
 			try {
 				// A read already in flight would land after this request and undo what it returns.
@@ -139,6 +140,7 @@ export function useBulkFeatureSwitch() {
 				failed.forEach( ( { type, slug, message } ) => {
 					const index = switches.findIndex( item => item.type === type && item.slug === slug );
 					const name = targets[ index ]?.feature.name ?? slug;
+					failedSlugs.push( targets[ index ]?.feature.slug ?? slug );
 					namesByReason.set( message, [ ...( namesByReason.get( message ) ?? [] ), name ] );
 				} );
 				namesByReason.forEach( ( names, message ) =>
@@ -153,6 +155,7 @@ export function useBulkFeatureSwitch() {
 				);
 			} catch ( error ) {
 				// The request as a whole failed, so the site may have switched some, all or none.
+				failedSlugs = targets.map( state => state.feature.slug );
 				queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
 				await fetchModules();
 				createErrorNotice(
@@ -163,6 +166,8 @@ export function useBulkFeatureSwitch() {
 				held.forEach( ( { key, token } ) => clearRequestedSwitch( key, token ) );
 				setIsRunning( false );
 			}
+
+			return failedSlugs;
 		},
 		[ createErrorNotice, createSuccessNotice, fetchModules, queryClient ]
 	);

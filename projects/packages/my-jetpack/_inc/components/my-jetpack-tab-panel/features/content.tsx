@@ -22,7 +22,8 @@ import type { FeatureFilter } from './use-feature-filter';
  * @return The rendered component.
  */
 export function FeaturesContent() {
-	const { states, isLoading } = useFeatureStates( useMainFeatures() );
+	const mainFeatures = useMainFeatures();
+	const { states, isLoading } = useFeatureStates( mainFeatures );
 
 	const [ searchParams, setSearchParams ] = useSearchParams();
 
@@ -136,7 +137,11 @@ export function FeaturesContent() {
 			) }
 			{ visible.length > 0 &&
 				( view === 'list' ? (
-					<FeatureList states={ visible } onOpen={ openFeature } />
+					<FeatureList
+						states={ visible }
+						onOpen={ openFeature }
+						canDeactivatePlugins={ mainFeatures.jetpack === 'active' }
+					/>
 				) : (
 					<div className={ styles[ 'feature-grid' ] }>
 						{ visible.map( state => (

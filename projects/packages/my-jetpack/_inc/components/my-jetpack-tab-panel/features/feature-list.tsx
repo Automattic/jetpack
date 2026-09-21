@@ -64,17 +64,19 @@ function RowCheckbox( { state, isSelected, onSelect }: RowCheckboxProps ) {
 type FeatureListProps = {
 	states: FeatureState[];
 	onOpen: ( slug: string ) => void;
+	canDeactivatePlugins?: boolean;
 };
 
 /**
  * The features as full-width rows, each with a checkbox for switching several at once.
  *
- * @param {FeatureListProps} props        - The component props.
- * @param {FeatureState[]}   props.states - The features to show.
- * @param {Function}         props.onOpen - Opens a feature's details.
+ * @param {FeatureListProps} props                      - The component props.
+ * @param {FeatureState[]}   props.states               - The features to show.
+ * @param {Function}         props.onOpen               - Opens a feature's details.
+ * @param {boolean}          props.canDeactivatePlugins - Whether plugins may be switched off in bulk, which the site allows only while Jetpack is active.
  * @return The rendered component.
  */
-export function FeatureList( { states, onOpen }: FeatureListProps ) {
+export function FeatureList( { states, onOpen, canDeactivatePlugins = true }: FeatureListProps ) {
 	const [ selected, setSelected ] = useState< Set< string > >( () => new Set() );
 	const { run, isRunning } = useBulkFeatureSwitch();
 	// Rows in flight also count, so a run started before the view last changed still holds the bar.
@@ -108,18 +110,46 @@ export function FeatureList( { states, onOpen }: FeatureListProps ) {
 		[ selectable ]
 	);
 
-	const switchPicked = useCallback(
-		async ( active: boolean ) => {
-			await run( picked, active );
-			setSelected( new Set() );
-		},
-		[ picked, run ]
+	const toActivate = picked.filter( state => state.status !== 'active' );
+	const toDeactivate = picked.filter(
+		state =>
+			state.status === 'active' && ( canDeactivatePlugins || state.control.kind !== 'plugin' )
 	);
-	const onActivate = useCallback( () => switchPicked( true ), [ switchPicked ] );
-	const onDeactivate = useCallback( () => switchPicked( false ), [ switchPicked ] );
+	const pluginsHeldBack =
+		! canDeactivatePlugins &&
+		picked.some( state => state.status === 'active' && state.control.kind === 'plugin' );
 
-	const canActivate = picked.some( state => state.status !== 'active' );
-	const canDeactivate = picked.some( state => state.status === 'active' );
+	// Clears only what was sent, so a row picked mid-run survives, and keeps failures for a retry.
+	const switchStates = useCallback(
+		async ( targets: FeatureState[], active: boolean ) => {
+			const failed = await run( targets, active );
+			setSelected( previous => {
+				const next = new Set( previous );
+				targets.forEach( state => next.delete( state.feature.slug ) );
+				failed.forEach( slug => next.add( slug ) );
+				return next;
+			} );
+		},
+		[ run ]
+	);
+	const onActivate = useCallback(
+		() => switchStates( toActivate, true ),
+		[ switchStates, toActivate ]
+	);
+	const onDeactivate = useCallback(
+		() => switchStates( toDeactivate, false ),
+		[ switchStates, toDeactivate ]
+	);
+
+	const count = sprintf(
+		/* translators: %d is how many features are selected. */
+		_n( '%d selected', '%d selected', picked.length, 'jetpack-my-jetpack' ),
+		picked.length
+	);
+	const heldBackNote = __(
+		'Plugins can only be deactivated together while the Jetpack plugin is active.',
+		'jetpack-my-jetpack'
+	);
 
 	return (
 		<div className={ styles[ 'feature-list' ] }>
@@ -134,17 +164,14 @@ export function FeatureList( { states, onOpen }: FeatureListProps ) {
 				/>
 				<Text variant="body-md" className={ styles[ 'bulk-bar__count' ] } role="status">
 					{ picked.length
-						? sprintf(
-								/* translators: %d is how many features are selected. */
-								_n( '%d selected', '%d selected', picked.length, 'jetpack-my-jetpack' ),
-								picked.length
-							)
+						? count
 						: __( 'Select features to switch several at once', 'jetpack-my-jetpack' ) }
+					{ pluginsHeldBack ? ` ${ heldBackNote }` : null }
 				</Text>
 				<Button
 					variant="outline"
 					size="compact"
-					disabled={ isBusy || ! canActivate }
+					disabled={ isBusy || ! toActivate.length }
 					onClick={ onActivate }
 				>
 					{ __( 'Activate', 'jetpack-my-jetpack' ) }
@@ -152,7 +179,7 @@ export function FeatureList( { states, onOpen }: FeatureListProps ) {
 				<Button
 					variant="outline"
 					size="compact"
-					disabled={ isBusy || ! canDeactivate }
+					disabled={ isBusy || ! toDeactivate.length }
 					onClick={ onDeactivate }
 				>
 					{ __( 'Deactivate', 'jetpack-my-jetpack' ) }

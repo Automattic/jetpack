@@ -137,17 +137,14 @@ export function useFeatureStates( state: MainFeaturesState ): {
 	isLoading: boolean;
 } {
 	const { data: products } = useAllProducts();
-	const { modules, isLoading } = useAllJetpackModules();
+	const { modules } = useAllJetpackModules();
 	const productModules = getProductModules();
 
 	// Until the modules land, every module lookup misses and a feature Jetpack runs would
 	// read as "install its plugin instead". Only Jetpack-active sites consult them.
-	//
-	// An empty map counts as not-yet-known for the same reason: a fetch that failed leaves
-	// `isLoading` false and nothing to read, which is indistinguishable here from a site
-	// with no modules, and guessing wrong offers the wrong control.
-	const isLoadingModules =
-		state.jetpack === 'active' && ( isLoading || Object.keys( modules ?? {} ).length === 0 );
+	// Keyed on an empty list, not the store's loading flag: a refresh keeps the last list on
+	// screen, and a failed first fetch leaves nothing to read either way.
+	const isLoadingModules = state.jetpack === 'active' && Object.keys( modules ?? {} ).length === 0;
 
 	// What each switch with a request out asked for. Applied over the fetched state rather
 	// than written into it, so a response carrying the whole site cannot overwrite a
