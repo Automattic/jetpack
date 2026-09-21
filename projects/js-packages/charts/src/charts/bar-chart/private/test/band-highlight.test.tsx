@@ -118,6 +118,15 @@ describe( 'BandHighlight', () => {
 					<BarChartUnresponsive { ...chartProps } { ...props } />
 				</GlobalChartsProvider>
 			);
+			rerender(
+				<GlobalChartsProvider>
+					<BarChartUnresponsive
+						{ ...chartProps }
+						{ ...props }
+						onBandHighlightChange={ jest.fn() }
+					/>
+				</GlobalChartsProvider>
+			);
 			expect( warn ).toHaveBeenCalledTimes( 'withTooltips' in props ? 1 : 0 );
 			warn.mockRestore();
 			expect( onChange ).toHaveBeenLastCalledWith( null );

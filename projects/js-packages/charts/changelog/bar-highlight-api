@@ -1,4 +1,4 @@
-Significance: patch
-Type: changed
+Significance: minor
+Type: added
 
-Add series identity to bar highlight callbacks and clarify highlight and tooltip behavior.
+Add required key and index fields to BandHighlightSelection for identifying the selected series and rendered data point.

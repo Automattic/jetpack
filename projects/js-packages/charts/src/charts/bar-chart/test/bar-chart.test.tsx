@@ -193,11 +193,16 @@ describe( 'BarChart', () => {
 				} );
 				const [ [ x, , width ] ] = barGeometry();
 				hover( x + width / 2, 150 );
-				await expect(
-					screen.findByTestId( 'bar-chart-band-highlight' )
-				).resolves.toBeInTheDocument();
-				pointer( 'pointerup', x + width / 2, 150 );
+				const highlight = await screen.findByTestId( 'bar-chart-band-highlight' );
+				const otherSlot =
+					Number( highlight.getAttribute( 'x' ) ) +
+					Number( highlight.getAttribute( 'width' ) ) * 0.85;
+				hover( otherSlot, 150 );
+				pointer( 'pointerup', otherSlot, 150 );
 				for ( const callback of [ onBandHighlightChange, onPointerUp ] ) {
+					expect( callback ).not.toHaveBeenCalledWith(
+						expect.objectContaining( { key: 'Other' } )
+					);
 					expect( callback ).toHaveBeenLastCalledWith(
 						expect.objectContaining( {
 							key: 'Series A',
@@ -281,14 +286,27 @@ describe( 'BarChart', () => {
 		);
 	} );
 
-	test( 'warns when highlight options lack tooltips while still rendering the chart', () => {
+	test( 'warns once when highlight options lack tooltips across callback changes and remounts', () => {
 		const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
 		try {
 			const onBandHighlightChange = jest.fn();
+			const { rerender, unmount } = renderWithTheme( {
+				withBandHighlight: true,
+				onBandHighlightChange,
+			} );
+			for ( let i = 0; i < 4; i++ ) {
+				rerender(
+					<GlobalChartsProvider>
+						<BarChart { ...defaultProps } withBandHighlight onBandHighlightChange={ jest.fn() } />
+					</GlobalChartsProvider>
+				);
+			}
+			unmount();
 			renderWithTheme( { withBandHighlight: true, onBandHighlightChange } );
+			expect( warn ).toHaveBeenCalledTimes( 1 );
 			expect( screen.getByRole( 'grid' ) ).toBeInTheDocument();
 			expect( warn ).toHaveBeenCalledWith(
-				'BarChart: withBandHighlight and onBandHighlightChange require withTooltips.'
+				'[Charts] BarChart: withBandHighlight and onBandHighlightChange require withTooltips.'
 			);
 			expect( onBandHighlightChange ).not.toHaveBeenCalled();
 			expect( screen.queryByTestId( 'bar-chart-band-highlight' ) ).not.toBeInTheDocument();

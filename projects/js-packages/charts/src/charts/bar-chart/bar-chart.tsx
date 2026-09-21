@@ -3,7 +3,7 @@ import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@vi
 import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useContext, useState, useRef, useMemo, useEffect } from 'react';
+import { useCallback, useContext, useState, useRef, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
@@ -22,6 +22,7 @@ import {
 } from '../../providers';
 import { useDefaultHiddenSeries } from '../../providers/chart-context/hooks/use-default-hidden-series';
 import { attachSubComponents } from '../../utils';
+import { warnOnce } from '../../utils/warn-once';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
@@ -48,8 +49,6 @@ import type { ResponsiveConfig } from '../private/with-responsive';
 import type { FC, ComponentType } from 'react';
 
 export type { BarChartProps, BandHighlightSelection } from './types';
-
-declare const process: { env: Record< string, string | undefined > };
 
 // Base props type with optional responsive properties
 type BarChartBaseProps = Optional< BarChartProps, 'width' | 'height' | 'size' >;
@@ -125,16 +124,12 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	onPointerUp,
 	onDatumActivate,
 } ) => {
-	useEffect( () => {
-		if (
-			process.env.NODE_ENV !== 'production' &&
-			! withTooltips &&
-			( withBandHighlight || onBandHighlightChange )
-		) {
-			// eslint-disable-next-line no-console
-			console.warn( 'BarChart: withBandHighlight and onBandHighlightChange require withTooltips.' );
-		}
-	}, [ withTooltips, withBandHighlight, onBandHighlightChange ] );
+	if ( ! withTooltips && ( withBandHighlight || onBandHighlightChange ) ) {
+		warnOnce(
+			'bar-chart-band-highlight-without-tooltips',
+			'BarChart: withBandHighlight and onBandHighlightChange require withTooltips.'
+		);
+	}
 
 	const legendInteractive = legend.interactive ?? false;
 	const legendCollapseGroups = legend.collapseGroups ?? false;
