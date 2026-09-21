@@ -92,7 +92,7 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 	const content = (
 		<div className={ styles.body }>
 			<div className={ styles.section } data-except-content={ isRow || undefined }>
-				<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
+				{ ! isRow && <div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div> }
 				<div className={ styles[ 'manage-excludes' ] }>
 					<label className={ styles[ 'sub-header' ] } htmlFor={ htmlId }>
 						{ subHeaderText }

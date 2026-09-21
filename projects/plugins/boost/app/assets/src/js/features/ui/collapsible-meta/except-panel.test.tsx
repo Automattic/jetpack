@@ -1,6 +1,7 @@
 /* No jest-dom or user-event in this project. */
 /* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute, jest-dom/prefer-enabled-disabled, jest-dom/prefer-to-have-value, testing-library/prefer-user-event */
 import { fireEvent, render, screen } from '@testing-library/react';
+import { recordBoostEvent } from '$lib/utils/analytics';
 import { ModuleSurfaceProvider } from '$features/module/surface';
 import RenderBlockingJsMeta from '$features/render-blocking-js/render-blocking-js-meta';
 import MinifyMeta from '$features/minify-meta/minify-meta';
@@ -8,12 +9,17 @@ import PageCacheMeta from '$features/page-cache/meta/meta';
 
 const mockMutate = jest.fn();
 let mockValues: string[] = [];
+let mockLogging = false;
 jest.mock( '@automattic/jetpack-react-data-sync-client', () => ( {
 	useDataSync: () => [ { data: mockValues }, { mutate: mockMutate } ],
 	useDataSyncSubset: ( _query: unknown, key: string ) => [
-		key === 'logging' ? false : mockValues,
+		key === 'logging' ? mockLogging : mockValues,
 		{ mutate: mockMutate, isError: false },
 	],
+} ) );
+jest.mock( '$features/page-cache/meta/meta.module.scss', () => ( {
+	body: 'page-cache-body',
+	section: 'page-cache-section',
 } ) );
 jest.mock( '$lib/stores/page-cache', () => ( {
 	usePageCache: () => ( {} ),
@@ -52,7 +58,9 @@ const consumers = [
 
 beforeEach( () => {
 	mockValues = [];
+	mockLogging = false;
 	mockMutate.mockClear();
+	jest.mocked( recordBoostEvent ).mockClear();
 } );
 
 describe.each( consumers )( '$name', ( { component, trigger, count } ) => {
@@ -63,6 +71,7 @@ describe.each( consumers )( '$name', ( { component, trigger, count } ) => {
 		expect( screen.queryByRole( 'textbox' ) ).toBeNull();
 		fireEvent.click( toggle );
 		expect( toggle.getAttribute( 'aria-expanded' ) ).toBe( 'true' );
+		expect( screen.queryByText( 'Exceptions' ) ).toBeNull();
 		const save = screen.getByRole< HTMLButtonElement >( 'button', { name: 'Save' } );
 		expect( save.disabled ).toBe( true );
 		fireEvent.change( screen.getByRole( 'textbox' ), {
@@ -90,6 +99,7 @@ describe.each( consumers )( '$name', ( { component, trigger, count } ) => {
 		render( component );
 		expect( screen.queryByRole( 'button', { name: /^Except / } ) ).toBeNull();
 		fireEvent.click( screen.getByRole( 'button', { name: trigger } ) );
+		expect( screen.getByText( 'Exceptions' ) ).toBeTruthy();
 		expect( screen.getByRole< HTMLButtonElement >( 'button', { name: 'Save' } ).disabled ).toBe(
 			true
 		);
@@ -126,4 +136,57 @@ it.each( [ 'js', 'css' ] as const )( 'keeps Load default handles for Concatenate
 	expect( screen.getByRole< HTMLButtonElement >( 'button', { name: 'Save' } ).disabled ).toBe(
 		false
 	);
+} );
+
+it( 'records distinct Page Cache Except and Show Options toggle events', () => {
+	render(
+		<ModuleSurfaceProvider value="row">
+			<PageCacheMeta />
+		</ModuleSurfaceProvider>
+	);
+	const except = screen.getByRole( 'button', { name: 'Except None' } );
+	fireEvent.click( except );
+	expect( recordBoostEvent ).toHaveBeenLastCalledWith( 'page_cache_except_panel_toggle', {
+		status: 'open',
+	} );
+	fireEvent.click( except );
+	expect( recordBoostEvent ).toHaveBeenLastCalledWith( 'page_cache_except_panel_toggle', {
+		status: 'close',
+	} );
+	fireEvent.click( screen.getByRole( 'button', { name: 'Show Options' } ) );
+	expect( recordBoostEvent ).toHaveBeenLastCalledWith( 'page_cache_exceptions_panel_toggle', {
+		status: 'open',
+	} );
+} );
+
+it.each( [ false, true ] )(
+	'shows only logging in the modern Page Cache options summary (logging %s)',
+	logging => {
+		mockLogging = logging;
+		mockValues = [ 'checkout', 'about' ];
+		render(
+			<ModuleSurfaceProvider value="row">
+				<PageCacheMeta />
+			</ModuleSurfaceProvider>
+		);
+		expect( screen.getByText( logging ? 'Logging activated.' : 'No logging.' ) ).toBeTruthy();
+		expect( screen.queryByText( /2 exceptions/ ) ).toBeNull();
+	}
+);
+
+it( 'keeps the Page Cache textarea section inside its styling body and panel', () => {
+	render(
+		<ModuleSurfaceProvider value="row">
+			<PageCacheMeta />
+		</ModuleSurfaceProvider>
+	);
+	const toggle = screen.getByRole( 'button', { name: 'Except None' } );
+	fireEvent.click( toggle );
+	// eslint-disable-next-line testing-library/no-node-access
+	const body = screen.getByRole( 'textbox' ).closest( '.page-cache-section' )?.parentElement;
+	expect( body?.className ).toBe( 'page-cache-body' );
+	expect(
+		// eslint-disable-next-line testing-library/no-node-access
+		document.getElementById( toggle.getAttribute( 'aria-controls' )! )?.contains( body! )
+	).toBe( true );
 } );

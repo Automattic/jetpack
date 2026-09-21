@@ -43,7 +43,7 @@ const Meta = () => {
 			return __( 'Clearing cache…', 'jetpack-boost' );
 		}
 
-		if ( totalBypassPatterns === 0 && ! logging ) {
+		if ( ! isRow && totalBypassPatterns === 0 && ! logging ) {
 			return __( 'No exceptions.', 'jetpack-boost' ) + ' ' + __( 'No logging.', 'jetpack-boost' );
 		}
 
@@ -54,6 +54,10 @@ const Meta = () => {
 
 		if ( ! logging ) {
 			loggingMessage = __( 'No logging.', 'jetpack-boost' );
+		}
+
+		if ( isRow ) {
+			return loggingMessage;
 		}
 
 		return (
@@ -150,7 +154,7 @@ const Meta = () => {
 						exceptions={ bypassPatterns }
 						countExceptions
 						toggleText=""
-						tracksEvent="page_cache_exceptions_panel_toggle"
+						tracksEvent="page_cache_except_panel_toggle"
 					>
 						<div className={ styles.body }>{ exceptions }</div>
 					</CollapsibleMeta>
@@ -227,7 +231,7 @@ const BypassPatterns = ( {
 				[ styles[ 'has-error' ] ]: inputInvalid,
 			} ) }
 		>
-			<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
+			{ ! isRow && <div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div> }
 			<label htmlFor="jb-cache-exceptions">
 				{ __( 'URLs of pages and posts that will never be cached:', 'jetpack-boost' ) }
 			</label>

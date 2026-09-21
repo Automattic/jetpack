@@ -1,4 +1,5 @@
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { useId, type ReactNode } from 'react';
 import ChevronDown from '$svg/chevron-down';
 import ChevronUp from '$svg/chevron-up';
@@ -21,7 +22,7 @@ export default function ExceptPanel( {
 }: ExceptPanelProps ) {
 	const id = useId();
 	const entries = exceptions.filter( entry => entry.trim() !== '' );
-	let summary: string = __( 'None', 'jetpack-boost' );
+	let summary: string = _x( 'None', 'No excluded pages or handles', 'jetpack-boost' );
 	if ( entries.length ) {
 		summary = countExceptions
 			? sprintf(
@@ -41,8 +42,14 @@ export default function ExceptPanel( {
 				aria-controls={ id }
 				onClick={ onToggle }
 			>
-				<span>{ __( 'Except', 'jetpack-boost' ) }</span>{ ' ' }
-				<span className={ styles.summary }>{ summary }</span>
+				{ createInterpolateElement(
+					/* translators: The label introduces the excluded items shown in the summary placeholder. */
+					__( '<label>Except</label> <summary />', 'jetpack-boost' ),
+					{
+						label: <span className={ styles.label } />,
+						summary: <span className={ styles.summary }>{ summary }</span>,
+					}
+				) }
 				{ isExpanded ? <ChevronUp /> : <ChevronDown /> }
 			</button>
 			<div id={ id } hidden={ ! isExpanded } className={ styles.content }>
