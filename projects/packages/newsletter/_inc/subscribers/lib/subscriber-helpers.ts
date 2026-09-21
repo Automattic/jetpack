@@ -38,7 +38,7 @@ function normalizeDate( raw?: string | null ): string {
  * Earliest of the subscriber's Reader and email subscription dates.
  *
  * Matches WP.com's date sort, which orders by the earlier non-zero date. List dates are naive UTC,
- * individual dates already carry an offset. `date_subscribed` is the fallback for older payloads.
+ * individual dates already carry an offset. `date_subscribed` is the fallback when the pair is missing.
  *
  * @param subscriber - Subscriber row or detail payload.
  * @return ISO-ish date string or empty.
