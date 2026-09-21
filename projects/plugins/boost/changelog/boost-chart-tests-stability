@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Tests: Stabilize chart interactions and speed score refresh checks.
+Tests: Stabilize chart interactions, Overview retries, and speed score refresh checks.
