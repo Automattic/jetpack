@@ -1,7 +1,8 @@
 import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { SearchControl, SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { blockTable, category } from '@wordpress/icons';
+import { IconButton, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import styles from './styles.module.scss';
@@ -51,7 +52,45 @@ function FilterPill( { value, label, count, countPending, isActive, onSelect }: 
 	);
 }
 
+export type FeaturesView = 'grid' | 'list';
+
+type ViewButtonProps = {
+	value: FeaturesView;
+	current: FeaturesView;
+	onSelect: ( view: FeaturesView ) => void;
+};
+
+/**
+ * One of the two buttons that switch between the grid and the list.
+ *
+ * @param {ViewButtonProps} props          - The component props.
+ * @param {string}          props.value    - The view this button shows.
+ * @param {string}          props.current  - The view on screen.
+ * @param {Function}        props.onSelect - Switches the view.
+ * @return The rendered component.
+ */
+function ViewButton( { value, current, onSelect }: ViewButtonProps ) {
+	const onClick = useCallback( () => onSelect( value ), [ onSelect, value ] );
+	const isActive = value === current;
+	const gridLabel = __( 'Grid view', 'jetpack-my-jetpack' );
+	const listLabel = __( 'List view', 'jetpack-my-jetpack' );
+
+	return (
+		<IconButton
+			icon={ value === 'grid' ? category : blockTable }
+			label={ value === 'grid' ? gridLabel : listLabel }
+			variant={ isActive ? 'solid' : 'outline' }
+			tone="neutral"
+			aria-pressed={ isActive }
+			className={ styles[ 'view-button' ] }
+			onClick={ onClick }
+		/>
+	);
+}
+
 type ToolbarProps = {
+	view: FeaturesView;
+	onViewChange: ( view: FeaturesView ) => void;
 	filter: FeatureFilter;
 	onFilterChange: ( filter: FeatureFilter ) => void;
 	counts: Record< FeatureFilter, number >;
@@ -68,6 +107,8 @@ const LIVE_COUNTS: FeatureFilter[] = [ 'active', 'inactive' ];
  * The filter pills and the search box above the grid.
  *
  * @param {ToolbarProps} props                - The component props.
+ * @param {string}       props.view           - Whether the features show as a grid or a list.
+ * @param {Function}     props.onViewChange   - Switches between the grid and the list.
  * @param {string}       props.filter         - The active filter.
  * @param {Function}     props.onFilterChange - Switches the active filter.
  * @param {object}       props.counts         - How many features each filter shows.
@@ -77,6 +118,8 @@ const LIVE_COUNTS: FeatureFilter[] = [ 'active', 'inactive' ];
  * @return The rendered component.
  */
 export function Toolbar( {
+	view,
+	onViewChange,
 	filter,
 	onFilterChange,
 	counts,
@@ -142,6 +185,17 @@ export function Toolbar( {
 					placeholder={ __( 'Search features', 'jetpack-my-jetpack' ) }
 					className={ styles.search }
 				/>
+
+				<Stack
+					direction="row"
+					align="center"
+					gap="sm"
+					role="group"
+					aria-label={ __( 'Layout', 'jetpack-my-jetpack' ) }
+				>
+					<ViewButton value="grid" current={ view } onSelect={ onViewChange } />
+					<ViewButton value="list" current={ view } onSelect={ onViewChange } />
+				</Stack>
 			</Stack>
 		</div>
 	);

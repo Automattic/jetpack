@@ -143,6 +143,15 @@ $feature-icon-foreground: #0ced57;
 	z-index: 1;
 }
 
+// Raised above the stretched title like the action slot, so a click on it
+// stays its own.
+.feature-leading-slot {
+	align-self: center;
+	display: flex;
+	position: relative;
+	z-index: 1;
+}
+
 // Placeholders for the parts of a card that wait on live state: the status
 // badge, its switch, and the counts on the filter pills.
 .skeleton-badge {
@@ -214,6 +223,7 @@ $feature-icon-foreground: #0ced57;
 	border-radius: var(--wpds-border-radius-md);
 	border-style: solid;
 	border-width: var(--wpds-border-width-xs);
+	container: features-toolbar / inline-size;
 	inset-block-start: 0;
 	margin-block: var(--wpds-dimension-gap-md);
 	padding: var(--wpds-dimension-padding-md);
@@ -222,7 +232,7 @@ $feature-icon-foreground: #0ced57;
 }
 
 .pills {
-	flex: 1;
+	flex: 1 1 auto;
 	min-inline-size: 0;
 }
 
@@ -275,8 +285,52 @@ $feature-icon-foreground: #0ced57;
 // string, where `styles.search` resolves to String.prototype.search.
 .search,
 .skeleton-search {
+	// Gives up width, down to its floor, before anything wraps onto a second row.
+	flex: 1 1 12rem;
 	margin-inline-start: auto;
-	min-inline-size: 16rem;
+	max-inline-size: 16rem;
+	min-inline-size: 12rem;
+}
+
+// Round, like the filter pills beside them.
+.view-button {
+	border-radius: 999px;
+}
+
+.feature-list {
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-lg);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.bulk-bar {
+	align-items: center;
+	border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-md);
+	padding-block: var(--wpds-dimension-padding-md);
+	padding-inline: var(--wpds-dimension-padding-xl);
+}
+
+.bulk-bar__count {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	flex: 1;
+	margin: 0;
+}
+
+// The card, flattened into a row of the list: the list draws the border.
+.feature-item.feature-row {
+	align-items: center;
+	border: 0;
+	border-radius: 0;
+
+	& + & {
+		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	}
 }
 
 // The pills are the wide layout; the select is the narrow one. Only ever one.
@@ -285,9 +339,9 @@ $feature-icon-foreground: #0ced57;
 }
 
 
-// Wider than wp-admin's own 782px breakpoint: its sidebar takes ~160px, so six
-// pills stop fitting on one row well before the viewport gets that narrow.
-@media (max-width: 960px) {
+// Measured on the toolbar: below this, the pills, the search at its floor and
+// the layout buttons no longer fit one row.
+@container features-toolbar (max-width: 55rem) {
 
 	.pills {
 		display: none;
@@ -300,7 +354,7 @@ $feature-icon-foreground: #0ced57;
 
 	.search {
 		margin-inline-start: 0;
-		min-inline-size: 12rem;
+		max-inline-size: none;
 	}
 }
 

@@ -2,6 +2,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import { FeatureItem } from './feature-item';
+import { FeatureList } from './feature-list';
 import { FeatureModal } from './feature-modal';
 import { useFeatureStates } from './feature-state';
 import styles from './styles.module.scss';
@@ -9,6 +10,7 @@ import { Toolbar } from './toolbar';
 import { getFeatureFilters, isFeatureFilter, matchesFilter } from './use-feature-filter';
 import { useFeatureSearch } from './use-feature-search';
 import { useMainFeatures } from './use-main-features';
+import type { FeaturesView } from './toolbar';
 import type { FeatureFilter } from './use-feature-filter';
 
 /**
@@ -20,7 +22,8 @@ import type { FeatureFilter } from './use-feature-filter';
  * @return The rendered component.
  */
 export function FeaturesContent() {
-	const { states, isLoading } = useFeatureStates( useMainFeatures() );
+	const mainFeatures = useMainFeatures();
+	const { states, isLoading } = useFeatureStates( mainFeatures );
 
 	const [ searchParams, setSearchParams ] = useSearchParams();
 
@@ -28,6 +31,7 @@ export function FeaturesContent() {
 	const filterParam = searchParams.get( 'filter' ) || 'all';
 	const filter: FeatureFilter = isFeatureFilter( filterParam ) ? filterParam : 'all';
 	const openSlug = searchParams.get( 'feature' );
+	const view: FeaturesView = searchParams.get( 'view' ) === 'list' ? 'list' : 'grid';
 
 	const updateParams = useCallback(
 		( changes: Record< string, string | null > ) => {
@@ -97,11 +101,18 @@ export function FeaturesContent() {
 		[ updateParams ]
 	);
 
+	const onViewChange = useCallback(
+		( next: FeaturesView ) => updateParams( { view: next === 'grid' ? null : next } ),
+		[ updateParams ]
+	);
+
 	const open = states.find( item => item.feature.slug === openSlug );
 
 	return (
 		<section className={ styles.content }>
 			<Toolbar
+				view={ view }
+				onViewChange={ onViewChange }
 				filter={ filter }
 				onFilterChange={ onFilterChange }
 				counts={ counts }
@@ -119,17 +130,25 @@ export function FeaturesContent() {
 				) }
 			</p>
 
-			{ visible.length > 0 ? (
-				<div className={ styles[ 'feature-grid' ] }>
-					{ visible.map( state => (
-						<FeatureItem key={ state.feature.slug } state={ state } onOpen={ openFeature } />
-					) ) }
-				</div>
-			) : (
+			{ visible.length === 0 && (
 				<h3 className={ styles[ 'empty-heading' ] }>
 					{ __( 'No features found.', 'jetpack-my-jetpack' ) }
 				</h3>
 			) }
+			{ visible.length > 0 &&
+				( view === 'list' ? (
+					<FeatureList
+						states={ visible }
+						onOpen={ openFeature }
+						canDeactivatePlugins={ mainFeatures.jetpack === 'active' }
+					/>
+				) : (
+					<div className={ styles[ 'feature-grid' ] }>
+						{ visible.map( state => (
+							<FeatureItem key={ state.feature.slug } state={ state } onOpen={ openFeature } />
+						) ) }
+					</div>
+				) ) }
 
 			{ open && (
 				<FeatureModal state={ open } onClose={ closeFeature } onFilterByPlan={ onFilterByPlan } />

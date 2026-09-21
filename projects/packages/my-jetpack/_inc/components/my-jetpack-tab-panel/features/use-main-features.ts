@@ -10,12 +10,14 @@ import {
 	clearRequestedSwitch,
 	pluginSwitchKey,
 	setRequestedSwitch,
+	useRequestedSwitch,
 } from '../../../data/requested-switch-state';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { setPendingSuccessNotice } from '../products/pending-notice';
 import { reloadPage } from '../products/reload-page';
+import type { QueryClient } from '@tanstack/react-query';
 
-const QUERY_KEY = [ 'my-jetpack-main-features' ];
+export const QUERY_KEY = [ 'my-jetpack-main-features' ];
 
 const EMPTY_STATE: MainFeaturesState = { jetpack: 'not-installed', features: [] };
 
@@ -61,6 +63,38 @@ export function useMainFeatures(): MainFeaturesState {
 }
 
 /**
+ * Send one plugin action through the activation queue, holding the asked-for value meanwhile.
+ *
+ * The response carries the whole site, so it is written straight to the Features tab's state.
+ *
+ * @param queryClient - The query client holding that state.
+ * @param plugin      - The plugin's WordPress.org slug, or `jetpack`.
+ * @param action      - What to do with it.
+ * @return The site's features after the action; rejects with the server's error.
+ */
+function requestPluginSwitch(
+	queryClient: QueryClient,
+	plugin: string,
+	action: PluginAction
+): Promise< MainFeaturesState > {
+	const key = pluginSwitchKey( plugin );
+	const token = setRequestedSwitch( key, action !== 'deactivate' );
+
+	return queueActivationRequest( () =>
+		apiFetch< MainFeaturesState >( {
+			path: '/wpcom/v2/my-jetpack/site/features/plugin',
+			method: 'POST',
+			data: { plugin, action },
+		} )
+	)
+		.then( state => {
+			queryClient.setQueryData( QUERY_KEY, state );
+			return state;
+		} )
+		.finally( () => clearRequestedSwitch( key, token ) );
+}
+
+/**
  * Install, activate or deactivate a plugin from the feature map.
  *
  * @param plugin - The plugin's WordPress.org slug, or `jetpack`.
@@ -75,29 +109,13 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 	const mutationKey = [ 'my-jetpack-feature-plugin', plugin ];
 	const { mutate } = useMutation( {
 		mutationKey,
-		mutationFn: ( action: PluginAction ) =>
-			queueActivationRequest( () =>
-				apiFetch< MainFeaturesState >( {
-					path: '/wpcom/v2/my-jetpack/site/features/plugin',
-					method: 'POST',
-					data: { plugin, action },
-				} )
-			),
-		// Record what the click asked for. Kept outside the cached state on purpose: a
-		// response carries the whole site, so writing it here would let one feature's
-		// response overwrite another that is still being toggled.
-		onMutate: async ( action: PluginAction ) => {
+		mutationFn: async ( action: PluginAction ) => {
 			// A read already in flight would land after this request and overwrite what it
 			// returns, with the asked-for value already cleared and nothing left to mask it.
 			await queryClient.cancelQueries( { queryKey: QUERY_KEY } );
-			return { token: setRequestedSwitch( pluginSwitchKey( plugin ), action !== 'deactivate' ) };
+			return requestPluginSwitch( queryClient, plugin, action );
 		},
-		onSuccess: ( state, action, context ) => {
-			// This request has answered, so its feature settles on what the site reports —
-			// unless a later click has asked for something else since.
-			clearRequestedSwitch( pluginSwitchKey( plugin ), context?.token ?? 0 );
-			queryClient.setQueryData( QUERY_KEY, state );
-
+		onSuccess: ( _state, action ) => {
 			// A product switches its Jetpack module along with its plugin, so the modules
 			// store the Products tab reads from is now behind.
 			invalidateResolution( 'getJetpackModules', [] );
@@ -124,11 +142,8 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 
 			createSuccessNotice( message );
 		},
-		onError: ( error: { message?: string }, _action, context ) => {
-			// Drop the asked-for value, so the feature shows what the site last reported,
-			// and read the site again: the plugin may well have been switched before
-			// whatever failed.
-			clearRequestedSwitch( pluginSwitchKey( plugin ), context?.token ?? 0 );
+		onError: ( error: { message?: string } ) => {
+			// Read the site again: the plugin may well have been switched before whatever failed.
 			queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
 			invalidateResolution( 'getJetpackModules', [] );
 
@@ -148,7 +163,9 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 
 	// Keyed by plugin rather than by component: the card's switch and the modal's button
 	// are two mounts of the same action, and both have to look busy while either runs.
-	const isBusy = useIsMutating( { mutationKey } ) > 0;
+	// The asked-for value also covers a bulk switch, which skips this mutation.
+	const isAsked = useRequestedSwitch( pluginSwitchKey( plugin ) ) !== null;
+	const isBusy = useIsMutating( { mutationKey } ) > 0 || isAsked;
 	const run = useCallback( ( action: PluginAction ) => mutate( action ), [ mutate ] );
 
 	return { run, isBusy };

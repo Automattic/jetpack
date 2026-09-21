@@ -57,6 +57,19 @@ describe( 'useFeatureStates', () => {
 		expect( result.current.states[ 0 ].status ).toBe( 'active' );
 	} );
 
+	it( 'keeps the last module list on screen while the store refreshes it', () => {
+		mockModules.mockReturnValue( {
+			modules: { publicize: { module: 'publicize', available: true, activated: true } },
+			isLoading: true,
+		} );
+
+		const { result } = renderHook( () => useFeatureStates( state( 'active' ) ) );
+
+		expect( result.current.isLoading ).toBe( false );
+		expect( result.current.states[ 0 ].pending ).toBeUndefined();
+		expect( result.current.states[ 0 ].control.kind ).toBe( 'module' );
+	} );
+
 	it( 'does not wait on a site without Jetpack, where no module can apply', () => {
 		mockModules.mockReturnValue( { modules: {}, isLoading: true } );
 

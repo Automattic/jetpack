@@ -4,13 +4,8 @@ import { FormToggle } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import { queueActivationRequest } from '../../data/queue-activation-request';
-import {
-	clearRequestedSwitch,
-	moduleSwitchKey,
-	setRequestedSwitch,
-	useRequestedSwitch,
-} from '../../data/requested-switch-state';
+import { requestModuleSwitch } from '../../data/module-switch';
+import { moduleSwitchKey, useRequestedSwitch } from '../../data/requested-switch-state';
 import { MyJetpackModule } from '../../types';
 import { getBlockThemeMigration } from '../../utils/block-theme-migration';
 import { getModuleActivationMessage } from '../../utils/module-benefit-messages';
@@ -118,23 +113,7 @@ export function useModuleActivation(
 				} );
 			}
 
-			const token = setRequestedSwitch( moduleSwitchKey( $module.module ), active );
-
-			let success;
-			try {
-				success = await queueActivationRequest( () =>
-					toggleModule( {
-						name: $module.module,
-						active,
-					} )
-				);
-			} catch {
-				// The queue gives up on a request that never answers. Treated as a failure
-				// so the switch explains itself rather than silently going back.
-				success = false;
-			} finally {
-				clearRequestedSwitch( moduleSwitchKey( $module.module ), token );
-			}
+			const success = await requestModuleSwitch( toggleModule, $module.module, active );
 
 			if ( success && reload && MODULES_REQUIRING_RELOAD.includes( $module.module ) ) {
 				setPendingSuccessNotice(

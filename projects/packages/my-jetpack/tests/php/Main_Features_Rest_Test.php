@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Current_Plan;
 use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -15,6 +16,8 @@ class Main_Features_Rest_Test extends TestCase {
 	const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . Initializer::FEATURES_TAB_FEATURE_FLAG;
 
 	const ROUTE = '/wpcom/v2/my-jetpack/site/features/plugin';
+
+	const BULK_ROUTE = '/wpcom/v2/my-jetpack/site/features/bulk';
 
 	/**
 	 * A standalone plugin on disk, in the folder the feature map names.
@@ -29,6 +32,13 @@ class Main_Features_Rest_Test extends TestCase {
 	 * @var string[]
 	 */
 	private $carriers = array();
+
+	/**
+	 * Whether this test installed the Jetpack plugin mock, and so must remove it.
+	 *
+	 * @var bool
+	 */
+	private $installed_jetpack = false;
 
 	public function setUp(): void {
 		parent::setUp();
@@ -66,6 +76,10 @@ class Main_Features_Rest_Test extends TestCase {
 		parent::tearDown();
 
 		remove_all_filters( self::FLAG_FILTER );
+		remove_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
+		$this->withdraw_stats_module();
+		$this->remove_jetpack();
+		$this->set_plan_cache( null );
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 
@@ -289,5 +303,333 @@ class Main_Features_Rest_Test extends TestCase {
 		);
 
 		$this->assertSame( 403, $this->send( 'jetpack-boost', 'activate' )->get_status() );
+	}
+
+	/**
+	 * Send one bulk request.
+	 *
+	 * @param array $params The request body.
+	 * @return \WP_REST_Response
+	 */
+	private function send_bulk( $params ) {
+		$request = new WP_REST_Request( 'POST', self::BULK_ROUTE );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( wp_json_encode( $params, JSON_UNESCAPED_SLASHES ) );
+
+		return $this->server->dispatch( $request );
+	}
+
+	/**
+	 * Let the current user manage modules, which the sync package would otherwise grant.
+	 *
+	 * @param array $caps The user's capabilities.
+	 * @return array
+	 */
+	public function grant_manage_modules( $caps ) {
+		$caps['jetpack_manage_modules'] = true;
+		return $caps;
+	}
+
+	public function test_bulk_switches_plugins_and_returns_the_fresh_state() {
+		$this->activate_jetpack();
+
+		$on = $this->send_bulk(
+			array(
+				'active'  => true,
+				'plugins' => array( 'jetpack-boost' ),
+			)
+		);
+
+		$this->assertSame( 200, $on->get_status() );
+		$this->assertSame( array(), $on->get_data()['failed'] );
+		$this->assertSame( Main_Features::PLUGIN_ACTIVE, $this->boost_status( new \WP_REST_Response( $on->get_data()['state'] ) ) );
+
+		$off = $this->send_bulk(
+			array(
+				'active'  => false,
+				'plugins' => array( 'jetpack-boost' ),
+			)
+		);
+
+		$this->assertSame( Main_Features::PLUGIN_INACTIVE, $this->boost_status( new \WP_REST_Response( $off->get_data()['state'] ) ) );
+	}
+
+	/**
+	 * One refusal must not stop the rest of the batch, and must say why it was refused.
+	 */
+	public function test_bulk_reports_a_refusal_and_carries_on() {
+		$this->activate_jetpack();
+		$this->send( 'jetpack-boost', 'activate' );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => false,
+				'plugins' => array( 'jetpack', 'jetpack-boost' ),
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame(
+			array(
+				array(
+					'type'    => 'plugin',
+					'slug'    => 'jetpack',
+					'message' => 'This plugin runs the page you are on, so it cannot be deactivated from here.',
+				),
+			),
+			$response->get_data()['failed']
+		);
+		$this->assertSame( Main_Features::PLUGIN_INACTIVE, $this->boost_status( new \WP_REST_Response( $response->get_data()['state'] ) ) );
+	}
+
+	public function test_bulk_switches_a_module() {
+		$this->offer_stats_module();
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
+		Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => false,
+				'modules' => array( 'stats' ),
+			)
+		);
+
+		$this->assertSame( array(), $response->get_data()['failed'] );
+		$this->assertNotContains( 'stats', Jetpack_Options::get_option( 'active_modules', array() ) );
+	}
+
+	/**
+	 * Offer the stats module, through whichever filter applies: Jetpack's own list when the
+	 * Jetpack plugin is present, the standalone list otherwise.
+	 *
+	 * @return void
+	 */
+	private function offer_stats_module() {
+		add_filter( 'jetpack_get_available_modules', array( $this, 'add_stats_with_version' ) );
+		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'add_stats' ) );
+	}
+
+	/**
+	 * Stop offering the stats module.
+	 *
+	 * @return void
+	 */
+	private function withdraw_stats_module() {
+		remove_filter( 'jetpack_get_available_modules', array( $this, 'add_stats_with_version' ) );
+		remove_filter( 'jetpack_get_available_standalone_modules', array( $this, 'add_stats' ) );
+	}
+
+	/**
+	 * Available modules as the Jetpack plugin reports them: slug => version.
+	 *
+	 * @param array $modules Available modules.
+	 * @return array
+	 */
+	public function add_stats_with_version( $modules ) {
+		$modules['stats'] = '0.0.0';
+		return $modules;
+	}
+
+	/**
+	 * Available modules as a standalone plugin reports them: a list of slugs.
+	 *
+	 * @param array $modules Available module slugs.
+	 * @return array
+	 */
+	public function add_stats( $modules ) {
+		$modules[] = 'stats';
+		return array_values( array_unique( $modules ) );
+	}
+
+	/**
+	 * Switching modules takes the capability Jetpack's own module route asks for.
+	 */
+	public function test_bulk_refuses_modules_without_the_capability() {
+		$this->offer_stats_module();
+		Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => false,
+				'modules' => array( 'stats' ),
+			)
+		);
+
+		$this->assertSame( 'module', $response->get_data()['failed'][0]['type'] );
+		$this->assertContains( 'stats', Jetpack_Options::get_option( 'active_modules', array() ) );
+	}
+
+	public function test_bulk_reports_an_unknown_module() {
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => true,
+				'modules' => array( 'not-a-module' ),
+			)
+		);
+
+		$this->assertSame( 'That Jetpack module was not found.', $response->get_data()['failed'][0]['message'] );
+	}
+
+	public function test_bulk_refuses_a_plugin_the_map_does_not_name() {
+		$response = $this->send_bulk(
+			array(
+				'active'  => true,
+				'plugins' => array( 'hello-dolly' ),
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+	}
+
+	public function test_bulk_forbids_users_who_cannot_activate_plugins() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'bulk_editor',
+					'user_pass'  => '123',
+					'role'       => 'editor',
+				)
+			)
+		);
+
+		$this->assertSame( 403, $this->send_bulk( array( 'active' => true ) )->get_status() );
+	}
+
+	/**
+	 * Install the Jetpack plugin mock and switch it on.
+	 *
+	 * @return void
+	 */
+	private function activate_jetpack() {
+		if ( ! file_exists( WP_PLUGIN_DIR . '/jetpack/jetpack.php' ) ) {
+			if ( ! is_dir( WP_PLUGIN_DIR . '/jetpack' ) ) {
+				mkdir( WP_PLUGIN_DIR . '/jetpack', 0777, true );
+			}
+			copy( __DIR__ . '/assets/jetpack-mock-plugin.txt', WP_PLUGIN_DIR . '/jetpack/jetpack.php' );
+			wp_cache_delete( 'plugins', 'plugins' );
+			$this->installed_jetpack = true;
+		}
+
+		update_option( 'active_plugins', array_merge( (array) get_option( 'active_plugins', array() ), array( 'jetpack/jetpack.php' ) ) );
+	}
+
+	/**
+	 * Remove the Jetpack plugin mock, if a test installed it.
+	 *
+	 * @return void
+	 */
+	private function remove_jetpack() {
+		if ( $this->installed_jetpack ) {
+			unlink( WP_PLUGIN_DIR . '/jetpack/jetpack.php' );
+			rmdir( WP_PLUGIN_DIR . '/jetpack' );
+			wp_cache_delete( 'plugins', 'plugins' );
+			$this->installed_jetpack = false;
+		}
+	}
+
+	/**
+	 * Without Jetpack, any plugin in the batch may be the last one carrying My Jetpack, so none
+	 * is switched off and each says why.
+	 */
+	public function test_bulk_deactivates_no_plugin_while_jetpack_is_inactive() {
+		$this->send( 'jetpack-boost', 'activate' );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => false,
+				'plugins' => array( 'jetpack-boost' ),
+			)
+		);
+
+		$this->assertSame( 'jetpack-boost', $response->get_data()['failed'][0]['slug'] );
+		$this->assertStringContainsString( 'while the Jetpack plugin is active', $response->get_data()['failed'][0]['message'] );
+		$this->assertSame( Main_Features::PLUGIN_ACTIVE, $this->boost_status( new \WP_REST_Response( $response->get_data()['state'] ) ) );
+	}
+
+	/**
+	 * Switching plugins on is never refused, Jetpack or not.
+	 */
+	public function test_bulk_activates_plugins_while_jetpack_is_inactive() {
+		$response = $this->send_bulk(
+			array(
+				'active'  => true,
+				'plugins' => array( 'jetpack-boost' ),
+			)
+		);
+
+		$this->assertSame( array(), $response->get_data()['failed'] );
+		$this->assertSame( Main_Features::PLUGIN_ACTIVE, $this->boost_status( new \WP_REST_Response( $response->get_data()['state'] ) ) );
+	}
+
+	/**
+	 * A batch of plugins and modules switches both, and reports each failure against its own kind.
+	 */
+	public function test_bulk_switches_plugins_and_modules_together() {
+		$this->activate_jetpack();
+		$this->send( 'jetpack-boost', 'activate' );
+		$this->offer_stats_module();
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
+		Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => false,
+				'plugins' => array( 'jetpack-boost' ),
+				'modules' => array( 'stats', 'not-a-module' ),
+			)
+		);
+
+		$this->assertSame(
+			array(
+				array(
+					'type'    => 'module',
+					'slug'    => 'not-a-module',
+					'message' => 'That Jetpack module was not found.',
+				),
+			),
+			$response->get_data()['failed']
+		);
+		$this->assertSame( Main_Features::PLUGIN_INACTIVE, $this->boost_status( new \WP_REST_Response( $response->get_data()['state'] ) ) );
+		$this->assertNotContains( 'stats', Jetpack_Options::get_option( 'active_modules', array() ) );
+	}
+
+	/**
+	 * The activate direction runs through Modules::activate(), which does the most work.
+	 */
+	public function test_bulk_switches_a_module_on() {
+		$this->offer_stats_module();
+		// Once another test has loaded the Jetpack mock, activation also asks the plan.
+		$plan             = Current_Plan::get();
+		$plan['supports'] = array_merge( (array) ( $plan['supports'] ?? array() ), array( 'stats' ) );
+		$this->set_plan_cache( $plan );
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => true,
+				'modules' => array( 'stats' ),
+			)
+		);
+
+		$this->assertSame( array(), $response->get_data()['failed'] );
+		$this->assertContains( 'stats', Jetpack_Options::get_option( 'active_modules', array() ) );
+	}
+
+	/**
+	 * Write Current_Plan's request-scoped cache, which has no setter.
+	 *
+	 * @param array|null $plan Plan details, or null to clear.
+	 * @return void
+	 */
+	private function set_plan_cache( $plan ) {
+		$cache = new \ReflectionProperty( Current_Plan::class, 'active_plan_cache' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$cache->setAccessible( true );
+		}
+		$cache->setValue( null, $plan );
 	}
 }

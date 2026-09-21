@@ -1,6 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import {
+	clearRequestedSwitch,
+	pluginSwitchKey,
+	setRequestedSwitch,
+} from '../../../../data/requested-switch-state';
 import { useFeatureStates } from '../feature-state';
 import { useFeaturePlugin, useMainFeatures } from '../use-main-features';
 import type { ReactNode } from 'react';
@@ -86,6 +91,26 @@ beforeEach( () => {
 } );
 
 describe( 'useFeaturePlugin', () => {
+	it( 'looks busy while another caller, such as a bulk switch, has asked for the plugin', () => {
+		mockApiFetch.mockImplementation( () => new Promise( () => undefined ) );
+
+		const { result } = renderTab();
+
+		expect( result.current.akismet.isBusy ).toBe( false );
+
+		let token = 0;
+		act( () => {
+			token = setRequestedSwitch( pluginSwitchKey( 'akismet' ), false );
+		} );
+
+		expect( result.current.akismet.isBusy ).toBe( true );
+		expect( result.current.boost.isBusy ).toBe( false );
+
+		act( () => clearRequestedSwitch( pluginSwitchKey( 'akismet' ), token ) );
+
+		expect( result.current.akismet.isBusy ).toBe( false );
+	} );
+
 	it( 'shows the asked-for state before the first read of the site has landed', async () => {
 		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
 			method === 'POST'
