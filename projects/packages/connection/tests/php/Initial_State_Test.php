@@ -18,7 +18,10 @@ class Initial_State_Test extends TestCase {
 	protected function tearDown(): void {
 		parent::tearDown();
 
-		\Jetpack_Options::delete_option( 'master_user' );
+		\Jetpack_Options::delete_option( array( 'master_user', 'user_tokens', Protected_Owner::OPTION ) );
+		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
+		remove_all_filters( 'jetpack_connection_protected_owner_default_ui' );
+		( new Manager() )->reset_connection_status();
 		wp_set_current_user( 0 );
 		Error_Handler::get_instance()->delete_all_errors();
 	}
@@ -87,19 +90,22 @@ class Initial_State_Test extends TestCase {
 		\Jetpack_Options::delete_option( 'master_user' );
 
 		$expected_state = array(
-			'apiRoot'                 => esc_url_raw( rest_url() ),
-			'apiNonce'                => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce'       => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'connectionStatus'        => REST_Connector::connection_status( false ),
-			'userConnectionData'      => REST_Connector::get_user_connection_data( false ),
-			'connectedPlugins'        => REST_Connector::get_connection_plugins( false ),
-			'wpVersion'               => $wp_version,
-			'siteSuffix'              => ( new Status() )->get_site_suffix(),
-			'connectionErrors'        => Error_Handler::get_instance()->get_displayable_errors(),
-			'isOfflineMode'           => ( new Status() )->is_offline_mode(),
-			'calypsoEnv'              => 'wpcalypso',
-			'isOwnershipTransferable' => ( new Manager() )->is_ownership_transferable(),
-			'connectionOwner'         => null,
+			'apiRoot'                    => esc_url_raw( rest_url() ),
+			'apiNonce'                   => wp_create_nonce( 'wp_rest' ),
+			'registrationNonce'          => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'connectionStatus'           => REST_Connector::connection_status( false ),
+			'userConnectionData'         => REST_Connector::get_user_connection_data( false ),
+			'connectedPlugins'           => REST_Connector::get_connection_plugins( false ),
+			'wpVersion'                  => $wp_version,
+			'siteSuffix'                 => ( new Status() )->get_site_suffix(),
+			'connectionErrors'           => Error_Handler::get_instance()->get_displayable_errors(),
+			'isOfflineMode'              => ( new Status() )->is_offline_mode(),
+			'calypsoEnv'                 => 'wpcalypso',
+			'isOwnershipTransferable'    => ( new Manager() )->is_ownership_transferable(),
+			'connectionOwner'            => null,
+			'hasProtectedOwner'          => null,
+			'requiresProtectedOwner'     => null,
+			'useDefaultProtectedOwnerUi' => null,
 		);
 		$expected_value = 'var JP_CONNECTION_INITIAL_STATE; typeof JP_CONNECTION_INITIAL_STATE === "object" || (JP_CONNECTION_INITIAL_STATE = ' . wp_json_encode( $expected_state, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ');'
 			. sprintf( 'window.jpTracksContext = window.jpTracksContext || {}; window.jpTracksContext.blog_id = %s;', absint( \Jetpack_Options::get_option( 'id', 0 ) ) );
@@ -192,5 +198,65 @@ class Initial_State_Test extends TestCase {
 		$data = self::get_data();
 
 		$this->assertNull( $data['connectionOwner'] );
+	}
+	/**
+	 * A viewer who can manage the connection gets the protected owner fields at their defaults.
+	 */
+	public function test_get_data_exposes_protected_owner_defaults_to_capable_viewers() {
+		self::act_as_connection_manager( 'initial_state_po_admin' );
+
+		$data = self::get_data();
+
+		$this->assertFalse( $data['hasProtectedOwner'] );
+		$this->assertFalse( $data['requiresProtectedOwner'] );
+		$this->assertTrue( $data['useDefaultProtectedOwnerUi'] );
+	}
+
+	/**
+	 * Withheld rather than false, so a low-capability viewer is not told the site has no protected owner.
+	 */
+	public function test_get_data_withholds_protected_owner_fields_from_low_capability_viewers() {
+		$contributor_id = wp_insert_user(
+			array(
+				'user_login' => 'initial_state_po_contributor',
+				'user_pass'  => 'password',
+				'role'       => 'contributor',
+			)
+		);
+		wp_set_current_user( $contributor_id );
+
+		$data = self::get_data();
+
+		$this->assertNull( $data['hasProtectedOwner'] );
+		$this->assertNull( $data['requiresProtectedOwner'] );
+		$this->assertNull( $data['useDefaultProtectedOwnerUi'] );
+	}
+
+	/**
+	 * The binding is set up front, so resolving the owner makes no WordPress.com lookup.
+	 */
+	public function test_get_data_reports_an_owner_matching_the_locked_anchor() {
+		$owner_id = self::act_as_connection_manager( 'initial_state_po_owner' );
+		\Jetpack_Options::update_option( 'master_user', $owner_id );
+		\Jetpack_Options::update_option( 'user_tokens', array( $owner_id => 'token.secret.' . $owner_id ) );
+		Utils::set_wpcom_user_id( $owner_id, 4242 );
+		Protected_Owner::set( 4242, $owner_id, 'popup' );
+		( new Manager() )->reset_connection_status();
+
+		$this->assertTrue( self::get_data()['hasProtectedOwner'] );
+	}
+
+	/**
+	 * Both flags are consumer-controlled.
+	 */
+	public function test_get_data_protected_owner_flags_follow_their_filters() {
+		self::act_as_connection_manager( 'initial_state_po_admin_2' );
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
+		add_filter( 'jetpack_connection_protected_owner_default_ui', '__return_false' );
+
+		$data = self::get_data();
+
+		$this->assertTrue( $data['requiresProtectedOwner'] );
+		$this->assertFalse( $data['useDefaultProtectedOwnerUi'] );
 	}
 }
