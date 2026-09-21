@@ -166,10 +166,7 @@ test( 'the premium tooltip takes focus and closes on Escape', async ( { page } )
 	await page.goto( 'http://boost-settings.test/' );
 	const content = await openTooltip( page );
 
-	// eslint-disable-next-line @wordpress/no-global-active-element -- Runs in the fixture page, which has one document.
-	expect( await content.evaluate( element => element.contains( document.activeElement ) ) ).toBe(
-		true
-	);
+	await expect( page.locator( '.icon-tooltip-container' ) ).toBeFocused();
 	await page.keyboard.press( 'Escape' );
 	await expect( content ).toBeHidden();
 } );
