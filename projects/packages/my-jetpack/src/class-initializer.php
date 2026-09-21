@@ -674,7 +674,7 @@ class Initializer {
 	}
 
 	/**
-	 * Add the package's image base URL and products tab to the admin script data.
+	 * Add My Jetpack availability, image base URL, and products tab to admin script data.
 	 *
 	 * Printed on every admin page by Script_Data, so the connection screen can resolve its
 	 * illustrations and Jetpack footers can link to the products tab off the My Jetpack page.
@@ -685,6 +685,11 @@ class Initializer {
 	 * @return array
 	 */
 	public static function add_admin_script_data( $data ) {
+		global $_registered_pages;
+
+		$data['myJetpack']['isAvailable']     = did_action( 'my_jetpack_init' ) > 0
+			&& isset( $_registered_pages['jetpack_page_my-jetpack'] )
+			&& current_user_can( 'edit_posts' );
 		$data['myJetpack']['assetsUrl']       = self::get_assets_url();
 		$data['myJetpack']['productsSection'] = self::get_products_section();
 

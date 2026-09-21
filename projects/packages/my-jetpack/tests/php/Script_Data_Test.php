@@ -40,6 +40,45 @@ class Script_Data_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Availability requires initialization, page registration, and access for the current user.
+	 */
+	public function test_admin_page_availability() {
+		global $_registered_pages, $wp_actions;
+
+		$registered_pages = $_registered_pages;
+		$actions          = $wp_actions;
+		$user_id          = get_current_user_id();
+		$editor_id        = wp_insert_user(
+			array(
+				'user_login' => 'footer-editor',
+				'user_pass'  => 'test-password',
+				'role'       => 'editor',
+			)
+		);
+
+		try {
+			wp_set_current_user( $editor_id );
+			unset( $wp_actions['my_jetpack_init'] );
+			$_registered_pages['jetpack_page_my-jetpack'] = true;
+			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack']['isAvailable'] );
+
+			do_action( 'my_jetpack_init' );
+			unset( $_registered_pages['jetpack_page_my-jetpack'] );
+			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack']['isAvailable'] );
+
+			$_registered_pages['jetpack_page_my-jetpack'] = true;
+			$this->assertTrue( Initializer::add_admin_script_data( array() )['myJetpack']['isAvailable'] );
+
+			wp_set_current_user( 0 );
+			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack']['isAvailable'] );
+		} finally {
+			$_registered_pages = $registered_pages;
+			$wp_actions        = $actions;
+			wp_set_current_user( $user_id );
+		}
+	}
+
+	/**
 	 * Footers on every Jetpack admin page link to the products tab from script data.
 	 */
 	public function test_adds_the_products_section() {
