@@ -8,12 +8,12 @@
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section;
 use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
+use Brain\Monkey\Functions;
 use function Automattic\Jetpack\PremiumAnalytics\get_ads_section_default_layout;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
 
-require_once __DIR__ . '/wpcom-site-has-feature-stub.php';
 // Required by path, like the section API below: the vendored classmap predates these classes.
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'vendor/automattic/jetpack-premium-analytics/src/class-capabilities.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'vendor/automattic/jetpack-premium-analytics/src/class-enablement-setting.php';
@@ -27,10 +27,9 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/premium-analytics/wordads
 class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 
 	/**
-	 * Reset the plan feature stub and the shared section registry between tests.
+	 * Reset the shared section registry between tests.
 	 */
 	public function tear_down() {
-		$GLOBALS['wpcom_test_site_features'] = array();
 
 		$instance = new ReflectionProperty( Dashboard_Section_Registry::class, 'instance' );
 		if ( PHP_VERSION_ID < 80100 ) {
@@ -57,8 +56,8 @@ class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 	 * A plan carrying WordAds gets the tab, keyed by the `ads` slug the client expects.
 	 */
 	public function test_registers_the_ads_tab_when_the_plan_includes_wordads() {
-		$GLOBALS['wpcom_test_site_features'] = array( 'wordads' );
-		$user_id                             = wp_insert_user(
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
+		$user_id = wp_insert_user(
 			array(
 				'user_login' => 'wordads_admin',
 				'user_pass'  => 'password',
@@ -84,6 +83,8 @@ class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 	 * Without the plan feature there is nothing to report on, so no tab.
 	 */
 	public function test_registers_nothing_without_the_plan_feature() {
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( false );
+
 		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, 'wordads/ads' ) );
 	}
 
@@ -91,7 +92,7 @@ class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 	 * Another owner of the `ads` slug, such as the WordAds module on Atomic, keeps its tab.
 	 */
 	public function test_skips_when_the_ads_slug_is_taken() {
-		$GLOBALS['wpcom_test_site_features'] = array( 'wordads' );
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
 		register_dashboard_section( DASHBOARD_NAME, 'other/ads', array( 'label' => 'Ads' ) );
 
 		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, 'wordads/ads' ) );
