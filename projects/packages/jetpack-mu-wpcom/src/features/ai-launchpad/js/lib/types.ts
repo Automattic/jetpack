@@ -76,7 +76,6 @@ export interface TailoredInferred {
 	theme_category?: ThemeCategorySlug;
 	vibe?: string;
 	audience?: string;
-	tagline?: string;
 	// The goal the AI infers from the site name and description alone. Analytics
 	// only: never consumed by tailoring or read-side logic.
 	inferred_goal?: GoalSlug;

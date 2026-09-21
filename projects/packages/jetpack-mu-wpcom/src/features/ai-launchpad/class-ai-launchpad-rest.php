@@ -897,8 +897,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * rendered ids, and their delta — `dropped` is what the unknown-id filter and the visibility gate removed, `added`
 	 * is what synthetics and the backfill floor put in. The delta is diffed post-remap so a selected id that renders
 	 * under its working equivalent does not read as a drop plus an addition. The raw wizard title/description are
-	 * never included, and the inferred fields that can echo the user's own words near-verbatim are stripped:
-	 * `brand_name` restates the title and `tagline` is drafted from the description.
+	 * never included, and the one inferred field that echoes the user's own words near-verbatim is stripped:
+	 * `brand_name` restates the title.
 	 *
 	 * @param array         $ai_output    The persisted AI output envelope.
 	 * @param string[]      $raw_task_ids The AI's selected ids before the unknown-id filter.
@@ -910,7 +910,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	private function tailoring_log_extra( $ai_output, $raw_task_ids, $duration_ms = null, $attempts = null, $rendered_ids = null ) {
 		// Schema-validated on the write path, so `inferred` is always present here.
 		$inferred = $ai_output['payload']['inferred'];
-		unset( $inferred['brand_name'], $inferred['tagline'] );
+		unset( $inferred['brand_name'] );
 
 		$rendered = $rendered_ids ?? array_column( $this->get_current_tasks(), 'id' );
 		$remapped = array_unique( array_map( 'wpcom_ai_launchpad_remap_task_id', $raw_task_ids ) );

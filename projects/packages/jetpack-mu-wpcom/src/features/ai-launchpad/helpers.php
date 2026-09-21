@@ -107,7 +107,7 @@ if ( ! function_exists( 'wpcom_ai_launchpad_tracks_context' ) ) {
 	 * The shared analytics context merged into every AI Launchpad Tracks event, mirroring the
 	 * client-side context in `js/lib/tracks.ts`. Values are null until the corresponding data
 	 * exists. Only model-inferred fields are included — never the user's raw title/description
-	 * (`brand_name`/`tagline` echo them near-verbatim and are excluded).
+	 * (`brand_name` echoes them near-verbatim and is excluded).
 	 *
 	 * @param string[]|null $rendered_task_ids The rendered task ids, when the caller has them.
 	 * @return array The context props.

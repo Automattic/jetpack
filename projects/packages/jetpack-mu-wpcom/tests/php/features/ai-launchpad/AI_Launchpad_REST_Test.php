@@ -886,7 +886,6 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$payload['inferred'] = array(
 			'goal'       => 'write',
 			'brand_name' => 'Alpine Notes',
-			'tagline'    => 'Hiking stories from Jane Doe of 12 Elm Street.',
 			'niche'      => 'hiking',
 		);
 		// A gate-hidden pick (woo without WooCommerce), a remapped pick, and a hallucinated id the write path
@@ -917,12 +916,11 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		);
 		$this->assertIsArray( $captured );
 
-		// Only the intended fields, and never the user's own words: brand_name (echoes the title) and tagline
-		// (drafted from the description) are stripped from inferred.
+		// Only the intended fields, and never the user's own words: brand_name echoes the title, so it is
+		// stripped from inferred.
 		$this->assertSame( array( 'source', 'inferred', 'selected', 'rendered', 'dropped', 'added' ), array_keys( $captured ) );
 		$this->assertSame( 'ai', $captured['source'] );
 		$this->assertArrayNotHasKey( 'brand_name', $captured['inferred'] );
-		$this->assertArrayNotHasKey( 'tagline', $captured['inferred'] );
 		$this->assertSame( 'write', $captured['inferred']['goal'] );
 		$this->assertSame( 'hiking', $captured['inferred']['niche'] );
 

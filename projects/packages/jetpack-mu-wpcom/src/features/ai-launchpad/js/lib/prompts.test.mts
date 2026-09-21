@@ -462,8 +462,8 @@ describe( 'buildTailorPrompt output language', () => {
 
 	it( 'keeps the analytics fields in English, whatever the site speaks', () => {
 		// niche/vibe/audience ride on every Tracks event and are compared across sites, so a translated
-		// value splits one cohort into forty; tagline is stripped from the record entirely. None of the
-		// four is ever rendered, so there is nothing to gain by translating them either.
+		// value splits one cohort into forty. None of the three is ever rendered, so there is nothing to
+		// gain by translating them either.
 		for ( const [ locale, ui ] of [
 			[ 'it_IT', 'it_IT' ],
 			[ 'fr_FR', 'it_IT' ],
@@ -474,7 +474,7 @@ describe( 'buildTailorPrompt output language', () => {
 			const englishFrom = block.indexOf( 'Leave everything else in English' );
 
 			assert.ok( englishFrom > -1, `no English-pinning sentence for ${ locale }/${ ui }` );
-			for ( const field of [ '"niche"', '"vibe"', '"audience"', '"tagline"' ] ) {
+			for ( const field of [ '"niche"', '"vibe"', '"audience"' ] ) {
 				assert.ok(
 					block.indexOf( field ) > englishFrom,
 					`${ field } is not pinned to English for ${ locale }/${ ui }`

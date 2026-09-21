@@ -613,7 +613,7 @@ export function buildTailorPrompt(
 ${ languageInstruction(
 	locale,
 	uiLocale
-) } Leave everything else in English. That means the slug values, exactly as listed: "goal", "inferred_goal", "theme_category", and every task "id". It also means "niche", "vibe", "audience" and "tagline", which are never shown to anyone and are read back across sites - translating those would make them useless. The GOOD/BAD subtitle examples below illustrate the style, not the language - do not copy them, and do not fall back to English for the fields named above.
+) } Leave everything else in English. That means the slug values, exactly as listed: "goal", "inferred_goal", "theme_category", and every task "id". It also means "niche", "vibe" and "audience", which are never shown to anyone and are read back across sites - translating those would make them useless. The GOOD/BAD subtitle examples below illustrate the style, not the language - do not copy them, and do not fall back to English for the fields named above.
 `;
 
 	return `You are helping a new WordPress.com user onboard. They have described their site in their own words. Your job is to make their onboarding checklist feel hand-picked for THIS site, not generic.
@@ -635,7 +635,6 @@ First, read the description closely and infer the site's context. You will use t
   Prefer the specific subject over the generic goal bucket when one fits: a bakery blog is "restaurant" (not "blog"), a hiking diary is "travel-lifestyle", a novelist's site is "authors-writers". Fall back to the goal bucket ("blog", "business", "store", "portfolio", "newsletter") only when no subject category matches. Always include this field.
 - "vibe": aesthetic hint if implied (e.g. "minimal and editorial", "warm and personal"). Omit if neutral.
 - "audience": who the site is for, if implied (e.g. "home cooks", "small-business owners").
-- "tagline": a polished site tagline drafted from the description. Max 200 characters. Noun phrase or third person, not first-person.
 
 ============ STEP 2 - tasks ============
 Now choose the 6 tasks from the menu below that are MOST RELEVANT to this site, judged against the site name, goal, description, and the niche/audience you just inferred. Each menu entry says what the task does, when it is a good fit, sometimes when to avoid it, and sometimes which goals it tends to suit - use that, not the id, to judge relevance. Treat the "goals" line as a soft affinity, never a filter: a task that does not list this site's goal is still fair game when it fits the site, and one that does list it still has to earn its place. Rank the whole menu and keep the top 6. Prefer a list that includes at least one task which creates something to publish (e.g. "first_post_published", "woo_products", or "add_about_page"), unless the menu offers none. Do not follow a fixed template - two different sites should get noticeably different lists.
@@ -679,7 +678,7 @@ ${ menu.map( renderMenuEntry ).join( '\n\n' ) }
 Return only a JSON object matching this schema. Do not include prose, code fences, or commentary. The first character MUST be "{".
 
 {
-  "inferred": { "goal": "...", "inferred_goal": "...", "brand_name": "...", "niche": "...", "theme_category": "...", "vibe": "...", "audience": "...", "tagline": "..." },
+  "inferred": { "goal": "...", "inferred_goal": "...", "brand_name": "...", "niche": "...", "theme_category": "...", "vibe": "...", "audience": "..." },
   "tasks": [ { "id": "...", "subtitle": "..." }, ... 6 total ],
   "first_post_draft": { "title": "...", "subtitle": "...", "paragraphs": [ "...", "..." ] },
   "about_page_draft": { "title": "...", "paragraphs": [ "...", "..." ] },
