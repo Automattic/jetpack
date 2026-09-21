@@ -1,19 +1,16 @@
 import { useGlobalNotices } from '@automattic/jetpack-components';
 import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { useQueryClient } from '@tanstack/react-query';
-import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
-import { queueActivationRequest } from '../../../data/queue-activation-request';
 import {
 	clearRequestedSwitch,
-	moduleSwitchKey,
 	pluginSwitchKey,
 	setRequestedSwitch,
 } from '../../../data/requested-switch-state';
-import { getBlockThemeMigration } from '../../../utils/block-theme-migration';
-import { QUERY_KEY } from './use-main-features';
+import { hasPlainSwitch, requestModuleSwitch } from '../../module-toggle';
+import { QUERY_KEY, postFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
 
 /**
@@ -33,7 +30,7 @@ export function isBulkSwitchable( state: FeatureState ): boolean {
 	const { control } = state;
 
 	if ( control.kind === 'module' ) {
-		return ! control.module.override && ! getBlockThemeMigration( control.module );
+		return hasPlainSwitch( control.module );
 	}
 
 	return control.kind === 'plugin';
@@ -51,18 +48,9 @@ export function useBulkFeatureSwitch() {
 	const [ isRunning, setIsRunning ] = useState( false );
 
 	const switchOne = useCallback(
-		( state: FeatureState, active: boolean ): Promise< boolean > => {
-			const { control } = state;
-
+		( { control }: FeatureState, active: boolean ): Promise< boolean > => {
 			if ( control.kind === 'module' ) {
-				const key = moduleSwitchKey( control.module.module );
-				const token = setRequestedSwitch( key, active );
-
-				return queueActivationRequest( () =>
-					updateJetpackModuleStatus( { name: control.module.module, active } )
-				)
-					.then( Boolean, () => false )
-					.finally( () => clearRequestedSwitch( key, token ) );
+				return requestModuleSwitch( updateJetpackModuleStatus, control.module.module, active );
 			}
 
 			if ( control.kind !== 'plugin' ) {
@@ -72,13 +60,7 @@ export function useBulkFeatureSwitch() {
 			const key = pluginSwitchKey( control.plugin );
 			const token = setRequestedSwitch( key, active );
 
-			return queueActivationRequest( () =>
-				apiFetch< MainFeaturesState >( {
-					path: '/wpcom/v2/my-jetpack/site/features/plugin',
-					method: 'POST',
-					data: { plugin: control.plugin, action: active ? 'activate' : 'deactivate' },
-				} )
-			)
+			return postFeaturePlugin( control.plugin, active ? 'activate' : 'deactivate' )
 				.then(
 					next => {
 						queryClient.setQueryData( QUERY_KEY, next );

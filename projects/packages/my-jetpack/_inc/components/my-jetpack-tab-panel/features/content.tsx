@@ -129,21 +129,21 @@ export function FeaturesContent() {
 				) }
 			</p>
 
-			{ visible.length > 0 && view === 'list' && (
-				<FeatureList states={ visible } onOpen={ openFeature } />
-			) }
-			{ visible.length > 0 && view === 'grid' && (
-				<div className={ styles[ 'feature-grid' ] }>
-					{ visible.map( state => (
-						<FeatureItem key={ state.feature.slug } state={ state } onOpen={ openFeature } />
-					) ) }
-				</div>
-			) }
 			{ visible.length === 0 && (
 				<h3 className={ styles[ 'empty-heading' ] }>
 					{ __( 'No features found.', 'jetpack-my-jetpack' ) }
 				</h3>
 			) }
+			{ visible.length > 0 &&
+				( view === 'list' ? (
+					<FeatureList states={ visible } onOpen={ openFeature } />
+				) : (
+					<div className={ styles[ 'feature-grid' ] }>
+						{ visible.map( state => (
+							<FeatureItem key={ state.feature.slug } state={ state } onOpen={ openFeature } />
+						) ) }
+					</div>
+				) ) }
 
 			{ open && (
 				<FeatureModal state={ open } onClose={ closeFeature } onFilterByPlan={ onFilterByPlan } />

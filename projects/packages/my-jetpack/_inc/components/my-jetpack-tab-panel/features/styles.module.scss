@@ -143,6 +143,15 @@ $feature-icon-foreground: #0ced57;
 	z-index: 1;
 }
 
+// Raised above the stretched title like the action slot, so a click on it
+// stays its own.
+.feature-leading-slot {
+	align-self: center;
+	display: flex;
+	position: relative;
+	z-index: 1;
+}
+
 // Placeholders for the parts of a card that wait on live state: the status
 // badge, its switch, and the counts on the filter pills.
 .skeleton-badge {

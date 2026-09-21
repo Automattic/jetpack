@@ -33,6 +33,41 @@ export type ModuleToggleProps = {
 const MODULES_REQUIRING_RELOAD = [ 'activity-log', 'podcast', 'subscriptions', 'wpcom-reader' ];
 
 /**
+ * Send one module switch through the activation queue, holding the asked-for value meanwhile.
+ *
+ * @param toggleModule - The modules store's `updateJetpackModuleStatus` action.
+ * @param slug         - The module's slug.
+ * @param active       - The asked-for value.
+ * @return Whether the switch succeeded.
+ */
+export function requestModuleSwitch(
+	toggleModule: ( args: { name: string; active: boolean } ) => Promise< unknown >,
+	slug: string,
+	active: boolean
+): Promise< boolean > {
+	const key = moduleSwitchKey( slug );
+	const token = setRequestedSwitch( key, active );
+
+	return (
+		queueActivationRequest( () => toggleModule( { name: slug, active } ) )
+			// The queue gives up on a request that never answers. Treated as a failure
+			// so the switch explains itself rather than silently going back.
+			.then( Boolean, () => false )
+			.finally( () => clearRequestedSwitch( key, token ) )
+	);
+}
+
+/**
+ * Whether the module's control is a plain on/off switch, rather than locked or a migration link.
+ *
+ * @param $module - The module.
+ * @return Whether the module has a plain switch.
+ */
+export function hasPlainSwitch( $module: MyJetpackModule ): boolean {
+	return ! $module.override && ! getBlockThemeMigration( $module );
+}
+
+/**
  * Switch a Jetpack module on or off, however the surface chooses to present that.
  *
  * Shared with the Features modal, which offers buttons rather than a switch: both must
@@ -118,23 +153,7 @@ export function useModuleActivation(
 				} );
 			}
 
-			const token = setRequestedSwitch( moduleSwitchKey( $module.module ), active );
-
-			let success;
-			try {
-				success = await queueActivationRequest( () =>
-					toggleModule( {
-						name: $module.module,
-						active,
-					} )
-				);
-			} catch {
-				// The queue gives up on a request that never answers. Treated as a failure
-				// so the switch explains itself rather than silently going back.
-				success = false;
-			} finally {
-				clearRequestedSwitch( moduleSwitchKey( $module.module ), token );
-			}
+			const success = await requestModuleSwitch( toggleModule, $module.module, active );
 
 			if ( success && reload && MODULES_REQUIRING_RELOAD.includes( $module.module ) ) {
 				setPendingSuccessNotice(

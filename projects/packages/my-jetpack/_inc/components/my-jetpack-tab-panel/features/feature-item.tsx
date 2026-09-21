@@ -43,7 +43,7 @@ export function FeatureItem( { state, onOpen, leading, className }: FeatureItemP
 
 	return (
 		<div className={ clsx( styles[ 'feature-item' ], className ) } data-feature={ feature.slug }>
-			{ leading && <span className={ styles[ 'feature-action-slot' ] }>{ leading }</span> }
+			{ leading && <span className={ styles[ 'feature-leading-slot' ] }>{ leading }</span> }
 
 			<span className={ styles[ 'feature-item__icon' ] } aria-hidden="true">
 				<FeatureIcon feature={ feature } />
