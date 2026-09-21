@@ -22,6 +22,7 @@ use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats\Tracking_Pixel as Stats_Tracking_Pixel;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Stats\XMLRPC_Provider as Stats_XMLRPC;
+use Automattic\Jetpack\Stats_Admin\Admin_Bar as Stats_Admin_Bar;
 use Automattic\Jetpack\Stats_Admin\Admin_Post_List_Column;
 use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
 use Automattic\Jetpack\Stats_Admin\Main as Stats_Main;
@@ -56,18 +57,10 @@ add_action( 'jetpack_modules_loaded', 'stats_load' );
 function stats_load() {
 	Jetpack::enable_module_configurable( __FILE__ );
 
-	// Only run the callback for those who can see the stats.
-	if ( is_user_logged_in() && current_user_can( 'view_stats' ) ) {
-		add_action( 'admin_head', 'stats_admin_bar_head', 100 );
-		add_action( 'wp_head', 'stats_admin_bar_head', 100 );
-	}
-
+	Stats_Admin_Bar::init();
 	Admin_Post_List_Column::register();
 
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
-	add_action( 'wp_before_admin_bar_render', 'stats_add_link_to_admin_bar_site_menu' );
-
-	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
 
 	// Filter for adding the Jetpack plugin version to tracking stats.
 	add_filter( 'stats_array', 'filter_stats_array_add_jp_version' );
@@ -89,22 +82,16 @@ function jetpack_is_dnt_enabled() {
 
 /**
  * Prevent sparkline img requests being redirected to upgrade.php.
- * See wp-admin/admin.php where it checks $wp_db_version.
+ *
+ * @deprecated $$next-version$$
  *
  * @access public
  * @param mixed $version Version.
  * @return string $version.
  */
 function stats_ignore_db_version( $version ) {
-	if (
-		is_admin() &&
-		isset( $_GET['page'] ) && 'stats' === $_GET['page'] && // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		isset( $_GET['chart'] ) && strpos( $_GET['chart'], 'admin-bar-hours' ) === 0 // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
-	) {
-		global $wp_db_version;
-		return $wp_db_version;
-	}
-	return $version;
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats_Admin\Admin_Bar::ignore_db_version' );
+	return Stats_Admin_Bar::ignore_db_version( $version );
 }
 
 /**
@@ -739,129 +726,55 @@ function stats_hide_smile_css() {
 /**
  * Stats Admin Bar Head.
  *
+ * @deprecated $$next-version$$
+ *
  * @access public
  * @return void
  */
 function stats_admin_bar_head() {
-	// Let's not show the stats admin bar to users who are not logged in.
-	if ( ! is_user_logged_in() ) {
-		return;
-	}
-
-	if ( ! Stats_Options::get_option( 'admin_bar' ) ) {
-		return;
-	}
-
-	if ( ! current_user_can( 'view_stats' ) ) {
-		return;
-	}
-
-	if ( ! is_admin_bar_showing() ) {
-		return;
-	}
-
-	add_action( 'admin_bar_menu', 'stats_admin_bar_menu', 100 );
-	?>
-
-<style data-ampdevmode type='text/css'>
-#wpadminbar .quicklinks li#wp-admin-bar-stats {
-	height: 32px;
-}
-#wpadminbar .quicklinks li#wp-admin-bar-stats a {
-	height: 32px;
-	padding: 0;
-}
-#wpadminbar .quicklinks li#wp-admin-bar-stats a div {
-	height: 32px;
-	width: 95px;
-	overflow: hidden;
-	margin: 0 10px;
-}
-#wpadminbar .quicklinks li#wp-admin-bar-stats a:hover div {
-	width: auto;
-	margin: 0 8px 0 10px;
-}
-#wpadminbar .quicklinks li#wp-admin-bar-stats a img {
-	height: 24px;
-	margin: 4px 0;
-	max-width: none;
-	border: none;
-}
-</style>
-	<?php
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats_Admin\Admin_Bar::maybe_add_chart' );
+	Stats_Admin_Bar::maybe_add_chart();
 }
 
 /**
  * Gets the image source of the given stats chart.
+ *
+ * @deprecated $$next-version$$
  *
  * @param string $chart Name of the chart.
  * @param array  $args Extra list of argument to use in the image source.
  * @return string An image source.
  */
 function stats_get_image_chart_src( $chart, $args = array() ) {
-	$url = add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) );
-
-	return add_query_arg(
-		array_merge(
-			array(
-				'noheader' => '',
-				'proxy'    => '',
-				'chart'    => $chart,
-			),
-			$args
-		),
-		$url
-	);
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats_Admin\Admin_Bar::get_chart_src' );
+	return add_query_arg( $args, Stats_Admin_Bar::get_chart_src( $chart ) );
 }
 
 /**
  * Stats AdminBar.
+ *
+ * @deprecated $$next-version$$
  *
  * @access public
  * @param mixed $wp_admin_bar WPAdminBar.
  * @return void
  */
 function stats_admin_bar_menu( &$wp_admin_bar ) {
-	$img_src    = esc_attr( stats_get_image_chart_src( 'admin-bar-hours-scale' ) );
-	$img_src_2x = esc_attr( stats_get_image_chart_src( 'admin-bar-hours-scale-2x' ) );
-	$alt        = esc_attr( __( 'Stats', 'jetpack' ) );
-	$title      = esc_attr( __( 'Views over 48 hours. Click for more Jetpack Stats.', 'jetpack' ) );
-
-	$menu = array(
-		'id'    => 'stats',
-		'href'  => add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) ), // no menu_page_url() blog-side.
-		'title' => "<div><img fetchpriority='low' loading='lazy' decoding='async' src='$img_src' srcset='$img_src 1x, $img_src_2x 2x' width='112' height='24' alt='$alt' title='$title'></div>",
-	);
-
-	$wp_admin_bar->add_menu( $menu );
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats_Admin\Admin_Bar::add_chart_node' );
+	Stats_Admin_Bar::add_chart_node( $wp_admin_bar );
 }
 
 /**
  * Adds a Stats link to the site-name admin bar submenu, alongside Dashboard.
  *
+ * @deprecated $$next-version$$
+ *
  * @access public
  * @return void
  */
 function stats_add_link_to_admin_bar_site_menu() {
-	global $wp_admin_bar;
-
-	if (
-		! is_object( $wp_admin_bar ) ||
-		! $wp_admin_bar->get_node( 'dashboard' ) ||
-		! current_user_can( 'view_stats' ) ||
-		( new Host() )->is_wpcom_platform()
-	) {
-		return;
-	}
-
-	$wp_admin_bar->add_node(
-		array(
-			'parent' => 'site-name',
-			'id'     => 'jetpack-stats',
-			'title'  => __( 'Stats', 'jetpack' ),
-			'href'   => admin_url( 'admin.php?page=stats' ),
-		)
-	);
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats_Admin\Admin_Bar::add_site_menu_link' );
+	Stats_Admin_Bar::add_site_menu_link();
 }
 
 /**

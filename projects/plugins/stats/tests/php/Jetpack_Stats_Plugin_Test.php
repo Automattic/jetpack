@@ -6,8 +6,11 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Stats_Admin\Admin_Bar as Stats_Admin_Bar;
+use Automattic\Jetpack\Stats_Admin\Admin_Post_List_Column;
 use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
 use Automattic\Jetpack\Stats_Admin\Main as Stats_Admin_Main;
+use Automattic\Jetpack\Stats_Admin\WP_Dashboard_Odyssey_Widget;
 use Automattic\Jetpack\Stats_Plugin\Jetpack_Stats_Plugin;
 use WorDBless\BaseTestCase;
 
@@ -105,6 +108,29 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 		foreach ( $GLOBALS['wp_filter']['admin_menu']->callbacks as $callbacks ) {
 			foreach ( $callbacks as $callback ) {
 				if ( is_array( $callback['function'] ) && $callback['function'][0] instanceof Stats_Dashboard ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether the Stats column is queued for the Posts list.
+	 *
+	 * `Admin_Post_List_Column` hooks an instance method, so `has_filter()` cannot match it against a class name.
+	 *
+	 * @return bool
+	 */
+	private function post_list_column_is_registered() {
+		if ( ! isset( $GLOBALS['wp_filter']['manage_posts_columns'] ) ) {
+			return false;
+		}
+
+		foreach ( $GLOBALS['wp_filter']['manage_posts_columns']->callbacks as $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				if ( is_array( $callback['function'] ) && $callback['function'][0] instanceof Admin_Post_List_Column ) {
 					return true;
 				}
 			}
@@ -282,6 +308,20 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 		Jetpack_Stats_Plugin::initialize_other_packages();
 
 		$this->assertTrue( $this->dashboard_menu_is_registered() );
+	}
+
+	/**
+	 * Without the Jetpack plugin, nothing else adds Stats to the admin bar, the Posts list or the WordPress dashboard.
+	 */
+	public function test_connected_site_gets_the_admin_bar_posts_column_and_dashboard_widget() {
+		$this->fake_connection();
+
+		Jetpack_Stats_Plugin::initialize_other_packages();
+
+		$this->assertNotFalse( has_action( 'wp_before_admin_bar_render', array( Stats_Admin_Bar::class, 'add_site_menu_link' ) ) );
+		$this->assertNotFalse( has_action( 'wp_head', array( Stats_Admin_Bar::class, 'maybe_add_chart' ) ) );
+		$this->assertNotFalse( has_action( 'wp_dashboard_setup', array( WP_Dashboard_Odyssey_Widget::class, 'register_widget' ) ) );
+		$this->assertTrue( $this->post_list_column_is_registered() );
 	}
 
 	/**
