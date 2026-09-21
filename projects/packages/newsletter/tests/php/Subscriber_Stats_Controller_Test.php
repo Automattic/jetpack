@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Newsletter\Tests;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Newsletter\Subscriber_Stats_Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -58,6 +60,12 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		remove_all_actions( 'rest_api_init' );
 		remove_all_filters( 'jetpack_newsletter_stats_pre_request' );
 		remove_all_filters( 'posts_pre_query' );
+		remove_all_filters( 'pre_http_request' );
+		$this->delete_stats_transients();
+		\Jetpack_Options::delete_option( 'blog_token' );
+		\Jetpack_Options::delete_option( 'id' );
+		( new Connection_Manager() )->reset_connection_status();
+		Constants::clear_constants();
 		wp_set_current_user( 0 );
 		parent::tear_down();
 	}
@@ -203,6 +211,63 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 
 		$this->assertSame( 400, $response->get_status() );
 		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+		$this->assertArrayHasKey( 'date', $response->get_data()['data']['params'] );
+		$this->assertStringContainsString( 'calendar', $response->get_data()['data']['params']['date'] );
+	}
+
+	public function test_successful_wpcom_stats_are_reused_without_a_second_http_call() {
+		$this->connect_site();
+		$payload = array( 'posts' => array( array( 'id' => 7 ) ) );
+		$calls   = 0;
+		add_filter(
+			'pre_http_request',
+			function () use ( &$calls, $payload ) {
+				++$calls;
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode( $payload, JSON_UNESCAPED_SLASHES ),
+				);
+			}
+		);
+
+		$request = new WP_REST_Request( 'GET' );
+		$request->set_query_params( array( 'quantity' => 30 ) );
+
+		$this->assertSame( $payload, $this->controller->get_email_summary( $request ) );
+		$this->assertSame( $payload, $this->controller->get_email_summary( $request ) );
+		$this->assertSame( 1, $calls );
+	}
+
+	public function test_wpcom_stats_errors_are_not_cached() {
+		$this->connect_site();
+		$payload = array( 'posts' => array( array( 'id' => 9 ) ) );
+		$calls   = 0;
+		add_filter(
+			'pre_http_request',
+			function () use ( &$calls, $payload ) {
+				++$calls;
+				if ( 1 === $calls ) {
+					return array(
+						'response' => array( 'code' => 500 ),
+						'body'     => wp_json_encode( array( 'message' => 'upstream failed' ), JSON_UNESCAPED_SLASHES ),
+					);
+				}
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode( $payload, JSON_UNESCAPED_SLASHES ),
+				);
+			}
+		);
+
+		$request = new WP_REST_Request( 'GET' );
+		$request->set_query_params( array( 'quantity' => 30 ) );
+
+		$first = $this->controller->get_email_summary( $request );
+		$this->assertInstanceOf( WP_Error::class, $first );
+		$this->assertSame( $payload, $this->controller->get_email_summary( $request ) );
+		$this->assertSame( 2, $calls );
 	}
 
 	public function test_subscribers_route_rejects_year_unit() {
@@ -333,6 +398,32 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		$this->assertSame( $post_id, $response['posts'][0]['id'] );
 		$this->assertNull( $response['posts'][0]['recipients'] );
 		$this->assertNull( $response['emailTotals'] );
+	}
+
+	/**
+	 * Give the site a blog token so the Stats proxy reaches HTTP.
+	 */
+	private function connect_site() {
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		( new Connection_Manager() )->reset_connection_status();
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+	}
+
+	/**
+	 * Drop cached Stats proxy responses so tests cannot share a hit.
+	 */
+	private function delete_stats_transients() {
+		global $wpdb;
+
+		$prefix = Subscriber_Stats_Controller::CACHE_TRANSIENT_PREFIX;
+		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$wpdb->prepare(
+				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+				$wpdb->esc_like( '_transient_' . $prefix ) . '%',
+				$wpdb->esc_like( '_transient_timeout_' . $prefix ) . '%'
+			)
+		);
 	}
 
 	/**

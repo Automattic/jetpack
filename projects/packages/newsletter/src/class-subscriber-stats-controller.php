@@ -28,6 +28,13 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 	const STATS_API_VERSION = '1.1';
 
 	/**
+	 * Transient prefix for successful WordPress.com Stats responses.
+	 *
+	 * @var string
+	 */
+	const CACHE_TRANSIENT_PREFIX = 'jetpack_newsletter_stats_';
+
+	/**
 	 * Whether the route registration hook has been added.
 	 *
 	 * @var bool
@@ -191,12 +198,26 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 		}
 
 		$parsed = \DateTime::createFromFormat( 'Y-m-d', (string) $value );
+		if ( ! $parsed || $value !== $parsed->format( 'Y-m-d' ) ) {
+			return new WP_Error(
+				'rest_invalid_param',
+				sprintf(
+					/* translators: %s: Parameter name. */
+					__( '%s must be a real calendar day in YYYY-MM-DD format.', 'jetpack-newsletter' ),
+					$param
+				),
+				array( 'status' => 400 )
+			);
+		}
 
-		return $parsed && $value === $parsed->format( 'Y-m-d' );
+		return true;
 	}
 
 	/**
 	 * Call WordPress.com's Stats REST API, mirroring `WPCOM_Stats::fetch_remote_stats()`.
+	 *
+	 * Successful responses are cached for five minutes. Errors are not, so a reconnect
+	 * is not stuck on a stale failure.
 	 *
 	 * Do not gate on `Manager::is_connected()`: Simple has no Jetpack connection and uses
 	 * `jetpack_newsletter_stats_pre_request` instead of this blog-token path.
@@ -206,10 +227,15 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 	 * @return mixed|WP_Error
 	 */
 	private function proxy_stats_to_wpcom( $endpoint, $query_args ) {
-		$path = add_query_arg(
+		$path      = add_query_arg(
 			$query_args,
 			sprintf( '/sites/%d/%s/%s', (int) \Jetpack_Options::get_option( 'id' ), $this->rest_base, ltrim( $endpoint, '/' ) )
 		);
+		$cache_key = self::CACHE_TRANSIENT_PREFIX . md5( implode( '|', array( $path, self::STATS_API_VERSION ) ) );
+		$cached    = get_transient( $cache_key );
+		if ( false !== $cached ) {
+			return json_decode( $cached, true );
+		}
 
 		$response = Client::wpcom_json_api_request_as_blog(
 			$path,
@@ -240,6 +266,8 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 				array( 'status' => $status )
 			);
 		}
+
+		set_transient( $cache_key, wp_json_encode( $body, JSON_UNESCAPED_SLASHES ), 5 * MINUTE_IN_SECONDS );
 
 		return $body;
 	}
