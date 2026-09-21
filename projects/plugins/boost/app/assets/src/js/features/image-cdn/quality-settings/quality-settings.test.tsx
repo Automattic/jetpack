@@ -27,10 +27,11 @@ const renderSettings = () =>
 
 beforeEach( () => {
 	mutate.mockClear();
-	jest.mocked( useImageCdnQuality ).mockReturnValue( [
-		{ data: quality },
-		{ mutate },
-	] as unknown as ReturnType< typeof useImageCdnQuality > );
+	jest
+		.mocked( useImageCdnQuality )
+		.mockReturnValue( [ { data: quality }, { mutate } ] as unknown as ReturnType<
+			typeof useImageCdnQuality
+		> );
 } );
 
 afterEach( () => {
