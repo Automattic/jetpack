@@ -4,9 +4,21 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import Settings from './settings';
 
 /* Each module stub prints its name so the test can assert the order. */
-jest.mock( '$features/cornerstone-pages/cornerstone-pages-card', () => () => (
-	<div data-testid="stub">cornerstone</div>
+jest.mock( '$features/cornerstone-pages/cornerstone-pages', () => ( {
+	useCornerstoneSummary: () => 'Added: Homepage',
+} ) );
+jest.mock( '$features/cornerstone-pages/meta/meta', () => ( {
+	CornerstonePagesDescription: () => <>cornerstone description</>,
+	CornerstonePagesEditor: () => <div>editor</div>,
+	CornerstonePagesUpgradeCTA: () => <div>upgrade</div>,
+} ) );
+jest.mock( '$features/cornerstone-pages/prerender/prerender', () => () => (
+	<div data-testid="stub">prerender</div>
 ) );
+jest.mock( '$features/module/lib/stores', () => ( {
+	useSingleModuleState: () => [ { available: true } ],
+} ) );
+jest.mock( '$lib/utils/analytics', () => ( { recordBoostEvent: jest.fn() } ) );
 jest.mock( '$features/critical-css/critical-css-module/critical-css-module', () => () => (
 	<div data-testid="stub">critical_css</div>
 ) );
@@ -49,7 +61,7 @@ describe( 'Settings', () => {
 		render( <Settings /> );
 
 		expect( screen.getAllByRole( 'button' ).map( button => button.textContent ) ).toEqual( [
-			'Cornerstone pagesAdd your most important pages for targeted optimizations, including Critical CSS.',
+			'Cornerstone pagesAdded: Homepage',
 			'Page loadingManage how your page content is loaded for visitors.',
 			'Code optimizationReduce the code needed to load your site.',
 			'ImagesTools to load and deliver images more efficiently.',
@@ -63,7 +75,9 @@ describe( 'Settings', () => {
 		expect( modulesIn( 'Code optimization' ) ).toEqual( [ 'minify_js', 'minify_css' ] );
 		expect( modulesIn( 'Images' ) ).toEqual( [ 'lcp', 'image_cdn', 'image_guide:row' ] );
 		fireEvent.click( screen.getByRole( 'button', { name: 'Cornerstone pages' } ) );
-		expect( modulesIn( 'Cornerstone pages' ) ).toEqual( [ 'cornerstone' ] );
+		expect( modulesIn( 'Cornerstone pages' ) ).toEqual( [ 'prerender' ] );
+		expect( screen.getAllByRole( 'heading', { name: 'Cornerstone pages' } ) ).toHaveLength( 1 );
+		expect( screen.getAllByText( 'cornerstone description' ) ).toHaveLength( 1 );
 	} );
 
 	it( 'starts with only Cornerstone collapsed and lets each section toggle independently', () => {

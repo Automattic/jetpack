@@ -24,10 +24,10 @@ describe( 'CornerstonePagesCard', () => {
 		mockSpeculationRules = { active: false, available: true };
 	} );
 
-	it( 'describes the feature under the title, then summarises the list on the editor header', () => {
+	it( 'describes the feature without a duplicate heading, then summarises the editor', () => {
 		render( <CornerstonePagesCard /> );
 
-		expect( screen.getByRole( 'heading', { level: 2 } ).textContent ).toBe( 'Cornerstone pages' );
+		expect( screen.queryByRole( 'heading', { name: 'Cornerstone pages' } ) ).toBeNull();
 		expect( screen.getByText( 'description' ).tagName ).toBe( 'P' );
 		expect( screen.getByRole( 'button', { name: /Edit pages/ } ) ).toBeTruthy();
 		expect( screen.getByText( 'prerender' ) ).toBeTruthy();
