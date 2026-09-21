@@ -442,6 +442,38 @@ describe( 'BarChart', () => {
 				.map( el => el.textContent );
 			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
 		} );
+
+		test( "keeps a caller's value tickValues", () => {
+			renderWithTheme( {
+				data: wholeNumberData,
+				options: { axis: { y: { tickValues: [ 0, 0.5, 1 ] } } },
+			} );
+			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			expect( within( chart ).getAllByText( /^-?[\d.,]+$/ ) ).toHaveLength( 3 );
+		} );
+	} );
+
+	test( 'draws category grid lines at the x axis numTicks', () => {
+		const data: SeriesData[] = [
+			{
+				label: 'Series A',
+				data: Array.from( { length: 30 }, ( _, i ) => ( { label: `Day ${ i + 1 }`, value: i } ) ),
+			},
+		];
+		const countColumns = ( numTicks: number ) => {
+			const { container, unmount } = renderWithTheme( {
+				data,
+				gridVisibility: 'y',
+				options: { axis: { x: { numTicks } } },
+			} );
+			// See the visx node constraint at getBarRects.
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			const count = container.querySelectorAll( '.visx-columns line' ).length;
+			unmount();
+			return count;
+		};
+
+		expect( countColumns( 15 ) ).toBeGreaterThan( countColumns( 4 ) );
 	} );
 
 	describe( 'Data Validation', () => {
