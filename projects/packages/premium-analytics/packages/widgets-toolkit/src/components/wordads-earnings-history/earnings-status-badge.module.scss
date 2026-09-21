@@ -1,11 +1,12 @@
-/* Inline so a cell's text-align still places the pair. */
+/* Stays inline: a flex wrapper would blockify the badge and make the pending
+ * row's badge taller than its neighbours. */
 .root {
-	display: inline-flex;
-	align-items: center;
-	gap: var(--wpds-dimension-gap-xs);
+	white-space: nowrap;
 }
 
 .info {
 	display: inline-flex;
+	vertical-align: middle;
+	margin-inline-end: var(--wpds-dimension-gap-xs);
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
