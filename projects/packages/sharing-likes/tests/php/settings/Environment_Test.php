@@ -41,6 +41,7 @@ class Environment_Test extends BaseTestCase {
 	public function tear_down() {
 		remove_filter( 'stylesheet', array( $this, 'pin_stylesheet' ) );
 		remove_all_filters( 'pre_get_block_template' );
+		remove_all_filters( 'get_block_template' );
 		remove_all_filters( 'jetpack_is_connection_ready' );
 		remove_all_filters( 'jetpack_get_available_standalone_modules' );
 		$this->forget_post_template_url();
@@ -121,9 +122,13 @@ class Environment_Test extends BaseTestCase {
 	/**
 	 * A block theme shipping only `index.html` has nowhere to send anyone, and
 	 * callers read the empty string as "offer no Site Editor link".
+	 *
+	 * Returning null from `pre_get_block_template` does not short-circuit the
+	 * lookup, so a WordPress that ships the pinned theme would resolve the
+	 * template regardless; the post-lookup filter is the one that can empty it.
 	 */
 	public function test_is_empty_when_the_theme_has_no_single_template(): void {
-		add_filter( 'pre_get_block_template', '__return_null' );
+		add_filter( 'get_block_template', '__return_null' );
 
 		$this->assertSame( '', Environment::post_template_url() );
 	}
