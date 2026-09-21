@@ -23,6 +23,7 @@ class Initial_State {
 		global $wp_version;
 
 		$status                = new Status();
+		$manager               = new Manager();
 		$can_manage_connection = current_user_can( 'jetpack_connect' );
 
 		// Only expose the owner's identity to users who can act on connection issues:
@@ -52,8 +53,6 @@ class Initial_State {
 		$requires_protected_owner       = null;
 		$use_default_protected_owner_ui = null;
 		if ( $can_manage_connection ) {
-			$manager = new Manager();
-
 			$has_protected_owner      = $manager->has_protected_owner();
 			$requires_protected_owner = $manager->requires_protected_owner();
 
@@ -81,7 +80,7 @@ class Initial_State {
 			'connectionErrors'           => Error_Handler::get_instance()->get_displayable_errors(),
 			'isOfflineMode'              => $status->is_offline_mode(),
 			'calypsoEnv'                 => ( new Status\Host() )->get_calypso_env(),
-			'isOwnershipTransferable'    => ( new Manager() )->is_ownership_transferable(),
+			'isOwnershipTransferable'    => $manager->is_ownership_transferable(),
 			'connectionOwner'            => $connection_owner,
 			'hasProtectedOwner'          => $has_protected_owner,
 			'requiresProtectedOwner'     => $requires_protected_owner,
