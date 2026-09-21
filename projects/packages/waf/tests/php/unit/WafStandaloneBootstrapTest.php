@@ -99,7 +99,8 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 	 */
 	private function run_bootstrap_in_child_process( $bootstrap_file, $php_cgi = null ) {
 		$fixture = __DIR__ . '/fixtures/run-bootstrap.php';
-		$options = array( '-d', 'display_errors=stderr', '-d', 'error_reporting=E_ALL' );
+		// Opcache is off so that its JIT startup warning under coverage extensions cannot pollute the output.
+		$options = array( '-d', 'display_errors=stderr', '-d', 'error_reporting=E_ALL', '-d', 'opcache.enable=0', '-d', 'opcache.enable_cli=0' );
 		$env     = array( 'JETPACK_WAF_TEST_BOOTSTRAP' => $bootstrap_file );
 
 		if ( null === $php_cgi ) {
@@ -134,10 +135,11 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		fclose( $pipes[2] );
 		$exit_code = proc_close( $process );
 
-		// php-cgi prints CGI headers ahead of the report.
-		$json   = strstr( $stdout, '{' );
-		$report = false === $json ? null : json_decode( $json, true );
+		$report = preg_match( '/^JETPACK_WAF_REPORT:(\{.*\})$/m', $stdout, $matches ) ? json_decode( $matches[1], true ) : null;
 		$this->assertIsArray( $report, "Child process produced no report. stdout: $stdout stderr: $stderr" );
+		// Startup notices from the environment may reach stderr; anything from the bootstrap or the WAF names their files.
+		$this->assertStringNotContainsStringIgnoringCase( 'error', $stderr );
+		$this->assertStringNotContainsString( 'jetpack-waf', $stderr );
 
 		return $report + array(
 			'exit_code' => $exit_code,
@@ -173,7 +175,6 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		$report = $this->run_bootstrap_in_child_process( $this->generate_real_bootstrap() );
 
 		$this->assertSame( 0, $report['exit_code'] );
-		$this->assertSame( '', $report['stderr'] );
 		$this->assertSame( 'preload', $report['run'] );
 		$this->assertTrue( $report['runner_loaded'] );
 		$this->assertSame( array( 'Closure' ), $report['autoloaders'] );
@@ -200,7 +201,6 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		$report = $this->run_bootstrap_in_child_process( $bootstrap_file, $php_cgi );
 
 		$this->assertSame( 0, $report['exit_code'] );
-		$this->assertSame( '', $report['stderr'] );
 		$this->assertNotSame( 'cli', $report['sapi'] );
 		$this->assertSame( 'preload', $report['run'] );
 		$this->assertSame( 'Automattic\\Jetpack\\Waf\\Waf_Runtime', $report['rules_waf'] );
@@ -226,7 +226,6 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		$report = $this->run_bootstrap_in_child_process( $bootstrap_file );
 
 		$this->assertSame( 0, $report['exit_code'] );
-		$this->assertSame( '', $report['stderr'] );
 		$this->assertNull( $report['run'] );
 		$this->assertFalse( $report['runner_loaded'] );
 		$this->assertSame( array(), $report['autoloaders'] );

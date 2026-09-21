@@ -25,11 +25,13 @@ $leaked      = array_values(
 	)
 );
 $autoloaders = spl_autoload_functions();
+// @phan-suppress-next-line PhanPluginRedundantAssignmentInGlobalScope -- PHP 7.4 returns false when nothing was ever registered.
 if ( ! $autoloaders ) {
 	$autoloaders = array();
 }
 
-echo json_encode(
+// Delimited on its own line so that headers or startup notices around it cannot corrupt the report.
+echo "\nJETPACK_WAF_REPORT:", json_encode(
 	array(
 		'sapi'           => PHP_SAPI,
 		'run'            => defined( 'JETPACK_WAF_RUN' ) ? JETPACK_WAF_RUN : null,
@@ -53,4 +55,4 @@ echo json_encode(
 		),
 	),
 	JSON_UNESCAPED_SLASHES
-);
+), "\n";
