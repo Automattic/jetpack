@@ -21,7 +21,8 @@ class Main_Features_Test extends TestCase {
 				$this->assertNotEmpty( $feature[ $key ] ?? null, "Feature {$slug} has no {$key}." );
 			}
 
-			$this->assertIsBool( $feature['delivery']['in_jetpack'] ?? null, "Feature {$slug} has no in_jetpack flag." );
+			$this->assertIsBool( $feature['delivery']['jetpack'] ?? null, "Feature {$slug} has no jetpack flag." );
+			$this->assertIsString( $feature['delivery']['plugin'] ?? null, "Feature {$slug} has no plugin slug." );
 			$this->assertIsBool( $feature['delivery']['free'] ?? null, "Feature {$slug} has no free flag." );
 		}
 	}
@@ -44,9 +45,9 @@ class Main_Features_Test extends TestCase {
 
 	/**
 	 * A feature switched by neither a product nor a module has nothing to toggle and can
-	 * only be linked to. Only Activity Log is allowed in that state.
+	 * only be linked to. Every feature now carries one, Activity Log included.
 	 */
-	public function test_only_activity_log_has_no_product_or_module() {
+	public function test_every_feature_has_a_product_or_a_module() {
 		$unswitchable = array_keys(
 			array_filter(
 				Main_Features::get_feature_definitions(),
@@ -54,7 +55,7 @@ class Main_Features_Test extends TestCase {
 			)
 		);
 
-		$this->assertSame( array( 'activity-log' ), $unswitchable );
+		$this->assertSame( array(), $unswitchable, 'These features offer nothing to switch.' );
 	}
 
 	/**
@@ -77,10 +78,10 @@ class Main_Features_Test extends TestCase {
 	public function test_urls_are_absolute_https() {
 		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
 			$urls = array(
-				'image'          => $feature['image'],
-				'info_url'       => $feature['info_url'],
-				'docs_url'       => $feature['docs_url'],
-				'standalone_url' => $feature['delivery']['standalone_url'] ?? '',
+				'image'      => $feature['image'],
+				'info_url'   => $feature['info_url'],
+				'docs_url'   => $feature['docs_url'],
+				'plugin_url' => $feature['delivery']['plugin_url'] ?? '',
 			);
 
 			foreach ( array_filter( $urls ) as $key => $url ) {
@@ -103,7 +104,7 @@ class Main_Features_Test extends TestCase {
 	public function test_standalone_plugins_are_the_expected_set() {
 		$urls = array_filter(
 			array_map(
-				fn( $feature ) => $feature['delivery']['standalone_url'] ?? '',
+				fn( $feature ) => $feature['delivery']['plugin_url'] ?? '',
 				Main_Features::get_feature_definitions()
 			)
 		);
@@ -143,7 +144,7 @@ class Main_Features_Test extends TestCase {
 
 			$this->assertSame(
 				$expected,
-				$feature['delivery']['standalone_url'] ?? '',
+				$feature['delivery']['plugin_url'] ?? '',
 				"Feature {$slug} links to the wrong standalone plugin."
 			);
 		}
@@ -155,8 +156,8 @@ class Main_Features_Test extends TestCase {
 	public function test_standalone_name_and_url_come_together() {
 		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
 			$this->assertSame(
-				empty( $feature['delivery']['standalone'] ),
-				empty( $feature['delivery']['standalone_url'] ),
+				empty( $feature['delivery']['plugin_name'] ),
+				empty( $feature['delivery']['plugin_url'] ),
 				"Feature {$slug} has a standalone plugin name or URL without the other."
 			);
 		}
@@ -233,5 +234,141 @@ class Main_Features_Test extends TestCase {
 				);
 			}
 		}
+	}
+
+	/**
+	 * The grid renders in the order it arrives, so sorting is the catalog's job.
+	 */
+	public function test_features_are_sorted_alphabetically_by_name() {
+		$names = array_column( Main_Features::get_features(), 'name' );
+
+		$sorted = $names;
+		usort( $sorted, 'strnatcasecmp' );
+
+		$this->assertSame( $sorted, $names );
+	}
+
+	/**
+	 * The plugin name and link are what the modal offers to install, so a feature
+	 * delivered by a plugin has to carry both, and one delivered only by Jetpack neither.
+	 */
+	public function test_plugin_backed_features_name_and_link_their_plugin() {
+		$features = array_column( Main_Features::get_features(), null, 'slug' );
+
+		$this->assertSame( 'Akismet Anti-spam', $features['anti-spam']['plugin_name'] );
+		$this->assertSame( 'https://wordpress.org/plugins/akismet/', $features['anti-spam']['plugin_url'] );
+		$this->assertSame( '', $features['stats']['plugin_name'] );
+		$this->assertSame( '', $features['stats']['plugin_url'] );
+	}
+
+	/**
+	 * The pills filter on plan membership, so every feature has to carry the key they read.
+	 */
+	public function test_every_feature_carries_the_keys_the_grid_reads() {
+		foreach ( Main_Features::get_features() as $feature ) {
+			foreach ( array( 'slug', 'name', 'description', 'icon', 'essential', 'plans', 'in_jetpack', 'plugin', 'plugin_status' ) as $key ) {
+				$this->assertArrayHasKey( $key, $feature, "Feature {$feature['slug']} is missing {$key}" );
+			}
+
+			$this->assertIsArray( $feature['plans'] );
+		}
+	}
+
+	/**
+	 * The badges name the bundles a feature is sold in, so an empty list would quietly
+	 * drop the only thing the modal says about buying it.
+	 */
+	public function test_plan_badges_name_the_bundles_that_include_a_feature() {
+		$features = array_column( Main_Features::get_features(), 'plans', 'slug' );
+		$backup   = array_column( $features['backup'], 'name', 'slug' );
+
+		$this->assertArrayHasKey( 'security', $backup );
+		$this->assertNotEmpty( $backup['security'] );
+		$this->assertArrayHasKey( 'complete', $backup );
+		// Blaze is not sold in a bundle, so it earns no badges.
+		$this->assertSame( array(), $features['blaze'] );
+	}
+
+	/**
+	 * My Jetpack runs from whichever plugin bundles it, and that is the one plugin a
+	 * switch here must never turn off.
+	 */
+	public function test_the_hosting_plugin_is_read_from_the_package_path() {
+		$this->assertSame(
+			'jetpack-boost',
+			Main_Features::plugin_slug_from_path(
+				'/srv/wp-content/plugins',
+				'/srv/wp-content/plugins/jetpack-boost/jetpack_vendor/automattic/jetpack-my-jetpack/src'
+			)
+		);
+
+		$this->assertSame(
+			'jetpack',
+			Main_Features::plugin_slug_from_path(
+				'/srv/wp-content/plugins/',
+				'/srv/wp-content/plugins/jetpack/jetpack_vendor/automattic/jetpack-my-jetpack/src'
+			)
+		);
+
+		// A package loaded from outside the plugin directory hosts nothing.
+		$this->assertSame(
+			'',
+			Main_Features::plugin_slug_from_path( '/srv/wp-content/plugins', '/srv/monorepo/packages/my-jetpack/src' )
+		);
+	}
+
+	/**
+	 * A feature Jetpack does not switch must have a plugin to install instead.
+	 */
+	public function test_every_feature_can_be_switched_somewhere() {
+		foreach ( Main_Features::get_feature_definitions() as $slug => $definition ) {
+			$this->assertTrue(
+				$definition['delivery']['jetpack'] || '' !== $definition['delivery']['plugin'],
+				"Feature {$slug} can be switched neither in Jetpack nor by a plugin"
+			);
+		}
+	}
+
+	/**
+	 * A mapped plugin must be the product's own standalone plugin, or Install fetches the wrong one.
+	 */
+	public function test_plugins_match_the_product_standalone_plugin() {
+		foreach ( Main_Features::get_feature_definitions() as $slug => $definition ) {
+			$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
+
+			if ( ! $product_class ) {
+				continue;
+			}
+
+			// Asserted both ways round: a product that ships a plugin must name it, and one
+			// that does not must name nothing. Skipping the empty case would let a feature
+			// lose its plugin — and with it the only control its card would offer.
+			$expected = $product_class::$has_standalone_plugin ? $product_class::$plugin_slug : '';
+
+			$this->assertSame(
+				$expected,
+				$definition['delivery']['plugin'],
+				"Feature {$slug} names the wrong standalone plugin"
+			);
+		}
+	}
+
+	/**
+	 * The REST route accepts exactly these, so the list is its allowlist.
+	 */
+	public function test_switchable_plugins_are_jetpack_and_the_mapped_plugins() {
+		$plugins = Main_Features::get_switchable_plugins();
+
+		$this->assertContains( 'jetpack', $plugins );
+		$this->assertContains( 'blaze-ads', $plugins );
+		$this->assertNotContains( '', $plugins );
+		$this->assertSame( array_values( array_unique( $plugins ) ), $plugins );
+	}
+
+	/**
+	 * A plugin that is not on disk reads as not installed rather than inactive.
+	 */
+	public function test_a_missing_plugin_reads_as_not_installed() {
+		$this->assertSame( Main_Features::PLUGIN_NOT_INSTALLED, Main_Features::get_plugin_status( 'zero-bs-crm' ) );
 	}
 }
