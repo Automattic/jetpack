@@ -87,7 +87,7 @@ export function dynamicSrcset( img: HTMLImageElement ) {
 		! img.getAttribute( 'height' ) ||
 		! img.srcset ||
 		! img.src ||
-		! img.src.includes( '.wp.com' )
+		! new URL( img.src ).hostname.endsWith( '.wp.com' )
 	) {
 		return;
 	}
