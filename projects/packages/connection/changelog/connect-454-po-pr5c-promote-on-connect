@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Return the connection owner slot to the protected owner when they reconnect.

@@ -159,6 +159,6 @@ Open `/wp-admin/admin.php?page=jetpack-boost`. Restore the default dashboard wit
 pnpm jetpack docker --type e2e --name t1 wp -- plugin deactivate e2e-dashboard-modernization
 ```
 
-Run the foundation smoke tests from this directory with
+Run the modern dashboard foundation and feature tests from this directory with
 `pnpm test:run specs/modernization`. CI discovers this directory through
 `.github/files/e2e-tests/e2e-matrix.js`.

@@ -1,16 +1,17 @@
 <?php
 /**
- * Dashboard Layout: Premium Analytics server-side defaults.
+ * Dashboard Layout: the default-layout primitives shared by the section API and its registrants.
  *
- * Ships its own default layout rather than the core dashboard endpoint (Gutenberg-only, returns
- * core's widgets); the frontend reads the default from the section entity, so nothing is server-seeded.
+ * A section declares its default layout when it registers, and
+ * Dashboard_Section::get_default_layout() runs it through DASHBOARD_DEFAULT_LAYOUT_FILTER: the
+ * package drops the widget types the site cannot serve there, and a plugin may add its own
+ * instances to any section.
  *
  * @package automattic/jetpack-premium-analytics
  */
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
-require_once __DIR__ . '/dashboard-grammar.php';
 // Availability policy for default layout instances: defaults are read outside
 // the widget registry bootstrap, so the policy must be loaded here explicitly.
 require_once __DIR__ . '/widget-type-support.php';
@@ -23,63 +24,13 @@ require_once __DIR__ . '/widget-type-support.php';
 const DASHBOARD_NAME = 'jetpack-premium-analytics_dashboard';
 
 /**
- * Filter through which the default layout for a dashboard is resolved.
+ * Filter through which a section's default layout is resolved. Documented where it
+ * runs, in Dashboard_Section::get_default_layout().
  */
 const DASHBOARD_DEFAULT_LAYOUT_FILTER = 'jetpack_premium_analytics_dashboard_default_layout';
 
 /**
- * Preference keys used by the dashboard route's tabbed sections.
- */
-const DASHBOARD_TRAFFIC_SECTION_ID     = 'traffic';
-const DASHBOARD_INSIGHTS_SECTION_ID    = 'insights';
-const DASHBOARD_SUBSCRIBERS_SECTION_ID = 'subscribers';
-const DASHBOARD_STORE_SECTION_ID       = 'store';
-const DASHBOARD_ADS_SECTION_ID         = 'ads';
-
-/**
- * Resolves the default layout registered for a dashboard.
- *
- * Returns a fresh evaluation of the filter chain each call, so callers always
- * see the current code default rather than a hydrated copy.
- *
- * @param string $dashboard_name Identifier of the dashboard or dashboard section.
- * @return array Array of widget instances (possibly empty).
- */
-function get_dashboard_default_layout_for( $dashboard_name ) {
-	/**
-	 * Filters the default dashboard layout served to users who have not
-	 * customized theirs.
-	 *
-	 * Each entry should match the dashboard's widget instance shape: `uuid`,
-	 * `type`, optional `attributes`, optional `placement`.
-	 *
-	 * @param array  $default_layout Default array of widget instances.
-	 * @param string $dashboard_name Identifier of the dashboard or dashboard
-	 *                               section receiving the default. Callbacks
-	 *                               targeting a specific default should switch
-	 *                               on this value.
-	 */
-	$default = apply_filters( DASHBOARD_DEFAULT_LAYOUT_FILTER, array(), $dashboard_name );
-
-	return remove_unsupported_widget_items(
-		is_array( $default ) ? array_values( $default ) : array(),
-		'type',
-		get_widget_support_context()
-	);
-}
-
-/**
- * No-op kept for older copies of the package: they guard their include of this file on this
- * symbol and call it from boot_routes(), so a newer copy loading first must still define it.
- *
- * @since $$next-version$$ Registers nothing; the route it registered is gone.
- *
- * @return void
- */
-function register_dashboard_default_layout_route() {}
-
-/**
- * Builds a widget instance for bundled dashboard defaults.
+ * Builds a widget instance for a section's default layout.
  *
  * @param string $uuid       Widget instance UUID.
  * @param string $type       Widget type.
@@ -116,386 +67,29 @@ function get_dashboard_default_widget_instance(
 }
 
 /**
- * Returns the bundled default widget layouts keyed by dashboard tab.
+ * Drops the widget instances the site cannot serve from a section's default layout.
  *
- * @return array Map of tab IDs to widget layout arrays.
+ * A persisted layout keeps such an instance as a removable ghost widget; a default must not
+ * seed one. Hooked late, after the callbacks that add instances, so it covers those too.
+ *
+ * @param array $layout Default widget instances.
+ * @return array The layout minus the unsupported instances.
  */
-function get_dashboard_default_section_layouts() {
-	return array(
-		DASHBOARD_TRAFFIC_SECTION_ID     => array(
-			// Rows fill the three-column grid in the prototype's order. Plan usage
-			// is intentionally not a default; it stays available from the widget
-			// picker.
-			// Row 1: traffic chart.
-			get_dashboard_default_widget_instance(
-				'default-traffic-chart-widget-instance',
-				'jpa/traffic-chart',
-				0,
-				3,
-				2
-			),
-			// Row 2: most-viewed posts + referrers + devices.
-			get_dashboard_default_widget_instance(
-				'default-stats-top-posts-widget-instance',
-				'jpa/stats-top-posts',
-				1,
-				1,
-				2
-			),
-			get_dashboard_default_widget_instance(
-				'default-referrers-widget-instance',
-				'jpa/referrers',
-				2,
-				1,
-				2
-			),
-			get_dashboard_default_widget_instance(
-				'default-devices-widget-instance',
-				'jpa/devices',
-				3,
-				1,
-				2
-			),
-			// Row 3: locations map + top platforms.
-			get_dashboard_default_widget_instance(
-				'default-locations-widget-instance',
-				'jpa/locations',
-				4,
-				2,
-				2
-			),
-			get_dashboard_default_widget_instance(
-				'default-top-platforms-widget-instance',
-				'jpa/top-platforms',
-				5,
-				1,
-				2
-			),
-			// Row 4: UTM insights + clicks + VideoPress (sites running VideoPress only).
-			get_dashboard_default_widget_instance(
-				'default-utm-insights-widget-instance',
-				'jpa/utm-insights',
-				6,
-				1,
-				2,
-				array(
-					'utmDimension' => 'utm_source,utm_medium',
-				)
-			),
-			get_dashboard_default_widget_instance(
-				'default-clicks-widget-instance',
-				'jpa/clicks',
-				7,
-				1,
-				2
-			),
-			get_dashboard_default_widget_instance(
-				'default-videopress-widget-instance',
-				'jpa/videopress',
-				8,
-				1,
-				2
-			),
-			// Row 5: authors + search terms + file downloads (Simple only).
-			get_dashboard_default_widget_instance(
-				'default-authors-widget-instance',
-				'jpa/authors',
-				9,
-				1,
-				2
-			),
-			get_dashboard_default_widget_instance(
-				'default-search-terms-widget-instance',
-				'jpa/search-terms',
-				10,
-				1,
-				2
-			),
-			get_dashboard_default_widget_instance(
-				'default-file-downloads-widget-instance',
-				'jpa/file-downloads',
-				11,
-				1,
-				2
-			),
-		),
-		DASHBOARD_INSIGHTS_SECTION_ID    => array(
-			// Rows follow the design (WOOA7S-2009); Emails lives on the Subscribers tab.
-			// Row 1: highlights banner.
-			get_dashboard_default_widget_instance(
-				'default-annual-highlights-widget-instance',
-				'jpa/annual-highlights',
-				0,
-				3,
-				1
-			),
-			// Row 2: at-a-glance cards. Two rows tall: their display-sized figures overflow a 200px tile.
-			get_dashboard_default_widget_instance(
-				'default-all-time-stats-widget-instance',
-				'jpa/all-time-stats',
-				1,
-				1,
-				2
-			),
-			get_dashboard_default_widget_instance(
-				'default-most-popular-time-widget-instance',
-				'jpa/most-popular-time',
-				2,
-				1,
-				2
-			),
-			get_dashboard_default_widget_instance(
-				'default-most-popular-day-widget-instance',
-				'jpa/most-popular-day',
-				3,
-				1,
-				2
-			),
-			// Row 3: the two post spotlights.
-			get_dashboard_default_widget_instance(
-				'default-popular-post-widget-instance',
-				'jpa/popular-post',
-				4,
-				2,
-				2
-			),
-			get_dashboard_default_widget_instance(
-				'default-latest-post-widget-instance',
-				'jpa/latest-post',
-				5,
-				1,
-				2
-			),
-			// Row 4: posting-activity heatmap.
-			get_dashboard_default_widget_instance(
-				'default-posting-activity-widget-instance',
-				'jpa/posting-activity',
-				6,
-				3,
-				1
-			),
-			// Row 5: the all-time views table, one row per year. Two rows tall so a
-			// few years fit before the grid scrolls.
-			get_dashboard_default_widget_instance(
-				'default-views-over-years-widget-instance',
-				'jpa/views-over-years',
-				7,
-				3,
-				2
-			),
-			// Row 6: tags + most commented posts.
-			get_dashboard_default_widget_instance(
-				'default-tags-widget-instance',
-				'jpa/tags',
-				8,
-				2,
-				2
-			),
-			get_dashboard_default_widget_instance(
-				'default-most-commented-posts-widget-instance',
-				'jpa/most-commented-posts',
-				9,
-				1,
-				2
-			),
-			// Row 7: shares + most commented authors.
-			get_dashboard_default_widget_instance(
-				'default-shares-widget-instance',
-				'jpa/shares',
-				10,
-				1,
-				2
-			),
-			get_dashboard_default_widget_instance(
-				'default-most-commented-authors-widget-instance',
-				'jpa/most-commented-authors',
-				11,
-				2,
-				2
-			),
-		),
-		DASHBOARD_SUBSCRIBERS_SECTION_ID => array(
-			// Row 1: subscribers chart.
-			get_dashboard_default_widget_instance(
-				'default-subscribers-chart-widget-instance',
-				'jpa/subscribers-chart',
-				0,
-				3,
-				2
-			),
-			// Row 2: subscriber highlights.
-			get_dashboard_default_widget_instance(
-				'default-subscriber-highlights-widget-instance',
-				'jpa/subscriber-highlights',
-				1,
-				3,
-				1
-			),
-			// Row 3: latest subscribers + the wider latest emails sent table.
-			get_dashboard_default_widget_instance(
-				'default-subscribers-list-widget-instance',
-				'jpa/subscribers-list',
-				2,
-				1,
-				2
-			),
-			get_dashboard_default_widget_instance(
-				'default-subscribers-emails-widget-instance',
-				'jpa/stats-emails',
-				3,
-				2,
-				2,
-				array(
-					'metric' => 'opens',
-				)
-			),
-		),
-		DASHBOARD_STORE_SECTION_ID       => array(
-			get_dashboard_default_widget_instance(
-				'default-store-performance-widget-instance',
-				'jpa/store-performance',
-				0,
-				2,
-				1
-			),
-			get_dashboard_default_widget_instance(
-				'default-total-sales-over-time-widget-instance',
-				'jpa/total-sales-over-time',
-				1,
-				1,
-				1
-			),
-			get_dashboard_default_widget_instance(
-				'default-conversion-rate-widget-instance',
-				'jpa/conversion-rate',
-				2,
-				1,
-				1
-			),
-			get_dashboard_default_widget_instance(
-				'default-orders-over-time-widget-instance',
-				'jpa/orders-over-time',
-				3,
-				1,
-				1
-			),
-			get_dashboard_default_widget_instance(
-				'default-average-order-value-widget-instance',
-				'jpa/average-order-value',
-				4,
-				1,
-				1
-			),
-			get_dashboard_default_widget_instance(
-				'default-top-performing-products-widget-instance',
-				'jpa/top-performing-products',
-				5,
-				1,
-				1
-			),
-			get_dashboard_default_widget_instance(
-				'default-new-vs-returning-customer-widget-instance',
-				'jpa/new-vs-returning-customer',
-				6,
-				1,
-				1
-			),
-			get_dashboard_default_widget_instance(
-				'default-payment-status-widget-instance',
-				'jpa/payment-status',
-				7,
-				1,
-				1
-			),
-			get_dashboard_default_widget_instance(
-				'default-orders-fulfillment-widget-instance',
-				'jpa/orders-fulfillment',
-				8,
-				1,
-				1
-			),
-		),
-		DASHBOARD_ADS_SECTION_ID         => array(
-			// Row 1: WordAds chart.
-			get_dashboard_default_widget_instance(
-				'default-wordads-chart-tabs-widget-instance',
-				'jpa/wordads-chart-tabs',
-				0,
-				3,
-				2
-			),
-			// Row 2: all-time balance.
-			get_dashboard_default_widget_instance(
-				'default-wordads-highlights-widget-instance',
-				'jpa/wordads-highlights',
-				1,
-				3,
-				1
-			),
-			// Row 3: earnings history.
-			get_dashboard_default_widget_instance(
-				'default-wordads-earnings-history-widget-instance',
-				'jpa/wordads-earnings-history',
-				2,
-				1,
-				2
-			),
-		),
+function remove_unsupported_default_layout_items( $layout ) {
+	return remove_unsupported_widget_items(
+		is_array( $layout ) ? $layout : array(),
+		'type',
+		get_widget_support_context()
 	);
 }
+add_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, __NAMESPACE__ . '\\remove_unsupported_default_layout_items', 100 );
 
 /**
- * Resolves a dashboard or section identifier to one of the bundled tab IDs.
+ * No-op kept for older copies of the package: they guard their include of this file on this
+ * symbol and call it from boot_routes(), so a newer copy loading first must still define it.
  *
- * @param string $dashboard_name Dashboard or section identifier.
- * @return string|null Bundled tab ID, or null when the identifier is unsupported.
+ * @since $$next-version$$ Registers nothing; the route it registered is gone.
+ *
+ * @return void
  */
-function get_dashboard_default_section_id_for( $dashboard_name ) {
-	$aliases = array(
-		DASHBOARD_NAME                   => DASHBOARD_TRAFFIC_SECTION_ID,
-		DASHBOARD_TRAFFIC_SECTION_ID     => DASHBOARD_TRAFFIC_SECTION_ID,
-		'analytics/traffic'              => DASHBOARD_TRAFFIC_SECTION_ID,
-		DASHBOARD_INSIGHTS_SECTION_ID    => DASHBOARD_INSIGHTS_SECTION_ID,
-		'analytics/insights'             => DASHBOARD_INSIGHTS_SECTION_ID,
-		DASHBOARD_SUBSCRIBERS_SECTION_ID => DASHBOARD_SUBSCRIBERS_SECTION_ID,
-		'analytics/subscribers'          => DASHBOARD_SUBSCRIBERS_SECTION_ID,
-		DASHBOARD_STORE_SECTION_ID       => DASHBOARD_STORE_SECTION_ID,
-		'woocommerce/store'              => DASHBOARD_STORE_SECTION_ID,
-		DASHBOARD_ADS_SECTION_ID         => DASHBOARD_ADS_SECTION_ID,
-		'analytics/ads'                  => DASHBOARD_ADS_SECTION_ID,
-	);
-
-	return $aliases[ $dashboard_name ] ?? null;
-}
-
-/**
- * Seeds the bundled default layouts for the Premium Analytics dashboard tabs.
- *
- * Only contributes to known Premium Analytics dashboard/tab aliases, leaving other dashboards
- * untouched so the filter stays reusable if more dashboards are added later.
- *
- * @param array  $dashboard_layout Default layout from earlier callbacks.
- * @param string $dashboard_name   Identifier of the dashboard receiving the
- *                                 default.
- * @return array The layout extended with the bundled widget instances.
- */
-function seed_default_dashboard_layout( $dashboard_layout, $dashboard_name = '' ) {
-	$section_id = get_dashboard_default_section_id_for( $dashboard_name );
-
-	if ( null === $section_id ) {
-		return $dashboard_layout;
-	}
-
-	$uuids   = array_column( $dashboard_layout, 'uuid' );
-	$layouts = get_dashboard_default_section_layouts();
-
-	foreach ( $layouts[ $section_id ] as $widget ) {
-		if ( ! in_array( $widget['uuid'], $uuids, true ) ) {
-			$dashboard_layout[] = $widget;
-			$uuids[]            = $widget['uuid'];
-		}
-	}
-
-	return $dashboard_layout;
-}
-add_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, __NAMESPACE__ . '\\seed_default_dashboard_layout', 10, 2 );
+function register_dashboard_default_layout_route() {}

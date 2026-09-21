@@ -51,7 +51,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The WordAds "Earnings History" widget — WordAds earnings by period (amount, payment status), ported from the Jetpack Stats WordAds page. Ads served lives in the full report. A site with adjustment rows gets an "Includes N adjustments" link above the footer, into the Adjustments history tab of the report; the shared fixture has two, so the default story shows it.',
+					'The "WordAds earnings" widget — WordAds earnings by period (amount, payment status), ported from the Jetpack Stats WordAds page. Ads served lives in the full report. A site with adjustment rows gets an "N adjustments" badge at the far end of the footer, into the Adjustments history tab of the report; the shared fixture has two, so the default story shows it.',
 			},
 		},
 	},

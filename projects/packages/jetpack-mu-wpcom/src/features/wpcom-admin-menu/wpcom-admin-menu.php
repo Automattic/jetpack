@@ -468,18 +468,24 @@ function wpcom_add_jetpack_submenu() {
 		);
 	}
 
-	// Jetpack > Activity Log. On WPCOM hosts we prefer the direct wordpress.com/activity-log link
-	// below; hide the native Jetpack Activity Log page added by the `jetpack-activity-log` package.
-	wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
-	add_submenu_page(
-		'jetpack',
-		/** "Activity Log" is a product name, do not translate. */
-		'Activity Log',
-		'Activity Log',
-		'manage_options',
-		'https://wordpress.com/activity-log/' . $domain,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
+	// Jetpack > Activity Log.
+	// Atomic sites use the native Activity Log page that the `jetpack-activity-log`
+	// package registers at `admin.php?page=jetpack-activity-log`, whichever admin
+	// interface the site uses, and behave like a self-hosted site when that page is
+	// not available: the Calypso Activity Log screen is being retired. Simple sites
+	// still hide the native page and link to wordpress.com/activity-log.
+	if ( $is_simple_site ) {
+		wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
+		add_submenu_page(
+			'jetpack',
+			/** "Activity Log" is a product name, do not translate. */
+			'Activity Log',
+			'Activity Log',
+			'manage_options',
+			'https://wordpress.com/activity-log/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+	}
 
 	wpcom_reorder_submenu(
 		'jetpack',

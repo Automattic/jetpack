@@ -158,7 +158,7 @@ describe( 'PageOptionsMenu', () => {
 		expect( dialog.getByText( 'Thanks, your feedback has gone to the team.' ) ).toBeInTheDocument();
 		expect(
 			dialog.getByText(
-				"It'll help us decide what to fix before the new Traffic tab replaces the old one. You can send more any time from the page options menu."
+				"It'll help us decide what to fix before the new Traffic and Insights tabs replace the old ones. You can send more any time from the page options menu."
 			)
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'radiogroup' ) ).not.toBeInTheDocument();
@@ -208,7 +208,7 @@ describe( 'the readiness question', () => {
 		await openModal();
 
 		expect( screen.getByRole( 'radiogroup' ) ).toHaveAccessibleName(
-			'Is the new Traffic tab ready to replace the old one?'
+			'Are the new Traffic and Insights tabs ready to replace the old ones?'
 		);
 	} );
 
@@ -310,7 +310,7 @@ describe( 'the Happiness copy of the feedback', () => {
 				data: {
 					source_url: window.location.href,
 					product_name: 'Jetpack Stats v2',
-					feedback: `[Ready to replace the old Traffic tab? ${ answer }] Missing the date picker`,
+					feedback: `[Ready to replace the old Traffic and Insights tabs? ${ answer }] Missing the date picker`,
 				},
 			} )
 		);
@@ -341,13 +341,13 @@ describe( 'the Happiness copy of the feedback', () => {
 		expect( dialog.getByText( 'Thanks, your feedback has gone to the team.' ) ).toBeInTheDocument();
 		expect(
 			dialog.getByText(
-				"It'll help us decide what to fix before the new Traffic tab replaces the old one. You can send more any time from the page options menu."
+				"It'll help us decide what to fix before the new Traffic and Insights tabs replace the old ones. You can send more any time from the page options menu."
 			)
 		).toBeInTheDocument();
 	} );
 } );
 
-describe( 'switching the new Traffic tab off', () => {
+describe( 'switching the new Traffic and Insights tabs off', () => {
 	/**
 	 * Opens the menu and picks the switch-off entry, so the confirmation is up.
 	 *
@@ -380,13 +380,15 @@ describe( 'switching the new Traffic tab off', () => {
 	it( 'asks before switching off, and Cancel changes nothing', async () => {
 		const user = await openConfirmation();
 
-		const dialog = screen.getByRole( 'dialog', { name: 'Switch off the new Traffic tab?' } );
+		const dialog = screen.getByRole( 'dialog', {
+			name: 'Switch off the new Traffic and Insights tabs?',
+		} );
 		expect( dialog ).toHaveTextContent(
-			"You'll go back to your current Stats. You can switch the new Traffic tab on again from the Modules Visibility setting."
+			"You'll go back to your current Stats. You can switch the new Traffic and Insights tabs on again from the Modules Visibility setting."
 		);
 		// The reason is asked for, never required: the button is live with nothing filled in.
 		expect( within( dialog ).getByRole( 'radiogroup' ) ).toHaveAccessibleName(
-			'Before you go — is the new Traffic tab ready to replace the old one?'
+			'Before you go — are the new Traffic and Insights tabs ready to replace the old ones?'
 		);
 		expect(
 			within( dialog ).getByRole( 'textbox', { name: "What's missing?" } )
@@ -464,7 +466,7 @@ describe( 'switching the new Traffic tab off', () => {
 					source_url: window.location.href,
 					product_name: 'Jetpack Stats v2 (switched off)',
 					feedback:
-						'[Ready to replace the old Traffic tab? Almost, a few things missing] Too slow on my phone',
+						'[Ready to replace the old Traffic and Insights tabs? Almost, a few things missing] Too slow on my phone',
 				},
 			} )
 		);

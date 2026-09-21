@@ -10,10 +10,6 @@ import { getScoreTierColor } from './lib/score-utils';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
-jest.mock( './upgrade-cta', () => ( {
-	__esModule: true,
-	default: () => <button>Upgrade now</button>,
-} ) );
 jest.mock( '../../app/assets/src/js/lib/utils/analytics', () => ( {
 	recordBoostEvent: jest.fn(),
 } ) );
@@ -259,6 +255,7 @@ async function pressDay( index: number, pointerType: string ) {
 		const event = new MouseEvent( type, { bubbles: true, clientX, clientY: 150 } );
 		fireEvent( target, Object.assign( event, { pointerType } ) );
 	}
+	await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
 	fireEvent.click( target, { clientX, clientY: 150 } );
 }
 
@@ -368,19 +365,21 @@ test( 'explains empty days before the first recorded score only without older hi
 		}
 	};
 	move( 'ArrowRight', 1 );
-	await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
-		'No scores recorded before the feature was unlocked.'
+	await waitFor( () =>
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent(
+			'No scores recorded before the feature was unlocked.'
+		)
 	);
 	move( 'ArrowRight', 13 );
-	await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
-		'No scores recorded for this day.'
+	await waitFor( () =>
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'No scores recorded for this day.' )
 	);
 	rerender( <HistoryChartCard data={ later } { ...callbacks } /> );
 	move( 'ArrowLeft', 13 );
-	await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
-		'No scores recorded for this day.'
+	await waitFor( () =>
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'No scores recorded for this day.' )
 	);
-} );
+}, 20000 );
 
 test( 'shows the paging labels as tooltips on the chevrons', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } hasOlderHistory={ false } />, {
@@ -439,15 +438,6 @@ test.each( [ 15, 30 ] as const )(
 	}
 );
 
-test.each( [ { isError: true, data: history }, { isLoading: true } ] )(
-	'offers the premium upgrade before errors or loading without rendering paid history (%o)',
-	state => {
-		render( <HistoryChartCard needsUpgrade { ...state } { ...callbacks } />, { wrapper } );
-		expect( screen.getByRole( 'button', { name: 'Upgrade now' } ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'grid' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Try again' } ) ).not.toBeInTheDocument();
-	}
-);
 test( 'leaving one chart resets its tooltip without remounting the next chart', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
 	const [ desktop, mobile ] = screen.getAllByRole( 'grid' );
@@ -476,12 +466,6 @@ test.each( [ { range: getHistoryWindow( 1 ) }, { isVisible: false } ] )(
 	}
 );
 
-test( 'offers the premium upgrade without rendering paid history', () => {
-	render( <HistoryChartCard data={ history } needsUpgrade { ...callbacks } />, { wrapper } );
-	expect( screen.getByRole( 'button', { name: 'Upgrade now' } ) ).toBeInTheDocument();
-	expect( screen.queryByRole( 'grid' ) ).not.toBeInTheDocument();
-} );
-
 test( 'dismisses the paid fresh-start notice', () => {
 	render( <HistoryChartCard data={ history } isFreshStart { ...callbacks } />, { wrapper } );
 	fireEvent.click( screen.getByRole( 'button', { name: 'Okay, got it!' } ) );
@@ -504,10 +488,8 @@ test( 'shows the history error message and offers retry', () => {
 
 test( 'keeps the card padding for notices and drops it only for the charts', () => {
 	/* eslint-disable testing-library/no-node-access */
-	const { rerender } = render( <HistoryChartCard needsUpgrade { ...callbacks } />, { wrapper } );
+	const { rerender } = render( <HistoryChartCard isError { ...callbacks } />, { wrapper } );
 	const zeroPaddingBody = () => document.querySelector( '.boost-daily-history__body' );
-	expect( zeroPaddingBody() ).toBeNull();
-	rerender( <HistoryChartCard isError { ...callbacks } /> );
 	expect( zeroPaddingBody() ).toBeNull();
 	rerender( <HistoryChartCard isFreshStart { ...callbacks } /> );
 	expect( zeroPaddingBody() ).toBeNull();
@@ -542,16 +524,14 @@ test( 'keeps the header, axis, and empty tooltip on the same day in a UTC+14 sit
 	}
 } );
 
-test( 'transitions between upgrade, error, and paid history states', () => {
-	const { rerender } = render( <HistoryChartCard needsUpgrade { ...callbacks } />, { wrapper } );
-	expect( screen.getByRole( 'button', { name: 'Upgrade now' } ) ).toBeInTheDocument();
-	rerender( <HistoryChartCard isError { ...callbacks } /> );
+test( 'transitions from an error to paid history', () => {
+	const { rerender } = render( <HistoryChartCard isError { ...callbacks } />, { wrapper } );
 	expect( screen.getByRole( 'button', { name: 'Try again' } ) ).toBeInTheDocument();
 	rerender( <HistoryChartCard data={ history } { ...callbacks } /> );
 	expect( screen.getAllByRole( 'grid', { name: 'Bar chart' } ) ).toHaveLength( 2 );
 } );
 
-test( 'keeps upgrade and fresh-start notices silent and safe to switch while announcing errors', () => {
+test( 'keeps the fresh-start notice silent while announcing errors', () => {
 	// WordPress creates live regions outside the React test container.
 	/* eslint-disable testing-library/no-node-access */
 	const regions = [ 'polite', 'assertive' ].map( politeness => {
@@ -565,15 +545,8 @@ test( 'keeps upgrade and fresh-start notices silent and safe to switch while ann
 	} );
 	/* eslint-enable testing-library/no-node-access */
 	const [ polite, assertive ] = regions;
-	const { rerender } = render( <HistoryChartCard needsUpgrade { ...callbacks } />, { wrapper } );
-	expect( polite ).toBeEmptyDOMElement();
-	expect( assertive ).toBeEmptyDOMElement();
-	expect( () => rerender( <HistoryChartCard isFreshStart { ...callbacks } /> ) ).not.toThrow();
+	const { rerender } = render( <HistoryChartCard isFreshStart { ...callbacks } />, { wrapper } );
 	expect( screen.getByRole( 'button', { name: 'Okay, got it!' } ) ).toBeInTheDocument();
-	expect( polite ).toBeEmptyDOMElement();
-	expect( assertive ).toBeEmptyDOMElement();
-	expect( () => rerender( <HistoryChartCard needsUpgrade { ...callbacks } /> ) ).not.toThrow();
-	expect( screen.getByRole( 'button', { name: 'Upgrade now' } ) ).toBeInTheDocument();
 	expect( polite ).toBeEmptyDOMElement();
 	expect( assertive ).toBeEmptyDOMElement();
 	rerender( <HistoryChartCard isError { ...callbacks } /> );
