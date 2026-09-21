@@ -98,6 +98,22 @@ describe( 'navigateTo', () => {
 		window.removeEventListener( LOCATION_CHANGE_EVENT, listener );
 	} );
 
+	it( 'does not repeat a redirect to the current URL', () => {
+		const listener = jest.fn();
+		window.addEventListener( LOCATION_CHANGE_EVENT, listener );
+		const target = settingsUrl();
+		navigateTo( target );
+		const length = window.history.length;
+		listener.mockClear();
+
+		navigateTo( target );
+		navigateTo( target, { replace: true } );
+
+		expect( window.history ).toHaveLength( length );
+		expect( listener ).not.toHaveBeenCalled();
+		window.removeEventListener( LOCATION_CHANGE_EVENT, listener );
+	} );
+
 	it( 'replaces the entry when asked, so a redirect leaves no history stop', () => {
 		const before = window.history.length;
 

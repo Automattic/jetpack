@@ -166,6 +166,31 @@ describe( 'Boost dashboard stage', () => {
 		}
 	);
 
+	it.each( [ 'cache-debug-log', 'critical-css-advanced' ] )(
+		'does not navigate again when leaving #%s for a Settings URL',
+		hash => {
+			const settings = '/?page=jetpack-boost&p=%2F%3Ftab%3Dsettings';
+			window.history.replaceState( null, '', `${ settings }#/${ hash }` );
+			render( <Stage /> );
+
+			act( () => window.history.pushState( null, '', settings ) );
+			expect( mockNavigate ).not.toHaveBeenCalled();
+			expect( getSubpageMount()?.hidden ).toBe( true );
+
+			act( () => {
+				window.history.replaceState( null, '', `${ settings }#/${ hash }` );
+				window.dispatchEvent( new PopStateEvent( 'popstate' ) );
+			} );
+			expect( getSubpageMount()?.hidden ).toBe( false );
+			act( () => {
+				window.history.replaceState( null, '', settings );
+				window.dispatchEvent( new PopStateEvent( 'popstate' ) );
+			} );
+			expect( mockNavigate ).not.toHaveBeenCalled();
+			expect( getSubpageMount()?.hidden ).toBe( true );
+		}
+	);
+
 	it( 'follows pushState navigation into and out of a subpage', () => {
 		window.history.replaceState( null, '', `/?page=jetpack-boost${ SETTINGS_ARG }` );
 		render( <Stage /> );
