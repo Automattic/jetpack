@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Services: stop adding the legacy ID, connect_URL, external_users_only and multiple_external_user_ID_support fields to the services list on Jetpack sites.

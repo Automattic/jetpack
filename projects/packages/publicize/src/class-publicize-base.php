@@ -1011,35 +1011,16 @@ abstract class Publicize_Base {
 	abstract public function post_is_done_sharing( $post_id = null );
 
 	/**
-	 * Retrieves full list of available Publicize connection services.
+	 * Retrieve the connect URL for every available service.
 	 *
-	 * Retrieves current available publicize service connections
-	 * with associated labels and URLs.
+	 * @deprecated $$next-version$$ Services and their connect URLs come from the `publicize/services` REST endpoint.
 	 *
-	 * @since 0.1.0
-	 * @since-jetpack 6.7.0
-	 *
-	 * @return array {
-	 *     Array of UI service connection data for all services
-	 *
-	 *     @type string 'name'  Name of service.
-	 *     @type string 'label' Display label for service.
-	 *     @type string 'url'   URL for adding connection to service.
-	 * }
+	 * @return array Always empty.
 	 */
 	public function get_available_service_data() {
-		$available_services     = $this->get_services( 'all' );
-		$available_service_data = array();
+		_deprecated_function( __METHOD__, 'publicize-$$next-version$$' );
 
-		foreach ( $available_services as $service_name => $service ) {
-			$available_service_data[] = array(
-				'name'  => $service_name,
-				'label' => static::get_service_label( $service_name ),
-				'url'   => $this->connect_url( $service_name ),
-			);
-		}
-
-		return $available_service_data;
+		return array();
 	}
 
 	/**
