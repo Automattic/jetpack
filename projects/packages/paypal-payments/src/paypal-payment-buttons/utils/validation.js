@@ -551,3 +551,13 @@ export function getUserFriendlyError( err ) {
 
 	return __( 'An unexpected error occurred. Please try again.', 'jetpack-paypal-payments' );
 }
+
+/**
+ * Whether an API error says the payment no longer exists at PayPal.
+ *
+ * @param {object} err - The apiFetch error.
+ * @return {boolean} True for a 404.
+ */
+export function isNotFound( err ) {
+	return err?.code === 'paypal_api_resource_not_found' || err?.data?.status === 404;
+}

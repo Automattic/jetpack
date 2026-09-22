@@ -16,9 +16,15 @@ import {
 	validateVariants,
 } from '../components/variant-builder';
 import { API_BASE } from './api-base';
+import { addExistingLink, markExistingLinksDirty, removeExistingLink } from './existing-links';
 import { buildRequestData } from './request-data';
 import { getResourceAttributeUpdates } from './resource-sync';
-import { firstBlockingError, getUserFriendlyError, getValidationErrors } from './validation';
+import {
+	firstBlockingError,
+	getUserFriendlyError,
+	getValidationErrors,
+	isNotFound,
+} from './validation';
 
 // What each block's save asked for, so an unchanged block is not re-sent on every save.
 // A create sends a shorter body, without the sibling mode or the read-back, and comes back
@@ -172,16 +178,6 @@ export function isReadyForPayPal( attributes ) {
 }
 
 /**
- * Whether an API error says the payment no longer exists at PayPal.
- *
- * @param {object} err - The apiFetch error.
- * @return {boolean} True for a 404.
- */
-export function isNotFound( err ) {
-	return err?.code === 'paypal_api_resource_not_found' || err?.data?.status === 404;
-}
-
-/**
  * Create a payment, and hand back both the response and the attributes that point
  * the block at it.
  *
@@ -196,6 +192,8 @@ async function createPayment( request, clientId, attributes, body ) {
 
 	// This request is what PayPal now has, so the next save can update it without a read.
 	recordPaymentRead( clientId, response.id, response.attributes );
+	// PayPal answers with the whole resource, so every picker can offer it right away.
+	addExistingLink( response );
 
 	return {
 		response,
@@ -326,6 +324,8 @@ async function syncBlock(
 					method: 'PUT',
 					data: body,
 				} );
+				// The pickers read the list again for the new name and price.
+				markExistingLinksDirty();
 
 				// Compared with what was read once every PUT has settled.
 				written.set( resourceId, [ ...( written.get( resourceId ) || [] ), attributes ] );
@@ -339,6 +339,7 @@ async function syncBlock(
 				}
 				// Gone from PayPal, or deleted from the admin page: give the block a new one, in
 				// its own mode — a fresh payment is the block's alone, with no sibling to match.
+				removeExistingLink( resourceId );
 				result = await createPayment( request, clientId, attributes, ownBody );
 			}
 		} else {

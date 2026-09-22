@@ -92,6 +92,18 @@ describe( 'getResourceAttributeUpdates', () => {
 		).toEqual( { productDescription: '', productId: '', returnUrl: '' } );
 	} );
 
+	it( 'keeps the block link when the payment comes back with an empty link', () => {
+		expect(
+			getResourceAttributeUpdates( blockAttributes, { ...resourceAttributes, paymentLink: '' } )
+		).toEqual( {} );
+	} );
+
+	it( 'fills in the link for a block with an empty link', () => {
+		expect(
+			getResourceAttributeUpdates( { ...blockAttributes, paymentLink: '' }, resourceAttributes )
+		).toEqual( { paymentLink: resourceAttributes.paymentLink } );
+	} );
+
 	it( 'reads the product id back from the payment', () => {
 		expect(
 			getResourceAttributeUpdates( blockAttributes, {
