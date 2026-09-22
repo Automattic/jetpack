@@ -401,12 +401,13 @@ BucketsWithNoData.args = {
 BucketsWithNoData.argTypes = {
 	// The series-count control swaps in the sample data, which has no gaps to show.
 	seriesCount: { table: { disable: true } },
+	zoomable: { control: 'boolean' },
 };
 BucketsWithNoData.parameters = {
 	docs: {
 		description: {
 			story:
-				'A null value is a bucket with no reading. It keeps its place on the axis so the chart still spans the selected range, but breaks the line and its gradient fill at that point, and its tooltip reads "No data" rather than zero. April is a real zero, so the line starts there, at 0, rather than in May.',
+				'A null value is a bucket with no reading. It keeps its place on the axis so the chart still spans the selected range, but breaks the line and its gradient fill at that point, and its tooltip reads "No data" rather than zero. April is a real zero, so the line starts there, at 0, rather than in May. Pointer events still reach a bucket with no reading, so with `zoomable` a drag can start in January.',
 		},
 	},
 };
