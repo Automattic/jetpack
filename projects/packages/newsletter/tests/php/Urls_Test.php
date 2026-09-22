@@ -60,12 +60,19 @@ class Urls_Test extends BaseTestCase {
 		add_submenu_page( 'jetpack', 'Newsletter', 'Newsletter', 'manage_options', Settings::ADMIN_PAGE_SLUG, '__return_null' );
 	}
 
-	public function test_subscribers_url_opens_the_subscribers_tab_when_the_page_is_registered() {
+	public function test_subscribers_url_routes_the_newsletter_page_to_the_subscribers_tab() {
 		$this->register_newsletter_page_as( 'administrator' );
 
+		$url = Urls::get_subscribers_url();
+		wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $query );
+
+		$this->assertStringStartsWith( admin_url( 'admin.php?' ), $url );
 		$this->assertSame(
-			admin_url( 'admin.php?page=jetpack-newsletter&tab=subscribers' ),
-			Urls::get_subscribers_url()
+			array(
+				'page' => 'jetpack-newsletter',
+				'p'    => '/?tab=subscribers',
+			),
+			$query
 		);
 	}
 

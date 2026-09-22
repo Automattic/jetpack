@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Newsletter\Urls;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use WorDBless\BaseTestCase;
 
@@ -46,9 +47,7 @@ class Newsletter_Subscribers_Link_Test extends BaseTestCase {
 		);
 
 		$this->assertTrue( $data['premium_analytics']['has_videopress'] );
-		$this->assertSame(
-			admin_url( 'admin.php?page=jetpack-newsletter&tab=subscribers' ),
-			$data['premium_analytics']['newsletter_subscribers_url']
-		);
+		$this->assertNotNull( Urls::get_subscribers_url() );
+		$this->assertSame( Urls::get_subscribers_url(), $data['premium_analytics']['newsletter_subscribers_url'] );
 	}
 }

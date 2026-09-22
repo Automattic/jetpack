@@ -110,7 +110,8 @@ describe( 'SubscribersListWidget', () => {
 	} );
 
 	it( 'links Manage subscribers to the Newsletter Subscribers tab in wp-admin', async () => {
-		const url = 'https://example.com/wp-admin/admin.php?page=jetpack-newsletter&tab=subscribers';
+		const url =
+			'https://example.com/wp-admin/admin.php?page=jetpack-newsletter&p=%2F%3Ftab%3Dsubscribers';
 		setNewsletterSubscribersUrl( url );
 
 		render( <SubscribersListWidget attributes={ {} } /> );

@@ -32,7 +32,7 @@ window.JetpackScriptData = {
 	premium_analytics: {
 		...window.JetpackScriptData?.premium_analytics,
 		newsletter_subscribers_url:
-			'https://example.com/wp-admin/admin.php?page=jetpack-newsletter&tab=subscribers',
+			'https://example.com/wp-admin/admin.php?page=jetpack-newsletter&p=%2F%3Ftab%3Dsubscribers',
 	},
 } as typeof window.JetpackScriptData;
 
