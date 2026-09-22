@@ -1286,6 +1286,7 @@ class Jetpack {
 			'single_user_site'         => array( 'Jetpack', 'is_single_user_site' ),
 			'updates'                  => array( 'Jetpack', 'get_updates' ),
 			'available_jetpack_blocks' => array( 'Jetpack_Gutenberg', 'get_availability' ), // Includes both Gutenberg blocks *and* plugins.
+			'theme_styles'             => array( 'Automattic\\Jetpack\\Plugin\\Theme_Styles_Sync', 'get_theme_styles' ),
 		);
 		return array_merge( $callables, $jetpack_callables );
 	}
