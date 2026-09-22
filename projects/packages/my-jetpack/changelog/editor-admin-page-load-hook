@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fix My Jetpack failing to load for editors on unconnected sites.
+Fix My Jetpack failing to load for users who can edit posts but have no Jetpack menu, such as editors on unconnected sites.

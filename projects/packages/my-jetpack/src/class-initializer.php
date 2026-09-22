@@ -215,7 +215,7 @@ class Initializer {
 			Admin_Menu::POSITION_FIRST
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
-		// Editors on unconnected sites may not have a registered Jetpack parent menu.
+		// Users who can edit posts but have no Jetpack menu get an admin_page_ hook instead.
 		add_action( 'load-admin_page_my-jetpack', array( __CLASS__, 'admin_init' ) );
 	}
 
