@@ -440,8 +440,8 @@ export default function HistoryChartCard( {
 							data-testid="history-popover"
 							initialFocus={ false }
 							finalFocus={ false }
-							// Beside the day, clear of the next one so the pointer can reach it; a flip stays on
-							// the inline axis, so the box can never land on the card's paging controls.
+							// Beside the day, clear of the next one so the pointer can reach it; when neither side
+							// fits, it drops below the day rather than onto the card's paging controls.
 							positioner={
 								<Popover.Positioner
 									anchor={ anchor }
@@ -450,7 +450,7 @@ export default function HistoryChartCard( {
 									align="start"
 									sideOffset={ 8 }
 									collisionPadding={ 0 }
-									collisionAvoidance={ { fallbackAxisSide: 'none' } }
+									collisionAvoidance={ { fallbackAxisSide: 'end' } }
 								/>
 							}
 						>

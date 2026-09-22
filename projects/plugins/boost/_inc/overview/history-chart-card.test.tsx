@@ -387,16 +387,20 @@ describe( 'popover placement', () => {
 		expect( positioner ).toHaveAttribute( 'data-side', 'inline-end' );
 	} );
 
-	test( 'flips a recorded day popover only to the other side of its column', async () => {
-		const { positioner: flipped, unmount } = await openBesideColumn( 900 );
-		await waitFor( () => expect( flipped.style.transform ).toMatch( /^translate\(627px,/ ) );
-		expect( flipped ).toHaveAttribute( 'data-side', 'inline-start' );
-		unmount();
-		// Too narrow for either side: it must still not drop onto the card below or above.
+	test( 'flips a recorded day popover to the other side of its column near the edge', async () => {
+		const { positioner } = await openBesideColumn( 900 );
+		await waitFor( () => expect( positioner.style.transform ).toMatch( /^translate\(627px,/ ) );
+		expect( positioner ).toHaveAttribute( 'data-side', 'inline-start' );
+	} );
+
+	test( 'drops a recorded day popover below its column when neither side fits', async () => {
 		jest.spyOn( document.documentElement, 'clientWidth', 'get' ).mockReturnValue( 500 );
-		const { positioner: cramped } = await openBesideColumn( 240 );
-		await waitFor( () => expect( cramped.style.transform ).toMatch( /^translate\(268px,/ ) );
-		expect( cramped ).toHaveAttribute( 'data-side', 'inline-end' );
+		const { positioner } = await openBesideColumn( 240 );
+		await waitFor( () => expect( positioner ).toHaveAttribute( 'data-side', 'bottom' ) );
+		const [ x, y ] = ( positioner.style.transform.match( /-?[\d.]+/g ) ?? [] ).map( Number );
+		expect( x ).toBeGreaterThanOrEqual( 0 );
+		expect( x + 265 ).toBeLessThanOrEqual( 500 );
+		expect( y ).toBeGreaterThanOrEqual( 308 );
 	} );
 } );
 
