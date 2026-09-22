@@ -37,6 +37,7 @@ class Settings_Test extends BaseTestCase {
 		parent::set_up();
 
 		// Reset the in-process Host platform cache so per-test constants take effect.
+		\Automattic\Jetpack\Constants::clear_constants();
 		\Automattic\Jetpack\Status\Cache::clear();
 		Feature_Flags::reset();
 
@@ -344,6 +345,23 @@ class Settings_Test extends BaseTestCase {
 		$this->assertArrayHasKey( '/wpcom/v2/newsletter/stats/subscribers', $routes );
 		$this->assertArrayHasKey( '/wpcom/v2/newsletter/stats/emails/summary', $routes );
 		$this->assertArrayHasKey( '/wpcom/v2/newsletter/stats/recent-posts', $routes );
+	}
+
+	public function test_does_not_register_stats_routes_on_wpcom_simple() {
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+		\Automattic\Jetpack\Status\Cache::clear();
+		add_filter( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG, '__return_true' );
+
+		global $wp_rest_server;
+		$wp_rest_server = new \WP_REST_Server();
+
+		Settings::register_feature_flags();
+		do_action( 'rest_api_init' );
+
+		$routes = rest_get_server()->get_routes();
+		$this->assertArrayNotHasKey( '/wpcom/v2/newsletter/stats/subscribers', $routes );
+		$this->assertArrayNotHasKey( '/wpcom/v2/newsletter/stats/emails/summary', $routes );
+		$this->assertArrayNotHasKey( '/wpcom/v2/newsletter/stats/recent-posts', $routes );
 	}
 
 	/**

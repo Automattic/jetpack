@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Newsletter;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\Status\Host;
 use WP_Error;
 use WP_Query;
 use WP_REST_Controller;
@@ -44,13 +46,6 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 	const UPSTREAM_STATS_REST_BASE = 'stats';
 
 	/**
-	 * Whether this endpoint exists on WordPress.com rather than only in Jetpack.
-	 *
-	 * @var bool
-	 */
-	public $wpcom_is_wpcom_only_endpoint = true;
-
-	/**
 	 * Whether the route registration hook has been added.
 	 *
 	 * @var bool
@@ -82,9 +77,17 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 	/**
 	 * Register the Newsletter stats proxy routes.
 	 *
+	 * Evaluated on `rest_api_init` so filters that land after plugin load can
+	 * still toggle the Overview flag. Skipped on Simple: public-api serves the
+	 * mapped twin, and `Settings::init()` also runs there via mu-wpcom.
+	 *
 	 * @return void
 	 */
 	public function register_routes() {
+		if ( ( new Host() )->is_wpcom_simple() || ! $this->overview_enabled() ) {
+			return;
+		}
+
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base . '/subscribers',
@@ -423,5 +426,18 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 	 */
 	public function can_view() {
 		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Whether the shared Overview flag is on.
+	 *
+	 * @return bool
+	 */
+	private function overview_enabled() {
+		if ( class_exists( Feature_Flags::class, false ) ) {
+			return Feature_Flags::is_enabled( Settings::OVERVIEW_FEATURE_FLAG );
+		}
+
+		return (bool) apply_filters( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG, false );
 	}
 }

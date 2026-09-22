@@ -85,11 +85,7 @@ class Settings {
 			)
 		);
 
-		// Registering the routes themselves stays behind the flag: unlike Overview's
-		// own UI chrome, Stats exposes real subscriber/email data over REST.
-		if ( Feature_Flags::is_enabled( self::OVERVIEW_FEATURE_FLAG ) ) {
-			Subscriber_Stats_Controller::register();
-		}
+		Subscriber_Stats_Controller::register();
 	}
 
 	/**

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Newsletter\Tests;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Newsletter\Settings;
 use Automattic\Jetpack\Newsletter\Subscriber_Stats_Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -49,6 +50,7 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		global $wp_rest_server;
 		$wp_rest_server   = new WP_REST_Server();
 		$this->controller = new Subscriber_Stats_Controller();
+		add_filter( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG, '__return_true' );
 		add_action( 'rest_api_init', array( $this->controller, 'register_routes' ) );
 		do_action( 'rest_api_init' );
 	}
@@ -59,6 +61,7 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 	public function tear_down() {
 		remove_all_actions( 'rest_api_init' );
 		remove_all_filters( 'jetpack_newsletter_stats_pre_request' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG );
 		remove_all_filters( 'posts_pre_query' );
 		remove_all_filters( 'pre_http_request' );
 		$this->delete_stats_transients();
