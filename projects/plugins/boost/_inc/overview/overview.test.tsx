@@ -12,6 +12,7 @@ import {
 } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { useViewportMatch } from '@wordpress/compose';
+import { dateI18n } from '@wordpress/date';
 import { useState } from 'react';
 import { useSingleModuleState } from '../../app/assets/src/js/features/module/lib/stores';
 import { useDismissibleAlertState as useLegacyAlertState } from '../../app/assets/src/js/features/performance-history/lib/hooks';
@@ -931,6 +932,48 @@ test( 'shows paid fresh-start history and disables Previous when there is no old
 	fireEvent.click( previous );
 	expect( apiFetch ).not.toHaveBeenCalled();
 } );
+
+test.each( [ 'pending', 'error' ] )(
+	'keeps first-entry paging disabled and shows a single date when older history is %s',
+	async status => {
+		window.jetpack_boost_ds!.dismissed_alerts!.value = { performance_history_fresh_start: false };
+		const period = recordedPeriod( getHistoryWindow( 0 ).endDate - 86400000 );
+		const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
+		jest.mocked( apiFetch ).mockImplementation( options => {
+			if ( options.url?.endsWith( '/performance-history/set' ) ) {
+				const range = options.data.JSON;
+				if ( range.checkOlderWindows ) {
+					return status === 'pending'
+						? new Promise( () => {} )
+						: Promise.reject( new Error( 'Older history unavailable' ) );
+				}
+				return Promise.resolve( {
+					status: 'success',
+					JSON: { ...range, periods: [ period ], annotations: [] },
+				} );
+			}
+			return fetch( options );
+		} );
+		const { client } = renderOverview();
+		await expect( screen.findByTestId( 'history-chart' ) ).resolves.toBeInTheDocument();
+		await waitFor( () =>
+			expect(
+				client.getQueryCache().find( {
+					queryKey: [ 'performance_history', 'older' ],
+					exact: false,
+				} )?.state.status
+			).toBe( status )
+		);
+		await expect(
+			screen.findByText( dateI18n( 'M j, Y', new Date( period.timestamp ), false ) )
+		).resolves.toBeInTheDocument();
+		const previous = screen.getByRole( 'button', { name: 'Previous 30 days' } );
+		expect( previous ).toHaveAttribute( 'aria-disabled', 'true' );
+		jest.mocked( apiFetch ).mockClear();
+		fireEvent.click( previous );
+		expect( apiFetch ).not.toHaveBeenCalled();
+	}
+);
 
 test( 'debounces optimization changes and waits for generation to finish', async () => {
 	jest.useFakeTimers();
