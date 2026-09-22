@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use Jetpack_Options;
@@ -42,7 +43,7 @@ class Environment_Test extends BaseTestCase {
 		remove_filter( 'stylesheet', array( $this, 'pin_stylesheet' ) );
 		remove_all_filters( 'pre_get_block_template' );
 		remove_all_filters( 'get_block_template' );
-		remove_all_filters( 'jetpack_is_connection_ready' );
+		$this->given_connection( false );
 		remove_all_filters( 'jetpack_get_available_standalone_modules' );
 		$this->forget_single_template_editor_url();
 
@@ -68,13 +69,31 @@ class Environment_Test extends BaseTestCase {
 	 * Put the site in the state the sections branch on.
 	 *
 	 * @param string[] $modules   Modules to mark active.
-	 * @param bool     $connected Whether the WordPress.com connection is usable.
+	 * @param bool     $connected Whether the site holds a WordPress.com connection.
 	 */
 	private function given_site( array $modules, bool $connected ): void {
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'offer_modules' ) );
 		Jetpack_Options::update_option( 'active_modules', $modules );
 
-		add_filter( 'jetpack_is_connection_ready', $connected ? '__return_true' : '__return_false' );
+		$this->given_connection( $connected );
+	}
+
+	/**
+	 * Give the site a connection, or take it away. `Manager::is_connected()`
+	 * wants a blog ID and a blog token, and memoises the answer in a static.
+	 *
+	 * @param bool $connected Whether the site should hold a connection.
+	 */
+	private function given_connection( bool $connected ): void {
+		if ( $connected ) {
+			Jetpack_Options::update_option( 'id', 12345 );
+			Jetpack_Options::update_option( 'blog_token', 'blog.token' );
+		} else {
+			Jetpack_Options::delete_option( 'id' );
+			Jetpack_Options::delete_option( 'blog_token' );
+		}
+
+		( new Connection_Manager() )->reset_connection_status();
 	}
 
 	/**
@@ -218,39 +237,39 @@ class Environment_Test extends BaseTestCase {
 		$this->assertTrue( Environment::sharing_module_running() );
 		$this->assertTrue( Environment::likes_supported() );
 		$this->assertTrue( Environment::likes_module_running() );
-		$this->assertTrue( Environment::can_activate_modules() );
+		$this->assertTrue( Environment::legacy_sharing_supported() );
 	}
 
 	/**
 	 * `Modules::activate()` refuses on a site that is neither connected nor
-	 * offline, so the off variants must not offer a button that cannot work.
+	 * offline, so the off variant must not offer a button that cannot work.
 	 */
-	public function test_modules_cannot_be_activated_while_disconnected_and_online(): void {
+	public function test_legacy_sharing_is_unsupported_while_disconnected_and_online(): void {
 		$this->given_site( array(), false );
 
-		$this->assertFalse( Environment::can_activate_modules() );
+		$this->assertFalse( Environment::legacy_sharing_supported() );
 	}
 
 	/**
 	 * Offline mode is the other route `Modules::activate()` accepts.
 	 */
-	public function test_modules_can_be_activated_in_offline_mode(): void {
+	public function test_legacy_sharing_is_supported_in_offline_mode(): void {
 		$this->given_site( array(), false );
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 
-		$can_activate = Environment::can_activate_modules();
+		$supported = Environment::legacy_sharing_supported();
 
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
 
-		$this->assertTrue( $can_activate );
+		$this->assertTrue( $supported );
 	}
 
 	/**
 	 * A connected site can activate, which is the common case behind the button.
 	 */
-	public function test_modules_can_be_activated_on_a_connected_site(): void {
+	public function test_legacy_sharing_is_supported_on_a_connected_site(): void {
 		$this->given_site( array(), true );
 
-		$this->assertTrue( Environment::can_activate_modules() );
+		$this->assertTrue( Environment::legacy_sharing_supported() );
 	}
 }

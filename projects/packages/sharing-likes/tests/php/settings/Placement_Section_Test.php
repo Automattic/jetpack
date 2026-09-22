@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -30,7 +31,9 @@ class Placement_Section_Test extends BaseTestCase {
 
 		unset( $GLOBALS['sharing_likes_test_likes_show'] );
 		Jetpack_Options::delete_option( 'active_modules' );
-		remove_all_filters( 'jetpack_is_connection_ready' );
+		Jetpack_Options::delete_option( 'id' );
+		Jetpack_Options::delete_option( 'blog_token' );
+		( new Connection_Manager() )->reset_connection_status();
 		remove_all_filters( 'jetpack_get_available_standalone_modules' );
 
 		parent::tear_down();
@@ -53,7 +56,9 @@ class Placement_Section_Test extends BaseTestCase {
 	 */
 	private function given_likes_running( $show ): void {
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'offer_modules' ) );
-		add_filter( 'jetpack_is_connection_ready', '__return_true' );
+		Jetpack_Options::update_option( 'id', 12345 );
+		Jetpack_Options::update_option( 'blog_token', 'blog.token' );
+		( new Connection_Manager() )->reset_connection_status();
 		Jetpack_Options::update_option( 'active_modules', array( 'likes' ) );
 
 		$GLOBALS['sharing_likes_test_likes_show'] = $show;

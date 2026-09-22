@@ -43,18 +43,9 @@ final class Environment {
 
 	/**
 	 * Whether sharing buttons can still produce output.
-	 *
-	 * Simple has no modules: `post-flair.php` loads sharedaddy unconditionally.
-	 * Elsewhere the module needs no connection, but `Jetpack::load_modules()`
-	 * loads nothing at all on a site that is neither connected nor offline, so
-	 * an active module there still renders no buttons.
 	 */
 	public static function sharing_module_running(): bool {
-		if ( self::is_simple_site() ) {
-			return true;
-		}
-
-		return self::plugin_loads_modules() && ( new Modules() )->is_active( 'sharedaddy' );
+		return self::legacy_sharing_supported() && self::module_active( 'sharedaddy' );
 	}
 
 	/**
@@ -74,23 +65,16 @@ final class Environment {
 	}
 
 	/**
-	 * Whether a module can be switched on here at all.
+	 * Whether this site can have legacy sharing buttons at all.
 	 *
-	 * `Modules::activate()` refuses on a site that is neither connected nor in
-	 * offline mode, whatever the module declares, so offering the control there
-	 * would do nothing.
+	 * The module needs no connection, but `Jetpack::load_modules()` includes
+	 * nothing on a site that is neither connected nor in offline mode, and
+	 * `Modules::activate()` refuses there too: an active module renders no
+	 * buttons, and offering to turn it on would do nothing. Simple loads
+	 * sharedaddy from `post-flair.php` without either.
 	 */
-	public static function can_activate_modules(): bool {
-		return self::is_simple_site() || self::plugin_loads_modules();
-	}
-
-	/**
-	 * Whether the plugin loads its active modules at all.
-	 *
-	 * The guard `Jetpack::load_modules()` applies before it includes anything.
-	 */
-	private static function plugin_loads_modules(): bool {
-		return self::connection_ready() || ( new Status() )->is_offline_mode();
+	public static function legacy_sharing_supported(): bool {
+		return self::is_simple_site() || self::is_connected() || ( new Status() )->is_offline_mode();
 	}
 
 	/**
@@ -101,35 +85,24 @@ final class Environment {
 	 * render: the widget is keyed on the blog ID a connection provides.
 	 */
 	public static function likes_supported(): bool {
-		return self::is_simple_site() || self::connection_ready();
+		return self::is_simple_site() || self::is_connected();
 	}
 
 	/**
-	 * Whether the WordPress.com connection is usable.
-	 *
-	 * Resolved the same way `Jetpack::is_connection_ready()` resolves it, filter
-	 * included, so a site that overrides one overrides both.
+	 * Whether the site holds a WordPress.com connection.
 	 */
-	private static function connection_ready(): bool {
-		$connection = new Connection_Manager( 'jetpack' );
-
-		/** This filter is documented in projects/plugins/jetpack/class.jetpack.php */
-		return (bool) apply_filters( 'jetpack_is_connection_ready', $connection->is_connected(), $connection );
+	private static function is_connected(): bool {
+		return ( new Connection_Manager( 'jetpack' ) )->is_connected();
 	}
 
 	/**
 	 * Whether Like buttons can still produce output.
 	 *
-	 * Simple has no modules: `likes_loader()` runs on every request. Elsewhere
-	 * the module can be left active in the options through a disconnect, which
-	 * is why support is checked too.
+	 * The module can be left active in the options through a disconnect,
+	 * which is why support is checked too.
 	 */
 	public static function likes_module_running(): bool {
-		if ( ! self::likes_supported() ) {
-			return false;
-		}
-
-		return self::is_simple_site() || ( new Modules() )->is_active( 'likes' );
+		return self::likes_supported() && self::module_active( 'likes' );
 	}
 
 	/**
@@ -149,21 +122,31 @@ final class Environment {
 	 * site running it without the Likes module still needs those controls.
 	 */
 	public static function comment_likes_module_running(): bool {
-		if ( ! self::likes_supported() ) {
-			return false;
-		}
-
-		return self::is_simple_site() || ( new Modules() )->is_active( 'comment-likes' );
+		return self::likes_supported() && self::module_active( 'comment-likes' );
 	}
 
 	/**
 	 * Whether anything on this site still reads the Likes settings.
 	 *
 	 * Both features are gated on `disabled_likes` and the shared placement, so
-	 * either one keeps those controls worth showing.
+	 * either one keeps those controls worth showing. Switching the buttons off
+	 * for every post does not end that: posts still opt in one by one, and
+	 * Comment Likes reads the same settings either way.
 	 */
 	public static function likes_settings_in_use(): bool {
 		return self::likes_module_running() || self::comment_likes_module_running();
+	}
+
+	/**
+	 * Whether a module is active.
+	 *
+	 * Simple has no modules: wpcom loads both features on every request, so
+	 * every module counts as active there whatever the option holds.
+	 *
+	 * @param string $slug Module slug.
+	 */
+	private static function module_active( string $slug ): bool {
+		return self::is_simple_site() || ( new Modules() )->is_active( $slug );
 	}
 
 	/**

@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use Jetpack_Options;
 use ReflectionProperty;
@@ -46,7 +47,7 @@ trait Section_Environment {
 
 		remove_filter( 'stylesheet', array( $this, 'pin_stylesheet' ) );
 		remove_filter( 'template', array( $this, 'pin_stylesheet' ) );
-		remove_all_filters( 'jetpack_is_connection_ready' );
+		$this->given_connection( false );
 		remove_all_filters( 'jetpack_get_available_standalone_modules' );
 		wp_clean_themes_cache();
 
@@ -106,12 +107,23 @@ trait Section_Environment {
 	}
 
 	/**
-	 * Set whether the WordPress.com connection is usable.
+	 * Give the site a WordPress.com connection, or take it away.
 	 *
-	 * @param bool $connected Whether to report a usable connection.
+	 * `Manager::is_connected()` wants a blog ID and a blog token, and memoises
+	 * the answer in a static, so the memo is dropped along with the options.
+	 *
+	 * @param bool $connected Whether the site should hold a connection.
 	 */
 	protected function given_connection( bool $connected ): void {
-		add_filter( 'jetpack_is_connection_ready', $connected ? '__return_true' : '__return_false' );
+		if ( $connected ) {
+			Jetpack_Options::update_option( 'id', 12345 );
+			Jetpack_Options::update_option( 'blog_token', 'blog.token' );
+		} else {
+			Jetpack_Options::delete_option( 'id' );
+			Jetpack_Options::delete_option( 'blog_token' );
+		}
+
+		( new Connection_Manager() )->reset_connection_status();
 	}
 
 	/**
