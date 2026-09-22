@@ -473,7 +473,7 @@ class Admin_Menu {
 
 		/**
 		 * Let's return the page hook so consumers can use.
-		 * We know all pages will be under Jetpack top level menu page, so we can hardcode the first part of the string.
+		 * Pages normally sit under the Jetpack top level menu page, so we can hardcode the first part of the string.
 		 * Using get_plugin_page_hookname here won't work because the top level page is not registered yet.
 		 */
 		$hook = 'jetpack_page_' . $menu_slug;
