@@ -41,6 +41,8 @@ final class Likes_Section {
 			return;
 		}
 
+		// Off with a block route points at the block; off without one offers the way
+		// back. Running with a route shows the options under a nudge; running without, the options alone.
 		$state = Section_State::for_section( self::can_offer_block(), Environment::likes_settings_in_use() );
 
 		switch ( $state ) {
@@ -64,9 +66,9 @@ final class Likes_Section {
 	/**
 	 * Like buttons cannot render on this site at all.
 	 *
-	 * Stated rather than omitted: the per-post Likes metabox stays visible on a
-	 * disconnected site, so silently dropping the section here would leave the
-	 * setting it reads with nowhere to live.
+	 * The section still says so rather than vanishing: the per-post Likes
+	 * metabox stays visible on a disconnected site, and someone following it
+	 * here should learn why there is nothing to configure.
 	 */
 	private static function render_unsupported(): void {
 		printf(
@@ -78,11 +80,11 @@ final class Likes_Section {
 	/**
 	 * Whether the Like block is a route we can send this site down.
 	 *
-	 * A block theme alone is not enough: without the block or a resolvable
-	 * template there is nowhere to send anyone, so those sites keep the
-	 * classic behaviour. Comment Likes has no block equivalent, so a site
-	 * running its module is never sent down this route either. Simple has no
-	 * module to switch off, so Comment Likes staying on costs it nothing there.
+	 * A block theme alone is not enough. All of these must hold too:
+	 * - the block is registered;
+	 * - the theme has a single post template to add it to;
+	 * - Comment Likes is not running as a module, since comments have no block to
+	 *   move to. Simple has no module to switch off, so it is exempt.
 	 */
 	private static function can_offer_block(): bool {
 		return Environment::is_block_theme()
