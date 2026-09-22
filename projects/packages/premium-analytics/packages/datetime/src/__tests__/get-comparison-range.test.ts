@@ -604,4 +604,115 @@ describe( 'getComparisonRangeFromPreset', () => {
 			expect( comparison!.to!.getTime() ).toBeLessThan( yearToDate.from.getTime() );
 		} );
 	} );
+
+	describe( 'weekday-aligned presets', () => {
+		/*
+		 * The number GA4 and Shopify both produce for this range: 52 whole weeks
+		 * back, so Monday 1 January 2024 lands on Monday 2 January 2023.
+		 */
+		it( 'shifts the previous year back 52 weeks across a leap February', () => {
+			const janToMar2024 = {
+				from: siteDate( 2024, 0, 1, 0, 0, 0, 0 ),
+				to: siteDate( 2024, 2, 1, 23, 59, 59, 999 ),
+			};
+
+			expect(
+				getComparisonRangeFromPreset( janToMar2024, 'previous-year-match-day-of-week' )
+			).toEqual( {
+				from: siteDate( 2023, 0, 2, 0, 0, 0, 0 ),
+				to: siteDate( 2023, 2, 3, 23, 59, 59, 999 ),
+			} );
+		} );
+
+		it( 'keeps the calendar dates of a 1st-of-month start out of the weekday shift', () => {
+			const march = {
+				from: siteDate( 2026, 2, 1, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 2, 31, 23, 59, 59, 999 ),
+			};
+
+			expect( getComparisonRangeFromPreset( march, 'previous-year-match-day-of-week' ) ).toEqual( {
+				from: siteDate( 2025, 2, 2, 0, 0, 0, 0 ),
+				to: siteDate( 2025, 3, 1, 23, 59, 59, 999 ),
+			} );
+		} );
+
+		it( 'shifts the previous period back by the fewest whole weeks that clear the range', () => {
+			const tenDays = {
+				from: siteDate( 2026, 7, 21, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 7, 30, 23, 59, 59, 999 ),
+			};
+
+			expect(
+				getComparisonRangeFromPreset( tenDays, 'previous-period-match-day-of-week' )
+			).toEqual( {
+				from: siteDate( 2026, 7, 7, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 7, 16, 23, 59, 59, 999 ),
+			} );
+		} );
+
+		it( 'shifts a whole number of weeks back by exactly its own length', () => {
+			const twoWeeks = {
+				from: siteDate( 2026, 7, 17, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 7, 30, 23, 59, 59, 999 ),
+			};
+
+			expect(
+				getComparisonRangeFromPreset( twoWeeks, 'previous-period-match-day-of-week' )
+			).toEqual( getComparisonRangeFromPreset( twoWeeks, 'previous-period' ) );
+		} );
+
+		it( 'ignores the to-date preset: a weekday shift is a plain day count', () => {
+			const monthToDate = {
+				from: siteDate( 2026, 7, 1, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 7, 22, 23, 59, 59, 999 ),
+			};
+
+			expect(
+				getComparisonRangeFromPreset( monthToDate, 'previous-period-match-day-of-week', {
+					primaryPresetId: 'month-to-date',
+				} )
+			).toEqual( {
+				from: siteDate( 2026, 6, 4, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 6, 25, 23, 59, 59, 999 ),
+			} );
+		} );
+
+		it( 'shifts a rolling window by whole weeks and keeps its duration', () => {
+			const rolling24h = {
+				from: siteDate( 2026, 7, 30, 15, 0, 0, 0 ),
+				to: siteDate( 2026, 7, 31, 14, 59, 59, 999 ),
+			};
+
+			expect(
+				getComparisonRangeFromPreset( rolling24h, 'previous-period-match-day-of-week' )
+			).toEqual( {
+				from: siteDate( 2026, 7, 23, 15, 0, 0, 0 ),
+				to: siteDate( 2026, 7, 24, 14, 59, 59, 999 ),
+			} );
+			expect(
+				getComparisonRangeFromPreset( rolling24h, 'previous-year-match-day-of-week' )
+			).toEqual( {
+				from: siteDate( 2025, 7, 31, 15, 0, 0, 0 ),
+				to: siteDate( 2025, 8, 1, 14, 59, 59, 999 ),
+			} );
+		} );
+
+		/*
+		 * A rolling window seven days long spans eight calendar days; measured
+		 * by duration it still fits one week, so it shifts one, not two.
+		 */
+		it( 'measures a rolling window by duration, not calendar days', () => {
+			const rolling7d = {
+				from: siteDate( 2026, 7, 24, 15, 0, 0, 0 ),
+				to: siteDate( 2026, 7, 31, 14, 59, 59, 999 ),
+			};
+
+			expect(
+				getComparisonRangeFromPreset( rolling7d, 'previous-period-match-day-of-week' )
+			).toEqual( {
+				from: siteDate( 2026, 7, 17, 15, 0, 0, 0 ),
+				to: siteDate( 2026, 7, 24, 14, 59, 59, 999 ),
+			} );
+		} );
+	} );
 } );

@@ -9,10 +9,13 @@ import { differenceInCalendarDays } from 'date-fns';
  */
 import { getDateRangeSpan } from '../date-range-span';
 import {
+	COMPARISON_PRESETS,
 	COMPARISON_PREVIOUS_MONTH,
 	COMPARISON_PREVIOUS_PERIOD,
+	COMPARISON_PREVIOUS_PERIOD_MATCH_DAY_OF_WEEK,
 	COMPARISON_PREVIOUS_WEEK,
 	COMPARISON_PREVIOUS_YEAR,
+	COMPARISON_PREVIOUS_YEAR_MATCH_DAY_OF_WEEK,
 	getComparisonRangeFromPreset,
 	getWholeMonthCount,
 	type ComparisonPresetId,
@@ -61,6 +64,9 @@ const SHORT_LABELS: Record< ComparisonPresetId, () => string > = {
 	[ COMPARISON_PREVIOUS_PERIOD ]: () =>
 		/* translators: abbreviation for "Previous period". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
 		_x( 'Prev. period', 'short comparison preset', 'jetpack-premium-analytics-pkg' ),
+	[ COMPARISON_PREVIOUS_PERIOD_MATCH_DAY_OF_WEEK ]: () =>
+		/* translators: abbreviation for "Previous period (match day of week)". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
+		_x( 'Prev. period (weekday)', 'short comparison preset', 'jetpack-premium-analytics-pkg' ),
 	[ COMPARISON_PREVIOUS_WEEK ]: () =>
 		/* translators: abbreviation for "Same period from last week". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
 		_x( 'Prev. week', 'short comparison preset', 'jetpack-premium-analytics-pkg' ),
@@ -70,7 +76,25 @@ const SHORT_LABELS: Record< ComparisonPresetId, () => string > = {
 	[ COMPARISON_PREVIOUS_YEAR ]: () =>
 		/* translators: abbreviation for "Same period in <year>". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
 		_x( 'Prev. year', 'short comparison preset', 'jetpack-premium-analytics-pkg' ),
+	[ COMPARISON_PREVIOUS_YEAR_MATCH_DAY_OF_WEEK ]: () =>
+		/* translators: abbreviation for "Same period in <year> (match day of week)". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
+		_x( 'Prev. year (weekday)', 'short comparison preset', 'jetpack-premium-analytics-pkg' ),
 };
+
+/**
+ * Label for a weekday-aligned option: its calendar sibling's label with the
+ * suffix GA4 and Shopify use for the same shift.
+ *
+ * @param siblingLabel - The label of the calendar-aligned option.
+ * @return The label.
+ */
+function getMatchDayOfWeekLabel( siblingLabel: string ): string {
+	return sprintf(
+		/* translators: %s: a comparison option, e.g. "Previous 30 days" or "Same period in 2025". The suffix says the comparison starts on the same weekday. */
+		_x( '%s (match day of week)', 'weekday-aligned comparison', 'jetpack-premium-analytics-pkg' ),
+		siblingLabel
+	);
+}
 
 /**
  * Label for the previous-period option, spelling out the length of the window
@@ -161,12 +185,17 @@ function getOptionLabel(
 		);
 	}
 
-	if ( id === COMPARISON_PREVIOUS_YEAR ) {
-		return sprintf(
+	if ( id === COMPARISON_PREVIOUS_YEAR || id === COMPARISON_PREVIOUS_YEAR_MATCH_DAY_OF_WEEK ) {
+		const label = sprintf(
 			/* translators: %s: the year the comparison period starts in, e.g. "2025". */
 			_x( 'Same period in %s', 'previous year comparison', 'jetpack-premium-analytics-pkg' ),
 			String( comparison.from.getFullYear() )
 		);
+		return id === COMPARISON_PREVIOUS_YEAR ? label : getMatchDayOfWeekLabel( label );
+	}
+
+	if ( id === COMPARISON_PREVIOUS_PERIOD_MATCH_DAY_OF_WEEK ) {
+		return getMatchDayOfWeekLabel( getPreviousPeriodLabel( reference ) );
 	}
 
 	return getPreviousPeriodLabel( reference );
@@ -179,7 +208,9 @@ function getOptionLabel(
  * all resolve through the same rules: the previous period is always offered;
  * the week, month, and year shifts only while they cannot overlap the range;
  * and an option resolving to the same window as an earlier one is dropped, so
- * a 7-day range lists no last-week entry.
+ * a 7-day range lists no last-week entry. The weekday-aligned variants follow
+ * the same gates as their calendar siblings and yield to any option they
+ * coincide with.
  *
  * @param reference - The applied range (both ends required).
  * @param options   - The context the range was produced in; the preset it came
@@ -199,6 +230,9 @@ export function getComparisonOptions(
 
 	const days = differenceInCalendarDays( refTo, refFrom ) + 1;
 
+	// Weekday-aligned variants come last so a coinciding window drops them,
+	// never the calendar entry the menu has always shown; display order is
+	// restored below.
 	const candidates: ComparisonPresetId[] = [ COMPARISON_PREVIOUS_PERIOD ];
 	if ( days <= MAX_DAYS_FOR_WEEK ) {
 		candidates.push( COMPARISON_PREVIOUS_WEEK );
@@ -208,6 +242,10 @@ export function getComparisonOptions(
 	}
 	if ( days <= MAX_DAYS_FOR_YEAR ) {
 		candidates.push( COMPARISON_PREVIOUS_YEAR );
+	}
+	candidates.push( COMPARISON_PREVIOUS_PERIOD_MATCH_DAY_OF_WEEK );
+	if ( days <= MAX_DAYS_FOR_YEAR ) {
+		candidates.push( COMPARISON_PREVIOUS_YEAR_MATCH_DAY_OF_WEEK );
 	}
 
 	const offered: ComparisonOption[] = [];
@@ -238,5 +276,7 @@ export function getComparisonOptions(
 		} );
 	}
 
-	return offered;
+	return offered.sort(
+		( a, b ) => COMPARISON_PRESETS.indexOf( a.id ) - COMPARISON_PRESETS.indexOf( b.id )
+	);
 }
