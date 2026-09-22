@@ -66,7 +66,11 @@ test.each( [
 		legacyTitle: 'Automatically Optimize CSS Loading',
 		modern:
 			/Prioritizes the styles needed to display the visible part of your page first\. Also known as/,
-		legacy: /Move important styling information to the start of the page/,
+		legacy:
+			'Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as Critical CSS.',
+		extraLegacy: [
+			'Boost will automatically generate your Critical CSS whenever you make changes to the HTML or CSS structure of your site.',
+		],
 	},
 	{
 		component: PageCache,
@@ -82,7 +86,7 @@ test.each( [
 		legacyTitle: 'Defer Non-Essential JavaScript',
 		modern: /Delays non-essential JavaScript until the main page content has loaded/,
 		legacy:
-			/Run non-essential JavaScript after the page has loaded so that styles and images can load more quickly/,
+			'Run non-essential JavaScript after the page has loaded so that styles and images can load more quickly. Read more on web.dev.',
 	},
 	{
 		component: MinifyJs,
@@ -131,7 +135,15 @@ test.each( [
 	},
 ] )(
 	'$modernTitle uses modern copy while preserving legacy copy',
-	( { component: Component, modernTitle, legacyTitle, modern, legacy, extraModern = [] } ) => {
+	( {
+		component: Component,
+		modernTitle,
+		legacyTitle,
+		modern,
+		legacy,
+		extraModern = [],
+		extraLegacy = [],
+	} ) => {
 		const view = render(
 			<ModuleSurfaceProvider value="row">
 				<Component />
@@ -139,7 +151,11 @@ test.each( [
 		);
 		expect( screen.getByRole( 'heading', { name: modernTitle } ) ).toBeTruthy();
 		expect( screen.getByText( modern ) ).toBeTruthy();
-		expect( screen.queryByText( legacy ) ).toBeNull();
+		expect(
+			screen.queryByText(
+				( _, element ) => element?.tagName === 'P' && element.textContent === legacy
+			)
+		).toBeNull();
 		extraModern.forEach( text => expect( screen.getByText( text ) ).toBeTruthy() );
 		view.rerender(
 			<ModuleSurfaceProvider value="block">
@@ -147,7 +163,18 @@ test.each( [
 			</ModuleSurfaceProvider>
 		);
 		expect( screen.getByRole( 'heading', { name: legacyTitle } ) ).toBeTruthy();
-		expect( screen.getByText( legacy ) ).toBeTruthy();
+		expect(
+			screen.getByText(
+				( _, element ) => element?.tagName === 'P' && element.textContent === legacy
+			)
+		).toBeTruthy();
 		expect( screen.queryByText( modern ) ).toBeNull();
+		extraLegacy.forEach( text =>
+			expect(
+				screen.getByText(
+					( _, element ) => element?.tagName === 'P' && element.textContent === text
+				)
+			).toBeTruthy()
+		);
 	}
 );

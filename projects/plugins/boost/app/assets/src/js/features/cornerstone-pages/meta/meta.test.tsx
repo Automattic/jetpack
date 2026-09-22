@@ -137,7 +137,11 @@ describe( 'Cornerstone pages meta', () => {
 				<CornerstonePagesUpgradeCTA />
 			</ModuleSurfaceProvider>
 		);
-		expect( screen.getByText( /List the most important pages of your site/ ) ).toBeTruthy();
+		expect(
+			screen.getByText(
+				'List the most important pages of your site. These pages will receive specially tailored optimizations, including targeted critical CSS. The Page Speed scores are based on your homepage, which is automatically included.'
+			)
+		).toBeTruthy();
 		expect( screen.getByRole( 'link', { name: /^Learn More/ } ) ).toBeTruthy();
 		expect( screen.getByText( 'Premium users can add up to 10 cornerstone pages.' ) ).toBeTruthy();
 	} );

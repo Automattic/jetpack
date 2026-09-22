@@ -214,12 +214,30 @@ it.each( consumers.filter( consumer => ! consumer.count ) )(
 		render( component );
 		fireEvent.click( screen.getByRole( 'button', { name: trigger } ) );
 		expect( screen.getByRole( 'textbox', { name: `${ trigger }:` } ) ).toBeTruthy();
+
 		expect(
 			screen.getByText(
 				trigger === 'Exclude URL patterns'
-					? /JavaScript will not be deferred on pages matching these URL patterns/
+					? 'JavaScript will not be deferred on pages matching these URL patterns. Use a comma (,) to separate the patterns. Use (.*) to address multiple URLs under a given path.To keep a single script in place on every page instead, add the attribute to its script tag.'
 					: 'Use a comma (,) to separate the handles.'
 			)
 		).toBeTruthy();
 	}
 );
+
+it( 'preserves the legacy Defer JS placeholder and script exclusion help', () => {
+	render( <RenderBlockingJsMeta /> );
+	fireEvent.click( screen.getByRole( 'button', { name: 'Exclude URL patterns' } ) );
+	expect(
+		screen.getByPlaceholderText(
+			'Comma-separated list of URL patterns to exclude, e.g.: checkout, gallery/(.*)'
+		)
+	).toBeTruthy();
+	expect(
+		screen.getByText(
+			( _, element ) =>
+				element?.textContent ===
+				'JavaScript will not be deferred on pages matching these URL patterns. Use a comma (,) to separate the patterns. Use (.*) to address multiple URLs under a given path.To keep a single script in place on every page instead, add the data-jetpack-boost="ignore" attribute to its script tag.'
+		)
+	).toBeTruthy();
+} );
