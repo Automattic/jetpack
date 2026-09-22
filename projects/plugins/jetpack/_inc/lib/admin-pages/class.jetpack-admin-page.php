@@ -276,10 +276,14 @@ abstract class Jetpack_Admin_Page {
 					<div class="jp-masthead__title-container">
 						<?php if ( $my_jetpack_available ) : ?>
 							<a class="jp-masthead__logo-link" href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/overview' ) ); ?>">
+						<?php else : ?>
+							<span class="jp-masthead__logo-link">
 						<?php endif; ?>
 							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" height="20" aria-label="<?php esc_attr_e( 'Jetpack logo', 'jetpack' ); ?>"><path fill="#069e08" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z"></path></svg>
 						<?php if ( $my_jetpack_available ) : ?>
 							</a>
+						<?php else : ?>
+							</span>
 						<?php endif; ?>
 						<h2 class="jp-masthead__title">
 							<?php
@@ -390,7 +394,7 @@ abstract class Jetpack_Admin_Page {
 						</svg>
 						<span class="jp-footer__module-name"><?php esc_html_e( 'Jetpack', 'jetpack' ); ?></span>
 					</div>
-					<?php if ( ! ( new Host() )->is_wpcom_platform() && Footer_Links::is_my_jetpack_available() ) : ?>
+					<?php if ( ! ( new Host() )->is_wpcom_platform() && $my_jetpack_available ) : ?>
 						<?php $products_section = Footer_Links::get_my_jetpack_products_section(); ?>
 					<div class="jp-footer__menu">
 						<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/' . $products_section['slug'] ) ); ?>" class="jp-footer__menu-item"><?php echo esc_html( $products_section['label'] ); ?></a>

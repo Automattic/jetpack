@@ -232,7 +232,7 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 			$masthead = $render_masthead();
 			$this->assertStringNotContainsString( 'page=my-jetpack', $masthead );
 			$this->assertStringContainsString( '<svg', $masthead );
-			$this->assertStringContainsString( 'Jetpack', $masthead );
+			$this->assertMatchesRegularExpression( '/<h2 class="jp-masthead__title">\s*Jetpack\s*<span/', $masthead );
 		} finally {
 			$_GET = $original_get;
 		}
