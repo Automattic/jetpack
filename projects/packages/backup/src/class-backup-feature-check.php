@@ -11,7 +11,9 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Product as My_Jetpack_Product;
 use function add_action;
 use function get_option;
+use function get_transient;
 use function is_wp_error;
+use function set_transient;
 use function time;
 use function update_option;
 
@@ -37,6 +39,13 @@ class Backup_Feature_Check {
 	 * @var string
 	 */
 	const OPTION = 'jetpack_backup_feature_check';
+
+	/**
+	 * Transient held while one request is reading, so concurrent ones do not read too.
+	 *
+	 * @var string
+	 */
+	const LOCK = 'jetpack_backup_feature_check_lock';
 
 	/**
 	 * How long an answer is served before it is refreshed.
@@ -74,9 +83,9 @@ class Backup_Feature_Check {
 		$stored = self::get_stored();
 
 		if ( self::is_stale( $stored ) ) {
-			// Re-adding the same static callback replaces it rather than stacking a
-			// second one, so this needs no guard of its own.
-			add_action( 'shutdown', array( __CLASS__, 'refresh_if_stale' ) );
+			// Runs last because it closes the connection, and re-adding the same static
+			// callback replaces it rather than stacking a second one.
+			add_action( 'shutdown', array( __CLASS__, 'refresh_if_stale' ), PHP_INT_MAX );
 		}
 
 		return $stored !== null && $stored['has_backup'];
@@ -134,8 +143,43 @@ class Backup_Feature_Check {
 	 * @return void
 	 */
 	public static function refresh_if_stale() {
-		if ( self::is_stale( self::get_stored() ) ) {
-			self::refresh();
+		if ( ! self::is_stale( self::get_stored() ) || ! self::claim_attempt() ) {
+			return;
+		}
+
+		self::finish_request();
+		self::refresh();
+	}
+
+	/**
+	 * Whether this request is the one that gets to make the slow read.
+	 *
+	 * The page is already written by now, so several concurrent requests can reach
+	 * this together and would otherwise each call WordPress.com.
+	 *
+	 * @return bool
+	 */
+	private static function claim_attempt() {
+		if ( get_transient( self::LOCK ) ) {
+			return false;
+		}
+
+		set_transient( self::LOCK, 1, self::RETRY_INTERVAL );
+
+		return true;
+	}
+
+	/**
+	 * Send the response and close the connection, where the SAPI can.
+	 *
+	 * `shutdown` runs with the page written but the request unfinished, so without this
+	 * the browser goes on showing it as loading for as long as WordPress.com takes.
+	 *
+	 * @return void
+	 */
+	private static function finish_request() {
+		if ( function_exists( 'fastcgi_finish_request' ) ) {
+			fastcgi_finish_request();
 		}
 	}
 

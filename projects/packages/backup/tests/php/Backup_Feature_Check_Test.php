@@ -341,6 +341,53 @@ class Backup_Feature_Check_Test extends TestCase {
 	}
 
 	/**
+	 * The queued refresh runs after everything else, because it closes the connection.
+	 */
+	public function test_the_queued_refresh_runs_last() {
+		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
+
+		Backup_Feature_Check::has_backup();
+
+		$this->assertSame(
+			PHP_INT_MAX,
+			has_action( 'shutdown', array( Backup_Feature_Check::class, 'refresh_if_stale' ) )
+		);
+	}
+
+	/**
+	 * Requests that reach the queued refresh together make one read between them.
+	 */
+	public function test_concurrent_stale_requests_read_once() {
+		$this->arrange_stored_answer( true, time() - 1 );
+		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
+
+		Backup_Feature_Check::refresh_if_stale();
+		$this->assertCount( 1, $this->captured_urls );
+
+		// The racing request: it saw the stale answer before the first one wrote, and it
+		// raced My Jetpack's cache too, so its own read would reach WordPress.com.
+		$this->arrange_stored_answer( true, time() - 1 );
+		My_Jetpack_Product::reset_site_features_cache();
+		Backup_Feature_Check::refresh_if_stale();
+
+		$this->assertCount( 1, $this->captured_urls );
+	}
+
+	/**
+	 * Claiming the read must not look like a fresh answer to `store()`, which would
+	 * leave an unchanged answer on the short retry clock instead of the full TTL.
+	 */
+	public function test_a_claimed_refresh_still_holds_its_answer_for_the_full_ttl() {
+		$this->arrange_stored_answer( true, time() - 1 );
+		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
+
+		Backup_Feature_Check::refresh_if_stale();
+
+		$stored = get_option( Backup_Feature_Check::OPTION );
+		$this->assertGreaterThan( time() + Backup_Feature_Check::RETRY_INTERVAL, $stored['stale_after'] );
+	}
+
+	/**
 	 * Drop the fake connection the request mock installs.
 	 */
 	private function arrange_disconnected_site() {
