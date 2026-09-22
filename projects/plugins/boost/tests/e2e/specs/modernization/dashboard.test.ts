@@ -62,8 +62,9 @@ test.describe( 'Dashboard modernization', () => {
 		await expect(
 			page.locator( '#jetpack-boost-dashboard-wp-admin-prerequisites-js-after' )
 		).toHaveCount( 1 );
-		await expect( page.getByRole( 'tab', { name: 'Overview', exact: true } ) ).toBeVisible();
-		await expect( page.getByRole( 'tab', { name: 'Settings', exact: true } ) ).toBeVisible();
+		await expect( page.getByRole( 'tab' ) ).toHaveCount( 0 );
+		await expect( page.getByRole( 'tabpanel' ) ).toHaveCount( 0 );
+		await expect( page.getByRole( 'heading', { name: 'Optimize your speed' } ) ).toBeVisible();
 		await expect( page.locator( '#jb-settings-tab-mount' ) ).toHaveCount( 1 );
 		await expect( page.locator( '#jb-subpage-mount' ) ).toHaveCount( 1 );
 
@@ -71,25 +72,6 @@ test.describe( 'Dashboard modernization', () => {
 		await expect( page.locator( '#jb-settings-tab-mount .jb-modern-settings' ) ).toHaveCount( 1 );
 		await expect( page.locator( '#jb-admin-settings' ) ).toHaveCount( 0 );
 		expect( missingConfigErrors ).toEqual( [] );
-	} );
-
-	test( 'Offer Run speed test in the page header only on the Overview tab', async ( {
-		boostUtils,
-		jetpackBoostPage,
-		page,
-	} ) => {
-		await boostUtils.setDashboardModernization( true );
-		await jetpackBoostPage.visit();
-		const runSpeedTest = page
-			.locator( '.jetpack-boost-page' )
-			.getByRole( 'button', { name: 'Run speed test', exact: true } );
-		await expect( runSpeedTest ).toBeVisible();
-
-		await page.getByRole( 'tab', { name: 'Settings', exact: true } ).click();
-		await expect( runSpeedTest ).toHaveCount( 0 );
-
-		await page.getByRole( 'tab', { name: 'Overview', exact: true } ).click();
-		await expect( runSpeedTest ).toBeVisible();
 	} );
 
 	test( 'Show free sites a collapsed score history notice instead of the chart', async ( {
@@ -156,36 +138,28 @@ test.describe( 'Dashboard modernization', () => {
 			.toBe( 0 );
 	} );
 
-	test( 'Keep the tabs clickable after scrolling Settings', async ( {
-		boostUtils,
-		jetpackBoostPage,
-		page,
-	} ) => {
-		await boostUtils.setDashboardModernization( true );
-		await page.setViewportSize( { width: 1280, height: 500 } );
-		await jetpackBoostPage.visit();
-		const overviewTab = page.getByRole( 'tab', { name: 'Overview', exact: true } );
-		await page.getByRole( 'tab', { name: 'Settings', exact: true } ).click();
-
-		const firstGroup = page
-			.locator( '.jb-modern-settings' )
-			.getByRole( 'button', { name: 'Page loading', exact: true } );
-		await expect( firstGroup ).toBeVisible();
-		const box = await overviewTab.boundingBox();
-		expect( box ).not.toBeNull();
-		const { x, y, width, height } = box as NonNullable< typeof box >;
-
-		// Scrolling to the bottom also passes Tips and the z-indexed controls under the tabs.
-		await firstGroup.hover();
-		await page.mouse.wheel( 0, 10000 );
-		await expect
-			.poll( async () => ( await firstGroup.boundingBox() )?.y ?? Infinity )
-			.toBeLessThan( y );
-
-		// Locator clicks scroll the target back into view on retry, which would hide the overlap.
-		await page.mouse.click( x + width / 2, y + height / 2 );
-		await expect( overviewTab ).toHaveAttribute( 'aria-selected', 'true' );
-	} );
+	for ( const destination of [ '&p=%2F%3Ftab%3Dsettings', '#/', '#/?tab=settings' ] ) {
+		test( `Land at Optimize your speed from ${ destination }`, async ( {
+			boostUtils,
+			jetpackBoostPage,
+			page,
+		} ) => {
+			await boostUtils.setDashboardModernization( true );
+			await jetpackBoostPage.visit();
+			await page.goto( `${ page.url().split( '#' )[ 0 ] }${ destination }` );
+			const section = page.getByRole( 'region', { name: 'Optimize your speed' } );
+			await expect( section ).toBeVisible();
+			for ( const name of [ 'Cornerstone pages', 'Page loading', 'Code optimization', 'Images' ] ) {
+				await expect( section.getByRole( 'button', { name, exact: true } ) ).toBeVisible();
+			}
+			await expect(
+				page.getByRole( 'button', { name: 'Run speed test', exact: true } )
+			).toBeVisible();
+			await expect.poll( () => topOf( section ) ).toBeGreaterThan( 0 );
+			await expect.poll( () => topOf( section ) ).toBeLessThan( 300 );
+			await expect( page.getByRole( 'tab' ) ).toHaveCount( 0 );
+		} );
+	}
 
 	test( 'Keep modern assets off other admin pages', async ( { boostUtils, admin, page } ) => {
 		await boostUtils.setDashboardModernization( true );
