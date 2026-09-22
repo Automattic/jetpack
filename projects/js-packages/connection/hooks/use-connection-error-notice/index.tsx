@@ -181,27 +181,34 @@ export default function useConnectionErrorNotice( {
 
 	// The two links a notice can carry (Site Health and Contact Support) render
 	// outside `actions`, and hook-mode consumers draw them in their own JSX — so
-	// expose the same wired trackers the package's `<ConnectionError />` uses,
-	// keyed to the effective error for the standard payload.
+	// expose the same wired trackers the package's `<ConnectionError />` uses.
+	// Each attributes the click to the error that actually supplied the link, not
+	// to `actionError` (the CTA's error), which in a multi-error notice can be a
+	// different one; `actionError` remains the fallback.
 	const trackNoticeLinkClick = useCallback(
-		( link: ConnectionErrorNoticeLink ) =>
+		( link: ConnectionErrorNoticeLink ) => {
+			const source =
+				displayableErrors.find( error => error.error_data?.notice_link?.url === link.url ) ??
+				actionError;
 			trackConnectionErrorNoticeEvent(
 				CONNECTION_ERROR_NOTICE_EVENTS.noticeLink,
-				{ trackingCallback, trackingContext, error: actionError },
+				{ trackingCallback, trackingContext, error: source },
 				{ link_url: link.url }
-			),
-		[ trackingCallback, trackingContext, actionError ]
+			);
+		},
+		[ trackingCallback, trackingContext, displayableErrors, actionError ]
 	);
 
-	const trackSupportLinkClick = useCallback(
-		() =>
-			trackConnectionErrorNoticeEvent( CONNECTION_ERROR_NOTICE_EVENTS.supportLink, {
-				trackingCallback,
-				trackingContext,
-				error: actionError,
-			} ),
-		[ trackingCallback, trackingContext, actionError ]
-	);
+	const trackSupportLinkClick = useCallback( () => {
+		// The support link is notice-wide; attribute it to the first error that
+		// asked for it — representative when more than one did.
+		const source = displayableErrors.find( error => error.error_data?.support_link ) ?? actionError;
+		trackConnectionErrorNoticeEvent( CONNECTION_ERROR_NOTICE_EVENTS.supportLink, {
+			trackingCallback,
+			trackingContext,
+			error: source,
+		} );
+	}, [ trackingCallback, trackingContext, displayableErrors, actionError ] );
 
 	return {
 		hasConnectionError,
