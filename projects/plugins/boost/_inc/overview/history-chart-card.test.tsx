@@ -512,6 +512,18 @@ test( 'shows the history error message and offers retry', () => {
 	expect( callbacks.onRetry ).toHaveBeenCalledTimes( 1 );
 } );
 
+test( 'keeps the card padding for notices and drops it only for the charts', () => {
+	/* eslint-disable testing-library/no-node-access */
+	const { rerender } = render( <HistoryChartCard isError { ...callbacks } />, { wrapper } );
+	const zeroPaddingBody = () => document.querySelector( '.boost-daily-history__body' );
+	expect( zeroPaddingBody() ).toBeNull();
+	rerender( <HistoryChartCard isLoading { ...callbacks } /> );
+	expect( zeroPaddingBody() ).not.toBeNull();
+	rerender( <HistoryChartCard data={ history } { ...callbacks } /> );
+	expect( zeroPaddingBody() ).toContainElement( screen.getAllByRole( 'grid' )[ 0 ] );
+	/* eslint-enable testing-library/no-node-access */
+} );
+
 test( 'keeps the header, axis, and empty tooltip on the same day in a UTC+14 site', async () => {
 	const settings = getSettings();
 	setSettings( {
@@ -541,4 +553,18 @@ test( 'transitions from an error to paid history', () => {
 	expect( screen.getByRole( 'button', { name: 'Try again' } ) ).toBeInTheDocument();
 	rerender( <HistoryChartCard data={ history } { ...callbacks } /> );
 	expect( screen.getAllByRole( 'grid', { name: 'Bar chart' } ) ).toHaveLength( 2 );
+} );
+
+test( 'announces history errors in the assertive live region', () => {
+	// WordPress creates live regions outside the React test container.
+	/* eslint-disable testing-library/no-node-access */
+	const assertive =
+		document.getElementById( 'a11y-speak-assertive' ) ?? document.createElement( 'div' );
+	assertive.id = 'a11y-speak-assertive';
+	assertive.className = 'a11y-speak-region';
+	assertive.textContent = '';
+	document.body.appendChild( assertive );
+	/* eslint-enable testing-library/no-node-access */
+	render( <HistoryChartCard isError { ...callbacks } />, { wrapper } );
+	expect( assertive ).toHaveTextContent( 'Failed to load performance history' );
 } );
