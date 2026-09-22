@@ -1,4 +1,4 @@
-:global(.visx-tooltip) {
+:global(.visx-tooltip):has(.stats-line-chart-tooltip) {
 	background-color: transparent !important;
 	border: none !important;
 	box-shadow: none !important;

@@ -267,7 +267,7 @@ jobs:
 
       - name: Setup tools
         if: *php_lint_cond
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           php: ${{ matrix.php-versions }}
           node: false
@@ -303,7 +303,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           node: false
 
@@ -331,7 +331,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           node: false
 
@@ -363,10 +363,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 10
-      - uses: ./.github/actions/deepen-to-merge-base
+      - uses: $/.github/actions/deepen-to-merge-base
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           node: false
 
@@ -399,7 +399,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           php: false
 
@@ -426,10 +426,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 10
-      - uses: ./.github/actions/deepen-to-merge-base
+      - uses: $/.github/actions/deepen-to-merge-base
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           php: false
 
@@ -456,7 +456,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           php: false
 
@@ -479,7 +479,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           php: false
 
@@ -512,7 +512,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
 
       - run: composer install
       - name: Monorepo pnpm install
@@ -536,10 +536,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 10
-      - uses: ./.github/actions/deepen-to-merge-base
+      - uses: $/.github/actions/deepen-to-merge-base
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           node: false
 
@@ -559,7 +559,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           node: false
 
@@ -584,7 +584,7 @@ jobs:
           token: ${{ case( github.event_name == 'push', secrets.API_TOKEN_GITHUB, github.token ) }}
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
 
       - name: Check lock files
         id: check_lock_files
@@ -614,7 +614,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
       - run: pnpm install
       - run: tools/check-intra-monorepo-deps.sh -v
       - run: .github/files/check-monorepo-package-repos.sh
@@ -629,7 +629,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
 
       - run: pnpm install
       - run: .github/files/lint-project-structure.sh
@@ -648,7 +648,7 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: ./.github/actions/deepen-to-merge-base
+      - uses: $/.github/actions/deepen-to-merge-base
         id: deepen
       - name: Warn about stubs
         env:
@@ -684,7 +684,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           php: false
       - name: Pnpm install
@@ -711,7 +711,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
       - name: Pnpm install
         run: pnpm install
       - name: Add back removed packages in case of a release branch.
@@ -793,7 +793,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 10
-      - uses: ./.github/actions/deepen-to-merge-base
+      - uses: $/.github/actions/deepen-to-merge-base
       - name: Check mirrors
         env:
           BASE: ${{ github.event.pull_request.base.sha }}

@@ -1,14 +1,21 @@
 /**
- * Raw `subscribers/counts` response (pre-sanitizer shape), populated so the
- * Subscriber highlights widget renders every metric tile in Storybook. The
- * endpoint reports current totals for the whole site and has no comparison
- * period, so the values are a single snapshot.
+ * Paid subscribers on the mocked site when a story asks for a paid one.
  */
-export const mockStatsSubscribersCountsData = {
-	counts: {
-		total_subscribers: 12840,
-		email_subscribers: 9320,
-		paid_subscribers: 1180,
-		social_followers: 2340,
-	},
-};
+export const MOCK_PAID_SUBSCRIBERS = 1180;
+
+/**
+ * Raw `subscribers/counts` response (pre-sanitizer shape) for a site with `paidSubscribers` of them.
+ *
+ * @param paidSubscribers - Paid subscribers the mocked site has.
+ * @return The counts response.
+ */
+export function buildStatsSubscribersCountsData( paidSubscribers: number ) {
+	return {
+		counts: {
+			total_subscribers: 12840,
+			email_subscribers: 9320,
+			paid_subscribers: paidSubscribers,
+			social_followers: 2340,
+		},
+	};
+}

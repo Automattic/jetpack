@@ -71,6 +71,7 @@ function hookResult(
 	return {
 		primary: { data: PRIMARY },
 		comparison: { data: COMPARISON },
+		timezone: 'UTC',
 		isLoading: false,
 		isFetching: false,
 		hasData: true,

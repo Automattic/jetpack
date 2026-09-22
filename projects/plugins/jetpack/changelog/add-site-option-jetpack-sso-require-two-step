@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Sites API: return the "Require two-step authentication" SSO setting as the `jetpack_sso_require_two_step` site option.

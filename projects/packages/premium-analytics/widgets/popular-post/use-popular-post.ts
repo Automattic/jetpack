@@ -2,25 +2,16 @@
  * External dependencies
  */
 import {
-	postContentQuery,
+	getDefaultQueryParams,
 	useStatsPost,
-	useStatsQuery,
-	useStatsTopPosts,
-	type LatestPostResponse,
 	type ReportParams,
 } from '@jetpack-premium-analytics/data';
+import { PRESET_LAST_12_MONTHS } from '@jetpack-premium-analytics/datetime';
 import { useMemo } from 'react';
-
-// Only regular posts qualify as a "Popular post": the Stats top-posts report
-// also ranks pages and the URL-less homepage entry. Declared at module level so
-// the reference stays stable — `useStatsTopPosts` memoizes its comparison mapper
-// on this option.
-const POPULAR_POST_TYPES = [ 'post' ];
-
-// Ask for a page of ranked rows, since filtering to post-type rows still needs a
-// winner. On a page-heavy site all 20 can be pages, leaving the widget empty
-// while a qualifying post ranks lower; only a `post_type`-filtered endpoint fixes that.
-const POPULAR_POST_REQUEST_MAX = 20;
+/**
+ * Internal dependencies
+ */
+import { useAuthorRankedPost, useSiteRankedPost } from './use-ranked-post';
 
 export type PopularPostWithMetrics = {
 	id: number;
@@ -38,8 +29,33 @@ export type PopularPostWithMetrics = {
 	commentCount: number | undefined;
 };
 
+/**
+ * The window the card ranked over, as the date fields of the shared report
+ * params — the shape the detail page's route takes.
+ */
+export type PopularPostRange = Pick< ReportParams, 'from' | 'to' | 'preset' | 'interval' >;
+
+// The window the card ranks over, pinned to the period its title names rather
+// than following the dashboard's range, which would make that title false the
+// moment the section filter moved.
+const POPULAR_POST_PRESET = PRESET_LAST_12_MONTHS;
+
+/**
+ * Rank one author's posts instead of the site's. The window is then the page's
+ * `reportParams` rather than the pinned 12 months.
+ */
+export type UsePopularPostScope = {
+	authorId: number;
+	reportParams: ReportParams;
+};
+
 export type UsePopularPostResult = {
 	post: PopularPostWithMetrics | null;
+	/**
+	 * The window the winner was ranked over. The card's detail link opens on it,
+	 * so the post's own page reports on the period the card's title names.
+	 */
+	range: PopularPostRange;
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
@@ -48,35 +64,37 @@ export type UsePopularPostResult = {
 };
 
 /**
- * The site's most-viewed post for the selected date range. The range only picks
- * the winner: every displayed metric is an all-time total from `stats/post`, so
- * the three tiles cannot measure different periods.
+ * The most-viewed post: the site's over the last 12 months, or one author's over
+ * the page's range. The window only picks the winner; every metric shown is an
+ * all-time total from `stats/post`. A failing metrics request degrades to unknown counts.
  *
- * Only a ranking failure surfaces as an error; a failing content or metrics
- * request degrades to no image and unknown counts.
+ * @param scope - The author scope, when the page has one; omit to rank the whole site.
+ * @return The winning post and request state.
  */
-export function usePopularPost( reportParams: ReportParams ): UsePopularPostResult {
-	const statsParams = useMemo( () => {
-		// Comparison params would fetch a second report this widget never renders.
-		const primaryParams = { ...reportParams, max: POPULAR_POST_REQUEST_MAX };
-		delete primaryParams.comp;
-		delete primaryParams.compare_from;
-		delete primaryParams.compare_to;
-		delete primaryParams.compare_preset;
+export function usePopularPost( scope?: UsePopularPostScope ): UsePopularPostResult {
+	const isAuthorScoped = !! scope && scope.authorId > 0;
 
-		return primaryParams;
-	}, [ reportParams ] );
+	// Resolved per render rather than once at module load, so the window is never
+	// older than the render that reads it.
+	const { preset, from, to, interval } = isAuthorScoped
+		? scope.reportParams
+		: getDefaultQueryParams( false, POPULAR_POST_PRESET );
 
-	// Ranking, post-type filtering, and the single-row cap all live in the data
-	// layer's merge helper (see AGENTS.md), so the widget just takes the winner.
-	const topPostsResult = useStatsTopPosts( statsParams, {
-		maxRows: 1,
-		postTypes: POPULAR_POST_TYPES,
-	} );
-	const topRow = topPostsResult.comparisonRows?.rows[ 0 ];
+	const range = useMemo( () => ( { preset, from, to, interval } ), [ preset, from, to, interval ] );
+
+	// `interval` rides along because the params type requires it; it describes the
+	// destination's chart, not this request. It cannot reach the API either way:
+	// the param mapper does derive a `period` from it, but the query layer
+	// overwrites that with `day` for any window carrying no explicit `period`, and
+	// `interval` itself is absent from the stats param allow-list and the key.
+	const rankingParams = useMemo( () => ( { from, to, interval } ), [ from, to, interval ] );
+
+	const siteRanking = useSiteRankedPost( rankingParams, ! isAuthorScoped );
+	const authorRanking = useAuthorRankedPost( scope?.authorId ?? 0, rankingParams, isAuthorScoped );
+	const ranking = isAuthorScoped ? authorRanking : siteRanking;
+
+	const { topRow, content } = ranking;
 	const postId = Number( topRow?.id ?? 0 ) || 0;
-
-	const contentResult = useStatsQuery< LatestPostResponse >( postContentQuery( postId ) );
 	const postStatsResult = useStatsPost( { postId, fields: [ 'views', 'like_count', 'post' ] } );
 
 	/*
@@ -96,28 +114,20 @@ export function usePopularPost( reportParams: ReportParams ): UsePopularPostResu
 	// A failed request stops counting as pending, or a 403 would skeleton forever.
 	const isMetricsPending = postId > 0 && ! metrics && ! postStatsResult.isError;
 
-	// Both dependent queries are disabled until a post ID resolves, so they only
-	// count towards the widget's loading state once there is a post to load.
+	// The metrics query is disabled until a post ID resolves, so it only counts
+	// towards the loading state once there is a post to load.
 	const isLoading =
-		topPostsResult.isLoading ||
-		( postId > 0 && ( contentResult.isLoading || postStatsResult.isLoading || isMetricsPending ) );
-	const isFetching =
-		topPostsResult.isFetching || contentResult.isFetching || postStatsResult.isFetching;
-	// Surfaced even with rows on screen: `placeholderData` only applies while
-	// pending, so rows surviving an error mean a failed background refetch.
-	const isError = topPostsResult.isError;
+		ranking.isLoading || ( postId > 0 && ( postStatsResult.isLoading || isMetricsPending ) );
+	const isFetching = ranking.isFetching || postStatsResult.isFetching;
 
 	const refetch = () => {
-		void topPostsResult.refetch();
-		// The dependent queries are disabled until a post ID resolves; refetching
-		// them while disabled would force a request for post 0.
+		ranking.refetch();
+		// Disabled until a post ID resolves; refetching it then would request post 0.
 		if ( postId > 0 ) {
-			void contentResult.refetch();
 			void postStatsResult.refetch();
 		}
 	};
 
-	const content = contentResult.data ?? null;
 	const post = topRow
 		? {
 				id: postId,
@@ -132,8 +142,18 @@ export function usePopularPost( reportParams: ReportParams ): UsePopularPostResu
 				views: metrics?.views,
 				likeCount: metrics?.like_count,
 				commentCount: metrics?.post?.comment_count,
-		  }
+			}
 		: null;
 
-	return { post, isLoading, isFetching, isError, error: topPostsResult.error, refetch };
+	return {
+		post,
+		range,
+		isLoading,
+		isFetching,
+		// Surfaced even with rows on screen: `placeholderData` only applies while
+		// pending, so rows surviving an error mean a failed background refetch.
+		isError: ranking.isError,
+		error: ranking.error,
+		refetch,
+	};
 }

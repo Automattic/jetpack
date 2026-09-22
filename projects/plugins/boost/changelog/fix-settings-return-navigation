@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Settings: Avoid duplicate navigation when returning from a sub-page.

@@ -58,9 +58,7 @@ const {
 	default: useSubjectFields,
 	useEnclosedFields,
 	useEnsureFieldId,
-} = await import(
-	'../../../../../src/blocks/shared/conditional-logic/hooks/use-subject-fields.js'
-);
+} = await import( '../../../../../src/blocks/shared/conditional-logic/hooks/use-subject-fields.js' );
 
 /**
  * A field block, optionally carrying a label block and an explicit id.

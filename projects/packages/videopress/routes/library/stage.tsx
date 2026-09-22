@@ -1,4 +1,5 @@
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
+import useConnectionErrorNotice from '@automattic/jetpack-connection/use-connection-error-notice';
 import { DropZone, Spinner, Tooltip } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
@@ -23,9 +24,9 @@ import { usePersistedView } from '../../src/dashboard/hooks/use-persisted-view';
 import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
-import { useVideoPressUpgrade } from '../../src/dashboard/hooks/use-videopress-upgrade';
+import { useUploadIntake } from '../../src/dashboard/hooks/use-upload-intake';
 import { createPromoteLocal } from './promote-local';
-import { planVideoDrop } from './upload-drop';
+import { classifyUploadFailure } from './upload-failure';
 import './style.scss';
 import type { LibraryItem, LibraryItemPrivacy } from '../../src/dashboard/types/library';
 import type { SupportedLayouts, View } from '@wordpress/dataviews';
@@ -49,6 +50,11 @@ const GRID_VISIBLE_FIELDS: string[] = [ 'orientation' ];
 // visibility control.
 const TABLE_VISIBLE_FIELDS = [ 'filename', 'duration', 'orientation', 'uploadDate', 'privacy' ];
 
+const defaultLayouts = {
+	grid: { layout: { previewSize: 220, density: 'comfortable', aspectRatio: '16/9' } },
+	table: { layout: { density: 'balanced', aspectRatio: '16/9' } },
+} satisfies SupportedLayouts;
+
 const DEFAULT_VIEW: View = {
 	type: 'grid',
 	page: 1,
@@ -56,15 +62,10 @@ const DEFAULT_VIEW: View = {
 	titleField: 'title',
 	mediaField: 'thumbnail',
 	fields: GRID_VISIBLE_FIELDS,
-	layout: { previewSize: 220, density: 'comfortable' },
+	layout: defaultLayouts.grid.layout,
 	sort: { field: 'uploadDate', direction: 'desc' },
 	filters: [],
 	search: '',
-};
-
-const defaultLayouts: SupportedLayouts = {
-	grid: { layout: { previewSize: 220, density: 'comfortable' } },
-	table: { layout: { density: 'balanced' } },
 };
 
 // The whole library, unfiltered — `paginationInfo` on the user's own view is
@@ -82,7 +83,7 @@ const TOTAL_COUNT_VIEW: View = {
 };
 
 const StageInner = () => {
-	const [ initialView, persistView ] = usePersistedView( DEFAULT_VIEW );
+	const [ initialView, persistView ] = usePersistedView( DEFAULT_VIEW, defaultLayouts );
 	const [ view, setView ] = useState< View >( initialView );
 	const [ selection, setSelection ] = useState< string[] >( [] );
 	const [ captionVideo, setCaptionVideo ] = useState< LibraryItem | null >( null );
@@ -106,13 +107,16 @@ const StageInner = () => {
 		error: libraryError,
 		refetch,
 	} = useLibrary( view );
-	const { uploadQueue, startUpload, retryUpload } = useUpload();
+	const { uploadQueue, retryUpload } = useUpload();
+	// Read the store's existing errors so a failed row can name the cause; the
+	// notice this dashboard already renders carries the diagnosis and the
+	// reconnect button, so the row only has to point at it.
+	const { hasConnectionError } = useConnectionErrorNotice();
 	const { paginationInfo: totalPagination } = useLibrary( TOTAL_COUNT_VIEW );
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
 	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();
-	const { isAtLimit, isFree, isUnlimited, videoCount, limit } = useFreeTier();
-	const runUpgrade = useVideoPressUpgrade();
+	const { isAtLimit, isFree, isUnlimited } = useFreeTier();
 
 	const onChangeView = useCallback(
 		( next: View ) => {
@@ -123,7 +127,7 @@ const StageInner = () => {
 						: {
 								...next,
 								fields: next.type === 'table' ? TABLE_VISIBLE_FIELDS : GRID_VISIBLE_FIELDS,
-						  };
+							};
 				persistView( resolved );
 				return resolved;
 			} );
@@ -150,49 +154,11 @@ const StageInner = () => {
 
 	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
 
-	// Shared multi-file entry point for both the DropZone and the header
-	// "Upload video" file picker. Enforces the free-tier cap up front so
-	// neither path can sneak past the limit the picker button guards.
-	const handleFilesSelected = useCallback(
-		( files: File[] ) => {
-			const decision = planVideoDrop( files, {
-				isFree,
-				isUnlimited,
-				limit,
-				videoCount,
-			} );
-
-			if ( decision.kind === 'no-videos' ) {
-				createErrorNotice( __( 'Only video files can be uploaded.', 'jetpack-videopress-pkg' ) );
-				return;
-			}
-
-			if ( decision.kind === 'at-limit' ) {
-				createErrorNotice( FREE_TIER_AT_LIMIT_MESSAGE, {
-					actions: [ { label: __( 'Upgrade', 'jetpack-videopress-pkg' ), onClick: runUpgrade } ],
-				} );
-				return;
-			}
-
-			decision.toUpload.forEach( file => startUpload( file ) );
-
-			if ( decision.skipped > 0 ) {
-				createErrorNotice(
-					sprintf(
-						/* translators: %d: number of videos that could not be uploaded because the plan limit was reached. */
-						_n(
-							'%d video wasn’t uploaded because it exceeds your plan’s limit.',
-							'%d videos weren’t uploaded because they exceed your plan’s limit.',
-							decision.skipped,
-							'jetpack-videopress-pkg'
-						),
-						decision.skipped
-					)
-				);
-			}
-		},
-		[ isFree, isUnlimited, limit, videoCount, startUpload, createErrorNotice, runUpgrade ]
-	);
+	// Shared multi-file entry point for the DropZone, the header "Upload
+	// video" file picker, and (via the same hook) the welcome modal's CTA.
+	// Enforces the free-tier cap up front so no path can sneak past the limit
+	// the picker button guards.
+	const handleFilesSelected = useUploadIntake();
 
 	const onFilePicked = useCallback(
 		( event: ChangeEvent< HTMLInputElement > ) => {
@@ -391,6 +357,8 @@ const StageInner = () => {
 				upload: {
 					status: u.status === 'failed' ? ( 'failed' as const ) : ( 'uploading' as const ),
 					progress: Math.round( u.progress * 100 ),
+					failureReason:
+						u.status === 'failed' ? classifyUploadFailure( u, hasConnectionError ) : undefined,
 				},
 				description: '',
 				rating: 'G' as LibraryItem[ 'rating' ],
@@ -416,7 +384,7 @@ const StageInner = () => {
 			return item;
 		} );
 		return [ ...inFlight, ...overlaid ];
-	}, [ uploadQueue, items, promotingProgress, deletingIds ] );
+	}, [ uploadQueue, items, promotingProgress, deletingIds, hasConnectionError ] );
 
 	const getItemId = useCallback( ( item: LibraryItem ) => item.id, [] );
 
@@ -435,6 +403,20 @@ const StageInner = () => {
 			defaultLayouts={ defaultLayouts }
 		/>
 	);
+
+	// The empty-library verdict, in the same order the viewport decides it
+	// below: a failed listing wins, then anything listable (fetched rows or
+	// in-flight uploads), then the undecided wait, and only then does a
+	// settled count of zero mean "empty". Shared with the header, which
+	// drops its Upload button while the dropzone owns that affordance —
+	// "Upload video" beside "Select a video to upload" was two buttons for
+	// one action.
+	const showsEmptyDropzone =
+		! isError &&
+		items.length === 0 &&
+		uploadQueue.length === 0 &&
+		totalPagination !== undefined &&
+		totalPagination.totalItems === 0;
 
 	// The viewport's four mutually exclusive surfaces, flattened out of
 	// nested ternaries so each branch can say why it exists. Order matters:
@@ -486,10 +468,11 @@ const StageInner = () => {
 		// An empty library gets an upload dropzone instead of DataViews'
 		// "No results" — a first-video invitation rather than a failed
 		// search. Dropping or picking files lands in the same
-		// `handleFilesSelected` pipeline as the page-wide DropZone and the
-		// header button, so the listing (with its spliced in-flight rows)
-		// takes over the moment anything enters the queue.
-		if ( totalPagination.totalItems === 0 ) {
+		// `handleFilesSelected` pipeline as the page-wide DropZone (and the
+		// header's Upload button, once the listing shows), so the listing
+		// (with its spliced in-flight rows) takes over the moment anything
+		// enters the queue.
+		if ( showsEmptyDropzone ) {
 			return (
 				<div className="vp-library__empty-state">
 					<Card.Root className="vp-library__empty-card">
@@ -524,35 +507,37 @@ const StageInner = () => {
 			activeTab="library"
 			hideFooter
 			actions={
-				<>
-					<input
-						ref={ filePickerRef }
-						type="file"
-						accept="video/*"
-						// The capped free tier can only ever host `limit` videos, so
-						// multi-select there would only produce skipped-file notices;
-						// paid and grandfathered-unlimited plans get bulk selection.
-						multiple={ ! isFree || isUnlimited }
-						style={ { display: 'none' } }
-						onChange={ onFilePicked }
-					/>
-					<Tooltip
-						text={
-							isAtLimit
-								? FREE_TIER_AT_LIMIT_MESSAGE
-								: __( 'Upload a new video', 'jetpack-videopress-pkg' )
-						}
-					>
-						<Button
-							className="vp-library__upload-button"
-							size="compact"
-							onClick={ onClickHeaderUpload }
-							aria-disabled={ isAtLimit }
+				showsEmptyDropzone ? undefined : (
+					<>
+						<input
+							ref={ filePickerRef }
+							type="file"
+							accept="video/*"
+							// The capped free tier can only ever host `limit` videos, so
+							// multi-select there would only produce skipped-file notices;
+							// paid and grandfathered-unlimited plans get bulk selection.
+							multiple={ ! isFree || isUnlimited }
+							style={ { display: 'none' } }
+							onChange={ onFilePicked }
+						/>
+						<Tooltip
+							text={
+								isAtLimit
+									? FREE_TIER_AT_LIMIT_MESSAGE
+									: __( 'Upload a new video', 'jetpack-videopress-pkg' )
+							}
 						>
-							{ __( 'Upload video', 'jetpack-videopress-pkg' ) }
-						</Button>
-					</Tooltip>
-				</>
+							<Button
+								className="vp-library__upload-button"
+								size="compact"
+								onClick={ onClickHeaderUpload }
+								aria-disabled={ isAtLimit }
+							>
+								{ __( 'Upload video', 'jetpack-videopress-pkg' ) }
+							</Button>
+						</Tooltip>
+					</>
+				)
 			}
 		>
 			{ isAtLimit && (

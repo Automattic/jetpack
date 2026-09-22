@@ -1,5 +1,6 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Card } from '@wordpress/ui';
 import PropTypes from 'prop-types';
@@ -8,8 +9,6 @@ import ActivationScreenControls from '../activation-screen-controls';
 import ActivationScreenIllustration from '../activation-screen-illustration';
 import ActivationScreenSuccessInfo from '../activation-screen-success-info';
 import GoldenTokenModal from '../golden-token-modal';
-import lockImage from '../jetpack-license-activation-with-lock.png';
-import successImage from '../jetpack-license-activation-with-success.png';
 
 import './style.scss';
 
@@ -48,19 +47,17 @@ const parseAttachLicensesResult = result => {
 /**
  * The Activation Screen component.
  *
- * @param {object}    props                            -- The properties.
- * @param {Function?} props.onActivationSuccess        -- A function to call on success.
- * @param {string}    props.siteRawUrl                 -- url of the Jetpack Site
- * @param {string?}   props.startingLicense            -- pre-fill the license value
- * @param {string}    props.siteAdminUrl               -- URL of the Jetpack Site Admin
- * @param {string}    props.currentRecommendationsStep -- The current recommendation step.
- * @param {string}    props.currentUser                -- Current wpcom user info.
+ * @param {object}    props                     -- The properties.
+ * @param {Function?} props.onActivationSuccess -- A function to call on success.
+ * @param {string}    props.siteRawUrl          -- url of the Jetpack Site
+ * @param {string?}   props.startingLicense     -- pre-fill the license value
+ * @param {string}    props.siteAdminUrl        -- URL of the Jetpack Site Admin
+ * @param {string}    props.currentUser         -- Current wpcom user info.
  * @return {import('react').Component} The `ActivationScreen` component.
  */
 const ActivationScreen = props => {
 	const {
 		availableLicenses = [],
-		currentRecommendationsStep,
 		fetchingAvailableLicenses = false,
 		onActivationSuccess = () => null,
 		siteAdminUrl,
@@ -133,15 +130,21 @@ const ActivationScreen = props => {
 			} );
 	}, [ isSaving, license, onActivationSuccess ] );
 
+	const assetsUrl = getScriptData()?.licensing?.assetsUrl;
+
 	const renderActivationSuccess = () => (
 		<Card.Root className="jp-license-activation-screen">
 			<ActivationScreenSuccessInfo
 				siteRawUrl={ siteRawUrl }
 				productId={ activatedProduct }
 				siteAdminUrl={ siteAdminUrl }
-				currentRecommendationsStep={ currentRecommendationsStep }
 			/>
-			<ActivationScreenIllustration imageUrl={ successImage } showSupportLink={ false } />
+			<ActivationScreenIllustration
+				imageUrl={
+					assetsUrl ? `${ assetsUrl }jetpack-license-activation-with-success.png` : undefined
+				}
+				showSupportLink={ false }
+			/>
 		</Card.Root>
 	);
 
@@ -157,7 +160,12 @@ const ActivationScreen = props => {
 				onLicenseChange={ onLicenseChange }
 				siteUrl={ siteRawUrl }
 			/>
-			<ActivationScreenIllustration imageUrl={ lockImage } showSupportLink />
+			<ActivationScreenIllustration
+				imageUrl={
+					assetsUrl ? `${ assetsUrl }jetpack-license-activation-with-lock.png` : undefined
+				}
+				showSupportLink
+			/>
 		</Card.Root>
 	);
 
@@ -174,7 +182,6 @@ const ActivationScreen = props => {
 
 ActivationScreen.propTypes = {
 	availableLicenses: PropTypes.array,
-	currentRecommendationsStep: PropTypes.string,
 	fetchingAvailableLicenses: PropTypes.bool,
 	onActivationSuccess: PropTypes.func,
 	siteAdminUrl: PropTypes.string.isRequired,

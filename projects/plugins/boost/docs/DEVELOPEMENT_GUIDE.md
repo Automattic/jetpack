@@ -7,8 +7,9 @@
 	* [Setting up your environment](#setting-up-your-environment)
 	* [Build the project](#build-the-project)
 	* [PHP unit tests](#php-unit-tests)
-	* [JavaScript unit tests and e2e tests](#javascript-e2e-tests)
+	* [JavaScript unit tests and e2e tests](#javascript-unit-tests-and-e2e-tests)
 	* [Linting Jetpack Boost's PHP code](#linting-jetpack-boost-php-code)
+	* [Typechecking the modern dashboard](#typechecking-the-modern-dashboard)
 	* [Linting Jetpack Boost's JavaScript code](#linting-jetpack-boost-javascript-code)
 * [Debugging Concatenate JS/CSS exclusions](#debugging-concatenate-jscss-exclusions)
 
@@ -28,14 +29,17 @@ If not, you might need as a prerequisite to bypass the Jetpack connection.
 
 ## Build the project
 
-You may also need building the Image CDN Jetpack Package dependency using the following command:
+From the monorepo root, build Boost and its dependencies:
 
-  ```sh
-  jetpack build packages/image_cdn
-  ```
+```sh
+pnpm jetpack build plugins/boost --deps
+```
 
-You may need to do this only once.
+Add `--production` for a production build. The build produces both the legacy
+webpack assets and the modern dashboard assets. For an opt-in local demo, see
+[Dashboard modernization](../tests/e2e/README.md#dashboard-modernization).
 
+For development access to the modern dashboard, use the `rsm_jetpack_ui_modernization_boost` filter documented in [the admin loader](../app/admin/class-admin.php). Its default and asset fallback are defined there.
 
 ## PHP unit tests
 
@@ -52,7 +56,11 @@ Or you might also choose to run them inside Docker if you are using it as your d
 jetpack docker exec -- sh -c "composer -d wp-content/plugins/boost test-php"
 ```
 
-## JavaScript e2e tests
+## JavaScript unit tests and e2e tests
+
+From `projects/plugins/boost`, run `pnpm test` for JavaScript unit tests, including
+the modern dashboard. Test discovery is configured in
+[`tests/jest.config.cjs`](../tests/jest.config.cjs).
 
 Please refer to the Jetpack Boost e2e tests specific [documentation](../tests/e2e/README.md).
 
@@ -78,22 +86,23 @@ To check for PHP code compatibility run:
   composer phpcs:compatibility ./projects/plugins/boost
   ```
 
+## Typechecking the modern dashboard
+
+From `projects/plugins/boost`, run `pnpm typecheck` to check the modern dashboard TypeScript using
+[`tsconfig.dashboard.json`](../tsconfig.dashboard.json). This command does not
+check the full legacy application.
+
 ## Linting Jetpack Boost JavaScript code
-The following commands need to be run from the `projects/plugins/boost` directory.
 
-To check syntax and style in the all the TypeScript and Svelte files that Jetpack Boost relies on, you can run:
+Run the monorepo's ESLint command from the monorepo root, scoped to Boost:
 
-  ```sh
-  pnpm lint
-  ``` 
+```sh
+pnpm run lint-file projects/plugins/boost
+```
 
-
-To automatically fix some JavaScript related issues, you can run:
-
-  ```sh
-  pnpm lint:fix
-  ``` 
-
+Append `--fix` to apply automatic fixes. See the
+[development environment guide](../../../../docs/development-environment.md#linting-jetpacks-javascript)
+for configuration guidance.
 
 # Debugging Concatenate JS/CSS exclusions
 
@@ -108,5 +117,5 @@ Notes:
 
 * The parameters only work for logged-in users with the `manage_options` capability (administrators); for everyone else they are ignored.
 * Handles may only contain alphanumerics, dashes, underscores and dots; anything else is discarded. Case is preserved, so enter the handle exactly as registered (handles are matched case-sensitively).
-* Nothing is persisted — the merged exclude list only applies to the current request. To make an exclusion permanent, add it in Boost's Advanced Settings.
+* Nothing is persisted — the merged exclude list only applies to the current request. To make an exclusion permanent in the modern dashboard, expand the relevant Concatenate module's **Except** panel, enter the handles, and click **Save**. On the legacy dashboard, use Boost's Advanced Settings.
 * This does not interact with Boost's Page Cache: logged-in users are never served cached pages, nor are their page views written to the cache.

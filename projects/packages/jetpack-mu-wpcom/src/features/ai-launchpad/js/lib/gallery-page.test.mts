@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createGalleryPage } from './gallery-page.ts';
+import { ENGLISH_SITE_COPY } from './site-copy.fixture.mts';
 
 type PageData = { title: string; content: string; status: string; meta: object };
 type PageRequest = { path: string; method: string; data: PageData };
@@ -34,6 +35,7 @@ describe( 'createGalleryPage', () => {
 		const { fetcher, requests } = stubFetcher();
 		const result = await createGalleryPage(
 			'Every piece that came out of the kiln this year.',
+			ENGLISH_SITE_COPY,
 			fetcher
 		);
 
@@ -71,7 +73,7 @@ describe( 'createGalleryPage', () => {
 		// Nothing on this page may point anywhere. If someone later "improves" it by reaching for a
 		// pattern again, or by dropping in an example photo, this fails first and loudly.
 		const { fetcher, requests } = stubFetcher();
-		await createGalleryPage( 'A year of work in one place.', fetcher );
+		await createGalleryPage( 'A year of work in one place.', ENGLISH_SITE_COPY, fetcher );
 		const content = requests[ 0 ].data.content;
 
 		assert.ok( ! /https?:|\/\//.test( content ), 'the page points at a URL' );
@@ -111,7 +113,7 @@ describe( 'createGalleryPage', () => {
 		// that blocks.serialize( createBlock( 'core/gallery' ) ) emits, which is what WordPress itself
 		// writes when an untouched Gallery block is saved.
 		const { fetcher, requests } = stubFetcher();
-		await createGalleryPage( undefined, fetcher );
+		await createGalleryPage( undefined, ENGLISH_SITE_COPY, fetcher );
 		const content = requests[ 0 ].data.content;
 
 		assert.ok(
@@ -130,7 +132,7 @@ describe( 'createGalleryPage', () => {
 		// or a default the editor writes for itself once they do. The old fallback markup carried
 		// {"linkTo":"none"}, which is the block's own default and buys nothing.
 		const { fetcher, requests } = stubFetcher();
-		await createGalleryPage( 'A year of work in one place.', fetcher );
+		await createGalleryPage( 'A year of work in one place.', ENGLISH_SITE_COPY, fetcher );
 		const content = requests[ 0 ].data.content;
 
 		assert.equal( blockNames( content ).filter( name => 'gallery' === name ).length, 1 );
@@ -142,7 +144,7 @@ describe( 'createGalleryPage', () => {
 		// site, with no plan, plugin or pattern-library fetch behind it. A namespaced block delimiter
 		// is the tell that a dependency crept back in.
 		const { fetcher, requests } = stubFetcher();
-		await createGalleryPage( undefined, fetcher );
+		await createGalleryPage( undefined, ENGLISH_SITE_COPY, fetcher );
 
 		assert.deepEqual( blockNames( requests[ 0 ].data.content ), [ 'heading', 'gallery' ] );
 	} );
@@ -154,14 +156,18 @@ describe( 'createGalleryPage', () => {
 		// logged `picked_score: 0, fallback: first_usable` on every single event. One request creates
 		// the page now, and the stub fetcher is the only fetch there is.
 		const { fetcher, requests } = stubFetcher();
-		await createGalleryPage( 'A year of work in one place.', fetcher );
+		await createGalleryPage( 'A year of work in one place.', ENGLISH_SITE_COPY, fetcher );
 
 		assert.equal( requests.length, 1 );
 	} );
 
 	it( 'escapes the AI-written intro rather than emitting it as markup', async () => {
 		const { fetcher, requests } = stubFetcher();
-		await createGalleryPage( 'Glazes <all> of them & the misfires too.', fetcher );
+		await createGalleryPage(
+			'Glazes <all> of them & the misfires too.',
+			ENGLISH_SITE_COPY,
+			fetcher
+		);
 
 		assert.match(
 			requests[ 0 ].data.content,
@@ -175,7 +181,7 @@ describe( 'createGalleryPage', () => {
 		// gallery block is what the task is for, so the page must arrive with it either way.
 		for ( const intro of [ undefined, '', '   ' ] ) {
 			const { fetcher, requests } = stubFetcher();
-			await createGalleryPage( intro, fetcher );
+			await createGalleryPage( intro, ENGLISH_SITE_COPY, fetcher );
 
 			const content = requests[ 0 ].data.content;
 			assert.ok( content.includes( '<!-- wp:gallery -->' ), 'the gallery block must survive' );

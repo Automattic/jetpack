@@ -18,7 +18,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
-		pointsAreWallClocks,
 	}: {
 		metrics: {
 			key: string;
@@ -28,12 +27,10 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			dataFormat?: { type: string };
 		}[];
 		chartType?: string;
-		pointsAreWallClocks?: boolean;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
 			data-chart-type={ String( chartType ) }
-			data-wall-clocks={ String( pointsAreWallClocks ) }
 			data-metrics={ JSON.stringify(
 				metrics.map( metric => ( {
 					key: metric.key,
@@ -171,7 +168,7 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 			'Hours watched',
 			'Retention rate',
 		] );
-		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
 
 		// One point per calendar day of the 7-day window, zero-filled around the
 		// two returned days; the headline is the response's canonical total.
@@ -204,9 +201,9 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		expect( requestedParams.get( 'date' ) ).toBe( WINDOW_PARAMS.to );
 	} );
 
-	// Pinned west of UTC: under a UTC runner the wall-clock and instant readings
-	// coincide, so this would pass either way. `TZ` isn't on the typed env shape.
-	it( 'builds bucket points as the wall clocks the buckets name, declared to the chart', async () => {
+	// Pinned west of UTC: under a UTC runner the site and runner readings coincide,
+	// so this would pass either way. `TZ` isn't on the typed env shape.
+	it( 'builds bucket points on the bucket days the site names', async () => {
 		const env = process.env as Record< string, string | undefined >;
 		const runnerTimeZone = env.TZ;
 		env.TZ = 'America/Los_Angeles';
@@ -221,10 +218,9 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 			);
 
 			const chart = await screen.findByTestId( 'metric-tabs-chart' );
-			// A site-midnight instant for this UTC+8 window would read back as the
-			// previous day in Los Angeles; the wall-clock reading avoids that.
+			// Reading this UTC+8 window's midnights in Los Angeles would report the
+			// previous day.
 			expect( chartedMetrics( chart )[ 0 ].days ).toEqual( [ 1, 2, 3, 4, 5, 6, 7 ] );
-			expect( chart ).toHaveAttribute( 'data-wall-clocks', 'true' );
 		} finally {
 			if ( runnerTimeZone === undefined ) {
 				delete env.TZ;
@@ -252,17 +248,17 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		expect( retention.values[ 2 ] ).toBe( 0 );
 	} );
 
-	it( 'draws bars when the chartType attribute says so', async () => {
+	it( 'draws a line when the chartType attribute says so', async () => {
 		mockApiFetch.mockImplementation( respondByWindow( { '2026-07-01': PRIMARY_WINDOW_RESPONSE } ) );
 
 		render(
 			<VideoDetailViewsPerformanceWidget
-				attributes={ { reportParams: WINDOW_PARAMS, chartType: 'bar' } }
+				attributes={ { reportParams: WINDOW_PARAMS, chartType: 'line' } }
 			/>
 		);
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
 	} );
 
 	it( 'ignores comparison report params: one request, single-period series', async () => {

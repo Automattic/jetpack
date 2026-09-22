@@ -65,23 +65,13 @@ function wallPartsToTimestamp( parts: number[], timeZone: string ): number {
 /**
  * Build a TZDate from `DateParts` in the given timezone, UTC when omitted.
  *
- * @param root0
- * @param root0."0"
- * @param root0."1"
- * @param root0."2"
- * @param root0."3"
- * @param root0."4"
- * @param root0."5"
- * @param root0."6"
- * @param timeZone
+ * @param parts    - Wall-clock parts, `[ year, month, ...rest ]` as `Date.UTC` reads them.
+ * @param timeZone - The timezone the wall time belongs to.
+ * @return The zoned date.
  */
-export function createTZDateFromParts(
-	[ year, month, day, hours, minutes, seconds, milliseconds ]: DateParts,
-	timeZone?: string
-): TZDate {
+export function createTZDateFromParts( parts: DateParts, timeZone?: string ): TZDate {
 	const tzid = timeZone ?? '+00:00';
-
-	const dateParts = [ year, month, day, hours, minutes, seconds, milliseconds ];
+	const dateParts: ( number | undefined )[] = [ ...parts ];
 
 	// Trim until first undefined, to match one of the DateParts types.
 	const idx = dateParts.indexOf( undefined );
@@ -173,9 +163,9 @@ export function dateToISOStringWithTZ( date: Date, timezone: string ): string {
  *
  * @param date     - The date to get the start of day for
  * @param timeZone - Timezone string (e.g., 'America/New_York', 'UTC', '+08:00')
- * @return A Date object representing midnight in the specified timezone
+ * @return A `TZDate` representing midnight in the specified timezone
  */
-export function startOfDayTZ( date: Date | number, timeZone: string ): Date {
+export function startOfDayTZ( date: Date | number, timeZone: string ): TZDate {
 	const tzDate = new TZDateMini( new Date( date ).getTime(), timeZone );
 	// startOfDay from date-fns respects the timezone context in TZDate
 	return startOfDay( tzDate );
@@ -186,9 +176,9 @@ export function startOfDayTZ( date: Date | number, timeZone: string ): Date {
  *
  * @param date     - The date to get the end of day for
  * @param timeZone - Timezone string (e.g., 'America/New_York', 'UTC', '+08:00')
- * @return A Date object representing the last millisecond of the day in the specified timezone
+ * @return A `TZDate` representing the last millisecond of the day in the specified timezone
  */
-export function endOfDayTZ( date: Date | number, timeZone: string ): Date {
+export function endOfDayTZ( date: Date | number, timeZone: string ): TZDate {
 	const tzDate = new TZDateMini( new Date( date ).getTime(), timeZone );
 	// endOfDay from date-fns respects the timezone context in TZDate
 	return endOfDay( tzDate );

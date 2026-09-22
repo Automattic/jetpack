@@ -8,10 +8,10 @@ import { render, screen } from '@testing-library/react';
 import { HeatmapSkeleton } from '../heatmap-skeleton';
 
 describe( 'HeatmapSkeleton', () => {
-	it( "draws the design's 28 by 3 grid inside a status region", () => {
+	it( "draws the design's 28 by 3 grid", () => {
 		render( <HeatmapSkeleton /> );
 
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect( screen.getAllByTestId( 'skeleton-cell' ) ).toHaveLength( 84 );
 	} );
 
@@ -20,8 +20,8 @@ describe( 'HeatmapSkeleton', () => {
 		// would take a grid slot.
 		render( <HeatmapSkeleton /> );
 
-		const status = screen.getByRole( 'status' );
+		const root = screen.getByTestId( 'widget-skeleton' );
 		// eslint-disable-next-line testing-library/no-node-access -- the wrapper is the assertion: the grid must be one element beside the hidden label.
-		expect( status.children ).toHaveLength( 2 );
+		expect( root.children ).toHaveLength( 2 );
 	} );
 } );

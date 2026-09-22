@@ -412,11 +412,66 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	}
 
 	/**
+	 * Every status the v2 route actually returns is recognised.
+	 *
+	 * Sourced from upstream, never from `STATUS_MAP` — a provider
+	 * mirroring the map cannot catch a key the map is missing, which is
+	 * how `finished` went unmapped. Asserting membership rather than
+	 * `!== 'unknown'` so a typo'd map value fails too.
+	 *
+	 * @param string $upstream A status the v2 route returns.
+	 * @dataProvider provide_upstream_statuses
+	 */
+	#[DataProvider( 'provide_upstream_statuses' )]
+	public function test_every_upstream_status_maps_into_the_client_vocabulary( $upstream ) {
+		$this->arrange_wpcom(
+			array(
+				'restore_id' => 1,
+				'status'     => $upstream,
+			)
+		);
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/restore/1/status' );
+		$request->set_param( 'restore_id', 1 );
+		$data = Restore_Bridge::get_restore_status( $request )->get_data();
+
+		// `RestoreStatus` in `dashboard/data/api/restore.ts`, less the two
+		// this bridge mints when upstream names no status.
+		$this->assertContains(
+			$data['status'],
+			array( 'queued', 'running', 'finished', 'finished-with-errors', 'failed', 'aborted' ),
+			"upstream: $upstream"
+		);
+	}
+
+	/**
+	 * Both vocabularies, because the v2 route serves whichever engine ran.
+	 *
+	 * Rewind is Calypso's typed contract for this same endpoint
+	 * (`packages/api-core/src/site-backup-restore/types.ts`); legacy is
+	 * what `BackupRestore.php` assigns when it finishes a restore.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public static function provide_upstream_statuses() {
+		return array(
+			'queued'              => array( 'queued' ),
+			'running'             => array( 'running' ),
+			'finished'            => array( 'finished' ),
+			'fail'                => array( 'fail' ),
+			'empty'               => array( '' ),
+			'success'             => array( 'success' ),
+			'success-with-errors' => array( 'success-with-errors' ),
+			'aborted'             => array( 'aborted' ),
+		);
+	}
+
+	/**
 	 * WPCOM's status vocabulary is mapped to the client's.
 	 *
-	 * The client used to test for `in-progress`, `queued`, `finished` and
-	 * `failed` — none of which WPCOM returns — so no terminal state was
-	 * ever reachable and the poll stopped after one response.
+	 * Mirrors `STATUS_MAP`, so it can only confirm that each key maps
+	 * where it says — never that the map covers what arrives. That is what
+	 * `test_every_upstream_status_maps_into_the_client_vocabulary` is for.
 	 *
 	 * @param string $upstream WPCOM's status value.
 	 * @param string $expected What the bridge should report.
@@ -443,7 +498,9 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	 */
 	public static function provide_statuses() {
 		return array(
+			'queued'                  => array( 'queued', 'queued' ),
 			'running'                 => array( 'running', 'running' ),
+			'finished'                => array( 'finished', 'finished' ),
 			'success'                 => array( 'success', 'finished' ),
 			// Kept distinct rather than folded into either neighbour: a
 			// restore that completed but not cleanly is neither.
@@ -458,8 +515,12 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * A 404 means "queued, not visible yet" — the normal first answer for
-	 * a restore that has only just been accepted.
+	 * A 404 means "not visible to this route yet" — the normal first
+	 * answer for a restore that has only just been accepted.
+	 *
+	 * Reported as `not-found` rather than `queued` so the client can tell
+	 * it from WordPress.com's own `queued`: one is upstream tracking a
+	 * real restore, the other is upstream having no record of it.
 	 *
 	 * Mapping every non-200 to a hard error, as the v1 code did, turns the
 	 * opening seconds of every restore into a user-visible failure. Safe
@@ -467,7 +528,7 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	 * VaultPress returns nothing parseable, so a 404 can no longer
 	 * secretly mean "upstream is down".
 	 */
-	public function test_status_treats_404_as_queued() {
+	public function test_status_treats_404_as_not_found() {
 		$this->arrange_wpcom( array( 'error' => 'not_found' ), 404 );
 
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/restore/7/status' );
@@ -475,7 +536,39 @@ class Rest_Restore_Bridge_Test extends TestCase {
 		$response = Restore_Bridge::get_restore_status( $request );
 
 		$this->assertNotInstanceOf( WP_Error::class, $response );
-		$this->assertSame( 'queued', $response->get_data()['status'] );
+		$this->assertSame( 'not-found', $response->get_data()['status'] );
+		$this->assertSame( 7, $response->get_data()['id'] );
+	}
+
+	/**
+	 * A record that names no `restore_id` is still a record.
+	 *
+	 * `queued` now means *upstream is holding this restore*, which is
+	 * enough to refuse the reader a new one — so the two must be told
+	 * apart on whether a record arrived, not on one key.
+	 */
+	public function test_status_keeps_a_record_that_names_no_restore_id() {
+		$this->arrange_wpcom_raw( '{"rewind_id":"1786663613.9425","percent":0,"status":""}', 200 );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/restore/7/status' );
+		$request->set_param( 'restore_id', 7 );
+		$data = Restore_Bridge::get_restore_status( $request )->get_data();
+
+		$this->assertSame( 'queued', $data['status'] );
+	}
+
+	/**
+	 * A 200 carrying nothing at all is `not-found`.
+	 */
+	public function test_status_treats_a_recordless_200_as_not_found() {
+		$this->arrange_wpcom_raw( '{}', 200 );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/restore/7/status' );
+		$request->set_param( 'restore_id', 7 );
+		$response = Restore_Bridge::get_restore_status( $request );
+
+		$this->assertNotInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'not-found', $response->get_data()['status'] );
 		$this->assertSame( 7, $response->get_data()['id'] );
 	}
 
@@ -528,7 +621,7 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * A 404 reported as a string is still the queued carve-out.
+	 * A 404 reported as a string is still the not-found carve-out.
 	 *
 	 * Both branches of this callback read the same variable, so the cast
 	 * buys more here than the success test above shows: uncast, `'404'`
@@ -536,7 +629,7 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	 * opening seconds of every restore — before the id is visible to this
 	 * route — surfaced as a failure.
 	 */
-	public function test_status_treats_a_string_404_as_queued() {
+	public function test_status_treats_a_string_404_as_not_found() {
 		$this->arrange_wpcom_raw( '{"error":"not_found"}', '404' );
 
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/restore/7/status' );
@@ -544,7 +637,7 @@ class Rest_Restore_Bridge_Test extends TestCase {
 		$response = Restore_Bridge::get_restore_status( $request );
 
 		$this->assertNotInstanceOf( WP_Error::class, $response );
-		$this->assertSame( 'queued', $response->get_data()['status'] );
+		$this->assertSame( 'not-found', $response->get_data()['status'] );
 		$this->assertSame( 7, $response->get_data()['id'] );
 	}
 

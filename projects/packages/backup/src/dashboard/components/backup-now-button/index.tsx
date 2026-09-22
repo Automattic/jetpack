@@ -3,33 +3,38 @@ import { __ } from '@wordpress/i18n';
 import { Button, Tooltip } from '@wordpress/ui';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { useBackups } from '../../hooks/use-backups';
-import { useCapabilities } from '../../hooks/use-capabilities';
-import { useCanQueryWpcom } from '../../hooks/use-connection';
 import { useEnqueueBackup } from '../../hooks/use-enqueue-backup';
+import { useGateState } from '../../hooks/use-gate-state';
 import { useSiteSize } from '../../hooks/use-site-size';
 
 /**
  * Header action that asks WPCOM to back the site up now.
  *
- * Ports the legacy button's label and tooltip cycle
- * (`src/js/components/back-up-now/index.jsx`) onto the modernized data
- * layer, with two behavioural fixes.
- *
- * Failures are reported. The legacy click handler has no rejection
- * handler and discards the response body, so every outcome — including a
- * WPCOM refusal and a permissions error — shows "Backup enqueued".
- *
- * The button gates itself. `DashboardLayout` passes header actions to
- * `<Page>`, which renders them above `<Gates>` rather than inside it, so
- * an unconnected or unlicensed site would otherwise be offered a control
- * that cannot work.
+ * It sits in `<Page>`'s header actions, above `<Gates>`, so it gates itself on the same
+ * verdict — before mounting `<BackupNow>`, since nothing else stops that component's reads.
  *
  * @return The rendered button, or null when the site can't use it.
  */
 export default function BackupNowButton() {
+	const gate = useGateState();
+
+	if ( gate.status !== 'ready' ) {
+		return null;
+	}
+
+	return <BackupNow />;
+}
+
+/**
+ * The button itself, mounted only for a site that can press it.
+ *
+ * Ports legacy's label and tooltip cycle (`src/js/components/back-up-now/index.jsx`) with
+ * one fix: legacy discards the response, so a WPCOM refusal also shows "Backup enqueued".
+ *
+ * @return The rendered button.
+ */
+function BackupNow() {
 	const { tracks } = useAnalytics();
-	const canQuery = useCanQueryWpcom();
-	const capabilities = useCapabilities( { enabled: canQuery } );
 	const { backupsStopped } = useSiteSize();
 	const { state: enqueueState, errorMessage, enqueue, reset } = useEnqueueBackup();
 
@@ -58,12 +63,6 @@ export default function BackupNowButton() {
 		tracks.recordEvent( 'jetpack_backup_plugin_backup_now' );
 		enqueue();
 	}, [ tracks, enqueue ] );
-
-	const hasPlan =
-		! capabilities.isLoading && ! capabilities.error && capabilities.data?.hasBackupPlan;
-	if ( ! canQuery || ! hasPlan ) {
-		return null;
-	}
 
 	const isEnqueuing = enqueueState === 'enqueuing';
 	const isEnqueued = enqueueState === 'enqueued';

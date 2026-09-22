@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Cache the promoted Backup subscription price so the screen shown to sites without a plan stops fetching it from WordPress.com on every load.

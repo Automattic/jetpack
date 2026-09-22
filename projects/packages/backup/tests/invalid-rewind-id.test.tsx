@@ -170,7 +170,11 @@ describe.each( [
 		);
 
 		await expect( screen.findByText( heading ) ).resolves.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: new RegExp( submit ) } ) ).toBeInTheDocument();
+		// Awaited: Restore's reads wait on the gate verdict, so its form arms a
+		// round trip after the heading. Download still arms with it.
+		await expect(
+			screen.findByRole( 'button', { name: new RegExp( submit ) } )
+		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( notFound ) ).not.toBeInTheDocument();
 	} );
 } );

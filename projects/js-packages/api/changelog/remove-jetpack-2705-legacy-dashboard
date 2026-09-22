@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Remove methods only the retired Jetpack dashboard used.

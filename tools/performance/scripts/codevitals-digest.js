@@ -196,7 +196,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	const TOKEN = /^\*+$/.test( rawToken ) ? '' : rawToken;
 	const CHANNEL = ( env.SLACK_CHANNEL_ID || '' ).trim();
 	const DRY_RUN = /^(1|true|yes)$/i.test( ( env.DRY_RUN || '' ).trim() ); // trimmed: a pasted "true " must still never post live
-	const MAX_LINES = 40; // Slack rejects >50 blocks/message; 40 lines + up to 10 wrapper/warning blocks = 50 exactly (audited — do not add a block without re-counting)
+	const MAX_LINES = 35; // Slack rejects >50 blocks/message; 35 lines + the 11 wrapper blocks around them = 46, leaving 4 blocks of headroom (pinned by the 'worst week' test)
 	// LIMIT is a newest-N slice. Numeric limits NEVER set meta.isDownsampled (the server computes
 	// it from the slice length, so it is structurally false here) and silently drop the OLDEST
 	// points, the window edge. 1000 is ~5x the observed 15-day volume; the coverage assertion
@@ -213,8 +213,10 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	const detectMs = 2 * windowMs;
 	const SKEW_MS = 864e5; // clock-skew allowance; a further-future measuredAt is malformed data, and one such point would pin the staleness clock into the future
 	const commitLink = h => `<https://github.com/${ repoPath }/commit/${ h }|${ h.slice( 0, 8 ) }>`;
-	const chartUrl = k =>
-		`${ CHART_BASE }/public/${ repoPath }/metrics?metric=${ encodeURIComponent( k ) }`;
+	// The repo's public metrics page — the anonymous CodeVitals route (`/repos/:owner/:repo` is
+	// the authenticated one, useless in a channel link).
+	const dashboardUrl = `${ CHART_BASE }/public/${ repoPath }/metrics`;
+	const chartUrl = k => `${ dashboardUrl }?metric=${ encodeURIComponent( k ) }`;
 	const get = url => fetch( url, { redirect: 'error', signal: AbortSignal.timeout( 30000 ) } ); // a hung API must fail the build, not park the agent — and a redirect off the validated origin (e.g. an https→http downgrade) must fail loud, never be followed silently
 	// undici buries the useful failure reason in error.cause ("unexpected redirect" from a
 	// misconfigured origin: www.codevitals.run 301s the API). Without it every network failure
@@ -432,9 +434,9 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 							? `metric ${ id }: point has no commit provenance (hash "unknown" — the measurement workspace lost its git metadata) — skipped`
 							: `metric ${ id }: malformed point (measuredAt ${ JSON.stringify(
 									p && p.measuredAt
-							  ) }, hash ${ JSON.stringify( p && p.hash ) }, isRegression ${ JSON.stringify(
+								) }, hash ${ JSON.stringify( p && p.hash ) }, isRegression ${ JSON.stringify(
 									p && p.isRegression
-							  ) }, value ${ JSON.stringify( p && p.value ) }) — skipped`
+								) }, value ${ JSON.stringify( p && p.value ) }) — skipped`
 					);
 				else if ( n === 6 )
 					console.error(
@@ -705,7 +707,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				// not even hold, so the "(flag from a re-run)" marker attributes its numbers
 				// instead. The gate itself never sees this value; its medians and anchors judge
 				// the kept series only.
-				to: self ? flagV ?? v : sib.v,
+				to: self ? ( flagV ?? v ) : sib.v,
 				reRun: self ? fIdxs !== undefined : true, // marks a flag whose event folded in a re-post/re-run row: its numbers or comparison base MAY come from that row (a same-time fold or an off-time merge), so the reader is not shown an attribution the kept data need not support
 			};
 			if ( win.verdict === 'pending' ) {
@@ -822,6 +824,15 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			type: 'header',
 			text: { type: 'plain_text', text: `📊 ${ repoTitle } CodeVitals — weekly digest` },
 		},
+		// A header block is plain_text only, so the title itself cannot carry the link. This
+		// context line does instead, and it is the ONLY link a clean week's digest has: with no
+		// regressions there are no commit or chart links to follow.
+		{
+			type: 'context',
+			elements: [
+				mrkdwn( `📈 <${ dashboardUrl }|Open the ${ esc( repoTitle ) } CodeVitals dashboard>` ),
+			],
+		},
 	];
 
 	if ( discoveryFailed ) {
@@ -907,10 +918,10 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 					degraded
 						? `:grey_question: No sustained regressions among the data that could be read (${ readable } tracked metric${
 								readable === 1 ? '' : 's'
-						  }) — but the signal is degraded this week, see above.`
+							}) — but the signal is degraded this week, see above.`
 						: `:white_check_mark: No sustained metric regressions in the last ${ WINDOW_DAYS } days across ${ readable } tracked metric${
 								readable === 1 ? '' : 's'
-						  }.`
+							}.`
 				)
 			);
 		} else {

@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\Backup\V0005\REST;
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -134,6 +136,15 @@ class Rest_Capabilities_Bridge_Test extends TestCase {
 			array(
 				'hasBackupPlan' => $has_backup,
 				'hasScan'       => $has_scan,
+				// Decided on the site rather than upstream, which is why it
+				// sits in its own branch — and false in a package test run,
+				// since nothing here defines the standalone plugin's
+				// constant. Asserted as part of the whole payload so a key
+				// added later cannot slip in unnoticed, on either side of
+				// the provenance split.
+				'local'         => array(
+					'isStandalonePluginActive' => false,
+				),
 			),
 			$response->get_data()
 		);
@@ -281,5 +292,40 @@ class Rest_Capabilities_Bridge_Test extends TestCase {
 			// map's *values*, so `{"backup":true}` reads as "no plan".
 			'a keyed capabilities map' => array( 'a keyed capabilities map', '{"capabilities":{"backup":true}}' ),
 		);
+	}
+
+	/**
+	 * Without the standalone plugin's constant, the gate is closed.
+	 *
+	 * The case the gate exists for, and the one a package test run reproduces
+	 * naturally: package loaded, plugin absent. Nothing in the package can define
+	 * the constant, so no test ordering can quietly open the gate.
+	 */
+	public function test_gate_is_closed_without_the_standalone_plugin() {
+		$this->arrange_wpcom( array( 'capabilities' => array( 'backup' ) ) );
+
+		$response = Capabilities_Bridge::get_capabilities();
+
+		$this->assertFalse( $response->get_data()['local']['isStandalonePluginActive'] );
+	}
+
+	/**
+	 * With the constant defined, the gate is open.
+	 *
+	 * Run in a child process because `define()` cannot be undone, and the shared
+	 * process would leave the gate open for every later test.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_gate_is_open_with_the_standalone_plugin() {
+		define( 'JETPACK_BACKUP_PLUGIN_DIR', '/plugins/jetpack-backup/' );
+		$this->arrange_wpcom( array( 'capabilities' => array( 'backup' ) ) );
+
+		$response = Capabilities_Bridge::get_capabilities();
+
+		$this->assertTrue( $response->get_data()['local']['isStandalonePluginActive'] );
 	}
 }

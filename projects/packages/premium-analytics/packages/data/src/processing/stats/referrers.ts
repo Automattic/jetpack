@@ -24,8 +24,10 @@ export interface StatsReferrersItem extends StatsNormalizedItemBase< StatsReferr
 	actionMenu?: number;
 }
 
-export interface StatsReferrersComparisonItem
-	extends Omit< StatsReferrersItem, 'children' | 'label' > {
+export interface StatsReferrersComparisonItem extends Omit<
+	StatsReferrersItem,
+	'children' | 'label'
+> {
 	/** Always resolved to a display string by the merge helper. */
 	label: string;
 	previousValue?: number;
@@ -103,6 +105,9 @@ export function sanitizeStatsReferrersResponse(
 	const parse = ( item: StatsRecord, parentName?: string ): StatsReferrersItem => {
 		const name = typeof item.name === 'string' ? item.name : undefined;
 		const label = name ?? item.group ?? '';
+		// Both fields below must agree on whether this row is a group, so read the
+		// nested rows once: an empty `results: []` is a leaf, not a childless group.
+		const nested = coerceStatsArray( item.results ?? item.children );
 
 		return {
 			label:
@@ -110,10 +115,8 @@ export function sanitizeStatsReferrersResponse(
 			views: safeParseFloat( item.views ?? item.total ),
 			link: typeof item.url === 'string' ? item.url : null,
 			icon: typeof item.icon === 'string' ? item.icon : null,
-			labelIcon: item.results || item.children ? null : 'external',
-			children: mapNestedItems( coerceStatsArray( item.results ?? item.children ), child =>
-				parse( child, name )
-			),
+			labelIcon: nested.length ? null : 'external',
+			children: mapNestedItems( nested, child => parse( child, name ) ),
 		};
 	};
 

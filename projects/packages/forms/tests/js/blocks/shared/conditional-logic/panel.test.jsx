@@ -73,6 +73,10 @@ const mockToggleBlockHighlight = jest.fn();
 // cases that do not care about the sidebar read exactly as they did before.
 let isSidebarOpen = true;
 
+// Same treatment as isSidebarOpen: renderPanel sits at module scope, so the flag it
+// reads has to as well. setup() sets it per test and beforeEach resets it.
+let isContainer = false;
+
 await jest.unstable_mockModule( '@wordpress/block-editor', () => ( {
 	InspectorControls: ( { children } ) => ( isSidebarOpen ? <div>{ children }</div> : null ),
 	BlockControls: ( { children } ) => <div>{ children }</div>,
@@ -131,9 +135,8 @@ await jest.unstable_mockModule(
 	} )
 );
 
-const { default: ConditionalLogicPanel } = await import(
-	'../../../../../src/blocks/shared/conditional-logic/components/panel.jsx'
-);
+const { default: ConditionalLogicPanel } =
+	await import( '../../../../../src/blocks/shared/conditional-logic/components/panel.jsx' );
 
 const DEFAULT_ATTRIBUTE = {
 	enabled: false,
@@ -150,14 +153,19 @@ const withRules = ( rules, extra = {} ) => ( {
 	...extra,
 } );
 
-const setup = async (
-	conditionalLogic = DEFAULT_ATTRIBUTE,
-	{ openModal = true, sidebarOpen = true, isContainer = false } = {}
-) => {
-	isSidebarOpen = sidebarOpen;
+const getPanelToggle = () => screen.getByRole( 'button', { name: 'Conditional logic' } );
 
-	const setAttributes = jest.fn();
-	const { container } = render(
+// The panel starts collapsed on a field without conditions, and nothing inside it is rendered
+// until the title is activated.
+const expandPanel = async () => {
+	const toggle = getPanelToggle();
+	if ( toggle.getAttribute( 'aria-expanded' ) === 'false' ) {
+		await userEvent.click( toggle );
+	}
+};
+
+const renderPanel = ( conditionalLogic, setAttributes = jest.fn() ) =>
+	render(
 		<ConditionalLogicPanel
 			clientId="abc"
 			attributes={ { conditionalLogic } }
@@ -166,15 +174,23 @@ const setup = async (
 		/>
 	);
 
+const setup = async (
+	conditionalLogic = DEFAULT_ATTRIBUTE,
+	{ openModal = true, sidebarOpen = true, isContainer: asContainer = false } = {}
+) => {
+	isSidebarOpen = sidebarOpen;
+	isContainer = asContainer;
+
+	const setAttributes = jest.fn();
+	const { container } = renderPanel( conditionalLogic, setAttributes );
+
 	// With the sidebar closed the inspector fill renders nothing, so there is no panel to
 	// expand and no button to reach the dialog with -- the toolbar is all a test has.
 	if ( ! sidebarOpen ) {
 		return { setAttributes, container };
 	}
 
-	// PanelBody renders collapsed (initialOpen={false}), so nothing inside it exists
-	// in the DOM until the title is activated.
-	await userEvent.click( screen.getByRole( 'button', { name: 'Conditional logic' } ) );
+	await expandPanel();
 
 	// The rules are edited in a dialog, so most of this file has to open it first. Tests
 	// about what the inspector itself shows pass openModal: false.
@@ -204,7 +220,7 @@ const setupStateful = async initial => {
 	};
 
 	render( <Harness /> );
-	await userEvent.click( screen.getByRole( 'button', { name: 'Conditional logic' } ) );
+	await expandPanel();
 	await userEvent.click( screen.getByRole( 'button', { name: /(add|edit) conditions/i } ) );
 };
 
@@ -258,6 +274,7 @@ describe( 'ConditionalLogicPanel', () => {
 	beforeEach( () => {
 		// setup() sets this per test; reset it for the helpers that render directly.
 		isSidebarOpen = true;
+		isContainer = false;
 		subjectFields = SUBJECT_FIELDS;
 		enclosedFields = [];
 		formFieldIds = [];
@@ -377,6 +394,28 @@ describe( 'ConditionalLogicPanel', () => {
 		await userEvent.click( screen.getByRole( 'button', { name: 'Add conditional logic' } ) );
 
 		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
+	} );
+
+	it( 'starts the panel collapsed on a field without conditions', () => {
+		renderPanel( DEFAULT_ATTRIBUTE );
+		expect( getPanelToggle() ).toHaveAttribute( 'aria-expanded', 'false' );
+	} );
+
+	it( 'starts the panel open on a field with conditions', () => {
+		renderPanel( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ) );
+		expect( getPanelToggle() ).toHaveAttribute( 'aria-expanded', 'true' );
+		expect( screen.getByRole( 'button', { name: 'Edit conditions' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'closes the dialog with the Done button, keeping the conditions', async () => {
+		const { setAttributes } = await setup(
+			withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] )
+		);
+		await userEvent.click(
+			within( screen.getByRole( 'dialog' ) ).getByRole( 'button', { name: 'Done' } )
+		);
+		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+		expect( setAttributes ).not.toHaveBeenCalled();
 	} );
 
 	it( 'opens the dialog from the toolbar button', async () => {

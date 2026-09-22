@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.0] - 2026-09-21
+### Changed
+- Daily Writing Prompt: Stop offering the Write editor after a switch to the Block editor. [#52230]
+- Exclude source map files from the distributed package. [#52304]
+- Update package dependencies. [#52187]
+
+### Fixed
+- Dashboard: Restore the admin screen ID after the wp-build enqueue check. [#52471]
+
+## [0.15.0] - 2026-09-15
+### Added
+- Daily Writing Prompt: Add a "Freshly Pressed" tab listing the posts WordPress.com is currently featuring. [#52077]
+- Subscribers: Show a dismissible notice on WordPress.com sites explaining why subscriber counts may have changed. [#52233]
+- Subscriptions: Add an Action Bar visibility toggle on WordPress.com Simple sites. [#52136]
+
+### Changed
+- Hide the Newsletter sidebar item when Newsletter is not active. [#52156]
+- Update package dependencies. [#52200] [#52297]
+
+## [0.14.1] - 2026-09-09
+### Changed
+- Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+
+## [0.14.0] - 2026-09-08
+### Changed
+- Update package dependencies. [#51701]
+- Writing Prompt: Open the Write editor to answer a prompt on WordPress.com sites. [#51671]
+
+### Removed
+- Remove the transitional Subscribers announcement page and redirect its URL to Newsletter. [#51906]
+
+## [0.13.0] - 2026-09-01
+### Changed
+- Make writing-prompt, paid-plan, and subscribers-announcement actions real links. [#51558]
+- Update package dependencies. [#51303] [#51802]
+
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+### Fixed
+- Prevent unsupported date filtering on the Subscribers page. [#51782]
+
 ## [0.12.7] - 2026-08-25
 ### Changed
 - Update dependencies. [#51423]
@@ -336,6 +378,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.16.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.15.0...v0.16.0
+[0.15.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.14.1...v0.15.0
+[0.14.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.14.0...v0.14.1
+[0.14.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.13.0...v0.14.0
+[0.13.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.7...v0.13.0
 [0.12.7]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.6...v0.12.7
 [0.12.6]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.5...v0.12.6
 [0.12.5]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.4...v0.12.5

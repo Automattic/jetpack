@@ -99,7 +99,7 @@ function getSiteYear( date: Date | number ): number {
 }
 
 /**
- * Format a date range in the explicit form the section header subtitle uses.
+ * Format a date range in explicit, readable form, for prominent surfaces.
  *
  * The shape follows the range's own length: a week or less leads each end with
  * its weekday, the year is carried only outside the reference year, and a day

@@ -38,7 +38,7 @@ const mockApiFetch = apiFetch as unknown as jest.Mock;
 
 // Built relative to today: hardcoded years would silently move the no-attribute
 // default off the data after New Year. The package test script pins TZ=UTC, which
-// is what the widget's `siteTimeZone()` also resolves to under jsdom.
+// is what the widget's `reportingTimeZone()` also resolves to under jsdom.
 const CURRENT_YEAR = new Date().getFullYear();
 const PREVIOUS_YEAR = CURRENT_YEAR - 1;
 
@@ -145,6 +145,29 @@ describe( 'AnnualHighlightsWidget', () => {
 		await expect(
 			screen.findByText( 'No highlights for this year.' )
 		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'links to the Annual insights report', async () => {
+		renderWidget();
+
+		await expect( screen.findByText( 'Posts' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the report link in the empty state', async () => {
+		// The footer sits outside `WidgetState`, so a year with no row must still
+		// offer the only route to the full report.
+		mockApiFetch.mockResolvedValue( {
+			...INSIGHTS_PAYLOAD,
+			years: [ INSIGHTS_PAYLOAD.years[ 0 ] ],
+		} );
+
+		renderWidget();
+
+		await expect(
+			screen.findByText( 'No highlights for this year.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'survives a payload the sanitizer rejects', async () => {

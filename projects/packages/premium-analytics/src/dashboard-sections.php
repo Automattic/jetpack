@@ -1,34 +1,37 @@
 <?php
 /**
- * Dashboard Sections: registry bootstrap and REST routes.
+ * Dashboard Sections API: the registry helpers, the preview scope, and the REST routes.
+ *
+ * The package's own sections register through this API from default-dashboard-sections.php,
+ * the same way a plugin extending the dashboard does.
  *
  * @package automattic/jetpack-premium-analytics
  */
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
-use Automattic\Jetpack\Modules;
-use Automattic\Jetpack\Status\Host;
-
 require_once __DIR__ . '/dashboard-layout.php';
 require_once __DIR__ . '/dashboard-grammar.php';
+require_once __DIR__ . '/rest-namespace.php';
 require_once __DIR__ . '/class-dashboard-section.php';
 require_once __DIR__ . '/class-dashboard-section-registry.php';
 
-/**
- * Filter through which WooCommerce section availability is resolved.
- */
-const WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_woocommerce_dashboard_section_available';
+// Guarded on a symbol the file declares, so a second copy of the package can't redeclare it.
+if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_feature_flags' ) ) {
+	require_once __DIR__ . '/dashboard-policy.php';
+}
 
 /**
- * Filter through which Subscribers section availability is resolved.
+ * Filter through which the preview's section scope is resolved.
  */
-const SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_subscribers_dashboard_section_available';
+const DASHBOARD_PREVIEW_SCOPE_FILTER = 'jetpack_premium_analytics_dashboard_preview_scope';
 
 /**
- * Filter for Ads section availability.
+ * Section slugs the customer preview exposes as tabs. A section still rolling out to some
+ * sites is opened through the filter instead. Widget types are registered independently of
+ * this, as they are of the per-section availability checks.
  */
-const ADS_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_ads_dashboard_section_available';
+const PREVIEW_SECTIONS = array( 'traffic', 'insights' );
 
 /**
  * Registers a dashboard section.
@@ -64,194 +67,111 @@ function get_available_dashboard_sections( $dashboard_name ) {
 }
 
 /**
- * Whether the WooCommerce dashboard section should be exposed.
+ * Whether the dashboard is running as the customer-facing preview.
  *
- * @return bool True when WooCommerce is active.
- */
-function is_woocommerce_dashboard_section_available() {
-	$is_available = class_exists( 'WooCommerce' ) || function_exists( 'WC' );
-
-	/**
-	 * Filters whether the WooCommerce dashboard section is available.
-	 *
-	 * @param bool $is_available Whether WooCommerce was detected in the current request.
-	 */
-	return (bool) apply_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, $is_available );
-}
-
-/**
- * Whether the current user should be shown the WooCommerce dashboard section.
+ * The site's own opt-in means the preview. Anything else that switches the dashboard on, the
+ * WordPress.com blog sticker or the `jetpack_premium_analytics_enabled` filter, means us.
  *
- * The sibling is_woocommerce_dashboard_section_available() answers "is
- * WooCommerce here"; this adds "and may this reader see store data".
- *
- * @since 0.1.0
+ * @since 0.6.0
  *
  * @return bool
  */
-function is_woocommerce_dashboard_section_available_to_current_user() {
-	return is_woocommerce_dashboard_section_available() && Capabilities::current_user_can_view_store_reports();
+function is_dashboard_preview_scoped() {
+	return (bool) get_option( Enablement_Setting::ENABLED_OPTION );
 }
 
 /**
- * Whether the Subscribers dashboard section should be exposed.
+ * Whether the preview exposes a dashboard section.
  *
- * Sites without Jetpack have no module state to check, so the section remains
- * available. Modules::is_active() also returns true on WPCOM Simple.
+ * @since 0.6.0
  *
- * @since 0.3.0
- *
- * @return bool True when the subscriptions module is active.
- */
-function is_subscribers_dashboard_section_available() {
-	$is_available = ! class_exists( 'Jetpack' ) || ( new Modules() )->is_active( 'subscriptions' );
-
-	/**
-	 * Filters whether the Subscribers dashboard section is available.
-	 *
-	 * @since 0.3.0
-	 *
-	 * @param bool $is_available Whether the subscriptions module was detected in the current request.
-	 */
-	return (bool) apply_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, $is_available );
-}
-
-/**
- * Whether the Ads dashboard section is available.
- *
- * WPCOM reads the plan feature rather than the module, which is a false negative
- * on Atomic and meaningless on Simple. Mirrors is_videopress_available().
- *
- * @since 0.4.0
- *
- * @return bool True when the site can produce WordAds earnings.
- */
-function is_ads_dashboard_section_available() {
-	if ( ( new Host() )->is_wpcom_platform() ) {
-		$is_available = function_exists( 'wpcom_site_has_feature' ) && \wpcom_site_has_feature( 'wordads' );
-	} else {
-		$is_available = ! class_exists( 'Jetpack' ) || ( new Modules() )->is_active( 'wordads' );
-	}
-
-	/**
-	 * Filters whether the Ads dashboard section is available.
-	 *
-	 * @since 0.4.0
-	 *
-	 * @param bool $is_available Whether WordAds was detected in the current request.
-	 */
-	return (bool) apply_filters( ADS_DASHBOARD_SECTION_AVAILABLE_FILTER, $is_available );
-}
-
-/**
- * Whether the current user can access the Ads dashboard section.
- *
- * @since 0.4.0
- *
+ * @param string $dashboard_name Dashboard identifier. Only this package's own dashboard is scoped.
+ * @param string $slug           URL-facing section slug.
  * @return bool
  */
-function is_ads_dashboard_section_available_to_current_user() {
-	return is_ads_dashboard_section_available() && Capabilities::current_user_can_view_ad_reports();
+function is_dashboard_section_in_preview_scope( $dashboard_name, $slug ) {
+	$in_scope = DASHBOARD_NAME !== $dashboard_name
+		|| ! is_dashboard_preview_scoped()
+		|| in_array( $slug, PREVIEW_SECTIONS, true )
+		|| is_dashboard_unlocked_for_a11n();
+
+	/**
+	 * Filters whether the preview exposes a dashboard section.
+	 *
+	 * `__return_true` restores the whole dashboard, which is how a development or test site
+	 * sees every tab.
+	 *
+	 * @since 0.6.0
+	 *
+	 * @param bool   $in_scope       Whether the preview exposes the section.
+	 * @param string $slug           URL-facing section slug.
+	 * @param string $dashboard_name Dashboard the section belongs to.
+	 */
+	return (bool) apply_filters( DASHBOARD_PREVIEW_SCOPE_FILTER, $in_scope, $slug, $dashboard_name );
 }
 
 /**
- * Returns the default widget layout for the WooCommerce dashboard section.
+ * Slugs of the tabs the dashboard exposes, for the client's report routes.
  *
- * @return array Array of widget instances.
- */
-function get_woocommerce_dashboard_section_default_layout() {
-	return get_dashboard_default_layout_for( 'woocommerce/store' );
-}
-
-/**
- * Registers the default Premium Analytics dashboard sections.
+ * Reads the same sections the tab list does, so a report cannot outlive the tab it sits
+ * behind. Null, never `array()`, while nothing is registered: an empty array is a
+ * published scope that exposes nothing.
  *
- * @return void
+ * @since 0.6.0
+ *
+ * @return string[]|null
  */
-function register_default_dashboard_sections() {
+function get_dashboard_preview_scope_sections() {
 	$registry = Dashboard_Section_Registry::get_instance();
 
-	$sections = array(
-		'analytics/traffic'     => array(
-			'label'          => __( 'Traffic', 'jetpack-premium-analytics-pkg' ),
-			'title'          => __( 'Site traffic', 'jetpack-premium-analytics-pkg' ),
-			'description'    => __( 'Views, visitors, and where they came from.', 'jetpack-premium-analytics-pkg' ),
-			'order'          => 10,
-			'default_layout' => static function () {
-				return get_dashboard_default_layout_for( 'analytics/traffic' );
-			},
-		),
-		'analytics/insights'    => array(
-			'label'               => __( 'Insights', 'jetpack-premium-analytics-pkg' ),
-			'title'               => __( 'Activity insights', 'jetpack-premium-analytics-pkg' ),
-			'description'         => __( 'Longer-term patterns in your content and audience.', 'jetpack-premium-analytics-pkg' ),
-			'order'               => 20,
-			// Insights reads whole history: all time and single years instead of
-			// the rolling picker, with nothing to compare them against.
-			'date_filter'         => Dashboard_Section::DATE_FILTER_YEAR,
-			'date_filter_options' => array(
-				'with_date_comparison' => false,
-			),
-			'default_layout'      => static function () {
-				return get_dashboard_default_layout_for( 'analytics/insights' );
-			},
-		),
-		'analytics/subscribers' => array(
-			'label'          => __( 'Subscribers', 'jetpack-premium-analytics-pkg' ),
-			'title'          => __( 'Subscribers stats', 'jetpack-premium-analytics-pkg' ),
-			'description'    => __( 'How your subscriber list is growing, and how your emails land.', 'jetpack-premium-analytics-pkg' ),
-			'order'          => 30,
-			'is_available'   => __NAMESPACE__ . '\\is_subscribers_dashboard_section_available',
-			'default_layout' => static function () {
-				return get_dashboard_default_layout_for( 'analytics/subscribers' );
-			},
-		),
-		// Store registers no heading of its own, so it falls back to the label.
-		'woocommerce/store'     => array(
-			'label'          => __( 'Store', 'jetpack-premium-analytics-pkg' ),
-			'description'    => __( 'Sales, orders, and what your customers are buying.', 'jetpack-premium-analytics-pkg' ),
-			'order'          => 40,
-			'is_available'   => __NAMESPACE__ . '\\is_woocommerce_dashboard_section_available_to_current_user',
-			// Nothing backfills historical orders to WordPress.com but the analytics
-			// full sync. The site sections above read data it already holds.
-			'requires_sync'  => true,
-			'default_layout' => __NAMESPACE__ . '\\get_woocommerce_dashboard_section_default_layout',
-		),
-		'analytics/ads'         => array(
-			'label'               => __( 'Ads', 'jetpack-premium-analytics-pkg' ),
-			'description'         => __( 'How your ads are performing, and what they have earned you.', 'jetpack-premium-analytics-pkg' ),
-			'order'               => 50,
-			'is_available'        => __NAMESPACE__ . '\\is_ads_dashboard_section_available_to_current_user',
-			// Only the chart supports dates, so it owns the control. No Ads widget
-			// supports comparison.
-			'date_filter_options' => array(
-				'with_date_comparison'     => false,
-				'with_header_date_control' => false,
-			),
-			'default_layout'      => static function () {
-				return get_dashboard_default_layout_for( 'analytics/ads' );
-			},
-		),
-	);
-
-	foreach ( $sections as $id => $args ) {
-		if ( ! $registry->is_registered( DASHBOARD_NAME, $id ) ) {
-			register_dashboard_section( DASHBOARD_NAME, $id, $args );
-		}
+	if ( empty( $registry->get_all_registered( DASHBOARD_NAME ) ) ) {
+		return null;
 	}
+
+	return array_map(
+		static function ( Dashboard_Section $section ) {
+			return $section->slug;
+		},
+		$registry->get_available_sections( DASHBOARD_NAME )
+	);
 }
 
 /**
- * Hydrates the dashboard section registry.
+ * Configures the preview scope script data.
+ *
+ * @since 0.6.0
  *
  * @return void
  */
-function bootstrap_dashboard_sections() {
-	if ( did_action( 'init' ) ) {
-		register_default_dashboard_sections();
-	} else {
-		add_action( 'init', __NAMESPACE__ . '\\register_default_dashboard_sections' );
+function configure_dashboard_preview_scope() {
+	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_preview_scope_script_data', 20 );
+}
+
+/**
+ * Injects the preview's section scope into JetpackScriptData.
+ *
+ * The same list travels over REST for the tab bar, but a report route reads no REST before
+ * choosing its redirect, so it reads the scope from boot data instead.
+ *
+ * @since 0.6.0
+ *
+ * @param array $data The script data passed by the assets package.
+ * @return array
+ */
+function inject_dashboard_preview_scope_script_data( array $data ): array {
+	$sections = get_dashboard_preview_scope_sections();
+
+	if ( null === $sections ) {
+		return $data;
 	}
+
+	if ( ! isset( $data['premium_analytics'] ) || ! is_array( $data['premium_analytics'] ) ) {
+		$data['premium_analytics'] = array();
+	}
+
+	$data['premium_analytics']['preview_sections'] = $sections;
+
+	return $data;
 }
 
 /**
@@ -324,11 +244,6 @@ function get_dashboard_section_schema() {
 			),
 			'title'               => array(
 				'description' => __( 'Translated section heading, distinct from the tab label. Null falls back to the label.', 'jetpack-premium-analytics-pkg' ),
-				'type'        => array( 'string', 'null' ),
-				'readonly'    => true,
-			),
-			'description'         => array(
-				'description' => __( 'Translated section description, shown as the page subtitle while the section is active.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => array( 'string', 'null' ),
 				'readonly'    => true,
 			),
@@ -456,5 +371,3 @@ function register_dashboard_sections_rest_routes() {
 		)
 	);
 }
-
-bootstrap_dashboard_sections();

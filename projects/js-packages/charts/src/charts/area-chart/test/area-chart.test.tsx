@@ -52,6 +52,37 @@ describe( 'AreaChart', () => {
 		);
 	};
 
+	test.each( [ [ 'Escape', '{Escape}' ] ] )(
+		'returns focus to the grid after %s',
+		async ( _name, keys ) => {
+			jest.useFakeTimers();
+			try {
+				const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+				renderWithProvider();
+				const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+
+				await user.tab();
+				expect( chart ).toHaveFocus();
+				await user.keyboard( '{ArrowRight}' );
+				expect( screen.getByRole( 'tooltip' ) ).toHaveFocus();
+
+				await user.keyboard( keys );
+				await act( async () => {
+					jest.advanceTimersByTime( 5000 );
+				} );
+				expect( chart ).toHaveFocus();
+				expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
+
+				await user.keyboard( '{ArrowRight}' );
+				const tooltip = screen.getByRole( 'tooltip' );
+				expect( tooltip ).toHaveFocus();
+				expect( tooltip ).toHaveTextContent( 'Series A:10' );
+			} finally {
+				jest.useRealTimers();
+			}
+		}
+	);
+
 	describe( 'Data Validation', () => {
 		test( 'shows error when data is empty', () => {
 			renderWithProvider( { data: [] } );
@@ -317,7 +348,7 @@ describe( 'AreaChart', () => {
 			expect( afterToggleDomain![ 1 ] ).toBeLessThan( initialDomain![ 1 ] );
 		} );
 
-		test( 'y-axis stays pinned for unstacked area when rescaleYOnLegendToggle is false', async () => {
+		test( 'y-axis stays pinned for unstacked area when rescaleYOnVisibilityChange is false', async () => {
 			// Exercises the non-stacked branch of fixedYDomain, which scans the
 			// raw min/max across all series rather than summing stack columns.
 			const user = userEvent.setup();
@@ -330,7 +361,7 @@ describe( 'AreaChart', () => {
 						chartId="test-interactive-domain-pin-unstacked"
 						legend={ { interactive: true } }
 						stacked={ false }
-						rescaleYOnLegendToggle={ false }
+						rescaleYOnVisibilityChange={ false }
 						ref={ ref }
 					/>
 				</GlobalChartsProvider>
@@ -351,35 +382,6 @@ describe( 'AreaChart', () => {
 			expect( afterToggleDomain ).toEqual( initialDomain );
 		} );
 
-		test( 'y-axis stays pinned when rescaleYOnLegendToggle is false', async () => {
-			const user = userEvent.setup();
-			const ref = createRef< ChartInstanceRef >();
-			render(
-				<GlobalChartsProvider>
-					<AreaChartUnresponsive
-						{ ...defaultProps }
-						showLegend
-						chartId="test-interactive-domain-pin"
-						legend={ { interactive: true } }
-						rescaleYOnLegendToggle={ false }
-						ref={ ref }
-					/>
-				</GlobalChartsProvider>
-			);
-
-			const initialDomain = (
-				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
-			 )?.domain();
-			expect( initialDomain ).toBeDefined();
-
-			await user.click( screen.getByText( 'Series A' ) );
-
-			const afterToggleDomain = (
-				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
-			 )?.domain();
-			expect( afterToggleDomain ).toEqual( initialDomain );
-		} );
-
 		test( 'y-axis stays pinned when rescaleYOnVisibilityChange is false', async () => {
 			const user = userEvent.setup();
 			const ref = createRef< ChartInstanceRef >();
@@ -388,7 +390,7 @@ describe( 'AreaChart', () => {
 					<AreaChartUnresponsive
 						{ ...defaultProps }
 						showLegend
-						chartId="test-interactive-domain-pin-new"
+						chartId="test-interactive-domain-pin"
 						legend={ { interactive: true } }
 						rescaleYOnVisibilityChange={ false }
 						ref={ ref }
@@ -607,7 +609,7 @@ describe( 'AreaChart', () => {
 						chartId="test-interactive-negative"
 						showLegend
 						legend={ { interactive: true } }
-						rescaleYOnLegendToggle={ false }
+						rescaleYOnVisibilityChange={ false }
 						data={ [
 							{
 								label: 'Pos',

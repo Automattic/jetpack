@@ -211,7 +211,7 @@ export const getResponseFieldColumns = ( responses: FormResponse[] ): ResponseFi
 	for ( const response of responses ?? [] ) {
 		for ( const field of getFieldList( response ) ) {
 			const ownLabel = normalizeLabel( decodeEntities( String( field.label ?? '' ) ) );
-			const borrowedId = field.id ? '' : fieldIdByLabel.get( ownLabel ) ?? '';
+			const borrowedId = field.id ? '' : ( fieldIdByLabel.get( ownLabel ) ?? '' );
 			const identity = borrowedId || getFieldIdentity( field );
 
 			if ( ! identity || columns.has( identity ) ) {
@@ -240,7 +240,7 @@ export const getResponseFieldColumns = ( responses: FormResponse[] ): ResponseFi
 				type:
 					field.type && field.type !== 'basic'
 						? ( field.type as FieldType )
-						: inferFieldTypeFromLabel( label ) ?? 'text',
+						: ( inferFieldTypeFromLabel( label ) ?? 'text' ),
 			} );
 
 			if ( labelKey && ! identityByLabel.has( labelKey ) ) {

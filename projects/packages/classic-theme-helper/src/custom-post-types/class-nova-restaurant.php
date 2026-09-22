@@ -750,7 +750,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 					$this->display_price( $post_id );
 					break;
 				case 'order':
-					$url = admin_url( $screen->parent_file );
+					$url = admin_url( (string) $screen->parent_file );
 
 					$up_url = add_query_arg(
 						array(
@@ -1118,7 +1118,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 
 			$screen = get_current_screen();
 
-			$url = admin_url( $screen->parent_file );
+			$url = admin_url( (string) $screen->parent_file );
 
 			$up_url = add_query_arg(
 				array(

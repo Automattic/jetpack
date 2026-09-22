@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Fix a timing race in an Overview test.
+

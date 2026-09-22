@@ -462,8 +462,39 @@ type VideopressData = {
 	videoCount: number;
 };
 
+type MainFeaturePluginStatus = 'not-installed' | 'inactive' | 'active';
+
+type MainFeaturesState = {
+	jetpack: MainFeaturePluginStatus;
+	features: MainFeature[];
+};
+
+type MainFeature = {
+	slug: string;
+	name: string;
+	description: string;
+	long_description: string;
+	icon: string;
+	manage_url: string;
+	essential: boolean;
+	in_jetpack: boolean;
+	plugin: string;
+	plugin_name: string;
+	plugin_url: string;
+	plugin_status: MainFeaturePluginStatus;
+	paid_highlights: string[];
+	plans: Array< { slug: string; name: string } >;
+	paid_product: string;
+	screenshot: string;
+	info_url: string;
+	docs_url: string;
+	product: string;
+	module: string;
+};
+
 interface Window {
 	myJetpackInitialState?: {
+		mainFeatures: MainFeaturesState | null;
 		siteSuffix: string;
 		siteUrl: string;
 		latestBoostSpeedScores: {
@@ -480,6 +511,9 @@ interface Window {
 		};
 		IDCContainerID: string;
 		adminUrl: string;
+		// Localized on the My Jetpack page only, with a trailing slash; `assetUrl()`
+		// falls back to script data elsewhere.
+		assetsUrl?: string;
 		blogID: string;
 		fileSystemWriteAccess: 'yes' | 'no';
 		isStatsModuleActive: string;
@@ -659,6 +693,25 @@ interface Window {
 			showCard: boolean;
 			redirect: string;
 		};
+		// Null unless the partner coupon screen replaces the dashboard.
+		partnerCoupon?: {
+			coupon: {
+				coupon_code: string;
+				preset: string;
+				partner: {
+					name: string;
+					prefix: string;
+					logo?: { src: string; width: number; height: number } | null;
+				};
+				product: {
+					title: string;
+					slug: string;
+					description: string;
+					features: string[];
+				};
+			};
+			assetBaseUrl: string;
+		} | null;
 	};
 	myJetpackRest?: {
 		apiRoot: string;

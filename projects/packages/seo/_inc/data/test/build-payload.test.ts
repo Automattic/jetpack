@@ -13,6 +13,7 @@ const makeSettings = ( overrides: Partial< SettingsResponse > = {} ): SettingsRe
 	title_formats_editable: true,
 	verification_tools_active: true,
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
+	site_is_private: false,
 	search_engines_visible: true,
 	sitemap_active: false,
 	sitemap_url: '',

@@ -35,8 +35,7 @@ interface SalesByUtmSourceStoryControls {
 type SalesByUtmSourceStoryProps = SalesByUtmSourceWidgetProps & SalesByUtmSourceStoryControls;
 
 interface SalesByUtmSourceDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		SalesByUtmSourceStoryControls {}
+	extends WidgetDashboardWithWidgetControls, SalesByUtmSourceStoryControls {}
 
 function getSalesByUtmSourceAttributes(
 	withComparison = false,
