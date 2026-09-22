@@ -246,6 +246,66 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * A preview link loaded directly is answered with the theme, so core can open its preview.
+	 */
+	public function test_answers_preview_link_for_a_listed_theme() {
+		$this->enable_tab();
+		$this->answer_with_themes( array( self::THEME ), 1 );
+
+		$result = $this->query( array( 'theme' => 'organic-stax' ) );
+
+		$this->assertCount( 1, $result->themes );
+		$this->assertSame( 'organic-stax', $result->themes[0]->slug );
+		$this->assertSame( self::THEME['demo_uri'], $result->themes[0]->preview_url );
+	}
+
+	/**
+	 * A preview link for a theme the tab does not list is left to WordPress.org.
+	 */
+	public function test_leaves_other_preview_links_to_core() {
+		$this->enable_tab();
+		$this->answer_with_themes( array( self::THEME ), 1 );
+
+		$this->assertFalse( $this->query( array( 'theme' => 'twentytwentyfive' ) ) );
+	}
+
+	/**
+	 * The lookup follows the catalog past its first page.
+	 */
+	public function test_finds_preview_theme_on_a_later_page() {
+		$this->enable_tab();
+		$later = array_merge( self::THEME, array( 'id' => 'later-theme' ) );
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $later ) {
+				$this->requests[] = $url;
+				$themes           = str_contains( $url, 'page=2' ) ? array( $later ) : array( self::THEME );
+
+				return array(
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+					'body'     => wp_json_encode(
+						array(
+							'themes' => $themes,
+							'found'  => WPCOM_THEMES_TAB_PER_PAGE + 1,
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+				);
+			},
+			10,
+			3
+		);
+
+		$result = $this->query( array( 'theme' => 'later-theme' ) );
+
+		$this->assertSame( 'later-theme', $result->themes[0]->slug );
+		$this->assertCount( 2, $this->requests );
+	}
+
+	/**
 	 * Core's own tabs, search and theme details still go to WordPress.org.
 	 */
 	public function test_leaves_other_tabs_to_core() {
