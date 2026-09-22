@@ -303,7 +303,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		try {
 			$this->assertSame( $expected, $this->dispatch( 'GET' )->get_data()['can_manage_seo'] );
 		} finally {
-			\Patchwork\restore( $mock );
+			if ( null !== $mock ) {
+				\Patchwork\restore( $mock );
+			}
 		}
 	}
 
@@ -336,7 +338,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		try {
 			$this->assertFalse( $this->dispatch( 'GET' )->get_data()['can_manage_seo'] );
 		} finally {
-			\Patchwork\restore( $mock );
+			if ( null !== $mock ) {
+				\Patchwork\restore( $mock );
+			}
 		}
 	}
 
