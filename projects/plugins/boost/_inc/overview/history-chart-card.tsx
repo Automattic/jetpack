@@ -206,8 +206,7 @@ export default function HistoryChartCard( {
 		[ data?.periods, startDate, endDate ]
 	);
 	const recordedDays = days.filter( day => day.period );
-	const singleDate =
-		showSingleDate && recordedDays.length === 1 ? recordedDays[ 0 ].date : null;
+	const singleDate = showSingleDate && recordedDays.length === 1 ? recordedDays[ 0 ].date : null;
 	const series = useMemo( () => buildHistorySeries( days ), [ days ] );
 	const tickValues = useMemo(
 		() =>
