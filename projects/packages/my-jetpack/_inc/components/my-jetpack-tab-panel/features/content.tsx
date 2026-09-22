@@ -1,6 +1,7 @@
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
+import { FeaturesEmptyState } from './empty-state';
 import { FeatureItem } from './feature-item';
 import { FeatureList } from './feature-list';
 import { FeatureModal } from './feature-modal';
@@ -87,6 +88,8 @@ export function FeaturesContent() {
 		[ updateParams ]
 	);
 
+	const clearSearch = useCallback( () => onSearchChange( '' ), [ onSearchChange ] );
+
 	const onFilterChange = useCallback(
 		// Clears the search: a term in play replaces the grid outright, so a pill picked
 		// while searching would otherwise light up and change nothing.
@@ -131,9 +134,13 @@ export function FeaturesContent() {
 			</p>
 
 			{ visible.length === 0 && (
-				<h3 className={ styles[ 'empty-heading' ] }>
-					{ __( 'No features found.', 'jetpack-my-jetpack' ) }
-				</h3>
+				<FeaturesEmptyState
+					search={ search }
+					filter={ filter }
+					hasCatalog={ mainFeatures.features.length > 0 }
+					onClearSearch={ clearSearch }
+					onFilterChange={ onFilterChange }
+				/>
 			) }
 			{ visible.length > 0 &&
 				( view === 'list' ? (

@@ -4,15 +4,16 @@ import { MemoryRouter } from 'react-router';
 import { FeaturesContent } from '../content';
 import type { FeatureState } from '../feature-state';
 
-const mockStates = [
-	{
-		feature: { slug: 'stats', name: 'Stats', description: '', plans: [] },
-		status: 'active',
-		control: { kind: 'none' },
-	},
-] as unknown as FeatureState[];
+const activeStats = {
+	feature: { slug: 'stats', name: 'Stats', description: '', plans: [] },
+	status: 'active',
+	control: { kind: 'none' },
+} as unknown as FeatureState;
 
-jest.mock( '../use-main-features', () => ( { useMainFeatures: () => ( {} ) } ) );
+let mockStates: FeatureState[] = [ activeStats ];
+let mockMainFeatures = { features: [ { slug: 'stats' } ] };
+
+jest.mock( '../use-main-features', () => ( { useMainFeatures: () => mockMainFeatures } ) );
 
 jest.mock( '../feature-state', () => ( {
 	useFeatureStates: () => ( { states: mockStates, isLoading: false } ),
@@ -30,6 +31,32 @@ const renderAt = ( url: string ) =>
 	);
 
 describe( 'FeaturesContent', () => {
+	beforeEach( () => {
+		mockStates = [ activeStats ];
+		mockMainFeatures = { features: [ { slug: 'stats' } ] };
+	} );
+
+	it( 'names the filter that matched nothing and switches back from the empty state', async () => {
+		renderAt( '/features?filter=inactive' );
+
+		expect( screen.getByRole( 'heading', { name: 'Everything is turned on.' } ) ).toBeVisible();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'View active features' } ) );
+
+		expect( screen.getByText( 'grid card' ) ).toBeInTheDocument();
+	} );
+
+	it( 'reports an empty catalog as a failure rather than a site with no features', () => {
+		mockStates = [];
+		mockMainFeatures = { features: [] };
+
+		renderAt( '/features' );
+
+		expect(
+			screen.getByRole( 'heading', { name: 'We couldn’t load your features.' } )
+		).toBeVisible();
+	} );
+
 	it( 'shows the grid by default and switches to the list from the toolbar', async () => {
 		renderAt( '/features' );
 
