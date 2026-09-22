@@ -322,9 +322,9 @@ class Settings_Test extends BaseTestCase {
 		do_action( 'rest_api_init' );
 
 		$routes = rest_get_server()->get_routes();
-		$this->assertArrayNotHasKey( '/jetpack/v4/newsletter/stats/subscribers', $routes );
-		$this->assertArrayNotHasKey( '/jetpack/v4/newsletter/stats/emails/summary', $routes );
-		$this->assertArrayNotHasKey( '/jetpack/v4/newsletter/stats/recent-posts', $routes );
+		$this->assertArrayNotHasKey( '/wpcom/v2/newsletter/stats/subscribers', $routes );
+		$this->assertArrayNotHasKey( '/wpcom/v2/newsletter/stats/emails/summary', $routes );
+		$this->assertArrayNotHasKey( '/wpcom/v2/newsletter/stats/recent-posts', $routes );
 	}
 
 	/**
@@ -341,9 +341,9 @@ class Settings_Test extends BaseTestCase {
 		do_action( 'rest_api_init' );
 
 		$routes = rest_get_server()->get_routes();
-		$this->assertArrayHasKey( '/jetpack/v4/newsletter/stats/subscribers', $routes );
-		$this->assertArrayHasKey( '/jetpack/v4/newsletter/stats/emails/summary', $routes );
-		$this->assertArrayHasKey( '/jetpack/v4/newsletter/stats/recent-posts', $routes );
+		$this->assertArrayHasKey( '/wpcom/v2/newsletter/stats/subscribers', $routes );
+		$this->assertArrayHasKey( '/wpcom/v2/newsletter/stats/emails/summary', $routes );
+		$this->assertArrayHasKey( '/wpcom/v2/newsletter/stats/recent-posts', $routes );
 	}
 
 	/**

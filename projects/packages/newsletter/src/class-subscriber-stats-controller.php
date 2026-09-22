@@ -35,6 +35,22 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 	const CACHE_TRANSIENT_PREFIX = 'jetpack_newsletter_stats_';
 
 	/**
+	 * WordPress.com Stats JSON API rest_base this controller proxies to.
+	 *
+	 * The local route is `newsletter/stats`; the upstream JSON API is still `stats`.
+	 *
+	 * @var string
+	 */
+	const UPSTREAM_STATS_REST_BASE = 'stats';
+
+	/**
+	 * Whether this endpoint exists on WordPress.com rather than only in Jetpack.
+	 *
+	 * @var bool
+	 */
+	public $wpcom_is_wpcom_only_endpoint = true;
+
+	/**
 	 * Whether the route registration hook has been added.
 	 *
 	 * @var bool
@@ -59,8 +75,8 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 	 * Set up the local REST namespace.
 	 */
 	public function __construct() {
-		$this->namespace = 'jetpack/v4/newsletter';
-		$this->rest_base = 'stats';
+		$this->namespace = 'wpcom/v2';
+		$this->rest_base = 'newsletter/stats';
 	}
 
 	/**
@@ -164,9 +180,6 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 		/**
 		 * Allows a host to provide Newsletter Stats without calling WordPress.com directly.
 		 *
-		 * WordPress.com Simple must implement this: Direct only dispatches WP REST (`/wpcom/v2`),
-		 * not the classic JSON API (`/rest/v1.1`) that `proxy_stats_to_wpcom()` calls.
-		 *
 		 * @since $$next-version$$
 		 *
 		 * @param mixed|null $response   Host response, or null to use the default proxy.
@@ -219,9 +232,6 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 	 * Successful responses are cached for five minutes. Errors are not, so a reconnect
 	 * is not stuck on a stale failure.
 	 *
-	 * Do not gate on `Manager::is_connected()`: Simple has no Jetpack connection and uses
-	 * `jetpack_newsletter_stats_pre_request` instead of this blog-token path.
-	 *
 	 * @param string $endpoint   Relative Stats endpoint.
 	 * @param array  $query_args Allowlisted query arguments.
 	 * @return mixed|WP_Error
@@ -229,7 +239,12 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 	private function proxy_stats_to_wpcom( $endpoint, $query_args ) {
 		$path      = add_query_arg(
 			$query_args,
-			sprintf( '/sites/%d/%s/%s', (int) \Jetpack_Options::get_option( 'id' ), $this->rest_base, ltrim( $endpoint, '/' ) )
+			sprintf(
+				'/sites/%d/%s/%s',
+				(int) \Jetpack_Options::get_option( 'id' ),
+				self::UPSTREAM_STATS_REST_BASE,
+				ltrim( $endpoint, '/' )
+			)
 		);
 		$cache_key = self::CACHE_TRANSIENT_PREFIX . md5( implode( '|', array( $path, self::STATS_API_VERSION ) ) );
 		$cached    = get_transient( $cache_key );

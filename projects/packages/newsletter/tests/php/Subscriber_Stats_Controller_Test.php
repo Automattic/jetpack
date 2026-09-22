@@ -83,7 +83,7 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		$request->set_query_params(
 			array(
 				'quantity'   => 30,
-				'rest_route' => '/jetpack/v4/newsletter/stats/' . $endpoint,
+				'rest_route' => '/wpcom/v2/newsletter/stats/' . $endpoint,
 				'period'     => 'alltime',
 				'evil'       => '1',
 			)
@@ -131,14 +131,14 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 
 	public function test_registers_recent_posts_route() {
 		$this->assertArrayHasKey(
-			'/jetpack/v4/newsletter/stats/recent-posts',
+			'/wpcom/v2/newsletter/stats/recent-posts',
 			rest_get_server()->get_routes()
 		);
 	}
 
 	public function test_recent_posts_route_requires_manage_options() {
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/newsletter/stats/recent-posts' )
+			new WP_REST_Request( 'GET', '/wpcom/v2/newsletter/stats/recent-posts' )
 		);
 
 		$this->assertSame( 401, $response->get_status() );
@@ -149,7 +149,7 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 	 * tests above) so permission_callback is actually exercised, not bypassed.
 	 */
 	public function test_subscribers_route_requires_manage_options() {
-		$request = new WP_REST_Request( 'GET', '/jetpack/v4/newsletter/stats/subscribers' );
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/newsletter/stats/subscribers' );
 		$request->set_query_params( array( 'date' => gmdate( 'Y-m-d' ) ) );
 
 		$response = rest_get_server()->dispatch( $request );
@@ -163,7 +163,7 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 	 */
 	public function test_emails_summary_route_requires_manage_options() {
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/newsletter/stats/emails/summary' )
+			new WP_REST_Request( 'GET', '/wpcom/v2/newsletter/stats/emails/summary' )
 		);
 
 		$this->assertSame( 401, $response->get_status() );
@@ -183,7 +183,7 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		}
 		wp_set_current_user( $user_id );
 
-		$request = new WP_REST_Request( 'GET', '/jetpack/v4/newsletter/stats/subscribers' );
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/newsletter/stats/subscribers' );
 		$request->set_query_params( array( 'date' => gmdate( 'Y-m-d' ) ) );
 
 		$response = rest_get_server()->dispatch( $request );
@@ -193,7 +193,7 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 
 	public function test_subscribers_route_rejects_invalid_date() {
 		$this->login_as_admin();
-		$request = new WP_REST_Request( 'GET', '/jetpack/v4/newsletter/stats/subscribers' );
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/newsletter/stats/subscribers' );
 		$request->set_query_params( array( 'date' => 'not-a-date' ) );
 
 		$response = rest_get_server()->dispatch( $request );
@@ -204,7 +204,7 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 
 	public function test_subscribers_route_rejects_impossible_calendar_date() {
 		$this->login_as_admin();
-		$request = new WP_REST_Request( 'GET', '/jetpack/v4/newsletter/stats/subscribers' );
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/newsletter/stats/subscribers' );
 		$request->set_query_params( array( 'date' => '2026-02-31' ) );
 
 		$response = rest_get_server()->dispatch( $request );
@@ -273,9 +273,36 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		$this->assertSame( 2, $calls );
 	}
 
+	public function test_proxies_to_the_wpcom_stats_json_api() {
+		$this->connect_site();
+		$url = null;
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $request_url ) use ( &$url ) {
+				unset( $preempt, $args );
+				$url = $request_url;
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{}',
+				);
+			},
+			10,
+			3
+		);
+
+		$request = new WP_REST_Request( 'GET' );
+		$request->set_query_params( array( 'quantity' => 30 ) );
+		$this->controller->get_email_summary( $request );
+
+		$this->assertIsString( $url );
+		$this->assertStringContainsString( '/sites/1234/stats/emails/summary', $url );
+		$this->assertStringNotContainsString( 'newsletter/stats', $url );
+	}
+
 	public function test_subscribers_route_rejects_year_unit() {
 		$this->login_as_admin();
-		$request = new WP_REST_Request( 'GET', '/jetpack/v4/newsletter/stats/subscribers' );
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/newsletter/stats/subscribers' );
 		$request->set_query_params(
 			array(
 				'date' => gmdate( 'Y-m-d' ),
@@ -306,7 +333,7 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		);
 
 		$response = rest_get_server()->dispatch(
-			new WP_REST_Request( 'GET', '/jetpack/v4/newsletter/stats/emails/summary' )
+			new WP_REST_Request( 'GET', '/wpcom/v2/newsletter/stats/emails/summary' )
 		);
 
 		$this->assertSame( 200, $response->get_status() );

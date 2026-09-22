@@ -78,7 +78,7 @@ beforeEach( () => {
 		if ( path.includes( '/stats/subscribers' ) ) {
 			return Promise.resolve( subscribersResponse );
 		}
-		if ( path === '/jetpack/v4/newsletter/stats/recent-posts' ) {
+		if ( path === '/wpcom/v2/newsletter/stats/recent-posts' ) {
 			return Promise.resolve( recentPostsResponse );
 		}
 		if ( path.includes( '/emails/summary' ) ) {
@@ -103,11 +103,14 @@ describe( 'SubscriberStatsChart', () => {
 
 		await waitFor( () => {
 			expect( mockApiFetch ).toHaveBeenCalledWith( {
-				path: expect.stringContaining( 'date=2026-09-21' ),
+				path: expect.stringContaining( '/wpcom/v2/newsletter/stats/subscribers' ),
 			} );
 		} );
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
-			path: '/jetpack/v4/newsletter/stats/recent-posts',
+			path: expect.stringContaining( 'date=2026-09-21' ),
+		} );
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/wpcom/v2/newsletter/stats/recent-posts',
 		} );
 		expect( screen.getByLabelText( 'Subscribers with a paid subscription.' ) ).toBeInTheDocument();
 		expect( mockApiFetch.mock.calls ).not.toContainEqual( [

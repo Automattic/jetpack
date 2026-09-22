@@ -203,7 +203,7 @@ export default function SubscriberStatsChart(): JSX.Element {
 	const metricDirection = isMobile ? 'row' : 'column';
 	const metricJustify = isMobile ? 'space-between' : undefined;
 	const date = dateI18n( 'Y-m-d' );
-	const subscribersPath = addQueryArgs( '/jetpack/v4/newsletter/stats/subscribers', {
+	const subscribersPath = addQueryArgs( '/wpcom/v2/newsletter/stats/subscribers', {
 		unit: 'day',
 		quantity: DAYS_TO_SHOW,
 		date,
@@ -216,7 +216,7 @@ export default function SubscriberStatsChart(): JSX.Element {
 	} );
 	const recentPostsQuery = useQuery< RecentPostsResponse >( {
 		queryKey: [ 'newsletter-stats', 'recent-posts' ],
-		queryFn: () => apiFetch( { path: '/jetpack/v4/newsletter/stats/recent-posts' } ),
+		queryFn: () => apiFetch( { path: '/wpcom/v2/newsletter/stats/recent-posts' } ),
 		staleTime: STATS_STALE_TIME_MS,
 	} );
 	const subscriberStats = subscribersQuery.data ? toSubscriberStats( subscribersQuery.data ) : null;
