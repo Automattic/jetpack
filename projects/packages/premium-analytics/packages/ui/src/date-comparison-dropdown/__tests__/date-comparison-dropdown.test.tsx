@@ -1,5 +1,5 @@
 import { TZDate } from '@date-fns/tz';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import type { ComparisonDateRangePreset } from '../../use-comparison-date-presets';
@@ -166,5 +166,28 @@ describe( 'DateComparisonDropdown', () => {
 		await user.click( trigger );
 		expect( screen.queryByRole( 'menuitemradio' ) ).not.toBeInTheDocument();
 		expect( onPresetChange ).not.toHaveBeenCalled();
+
+		// The Button drops clicks but not keys, so the arrow shortcut is shut apart.
+		act( () => trigger.focus() );
+		await user.keyboard( '{ArrowDown}' );
+		expect( screen.queryByRole( 'menuitemradio' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'opens its menu on ArrowDown', async () => {
+		const user = userEvent.setup();
+
+		render(
+			<DateComparisonDropdown
+				presets={ presets }
+				enabled={ false }
+				onPresetChange={ jest.fn() }
+				onClear={ jest.fn() }
+			/>
+		);
+
+		act( () => screen.getByRole( 'button', { name: 'Compare' } ).focus() );
+		await user.keyboard( '{ArrowDown}' );
+
+		expect( screen.getByRole( 'menuitemradio', { name: 'No comparison' } ) ).toBeChecked();
 	} );
 } );
