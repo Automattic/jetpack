@@ -9,7 +9,9 @@ namespace Automattic\Jetpack;
 
 use Brain\Monkey;
 use Brain\Monkey\Filters;
+use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -26,6 +28,13 @@ class Feature_Policy_Test extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 		Monkey\setUp();
+
+		/*
+		 * Brain Monkey leaves these two undefined, and once one test defines one it stays defined
+		 * for the process. Stubbing both here keeps every test in the class on the same path.
+		 */
+		Functions\when( 'esc_html' )->returnArg();
+		Functions\when( '_doing_it_wrong' )->justReturn( null );
 	}
 
 	/**
@@ -158,6 +167,215 @@ class Feature_Policy_Test extends TestCase {
 	}
 
 	/**
+	 * A menu item is matched by the key it declared.
+	 */
+	public function test_filter_menu_visibility_matches_by_item_key() {
+		$this->set_policy( array( 'jetpack-search' => array( 'visibility' => 'hidden' ) ) );
+
+		$this->assertSame(
+			array(
+				'jetpack-search' => 'hidden',
+				'my-jetpack'     => 'default',
+			),
+			Feature_Policy::filter_menu_visibility(
+				array(
+					'jetpack-search' => 'default',
+					'my-jetpack'     => 'default',
+				),
+				array(
+					array(
+						'menu_slug' => 'jetpack-search-page',
+						'args'      => array( 'key' => 'jetpack-search' ),
+					),
+					array( 'menu_slug' => 'my-jetpack' ),
+				)
+			)
+		);
+	}
+
+	/**
+	 * With no declared key, the menu slug is the name a host uses.
+	 */
+	public function test_filter_menu_visibility_matches_by_menu_slug() {
+		$this->set_policy( array( 'my-jetpack' => array( 'visibility' => 'hidden' ) ) );
+
+		$this->assertSame(
+			array( 'my-jetpack' => 'hidden' ),
+			Feature_Policy::filter_menu_visibility(
+				array( 'my-jetpack' => 'default' ),
+				array( array( 'menu_slug' => 'my-jetpack' ) )
+			)
+		);
+	}
+
+	/**
+	 * A product slug reaches the item that declared it as its gate.
+	 */
+	public function test_filter_menu_visibility_matches_by_product() {
+		$this->set_policy( array( 'search' => array( 'visibility' => 'hidden' ) ) );
+
+		$this->assertSame(
+			array( 'jetpack-search' => 'hidden' ),
+			Feature_Policy::filter_menu_visibility(
+				array( 'jetpack-search' => 'default' ),
+				array(
+					array(
+						'menu_slug' => 'jetpack-search',
+						'args'      => array(
+							'key'     => 'jetpack-search',
+							'product' => 'search',
+						),
+					),
+				)
+			)
+		);
+	}
+
+	/**
+	 * A module slug reaches the item that declared it as its gate.
+	 */
+	public function test_filter_menu_visibility_matches_by_module() {
+		$this->set_policy( array( 'stats' => array( 'visibility' => 'visible' ) ) );
+
+		$this->assertSame(
+			array( 'jetpack-stats' => 'visible' ),
+			Feature_Policy::filter_menu_visibility(
+				array( 'jetpack-stats' => 'default' ),
+				array(
+					array(
+						'menu_slug' => 'jetpack-stats',
+						'args'      => array(
+							'key'    => 'jetpack-stats',
+							'module' => 'stats',
+						),
+					),
+				)
+			)
+		);
+	}
+
+	/**
+	 * A policy slug that names no item leaves the map as it found it.
+	 */
+	public function test_filter_menu_visibility_ignores_slugs_matching_nothing() {
+		$this->set_policy(
+			array(
+				'not-an-item' => array( 'visibility' => 'hidden' ),
+				'stats'       => array( 'activation' => 'forced-on' ),
+			)
+		);
+
+		$this->assertSame(
+			array( 'jetpack-stats' => 'default' ),
+			Feature_Policy::filter_menu_visibility(
+				array( 'jetpack-stats' => 'default' ),
+				array(
+					array(
+						'menu_slug' => 'jetpack-stats',
+						'args'      => array(
+							'key'    => 'jetpack-stats',
+							'module' => 'stats',
+						),
+					),
+				)
+			)
+		);
+	}
+
+	/**
+	 * Items of the wrong shape are skipped rather than fatal.
+	 */
+	public function test_filter_menu_visibility_tolerates_malformed_items() {
+		$this->set_policy( array( 'my-jetpack' => array( 'visibility' => 'hidden' ) ) );
+
+		$this->assertSame(
+			array( 'my-jetpack' => 'hidden' ),
+			Feature_Policy::filter_menu_visibility(
+				array(),
+				array(
+					'not an item',
+					array( 'args' => 'not an array' ),
+					array( 'menu_slug' => 123 ),
+					array( 'menu_slug' => 'my-jetpack' ),
+				)
+			)
+		);
+	}
+
+	/**
+	 * Either argument not being an array leaves the map alone.
+	 *
+	 * @param mixed $value What a misbehaving callback handed over instead of an array.
+	 *
+	 * @dataProvider non_array_values
+	 */
+	#[DataProvider( 'non_array_values' )]
+	public function test_filter_menu_visibility_passes_non_array_arguments_through( $value ) {
+		$this->assertSame( $value, Feature_Policy::filter_menu_visibility( $value, array() ) );
+		$this->assertSame( array( 'a' => 'default' ), Feature_Policy::filter_menu_visibility( array( 'a' => 'default' ), $value ) );
+	}
+
+	/**
+	 * Values a filter might hand back instead of an array.
+	 *
+	 * @return array
+	 */
+	public static function non_array_values() {
+		return array(
+			'null'   => array( null ),
+			'false'  => array( false ),
+			'string' => array( 'hidden' ),
+		);
+	}
+
+	/**
+	 * A forced-on slug this site has no module for is reported, and a real one is not.
+	 */
+	public function test_forced_on_slug_without_a_module_warns() {
+		$warnings = array();
+		Functions\when( '_doing_it_wrong' )->alias(
+			function ( $function_name, $message ) use ( &$warnings ) {
+				$warnings[] = $function_name . ': ' . $message;
+			}
+		);
+		$this->set_policy(
+			array(
+				'stats'   => array( 'activation' => 'forced-on' ),
+				'stasts'  => array( 'activation' => 'forced-on' ),
+				'monitor' => array( 'activation' => 'forced-off' ),
+			)
+		);
+		Filters\expectApplied( 'jetpack_get_available_standalone_modules' )
+			->with( array(), null, null )
+			->andReturn( array( 'stats', 'monitor' ) );
+
+		$this->assertSame( array( 'stats', 'stasts' ), Feature_Policy::filter_active_modules( array() ) );
+		$reported = implode( "\n", $warnings );
+		$this->assertCount( 1, $warnings, 'Only the slug with no module should be reported.' );
+		$this->assertStringStartsWith( Feature_Policy::FILTER . ': ', $reported );
+		$this->assertStringContainsString( 'stasts', $reported );
+	}
+
+	/**
+	 * `is_module_active()` runs this on every call, so a bad slug is reported once per request.
+	 */
+	public function test_forced_on_slug_without_a_module_warns_once() {
+		$warnings = 0;
+		Functions\when( '_doing_it_wrong' )->alias(
+			function () use ( &$warnings ) {
+				++$warnings;
+			}
+		);
+		$this->set_policy( array( 'stasts' => array( 'activation' => 'forced-on' ) ) );
+		Filters\expectApplied( 'jetpack_get_available_standalone_modules' )->andReturn( array( 'stats' ) );
+
+		Feature_Policy::filter_active_modules( array() );
+		Feature_Policy::filter_active_modules( array( 'stats' ) );
+
+		$this->assertSame( 1, $warnings );
+	}
+
+	/**
 	 * The bridge stays off until something registers a policy.
 	 */
 	public function test_ensure_hooks_waits_for_a_policy() {
@@ -170,5 +388,6 @@ class Feature_Policy_Test extends TestCase {
 		$this->assertSame( PHP_INT_MAX, Filters\has( 'jetpack_active_modules', array( Feature_Policy::class, 'filter_active_modules' ) ) );
 		$this->assertSame( PHP_INT_MAX, Filters\has( 'jetpack_get_default_modules', array( Feature_Policy::class, 'filter_default_modules' ) ) );
 		$this->assertSame( PHP_INT_MAX, Filters\has( 'jetpack_my_jetpack_feature_visibility', array( Feature_Policy::class, 'filter_visibility' ) ) );
+		$this->assertSame( PHP_INT_MAX, Filters\has( 'jetpack_admin_menu_visibility', array( Feature_Policy::class, 'filter_menu_visibility' ) ) );
 	}
 }

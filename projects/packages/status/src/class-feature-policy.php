@@ -11,8 +11,9 @@ namespace Automattic\Jetpack;
  * Reads `jetpack_feature_policy` and feeds it into the filters that already own each decision.
  *
  * Activation goes through `jetpack_active_modules`, defaults through `jetpack_get_default_modules`,
- * and visibility through `jetpack_my_jetpack_feature_visibility`, so every existing reader,
- * including forced-module detection, sees the policy without knowing it exists.
+ * and visibility through both `jetpack_my_jetpack_feature_visibility` and
+ * `jetpack_admin_menu_visibility`, so every existing reader, including forced-module detection,
+ * sees the policy without knowing it exists.
  */
 class Feature_Policy {
 
@@ -48,7 +49,15 @@ class Feature_Policy {
 		'jetpack_active_modules'                => array( 'filter_active_modules', 1 ),
 		'jetpack_get_default_modules'           => array( 'filter_default_modules', 5 ),
 		'jetpack_my_jetpack_feature_visibility' => array( 'filter_visibility', 1 ),
+		'jetpack_admin_menu_visibility'         => array( 'filter_menu_visibility', 2 ),
 	);
+
+	/**
+	 * Forced-on slugs already reported through `_doing_it_wrong()` this request.
+	 *
+	 * @var string[]
+	 */
+	private static $warned = array();
 
 	/**
 	 * Registers the bridge callbacks once something uses the policy filter.
@@ -79,6 +88,8 @@ class Feature_Policy {
 		foreach ( self::BRIDGES as $hook => list( $method ) ) {
 			remove_filter( $hook, array( __CLASS__, $method ), self::PRIORITY );
 		}
+
+		self::$warned = array();
 	}
 
 	/**
@@ -97,11 +108,12 @@ class Feature_Policy {
 		 * - `activation`: 'forced-on' or 'forced-off' pin the module on every request, the same as
 		 *   `jetpack_active_modules`. 'default-on' or 'default-off' change what Jetpack turns on when
 		 *   it activates its default modules, which happens at connection and upgrade, not on an
-		 *   existing site. 'default' leaves it alone.
-		 * - `visibility`: 'hidden' keeps the item off the My Jetpack Features page, 'visible' lists it
-		 *   there. The policy runs last, so 'visible' overrides a 'hidden' another
-		 *   `jetpack_my_jetpack_feature_visibility` callback set. The wp-admin sidebar menu is separate
-		 *   and answers to `jetpack_admin_menu_visibility`.
+		 *   existing site. 'default' leaves it alone. A 'forced-on' slug this site has no module for
+		 *   still reads as active, but calls `_doing_it_wrong()` since nothing will load it.
+		 * - `visibility`: 'hidden' keeps the item off the My Jetpack Features page and out of the
+		 *   wp-admin sidebar, 'visible' shows it in both. A sidebar entry matches on its item key or
+		 *   on the product or module gate it declares. The policy runs last, so 'visible' overrides a
+		 *   'hidden' another callback set.
 		 *
 		 * Standalone plugin products (Akismet, Boost, CRM, Protect) take `visibility` only: WordPress
 		 * decides which plugins load before Jetpack runs, so forcing one needs `option_active_plugins`
@@ -153,10 +165,48 @@ class Feature_Policy {
 			return $active;
 		}
 
-		$policy = self::get_policy();
-		$active = array_merge( $active, self::get_slugs( $policy, 'activation', self::ACTIVATION_FORCED_ON ) );
+		$policy    = self::get_policy();
+		$forced_on = self::get_slugs( $policy, 'activation', self::ACTIVATION_FORCED_ON );
+
+		self::warn_about_slugs_with_no_module( $forced_on );
+
+		$active = array_merge( $active, $forced_on );
 
 		return array_values( array_unique( array_diff( $active, self::get_slugs( $policy, 'activation', self::ACTIVATION_FORCED_OFF ) ) ) );
+	}
+
+	/**
+	 * Reports a forced-on slug this site has no module for.
+	 *
+	 * The slug is kept, because discarding a host's instruction silently is worse than honoring a
+	 * typo, so it reads as active everywhere while `load_modules()` never loads it.
+	 *
+	 * @param string[] $forced_on Slugs the policy forces on.
+	 * @return void
+	 */
+	private static function warn_about_slugs_with_no_module( $forced_on ) {
+		$unwarned = array_diff( $forced_on, self::$warned );
+
+		// This runs on every get_active() call, so skip the module scan unless there is news.
+		if ( ! $unwarned || ! function_exists( '_doing_it_wrong' ) ) {
+			return;
+		}
+
+		// No arguments: every slug this site has, so only a typo is flagged.
+		$available    = ( new Modules() )->get_available();
+		self::$warned = array_merge( self::$warned, $unwarned );
+
+		foreach ( $unwarned as $slug ) {
+			if ( in_array( $slug, $available, true ) ) {
+				continue;
+			}
+
+			_doing_it_wrong(
+				'jetpack_feature_policy',
+				esc_html( sprintf( 'Forced on "%s", which is not a Jetpack module on this site. It will report as active, but nothing will load it.', $slug ) ),
+				'$$next-version$$'
+			);
+		}
 	}
 
 	/**
@@ -203,6 +253,46 @@ class Feature_Policy {
 		foreach ( self::get_policy() as $slug => $entry ) {
 			if ( null !== $entry['visibility'] ) {
 				$states[ $slug ] = $entry['visibility'];
+			}
+		}
+
+		return $states;
+	}
+
+	/**
+	 * Sets each wp-admin sidebar item's state from the policy entry that names it.
+	 *
+	 * Hosts name features, not menu slugs, so an item is matched by its key and then by the
+	 * product or module gate it declared. A policy slug matching no item changes nothing.
+	 *
+	 * @param array $states Map of menu item key to visibility state.
+	 * @param array $items  The registered menu items.
+	 * @return array
+	 */
+	public static function filter_menu_visibility( $states, $items = array() ) {
+		if ( ! is_array( $states ) || ! is_array( $items ) ) {
+			return $states;
+		}
+
+		$policy = self::get_policy();
+
+		foreach ( $items as $item ) {
+			if ( ! is_array( $item ) ) {
+				continue;
+			}
+
+			$args = isset( $item['args'] ) && is_array( $item['args'] ) ? $item['args'] : array();
+			$key  = empty( $args['key'] ) ? ( $item['menu_slug'] ?? null ) : $args['key'];
+
+			if ( ! is_string( $key ) || '' === $key ) {
+				continue;
+			}
+
+			foreach ( array( $key, $args['product'] ?? null, $args['module'] ?? null ) as $slug ) {
+				if ( is_string( $slug ) && ! empty( $policy[ $slug ]['visibility'] ) ) {
+					$states[ $key ] = $policy[ $slug ]['visibility'];
+					break;
+				}
 			}
 		}
 
