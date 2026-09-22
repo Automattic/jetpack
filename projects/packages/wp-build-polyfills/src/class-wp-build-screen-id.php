@@ -10,8 +10,8 @@ namespace Automattic\Jetpack\WP_Build_Polyfills;
 /**
  * Orders the screen-ID alias around wp-build's generated enqueue check.
  *
- * Dropping the restore leaves JITM's message path and Core's `pagenow` reading a
- * screen ID that never existed, and nothing on the page looks wrong. See JETPACK-2689.
+ * Dropping the restore leaves JITM's message path reading a screen ID that never
+ * existed, and nothing on the page looks wrong. See JETPACK-2689.
  */
 class WP_Build_Screen_Id {
 

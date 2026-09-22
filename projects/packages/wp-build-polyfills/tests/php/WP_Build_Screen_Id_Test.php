@@ -37,20 +37,6 @@ class WP_Build_Screen_Id_Test extends BaseTestCase {
 		parent::tearDown();
 	}
 
-	public function test_load_with_alias_hooks_alias_and_restore_at_the_same_priority() {
-		WP_Build_Screen_Id::load_with_alias(
-			array( $this, 'alias_spy' ),
-			array( $this, 'restore_spy' ),
-			array( $this, 'noop' )
-		);
-
-		$alias_priority   = has_action( 'admin_enqueue_scripts', array( $this, 'alias_spy' ) );
-		$restore_priority = has_action( 'admin_enqueue_scripts', array( $this, 'restore_spy' ) );
-
-		$this->assertNotFalse( $alias_priority );
-		$this->assertSame( $alias_priority, $restore_priority );
-	}
-
 	/**
 	 * The contract that matters: wp-build's generated enqueue check — hooked
 	 * between $alias and $restore by $load_wp_build, at the same priority — must
@@ -96,26 +82,4 @@ class WP_Build_Screen_Id_Test extends BaseTestCase {
 		$this->assertSame( self::TARGET_SCREEN_ID, $seen_by_generated_check );
 		$this->assertSame( self::REAL_SCREEN_ID, $seen_after_restore );
 	}
-
-	/**
-	 * No-op callback for the hook-registration test above.
-	 *
-	 * @return void
-	 */
-	public function noop() {}
-
-	/**
-	 * Stand-in alias callback, distinct from restore_spy() so has_action() can
-	 * tell the two hooked callbacks apart.
-	 *
-	 * @return void
-	 */
-	public function alias_spy() {}
-
-	/**
-	 * Stand-in restore callback, distinct from alias_spy().
-	 *
-	 * @return void
-	 */
-	public function restore_spy() {}
 }

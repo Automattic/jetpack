@@ -130,7 +130,7 @@ class Dashboard {
 			return;
 		}
 
-		$build_index = dirname( __DIR__, 2 ) . '/build/build.php';
+		$build_index = $this->wp_build_index();
 		if ( ! file_exists( $build_index ) ) {
 			return;
 		}
@@ -172,6 +172,16 @@ class Dashboard {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 		require_once $build_index;
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
+	}
+
+	/**
+	 * Path to the generated build entry point. A seam, like the render function below:
+	 * tests point it at a stub so this runs without the package being built.
+	 *
+	 * @return string
+	 */
+	protected function wp_build_index() {
+		return dirname( __DIR__, 2 ) . '/build/build.php';
 	}
 
 	/**
