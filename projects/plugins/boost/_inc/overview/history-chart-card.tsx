@@ -21,6 +21,7 @@ type Props = {
 	onPrevious: () => void;
 	onNext: () => void;
 	canGoNext: boolean;
+	canGoPrevious?: boolean;
 	hasOlderHistory?: boolean;
 	showSingleDate?: boolean;
 	data?: PerformanceHistoryData | null;
@@ -188,6 +189,7 @@ export default function HistoryChartCard( {
 	onNext,
 	canGoNext,
 	hasOlderHistory,
+	canGoPrevious = hasOlderHistory !== false,
 	showSingleDate = hasOlderHistory === false,
 	data,
 	isLoading,
@@ -486,7 +488,7 @@ export default function HistoryChartCard( {
 										dayCount
 									) }
 									icon={ isRTL() ? chevronRight : chevronLeft }
-									disabled={ hasOlderHistory === false }
+									disabled={ ! canGoPrevious }
 									onClick={ onPrevious }
 								/>
 								<span aria-live="polite">

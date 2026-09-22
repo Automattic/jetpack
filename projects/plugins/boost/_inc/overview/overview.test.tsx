@@ -877,6 +877,81 @@ test.each( [
 	}
 );
 
+test( 'labels empty days as locked only after older history absence is confirmed', async () => {
+	const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
+	let completeOlderHistory: () => void;
+	jest.mocked( apiFetch ).mockImplementation( options => {
+		if ( options.url?.endsWith( '/performance-history/set' ) ) {
+			const range = options.data.JSON;
+			if ( range.checkOlderWindows ) {
+				return new Promise( resolve => {
+					completeOlderHistory = () =>
+						resolve( { status: 'success', JSON: { ...range, periods: [], annotations: [] } } );
+				} );
+			}
+			return Promise.resolve( {
+				status: 'success',
+				JSON: {
+					...range,
+					periods: [ recordedPeriod( getHistoryWindow( 0 ).endDate - 86400000 ) ],
+					annotations: [],
+				},
+			} );
+		}
+		return fetch( options );
+	} );
+	const geometry = jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockReturnValue( {
+		x: 0,
+		y: 0,
+		top: 0,
+		left: 0,
+		right: 800,
+		bottom: 300,
+		width: 800,
+		height: 300,
+		toJSON: () => ( {} ),
+	} );
+	const resizeObserver = globalThis.ResizeObserver;
+	globalThis.ResizeObserver = class {
+		constructor( private callback: ResizeObserverCallback ) {}
+		observe( target: Element ) {
+			this.callback(
+				[ { target, contentRect: target.getBoundingClientRect() } as ResizeObserverEntry ],
+				this
+			);
+		}
+		unobserve() {}
+		disconnect() {}
+	};
+	try {
+		renderOverview();
+		await waitFor( () => expect( completeOlderHistory ).toBeDefined() );
+		const charts = await screen.findAllByRole( 'grid', { name: 'Bar chart' } );
+		fireEvent.keyDown( charts[ 0 ], { key: 'ArrowRight' } );
+		await expect(
+			screen.findByText( 'No scores recorded for this day.' )
+		).resolves.toBeInTheDocument();
+		expect(
+			screen.queryByText( 'No scores recorded before the feature was unlocked.' )
+		).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Previous 30 days' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		await act( async () => completeOlderHistory() );
+		await expect(
+			screen.findByText( 'No scores recorded before the feature was unlocked.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Previous 30 days' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} finally {
+		geometry.mockRestore();
+		globalThis.ResizeObserver = resizeObserver;
+	}
+} );
+
 test( 'keeps the older-history check cached when a speed test reloads scores', async () => {
 	const requests = ( offset: number ) =>
 		jest

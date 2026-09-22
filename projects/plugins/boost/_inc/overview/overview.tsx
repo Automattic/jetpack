@@ -229,9 +229,10 @@ function OverviewContent( {
 					onPrevious={ onPrevious }
 					onNext={ onNext }
 					canGoNext={ canGoNext }
-					hasOlderHistory={
+					canGoPrevious={
 						historyPagingState === 'multi-day' || historyPagingState === 'older-history'
 					}
+					hasOlderHistory={ olderHistory.isSuccess ? olderHistory.data : undefined }
 					showSingleDate={ historyPagingState === 'single-day' }
 					isVisible={ isVisible }
 					data={ modules.isPending ? undefined : history.data }
