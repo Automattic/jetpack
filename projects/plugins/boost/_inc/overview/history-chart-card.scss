@@ -155,6 +155,11 @@
 	}
 }
 
+// Read-only and aria-hidden, so the pointer reaches the days under it.
+.boost-daily-history__positioner {
+	pointer-events: none;
+}
+
 .boost-daily-history__popover .boost-daily-history__score-tooltip {
 	inline-size: calc(var(--wpds-dimension-surface-width-xs) + var(--wpds-dimension-padding-2xl) + var(--wpds-border-width-xs));
 	padding: calc(var(--wpds-dimension-padding-lg) + var(--wpds-border-width-xs));

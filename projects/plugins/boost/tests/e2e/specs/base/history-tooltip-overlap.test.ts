@@ -166,25 +166,25 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		const barCenter = hoveredBar.x + hoveredBar.width / 2;
 		const barMiddle = hoveredBar.y + hoveredBar.height / 2;
 		expect( popupBox.x ).toBeGreaterThan( barCenter );
-		// One jump into the popover: a pointer that lands in the gap reaches the next day instead.
-		const targetX = popupBox.x + 20;
-		await page.mouse.move( targetX, barMiddle );
-		// The chart hides its own tooltip once the pointer has left the plot.
-		await expect( page.getByTestId( 'bounded-tooltip' ) ).toHaveCount( 0 );
-		await expect( popover ).toBeVisible();
-		await expect( surface ).toContainText( 'September 1, 2026' );
-		await page.mouse.move( 0, 0 );
-		await expect( popover ).toBeHidden();
-		// A slow move into the gap reaches the next day before the popover can be entered.
-		await hoverDay( chart, 21 );
-		const gapX = popupBox.x - 4;
-		for ( let step = 1; step <= 10; step++ ) {
-			await page.mouse.move( barCenter + ( ( gapX - barCenter ) * step ) / 10, barMiddle );
+		await expect( popover ).toHaveCSS( 'pointer-events', 'none' );
+		// One jump per day, each onto the day the previous box covers.
+		for ( let index = 21; index <= 27; index++ ) {
+			const bar = ( await bars.nth( index ).boundingBox() )!;
+			const x = bar.x + bar.width / 2;
+			await page.mouse.move( x, barMiddle );
+			await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText(
+				`September ${ index - 20 }, 2026`
+			);
+			expect(
+				await page.evaluate(
+					( [ px, py ] ) =>
+						Boolean(
+							document.elementFromPoint( px, py )?.closest( '.boost-daily-history__popover' )
+						),
+					[ x, barMiddle ]
+				)
+			).toBe( false );
 		}
-		await expect( page.getByTestId( 'bounded-tooltip' ) ).toHaveCount( 1 );
-		await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText(
-			'September 2, 2026'
-		);
 		await page.mouse.move( 0, 0 );
 		await expect( popover ).toBeHidden();
 		await hoverDay( chart, 21 );

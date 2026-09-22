@@ -200,7 +200,7 @@ test( 'keeps a recorded day popover open once the chart drops its highlight', as
 	expect( desktop ).not.toContainElement( popover );
 	expect( popover ).toHaveTextContent( dateI18n( 'F j, Y', timestamp, false ) );
 	expect( popover ).toHaveTextContent( '90/100' );
-	// Leaving the plot clears the chart's own selection while the popover stays reachable.
+	// Leaving the plot clears the chart's own selection while the popover stays open.
 	fireEvent.keyDown( desktop, { key: 'Tab' } );
 	fireEvent.blur( desktop );
 	await waitFor( () =>

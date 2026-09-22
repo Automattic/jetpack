@@ -225,8 +225,8 @@ export default function HistoryChartCard( {
 		},
 		[]
 	);
-	// The popover's hover bridge decides when the pointer opens and closes it, which keeps it
-	// hoverable; the card decides which day it shows, and drives it directly for the keyboard.
+	// The popover's hover trigger decides when the pointer opens and closes it; the card decides
+	// which day it shows, and drives it directly for the keyboard.
 	const [ hoverOpen, setHoverOpen ] = useState( false );
 	const [ keyboardOpen, setKeyboardOpen ] = useState( false );
 	const [ anchor, setAnchor ] = useState< HTMLDivElement | null >( null );
@@ -440,17 +440,16 @@ export default function HistoryChartCard( {
 							data-testid="history-popover"
 							initialFocus={ false }
 							finalFocus={ false }
-							// Beside the day, clear of the next one so the pointer can reach it; when neither side
-							// fits, it drops below the day rather than onto the card's paging controls.
+							// Beside the day, a gap away; Base UI falls back above or below when neither side fits.
 							positioner={
 								<Popover.Positioner
 									anchor={ anchor }
+									className="boost-daily-history__positioner"
 									data-testid="history-positioner"
 									side="inline-end"
 									align="start"
 									sideOffset={ 8 }
 									collisionPadding={ 0 }
-									collisionAvoidance={ { fallbackAxisSide: 'end' } }
 								/>
 							}
 						>
