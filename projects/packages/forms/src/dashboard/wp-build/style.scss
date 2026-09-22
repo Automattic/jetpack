@@ -110,3 +110,9 @@ body.jetpack-forms-responses {
 		flex: 0 0 auto;
 	}
 }
+
+// The Forms routes render without page padding, so inset the card rather than
+// the slot -- an empty slot must still take no space.
+.jp-forms__jitm-slot .jitm-card {
+	margin-inline: 16px;
+}

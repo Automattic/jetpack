@@ -251,13 +251,8 @@ class Jetpack_Backup {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
 
 		if ( self::is_wp_build_dashboard_active() ) {
-			// A third-party notice would reflow on top of the dual-pane layout, so keep
-			// them all out. JITMs are ours and the dashboard renders a slot for them, so
-			// they stay; `jetpack_display_jitms_on_screen` is the way to drop those too.
-			//
-			// An older jetpack-jitm, loaded first by another plugin under the
-			// jetpack-autoloader, may predate the helper. Falling back to the blunt
-			// removal keeps the layout safe and costs only the JITM.
+			// Notices reflow the dual-pane layout, so clear them but keep our own.
+			// An older jetpack-jitm may predate the helper; the fallback costs the JITM.
 			if ( method_exists( JITM::class, 'suppress_foreign_admin_notices' ) ) {
 				JITM::suppress_foreign_admin_notices();
 			} else {

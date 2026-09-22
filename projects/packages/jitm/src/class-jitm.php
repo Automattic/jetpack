@@ -118,14 +118,10 @@ class JITM {
 	}
 
 	/**
-	 * Removes every other plugin's admin notices from a Jetpack screen, keeping ours.
+	 * Clears admin notices from the current screen, keeping Jetpack's own.
 	 *
-	 * A full-screen dashboard needs `remove_all_actions( 'admin_notices' )` so a
-	 * third-party upsell cannot break its layout, but that also drops JITMs, which
-	 * are a first-party channel rather than someone else's notice. Call this instead.
-	 *
-	 * A screen that has opted out through `jetpack_display_jitms_on_screen` has
-	 * nothing registered to keep, so it stays silent.
+	 * A screen that opted out through `jetpack_display_jitms_on_screen` has nothing
+	 * to keep, so it stays silent.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -146,11 +142,10 @@ class JITM {
 	}
 
 	/**
-	 * Returns the callbacks on $hook that belong to a JITM instance, keyed by priority.
+	 * Returns our callbacks on $hook, keyed by priority.
 	 *
-	 * Identity is by class, not by object: `prepare_jitms()` hooks the cached instance
-	 * from `get_configured_instance()`, and `get_instance()` builds a fresh one, so
-	 * comparing objects would miss.
+	 * Matched by class: `prepare_jitms()` hooks the cached instance and
+	 * `get_instance()` builds a fresh one, so comparing objects would miss.
 	 *
 	 * @since $$next-version$$
 	 *
