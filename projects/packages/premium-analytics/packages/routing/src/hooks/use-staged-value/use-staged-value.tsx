@@ -22,9 +22,9 @@ export type UseStagedValueReturn< TValue, TCommitOptions > = {
 	stage: ( patch: Partial< TValue > ) => void;
 
 	/**
-	 * Hand the draft to the store; returns that draft, or nothing when nothing was staged.
+	 * Hand the draft to the store.
 	 */
-	commit: ( options?: TCommitOptions ) => TValue | undefined;
+	commit: ( options?: TCommitOptions ) => void;
 
 	/**
 	 * Throw the draft away and start again from the committed value.
@@ -134,12 +134,10 @@ export function useStagedValue< TValue extends AnyObject, TCommitOptions = void 
 	const commit = useCallback(
 		( options?: TCommitOptions ) => {
 			if ( Object.keys( patchRef.current ).length === 0 ) {
-				return undefined;
+				return;
 			}
 
-			const draft = { ...committedRef.current, ...patchRef.current };
-			onCommit( draft, patchRef.current, options );
-			return draft;
+			onCommit( { ...committedRef.current, ...patchRef.current }, patchRef.current, options );
 		},
 		[ onCommit ]
 	);

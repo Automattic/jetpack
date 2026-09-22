@@ -1,9 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
-import {
-	resetTracksIdentityForTesting,
-	useTrackCustomize,
-	useTrackDateRangeApply,
-} from '../use-track-event';
+import { resetTracksIdentityForTesting, useTrackCustomize } from '../use-track-event';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 const mockRecordEvent = jest.fn();
@@ -101,72 +97,5 @@ describe( 'useTrackCustomize', () => {
 		expect( events() ).toEqual( [
 			[ 'jetpack_premium_analytics_customize_reset', { surface: 'video_detail' } ],
 		] );
-	} );
-} );
-
-describe( 'useTrackDateRangeApply', () => {
-	it( 'records a preset with its interval and comparison', () => {
-		const onApply = jest.fn( () => ( {
-			preset: 'last-7-days' as const,
-			from: '2026-09-15T00:00:00+00:00',
-			to: '2026-09-21T23:59:59+00:00',
-			interval: 'day' as const,
-			comp: '1' as const,
-			compare_from: '2026-09-08T00:00:00+00:00',
-			compare_to: '2026-09-14T23:59:59+00:00',
-			compare_preset: 'previous-period' as const,
-		} ) );
-		const { result } = renderHook( () =>
-			useTrackDateRangeApply( onApply, 'dashboard', 'traffic' )
-		);
-
-		act( () => {
-			result.current();
-		} );
-
-		expect( onApply ).toHaveBeenCalledTimes( 1 );
-		expect( events() ).toEqual( [
-			[
-				'jetpack_premium_analytics_date_range_apply',
-				{
-					surface: 'dashboard',
-					section: 'traffic',
-					range_type: 'preset',
-					preset: 'last-7-days',
-					interval: 'day',
-					comparison: 'previous-period',
-				},
-			],
-		] );
-	} );
-
-	it( 'records a custom range without a preset', () => {
-		const onApply = () => ( {
-			preset: 'custom' as const,
-			from: '2026-09-01T00:00:00+00:00',
-			to: '2026-09-03T23:59:59+00:00',
-		} );
-		const { result } = renderHook( () => useTrackDateRangeApply( onApply, 'post_detail' ) );
-
-		act( () => {
-			result.current();
-		} );
-
-		expect( events() ).toEqual( [
-			[
-				'jetpack_premium_analytics_date_range_apply',
-				{ surface: 'post_detail', range_type: 'custom', interval: 'day', comparison: 'none' },
-			],
-		] );
-	} );
-
-	it( 'records nothing when there was nothing to apply', () => {
-		const { result } = renderHook( () => useTrackDateRangeApply( () => undefined, 'dashboard' ) );
-
-		act( () => {
-			result.current();
-		} );
-
-		expect( mockRecordEvent ).not.toHaveBeenCalled();
 	} );
 } );

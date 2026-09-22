@@ -3,10 +3,7 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { hasComparisonEnabled, resolveIntervalForRange } from '@jetpack-premium-analytics/data';
-import { PRESET_CUSTOM } from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo, useRef } from 'react';
-import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 // The tracker is a page-wide singleton: identify once per page load, not per event
@@ -63,53 +60,9 @@ export function useTrackEvent() {
 }
 
 /**
- * The page a customize or date-range event came from.
+ * The page a customize event came from.
  */
 export type TrackingSurface = 'dashboard' | 'post_detail' | 'author_detail' | 'video_detail';
-
-/**
- * Wrap a date filter's `onApply` so each applied range records
- * `jetpack_premium_analytics_date_range_apply`.
- *
- * @param onApply - The date filter's own `onApply`.
- * @param surface - The page the range was applied on.
- * @param section - The dashboard section, on the dashboard only.
- * @return The wrapped `onApply`.
- */
-export function useTrackDateRangeApply(
-	onApply: ReportDateFilters[ 'onApply' ],
-	surface: TrackingSurface,
-	section?: string
-) {
-	const trackEvent = useTrackEvent();
-
-	return useCallback( () => {
-		const applied = onApply();
-
-		if ( applied ) {
-			const preset =
-				applied.preset && applied.preset !== PRESET_CUSTOM ? applied.preset : undefined;
-
-			trackEvent( 'jetpack_premium_analytics_date_range_apply', {
-				surface,
-				...( section ? { section } : {} ),
-				range_type: preset ? 'preset' : 'custom',
-				...( preset ? { preset } : {} ),
-				interval: resolveIntervalForRange(
-					applied.preset,
-					applied.from ?? '',
-					applied.to ?? '',
-					applied.interval
-				),
-				comparison: hasComparisonEnabled( applied )
-					? ( applied.compare_preset ?? 'custom' )
-					: 'none',
-			} );
-		}
-
-		return applied;
-	}, [ onApply, section, surface, trackEvent ] );
-}
 
 /**
  * The widget types in one layout whose instances the other lacks, comma-joined.

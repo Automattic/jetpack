@@ -132,7 +132,6 @@ const mockTrackCustomize = {
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	useTrackCustomize: () => mockTrackCustomize,
-	useTrackDateRangeApply: ( onApply: () => unknown ) => onApply,
 	PageOptionsMenu: ( { onCustomize }: { onCustomize?: () => void } ) => (
 		<div data-testid="page-options-menu">
 			{ onCustomize && (

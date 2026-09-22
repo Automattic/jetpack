@@ -8,10 +8,5 @@ export { useWidgetNavigationSearch } from './use-widget-navigation-search';
 export { useSegmentStyles } from '../widgets/common';
 export { useSeriesStyles } from './use-series-styles';
 export { useStoredDetailLayout } from './use-stored-detail-layout';
-export {
-	useTrackCustomize,
-	useTrackDateRangeApply,
-	useTrackEvent,
-	type TrackingSurface,
-} from './use-track-event';
+export { useTrackCustomize, useTrackEvent, type TrackingSurface } from './use-track-event';
 export { useWidgetDrillDown } from './use-widget-drill-down';

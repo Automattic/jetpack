@@ -23,7 +23,6 @@ import {
 	describeError,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
-	useTrackDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -104,8 +103,6 @@ function AuthorDetail(): JSX.Element {
 		onLayoutChange: setLayout,
 		surface: 'author_detail',
 	} );
-
-	const onDateApply = useTrackDateRangeApply( dateFilters.onApply, 'author_detail' );
 
 	// The trail is fixed to Stats / All authors / Author regardless of which report
 	// the reader arrived from: the author list is this page's only parent.
@@ -199,9 +196,7 @@ function AuthorDetail(): JSX.Element {
 						header={ authorHeaderSlots( { summary } ) }
 						// The presets render in every summary state, so the range stays
 						// adjustable while the author loads or errors.
-						controls={
-							<DateFiltersPanel { ...dateFilters } { ...dateControls } onApply={ onDateApply } />
-						}
+						controls={ <DateFiltersPanel { ...dateFilters } { ...dateControls } /> }
 					>
 						{ canRenderWidgets ? (
 							<DetailPageSection>

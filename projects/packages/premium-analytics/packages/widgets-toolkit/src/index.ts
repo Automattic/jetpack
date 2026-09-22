@@ -278,7 +278,6 @@ export {
 	useSeriesStyles,
 	useStoredDetailLayout,
 	useTrackCustomize,
-	useTrackDateRangeApply,
 	useTrackEvent,
 	type TrackingSurface,
 	useWidgetDrillDown,
