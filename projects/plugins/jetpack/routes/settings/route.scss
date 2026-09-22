@@ -7,4 +7,9 @@ body.jetpack_page_jetpack-settings:not(.network-admin) {
 	.boot-layout__stage {
 		color: #3c434a;
 	}
+
+	// Legacy 100vh overflows boot's shorter stage, adding an empty scroll.
+	#jp-plugin-container {
+		min-height: 100%;
+	}
 }
