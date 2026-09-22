@@ -1077,9 +1077,9 @@ test.each( [ 'pending', 'error' ] )(
 		const { client } = renderOverview();
 		const { startDate, endDate } = getHistoryWindow( 0 );
 		await waitFor( () =>
-			expect(
-				client.getQueryState( [ 'performance_history', startDate, endDate ] )?.status
-			).toBe( status )
+			expect( client.getQueryState( [ 'performance_history', startDate, endDate ] )?.status ).toBe(
+				status
+			)
 		);
 		expect(
 			screen.getByText(
