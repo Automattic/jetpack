@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Make the way back to Settings from the Critical CSS recommendations page visible when the modernization filter is on. No change with the filter off.
+
+

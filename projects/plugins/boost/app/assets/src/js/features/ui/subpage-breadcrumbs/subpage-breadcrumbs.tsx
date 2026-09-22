@@ -6,6 +6,7 @@ import styles from './subpage-breadcrumbs.module.scss';
 
 type SubpageBreadcrumbsProps = {
 	title: string;
+	tone?: 'brand' | 'neutral';
 };
 
 /**
@@ -13,8 +14,9 @@ type SubpageBreadcrumbsProps = {
  *
  * @param props       - Component props.
  * @param props.title - The page's title, the trailing crumb.
+ * @param props.tone  - The "Boost" link's tone.
  */
-const SubpageBreadcrumbs = ( { title }: SubpageBreadcrumbsProps ) => {
+const SubpageBreadcrumbs = ( { title, tone = 'neutral' }: SubpageBreadcrumbsProps ) => {
 	const { returnToSettings, settingsHref } = useBoostNavigation();
 
 	const handleBack = ( e: React.MouseEvent ) => {
@@ -31,7 +33,7 @@ const SubpageBreadcrumbs = ( { title }: SubpageBreadcrumbsProps ) => {
 			<ul className={ styles.breadcrumbs }>
 				<li>
 					<Text variant="body-lg">
-						<Link tone="neutral" href={ settingsHref } onClick={ handleBack }>
+						<Link tone={ tone } href={ settingsHref } onClick={ handleBack }>
 							{ 'Boost' /** "Boost" is a product name, do not translate. */ }
 						</Link>
 					</Text>
