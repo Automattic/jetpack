@@ -94,8 +94,9 @@ no arguments, so nothing is filtered on connection. A site that cannot render a
 Like button will still answer `true` to `is_active( 'likes' )`. That is what
 `Environment::likes_supported()` is for. Sharing needs no connection, but
 `Jetpack::load_modules()` includes nothing on a site that is neither connected
-nor offline, so `Environment::sharing_module_running()` applies the same guard: an
-active-but-unloaded module has no `Sharing_Service` to configure.
+nor offline, so `Environment::legacy_sharing_supported()` applies the same guard
+before `sharing_module_running()` reads the module: an active-but-unloaded module
+has no `Sharing_Service` to configure.
 
 ## Hooks that must keep firing
 
