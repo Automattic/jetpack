@@ -2,13 +2,12 @@
  * External dependencies
  */
 import { Stack } from '@jetpack-premium-analytics/externals';
-import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { MetricValue } from '../metric-value';
 import styles from './chart-tooltip.module.scss';
-import { exactFormatOf } from './utils';
+import { exactFormatOf, noDataLabel } from './utils';
 import type { DataFormat } from '../../types';
 
 export type TooltipRowProps = {
@@ -33,9 +32,7 @@ export function TooltipRow( { indicator, label, value, dataFormat }: TooltipRowP
 
 			<div className={ styles.label }>{ label }</div>
 
-			{ value === null && (
-				<span className={ styles.value }>{ __( 'No data', 'jetpack-premium-analytics-pkg' ) }</span>
-			) }
+			{ value === null && <span className={ styles.value }>{ noDataLabel() }</span> }
 			{ typeof value === 'number' && (
 				<MetricValue
 					value={ value }

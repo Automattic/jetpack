@@ -8,7 +8,7 @@ import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
  */
 import styles from './chart-tooltip.module.scss';
 import { TooltipRow } from './tooltip-row';
-import { exactFormatOf, isChartDatumEntry } from './utils';
+import { exactFormatOf, isChartDatumEntry, noDataLabel } from './utils';
 import type { DataFormat } from '../../types';
 
 /** Swatch box per indicator type; a supplementary row's spacer takes the width. */
@@ -161,7 +161,9 @@ export function ChartTooltip< TDatum >( {
 					entry.datum,
 					index,
 					entry.key,
-					formatMetricValue( value, exactFormat.type, exactFormat.options )
+					value === null
+						? noDataLabel()
+						: formatMetricValue( value, exactFormat.type, exactFormat.options )
 				);
 				const rowValue = layout === 'inline' ? undefined : value;
 

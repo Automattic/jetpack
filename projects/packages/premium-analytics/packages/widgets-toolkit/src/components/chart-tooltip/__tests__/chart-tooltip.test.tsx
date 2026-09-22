@@ -239,4 +239,25 @@ describe( 'ChartTooltip', () => {
 		expect( screen.getByText( '100 Views' ) ).toBeInTheDocument();
 		expect( MetricValue ).not.toHaveBeenCalled();
 	} );
+
+	it( 'spells a missing value as No data into an inline label', () => {
+		render(
+			<ChartTooltip
+				tooltipData={ {
+					datumByKey: {
+						Views: { datum: { value: null }, index: 0, key: 'Views' },
+						Visitors: { datum: { value: 0 }, index: 1, key: 'Visitors' },
+					},
+				} }
+				dataFormat={ DATA_FORMAT }
+				seriesStyles={ STYLES }
+				indicatorType="line"
+				layout="inline"
+				getLabel={ ( _datum, _index, key, value ) => `${ value } ${ key }` }
+			/>
+		);
+
+		expect( screen.getByText( 'No data Views' ) ).toBeInTheDocument();
+		expect( screen.getByText( '0 Visitors' ) ).toBeInTheDocument();
+	} );
 } );
