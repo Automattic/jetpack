@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Report the AI Answers row as unavailable on VIP. The AI Features view is already hidden on VIP, so nothing changes for site owners today.
