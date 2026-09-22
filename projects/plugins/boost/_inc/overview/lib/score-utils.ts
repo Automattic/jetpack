@@ -3,8 +3,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 export type ScoreTier = 'good' | 'medium' | 'poor';
 
 export function getScoreTier( score: number ): ScoreTier {
-	// Keep tiers aligned with js-packages/components/components/boost-score-bar/index.tsx.
-	return score > 70 ? 'good' : score > 50 ? 'medium' : 'poor';
+	return score > 60 ? 'good' : score >= 40 ? 'medium' : 'poor';
 }
 
 export function getScoreTierLabel( tier: ScoreTier ): string {

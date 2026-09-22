@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Overview: Show scores from 40 through 60 as needing improvement and scores above 60 as good.

@@ -117,7 +117,7 @@ test( 'renders thirty daily bars for each device using score band colours and em
 	expect( screen.getAllByRole( 'grid', { name: 'Bar chart' } ) ).toHaveLength( 2 );
 	expect( screen.queryByText( 'Could be improved' ) ).not.toBeInTheDocument();
 	for ( const [ device, tiers ] of [
-		[ 'Desktop', [ 'good', 'medium', 'poor' ] ],
+		[ 'Desktop', [ 'good', 'good', 'poor' ] ],
 		[ 'Mobile', [ 'good', 'poor', 'good' ] ],
 	] as const ) {
 		const bars = await waitFor(
@@ -167,6 +167,35 @@ test.each( [ 1, 2 ] )(
 		}
 	}
 );
+
+test( 'colours daily bars at the modern score boundaries', async () => {
+	render(
+		<HistoryChartCard
+			data={ {
+				...history,
+				periods: [ 39, 40, 60, 61 ].map( ( score, index ) => ( {
+					timestamp: timestamp + index * 86400000,
+					dimensions: { ...dimensions, desktop_overall_score: score, mobile_overall_score: score },
+				} ) ),
+			} }
+			{ ...callbacks }
+		/>,
+		{ wrapper }
+	);
+	for ( const device of [ 'Desktop', 'Mobile' ] ) {
+		await waitFor( () => {
+			const bars = getBars(
+				within( screen.getByRole( 'region', { name: `${ device } score history` } ) ).getByTestId(
+					'bar-chart'
+				)
+			);
+			expect( bars ).toHaveLength( 30 );
+			[ 'poor', 'medium', 'medium', 'good' ].forEach( ( tier, index ) => {
+				expect( bars[ index ] ).toHaveAttribute( 'fill', `var(--jetpack-boost-score-${ tier })` );
+			} );
+		} );
+	}
+} );
 
 test( 'retains a recorded zero and its poor-score colour rather than treating it as missing', async () => {
 	render(

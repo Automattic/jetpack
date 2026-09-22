@@ -725,7 +725,7 @@ test( 'does not present initial loading scores as measured scores', () => {
 } );
 
 test.each( [
-	[ 40, 'Poor' ],
+	[ 40, 'Could improve' ],
 	[ 60, 'Could improve' ],
 	[ 90, 'Good' ],
 ] as const )( 'renders score %i with its tier, bar, and delta', ( score, tier ) => {
@@ -765,7 +765,7 @@ test( 'shows a negative baseline delta while preserving the current measured bar
 	render( <ScoreCard icon={ null } label="Mobile" value={ 40 } score={ 40 } noBoost={ 60 } /> );
 	expect( screen.getByRole( 'progressbar', { name: 'Mobile' } ) ).toHaveValue( 40 );
 	expect( screen.getByText( '-20 points' ) ).toBeInTheDocument();
-	expect( screen.getByText( 'Poor' ) ).toBeInTheDocument();
+	expect( screen.getByText( 'Could improve' ) ).toBeInTheDocument();
 } );
 
 test( 'hides stale and absent baselines while preserving measured scores', () => {
@@ -1408,8 +1408,8 @@ test.each( [
 	[ 76, 'B', 'Good' ],
 	[ 75, 'C', 'Good' ],
 	[ 71, 'C', 'Good' ],
-	[ 70, 'C', 'Could improve' ],
-	[ 50, 'D', 'Poor' ],
+	[ 70, 'C', 'Good' ],
+	[ 50, 'D', 'Could improve' ],
 	[ 30, 'E', 'Poor' ],
 	[ 0, 'F', 'Poor' ],
 ] )( 'shows the Overall letter with its band at score %s', ( score, grade, band ) => {

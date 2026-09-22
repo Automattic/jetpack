@@ -16,12 +16,12 @@ test( 'uses the shared score card color tokens for each tier', () => {
 
 test.each( [
 	[ 0, 'poor' ],
-	[ 50, 'poor' ],
-	[ 51, 'medium' ],
-	[ 70, 'medium' ],
-	[ 71, 'good' ],
+	[ 39, 'poor' ],
+	[ 40, 'medium' ],
+	[ 60, 'medium' ],
+	[ 61, 'good' ],
 	[ 100, 'good' ],
-] )( 'keeps the existing score tier at %i', ( score, tier ) => {
+] )( 'assigns the modern score tier at %i', ( score, tier ) => {
 	expect( getScoreTier( Number( score ) ) ).toBe( tier );
 } );
 

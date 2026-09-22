@@ -58,7 +58,9 @@ test( 'the legacy grade explanation keeps its full default description', () => {
 test.each( [
 	[ 80, 68, 'C', 'Good', 'good' ],
 	[ 80, 40, 'C', 'Could improve', 'medium' ],
-	[ 60, 30, 'D', 'Poor', 'poor' ],
+	[ 40, 38, 'D', 'Poor', 'poor' ],
+	[ 42, 38, 'D', 'Could improve', 'medium' ],
+	[ 62, 60, 'C', 'Good', 'good' ],
 ] )(
 	'shows desktop %s and mobile %s as Overall %s with the device mean band %s',
 	( desktopScore, mobileScore, grade, label, tier ) => {
@@ -81,9 +83,10 @@ test.each( [
 );
 
 test.each( [
-	[ 75, 'Good', 'good' ],
+	[ 61, 'Good', 'good' ],
 	[ 60, 'Could improve', 'medium' ],
-	[ 40, 'Poor', 'poor' ],
+	[ 40, 'Could improve', 'medium' ],
+	[ 39, 'Poor', 'poor' ],
 ] )( 'renders device score %s with its tier and progress color', ( score, label, tier ) => {
 	render(
 		<ScoreCards
