@@ -474,6 +474,46 @@ class Main_Features {
 	}
 
 	/**
+	 * Whether a plugin is forced on or off where this site's own switch can't change it.
+	 *
+	 * Mirrors `Jetpack_Modules_Overrides`: an `option_active_plugins` filter that adds or
+	 * drops the plugin whatever the stored list says, or a network activation.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string      $slug          WordPress.org plugin slug.
+	 * @param string|null $product_class The product behind the plugin, when it has one.
+	 * @return string 'active' or 'inactive' when forced, or an empty string when the owner decides.
+	 */
+	public static function get_plugin_override( $slug, $product_class = null ) {
+		$file = self::get_plugin_file( $slug, $product_class );
+
+		if ( ! $file ) {
+			return '';
+		}
+
+		if ( 'network-active' === Plugins_Installer::get_plugin_status( $file ) ) {
+			return self::PLUGIN_ACTIVE;
+		}
+
+		if ( ! has_filter( 'option_active_plugins' ) ) {
+			return '';
+		}
+
+		/** This filter is documented in wp-includes/option.php */
+		if ( in_array( $file, (array) apply_filters( 'option_active_plugins', array(), 'active_plugins' ), true ) ) {
+			return self::PLUGIN_ACTIVE;
+		}
+
+		/** This filter is documented in wp-includes/option.php */
+		if ( ! in_array( $file, (array) apply_filters( 'option_active_plugins', array( $file ), 'active_plugins' ), true ) ) {
+			return self::PLUGIN_INACTIVE;
+		}
+
+		return '';
+	}
+
+	/**
 	 * The installed file for a plugin, by the names its product declares where there is one.
 	 *
 	 * A product lists every folder its plugin ships under, including the -dev checkout.
@@ -647,6 +687,7 @@ class Main_Features {
 				'plugin_name'      => $plugin ? ( $delivery['plugin_name'] ?? $definition['name'] ) : '',
 				'plugin_url'       => $plugin ? ( $delivery['plugin_url'] ?? '' ) : '',
 				'plugin_status'    => $plugin ? self::get_plugin_status( $plugin, $product_class ) : self::PLUGIN_NOT_INSTALLED,
+				'plugin_override'  => $plugin ? self::get_plugin_override( $plugin, $product_class ) : '',
 				'paid_highlights'  => $definition['paid_highlights'] ?? array(),
 				'plans'            => self::get_plan_badges( $definition ),
 				'paid_product'     => $definition['paid_product'] ?? '',

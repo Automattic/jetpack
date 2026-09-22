@@ -482,6 +482,8 @@ type MainFeature = {
 	plugin_name: string;
 	plugin_url: string;
 	plugin_status: MainFeaturePluginStatus;
+	// Set when the host forces the plugin, so the owner's switch would only flip back.
+	plugin_override: '' | 'active' | 'inactive';
 	paid_highlights: string[];
 	plans: Array< { slug: string; name: string } >;
 	paid_product: string;

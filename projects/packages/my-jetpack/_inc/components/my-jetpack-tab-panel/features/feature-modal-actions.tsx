@@ -127,7 +127,7 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 				<ModuleSwitch module={ control.module } name={ feature.name } />
 			) : null }
 
-			{ control.kind === 'plugin' ? (
+			{ control.kind === 'plugin' && ! forcedReason ? (
 				<PluginSwitch plugin={ control.plugin } isOn={ isActive } name={ pluginName } />
 			) : null }
 

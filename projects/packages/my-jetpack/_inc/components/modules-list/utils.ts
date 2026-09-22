@@ -5,6 +5,18 @@ import { MyJetpackModule } from '../../types';
 export const JETPACK_MODULES_NOT_FOR_MULTISITE = [ 'waf', 'wordads' ];
 
 /**
+ * Why a feature forced on or off by the host has no switch.
+ *
+ * @param {string} override - 'active' when forced on, 'inactive' when forced off.
+ * @return The note shown in place of the switch.
+ */
+export function getOverrideReason( override: 'active' | 'inactive' ) {
+	return override === 'active'
+		? __( 'Enabled by your host or site administrator', 'jetpack-my-jetpack' )
+		: __( 'Disabled by your host or site administrator', 'jetpack-my-jetpack' );
+}
+
+/**
  * Check whether the site owner can toggle a module, and why not when they can't.
  *
  * @param {MyJetpackModule} $module - The module to check.
@@ -13,18 +25,8 @@ export const JETPACK_MODULES_NOT_FOR_MULTISITE = [ 'waf', 'wordads' ];
  */
 export function getModuleStatus( $module: MyJetpackModule ) {
 	// A toggle for a module forced through `jetpack_active_modules` would only flip back.
-	if ( $module.override === 'active' ) {
-		return {
-			isAvailable: false,
-			reason: __( 'Enabled by your host or site administrator', 'jetpack-my-jetpack' ),
-		};
-	}
-
-	if ( $module.override === 'inactive' ) {
-		return {
-			isAvailable: false,
-			reason: __( 'Disabled by your host or site administrator', 'jetpack-my-jetpack' ),
-		};
+	if ( $module.override === 'active' || $module.override === 'inactive' ) {
+		return { isAvailable: false, reason: getOverrideReason( $module.override ) };
 	}
 
 	// If the module is not supported on multisite, we set the availability to false and provide a reason.

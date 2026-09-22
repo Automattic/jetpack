@@ -142,6 +142,19 @@ describe( 'FeatureAction', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
+	it( 'leaves the switch slot empty for a plugin a host forced on', () => {
+		const { container } = render(
+			<FeatureAction
+				state={ buildState(
+					{ kind: 'plugin', plugin: 'jetpack-boost', override: 'active' },
+					{ status: 'active' }
+				) }
+			/>
+		);
+
+		expect( container ).toBeEmptyDOMElement();
+	} );
+
 	it( 'renders nothing when this site cannot switch the feature', () => {
 		const { container } = render( <FeatureAction state={ buildState( { kind: 'none' } ) } /> );
 
@@ -212,6 +225,30 @@ describe( 'FeatureModalActions', () => {
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'shows the note instead of Deactivate for a plugin a host forced on', () => {
+		render(
+			<FeatureModalActions
+				state={ buildState(
+					{ kind: 'plugin', plugin: 'jetpack-boost', override: 'active' },
+					{ status: 'active' }
+				) }
+			/>
+		);
+
+		expect( screen.getByText( 'Enabled by your host or site administrator' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers no Activate for a plugin a host forced off', () => {
+		render(
+			<FeatureModalActions
+				state={ buildState( { kind: 'plugin', plugin: 'jetpack-boost', override: 'inactive' } ) }
+			/>
+		);
+
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'leaves the reason for a module forced off to "How to get it"', () => {
 		const forcedOff = {
 			...forcedModule,
@@ -239,6 +276,19 @@ describe( 'FeatureItem', () => {
 		render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
 
 		expect( screen.getByText( 'Active' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /by your host or site administrator/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows only the status for a plugin a host forced off: no switch, no note', () => {
+		render(
+			<FeatureItem
+				state={ buildState( { kind: 'plugin', plugin: 'jetpack-boost', override: 'inactive' } ) }
+				onOpen={ jest.fn() }
+			/>
+		);
+
+		expect( screen.getByText( 'Inactive' ) ).toBeInTheDocument();
 		expect( screen.queryByText( /by your host or site administrator/ ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 	} );
