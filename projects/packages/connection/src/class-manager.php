@@ -1468,7 +1468,7 @@ class Manager {
 	 * invalidated any stored one.
 	 *
 	 * @internal Hooked on `jetpack_user_authorized`.
-	 * @since $$next-version$$
+	 * @since 9.5.0
 	 */
 	public function promote_protected_owner_on_connect() {
 		$anchor = Protected_Owner::get_locked();

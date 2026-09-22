@@ -84,7 +84,7 @@ class Protected_Owner {
 	 * Deliberately narrow: `confirmed_at` records when the owner was originally confirmed, and
 	 * re-pointing a cache is not a new confirmation.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.5.0
 	 *
 	 * @param int $local_user_id The local user the anchored identity now holds.
 	 * @return bool Whether the anchor now names that local user.

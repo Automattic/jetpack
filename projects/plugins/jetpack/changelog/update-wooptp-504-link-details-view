@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-PayPal Payment Buttons: Open a saved payment link on its details in the block settings sidebar, with the form behind Edit. The notice saying when changes reach PayPal is gone, and the warning that a link changed at PayPal also shows on the details view.

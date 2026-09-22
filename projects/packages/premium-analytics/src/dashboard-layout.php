@@ -88,7 +88,7 @@ add_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, __NAMESPACE__ . '\\remove_unsupport
  * No-op kept for older copies of the package: they guard their include of this file on this
  * symbol and call it from boot_routes(), so a newer copy loading first must still define it.
  *
- * @since $$next-version$$ Registers nothing; the route it registered is gone.
+ * @since 0.8.0 Registers nothing; the route it registered is gone.
  *
  * @return void
  */

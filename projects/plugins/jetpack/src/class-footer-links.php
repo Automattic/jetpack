@@ -32,7 +32,7 @@ class Footer_Links {
 	/**
 	 * Get the slug and label of My Jetpack's products tab, for footer links to it.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.3
 	 *
 	 * @return array{slug: string, label: string}
 	 */

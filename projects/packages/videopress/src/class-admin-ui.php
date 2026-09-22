@@ -828,7 +828,7 @@ class Admin_UI {
 	 * Hooked only when modernization is on AND we're on the VideoPress admin page,
 	 * so this never affects any other request.
 	 *
-	 * @since $$next-version$$ Takes no argument; hooked on `admin_enqueue_scripts`.
+	 * @since 0.51.1 Takes no argument; hooked on `admin_enqueue_scripts`.
 	 *
 	 * @return void
 	 */
@@ -845,7 +845,7 @@ class Admin_UI {
 	/**
 	 * Undo alias_screen_id_for_wp_build(), so code after the generated check sees the real screen ID.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.51.1
 	 *
 	 * @return void
 	 */
@@ -880,7 +880,7 @@ class Admin_UI {
 	 *
 	 * Fetching a JITM records a view, so one the page hides would still be counted.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.51.1
 	 *
 	 * @param bool   $show      Whether to show JITMs on the screen.
 	 * @param string $screen_id The screen ID.
