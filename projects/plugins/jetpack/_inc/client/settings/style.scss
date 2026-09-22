@@ -1,6 +1,6 @@
 @use "../scss/mixins/breakpoints";
 @use "../scss/functions/rem";
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/mixins" as gb;
 
 .jp-settings-admin-page .jp-admin-page__page {
 	background-color: #fcfcfc;
