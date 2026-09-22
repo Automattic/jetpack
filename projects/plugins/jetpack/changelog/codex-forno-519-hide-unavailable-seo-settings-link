@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-AI: Hide the SEO settings link when SEO settings are unavailable.
+AI: Show the Learn more link when SEO settings are unavailable.

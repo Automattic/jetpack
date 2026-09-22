@@ -81,7 +81,7 @@ const getSections = seoSettingsUrl => [
 				enabledAction: seoSettingsUrl
 					? { label: __( 'Open SEO Settings', 'jetpack' ), href: seoSettingsUrl }
 					: undefined,
-				disabledAction: {
+				action: {
 					label: __( 'Learn more', 'jetpack' ),
 					href: getRedirectUrl( 'jetpack-ai-settings-seo-learn-more' ),
 					external: true,

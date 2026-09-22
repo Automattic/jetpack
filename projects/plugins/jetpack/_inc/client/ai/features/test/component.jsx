@@ -99,16 +99,25 @@ describe( 'AiFeatures rendering', () => {
 			window.jetpackAiSettings = originalSettings;
 		} );
 
-		test.each( [ false, undefined ] )( 'hides the link when access is %s', canManageSeo => {
-			renderFeatures( {
-				can_manage_seo: canManageSeo,
-				features: { ai_seo: { enabled: true } },
-			} );
+		test.each( [ false, undefined ] )(
+			'shows Learn more instead of settings when access is %s',
+			canManageSeo => {
+				renderFeatures( {
+					can_manage_seo: canManageSeo,
+					features: { ai_seo: { enabled: true } },
+				} );
 
-			expect( screen.queryByRole( 'link', { name: 'Open SEO Settings' } ) ).not.toBeInTheDocument();
-			expect( screen.getByRole( 'checkbox', { name: /AI SEO/ } ) ).toBeEnabled();
-			expect( screen.getByRole( 'checkbox', { name: /AI SEO/ } ) ).toBeChecked();
-		} );
+				expect(
+					screen.queryByRole( 'link', { name: 'Open SEO Settings' } )
+				).not.toBeInTheDocument();
+				expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+					'href',
+					expect.stringContaining( 'jetpack-ai-settings-seo-learn-more' )
+				);
+				expect( screen.getByRole( 'checkbox', { name: /AI SEO/ } ) ).toBeEnabled();
+				expect( screen.getByRole( 'checkbox', { name: /AI SEO/ } ) ).toBeChecked();
+			}
+		);
 
 		test.each( [ 'admin.php?page=jetpack#/traffic', 'admin.php?page=jetpack-seo' ] )(
 			'uses the server-provided target %s when access is granted',
@@ -134,16 +143,26 @@ describe( 'AiFeatures rendering', () => {
 			} );
 
 			expect( screen.queryByRole( 'link', { name: 'Open SEO Settings' } ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+				'href',
+				expect.stringContaining( 'jetpack-ai-settings-seo-learn-more' )
+			);
 		} );
 
-		test( 'keeps the documentation link when AI SEO is disabled', () => {
-			renderFeatures( {
-				can_manage_seo: false,
-				features: { ai_seo: { enabled: false } },
-			} );
+		test.each( [ true, false ] )(
+			'keeps the documentation link when AI SEO is disabled and access is %s',
+			canManageSeo => {
+				renderFeatures( {
+					can_manage_seo: canManageSeo,
+					features: { ai_seo: { enabled: false } },
+				} );
 
-			expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toBeInTheDocument();
-		} );
+				expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+					'href',
+					expect.stringContaining( 'jetpack-ai-settings-seo-learn-more' )
+				);
+			}
+		);
 	} );
 
 	test( 'the upgrade badge sits inside the Search group', () => {
