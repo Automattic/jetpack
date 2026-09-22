@@ -134,6 +134,9 @@ class Config {
 	/**
 	 * Checks if My Jetpack pages, where the upgrade flow lives, are available on this site.
 	 *
+	 * A bundled copy of the package predating `is_admin_page_available()` can only report
+	 * whether My Jetpack initialized, not whether this user can reach its page.
+	 *
 	 * @since $$next-version$$
 	 *
 	 * @return bool True if My Jetpack is reachable by the current user, false otherwise.

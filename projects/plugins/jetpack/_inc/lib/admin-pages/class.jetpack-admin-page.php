@@ -294,8 +294,8 @@ abstract class Jetpack_Admin_Page {
 							} elseif ( 'jetpack-debugger' === $page ) {
 								$current_label = __( 'Debug', 'jetpack' );
 							}
-							// "Jetpack" is a product name, do not translate.
 							?>
+							<?php // "Jetpack" is a product name, do not translate. ?>
 							<?php if ( $current_label ) : ?>
 								<?php if ( $my_jetpack_available ) : ?>
 									<a class="jp-masthead__title-link" href="<?php echo esc_url( $my_jetpack_url ); ?>">Jetpack</a>

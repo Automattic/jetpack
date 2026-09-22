@@ -227,11 +227,11 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 
 		$masthead = $render_masthead();
 		$this->assertSame( 2, substr_count( $masthead, 'page=my-jetpack#/overview' ), 'Both the logo and the title should link to My Jetpack.' );
-		$this->assertStringContainsString( 'class="jp-masthead__logo-link"', $masthead );
+		$this->assertStringContainsString( '<a class="jp-masthead__logo-link"', $masthead );
 		unset( $_registered_pages[ get_plugin_page_hookname( 'my-jetpack', 'jetpack' ) ] );
 		$masthead = $render_masthead();
 		$this->assertStringNotContainsString( 'page=my-jetpack', $masthead );
-		$this->assertStringContainsString( 'class="jp-masthead__logo-link"', $masthead );
+		$this->assertStringContainsString( '<span class="jp-masthead__logo-link">', $masthead );
 		$this->assertStringContainsString( '<svg', $masthead );
 		$this->assertMatchesRegularExpression( '/<h2 class="jp-masthead__title">\s*Jetpack\s*<span/', $masthead );
 	}
