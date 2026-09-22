@@ -62,10 +62,14 @@ final class Post_Handler {
 				$redirect = self::activate_module( 'sharedaddy', Sharing_Section::NONCE_ACTION );
 				break;
 			case 'switch-to-block-likes':
-				$redirect = self::deactivate_module( 'likes', Likes_Section::NONCE_ACTION );
+				$redirect = Environment::is_simple_site()
+					? self::turn_off_simple_likes()
+					: self::deactivate_module( 'likes', Likes_Section::NONCE_ACTION );
 				break;
 			case 'switch-to-block-sharing':
-				$redirect = self::deactivate_module( 'sharedaddy', Sharing_Section::NONCE_ACTION );
+				$redirect = Environment::is_simple_site()
+					? self::turn_off_simple_sharing()
+					: self::deactivate_module( 'sharedaddy', Sharing_Section::NONCE_ACTION );
 				break;
 			case 'save-likes':
 				$redirect = self::save_likes();
@@ -101,6 +105,49 @@ final class Post_Handler {
 		check_admin_referer( $nonce_action );
 
 		( new Modules() )->deactivate( $module );
+
+		return self::screen_url( true );
+	}
+
+	/**
+	 * Simple's `deactivate_module()`: it has no module to switch off, so remove every service.
+	 *
+	 * Reversible from the services list, which still renders there.
+	 *
+	 * @return string URL to send the browser back to.
+	 */
+	private static function turn_off_simple_sharing(): string {
+		check_admin_referer( Sharing_Section::NONCE_ACTION );
+
+		// Preferred over writing the option, because wpcom hooks the state change it announces.
+		if ( class_exists( 'Sharing_Service' ) ) {
+			( new \Sharing_Service() )->set_blog_services( array(), array() );
+		} else {
+			update_option(
+				'sharing-services',
+				array(
+					'visible' => array(),
+					'hidden'  => array(),
+				)
+			);
+		}
+
+		return self::screen_url( true );
+	}
+
+	/**
+	 * Simple's `deactivate_module()`: switch off Likes and Reblogs for every post.
+	 *
+	 * Posts that opted in individually keep their buttons. Comment Likes has no
+	 * block to move to, so it is left alone.
+	 *
+	 * @return string URL to send the browser back to.
+	 */
+	private static function turn_off_simple_likes(): string {
+		check_admin_referer( Likes_Section::NONCE_ACTION );
+
+		update_option( 'disabled_likes', 1 );
+		update_option( 'disabled_reblogs', 1 );
 
 		return self::screen_url( true );
 	}

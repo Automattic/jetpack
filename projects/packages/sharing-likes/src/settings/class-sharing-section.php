@@ -109,12 +109,13 @@ final class Sharing_Section {
 	 */
 	private static function render_block_nudge(): void {
 		echo '<div class="notice notice-info inline">';
-		printf( '<p>%s</p>', esc_html__( 'Legacy sharing buttons cannot be customized on block themes. Use the Sharing Buttons block in your theme’s template instead.', 'jetpack-sharing-likes' ) );
 
-		// Simple has no module to switch off, so the site editor link is the only useful step there.
-		if ( Environment::is_simple_site() ) {
+		// Simple cannot deactivate the module, so it lands here rather than on the call to action.
+		if ( Environment::is_simple_site() && Environment::has_no_sharing_services() ) {
+			printf( '<p>%s</p>', esc_html__( 'Legacy sharing buttons are turned off. Add the Sharing Buttons block to your theme’s template, or add a service below to bring them back.', 'jetpack-sharing-likes' ) );
 			self::render_site_editor_link();
 		} else {
+			printf( '<p>%s</p>', esc_html__( 'Legacy sharing buttons cannot be customized on block themes. Use the Sharing Buttons block in your theme’s template instead.', 'jetpack-sharing-likes' ) );
 			Post_Handler::render_action_form(
 				'switch-to-block-sharing',
 				self::NONCE_ACTION,
@@ -141,7 +142,10 @@ final class Sharing_Section {
 	 * The services list and its settings.
 	 */
 	private static function render_services_config(): void {
-		Placement_Section::render_summary( Placement_Section::FEATURE_SHARING );
+		// Placement is moot with no services: the buttons appear nowhere.
+		if ( ! Environment::has_no_sharing_services() ) {
+			Placement_Section::render_summary( Placement_Section::FEATURE_SHARING );
+		}
 
 		( new Services_Config() )->render();
 	}

@@ -9,11 +9,14 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionMethod;
 use RuntimeException;
 use WorDBless\BaseTestCase;
+
+require_once __DIR__ . '/../lib/class-sharing-service.php';
 
 /**
  * @covers \Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler
@@ -43,6 +46,8 @@ class Post_Handler_Test extends BaseTestCase {
 		delete_option( 'disabled_likes' );
 		delete_option( 'disabled_reblogs' );
 		delete_option( 'jetpack_comment_likes_enabled' );
+		delete_option( 'sharing-services' );
+		Constants::clear_constants();
 
 		parent::tear_down();
 	}
@@ -414,6 +419,48 @@ class Post_Handler_Test extends BaseTestCase {
 		\Jetpack_Options::delete_option( 'active_modules' );
 
 		$this->assertSame( array( 'sharedaddy' ), array_values( $active ) );
+	}
+
+	/**
+	 * Simple has no module to deactivate, so the switch has to stop the output
+	 * through the setting sharedaddy reads there instead.
+	 */
+	public function test_switch_to_block_sharing_on_simple_removes_every_service(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+		update_option(
+			'sharing-services',
+			array(
+				'visible' => array( 'facebook' ),
+				'hidden'  => array( 'x' ),
+			)
+		);
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch( 'switch-to-block-sharing', Sharing_Section::NONCE_ACTION );
+
+		$this->assertSame(
+			array(
+				'visible' => array(),
+				'hidden'  => array(),
+			),
+			get_option( 'sharing-services' )
+		);
+		$this->assertFalse( get_option( 'disabled_likes' ) );
+	}
+
+	/**
+	 * The legacy widget renders for a Reblog button alone, so switching Likes
+	 * off without Reblogs would leave it on every post.
+	 */
+	public function test_switch_to_block_likes_on_simple_turns_off_likes_and_reblogs(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch( 'switch-to-block-likes', Likes_Section::NONCE_ACTION );
+
+		$this->assertSame( '1', (string) get_option( 'disabled_likes' ) );
+		$this->assertSame( '1', (string) get_option( 'disabled_reblogs' ) );
+		$this->assertFalse( get_option( 'sharing-services' ) );
 	}
 
 	/**

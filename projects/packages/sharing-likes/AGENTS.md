@@ -61,6 +61,13 @@ likes from `wp-content/mu-plugins/likes.php` on `plugins_loaded:9`. So `OFF` and
 `CONFIGURE` or `CONFIGURE_WITH_BLOCK_NUDGE`. Any "module inactive" behaviour you
 add is Jetpack and Atomic only.
 
+The "Switch to the … block" buttons still work on Simple, through settings
+rather than modules: `Post_Handler` empties `sharing-services`, or sets
+`disabled_likes` and `disabled_reblogs` (the legacy widget renders for either
+button). The nudge reads the same settings back to show its switched-off copy.
+The section stays in `CONFIGURE_WITH_BLOCK_NUDGE`, so its options below are the
+way back.
+
 **Simple reuses `Jetpack_Likes_Settings` without the Likes module.**
 `wp-content/mu-plugins/likes/jetpack-likes-settings.php` is a shim that requires
 the plugin's copy of that class. `modules/likes.php` never loads on Simple;

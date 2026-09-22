@@ -9,9 +9,11 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
+require_once __DIR__ . '/../lib/class-sharing-service.php';
 require_once __DIR__ . '/../lib/trait-section-environment.php';
 
 /**
@@ -36,6 +38,8 @@ class Sharing_Section_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		$this->tear_down_site();
+		Constants::clear_constants();
+		delete_option( 'sharing-services' );
 
 		parent::tear_down();
 	}
@@ -122,5 +126,43 @@ class Sharing_Section_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( 'Sharing buttons are turned off for this site.', $markup );
 		$this->assertStringNotContainsString( 'currently appear on', $markup );
+	}
+
+	/**
+	 * Simple cannot deactivate the module, so the nudge carries the switch itself.
+	 */
+	public function test_offers_the_switch_on_simple(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->given_block_theme();
+		$this->given_block( 'jetpack/sharing-buttons' );
+
+		$markup = $this->render();
+
+		$this->assertStringContainsString( 'name="jetpack_sharing_action" value="switch-to-block-sharing"', $markup );
+		$this->assertStringContainsString( 'Change where they appear', $markup );
+	}
+
+	/**
+	 * With every service removed nothing renders, so the section stops
+	 * offering the switch and stops claiming the buttons appear anywhere.
+	 */
+	public function test_sends_simple_to_the_site_editor_once_switched_off(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+		update_option(
+			'sharing-services',
+			array(
+				'visible' => array(),
+				'hidden'  => array(),
+			)
+		);
+		$this->given_block_theme();
+		$this->given_block( 'jetpack/sharing-buttons' );
+
+		$markup = $this->render();
+
+		$this->assertStringContainsString( 'Legacy sharing buttons are turned off', $markup );
+		$this->assertStringContainsString( 'site-editor.php', $markup );
+		$this->assertStringNotContainsString( 'switch-to-block-sharing', $markup );
+		$this->assertStringNotContainsString( 'Change where they appear', $markup );
 	}
 }

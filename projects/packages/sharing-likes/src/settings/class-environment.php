@@ -58,6 +58,22 @@ final class Environment {
 	}
 
 	/**
+	 * Whether every sharing service has been removed, so sharedaddy renders nothing.
+	 *
+	 * An absent option is not that: `Sharing_Service::get_blog_services()` falls
+	 * back to its default services when the option was never saved.
+	 */
+	public static function has_no_sharing_services(): bool {
+		$services = get_option( 'sharing-services' );
+
+		if ( ! is_array( $services ) ) {
+			return false;
+		}
+
+		return empty( $services['visible'] ) && empty( $services['hidden'] );
+	}
+
+	/**
 	 * Whether a module can be switched on here at all.
 	 *
 	 * `Modules::activate()` refuses on a site that is neither connected nor in

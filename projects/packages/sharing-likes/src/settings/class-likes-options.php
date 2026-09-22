@@ -39,6 +39,15 @@ final class Likes_Options {
 	}
 
 	/**
+	 * Whether posts show neither a Like nor a Reblog button unless one opts in.
+	 *
+	 * Both count because the legacy widget renders for either.
+	 */
+	public static function post_buttons_off_sitewide(): bool {
+		return ! self::enabled_sitewide() && ! self::reblogs_enabled_sitewide();
+	}
+
+	/**
 	 * Whether comments can be liked. WordPress.com Simple only.
 	 */
 	public static function comment_likes_enabled(): bool {

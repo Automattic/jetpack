@@ -88,9 +88,7 @@ class Likes_Section_Test extends BaseTestCase {
 
 	/**
 	 * Simple has no Comment Likes module to keep switchable, so the gate that
-	 * holds the block route back for it elsewhere does not apply there: a block
-	 * theme gets the nudge, and only the Site Editor link, since there is no
-	 * module to switch off either.
+	 * holds the block route back for it elsewhere does not apply there.
 	 */
 	public function test_nudges_toward_the_block_on_simple_despite_comment_likes(): void {
 		Constants::set_constant( 'IS_WPCOM', true );
@@ -100,10 +98,31 @@ class Likes_Section_Test extends BaseTestCase {
 		$markup = $this->render();
 
 		$this->assertStringContainsString( 'Use the Like block', $markup );
+		$this->assertStringContainsString( 'name="jetpack_sharing_action" value="switch-to-block-likes"', $markup );
+		$this->assertStringContainsString( 'name="wpl_default"', $markup );
+		$this->assertStringContainsString( 'name="jetpack_comment_likes_enabled"', $markup );
+	}
+
+	/**
+	 * Once switched off, offering the switch again would do nothing; the Site
+	 * Editor is the next step, and the options below stay as the way back.
+	 */
+	public function test_sends_simple_to_the_site_editor_once_switched_off(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+		update_option( 'disabled_likes', 1 );
+		update_option( 'disabled_reblogs', 1 );
+		$this->given_block_theme();
+		$this->given_block( 'jetpack/like' );
+
+		$markup = $this->render();
+
+		delete_option( 'disabled_likes' );
+		delete_option( 'disabled_reblogs' );
+
+		$this->assertStringContainsString( 'Legacy Like buttons are turned off', $markup );
 		$this->assertStringContainsString( 'site-editor.php', $markup );
 		$this->assertStringNotContainsString( 'switch-to-block-likes', $markup );
 		$this->assertStringContainsString( 'name="wpl_default"', $markup );
-		$this->assertStringContainsString( 'name="jetpack_comment_likes_enabled"', $markup );
 	}
 
 	/**

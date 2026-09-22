@@ -133,12 +133,13 @@ final class Likes_Section {
 	 */
 	private static function render_block_nudge(): void {
 		echo '<div class="notice notice-info inline">';
-		printf( '<p>%s</p>', esc_html__( 'Legacy Like buttons cannot be customized on block themes. Use the Like block in your theme’s template instead.', 'jetpack-sharing-likes' ) );
 
-		// Simple has no module to switch off, so the site editor link is the only useful step there.
-		if ( Environment::is_simple_site() ) {
+		// Simple cannot deactivate the module, so it lands here rather than on the call to action.
+		if ( Environment::is_simple_site() && Likes_Options::post_buttons_off_sitewide() ) {
+			printf( '<p>%s</p>', esc_html__( 'Legacy Like buttons are turned off for all posts. Add the Like block to your theme’s template, or turn them back on below.', 'jetpack-sharing-likes' ) );
 			self::render_site_editor_link();
 		} else {
+			printf( '<p>%s</p>', esc_html__( 'Legacy Like buttons cannot be customized on block themes. Use the Like block in your theme’s template instead.', 'jetpack-sharing-likes' ) );
 			Post_Handler::render_action_form(
 				'switch-to-block-likes',
 				self::NONCE_ACTION,
