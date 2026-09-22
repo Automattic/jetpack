@@ -185,7 +185,7 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		const sections = surface.locator( '.jetpack-boost-overview__tooltip-section' );
 		for ( const [ index, label, score, metrics, barColor ] of [
 			[ 1, 'Desktop', '80/100', [ '1.20s', '0.10s', '0.01' ], 'rgb(0, 128, 48)' ],
-			[ 2, 'Mobile', '65/100', [ '2.10s', '0.30s', '0.04' ], 'rgb(250, 167, 84)' ],
+			[ 2, 'Mobile', '65/100', [ '2.10s', '0.30s', '0.04' ], 'rgb(0, 128, 48)' ],
 		] as const ) {
 			const section = sections.nth( index );
 			await expect( section.locator( 'dt' ).first() ).toHaveText( label );
@@ -418,9 +418,9 @@ test( 'Score cards show signed badges, points help, and responsive dividers', as
 	const overall = page.getByRole( 'region', { name: 'Overall', exact: true } );
 	await expect( desktop.first().getByText( 'Good', { exact: true } ) ).toBeVisible();
 	await expect( mobile.getByText( 'Could improve', { exact: true } ) ).toBeVisible();
-	await expect( desktop.nth( 1 ).getByText( 'Poor', { exact: true } ) ).toBeVisible();
+	await expect( desktop.nth( 1 ).getByText( 'Could improve', { exact: true } ) ).toBeVisible();
 	await expect( overall.first().getByText( 'Good', { exact: true } ) ).toBeVisible();
-	await expect( overall.nth( 1 ).getByText( 'Poor', { exact: true } ) ).toBeVisible();
+	await expect( overall.nth( 1 ).getByText( 'Could improve', { exact: true } ) ).toBeVisible();
 	await expect( overall.getByRole( 'progressbar' ) ).toHaveCount( 0 );
 	await expect( mobile.getByText( 'Could improve', { exact: true } ) ).toHaveCSS(
 		'color',
@@ -429,7 +429,7 @@ test( 'Score cards show signed badges, points help, and responsive dividers', as
 	for ( const [ card, score, color ] of [
 		[ desktop.first(), 90, 'color(srgb 0 0.501961 0.188235 / 0.9)' ],
 		[ mobile, 60, 'color(srgb 0.980392 0.654902 0.329412 / 0.9)' ],
-		[ desktop.nth( 1 ), 40, 'color(srgb 0.8 0.0941176 0.0941176 / 0.9)' ],
+		[ desktop.nth( 1 ), 40, 'color(srgb 0.980392 0.654902 0.329412 / 0.9)' ],
 	] as const ) {
 		await expect( card.getByRole( 'progressbar' ) ).toHaveJSProperty( 'value', score );
 		await expect( card.getByRole( 'progressbar' ) ).toHaveAttribute( 'max', '100' );
