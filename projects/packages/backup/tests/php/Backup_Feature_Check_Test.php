@@ -49,7 +49,7 @@ class Backup_Feature_Check_Test extends TestCase {
 	 * Nothing stored yet answers "no Backup" and queues a read rather than making one.
 	 */
 	public function test_unread_site_answers_no_without_calling_wpcom() {
-		$this->arrange_wpcom_features( array( 'backups' ) );
+		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
 
 		$this->assertFalse( Backup_Feature_Check::has_backup() );
 		$this->assertSame( array(), $this->captured_urls );
@@ -63,7 +63,7 @@ class Backup_Feature_Check_Test extends TestCase {
 	 * seconds, which does not survive someone clicking around wp-admin.
 	 */
 	public function test_stored_answer_is_served_without_calling_wpcom() {
-		$this->arrange_wpcom_features( array( 'backups' ) );
+		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
 
 		Backup_Feature_Check::refresh();
 		$this->assertCount( 1, $this->captured_urls );
@@ -76,7 +76,7 @@ class Backup_Feature_Check_Test extends TestCase {
 	 * The answer comes from the same feature list My Jetpack's own Backup card reads.
 	 */
 	public function test_refresh_reads_the_site_features() {
-		$this->arrange_wpcom_features( array( 'backups' ) );
+		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
 
 		Backup_Feature_Check::refresh();
 
@@ -123,11 +123,23 @@ class Backup_Feature_Check_Test extends TestCase {
 	}
 
 	/**
+	 * A plan whose backups are managed elsewhere does not open this dashboard.
+	 */
+	public function test_backups_without_self_serve_answers_no() {
+		$this->arrange_stored_answer( true );
+		$this->arrange_wpcom_features( array( 'backups' ) );
+
+		Backup_Feature_Check::refresh();
+
+		$this->assertFalse( Backup_Feature_Check::has_backup() );
+	}
+
+	/**
 	 * A stale answer is still served while its refresh is queued.
 	 */
 	public function test_stale_answer_is_served_while_a_refresh_is_queued() {
 		$this->arrange_stored_answer( true, time() - 1 );
-		$this->arrange_wpcom_features( array( 'backups' ) );
+		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
 
 		$this->assertTrue( Backup_Feature_Check::has_backup() );
 		$this->assertSame( array(), $this->captured_urls );
@@ -194,7 +206,7 @@ class Backup_Feature_Check_Test extends TestCase {
 	 * An answer is held for the full TTL, not the short retry.
 	 */
 	public function test_an_answer_is_held_for_the_full_ttl() {
-		$this->arrange_wpcom_features( array( 'backups' ) );
+		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
 
 		Backup_Feature_Check::refresh();
 
@@ -207,7 +219,7 @@ class Backup_Feature_Check_Test extends TestCase {
 	 * within one request — no WP-Cron event, loopback request or system cron involved.
 	 */
 	public function test_queued_refresh_runs_on_shutdown() {
-		$this->arrange_wpcom_features( array( 'backups' ) );
+		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
 
 		$this->assertFalse( Backup_Feature_Check::has_backup() );
 		$this->assertSame( array(), $this->captured_urls );
@@ -225,7 +237,7 @@ class Backup_Feature_Check_Test extends TestCase {
 	 * refresh() as a listener, leaving the queued one nothing to ask for.
 	 */
 	public function test_queued_refresh_is_dropped_once_something_else_answers() {
-		$this->arrange_wpcom_features( array( 'backups' ) );
+		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
 
 		Backup_Feature_Check::has_backup();
 		$this->assertTrue( $this->refresh_is_queued() );
@@ -243,7 +255,7 @@ class Backup_Feature_Check_Test extends TestCase {
 	 */
 	public function test_an_unchanged_answer_is_not_rewritten() {
 		$this->arrange_stored_answer( true );
-		$this->arrange_wpcom_features( array( 'backups' ) );
+		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
 		$before = get_option( Backup_Feature_Check::OPTION );
 
 		Backup_Feature_Check::refresh();

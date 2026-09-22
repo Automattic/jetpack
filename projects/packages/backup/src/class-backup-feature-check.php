@@ -52,14 +52,14 @@ class Backup_Feature_Check {
 	const RETRY_INTERVAL = 5 * MINUTE_IN_SECONDS;
 
 	/**
-	 * WordPress.com's name for Backup in a site's feature list.
+	 * WordPress.com's name for the entitlement this dashboard needs.
 	 *
-	 * Matches `My_Jetpack\Products\Backup::$feature_identifying_paid_plan`, which is what
-	 * My Jetpack's own Backup card reads — so the card and this menu cannot disagree.
+	 * Not the broader `backups`: this page manages and restores backups itself, which is what
+	 * self-serve grants — and it is what jetpack-mu-wpcom's Backup page reads to step aside.
 	 *
 	 * @var string
 	 */
-	const SITE_FEATURE = 'backups';
+	const SITE_FEATURE = 'backups-self-serve';
 
 	/**
 	 * Whether the site's plan includes Backup, answering an unread site as no.
