@@ -93,7 +93,7 @@ export default function parsePatch( uniDiff: string ) {
 	 * @param {object[]} index.hunks - hunks
 	 */
 	function parseFileHeader( index: Index ) {
-		const fileHeader = /^(---|\+\+\+)\s+(\S.*?|)\r?$/.exec( diffstr[ i ] );
+		const fileHeader = /^(---|\+\+\+)\s+(\S.*|)\r?$/.exec( diffstr[ i ] );
 
 		if ( fileHeader ) {
 			const keyPrefix = fileHeader[ 1 ] === '---' ? 'old' : 'new';
