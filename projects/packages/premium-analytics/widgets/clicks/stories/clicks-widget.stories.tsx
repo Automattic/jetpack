@@ -36,8 +36,7 @@ interface ClicksStoryControls {
 }
 
 interface ClicksDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		ClicksStoryControls {}
+	extends WidgetDashboardWithWidgetControls, ClicksStoryControls {}
 
 function renderClicksWidget( { withComparison }: ClicksStoryControls ) {
 	return <ClicksRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />;

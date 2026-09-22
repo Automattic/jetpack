@@ -13,7 +13,7 @@
  * @since 0.8.0
  */
 
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import {
 	getButtonStyle,
@@ -22,48 +22,12 @@ import {
 	getWidthAndBorderStyle,
 	isOutlineButton,
 } from '../utils/block-styles';
-import { CURRENCY_SYMBOLS } from '../utils/currency-symbols';
+import { formatPrice } from '../utils/currency-symbols';
 import { DEFAULT_LABEL } from '../utils/defaults';
+import { linkPrice } from '../utils/link-price';
 import { withPartnerAttribution } from '../utils/partner-attribution';
 import QrCodePreview from './qr-code-preview';
-import { getPrimaryDimension, hasVariantPricing } from './variant-builder';
-
-/**
- * Format a price with currency symbol.
- *
- * @param {string} priceValue   - The price value string.
- * @param {string} currencyCode - The ISO currency code.
- * @return {string} Formatted price string.
- */
-function formatPrice( priceValue, currencyCode ) {
-	const symbol = CURRENCY_SYMBOLS[ currencyCode ] || currencyCode;
-	return `${ symbol }${ priceValue }`;
-}
-
-/**
- * Find the cheapest per-option price in the primary option group.
- *
- * PayPal only prices the primary group, so an amount left on another group is
- * not a price a buyer can pay and must not become the headline.
- *
- * @param {object} variants - Variants data with dimensions.
- * @return {string|null} The lowest option price, or null when none are priced.
- */
-function getLowestVariantPrice( variants ) {
-	let lowest = null;
-
-	( getPrimaryDimension( variants )?.options || [] ).forEach( opt => {
-		const value = `${ opt.unit_amount?.value ?? '' }`.trim();
-		if ( value === '' || isNaN( parseFloat( value ) ) ) {
-			return;
-		}
-		if ( lowest === null || parseFloat( value ) < parseFloat( lowest ) ) {
-			lowest = value;
-		}
-	} );
-
-	return lowest;
-}
+import { hasVariantPricing } from './variant-builder';
 
 /**
  * Build the variant summary the way render_api_managed_button() builds it.
@@ -191,12 +155,16 @@ function ButtonPreview( {
 	buttonText,
 	attributes = {},
 } ) {
+	// An empty currencyCode attribute arrives as '', which the destructure
+	// default above lets through, so it needs a fallback of its own.
+	const code = currencyCode || 'USD';
 	// Mirrors render_api_managed_button(): PayPal drops the product-level amount
 	// once the options have their own prices, but the block keeps what was typed.
 	// Prices stay strings, because PayPal accepts 0 and the empty test is ''.
-	const productPrice = hasVariantPricing( variantsEnabled, variants ) ? '' : `${ price ?? '' }`;
-	const lowestVariantPrice =
-		productPrice === '' && variantsEnabled ? getLowestVariantPrice( variants ) : null;
+	const productPrice = hasVariantPricing( variantsEnabled, variants )
+		? ''
+		: `${ price ?? '' }`.trim();
+	const headlinePrice = linkPrice( { price, currencyCode: code, variantsEnabled, variants } );
 	const variantGroups = variantsEnabled ? getVariantGroups( variants, productPrice ) : [];
 	// A blank label would draw an unreadable button, so fall back to the same
 	// default render_api_managed_button() uses.
@@ -221,19 +189,8 @@ function ButtonPreview( {
 						</span>
 					) }
 				</div>
-				{ productPrice !== '' && (
-					<span className="jetpack-paypal-button-preview__product-price">
-						{ formatPrice( productPrice, currencyCode ) }
-					</span>
-				) }
-				{ productPrice === '' && lowestVariantPrice !== null && (
-					<span className="jetpack-paypal-button-preview__product-price">
-						{ sprintf(
-							/* translators: %s: formatted price, e.g. "$29.99" */
-							__( 'From %s', 'jetpack-paypal-payments' ),
-							formatPrice( lowestVariantPrice, currencyCode )
-						) }
-					</span>
+				{ headlinePrice !== '' && (
+					<span className="jetpack-paypal-button-preview__product-price">{ headlinePrice }</span>
 				) }
 			</div>
 
@@ -253,7 +210,7 @@ function ButtonPreview( {
 										<>
 											{ ' ' }
 											<span className="jetpack-paypal-button__variant-price">
-												{ formatPrice( option.price, currencyCode ) }
+												{ formatPrice( option.price, code ) }
 											</span>
 										</>
 									) }

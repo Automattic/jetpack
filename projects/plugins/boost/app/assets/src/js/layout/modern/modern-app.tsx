@@ -16,7 +16,7 @@ type ModernAppProps = {
 
 /**
  * Settings renders in place and stays mounted; a sub-page is portalled out to
- * the chassis mount that sits outside the tab shell.
+ * the chassis mount that sits outside the dashboard content.
  *
  * @param props             - Component props.
  * @param props.subpageSlot - Chassis mount for the active sub-page.

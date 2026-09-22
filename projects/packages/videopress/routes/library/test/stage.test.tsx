@@ -135,6 +135,9 @@ describe( 'library stage empty state', () => {
 		expect( screen.getByText( 'Upload your first video' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Drag and drop your videos here' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'dataviews' ) ).not.toBeInTheDocument();
+		// The dropzone is the upload affordance here; the header must not
+		// offer a second button for the same action.
+		expect( screen.queryByRole( 'button', { name: 'Upload video' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the listing while videos exist', () => {
@@ -142,6 +145,7 @@ describe( 'library stage empty state', () => {
 
 		expect( screen.queryByText( 'Upload your first video' ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Upload video' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'hands the surface to the listing the moment an upload is queued', () => {
@@ -157,6 +161,7 @@ describe( 'library stage empty state', () => {
 
 		expect( screen.queryByText( 'Upload your first video' ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'dataviews' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Upload video' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'never masks a failed listing request with the empty state', () => {

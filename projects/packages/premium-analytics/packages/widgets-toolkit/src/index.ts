@@ -68,6 +68,8 @@ export {
 	type CalendarHeatmapPager,
 	type CalendarHeatmapPagerOverlayProps,
 	type CalendarHeatmapTooltipProps,
+	MonthCalendarHeatmap,
+	type MonthCalendarHeatmapProps,
 	MonthlyHeatmap,
 	type MonthlyHeatmapProps,
 	type MonthlyHeatmapRow,
@@ -108,6 +110,7 @@ export {
 	type SubscriberListSkeletonProps,
 	SemiCircleChart,
 	type SemiCircleChartData,
+	DETAIL_HEADER_GLYPH_SIZE,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageActions,
@@ -169,7 +172,8 @@ export {
 	type UseReportCsvExportResult,
 	WidgetDataTable,
 	type WidgetDataTableProps,
-	EARNINGS_HISTORY_VIEW,
+	EarningsHistoryList,
+	type EarningsHistoryListProps,
 	flattenEarningsBreakdown,
 	getEarningsStatus,
 	getWordAdsHistoryFields,
@@ -177,6 +181,7 @@ export {
 	AnnualHighlightsSkeleton,
 	GenericSkeleton,
 	HeatmapSkeleton,
+	MonthCalendarHeatmapSkeleton,
 	MetricSparklineSkeleton,
 	type MetricSparklineSkeletonProps,
 	SkeletonRoot,
@@ -186,7 +191,7 @@ export {
 /**
  * Constants
  */
-export { COLOR_GRAY_100, WIDGET_ROW_LIMIT } from './constants';
+export { WIDGET_ROW_LIMIT } from './constants';
 
 /**
  * Widget edit fields
@@ -236,26 +241,28 @@ export {
 	CALENDAR_HEATMAP_HEADER_HEIGHT,
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,
-	formatDailyViewCount,
+	formatEmailRate,
 	formatViewCount,
+	isEmailRateKnown,
+	type EmailRateSignals,
 	MONTHS_IN_YEAR,
 	monthOrder,
 	type MonthKey,
+	MONTHLY_HEATMAP_METRICS,
 	monthlyHeatmapLabels,
+	monthlyHeatmapMetricAttributeField,
 	resolveMonthlyHeatmapMetric,
 	type MonthlyHeatmapMetric,
+	monthlyHeatmapLifeStart,
 	monthRange,
 	yearRange,
 	type PeriodBounds,
 	buildDenseDaySeries,
 	resolveCalendarHeatmapGridStart,
-	resolveCalendarHeatmapWindow,
-	resolveCalendarHeatmapWindowDays,
 	type CalendarHeatmapLayout,
 	type CalendarHeatmapLayoutInput,
 	type FitWeekColumnsInput,
 	type CalendarHeatmapWindow,
-	type CalendarHeatmapWindowBounds,
 } from './helpers';
 
 /**
@@ -271,7 +278,6 @@ export {
 	useSeriesStyles,
 	useStoredDetailLayout,
 	useTrackEvent,
-	useViewportWidth,
 	useWidgetDrillDown,
 } from './hooks';
 
@@ -337,4 +343,4 @@ export {
  * `@jetpack-premium-analytics/ui` directly: the toolkit bundles the ui package
  * once instead of once per widget.
  */
-export { safeHttpUrl } from '@jetpack-premium-analytics/ui';
+export { safeHttpUrl, tagRowGlyph } from '@jetpack-premium-analytics/ui';

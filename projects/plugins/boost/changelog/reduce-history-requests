@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Performance history: Load the Overview faster on sites with little or no score history.

@@ -1,4 +1,5 @@
 export {
+	defaultReportParamsForGrain,
 	reportParamsAttributeField,
 	type ReportGrain,
 	type ReportParamsFieldAttributes,

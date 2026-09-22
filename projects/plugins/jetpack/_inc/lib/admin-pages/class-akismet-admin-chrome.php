@@ -26,6 +26,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Plugin\Footer_Links;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -346,9 +347,10 @@ class Akismet_Admin_Chrome {
 				<?php echo $this->jetpack_logo( 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
 				<span><?php esc_html_e( 'Jetpack', 'jetpack' ); ?></span>
 			</div>
-			<?php if ( ! ( new Host() )->is_wpcom_platform() ) : ?>
+			<?php if ( ! ( new Host() )->is_wpcom_platform() && Footer_Links::is_my_jetpack_available() ) : ?>
+				<?php $products_section = Footer_Links::get_my_jetpack_products_section(); ?>
 			<nav class="jp-akismet-footer__menu">
-				<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/products' ) ); ?>"><?php echo esc_html_x( 'Products', 'Navigation item', 'jetpack' ); ?></a>
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/' . $products_section['slug'] ) ); ?>"><?php echo esc_html( $products_section['label'] ); ?></a>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/help' ) ); ?>"><?php echo esc_html_x( 'Help', 'Navigation item', 'jetpack' ); ?></a>
 			</nav>
 			<?php endif; ?>

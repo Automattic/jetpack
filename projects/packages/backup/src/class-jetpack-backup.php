@@ -23,6 +23,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -131,6 +132,13 @@ class Jetpack_Backup {
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_backup';
 
 	/**
+	 * Blog sticker that takes a site out of the internal preview.
+	 *
+	 * Atomic sees it only if it is on WordPress.com's `atomic_site_stickers()` allowlist.
+	 */
+	const LEGACY_DASHBOARD_STICKER = 'use-backup-legacy-dashboard';
+
+	/**
 	 * Rewind state read from WordPress.com, memoized for the request.
 	 *
 	 * A class property and not a function static so tests can clear it.
@@ -138,6 +146,13 @@ class Jetpack_Backup {
 	 * @var object|null
 	 */
 	private static $rewind_state = null;
+
+	/**
+	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
+	 *
+	 * @var string|null
+	 */
+	private static $wp_build_original_screen_id = null;
 
 	/**
 	 * Constructor.
@@ -1123,7 +1138,11 @@ class Jetpack_Backup {
 			return;
 		}
 
+		// Hooked either side of load_wp_build(), so the alias holds only for the generated
+		// enqueue check it registers at the same priority.
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 		self::load_wp_build();
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
 
 		// wp-build registers standalone modules (e.g. the init module) on
 		// wp_default_scripts, which has already fired by admin_menu. Register them
@@ -1132,7 +1151,6 @@ class Jetpack_Backup {
 			jetpack_backup_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
 		}
 
-		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 		add_action( 'admin_print_scripts', array( __CLASS__, 'render_connection_initial_state' ), 1 );
 	}
 
@@ -1159,8 +1177,8 @@ class Jetpack_Backup {
 	/**
 	 * Load the wp-build entry file and register its polyfills.
 	 *
-	 * Only called on `?page=jetpack-backup` admin requests when the
-	 * modernization filter is enabled. Keeps wp-build off every other request.
+	 * Only called on `?page=jetpack-backup` admin requests when `is_modernized()`
+	 * is true. Keeps wp-build off every other request.
 	 *
 	 * @return void
 	 */
@@ -1193,30 +1211,72 @@ class Jetpack_Backup {
 	 * Hooked only when modernization is on AND we're on the Backup admin page,
 	 * so this never affects any other request.
 	 *
-	 * @param \WP_Screen|null $screen The current screen object (passed by WP).
+	 * @since $$next-version$$ Takes no argument; hooked on `admin_enqueue_scripts`.
+	 *
 	 * @return void
 	 */
-	public static function alias_screen_id_for_wp_build( $screen ) {
-		if ( ! is_object( $screen ) ) {
+	public static function alias_screen_id_for_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
 			return;
 		}
 
-		$screen->id = 'jetpack-backup-dashboard';
+		self::$wp_build_original_screen_id = $screen->id;
+		$screen->id                        = 'jetpack-backup-dashboard';
 	}
 
 	/**
-	 * Returns true when the wp-build modernization filter is enabled.
+	 * Undo alias_screen_id_for_wp_build(), so code after the generated check sees the real screen ID.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function restore_screen_id_after_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen || null === self::$wp_build_original_screen_id ) {
+			return;
+		}
+
+		$screen->id                        = self::$wp_build_original_screen_id;
+		self::$wp_build_original_screen_id = null;
+	}
+
+	/**
+	 * Returns the modernization filter's value, which defaults to the internal preview.
 	 *
 	 * @since 4.3.14 Changed from private to public; the REST bridges gate their route registration on it.
 	 *
 	 * @return bool
 	 */
 	public static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, self::is_internal_preview() );
 	}
 
 	/**
-	 * Returns true when the modernization filter is on AND the wp-build dashboard loaded.
+	 * Whether an internal user on the A8C proxy previews the dashboard. Not an authorization check.
+	 *
+	 * The proxy is checked first, so other requests never make the connected-user lookup.
+	 *
+	 * @return bool
+	 */
+	private static function is_internal_preview() {
+		if ( ! Constants::is_true( 'AT_PROXIED_REQUEST' ) ) {
+			return false;
+		}
+
+		if ( function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( self::LEGACY_DASHBOARD_STICKER ) ) {
+			return false;
+		}
+
+		$user_data = ( new Connection_Manager() )->get_connected_user_data();
+		$email     = is_array( $user_data ) && ! empty( $user_data['email'] ) ? strtolower( (string) $user_data['email'] ) : '';
+
+		return str_ends_with( $email, '@automattic.com' ) || str_ends_with( $email, '@a8c.com' );
+	}
+
+	/**
+	 * Returns true when `is_modernized()` is true AND the wp-build dashboard loaded.
 	 *
 	 * `build/` is gitignored, so the render function is absent in any unbuilt checkout
 	 * and in any release whose wp-build step failed. Every consumer of the modernized

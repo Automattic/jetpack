@@ -54,9 +54,8 @@ await jest.unstable_mockModule( '../../../../../src/blocks/contact-form/child-bl
 	],
 } ) );
 
-const { default: useSubjectFields, useEnsureFieldId } = await import(
-	'../../../../../src/blocks/shared/conditional-logic/hooks/use-subject-fields.js'
-);
+const { default: useSubjectFields, useEnsureFieldId } =
+	await import( '../../../../../src/blocks/shared/conditional-logic/hooks/use-subject-fields.js' );
 
 /**
  * A field block, optionally carrying a label block and an explicit id.

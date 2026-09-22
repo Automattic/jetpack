@@ -67,7 +67,7 @@ export function loadPartnerScript( environment, doc ) {
 			: new Promise( ( resolve, reject ) => {
 					existing.addEventListener( 'load', resolve );
 					existing.addEventListener( 'error', reject );
-			  } );
+				} );
 	}
 
 	return new Promise( ( resolve, reject ) => {

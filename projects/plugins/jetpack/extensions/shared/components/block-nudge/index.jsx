@@ -1,8 +1,6 @@
 import { useAutosaveAndRedirect } from '@automattic/jetpack-shared-extension-utils';
 import { Warning } from '@wordpress/block-editor';
 import { Button } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 
 import './style.scss';
@@ -13,8 +11,8 @@ export default function BlockNudge( {
 	className,
 	href,
 	icon,
+	links,
 	onClick,
-	readMoreUrl,
 	subtitle,
 	title,
 } ) {
@@ -49,19 +47,8 @@ export default function BlockNudge( {
 				{ icon }
 				<span className="jetpack-block-nudge__text-container">
 					<span className="jetpack-block-nudge__title">{ title }</span>
-					{ subtitle && (
-						<span className="jetpack-block-nudge__message">
-							{ subtitle }
-							{ readMoreUrl && (
-								<>
-									<br />
-									<Link openInNewTab href={ readMoreUrl }>
-										{ __( 'Learn more about the block and fees', 'jetpack' ) }
-									</Link>
-								</>
-							) }
-						</span>
-					) }
+					{ subtitle && <span className="jetpack-block-nudge__message">{ subtitle }</span> }
+					{ links && <span className="jetpack-block-nudge__links">{ links }</span> }
 				</span>
 			</span>
 		</Warning>

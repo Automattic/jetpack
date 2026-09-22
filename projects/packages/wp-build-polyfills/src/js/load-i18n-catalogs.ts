@@ -3,11 +3,9 @@
  *
  * The wp-build (esbuild) pipeline externalizes `@wordpress/i18n` to the shared
  * `window.wp.i18n` singleton but never wires up loading of the translation
- * catalog, and WordPress core (before 7.0's script-module i18n) has no
- * `wp_set_script_translations()` equivalent for script modules. Each dashboard
- * registers a boot init module that calls this helper; boot awaits init
- * modules before rendering routes, so catalogs install before any translated
- * string evaluates.
+ * catalog. Each dashboard registers a boot init module that calls this helper;
+ * boot awaits init modules before rendering routes, so catalogs install before
+ * any translated string evaluates.
  *
  * The set of bundles to load catalogs for comes from the `i18n-manifest.json`
  * that the `stamp-textdomains` build step emits into the build/ directory —
@@ -32,8 +30,8 @@
  * WordPress names JS translation files, fetches the catalog, and installs it
  * via `setLocaleData()`.
  *
- * Once Jetpack's WP floor reaches 7.0, `wp_set_script_module_translations()`
- * can likely replace this helper along with the build-time text-domain stamp.
+ * Every supported WordPress ships `wp_set_script_module_translations()` (since 7.0),
+ * which can likely replace this helper along with the build-time text-domain stamp.
  */
 
 interface JpI18nLoader {

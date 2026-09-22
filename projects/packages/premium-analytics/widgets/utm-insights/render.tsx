@@ -41,11 +41,7 @@ type UtmInsightsRenderAttributes = UtmInsightsAttributes & Partial< ReportParams
 type UtmInsightsWidgetProps = WidgetRenderProps< UtmInsightsRenderAttributes >;
 
 type UtmReportSection =
-	| 'source-medium'
-	| 'campaign-source-medium'
-	| 'source'
-	| 'medium'
-	| 'campaign';
+	'source-medium' | 'campaign-source-medium' | 'source' | 'medium' | 'campaign';
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
@@ -104,7 +100,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 	);
 	const isDrillDown = !! selectedUtm?.children?.length;
 	const activeData = useMemo(
-		() => ( isDrillDown ? selectedUtm?.children ?? [] : data ),
+		() => ( isDrillDown ? ( selectedUtm?.children ?? [] ) : data ),
 		[ data, isDrillDown, selectedUtm ]
 	);
 	const withComparison = isDrillDown ? !! selectedUtm?.childrenHaveComparison : hasComparison;
@@ -138,9 +134,13 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 									id={ postRow.postId }
 									label={ postRow.label }
 									link={ postRow.href }
+									origin={ {
+										report: 'utm',
+										section: getUtmReportSection( utmDimension ),
+									} }
 								/>
 							),
-					  }
+						}
 					: buildLeaderboardRow( {
 							label: item.label,
 							media: { kind: 'none' },
@@ -155,7 +155,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 									),
 								},
 							} ),
-					  } ) ),
+						} ) ),
 				currentValue: item.value,
 				currentShare: sharePercentage( item.value, maxValue ),
 				previousValue,
@@ -169,7 +169,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 						: undefined,
 			};
 		} );
-	}, [ activeData, isDrillDown, selectUtmLabel, withComparison ] );
+	}, [ activeData, isDrillDown, selectUtmLabel, utmDimension, withComparison ] );
 
 	const backLink = isDrillDown ? (
 		<WidgetBackLink

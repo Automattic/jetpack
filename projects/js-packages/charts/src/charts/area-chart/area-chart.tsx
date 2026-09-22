@@ -250,8 +250,9 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 				withGlyph: false,
 				glyphSize: 0,
 				collapseGroups: legend.collapseGroups ?? false,
+				comparisonItem: legend.comparisonItem ?? false,
 			} ),
-			[ legend.collapseGroups ]
+			[ legend.collapseGroups, legend.comparisonItem ]
 		);
 		const legendItems = useChartLegendItems( dataSorted, legendOptions, legendShape );
 
