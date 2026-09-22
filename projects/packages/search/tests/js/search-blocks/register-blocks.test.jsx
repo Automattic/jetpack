@@ -81,3 +81,41 @@ describe( 'register-blocks', () => {
 		expect( settings.icon ).toBeDefined();
 	} );
 } );
+
+describe( 'register-blocks inserter gate', () => {
+	const INSERTER_FILTER = 'jetpack-search/hide-from-widgets-inserter';
+
+	const loadWithConfig = config => {
+		let addFilter;
+		globalThis.JetpackSearchBlocksConfig = config;
+		jest.isolateModules( () => {
+			addFilter = require( '@wordpress/hooks' ).addFilter;
+			addFilter.mockClear();
+			require( '../../../src/search-blocks/editor/register-blocks' );
+		} );
+		return addFilter.mock.calls.find( ( [ , namespace ] ) => namespace === INSERTER_FILTER )?.[ 2 ];
+	};
+
+	afterEach( () => {
+		delete globalThis.JetpackSearchBlocksConfig;
+	} );
+
+	it( 'hides Search blocks from the inserter when the gate is on', () => {
+		const filter = loadWithConfig( { hideFromInserter: true } );
+
+		expect(
+			filter( { supports: { html: false } }, 'jetpack-search/filter-checkbox' ).supports
+		).toEqual( { html: false, inserter: false } );
+	} );
+
+	it( 'leaves blocks from other namespaces insertable', () => {
+		const filter = loadWithConfig( { hideFromInserter: true } );
+		const settings = { supports: { html: false } };
+
+		expect( filter( settings, 'core/search' ) ).toBe( settings );
+	} );
+
+	it( 'registers no inserter filter when the gate is off', () => {
+		expect( loadWithConfig( { hideFromInserter: false } ) ).toBeUndefined();
+	} );
+} );

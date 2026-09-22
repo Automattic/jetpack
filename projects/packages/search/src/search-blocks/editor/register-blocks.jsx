@@ -149,6 +149,18 @@ addFilter(
 	}
 );
 
+// Registered rather than skipped, so blocks already saved in a widget area still load and can be removed.
+if ( config.hideFromInserter === true ) {
+	addFilter(
+		'blocks.registerBlockType',
+		'jetpack-search/hide-from-widgets-inserter',
+		( settings, name ) =>
+			name.startsWith( 'jetpack-search/' )
+				? { ...settings, supports: { ...settings.supports, inserter: false } }
+				: settings
+	);
+}
+
 BLOCKS.forEach( ( [ name, edit, blockSave, extraSettings ] ) => {
 	if ( ! isWooCommerceBlocksEnabled && wcOnlyBlocks.has( name ) ) {
 		return;
