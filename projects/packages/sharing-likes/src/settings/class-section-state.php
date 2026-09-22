@@ -48,12 +48,12 @@ final class Section_State {
 	 * @param bool $can_offer_block Whether the block is a route this site can be sent down.
 	 *                              A block theme is necessary but not sufficient, which is why
 	 *                              callers resolve this rather than passing the theme type.
-	 * @param bool $feature_enabled Whether the legacy feature can still produce output.
+	 * @param bool $feature_running Whether the legacy feature can still produce output.
 	 *                              Always true on WordPress.com Simple, which has no modules.
 	 * @return string One of the class constants.
 	 */
-	public static function for_section( bool $can_offer_block, bool $feature_enabled ): string {
-		if ( ! $feature_enabled ) {
+	public static function for_section( bool $can_offer_block, bool $feature_running ): string {
+		if ( ! $feature_running ) {
 			return $can_offer_block ? self::BLOCK_CALL_TO_ACTION : self::OFF;
 		}
 
@@ -65,12 +65,12 @@ final class Section_State {
 	 *
 	 * It only governs legacy output, so it is hidden once neither feature produces any.
 	 *
-	 * @param bool $sharing_enabled Whether sharing buttons can still produce output.
-	 * @param bool $likes_enabled   Whether anything still reads the Likes settings, which
-	 *                              includes Comment Likes without the Likes module.
+	 * @param bool $sharing_running       Whether sharing buttons can still produce output.
+	 * @param bool $likes_settings_in_use Whether anything still reads the Likes settings, which
+	 *                                    includes Comment Likes without the Likes module.
 	 * @return bool
 	 */
-	public static function shows_placement( bool $sharing_enabled, bool $likes_enabled ): bool {
-		return $sharing_enabled || $likes_enabled;
+	public static function shows_placement( bool $sharing_running, bool $likes_settings_in_use ): bool {
+		return $sharing_running || $likes_settings_in_use;
 	}
 }

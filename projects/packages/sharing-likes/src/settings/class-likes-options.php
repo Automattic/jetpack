@@ -22,7 +22,7 @@ final class Likes_Options {
 	/**
 	 * Whether Likes are on for every post.
 	 */
-	public static function enabled_sitewide(): bool {
+	public static function likes_enabled_sitewide(): bool {
 		/** This filter is documented in projects/plugins/jetpack/modules/likes/jetpack-likes-settings.php */
 		return (bool) apply_filters(
 			'wpl_is_enabled_sitewide',

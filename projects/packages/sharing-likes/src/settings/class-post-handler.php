@@ -62,14 +62,10 @@ final class Post_Handler {
 				$redirect = self::activate_module( 'sharedaddy', Sharing_Section::NONCE_ACTION );
 				break;
 			case 'switch-to-block-likes':
-				$redirect = Environment::is_simple_site()
-					? self::turn_off_simple_likes()
-					: self::deactivate_module( 'likes', Likes_Section::NONCE_ACTION );
+				$redirect = self::switch_likes_to_block();
 				break;
 			case 'switch-to-block-sharing':
-				$redirect = Environment::is_simple_site()
-					? self::turn_off_simple_sharing()
-					: self::deactivate_module( 'sharedaddy', Sharing_Section::NONCE_ACTION );
+				$redirect = self::switch_sharing_to_block();
 				break;
 			case 'save-likes':
 				$redirect = self::save_likes();
@@ -91,65 +87,66 @@ final class Post_Handler {
 	}
 
 	/**
-	 * Stop producing legacy output, so the block can take over.
+	 * Stop producing legacy sharing buttons, so the block can take over.
 	 *
 	 * This is a migration, not the section's off switch: it is what the Jetpack
 	 * dashboard's "Switch to the … block" button does, and it leaves the block
-	 * itself untouched.
-	 *
-	 * @param string $module       Module slug.
-	 * @param string $nonce_action Nonce action the submitting section uses.
-	 * @return string URL to send the browser back to.
-	 */
-	private static function deactivate_module( string $module, string $nonce_action ): string {
-		check_admin_referer( $nonce_action );
-
-		( new Modules() )->deactivate( $module );
-
-		return self::screen_url( true );
-	}
-
-	/**
-	 * Simple's `deactivate_module()`: it has no module to switch off, so remove every service.
-	 *
-	 * Reversible from the services list, which still renders there.
+	 * itself untouched. Simple has no module to deactivate, so it removes every
+	 * service instead, which the services list can undo.
 	 *
 	 * @return string URL to send the browser back to.
 	 */
-	private static function turn_off_simple_sharing(): string {
+	private static function switch_sharing_to_block(): string {
 		check_admin_referer( Sharing_Section::NONCE_ACTION );
 
-		// Preferred over writing the option, because wpcom hooks the state change it announces.
-		if ( class_exists( 'Sharing_Service' ) ) {
-			( new \Sharing_Service() )->set_blog_services( array(), array() );
+		if ( Environment::is_simple_site() ) {
+			self::remove_all_sharing_services();
 		} else {
-			update_option(
-				'sharing-services',
-				array(
-					'visible' => array(),
-					'hidden'  => array(),
-				)
-			);
+			( new Modules() )->deactivate( 'sharedaddy' );
 		}
 
 		return self::screen_url( true );
 	}
 
 	/**
-	 * Simple's `deactivate_module()`: switch off Likes and Reblogs for every post.
+	 * The Like buttons counterpart of `switch_sharing_to_block()`.
 	 *
-	 * Posts that opted in individually keep their buttons. Comment Likes has no
-	 * block to move to, so it is left alone.
+	 * On Simple it turns off Likes and Reblogs for every post, since the legacy
+	 * widget renders for either. Posts that opted in individually keep their
+	 * buttons, and Comment Likes has no block to move to, so it is left alone.
 	 *
 	 * @return string URL to send the browser back to.
 	 */
-	private static function turn_off_simple_likes(): string {
+	private static function switch_likes_to_block(): string {
 		check_admin_referer( Likes_Section::NONCE_ACTION );
 
-		update_option( 'disabled_likes', 1 );
-		update_option( 'disabled_reblogs', 1 );
+		if ( Environment::is_simple_site() ) {
+			update_option( 'disabled_likes', 1 );
+			update_option( 'disabled_reblogs', 1 );
+		} else {
+			( new Modules() )->deactivate( 'likes' );
+		}
 
 		return self::screen_url( true );
+	}
+
+	/**
+	 * Leave sharedaddy no services to render.
+	 */
+	private static function remove_all_sharing_services(): void {
+		// Preferred over writing the option, because wpcom hooks the state change it announces.
+		if ( class_exists( 'Sharing_Service' ) ) {
+			( new \Sharing_Service() )->set_blog_services( array(), array() );
+			return;
+		}
+
+		update_option(
+			'sharing-services',
+			array(
+				'visible' => array(),
+				'hidden'  => array(),
+			)
+		);
 	}
 
 	/**

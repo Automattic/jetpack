@@ -62,11 +62,11 @@ final class Settings_Page {
 			array( Likes_Section::class, 'render' ),
 		);
 
-		if ( Section_State::shows_placement( Environment::sharing_enabled(), Environment::likes_settings_in_use() ) ) {
+		if ( Section_State::shows_placement( Environment::sharing_module_running(), Environment::likes_settings_in_use() ) ) {
 			$sections[] = array( Placement_Section::class, 'render' );
 		}
 
-		if ( ! Environment::sharing_enabled() ) {
+		if ( ! Environment::sharing_module_running() ) {
 			$sections[] = array( Extras_Section::class, 'render' );
 		}
 

@@ -86,9 +86,9 @@ final class Likes_Section {
 	 */
 	private static function can_offer_block(): bool {
 		return Environment::is_block_theme()
-			&& Environment::has_like_block()
-			&& ( Environment::is_simple_site() || ! Environment::comment_likes_enabled() )
-			&& '' !== Environment::post_template_url();
+			&& Environment::like_block_registered()
+			&& ( Environment::is_simple_site() || ! Environment::comment_likes_module_running() )
+			&& '' !== Environment::single_template_editor_url();
 	}
 
 	/**
@@ -157,7 +157,7 @@ final class Likes_Section {
 	private static function render_site_editor_link(): void {
 		printf(
 			'<p><a class="button" href="%1$s">%2$s</a></p>',
-			esc_url( Environment::post_template_url() ),
+			esc_url( Environment::single_template_editor_url() ),
 			esc_html__( 'Open Site Editor', 'jetpack-sharing-likes' )
 		);
 	}
@@ -168,7 +168,7 @@ final class Likes_Section {
 	private static function render_options(): void {
 		Placement_Section::render_summary( Placement_Section::FEATURE_LIKES );
 
-		$enabled_sitewide = Likes_Options::enabled_sitewide();
+		$likes_enabled_sitewide = Likes_Options::likes_enabled_sitewide();
 		?>
 		<form method="post" action="">
 			<table class="form-table">
@@ -178,13 +178,13 @@ final class Likes_Section {
 						<td>
 							<div>
 								<label>
-									<input type="radio" name="wpl_default" value="on" <?php checked( $enabled_sitewide ); ?> />
+									<input type="radio" name="wpl_default" value="on" <?php checked( $likes_enabled_sitewide ); ?> />
 									<?php esc_html_e( 'On for all posts', 'jetpack-sharing-likes' ); ?>
 								</label>
 							</div>
 							<div>
 								<label>
-									<input type="radio" name="wpl_default" value="off" <?php checked( ! $enabled_sitewide ); ?> />
+									<input type="radio" name="wpl_default" value="off" <?php checked( ! $likes_enabled_sitewide ); ?> />
 									<?php esc_html_e( 'Turned on per post', 'jetpack-sharing-likes' ); ?>
 								</label>
 							</div>

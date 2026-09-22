@@ -31,7 +31,7 @@ trait Section_Environment {
 	 */
 	protected function set_up_site(): void {
 		register_theme_directory( __DIR__ . '/../fixtures/themes' );
-		$this->forget_post_template_url();
+		$this->forget_single_template_editor_url();
 		Status_Cache::clear();
 	}
 
@@ -52,12 +52,12 @@ trait Section_Environment {
 
 		Jetpack_Options::delete_option( 'active_modules' );
 		Status_Cache::clear();
-		$this->forget_post_template_url();
+		$this->forget_single_template_editor_url();
 	}
 
 	/**
 	 * Activate a theme that ships `templates/single.html`, which is what makes
-	 * `wp_is_block_theme()` true and gives `post_template_url()` a target.
+	 * `wp_is_block_theme()` true and gives `single_template_editor_url()` a target.
 	 * Without this the site runs the suite's default, which is neither.
 	 */
 	protected function given_block_theme(): void {
@@ -115,11 +115,11 @@ trait Section_Environment {
 	}
 
 	/**
-	 * Clear `Environment::$post_template_url`, which otherwise leaks the first
+	 * Clear `Environment::$single_template_editor_url`, which otherwise leaks the first
 	 * case's answer into the rest.
 	 */
-	private function forget_post_template_url(): void {
-		$property = new ReflectionProperty( Environment::class, 'post_template_url' );
+	private function forget_single_template_editor_url(): void {
+		$property = new ReflectionProperty( Environment::class, 'single_template_editor_url' );
 		// setAccessible() is a no-op as of PHP 8.1 and deprecated in 8.5; only needed on older versions.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$property->setAccessible( true );

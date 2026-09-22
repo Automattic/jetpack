@@ -23,7 +23,7 @@ final class Sharing_Section {
 	 * Render the section.
 	 */
 	public static function render(): void {
-		$state = Section_State::for_section( self::can_offer_block(), Environment::sharing_enabled() );
+		$state = Section_State::for_section( self::can_offer_block(), Environment::sharing_module_running() );
 
 		echo '<div class="jetpack-sharing-settings__section">';
 		printf( '<h2>%s</h2>', esc_html_x( 'Sharing buttons', 'Settings header', 'jetpack-sharing-likes' ) );
@@ -51,8 +51,8 @@ final class Sharing_Section {
 	 */
 	private static function can_offer_block(): bool {
 		return Environment::is_block_theme()
-			&& Environment::has_sharing_block()
-			&& '' !== Environment::post_template_url();
+			&& Environment::sharing_block_registered()
+			&& '' !== Environment::single_template_editor_url();
 	}
 
 	/**
@@ -133,7 +133,7 @@ final class Sharing_Section {
 	private static function render_site_editor_link(): void {
 		printf(
 			'<p><a class="button" href="%1$s">%2$s</a></p>',
-			esc_url( Environment::post_template_url() ),
+			esc_url( Environment::single_template_editor_url() ),
 			esc_html__( 'Open Site Editor', 'jetpack-sharing-likes' )
 		);
 	}

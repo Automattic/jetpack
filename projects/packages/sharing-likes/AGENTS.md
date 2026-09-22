@@ -94,7 +94,7 @@ no arguments, so nothing is filtered on connection. A site that cannot render a
 Like button will still answer `true` to `is_active( 'likes' )`. That is what
 `Environment::likes_supported()` is for. Sharing needs no connection, but
 `Jetpack::load_modules()` includes nothing on a site that is neither connected
-nor offline, so `Environment::sharing_enabled()` applies the same guard: an
+nor offline, so `Environment::sharing_module_running()` applies the same guard: an
 active-but-unloaded module has no `Sharing_Service` to configure.
 
 ## Hooks that must keep firing
@@ -171,7 +171,7 @@ be asserted without a bootstrapped site. Environment lookups belong in
 
 **A block theme is available to tests.** `tests/php/fixtures/themes/block-theme`
 ships `templates/single.html`, which is what makes `wp_is_block_theme()` true and
-gives `Environment::post_template_url()` a real target. The `Section_Environment`
+gives `Environment::single_template_editor_url()` a real target. The `Section_Environment`
 trait registers the directory and pins the stylesheet to it; the suite's default
 theme is neither a block theme nor resolvable, so nothing reaches the block
 variants without that pin.

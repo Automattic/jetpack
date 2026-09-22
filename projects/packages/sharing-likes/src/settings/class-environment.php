@@ -25,7 +25,7 @@ final class Environment {
 	 *
 	 * @var string|null
 	 */
-	private static $post_template_url = null;
+	private static $single_template_editor_url = null;
 
 	/**
 	 * Whether the active theme is a block theme.
@@ -49,12 +49,12 @@ final class Environment {
 	 * loads nothing at all on a site that is neither connected nor offline, so
 	 * an active module there still renders no buttons.
 	 */
-	public static function sharing_enabled(): bool {
+	public static function sharing_module_running(): bool {
 		if ( self::is_simple_site() ) {
 			return true;
 		}
 
-		return self::modules_load() && ( new Modules() )->is_active( 'sharedaddy' );
+		return self::plugin_loads_modules() && ( new Modules() )->is_active( 'sharedaddy' );
 	}
 
 	/**
@@ -81,7 +81,7 @@ final class Environment {
 	 * would do nothing.
 	 */
 	public static function can_activate_modules(): bool {
-		return self::is_simple_site() || self::modules_load();
+		return self::is_simple_site() || self::plugin_loads_modules();
 	}
 
 	/**
@@ -89,7 +89,7 @@ final class Environment {
 	 *
 	 * The guard `Jetpack::load_modules()` applies before it includes anything.
 	 */
-	private static function modules_load(): bool {
+	private static function plugin_loads_modules(): bool {
 		return self::connection_ready() || ( new Status() )->is_offline_mode();
 	}
 
@@ -124,7 +124,7 @@ final class Environment {
 	 * the module can be left active in the options through a disconnect, which
 	 * is why support is checked too.
 	 */
-	public static function likes_enabled(): bool {
+	public static function likes_module_running(): bool {
 		if ( ! self::likes_supported() ) {
 			return false;
 		}
@@ -138,7 +138,7 @@ final class Environment {
 	 * Both count because the legacy widget renders for either.
 	 */
 	public static function legacy_likes_switched_off(): bool {
-		return ! Likes_Options::enabled_sitewide() && ! Likes_Options::reblogs_enabled_sitewide();
+		return ! Likes_Options::likes_enabled_sitewide() && ! Likes_Options::reblogs_enabled_sitewide();
 	}
 
 	/**
@@ -148,7 +148,7 @@ final class Environment {
 	 * `disabled_likes` and the shared placement gate `is_likes_visible()`. So a
 	 * site running it without the Likes module still needs those controls.
 	 */
-	public static function comment_likes_enabled(): bool {
+	public static function comment_likes_module_running(): bool {
 		if ( ! self::likes_supported() ) {
 			return false;
 		}
@@ -163,20 +163,20 @@ final class Environment {
 	 * either one keeps those controls worth showing.
 	 */
 	public static function likes_settings_in_use(): bool {
-		return self::likes_enabled() || self::comment_likes_enabled();
+		return self::likes_module_running() || self::comment_likes_module_running();
 	}
 
 	/**
 	 * Whether the Sharing Buttons block is available to offer as an alternative.
 	 */
-	public static function has_sharing_block(): bool {
+	public static function sharing_block_registered(): bool {
 		return self::block_is_registered( 'jetpack/sharing-buttons' );
 	}
 
 	/**
 	 * Whether the Like block is available to offer as an alternative.
 	 */
-	public static function has_like_block(): bool {
+	public static function like_block_registered(): bool {
 		return self::block_is_registered( 'jetpack/like' );
 	}
 
@@ -187,26 +187,26 @@ final class Environment {
 	 * "offer no Site Editor link" rather than linking somewhere that 404s: a
 	 * block theme shipping only `index.html` is the case that hits this.
 	 */
-	public static function post_template_url(): string {
-		if ( null !== self::$post_template_url ) {
-			return self::$post_template_url;
+	public static function single_template_editor_url(): string {
+		if ( null !== self::$single_template_editor_url ) {
+			return self::$single_template_editor_url;
 		}
 
 		$stylesheet = get_stylesheet();
 		$template   = $stylesheet ? $stylesheet . '//single' : '';
 
 		if ( ! $template || ! get_block_template( $template ) ) {
-			self::$post_template_url = '';
+			self::$single_template_editor_url = '';
 
-			return self::$post_template_url;
+			return self::$single_template_editor_url;
 		}
 
 		// `add_query_arg()` does not encode, and the Site Editor router wants `p` percent-encoded.
-		self::$post_template_url = admin_url(
+		self::$single_template_editor_url = admin_url(
 			'site-editor.php?p=' . rawurlencode( '/wp_template/' . $template ) . '&canvas=edit'
 		);
 
-		return self::$post_template_url;
+		return self::$single_template_editor_url;
 	}
 
 	/**

@@ -144,7 +144,7 @@ final class Placement_Section {
 	 * legible without a second line of copy.
 	 */
 	private static function heading(): string {
-		$sharing = Environment::sharing_enabled();
+		$sharing = Environment::sharing_module_running();
 		$likes   = Environment::likes_settings_in_use();
 
 		if ( $sharing && $likes ) {

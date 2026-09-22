@@ -1,6 +1,6 @@
 /*
 Theme Name: Block Theme
-Description: Fixture block theme for the Settings > Sharing section tests. Ships templates/single.html so wp_is_block_theme() is true and Environment::post_template_url() resolves.
+Description: Fixture block theme for the Settings > Sharing section tests. Ships templates/single.html so wp_is_block_theme() is true and Environment::single_template_editor_url() resolves.
 Version: 1.0.0
 Requires at least: 6.0
 Tested up to: 6.9

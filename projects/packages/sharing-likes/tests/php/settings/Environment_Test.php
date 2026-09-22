@@ -29,7 +29,7 @@ class Environment_Test extends BaseTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		$this->forget_post_template_url();
+		$this->forget_single_template_editor_url();
 		// `Status` memoises offline mode across instances, so a case that read it leaks into the next.
 		Status_Cache::clear();
 		add_filter( 'stylesheet', array( $this, 'pin_stylesheet' ) );
@@ -44,7 +44,7 @@ class Environment_Test extends BaseTestCase {
 		remove_all_filters( 'get_block_template' );
 		remove_all_filters( 'jetpack_is_connection_ready' );
 		remove_all_filters( 'jetpack_get_available_standalone_modules' );
-		$this->forget_post_template_url();
+		$this->forget_single_template_editor_url();
 
 		Constants::clear_constants();
 		Status_Cache::clear();
@@ -78,10 +78,10 @@ class Environment_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Clear `Environment::$post_template_url`.
+	 * Clear `Environment::$single_template_editor_url`.
 	 */
-	private function forget_post_template_url(): void {
-		$property = new ReflectionProperty( Environment::class, 'post_template_url' );
+	private function forget_single_template_editor_url(): void {
+		$property = new ReflectionProperty( Environment::class, 'single_template_editor_url' );
 		// setAccessible() is a no-op as of PHP 8.1 and deprecated in 8.5; only needed on older versions.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$property->setAccessible( true );
@@ -115,7 +115,7 @@ class Environment_Test extends BaseTestCase {
 
 		$this->assertSame(
 			admin_url( 'site-editor.php' ) . '?p=%2Fwp_template%2Ftwentytwentyfour%2F%2Fsingle&canvas=edit',
-			Environment::post_template_url()
+			Environment::single_template_editor_url()
 		);
 	}
 
@@ -130,7 +130,7 @@ class Environment_Test extends BaseTestCase {
 	public function test_is_empty_when_the_theme_has_no_single_template(): void {
 		add_filter( 'get_block_template', '__return_null' );
 
-		$this->assertSame( '', Environment::post_template_url() );
+		$this->assertSame( '', Environment::single_template_editor_url() );
 	}
 
 	/**
@@ -143,8 +143,8 @@ class Environment_Test extends BaseTestCase {
 		$this->given_site( array( 'likes', 'comment-likes' ), false );
 
 		$this->assertFalse( Environment::likes_supported() );
-		$this->assertFalse( Environment::likes_enabled() );
-		$this->assertFalse( Environment::comment_likes_enabled() );
+		$this->assertFalse( Environment::likes_module_running() );
+		$this->assertFalse( Environment::comment_likes_module_running() );
 		$this->assertFalse( Environment::likes_settings_in_use() );
 	}
 
@@ -155,8 +155,8 @@ class Environment_Test extends BaseTestCase {
 	public function test_comment_likes_alone_keeps_the_likes_settings_in_use(): void {
 		$this->given_site( array( 'comment-likes' ), true );
 
-		$this->assertFalse( Environment::likes_enabled() );
-		$this->assertTrue( Environment::comment_likes_enabled() );
+		$this->assertFalse( Environment::likes_module_running() );
+		$this->assertTrue( Environment::comment_likes_module_running() );
 		$this->assertTrue( Environment::likes_settings_in_use() );
 	}
 
@@ -167,7 +167,7 @@ class Environment_Test extends BaseTestCase {
 	public function test_likes_settings_are_unused_when_neither_likes_module_runs(): void {
 		$this->given_site( array( 'sharedaddy' ), true );
 
-		$this->assertTrue( Environment::sharing_enabled() );
+		$this->assertTrue( Environment::sharing_module_running() );
 		$this->assertFalse( Environment::likes_settings_in_use() );
 	}
 
@@ -176,10 +176,10 @@ class Environment_Test extends BaseTestCase {
 	 * nothing produces sharing buttons, which is what takes the section to its
 	 * off variant and hides the shared placement controls.
 	 */
-	public function test_sharing_is_disabled_when_the_module_is_off(): void {
+	public function test_sharing_does_not_run_when_the_module_is_off(): void {
 		$this->given_site( array( 'likes' ), true );
 
-		$this->assertFalse( Environment::sharing_enabled() );
+		$this->assertFalse( Environment::sharing_module_running() );
 	}
 
 	/**
@@ -187,24 +187,24 @@ class Environment_Test extends BaseTestCase {
 	 * on a site that is neither connected nor offline, so the active module
 	 * renders no buttons there and the section must not offer to configure them.
 	 */
-	public function test_sharing_is_disabled_on_a_disconnected_site_that_still_lists_the_module(): void {
+	public function test_sharing_does_not_run_on_a_disconnected_site_that_still_lists_the_module(): void {
 		$this->given_site( array( 'sharedaddy' ), false );
 
-		$this->assertFalse( Environment::sharing_enabled() );
+		$this->assertFalse( Environment::sharing_module_running() );
 	}
 
 	/**
 	 * Offline mode is the route by which a disconnected site still loads the module.
 	 */
-	public function test_sharing_stays_enabled_offline(): void {
+	public function test_sharing_keeps_running_offline(): void {
 		$this->given_site( array( 'sharedaddy' ), false );
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 
-		$sharing_enabled = Environment::sharing_enabled();
+		$sharing_running = Environment::sharing_module_running();
 
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
 
-		$this->assertTrue( $sharing_enabled );
+		$this->assertTrue( $sharing_running );
 	}
 
 	/**
@@ -215,9 +215,9 @@ class Environment_Test extends BaseTestCase {
 		$this->given_site( array(), false );
 		Constants::set_constant( 'IS_WPCOM', true );
 
-		$this->assertTrue( Environment::sharing_enabled() );
+		$this->assertTrue( Environment::sharing_module_running() );
 		$this->assertTrue( Environment::likes_supported() );
-		$this->assertTrue( Environment::likes_enabled() );
+		$this->assertTrue( Environment::likes_module_running() );
 		$this->assertTrue( Environment::can_activate_modules() );
 	}
 
