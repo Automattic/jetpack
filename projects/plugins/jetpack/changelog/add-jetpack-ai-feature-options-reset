@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Jetpack AI: restore the AI feature settings on sites where saving the General settings page had emptied them.
