@@ -118,6 +118,70 @@ class JITM {
 	}
 
 	/**
+	 * Removes every other plugin's admin notices from a Jetpack screen, keeping ours.
+	 *
+	 * A full-screen dashboard needs `remove_all_actions( 'admin_notices' )` so a
+	 * third-party upsell cannot break its layout, but that also drops JITMs, which
+	 * are a first-party channel rather than someone else's notice. Call this instead.
+	 *
+	 * A screen that has opted out through `jetpack_display_jitms_on_screen` has
+	 * nothing registered to keep, so it stays silent.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function suppress_foreign_admin_notices() {
+		foreach ( array( 'admin_notices', 'all_admin_notices' ) as $hook ) {
+			$ours = self::collect_own_callbacks( $hook );
+
+			remove_all_actions( $hook );
+
+			foreach ( $ours as $priority => $callbacks ) {
+				foreach ( $callbacks as $callback ) {
+					add_action( $hook, $callback['function'], $priority, $callback['accepted_args'] );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Returns the callbacks on $hook that belong to a JITM instance, keyed by priority.
+	 *
+	 * Identity is by class, not by object: `prepare_jitms()` hooks the cached instance
+	 * from `get_configured_instance()`, and `get_instance()` builds a fresh one, so
+	 * comparing objects would miss.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $hook Hook name.
+	 * @return array<int, array<int, array{function: callable, accepted_args: int}>>
+	 */
+	private static function collect_own_callbacks( $hook ) {
+		global $wp_filter;
+
+		$kept = array();
+
+		if ( ! isset( $wp_filter[ $hook ] ) || ! is_object( $wp_filter[ $hook ] ) ) {
+			return $kept;
+		}
+
+		foreach ( $wp_filter[ $hook ]->callbacks as $priority => $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				if (
+					is_array( $callback['function'] )
+					&& isset( $callback['function'][0] )
+					&& $callback['function'][0] instanceof self
+				) {
+					$kept[ $priority ][] = $callback;
+				}
+			}
+		}
+
+		return $kept;
+	}
+
+	/**
 	 * Sets up JITM action callbacks if needed.
 	 */
 	public function register() {

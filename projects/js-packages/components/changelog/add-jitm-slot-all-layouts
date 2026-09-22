@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a JitmSlot component so every dashboard renders the Jetpack in-dashboard message slot the same way.
