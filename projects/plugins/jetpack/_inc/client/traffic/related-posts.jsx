@@ -9,9 +9,12 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import SupportLink, { getSupportUrl, openWpcomSupportDoc } from 'components/support-link';
 import analytics from 'lib/analytics';
 
-class RelatedPostsComponent extends Component {
+const BLOCK_THEME_WPCOM_SUPPORT_LINK = 'https://wordpress.com/support/related-posts/';
+
+export class RelatedPostsComponent extends Component {
 	/**
 	 * Get options for initial state.
 	 *
@@ -48,6 +51,12 @@ class RelatedPostsComponent extends Component {
 		analytics.tracks.recordJetpackClick( 'configure-related-posts' );
 	};
 
+	// Block themes link to the support doc instead of the Customizer.
+	handleBlockThemeSupportClick = event => {
+		this.trackConfigureClick();
+		openWpcomSupportDoc( event, BLOCK_THEME_WPCOM_SUPPORT_LINK );
+	};
+
 	renderConfigureLink() {
 		const { isBlockThemeActive, lastPostUrl, siteAdminUrl } = this.props;
 
@@ -56,10 +65,13 @@ class RelatedPostsComponent extends Component {
 				<Card
 					compact
 					className="jp-settings-card__configure-link"
-					onClick={ this.trackConfigureClick }
-					href={ getRedirectUrl( 'jetpack-support-related-posts', {
-						anchor: 'adding-related-posts-block-theme',
-					} ) }
+					onClick={ this.handleBlockThemeSupportClick }
+					href={ getSupportUrl(
+						getRedirectUrl( 'jetpack-support-related-posts', {
+							anchor: 'adding-related-posts-block-theme',
+						} ),
+						BLOCK_THEME_WPCOM_SUPPORT_LINK
+					) }
 					target="_blank"
 					rel="noopener noreferrer"
 				>
@@ -116,10 +128,9 @@ class RelatedPostsComponent extends Component {
 							),
 							{
 								a: (
-									<a
+									<SupportLink
 										href={ getRedirectUrl( 'jetpack-support-related-posts' ) }
-										target="_blank"
-										rel="noopener noreferrer"
+										wpcomLink="https://wordpress.com/support/related-posts/"
 									/>
 								),
 							}
