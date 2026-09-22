@@ -1650,6 +1650,7 @@ export default function ApiManagedEdit( {
 						qrShowCaption={ qrShowCaption }
 						qrCaption={ qrCaption }
 						attributes={ attributes }
+						resource={ resource }
 						isSelected={ isSelected }
 					/>
 				) }

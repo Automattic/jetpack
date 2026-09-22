@@ -13,6 +13,13 @@ import bootTheFrame from './boot-the-frame';
 const SDK_HOST_URL = 'https://example.test/wp-admin/admin-post.php?action=jetpack_paypal_sdk_host';
 const SCRIPT_SRC = 'https://www.paypal.com/sdk/js?client-id=abc';
 
+// A read of PLB-1, with the SDK URL the REST endpoint builds for it.
+const READ = {
+	id: 'PLB-1',
+	sdk_url:
+		'https://www.sandbox.paypal.com/sdk/js?client-id=stored&components=hosted-buttons&enable-funding=venmo&currency=EUR',
+};
+
 const ready = {
 	attributes: { scriptSrc: SCRIPT_SRC, resourceId: 'PLB-1' },
 	isSelected: false,
@@ -36,7 +43,6 @@ describe( 'StackedButtonsPreview', () => {
 	} );
 
 	it( 'draws the placeholder until the payment has been read back', () => {
-		// scriptSrc arrives on the first save, so there is nothing to draw before it.
 		render( <StackedButtonsPreview { ...ready } attributes={ { resourceId: 'PLB-1' } } /> );
 
 		expect( screen.getByRole( 'img' ) ).toBeInTheDocument();
@@ -112,6 +118,36 @@ describe( 'StackedButtonsPreview', () => {
 		expect( overlay() ).toBeInTheDocument();
 	} );
 
+	it( 'draws the placeholder before the block has a payment', () => {
+		render( <StackedButtonsPreview { ...ready } attributes={ {} } /> );
+
+		expect( screen.getByRole( 'img' ) ).toBeInTheDocument();
+		expect( screen.queryByTitle( 'PayPal buttons preview' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'draws the placeholder when only scriptSrc is set', () => {
+		render( <StackedButtonsPreview { ...ready } attributes={ { scriptSrc: SCRIPT_SRC } } /> );
+
+		expect( screen.getByRole( 'img' ) ).toBeInTheDocument();
+		expect( screen.queryByTitle( 'PayPal buttons preview' ) ).not.toBeInTheDocument();
+	} );
+
+	// The published page draws a BUTTON-mode payment without a scriptSrc as a single button.
+	it.each( [
+		[ 'a read of a different payment', { resourceId: 'PLB-2' } ],
+		[ 'a BUTTON-mode payment', { resourceId: 'PLB-1', integrationMode: 'BUTTON' } ],
+		// The published page loads a scriptSrc only from PayPal.
+		[
+			'a scriptSrc from another host',
+			{ resourceId: 'PLB-1', scriptSrc: 'https://evil.test/sdk/js?client-id=abc' },
+		],
+	] )( 'draws the placeholder for %s', ( _label, attributes ) => {
+		render( <StackedButtonsPreview { ...ready } attributes={ attributes } resource={ READ } /> );
+
+		expect( screen.getByRole( 'img' ) ).toBeInTheDocument();
+		expect( screen.queryByTitle( 'PayPal buttons preview' ) ).not.toBeInTheDocument();
+	} );
+
 	describe( 'booting the SDK into the frame', () => {
 		it( 'injects the namespaced SDK script and a container for it', () => {
 			render( <StackedButtonsPreview { ...ready } partnerAttributionId="BN123" /> );
@@ -146,6 +182,30 @@ describe( 'StackedButtonsPreview', () => {
 			expect( doc.querySelector( 'script' ).src ).toBe(
 				'https://www.paypal.com/wp-content/uploads/x.txt'
 			);
+		} );
+
+		// A LINK-mode payment gets a scriptSrc when a save switches it to BUTTON.
+		it( 'boots a LINK-mode payment from the read URL', () => {
+			render(
+				<StackedButtonsPreview
+					{ ...ready }
+					attributes={ { resourceId: 'PLB-1', integrationMode: 'LINK' } }
+					resource={ READ }
+				/>
+			);
+
+			const { doc } = bootTheFrame();
+
+			expect( doc.querySelector( 'script' ).src ).toBe( READ.sdk_url );
+		} );
+
+		// The published page loads scriptSrc, so the preview does too.
+		it( 'boots from scriptSrc ahead of the read URL', () => {
+			render( <StackedButtonsPreview { ...ready } resource={ READ } /> );
+
+			const { doc } = bootTheFrame();
+
+			expect( doc.querySelector( 'script' ).src ).toBe( SCRIPT_SRC );
 		} );
 
 		// The document's scrollHeight is floored at the viewport, so measuring it would

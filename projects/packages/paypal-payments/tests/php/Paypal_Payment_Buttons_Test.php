@@ -34,15 +34,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		remove_all_filters( self::FLAG_FILTER );
 		wp_set_current_user( 0 );
+		PayPal_OAuth::delete_credentials();
 		Feature_Flags::reset();
-
-		// One request's worth of state in production, but the process outlives a test,
-		// so the next test reusing an id would get the single-button fallback.
-		$rendered = new \ReflectionProperty( PayPal_Payment_Buttons::class, 'rendered_ids' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$rendered->setAccessible( true );
-		}
-		$rendered->setValue( null, array() );
 	}
 
 	/**
@@ -167,8 +160,23 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$this->assertStringContainsString( 'paypal-container-ABC123XYZ', $html );
 		$this->assertStringNotContainsString( '/ncp/payment/', $html );
-		// PayPal draws the whole card, and the paste-code path emits its container alone.
-		$this->assertStringNotContainsString( 'wp-block-jetpack-paypal-payment-buttons', $html );
+	}
+
+	/**
+	 * Content can render before the visible pass, so a legacy stacked button draws its
+	 * container and render call on every render.
+	 */
+	public function test_a_legacy_stacked_button_renders_on_every_pass() {
+		$attributes = array(
+			'buttonType'     => 'stacked',
+			'scriptSrc'      => 'https://www.paypal.com/sdk/js?client-id=test',
+			'hostedButtonId' => 'LEGACYTWICE',
+		);
+
+		$html = PayPal_Payment_Buttons::render_block( $attributes, '' ) . PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertSame( 2, substr_count( $html, 'id="paypal-container-LEGACYTWICE"' ) );
+		$this->assertSame( 2, $this->count_render_calls( 'LEGACYTWICE' ) );
 	}
 
 	/**
@@ -336,10 +344,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertStringNotContainsString( 'evil.example.com', $html );
 	}
 
-	public function test_render_block_stacked_renders_one_payment_once_per_document() {
-		// PayPal injects its markup by button id, so a second container with the same
-		// id would hijack the first block's. The duplicate draws the single button
-		// instead — same payment, and it still sells.
+	public function test_render_block_stacked_draws_the_container_on_every_render() {
+		// Content can render before the visible pass, so every pass keeps the container.
 		$attributes = $this->stacked_attributes();
 		$this->set_up_block_render_context( $attributes );
 
@@ -347,8 +353,45 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$second = PayPal_Payment_Buttons::render_block( $attributes, '' );
 
 		$this->assertStringContainsString( 'id="paypal-container-PLB-STACKED1"', $first );
-		$this->assertStringNotContainsString( 'paypal-container-', $second );
-		$this->assertStringContainsString( 'jetpack-paypal-button__button', $second );
+		$this->assertStringContainsString( 'id="paypal-container-PLB-STACKED1"', $second );
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__button', $second );
+		$this->assertSame( 2, $this->count_render_calls( 'PLB-STACKED1' ) );
+	}
+
+	public function test_legacy_and_api_managed_stacked_blocks_share_one_sdk_tag() {
+		$attributes = $this->stacked_attributes();
+		$this->set_up_block_render_context( $attributes );
+
+		PayPal_Payment_Buttons::render_block( $attributes, '' );
+		PayPal_Payment_Buttons::render_block(
+			array(
+				'buttonType'     => 'stacked',
+				'scriptSrc'      => 'https://www.paypal.com/sdk/js?client-id=abc',
+				'hostedButtonId' => 'LEGACY1',
+			),
+			''
+		);
+
+		ob_start();
+		wp_scripts()->do_items( array( PayPal_Payment_Buttons::SDK_SCRIPT_HANDLE ) );
+		$html = (string) ob_get_clean();
+
+		$this->assertSame( 1, substr_count( $html, 'src="https://www.paypal.com/sdk/js' ) );
+		$this->assertSame( 1, substr_count( $html, 'data-namespace=' ) );
+		$this->assertSame( 1, substr_count( $html, 'data-paypal-partner-attribution-id=' ) );
+		$this->assertSame( 1, $this->count_render_calls( 'PLB-STACKED1' ) );
+		$this->assertSame( 1, $this->count_render_calls( 'LEGACY1' ) );
+	}
+
+	/**
+	 * Count the queued HostedButtons render calls for a button id.
+	 *
+	 * @param string $hosted_button_id The hosted button id.
+	 * @return int
+	 */
+	private function count_render_calls( $hosted_button_id ) {
+		$after = (array) wp_scripts()->get_data( PayPal_Payment_Buttons::SDK_SCRIPT_HANDLE, 'after' );
+		return substr_count( implode( '', $after ), '.render("#paypal-container-' . $hosted_button_id . '")' );
 	}
 
 	public function test_tag_paypal_sdk_script_adds_the_namespace_and_the_partner_attribution_id() {
@@ -428,6 +471,39 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertStringContainsString(
 			'action=' . PayPal_Payment_Buttons::SDK_HOST_ACTION,
 			PayPal_Payment_Buttons::get_sdk_host_url()
+		);
+	}
+
+	/**
+	 * Both states of the API-managed buttons flag.
+	 *
+	 * @return array<string, array<int, bool>>
+	 */
+	public static function provide_flag_states() {
+		return array(
+			'flag on'  => array( true ),
+			'flag off' => array( false ),
+		);
+	}
+
+	/**
+	 * Any editor user loads the editor script data, so it has only the SDK host URL. The
+	 * client id comes with an admin's read of a payment.
+	 *
+	 * @dataProvider provide_flag_states
+	 *
+	 * @param bool $enabled Whether the flag is on.
+	 */
+	#[DataProvider( 'provide_flag_states' )]
+	public function test_editor_script_data_has_only_the_sdk_host_url( $enabled ) {
+		add_filter( self::FLAG_FILTER, $enabled ? '__return_true' : '__return_false' );
+		PayPal_OAuth::store_credentials( 'stored-client-id', 'stored-client-secret' );
+
+		PayPal_Payment_Buttons::load_editor_scripts();
+
+		$this->assertSame(
+			array( 'window.jetpackPayPalPayments = {"sdkHostUrl":' . wp_json_encode( PayPal_Payment_Buttons::get_sdk_host_url(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . '};' ),
+			array_values( array_filter( (array) wp_scripts()->get_data( 'jp-paypal-payments-ncps-blocks', 'before' ) ) )
 		);
 	}
 
@@ -692,7 +768,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		// Get the inline script that was added
 		global $wp_scripts;
-		$inline_script = $wp_scripts->get_data( PayPal_Payment_Buttons::SDK_SCRIPT_HANDLE, 'after' );
+		$inline_script = $wp_scripts->get_data( 'paypal-payment-buttons-block-head', 'after' );
 
 		$this->assertNotEmpty( $inline_script, 'Inline script should be registered' );
 

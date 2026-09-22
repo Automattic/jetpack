@@ -33,12 +33,12 @@ const paymentsRead = new Map();
 // only a block that rendered is told to reload; the rest are sent to the visual editor.
 const blocksMounted = new Set();
 
-// What each payment held when a block last read it, as block attributes, until a save
-// writes it. Several blocks can share one payment.
+// Each payment's last read, as block attributes, by payment id since blocks can share one.
+// A save that writes the payment clears it.
 const paymentsHeld = new Map();
 
-// How many saves have changed each payment. The stacked preview keys on it, since
-// PayPal's SDK draws the card once and has no way to redraw it.
+// How many saves changed each payment. PayPal's SDK draws the stacked card once, so the
+// preview remounts when this goes up.
 const cardRevisions = new Map();
 
 // PayPal grants the mode stacked needs per account, and only a write tells us — a GET
@@ -72,7 +72,7 @@ export function forgetSyncedRequests() {
  * How many saves have changed a payment.
  *
  * @param {string} resourceId - The payment.
- * @return {number} The count, 0 before any.
+ * @return {number} The count, starting at 0.
  */
 export function getCardRevision( resourceId ) {
 	return cardRevisions.get( resourceId ) || 0;
@@ -92,7 +92,7 @@ export function recordBlockMounted( clientId ) {
  *
  * @param {string} clientId   - The block's client id.
  * @param {string} resourceId - The payment the block read.
- * @param {object} [held]     - What PayPal holds for it, as block attributes.
+ * @param {object} [held]     - The payment as block attributes.
  */
 export function recordPaymentRead( clientId, resourceId, held ) {
 	paymentsRead.set( clientId, resourceId );
@@ -102,17 +102,16 @@ export function recordPaymentRead( clientId, resourceId, held ) {
 }
 
 /**
- * Count a change for each payment a PUT wrote, unless every PUT wrote back what was read.
- * With no read, a PUT is compared with block.json's defaults, which a named product
- * never matches.
+ * Bump the card revision of each payment a PUT changed from its last read. Without a
+ * read, a PUT is compared with block.json's defaults, which a named product differs from.
  *
  * @param {Map} written - Block attributes written by each payment's PUTs, by payment id.
  */
 function recordPaymentsWritten( written ) {
 	written.forEach( ( writes, resourceId ) => {
 		const held = paymentsHeld.get( resourceId );
-		// Sibling PUTs can disagree, and which one PayPal applied last is unknown, so
-		// only a fresh read is worth comparing with.
+		// Blocks sharing a payment can PUT different values in any order, so the next save
+		// needs a fresh read to compare with.
 		paymentsHeld.delete( resourceId );
 
 		if (
@@ -406,7 +405,7 @@ export async function syncBlocksBeforeSave( blocks, deps ) {
 		blocks.map( block => syncBlock( block, deps, stackedResources, written ) )
 	);
 
-	// After every PUT has settled, so blocks sharing a payment remount its preview once.
+	// Once every PUT has settled, so blocks sharing a payment bump its card revision once.
 	recordPaymentsWritten( written );
 
 	return results.some( Boolean );

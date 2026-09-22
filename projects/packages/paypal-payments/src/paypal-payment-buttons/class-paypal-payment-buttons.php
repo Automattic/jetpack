@@ -97,13 +97,6 @@ class PayPal_Payment_Buttons {
 	public const SDK_SCRIPT_HANDLE = 'paypal-payment-buttons-block-head';
 
 	/**
-	 * Hosted button ids already rendered into this document, for the current request.
-	 *
-	 * @var array<string, bool>
-	 */
-	private static $rendered_ids = array();
-
-	/**
 	 * Register the feature flags this package owns.
 	 *
 	 * Call it from every bootstrap before `init`, so the flag exists on every
@@ -1188,13 +1181,6 @@ class PayPal_Payment_Buttons {
 			return;
 		}
 
-		// PayPal and this code both id the injected markup by button id, so a second
-		// render of the same id takes over the first block's elements. Draw the first only.
-		if ( isset( self::$rendered_ids[ $hosted_button_id ] ) ) {
-			return;
-		}
-		self::$rendered_ids[ $hosted_button_id ] = true;
-
 		self::register_hooks();
 
 		// No version argument — a `?ver=` on the PayPal SDK URL causes a 400.
@@ -1219,7 +1205,7 @@ class PayPal_Payment_Buttons {
 	/**
 	 * Tag the PayPal SDK script with the namespace and the partner attribution id.
 	 *
-	 * Registered once from register_hooks(), so a page with two stacked blocks adds it once.
+	 * The strpos() checks keep each attribute single when a legacy block tags the same handle too.
 	 *
 	 * @param string $tag    The script tag.
 	 * @param string $handle The script handle.
@@ -1271,7 +1257,48 @@ class PayPal_Payment_Buttons {
 		}
 
 		if ( 'stacked' === $button_type ) {
-			return self::render_stacked_buttons( $script_src, $hosted_button_id );
+			// Sanitize the script URL to ensure it's from an allowed PayPal domain
+			$sanitized_url = self::sanitize_paypal_script_url( $script_src );
+			if ( false === $sanitized_url ) {
+				return;
+			}
+
+			// We can't include the version number here. If we do, it is appended to the URL and causes a 400 response.
+			wp_enqueue_script( 'paypal-payment-buttons-block-head', $sanitized_url, array(), null, false ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+			add_filter(
+				'script_loader_tag',
+				function ( $tag, $handle, $src ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+					if ( 'paypal-payment-buttons-block-head' === $handle ) {
+						// Add namespace to avoid conflicts with other PayPal SDK versions
+						if ( false === strpos( $tag, 'data-namespace' ) ) {
+							$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-namespace="paypal_payment_buttons" src=$2', $tag );
+						}
+						// Add partner attribution ID
+						if ( false === strpos( $tag, 'data-paypal-partner-attribution-id' ) ) {
+							$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-paypal-partner-attribution-id="' . self::PAYPAL_PARTNER_ATTRIBUTION_ID . '" src=$2', $tag );
+						}
+					}
+					return $tag;
+				},
+				10,
+				3
+			);
+
+			// Generate the button HTML and inline script
+			$container_id = 'paypal-container-' . $hosted_button_id;
+			$button_html  = '<div id="' . esc_attr( $container_id ) . '"></div>';
+
+			$inline_script = sprintf(
+				'(window.paypal_payment_buttons || window.paypal).HostedButtons({
+					hostedButtonId: %s,
+				}).render(%s);',
+				wp_json_encode( $hosted_button_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ),
+				wp_json_encode( '#' . $container_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
+			);
+
+			wp_add_inline_script( 'paypal-payment-buttons-block-head', $inline_script );
+
+			return $button_html;
 		}
 
 		// Single button type - generate the complete form HTML

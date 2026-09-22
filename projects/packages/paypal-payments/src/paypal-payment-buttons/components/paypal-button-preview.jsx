@@ -30,7 +30,7 @@ import { linkPrice } from '../utils/link-price';
 import { withPartnerAttribution } from '../utils/partner-attribution';
 import { getCardRevision } from '../utils/sync-on-save';
 import QrCodePreview from './qr-code-preview';
-import StackedButtonsPreview from './stacked-buttons-preview';
+import StackedButtonsPreview, { getStackedSdkSrc } from './stacked-buttons-preview';
 import { hasVariantPricing } from './variant-builder';
 
 /**
@@ -256,7 +256,7 @@ function ButtonPreview( {
  * @return {Element} The preview for that format.
  */
 export default function PayPalButtonPreview( { format, ...props } ) {
-	// A save that changes a payment bumps its card revision, so render again when the save ends.
+	// Render again when a save ends, so the stacked key below reads the new card revision.
 	useSelect( select => select( editorStore ).isSavingPost(), [] );
 
 	// An unknown format falls back to the button, the same way
@@ -267,11 +267,10 @@ export default function PayPalButtonPreview( { format, ...props } ) {
 		case 'QR':
 			return <QrPreview { ...props } />;
 		case 'STACKED':
-			// The SDK boots once per mount, so the key remounts this on a new URL or payment,
-			// or when a save changed the payment.
+			// The SDK boots once per mount, so the key remounts this on a new URL, payment or card revision.
 			return (
 				<StackedButtonsPreview
-					key={ `${ props.attributes?.scriptSrc }|${ props.attributes?.resourceId }|${ getCardRevision( props.attributes?.resourceId ) }` }
+					key={ `${ getStackedSdkSrc( props.attributes, props.resource ) }|${ props.attributes?.resourceId }|${ getCardRevision( props.attributes?.resourceId ) }` }
 					{ ...props }
 				/>
 			);

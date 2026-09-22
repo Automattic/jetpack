@@ -7,6 +7,11 @@
 			"sanitized": "https://www.paypal.com/sdk/js?client-id=ATd1_h-abcDEF&components=hosted-buttons&disable-funding=venmo&currency=USD"
 		},
 		{
+			"name": "a sandbox SDK URL from PayPal's stacked button snippet",
+			"url": "https://www.sandbox.paypal.com/sdk/js?client-id=ATd1_h-abcDEF&components=hosted-buttons&enable-funding=venmo&currency=USD",
+			"sanitized": "https://www.sandbox.paypal.com/sdk/js?client-id=ATd1_h-abcDEF&components=hosted-buttons&enable-funding=venmo&currency=USD"
+		},
+		{
 			"name": "a payment link",
 			"url": "https://www.paypal.com/ncp/payment/PLB-4Y3SRZBNLRSQ",
 			"sanitized": "https://www.paypal.com/ncp/payment/PLB-4Y3SRZBNLRSQ"

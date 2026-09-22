@@ -27,7 +27,7 @@ jest.mock( 'qrcode', () => ( {
 	toCanvas: jest.fn( () => Promise.resolve() ),
 } ) );
 
-// Just the saving flag, which core/editor raises before the sync runs and drops after.
+// Only the saving flag, which core/editor sets while the sync runs.
 jest.mock( '@wordpress/editor', () => {
 	const { createReduxStore, register } = jest.requireActual( '@wordpress/data' );
 	const store = createReduxStore( 'core/editor', {
@@ -39,6 +39,8 @@ jest.mock( '@wordpress/editor', () => {
 	register( store );
 	return { store };
 } );
+
+const SDK_HOST_URL = 'https://example.test/wp-admin/admin-post.php?action=jetpack_paypal_sdk_host';
 
 const defaultProps = {
 	productName: 'Premium Widget',
@@ -479,6 +481,11 @@ describe( 'PayPalButtonPreview', () => {
 	describe( 'Display Format', () => {
 		beforeEach( () => {
 			QRCode.toCanvas.mockClear();
+			window.jetpackPayPalPayments = { sdkHostUrl: SDK_HOST_URL };
+		} );
+
+		afterEach( () => {
+			delete window.jetpackPayPalPayments;
 		} );
 
 		it( 'draws the button card for BUTTON', () => {
@@ -508,8 +515,13 @@ describe( 'PayPalButtonPreview', () => {
 		} );
 
 		const usd = 'https://www.paypal.com/sdk/js?client-id=abc&currency=USD';
-		const stacked = attributes => (
-			<PayPalButtonPreview { ...defaultProps } format="STACKED" attributes={ attributes } />
+		const stacked = ( attributes, resource ) => (
+			<PayPalButtonPreview
+				{ ...defaultProps }
+				format="STACKED"
+				attributes={ attributes }
+				resource={ resource }
+			/>
 		);
 
 		it.each( [
@@ -531,8 +543,8 @@ describe( 'PayPalButtonPreview', () => {
 			expect( script.src ).toBe( 'scriptSrc' === key ? changed : usd );
 		} );
 
-		// Keyed on the whole attributes object, every keystroke in the sidebar would
-		// reboot PayPal's SDK.
+		// The frame is keyed on the SDK URL, payment id, and card revision, so typing in the
+		// sidebar keeps PayPal's SDK running.
 		it( 'leaves the running SDK alone when another attribute changes', () => {
 			const before = { scriptSrc: usd, resourceId: 'PLB-1', productName: 'Premium Widget' };
 
@@ -545,12 +557,36 @@ describe( 'PayPalButtonPreview', () => {
 			expect( bootTheFrame().doc.querySelector( 'script' ) ).toBeNull();
 		} );
 
+		it( 'boots the SDK from the read URL when the read finishes after the first render', () => {
+			const attributes = { resourceId: 'PLB-1' };
+
+			const { rerender } = render( stacked( attributes ) );
+			expect( screen.queryByTitle( 'PayPal buttons preview' ) ).not.toBeInTheDocument();
+
+			rerender( stacked( attributes, { id: 'PLB-1', sdk_url: usd } ) );
+			expect( screen.getByTitle( 'PayPal buttons preview' ) ).toHaveAttribute(
+				'src',
+				SDK_HOST_URL
+			);
+			expect( bootTheFrame().doc.querySelector( 'script' ).src ).toBe( usd );
+		} );
+
+		it( 'leaves the running SDK alone when the read finishes for a block with a scriptSrc', () => {
+			const attributes = { scriptSrc: usd, resourceId: 'PLB-1' };
+
+			const { rerender } = render( stacked( attributes ) );
+			expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
+
+			rerender( stacked( attributes, { id: 'PLB-1', sdk_url: `${ usd }&enable-funding=venmo` } ) );
+			expect( bootTheFrame().doc.querySelector( 'script' ) ).toBeNull();
+		} );
+
 		describe( 'after a save', () => {
 			const payment = { ...defaultProps, collectShippingAddress: false };
 			const block = { ...payment, format: 'STACKED', isApiManaged: true, resourceId: 'PLB-1' };
 
 			/**
-			 * Save the block the way core/editor does, with PayPal answering the PUT.
+			 * Save the block the way core/editor does, with a PUT that succeeds.
 			 *
 			 * @param {object} attributes - The block's attributes at the save.
 			 */
@@ -570,8 +606,8 @@ describe( 'PayPalButtonPreview', () => {
 				recordPaymentRead( 'a', 'PLB-1', payment );
 			} );
 
-			// A new SDK asks PayPal for the card again.
-			it( 'boots the SDK again once a save that changed the payment ends', async () => {
+			// A new SDK load fetches the updated card from PayPal.
+			it( 'boots the SDK again after a save that changes the payment', async () => {
 				render( stacked( { scriptSrc: usd, resourceId: 'PLB-1' } ) );
 				expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
 
@@ -580,7 +616,7 @@ describe( 'PayPalButtonPreview', () => {
 				expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
 			} );
 
-			it( 'leaves the running SDK alone when the save changed nothing', async () => {
+			it( 'leaves the running SDK alone after a save that writes the payment unchanged', async () => {
 				render( stacked( { scriptSrc: usd, resourceId: 'PLB-1' } ) );
 				expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
 
@@ -589,7 +625,7 @@ describe( 'PayPalButtonPreview', () => {
 				expect( bootTheFrame().doc.querySelector( 'script' ) ).toBeNull();
 			} );
 
-			it( 'leaves the SDK of another payment alone', async () => {
+			it( 'leaves the running SDK alone when a save changes another payment', async () => {
 				render( stacked( { scriptSrc: usd, resourceId: 'PLB-2' } ) );
 				expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
 

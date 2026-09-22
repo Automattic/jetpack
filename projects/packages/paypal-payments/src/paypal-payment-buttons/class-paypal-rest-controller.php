@@ -690,7 +690,35 @@ class PayPal_REST_Controller {
 		$result['attributes'] = PayPal_Attribute_Mapper::api_response_to_attributes( $result );
 		$result['embeds']     = PayPal_Admin_Page::count_published_embeds()[ $resource_id ] ?? 0;
 
+		// The editor's stacked preview loads PayPal's SDK from this until the block has a scriptSrc.
+		$result['sdk_url'] = self::get_sdk_url( $result['attributes']['currencyCode'] ?? 'USD' );
+
 		return new WP_REST_Response( $result, 200 );
+	}
+
+	/**
+	 * Build the PayPal SDK URL for the connected account, with the same parameters as
+	 * PayPal's stacked buttons snippet.
+	 *
+	 * @param string $currency The payment's currency.
+	 * @return string The URL, or '' when PayPal is disconnected.
+	 */
+	private static function get_sdk_url( $currency ) {
+		$credentials = PayPal_OAuth::get_credentials();
+		if ( false === $credentials ) {
+			return '';
+		}
+
+		// add_query_arg() leaves values as they are, and a client id can contain + / =.
+		return add_query_arg(
+			array(
+				'client-id'      => rawurlencode( $credentials['client_id'] ),
+				'components'     => 'hosted-buttons',
+				'enable-funding' => 'venmo',
+				'currency'       => rawurlencode( $currency ),
+			),
+			PayPal_OAuth::get_sdk_base_url()
+		);
 	}
 
 	/**

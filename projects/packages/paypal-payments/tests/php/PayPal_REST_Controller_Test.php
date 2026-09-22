@@ -835,6 +835,103 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * Read PLB-42 as a LINK-mode payment in the given currency, using a cached token.
+	 *
+	 * @param string|null $currency The payment's currency, or null for none on the line item.
+	 * @return array The response data.
+	 */
+	private function read_button_with_sdk_url( $currency = 'EUR' ) {
+		set_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY, PayPal_OAuth::encrypt( 'fake_access_token_12345' ), 3600 );
+		$line_item = array( 'name' => 'Widget' );
+		if ( $currency ) {
+			$line_item['unit_amount'] = array(
+				'currency_code' => $currency,
+				'value'         => '49.00',
+			);
+		}
+		$this->mock_http_routes(
+			array(
+				'/v1/checkout/payment-resources' => $this->http_response(
+					200,
+					array(
+						'id'               => 'PLB-42',
+						'integration_mode' => 'LINK',
+						'line_items'       => array( $line_item ),
+					)
+				),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+
+		return PayPal_REST_Controller::handle_get_button( $request )->get_data();
+	}
+
+	/**
+	 * The SDK host for each stored environment.
+	 *
+	 * @return array<string, array<int, string|null>>
+	 */
+	public static function provide_sdk_hosts() {
+		return array(
+			'no environment stored' => array( null, 'https://www.paypal.com/sdk/js' ),
+			'production'            => array( 'production', 'https://www.paypal.com/sdk/js' ),
+			'sandbox'               => array( 'sandbox', 'https://www.sandbox.paypal.com/sdk/js' ),
+		);
+	}
+
+	/**
+	 * A read includes the SDK URL for the payment, in the format of PayPal's stacked button snippet.
+	 *
+	 * @dataProvider provide_sdk_hosts
+	 *
+	 * @param string|null $environment The stored environment, or null for none.
+	 * @param string      $sdk_url     The SDK URL for it.
+	 */
+	#[DataProvider( 'provide_sdk_hosts' )]
+	public function test_get_button_includes_the_sdk_url_for_the_environment( $environment, $sdk_url ) {
+		$this->set_up_connected_admin_state();
+		if ( $environment ) {
+			PayPal_OAuth::set_environment( $environment );
+		} else {
+			delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );
+		}
+
+		$data = $this->read_button_with_sdk_url();
+
+		$this->assertSame(
+			$sdk_url . '?client-id=test_client_id&components=hosted-buttons&enable-funding=venmo&currency=EUR',
+			$data['sdk_url']
+		);
+		$this->assertStringNotContainsString( 'test_client_secret', wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) );
+	}
+
+	public function test_get_button_sdk_url_falls_back_to_usd() {
+		$this->set_up_connected_admin_state();
+
+		$this->assertStringEndsWith( '&currency=USD', $this->read_button_with_sdk_url( null )['sdk_url'] );
+	}
+
+	public function test_get_button_sdk_url_encodes_the_client_id() {
+		$this->set_up_connected_admin_state();
+		// store_credentials() keeps + / =, and a bare + in a query reads as a space.
+		PayPal_OAuth::store_credentials( 'id+with/slash=', 'test_client_secret' );
+
+		$this->assertStringContainsString(
+			'?client-id=id%2Bwith%2Fslash%3D&',
+			$this->read_button_with_sdk_url()['sdk_url']
+		);
+	}
+
+	public function test_get_button_sdk_url_is_empty_when_credentials_are_deleted() {
+		$this->set_up_connected_admin_state();
+		PayPal_OAuth::delete_credentials();
+
+		$this->assertSame( '', $this->read_button_with_sdk_url()['sdk_url'] );
+	}
+
+	/**
 	 * Test that an API failure while listing is surfaced as a REST error.
 	 */
 	public function test_list_buttons_converts_api_error() {

@@ -25,30 +25,55 @@ const PENDING_LABEL = __( 'The buttons appear once the post is saved.', 'jetpack
 const PENDING_HEIGHT = 306;
 
 /**
+ * The SDK URL the stacked preview boots from.
+ *
+ * The block's scriptSrc comes first, since the published page loads it. A payment gets a
+ * scriptSrc in BUTTON mode, which a payment switched to stacked turns on at its next save,
+ * so until then the preview uses the sdk_url from the block's read.
+ * A BUTTON-mode payment uses scriptSrc alone: an empty one means the account lacks
+ * stacked, and the published page shows a single button.
+ *
+ * @param {object} attributes - Block attributes.
+ * @param {object} resource   - The payment from the block's last read, if any.
+ * @return {string} The URL, or ''.
+ */
+export function getStackedSdkSrc( attributes = {}, resource ) {
+	const { scriptSrc, integrationMode, resourceId } = attributes;
+	const readSdkUrl =
+		'BUTTON' !== integrationMode && resourceId && resource?.id === resourceId
+			? resource.sdk_url
+			: '';
+
+	// scriptSrc comes straight from post content, and the frame is same-origin with
+	// wp-admin, so only a PayPal URL is allowed through as a script src.
+	return sanitizePayPalUrl( scriptSrc || readSdkUrl );
+}
+
+/**
  * The stacked buttons, drawn by PayPal's own SDK.
  *
  * @param {object}  props                      - Component props.
- * @param {object}  props.attributes           - Block attributes. scriptSrc is empty until the first save.
+ * @param {object}  props.attributes           - Block attributes.
+ * @param {object}  props.resource             - The payment from the block's last read, if any.
  * @param {string}  props.partnerAttributionId - PayPal partner attribution (BN) code.
  * @param {boolean} props.isSelected           - Whether the block is selected.
  * @return {Element} The SDK host frame, or a pending state until there is something to draw.
  */
 export default function StackedButtonsPreview( {
 	attributes = {},
+	resource,
 	partnerAttributionId,
 	isSelected,
 } ) {
-	const { scriptSrc, resourceId: hostedButtonId } = attributes;
+	const { resourceId: hostedButtonId } = attributes;
 	const frameRef = useRef( null );
 	const bootedRef = useRef( false );
 	const [ height, setHeight ] = useState( PENDING_HEIGHT );
 	const [ interactive, setInteractive ] = useState( false );
 
-	// scriptSrc comes straight from post content, and the frame below is same-origin
-	// with wp-admin, so only a PayPal URL is allowed through as a script src.
-	const sdkSrc = sanitizePayPalUrl( scriptSrc );
+	const sdkSrc = getStackedSdkSrc( attributes, resource );
 
-	// scriptSrc comes back with the save's read-back, which only a stacked block asks for.
+	// A new block gets its payment on the first save, and its SDK URL once it reads the payment.
 	const pending = ! sdkSrc || ! hostedButtonId;
 
 	// Restore the overlay on deselect. Doing it on select would remove it at mousedown,
@@ -59,9 +84,7 @@ export default function StackedButtonsPreview( {
 		}
 	}, [ isSelected ] );
 
-	// Once per mount: PayPalButtonPreview keys this component on the SDK URL, the payment
-	// and how many saves changed it, so any of them changing remounts it and there is
-	// nothing here to rerun.
+	// Once per mount: PayPalButtonPreview remounts this on a new SDK URL, payment or card revision.
 	useEffect( () => {
 		const frame = frameRef.current;
 		const hostUrl = window.jetpackPayPalPayments?.sdkHostUrl;

@@ -210,7 +210,9 @@ Get a single payment resource.
 **URL parameter:** `resource_id` — PayPal resource ID (format: `PLB-XXXXXXXXXXXX`)
 
 **Response (200):** Full resource object (same as create response), plus `embeds` - how many
-published posts on this site embed this resource.
+published posts on this site embed this resource, and `sdk_url` - the hosted-buttons SDK URL for the
+connected account in the payment's currency, or `''` when no account is connected. The editor's
+stacked preview boots from it until the block has its own `scriptSrc`.
 
 ---
 

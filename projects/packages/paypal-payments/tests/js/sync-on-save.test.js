@@ -1076,7 +1076,7 @@ describe( 'the card revision', () => {
 	const image = { imageUrl: 'https://example.test/widget.png' };
 
 	/**
-	 * Save these blocks, all pointed at PLB-1 and each having read it.
+	 * Save one block per change, each pointed at PLB-1.
 	 *
 	 * @param {Array}    changes - Attributes each block changes, one entry per block.
 	 * @param {Function} respond - Answers each request.
@@ -1099,7 +1099,7 @@ describe( 'the card revision', () => {
 		recordPaymentRead( 'block-1', 'PLB-1', product );
 	} );
 
-	// Anything a PUT changes at PayPal may show on the card, so every change counts once.
+	// Any value a PUT changes at PayPal may show on the card.
 	it.each( [
 		[ 'the name', { productName: 'Deluxe Widget' } ],
 		[ 'the price', { price: '31.00' } ],
@@ -1113,11 +1113,11 @@ describe( 'the card revision', () => {
 		expect( getCardRevision( 'PLB-1' ) ).toBe( 1 );
 	} );
 
-	// The first save after a load writes every block, and each reload costs an SDK load.
+	// The first save after a load writes every block, and each new revision loads the SDK again.
 	it.each( [
-		[ 'nothing changed', {} ],
-		[ 'only the format changed', { format: 'LINK' } ],
-		[ 'only the image changed', image ],
+		[ 'the values are unchanged', {} ],
+		[ 'only the format changes', { format: 'LINK' } ],
+		[ 'only the image changes', image ],
 	] )( 'stays put when %s', async ( _label, change ) => {
 		const deps = await save( [ change ] );
 
@@ -1125,7 +1125,7 @@ describe( 'the card revision', () => {
 		expect( getCardRevision( 'PLB-1' ) ).toBe( 0 );
 	} );
 
-	// The read carries PayPal's variants, and the block holds them with its editor keys.
+	// The read has PayPal's variants, and the block has them with the editor keys added.
 	it( 'stays put when the options are unchanged', async () => {
 		const variants = variantsWithPrices( priced );
 		recordPaymentRead( 'block-0', 'PLB-1', { ...product, variantsEnabled: true, variants } );
@@ -1145,17 +1145,17 @@ describe( 'the card revision', () => {
 		expect( getCardRevision( 'PLB-1' ) ).toBe( 1 );
 	} );
 
-	// PayPal keeps whichever of two disagreeing PUTs it applied last, so the save after
-	// cannot know what the card shows.
-	it( 'goes up for any PUT after a save wrote the payment', async () => {
+	// Two PUTs in one save can disagree, and PayPal keeps whichever it applied last, so
+	// the next save counts any PUT as a change.
+	it( 'goes up for every PUT after a save has written the payment', async () => {
 		await save( [ { productName: 'Deluxe Widget' }, {} ] );
 		await save( [ { productName: 'Deluxe Widget' }, image ] );
 
 		expect( getCardRevision( 'PLB-1' ) ).toBe( 2 );
 	} );
 
-	// A 404 counts as a read with nothing to compare against.
-	it( 'goes up for a PUT to a payment whose values it never read', async () => {
+	// A read that 404s records the payment without its values.
+	it( 'goes up for a PUT to a payment read without its values', async () => {
 		recordPaymentRead( 'block-0', 'PLB-2' );
 
 		await syncBlocksBeforeSave(
@@ -1168,7 +1168,7 @@ describe( 'the card revision', () => {
 
 	it.each( [
 		[ 'refuses the PUT', { code: 'paypal_api_error', message: 'No.' } ],
-		[ 'no longer has the payment', { code: 'paypal_api_resource_not_found' } ],
+		[ 'returns resource not found', { code: 'paypal_api_resource_not_found' } ],
 	] )( 'stays put when PayPal %s', async ( _label, err ) => {
 		await save( [ { productName: 'Deluxe Widget' } ], ( { method } ) =>
 			'PUT' === method ? Promise.reject( err ) : Promise.resolve( { id: 'PLB-NEW1' } )
@@ -1177,9 +1177,9 @@ describe( 'the card revision', () => {
 		expect( getCardRevision( 'PLB-1' ) ).toBe( 0 );
 	} );
 
-	// The create answers with what PayPal made of the block, which the block then takes:
-	// its variants without the editor's keys, and the price the way PayPal writes it.
-	it( 'stays put when a save after the create writes back what PayPal holds', async () => {
+	// The block takes the create response: variants without the editor keys, and the price
+	// as PayPal formats it.
+	it( 'stays put when the save after a create writes back the created values', async () => {
 		const variants = variantsWithPrices( priced );
 		const block = {
 			...product,

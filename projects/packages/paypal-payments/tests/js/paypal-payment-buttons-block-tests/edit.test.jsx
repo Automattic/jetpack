@@ -600,6 +600,7 @@ jest.mock( '../../../src/paypal-payment-buttons/components/paypal-button-preview
 				data-testid="paypal-button-preview"
 				data-product-name={ props.productName }
 				data-format={ props.format }
+				data-sdk-url={ props.resource?.sdk_url }
 			>
 				Preview: { props.productName } - { props.price } { props.currencyCode }
 			</div>
@@ -3014,6 +3015,28 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( mockMarkNotPersistent ).not.toHaveBeenCalled();
 		} );
 
+		// The stacked preview boots from this URL until the block has a scriptSrc.
+		it( 'passes the read SDK URL to the preview', async () => {
+			const sdkUrl = 'https://www.sandbox.paypal.com/sdk/js?client-id=abc&currency=USD';
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				return Promise.resolve(
+					path === resourcePath ? { id: 'PLB-SHARED1', attributes, sdk_url: sdkUrl } : {}
+				);
+			} );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+
+			await waitFor( () =>
+				expect( screen.getByTestId( 'paypal-button-preview' ) ).toHaveAttribute(
+					'data-sdk-url',
+					sdkUrl
+				)
+			);
+		} );
+
 		/**
 		 * Answer the connection check as connected and leave the payment read for the test to settle.
 		 *
@@ -3230,8 +3253,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( reportHeldBack ).not.toHaveBeenCalled();
 		} );
 
-		// Writing back what the read returned changes nothing at PayPal.
-		it( 'leaves the card revision alone when the save writes back what the block read', async () => {
+		it( 'keeps the card revision when the save writes back the payment as read', async () => {
 			mockResource( { ...attributes } );
 
 			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
@@ -7704,7 +7726,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( request ).toHaveBeenCalledWith(
 				expect.objectContaining( { path: '/wpcom/v2/paypal/buttons/PLB-B2', method: 'PUT' } )
 			);
-			// The switch read the payment, so writing it back unchanged is no change.
+			// The switch read the payment, so writing it back unchanged keeps the card revision.
 			expect( getCardRevision( 'PLB-B2' ) ).toBe( 0 );
 		} );
 
