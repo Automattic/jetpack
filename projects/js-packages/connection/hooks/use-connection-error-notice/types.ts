@@ -77,7 +77,12 @@ export interface ConnectionErrorProps {
 				}
 		  ) => Action[] )
 		| null;
-	/** Tracking event fired when the fallback "Restore Connection" CTA is clicked. */
+	/**
+	 * Tracking event fired when the fallback "Restore Connection" CTA is clicked.
+	 * Defaults to the canonical reconnect event; a non-canonical override only
+	 * fires when a `trackingCallback` is also supplied, since the no-callback
+	 * branch records the canonical events alone.
+	 */
 	reconnectTrackingEvent?: string;
 	/**
 	 * The surface rendering the notice, reported as the `context` property on every
