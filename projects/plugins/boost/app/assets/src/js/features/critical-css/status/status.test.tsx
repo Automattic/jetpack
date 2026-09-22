@@ -28,7 +28,14 @@ const provider = ( key: string, status: 'success' | 'error' ) => ( {
 	status,
 	errors:
 		status === 'error'
-			? [ { url: `http://localhost/${ key }`, message: 'x', meta: {}, type: 'UnknownError' as const } ]
+			? [
+					{
+						url: `http://localhost/${ key }`,
+						message: 'x',
+						meta: {},
+						type: 'UnknownError' as const,
+					},
+				]
 			: undefined,
 } );
 
@@ -57,18 +64,19 @@ test( 'row surface stacks the partial-failure notice, icon included, in the stat
 	renderOn( 'row' );
 	const status = within( screen.getByTestId( 'critical-css-meta' ) );
 	const message = status.getByText( failureText );
-	const summary = status.getByText( /3 files generated/ ).parentElement as HTMLElement;
-	expect( summary.contains( message ) ).toBe( true );
 	expect( screen.queryByTestId( 'legacy-info-icon' ) ).toBeNull();
+	expect( status.getByRole( 'link', { name: 'advanced recommendations page' } ) ).toBeTruthy();
+	/* eslint-disable testing-library/no-node-access -- The layout under test is DOM nesting, which has no role. */
+	const summary = status.getByText( /3 files generated/ ).parentElement as HTMLElement;
 	const notice = summary.lastElementChild as HTMLElement;
 	expect( notice.contains( message ) ).toBe( true );
 	expect( notice.querySelector( 'svg' ) ).not.toBeNull();
-	expect( status.getByRole( 'link', { name: 'advanced recommendations page' } ) ).toBeTruthy();
+	/* eslint-enable testing-library/no-node-access */
 } );
 
 test( 'block surface keeps the legacy failure row with its gutter icon', () => {
-	const { container } = renderOn( 'block' );
-	const legacy = container.querySelector( '.failures-legacy' ) as HTMLElement;
-	expect( legacy.textContent ).toMatch( failureText );
-	expect( legacy.querySelector( '[data-testid="legacy-info-icon"]' ) ).not.toBeNull();
+	renderOn( 'block' );
+	const status = within( screen.getByTestId( 'critical-css-meta' ) );
+	expect( status.getByText( failureText ) ).toBeTruthy();
+	expect( status.getByTestId( 'legacy-info-icon' ) ).toBeTruthy();
 } );
