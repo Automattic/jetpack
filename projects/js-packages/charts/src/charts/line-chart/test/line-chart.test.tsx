@@ -1981,7 +1981,7 @@ describe( 'LineChart', () => {
 			fireEvent( target, new MouseEvent( type, { bubbles: true, clientX, clientY } ) );
 		};
 
-		const renderWithHandlers = ( data: SeriesData[] ) => {
+		const renderWithHandlers = ( data: SeriesData[], props = {} ) => {
 			const handlers = {
 				onPointerDown: jest.fn(),
 				onPointerMove: jest.fn(),
@@ -1989,7 +1989,7 @@ describe( 'LineChart', () => {
 			};
 			mockUseXZoom.mockImplementation( () => ( { ...passthroughZoom(), handlers } ) );
 			const ref = createRef< ChartInstanceRef >();
-			renderUnwrappedWithTheme( { data }, 'default', ref );
+			renderUnwrappedWithTheme( { data, ...props }, 'default', ref );
 			const xScale = ref.current?.getScales()?.xScale as ( date: Date ) => number;
 			const yScale = ref.current?.getScales()?.yScale as ( value: number ) => number;
 			return { handlers, xScale, yScale };
@@ -2031,6 +2031,35 @@ describe( 'LineChart', () => {
 			expect( handlers.onPointerDown ).toHaveBeenCalledTimes( 1 );
 			expect( handlers.onPointerDown ).toHaveBeenLastCalledWith(
 				expect.objectContaining( { key: 'Series B', index: 0 } )
+			);
+		} );
+
+		test( 'reports nothing for a reading the log scale cannot place', () => {
+			const data = [ series( 'Series A', [ 0, 10 ] ) ];
+			const { handlers, xScale } = renderWithHandlers( data, {
+				options: { yScale: { type: 'log', domain: [ 1, 100 ] } },
+			} );
+
+			pointer( 'pointerdown', xScale( data[ 0 ].data[ 0 ].date ), 150 );
+
+			expect( handlers.onPointerDown ).not.toHaveBeenCalled();
+		} );
+
+		test( 'reports the nearest bucket in a long series', () => {
+			const data = [
+				series(
+					'Series A',
+					Array.from( { length: 60 }, ( _, i ) => i )
+				),
+			];
+			const { handlers, xScale } = renderWithHandlers( data );
+			const between =
+				( xScale( data[ 0 ].data[ 37 ].date ) * 2 + xScale( data[ 0 ].data[ 38 ].date ) ) / 3;
+
+			pointer( 'pointerdown', between, 150 );
+
+			expect( handlers.onPointerDown ).toHaveBeenLastCalledWith(
+				expect.objectContaining( { index: 37, datum: data[ 0 ].data[ 37 ] } )
 			);
 		} );
 

@@ -1,16 +1,18 @@
+import { bisector } from '@visx/vendor/d3-array';
 import { DataContext, useEventEmitter } from '@visx/xychart';
 import { useCallback, useContext, useMemo } from 'react';
 import type { EventHandlerParams } from '@visx/xychart';
 
 type EmittedPointer = Parameters< NonNullable< Parameters< typeof useEventEmitter >[ 1 ] > >[ 0 ];
-type PointerHandler = ( params: EventHandlerParams< object > ) => void;
-type Scale = ( value: unknown ) => unknown;
-type Candidate = EventHandlerParams< object >;
+type PointerParams = EventHandlerParams< object >;
+type PointerHandler = ( params: PointerParams ) => void;
+type Scale = ( ( value: unknown ) => unknown ) & { invert?: ( position: number ) => unknown };
+type Candidate = { params: PointerParams; isMissing: boolean };
 
 /**
- * Find the datum nearest a pointer along x, in one series.
+ * Find the datum nearest a pointer along x, in one series sorted by x.
  *
- * @param data      - The series' registered data.
+ * @param data      - The series' registered data, in ascending x order.
  * @param xAccessor - Reads a datum's x value.
  * @param xScale    - The chart's x scale.
  * @param x         - Pointer x in SVG coordinates.
@@ -22,34 +24,46 @@ function nearestByX(
 	xScale: Scale,
 	x: number
 ): { index: number; distance: number } {
-	let index = -1;
-	let distance = Infinity;
-	data.forEach( ( datum, candidateIndex ) => {
-		const candidate = Math.abs( Number( xScale( xAccessor( datum ) ) ) - x );
-		if ( candidate < distance ) {
-			distance = candidate;
-			index = candidateIndex;
-		}
-	} );
-	return { index, distance };
+	const indexes =
+		typeof xScale.invert === 'function'
+			? [ bisector( xAccessor ).left( data, xScale.invert( x ) ) ].flatMap( index => [
+					index - 1,
+					index,
+				] )
+			: data.map( ( _datum, index ) => index );
+
+	return indexes
+		.filter( index => index >= 0 && index < data.length )
+		.reduce(
+			( best, index ) => {
+				const distance = Math.abs( Number( xScale( xAccessor( data[ index ] ) ) ) - x );
+				return distance < best.distance ? { index, distance } : best;
+			},
+			{ index: -1, distance: Infinity }
+		);
 }
 
 /**
- * Pick the candidate to report: the closest with a reading, else the closest along x.
+ * Pick the candidate to report: the closest placed reading, else the closest bucket with no reading along x.
  *
- * @param candidates - One candidate per series; a bucket with no reading has a NaN `distanceY`.
- * @return The chosen candidate, or undefined when there are none.
+ * @param candidates - One candidate per series.
+ * @return The chosen candidate's params, or undefined when there are none.
  */
-function pickNearest( candidates: Candidate[] ): Candidate | undefined {
-	const withReading = candidates.filter( candidate => Number.isFinite( candidate.distanceY ) );
-	const pool = withReading.length ? withReading : candidates;
-	const distance = ( candidate: Candidate ) =>
-		withReading.length
-			? Math.hypot( candidate.distanceX ?? 0, candidate.distanceY ?? 0 )
-			: ( candidate.distanceX ?? 0 );
-	return pool.reduce< Candidate | undefined >(
-		( best, candidate ) =>
-			! best || distance( candidate ) < distance( best ) ? candidate : best,
+function pickNearest( candidates: Candidate[] ): PointerParams | undefined {
+	const placed = candidates
+		.map( ( { params } ) => params )
+		.filter( params => Number.isFinite( params.distanceY ) );
+	const missing = candidates
+		.filter( ( { isMissing } ) => isMissing )
+		.map( ( { params } ) => params );
+	// Same metric as visx's TooltipProvider, so a callback names the datum the tooltip shows.
+	const distance = ( params: PointerParams ) =>
+		placed.length
+			? Math.hypot( params.distanceX ?? 0, params.distanceY ?? 0 )
+			: ( params.distanceX ?? 0 );
+
+	return ( placed.length ? placed : missing ).reduce< PointerParams | undefined >(
+		( best, params ) => ( ! best || distance( params ) < distance( best ) ? params : best ),
 		undefined
 	);
 }
@@ -99,16 +113,18 @@ export function NearestPointerEvents( {
 					continue;
 				}
 				const datum = entry.data[ index ];
+				const value = entry.yAccessor( datum );
 				candidates.push( {
-					event: params.event,
-					svgPoint: point,
-					key,
-					datum,
-					index,
-					distanceX: distance,
-					distanceY: Math.abs(
-						Number( ( yScale as Scale )( entry.yAccessor( datum ) ) ) - point.y
-					),
+					params: {
+						event: params.event,
+						svgPoint: point,
+						key,
+						datum,
+						index,
+						distanceX: distance,
+						distanceY: Math.abs( Number( ( yScale as Scale )( value ) ) - point.y ),
+					},
+					isMissing: value == null,
 				} );
 			}
 			return pickNearest( candidates );
