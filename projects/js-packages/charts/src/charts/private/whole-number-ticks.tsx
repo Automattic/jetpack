@@ -33,11 +33,14 @@ export const hasOnlyWholeNumbers = ( series: SeriesData[] ): boolean => {
  * d3 steps by 1, 2 or 5 times a power of ten, so every whole number inside the domain is one of its ticks.
  *
  * @param scale - The value scale visx built.
- * @param count - Ticks to ask the scale for.
+ * @param count - Ticks to ask the scale for; undefined uses the scale's own default, as visx does.
  * @return Whole-number ticks, or undefined when visx's own ticks need no change.
  */
-export const getWholeNumberTickValues = ( scale: unknown, count = 4 ): number[] | undefined => {
-	const ticks = ( scale as { ticks?: ( count: number ) => unknown[] } )?.ticks?.( count );
+export const getWholeNumberTickValues = (
+	scale: unknown,
+	count?: number
+): number[] | undefined => {
+	const ticks = ( scale as { ticks?: ( count?: number ) => unknown[] } )?.ticks?.( count );
 	if ( ! ticks?.every( ( tick ): tick is number => typeof tick === 'number' ) ) {
 		return undefined;
 	}
