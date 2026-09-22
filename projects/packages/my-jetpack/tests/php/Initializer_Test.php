@@ -63,6 +63,47 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_editor_page_loads_without_a_jetpack_parent_menu() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'my_jetpack_editor',
+					'user_pass'  => 'password',
+					'role'       => 'editor',
+				)
+			)
+		);
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		$GLOBALS['menu']             = array();
+		$GLOBALS['submenu']          = array();
+		$GLOBALS['admin_page_hooks'] = array();
+		Initializer::add_my_jetpack_menu_item();
+		$hook = add_submenu_page( 'jetpack', 'My Jetpack', 'My Jetpack', 'edit_posts', 'my-jetpack', array( Initializer::class, 'admin_page' ) );
+
+		$this->assertSame( 'admin_page_my-jetpack', $hook );
+		$location = null;
+		add_filter(
+			'wp_redirect',
+			/** @return never */
+			static function ( $url ) use ( &$location ) {
+				$location = $url;
+				throw new \RuntimeException( 'Intercepted redirect.' );
+			}
+		);
+		try {
+			do_action( 'load-' . $hook ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- WordPress core page-load hook.
+		} catch ( \RuntimeException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- Stops the redirect before exit.
+		}
+		$this->assertNotNull( $location );
+		$this->assertStringContainsString( 'step=onboarding', $location );
+	}
+
+	/**
 	 * Onboarding is available on regular (non-Simple) sites.
 	 */
 	public function test_onboarding_is_available_by_default() {

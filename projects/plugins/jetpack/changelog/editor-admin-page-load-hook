@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+My Jetpack: Fix the page failing to load for editors on unconnected sites.
