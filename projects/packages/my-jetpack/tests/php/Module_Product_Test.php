@@ -111,6 +111,17 @@ class Module_Product_Test extends TestCase {
 	}
 
 	/**
+	 * Tests that is_activated() follows the module, like is_active() but without a plan check.
+	 */
+	public function test_is_activated_follows_the_module() {
+		$this->assertFalse( Sample_Module_Product::is_activated() );
+		$this->assertTrue( Sample_Module_Product::activate() );
+		$this->assertTrue( Sample_Module_Product::is_activated() );
+		$this->assertTrue( Sample_Module_Product::deactivate() );
+		$this->assertFalse( Sample_Module_Product::is_activated() );
+	}
+
+	/**
 	 * Assert WP Error is returned if Jetpack fails to activate the module
 	 */
 	public function test_return_error_on_activation_failure() {

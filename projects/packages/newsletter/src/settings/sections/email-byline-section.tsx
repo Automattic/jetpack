@@ -47,7 +47,7 @@ export function EmailBylineSection( {
 							url="https://gravatar.com/profile/avatars"
 							linkText={ __( 'Update your Gravatar', 'jetpack-newsletter' ) }
 						/>
-				  )
+					)
 				: Toggle,
 			description: __(
 				'We use Gravatar, a service that associates an avatar image with your primary email address.',

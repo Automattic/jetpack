@@ -19,6 +19,11 @@ import {
 	type SiteTimeZoneControls,
 } from '../../stories/with-site-time-zone';
 import {
+	paidSubscribersArgTypes,
+	withPaidSubscribers,
+	type PaidSubscribersControls,
+} from '../../stories/with-paid-subscribers';
+import {
 	registerReportMocks,
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
@@ -37,8 +42,7 @@ const SUBSCRIBERS_CHART_RENDER_MODULE = 'storybook/subscribers-chart';
 // story's settings drawer renders the real controls.
 const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
-interface SubscribersChartStoryControls extends SiteTimeZoneControls {
-	withComparison: boolean;
+interface SubscribersChartStoryControls extends SiteTimeZoneControls, PaidSubscribersControls {
 	chartType: SubscribersChartType;
 }
 
@@ -51,13 +55,10 @@ const CHART_TYPE_ARG_TYPES = {
 
 const DEFAULT_CHART_ARGS = { chartType: 'line' } as const;
 
-function renderSubscribersChart( { withComparison, chartType }: SubscribersChartStoryControls ) {
+function renderSubscribersChart( { chartType }: SubscribersChartStoryControls ) {
 	return (
 		<SubscribersChartRender
-			attributes={ {
-				reportParams: getDefaultQueryParams( withComparison ),
-				chartType,
-			} }
+			attributes={ { reportParams: getDefaultQueryParams( false ), chartType } }
 		/>
 	);
 }
@@ -76,16 +77,20 @@ const meta = {
 	component: SubscribersChartRender,
 	tags: [ 'autodocs' ],
 	decorators: [ withSiteTimeZone ],
+	beforeEach: withPaidSubscribers,
 	argTypes: {
 		...siteTimeZoneArgTypes,
-		withComparison: { control: 'boolean' },
+		...paidSubscribersArgTypes,
 		...CHART_TYPE_ARG_TYPES,
+	},
+	args: {
+		hasPaidSubscribers: false,
 	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					"Subscriber growth over time. The date range, previous-period comparison, and bucket size follow the dashboard controls; the \"Chart type\" control is the `chartType` attribute (`relevance: 'high'`), exposed by the widget host; which metric is plotted is the chart's own tab selection. When comparison is on, the previous period is overlaid as a same-colour dashed line and the headline shows the period-over-period delta. The Paid subscribers tab renders only when the site has paid subscribers. Data comes from `useStatsSubscribersReport`; in Storybook it is served by `registerReportMocks`.",
+					"Subscriber growth over time. The widget hosts its own date range control in its header, saved onto the widget instance; the bucket size follows the selected window, and the control offers no comparison, matching the Ads chart. The \"Chart type\" control is the `chartType` attribute (`relevance: 'high'`), exposed by the widget host; which metric is plotted is the chart's own tab selection. The Paid subscribers tab renders only when the site has paid subscribers. Data comes from `useStatsSubscribersReport`; in Storybook it is served by `registerReportMocks`.",
 			},
 		},
 	},
@@ -96,21 +101,12 @@ export default meta;
 type Story = StoryObj< SubscribersChartStoryControls >;
 
 /**
- * The widget on its own, current period only.
+ * The widget on its own, on the range its header control defaults to. Turn on
+ * "Has paid subscribers" to add the Paid subscribers metric beside Subscribers.
  */
 export const Default: Story = {
 	render: renderSubscribersChart,
-	args: { withComparison: false, ...DEFAULT_CHART_ARGS },
-	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * Same close-up with the dashboard comparison range applied, so the previous
- * period is overlaid as a dashed line and the headline shows the delta.
- */
-export const WithComparison: Story = {
-	render: renderSubscribersChart,
-	args: { withComparison: true, ...DEFAULT_CHART_ARGS },
+	args: { ...DEFAULT_CHART_ARGS },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -119,17 +115,7 @@ export const WithComparison: Story = {
  */
 export const BarChart: Story = {
 	render: renderSubscribersChart,
-	args: { withComparison: false, chartType: 'bar' },
-	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * Bars with comparison on: the previous period renders as the translucent
- * shadow bar behind each current-period bar, and its value joins the tooltip.
- */
-export const BarChartWithComparison: Story = {
-	render: renderSubscribersChart,
-	args: { withComparison: true, chartType: 'bar' },
+	args: { chartType: 'bar' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -173,11 +159,9 @@ export const Empty: Story = {
 };
 
 interface SubscribersChartDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		SubscribersChartStoryControls {}
+	extends WidgetDashboardWithWidgetControls, SubscribersChartStoryControls {}
 
 function SubscribersChartDashboardStory( {
-	withComparison,
 	chartType,
 	...dashboardArgs
 }: SubscribersChartDashboardStoryProps ) {
@@ -187,8 +171,10 @@ function SubscribersChartDashboardStory( {
 			widgetType={ storyWidgetType }
 			renderModule={ SUBSCRIBERS_CHART_RENDER_MODULE }
 			renderComponent={ SubscribersChartRender as ComponentType< WidgetRenderProps< unknown > > }
+			// The real header control edits this attribute; the harness renders the
+			// widget's declared header, so the story starts it where the app does.
 			attributes={ {
-				reportParams: getDefaultQueryParams( withComparison ),
+				reportParams: getDefaultQueryParams( false ),
 				chartType,
 			} }
 		/>
@@ -196,18 +182,22 @@ function SubscribersChartDashboardStory( {
 }
 
 /**
- * Renders the real registered widget through the shared dashboard harness.
+ * Renders the real registered widget through the shared dashboard harness,
+ * including the date control the widget declares in its own header.
+ *
+ * Full width, as the Subscribers default layout places it: narrower than that and
+ * the host collapses the header controls behind the settings icon.
  */
 export const WidgetDashboardWithWidget: StoryObj< SubscribersChartDashboardStoryProps > = {
 	render: args => <SubscribersChartDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
+		widgetWidth: 3,
 		...DEFAULT_CHART_ARGS,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
+		...paidSubscribersArgTypes,
 		...CHART_TYPE_ARG_TYPES,
 	},
 };

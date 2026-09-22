@@ -2,7 +2,8 @@
 
 // Style everything with border box turned on
 #jb-dashboard *,
-.jb-modern-settings * {
+.jb-modern-settings *,
+.jb-modern-settings-popovers * {
 	box-sizing: border-box;
 }
 
@@ -10,10 +11,13 @@ p {
 	font-size: 16px;
 	color: variables.$gray_80;
 }
-// The type scale, tokens and component overrides the settings controls rely on.
-// Shared, because both dashboards render those same controls. The page frame
-// below is not: the modern chassis supplies its own.
-@mixin settings-content {
+// Tokens the shared Jetpack components read, declared on every root the plugin
+// mounts a dashboard under. The modern chassis root rather than its content
+// div, because sub-pages mount in a sibling slot; a component that misses the
+// tokens gets an invalid padding declaration, not merely an unstyled one.
+.jb-dashboard,
+.jb-modern-settings,
+.jetpack-boost-page {
 	--font-headline-medium: 48px;
 	--font-title-medium: 24px;
 	--font-body-small: 14px;
@@ -22,7 +26,12 @@ p {
 	--font-body-extra-small: 14px;
 
 	--spacing-base: 8px;
+}
 
+// The type scale and component overrides the settings controls rely on.
+// Shared, because both dashboards render those same controls. The page frame
+// below is not: the modern chassis supplies its own.
+@mixin settings-content {
 	font-size: 16px;
 
 	a {
@@ -33,6 +42,30 @@ p {
 		color: var(--wp-admin-theme-link-color);
 	}
 
+	// Override WP styles for panel header.
+	.components-panel__body-title .components-button:hover:not(:disabled,[aria-disabled="true"]),
+	.components-panel__body-title .components-button[aria-expanded="true"] {
+		color: inherit;
+	}
+
+	.components-panel__body-toggle.components-button:focus {
+		border-radius: inherit;
+		box-shadow: none;
+	}
+}
+
+// Override WordPress component styles
+.jb-dashboard {
+	min-height: calc(100vh - 60px);
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	background-color: #f9f9f6;
+	clear: both;
+
+	@include settings-content;
+
+	// TODO(BOOST-702): remove with the legacy dashboard.
 	h1,
 	h2,
 	h3,
@@ -62,36 +95,15 @@ p {
 		font-size: 24px;
 	}
 
-	// Override WP styles for panel header.
-	.components-panel__body-title .components-button:hover:not(:disabled,[aria-disabled="true"]),
-	.components-panel__body-title .components-button[aria-expanded="true"] {
-		color: inherit;
-	}
-
-	.components-panel__body-toggle.components-button:focus {
-		border-radius: inherit;
-		box-shadow: none;
-	}
-}
-
-// Override WordPress component styles
-.jb-dashboard {
-	min-height: calc(100vh - 60px);
-	display: flex;
-	flex-direction: column;
-	position: relative;
-	background-color: #f9f9f6;
-	clear: both;
-
-	@include settings-content;
-
 	&--main {
 		background-color: variables.$primary-white;
 	}
 }
 
-// Settings inside the modern chassis, which frames the page itself.
-.jb-modern-settings {
+// Settings inside the modern chassis, which frames the page itself. The
+// popover slot is a sibling of the content, so it needs the same scope.
+.jb-modern-settings,
+.jb-modern-settings-popovers {
 
 	@include settings-content;
 }

@@ -28,6 +28,8 @@ export {
 	useReportDateFilters,
 	useSectionTab,
 	useDashboardLink,
+	useOpenSectionRange,
+	type OpenSectionRange,
 	type ReportDateFilters,
 } from './hooks';
 export {

@@ -31,7 +31,10 @@ export {
 	getBucketInfo,
 	lightenHexColor,
 	normalizeColorToHex,
+	useCalendarHeatmapData,
+	useChartLegendItems,
 	useGlobalChartsContext,
+	useMonthCalendarHeatmapData,
 	type BaseLegendItem,
 	type BucketInfo,
 	type ChartTheme,
@@ -42,8 +45,10 @@ export {
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
 	type HeatmapColumn,
+	type HeatmapColumnGroup,
 	type HeatmapTooltipData,
 	type LineStyles,
+	type MonthCalendarHeatmapRange,
 	type SeriesData,
 	type TickResolution,
 } from '@automattic/charts';
@@ -58,6 +63,7 @@ export { LineShape, RectShape } from '@automattic/charts/visx/legend';
  * is what consumers already import. Still a plain re-export, not a wrap.
  */
 export {
+	AlertDialog,
 	Badge,
 	Button,
 	Dialog,

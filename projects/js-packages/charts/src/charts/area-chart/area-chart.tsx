@@ -250,8 +250,9 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 				withGlyph: false,
 				glyphSize: 0,
 				collapseGroups: legend.collapseGroups ?? false,
+				comparisonItem: legend.comparisonItem ?? false,
 			} ),
-			[ legend.collapseGroups ]
+			[ legend.collapseGroups, legend.comparisonItem ]
 		);
 		const legendItems = useChartLegendItems( dataSorted, legendOptions, legendShape );
 
@@ -411,6 +412,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 
 						return (
 							<div
+								ref={ chartRef }
 								role="grid"
 								aria-label={ __( 'Area chart', 'jetpack-charts' ) }
 								tabIndex={ 0 }
@@ -419,7 +421,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 								onBlur={ onChartBlur }
 							>
 								{ chartHeight > 0 && (
-									<div ref={ chartRef } className={ plotStyles[ 'xy-plot' ] }>
+									<div className={ plotStyles[ 'xy-plot' ] }>
 										{ zoomable && zoom.domain && <ZoomResetButton onClick={ zoom.reset } /> }
 										<XYChart
 											theme={ theme }

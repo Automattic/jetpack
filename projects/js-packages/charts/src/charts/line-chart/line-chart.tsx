@@ -249,6 +249,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 	) => {
 		const legendInteractive = legend.interactive ?? false;
 		const legendCollapseGroups = legend.collapseGroups ?? false;
+		const legendComparisonItem = legend.comparisonItem ?? false;
 		const legendShape = legend.shape ?? 'line';
 		const legendPosition = legend.position ?? 'bottom';
 
@@ -445,9 +446,16 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 				withGlyph: withLegendGlyph,
 				glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
 				collapseGroups: legendCollapseGroups,
+				comparisonItem: legendComparisonItem,
 				renderGlyph,
 			} ),
-			[ withLegendGlyph, glyphStyle?.radius, legendCollapseGroups, renderGlyph ]
+			[
+				withLegendGlyph,
+				glyphStyle?.radius,
+				legendCollapseGroups,
+				legendComparisonItem,
+				renderGlyph,
+			]
 		);
 
 		// Create legend items using the reusable hook
@@ -505,7 +513,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 								background: tooltipStyle?.background,
 								backgroundColor: tooltipStyle?.backgroundColor,
 							}
-					  )
+						)
 					: renderTooltip( { ...params, bucketInfo } ),
 			[ renderTooltip, bucketInfo, tooltipStyle ]
 		);
@@ -562,6 +570,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 
 						return (
 							<div
+								ref={ chartRef }
 								role="grid"
 								aria-label={ __( 'Line chart', 'jetpack-charts' ) }
 								tabIndex={ 0 }
@@ -570,7 +579,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 								onBlur={ onChartBlur }
 							>
 								{ chartHeight > 0 && (
-									<div ref={ chartRef } className={ plotStyles[ 'xy-plot' ] }>
+									<div className={ plotStyles[ 'xy-plot' ] }>
 										{ zoomable && zoom.domain && <ZoomResetButton onClick={ zoom.reset } /> }
 										<XYChart
 											theme={ theme }

@@ -15,7 +15,7 @@ export default function Controls( { playing, muted, onPlayPressed, onMutePressed
 								'Button tooltip text',
 								'jetpack',
 								/* dummy arg to avoid bad minification */ 0
-						  )
+							)
 				}
 				onClick={ onPlayPressed }
 			>
@@ -32,7 +32,7 @@ export default function Controls( { playing, muted, onPlayPressed, onMutePressed
 									'Button tooltip text',
 									'jetpack',
 									/* dummy arg to avoid bad minification */ 0
-							  )
+								)
 					}
 					onClick={ onMutePressed }
 				>

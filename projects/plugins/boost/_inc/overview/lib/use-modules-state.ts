@@ -13,6 +13,7 @@ type DataSyncKey =
 	| 'modules_state'
 	| 'performance_history'
 	| 'dismissed_alerts'
+	| 'getting_started'
 	| 'critical_css_state'
 	| 'lcp_state';
 
@@ -52,6 +53,19 @@ export function parseDataSyncEnvelope( response: unknown ): unknown {
 
 export function isSiteOnline(): boolean {
 	return typeof Jetpack_Boost !== 'undefined' && Jetpack_Boost.site.online;
+}
+
+export function isMyJetpackAvailable(): boolean {
+	return typeof Jetpack_Boost !== 'undefined' && Jetpack_Boost.site.myJetpack === true;
+}
+
+export function isAddLicenseAvailable(): boolean {
+	return typeof Jetpack_Boost !== 'undefined' && Jetpack_Boost.site.addLicense === true;
+}
+
+// The upgrade flow lives in My Jetpack, which offline and filtered-off sites cannot open.
+export function canOfferUpgrade(): boolean {
+	return isSiteOnline() && isMyJetpackAvailable();
 }
 
 export async function requestDataSync(
@@ -156,8 +170,8 @@ export function useScoreRefreshState( modules?: ModulesState ): ScoreRefreshStat
 	return {
 		config: JSON.stringify( [
 			moduleStates,
-			cssEnabled ? css.data?.updated ?? 0 : 0,
-			lcpEnabled ? lcp.data?.updated ?? 0 : 0,
+			cssEnabled ? ( css.data?.updated ?? 0 ) : 0,
+			lcpEnabled ? ( lcp.data?.updated ?? 0 ) : 0,
 		] ),
 		isPending,
 	};

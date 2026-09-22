@@ -1,4 +1,6 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components/wpcom-support-link';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
@@ -65,7 +67,12 @@ export function getServiceUiDetails( id: ConnectionService[ 'id' ] ): ServiceUiD
 				],
 			};
 
-		case 'instagram-business':
+		case 'instagram-business': {
+			const instagramHelpText = __(
+				'Learn how to convert & link your Instagram account.',
+				'jetpack-publicize-pkg'
+			);
+
 			return {
 				icon: props => <SocialServiceIcon serviceName="instagram" { ...props } />,
 				shortLabel: __( 'Instagram', 'jetpack-publicize-pkg' ),
@@ -104,16 +111,19 @@ export function getServiceUiDetails( id: ConnectionService[ 'id' ] ): ServiceUiD
 							) }
 							<br />
 							<br />
-							<Link
-								openInNewTab
-								className="instagram-business__help-link"
-								href="https://jetpack.com/redirect/?source=jetpack-social-instagram-business-help"
-							>
-								{ __(
-									'Learn how to convert & link your Instagram account.',
-									'jetpack-publicize-pkg'
-								) }
-							</Link>
+							{ isWpcomPlatformSite() ? (
+								<WpcomSupportLink supportLink="https://wordpress.com/support/post-to-instagram/">
+									{ instagramHelpText }
+								</WpcomSupportLink>
+							) : (
+								<Link
+									openInNewTab
+									className="instagram-business__help-link"
+									href="https://jetpack.com/redirect/?source=jetpack-social-instagram-business-help"
+								>
+									{ instagramHelpText }
+								</Link>
+							) }
 						</>
 					),
 					() => (
@@ -124,6 +134,7 @@ export function getServiceUiDetails( id: ConnectionService[ 'id' ] ): ServiceUiD
 					),
 				],
 			};
+		}
 
 		case 'linkedin':
 			return {

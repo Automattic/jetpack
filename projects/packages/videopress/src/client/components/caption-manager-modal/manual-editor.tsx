@@ -248,7 +248,7 @@ export default function ManualEditor( {
 		 */
 		const lastCue = currentBlocks[ currentBlocks.length - 1 ];
 		const fallbackStart = lastCue
-			? parseTimestampToSeconds( String( lastCue.attributes?.endTime ?? '' ) ) ?? 0
+			? ( parseTimestampToSeconds( String( lastCue.attributes?.endTime ?? '' ) ) ?? 0 )
 			: 0;
 		const block = createCueAtPlayhead( playerRef.current?.getCurrentTime() ?? fallbackStart );
 		pendingFocusClientIdRef.current = block.clientId;
@@ -409,7 +409,7 @@ export default function ManualEditor( {
 											'Replace',
 											'button: replace the existing subtitle cues with the pasted text',
 											'jetpack-videopress-pkg'
-									  )
+										)
 									: __( 'Create cues', 'jetpack-videopress-pkg' ) }
 							</Button>
 						</div>

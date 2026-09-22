@@ -3,9 +3,12 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\My_Jetpack\Jetpack_Manage;
+use Automattic\Jetpack\Scan\Admin_Sidebar_Link;
 use Automattic\Jetpack\Stats_Admin\Dashboard;
 use Automattic\Jetpack\VideoPress\Admin_UI;
 /**
@@ -53,9 +56,16 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Clears Admin_Menu's static state between tests.
+	 * Clears Admin_Menu's static state and the menu globals between renders.
 	 */
 	private function reset_admin_menu() {
+		// add_submenu_page() writes to all four of these and WP_UnitTestCase restores none of them.
+		global $menu, $submenu, $_parent_pages, $_registered_pages;
+		$menu              = array();
+		$submenu           = array();
+		$_parent_pages     = array();
+		$_registered_pages = array();
+
 		$reflection = new \ReflectionClass( Admin_Menu::class );
 
 		foreach ( array( 'menu_items', 'page_hooks' ) as $name ) {
@@ -105,6 +115,11 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 
 		$jetpack_backup = new Jetpack_Backup();
 		$jetpack_backup->initialize();
+
+		$this->satisfy_conditional_registrar_gates();
+		Admin_Sidebar_Link::instance()->maybe_add_admin_link();
+		Jetpack_Manage::add_submenu_jetpack();
+		Jetpack_Subscriptions::init()->add_subscribers_menu();
 
 		/*
 		 * Nothing in this fixture registers an external link or a bottom-tier item on its own,
@@ -175,5 +190,139 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		usort( $alphabetical, 'strnatcasecmp' );
 
 		$this->assertSame( $alphabetical, $internal, 'Jetpack submenu items should be ordered alphabetically by menu title.' );
+
+		// The external links sort among themselves too, which the check above cannot see.
+		$this->assertGreaterThan( 1, count( $external ), 'Expected several external links, otherwise their ordering proves nothing.' );
+
+		$alphabetical_external = $external;
+		usort( $alphabetical_external, 'strnatcasecmp' );
+
+		$this->assertSame( $alphabetical_external, $external, 'External links should be ordered alphabetically among themselves.' );
+	}
+
+	/**
+	 * The menu callbacks real products register through, keyed by product.
+	 *
+	 * These are the admin_menu callbacks themselves rather than each product's init(), which guards
+	 * on static state and so registers nothing the second time a test calls it.
+	 *
+	 * @return array Product name to callable.
+	 */
+	private function menu_registrars() {
+		$this->satisfy_conditional_registrar_gates();
+
+		return array(
+			'my-jetpack'     => array( My_Jetpack_Initializer::class, 'add_my_jetpack_menu_item' ),
+			'activity-log'   => array( Jetpack_Activity_Log::class, 'add_wp_admin_submenu' ),
+			'backup'         => array( Jetpack_Backup::class, 'add_wp_admin_submenu' ),
+			'videopress'     => array( Admin_UI::class, 'enable_menu' ),
+			'scan-backup'    => array( Admin_Sidebar_Link::instance(), 'maybe_add_admin_link' ),
+			'jetpack-manage' => array( Jetpack_Manage::class, 'add_submenu_jetpack' ),
+			'subscribers'    => array( Jetpack_Subscriptions::init(), 'add_subscribers_menu' ),
+			'settings'       => array( new Jetpack_React_Page(), 'jetpack_add_settings_sub_nav_item' ),
+		);
+	}
+
+	/**
+	 * Opens the gates on the four registrars that only register under a condition.
+	 *
+	 * Scan, Backup, Jetpack Manage and Subscribers are the call sites that regressed in the two
+	 * curation PRs before #52003, so leaving them unregistered here would test past the history.
+	 */
+	private function satisfy_conditional_registrar_gates() {
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
+		require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions.php';
+		// Only loaded when the Scan module is active, so the autoloader does not reach it here.
+		require_once JETPACK__PLUGIN_DIR . 'modules/scan/class-admin-sidebar-link.php';
+
+		$scan          = new stdClass();
+		$scan->state   = 'idle';
+		$rewind        = new stdClass();
+		$rewind->state = 'active';
+		set_transient( 'jetpack_scan_state', $scan, WEEK_IN_SECONDS );
+		set_transient( 'jetpack_rewind_state', $rewind, WEEK_IN_SECONDS );
+
+		set_transient(
+			'jetpack_connected_user_data_' . get_current_user_id(),
+			array( 'site_count' => 2 ),
+			WEEK_IN_SECONDS
+		);
+
+		// The Subscribers link registers only where its modern wp-admin replacements are off.
+		add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_false' );
+		add_filter( 'jetpack_wp_admin_subscriber_management_enabled', '__return_false' );
+	}
+
+	/**
+	 * Runs a set of real product registrars through a request and reports the resulting slugs.
+	 *
+	 * @param array $registrars Callables from menu_registrars().
+	 * @return array Menu slugs, in the order WordPress rendered them.
+	 */
+	private function render_menu( array $registrars ) {
+		$this->reset_admin_menu();
+
+		/*
+		 * Loading the plugin leaves its own admin_menu callbacks hooked, so without this the products
+		 * under test register twice and products outside the set register anyway. Admin_Menu re-hooks
+		 * its own sorter from add_menu(), since the reset above uninitialized it.
+		 */
+		remove_all_actions( 'admin_menu' );
+
+		foreach ( $registrars as $registrar ) {
+			call_user_func( $registrar );
+		}
+
+		do_action( 'admin_menu' );
+
+		global $submenu;
+		$slugs = empty( $submenu['jetpack'] ) ? array() : array_column( $submenu['jetpack'], 2 );
+
+		// The free-plan upsell is appended after the sort, so it is not part of the ordering contract.
+		return array_values(
+			array_filter(
+				$slugs,
+				static function ( $slug ) {
+					return false === strpos( $slug, Admin_Menu::UPGRADE_MENU_SLUG );
+				}
+			)
+		);
+	}
+
+	/**
+	 * The same active products give the same order whichever one registered first.
+	 *
+	 * A product taking an explicit position stays deterministic, so it is test_jetpack_admin_menu_order()
+	 * above, not this one, that catches that.
+	 */
+	public function test_menu_order_is_independent_of_registrar_order() {
+		$registrars = $this->menu_registrars();
+		$order      = $this->render_menu( $registrars );
+
+		$this->assertNotEmpty( $order, 'Expected the real registrars to produce a Jetpack submenu.' );
+		$this->assertSame( 'my-jetpack', $order[0], 'My Jetpack should be pinned first.' );
+		$this->assertSame( $order, $this->render_menu( array_reverse( $registrars ) ) );
+
+		// Derived rather than a named subset, which would silently go stale as registrars are added.
+		$even = array();
+		$odd  = array();
+		foreach ( array_values( $registrars ) as $index => $registrar ) {
+			if ( 0 === $index % 2 ) {
+				$even[] = $registrar;
+			} else {
+				$odd[] = $registrar;
+			}
+		}
+
+		$this->assertSame( $order, $this->render_menu( array_merge( $odd, $even ) ) );
+	}
+
+	/**
+	 * A site with nothing but My Jetpack still gets a sidebar, with My Jetpack in it.
+	 */
+	public function test_only_my_jetpack() {
+		$registrars = $this->menu_registrars();
+
+		$this->assertSame( array( 'my-jetpack' ), $this->render_menu( array( $registrars['my-jetpack'] ) ) );
 	}
 }

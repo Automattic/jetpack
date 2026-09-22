@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
  * Internal dependencies
  */
 import { resetTracksIdentityForTesting } from '../../../hooks/use-track-event';
+import { FeedbackModal } from '../feedback-modal';
 import { PageOptionsMenu } from '../page-options-menu';
 
 const mockSetUser = jest.fn();
@@ -105,10 +106,9 @@ describe( 'PageOptionsMenu', () => {
 	it( 'reports the opening as its own event', async () => {
 		await openModal();
 
-		expect( mockRecordEvent ).toHaveBeenCalledWith(
-			'jetpack_premium_analytics_feedback_open',
-			undefined
-		);
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_feedback_open', {
+			source: 'menu',
+		} );
 	} );
 
 	it( 'reports the readiness answer and comment as one event', async () => {
@@ -120,7 +120,7 @@ describe( 'PageOptionsMenu', () => {
 
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
 			'jetpack_premium_analytics_feedback_submit',
-			{ readiness: 'almost', comment: 'Needs a date picker' }
+			{ readiness: 'almost', comment: 'Needs a date picker', source: 'menu' }
 		);
 	} );
 
@@ -142,7 +142,7 @@ describe( 'PageOptionsMenu', () => {
 
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
 			'jetpack_premium_analytics_feedback_submit',
-			{ readiness: 'not_yet', comment: '' }
+			{ readiness: 'not_yet', comment: '', source: 'menu' }
 		);
 	} );
 
@@ -158,7 +158,7 @@ describe( 'PageOptionsMenu', () => {
 		expect( dialog.getByText( 'Thanks, your feedback has gone to the team.' ) ).toBeInTheDocument();
 		expect(
 			dialog.getByText(
-				"It'll help us decide what to fix before the new Traffic tab replaces the old one. You can send more any time from the same menu."
+				"It'll help us decide what to fix before the new Traffic and Insights tabs replace the old ones. You can send more any time from the page options menu."
 			)
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'radiogroup' ) ).not.toBeInTheDocument();
@@ -188,12 +188,27 @@ describe( 'PageOptionsMenu', () => {
 	} );
 } );
 
+describe( 'the answer-on-its-way callback', () => {
+	it( 'fires once the answer is sent, not when the reader backs out', async () => {
+		const onSubmit = jest.fn();
+		const user = userEvent.setup();
+		render( <FeedbackModal source="banner" onSubmit={ onSubmit } onClose={ () => {} } /> );
+
+		await user.click( screen.getByRole( 'radio', { name: READY } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+		expect( onSubmit ).not.toHaveBeenCalled();
+
+		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
+		expect( onSubmit ).toHaveBeenCalledTimes( 1 );
+	} );
+} );
+
 describe( 'the readiness question', () => {
 	it( 'names the group with the question it answers', async () => {
 		await openModal();
 
 		expect( screen.getByRole( 'radiogroup' ) ).toHaveAccessibleName(
-			'Is the new Traffic tab ready to replace the old one?'
+			'Are the new Traffic and Insights tabs ready to replace the old ones?'
 		);
 	} );
 
@@ -258,10 +273,9 @@ describe( 'the Tracks identity', () => {
 		expect( mockSetUser ).not.toHaveBeenCalled();
 		expect( mockIdentifyUser ).not.toHaveBeenCalled();
 		expect( mockAssignSuperProps ).not.toHaveBeenCalled();
-		expect( mockRecordEvent ).toHaveBeenCalledWith(
-			'jetpack_premium_analytics_feedback_open',
-			undefined
-		);
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_feedback_open', {
+			source: 'menu',
+		} );
 	} );
 
 	it( 'skips the blog_id super prop when the site is not connected', async () => {
@@ -296,7 +310,7 @@ describe( 'the Happiness copy of the feedback', () => {
 				data: {
 					source_url: window.location.href,
 					product_name: 'Jetpack Stats v2',
-					feedback: `[Ready to replace the old Traffic tab? ${ answer }] Missing the date picker`,
+					feedback: `[Ready to replace the old Traffic and Insights tabs? ${ answer }] Missing the date picker`,
 				},
 			} )
 		);
@@ -310,7 +324,7 @@ describe( 'the Happiness copy of the feedback', () => {
 
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
 			'jetpack_premium_analytics_feedback_submit',
-			{ readiness: 'ready', comment: '' }
+			{ readiness: 'ready', comment: '', source: 'menu' }
 		);
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
@@ -327,13 +341,13 @@ describe( 'the Happiness copy of the feedback', () => {
 		expect( dialog.getByText( 'Thanks, your feedback has gone to the team.' ) ).toBeInTheDocument();
 		expect(
 			dialog.getByText(
-				"It'll help us decide what to fix before the new Traffic tab replaces the old one. You can send more any time from the same menu."
+				"It'll help us decide what to fix before the new Traffic and Insights tabs replace the old ones. You can send more any time from the page options menu."
 			)
 		).toBeInTheDocument();
 	} );
 } );
 
-describe( 'switching the new Traffic tab off', () => {
+describe( 'switching the new Traffic and Insights tabs off', () => {
 	/**
 	 * Opens the menu and picks the switch-off entry, so the confirmation is up.
 	 *
@@ -366,13 +380,15 @@ describe( 'switching the new Traffic tab off', () => {
 	it( 'asks before switching off, and Cancel changes nothing', async () => {
 		const user = await openConfirmation();
 
-		const dialog = screen.getByRole( 'dialog', { name: 'Switch off the new Traffic tab?' } );
+		const dialog = screen.getByRole( 'dialog', {
+			name: 'Switch off the new Traffic and Insights tabs?',
+		} );
 		expect( dialog ).toHaveTextContent(
-			"You'll go back to your current Stats. You can switch the new Traffic tab on again from the Modules Visibility setting."
+			"You'll go back to your current Stats. You can switch the new Traffic and Insights tabs on again from the Modules Visibility setting."
 		);
 		// The reason is asked for, never required: the button is live with nothing filled in.
 		expect( within( dialog ).getByRole( 'radiogroup' ) ).toHaveAccessibleName(
-			'Before you go — is the new Traffic tab ready to replace the old one?'
+			'Before you go — are the new Traffic and Insights tabs ready to replace the old ones?'
 		);
 		expect(
 			within( dialog ).getByRole( 'textbox', { name: "What's missing?" } )
@@ -450,7 +466,7 @@ describe( 'switching the new Traffic tab off', () => {
 					source_url: window.location.href,
 					product_name: 'Jetpack Stats v2 (switched off)',
 					feedback:
-						'[Ready to replace the old Traffic tab? Almost, a few things missing] Too slow on my phone',
+						'[Ready to replace the old Traffic and Insights tabs? Almost, a few things missing] Too slow on my phone',
 				},
 			} )
 		);
@@ -553,5 +569,43 @@ describe( 'switching the new Traffic tab off', () => {
 		await openConfirmation();
 
 		await waitFor( () => expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus() );
+	} );
+} );
+
+describe( 'Customize', () => {
+	it( 'comes first where the page has a layout to arrange', async () => {
+		const user = userEvent.setup();
+		const onCustomize = jest.fn();
+		render( <PageOptionsMenu onCustomize={ onCustomize } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		const items = await screen.findAllByRole( 'menuitem' );
+
+		expect( items.map( item => item.textContent ) ).toEqual( [
+			'Customize',
+			'Any feedback?',
+			'Switch off the preview',
+		] );
+		// The layout action sits apart from the rest.
+		expect( screen.getByRole( 'separator' ) ).toBeInTheDocument();
+
+		await user.click( items[ 0 ] );
+
+		expect( onCustomize ).toHaveBeenCalledTimes( 1 );
+		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+		await waitFor( () => expect( screen.queryByRole( 'menuitem' ) ).not.toBeInTheDocument() );
+	} );
+
+	it( 'stays out where there is nothing to arrange', async () => {
+		const user = userEvent.setup();
+		render( <PageOptionsMenu /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+
+		await expect(
+			screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'menuitem', { name: 'Customize' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'separator' ) ).not.toBeInTheDocument();
 	} );
 } );

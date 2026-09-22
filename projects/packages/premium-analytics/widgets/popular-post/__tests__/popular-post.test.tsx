@@ -152,6 +152,41 @@ describe( 'PopularPostWidget', () => {
 		expect( topPostsRequests()[ 0 ] ).not.toContain( '2023' );
 	} );
 
+	it( 'ignores a URL author scope unless the instance is author-scoped', async () => {
+		const reportParams = { ...yearReportParams( 2022 ), author_id: 7 };
+		const { unmount } = render( <PopularPostWidget attributes={ { reportParams } } /> );
+
+		await expect( screen.findByText( 'Winning post' ) ).resolves.toBeInTheDocument();
+		expect( topPostsRequests() ).toHaveLength( 1 );
+		unmount();
+
+		mockApiFetch.mockClear();
+		render( <PopularPostWidget attributes={ { reportParams, authorScoped: true } } /> );
+
+		await expect(
+			screen.findByText( 'No views recorded for this author’s posts in this period.' )
+		).resolves.toBeInTheDocument();
+		expect( topPostsRequests() ).toHaveLength( 0 );
+		expect(
+			mockApiFetch.mock.calls.some( ( [ options ] ) =>
+				requestPath( options ).includes( 'stats/top-authors' )
+			)
+		).toBe( true );
+	} );
+
+	it( 'shows the scopeless empty state, and makes no request, when author-scoped without an author', async () => {
+		render(
+			<PopularPostWidget
+				attributes={ { reportParams: yearReportParams( 2022 ), authorScoped: true } }
+			/>
+		);
+
+		await expect(
+			screen.findByText( 'Open an author to see their most viewed post here.' )
+		).resolves.toBeInTheDocument();
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+
 	it( 'links the post to its detail page on the window it ranked over', async () => {
 		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
 
@@ -161,6 +196,8 @@ describe( 'PopularPostWidget', () => {
 		expect( search.get( 'preset' ) ).toBe( 'last-12-months' );
 		expect( search.get( 'from' ) ).toContain( '2025-09-01T00:00:00' );
 		expect( search.get( 'to' ) ).toContain( '2026-08-27T23:59:59' );
+		expect( search.get( 'ref' ) ).toBe( 'posts' );
+		expect( search.get( 'ref_section' ) ).toBe( 'posts-pages' );
 
 		// A complete window, so the detail route reseeds the URL from these params
 		// rather than from its own defaults. (It does reseed either way — its

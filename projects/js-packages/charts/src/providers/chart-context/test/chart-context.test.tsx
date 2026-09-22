@@ -1318,11 +1318,11 @@ describe( 'ChartContext', () => {
 			expect( styles ).toHaveProperty( 'glyph' );
 			expect( styles ).toHaveProperty( 'shapeStyles' );
 
-			// Verify types
+			// A series without an `options` key is still a series, so theme styles apply.
 			expect( typeof styles.color ).toBe( 'string' );
-			expect( typeof styles.lineStyles ).toBe( 'object' );
-			expect( typeof styles.glyph ).toBe( 'function' );
-			expect( typeof styles.shapeStyles ).toBe( 'object' );
+			expect( styles.lineStyles ).toEqual( { strokeWidth: 2 } );
+			expect( styles.glyph ).toBe( mockGlyph );
+			expect( styles.shapeStyles ).toEqual( { fill: '#SHAPE1' } );
 		} );
 
 		it( 'returns complete ElementStyles object for DataPointPercentage', () => {

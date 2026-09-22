@@ -132,7 +132,11 @@ export function groupKey( error: CriticalCssErrorDetails ) {
 		error.meta !== null &&
 		'code' in error.meta
 	) {
-		return error.type + '-' + castToString( error.meta.code, '' );
+		// A page the site answered with its login gate is described differently from any other error
+		// of the same status, so it needs its own group.
+		const loginGated = error.meta.login_required === true ? '-login-required' : '';
+
+		return error.type + '-' + castToString( error.meta.code, '' ) + loginGated;
 	}
 
 	if ( error.type === 'UnknownError' ) {

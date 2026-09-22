@@ -3,7 +3,7 @@
 	"title": "Most popular day",
 	"description": "The day your site received the most views.",
 	"help": {
-		"content": "The single day your site received the most views, and that day's share of every view your site has recorded. These figures are all-time and don't change with the period you select.",
+		"content": "The single day your site drew the most views since you started tracking, and how much of your all-time views it accounts for.",
 		"links": [
 			{
 				"label": "Learn more",

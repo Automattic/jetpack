@@ -5,7 +5,7 @@ export const googlePoint2Mapbox = google_point =>
 				// Legacy point, supported here to avoid block deprecation.
 				lat: google_point.latitude || 0,
 				lng: google_point.longitude || 0,
-		  };
+			};
 
 export function getMapBounds( mapboxgl, points ) {
 	const bounds = new mapboxgl.LngLatBounds();
@@ -28,13 +28,15 @@ export function fitMapToBounds( map, bounds ) {
 
 export function setMarkerHTML( el, markerColor ) {
 	el.innerHTML = `
-		<?xml version="1.0" encoding="UTF-8"?>
-		<svg version="1.1" viewBox="0 0 32 38" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-			<g fill-rule="evenodd">
-				<path id="d" d="m16 38s16-11.308 16-22-7.1634-16-16-16-16 5.3076-16 16 16 22 16 22z" fill="${ markerColor }"/>
-			</g>
+		<svg version="1.1" viewBox="0 0 32 38" xmlns="http://www.w3.org/2000/svg">
+			<path d="m16 38s16-11.308 16-22-7.1634-16-16-16-16 5.3076-16 16 16 22 16 22z"/>
 		</svg>
 	`;
+	el.querySelector( 'path' ).setAttribute(
+		'fill',
+		// Provide fallback if the color provided is invalid.
+		CSS.supports( 'color', markerColor ) ? markerColor : 'red'
+	);
 }
 
 export function createInfoWindowPopup( mapboxgl ) {

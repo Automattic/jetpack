@@ -23,7 +23,7 @@ export const useXYChartTheme = ( data: SeriesData[] ) => {
 		// One resolver for all three, so they share a single getComputedStyle call.
 		const resolve = createCssVariableResolver( scopeElement );
 		const resolveColor = ( value?: string ): string | undefined =>
-			value ? resolve( value ) ?? value : value;
+			value ? ( resolve( value ) ?? value ) : value;
 
 		const seriesColors: string[] = JSON.parse( seriesColorKey );
 
