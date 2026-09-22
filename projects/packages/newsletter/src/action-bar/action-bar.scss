@@ -6,7 +6,7 @@
 $admin-gray-0: #f0f0f1;
 $admin-gray-10: #c3c4c7;
 $admin-gray-50: #646970;
-$admin-gray-60: #3c434a;
+$admin-gray-70: #3c434a;
 $admin-gray-80: #2c3338;
 $admin-green-50: #008a20;
 $admin-theme-color: #3858e9;
@@ -564,8 +564,8 @@ div#actionbar .actnbr-follow-bubble .actnbr-site-settings a.segmented-control__l
 }
 
 div#actionbar .actnbr-follow-bubble .actnbr-site-settings a.segmented-control__link[aria-checked="true"] {
-	border: $border-width solid $admin-gray-60;
-	color: $admin-gray-60;
+	border: $border-width solid $admin-gray-70;
+	color: $admin-gray-70;
 }
 
 /* Responsive Styles */
