@@ -80,7 +80,8 @@
 		"ai-seo-enhancer",
 		"ai-correct-spelling",
 		"paypal-payment-buttons",
-		"image-studio"
+		"image-studio",
+		"zoom-scheduler"
 	],
 	"beta": [
 		"google-docs-embed",
@@ -117,6 +118,7 @@
 		"tock",
 		"videopress",
 		"voice-to-content",
-		"wordads"
+		"wordads",
+		"zoom-scheduler"
 	]
 }
