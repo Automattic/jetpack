@@ -1,5 +1,5 @@
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/mixins" as gb;
 @use "sass:meta";
 
 // This stylesheet feeds two bundles: the wp-build dashboard
