@@ -28,7 +28,7 @@ describe( 'Page Cache example tooltip', () => {
 				<Meta />
 			)
 		);
-		fireEvent.click( screen.getByRole( 'button', { name: 'Show Options' } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: row ? 'Except None' : 'Show Options' } ) );
 		const trigger = screen.getByRole( 'button', { name: 'See an example' } );
 		trigger.focus();
 		fireEvent.keyDown( trigger, { key: ' ' } );
@@ -51,7 +51,9 @@ describe( 'Page Cache example tooltip', () => {
 				<Meta />
 			);
 			const { rerender } = render( content );
-			fireEvent.click( screen.getByRole( 'button', { name: 'Show Options' } ) );
+			fireEvent.click(
+				screen.getByRole( 'button', { name: row ? 'Except None' : 'Show Options' } )
+			);
 			const trigger = screen.getByRole( 'button', { name: 'See an example' } );
 			fireEvent.click( trigger );
 			fireEvent.mouseDown( trigger );
