@@ -1,5 +1,6 @@
 import { DataContext } from '@visx/xychart';
 import { useContext } from 'react';
+import { isReading } from './readings';
 import type { SeriesData } from '../../types';
 import type { ReactNode } from 'react';
 
@@ -14,7 +15,7 @@ export const hasOnlyWholeNumbers = ( series: SeriesData[] ): boolean => {
 	for ( const { data } of series ) {
 		for ( const point of data ) {
 			const value = point?.value;
-			if ( typeof value !== 'number' || ! Number.isFinite( value ) ) {
+			if ( ! isReading( value ) ) {
 				continue;
 			}
 			if ( ! Number.isInteger( value ) ) {
