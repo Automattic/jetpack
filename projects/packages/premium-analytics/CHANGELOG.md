@@ -17,12 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Ads: Add a payment status filter to the Earnings history report. [#52389]
 - Ads: Explain Ads Served on the Earnings history report. [#52389]
-- Ads: Show unpaid and negative amounts in red on the Earnings History widget. [#52389]
 - Ads: Group the WordAds chart by the selected period instead of a separate grouping control. [#52483]
 - Ads: Label WordAds earnings history periods by month and year, such as "August 2026". [#52327]
 - Ads: Rename the WordAds widgets to Ads summary, All-time balance and WordAds earnings, and give each its own icon. [#52511]
 - Ads: Show payment status as a badge on the Earnings history report. [#52437]
 - Ads: Show the Earnings History widget as a compact list without in-widget pagination. [#52327]
+- Ads: Show unpaid and negative amounts in red on the Earnings History widget. [#52389]
 - Dashboard: Show opens and clicks beside their rates in Latest emails sent. [#52256]
 - Dashboard: Show the Insights tab beside Traffic while the site is running the customer preview, and name both tabs in the preview's welcome, feedback and switch-off copy. [#52525]
 - Draw attention to the date control, and read the new period out, when a card or a table cell sets the period rather than the reader. [#52255]
@@ -38,8 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rename the Subscribers summary widget to Subscriber summary. [#52413]
 - Show the heatmap tooltips in the dark style, the daily ones titled with the date, and draw the Views over years and All-time traffic cells as flush bands under a continuous scale. [#52369]
 - Subscribers: Move the date range control off the tab header and onto the Subscriber summary chart; the tab no longer offers a previous-period comparison. [#52421]
-- Subscribers: Show subscriber counts from 30, 60, and 90 days ago, and social followers, on the Subscriber highlights card. [#52310]
 - Subscribers: Rename the first Subscriber highlights tile to All-time subscribers. [#52310]
+- Subscribers: Show subscriber counts from 30, 60, and 90 days ago, and social followers, on the Subscriber highlights card. [#52310]
 - Update package dependencies. [#52187] [#52401] [#52402]
 
 ### Removed
