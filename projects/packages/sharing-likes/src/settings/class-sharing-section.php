@@ -15,7 +15,7 @@ namespace Automattic\Jetpack\Sharing_Likes\Settings;
 final class Sharing_Section {
 
 	/**
-	 * Nonce action for this section's forms.
+	 * Nonce action for this section's action buttons.
 	 */
 	public const NONCE_ACTION = 'jetpack-sharing-options';
 

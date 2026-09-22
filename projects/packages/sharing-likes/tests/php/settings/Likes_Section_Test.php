@@ -38,6 +38,9 @@ class Likes_Section_Test extends BaseTestCase {
 	public function tear_down() {
 		$this->tear_down_site();
 		Constants::clear_constants();
+		ob_start();
+		Settings_Form::render();
+		ob_end_clean();
 
 		parent::tear_down();
 	}
@@ -123,8 +126,8 @@ class Likes_Section_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'switch-to-block-likes', $markup );
 		$this->assertStringNotContainsString( 'name="wpl_default"', $markup );
 		$this->assertStringNotContainsString( 'name="jetpack_reblogs_enabled"', $markup );
-		$this->assertStringContainsString( 'name="jetpack_sharing_action" value="save-comment-likes"', $markup );
-		$this->assertStringContainsString( 'name="jetpack_comment_likes_enabled"', $markup );
+		$this->assertStringContainsString( 'value="' . Settings_Form::SECTION_COMMENT_LIKES . '"', $markup );
+		$this->assertStringContainsString( '<input form="' . Settings_Form::ID . '" type="checkbox" name="jetpack_comment_likes_enabled"', $markup );
 	}
 
 	/**

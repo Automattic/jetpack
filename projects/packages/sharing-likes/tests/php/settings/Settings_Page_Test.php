@@ -240,7 +240,7 @@ class Settings_Page_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'sharing_save_services', $html );
 		$this->assertStringNotContainsString( 'name="wpl_default"', $html );
 		$this->assertSame( 1, substr_count( $html, 'third-party-field' ) );
-		$this->assertStringContainsString( 'value="save-extras"', $html );
+		$this->assertStringContainsString( 'value="' . Settings_Form::SECTION_EXTRAS . '"', $html );
 	}
 
 	/**
@@ -259,6 +259,42 @@ class Settings_Page_Test extends BaseTestCase {
 
 		$this->assertStringNotContainsString( 'sharing_save_services', $html );
 		$this->assertSame( 1, substr_count( $html, 'third-party-field' ) );
-		$this->assertStringContainsString( 'value="save-extras"', $html );
+		$this->assertStringContainsString( 'value="' . Settings_Form::SECTION_EXTRAS . '"', $html );
+	}
+
+	/**
+	 * Likes and placement side by side each used to carry a Save button, and
+	 * saving one silently dropped edits in the other.
+	 */
+	public function test_saves_every_section_through_one_button(): void {
+		$this->given_connection( true );
+		$this->given_modules( array( 'likes' ) );
+
+		$html = $this->render_screen();
+
+		$this->assertSame( 1, substr_count( $html, 'Save Changes' ) );
+		$this->assertStringContainsString( 'value="' . Settings_Form::SECTION_LIKES . '"', $html );
+		$this->assertStringContainsString( 'value="' . Settings_Form::SECTION_PLACEMENT . '"', $html );
+
+		preg_match_all( '/<(?:input|select|textarea)\b[^>]*>/', $html, $fields );
+		foreach ( $fields[0] as $field ) {
+			if ( str_contains( $field, 'name="_wp' ) || str_contains( $field, 'name="jetpack_sharing_action"' ) || str_contains( $field, 'name="submit"' ) ) {
+				continue;
+			}
+			$this->assertStringContainsString( 'form="' . Settings_Form::ID . '"', $field );
+		}
+
+		preg_match( '/<form[^>]*id="' . Settings_Form::ID . '"[^>]*>.*?name="_wpnonce" value="([^"]+)"/s', $html, $matches );
+
+		$this->assertNotEmpty( $matches, 'The page form carries no nonce.' );
+		$this->assertSame( 1, wp_verify_nonce( $matches[1], Settings_Form::NONCE_ACTION ) );
+		$this->assertStringContainsString( 'name="jetpack_sharing_action" value="save-settings"', $html );
+	}
+
+	/**
+	 * With no section offering settings, a Save button would save nothing.
+	 */
+	public function test_renders_no_save_button_without_settings(): void {
+		$this->assertStringNotContainsString( 'Save Changes', $this->render_screen() );
 	}
 }

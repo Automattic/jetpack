@@ -45,10 +45,8 @@ final class Settings_Page {
 	}
 
 	/**
-	 * Render whichever sections apply, ruled off from one another.
-	 *
-	 * Each section is its own form with its own save button, so the boundary
-	 * says which settings a given save covers.
+	 * Render whichever sections apply, ruled off from one another, then the
+	 * one Save button that covers them all.
 	 */
 	private static function render_sections(): void {
 		// The submenu registers against this too. Repeated here because the sections
@@ -91,6 +89,8 @@ final class Settings_Page {
 			echo $markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- each section escapes its own output.
 			++$rendered;
 		}
+
+		Settings_Form::render();
 	}
 
 	/**

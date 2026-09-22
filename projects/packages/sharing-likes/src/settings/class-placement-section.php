@@ -16,11 +16,6 @@ namespace Automattic\Jetpack\Sharing_Likes\Settings;
 final class Placement_Section {
 
 	/**
-	 * Nonce action for this section's form.
-	 */
-	public const NONCE_ACTION = 'jetpack-sharing-placement';
-
-	/**
 	 * Anchor the feature sections link to.
 	 */
 	public const ANCHOR = 'jetpack-sharing-placement';
@@ -83,7 +78,7 @@ final class Placement_Section {
 		?>
 		<div class="jetpack-sharing-settings__section" id="<?php echo esc_attr( self::ANCHOR ); ?>">
 			<h2><?php echo esc_html( self::heading() ); ?></h2>
-			<form method="post" action="">
+			<?php ob_start(); ?>
 				<table class="form-table">
 					<tbody>
 					<?php
@@ -124,14 +119,7 @@ final class Placement_Section {
 					?>
 					</tbody>
 				</table>
-				<p class="submit">
-					<input type="submit" name="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'jetpack-sharing-likes' ); ?>" />
-					<?php
-					Post_Handler::render_action_field( 'save-placement' );
-					wp_nonce_field( self::NONCE_ACTION );
-					?>
-				</p>
-			</form>
+			<?php Settings_Form::render_fields( Settings_Form::SECTION_PLACEMENT, (string) ob_get_clean() ); ?>
 		</div>
 		<?php
 	}
@@ -144,8 +132,8 @@ final class Placement_Section {
 	 * legible without a second line of copy.
 	 */
 	private static function heading(): string {
-		$sharing = Environment::sharing_module_running();
-		$likes   = Environment::likes_settings_in_use();
+		$sharing = Section_State::configures( Sharing_Section::state() );
+		$likes   = Section_State::configures( Likes_Section::state() );
 
 		if ( $sharing && $likes ) {
 			return __( 'Where sharing and Like buttons appear', 'jetpack-sharing-likes' );

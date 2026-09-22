@@ -15,7 +15,7 @@ namespace Automattic\Jetpack\Sharing_Likes\Settings;
 final class Likes_Section {
 
 	/**
-	 * Nonce action for this section's form.
+	 * Nonce action for this section's action buttons.
 	 *
 	 * Deliberately not sharedaddy's `sharing-options`: that nonce triggers the
 	 * sharing handlers too, and one of them clears `sharing-options[global][show]`
@@ -174,48 +174,41 @@ final class Likes_Section {
 		Placement_Section::render_summary( Placement_Section::FEATURE_LIKES );
 
 		$likes_enabled_sitewide = Likes_Options::likes_enabled_sitewide();
+
+		ob_start();
 		?>
-		<form method="post" action="">
-			<table class="form-table">
-				<tbody>
-					<tr>
-						<th scope="row"><label><?php esc_html_e( 'WordPress.com Likes are', 'jetpack-sharing-likes' ); ?></label></th>
-						<td>
-							<div>
-								<label>
-									<input type="radio" name="wpl_default" value="on" <?php checked( $likes_enabled_sitewide ); ?> />
-									<?php esc_html_e( 'On for all posts', 'jetpack-sharing-likes' ); ?>
-								</label>
-							</div>
-							<div>
-								<label>
-									<input type="radio" name="wpl_default" value="off" <?php checked( ! $likes_enabled_sitewide ); ?> />
-									<?php esc_html_e( 'Turned on per post', 'jetpack-sharing-likes' ); ?>
-								</label>
-							</div>
-						</td>
-					</tr>
-					<?php
-					if ( Environment::is_simple_site() ) {
-						self::render_reblog_option();
-					}
-					?>
-				</tbody>
-			</table>
-			<?php
-			if ( Environment::is_simple_site() ) {
-				self::render_comment_likes_option();
-			}
-			?>
-			<p class="submit">
-				<input type="submit" name="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'jetpack-sharing-likes' ); ?>" />
+		<table class="form-table">
+			<tbody>
+				<tr>
+					<th scope="row"><label><?php esc_html_e( 'WordPress.com Likes are', 'jetpack-sharing-likes' ); ?></label></th>
+					<td>
+						<div>
+							<label>
+								<input type="radio" name="wpl_default" value="on" <?php checked( $likes_enabled_sitewide ); ?> />
+								<?php esc_html_e( 'On for all posts', 'jetpack-sharing-likes' ); ?>
+							</label>
+						</div>
+						<div>
+							<label>
+								<input type="radio" name="wpl_default" value="off" <?php checked( ! $likes_enabled_sitewide ); ?> />
+								<?php esc_html_e( 'Turned on per post', 'jetpack-sharing-likes' ); ?>
+							</label>
+						</div>
+					</td>
+				</tr>
 				<?php
-				Post_Handler::render_action_field( 'save-likes' );
-				wp_nonce_field( self::NONCE_ACTION );
+				if ( Environment::is_simple_site() ) {
+					self::render_reblog_option();
+				}
 				?>
-			</p>
-		</form>
+			</tbody>
+		</table>
 		<?php
+		if ( Environment::is_simple_site() ) {
+			self::render_comment_likes_option();
+		}
+
+		Settings_Form::render_fields( Settings_Form::SECTION_LIKES, (string) ob_get_clean() );
 	}
 
 	/**
@@ -251,18 +244,9 @@ final class Likes_Section {
 	 * Comment Likes on their own, for a Simple site whose post Likes moved to the block.
 	 */
 	private static function render_comment_likes_form(): void {
-		?>
-		<form method="post" action="">
-			<?php self::render_comment_likes_option(); ?>
-			<p class="submit">
-				<input type="submit" name="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'jetpack-sharing-likes' ); ?>" />
-				<?php
-				Post_Handler::render_action_field( 'save-comment-likes' );
-				wp_nonce_field( self::NONCE_ACTION );
-				?>
-			</p>
-		</form>
-		<?php
+		ob_start();
+		self::render_comment_likes_option();
+		Settings_Form::render_fields( Settings_Form::SECTION_COMMENT_LIKES, (string) ob_get_clean() );
 	}
 
 	/**

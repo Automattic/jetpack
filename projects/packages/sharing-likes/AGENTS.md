@@ -14,6 +14,16 @@ whichever modules are active.
 `Section_State` decides which of four variants a section renders. `Environment`
 reads the site facts it needs. Everything else renders.
 
+Every setting on the screen saves through one form and one Save button,
+`Settings_Form`. The sections cannot share a `<form>` element, because the
+services list nests the legacy forms its script submits over AJAX. So the form
+renders empty at the end of the page, and `Settings_Form::render_fields()` points
+each section's fields at it through the HTML `form` attribute, third-party fields
+included. Each section also posts its name, and `Post_Handler` saves only the
+sections named: a missing field reads as "off", so saving a section that was not
+on screen would switch it off. The "Switch to…" and "Turn on…" buttons are actions
+rather than settings, and keep their own single-button forms and nonces.
+
 The two off variants are not symmetrical. `OFF` offers a form that turns the
 module back on; `BLOCK_CALL_TO_ACTION` deliberately does not, because the
 Jetpack dashboard drops its own module toggle on exactly those sites — see
@@ -69,7 +79,7 @@ off wherever the block is a route, so the section lands on `BLOCK_CALL_TO_ACTION
 with no way back, as a deactivated module does. The same holds on Jetpack for an
 active Sharing module with every service removed. Without a block route the
 options stay, since they are then the only way back. Simple's Comment Likes
-checkbox survives the switch in its own form: comments have no block to move to.
+checkbox survives the switch: comments have no block to move to.
 
 **Simple reuses `Jetpack_Likes_Settings` without the Likes module.**
 `wp-content/mu-plugins/likes/jetpack-likes-settings.php` is a shim that requires
@@ -78,12 +88,13 @@ the plugin's copy of that class. `modules/likes.php` never loads on Simple;
 delete from `Jetpack_Likes_Settings` can therefore break Simple without a single
 reference in this repo.
 
-**Simple still renders the Likes settings through `sharing_global_options`**,
-hooked from `wp-content/mu-plugins/likes/jetpack-likes.php`. Until that hookup is
-removed (CM-913), Simple renders the Likes settings twice — once in the services
-table, once as this screen's section. Do not delete `admin_settings_init()` or
-`admin_settings_callback()` from `Jetpack_Likes_Settings` before that lands, or
-the settings vanish from Simple entirely.
+**Simple still hangs the Likes settings on `sharing_global_options`**, from
+`wp-content/mu-plugins/likes/jetpack-likes.php`, until CM-913 removes that hookup.
+`Services_Config::global_options()` leaves `admin_settings_init()` out wherever it
+fires the action: the Likes section renders those settings itself, and a second
+set of the same radios would join the same form. Do not delete
+`admin_settings_init()` or `admin_settings_callback()` from `Jetpack_Likes_Settings`
+before that lands; wpcom still calls them.
 
 **`WP_SHARING_PLUGIN_URL` is not the same thing in both environments.** The
 plugin defines it with `plugin_dir_url()`; wpcom hardcodes a sun/moon-aware path
@@ -105,7 +116,7 @@ has no `Sharing_Service` to configure.
 Third parties extend this screen through these, so they fire from the new page
 even though nothing here uses them to assemble it: `pre_admin_screen_sharing` at
 the top of the page, `sharing_global_options` at the end of the services table,
-`sharing_admin_update` on a services save, and
+`sharing_admin_update` on any save that rendered that action's fields, and
 `sharing_show_buttons_on_row_start` / `_end` around the placement row. All four
 are now documented here rather than in `modules/sharedaddy/sharing.php`, which no
 longer fires any of them.
@@ -114,11 +125,8 @@ longer fires any of them.
 `Services_Config`, which only renders when the Sharing section configures, but its
 consumers are not all gated on that module — `Twitter_Cards` hangs the Twitter
 Site Tag there and is gated only on `jetpack_disable_twitter_cards`. That is what
-`Extras_Section` is for: whenever the services list is hidden it renders the same
-action in its own form and fires `sharing_admin_update` on save. It leaves out
-`Jetpack_Likes_Settings::admin_settings_init()`, which Simple still hangs off that
-action (see above): the Likes section owns those options, and their save checks a
-nonce this form does not carry.
+`Extras_Section` is for: whenever the services list is hidden, it renders the same
+action as a section of its own, and a save fires `sharing_admin_update` for it.
 
 The Site Tag is worth that trouble because it still drives output with both
 Sharing and Publicize off. Open Graph is not the reason — `Jetpack::check_open_graph()`
@@ -136,8 +144,9 @@ hooked on Simple — fails closed and silently saves nothing. A consumer that
 verifies nothing and relies on the caller having done it — sharedaddy's
 `sharing_global_resources_save()` — writes unconditionally. Only the last is
 dangerous, and it is safe today only because its own field renders from the same
-action, so the extras form posts it back. A consumer that saves without rendering
-would reset its setting on every extras save.
+action, so the form posts it back. A consumer that saves without rendering would
+reset its setting on every save, which is also why the hook only fires when one of
+its two hosts was on screen.
 
 ## Placement defaults
 

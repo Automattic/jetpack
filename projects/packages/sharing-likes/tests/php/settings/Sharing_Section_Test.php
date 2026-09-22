@@ -40,6 +40,9 @@ class Sharing_Section_Test extends BaseTestCase {
 		$this->tear_down_site();
 		Constants::clear_constants();
 		delete_option( 'sharing-services' );
+		ob_start();
+		Settings_Form::render();
+		ob_end_clean();
 
 		parent::tear_down();
 	}

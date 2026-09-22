@@ -65,6 +65,19 @@ class Post_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A payload claiming the given sections, as the form's hidden fields do.
+	 *
+	 * @param string[]            $sections Sections the form claims.
+	 * @param array<string,mixed> $payload  Other fields the form submits.
+	 * @return array<string,mixed>
+	 */
+	private function claiming( array $sections, array $payload = array() ): array {
+		$payload[ Settings_Form::SECTIONS_FIELD ] = $sections;
+
+		return $payload;
+	}
+
+	/**
 	 * Run one of the private save handlers, which return rather than redirect.
 	 *
 	 * @param string $method Method name.
@@ -141,7 +154,7 @@ class Post_Handler_Test extends BaseTestCase {
 	public function test_placement_save_stores_the_posted_post_types(): void {
 		update_option( 'sharing-options', array( 'global' => array( 'show' => array( 'page' ) ) ) );
 
-		$this->submit( Placement_Section::NONCE_ACTION, array( 'show' => array( 'post', 'index' ) ) );
+		$this->submit( Settings_Form::NONCE_ACTION, array( 'show' => array( 'post', 'index' ) ) );
 		$this->save( 'save_placement' );
 
 		$options = get_option( 'sharing-options' );
@@ -157,7 +170,7 @@ class Post_Handler_Test extends BaseTestCase {
 	public function test_placement_save_can_clear_every_post_type(): void {
 		update_option( 'sharing-options', array( 'global' => array( 'show' => array( 'post', 'page' ) ) ) );
 
-		$this->submit( Placement_Section::NONCE_ACTION, array() );
+		$this->submit( Settings_Form::NONCE_ACTION, array() );
 		$this->save( 'save_placement' );
 
 		$options = get_option( 'sharing-options' );
@@ -171,7 +184,7 @@ class Post_Handler_Test extends BaseTestCase {
 	 */
 	public function test_placement_save_drops_values_outside_the_allowlist(): void {
 		$this->submit(
-			Placement_Section::NONCE_ACTION,
+			Settings_Form::NONCE_ACTION,
 			array( 'show' => array( 'post', 'revision', 'not-a-post-type', array( 'nested' ) ) )
 		);
 		$this->save( 'save_placement' );
@@ -197,7 +210,7 @@ class Post_Handler_Test extends BaseTestCase {
 			)
 		);
 
-		$this->submit( Placement_Section::NONCE_ACTION, array( 'show' => array( 'post' ) ) );
+		$this->submit( Settings_Form::NONCE_ACTION, array( 'show' => array( 'post' ) ) );
 		$this->save( 'save_placement' );
 
 		$options = get_option( 'sharing-options' );
@@ -214,7 +227,7 @@ class Post_Handler_Test extends BaseTestCase {
 	public function test_placement_save_survives_a_malformed_global(): void {
 		update_option( 'sharing-options', array( 'global' => 'corrupt' ) );
 
-		$this->submit( Placement_Section::NONCE_ACTION, array( 'show' => array( 'post' ) ) );
+		$this->submit( Settings_Form::NONCE_ACTION, array( 'show' => array( 'post' ) ) );
 		$this->save( 'save_placement' );
 
 		$options = get_option( 'sharing-options' );
@@ -247,7 +260,7 @@ class Post_Handler_Test extends BaseTestCase {
 		update_option( 'sharing-options', array( 'global' => array( 'show' => array( 'post', 'page' ) ) ) );
 		$this->log_in_as( 'editor' );
 
-		$redirected = $this->dispatch( 'save-placement', Placement_Section::NONCE_ACTION, array( 'show' => array( 'index' ) ) );
+		$redirected = $this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_PLACEMENT ), array( 'show' => array( 'index' ) ) ) );
 
 		$options = get_option( 'sharing-options' );
 
@@ -265,9 +278,9 @@ class Post_Handler_Test extends BaseTestCase {
 
 		$_GET['page'] = 'some-other-screen';
 		$this->submit(
-			Placement_Section::NONCE_ACTION,
+			Settings_Form::NONCE_ACTION,
 			array(
-				'jetpack_sharing_action' => 'save-placement',
+				'jetpack_sharing_action' => 'save-settings',
 				'show'                   => array( 'index' ),
 			)
 		);
@@ -286,20 +299,20 @@ class Post_Handler_Test extends BaseTestCase {
 	public function test_dispatch_ignores_an_unknown_action(): void {
 		$this->log_in_as( 'administrator' );
 
-		$redirected = $this->dispatch( 'save-everything', Placement_Section::NONCE_ACTION );
+		$redirected = $this->dispatch( 'save-everything', Settings_Form::NONCE_ACTION );
 
 		$this->assertFalse( $redirected );
 		$this->assertNull( $this->redirected_to );
 	}
 
 	/**
-	 * Each action has to reach its own handler. Routing `save-likes` to any of
+	 * Each claimed section has to reach its own save. Routing Likes to any of
 	 * the others would write nothing and still report a save.
 	 */
-	public function test_dispatch_routes_save_likes_to_the_likes_handler(): void {
+	public function test_save_routes_the_likes_section_to_the_likes_save(): void {
 		$this->log_in_as( 'administrator' );
 
-		$redirected = $this->dispatch( 'save-likes', Likes_Section::NONCE_ACTION, array( 'wpl_default' => 'off' ) );
+		$redirected = $this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_LIKES ), array( 'wpl_default' => 'off' ) ) );
 
 		$this->assertTrue( $redirected );
 		$this->assertSame( '1', (string) get_option( 'disabled_likes' ) );
@@ -312,7 +325,7 @@ class Post_Handler_Test extends BaseTestCase {
 	public function test_dispatch_returns_to_the_screen_with_the_saved_flag(): void {
 		$this->log_in_as( 'administrator' );
 
-		$this->dispatch( 'save-placement', Placement_Section::NONCE_ACTION, array( 'show' => array( 'post' ) ) );
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_PLACEMENT ), array( 'show' => array( 'post' ) ) ) );
 
 		$this->assertSame(
 			admin_url( 'options-general.php?page=sharing&update=saved' ),
@@ -344,7 +357,7 @@ class Post_Handler_Test extends BaseTestCase {
 		update_option( 'disabled_likes', 1 );
 		$this->log_in_as( 'administrator' );
 
-		$this->dispatch( 'save-likes', Likes_Section::NONCE_ACTION );
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_LIKES ) ) );
 
 		$this->assertFalse( get_option( 'disabled_likes' ) );
 	}
@@ -357,12 +370,15 @@ class Post_Handler_Test extends BaseTestCase {
 		$this->log_in_as( 'administrator' );
 
 		$this->dispatch(
-			'save-likes',
-			Likes_Section::NONCE_ACTION,
-			array(
-				'wpl_default'                   => 'on',
-				'jetpack_reblogs_enabled'       => 'off',
-				'jetpack_comment_likes_enabled' => '1',
+			'save-settings',
+			Settings_Form::NONCE_ACTION,
+			$this->claiming(
+				array( Settings_Form::SECTION_LIKES ),
+				array(
+					'wpl_default'                   => 'on',
+					'jetpack_reblogs_enabled'       => 'off',
+					'jetpack_comment_likes_enabled' => '1',
+				)
 			)
 		);
 
@@ -380,7 +396,7 @@ class Post_Handler_Test extends BaseTestCase {
 		update_option( 'disabled_reblogs', 1 );
 		$this->log_in_as( 'administrator' );
 
-		$redirected = $this->dispatch( 'save-comment-likes', Likes_Section::NONCE_ACTION, array( 'jetpack_comment_likes_enabled' => '1' ) );
+		$redirected = $this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_COMMENT_LIKES ), array( 'jetpack_comment_likes_enabled' => '1' ) ) );
 
 		$this->assertTrue( $redirected );
 		$this->assertSame( '1', (string) get_option( 'jetpack_comment_likes_enabled' ) );
@@ -391,16 +407,17 @@ class Post_Handler_Test extends BaseTestCase {
 	public function test_comment_likes_save_writes_nothing_off_wpcom(): void {
 		$this->log_in_as( 'administrator' );
 
-		$this->dispatch( 'save-comment-likes', Likes_Section::NONCE_ACTION, array( 'jetpack_comment_likes_enabled' => '1' ) );
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_COMMENT_LIKES ), array( 'jetpack_comment_likes_enabled' => '1' ) ) );
 
 		$this->assertFalse( get_option( 'jetpack_comment_likes_enabled' ) );
 	}
 
 	/**
-	 * Third parties render into the extras section and save through this action,
-	 * verifying their own nonces. Without the hook their fields post to nothing.
+	 * Count `sharing_admin_update` over one save claiming the given sections.
+	 *
+	 * @param string[] $sections Sections the form claims.
 	 */
-	public function test_extras_save_fires_the_hook_third_parties_save_from(): void {
+	private function count_admin_updates( array $sections ): int {
 		$fired = 0;
 		add_action(
 			'sharing_admin_update',
@@ -410,12 +427,102 @@ class Post_Handler_Test extends BaseTestCase {
 		);
 		$this->log_in_as( 'administrator' );
 
-		$redirected = $this->dispatch( 'save-extras', Extras_Section::NONCE_ACTION );
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( $sections ) );
 
 		remove_all_actions( 'sharing_admin_update' );
 
-		$this->assertTrue( $redirected );
-		$this->assertSame( 1, $fired );
+		return $fired;
+	}
+
+	/**
+	 * Third parties render into the extras section and save through this hook,
+	 * verifying their own nonces. Without it their fields post to nothing.
+	 */
+	public function test_extras_save_fires_the_hook_third_parties_save_from(): void {
+		$this->assertSame( 1, $this->count_admin_updates( array( Settings_Form::SECTION_EXTRAS ) ) );
+	}
+
+	/**
+	 * Its consumers save from whatever they rendered, and a second pass would save twice.
+	 */
+	public function test_save_fires_the_third_party_hook_once_for_both_hosts(): void {
+		$this->assertSame( 1, $this->count_admin_updates( array( Settings_Form::SECTION_SHARING, Settings_Form::SECTION_EXTRAS ) ) );
+	}
+
+	/**
+	 * With neither host on the screen, no third-party field was either, and
+	 * sharedaddy's consumer would reset its setting from the missing checkbox.
+	 */
+	public function test_save_leaves_the_third_party_hook_alone_when_no_host_rendered(): void {
+		$this->assertSame( 0, $this->count_admin_updates( array( Settings_Form::SECTION_LIKES, Settings_Form::SECTION_PLACEMENT ) ) );
+	}
+
+	/**
+	 * The point of one form: edits in several sections land in one save.
+	 */
+	public function test_save_stores_every_claimed_section_at_once(): void {
+		update_option( 'sharing-options', array( 'global' => array( 'show' => array( 'page' ) ) ) );
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch(
+			'save-settings',
+			Settings_Form::NONCE_ACTION,
+			$this->claiming(
+				array( Settings_Form::SECTION_LIKES, Settings_Form::SECTION_PLACEMENT ),
+				array(
+					'wpl_default' => 'off',
+					'show'        => array( 'post' ),
+				)
+			)
+		);
+
+		$options = get_option( 'sharing-options' );
+
+		$this->assertSame( '1', (string) get_option( 'disabled_likes' ) );
+		$this->assertSame( array( 'post' ), $options['global']['show'] );
+	}
+
+	/**
+	 * An unclaimed section's fields were not on the screen. Reading the absent
+	 * Likes radio as its "on" default would turn Likes back on for every post.
+	 */
+	public function test_save_leaves_unclaimed_sections_alone(): void {
+		update_option( 'disabled_likes', 1 );
+		update_option( 'sharing-options', array( 'global' => array( 'show' => array( 'page' ) ) ) );
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_EXTRAS ) ) );
+
+		$options = get_option( 'sharing-options' );
+
+		$this->assertSame( '1', (string) get_option( 'disabled_likes' ) );
+		$this->assertSame( array( 'page' ), $options['global']['show'] );
+	}
+
+	/**
+	 * The services settings rebuild the global options from defaults, so they
+	 * have to save first and carry placement through, or placement is lost.
+	 */
+	public function test_sharing_save_hands_placement_through(): void {
+		update_option( 'sharing-options', array( 'global' => array( 'show' => array( 'page' ) ) ) );
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_SHARING ), array( 'button_style' => 'icon' ) ) );
+
+		$saved = $GLOBALS['sharing_likes_test_global_options'];
+		unset( $GLOBALS['sharing_likes_test_global_options'] );
+
+		$this->assertSame( 'icon', $saved['button_style'] );
+		$this->assertSame( array( 'page' ), $saved['show'] );
+	}
+
+	/**
+	 * A request can name sections the screen never renders; they must not reach a save.
+	 */
+	public function test_posted_sections_are_checked_against_the_known_ones(): void {
+		$this->submit( Settings_Form::NONCE_ACTION, array( Settings_Form::SECTIONS_FIELD => array( 'likes', 'everything', array( 'placement' ) ) ) );
+
+		$this->assertSame( array( Settings_Form::SECTION_LIKES ), Settings_Form::posted_sections() );
 	}
 
 	/**
@@ -494,18 +601,16 @@ class Post_Handler_Test extends BaseTestCase {
 	 */
 	public static function provide_section_nonce_actions(): array {
 		return array(
-			'sharing'   => array( Sharing_Section::NONCE_ACTION ),
-			'likes'     => array( Likes_Section::NONCE_ACTION ),
-			'placement' => array( Placement_Section::NONCE_ACTION ),
-			'extras'    => array( Extras_Section::NONCE_ACTION ),
+			'sharing'  => array( Sharing_Section::NONCE_ACTION ),
+			'likes'    => array( Likes_Section::NONCE_ACTION ),
+			'settings' => array( Settings_Form::NONCE_ACTION ),
 		);
 	}
 
 	/**
-	 * Every section signs with its own action so that saving one never runs
-	 * another's handlers. `sharing-options` is the one that must never be
-	 * reused: `Services_Config::process_requests()` answers to it and rebuilds
-	 * the global options from defaults, clearing placement on the way.
+	 * `sharing-options` is the one nonce the screen must never sign with:
+	 * `Services_Config::process_requests()` answers to it and rebuilds the
+	 * global options from defaults, clearing placement on the way.
 	 *
 	 * @param string $nonce_action The section's nonce action.
 	 * @dataProvider provide_section_nonce_actions

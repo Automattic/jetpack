@@ -67,17 +67,8 @@ final class Post_Handler {
 			case 'switch-to-block-sharing':
 				$redirect = self::switch_sharing_to_block();
 				break;
-			case 'save-likes':
-				$redirect = self::save_likes();
-				break;
-			case 'save-comment-likes':
-				$redirect = self::save_comment_likes();
-				break;
-			case 'save-placement':
-				$redirect = self::save_placement();
-				break;
-			case 'save-extras':
-				$redirect = self::save_extras();
+			case 'save-settings':
+				$redirect = self::save_settings();
 				break;
 		}
 
@@ -153,13 +144,68 @@ final class Post_Handler {
 	}
 
 	/**
-	 * Save the Like buttons section.
+	 * Save every section that put fields on the form.
+	 *
+	 * Only those: the others' fields were not on the screen, and reading their
+	 * absence as "off" would switch them off.
 	 *
 	 * @return string URL to send the browser back to.
 	 */
-	private static function save_likes(): string {
-		check_admin_referer( Likes_Section::NONCE_ACTION );
+	private static function save_settings(): string {
+		check_admin_referer( Settings_Form::NONCE_ACTION );
 
+		$sections = Settings_Form::posted_sections();
+
+		// Before placement, because the services save rebuilds the global options it lives in.
+		if ( in_array( Settings_Form::SECTION_SHARING, $sections, true ) ) {
+			self::save_sharing_options();
+		}
+
+		if ( in_array( Settings_Form::SECTION_PLACEMENT, $sections, true ) ) {
+			self::save_placement();
+		}
+
+		if ( in_array( Settings_Form::SECTION_LIKES, $sections, true ) ) {
+			self::save_likes();
+		}
+
+		if ( in_array( Settings_Form::SECTION_COMMENT_LIKES, $sections, true ) && Environment::is_simple_site() ) {
+			self::save_comment_likes();
+		}
+
+		// Once, from whichever section rendered `sharing_global_options`; never both.
+		if ( array_intersect( array( Settings_Form::SECTION_SHARING, Settings_Form::SECTION_EXTRAS ), $sections ) ) {
+			/** This action is documented in projects/packages/sharing-likes/src/settings/class-services-config.php */
+			do_action( 'sharing_admin_update' );
+		}
+
+		return self::redirect_url( true );
+	}
+
+	/**
+	 * Save the services list's own settings: button style and label.
+	 */
+	private static function save_sharing_options(): void {
+		// The section renders only when this class is loaded, but the request can claim it regardless.
+		if ( ! class_exists( 'Sharing_Service' ) ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- verified by the caller; set_global_options() validates each field.
+		$data = $_POST;
+
+		// set_global_options() rebuilds the global array from defaults, so a payload with no `show` would clear placement.
+		if ( ! isset( $data['show'] ) ) {
+			$data['show'] = Placement_Section::selected_post_types();
+		}
+
+		( new \Sharing_Service() )->set_global_options( $data );
+	}
+
+	/**
+	 * Save the Like buttons settings.
+	 */
+	private static function save_likes(): void {
 		if ( 'off' === self::posted_choice( 'wpl_default' ) ) {
 			update_option( 'disabled_likes', 1 );
 		} else {
@@ -173,60 +219,22 @@ final class Post_Handler {
 				delete_option( 'disabled_reblogs' );
 			}
 
-			self::update_comment_likes();
+			self::save_comment_likes();
 		}
-
-		return self::redirect_url( true );
 	}
 
 	/**
-	 * Save the Comment Likes form a Simple site keeps once its post Likes moved to the block.
-	 *
-	 * @return string URL to send the browser back to.
+	 * Save the Comment Likes checkbox, which WordPress.com Simple alone renders.
 	 */
-	private static function save_comment_likes(): string {
-		check_admin_referer( Likes_Section::NONCE_ACTION );
-
-		if ( Environment::is_simple_site() ) {
-			self::update_comment_likes();
-		}
-
-		return self::redirect_url( true );
-	}
-
-	/**
-	 * Store the posted Comment Likes checkbox. Callers verify the nonce.
-	 */
-	private static function update_comment_likes(): void {
+	private static function save_comment_likes(): void {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified by the caller.
 		update_option( 'jetpack_comment_likes_enabled', empty( $_POST['jetpack_comment_likes_enabled'] ) ? 0 : 1 );
 	}
 
 	/**
-	 * Save whatever third parties rendered into the extras section.
-	 *
-	 * Each of them verifies its own nonce inside `sharing_admin_update`, so this
-	 * only has to establish that the request came from this screen.
-	 *
-	 * @return string URL to send the browser back to.
+	 * Save where the buttons appear.
 	 */
-	private static function save_extras(): string {
-		check_admin_referer( Extras_Section::NONCE_ACTION );
-
-		/** This action is documented in projects/packages/sharing-likes/src/settings/class-services-config.php */
-		do_action( 'sharing_admin_update' );
-
-		return self::redirect_url( true );
-	}
-
-	/**
-	 * Save the shared placement section.
-	 *
-	 * @return string URL to send the browser back to.
-	 */
-	private static function save_placement(): string {
-		check_admin_referer( Placement_Section::NONCE_ACTION );
-
+	private static function save_placement(): void {
 		$options = get_option( 'sharing-options' );
 		if ( ! is_array( $options ) ) {
 			$options = array();
@@ -241,15 +249,13 @@ final class Post_Handler {
 		$allowed   = array_values( get_post_types( array( 'public' => true ) ) );
 		$allowed[] = 'index';
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- nonce verified above; the values are checked against an allowlist below.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- verified by the caller; the values are checked against an allowlist below.
 		$posted = isset( $_POST['show'] ) && is_array( $_POST['show'] ) ? wp_unslash( $_POST['show'] ) : array();
 		$posted = array_filter( $posted, 'is_scalar' );
 
 		$options['global']['show'] = array_values( array_intersect( $posted, $allowed ) );
 
 		update_option( 'sharing-options', $options );
-
-		return self::redirect_url( true );
 	}
 
 	/**

@@ -180,45 +180,34 @@ final class Services_Config {
 				</form>
 		</div>
 
-		<form method="post" action="">
-			<table class="form-table">
-				<tbody>
-					<tr valign="top">
-						<th scope="row"><label><?php esc_html_e( 'Button style', 'jetpack-sharing-likes' ); ?></label></th>
-						<td>
-							<select name="button_style" id="button_style">
-								<option<?php echo ( $global['button_style'] === 'icon-text' ) ? ' selected="selected"' : ''; ?> value="icon-text"><?php esc_html_e( 'Icon + text', 'jetpack-sharing-likes' ); ?></option>
-								<option<?php echo ( $global['button_style'] === 'icon' ) ? ' selected="selected"' : ''; ?> value="icon"><?php esc_html_e( 'Icon only', 'jetpack-sharing-likes' ); ?></option>
-								<option<?php echo ( $global['button_style'] === 'text' ) ? ' selected="selected"' : ''; ?> value="text"><?php esc_html_e( 'Text only', 'jetpack-sharing-likes' ); ?></option>
-								<option<?php echo ( $global['button_style'] === 'official' ) ? ' selected="selected"' : ''; ?> value="official"><?php esc_html_e( 'Official buttons', 'jetpack-sharing-likes' ); ?></option>
-							</select>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row"><label><?php esc_html_e( 'Sharing label', 'jetpack-sharing-likes' ); ?></label></th>
-						<td>
-							<input type="text" name="sharing_label" value="<?php echo esc_attr( $global['sharing_label'] ); ?>" />
-						</td>
-					</tr>
-					<?php
-					/**
-					 * Fires at the end of the sharing global options settings table.
-					 *
-					 * @module sharedaddy
-					 *
-					 * @since jetpack-1.1.0
-					 */
-					do_action( 'sharing_global_options' );
-					?>
-				</tbody>
-			</table>
-
-			<p class="submit">
-					<input type="submit" name="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'jetpack-sharing-likes' ); ?>" />
-			</p>
-
-				<input type="hidden" name="_wpnonce" value="<?php echo esc_attr( wp_create_nonce( 'sharing-options' ) ); ?>" />
-		</form>
+		<?php
+		ob_start();
+		?>
+		<table class="form-table">
+			<tbody>
+				<tr valign="top">
+					<th scope="row"><label><?php esc_html_e( 'Button style', 'jetpack-sharing-likes' ); ?></label></th>
+					<td>
+						<select name="button_style" id="button_style">
+							<option<?php echo ( $global['button_style'] === 'icon-text' ) ? ' selected="selected"' : ''; ?> value="icon-text"><?php esc_html_e( 'Icon + text', 'jetpack-sharing-likes' ); ?></option>
+							<option<?php echo ( $global['button_style'] === 'icon' ) ? ' selected="selected"' : ''; ?> value="icon"><?php esc_html_e( 'Icon only', 'jetpack-sharing-likes' ); ?></option>
+							<option<?php echo ( $global['button_style'] === 'text' ) ? ' selected="selected"' : ''; ?> value="text"><?php esc_html_e( 'Text only', 'jetpack-sharing-likes' ); ?></option>
+							<option<?php echo ( $global['button_style'] === 'official' ) ? ' selected="selected"' : ''; ?> value="official"><?php esc_html_e( 'Official buttons', 'jetpack-sharing-likes' ); ?></option>
+						</select>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"><label><?php esc_html_e( 'Sharing label', 'jetpack-sharing-likes' ); ?></label></th>
+					<td>
+						<input type="text" name="sharing_label" value="<?php echo esc_attr( $global['sharing_label'] ); ?>" />
+					</td>
+				</tr>
+				<?php echo self::global_options(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- third-party field markup, escaped by whoever rendered it. ?>
+			</tbody>
+		</table>
+		<?php
+		Settings_Form::render_fields( Settings_Form::SECTION_SHARING, (string) ob_get_clean() );
+		?>
 
 	<div id="new-service" style="display: none">
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" id="new-service-form">
@@ -288,6 +277,64 @@ final class Services_Config {
 	</div>
 	</div>
 		<?php
+	}
+
+	/**
+	 * The markup `sharing_global_options` produces.
+	 *
+	 * Leaves out `Jetpack_Likes_Settings::admin_settings_init()`, which Simple
+	 * hangs on the action until CM-913: the Likes section owns those options,
+	 * and a second set of the same radios would join the same form.
+	 */
+	public static function global_options(): string {
+		$unhooked = self::unhook_legacy_likes_options();
+
+		ob_start();
+
+		/**
+		 * Fires at the end of the sharing global options settings table.
+		 *
+		 * @module sharedaddy
+		 *
+		 * @since jetpack-1.1.0
+		 */
+		do_action( 'sharing_global_options' );
+
+		$markup = trim( (string) ob_get_clean() );
+
+		foreach ( $unhooked as list( $callback, $priority ) ) {
+			add_action( 'sharing_global_options', $callback, $priority );
+		}
+
+		return $markup;
+	}
+
+	/**
+	 * Take the legacy Likes options off `sharing_global_options`.
+	 *
+	 * @return array<int, array{0: callable, 1: int}> Each callback removed, with its priority.
+	 */
+	private static function unhook_legacy_likes_options(): array {
+		global $wp_filter;
+
+		$unhooked = array();
+
+		if ( ! isset( $wp_filter['sharing_global_options'] ) ) {
+			return $unhooked;
+		}
+
+		foreach ( $wp_filter['sharing_global_options']->callbacks as $priority => $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				$function = $callback['function'];
+
+				if ( is_array( $function ) && 'admin_settings_init' === $function[1] && is_a( $function[0], 'Jetpack_Likes_Settings', true ) ) {
+					remove_action( 'sharing_global_options', $function, $priority );
+					$unhooked[] = array( $function, $priority );
+				}
+			}
+		}
+
+		return $unhooked;
 	}
 
 	/**

@@ -25,6 +25,9 @@ class Extras_Section_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_all_actions( 'sharing_global_options' );
+		ob_start();
+		Settings_Form::render();
+		ob_end_clean();
 
 		parent::tear_down();
 	}
@@ -66,27 +69,20 @@ class Extras_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The fields are useless without a form the handler accepts. The nonce is
-	 * verified rather than matched as a string, because a section signing with
-	 * an action the handler does not check is the failure worth catching: the
-	 * save would be rejected with the fields still on screen.
+	 * Third-party fields do not name the form, so they only save if the section attaches them.
 	 */
-	public function test_posts_back_to_the_extras_save_action(): void {
+	public function test_attaches_third_party_fields_to_the_page_form(): void {
 		add_action( 'sharing_global_options', array( $this, 'print_field' ) );
 
 		$markup = $this->render();
 
-		$this->assertStringContainsString( 'name="jetpack_sharing_action" value="save-extras"', $markup );
-
-		preg_match( '/name="_wpnonce" value="([^"]+)"/', $markup, $matches );
-
-		$this->assertNotEmpty( $matches, 'The form carries no nonce.' );
-		$this->assertSame( 1, wp_verify_nonce( $matches[1], Extras_Section::NONCE_ACTION ) );
+		$this->assertStringContainsString( '<input form="' . Settings_Form::ID . '" name="jetpack-twitter-cards-site-tag"', $markup );
+		$this->assertStringContainsString( 'value="' . Settings_Form::SECTION_EXTRAS . '"', $markup );
 	}
 
 	/**
 	 * Simple hangs the legacy Likes options on the same action. The Likes section
-	 * owns them, and they would not save from this form anyway.
+	 * owns them, and a second set of the same radios would join the same form.
 	 */
 	public function test_leaves_out_the_legacy_likes_options_and_keeps_them_hooked(): void {
 		$likes = new \Jetpack_Likes_Settings();
