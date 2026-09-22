@@ -23,7 +23,7 @@ final class Sharing_Section {
 	 * Render the section.
 	 */
 	public static function render(): void {
-		$state = Section_State::for_section( self::can_offer_block(), Environment::sharing_module_running() );
+		$state = self::state();
 
 		echo '<div class="jetpack-sharing-settings__section">';
 		printf( '<h2>%s</h2>', esc_html_x( 'Sharing buttons', 'Settings header', 'jetpack-sharing-likes' ) );
@@ -47,6 +47,19 @@ final class Sharing_Section {
 	}
 
 	/**
+	 * Which variant the section renders.
+	 *
+	 * @return string One of the `Section_State` constants.
+	 */
+	public static function state(): string {
+		return Section_State::for_section(
+			self::can_offer_block(),
+			Environment::sharing_module_running(),
+			Environment::legacy_sharing_switched_off()
+		);
+	}
+
+	/**
 	 * Whether the Sharing Buttons block is a route we can send this site down.
 	 */
 	private static function can_offer_block(): bool {
@@ -56,7 +69,7 @@ final class Sharing_Section {
 	}
 
 	/**
-	 * The module is off and the site could use the block instead.
+	 * The legacy buttons are off and the site could use the block instead.
 	 */
 	private static function render_block_call_to_action(): void {
 		printf(
@@ -105,21 +118,13 @@ final class Sharing_Section {
 	 */
 	private static function render_block_nudge(): void {
 		echo '<div class="notice notice-info inline">';
-
-		// Simple cannot deactivate the module, so it lands here rather than on the call to action.
-		if ( Environment::is_simple_site() && Environment::legacy_sharing_switched_off() ) {
-			printf( '<p>%s</p>', esc_html__( 'Legacy sharing buttons are turned off. Add the Sharing Buttons block to your theme’s template, or add a service below to bring them back.', 'jetpack-sharing-likes' ) );
-			self::render_site_editor_link();
-		} else {
-			printf( '<p>%s</p>', esc_html__( 'Legacy sharing buttons cannot be customized on block themes. Use the Sharing Buttons block in your theme’s template instead.', 'jetpack-sharing-likes' ) );
-			Post_Handler::render_action_form(
-				'switch-to-block-sharing',
-				self::NONCE_ACTION,
-				__( 'Switch to the Sharing Buttons block', 'jetpack-sharing-likes' ),
-				false
-			);
-		}
-
+		printf( '<p>%s</p>', esc_html__( 'Legacy sharing buttons cannot be customized on block themes. Use the Sharing Buttons block in your theme’s template instead.', 'jetpack-sharing-likes' ) );
+		Post_Handler::render_action_form(
+			'switch-to-block-sharing',
+			self::NONCE_ACTION,
+			__( 'Switch to the Sharing Buttons block', 'jetpack-sharing-likes' ),
+			false
+		);
 		echo '</div>';
 	}
 

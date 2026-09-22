@@ -143,11 +143,55 @@ class Sharing_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * With every service removed nothing renders, so the section stops
-	 * offering the switch and stops claiming the buttons appear anywhere.
+	 * With every service removed nothing renders, so the section drops the
+	 * services list and points at the Site Editor alone.
 	 */
 	public function test_sends_simple_to_the_site_editor_once_switched_off(): void {
 		Constants::set_constant( 'IS_WPCOM', true );
+		$this->given_no_services();
+		$this->given_block_theme();
+		$this->given_block( 'jetpack/sharing-buttons' );
+
+		$markup = $this->render();
+
+		$this->assertStringContainsString( 'site-editor.php', $markup );
+		$this->assertStringNotContainsString( 'switch-to-block-sharing', $markup );
+		$this->assertStringNotContainsString( 'Change where they appear', $markup );
+		$this->assertStringNotContainsString( 'save_services', $markup );
+	}
+
+	/**
+	 * The module can stay active with no services left, which renders nothing just the same.
+	 */
+	public function test_drops_the_services_list_where_the_module_runs_with_no_services(): void {
+		$this->given_no_services();
+		$this->given_block_route_and_sharing_off();
+		$this->given_modules( array( 'sharedaddy' ) );
+
+		$markup = $this->render();
+
+		$this->assertStringContainsString( 'site-editor.php', $markup );
+		$this->assertStringNotContainsString( 'save_services', $markup );
+		$this->assertStringNotContainsString( 'activate-sharing', $markup );
+	}
+
+	/**
+	 * Without a block to move to, the services list is the only way back.
+	 */
+	public function test_keeps_the_services_list_with_no_services_on_a_classic_theme(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->given_no_services();
+
+		$markup = $this->render();
+
+		$this->assertStringContainsString( 'save_services', $markup );
+		$this->assertStringNotContainsString( 'site-editor.php', $markup );
+	}
+
+	/**
+	 * Leave the site with every service removed.
+	 */
+	private function given_no_services(): void {
 		update_option(
 			'sharing-services',
 			array(
@@ -155,14 +199,5 @@ class Sharing_Section_Test extends BaseTestCase {
 				'hidden'  => array(),
 			)
 		);
-		$this->given_block_theme();
-		$this->given_block( 'jetpack/sharing-buttons' );
-
-		$markup = $this->render();
-
-		$this->assertStringContainsString( 'Legacy sharing buttons are turned off', $markup );
-		$this->assertStringContainsString( 'site-editor.php', $markup );
-		$this->assertStringNotContainsString( 'switch-to-block-sharing', $markup );
-		$this->assertStringNotContainsString( 'Change where they appear', $markup );
 	}
 }

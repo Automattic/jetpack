@@ -104,8 +104,8 @@ class Likes_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Once switched off, offering the switch again would do nothing; the Site
-	 * Editor is the next step, and the options below stay as the way back.
+	 * Once switched off, the legacy options go and the Site Editor is the next
+	 * step. Comment Likes stays: comments have no block to move to.
 	 */
 	public function test_sends_simple_to_the_site_editor_once_switched_off(): void {
 		Constants::set_constant( 'IS_WPCOM', true );
@@ -119,9 +119,28 @@ class Likes_Section_Test extends BaseTestCase {
 		delete_option( 'disabled_likes' );
 		delete_option( 'disabled_reblogs' );
 
-		$this->assertStringContainsString( 'Legacy Like buttons are turned off', $markup );
 		$this->assertStringContainsString( 'site-editor.php', $markup );
 		$this->assertStringNotContainsString( 'switch-to-block-likes', $markup );
+		$this->assertStringNotContainsString( 'name="wpl_default"', $markup );
+		$this->assertStringNotContainsString( 'name="jetpack_reblogs_enabled"', $markup );
+		$this->assertStringContainsString( 'name="jetpack_sharing_action" value="save-comment-likes"', $markup );
+		$this->assertStringContainsString( 'name="jetpack_comment_likes_enabled"', $markup );
+	}
+
+	/**
+	 * Likes alone still render the widget, so they keep the options.
+	 */
+	public function test_keeps_the_options_on_simple_while_reblogs_are_still_on(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+		update_option( 'disabled_likes', 1 );
+		$this->given_block_theme();
+		$this->given_block( 'jetpack/like' );
+
+		$markup = $this->render();
+
+		delete_option( 'disabled_likes' );
+
+		$this->assertStringContainsString( 'switch-to-block-likes', $markup );
 		$this->assertStringContainsString( 'name="wpl_default"', $markup );
 	}
 

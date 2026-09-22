@@ -43,9 +43,7 @@ final class Likes_Section {
 
 		// Off with a block route points at the block; off without one offers the way
 		// back. Running with a route shows the options under a nudge; running without, the options alone.
-		$state = Section_State::for_section( self::can_offer_block(), Environment::likes_settings_in_use() );
-
-		switch ( $state ) {
+		switch ( self::state() ) {
 			case Section_State::BLOCK_CALL_TO_ACTION:
 				self::render_block_call_to_action();
 				break;
@@ -61,6 +59,19 @@ final class Likes_Section {
 		}
 
 		echo '</div>';
+	}
+
+	/**
+	 * Which variant the section renders.
+	 *
+	 * @return string One of the `Section_State` constants.
+	 */
+	public static function state(): string {
+		return Section_State::for_section(
+			self::can_offer_block(),
+			Environment::likes_settings_in_use(),
+			Environment::legacy_likes_switched_off()
+		);
 	}
 
 	/**
@@ -94,7 +105,7 @@ final class Likes_Section {
 	}
 
 	/**
-	 * The module is off and the site could use the block instead.
+	 * The legacy buttons are off and the site could use the block instead.
 	 */
 	private static function render_block_call_to_action(): void {
 		printf(
@@ -102,6 +113,10 @@ final class Likes_Section {
 			esc_html__( 'Add the Like block to your theme’s template.', 'jetpack-sharing-likes' )
 		);
 		self::render_site_editor_link();
+
+		if ( Environment::is_simple_site() ) {
+			self::render_comment_likes_form();
+		}
 	}
 
 	/**
@@ -131,21 +146,13 @@ final class Likes_Section {
 	 */
 	private static function render_block_nudge(): void {
 		echo '<div class="notice notice-info inline">';
-
-		// Simple cannot deactivate the module, so it lands here rather than on the call to action.
-		if ( Environment::is_simple_site() && Environment::legacy_likes_switched_off() ) {
-			printf( '<p>%s</p>', esc_html__( 'Legacy Like buttons are turned off for all posts. Add the Like block to your theme’s template, or turn them back on below.', 'jetpack-sharing-likes' ) );
-			self::render_site_editor_link();
-		} else {
-			printf( '<p>%s</p>', esc_html__( 'Legacy Like buttons cannot be customized on block themes. Use the Like block in your theme’s template instead.', 'jetpack-sharing-likes' ) );
-			Post_Handler::render_action_form(
-				'switch-to-block-likes',
-				self::NONCE_ACTION,
-				__( 'Switch to the Like block', 'jetpack-sharing-likes' ),
-				false
-			);
-		}
-
+		printf( '<p>%s</p>', esc_html__( 'Legacy Like buttons cannot be customized on block themes. Use the Like block in your theme’s template instead.', 'jetpack-sharing-likes' ) );
+		Post_Handler::render_action_form(
+			'switch-to-block-likes',
+			self::NONCE_ACTION,
+			__( 'Switch to the Like block', 'jetpack-sharing-likes' ),
+			false
+		);
 		echo '</div>';
 	}
 
@@ -237,6 +244,24 @@ final class Likes_Section {
 				</div>
 			</td>
 		</tr>
+		<?php
+	}
+
+	/**
+	 * Comment Likes on their own, for a Simple site whose post Likes moved to the block.
+	 */
+	private static function render_comment_likes_form(): void {
+		?>
+		<form method="post" action="">
+			<?php self::render_comment_likes_option(); ?>
+			<p class="submit">
+				<input type="submit" name="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'jetpack-sharing-likes' ); ?>" />
+				<?php
+				Post_Handler::render_action_field( 'save-comment-likes' );
+				wp_nonce_field( self::NONCE_ACTION );
+				?>
+			</p>
+		</form>
 		<?php
 	}
 

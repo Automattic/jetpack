@@ -62,11 +62,14 @@ final class Settings_Page {
 			array( Likes_Section::class, 'render' ),
 		);
 
-		if ( Section_State::shows_placement( Environment::sharing_module_running(), Environment::likes_settings_in_use() ) ) {
+		$sharing_state = Sharing_Section::state();
+
+		if ( Section_State::shows_placement( $sharing_state, Likes_Section::state() ) ) {
 			$sections[] = array( Placement_Section::class, 'render' );
 		}
 
-		if ( ! Environment::sharing_module_running() ) {
+		// Simple hangs the legacy Likes options off the same action until CM-913, so the section would bring them back.
+		if ( ! Section_State::configures( $sharing_state ) && ! Environment::is_simple_site() ) {
 			$sections[] = array( Extras_Section::class, 'render' );
 		}
 

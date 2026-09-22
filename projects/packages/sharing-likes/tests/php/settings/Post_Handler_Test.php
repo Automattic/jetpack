@@ -371,6 +371,32 @@ class Post_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A Simple site whose post Likes moved to the block keeps only this checkbox,
+	 * so saving it must not bring the legacy buttons back.
+	 */
+	public function test_comment_likes_save_leaves_the_switched_off_buttons_alone(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+		update_option( 'disabled_likes', 1 );
+		update_option( 'disabled_reblogs', 1 );
+		$this->log_in_as( 'administrator' );
+
+		$redirected = $this->dispatch( 'save-comment-likes', Likes_Section::NONCE_ACTION, array( 'jetpack_comment_likes_enabled' => '1' ) );
+
+		$this->assertTrue( $redirected );
+		$this->assertSame( '1', (string) get_option( 'jetpack_comment_likes_enabled' ) );
+		$this->assertSame( '1', (string) get_option( 'disabled_likes' ) );
+		$this->assertSame( '1', (string) get_option( 'disabled_reblogs' ) );
+	}
+
+	public function test_comment_likes_save_writes_nothing_off_wpcom(): void {
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch( 'save-comment-likes', Likes_Section::NONCE_ACTION, array( 'jetpack_comment_likes_enabled' => '1' ) );
+
+		$this->assertFalse( get_option( 'jetpack_comment_likes_enabled' ) );
+	}
+
+	/**
 	 * Third parties render into the extras section and save through this action,
 	 * verifying their own nonces. Without the hook their fields post to nothing.
 	 */

@@ -50,14 +50,26 @@ final class Section_State {
 	 *                              callers resolve this rather than passing the theme type.
 	 * @param bool $feature_running Whether the legacy feature can still produce output.
 	 *                              Always true on WordPress.com Simple, which has no modules.
+	 * @param bool $switched_off    Whether the feature's own settings leave it nothing to show,
+	 *                              which is how Simple switches to the block.
 	 * @return string One of the class constants.
 	 */
-	public static function for_section( bool $can_offer_block, bool $feature_running ): string {
-		if ( ! $feature_running ) {
-			return $can_offer_block ? self::BLOCK_CALL_TO_ACTION : self::OFF;
+	public static function for_section( bool $can_offer_block, bool $feature_running, bool $switched_off = false ): string {
+		// Only with a block to move to: elsewhere the options are the one way back.
+		if ( $can_offer_block ) {
+			return $feature_running && ! $switched_off ? self::CONFIGURE_WITH_BLOCK_NUDGE : self::BLOCK_CALL_TO_ACTION;
 		}
 
-		return $can_offer_block ? self::CONFIGURE_WITH_BLOCK_NUDGE : self::CONFIGURE;
+		return $feature_running ? self::CONFIGURE : self::OFF;
+	}
+
+	/**
+	 * Whether a variant shows the feature's own options.
+	 *
+	 * @param string $state One of the class constants.
+	 */
+	public static function configures( string $state ): bool {
+		return self::CONFIGURE === $state || self::CONFIGURE_WITH_BLOCK_NUDGE === $state;
 	}
 
 	/**
@@ -65,12 +77,11 @@ final class Section_State {
 	 *
 	 * It only governs legacy output, so it is hidden once neither feature produces any.
 	 *
-	 * @param bool $sharing_running       Whether sharing buttons can still produce output.
-	 * @param bool $likes_settings_in_use Whether anything still reads the Likes settings, which
-	 *                                    includes Comment Likes without the Likes module.
+	 * @param string $sharing_state Variant the Sharing buttons section renders.
+	 * @param string $likes_state   Variant the Like buttons section renders.
 	 * @return bool
 	 */
-	public static function shows_placement( bool $sharing_running, bool $likes_settings_in_use ): bool {
-		return $sharing_running || $likes_settings_in_use;
+	public static function shows_placement( string $sharing_state, string $likes_state ): bool {
+		return self::configures( $sharing_state ) || self::configures( $likes_state );
 	}
 }

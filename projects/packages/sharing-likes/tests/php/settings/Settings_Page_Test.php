@@ -9,9 +9,13 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
+use Automattic\Jetpack\Constants;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
+
+require_once __DIR__ . '/../lib/class-sharing-service.php';
+require_once __DIR__ . '/../lib/trait-section-environment.php';
 
 /**
  * The screen exists whichever modules are active. That is the guarantee this
@@ -23,6 +27,17 @@ use WorDBless\BaseTestCase;
 #[CoversClass( Settings_Page::class )]
 class Settings_Page_Test extends BaseTestCase {
 
+	use Section_Environment;
+
+	/**
+	 * Start every case from a site with no theme, no blocks and no modules.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		$this->set_up_site();
+	}
+
 	/**
 	 * Reset the module list and the menu globals between cases.
 	 */
@@ -30,6 +45,12 @@ class Settings_Page_Test extends BaseTestCase {
 		global $submenu, $_registered_pages;
 
 		$_GET = array();
+
+		$this->tear_down_site();
+		Constants::clear_constants();
+		delete_option( 'sharing-services' );
+		delete_option( 'disabled_likes' );
+		delete_option( 'disabled_reblogs' );
 
 		Jetpack_Options::delete_option( 'active_modules' );
 		remove_all_actions( 'admin_menu' );
@@ -172,5 +193,72 @@ class Settings_Page_Test extends BaseTestCase {
 	 */
 	public function test_rules_off_between_sections_but_not_after_the_last(): void {
 		$this->assertSame( 1, substr_count( $this->render_screen(), '<hr />' ) );
+	}
+
+	/**
+	 * Hook a field onto `sharing_global_options`, as Twitter Cards does.
+	 */
+	private function given_extra_field(): void {
+		add_action(
+			'sharing_global_options',
+			static function () {
+				echo '<tr id="third-party-field"></tr>';
+			}
+		);
+	}
+
+	/**
+	 * Leave the site with every sharing service removed.
+	 */
+	private function given_no_services(): void {
+		update_option(
+			'sharing-services',
+			array(
+				'visible' => array(),
+				'hidden'  => array(),
+			)
+		);
+	}
+
+	/**
+	 * Once both features moved to their blocks, placement governs nothing left on
+	 * the page. Simple keeps the extras section away because it would bring the
+	 * legacy Likes options back with it.
+	 */
+	public function test_leaves_only_the_block_prompts_once_simple_switched_both_off(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->given_block_theme();
+		$this->given_block( 'jetpack/sharing-buttons' );
+		$this->given_block( 'jetpack/like' );
+		$this->given_no_services();
+		update_option( 'disabled_likes', 1 );
+		update_option( 'disabled_reblogs', 1 );
+		$this->given_extra_field();
+
+		$html = $this->render_screen();
+
+		$this->assertStringNotContainsString( 'id="' . Placement_Section::ANCHOR . '"', $html );
+		$this->assertStringNotContainsString( 'third-party-field', $html );
+		$this->assertStringNotContainsString( 'sharing_save_services', $html );
+		$this->assertStringNotContainsString( 'name="wpl_default"', $html );
+	}
+
+	/**
+	 * Fields hung off the services list move to the extras section when that list goes,
+	 * even with the module still running.
+	 */
+	public function test_moves_third_party_fields_out_of_a_hidden_services_list(): void {
+		$this->given_block_theme();
+		$this->given_block( 'jetpack/sharing-buttons' );
+		$this->given_connection( true );
+		$this->given_modules( array( 'sharedaddy' ) );
+		$this->given_no_services();
+		$this->given_extra_field();
+
+		$html = $this->render_screen();
+
+		$this->assertStringNotContainsString( 'sharing_save_services', $html );
+		$this->assertSame( 1, substr_count( $html, 'third-party-field' ) );
+		$this->assertStringContainsString( 'value="save-extras"', $html );
 	}
 }

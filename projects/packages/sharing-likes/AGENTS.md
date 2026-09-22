@@ -56,18 +56,20 @@ the Jetpack side alone.
 **WordPress.com Simple has no modules.** `Modules::is_active()` returns `true`
 unconditionally under `IS_WPCOM`, and wpcom loads both features regardless:
 sharedaddy from `wp-content/admin-plugins/post-flair.php` on `plugins_loaded:5`,
-likes from `wp-content/mu-plugins/likes.php` on `plugins_loaded:9`. So `OFF` and
-`BLOCK_CALL_TO_ACTION` are unreachable there — Simple only ever reaches
-`CONFIGURE` or `CONFIGURE_WITH_BLOCK_NUDGE`. Any "module inactive" behaviour you
-add is Jetpack and Atomic only.
+likes from `wp-content/mu-plugins/likes.php` on `plugins_loaded:9`. So `OFF` is
+unreachable there, and any "module inactive" behaviour you add is Jetpack and
+Atomic only.
 
 The "Switch to the … block" buttons still work on Simple, through settings
 rather than modules: `Post_Handler` empties `sharing-services`, or sets
 `disabled_likes` and `disabled_reblogs` (the legacy widget renders for either
-button). The nudge reads them back through `Environment::legacy_sharing_switched_off()`
-and `legacy_likes_switched_off()` to show its switched-off copy.
-The section stays in `CONFIGURE_WITH_BLOCK_NUDGE`, so its options below are the
-way back.
+button). `Environment::legacy_sharing_switched_off()` and
+`legacy_likes_switched_off()` read them back, and `Section_State` treats that as
+off wherever the block is a route, so the section lands on `BLOCK_CALL_TO_ACTION`
+with no way back, as a deactivated module does. The same holds on Jetpack for an
+active Sharing module with every service removed. Without a block route the
+options stay, since they are then the only way back. Simple's Comment Likes
+checkbox survives the switch in its own form: comments have no block to move to.
 
 **Simple reuses `Jetpack_Likes_Settings` without the Likes module.**
 `wp-content/mu-plugins/likes/jetpack-likes-settings.php` is a shim that requires
@@ -109,11 +111,13 @@ are now documented here rather than in `modules/sharedaddy/sharing.php`, which n
 longer fires any of them.
 
 `sharing_global_options` is the one with a gap to watch. It normally fires from
-`Services_Config`, which only renders when the Sharing module is on, but its
+`Services_Config`, which only renders when the Sharing section configures, but its
 consumers are not all gated on that module — `Twitter_Cards` hangs the Twitter
 Site Tag there and is gated only on `jetpack_disable_twitter_cards`. That is what
-`Extras_Section` is for: with Sharing off it renders the same action in its own
-form and fires `sharing_admin_update` on save.
+`Extras_Section` is for: whenever the services list is hidden it renders the same
+action in its own form and fires `sharing_admin_update` on save. Except on Simple,
+where wpcom still hangs the legacy Likes options off that action (see above), so
+the section would bring back what the switch removed, in a form that cannot save them.
 
 The Site Tag is worth that trouble because it still drives output with both
 Sharing and Publicize off. Open Graph is not the reason — `Jetpack::check_open_graph()`
@@ -130,8 +134,9 @@ verifies `sharing-options` — `Jetpack_Likes_Settings::admin_settings_callback(
 hooked on Simple — fails closed and silently saves nothing. A consumer that
 verifies nothing and relies on the caller having done it — sharedaddy's
 `sharing_global_resources_save()` — writes unconditionally. Only the last is
-dangerous, and only sharedaddy is off whenever `Extras_Section` renders keeps it
-out of reach today.
+dangerous, and it is safe today only because its own field renders from the same
+action, so the extras form posts it back. A consumer that saves without rendering
+would reset its setting on every extras save.
 
 ## Placement defaults
 

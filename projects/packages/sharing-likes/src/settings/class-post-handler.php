@@ -70,6 +70,9 @@ final class Post_Handler {
 			case 'save-likes':
 				$redirect = self::save_likes();
 				break;
+			case 'save-comment-likes':
+				$redirect = self::save_comment_likes();
+				break;
 			case 'save-placement':
 				$redirect = self::save_placement();
 				break;
@@ -170,11 +173,33 @@ final class Post_Handler {
 				delete_option( 'disabled_reblogs' );
 			}
 
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified above.
-			update_option( 'jetpack_comment_likes_enabled', empty( $_POST['jetpack_comment_likes_enabled'] ) ? 0 : 1 );
+			self::update_comment_likes();
 		}
 
 		return self::redirect_url( true );
+	}
+
+	/**
+	 * Save the Comment Likes form a Simple site keeps once its post Likes moved to the block.
+	 *
+	 * @return string URL to send the browser back to.
+	 */
+	private static function save_comment_likes(): string {
+		check_admin_referer( Likes_Section::NONCE_ACTION );
+
+		if ( Environment::is_simple_site() ) {
+			self::update_comment_likes();
+		}
+
+		return self::redirect_url( true );
+	}
+
+	/**
+	 * Store the posted Comment Likes checkbox. Callers verify the nonce.
+	 */
+	private static function update_comment_likes(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified by the caller.
+		update_option( 'jetpack_comment_likes_enabled', empty( $_POST['jetpack_comment_likes_enabled'] ) ? 0 : 1 );
 	}
 
 	/**
