@@ -19,6 +19,7 @@ import {
 	isLoading,
 	response,
 	searchQuery,
+	serverOptions,
 	sort,
 } from '../reducer';
 
@@ -325,6 +326,50 @@ describe( 'staticFilters Reducer', () => {
 			window[ SERVER_OBJECT_NAME ] = { staticFilters: mockStaticFilters };
 			const state = staticFilters( undefined, setStaticFilter( 'what', 'how' ) );
 			expect( state ).toEqual( {} );
+		} finally {
+			delete window[ SERVER_OBJECT_NAME ];
+		}
+	} );
+} );
+
+describe( 'serverOptions Reducer', () => {
+	test( 'normalizes a missing server object into empty widget arrays', () => {
+		try {
+			delete window[ SERVER_OBJECT_NAME ];
+			const state = serverOptions( undefined, {} );
+			expect( state ).toEqual( { widgets: [], widgetsOutsideOverlay: [] } );
+		} finally {
+			delete window[ SERVER_OBJECT_NAME ];
+		}
+	} );
+
+	test( 'drops a malformed widgets value instead of crashing', () => {
+		try {
+			window[ SERVER_OBJECT_NAME ] = { siteId: 1, widgets: {}, widgetsOutsideOverlay: 'nope' };
+			const state = serverOptions( undefined, {} );
+			expect( state.widgets ).toEqual( [] );
+			expect( state.widgetsOutsideOverlay ).toEqual( [] );
+		} finally {
+			delete window[ SERVER_OBJECT_NAME ];
+		}
+	} );
+
+	test( 'drops incomplete widget entries missing widget_id or filters', () => {
+		try {
+			window[ SERVER_OBJECT_NAME ] = { siteId: 1, widgets: [ {}, { widget_id: 'widget-1' } ] };
+			const state = serverOptions( undefined, {} );
+			expect( state.widgets ).toEqual( [] );
+		} finally {
+			delete window[ SERVER_OBJECT_NAME ];
+		}
+	} );
+
+	test( 'keeps well-formed widgets', () => {
+		const widget = { widget_id: 'widget-1', filters: [ { filter_id: 'category' } ] };
+		try {
+			window[ SERVER_OBJECT_NAME ] = { siteId: 1, widgets: [ widget ] };
+			const state = serverOptions( undefined, {} );
+			expect( state.widgets ).toEqual( [ widget ] );
 		} finally {
 			delete window[ SERVER_OBJECT_NAME ];
 		}

@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 0df31ec7c9f4fa83103606c5fa6444b3fdf440b5.
+ * Stubs automatically generated from WordPress.com commit 31ea0de96c5a9925494a9a092183573b7da919d9.
  */
 
 namespace {
@@ -431,6 +431,12 @@ namespace {
          * @return bool
          */
         public static function start_tailored_use_case_new_site_workflows_if_eligible(int $user_id, int $blog_id, string $site_intent): bool
+        {
+        }
+    }
+    class Marketing_Survey
+    {
+        public static function submit_survey($blog_id, $user_id, $survey_id, $survey_responses)
         {
         }
     }

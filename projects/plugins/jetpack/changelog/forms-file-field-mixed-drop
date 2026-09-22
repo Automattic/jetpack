@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: keep the remaining files when a folder or dragged text is included in a multi-file drop on the file upload field.

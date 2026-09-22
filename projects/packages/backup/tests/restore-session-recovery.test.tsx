@@ -185,6 +185,35 @@ describe( 'Restore screen — a restore already running', () => {
 		expect( view.queryByText( ALREADY_RUNNING ) ).not.toBeInTheDocument();
 	} );
 
+	// The same notice, outliving the restore the other way. `adopted` is
+	// latched for the life of the screen, so nothing retires it when the
+	// restore it describes ends.
+	it.each( [
+		[ 'finished', /Restore complete/ ],
+		[ 'failed', /Restore failed/ ],
+	] )( 'retires the notice once the adopted restore is %s', async ( status, outcome ) => {
+		let calls = 0;
+		mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
+			const path = options?.path ?? '';
+			if ( path.includes( '/restores' ) ) {
+				return Promise.resolve( [ restoreRow() ] );
+			}
+			if ( path.includes( '/rewind/restore/' ) ) {
+				calls += 1;
+				// Adopt on the first read, then let it end.
+				return Promise.resolve(
+					calls === 1 ? statusPayload() : statusPayload( { status, progress: 100 } )
+				);
+			}
+			return Promise.resolve( CAPABILITIES );
+		} );
+
+		const view = within( renderScreen() );
+
+		await expect( view.findByText( outcome ) ).resolves.toBeInTheDocument();
+		expect( view.queryByText( ALREADY_RUNNING ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'stops promising an end state once it has lost track of the restore', async () => {
 		// "You can't start another until it finishes" sat directly above
 		// "We've lost track of this restore. It may still be running" —

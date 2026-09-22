@@ -41,7 +41,7 @@ second current-period series keeps its own dates.
 | `className`        | `string`                      | No       | CSS class for the chart container                             |
 | `chartId`          | `string`                      | No       | Identity the charts provider keys visibility on; generated when omitted. Change it whenever `defaultHiddenSeries` should be applied again |
 | `defaultHiddenSeries` | `readonly string[]`        | No       | Labels of series hidden until revealed from the legend. Applied once per `chartId`, so only useful with `legendInteractive` |
-| `legendInteractive` | `boolean`                    | No       | Let the reader click legend items to show and hide series. Defaults to `false` |
+| `legendInteractive` | `boolean`                    | No       | Let the reader click legend items to show and hide series; the first item stays locked. Defaults to `false` |
 
 ## Date alignment and tooltips
 
@@ -56,6 +56,5 @@ unreadable.
 ## Y-axis domain
 
 Percentage metrics are pinned to 0%–100% and an all-zero period gets a readable axis instead of a
-flat baseline, both via the shared `getFixedYAxis` helper, which also supplies the left margin such
-a pinned domain needs. Zero-value bars are drawn as hairline stubs (`showZeroValues`) so a quiet day
-reads as zero rather than missing data.
+flat baseline, both via the shared `getFixedYAxis` helper. Zero-value bars are drawn as hairline
+stubs (`showZeroValues`) so a quiet day reads as zero rather than missing data.

@@ -6,8 +6,12 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { sanitizeLatestPostResponse } from '../processing/latest-post';
-import type { LatestPostResponse } from '../processing/latest-post';
+import {
+	sanitizeLatestPostResponse,
+	sanitizePostsContentResponse,
+} from '../processing/latest-post';
+import { toAuthorId, toPostId } from '../utils/to-post-id';
+import type { LatestPost, LatestPostResponse } from '../processing/latest-post';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
 export type { LatestPostResponse };
@@ -17,26 +21,53 @@ export type { LatestPostResponse };
 const POST_CONTENT_FIELDS =
 	'id,title,link,date,featured_media,_links.wp:featuredmedia,_embedded.wp:featuredmedia';
 
-const LATEST_POST_PATH = addQueryArgs( '/wp/v2/posts', {
+const LATEST_POST_QUERY = {
 	per_page: 1,
 	status: 'publish',
 	orderby: 'date',
 	order: 'desc',
 	_embed: 'wp:featuredmedia',
 	_fields: POST_CONTENT_FIELDS,
-} );
+};
+
+export type LatestPostQueryOptions = {
+	/** Narrow the pick to one author's posts (the author detail page). */
+	authorId?: number;
+};
 
 /**
- * React Query options for the site's latest published post, read locally from
+ * React Query options for the most recent published post, read locally from
  * the core WordPress posts endpoint. Content is fetched on-site (not from WPCOM),
  * so it resolves even on private/unlaunched sites; the post's views, likes, and
  * comments are layered on from the Stats post endpoint by the widget's `useLatestPost`.
+ *
+ * With `authorId`, the pick is that author's latest post instead of the site's.
+ *
+ * @param options          - Optional author scope.
+ * @param options.authorId - The author's user ID; `0` or absent picks across the site.
+ * @return The query options.
  */
-export function latestPostQuery(): UseQueryOptions< LatestPostResponse > {
+export function latestPostQuery( {
+	authorId = 0,
+}: LatestPostQueryOptions = {} ): UseQueryOptions< LatestPostResponse > {
+	const author = toAuthorId( authorId );
+
 	return {
-		queryKey: [ 'latest-post' ],
-		queryFn: async () => sanitizeLatestPostResponse( await apiFetch( { path: LATEST_POST_PATH } ) ),
-		placeholderData: previousData => previousData,
+		queryKey: author ? [ 'latest-post', author ] : [ 'latest-post' ],
+		// The path is built inside the fetcher so `author` stays its only input,
+		// which is already part of the query key above.
+		queryFn: async () =>
+			sanitizeLatestPostResponse(
+				await apiFetch( {
+					path: addQueryArgs( '/wp/v2/posts', {
+						...( author ? { author } : {} ),
+						...LATEST_POST_QUERY,
+					} ),
+				} )
+			),
+		// Only the site-wide pick keeps stale data through a refetch: keyed by
+		// author, a carried-over post would briefly show under the wrong author.
+		...( author ? {} : { placeholderData: previousData => previousData } ),
 	};
 }
 
@@ -69,5 +100,40 @@ export function postContentQuery( postId: number ): UseQueryOptions< LatestPostR
 				} )
 			),
 		enabled: Number.isInteger( postId ) && postId > 0,
+	};
+}
+
+// The core endpoint's page cap; a ranked shortlist is never longer.
+const POSTS_CONTENT_MAX = 100;
+
+/**
+ * React Query options for the headline content of several posts at once, read
+ * locally from the core posts endpoint. Report rows carry no post type, so a
+ * consumer that must pick a *post* out of a ranked list of ids asks core for the
+ * ones that are published posts and takes the first that comes back.
+ *
+ * Disabled for an empty list. Ids beyond the first 100 are ignored.
+ *
+ * @param postIds - Candidate post IDs.
+ * @return The query options; `data` holds only the ids that are published posts.
+ */
+export function postsContentQuery( postIds: number[] ): UseQueryOptions< LatestPost[] > {
+	const ids = postIds.filter( postId => toPostId( postId ) > 0 ).slice( 0, POSTS_CONTENT_MAX );
+
+	return {
+		queryKey: [ 'posts-content', ids ],
+		queryFn: async () =>
+			sanitizePostsContentResponse(
+				await apiFetch( {
+					path: addQueryArgs( '/wp/v2/posts', {
+						include: ids.join( ',' ),
+						per_page: ids.length,
+						status: 'publish',
+						_embed: 'wp:featuredmedia',
+						_fields: POST_CONTENT_FIELDS,
+					} ),
+				} )
+			),
+		enabled: ids.length > 0,
 	};
 }

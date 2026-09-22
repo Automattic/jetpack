@@ -1,8 +1,11 @@
 /**
  * External dependencies
  */
-import { computePrimaryRange, siteTimeZone } from '@jetpack-premium-analytics/datetime';
-import { dateToISOStringWithLocalTZ } from './date';
+import {
+	computePrimaryRange,
+	dateToISOStringWithLocalTZ,
+	reportingTimeZone,
+} from '@jetpack-premium-analytics/datetime';
 import type { ComputablePresetId } from '@jetpack-premium-analytics/datetime';
 
 /**
@@ -13,7 +16,7 @@ import type { ComputablePresetId } from '@jetpack-premium-analytics/datetime';
 export function computeDateRangeFromPreset(
 	presetId: ComputablePresetId
 ): { from: string; to: string } | undefined {
-	const range = computePrimaryRange( presetId, siteTimeZone() );
+	const range = computePrimaryRange( presetId, reportingTimeZone() );
 	if ( ! range?.from || ! range?.to ) {
 		return undefined;
 	}

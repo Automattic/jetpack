@@ -68,7 +68,6 @@
 }
 
 .loading {
-	position: relative;
 	block-size: 100%;
 
 	// Same rationale as `.state`: no floor, so a short tile's loading box stays
@@ -76,9 +75,10 @@
 	min-block-size: 0;
 }
 
+// Not positioned: an absolutely positioned descendant resolves against its own
+// component's anchor, or against `WidgetRoot`'s containment.
 .root,
 .content {
-	position: relative;
 	block-size: 100%;
 }
 

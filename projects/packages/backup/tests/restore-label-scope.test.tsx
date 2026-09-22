@@ -12,7 +12,24 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
-	Link: ( { children, ...rest }: { children: React.ReactNode } ) => <a { ...rest }>{ children }</a>,
+	// `search` is folded into the href rather than spread onto the node: the
+	// Download action carries the file selection there now, and React would
+	// warn about an object-valued attribute on an `<a>` — which
+	// `@wordpress/jest-console` turns into a suite failure.
+	Link: ( {
+		children,
+		to,
+		search,
+		...rest
+	}: {
+		children: React.ReactNode;
+		to: string;
+		search?: Record< string, string >;
+	} ) => (
+		<a href={ search ? `${ to }?${ new URLSearchParams( search ).toString() }` : to } { ...rest }>
+			{ children }
+		</a>
+	),
 } ) );
 
 // Imports must come after the jest.mock factories above.
@@ -54,7 +71,16 @@ beforeEach( () => {
 	mockApiFetch.mockReset();
 	mockApiFetch.mockResolvedValue( {
 		contents: {
-			'wp-config.php': { type: 'file', period: '1786644531', manifest_path: 'f5:/wp-config.php' },
+			// `id` is what a granular download names the entry by — base64 of
+			// the manifest path — and without it the Download action has
+			// nothing to count, so the asymmetry this suite asserts would not
+			// be observable.
+			'wp-config.php': {
+				type: 'file',
+				period: '1786644531',
+				manifest_path: 'f5:/wp-config.php',
+				id: 'ZjU6L3dwLWNvbmZpZy5waHA=',
+			},
 		},
 	} );
 } );

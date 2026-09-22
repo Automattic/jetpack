@@ -16,14 +16,17 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 /**
  * Internal dependencies
  */
-import { formatComparisonSeriesLabel, fromChartDate } from '../../helpers';
+import { formatComparisonSeriesLabel } from '../../helpers';
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
 import { MetricWithComparison } from '../metric-with-comparison';
 import styles from './metric-tabs-chart.module.scss';
 import type { DataFormat } from '../../types';
-import type { ComparativeLineChartSeries } from '../chart-comparative-line/types';
+import type {
+	ComparativeLineChartSeries,
+	TooltipExtraSeries,
+} from '../chart-comparative-line/types';
 import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 
 /**
@@ -114,25 +117,17 @@ export interface MetricTabsChartProps {
 	 */
 	tickResolution?: TickResolution;
 	/**
-	 * Whether each point's date is a Stats bucket's wall clock rather than a real
-	 * instant; wall clocks are re-anchored via `fromChartDate` before a label reads
-	 * them. Full rationale in `chart-date.ts`.
-	 */
-	pointsAreWallClocks?: boolean;
-	/**
 	 * A click on the plot, or Enter on the keyboard-selected point, carrying the
 	 * date of that bucket. Omit to leave the chart non-interactive.
 	 */
 	onDatumClick?: ( date: Date ) => void;
+	/**
+	 * Which metrics the tooltip reads out at the hovered date: the drawn one
+	 * (`active`, the default), or every metric in the list (`all`), the way the
+	 * classic WordAds chart lists ads served, CPM and revenue whichever tab is up.
+	 */
+	tooltipMetrics?: 'active' | 'all';
 }
-
-/**
- * Resolves a chart point's date to the instant its label should name. Which one
- * applies is the producer's to declare, through `pointsAreWallClocks`.
- */
-type ReadPointDate = ( date: Date ) => Date;
-
-const asInstant: ReadPointDate = date => date;
 
 /**
  * Build the chart series for a metric: current period plus, when present, the
@@ -167,7 +162,7 @@ function buildSeries(
 								fromOpacity: 0,
 								toOpacity: 0,
 							},
-					  },
+						},
 		} );
 	}
 
@@ -184,22 +179,42 @@ function buildSeries(
 function MetricChart( {
 	metric,
 	counterpart,
+	metrics,
+	tooltipMetrics,
 	dataFormat,
 	chartType,
 	chartId,
 	tickResolution,
-	readPointDate,
 	onDatumClick,
 }: {
 	metric: MetricTab;
 	counterpart?: MetricTab;
+	metrics: MetricTab[];
+	tooltipMetrics: 'active' | 'all';
 	dataFormat: DataFormat;
 	chartType: MetricTabsChartType;
 	chartId: string;
 	tickResolution?: TickResolution;
-	readPointDate: ReadPointDate;
 	onDatumClick?: ( date: Date ) => void;
 } ) {
+	// Every other metric's current period, each in its own format. A counterpart
+	// is included too: the chart lists a drawn series once, so revealing it from
+	// the legend does not duplicate its row, and hiding it again lists it as a
+	// supplementary row instead. Memoised so the chart's tooltip memos hold.
+	const tooltipExtras = useMemo( (): TooltipExtraSeries[] | undefined => {
+		if ( tooltipMetrics !== 'all' ) {
+			return undefined;
+		}
+
+		return metrics
+			.filter( candidate => candidate.key !== metric.key && ! candidate.unavailable )
+			.map( candidate => ( {
+				label: candidate.label,
+				data: candidate.current,
+				dataFormat: candidate.dataFormat ?? dataFormat,
+			} ) );
+	}, [ metrics, metric.key, tooltipMetrics, dataFormat ] );
+
 	const { series, defaultHiddenSeries } = useMemo( () => {
 		const active = buildSeries( metric, chartType );
 
@@ -214,8 +229,8 @@ function MetricChart( {
 		};
 	}, [ metric, counterpart, chartType ] );
 	const formatTooltipDate = useCallback(
-		( date: Date, format: DateFormatName ) => formatDate( readPointDate( date ), format ),
-		[ readPointDate ]
+		( date: Date, format: DateFormatName ) => formatDate( date, format ),
+		[]
 	);
 
 	const pointerDownRef = useRef< { x: number; y: number } | null >( null );
@@ -227,10 +242,10 @@ function MetricChart( {
 			const date = ( datum as { date?: unknown } | undefined )?.date;
 
 			if ( date instanceof Date ) {
-				onDatumClick?.( readPointDate( date ) );
+				onDatumClick?.( date );
 			}
 		},
-		[ onDatumClick, readPointDate ]
+		[ onDatumClick ]
 	);
 
 	const handlePointerDown = useCallback( ( { svgPoint }: ChartPointerParams ) => {
@@ -272,7 +287,7 @@ function MetricChart( {
 				onPointerDown: handlePointerDown,
 				onPointerUp: handlePointerUp,
 				onDatumActivate: handleActivate,
-		  }
+			}
 		: {};
 
 	// Resolved from the chart theme so the lines and the tooltip glyphs match. Bars
@@ -297,6 +312,7 @@ function MetricChart( {
 			legendInteractive={ legendInteractive }
 			tickResolution={ tickResolution }
 			formatTooltipDate={ formatTooltipDate }
+			tooltipExtras={ tooltipExtras }
 			compactWhenShort
 			{ ...drillHandlers }
 		/>
@@ -310,6 +326,7 @@ function MetricChart( {
 			legendInteractive={ legendInteractive }
 			tickResolution={ tickResolution }
 			formatTooltipDate={ formatTooltipDate }
+			tooltipExtras={ tooltipExtras }
 			compactWhenShort
 			{ ...drillHandlers }
 		/>
@@ -389,10 +406,9 @@ export function MetricTabsChart( {
 	controls,
 	groupLabel = __( 'Select metric', 'jetpack-premium-analytics-pkg' ),
 	tickResolution,
-	pointsAreWallClocks = false,
 	onDatumClick,
+	tooltipMetrics = 'active',
 }: MetricTabsChartProps ) {
-	const readPointDate = pointsAreWallClocks ? fromChartDate : asInstant;
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 
 	// The chart seeds its hidden series once per chart ID, so a stable ID would leave
@@ -480,11 +496,12 @@ export function MetricTabsChart( {
 					<MetricChart
 						metric={ activeMetric }
 						counterpart={ counterpartFor( activeMetric ) }
+						metrics={ metrics }
+						tooltipMetrics={ tooltipMetrics }
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( activeMetric ) }
 						tickResolution={ tickResolution }
-						readPointDate={ readPointDate }
 						onDatumClick={ onDatumClick }
 					/>
 				</div>
@@ -550,11 +567,12 @@ export function MetricTabsChart( {
 						<MetricChart
 							metric={ activeMetric }
 							counterpart={ counterpartFor( activeMetric ) }
+							metrics={ metrics }
+							tooltipMetrics={ tooltipMetrics }
 							dataFormat={ dataFormat }
 							chartType={ chartType }
 							chartId={ chartIdFor( activeMetric ) }
 							tickResolution={ tickResolution }
-							readPointDate={ readPointDate }
 							onDatumClick={ onDatumClick }
 						/>
 					) }
@@ -596,11 +614,12 @@ export function MetricTabsChart( {
 					<MetricChart
 						metric={ metric }
 						counterpart={ counterpartFor( metric ) }
+						metrics={ metrics }
+						tooltipMetrics={ tooltipMetrics }
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( metric ) }
 						tickResolution={ tickResolution }
-						readPointDate={ readPointDate }
 						onDatumClick={ onDatumClick }
 					/>
 				</Tabs.Panel>

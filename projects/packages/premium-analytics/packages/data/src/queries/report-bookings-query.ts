@@ -7,6 +7,7 @@
  */
 import { fetchReportBookings } from '../api';
 import { sanitizeReportBookingsResponse } from '../processing/bookings';
+import { resolveReportTimeZone } from '../utils/report-timezone';
 import type { ReportDataMap } from '../types';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
@@ -18,11 +19,13 @@ const getReportBookingsQueryKey = ( p: RequestReportBookingsParams ) =>
 export function reportBookingsQuery(
 	params: RequestReportBookingsParams
 ): UseQueryOptions< ReportDataMap[ 'bookings' ] > {
+	const timezone = resolveReportTimeZone();
+
 	return {
-		queryKey: getReportBookingsQueryKey( params ),
+		queryKey: [ ...getReportBookingsQueryKey( params ), timezone ],
 		queryFn: async () => {
 			const response = await fetchReportBookings( params );
-			return sanitizeReportBookingsResponse( response );
+			return sanitizeReportBookingsResponse( response, timezone );
 		},
 
 		enabled: !! ( params.from && params.to && params.interval ),

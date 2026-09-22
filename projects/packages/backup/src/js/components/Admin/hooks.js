@@ -31,10 +31,16 @@ export const useSiteHasBackupProduct = () => {
 			return;
 		}
 
-		apiFetch( { path: '/jetpack/v4/has-backup-plan' } ).then( res => {
-			setSiteHasBackupProduct( res );
-			setIsLoading( false );
-		} );
+		// The route reports a WordPress.com failure as an error. Without this
+		// branch the rejection leaves `isLoading` true and the secondary admin
+		// sits on a placeholder forever.
+		apiFetch( { path: '/jetpack/v4/has-backup-plan' } ).then(
+			res => {
+				setSiteHasBackupProduct( res );
+				setIsLoading( false );
+			},
+			() => setIsLoading( false )
+		);
 	}, [ isFullyConnected ] );
 
 	return { siteHasBackupProduct, isLoadingBackupProduct: isLoading };

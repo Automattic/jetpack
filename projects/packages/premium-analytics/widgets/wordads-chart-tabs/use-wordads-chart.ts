@@ -14,7 +14,7 @@ import { useMemo } from '@wordpress/element';
 import { WORDADS_CHART_METRICS } from './metrics';
 import { buildMetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
 
-export type WordAdsPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' | 'year' >;
+export type WordAdsPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
 
 /**
  * The WordAds fields as metric tabs, in the Calypso WordAds page's labels and order.
@@ -25,7 +25,8 @@ export default function useWordAdsChart( reportParams: ReportParams, period: Wor
 	// Memoize the request params so the query key is stable across renders.
 	const params = useMemo( () => ( { ...reportParams, period } ), [ reportParams, period ] );
 
-	const { primary, isLoading, isFetching, isError, refetch } = useStatsWordAdsStats( params );
+	const { primary, timezone, isLoading, isFetching, isError, refetch } =
+		useStatsWordAdsStats( params );
 
 	const primaryData = primary.data as StatsWordAdsResponse | undefined;
 
@@ -39,9 +40,10 @@ export default function useWordAdsChart( reportParams: ReportParams, period: Wor
 					field: metric.id,
 					label: metric.label,
 					dataFormat: metric.dataFormat,
+					zone: timezone,
 				} )
 			),
-		[ primaryData ]
+		[ primaryData, timezone ]
 	);
 
 	return {

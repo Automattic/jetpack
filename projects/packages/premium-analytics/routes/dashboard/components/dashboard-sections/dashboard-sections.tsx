@@ -50,7 +50,6 @@ export function DashboardSections( {
 			value={ value }
 			onChange={ onChange }
 			rootClassName={ styles.root }
-			className={ styles.tabList }
 		>
 			{ children }
 		</SectionTabs>

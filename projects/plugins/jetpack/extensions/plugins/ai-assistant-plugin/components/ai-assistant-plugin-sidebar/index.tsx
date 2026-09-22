@@ -38,6 +38,7 @@ import { getBreveAvailability, canWriteBriefBeEnabled } from '../breve/utils/get
 import Feedback from '../feedback';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
+import WordPressAgentNotice, { useWordPressAgentNotice } from '../wordpress-agent-notice';
 import {
 	PLACEMENT_DOCUMENT_SETTINGS,
 	PLACEMENT_JETPACK_SIDEBAR,
@@ -56,24 +57,22 @@ const DocumentPanel = PluginDocumentSettingPanel as ComponentType< PanelProps >;
 
 const debug = debugFactory( 'jetpack-ai-assistant-plugin:sidebar' );
 /**
- * TODO: use getFeatureAvailability for all the checks below.
+ * Which sections the panel shows. The title and feedback sections follow the
+ * Writing Assistant switch on the AI settings page, the image section follows
+ * the Image Editor switch, and the usage meter follows the AI master switch
+ * alone. The panel itself stays while AI is on for the site.
+ *
+ * @return {object} Availability of each section.
  */
-// Determine if the usage panel is enabled or not
-const isUsagePanelAvailable =
-	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-assistant-usage-panel' ]
-		?.available || false;
-// Determine if the AI Featured Image feature is available
-const isAIFeaturedImageAvailable =
-	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-featured-image-generator' ]
-		?.available || false;
-// Determine if the AI Title Optimization feature is available
-const isAITitleOptimizationAvailable =
-	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-title-optimization' ]?.available ||
-	false;
-// Determine if the AI Title Optimization Keywords feature is available
-const isAITitleOptimizationKeywordsFeatureAvailable = getFeatureAvailability(
-	'ai-title-optimization-keywords-support'
-);
+const getSectionAvailability = () => ( {
+	usagePanel: getFeatureAvailability( 'ai-assistant-usage-panel' ),
+	featuredImage: getFeatureAvailability( 'ai-featured-image-generator' ),
+	titleOptimization: getFeatureAvailability( 'ai-title-optimization' ),
+	titleOptimizationKeywords: getFeatureAvailability( 'ai-title-optimization-keywords-support' ),
+	// The feedback section has no flag of its own; ai-assistant-support is set
+	// exactly when the Writing Assistant is on.
+	feedback: getFeatureAvailability( 'ai-assistant-support' ),
+} );
 
 const JetpackAndSettingsContent = ( {
 	placement,
@@ -85,6 +84,14 @@ const JetpackAndSettingsContent = ( {
 	const { checkoutUrl } = useAICheckout();
 	const { productPageUrl } = useAiProductPage();
 	const isBreveAvailable = getBreveAvailability();
+	const showWriteBrief = canWriteBriefBeEnabled() && isBreveAvailable;
+	const {
+		usagePanel: isUsagePanelAvailable,
+		featuredImage: isAIFeaturedImageAvailable,
+		titleOptimization: isAITitleOptimizationAvailable,
+		titleOptimizationKeywords: isAITitleOptimizationKeywordsFeatureAvailable,
+		feedback: isAIFeedbackAvailable,
+	} = getSectionAvailability();
 	const isPostEmpty = useSelect( select => select( editorStore ).isEditedPostEmpty(), [] );
 	const { editPost } = useDispatch( editorStore );
 
@@ -143,14 +150,15 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
-			{ isPostEmpty && (
-				<PanelRow className="jetpack-ai-sidebar__warning-content">
-					<Notice isDismissible={ false } status="warning">
-						{ __( 'The following features require content to work.', 'jetpack' ) }
-					</Notice>
-				</PanelRow>
-			) }
-			{ canWriteBriefBeEnabled() && isBreveAvailable && (
+			{ isPostEmpty &&
+				( showWriteBrief || isAITitleOptimizationAvailable || isAIFeedbackAvailable ) && (
+					<PanelRow className="jetpack-ai-sidebar__warning-content">
+						<Notice isDismissible={ false } status="warning">
+							{ __( 'The following features require content to work.', 'jetpack' ) }
+						</Notice>
+					</PanelRow>
+				) }
+			{ showWriteBrief && (
 				<PanelRow>
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>
@@ -188,13 +196,15 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
-			<PanelRow className="jetpack-ai-sidebar__feature-section">
-				<BaseControl __nextHasNoMarginBottom={ true }>
-					<BaseControl.VisualLabel>{ __( 'Get Feedback', 'jetpack' ) }</BaseControl.VisualLabel>
-					<Feedback placement={ placement } busy={ false } disabled={ requireUpgrade } />
-				</BaseControl>
-			</PanelRow>
-			{ requireUpgrade && ! isUsagePanelAvailable && (
+			{ isAIFeedbackAvailable && (
+				<PanelRow className="jetpack-ai-sidebar__feature-section">
+					<BaseControl __nextHasNoMarginBottom={ true }>
+						<BaseControl.VisualLabel>{ __( 'Get Feedback', 'jetpack' ) }</BaseControl.VisualLabel>
+						<Feedback placement={ placement } busy={ false } disabled={ requireUpgrade } />
+					</BaseControl>
+				</PanelRow>
+			) }
+			{ requireUpgrade && ! showUsagePanel && (
 				<PanelRow>
 					<Upgrade placement={ placement } type={ upgradeType } upgradeUrl={ checkoutUrl } />
 				</PanelRow>
@@ -249,12 +259,29 @@ export default function AiAssistantPluginSidebar() {
 
 	const planType = usePlanType( currentTier );
 
-	// A post-new.php?openSidebar=jetpack-ai-assistant URL asks for the sidebar to start open.
-	const sidebarOpenRequested = useSidebarOpenFromUrl();
+	const { isVisible: showAgentNotice, isDismissed: agentNoticeDismissed } =
+		useWordPressAgentNotice();
+
+	// A post-new.php?openSidebar=jetpack-ai-assistant URL asks for the sidebar to start open,
+	// but not once the notice is dismissed and there is nothing left to show.
+	const sidebarOpenRequested = useSidebarOpenFromUrl( ! agentNoticeDismissed );
 
 	// If the post type is not viewable, do not render my plugin.
 	if ( ! isViewable ) {
 		return null;
+	}
+
+	const isBreveAvailable = getBreveAvailability();
+	const { titleOptimization: isAITitleOptimizationAvailable, feedback: isAIFeedbackAvailable } =
+		getSectionAvailability();
+	// The pre-publish panel only holds writing sections, so it goes with them.
+	const showPrePublishPanel =
+		showAgentNotice || isAITitleOptimizationAvailable || isAIFeedbackAvailable;
+
+	// The panels close up rather than sit empty. Write Brief's highlights stay on,
+	// but its on/off control lived in the panel above and now has no home.
+	if ( agentNoticeDismissed ) {
+		return isBreveAvailable ? <Highlight /> : null;
 	}
 
 	const title = __( 'Improve with AI', 'jetpack' );
@@ -266,7 +293,6 @@ export default function AiAssistantPluginSidebar() {
 
 	const showUsagePanel = planType === PLAN_TYPE_FREE;
 	const showFairUsageNotice = planType === PLAN_TYPE_UNLIMITED && isOverLimit;
-	const isBreveAvailable = getBreveAvailability();
 
 	return (
 		<>
@@ -274,19 +300,23 @@ export default function AiAssistantPluginSidebar() {
 			<JetpackPluginSidebar>
 				<PanelBody
 					title={ title }
-					initialOpen={ sidebarOpenRequested }
+					initialOpen={ showAgentNotice || sidebarOpenRequested }
 					onToggle={ isOpen => {
 						isOpen && panelToggleTracker( PLACEMENT_JETPACK_SIDEBAR );
 					} }
 					className="jetpack-ai-assistant-panel"
 				>
-					<JetpackAndSettingsContent
-						placement={ PLACEMENT_JETPACK_SIDEBAR }
-						requireUpgrade={ requireUpgrade }
-						upgradeType={ upgradeType }
-						showUsagePanel={ showUsagePanel }
-						showFairUsageNotice={ showFairUsageNotice }
-					/>
+					{ showAgentNotice ? (
+						<WordPressAgentNotice placement={ PLACEMENT_JETPACK_SIDEBAR } />
+					) : (
+						<JetpackAndSettingsContent
+							placement={ PLACEMENT_JETPACK_SIDEBAR }
+							requireUpgrade={ requireUpgrade }
+							upgradeType={ upgradeType }
+							showUsagePanel={ showUsagePanel }
+							showFairUsageNotice={ showFairUsageNotice }
+						/>
+					) }
 				</PanelBody>
 			</JetpackPluginSidebar>
 
@@ -295,31 +325,47 @@ export default function AiAssistantPluginSidebar() {
 				name="jetpack-ai-assistant"
 				icon={ <JetpackEditorPanelLogo /> }
 			>
-				<JetpackAndSettingsContent
-					placement={ PLACEMENT_DOCUMENT_SETTINGS }
-					requireUpgrade={ requireUpgrade }
-					upgradeType={ upgradeType }
-					showUsagePanel={ showUsagePanel }
-					showFairUsageNotice={ showFairUsageNotice }
-				/>
+				{ showAgentNotice ? (
+					<WordPressAgentNotice placement={ PLACEMENT_DOCUMENT_SETTINGS } />
+				) : (
+					<JetpackAndSettingsContent
+						placement={ PLACEMENT_DOCUMENT_SETTINGS }
+						requireUpgrade={ requireUpgrade }
+						upgradeType={ upgradeType }
+						showUsagePanel={ showUsagePanel }
+						showFairUsageNotice={ showFairUsageNotice }
+					/>
+				) }
 			</DocumentPanel>
 
-			<PrePublishPanel title={ title } icon={ <JetpackEditorPanelLogo /> } initialOpen={ false }>
-				<>
-					{ isAITitleOptimizationAvailable && (
-						<TitleOptimization
-							placement={ PLACEMENT_PRE_PUBLISH }
-							busy={ false }
-							disabled={ requireUpgrade }
-						/>
+			{ showPrePublishPanel && (
+				<PrePublishPanel
+					title={ title }
+					icon={ <JetpackEditorPanelLogo /> }
+					initialOpen={ showAgentNotice }
+				>
+					{ showAgentNotice ? (
+						<WordPressAgentNotice placement={ PLACEMENT_PRE_PUBLISH } />
+					) : (
+						<>
+							{ isAITitleOptimizationAvailable && (
+								<TitleOptimization
+									placement={ PLACEMENT_PRE_PUBLISH }
+									busy={ false }
+									disabled={ requireUpgrade }
+								/>
+							) }
+							{ isAIFeedbackAvailable && (
+								<Feedback
+									placement={ PLACEMENT_PRE_PUBLISH }
+									busy={ false }
+									disabled={ requireUpgrade }
+								/>
+							) }
+						</>
 					) }
-					<Feedback
-						placement={ PLACEMENT_PRE_PUBLISH }
-						busy={ false }
-						disabled={ requireUpgrade }
-					/>
-				</>
-			</PrePublishPanel>
+				</PrePublishPanel>
+			) }
 		</>
 	);
 }

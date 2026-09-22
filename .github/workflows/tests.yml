@@ -38,7 +38,7 @@ jobs:
     needs: create-matrix
     services:
       database:
-        image: mariadb:12.0
+        image: ghcr.io/mariadb/mariadb:lts
         env:
           MARIADB_ROOT_PASSWORD: root
         ports:
@@ -62,9 +62,9 @@ jobs:
 
     # Note matrix-job outputs are kind of weird. Last-to-run job that sets a non-empty value wins.
     outputs:
-      did-coverage: ${{ case( steps.run-tests.conclusion != 'cancelled' && steps.process-coverage.conclusion == 'success' && steps.upload-artifacts.conclusion == 'success', 'true', '' ) }}
-      php-coverage-status: ${{ case( matrix.coverage-group == 'php', steps.run-tests.conclusion, '' ) }}
-      js-coverage-status: ${{ case( matrix.coverage-group == 'js', steps.run-tests.conclusion, '' ) }}
+      did-coverage: ${{ case( matrix.coverage-group != '' && job.status != 'cancelled' && steps.process-coverage.conclusion == 'success' && steps.upload-artifacts.conclusion == 'success', 'true', '' ) }}
+      php-coverage-status: ${{ case( matrix.coverage-group == 'php', job.status, '' ) }}
+      js-coverage-status: ${{ case( matrix.coverage-group == 'js', job.status, '' ) }}
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -76,12 +76,12 @@ jobs:
       # But it doesn't have to be checked out.
       - name: Deepen to merge base
         if: github.event_name == 'pull_request'
-        uses: ./.github/actions/deepen-to-merge-base
+        uses: $/.github/actions/deepen-to-merge-base
         with:
           checkout: false
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           php: ${{ matrix.php }}
           coverage: ${{ case( matrix.coverage-group == 'php', 'pcov', 'none' ) }}
@@ -169,136 +169,167 @@ jobs:
         if: steps.changed.outputs.any-plugins == 'true' && matrix.wp != 'none'
         run: .github/files/setup-wordpress-env.sh
 
-      - name: Run project tests
-        id: run-tests
+      - name: Prepare test queue
         env:
-          FORCE_PACKAGE_TESTS: ${{ case( matrix.force-package-tests, 'true', 'false' ) }}
-          CHANGED: ${{ steps.changed.outputs.projects }}
+          QUEUEFILE: ${{ runner.temp }}/testqueue
+          WORKERTOKENS: ${{ runner.temp }}/workertokens
         run: |
-          EXIT=0
-          declare -A PIDS
-          PIDS=()
-          MAXPIDS=$( nproc )
-          FAILED=()
           mkdir artifacts
           [[ -n "$COVERAGE_GROUP" ]] && mkdir coverage
+
+          : > "$QUEUEFILE"
+
+          # Put some known slow things at the start of the queue.
+          echo projects/plugins/jetpack/composer.json >> "$QUEUEFILE"
+
+          # Then everything else.
           for P in composer.json projects/*/*/composer.json; do
-            if [[ ${#PIDS[@]} -ge $MAXPIDS ]]; then
-              if ! wait -fn -p PID "${!PIDS[@]}"; then
-                echo "::error::Tests for ${PIDS[$PID]} failed!"
-                FAILED+=( "${PIDS[$PID]}" )
-                EXIT=1
+            if ! grep -Fx "$P" "$QUEUEFILE" &>/dev/null; then
+              echo "$P"
+            fi
+          done >> "$QUEUEFILE"
+
+          # There's no way to directly control the number of workers, it has to be hard-coded in this file.
+          # So we hard-code the max number of workers GH allows, create a file with N "tokens", and any worker that doesn't get one exits without doing anything.
+          if [[ "$TEST_SCRIPT" == test-js || "$TEST_SCRIPT" == test-js-coverage ]]; then
+            # Looks like `jest` already defaults to maxing out CPUs. The projects where there aren't enough tests to do that
+            # effectively are already very fast, so it's more efficient to use only one worker.
+            echo 'Enabling one worker for JS tests'
+            echo '0' > "$WORKERTOKENS"
+          else
+            # For other tests, workers == number of CPUs.
+            N=$( nproc )
+            echo "Enabling $N worker(s) for $N CPU(s)"
+            for (( i=0; i<N; i++)); do
+              echo "$i"
+            done > "$WORKERTOKENS"
+          fi
+
+      - parallel:
+        - &testworker
+          name: Run project tests
+          env:
+            FORCE_PACKAGE_TESTS: ${{ case( matrix.force-package-tests, 'true', 'false' ) }}
+            CHANGED: ${{ steps.changed.outputs.projects }}
+            QUEUEFILE: ${{ runner.temp }}/testqueue
+            WORKERTOKENS: ${{ runner.temp }}/workertokens
+          run: |
+            WORKERID=$( flock "$WORKERTOKENS.lock" sed -i -e '1{w/dev/stdout' -e 'd}' "$WORKERTOKENS" )
+            if [[ -z "$WORKERID" ]]; then
+              echo "Failed to get a worker token. Exiting."
+              exit 0
+            fi
+
+            EXIT=0
+            while true; do
+              P=$( flock "$QUEUEFILE.lock" sed -i -e '1{w/dev/stdout' -e 'd}' "$QUEUEFILE" )
+              [[ -z "$P" ]] && break
+
+              if [[ "$P" == "composer.json" ]]; then
+                DIR="."
+                SLUG="monorepo"
+              else
+                DIR="${P%/composer.json}"
+                SLUG="${DIR#projects/}"
               fi
-              echo "Finished ${PIDS[$PID]}"
-              unset PIDS[$PID]
-            fi
 
-            if [[ "$P" == "composer.json" ]]; then
-              DIR="."
-              SLUG="monorepo"
-            else
-              DIR="${P%/composer.json}"
-              SLUG="${DIR#projects/}"
-            fi
-
-            if [[ "${SLUG%%/*}" != "plugins" && "$WP_BRANCH" != 'latest' && "$WP_BRANCH" != 'none' && "$FORCE_PACKAGE_TESTS" != "true" ]] &&
-              ! jq -e '.["require-dev"]["automattic/jetpack-test-environment"] // empty' "$P" > /dev/null
-            then
-              echo "Skipping $SLUG, only plugins and packages dev-depending on automattic/jetpack-test-environment run for WP_BRANCH = $WP_BRANCH"
-              continue
-            fi
-
-            if ! jq --argjson changed "$CHANGED" --arg p "$SLUG" -ne '$changed[$p] // false' > /dev/null; then
-              echo "Skipping $SLUG, no changes in it or its dependencies"
-            elif ! jq --arg script "$TEST_SCRIPT" -e '.scripts[$script] // false' "$P" > /dev/null; then
-              echo "Skipping $SLUG, no test script is defined in composer.json"
-            elif php -r 'exit( preg_match( "/^>=\\s*(\\d+\\.\\d+)$/", $argv[1], $m ) && version_compare( PHP_VERSION, $m[1], "<" ) ? 0 : 1 );' "$( jq -r '.require.php // ""' "$P" )"; then
-              echo "Skipping $SLUG, requires PHP $( jq -r '.require.php // ""' "$P" ) but PHP version is $( php -r 'echo PHP_VERSION;' )"
-            else
-              if jq --arg script "skip-$TEST_SCRIPT" -e '.scripts[$script] // false' "$P" > /dev/null; then
-                { composer --working-dir="$DIR" run "skip-$TEST_SCRIPT"; CODE=$?; } || true
-                if [[ $CODE -eq 3 ]]; then
-                  echo "Skipping tests for $SLUG due to skip-$TEST_SCRIPT script"
-                  continue
-                elif [[ $CODE -ne 0 ]]; then
-                  echo "::error::Script skip-$TEST_SCRIPT failed to run $CODE!"
-                  FAILED+=( "$SLUG" )
-                  EXIT=1
-                  continue
-                fi
+              if [[ "${SLUG%%/*}" != "plugins" && "$WP_BRANCH" != 'latest' && "$WP_BRANCH" != 'none' && "$FORCE_PACKAGE_TESTS" != "true" ]] &&
+                ! jq -e '.["require-dev"]["automattic/jetpack-test-environment"] // empty' "$P" > /dev/null
+              then
+                echo "Skipping $SLUG, only plugins and packages dev-depending on automattic/jetpack-test-environment run for WP_BRANCH = $WP_BRANCH"
+                continue
               fi
 
-              echo "Running tests for $SLUG"
-              {
-                # Composer install, if appropriate. Note setup-wordpress-env.sh did it already for plugins.
-                if [[ "${SLUG%%/*}" != "plugins" && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-php-coverage" ) ]]; then
-                  if [[ ! -f "$DIR/composer.lock" ]]; then
-                    echo 'No composer.lock, running `composer update`'
-                    composer --working-dir="$DIR" update
-                  elif composer --working-dir="$DIR" check-platform-reqs --lock; then
-                    echo 'Platform reqs pass, running `composer install`'
-                    composer --working-dir="$DIR" install
-                    if composer info --locked phpunit/phpunit &>/dev/null; then
-                      echo 'Updating PHPUnit in case a newer version than locked is usable'
-                      composer --working-dir="$DIR" update -W phpunit/phpunit
-                    fi
-                  else
-                    echo 'Platform reqs failed, running `composer update`'
-                    composer --working-dir="$DIR" update
+              if ! jq --argjson changed "$CHANGED" --arg p "$SLUG" -ne '$changed[$p] // false' > /dev/null; then
+                echo "Skipping $SLUG, no changes in it or its dependencies"
+              elif ! jq --arg script "$TEST_SCRIPT" -e '.scripts[$script] // false' "$P" > /dev/null; then
+                echo "Skipping $SLUG, no test script is defined in composer.json"
+              elif php -r 'exit( preg_match( "/^>=\\s*(\\d+\\.\\d+)$/", $argv[1], $m ) && version_compare( PHP_VERSION, $m[1], "<" ) ? 0 : 1 );' "$( jq -r '.require.php // ""' "$P" )"; then
+                echo "Skipping $SLUG, requires PHP $( jq -r '.require.php // ""' "$P" ) but PHP version is $( php -r 'echo PHP_VERSION;' )"
+              else
+                if jq --arg script "skip-$TEST_SCRIPT" -e '.scripts[$script] // false' "$P" > /dev/null; then
+                  { composer --working-dir="$DIR" run "skip-$TEST_SCRIPT"; CODE=$?; } || true
+                  if [[ $CODE -eq 3 ]]; then
+                    echo "Skipping tests for $SLUG due to skip-$TEST_SCRIPT script"
+                    continue
+                  elif [[ $CODE -ne 0 ]]; then
+                    echo "::error::Script skip-$TEST_SCRIPT failed to run $CODE!"
+                    EXIT=1
+                    continue
                   fi
                 fi
 
-                if [[ "${SLUG%%/*}" == "plugins" ]]; then
-                  export WP_TESTS_CONFIG_FILE_PATH="$WORDPRESS_DEVELOP_DIR/wp-tests-config.${SLUG##*/}.php"
-                fi
+                # Can't just pipe, that prevents setting FAIL because the `while` is in a subprocess. Use a coprocess instead.
+                # The `>&3` and `3>&1` weirdness is because `coproc` redirects the normal stdout and we want it to pass through.
+                { coproc PREFIXER { sed -u '/^::/!s!^!['"$SLUG"'] !' >&3; } } 3>&1
 
-                mkdir -p "artifacts/$SLUG"
-                export ARTIFACTS_DIR="$GITHUB_WORKSPACE/artifacts/$SLUG"
-                if [[ -n "$COVERAGE_GROUP" ]]; then
-                  mkdir -p "coverage/$SLUG"
-                  export COVERAGE_DIR="$GITHUB_WORKSPACE/coverage/$SLUG"
-                fi
-                FAIL=false
-                if ! composer run --timeout=0 --working-dir="$DIR" "$TEST_SCRIPT"; then
-                  FAIL=true
+                echo "::group::Running tests for $SLUG"
+                FAIL=
+                while true; do
+                  # Composer install, if appropriate. Note setup-wordpress-env.sh did it already for plugins.
+                  if [[ "${SLUG%%/*}" != "plugins" && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-php-coverage" ) ]]; then
+                    if [[ ! -f "$DIR/composer.lock" ]]; then
+                      echo 'No composer.lock, running `composer update`'
+                      composer --working-dir="$DIR" update || { FAIL="Composer update for $SLUG failed"; break; }
+                    elif composer --working-dir="$DIR" check-platform-reqs --lock; then
+                      echo 'Platform reqs pass, running `composer install`'
+                      composer --working-dir="$DIR" install || { FAIL="Composer install for $SLUG failed"; break; }
+                      if composer info --locked phpunit/phpunit &>/dev/null; then
+                        echo 'Updating PHPUnit in case a newer version than locked is usable'
+                        composer --working-dir="$DIR" update -W phpunit/phpunit || { FAIL="Composer update for $SLUG failed"; break; }
+                      fi
+                    else
+                      echo 'Platform reqs failed, running `composer update`'
+                      composer --working-dir="$DIR" update || { FAIL="Composer update for $SLUG failed"; break; }
+                    fi
+                  fi
+
+                  if [[ "${SLUG%%/*}" == "plugins" ]]; then
+                    export WP_TESTS_CONFIG_FILE_PATH="$WORDPRESS_DEVELOP_DIR/wp-tests-config.${SLUG##*/}.php"
+                  fi
+
+                  mkdir -p "artifacts/$SLUG"
+                  export ARTIFACTS_DIR="$GITHUB_WORKSPACE/artifacts/$SLUG"
+                  if [[ -n "$COVERAGE_GROUP" ]]; then
+                    mkdir -p "coverage/$SLUG"
+                    export COVERAGE_DIR="$GITHUB_WORKSPACE/coverage/$SLUG"
+                  fi
+                  composer run --timeout=0 --working-dir="$DIR" "$TEST_SCRIPT" || { FAIL="Tests for $SLUG failed"; break; }
+                  break
+                done 1>&${PREFIXER[1]} 2>&1
+                exec {PREFIXER[1]}>&-
+                wait $PREFIXER_PID
+                echo "::endgroup::"
+                if [[ -n "$FAIL" ]]; then
+                  EXIT=1
+                  echo "::error::$FAIL"
+                else
+                  echo "Tests for $SLUG passed"
                 fi
 
                 # Actions seems to slow down if there are a lot of files, so clean up Composer stuff after each test.
                 # We don't do it for JS stuff, as that might break things with how JS does package deps.
                 rm -rf "$DIR/vendor" "$DIR/jetpack_vendor" "$DIR/wordpress"
-
-                if $FAIL; then
-                  echo "Tests for $SLUG failed!"
-                  exit 1
-                fi
-              } 2> >( sed -u 's!^!['"$SLUG"'] !' >&2 ) > >( sed -u 's!^!['"$SLUG"'] !' ) &
-              PIDS[$!]=$SLUG
-            fi
-          done
-          while [[ ${#PIDS[@]} -gt 0 ]]; do
-            if ! wait -fn -p PID "${!PIDS[@]}"; then
-              echo "::error::Tests for ${PIDS[$PID]} failed!"
-              FAILED+=( "${PIDS[$PID]}" )
-              EXIT=1
-            fi
-            echo "Finished ${PIDS[$PID]}"
-            unset PIDS[$PID]
-          done
-
-          if [[ ${#FAILED[@]} -gt 0 ]]; then
-            echo ''
-            echo 'The following tests failed:'
-            printf " - %s\n" "${FAILED[@]}"
-          fi
-
-          exit $EXIT
+              fi
+            done
+            exit $EXIT
+        - *testworker
+        - *testworker
+        - *testworker
+        - *testworker
+        - *testworker
+        - *testworker
+        - *testworker
+        - *testworker
+        - *testworker
 
       - name: Process coverage results
         id: process-coverage
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
         if: matrix.coverage-group != '' && always()
-        run: .github/files/coverage-munger/process-coverage.sh
+        run: |
+          .github/files/coverage-munger/process-coverage.sh
 
       - name: Check for artifacts
         id: check-artifacts
@@ -333,13 +364,13 @@ jobs:
       - name: Get token
         id: get_token
         if: github.event_name == 'pull_request'
-        uses: ./.github/actions/gh-app-token
+        uses: $/.github/actions/gh-app-token
         with:
           app_id: ${{ secrets.JP_LAUNCH_CONTROL_ID }}
           private_key: ${{ secrets.JP_LAUNCH_CONTROL_KEY }}
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
 
       - name: Download coverage artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
@@ -376,12 +407,12 @@ jobs:
       # But it doesn't have to be checked out.
       - name: Deepen to merge base
         if: github.event_name == 'pull_request'
-        uses: ./.github/actions/deepen-to-merge-base
+        uses: $/.github/actions/deepen-to-merge-base
         with:
           checkout: false
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           php: false
 
@@ -424,7 +455,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           node: false
       - name: Run check

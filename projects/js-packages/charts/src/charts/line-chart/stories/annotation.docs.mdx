@@ -202,23 +202,23 @@ Controls the text label appearance:
 
 ### Theme Integration
 
-Annotations inherit styling from your chart theme. You can customize annotation styles by defining `annotationStyles` in your theme object:
+Annotation colors are catalog roles, declared in CSS. Two roles cover all four: the label plate reads `--a8c-charts-color-surface`, and the anchor line, subject circle and connector all read `--a8c-charts-color-annotation`.
+
+<Source
+	language="css"
+	code={ `.my-dashboard {
+		--a8c-charts-color-surface: #f0f8ff;
+		--a8c-charts-color-annotation: #0066cc;
+	}` }
+/>
+
+`annotationStyles` carries the geometry beside each color — `radius`, the stroke widths and the label sizing — which has no role behind it:
 
 <Source
 	language="jsx"
 	code={ `const customTheme = {
 		annotationStyles: {
-			label: {
-				backgroundFill: '#f0f8ff',
-				anchorLineStroke: '#0066cc',
-			},
-			circleSubject: {
-				fill: '#0066cc',
-				radius: 6,
-			},
-			connector: {
-				stroke: '#0066cc',
-			},
+			circleSubject: { radius: 6 },
 		},
 	};` }
 />
@@ -365,32 +365,3 @@ Annotations work correctly with zero values (unlike some chart libraries that tr
 - [**Mixed**](?path=/story/js-packages-charts-library-charts-line-chart-annotations--mixed): Combined annotation types
 - [**Colored**](?path=/story/js-packages-charts-library-charts-line-chart-annotations--colored): Custom styling examples
 - [**Custom Vertical**](?path=/story/js-packages-charts-library-charts-line-chart-annotations--custom-vertical): Custom interactive annotations
-
-## Migration from Legacy API
-
-If you're upgrading from the deprecated `annotations` prop:
-
-<Source
-	language="jsx"
-	code={`// Old API (deprecated)
-<LineChart
-	data={data}
-	annotations={[
-		{
-			datum: dataPoint,
-			title: "Event",
-			subjectType: "circle"
-		}
-	]}
-/>
-
-// New API
-
-<LineChart data={ data }>
-	<LineChart.AnnotationsOverlay>
-		<LineChart.Annotation datum={ dataPoint } title="Event" subjectType="circle" />
-	</LineChart.AnnotationsOverlay>
-</LineChart>
-`} />
-
-The new compound component pattern provides better TypeScript support, more flexibility, and clearer composition.

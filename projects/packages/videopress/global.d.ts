@@ -21,9 +21,9 @@ export declare global {
 					gmtOffset: number;
 					timezoneString: string;
 					locale: string;
-					hasVideoPressAccess: boolean;
-					isVideoPress1TB?: boolean;
-					isVideoPressUnlimited?: boolean;
+					hasVideoPressAccess: boolean | null;
+					isVideoPress1TB?: boolean | null;
+					isVideoPressUnlimited?: boolean | null;
 				};
 				assets: {
 					buildUrl: string;

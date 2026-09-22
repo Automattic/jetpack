@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Hide the history upgrade prompt in the modernized Overview when My Jetpack is turned off, so it no longer leads to a page you cannot open.

@@ -65,7 +65,6 @@ export function buildCouponUseData(
 			value: salesWithCoupon,
 			valueDisplay: formatMetricValue( salesWithCoupon, 'currency', {
 				useMultipliers: true,
-				decimals: 0,
 			} ),
 		},
 		{
@@ -73,7 +72,6 @@ export function buildCouponUseData(
 			value: salesWithoutCoupon,
 			valueDisplay: formatMetricValue( salesWithoutCoupon, 'currency', {
 				useMultipliers: true,
-				decimals: 0,
 			} ),
 		},
 	];
@@ -84,7 +82,6 @@ export function buildCouponUseData(
 			value: salesWithCoupon,
 			displayValue: formatMetricValue( salesWithCoupon, 'currency', {
 				useMultipliers: true,
-				decimals: 0,
 			} ),
 			comparison: hasComparison ? comparisonSalesWithCoupon : undefined,
 		},
@@ -93,7 +90,6 @@ export function buildCouponUseData(
 			value: salesWithoutCoupon,
 			displayValue: formatMetricValue( salesWithoutCoupon, 'currency', {
 				useMultipliers: true,
-				decimals: 0,
 			} ),
 			comparison: hasComparison ? comparisonSalesWithoutCoupon : undefined,
 		},

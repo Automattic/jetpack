@@ -343,10 +343,7 @@ export const ErrorStates: StoryObj< StoryArgs > = {
 					data={ [
 						{
 							label: 'Invalid Values',
-							data: [
-								{ date: new Date( '2024-01-01' ), value: NaN },
-								{ date: new Date( '2024-01-02' ), value: null as number | null },
-							],
+							data: [ { date: new Date( '2024-01-01' ), value: NaN } ],
 							options: {},
 						},
 					] }
@@ -377,6 +374,40 @@ export const ErrorStates: StoryObj< StoryArgs > = {
 			description: {
 				story: 'Examples of how the line chart handles various error states and edge cases.',
 			},
+		},
+	},
+};
+
+const siteLaunchedInApril: SeriesData[] = [
+	{
+		label: 'Subscribers',
+		data: [
+			{ date: new Date( 2026, 0, 1 ), value: null },
+			{ date: new Date( 2026, 1, 1 ), value: null },
+			{ date: new Date( 2026, 2, 1 ), value: null },
+			{ date: new Date( 2026, 3, 1 ), value: 0 },
+			{ date: new Date( 2026, 4, 1 ), value: 12 },
+			{ date: new Date( 2026, 5, 1 ), value: 31 },
+			{ date: new Date( 2026, 6, 1 ), value: 58 },
+		],
+	},
+];
+
+export const BucketsWithNoData: StoryObj< StoryArgs > = Template.bind( {} );
+BucketsWithNoData.args = {
+	...Default.args,
+	data: siteLaunchedInApril,
+};
+BucketsWithNoData.argTypes = {
+	// The series-count control swaps in the sample data, which has no gaps to show.
+	seriesCount: { table: { disable: true } },
+	zoomable: { control: 'boolean' },
+};
+BucketsWithNoData.parameters = {
+	docs: {
+		description: {
+			story:
+				'A null value is a bucket with no reading. It keeps its place on the axis so the chart still spans the selected range, but breaks the line and its gradient fill at that point, and its tooltip reads "No data" rather than zero. April is a real zero, so the line starts there, at 0, rather than in May. Pointer events still reach a bucket with no reading, so with `zoomable` a drag can start in January.',
 		},
 	},
 };

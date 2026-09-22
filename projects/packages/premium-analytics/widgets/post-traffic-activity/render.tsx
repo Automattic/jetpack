@@ -12,18 +12,19 @@ import {
 	HeatmapSkeleton,
 	WidgetRoot,
 	WidgetState,
-	buildCalendarHeatmapData,
 	fitWeekColumns,
 	formatViewCount,
 	toDay,
+	useCalendarHeatmapData,
 	useElementSize,
 	useWidgetRootContext,
 	type HeatmapTooltipData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useResizeObserver } from '@wordpress/compose';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { seen } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -120,10 +121,7 @@ function PostTrafficActivityInner() {
 	const [ chartAreaRef, chartAreaSize ] = useElementSize< HTMLDivElement >();
 	const maxCellHeight = cellHeightForArea( chartAreaSize.height );
 
-	const { data: heatmapData, rowLabels } = useMemo(
-		() => buildCalendarHeatmapData( days ),
-		[ days ]
-	);
+	const { data: heatmapData, rowLabels } = useCalendarHeatmapData( days );
 
 	const from = toDay( reportParams.from );
 	const to = toDay( reportParams.to );
@@ -145,6 +143,7 @@ function PostTrafficActivityInner() {
 							: __( 'No data', 'jetpack-premium-analytics-pkg' )
 					}
 					formatValue={ formatViewCount }
+					icon={ seen }
 				/>
 			);
 		},
@@ -194,6 +193,7 @@ function PostTrafficActivityInner() {
 									rowLabels={ rowLabels }
 									primaryColor="var(--wp-admin-theme-color, #3858e9)"
 									withTooltips
+									tooltipVariant="dark"
 									// The page span is already sized to the card, so width tracks
 									// never need to shrink below the design's 64px.
 									maxCellWidth={ 64 }

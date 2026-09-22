@@ -1,7 +1,7 @@
 import { Stack } from '@wordpress/ui';
 import { action } from 'storybook/actions';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { defaultTheme, useGlobalChartsContext } from '../../../providers';
+import { useGlobalChartsContext } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -52,17 +52,13 @@ const meta: Meta< StoryArgs > = {
 		},
 		primaryColor: {
 			control: 'color',
-			description: 'Primary color for current period bars',
-			table: {
-				defaultValue: { summary: defaultTheme.leaderboardChart.primaryColor },
-			},
+			description:
+				'Primary color for current period bars. Defaults to the first palette slot, `--a8c-charts-color-series-1`.',
 		},
 		secondaryColor: {
 			control: 'color',
-			description: 'Secondary color for comparison period bars',
-			table: {
-				defaultValue: { summary: defaultTheme.leaderboardChart.secondaryColor },
-			},
+			description:
+				'Secondary color for comparison period bars. Defaults to the second palette slot, `--a8c-charts-color-series-2`.',
 		},
 		valueFormatter: {
 			control: false,
@@ -191,7 +187,7 @@ const zeroChangeData: LeaderboardEntry[] = sampleData.map( ( entry, index ) =>
 				currentShare: 0,
 				previousShare: 0,
 				delta: 0,
-		  }
+			}
 		: entry
 );
 
@@ -224,7 +220,7 @@ const unavailableDeltaData: LeaderboardEntry[] = sampleData.map( ( entry, index 
 				previousValue: 0,
 				previousShare: 0,
 				delta: undefined,
-		  }
+			}
 		: entry
 );
 
@@ -263,7 +259,7 @@ const missingComparisonData: LeaderboardEntry[] = sampleData.map( entry =>
 				label: entry.label,
 				currentValue: entry.currentValue,
 				currentShare: entry.currentShare,
-		  }
+			}
 		: entry
 );
 

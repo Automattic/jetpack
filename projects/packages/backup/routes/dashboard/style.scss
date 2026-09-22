@@ -26,6 +26,12 @@
 	gap: 16px;
 	width: 100%;
 
+	// Focused only by script, to catch focus when the empty state unmounts.
+	// Chromium carries `:focus-visible` across that move, ringing the whole grid.
+	&:focus {
+		outline: none;
+	}
+
 	// At desktop widths, switch to the side-by-side activity-list + detail
 	// pane. Below this the two cells stack vertically; the grid's minimums
 	// (360px + 400px + 16px gap) would otherwise overflow the dashboard body

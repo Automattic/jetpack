@@ -1,15 +1,14 @@
 /**
  * External dependencies
  */
+import { ReportScopeProvider, chartInterval } from '@jetpack-premium-analytics/data';
 import {
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
-	defaultPeriodForInterval,
 	type MetricTab,
-	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { customer } from '@jetpack-premium-analytics/icons';
 import { useMemo } from '@wordpress/element';
@@ -17,6 +16,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { DEFAULT_REPORT_PARAMS } from './default-report-params';
+import { SUBSCRIBERS_GRAIN } from './grain';
 import styles from './style.module.css';
 import useSubscribersChart, {
 	type SubscribersChartPoint,
@@ -32,9 +33,7 @@ import {
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
-type SubscribersChartRenderAttributes = SubscribersChartAttributes &
-	Partial< ReportParamsFieldAttributes >;
-type SubscribersChartWidgetProps = WidgetRenderProps< SubscribersChartRenderAttributes > & {
+type SubscribersChartWidgetProps = WidgetRenderProps< SubscribersChartAttributes > & {
 	/**
 	 * Host callback to surface a widget error in the dashboard frame.
 	 */
@@ -45,14 +44,6 @@ const DATA_FORMAT = {
 	type: 'number' as const,
 	options: { useMultipliers: true, decimals: 0 },
 };
-
-// Ordered finest to coarsest, as `defaultPeriodForInterval` requires; mirrors
-// `getStatsPeriodFromInterval` + `toSubscribersUnit`, narrowed to dropdown options.
-const SUBSCRIBERS_PERIODS = [
-	'day',
-	'week',
-	'month',
-] as const satisfies readonly SubscribersPeriod[];
 
 /**
  * The latest value of a metric in a window — each point is the cumulative count
@@ -78,9 +69,9 @@ const METRIC_ACCESSORS: Record<
 };
 
 /**
- * Builds the metric tabs in canonical order, with Paid subscribers only when the
- * site has any. Each tab carries its headline total, previous-window total, and
- * per-period points.
+ * Build the metric tabs from the fetched state, in canonical order, with Paid
+ * subscribers only when the site has any. Each tab carries its headline total
+ * and the per-period points for the chart.
  */
 function buildMetrics( state: SubscribersChartState ): MetricTab[] {
 	return SUBSCRIBERS_CHART_METRICS.filter( ( { id } ) => id !== 'paid' || state.hasPaid ).map(
@@ -90,11 +81,7 @@ function buildMetrics( state: SubscribersChartState ): MetricTab[] {
 				key: id,
 				label,
 				value: latest( state.current, accessor ),
-				previousValue: state.previous.length ? latest( state.previous, accessor ) : undefined,
 				current: state.current.map( point => ( { date: point.date, value: accessor( point ) } ) ),
-				previous: state.previous.length
-					? state.previous.map( point => ( { date: point.date, value: accessor( point ) } ) )
-					: undefined,
 			};
 		}
 	);
@@ -108,15 +95,14 @@ type SubscribersChartInnerProps = {
 };
 
 /**
- * The bucket size follows the dashboard's chart interval control, clamped to what
- * this chart supports; which metric is plotted is the chart's own tab selection.
+ * The bucket size follows the window the widget's own date control saved. The
+ * "Chart type" control is the `chartType` attribute (`relevance: 'high'`),
+ * rendered by the widget host. Which metric is plotted is the chart's own tab
+ * selection.
  */
 function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const period: SubscribersPeriod = defaultPeriodForInterval(
-		reportParams.interval,
-		SUBSCRIBERS_PERIODS
-	);
+	const period: SubscribersPeriod = chartInterval( reportParams, SUBSCRIBERS_GRAIN.periods );
 
 	const state = useSubscribersChart( reportParams, period );
 	const metricTabs = useMemo( () => buildMetrics( state ), [ state ] );
@@ -127,8 +113,9 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 			<WidgetState
 				isLoading={ state.isLoading }
 				isFetching={ state.isFetching }
-				// `placeholderData` keeps the prior chart on screen, so a transient
-				// refetch failure should not replace it with an error.
+				// The query keeps prior data via `placeholderData`, so a transient
+				// refetch failure keeps the chart visible; only surface the error
+				// when there is nothing to show.
 				isError={ state.current.length === 0 && state.isError }
 				isEmpty={ state.current.length === 0 }
 				error={ {
@@ -151,7 +138,6 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
 					groupLabel={ groupLabel }
-					pointsAreWallClocks
 				/>
 			</WidgetState>
 		</div>
@@ -162,9 +148,17 @@ export default function SubscribersChart( {
 	attributes = {},
 	setError,
 }: SubscribersChartWidgetProps ) {
+	const reportParams = attributes.reportParams ?? DEFAULT_REPORT_PARAMS;
+
 	return (
-		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<SubscribersChartInner chartType={ attributes.chartType } />
-		</WidgetRoot>
+		<ReportScopeProvider offersComparison={ false }>
+			<WidgetRoot
+				attributes={ { ...attributes, reportParams } }
+				setError={ setError }
+				options={ { from: '/' } }
+			>
+				<SubscribersChartInner chartType={ attributes.chartType } />
+			</WidgetRoot>
+		</ReportScopeProvider>
 	);
 }

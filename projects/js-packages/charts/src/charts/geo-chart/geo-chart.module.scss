@@ -1,5 +1,6 @@
 .container {
 	position: relative;
+	background-color: var(--a8c-charts-color-background, #fff);
 
 	// Google gives its HTML tooltip no width, so the box shrink-to-fits against
 	// whatever room is left beside the hovered feature. Near a map edge that

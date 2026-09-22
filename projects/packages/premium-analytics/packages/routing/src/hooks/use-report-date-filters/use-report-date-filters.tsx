@@ -9,8 +9,7 @@ import {
 import {
 	drillDateRange,
 	PRESET_CUSTOM,
-	siteTimeZone,
-	stepDateRange,
+	reportingTimeZone,
 	toLocalTZ,
 } from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo } from 'react';
@@ -18,6 +17,7 @@ import { useCallback, useMemo } from 'react';
  * Internal dependencies
  */
 import { decodeDateSearchParam, encodeDateToSearchParam } from '../../search/date-range';
+import { hasPrimaryDateDraft } from '../../search/report-params';
 import { useStagedSearch } from '../use-staged-search';
 import { buildRangePatch, type ReportQuerySearchParams } from './build-range-patch';
 import type {
@@ -25,19 +25,16 @@ import type {
 	DateRange,
 	IntervalType,
 	PrimaryPresetId,
-	StepDirection,
 } from '@jetpack-premium-analytics/datetime';
-
-type PickerRange = { from: Date | undefined; to: Date | undefined };
 
 /**
  * The values and callbacks that drive `DateFiltersPanel`.
  */
 export type ReportDateFilters = {
 	presetId?: PrimaryPresetId;
-	range: PickerRange;
+	range: DateRange;
 	appliedPresetId?: PrimaryPresetId;
-	appliedRange: PickerRange;
+	appliedRange: DateRange;
 	comparisonPresetId?: ComparisonPresetId;
 	appliedComparisonPresetId?: ComparisonPresetId;
 
@@ -58,19 +55,23 @@ export type ReportDateFilters = {
 	appliedInterval: IntervalType;
 
 	/**
-	 * The intervals the applied range allows, finest first — what the control
-	 * lists.
+	 * The intervals the range being edited allows, finest first — what the
+	 * control lists.
 	 */
 	intervalOptions: IntervalType[];
 
-	onChange: ( range?: DateRange, presetId?: PrimaryPresetId ) => void;
+	/**
+	 * Stage a primary range edit. `exactRange` stores the ends as given rather
+	 * than widening `to` to the end of its day: for a range a card computed,
+	 * not one the reader picked from the calendar.
+	 */
+	onChange: (
+		range?: DateRange,
+		presetId?: PrimaryPresetId,
+		options?: { exactRange?: boolean }
+	) => void;
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 	onIntervalChange: ( interval: IntervalType ) => void;
-
-	/**
-	 * Step the applied window backward or forward by its own length.
-	 */
-	onStep: ( direction: StepDirection ) => void;
 
 	/**
 	 * Open the chart bucket containing a date, narrowing to the next finer
@@ -132,7 +133,7 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 		TFrom
 	>( { from } );
 
-	const timeZone = siteTimeZone();
+	const timeZone = reportingTimeZone();
 
 	const presetId = useMemo( () => effective.preset ?? undefined, [ effective.preset ] );
 	const range = useMemo(
@@ -147,8 +148,17 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 	);
 
 	const onChange = useCallback(
-		( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
-			const patch = buildRangePatch( { nextRange, nextPresetId, effective } );
+		(
+			nextRange?: DateRange,
+			nextPresetId?: PrimaryPresetId,
+			options?: { exactRange?: boolean }
+		) => {
+			const patch = buildRangePatch( {
+				nextRange,
+				nextPresetId,
+				exactRange: options?.exactRange,
+				effective,
+			} );
 
 			if ( patch ) {
 				stage( patch );
@@ -157,9 +167,12 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 		[ stage, effective ]
 	);
 
+	// Gated like the applied pair below: a link carrying `compare_preset` with no
+	// window compares nothing, and must not paint the control active.
 	const comparisonPresetId = useMemo(
-		() => effective.compare_preset ?? undefined,
-		[ effective.compare_preset ]
+		() =>
+			hasComparisonEnabled( effective ) ? ( effective.compare_preset ?? undefined ) : undefined,
+		[ effective ]
 	);
 
 	/*
@@ -184,26 +197,28 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 		};
 	}, [ committed, timeZone ] );
 
-	/*
-	 * Whether the primary picker holds an un-applied edit. The comparison and
-	 * interval controls commit on their own, so both check this first rather
-	 * than committing a range draft along with their own change.
-	 */
-	const hasPrimaryDraft =
-		effective.from !== committed.from ||
-		effective.to !== committed.to ||
-		effective.preset !== committed.preset;
+	const hasPrimaryDraft = hasPrimaryDateDraft( committed, effective );
 
-	/*
-	 * The buckets the control lists and the one it checks both read the applied
-	 * range, so a drafted-but-unapplied range can't reshape the menu or disagree
-	 * with the checked item.
-	 */
+	// Listed and checked against the range being edited — see
+	// `getAllowedIntervalsForPreset` for why the draft and not the applied window.
 	const intervalOptions = useMemo(
-		() => getAllowedIntervalsForPreset( appliedPresetId, committed.from ?? '', committed.to ?? '' ),
-		[ appliedPresetId, committed.from, committed.to ]
+		() => getAllowedIntervalsForPreset( presetId, effective.from ?? '', effective.to ?? '' ),
+		[ presetId, effective.from, effective.to ]
 	);
 
+	const interval = useMemo(
+		() =>
+			resolveIntervalForRange(
+				presetId,
+				effective.from ?? '',
+				effective.to ?? '',
+				effective.interval
+			),
+		[ presetId, effective.from, effective.to, effective.interval ]
+	);
+
+	// What the widgets are drawing, for the surfaces that describe them rather
+	// than the picker — the chart the drill-down reads its buckets from.
 	const appliedInterval = useMemo(
 		() =>
 			resolveIntervalForRange(
@@ -213,19 +228,6 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 				committed.interval
 			),
 		[ appliedPresetId, committed.from, committed.to, committed.interval ]
-	);
-
-	// The staged value, so the check mark moves on the click that stages it even
-	// when a primary draft keeps that click from committing.
-	const interval = useMemo(
-		() =>
-			resolveIntervalForRange(
-				appliedPresetId,
-				committed.from ?? '',
-				committed.to ?? '',
-				effective.interval
-			),
-		[ appliedPresetId, committed.from, committed.to, effective.interval ]
 	);
 
 	/**
@@ -265,37 +267,9 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 	);
 
 	/*
-	 * Commits and pushes a history entry so Back undoes the step. Steps the
-	 * applied range, not the staged one — the arrows sit outside the picker,
-	 * so stepping must not apply an open draft.
-	 */
-	const onStep = useCallback(
-		( direction: StepDirection ) => {
-			const stepped = stepDateRange( appliedRange, direction );
-
-			if ( ! stepped ) {
-				return;
-			}
-
-			const patch = buildRangePatch( {
-				nextRange: stepped,
-				nextPresetId: PRESET_CUSTOM,
-				exactRange: true,
-				effective,
-			} );
-
-			if ( patch ) {
-				stage( patch );
-				commit();
-			}
-		},
-		[ appliedRange, commit, effective, stage ]
-	);
-
-	/*
-	 * Commits and pushes a history entry, like `onStep`, so Back exits a
-	 * drill-down. Reads the applied range/interval, not the staged one: the
-	 * chart draws what's applied, so the click belongs to that window.
+	 * Commits and pushes a history entry, so Back exits a drill-down. Reads the
+	 * applied range/interval, not the staged one: the chart draws what's
+	 * applied, so the click belongs to that window.
 	 */
 	const drillDown = useCallback(
 		( date: Date, bucketInterval: IntervalType = appliedInterval ) => {
@@ -304,7 +278,11 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 			 * on the clock of the date passed in, and a plain instant would cut it
 			 * on the browser's clock instead.
 			 */
-			const drilled = drillDateRange( toLocalTZ( date, timeZone ), bucketInterval, new Date() );
+			const drilled = drillDateRange(
+				toLocalTZ( date, timeZone ),
+				bucketInterval,
+				toLocalTZ( undefined, timeZone )
+			);
 
 			if ( ! drilled?.from || ! drilled.to ) {
 				return;
@@ -372,7 +350,6 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 		onChange,
 		onComparisonChange,
 		onIntervalChange,
-		onStep,
 		drillDown,
 		onApply,
 		onCancel,

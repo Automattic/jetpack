@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Tokens;
 use Jetpack_IXR_Client;
 use Jetpack_Options;
 use WP_Error;
@@ -45,8 +44,6 @@ class Publicize extends Publicize_Base {
 
 		add_action( 'load-settings_page_sharing', array( $this, 'admin_page_load' ), 9 );
 
-		add_action( 'load-settings_page_sharing', array( $this, 'force_user_connection' ) );
-
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags' ), 10, 2 );
 
 		add_action( 'wp_insert_post', array( $this, 'save_publicized' ), 11, 2 );
@@ -63,65 +60,24 @@ class Publicize extends Publicize_Base {
 
 	/**
 	 * Force user connection before showing the Publicize UI.
+	 *
+	 * @deprecated $$next-version$$ Settings > Sharing no longer hosts the Publicize UI.
+	 *
+	 * @return void
 	 */
 	public function force_user_connection() {
-		global $current_user;
-
-		$user_token        = ( new Tokens() )->get_access_token( $current_user->ID );
-		$is_user_connected = $user_token && ! is_wp_error( $user_token );
-
-		// If the user is already connected via Jetpack, then we're good.
-		if ( $is_user_connected ) {
-			return;
-		}
-
-		// If they're not connected, then remove the Publicize UI and tell them they need to connect first.
-		global $publicize_ui;
-		remove_action( 'pre_admin_screen_sharing', array( $publicize_ui, 'admin_page' ) );
-
-		// Do we really need `admin_styles`? With the new admin UI, it's breaking some bits.
-		// Jetpack::init()->admin_styles();.
-		add_action( 'pre_admin_screen_sharing', array( $this, 'admin_page_warning' ), 1 );
+		_deprecated_function( __METHOD__, 'publicize-$$next-version$$' );
 	}
 
 	/**
 	 * Show a warning when Publicize does not have a connection.
+	 *
+	 * @deprecated $$next-version$$ Settings > Sharing no longer hosts the Publicize UI.
+	 *
+	 * @return void
 	 */
 	public function admin_page_warning() {
-		$jetpack   = \Jetpack::init();
-		$blog_name = get_bloginfo( 'blogname' );
-		if ( empty( $blog_name ) ) {
-			$blog_name = home_url( '/' );
-		}
-
-		?>
-		<div id="message" class="updated jetpack-message jp-connect">
-			<div class="jetpack-wrap-container">
-				<div class="jetpack-text-container">
-					<p>
-						<?php
-							printf(
-								/* translators: %s is the name of the blog */
-								esc_html( wptexturize( __( "To use Jetpack Social, you'll need to link your %s account to your WordPress.com account using the link below.", 'jetpack-publicize-pkg' ) ) ),
-								'<strong>' . esc_html( $blog_name ) . '</strong>'
-							);
-						?>
-					</p>
-					<p><?php echo esc_html( wptexturize( __( "If you don't have a WordPress.com account yet, you can sign up for free in just a few seconds.", 'jetpack-publicize-pkg' ) ) ); ?></p>
-				</div>
-				<div class="jetpack-install-container">
-					<p class="submit"><a
-							href="<?php echo esc_url( $jetpack->build_connect_url( false, menu_page_url( 'sharing', false ) ) ); ?>"
-							class="button-connector"
-							id="wpcom-connect"><?php esc_html_e( 'Link account with WordPress.com', 'jetpack-publicize-pkg' ); ?></a>
-					</p>
-					<p class="jetpack-install-blurb">
-						<?php jetpack_render_tos_blurb(); ?>
-					</p>
-				</div>
-			</div>
-		</div>
-		<?php
+		_deprecated_function( __METHOD__, 'publicize-$$next-version$$' );
 	}
 
 	/**
@@ -146,6 +102,8 @@ class Publicize extends Publicize_Base {
 	 */
 	public function receive_updated_publicize_connections( $publicize_connections ) {
 
+		$publicize_connections = self::filter_usable_connections( $publicize_connections );
+
 		// Populate the cache with the new data.
 		Connections::get_all( array( 'ignore_cache' => true ) );
 
@@ -162,7 +120,44 @@ class Publicize extends Publicize_Base {
 	}
 
 	/**
+	 * Drop connections we cannot attribute to a user.
+	 *
+	 * A missing user ID reads as "shared with everyone" in is_global_connection(), so such a
+	 * connection would be exposed to every user on the site. User ID 0 is a genuine shared
+	 * connection and is kept; unknown fields pass through, as WPCOM adds to this payload.
+	 *
+	 * @param mixed $publicize_connections Connections, keyed by service name.
+	 * @return array
+	 */
+	private static function filter_usable_connections( $publicize_connections ) {
+		// An empty payload is valid - it means the site has no connections left.
+		if ( ! is_array( $publicize_connections ) ) {
+			return array();
+		}
+
+		$usable_connections = array();
+
+		foreach ( $publicize_connections as $service_name => $connections_for_service ) {
+			if ( ! is_array( $connections_for_service ) ) {
+				continue;
+			}
+
+			foreach ( $connections_for_service as $id => $connection ) {
+				if ( ! isset( $connection['connection_data']['user_id'] ) || ! is_numeric( $connection['connection_data']['user_id'] ) ) {
+					continue;
+				}
+
+				$usable_connections[ $service_name ][ $id ] = $connection;
+			}
+		}
+
+		return $usable_connections;
+	}
+
+	/**
 	 * Add method to update Publicize connections.
+	 *
+	 * @todo Kept as a fallback for the jetpack/v4/publicize/connections/sync REST endpoint that replaced it; remove after a few releases (CONNECT-446).
 	 *
 	 * @param array $methods Array of registered methods.
 	 * @return array

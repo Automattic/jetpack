@@ -60,11 +60,31 @@ function pickFeaturedImageUrl( media: StatsRecord ): string {
  */
 export function sanitizeLatestPostResponse( response: unknown ): LatestPostResponse {
 	const [ first ] = coerceStatsArray( response );
-	if ( ! isStatsRecord( first ) ) {
+
+	return sanitizeLatestPostItem( first );
+}
+
+/**
+ * Every post in a core posts page, in the endpoint's order; items that are not
+ * posts are dropped.
+ *
+ * @param response - The raw posts page.
+ * @return The sanitized posts.
+ */
+export function sanitizePostsContentResponse( response: unknown ): LatestPost[] {
+	return coerceStatsArray( response ).flatMap( item => {
+		const post = sanitizeLatestPostItem( item );
+
+		return post ? [ post ] : [];
+	} );
+}
+
+function sanitizeLatestPostItem( item: unknown ): LatestPostResponse {
+	if ( ! isStatsRecord( item ) ) {
 		return null;
 	}
 
-	const post = coerceStatsRecord( first );
+	const post = coerceStatsRecord( item );
 	const id = safeParseFloat( post.id );
 	if ( id <= 0 ) {
 		return null;

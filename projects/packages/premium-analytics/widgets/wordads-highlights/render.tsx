@@ -36,7 +36,7 @@ type WordAdsHighlightsWidgetProps = WidgetRenderProps< WordAdsHighlightsRenderAt
 
 // Earnings are currency; formatCurrency renders the connected site's WordAds
 // payouts, which are always denominated in USD.
-const CURRENCY_FORMAT: DataFormat = { type: 'currency', options: { decimals: 2 } };
+const CURRENCY_FORMAT: DataFormat = { type: 'currency' };
 
 /**
  * Render-only per-card config; ids/labels shared with the settings checkboxes via

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createPortfolioPiece } from './portfolio-piece.ts';
+import { ENGLISH_SITE_COPY } from './site-copy.fixture.mts';
 
 type PageData = { title: string; content: string; status: string; meta: object };
 type PageRequest = { path: string; method: string; data: PageData };
@@ -32,7 +33,7 @@ function blockNames( content: string ): string[] {
 describe( 'createPortfolioPiece', () => {
 	it( 'creates a marked draft page: one empty image block and one prompted blank line', async () => {
 		const { fetcher, requests } = stubFetcher();
-		const result = await createPortfolioPiece( fetcher );
+		const result = await createPortfolioPiece( ENGLISH_SITE_COPY, fetcher );
 
 		assert.deepEqual( result, { page_id: 42, edit_url: '/wp-admin/post.php?post=42&action=edit' } );
 		const request = requests[ 0 ];
@@ -60,7 +61,7 @@ describe( 'createPortfolioPiece', () => {
 		// most prominent line on the page. An empty title puts core's own "Add title" prompt at the top
 		// of the editor, which is a visible blank, and the blank is the point.
 		const { fetcher, requests } = stubFetcher();
-		await createPortfolioPiece( fetcher );
+		await createPortfolioPiece( ENGLISH_SITE_COPY, fetcher );
 
 		assert.equal( requests[ 0 ].data.title, '' );
 	} );
@@ -79,7 +80,7 @@ describe( 'createPortfolioPiece', () => {
 		// core/image's own save() returns for a block with no attributes, which is also what WordPress
 		// itself writes when an untouched Image block is saved.
 		const { fetcher, requests } = stubFetcher();
-		await createPortfolioPiece( fetcher );
+		await createPortfolioPiece( ENGLISH_SITE_COPY, fetcher );
 		const content = requests[ 0 ].data.content;
 
 		assert.ok( ! content.includes( 'wp:image /-->' ), 'the self-closing delimiter parses invalid' );
@@ -95,7 +96,7 @@ describe( 'createPortfolioPiece', () => {
 		// portfolio piece needs written on it — and the description is the whole difference between this
 		// page and a gallery.
 		const { fetcher, requests } = stubFetcher();
-		await createPortfolioPiece( fetcher );
+		await createPortfolioPiece( ENGLISH_SITE_COPY, fetcher );
 
 		assert.match(
 			requests[ 0 ].data.content,
@@ -111,7 +112,7 @@ describe( 'createPortfolioPiece', () => {
 		// would not strip it either: rewriting touches heading and paragraph text, and an image is an
 		// attribute.
 		const { fetcher, requests } = stubFetcher();
-		await createPortfolioPiece( fetcher );
+		await createPortfolioPiece( ENGLISH_SITE_COPY, fetcher );
 		const content = requests[ 0 ].data.content;
 
 		assert.ok( ! /https?:|\/\//.test( content ), 'the page points at a URL' );
@@ -132,7 +133,7 @@ describe( 'createPortfolioPiece', () => {
 		// core/gallery in place of the image, collapses this task into the one already on the menu, and
 		// dropping the description does the same from the other direction.
 		const { fetcher, requests } = stubFetcher();
-		await createPortfolioPiece( fetcher );
+		await createPortfolioPiece( ENGLISH_SITE_COPY, fetcher );
 		const content = requests[ 0 ].data.content;
 
 		assert.deepEqual( blockNames( content ), [ 'image', 'paragraph' ] );
@@ -146,7 +147,7 @@ describe( 'createPortfolioPiece', () => {
 		// this task exists for. A namespaced block delimiter, or a post type in the path, is the tell
 		// that the dependency came back.
 		const { fetcher, requests } = stubFetcher();
-		await createPortfolioPiece( fetcher );
+		await createPortfolioPiece( ENGLISH_SITE_COPY, fetcher );
 
 		assert.ok(
 			! /wp:(?!image|paragraph)[a-z]+\//.test( requests[ 0 ].data.content ),

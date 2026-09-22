@@ -1,4 +1,4 @@
-import { requestJwt } from '@automattic/jetpack-ai-client';
+import requestJwt from '@automattic/jetpack-ai-client/jwt';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 
 const PUBLIC_API_ROOT = 'https://public-api.wordpress.com/wpcom/v2/sites';

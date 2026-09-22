@@ -15,9 +15,8 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
- * The bucket sizes this chart draws, ordered finest to coarsest as
- * `defaultPeriodForInterval` requires. The bucket follows the dashboard's
- * interval control, clamped into this set.
+ * The bucket sizes this chart draws. The bucket follows the dashboard's interval
+ * control, clamped into this set.
  */
 export const TRAFFIC_PERIODS = [
 	'hour',

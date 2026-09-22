@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import type { LibraryItem } from '../types/library';
 
@@ -8,20 +8,14 @@ const ONE_DAY_MS = 1000 * 60 * 60 * 24;
 type PlaybackJwtResponse = { playback_token?: string };
 
 /**
- * Fetch a short-lived playback JWT for a VideoPress GUID. The token is
- * required to access poster (and stream) URLs of private videos and is
- * appended as `?metadata_token=<jwt>` to those URLs.
- *
- * The query is keyed by guid alone so concurrent renders of the same
- * private video (e.g. multiple rows of the same library) share one
- * request, and the token is cached for ~24h to match the JWT lifetime.
+ * Share a playback JWT query by GUID, caching it for one day.
  *
  * @param guid    - VideoPress GUID, or '' for non-VideoPress items.
  * @param enabled - Skip the request when false (e.g. for public videos).
- * @return The token (or undefined while loading / disabled).
+ * @return The playback-token query, including loading and retry state.
  */
-export function usePlaybackToken( guid: string, enabled: boolean ): string | undefined {
-	const query = useQuery( {
+export function usePlaybackTokenQuery( guid: string, enabled: boolean ): UseQueryResult< string > {
+	return useQuery( {
 		queryKey: [ 'videopress-playback-token', guid ],
 		queryFn: async () => {
 			const res = await apiFetch< PlaybackJwtResponse >( {
@@ -34,7 +28,17 @@ export function usePlaybackToken( guid: string, enabled: boolean ): string | und
 		staleTime: ONE_DAY_MS,
 		gcTime: ONE_DAY_MS,
 	} );
-	return query.data;
+}
+
+/**
+ * Resolve the shared playback token for a VideoPress GUID.
+ *
+ * @param guid    - VideoPress GUID, or '' for non-VideoPress items.
+ * @param enabled - Skip the request when false (e.g. for public videos).
+ * @return The token (or undefined while loading / disabled).
+ */
+export function usePlaybackToken( guid: string, enabled: boolean ): string | undefined {
+	return usePlaybackTokenQuery( guid, enabled ).data;
 }
 
 /**

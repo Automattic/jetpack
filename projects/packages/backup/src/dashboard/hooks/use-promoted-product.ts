@@ -84,12 +84,10 @@ export function usePromotedProduct(): Result {
 		queryKey: keys.promotedProduct(),
 		queryFn: fetchPromotedProduct,
 		staleTime: PROMOTED_PRODUCT_STALE_MS,
-		// Overrides the client's `retry: 1`. Each attempt costs the *site*
-		// an uncached, blocking request to the product catalogue, so a
-		// retry doubles the expensive hop rather than the cheap one — and
-		// buys a figure the screen is designed to work without. React
-		// Query's default guards the browser-to-site hop; the one that
-		// fails here is site-to-WordPress.com.
+		// Overrides the client's `retry: 1`: a retry only ever follows a
+		// failure, and failures are not cached, so it always costs the site
+		// a live blocking request to WordPress.com for a figure the screen
+		// is designed to work without.
 		retry: false,
 	} );
 

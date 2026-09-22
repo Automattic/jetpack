@@ -2,3 +2,4 @@ export { default as LineChartAnnotationLabelWithPopover } from './line-chart-ann
 export { default as LineChartAnnotationsOverlay } from './line-chart-annotations-overlay';
 export { default as LineChartAnnotation } from './line-chart-annotation';
 export { default as LineChartGlyph } from './line-chart-glyph';
+export { NearestPointerEvents } from './nearest-pointer-events';

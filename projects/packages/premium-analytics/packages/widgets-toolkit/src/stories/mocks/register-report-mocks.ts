@@ -13,6 +13,7 @@ import { differenceInCalendarDays, isValid, parseISO } from 'date-fns';
 /**
  * Internal dependencies
  */
+import { wooBucketStamp } from '../../__fixtures__/woo-bucket-stamp';
 import {
 	mockOrderAttributionDeviceData,
 	mockOrderAttributionByProductDeviceData,
@@ -42,6 +43,7 @@ import {
 	mockSearchTermsComparisonData,
 	mockSingleVideoData,
 	mockTagsData,
+	buildTopAuthorsDaysData,
 	mockTopAuthorsData,
 	mockTopAuthorsComparisonData,
 	mockSiteSummary,
@@ -51,7 +53,7 @@ import {
 	mockPostLikesData,
 	mockStatsSummaryData,
 	mockStatsSummaryComparisonData,
-	mockStatsSubscribersCountsData,
+	buildStatsSubscribersCountsData,
 	mockPlanUsageData,
 	buildEmailRateResponse,
 	buildEmailTimelineResponse,
@@ -245,6 +247,20 @@ export function setReportMockResponse( pathFragment: string, response: unknown |
 	} else {
 		mockResponseOverrides.set( pathFragment, response );
 	}
+	resetForcedStateQueries();
+}
+
+let mockSitePaidSubscribers = 0;
+
+/**
+ * Sets how many paid subscribers the mocked site has. One switch for
+ * `subscribers/counts` and the `stats/subscribers` series, so widgets reading
+ * either cannot disagree about whether the site sells subscriptions.
+ *
+ * @param count - Paid subscribers; 0 for a site with none.
+ */
+export function setMockSitePaidSubscribers( count: number ): void {
+	mockSitePaidSubscribers = Math.max( 0, count );
 	resetForcedStateQueries();
 }
 
@@ -468,8 +484,8 @@ function buildVisitorsByDateResponse( query: URLSearchParams ) {
 		sessionsTotal += activeSessions;
 
 		return {
-			date_start: date.toISOString(),
-			date_end: toDayEnd( date ).toISOString(),
+			date_start: wooBucketStamp( date ),
+			date_end: wooBucketStamp( toDayEnd( date ) ),
 			time_interval: date.toISOString(),
 			active_sessions: String( activeSessions ),
 			visitors: String( visitors ),
@@ -480,8 +496,8 @@ function buildVisitorsByDateResponse( query: URLSearchParams ) {
 		summary: {
 			active_sessions: String( sessionsTotal ),
 			visitors: String( visitorsTotal ),
-			date_start: from.toISOString(),
-			date_end: toDayEnd( new Date( from.getTime() + ( days - 1 ) * DAY_MS ) ).toISOString(),
+			date_start: wooBucketStamp( from ),
+			date_end: wooBucketStamp( toDayEnd( new Date( from.getTime() + ( days - 1 ) * DAY_MS ) ) ),
 		},
 		data,
 	};
@@ -522,8 +538,8 @@ function buildCustomersByDateRows( query: URLSearchParams, isComparison: boolean
 
 		return {
 			time_interval: date.toISOString(),
-			date_start: date.toISOString(),
-			date_end: toDayEnd( date ).toISOString(),
+			date_start: wooBucketStamp( date ),
+			date_end: wooBucketStamp( toDayEnd( date ) ),
 			total_customers: String( totalCustomers ),
 			new_customers: String( newCustomers ),
 			returning_customers: String( totalCustomers - newCustomers ),
@@ -585,8 +601,8 @@ function buildConversionRateResponse( query: URLSearchParams ) {
 		totals.completed_checkout += completedCheckout;
 
 		return {
-			date_start: date.toISOString(),
-			date_end: toDayEnd( date ).toISOString(),
+			date_start: wooBucketStamp( date ),
+			date_end: wooBucketStamp( toDayEnd( date ) ),
 			time_interval: date.toISOString(),
 			active_sessions: String( activeSessions ),
 			visitors: String( visitors ),
@@ -603,8 +619,8 @@ function buildConversionRateResponse( query: URLSearchParams ) {
 			with_cart_addition: String( totals.with_cart_addition ),
 			reached_checkout: String( totals.reached_checkout ),
 			completed_checkout: String( totals.completed_checkout ),
-			date_start: from.toISOString(),
-			date_end: toDayEnd( new Date( from.getTime() + ( days - 1 ) * DAY_MS ) ).toISOString(),
+			date_start: wooBucketStamp( from ),
+			date_end: wooBucketStamp( toDayEnd( new Date( from.getTime() + ( days - 1 ) * DAY_MS ) ) ),
 		},
 		data,
 	};
@@ -834,7 +850,9 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 		const trend = ( absDay - anchorDay ) * 9;
 		const wave = 420 * Math.sin( absDay / 7 ) + 180 * Math.cos( absDay / 11 );
 		const subscribers = Math.max( 0, Math.round( 900 + trend + wave ) );
-		const paid = Math.max( 0, Math.round( subscribers * 0.32 + 120 * Math.sin( absDay / 6 ) ) );
+		const paid = mockSitePaidSubscribers
+			? Math.max( 0, Math.round( subscribers * 0.32 + 120 * Math.sin( absDay / 6 ) ) )
+			: 0;
 
 		return [ period, subscribers, paid ];
 	} );
@@ -1170,10 +1188,24 @@ function routeStatsReport( subPath: string, requestPath: string ): unknown {
 			return nextIsComparison( 'stats/search-terms' )
 				? mockSearchTermsComparisonData
 				: mockSearchTermsData;
-		case '/top-authors':
+		case '/top-authors': {
+			// The author detail chart asks for period buckets; everything else summarizes.
+			const endDate = getQueryParam( requestPath, 'date' )?.slice( 0, 10 );
+			const startDate = getQueryParam( requestPath, 'start_date' )?.slice( 0, 10 );
+			if ( getQueryParam( requestPath, 'summarize' ) === '0' && startDate && endDate ) {
+				const period = getQueryParam( requestPath, 'period' );
+
+				return buildTopAuthorsDaysData(
+					startDate,
+					endDate,
+					period === 'week' || period === 'month' ? period : 'day'
+				);
+			}
+
 			return nextIsComparison( 'stats/top-authors' )
 				? mockTopAuthorsComparisonData
 				: mockTopAuthorsData;
+		}
 		case '/tags':
 			// The Stats `tags` endpoint has no comparison period, so the same
 			// primary fixture is returned for every request.
@@ -1196,7 +1228,7 @@ function routeStatsReport( subPath: string, requestPath: string ): unknown {
 function getQueryParam( requestPath: string, key: string ): string | undefined {
 	const query = requestPath.split( '?' )[ 1 ];
 
-	return query ? new URLSearchParams( query ).get( key ) ?? undefined : undefined;
+	return query ? ( new URLSearchParams( query ).get( key ) ?? undefined ) : undefined;
 }
 
 /**
@@ -1392,6 +1424,11 @@ function buildWordAdsStatsResponse( query: URLSearchParams ) {
 			period = bucket.toISOString().slice( 0, 10 );
 		}
 
+		// A day bucket for today has no figures until the nightly WordAds run lands.
+		if ( unit === 'day' && period >= new Date().toISOString().slice( 0, 10 ) ) {
+			return [ period, 0, 0, 0 ];
+		}
+
 		const absDay = Math.floor( bucket.getTime() / DAY_MS );
 		const trend = ( absDay - anchorDay ) * 3;
 		const wave = 200 * Math.sin( absDay / 9 ) + 80 * Math.cos( absDay / 13 );
@@ -1517,7 +1554,7 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 	}
 
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_COUNTS_PATH ) ) {
-		return mockStatsSubscribersCountsData;
+		return buildStatsSubscribersCountsData( mockSitePaidSubscribers );
 	}
 
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_PATH ) ) {

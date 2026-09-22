@@ -81,7 +81,7 @@ function PostCommentsInner() {
 							? __(
 									'Open a post or page report to see its comments here.',
 									'jetpack-premium-analytics-pkg'
-							  )
+								)
 							: __( 'There are no comments yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>

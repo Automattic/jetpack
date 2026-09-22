@@ -1,17 +1,22 @@
 /**
  * External dependencies
  */
-import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { Button, Icon, Stack } from '@jetpack-premium-analytics/externals';
+import { formatDateRange } from '@jetpack-premium-analytics/formatters';
+import { Dropdown, MenuGroup, MenuItem, NavigableMenu, Tooltip } from '@wordpress/components';
+import { __, _x } from '@wordpress/i18n';
 import { check, chevronDown, plus } from '@wordpress/icons';
-import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import {
+	DATE_CONTROL_TRIGGER_DEFAULTS,
+	openOnArrowDown,
+	type DateControlTriggerProps,
+} from '../utils/date-control-trigger';
 import type { ComparisonDateRangePreset } from '../use-comparison-date-presets';
 import type { ComparisonPresetId } from '@jetpack-premium-analytics/datetime';
-import './date-comparison-dropdown.scss';
 
 const NO_COMPARISON_VALUE = 'no-comparison';
 
@@ -32,6 +37,10 @@ type DateComparisonDropdownProps = {
 	 * text. Defaults to "Compare" / "Compare to" depending on the state.
 	 */
 	label?: string;
+	/** Greys the trigger out but keeps it focusable: a passing state, not a missing control. */
+	disabled?: boolean;
+	/** The trigger's look, over a neutral outline at the default size. */
+	triggerProps?: DateControlTriggerProps;
 	onPresetChange: ( id: ComparisonPresetId ) => void;
 	onClear: () => void;
 };
@@ -41,6 +50,8 @@ export function DateComparisonDropdown( {
 	enabled,
 	presetId,
 	label,
+	disabled = false,
+	triggerProps,
 	onPresetChange,
 	onClear,
 }: DateComparisonDropdownProps ) {
@@ -48,16 +59,17 @@ export function DateComparisonDropdown( {
 	const additiveLabel = __( 'Compare', 'jetpack-premium-analytics-pkg' );
 	const compareToLabel = __( 'Compare to', 'jetpack-premium-analytics-pkg' );
 
+	// "No comparison" closes the menu as the way out, after the options.
 	const items = useMemo( (): ComparisonMenuItem[] => {
 		return [
-			{
-				value: NO_COMPARISON_VALUE,
-				label: noComparisonLabel,
-			},
 			...presets.map( preset => ( {
 				value: preset.id,
 				label: preset.label,
 			} ) ),
+			{
+				value: NO_COMPARISON_VALUE,
+				label: noComparisonLabel,
+			},
 		];
 	}, [ noComparisonLabel, presets ] );
 
@@ -83,54 +95,73 @@ export function DateComparisonDropdown( {
 		[ onClear, onPresetChange ]
 	);
 
+	const controlLabel = label ?? ( isComparisonActive ? compareToLabel : additiveLabel );
+
 	/*
 	 * Additive: `Compare +` until a preset is picked, then a trigger naming it —
 	 * spelled out rather than a bare `+`, since a glyph alone read as decoration.
-	 * Names the preset, not the period: the section header's subtitle covers that.
+	 * Names the preset, not the period.
 	 */
 	return (
-		<DropdownMenu
-			className="date-comparison-dropdown"
-			icon={ isComparisonActive ? chevronDown : plus }
-			text={ selectedPreset?.shortLabel ?? additiveLabel }
-			label={ label ?? ( isComparisonActive ? compareToLabel : additiveLabel ) }
-			popoverProps={ { placement: 'bottom-start' } }
-			toggleProps={ {
-				className: clsx( 'date-comparison-dropdown__toggle', {
-					'date-comparison-dropdown__toggle--active': isComparisonActive,
-				} ),
-				iconPosition: 'right',
-				iconSize: 18,
-				// A tooltip only where the trigger's text is an abbreviation.
-				// Over the additive state it would repeat the label beneath it.
-				showTooltip: isComparisonActive,
-				// The trigger shows an abbreviation, so carry the full preset name
-				// for anyone not reading the glyphs — same as the preset pills.
-				'aria-label': selectedPreset?.label,
-			} }
-		>
-			{ ( { onClose } ) => (
-				<MenuGroup>
-					{ items.map( item => {
-						const isSelected = item.value === selectedValue;
+		<Stack direction="row" align="center" gap="sm">
+			{ selectedPreset ? (
+				<span>
+					{ _x(
+						'vs',
+						'prefix naming what a report is compared against',
+						'jetpack-premium-analytics-pkg'
+					) }
+				</span>
+			) : null }
 
-						return (
-							<MenuItem
-								key={ item.value }
-								role="menuitemradio"
-								isSelected={ isSelected }
-								icon={ isSelected ? check : undefined }
-								onClick={ () => {
-									handleSelect( item.value );
-									onClose();
-								} }
-							>
-								{ item.label }
-							</MenuItem>
-						);
-					} ) }
-				</MenuGroup>
-			) }
-		</DropdownMenu>
+			<Dropdown
+				popoverProps={ { placement: 'bottom-start' } }
+				renderToggle={ ( { isOpen, onToggle } ) => (
+					// The window the abbreviation stands for. Over the additive state
+					// a tooltip would repeat the label, so it stays empty there.
+					<Tooltip text={ selectedPreset && formatDateRange( selectedPreset.range ) }>
+						<Button
+							{ ...DATE_CONTROL_TRIGGER_DEFAULTS }
+							{ ...triggerProps }
+							disabled={ disabled }
+							onClick={ onToggle }
+							onKeyDown={ openOnArrowDown( { isOpen, onToggle, disabled } ) }
+							aria-expanded={ isOpen }
+							aria-haspopup="true"
+							// The trigger shows an abbreviation, so carry the full preset name
+							// for anyone not reading the glyphs — same as the preset pills.
+							aria-label={ selectedPreset?.label }
+						>
+							{ selectedPreset?.shortLabel ?? additiveLabel }
+							<Icon icon={ isComparisonActive ? chevronDown : plus } size={ 18 } />
+						</Button>
+					</Tooltip>
+				) }
+				renderContent={ ( { onClose } ) => (
+					<NavigableMenu role="menu" aria-label={ controlLabel }>
+						<MenuGroup>
+							{ items.map( item => {
+								const isSelected = item.value === selectedValue;
+
+								return (
+									<MenuItem
+										key={ item.value }
+										role="menuitemradio"
+										isSelected={ isSelected }
+										icon={ isSelected ? check : undefined }
+										onClick={ () => {
+											handleSelect( item.value );
+											onClose();
+										} }
+									>
+										{ item.label }
+									</MenuItem>
+								);
+							} ) }
+						</MenuGroup>
+					</NavigableMenu>
+				) }
+			/>
+		</Stack>
 	);
 }
