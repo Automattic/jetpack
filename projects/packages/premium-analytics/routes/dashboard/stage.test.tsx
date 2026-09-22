@@ -123,7 +123,16 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	StatsPageIcon: () => null,
 } ) );
 
+const mockTrackCustomize = {
+	start: jest.fn(),
+	layoutChange: jest.fn(),
+	exit: jest.fn(),
+	reset: jest.fn(),
+};
+
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	useTrackCustomize: () => mockTrackCustomize,
+	useTrackDateRangeApply: ( onApply: () => unknown ) => onApply,
 	PageOptionsMenu: ( { onCustomize }: { onCustomize?: () => void } ) => (
 		<div data-testid="page-options-menu">
 			{ onCustomize && (
@@ -605,6 +614,25 @@ describe( 'Dashboard options menu', () => {
 		expect( actions.nextElementSibling ).toBe( reset );
 		// eslint-disable-next-line testing-library/no-node-access -- same order check.
 		expect( reset.nextElementSibling ).toContainElement( menu );
+	} );
+
+	it( 'tracks entering, leaving and resetting the customize mode', async () => {
+		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
+
+		render( <Dashboard /> );
+		const menu = screen.getByTestId( 'page-options-menu' );
+
+		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+
+		expect( mockTrackCustomize.start ).toHaveBeenCalledTimes( 1 );
+		expect( mockTrackCustomize.exit ).toHaveBeenCalledTimes( 1 );
+
+		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
+
+		expect( mockTrackCustomize.reset ).toHaveBeenCalledTimes( 1 );
+		expect( mockTrackCustomize.exit ).toHaveBeenCalledTimes( 1 );
 	} );
 } );
 

@@ -17,6 +17,7 @@ import {
 	DetailPageShell,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
+	useTrackDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
@@ -85,7 +86,15 @@ function VideoDetail(): JSX.Element {
 		startCustomizing,
 		resetToDefault,
 		onEditChange,
-	} = useDetailPageCustomize( layout, { enabled: canRenderWidgets, onLayoutReset: resetLayout } );
+		onLayoutChange,
+	} = useDetailPageCustomize( layout, {
+		enabled: canRenderWidgets,
+		onLayoutReset: resetLayout,
+		onLayoutChange: setLayout,
+		surface: 'video_detail',
+	} );
+
+	const onDateApply = useTrackDateRangeApply( dateFilters.onApply, 'video_detail' );
 
 	// Error and not-found responses have no trustworthy title, so only a
 	// resolved video adds the title crumb.
@@ -135,7 +144,7 @@ function VideoDetail(): JSX.Element {
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
 				resolveWidgetModule={ resolveWidgetModuleWithI18n }
 				layout={ layout }
-				onLayoutChange={ setLayout }
+				onLayoutChange={ onLayoutChange }
 				onLayoutReset={ resetLayout }
 				gridSettings={ DETAIL_GRID }
 				editMode={ isCustomizing }
@@ -164,7 +173,9 @@ function VideoDetail(): JSX.Element {
 						} ) }
 						// The presets render in every summary state, so the range stays
 						// adjustable while the video loads or errors.
-						controls={ <DateFiltersPanel { ...dateFilters } { ...dateControls } /> }
+						controls={
+							<DateFiltersPanel { ...dateFilters } { ...dateControls } onApply={ onDateApply } />
+						}
 					>
 						{ canRenderWidgets ? (
 							<DetailPageSection>

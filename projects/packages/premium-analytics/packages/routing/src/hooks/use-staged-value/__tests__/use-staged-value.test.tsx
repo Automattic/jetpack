@@ -86,12 +86,28 @@ describe( 'useStagedValue', () => {
 		expect( patches ).toEqual( [ { interval: 'week' } ] );
 	} );
 
+	it( 'returns the draft it committed', () => {
+		const { result } = renderStagedValue();
+		let committed: unknown;
+
+		act( () => {
+			result.current.stage( { preset: 'last-7-days' } );
+			committed = result.current.commit();
+		} );
+
+		expect( committed ).toEqual( { preset: 'last-7-days' } );
+	} );
+
 	it( 'ignores a commit with nothing staged', () => {
 		const { result, commits } = renderStagedValue();
+		let committed: unknown = 'unset';
 
-		act( () => result.current.commit() );
+		act( () => {
+			committed = result.current.commit();
+		} );
 
 		expect( commits ).toHaveLength( 0 );
+		expect( committed ).toBeUndefined();
 	} );
 
 	it( 'clears the draft once the commit lands', () => {

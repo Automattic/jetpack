@@ -24,6 +24,7 @@ import {
 	DetailPageShell,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
+	useTrackDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -99,7 +100,15 @@ function PostDetail(): JSX.Element {
 		startCustomizing,
 		resetToDefault,
 		onEditChange,
-	} = useDetailPageCustomize( layout, { layoutId: activeTab, onLayoutReset: resetLayout } );
+		onLayoutChange,
+	} = useDetailPageCustomize( layout, {
+		layoutId: activeTab,
+		onLayoutReset: resetLayout,
+		onLayoutChange: setLayout,
+		surface: 'post_detail',
+	} );
+
+	const onDateApply = useTrackDateRangeApply( dateFilters.onApply, 'post_detail' );
 
 	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
 
@@ -128,7 +137,12 @@ function PostDetail(): JSX.Element {
 	// traffic tab keeps its selection. The design has no comparison on this page
 	// either — the panel reads that from the scope the stage declares.
 	const dateFiltersPanel = isEmailTab ? null : (
-		<DateFiltersPanel { ...dateFilters } { ...dateControls } attentionId={ attentionId } />
+		<DateFiltersPanel
+			{ ...dateFilters }
+			{ ...dateControls }
+			onApply={ onDateApply }
+			attentionId={ attentionId }
+		/>
 	);
 
 	return (
@@ -144,7 +158,7 @@ function PostDetail(): JSX.Element {
 					isResolvingWidgetTypes={ isResolvingWidgetTypes }
 					resolveWidgetModule={ resolveWidgetModuleWithI18n }
 					layout={ layout }
-					onLayoutChange={ setLayout }
+					onLayoutChange={ onLayoutChange }
 					onLayoutReset={ resetLayout }
 					gridSettings={ DETAIL_GRID }
 					editMode={ isCustomizing }

@@ -1,6 +1,7 @@
 import { Badge, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTrackCustomize, type TrackingSurface } from '../../hooks/use-track-event';
 import { PageOptionsMenu } from '../page-options-menu';
 import { ResetLayoutAction } from '../reset-layout';
 import type { CanPerformDashboardOperation, DashboardWidget } from '@wordpress/widget-dashboard';
@@ -19,6 +20,8 @@ export type DetailPageCustomize = {
 	resetToDefault: () => void;
 	/** For `WidgetDashboard`'s `onEditChange`: its Cancel and Done report back here. */
 	onEditChange: ( nextEditMode: boolean ) => void;
+	/** For `WidgetDashboard`'s `onLayoutChange`: stores the layout via `options.onLayoutChange`. */
+	onLayoutChange: ( nextLayout: DashboardWidget[] ) => void;
 };
 
 export type DetailPageCustomizeOptions = {
@@ -33,6 +36,10 @@ export type DetailPageCustomizeOptions = {
 	enabled?: boolean;
 	/** Resets the stored layout; what `resetToDefault` calls before leaving customize mode. */
 	onLayoutReset?: () => void;
+	/** Stores a committed layout. */
+	onLayoutChange?: ( nextLayout: DashboardWidget[] ) => void;
+	/** The page, for the customize Tracks events. */
+	surface?: TrackingSurface;
 };
 
 /**
@@ -41,18 +48,27 @@ export type DetailPageCustomizeOptions = {
  * Reset to default are the page options menu's, not the dashboard's own actions;
  * Reset is offered while customizing only, and leaves the mode (WOOA7S-2033).
  *
- * @param layout                - The layout on show; while empty, edit mode cannot be entered.
- * @param options               - Which layout this is, and whether it can be customized at all.
- * @param options.layoutId      - Names the layout on show; a change ends customize mode.
- * @param options.enabled       - Whether there is anything to customize.
- * @param options.onLayoutReset - Resets the stored layout.
+ * @param layout                 - The layout on show; while empty, edit mode cannot be entered.
+ * @param options                - Which layout this is, and whether it can be customized at all.
+ * @param options.layoutId       - Names the layout on show; a change ends customize mode.
+ * @param options.enabled        - Whether there is anything to customize.
+ * @param options.onLayoutReset  - Resets the stored layout.
+ * @param options.onLayoutChange - Stores a committed layout.
+ * @param options.surface        - The page, for the customize Tracks events.
  * @return The mode, the policy, and the transitions.
  */
 export function useDetailPageCustomize(
 	layout: DashboardWidget[],
-	{ layoutId, enabled = true, onLayoutReset }: DetailPageCustomizeOptions = {}
+	{
+		layoutId,
+		enabled = true,
+		onLayoutReset,
+		onLayoutChange,
+		surface,
+	}: DetailPageCustomizeOptions = {}
 ): DetailPageCustomize {
 	const [ isCustomizing, setIsCustomizing ] = useState( false );
+	const track = useTrackCustomize( surface );
 
 	// An empty layout makes the dashboard request edit mode on its own (its
 	// empty state invites customization); a detail page is only empty while a
@@ -81,27 +97,39 @@ export function useDetailPageCustomize(
 		}
 	}, [] );
 
-	const startCustomizing = useCallback( () => {
-		if ( canCustomize ) {
-			setIsCustomizing( true );
-		}
-	}, [ canCustomize ] );
-
 	const onEditChange = useCallback(
 		( nextEditMode: boolean ) => {
 			if ( nextEditMode && ! canCustomize ) {
 				return;
 			}
+			if ( nextEditMode !== isCustomizing ) {
+				if ( nextEditMode ) {
+					track.start();
+				} else {
+					track.exit();
+				}
+			}
 			setIsCustomizing( nextEditMode );
 		},
-		[ canCustomize ]
+		[ canCustomize, isCustomizing, track ]
+	);
+
+	const startCustomizing = useCallback( () => onEditChange( true ), [ onEditChange ] );
+
+	const handleLayoutChange = useCallback(
+		( nextLayout: DashboardWidget[] ) => {
+			track.layoutChange( layout, nextLayout );
+			onLayoutChange?.( nextLayout );
+		},
+		[ layout, onLayoutChange, track ]
 	);
 
 	// The dashboard's own reset did the same: reset, then leave the mode.
 	const resetToDefault = useCallback( () => {
+		track.reset();
 		onLayoutReset?.();
 		setIsCustomizing( false );
-	}, [ onLayoutReset ] );
+	}, [ onLayoutReset, track ] );
 
 	return {
 		isCustomizing,
@@ -110,6 +138,7 @@ export function useDetailPageCustomize(
 		startCustomizing,
 		resetToDefault,
 		onEditChange,
+		onLayoutChange: handleLayoutChange,
 	};
 }
 

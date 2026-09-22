@@ -80,7 +80,10 @@ export type ReportDateFilters = {
 	 */
 	drillDown: ( date: Date, interval?: IntervalType ) => void;
 
-	onApply: () => void;
+	/**
+	 * Commit the staged edits; returns the search params applied, or nothing when nothing was staged.
+	 */
+	onApply: () => ReportQuerySearchParams | undefined;
 	onCancel: () => void;
 	canApply: boolean;
 	timeZone: string;

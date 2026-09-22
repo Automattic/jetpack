@@ -3,7 +3,11 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { useCallback } from 'react';
+import { hasComparisonEnabled, resolveIntervalForRange } from '@jetpack-premium-analytics/data';
+import { PRESET_CUSTOM } from '@jetpack-premium-analytics/datetime';
+import { useCallback, useMemo, useRef } from 'react';
+import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
+import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 // The tracker is a page-wide singleton: identify once per page load, not per event
 // and not on every consumer's mount.
@@ -56,4 +60,117 @@ export function useTrackEvent() {
 
 		jetpackAnalytics.tracks.recordEvent( eventName, properties );
 	}, [] );
+}
+
+/**
+ * The page a customize or date-range event came from.
+ */
+export type TrackingSurface = 'dashboard' | 'post_detail' | 'author_detail' | 'video_detail';
+
+/**
+ * Wrap a date filter's `onApply` so each applied range records
+ * `jetpack_premium_analytics_date_range_apply`.
+ *
+ * @param onApply - The date filter's own `onApply`.
+ * @param surface - The page the range was applied on.
+ * @param section - The dashboard section, on the dashboard only.
+ * @return The wrapped `onApply`.
+ */
+export function useTrackDateRangeApply(
+	onApply: ReportDateFilters[ 'onApply' ],
+	surface: TrackingSurface,
+	section?: string
+) {
+	const trackEvent = useTrackEvent();
+
+	return useCallback( () => {
+		const applied = onApply();
+
+		if ( applied ) {
+			const preset =
+				applied.preset && applied.preset !== PRESET_CUSTOM ? applied.preset : undefined;
+
+			trackEvent( 'jetpack_premium_analytics_date_range_apply', {
+				surface,
+				...( section ? { section } : {} ),
+				range_type: preset ? 'preset' : 'custom',
+				...( preset ? { preset } : {} ),
+				interval: resolveIntervalForRange(
+					applied.preset,
+					applied.from ?? '',
+					applied.to ?? '',
+					applied.interval
+				),
+				comparison: hasComparisonEnabled( applied )
+					? ( applied.compare_preset ?? 'custom' )
+					: 'none',
+			} );
+		}
+
+		return applied;
+	}, [ onApply, section, surface, trackEvent ] );
+}
+
+/**
+ * The widget types in one layout whose instances the other lacks, comma-joined.
+ *
+ * @param layout - The layout to list from.
+ * @param other  - The layout to compare against.
+ * @return The widget types, in layout order.
+ */
+function typesMissingFrom( layout: DashboardWidget[], other: DashboardWidget[] ) {
+	const uuids = new Set( other.map( widget => widget.uuid ) );
+
+	return layout
+		.filter( widget => ! uuids.has( widget.uuid ) )
+		.map( widget => widget.type )
+		.join( ',' );
+}
+
+/**
+ * Tracks the customize lifecycle: `customize_start`, `customize_save`, `customize_exit` and
+ * `customize_reset`.
+ *
+ * @param surface - The page being customized.
+ * @param section - The dashboard section, on the dashboard only.
+ * @return Callbacks to call from the page's own customize handlers.
+ */
+export function useTrackCustomize( surface?: TrackingSurface, section?: string ) {
+	const trackEvent = useTrackEvent();
+	const pendingSave = useRef< Record< string, unknown > | null >( null );
+
+	return useMemo( () => {
+		const properties = { surface, ...( section ? { section } : {} ) };
+
+		return {
+			start: () => trackEvent( 'jetpack_premium_analytics_customize_start', properties ),
+
+			/*
+			 * Done commits the layout and leaves edit mode in the same call, so a commit is held
+			 * until the end of the tick: one no exit follows is an inline autosave, not a save.
+			 */
+			layoutChange: ( previous: DashboardWidget[], next: DashboardWidget[] ) => {
+				pendingSave.current = {
+					widget_count: next.length,
+					widgets_added: typesMissingFrom( next, previous ),
+					widgets_removed: typesMissingFrom( previous, next ),
+				};
+				queueMicrotask( () => {
+					pendingSave.current = null;
+				} );
+			},
+
+			exit: () => {
+				const save = pendingSave.current;
+				pendingSave.current = null;
+
+				if ( save ) {
+					trackEvent( 'jetpack_premium_analytics_customize_save', { ...properties, ...save } );
+				}
+				trackEvent( 'jetpack_premium_analytics_customize_exit', { ...properties, saved: !! save } );
+			},
+
+			reset: () => trackEvent( 'jetpack_premium_analytics_customize_reset', properties ),
+		};
+	}, [ section, surface, trackEvent ] );
 }

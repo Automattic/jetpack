@@ -277,7 +277,10 @@ export {
 	useSegmentStyles,
 	useSeriesStyles,
 	useStoredDetailLayout,
+	useTrackCustomize,
+	useTrackDateRangeApply,
 	useTrackEvent,
+	type TrackingSurface,
 	useWidgetDrillDown,
 } from './hooks';
 
