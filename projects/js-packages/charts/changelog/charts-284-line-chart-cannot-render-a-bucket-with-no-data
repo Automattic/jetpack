@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Line chart: Break the line at a period with no data instead of refusing to render the chart.

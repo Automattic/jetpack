@@ -1,4 +1,3 @@
-import { formatNumber } from '@automattic/number-formatters';
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __, sprintf } from '@wordpress/i18n';
@@ -26,6 +25,7 @@ import { warnOnce } from '../../utils/warn-once';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
+import { formatReading, isInvalidReading } from '../private/readings';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
@@ -71,8 +71,7 @@ const validateData = ( data: SeriesData[] ) => {
 	const hasInvalidData = data.some( series =>
 		series.data.some(
 			point =>
-				// A null value is a bucket with no reading, which the chart draws as a gap.
-				( point.value !== null && isNaN( point.value as number ) ) ||
+				isInvalidReading( point.value, { allowMissing: true } ) ||
 				( ! point.label &&
 					( ! ( 'date' in point && point.date ) || isNaN( point.date.getTime() ) ) )
 		)
@@ -96,10 +95,6 @@ const renderTooltipRow = ( label: string | undefined, value: string ) => (
 		) }
 	</div>
 );
-
-// formatNumber( null ) is "0", which would claim a reading of zero for a bucket that has none.
-const formatTooltipValue = ( value: number | null | undefined ) =>
-	value == null ? __( 'No data', 'jetpack-charts' ) : formatNumber( value );
 
 const BarChartInternal: FC< BarChartProps > = ( {
 	data,
@@ -390,10 +385,10 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				return (
 					<div className={ styles[ 'bar-chart__tooltip' ] }>
 						<div className={ styles[ 'bar-chart__tooltip-header' ] }>{ categoryLabel }</div>
-						{ renderTooltipRow( primaryKey, formatTooltipValue( nearestDatum.value ) ) }
+						{ renderTooltipRow( primaryKey, formatReading( nearestDatum.value ) ) }
 						{ renderTooltipRow(
 							comparisonEntry.series.label,
-							formatTooltipValue( comparisonDatum.value )
+							formatReading( comparisonDatum.value )
 						) }
 					</div>
 				);
@@ -402,7 +397,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			return (
 				<div className={ styles[ 'bar-chart__tooltip' ] }>
 					<div className={ styles[ 'bar-chart__tooltip-header' ] }>{ primaryKey }</div>
-					{ renderTooltipRow( categoryLabel, formatTooltipValue( nearestDatum.value ) ) }
+					{ renderTooltipRow( categoryLabel, formatReading( nearestDatum.value ) ) }
 				</div>
 			);
 		},
