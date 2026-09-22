@@ -352,8 +352,6 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 		$public_urls = array(
 			'http://8.8.8.8/image.jpg',
 			'https://1.1.1.1/a/b?c=d#e',
-			'https://[2606:4700:4700::1111]/image.jpg',
-			'https://[::ffff:8.8.8.8]/image.jpg',
 		);
 		foreach ( $public_urls as $url ) {
 			$this->assertTrue( Utils::url_is_public( $url ), "$url should be public" );
@@ -422,9 +420,6 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 
 	/**
 	 * The host checked is the one core handed back, not the one we passed in.
-	 *
-	 * Core returns a normalized URL, so parsing the argument instead would check a
-	 * host it never approved.
 	 */
 	public function test_url_is_public_checks_the_url_core_returned() {
 		$this->stub_url_helpers();
@@ -474,6 +469,26 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 		foreach ( $malformed as $host ) {
 			$this->assertSame( array(), Utils::resolve_host_ips( $host ), "$host should resolve to nothing" );
 		}
+	}
+
+	/**
+	 * A raw non-ASCII host is rejected, since the request layer would connect to its punycode form.
+	 */
+	public function test_resolve_host_ips_rejects_non_ascii_hosts() {
+		\Jetpack_IP_Test_Resolver::$answers = array(
+			'bücher.test'          => array( 'ipv4' => array( '8.8.8.8' ) ),
+			'xn--bcher-kva.test'   => array( 'ipv4' => array( '8.8.8.8' ) ),
+			"exa\u{FF4C}mple.test" => array( 'ipv4' => array( '8.8.8.8' ) ),
+		);
+
+		$this->assertSame( array(), Utils::resolve_host_ips( 'bücher.test' ) );
+		$this->assertSame( array(), Utils::resolve_host_ips( 'b%C3%BCcher.test' ) );
+		$this->assertSame( array(), Utils::resolve_host_ips( "exa\u{FF4C}mple.test" ) );
+		$this->assertSame( array( '8.8.8.8' ), Utils::resolve_host_ips( 'xn--bcher-kva.test' ) );
+
+		$this->stub_url_helpers();
+		$this->assertFalse( Utils::url_is_public( 'http://bücher.test/x' ) );
+		$this->assertTrue( Utils::url_is_public( 'http://xn--bcher-kva.test/x' ) );
 	}
 
 	/**

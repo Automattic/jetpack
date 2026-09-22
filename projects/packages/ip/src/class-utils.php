@@ -221,23 +221,9 @@ class Utils {
 	/**
 	 * Checks whether a URL is a safe destination for a server-side request.
 	 *
-	 * Runs core's wp_http_validate_url(), then rejects hosts that resolve to a
-	 * reserved or non-public IP core leaves open (Azure's metadata address, IPv6
-	 * link-local / ULA, and similar -- see ip_is_public()). Every address the host
-	 * resolves to is checked, and a host that resolves to none is rejected, so a
-	 * partly-internal or unresolvable host is never assumed safe.
-	 *
-	 * Callers that follow redirects must re-check every hop: this validates one URL,
-	 * and the request layer's own per-hop check is only core's weaker one.
-	 *
-	 * This does not defend against DNS rebinding -- the address checked here is not
-	 * pinned for the request that follows.
-	 *
-	 * Without ext-dns there is no AAAA lookup, so only a host's IPv4 addresses are
-	 * checked and an internal IPv6 address sitting behind a public IPv4 one is missed.
-	 *
-	 * Returns a plain boolean rather than a WP_Error, so it can be dropped in as a
-	 * REST validate_callback and so a rejection reveals nothing about the host.
+	 * The URL must pass wp_http_validate_url(), which rejects IPv6-literal hosts, and every
+	 * address its host resolves to must pass ip_is_public(). A host that resolves to none fails.
+	 * Not covered: redirect hops (check each one), DNS rebinding, or AAAA records without ext-dns.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -249,7 +235,6 @@ class Utils {
 			return false;
 		}
 
-		// Parse what core accepted, not what we were handed: it returns a normalized URL.
 		$validated_url = wp_http_validate_url( $url );
 		if ( ! $validated_url ) {
 			return false;
@@ -262,8 +247,7 @@ class Utils {
 
 		$ips = self::resolve_host_ips( $host );
 
-		// A host we cannot resolve to any IP must not be assumed safe: fail closed
-		// rather than deferring to the weaker checks in the request layer.
+		// Fail closed: an unresolvable host is not assumed safe.
 		if ( empty( $ips ) ) {
 			return false;
 		}
@@ -278,15 +262,10 @@ class Utils {
 	}
 
 	/**
-	 * Resolves a host to the list of IP addresses that should be validated.
+	 * Resolves a host to the distinct IPv4 and IPv6 addresses a request to it could reach.
 	 *
-	 * IP literals are returned as-is. Host names are resolved to their IPv4 and
-	 * IPv6 addresses so every address a request could connect to is checked. An
-	 * empty list means the host is unusable -- malformed, or it resolved to nothing
-	 * -- and callers must treat that as unsafe rather than letting the host through.
-	 *
-	 * Every entry is a valid, distinct IP address; anything else a resolver hands
-	 * back is dropped.
+	 * IP literals are returned as-is. An empty list means the host is malformed or resolved
+	 * to nothing, and callers must treat it as unsafe.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -298,21 +277,15 @@ class Utils {
 			return array();
 		}
 
-		// IPv6 literals arrive bracketed, e.g. "[::1]". Strip one wrapping pair only --
-		// trimming every bracket would turn malformed input such as "]8.8.8.8[" into a
-		// clean address. Any bracket left after this is caught below.
+		// Unwrap one bracket pair only, so "]8.8.8.8[" can't become a clean address.
 		if ( preg_match( '/^\[(.*)\]$/', $host, $matches ) ) {
 			$host = $matches[1];
 		}
 
-		// URL-decode so a percent-encoded host (e.g. "169%2e254%2e169%2e254") cannot
-		// slip past the IP-literal and DNS checks below.
+		// Decode so "169%2e254%2e169%2e254" can't slip past the checks below.
 		$host = rawurldecode( $host );
 
-		// Strip an IPv6 zone identifier (e.g. "fe80::1%eth0"), only visible once "%25"
-		// is decoded. Zone ids are IPv6-only, so a '%' on anything else is malformed:
-		// reject it rather than normalizing it into a host that looks safe, which is
-		// how ip_is_public() treats the same input.
+		// Strip an IPv6 zone id ("fe80::1%eth0"); a '%' on any other host is malformed.
 		if ( false !== strpos( $host, '%' ) ) {
 			if ( false === strpos( $host, ':' ) ) {
 				return array();
@@ -320,10 +293,11 @@ class Utils {
 			$host = preg_replace( '/%.*$/', '', $host );
 		}
 
-		// Unwrapping and decoding can empty the host ("[]") or leave bytes no host name
-		// holds: control characters from "%00", or a stray bracket. gethostbynamel()
-		// throws a ValueError on a NUL rather than failing to resolve, so stop here.
-		if ( '' === $host || preg_match( '/[\x00-\x20\x7f\[\]]/', $host ) ) {
+		/*
+		 * Reject control bytes (gethostbynamel() throws on a NUL), stray brackets, and
+		 * raw non-ASCII, which the request layer would punycode into a different host.
+		 */
+		if ( '' === $host || preg_match( '/[\x00-\x20\x7f-\xff\[\]]/', $host ) ) {
 			return array();
 		}
 
@@ -355,8 +329,7 @@ class Utils {
 			}
 		}
 
-		// Hand back addresses and nothing else, so a caller using these directly gets
-		// what the return type promises without re-checking the resolvers' output.
+		// Drop anything a resolver returned that is not an IP address.
 		$ips = array_filter(
 			$ips,
 			function ( $ip ) {
