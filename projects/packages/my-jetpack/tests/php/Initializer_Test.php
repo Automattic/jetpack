@@ -63,6 +63,45 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
+	 * An editor with no Jetpack parent menu still reaches admin_init() through the fallback hook.
+	 *
+	 * The page is hand-registered with no jetpack parent, which is what makes core fall back to the
+	 * admin_page_ name; without the Jetpack plugin, admin-ui registers that parent for every editor.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_editor_page_loads_without_a_jetpack_parent_menu() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'my_jetpack_editor',
+					'user_pass'  => 'password',
+					'role'       => 'editor',
+				)
+			)
+		);
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		$GLOBALS['menu']             = array();
+		$GLOBALS['submenu']          = array();
+		$GLOBALS['admin_page_hooks'] = array();
+		Initializer::add_my_jetpack_menu_item();
+		$hook = add_submenu_page( 'jetpack', 'My Jetpack', 'My Jetpack', 'edit_posts', 'my-jetpack', array( Initializer::class, 'admin_page' ) );
+		$this->assertSame( 'admin_page_my-jetpack', $hook );
+
+		$location = $this->capture_admin_init_redirect(
+			static function () use ( $hook ) {
+				do_action( 'load-' . $hook ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- WordPress core page-load hook.
+			}
+		);
+
+		$this->assertNotNull( $location, 'Expected the page load to reach admin_init().' );
+		$this->assertStringContainsString( 'step=onboarding', $location );
+	}
+
+	/**
 	 * Onboarding is available on regular (non-Simple) sites.
 	 */
 	public function test_onboarding_is_available_by_default() {
@@ -223,9 +262,11 @@ class Initializer_Test extends BaseTestCase {
 	 * The wp_redirect filter throws so the exit() that follows the redirect
 	 * call never runs; the location is captured before the throw.
 	 *
+	 * @param callable|null $trigger What reaches admin_init(), for callers testing a route into it.
+	 *                               Defaults to calling it directly.
 	 * @return string|null The redirect location, or null when no redirect happened.
 	 */
-	private function capture_admin_init_redirect() {
+	private function capture_admin_init_redirect( ?callable $trigger = null ) {
 		$location = null;
 		$capture  =
 			/** @return never */
@@ -233,10 +274,11 @@ class Initializer_Test extends BaseTestCase {
 				$location = $redirect_location;
 				throw new \Exception( 'Intercepted redirect to skip exit().' );
 			};
+		$trigger  = $trigger === null ? array( Initializer::class, 'admin_init' ) : $trigger;
 
 		add_filter( 'wp_redirect', $capture );
 		try {
-			Initializer::admin_init();
+			$trigger();
 		} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- Expected: thrown by the capture filter above.
 		} finally {
 			remove_filter( 'wp_redirect', $capture );
