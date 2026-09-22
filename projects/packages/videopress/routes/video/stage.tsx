@@ -196,7 +196,7 @@ const Editor = ( {
 		>
 			{ hasConnectionError && (
 				<Stack direction="column">
-					<ConnectionError />
+					<ConnectionError trackingContext="videopress" />
 				</Stack>
 			) }
 			{ showVideoNav && (

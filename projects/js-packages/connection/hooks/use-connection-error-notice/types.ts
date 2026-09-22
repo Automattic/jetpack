@@ -79,6 +79,12 @@ export interface ConnectionErrorProps {
 		| null;
 	/** Tracking event fired when the fallback "Restore Connection" CTA is clicked. */
 	reconnectTrackingEvent?: string;
+	/**
+	 * The surface rendering the notice, reported as the `context` property on every
+	 * connection-error-notice Tracks event (e.g. 'my-jetpack', 'protect'). Distinct
+	 * from `context` below, which is a display title line.
+	 */
+	trackingContext?: string;
 	/** Navigation handler for URL-based actions. Defaults to setting `window.location.href`. */
 	navigate?: ( url: string ) => void;
 	/** Optional feature-supplied context line rendered above the shared cause/action. */
@@ -165,6 +171,14 @@ export interface UseConnectionErrorNoticeResult {
 	connectionErrors: ConnectionErrorMap;
 	/** Resolved, ready-to-render CTA actions for the effective error. */
 	actions: Action[];
+	/**
+	 * Track a click on a notice-body link (e.g. "Visit Site Health"). Consumers
+	 * that render `errorGroups[].noticeLinks` themselves call this from the link's
+	 * `onClick`; the package's own `<ConnectionError />` wires it for them.
+	 */
+	trackNoticeLinkClick: ( link: ConnectionErrorNoticeLink ) => void;
+	/** Track a click on the "Contact Jetpack Support" link. */
+	trackSupportLinkClick: () => void;
 	/** Initiates a connection restore (or reconnect when restore is not possible). */
 	restoreConnection: RestoreConnection;
 	/** Whether a connection restore is currently in progress. */

@@ -71,6 +71,45 @@ describe( 'ConnectionError', () => {
 		expect( props.actions[ 0 ].label ).toBe( 'Restore Connection' );
 	} );
 
+	it( 'wires notice-link and support-link click tracking with the standard payload', () => {
+		mockConnection( {
+			connectionErrors: {
+				xmlrpc_request_blocked: {
+					'0': {
+						error_message: 'Blocked',
+						error_code: 'xmlrpc_request_blocked',
+						audience: 'site',
+						error_data: {
+							support_link: true,
+							notice_link: { label: 'Visit Site Health', url: 'https://example.com/site-health' },
+						},
+					},
+				},
+			},
+		} );
+		const trackingCallback = jest.fn();
+
+		render( <ConnectionError trackingCallback={ trackingCallback } trackingContext="protect" /> );
+
+		const props = ConnectionErrorNotice.mock.calls[ 0 ][ 0 ];
+		props.onNoticeLinkClick( {
+			label: 'Visit Site Health',
+			url: 'https://example.com/site-health',
+		} );
+		props.onSupportLinkClick();
+
+		expect( trackingCallback ).toHaveBeenCalledWith( 'jetpack_connection_error_notice_link_click', {
+			context: 'protect',
+			error_code: 'xmlrpc_request_blocked',
+			audience: 'site',
+			link_url: 'https://example.com/site-health',
+		} );
+		expect( trackingCallback ).toHaveBeenCalledWith(
+			'jetpack_connection_error_notice_support_link_click',
+			{ context: 'protect', error_code: 'xmlrpc_request_blocked', audience: 'site' }
+		);
+	} );
+
 	it( "renders an informational notice with no CTA when the error action is 'none'", () => {
 		mockConnection( {
 			connectionErrors: {

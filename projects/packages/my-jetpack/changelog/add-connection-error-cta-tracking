@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Emit canonical connection-error-notice tracking events with a context property (internal analytics).
+
+

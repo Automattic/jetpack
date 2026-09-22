@@ -139,6 +139,8 @@ describe( 'useConnectionErrorsNotice', () => {
 		connectionError: undefined,
 		connectionErrors: {},
 		actions: [],
+		trackNoticeLinkClick: jest.fn(),
+		trackSupportLinkClick: jest.fn(),
 		restoreConnection: mockRestoreConnection,
 		isRestoringConnection: false,
 		restoreConnectionError: null,
@@ -183,7 +185,7 @@ describe( 'useConnectionErrorsNotice', () => {
 		expect( mockUseConnectionErrorNotice ).toHaveBeenCalledWith(
 			expect.objectContaining( {
 				navigate: assignLocation,
-				reconnectTrackingEvent: 'jetpack_my_jetpack_connection_error_notice_reconnect_cta_click',
+				trackingContext: 'my-jetpack',
 				trackingCallback: expect.any( Function ),
 			} )
 		);

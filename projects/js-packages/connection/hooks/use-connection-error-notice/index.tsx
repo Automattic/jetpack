@@ -1,11 +1,13 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import ConnectionErrorNotice from '../../components/connection-error-notice';
 import useConnection from '../../components/use-connection';
 import useRestoreConnection from '../../hooks/use-restore-connection';
 import { getConnectionErrorDetails, isConnectionErrorMap } from './error-details';
 import { resolveConnectionErrorActions } from './resolve-actions';
+import { CONNECTION_ERROR_NOTICE_EVENTS, trackConnectionErrorNoticeEvent } from './tracking';
 import type {
 	ConnectionErrorMap,
+	ConnectionErrorNoticeLink,
 	ConnectionErrorObject,
 	ConnectionErrorProps,
 	ConnectionErrorViewer,
@@ -45,6 +47,7 @@ const NO_ACTION_HANDLERS: NonNullable< ConnectionErrorProps[ 'actionHandlers' ] 
 export default function useConnectionErrorNotice( {
 	actionHandlers = NO_ACTION_HANDLERS,
 	trackingCallback = null,
+	trackingContext,
 	customActions = null,
 	reconnectTrackingEvent,
 	navigate,
@@ -155,6 +158,7 @@ export default function useConnectionErrorNotice( {
 				? resolveConnectionErrorActions( actionError, {
 						actionHandlers,
 						trackingCallback,
+						trackingContext,
 						customActions,
 						restoreConnection,
 						isRestoringConnection,
@@ -166,12 +170,37 @@ export default function useConnectionErrorNotice( {
 			actionError,
 			actionHandlers,
 			trackingCallback,
+			trackingContext,
 			customActions,
 			restoreConnection,
 			isRestoringConnection,
 			reconnectTrackingEvent,
 			navigate,
 		]
+	);
+
+	// The two links a notice can carry (Site Health and Contact Support) render
+	// outside `actions`, and hook-mode consumers draw them in their own JSX — so
+	// expose the same wired trackers the package's `<ConnectionError />` uses,
+	// keyed to the effective error for the standard payload.
+	const trackNoticeLinkClick = useCallback(
+		( link: ConnectionErrorNoticeLink ) =>
+			trackConnectionErrorNoticeEvent(
+				CONNECTION_ERROR_NOTICE_EVENTS.noticeLink,
+				{ trackingCallback, trackingContext, error: actionError },
+				{ link_url: link.url }
+			),
+		[ trackingCallback, trackingContext, actionError ]
+	);
+
+	const trackSupportLinkClick = useCallback(
+		() =>
+			trackConnectionErrorNoticeEvent( CONNECTION_ERROR_NOTICE_EVENTS.supportLink, {
+				trackingCallback,
+				trackingContext,
+				error: actionError,
+			} ),
+		[ trackingCallback, trackingContext, actionError ]
 	);
 
 	return {
@@ -185,6 +214,8 @@ export default function useConnectionErrorNotice( {
 		showSupportLink,
 		viewer,
 		actions, // Resolved CTA actions for the connection error.
+		trackNoticeLinkClick,
+		trackSupportLinkClick,
 		restoreConnection,
 		isRestoringConnection,
 		restoreConnectionError,
@@ -213,6 +244,8 @@ export function ConnectionError( {
 		errorGroups,
 		showSupportLink,
 		actions,
+		trackNoticeLinkClick,
+		trackSupportLinkClick,
 		restoreConnection,
 		isRestoringConnection,
 		restoreConnectionError,
@@ -240,6 +273,8 @@ export function ConnectionError( {
 			// so it wins the one slot the notice has for it.
 			context={ context ?? errorTitle }
 			actions={ actions }
+			onNoticeLinkClick={ trackNoticeLinkClick }
+			onSupportLinkClick={ trackSupportLinkClick }
 		/>
 	);
 }
