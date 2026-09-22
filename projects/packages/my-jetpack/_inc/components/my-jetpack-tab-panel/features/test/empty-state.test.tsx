@@ -78,6 +78,22 @@ describe( 'FeaturesEmptyState', () => {
 		expect( screen.getByRole( 'heading' ) ).toHaveTextContent( 'We couldn’t load your features.' );
 	} );
 
+	it( 'marks the filter states with the Jetpack logo', () => {
+		const { rerender } = render( <FeaturesEmptyState { ...props } filter="active" /> );
+
+		expect( screen.getByRole( 'img', { name: 'Jetpack Logo' } ) ).toBeInTheDocument();
+
+		rerender( <FeaturesEmptyState { ...props } filter="inactive" /> );
+
+		expect( screen.getByRole( 'img', { name: 'Jetpack Logo' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the logo off the failed search, which gets its own icon', () => {
+		render( <FeaturesEmptyState { ...props } search="bakcup" /> );
+
+		expect( screen.queryByRole( 'img', { name: 'Jetpack Logo' } ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'falls back to a plain heading for a plan filter that matched nothing', () => {
 		render( <FeaturesEmptyState { ...props } filter="growth" /> );
 

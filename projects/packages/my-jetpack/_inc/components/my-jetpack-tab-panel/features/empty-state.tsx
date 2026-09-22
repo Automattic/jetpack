@@ -1,5 +1,6 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl, JetpackLogo } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
+import { search as searchIcon } from '@wordpress/icons';
 import { Button, EmptyState, LinkButton } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { reloadPage } from '../products/reload-page';
@@ -7,7 +8,17 @@ import styles from './styles.module.scss';
 import type { FeatureFilter } from './use-feature-filter';
 import type { ReactNode } from 'react';
 
+// The logo is already a filled circle, so it takes the plain visual slot rather
+// than Icon's outlined badge.
+const jetpackMark = (
+	<EmptyState.Visual>
+		<JetpackLogo showText={ false } height={ 32 } />
+	</EmptyState.Visual>
+);
+const searchMark = <EmptyState.Icon icon={ searchIcon } />;
+
 type EmptyProps = {
+	mark?: ReactNode;
 	heading: string;
 	body?: string;
 	children?: ReactNode;
@@ -17,14 +28,16 @@ type EmptyProps = {
  * The shell every empty state is rendered in.
  *
  * @param {EmptyProps} props          - The component props.
+ * @param {ReactNode}  props.mark     - What sits above the heading.
  * @param {string}     props.heading  - What matched nothing, in one line.
  * @param {string}     props.body     - Why, or what to do about it.
  * @param {ReactNode}  props.children - The way out of this state.
  * @return The rendered component.
  */
-function Empty( { heading, body, children }: EmptyProps ) {
+function Empty( { mark, heading, body, children }: EmptyProps ) {
 	return (
 		<EmptyState.Root className={ styles[ 'empty-state' ] }>
+			{ mark }
 			{ /* The grid sits under the page's own headings, so this one starts at h3. */ }
 			<EmptyState.Title render={ <h3 /> }>{ heading }</EmptyState.Title>
 			{ body && <EmptyState.Description>{ body }</EmptyState.Description> }
@@ -82,6 +95,7 @@ export function FeaturesEmptyState( {
 	if ( search ) {
 		return (
 			<Empty
+				mark={ searchMark }
 				heading={ sprintf(
 					/* translators: %s is the term someone searched the features list for. */
 					__( 'No features match “%s”.', 'jetpack-my-jetpack' ),
@@ -115,6 +129,7 @@ export function FeaturesEmptyState( {
 	if ( filter === 'active' ) {
 		return (
 			<Empty
+				mark={ jetpackMark }
 				heading={ __( 'No features are active yet.', 'jetpack-my-jetpack' ) }
 				body={ __( 'Turn one on and it will appear here.', 'jetpack-my-jetpack' ) }
 			>
@@ -128,6 +143,7 @@ export function FeaturesEmptyState( {
 	if ( filter === 'inactive' ) {
 		return (
 			<Empty
+				mark={ jetpackMark }
 				heading={ __( 'Everything is turned on.', 'jetpack-my-jetpack' ) }
 				body={ __( 'There are no inactive features left on this site.', 'jetpack-my-jetpack' ) }
 			>
