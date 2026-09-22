@@ -1,8 +1,4 @@
 /**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
-/**
  * Internal dependencies
  */
 import type { DataFormat } from '../../types';
@@ -10,11 +6,6 @@ import type { DataFormat } from '../../types';
 /** The tooltip is where a compact chart value gets spelled out in full. */
 export function exactFormatOf( dataFormat: DataFormat ): DataFormat {
 	return { ...dataFormat, options: { ...dataFormat.options, useMultipliers: false } };
-}
-
-/** What a tooltip shows in place of a value for a bucket with no reading. */
-export function noDataLabel(): string {
-	return __( 'No data', 'jetpack-premium-analytics-pkg' );
 }
 
 /**

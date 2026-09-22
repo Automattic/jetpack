@@ -240,7 +240,9 @@ describe( 'ChartTooltip', () => {
 		expect( MetricValue ).not.toHaveBeenCalled();
 	} );
 
-	it( 'spells a missing value as No data into an inline label', () => {
+	it( 'hands getLabel null for a missing value, and a real zero as 0', () => {
+		const getLabel = jest.fn( ( _datum, _index, key: string ) => key );
+
 		render(
 			<ChartTooltip
 				tooltipData={ {
@@ -253,11 +255,11 @@ describe( 'ChartTooltip', () => {
 				seriesStyles={ STYLES }
 				indicatorType="line"
 				layout="inline"
-				getLabel={ ( _datum, _index, key, value ) => `${ value } ${ key }` }
+				getLabel={ getLabel }
 			/>
 		);
 
-		expect( screen.getByText( 'No data Views' ) ).toBeInTheDocument();
-		expect( screen.getByText( '0 Visitors' ) ).toBeInTheDocument();
+		expect( getLabel ).toHaveBeenCalledWith( { value: null }, 0, 'Views', null );
+		expect( getLabel ).toHaveBeenCalledWith( { value: 0 }, 1, 'Visitors', '0' );
 	} );
 } );

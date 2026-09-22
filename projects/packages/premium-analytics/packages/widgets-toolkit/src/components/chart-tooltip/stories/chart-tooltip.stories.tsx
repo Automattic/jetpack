@@ -448,7 +448,7 @@ export const MissingReading: Story = {
 				seriesStyles={ LINE_SERIES_STYLES }
 				indicatorType="line"
 				layout="inline"
-				getLabel={ ( datum: LineDatum, _index: number, key: string, value: string ) =>
+				getLabel={ ( datum: LineDatum, _index: number, key: string, value: string | null ) =>
 					formatTooltipPointLabel( value, key, formatDate( datum.realDate ?? datum.date ) )
 				}
 			/>

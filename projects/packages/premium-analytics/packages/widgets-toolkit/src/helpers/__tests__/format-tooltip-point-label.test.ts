@@ -9,4 +9,10 @@ describe( 'formatTooltipPointLabel', () => {
 			'86 Views · September 17, 2026'
 		);
 	} );
+
+	it( 'names the metric a bucket has no reading for', () => {
+		expect( formatTooltipPointLabel( null, 'Subscribers', 'March 1, 2026' ) ).toBe(
+			'No data for Subscribers · March 1, 2026'
+		);
+	} );
 } );
