@@ -803,7 +803,7 @@ class Action_Bar {
 											<?php
 											echo wp_kses(
 												/* translators: %s is a URL */
-												sprintf( __( 'Already have a WordPress.com account? <a href="%s">Log in now.</a>', 'jetpack-newsletter' ), esc_url( $login_url ) ),
+												sprintf( __( 'Have a WordPress.com account? <a href="%s">Log in now.</a>', 'jetpack-newsletter' ), esc_url( $login_url ) ),
 												array(
 													'a' => array(
 														'href' => array(),
