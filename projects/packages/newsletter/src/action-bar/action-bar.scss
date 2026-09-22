@@ -3,7 +3,7 @@
 
 // wp-admin palette values with no base-styles token. The bar shares them
 // with the Jetpack sharing buttons and the editor.
-$admin-gray-0: #f0f0f1;
+$admin-gray-2: #f0f0f1;
 $admin-gray-10: #c3c4c7;
 $admin-gray-50: #646970;
 $admin-gray-70: #3c434a;
@@ -118,7 +118,7 @@ div#actionbar li.actnbr-btn > a {
 
 div#actionbar li.actnbr-btn > a:hover {
 	color: $gray-900;
-	background: $admin-gray-0;
+	background: $admin-gray-2;
 }
 
 div#actionbar li.actnbr-btn > a .actnbr-icon {
@@ -179,7 +179,7 @@ div#actionbar .actnbr-more-toggle {
 }
 
 div#actionbar .actnbr-more-toggle:hover {
-	background: $admin-gray-0;
+	background: $admin-gray-2;
 	color: $gray-900;
 }
 
