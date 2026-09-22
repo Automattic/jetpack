@@ -138,6 +138,8 @@ class Widget_Type_Registry_Test extends BaseTestCase {
 
 		$this->assertArrayHasKey( self::MANIFEST_WIDGET, $registered );
 		$this->assertSame( 'test/manifest/render', $registered[ self::MANIFEST_WIDGET ]->render_module );
+		$this->assertSame( 'jetpack-premium-analytics-pkg', $registered[ self::MANIFEST_WIDGET ]->textdomain );
+		$this->assertNull( $registered[ self::MANIFEST_WIDGET ]->i18n_manifest );
 	}
 
 	/**
@@ -301,6 +303,37 @@ class Widget_Type_Registry_Test extends BaseTestCase {
 		$this->assertContains( array( 'First', 'widget title', 'plugin-domain' ), $calls );
 		$this->assertContains( array( 'Second', 'widget title', 'second-domain' ), $calls );
 		$this->assertSame( 'First', Widget_Type_Registry::get_instance()->get_registered( 'plugin/first' )->title );
+	}
+
+	/**
+	 * The catalog location travels with the type: the registrant's defaults fill what a candidate
+	 * does not declare, so the client knows which domain and manifest each bundle's strings live in.
+	 */
+	public function test_manifest_helper_stamps_the_catalog_location_onto_the_type() {
+		register_widget_types_from_manifest(
+			array(
+				array(
+					'name'          => 'plugin/first',
+					'render_module' => 'plugin/first/render',
+				),
+				array(
+					'name'          => 'plugin/second',
+					'render_module' => 'plugin/second/render',
+					'textdomain'    => 'second-domain',
+					'i18n_manifest' => 'https://example.org/second/build/i18n-manifest.json',
+				),
+			),
+			array(
+				'textdomain'    => 'plugin-domain',
+				'i18n_manifest' => 'https://example.org/plugin/build/i18n-manifest.json',
+			)
+		);
+
+		$registry = Widget_Type_Registry::get_instance();
+		$this->assertSame( 'plugin-domain', $registry->get_registered( 'plugin/first' )->textdomain );
+		$this->assertSame( 'https://example.org/plugin/build/i18n-manifest.json', $registry->get_registered( 'plugin/first' )->i18n_manifest );
+		$this->assertSame( 'second-domain', $registry->get_registered( 'plugin/second' )->textdomain );
+		$this->assertSame( 'https://example.org/second/build/i18n-manifest.json', $registry->get_registered( 'plugin/second' )->i18n_manifest );
 	}
 
 	/**
