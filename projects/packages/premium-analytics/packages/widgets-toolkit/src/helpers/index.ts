@@ -45,12 +45,7 @@ export {
 } from './build-visitors-by-location-data';
 export { flagUrl } from './flag-url';
 export { isEmptyChartData, isEmptyPieChartData, getEmptyChartDomain } from './chart-empty-state';
-export {
-	getFixedYAxis,
-	getPaddedYDomain,
-	type ChartBaseline,
-	type FixedYAxis,
-} from './fixed-y-axis';
+export { getFixedYAxis, getPaddedYAxis, type ChartBaseline, type FixedYAxis } from './fixed-y-axis';
 export { formatDisplayLabel } from './format-display-label';
 export {
 	buildCsv,

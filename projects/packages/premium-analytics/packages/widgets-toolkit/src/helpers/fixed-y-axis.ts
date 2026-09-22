@@ -13,7 +13,7 @@ export type ChartBaseline = 'zero' | 'padded';
 /** How much of the minimum may sit below the data as padding. */
 const PADDING_RATIO = 0.2;
 
-/** Fewer units than this and the axis falls back to fractional, duplicate-looking ticks. */
+/** LineChart draws `numTicks: 4`; a shorter span lands them on fractions, which round to duplicate labels. */
 const MIN_SPAN = 4;
 
 /**
@@ -50,14 +50,14 @@ export function getFixedYAxis( metricType: string, isEmptyData: boolean ): Fixed
 }
 
 /**
- * A domain that starts a little below the data, so the data fills about half the
- * chart: the padding is the data's range, capped at a fifth of its minimum, and
- * never crosses zero. Mirrors wp-calypso's subscriber chart (STATS-229, wp-calypso#109481).
+ * An axis that starts a little below the data, so the data fills about half the
+ * chart: the padding is the data's range, capped at a fifth of its minimum. After
+ * wp-calypso's subscriber chart (STATS-229, wp-calypso#109481).
  *
- * @param series - Every series the chart draws.
- * @return The domain, or null when the data reaches zero or has no reading.
+ * @param series - The series the chart is drawing.
+ * @return The axis, or null when it would start at or below zero, or there is no reading.
  */
-export function getPaddedYDomain( series: SeriesWithData[] ): [ number, number ] | null {
+export function getPaddedYAxis( series: SeriesWithData[] ): FixedYAxis | null {
 	let min = Infinity;
 	let max = -Infinity;
 	for ( const { data } of series ) {
@@ -69,13 +69,17 @@ export function getPaddedYDomain( series: SeriesWithData[] ): [ number, number ]
 		}
 	}
 
-	if ( min <= 0 || min === Infinity ) {
+	if ( min === Infinity ) {
 		return null;
 	}
 
 	const range = max - min;
 	const cap = min * PADDING_RATIO;
 	// A flat series has no range to pad by; the cap alone gives it an axis.
-	const padding = Math.max( range === 0 ? cap : Math.min( range, cap ), MIN_SPAN - range );
-	return [ Math.max( 0, Math.floor( min - padding ) ), max ];
+	const rangePadding = range === 0 ? cap : Math.min( range, cap );
+	const padding = Math.max( rangePadding, MIN_SPAN - range );
+	const start = Math.floor( min - padding );
+
+	// At zero the padded axis is the zero baseline, which the chart draws itself.
+	return start > 0 ? { domain: [ start, max ] } : null;
 }

@@ -129,7 +129,7 @@ export interface MetricTabsChartProps {
 	tooltipMetrics?: 'active' | 'all';
 	/**
 	 * Where a line chart's value axis starts; see `ComparativeLineChart`. Bars
-	 * always start at zero.
+	 * pick their own baseline; see `ComparativeBarChart`.
 	 */
 	baseline?: ChartBaseline;
 }

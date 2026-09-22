@@ -5,6 +5,7 @@ import {
 	LineChart,
 	Stack,
 	getBucketInfo,
+	useGlobalChartsContext,
 	type TickResolution,
 } from '@jetpack-premium-analytics/externals';
 import {
@@ -14,7 +15,7 @@ import {
 } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
 import clsx from 'clsx';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useId, useMemo, useState } from 'react';
 import { type ComponentProps } from 'react';
 /**
  * Internal dependencies
@@ -25,7 +26,7 @@ import {
 	formatTooltipPointLabel,
 	isEmptyChartData,
 	getFixedYAxis,
-	getPaddedYDomain,
+	getPaddedYAxis,
 	dateFormatForResolution,
 	resolveSeriesNames,
 	resolveTooltipNames,
@@ -141,9 +142,8 @@ export type ComparativeLineChartProps = {
 
 	/**
 	 * Where the value axis starts. `zero` (the default) suits a per-period metric;
-	 * `padded` keeps a lone cumulative count's small changes visible, and falls back
-	 * to `zero` with several series. A percentage metric and an all-zero period pin
-	 * their own axis either way.
+	 * `padded` keeps a cumulative count's small changes visible. A percentage
+	 * metric and an all-zero period pin their own axis either way.
 	 */
 	baseline?: ChartBaseline;
 } & Omit<
@@ -182,6 +182,9 @@ export function ComparativeLineChart( {
 	const tooltipDateFormat = dateFormatForResolution(
 		getBucketInfo( series, tickResolution ).displayResolution
 	);
+	const fallbackChartId = useId();
+	const resolvedChartId = chartId ?? fallbackChartId;
+	const { getHiddenSeries } = useGlobalChartsContext();
 	// The measured Stack fills its container (flex), so its height is independent
 	// of whether the axis/legend are shown — no measure/hide feedback loop.
 	const [ chartAreaHeight, setChartAreaHeight ] = useState( Infinity );
@@ -280,20 +283,17 @@ export function ComparativeLineChart( {
 		[ isEmptyData, tooltipExtras ]
 	);
 
-	// A pinned domain for percentage metrics and all-zero periods. Null falls
-	// through to the baseline below.
-	const fixedYAxis = useMemo(
-		() => getFixedYAxis( dataFormat.type, isEmptyData ),
-		[ dataFormat.type, isEmptyData ]
-	);
-
-	// Only a lone series gets the padded axis: a pinned domain cannot follow the
-	// legend, so a second series would leave the axis stuck when hidden.
-	const paddedDomain = useMemo(
-		() =>
-			baseline === 'padded' && styledSeries.length === 1 ? getPaddedYDomain( styledSeries ) : null,
-		[ baseline, styledSeries ]
-	);
+	// A percentage metric or an all-zero period pins its own axis; otherwise a
+	// padded baseline pads what the legend leaves visible. Null lets the chart fit
+	// the data above zero.
+	const pinnedYAxis = useMemo( () => {
+		const fixedYAxis = getFixedYAxis( dataFormat.type, isEmptyData );
+		if ( fixedYAxis || baseline !== 'padded' ) {
+			return fixedYAxis;
+		}
+		const hiddenSeries = getHiddenSeries( resolvedChartId );
+		return getPaddedYAxis( styledSeries.filter( s => ! hiddenSeries.has( s.label ) ) );
+	}, [ dataFormat.type, isEmptyData, baseline, styledSeries, getHiddenSeries, resolvedChartId ] );
 
 	const xTickFormat = useCallback(
 		( date: number ) => formatDate( date, xTickFormatType ),
@@ -317,27 +317,18 @@ export function ComparativeLineChart( {
 			},
 		};
 
-		const domain = fixedYAxis?.domain ?? paddedDomain;
-		if ( domain ) {
-			return { ...baseOptions, yScale: { domain } };
+		if ( pinnedYAxis ) {
+			return { ...baseOptions, yScale: { domain: pinnedYAxis.domain } };
 		}
 
 		// `zero` rather than a domain, so hiding a series still rescales the axis.
 		return { ...baseOptions, yScale: { zero: true } };
-	}, [
-		xTickFormat,
-		xTickFormatType,
-		tickResolution,
-		yTickFormat,
-		fixedYAxis,
-		paddedDomain,
-		isCompact,
-	] );
+	}, [ xTickFormat, xTickFormatType, tickResolution, yTickFormat, pinnedYAxis, isCompact ] );
 
 	return (
 		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>
 			<LineChart
-				chartId={ chartId }
+				chartId={ resolvedChartId }
 				className={ styles.chartContent }
 				data={ styledSeries }
 				options={ chartOptions }

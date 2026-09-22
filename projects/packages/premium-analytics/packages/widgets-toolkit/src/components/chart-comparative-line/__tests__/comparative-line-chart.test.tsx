@@ -14,6 +14,8 @@ import type { ComparativeLineChartSeries } from '../types';
 // the props instead: the tooltip renderer and visibility settings are the subject.
 const mockLineSpy = jest.fn();
 const mockLegendSpy = jest.fn();
+// What the provider reports hidden for the chart under test.
+let mockHiddenSeries = new Set< string >();
 
 jest.mock( '@jetpack-premium-analytics/externals', () => {
 	const { forwardRef } = jest.requireActual( 'react' );
@@ -38,6 +40,7 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 				.map( series => ( { label: series.label, color: '#3858E9' } ) ),
 		LineShape: () => null,
 		RectShape: () => null,
+		useGlobalChartsContext: () => ( { getHiddenSeries: () => new Set( mockHiddenSeries ) } ),
 		// The wrapper measures this element, so the stand-in must take the ref.
 		Stack: forwardRef(
 			(
@@ -241,6 +244,10 @@ describe( 'ComparativeLineChart', () => {
 	} );
 
 	describe( 'value axis baseline', () => {
+		afterEach( () => {
+			mockHiddenSeries = new Set();
+		} );
+
 		const STEADY: ComparativeLineChartSeries[] = [
 			{
 				label: 'Subscribers',
@@ -266,7 +273,7 @@ describe( 'ComparativeLineChart', () => {
 			expect( recordedProps().options.yScale ).toEqual( { domain: [ 136, 144 ] } );
 		} );
 
-		it( 'falls back to zero when a padded chart draws more than one series', () => {
+		it( 'pads across every visible series', () => {
 			render(
 				<ComparativeLineChart
 					series={ [ ...STEADY, ...SERIES ] }
@@ -275,7 +282,20 @@ describe( 'ComparativeLineChart', () => {
 				/>
 			);
 
-			expect( recordedProps().options.yScale ).toEqual( { zero: true } );
+			expect( recordedProps().options.yScale ).toEqual( { domain: [ 80, 200 ] } );
+		} );
+
+		it( 'leaves a series the legend hid out of the padded domain', () => {
+			mockHiddenSeries = new Set( [ 'Views' ] );
+			render(
+				<ComparativeLineChart
+					series={ [ ...STEADY, ...SERIES ] }
+					dataFormat={ DATA_FORMAT }
+					baseline="padded"
+				/>
+			);
+
+			expect( recordedProps().options.yScale ).toEqual( { domain: [ 136, 144 ] } );
 		} );
 
 		it( 'keeps a percentage metric on 0 to 100% whatever the baseline', () => {

@@ -165,7 +165,7 @@ The component aligns previous-period series onto the axis dates for X-axis displ
 
 The Y-axis starts at zero, so the line's height reads as the value and a week of near-identical values draws as a near-flat line. Hiding a series from the legend rescales the axis to what is visible.
 
-For a cumulative count such as total subscribers, a zero baseline flattens every change, while an axis fitted to the data turns a change of four into a cliff. Pass `baseline="padded"` and the axis starts a little below the data instead, so the data fills about half the chart; `getPaddedYDomain` in the helpers owns the exact rule. The padded axis is pinned, so it applies only when the chart draws a single series; with more, the chart falls back to the zero baseline.
+For a cumulative count such as total subscribers, a zero baseline flattens every change, while an axis fitted to the data turns a change of four into a cliff. Pass `baseline="padded"` and the axis starts a little below the data instead, so the data fills about half the chart; `getPaddedYAxis` in the helpers owns the padding, and the chart pads only the series the legend leaves visible. When the padding would reach zero, the axis is the zero baseline.
 
 A percentage metric always reads 0% to 100%, and an all-zero period keeps the empty-state axis below, whichever baseline is set.
 
