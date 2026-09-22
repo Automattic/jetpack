@@ -9,11 +9,20 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Feature_Policy;
 use Automattic\Jetpack\Modules;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Feature policy bridge tests.
+ *
+ * Separate processes keep `Modules::get_available()`'s function-static memo out of other suites.
+ *
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  */
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState( false )]
 class Feature_Policy_Bridge_Test extends TestCase {
 
 	/**
