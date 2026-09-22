@@ -63,6 +63,7 @@ Jetpack_Application_Password_Extras::init();
 // Simple this bootstrap never runs. The class self-initializes when loaded.
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-settings.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-feature-flags.php';
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-settings-feature-flags.php';
 
 \Automattic\Jetpack\Newsletter\Settings::register_feature_flags();
 

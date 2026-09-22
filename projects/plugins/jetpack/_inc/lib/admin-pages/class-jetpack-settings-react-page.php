@@ -8,10 +8,13 @@
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Status;
 
 require_once __DIR__ . '/class.jetpack-admin-page.php';
 require_once __DIR__ . '/class-jetpack-redux-state-helper.php';
+require_once __DIR__ . '/class-jetpack-wp-build-page.php';
+require_once dirname( __DIR__ ) . '/class-jetpack-settings-feature-flags.php';
 
 /**
  * Renders the Settings app, whose connection screens also serve unconnected sites.
@@ -32,6 +35,96 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	 * @var bool
 	 */
 	protected $is_redirecting = false;
+
+	/**
+	 * The wp-build route's page id, which must not be the `jetpack-settings` menu slug.
+	 *
+	 * @var string
+	 */
+	const WP_BUILD_PAGE_ID = 'jetpack-settings-dashboard';
+
+	/**
+	 * Whether this request loaded the wp-build route.
+	 *
+	 * @var bool
+	 */
+	private $is_wp_build_loaded = false;
+
+	/**
+	 * Whether Settings renders through wp-build; off serves the webpack page at the same address.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_wp_build_enabled() {
+		return Feature_Flags::is_enabled( Jetpack_Settings_Feature_Flags::WP_BUILD );
+	}
+
+	/**
+	 * Whether this request should load wp-build.
+	 *
+	 * An IDC-blocked page shows only the IDC banner, which the wp-build template would hide.
+	 * RTL stays on webpack too: wp-build inlines the route CSS with no RTL variant.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public function should_load_wp_build() {
+		if ( ! is_admin() || ! self::is_wp_build_enabled() || is_rtl() ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the page slug only.
+		if ( ! isset( $_GET['page'] ) || 'jetpack-settings' !== sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) {
+			return false;
+		}
+
+		return ! $this->block_page_rendering_for_idc();
+	}
+
+	/**
+	 * Load wp-build before the admin menu is built, on the Settings request only.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function maybe_load_wp_build() {
+		if ( $this->should_load_wp_build() ) {
+			$this->is_wp_build_loaded = Jetpack_WP_Build_Page::load( self::WP_BUILD_PAGE_ID );
+		}
+	}
+
+	/**
+	 * Whether this request renders through wp-build.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public function should_render_wp_build() {
+		return $this->is_wp_build_loaded && function_exists( 'jetpack_plugin_jetpack_settings_dashboard_wp_admin_render_page' );
+	}
+
+	/**
+	 * The route bundle's classic script dependencies (e.g. `lodash`), which wp-build registers
+	 * as a script module without them, leaving globals like `window.lodash` undefined.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string[]
+	 */
+	protected function get_wp_build_script_dependencies() {
+		$asset_path = JETPACK__PLUGIN_DIR . 'build/routes/settings/content.min.asset.php';
+		if ( ! file_exists( $asset_path ) ) {
+			return array();
+		}
+
+		$asset = include $asset_path;
+		return $asset['dependencies'] ?? array();
+	}
 
 	/**
 	 * Register the page; only its sidebar entry keeps the Settings access gate.
@@ -175,6 +268,11 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 		/** This action is already documented in class.jetpack-admin-page.php */
 		do_action( 'jetpack_notices' );
 
+		if ( $this->should_render_wp_build() ) {
+			jetpack_plugin_jetpack_settings_dashboard_wp_admin_render_page(); // @phan-suppress-current-line PhanUndeclaredFunction -- should_render_wp_build() checks function_exists(); defined in the generated build/pages/, which Phan excludes.
+			return;
+		}
+
 		// Fetch static.html.
 		$static_html = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static.html' ); //phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, Not fetching a remote file.
 
@@ -195,6 +293,11 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	 * Load styles for static page.
 	 */
 	public function additional_styles() {
+		// The route bundle carries these styles.
+		if ( $this->should_render_wp_build() ) {
+			return;
+		}
+
 		Jetpack_Admin_Page::load_wrapper_styles();
 	}
 
@@ -206,16 +309,33 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 			return; // No need for scripts on a fallback page.
 		}
 
-		$status              = new Status();
-		$is_offline_mode     = $status->is_offline_mode();
-		$site_suffix         = $status->get_site_suffix();
-		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin.asset.php';
-		$script_dependencies = array( 'jquery', 'wp-polyfill' );
-		$version             = JETPACK__VERSION;
-		if ( file_exists( $script_deps_path ) ) {
-			$asset_manifest      = include $script_deps_path;
-			$script_dependencies = $asset_manifest['dependencies'];
-			$version             = $asset_manifest['version'];
+		$status          = new Status();
+		$is_offline_mode = $status->is_offline_mode();
+		$site_suffix     = $status->get_site_suffix();
+
+		if ( $this->should_render_wp_build() ) {
+			// wp-build enqueues the route bundle; this handle carries the inline state and classic dependencies.
+			wp_register_script( 'react-plugin', false, $this->get_wp_build_script_dependencies(), JETPACK__VERSION, true );
+			wp_enqueue_script( 'react-plugin' );
+		} else {
+			$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin.asset.php';
+			$script_dependencies = array( 'jquery', 'wp-polyfill' );
+			$version             = JETPACK__VERSION;
+			if ( file_exists( $script_deps_path ) ) {
+				$asset_manifest      = include $script_deps_path;
+				$script_dependencies = $asset_manifest['dependencies'];
+				$version             = $asset_manifest['version'];
+			}
+
+			wp_enqueue_script(
+				'react-plugin',
+				plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
+				$script_dependencies,
+				$version,
+				true
+			);
+
+			wp_set_script_translations( 'react-plugin', 'jetpack' );
 		}
 
 		$blog_id_prop = '';
@@ -226,20 +346,10 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 			}
 		}
 
-		wp_enqueue_script(
-			'react-plugin',
-			plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
-			$script_dependencies,
-			$version,
-			true
-		);
-
 		if ( ! $is_offline_mode && Jetpack::is_connection_ready() ) {
 			// Required for Analytics.
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
-
-		wp_set_script_translations( 'react-plugin', 'jetpack' );
 
 		// Add objects to be passed to the initial state of the app.
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.

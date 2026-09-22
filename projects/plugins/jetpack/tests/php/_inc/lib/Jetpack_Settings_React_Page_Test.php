@@ -51,7 +51,58 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 		Status_Cache::clear();
 		$this->reset_menus();
 
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Jetpack_Settings_Feature_Flags::WP_BUILD );
+		wp_deregister_script( 'react-plugin' );
+		wp_dequeue_style( 'dops-css' );
+		wp_dequeue_style( 'components-css' );
+		set_current_screen( 'front' );
+
 		parent::tear_down();
+	}
+
+	/**
+	 * A Settings page whose request is blocked by an identity crisis.
+	 *
+	 * @return Jetpack_Settings_React_Page
+	 */
+	private function page_in_idc() {
+		return new class() extends Jetpack_Settings_React_Page {
+			/**
+			 * Pretend the IDC blocks rendering.
+			 *
+			 * @return bool
+			 */
+			protected function block_page_rendering_for_idc() {
+				return true;
+			}
+		};
+	}
+
+	/**
+	 * A Settings page that loaded wp-build on this request.
+	 *
+	 * @return Jetpack_Settings_React_Page
+	 */
+	private function page_on_wp_build() {
+		return new class() extends Jetpack_Settings_React_Page {
+			/**
+			 * Pretend the build loaded.
+			 *
+			 * @return bool
+			 */
+			public function should_render_wp_build() {
+				return true;
+			}
+
+			/**
+			 * Stand in for the route bundle's real classic dependencies.
+			 *
+			 * @return string[]
+			 */
+			protected function get_wp_build_script_dependencies() {
+				return array( 'lodash' );
+			}
+		};
 	}
 
 	/**
@@ -169,5 +220,88 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 		do_action( 'network_admin_menu' );
 
 		$this->assertSame( $fired, did_action( 'jetpack_admin_menu' ) );
+	}
+
+	public function test_wp_build_page_id_is_not_the_menu_slug() {
+		$this->assertNotSame( 'jetpack-settings', Jetpack_Settings_React_Page::WP_BUILD_PAGE_ID );
+	}
+
+	public function test_loads_wp_build_on_the_settings_page() {
+		set_current_screen( 'dashboard' );
+		$_GET['page'] = 'jetpack-settings';
+
+		$this->assertTrue( ( new Jetpack_Settings_React_Page() )->should_load_wp_build() );
+	}
+
+	public function test_does_not_load_wp_build_elsewhere() {
+		$page = new Jetpack_Settings_React_Page();
+		set_current_screen( 'dashboard' );
+
+		$_GET['page'] = 'jetpack';
+		$this->assertFalse( $page->should_load_wp_build(), 'Not on another Jetpack page.' );
+
+		unset( $_GET['page'] );
+		$this->assertFalse( $page->should_load_wp_build(), 'Not without a page parameter.' );
+
+		set_current_screen( 'front' );
+		$_GET['page'] = 'jetpack-settings';
+		$this->assertFalse( $page->should_load_wp_build(), 'Not outside wp-admin.' );
+	}
+
+	public function test_kill_switch_keeps_the_webpack_page() {
+		set_current_screen( 'dashboard' );
+		$_GET['page'] = 'jetpack-settings';
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Settings_Feature_Flags::WP_BUILD, '__return_false' );
+
+		$this->assertFalse( ( new Jetpack_Settings_React_Page() )->should_load_wp_build() );
+	}
+
+	public function test_idc_blocked_page_keeps_the_webpack_page() {
+		set_current_screen( 'dashboard' );
+		$_GET['page'] = 'jetpack-settings';
+
+		$this->assertFalse( $this->page_in_idc()->should_load_wp_build() );
+	}
+
+	public function test_rtl_keeps_the_webpack_page() {
+		global $wp_locale;
+		set_current_screen( 'dashboard' );
+		$_GET['page']              = 'jetpack-settings';
+		$direction                 = $wp_locale->text_direction;
+		$wp_locale->text_direction = 'rtl';
+
+		try {
+			$this->assertFalse( ( new Jetpack_Settings_React_Page() )->should_load_wp_build() );
+		} finally {
+			$wp_locale->text_direction = $direction;
+		}
+	}
+
+	public function test_does_not_render_wp_build_before_loading_it() {
+		$this->assertFalse( ( new Jetpack_Settings_React_Page() )->should_render_wp_build() );
+	}
+
+	public function test_webpack_page_enqueues_the_bundle_and_its_styles() {
+		$page = new Jetpack_Settings_React_Page();
+		$page->page_admin_scripts();
+		$page->additional_styles();
+
+		$this->assertStringContainsString( '_inc/build/admin.js', wp_scripts()->registered['react-plugin']->src );
+		$this->assertStringContainsString( 'var Initial_State=', implode( '', (array) wp_scripts()->get_data( 'react-plugin', 'before' ) ) );
+		$this->assertTrue( wp_style_is( 'dops-css' ) );
+		$this->assertTrue( wp_style_is( 'components-css' ) );
+	}
+
+	public function test_wp_build_page_carries_the_state_without_the_bundle() {
+		$page = $this->page_on_wp_build();
+		$page->page_admin_scripts();
+		$page->additional_styles();
+
+		$this->assertFalse( wp_scripts()->registered['react-plugin']->src, 'The route bundle comes from wp-build.' );
+		$this->assertTrue( wp_script_is( 'react-plugin' ) );
+		$this->assertContains( 'lodash', wp_scripts()->registered['react-plugin']->deps );
+		$this->assertStringContainsString( 'var Initial_State=', implode( '', (array) wp_scripts()->get_data( 'react-plugin', 'before' ) ) );
+		$this->assertFalse( wp_style_is( 'dops-css' ), 'The route bundle carries its own styles.' );
+		$this->assertFalse( wp_style_is( 'components-css' ) );
 	}
 }

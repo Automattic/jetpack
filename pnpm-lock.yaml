@@ -6072,9 +6072,6 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
-      component-uid:
-        specifier: 0.0.2
-        version: 0.0.2
       cookie:
         specifier: 1.0.2
         version: 1.0.2
@@ -12900,9 +12897,6 @@ packages:
 
   compare-versions@6.1.1:
     resolution: {integrity: sha512-4hm4VPpIecmlg59CHXnRDnqGplJFrbLG4aFEl5vl6cK1u76ws3LLvX7ikFnTDl5vo39sjWD6AaDPYodJp/NNHg==}
-
-  component-uid@0.0.2:
-    resolution: {integrity: sha512-LpbuRIGCbQpJDhyWlHmJqMNuMiR0s9nzlZ40kA8T/PC+hN2YrsBgBgOETtR9y2kE1HkbpQ0/l96kgyYKy6HzCA==}
 
   compressible@2.0.18:
     resolution: {integrity: sha512-AF3r7P5dWxL8MxyITRMlORQNaOA2IkAFaTr4k7BUumjPtRpGDTZpl0Pb1XCO6JeDCBdp126Cgs9sMxqSjgYyRg==}
@@ -31795,8 +31789,6 @@ snapshots:
   commondir@1.0.1: {}
 
   compare-versions@6.1.1: {}
-
-  component-uid@0.0.2: {}
 
   compressible@2.0.18:
     dependencies:
