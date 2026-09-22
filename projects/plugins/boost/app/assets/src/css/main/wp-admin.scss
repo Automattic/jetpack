@@ -31,8 +31,8 @@ p {
 // The type scale and component overrides the settings controls rely on.
 // Shared, because both dashboards render those same controls. The page frame
 // below is not: the modern chassis supplies its own.
-// $yield-links drops the link rule to zero specificity, so @wordpress/ui
-// links keep their own tone.
+// $yield-links drops the scope from the link rule's specificity, so
+// @wordpress/ui links keep their own tone.
 @mixin settings-content(
 	$link-color: var(--wp-admin-theme-link-color),
 	$yield-links: false
