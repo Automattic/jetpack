@@ -263,7 +263,7 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 		$this->assertFalse( $this->page_in_idc()->should_load_wp_build() );
 	}
 
-	public function test_rtl_keeps_the_webpack_page() {
+	public function test_rtl_loads_wp_build() {
 		global $wp_locale;
 		set_current_screen( 'dashboard' );
 		$_GET['page']              = 'jetpack-settings';
@@ -271,7 +271,7 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 		$wp_locale->text_direction = 'rtl';
 
 		try {
-			$this->assertFalse( ( new Jetpack_Settings_React_Page() )->should_load_wp_build() );
+			$this->assertTrue( ( new Jetpack_Settings_React_Page() )->should_load_wp_build() );
 		} finally {
 			$wp_locale->text_direction = $direction;
 		}
