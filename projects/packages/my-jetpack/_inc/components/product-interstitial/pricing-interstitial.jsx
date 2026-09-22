@@ -22,6 +22,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
  */
 import { MyJetpackRoutes } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
+import useActivateSearchFree from '../../data/products/use-activate-search-free';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
@@ -98,6 +99,22 @@ export default function PricingInterstitial( { slug } ) {
 		from: 'my-jetpack',
 		useBlogIdSuffix: true,
 	} );
+
+	const { run: runSearchFreeActivation } = useActivateSearchFree( {
+		sendToCheckout: freeCheckoutRun,
+	} );
+
+	// Shaped like the checkout runs `clickHandler` invokes, so it can stand in for one.
+	const searchFreeActivationRun = useCallback(
+		( _event, postCheckoutUrl ) => {
+			runSearchFreeActivation( {
+				onSuccess: () => {
+					window.location.href = postCheckoutUrl || paidCheckoutRedirectUrl;
+				},
+			} );
+		},
+		[ paidCheckoutRedirectUrl, runSearchFreeActivation ]
+	);
 
 	// Handle tiered pricing like trunk does - check for tiers.upgraded first
 	const productPricing = useMemo( () => {
@@ -336,7 +353,11 @@ export default function PricingInterstitial( { slug } ) {
 
 		// Products like Search have wpcomFreeProductSlug, so they need checkout even for free
 		const hasPurchasableFree = !! detail?.pricingForUi?.wpcomFreeProductSlug;
-		const checkout = hasPurchasableFree ? freeCheckoutRun : null;
+		let checkout = hasPurchasableFree ? freeCheckoutRun : null;
+		// Search grants its free product in place, and only falls back to that checkout.
+		if ( hasPurchasableFree && slug === 'search' ) {
+			checkout = searchFreeActivationRun;
+		}
 
 		updateInterstitialsState(
 			{ [ slug ]: true },
@@ -352,6 +373,7 @@ export default function PricingInterstitial( { slug } ) {
 		detail,
 		config?.tiers?.free,
 		freeCheckoutRun,
+		searchFreeActivationRun,
 		updateInterstitialsState,
 		slug,
 	] );

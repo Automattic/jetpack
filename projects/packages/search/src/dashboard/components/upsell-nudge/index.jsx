@@ -10,7 +10,13 @@ import './style.scss';
  */
 export default function InstantSearchUpsellNudge( props = { upgrade: true } ) {
 	return (
-		<a className="jp-instant-search-upsell-nudge jp-search-dashboard-cut" href={ props.href }>
+		// `onClick` handles the activation; `href` stays so it still behaves as a link
+		// (middle-click, copy link address) and points at the checkout it falls back to.
+		<a
+			className="jp-instant-search-upsell-nudge jp-search-dashboard-cut"
+			href={ props.href }
+			onClick={ props.onClick }
+		>
 			<span>
 				{ __(
 					'Offer instant search results to your visitors as soon as they start typing.',

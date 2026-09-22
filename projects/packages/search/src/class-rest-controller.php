@@ -183,6 +183,15 @@ class REST_Controller {
 		);
 		register_rest_route(
 			static::$namespace,
+			'/search/plan/activate-free',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'activate_free_plan' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+			)
+		);
+		register_rest_route(
+			static::$namespace,
 			'/search/plan/deactivate',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -605,6 +614,28 @@ class REST_Controller {
 				'code' => 'success',
 			)
 		);
+	}
+
+	/**
+	 * Grant the free Search product to this site instead of sending the user to a $0 checkout.
+	 *
+	 * Thin wrapper: My Jetpack owns the WordPress.com call, because it renders the Search card
+	 * in plugins that do not ship this package. Errors carry `checkout_fallback` in their data,
+	 * which the dashboard branches on to decide whether to fall back to checkout.
+	 *
+	 * POST `jetpack/v4/search/plan/activate-free`
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function activate_free_plan() {
+		$result = Search_Product::activate_free_product( 'search-dashboard' );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response( $result );
 	}
 
 	/**

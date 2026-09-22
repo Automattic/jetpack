@@ -33,6 +33,7 @@ export const QUERY_PRODUCT_KEY = 'product';
 export const QUERY_PRODUCT_BY_OWNERSHIP_KEY = 'product ownership';
 export const QUERY_PRODUCT_INTERSTITIALS_KEY = 'product interstitials';
 export const QUERY_ACTIVATE_PRODUCT_KEY = 'activate product';
+export const QUERY_ACTIVATE_SEARCH_FREE_KEY = 'activate search free';
 export const QUERY_INSTALL_PRODUCT_KEY = 'install product';
 export const QUERY_VIDEOPRESS_STATS_KEY = 'videopress stats';
 export const QUERY_LICENSES_KEY = 'available licenses';

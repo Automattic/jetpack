@@ -13,6 +13,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Search\Module_Control as Search_Module_Control;
+use Automattic\Jetpack\Status\Host;
 use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -42,6 +43,14 @@ class Search extends Hybrid_Product {
 	 * @var string
 	 */
 	const SEARCH_NEW_PRICING_VERSION = '202208';
+
+	/**
+	 * Accepted `source` values for {@see self::activate_free_product()}. Mirrors the enum the
+	 * WordPress.com endpoint validates against; anything else is dropped rather than rejected.
+	 *
+	 * @var string[]
+	 */
+	const ACTIVATE_FREE_SOURCES = array( 'search-dashboard', 'my-jetpack', 'wp-admin', 'calypso' );
 
 	/**
 	 * The product slug
@@ -362,6 +371,162 @@ class Search extends Hybrid_Product {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Grant this site the free Search product without sending the user through a $0 checkout.
+	 *
+	 * Lives here rather than in the jetpack-search package because My Jetpack renders the
+	 * Search card in plugins that do not ship that package, and because this replaces
+	 * `get_wpcom_free_product_slug()`, which this class already owns.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string|null $source One of self::ACTIVATE_FREE_SOURCES, for WordPress.com reporting.
+	 * @return array|WP_Error Decoded response body on success; on failure a WP_Error whose data
+	 *                        carries `checkout_fallback` — true when the $0 checkout could still
+	 *                        succeed, false when it would refuse the product too.
+	 */
+	public static function activate_free_product( $source = null ) {
+		/*
+		 * A Simple site has no Jetpack connection to sign the request with, and buys the
+		 * product from within WordPress.com anyway.
+		 */
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return self::activation_error(
+				'not_supported_on_wpcom_simple',
+				__( 'Jetpack Search Free is activated through WordPress.com on this site.', 'jetpack-my-jetpack' ),
+				400,
+				true
+			);
+		}
+
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			return self::activation_error(
+				'site_not_registered',
+				__( 'Connect your site to WordPress.com to activate Jetpack Search.', 'jetpack-my-jetpack' ),
+				403,
+				true
+			);
+		}
+
+		/*
+		 * Checked before the request because the subscription needs a WordPress.com user to own
+		 * it and a blog token names nobody. Checkout signs the user in itself, so this is a
+		 * fallback rather than a failure.
+		 */
+		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
+			return self::activation_error(
+				'no_connected_user',
+				__( 'Activating Jetpack Search Free requires a connected WordPress.com user.', 'jetpack-my-jetpack' ),
+				403,
+				true
+			);
+		}
+
+		$body = array();
+		if ( in_array( $source, self::ACTIVATE_FREE_SOURCES, true ) ) {
+			$body['source'] = $source;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			'/sites/' . $blog_id . '/jetpack-search/activate-free',
+			'2',
+			array( 'method' => 'POST' ),
+			$body,
+			'wpcom'
+		);
+
+		// Never reached WordPress.com, so checkout may still work.
+		if ( is_wp_error( $response ) ) {
+			return self::activation_error(
+				'jetpack_search_free_activation_failed',
+				$response->get_error_message(),
+				500,
+				true
+			);
+		}
+
+		$status = wp_remote_retrieve_response_code( $response );
+		$result = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( 200 !== $status || ! is_array( $result ) || empty( $result['success'] ) ) {
+			return self::wpcom_activation_error( $result, $status );
+		}
+
+		self::sync_local_state_after_free_activation();
+
+		return $result;
+	}
+
+	/**
+	 * Rebuild a refusal from WordPress.com as a local WP_Error.
+	 *
+	 * `checkout_fallback` defaults to false: the endpoint sets it on every error it raises, so
+	 * a missing flag means an unrecognized response, and sending the user to a checkout that
+	 * may also refuse them is worse than showing the error.
+	 *
+	 * @param array|null $result Decoded response body, when it parsed.
+	 * @param int        $status HTTP status code.
+	 * @return WP_Error
+	 */
+	private static function wpcom_activation_error( $result, $status ) {
+		$data = isset( $result['data'] ) && is_array( $result['data'] ) ? $result['data'] : array();
+
+		return self::activation_error(
+			$result['code'] ?? 'jetpack_search_free_activation_failed',
+			$result['message'] ?? __( 'Jetpack Search Free could not be activated for this site.', 'jetpack-my-jetpack' ),
+			isset( $data['status'] ) ? (int) $data['status'] : (int) $status,
+			! empty( $data['checkout_fallback'] ),
+			$data
+		);
+	}
+
+	/**
+	 * Build a refusal carrying the `checkout_fallback` flag the UI branches on.
+	 *
+	 * @param string $code              Machine readable error code.
+	 * @param string $message           Human readable message.
+	 * @param int    $status            HTTP status.
+	 * @param bool   $checkout_fallback Whether the caller should fall back to checkout.
+	 * @param array  $extra_data        Extra data from WordPress.com to preserve.
+	 * @return WP_Error
+	 */
+	private static function activation_error( $code, $message, $status, $checkout_fallback, $extra_data = array() ) {
+		return new WP_Error(
+			$code,
+			$message,
+			array_merge(
+				$extra_data,
+				array(
+					'status'            => $status,
+					'checkout_fallback' => (bool) $checkout_fallback,
+				)
+			)
+		);
+	}
+
+	/**
+	 * Bring this site's Search state in line after WordPress.com grants the product.
+	 *
+	 * WordPress.com configures Search over a separate request to this site, so the plan option
+	 * cached in this process predates it — and on the `already_entitled` path, where no
+	 * subscription is created, that request never happens at all. Both calls are idempotent.
+	 *
+	 * The search experience is deliberately not set here: WordPress.com owns that default, and
+	 * a second copy of it would drift.
+	 */
+	private static function sync_local_state_after_free_activation() {
+		if ( ! class_exists( 'Automattic\Jetpack\Search\Plan' ) ) {
+			return;
+		}
+
+		( new \Automattic\Jetpack\Search\Plan() )->get_plan_info_from_wpcom();
+
+		if ( class_exists( 'Automattic\Jetpack\Search\Module_Control' ) ) {
+			( new Search_Module_Control() )->activate();
+		}
 	}
 
 	/**

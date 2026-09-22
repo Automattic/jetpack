@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
+import useActivateSearchFree from '../../data/products/use-activate-search-free';
 import useInstallPlugins from '../../data/products/use-install-plugins';
 import useProduct from '../../data/products/use-product';
 import { ProductCamelCase } from '../../data/types';
@@ -157,14 +158,24 @@ const usePricingData = ( slug: string ) => {
 		connectAfterCheckout: ! isUserConnected,
 		siteSuffix,
 	} );
+	const { run: runSearchFreeActivation } = useActivateSearchFree( {
+		sendToCheckout: runFreeCheckout,
+	} );
 
 	const handleActivate = useCallback( () => {
-		if ( wpcomFreeProductSlug ) {
-			runFreeCheckout();
-		} else {
+		if ( ! wpcomFreeProductSlug ) {
 			activate();
+			return;
 		}
-	}, [ activate, runFreeCheckout, wpcomFreeProductSlug ] );
+
+		// Search grants its free product in place; everything else still buys it at $0.
+		if ( slug === 'search' ) {
+			runSearchFreeActivation( { onSuccess: () => activate() } );
+			return;
+		}
+
+		runFreeCheckout();
+	}, [ activate, runFreeCheckout, runSearchFreeActivation, slug, wpcomFreeProductSlug ] );
 
 	const handleCheckout = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_checkout_click', { slug } );
