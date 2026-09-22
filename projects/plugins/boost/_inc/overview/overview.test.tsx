@@ -1,6 +1,6 @@
 /* eslint-disable testing-library/prefer-user-event */
 import { requestSpeedScores } from '@automattic/jetpack-boost-score-api';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MutationObserver, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
 	act,
 	fireEvent,
@@ -441,7 +441,7 @@ test.each( [ 'critical_css_state', 'lcp_state' ] as const )(
 	}
 );
 
-test.each( [ 'immediate save', 'stale GET', 'delayed save' ] )(
+test.each( [ 'immediate save', 'stale GET', 'delayed save', 'normalized save', 'unrelated save' ] )(
 	'syncs a Settings toggle with %s without extra fetches and refreshes scores',
 	async scenario => {
 		const initialModules = {
@@ -473,10 +473,13 @@ test.each( [ 'immediate save', 'stale GET', 'delayed save' ] )(
 			.spyOn( globalThis, 'fetch' )
 			.mockImplementation( async ( url, options ) => {
 				if ( options.method === 'POST' ) {
-					if ( scenario === 'delayed save' ) {
+					if ( scenario === 'delayed save' || scenario === 'unrelated save' ) {
 						await pendingSave;
 					}
 					savedModules = JSON.parse( options.body as string ).JSON;
+					if ( scenario === 'normalized save' ) {
+						savedModules.defer_js.available = false;
+					}
 				}
 				return {
 					ok: true,
@@ -543,6 +546,15 @@ test.each( [ 'immediate save', 'stale GET', 'delayed save' ] )(
 			}
 			fireEvent.click( screen.getByRole( 'button', { name: 'Defer Non-Essential JavaScript' } ) );
 			await waitFor( () => expect( fetchSpy ).toHaveBeenCalledTimes( 1 ) );
+			if ( scenario === 'unrelated save' ) {
+				await act( async () => {
+					await new MutationObserver( legacyQueryClient, {
+						mutationFn: async () => undefined,
+					} ).mutate();
+				} );
+				// eslint-disable-next-line jest/no-conditional-expect
+				expect( client.getQueryData( [ 'modules_state' ] ) ).toEqual( initialModules );
+			}
 			if ( scenario === 'delayed save' ) {
 				await act( async () => {
 					jest.advanceTimersByTime( 2500 );
