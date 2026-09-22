@@ -160,7 +160,7 @@ class Admin_Bar {
 		}
 
 		$chart = self::get_requested_chart();
-		if ( null === $chart || ! current_user_can( 'view_stats' ) ) {
+		if ( null === $chart || ! Stats_Options::get_option( 'admin_bar' ) || ! current_user_can( 'view_stats' ) ) {
 			return;
 		}
 

@@ -170,6 +170,15 @@ class Admin_Bar_Test extends Stats_TestCase {
 		$this->assertNull( Admin_Bar::fetch_chart( 'admin-bar-hours-scale' ) );
 	}
 
+	public function test_chart_not_fetched_when_admin_bar_setting_is_off() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		Stats_Options::set_option( 'admin_bar', false );
+		$_GET['page']  = 'stats';
+		$_GET['chart'] = 'admin-bar-hours-scale';
+
+		$this->assertFalse( $this->serve_chart_and_report_fetch() );
+	}
+
 	public function test_unknown_chart_is_not_fetched() {
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 		$_GET['page']  = 'stats';
