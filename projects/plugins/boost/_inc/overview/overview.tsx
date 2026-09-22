@@ -81,15 +81,24 @@ function OverviewContent( {
 	const { range, olderRanges, dayCount, onPrevious, onNext, canGoNext } = useHistoryRange();
 	const history = usePerformanceHistory( historyAvailable && isVisible, range );
 	const [ , dismissFreshStart ] = useDismissibleAlertState( 'performance_history_fresh_start' );
-	// A window that starts on a recorded day keeps Previous enabled without older requests.
-	const opensEmpty =
-		history.isSuccess && ! bucketHistoryDays( history.data?.periods ?? [], range )[ 0 ]?.period;
+	const recordedDayCount = bucketHistoryDays( history.data?.periods ?? [], range ).filter(
+		day => day.period
+	).length;
 	const olderHistory = useHasOlderHistory(
-		historyAvailable && isVisible && opensEmpty,
+		historyAvailable && isVisible && history.isSuccess && recordedDayCount <= 1,
 		olderRanges
 	);
-	const hasOlderHistory =
-		history.isSuccess && ( ! opensEmpty || ( ! olderHistory.isError && olderHistory.data === true ) );
+	const historyPagingState = ! history.isSuccess
+		? 'loading'
+		: recordedDayCount >= 2
+			? 'multi-day'
+			: ! olderHistory.isSuccess
+				? 'unknown'
+				: olderHistory.data
+					? 'older-history'
+					: recordedDayCount === 1
+						? 'single-day'
+						: 'empty';
 	const queryClient = useQueryClient();
 	const online = isSiteOnline();
 	const isLoading = scoreState.status === 'loading';
@@ -220,7 +229,10 @@ function OverviewContent( {
 					onPrevious={ onPrevious }
 					onNext={ onNext }
 					canGoNext={ canGoNext }
-					hasOlderHistory={ hasOlderHistory }
+					hasOlderHistory={
+						historyPagingState === 'multi-day' || historyPagingState === 'older-history'
+					}
+					showSingleDate={ historyPagingState === 'single-day' }
 					isVisible={ isVisible }
 					data={ modules.isPending ? undefined : history.data }
 					isLoading={ modules.isPending || ( historyAvailable && history.isPending ) }

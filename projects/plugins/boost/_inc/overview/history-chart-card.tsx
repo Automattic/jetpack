@@ -22,6 +22,7 @@ type Props = {
 	onNext: () => void;
 	canGoNext: boolean;
 	hasOlderHistory?: boolean;
+	showSingleDate?: boolean;
 	data?: PerformanceHistoryData | null;
 	isLoading?: boolean;
 	isVisible?: boolean;
@@ -187,6 +188,7 @@ export default function HistoryChartCard( {
 	onNext,
 	canGoNext,
 	hasOlderHistory,
+	showSingleDate = hasOlderHistory === false,
 	data,
 	isLoading,
 	isVisible = true,
@@ -203,7 +205,7 @@ export default function HistoryChartCard( {
 	);
 	const recordedDays = days.filter( day => day.period );
 	const singleDate =
-		hasOlderHistory === false && recordedDays.length === 1 ? recordedDays[ 0 ].date : null;
+		showSingleDate && recordedDays.length === 1 ? recordedDays[ 0 ].date : null;
 	const series = useMemo( () => buildHistorySeries( days ), [ days ] );
 	const tickValues = useMemo(
 		() =>

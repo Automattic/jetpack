@@ -900,7 +900,7 @@ test( 'keeps the older-history check cached when a speed test reloads scores', a
 	expect( [ 1, 2, 3, 4, 5, 6 ].map( requests ) ).toEqual( [ 0, 0, 0, 0, 0, 1 ] );
 } );
 
-test( 'shows paid fresh-start history and disables Previous when there is no older history', async () => {
+test( 'shows a single-day header and disables Previous for a first-slot record with no older history', async () => {
 	window.jetpack_boost_ds!.dismissed_alerts!.value = { performance_history_fresh_start: false };
 	const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
 	jest.mocked( apiFetch ).mockImplementation( options => {
@@ -912,7 +912,7 @@ test( 'shows paid fresh-start history and disables Previous when there is no old
 					...range,
 					periods:
 						range.startDate === getHistoryWindow( 0 ).startDate
-							? [ recordedPeriod( getHistoryWindow( 0 ).endDate - 86400000 ) ]
+							? [ recordedPeriod( getHistoryWindow( 0 ).startDate ) ]
 							: [],
 					annotations: [],
 				},
@@ -924,6 +924,14 @@ test( 'shows paid fresh-start history and disables Previous when there is no old
 	await expect( screen.findByTestId( 'history-chart' ) ).resolves.toBeInTheDocument();
 	await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
 	expect(
+		screen.getByText( dateI18n( 'M j, Y', getHistoryWindow( 0 ).startDate, false ) )
+	).toBeInTheDocument();
+	expect( apiFetch ).toHaveBeenCalledWith(
+		expect.objectContaining( {
+			data: { JSON: expect.objectContaining( { checkOlderWindows: true } ) },
+		} )
+	);
+	expect(
 		screen.queryByText( /Jetpack Boost premium has been activated/ )
 	).not.toBeInTheDocument();
 	const previous = screen.getByRole( 'button', { name: 'Previous 30 days' } );
@@ -934,7 +942,7 @@ test( 'shows paid fresh-start history and disables Previous when there is no old
 } );
 
 test.each( [ 'pending', 'error' ] )(
-	'keeps first-entry paging disabled and shows a single date when older history is %s',
+	'keeps unknown history paging disabled with a date range when older history is %s',
 	async status => {
 		window.jetpack_boost_ds!.dismissed_alerts!.value = { performance_history_fresh_start: false };
 		const period = recordedPeriod( getHistoryWindow( 0 ).endDate - 86400000 );
@@ -964,9 +972,12 @@ test.each( [ 'pending', 'error' ] )(
 				} )?.state.status
 			).toBe( status )
 		);
-		await expect(
-			screen.findByText( dateI18n( 'M j, Y', new Date( period.timestamp ), false ) )
-		).resolves.toBeInTheDocument();
+		const { startDate, endDate } = getHistoryWindow( 0 );
+		expect(
+			screen.getByText(
+				`${ dateI18n( 'M j', startDate, false ) } – ${ dateI18n( 'M j, Y', endDate, false ) }`
+			)
+		).toBeInTheDocument();
 		const previous = screen.getByRole( 'button', { name: 'Previous 30 days' } );
 		expect( previous ).toHaveAttribute( 'aria-disabled', 'true' );
 		jest.mocked( apiFetch ).mockClear();
@@ -976,7 +987,7 @@ test.each( [ 'pending', 'error' ] )(
 );
 
 test.each( [ 'pending', 'error' ] )(
-	'keeps Previous disabled and shows the date range when initial history is %s',
+	'keeps loading history paging disabled with a date range when initial history is %s',
 	async status => {
 		window.jetpack_boost_ds!.dismissed_alerts!.value = { performance_history_fresh_start: false };
 		const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
@@ -1007,6 +1018,39 @@ test.each( [ 'pending', 'error' ] )(
 		expect( apiFetch ).not.toHaveBeenCalled();
 	}
 );
+
+test( 'enables multi-day history paging with a date range without checking older history', async () => {
+	const { startDate, endDate } = getHistoryWindow( 0 );
+	const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
+	jest.mocked( apiFetch ).mockImplementation( options => {
+		if ( options.url?.endsWith( '/performance-history/set' ) ) {
+			return Promise.resolve( {
+				status: 'success',
+				JSON: {
+					...options.data.JSON,
+					periods: [ recordedPeriod( startDate ), recordedPeriod( startDate + 86400000 ) ],
+					annotations: [],
+				},
+			} );
+		}
+		return fetch( options );
+	} );
+	const { client } = renderOverview();
+	await expect( screen.findByTestId( 'history-chart' ) ).resolves.toBeInTheDocument();
+	await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
+	expect(
+		screen.getByText(
+			`${ dateI18n( 'M j', startDate, false ) } – ${ dateI18n( 'M j, Y', endDate, false ) }`
+		)
+	).toBeInTheDocument();
+	expect( screen.getByRole( 'button', { name: 'Previous 30 days' } ) ).toHaveAttribute(
+		'aria-disabled',
+		'false'
+	);
+	expect(
+		jest.mocked( apiFetch ).mock.calls.some( ( [ options ] ) => options.data?.JSON?.olderWindows )
+	).toBe( false );
+} );
 
 test( 'debounces optimization changes and waits for generation to finish', async () => {
 	jest.useFakeTimers();
@@ -1227,7 +1271,10 @@ test( 'owns history paging, retry, and the responsive fifteen-day window', async
 				failPrevious = false;
 				return Promise.reject( new Error( 'Previous window unavailable' ) );
 			}
-			const periods = [ recordedPeriod( options.data.JSON.startDate ) ];
+			const periods = [
+				recordedPeriod( options.data.JSON.startDate ),
+				recordedPeriod( options.data.JSON.startDate + 86400000 ),
+			];
 			return Promise.resolve( { status: 'success', JSON: { ...options.data.JSON, periods } } );
 		}
 		return fetch( options );
