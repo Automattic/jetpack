@@ -40,7 +40,7 @@ export function isBulkSwitchable( state: FeatureState ): boolean {
 		return hasPlainSwitch( control.module );
 	}
 
-	return control.kind === 'plugin';
+	return control.kind === 'plugin' && ! control.override;
 }
 
 /**

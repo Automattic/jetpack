@@ -68,6 +68,14 @@ describe( 'isBulkSwitchable', () => {
 		[ 'a plugin switch', pluginState( 'akismet', 'active' ), true ],
 		[ 'a forced module', moduleState( 'stats', 'active', { override: 'active' } ), false ],
 		[
+			'a forced plugin',
+			{
+				...pluginState( 'akismet', 'inactive' ),
+				control: { kind: 'plugin', plugin: 'akismet', override: 'inactive' },
+			} as FeatureState,
+			false,
+		],
+		[
 			'a feature still loading',
 			{ ...moduleState( 'stats', 'inactive' ), pending: true } as FeatureState,
 			false,

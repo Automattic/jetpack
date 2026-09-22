@@ -3,6 +3,7 @@ import { starFilled } from '@wordpress/icons';
 import { Badge, Icon, Stack, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
+import { getForcedReason } from './feature-state';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
 import type { FeatureFilter } from './use-feature-filter';
@@ -68,8 +69,7 @@ export function FeaturePaid( { state, onFilterByPlan }: FeaturePaidProps ) {
 	const isPaidOnly = state.product?.status === PRODUCT_STATUSES.NEEDS_PLAN;
 	const highlights = isPaidOnly ? [] : ( feature.paid_highlights ?? [] );
 	// A host that forced it off decides this, not a purchase.
-	const isForcedOff =
-		state.control.kind === 'module' && state.control.module.override === 'inactive';
+	const isForcedOff = state.status !== 'active' && !! getForcedReason( state );
 	const routes = ! isForcedOff && ( plans.length > 0 || !! paidProduct );
 
 	if ( ! highlights.length && ! routes ) {
