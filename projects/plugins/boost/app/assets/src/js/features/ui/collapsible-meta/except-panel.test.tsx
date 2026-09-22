@@ -194,3 +194,32 @@ it( 'keeps the Page Cache textarea section inside its styling body and panel', (
 		document.getElementById( toggle.getAttribute( 'aria-controls' )! )?.contains( body! )
 	).toBe( true );
 } );
+
+it.each( consumers.filter( consumer => ! consumer.count ) )(
+	'$name uses modern field copy and retains legacy field copy',
+	( { component, trigger } ) => {
+		const modernLabel =
+			trigger === 'Exclude URL patterns'
+				? 'Add URLs or patterns separated with a comma:'
+				: 'Add handles separated with a comma:';
+		const modernHelp =
+			trigger === 'Exclude URL patterns'
+				? "JavaScript won't be deferred on these pages."
+				: `${ trigger.includes( 'JS' ) ? 'Scripts' : 'Styles' } listed here will be excluded from concatenation and minification. They continue loading separately.`;
+		const view = render( <ModuleSurfaceProvider value="row">{ component }</ModuleSurfaceProvider> );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Except None' } ) );
+		expect( screen.getByRole( 'textbox', { name: modernLabel } ) ).toBeTruthy();
+		expect( screen.getByText( modernHelp, { exact: false } ) ).toBeTruthy();
+		view.unmount();
+		render( component );
+		fireEvent.click( screen.getByRole( 'button', { name: trigger } ) );
+		expect( screen.getByRole( 'textbox', { name: `${ trigger }:` } ) ).toBeTruthy();
+		expect(
+			screen.getByText(
+				trigger === 'Exclude URL patterns'
+					? /JavaScript will not be deferred on pages matching these URL patterns/
+					: 'Use a comma (,) to separate the handles.'
+			)
+		).toBeTruthy();
+	}
+);

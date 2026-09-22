@@ -1,3 +1,4 @@
+import { ModuleSurfaceProvider } from '$features/module/surface';
 /* No jest-dom or user-event in this project. */
 /* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute, jest-dom/prefer-to-have-value, testing-library/prefer-user-event */
 import { fireEvent, render, screen } from '@testing-library/react';
@@ -116,5 +117,28 @@ describe( 'Cornerstone pages meta', () => {
 
 		expect( screen.getByRole( 'link', { name: /^Learn More/ } ) ).toBeTruthy();
 		expect( screen.getByRole( 'textbox' ) ).toBeTruthy();
+	} );
+
+	test( 'uses shorter modern Cornerstone copy and preserves the legacy description and upsell', () => {
+		const view = render(
+			<ModuleSurfaceProvider value="row">
+				<CornerstonePagesDescription />
+				<CornerstonePagesUpgradeCTA />
+			</ModuleSurfaceProvider>
+		);
+		expect(
+			screen.getByText( /Add your most important pages for targeted optimizations/ )
+		).toBeTruthy();
+		expect( screen.getByRole( 'link', { name: /^Learn more/ } ) ).toBeTruthy();
+		expect( screen.getByText( 'Add up to 10 cornerstone pages.' ) ).toBeTruthy();
+		view.rerender(
+			<ModuleSurfaceProvider value="block">
+				<CornerstonePagesDescription />
+				<CornerstonePagesUpgradeCTA />
+			</ModuleSurfaceProvider>
+		);
+		expect( screen.getByText( /List the most important pages of your site/ ) ).toBeTruthy();
+		expect( screen.getByRole( 'link', { name: /^Learn More/ } ) ).toBeTruthy();
+		expect( screen.getByText( 'Premium users can add up to 10 cornerstone pages.' ) ).toBeTruthy();
 	} );
 } );
