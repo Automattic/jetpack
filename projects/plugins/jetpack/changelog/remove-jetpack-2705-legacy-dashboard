@@ -1,0 +1,4 @@
+Significance: minor
+Type: major
+
+Dashboard: Remove the legacy At a Glance dashboard and Recommendations assistant; their links now open My Jetpack, or Settings where My Jetpack is unavailable.

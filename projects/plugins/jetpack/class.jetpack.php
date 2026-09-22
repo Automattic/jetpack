@@ -556,6 +556,9 @@ class Jetpack {
 					add_option( 'wpcom_newsletter_send_default', 1 );
 				}
 
+				// Its handler went with the Recommendations assistant.
+				wp_clear_scheduled_hook( 'jetpack_recommend_videopress' );
+
 				if ( did_action( 'wp_loaded' ) ) {
 					self::upgrade_on_load();
 				} else {
@@ -784,9 +787,6 @@ class Jetpack {
 
 		// Register product descriptions for partner coupon usage.
 		add_filter( 'jetpack_partner_coupon_products', array( $this, 'get_partner_coupon_product_descriptions' ) );
-
-		// Actions for conditional recommendations.
-		add_action( 'plugins_loaded', array( 'Jetpack_Recommendations', 'init_conditional_recommendation_actions' ) );
 
 		// Add 5-star
 		add_filter( 'plugin_row_meta', array( $this, 'add_5_star_review_link' ), 10, 2 );

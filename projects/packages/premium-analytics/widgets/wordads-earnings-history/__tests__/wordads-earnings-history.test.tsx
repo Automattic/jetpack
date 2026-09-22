@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -108,6 +108,43 @@ describe( 'WordAdsEarningsHistory', () => {
 			expect.stringContaining( '/reports/earnings' )
 		);
 	} );
+
+	it( 'shows no adjustments line when the site has none', async () => {
+		render( <WordAdsEarningsHistory attributes={ {} } /> );
+		await expect( screen.findByText( 'July 2026' ) ).resolves.toBeInTheDocument();
+
+		expect(
+			screen.queryByRole( 'link', { name: /view adjustments history/ } )
+		).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 1, '1 adjustment', { '2026-03': { amount: '-2.50', pageviews: 0, status: 1 } } ],
+		[
+			2,
+			'2 adjustments',
+			{
+				'2026-03': { amount: '-2.50', pageviews: 0, status: 1 },
+				'2025-11': { amount: '12.00', pageviews: 0, status: 0 },
+			},
+		],
+	] )(
+		'counts %i adjustment row(s) in a line linking to the Adjustments tab',
+		async ( _count, label, adjustment ) => {
+			mockApiFetch.mockResolvedValue( { earnings: { ...EARNINGS.earnings, adjustment } } );
+			render( <WordAdsEarningsHistory attributes={ {} } /> );
+			await expect( screen.findByText( 'July 2026' ) ).resolves.toBeInTheDocument();
+
+			const link = screen.getByRole( 'link', {
+				name: `${ label }, view adjustments history`,
+			} );
+			expect( within( link ).getByText( label ) ).toBeInTheDocument();
+			expect( link ).toHaveAttribute( 'href', expect.stringContaining( '/reports/earnings' ) );
+			expect( link ).toHaveAttribute( 'href', expect.stringContaining( 'section=adjustments' ) );
+			// The adjustment amounts stay on the report; the widget lists WordAds rows only.
+			expect( screen.queryByText( '-$2.50' ) ).not.toBeInTheDocument();
+		}
+	);
 
 	it( 'recovers via Retry after a failed earnings request', async () => {
 		// Only the first request fails, so rows can only come from Retry's refetch.

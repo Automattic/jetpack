@@ -380,7 +380,7 @@ abstract class Jetpack_Admin_Page {
 						</svg>
 						<span class="jp-footer__module-name"><?php esc_html_e( 'Jetpack', 'jetpack' ); ?></span>
 					</div>
-					<?php if ( ! ( new Host() )->is_wpcom_platform() ) : ?>
+					<?php if ( ! ( new Host() )->is_wpcom_platform() && Footer_Links::is_my_jetpack_available() ) : ?>
 						<?php $products_section = Footer_Links::get_my_jetpack_products_section(); ?>
 					<div class="jp-footer__menu">
 						<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/' . $products_section['slug'] ) ); ?>" class="jp-footer__menu-item"><?php echo esc_html( $products_section['label'] ); ?></a>

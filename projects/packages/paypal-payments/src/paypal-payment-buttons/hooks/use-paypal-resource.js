@@ -5,8 +5,6 @@
  */
 
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
-import { store as blockEditorStore } from '@wordpress/block-editor';
-import { useDispatch } from '@wordpress/data';
 import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { API_BASE } from '../utils/api-base';
@@ -49,7 +47,6 @@ export function usePayPalResource( {
 	// Two blocks can share one PayPal payment — a duplicate, or one product
 	// shown as a button, a link and a QR code — and only the block that saved
 	// last has seen what PayPal holds. Read it back so every block agrees.
-	const { __unstableMarkNextChangeAsNotPersistent } = useDispatch( blockEditorStore );
 	const latestAttributes = useRef( attributes );
 	latestAttributes.current = attributes;
 
@@ -92,8 +89,8 @@ export function usePayPalResource( {
 					return;
 				}
 				setPaymentChanged( true );
-				// Opening a post must not mark it dirty.
-				__unstableMarkNextChangeAsNotPersistent?.();
+				// An ordinary edit, so the post is dirty: the page renders the saved values, and
+				// they are stale until the post is saved again.
 				setAttributes( updates );
 			} )
 			// A payment deleted on PayPal is re-created when the post is next saved,
@@ -110,14 +107,7 @@ export function usePayPalResource( {
 		return () => {
 			cancelled = true;
 		};
-	}, [
-		isConnected,
-		isApiManaged,
-		resourceId,
-		clientId,
-		setAttributes,
-		__unstableMarkNextChangeAsNotPersistent,
-	] );
+	}, [ isConnected, isApiManaged, resourceId, clientId, setAttributes ] );
 
 	/**
 	 * Request delete confirmation via ConfirmDialog.

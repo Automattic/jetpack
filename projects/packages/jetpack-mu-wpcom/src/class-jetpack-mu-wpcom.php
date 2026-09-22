@@ -133,6 +133,9 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'init', array( __CLASS__, 'schedule_translation_updates' ) );
 		}
 
+		// Premium Analytics offers the Ads tab wherever the plan includes WordAds, on Simple and Atomic.
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_premium_analytics_wordads_section' ) );
+
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
 
@@ -969,6 +972,18 @@ class Jetpack_Mu_Wpcom {
 				'menu_title' => fn () => __( 'Stats v2', 'jetpack-mu-wpcom' ),
 			)
 		);
+	}
+
+	/**
+	 * Register the Ads tab of the Premium Analytics dashboard by plan feature.
+	 *
+	 * Hooks the dashboard's registry action, which only fires once the package boots, so this
+	 * is inert on a site without the dashboard.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function load_premium_analytics_wordads_section() {
+		require_once __DIR__ . '/features/premium-analytics/wordads-section.php';
 	}
 
 	/**

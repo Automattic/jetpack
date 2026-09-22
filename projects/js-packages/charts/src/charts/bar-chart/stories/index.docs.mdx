@@ -197,7 +197,7 @@ It composes with grouped bars: pair each primary series with its own `type: 'com
 - Comparison values are included in the value-axis domain, so a previous period taller than the current one is never clipped.
 - Comparison series must reuse the primary series' category keys (the `label`/`date` of each point) so each shadow lines up with its primary bar.
 - The comparison shadow isn't a separate hover/keyboard target (the primary bar drives interaction), but the tooltip shows both the current and previous period values for the hovered category.
-- Each series gets its own legend item by default. Set `legend.collapseGroups` to render one item per group, labelled by its primary series; combined with `legend.interactive`, clicking that item toggles the primary and its previous-period series together. When every series is hidden, the axes are dropped and only the empty state is shown.
+- Each series gets its own legend item by default. Set `legend.collapseGroups` to render one item per group, labeled by its primary series; combined with `legend.interactive`, clicking that item toggles the primary and its previous-period series together. Pair it with `legend.comparisonItem` to append a static item explaining the comparison shadow once `collapseGroups` folds it away. When every series is hidden, the axes are dropped and only the empty state is shown.
 - Collapsing the legend requires the primary and its comparison series to share a `group`. This is stricter than the bars themselves: rendering pairs a comparison with the sole primary even when `group` is omitted, but the legend has no single-primary fallback, so without a shared `group` the pair keeps separate legend items.
 - With pattern fills enabled (`withPatterns`), the comparison shadow reuses its primary bar's pattern at the same reduced opacity, so the pair reads as one series.
 - Styling comes from the theme at `barChart.barStyles.comparison`. `widthFactor` (default `1.5`) controls how much wider the comparison bar is than the primary — the primary is narrowed to `1 / widthFactor` of the slot — and `opacity` (default `0.5`) sets the shadow translucency.
@@ -311,6 +311,12 @@ Configure custom formatting for time-series or numerical axes:
 	/>` }
 />
 
+### Buckets With No Data
+
+Set a point's `value` to `null` when its bucket has no reading, such as the days before a site launched. The bucket keeps its place on the axis, so the chart still spans the full range, but it draws no bar and its tooltip reads "No data" rather than 0. Use `0` only for a real reading of zero: in the example below April is a real zero, and with `showZeroValues` on it keeps a short stub where the months before it have nothing.
+
+<Canvas of={ BarChartStories.BucketsWithNoData } />
+
 ## Zero Value Display
 
 ### Visual Enhancement for Zero Values
@@ -336,7 +342,8 @@ The chart gracefully handles various error states and edge cases:
 
 **Supported scenarios:**
 - Empty data arrays
-- Invalid data values (null, NaN, undefined)
+- Invalid data values (NaN, undefined)
+- Buckets with no reading (null), drawn as a gap rather than rejected
 - Missing data properties
 - Invalid date formats
 - Single data points
@@ -366,15 +373,17 @@ Enable rich interactive tooltips that display detailed information on hover:
 
 ### Band Highlight
 
-Set `withBandHighlight` alongside `withTooltips` to shade the active band across the plot. Hover a bar or use arrow keys after focusing the chart. Escape clears the keyboard selection and its tooltip; a hover highlight remains.
+Set `withBandHighlight` alongside `withTooltips` to shade the active band across the plot. Hover a bar or use arrow keys after focusing the chart. Escape clears the keyboard selection and its tooltip; a hover highlight remains. Without `withTooltips`, the chart still renders, but neither the highlight nor its callback runs; development builds warn about this configuration.
 
 <Canvas of={ BarChartStories.BandHighlight } />
 
-For an overlay outside the chart, `onBandHighlightChange` reports the active datum and the band rectangle in SVG coordinates, or `null` on dismissal. The callback also works without rendering the built-in highlight.
+For an overlay outside the chart, `onBandHighlightChange` reports the active datum, series `key`, point `index` within the rendered series, and the band rectangle in SVG coordinates. It reports the initial selection on mount (normally `null`), changes to that selection, and `null` on dismissal or unmount. The callback also works without rendering the built-in highlight.
 
 ### Beside Tooltips
 
 Use `tooltipPlacement="beside"` to offset the tooltip horizontally from the active band center on vertical bar charts without vertical flipping. It flips horizontally near an edge and stays within the viewport or clipping ancestor. Its top follows the selected datum unless `tooltipAnchorTop` overrides it. This override also applies to `"auto"` placement, which can still flip vertically. The anchor uses SVG coordinates: values less than `margin.top` are above the plot, and negative values are above the SVG.
+
+The horizontal anchor is the band center, not its edge, so a wide bar can be covered by the tooltip. Negative top anchors remain subject to clipping bounds and can be clamped back into view.
 
 <Canvas of={ BarChartStories.BesideTooltip } />
 

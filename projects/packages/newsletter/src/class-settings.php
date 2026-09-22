@@ -22,7 +22,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.15.0';
+	const PACKAGE_VERSION = '0.16.0';
 
 	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
 
@@ -602,7 +602,7 @@ class Settings {
 	 * Hooked only when modernization is on AND we're on the Newsletter admin page,
 	 * so this never affects any other request.
 	 *
-	 * @since $$next-version$$ Takes no argument; hooked on `admin_enqueue_scripts`.
+	 * @since 0.16.0 Takes no argument; hooked on `admin_enqueue_scripts`.
 	 *
 	 * @return void
 	 */
@@ -619,7 +619,7 @@ class Settings {
 	/**
 	 * Undo alias_screen_id_for_wp_build(), so code after the generated check sees the real screen ID.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.16.0
 	 *
 	 * @return void
 	 */
@@ -654,7 +654,7 @@ class Settings {
 	 *
 	 * Fetching a JITM records a view, so one the page hides would still be counted.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.16.0
 	 *
 	 * @param bool   $show      Whether to show JITMs on the screen.
 	 * @param string $screen_id The screen ID.

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the views chart and Stats link to the admin bar, and let any plugin that ships Stats add the Stats widget to the WordPress dashboard.

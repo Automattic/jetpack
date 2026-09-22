@@ -46,8 +46,7 @@ function paintedBy( page: Page, box: Box ) {
 
 test.use( { storageState: { cookies: [], origins: [] } } );
 
-// The fixture bundles the real modern Settings layout, one `@wordpress/ui` card and the
-// premium tooltip, so the card's `overflow: clip` is the real one. It needs no WordPress.
+// See tests/e2e/README.md for the fixture's scope and standalone run command.
 test.beforeAll( async () => {
 	test.setTimeout( 180000 );
 	fixtureDirectory = await mkdtemp( path.join( tmpdir(), 'boost-settings-tooltip-' ) );

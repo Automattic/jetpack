@@ -317,6 +317,20 @@ describe( 'validateReturnUrl', () => {
 		expect( validateReturnUrl( 'https://example.com/thanks' ) ).toBeNull();
 	} );
 
+	// PayPal's limit; an editor URL with its query string can run past it.
+	it( 'accepts a URL of exactly 127 characters, and rejects one more', () => {
+		const atLimit = 'https://example.com/'.padEnd( 127, 'a' );
+		expect( atLimit ).toHaveLength( 127 );
+		expect( validateReturnUrl( atLimit ) ).toBeNull();
+		expect( validateReturnUrl( `${ atLimit }a` ) ).toBe(
+			'Return URL must be 127 characters or fewer.'
+		);
+	} );
+
+	it( 'reports the scheme before the length', () => {
+		expect( validateReturnUrl( 'http://example.com/'.padEnd( 200, 'a' ) ) ).toBe( httpsOnly );
+	} );
+
 	it.each( [
 		[ 'plain HTTP', 'http://example.com/thanks' ],
 		[ 'a scheme-relative URL', '//example.com/thanks' ],

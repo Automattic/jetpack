@@ -164,6 +164,7 @@ A project must define `.scripts.build-development` and/or `.scripts.build-produc
 The build commands should assume that `pnpm install` and `composer install` have already been run, and _must not_ run them again.
 
 * If you're building JavaScript bundles with Webpack and [@automattic/jetpack-webpack-config](../projects/js-packages/webpack-config/README.md) (more information on setup [in the README.md](../projects/js-packages/webpack-config/README.md)), note that your build-production command should set `NODE_ENV=production` and `BABEL_ENV=production`.
+* If you're moving an admin dashboard from Webpack onto the wp-build (esbuild) pipeline, follow the [wp-build porting checklist](wp-build-porting-checklist.md).
 * If you run into problems with Composer not recognizing the local git branch as being the right version, try setting `COMPOSER_ROOT_VERSION=dev-trunk` in the environment.
 * When building for the mirror repos, note that `COMPOSER_MIRROR_PATH_REPOS=1` will be set in the environment and the list of repositories in `composer.json` may be altered.
   This is not normally done in development environments, even with `jetpack build --production`.

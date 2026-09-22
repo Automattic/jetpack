@@ -172,7 +172,7 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 				tooltipContext?.showTooltip( {
 					datum: tooltipItem.datum,
 					key: tooltipItem.seriesLabel,
-					index: tooltipItem.seriesIndex,
+					index: tooltipItem.dataPointIndex,
 				} );
 			}
 		}
