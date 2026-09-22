@@ -20,7 +20,9 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -54,10 +56,35 @@ class Jetpack_AI_Settings {
 	const AI_MODULE = 'ai';
 
 	/**
+	 * The `jetpack_ai_enabled` route custom code can take to hold AI off, as
+	 * reported by {@see self::get_master_forced_off_route()}. Each route names a
+	 * different hook, so each needs its own documentation link.
+	 *
+	 * @var string
+	 */
+	const FORCED_OFF_ROUTE_FILTER = 'filter';
+
+	/**
+	 * The module-filter route; see {@see self::FORCED_OFF_ROUTE_FILTER}.
+	 *
+	 * @var string
+	 */
+	const FORCED_OFF_ROUTE_MODULES = 'modules';
+
+	/**
+	 * The filter route on VIP, which documents this filter as its own supported
+	 * off switch and so owns the page to send the reader to.
+	 *
+	 * @var string
+	 */
+	const FORCED_OFF_ROUTE_FILTER_VIP = 'filter-vip';
+
+	/**
 	 * Feature key => option name for every toggle on the AI settings page.
 	 *
-	 * `seo_enhancer` and `ai_search` reuse options owned by the SEO/Search
-	 * surfaces; the rest are registered by this class.
+	 * `ai_search` reuses an option owned by the Search surface; the rest are
+	 * registered by this class. The automatic-generation option is deliberately
+	 * absent: the Traffic page and the SEO dashboard own it.
 	 *
 	 * @var array
 	 */
@@ -65,13 +92,13 @@ class Jetpack_AI_Settings {
 		'writing_assistant' => 'jetpack_ai_writing_assistant_enabled',
 		'image_editor'      => 'jetpack_ai_image_editor_enabled',
 		'feature_clip'      => 'jetpack_ai_feature_clip_enabled',
-		'seo_enhancer'      => 'ai_seo_enhancer_enabled',
+		'ai_seo'            => 'jetpack_ai_seo_enabled',
 		'ai_search'         => 'jetpack_search_ai_answers_enabled',
 	);
 
 	/**
-	 * Option defaults. The reused SEO/Search options keep their established
-	 * opt-in defaults; the new per-feature toggles default to on.
+	 * Option defaults. The reused Search option keeps its established opt-in
+	 * default; the new per-feature toggles default to on.
 	 *
 	 * @var array
 	 */
@@ -79,17 +106,17 @@ class Jetpack_AI_Settings {
 		'writing_assistant' => true,
 		'image_editor'      => true,
 		'feature_clip'      => true,
-		'seo_enhancer'      => false,
+		'ai_seo'            => true,
 		'ai_search'         => false,
 	);
 
 	/**
 	 * Feature keys whose options this class registers and syncs (the reused
-	 * SEO/Search options are registered by their owning surfaces).
+	 * Search option is registered by its owning surface).
 	 *
 	 * @var array
 	 */
-	const OWNED_FEATURES = array( 'writing_assistant', 'image_editor', 'feature_clip' );
+	const OWNED_FEATURES = array( 'writing_assistant', 'image_editor', 'feature_clip', 'ai_seo' );
 
 	/**
 	 * Whether init() has already run.
@@ -97,6 +124,14 @@ class Jetpack_AI_Settings {
 	 * @var bool
 	 */
 	private static $initialized = false;
+
+	/**
+	 * Whether apply_master_gates() should step aside; see
+	 * {@see self::get_master_forced_off_route()}.
+	 *
+	 * @var bool
+	 */
+	private static $probing_third_party = false;
 
 	/**
 	 * Hook everything up. Must run on every request (front-end, editor, REST):
@@ -123,6 +158,7 @@ class Jetpack_AI_Settings {
 		// AI surfaces that do not flow through jetpack_ai_enabled.
 		add_filter( 'jetpack_search_ai_answers_enabled', array( __CLASS__, 'apply_master_gates' ) );
 		add_filter( 'jetpack_ai_sidebar_enabled', array( __CLASS__, 'apply_master_gates' ) );
+		add_filter( 'jetpack_ai_seo_enabled', array( __CLASS__, 'apply_master_gates' ) );
 	}
 
 	/**
@@ -138,11 +174,15 @@ class Jetpack_AI_Settings {
 			self::FEATURE_OPTIONS['writing_assistant'] => __( 'Whether the Jetpack AI writing assistant is enabled.', 'jetpack' ),
 			self::FEATURE_OPTIONS['image_editor']      => __( 'Whether the Jetpack AI image editor is enabled.', 'jetpack' ),
 			self::FEATURE_OPTIONS['feature_clip']      => __( 'Whether Jetpack AI video clip generation is enabled.', 'jetpack' ),
+			self::FEATURE_OPTIONS['ai_seo']            => __( 'Whether the Jetpack AI SEO features are enabled.', 'jetpack' ),
 		);
 
+		// These settings do not belong to Settings > General. A separate group
+		// prevents options.php from clearing values whose fields are absent from
+		// the General form.
 		foreach ( $options as $option => $description ) {
 			register_setting(
-				'general',
+				'jetpack_ai',
 				$option,
 				array(
 					'type'              => 'boolean',
@@ -196,7 +236,32 @@ class Jetpack_AI_Settings {
 	 * @return bool
 	 */
 	public static function apply_master_gates( $enabled ) {
-		return (bool) $enabled && self::host_allows_ai() && self::is_master_enabled();
+		// Stand aside while get_master_forced_off_route() asks the chain what
+		// everyone else says; our own verdict would drown theirs out.
+		if ( self::$probing_third_party ) {
+			return (bool) $enabled;
+		}
+
+		return (bool) $enabled
+			&& self::host_allows_ai()
+			&& ( ! self::should_enforce_ai_controls() || self::is_master_enabled() );
+	}
+
+	/**
+	 * Whether the AI controls — the master switch and the toggles this class owns
+	 * — take effect here. Simple keeps its existing option contract, self-hosted
+	 * sites use the Jetpack controls, and Atomic remains limited to internal testing.
+	 *
+	 * @return bool
+	 */
+	private static function should_enforce_ai_controls() {
+		$host = new Host();
+		if ( $host->is_wpcom_simple() ) {
+			return true;
+		}
+
+		return ! $host->is_woa_site()
+			|| ( function_exists( 'jetpack_is_internal_testing_environment' ) && jetpack_is_internal_testing_environment() );
 	}
 
 	/**
@@ -226,7 +291,7 @@ class Jetpack_AI_Settings {
 		 */
 		$enabled = (bool) apply_filters( 'jetpack_ai_enabled', $default );
 
-		return $enabled && self::host_allows_ai() && self::is_master_enabled();
+		return self::apply_master_gates( $enabled );
 	}
 
 	/**
@@ -260,6 +325,77 @@ class Jetpack_AI_Settings {
 		}
 
 		return ( new Modules() )->is_active( self::AI_MODULE );
+	}
+
+	/**
+	 * Whether the site's WordPress.com connection can carry AI. Offline mode
+	 * counts as disconnected even while the site holds its tokens, and Simple
+	 * sites are always connected.
+	 *
+	 * @return bool
+	 */
+	public static function site_is_connected() {
+		return ( new Host() )->is_wpcom_simple()
+			|| ( ( new Manager( 'jetpack' ) )->has_connected_owner()
+				&& ! ( new Status() )->is_offline_mode() );
+	}
+
+	/**
+	 * Whether the current user's own account is connected. Surfaces that proxy
+	 * as the requesting user need this on top of {@see self::site_is_connected()}.
+	 *
+	 * @return bool
+	 */
+	public static function user_is_connected() {
+		return ( new Host() )->is_wpcom_simple()
+			|| ( new Manager( 'jetpack' ) )->is_user_connected();
+	}
+
+	/**
+	 * Which hook custom code used to hold AI off, so the notice can link to the
+	 * matching documentation. Always empty on WordPress.com Simple, which runs
+	 * no modules.
+	 *
+	 * @return string One of the FORCED_OFF_ROUTE_* constants, or '' when nothing
+	 *                holds AI off.
+	 */
+	public static function get_master_forced_off_route() {
+		$host = new Host();
+
+		if ( $host->is_wpcom_simple() ) {
+			return '';
+		}
+
+		// Ask the chain with our own gates stood down, so a deactivated module
+		// cannot mask a filter that would keep AI off however the module is set.
+		$third_party_off           = false;
+		self::$probing_third_party = true;
+		try {
+			$third_party_off = ! apply_filters( 'jetpack_ai_enabled', true );
+		} finally {
+			self::$probing_third_party = false;
+		}
+
+		if ( $third_party_off ) {
+			return $host->is_vip_site()
+				? self::FORCED_OFF_ROUTE_FILTER_VIP
+				: self::FORCED_OFF_ROUTE_FILTER;
+		}
+
+		if ( self::is_master_enabled() ) {
+			return '';
+		}
+
+		// Removed from the available list by `jetpack_get_available_modules`.
+		if ( ! in_array( self::AI_MODULE, ( new Modules() )->get_available(), true ) ) {
+			return self::FORCED_OFF_ROUTE_MODULES;
+		}
+
+		// Forced off through `option_jetpack_active_modules` or `jetpack_active_modules`.
+		$overridden = class_exists( 'Jetpack_Modules_Overrides' )
+			&& 'inactive' === Jetpack_Modules_Overrides::instance()->get_module_override( self::AI_MODULE );
+
+		return $overridden ? self::FORCED_OFF_ROUTE_MODULES : '';
 	}
 
 	/**
@@ -297,6 +433,9 @@ class Jetpack_AI_Settings {
 	 * carries host + master). Only the matching option is read: a code-level
 	 * override belongs on the option itself, through core's own option filters.
 	 *
+	 * Not {@see self::is_ai_seo_enabled()}, which is this check for the `ai_seo`
+	 * key plus its filter and the site-wide gates. Use that one at load points.
+	 *
 	 * @param string $feature Feature key (see FEATURE_OPTIONS).
 	 * @return bool False for unknown features.
 	 */
@@ -305,18 +444,44 @@ class Jetpack_AI_Settings {
 			return false;
 		}
 
-		// WordPress.com Simple has no per-feature toggles. It keeps the existing
-		// wp.com settings contract, so the features Jetpack owns stay on there and
-		// the host and master gates remain the only controls. The reused SEO and
-		// Search options are deliberately excluded: they have their own settings
-		// surfaces on Simple and must keep honoring their stored values.
-		if ( in_array( $feature, self::OWNED_FEATURES, true ) && ( new Host() )->is_wpcom_simple() ) {
+		// The toggles this class owns stay on wherever they do not apply: Simple keeps
+		// the existing wp.com settings contract, while Atomic keeps them hidden.
+		// The reused Search option has its own settings surface, so it always honors
+		// its stored value.
+		if ( in_array( $feature, self::OWNED_FEATURES, true )
+			&& ( ( new Host() )->is_wpcom_simple() || ! self::should_enforce_ai_controls() ) ) {
 			return true;
 		}
 
 		$option = self::FEATURE_OPTIONS[ $feature ];
 
 		return (bool) get_option( $option, self::FEATURE_DEFAULTS[ $feature ] );
+	}
+
+	/**
+	 * Whether the AI SEO feature (metadata generation, manual and automatic)
+	 * is effectively enabled: its own toggle (gate 4) through the filter, with
+	 * the host and master gates ANDed after the chain so no late-priority
+	 * callback can turn the feature back on — same finality as is_ai_enabled().
+	 *
+	 * Not {@see self::is_feature_enabled()} with `ai_seo`, which is the stored
+	 * toggle alone. This is the one load points and payloads should read.
+	 *
+	 * @since 16.2
+	 *
+	 * @return bool
+	 */
+	public static function is_ai_seo_enabled() {
+		/**
+		 * Filter whether the Jetpack AI SEO feature is enabled.
+		 *
+		 * @since 16.2
+		 *
+		 * @param bool $enabled Whether the SEO feature toggle is on.
+		 */
+		$enabled = (bool) apply_filters( 'jetpack_ai_seo_enabled', self::is_feature_enabled( 'ai_seo' ) );
+
+		return self::apply_master_gates( $enabled );
 	}
 }
 

@@ -1,7 +1,12 @@
 /**
  * External dependencies
  */
-import { LineChart, Stack, type TickResolution } from '@jetpack-premium-analytics/externals';
+import {
+	LineChart,
+	Stack,
+	getBucketInfo,
+	type TickResolution,
+} from '@jetpack-premium-analytics/externals';
 import {
 	formatDate,
 	formatMetricValue,
@@ -16,26 +21,22 @@ import { type ComponentProps } from 'react';
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
-	formatTooltipSeriesLabel,
+	appendTooltipExtras,
+	formatTooltipPointLabel,
 	isEmptyChartData,
 	getFixedYAxis,
 	dateFormatForResolution,
 	resolveSeriesNames,
+	resolveTooltipNames,
 } from '../../helpers';
+import { useLockedPrimaryLegendItems } from '../../hooks/use-locked-primary-legend-items';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-line-chart.module.scss';
 import { alignSeriesDates } from './utils';
-import type { ComparativeLineChartSeries, SeriesStyle } from './types';
+import type { ComparativeLineChartSeries, SeriesStyle, TooltipExtraSeries } from './types';
 import type { DataFormat } from '../../types';
 
-/**
- * Resolves series styles from either the explicit styles prop or series options.
- * Priority: styles prop > series[].options fallback
- *
- * @param stylesFromProp - Explicit styles passed as component prop
- * @param series         - Series data (may contain options with styles)
- * @return Array of resolved styles, one per series
- */
+/** Series styles, with the explicit `styles` prop taking priority over `series[].options`. */
 function resolveSeriesStyles(
 	stylesFromProp: SeriesStyle[] | undefined,
 	series: ComparativeLineChartSeries[]
@@ -59,12 +60,6 @@ function resolveSeriesStyles(
 }
 
 /**
- * Default margin for charts.
- * Y-axis is on the left, so right margin is always 0.
- */
-const DEFAULT_MARGIN = { right: 0 };
-
-/**
  * Chart-area height (px) below which `compactWhenShort` degrades the chart to
  * a sparkline (no y-axis, grid, or legend).
  */
@@ -82,7 +77,6 @@ function applyStylesToSeries(
 		}
 
 		const { stroke, ...lineStyleProps } = style;
-
 		return {
 			...seriesItem,
 			options: {
@@ -94,25 +88,14 @@ function applyStylesToSeries(
 	} );
 }
 
-/**
- * Inferred types
- */
 type LineChartProps = ComponentProps< typeof LineChart >;
 type RenderTooltipParams = Parameters< NonNullable< LineChartProps[ 'renderTooltip' ] > >[ 0 ];
 
 export type ComparativeLineChartProps = {
-	/**
-	 * Array of series data to display in the chart.
-	 * Series can include styling via options.stroke and options.seriesLineStyle
-	 * as a fallback when styles prop is not provided.
-	 */
+	/** A series may carry its own `options.stroke` / `options.seriesLineStyle` as a fallback. */
 	series: ComparativeLineChartSeries[];
 
-	/**
-	 * Explicit styles for each series. When provided, these take priority
-	 * over any styles defined in series[].options.
-	 * Array index corresponds to series index.
-	 */
+	/** Styles by series index; these win over anything in `series[].options`. */
 	styles?: SeriesStyle[];
 
 	className?: string;
@@ -123,32 +106,36 @@ export type ComparativeLineChartProps = {
 	tickFormat?: DateFormatName;
 
 	/**
-	 * The series' bucket size. Declaring it lets the automatic tick formatter pick
-	 * its regime from a known granularity instead of measuring the gaps between
-	 * points, which a single-bucket or DST-shortened series gives it no way to
-	 * read. An explicit `tickFormat` still wins over both.
+	 * The series' bucket size. Declaring it lets the automatic tick formatter read its
+	 * regime from a known granularity rather than the gaps between points, which a
+	 * single-bucket or DST-shortened series makes unreadable.
 	 */
 	tickResolution?: TickResolution;
 
 	/**
 	 * Renders a point's date for a tooltip row, in the named format this chart
-	 * picked for it. Callers whose points are wall clocks (see `chart-date.ts`)
-	 * pass a variant that re-anchors them first; defaults to `formatDate`.
+	 * picked for it. Defaults to `formatDate`.
 	 */
 	formatTooltipDate?: ( date: Date, format: DateFormatName ) => string;
 
 	/**
-	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area
-	 * is too short for readable axis labels. Defaults to false.
+	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area is too
+	 * short for readable axis labels.
 	 */
 	compactWhenShort?: boolean;
 
 	/**
-	 * Let the reader click legend items to show and hide series. Off by default:
-	 * a chart drawing one metric has nothing to compare, and its periods collapse
-	 * into a single item, so clicking it would just empty the chart.
+	 * Let the reader click legend items to show and hide series; the first item stays
+	 * locked so the chart is never emptied. Off by default: a chart drawing one metric
+	 * has nothing to compare.
 	 */
 	legendInteractive?: boolean;
+
+	/**
+	 * Series the tooltip reads out but the chart does not draw; see
+	 * `TooltipExtraSeries` for what listing one changes about the rows.
+	 */
+	tooltipExtras?: TooltipExtraSeries[];
 } & Omit<
 	ComponentProps< typeof LineChart >,
 	| 'data'
@@ -176,8 +163,14 @@ export function ComparativeLineChart( {
 	compactWhenShort = false,
 	defaultHiddenSeries,
 	legendInteractive = false,
+	tooltipExtras,
+	onPointerDown,
+	onPointerUp,
+	onDatumActivate,
 }: ComparativeLineChartProps ) {
-	const tooltipDateFormat = dateFormatForResolution( tickResolution );
+	const tooltipDateFormat = dateFormatForResolution(
+		getBucketInfo( series, tickResolution ).displayResolution
+	);
 	// The measured Stack fills its container (flex), so its height is independent
 	// of whether the axis/legend are shown — no measure/hide feedback loop.
 	const [ chartAreaHeight, setChartAreaHeight ] = useState( Infinity );
@@ -194,29 +187,33 @@ export function ComparativeLineChart( {
 		[ stylesProp, series ]
 	);
 
-	const { seriesNames, isPaired } = useMemo( () => resolveSeriesNames( series ), [ series ] );
-	// A legend item names a metric; the solid mark against its previous-period
-	// twin is what tells the periods apart. So a metric's two periods always
-	// collapse into one item, whether or not a counterpart shares the chart.
+	const { seriesNames } = useMemo( () => resolveSeriesNames( series ), [ series ] );
+	// A metric's two periods collapse into one item; a single static Comparison period
+	// item explains the dashed overlay instead.
 	const legendConfig = useMemo(
-		() => ( { collapseGroups: true, interactive: legendInteractive } ),
+		() => ( { collapseGroups: true, comparisonItem: true, interactive: legendInteractive } ),
 		[ legendInteractive ]
 	);
 
-	// Comparison points sit on the primary series' dates, so the tooltip reads
-	// the `realDate` preserved by `alignSeriesDates`. A chart handed more than
-	// one metric prefixes every row with its metric: dates alone would name two
-	// rows the same as soon as the reader reveals the counterpart.
+	const tooltipNames = useMemo(
+		() => resolveTooltipNames( seriesNames, tooltipExtras ),
+		[ seriesNames, tooltipExtras ]
+	);
+
+	// Comparison points share the primary series' dates, so the tooltip reads back
+	// `realDate`.
 	const getTooltipLabel = useCallback(
-		( datum: { date: Date; realDate?: Date }, _index: number, key: string ): string => {
-			const name = seriesNames.get( key );
+		(
+			datum: { date: Date; realDate?: Date },
+			_index: number,
+			key: string,
+			value: string
+		): string => {
 			const displayDate = datum.realDate ?? datum.date;
 			const date = formatTooltipDate( displayDate, tooltipDateFormat );
-			// Without a name the row would otherwise lead with an internal label,
-			// so fall back to the date, which is always meaningful.
-			return isPaired && name ? formatTooltipSeriesLabel( name, date ) : date;
+			return formatTooltipPointLabel( value, tooltipNames.get( key ) ?? key, date );
 		},
-		[ seriesNames, isPaired, formatTooltipDate, tooltipDateFormat ]
+		[ tooltipNames, formatTooltipDate, tooltipDateFormat ]
 	);
 
 	// `resolvedStyles` follows `series`; the tooltip's rows need not, so pair them
@@ -225,32 +222,34 @@ export function ComparativeLineChart( {
 
 	const renderTooltip = useCallback(
 		( params: RenderTooltipParams ) => {
+			const { tooltipData, supplementaryRows } = appendTooltipExtras(
+				params.tooltipData,
+				tooltipExtras
+			);
+
 			return (
 				<ChartTooltip
-					tooltipData={ params.tooltipData }
+					tooltipData={ tooltipData }
 					dataFormat={ dataFormat }
 					seriesStyles={ resolvedStyles }
 					seriesKeys={ seriesKeys }
 					indicatorType="line"
+					layout="inline"
+					supplementaryRows={ supplementaryRows }
 					getLabel={ getTooltipLabel }
 				/>
 			);
 		},
-		[ dataFormat, resolvedStyles, seriesKeys, getTooltipLabel ]
+		[ dataFormat, resolvedStyles, seriesKeys, getTooltipLabel, tooltipExtras ]
 	);
 
-	// Multipliers and no decimals keep the y-axis tick labels short.
+	// Multipliers keep the tick labels short.
 	const yTickFormat = useMemo(
 		() => ( value: number ) =>
-			formatMetricValue( value, dataFormat.type, {
-				useMultipliers: true,
-				decimals: 0,
-			} ),
+			formatMetricValue( value, dataFormat.type, { useMultipliers: true } ),
 		[ dataFormat ]
 	);
 
-	// Comparison dates are aligned onto the primary series for the X axis; the
-	// originals stay in `realDate` for tooltips.
 	const alignedSeries = useMemo( () => alignSeriesDates( series ), [ series ] );
 
 	const styledSeries = useMemo( () => {
@@ -261,13 +260,20 @@ export function ComparativeLineChart( {
 		return applyStylesToSeries( alignedSeries, resolvedStyles );
 	}, [ stylesProp, alignedSeries, resolvedStyles ] );
 
-	const isEmptyData = useMemo( () => isEmptyChartData( styledSeries ), [ styledSeries ] );
+	const legendItems = useLockedPrimaryLegendItems( styledSeries, legendConfig, 'line' );
 
-	// A pinned domain for percentage metrics and all-zero periods, with the left
-	// margin its widest tick needs. Null lets the chart scale to the data.
+	const isEmptyData = useMemo( () => isEmptyChartData( styledSeries ), [ styledSeries ] );
+	// An all-zero selected metric must not hide the extras that do have data.
+	const hasTooltipRows = useMemo(
+		() => ! isEmptyData || ! isEmptyChartData( tooltipExtras ?? [] ),
+		[ isEmptyData, tooltipExtras ]
+	);
+
+	// A pinned domain for percentage metrics and all-zero periods. Null lets the
+	// chart scale to the data.
 	const fixedYAxis = useMemo(
-		() => getFixedYAxis( dataFormat.type, isEmptyData, yTickFormat ),
-		[ dataFormat.type, isEmptyData, yTickFormat ]
+		() => getFixedYAxis( dataFormat.type, isEmptyData ),
+		[ dataFormat.type, isEmptyData ]
 	);
 
 	const xTickFormat = useCallback(
@@ -279,9 +285,8 @@ export function ComparativeLineChart( {
 		const baseOptions = {
 			axis: {
 				x: {
-					// Must stay conditional: `formatDate` defaults to `medium`, so an
-					// unconditional `xTickFormat` would put full site-format dates on every
-					// tick. Without the prop, the chart library's own tick labels stay in use.
+					// Must stay conditional: `formatDate` defaults to `medium`, so passing
+					// `xTickFormat` unconditionally puts full dates on every tick.
 					tickFormat: xTickFormatType ? xTickFormat : undefined,
 					tickResolution,
 				},
@@ -300,8 +305,6 @@ export function ComparativeLineChart( {
 		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
 	}, [ xTickFormat, xTickFormatType, tickResolution, yTickFormat, fixedYAxis, isCompact ] );
 
-	const margin = fixedYAxis ? { ...DEFAULT_MARGIN, left: fixedYAxis.marginLeft } : DEFAULT_MARGIN;
-
 	return (
 		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>
 			<LineChart
@@ -310,11 +313,7 @@ export function ComparativeLineChart( {
 				data={ styledSeries }
 				options={ chartOptions }
 				defaultHiddenSeries={ defaultHiddenSeries }
-				// Paired metrics collapse each current/comparison group into one item;
-				// single-metric charts retain their two period labels.
 				legend={ legendConfig }
-				// With the y-axis hidden, reclaim its reserved left margin for the line.
-				margin={ isCompact ? { ...margin, left: 0 } : margin }
 				maxWidth={ maxWidth }
 				gridVisibility={ isCompact ? 'none' : undefined }
 				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
@@ -322,13 +321,15 @@ export function ComparativeLineChart( {
 				showLegend={ false }
 				curveType="monotone"
 				withGradientFill
-				withTooltips={ !! renderTooltip && ! isEmptyData }
+				withTooltips={ !! renderTooltip && hasTooltipRows }
 				renderTooltip={ renderTooltip }
+				onPointerDown={ onPointerDown }
+				onPointerUp={ onPointerUp }
+				onDatumActivate={ onDatumActivate }
 			>
-				{ /* Names the metrics; the solid line against its dashed overlay is what
-				     tells the current period from the previous one. */ }
 				{ ! isCompact && (
 					<LineChart.Legend
+						items={ legendItems }
 						interactive={ legendInteractive }
 						shape="line"
 						className={ styles.legend }

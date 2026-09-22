@@ -2,19 +2,14 @@
 /**
  * VideoPress availability, shared by the widget layer and the client routes.
  *
- * Calypso gates its Videos module on the `videopress` plan feature, which
- * `wpcom_site_has_feature()` answers on the WPCOM platform. That function does
- * not exist off-platform. `Current_Plan::supports()` grants `videopress` to
- * every plan because of the free tier, while
- * `Product::get_site_features_from_wpcom()` can make a synchronous WPCOM
- * request and answers entitlement rather than whether VideoPress is running.
- * The off-platform question is therefore answered from the module or plugin.
+ * Calypso gates its Videos module on the `videopress` plan feature, which `wpcom_site_has_feature()`
+ * answers on the WPCOM platform but which does not exist off-platform. `Current_Plan::supports()`
+ * grants `videopress` to every plan because of the free tier, and `Product::get_site_features_from_wpcom()`
+ * answers entitlement rather than whether VideoPress is running, over a synchronous WPCOM request.
  *
- * The canonical gates already exist: `VideoPress\Status::is_active()` for the
- * off-platform branch, the WPCOM arm of `Current_Plan::supports()` for the
- * platform one. Neither `jetpack-videopress` nor `jetpack-plans` is in this
- * package's dependency graph, so the detection below is local by necessity.
- * Widen the graph before writing another detector.
+ * The canonical gates (`VideoPress\Status::is_active()`, the WPCOM arm of `Current_Plan::supports()`)
+ * live in packages this one does not depend on, so the detection below is local by necessity. Widen
+ * the dependency graph before writing another detector.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -35,22 +30,14 @@ const VIDEOPRESS_AVAILABLE_FILTER = 'jetpack_premium_analytics_videopress_availa
 /**
  * Whether the site can produce VideoPress play data.
  *
- * Atomic reads the plan feature alongside Simple, not the module: wpcomsh
- * provides `wpcom_site_has_feature()` there, and the VideoPress module has no
- * `Auto Activate` header, so a plan that includes VideoPress routinely comes
- * with the module off. wpcomsh grants `videopress` to every business-and-higher
- * plan and WoA only exists on those, so the platform branch effectively gates
- * Simple alone: an Atomic site with the module off keeps the video surfaces.
- * That is intended — hosting is service-level on WPCOM, so the module would be
- * a false negative there.
+ * Atomic reads the plan feature alongside Simple, not the module: wpcomsh provides
+ * `wpcom_site_has_feature()` there, and the VideoPress module has no `Auto Activate` header, so a
+ * plan that includes VideoPress routinely comes with the module off. An Atomic site with the module
+ * off therefore keeps the video surfaces, which is intended — hosting is service-level on WPCOM.
  *
- * Off-platform the question becomes "is VideoPress running here", not "is it
- * paid for" — without the module there is no new play data to report. That is
- * deliberately narrower than `Initial_State::has_videopress_access()`, which
- * never looks at the module and counts the paid storage tiers instead.
- *
- * `Current_Plan::supports( 'videopress' )` is avoided because off-platform it
- * returns true for every plan, thanks to the VideoPress free tier.
+ * Off-platform the question becomes "is VideoPress running here", not "is it paid for": without the
+ * module there is no new play data. Deliberately narrower than
+ * `Initial_State::has_videopress_access()`, which counts the paid storage tiers instead.
  *
  * @return bool Whether Premium Analytics treats VideoPress as available.
  */
@@ -87,9 +74,8 @@ function configure_videopress_availability() {
 /**
  * Injects the VideoPress availability flag into JetpackScriptData.
  *
- * The client cannot read `site.plan.features` for this: that key is only
- * populated when the Publicize package happens to be loaded, which the
- * standalone Premium Analytics plugin never loads.
+ * The client can't read `site.plan.features` here: that key is only populated when the
+ * Publicize package happens to load, which the standalone Premium Analytics plugin never does.
  *
  * @param array $data The script data passed by the assets package.
  * @return array

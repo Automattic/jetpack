@@ -7,16 +7,20 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		return;
 	}
 
-	wpcomTrackEvent( 'jetpack_ai_assistant_banner_impression' );
+	// Shared context props, computed server-side. Defensive fallback so the
+	// events still fire prop-less if the global is ever absent.
+	const trackProps = window.wpcomAiAssistantBanner?.trackProps || {};
+
+	wpcomTrackEvent( 'jetpack_ai_assistant_banner_impression', trackProps );
 
 	const ctaBtn = banner.querySelector( '.button-secondary' );
 	ctaBtn?.addEventListener( 'click', () => {
-		wpcomTrackEvent( 'jetpack_ai_assistant_banner_cta_click' );
+		wpcomTrackEvent( 'jetpack_ai_assistant_banner_cta_click', trackProps );
 	} );
 
 	const attachDismissHandler = btn => {
 		btn.addEventListener( 'click', () => {
-			wpcomTrackEvent( 'jetpack_ai_assistant_banner_dismiss' );
+			wpcomTrackEvent( 'jetpack_ai_assistant_banner_dismiss', trackProps );
 
 			const body = new FormData();
 			body.append( 'action', 'dismiss_ai_assistant_banner' );

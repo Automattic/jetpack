@@ -9,7 +9,13 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	siteTimeZoneArgTypes,
+	withSiteTimeZone,
+	type SiteTimeZoneControls,
+} from '../../stories/with-site-time-zone';
 import {
 	registerReportMocks,
 	setReportMockState,
@@ -29,7 +35,7 @@ const TRAFFIC_CHART_RENDER_MODULE = 'storybook/traffic-chart';
 // story's settings drawer renders the real controls.
 const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
-interface TrafficChartStoryControls {
+interface TrafficChartStoryControls extends SiteTimeZoneControls {
 	withComparison: boolean;
 	chartType: TrafficChartType;
 }
@@ -65,7 +71,11 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/TrafficChart',
 	component: TrafficChartRender,
 	tags: [ 'autodocs' ],
+	// The widget reads the report window off the route to drill on a click, so it
+	// needs a router even in the close-up stories that mount it without a dashboard.
+	decorators: [ withStoryRouter, withSiteTimeZone ],
 	argTypes: {
+		...siteTimeZoneArgTypes,
 		withComparison: { control: 'boolean' },
 		...CHART_TYPE_ARG_TYPES,
 	},
@@ -73,7 +83,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					"Traffic over the selected period as selectable metric tabs — Views, Visitors, Likes, and Comments — over a comparative chart. The date range and comparison come from the dashboard controls. \"Group by\" is the `granularity` attribute and \"Chart type\" the `chartType` attribute (both `relevance: 'high'`, so the host renders them in the widget header). The bucket opens on whatever the page's interval control resolves to, clamped to one the chart can draw; changing it redraws this widget alone and leaves the page's interval untouched, and it goes back to following the page the next time that interval moves. Which metric is plotted is the chart's own tab selection. When comparison is on, each tab shows its period-over-period delta and the previous period is overlaid — as a same-colour dashed line for `line`, or as the translucent shadow bar behind each bar for `bar`. Views/visitors and likes/comments are fetched as two parallel requests (mirroring Calypso) to keep latency down; the likes and comments request is skipped at the hourly grain, which cannot fill either. Data comes from the `useStatsVisits` hook; in Storybook it is served by `registerReportMocks`.",
+					"Traffic over the selected period as selectable metric tabs — Views, Visitors, Likes, and Comments — over a comparative chart. The date range, comparison, and bucket size come from the dashboard controls: the bucket is whatever the page's interval control resolves to, clamped to one the chart can draw. \"Chart type\" is the `chartType` attribute (`relevance: 'high'`, so the host renders it in the widget header). Which metric is plotted is the chart's own tab selection. When comparison is on, each tab shows its period-over-period delta and the previous period is overlaid — as a same-colour dashed line for `line`, or as the translucent shadow bar behind each bar for `bar`. Views/visitors and likes/comments are fetched as two parallel requests (mirroring Calypso) to keep latency down; the likes and comments request is skipped at the hourly grain, which cannot fill either. Data comes from the `useStatsVisits` hook; in Storybook it is served by `registerReportMocks`.",
 			},
 		},
 	},
@@ -184,8 +194,7 @@ export const Empty: Story = {
 };
 
 interface TrafficChartDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		TrafficChartStoryControls {}
+	extends WidgetDashboardWithWidgetControls, TrafficChartStoryControls {}
 
 function TrafficChartDashboardStory( {
 	withComparison,

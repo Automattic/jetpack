@@ -10,10 +10,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  */
 import { SelectField } from '@jetpack-premium-analytics/fields';
 
-/**
- * Which rate the leaderboard displays. Rows stay in newest-first order
- * regardless; this only changes the value shown and the overlay bar width.
- */
+/** Which count and rate each row shows. Rows stay in newest-first order either way. */
 export type EmailMetric = 'opens' | 'clicks';
 
 /**
@@ -22,20 +19,13 @@ export type EmailMetric = 'opens' | 'clicks';
  * through to `render.tsx`.
  */
 export type EmailsAttributes = {
-	/**
-	 * Which rate to display. Defaults to `opens`.
-	 */
 	metric?: EmailMetric;
 };
 
 /**
- * Widget type definition.
- *
- * Ported from the Jetpack Stats "Emails" module. Lists the most recently sent
- * emails with their open and click rates. The displayed rate is the `metric`
- * attribute (`relevance: 'high'`), so the widget host renders its control.
- * The summary endpoint reports across the whole lifetime of the site, so
- * there is no date range or comparison period.
+ * Ported from the Jetpack Stats "Emails" module. The summary endpoint reports
+ * across the whole lifetime of the site, so there is no date range or
+ * comparison period.
  */
 export default {
 	icon: envelope,
@@ -47,11 +37,11 @@ export default {
 			Edit: SelectField,
 			elements: [
 				{
-					label: __( 'By open rate', 'jetpack-premium-analytics-pkg' ),
+					label: __( 'Opened', 'jetpack-premium-analytics-pkg' ),
 					value: 'opens',
 				},
 				{
-					label: __( 'By click rate', 'jetpack-premium-analytics-pkg' ),
+					label: __( 'Clicked', 'jetpack-premium-analytics-pkg' ),
 					value: 'clicks',
 				},
 			],

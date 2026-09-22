@@ -34,8 +34,7 @@ function withSite( timeFormat: string, offset: number, locale = 'en' ) {
  * The label with its spaces flattened.
  *
  * `Intl` separates the hour from its meridiem with a narrow no-break space, and
- * which space that is has moved between ICU versions. The tests are about the
- * hour, not the character between its parts.
+ * which space that is has moved between ICU versions.
  *
  * @param hour - Site-local hour, 0-23.
  * @return The label, with every space rendered as U+0020.

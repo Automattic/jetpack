@@ -43,10 +43,6 @@ $widget-breakpoints: (
 	// 672px - Full-width widgets
 ) !default;
 
-// Inline-size at or above which a widget cell is wide enough to lay metric
-// tiles out in a row instead of stacking them.
-$widget-wide-min-inline-size: 640px !default;
-
 // Block-size below which a widget body has no room for its chrome, and
 // components drop it: state icons, a wide metric tile's roomier padding, the
 // report link. At the dashboard's default 200px row height it falls between a

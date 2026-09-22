@@ -1,5 +1,5 @@
 import { getInput } from '@actions/core';
-import type { IssueComment } from '@octokit/webhooks-types';
+import type { IssueComment } from '../../types.ts';
 
 /**
  * Check if the issue has a comment with a list of support references,
@@ -15,7 +15,7 @@ async function hasManySupportReferences( issueComments: IssueComment[] ): Promis
 
 	for ( const comment of issueComments ) {
 		if (
-			comment.user.login === 'github-actions[bot]' &&
+			comment.user?.login === 'github-actions[bot]' &&
 			comment.body.includes( '**Support References**' )
 		) {
 			// Count the number of to-do items in the comment.

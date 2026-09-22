@@ -501,6 +501,49 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
+	 * Deleting the tokens directly must invalidate the memoized connection status.
+	 *
+	 * `Tokens::delete_all()` is reachable without going through a disconnect — `get_access_token()`
+	 * calls it when the token lock names a different site URL — so it has to invalidate on its own.
+	 */
+	public function test_deleting_tokens_invalidates_memoized_connection_status() {
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		Jetpack_Options::update_option( 'id', 1234 );
+		( new Manager() )->reset_connection_status();
+		$this->assertTrue( ( new Manager() )->is_connected(), 'Test setup failed: site should be connected.' );
+
+		( new Tokens() )->delete_all();
+
+		$this->assertFalse(
+			( new Manager() )->is_connected(),
+			'is_connected() should recompute after the tokens are deleted, without an explicit reset.'
+		);
+	}
+
+	/**
+	 * A failed re-registration must not leave `is_connected()` reporting the pre-teardown state.
+	 *
+	 * `Manager::register()` deletes the existing tokens before requesting new ones. When that
+	 * request fails the site is left with a blog ID and no tokens, and the memoized status has to
+	 * reflect that for the rest of the request.
+	 */
+	public function test_connection_status_is_invalidated_when_tokens_are_deleted_without_a_disconnect() {
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		Jetpack_Options::update_option( 'id', 1234 );
+		( new Manager() )->reset_connection_status();
+		$this->assertTrue( ( new Manager() )->is_connected(), 'Test setup failed: site should be connected.' );
+
+		// The cleanup `register()` performs before it asks WordPress.com for new tokens.
+		( new Manager() )->delete_all_connection_tokens( true );
+
+		$this->assertSame( 1234, Jetpack_Options::get_option( 'id' ), 'Test setup failed: the blog ID should survive the token deletion.' );
+		$this->assertFalse(
+			( new Manager() )->is_connected(),
+			'is_connected() should be false once the tokens are gone, even though the blog ID remains.'
+		);
+	}
+
+	/**
 	 * Unit test for the "Disconnect from WP" functionality.
 	 */
 	public function test_disconnect_site_wpcom() {
@@ -1393,7 +1436,7 @@ class ManagerTest extends TestCase {
 	 * `ArrayIterator::__construct()` object-backing notice once that error
 	 * object is iterated by the WP HTTP Requests library downstream.
 	 *
-	 * Compatible with PHP <8.1 where `setStaticPropertyValue()` cannot reach
+	 * Compatible with PHP <7.4.9 where `setStaticPropertyValue()` cannot reach
 	 * private static properties without `setAccessible(true)`.
 	 */
 	private function reset_plugin_storage() {
@@ -1401,7 +1444,7 @@ class ManagerTest extends TestCase {
 		try {
 			$reflection->setStaticPropertyValue( 'configured', true );
 			$reflection->setStaticPropertyValue( 'plugins', array() );
-		} catch ( \ReflectionException $e ) { // PHP <8.1: private statics need setAccessible.
+		} catch ( \ReflectionException $e ) { // PHP <7.4.9: setStaticPropertyValue can only access public properties
 			$values = array(
 				'configured' => true,
 				'plugins'    => array(),

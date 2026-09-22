@@ -19,7 +19,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
-		pointsAreWallClocks,
 	}: {
 		metrics: {
 			key: string;
@@ -29,12 +28,10 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			dataFormat?: { type: string };
 		}[];
 		chartType?: string;
-		pointsAreWallClocks?: boolean;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
 			data-chart-type={ String( chartType ) }
-			data-wall-clocks={ String( pointsAreWallClocks ) }
 			data-metrics={ JSON.stringify(
 				metrics.map( metric => ( {
 					key: metric.key,
@@ -92,9 +89,8 @@ const WINDOW_PARAMS = {
 	post_id: 779,
 };
 
-// A 28-day window, the shortest that allows a weekly interval: `WidgetRoot`
-// normalizes report params through `resolveIntervalForRange`, so an interval
-// the range disallows is coerced away before the widget ever sees it.
+// 28 days, the shortest window allowing a weekly interval: `WidgetRoot` coerces
+// an interval the range disallows away before the widget ever sees it.
 const WEEKLY_WINDOW_PARAMS = {
 	...DEFAULT_PARAMS,
 	from: '2026-06-22T00:00:00.000+08:00',
@@ -124,18 +120,17 @@ describe( 'PostViewsWidget', () => {
 		// two in-window days; the 6/25 day falls outside the window.
 		expect( metrics[ 0 ].values ).toEqual( [ 0, 5, 0, 7, 0, 0, 0 ] );
 		// The metric headline is the window total, and the chart type
-		// defaults to line.
+		// defaults to bars.
 		expect( metrics[ 0 ].value ).toBe( 12 );
-		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( 'stats/post/779' );
 	} );
 
 	it( 'anchors bucket days at site-local midnight so negative-offset sites keep the calendar day', async () => {
-		// A UTC-12 site: a date-only bucket key parsed as UTC midnight would
-		// render as the previous day once formatted in the site timezone. The
-		// point instant must be the key's site-local midnight instead.
+		// On a UTC-12 site, a date-only bucket key parsed as UTC midnight would
+		// render as the previous day once formatted in the site timezone.
 		const defaultSettings = getSettings();
 		setSettings( {
 			...defaultSettings,
@@ -166,13 +161,13 @@ describe( 'PostViewsWidget', () => {
 		expect( chartedMetrics( chart )[ 0 ].values ).toEqual( [ 9, 12, 0, 0 ] );
 	} );
 
-	it( 'draws bars when the chartType attribute says so', async () => {
+	it( 'draws a line when the chartType attribute says so', async () => {
 		mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
 
-		render( <PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS, chartType: 'bar' } } /> );
+		render( <PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS, chartType: 'line' } } /> );
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
 	} );
 
 	it( 'ignores comparison report params: one request, single series', async () => {
@@ -183,10 +178,8 @@ describe( 'PostViewsWidget', () => {
 				attributes={ {
 					reportParams: {
 						...WINDOW_PARAMS,
-						// Comparison params pass through the post detail URL untouched
-						// (dashboard state survives the round trip), so a widget
-						// receiving them must neither draw an overlay nor change the
-						// primary series — the page renders no comparison.
+						// Comparison params pass through the post detail URL untouched, so
+						// a widget receiving them must still render no comparison.
 						comp: '1',
 						compare_from: '2026-06-24T00:00:00.000+08:00',
 						compare_to: '2026-06-30T23:59:59.999+08:00',

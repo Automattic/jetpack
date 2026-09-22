@@ -27,6 +27,7 @@ export type ReportQueryParams = Partial<
 		RequestReportSessionsByDeviceParams
 >;
 
+export { disableDashboard } from './dashboard-enablement';
 export { fetchReportOrders } from './report-orders-fetch';
 export {
 	fetchReportOrderAttributionSummary,
@@ -57,3 +58,8 @@ export {
 	type StatsProxyParams,
 	type StatsProxyVersion,
 } from './stats-proxy-fetch';
+export {
+	submitStatsUserFeedback,
+	type StatsFeedbackRating,
+	type StatsUserFeedback,
+} from './stats-user-feedback';

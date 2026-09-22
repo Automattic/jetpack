@@ -17,6 +17,13 @@ const setupFeatures = ( ...active ) => {
 	} );
 };
 
+const setupSimpleSite = () => {
+	mockScriptData( {
+		site: { host: 'wpcom', suffix: 'example.wordpress.com', plan: { features: { active: [] } } },
+		social: { upgrade: { plan_slug: 'business-bundle', plan_name: 'Business' } },
+	} );
+};
+
 describe( 'ConnectionTemplateEditor', () => {
 	afterEach( () => {
 		clearMockedScriptData();
@@ -81,15 +88,41 @@ describe( 'ConnectionTemplateEditor', () => {
 		).toHaveValue( 'Read my latest: {url}' );
 	} );
 
-	test( 'renders nothing on Simple sites when the site lacks paid features', () => {
-		mockScriptData( {
-			site: { host: 'wpcom', plan: { features: { active: [] } } },
-		} );
+	test( 'shows Simple sites the locked upsell instead of hiding the editor', () => {
+		setupSimpleSite();
 		setup();
 
-		const { container } = render( <ConnectionTemplateEditor connection={ FB } /> );
+		render( <ConnectionTemplateEditor connection={ FB } /> );
 
-		expect( container ).toBeEmptyDOMElement();
+		expect(
+			screen.getByRole( 'textbox', { name: /Custom message for this connection/i } )
+		).toBeDisabled();
+	} );
+
+	test( 'points Simple sites at the WordPress.com plans page', () => {
+		setupSimpleSite();
+		setup();
+
+		render( <ConnectionTemplateEditor connection={ FB } /> );
+
+		const url = new URL(
+			screen.getByRole( 'link', { name: /upgrade to the Business plan/i } ).getAttribute( 'href' )
+		);
+
+		expect( url.origin + url.pathname ).toBe( 'https://wordpress.com/plans/example.wordpress.com' );
+		expect( url.searchParams.get( 'plan' ) ).toBe( 'business-bundle' );
+	} );
+
+	test( 'keeps the Jetpack redirect service for self-hosted sites', () => {
+		setupFeatures();
+		setup();
+
+		render( <ConnectionTemplateEditor connection={ FB } /> );
+
+		expect( screen.getByRole( 'link', { name: /upgrade your plan/i } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( 'source=jetpack-social-per-connection-template-upsell' )
+		);
 	} );
 
 	test( 'renders nothing when the user cannot manage the connection', () => {

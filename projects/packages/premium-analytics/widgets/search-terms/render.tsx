@@ -12,6 +12,7 @@ import {
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	buildLeaderboardRow,
 	sharePercentage,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -20,7 +21,7 @@ import {
 import { search } from '@jetpack-premium-analytics/icons';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@jetpack-premium-analytics/externals';
+import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -55,11 +56,11 @@ function SearchTermsInner() {
 
 			return {
 				id: `${ index }-${ term.label }`,
-				label: (
-					<Stack align="center" className={ styles.itemLabel }>
-						<Text className={ styles.itemLabelText }>{ term.label }</Text>
-					</Stack>
-				),
+				...buildLeaderboardRow( {
+					label: term.label,
+					media: { kind: 'none' },
+					action: { kind: 'static' },
+				} ),
 				currentValue: term.views,
 				previousValue: previousViews,
 				currentShare: sharePercentage( term.views, maxValue ),

@@ -25,12 +25,14 @@ echo '#!/usr/bin/env bash' > /var/scripts/run-extras.sh
 echo "::endgroup::"
 
 echo "::group::Install WordPress"
-wp --allow-root core install --url="$WP_DOMAIN" --title="$WP_TITLE" --admin_user="$WP_ADMIN_USER" --admin_password="$WP_ADMIN_PASSWORD" --admin_email="$WP_ADMIN_EMAIL" --skip-email
+wp core install --url="$WP_DOMAIN" --title="$WP_TITLE" --admin_user="$WP_ADMIN_USER" --admin_password="$WP_ADMIN_PASSWORD" --admin_email="$WP_ADMIN_EMAIL" --skip-email
 rm -f index.html
 mkdir -p wp-content/mu-plugins
 cp "$GITHUB_WORKSPACE/trunk/.github/files/test-plugin-update/mu-plugin.php" wp-content/mu-plugins/hack.php
+# wp-cron's async requests sometimes wind up running during the upgrade, causing spurious fatals. Disable it.
+wp config add DISABLE_WP_CRON true --raw
 echo "::endgroup::"
 
 echo "::group::Backing up database"
-wp --allow-root db export "$GITHUB_WORKSPACE/db.sql"
+wp db export "$GITHUB_WORKSPACE/db.sql"
 echo "::endgroup::"

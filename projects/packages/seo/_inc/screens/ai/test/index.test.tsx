@@ -14,7 +14,7 @@ import type { AiForm } from '../../../data/use-ai';
  * @return A form controller for AiScreen with the enhancer hidden.
  */
 const formWith = ( canServe: boolean ): AiForm => ( {
-	enhancer: { available: false, enabled: false },
+	enhancer: { available: false, enabled: false, aiSeoEnabled: true },
 	llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe },
 	crawlers: null,
 	isSaving: false,
@@ -247,7 +247,7 @@ describe( 'AiScreen (GEO tab) — crawler policy state', () => {
  */
 const allModulesForm = (): AiForm => ( {
 	...crawlerForm(),
-	enhancer: { available: true, enabled: false },
+	enhancer: { available: true, enabled: false, aiSeoEnabled: true },
 	llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe: true },
 } );
 
@@ -394,5 +394,45 @@ describe( 'AiScreen (GEO tab) — module titles', () => {
 		expect( heading.querySelector( 'svg' ) ).toBeInTheDocument();
 		// eslint-disable-next-line testing-library/no-node-access -- the heading/trigger nesting is the contract.
 		expect( screen.getByText( 'AI crawler access' ).closest( 'h2' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'AiScreen (AI tab) — the AI SEO Enhancer card', () => {
+	// Same treatment the Traffic page gives it: disabled with an explanation
+	// rather than hidden, so the saved choice stays visible.
+	it( 'disables the toggle and explains why while the AI SEO control is off', () => {
+		render(
+			<AiScreen
+				form={ {
+					...allModulesForm(),
+					enhancer: { available: true, enabled: true, aiSeoEnabled: false },
+				} }
+				searchEnginesVisible
+				onManageVisibility={ noop }
+			/>
+		);
+
+		expect(
+			screen.getByRole( 'checkbox', { name: /Automatically generate SEO title/ } )
+		).toBeDisabled();
+		expect( screen.getByText( /AI SEO is turned off for this site/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'leaves the toggle usable while the AI SEO control is on', () => {
+		render(
+			<AiScreen
+				form={ {
+					...allModulesForm(),
+					enhancer: { available: true, enabled: true, aiSeoEnabled: true },
+				} }
+				searchEnginesVisible
+				onManageVisibility={ noop }
+			/>
+		);
+
+		expect(
+			screen.getByRole( 'checkbox', { name: /Automatically generate SEO title/ } )
+		).toBeEnabled();
+		expect( screen.queryByText( /AI SEO is turned off for this site/ ) ).not.toBeInTheDocument();
 	} );
 } );

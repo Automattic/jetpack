@@ -22,6 +22,7 @@ const mockGetSiteData = jest.fn();
 const mockGetSiteType = jest.fn();
 const mockGetScriptData = jest.fn();
 const mockIsWpcomPlatformSite = jest.fn();
+const mockIsSimpleSite = jest.fn();
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	__esModule: true,
@@ -29,6 +30,7 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getSiteType: ( ...args: unknown[] ) => mockGetSiteType( ...args ),
 	getScriptData: ( ...args: unknown[] ) => mockGetScriptData( ...args ),
 	isWpcomPlatformSite: ( ...args: unknown[] ) => mockIsWpcomPlatformSite( ...args ),
+	isSimpleSite: ( ...args: unknown[] ) => mockIsSimpleSite( ...args ),
 } ) );
 
 const mockInitialize = jest.fn();
@@ -110,7 +112,7 @@ describe( 'WritingPrompt widget empty state', () => {
 		).toHaveAttribute( 'href', 'https://wordpress.com/reader?origin_site_id=12345' );
 
 		// None of the prompt-only controls should render without a prompt.
-		expect( screen.queryByRole( 'button', { name: 'Post your answer' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Post your answer' } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: /Next/ } ) ).not.toBeInTheDocument();
 	} );
 
@@ -231,7 +233,6 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 			name: /Read the blogs and topics you follow/,
 		} );
 		expect( readerLink ).toHaveAttribute( 'target', '_blank' );
-		expect( readerLink ).toHaveAttribute( 'rel', expect.stringContaining( 'noopener' ) );
 	} );
 
 	it( 'opens the Reader link in the same tab on wpcom platforms', async () => {
@@ -244,7 +245,6 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 			name: /Read the blogs and topics you follow/,
 		} );
 		expect( readerLink ).not.toHaveAttribute( 'target' );
-		expect( readerLink ).not.toHaveAttribute( 'rel' );
 	} );
 
 	it( 'falls back to the bare Reader URL when site data is unavailable', async () => {
@@ -423,24 +423,38 @@ describe( 'WritingPrompt widget analytics', () => {
 	it( 'records a post-answer event with the prompt id when Post your answer is clicked', async () => {
 		render( <WritingPrompt /> );
 
-		const postAnswerButton = await screen.findByRole( 'button', { name: 'Post your answer' } );
-		postAnswerButton.click();
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		// WordPress.com-platform site (isWpcomPlatformSite() true) → Write editor.
+		expect( postAnswerLink ).toHaveAttribute(
+			'href',
+			'admin.php?page=write&answer_prompt=1&source=writing_prompt'
+		);
+		postAnswerLink.addEventListener( 'click', event => event.preventDefault() );
+		postAnswerLink.click();
 
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			'jetpack_newsletter_writing_prompt_post_answer_click',
-			{ site_type: 'jetpack', prompt_id: 1 }
+			{ site_type: 'jetpack', prompt_id: 1, editor: 'write' }
 		);
+	} );
 
-		// Posting an answer assigns document.location to navigate to the editor;
-		// jsdom cannot perform that navigation and logs an expected error, which
-		// @wordpress/jest-console requires us to acknowledge.
-		expect( console ).toHaveErrored();
+	it( 'points Post your answer at the classic new-post screen on self-hosted sites', async () => {
+		// Self-hosted (not a WordPress.com-platform site): the Write editor
+		// isn't available, so fall back to post-new.php, where the
+		// jetpack/blogging-prompt block editor script seeds the same prompt.
+		mockIsWpcomPlatformSite.mockReturnValue( false );
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute( 'href', 'post-new.php?answer_prompt=1' );
 	} );
 
 	it( 'records a view-responses event with the prompt id when View responses is clicked', async () => {
 		render( <WritingPrompt /> );
 
 		const responsesLink = await screen.findByRole( 'link', { name: /View responses/ } );
+		responsesLink.addEventListener( 'click', event => event.preventDefault() );
 		responsesLink.click();
 
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
@@ -455,11 +469,109 @@ describe( 'WritingPrompt widget analytics', () => {
 		const readerLink = await screen.findByRole( 'link', {
 			name: /Read the blogs and topics you follow/,
 		} );
+		readerLink.addEventListener( 'click', event => event.preventDefault() );
 		readerLink.click();
 
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			'jetpack_newsletter_writing_prompt_reader_click',
 			{ site_type: 'jetpack' }
+		);
+	} );
+} );
+
+describe( 'WritingPrompt widget editor preference', () => {
+	// Written by the Write editor when someone leaves it for the Block editor.
+	// See projects/packages/jetpack-mu-wpcom/src/features/write/view.js.
+	const BLOCK_EDITOR_PREFERRED_STORAGE_KEY = 'wpcom-write-block-editor-preferred';
+
+	beforeEach( () => {
+		mockApiFetch.mockReset();
+		mockGetSiteData.mockReset();
+		mockGetSiteType.mockReset();
+		mockGetScriptData.mockReset();
+		mockIsWpcomPlatformSite.mockReset();
+		mockIsSimpleSite.mockReset();
+		mockRecordEvent.mockReset();
+
+		mockApiFetch.mockResolvedValue( [ PROMPT ] );
+		mockGetSiteData.mockReturnValue( { wpcom: { blog_id: 12345 } } );
+		mockGetSiteType.mockReturnValue( 'jetpack' );
+		mockGetScriptData.mockReturnValue( {} );
+		mockIsWpcomPlatformSite.mockReturnValue( true );
+		mockIsSimpleSite.mockReturnValue( false );
+
+		window.localStorage.clear();
+	} );
+
+	afterEach( () => {
+		window.localStorage.clear();
+		jest.restoreAllMocks();
+	} );
+
+	it( 'points Post your answer at the classic new-post screen once Write has been opted out of', async () => {
+		window.localStorage.setItem( BLOCK_EDITOR_PREFERRED_STORAGE_KEY, '1' );
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute( 'href', 'post-new.php?answer_prompt=1' );
+	} );
+
+	it( 'records the Block editor as the destination once Write has been opted out of', async () => {
+		window.localStorage.setItem( BLOCK_EDITOR_PREFERRED_STORAGE_KEY, '1' );
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		postAnswerLink.addEventListener( 'click', event => event.preventDefault() );
+		postAnswerLink.click();
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_newsletter_writing_prompt_post_answer_click',
+			{ site_type: 'jetpack', prompt_id: 1, editor: 'block' }
+		);
+	} );
+
+	it( 'sends an opted-out Simple site to the Calypso editor, which seeds the prompt there', async () => {
+		// post-new.php only seeds the prompt block via the Jetpack plugin's editor
+		// script, which Simple does not run: the tags land but the editor is empty.
+		mockIsSimpleSite.mockReturnValue( true );
+		window.localStorage.setItem( BLOCK_EDITOR_PREFERRED_STORAGE_KEY, '1' );
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute(
+			'href',
+			'https://wordpress.com/post/12345?answer_prompt=1'
+		);
+	} );
+
+	it( 'keeps a Simple site on Write until it has been opted out of', async () => {
+		mockIsSimpleSite.mockReturnValue( true );
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute(
+			'href',
+			'admin.php?page=write&answer_prompt=1&source=writing_prompt'
+		);
+	} );
+
+	it( 'still offers Write when localStorage cannot be read', async () => {
+		// Safari's private mode and a cookie-blocking profile both throw here,
+		// and the widget renders during the same tick that reads the flag.
+		jest.spyOn( Storage.prototype, 'getItem' ).mockImplementation( () => {
+			throw new Error( 'storage disabled' );
+		} );
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute(
+			'href',
+			'admin.php?page=write&answer_prompt=1&source=writing_prompt'
 		);
 	} );
 } );

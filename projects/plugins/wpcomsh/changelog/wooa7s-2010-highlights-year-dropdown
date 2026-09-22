@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Premium Analytics: Add a year dropdown to the Year in review (Highlights) widget header, defaulting to the current year, and drop its metric selector so the card always shows posts, words, likes, and comments.

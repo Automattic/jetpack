@@ -1,4 +1,4 @@
-// The `newsletter-page.tsx` shell is the surface that two routed tabs share —
+// The `newsletter-page.tsx` shell is the surface that the routed tabs share —
 // the active-tab indicator slides between Subscribers and Settings because the
 // `Tabs.Root` mounts once. Tab-view analytics are owned by the route stage
 // (covered in `stage.test.tsx`), so this file's contracts are navigation-only:
@@ -104,7 +104,10 @@ beforeEach( () => {
 	mockGetSiteData.mockClear();
 	mockAdminPageProps.mockClear();
 	mockGetNewsletterScriptData.mockReset();
-	mockGetNewsletterScriptData.mockReturnValue( { subscriberManagementEnabled: true } );
+	mockGetNewsletterScriptData.mockReturnValue( {
+		subscriberManagementEnabled: true,
+		overviewEnabled: true,
+	} );
 	mockTabsOnValueChange.current = null;
 } );
 
@@ -130,9 +133,9 @@ describe( 'NewsletterPage tab navigation', () => {
 		expect( navArg.search.u ).toBeUndefined();
 	} );
 
-	it( 'clears the ?tab= param when navigating back to Subscribers', () => {
+	it( 'routes to ?tab=subscribers when navigating to Subscribers', () => {
 		render(
-			<NewsletterPage activeTab="settings">
+			<NewsletterPage activeTab="overview">
 				<div>panel body</div>
 			</NewsletterPage>
 		);
@@ -143,19 +146,35 @@ describe( 'NewsletterPage tab navigation', () => {
 			?.click();
 
 		const navArg = mockNavigate.mock.calls[ 0 ][ 0 ] as { search: Record< string, unknown > };
-		expect( navArg.search.tab ).toBeUndefined();
+		expect( navArg.search.tab ).toBe( 'subscribers' );
 	} );
 
-	it( 'still navigates when clicking the active tab so the URL stays canonical', () => {
+	it( 'clears the ?tab= param when navigating to Overview', () => {
 		render(
-			<NewsletterPage activeTab="subscribers">
+			<NewsletterPage activeTab="settings">
 				<div>panel body</div>
 			</NewsletterPage>
 		);
 
 		screen
 			.getAllByRole( 'tab' )
-			.find( tab => tab.getAttribute( 'data-tab-value' ) === 'subscribers' )
+			.find( tab => tab.getAttribute( 'data-tab-value' ) === 'overview' )
+			?.click();
+
+		const navArg = mockNavigate.mock.calls[ 0 ][ 0 ] as { search: Record< string, unknown > };
+		expect( navArg.search.tab ).toBeUndefined();
+	} );
+
+	it( 'still navigates when clicking the active tab so the URL stays canonical', () => {
+		render(
+			<NewsletterPage activeTab="overview">
+				<div>panel body</div>
+			</NewsletterPage>
+		);
+
+		screen
+			.getAllByRole( 'tab' )
+			.find( tab => tab.getAttribute( 'data-tab-value' ) === 'overview' )
 			?.click();
 
 		// Clicking the active tab still runs the navigate(?tab=undefined) call so
@@ -185,7 +204,10 @@ describe( 'NewsletterPage tab navigation', () => {
 	} );
 
 	it( 'hides the tab navigation entirely when subscriberManagementEnabled is false', () => {
-		mockGetNewsletterScriptData.mockReturnValue( { subscriberManagementEnabled: false } );
+		mockGetNewsletterScriptData.mockReturnValue( {
+			subscriberManagementEnabled: false,
+			overviewEnabled: false,
+		} );
 
 		render(
 			<NewsletterPage activeTab="settings">

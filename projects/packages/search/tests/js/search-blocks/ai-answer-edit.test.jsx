@@ -140,4 +140,38 @@ describe( 'AiAnswerEdit', () => {
 		expect( screen.queryByTestId( 'placeholder' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'AI answer' ) ).toBeInTheDocument();
 	} );
+
+	it( 'renders the disabled Placeholder instead of the preview when aiMasterEnabled is false', () => {
+		globalThis.JetpackSearchBlocksConfig = { aiMasterEnabled: false };
+		render( <AiAnswerEdit attributes={ {} } setAttributes={ () => {} } /> );
+
+		expect( screen.getByTestId( 'placeholder' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText(
+				'Jetpack AI is turned off for this site, so visitors won’t see this block. Turn Jetpack AI on to show AI-generated answers in your search results.'
+			)
+		).toBeInTheDocument();
+		expect( screen.queryByText( 'Getting started with WordPress' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'inspector' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows the disabled Placeholder, not the upgrade prompt, when the master is off on a free site', () => {
+		// Upselling a paid plan while the site has AI switched off would sell
+		// a feature that still wouldn't run — the master notice wins.
+		globalThis.JetpackSearchBlocksConfig = { aiMasterEnabled: false, supportsPaidSearch: false };
+		render( <AiAnswerEdit attributes={ {} } setAttributes={ () => {} } /> );
+
+		expect( screen.getByTestId( 'placeholder' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: 'Upgrade Jetpack Search' } )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'renders the preview when the config lacks aiMasterEnabled', () => {
+		globalThis.JetpackSearchBlocksConfig = {};
+		render( <AiAnswerEdit attributes={ {} } setAttributes={ () => {} } /> );
+
+		expect( screen.queryByTestId( 'placeholder' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'AI answer' ) ).toBeInTheDocument();
+	} );
 } );

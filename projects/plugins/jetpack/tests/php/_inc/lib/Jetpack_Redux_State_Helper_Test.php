@@ -42,6 +42,7 @@ class Jetpack_Redux_State_Helper_Test extends WP_UnitTestCase {
 		global $_wp_theme_features;
 
 		$_wp_theme_features = $this->theme_features;
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		parent::tear_down();
 	}
 
@@ -63,5 +64,28 @@ class Jetpack_Redux_State_Helper_Test extends WP_UnitTestCase {
 
 		$redux_state = Jetpack_Redux_State_Helper::get_initial_state();
 		$this->assertSame( false, $redux_state['themeData']['support']['widgets'] );
+	}
+
+	/**
+	 * The initial state reports the effective AI state through the same gate
+	 * chain the editor enforces on self-hosted sites.
+	 */
+	public function test_ai_effectively_enabled_reflects_the_ai_gates() {
+		$redux_state = Jetpack_Redux_State_Helper::get_initial_state();
+
+		$this->assertFalse( $redux_state['isAiEnabled'], 'The inactive ai module reads as master off.' );
+	}
+
+	/**
+	 * The removed dashboard's keys are no longer built.
+	 */
+	public function test_initial_state_omits_the_removed_dashboard_keys() {
+		$state = Jetpack_Redux_State_Helper::get_initial_state();
+
+		foreach ( array( 'products', 'recommendationsStep', 'jetpackManage', 'hasSeenWCConnectionModal', 'newRecommendations', 'isWooCommerceActive', 'partnerCoupon' ) as $key ) {
+			$this->assertArrayNotHasKey( $key, $state );
+		}
+		$this->assertArrayNotHasKey( 'showRecommendations', $state['siteData'] );
+		$this->assertArrayNotHasKey( 'latestBoostSpeedScores', $state['siteData'] );
 	}
 }

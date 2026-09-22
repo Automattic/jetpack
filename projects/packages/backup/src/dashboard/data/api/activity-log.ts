@@ -22,9 +22,13 @@ export type WpcomActivityLogResponse = {
 	itemsPerPage?: number;
 };
 
+/** Direction only: WPCOM sorts on the event timestamp and accepts no field. */
+export type ActivitySortOrder = 'asc' | 'desc';
+
 type FetchArgs = {
 	number?: number;
 	page?: number;
+	sort_order?: ActivitySortOrder;
 };
 
 /**
@@ -34,15 +38,23 @@ type FetchArgs = {
  * both to WPCOM, which returns `totalItems` / `totalPages` in the
  * envelope — those values drive DataViews' pagination footer.
  *
- * @param args        - Pagination args.
- * @param args.page   - 1-indexed page number.
- * @param args.number - Items per page.
+ * `sort_order` orders the whole result set server-side, so paging and
+ * ordering compose. Omitting it leaves WPCOM's own `desc` default.
+ *
+ * @param args            - Pagination args.
+ * @param args.page       - 1-indexed page number.
+ * @param args.number     - Items per page.
+ * @param args.sort_order - Sort direction.
  * @return The raw WPCOM-shaped response.
  */
 export async function fetchActivityLog(
 	args: FetchArgs = {}
 ): Promise< WpcomActivityLogResponse > {
 	return apiCall< WpcomActivityLogResponse >( {
-		path: apiPath( '/site/rewindable-activity', { number: args.number, page: args.page } ),
+		path: apiPath( '/site/rewindable-activity', {
+			number: args.number,
+			page: args.page,
+			sort_order: args.sort_order,
+		} ),
 	} );
 }

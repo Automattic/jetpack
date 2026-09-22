@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import { Text } from '@jetpack-premium-analytics/externals';
-import { Button, DropdownMenu, MenuGroup, MenuItem, SelectControl } from '@wordpress/components';
+import { DropdownMenu, MenuGroup, MenuItem, SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { check, moreVertical } from '@wordpress/icons';
 import { useMemo, useState } from 'react';
@@ -12,7 +11,7 @@ import { useMemo, useState } from 'react';
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeLineChart } from '../chart-comparative-line';
 import { WidgetLoadingOverlay } from '../widget-loading-overlay';
-import { ReportPageSection } from './report-page-layout';
+import { ReportChartSection } from './report-chart-section';
 import styles from './report-performance-chart.module.scss';
 import { buildReportMetricSeries } from './utils/build-report-metric-series';
 import type { ReportChartMetric } from './types';
@@ -59,6 +58,8 @@ export interface ReportPerformanceChartProps {
 	isLoading?: boolean;
 	/** The metrics offered on the chart; defaults to Views/Visitors/Comments/Likes. */
 	metrics?: ReportChartMetric[];
+	/** The zone both reports were built and normalized under (`useStatsVisits().timezone`). */
+	timezone: string;
 	/** The active time bucket. Owned by the page — it changes the query. */
 	interval: IntervalType;
 	/** Called when the user picks a different time bucket. */
@@ -72,20 +73,11 @@ export interface ReportPerformanceChartProps {
 }
 
 /**
- * The report page's multi-metric performance section: a card with the
- * Views/Visitors/Comments/Likes series drawn together, a metric show/hide
- * menu, the time-bucket selector, and a chart collapse toggle. The page owns
- * data fetching (`useStatsVisits`) and the interval, and passes the reports in.
+ * The report page's multi-metric performance section: the series drawn together with
+ * a metric show/hide menu, the time-bucket selector, and a collapse toggle.
  *
- * Chart theming comes from the `GlobalChartsProvider` mounted once by the
- * `/reports/$report` stage, so this component must render under that stage —
- * or under a provider of its own in isolated contexts like Storybook.
- *
- * With a single visible metric and comparison data present, the previous
- * period renders as a dashed overlay (see `buildReportMetricSeries`).
- *
- * @param {ReportPerformanceChartProps} props - The component props.
- * @return The performance chart section.
+ * Chart theming comes from the `GlobalChartsProvider` the `/reports/$report` stage
+ * mounts, so this must render under that stage — or its own provider in Storybook.
  */
 export function ReportPerformanceChart( {
 	title = __( 'Performance', 'jetpack-premium-analytics-pkg' ),
@@ -93,6 +85,7 @@ export function ReportPerformanceChart( {
 	comparison,
 	isLoading = false,
 	metrics,
+	timezone,
 	interval,
 	onIntervalChange,
 	intervalOptions = DEFAULT_INTERVAL_OPTIONS,
@@ -101,7 +94,6 @@ export function ReportPerformanceChart( {
 }: ReportPerformanceChartProps ) {
 	const allMetrics = useMemo( () => metrics ?? getDefaultMetrics(), [ metrics ] );
 	const [ hiddenMetricKeys, setHiddenMetricKeys ] = useState< string[] >( [] );
-	const [ isChartHidden, setIsChartHidden ] = useState( false );
 
 	const visibleMetrics = useMemo(
 		() => allMetrics.filter( metric => ! hiddenMetricKeys.includes( metric.key ) ),
@@ -109,8 +101,9 @@ export function ReportPerformanceChart( {
 	);
 
 	const series = useMemo(
-		() => buildReportMetricSeries( { primary, comparison, metrics: visibleMetrics } ),
-		[ primary, comparison, visibleMetrics ]
+		() =>
+			buildReportMetricSeries( { primary, comparison, metrics: visibleMetrics, zone: timezone } ),
+		[ primary, comparison, visibleMetrics, timezone ]
 	);
 	const seriesStyles = useSeriesStyles( series );
 
@@ -133,12 +126,10 @@ export function ReportPerformanceChart( {
 	} ) );
 
 	return (
-		<ReportPageSection className={ styles.root }>
-			<div className={ styles.header }>
-				<Text variant="heading-md" render={ <h3 /> }>
-					{ title }
-				</Text>
-				<div className={ styles.controls }>
+		<ReportChartSection
+			title={ title }
+			controls={
+				<>
 					{ controls }
 					<SelectControl
 						__next40pxDefaultSize
@@ -173,31 +164,19 @@ export function ReportPerformanceChart( {
 							</MenuGroup>
 						) }
 					</DropdownMenu>
-				</div>
+				</>
+			}
+		>
+			<div className={ styles.chart }>
+				{ ( ! isLoading || series.length > 0 ) && (
+					<ComparativeLineChart
+						series={ series }
+						styles={ seriesStyles }
+						dataFormat={ dataFormat }
+					/>
+				) }
+				{ isLoading && <WidgetLoadingOverlay /> }
 			</div>
-			{ ! isChartHidden && (
-				<div className={ styles.chart }>
-					{ ( ! isLoading || series.length > 0 ) && (
-						<ComparativeLineChart
-							series={ series }
-							styles={ seriesStyles }
-							dataFormat={ dataFormat }
-						/>
-					) }
-					{ isLoading && <WidgetLoadingOverlay /> }
-				</div>
-			) }
-			<div className={ styles.footer }>
-				<Button
-					variant="tertiary"
-					size="compact"
-					onClick={ () => setIsChartHidden( current => ! current ) }
-				>
-					{ isChartHidden
-						? __( 'Show chart', 'jetpack-premium-analytics-pkg' )
-						: __( 'Hide chart', 'jetpack-premium-analytics-pkg' ) }
-				</Button>
-			</div>
-		</ReportPageSection>
+		</ReportChartSection>
 	);
 }

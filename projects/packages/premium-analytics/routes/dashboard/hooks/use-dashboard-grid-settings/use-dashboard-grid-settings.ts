@@ -3,26 +3,20 @@
  */
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
-import {
-	DEFAULT_GRID,
-	ROW_HEIGHT_PRESETS,
-	normalizeGridSettings,
-} from '@wordpress/widget-dashboard';
+import { DEFAULT_GRID, normalizeGridSettings } from '@wordpress/widget-dashboard';
 import fastDeepEqual from 'fast-deep-equal/es6/index.js';
+import { PA_COLUMN_COUNT, PA_ROW_HEIGHT } from '../../../grid';
 import { DASHBOARD_GRID_SETTINGS_KEY, DASHBOARD_PREFERENCES_SCOPE } from '../constants';
 import type { WidgetGridSettings } from '@wordpress/widget-dashboard';
 
-/**
- * The analytics dashboards are designed at the small (200px) row height, so it
- * is the out-of-the-box default rather than the widget-dashboard package's
- * medium default. Users can still switch row heights; their choice is stored,
- * and only this small default is persisted as a cleared preference.
- */
-const PA_DEFAULT_ROW_HEIGHT = ROW_HEIGHT_PRESETS.small;
 // DEFAULT_GRID is the 2D grid model, so it carries `rowHeight`; keep the spread
 // unannotated so the override type-checks against the grid variant rather than
 // the `rowHeight`-less masonry member of the settings union.
-const PA_DEFAULT_GRID = { ...DEFAULT_GRID, rowHeight: PA_DEFAULT_ROW_HEIGHT };
+const PA_DEFAULT_GRID = {
+	...DEFAULT_GRID,
+	columns: PA_COLUMN_COUNT,
+	rowHeight: PA_ROW_HEIGHT,
+};
 
 /**
  * Hook for managing dashboard grid-settings preferences.
@@ -47,7 +41,12 @@ export function useDashboardGridSettings(): [
 				get: ( scope: string, name: string ) => WidgetGridSettings | undefined;
 			}
 		 ).get( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_GRID_SETTINGS_KEY );
-		return normalizeGridSettings( stored ?? PA_DEFAULT_GRID, PA_DEFAULT_ROW_HEIGHT );
+		return {
+			...normalizeGridSettings( stored ?? PA_DEFAULT_GRID, PA_ROW_HEIGHT ),
+			// Preferences written by the removed Columns control may still carry
+			// another count, so pin it on read.
+			columns: PA_COLUMN_COUNT,
+		};
 	}, [] );
 
 	const { set } = useDispatch( preferencesStore ) as unknown as {

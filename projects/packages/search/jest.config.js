@@ -2,7 +2,7 @@ const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
 
 module.exports = {
 	...baseConfig,
-	roots: [ '<rootDir>/src', '<rootDir>/tests/js' ],
+	roots: [ '<rootDir>/src', '<rootDir>/tests/js', '<rootDir>/packages', '<rootDir>/routes' ],
 
 	// Pin jsdom's window URL so tests that inspect `window.location.protocol`
 	// or `hostname` (e.g. use-photon's protocol-detection tests) see a
@@ -27,7 +27,21 @@ module.exports = {
 		'tiny-lru/lib/tiny-lru.esm$': '<rootDir>/src/instant-search/lib/test-helpers/tiny-lru.mock.js',
 		'instant-search/components/gridicon':
 			'<rootDir>/src/instant-search/components/gridicon/index.jsx',
+		// Mirror the customberg webpack resolution (tools/webpack.customberg.config.js):
+		// `instant-search` is an alias and `hooks/*` resolves against src/customberg.
+		// Exact-name hook entries so dashboard's own `hooks/*` resolution is untouched.
+		'^instant-search/(.*)$': '<rootDir>/src/instant-search/$1',
+		'^hooks/use-search-options$': '<rootDir>/src/customberg/hooks/use-search-options.js',
+		'^hooks/use-loading-state$': '<rootDir>/src/customberg/hooks/use-loading-state.js',
+		'^hooks/use-entity-record-state$': '<rootDir>/src/customberg/hooks/use-entity-record-state.js',
 	},
 	moduleDirectories: [ 'node_modules', '<rootDir>/src/dashboard' ],
+
+	// packages/init/src/index.ts reads `import.meta.url`, so Jest's CJS runtime cannot
+	// require it at all. Counting a file no test can load as uncovered is noise.
+	coveragePathIgnorePatterns: [
+		...( baseConfig.coveragePathIgnorePatterns ?? [] ),
+		'/packages/init/src/index\\.ts$',
+	],
 	setupFilesAfterEnv: [ ...baseConfig.setupFilesAfterEnv, '<rootDir>/tests/jest-globals.gui.js' ],
 };

@@ -22,6 +22,15 @@ import type { ComponentType } from 'react';
 
 registerReportMocks();
 
+// Only wp-admin supplies the slug; seed it so the names link in Storybook.
+window.JetpackScriptData = {
+	...window.JetpackScriptData,
+	site: {
+		...window.JetpackScriptData?.site,
+		suffix: 'example.com',
+	},
+} as typeof window.JetpackScriptData;
+
 const SUBSCRIBERS_LIST_RENDER_MODULE = 'storybook/subscribers-list';
 
 const meta = {

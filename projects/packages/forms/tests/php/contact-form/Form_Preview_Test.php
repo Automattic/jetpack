@@ -45,6 +45,14 @@ class Form_Preview_Test extends BaseTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
+		/*
+		 * Form_Preview::generate_preview_url() runs its argument through
+		 * get_post(), which falls back to the `$post` global for an ID of 0.
+		 * A REST request in an earlier test class leaves a jetpack_form post
+		 * there, which is enough to make an invalid ID look valid.
+		 */
+		$GLOBALS['post'] = null;
+
 		// Register the form post type.
 		if ( ! post_type_exists( Contact_Form::POST_TYPE ) ) {
 			register_post_type(

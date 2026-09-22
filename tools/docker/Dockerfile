@@ -88,9 +88,11 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
 	&& find /var/ -name '*-old' -delete && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
 
 # Install requested version of pnpm.
+# It wants to install in a user homedir, sigh; point it at /usr/local/pnpm and create shims from /usr/local/bin instead.
 RUN \
 	: "${PNPM_VERSION:?Build argument PNPM_VERSION needs to be set and non-empty.}" \
-	&& curl -fsSL https://get.pnpm.io/install.sh | SHELL=bash PNPM_VERSION=$PNPM_VERSION bash - \
+	&& curl -fsSL https://get.pnpm.io/install.sh | SHELL=bash PNPM_VERSION=$PNPM_VERSION PNPM_HOME=/usr/local/pnpm bash - \
+	&& for file in /usr/local/pnpm/bin/*; do basename=${file##*/}; printf '#!/bin/sh\nexport PATH="/usr/local/pnpm/bin/:$PATH"\n"%s" "$@"\n' "$basename" > "/usr/local/bin/$basename"; chmod +x "/usr/local/bin/$basename"; done \
 	&& rm -rf ~/.cache
 
 # Install wp-cli.

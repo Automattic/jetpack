@@ -3,13 +3,13 @@
  */
 import {
 	DataViews,
-	filterSortAndPaginate,
 	type Action,
 	type Field,
 	type SupportedLayouts,
 	type View,
 } from '@jetpack-premium-analytics/externals';
-import { useCallback, useMemo, useState } from 'react';
+import { usePaginatedView } from '@jetpack-premium-analytics/ui';
+import { useCallback, useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -71,10 +71,13 @@ export interface ReportRecordsTableProps< Item > {
 	 *
 	 * The table still owns its view state; this only reports it outwards, for
 	 * a page whose data request depends on the view — a filter the API applies
-	 * server-side, say. Remounting the table (a `key` per tab) resets the view,
-	 * so a page tracking a value from here resets its own copy at the same time.
+	 * server-side, say. Remounting the table (a `key` per tab) resets the view
+	 * but not the page's copy, which the page has to clear for itself, or the
+	 * request stays scoped by a filter the table no longer shows.
 	 */
 	onChangeView?: ( view: View ) => void;
+	/** Called with the rows on the current page after client-side view processing. */
+	onChangePageItems?: ( items: Item[] ) => void;
 	/** Whether a record's primary field should render as an interactive link. */
 	isItemClickable?: ( item: Item ) => boolean;
 	/** Render the primary-field link while preserving DataViews table styling. */
@@ -109,6 +112,7 @@ export function ReportRecordsTable< Item >( {
 	empty,
 	perPageSizes = DEFAULT_PER_PAGE_SIZES,
 	onChangeView,
+	onChangePageItems,
 	isItemClickable,
 	renderItemLink,
 }: ReportRecordsTableProps< Item > ) {
@@ -135,15 +139,20 @@ export function ReportRecordsTable< Item >( {
 		[ onChangeView ]
 	);
 
-	const { data: pageItems, paginationInfo } = useMemo(
-		() => filterSortAndPaginate( data, view, fields ),
-		[ data, view, fields ]
-	);
+	const {
+		view: effectiveView,
+		data: pageItems,
+		paginationInfo,
+	} = usePaginatedView( data, view, fields, handleChangeView );
+
+	useEffect( () => {
+		onChangePageItems?.( pageItems );
+	}, [ onChangePageItems, pageItems ] );
 
 	return (
 		<ReportPageSection className={ styles.root }>
 			<GenericDataViews< Item >
-				view={ view }
+				view={ effectiveView }
 				onChangeView={ handleChangeView }
 				fields={ fields }
 				data={ pageItems }

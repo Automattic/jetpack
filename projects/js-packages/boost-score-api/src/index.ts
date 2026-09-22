@@ -6,7 +6,13 @@ import { isJsonObject, JSONObject } from './utils/json-types';
 import pollPromise from './utils/poll-promise';
 import { standardizeError } from './utils/standardize-error';
 
-const pollTimeout = 2 * 60 * 1000;
+export { standardizeError };
+
+// Four minutes covers the large majority of successful runs, including queue
+// and poll overhead. Over the seven days to 26 August 2026, about 0.9% of
+// production runs took longer than two minutes and about 0.04% took longer
+// than four. A timeout here therefore does not mean the run failed.
+const pollTimeout = 4 * 60 * 1000;
 const pollInterval = 5 * 1000;
 
 type SpeedScores = {
@@ -63,38 +69,62 @@ type ParsedApiResponse = {
 };
 
 /**
- * Kick off a request to generate speed scores for this site. Will automatically
- * poll for a response until the task is done, returning a SpeedScores object.
+ * Request speed scores for this site, polling until completion or cancellation.
  *
- * @param {boolean} force   - Force regenerate speed scores.
- * @param {string}  rootUrl - Root URL for the HTTP request.
- * @param {string}  siteUrl - URL of the site.
- * @param {string}  nonce   - Nonce to use for authentication.
- * @return {SpeedScoresSet} Speed scores returned by the server.
+ * @param {boolean}     force          - Force regenerate speed scores.
+ * @param {string}      rootUrl        - Root URL for the HTTP request.
+ * @param {string}      siteUrl        - URL of the site.
+ * @param {string}      nonce          - Nonce to use for authentication.
+ * @param {object}      options        - Request options.
+ * @param {AbortSignal} options.signal - Stop polling without aborting an in-flight HTTP request.
+ * @return {SpeedScoresSet | undefined} Speed scores, or undefined when aborted.
  */
+export function requestSpeedScores(
+	force: boolean | undefined,
+	rootUrl: string,
+	siteUrl: string,
+	nonce: string,
+	options?: undefined
+): Promise< SpeedScoresSet >;
+export function requestSpeedScores(
+	force: boolean | undefined,
+	rootUrl: string,
+	siteUrl: string,
+	nonce: string,
+	options?: { signal?: AbortSignal }
+): Promise< SpeedScoresSet | undefined >;
 export async function requestSpeedScores(
 	force = false,
 	rootUrl: string,
 	siteUrl: string,
-	nonce: string
-): Promise< SpeedScoresSet > {
-	// Request metrics
-	const response = parseResponse(
-		await api.post(
-			rootUrl,
-			force ? '/speed-scores/refresh' : '/speed-scores',
-			{ url: siteUrl },
-			nonce
-		)
-	);
-
-	// If the response contains ready-to-use metrics, we're done here.
-	if ( response.scores ) {
-		return response.scores;
+	nonce: string,
+	options?: { signal?: AbortSignal }
+): Promise< SpeedScoresSet | undefined > {
+	const signal = options?.signal;
+	if ( signal?.aborted ) {
+		return;
 	}
-
-	// Poll for metrics.
-	return await pollRequest( rootUrl, siteUrl, nonce );
+	try {
+		const response = parseResponse(
+			await api.post(
+				rootUrl,
+				force ? '/speed-scores/refresh' : '/speed-scores',
+				{ url: siteUrl },
+				nonce
+			)
+		);
+		if ( signal?.aborted ) {
+			return;
+		}
+		if ( response.scores ) {
+			return response.scores;
+		}
+		return await pollRequest( rootUrl, siteUrl, nonce, signal );
+	} catch ( error ) {
+		if ( ! signal?.aborted ) {
+			throw error;
+		}
+	}
 }
 
 /**
@@ -150,16 +180,16 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 					? {
 							mobile: castToNumber( response.scores.current.mobile, 0 ),
 							desktop: castToNumber( response.scores.current.desktop, 0 ),
-					  }
+						}
 					: {
 							mobile: 0,
 							desktop: 0,
-					  },
+						},
 				noBoost: isJsonObject( response.scores.noBoost )
 					? {
 							mobile: castToNumber( response.scores.noBoost.mobile, 0 ),
 							desktop: castToNumber( response.scores.noBoost.desktop, 0 ),
-					  }
+						}
 					: null,
 				isStale: !! response.scores.isStale,
 			},
@@ -179,26 +209,34 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 /**
  * Poll a speed score request for results, timing out if it takes too long.
  *
- * @param {string} rootUrl - Root URL of the site to request metrics for
- * @param {string} siteUrl - Site URL to request metrics for
- * @param {string} nonce   - Nonce to use for authentication
- * @return {SpeedScoresSet} Speed scores returned by the server.
+ * @param {string}      rootUrl - Root URL of the site to request metrics for
+ * @param {string}      siteUrl - Site URL to request metrics for
+ * @param {string}      nonce   - Nonce to use for authentication
+ * @param {AbortSignal} signal  - Signal to stop polling.
+ * @return {SpeedScoresSet | undefined} Speed scores, or undefined when aborted.
  */
 async function pollRequest(
 	rootUrl: string,
 	siteUrl: string,
-	nonce: string
-): Promise< SpeedScoresSet > {
-	return pollPromise< SpeedScoresSet >( {
+	nonce: string,
+	signal?: AbortSignal
+): Promise< SpeedScoresSet | undefined > {
+	return pollPromise< SpeedScoresSet | undefined >( {
 		timeout: pollTimeout,
 		interval: pollInterval,
 		timeoutError: __( 'Timed out while waiting for speed-score.', 'boost-score-api' ),
 		callback: async resolve => {
+			if ( signal?.aborted ) {
+				resolve( undefined );
+				return;
+			}
 			const response = parseResponse(
 				await api.post( rootUrl, '/speed-scores', { url: siteUrl }, nonce )
 			);
 
-			if ( response.scores ) {
+			if ( signal?.aborted ) {
+				resolve( undefined );
+			} else if ( response.scores ) {
 				resolve( response.scores );
 			}
 		},

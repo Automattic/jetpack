@@ -6,12 +6,22 @@ import { people } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
- * Internal dependencies
+ * External dependencies
  */
+import {
+	reportParamsAttributeField,
+	type ReportParamsFieldAttributes,
+} from '@jetpack-premium-analytics/fields';
 import {
 	chartTypeAttributeField,
 	type ChartDisplayChartType,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+
+/**
+ * Internal dependencies
+ */
+import { DEFAULT_REPORT_PARAMS } from './default-report-params';
+import { SUBSCRIBERS_GRAIN } from './grain';
 
 /**
  * How the selected metric is drawn. The shared chart-display list keeps every
@@ -35,32 +45,32 @@ export const SUBSCRIBERS_CHART_METRICS = [
 export type SubscribersChartMetricId = ( typeof SUBSCRIBERS_CHART_METRICS )[ number ][ 'id' ];
 
 /**
- * Configurable attributes for the Subscribers chart widget. Report params
- * still reach it through WidgetRoot: the dashboard date range, or
- * `attributes.reportParams` when a host injects them (e.g. Storybook and
- * dashboard previews).
+ * The widget owns its date control because no other Subscribers widget reads a range.
  *
  * @property chartType - How to draw the selected metric. Defaults to `line`.
  */
-export type SubscribersChartAttributes = {
+export type SubscribersChartAttributes = Partial< ReportParamsFieldAttributes > & {
 	chartType?: SubscribersChartType;
 };
 
 /**
- * Widget type definition.
- *
- * Ported from the Jetpack Stats `stats-subscribers-chart-section` card in
- * wp-calypso. The date range, previous-period comparison, and bucket size all
- * follow the dashboard controls — the legacy interval segmented control is the
- * dashboard's chart interval control now. Which metric is plotted is the
- * chart's own tab selection, not an attribute; `example.attributes` doubles as
- * the defaults applied to new instances.
+ * Ported from the Jetpack Stats `stats-subscribers-chart-section` card. The
+ * bucket size follows the selected window rather than a control of its own, so
+ * the date field offers the window alone.
+ * `example.attributes` doubles as the defaults applied to new instances.
  */
 export default {
 	icon: people,
-	attributes: [ chartTypeAttributeField() ] as WidgetAttributeField< SubscribersChartAttributes >[],
+	attributes: [
+		reportParamsAttributeField< SubscribersChartAttributes >( {
+			grain: SUBSCRIBERS_GRAIN,
+			offersComparison: false,
+		} ),
+		chartTypeAttributeField(),
+	] as WidgetAttributeField< SubscribersChartAttributes >[],
 	example: {
 		attributes: {
+			reportParams: DEFAULT_REPORT_PARAMS,
 			chartType: 'line',
 		},
 	},

@@ -76,17 +76,26 @@ export const describeRule = ( rule, subject ) => {
  * An incomplete rule is skipped by both evaluators, so listing it in the summary would
  * describe behaviour the field does not have.
  *
- * @param {object} group  - The group being described.
- * @param {Array}  fields - Subject field descriptors, from useSubjectFields.
+ * A condition naming an id that more than one field claims is skipped too. It has the shape of
+ * a working rule -- the id does resolve, to whichever field the renderer reaches first -- but it
+ * cannot say which field the author meant, and the rule builder says as much. Leaving it out
+ * here keeps the summary and the builder telling the same story about the same condition.
+ *
+ * @param {object} group               - The group being described.
+ * @param {Array}  fields              - Subject field descriptors, from useSubjectFields.
+ * @param {Set}    [duplicateFieldIds] - Ids claimed by more than one field in the form.
  * @return {Array} Objects of `{ rule, subject }` for each condition that will be acted on.
  */
-export const getActiveConditions = ( group, fields ) =>
+export const getActiveConditions = ( group, fields, duplicateFieldIds ) =>
 	group.rules
 		.map( rule => ( {
 			rule,
 			subject: fields.find( field => field.id && field.id === rule.field ),
 		} ) )
-		.filter( ( { rule, subject } ) => isRuleComplete( rule, subject ) );
+		.filter(
+			( { rule, subject } ) =>
+				isRuleComplete( rule, subject ) && ! duplicateFieldIds?.has( rule.field )
+		);
 
 /**
  * The same summary on one line, for somewhere a list will not fit.
@@ -94,13 +103,14 @@ export const getActiveConditions = ( group, fields ) =>
  * The toolbar button's tooltip, specifically. It says the same thing the inspector does so the
  * two cannot drift, just without the markup.
  *
- * @param {object} logic  - A normalized logic object.
- * @param {object} group  - The group being described.
- * @param {Array}  fields - Subject field descriptors, from useSubjectFields.
+ * @param {object} logic               - A normalized logic object.
+ * @param {object} group               - The group being described.
+ * @param {Array}  fields              - Subject field descriptors, from useSubjectFields.
+ * @param {Set}    [duplicateFieldIds] - Ids claimed by more than one field in the form.
  * @return {string} A single-line summary, or an empty string when nothing is active.
  */
-export const getSummaryText = ( logic, group, fields ) => {
-	const active = getActiveConditions( group, fields );
+export const getSummaryText = ( logic, group, fields, duplicateFieldIds ) => {
+	const active = getActiveConditions( group, fields, duplicateFieldIds );
 
 	if ( ! active.length ) {
 		return '';

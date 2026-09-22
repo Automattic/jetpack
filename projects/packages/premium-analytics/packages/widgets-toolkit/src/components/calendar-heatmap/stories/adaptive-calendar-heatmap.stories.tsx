@@ -14,11 +14,6 @@ const SHORT_PERIOD = { startDate: '2026-06-01', endDate: '2026-06-30' };
 /**
  * A deterministic weekday-weighted series. Real traffic dips at weekends, and a
  * flat ramp would hide the color scale.
- *
- * @param period           - The period to generate values for.
- * @param period.startDate - First day, inclusive.
- * @param period.endDate   - Last day, inclusive.
- * @return Views per `yyyy-MM-dd`.
  */
 function buildViewsByDay( period: { startDate: string; endDate: string } ) {
 	return Object.fromEntries(
@@ -52,8 +47,7 @@ interface AdaptiveCalendarHeatmapStoryControls {
 }
 
 // The current year is selected as January through today, so early in the year it is
-// the shortest period Insights can produce. Fixed dates: a story that moved with the
-// clock would render differently on every visual diff.
+// the shortest period Insights can produce.
 const CURRENT_YEAR_AS_OF = [
 	{ label: 'Jan 15 — 2 weeks of data', endDate: '2026-01-15' },
 	{ label: 'Apr 15 — 15 weeks of data', endDate: '2026-04-15' },
@@ -62,19 +56,9 @@ const CURRENT_YEAR_AS_OF = [
 ] as const;
 
 /**
- * Mock widget tile. The component measures its parent, so the story has to give it
- * a real box; `width` / `height` are the widget *body*, which is what it sees.
- *
- * Measured in the widget dashboard: a one-row tile is a 200px grid row, about 86px
- * of it body — two rows is about 300px. Keep `ShortTile` on the real figure. It was
- * 110px here for a while, which is roomy enough to hide a grid that overflowed the
- * real tile, so the story showed a clean heatmap the dashboard never rendered.
- *
- * @param props          - Component props.
- * @param props.width    - Body width, in px.
- * @param props.height   - Body height, in px.
- * @param props.children - The tile's contents.
- * @return The mock tile.
+ * Mock widget tile. The component measures its parent, so `width` / `height` must be
+ * the widget *body* box, not the tile — keep `ShortTile` on the real ~86px body
+ * height, since a roomier value hides overflow the real tile would show.
  */
 function TileCanvas( {
 	width,

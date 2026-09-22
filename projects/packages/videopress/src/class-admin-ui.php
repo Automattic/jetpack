@@ -30,6 +30,15 @@ class Admin_UI {
 	const ADMIN_PAGE_SLUG = 'jetpack-videopress';
 
 	/**
+	 * The name hosts use for the VideoPress sidebar item in the visibility filter.
+	 *
+	 * Deliberately not ADMIN_PAGE_SLUG: this is a name hosts write into their own code, so
+	 * it has to survive a slug change. Both registrations below share it, since they are
+	 * mutually exclusive and a host hiding VideoPress should not have to know which is live.
+	 */
+	const VISIBILITY_KEY = 'jetpack-videopress';
+
+	/**
 	 * The My Jetpack interstitial where VideoPress can be activated, relative to wp-admin.
 	 *
 	 * Used as the target of the "Jetpack > VideoPress" menu item when VideoPress
@@ -48,10 +57,10 @@ class Admin_UI {
 	/**
 	 * Filter name that gates the chapters editor.
 	 *
-	 * When this filter returns true, the chapters editor is exposed in both
-	 * places it lives: the dashboard's Editor tab (and the `/video/$id/editor`
-	 * route behind it) and the block editor's chapter manager modal. Unlike the
-	 * modernization filter, this defaults to false.
+	 * The chapters editor is generally available, so this defaults to true and
+	 * the filter serves as a kill switch: returning false withdraws it from both
+	 * places it lives — the dashboard's Editor tab (and the `/video/$id/editor`
+	 * route behind it) and the block editor's chapter manager modal.
 	 */
 	const CHAPTERS_EDITOR_FILTER = 'jetpack_videopress_chapters_editor';
 
@@ -63,6 +72,20 @@ class Admin_UI {
 	 * editor filter is off, so the routes never register.
 	 */
 	const CHAPTERS_EDITOR_ROUTE_PATHS = array( '/video/$id/editor' );
+
+	/**
+	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
+	 *
+	 * @var string|null
+	 */
+	private static $wp_build_original_screen_id = null;
+
+	/**
+	 * The dashboard screen hide_jitms_on_wp_build_dashboard() opts out of JITMs.
+	 *
+	 * @var string|null
+	 */
+	private static $jitm_opt_out_screen_id = null;
 
 	/**
 	 * Initializes the Admin UI of VideoPress
@@ -120,7 +143,11 @@ class Admin_UI {
 			return;
 		}
 
+		// Hooked either side of load_wp_build(), so the alias holds only for the generated
+		// enqueue check it registers at the same priority.
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 		self::load_wp_build();
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
 
 		// wp-build registers standalone modules (e.g. the init module) on
 		// wp_default_scripts, which has already fired by admin_menu. Register them
@@ -128,8 +155,6 @@ class Admin_UI {
 		if ( function_exists( 'jetpack_videopress_register_script_modules' ) ) {
 			jetpack_videopress_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
 		}
-
-		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 	}
 
 	/**
@@ -184,9 +209,14 @@ class Admin_UI {
 			'manage_options',
 			self::ADMIN_PAGE_SLUG,
 			$callback,
-			3
+			null,
+			array(
+				'product' => 'videopress',
+				'key'     => self::VISIBILITY_KEY,
+			)
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+		self::maybe_opt_out_of_jitms( $page_suffix );
 	}
 
 	/**
@@ -242,7 +272,12 @@ class Admin_UI {
 			'manage_options',
 			self::MY_JETPACK_ADD_VIDEOPRESS_URI,
 			null,
-			3
+			null,
+			// Hidden while VideoPress is off, unless a host forces the shared key visible.
+			array(
+				'product' => 'videopress',
+				'key'     => self::VISIBILITY_KEY,
+			)
 		);
 	}
 
@@ -283,6 +318,7 @@ class Admin_UI {
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+			self::maybe_opt_out_of_jitms( $page_suffix );
 		}
 	}
 
@@ -792,15 +828,70 @@ class Admin_UI {
 	 * Hooked only when modernization is on AND we're on the VideoPress admin page,
 	 * so this never affects any other request.
 	 *
-	 * @param \WP_Screen|null $screen The current screen object (passed by WP).
+	 * @since 0.51.1 Takes no argument; hooked on `admin_enqueue_scripts`.
+	 *
 	 * @return void
 	 */
-	public static function alias_screen_id_for_wp_build( $screen ) {
-		if ( ! is_object( $screen ) ) {
+	public static function alias_screen_id_for_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
 			return;
 		}
 
-		$screen->id = 'jetpack-videopress-dashboard';
+		self::$wp_build_original_screen_id = $screen->id;
+		$screen->id                        = 'jetpack-videopress-dashboard';
+	}
+
+	/**
+	 * Undo alias_screen_id_for_wp_build(), so code after the generated check sees the real screen ID.
+	 *
+	 * @since 0.51.1
+	 *
+	 * @return void
+	 */
+	public static function restore_screen_id_after_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen || null === self::$wp_build_original_screen_id ) {
+			return;
+		}
+
+		$screen->id                        = self::$wp_build_original_screen_id;
+		self::$wp_build_original_screen_id = null;
+	}
+
+	/**
+	 * Opt the dashboard's screen out of JITMs while the wp-build dashboard serves it.
+	 *
+	 * @param string $screen_id The hook suffix the page was registered under, which is its screen ID.
+	 * @return void
+	 */
+	private static function maybe_opt_out_of_jitms( $screen_id ) {
+		// The legacy dashboard renders `#jp-admin-notices`, so it keeps its JITMs.
+		if ( ! self::is_modernized() ) {
+			return;
+		}
+
+		self::$jitm_opt_out_screen_id = $screen_id;
+		add_filter( 'jetpack_display_jitms_on_screen', array( __CLASS__, 'hide_jitms_on_wp_build_dashboard' ), 10, 2 );
+	}
+
+	/**
+	 * Keep JITMs off the wp-build dashboard, which has no `#jp-admin-notices` to show them in.
+	 *
+	 * Fetching a JITM records a view, so one the page hides would still be counted.
+	 *
+	 * @since 0.51.1
+	 *
+	 * @param bool   $show      Whether to show JITMs on the screen.
+	 * @param string $screen_id The screen ID.
+	 * @return bool
+	 */
+	public static function hide_jitms_on_wp_build_dashboard( $show, $screen_id ) {
+		if ( null !== self::$jitm_opt_out_screen_id && self::$jitm_opt_out_screen_id === $screen_id ) {
+			return false;
+		}
+
+		return $show;
 	}
 
 	/**
@@ -815,10 +906,10 @@ class Admin_UI {
 	/**
 	 * Returns true when the chapters editor feature filter is enabled.
 	 *
-	 * Note the default is false: the dashboard Editor tab, the
+	 * Note the default is true: the dashboard Editor tab, the
 	 * `/video/$id/editor` route, the Details-tab deep link, and the block
-	 * editor's "Manage chapters" toolbar button all stay hidden unless a site
-	 * explicitly opts in via the filter.
+	 * editor's "Manage chapters" toolbar button are all available unless a site
+	 * explicitly opts out via the filter.
 	 *
 	 * @since 0.45.0
 	 *
@@ -832,9 +923,9 @@ class Admin_UI {
 		 *
 		 * @since 0.45.0
 		 *
-		 * @param bool $enabled Whether the chapters editor UI is enabled. Default false.
+		 * @param bool $enabled Whether the chapters editor UI is enabled. Default true.
 		 */
-		return (bool) apply_filters( self::CHAPTERS_EDITOR_FILTER, false );
+		return (bool) apply_filters( self::CHAPTERS_EDITOR_FILTER, true );
 	}
 
 	/**

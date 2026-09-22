@@ -1,7 +1,6 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getAdminUrl, getSiteData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import {
-	Button,
 	Card,
 	CardBody,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
@@ -14,6 +13,7 @@ import {
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, globe, layout, megaphone } from '@wordpress/icons';
+import { Button, LinkButton } from '@wordpress/ui';
 import { buildUpgradeCheckoutUrl, getUpgradePlanName } from '../upgrade';
 import './style.scss';
 
@@ -131,22 +131,22 @@ const Welcome = ( { onEnable, hasAccess }: WelcomeProps ) => {
 		? __(
 				'Host your podcast at WordPress.com and get all the advanced features.',
 				'jetpack-podcast'
-		  )
+			)
 		: __(
 				'Unlock podcast stats, the episode dashboard, and the episode block.',
 				'jetpack-podcast'
-		  );
+			);
 	// Shown when the site already owns the paid surfaces, so the plan comparison
 	// is replaced by confirmation copy instead of a checkout CTA.
 	const includedDescription = isWpcom
 		? __(
 				'Audio hosting, stats, the episode dashboard, and the episode block are all unlocked.',
 				'jetpack-podcast'
-		  )
+			)
 		: __(
 				'Podcast stats, the episode dashboard, and the episode block are all unlocked.',
 				'jetpack-podcast'
-		  );
+			);
 
 	// Fire-and-forget Tracks; the anchor handles navigation so middle/cmd-click
 	// still opens checkout in a new tab and "copy link address" shows the URL.
@@ -187,7 +187,7 @@ const Welcome = ( { onEnable, hasAccess }: WelcomeProps ) => {
 						</>
 					) }
 					<HStack justify="flex-start" expanded={ false }>
-						<Button variant="primary" onClick={ onEnable }>
+						<Button variant="solid" onClick={ onEnable }>
 							{ __( 'Set up podcasting', 'jetpack-podcast' ) }
 						</Button>
 					</HStack>
@@ -211,7 +211,7 @@ const Welcome = ( { onEnable, hasAccess }: WelcomeProps ) => {
 											) }
 										</Text>
 									</VStack>
-									<Button variant="secondary" onClick={ onEnable }>
+									<Button variant="outline" onClick={ onEnable }>
 										{ __( 'Start your podcast', 'jetpack-podcast' ) }
 									</Button>
 									<ul className="podcast__welcome-plan-features">
@@ -245,13 +245,17 @@ const Welcome = ( { onEnable, hasAccess }: WelcomeProps ) => {
 										</HStack>
 										<Text variant="muted">{ paidDescription }</Text>
 									</VStack>
-									<Button variant="primary" href={ upgradeCheckoutUrl } onClick={ onUpgradeClick }>
+									<LinkButton
+										variant="solid"
+										href={ upgradeCheckoutUrl }
+										onClick={ onUpgradeClick }
+									>
 										{ sprintf(
 											/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
 											__( 'Start your %s podcast', 'jetpack-podcast' ),
 											planName
 										) }
-									</Button>
+									</LinkButton>
 									<ul className="podcast__welcome-plan-features">
 										{ paidFeatures.map( feature => (
 											<li key={ feature } className="podcast__welcome-plan-feature">

@@ -1,12 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import {
-	THEME_LAYERED_ROLES,
-	themeLayerVar,
-} from '../../providers/chart-context/private/theme-override-vars';
+import { compileString } from 'sass-embedded';
 
 const stylesheet = readFileSync( join( __dirname, '..', 'chart-scope.scss' ), 'utf8' );
 const tokensDoc = readFileSync( join( __dirname, '..', '..', '..', 'TOKENS.md' ), 'utf8' );
+
+const normalize = ( value: string ): string => value.replace( /\s+/g, ' ' ).trim();
 
 type Entry = {
 	/** The custom property this one reads, or null when the value is a literal. */
@@ -15,30 +14,13 @@ type Entry = {
 	fallback: string | null;
 };
 
-const normalize = ( value: string ): string => value.replace( /\s+/g, ' ' ).trim();
-
-/**
- * Unwraps the theme layer a `theme`-prop-overridable role carries, so the tables in `TOKENS.md` keep documenting what a role ultimately resolves to — its `--wpds-*` token and spec fallback — rather than restating the override plumbing in every row. Which roles carry the layer is pinned separately below.
- *
- * @param name  - The declared property name.
- * @param value - Its normalized value.
- * @return The value with a leading `var(<name>-theme, … )` wrapper removed.
- */
-function stripThemeLayer( name: string, value: string ): string {
-	const layered = new RegExp( `^var\\(\\s*${ themeLayerVar( name ) }\\s*,\\s*(.*)\\)$`, 's' ).exec(
-		value
-	);
-
-	return layered ? layered[ 1 ].trim() : value;
-}
-
 /**
  * Parses each catalog declaration in the stylesheet into the property it reads and the fallback it carries. Splitting the `var()` arguments at the *first* comma keeps a fallback that is itself a function call intact — `cubic-bezier(0.25, 0, 0, 1)` would otherwise be truncated at its first argument.
  *
  * @return Every declared `--a8c-charts-*` property, keyed by name.
  */
 function parseStylesheet(): Map< string, Entry > {
-	const body = stylesheet.slice( stylesheet.indexOf( '{' ) + 1, stylesheet.lastIndexOf( '}' ) );
+	const body = stylesheet.slice( stylesheet.indexOf( '{' ) + 1, stylesheet.indexOf( '}' ) );
 	const entries = new Map< string, Entry >();
 
 	for ( const declaration of body
@@ -54,7 +36,8 @@ function parseStylesheet(): Map< string, Entry > {
 		}
 
 		const name = declaration.slice( 0, separator ).trim();
-		const value = stripThemeLayer( name, normalize( declaration.slice( separator + 1 ) ) );
+		const value = normalize( declaration.slice( separator + 1 ) );
+
 		const wrapped = /^var\(\s*(.*)\)$/s.exec( value );
 
 		if ( ! wrapped ) {
@@ -112,10 +95,13 @@ function parseTokensDoc(): Map< string, Entry > {
 		// "no mapping" before looking for a token name inside it.
 		const unmapped = mapping.startsWith( '_(none' );
 		const derives = /derives from (--[\w-]+)/.exec( mapping );
-		const wpds = /(--wpds-[\w-]+)/.exec( mapping );
+		// `--wp-*` rather than `--wpds-*`: the series palette maps to WordPress's own
+		// `--wp-admin-theme-color`, since the design system's brand token is a static
+		// hex on every admin screen and cannot carry the admin color scheme.
+		const token = /(--wp[\w-]+)/.exec( mapping );
 
 		entries.set( role, {
-			reads: unmapped ? null : derives?.[ 1 ] ?? wpds?.[ 1 ] ?? null,
+			reads: unmapped ? null : ( derives?.[ 1 ] ?? token?.[ 1 ] ?? null ),
 			fallback: fallback === '—' ? null : normalize( fallback ),
 		} );
 	}
@@ -127,29 +113,62 @@ const declared = parseStylesheet();
 const documented = parseTokensDoc();
 
 describe( 'chart scope catalog', () => {
+	it( 'uses system colors for axis text and visible lines only under forced colors', () => {
+		const style = document.createElement( 'style' );
+		style.textContent = compileString( stylesheet ).css;
+		document.head.appendChild( style );
+
+		try {
+			const mediaRules = Array.from( style.sheet!.cssRules ).filter(
+				( rule ): rule is CSSMediaRule => rule.type === CSSRule.MEDIA_RULE
+			);
+			expect( mediaRules ).toHaveLength( 1 );
+			expect( mediaRules[ 0 ].conditionText ).toBe( '(forced-colors: active)' );
+			expect( mediaRules[ 0 ].cssRules ).toHaveLength( 1 );
+
+			const rule = mediaRules[ 0 ].cssRules[ 0 ] as CSSStyleRule;
+			expect( rule.selectorText ).toBe( ':where(.a8c-charts-scope)' );
+			expect(
+				Object.fromEntries(
+					Array.from( rule.style ).map( property => [
+						property,
+						rule.style.getPropertyValue( property ).trim().toLowerCase(),
+					] )
+				)
+			).toEqual( {
+				'--a8c-charts-color-label-axis': 'canvastext',
+				'--a8c-charts-color-grid': 'graytext',
+				'--a8c-charts-color-axis-x': 'graytext',
+				'--a8c-charts-color-tick-x': 'graytext',
+			} );
+		} finally {
+			style.remove();
+		}
+	} );
+
 	it( 'documents every declared role, and declares every documented one', () => {
 		expect( [ ...documented.keys() ].sort() ).toEqual( [ ...declared.keys() ].sort() );
 	} );
 
 	// The tables in TOKENS.md restate the stylesheet for consumers who only have the
-	// published package. This is the check that stops the two drifting apart.
-	it.each( [ ...declared.keys() ] )( 'documents %s with the value it is declared with', token => {
-		expect( documented.get( token ) ).toEqual( declared.get( token ) );
+	// published package. Mapping (what a role reads) must match the source. The
+	// Fallback column for `--wpds-*` mappings is injected at build time, so only
+	// literals and `--a8c-charts-*` derivations are compared as fallbacks.
+	it.each( [ ...declared.keys() ] )( 'documents %s with the mapping it is declared with', token => {
+		expect( documented.get( token )?.reads ).toEqual( declared.get( token )?.reads );
 	} );
 
-	// The layer is what keeps a `theme` prop override from being able to take its role down with it: an override that is invalid at computed-value time only invalidates `<role>-theme`, and the role's own fallback still resolves the mapped token. Drop the layer from a role and that role's overrides go back to blanking every read site.
-	it.each( THEME_LAYERED_ROLES )( 'declares %s reading its theme layer first', role => {
-		expect( stylesheet ).toMatch(
-			new RegExp( `${ role }:\\s*var\\(\\s*${ themeLayerVar( role ) }\\s*,` )
-		);
-	} );
+	it.each(
+		[ ...declared.keys() ].filter( token => {
+			const entry = declared.get( token );
 
-	it( 'gives a theme layer to the overridable roles and to nothing else', () => {
-		const layered = [ ...declared.keys() ].filter( role =>
-			new RegExp( `${ role }:\\s*var\\(\\s*${ themeLayerVar( role ) }\\s*,` ).test( stylesheet )
-		);
-
-		expect( layered.sort() ).toEqual( [ ...THEME_LAYERED_ROLES ].sort() );
+			return (
+				entry?.reads?.startsWith( '--wpds-' ) !== true &&
+				entry?.fallback?.includes( '--wpds-' ) !== true
+			);
+		} )
+	)( 'documents %s with the fallback it is declared with', token => {
+		expect( documented.get( token )?.fallback ).toEqual( declared.get( token )?.fallback );
 	} );
 
 	it( 'scopes the catalog to :where(.a8c-charts-scope) rather than :root', () => {

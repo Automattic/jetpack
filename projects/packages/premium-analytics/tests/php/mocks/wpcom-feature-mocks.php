@@ -2,20 +2,16 @@
 /**
  * Mock for the WordPress.com feature-gating function.
  *
- * `wpcom_site_has_feature()` is provided by the WPCOM platform (wpcom itself on
- * Simple, wpcomsh on Atomic), not by any package, so without this the platform
- * branch of `is_videopress_available()` can only ever short-circuit on
- * `function_exists()` and answer false. That leaves the true path — the one
- * Simple and Atomic actually take — unexercised, so a wrong feature slug would
- * ship green.
+ * `wpcom_site_has_feature()` is provided by the platform (wpcom on Simple, wpcomsh on Atomic),
+ * not by any package; without this, the platform branch of `is_videopress_available()` can only
+ * short-circuit on `function_exists()` and read false, leaving the real path unexercised — so a
+ * wrong feature slug would ship green.
  *
- * State lives in a global rather than a class so this file stays self-contained:
- * `tests/php/mocks/` is excluded from Phan (see .phan/config.php), because the
- * real `wpcom_site_has_feature()` already arrives via the `wpcom` stub set, and
- * a class declared in here would read as undeclared everywhere it is used.
+ * State lives in a global, not a class: `tests/php/mocks/` is excluded from Phan (the real
+ * `wpcom_site_has_feature()` already arrives via the `wpcom` stub set), so a class declared here
+ * would read as undeclared everywhere it's used.
  *
- * The default is inert: with nothing entitled, every feature reads as false,
- * exactly as it did before this mock existed.
+ * Default is inert: with nothing entitled, every feature reads false, as before this mock existed.
  *
  * @package automattic/jetpack-premium-analytics
  */

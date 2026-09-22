@@ -100,6 +100,37 @@ describe( 'Toggle', () => {
 		expect( onChange ).toHaveBeenCalledWith( { jetpack_author_in_email: true } );
 	} );
 
+	it( 'shows the negation of the stored value when invert is set', () => {
+		render(
+			<Toggle
+				data={ { jetpack_author_in_email: true } as NewsletterSettings }
+				field={ createField() }
+				onChange={ jest.fn() }
+				invert
+			/>
+		);
+
+		expect( screen.getByRole( 'checkbox' ) ).not.toBeChecked();
+	} );
+
+	it( 'still stores the flipped raw value when invert is set', () => {
+		const onChange = jest.fn();
+
+		render(
+			<Toggle
+				data={ { jetpack_author_in_email: true } as NewsletterSettings }
+				field={ createField() }
+				onChange={ onChange }
+				invert
+			/>
+		);
+
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'checkbox' ) );
+
+		expect( onChange ).toHaveBeenCalledWith( { jetpack_author_in_email: false } );
+	} );
+
 	it( 'renders a plain label when url/linkText are omitted', () => {
 		render(
 			<Toggle

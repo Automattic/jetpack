@@ -26,13 +26,7 @@ const PREVIOUS_DATES = [
 	new Date( '2026-05-31' ),
 ];
 
-/**
- * Pair a value series with a set of dates.
- *
- * @param dates  - One date per value.
- * @param values - The series values.
- * @return The metric points.
- */
+/** Pair a value series with a set of dates. */
 const points = ( dates: Date[], values: number[] ) =>
 	dates.map( ( date, index ) => ( { date, value: values[ index ] } ) );
 
@@ -154,6 +148,14 @@ export const PairedMetrics: Story = {
  */
 export const PairedMetricsAsBars: Story = {
 	args: { metrics: PAIRED_METRICS, dataFormat: DATA_FORMAT, chartType: 'bar' },
+};
+
+/**
+ * `tooltipMetrics="all"`: hovering reads out every metric at that date, not only
+ * the drawn one, as the WordAds chart does with ads served, CPM and revenue.
+ */
+export const AllMetricsInTooltip: Story = {
+	args: { metrics: METRICS, dataFormat: DATA_FORMAT, tooltipMetrics: 'all' },
 };
 
 type SkeletonStory = StoryObj< typeof MetricTabsChartSkeleton >;

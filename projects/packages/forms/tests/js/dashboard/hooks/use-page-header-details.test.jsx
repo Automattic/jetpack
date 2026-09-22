@@ -176,6 +176,7 @@ let mockFormRecord = { title: { rendered: 'My Form' }, status: 'publish' };
 await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	createReduxStore: jest.fn( () => 'mock-store' ),
 	register: jest.fn(),
+	select: jest.fn(),
 	useSelect: jest.fn( callback => {
 		const fakeSelect = () => ( {
 			getEntityRecord: () => mockFormRecord,
@@ -223,9 +224,8 @@ await jest.unstable_mockModule(
 
 // ── Import hook under test (after all mocks) ────────────────────────────────
 
-const usePageHeaderDetailsModule = await import(
-	'../../../../src/dashboard/wp-build/hooks/use-page-header-details'
-);
+const usePageHeaderDetailsModule =
+	await import( '../../../../src/dashboard/wp-build/hooks/use-page-header-details' );
 const usePageHeaderDetails = usePageHeaderDetailsModule.default;
 
 // ── Helpers ─────────────────────────────────────────────────────────────────

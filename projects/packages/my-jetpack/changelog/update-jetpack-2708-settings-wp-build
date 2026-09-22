@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Type the initial-state read in assetUrl() locally, so plugins that import it typecheck without My Jetpack's globals.
+
+

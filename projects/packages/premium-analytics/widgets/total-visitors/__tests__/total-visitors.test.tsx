@@ -75,21 +75,20 @@ describe( 'TotalVisitorsWidget', () => {
 
 		renderWidget();
 
-		expect( screen.getByText( '291.9K' ) ).toBeInTheDocument();
+		expect( screen.getByText( '292K' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'sparkline' ) ).toHaveAttribute(
 			'data-points',
 			'100000,100000,91900'
 		);
 	} );
 
-	it( 'exposes the unabbreviated total for hover and assistive technology', () => {
+	it( 'exposes the unabbreviated total to assistive technology', () => {
 		mockUseStatsVisits.mockReturnValue( visitsResult( REPORT ) );
 
 		renderWidget();
 
-		expect( screen.getByTitle( '291,900' ) ).toBeInTheDocument();
 		expect( screen.getByText( '291,900' ) ).toBeInTheDocument();
-		expect( screen.getByText( '291.9K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( '292K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
 	} );
 
 	it( 'does not force a decimal when the total is not abbreviated', () => {
@@ -171,7 +170,7 @@ describe( 'TotalVisitorsWidget', () => {
 
 		renderWidget();
 
-		expect( screen.getByText( '291.9K' ) ).toBeInTheDocument();
+		expect( screen.getByText( '292K' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 } );

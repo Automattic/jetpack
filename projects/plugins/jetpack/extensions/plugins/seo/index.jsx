@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { LinkPreviewModalWithTrigger } from '@automattic/jetpack-publicize/link-preview';
-import { isWpcomPlatformSite, isSimpleSite } from '@automattic/jetpack-script-data';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import {
 	useModuleStatus,
 	getJetpackExtensionAvailability,
@@ -26,6 +26,8 @@ import clsx from 'clsx';
  */
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import { SeoEnhancer } from '../ai-assistant-plugin/components/seo-enhancer';
+import { canAutoEnhanceMetadata } from '../ai-assistant-plugin/components/seo-enhancer/can-auto-enhance-metadata';
+import { isAiSeoEnabled } from '../ai-assistant-plugin/components/seo-enhancer/is-ai-seo-enabled';
 import { SeoSummary } from '../ai-assistant-plugin/components/seo-enhancer/seo-summary';
 import { useSeoModuleSettings } from '../ai-assistant-plugin/components/seo-enhancer/use-seo-module-settings';
 import { useSeoRequests } from '../ai-assistant-plugin/components/seo-enhancer/use-seo-requests';
@@ -45,11 +47,18 @@ export const name = 'seo';
 const supportsPublishSidebar =
 	typeof globalSelect( editorStore ).isPublishSidebarOpened === 'function';
 
-const isSeoEnhancerEnabled =
+const isSeoEnhancerAvailable =
 	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true &&
 	supportsPublishSidebar;
 
-const canHaveAutoEnhance = ! isSimpleSite();
+// Automatic generation never runs on Simple sites and follows the AI SEO
+// feature everywhere else.
+const canHaveAutoEnhance = canAutoEnhanceMetadata();
+
+// The AI SEO feature covers manual and automatic generation alike (host and
+// master gates folded in server-side); with it off the enhancer is not
+// rendered at all.
+const isAiSeoFeatureEnabled = isAiSeoEnabled();
 
 const Seo = () => {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
@@ -72,7 +81,7 @@ const Seo = () => {
 
 	useEffect( () => {
 		if (
-			isSeoEnhancerEnabled &&
+			isSeoEnhancerAvailable &&
 			isPrePublishPanelOpen &&
 			! previousIsOpenRef.current &&
 			! isBusy &&
@@ -162,7 +171,7 @@ const Seo = () => {
 	const jetpackSeoPublishPanelsProps = {
 		icon: <JetpackEditorPanelLogo />,
 		title: __( 'SEO', 'jetpack' ),
-		initialOpen: isSeoEnhancerEnabled,
+		initialOpen: isSeoEnhancerAvailable && isAiSeoFeatureEnabled,
 	};
 
 	// TODO: remove all code related to the SeoAssistantWizard if it's a no-go
@@ -170,31 +179,46 @@ const Seo = () => {
 		<>
 			<JetpackPluginSidebar>
 				<PanelBody title={ __( 'Optimize SEO', 'jetpack' ) } className="jetpack-seo-panel">
-					{ isSeoEnhancerEnabled && hasRequiredPlanForEnhancer && (
+					{ isSeoEnhancerAvailable && hasRequiredPlanForEnhancer && isAiSeoFeatureEnabled && (
 						<SeoEnhancer placement="jetpack-sidebar" disableAutoEnhance={ ! canHaveAutoEnhance } />
 					) }
 					<PanelRow
-						className={ clsx( { 'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled } ) }
+						className={ clsx( {
+							'jetpack-seo-sidebar__feature-section':
+								isSeoEnhancerAvailable && isAiSeoFeatureEnabled,
+						} ) }
 					>
 						<SeoTitlePanel />
 					</PanelRow>
 					<PanelRow
-						className={ clsx( { 'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled } ) }
+						className={ clsx( {
+							'jetpack-seo-sidebar__feature-section':
+								isSeoEnhancerAvailable && isAiSeoFeatureEnabled,
+						} ) }
 					>
 						<SeoDescriptionPanel />
 					</PanelRow>
 					<PanelRow
-						className={ clsx( { 'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled } ) }
+						className={ clsx( {
+							'jetpack-seo-sidebar__feature-section':
+								isSeoEnhancerAvailable && isAiSeoFeatureEnabled,
+						} ) }
 					>
 						<LinkPreviewModalWithTrigger />
 					</PanelRow>
 					<PanelRow
-						className={ clsx( { 'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled } ) }
+						className={ clsx( {
+							'jetpack-seo-sidebar__feature-section':
+								isSeoEnhancerAvailable && isAiSeoFeatureEnabled,
+						} ) }
 					>
 						<SeoNoindexPanel />
 					</PanelRow>
 					<PanelRow
-						className={ clsx( { 'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled } ) }
+						className={ clsx( {
+							'jetpack-seo-sidebar__feature-section':
+								isSeoEnhancerAvailable && isAiSeoFeatureEnabled,
+						} ) }
 					>
 						<SeoSchemaPanel />
 					</PanelRow>
@@ -207,7 +231,7 @@ const Seo = () => {
 				name="jetpack-seo"
 				icon={ <JetpackEditorPanelLogo /> }
 			>
-				{ isSeoEnhancerEnabled && hasRequiredPlanForEnhancer && (
+				{ isSeoEnhancerAvailable && hasRequiredPlanForEnhancer && isAiSeoFeatureEnabled && (
 					<SeoEnhancer placement="document-settings" disableAutoEnhance={ ! canHaveAutoEnhance } />
 				) }
 				<PanelRow>
@@ -229,7 +253,7 @@ const Seo = () => {
 
 			<PluginPrePublishPanel { ...jetpackSeoPublishPanelsProps }>
 				<div className="jetpack-seo-panel">
-					{ isSeoEnhancerEnabled && hasRequiredPlanForEnhancer && (
+					{ isSeoEnhancerAvailable && hasRequiredPlanForEnhancer && isAiSeoFeatureEnabled && (
 						<SeoEnhancer
 							placement="jetpack-prepublish-sidebar"
 							disableAutoEnhance={ ! canHaveAutoEnhance }
@@ -253,7 +277,7 @@ const Seo = () => {
 				</div>
 			</PluginPrePublishPanel>
 
-			{ isSeoEnhancerEnabled && (
+			{ isSeoEnhancerAvailable && isAiSeoFeatureEnabled && (
 				<PluginPostPublishPanel { ...jetpackSeoPublishPanelsProps }>
 					<div className="jetpack-seo-panel">
 						<SeoSummary onEdit={ handleSummaryEdit } />

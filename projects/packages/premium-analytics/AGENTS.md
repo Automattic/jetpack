@@ -21,7 +21,8 @@ Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connect
 (not on front-end page views, REST, cron, `admin-ajax.php`, or `admin-post.php` — see
 `renders_admin_chrome()`). The dashboard is served from one URL,
 `?page=jetpack-premium-analytics-wp-admin` (`Analytics::MENU_PAGE_SLUG`), registered with
-`add_menu_page()` and gated on `Capabilities::VIEW_ANALYTICS`. REST requests reach the dashboard's data
+`Admin_Menu::add_top_level_menu()` so hosts can hide it via `jetpack_admin_menu_visibility`, and
+gated on `Capabilities::VIEW_ANALYTICS`. REST requests reach the dashboard's data
 without the build: `Dashboard_Support_Routes::boot_routes()` registers the routes on
 `rest_api_init`, and `ensure_widget_registry_ready()` loads the widget manifest lazily, when a
 route callback actually reads it. `@wordpress/boot` provides the SPA shell and routing; each route
@@ -37,6 +38,9 @@ filters.
 
 ```text
 src/class-analytics.php                 # entry: loads build, registers menu + routes
+src/dashboard-sections.php              # section API: registry helpers, preview scope, REST
+src/default-dashboard-sections.php      # the package's own sections, registered through that API
+docs/dashboard-sections.md              # how a section is registered, served and rendered (diagrams)
 src/REST/class-api-proxy-controller.php # the WPCOM data proxy (PREFIX_CONFIG)
 src/REST/class-notices-controller.php   # /notices route
 src/Sync/                               # interim woocommerce_analytics sync (WOOA7S-1550)
@@ -57,10 +61,39 @@ jetpack build --deps packages/premium-analytics
 wp-build-polyfills, assets) must already be built. `jetpack build --deps` builds
 them first — use it after merging trunk or when charts exports look stale.
 
+### Storybook serves the built artifact of some internal packages
+
+Storybook's Vite config maps bare `@jetpack-premium-analytics/*` imports to `src/`, but that only
+takes effect for packages whose `package.json` declares no `module` field (`datetime`,
+`formatters`, `icons`, `routing`). The rest — `data`, `externals`, `fields`, `init`, `site-sync`,
+`ui`, `widgets-toolkit` — point `module` at `build-module/index.mjs`, and Storybook loads that
+artifact instead, so an edit to their source is invisible there until it is rebuilt. A newly added
+export surfaces as `The requested module '…/build-module/index.mjs' does not provide an export
+named 'X'`, and a changed one silently renders the old behaviour. Run `pnpm run build` (or
+`jetpack build --deps packages/premium-analytics`) before trusting what Storybook shows for those
+packages.
+
 Add a route: create `routes/<name>/package.json` (with `route.path` + `route.page`) and a
 `stage.tsx` exporting `stage()`; rebuild — routes are auto-discovered.
 
+Add a dashboard section, from this package or from another plugin: hook
+`jetpack_premium_analytics_register_dashboard_sections` and call `register_dashboard_section()`
+there; the callback receives the registry being hydrated, for lookups such as
+`get_registered_by_slug()`. The section registry hydrates on its first read, from wp-admin or from
+REST, and fires that action once; `src/default-dashboard-sections.php` registers the package's own sections the same
+way. A section declares its default layout in the registration; the
+`jetpack_premium_analytics_dashboard_default_layout` filter lets another plugin add an instance to
+any section by id. `docs/dashboard-sections.md` walks through the whole path with diagrams.
+
 Depends on `jetpack-connection`, `jetpack-stats`, `jetpack-sync`, `jetpack-config`.
+
+### Timing-dependent JS tests use fake timers
+
+Any Jest test that waits on time — `waitFor`, React Query updates, debounces, `setTimeout` — must
+call `jest.useFakeTimers()` and restore with `jest.useRealTimers()` in `afterEach`. On real timers
+a stalled CI runner can push the update past `waitFor`'s 1s deadline and flake the test. Tests
+driving `userEvent` also need `userEvent.setup( { advanceTimers: jest.advanceTimersByTime } )`.
+See `widgets/wordads-chart-tabs/__tests__/wordads-chart-tabs.test.tsx`.
 
 ## API
 
@@ -78,22 +111,27 @@ Two local REST surfaces; almost all data comes from WordPress.com via one agnost
 - `<prefix>` must be allowlisted in `PREFIX_CONFIG` or the route 404s. This is the security
   boundary — the blog token is only forwarded for these.
 
-| Prefix                                                            | Capability                 | Writes (POST)                   |
-| ----------------------------------------------------------------- | -------------------------- | ------------------------------- |
-| `analytics` (Woo store reports)                                   | `view_woocommerce_reports` | —                               |
-| `stats`                                                           | `view_stats`               | `stats/referrers/spam/`         |
-| `wordads`                                                         | `activate_wordads`         | —                               |
-| `subscribers` / `site-has-never-published-post` / `jetpack-stats` | `view_stats`               | —                               |
-| `jetpack-stats-dashboard`                                         | `view_stats`               | whole prefix (busts read cache) |
-| `commercial-classification`                                       | `view_stats`               | exact path                      |
-| `upgrades` (not under `/sites/`)                                  | `view_stats`               | —                               |
-| `posts` (pattern-constrained: only `<id>/likes`)                  | `view_stats`               | —                               |
+| Prefix                                           | Capability                 | Writes (POST)                   |
+| ------------------------------------------------ | -------------------------- | ------------------------------- |
+| `analytics` (Woo store reports)                  | `view_woocommerce_reports` | —                               |
+| `stats`                                          | `view_stats`               | `stats/referrers/spam/`         |
+| `wordads`                                        | `activate_wordads`         | —                               |
+| `subscribers` / `site-has-never-published-post`  | `view_stats`               | —                               |
+| `jetpack-stats`                                  | `view_stats`               | `jetpack-stats/user-feedback`   |
+| `jetpack-stats-dashboard`                        | `view_stats`               | whole prefix (busts read cache) |
+| `commercial-classification`                      | `view_stats`               | exact path                      |
+| `upgrades` (not under `/sites/`)                 | `view_stats`               | —                               |
+| `posts` (pattern-constrained: only `<id>/likes`) | `view_stats`               | —                               |
 
 `manage_options` is always accepted too. `POST` is rejected (`405 rest_read_only`) outside the
 Writes column. Query params pass through except control params (`endpoint`, `version`,
 `force_refresh`) and `site`. Successful `GET`s are cached 5 min (key: path+version+params); add
 `force_refresh` to bypass. `x-wp-total` / `x-wp-totalpages` are forwarded back. Errors:
 `403 no_connection`, `500`/`502 api_error`, `405 rest_read_only`, `401`/`403` on a failed cap.
+
+The `jetpack-stats` write is the one body the proxy rewrites: it gains the submitting user's
+`user_email` (`inject_user_email`), because the blog token names no user and WPCOM would
+otherwise attribute the feedback to the first administrator it finds.
 
 ### Notices
 
@@ -104,7 +142,7 @@ gets its own route outside `proxy/`, like this.
 ### Adding a proxied endpoint
 
 To add a transparent forward, add a key to `PREFIX_CONFIG` (at least `capability`; add
-`writes` / `cache_bust` as needed) and cover it in `data_endpoint_matrix()`.
+`writes` / `cache_bust` / `inject_user_email` as needed) and cover it in `data_endpoint_matrix()`.
 
 ### Migrating from Stats / Woo Analytics
 
@@ -117,7 +155,22 @@ prefixes; Woo `analytics/reports/*` → `proxy/v2/analytics/reports/*`. The dash
 
 Simple has no local proxy, notices, sync, or dashboard support routes — WPCOM serves the dashboard
 and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the package via
-`Analytics::init_wpcom_simple()`, behind the `jetpack-premium-analytics` blog sticker.
+`Analytics::init_wpcom_simple()`, behind the site's own `jetpack_premium_analytics_enabled`
+opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both answer the
+shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
+
+Which one says yes also decides how many tabs the dashboard offers: the site's own opt-in is the
+customer preview and exposes only the sections in `PREVIEW_SECTIONS`, while a sticker or filter
+override exposes every section the site qualifies for. `jetpack_premium_analytics_dashboard_preview_scope`
+overrides that per section — `__return_true` gives a development or test site the whole dashboard.
+The `premium-analytics-a11n-all-sections` flag does the same for Automatticians only; see
+`docs/dashboard-sections.md`.
+
+The same list the tab bar gets over REST also reaches the client as
+`premium_analytics.preview_sections` in the script data, which is what keeps `/reports/…` out of a
+scoped preview: each report declares the tab it belongs to, and `getReportDefinition()` treats one
+behind a hidden tab as unknown. The detail routes follow their own report (`posts`, `videos`,
+`authors`) rather than declaring a tab.
 
 ### Route guards must use the shared site-readiness helpers
 
@@ -153,7 +206,7 @@ script data.
 
 ### Why the dashboard support routes moved from `jetpack/v4` to `wpcom/v2`
 
-The dashboard support routes (widget modules, default layout, sections) used to live under
+The dashboard support routes (widget modules, sections) used to live under
 `jetpack/v4` — the self-hosted Jetpack plugin's own namespace. WPCOM's REST centralization doesn't
 recognize or expose that namespace for Simple sites, which run no Jetpack plugin at all, so those
 routes were unreachable from public-api. `wpcom/v2` is a namespace WPCOM's centralization already
@@ -173,7 +226,7 @@ notices) can stay under `jetpack-premium-analytics/v1`, since Simple never calls
 
 **WPCOM's public-api process calls `Dashboard_Support_Routes::register()` directly**
 (`src/class-dashboard-support-routes.php`) to register the dashboard's REST support routes
-(widget modules, default layout, sections) standalone. The WPCOM-side caller is
+(widget modules, sections) standalone. The WPCOM-side caller is
 `wp-content/rest-api-plugins/jetpack-endpoints/premium-analytics-dashboard.php` in the `wpcom`
 repo — it `require_once`s this exact file and calls `::register()` by name.
 
@@ -190,23 +243,14 @@ See Automattic/jetpack#50266 for the PR that established this contract.
 - Don't edit dashboard React in Calypso — it lives here now.
 - Internal package names use `@jetpack-premium-analytics/*` aliases throughout the package —
   never `@automattic/jetpack-premium-analytics-*`.
-- Never import `@automattic/ui`, `@wordpress/ui`, or `@wordpress/dataviews` directly from
-  anything under `packages/`, `widgets/`, or `routes/` — go through
-  `@jetpack-premium-analytics/externals`. A direct import compiles the whole library into that
-  bundle again; ESLint enforces this. `@automattic/charts` follows the same rule under
-  `packages/`, but under `widgets/` and `routes/` it must come from
-  `@jetpack-premium-analytics/widgets-toolkit` instead. See `packages/externals/README.md`.
+- Never import `@wordpress/ui` or `@wordpress/dataviews` directly from anything under
+  `packages/`, `widgets/`, or `routes/` — go through `@jetpack-premium-analytics/externals`. A
+  direct import compiles the whole library into that bundle again; ESLint enforces this.
+  `@automattic/charts` follows the same rule under `packages/`, but under `widgets/` and
+  `routes/` it must come from `@jetpack-premium-analytics/widgets-toolkit` instead. See
+  `packages/externals/README.md`.
 
 ## Comments and documentation
-
-Code explains what; comments explain why. Keep them minimal.
-
-- Document non-obvious rules, constraints, invariants, risks, and workarounds — not names,
-  types, or signatures. Prefer a clearer name over an explanatory comment.
-- Private functions do not need a docstring by default. One sentence is usually enough.
-- Never invent rationale. Treat a stale comment as a bug: one that contradicts the code is
-  worse than no comment at all.
-- All source code comments must be in English.
 
 Load-bearing here and easy to delete by mistake: the `max = 0` semantics, the
 `undefined`-not-`0` comparison rules, `safeHttpUrl` guards (including the ones explaining why a
@@ -377,6 +421,9 @@ as Storybook controls.
 UI. Widgets without mapped comparison rows omit the story and the `withComparison` control. Their
 `WidgetDashboardWithWidget` story should still pass comparison report params by default, so the
 widget is covered against crashing or inventing deltas when the host supplies comparison dates.
+A widget that hosts its own date control still injects `reportParams` — its stories start
+where the header control would — but passes them without comparison, because the widget
+scopes itself with `offersComparison={ false }`. See `.agents/rules/widgets.md`.
 
 The shared imports, helpers, and `meta`:
 
@@ -604,7 +651,7 @@ const report = primary.data as StatsNormalizedReport< StatsXxxItem > | undefined
 const items = report?.data?.[ 0 ]?.items ?? [];
 ```
 
-Date-range conversion (`from`/`to` → `period`/`end_date`/`days`) is handled inside
+Date-range conversion (`from`/`to` → `period`/`start_date`/`date`) is handled inside
 the query factory — do not do it in the widget or the view hook.
 
 **Row count**
@@ -660,7 +707,7 @@ area. Notes:
 - `isFetching` draws nothing — it only marks the widget `aria-busy`. A revalidation of unchanged
   params leaves the right numbers on screen, and blanking them reports a refresh nobody asked for
   (WOOA7S-1934). Nothing unmounts, so children keep their own state and keyboard focus.
-- Every other branch *does* unmount the children, and a drill-down reaches the skeleton by
+- Every other branch _does_ unmount the children, and a drill-down reaches the skeleton by
   definition (it changes the params). `<WidgetState>` catches the focus that would otherwise fall
   to `<body>` and parks it on its own root, so the next Tab continues from the widget instead of
   the top of the page. Widgets need do nothing for this, but drill-down rows must be real
@@ -758,11 +805,22 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
 - Widget title: use the framed widget host header via the widget definition/title/icon. Do not
   add a second in-widget `<Text variant="heading-md" render={ <h3 /> }>` title for framed Stats
   widgets.
-- View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }`
-- Leaderboard row height: custom labels should produce a stable 36px row height. For the common
-  `<Text>` label case, `padding: var(--wpds-dimension-padding-sm)` is enough when the text
-  line-height plus vertical padding yields 36px. Use `min-height: 36px` when the label content
-  or typography does not naturally produce that height.
+- View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true } } }`.
+  Compact output picks its own precision (1.2K, 54.3K, 234K), and `MetricValue` / `LeaderboardChart`
+  restore the exact figure in a tooltip and for assistive tech; wrap a hand-rendered figure in
+  `<AbbreviatedValue>` to get the same.
+  `widgets/tags` is the one exception — it passes `useMultipliers: false` because compacting
+  ("1,240" → "1K") was reported as a data mismatch against the Jetpack Stats module it is read
+  beside (WOOA7S-2018). Report tables already print in full, so the widgets are the outliers;
+  whether the rest follow is a product call to raise, not a refactor to do. It is not free: the
+  leaderboard grid is `minmax(0, 1fr) auto`, so the wider value permanently takes width from the
+  label — at the 370px tile a long name ellipsizes where the compact form left it room.
+- Leaderboard rows: spread `buildLeaderboardRow()` into the chart entry — it carries the
+  drill-down `onClick`/`ariaLabel` that a bare `<LeaderboardRow>` label silently drops. Use
+  `<LeaderboardRow>` directly only outside a chart, as `widgets/tags` does for its drilled-in
+  member list. A hand-written copy drifts from the shared row box. `video-detail-embeds` is the
+  one exception, a plain list rather than a leaderboard, and matches the shared row's 36px height
+  and `padding-inline` by hand — not the rest of `.row`.
 - Loading / error / empty state: render through `<WidgetState>` (see "Loading / error / empty
   state" above), not `LeaderboardChart`'s `emptyStateText` or a hand-rolled `data.length === 0`
   branch. Empty uses a neutral glyph distinct from the error icon.

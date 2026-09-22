@@ -1,27 +1,54 @@
 /**
+ * External dependencies
+ */
+import {
+	reportParamsAttributeField,
+	type ReportParamsFieldAttributes,
+} from '@jetpack-premium-analytics/fields';
+import {
+	chartTypeAttributeField,
+	type ChartDisplayChartType,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+/**
  * WordPress dependencies
  */
-import { chartBar } from '@wordpress/icons';
-
+import { megaphone } from '@wordpress/icons';
 /**
- * The widget has no user-configurable attributes: the bucket size follows the
- * dashboard's chart interval control. Report params still reach it through
- * WidgetRoot: the dashboard date range, or `attributes.reportParams` when a
- * host injects them (e.g. Storybook and dashboard previews).
+ * Internal dependencies
  */
-export type WordAdsChartTabsAttributes = Record< never, never >;
+import { DEFAULT_REPORT_PARAMS } from './default-report-params';
+import { WORDADS_GRAIN } from './grain';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
- * Widget type definition.
+ * The widget owns its date control because other Ads widgets accept no dates.
+ *
+ * @property chartType - How to draw the selected metric. Defaults to `line`.
+ */
+export type WordAdsChartTabsAttributes = Partial< ReportParamsFieldAttributes > & {
+	chartType?: ChartDisplayChartType;
+};
+
+/**
+ * WordAds metric tabs with a widget-owned date control. Requires active WordAds.
  *
  * Ported from the Jetpack Stats `wordads-chart-tabs` card in wp-calypso (the
- * chart above the WordAds page). Renders the selected period's ads served,
- * average CPM, and revenue as selectable metric tabs — the upstream page's tab
- * labels and order — over a comparative line chart. The date range, comparison
- * state, and bucket size all come from the dashboard via `reportParams`. Which
- * metric is plotted is the chart's own tab selection.
- * Requires WordAds to be active on the site.
+ * chart above the WordAds page); the tab labels and order match it. The bucket
+ * size follows the selected window, so the date field offers the window alone.
  */
 export default {
-	icon: chartBar,
+	icon: megaphone,
+	attributes: [
+		reportParamsAttributeField< WordAdsChartTabsAttributes >( {
+			grain: WORDADS_GRAIN,
+			offersComparison: false,
+		} ),
+		chartTypeAttributeField(),
+	] as WidgetAttributeField< WordAdsChartTabsAttributes >[],
+	example: {
+		attributes: {
+			reportParams: DEFAULT_REPORT_PARAMS,
+			chartType: 'line',
+		},
+	},
 };

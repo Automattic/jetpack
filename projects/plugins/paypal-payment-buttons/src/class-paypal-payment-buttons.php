@@ -60,8 +60,19 @@ class PayPal_Payment_Buttons {
 	 * @return void
 	 */
 	public function init_hooks() {
+		// The API-managed buttons ship behind a flag; register it before anything reads it.
+		Jetpack_PayPal_Payment_Buttons::register_feature_flags();
+
 		// Initialize PayPal Payment Buttons block with correct dist path
 		add_action( 'init', array( $this, 'register_paypal_block' ), 9 );
+
+		// Initialize PayPal API integration (REST routes for OAuth + button management).
+		Jetpack_PayPal_Payment_Buttons::init_api();
+
+		// Initialize admin dashboard (Payment Links list page).
+		if ( is_admin() ) {
+			Jetpack_PayPal_Payment_Buttons::init_admin();
+		}
 
 		// Load scripts for the editing interface
 		add_action( 'enqueue_block_editor_assets', array( Jetpack_PayPal_Payment_Buttons::class, 'load_editor_scripts' ), 9 );
@@ -87,11 +98,14 @@ class PayPal_Payment_Buttons {
 			return false;
 		}
 
+		Jetpack_PayPal_Payment_Buttons::register_block_style();
+
 		// Register the block using the Blocks package with the correct dist path
 		Blocks::jetpack_register_block(
 			$dist_dir,
 			array(
 				'render_callback' => array( Jetpack_PayPal_Payment_Buttons::class, 'render_block' ),
+				'style'           => Jetpack_PayPal_Payment_Buttons::STYLE_HANDLE,
 			)
 		);
 	}
@@ -117,6 +131,7 @@ class PayPal_Payment_Buttons {
 					'available' => true,
 				),
 			),
+			'feature_flags'    => Jetpack_PayPal_Payment_Buttons::add_editor_feature_flags( array() ),
 		);
 
 		wp_localize_script(

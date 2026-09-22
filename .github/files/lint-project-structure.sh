@@ -782,9 +782,9 @@ if [[ -d node_modules/.pnpm/node_modules ]]; then
 	echo '::error::Packages are unexpectedly hoisted into node_modules/.pnpm/node_modules. This is likely to lead to phantom dependencies! Whatever you did that resulted in this is probably wrong. Ask for help in Slack #jetpack-monorepo.'
 fi
 
-# - Obsolete pnpm trustPolicyExclude.
-debug "Checking for obsolete pnpm trustPolicyExclude"
-"$BASE/tools/js-tools/check-obsolete-pnpm-trust-policy-exclude.mjs" || EXIT=1
+# - Check for stuff in pnpm-workspace.yaml that we don't want there.
+debug "Checking pnpm-workspace.yaml"
+"$BASE/tools/js-tools/check-pnpm-workspace-yaml.mjs" || EXIT=1
 
 # - pnpm lockfile bug: https://github.com/pnpm/pnpm/issues/12228
 debug "Checking for pnpm lockfile bug https://github.com/pnpm/pnpm/issues/12228"

@@ -3,9 +3,8 @@ import type { StatsNormalizedDataPoint, StatsNormalizedItem, StatsNormalizedRepo
 import type { StatsPeriod } from '../../utils/stats-params';
 
 /**
- * The buckets a client-side bucketed chart can draw, ordered finest first —
- * the order `defaultPeriodForInterval()` clamps against. `satisfies` ties the
- * set to what the Stats endpoints accept, so it cannot drift from `StatsPeriod`.
+ * The buckets a client-side bucketed chart can draw. `satisfies` ties the set to
+ * what the Stats endpoints accept, so it cannot drift from `StatsPeriod`.
  */
 export const STATS_CHART_BUCKET_PERIODS = [
 	'day',
@@ -49,9 +48,8 @@ export function getStatsChartBucketKey( date: string, period: StatsChartBucketPe
 /**
  * Collapse a normalized daily Stats report into chart buckets.
  *
- * The caller maps each data point to its chart metrics, including the required
- * headline `value`. Metrics are summed when daily points share a chart bucket.
- * Each bucket preserves the first daily point's time suffix.
+ * Metrics are summed when daily points share a bucket, and each bucket keeps the
+ * first daily point's time suffix.
  *
  * @param report          - The normalized daily Stats report.
  * @param period          - The chart bucket period.

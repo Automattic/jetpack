@@ -51,6 +51,7 @@ export {
 	buildCsv,
 	buildCsvDateRangeFilename,
 	saveCsv,
+	withComparisonColumns,
 	type CsvColumn,
 	type CsvDateRange,
 } from './build-csv';
@@ -60,43 +61,42 @@ export { getVideoKey, getVideoLabel } from './video-plays';
 export { describeError } from './describe-error';
 export { summaryCount } from './summary-count';
 export { toDay } from './to-day';
-export { defaultPeriodForInterval } from './default-period-for-interval';
-export { granularitiesForRange } from './granularities-for-range';
+export { defaultPeriodForInterval } from '@jetpack-premium-analytics/data';
 export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from './build-metric-tab';
-export { fromChartDate, toChartDate } from './chart-date';
 export { dateFormatForResolution } from './tick-resolution-date-format';
-export {
-	followedGranularity,
-	GRANULARITY_ATTRIBUTE,
-	GRANULARITY_PICKED_FOR_ATTRIBUTE,
-} from './followed-granularity';
 export {
 	CHART_DISPLAY_CHART_TYPES,
 	chartTypeAttributeField,
-	granularityAttributeField,
-	granularityOptions,
 	type ChartDisplayChartType,
-	type ChartGranularityOption,
 } from './chart-display-attribute-fields';
 export {
 	CELL_GAP as CALENDAR_HEATMAP_CELL_GAP,
 	HEADER_HEIGHT as CALENDAR_HEATMAP_HEADER_HEIGHT,
-	compactCalendarHeatmapCapacity,
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,
 	type CalendarHeatmapLayout,
 	type CalendarHeatmapLayoutInput,
 	type FitWeekColumnsInput,
 } from './calendar-heatmap-layout';
+export { formatEmailRate, isEmailRateKnown, type EmailRateSignals } from './format-email-rate';
 export { formatViewCount } from './format-view-count';
+export { MONTHS_IN_YEAR, monthOrder, type MonthKey } from './month-key';
+export {
+	MONTHLY_HEATMAP_METRICS,
+	monthlyHeatmapLabels,
+	monthlyHeatmapMetricAttributeField,
+	resolveMonthlyHeatmapMetric,
+	type MonthlyHeatmapMetric,
+} from './monthly-heatmap-metric';
+export { monthlyHeatmapLifeStart } from './monthly-heatmap-life-start';
+export { monthRange, yearRange, type PeriodBounds } from './period-range';
+export { siteChartFormatting } from './site-chart-formatting';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
-export { formatTooltipSeriesLabel } from './format-tooltip-series-label';
+export { formatTooltipPointLabel } from './format-tooltip-point-label';
 export { resolveSeriesNames, type ResolvedSeriesNames } from './resolve-series-names';
+export { appendTooltipExtras, resolveTooltipNames } from './tooltip-extras';
 export {
 	buildDenseDaySeries,
 	resolveCalendarHeatmapGridStart,
-	resolveCalendarHeatmapWindow,
-	resolveCalendarHeatmapWindowDays,
 	type CalendarHeatmapWindow,
-	type CalendarHeatmapWindowBounds,
 } from './calendar-heatmap-window';

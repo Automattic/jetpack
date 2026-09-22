@@ -24,10 +24,11 @@ use function add_filter;
 use function do_action;
 use function remove_action;
 use function remove_filter;
+use function wp_json_encode;
 
 /**
  * Tests that the modernization filter is the only thing standing between
- * the legacy plugin and the eight new bridge routes.
+ * the legacy plugin and the nine new bridge routes.
  *
  * The rest of the suite exercises each bridge with the filter forced on,
  * so nothing there would notice if the gate stopped working. These two
@@ -305,5 +306,359 @@ class Rest_Bridge_Gating_Test extends TestCase {
 
 		$this->assertSame( 'http_request_failed', $data['transport']['code'] );
 		$this->assertSame( 'cURL error 6: Could not resolve host', $data['transport']['message'] );
+	}
+
+	/**
+	 * The reason is read out of all three shapes WordPress.com answers in.
+	 *
+	 * The shapes disagree about which key holds the machine token, and one
+	 * of them has no token at all — so what separates them is whether the
+	 * value is a word or a sentence. Getting that sorting wrong is silent:
+	 * a sentence in `code` is simply a key the client can never match.
+	 *
+	 * @param string $label    What this body is.
+	 * @param string $body     Raw body WordPress.com answers with.
+	 * @param array  $expected The reason it should yield.
+	 * @dataProvider provide_upstream_bodies
+	 */
+	#[DataProvider( 'provide_upstream_bodies' )]
+	public function test_upstream_reason_reads_each_envelope( $label, $body, array $expected ) {
+		$this->assertSame( $expected, Rest_Controller::upstream_reason( $body ), $label );
+	}
+
+	/**
+	 * Bodies WordPress.com answers a failed request with.
+	 *
+	 * @return array
+	 */
+	public static function provide_upstream_bodies() {
+		return array(
+			// wpcom/v2 serializes a WP_Error. This is the shape the restore
+			// and capabilities routes refuse in.
+			'a v2 WP_Error envelope'       => array(
+				'a v2 WP_Error envelope',
+				'{"code":"no_connected_jetpack","message":"This site is not connected.","data":{"status":412}}',
+				array(
+					'code'    => 'no_connected_jetpack',
+					'message' => 'This site is not connected.',
+				),
+			),
+			// The older v1 envelope names the same token `error`.
+			'a v1 error envelope'          => array(
+				'a v1 error envelope',
+				'{"error":"authorization_required","message":"An active access token must be used."}',
+				array(
+					'code'    => 'authorization_required',
+					'message' => 'An active access token must be used.',
+				),
+			),
+			// VaultPress's own 200 body. `error` is a sentence here, so it
+			// must land in `message` — the half nothing branches on.
+			'a VaultPress refusal'         => array(
+				'a VaultPress refusal',
+				'{"ok":false,"error":"There is already a restore in progress"}',
+				array( 'message' => 'There is already a restore in progress' ),
+			),
+			'a token with no prose beside' => array(
+				'a token with no prose beside',
+				'{"error":"rewind_error"}',
+				array( 'code' => 'rewind_error' ),
+			),
+			// Everything below names no reason, and must not invent one.
+			'an HTML gateway page'         => array( 'an HTML gateway page', '<html>502 Bad Gateway</html>', array() ),
+			'an empty body'                => array( 'an empty body', '', array() ),
+			'a body with no reason keys'   => array( 'a body with no reason keys', '{"capabilities":["backup"]}', array() ),
+			'a blank reason'               => array( 'a blank reason', '{"code":"   ","message":""}', array() ),
+			// A non-string `code` is upstream drift, not a reason. Casting
+			// it would put `Array` or `1` in front of a support agent.
+			'a non-string code'            => array( 'a non-string code', '{"code":{"nested":true}}', array() ),
+		);
+	}
+
+	/**
+	 * A multi-line upstream message is flattened before it is forwarded.
+	 *
+	 * Newlines go first so an indented stack trace cannot spend the length
+	 * budget on whitespace before it says anything.
+	 */
+	public function test_upstream_reason_flattens_whitespace() {
+		$reason = Rest_Controller::upstream_reason( "{\"message\":\"Restore failed.\\n\\n    Disk full.\"}" );
+
+		$this->assertSame( 'Restore failed. Disk full.', $reason['message'] );
+	}
+
+	/**
+	 * A long upstream message is clipped rather than copied out whole.
+	 *
+	 * Neither half is bounded upstream and both are forwarded on every
+	 * failed request, so this is the only thing standing between a
+	 * VaultPress stack trace and the browser.
+	 */
+	public function test_upstream_reason_clips_a_long_message() {
+		$reason = Rest_Controller::upstream_reason(
+			wp_json_encode( array( 'message' => str_repeat( 'a', 500 ) ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
+		);
+
+		$this->assertSame( str_repeat( 'a', 200 ) . '…', $reason['message'] );
+	}
+
+	/**
+	 * The clip counts characters, and lands between them rather than
+	 * inside one.
+	 *
+	 * Three bytes per character on purpose, and both assertions depend on
+	 * it. An earlier version used `é` at two bytes, where a 200-byte cut
+	 * lands on a character boundary anyway — so the value stayed valid
+	 * UTF-8 no matter what the implementation did, and that half of the
+	 * test could not fail. 200 is not a multiple of 3, so this one
+	 * genuinely splits a character when the clip counts bytes.
+	 *
+	 * The validity check is asserted first because PHPUnit stops at the
+	 * first failure, and behind the length check it would never run under
+	 * the mutation it exists to catch.
+	 *
+	 * `mb_check_encoding()` and not `wp_json_encode() !== false`: WordPress
+	 * does not reject an invalid string, it rewrites it. The broken bytes
+	 * come back as a `?` and the encode succeeds, so an assertion phrased
+	 * that way would pass over exactly the damage it was written for.
+	 */
+	public function test_upstream_reason_clips_on_character_boundaries() {
+		$reason = Rest_Controller::upstream_reason(
+			wp_json_encode( array( 'message' => str_repeat( '日', 500 ) ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
+		);
+
+		$this->assertTrue( mb_check_encoding( $reason['message'], 'UTF-8' ) );
+		// And the budget is spent in characters, which is the larger half
+		// of the harm: a byte-wise clip keeps 67 of these, not 200.
+		$this->assertSame( str_repeat( '日', 200 ) . '…', $reason['message'] );
+	}
+
+	/**
+	 * A non-200 keeps WordPress.com's status and its reason, under the
+	 * bridge's own code and translated message.
+	 *
+	 * 412 rather than 500 on purpose: 500 is also what an unreadable
+	 * status falls back to, so a test written against it would pass
+	 * whether the status was forwarded or thrown away.
+	 */
+	public function test_upstream_error_forwards_status_and_reason() {
+		$response = array(
+			'response' => array( 'code' => 412 ),
+			'body'     => '{"code":"no_connected_jetpack","message":"This site is not connected."}',
+		);
+
+		$error = Rest_Controller::upstream_error( $response, 'restore_initiate_failed', 'Could not start the backup restore.' );
+		$data  = $error->get_error_data();
+
+		$this->assertSame( 'restore_initiate_failed', $error->get_error_code() );
+		$this->assertSame( 'Could not start the backup restore.', $error->get_error_message() );
+		$this->assertSame( 412, $data['status'] );
+		$this->assertSame( 'no_connected_jetpack', $data['wpcom']['code'] );
+		$this->assertSame( 'This site is not connected.', $data['wpcom']['message'] );
+	}
+
+	/**
+	 * A status the transport reports as a string still travels as a number.
+	 *
+	 * The client reads `data.status` numerically — `isAmbiguousFailure()`
+	 * tests it with `typeof … === 'number'` and would call a string-status
+	 * failure ambiguous, which for the restore mutation means offering to
+	 * start a second one.
+	 */
+	public function test_upstream_error_casts_a_string_status() {
+		$response = array(
+			'response' => array( 'code' => '401' ),
+			'body'     => '',
+		);
+
+		$data = Rest_Controller::upstream_error( $response, 'capabilities_fetch_failed', 'x' )->get_error_data();
+
+		$this->assertSame( 401, $data['status'] );
+	}
+
+	/**
+	 * A response with no readable status is reported as 500, never as 0.
+	 *
+	 * `status_header( 0 )` emits an invalid status line, so a zero must not
+	 * be allowed to reach the response at all.
+	 *
+	 * @param string $label    What is wrong with this response.
+	 * @param array  $response The wp_remote_* response.
+	 * @dataProvider provide_responses_without_a_status
+	 */
+	#[DataProvider( 'provide_responses_without_a_status' )]
+	public function test_upstream_error_never_forwards_a_zero_status( $label, array $response ) {
+		$data = Rest_Controller::upstream_error( $response, 'download_status_fetch_failed', 'x' )->get_error_data();
+
+		$this->assertSame( 500, $data['status'], $label );
+	}
+
+	/**
+	 * Responses whose status cannot be read as a number.
+	 *
+	 * @return array
+	 */
+	public static function provide_responses_without_a_status() {
+		return array(
+			'no response key'       => array( 'no response key', array( 'body' => '' ) ),
+			'an empty status'       => array( 'an empty status', array( 'response' => array( 'code' => '' ) ) ),
+			'a literal zero'        => array( 'a literal zero', array( 'response' => array( 'code' => 0 ) ) ),
+			'an unparseable status' => array( 'an unparseable status', array( 'response' => array( 'code' => 'weird' ) ) ),
+		);
+	}
+
+	/**
+	 * A body that names no reason adds no key.
+	 *
+	 * An always-present `wpcom` holding an empty array would read, to
+	 * anyone looking at a failed request, as "WordPress.com said nothing"
+	 * being indistinguishable from "we did not look".
+	 */
+	public function test_upstream_error_omits_the_reason_when_there_is_none() {
+		$response = array(
+			'response' => array( 'code' => 503 ),
+			'body'     => '<html>503 Service Unavailable</html>',
+		);
+
+		$data = Rest_Controller::upstream_error( $response, 'activity_log_fetch_failed', 'x' )->get_error_data();
+
+		$this->assertSame( 503, $data['status'] );
+		$this->assertArrayNotHasKey( 'wpcom', $data );
+	}
+
+	/**
+	 * A success code never reaches `data.status`, however it arrives.
+	 *
+	 * The most dangerous input this function takes, and the reason the
+	 * status is clamped to the failure range rather than tested for
+	 * truthiness. Every bridge now casts before comparing, so nothing
+	 * should reach here with a success code — this pins what happens if
+	 * one ever stops, which is the cheap half of a bargain whose expensive
+	 * half is silent. Forwarded, a 200 would make WordPress serve the error
+	 * envelope as HTTP 200: `apiFetch` resolves, `apiCall()` never throws,
+	 * `isAmbiguousFailure()` never runs, and the restore mutation's
+	 * `onSuccess` reports a restore that never started.
+	 *
+	 * The junk cases ride along because `(int)` is total — `'2 Bad'` is 2
+	 * and `true` is 1 — and a low status is no more servable than a zero.
+	 *
+	 * @param string $label    What this response carries.
+	 * @param mixed  $upstream The status code the transport reports.
+	 * @dataProvider provide_statuses_that_are_not_failures
+	 */
+	#[DataProvider( 'provide_statuses_that_are_not_failures' )]
+	public function test_upstream_error_never_forwards_a_success_status( $label, $upstream ) {
+		$response = array(
+			'response' => array( 'code' => $upstream ),
+			'body'     => '{"code":"rewind_error"}',
+		);
+
+		$data = Rest_Controller::upstream_error( $response, 'restore_initiate_failed', 'x' )->get_error_data();
+
+		$this->assertSame( 500, $data['status'], $label );
+	}
+
+	/**
+	 * Statuses that must never be forwarded as the failure's own.
+	 *
+	 * @return array
+	 */
+	public static function provide_statuses_that_are_not_failures() {
+		return array(
+			// The one that matters: what an un-cast caller would route
+			// into the failure branch on a perfectly good response. Every
+			// status comparison in the package has its own test that it
+			// does not — the bridges here, the legacy routes in
+			// `Jetpack_Backup_Test` and `REST_Controller_Test`.
+			'a 200 reported as a string' => array( 'a 200 reported as a string', '200' ),
+			'a 204 reported as a string' => array( 'a 204 reported as a string', '204' ),
+			'a real 200'                 => array( 'a real 200', 200 ),
+			'a 3xx'                      => array( 'a 3xx', 302 ),
+			'a status with a suffix'     => array( 'a status with a suffix', '2 Bad' ),
+			'a float'                    => array( 'a float', 3.7 ),
+			'a boolean'                  => array( 'a boolean', true ),
+			'a status above the range'   => array( 'a status above the range', 600 ),
+		);
+	}
+
+	/**
+	 * Two sentences are both kept, specific one first.
+	 *
+	 * A VaultPress refusal wrapped in a generic envelope puts the reason
+	 * in `error` and boilerplate in `message`. An earlier revision
+	 * promoted `error` only when `message` was empty, so this shape —
+	 * the one the restore bridge exists to read — silently kept the
+	 * boilerplate and dropped the reason.
+	 */
+	public function test_upstream_reason_keeps_both_sentences() {
+		$reason = Rest_Controller::upstream_reason(
+			'{"ok":false,"error":"There is already a restore in progress","message":"Rewind failed"}'
+		);
+
+		$this->assertSame( 'There is already a restore in progress Rewind failed', $reason['message'] );
+		$this->assertArrayNotHasKey( 'code', $reason );
+	}
+
+	/**
+	 * The same text in both keys is not said twice.
+	 */
+	public function test_upstream_reason_does_not_repeat_a_duplicated_sentence() {
+		$reason = Rest_Controller::upstream_reason(
+			'{"error":"Rewind failed for this site","message":"Rewind failed for this site"}'
+		);
+
+		$this->assertSame( 'Rewind failed for this site', $reason['message'] );
+	}
+
+	/**
+	 * A code beside a sentence still keeps both halves.
+	 *
+	 * The v1 envelope's ordinary shape, pinned so the two-sentence fix
+	 * above cannot regress it into folding the token in with the prose.
+	 */
+	public function test_upstream_reason_keeps_a_code_and_its_prose() {
+		$reason = Rest_Controller::upstream_reason(
+			'{"error":"authorization_required","message":"An active access token must be used."}'
+		);
+
+		$this->assertSame( 'authorization_required', $reason['code'] );
+		$this->assertSame( 'An active access token must be used.', $reason['message'] );
+	}
+
+	/**
+	 * Whitespace is judged in Unicode, not in ASCII.
+	 *
+	 * `\s` without `/u` is ASCII-only, so a sentence spaced with U+00A0
+	 * has no whitespace as far as the sort is concerned and lands in
+	 * `code` — a key the client can never match, which is the exact
+	 * outcome the sort exists to prevent.
+	 *
+	 * @param string $label     What separates the words.
+	 * @param string $separator The space character to use.
+	 * @dataProvider provide_unicode_spaces
+	 */
+	#[DataProvider( 'provide_unicode_spaces' )]
+	public function test_upstream_reason_reads_unicode_spaces_as_whitespace( $label, $separator ) {
+		$sentence = 'Restore' . $separator . 'already' . $separator . 'running';
+
+		$reason = Rest_Controller::upstream_reason( array( 'error' => $sentence ) );
+
+		$this->assertArrayNotHasKey( 'code', $reason, $label );
+		// And the flatten normalises it, so the message is not carrying
+		// exotic spacing into the response either.
+		$this->assertSame( 'Restore already running', $reason['message'], $label );
+	}
+
+	/**
+	 * Space characters that are not an ASCII space.
+	 *
+	 * @return array
+	 */
+	public static function provide_unicode_spaces() {
+		return array(
+			'a non-breaking space' => array( 'a non-breaking space', "\u{00A0}" ),
+			'an ideographic space' => array( 'an ideographic space', "\u{3000}" ),
+			'a thin space'         => array( 'a thin space', "\u{2009}" ),
+		);
 	}
 }

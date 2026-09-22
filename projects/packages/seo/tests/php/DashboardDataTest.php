@@ -27,10 +27,47 @@ class DashboardDataTest extends SeoTestCase {
 		\Jetpack_SEO_Utils::$enabled                    = true;
 		\Jetpack_SEO_Utils::$has_legacy_front_page_meta = false;
 		\Jetpack_Redux_State_Helper::$site_image        = '';
+		\Jetpack_AI_Settings::$is_ai_seo_enabled        = true;
 		delete_option( 'advanced_seo_title_formats' );
+		delete_option( 'jetpack_ai_seo_enabled' );
 		remove_all_filters( 'jetpack_active_modules' );
+		remove_all_filters( 'jetpack_ai_seo_enabled' );
+
+		self::reset_plan();
 
 		parent::tearDown();
+	}
+
+	/**
+	 * With the AI SEO control off the card stays available and reports the
+	 * control's state, so the dashboard disables the toggle rather than hiding
+	 * it and the saved choice stays visible.
+	 */
+	public function test_get_ai_data_reports_the_ai_seo_control_state() {
+		self::set_plan( 'jetpack_business' );
+		self::set_seo_tools_active( true );
+
+		$on = Dashboard_Data::get_ai_data()['enhancer'];
+
+		\Jetpack_AI_Settings::$is_ai_seo_enabled = false;
+
+		$off = Dashboard_Data::get_ai_data()['enhancer'];
+
+		$this->assertTrue( $on['available'], 'Precondition: available while the control is on.' );
+		$this->assertTrue( $on['aiSeoEnabled'] );
+		$this->assertTrue( $off['available'], 'The card stays available so it can be disabled, not hidden.' );
+		$this->assertFalse( $off['aiSeoEnabled'] );
+	}
+
+	/**
+	 * The plan and the feature filter still veto availability outright — those
+	 * are entitlement questions, not a switched-off control.
+	 */
+	public function test_get_ai_data_enhancer_unavailable_without_the_entitlement() {
+		self::set_plan( 'jetpack_free' );
+		self::set_seo_tools_active( true );
+
+		$this->assertFalse( Dashboard_Data::get_ai_data()['enhancer']['available'] );
 	}
 
 	/**
@@ -222,6 +259,56 @@ class DashboardDataTest extends SeoTestCase {
 
 		delete_option( Initializer::SITEMAP_ENABLED_OPTION );
 		delete_option( Initializer::CANONICAL_ENABLED_OPTION );
+	}
+
+	/**
+	 * A page type cleared through the site-settings API is stored as an empty
+	 * string; the Settings tab must receive an empty list for it, not a string.
+	 */
+	public function test_get_settings_data_coerces_cleared_title_formats_to_lists() {
+		update_option(
+			'advanced_seo_title_formats',
+			array(
+				'front_page' => '',
+				'posts'      => array(
+					array(
+						'type'  => 'token',
+						'value' => 'post_title',
+					),
+					'not a token',
+				),
+				'pages'      => 'garbage',
+				'archives'   => array(
+					'type'  => 'token',
+					'value' => 'archive_title',
+				),
+			)
+		);
+
+		$formats = (array) Dashboard_Data::get_settings_data()['title_formats'];
+
+		$this->assertSame( array(), $formats['front_page'] );
+		$this->assertSame(
+			array(
+				array(
+					'type'  => 'token',
+					'value' => 'post_title',
+				),
+			),
+			$formats['posts']
+		);
+		$this->assertSame( array(), $formats['pages'] );
+		// An associative entry is one token's shape at the wrong depth, not a list.
+		$this->assertSame( array(), $formats['archives'] );
+	}
+
+	/**
+	 * A non-array option value yields no formats rather than a fatal.
+	 */
+	public function test_normalize_title_formats_rejects_non_arrays() {
+		$this->assertSame( array(), Dashboard_Data::normalize_title_formats( '' ) );
+		$this->assertSame( array(), Dashboard_Data::normalize_title_formats( false ) );
+		$this->assertSame( array(), Dashboard_Data::normalize_title_formats( 'a:1:{}' ) );
 	}
 
 	/**

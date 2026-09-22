@@ -14,19 +14,14 @@ export interface DrilldownToggleProps {
 	label: string;
 	/** Whether the row's children are currently shown. */
 	expanded: boolean;
-	/**
-	 * Keep the control in place but inert, for a fold the reader cannot change
-	 * yet. The row is still a group, so this must not fall back to the empty
-	 * slot: that would read as a leaf and drop `aria-expanded` with it.
-	 */
+	/** Keep the control in place but inert, for a fold the reader cannot change yet. */
 	disabled?: boolean;
-	/** Fold or unfold the row. Omit to render an empty slot. */
-	onToggle?: () => void;
+	/** Fold or unfold the row. */
+	onToggle: () => void;
 }
 
 /**
- * Render the fold control or an empty slot for a drilldown row.
- * The fixed-size slot keeps titles aligned at each depth.
+ * Render the fold control for a drilldown group row.
  */
 export function DrilldownToggle( {
 	label,
@@ -34,15 +29,11 @@ export function DrilldownToggle( {
 	disabled = false,
 	onToggle,
 }: DrilldownToggleProps ) {
-	if ( ! onToggle ) {
-		return <span className={ styles.slot } aria-hidden="true" />;
-	}
-
 	const collapsedIcon = isRTL() ? chevronLeft : chevronRight;
 
 	return (
 		<Button
-			className={ styles.slot }
+			className={ styles.toggle }
 			variant="minimal"
 			tone="neutral"
 			size="small"

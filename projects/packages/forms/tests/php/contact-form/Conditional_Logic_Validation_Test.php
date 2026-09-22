@@ -26,7 +26,7 @@ class Conditional_Logic_Validation_Test extends BaseTestCase {
 	protected function tear_down() {
 		remove_filter( 'jetpack_feature_flag_enabled_forms-conditional-logic', '__return_true' );
 		parent::tear_down();
-		unset( $_POST );
+		$_POST = array();
 	}
 
 	/**

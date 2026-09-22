@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show titles and names with characters like "&" instead of their HTML codes.

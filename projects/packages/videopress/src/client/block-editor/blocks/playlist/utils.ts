@@ -132,3 +132,17 @@ export function playlistEmbedUrl( guid: string, autoplay: boolean, muted = false
 
 	return `https://videopress.com/embed/${ encodeURIComponent( guid ) }?${ params.toString() }`;
 }
+
+/**
+ * Append a metadata token to a VideoPress file URL: private videos' files —
+ * posters included — are served from videos.files.wordpress.com only when the
+ * request carries a valid token.
+ *
+ * @param url   - The file URL.
+ * @param token - The playback/metadata JWT.
+ * @return The tokenized URL.
+ */
+export function withMetadataToken( url: string, token: string ): string {
+	const separator = url.includes( '?' ) ? '&' : '?';
+	return `${ url }${ separator }metadata_token=${ encodeURIComponent( token ) }`;
+}

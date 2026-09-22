@@ -596,3 +596,23 @@ export const Resizable: Story = {
 		layout: 'padded',
 	},
 };
+
+/**
+ * Sparkline: how the chart degrades on a tile too short for a y axis.
+ * The dates stay readable at both ends; the chart reserves room for them.
+ */
+export const Sparkline: Story = {
+	decorators: [
+		Story => (
+			<div style={ { width: '100%', height: '120px' } }>
+				<Story />
+			</div>
+		),
+	],
+	args: {
+		series: singleSeries,
+		styles: SERIES_STYLES,
+		dataFormat: { type: 'currency' },
+		compactWhenShort: true,
+	},
+};

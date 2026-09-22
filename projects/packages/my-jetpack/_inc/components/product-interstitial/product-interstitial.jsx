@@ -4,7 +4,7 @@
 import { AdminPage, Col, Container, TermsOfService } from '@automattic/jetpack-components';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button } from '@wordpress/ui';
+import { LinkButton } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect } from 'react';
 /**
@@ -18,6 +18,7 @@ import { useGoBack } from '../../hooks/use-go-back';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
+import { getProductsSectionPath } from '../my-jetpack-tab-panel/utils';
 import ProductDetailCard from '../product-detail-card';
 import ProductDetailTable from '../product-detail-table';
 import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
@@ -74,7 +75,7 @@ export default function ProductInterstitial( {
 
 	const { isUpgradableByBundle, pricingForUi, isTieredPricing } = detail;
 	const { recordEvent } = useAnalytics();
-	const { onClickGoBack } = useGoBack( { slug, fallback: '/products' } );
+	const { onClickGoBack } = useGoBack( { slug, fallback: getProductsSectionPath() } );
 	const myJetpackCheckoutUri = getMyJetpackUrl();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
@@ -113,7 +114,7 @@ export default function ProductInterstitial( {
 	const trackProductOrBundleClick = useCallback(
 		options => {
 			const { customSlug = null, isFreePlan = false, ctaText = null } = options || {};
-			const productSlug = customSlug ? customSlug : bundle ?? slug;
+			const productSlug = customSlug ? customSlug : ( bundle ?? slug );
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
 				product: productSlug,
 				product_slug: getProductSlugForTrackEvent( isFreePlan ),
@@ -204,20 +205,15 @@ export default function ProductInterstitial( {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ onClickGoBack }
-					to="/products"
+					to={ getProductsSectionPath() }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}
 			actions={
 				existingLicenseKeyUrl ? (
-					<Button
-						size="compact"
-						variant="outline"
-						nativeButton={ false }
-						render={ <a href={ existingLicenseKeyUrl } /> }
-					>
+					<LinkButton size="compact" variant="outline" href={ existingLicenseKeyUrl }>
 						{ __( 'Use license key', 'jetpack-my-jetpack' ) }
-					</Button>
+					</LinkButton>
 				) : null
 			}
 		>

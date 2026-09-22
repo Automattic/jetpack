@@ -19,8 +19,10 @@ use WP_REST_Server;
 use function add_action;
 use function add_filter;
 use function do_action;
+use function home_url;
 use function remove_filter;
 use function wp_insert_user;
+use function wp_json_encode;
 use function wp_set_current_user;
 
 require_once __DIR__ . '/trait-wpcom-request-mock.php';
@@ -152,6 +154,36 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 
 		$this->assertSame( 403, $response->get_status() );
 	}
+
+	/**
+	 * The listing asks the right endpoint, with the right two values in the right two
+	 * keys — neither of which `list_directory()` pinned before.
+	 *
+	 * `backup_id` is the one to watch: here it takes the parent backup's rewindId, while
+	 * `path-info` and `file-content` next door name the same parameter but want the
+	 * file's own period. A swap between them produces an empty listing, not an error.
+	 *
+	 * The body is asserted whole, which also fails loudly on the null body the trait
+	 * leaves behind when a guard refused before reaching the network.
+	 */
+	public function test_list_directory_sends_the_rewind_id_and_path() {
+		$this->arrange_wpcom( array( 'contents' => array() ) );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/rewind/backup/ls' );
+		$request->set_param( 'rewind_id', '1748888135.123' );
+		$request->set_param( 'path', '/wp-content/themes' );
+		File_Browser_Bridge::list_directory( $request );
+
+		$this->assertStringContainsString( '/sites/999/rewind/backup/ls', $this->captured_url );
+		$this->assertSame(
+			array(
+				'backup_id' => '1748888135.123',
+				'path'      => '/wp-content/themes',
+			),
+			$this->captured_body
+		);
+	}
+
 	/**
 	 * A transport failure on the directory listing surfaces as the
 	 * bridge's own error rather than cURL's text.
@@ -170,6 +202,90 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 		$this->assertInstanceOf( WP_Error::class, $response );
 		$this->assertStringNotContainsString( 'cURL', $response->get_error_message() );
 		$this->assertSame( 502, $response->get_error_data()['status'] );
+	}
+
+	/**
+	 * A non-200 on the directory listing keeps WordPress.com's reason.
+	 *
+	 * The other half of `forward_response()`, which every pass-through
+	 * bridge shares — so this covers the shared non-200 path the same way
+	 * the test above covers the shared transport path.
+	 *
+	 * 412 rather than 500, because 500 is also what an unreadable status
+	 * falls back to.
+	 */
+	public function test_list_directory_forwards_the_upstream_reason() {
+		$this->arrange_wpcom(
+			array(
+				'code'    => 'no_connected_jetpack',
+				'message' => 'This site is not connected.',
+			),
+			412
+		);
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/backups/123/ls' );
+		$request->set_param( 'rewind_id', '123' );
+		$request->set_param( 'path', '/' );
+		$data = File_Browser_Bridge::list_directory( $request )->get_error_data();
+
+		$this->assertSame( 412, $data['status'] );
+		$this->assertSame( 'no_connected_jetpack', $data['wpcom']['code'] );
+		$this->assertSame( 'This site is not connected.', $data['wpcom']['message'] );
+	}
+
+	/**
+	 * A success code reported as a string lists the directory.
+	 *
+	 * `wp_remote_retrieve_response_code()` hands back whatever the
+	 * transport put there, so an uncast `200 !== $status_code` sent a
+	 * perfectly good listing down the failure branch and left the file
+	 * tree empty with an error over it.
+	 *
+	 * Through `forward_response()`, which `get_path_info()` shares — so
+	 * this covers the cast on both pass-through routes. The listing itself
+	 * is what is asserted, not the absence of an error: uncast, this came
+	 * back as a 500, so a status-only test would have passed on the bug.
+	 */
+	public function test_list_directory_treats_a_string_status_as_its_number() {
+		$this->arrange_wpcom_raw( '{"contents":[{"name":"wp-config.php","type":"file"}]}', '200' );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/backups/123/ls' );
+		$request->set_param( 'rewind_id', '123' );
+		$request->set_param( 'path', '/' );
+		$response = File_Browser_Bridge::list_directory( $request );
+
+		$this->assertNotInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'wp-config.php', $response->get_data()['contents'][0]['name'] );
+	}
+
+	/**
+	 * A string 200 on either leg of the preview still returns the file.
+	 *
+	 * This callback reads a status twice — once for the signed-URL lookup
+	 * and once for the stream fetch — and the single canned answer here
+	 * serves both, so one test covers both casts. The stream leg is the
+	 * one where getting this wrong cost most: the branch it wrongly took
+	 * already had the previewed file's bytes in hand and threw them away
+	 * to report a 500.
+	 *
+	 * The signed URL is built from `home_url()` so that
+	 * `wp_http_validate_url()` takes its same-host path. Any other host
+	 * would send it to `gethostbyname()`, and this test would then pass or
+	 * fail on whether the runner has DNS.
+	 */
+	public function test_file_content_treats_a_string_status_as_its_number() {
+		$body = wp_json_encode( array( 'url' => home_url( '/signed-stream' ) ), JSON_UNESCAPED_SLASHES );
+		$this->arrange_wpcom_raw( $body, '200' );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backup/file-content' );
+		$request->set_param( 'file_period', '1748888135' );
+		$request->set_param( 'encoded_manifest_path', 'ZjU6L3dwLWNvbmZpZy5waHA=' );
+		$response = File_Browser_Bridge::get_file_content( $request );
+
+		$this->assertNotInstanceOf( WP_Error::class, $response );
+		// The stream leg is answered by the same filter, so the "file"
+		// here is that canned body, forwarded verbatim.
+		$this->assertSame( $body, $response->get_data()['content'] );
 	}
 
 	/**
@@ -258,6 +374,10 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 		$request->set_param( 'manifest_path', 'f5:/wp-config.php' );
 		File_Browser_Bridge::get_path_info( $request );
 
+		// The endpoint as well as the body: a rename of the upstream path passes every
+		// other assertion here, and only a real site would 404.
+		$this->assertStringContainsString( '/sites/999/rewind/backup/path-info', $this->captured_url );
+
 		// Asserted whole rather than key by key: it pins that nothing
 		// extra is sent, and it fails loudly on a null body — the trait
 		// leaves it null when a guard refused before reaching the
@@ -342,5 +462,425 @@ class Rest_File_Browser_Bridge_Test extends TestCase {
 		$this->assertSame( 'backup_file_content_url_failed', $response->get_error_code() );
 		$this->assertStringNotContainsString( 'cURL', $response->get_error_message() );
 		$this->assertSame( 502, $response->get_error_data()['status'] );
+	}
+
+	/**
+	 * What path-info answers with, not just what it asks for. `size`, `hash` and `mtime`
+	 * are the reason the route exists, and dropping them shows an empty card with no
+	 * error anywhere.
+	 *
+	 * Asserted whole, so added or removed fields fail here rather than drift.
+	 * `manifest_filter` is in the fixture for the granular download to come, and `error`
+	 * because upstream answers 200 with one when the file has no row.
+	 */
+	public function test_path_info_forwards_the_upstream_payload() {
+		$upstream = array(
+			'size'            => 3247,
+			'hash'            => 'abc123',
+			'mtime'           => 1748888135,
+			'manifest_filter' => 'f5:/wp-config.php',
+			'error'           => '',
+		);
+		$this->arrange_wpcom( $upstream );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backup/path-info' );
+		$request->set_param( 'file_period', '1748888135' );
+		$request->set_param( 'manifest_path', 'f5:/wp-config.php' );
+		$response = File_Browser_Bridge::get_path_info( $request );
+
+		$this->assertNotInstanceOf( WP_Error::class, $response );
+		$this->assertSame( $upstream, $response->get_data() );
+	}
+
+	/**
+	 * A non-200 on path-info is reported under path-info's own code, which the client's
+	 * `failureMessage()` keys off — a sibling's code would name the wrong operation.
+	 *
+	 * 429 rather than 500: `upstream_error()` falls back to 500, so a test written
+	 * against it would pass whether or not the status was forwarded.
+	 */
+	public function test_path_info_reports_a_non_200_under_its_own_code() {
+		$this->arrange_wpcom( array( 'code' => 'too_many_requests' ), 429 );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backup/path-info' );
+		$request->set_param( 'file_period', '1748888135' );
+		$request->set_param( 'manifest_path', 'f5:/wp-config.php' );
+		$response = File_Browser_Bridge::get_path_info( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'backup_path_info_failed', $response->get_error_code() );
+		$this->assertSame( 429, $response->get_error_data()['status'] );
+		$this->assertSame( 'too_many_requests', $response->get_error_data()['wpcom']['code'] );
+	}
+
+	/**
+	 * A signed-URL body WPCOM answered 200 with, and the signed URL the stream leg would
+	 * then be given. `home_url()` throughout, so `wp_http_validate_url()` takes its
+	 * same-host path rather than passing or failing on the runner's DNS.
+	 *
+	 * @return string
+	 */
+	private static function signed_url_body() {
+		return wp_json_encode( array( 'url' => home_url( '/signed-stream' ) ), JSON_UNESCAPED_SLASHES );
+	}
+
+	/**
+	 * A request for the preview that the file browser would really make.
+	 *
+	 * @return WP_REST_Request
+	 */
+	private static function file_content_request() {
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backup/file-content' );
+		$request->set_param( 'file_period', '1748888135' );
+		$request->set_param( 'encoded_manifest_path', 'ZjU6L3dwLWNvbmZpZy5waHA=' );
+		return $request;
+	}
+
+	/**
+	 * The preview limit is 64 KB, asserted as a literal so the constant cannot drift —
+	 * every other assertion here compares against itself and would move with it.
+	 *
+	 * The value keeps a wp-config.php or a small SQL dump previewable while keeping an
+	 * arbitrary blob out of PHP memory, so it is a decision rather than a magic number.
+	 */
+	public function test_the_preview_limit_is_64_kb() {
+		$this->assertSame( 65536, File_Browser_Bridge::PREVIEW_MAX_BYTES );
+	}
+
+	/**
+	 * The stream fetch is capped, and capped at the preview limit. `limit_response_size`
+	 * is the only thing between a text preview and a multi-gigabyte blob in PHP memory,
+	 * and it changes nothing about a small file — so it is read off the outbound request
+	 * arguments rather than the response.
+	 *
+	 * The first call is asserted uncapped because it cannot be capped:
+	 * `Client::validate_args_for_wpcom_json_api_request()` intersects outbound arguments
+	 * against a fixed allowlist that `limit_response_size` is not on. The cap works on
+	 * the second leg only because that leg is a bare `wp_remote_get()`.
+	 */
+	public function test_file_content_caps_the_stream_fetch_at_the_preview_limit() {
+		$this->arrange_wpcom_answers(
+			array(
+				array( 'body' => self::signed_url_body() ),
+				array( 'body' => 'file contents' ),
+			)
+		);
+
+		File_Browser_Bridge::get_file_content( self::file_content_request() );
+
+		$this->assertCount( 2, $this->captured_request_args );
+		// `WP_Http` defaults the key to null, so "uncapped" is null, not absent.
+		$this->assertNull( $this->captured_request_args[0]['limit_response_size'] ?? null );
+		$this->assertSame(
+			File_Browser_Bridge::PREVIEW_MAX_BYTES,
+			$this->captured_request_args[1]['limit_response_size']
+		);
+	}
+
+	/**
+	 * The preview payload as the REST server would really serve it.
+	 *
+	 * `get_data()` is the wrong layer to assert an intact preview at: the corruption
+	 * this guards against happens in `wp_json_encode()`, on the way out.
+	 *
+	 * @param \WP_REST_Response $response The bridge's response.
+	 * @return array<string, mixed>
+	 */
+	private static function served( $response ) {
+		// `JSON_UNESCAPED_SLASHES` is `WP_REST_Server::serve_request()`'s own flag.
+		return json_decode( wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES ), true );
+	}
+
+	/**
+	 * Guard the fixtures below: they allocate the cap's own size, so a cap raised into
+	 * the megabytes should fail here rather than fatal the run.
+	 */
+	private function assert_preview_cap_is_testable() {
+		$this->assertLessThanOrEqual(
+			1024 * 1024,
+			File_Browser_Bridge::PREVIEW_MAX_BYTES,
+			'A preview cap this large cannot be exercised in a unit test, and should not be buffered in PHP memory on a real site either.'
+		);
+	}
+
+	/**
+	 * A body cut mid-character by the byte cap loses the half-written character and
+	 * comes back marked truncated.
+	 *
+	 * Left in place, the bytes the cut keeps would fail the UTF-8 check and report a
+	 * perfectly good text file as unpreviewable.
+	 *
+	 * @param string $character A multi-byte character the cap lands inside of.
+	 * @param int    $kept      How many of its bytes survive the cut.
+	 * @dataProvider provide_characters_the_cap_cuts
+	 */
+	#[DataProvider( 'provide_characters_the_cap_cuts' )]
+	public function test_file_content_drops_the_character_the_byte_cap_cut_in_half( $character, $kept ) {
+		$this->assert_preview_cap_is_testable();
+
+		$whole = str_repeat( 'a', File_Browser_Bridge::PREVIEW_MAX_BYTES - $kept );
+		$cut   = substr( $whole . $character, 0, File_Browser_Bridge::PREVIEW_MAX_BYTES );
+
+		$this->arrange_wpcom_answers(
+			array(
+				array( 'body' => self::signed_url_body() ),
+				array( 'body' => $cut ),
+			)
+		);
+
+		$served = self::served( File_Browser_Bridge::get_file_content( self::file_content_request() ) );
+
+		$this->assertTrue( $served['truncated'] );
+		$this->assertTrue( $served['is_text'] );
+		$this->assertSame( $whole, $served['content'] );
+	}
+
+	/**
+	 * Every count of leftover bytes a cut can produce, up to the three a four-byte
+	 * character leaves — the count the repair loop's own bound is set to.
+	 *
+	 * @return array<string, array{0: string, 1: int}>
+	 */
+	public static function provide_characters_the_cap_cuts() {
+		return array(
+			'one byte of three'   => array( "\xE6\x97\xA5", 1 ),
+			'two bytes of four'   => array( "\xF0\x9F\x92\xA9", 2 ),
+			'three bytes of four' => array( "\xF0\x9F\x92\xA9", 3 ),
+		);
+	}
+
+	/**
+	 * A body that fills the cap without being cut mid-character is still marked
+	 * truncated, and keeps every byte.
+	 *
+	 * An implementation that only flagged the mid-character case would leave a clipped
+	 * ASCII file looking complete.
+	 */
+	public function test_file_content_marks_a_body_that_fills_the_cap_as_truncated() {
+		$this->assert_preview_cap_is_testable();
+
+		$full = str_repeat( 'a', File_Browser_Bridge::PREVIEW_MAX_BYTES );
+
+		$this->arrange_wpcom_answers(
+			array(
+				array( 'body' => self::signed_url_body() ),
+				array( 'body' => $full ),
+			)
+		);
+
+		$served = self::served( File_Browser_Bridge::get_file_content( self::file_content_request() ) );
+
+		$this->assertTrue( $served['truncated'] );
+		$this->assertSame( $full, $served['content'] );
+	}
+
+	/**
+	 * A file that fits under the cap is not marked truncated, and survives the wire
+	 * byte for byte.
+	 *
+	 * The negative half of the flag, and the reason multi-byte text is in the fixture:
+	 * a check that rejected valid UTF-8 would blank out every file with an accent in it.
+	 */
+	public function test_file_content_serves_a_short_utf8_file_whole_and_unflagged() {
+		$body = "<?php\n// \xC3\xA9t\xC3\xA9 \xE6\x97\xA5\xE6\x9C\xAC\n";
+
+		$this->arrange_wpcom_answers(
+			array(
+				array( 'body' => self::signed_url_body() ),
+				array( 'body' => $body ),
+			)
+		);
+
+		$served = self::served( File_Browser_Bridge::get_file_content( self::file_content_request() ) );
+
+		$this->assertSame( $body, $served['content'] );
+		$this->assertTrue( $served['is_text'] );
+		$this->assertFalse( $served['truncated'] );
+	}
+
+	/**
+	 * Bytes that are not UTF-8 text, as the REST server would serve them.
+	 *
+	 * `wp_json_encode()`'s sanity fallback re-encodes invalid UTF-8 rather than failing,
+	 * so the serve error branch never runs and the `?`-substituted body goes out as 200.
+	 *
+	 * @param string $label What kind of body this is.
+	 * @param string $body  Raw bytes the storage host answered with.
+	 * @dataProvider provide_bodies_that_are_not_text
+	 */
+	#[DataProvider( 'provide_bodies_that_are_not_text' )]
+	public function test_file_content_withholds_bytes_it_cannot_serve_as_text( $label, $body ) {
+		$this->arrange_wpcom_answers(
+			array(
+				array( 'body' => self::signed_url_body() ),
+				array( 'body' => $body ),
+			)
+		);
+
+		$served = self::served( File_Browser_Bridge::get_file_content( self::file_content_request() ) );
+
+		$this->assertFalse( $served['is_text'], $label );
+		$this->assertNull( $served['content'], $label );
+	}
+
+	/**
+	 * Bodies the storage host can answer with that must never reach a `<pre>`.
+	 *
+	 * @return array<string, array{0: string, 1: string}>
+	 */
+	public static function provide_bodies_that_are_not_text() {
+		return array(
+			// `\xC3\x28`: a lead byte followed by something that cannot continue it.
+			'latin-1 text' => array( 'latin-1 text', "valid \xC3\x28 tail" ),
+			'a PNG header' => array( 'a PNG header', "\x89PNG\r\n\x1A\n\x00\x00\x00\rIHDR" ),
+			// Valid UTF-8 byte for byte, so the NUL check is the only thing that
+			// refuses it — and rendered as text it is every other character blank.
+			'UTF-16LE'     => array( 'UTF-16LE', "h\x00i\x00\n\x00" ),
+		);
+	}
+
+	/**
+	 * A file that is both over the cap and not text is refused, not repaired into
+	 * something that looks like text.
+	 *
+	 * Dropping the trailing partial character runs before the text check, so a large
+	 * binary reaches that check three bytes shorter — it must still be refused.
+	 */
+	public function test_file_content_withholds_a_capped_binary_body() {
+		$this->assert_preview_cap_is_testable();
+
+		$binary = str_repeat( "\x89PNG\r\n\x1A\n", (int) ceil( File_Browser_Bridge::PREVIEW_MAX_BYTES / 8 ) );
+
+		$this->arrange_wpcom_answers(
+			array(
+				array( 'body' => self::signed_url_body() ),
+				array( 'body' => substr( $binary, 0, File_Browser_Bridge::PREVIEW_MAX_BYTES ) ),
+			)
+		);
+
+		$served = self::served( File_Browser_Bridge::get_file_content( self::file_content_request() ) );
+
+		$this->assertFalse( $served['is_text'] );
+		$this->assertNull( $served['content'] );
+	}
+
+	/**
+	 * A failure resolving the signed URL is the lookup's, not the stream's. The two legs
+	 * have separate error codes on purpose — one means WordPress.com would not name the
+	 * file, the other that the storage host would not serve it.
+	 *
+	 * 451 is arbitrary except that it is forwardable and is neither fallback (500, 502),
+	 * so it can only be here because it was carried through.
+	 */
+	public function test_file_content_reports_a_failed_signed_url_lookup() {
+		$this->arrange_wpcom_answers(
+			array(
+				array(
+					'body'   => '{"code":"rewind_error","message":"No backup for this period."}',
+					'status' => 451,
+				),
+			)
+		);
+
+		$response = File_Browser_Bridge::get_file_content( self::file_content_request() );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'backup_file_content_url_failed', $response->get_error_code() );
+		$this->assertSame( 451, $response->get_error_data()['status'] );
+		$this->assertSame( 'rewind_error', $response->get_error_data()['wpcom']['code'] );
+		// The stream leg must not have run: there was no URL to fetch.
+		$this->assertCount( 1, $this->captured_urls );
+	}
+
+	/**
+	 * A 200 that names no URL this server will fetch stops here. Whatever comes back in
+	 * `url` is handed to `wp_remote_get()` on this server, so an upstream regression
+	 * answering `file:///etc/passwd` would have the site read its own disk.
+	 *
+	 * 502 rather than 500 is the bridge's own choice: WordPress.com answered, and what it
+	 * said cannot be used.
+	 *
+	 * @param string $label Why this body names no usable URL.
+	 * @param string $body  Raw 200 body from the signed-URL lookup.
+	 * @dataProvider provide_unusable_signed_urls
+	 */
+	#[DataProvider( 'provide_unusable_signed_urls' )]
+	public function test_file_content_refuses_a_signed_url_it_will_not_fetch( $label, $body ) {
+		$this->arrange_wpcom_answers( array( array( 'body' => $body ) ) );
+
+		$response = File_Browser_Bridge::get_file_content( self::file_content_request() );
+
+		$this->assertInstanceOf( WP_Error::class, $response, $label );
+		$this->assertSame( 'backup_file_content_url_missing', $response->get_error_code() );
+		$this->assertSame( 502, $response->get_error_data()['status'] );
+		$this->assertCount( 1, $this->captured_urls, 'Nothing may be fetched from an unusable URL.' );
+	}
+
+	/**
+	 * 200 bodies the signed-URL lookup could answer with that name no URL
+	 * this server may fetch.
+	 *
+	 * @return array<string, array{0: string, 1: string}>
+	 */
+	public static function provide_unusable_signed_urls() {
+		return array(
+			'no url key'    => array( 'no url key', '{"ok":true}' ),
+			'an empty url'  => array( 'an empty url', '{"url":""}' ),
+			'not JSON'      => array( 'not JSON', '<html>502 Bad Gateway</html>' ),
+			// The one that matters: `wp_remote_get()` would read this off the disk.
+			'a file scheme' => array( 'a file scheme', '{"url":"file:///etc/passwd"}' ),
+		);
+	}
+
+	/**
+	 * A transport failure on the *stream* leg is the stream's failure. The existing
+	 * transport test stops at the signed-URL lookup, so the second `is_wp_error()` guard
+	 * and its different error code were never run.
+	 */
+	public function test_file_content_wraps_a_transport_failure_on_the_stream_leg() {
+		$this->arrange_wpcom_answers(
+			array(
+				array( 'body' => self::signed_url_body() ),
+				new WP_Error(
+					'http_request_failed',
+					'cURL error 28: Operation timed out after 10001 milliseconds with 0 bytes received'
+				),
+			)
+		);
+
+		$response = File_Browser_Bridge::get_file_content( self::file_content_request() );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'backup_file_content_stream_failed', $response->get_error_code() );
+		$this->assertStringNotContainsString( 'cURL', $response->get_error_message() );
+		$this->assertSame( 502, $response->get_error_data()['status'] );
+	}
+
+	/**
+	 * A non-200 from the storage host is reported as a stream failure. An expired signed
+	 * URL is the ordinary way to get here, and the status is forwarded because the client
+	 * tells an expired link from a missing file by nothing else.
+	 *
+	 * 416 for the same reason 451 is used above.
+	 */
+	public function test_file_content_reports_a_failed_stream_fetch() {
+		$this->arrange_wpcom_answers(
+			array(
+				array( 'body' => self::signed_url_body() ),
+				array(
+					'body'   => '<?xml version="1.0"?><Error><Code>AccessDenied</Code></Error>',
+					'status' => 416,
+				),
+			)
+		);
+
+		$response = File_Browser_Bridge::get_file_content( self::file_content_request() );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'backup_file_content_stream_failed', $response->get_error_code() );
+		$this->assertSame( 416, $response->get_error_data()['status'] );
+		// The storage host answers in XML, which `upstream_reason()` reads nothing out
+		// of — so the status is all the client has to go on.
+		$this->assertArrayNotHasKey( 'wpcom', $response->get_error_data() );
 	}
 }

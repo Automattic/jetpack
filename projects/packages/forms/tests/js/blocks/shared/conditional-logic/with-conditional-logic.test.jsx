@@ -47,9 +47,17 @@ await jest.unstable_mockModule(
 	} )
 );
 
-const { withConditionalLogic } = await import(
-	'../../../../../src/blocks/shared/conditional-logic/register.jsx'
+await jest.unstable_mockModule(
+	'../../../../../src/blocks/shared/hooks/use-form-field-ids.js',
+	() => ( {
+		__esModule: true,
+		getFormFieldEntries: () => [],
+		default: () => [],
+	} )
 );
+
+const { withConditionalLogic } =
+	await import( '../../../../../src/blocks/shared/conditional-logic/register.jsx' );
 
 // Transform the panel and its dependency tree up front. Without this the first render pays
 // for compiling the whole subtree, which overruns findBy's default timeout once the full

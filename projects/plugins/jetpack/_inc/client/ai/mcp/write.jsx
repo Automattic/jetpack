@@ -157,7 +157,7 @@ export default function McpWrite( { mcpAbilities, blogId, savingToolIds, onUpdat
 	const siteAccountAbilities = siteContextToolIds.size
 		? Object.fromEntries(
 				Object.entries( accountAbilities ).filter( ( [ id ] ) => siteContextToolIds.has( id ) )
-		  )
+			)
 		: accountAbilities;
 	const isMcpEnabled = getSiteLevelEnabled( mcpAbilities ?? {}, blogId );
 	const mergedAbilities = mergeSiteMcpAbilities(

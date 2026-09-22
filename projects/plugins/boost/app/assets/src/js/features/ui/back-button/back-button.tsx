@@ -1,23 +1,19 @@
 import { __ } from '@wordpress/i18n';
 import LeftArrow from '$svg/left-arrow';
-import { useNavigate } from 'react-router';
 import { recordBoostEvent } from '$lib/utils/analytics';
+import { useBoostNavigation } from '$lib/navigation/navigation-context';
 import { Button } from '@automattic/jetpack-components';
 import styles from './back-button.module.scss';
 import type { FC } from 'react';
 
-type BackButtonProps = {
-	route?: string;
-};
-
-const BackButton: FC< BackButtonProps > = ( { route = '/' } ) => {
-	const navigate = useNavigate();
+const BackButton: FC = () => {
+	const { returnToSettings } = useBoostNavigation();
 	const handleBack = () => {
 		recordBoostEvent( 'back_button_clicked', {
 			current_page: window.location.href.replace( window.location.origin, '' ),
-			destination: route,
+			destination: '/',
 		} );
-		navigate( route );
+		returnToSettings();
 	};
 
 	return (

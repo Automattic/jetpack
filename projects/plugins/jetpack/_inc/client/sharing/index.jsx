@@ -68,7 +68,7 @@ class Sharing extends Component {
 						: __(
 								'Share your content to social media, reaching new audiences and increasing engagement.',
 								'jetpack'
-						  ) }
+							) }
 				</h2>
 				{ foundPublicize && <Publicize { ...commonProps } /> }
 				{ foundSharing && <ShareButtons { ...commonProps } /> }

@@ -27,12 +27,12 @@ jobs:
       # But it doesn't have to be checked out.
       - name: Deepen to merge base
         if: github.event_name == 'pull_request'
-        uses: ./.github/actions/deepen-to-merge-base
+        uses: $/.github/actions/deepen-to-merge-base
         with:
           checkout: false
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           # Match PHP version on WP Cloud so the right vendor packages get installed.
           php: 8.3

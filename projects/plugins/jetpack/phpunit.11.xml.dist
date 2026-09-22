@@ -81,9 +81,6 @@
 		<testsuite name="sitemaps">
 			<directory suffix="Test.php">tests/php/modules/sitemaps</directory>
 		</testsuite>
-		<testsuite name="stats">
-			<directory suffix="Test.php">tests/php/modules/stats</directory>
-		</testsuite>
 		<testsuite name="subscriptions">
 			<directory suffix="Test.php">tests/php/modules/subscriptions</directory>
 		</testsuite>
@@ -146,6 +143,18 @@
 		</testsuite>
 		<testsuite name="autoloaded">
 			<directory suffix="Test.php">tests/php/src</directory>
+		</testsuite>
+		<testsuite name="block-manifest">
+			<file>tests/php/Block_Manifest_Test.php</file>
+		</testsuite>
+		<testsuite name="jetpack-admin">
+			<file>tests/php/Jetpack_Admin_Test.php</file>
+		</testsuite>
+		<testsuite name="unauth-file-upload">
+			<file>tests/php/Unauth_File_Upload_Test.php</file>
+		</testsuite>
+		<testsuite name="import">
+			<file>tests/php/Import_Post_Meta_Object_Injection_Test.php</file>
 		</testsuite>
 		<testsuite name="seo-module-migration">
 			<file>tests/php/SEO_Sitemap_Migration_Test.php</file>

@@ -6,7 +6,6 @@ import { device } from '@jetpack-premium-analytics/icons';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@jetpack-premium-analytics/externals';
 import {
 	WIDGET_ROW_LIMIT,
 	calculateDelta,
@@ -14,6 +13,7 @@ import {
 	getCombinedPeriodMax,
 	LeaderboardChart,
 	LeaderboardSkeleton,
+	buildLeaderboardRow,
 	sharePercentage,
 	WidgetRoot,
 	WidgetState,
@@ -66,11 +66,11 @@ function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 
 		return {
 			id: `${ index }-${ item.key }`,
-			label: (
-				<Stack align="center" className={ styles.itemLabel }>
-					<Text>{ item.label }</Text>
-				</Stack>
-			),
+			...buildLeaderboardRow( {
+				label: item.label,
+				media: { kind: 'none' },
+				action: { kind: 'static' },
+			} ),
 			currentValue: item.views,
 			currentShare: sharePercentage( item.views, maxViews ),
 			previousValue,

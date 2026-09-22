@@ -17,10 +17,7 @@ export type WordAdsChartMetric = {
 };
 
 // Currency for revenue/CPM; Ads Served falls back to the chart's count format.
-const CURRENCY_FORMAT: DataFormat = {
-	type: 'currency',
-	options: { decimals: 2 },
-};
+const CURRENCY_FORMAT: DataFormat = { type: 'currency' };
 
 // Canonical metric definitions, in tab order.
 export const WORDADS_CHART_METRICS: WordAdsChartMetric[] = [

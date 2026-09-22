@@ -76,7 +76,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
 		delete_option( 'launch-status' );
-		unregister_setting( 'general', 'reader_chat' );
+		unregister_setting( 'jetpack_search', 'reader_chat' );
 		$GLOBALS['wp_scripts'] = $this->saved_wp_scripts;
 		$GLOBALS['wp_styles']  = $this->saved_wp_styles;
 		\Automattic\Jetpack\Status\Cache::clear();
@@ -289,6 +289,8 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	 * Test that register_settings() registers reader_chat without a proxied rollout gate.
 	 */
 	public function test_register_settings_registers_reader_chat_setting() {
+		global $new_allowed_options;
+
 		Jetpack_Reader_Chat::register_settings();
 		$registered_settings = get_registered_settings();
 
@@ -306,6 +308,9 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 			$registered_settings['reader_chat']['description'] ?? '',
 			'reader_chat description should use the Site Chat name.'
 		);
+		$this->assertSame( 'jetpack_search', $registered_settings['reader_chat']['group'] );
+		$this->assertContains( 'reader_chat', $new_allowed_options['jetpack_search'] ?? array() );
+		$this->assertNotContains( 'reader_chat', $new_allowed_options['general'] ?? array() );
 	}
 
 	// ──────────────────────────────────────────────────
