@@ -48,7 +48,9 @@ const placeholder = ( guid: string, options?: string, facade = false, poster = t
 			( poster
 				? '<img class="jetpack-videopress-player__facade-poster" src="https://example.com/p.jpg" alt="">'
 				: '' ) +
-			'<span class="jetpack-videopress-player__facade-play"></span></button>';
+			'<span class="jetpack-videopress-player__facade-scrim"></span>' +
+			'<span class="jetpack-videopress-player__facade-play"></span></button>' +
+			'<span class="jetpack-videopress-player__facade-spinner" role="status"><span></span></span>';
 	}
 	document.body.appendChild( el );
 	return el;
@@ -200,7 +202,9 @@ describe( 'mountInlinePlayers', () => {
 			'.jetpack-videopress-player__facade'
 		) as HTMLElement;
 		button.click();
-		expect( button ).toHaveClass( 'is-loading' );
+		// The spinner is CSS-driven by this class, and stays until the player has mounted.
+		expect( first ).toHaveClass( 'is-loading' );
+		expect( first.querySelector( '.jetpack-videopress-player__facade-spinner' ) ).not.toBeNull();
 		expect( injectedScript() ).toBeDefined();
 		expect( document.querySelector( `link[rel="stylesheet"][href="${ STYLE }"]` ) ).not.toBeNull();
 
@@ -213,7 +217,9 @@ describe( 'mountInlinePlayers', () => {
 			expect.objectContaining( { muted: true, autoPlay: true } )
 		);
 		expect( first.querySelector( '.jetpack-videopress-player__facade' ) ).toBeNull();
+		expect( first.querySelector( '.jetpack-videopress-player__facade-spinner' ) ).toBeNull();
 		expect( first ).not.toHaveClass( 'is-facade' );
+		expect( first ).not.toHaveClass( 'is-loading' );
 		// The other facade is untouched and still waits for its own click.
 		expect( second.querySelector( '.jetpack-videopress-player__facade' ) ).not.toBeNull();
 
@@ -222,6 +228,22 @@ describe( 'mountInlinePlayers', () => {
 		await Promise.resolve();
 		expect( factory ).toHaveBeenCalledTimes( 2 );
 		expect( document.scripts ).toHaveLength( 1 );
+	} );
+
+	it( 'puts the play button back when the bundle fails to load', async () => {
+		delete window.videopress;
+		window.jetpackVideoPressInlinePlayer = { script: SCRIPT, style: STYLE };
+		const el = placeholder( 'abcDEF12', undefined, true );
+		mountInlinePlayers();
+
+		( el.querySelector( '.jetpack-videopress-player__facade' ) as HTMLElement ).click();
+		expect( el ).toHaveClass( 'is-loading' );
+		injectedScript()?.dispatchEvent( new Event( 'error' ) );
+		await settle();
+
+		expect( el ).not.toHaveClass( 'is-loading' );
+		expect( el ).toHaveClass( 'is-facade' );
+		expect( el.querySelector( '.jetpack-videopress-player__facade-play' ) ).not.toBeNull();
 	} );
 
 	it( 'gives a facade without a poster one from the browser, ahead of the play glyph', async () => {
@@ -238,7 +260,7 @@ describe( 'mountInlinePlayers', () => {
 		const img = facadePoster( el ) as HTMLImageElement;
 		expect( img.src ).toBe( 'https://example.com/resolved.jpg' );
 		expect( img.alt ).toBe( '' );
-		expect( img.nextElementSibling ).toHaveClass( 'jetpack-videopress-player__facade-play' );
+		expect( img.nextElementSibling ).toHaveClass( 'jetpack-videopress-player__facade-scrim' );
 		expect( injectedScript() ).toBeUndefined();
 		// The server-rendered poster is left as it is.
 		expect( facadePoster( withPoster )?.src ).toBe( 'https://example.com/p.jpg' );

@@ -69,7 +69,8 @@ function mount(
 	}
 	placeholder.dataset.videopressMounted = '1';
 	placeholder.querySelector( `.${ FACADE_CLASS }` )?.remove();
-	placeholder.classList.remove( 'is-facade' );
+	placeholder.querySelector( `.${ FACADE_CLASS }-spinner` )?.remove();
+	placeholder.classList.remove( 'is-facade', 'is-loading' );
 
 	const guid = placeholder.dataset.videopressGuid as string;
 	releasePlayerId( guid, placeholder );
@@ -154,11 +155,12 @@ function wireFacade( placeholder: HTMLElement ): void {
 
 	( button ?? placeholder ).addEventListener( 'click', event => {
 		event.preventDefault();
-		button?.classList.add( 'is-loading' );
+		// Swaps the play glyph for the spinner until mount() takes the facade down.
+		placeholder.classList.add( 'is-loading' );
 		ensurePlayer()
 			// The click is the user's gesture, so the player may start with sound.
 			.then( videopress => mount( placeholder, videopress, { autoPlay: true } ) )
-			.catch( () => button?.classList.remove( 'is-loading' ) );
+			.catch( () => placeholder.classList.remove( 'is-loading' ) );
 	} );
 
 	if ( ! button ) {
