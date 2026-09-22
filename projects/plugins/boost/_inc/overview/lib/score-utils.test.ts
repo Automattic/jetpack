@@ -48,8 +48,8 @@ test( 'distinguishes missing baselines from zero and formats improvements', () =
 	expect( getScoreDelta( 80 ) ).toBeNull();
 	expect( getScoreDelta( 80, 0 ) ).toBe( 80 );
 	expect( getScoreDelta( 80.2, 70 ) ).toBe( 10 );
-	expect( formatScoreDelta( 1 ) ).toBe( '+1 point compared with Boost disabled' );
-	expect( formatScoreDelta( 10 ) ).toBe( '+10 points compared with Boost disabled' );
-	expect( formatScoreDelta( 0 ) ).toBeNull();
-	expect( formatScoreDelta( -10 ) ).toBeNull();
+	expect( formatScoreDelta( 1 ) ).toBe( '+1 point' );
+	expect( formatScoreDelta( 10 ) ).toBe( '+10 points' );
+	expect( formatScoreDelta( 0 ) ).toBe( '0 points' );
+	expect( formatScoreDelta( -10 ) ).toBe( '-10 points' );
 } );

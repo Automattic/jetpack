@@ -1,4 +1,4 @@
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 export type ScoreTier = 'good' | 'medium' | 'poor';
 
@@ -20,22 +20,14 @@ export function getScoreDelta( current: number, noBoost?: number | null ): numbe
 	return noBoost == null ? null : Math.round( current - noBoost );
 }
 
-// Formats a score improvement relative to Boost being disabled.
-export function formatScoreDelta( delta: number ): string | null {
-	if ( delta <= 0 ) {
-		return null;
+export function formatScoreDelta( delta: number ): string {
+	const points = delta > 0 ? `+${ delta }` : String( delta );
+	if ( Math.abs( delta ) === 1 ) {
+		// translators: %s is the change in a performance score, such as +1 or -1.
+		return sprintf( __( '%s point', 'jetpack-boost' ), points );
 	}
-
-	return sprintf(
-		// translators: %s is the improvement in a performance score, such as +10.
-		_n(
-			'%s point compared with Boost disabled',
-			'%s points compared with Boost disabled',
-			delta,
-			'jetpack-boost'
-		),
-		`+${ delta }`
-	);
+	// translators: %s is the change in a performance score, such as +10, 0, or -10.
+	return sprintf( __( '%s points', 'jetpack-boost' ), points );
 }
 
 export function getScoreTierColor( tier: ScoreTier ): string {

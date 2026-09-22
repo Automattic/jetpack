@@ -1,5 +1,7 @@
+import { IconTooltip } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
 import { ProgressBar } from '@wordpress/components';
-import { Stack, Text } from '@wordpress/ui';
+import { Badge, Stack, Text } from '@wordpress/ui';
 import { useId } from 'react';
 import {
 	formatScoreDelta,
@@ -57,13 +59,20 @@ export default function ScoreCard( {
 						value={ score }
 						aria-label={ label }
 					/>
-					{ delta !== null && delta > 0 && (
-						<Text
-							variant="body-md"
-							className="jetpack-boost-overview__delta jetpack-boost-overview__delta--up"
+					{ delta !== null && (
+						<Stack
+							direction="row"
+							align="center"
+							gap="sm"
+							className="jetpack-boost-overview__delta"
 						>
-							{ formatScoreDelta( delta ) }
-						</Text>
+							<Badge intent={ delta > 0 ? 'informational' : 'none' }>
+								{ formatScoreDelta( delta ) }
+							</Badge>
+							<IconTooltip placement="bottom" inline={ false } shift hoverShow>
+								{ __( 'Points gained from optimizations', 'jetpack-boost' ) }
+							</IconTooltip>
+						</Stack>
 					) }
 				</div>
 			) }
