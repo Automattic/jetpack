@@ -42,7 +42,11 @@ export default function ModernCriticalCssStatus( { cssState, isGenerating, progr
 					<Stack direction="row" justify="space-between" align="center" gap="sm">
 						<Stack direction="row" align="center" gap="xs">
 							<Text>{ __( 'Critical CSS', 'jetpack-boost' ) }</Text>
-							<IconTooltip placement="bottom" { ...tooltipLayer }>
+							<IconTooltip
+								className={ styles[ 'info-icon' ] }
+								placement="bottom"
+								{ ...tooltipLayer }
+							>
 								{ __(
 									'Critical CSS is the small set of styles needed to show the top of each page. Boost loads it first so pages appear faster while the rest of the CSS loads.',
 									'jetpack-boost'
