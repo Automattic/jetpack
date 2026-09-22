@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Donations: Fix donate button rendering as a cross shape on themes that apply block-level styles to .wp-block-button__link when the Button block stylesheet is not loaded.
