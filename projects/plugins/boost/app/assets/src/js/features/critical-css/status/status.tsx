@@ -9,10 +9,12 @@ import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state
 import { getProvidersWithErrors } from '../lib/critical-css-errors';
 import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import { Button } from '@automattic/jetpack-components';
+import { Notice, Stack } from '@wordpress/ui';
+import { useModuleSurface } from '$features/module/surface';
 import styles from './status.module.scss';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { subpageHref } from '$lib/modern/routes';
-import type { FC } from 'react';
+import { Fragment, type FC, type ReactNode } from 'react';
 
 type StatusTypes = {
 	cssState: CriticalCssState;
@@ -23,6 +25,13 @@ type StatusTypes = {
 	overrideText?: string; // Optionally, provide a custom message to display instead of the default.
 };
 
+// Modern rows have no gutter for the legacy icon, so the notice stacks inside the text column.
+const ModernSummaryBody = ( { children }: { children: ReactNode } ) => (
+	<Stack direction="column" gap="md">
+		{ children }
+	</Stack>
+);
+
 const Status: FC< StatusTypes > = ( {
 	cssState,
 	isCloud = false,
@@ -31,6 +40,8 @@ const Status: FC< StatusTypes > = ( {
 	extraText,
 	overrideText,
 } ) => {
+	const isModern = useModuleSurface() === 'row';
+	const SummaryBody = isModern ? ModernSummaryBody : Fragment;
 	const regenerateAction = useRegenerateCriticalCssAction();
 	const successCount =
 		cssState.providers.filter( provider => provider.status === 'success' ).length || 0;
@@ -45,6 +56,26 @@ const Status: FC< StatusTypes > = ( {
 		recordBoostEvent( 'critical_css_advanced_link_clicked', {} );
 	};
 
+	const hasFailures = cssState.status !== 'pending' && providersWithErrors.length > 0;
+	const failureMessage = createInterpolateElement(
+		sprintf(
+			// translators: %d is a number of CSS Files which failed to generate
+			_n(
+				'%d file could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize this file.',
+				'%d files could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize these files.',
+				providersWithErrors.length,
+				'jetpack-boost'
+			),
+			providersWithErrors.length
+		),
+		{
+			advanced: (
+				// eslint-disable-next-line jsx-a11y/anchor-has-content -- createInterpolateElement supplies the content.
+				<a href={ subpageHref( 'critical-css-advanced' ) } onClick={ handleAdvancedClick } />
+			),
+		}
+	);
+
 	// If there has been a fatal error, show it.
 	if ( showFatalError ) {
 		return (
@@ -58,56 +89,41 @@ const Status: FC< StatusTypes > = ( {
 	return (
 		<div className={ styles.status } data-testid="critical-css-meta">
 			<div className={ styles.summary }>
-				{ overrideText || (
-					<div className={ styles.successes }>
-						{ sprintf(
-							/* translators: %d is a number of CSS Files which were successfully generated */
-							_n( '%d file generated', '%d files generated', successCount, 'jetpack-boost' ),
-							successCount
-						) }
-
-						{ !! cssState.updated && (
-							<>
-								{ ' ' }
-								<TimeAgo time={ new Date( cssState.updated * 1000 ) } />
-							</>
-						) }
-
-						{ '. ' }
-
-						{ extraText }
-					</div>
-				) }
-
-				{ cssState.status !== 'pending' && providersWithErrors.length > 0 && (
-					<div className={ clsx( 'failures', styles.failures ) }>
-						<InfoIcon />
-
-						<>
-							{ createInterpolateElement(
-								sprintf(
-									// translators: %d is a number of CSS Files which failed to generate
-									_n(
-										'%d file could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize this file.',
-										'%d files could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize these files.',
-										providersWithErrors.length,
-										'jetpack-boost'
-									),
-									providersWithErrors.length
-								),
-								{
-									advanced: (
-										// eslint-disable-next-line jsx-a11y/anchor-has-content -- createInterpolateElement supplies the content.
-										<a
-											href={ subpageHref( 'critical-css-advanced' ) }
-											onClick={ handleAdvancedClick }
-										/>
-									),
-								}
+				<SummaryBody>
+					{ overrideText || (
+						<div className={ styles.successes }>
+							{ sprintf(
+								/* translators: %d is a number of CSS Files which were successfully generated */
+								_n( '%d file generated', '%d files generated', successCount, 'jetpack-boost' ),
+								successCount
 							) }
-						</>
-					</div>
-				) }
+
+							{ !! cssState.updated && (
+								<>
+									{ ' ' }
+									<TimeAgo time={ new Date( cssState.updated * 1000 ) } />
+								</>
+							) }
+
+							{ '. ' }
+
+							{ extraText }
+						</div>
+					) }
+
+					{ hasFailures &&
+						( isModern ? (
+							<Notice.Root intent="warning">
+								<Notice.Description>{ failureMessage }</Notice.Description>
+							</Notice.Root>
+						) : (
+							<div className={ clsx( 'failures', styles.failures ) }>
+								<InfoIcon />
+
+								{ failureMessage }
+							</div>
+						) ) }
+				</SummaryBody>
 			</div>
 
 			<Button
