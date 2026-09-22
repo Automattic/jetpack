@@ -121,7 +121,7 @@ final class Settings_Page {
 			 *
 			 * @module sharedaddy
 			 *
-			 * @since 1.6.0
+			 * @since jetpack-1.6.0
 			 */
 			do_action( 'pre_admin_screen_sharing' );
 

@@ -206,7 +206,7 @@ final class Services_Config {
 					 *
 					 * @module sharedaddy
 					 *
-					 * @since 1.1.0
+					 * @since jetpack-1.1.0
 					 */
 					do_action( 'sharing_global_options' );
 					?>
@@ -260,7 +260,7 @@ final class Services_Config {
 					 *
 					 * @module sharedaddy
 					 *
-					 * @since 1.1.0
+					 * @since jetpack-1.1.0
 					 */
 					do_action( 'sharing_new_service_form' );
 					?>
@@ -273,7 +273,7 @@ final class Services_Config {
 			 *
 			 * @module sharedaddy
 			 *
-			 * @since 1.6.0
+			 * @since jetpack-1.6.0
 			 */
 			do_action( 'post_admin_screen_sharing' );
 			?>
@@ -380,7 +380,7 @@ final class Services_Config {
 			 *
 			 * @module sharedaddy
 			 *
-			 * @since 1.1.0
+			 * @since jetpack-1.1.0
 			 */
 			do_action( 'sharing_admin_update' );
 

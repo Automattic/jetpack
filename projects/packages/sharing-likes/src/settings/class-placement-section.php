@@ -92,7 +92,7 @@ final class Placement_Section {
 					 *
 					 * @module sharedaddy
 					 *
-					 * @since 2.1.0
+					 * @since jetpack-2.1.0
 					 *
 					 * @param string $var Opening HTML tag at the beginning of the "Show button on" row.
 					 */
@@ -116,7 +116,7 @@ final class Placement_Section {
 					 *
 					 * @module sharedaddy
 					 *
-					 * @since 2.1.0
+					 * @since jetpack-2.1.0
 					 *
 					 * @param string $var Closing HTML tag at the end of the "Show button on" row.
 					 */
