@@ -68,11 +68,11 @@ class Jetpack_Google_Font_Face {
 			return;
 		}
 
-		$settings        = function_exists( 'gutenberg_get_global_settings' )
+		$settings     = function_exists( 'gutenberg_get_global_settings' )
 			? gutenberg_get_global_settings()
 			: wp_get_global_settings();
-		$native_slugs    = array();
-		$native_families = array();
+		$native_slugs = array();
+		$native_faces = array();
 		foreach ( $settings['typography']['fontFamilies'] ?? array() as $origin => $families ) {
 			foreach ( $families as $family ) {
 				if ( 'default' === $origin && empty( $family['fontFace'] ) ) {
@@ -86,7 +86,9 @@ class Jetpack_Google_Font_Face {
 					$native_slugs[ $this->format_font( $family['slug'] ) ] = $key;
 				}
 				if ( ! empty( $family['fontFace'] ) ) {
-					$native_families[ $key ] = true;
+					foreach ( $family['fontFace'] as $face ) {
+						$native_faces[ $key ][] = $face;
+					}
 				}
 			}
 		}
@@ -116,16 +118,30 @@ class Jetpack_Google_Font_Face {
 			$name = self::get_font_family_name( $family );
 			$key  = $this->format_font( $name );
 			$slug = $this->format_font( $family['slug'] );
-			// Native sources and presets that replace this family take precedence.
-			if ( isset( $native_families[ $key ] ) || ( isset( $native_slugs[ $slug ] ) && $native_slugs[ $slug ] !== $key ) ) {
+			// A preset that reuses this slug for another family replaces it.
+			if ( isset( $native_slugs[ $slug ] ) && $native_slugs[ $slug ] !== $key ) {
 				continue;
 			}
 			if ( ! isset( $fonts_in_use[ $slug ] ) && ! isset( $fonts_in_use[ $key ] ) ) {
 				continue;
 			}
 
+			$catalogue_faces = $family['fontFace'];
+			if ( isset( $native_faces[ $key ] ) ) {
+				// Native files win; the catalogue only fills styles and weights they lack.
+				$catalogue_faces = array_filter(
+					$catalogue_faces,
+					static function ( $face ) use ( $native_faces, $key ) {
+						return ! self::is_face_provided( $face, $native_faces[ $key ] );
+					}
+				);
+				if ( empty( $catalogue_faces ) ) {
+					continue;
+				}
+			}
+
 			$faces = array();
-			foreach ( $family['fontFace'] as $face ) {
+			foreach ( $catalogue_faces as $face ) {
 				$face['font-family'] = $name;
 				if ( ! empty( $face['src'] ) ) {
 					$face['src'] = array_map(
@@ -147,6 +163,41 @@ class Jetpack_Google_Font_Face {
 		if ( ! empty( $fonts_to_print ) ) {
 			wp_print_font_faces( $fonts_to_print );
 		}
+	}
+
+	/**
+	 * Whether a native face already covers a catalogue face's style and weight.
+	 *
+	 * @param array   $face         Catalogue face.
+	 * @param array[] $native_faces Native faces for the same family.
+	 * @return bool
+	 */
+	private static function is_face_provided( $face, $native_faces ) {
+		$style             = $face['fontStyle'] ?? 'normal';
+		list( $min, $max ) = self::get_weight_range( $face['fontWeight'] ?? '400' );
+		foreach ( $native_faces as $native ) {
+			if ( ( $native['fontStyle'] ?? 'normal' ) !== $style ) {
+				continue;
+			}
+			list( $native_min, $native_max ) = self::get_weight_range( $native['fontWeight'] ?? '400' );
+			// Overlap, not containment: a later catalogue rule would win at a shared weight.
+			if ( $native_min <= $max && $min <= $native_max ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Parses a font-weight descriptor such as "400", "bold" or "100 900".
+	 *
+	 * @param string|int $weight Font weight.
+	 * @return int[] Minimum and maximum weight.
+	 */
+	private static function get_weight_range( $weight ) {
+		$weight = str_replace( array( 'normal', 'bold' ), array( '400', '700' ), (string) $weight );
+		$parts  = preg_split( '/\s+/', trim( $weight ) );
+		return array( (int) $parts[0], (int) ( $parts[1] ?? $parts[0] ) );
 	}
 
 	/**
