@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Overview: Leave a gap between the hovered day and its score details so the following days can still be hovered.

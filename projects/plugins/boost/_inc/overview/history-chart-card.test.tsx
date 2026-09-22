@@ -335,6 +335,71 @@ test( 'opens a recorded day popover by keyboard and closes it with Escape', asyn
 	expect( desktop ).toHaveFocus();
 } );
 
+describe( 'popover placement', () => {
+	let sizeSpies: jest.SpyInstance[];
+	let defaultRect: () => DOMRect;
+	beforeEach( () => {
+		defaultRect = jest.mocked( Element.prototype.getBoundingClientRect ).getMockImplementation();
+		// floating-ui measures the viewport and the popup by their client and offset sizes.
+		sizeSpies = [
+			jest.spyOn( document.documentElement, 'clientWidth', 'get' ).mockReturnValue( 1000 ),
+			jest.spyOn( document.documentElement, 'clientHeight', 'get' ).mockReturnValue( 800 ),
+			jest.spyOn( HTMLElement.prototype, 'offsetWidth', 'get' ).mockImplementation( function (
+				this: HTMLElement
+			) {
+				return this.dataset.testid === 'history-positioner' ? 265 : 0;
+			} ),
+		];
+	} );
+	afterEach( () => {
+		jest.mocked( Element.prototype.getBoundingClientRect ).mockImplementation( defaultRect );
+		sizeSpies.forEach( spy => spy.mockRestore() );
+	} );
+
+	async function openBesideColumn( columnLeft: number ) {
+		jest.mocked( Element.prototype.getBoundingClientRect ).mockImplementation( function (
+			this: Element
+		) {
+			const isColumn = this.matches( '[data-testid="history-highlight"]' );
+			const left = isColumn ? columnLeft : 0;
+			const width = isColumn ? 20 : 800;
+			return {
+				x: left,
+				y: 0,
+				top: 0,
+				left,
+				right: left + width,
+				bottom: 300,
+				width,
+				height: 300,
+			} as DOMRect;
+		} );
+		const { unmount } = render( <HistoryChartCard data={ history } { ...callbacks } />, {
+			wrapper,
+		} );
+		fireEvent.keyDown( screen.getAllByRole( 'grid' )[ 0 ], { key: 'ArrowRight' } );
+		return { positioner: await screen.findByTestId( 'history-positioner' ), unmount };
+	}
+
+	test( 'opens a recorded day popover a gap away from its column', async () => {
+		const { positioner } = await openBesideColumn( 100 );
+		await waitFor( () => expect( positioner.style.transform ).toMatch( /^translate\(128px,/ ) );
+		expect( positioner ).toHaveAttribute( 'data-side', 'inline-end' );
+	} );
+
+	test( 'flips a recorded day popover only to the other side of its column', async () => {
+		const { positioner: flipped, unmount } = await openBesideColumn( 900 );
+		await waitFor( () => expect( flipped.style.transform ).toMatch( /^translate\(627px,/ ) );
+		expect( flipped ).toHaveAttribute( 'data-side', 'inline-start' );
+		unmount();
+		// Too narrow for either side: it must still not drop onto the card below or above.
+		jest.spyOn( document.documentElement, 'clientWidth', 'get' ).mockReturnValue( 500 );
+		const { positioner: cramped } = await openBesideColumn( 240 );
+		await waitFor( () => expect( cramped.style.transform ).toMatch( /^translate\(268px,/ ) );
+		expect( cramped ).toHaveAttribute( 'data-side', 'inline-end' );
+	} );
+} );
+
 test( 'shows empty days after loading and explains them on keyboard focus', async () => {
 	const { rerender } = render( <HistoryChartCard isLoading { ...callbacks } />, { wrapper } );
 	expect( screen.queryByRole( 'grid' ) ).not.toBeInTheDocument();
