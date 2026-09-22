@@ -1,6 +1,6 @@
 import { formatNumberCompact, formatNumber } from '@automattic/number-formatters';
 import { LinearGradient } from '@visx/gradient';
-import { scaleCanBeZeroed, type ScaleConfig } from '@visx/scale';
+import { scaleCanBeZeroed } from '@visx/scale';
 import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
@@ -326,7 +326,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			// A log scale cannot hold zero; visx ignores the flag there, and so does this.
 			const includeZero =
 				options?.yScale?.zero === true &&
-				scaleCanBeZeroed( { type: options.yScale.type ?? 'linear' } as ScaleConfig );
+				scaleCanBeZeroed( { type: options.yScale.type ?? 'linear' } );
 			if ( rescaleYOnVisibilityChange && ! includeZero ) {
 				return undefined;
 			}

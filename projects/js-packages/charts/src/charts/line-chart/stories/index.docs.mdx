@@ -704,7 +704,7 @@ Customize axes with formatting, orientation, and tick options:
 
 ### Value Axis Baseline
 
-By default the value axis fits the data, which makes a small change look large. Pass `yScale: { zero: true }` to start the axis at zero; the axis top is then rounded from zero rather than from the data's floor, so the line does not run into the top edge. The axis still rescales when a series is hidden through the legend.
+By default the value axis fits the data, which makes a small change look large. Pass `yScale: { zero: true }` to start the axis at zero; the axis top is then rounded from zero rather than from the data's floor, so the line does not run into the top edge. The axis still rescales when a series is hidden through the legend. A log scale cannot hold zero, so it ignores the option.
 
 <Canvas of={ LineChartStories.ZeroBaseline } />
 

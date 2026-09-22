@@ -1802,6 +1802,23 @@ describe( 'LineChart', () => {
 			expect( domain() ).toEqual( [ 100, 1000 ] );
 		} );
 
+		it( 'extends a zero-based axis below zero when a series goes negative', () => {
+			const { domain } = renderForDomain( {
+				options: { yScale: { zero: true } },
+				data: [
+					{
+						label: 'Net change',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: -15, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 30, label: 'Jan 2' },
+						],
+						options: {},
+					},
+				],
+			} );
+			expect( domain() ).toEqual( [ -15, 30 ] );
+		} );
+
 		it( 'gives an all-zero series an axis from 0 to 1 instead of a spanless one', () => {
 			const { domain } = renderForDomain( {
 				options: { yScale: { zero: true } },
