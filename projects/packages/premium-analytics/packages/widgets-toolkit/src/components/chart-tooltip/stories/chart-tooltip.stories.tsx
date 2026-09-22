@@ -1,4 +1,5 @@
 import { formatDate } from '@jetpack-premium-analytics/formatters';
+import { formatTooltipPointLabel } from '../../../helpers';
 import { ChartTooltip, type TooltipStyle } from '../chart-tooltip';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -60,7 +61,7 @@ const BAR_SERIES_STYLES: TooltipStyle[] = [
  * @param index - Index of this entry in the tooltip
  * @param _key  - Series key (unused, date is extracted from datum)
  */
-type LineDatum = { date: Date; realDate?: Date; value: number };
+type LineDatum = { date: Date; realDate?: Date; value: number | null };
 const getDateLabel = ( datum: LineDatum, index: number ): string => {
 	const isComparison = index > 0;
 	const displayDate = isComparison ? ( datum.realDate ?? datum.date ) : datum.date;
@@ -413,6 +414,51 @@ export const CustomStyles: Story = {
 		docs: {
 			description: {
 				story: 'Tooltip with custom green and orange colors instead of the default blue.',
+			},
+		},
+	},
+};
+
+/**
+ * MissingReading: an inline row for a bucket with no reading, beside a real zero.
+ */
+export const MissingReading: Story = {
+	render: () => (
+		<TooltipWrapper>
+			<ChartTooltip
+				tooltipData={ {
+					datumByKey: {
+						Subscribers: {
+							datum: { date: new Date( '2026-03-01' ), value: null },
+							index: 0,
+							key: 'Subscribers',
+						},
+						'Subscribers · previous period': {
+							datum: {
+								date: new Date( '2026-03-01' ),
+								realDate: new Date( '2025-03-01' ),
+								value: 0,
+							},
+							index: 1,
+							key: 'Subscribers · previous period',
+						},
+					},
+				} }
+				dataFormat={ { type: 'number' } }
+				seriesStyles={ LINE_SERIES_STYLES }
+				indicatorType="line"
+				layout="inline"
+				getLabel={ ( datum: LineDatum, _index: number, key: string, value: string ) =>
+					formatTooltipPointLabel( value, key, formatDate( datum.realDate ?? datum.date ) )
+				}
+			/>
+		</TooltipWrapper>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The inline layout the comparative charts use. A bucket with no reading reads "No data" rather than a zero, and a real zero still reads 0.',
 			},
 		},
 	},
