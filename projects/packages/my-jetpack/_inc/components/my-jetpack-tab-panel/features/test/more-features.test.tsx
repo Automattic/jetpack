@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { MoreFeatures } from '../more-features';
+import { getModuleFeatureState } from '../use-more-features';
 import type { MyJetpackModule } from '../../../../types';
 import type { FeatureSelection } from '../use-feature-selection';
 
@@ -33,8 +34,7 @@ const selection = {
 const renderSection = () =>
 	render(
 		<MoreFeatures
-			groups={ [ { label: 'Engagement', modules: [ sharing ] } ] }
-			listStates={ {} }
+			groups={ [ { label: 'Engagement', states: [ getModuleFeatureState( sharing, {} ) ] } ] }
 			selection={ selection }
 			jetpack="active"
 		/>
@@ -63,5 +63,15 @@ describe( 'MoreFeatures', () => {
 
 		expect( screen.getByText( sharing.description ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Inactive' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the modules under their heading with nothing to open', () => {
+		setSiteEditor( { isBlockTheme: false } );
+
+		renderSection();
+
+		expect( screen.getByRole( 'heading', { name: 'Engagement' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: sharing.name } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /Learn more about/ } ) ).not.toBeInTheDocument();
 	} );
 } );

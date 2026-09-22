@@ -1,7 +1,6 @@
 import { _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
-import { useRequestedSwitches } from '../../../data/requested-switch-state';
 import { BulkBar } from './bulk-bar';
 import { FeaturesEmptyState } from './empty-state';
 import { FeatureItem } from './feature-item';
@@ -17,12 +16,7 @@ import { useFeatureSearch } from './use-feature-search';
 import { useFeatureSelection } from './use-feature-selection';
 import { useMainFeatures } from './use-main-features';
 import { useSidebarSync } from './use-sidebar-sync';
-import {
-	filterMoreFeatures,
-	getModuleFeatureState,
-	matchesModuleFilter,
-	useMoreFeatures,
-} from './use-more-features';
+import { filterMoreFeatures, useMoreFeatures } from './use-more-features';
 import type { FeaturesView } from './toolbar';
 import type { FeatureFilter } from './use-feature-filter';
 
@@ -81,44 +75,30 @@ export function FeaturesContent() {
 		() => filterMoreFeatures( moreFeatures, filter, search ),
 		[ moreFeatures, filter, search ]
 	);
-	const shownCount =
-		visible.length + visibleMore.reduce( ( total, group ) => total + group.modules.length, 0 );
-
-	// The modules as rows, so the one bulk bar covers both lists.
-	const requested = useRequestedSwitches();
-	const moreListStates = useMemo(
-		() =>
-			Object.fromEntries(
-				visibleMore.map( group => [
-					group.label,
-					group.modules.map( $module => getModuleFeatureState( $module, requested ) ),
-				] )
-			),
-		[ visibleMore, requested ]
+	// Flattened once: the bulk bar selects over both lists, and the counts read both.
+	const visibleMoreStates = useMemo(
+		() => visibleMore.flatMap( group => group.states ),
+		[ visibleMore ]
 	);
+	const shownCount = visible.length + visibleMoreStates.length;
+
 	const selection = useFeatureSelection(
-		useMemo(
-			() => [ ...visible, ...Object.values( moreListStates ).flat() ],
-			[ visible, moreListStates ]
-		),
+		useMemo( () => [ ...visible, ...visibleMoreStates ], [ visible, visibleMoreStates ] ),
 		mainFeatures.jetpack === 'active'
 	);
 
 	// Counted against every feature, not the visible ones, so a pill says how many it
 	// would show rather than how many survived the filter already in play.
-	const counts = useMemo(
-		() =>
-			Object.fromEntries(
-				getFeatureFilters( filter ).map( ( { value } ) => [
-					value,
-					states.filter( state => matchesFilter( state, value ) ).length +
-						moreFeatures
-							.flatMap( group => group.modules )
-							.filter( $module => matchesModuleFilter( $module, value ) ).length,
-				] )
-			) as Record< FeatureFilter, number >,
-		[ states, moreFeatures, filter ]
-	);
+	const counts = useMemo( () => {
+		const countable = [ ...states, ...moreFeatures.flatMap( group => group.states ) ];
+
+		return Object.fromEntries(
+			getFeatureFilters( filter ).map( ( { value } ) => [
+				value,
+				countable.filter( state => matchesFilter( state, value ) ).length,
+			] )
+		) as Record< FeatureFilter, number >;
+	}, [ states, moreFeatures, filter ] );
 
 	const openFeature = useCallback(
 		( slug: string ) => updateParams( { feature: slug } ),
@@ -208,7 +188,6 @@ export function FeaturesContent() {
 			{ pointer && <MenuPointer target={ pointer } onDismiss={ dismissPointer } /> }
 			<MoreFeatures
 				groups={ visibleMore }
-				listStates={ moreListStates }
 				selection={ selection }
 				jetpack={ mainFeatures.jetpack }
 				isList={ view === 'list' }

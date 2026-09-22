@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
-import { SelectionHarness } from '../selection-harness';
+import { SelectionHarness } from './helpers/selection-harness';
 import type { FeatureState } from '../feature-state';
 import type { ReactNode } from 'react';
 
@@ -51,13 +51,6 @@ const moduleState = ( slug: string ) =>
 		control: { kind: 'module', module: { module: slug, name: slug, override: false } },
 	} ) as unknown as FeatureState;
 
-const renderRow = ( state: FeatureState, leading: ReactNode ) => (
-	<div>
-		{ leading }
-		{ state.feature.name } row
-	</div>
-);
-
 describe( 'FeatureList with the bulk switch', () => {
 	it( 'sends the selected features in one request and clears the selection after it', async () => {
 		mockApiFetch.mockResolvedValue( { state: {}, failed: [] } );
@@ -95,13 +88,12 @@ describe( 'FeatureList with the bulk switch', () => {
 						{ label: 'Security', states: [ moduleState( 'monitor' ) ] },
 						{ label: 'Writing', states: [ moduleState( 'markdown' ) ] },
 					] }
-					renderRow={ renderRow }
 				/>
 			</QueryClientProvider>
 		);
 
 		expect( screen.getByRole( 'heading', { name: 'Security' } ) ).toBeInTheDocument();
-		expect( screen.getByText( 'markdown row' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Writing' } ) ).toBeInTheDocument();
 		// One bar over both lists, not one each.
 		expect( screen.getAllByRole( 'checkbox', { name: 'Select all features' } ) ).toHaveLength( 1 );
 

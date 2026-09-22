@@ -1,16 +1,13 @@
 import { CheckboxControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { VisuallyHidden } from '@wordpress/ui';
-import { Fragment, useCallback } from 'react';
+import { useCallback } from 'react';
 import { FeatureItem } from './feature-item';
 import { getForcedReason } from './feature-state';
 import styles from './styles.module.scss';
 import { isBulkSwitchable } from './use-bulk-feature-switch';
 import type { FeatureState } from './feature-state';
 import type { FeatureSelection } from './use-feature-selection';
-import type { ReactNode } from 'react';
-
-const noop = () => {};
 
 // Explains every disabled row checkbox, so the reason is written once.
 const UNSWITCHABLE_ID = 'feature-list-unswitchable';
@@ -79,7 +76,7 @@ type FeatureListProps = {
 	selection: FeatureSelection;
 	states: FeatureState[];
 	onOpen?: ( slug: string ) => void;
-	renderRow?: ( state: FeatureState, leading: ReactNode ) => ReactNode;
+	showIcon?: boolean;
 };
 
 /**
@@ -88,36 +85,31 @@ type FeatureListProps = {
  * @param {FeatureListProps} props           - The component props.
  * @param {FeatureSelection} props.selection - The selection shared with the bulk bar.
  * @param {FeatureState[]}   props.states    - The features to show.
- * @param {Function}         props.onOpen    - Opens a feature's details, for the default row.
- * @param {Function}         props.renderRow - Renders a row in place of the feature card, given its checkbox.
+ * @param {Function}         props.onOpen    - Opens a feature's details, where the rows have any.
+ * @param {boolean}          props.showIcon  - False drops each row's icon tile.
  * @return The rendered component.
  */
-export function FeatureList( { selection, states, onOpen, renderRow }: FeatureListProps ) {
+export function FeatureList( { selection, states, onOpen, showIcon }: FeatureListProps ) {
 	return (
 		<div className={ styles[ 'feature-list' ] }>
 			<VisuallyHidden id={ UNSWITCHABLE_ID }>{ getUnswitchableReason() }</VisuallyHidden>
 
-			{ states.map( state => {
-				const leading = (
-					<RowCheckbox
-						state={ state }
-						isSelected={ selection.isSelected( state.feature.slug ) }
-						onSelect={ selection.onSelect }
-					/>
-				);
-
-				return renderRow ? (
-					<Fragment key={ state.feature.slug }>{ renderRow( state, leading ) }</Fragment>
-				) : (
-					<FeatureItem
-						key={ state.feature.slug }
-						state={ state }
-						onOpen={ onOpen ?? noop }
-						className={ styles[ 'feature-row' ] }
-						leading={ leading }
-					/>
-				);
-			} ) }
+			{ states.map( state => (
+				<FeatureItem
+					key={ state.feature.slug }
+					state={ state }
+					onOpen={ onOpen }
+					showIcon={ showIcon }
+					className={ styles[ 'feature-row' ] }
+					leading={
+						<RowCheckbox
+							state={ state }
+							isSelected={ selection.isSelected( state.feature.slug ) }
+							onSelect={ selection.onSelect }
+						/>
+					}
+				/>
+			) ) }
 		</div>
 	);
 }

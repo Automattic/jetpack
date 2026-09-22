@@ -1,17 +1,13 @@
-import { BulkBar } from './bulk-bar';
-import { FeatureList } from './feature-list';
-import { useFeatureSelection } from './use-feature-selection';
-import type { FeatureState } from './feature-state';
-import type { ReactNode } from 'react';
+import { BulkBar } from '../../bulk-bar';
+import { FeatureList } from '../../feature-list';
+import { useFeatureSelection } from '../../use-feature-selection';
+import type { FeatureState } from '../../feature-state';
 
 type HarnessProps = {
 	states?: FeatureState[];
 	groups?: Array< { label: string; states: FeatureState[] } >;
-	renderRow?: ( state: FeatureState, leading: ReactNode ) => ReactNode;
 	canDeactivatePlugins?: boolean;
 };
-
-const noop = () => {};
 
 /**
  * The tab's shape, for tests: one bulk bar over the features and, where given, the grouped
@@ -20,14 +16,12 @@ const noop = () => {};
  * @param {HarnessProps}   props                      - The component props.
  * @param {FeatureState[]} props.states               - The features.
  * @param {Array}          props.groups               - The modules, grouped under a heading.
- * @param {Function}       props.renderRow            - Renders a grouped row.
  * @param {boolean}        props.canDeactivatePlugins - Whether plugins may be switched off in bulk.
  * @return The rendered component.
  */
 export function SelectionHarness( {
 	states = [],
 	groups,
-	renderRow,
 	canDeactivatePlugins = true,
 }: HarnessProps ) {
 	const selection = useFeatureSelection(
@@ -39,12 +33,12 @@ export function SelectionHarness( {
 		<>
 			<BulkBar selection={ selection } />
 			{ states.length > 0 && (
-				<FeatureList states={ states } selection={ selection } onOpen={ noop } />
+				<FeatureList states={ states } selection={ selection } onOpen={ jest.fn() } />
 			) }
 			{ groups?.map( group => (
 				<section key={ group.label }>
 					<h3>{ group.label }</h3>
-					<FeatureList states={ group.states } selection={ selection } renderRow={ renderRow } />
+					<FeatureList states={ group.states } selection={ selection } showIcon={ false } />
 				</section>
 			) ) }
 		</>

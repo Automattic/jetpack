@@ -646,9 +646,8 @@ class Main_Features {
 	/**
 	 * Headings for the modules the feature list does not cover.
 	 *
-	 * Grouped by the job a site owner is doing, not by Jetpack's own module tags, which
-	 * describe mechanism instead: the Image CDN is tagged Appearance though its job is
-	 * speed. A module missing from here falls into Other rather than disappearing.
+	 * Grouped by the job a site owner is doing, not by Jetpack's module tags, which describe
+	 * mechanism (the Image CDN is tagged Appearance). Anything unlisted falls into Other.
 	 *
 	 * @return array Ordered groups, each with a label and its module slugs.
 	 */

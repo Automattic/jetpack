@@ -63,10 +63,18 @@ export function useFeatureSelection(
 		[ selectable ]
 	);
 
-	const toActivate = picked.filter( state => state.status !== 'active' );
-	const toDeactivate = picked.filter(
-		state =>
-			state.status === 'active' && ( canDeactivatePlugins || state.control.kind !== 'plugin' )
+	// Memoized so the two switch callbacks below keep their identity between renders.
+	const toActivate = useMemo(
+		() => picked.filter( state => state.status !== 'active' ),
+		[ picked ]
+	);
+	const toDeactivate = useMemo(
+		() =>
+			picked.filter(
+				state =>
+					state.status === 'active' && ( canDeactivatePlugins || state.control.kind !== 'plugin' )
+			),
+		[ picked, canDeactivatePlugins ]
 	);
 
 	// Clears only what was sent, so a row picked mid-run survives, and keeps failures for a retry.

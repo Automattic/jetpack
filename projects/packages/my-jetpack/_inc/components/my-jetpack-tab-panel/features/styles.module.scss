@@ -53,6 +53,12 @@ $feature-icon-foreground: #0ced57;
 	}
 }
 
+// A card with nothing to open: no hover, since there is no target under it.
+.feature-item--static:hover {
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border-color: var(--wpds-color-stroke-surface-neutral-weak);
+}
+
 @media (prefers-reduced-motion: reduce) {
 
 	.feature-item {
@@ -225,8 +231,7 @@ $feature-icon-foreground: #0ced57;
 	text-decoration: underline;
 }
 
-// Jetpack's other modules: the main cards' shape without their icon, click
-// target or hover, since nothing here opens.
+// Jetpack's other modules, under their group headings.
 .more-features {
 	display: flex;
 	flex-direction: column;
@@ -251,21 +256,6 @@ $feature-icon-foreground: #0ced57;
 	gap: var(--wpds-dimension-gap-md);
 }
 
-.more-feature-item {
-	align-items: flex-start;
-	background: var(--wpds-color-background-surface-neutral-strong);
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
-	border-radius: var(--wpds-border-radius-lg);
-	display: flex;
-	gap: var(--wpds-dimension-gap-md);
-	padding: var(--wpds-dimension-padding-lg);
-}
-
-.more-feature-item__action {
-	align-self: center;
-	display: flex;
-	flex-shrink: 0;
-}
 
 .empty-heading {
 
@@ -399,17 +389,6 @@ $feature-icon-foreground: #0ced57;
 	}
 }
 
-// A module card flattened into a list row, like the feature row above it.
-.more-feature-item.feature-row {
-	align-items: center;
-	border: 0;
-	border-radius: 0;
-	padding: var(--wpds-dimension-padding-xl);
-
-	& + & {
-		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
-	}
-}
 
 // The pills are the wide layout; the select is the narrow one. Only ever one.
 .filter-select {
