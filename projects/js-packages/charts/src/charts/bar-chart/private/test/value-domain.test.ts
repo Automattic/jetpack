@@ -82,6 +82,12 @@ describe( 'getValueScaleDomain', () => {
 		expect( getValueScaleDomain( data, false, isSeriesRendered ) ).toEqual( [ 0, 500 ] );
 	} );
 
+	test( 'anchors the remaining varying series at zero when a sibling is hidden', () => {
+		const data = [ series( [ 10, 20 ], undefined, 'A' ), series( [ 15, 25 ], undefined, 'B' ) ];
+		const isSeriesRendered = ( s: SeriesData ) => s.label !== 'A';
+		expect( getValueScaleDomain( data, true, isSeriesRendered ) ).toEqual( [ 0, 25 ] );
+	} );
+
 	test( 'reads visualValue in preference to value', () => {
 		const data: SeriesData[] = [
 			{

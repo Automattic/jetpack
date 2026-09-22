@@ -10,6 +10,7 @@ import {
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
+import { steadyTrafficData } from '../../../stories/sample-data';
 import BarChart, { BarChartUnresponsive } from '../bar-chart';
 import { useBarChartOptions } from '../private';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
@@ -2255,32 +2256,21 @@ describe( 'BarChart', () => {
 	} );
 
 	describe( 'Value axis baseline', () => {
-		// CHARTS-282: Sep 12–18, 921–989 views a day, a 7% swing.
-		const steadyTraffic = [
-			{
-				label: 'Views',
-				data: [ 921, 989, 954, 924, 967, 933, 978 ].map( ( value, index ) => ( {
-					label: `Sep ${ 12 + index }`,
-					value,
-				} ) ),
-			},
-		];
-
 		it( 'starts the value axis at zero by default', () => {
-			const { result } = renderHook( () => useBarChartOptions( steadyTraffic, false, {} ) );
+			const { result } = renderHook( () => useBarChartOptions( steadyTrafficData, false, {} ) );
 			const yScale = result.current.yScale as { domain?: number[] };
 			expect( yScale.domain ).toEqual( [ 0, 989 ] );
 		} );
 
 		it( 'starts the value axis at zero in horizontal charts', () => {
-			const { result } = renderHook( () => useBarChartOptions( steadyTraffic, true, {} ) );
+			const { result } = renderHook( () => useBarChartOptions( steadyTrafficData, true, {} ) );
 			const xScale = result.current.xScale as { domain?: number[] };
 			expect( xScale.domain ).toEqual( [ 0, 989 ] );
 		} );
 
 		it( 'lets a caller opt out of the zero baseline', () => {
 			const { result } = renderHook( () =>
-				useBarChartOptions( steadyTraffic, false, { yScale: { zero: false } } )
+				useBarChartOptions( steadyTrafficData, false, { yScale: { zero: false } } )
 			);
 			const yScale = result.current.yScale as { domain?: number[]; zero?: boolean };
 			expect( yScale.domain ).toBeUndefined();
@@ -2289,7 +2279,7 @@ describe( 'BarChart', () => {
 
 		it( 'reads the opt-out from the x scale of a horizontal chart', () => {
 			const { result } = renderHook( () =>
-				useBarChartOptions( steadyTraffic, true, { xScale: { zero: false } } )
+				useBarChartOptions( steadyTrafficData, true, { xScale: { zero: false } } )
 			);
 			const xScale = result.current.xScale as { domain?: number[] };
 			expect( xScale.domain ).toBeUndefined();
@@ -2297,7 +2287,7 @@ describe( 'BarChart', () => {
 
 		it( 'keeps an explicit domain as given', () => {
 			const { result } = renderHook( () =>
-				useBarChartOptions( steadyTraffic, false, { yScale: { domain: [ 900, 1000 ] } } )
+				useBarChartOptions( steadyTrafficData, false, { yScale: { domain: [ 900, 1000 ] } } )
 			);
 			const yScale = result.current.yScale as { domain?: number[] };
 			expect( yScale.domain ).toEqual( [ 900, 1000 ] );
@@ -2306,7 +2296,7 @@ describe( 'BarChart', () => {
 		it( 'renders an explicit domain without stretching it to zero', () => {
 			render(
 				<BarChart
-					data={ steadyTraffic }
+					data={ steadyTrafficData }
 					width={ 400 }
 					height={ 300 }
 					options={ { yScale: { domain: [ 900, 1000 ] } } }
@@ -2321,11 +2311,14 @@ describe( 'BarChart', () => {
 
 		it( 'keeps zero in the domain when the caller opts out but a comparison series is present', () => {
 			const data = [
-				...steadyTraffic,
+				...steadyTrafficData,
 				{
 					label: 'Previous',
 					options: { type: 'comparison' as const },
-					data: steadyTraffic[ 0 ].data.map( point => ( { ...point, value: point.value - 10 } ) ),
+					data: steadyTrafficData[ 0 ].data.map( point => ( {
+						...point,
+						value: point.value - 10,
+					} ) ),
 				},
 			];
 			const { result } = renderHook( () =>
@@ -2336,13 +2329,12 @@ describe( 'BarChart', () => {
 		} );
 
 		it( 'renders every bar of steady traffic at most a few percent shorter than the tallest', () => {
-			render( <BarChart data={ steadyTraffic } width={ 400 } height={ 300 } /> );
+			render( <BarChart data={ steadyTrafficData } width={ 400 } height={ 300 } /> );
 			const heights = Array.from( getBarRects() ).map( bar =>
 				parseFloat( bar.getAttribute( 'height' ) || '0' )
 			);
 			expect( heights ).toHaveLength( 7 );
 			const tallest = Math.max( ...heights );
-			// 921 of 989 is 93%; a non-zero baseline would leave the shortest bar near 0.
 			expect( Math.min( ...heights ) / tallest ).toBeGreaterThan( 0.9 );
 		} );
 	} );

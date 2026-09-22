@@ -8,6 +8,7 @@ import {
 	medalCountsData,
 	largeValuesData,
 	trafficData,
+	steadyTrafficData,
 	themeArgTypes,
 	type SeriesLegendStoryControls,
 } from '../../../stories';
@@ -682,20 +683,10 @@ BucketsWithNoData.parameters = {
 	},
 };
 
-const steadyTraffic = [
-	{
-		label: 'Views',
-		data: [ 921, 989, 954, 924, 967, 933, 978 ].map( ( value, index ) => ( {
-			label: `Sep ${ 12 + index }`,
-			value,
-		} ) ),
-	},
-];
-
 export const SteadyValues: Story = {
 	args: {
 		...Default.args,
-		data: steadyTraffic,
+		data: steadyTrafficData,
 	},
 	argTypes: {
 		seriesCount: { table: { disable: true } },

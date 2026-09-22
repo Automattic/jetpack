@@ -268,8 +268,7 @@ export function useBarChartOptions(
 
 		const valueScaleOptions = horizontal ? stableOptions.xScale : stableOptions.yScale;
 		const hasComparisonSeries = data.some( s => s.options?.type === 'comparison' );
-		// Bars start at zero so their length encodes the value; `zero: false` opts out,
-		// except in comparison mode, where the shadows are drawn from the baseline.
+		// Comparison shadows share the primary bars' scale, so they force zero even when the caller opted out.
 		const includeZero = hasComparisonSeries || valueScaleOptions?.zero !== false;
 		const domain = valueScaleOptions?.domain
 			? null
