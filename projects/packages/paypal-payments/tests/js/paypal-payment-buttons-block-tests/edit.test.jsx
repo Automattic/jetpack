@@ -99,9 +99,14 @@ jest.mock( 'qrcode', () => ( {
 } ) );
 
 const mockMarkNotPersistent = jest.fn();
+const mockSavePost = jest.fn( () => Promise.resolve() );
 jest.mock( '@wordpress/data', () => ( {
-	useDispatch: () => ( { __unstableMarkNextChangeAsNotPersistent: mockMarkNotPersistent } ),
+	useDispatch: () => ( {
+		__unstableMarkNextChangeAsNotPersistent: mockMarkNotPersistent,
+		savePost: mockSavePost,
+	} ),
 } ) );
+jest.mock( '@wordpress/editor', () => ( { store: 'core/editor' } ) );
 
 // The real snackbar dispatches to @wordpress/notices, so in jsdom the call is all
 // there is to assert on.
@@ -2997,7 +3002,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			forgetSyncedRequests();
 		} );
 
-		it( 'corrects a stale copy from the payment PayPal holds, without dirtying the post', async () => {
+		it( 'corrects a stale copy from the payment PayPal holds, as a change to save', async () => {
 			mockResource( { ...attributes, productName: 'duplicate', price: '49.00' } );
 
 			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
@@ -3005,7 +3010,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await waitFor( () =>
 				expect( setAttributes ).toHaveBeenCalledWith( { productName: 'duplicate', price: '49.00' } )
 			);
-			expect( mockMarkNotPersistent ).toHaveBeenCalledTimes( 1 );
+			expect( mockMarkNotPersistent ).not.toHaveBeenCalled();
 		} );
 
 		/**
@@ -5845,7 +5850,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			paymentLink: saved.paymentLink,
 		};
 		const notice =
-			/This payment link was updated elsewhere and this block has been updated to match\./;
+			/This payment link was updated elsewhere and this block has been updated to match\. Save the post so this page shows the change\./;
 
 		/**
 		 * Answer the connection check, then hand back one payment.
@@ -7229,6 +7234,134 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
 			expect( screen.queryByLabelText( 'Product Name' ) ).not.toBeInTheDocument();
+		} );
+
+		// The payment is written with the post, so leaving the form with changes
+		// asks whether to save the post now or put the link back.
+		describe( 'Changes made', () => {
+			const edited = { ...saved, productName: 'Pain au chocolat' };
+
+			/**
+			 * Open a saved link's form and change its name. setAttributes is a mock,
+			 * so the edit arrives as a rerender.
+			 *
+			 * @param {object} user       - userEvent instance.
+			 * @param {object} attributes - What the form holds after the edit.
+			 * @return {object} Testing Library render result.
+			 */
+			const editForm = async ( user, attributes = edited ) => {
+				const view = render(
+					<Edit attributes={ saved } setAttributes={ setAttributes } clientId="a" />
+				);
+				await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
+				await user.click( screen.getByRole( 'button', { name: 'Edit' } ) );
+				view.rerender(
+					<Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" />
+				);
+				return view;
+			};
+
+			const back = () => screen.getByRole( 'button', { name: 'Edit Button' } );
+
+			beforeEach( () => {
+				mockSavePost.mockClear();
+			} );
+
+			it( 'goes straight back when nothing changed', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user, saved );
+
+				await user.click( back() );
+
+				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
+			} );
+
+			it( 'asks before leaving the form with unsaved changes', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user );
+
+				await user.click( back() );
+
+				const dialog = screen.getByRole( 'dialog', { name: 'Changes made' } );
+				expect( within( dialog ).getByText( /save before leaving/ ) ).toBeInTheDocument();
+				expect( within( dialog ).getByRole( 'button', { name: 'Save' } ) ).toBeEnabled();
+				expect( within( dialog ).getByRole( 'button', { name: 'Don’t save' } ) ).toBeEnabled();
+				expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
+			} );
+
+			it( 'puts the link back as it was on Don’t save, and shows the details', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user );
+
+				await user.click( back() );
+				await user.click( screen.getByRole( 'button', { name: 'Don’t save' } ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith(
+					expect.objectContaining( { productName: 'Croissant', price: '12.00' } )
+				);
+				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
+				expect( mockSavePost ).not.toHaveBeenCalled();
+			} );
+
+			it( 'saves the post on Save, and shows the details once it is saved', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				let finishSave;
+				mockSavePost.mockImplementationOnce(
+					() => new Promise( resolve => ( finishSave = resolve ) )
+				);
+				await editForm( user );
+
+				await user.click( back() );
+				await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+				expect( mockSavePost ).toHaveBeenCalledTimes( 1 );
+				const dialog = screen.getByRole( 'dialog', { name: 'Changes made' } );
+				expect( within( dialog ).getByRole( 'button', { name: 'Save' } ) ).toBeDisabled();
+				expect( within( dialog ).getByRole( 'button', { name: 'Don’t save' } ) ).toBeDisabled();
+				// Neither the X nor Escape closes the dialog mid-save.
+				await user.click( screen.getByTestId( 'modal-close' ) );
+				expect( screen.getByRole( 'dialog', { name: 'Changes made' } ) ).toBeInTheDocument();
+
+				finishSave();
+
+				await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
+				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
+				expect( setAttributes ).not.toHaveBeenCalled();
+			} );
+
+			// A required field emptied still leaves, but only by discarding.
+			it( 'offers Don’t save alone while the form is invalid', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user, { ...saved, productName: '' } );
+
+				expect( back() ).toBeEnabled();
+				await user.click( back() );
+
+				const dialog = screen.getByRole( 'dialog', { name: 'Changes made' } );
+				expect( within( dialog ).getByRole( 'button', { name: 'Save' } ) ).toBeDisabled();
+				expect( within( dialog ).getByRole( 'button', { name: 'Don’t save' } ) ).toBeEnabled();
+			} );
+
+			it( 'keeps the form and the changes when the dialog is closed', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user );
+
+				await user.click( back() );
+				await user.click( screen.getByTestId( 'modal-close' ) );
+
+				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
+				expect( setAttributes ).not.toHaveBeenCalled();
+				expect( mockSavePost ).not.toHaveBeenCalled();
+			} );
 		} );
 
 		it( 'drops the id from the connection panel, which the details carry now', async () => {
