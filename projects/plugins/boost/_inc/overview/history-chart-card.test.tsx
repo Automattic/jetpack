@@ -326,6 +326,20 @@ test( 'shows nothing beyond the empty-day tooltip when an empty day is clicked',
 	await expect( screen.findByTestId( 'history-popover' ) ).rejects.toThrow();
 } );
 
+test( 'shows an empty day in the popover beside its column', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	for ( let step = 0; step < 4; step++ ) {
+		fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	}
+	await waitFor( () =>
+		expect( screen.getByTestId( 'history-popover' ) ).toHaveTextContent(
+			'No scores recorded for this day.'
+		)
+	);
+	expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'No scores recorded for this day.' );
+} );
+
 test( "keeps a keyboard-opened day showing through the chart's own keys", async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
 	const desktop = screen.getAllByRole( 'grid' )[ 0 ];

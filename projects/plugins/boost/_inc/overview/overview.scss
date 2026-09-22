@@ -1,4 +1,5 @@
 @use "@automattic/jetpack-base-styles/root-variables";
+@use "@wordpress/base-styles/colors" as wpcolors;
 @use "@wordpress/base-styles/variables" as wpvariables;
 @use "@wordpress/base-styles/breakpoints" as wpbreakpoints;
 @use "@wordpress/base-styles/mixins" as wpmixins;
@@ -83,29 +84,79 @@
 	padding: 0;
 	border: 0;
 	background: transparent;
-	color: var(--wpds-color-foreground-content-neutral-weak);
+	color: wpcolors.$gray-600;
 	cursor: pointer;
 
 	&:hover {
 		color: var(--wpds-color-foreground-content-neutral);
 	}
+
+	&[data-popup-open] {
+		color: var(--wpds-color-foreground-interactive-brand);
+	}
+
+	&:focus-visible {
+
+		@include wpmixins.outset-ring__focus();
+	}
+}
+
+// base-ui marks only the opening trigger, so this also covers the badge.
+.jetpack-boost-overview__delta:has([data-popup-open]) .jetpack-boost-overview__info-trigger {
+	color: var(--wpds-color-foreground-interactive-brand);
+}
+
+// @wordpress/ui paints the popover surface on the popup's only child.
+.jetpack-boost-overview__score-popover > * {
+	border-color: wpcolors.$gray-200;
+	border-radius: var(--wpds-border-radius-lg);
+
+	p {
+		margin: 0;
+		color: inherit;
+	}
+}
+
+.jetpack-boost-overview__points-tooltip {
+	max-inline-size: 160px;
+
+	> * {
+		padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg);
+	}
 }
 
 .jetpack-boost-overview__grade-tooltip {
-	max-inline-size: min(var(--wpds-dimension-surface-width-sm), calc(100vw - var(--wpds-dimension-gap-2xl)));
+	max-inline-size: min(calc(var(--wpds-dimension-surface-width-xs) + var(--wpds-dimension-padding-2xl) + var(--wpds-border-width-xs)), calc(100vw - var(--wpds-dimension-gap-2xl)));
+
+	p {
+		margin-block-end: var(--wpds-dimension-gap-lg);
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
 }
 
 .jetpack-boost-overview__grade-ranges {
 	display: inline-table;
 	inline-size: 50%;
 	margin: 0;
+	border-collapse: collapse;
+	line-height: var(--wpds-typography-line-height-sm);
+
+	th,
+	td {
+		padding: 0;
+	}
 
 	th {
 		text-align: start;
+		font-weight: 500;
 	}
 
 	td {
 		padding-inline-start: var(--wpds-dimension-gap-md);
+	}
+
+	tr + tr > * {
+		padding-block-start: var(--wpds-dimension-gap-sm);
 	}
 }
 

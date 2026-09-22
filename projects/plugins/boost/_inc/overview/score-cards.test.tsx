@@ -168,6 +168,27 @@ test( 'opens the points explanation beside the badge', async () => {
 	expect( trigger ).toHaveFocus();
 } );
 
+test( 'opens the points explanation when the badge is hovered', async () => {
+	render(
+		<ScoreCards
+			scores={ {
+				current: { desktop: 80, mobile: 60 },
+				noBoost: { desktop: 70, mobile: 60 },
+				isStale: false,
+			} }
+		/>
+	);
+	const badge = within( screen.getByRole( 'region', { name: 'Desktop' } ) ).getByText(
+		'+10 points'
+	);
+	expect( badge ).not.toHaveAttribute( 'tabindex' );
+	fireEvent.mouseEnter( badge );
+	fireEvent.mouseMove( badge );
+	await waitFor( () =>
+		expect( screen.getByText( 'Points gained from optimizations' ) ).toBeVisible()
+	);
+} );
+
 test( 'shows one calculating status instead of the score sections before scores load', () => {
 	const { container } = render(
 		<ScoreCards

@@ -159,7 +159,7 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await expect( surface ).toHaveCSS( 'background-color', /^rgb\(/ );
 		await expect( surface ).toContainText( 'Overall score' );
 		await expect( surface ).toHaveCSS( 'width', '265px' );
-		await expect( surface ).toHaveCSS( 'height', '382px' );
+		await expect( surface ).toHaveCSS( 'height', '366px' );
 		await expect( surface ).toHaveCSS( 'padding', '17px' );
 		const popupBox = await expectBesideDay( page, surface );
 		const hoveredBar = ( await bars.nth( 21 ).boundingBox() )!;
@@ -190,7 +190,7 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await hoverDay( chart, 21 );
 		await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveCSS(
 			'font-weight',
-			'400'
+			'500'
 		);
 		const sections = surface.locator( '.jetpack-boost-overview__tooltip-section' );
 		for ( const [ index, label, score, metrics, barColor ] of [
@@ -256,7 +256,9 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		const grid = chart.getByRole( 'grid' );
 		await grid.focus();
 		await page.keyboard.press( 'ArrowRight' );
-		const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
+		const surface = page.locator(
+			'.boost-daily-history__popover .jetpack-boost-overview__history-tooltip'
+		);
 		await expect( surface ).toContainText( 'August 26, 2026' );
 		await expect( surface ).toHaveCSS( 'background-color', /^rgb\(/ );
 		await expect( surface ).toContainText( 'No scores recorded for this day.' );
@@ -310,23 +312,25 @@ for ( const [ label, query, copy, height ] of [
 		await expect( highlight ).toBeVisible();
 		const band = ( await highlight.boundingBox() )!;
 		const firstPanel = ( await desktop.boundingBox() )!;
-		const secondSvg = ( await mobile.getByLabel( 'XYChart' ).boundingBox() )!;
+		const secondPanel = ( await mobile.boundingBox() )!;
 		const bar = ( await desktop.locator( '.visx-bar' ).first().boundingBox() )!;
 		expect( band.y ).toBeCloseTo( firstPanel.y, 0 );
-		expect( band.y + band.height ).toBeCloseTo( secondSvg.y + secondSvg.height - 24, 0 );
+		expect( band.y + band.height ).toBeCloseTo( secondPanel.y + secondPanel.height, 0 );
 		expect( band.width ).toBeCloseTo( bar.width + 1, 0 );
-		const tooltip = page.locator( '.jetpack-boost-overview__history-tooltip' );
+		const tooltip = page.locator(
+			'.boost-daily-history__popover .jetpack-boost-overview__history-tooltip'
+		);
 		await expect( tooltip ).toContainText( copy );
 		await expect( tooltip ).toHaveCSS( 'width', '265px' );
 		await expect( tooltip ).toHaveCSS( 'height', height );
 		const emptyPopup = ( await tooltip.boundingBox() )!;
 		expect( emptyPopup.y ).toBeGreaterThanOrEqual( firstPanel.y );
 		expect( emptyPopup.y + emptyPopup.height ).toBeLessThanOrEqual(
-			secondSvg.y + secondSvg.height
+			secondPanel.y + secondPanel.height
 		);
 		await expect( tooltip.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveCSS(
 			'font-weight',
-			'600'
+			'500'
 		);
 	} );
 }
@@ -407,16 +411,21 @@ test( 'Hiding retained history removes a keyboard tooltip until another selectio
 	page,
 } ) => {
 	const grid = page.getByRole( 'region', { name: 'Desktop score history' } ).getByRole( 'grid' );
+	const popover = page.locator( '.boost-daily-history__popover' );
 	await grid.focus();
 	await page.keyboard.press( 'ArrowRight' );
-	await expect( page.getByRole( 'tooltip' ) ).toBeVisible();
+	await expect( page.getByRole( 'tooltip' ) ).toHaveCount( 1 );
+	await expect( popover ).toBeVisible();
 	await page.getByRole( 'button', { name: 'Toggle history' } ).click();
 	await expect( page.getByRole( 'tooltip' ) ).toHaveCount( 0 );
+	await expect( popover ).toHaveCount( 0 );
 	await page.getByRole( 'button', { name: 'Toggle history' } ).click();
 	await expect( page.getByRole( 'tooltip' ) ).toHaveCount( 0 );
+	await expect( popover ).toHaveCount( 0 );
 	await grid.focus();
 	await page.keyboard.press( 'ArrowRight' );
-	await expect( page.getByRole( 'tooltip' ) ).toBeVisible();
+	await expect( page.getByRole( 'tooltip' ) ).toHaveCount( 1 );
+	await expect( popover ).toBeVisible();
 } );
 
 test( 'Score cards show gain badges, points help, and responsive dividers', async ( { page } ) => {

@@ -962,7 +962,7 @@ test.each( [
 			);
 			const charts = await screen.findAllByRole( 'grid', { name: 'Bar chart' } );
 			fireEvent.keyDown( charts[ 0 ], { key: 'ArrowRight' } );
-			await expect( screen.findByText( copy ) ).resolves.toBeInTheDocument();
+			await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent( copy );
 			expect(
 				screen
 					.getByRole( 'button', { name: 'Previous 30 days' } )
@@ -1030,9 +1030,9 @@ test( 'labels empty days as locked only after older history absence is confirmed
 		await waitFor( () => expect( completeOlderHistory ).toBeDefined() );
 		const charts = await screen.findAllByRole( 'grid', { name: 'Bar chart' } );
 		fireEvent.keyDown( charts[ 0 ], { key: 'ArrowRight' } );
-		await expect(
-			screen.findByText( 'No scores recorded for this day.' )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
+			'No scores recorded for this day.'
+		);
 		expect(
 			screen.queryByText( 'No scores recorded before the feature was unlocked.' )
 		).not.toBeInTheDocument();
@@ -1041,9 +1041,11 @@ test( 'labels empty days as locked only after older history absence is confirmed
 			'true'
 		);
 		await act( async () => completeOlderHistory() );
-		await expect(
-			screen.findByText( 'No scores recorded before the feature was unlocked.' )
-		).resolves.toBeInTheDocument();
+		await waitFor( () =>
+			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent(
+				'No scores recorded before the feature was unlocked.'
+			)
+		);
 		expect( screen.getByRole( 'button', { name: 'Previous 30 days' } ) ).toHaveAttribute(
 			'aria-disabled',
 			'true'
