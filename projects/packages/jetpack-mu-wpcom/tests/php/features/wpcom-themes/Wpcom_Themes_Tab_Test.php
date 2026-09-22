@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the WordPress.com tab on the Add Themes screen.
+ * Tests for the Marketplace tab on the Add Themes screen.
  *
  * @package automattic/jetpack-mu-wpcom
  */

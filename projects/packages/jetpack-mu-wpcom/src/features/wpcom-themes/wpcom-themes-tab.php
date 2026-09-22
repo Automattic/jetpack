@@ -80,7 +80,7 @@ function wpcom_themes_tab_enqueue_script() {
 		'wpcomThemesTab',
 		array(
 			'sort'  => WPCOM_THEMES_TAB,
-			'label' => _x( 'WordPress.com', 'Theme Installer tab', 'jetpack-mu-wpcom' ),
+			'label' => _x( 'Marketplace', 'Theme Installer', 'jetpack-mu-wpcom' ),
 		)
 	);
 }
