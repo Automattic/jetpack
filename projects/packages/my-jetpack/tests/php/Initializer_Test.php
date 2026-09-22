@@ -65,8 +65,8 @@ class Initializer_Test extends BaseTestCase {
 	/**
 	 * An editor with no Jetpack parent menu still reaches admin_init() through the fallback hook.
 	 *
-	 * The page is registered by hand because core only falls back to the admin_page_ name when the
-	 * Jetpack plugin owns the parent menu, which this package's tests never have.
+	 * The page is hand-registered with no jetpack parent, which is what makes core fall back to the
+	 * admin_page_ name; without the Jetpack plugin, admin-ui registers that parent for every editor.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
