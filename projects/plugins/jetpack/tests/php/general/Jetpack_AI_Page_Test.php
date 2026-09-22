@@ -286,7 +286,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$settings = $this->get_injected_settings();
 
 		$this->assertFalse( $settings['hasMyJetpack'] );
-		$this->assertSame( 'admin.php?page=jetpack#/connect-user', $settings['userConnectionUrl'] );
+		$this->assertSame( 'admin.php?page=jetpack-settings#/connect-user', $settings['userConnectionUrl'] );
 		$this->assertSame( 'admin.php?page=jetpack_modules', $settings['manageUrl'] );
 	}
 

@@ -362,7 +362,7 @@ class Jetpack_AI_Page {
 		 * it answers only the cohort half, and page registration requires both
 		 * (see packages/seo Initializer::init()).
 		 */
-		$seo_settings_url          = admin_url( 'admin.php?page=jetpack#/traffic' );
+		$seo_settings_url          = admin_url( 'admin.php?page=jetpack-settings#/traffic' );
 		$is_internal_test          = jetpack_is_internal_testing_environment();
 		$show_scheduled_tasks_view = self::is_scheduled_tasks_enabled();
 		if (
@@ -431,7 +431,7 @@ class Jetpack_AI_Page {
 				'hasMyJetpack'      => $has_my_jetpack,
 				'userConnectionUrl' => $has_my_jetpack
 					? 'admin.php?page=my-jetpack#/connection'
-					: 'admin.php?page=jetpack#/connect-user',
+					: 'admin.php?page=jetpack-settings#/connect-user',
 				'manageUrl'         => $has_my_jetpack
 					? 'admin.php?page=my-jetpack#/products'
 					: 'admin.php?page=jetpack_modules',
