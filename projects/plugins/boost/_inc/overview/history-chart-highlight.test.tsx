@@ -36,10 +36,11 @@ const props = {
 	range: getHistoryWindow( 0 ),
 	dayCount: 30 as const,
 	canGoNext: false,
+	canGoPrevious: true,
+	showSingleDate: false,
 	onPrevious: jest.fn(),
 	onNext: jest.fn(),
 	onRetry: jest.fn(),
-	onDismissFreshStart: jest.fn(),
 };
 
 test( 'keeps the entering chart highlighted when the other chart clears its selection', () => {

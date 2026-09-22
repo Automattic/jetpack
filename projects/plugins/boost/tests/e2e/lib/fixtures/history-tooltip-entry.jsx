@@ -40,6 +40,11 @@ if ( new URLSearchParams( window.location.search ).has( 'zeros' ) ) {
 	} ) );
 }
 
+const firstEntry = new URLSearchParams( window.location.search ).has( 'firstEntry' );
+if ( firstEntry ) {
+	data.periods = [ { ...data.periods[ 0 ], timestamp: Date.UTC( 2026, 8, 9, 12 ) } ];
+}
+
 const noop = () => {};
 const loadedScores = {
 	current: { desktop: 80, mobile: 68 },
@@ -59,11 +64,16 @@ const HistoryFixture = () => {
 				{ ...paging }
 				data={ data }
 				isVisible={ isVisible }
+				canGoPrevious={
+					! firstEntry && ! new URLSearchParams( window.location.search ).has( 'noOlderHistory' )
+				}
+				showSingleDate={ firstEntry }
 				hasOlderHistory={
-					new URLSearchParams( window.location.search ).has( 'noOlderHistory' ) ? false : undefined
+					firstEntry || new URLSearchParams( window.location.search ).has( 'noOlderHistory' )
+						? false
+						: undefined
 				}
 				onRetry={ noop }
-				onDismissFreshStart={ noop }
 			/>
 		</div>
 	);
