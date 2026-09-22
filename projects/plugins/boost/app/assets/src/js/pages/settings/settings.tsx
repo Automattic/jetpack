@@ -32,7 +32,7 @@ const Group = ( {
 	children: ReactNode;
 } ) => (
 	<CollapsibleCard.Root defaultOpen={ defaultOpen }>
-		<CollapsibleCard.Header render={ <h2 /> }>
+		<CollapsibleCard.Header render={ <h3 /> }>
 			<Stack direction="column" gap="md">
 				<Stack direction="row" align="center" gap="sm" wrap="wrap">
 					<Card.Title>
