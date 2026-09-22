@@ -38,8 +38,8 @@ type EarningsStatus = {
 const A8C_ONLY_STATUS = 2;
 
 /**
- * WordAds payment statuses by code, ported verbatim from the Jetpack Stats WordAds
- * `getStatus` map (wp-calypso client/my-sites/stats/wordads/earnings.jsx).
+ * WordAds payment statuses by code, adapted from the Jetpack Stats WordAds
+ * `getStatus` map (wp-calypso client/my-sites/stats/wordads/earnings.jsx),
  *
  * @return The label, optional tooltip, badge intent and pending detail for each known code.
  */
@@ -170,10 +170,10 @@ export function EarningsStatusBadge( { status }: { status: number | undefined } 
 	const { label, tooltip, intent, detail } = getEarningsStatus( status );
 
 	if ( detail ) {
-		// The same click-open tip as the widget header's info icon.
+		// Click-open like the widget header's info icon; non-modal, so Tab leaves and closes it.
 		return (
 			<span className={ styles.root }>
-				<Popover.Root modal="trap-focus">
+				<Popover.Root>
 					<Popover.Trigger aria-label={ detail } className={ styles.info }>
 						<Icon icon={ info } size={ 16 } />
 					</Popover.Trigger>

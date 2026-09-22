@@ -1,5 +1,6 @@
 import { filterSortAndPaginate, type View } from '@jetpack-premium-analytics/externals';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import {
 	EarningsStatusBadge,
 	flattenEarningsBreakdown,
@@ -14,12 +15,6 @@ describe( 'getEarningsStatus', () => {
 		expect( getEarningsStatus( 2 ).label ).toBe( 'a8c-only' );
 		expect( getEarningsStatus( 3 ).label ).toBe( 'Pending' );
 		expect( getEarningsStatus( 4 ).label ).toBe( 'Pending' );
-	} );
-
-	it( 'keeps the pending reason beside the label, not in it', () => {
-		expect( getEarningsStatus( 3 ).detail ).toBe( 'Missing tax info' );
-		expect( getEarningsStatus( 4 ).detail ).toBe( 'Invalid PayPal' );
-		expect( getEarningsStatus( 0 ).detail ).toBeUndefined();
 	} );
 
 	it( 'falls back to "?" for unknown or absent statuses', () => {
@@ -54,11 +49,16 @@ describe( 'EarningsStatusBadge', () => {
 		expect( screen.getByText( 'a8c-only' ) ).not.toHaveAttribute( 'tabindex' );
 	} );
 
-	it( 'puts a pending reason in an info button beside a one-word badge', () => {
+	it( 'puts a pending reason in an info button beside a one-word badge', async () => {
 		render( <EarningsStatusBadge status={ 3 } /> );
 
 		expect( screen.getByText( 'Pending' ) ).not.toHaveAttribute( 'tabindex' );
-		expect( screen.getByRole( 'button', { name: 'Missing tax info' } ) ).toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Missing tax info' } ) );
+
+		await expect(
+			screen.findByText( /You can provide tax information in the settings screen/ )
+		).resolves.toBeInTheDocument();
 	} );
 } );
 

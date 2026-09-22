@@ -19,7 +19,7 @@ import {
 	type EarningsHistoryRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -99,7 +99,14 @@ function EarningsReport(): JSX.Element {
 				// row keeps its reason, which the table shows in an icon.
 				getValue: row => {
 					const { label, detail } = getEarningsStatus( row.status );
-					return detail ? `${ label } (${ detail })` : label;
+					return detail
+						? sprintf(
+								/* translators: 1: payment status, e.g. "Pending"; 2: the reason, e.g. "Missing tax info". */
+								__( '%1$s (%2$s)', 'jetpack-premium-analytics-pkg' ),
+								label,
+								detail
+							)
+						: label;
 				},
 			},
 		],
