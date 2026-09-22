@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Keyring_Helper::SERVICES now lists only Google Site Verification, the one service still connected from the site; Path and Google+ have been gone for years and social networks connect from WordPress.com.
