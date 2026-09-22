@@ -1,4 +1,4 @@
-import { hydratePlaylistMetadata, initPlaylistBlock } from '../view';
+import { hydratePlaylistMetadata, initAllPlaylistBlocks, initPlaylistBlock } from '../view';
 
 // Live metadata the mocked videos API returns, keyed by GUID.
 let mockLiveMetadata: Record< string, { title?: string; poster?: string } > = {};
@@ -193,6 +193,25 @@ describe( 'initPlaylistBlock', () => {
 		postPlayerMessage( 'https://videopress.com', { event: 'videopress_ended', id: 'aaaaaaaa' } );
 
 		expect( iframe.src ).toBe( initialSrc );
+	} );
+
+	it( 'initializes Dynamic Video Playlist blocks too', () => {
+		document.body.innerHTML = `
+			<figure class="wp-block-videopress-dynamic-playlist videopress-playlist" data-autoplay-next="0" data-loop="0">
+				<iframe class="videopress-playlist__iframe" src="about:blank" title="First"></iframe>
+				<ol class="videopress-playlist__entries">
+					<li><button type="button" class="videopress-playlist__select is-current" data-guid="aaaaaaaa" data-embed-url="${ EMBED_A }"></button></li>
+					<li><button type="button" class="videopress-playlist__select" data-guid="bbbbbbbb" data-embed-url="${ EMBED_B }"></button></li>
+				</ol>
+			</figure>
+		`;
+
+		initAllPlaylistBlocks();
+		document.querySelectorAll< HTMLButtonElement >( '.videopress-playlist__select' )[ 1 ].click();
+
+		expect(
+			document.querySelector< HTMLIFrameElement >( '.videopress-playlist__iframe' ).src
+		).toBe( EMBED_B );
 	} );
 
 	it( 'does nothing on a block without playable entries', () => {

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a Dynamic Video Playlist block that plays the site's newest VideoPress videos, with the number of videos set in the block settings.
