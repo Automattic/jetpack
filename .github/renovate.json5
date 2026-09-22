@@ -37,6 +37,14 @@
 			enabled: false,
 		},
 
+		// Hold phpcs-changed at 2.x: 3.x scans temp copies, which miss the per-directory .phpcs.dir.xml config.
+		// https://github.com/sirbrillig/phpcs-changed/pull/115
+		{
+			matchDatasources: [ 'packagist' ],
+			matchPackageNames: [ 'sirbrillig/phpcs-changed' ],
+			allowedVersions: '<3',
+		},
+
 		// Widen PHP dev deps to maintain support for old PHP versions we still support.
 		// When we drop an old PHP version we'll manually go through and narrow any ranges.
 		// (non-dev deps are handled in renovate-config.js where we can read the correct value for `constraints.php`)
