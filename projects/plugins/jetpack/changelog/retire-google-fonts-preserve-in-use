@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Google Fonts: retire the Google Fonts (Beta) module now that block themes support fonts natively via the WordPress Font Library. Fonts already in use are preserved into the site's global styles when the module is deactivated, so existing typography keeps rendering.
