@@ -120,6 +120,7 @@ class Main_Features_Test extends TestCase {
 				'protect'    => 'https://wordpress.org/plugins/jetpack-protect/',
 				'search'     => 'https://wordpress.org/plugins/jetpack-search/',
 				'social'     => 'https://wordpress.org/plugins/jetpack-social/',
+				'stats'      => 'https://wordpress.org/plugins/jetpack-stats/',
 				'videopress' => 'https://wordpress.org/plugins/jetpack-videopress/',
 			),
 			$urls
@@ -257,8 +258,8 @@ class Main_Features_Test extends TestCase {
 
 		$this->assertSame( 'Akismet Anti-spam', $features['anti-spam']['plugin_name'] );
 		$this->assertSame( 'https://wordpress.org/plugins/akismet/', $features['anti-spam']['plugin_url'] );
-		$this->assertSame( '', $features['stats']['plugin_name'] );
-		$this->assertSame( '', $features['stats']['plugin_url'] );
+		$this->assertSame( '', $features['activity-log']['plugin_name'] );
+		$this->assertSame( '', $features['activity-log']['plugin_url'] );
 	}
 
 	/**
