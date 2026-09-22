@@ -179,7 +179,7 @@ final class Placement_Section {
 	/**
 	 * A stored `show` value as a list of post types.
 	 *
-	 * Pre-2.x sites stored a single keyword rather than a list, and both
+	 * Older sites stored a single keyword rather than a list, and both
 	 * `Sharing_Service::get_global_options()` and `Jetpack_Likes_Settings::get_options()`
 	 * still map it, so it is live data rather than a historical curiosity.
 	 *
@@ -202,10 +202,12 @@ final class Placement_Section {
 	/**
 	 * Where buttons appear on a site that has never saved this section.
 	 *
-	 * The two features disagree: sharing defaults to posts and pages, Likes adds
-	 * public commentable custom post types. Reporting the narrower set would
-	 * understate where Like buttons are, so defer to Likes whenever it is the
-	 * feature running.
+	 * The two features apply different defaults:
+	 * - sharing: posts and pages;
+	 * - Likes: those, plus public post types that support comments.
+	 *
+	 * Reporting the narrower set would understate where Like buttons are, so
+	 * defer to Likes whenever it is the feature running.
 	 *
 	 * @return string[]
 	 */

@@ -141,7 +141,7 @@ CPTs behind `jetpack_likes_default_post_types`. Read it raw and the checkboxes
 render unchecked on a site where the buttons are live — and since the next save
 posts those checkboxes back, a save the owner thinks is a no-op turns the feature
 off. `Placement_Section::selected_post_types()` is the one way in; it also maps
-the pre-2.x scalar form (`posts`, `index`, `posts-index`), which is still live
+the older scalar form (`posts`, `index`, `posts-index`), which is still live
 data rather than history.
 
 ## Testing
