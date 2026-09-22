@@ -120,7 +120,7 @@ class Sharing_Admin {
 	 * @return void
 	 */
 	public function process_requests() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::process_requests' );
 	}
 
 	/**
@@ -131,7 +131,7 @@ class Sharing_Admin {
 	 * @return void
 	 */
 	public function subscription_menu() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::register_menu' );
 	}
 
 	/**
@@ -142,7 +142,7 @@ class Sharing_Admin {
 	 * @return void
 	 */
 	public function ajax_save_services() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_save_services' );
 	}
 
 	/**
@@ -153,7 +153,7 @@ class Sharing_Admin {
 	 * @return void
 	 */
 	public function ajax_new_service() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_new_service' );
 	}
 
 	/**
@@ -164,7 +164,7 @@ class Sharing_Admin {
 	 * @return void
 	 */
 	public function ajax_delete_service() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_delete_service' );
 	}
 
 	/**
@@ -175,7 +175,7 @@ class Sharing_Admin {
 	 * @return void
 	 */
 	public function ajax_save_options() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_save_options' );
 	}
 
 	/**
@@ -188,7 +188,7 @@ class Sharing_Admin {
 	 * @return void
 	 */
 	public function output_preview( $service ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::output_preview' );
 	}
 
 	/**
@@ -203,7 +203,7 @@ class Sharing_Admin {
 	 * @return void
 	 */
 	public function output_service( $id, $service, $show_dropdown = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::output_service' );
 	}
 
 	/**
@@ -214,7 +214,7 @@ class Sharing_Admin {
 	 * @return void
 	 */
 	public function wrapper_admin_page() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render' );
 	}
 
 	/**
@@ -225,7 +225,7 @@ class Sharing_Admin {
 	 * @return void
 	 */
 	public function management_page() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render' );
 	}
 
 	/**
@@ -236,7 +236,7 @@ class Sharing_Admin {
 	 * @return bool
 	 */
 	public function should_use_site_editor() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Environment' );
 		return false;
 	}
 
@@ -248,7 +248,7 @@ class Sharing_Admin {
 	 * @return void
 	 */
 	public function services_config_display() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::render' );
 	}
 
 	/**
@@ -259,7 +259,7 @@ class Sharing_Admin {
 	 * @return void
 	 */
 	public function sharing_block_display() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Section::render' );
 	}
 
 	/**
@@ -270,7 +270,7 @@ class Sharing_Admin {
 	 * @return void
 	 */
 	public function site_editor_prompt_display() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Section::render' );
 	}
 }
 

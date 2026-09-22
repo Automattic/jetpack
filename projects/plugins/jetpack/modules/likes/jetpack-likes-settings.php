@@ -227,7 +227,7 @@ class Jetpack_Likes_Settings {
 	 * @return void
 	 */
 	public function sharing_menu() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::register_menu' );
 	}
 
 	/**
@@ -238,7 +238,7 @@ class Jetpack_Likes_Settings {
 	 * @return void
 	 */
 	public function sharing_page() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render' );
 	}
 
 	/**
@@ -249,7 +249,7 @@ class Jetpack_Likes_Settings {
 	 * @return void
 	 */
 	public function updated_message() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render' );
 	}
 
 	/**
@@ -260,7 +260,7 @@ class Jetpack_Likes_Settings {
 	 * @return void
 	 */
 	public function sharing_block() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Likes_Section::render' );
 	}
 
 	/**
@@ -762,7 +762,7 @@ class Jetpack_Likes_Settings {
 	 * @return void
 	 */
 	public function process_update_requests_if_sharedaddy_not_loaded() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle' );
 	}
 
 	/**
@@ -773,7 +773,7 @@ class Jetpack_Likes_Settings {
 	 * @return void
 	 */
 	public function admin_settings_showbuttonon_init() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Placement_Section::render' );
 	}
 
 	/**
@@ -784,6 +784,6 @@ class Jetpack_Likes_Settings {
 	 * @return void
 	 */
 	public function admin_settings_showbuttonon_callback() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle' );
 	}
 }
