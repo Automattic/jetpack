@@ -7163,7 +7163,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await waitFor( () => expect( changeItem() ).toBeEnabled() );
 			await user.click( changeItem() );
 
-			expect( screen.getByText( 'Other payment links (1)' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Choose a button to change' ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'button', { name: /Baguette/ } ) ).toBeInTheDocument();
 			expect( screen.queryByRole( 'button', { name: /Croissant/ } ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'button', { name: 'Create new' } ) ).not.toBeInTheDocument();
@@ -7218,6 +7218,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				)
 			);
 			expect( setAttributes.mock.calls[ 0 ][ 0 ] ).not.toHaveProperty( 'imageUrl' );
+			expect( mockToast ).toHaveBeenCalledWith( 'success', 'Payment link updated.' );
 		} );
 
 		// The switch reads the payment, so the next save can write it.
@@ -7274,7 +7275,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await act( async () => resolveList( { resources: [ resource( 'PLB-A1', 'Croissant' ) ] } ) );
 
-			expect( screen.getByText( 'Other payment links (0)' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Choose a button to change' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'No other payment links available.' ) ).toBeInTheDocument();
 		} );
 

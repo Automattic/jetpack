@@ -7,7 +7,7 @@
 import { DropdownMenu } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { moreVertical, pencil, replace } from '@wordpress/icons';
+import { moreVertical, pencil, update } from '@wordpress/icons';
 import { linkDate } from '../utils/link-date';
 import { linkPrice } from '../utils/link-price';
 

@@ -41,9 +41,11 @@ export function filterLinks( links, search ) {
 const titleReuse =
 	/* translators: %d: number of payment links the account already has */
 	__( 'Or reuse an existing link (%d)', 'jetpack-paypal-payments' );
-const titleSwitch =
-	/* translators: %d: number of payment links the block can switch to */
-	__( 'Other payment links (%d)', 'jetpack-paypal-payments' );
+const titleSwitch = __( 'Choose a button to change', 'jetpack-paypal-payments' );
+const helpSwitch = __(
+	'The button will take the name, price and details of the link you pick.',
+	'jetpack-paypal-payments'
+);
 const emptyNoMatch = __( 'No payment links match your search.', 'jetpack-paypal-payments' );
 const emptyNoOther = __( 'No other payment links available.', 'jetpack-paypal-payments' );
 
@@ -97,8 +99,11 @@ export default function ExistingLinksStep( { links, isLoading, onCreateNew, onPi
 			{ /* The section's divider separates the list from Create new, so it goes with it. */ }
 			<div className={ isSwitch ? undefined : 'jetpack-paypal-payment-buttons__links-section' }>
 				<h3 className="jetpack-paypal-payment-buttons__links-title">
-					{ isSwitch ? sprintf( titleSwitch, links.length ) : sprintf( titleReuse, links.length ) }
+					{ isSwitch ? titleSwitch : sprintf( titleReuse, links.length ) }
 				</h3>
+				{ isSwitch && (
+					<p className="jetpack-paypal-payment-buttons__links-intro">{ helpSwitch }</p>
+				) }
 				{ links.length > SEARCH_THRESHOLD && (
 					<SearchControl
 						label={ __( 'Search payment links', 'jetpack-paypal-payments' ) }

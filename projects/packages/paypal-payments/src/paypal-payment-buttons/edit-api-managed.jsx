@@ -611,6 +611,7 @@ export default function ApiManagedEdit( {
 						resourceId: link.id,
 						...response.attributes,
 					} );
+					toast( 'success', __( 'Payment link updated.', 'jetpack-paypal-payments' ) );
 				} )
 				.catch( err => toast( 'error', getUserFriendlyError( err ) ) )
 				.finally( () => setIsPicking( false ) );
