@@ -1,7 +1,7 @@
 /**
  * WordPress.com Action Bar front-end behavior.
  *
- * Reads its config from `window.actionbardata`, localized by action-bar.php.
+ * Reads its config from `window.actionbardata`, localized by the Action_Bar class.
  */
 ( function () {
 	// A second run would double-bind every listener, and reads the same config and DOM.
