@@ -22,7 +22,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
  */
 import { MyJetpackRoutes } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
-import useActivateSearchFree from '../../data/products/use-activate-search-free';
+import useActivateSearchFreeProduct from '../../data/products/use-activate-search-free-product';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
@@ -59,9 +59,6 @@ export default function PricingInterstitial( { slug } ) {
 
 	// Track which button is currently loading ('free', 'paid', 'bundle', or null)
 	const [ loadingButton, setLoadingButton ] = useState( null );
-
-	// Disable all buttons when any action is in progress or data is loading
-	const buttonsDisabled = Boolean( loadingButton ) || isProductLoading;
 
 	// Setup checkout workflows like ProductDetailCard does
 	const { admin_url: adminUrl, suffix: siteSuffix } = getScriptData().site;
@@ -100,21 +97,25 @@ export default function PricingInterstitial( { slug } ) {
 		useBlogIdSuffix: true,
 	} );
 
-	const { run: runSearchFreeActivation } = useActivateSearchFree( {
-		sendToCheckout: freeCheckoutRun,
-	} );
+	const { run: runSearchFreeActivation, isPending: isActivatingSearchFree } =
+		useActivateSearchFreeProduct( { sendToCheckout: freeCheckoutRun } );
 
 	// Shaped like the checkout runs `clickHandler` invokes, so it can stand in for one.
 	const searchFreeActivationRun = useCallback(
 		( _event, postCheckoutUrl ) => {
+			const redirect = postCheckoutUrl || paidCheckoutRedirectUrl;
 			runSearchFreeActivation( {
+				checkoutRedirect: redirect,
 				onSuccess: () => {
-					window.location.href = postCheckoutUrl || paidCheckoutRedirectUrl;
+					window.location.href = redirect;
 				},
 			} );
 		},
 		[ paidCheckoutRedirectUrl, runSearchFreeActivation ]
 	);
+
+	// Disable all buttons when any action is in progress or data is loading.
+	const buttonsDisabled = Boolean( loadingButton ) || isProductLoading || isActivatingSearchFree;
 
 	// Handle tiered pricing like trunk does - check for tiers.upgraded first
 	const productPricing = useMemo( () => {
@@ -138,10 +139,10 @@ export default function PricingInterstitial( { slug } ) {
 
 	// Reset loading button when activation completes or site registration completes
 	useEffect( () => {
-		if ( ! isActivating && ! siteIsRegistering ) {
+		if ( ! isActivating && ! siteIsRegistering && ! isActivatingSearchFree ) {
 			setLoadingButton( null );
 		}
-	}, [ isActivating, siteIsRegistering ] );
+	}, [ isActivating, siteIsRegistering, isActivatingSearchFree ] );
 
 	const getProductSlugForTrackEvent = useCallback(
 		( isFree = false ) => {

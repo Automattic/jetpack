@@ -207,6 +207,66 @@ class Products_Rest_Test extends TestCase {
 	}
 
 	/**
+	 * `POST site/products/search/activate-free` is closed to anonymous callers.
+	 */
+	public function test_activate_search_free_not_logged() {
+		wp_set_current_user( 0 );
+
+		$response = $this->server->dispatch(
+			new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/search/activate-free' )
+		);
+
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * `POST site/products/search/activate-free` is closed to editors — it creates a subscription.
+	 */
+	public function test_activate_search_free_with_editor() {
+		wp_set_current_user( self::$secondary_user_id );
+
+		$response = $this->server->dispatch(
+			new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/search/activate-free' )
+		);
+
+		$this->assertEquals( 403, $response->get_status() );
+	}
+
+	/**
+	 * An admin reaches the handler, and every refusal tells the caller whether the $0 checkout
+	 * is still worth trying.
+	 */
+	public function test_activate_search_free_refusal_carries_checkout_fallback() {
+		wp_set_current_user( self::$user_id );
+
+		$response = $this->server->dispatch(
+			new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/search/activate-free' )
+		);
+
+		$error = $response->as_error();
+		$this->assertNotNull( $error );
+		// A handler-level refusal, not the route turning the caller away.
+		$this->assertNotSame( 'rest_forbidden', $error->get_error_code() );
+		$this->assertArrayHasKey( 'checkout_fallback', (array) $error->get_error_data() );
+	}
+
+	/**
+	 * An unfamiliar `source` is accepted, not rejected: WordPress.com records it as `unknown`,
+	 * so a stricter enum here would refuse what it accepts.
+	 */
+	public function test_activate_search_free_accepts_an_unfamiliar_source() {
+		wp_set_current_user( self::$user_id );
+
+		$request = new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/search/activate-free' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'source' => 'a-new-surface' ), JSON_UNESCAPED_SLASHES ) );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertNotEquals( 400, $response->get_status() );
+	}
+
+	/**
 	 * Test POST product
 	 */
 	public function test_activate_boost() {

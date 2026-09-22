@@ -27,11 +27,12 @@ class Search_Activate_Free_Test extends TestCase {
 	private $admin_id;
 
 	/**
-	 * The response the mocked WordPress.com endpoint should return.
+	 * Responses the mocked WordPress.com endpoint returns, in order. The success path makes a
+	 * second call to refresh plan info, so a test can answer each leg differently.
 	 *
-	 * @var array|WP_Error
+	 * @var array<array|WP_Error>
 	 */
-	private $wpcom_response;
+	private $wpcom_responses = array();
 
 	/**
 	 * How many outbound HTTP requests were attempted.
@@ -39,6 +40,13 @@ class Search_Activate_Free_Test extends TestCase {
 	 * @var int
 	 */
 	private $http_calls = 0;
+
+	/**
+	 * Decoded bodies of the outbound requests, in order.
+	 *
+	 * @var array<array>
+	 */
+	private $request_bodies = array();
 
 	/**
 	 * Setting up the test.
@@ -55,14 +63,16 @@ class Search_Activate_Free_Test extends TestCase {
 		);
 		wp_set_current_user( $this->admin_id );
 
-		( new Tokens() )->update_blog_token( 'test.test.1' );
+		( new Tokens() )->update_blog_token( 'test.test' );
 		Jetpack_Options::update_option( 'id', 123 );
 
 		// Without an absolute base the signed request URL has no host and signing fails.
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 
-		$this->http_calls = 0;
-		add_filter( 'pre_http_request', array( $this, 'answer_as_wpcom' ) );
+		$this->http_calls      = 0;
+		$this->request_bodies  = array();
+		$this->wpcom_responses = array();
+		add_filter( 'pre_http_request', array( $this, 'answer_as_wpcom' ), 10, 3 );
 	}
 
 	/**
@@ -81,9 +91,13 @@ class Search_Activate_Free_Test extends TestCase {
 	 *
 	 * @return array|WP_Error
 	 */
-	public function answer_as_wpcom() {
+	public function answer_as_wpcom( $preempt = false, $args = array() ) {
 		++$this->http_calls;
-		return $this->wpcom_response;
+		$this->request_bodies[] = json_decode( $args['body'] ?? '{}', true ) ?? array();
+
+		return count( $this->wpcom_responses ) > 1
+			? array_shift( $this->wpcom_responses )
+			: reset( $this->wpcom_responses );
 	}
 
 	/**
@@ -100,7 +114,7 @@ class Search_Activate_Free_Test extends TestCase {
 	 * @param array $body Response body.
 	 */
 	private function expect_wpcom_response( $code, $body ) {
-		$this->wpcom_response = array(
+		$this->wpcom_responses[] = array(
 			'headers'  => array(),
 			'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
 			'response' => array(
@@ -257,7 +271,7 @@ class Search_Activate_Free_Test extends TestCase {
 	 */
 	public function test_transport_failure_falls_back_to_checkout() {
 		$this->connect_user();
-		$this->wpcom_response = new WP_Error( 'http_request_failed', 'Simulated WPCOM failure.' );
+		$this->wpcom_responses = array( new WP_Error( 'http_request_failed', 'Simulated WPCOM failure.' ) );
 
 		$result = Search::activate_free_product( 'my-jetpack' );
 
@@ -267,10 +281,10 @@ class Search_Activate_Free_Test extends TestCase {
 	}
 
 	/**
-	 * A response that isn't the documented shape is treated as a refusal, and — because the
-	 * endpoint flags every error it raises — one checkout cannot resolve either.
+	 * A body carrying no error code did not come from the endpoint — a 404 before it deploys,
+	 * or a proxy error page. Checkout still works in that case, so the caller is sent there.
 	 */
-	public function test_unrecognized_response_does_not_fall_back_to_checkout() {
+	public function test_unrecognized_response_falls_back_to_checkout() {
 		$this->connect_user();
 		$this->expect_wpcom_response( 502, array( 'error' => 'bad gateway' ) );
 
@@ -278,6 +292,131 @@ class Search_Activate_Free_Test extends TestCase {
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'jetpack_search_free_activation_failed', $result->get_error_code() );
+		$this->assertTrue( $result->get_error_data()['checkout_fallback'] );
+	}
+
+	/**
+	 * The route is not deployed yet, so this is the response every site gets today.
+	 */
+	public function test_missing_route_falls_back_to_checkout() {
+		$this->connect_user();
+		$this->expect_wpcom_response(
+			404,
+			array(
+				'code'    => 'rest_no_route',
+				'message' => 'No route was found matching the URL and request method.',
+				'data'    => array( 'status' => 404 ),
+			)
+		);
+
+		$result = Search::activate_free_product( 'my-jetpack' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertTrue( $result->get_error_data()['checkout_fallback'] );
+	}
+
+	/**
+	 * A refusal must never carry a success status: both REST clients read a 2xx as a grant.
+	 */
+	public function test_refusal_never_answers_with_a_success_status() {
+		$this->connect_user();
+		$this->expect_wpcom_response( 200, array( 'success' => false ) );
+
+		$result = Search::activate_free_product( 'my-jetpack' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertGreaterThanOrEqual( 400, $result->get_error_data()['status'] );
+	}
+
+	/**
+	 * WordPress.com records an unfamiliar source as `unknown` rather than refusing, so a value
+	 * this copy predates must still reach it.
+	 */
+	public function test_unfamiliar_source_is_forwarded_not_dropped() {
+		$this->connect_user();
+		$this->expect_wpcom_response(
+			200,
+			array(
+				'success' => true,
+				'status'  => 'granted',
+			)
+		);
+
+		Search::activate_free_product( 'a-new-surface' );
+
+		$this->assertSame( 'a-new-surface', $this->request_bodies[0]['source'] ?? null );
+	}
+
+	/**
+	 * Creating the subscription needs more than the Search dashboard route's own bar.
+	 */
+	public function test_non_admin_cannot_activate() {
+		$this->connect_user();
+		$subscriber = wp_insert_user(
+			array(
+				'user_login' => 'test_subscriber',
+				'user_pass'  => '123',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $subscriber );
+
+		$result = Search::activate_free_product( 'my-jetpack' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'rest_cannot_activate', $result->get_error_code() );
 		$this->assertFalse( $result->get_error_data()['checkout_fallback'] );
+		$this->assertSame( 0, $this->http_calls );
+	}
+
+	/**
+	 * A grant that lands while the local module stays off must be visible, not silent —
+	 * re-running the activation is what repairs it.
+	 */
+	public function test_failed_local_sync_is_reported_on_an_otherwise_successful_grant() {
+		$this->connect_user();
+		$this->expect_wpcom_response(
+			200,
+			array(
+				'success' => true,
+				'status'  => 'granted',
+			)
+		);
+		// Second leg: the plan refresh this site makes after the grant.
+		$this->expect_wpcom_response( 500, array( 'error' => 'upstream unavailable' ) );
+
+		$result = Search::activate_free_product( 'my-jetpack' );
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 'granted', $result['status'] );
+		$this->assertArrayHasKey( 'local_activation', $result );
+		$this->assertNotSame( 'activated', $result['local_activation'] );
+	}
+
+	/**
+	 * The module comes on locally once the refreshed plan says Search is supported.
+	 */
+	public function test_successful_grant_activates_the_module_locally() {
+		$this->connect_user();
+		$this->expect_wpcom_response(
+			200,
+			array(
+				'success' => true,
+				'status'  => 'granted',
+			)
+		);
+		$this->expect_wpcom_response(
+			200,
+			array(
+				'supports_search'         => true,
+				'supports_instant_search' => true,
+			)
+		);
+
+		$result = Search::activate_free_product( 'my-jetpack' );
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 'activated', $result['local_activation'] );
+		$this->assertContains( 'search', (array) get_option( 'jetpack_active_modules', array() ) );
 	}
 }

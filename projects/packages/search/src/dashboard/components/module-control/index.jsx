@@ -90,7 +90,9 @@ export default function SearchModuleControl( {
 	const sendToCheckout = useCallback( () => {
 		window.location.href = upgradeUrl;
 	}, [ upgradeUrl ] );
-	const { run: activateFree } = useActivateSearchFree( { sendToCheckout } );
+	const { run: activateFree, isActivating: isActivatingFree } = useActivateSearchFree( {
+		sendToCheckout,
+	} );
 	const showAIAgentAccessGuidelinesLink =
 		! isReaderChatAvailable ||
 		! supportsSearch ||
@@ -168,6 +170,7 @@ export default function SearchModuleControl( {
 						toggleInstantSearch={ toggleInstantSearch }
 						upgradeUrl={ upgradeUrl }
 						activateFree={ activateFree }
+						isActivatingFree={ isActivatingFree }
 						isDisabledFromOverLimit={ isDisabledFromOverLimit }
 					/>
 
@@ -211,6 +214,7 @@ const InstantSearchToggle = ( {
 	toggleInstantSearch,
 	upgradeUrl,
 	activateFree,
+	isActivatingFree,
 	isDisabledFromOverLimit,
 } ) => {
 	const isInstantSearchToggleChecked =
@@ -261,6 +265,7 @@ const InstantSearchToggle = ( {
 						<InstantSearchUpsellNudge
 							href={ upgradeUrl }
 							onClick={ activateFree }
+							isBusy={ isActivatingFree }
 							upgrade={ supportsOnlyClassicSearch }
 						/>
 					) }

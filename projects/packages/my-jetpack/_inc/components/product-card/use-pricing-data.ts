@@ -2,8 +2,9 @@ import { getUserConnectionUrl, useProductCheckoutWorkflow } from '@automattic/je
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
+import { PRODUCT_SLUGS } from '../../data/constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
-import useActivateSearchFree from '../../data/products/use-activate-search-free';
+import useActivateSearchFreeProduct from '../../data/products/use-activate-search-free-product';
 import useInstallPlugins from '../../data/products/use-install-plugins';
 import useProduct from '../../data/products/use-product';
 import { ProductCamelCase } from '../../data/types';
@@ -158,9 +159,8 @@ const usePricingData = ( slug: string ) => {
 		connectAfterCheckout: ! isUserConnected,
 		siteSuffix,
 	} );
-	const { run: runSearchFreeActivation } = useActivateSearchFree( {
-		sendToCheckout: runFreeCheckout,
-	} );
+	const { run: runSearchFreeActivation, isPending: isActivatingSearchFree } =
+		useActivateSearchFreeProduct( { sendToCheckout: runFreeCheckout } );
 
 	const handleActivate = useCallback( () => {
 		if ( ! wpcomFreeProductSlug ) {
@@ -169,7 +169,7 @@ const usePricingData = ( slug: string ) => {
 		}
 
 		// Search grants its free product in place; everything else still buys it at $0.
-		if ( slug === 'search' ) {
+		if ( slug === PRODUCT_SLUGS.SEARCH ) {
 			runSearchFreeActivation( { onSuccess: () => activate() } );
 			return;
 		}
@@ -210,7 +210,7 @@ const usePricingData = ( slug: string ) => {
 		} ),
 		isFeature: detail.isFeature,
 		hasFreeOffering: detail.hasFreeOffering,
-		isActivating,
+		isActivating: isActivating || isActivatingSearchFree,
 		isInstalling,
 		...data,
 	};

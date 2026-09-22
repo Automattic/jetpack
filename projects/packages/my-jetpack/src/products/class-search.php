@@ -45,14 +45,6 @@ class Search extends Hybrid_Product {
 	const SEARCH_NEW_PRICING_VERSION = '202208';
 
 	/**
-	 * Accepted `source` values for {@see self::activate_free_product()}. Mirrors the enum the
-	 * WordPress.com endpoint validates against; anything else is dropped rather than rejected.
-	 *
-	 * @var string[]
-	 */
-	const ACTIVATE_FREE_SOURCES = array( 'search-dashboard', 'my-jetpack', 'wp-admin', 'calypso' );
-
-	/**
 	 * The product slug
 	 *
 	 * @var string
@@ -376,18 +368,30 @@ class Search extends Hybrid_Product {
 	/**
 	 * Grant this site the free Search product without sending the user through a $0 checkout.
 	 *
-	 * Lives here rather than in the jetpack-search package because My Jetpack renders the
-	 * Search card in plugins that do not ship that package, and because this replaces
-	 * `get_wpcom_free_product_slug()`, which this class already owns.
+	 * Safe to call on every activate click: WordPress.com re-pushes its configuration to this
+	 * site before answering `already_entitled`, which is how a half-finished activation repairs.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param string|null $source One of self::ACTIVATE_FREE_SOURCES, for WordPress.com reporting.
+	 * @param string|null $source Where the activation was requested from, for reporting.
 	 * @return array|WP_Error Decoded response body on success; on failure a WP_Error whose data
 	 *                        carries `checkout_fallback` — true when the $0 checkout could still
 	 *                        succeed, false when it would refuse the product too.
 	 */
 	public static function activate_free_product( $source = null ) {
+		/*
+		 * Both REST routes reach this, and their permission callbacks disagree on multisite,
+		 * so the bar for creating the subscription is enforced here instead.
+		 */
+		if ( ! current_user_can( 'activate_plugins' ) || ( is_multisite() && ! current_user_can( 'manage_network' ) ) ) {
+			return self::activation_error(
+				'rest_cannot_activate',
+				__( 'You are not allowed to activate Jetpack Search Free on this site.', 'jetpack-my-jetpack' ),
+				403,
+				false
+			);
+		}
+
 		/*
 		 * A Simple site has no Jetpack connection to sign the request with, and buys the
 		 * product from within WordPress.com anyway.
@@ -425,15 +429,22 @@ class Search extends Hybrid_Product {
 			);
 		}
 
+		// WordPress.com records an unfamiliar source as `unknown` rather than refusing, so pass
+		// through whatever the caller sent instead of dropping values this copy predates.
 		$body = array();
-		if ( in_array( $source, self::ACTIVATE_FREE_SOURCES, true ) ) {
-			$body['source'] = $source;
+		if ( is_string( $source ) && $source !== '' ) {
+			$body['source'] = sanitize_key( $source );
 		}
 
 		$response = Client::wpcom_json_api_request_as_user(
 			'/sites/' . $blog_id . '/jetpack-search/activate-free',
 			'2',
-			array( 'method' => 'POST' ),
+			// Well over the 10s default: the grant re-pushes Search configuration to this site
+			// inside the request, so a timeout here can abandon a subscription already created.
+			array(
+				'method'  => 'POST',
+				'timeout' => 45,
+			),
 			$body,
 			'wpcom'
 		);
@@ -455,7 +466,7 @@ class Search extends Hybrid_Product {
 			return self::wpcom_activation_error( $result, $status );
 		}
 
-		self::sync_local_state_after_free_activation();
+		$result['local_activation'] = self::sync_local_state_after_free_activation();
 
 		return $result;
 	}
@@ -463,9 +474,9 @@ class Search extends Hybrid_Product {
 	/**
 	 * Rebuild a refusal from WordPress.com as a local WP_Error.
 	 *
-	 * `checkout_fallback` defaults to false: the endpoint sets it on every error it raises, so
-	 * a missing flag means an unrecognized response, and sending the user to a checkout that
-	 * may also refuse them is worse than showing the error.
+	 * Only a body carrying `checkout_fallback` came from the endpoint. Anything else — a 404
+	 * before it deploys, a proxy error page — means it was never reached, and checkout still
+	 * works, so those fall back rather than dead-ending the user.
 	 *
 	 * @param array|null $result Decoded response body, when it parsed.
 	 * @param int        $status HTTP status code.
@@ -473,14 +484,50 @@ class Search extends Hybrid_Product {
 	 */
 	private static function wpcom_activation_error( $result, $status ) {
 		$data = isset( $result['data'] ) && is_array( $result['data'] ) ? $result['data'] : array();
+		$code = isset( $result['code'] ) && is_string( $result['code'] ) ? $result['code'] : '';
+
+		/*
+		 * The flag, not the code, is what marks an answer as the endpoint's own: WordPress
+		 * raises `rest_no_route` with a code too, and that one means checkout still works.
+		 */
+		$is_endpoint_refusal = array_key_exists( 'checkout_fallback', $data );
+
+		if ( ! $is_endpoint_refusal ) {
+			return self::activation_error(
+				'jetpack_search_free_activation_failed',
+				__( 'Jetpack Search Free could not be activated for this site.', 'jetpack-my-jetpack' ),
+				self::error_status( $data, $status ),
+				true
+			);
+		}
 
 		return self::activation_error(
-			$result['code'] ?? 'jetpack_search_free_activation_failed',
+			$code !== '' ? $code : 'jetpack_search_free_activation_failed',
 			$result['message'] ?? __( 'Jetpack Search Free could not be activated for this site.', 'jetpack-my-jetpack' ),
-			isset( $data['status'] ) ? (int) $data['status'] : (int) $status,
+			self::error_status( $data, $status ),
 			! empty( $data['checkout_fallback'] ),
 			$data
 		);
+	}
+
+	/**
+	 * Pick an error status for the refusal, never a 2xx.
+	 *
+	 * A success status on a WP_Error reaches the browser as a 200, which both REST clients read
+	 * as a granted product.
+	 *
+	 * @param array $data   Error data from WordPress.com.
+	 * @param int   $status HTTP status of the response.
+	 * @return int
+	 */
+	private static function error_status( $data, $status ) {
+		foreach ( array( $data['status'] ?? 0, $status ) as $candidate ) {
+			if ( (int) $candidate >= 400 ) {
+				return (int) $candidate;
+			}
+		}
+
+		return 502;
 	}
 
 	/**
@@ -510,23 +557,33 @@ class Search extends Hybrid_Product {
 	/**
 	 * Bring this site's Search state in line after WordPress.com grants the product.
 	 *
-	 * WordPress.com configures Search over a separate request to this site, so the plan option
-	 * cached in this process predates it — and on the `already_entitled` path, where no
-	 * subscription is created, that request never happens at all. Both calls are idempotent.
+	 * WordPress.com writes the plan option from a separate request, so the copy cached in this
+	 * process predates it and has to be re-read before the module can activate.
 	 *
-	 * The search experience is deliberately not set here: WordPress.com owns that default, and
-	 * a second copy of it would drift.
+	 * @return string `activated`, `unavailable` when this plugin does not ship jetpack-search,
+	 *                or an error code the caller can surface — re-running the activation repairs it.
 	 */
 	private static function sync_local_state_after_free_activation() {
 		if ( ! class_exists( 'Automattic\Jetpack\Search\Plan' ) ) {
-			return;
+			return 'unavailable';
 		}
 
-		( new \Automattic\Jetpack\Search\Plan() )->get_plan_info_from_wpcom();
-
-		if ( class_exists( 'Automattic\Jetpack\Search\Module_Control' ) ) {
-			( new Search_Module_Control() )->activate();
+		$plan_info = ( new \Automattic\Jetpack\Search\Plan() )->get_plan_info_from_wpcom();
+		if ( is_wp_error( $plan_info ) ) {
+			return $plan_info->get_error_code();
 		}
+
+		if ( ! class_exists( 'Automattic\Jetpack\Search\Module_Control' ) ) {
+			return 'unavailable';
+		}
+
+		$activated = ( new Search_Module_Control() )->activate();
+
+		if ( is_wp_error( $activated ) ) {
+			return $activated->get_error_code();
+		}
+
+		return $activated ? 'activated' : 'already_active';
 	}
 
 	/**

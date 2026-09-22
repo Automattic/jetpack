@@ -10,9 +10,12 @@ import './style.scss';
  */
 export default function InstantSearchUpsellNudge( props = { upgrade: true } ) {
 	return (
-		// `onClick` handles the activation; `href` stays so it still behaves as a link
-		// (middle-click, copy link address) and points at the checkout it falls back to.
+		/*
+		 * A plain click activates in place; `href` is what modifier clicks and the
+		 * checkout fallback both use.
+		 */
 		<a
+			aria-busy={ props.isBusy || undefined }
 			className="jp-instant-search-upsell-nudge jp-search-dashboard-cut"
 			href={ props.href }
 			onClick={ props.onClick }

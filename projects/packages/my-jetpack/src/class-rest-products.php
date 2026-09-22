@@ -93,11 +93,13 @@ class REST_Products {
 					'callback'            => __CLASS__ . '::activate_search_free',
 					'permission_callback' => __CLASS__ . '::edit_permissions_callback',
 					'args'                => array(
+						// No enum: WordPress.com records an unfamiliar source as `unknown` rather
+						// than refusing, so a stricter list here would reject what it accepts.
 						'source' => array(
-							'description' => __( 'Where the activation was requested from.', 'jetpack-my-jetpack' ),
-							'type'        => 'string',
-							'enum'        => Products\Search::ACTIVATE_FREE_SOURCES,
-							'required'    => false,
+							'description'       => __( 'Where the activation was requested from.', 'jetpack-my-jetpack' ),
+							'type'              => 'string',
+							'required'          => false,
+							'sanitize_callback' => 'sanitize_key',
 						),
 					),
 				),
@@ -381,15 +383,12 @@ class REST_Products {
 	/**
 	 * Grant the free Search product to this site, replacing the $0 checkout round trip.
 	 *
-	 * Errors carry `checkout_fallback` in their data so the caller knows whether the old
-	 * checkout flow is still worth trying. See {@see Products\Search::activate_free_product()}.
-	 *
 	 * POST `my-jetpack/v1/site/products/search/activate-free`
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param WP_REST_Request $request The request.
-	 * @return WP_REST_Response|WP_Error
+	 * @return WP_REST_Response|WP_Error Errors carry `checkout_fallback`; see {@see Products\Search::activate_free_product()}.
 	 */
 	public static function activate_search_free( $request ) {
 		$result = Products\Search::activate_free_product( $request->get_param( 'source' ) );

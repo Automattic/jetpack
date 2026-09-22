@@ -188,6 +188,13 @@ class REST_Controller {
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'activate_free_plan' ),
 				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+				'args'                => array(
+					'source' => array(
+						'type'              => 'string',
+						'required'          => false,
+						'sanitize_callback' => 'sanitize_key',
+					),
+				),
 			)
 		);
 		register_rest_route(
@@ -619,18 +626,32 @@ class REST_Controller {
 	/**
 	 * Grant the free Search product to this site instead of sending the user to a $0 checkout.
 	 *
-	 * Thin wrapper: My Jetpack owns the WordPress.com call, because it renders the Search card
-	 * in plugins that do not ship this package. Errors carry `checkout_fallback` in their data,
-	 * which the dashboard branches on to decide whether to fall back to checkout.
-	 *
 	 * POST `jetpack/v4/search/plan/activate-free`
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return WP_REST_Response|WP_Error
+	 * @param WP_REST_Request $request - REST request.
+	 * @return WP_REST_Response|WP_Error Errors carry `checkout_fallback`, which the dashboard
+	 *                                   branches on to decide whether to fall back to checkout.
 	 */
-	public function activate_free_plan() {
-		$result = Search_Product::activate_free_product( 'search-dashboard' );
+	public function activate_free_plan( $request ) {
+		/*
+		 * Another plugin can load an older My Jetpack before this package's copy registers, and
+		 * that copy has no such method. Degrade to the checkout the dashboard still has.
+		 */
+		if ( ! method_exists( Search_Product::class, 'activate_free_product' ) ) {
+			return new WP_Error(
+				'jetpack_search_free_activation_unavailable',
+				__( 'Jetpack Search Free could not be activated for this site.', 'jetpack-search-pkg' ),
+				array(
+					'status'            => 501,
+					'checkout_fallback' => true,
+				)
+			);
+		}
+
+		$source = $request->get_param( 'source' );
+		$result = Search_Product::activate_free_product( $source ? $source : 'search-dashboard' );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}

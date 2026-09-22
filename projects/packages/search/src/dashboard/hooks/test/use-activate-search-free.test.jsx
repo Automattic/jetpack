@@ -1,5 +1,5 @@
 let mockIsWpcom = false;
-const mockCreateNotice = jest.fn();
+const mockErrorNotice = jest.fn();
 const mockActivate = jest.fn();
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {
@@ -13,7 +13,7 @@ jest.mock( '@automattic/jetpack-api', () => ( {
 } ) );
 
 jest.mock( '@wordpress/data', () => ( {
-	useDispatch: () => ( { createNotice: mockCreateNotice } ),
+	useDispatch: () => ( { errorNotice: mockErrorNotice } ),
 	useSelect: callback => callback( () => ( { isWpcom: () => mockIsWpcom } ) ),
 	select: () => ( { getVersion: () => '1.0.0' } ),
 } ) );
@@ -28,6 +28,9 @@ import useActivateSearchFree from '../use-activate-search-free';
 
 let sendToCheckout;
 
+// Settles pending promises without asserting on an empty act() body.
+const flushPromises = () => act( () => Promise.resolve() );
+
 const renderActivateHook = () => renderHook( () => useActivateSearchFree( { sendToCheckout } ) );
 
 const rejectWith = ( code, data ) => {
@@ -39,7 +42,7 @@ const rejectWith = ( code, data ) => {
 beforeEach( () => {
 	mockIsWpcom = false;
 	sendToCheckout = jest.fn();
-	mockCreateNotice.mockClear();
+	mockErrorNotice.mockClear();
 	mockActivate.mockReset();
 	reloadDashboard.mockClear();
 } );
@@ -75,7 +78,7 @@ describe( 'useActivateSearchFree', () => {
 		act( () => result.current.run() );
 
 		await waitFor( () => expect( sendToCheckout ).toHaveBeenCalled() );
-		expect( mockCreateNotice ).not.toHaveBeenCalled();
+		expect( mockErrorNotice ).not.toHaveBeenCalled();
 		expect( reloadDashboard ).not.toHaveBeenCalled();
 	} );
 
@@ -87,9 +90,10 @@ describe( 'useActivateSearchFree', () => {
 		const { result } = renderActivateHook();
 		act( () => result.current.run() );
 
-		await waitFor( () => expect( mockCreateNotice ).toHaveBeenCalled() );
-		expect( mockCreateNotice.mock.calls[ 0 ][ 0 ] ).toBe( 'error' );
-		expect( mockCreateNotice.mock.calls[ 0 ][ 1 ] ).toBe( 'Activation refused.' );
+		// errorNotice, not createNotice: the raw action needs an `is-` prefixed status, and
+		// anything else renders as a neutral notice rather than an error.
+		await waitFor( () => expect( mockErrorNotice ).toHaveBeenCalled() );
+		expect( mockErrorNotice.mock.calls[ 0 ][ 0 ] ).toBe( 'Activation refused.' );
 		expect( sendToCheckout ).not.toHaveBeenCalled();
 	} );
 
@@ -103,15 +107,54 @@ describe( 'useActivateSearchFree', () => {
 		expect( mockActivate ).not.toHaveBeenCalled();
 	} );
 
-	test( 'a second click while a request is in flight is ignored', async () => {
+	test( 'two clicks in the same tick only fire one request', () => {
 		mockActivate.mockResolvedValue( { success: true, status: 'granted' } );
 
 		const { result } = renderActivateHook();
-		act( () => result.current.run() );
-		await waitFor( () => expect( result.current.isActivating ).toBe( true ) );
 
-		act( () => result.current.run() );
+		// Both calls before any re-render, which is what a real double-click does. A state-only
+		// guard would let the second through, because it reads the pre-render value.
+		act( () => {
+			result.current.run();
+			result.current.run();
+		} );
 
 		expect( mockActivate ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	test( 'a modifier click is left to the anchor so it can open in a new tab', () => {
+		const { result } = renderActivateHook();
+		const event = { metaKey: true, button: 0, preventDefault: jest.fn() };
+
+		act( () => result.current.run( event ) );
+
+		expect( event.preventDefault ).not.toHaveBeenCalled();
+		expect( mockActivate ).not.toHaveBeenCalled();
+		expect( sendToCheckout ).not.toHaveBeenCalled();
+	} );
+
+	test( 'an in-progress lock is retried once rather than reported as a failure', async () => {
+		jest.useFakeTimers();
+		mockActivate
+			.mockReturnValueOnce(
+				rejectWith( 'jetpack_search_free_activation_in_progress', {
+					status: 409,
+					checkout_fallback: false,
+				} )
+			)
+			.mockResolvedValueOnce( { success: true, status: 'granted' } );
+
+		const { result } = renderActivateHook();
+		act( () => result.current.run() );
+
+		// Let the first rejection settle, then run the scheduled retry.
+		await flushPromises();
+		act( () => jest.runOnlyPendingTimers() );
+		await flushPromises();
+
+		expect( mockActivate ).toHaveBeenCalledTimes( 2 );
+		expect( reloadDashboard ).toHaveBeenCalled();
+		expect( mockErrorNotice ).not.toHaveBeenCalled();
+		jest.useRealTimers();
 	} );
 } );

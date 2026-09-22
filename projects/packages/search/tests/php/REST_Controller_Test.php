@@ -955,6 +955,68 @@ class REST_Controller_Test extends Search_TestCase {
 	}
 
 	/**
+	 * Testing the `POST /jetpack/v4/search/plan/activate-free` endpoint with an anonymous caller.
+	 */
+	public function test_activate_free_plan_unauthorized() {
+		wp_set_current_user( 0 );
+
+		$response = $this->server->dispatch(
+			new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate-free' )
+		);
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/search/plan/activate-free` endpoint with an editor user.
+	 */
+	public function test_activate_free_plan_editor() {
+		wp_set_current_user( $this->editor_id );
+
+		$response = $this->server->dispatch(
+			new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate-free' )
+		);
+		$this->assertEquals( 403, $response->get_status() );
+	}
+
+	/**
+	 * An admin gets past the route's own permission callback and reaches the handler, which
+	 * refuses without a connected user rather than granting anything.
+	 */
+	public function test_activate_free_plan_admin_reaches_the_handler() {
+		wp_set_current_user( $this->admin_id );
+
+		$response = $this->server->dispatch(
+			new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate-free' )
+		);
+
+		$this->assertNotEquals( 401, $response->get_status() );
+		$this->assertContains(
+			$response->as_error() ? $response->as_error()->get_error_code() : '',
+			array(
+				'no_connected_user',
+				'site_not_registered',
+				'rest_cannot_activate',
+				'jetpack_search_free_activation_failed',
+			)
+		);
+	}
+
+	/**
+	 * A refusal always tells the dashboard whether the $0 checkout is still worth trying.
+	 */
+	public function test_activate_free_plan_refusal_carries_checkout_fallback() {
+		wp_set_current_user( $this->admin_id );
+
+		$response = $this->server->dispatch(
+			new WP_REST_Request( 'POST', '/jetpack/v4/search/plan/activate-free' )
+		);
+
+		$error = $response->as_error();
+		$this->assertNotNull( $error );
+		$this->assertArrayHasKey( 'checkout_fallback', (array) $error->get_error_data() );
+	}
+
+	/**
 	 * Testing the `POST /jetpack/v4/search/plan/activate` endpoint with editor user.
 	 */
 	public function test_activate_plan_editor() {
