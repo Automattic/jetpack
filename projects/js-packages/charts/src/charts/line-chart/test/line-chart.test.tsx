@@ -400,6 +400,27 @@ describe( 'LineChart', () => {
 			expect( within( chart ).getAllByText( /^-?[\d.,]+$/ ) ).toHaveLength( 3 );
 		} );
 
+		test( 'keeps every tick on a y domain the caller pinned', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 0, 0 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+				],
+				options: {
+					yScale: { domain: [ 0, 1 ] },
+					axis: { y: { tickFormat: ( value: number ) => `${ Math.round( value * 100 ) }%` } },
+				},
+			} );
+
+			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			expect( within( chart ).getAllByText( /^\d+%$/ ) ).toHaveLength( 6 );
+		} );
+
 		test( 'keeps a positive y domain on a log scale when every visible bucket has no reading', () => {
 			const ref = createRef< ChartInstanceRef >();
 

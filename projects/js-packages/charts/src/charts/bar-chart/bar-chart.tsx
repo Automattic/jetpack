@@ -182,10 +182,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		isSeriesRendered
 	);
 	const valueAxis = horizontal ? chartOptions.axis.x : chartOptions.axis.y;
+	const callerValueDomain = horizontal ? options.xScale?.domain : options.yScale?.domain;
 	const wholeNumberTicksProps = {
 		axis: horizontal ? ( 'x' as const ) : ( 'y' as const ),
 		numTicks: valueAxis.numTicks,
-		enabled: hasWholeNumberValues && ! valueAxis.tickValues,
+		enabled: hasWholeNumberValues && ! valueAxis.tickValues && ! callerValueDomain,
 	};
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const chartRef = useRef< HTMLDivElement >( null );

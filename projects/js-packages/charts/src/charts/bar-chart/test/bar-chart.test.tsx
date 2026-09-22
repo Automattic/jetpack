@@ -443,6 +443,33 @@ describe( 'BarChart', () => {
 			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
 		} );
 
+		test.each( [ 'vertical', 'horizontal' ] as const )(
+			'keeps every tick on a value domain the caller pinned (%s)',
+			orientation => {
+				const valueAxis = orientation === 'horizontal' ? 'x' : 'y';
+				renderWithTheme( {
+					orientation,
+					data: [
+						{
+							label: 'Series A',
+							data: [
+								{ label: 'Mon', value: 0 },
+								{ label: 'Tue', value: 0 },
+							],
+						},
+					],
+					options: {
+						[ `${ valueAxis }Scale` ]: { domain: [ 0, 1 ] },
+						axis: {
+							[ valueAxis ]: { tickFormat: ( value: number ) => `${ Math.round( value * 100 ) }%` },
+						},
+					},
+				} );
+				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				expect( within( chart ).getAllByText( /^\d+%$/ ) ).toHaveLength( 6 );
+			}
+		);
+
 		test( "keeps a caller's value tickValues", () => {
 			renderWithTheme( {
 				data: wholeNumberData,

@@ -61,7 +61,7 @@ type WholeNumberTicksProps = {
  * @param props          - Component props.
  * @param props.axis     - Which scale carries the values.
  * @param props.numTicks - Ticks to ask the scale for.
- * @param props.enabled  - Whether the plotted values are all whole numbers.
+ * @param props.enabled  - Whether the plotted values are all whole numbers and the caller pinned neither the ticks nor the value domain.
  * @param props.children - Renders the axis and grid with the tick values.
  * @return The rendered children.
  */

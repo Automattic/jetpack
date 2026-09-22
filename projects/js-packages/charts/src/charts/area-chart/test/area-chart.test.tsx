@@ -210,6 +210,28 @@ describe( 'AreaChart', () => {
 			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
 		} );
 
+		test( 'keeps every tick on a y domain the caller pinned', () => {
+			renderWithProvider( {
+				stacked: false,
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 0, 0 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+				],
+				options: {
+					yScale: { domain: [ 0, 1 ] },
+					axis: { y: { tickFormat: ( value: number ) => `${ Math.round( value * 100 ) }%` } },
+				},
+			} );
+
+			const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+			expect( within( chart ).getAllByText( /^\d+%$/ ) ).toHaveLength( 6 );
+		} );
+
 		test( 'keeps fractional ticks for a normalized stack even when the data is whole numbers', () => {
 			renderWithProvider( {
 				stacked: true,

@@ -452,7 +452,11 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 											<WholeNumberTicks
 												axis="y"
 												numTicks={ chartOptions.axis.y.numTicks }
-												enabled={ hasWholeNumberValues && ! chartOptions.axis.y.tickValues }
+												enabled={
+													hasWholeNumberValues &&
+													! chartOptions.axis.y.tickValues &&
+													! options?.yScale?.domain
+												}
 											>
 												{ tickValues => (
 													<>
