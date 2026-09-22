@@ -201,7 +201,7 @@ import { RectShape } from '@automattic/charts/visx/legend';
 | ------------ | ----------------- | -------- | ----------------------------------------------------------- |
 | `indicator`  | `React.ReactNode` | Yes      | Pre-rendered indicator element (LineShape, RectShape, etc.) |
 | `label`      | `string`          | Yes      | Row label text                                              |
-| `value`      | `number`          | No       | Numeric value to format; omit when the label carries it     |
+| `value`      | `number \| null`  | No       | Value to format; omit when the label carries it. `null` reads "No data" |
 | `dataFormat` | `DataFormat`      | Yes      | Format configuration (currency, number, percentage)         |
 
 ## Used By
