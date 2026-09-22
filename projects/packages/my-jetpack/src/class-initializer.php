@@ -231,8 +231,13 @@ class Initializer {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
 		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
 
-		// Handle onboarding redirects based on connection status
-		$redirect_args = self::get_onboarding_redirect_args( $step, $connection->is_connected(), self::is_onboarding_available() );
+		// Handle onboarding redirects based on connection status. Onboarding's only action is the
+		// connect request, which answers a user without `jetpack_connect` with a 403.
+		$redirect_args = self::get_onboarding_redirect_args(
+			$step,
+			$connection->is_connected(),
+			self::is_onboarding_available() && current_user_can( 'jetpack_connect' )
+		);
 
 		if ( null !== $redirect_args ) {
 			$admin_page = add_query_arg( $redirect_args, admin_url( 'admin.php' ) );

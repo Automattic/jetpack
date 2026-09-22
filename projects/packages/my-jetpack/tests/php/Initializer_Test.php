@@ -26,6 +26,10 @@ class Initializer_Test extends BaseTestCase {
 	 */
 	public function set_up() {
 		$this->reset_state();
+
+		// WorDBless boots no plugin, so nothing has run Manager::configure(). Without its
+		// mapping, `jetpack_connect` resolves to no capability at all, for every user.
+		add_filter( 'map_meta_cap', array( new Connection_Manager(), 'jetpack_connection_custom_caps' ), 1, 4 );
 	}
 
 	/**
@@ -90,15 +94,12 @@ class Initializer_Test extends BaseTestCase {
 		Initializer::add_my_jetpack_menu_item();
 		$hook = add_submenu_page( 'jetpack', 'My Jetpack', 'My Jetpack', 'edit_posts', 'my-jetpack', array( Initializer::class, 'admin_page' ) );
 		$this->assertSame( 'admin_page_my-jetpack', $hook );
+		$enqueue = array( Initializer::class, 'enqueue_scripts' );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', $enqueue ) );
 
-		$location = $this->capture_admin_init_redirect(
-			static function () use ( $hook ) {
-				do_action( 'load-' . $hook ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- WordPress core page-load hook.
-			}
-		);
+		do_action( 'load-' . $hook ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- WordPress core page-load hook.
 
-		$this->assertNotNull( $location, 'Expected the page load to reach admin_init().' );
-		$this->assertStringContainsString( 'step=onboarding', $location );
+		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', $enqueue ), 'Expected the page load to reach admin_init().' );
 	}
 
 	/**
@@ -225,6 +226,8 @@ class Initializer_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_admin_init_redirects_disconnected_site_to_onboarding() {
+		$this->log_in_as_admin();
+
 		$location = $this->capture_admin_init_redirect();
 
 		$this->assertNotNull( $location, 'Expected admin_init() to redirect.' );
@@ -246,12 +249,50 @@ class Initializer_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_admin_init_redirects_onboarding_request_home_on_wpcom_simple() {
+		$this->log_in_as_admin();
 		Constants::set_constant( 'IS_WPCOM', true );
 		$_GET['step'] = 'onboarding';
 
 		$location = $this->capture_admin_init_redirect();
 
 		$this->assertNotNull( $location, 'Expected admin_init() to redirect away from onboarding.' );
+		$this->assertStringContainsString( 'page=my-jetpack', $location );
+		$this->assertStringNotContainsString( 'step=onboarding', $location );
+	}
+
+	/**
+	 * A user who cannot connect the site is left on the dashboard instead of onboarding.
+	 *
+	 * Onboarding's only action is the register endpoint, which answers anyone without
+	 * `jetpack_connect` with a 403 — so sending them there would be a dead end.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_init_keeps_a_user_who_cannot_connect_off_onboarding() {
+		$this->log_in_as_editor();
+
+		$this->assertFalse( current_user_can( 'jetpack_connect' ) );
+		$this->assertNull( $this->capture_admin_init_redirect() );
+	}
+
+	/**
+	 * A user who cannot connect is sent back to the dashboard if they ask for onboarding.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_init_bounces_a_user_who_cannot_connect_off_an_onboarding_request() {
+		$this->log_in_as_editor();
+		$_GET['step'] = 'onboarding';
+
+		$location = $this->capture_admin_init_redirect();
+
+		$this->assertNotNull( $location, 'Expected a redirect away from onboarding.' );
 		$this->assertStringContainsString( 'page=my-jetpack', $location );
 		$this->assertStringNotContainsString( 'step=onboarding', $location );
 	}
@@ -477,6 +518,24 @@ class Initializer_Test extends BaseTestCase {
 				'user_login' => 'coupon_admin',
 				'user_pass'  => 'pass',
 				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		return $user_id;
+	}
+
+	/**
+	 * Log in as a fresh editor, who has the page's capability but not the connection's.
+	 *
+	 * @return int The user ID.
+	 */
+	private function log_in_as_editor() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'my_jetpack_editor',
+				'user_pass'  => 'pass',
+				'role'       => 'editor',
 			)
 		);
 		wp_set_current_user( $user_id );
