@@ -111,7 +111,7 @@ final class Sharing_Section {
 		echo '<div class="notice notice-info inline">';
 
 		// Simple cannot deactivate the module, so it lands here rather than on the call to action.
-		if ( Environment::is_simple_site() && Environment::has_no_sharing_services() ) {
+		if ( Environment::is_simple_site() && Environment::legacy_sharing_switched_off() ) {
 			printf( '<p>%s</p>', esc_html__( 'Legacy sharing buttons are turned off. Add the Sharing Buttons block to your theme’s template, or add a service below to bring them back.', 'jetpack-sharing-likes' ) );
 			self::render_site_editor_link();
 		} else {
@@ -143,7 +143,7 @@ final class Sharing_Section {
 	 */
 	private static function render_services_config(): void {
 		// Placement is moot with no services: the buttons appear nowhere.
-		if ( ! Environment::has_no_sharing_services() ) {
+		if ( ! Environment::legacy_sharing_switched_off() ) {
 			Placement_Section::render_summary( Placement_Section::FEATURE_SHARING );
 		}
 

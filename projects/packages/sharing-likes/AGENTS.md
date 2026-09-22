@@ -64,7 +64,8 @@ add is Jetpack and Atomic only.
 The "Switch to the … block" buttons still work on Simple, through settings
 rather than modules: `Post_Handler` empties `sharing-services`, or sets
 `disabled_likes` and `disabled_reblogs` (the legacy widget renders for either
-button). The nudge reads the same settings back to show its switched-off copy.
+button). The nudge reads them back through `Environment::legacy_sharing_switched_off()`
+and `legacy_likes_switched_off()` to show its switched-off copy.
 The section stays in `CONFIGURE_WITH_BLOCK_NUDGE`, so its options below are the
 way back.
 

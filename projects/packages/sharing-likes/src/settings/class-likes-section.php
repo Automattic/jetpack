@@ -135,7 +135,7 @@ final class Likes_Section {
 		echo '<div class="notice notice-info inline">';
 
 		// Simple cannot deactivate the module, so it lands here rather than on the call to action.
-		if ( Environment::is_simple_site() && Likes_Options::post_buttons_off_sitewide() ) {
+		if ( Environment::is_simple_site() && Environment::legacy_likes_switched_off() ) {
 			printf( '<p>%s</p>', esc_html__( 'Legacy Like buttons are turned off for all posts. Add the Like block to your theme’s template, or turn them back on below.', 'jetpack-sharing-likes' ) );
 			self::render_site_editor_link();
 		} else {

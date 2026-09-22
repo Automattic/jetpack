@@ -63,7 +63,7 @@ final class Environment {
 	 * An absent option is not that: `Sharing_Service::get_blog_services()` falls
 	 * back to its default services when the option was never saved.
 	 */
-	public static function has_no_sharing_services(): bool {
+	public static function legacy_sharing_switched_off(): bool {
 		$services = get_option( 'sharing-services' );
 
 		if ( ! is_array( $services ) ) {
@@ -130,6 +130,15 @@ final class Environment {
 		}
 
 		return self::is_simple_site() || ( new Modules() )->is_active( 'likes' );
+	}
+
+	/**
+	 * Whether posts show neither a Like nor a Reblog button, bar those that opted in individually.
+	 *
+	 * Both count because the legacy widget renders for either.
+	 */
+	public static function legacy_likes_switched_off(): bool {
+		return ! Likes_Options::enabled_sitewide() && ! Likes_Options::reblogs_enabled_sitewide();
 	}
 
 	/**
