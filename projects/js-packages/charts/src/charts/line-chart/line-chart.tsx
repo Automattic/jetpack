@@ -1,5 +1,6 @@
 import { formatNumberCompact, formatNumber } from '@automattic/number-formatters';
 import { LinearGradient } from '@visx/gradient';
+import { scaleCanBeZeroed, type ScaleConfig } from '@visx/scale';
 import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
@@ -318,18 +319,23 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			return seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
 		}, [ seriesWithVisibility ] );
 
-		// When series visibility changes — via the interactive legend or programmatically —
-		// and rescaling is opted out, pin the value axis to the full data range so it stays
-		// put instead of visx rescaling the domain to whatever is currently visible and
-		// making the axis jump. Default is to rescale, matching the pre-existing behaviour
-		// and AreaChart's `rescaleYOnVisibilityChange`.
-		const stableYDomain = useMemo< [ number, number ] | undefined >( () => {
-			if ( rescaleYOnVisibilityChange ) {
+		// The value extent of the series visx will scale to. Pinning the axis
+		// (`rescaleYOnVisibilityChange: false`) measures hidden series too, so hiding
+		// one leaves the axis where it is.
+		const yDomain = useMemo< [ number, number ] | undefined >( () => {
+			// A log scale cannot hold zero; visx ignores the flag there, and so does this.
+			const includeZero =
+				options?.yScale?.zero === true &&
+				scaleCanBeZeroed( { type: options.yScale.type ?? 'linear' } as ScaleConfig );
+			if ( rescaleYOnVisibilityChange && ! includeZero ) {
 				return undefined;
 			}
 			let min = Infinity;
 			let max = -Infinity;
 			for ( const series of dataSorted ) {
+				if ( rescaleYOnVisibilityChange && ! isSeriesVisible( series.label ) ) {
+					continue;
+				}
 				for ( const point of series.data ?? [] ) {
 					const value = point?.value;
 					if ( typeof value === 'number' && Number.isFinite( value ) ) {
@@ -338,8 +344,17 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 					}
 				}
 			}
+			// Zero goes into the domain rather than through the scale's `zero` flag: visx
+			// applies `nice` before `zero`, which leaves the top of a zeroed axis unrounded.
+			if ( includeZero ) {
+				if ( min === Infinity ) {
+					return undefined;
+				}
+				// A series that is all zeros has no span, and d3 draws a spanless domain at mid-height.
+				return max === 0 && min === 0 ? [ 0, 1 ] : [ Math.min( 0, min ), Math.max( 0, max ) ];
+			}
 			return min < max ? [ min, max ] : undefined;
-		}, [ rescaleYOnVisibilityChange, dataSorted ] );
+		}, [ rescaleYOnVisibilityChange, dataSorted, isSeriesVisible, options?.yScale ] );
 
 		// Keyboard navigation steps through x positions, and the grouped tooltip
 		// reads every series at that position; the first series names the point.
@@ -396,11 +411,11 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 					type: 'linear' as const,
 					nice: true,
 					zero: false,
-					...( stableYDomain ? { domain: stableYDomain } : {} ),
+					...( yDomain ? { domain: yDomain } : {} ),
 					...options?.yScale,
 				},
 			};
-		}, [ options, dataSorted, width, zoom.domain, stableYDomain, formatting, isSeriesVisible ] );
+		}, [ options, dataSorted, width, zoom.domain, yDomain, formatting, isSeriesVisible ] );
 
 		// Classified from the rendered series, like the axis above: a hidden
 		// hourly line must not leave the tooltip naming an hour the axis dropped.

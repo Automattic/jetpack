@@ -702,6 +702,22 @@ Customize axes with formatting, orientation, and tick options:
 	/>` }
 />
 
+### Value Axis Baseline
+
+By default the value axis fits the data, which makes a small change look large. Pass `yScale: { zero: true }` to start the axis at zero; the axis top is then rounded from zero rather than from the data's floor, so the line does not run into the top edge. The axis still rescales when a series is hidden through the legend.
+
+<Canvas of={ LineChartStories.ZeroBaseline } />
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={data}
+		options={{
+			yScale: { zero: true }
+		}}
+	/>` }
+/>
+
 ### Custom Margins
 
 Control chart layout with precise margin settings:
