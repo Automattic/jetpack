@@ -97,7 +97,8 @@ export function getAuthorsFields( withComparison = false ): Field< AuthorRow >[]
 		{
 			id: 'views',
 			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
-			getValue: ( { item } ) => item.views,
+			// Unknown counts sort with the zeros; the cell itself renders the dash.
+			getValue: ( { item } ) => item.views ?? 0,
 			render: ( { item } ) => (
 				<MetricWithComparison
 					value={ item.views }

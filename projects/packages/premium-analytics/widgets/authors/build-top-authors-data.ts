@@ -20,15 +20,16 @@ const UNTRACKED_AUTHORS_SENTINEL = 'Untracked Authors';
 /**
  * A single post by an author, used to drill down from the author leaderboard
  * into that author's posts. Comparison fields are `undefined` when the post has
- * no match in the comparison period, so the render layer never shows a
- * fabricated delta.
+ * no match in the comparison period, and `currentValue` is `null` when the post
+ * is known only from the comparison period, so the render layer never shows a
+ * fabricated value or delta.
  */
 export interface AuthorPost {
 	id: string;
 	postId?: string | number;
 	title: string;
 	link: string | null;
-	currentValue: number;
+	currentValue: number | null;
 	previousValue?: number;
 	currentShare: number;
 	previousShare?: number;
@@ -75,24 +76,26 @@ function getAuthorLabel( author: StatsTopAuthorsComparisonItem ) {
  */
 function toAuthorPostRows( posts: StatsTopAuthorsPostComparisonItem[] ): AuthorPost[] {
 	const maxValue = getCombinedPeriodMax(
-		posts.map( post => post.views ),
+		posts.map( post => post.views ?? 0 ),
 		posts.map( post => post.previousViews )
 	);
 
 	return posts.map( ( post, index ) => {
+		const currentValue = post.views;
 		const previousValue = post.previousViews;
+		const hasBothValues = currentValue !== undefined && previousValue !== undefined;
 
 		return {
 			id: post.id != null ? String( post.id ) : ( post.link ?? `post-${ index }` ),
 			postId: post.id ?? undefined,
 			title: typeof post.label === 'string' ? post.label : String( post.label ?? '' ),
 			link: post.link ?? null,
-			currentValue: post.views,
+			currentValue: currentValue ?? null,
 			previousValue,
-			currentShare: sharePercentage( post.views, maxValue ),
+			currentShare: currentValue !== undefined ? sharePercentage( currentValue, maxValue ) : 0,
 			previousShare:
 				previousValue !== undefined ? sharePercentage( previousValue, maxValue ) : undefined,
-			delta: previousValue !== undefined ? calculateDelta( post.views, previousValue ) : undefined,
+			delta: hasBothValues ? calculateDelta( currentValue, previousValue ) : undefined,
 		};
 	} );
 }

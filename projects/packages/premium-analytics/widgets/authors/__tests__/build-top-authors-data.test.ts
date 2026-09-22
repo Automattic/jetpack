@@ -281,7 +281,7 @@ describe( 'buildTopAuthorsData', () => {
 		} );
 	} );
 
-	it( 'aligns author posts across comparison periods and includes dropped posts', () => {
+	it( 'aligns author posts across comparison periods and keeps comparison-only posts with an unknown current value', () => {
 		const result = buildData(
 			makeReport( [
 				{
@@ -333,11 +333,11 @@ describe( 'buildTopAuthorsData', () => {
 				postId: 3,
 				title: 'Dropped post',
 				link: null,
-				currentValue: 0,
+				currentValue: null,
 				previousValue: 10,
 				currentShare: 0,
 				previousShare: 33.33333333333333,
-				delta: -100,
+				delta: undefined,
 			},
 		] );
 	} );

@@ -99,7 +99,7 @@ const comparisonReport: StatsDrilldownSourceReport< StatsTopAuthorsComparisonIte
 						{
 							id: 4,
 							label: 'Earlier post',
-							views: 0,
+							views: undefined,
 							previousViews: 3,
 							link: null,
 							children: null,
@@ -190,7 +190,7 @@ describe( 'report authors aggregate', () => {
 		expect( aggregateAuthorRows( undefined ) ).toEqual( [] );
 	} );
 
-	it( 'preserves comparison views for authors and nested posts', () => {
+	it( 'preserves comparison views and keeps a comparison-only post with unknown views', () => {
 		expect( aggregateAuthorRows( comparisonReport ) ).toEqual( [
 			{
 				id: 'id:42',
@@ -217,7 +217,7 @@ describe( 'report authors aggregate', () => {
 				label: 'Earlier post',
 				avatarUrl: null,
 				postId: '4',
-				views: 0,
+				views: null,
 				previousViews: 3,
 			},
 		] );

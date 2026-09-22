@@ -11,6 +11,7 @@ import {
 	type LatestPost,
 	type LatestPostResponse,
 	type ReportParams,
+	type StatsTopAuthorsPostComparisonItem,
 	type StatsTopPostsItem,
 } from '@jetpack-premium-analytics/data';
 import { useMemo } from 'react';
@@ -35,6 +36,10 @@ export type RankedPost = {
 // the reference stays stable — `useStatsTopPosts` memoizes its comparison mapper
 // on this option.
 const POPULAR_POST_TYPES = [ 'post' ];
+
+// A post known only from the comparison period has no views in the window, so it cannot win.
+const hasWindowViews = ( row: StatsTopAuthorsPostComparisonItem ): row is StatsTopPostsItem =>
+	row.views !== undefined;
 
 // Ask for a page of ranked rows, since filtering to post-type rows still needs a
 // winner. On a page-heavy site all 20 can be pages, leaving the widget empty
@@ -103,7 +108,7 @@ export function useAuthorRankedPost(
 		}
 		const author = findAuthorRow( ranking.comparisonRows?.rows, authorId );
 
-		return author?.children ?? [];
+		return ( author?.children ?? [] ).filter( hasWindowViews );
 	}, [ enabled, ranking.comparisonRows, authorId ] );
 	const candidateIds = useMemo(
 		() => rows.map( row => Number( row.id ) || 0 ).filter( Boolean ),

@@ -21,9 +21,9 @@ import { aggregateSearchTermRows } from './aggregate';
  */
 export function useSearchTermsReportRecords( reportParams: ReportParams ) {
 	/*
-	 * Match legacy Stats' full custom-range request. `max: 0` preserves its
-	 * list behavior for client-side search, sorting, and pagination; the
-	 * endpoint-specific query omits the generic `days` parameter.
+	 * Match legacy Stats' full custom-range request: the endpoint ignores `max`
+	 * in summarize mode and caps the list at 500 terms, which the client then
+	 * searches, sorts, and paginates.
 	 */
 	const recordsParams = useMemo(
 		() => ( {

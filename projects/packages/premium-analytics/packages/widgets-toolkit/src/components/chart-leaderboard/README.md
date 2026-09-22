@@ -213,7 +213,7 @@ type LeaderboardChartData = Array< {
 	label: string | ReactElement;
 	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 	ariaLabel?: string;
-	currentValue: number;
+	currentValue: number | null; // null when unknown, e.g. a row known only from the comparison period
 	previousValue?: number;
 	currentShare: number; // Percentage (0-100)
 	previousShare?: number; // Percentage (0-100); omitted when no comparison row matches

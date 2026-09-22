@@ -21,7 +21,13 @@ export type StatsTopAuthorsItem = StatsNormalizedItemBase< StatsTopPostsItem > &
 	className?: string | null;
 };
 
-export type StatsTopAuthorsPostComparisonItem = StatsTopPostsItem & {
+export type StatsTopAuthorsPostComparisonItem = Omit< StatsTopPostsItem, 'views' > & {
+	/**
+	 * Views in the primary period. `undefined` for a post known only from the
+	 * comparison period: the endpoint caps posts per author, so an absent post
+	 * has an unknown count, not zero.
+	 */
+	views?: number;
 	previousViews?: number;
 };
 
@@ -86,8 +92,8 @@ function mergeStatsTopAuthorsPostRows(
 		} ),
 	} );
 
-	// Posts that only existed in the comparison period surface with zero current
-	// views, so their previous value is not silently dropped.
+	// Posts known only from the comparison period keep their previous value and
+	// an unknown current one, so neither is silently dropped or faked as 0.
 	const primaryKeys = new Set(
 		primaryPosts.map( getAuthorPostKey ).filter( ( key ): key is string => key != null )
 	);
@@ -97,7 +103,7 @@ function mergeStatsTopAuthorsPostRows(
 
 			return key != null && ! primaryKeys.has( key );
 		} )
-		.map( post => ( { ...post, views: 0, previousViews: post.views } ) );
+		.map( post => ( { ...post, views: undefined, previousViews: post.views } ) );
 
 	return [ ...rows, ...droppedPosts ];
 }

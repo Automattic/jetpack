@@ -261,9 +261,7 @@ describe( 'report search terms aggregate', () => {
 		expect( result.hasComparison ).toBe( true );
 	} );
 
-	it( 'treats a missing term as zero when the comparison is not truncated', () => {
-		// other_search_terms absent or <= 0 means the comparison list is
-		// complete, so a missing term keeps the legacy explicit-zero behavior.
+	it( 'treats a missing term as zero when the comparison list is short and reports no overflow', () => {
 		const untruncatedComparisonReport: StatsNormalizedReport< StatsSearchTermsItem > = {
 			summary: { other_search_terms: -34 },
 			data: [
@@ -294,5 +292,59 @@ describe( 'report search terms aggregate', () => {
 		expect( wordpressAnalyticsRow?.previousViews ).toBe( 0 );
 		expect( jetpackStatsRow?.previousViews ).toBe( 0 );
 		expect( result.hasComparison ).toBe( true );
+	} );
+
+	/**
+	 * A summarized comparison list that shares no term with the primary report and
+	 * reports no overflow, as `period=day` summarize mode never does.
+	 *
+	 * @param count - Distinct terms in the list.
+	 * @return The comparison report.
+	 */
+	function makeCappedComparison( count: number ): StatsNormalizedReport< StatsSearchTermsItem > {
+		return {
+			summary: { other_search_terms: 0, total_search_terms: 0 },
+			data: [
+				{
+					...report.data[ 0 ],
+					items: Array.from( { length: count }, ( _, index ) => ( {
+						label: `filler term ${ index }`,
+						views: count - index,
+						className: 'user-selectable',
+						children: null,
+					} ) ),
+					encrypted_search_terms: 0,
+				},
+			],
+		};
+	}
+
+	it( 'treats a comparison list at the endpoint cap as truncated even without an overflow count', () => {
+		const result = aggregateSearchTermRows(
+			report,
+			'Unknown search terms',
+			makeCappedComparison( 500 )
+		);
+
+		expect(
+			result.rows.find( row => row.id === 'term:wordpress analytics' )?.previousViews
+		).toBeUndefined();
+		expect(
+			result.rows.find( row => row.id === 'term:jetpack stats' )?.previousViews
+		).toBeUndefined();
+		expect( result.hasComparison ).toBe( true );
+	} );
+
+	it( 'treats a comparison list under the endpoint cap as complete', () => {
+		const result = aggregateSearchTermRows(
+			report,
+			'Unknown search terms',
+			makeCappedComparison( 499 )
+		);
+
+		expect( result.rows.find( row => row.id === 'term:wordpress analytics' )?.previousViews ).toBe(
+			0
+		);
+		expect( result.rows.find( row => row.id === 'term:jetpack stats' )?.previousViews ).toBe( 0 );
 	} );
 } );
