@@ -184,6 +184,7 @@
 		"scriptGlobal": "jetpackPlugin",
 		"packageNamespace": "jetpack-plugin",
 		"handlePrefix": "jetpack-plugin",
+		"rtlStyles": true,
 		"pages": [
 			{
 				"id": "jetpack-ai-hub",
