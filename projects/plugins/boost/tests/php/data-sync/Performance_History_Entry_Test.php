@@ -69,7 +69,7 @@ class Performance_History_Entry_Test extends TestCase {
 	}
 
 	public function test_filter_off_preserves_empty_error_fallback_with_surface_errors() {
-		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( false )->andReturn( false );
+		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( true )->andReturn( false );
 		$this->assertSame(
 			array(
 				'startDate'   => 1000,
@@ -82,7 +82,7 @@ class Performance_History_Entry_Test extends TestCase {
 	}
 
 	public function test_filter_on_surfaces_upstream_error_with_surface_errors() {
-		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( false )->andReturn( true );
+		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( true )->andReturn( true );
 		$entry = $this->history_entry( $this->upstream_error(), true, true );
 		$this->expectException( \RuntimeException::class );
 		$this->expectExceptionMessage( 'History service unavailable' );
@@ -90,7 +90,7 @@ class Performance_History_Entry_Test extends TestCase {
 	}
 
 	public function test_filter_on_preserves_empty_error_fallback_without_surface_errors() {
-		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( false )->andReturn( true );
+		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( true )->andReturn( true );
 		$this->assertSame(
 			array(
 				'startDate'   => 1000,
@@ -103,7 +103,7 @@ class Performance_History_Entry_Test extends TestCase {
 	}
 
 	public function test_filter_on_preserves_empty_error_fallback_after_surface_errors_reset() {
-		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( false )->andReturn( true );
+		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( true )->andReturn( true );
 		$entry = $this->history_entry( $this->upstream_error(), true, true );
 		$entry->set(
 			array(
