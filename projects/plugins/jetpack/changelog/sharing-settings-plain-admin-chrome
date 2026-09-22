@@ -1,4 +1,5 @@
-Significance: minor
-Type: enhancement
+Significance: patch
+Type: other
+Comment: Settings > Sharing renders as a standard WordPress settings screen, without the Jetpack masthead and footer.
 
-Sharing settings: render Settings > Sharing as a standard WordPress settings screen, without the Jetpack masthead and footer.
+
