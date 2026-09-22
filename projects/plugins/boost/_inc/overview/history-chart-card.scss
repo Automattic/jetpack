@@ -1,3 +1,6 @@
+@use "@wordpress/base-styles/colors" as wpcolors;
+@use "@wordpress/base-styles/variables" as wpvariables;
+
 .boost-daily-history {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr);
@@ -13,8 +16,7 @@
 
 	&__highlight {
 		position: absolute;
-		inset-block-start: 0;
-		inset-block-end: var(--wpds-dimension-padding-3xl);
+		inset-block: 0;
 		background: color-mix(in sRGB, var(--wp-admin-theme-color) 8%, transparent);
 		pointer-events: none;
 		z-index: -1;
@@ -54,7 +56,11 @@
 		gap: var(--wpds-dimension-gap-xs);
 
 		// Icon-only chevrons keep the title and range on one row at narrow widths.
+		// The design draws them neutral; the brand hover background stays.
 		> button {
+			--wp-ui-button-foreground-color: var(--wpds-color-foreground-interactive-neutral);
+			--wp-ui-button-foreground-color-active: var(--wpds-color-foreground-interactive-neutral-active);
+			--wp-ui-button-foreground-color-disabled: var(--wpds-color-foreground-interactive-neutral-disabled);
 			padding-inline: 0;
 			min-inline-size: 0;
 		}
@@ -79,14 +85,14 @@
 		isolation: isolate;
 
 		// Keep zeros visible without lifting empty marks above the baseline.
-		.visx-bar[height="0"] {
+		.boost-daily-history__bar--zero {
 			height: var(--wpds-border-width-sm);
-			transform: translateY(calc(-1 * var(--wpds-border-width-sm)));
+			translate: 0 calc(-1 * var(--wpds-border-width-sm));
 		}
 
-		.visx-bar[fill="var(--jetpack-boost-history-empty)"] {
+		.boost-daily-history__bar--empty {
 			height: var(--wpds-dimension-gap-xs);
-			transform: translateY(calc(-1 * var(--wpds-dimension-gap-xs)));
+			translate: 0 calc(-1 * var(--wpds-dimension-gap-xs));
 			rx: var(--wpds-border-radius-sm);
 		}
 
@@ -109,8 +115,8 @@
 		padding: 0 !important;
 	}
 
-	// A recorded day's box only holds the screen-reader copy of the popover.
-	.visx-tooltip:has(.boost-daily-history__score-tooltip) {
+	// The chart's own box only holds the screen-reader copy of the popover.
+	.visx-tooltip:has(.jetpack-boost-overview__history-tooltip) {
 		background: none !important;
 		box-shadow: none !important;
 	}
@@ -141,13 +147,26 @@
 	}
 }
 
-.boost-daily-history .boost-daily-history__empty-tooltip {
+.boost-daily-history__popover .jetpack-boost-overview__history-tooltip {
 	inline-size: calc(var(--wpds-dimension-surface-width-xs) + var(--wpds-dimension-padding-2xl) + var(--wpds-border-width-xs));
 	padding: calc(var(--wpds-dimension-padding-lg) + var(--wpds-border-width-xs));
+	border: 0;
+	// It floats on the page, so it takes the popover surface, not the card one.
+	background: var(--wpds-color-background-surface-neutral-strong);
+	box-shadow: inset 0 0 0 var(--wpds-border-width-xs) wpcolors.$gray-200, wpvariables.$elevation-medium;
 	line-height: var(--wpds-typography-line-height-sm);
 
 	.jetpack-boost-overview__tooltip-date {
-		margin-block-end: calc(var(--wpds-dimension-gap-sm) + var(--wpds-border-width-sm));
+		// Undo the popover title's heading type.
+		font: inherit;
+		font-weight: 500;
+	}
+}
+
+.boost-daily-history__popover .boost-daily-history__empty-tooltip {
+
+	.jetpack-boost-overview__tooltip-date {
+		margin-block-end: var(--wpds-dimension-gap-md);
 	}
 
 	.boost-daily-history__empty-copy {
@@ -155,26 +174,27 @@
 	}
 }
 
-.boost-daily-history__popover .boost-daily-history__score-tooltip {
-	inline-size: calc(var(--wpds-dimension-surface-width-xs) + var(--wpds-dimension-padding-2xl) + var(--wpds-border-width-xs));
-	padding: calc(var(--wpds-dimension-padding-lg) + var(--wpds-border-width-xs));
-	border: 0;
-	// It floats on the page, so it takes the popover surface, not the card one.
-	background: var(--wpds-color-background-surface-neutral-strong);
-	box-shadow:
-		inset 0 0 0 var(--wpds-border-width-xs) var(--jetpack-boost-history-empty),
-		0 var(--wpds-border-width-xs) var(--wpds-border-width-sm) color-mix(in sRGB, var(--wpds-color-foreground-content-neutral) 33%, transparent);
+// Read-only and aria-hidden; a mouse passes through, a tap stays on the box.
+@media (hover: hover) and (pointer: fine) {
+
+	.boost-daily-history__positioner {
+		pointer-events: none;
+	}
+}
+
+.boost-daily-history__paging-tooltip {
+	font-size: var(--wpds-typography-font-size-md);
 	line-height: var(--wpds-typography-line-height-sm);
+}
+
+.boost-daily-history__popover .boost-daily-history__score-tooltip {
 
 	.jetpack-boost-overview__tooltip-date {
-		// Undo the popover title's heading type.
-		font: inherit;
-		font-weight: var(--wpds-typography-font-weight-default);
 		margin-block-end: var(--wpds-dimension-gap-md);
 	}
 
 	.jetpack-boost-overview__tooltip-section {
-		gap: var(--wpds-dimension-gap-md) var(--wpds-dimension-gap-sm);
+		gap: var(--wpds-dimension-gap-sm);
 
 		dt,
 		dd {
@@ -189,6 +209,12 @@
 
 		dt:not(:first-child) {
 			padding-inline-start: var(--wpds-dimension-padding-md);
+		}
+
+		// Metric rows sit 8px apart but 12px below the device row.
+		dt:nth-child(3),
+		dd:nth-child(4) {
+			margin-block-start: var(--wpds-dimension-gap-xs);
 		}
 	}
 

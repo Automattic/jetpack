@@ -3,6 +3,7 @@ import { Card, CollapsibleCard, Icon, Stack } from '@wordpress/ui';
 import { ModuleSurfaceProvider } from '$features/module/surface';
 import criticalCss from '$features/critical-css/critical-css-module/critical-css-module.module.scss';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
+import PageCacheMeta from '$features/page-cache/meta/meta';
 import styles from '../../../../app/assets/src/js/pages/settings/settings.module.scss';
 
 const Group = ( { title, description, icon, children } ) => (
@@ -48,6 +49,9 @@ const Settings = () => (
 				icon={ image }
 			>
 				<p>The card below the tooltip, used to check what the popover paints over.</p>
+			</Group>
+			<Group title="Page Cache">
+				<PageCacheMeta />
 			</Group>
 		</Stack>
 	</ModuleSurfaceProvider>

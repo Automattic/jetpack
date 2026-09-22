@@ -11,7 +11,9 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 import getSupportLink from '$lib/utils/get-support-link';
 import { isSameSiteUrl } from '$lib/utils/is-same-site-url';
 import { Button, getRedirectUrl } from '@automattic/jetpack-components';
+import SaveButton from '$features/ui/save-button/save-button';
 import { Tooltip } from '@wordpress/components';
+import clsx from 'clsx';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Notice, Link } from '@wordpress/ui';
@@ -59,7 +61,8 @@ const CornerstonePagesContent = () => {
 	const [ { refetch: refetchRegenerationReason } ] = useRegenerationReason();
 	const [ lcpState ] = useLcpState( { enabled: false } );
 	const { setNotice } = useNotices();
-	const listInputRows = isPremium ? 10 : 5;
+	const isModern = useModuleSurface() === 'row';
+	const listInputRows = isPremium && ! isModern ? 10 : 5;
 	const [ { data: modulesState } ] = useModulesState();
 
 	const updateCornerstonePages = ( newValue: string ) => {
@@ -155,9 +158,10 @@ export const CornerstonePagesDescription = () => {
 
 export const CornerstonePagesEditor = () => {
 	const cornerstonePagesProperties = useCornerstonePagesProperties();
+	const isModern = useModuleSurface() === 'row';
 
 	return (
-		<div className={ styles.body }>
+		<div className={ clsx( styles.body, isModern && styles[ 'is-modern' ] ) }>
 			{ cornerstonePagesProperties ? <CornerstonePagesContent /> : <MetaError /> }
 		</div>
 	);
@@ -510,9 +514,7 @@ const List: FC< ListProps > = ( {
 			{ inputInvalid && <span className={ styles.error }>{ validationError?.message }</span> }
 			{ description && <div className={ styles.description }>{ description }</div> }
 			<div className={ styles.buttonGroup }>
-				<Button disabled={ items === inputValue || inputInvalid } onClick={ save }>
-					{ __( 'Save', 'jetpack-boost' ) }
-				</Button>
+				<SaveButton disabled={ items === inputValue || inputInvalid } onClick={ save } />
 				<LoadDefaultsButton
 					defaultValue={ defaultValue }
 					inputValue={ inputValue }

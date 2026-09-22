@@ -1,13 +1,16 @@
 import { Button, IconTooltip, getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Notice, Link as WPLink } from '@wordpress/ui';
+import { Button as UIButton, Notice, Stack, Link as WPLink } from '@wordpress/ui';
 import Lightning from '$svg/lightning';
 import styles from './meta.module.scss';
-import { useEffect, useState } from 'react';
+import modernStyles from './modern-meta.module.scss';
+import { useEffect, useRef, useState } from 'react';
 import { usePageCache, useClearPageCacheAction } from '$lib/stores/page-cache';
 import clsx from 'clsx';
 import { useMutationNotice } from '$features/ui';
+import SaveButton from '$features/ui/save-button/save-button';
 import { useDataSyncSubset } from '@automattic/jetpack-react-data-sync-client';
 import { useModuleSurface, useTooltipLayer } from '$features/module/surface';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
@@ -43,7 +46,7 @@ const Meta = () => {
 			return __( 'Clearing cache…', 'jetpack-boost' );
 		}
 
-		if ( ! isRow && totalBypassPatterns === 0 && ! logging ) {
+		if ( totalBypassPatterns === 0 && ! logging ) {
 			return __( 'No exceptions.', 'jetpack-boost' ) + ' ' + __( 'No logging.', 'jetpack-boost' );
 		}
 
@@ -54,10 +57,6 @@ const Meta = () => {
 
 		if ( ! logging ) {
 			loggingMessage = __( 'No logging.', 'jetpack-boost' );
-		}
-
-		if ( isRow ) {
-			return loggingMessage;
 		}
 
 		return (
@@ -82,10 +81,13 @@ const Meta = () => {
 		mutateBypassPatterns.mutate( newPatterns );
 	};
 
-	const toggleLogging = ( event: ChangeEvent< HTMLInputElement > ) => {
+	const setLogging = ( value: boolean ) => {
 		recordBoostEvent( 'page_cache_toggle_logging', {} );
-		mutateLogging.mutate( event.target.checked );
+		mutateLogging.mutate( value );
 	};
+
+	const toggleLogging = ( event: ChangeEvent< HTMLInputElement > ) =>
+		setLogging( event.target.checked );
 
 	const loggingEnabledMessage = __( 'Logging enabled.', 'jetpack-boost' );
 	const loggingDisabledMessage = __( 'Logging disabled.', 'jetpack-boost' );
@@ -124,7 +126,7 @@ const Meta = () => {
 
 	const content = (
 		<div className={ styles.body }>
-			{ ! isRow && exceptions }
+			{ exceptions }
 			<div className={ styles.section }>
 				<div className={ styles.title }>{ __( 'Logging', 'jetpack-boost' ) }</div>
 				<label htmlFor="cache-logging" className={ styles[ 'logging-toggle' ] }>
@@ -146,29 +148,68 @@ const Meta = () => {
 		</div>
 	);
 
-	return (
-		pageCache && (
+	if ( ! pageCache ) {
+		return null;
+	}
+
+	if ( isRow ) {
+		return (
 			<div className={ styles.wrapper } data-testid="page-cache-meta">
-				{ isRow && (
-					<CollapsibleMeta
-						exceptions={ bypassPatterns }
-						countExceptions
-						toggleText=""
-						tracksEvent="page_cache_except_panel_toggle"
+				<div className={ modernStyles[ 'clear-cache' ] }>
+					<UIButton
+						variant="outline"
+						size="compact"
+						onClick={ clearPageCache }
+						disabled={ runClearPageCacheAction.isPending }
+						loading={ runClearPageCacheAction.isPending }
+						loadingAnnouncement={ __( 'Clearing cache…', 'jetpack-boost' ) }
 					>
-						<div className={ styles.body }>{ exceptions }</div>
-					</CollapsibleMeta>
-				) }
+						{ __( 'Clear cache', 'jetpack-boost' ) }
+					</UIButton>
+				</div>
 				<CollapsibleMeta
-					headerText={ getSummary() }
-					extraButtons={ extraButtons }
-					toggleText={ __( 'Show Options', 'jetpack-boost' ) }
-					tracksEvent={ 'page_cache_exceptions_panel_toggle' }
+					exceptions={ bypassPatterns }
+					countExceptions
+					toggleText=""
+					tracksEvent="page_cache_except_panel_toggle"
 				>
-					{ content }
+					<div className={ styles.body }>{ exceptions }</div>
 				</CollapsibleMeta>
+				<Stack
+					direction="row"
+					justify="space-between"
+					align="flex-start"
+					gap="md"
+					className={ modernStyles.well }
+				>
+					<ToggleControl
+						label={ __( 'Enable logging', 'jetpack-boost' ) }
+						help={ __( 'Track all your cache events', 'jetpack-boost' ) }
+						checked={ logging }
+						onChange={ setLogging }
+						__nextHasNoMarginBottom
+					/>
+					{ logging && (
+						<WPLink href="#/cache-debug-log" onClick={ handleSeeLogsClick }>
+							{ __( 'See logs', 'jetpack-boost' ) }
+						</WPLink>
+					) }
+				</Stack>
 			</div>
-		)
+		);
+	}
+
+	return (
+		<div className={ styles.wrapper } data-testid="page-cache-meta">
+			<CollapsibleMeta
+				headerText={ getSummary() }
+				extraButtons={ extraButtons }
+				toggleText={ __( 'Show Options', 'jetpack-boost' ) }
+				tracksEvent={ 'page_cache_exceptions_panel_toggle' }
+			>
+				{ content }
+			</CollapsibleMeta>
+		</div>
 	);
 };
 
@@ -270,13 +311,11 @@ const BypassPatterns = ( {
 					/>
 				</Notice.Root>
 			) }
-			<Button
+			<SaveButton
 				disabled={ patterns === inputValue || inputInvalid }
 				onClick={ save }
 				className={ styles.button }
-			>
-				{ __( 'Save', 'jetpack-boost' ) }
-			</Button>
+			/>
 		</div>
 	);
 };
@@ -287,13 +326,23 @@ type BypassPatternsExampleProps = {
 
 const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 	const [ show, setShow ] = useState( false );
+	const triggerRef = useRef< HTMLAnchorElement >( null );
 	const tooltipLayer = useTooltipLayer();
+	const Anchor = useModuleSurface() === 'row' ? WPLink : 'a';
 
 	return (
 		<div className={ styles[ 'example-wrapper' ] }>
-			{ /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
-			<a
+			<Anchor
+				ref={ triggerRef }
 				href="#"
+				role="button"
+				aria-expanded={ show }
+				onKeyDown={ event => {
+					if ( event.key === ' ' ) {
+						event.preventDefault();
+						event.currentTarget.click();
+					}
+				} }
 				className={ styles[ 'example-button' ] }
 				onClick={ e => {
 					recordBoostEvent( 'page_cache_see_example_clicked', {} );
@@ -302,12 +351,16 @@ const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 				} }
 			>
 				{ children }
-			</a>
+			</Anchor>
 			<div className={ styles[ 'tooltip-wrapper' ] }>
 				<IconTooltip
 					placement="bottom-start"
 					popoverAnchorStyle="wrapper"
 					forceShow={ show }
+					triggerRef={ triggerRef }
+					onClose={ () => {
+						setShow( false );
+					} }
 					offset={ -10 }
 					popoverClassName={ styles.tooltip }
 					{ ...tooltipLayer }

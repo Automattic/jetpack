@@ -13,7 +13,7 @@ import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/u
 import BarChart, { BarChartUnresponsive } from '../bar-chart';
 import { useBarChartOptions } from '../private';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
-import type { SeriesData } from '../../../types';
+import type { DataPointDate, SeriesData } from '../../../types';
 
 // Mock useElementSize to return non-zero dimensions in jsdom so charts render
 const mockRefCallback = jest.fn();
@@ -58,6 +58,70 @@ describe( 'BarChart', () => {
 			</GlobalChartsProvider>
 		);
 	};
+
+	test.each(
+		[ 'vertical', 'horizontal' ].flatMap( orientation =>
+			[
+				[ 10, 20, 30 ],
+				[ -20, -10, -30 ],
+				[ -20, 10, 30 ],
+			].map( values => ( { orientation, values } ) )
+		)
+	)(
+		'adds datum classes without changing $orientation bar attributes for $values',
+		async ( { orientation, values } ) => {
+			const series = {
+				...defaultProps.data[ 0 ],
+				data: defaultProps.data[ 0 ].data.map( ( datum, index ) => ( {
+					...datum,
+					value: values[ index ],
+				} ) ),
+			};
+			const props = {
+				orientation,
+				data: [ series, { ...series, label: 'Series B' } ],
+			};
+			const view = renderWithTheme( props );
+			await waitFor( () => expect( getBarRects() ).toHaveLength( 6 ) );
+			const attributes = () =>
+				Array.from( getBarRects(), bar =>
+					[ 'x', 'y', 'width', 'height', 'fill', 'tabindex' ].map( attribute =>
+						bar.getAttribute( attribute )
+					)
+				);
+			const original = attributes();
+			view.unmount();
+			renderWithTheme( {
+				...props,
+				barClassName: ( datum: DataPointDate ) =>
+					datum.value === values[ 0 ] ? 'first-value' : undefined,
+			} );
+			await waitFor( () => expect( getBarRects() ).toHaveLength( 6 ) );
+			expect( attributes() ).toEqual( original );
+			expect( getBarRects()[ 0 ] ).toHaveClass( 'visx-bar', 'first-value' );
+			expect( getBarRects()[ 1 ] ).not.toHaveClass( 'first-value' );
+			expect( getBarRects()[ 3 ] ).toHaveClass( 'first-value' );
+		}
+	);
+
+	test( 'applies tooltip style overrides while keeping keyboard tooltip content', async () => {
+		const user = userEvent.setup();
+		renderWithTheme( {
+			withTooltips: true,
+			barClassName: () => 'styled-bar',
+			tooltipStyle: { padding: 0, backgroundColor: 'transparent', boxShadow: 'none' },
+		} );
+		await user.tab();
+		await user.keyboard( '{ArrowRight}' );
+		const tooltip = await screen.findByRole( 'tooltip' );
+		expect( tooltip ).toHaveTextContent( 'Jan 1' );
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+			padding: '0px',
+			// jsdom normalizes transparent in computed styles.
+			'background-color': 'rgba(0, 0, 0, 0)',
+			'box-shadow': 'none',
+		} );
+	} );
 
 	describe( 'pointer selection and focus return', () => {
 		const screenTransform = Object.getOwnPropertyDescriptor( SVGElement.prototype, 'getScreenCTM' );
@@ -565,6 +629,58 @@ describe( 'BarChart', () => {
 				html.indexOf( 'role="grid"' )
 			);
 		} );
+	} );
+
+	describe( 'Grid tick counts', () => {
+		const getPositions = ( selector: string, coordinate: string ) => {
+			// eslint-disable-next-line testing-library/no-node-access -- See the visx node constraint above.
+			const lines = screen.getByRole( 'grid' ).querySelectorAll( selector );
+			return Array.from( lines, line => Number( line.getAttribute( coordinate ) ) );
+		};
+
+		test.each( [ 'x', 'y' ] )( 'aligns an explicit tick count with the %s axis', axis => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Views',
+						data: Array.from( { length: 8 }, ( _, index ) => ( {
+							label: `Day ${ index + 1 }`,
+							value: ( index + 1 ) * 10,
+						} ) ),
+					},
+				],
+				gridVisibility: 'xy',
+				options: {
+					axis: { [ axis ]: { numTicks: 2, tickFormat: String, axisClassName: 'test-value-axis' } },
+				},
+			} );
+			const grid = getPositions(
+				axis === 'x' ? '.visx-columns line' : '.visx-rows line',
+				`${ axis }1`
+			);
+			const ticks = getPositions( '.test-value-axis .visx-axis-tick line', `${ axis }1` );
+			expect( ticks.length ).toBeGreaterThan( 0 );
+			expect( grid ).toEqual( ticks );
+		} );
+
+		test.each( [ false, true ] )(
+			'preserves the default tick count (horizontal=%s)',
+			horizontal => {
+				const axis = horizontal ? 'x' : 'y';
+				renderWithTheme( {
+					orientation: horizontal ? 'horizontal' : 'vertical',
+					gridVisibility: 'xy',
+					options: { axis: { [ axis ]: { axisClassName: 'test-value-axis' } } },
+				} );
+				const grid = getPositions(
+					horizontal ? '.visx-columns line' : '.visx-rows line',
+					`${ axis }1`
+				);
+				const ticks = getPositions( '.test-value-axis .visx-axis-tick line', `${ axis }1` );
+				expect( grid ).toHaveLength( 5 );
+				expect( grid ).toEqual( ticks );
+			}
+		);
 	} );
 
 	describe( 'Grid Visibility', () => {

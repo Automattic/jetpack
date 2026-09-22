@@ -1,3 +1,5 @@
+@use "$css/main/mixins";
+
 .wrapper {
 	font-size: 14px;
 	line-height: 22px;
@@ -124,5 +126,14 @@
 
 	li:last-child {
 		margin-bottom: 0;
+	}
+}
+
+.body.is-modern {
+	margin-top: 0;
+
+	.section {
+
+		@include mixins.settings-well();
 	}
 }

@@ -112,7 +112,6 @@ test.each( [
 test.each( [
 	[ 'positive', 70, '+10 points', 'informational' ],
 	[ 'zero', 80, '0 points', 'none' ],
-	[ 'negative', 90, '-10 points', 'none' ],
 ] )( 'shows a %s delta badge', ( _description, baseline, label, intent ) => {
 	render(
 		<ScoreCards
@@ -128,13 +127,16 @@ test.each( [
 	expect( card.getByText( label ) ).toHaveClass( new RegExp( `__is-${ intent }-intent$` ) );
 } );
 
-test( 'hides unknown and stale deltas', () => {
+test( 'hides negative, unknown and stale deltas', () => {
 	const scores = {
 		current: { desktop: 80, mobile: 60 },
-		noBoost: null,
+		noBoost: { desktop: 90, mobile: 70 },
 		isStale: false,
 	};
 	const { rerender } = render( <ScoreCards scores={ scores } /> );
+	expect( screen.queryByText( /points/ ) ).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'button', { name: 'About points' } ) ).not.toBeInTheDocument();
+	rerender( <ScoreCards scores={ { ...scores, noBoost: null } } /> );
 	expect( screen.queryByText( /points/ ) ).not.toBeInTheDocument();
 	rerender(
 		<ScoreCards scores={ { ...scores, noBoost: { desktop: 70, mobile: 50 }, isStale: true } } />
@@ -164,6 +166,27 @@ test( 'opens the points explanation beside the badge', async () => {
 	fireEvent.keyDown( screen.getByRole( 'dialog', { name: 'About points' } ), { key: 'Escape' } );
 	await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
 	expect( trigger ).toHaveFocus();
+} );
+
+test( 'opens the points explanation when the badge is hovered', async () => {
+	render(
+		<ScoreCards
+			scores={ {
+				current: { desktop: 80, mobile: 60 },
+				noBoost: { desktop: 70, mobile: 60 },
+				isStale: false,
+			} }
+		/>
+	);
+	const badge = within( screen.getByRole( 'region', { name: 'Desktop' } ) ).getByText(
+		'+10 points'
+	);
+	expect( badge ).not.toHaveAttribute( 'tabindex' );
+	fireEvent.mouseEnter( badge );
+	fireEvent.mouseMove( badge );
+	await waitFor( () =>
+		expect( screen.getByText( 'Points gained from optimizations' ) ).toBeVisible()
+	);
 } );
 
 test( 'shows one calculating status instead of the score sections before scores load', () => {

@@ -1,5 +1,5 @@
 import type { Icon } from '@wordpress/icons';
-import type { ComponentProps, ReactNode } from 'react';
+import type { ComponentProps, ReactNode, RefObject } from 'react';
 
 export type Placement = 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
 
@@ -67,9 +67,19 @@ export type IconTooltipProps = {
 	popoverAnchorStyle?: 'icon' | 'wrapper';
 
 	/**
-	 * Force the Popover to show without an event trigger.
+	 * Force the Popover to show when popoverAnchorStyle is 'wrapper'.
 	 */
 	forceShow?: boolean;
+
+	/**
+	 * Called when the popover requests dismissal, including Escape; clear forceShow here when controlled.
+	 */
+	onClose?: () => void;
+
+	/**
+	 * Custom trigger used for Escape dismissal and to preserve click toggling when pointer focus returns.
+	 */
+	triggerRef?: RefObject< HTMLElement >;
 
 	/**
 	 * Enables the Popover to show on hover.

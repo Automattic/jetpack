@@ -4,6 +4,7 @@ window.Jetpack_Boost = { site: { online: true, url: 'http://boost-settings.test'
 window.jetpack_boost_ds = {
 	rest_api: { value: 'http://boost-settings.test/wp-json', nonce: 'fixture' },
 	premium_features: { value: [], nonce: 'fixture' },
+	page_cache: { value: { bypass_patterns: [], logging: false }, nonce: 'fixture' },
 };
 window.myJetpackInitialState = { myJetpackUrl: '', products: { items: {} }, siteSuffix: '' };
 window.myJetpackRest = { apiRoot: 'http://boost-settings.test/wp-json/', apiNonce: 'fixture' };

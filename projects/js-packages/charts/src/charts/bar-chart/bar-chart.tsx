@@ -34,6 +34,7 @@ import {
 	useBarChartOptions,
 	BandHighlight,
 	BandTooltip,
+	ClassifiedBarSeries,
 	ComparisonBars,
 	DEFAULT_COMPARISON_WIDTH_FACTOR,
 	COMPARISON_INNER_GAP,
@@ -115,6 +116,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	renderTooltip,
 	tooltipPlacement,
 	tooltipAnchorTop,
+	tooltipStyle,
+	barClassName,
 	options = {},
 	orientation = 'vertical',
 	withPatterns = false,
@@ -619,13 +622,13 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												<Grid
 													columns={ gridVisibility.includes( 'y' ) }
 													rows={ false }
-													numTicks={ 4 }
+													numTicks={ chartOptions.axis.x.numTicks }
 													{ ...{ tickValues: chartOptions.axis.x.tickValues } }
 												/>
 												<Grid
 													columns={ false }
 													rows={ gridVisibility.includes( 'x' ) }
-													numTicks={ 4 }
+													numTicks={ chartOptions.axis.y.numTicks }
 													{ ...{ tickValues: chartOptions.axis.y.tickValues } }
 												/>
 											</>
@@ -684,19 +687,37 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											resolveFill={ resolveComparisonFill }
 										/>
 
-										<BarGroup padding={ groupPadding }>
-											{ primaryEntries.map( ( { series: seriesData, index } ) => (
-												<BarSeries
-													key={ seriesData?.label }
-													dataKey={ seriesData?.label }
-													data={ seriesData.data as DataPointDate[] }
-													yAccessor={ chartOptions.accessors.yAccessor }
-													xAccessor={ chartOptions.accessors.xAccessor }
-													colorAccessor={ getBarBackground( index ) }
-												/>
-											) ) }
-										</BarGroup>
-										{ /* Do not reorder: for one key the last showTooltip wins, so this must run after BarGroup. */ }
+										{ barClassName ? (
+											<g className="visx-bar-group">
+												{ primaryEntries.map( ( { series: seriesData, index } ) => (
+													<ClassifiedBarSeries
+														key={ seriesData.label }
+														dataKey={ seriesData.label }
+														data={ seriesData.data as DataPointDate[] }
+														xAccessor={ chartOptions.accessors.xAccessor }
+														yAccessor={ chartOptions.accessors.yAccessor }
+														colorAccessor={ getBarBackground( index ) }
+														barClassName={ barClassName }
+														primaryKeys={ primaryKeys }
+														groupPadding={ groupPadding }
+													/>
+												) ) }
+											</g>
+										) : (
+											<BarGroup padding={ groupPadding }>
+												{ primaryEntries.map( ( { series: seriesData, index } ) => (
+													<BarSeries
+														key={ seriesData?.label }
+														dataKey={ seriesData?.label }
+														data={ seriesData.data as DataPointDate[] }
+														yAccessor={ chartOptions.accessors.yAccessor }
+														xAccessor={ chartOptions.accessors.xAccessor }
+														colorAccessor={ getBarBackground( index ) }
+													/>
+												) ) }
+											</BarGroup>
+										) }
+										{ /* Do not reorder: for one key the last showTooltip wins, so this must run after the primary series. */ }
 										{ ( withTooltips || onPointerDown || onPointerUp ) && (
 											<BandTooltip
 												keys={ primaryKeys }
@@ -721,6 +742,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											<AccessibleTooltip
 												tooltipPlacement={ tooltipPlacement }
 												tooltipAnchorTop={ tooltipAnchorTop }
+												style={ tooltipStyle }
 												detectBounds
 												snapTooltipToDatumX
 												snapTooltipToDatumY

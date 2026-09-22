@@ -165,10 +165,42 @@ test( 'the premium tooltip takes focus and closes on Escape', async ( { page } )
 	await page.goto( 'http://boost-settings.test/' );
 	const content = await openTooltip( page );
 
-	// eslint-disable-next-line @wordpress/no-global-active-element -- Runs in the fixture page, which has one document.
-	expect( await content.evaluate( element => element.contains( document.activeElement ) ) ).toBe(
-		true
-	);
+	await expect( page.locator( '.icon-tooltip-container' ) ).toBeFocused();
 	await page.keyboard.press( 'Escape' );
+	await expect( content ).toBeHidden();
+} );
+
+test( 'Page Cache closes after keyboard departure from its portaled tooltip', async ( {
+	page,
+} ) => {
+	await page.goto( 'http://boost-settings.test/' );
+	await page.getByRole( 'button', { name: 'Show Options' } ).click();
+	const trigger = page.getByRole( 'button', { name: 'See an example' } );
+	await page.keyboard.press( 'Tab' );
+	await page.keyboard.press( 'Tab' );
+	await expect( trigger ).toBeFocused();
+	await page.keyboard.press( 'Enter' );
+	const content = page.locator( '.icon-tooltip-container .components-popover__content' );
+	await expect( content ).toBeVisible();
+	await expect( content ).toContainText( 'Example:' );
+	await page.keyboard.press( 'Shift+Tab' );
+	await page.keyboard.press( 'Escape' );
+	await expect( content ).toBeHidden();
+	await expect( trigger ).toHaveAttribute( 'aria-expanded', 'false' );
+
+	await trigger.click();
+	await expect( content ).toBeVisible();
+	await page.keyboard.press( 'Escape' );
+	await expect( content ).toBeHidden();
+	await expect( trigger ).toBeFocused();
+	await trigger.click();
+	await expect( content ).toBeVisible();
+	await expect( page.locator( '.icon-tooltip-container' ) ).toBeFocused();
+	await trigger.hover();
+	await page.mouse.down();
+	await expect( trigger ).toBeFocused();
+	await expect( trigger ).toHaveAttribute( 'aria-expanded', 'true' );
+	await expect( content ).toBeVisible();
+	await page.mouse.up();
 	await expect( content ).toBeHidden();
 } );

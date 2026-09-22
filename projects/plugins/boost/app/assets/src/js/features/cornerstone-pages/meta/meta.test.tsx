@@ -119,6 +119,23 @@ describe( 'Cornerstone pages meta', () => {
 		expect( screen.getByRole( 'textbox' ) ).toBeTruthy();
 	} );
 
+	it( 'keeps the premium list editor short on the modern surface only', () => {
+		mockPremiumFeatures = [ 'cornerstone-10-pages' ];
+		const rows = () => ( screen.getByRole( 'textbox' ) as HTMLTextAreaElement ).rows;
+		const view = render(
+			<ModuleSurfaceProvider value="row">
+				<CornerstonePagesEditor />
+			</ModuleSurfaceProvider>
+		);
+		expect( rows() ).toBe( 5 );
+		view.rerender(
+			<ModuleSurfaceProvider value="block">
+				<CornerstonePagesEditor />
+			</ModuleSurfaceProvider>
+		);
+		expect( rows() ).toBe( 10 );
+	} );
+
 	test( 'uses shorter modern Cornerstone copy and preserves the legacy description and upsell', () => {
 		const view = render(
 			<ModuleSurfaceProvider value="row">

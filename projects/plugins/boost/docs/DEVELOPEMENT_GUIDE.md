@@ -36,10 +36,17 @@ pnpm jetpack build plugins/boost --deps
 ```
 
 Add `--production` for a production build. The build produces both the legacy
-webpack assets and the modern dashboard assets. For an opt-in local demo, see
-[Dashboard modernization](../tests/e2e/README.md#dashboard-modernization).
+webpack assets and the modern dashboard assets.
 
-For development access to the modern dashboard, use the `rsm_jetpack_ui_modernization_boost` filter documented in [the admin loader](../app/admin/class-admin.php). Its default and asset fallback are defined there.
+The modern dashboard is the default. To restore the legacy dashboard, add this filter:
+
+```php
+add_filter( 'rsm_jetpack_ui_modernization_boost', '__return_false' );
+```
+
+The filter and the fallback for missing modern assets are defined in
+[the admin loader](../app/admin/class-admin.php). To switch dashboards in the E2E
+environment, see [Dashboard modernization](../tests/e2e/README.md#dashboard-modernization).
 
 ## PHP unit tests
 

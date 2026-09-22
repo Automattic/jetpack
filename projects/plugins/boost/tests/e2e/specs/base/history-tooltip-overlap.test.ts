@@ -159,28 +159,38 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await expect( surface ).toHaveCSS( 'background-color', /^rgb\(/ );
 		await expect( surface ).toContainText( 'Overall score' );
 		await expect( surface ).toHaveCSS( 'width', '265px' );
-		await expect( surface ).toHaveCSS( 'height', '382px' );
+		await expect( surface ).toHaveCSS( 'height', '366px' );
 		await expect( surface ).toHaveCSS( 'padding', '17px' );
 		const popupBox = await expectBesideDay( page, surface );
 		const hoveredBar = ( await bars.nth( 21 ).boundingBox() )!;
 		const barCenter = hoveredBar.x + hoveredBar.width / 2;
 		const barMiddle = hoveredBar.y + hoveredBar.height / 2;
 		expect( popupBox.x ).toBeGreaterThan( barCenter );
-		// Straight across into the popover: crossing other days on the way lets them take the card.
-		const targetX = popupBox.x + 20;
-		for ( let step = 1; step <= 10; step++ ) {
-			await page.mouse.move( barCenter + ( ( targetX - barCenter ) * step ) / 10, barMiddle );
+		await expect( popover ).toHaveCSS( 'pointer-events', 'none' );
+		// One jump per day, each onto the day the previous box covers.
+		for ( let index = 21; index <= 27; index++ ) {
+			const bar = ( await bars.nth( index ).boundingBox() )!;
+			const x = bar.x + bar.width / 2;
+			await page.mouse.move( x, barMiddle );
+			await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText(
+				`September ${ index - 20 }, 2026`
+			);
+			expect(
+				await page.evaluate(
+					( [ px, py ] ) =>
+						Boolean(
+							document.elementFromPoint( px, py )?.closest( '.boost-daily-history__popover' )
+						),
+					[ x, barMiddle ]
+				)
+			).toBe( false );
 		}
-		// The chart hides its own tooltip once the pointer has left the plot.
-		await expect( page.getByTestId( 'bounded-tooltip' ) ).toHaveCount( 0 );
-		await expect( popover ).toBeVisible();
-		await expect( surface ).toContainText( 'September 1, 2026' );
 		await page.mouse.move( 0, 0 );
 		await expect( popover ).toBeHidden();
 		await hoverDay( chart, 21 );
 		await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveCSS(
 			'font-weight',
-			'400'
+			'500'
 		);
 		const sections = surface.locator( '.jetpack-boost-overview__tooltip-section' );
 		for ( const [ index, label, score, metrics, barColor ] of [
@@ -246,7 +256,9 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		const grid = chart.getByRole( 'grid' );
 		await grid.focus();
 		await page.keyboard.press( 'ArrowRight' );
-		const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
+		const surface = page.locator(
+			'.boost-daily-history__popover .jetpack-boost-overview__history-tooltip'
+		);
 		await expect( surface ).toContainText( 'August 26, 2026' );
 		await expect( surface ).toHaveCSS( 'background-color', /^rgb\(/ );
 		await expect( surface ).toContainText( 'No scores recorded for this day.' );
@@ -300,23 +312,25 @@ for ( const [ label, query, copy, height ] of [
 		await expect( highlight ).toBeVisible();
 		const band = ( await highlight.boundingBox() )!;
 		const firstPanel = ( await desktop.boundingBox() )!;
-		const secondSvg = ( await mobile.getByLabel( 'XYChart' ).boundingBox() )!;
+		const secondPanel = ( await mobile.boundingBox() )!;
 		const bar = ( await desktop.locator( '.visx-bar' ).first().boundingBox() )!;
 		expect( band.y ).toBeCloseTo( firstPanel.y, 0 );
-		expect( band.y + band.height ).toBeCloseTo( secondSvg.y + secondSvg.height - 24, 0 );
+		expect( band.y + band.height ).toBeCloseTo( secondPanel.y + secondPanel.height, 0 );
 		expect( band.width ).toBeCloseTo( bar.width + 1, 0 );
-		const tooltip = page.locator( '.jetpack-boost-overview__history-tooltip' );
+		const tooltip = page.locator(
+			'.boost-daily-history__popover .jetpack-boost-overview__history-tooltip'
+		);
 		await expect( tooltip ).toContainText( copy );
 		await expect( tooltip ).toHaveCSS( 'width', '265px' );
 		await expect( tooltip ).toHaveCSS( 'height', height );
 		const emptyPopup = ( await tooltip.boundingBox() )!;
 		expect( emptyPopup.y ).toBeGreaterThanOrEqual( firstPanel.y );
 		expect( emptyPopup.y + emptyPopup.height ).toBeLessThanOrEqual(
-			secondSvg.y + secondSvg.height
+			secondPanel.y + secondPanel.height
 		);
 		await expect( tooltip.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveCSS(
 			'font-weight',
-			'600'
+			'500'
 		);
 	} );
 }
@@ -397,21 +411,24 @@ test( 'Hiding retained history removes a keyboard tooltip until another selectio
 	page,
 } ) => {
 	const grid = page.getByRole( 'region', { name: 'Desktop score history' } ).getByRole( 'grid' );
+	const popover = page.locator( '.boost-daily-history__popover' );
 	await grid.focus();
 	await page.keyboard.press( 'ArrowRight' );
-	await expect( page.getByRole( 'tooltip' ) ).toBeVisible();
+	await expect( page.getByRole( 'tooltip' ) ).toHaveCount( 1 );
+	await expect( popover ).toBeVisible();
 	await page.getByRole( 'button', { name: 'Toggle history' } ).click();
 	await expect( page.getByRole( 'tooltip' ) ).toHaveCount( 0 );
+	await expect( popover ).toHaveCount( 0 );
 	await page.getByRole( 'button', { name: 'Toggle history' } ).click();
 	await expect( page.getByRole( 'tooltip' ) ).toHaveCount( 0 );
+	await expect( popover ).toHaveCount( 0 );
 	await grid.focus();
 	await page.keyboard.press( 'ArrowRight' );
-	await expect( page.getByRole( 'tooltip' ) ).toBeVisible();
+	await expect( page.getByRole( 'tooltip' ) ).toHaveCount( 1 );
+	await expect( popover ).toBeVisible();
 } );
 
-test( 'Score cards show signed badges, points help, and responsive dividers', async ( {
-	page,
-} ) => {
+test( 'Score cards show gain badges, points help, and responsive dividers', async ( { page } ) => {
 	await page.goto( 'http://boost-history.test/?scores' );
 	const desktop = page.getByRole( 'region', { name: 'Desktop', exact: true } );
 	const mobile = page.getByRole( 'region', { name: 'Mobile', exact: true } ).first();
@@ -442,11 +459,8 @@ test( 'Score cards show signed badges, points help, and responsive dividers', as
 	const positiveBadge = desktop.first().getByText( '+10 points', { exact: true } );
 	await expect( positiveBadge ).toHaveCSS( 'background-color', 'rgb(222, 235, 250)' );
 	await expect( positiveBadge ).toHaveCSS( 'color', 'rgb(0, 27, 79)' );
-	const negativeBadge = mobile.getByText( '-10 points', { exact: true } );
-	await expect( negativeBadge ).toHaveCSS( 'background-color', 'rgb(255, 255, 255)' );
-	await expect( negativeBadge ).toHaveCSS( 'border-top-width', '1px' );
-	await expect( negativeBadge ).toHaveCSS( 'border-top-style', 'solid' );
-	await expect( negativeBadge ).toHaveCSS( 'border-top-color', 'rgb(219, 219, 219)' );
+	await expect( mobile.getByText( /points/ ) ).toHaveCount( 0 );
+	await expect( mobile.getByRole( 'button', { name: 'About points' } ) ).toHaveCount( 0 );
 	await expect( desktop.nth( 1 ).getByText( /points/ ) ).toHaveCount( 0 );
 	await expect( desktop.nth( 1 ).getByRole( 'button' ) ).toHaveCount( 0 );
 	const pointsHelp = page.getByText( 'Points gained from optimizations', { exact: true } );
@@ -538,6 +552,34 @@ test( 'Score cards show calculating and failed states inside the card', async ( 
 	const desktop = failedRefresh.getByRole( 'region', { name: 'Desktop', exact: true } );
 	await expect( desktop.getByRole( 'progressbar' ) ).toHaveJSProperty( 'value', 80 );
 	expect( ( await desktop.boundingBox() )!.y ).toBeGreaterThan( notice.y + notice.height );
+} );
+
+test.describe( 'Day details on touch', () => {
+	test.use( { hasTouch: true } );
+
+	test( 'a tap on the open box reaches nothing under it', async ( { page } ) => {
+		const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
+		const bar = ( await chart.locator( '.visx-bar' ).nth( 21 ).boundingBox() )!;
+		await page.touchscreen.tap( bar.x + bar.width / 2, bar.y + bar.height / 2 );
+		const popover = page.locator( '.boost-daily-history__popover' );
+		const date = popover.locator( '.jetpack-boost-overview__tooltip-date' );
+		await expect( date ).toHaveText( 'September 1, 2026' );
+		await expect( popover ).toHaveCSS( 'pointer-events', 'auto' );
+		const box = ( await popover.boundingBox() )!;
+		const target = [ box.x + 20, bar.y + bar.height / 2 ];
+		expect(
+			await page.evaluate(
+				( [ px, py ] ) =>
+					Boolean(
+						document.elementFromPoint( px, py )?.closest( '.boost-daily-history__popover' )
+					),
+				target
+			)
+		).toBe( true );
+		await page.touchscreen.tap( target[ 0 ], target[ 1 ] );
+		await expect( popover ).toBeVisible();
+		await expect( date ).toHaveText( 'September 1, 2026' );
+	} );
 } );
 
 test.describe( 'Overall grade help', () => {
