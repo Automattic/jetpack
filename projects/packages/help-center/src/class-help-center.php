@@ -124,7 +124,6 @@ class Help_Center {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_filter( 'in_admin_header', array( $this, 'jetpack_remove_core_help_tab' ) );
-		// Before Agents Manager (100), which replaces this node when it takes over.
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_node' ), 12 );
 	}
 

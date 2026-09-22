@@ -28,8 +28,8 @@ These filters control behavior and are used by other plugins (like Big Sky) to i
 
 ## Pitfalls
 
-- **Admin bar nodes are independent of the enqueue hooks**: they are hooked on `admin_bar_menu` from the constructor, so the admin-bar REST endpoints get them too. Eligibility belongs in `add_admin_bar_nodes()`, never in the registration, and the priority must stay above Help Center's `admin_bar_menu` callback so disconnected variants can replace its node.
+- **Admin bar nodes are independent of the enqueue hooks**: they are hooked on `admin_bar_menu` from the constructor, so the admin-bar REST endpoints get them too. Eligibility belongs in `add_admin_bar_nodes()`, never in the registration.
 - **Node presence is the eligibility signal**: `add_admin_bar_nodes()` bails when `get_active_context()` is `null`, so a client that receives these nodes is already eligible. Consumers should not re-check the rollout — a second gate can only drift from this one.
-- **Node `meta` is a client contract**: `menu_title` is the label, because `title` is wp-admin markup — keep it unescaped, since core escapes it again for the group `aria-label`. `icon` is a glyph *name*, the same key `get_icon()` uses. `html` is wp-admin only.
+- **Node `meta` is a client contract**: `menu_title` is the label, because `title` is wp-admin markup — keep it unescaped, since core escapes it again for the group `aria-label`. `icon` is the custom `sparkle` glyph name. `html` is wp-admin only.
 - **Feature gating has two entry points**: `is_enabled()` accepts either block-editor enablement or an explicit shell request.
 - **Router history cleanup**: The `calypso_preferences_update` filter silently limits history to 50 entries. If debugging missing history state, check this.

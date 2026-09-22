@@ -676,7 +676,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the full UI mount target belongs to the AI chat button rather than Help.
+	 * Tests that the AI chat button owns the full UI mount target.
 	 */
 	public function test_ai_chat_button_owns_full_ui_mount_target() {
 		global $wp_admin_bar;
@@ -685,15 +685,11 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$wp_admin_bar = new \WP_Admin_Bar();
 		$wp_admin_bar->initialize();
 
-		$this->agents_manager->add_help_menu( $wp_admin_bar, false );
 		$this->agents_manager->add_ai_chat_button( $wp_admin_bar );
 
-		$help_node = $wp_admin_bar->get_node( 'agents-manager' );
-		$ai_node   = $wp_admin_bar->get_node( 'agents-manager-ai-chat' );
+		$ai_node = $wp_admin_bar->get_node( 'agents-manager-ai-chat' );
 
-		$this->assertNotNull( $help_node );
 		$this->assertNotNull( $ai_node );
-		$this->assertStringNotContainsString( 'agents-manager-masterbar', $help_node->meta['html'] ?? '' );
 		$this->assertStringContainsString( 'agents-manager-masterbar', $ai_node->meta['html'] ?? '' );
 	}
 
@@ -1298,7 +1294,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
 
 		$this->assertStringContainsString( '"sectionName":"wp-admin"', $inline_script );
-		$this->assertStringContainsString( '"helpCenterUrl":"https://wordpress.com/help?help-center=home"', $inline_script );
 
 		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 	}
@@ -1328,33 +1323,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( '"site":', $inline_script );
 		$this->assertStringContainsString( 'testsite.example.com', $inline_script );
-
-		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
-	}
-
-	/**
-	 * Tests that enqueue_scripts includes helpCenterUrl in agentsManagerData.
-	 */
-	public function test_enqueue_scripts_includes_help_center_url() {
-		// Set admin context - scripts only enqueue in admin.
-		$this->set_admin_context();
-
-		// Reset the script registry.
-		global $wp_scripts;
-		$wp_scripts = null;
-
-		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
-
-		add_filter( 'agents_manager_should_load', '__return_true', 20 );
-
-		$this->agents_manager->enqueue_scripts();
-
-		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized after enqueue_scripts' );
-		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
-		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
-
-		$this->assertStringContainsString( '"helpCenterUrl":', $inline_script );
-		$this->assertStringContainsString( 'https://wordpress.com/help?help-center=home', $inline_script );
 
 		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 	}
@@ -1602,6 +1570,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 		wp_register_style( 'agents-manager-style', 'https://example.com/agents-manager.css', array(), '1.0' );
+		set_transient(
+			'agents-manager-asset-wp-admin.asset.json',
+			array(
+				'dependencies' => array(),
+				'version'      => '1.0',
+			)
+		);
 
 		// Request the Agents Manager shell. Not a Jetpack site, so is_jetpack_disconnected() returns false.
 		add_filter( 'agents_manager_should_load', '__return_true', 20 );
@@ -1612,6 +1587,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertTrue( wp_style_is( 'agents-manager-style', 'enqueued' ), 'CSS should be enqueued for wp-admin variant' );
 
 		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
+		delete_transient( 'agents-manager-asset-wp-admin.asset.json' );
 
 		// Test gutenberg-disconnected variant (the Agents Manager shell requested + Jetpack disconnected) - should NOT enqueue CSS.
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
@@ -1627,6 +1603,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$wp_styles = null;
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+		set_transient(
+			'agents-manager-asset-gutenberg-disconnected.asset.json',
+			array(
+				'dependencies' => array(),
+				'version'      => '1.0',
+			)
+		);
 
 		// Request the Agents Manager shell and simulate a Jetpack site with a disconnected user.
 		add_filter( 'agents_manager_should_load', '__return_true', 20 );
@@ -1640,6 +1623,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 		remove_filter( 'is_jetpack_site', '__return_true', 20 );
+		delete_transient( 'agents-manager-asset-gutenberg-disconnected.asset.json' );
 	}
 
 	/**
@@ -2126,7 +2110,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * @return array<string, array{0: array<string, mixed>, 1: string[]}>
 	 */
 	public static function provide_admin_bar_contexts() {
-		$help    = 'agents-manager';
 		$ai_chat = 'agents-manager-ai-chat';
 
 		return array(
@@ -2134,17 +2117,17 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 				array( 'should_load' => true ),
 				array( $ai_chat ),
 			),
-			'wp-admin, disconnected is help-only'    => array(
+			'wp-admin, disconnected adds no nodes'   => array(
 				array( 'variant' => 'wp-admin-disconnected' ),
-				array( $help ),
+				array(),
 			),
-			'front end, disconnected is help-only'   => array(
+			'front end, disconnected adds no nodes'  => array(
 				array(
 					'screen'      => null,
 					'editor_user' => true,
 					'should_load' => true,
 				),
-				array( $help ),
+				array(),
 			),
 			'editor with admin bar, editor-only'     => array(
 				array(
