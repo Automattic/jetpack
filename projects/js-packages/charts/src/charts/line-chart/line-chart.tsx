@@ -180,6 +180,28 @@ const validateData = ( data: SeriesData[] ) => {
 	return null;
 };
 
+// visx derives the y domain from the readings, which fails when they have no range: none at all
+// leaves no domain, and a flat line collapses it to one value that d3 draws mid-height.
+const getFallbackYDomain = (
+	readingExtent: [ number, number ] | undefined,
+	isLogScale: boolean
+): [ number, number ] | undefined => {
+	// A log scale cannot reach zero, so its empty axis starts at 1.
+	const emptyDomain: [ number, number ] = isLogScale ? [ 1, 10 ] : [ 0, 1 ];
+
+	if ( ! readingExtent ) {
+		return emptyDomain;
+	}
+
+	const [ min, max ] = readingExtent;
+
+	if ( min !== max || isLogScale ) {
+		return undefined;
+	}
+
+	return min === 0 ? emptyDomain : [ Math.min( 0, min ), Math.max( 0, max ) ];
+};
+
 // Inner component to access DataContext and provide scale data to ref
 const LineChartScalesRef: FC< {
 	chartRef?: Ref< ChartInstanceRef >;
@@ -373,20 +395,29 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 
 		// visx's d3.extent skips null/undefined/NaN, so when every visible series is all null
 		// (e.g. entirely before a site launched) the y scale has no domain. Zoom filters nothing.
-		const hasVisibleReading = useMemo( () => {
-			return dataSorted.some(
-				series =>
-					isSeriesVisible( series.label ) &&
-					series.data.some(
-						point => typeof point?.value === 'number' && Number.isFinite( point.value )
-					)
-			);
+		const visibleReadingExtent = useMemo< [ number, number ] | undefined >( () => {
+			let min = Infinity;
+			let max = -Infinity;
+			for ( const series of dataSorted ) {
+				if ( ! isSeriesVisible( series.label ) ) {
+					continue;
+				}
+				for ( const point of series.data ) {
+					const value = point?.value;
+					if ( typeof value === 'number' && Number.isFinite( value ) ) {
+						min = Math.min( min, value );
+						max = Math.max( max, value );
+					}
+				}
+			}
+			return min <= max ? [ min, max ] : undefined;
 		}, [ dataSorted, isSeriesVisible ] );
 
 		const chartOptions = useMemo( () => {
-			// A log scale cannot reach zero, so its empty axis starts at 1.
-			const emptyYDomain: [ number, number ] =
-				options?.yScale?.type === 'log' ? [ 1, 10 ] : [ 0, 1 ];
+			const fallbackYDomain = getFallbackYDomain(
+				visibleReadingExtent,
+				options?.yScale?.type === 'log'
+			);
 
 			return {
 				axis: {
@@ -417,7 +448,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 					type: 'linear' as const,
 					nice: true,
 					zero: false,
-					...( hasVisibleReading ? {} : { domain: emptyYDomain } ),
+					...( fallbackYDomain ? { domain: fallbackYDomain } : {} ),
 					...( stableYDomain ? { domain: stableYDomain } : {} ),
 					...options?.yScale,
 				},
@@ -428,7 +459,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			width,
 			zoom.domain,
 			stableYDomain,
-			hasVisibleReading,
+			visibleReadingExtent,
 			formatting,
 			isSeriesVisible,
 		] );

@@ -347,6 +347,63 @@ describe( 'LineChart', () => {
 			expect( domain ).toEqual( [ 1, 10 ] );
 		} );
 
+		test.each( [
+			[ 'a flat reading beside buckets with no reading', [ null, null, 1, 1 ], [ 0, 1 ] ],
+			[ 'a flat positive series', [ 5, 5, 5 ], [ 0, 5 ] ],
+			[ 'a flat negative series', [ -3, -3 ], [ -3, 0 ] ],
+			[ 'an all-zero series', [ 0, 0 ], [ 0, 1 ] ],
+		] )( 'starts the y domain at zero for %s', ( _name, values, expected ) => {
+			const ref = createRef< ChartInstanceRef >();
+
+			renderUnwrappedWithTheme(
+				{
+					data: [
+						{
+							label: 'Series A',
+							data: values.map( ( value, index ) => ( {
+								date: new Date( 2024, 0, index + 1 ),
+								value: value as number | null,
+							} ) ),
+						},
+					],
+				},
+				'default',
+				ref
+			);
+
+			const domain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+
+			expect( domain ).toEqual( expected );
+		} );
+
+		test( 'keeps the y domain off zero for a series that varies', () => {
+			const ref = createRef< ChartInstanceRef >();
+
+			renderUnwrappedWithTheme(
+				{
+					data: [
+						{
+							label: 'Series A',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 50 },
+								{ date: new Date( '2024-01-02' ), value: 60 },
+							],
+						},
+					],
+				},
+				'default',
+				ref
+			);
+
+			const domain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+
+			expect( Math.min( ...( domain ?? [] ) ) ).toBeGreaterThan( 0 );
+		} );
+
 		test( 'pins the value axis to a hidden series with real values, not the empty-domain fallback, when rescaleYOnVisibilityChange is false', () => {
 			const ref = createRef< ChartInstanceRef >();
 
