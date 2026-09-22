@@ -57,6 +57,7 @@
 		// The design draws them neutral; the brand hover background stays.
 		> button {
 			--wp-ui-button-foreground-color: var(--wpds-color-foreground-content-neutral);
+			--wp-ui-button-foreground-color-active: var(--wpds-color-foreground-interactive-neutral-active);
 			--wp-ui-button-foreground-color-disabled: var(--wpds-color-foreground-interactive-neutral-disabled);
 			padding-inline: 0;
 			min-inline-size: 0;
