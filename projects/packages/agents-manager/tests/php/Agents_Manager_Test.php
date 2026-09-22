@@ -1013,11 +1013,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that get_variant returns wp-admin-disconnected on the frontend for eligible logged-in editors.
-	 * Covers the frontend loading path in get_variant(): a logged-in editor (can edit_posts + member of blog)
-	 * on a non-admin, non-P2 page with the Agents Manager shell requested should get the wp-admin-disconnected variant.
+	 * Tests that Agents Manager remains inactive on the frontend for eligible logged-in editors.
 	 */
-	public function test_get_variant_returns_wp_admin_disconnected_on_frontend_for_eligible_editor() {
+	public function test_get_variant_returns_null_on_frontend_for_eligible_editor() {
 		// Ensure we're on the frontend (not admin) - default test state.
 		$this->assertFalse( is_admin() );
 
@@ -1039,7 +1037,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 		wp_set_current_user( 0 );
 
-		$this->assertSame( 'wp-admin-disconnected', $variant );
+		$this->assertNull( $variant );
 	}
 
 	/**
@@ -1436,10 +1434,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that enqueue_scripts includes sectionName as wp-admin-disconnected when Agents Manager
-	 * is enabled but Jetpack is disconnected.
+	 * Tests that wp-admin does not enqueue Agents Manager when Jetpack is disconnected.
 	 */
-	public function test_enqueue_scripts_includes_section_name_wp_admin_disconnected() {
+	public function test_enqueue_scripts_skips_disconnected_wp_admin() {
 		// Set admin context - scripts only enqueue in admin.
 		$this->set_admin_context();
 
@@ -1456,11 +1453,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->agents_manager->enqueue_scripts();
 
-		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized after enqueue_scripts' );
-		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
-		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
-
-		$this->assertStringContainsString( '"sectionName":"wp-admin-disconnected"', $inline_script );
+		$this->assertFalse( wp_script_is( 'agents-manager', 'enqueued' ) );
 
 		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 		remove_filter( 'is_jetpack_site', '__return_true', 20 );
@@ -1509,9 +1502,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that should_enqueue_script returns true when the Agents Manager shell is requested but Jetpack is disconnected (in wp-admin).
+	 * Tests that should_enqueue_script returns false when Jetpack is disconnected in wp-admin.
 	 */
-	public function test_should_enqueue_script_returns_true_when_disconnected_variant_enabled_in_admin() {
+	public function test_should_enqueue_script_returns_false_when_disconnected_in_admin() {
 		$this->set_admin_context();
 		$_SERVER['REQUEST_URI'] = '/wp-admin/index.php';
 
@@ -1525,7 +1518,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 		remove_filter( 'is_jetpack_site', '__return_true', 20 );
 
-		$this->assertTrue( $result );
+		$this->assertFalse( $result );
 	}
 
 	/**
@@ -1900,12 +1893,22 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * bundles have no translatable in-app UI. Mirrors Help Center's behavior.
 	 */
 	public function test_translations_not_enqueued_for_disconnected_variant() {
-		$this->set_admin_context();
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'post' );
+		$screen = get_current_screen();
+
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
 		global $wp_scripts;
 		$wp_scripts = null;
 
 		set_transient(
-			'agents-manager-asset-wp-admin-disconnected.asset.json',
+			'agents-manager-asset-gutenberg-disconnected.asset.json',
 			array(
 				'version'      => '1.2.3',
 				'dependencies' => array(),
@@ -1918,7 +1921,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		};
 		add_filter( 'locale', $locale_filter );
 
-		// A requested shell on a Jetpack site with a disconnected user yields wp-admin-disconnected.
+		// A requested shell in the editor with a disconnected user yields gutenberg-disconnected.
 		add_filter( 'agents_manager_should_load', '__return_true', 20 );
 		add_filter( 'is_jetpack_site', '__return_true', 20 );
 
@@ -1926,13 +1929,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertFalse(
 			wp_script_is( 'agents-manager-translations', 'enqueued' ),
-			'Translation script should not be enqueued for the wp-admin-disconnected variant'
+			'Translation script should not be enqueued for the gutenberg-disconnected variant'
 		);
 
 		remove_filter( 'locale', $locale_filter );
 		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 		remove_filter( 'is_jetpack_site', '__return_true', 20 );
-		delete_transient( 'agents-manager-asset-wp-admin-disconnected.asset.json' );
+		delete_transient( 'agents-manager-asset-gutenberg-disconnected.asset.json' );
 	}
 
 	/**
@@ -2116,10 +2119,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			'wp-admin, requested shell'              => array(
 				array( 'should_load' => true ),
 				array( $ai_chat ),
-			),
-			'wp-admin, disconnected adds no nodes'   => array(
-				array( 'variant' => 'wp-admin-disconnected' ),
-				array(),
 			),
 			'front end, disconnected adds no nodes'  => array(
 				array(

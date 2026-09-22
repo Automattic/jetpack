@@ -273,11 +273,8 @@ class Agents_Manager {
 	 * @return string|null The variant name, or null if scripts should not be loaded.
 	 */
 	private static function get_variant() {
-		// Frontend: load disconnected variant for eligible logged-in editors.
+		// Agents Manager does not render on the frontend.
 		if ( ! is_admin() ) {
-			if ( self::is_loading_on_frontend() && self::is_enabled() ) {
-				return 'wp-admin-disconnected';
-			}
 			return null;
 		}
 
@@ -296,7 +293,7 @@ class Agents_Manager {
 			return $disconnected ? 'gutenberg-disconnected' : 'gutenberg';
 		}
 
-		return $disconnected ? 'wp-admin-disconnected' : 'wp-admin';
+		return $disconnected ? null : 'wp-admin';
 	}
 
 	/**
@@ -643,28 +640,6 @@ class Agents_Manager {
 	public function register_rest_api() {
 		( new WP_REST_Agents_Manager_Persisted_Open_State() )->register_rest_route();
 		( new REST_Jetpack_AI_JWT() )->register_rest_route();
-	}
-
-	/**
-	 * Returns true if the current request is on the frontend and the user can edit posts.
-	 *
-	 * Mirrors Help_Center::is_loading_on_frontend().
-	 *
-	 * @return bool True if loading on the frontend for an eligible user.
-	 */
-	private static function is_loading_on_frontend() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a context check, not a form submission.
-		if ( isset( $_GET['na_site_preview'] ) || isset( $_GET['preview_overlay'] ) ) {
-			return false;
-		}
-
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a context check, not a form submission.
-		if ( isset( $_GET['preview'] ) && 'true' === sanitize_text_field( wp_unslash( $_GET['preview'] ) ) ) {
-			return false;
-		}
-
-		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
-		return ! is_admin() && ! self::is_block_editor() && $can_edit_posts;
 	}
 
 	/**

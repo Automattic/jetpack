@@ -342,7 +342,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		add_filter(
 			'agents_manager_variant',
 			static function () {
-				return 'wp-admin-disconnected';
+				return 'gutenberg-disconnected';
 			}
 		);
 
