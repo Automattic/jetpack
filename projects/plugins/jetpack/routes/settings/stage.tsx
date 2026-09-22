@@ -9,7 +9,7 @@ import './route.scss';
  * @return The Settings app.
  */
 const Stage = () => (
-	<div id="jp-plugin-container">
+	<div id="jp-plugin-container" data-wp-build>
 		<SettingsRoot />
 	</div>
 );
