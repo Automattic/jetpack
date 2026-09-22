@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Admin_UI;
 
 use Automattic\Jetpack\Feature_Policy;
-use Automattic\Jetpack\Modules;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -947,11 +946,6 @@ class Admin_Menu_Test extends TestCase {
 		Admin_Menu::add_menu( 'Policy', 'Policy', 'manage_options', 'policy-hidden', '__return_null', null, $args );
 		Admin_Menu::add_menu( 'Kept', 'Kept', 'manage_options', 'policy-kept', '__return_null' );
 
-		/*
-		 * The bridge registers when a reader asks for the policy, and a request has read the
-		 * active modules well before admin_menu fires.
-		 */
-		( new Modules() )->get_active();
 		$this->render_menu();
 
 		$slugs = $this->get_submenu_slugs();
@@ -990,7 +984,6 @@ class Admin_Menu_Test extends TestCase {
 
 		Admin_Menu::add_menu( 'Policy', 'Policy', 'manage_options', 'policy-forced', '__return_null', null, array( 'product' => 'stats' ) );
 
-		( new Modules() )->get_active();
 		$this->render_menu();
 
 		$this->assertContains( 'policy-forced', $this->get_submenu_slugs() );
