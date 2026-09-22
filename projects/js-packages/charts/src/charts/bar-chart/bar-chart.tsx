@@ -162,6 +162,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 } ) => {
 	const legendInteractive = legend.interactive ?? false;
 	const legendCollapseGroups = legend.collapseGroups ?? false;
+	const legendComparisonItem = legend.comparisonItem ?? false;
 	const horizontal = orientation === 'horizontal';
 	const chartId = useChartId( providedChartId );
 	const hiddenSeries = useDefaultHiddenSeries( chartId, defaultHiddenSeries );
@@ -182,8 +183,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	// Create legend items using the reusable hook
 	const legendOptions = useMemo(
-		() => ( { collapseGroups: legendCollapseGroups } ),
-		[ legendCollapseGroups ]
+		() => ( { collapseGroups: legendCollapseGroups, comparisonItem: legendComparisonItem } ),
+		[ legendCollapseGroups, legendComparisonItem ]
 	);
 	const legendItems = useChartLegendItems( dataSorted, legendOptions );
 

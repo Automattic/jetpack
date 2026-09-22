@@ -31,6 +31,11 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 		LineChart,
 		// The real classifier: this is what the tooltip format now follows.
 		getBucketInfo: jest.requireActual( '@automattic/charts' ).getBucketInfo,
+		// One item per non-comparison series, as `collapseGroups` would produce.
+		useChartLegendItems: ( data: { label: string; options?: { type?: string } }[] ) =>
+			data
+				.filter( series => series.options?.type !== 'comparison' )
+				.map( series => ( { label: series.label, color: '#3858E9' } ) ),
 		LineShape: () => null,
 		RectShape: () => null,
 		// The wrapper measures this element, so the stand-in must take the ref.
@@ -142,7 +147,7 @@ type GetTooltipLabel = (
 type RecordedLineProps = {
 	chartId?: string;
 	defaultHiddenSeries?: readonly string[];
-	legend: { collapseGroups: boolean; interactive: boolean };
+	legend: { collapseGroups: boolean; comparisonItem: boolean; interactive: boolean };
 	margin?: Record< string, number >;
 	options?: { yScale?: { domain?: [ number, number ] }; axis: { y: { display?: boolean } } };
 	renderTooltip: ( params: unknown ) => {
@@ -246,20 +251,25 @@ describe( 'ComparativeLineChart', () => {
 		expect( recordedProps() ).toMatchObject( {
 			chartId: 'traffic',
 			defaultHiddenSeries: [ 'Visitors', 'Visitors · previous period' ],
-			legend: { collapseGroups: true, interactive: true },
+			legend: { collapseGroups: true, comparisonItem: true, interactive: true },
 		} );
 		expect( mockLegendSpy ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { interactive: true } )
+			expect.objectContaining( {
+				interactive: true,
+				items: [
+					{ label: 'Views', color: '#3858E9', interactive: false },
+					{ label: 'Visitors', color: '#3858E9' },
+				],
+			} )
 		);
 	} );
 
-	it( 'collapses a single metric two periods into one legend item', () => {
+	it( 'collapses a metric into one legend item and asks for the comparison item', () => {
 		render( <ComparativeLineChart series={ SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } /> );
 
-		// A legend item names the metric; solid vs previous-period mark is what
-		// tells the two apart, so there is nothing for a second item to say.
 		expect( recordedProps().legend ).toEqual( {
 			collapseGroups: true,
+			comparisonItem: true,
 			interactive: false,
 		} );
 	} );
