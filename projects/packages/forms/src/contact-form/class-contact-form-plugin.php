@@ -2308,16 +2308,13 @@ class Contact_Form_Plugin {
 			return $is_spam;
 		}
 
-		if ( $this->is_in_disallowed_list( false, $form ) ) {
-			$this->spam_verdict_source = 'disallowed_list';
-			return true;
-		}
-
-		return false;
+		return $this->is_in_disallowed_list( false, $form );
 	}
 
 	/**
 	 * Which built-in check flagged the submission currently being processed.
+	 *
+	 * @internal Exists only so Contact_Form::process_submission() can tell the checks apart.
 	 *
 	 * @return string 'disallowed_list', 'akismet', or '' when neither has flagged it.
 	 */
@@ -2327,6 +2324,8 @@ class Contact_Form_Plugin {
 
 	/**
 	 * Clear the recorded verdict source before a new submission is checked.
+	 *
+	 * @internal Exists only so Contact_Form::process_submission() can tell the checks apart.
 	 *
 	 * @return void
 	 */
@@ -2357,6 +2356,7 @@ class Contact_Form_Plugin {
 				$form['user_agent']
 			)
 		) {
+			$this->spam_verdict_source = 'disallowed_list';
 			return true;
 		}
 
@@ -2465,7 +2465,7 @@ class Contact_Form_Plugin {
 		 */
 		$result = apply_filters( 'contact_form_is_spam_akismet', $result, $form );
 
-		if ( false !== $result ) {
+		if ( true === $result ) {
 			$this->spam_verdict_source = 'akismet';
 		}
 
@@ -3410,8 +3410,9 @@ class Contact_Form_Plugin {
 			require_lib( 'tracks/client' );
 			tracks_record_event( $event_user, $event_name, $event_props );
 		} else {
+			$is_logged_out_visitor = empty( $event_user->ID );
 			// logged out visitor, record event with Jetpack master user.
-			if ( empty( $event_user->ID ) ) {
+			if ( $is_logged_out_visitor ) {
 				$master_user_id = Jetpack_Options::get_option( 'master_user' );
 				if ( ! empty( $master_user_id ) ) {
 					$event_user = get_userdata( $master_user_id );
@@ -3430,6 +3431,21 @@ class Contact_Form_Plugin {
 			}
 
 			$tracking = new Tracking();
+
+			if ( $is_logged_out_visitor ) {
+				/*
+				 * Skip record_user_event(): it stamps the request's IP, user agent and language
+				 * onto the event, and those describe the visitor rather than the master user the
+				 * event is attributed to. Add by hand the props it would otherwise contribute.
+				 */
+				$event_props['blog_url']        = get_option( 'siteurl' );
+				$event_props['blog_id']         = Jetpack_Options::get_option( 'id' );
+				$event_props['jetpack_version'] = defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '0';
+
+				$tracking->tracks_record_event( $event_user, 'jetpack_' . $event_name, $event_props );
+				return;
+			}
+
 			$tracking->record_user_event( $event_name, $event_props, $event_user );
 		}
 	}

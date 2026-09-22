@@ -3069,13 +3069,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$spam           = '';
 		$akismet_values = $plugin->prepare_for_akismet( $akismet_vars );
 
+		/*
+		 * The disallowed-list filter below runs even for a test submission, so clear the
+		 * previous submission's verdict whether or not the spam filters run.
+		 */
+		$plugin->reset_spam_verdict_source();
+
 		// Is it spam? Test submissions (from form preview) skip Akismet entirely —
 		// the form owner is explicitly running a test and we don't want Akismet
 		// to learn from synthetic data or bounce the submission.
 		if ( $is_test_submission ) {
 			$is_spam = false;
 		} else {
-			$plugin->reset_spam_verdict_source();
 			/** This filter is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			$is_spam = apply_filters( 'jetpack_contact_form_is_spam', false, $akismet_values );
 		}
@@ -3225,9 +3230,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * so neither the boolean nor the status can answer "why" on its own.
 		 */
 		$spam_verdict = '';
-		if ( $in_comment_disallowed_list ) {
-			$spam_verdict = 'disallowed_list';
-		} elseif ( true === $is_spam ) {
+		if ( $in_comment_disallowed_list || $is_spam ) {
 			$spam_verdict = $plugin->get_spam_verdict_source();
 			if ( '' === $spam_verdict ) {
 				$spam_verdict = 'filter';
