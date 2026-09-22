@@ -334,13 +334,13 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - AI: Show one notice explaining why Jetpack AI is unavailable, worded the same on the Overview and AI Features tabs.
 - Daily Writing Prompt: Stop offering the Write editor after a switch to the Block editor.
 - Donations Form: Replace the "Accept Donations with Stripe" modal with a link to Stripe's donation requirements.
-- Forms: Add a Done button to the conditional logic rules dialog, and open the Conditional logic panel by default on a field that has conditions.
+- Forms: Add a "Done" button to the conditional logic rules dialog, and open the Conditional logic panel by default on a field that has conditions.
 - Forms: Reopen the dashboard on the last tab used instead of always the default.
 - My Jetpack: Show the dashboard in the new rounded admin page frame.
 - My Jetpack: Show the Jetpack menu notification badge when a connection error is detected.
 - Newsletter: Show the email itself in the email design canvas, and limit editing there to the Styles panel.
 - Search: Show each of the No Results block's empty-state messages as it will appear to visitors while editing, and tell the messages apart by name when browsing the page structure.
-- Settings: On WordPress.com sites, open the "Learn more" links in the Help Center as WordPress.com support docs.
+- Settings: Open the Instagram Business help link as the WordPress.com support doc inside the Help Center on WordPress.com sites.
 - Stats: Hide WordPress admin notices on the Stats dashboard, and let hosts show or hide the Stats sidebar entry.
 - VideoPress: Add a setting to render players from one shared player script instead of one frame per video.
 

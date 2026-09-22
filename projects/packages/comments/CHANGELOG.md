@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.0] - 2026-09-21
 ### Added
-- Add WordPress.com, Google and Facebook sign-in to the comment form through a popup, with a signed cookie that remembers returning commenters. [#52166]
+- Add WordPress.com, Google and Facebook sign-in to the comment form through a popup. [#52166]
 
 ### Changed
 - Update package dependencies. [#52187]

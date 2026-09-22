@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.0] - 2026-09-21
 ### Added
-- Add an author detail page with the author's views, popular and latest posts, and top viewed posts. It is not linked from the reports yet. [#52312]
+- Add an author detail page with the author's views, popular and latest posts, and top viewed posts. [#52312]
 - Add post thumbnails to the Posts & Pages report. [#52384]
 - Ads: Add a line or bar chart toggle to the WordAds chart. [#52483]
 - Ads: Link the Earnings History widget to its full report. [#52327]
@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Insights: Align the Most popular post and Latest post cards with the design: regular-weight stat labels and a grey ground behind the featured image. [#52319]
 - Insights: Replace the daily Traffic views activity heatmap with a "Views over years" table of monthly views. [#52311] [#52364]
 - Insights: Use the page icon for the Posts metric in the All-time stats widget. [#52373]
-- Leaderboard widgets: Enlarge row labels to 13px; in Top tags & categories and its report, mute the row glyphs and draw category rows with a file icon. [#52317]
+- Leaderboard widgets: Adjust row appearance in Top tags & Categories and its report. [#52317]
 - Let dashboard sections declare their default widget layout when they register, and pass that layout and the section id to the `jetpack_premium_analytics_dashboard_default_layout` filter. [#52452]
 - Let hosts show or hide the Analytics sidebar entry. [#52351]
 - Open the exact-figure tooltip below compact values instead of above them. [#52374]

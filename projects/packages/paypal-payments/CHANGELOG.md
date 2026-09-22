@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Keep a block's payment link at PayPal when the block is removed. [#52463]
 - Show a notice when opening a post picks up changes made to the payment link elsewhere. [#52302]
-- Stop a save overwriting payment link settings before the block has loaded them, and keep a value edited while the link is still loading. [#52418]
+- Prevent payment link settings from being overwritten on save before the block has loaded them, and keep values that were edited while the link is still loading. [#52418]
 
 ## [0.9.0] - 2026-09-15
 ### Added

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.87.1] - 2026-09-21
 ### Changed
-- Connections: On WordPress.com sites, open the Instagram Business help link as the WordPress.com support doc inside the Help Center. [#52436]
+- Connections: Open the Instagram Business help link as the WordPress.com support doc inside the Help Center on WordPress.com sites. [#52436]
 - Exclude source map files from the distributed package. [#52304]
 - Update package dependencies. [#52187]
 

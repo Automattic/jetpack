@@ -12,8 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Dashboard: Restore the admin screen ID after the wp-build enqueue check. [#52471]
-- Fix author schema describing the wrong user on sites that use a third-party author plugin. [#52379]
-- Fix the Settings tab failing to load on sites where a page title structure had been cleared from WordPress.com. [#52100]
+- Ensure the author schema describes the correct user on sites that use a third-party author plugin. [#52379]
+- Ensure the Settings tab no longer fails to load on sites where a page title structure had been cleared from WordPress.com. [#52100]
 
 ## [0.9.4] - 2026-09-15
 ### Changed

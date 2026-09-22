@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.2.0] - 2026-09-21
 ### Added
-- Conditional logic: Add a Done button to the rules dialog. [#52347]
+- Conditional logic: Add a "Done" button to the rules dialog. [#52347]
 
 ### Changed
 - Conditional logic: Open the Conditional logic panel by default on a field that has conditions. [#52347]
