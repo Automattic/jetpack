@@ -168,7 +168,8 @@ class Admin {
 	/**
 	 * Match wp-build's enqueue screen without changing the Boost menu URL.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.7.1
+	 * @since $$next-version$$ Reads the current screen itself and records the ID it replaces.
 	 */
 	public function alias_screen_id_for_wp_build() {
 		$screen = get_current_screen();
