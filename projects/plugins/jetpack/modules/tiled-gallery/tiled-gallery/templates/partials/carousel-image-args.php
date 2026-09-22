@@ -33,8 +33,23 @@ if ( $display_exif ) {
 		unset( $image_meta['keywords'] );
 	}
 
+	/*
+	Drop empties and numeric zeroes, which the carousel skips when rendering the EXIF
+	panel anyway and which are most of a typical photo's metadata. Text that merely
+	casts to zero, such as a camera name, is kept.
+	Mirrors Jetpack_Carousel::add_data_to_images().
+	*/
+	$image_meta = array_filter(
+		array_map( 'strval', array_filter( $image_meta, 'is_scalar' ) ),
+		function ( $value ) {
+			return '' !== $value && ! ( is_numeric( $value ) && 0.0 === (float) $value );
+		}
+	);
+
 	// Using JSON_HEX_AMP avoids breakage due to `esc_attr()` refusing to double-encode.
-	$fuzzy_image_meta = (string) wp_json_encode( map_deep( $image_meta, 'strval' ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+	$fuzzy_image_meta = empty( $image_meta )
+		? ''
+		: (string) wp_json_encode( $image_meta, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
 }
 
 ?>
@@ -45,7 +60,7 @@ data-comments-opened="<?php echo esc_attr( comments_open( $item->image->ID ) ); 
 <?php if ( $comments_count > 0 ) : ?>
 data-comments-count="<?php echo esc_attr( $comments_count ); ?>"
 <?php endif; ?>
-<?php if ( $display_exif ) : ?>
+<?php if ( '' !== $fuzzy_image_meta ) : ?>
 data-image-meta="<?php echo esc_attr( $fuzzy_image_meta ); ?>"
 <?php endif; ?>
 <?php // The two lines below use `esc_attr( htmlspecialchars( ) )` because esc_attr tries to be too smart and won't double-encode, and we need that here. ?>
