@@ -14,12 +14,15 @@ import { DEFAULT_GEOMETRY_TARGETS } from './selectors.js';
  * @param {string}                    siteUrl
  * @param {string}                    username
  * @param {string}                    password
- * @param {string}                    loadState
  * @return {Promise<void>}
  */
-async function login( page, siteUrl, username, password, loadState ) {
+async function login( page, siteUrl, username, password ) {
 	const origin = new URL( siteUrl ).origin;
-	await page.goto( `${ origin }/wp-login.php`, { waitUntil: loadState } );
+	// Not the caller's --load-state: wp-admin keeps polling (heartbeat, JITM), so gating the
+	// login hop on networkidle failed about one run in four. The selector waits below are the
+	// real gate, and they say more about being logged in than any load state does.
+	await page.goto( `${ origin }/wp-login.php`, { waitUntil: 'domcontentloaded' } );
+	await page.waitForSelector( '#loginform', { state: 'attached' } );
 
 	// Jetpack SSO leaves the classic form in the DOM but hidden behind "Log in with username
 	// and password", so filling it blind times out on most Jetpack sites. Which class carries
@@ -35,7 +38,7 @@ async function login( page, siteUrl, username, password, loadState ) {
 
 	try {
 		await Promise.all( [
-			page.waitForURL( '**/wp-admin/**', { waitUntil: loadState } ),
+			page.waitForURL( '**/wp-admin/**', { waitUntil: 'domcontentloaded' } ),
 			page.click( '#wp-submit' ),
 		] );
 		// Confirm login landed in wp-admin (the Dashboard is the post-login screen) rather than
@@ -226,7 +229,7 @@ export async function capturePage( options ) {
 		} );
 
 		if ( username && password ) {
-			await login( page, url, username, password, loadState );
+			await login( page, url, username, password );
 		} else if ( autologinUrl ) {
 			await page.goto( autologinUrl, { waitUntil: loadState } );
 		}

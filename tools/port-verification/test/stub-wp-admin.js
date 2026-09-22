@@ -8,7 +8,7 @@ import http from 'node:http';
 
 const COOKIE = 'stub_logged_in=1';
 
-const LOGIN_PAGE = `<!doctype html><html><body><form method="POST" action="/wp-login.php">
+const LOGIN_PAGE = `<!doctype html><html><body><form name="loginform" id="loginform" method="POST" action="/wp-login.php">
 <input id="user_login" name="log"><input id="user_pass" name="pwd" type="password">
 <button id="wp-submit" type="submit">Log In</button></form></body></html>`;
 
