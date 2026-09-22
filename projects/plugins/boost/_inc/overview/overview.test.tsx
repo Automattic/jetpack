@@ -469,18 +469,20 @@ test.each( [ 'immediate save', 'stale GET', 'delayed save' ] )(
 				value: jest.fn(),
 			} );
 		}
-		const fetchSpy = jest.spyOn( globalThis, 'fetch' ).mockImplementation( async ( url, options ) => {
-			if ( options.method === 'POST' ) {
-				if ( scenario === 'delayed save' ) {
-					await pendingSave;
+		const fetchSpy = jest
+			.spyOn( globalThis, 'fetch' )
+			.mockImplementation( async ( url, options ) => {
+				if ( options.method === 'POST' ) {
+					if ( scenario === 'delayed save' ) {
+						await pendingSave;
+					}
+					savedModules = JSON.parse( options.body as string ).JSON;
 				}
-				savedModules = JSON.parse( options.body as string ).JSON;
-			}
-			return {
-				ok: true,
-				text: async () => JSON.stringify( { status: 'success', JSON: savedModules } ),
-			} as Response;
-		} );
+				return {
+					ok: true,
+					text: async () => JSON.stringify( { status: 'success', JSON: savedModules } ),
+				} as Response;
+			} );
 		const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
 		jest
 			.mocked( apiFetch )
@@ -494,7 +496,9 @@ test.each( [ 'immediate save', 'stale GET', 'delayed save' ] )(
 		function SettingsToggle() {
 			const [ state, setState ] = useSingleModuleState( 'defer_js' );
 			return (
-				<button onClick={ () => setState( ! state?.active ) }>Defer Non-Essential JavaScript</button>
+				<button onClick={ () => setState( ! state?.active ) }>
+					Defer Non-Essential JavaScript
+				</button>
 			);
 		}
 		const client = createQueryClient();
