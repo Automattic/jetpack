@@ -24,9 +24,8 @@ await jest.unstable_mockModule( '../../../util/get-input-fields.ts', () => ( {
 		),
 } ) );
 
-const { default: useSingleInputFieldRequired } = await import(
-	'../use-single-input-field-required.js'
-);
+const { default: useSingleInputFieldRequired } =
+	await import( '../use-single-input-field-required.js' );
 
 const field = ( name, clientId, attributes = {} ) => ( { name, clientId, attributes } );
 

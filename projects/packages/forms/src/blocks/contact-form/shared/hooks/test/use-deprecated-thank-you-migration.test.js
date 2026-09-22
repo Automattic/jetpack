@@ -13,9 +13,8 @@ await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	} ),
 } ) );
 
-const { default: useDeprecatedThankYouMigration } = await import(
-	'../use-deprecated-thank-you-migration.js'
-);
+const { default: useDeprecatedThankYouMigration } =
+	await import( '../use-deprecated-thank-you-migration.js' );
 
 describe( 'useDeprecatedThankYouMigration', () => {
 	beforeEach( () => {
