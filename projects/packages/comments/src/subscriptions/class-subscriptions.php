@@ -257,14 +257,15 @@ class Subscriptions extends WP_REST_Controller {
 	 * Subscribe a guest to what they ticked, once their comment is in.
 	 *
 	 * Sent at shutdown so the commenter is not kept waiting on WordPress.com,
-	 * and only for a comment that was not held as spam.
+	 * and only for a comment the form posted that was not held as spam or trashed.
 	 *
 	 * @param int        $comment_id The comment.
-	 * @param int|string $approved   1, 0 or 'spam'.
+	 * @param int|string $approved   1, 0, 'spam' or 'trash'.
 	 * @return void
 	 */
 	public static function comment_posted( $comment_id, $approved ) {
-		if ( 'spam' === $approved ) {
+		// On Simple this is hooked on every site, feature or not, as the route is.
+		if ( 'spam' === $approved || 'trash' === $approved || ! Comments::is_enabled() ) {
 			return;
 		}
 
@@ -282,7 +283,7 @@ class Subscriptions extends WP_REST_Controller {
 
 		$comment = get_comment( $comment_id );
 
-		if ( ! $comment instanceof \WP_Comment || ! is_email( $comment->comment_author_email ) ) {
+		if ( ! $comment instanceof \WP_Comment || ! is_email( $comment->comment_author_email ) || ! Comment_Form::enabled_for_post_type( (int) $comment->comment_post_ID ) ) {
 			return;
 		}
 
