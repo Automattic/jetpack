@@ -85,7 +85,7 @@ class Jetpack_Comment_Likes {
 		 * off this module still needs the per-post metabox that carries them.
 		 */
 		if ( ! Jetpack::is_module_active( 'likes' ) ) {
-			if ( in_array( 'sharedaddy', Jetpack::get_active_modules(), true ) ) {
+			if ( Jetpack::is_module_active( 'sharedaddy' ) ) {
 				add_filter( 'sharing_meta_box_title', array( $this->settings, 'add_likes_to_sharing_meta_box_title' ) );
 				add_action( 'start_sharing_meta_box_content', array( $this->settings, 'meta_box_content' ) );
 			} else {
