@@ -202,7 +202,7 @@ Use semantic line types to distinguish between different data categories with au
 
 ### Comparison type
 
-The `comparison` type can be used to differentiate comparison data from primary data series. Give the primary series and its comparison overlay the same `group` so they pair up. By default each still gets its own legend item; set `legend.collapseGroups` to fold them into one:
+The `comparison` type can be used to differentiate comparison data from primary data series. Give the primary series and its comparison overlay the same `group` so they pair up. By default each still gets its own legend item; set `legend.collapseGroups` to fold them into one, and pair it with `legend.comparisonItem` to append a static item explaining the dashed overlay:
 
 <Canvas of={ LineChartStories.ComparisonSingle } />
 
@@ -226,7 +226,7 @@ The `comparison` type can be used to differentiate comparison data from primary 
 	/>` }
 />
 
-Pair several metrics side by side, each with its own comparison overlay. With `legend.collapseGroups`, each group renders as a single item labelled by its primary series. Add `legend.interactive` and clicking that item toggles the metric's current and previous-period lines together — without `collapseGroups`, each line keeps its own item and toggles alone. By default the value axis rescales to the visible series as they are toggled; this story sets `rescaleYOnVisibilityChange={ false }` to pin it to the full data range so the baseline doesn't jump. When every series is hidden the axes are dropped and only the empty state is shown.
+Pair several metrics side by side, each with its own comparison overlay. With `legend.collapseGroups`, each group renders as a single item labeled by its primary series. Add `legend.interactive` and clicking that item toggles the metric's current and previous-period lines together — without `collapseGroups`, each line keeps its own item and toggles alone. By default the value axis rescales to the visible series as they are toggled; this story sets `rescaleYOnVisibilityChange={ false }` to pin it to the full data range so the baseline doesn't jump. When every series is hidden the axes are dropped and only the empty state is shown.
 
 <Canvas of={ LineChartStories.ComparisonMulti } />
 

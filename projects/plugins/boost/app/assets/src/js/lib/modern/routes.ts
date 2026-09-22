@@ -2,8 +2,8 @@
  * URL rules for the modern chassis.
  *
  * The chassis router keeps its whole route — path and query — inside the `p`
- * wp-admin query arg, so the tab lives in there rather than beside it.
- * Sub-pages keep today's hashes, and a recognised hash wins over the tab.
+ * wp-admin query arg, so the scroll destination lives in there rather than beside it.
+ * Former tabs now select the top or Settings section; sub-page hashes still take precedence.
  */
 
 import {
@@ -22,7 +22,7 @@ export type ModernRoute = {
 
 export type ResolvedRoute = {
 	route: ModernRoute;
-	/** Tidied URL to replaceState onto when a tab was carried in the hash. */
+	/** Tidied URL to replaceState onto when a former dashboard hash needs normalization. */
 	normalizedUrl: string | null;
 };
 
@@ -30,7 +30,7 @@ export type ResolvedRoute = {
  * Resolve a URL to the route it shows.
  *
  * @param href - URL to resolve. Defaults to the current location.
- * @return The route, plus a normalized URL when the hash carried a tab.
+ * @return The route, plus a normalized URL for a former dashboard hash.
  */
 export function resolveRoute( href: string = window.location.href ): ResolvedRoute {
 	const url = new URL( href );
@@ -40,8 +40,13 @@ export function resolveRoute( href: string = window.location.href ): ResolvedRou
 		return { route: { subpage, tab: readTab( url.searchParams ) }, normalizedUrl: null };
 	}
 
-	const hashTab = tabFromQuery( splitHash( url.hash ).query );
-	if ( hashTab === 'settings' ) {
+	const { path, query } = splitHash( url.hash );
+	if ( ! path && query.get( 'tab' ) === 'overview' ) {
+		url.hash = '';
+		url.searchParams.set( ROUTE_ARG, '/' );
+		return { route: { subpage: null, tab: 'overview' }, normalizedUrl: url.toString() };
+	}
+	if ( ! path && ( url.hash === '#/' || query.get( 'tab' ) === 'settings' ) ) {
 		return {
 			route: { subpage: null, tab: 'settings' },
 			normalizedUrl: settingsUrl( url.toString() ),
@@ -52,27 +57,27 @@ export function resolveRoute( href: string = window.location.href ): ResolvedRou
 }
 
 /**
- * Read the tab out of any query, defaulting to Overview.
+ * Read the scroll destination from a retained tab query, defaulting to Overview.
  *
  * @param query - Query to read.
- * @return The tab.
+ * @return The scroll destination.
  */
 function tabFromQuery( query: URLSearchParams ): Tab {
 	return query.get( 'tab' ) === 'settings' ? 'settings' : 'overview';
 }
 
 /**
- * Read the tab the chassis is on, from the route it keeps in the route arg.
+ * Read the scroll destination from the route query's retained tab parameter.
  *
  * @param search - Query holding the route arg.
- * @return The tab.
+ * @return The scroll destination.
  */
 function readTab( search: URLSearchParams ): Tab {
 	return tabFromQuery( splitHash( search.get( ROUTE_ARG ) ?? '' ).query );
 }
 
 /**
- * Build the URL for Settings: the hash cleared, the tab set.
+ * Build the Settings section URL, preserving the former tab URL contract.
  *
  * @param href - URL to derive from. Defaults to the current location.
  * @return The Settings URL.
@@ -127,6 +132,10 @@ export function notifyLocationChange(): void {
  * @param options.replace - Replace the current entry instead of pushing one.
  */
 export function navigateTo( url: string, options: { replace?: boolean } = {} ): void {
+	if ( url === window.location.href ) {
+		return;
+	}
+
 	if ( options.replace ) {
 		window.history.replaceState( null, '', url );
 	} else {

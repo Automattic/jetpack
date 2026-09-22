@@ -8,6 +8,7 @@ import { FormFieldset, FormLabel } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import SupportLink from 'components/support-link';
 import TextInput from 'components/text-input';
 import analytics from 'lib/analytics';
 import { FEATURE_GOOGLE_ANALYTICS_JETPACK } from 'lib/plans/constants';
@@ -139,11 +140,11 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 												__( '<link>Learn more</link> to find your Measurement ID.', 'jetpack' ),
 												{
 													link: (
-														<Link
-															openInNewTab
+														<SupportLink
 															href={ getRedirectUrl( 'wpcom-support-google-analytics', {
 																anchor: 'step-2-get-your-measurement-id',
 															} ) }
+															wpcomLink="https://wordpress.com/support/google-analytics/#get-your-measurement-id"
 														/>
 													),
 												}

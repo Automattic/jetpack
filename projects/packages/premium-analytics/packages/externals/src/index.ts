@@ -32,6 +32,7 @@ export {
 	lightenHexColor,
 	normalizeColorToHex,
 	useCalendarHeatmapData,
+	useChartLegendItems,
 	useGlobalChartsContext,
 	useMonthCalendarHeatmapData,
 	type BaseLegendItem,

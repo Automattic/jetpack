@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Chart tooltips: lead each row with the value, then the metric as its unit, then the date.

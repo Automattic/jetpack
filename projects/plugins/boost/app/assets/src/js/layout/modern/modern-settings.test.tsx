@@ -49,15 +49,17 @@ describe( 'ModernSettings', () => {
 		expect( container.querySelector( '.jb-dashboard' ) ).toBeNull();
 	} );
 
-	it( 'shows priority support only on a plan that includes it', () => {
+	it( 'omits tips and priority support on both free and paid plans', () => {
 		const view = render( <ModernSettings /> );
 		expect( screen.queryByText( 'priority support' ) ).toBeNull();
+		expect( screen.queryByText( 'tips' ) ).toBeNull();
 		view.unmount();
 
 		mockPremiumFeatures = [ 'support' ];
 		render( <ModernSettings /> );
 
-		expect( screen.getByText( 'priority support' ) ).toBeTruthy();
+		expect( screen.queryByText( 'priority support' ) ).toBeNull();
+		expect( screen.queryByText( 'tips' ) ).toBeNull();
 	} );
 
 	it( 'hides itself without unmounting while a redirect is pending', () => {

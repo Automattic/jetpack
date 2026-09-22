@@ -3349,6 +3349,9 @@ importers:
       '@automattic/jetpack-licensing':
         specifier: workspace:*
         version: link:../../js-packages/licensing
+      '@automattic/jetpack-partner-coupon':
+        specifier: workspace:*
+        version: link:../../js-packages/partner-coupon
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
@@ -5937,24 +5940,15 @@ importers:
       '@automattic/jetpack-api':
         specifier: workspace:*
         version: link:../../js-packages/api
-      '@automattic/jetpack-boost-score-api':
-        specifier: workspace:*
-        version: link:../../js-packages/boost-score-api
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
-      '@automattic/jetpack-licensing':
-        specifier: workspace:*
-        version: link:../../js-packages/licensing
       '@automattic/jetpack-my-jetpack':
         specifier: workspace:*
         version: link:../../packages/my-jetpack
-      '@automattic/jetpack-partner-coupon':
-        specifier: workspace:*
-        version: link:../../js-packages/partner-coupon
       '@automattic/jetpack-publicize':
         specifier: workspace:*
         version: link:../../packages/publicize
@@ -6114,9 +6108,6 @@ importers:
       filesize:
         specifier: 10.1.6
         version: 10.1.6
-      focus-trap:
-        specifier: 6.3.0
-        version: 6.3.0
       gridicons:
         specifier: 3.4.3
         version: 3.4.3(react@18.3.1)
@@ -14110,9 +14101,6 @@ packages:
   fn.name@1.1.0:
     resolution: {integrity: sha512-GRnmB5gPyJpAhTQdSZTSp9uaPSvl09KoYcMQtsB9rQoOmzs9dH6ffeccH+Z+cv6P68Hu5bC6JjRh4Ah/mHSNRw==}
 
-  focus-trap@6.3.0:
-    resolution: {integrity: sha512-BBzvFfkPg5PqrVVCdQ1YOIVNKGvqG9YNVkiAUQFuDM66N8J9uADhs6mlYKrd30ofDJIzEniBnBKM7GO45iCzKQ==}
-
   follow-redirects@1.16.0:
     resolution: {integrity: sha512-y5rN/uOsadFT/JfYwhxRS5R7Qce+g3zG97+JrtFZlC9klX/W5hD7iiLzScI4nZqUS7DNUdhPgw4xI8W2LuXlUw==}
     engines: {node: '>=4.0'}
@@ -17781,9 +17769,6 @@ packages:
   synckit@0.11.13:
     resolution: {integrity: sha512-eNRKgb3z66Yp3D2CixVujOUvXLFUTij/zVnV8KRyvFdQwpz7I5DS8UfRkTeLzb64u+dkzDSdelE24izu+zSSUg==}
     engines: {node: ^14.18.0 || >=16.0.0}
-
-  tabbable@5.3.3:
-    resolution: {integrity: sha512-QD9qKY3StfbZqWOPLp0++pOrAVb/HbUi5xCc8cUo4XjP19808oaMiDzn0leBY5mCespIBM0CIZePzZjgzR83kA==}
 
   tabbable@6.5.0:
     resolution: {integrity: sha512-wieBHXygIm7OyQOu5hQlkk62/WyCFYGlWg7L6/ZCUZwx0o398Zkn4pVmMyfYhfMG8kGrj/Krt8eIk6UKC6VzwA==}
@@ -33185,10 +33170,6 @@ snapshots:
 
   fn.name@1.1.0: {}
 
-  focus-trap@6.3.0:
-    dependencies:
-      tabbable: 5.3.3
-
   follow-redirects@1.16.0: {}
 
   follow-redirects@1.16.0(debug@4.4.3):
@@ -37426,8 +37407,6 @@ snapshots:
   synckit@0.11.13:
     dependencies:
       '@pkgr/core': 0.3.6
-
-  tabbable@5.3.3: {}
 
   tabbable@6.5.0: {}
 

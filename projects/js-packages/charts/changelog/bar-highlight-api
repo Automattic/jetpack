@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add required key and index fields to BandHighlightSelection for identifying the selected series and rendered data point.
