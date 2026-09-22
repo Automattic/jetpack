@@ -45,15 +45,14 @@ function toPoints(
 ): SubscribersChartPoint[] {
 	return ( report?.data ?? [] ).flatMap( point => {
 		const date = resolveBucketStamp( point.date_start, zone );
-		const subscribers = point.subscribers as number | null | undefined;
-		const paid = point.subscribers_paid as number | null | undefined;
 
 		return date
 			? [
 					{
 						date,
-						subscribers: subscribers === null ? null : Number( subscribers ?? point.value ?? 0 ),
-						paid: paid === null ? null : Number( paid ?? 0 ),
+						subscribers:
+							point.subscribers === null ? null : Number( point.subscribers ?? point.value ?? 0 ),
+						paid: point.subscribers_paid === null ? null : Number( point.subscribers_paid ?? 0 ),
 					},
 				]
 			: [];
