@@ -19,6 +19,7 @@ import {
 	subWeeks,
 	subYears,
 } from 'date-fns';
+import { daysInWeek } from 'date-fns/constants';
 /**
  * Internal dependencies
  */
@@ -56,9 +57,13 @@ export const COMPARISON_PRESETS = [
 	COMPARISON_PREVIOUS_YEAR_MATCH_DAY_OF_WEEK,
 ] as const;
 
-const DAYS_PER_WEEK = 7;
 const WEEKS_PER_YEAR = 52;
-const WEEK_MS = DAYS_PER_WEEK * 24 * 60 * 60 * 1000;
+
+/**
+ * Days the weekday-aligned year shifts by, and so the longest reference it can
+ * be offered for without the comparison overlapping it.
+ */
+export const WEEKDAY_YEAR_SHIFT_DAYS = WEEKS_PER_YEAR * daysInWeek;
 
 export type ComparisonPresetId = ( typeof COMPARISON_PRESETS )[ number ];
 
@@ -84,36 +89,28 @@ function getInclusiveDayCount( from: TZDate, to: TZDate ): number {
 }
 
 /**
- * Days a weekday-aligned preset shifts by: 52 whole weeks for the year, and
- * for the period the fewest whole weeks that clear the reference. A rolling
- * window is measured by duration, so seven days on the clock still fit one
- * week even though they touch eight calendar days.
+ * Days a weekday-aligned preset shifts by: 52 whole weeks for the year, the
+ * fewest whole weeks that clear the reference for the period.
  *
- * @param from         - Reference start.
- * @param to           - Reference end.
- * @param presetId     - The comparison preset.
- * @param isDayAligned - Whether the reference sits on day bounds.
+ * @param from     - Reference start.
+ * @param to       - Reference end.
+ * @param presetId - The comparison preset.
  * @return The shift in days, or `undefined` for a calendar preset.
  */
 function getWeekAlignedShiftDays(
 	from: TZDate,
 	to: TZDate,
-	presetId: ComparisonPresetId,
-	isDayAligned: boolean
+	presetId: ComparisonPresetId
 ): number | undefined {
 	if ( presetId === COMPARISON_PREVIOUS_YEAR_MATCH_DAY_OF_WEEK ) {
-		return WEEKS_PER_YEAR * DAYS_PER_WEEK;
+		return WEEKDAY_YEAR_SHIFT_DAYS;
 	}
 
 	if ( presetId !== COMPARISON_PREVIOUS_PERIOD_MATCH_DAY_OF_WEEK ) {
 		return undefined;
 	}
 
-	const weeks = isDayAligned
-		? Math.ceil( getInclusiveDayCount( from, to ) / DAYS_PER_WEEK )
-		: Math.ceil( ( differenceInMilliseconds( to, from ) + 1 ) / WEEK_MS );
-
-	return weeks * DAYS_PER_WEEK;
+	return Math.ceil( getInclusiveDayCount( from, to ) / daysInWeek ) * daysInWeek;
 }
 
 /**
@@ -203,7 +200,7 @@ export function getComparisonRangeFromPreset(
 
 	// A weekday-aligned preset is a whole-week shift of the dates as read,
 	// whatever preset or month shape the reference came from.
-	const weekAlignedShiftDays = getWeekAlignedShiftDays( refFrom, refTo, presetId, isDayAligned );
+	const weekAlignedShiftDays = getWeekAlignedShiftDays( refFrom, refTo, presetId );
 	if ( weekAlignedShiftDays !== undefined ) {
 		if ( ! isDayAligned ) {
 			const to = subDays( refTo, weekAlignedShiftDays );

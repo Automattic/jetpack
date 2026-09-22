@@ -5,7 +5,6 @@ import { normalizeReportParams } from '@jetpack-premium-analytics/data';
 import {
 	dateToISOStringWithLocalTZ,
 	getComparisonOptions,
-	getComparisonRangeFromPreset,
 	isComparisonPresetId,
 	isPrimaryPreset,
 	localTZDate,
@@ -66,26 +65,20 @@ export function deriveComparisonRange( opts: ReportParams ):
 		return undefined;
 	}
 
-	const rangeOptions = {
+	const options = getComparisonOptions( reference, {
 		primaryPresetId: isPrimaryPreset( opts.preset ) ? opts.preset : undefined,
-	};
-	const options = getComparisonOptions( reference, rangeOptions );
+	} );
 	const presetId = toComparisonPresetId( opts.compare_preset );
 
-	// A preset the menu dropped for naming the same window as another entry
+	// A preset the menu folded into another entry for naming the same window
 	// lands on that entry; one the range cannot offer at all — or an id from
 	// an old link — falls back to the previous period, which every range
 	// offers, so the comparison intent survives a range change.
-	const requested = presetId && getComparisonRangeFromPreset( reference, presetId, rangeOptions );
 	const option =
-		options.find( candidate => candidate.id === presetId ) ??
-		options.find(
-			candidate =>
-				!! requested?.from &&
-				!! requested.to &&
-				candidate.range.from.getTime() === requested.from.getTime() &&
-				candidate.range.to.getTime() === requested.to.getTime()
-		) ??
+		( presetId &&
+			options.find(
+				candidate => candidate.id === presetId || candidate.aliases.includes( presetId )
+			) ) ||
 		options.find( candidate => candidate.id === 'previous-period' );
 
 	if ( ! option ) {

@@ -16,6 +16,7 @@ import {
 	COMPARISON_PREVIOUS_WEEK,
 	COMPARISON_PREVIOUS_YEAR,
 	COMPARISON_PREVIOUS_YEAR_MATCH_DAY_OF_WEEK,
+	WEEKDAY_YEAR_SHIFT_DAYS,
 	getComparisonRangeFromPreset,
 	getWholeMonthCount,
 	type ComparisonPresetId,
@@ -36,21 +37,22 @@ export type ComparisonOption = {
 	 */
 	shortLabel: string;
 	range: Required< DateRange >;
+	/**
+	 * Presets resolving to this same window, listed under this option rather
+	 * than as entries of their own.
+	 */
+	aliases: ComparisonPresetId[];
 };
 
 /**
- * The longest range, in inclusive days, that still offers each shifted
- * comparison. A shift must never land the comparison overlapping the range
- * itself: 7 covers the week shift, 28 the month shift in February. From a year
- * up, the previous year and the previous period converge (or sit one day apart
- * across a leap year), so the year option adds noise, not signal. The
- * weekday-aligned period shares the month cap: past four weeks its window
- * drifts weeks behind the previous period, and the year variant is the
- * alignment those ranges want.
+ * The longest range, in inclusive days, that still offers each shift without
+ * the comparison overlapping the range: 7 for the week, 28 for the month in
+ * February and for the weekday-aligned period, 364 for both years (from a
+ * year up the previous year and the previous period converge anyway).
  */
 const MAX_DAYS_FOR_WEEK = 7;
 const MAX_DAYS_FOR_MONTH = 28;
-const MAX_DAYS_FOR_YEAR = 364;
+const MAX_DAYS_FOR_YEAR = WEEKDAY_YEAR_SHIFT_DAYS;
 
 /**
  * Whole-month spans only read in years from two years up, mirroring
@@ -135,6 +137,18 @@ function getPreviousPeriodLabel( reference: Required< DateRange > ): string {
 		);
 	}
 
+	return getPreviousSpanLabel( reference );
+}
+
+/**
+ * Label for a previous window measured in hours or days, whatever month shape
+ * the range has: the weekday-aligned period shifts a whole February by four
+ * weeks, not a month, so it must not read "Previous month".
+ *
+ * @param reference - The applied range the comparison mirrors.
+ * @return The label.
+ */
+function getPreviousSpanLabel( reference: Required< DateRange > ): string {
 	const span = getDateRangeSpan( reference );
 
 	if ( span?.unit === 'hour' ) {
@@ -198,7 +212,7 @@ function getOptionLabel(
 	}
 
 	if ( id === COMPARISON_PREVIOUS_PERIOD_MATCH_DAY_OF_WEEK ) {
-		return getMatchDayOfWeekLabel( getPreviousPeriodLabel( reference ) );
+		return getMatchDayOfWeekLabel( getPreviousSpanLabel( reference ) );
 	}
 
 	return getPreviousPeriodLabel( reference );
@@ -210,10 +224,10 @@ function getOptionLabel(
  * Derived from the range alone — a custom range, a stepped window, or a preset
  * all resolve through the same rules: the previous period is always offered;
  * the week, month, and year shifts only while they cannot overlap the range;
- * and an option resolving to the same window as an earlier one is dropped, so
- * a 7-day range lists no last-week entry. The weekday-aligned period is
- * offered up to four weeks and the weekday-aligned year up to the year cap;
- * both yield to any option they coincide with.
+ * and an option resolving to the same window as an earlier one is folded into
+ * it as an alias, so a 7-day range lists no last-week entry. The weekday-aligned
+ * period is offered up to four weeks and the weekday-aligned year up to the
+ * year cap; both yield to any option they coincide with.
  *
  * @param reference - The applied range (both ends required).
  * @param options   - The context the range was produced in; the preset it came
@@ -263,13 +277,14 @@ export function getComparisonOptions(
 		}
 
 		const resolved = range as Required< DateRange >;
-		const duplicate = offered.some(
+		const duplicate = offered.find(
 			option =>
 				option.range.from.getTime() === resolved.from.getTime() &&
 				option.range.to.getTime() === resolved.to.getTime()
 		);
 
 		if ( duplicate ) {
+			duplicate.aliases.push( id );
 			continue;
 		}
 
@@ -278,6 +293,7 @@ export function getComparisonOptions(
 			label: getOptionLabel( id, { from: refFrom, to: refTo }, resolved ),
 			shortLabel: SHORT_LABELS[ id ](),
 			range: resolved,
+			aliases: [],
 		} );
 	}
 

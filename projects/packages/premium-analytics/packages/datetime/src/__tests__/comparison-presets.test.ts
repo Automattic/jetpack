@@ -188,7 +188,7 @@ describe( 'comparison options', () => {
 
 		expect( labels( february ) ).toEqual( [
 			'Previous month',
-			'Previous month (match day of week)',
+			'Previous 28 days (match day of week)',
 			'Same period in 2025',
 			'Same period in 2025 (match day of week)',
 		] );
@@ -294,12 +294,7 @@ describe( 'comparison options', () => {
 		} );
 	} );
 
-	/*
-	 * The weekday-aligned period is the fewest whole weeks that clear the
-	 * range: for 8 to 13 days that is two weeks, a window no other option
-	 * names, so it is listed; at 7 it equals the previous period and at 14
-	 * the previous period again, so it is dropped both times.
-	 */
+	// 8 to 13 days shift two weeks; 7 and 14 coincide with the previous period.
 	it( 'lists the weekday-aligned period only where it names a new window', () => {
 		const eightDays = daysRange( [ 2026, 7, 23 ], [ 2026, 7, 30 ] );
 		const [ , weekdayPeriod ] = getComparisonOptions( eightDays );
@@ -322,15 +317,16 @@ describe( 'comparison options', () => {
 		] );
 	} );
 
-	/*
-	 * A single day shifted one week is the same window "Same period from last
-	 * week" already names, so the weekday-aligned period yields to it rather
-	 * than replacing an entry the menu has always shown.
-	 */
+	// A single day shifted one week is the window "Same period from last week" names.
 	it( 'keeps the last-week entry over a coinciding weekday-aligned period', () => {
-		expect( ids( daysRange( [ 2026, 7, 30 ], [ 2026, 7, 30 ] ) ) ).not.toContain(
+		const options = getComparisonOptions( daysRange( [ 2026, 7, 30 ], [ 2026, 7, 30 ] ) );
+
+		expect( options.map( option => option.id ) ).not.toContain(
 			'previous-period-match-day-of-week'
 		);
+		expect( options.find( option => option.id === 'previous-week' )?.aliases ).toEqual( [
+			'previous-period-match-day-of-week',
+		] );
 	} );
 
 	it( 'shifts the weekday-aligned year back 52 weeks and names the year it lands in', () => {

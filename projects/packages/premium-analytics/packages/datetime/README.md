@@ -163,7 +163,8 @@ if inputs are invalid
 - `previous-period` - Same duration, immediately before reference
 - `previous-period-match-day-of-week` - Same duration, shifted back by the
   fewest whole weeks that clear the reference, so it starts on the same weekday
-  (offered by `getComparisonOptions` for ranges of up to 28 days)
+  (offered by `getComparisonOptions` for ranges of up to 28 days, except exact
+  week multiples, where it coincides with `previous-period`)
 - `previous-week` - Same duration, one week before the reference
 - `previous-month` - Same duration, anchored one month before the reference end
 - `previous-year` - Same duration, anchored one year before the reference end
@@ -192,12 +193,13 @@ the month shape and the to-date preset alike.
 The comparison options the given range offers, in display order: the previous
 period always; the week, month, and year shifts only while they cannot overlap
 the range (7, 28, and 364 inclusive days at most); an option resolving to the
-same window as another is dropped, the weekday-aligned variant yielding to its
-calendar sibling. The weekday-aligned period is offered up to 28 days, the
-weekday-aligned year up to 364. Each option carries the resolved `range` plus a `label`
-naming the comparison target ("Previous 7 days", "Same period in July",
-"Same period in 2024", "Same period in 2024 (match day of week)") and a
-trigger `shortLabel`.
+same window as another is folded into it as an alias, the weekday-aligned
+variant yielding to its calendar sibling. The weekday-aligned period is offered
+up to 28 days (except exact week multiples, which coincide with the previous
+period), the weekday-aligned year up to 364. Each option carries the resolved
+`range`, the `aliases` folded into it, a `label` naming the comparison target
+("Previous 7 days", "Same period in July", "Same period in 2024", "Same period
+in 2024 (match day of week)") and a trigger `shortLabel`.
 
 **Parameters:**
 

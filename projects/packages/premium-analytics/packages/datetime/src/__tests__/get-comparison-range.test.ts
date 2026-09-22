@@ -694,10 +694,6 @@ describe( 'getComparisonRangeFromPreset', () => {
 			} );
 		} );
 
-		/*
-		 * A rolling window seven days long spans eight calendar days; measured
-		 * by duration it still fits one week, so it shifts one, not two.
-		 */
 		it( 'measures a rolling window by duration, not calendar days', () => {
 			const rolling7d = {
 				from: siteDate( 2026, 7, 24, 15, 0, 0, 0 ),
@@ -709,6 +705,22 @@ describe( 'getComparisonRangeFromPreset', () => {
 			).toEqual( {
 				from: siteDate( 2026, 7, 17, 15, 0, 0, 0 ),
 				to: siteDate( 2026, 7, 24, 14, 59, 59, 999 ),
+			} );
+		} );
+
+		// Seven wall-clock days across the autumn change last 7d 1h on the clock.
+		it( 'measures a rolling window across a DST change in wall-clock days', () => {
+			const zone = 'America/New_York';
+			const acrossFallBack = {
+				from: createTZDateFromParts( [ 2026, 9, 28, 15, 0, 0, 0 ], zone ),
+				to: createTZDateFromParts( [ 2026, 10, 4, 14, 59, 59, 999 ], zone ),
+			};
+
+			expect(
+				getComparisonRangeFromPreset( acrossFallBack, 'previous-period-match-day-of-week' )
+			).toEqual( {
+				from: createTZDateFromParts( [ 2026, 9, 21, 14, 0, 0, 0 ], zone ),
+				to: createTZDateFromParts( [ 2026, 9, 28, 14, 59, 59, 999 ], zone ),
 			} );
 		} );
 	} );

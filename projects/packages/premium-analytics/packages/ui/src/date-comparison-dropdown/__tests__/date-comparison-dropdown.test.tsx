@@ -10,12 +10,14 @@ const presets: ComparisonDateRangePreset[] = [
 		label: 'Previous period',
 		shortLabel: 'Prev. period',
 		range: { from: new TZDate( '2026-06-01', 'UTC' ), to: new TZDate( '2026-06-30', 'UTC' ) },
+		aliases: [],
 	},
 	{
 		id: 'previous-month',
 		label: 'Previous month',
 		shortLabel: 'Prev. month',
 		range: { from: new TZDate( '2026-05-01', 'UTC' ), to: new TZDate( '2026-05-31', 'UTC' ) },
+		aliases: [],
 	},
 ];
 
