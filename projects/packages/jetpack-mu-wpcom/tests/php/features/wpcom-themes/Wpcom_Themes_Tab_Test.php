@@ -121,8 +121,8 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Answers with a page of themes.
 	 *
-	 * @param array[] $themes Themes on the page.
-	 * @param int     $found  Total across all pages.
+	 * @param array $themes Themes on the page, malformed entries included.
+	 * @param int   $found  Total across all pages.
 	 * @return void
 	 */
 	private function answer_with_themes( array $themes, $found ) {
