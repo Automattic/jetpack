@@ -18,6 +18,7 @@
 			"padding": true
 		}
 	},
+	"usesContext": [ "postId" ],
 	"attributes": {
 		"videos": {
 			"type": "array",
@@ -26,9 +27,37 @@
 			},
 			"default": []
 		},
+		"source": {
+			"type": "string",
+			"enum": [
+				"manual",
+				"latest",
+				"popular",
+				"playlist",
+				"current-playlist",
+				"featured-playlist"
+			],
+			"default": "manual"
+		},
+		"playlistId": {
+			"type": "number",
+			"default": 0
+		},
+		"limit": {
+			"type": "number",
+			"default": 0
+		},
+		"excludeCurrent": {
+			"type": "boolean",
+			"default": false
+		},
+		"showMeta": {
+			"type": "boolean",
+			"default": true
+		},
 		"layout": {
 			"type": "string",
-			"enum": [ "side-rail", "grid", "strip" ],
+			"enum": [ "side-rail", "grid", "strip", "list", "queue" ],
 			"default": "side-rail"
 		},
 		"darkPlayer": {

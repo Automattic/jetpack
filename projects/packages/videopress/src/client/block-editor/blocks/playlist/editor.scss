@@ -230,6 +230,30 @@
 			}
 		}
 
+		&.is-list i,
+		&.is-queue i {
+
+			&:nth-child(1) {
+				inset: 0 0 72% 0;
+			}
+
+			&:nth-child(2) {
+				inset: 36% 0 36% 0;
+			}
+
+			&:nth-child(3) {
+				inset: 72% 0 0 0;
+			}
+
+			&:nth-child(4) {
+				display: none;
+			}
+		}
+
+		&.is-queue i:nth-child(1) {
+			background: #c4c4c4;
+		}
+
 		&.is-strip i {
 
 			&:nth-child(1) {

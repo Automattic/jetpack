@@ -70,6 +70,7 @@ module.exports = [
 			// Video Playlist block
 			'block-editor/blocks/playlist/index': './src/client/block-editor/blocks/playlist/index.ts',
 			'block-editor/blocks/playlist/view': './src/client/block-editor/blocks/playlist/view.ts',
+			'block-editor/blocks/playlists/index': './src/client/block-editor/blocks/playlists/index.ts',
 
 			'lib/token-bridge': './src/client/lib/token-bridge/index.ts',
 			'lib/player-bridge': './src/client/lib/player-bridge/index.ts',
