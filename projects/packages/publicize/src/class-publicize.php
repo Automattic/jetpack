@@ -42,8 +42,6 @@ class Publicize extends Publicize_Base {
 
 		add_filter( 'jetpack_xmlrpc_unauthenticated_methods', array( $this, 'register_update_publicize_connections_xmlrpc_method' ) );
 
-		add_action( 'load-settings_page_sharing', array( $this, 'admin_page_load' ), 9 );
-
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags' ), 10, 2 );
 
 		add_action( 'wp_insert_post', array( $this, 'save_publicized' ), 11, 2 );
@@ -77,6 +75,28 @@ class Publicize extends Publicize_Base {
 	 * @return void
 	 */
 	public function admin_page_warning() {
+		_deprecated_function( __METHOD__, 'publicize-$$next-version$$' );
+	}
+
+	/**
+	 * Show error on settings page if applicable.
+	 *
+	 * @deprecated $$next-version$$ WordPress.com shows connection errors in the connection window; Settings > Sharing no longer hosts them.
+	 *
+	 * @return void
+	 */
+	public function admin_page_load() {
+		_deprecated_function( __METHOD__, 'publicize-$$next-version$$' );
+	}
+
+	/**
+	 * Display an error message.
+	 *
+	 * @deprecated $$next-version$$ WordPress.com shows connection errors in the connection window; Settings > Sharing no longer hosts them.
+	 *
+	 * @return void
+	 */
+	public function display_connection_error() {
 		_deprecated_function( __METHOD__, 'publicize-$$next-version$$' );
 	}
 
@@ -322,89 +342,6 @@ class Publicize extends Publicize_Base {
 	public function get_connection_meta( $connection ) {
 		$connection['user_id'] = $connection['connection_data']['user_id']; // Allows for shared connections.
 		return $connection;
-	}
-
-	/**
-	 * Show error on settings page if applicable.
-	 */
-	public function admin_page_load() {
-		$action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( $_GET['action'] ) ) : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
-		if ( 'error' === $action ) {
-			add_action( 'pre_admin_screen_sharing', array( $this, 'display_connection_error' ), 9 );
-		}
-	}
-
-	/**
-	 * Display an error message.
-	 */
-	public function display_connection_error() {
-		$code = false;
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		$service         = isset( $_GET['service'] ) ? sanitize_text_field( wp_unslash( $_GET['service'] ) ) : null;
-		$publicize_error = isset( $_GET['publicize_error'] ) ? sanitize_text_field( wp_unslash( $_GET['publicize_error'] ) ) : null;
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-
-		if ( $service ) {
-			/* translators: %s is the name of the Jetpack Social service (e.g. Facebook, Twitter) */
-			$error = sprintf( __( 'There was a problem connecting to %s to create an authorized connection. Please try again in a moment.', 'jetpack-publicize-pkg' ), self::get_service_label( $service ) );
-		} elseif ( $publicize_error ) {
-			$code = strtolower( $publicize_error );
-			switch ( $code ) {
-				case '400':
-					$error = __( 'An invalid request was made. This normally means that something intercepted or corrupted the request from your server to the Jetpack Server. Try again and see if it works this time.', 'jetpack-publicize-pkg' );
-					break;
-				case 'secret_mismatch':
-					$error = __( 'We could not verify that your server is making an authorized request. Please try again, and make sure there is nothing interfering with requests from your server to the Jetpack Server.', 'jetpack-publicize-pkg' );
-					break;
-				case 'empty_blog_id':
-					$error = __( 'No blog_id was included in your request. Please try disconnecting Jetpack from WordPress.com and then reconnecting it. Once you have done that, try connecting Jetpack Social again.', 'jetpack-publicize-pkg' );
-					break;
-				case 'empty_state':
-					/* translators: %s is the URL of the Jetpack admin page */
-					$error = sprintf( __( 'No user information was included in your request. Please make sure that your user account has connected to Jetpack. Connect your user account by going to the <a href="%s">Jetpack page</a> within wp-admin.', 'jetpack-publicize-pkg' ), \Jetpack::admin_url() );
-					break;
-				default:
-					$error = __( 'Something which should never happen, happened. Sorry about that. If you try again, maybe it will work.', 'jetpack-publicize-pkg' );
-					break;
-			}
-		} else {
-			$error = __( 'There was a problem connecting with Jetpack Social. Please try again in a moment.', 'jetpack-publicize-pkg' );
-		}
-		// Using the same formatting/style as Jetpack::admin_notices() error.
-		?>
-		<div id="message" class="jetpack-message jetpack-err">
-			<div class="squeezer">
-				<h2>
-					<?php
-						echo wp_kses(
-							$error,
-							array(
-								'a'      => array(
-									'href' => true,
-								),
-								'code'   => true,
-								'strong' => true,
-								'br'     => true,
-								'b'      => true,
-							)
-						);
-					?>
-				</h2>
-				<?php if ( $code ) : ?>
-					<p>
-					<?php
-					printf(
-						/* translators: %s is the name of the error */
-						esc_html__( 'Error code: %s', 'jetpack-publicize-pkg' ),
-						esc_html( stripslashes( $code ) )
-					);
-					?>
-					</p>
-				<?php endif; ?>
-			</div>
-		</div>
-		<?php
 	}
 
 	/**
