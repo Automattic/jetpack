@@ -12,8 +12,11 @@ use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
+use WP_REST_Server;
+use function do_action;
 use function has_action;
 use function has_filter;
+use function rest_get_server;
 use function update_option;
 
 /**
@@ -146,6 +149,98 @@ class Jetpack_Backup_Init_Options_Test extends TestCase {
 		Jetpack_Backup::add_wp_admin_submenu();
 
 		$this->assertNotFalse( has_action( self::MENU_LOAD_HOOK, array( Jetpack_Backup::class, 'admin_init' ) ) );
+	}
+
+	/**
+	 * The dashboard's routes answer to the same gate its menu does.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_gated_rest_routes_are_absent_without_the_feature() {
+		Jetpack_Backup::initialize( array( 'require_backup_plan' => true ) );
+		$this->arrange_stored_answer( false );
+
+		$this->assertFalse( $this->has_backup_route() );
+	}
+
+	/**
+	 * And register once the site's plan includes Backup.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_gated_rest_routes_are_present_with_the_feature() {
+		Jetpack_Backup::initialize( array( 'require_backup_plan' => true ) );
+		$this->arrange_stored_answer( true );
+
+		$this->assertTrue( $this->has_backup_route() );
+	}
+
+	/**
+	 * The standalone plugin registers them whatever WordPress.com says.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_ungated_rest_routes_ignore_the_feature() {
+		Jetpack_Backup::initialize();
+		$this->arrange_stored_answer( false );
+
+		$this->assertTrue( $this->has_backup_route() );
+	}
+
+	/**
+	 * Fire `rest_api_init` against a fresh server and report whether Backup answered.
+	 *
+	 * @return bool
+	 */
+	private function has_backup_route() {
+		$GLOBALS['wp_rest_server'] = new WP_REST_Server();
+		do_action( 'rest_api_init' );
+
+		return array_key_exists( '/jetpack/v4/has-backup-plan', rest_get_server()->get_routes() );
+	}
+
+	/**
+	 * My Jetpack links to the page, so its answer has to track the menu's.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_dashboard_availability_tracks_the_gated_menu() {
+		Jetpack_Backup::initialize( array( 'require_backup_plan' => true ) );
+
+		$this->arrange_stored_answer( false );
+		$this->assertFalse( Jetpack_Backup::is_dashboard_available() );
+
+		$this->arrange_stored_answer( true );
+		$this->assertTrue( Jetpack_Backup::is_dashboard_available() );
+	}
+
+	/**
+	 * A package that ships with a plugin but was never initialized registers no page.
+	 *
+	 * The Jetpack plugin only initializes on admin and REST requests, and My Jetpack
+	 * must not link to a page that a plain front-end request never registered.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_dashboard_is_unavailable_until_the_package_is_initialized() {
+		$this->arrange_stored_answer( true );
+
+		$this->assertFalse( Jetpack_Backup::is_dashboard_available() );
 	}
 
 	/**

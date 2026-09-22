@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Backup\V0005\REST;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use WP_Error;
 use function add_filter;
@@ -102,6 +103,10 @@ trait Wpcom_Request_Mock {
 		// Only tests using this trait are covered, which is why `Backup_Abilities_Test`
 		// calls this too.
 		Connection_Utils::init_default_constants();
+
+		// `Manager::is_connected()` memoizes for the whole process, so a suite that ran
+		// before this filter existed has already cached "disconnected" for every test after it.
+		( new Connection_Manager() )->reset_connection_status();
 
 		return $admin_id;
 	}
@@ -275,6 +280,7 @@ trait Wpcom_Request_Mock {
 	protected function reset_wpcom_request_mock() {
 		remove_all_filters( 'pre_http_request' );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10 );
+		( new Connection_Manager() )->reset_connection_status();
 		wp_set_current_user( 0 );
 
 		$this->captured_url          = '';

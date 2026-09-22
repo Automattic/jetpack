@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Backup\V0005;
 
 use Automattic\Jetpack\Backup\V0005\REST\Wpcom_Request_Mock;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Product as My_Jetpack_Product;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -17,6 +18,7 @@ use function do_action;
 use function get_option;
 use function has_action;
 use function remove_all_actions;
+use function remove_filter;
 use function update_option;
 
 require_once __DIR__ . '/trait-wpcom-request-mock.php';
@@ -261,6 +263,89 @@ class Backup_Feature_Check_Test extends TestCase {
 		Backup_Feature_Check::refresh();
 
 		$this->assertSame( $before, get_option( Backup_Feature_Check::OPTION ) );
+	}
+
+	/**
+	 * A site with no blog token has no plan to read, so the menu goes away.
+	 *
+	 * Without this a disconnected site keeps whatever it last had: the features read
+	 * fails, and a failed read is deliberately carried forward.
+	 */
+	public function test_a_disconnected_site_answers_no() {
+		$this->arrange_stored_answer( true );
+		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
+		$this->arrange_disconnected_site();
+
+		Backup_Feature_Check::refresh();
+
+		$this->assertFalse( Backup_Feature_Check::has_backup() );
+		$this->assertSame( array(), $this->captured_urls, 'A disconnected site has nothing to ask.' );
+	}
+
+	/**
+	 * The first admin page load on a site that has never been asked draws its own menu.
+	 */
+	public function test_a_site_that_has_never_answered_is_asked_once() {
+		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
+
+		Backup_Feature_Check::refresh_if_never_answered();
+
+		$this->assertTrue( Backup_Feature_Check::has_backup() );
+		$this->assertCount( 1, $this->captured_urls );
+
+		Backup_Feature_Check::refresh_if_never_answered();
+
+		$this->assertCount( 1, $this->captured_urls );
+	}
+
+	/**
+	 * Once per site, not once per page: a prime that failed still counts as asked.
+	 */
+	public function test_a_failed_prime_is_not_repeated_on_the_next_page() {
+		$this->arrange_wpcom( array(), 500 );
+
+		Backup_Feature_Check::refresh_if_never_answered();
+		$this->assertCount( 1, $this->captured_urls );
+
+		Backup_Feature_Check::refresh_if_never_answered();
+		$this->assertCount( 1, $this->captured_urls, 'The next page load must not ask again.' );
+	}
+
+	/**
+	 * Opening the page asks again even though My Jetpack answered seconds ago.
+	 *
+	 * The My Jetpack render that sent the user to checkout caches the features for
+	 * fifteen seconds, and that copy still describes the plan they just replaced.
+	 */
+	public function test_the_page_open_read_looks_past_my_jetpacks_cache() {
+		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
+		My_Jetpack_Product::get_site_features_from_wpcom();
+		$this->assertCount( 1, $this->captured_urls );
+
+		Backup_Feature_Check::refresh_from_wpcom();
+
+		$this->assertCount( 2, $this->captured_urls );
+		$this->assertTrue( Backup_Feature_Check::has_backup() );
+	}
+
+	/**
+	 * Every other refresh rides that cache rather than making a second request.
+	 */
+	public function test_an_ordinary_refresh_reuses_my_jetpacks_cache() {
+		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
+		My_Jetpack_Product::get_site_features_from_wpcom();
+
+		Backup_Feature_Check::refresh();
+
+		$this->assertCount( 1, $this->captured_urls );
+	}
+
+	/**
+	 * Drop the fake connection the request mock installs.
+	 */
+	private function arrange_disconnected_site() {
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10 );
+		( new Connection_Manager() )->reset_connection_status();
 	}
 
 	/**

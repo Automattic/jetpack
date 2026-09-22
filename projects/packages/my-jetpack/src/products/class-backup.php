@@ -180,6 +180,12 @@ class Backup extends Hybrid_Product {
 	 * Get the URL where the user should be redirected after checkout
 	 */
 	public static function get_post_checkout_url() {
+		// Checkout ends with the site entitled, so the dashboard will be registered by the time
+		// this lands — which is why it skips the feature check the Manage link below needs.
+		if ( static::is_standalone_plugin_active() || ( static::is_jetpack_plugin_active() && did_action( 'jetpack_backup_initialized' ) ) ) {
+			return admin_url( 'admin.php?page=jetpack-backup' );
+		}
+
 		return self::get_manage_url();
 	}
 
@@ -435,11 +441,14 @@ class Backup extends Hybrid_Product {
 			// otherwise, check for the main Jetpack plugin
 		} elseif ( static::is_jetpack_plugin_active() ) {
 			/*
-			 * The Jetpack plugin hosts the Backup dashboard itself once the package is
-			 * initialized. Sending checkout back to it, rather than out to the cloud,
-			 * is also what re-reads the entitlement in time to draw the new menu item.
+			 * Only while the Jetpack plugin actually registers the page: it gates the
+			 * dashboard on the site's plan, and a site holding the broader `backups`
+			 * feature without self-serve would otherwise be sent to a page that 403s.
 			 */
-			if ( did_action( 'jetpack_backup_initialized' ) ) {
+			$backup = 'Automattic\\Jetpack\\Backup\\V0005\\Jetpack_Backup';
+
+			// @phan-suppress-next-line PhanUndeclaredClassReference -- optional Backup package, guarded by method_exists.
+			if ( method_exists( $backup, 'is_dashboard_available' ) && $backup::is_dashboard_available() ) {
 				return admin_url( 'admin.php?page=jetpack-backup' );
 			}
 

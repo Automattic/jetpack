@@ -115,6 +115,21 @@ class Backup_Product_Test extends TestCase {
 	}
 
 	/**
+	 * Checkout lands on the dashboard the Jetpack plugin hosts, not the cloud.
+	 *
+	 * Manage cannot do the same: it is read while the site is still unentitled, so the
+	 * page it would point at is not registered yet.
+	 */
+	public function test_backup_post_checkout_url_targets_the_hosted_dashboard() {
+		activate_plugins( 'jetpack/jetpack.php' );
+		deactivate_plugins( Backup::get_installed_plugin_filename() );
+		do_action( 'jetpack_backup_initialized' );
+
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-backup' ), Backup::get_post_checkout_url() );
+		$this->assertSame( Redirect::get_url( 'my-jetpack-manage-backup' ), Backup::get_manage_url() );
+	}
+
+	/**
 	 * Tests Backup Post Activation URL with Jetpack disconected
 	 */
 	public function test_backup_post_activation_url_with_jetpack_disconnected() {

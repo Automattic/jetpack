@@ -188,8 +188,7 @@ class Jetpack_Backup {
 
 		self::$require_backup_plan = (bool) $options['require_backup_plan'];
 
-		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
-		add_action( 'rest_api_init', array( \Automattic\Jetpack\Backup\V0005\REST\Rest_Controller::class, 'register_routes' ) );
+		add_action( 'rest_api_init', array( __CLASS__, 'maybe_register_rest_routes' ) );
 
 		// Runs before the menu is built: a link straight into the Backup page 404s
 		// unless the page was registered during this same request.
@@ -243,29 +242,71 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Re-read the Backup feature check when the page itself is being opened.
+	 * Re-read the Backup feature check while the menu is being built.
 	 *
-	 * The one deliberately synchronous read: it decides whether the page about to
-	 * render gets registered at all, so a just-completed purchase is picked up on
-	 * the checkout's own return rather than a page load later.
+	 * The two deliberately synchronous reads, because each decides whether the page about
+	 * to render is registered at all: the checkout's own return, and a site never asked.
 	 *
 	 * @return void
 	 */
 	public static function maybe_refresh_backup_feature_check() {
 		// `admin_menu` fires before WordPress checks who may see the page, so without the
 		// capability check any logged-in user could drive this unthrottled remote read.
-		if ( ! self::$require_backup_plan || ! current_user_can( 'manage_options' ) || ! self::is_backup_admin_request() ) {
+		if ( ! self::$require_backup_plan || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 
-		Backup_Feature_Check::refresh();
+		if ( self::is_backup_admin_request() ) {
+			Backup_Feature_Check::refresh_from_wpcom();
+			return;
+		}
+
+		Backup_Feature_Check::refresh_if_never_answered();
+	}
+
+	/**
+	 * Register the dashboard's REST routes, for a site whose plan clears the gate.
+	 *
+	 * The same gate the menu uses: these routes exist to serve that dashboard, so a
+	 * site never shown it has no use for them.
+	 *
+	 * @return void
+	 */
+	public static function maybe_register_rest_routes() {
+		if ( ! self::plan_allows_dashboard() ) {
+			return;
+		}
+
+		self::register_rest_routes();
+		\Automattic\Jetpack\Backup\V0005\REST\Rest_Controller::register_routes();
+	}
+
+	/**
+	 * Whether the Backup dashboard is registered for this request.
+	 *
+	 * Public because My Jetpack links to the page: the link and the menu have to answer
+	 * the same question, or Manage lands on "you are not allowed to access this page".
+	 *
+	 * @return bool
+	 */
+	public static function is_dashboard_available() {
+		return did_action( 'jetpack_backup_initialized' ) > 0 && self::plan_allows_dashboard();
+	}
+
+	/**
+	 * Whether the site's plan clears the gate the host plugin asked for.
+	 *
+	 * @return bool
+	 */
+	private static function plan_allows_dashboard() {
+		return ! self::$require_backup_plan || Backup_Feature_Check::has_backup();
 	}
 
 	/**
 	 * The page to be added to submenu
 	 */
 	public static function add_wp_admin_submenu() {
-		if ( self::$require_backup_plan && ! Backup_Feature_Check::has_backup() ) {
+		if ( ! self::plan_allows_dashboard() ) {
 			return;
 		}
 

@@ -861,6 +861,11 @@ class Jetpack {
 	 * @return void
 	 */
 	public static function configure_backup_package() {
+		// Backup does not support multisite, which is what the retired cloud link checked.
+		if ( is_multisite() ) {
+			return;
+		}
+
 		$backup = 'Automattic\\Jetpack\\Backup\\V0005\\Jetpack_Backup';
 
 		/*

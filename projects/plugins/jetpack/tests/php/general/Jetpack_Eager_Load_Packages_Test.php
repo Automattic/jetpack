@@ -102,6 +102,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 		// does not leak into other suites, and clear the connection-owner memo.
 		$GLOBALS['wp_rest_server'] = null;
 		Jetpack::connection()->reset_connection_status();
+		delete_option( \Automattic\Jetpack\Backup\V0005\Backup_Feature_Check::OPTION );
 
 		set_current_screen( 'front' );
 		parent::tear_down();
@@ -284,6 +285,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 * REST bootstrap callback.
 	 */
 	public function test_admin_request_does_not_defer_backup_to_rest_api_init() {
+		$this->skip_unless_backup_is_supported();
 		set_current_screen( 'dashboard' );
 		$_SERVER['REQUEST_METHOD'] = 'GET';
 
@@ -391,9 +393,14 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 * autoloaded REST controller and would register with or without this bootstrap.
 	 */
 	public function test_deferred_backup_routes_register_when_rest_api_init_fires() {
+		$this->skip_unless_backup_is_supported();
+
 		// Clean slate so registration can only happen via the re-add below.
 		$this->force_unfire_action( 'jetpack_backup_initialized' );
-		remove_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\V0005\\Jetpack_Backup', 'register_rest_routes' ) );
+		remove_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\V0005\\Jetpack_Backup', 'maybe_register_rest_routes' ) );
+
+		// The routes are gated on the site's plan, exactly as the menu is.
+		$this->arrange_backup_feature_check( true );
 
 		// Mirror the gate's deferred front-end-GET wiring.
 		add_action( 'rest_api_init', array( Jetpack::class, 'configure_backup_package' ), 0 );
@@ -404,6 +411,31 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 		$this->assertTrue(
 			$this->has_route_under( '/jetpack/v4/has-backup-plan' ),
 			'Deferred Backup bootstrap did not register its REST routes when rest_api_init fired.'
+		);
+	}
+
+	/**
+	 * Skip a test whose subject is the bundled Backup dashboard, which multisite never gets.
+	 */
+	private function skip_unless_backup_is_supported() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'The bundled Backup dashboard is not initialized on multisite.' );
+		}
+	}
+
+	/**
+	 * Store the answer the Backup menu and REST routes are both gated on.
+	 *
+	 * @param bool $has_backup Whether the site's plan includes Backup.
+	 */
+	private function arrange_backup_feature_check( $has_backup ) {
+		update_option(
+			\Automattic\Jetpack\Backup\V0005\Backup_Feature_Check::OPTION,
+			array(
+				'has_backup'  => $has_backup,
+				'stale_after' => time() + HOUR_IN_SECONDS,
+			),
+			false
 		);
 	}
 }

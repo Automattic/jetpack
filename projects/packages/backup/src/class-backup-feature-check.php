@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Backup\V0005;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Product as My_Jetpack_Product;
 use function add_action;
 use function get_option;
@@ -64,8 +65,8 @@ class Backup_Feature_Check {
 	/**
 	 * Whether the site's plan includes Backup, answering an unread site as no.
 	 *
-	 * Serves the stored answer and refreshes after the response, so no admin page
-	 * load ever waits on WordPress.com to decide whether to draw a menu item.
+	 * Serves the stored answer and queues the refresh for after the response, so
+	 * drawing a menu item does not itself wait on WordPress.com.
 	 *
 	 * @return bool
 	 */
@@ -95,6 +96,36 @@ class Backup_Feature_Check {
 	}
 
 	/**
+	 * Asks again with My Jetpack's short-lived cache dropped first.
+	 *
+	 * For the page-open read: the My Jetpack render that sent the user to checkout may have
+	 * cached the features seconds ago, and that copy still describes the pre-purchase plan.
+	 *
+	 * @return void
+	 */
+	public static function refresh_from_wpcom() {
+		if ( method_exists( My_Jetpack_Product::class, 'reset_site_features_cache' ) ) {
+			My_Jetpack_Product::reset_site_features_cache();
+		}
+
+		self::refresh();
+	}
+
+	/**
+	 * The first answer for a site that has never had one, in time for this request's menu.
+	 *
+	 * Costs one WordPress.com read per site, not per page: `store()` writes even for a read
+	 * that failed, so a site that has been asked once is never asked here again.
+	 *
+	 * @return void
+	 */
+	public static function refresh_if_never_answered() {
+		if ( self::get_stored() === null ) {
+			self::refresh();
+		}
+	}
+
+	/**
 	 * The queued refresh, which asks only if the answer is still stale.
 	 *
 	 * Something else — the listener above, or the Backup page — can answer between the
@@ -120,6 +151,12 @@ class Backup_Feature_Check {
 	private static function read_feature() {
 		if ( ! class_exists( My_Jetpack_Product::class ) || ! method_exists( My_Jetpack_Product::class, 'does_site_have_feature' ) ) {
 			return null;
+		}
+
+		// A site with no blog token has no plan here to read, so this is a settled no rather
+		// than a failed read — without it a disconnected site keeps the menu indefinitely.
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
+			return false;
 		}
 
 		if ( is_wp_error( My_Jetpack_Product::get_site_features_from_wpcom() ) ) {
