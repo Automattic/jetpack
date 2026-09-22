@@ -99,6 +99,7 @@ function OverviewContent( {
 		const onModulesChange = ( event: Event ) => {
 			const { key, data } = ( event as CustomEvent< ModulesStateChange > ).detail;
 			if ( relayedQueryKeys.includes( key ) ) {
+				void queryClient.cancelQueries( { queryKey: [ key ], exact: true } );
 				queryClient.setQueryData( [ key ], data );
 			}
 		};
