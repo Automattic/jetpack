@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Start bar chart value axes at zero so a small change no longer looks like a large one.

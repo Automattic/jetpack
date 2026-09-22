@@ -207,6 +207,7 @@ export function useBarChartOptions(
 		const linearScale = {
 			type: 'linear' as const,
 			nice: true,
+			// XYChart defaults `zero` to true, which would stretch a caller's domain to 0.
 			zero: false,
 		};
 
@@ -265,12 +266,14 @@ export function useBarChartOptions(
 			yScale: baseYScale,
 		} = defaultOptions[ orientationKey ];
 
-		const valueAxisIsY = ! horizontal;
-		const userDomain = valueAxisIsY ? stableOptions.yScale?.domain : stableOptions.xScale?.domain;
+		const valueScaleOptions = horizontal ? stableOptions.xScale : stableOptions.yScale;
 		const hasComparisonSeries = data.some( s => s.options?.type === 'comparison' );
-		const domain = userDomain
+		// Bars start at zero so their length encodes the value; `zero: false` opts out,
+		// except in comparison mode, where the shadows are drawn from the baseline.
+		const includeZero = hasComparisonSeries || valueScaleOptions?.zero !== false;
+		const domain = valueScaleOptions?.domain
 			? null
-			: getValueScaleDomain( data, hasComparisonSeries, isSeriesRendered );
+			: getValueScaleDomain( data, includeZero, isSeriesRendered );
 		const valueScaleDomainOverride: { domain?: [ number, number ] } = domain ? { domain } : {};
 
 		const xScale = {

@@ -17,7 +17,19 @@ const series = (
 const allRendered = () => true;
 
 describe( 'getValueScaleDomain', () => {
-	test( 'leaves a varying series to visx', () => {
+	test( 'anchors a varying series at zero', () => {
+		expect( getValueScaleDomain( [ series( [ 10, 20, 30 ] ) ], true, allRendered ) ).toEqual( [
+			0, 30,
+		] );
+	} );
+
+	test( 'spans zero for a varying negative series', () => {
+		expect( getValueScaleDomain( [ series( [ -10, -20 ] ) ], true, allRendered ) ).toEqual( [
+			-20, 0,
+		] );
+	} );
+
+	test( 'leaves a varying series to visx when zero is opted out', () => {
 		expect( getValueScaleDomain( [ series( [ 10, 20, 30 ] ) ], false, allRendered ) ).toBeNull();
 	} );
 

@@ -107,13 +107,14 @@ See [bar color configuration](./?path=/docs/js-packages-charts-library-charts-ba
 type ChartOptions = {
 	yScale?: {
 		type?: 'linear' | 'band';
-		zero?: boolean;
+		zero?: boolean; // Value axis only. Defaults to true; false fits the axis to the data.
 		domain?: [number, number];
 		nice?: boolean;
 		padding?: number;
 	};
 	xScale?: {
 		type?: 'time' | 'linear' | 'band';
+		zero?: boolean; // Value axis of a horizontal chart; same default as yScale.zero.
 		domain?: [Date, Date] | [number, number];
 		padding?: number;
 	};
