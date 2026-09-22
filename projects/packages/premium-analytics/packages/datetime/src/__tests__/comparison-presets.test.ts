@@ -145,7 +145,6 @@ describe( 'comparison options', () => {
 
 		expect( labels( thirtyDays ) ).toEqual( [
 			'Previous 30 days',
-			'Previous 30 days (match day of week)',
 			'Same period in 2025',
 			'Same period in 2025 (match day of week)',
 		] );
@@ -172,7 +171,6 @@ describe( 'comparison options', () => {
 
 		expect( labels( july ) ).toEqual( [
 			'Previous month',
-			'Previous month (match day of week)',
 			'Same period in 2025',
 			'Same period in 2025 (match day of week)',
 		] );
@@ -207,10 +205,7 @@ describe( 'comparison options', () => {
 	it( 'sets a calendar year against the previous calendar year', () => {
 		const year2025 = daysRange( [ 2025, 0, 1 ], [ 2025, 11, 31 ] );
 
-		expect( labels( year2025 ) ).toEqual( [
-			'Previous 12 months',
-			'Previous 12 months (match day of week)',
-		] );
+		expect( labels( year2025 ) ).toEqual( [ 'Previous 12 months' ] );
 		expect( getComparisonOptions( year2025 )[ 0 ].range ).toEqual(
 			daysRange( [ 2024, 0, 1 ], [ 2024, 11, 31 ] )
 		);
@@ -219,10 +214,7 @@ describe( 'comparison options', () => {
 	it( 'steps a rolling 12-month window back by its month count', () => {
 		const last12Months = daysRange( [ 2025, 7, 31 ], [ 2026, 7, 30 ] );
 
-		expect( labels( last12Months ) ).toEqual( [
-			'Previous 12 months',
-			'Previous 12 months (match day of week)',
-		] );
+		expect( labels( last12Months ) ).toEqual( [ 'Previous 12 months' ] );
 		expect( getComparisonOptions( last12Months )[ 0 ].range ).toEqual(
 			daysRange( [ 2024, 7, 31 ], [ 2025, 7, 30 ] )
 		);
@@ -237,7 +229,6 @@ describe( 'comparison options', () => {
 
 		expect( labels( pastRange ) ).toEqual( [
 			'Previous 57 days',
-			'Previous 57 days (match day of week)',
 			'Same period in 2024',
 			'Same period in 2024 (match day of week)',
 		] );
@@ -249,12 +240,11 @@ describe( 'comparison options', () => {
 
 		expect( options.map( option => option.label ) ).toEqual( [
 			'Previous 61 days',
-			'Previous 61 days (match day of week)',
 			'Same period in 2027',
 			'Same period in 2027 (match day of week)',
 		] );
-		expect( options[ 2 ].range ).toEqual( daysRange( [ 2027, 0, 1 ], [ 2027, 2, 1 ] ) );
-		expect( options[ 3 ].range ).toEqual( daysRange( [ 2027, 0, 2 ], [ 2027, 2, 3 ] ) );
+		expect( options[ 1 ].range ).toEqual( daysRange( [ 2027, 0, 1 ], [ 2027, 2, 1 ] ) );
+		expect( options[ 2 ].range ).toEqual( daysRange( [ 2027, 0, 2 ], [ 2027, 2, 3 ] ) );
 	} );
 
 	it( 'folds the year option into the previous period for Last 12 months in a leap year', () => {
@@ -263,7 +253,6 @@ describe( 'comparison options', () => {
 
 		expect( options.map( option => option.label ) ).toEqual( [
 			'Previous 347 days',
-			'Previous 347 days (match day of week)',
 			'Same period in 2026 (match day of week)',
 		] );
 		expect( options[ 0 ].range ).toEqual( daysRange( [ 2026, 9, 1 ], [ 2027, 8, 11 ] ) );
@@ -284,10 +273,7 @@ describe( 'comparison options', () => {
 	it( 'reads a two-year custom range in years', () => {
 		const twoYears = daysRange( [ 2024, 0, 1 ], [ 2025, 11, 31 ] );
 
-		expect( labels( twoYears ) ).toEqual( [
-			'Previous 2 years',
-			'Previous 2 years (match day of week)',
-		] );
+		expect( labels( twoYears ) ).toEqual( [ 'Previous 2 years' ] );
 		expect( getComparisonOptions( twoYears )[ 0 ].range ).toEqual(
 			daysRange( [ 2022, 0, 1 ], [ 2023, 11, 31 ] )
 		);
@@ -358,22 +344,36 @@ describe( 'comparison options', () => {
 		expect( options[ 1 ].shortLabel ).toBe( 'Prev. period (weekday)' );
 	} );
 
+	it( 'drops the weekday period past 28 days, keeping the weekday year', () => {
+		expect( ids( daysRange( [ 2026, 7, 2 ], [ 2026, 7, 30 ] ) ) ).toEqual( [
+			'previous-period',
+			'previous-year',
+			'previous-year-match-day-of-week',
+		] );
+		expect( ids( daysRange( [ 2026, 7, 4 ], [ 2026, 7, 30 ] ) ) ).toContain(
+			'previous-period-match-day-of-week'
+		);
+	} );
+
 	/*
-	 * From 358 days up the period's whole-week shift is 52 weeks, the year's
-	 * shift, so the two weekday variants name one window and the period keeps
-	 * it, as the calendar period does over the calendar year.
+	 * At 364 days the previous period is itself a 52-week shift, so the
+	 * weekday year names the same window and yields to it.
 	 */
-	it( 'lets the weekday period keep a window it shares with the weekday year', () => {
+	it( 'folds the weekday year into a 364-day previous period', () => {
 		const days360 = daysRange( [ 2026, 0, 1 ], [ 2026, 11, 26 ] );
 		const options = getComparisonOptions( days360 );
 
 		expect( options.map( option => option.id ) ).toEqual( [
 			'previous-period',
-			'previous-period-match-day-of-week',
+			'previous-year',
+			'previous-year-match-day-of-week',
+		] );
+		expect( options[ 2 ].range ).toEqual( daysRange( [ 2025, 0, 2 ], [ 2025, 11, 27 ] ) );
+
+		expect( ids( daysRange( [ 2025, 8, 2 ], [ 2026, 7, 31 ] ) ) ).toEqual( [
+			'previous-period',
 			'previous-year',
 		] );
-		expect( options[ 1 ].label ).toBe( 'Previous 360 days (match day of week)' );
-		expect( options[ 1 ].range ).toEqual( daysRange( [ 2025, 0, 2 ], [ 2025, 11, 27 ] ) );
 	} );
 
 	it( 'withholds both year options from a range longer than 364 days', () => {

@@ -43,7 +43,10 @@ export type ComparisonOption = {
  * comparison. A shift must never land the comparison overlapping the range
  * itself: 7 covers the week shift, 28 the month shift in February. From a year
  * up, the previous year and the previous period converge (or sit one day apart
- * across a leap year), so the year option adds noise, not signal.
+ * across a leap year), so the year option adds noise, not signal. The
+ * weekday-aligned period shares the month cap: past four weeks its window
+ * drifts weeks behind the previous period, and the year variant is the
+ * alignment those ranges want.
  */
 const MAX_DAYS_FOR_WEEK = 7;
 const MAX_DAYS_FOR_MONTH = 28;
@@ -208,9 +211,9 @@ function getOptionLabel(
  * all resolve through the same rules: the previous period is always offered;
  * the week, month, and year shifts only while they cannot overlap the range;
  * and an option resolving to the same window as an earlier one is dropped, so
- * a 7-day range lists no last-week entry. The weekday-aligned variants follow
- * the same gates as their calendar siblings and yield to any option they
- * coincide with.
+ * a 7-day range lists no last-week entry. The weekday-aligned period is
+ * offered up to four weeks and the weekday-aligned year up to the year cap;
+ * both yield to any option they coincide with.
  *
  * @param reference - The applied range (both ends required).
  * @param options   - The context the range was produced in; the preset it came
@@ -243,7 +246,9 @@ export function getComparisonOptions(
 	if ( days <= MAX_DAYS_FOR_YEAR ) {
 		candidates.push( COMPARISON_PREVIOUS_YEAR );
 	}
-	candidates.push( COMPARISON_PREVIOUS_PERIOD_MATCH_DAY_OF_WEEK );
+	if ( days <= MAX_DAYS_FOR_MONTH ) {
+		candidates.push( COMPARISON_PREVIOUS_PERIOD_MATCH_DAY_OF_WEEK );
+	}
 	if ( days <= MAX_DAYS_FOR_YEAR ) {
 		candidates.push( COMPARISON_PREVIOUS_YEAR_MATCH_DAY_OF_WEEK );
 	}
