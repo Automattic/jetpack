@@ -17,6 +17,7 @@ import {
 } from '../components/variant-builder';
 import { API_BASE } from './api-base';
 import { buildRequestData } from './request-data';
+import { getResourceAttributeUpdates } from './resource-sync';
 import { firstBlockingError, getUserFriendlyError, getValidationErrors } from './validation';
 
 // The last body each block sent, so an unchanged block is not re-sent on every save.
@@ -29,6 +30,22 @@ const paymentsRead = new Map();
 // Blocks whose editor rendered, keyed by clientId. Both cases hold the save back, but
 // only a block that rendered is told to reload; the rest are sent to the visual editor.
 const blocksMounted = new Set();
+
+// PayPal grants the mode stacked needs per account, and only a write tells us — a GET
+// reads the same either way. Without the capability there are no code_snippets and so
+// no scriptSrc. Nothing records the refusal, so an account granted it later just works.
+const STACKED_UNAVAILABLE = __(
+	"Stacked buttons aren't available for this PayPal account yet. Please choose another format.",
+	'jetpack-paypal-payments'
+);
+
+// The payment reached PayPal but the read-back did not, so the block has no SDK URL and
+// nothing yet says whether the account can do stacked. Saving again asks again, and so
+// does reloading the post.
+const STACKED_UNCONFIRMED = __(
+	'There was an issue saving your stacked buttons. Please try again.',
+	'jetpack-paypal-payments'
+);
 
 /**
  * Forget what has been synced and what has been read. Tests start clean with this.
@@ -116,20 +133,63 @@ export function isNotFound( err ) {
 }
 
 /**
- * Create a payment and return the attributes that point the block at it.
+ * Create a payment, and hand back both the response and the attributes that point
+ * the block at it.
  *
- * @param {Function} request  - apiFetch or a stand-in.
- * @param {string}   clientId - The block's client id.
- * @param {object}   body     - The request body.
- * @return {Promise<object>} Attributes to set on the block.
+ * @param {Function} request    - apiFetch or a stand-in.
+ * @param {string}   clientId   - The block's client id.
+ * @param {object}   attributes - The block's current attributes.
+ * @param {object}   body       - The request body.
+ * @return {Promise<object>} The API response, and the attributes to set on the block.
  */
-async function createPayment( request, clientId, body ) {
+async function createPayment( request, clientId, attributes, body ) {
 	const response = await request( { path: `${ API_BASE }/buttons`, method: 'POST', data: body } );
 
 	// This request is what PayPal now has, so the next save can update it without a read.
 	recordPaymentRead( clientId, response.id );
 
-	return { isApiManaged: true, resourceId: response.id, paymentLink: response.payment_link };
+	return {
+		response,
+		updates: {
+			isApiManaged: true,
+			resourceId: response.id,
+			// What PayPal decided rather than echoed — the payment link, the SDK URL and the
+			// settled mode. Otherwise a new stacked block saves an empty scriptSrc and keeps it:
+			// the mount GET runs after the post is serialized.
+			...resourceUpdatesFrom( attributes, response ),
+		},
+	};
+}
+
+/**
+ * What a create or update response says should change on the block.
+ *
+ * The server attaches `attributes` only when it read the resource back: a PUT echo has
+ * no `id`, and mapping one would blank the block's resourceId. Diffing runs through the
+ * same helper as the mount read-back, so variants compare the same way and an unchanged
+ * block comes back empty.
+ *
+ * @param {object} attributes - The block's current attributes.
+ * @param {object} response   - The API response.
+ * @return {object} Attributes to set, empty when there is nothing to change.
+ */
+function resourceUpdatesFrom( attributes, response ) {
+	return response?.attributes ? getResourceAttributeUpdates( attributes, response.attributes ) : {};
+}
+
+/**
+ * Tell the merchant when a stacked block's account cannot do stacked.
+ *
+ * The format is left alone — the message asks them to choose another.
+ *
+ * @param {object}   block       - The block, with clientId and attributes.
+ * @param {string}   scriptSrc   - The SDK URL the block ends this save with.
+ * @param {Function} reportError - Tells the merchant a block's save failed, and why.
+ */
+function reportStackedUnavailable( block, scriptSrc, reportError ) {
+	if ( 'STACKED' === block.attributes.format && ! scriptSrc ) {
+		reportError( block, STACKED_UNAVAILABLE );
+	}
 }
 
 /**
@@ -179,33 +239,63 @@ async function syncBlock(
 	const key = JSON.stringify( body );
 
 	if ( resourceId && lastSynced.get( clientId ) === key ) {
+		// Nothing was written, so nothing new is known — the block still lacks an SDK URL
+		// and still renders the fallback, so say so again.
+		reportStackedUnavailable( { clientId, attributes }, attributes.scriptSrc, reportError );
 		return false;
 	}
 
 	let changed = false;
 	try {
+		let result;
+
 		if ( resourceId ) {
 			try {
 				// A PUT replaces the payment outright, and the form models every line item field
 				// PayPal stores, so the body goes out as built.
-				await request( {
+				const response = await request( {
 					path: `${ API_BASE }/buttons/${ resourceId }`,
 					method: 'PUT',
 					data: body,
 				} );
+
+				// PayPal answers a PUT with 204, so the server re-reads the resource in BUTTON
+				// mode — how a block switching to stacked gets its scriptSrc in the same save.
+				result = { response, updates: resourceUpdatesFrom( attributes, response ) };
 			} catch ( err ) {
 				if ( ! isNotFound( err ) ) {
 					throw err;
 				}
 				// Gone from PayPal, or deleted from the admin page: give the block a new one.
-				updateBlockAttributes( clientId, await createPayment( request, clientId, body ) );
-				changed = true;
+				result = await createPayment( request, clientId, attributes, body );
 			}
 		} else {
-			updateBlockAttributes( clientId, await createPayment( request, clientId, body ) );
+			result = await createPayment( request, clientId, attributes, body );
+		}
+
+		const { response, updates } = result;
+
+		if ( Object.keys( updates ).length > 0 ) {
+			updateBlockAttributes( clientId, updates );
 			changed = true;
 		}
-		lastSynced.set( clientId, key );
+		// A stacked block learns what its account can do from the read-back, so a save
+		// without one leaves the next save to ask again.
+		if ( response?.attributes || 'STACKED' !== attributes.format ) {
+			lastSynced.set( clientId, key );
+		}
+
+		if ( response?.attributes ) {
+			reportStackedUnavailable(
+				{ clientId, attributes },
+				'scriptSrc' in updates ? updates.scriptSrc : attributes.scriptSrc,
+				reportError
+			);
+		} else if ( 'STACKED' === attributes.format ) {
+			// An echo with no resource says nothing about the account, so ask for a retry
+			// instead of saying PayPal refused.
+			reportError( { clientId, attributes }, STACKED_UNCONFIRMED );
+		}
 	} catch ( err ) {
 		reportError(
 			{ clientId, attributes },

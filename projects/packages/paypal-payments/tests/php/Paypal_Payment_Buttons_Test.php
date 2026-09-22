@@ -33,7 +33,16 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		\WP_Block_Supports::$block_to_render = null;
 
 		remove_all_filters( self::FLAG_FILTER );
+		wp_set_current_user( 0 );
 		Feature_Flags::reset();
+
+		// One request's worth of state in production, but the process outlives a test,
+		// so the next test reusing an id would get the single-button fallback.
+		$rendered = new \ReflectionProperty( PayPal_Payment_Buttons::class, 'rendered_ids' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$rendered->setAccessible( true );
+		}
+		$rendered->setValue( null, array() );
 	}
 
 	/**
@@ -158,6 +167,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$this->assertStringContainsString( 'paypal-container-ABC123XYZ', $html );
 		$this->assertStringNotContainsString( '/ncp/payment/', $html );
+		// PayPal draws the whole card, and the paste-code path emits its container alone.
+		$this->assertStringNotContainsString( 'wp-block-jetpack-paypal-payment-buttons', $html );
 	}
 
 	/**
@@ -239,6 +250,302 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'blockName' => 'jetpack/paypal-payment-buttons',
 			'attrs'     => $attributes,
 		);
+	}
+
+	/**
+	 * An API-managed block on a BUTTON-mode payment.
+	 *
+	 * @param array $extra Attributes to add or override.
+	 * @return array
+	 */
+	private function stacked_attributes( array $extra = array() ) {
+		return array_merge(
+			array(
+				'isApiManaged' => true,
+				'format'       => 'STACKED',
+				'resourceId'   => 'PLB-STACKED1',
+				'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-STACKED1',
+				'productName'  => 'Widget',
+				'price'        => '10.00',
+				'currencyCode' => 'USD',
+				'scriptSrc'    => 'https://www.paypal.com/sdk/js?client-id=abc',
+			),
+			$extra
+		);
+	}
+
+	public function test_render_block_stacked_draws_the_sdk_container() {
+		$attributes = $this->stacked_attributes();
+		$this->set_up_block_render_context( $attributes );
+
+		$html = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'id="paypal-container-PLB-STACKED1"', $html );
+		// PayPal draws the whole card, so the block adds nothing around the container.
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__button', $html );
+	}
+
+	/**
+	 * The block path puts the block wrapper around PayPal's container.
+	 */
+	public function test_render_block_stacked_wraps_the_container_in_the_block_wrapper() {
+		register_block_type_from_metadata(
+			dirname( __DIR__, 2 ) . '/src/paypal-payment-buttons',
+			array( 'render_callback' => array( PayPal_Payment_Buttons::class, 'render_block' ) )
+		);
+
+		$html = do_blocks(
+			'<!-- wp:jetpack/paypal-payment-buttons ' . wp_json_encode(
+				$this->stacked_attributes(
+					array(
+						'resourceId'  => 'PLB-WRAP1',
+						'paymentLink' => 'https://www.paypal.com/ncp/payment/PLB-WRAP1',
+					)
+				),
+				JSON_UNESCAPED_SLASHES
+			) . ' /-->'
+		);
+
+		unregister_block_type( 'jetpack/paypal-payment-buttons' );
+
+		$this->assertMatchesRegularExpression(
+			'#class="[^"]*wp-block-jetpack-paypal-payment-buttons[^"]*"[^>]*><div id="paypal-container-PLB-WRAP1"></div></div>#',
+			$html
+		);
+	}
+
+	public function test_render_block_stacked_falls_back_to_the_single_button_on_an_empty_script_src() {
+		// PayPal grants the mode per account, and an empty scriptSrc means it has yet
+		// to. The editor says so on every save, and the published page still has to sell.
+		$attributes = $this->stacked_attributes( array( 'scriptSrc' => '' ) );
+		$this->set_up_block_render_context( $attributes );
+
+		$html = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__button', $html );
+		$this->assertStringNotContainsString( 'paypal-container-', $html );
+	}
+
+	public function test_render_block_stacked_falls_back_when_the_script_src_is_off_paypal() {
+		$attributes = $this->stacked_attributes( array( 'scriptSrc' => 'https://evil.example.com/sdk.js' ) );
+		$this->set_up_block_render_context( $attributes );
+
+		$html = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__button', $html );
+		$this->assertStringNotContainsString( 'evil.example.com', $html );
+	}
+
+	public function test_render_block_stacked_renders_one_payment_once_per_document() {
+		// PayPal injects its markup by button id, so a second container with the same
+		// id would hijack the first block's. The duplicate draws the single button
+		// instead — same payment, and it still sells.
+		$attributes = $this->stacked_attributes();
+		$this->set_up_block_render_context( $attributes );
+
+		$first  = PayPal_Payment_Buttons::render_block( $attributes, '' );
+		$second = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'id="paypal-container-PLB-STACKED1"', $first );
+		$this->assertStringNotContainsString( 'paypal-container-', $second );
+		$this->assertStringContainsString( 'jetpack-paypal-button__button', $second );
+	}
+
+	public function test_tag_paypal_sdk_script_adds_the_namespace_and_the_partner_attribution_id() {
+		$tag = PayPal_Payment_Buttons::tag_paypal_sdk_script(
+			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- A fixture of PayPal's snippet, not an enqueue.
+			'<script src="https://www.paypal.com/sdk/js"></script>',
+			PayPal_Payment_Buttons::SDK_SCRIPT_HANDLE
+		);
+
+		$this->assertStringContainsString( 'data-namespace="paypal_payment_buttons"', $tag );
+		$this->assertStringContainsString(
+			'data-paypal-partner-attribution-id="' . PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID . '"',
+			$tag
+		);
+	}
+
+	public function test_tag_paypal_sdk_script_leaves_other_scripts_alone() {
+		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- A fixture of PayPal's snippet, not an enqueue.
+		$other = '<script src="https://example.com/app.js"></script>';
+
+		$this->assertSame( $other, PayPal_Payment_Buttons::tag_paypal_sdk_script( $other, 'some-other-handle' ) );
+	}
+
+	public function test_sdk_host_endpoint_waits_for_the_feature_flag() {
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_post_' . PayPal_Payment_Buttons::SDK_HOST_ACTION );
+
+		PayPal_Payment_Buttons::register_feature_flags();
+
+		PayPal_Payment_Buttons::init_admin();
+		do_action( 'init' );
+
+		$this->assertFalse( has_action( 'admin_post_' . PayPal_Payment_Buttons::SDK_HOST_ACTION ) );
+
+		remove_all_actions( 'init' );
+	}
+
+	public function test_sdk_host_endpoint_is_registered_once_the_flag_is_on() {
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_post_' . PayPal_Payment_Buttons::SDK_HOST_ACTION );
+
+		PayPal_Payment_Buttons::register_feature_flags();
+		add_filter( self::FLAG_FILTER, '__return_true' );
+
+		PayPal_Payment_Buttons::init_admin();
+		do_action( 'init' );
+
+		$this->assertNotFalse(
+			has_action( 'admin_post_' . PayPal_Payment_Buttons::SDK_HOST_ACTION ),
+			'The editor cannot draw the stacked preview without this endpoint.'
+		);
+		// The frame is for logged-in editors, so the nopriv twin stays off.
+		$this->assertFalse(
+			has_action( 'admin_post_nopriv_' . PayPal_Payment_Buttons::SDK_HOST_ACTION )
+		);
+
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_post_' . PayPal_Payment_Buttons::SDK_HOST_ACTION );
+	}
+
+	public function test_sdk_host_styles_include_both_sizing_rules() {
+		// Losing either rule clips every stacked card in the editor.
+		$print = new \ReflectionMethod( PayPal_Payment_Buttons::class, 'print_sdk_host_styles' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$print->setAccessible( true );
+		}
+
+		ob_start();
+		$print->invoke( null );
+		$css = preg_replace( '/\s+/', ' ', (string) ob_get_clean() );
+
+		$this->assertStringContainsString( 'body { margin: 0; }', $css );
+		$this->assertStringContainsString( 'body > div { display: flow-root; }', $css );
+	}
+
+	public function test_sdk_host_url_points_at_the_admin_post_action() {
+		$this->assertStringContainsString(
+			'action=' . PayPal_Payment_Buttons::SDK_HOST_ACTION,
+			PayPal_Payment_Buttons::get_sdk_host_url()
+		);
+	}
+
+	/**
+	 * The arguments wp_die() was last called with.
+	 *
+	 * @var array|null
+	 */
+	private $wp_die_args = null;
+
+	/**
+	 * A wp_die() handler that throws instead of ending the process, so the refusal
+	 * can be asserted on.
+	 *
+	 * @return callable
+	 */
+	public function throwing_wp_die_handler() {
+		/**
+		 * Record the wp_die() call and throw where it would have exited.
+		 *
+		 * @param string $message The wp_die() message.
+		 * @param string $title   The wp_die() title.
+		 * @param array  $args    The wp_die() arguments.
+		 * @return never
+		 * @throws \RuntimeException Always.
+		 */
+		return function ( $message, $title, $args ) {
+			$this->wp_die_args = array_merge(
+				array(
+					'message' => $message,
+					'title'   => $title,
+				),
+				$args
+			);
+			throw new \RuntimeException( 'wp_die' );
+		};
+	}
+
+	/**
+	 * Where run_sdk_host() stopped: 'wp_die' or 'markup'.
+	 *
+	 * @var string|null
+	 */
+	private $sdk_host_stopped_at = null;
+
+	/**
+	 * Run render_sdk_host() and return what it emitted.
+	 *
+	 * Both of its exits have to be caught. wp_die() ends the process, so its handler is
+	 * swapped for one that throws, and the page itself ends in exit(), so the esc_html()
+	 * on the <title> throws instead. Everything up to the title is within reach that way.
+	 *
+	 * @return string The markup emitted before the run was stopped.
+	 */
+	private function run_sdk_host() {
+		$this->wp_die_args         = null;
+		$this->sdk_host_stopped_at = null;
+
+		// The refusal copy goes through esc_html too, so let that one string past and a
+		// denied request still reaches wp_die(). Everything else the page escapes stops
+		// the run here, so a title copy change keeps working.
+		$stop_at_the_markup = static function ( $safe_text, $text ) {
+			if ( 'Sorry, you are not allowed to access this page.' !== $text ) {
+				throw new \RuntimeException( 'markup' );
+			}
+			return $safe_text;
+		};
+
+		add_filter( 'wp_die_handler', array( $this, 'throwing_wp_die_handler' ) );
+		add_filter( 'esc_html', $stop_at_the_markup, 10, 2 );
+
+		ob_start();
+		try {
+			PayPal_Payment_Buttons::render_sdk_host();
+		} catch ( \RuntimeException $e ) {
+			$this->sdk_host_stopped_at = $e->getMessage();
+		} finally {
+			$markup = ob_get_clean();
+			remove_filter( 'esc_html', $stop_at_the_markup, 10 );
+			remove_filter( 'wp_die_handler', array( $this, 'throwing_wp_die_handler' ) );
+		}
+
+		return $markup;
+	}
+
+	public function test_sdk_host_turns_away_a_logged_out_visitor() {
+		wp_set_current_user( 0 );
+
+		$markup = $this->run_sdk_host();
+
+		$this->assertSame(
+			'wp_die',
+			$this->sdk_host_stopped_at,
+			'Stopped in the markup: run_sdk_host() lets only the refusal copy past esc_html, so it has to match.'
+		);
+		$this->assertSame( 403, $this->wp_die_args['response'] ?? null );
+		$this->assertNotEmpty( $this->wp_die_args['message'] ?? '', 'A refusal has to say why.' );
+		$this->assertSame( '', $markup, 'A refusal serves no markup.' );
+	}
+
+	public function test_sdk_host_serves_the_frame_to_an_editor() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'sdk-host-editor',
+					'user_pass'  => 'password',
+					'role'       => 'editor',
+				)
+			)
+		);
+
+		$markup = $this->run_sdk_host();
+
+		$this->assertSame( 'markup', $this->sdk_host_stopped_at, 'An editor gets the frame.' );
+		$this->assertStringContainsString( '<!DOCTYPE html>', $markup );
+		$this->assertStringContainsString( '<meta charset=', $markup );
+		// The page has to include the stylesheet, not just be able to emit one.
+		$this->assertStringContainsString( 'display: flow-root;', $markup );
 	}
 
 	/**
@@ -437,7 +744,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		// Get the inline script that was added
 		global $wp_scripts;
-		$inline_script = $wp_scripts->get_data( 'paypal-payment-buttons-block-head', 'after' );
+		$inline_script = $wp_scripts->get_data( PayPal_Payment_Buttons::SDK_SCRIPT_HANDLE, 'after' );
 
 		$this->assertNotEmpty( $inline_script, 'Inline script should be registered' );
 

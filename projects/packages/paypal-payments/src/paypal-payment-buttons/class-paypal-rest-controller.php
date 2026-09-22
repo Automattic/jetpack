@@ -633,6 +633,10 @@ class PayPal_REST_Controller {
 			return self::api_error_to_rest_error( $result );
 		}
 
+		// The 201 includes code_snippets, so map it here too: a new stacked block would
+		// otherwise save an empty scriptSrc, and the mount GET comes too late to fix it.
+		$result['attributes'] = PayPal_Attribute_Mapper::api_response_to_attributes( $result );
+
 		return new WP_REST_Response( $result, 201 );
 	}
 
@@ -701,6 +705,17 @@ class PayPal_REST_Controller {
 
 		if ( is_wp_error( $result ) ) {
 			return self::api_error_to_rest_error( $result );
+		}
+
+		// A PUT answers 204 with no code_snippets, so BUTTON mode re-reads the resource —
+		// otherwise a block switching to stacked stays blank until reload. Only the re-read
+		// gets `attributes`: the echo has no `id`, and mapping it would blank resourceId.
+		if ( 'BUTTON' === ( $resource_data['integration_mode'] ?? '' ) ) {
+			$fresh = PayPal_API_Client::get_resource( $resource_id );
+			if ( ! is_wp_error( $fresh ) ) {
+				$result               = $fresh;
+				$result['attributes'] = PayPal_Attribute_Mapper::api_response_to_attributes( $result );
+			}
 		}
 
 		return new WP_REST_Response( $result, 200 );

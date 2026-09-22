@@ -3317,6 +3317,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					? Promise.resolve( {
 							id: 'PLB-NEW1',
 							payment_link: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+							attributes: {
+								...attributes,
+								resourceId: 'PLB-NEW1',
+								paymentLink: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+							},
 						} )
 					: Promise.reject( { code: 'paypal_api_resource_not_found', data: { status: 404 } } )
 			);
@@ -3324,7 +3329,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( requests.map( r => r.method ) ).toEqual( [ 'PUT', 'POST' ] );
 			expect( updateBlockAttributes ).toHaveBeenCalledWith(
 				'a',
-				expect.objectContaining( { resourceId: 'PLB-NEW1' } )
+				expect.objectContaining( {
+					resourceId: 'PLB-NEW1',
+					// The old link points at a payment PayPal dropped, so keeping it would
+					// send every buyer to a not-found page.
+					paymentLink: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+				} )
 			);
 			expect( reportHeldBack ).not.toHaveBeenCalled();
 		} );
@@ -5888,6 +5898,45 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 		} );
 
+		// A block saved before integrationMode existed has the block.json default of ''.
+		// Filling it in from the payment is bookkeeping, not an edit made elsewhere.
+		it( 'stays quiet when the payment fills in the mode on an older block', async () => {
+			mockPayment( { ...carried, integrationMode: 'LINK' } );
+			renderForm( saved );
+
+			await expect( screen.findByText( 'PayPal Connected' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( notice ) ).not.toBeInTheDocument();
+			expect( setAttributes ).toHaveBeenCalledWith(
+				expect.objectContaining( { integrationMode: 'LINK' } )
+			);
+		} );
+
+		// The mode belongs to the payment, not the block: a sibling block going stacked
+		// flips it, and the merchant has nothing to act on.
+		it( 'stays quiet when a sibling block changed the mode', async () => {
+			mockPayment( { ...carried, integrationMode: 'BUTTON' } );
+			renderForm( { ...saved, integrationMode: 'LINK' } );
+
+			await expect( screen.findByText( 'PayPal Connected' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( notice ) ).not.toBeInTheDocument();
+			expect( setAttributes ).toHaveBeenCalledWith(
+				expect.objectContaining( { integrationMode: 'BUTTON' } )
+			);
+		} );
+
+		// Only a stacked block draws with the SDK URL, so losing it is worth saying out loud.
+		it( 'says so when the payment loses the SDK URL a stacked block draws with', async () => {
+			mockPayment( carried );
+			renderForm( {
+				...saved,
+				format: 'STACKED',
+				scriptSrc: 'https://www.paypal.com/sdk/js?client-id=abc',
+			} );
+
+			await expect( screen.findByText( notice ) ).resolves.toBeInTheDocument();
+			expect( setAttributes ).toHaveBeenCalledWith( expect.objectContaining( { scriptSrc: '' } ) );
+		} );
+
 		it( 'stays quiet when the block already agrees with the payment', async () => {
 			mockPayment( carried );
 			renderForm( saved );
@@ -6179,6 +6228,61 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				styles = await screen.findByTestId( 'inspector-controls-styles' );
 				expect( within( styles ).getByLabelText( 'Embed as' ) ).toHaveValue( 'LINK' );
 				expect( screen.queryByLabelText( 'Button text' ) ).not.toBeInTheDocument();
+			} );
+
+			// Stacked buttons are styled account-wide at PayPal, so only that format
+			// gets the link.
+			it( 'links to the PayPal settings on stacked buttons only', async () => {
+				const { rerender } = render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'STACKED' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				// The connection is a sandbox one, so the link stays on the sandbox
+				// dashboard.
+				expect(
+					within( styles ).getByRole( 'link', { name: /Edit default settings in PayPal/ } )
+				).toHaveAttribute(
+					'href',
+					'https://www.sandbox.paypal.com/ncp/settings?initial_tab=stackedButtons'
+				);
+
+				for ( const format of [ 'BUTTON', 'QR', 'LINK' ] ) {
+					rerender(
+						<Edit attributes={ { ...qrAttributes, format } } setAttributes={ setAttributes } />
+					);
+					// Check the format changed before checking the link, so a stale
+					// render cannot pass.
+					const rendered = await screen.findByTestId( 'inspector-controls-styles' );
+					expect( within( rendered ).getByLabelText( 'Embed as' ) ).toHaveValue( format );
+					expect( screen.queryByText( 'Edit default settings in PayPal' ) ).not.toBeInTheDocument();
+				}
+			} );
+
+			// Sandbox is opt-in, so only a sandbox connection gets the sandbox dashboard.
+			it.each( [
+				[ 'a live merchant', 'production' ],
+				[ 'an unknown environment', undefined ],
+			] )( 'sends %s to the live dashboard', async ( _label, environment ) => {
+				apiFetch.mockResolvedValue( { connected: true, environment } );
+
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'STACKED' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				expect(
+					within( styles ).getByRole( 'link', { name: /Edit default settings in PayPal/ } )
+				).toHaveAttribute(
+					'href',
+					'https://www.paypal.com/ncp/settings?initial_tab=stackedButtons'
+				);
 			} );
 
 			// Embed as is a single choice, so a QR under the button has no home

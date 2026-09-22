@@ -641,21 +641,27 @@
 	align-items: center;
 }
 
-// No link to encode yet, so the canvas is sized but never drawn into. Opaque
-// on purpose: a see-through tint shows the frame's rounded border through it.
-.jetpack-paypal-button__qr-canvas--pending {
+// A shimmer where a preview will be. Opaque on purpose: a see-through tint
+// shows the frame's rounded border through it.
+%pending-placeholder {
 	background-color: #eeeff5; // QR_OPTIONS.color.dark at 8% over white
 	background-image: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
 	background-repeat: no-repeat;
 	background-size: 200% 100%;
-	animation: jetpack-paypal-qr-shimmer 1.4s ease-in-out infinite;
+	animation: jetpack-paypal-shimmer 1.4s ease-in-out infinite;
 
 	@media (prefers-reduced-motion: reduce) {
 		animation: none;
 	}
 }
 
-@keyframes jetpack-paypal-qr-shimmer {
+// No link to encode yet, so the canvas is sized but never drawn into.
+.jetpack-paypal-button__qr-canvas--pending {
+
+	@extend %pending-placeholder;
+}
+
+@keyframes jetpack-paypal-shimmer {
 
 	from {
 		background-position: -100% 0;
@@ -1225,4 +1231,37 @@
 .jetpack-paypal-payment-buttons__links-hint {
 	margin: 0;
 	color: #757575;
+}
+
+// ---------------------------------------------------------------
+// Stacked format
+// ---------------------------------------------------------------
+
+// Positioned so the click overlay can cover the frame.
+.jetpack-paypal-button-preview--stacked {
+	position: relative;
+
+	iframe {
+		display: block;
+		width: 100%;
+		border: 0;
+	}
+}
+
+// Shown until the payment's snippet is read back on the first save.
+.jetpack-paypal-button-preview--stacked-pending {
+
+	@extend %pending-placeholder;
+	border-radius: 4px;
+}
+
+// Core's embed overlay: all four insets, opacity 0 so it still takes clicks,
+// and no z-index — document order is enough.
+.jetpack-paypal-button-preview__interactive-overlay {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	opacity: 0;
 }

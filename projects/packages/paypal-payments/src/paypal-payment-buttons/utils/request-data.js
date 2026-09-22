@@ -55,6 +55,8 @@ function buildShipping( mode, value, additional ) {
  */
 export function buildRequestData( attributes, usesVariantPricing ) {
 	const {
+		format,
+		integrationMode,
 		productName,
 		price,
 		currencyCode,
@@ -91,7 +93,14 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 
 	return {
 		type: 'BUY_NOW',
-		integration_mode: 'LINK',
+		// Stacked needs BUTTON mode — that is what makes PayPal return code_snippets. Other
+		// formats re-send the payment's current mode, so a sibling block sharing the payment
+		// leaves it as it is. The mode is stored in its own right rather than inferred from
+		// scriptSrc, because an account without the stacked capability still takes BUTTON mode
+		// and returns no code_snippets: inferring would let a LINK or QR sibling downgrade such
+		// a payment, and a LINK-mode PUT skips the server re-read, so it would stay down.
+		// Empty means the block has yet to read one, which is LINK.
+		integration_mode: 'STACKED' === format ? 'BUTTON' : integrationMode || 'LINK',
 		reusable: 'MULTIPLE',
 		line_items: [
 			{

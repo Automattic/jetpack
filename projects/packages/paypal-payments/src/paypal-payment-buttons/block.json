@@ -66,6 +66,10 @@
 			"type": "string",
 			"default": ""
 		},
+		"integrationMode": {
+			"type": "string",
+			"default": ""
+		},
 		"hostedButtonId": {
 			"type": "string",
 			"default": ""
@@ -152,7 +156,7 @@
 		},
 		"format": {
 			"type": "string",
-			"enum": [ "BUTTON", "LINK", "QR" ],
+			"enum": [ "BUTTON", "LINK", "QR", "STACKED" ],
 			"default": "BUTTON"
 		},
 		"buttonShowPoweredBy": {

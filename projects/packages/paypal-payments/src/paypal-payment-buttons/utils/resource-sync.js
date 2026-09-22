@@ -18,6 +18,12 @@ import metadata from '../block.json';
  */
 export const RESOURCE_ATTRIBUTES = [
 	'paymentLink',
+	// The payment's own integration_mode, so a LINK or QR block re-sends it as it is.
+	'integrationMode',
+	// The PayPal SDK URL, which only a BUTTON-mode payment has. The legacy paste-code
+	// path shares the attribute, and its blocks have neither resourceId nor isApiManaged,
+	// so the read-back GET leaves them alone.
+	'scriptSrc',
 	'productName',
 	'price',
 	'currencyCode',
@@ -189,6 +195,35 @@ export function isSameValue( key, a, b ) {
 		return JSON.stringify( a ?? null ) === JSON.stringify( b ?? null );
 	}
 	return a === b;
+}
+
+/**
+ * Whether a read-back change is bookkeeping rather than something done at PayPal.
+ *
+ * `integrationMode` belongs to the payment: a sibling going stacked flips it, and the
+ * merchant never sets or sees it. A first `scriptSrc` arriving is the same. One that
+ * went empty means the payment lost BUTTON mode, which matters only to a stacked block,
+ * so only a stacked block is told.
+ *
+ * @param {string} key    - Attribute name.
+ * @param {*}      prior  - The block's value before the read-back.
+ * @param {string} format - The block's display format.
+ * @return {boolean} True when the change says nothing to the merchant.
+ */
+export function isBookkeeping( key, prior, format ) {
+	if ( key === 'integrationMode' ) {
+		return true;
+	}
+	if ( key !== 'scriptSrc' ) {
+		return false;
+	}
+	if ( 'STACKED' !== format ) {
+		return true;
+	}
+
+	const fallback = metadata.attributes.scriptSrc.default;
+
+	return ( prior ?? fallback ) === fallback;
 }
 
 /**

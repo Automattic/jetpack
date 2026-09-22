@@ -880,6 +880,7 @@ export default function ApiManagedEdit( {
 			setAttributes={ setAttributes }
 			paymentUrl={ withPartnerAttribution( paymentLink, partnerAttributionId ) }
 			disabled={ isBusy }
+			environment={ environment }
 		/>
 	);
 
@@ -1649,6 +1650,7 @@ export default function ApiManagedEdit( {
 						qrShowCaption={ qrShowCaption }
 						qrCaption={ qrCaption }
 						attributes={ attributes }
+						isSelected={ isSelected }
 					/>
 				) }
 			</div>

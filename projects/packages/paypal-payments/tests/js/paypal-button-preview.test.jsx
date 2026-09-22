@@ -467,9 +467,25 @@ describe( 'PayPalButtonPreview', () => {
 			).toBeInTheDocument();
 		} );
 
+		it( 'draws the SDK preview for STACKED', () => {
+			// PayPal draws the whole card from one container, so the button card gives way.
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					format="STACKED"
+					attributes={ { scriptSrc: 'https://www.paypal.test/sdk/js', resourceId: 'PLB-1' } }
+				/>
+			);
+
+			expect( screen.getByTitle( 'PayPal buttons preview' ) ).toBeInTheDocument();
+			expect(
+				document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+			).not.toBeInTheDocument();
+		} );
+
 		it( 'draws the button card for a format it does not know', () => {
 			// render_api_managed_button() validates the same way server-side.
-			render( <PayPalButtonPreview { ...defaultProps } format="STACKED" /> );
+			render( <PayPalButtonPreview { ...defaultProps } format="NOT_A_FORMAT" /> );
 			expect(
 				document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
 			).toBeInTheDocument();

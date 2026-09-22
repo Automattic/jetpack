@@ -57,6 +57,13 @@ function fakeDeps( respond ) {
 			: Promise.resolve( {
 					id: 'PLB-NEW1',
 					payment_link: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+					// The server maps the created payment onto block attributes, so the
+					// block takes what PayPal decided in the same save.
+					attributes: {
+						...product,
+						paymentLink: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+						integrationMode: 'LINK',
+					},
 				} );
 	} );
 	return {
@@ -399,6 +406,149 @@ describe( 'syncBlocksBeforeSave', () => {
 			isApiManaged: true,
 			resourceId: 'PLB-NEW1',
 			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+			integrationMode: 'LINK',
+		} );
+	} );
+
+	describe( 'stacked buttons PayPal has yet to grant', () => {
+		const stacked = { ...product, format: 'STACKED' };
+		const unavailable =
+			"Stacked buttons aren't available for this PayPal account yet. Please choose another format.";
+
+		// PayPal grants the mode per account, and an empty scriptSrc on a create is the
+		// only signal of that. Choosing another format is left to the merchant.
+		it( 'tells the merchant to choose another format when a create brings back an empty SDK URL', async () => {
+			const deps = fakeDeps();
+
+			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: stacked } ], deps );
+
+			expect( deps.reportError ).toHaveBeenCalledWith(
+				expect.objectContaining( { clientId: 'a' } ),
+				unavailable
+			);
+		} );
+
+		it( 'stores the SDK URL a create brings back, and stays quiet', async () => {
+			const deps = fakeDeps( () =>
+				Promise.resolve( {
+					id: 'PLB-NEW1',
+					payment_link: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+					attributes: {
+						...stacked,
+						paymentLink: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+						integrationMode: 'BUTTON',
+						scriptSrc: 'https://www.paypal.com/sdk/js?client-id=abc',
+					},
+				} )
+			);
+
+			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: stacked } ], deps );
+
+			expect( deps.updateBlockAttributes ).toHaveBeenCalledWith(
+				'a',
+				expect.objectContaining( { scriptSrc: 'https://www.paypal.com/sdk/js?client-id=abc' } )
+			);
+			expect( deps.reportError ).not.toHaveBeenCalled();
+		} );
+
+		// A response with no attributes means the server skipped the read-back, so
+		// nothing yet says whether the account has stacked buttons.
+		it( 'asks the merchant to try again when the read-back is missing', async () => {
+			const deps = fakeDeps( options => Promise.resolve( { id: 'PLB-1', ...options.data } ) );
+			recordPaymentRead( 'a', 'PLB-1' );
+
+			await syncBlocksBeforeSave(
+				[ { clientId: 'a', attributes: { ...stacked, resourceId: 'PLB-1' } } ],
+				deps
+			);
+
+			expect( deps.reportError ).toHaveBeenCalledWith(
+				expect.objectContaining( { clientId: 'a' } ),
+				'There was an issue saving your stacked buttons. Please try again.'
+			);
+			expect( deps.reportError ).not.toHaveBeenCalledWith( expect.anything(), unavailable );
+		} );
+
+		it( 'leaves a link block alone when the read-back is missing', async () => {
+			const deps = fakeDeps( options => Promise.resolve( { id: 'PLB-1', ...options.data } ) );
+			recordPaymentRead( 'a', 'PLB-1' );
+
+			await syncBlocksBeforeSave(
+				[ { clientId: 'a', attributes: { ...product, format: 'LINK', resourceId: 'PLB-1' } } ],
+				deps
+			);
+
+			expect( deps.reportError ).not.toHaveBeenCalled();
+		} );
+
+		// Nothing is recorded for a missing read-back, so the next save asks PayPal again.
+		it( 'saves again after a missing read-back, then asks for another format once PayPal answers', async () => {
+			let readBack = false;
+			const deps = fakeDeps( options =>
+				Promise.resolve(
+					readBack
+						? { id: 'PLB-1', attributes: { ...stacked, resourceId: 'PLB-1' } }
+						: { id: 'PLB-1', ...options.data }
+				)
+			);
+			const block = { clientId: 'a', attributes: { ...stacked, resourceId: 'PLB-1' } };
+			recordPaymentRead( 'a', 'PLB-1' );
+
+			await syncBlocksBeforeSave( [ block ], deps );
+			expect( deps.reportError ).toHaveBeenCalledWith(
+				expect.anything(),
+				'There was an issue saving your stacked buttons. Please try again.'
+			);
+			deps.reportError.mockClear();
+
+			readBack = true;
+			await syncBlocksBeforeSave( [ block ], deps );
+
+			expect( deps.requests.filter( ( { method } ) => method === 'PUT' ) ).toHaveLength( 2 );
+			expect( deps.reportError ).toHaveBeenCalledWith( expect.anything(), unavailable );
+		} );
+
+		it( 'stays quiet on a create for another format', async () => {
+			const deps = fakeDeps();
+
+			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: product } ], deps );
+
+			expect( deps.reportError ).not.toHaveBeenCalled();
+		} );
+
+		// Nothing is stored, so an account granted the mode later just starts working.
+		it( 'asks for another format on every save until PayPal grants the mode', async () => {
+			let scriptSrc = '';
+			const deps = fakeDeps( () =>
+				Promise.resolve( {
+					attributes: {
+						...stacked,
+						resourceId: 'PLB-1',
+						integrationMode: 'BUTTON',
+						scriptSrc,
+					},
+				} )
+			);
+			const block = { clientId: 'a', attributes: { ...stacked, resourceId: 'PLB-1' } };
+			recordPaymentRead( 'a', 'PLB-1' );
+
+			await syncBlocksBeforeSave( [ block ], deps );
+			expect( deps.reportError ).toHaveBeenCalledWith( expect.anything(), unavailable );
+
+			// The body is unchanged, so the sync short-circuits and the block still
+			// has an empty scriptSrc.
+			deps.reportError.mockClear();
+			await syncBlocksBeforeSave( [ block ], deps );
+			expect( deps.reportError ).toHaveBeenCalledWith( expect.anything(), unavailable );
+
+			// PayPal grants it. A changed body gets through, and the message stops.
+			scriptSrc = 'https://www.paypal.com/sdk/js?client-id=abc';
+			deps.reportError.mockClear();
+			await syncBlocksBeforeSave(
+				[ { ...block, attributes: { ...block.attributes, price: '31.00' } } ],
+				deps
+			);
+			expect( deps.reportError ).not.toHaveBeenCalled();
 		} );
 	} );
 
@@ -511,21 +661,32 @@ describe( 'syncBlocksBeforeSave', () => {
 		} );
 
 		it( 're-creates a payment that has been deleted from PayPal', async () => {
+			const dead = { ...saved, paymentLink: 'https://www.paypal.com/ncp/payment/PLB-KEEP1' };
 			const deps = fakeDeps( options =>
 				options.method === 'POST'
 					? Promise.resolve( {
 							id: 'PLB-NEW1',
 							payment_link: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+							attributes: {
+								...product,
+								paymentLink: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+								integrationMode: 'LINK',
+							},
 						} )
 					: Promise.reject( { code: 'paypal_api_resource_not_found', data: { status: 404 } } )
 			);
 
-			const changed = await syncBlocksBeforeSave( [ { clientId: 'a', attributes: saved } ], deps );
+			const changed = await syncBlocksBeforeSave( [ { clientId: 'a', attributes: dead } ], deps );
 
 			expect( changed ).toBe( true );
 			expect( deps.updateBlockAttributes ).toHaveBeenCalledWith(
 				'a',
-				expect.objectContaining( { resourceId: 'PLB-NEW1' } )
+				expect.objectContaining( {
+					resourceId: 'PLB-NEW1',
+					// The old link points at a payment PayPal dropped, so keeping it would
+					// send every buyer to a not-found page.
+					paymentLink: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+				} )
 			);
 		} );
 
@@ -643,7 +804,20 @@ describe( 'syncBlocksBeforeSave', () => {
 
 		// The save created this payment, so the next save can update it straight away.
 		it( 'updates a payment the previous save created', async () => {
-			const deps = fakeDeps();
+			// PayPal echoes back what it was sent. Answering with the old price instead
+			// would hide a read-back that reverts the merchant's edit.
+			const deps = fakeDeps( options =>
+				Promise.resolve( {
+					id: 'PLB-NEW1',
+					payment_link: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+					attributes: {
+						...product,
+						price: options.data.line_items[ 0 ].unit_amount.value,
+						paymentLink: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+						integrationMode: 'LINK',
+					},
+				} )
+			);
 
 			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: product } ], deps );
 			await syncBlocksBeforeSave(
@@ -653,6 +827,10 @@ describe( 'syncBlocksBeforeSave', () => {
 
 			expect( deps.requests.map( r => r.method ) ).toEqual( [ 'POST', 'PUT' ] );
 			expect( deps.reportHeldBack ).not.toHaveBeenCalled();
+			expect( deps.updateBlockAttributes ).not.toHaveBeenCalledWith(
+				'a',
+				expect.objectContaining( { price: expect.anything() } )
+			);
 		} );
 	} );
 } );

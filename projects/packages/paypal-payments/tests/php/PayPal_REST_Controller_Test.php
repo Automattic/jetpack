@@ -878,6 +878,167 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * The stacked snippets, as the live API returns them.
+	 *
+	 * @return array
+	 */
+	private function stacked_snippets() {
+		return array(
+			'stacked' => array(
+				array(
+					'framework'        => 'HTML',
+					// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- A fixture of PayPal's snippet, not an enqueue.
+					'head'             => '<script src="https://www.paypal.com/sdk/js?client-id=abc"></script>',
+					'button_placement' => 'BODY',
+				),
+			),
+		);
+	}
+
+	/**
+	 * A line item complete enough to pass validation.
+	 *
+	 * @return array
+	 */
+	private function one_line_item() {
+		return array(
+			array(
+				'name'        => 'Widget',
+				'unit_amount' => array(
+					'currency_code' => 'USD',
+					'value'         => '29.99',
+				),
+			),
+		);
+	}
+
+	public function test_create_button_returns_the_block_attributes_with_the_sdk_url() {
+		// Otherwise a new stacked block saves an empty scriptSrc and stays that way:
+		// the mount GET comes after the post is serialized.
+		$this->set_up_connected_admin_state();
+		$this->mock_http_response(
+			201,
+			array(
+				'id'               => 'PLB-NEW',
+				'integration_mode' => 'BUTTON',
+				'payment_link'     => 'https://www.paypal.com/ncp/payment/PLB-NEW',
+				'code_snippets'    => $this->stacked_snippets(),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/buttons' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'BUTTON' );
+		$request->set_param( 'line_items', $this->one_line_item() );
+
+		$result = PayPal_REST_Controller::handle_create_button( $request );
+
+		$this->assertSame( 201, $result->get_status() );
+		$data = $result->get_data();
+		$this->assertSame( 'BUTTON', $data['attributes']['integrationMode'] );
+		$this->assertSame(
+			'https://www.paypal.com/sdk/js?client-id=abc',
+			$data['attributes']['scriptSrc']
+		);
+	}
+
+	public function test_update_button_re_reads_the_resource_in_button_mode() {
+		// A PUT answers 204 with no code_snippets, so a block switching to stacked
+		// would sit blank until the post was reloaded.
+		$this->set_up_connected_admin_state();
+		// The PUT and the re-read share a URL, so they can only be told apart by method.
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args ) {
+				if ( 'PUT' === ( $args['method'] ?? '' ) ) {
+					return $this->http_response( 204, array() );
+				}
+				return $this->http_response(
+					200,
+					array(
+						'id'               => 'PLB-42',
+						'integration_mode' => 'BUTTON',
+						'code_snippets'    => $this->stacked_snippets(),
+						'line_items'       => $this->one_line_item(),
+					)
+				);
+			},
+			10,
+			3
+		);
+
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'BUTTON' );
+		$request->set_param( 'line_items', $this->one_line_item() );
+
+		$data = PayPal_REST_Controller::handle_update_button( $request )->get_data();
+
+		$this->assertSame( 'PLB-42', $data['id'] );
+		$this->assertSame(
+			'https://www.paypal.com/sdk/js?client-id=abc',
+			$data['attributes']['scriptSrc']
+		);
+	}
+
+	public function test_update_button_keeps_its_single_round_trip_in_link_mode() {
+		$this->set_up_connected_admin_state();
+		$requests = array();
+		$this->mock_http_routes(
+			array( '/v1/checkout/payment-resources' => $this->http_response( 204, array() ) ),
+			$requests
+		);
+
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-43' );
+		$request->set_param( 'resource_id', 'PLB-43' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'LINK' );
+		$request->set_param( 'line_items', $this->one_line_item() );
+
+		$data = PayPal_REST_Controller::handle_update_button( $request )->get_data();
+
+		$this->assertCount( 1, $requests );
+		// The echo has no `id`, so mapping it would blank the block's resourceId.
+		$this->assertArrayNotHasKey( 'attributes', $data );
+	}
+
+	public function test_update_button_falls_back_to_the_echo_when_the_re_read_fails() {
+		$this->set_up_connected_admin_state();
+		$methods = array();
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args ) use ( &$methods ) {
+				$methods[] = $args['method'] ?? '';
+				if ( 'PUT' === ( $args['method'] ?? '' ) ) {
+					return $this->http_response( 204, array() );
+				}
+				return new \WP_Error( 'http_request_failed', 'Connection timed out' );
+			},
+			10,
+			3
+		);
+
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-44' );
+		$request->set_param( 'resource_id', 'PLB-44' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'BUTTON' );
+		$request->set_param( 'line_items', $this->one_line_item() );
+
+		$result = PayPal_REST_Controller::handle_update_button( $request );
+
+		// The save still succeeds, and the block gets the SDK URL on its next read.
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertArrayNotHasKey( 'attributes', $result->get_data() );
+		// The save goes out once, whatever the re-read does.
+		$this->assertCount( 1, array_keys( $methods, 'PUT', true ) );
+		$this->assertNotEmpty(
+			array_keys( $methods, 'GET', true ),
+			'The echo is the fallback -- the re-read still has to be attempted.'
+		);
+	}
+
+	/**
 	 * Test that an update keeps an amount type the block has no option for.
 	 *
 	 * PayPal rejects an unsupported type itself, so the API is the only list to keep
