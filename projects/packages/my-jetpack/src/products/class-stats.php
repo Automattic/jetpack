@@ -187,10 +187,10 @@ class Stats extends Hybrid_Product {
 	 */
 	public static function get_status() {
 		$status = parent::get_status();
-		if ( Products::STATUS_MODULE_DISABLED === $status && ! Initializer::is_registered() ) {
+		if ( in_array( $status, array( Products::STATUS_MODULE_DISABLED, Products::STATUS_NEEDS_PLAN ), true ) && ! Initializer::is_registered() ) {
 			// If the site has never been connected before, show the "Learn more" CTA,
 			// that points to the add Stats product interstitial.
-			$status = Products::STATUS_NEEDS_FIRST_SITE_CONNECTION;
+			return Products::STATUS_NEEDS_FIRST_SITE_CONNECTION;
 		}
 		if ( Products::STATUS_NEEDS_PLAN === $status ) {
 			// Recognizing the standalone plugin makes the base class ask an unowned site to

@@ -151,6 +151,14 @@ class Stats_Product_Test extends TestCase {
 		$this->assertNull( Stats::get_purchase_url() );
 	}
 
+	public function test_never_connected_site_is_asked_to_connect_instead_of_getting_a_purchase_url() {
+		$this->set_premium_analytics_enabled( false );
+		Jetpack_Options::delete_option( 'id' );
+
+		$this->assertSame( Products::STATUS_NEEDS_FIRST_SITE_CONNECTION, Stats::get_status() );
+		$this->assertNull( Stats::get_purchase_url() );
+	}
+
 	public function test_standalone_plugin_is_not_active_when_only_the_jetpack_plugin_is() {
 		$this->assertFalse( Stats::is_standalone_plugin_active() );
 	}
