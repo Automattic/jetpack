@@ -38,6 +38,7 @@ class Jetpack_Google_Font_Face_Test extends WP_UnitTestCase {
 		$this->google_font_face = new Jetpack_Google_Font_Face();
 		WP_Theme_JSON_Resolver::clean_cached_data();
 		if ( class_exists( 'WP_Theme_JSON_Resolver_Gutenberg' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			WP_Theme_JSON_Resolver_Gutenberg::clean_cached_data();
 		}
 	}
@@ -48,6 +49,7 @@ class Jetpack_Google_Font_Face_Test extends WP_UnitTestCase {
 	public function tear_down() {
 		WP_Theme_JSON_Resolver::clean_cached_data();
 		if ( class_exists( 'WP_Theme_JSON_Resolver_Gutenberg' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			WP_Theme_JSON_Resolver_Gutenberg::clean_cached_data();
 		}
 		parent::tear_down();
@@ -216,6 +218,7 @@ class Jetpack_Google_Font_Face_Test extends WP_UnitTestCase {
 		);
 		WP_Theme_JSON_Resolver::clean_cached_data();
 		if ( class_exists( 'WP_Theme_JSON_Resolver_Gutenberg' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			WP_Theme_JSON_Resolver_Gutenberg::clean_cached_data();
 		}
 	}
