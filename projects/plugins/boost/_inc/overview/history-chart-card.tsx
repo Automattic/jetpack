@@ -201,6 +201,9 @@ export default function HistoryChartCard( {
 		() => bucketHistoryDays( data?.periods ?? [], { startDate, endDate } ),
 		[ data?.periods, startDate, endDate ]
 	);
+	const recordedDays = days.filter( day => day.period );
+	const singleDate =
+		hasOlderHistory === false && recordedDays.length === 1 ? recordedDays[ 0 ].date : null;
 	const series = useMemo( () => buildHistorySeries( days ), [ days ] );
 	const tickValues = useMemo(
 		() =>
@@ -485,12 +488,14 @@ export default function HistoryChartCard( {
 									onClick={ onPrevious }
 								/>
 								<span aria-live="polite">
-									{ sprintf(
-										/* translators: 1: first date, 2: last date of the visible history window. */
-										__( '%1$s – %2$s', 'jetpack-boost' ),
-										dateI18n( 'M j', range.startDate, false ),
-										dateI18n( 'M j, Y', range.endDate, false )
-									) }
+									{ singleDate
+										? dateI18n( 'M j, Y', getDate( `${ singleDate }T12:00:00` ), false )
+										: sprintf(
+												/* translators: 1: first date, 2: last date of the visible history window. */
+												__( '%1$s – %2$s', 'jetpack-boost' ),
+												dateI18n( 'M j', range.startDate, false ),
+												dateI18n( 'M j, Y', range.endDate, false )
+											) }
 								</span>
 								<PagingButton
 									label={ sprintf(

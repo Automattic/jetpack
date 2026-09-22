@@ -137,6 +137,35 @@ test( 'renders thirty daily bars for each device using score band colours and em
 	}
 } );
 
+test.each( [ 1, 2 ] )(
+	'renders %i recorded days with empty stubs and the matching header',
+	async count => {
+		render(
+			<HistoryChartCard
+				data={ { ...history, periods: history.periods.slice( 0, count ) } }
+				hasOlderHistory={ false }
+				{ ...callbacks }
+			/>,
+			{ wrapper }
+		);
+		const label =
+			count === 1
+				? dateI18n( 'M j, Y', timestamp, false )
+				: `${ dateI18n( 'M j', window.startDate, false ) } – ${ dateI18n( 'M j, Y', window.endDate, false ) }`;
+		expect( screen.getByText( label ) ).toBeInTheDocument();
+		for ( const chart of screen.getAllByTestId( 'bar-chart' ) ) {
+			await waitFor( () => expect( getBars( chart ) ).toHaveLength( 30 ) );
+			const bars = Array.from( getBars( chart ) );
+			expect(
+				bars.filter( bar => bar.getAttribute( 'fill' ) === 'var(--jetpack-boost-history-empty)' )
+			).toHaveLength( 30 - count );
+			expect(
+				bars.slice( 0, count ).every( bar => Number( bar.getAttribute( 'height' ) ) > 0 )
+			).toBe( true );
+		}
+	}
+);
+
 test( 'retains a recorded zero and its poor-score colour rather than treating it as missing', async () => {
 	render(
 		<HistoryChartCard

@@ -899,18 +899,37 @@ test( 'keeps the older-history check cached when a speed test reloads scores', a
 	expect( [ 1, 2, 3, 4, 5, 6 ].map( requests ) ).toEqual( [ 0, 0, 0, 0, 0, 1 ] );
 } );
 
-test( 'does not request older history while the fresh-start notice hides the chart', async () => {
+test( 'shows paid fresh-start history and disables Previous when there is no older history', async () => {
 	window.jetpack_boost_ds!.dismissed_alerts!.value = { performance_history_fresh_start: false };
+	const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
+	jest.mocked( apiFetch ).mockImplementation( options => {
+		if ( options.url?.endsWith( '/performance-history/set' ) ) {
+			const range = options.data.JSON;
+			return Promise.resolve( {
+				status: 'success',
+				JSON: {
+					...range,
+					periods:
+						range.startDate === getHistoryWindow( 0 ).startDate
+							? [ recordedPeriod( getHistoryWindow( 0 ).endDate - 86400000 ) ]
+							: [],
+					annotations: [],
+				},
+			} );
+		}
+		return fetch( options );
+	} );
 	const { client } = renderOverview();
-	await expect(
-		screen.findByText( /Jetpack Boost premium has been activated/ )
-	).resolves.toBeInTheDocument();
+	await expect( screen.findByTestId( 'history-chart' ) ).resolves.toBeInTheDocument();
 	await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
-	expect( apiFetch ).not.toHaveBeenCalledWith(
-		expect.objectContaining( {
-			data: { JSON: expect.objectContaining( { startDate: getHistoryWindow( 6 ).startDate } ) },
-		} )
-	);
+	expect(
+		screen.queryByText( /Jetpack Boost premium has been activated/ )
+	).not.toBeInTheDocument();
+	const previous = screen.getByRole( 'button', { name: 'Previous 30 days' } );
+	expect( previous ).toHaveAttribute( 'aria-disabled', 'true' );
+	jest.mocked( apiFetch ).mockClear();
+	fireEvent.click( previous );
+	expect( apiFetch ).not.toHaveBeenCalled();
 } );
 
 test( 'debounces optimization changes and waits for generation to finish', async () => {

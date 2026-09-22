@@ -80,14 +80,12 @@ function OverviewContent( {
 	const needsUpgrade = modules.data !== undefined && ! historyAvailable;
 	const { range, olderRanges, dayCount, onPrevious, onNext, canGoNext } = useHistoryRange();
 	const history = usePerformanceHistory( historyAvailable && isVisible, range );
-	const [ freshStartCompleted, dismissFreshStart ] = useDismissibleAlertState(
-		'performance_history_fresh_start'
-	);
+	const [ , dismissFreshStart ] = useDismissibleAlertState( 'performance_history_fresh_start' );
 	// A window that starts on a recorded day keeps Previous enabled without older requests.
 	const opensEmpty =
 		history.isSuccess && ! bucketHistoryDays( history.data?.periods ?? [], range )[ 0 ]?.period;
 	const olderHistory = useHasOlderHistory(
-		historyAvailable && isVisible && freshStartCompleted && opensEmpty,
+		historyAvailable && isVisible && opensEmpty,
 		olderRanges
 	);
 	const hasOlderHistory = opensEmpty ? olderHistory.data : undefined;
@@ -228,7 +226,6 @@ function OverviewContent( {
 					isError={ history.isError && ! history.isFetching }
 					error={ history.error }
 					onRetry={ () => history.refetch() }
-					isFreshStart={ ! freshStartCompleted }
 					onDismissFreshStart={ dismissFreshStart }
 				/>
 			) }
