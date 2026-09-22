@@ -2,7 +2,7 @@
 import 'jetpack-js-tools/jest/setup-jest-dom';
 // Test dependencies come from the plugin, not the wp-build route package.
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import { MutationObserver, QueryClient } from '@tanstack/react-query';
 import {
 	observeLegacyModulesState,
@@ -13,6 +13,21 @@ import { stage as Stage } from './stage';
 import type { ReactNode } from 'react';
 
 const mockNavigate = jest.fn();
+const mockScrollIntoView = jest.fn();
+const mockDisconnect = jest.fn();
+let resizeCallback: ResizeObserverCallback;
+let resizeObserver: ResizeObserver;
+
+beforeEach( () => {
+	Element.prototype.scrollIntoView = mockScrollIntoView;
+	mockScrollIntoView.mockClear();
+	mockDisconnect.mockClear();
+	jest.spyOn( window, 'ResizeObserver' ).mockImplementation( callback => {
+		resizeCallback = callback;
+		resizeObserver = { observe: jest.fn(), unobserve: jest.fn(), disconnect: mockDisconnect };
+		return resizeObserver;
+	} );
+} );
 
 jest.mock( '../../_inc/overview/overview', () => {
 	const { useEffect } = jest.requireActual< typeof import( 'react' ) >( 'react' );
@@ -112,37 +127,36 @@ const setGettingStarted = ( value: boolean ) => {
 };
 
 describe( 'Boost dashboard stage', () => {
-	it.each( [
-		[ '', 'Overview' ],
-		[ SETTINGS_ARG, 'Settings' ],
-		[ '&tab=settings', 'Overview' ],
-	] )( 'selects %s as the %s tab', ( query, tab ) => {
-		window.history.replaceState( null, '', `/?page=jetpack-boost${ query }` );
-		render( <Stage /> );
-
-		expect( screen.getByRole( 'tab', { selected: true } ) ).toBe(
-			screen.getByRole( 'tab', { name: tab } )
-		);
-		expect( getSubpageMount()?.hidden ).toBe( true );
-		expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute(
-			'data-visible',
-			String( tab === 'Overview' )
-		);
-		expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute(
-			'data-scores-enabled',
-			'true'
-		);
-		expect( getSettingsMount() ).not.toBeNull();
-		expect( screen.getByRole( 'tabpanel' ).tabIndex ).toBe( 0 );
-		expect( screen.getByRole( 'tabpanel' ).contains( getSettingsMount() ) ).toBe(
-			tab === 'Settings'
-		);
-		const header = within( screen.getByRole( 'banner' ) );
-		expect( header.getByText( 'Improve your site speed and performance.' ) ).toBeInTheDocument();
-		expect( header.queryAllByRole( 'button', { name: 'Run speed test' } ) ).toHaveLength(
-			tab === 'Overview' ? 1 : 0
-		);
-	} );
+	it.each( [ '', SETTINGS_ARG, '&tab=settings', '&p=%2F%3Ftab%3Doverview' ] )(
+		'renders one page for %s and scrolls to its destination',
+		query => {
+			window.history.replaceState( null, '', `/?page=jetpack-boost${ query }` );
+			render( <Stage /> );
+			const section = screen.getByRole( 'region', { name: 'Optimize your speed' } );
+			expect( section ).toContainElement( getSettingsMount() );
+			expect( screen.queryByRole( 'tab' ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'tabpanel' ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute(
+				'data-visible',
+				'true'
+			);
+			expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute(
+				'data-scores-enabled',
+				'true'
+			);
+			expect( screen.getByText( 'Performance Overview' ).compareDocumentPosition( section ) ).toBe(
+				Node.DOCUMENT_POSITION_FOLLOWING
+			);
+			expect( getSubpageMount()?.hidden ).toBe( true );
+			const target = mockScrollIntoView.mock.contexts.at( -1 );
+			expect( target ).toBe(
+				query === SETTINGS_ARG ? section : section.closest( '.jetpack-boost-page__content' )
+			);
+			const header = within( screen.getByRole( 'banner' ) );
+			expect( header.getByText( 'Improve your site speed and performance.' ) ).toBeInTheDocument();
+			expect( header.getByRole( 'button', { name: 'Run speed test' } ) ).toBeInTheDocument();
+		}
+	);
 
 	it.each(
 		subpages.flatMap( hash => [
@@ -154,6 +168,7 @@ describe( 'Boost dashboard stage', () => {
 		render( <Stage /> );
 
 		expect( getSubpageMount()?.hidden ).toBe( false );
+		expect( mockScrollIntoView ).not.toHaveBeenCalled();
 		expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute( 'data-visible', 'false' );
 		expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute(
 			'data-scores-enabled',
@@ -247,7 +262,7 @@ describe( 'Boost dashboard stage', () => {
 		expect( mockNavigate ).not.toHaveBeenCalled();
 	} );
 
-	it( 'keeps Overview and both mount nodes across tab changes and subpage visits', () => {
+	it( 'keeps Overview and both mount nodes across scroll destinations and subpage visits', () => {
 		const { rerender } = render( <Stage /> );
 		const overview = screen.getByText( 'Performance Overview' );
 		const settingsMount = getSettingsMount();
@@ -267,21 +282,54 @@ describe( 'Boost dashboard stage', () => {
 
 			expect( screen.getByText( 'Performance Overview' ) ).toBe( overview );
 			expect( screen.queryAllByRole( 'button', { name: 'Run speed test' } ) ).toHaveLength(
-				url === '/?page=jetpack-boost' ? 1 : 0
+				url.includes( 'critical-css-advanced' ) ? 0 : 1
 			);
 			expect( getSettingsMount() ).toBe( settingsMount );
 			expect( getSubpageMount() ).toBe( subpageMount );
 		}
 	} );
 
-	it( 'uses the route query when selecting a tab', () => {
-		render( <Stage /> );
+	it( 'keeps the section aligned during loading and stops when the user scrolls', () => {
+		window.history.replaceState( null, '', `/?page=jetpack-boost${ SETTINGS_ARG }` );
+		const { unmount } = render( <Stage /> );
+		mockScrollIntoView.mockClear();
+		act( () => resizeCallback( [], resizeObserver ) );
+		expect( mockScrollIntoView.mock.contexts[ 0 ] ).toBe(
+			screen.getByRole( 'region', { name: 'Optimize your speed' } )
+		);
+		act( () => window.dispatchEvent( new Event( 'wheel' ) ) );
+		expect( mockDisconnect ).toHaveBeenCalled();
+		unmount();
+	} );
 
-		// This suite uses fireEvent because Boost does not depend on user-event.
-		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'tab', { name: 'Settings' } ) );
+	it( 'stops following after a programmatic scroll until the next activation', () => {
+		const { rerender } = render( <Stage /> );
+		const content = screen.getByRole( 'region', { name: 'Optimize your speed' } ).parentElement!;
+		content.parentElement!.scrollTop = 900;
+		mockScrollIntoView.mockClear();
+		act( () => resizeCallback( [], resizeObserver ) );
+		expect( mockDisconnect ).toHaveBeenCalled();
+		expect( mockScrollIntoView ).not.toHaveBeenCalled();
 
-		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: false } );
+		content.parentElement!.scrollTop = 0;
+		act( () => resizeCallback( [], resizeObserver ) );
+		expect( mockScrollIntoView ).not.toHaveBeenCalled();
+
+		act( () => window.history.replaceState( null, '', `/?page=jetpack-boost${ SETTINGS_ARG }` ) );
+		rerender( <Stage /> );
+		expect( mockScrollIntoView ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'retires the loading observer after a bounded interval', () => {
+		jest.useFakeTimers();
+		const { unmount } = render( <Stage /> );
+		mockScrollIntoView.mockClear();
+		act( () => jest.advanceTimersByTime( 5000 ) );
+		expect( mockDisconnect ).toHaveBeenCalled();
+		act( () => resizeCallback( [], resizeObserver ) );
+		expect( mockScrollIntoView ).not.toHaveBeenCalled();
+		unmount();
+		jest.useRealTimers();
 	} );
 
 	it( 'shows a loader instead of Overview while onboarding', () => {

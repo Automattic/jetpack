@@ -15,6 +15,13 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
+import { isOdysseyStatsEnabled } from 'state/initial-state';
+
+// Kept out of the ternary below: the minifier merges `c ? __( a ) : __( b )` into `__( c ? a : b )`, which breaks string extraction.
+const STATS_SETTINGS_DESCRIPTION = __(
+	'Choose who can view your Stats, which views are counted, and more.',
+	'jetpack'
+);
 
 class SiteStatsComponent extends Component {
 	constructor( props ) {
@@ -200,6 +207,43 @@ class SiteStatsComponent extends Component {
 			);
 		}
 
+		const support = {
+			text: __(
+				'Displays information on your site activity, including visitors and popular posts or pages.',
+				'jetpack'
+			),
+			link: getRedirectUrl( 'jetpack-support-wordpress-com-stats' ),
+			wpcomLink: 'https://wordpress.com/support/stats/',
+		};
+
+		if ( this.props.isOdysseyStatsEnabled ) {
+			return (
+				<SettingsCard
+					{ ...this.props }
+					header={ _x( 'Jetpack Stats', 'Settings header', 'jetpack' ) }
+					hideButton
+					module="site-stats"
+				>
+					<SettingsGroup disableInOfflineMode module={ stats } support={ support }>
+						<p>
+							{ unavailableInOfflineMode
+								? __( 'Unavailable in Offline Mode', 'jetpack' )
+								: STATS_SETTINGS_DESCRIPTION }
+						</p>
+					</SettingsGroup>
+					{ ! unavailableInOfflineMode && (
+						<Card
+							compact
+							className="jp-settings-card__configure-link"
+							href="admin.php?page=stats#!/stats/settings"
+						>
+							{ __( 'Manage Stats settings', 'jetpack' ) }
+						</Card>
+					) }
+				</SettingsCard>
+			);
+		}
+
 		return (
 			<SettingsCard
 				{ ...this.props }
@@ -218,18 +262,7 @@ class SiteStatsComponent extends Component {
 						'jp-foldable-settings-disable': unavailableInOfflineMode,
 					} ) }
 				>
-					<SettingsGroup
-						disableInOfflineMode
-						module={ stats }
-						support={ {
-							text: __(
-								'Displays information on your site activity, including visitors and popular posts or pages.',
-								'jetpack'
-							),
-							link: getRedirectUrl( 'jetpack-support-wordpress-com-stats' ),
-							wpcomLink: 'https://wordpress.com/support/stats/',
-						} }
-					>
+					<SettingsGroup disableInOfflineMode module={ stats } support={ support }>
 						<FormFieldset className="jp-stats-form-fieldset">
 							<ToggleControl
 								__nextHasNoMarginBottom={ true }
@@ -305,4 +338,6 @@ class SiteStatsComponent extends Component {
 	}
 }
 
-export const SiteStats = connect()( withModuleSettingsFormHelpers( SiteStatsComponent ) );
+export const SiteStats = connect( state => ( {
+	isOdysseyStatsEnabled: isOdysseyStatsEnabled( state ),
+} ) )( withModuleSettingsFormHelpers( SiteStatsComponent ) );
