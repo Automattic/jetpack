@@ -122,6 +122,21 @@ function jetpack_get_available_google_fonts_map( $google_fonts_data ) {
 }
 
 /**
+ * Whether catalogue faces are needed in theme JSON for an editor or API request.
+ *
+ * @since $$next-version$$
+ *
+ * @return bool
+ */
+function jetpack_google_fonts_load_font_faces() {
+	return is_admin()
+		|| ( defined( 'REST_REQUEST' ) && REST_REQUEST )
+		|| wp_is_json_request()
+		|| is_customize_preview()
+		|| ( defined( 'WP_CLI' ) && WP_CLI );
+}
+
+/**
  * Register google fonts to the theme json data
  *
  * @param WP_Theme_JSON_Data $theme_json The theme json data of core.
@@ -150,7 +165,11 @@ function jetpack_register_google_fonts_to_theme_json( $theme_json ) {
 		$raw_data['settings']['typography']['fontFamilies'][ $origin ] = array();
 	}
 
+	$load_font_faces = jetpack_google_fonts_load_font_faces();
 	foreach ( $google_fonts_families as $font_family ) {
+		if ( ! $load_font_faces ) {
+			unset( $font_family['fontFace'] );
+		}
 		$raw_data['settings']['typography']['fontFamilies'][ $origin ][] = $font_family;
 	}
 
@@ -163,8 +182,8 @@ add_filter( 'wp_theme_json_data_default', 'jetpack_register_google_fonts_to_them
 /**
  * Filter out the deprecated font families that are from the jetpack-google-fonts provider.
  *
- * @param object[] $font_families The font families.
- * @return object[] The filtered font families.
+ * @param array[] $font_families The font families.
+ * @return array[] The filtered font families.
  */
 function jetpack_google_fonts_filter_out_deprecated_font_data( $font_families ) {
 	return array_values(
@@ -247,6 +266,5 @@ function jetpack_unregister_google_fonts() {
 }
 add_action( 'jetpack_deactivate_module_google-fonts', 'jetpack_unregister_google_fonts' );
 
-// Initialize Jetpack Google Font Face to avoid printing **ALL** google fonts provided by this module.
-// See p1700040028362329-slack-C4GAQ900P and p7DVsv-jib-p2
+// Print legacy catalogue faces separately from native theme and user fonts.
 new Jetpack_Google_Font_Face();
