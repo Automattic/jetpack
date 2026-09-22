@@ -127,6 +127,10 @@ export function notifyLocationChange(): void {
  * @param options.replace - Replace the current entry instead of pushing one.
  */
 export function navigateTo( url: string, options: { replace?: boolean } = {} ): void {
+	if ( url === window.location.href ) {
+		return;
+	}
+
 	if ( options.replace ) {
 		window.history.replaceState( null, '', url );
 	} else {

@@ -5,6 +5,8 @@ export const OVERVIEW_MODULES_CHANGE_EVENT = 'jetpack-boost-overview-modules-cha
 
 export const relayedQueryKeys = [ 'modules_state', 'critical_css_state', 'lcp_state' ];
 
+export type ModulesStateChange = { key: string; data: unknown };
+
 /** Tag the Getting Started save with this mutation meta so the bridge holds its interim writes. */
 export const ONBOARDING_SAVE_META = { dataSyncKey: 'getting_started' };
 
@@ -38,11 +40,13 @@ export function observeLegacyModulesState( client: QueryClient ) {
 			}
 		}
 		if (
-			event.action.manual &&
-			relayedQueryKeys.some( key => event.query.queryKey[ 0 ] === key )
+			relayedQueryKeys.some( key => event.query.queryKey[ 0 ] === key ) &&
+			( event.action.manual || event.query.queryKey[ 0 ] !== 'modules_state' )
 		) {
 			window.dispatchEvent(
-				new CustomEvent( OVERVIEW_MODULES_CHANGE_EVENT, { detail: event.query.queryKey[ 0 ] } )
+				new CustomEvent< ModulesStateChange >( OVERVIEW_MODULES_CHANGE_EVENT, {
+					detail: { key: String( event.query.queryKey[ 0 ] ), data: event.query.state.data },
+				} )
 			);
 		}
 	} );

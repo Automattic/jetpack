@@ -326,7 +326,8 @@ test( 'loads online scores and regenerates them with refresh tracking and histor
 		false,
 		wpApiSettings.root,
 		Jetpack_Boost.site.url,
-		wpApiSettings.nonce
+		wpApiSettings.nonce,
+		{ signal: expect.any( AbortSignal ) }
 	);
 	const invalidate = jest.spyOn( client, 'invalidateQueries' );
 	await waitFor( () =>
@@ -341,7 +342,8 @@ test( 'loads online scores and regenerates them with refresh tracking and histor
 			true,
 			wpApiSettings.root,
 			Jetpack_Boost.site.url,
-			wpApiSettings.nonce
+			wpApiSettings.nonce,
+			{ signal: expect.any( AbortSignal ) }
 		)
 	);
 	expect(
@@ -389,56 +391,55 @@ test( 'offers Run speed test in the page header only while the Overview is visib
 	}
 } );
 
-test( 'ignores legacy polls and refetches only the key written by the legacy cache', async () => {
-	window.jetpack_boost_ds!.modules_state!.value = {
-		critical_css: { available: true, active: true },
-		performance_history: { available: true, active: true },
-	};
-	window.jetpack_boost_ds!.critical_css_state = { nonce: 'css-nonce', value: undefined };
-	const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
-	jest
-		.mocked( apiFetch )
-		.mockImplementation( options =>
-			options.url?.endsWith( '/critical-css-state' )
-				? Promise.resolve( { status: 'success', JSON: { status: 'generated', updated: 1 } } )
-				: fetch( options )
-		);
-	legacyQueryClient.clear();
-	legacyQueryClient.setQueryData( [ 'critical_css_state' ], { status: 'generated', updated: 1 } );
-	const stopObserving = observeLegacyModulesState( legacyQueryClient );
-	const { client } = renderOverview();
-	try {
-		await waitFor( () =>
-			expect( client.getQueryState( [ 'critical_css_state' ] )?.dataUpdateCount ).toBe( 1 )
-		);
-		await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
-		jest.mocked( apiFetch ).mockClear();
-		await act( async () => {
-			await legacyQueryClient.fetchQuery( {
-				queryKey: [ 'critical_css_state' ],
-				queryFn: async () => ( { status: 'generated', updated: 1 } ),
-			} );
-		} );
-		expect( apiFetch ).not.toHaveBeenCalled();
-
-		act( () => {
-			legacyQueryClient.setQueryData( [ 'critical_css_state' ], {
-				status: 'generated',
-				updated: 2,
-			} );
-		} );
-		await waitFor( () =>
-			expect( client.getQueryState( [ 'critical_css_state' ] )?.dataUpdateCount ).toBe( 2 )
-		);
-		expect( apiFetch ).toHaveBeenCalledTimes( 1 );
-		expect( apiFetch ).toHaveBeenCalledWith(
-			expect.objectContaining( { url: expect.stringContaining( '/critical-css-state' ) } )
-		);
-	} finally {
-		stopObserving();
+test.each( [ 'critical_css_state', 'lcp_state' ] as const )(
+	'relays %s polls and writes without refetching',
+	async key => {
+		const status = key === 'critical_css_state' ? 'generated' : 'analyzed';
+		window.jetpack_boost_ds!.modules_state!.value = {
+			[ key === 'critical_css_state' ? 'critical_css' : 'lcp' ]: { available: true, active: true },
+			performance_history: { available: true, active: true },
+		};
+		window.jetpack_boost_ds![ key ] = { nonce: 'css-nonce', value: undefined };
+		const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
+		jest
+			.mocked( apiFetch )
+			.mockImplementation( options =>
+				options.url?.endsWith( key.replace( /_/g, '-' ) )
+					? Promise.resolve( { status: 'success', JSON: { status, updated: 1 } } )
+					: fetch( options )
+			);
 		legacyQueryClient.clear();
+		legacyQueryClient.setQueryData( [ key ], { status, updated: 1 } );
+		const stopObserving = observeLegacyModulesState( legacyQueryClient );
+		const { client } = renderOverview();
+		try {
+			await waitFor( () => expect( client.getQueryState( [ key ] )?.dataUpdateCount ).toBe( 1 ) );
+			await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
+			jest.mocked( apiFetch ).mockClear();
+			await act( async () => {
+				await legacyQueryClient.fetchQuery( {
+					queryKey: [ key ],
+					queryFn: async () => ( { status: 'pending', updated: 2 } ),
+				} );
+			} );
+			expect( apiFetch ).not.toHaveBeenCalled();
+			expect( client.getQueryData( [ key ] ) ).toEqual( { status: 'pending', updated: 2 } );
+
+			act( () => {
+				legacyQueryClient.setQueryData( [ key ], {
+					status,
+					updated: 3,
+				} );
+			} );
+			await waitFor( () => expect( client.getQueryState( [ key ] )?.dataUpdateCount ).toBe( 3 ) );
+			expect( apiFetch ).not.toHaveBeenCalled();
+			expect( client.getQueryData( [ key ] ) ).toEqual( { status, updated: 3 } );
+		} finally {
+			stopObserving();
+			legacyQueryClient.clear();
+		}
 	}
-} );
+);
 
 test( 'regenerates scores after a Settings toggle and return to the mounted Overview', async () => {
 	const initialModules = {
@@ -513,7 +514,8 @@ test( 'regenerates scores after a Settings toggle and return to the mounted Over
 			true,
 			wpApiSettings.root,
 			Jetpack_Boost.site.url,
-			wpApiSettings.nonce
+			wpApiSettings.nonce,
+			{ signal: expect.any( AbortSignal ) }
 		);
 	} finally {
 		stopObserving();
@@ -564,7 +566,8 @@ test( 'tracks score errors and offers a successful retry', async () => {
 		true,
 		wpApiSettings.root,
 		Jetpack_Boost.site.url,
-		wpApiSettings.nonce
+		wpApiSettings.nonce,
+		{ signal: expect.any( AbortSignal ) }
 	);
 	expect(
 		jest
@@ -935,7 +938,8 @@ test( 'debounces optimization changes and waits for generation to finish', async
 			true,
 			wpApiSettings.root,
 			Jetpack_Boost.site.url,
-			wpApiSettings.nonce
+			wpApiSettings.nonce,
+			{ signal: expect.any( AbortSignal ) }
 		);
 		unmount();
 	} finally {

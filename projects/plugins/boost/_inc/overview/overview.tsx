@@ -9,7 +9,11 @@ import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import HistoryChartCard from './history-chart-card';
 import HistoryUpsell from './history-upsell';
 import { bucketHistoryDays } from './lib/history-days';
-import { OVERVIEW_MODULES_CHANGE_EVENT, relayedQueryKeys } from './lib/modules-state-bridge';
+import {
+	OVERVIEW_MODULES_CHANGE_EVENT,
+	relayedQueryKeys,
+	type ModulesStateChange,
+} from './lib/modules-state-bridge';
 import { useHistoryRange } from './lib/use-history-range';
 import {
 	canOfferUpgrade,
@@ -29,6 +33,7 @@ import './overview.scss';
 import type { ReactNode } from 'react';
 
 type Props = {
+	scoresEnabled?: boolean;
 	isVisible?: boolean;
 	onHeaderActionChange: ( action: ReactNode ) => void;
 };
@@ -63,13 +68,14 @@ export default function Overview( props: Props ) {
 }
 
 function OverviewContent( {
+	scoresEnabled = true,
 	isVisible = true,
 	onHeaderActionChange,
 	focusFallback,
 }: Props & { focusFallback: () => void } ) {
 	const modules = useModulesState();
 	const refreshState = useScoreRefreshState( modules.data );
-	const [ scoreState, refreshScores ] = useSpeedScores( refreshState );
+	const [ scoreState, refreshScores ] = useSpeedScores( refreshState, scoresEnabled );
 	const historyAvailable = modules.data?.performance_history?.available === true;
 	const needsUpgrade = modules.data !== undefined && ! historyAvailable;
 	const { range, olderRanges, dayCount, onPrevious, onNext, canGoNext } = useHistoryRange();
@@ -91,9 +97,11 @@ function OverviewContent( {
 
 	useEffect( () => {
 		const onModulesChange = ( event: Event ) => {
-			const key = ( event as CustomEvent< string > ).detail;
-			if ( relayedQueryKeys.includes( key ) ) {
+			const { key, data } = ( event as CustomEvent< ModulesStateChange > ).detail;
+			if ( key === 'modules_state' ) {
 				queryClient.invalidateQueries( { queryKey: [ key ] } );
+			} else if ( relayedQueryKeys.includes( key ) ) {
+				queryClient.setQueryData( [ key ], data );
 			}
 		};
 		window.addEventListener( OVERVIEW_MODULES_CHANGE_EVENT, onModulesChange );

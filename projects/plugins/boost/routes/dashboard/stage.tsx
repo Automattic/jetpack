@@ -6,6 +6,7 @@ import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import BoostPage from '../../_inc/components/boost-page';
 import Overview from '../../_inc/overview/overview';
+import { resolveRoute } from '../../app/assets/src/js/lib/modern/routes';
 import {
 	getSubpage,
 	LOCATION_CHANGE_EVENT,
@@ -93,7 +94,11 @@ function DashboardStage() {
 			}
 			lastSubpage.current = next;
 			setSubpage( next );
-			if ( ! next && ( previous === 'cache-debug-log' || previous === 'critical-css-advanced' ) ) {
+			if (
+				! next &&
+				( previous === 'cache-debug-log' || previous === 'critical-css-advanced' ) &&
+				resolveRoute().route.tab !== 'settings'
+			) {
 				goToTab( 'settings', true );
 			}
 		} );
@@ -125,6 +130,7 @@ function DashboardStage() {
 					</div>
 				) : (
 					<Overview
+						scoresEnabled={ subpage === null }
 						isVisible={ activeTab === 'overview' && subpage === null }
 						onHeaderActionChange={ setHeaderAction }
 					/>
