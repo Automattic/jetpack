@@ -35,7 +35,7 @@ if ( typeof window !== 'undefined' ) {
 						? {
 								delay: delay * 1000,
 								disableOnInteraction: false,
-						  }
+							}
 						: false,
 					effect,
 					init: true,

@@ -34,6 +34,27 @@
 			}
 		}
 	}
+}
+
+.well {
+
+	@include mixins.settings-well();
+
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-md);
+	font-size: var(--wpds-typography-font-size-md);
+	line-height: var(--wpds-typography-line-height-sm);
+
+	.summary {
+		flex-grow: 1;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+}
+
+.status,
+.well {
 
 	button {
 

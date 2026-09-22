@@ -29,6 +29,9 @@ const socialWebpackConfig = {
 				{
 					from: path.resolve( __dirname, '_inc/assets' ),
 					to: 'assets',
+					globOptions: {
+						ignore: [ '**/*.ts' ],
+					},
 				},
 			],
 		} ),

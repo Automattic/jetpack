@@ -345,7 +345,7 @@ export function DateRangeContent( props: DateRangeContentProps ) {
 									/* translators: %s is the preset label, e.g. 'Last 30 days' */
 									__( 'Apply %s', 'jetpack-activity-log' ),
 									defaultPresetLabel
-							  )
+								)
 							: __( 'Apply', 'jetpack-activity-log' )
 					}
 				>
@@ -354,7 +354,7 @@ export function DateRangeContent( props: DateRangeContentProps ) {
 								/* translators: %s is the preset label, e.g. 'Last 30 days' */
 								__( 'Apply %s', 'jetpack-activity-log' ),
 								defaultPresetLabel
-						  )
+							)
 						: __( 'Apply', 'jetpack-activity-log' ) }
 				</Button>
 			</HStack>

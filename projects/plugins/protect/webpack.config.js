@@ -22,11 +22,7 @@ module.exports = [
 		plugins: [
 			...jetpackWebpackConfig.StandardPlugins( {
 				DependencyExtractionPlugin: {
-					// Bundled, never one without the other — see #48173.
-					requestMap: {
-						'@wordpress/theme': { external: false },
-						'@wordpress/private-apis': { external: false },
-					},
+					bundleWpUiDeps: true,
 				},
 			} ),
 		],

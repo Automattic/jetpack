@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { PERIOD_CHANGE_ATTENTION_MS } from '@jetpack-premium-analytics/data';
 import {
 	computePrimaryRange,
 	getMenuSurfacePresetGroups,
@@ -10,17 +11,22 @@ import {
 	type PrimaryPresetId,
 	type QuickSurfacePresetId,
 } from '@jetpack-premium-analytics/datetime';
-import { Button, Icon } from '@jetpack-premium-analytics/externals';
+import { Button, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { formatDateRange, formatDateRangeNatural } from '@jetpack-premium-analytics/formatters';
 import { Dropdown, MenuGroup, MenuItem, NavigableMenu, Tooltip } from '@wordpress/components';
 import { useMediaQuery } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { calendar, check, chevronDown } from '@wordpress/icons';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import clsx from 'clsx';
+import { useCallback, useMemo, useRef, useState, type CSSProperties } from 'react';
 /**
  * Internal dependencies
  */
 import { DateRangePopoverContent } from '../date-range-popover';
+import {
+	DATE_CONTROL_TRIGGER_DEFAULTS,
+	type DateControlTriggerProps,
+} from '../utils/date-control-trigger';
 import './date-period-dropdown.scss';
 
 /**
@@ -31,6 +37,11 @@ import './date-period-dropdown.scss';
  * popover and is bounded by the window rather than by the row it opens from.
  */
 const WIDE_MENU_THRESHOLD = 820;
+
+// The stylesheet reads the duration from here, so the fade ends with the id.
+const ATTENTION_STYLE = {
+	'--date-period-dropdown-attention-duration': `${ PERIOD_CHANGE_ATTENTION_MS }ms`,
+} as CSSProperties;
 
 type DatePeriodDropdownProps = {
 	/**
@@ -105,12 +116,22 @@ type DatePeriodDropdownProps = {
 	/** Greys the trigger out but keeps it focusable: a passing state, not a missing control. */
 	disabled?: boolean;
 
+	/** The trigger's look, over a neutral outline at the default size. */
+	triggerProps?: DateControlTriggerProps;
+
 	/**
 	 * Notifies the parent as the menu opens and closes, so it can mirror the
 	 * draft-while-open behaviour for related controls (the comparison label,
 	 * which follows the primary range).
 	 */
 	onOpenChange?: ( isOpen: boolean ) => void;
+
+	/**
+	 * Draws attention to the trigger while set: a fill in the brand color that
+	 * fades, for a period a navigation set rather than the reader. Each new id
+	 * restarts it.
+	 */
+	attentionId?: number;
 };
 
 /**
@@ -131,7 +152,9 @@ export function DatePeriodDropdown( {
 	canApply,
 	withCustomRange = true,
 	disabled = false,
+	triggerProps,
 	onOpenChange,
+	attentionId,
 }: DatePeriodDropdownProps ) {
 	// The menu floats free of the row it opens from, so the window is what says
 	// whether a second month fits beside the list.
@@ -192,7 +215,6 @@ export function DatePeriodDropdown( {
 
 	return (
 		<Dropdown
-			className="date-period-dropdown"
 			popoverProps={ { placement: 'bottom-start' } }
 			onToggle={ handleToggle }
 			renderToggle={ ( { isOpen, onToggle } ) => (
@@ -200,14 +222,23 @@ export function DatePeriodDropdown( {
 				// keeps them off the control's face.
 				<Tooltip text={ formatDateRange( appliedRange ) }>
 					<Button
-						className="date-period-dropdown__toggle"
-						variant="minimal"
-						tone="neutral"
+						{ ...DATE_CONTROL_TRIGGER_DEFAULTS }
+						{ ...triggerProps }
+						className={ clsx( 'date-period-dropdown__toggle', triggerProps?.className ) }
 						disabled={ disabled }
 						onClick={ onToggle }
 						aria-expanded={ isOpen }
 						aria-haspopup="true"
 					>
+						{ attentionId !== undefined && (
+							// Keyed so a newer id starts the fade over without remounting the button.
+							<span
+								key={ attentionId }
+								className="date-period-dropdown__attention"
+								style={ ATTENTION_STYLE }
+								aria-hidden="true"
+							/>
+						) }
 						<Icon className="date-period-dropdown__glyph" icon={ calendar } size={ 18 } />
 						{ /* Own element so a label too wide for the trigger can ellipsize. */ }
 						<span className="date-period-dropdown__label">{ triggerLabel }</span>
@@ -216,12 +247,10 @@ export function DatePeriodDropdown( {
 				</Tooltip>
 			) }
 			renderContent={ ( { onClose } ) => (
-				<div className="date-period-dropdown__panel">
-					<NavigableMenu
-						className="date-period-dropdown__menu"
-						role="menu"
-						aria-label={ __( 'Period', 'jetpack-premium-analytics-pkg' ) }
-					>
+				// Both halves stretch: the seam is drawn on the calendar, which would
+				// cut it short beside a longer list.
+				<Stack direction="row" align="stretch" className="date-period-dropdown__panel">
+					<NavigableMenu role="menu" aria-label={ __( 'Period', 'jetpack-premium-analytics-pkg' ) }>
 						{ groups.map( group => (
 							<MenuGroup key={ group[ 0 ].id }>
 								{ group.map( preset => {
@@ -280,7 +309,7 @@ export function DatePeriodDropdown( {
 							timeZone={ timeZone }
 						/>
 					) }
-				</div>
+				</Stack>
 			) }
 		/>
 	);

@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+PayPal Payment Buttons: Give each link in the existing links list a menu to duplicate it into a new payment link or delete it, and let the new link's form go back to the list.

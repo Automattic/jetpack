@@ -1,20 +1,19 @@
 import { type ReactNode } from 'react';
 import { BaseChartProps, LeaderboardEntry } from '../../types';
 
-export interface LeaderboardChartProps
-	extends Pick<
-		BaseChartProps< LeaderboardEntry >,
-		| 'className'
-		| 'data'
-		| 'showLegend'
-		| 'legend'
-		| 'chartId'
-		| 'width'
-		| 'height'
-		| 'size'
-		| 'gap'
-		| 'animation'
-	> {
+export interface LeaderboardChartProps extends Pick<
+	BaseChartProps< LeaderboardEntry >,
+	| 'className'
+	| 'data'
+	| 'showLegend'
+	| 'legend'
+	| 'chartId'
+	| 'width'
+	| 'height'
+	| 'size'
+	| 'gap'
+	| 'animation'
+> {
 	/**
 	 * Whether to show comparison data
 	 */

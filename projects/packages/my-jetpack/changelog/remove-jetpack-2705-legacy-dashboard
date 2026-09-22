@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Scan: Send buyers to the Scan dashboard after checkout instead of the retired Jetpack Assistant.

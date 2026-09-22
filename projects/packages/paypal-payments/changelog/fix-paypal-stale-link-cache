@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Show the PayPal Payment Links admin list and detail pages fresh after a link is created, edited, or deleted, instead of serving a cached copy for up to five minutes.

@@ -293,7 +293,7 @@ class PayPal_REST_Controller {
 						'post_id'     => array(
 							'type'        => 'integer',
 							'default'     => 0,
-							'description' => __( 'The post being saved, which does not count as still embedding the link.', 'jetpack-paypal-payments' ),
+							'description' => __( 'One post to leave out of the embed count.', 'jetpack-paypal-payments' ),
 						),
 					),
 				),
@@ -581,11 +581,12 @@ class PayPal_REST_Controller {
 
 		return new WP_REST_Response(
 			array(
-				'connected'   => true,
-				'environment' => PayPal_OAuth::get_environment(),
-				'merchant_id' => PayPal_Partner_Onboarding::get_merchant_id(),
-				'method'      => 'partner_referrals',
-				'message'     => __( 'PayPal account connected successfully via Connect with PayPal.', 'jetpack-paypal-payments' ),
+				'connected'     => true,
+				'environment'   => PayPal_OAuth::get_environment(),
+				'merchant_id'   => PayPal_Partner_Onboarding::get_merchant_id(),
+				'account_email' => PayPal_Partner_Onboarding::get_merchant_email(),
+				'method'        => 'partner_referrals',
+				'message'       => __( 'PayPal account connected successfully via Connect with PayPal.', 'jetpack-paypal-payments' ),
 			),
 			200
 		);
@@ -670,8 +671,10 @@ class PayPal_REST_Controller {
 		}
 
 		// The editor reads a payment back to line its block up with what PayPal
-		// holds, so hand it the block shape alongside the raw resource.
+		// holds, so hand it the block shape alongside the raw resource, and the
+		// published posts embedding it for the link details view.
 		$result['attributes'] = PayPal_Attribute_Mapper::api_response_to_attributes( $result );
+		$result['embeds']     = PayPal_Admin_Page::count_published_embeds()[ $resource_id ] ?? 0;
 
 		return new WP_REST_Response( $result, 200 );
 	}
@@ -712,8 +715,7 @@ class PayPal_REST_Controller {
 	public static function handle_delete_button( WP_REST_Request $request ) {
 		$resource_id = $request->get_param( 'resource_id' );
 
-		// The editor deletes a link when a post is saved without its block, but a
-		// link is shared by every block that points at it, on any post.
+		// Spare a link another published post still embeds.
 		if ( $request->get_param( 'unused_only' ) ) {
 			$embeds = PayPal_Admin_Page::count_published_embeds( absint( $request->get_param( 'post_id' ) ) );
 			$others = $embeds[ $resource_id ] ?? 0;
@@ -812,6 +814,10 @@ class PayPal_REST_Controller {
 			}
 		}
 
+		if ( ! empty( $first_item['product_id'] ) ) {
+			$attributes['productId'] = $first_item['product_id'];
+		}
+
 		if ( ! empty( $first_item['description'] ) ) {
 			$attributes['productDescription'] = $first_item['description'];
 		}
@@ -842,7 +848,7 @@ class PayPal_REST_Controller {
 	 * Used when a line item has no product-level `unit_amount` because its
 	 * options carry their own prices.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param array $variants Variants structure from the request.
 	 * @return string The currency code, defaulting to USD.
@@ -863,7 +869,6 @@ class PayPal_REST_Controller {
 	 * Get REST API arg definitions for button create/update endpoints.
 	 *
 	 * Defines the line_items schema matching PayPal's Pay Links & Buttons API.
-	 * Phase 1 supports BUY_NOW type with LINK integration mode.
 	 *
 	 * @return array REST API args definition.
 	 */
@@ -1027,8 +1032,6 @@ class PayPal_REST_Controller {
 								),
 							),
 						),
-						// Set outside the form, but a PUT replaces the whole resource,
-						// so the editor sends them back.
 						'product_id'               => array(
 							'type'     => 'string',
 							'required' => false,
@@ -1049,8 +1052,7 @@ class PayPal_REST_Controller {
 	/**
 	 * Build the resource data array from a REST request for PayPal API submission.
 	 *
-	 * Extracts and sanitizes relevant parameters, stripping null/empty optional values
-	 * so only populated fields are sent to PayPal.
+	 * Sanitizes the line items and adds name and return_url when the request sent them.
 	 *
 	 * @param WP_REST_Request $request The incoming REST request.
 	 * @return array The sanitized resource data ready for the PayPal API.
@@ -1085,9 +1087,6 @@ class PayPal_REST_Controller {
 	/**
 	 * Sanitize line items array for PayPal API submission.
 	 *
-	 * Applies sanitize_text_field to string values and keeps an image URL only when
-	 * it is HTTPS.
-	 *
 	 * @param array $line_items Raw line items from the REST request.
 	 * @return array Sanitized line items.
 	 */
@@ -1120,7 +1119,8 @@ class PayPal_REST_Controller {
 
 			// Optional fields.
 			if ( ! empty( $item['description'] ) ) {
-				$clean_item['description'] = sanitize_text_field( $item['description'] );
+				// The control is a textarea, so keep the line breaks PayPal stores.
+				$clean_item['description'] = sanitize_textarea_field( $item['description'] );
 			}
 
 			// PayPal fetches the image itself, so anything but a public HTTPS URL is
@@ -1160,7 +1160,8 @@ class PayPal_REST_Controller {
 				}
 			}
 
-			// Tax configuration.
+			// The type decides how the value reads, so a type outside this list falls
+			// back to PERCENTAGE and turns a flat 5.00 into 5%.
 			if ( ! empty( $item['taxes'] ) && is_array( $item['taxes'] ) ) {
 				$clean_taxes = array();
 				$valid_types = array( 'PERCENTAGE', 'PREFERENCE', 'FLAT' );
@@ -1206,10 +1207,11 @@ class PayPal_REST_Controller {
 				}
 			}
 
-			// Copied back from the payment by the editor. Drop one here and Update
-			// deletes it at PayPal.
-			if ( isset( $item['product_id'] ) && '' !== $item['product_id'] ) {
-				$clean_item['product_id'] = sanitize_text_field( $item['product_id'] );
+			// An id of only whitespace or tags sanitizes down to '', and PayPal rejects an
+			// empty one, so drop it.
+			$product_id = sanitize_text_field( (string) ( $item['product_id'] ?? '' ) );
+			if ( '' !== $product_id ) {
+				$clean_item['product_id'] = $product_id;
 			}
 			foreach ( array( 'shipping', 'handling', 'discounts' ) as $field ) {
 				if ( ! empty( $item[ $field ] ) && is_array( $item[ $field ] ) ) {
@@ -1234,9 +1236,8 @@ class PayPal_REST_Controller {
 	/**
 	 * Sanitize a shipping, handling or discount list for PayPal API submission.
 	 *
-	 * All three take a type, a value, and for per-unit shipping a rate for each
-	 * extra unit. The type passes straight through: these come back off the payment,
-	 * so anything PayPal accepted must survive the round trip.
+	 * All three take a type, a value, and for per-unit shipping a rate per extra unit.
+	 * The type passes through as sent, so one set in PayPal's dashboard survives a PUT.
 	 *
 	 * @param array $amounts Raw entries from the REST request.
 	 * @return array Sanitized entries.

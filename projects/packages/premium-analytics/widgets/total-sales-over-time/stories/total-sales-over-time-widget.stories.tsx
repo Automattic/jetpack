@@ -38,8 +38,7 @@ interface TotalSalesOverTimeStoryControls {
 type TotalSalesOverTimeStoryProps = TotalSalesOverTimeWidgetProps & TotalSalesOverTimeStoryControls;
 
 interface TotalSalesOverTimeDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		TotalSalesOverTimeStoryControls {}
+	extends WidgetDashboardWithWidgetControls, TotalSalesOverTimeStoryControls {}
 
 function getTotalSalesOverTimeAttributes(
 	withComparison = false,

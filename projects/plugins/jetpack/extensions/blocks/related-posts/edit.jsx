@@ -33,11 +33,11 @@ function PlaceholderPostEdit( props ) {
 					? __(
 							'Preview unavailable in site editor. The post title will appear normally on your site.',
 							'jetpack'
-					  )
+						)
 					: __(
 							"Preview unavailable: you haven't published enough posts with similar content.",
 							'jetpack'
-					  ) }
+						) }
 			</strong>
 			{ props.displayThumbnails && (
 				<figure

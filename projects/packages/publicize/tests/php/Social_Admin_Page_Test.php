@@ -56,7 +56,9 @@ class Social_Admin_Page_Test extends BaseTestCase {
 		remove_filter( 'wp_die_handler', array( $this, 'throw_on_wp_die' ), 10 );
 		remove_filter( 'jetpack_social_should_refresh_plan_data', array( $this, 'capture_refresh_attempt' ) );
 
-		unset( $_GET['refresh_plan_data'], $_GET['_wpnonce'] );
+		remove_action( 'admin_enqueue_scripts', array( Social_Admin_Page::class, 'alias_screen_id_for_wp_build' ) );
+		remove_action( 'admin_enqueue_scripts', array( Social_Admin_Page::class, 'restore_screen_id_after_wp_build' ) );
+		unset( $_GET['refresh_plan_data'], $_GET['_wpnonce'], $_GET['page'], $GLOBALS['current_screen'] );
 		$this->refresh_called = false;
 		Jetpack_Options::delete_option( 'id' );
 
@@ -166,5 +168,43 @@ class Social_Admin_Page_Test extends BaseTestCase {
 		$_GET['_wpnonce']              = $_REQUEST['_wpnonce'];
 
 		Social_Admin_Page::init()->admin_init();
+	}
+
+	public function test_maybe_load_wp_build_hooks_the_screen_alias_around_the_generated_check() {
+		set_current_screen( 'jetpack_page_jetpack-social' );
+		$_GET['page'] = 'jetpack-social';
+
+		Social_Admin_Page::maybe_load_wp_build();
+
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( Social_Admin_Page::class, 'alias_screen_id_for_wp_build' ) ) );
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( Social_Admin_Page::class, 'restore_screen_id_after_wp_build' ) ) );
+		$this->assertFalse( has_action( 'current_screen', array( Social_Admin_Page::class, 'alias_screen_id_for_wp_build' ) ) );
+	}
+
+	public function test_screen_id_is_restored_after_admin_enqueue_scripts() {
+		set_current_screen( 'jetpack_page_jetpack-social' );
+		$_GET['page'] = 'jetpack-social';
+
+		Social_Admin_Page::maybe_load_wp_build();
+		do_action( 'current_screen', get_current_screen() );
+		do_action( 'admin_enqueue_scripts', 'jetpack_page_jetpack-social' );
+
+		$this->assertSame( 'jetpack_page_jetpack-social', get_current_screen()->id );
+	}
+
+	public function test_alias_screen_id_round_trip() {
+		unset( $GLOBALS['current_screen'] );
+		Social_Admin_Page::alias_screen_id_for_wp_build();
+		Social_Admin_Page::restore_screen_id_after_wp_build();
+
+		set_current_screen( 'jetpack_page_jetpack-social' );
+		Social_Admin_Page::restore_screen_id_after_wp_build();
+		$this->assertSame( 'jetpack_page_jetpack-social', get_current_screen()->id );
+
+		Social_Admin_Page::alias_screen_id_for_wp_build();
+		$this->assertSame( 'jetpack-social-dashboard', get_current_screen()->id );
+
+		Social_Admin_Page::restore_screen_id_after_wp_build();
+		$this->assertSame( 'jetpack_page_jetpack-social', get_current_screen()->id );
 	}
 }

@@ -55,6 +55,33 @@ describe( 'AbbreviatedValue', () => {
 		expect( button.ownerDocument.body ).toHaveFocus();
 	} );
 
+	it( 'restores a labelled figure in place of the bare one', async () => {
+		const user = userEvent.setup();
+		render( <AbbreviatedValue value={ 18432 } dataFormat={ COMPACT } restored="18,432 opens" /> );
+
+		expect( screen.getByText( '18,432 opens' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '18,432' ) ).not.toBeInTheDocument();
+
+		await user.hover( screen.getByText( '18.4K' ) );
+
+		await expect(
+			screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
+		).resolves.toHaveTextContent( '18,432 opens' );
+	} );
+
+	it( 'keeps the tooltip when a label is the only thing the display omits', async () => {
+		const user = userEvent.setup();
+		render( <AbbreviatedValue value={ 432 } dataFormat={ COMPACT } restored="432 opens" /> );
+
+		expect( screen.getByText( '432' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+
+		await user.hover( screen.getByText( '432' ) );
+
+		await expect(
+			screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
+		).resolves.toHaveTextContent( '432 opens' );
+	} );
+
 	it( 'reads the currency from the data format when no prop overrides it', () => {
 		render(
 			<AbbreviatedValue

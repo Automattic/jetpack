@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+PayPal Payment Buttons: Reject a return URL over the 127 characters PayPal accepts, and say so in the block's form.
