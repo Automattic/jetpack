@@ -561,9 +561,13 @@
 	// Fold/Unfold
 	const fold = actionbar.querySelector( '.actnbr-fold' );
 	if ( fold ) {
-		// Nothing to fold when the bar has no visible buttons.
+		// Nothing to fold when the bar has no visible buttons. Hide the group too, or its separator is left behind.
 		if ( ! actionbar.querySelector( 'li.actnbr-btn:not(.no-display)' ) ) {
 			fold.classList.add( 'no-display' );
+			const foldGroup = fold.closest( '.actnbr-menu__group' );
+			if ( foldGroup ) {
+				foldGroup.classList.add( 'no-display' );
+			}
 		}
 		fold.addEventListener( 'click', e => {
 			e.preventDefault();
