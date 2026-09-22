@@ -66,7 +66,7 @@ class Publicize extends Publicize_Base {
 	 * @return void
 	 */
 	public function force_user_connection() {
-		_deprecated_function( __METHOD__, 'jetpack-publicize-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'publicize-$$next-version$$' );
 	}
 
 	/**
@@ -77,7 +77,7 @@ class Publicize extends Publicize_Base {
 	 * @return void
 	 */
 	public function admin_page_warning() {
-		_deprecated_function( __METHOD__, 'jetpack-publicize-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'publicize-$$next-version$$' );
 	}
 
 	/**
