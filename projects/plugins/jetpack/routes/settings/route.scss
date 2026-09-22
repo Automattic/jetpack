@@ -1,0 +1,10 @@
+// The stylesheet the webpack page loads as style.min.css.
+@use "../../_inc/client/scss/style";
+
+body.jetpack_page_jetpack-settings:not(.network-admin) {
+
+	// wp-admin's body color, not the #1e1e1e boot's stage sets.
+	.boot-layout__stage {
+		color: #3c434a;
+	}
+}

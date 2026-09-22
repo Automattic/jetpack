@@ -1,0 +1,8 @@
+{
+	"version": "1.0.0",
+	"private": true,
+	"route": {
+		"path": "/",
+		"page": "jetpack-settings-dashboard"
+	}
+}

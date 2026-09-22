@@ -190,6 +190,12 @@
 				"init": [
 					"@jetpack-plugin/init"
 				]
+			},
+			{
+				"id": "jetpack-settings-dashboard",
+				"init": [
+					"@jetpack-plugin/init"
+				]
 			}
 		]
 	}
