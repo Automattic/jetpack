@@ -441,7 +441,7 @@ test.each( [ 'critical_css_state', 'lcp_state' ] as const )(
 	}
 );
 
-test( 'regenerates scores after a Settings toggle and return to the mounted Overview', async () => {
+test( 'syncs a Settings toggle without extra fetches and refreshes the mounted Overview scores', async () => {
 	const initialModules = {
 		performance_history: { available: true, active: true },
 		defer_js: { available: true, active: false },
@@ -501,6 +501,8 @@ test( 'regenerates scores after a Settings toggle and return to the mounted Over
 		await expect( screen.findByText( '91' ) ).resolves.toBeVisible();
 		await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
 		view.rerender( dashboard( false ) );
+		fetchSpy.mockClear();
+		jest.mocked( apiFetch ).mockClear();
 		jest.mocked( requestSpeedScores ).mockResolvedValue( {
 			...scores,
 			current: { desktop: 95, mobile: 85 },
@@ -509,6 +511,17 @@ test( 'regenerates scores after a Settings toggle and return to the mounted Over
 		await waitFor( () => expect( savedModules.defer_js.active ).toBe( true ) );
 		view.rerender( dashboard( true ) );
 		await waitFor( () => expect( screen.getByText( '95' ) ).toBeVisible(), { timeout: 4000 } );
+		expect( client.getQueryData( [ 'modules_state' ] ) ).toEqual( savedModules );
+		expect( fetchSpy ).toHaveBeenCalledTimes( 1 );
+		expect( fetchSpy ).toHaveBeenCalledWith(
+			expect.stringContaining( '/modules-state/set' ),
+			expect.objectContaining( { method: 'POST' } )
+		);
+		expect(
+			jest
+				.mocked( apiFetch )
+				.mock.calls.filter( ( [ options ] ) => options.url?.endsWith( '/modules-state' ) )
+		).toHaveLength( 0 );
 		expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 );
 		expect( requestSpeedScores ).toHaveBeenLastCalledWith(
 			true,
