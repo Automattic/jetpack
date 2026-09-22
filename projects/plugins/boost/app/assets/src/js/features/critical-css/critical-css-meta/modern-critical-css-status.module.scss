@@ -1,8 +1,8 @@
+@use "$css/main/mixins";
+
 .well {
-	padding: var(--wpds-dimension-padding-lg);
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
-	border-radius: var(--wpds-border-radius-lg);
-	background: var(--wpds-color-background-surface-neutral);
+
+	@include mixins.settings-well();
 }
 
 .description {
