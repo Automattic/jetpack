@@ -206,17 +206,18 @@ class Initializer {
 	 * @return void
 	 */
 	public static function add_my_jetpack_menu_item() {
+		$menu_slug   = 'my-jetpack';
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
 			'edit_posts',
-			'my-jetpack',
+			$menu_slug,
 			array( __CLASS__, 'admin_page' ),
 			Admin_Menu::POSITION_FIRST
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 		// Users who can edit posts but have no Jetpack menu get an admin_page_ hook instead.
-		add_action( 'load-admin_page_my-jetpack', array( __CLASS__, 'admin_init' ) );
+		add_action( 'load-admin_page_' . $menu_slug, array( __CLASS__, 'admin_init' ) );
 	}
 
 	/**
