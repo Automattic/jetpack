@@ -881,6 +881,25 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
+	 * WordPress.com records the provenance this site stores, not the raw argument.
+	 */
+	public function test_set_protected_owner_sends_the_sanitized_provenance() {
+		$this->act_as_administrator();
+		$this->connect_the_owner();
+
+		$sent = $this->answer_xmlrpc(
+			'<params><param><value><struct>' .
+			'<member><name>status</name><value><string>recorded</string></value></member>' .
+			'<member><name>wpcom_user_id</name><value><int>' . self::ANCHORED_WPCOM_ID . '</int></value></member>' .
+			'</struct></value></param></params>'
+		);
+
+		$this->assertTrue( ( new Manager() )->set_protected_owner( $this->owner_id, 'Pop-Up!' ) );
+		$this->assertStringContainsString( '<string>pop-up</string>', $sent->body );
+		$this->assertStringNotContainsString( 'Pop-Up!', $sent->body );
+	}
+
+	/**
 	 * A fault is no answer, so nothing is anchored.
 	 */
 	public function test_set_protected_owner_fails_closed_on_an_xmlrpc_fault() {

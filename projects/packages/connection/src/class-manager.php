@@ -1573,7 +1573,7 @@ class Manager {
 
 		// WordPress.com is asked before anything is written here. It owns the record, so a claim it
 		// has not accepted must not leave a locked anchor behind on this site.
-		$record = $this->assert_protected_owner_record( $confirmed_by );
+		$record = $this->assert_protected_owner_record( sanitize_key( $confirmed_by ) );
 
 		// Fail closed: unreachable, refused, or a WordPress.com that does not implement the call.
 		// A site that cannot get an answer must not end up protecting anybody on its own say-so.
