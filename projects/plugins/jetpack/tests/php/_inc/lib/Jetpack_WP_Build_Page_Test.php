@@ -7,8 +7,6 @@
 
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-wp-build-page.php';
 
@@ -51,7 +49,7 @@ class Jetpack_WP_Build_Page_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Skip unless `build/` exists; loading it defines global functions, so callers run in a separate process.
+	 * Skip unless `build/` exists.
 	 */
 	private function skip_without_the_build() {
 		if ( ! file_exists( JETPACK__PLUGIN_DIR . 'build/build.php' ) ) {
@@ -78,11 +76,8 @@ class Jetpack_WP_Build_Page_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
+	 * In-process on purpose: a separate process reinstalls the shared test database mid-suite.
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_load_skips_a_page_the_build_cannot_render() {
 		$this->skip_without_the_build();
 
@@ -97,18 +92,15 @@ class Jetpack_WP_Build_Page_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
+	 * Asserts what load() checks for, since a real load() would register polyfills for the rest of the suite.
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_load_accepts_the_built_pages() {
+	public function test_the_build_renders_the_loaded_pages() {
 		$this->skip_without_the_build();
 
+		require_once JETPACK__PLUGIN_DIR . 'build/build.php';
 		foreach ( array( 'jetpack-ai-hub', 'jetpack-settings-dashboard' ) as $page_id ) {
-			$this->assertTrue( Jetpack_WP_Build_Page::load( $page_id ), $page_id );
+			$this->assertTrue( function_exists( 'jetpack_plugin_' . str_replace( '-', '_', $page_id ) . '_wp_admin_render_page' ), $page_id );
 		}
-		$this->assertContains( 'jetpack', $this->polyfill_consumers() );
 	}
 
 	public function test_screen_id_alias_round_trip() {
