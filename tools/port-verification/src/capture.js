@@ -20,6 +20,16 @@ import { DEFAULT_GEOMETRY_TARGETS } from './selectors.js';
 async function login( page, siteUrl, username, password, loadState ) {
 	const origin = new URL( siteUrl ).origin;
 	await page.goto( `${ origin }/wp-login.php`, { waitUntil: loadState } );
+
+	// Jetpack SSO leaves the classic form in the DOM but hidden behind "Log in with username
+	// and password", so filling it blind times out on most Jetpack sites. Which class carries
+	// that link is not stable -- the visible one is the one to click.
+	const ssoToggle = page.locator( '.jetpack-sso-toggle:visible' ).first();
+	if ( await ssoToggle.isVisible().catch( () => false ) ) {
+		await ssoToggle.click();
+		await page.waitForSelector( '#user_login', { state: 'visible' } );
+	}
+
 	await page.fill( '#user_login', username );
 	await page.fill( '#user_pass', password );
 

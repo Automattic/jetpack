@@ -179,6 +179,18 @@ describe( 'normalizeRequestKey', () => {
 		);
 	} );
 
+	it( "strips Jetpack's _cacheBuster, which changes on every REST call", () => {
+		const a = {
+			url: 'https://s.test/wp-json/jetpack/v4/search/plan?_cacheBuster=1',
+			method: 'GET',
+		};
+		const b = {
+			url: 'https://s.test/wp-json/jetpack/v4/search/plan?_cacheBuster=2',
+			method: 'GET',
+		};
+		assert.equal( normalizeRequestKey( a ), normalizeRequestKey( b ) );
+	} );
+
 	it( 'keeps the host, so the same path on two hosts is two requests', () => {
 		const a = { url: 'https://site.test/boot.js', method: 'GET' };
 		const b = { url: 'https://cdn.test/boot.js', method: 'GET' };

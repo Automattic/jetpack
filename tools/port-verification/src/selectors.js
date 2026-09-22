@@ -25,6 +25,9 @@ export const DEFAULT_IGNORED_QUERY_PARAMS = [
 	'ver',
 	'_',
 	'_locale',
+	// Jetpack's own REST cache buster; without it every wp-json call lands in both
+	// "only with flag off" and "only with flag on". Seen on the Search dashboard.
+	'_cacheBuster',
 ];
 
 // Hosts whose traffic is per-event by design: a Tracks pixel carries a timestamp in every
