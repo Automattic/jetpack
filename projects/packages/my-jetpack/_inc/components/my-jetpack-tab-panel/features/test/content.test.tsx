@@ -11,7 +11,7 @@ const activeStats = {
 } as unknown as FeatureState;
 
 let mockStates: FeatureState[] = [ activeStats ];
-let mockMainFeatures = { features: [ { slug: 'stats' } ] };
+let mockMainFeatures: Record< string, unknown > = { features: [ { slug: 'stats' } ] };
 
 jest.mock( '../use-main-features', () => ( { useMainFeatures: () => mockMainFeatures } ) );
 
@@ -46,9 +46,18 @@ describe( 'FeaturesContent', () => {
 		expect( screen.getByText( 'grid card' ) ).toBeInTheDocument();
 	} );
 
+	it( 'waits for the read to settle before calling an empty catalog a failure', () => {
+		mockStates = [];
+		mockMainFeatures = { features: [], isPending: true };
+
+		renderAt( '/features' );
+
+		expect( screen.queryByRole( 'heading' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'reports an empty catalog as a failure rather than a site with no features', () => {
 		mockStates = [];
-		mockMainFeatures = { features: [] };
+		mockMainFeatures = { features: [], isPending: false };
 
 		renderAt( '/features' );
 

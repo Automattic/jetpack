@@ -43,10 +43,10 @@ export type PluginAction = 'install' | 'activate' | 'deactivate';
  * Seeded from the page and replaced wholesale by each plugin action's response, so it is
  * never fetched on its own.
  *
- * @return The state.
+ * @return The state, and whether the first read is still out.
  */
-export function useMainFeatures(): MainFeaturesState {
-	const { data, isError } = useQuery( {
+export function useMainFeatures(): MainFeaturesState & { isPending: boolean } {
+	const { data, isError, isPending } = useQuery( {
 		queryKey: QUERY_KEY,
 		queryFn: () => apiFetch< MainFeaturesState >( { path: '/wpcom/v2/my-jetpack/site/features' } ),
 		// The page's own copy renders the grid immediately; it is never cached, so a remount
@@ -59,7 +59,7 @@ export function useMainFeatures(): MainFeaturesState {
 
 	// A failed read drops the placeholder, which would empty the grid and read as "this
 	// site has no features". The page's own copy is stale but it is not nothing.
-	return data ?? ( isError ? initialState() : EMPTY_STATE );
+	return { ...( data ?? ( isError ? initialState() : EMPTY_STATE ) ), isPending };
 }
 
 /**

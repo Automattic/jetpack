@@ -111,6 +111,10 @@ export function FeaturesContent() {
 
 	const open = states.find( item => item.feature.slug === openSlug );
 
+	// With no catalog on the page there is nothing to say until the read settles: an
+	// empty list mid-request is not yet a failure to load one.
+	const settling = mainFeatures.isPending && mainFeatures.features.length === 0;
+
 	return (
 		<section className={ styles.content }>
 			<Toolbar
@@ -133,7 +137,7 @@ export function FeaturesContent() {
 				) }
 			</p>
 
-			{ visible.length === 0 && (
+			{ visible.length === 0 && ! settling && (
 				<FeaturesEmptyState
 					search={ search }
 					filter={ filter }

@@ -4,6 +4,7 @@ import { search as searchIcon } from '@wordpress/icons';
 import { Button, EmptyState, LinkButton } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { reloadPage } from '../products/reload-page';
+import { hasSearch } from '../products/utils';
 import styles from './styles.module.scss';
 import type { FeatureFilter } from './use-feature-filter';
 import type { ReactNode } from 'react';
@@ -92,7 +93,7 @@ export function FeaturesEmptyState( {
 		);
 	}
 
-	if ( search ) {
+	if ( hasSearch( search ) ) {
 		return (
 			<Empty
 				mark={ searchMark }

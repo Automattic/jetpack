@@ -94,6 +94,12 @@ describe( 'FeaturesEmptyState', () => {
 		expect( screen.queryByRole( 'img', { name: 'Jetpack Logo' } ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'ignores a term of whitespace, which the grid does not treat as a search', () => {
+		render( <FeaturesEmptyState { ...props } search="   " filter="active" /> );
+
+		expect( screen.getByRole( 'heading' ) ).toHaveTextContent( 'No features are active yet.' );
+	} );
+
 	it( 'falls back to a plain heading for a plan filter that matched nothing', () => {
 		render( <FeaturesEmptyState { ...props } filter="growth" /> );
 
