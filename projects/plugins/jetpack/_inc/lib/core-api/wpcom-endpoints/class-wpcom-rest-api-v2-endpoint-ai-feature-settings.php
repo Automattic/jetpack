@@ -21,11 +21,9 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Search\Plan as Search_Plan;
 use Automattic\Jetpack\SEO\Ai_Seo;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -250,8 +248,8 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 
 		return array(
 			'host_allows_ai'    => Jetpack_AI_Settings::host_allows_ai(),
-			'is_connected'      => $this->is_connected(),
-			'is_user_connected' => $this->is_user_connected(),
+			'is_connected'      => Jetpack_AI_Settings::site_is_connected(),
+			'is_user_connected' => Jetpack_AI_Settings::user_is_connected(),
 			'plan'              => array(
 				'supports_ai'         => class_exists( Current_Plan::class ) && Current_Plan::supports( 'ai-assistant' ),
 				'supports_search'     => $supports_search,
@@ -322,37 +320,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 		}
 
 		return (bool) \Automattic\Jetpack\Extensions\ImageStudio\is_image_studio_enabled();
-	}
-
-	/**
-	 * Whether the site can know its plan: Simple sites always can; elsewhere a
-	 * connected owner outside offline mode is required. Mirrors the connection
-	 * predicate the AI feature load points use — offline mode included, since a
-	 * site can hold connection tokens while offline mode keeps every AI surface
-	 * from loading.
-	 *
-	 * @return bool
-	 */
-	private function is_connected() {
-		return ( new Host() )->is_wpcom_simple()
-			|| ( ( new Manager( 'jetpack' ) )->has_connected_owner()
-				&& ! ( new Status() )->is_offline_mode() );
-	}
-
-	/**
-	 * Whether the current user's own account is connected. is_connected() above
-	 * is the site-level gate the feature load points share, but the editor chat
-	 * keys its variant off the requesting user: the agents-manager loader
-	 * downgrades to its disconnected variant when the current user holds no
-	 * token, so the settings page needs this bit to tell an admin whose account
-	 * is not connected that the chat will not run for them. Simple
-	 * short-circuits true, matching is_connected().
-	 *
-	 * @return bool
-	 */
-	private function is_user_connected() {
-		return ( new Host() )->is_wpcom_simple()
-			|| ( new Manager( 'jetpack' ) )->is_user_connected();
 	}
 }
 

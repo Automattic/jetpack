@@ -5,7 +5,7 @@ import { requestJwt } from './jwt.ts';
 import { buildTailorPrompt, chooseTailoringMenu } from './prompts.ts';
 import { parseAgentResponse } from './schema-validator.ts';
 import { contextFromTailorResult, setTracksContext } from './tracks.ts';
-import type { TailoredOutput, TailorResult, TailorSource, WizardInput } from './types.ts';
+import type { SiteCopy, TailoredOutput, TailorResult, TailorSource, WizardInput } from './types.ts';
 
 const AI_QUERY_ENDPOINT = 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query';
 const AI_QUERY_TIMEOUT_MS = 40_000;
@@ -180,9 +180,10 @@ async function persist(
  * picker on any failure and persisting the result tagged with its source.
  *
  * @param input - The collected wizard input.
+ * @param copy  - The site-language copy the fallback drafts are written from.
  * @return The tailored result, tagged with whether it came from AI or fallback.
  */
-export async function tailor( input: WizardInput ): Promise< TailorResult > {
+export async function tailor( input: WizardInput, copy: SiteCopy ): Promise< TailorResult > {
 	const start = performance.now();
 	// One id per tailoring run, not per attempt: a retry re-rolls the same checklist. Minted
 	// here rather than server-side so it survives a failed PUT, where the client still renders
@@ -205,7 +206,7 @@ export async function tailor( input: WizardInput ): Promise< TailorResult > {
 		}
 	}
 
-	const fallbackOutput = selectFallback( input );
+	const fallbackOutput = selectFallback( input, copy );
 	try {
 		// `attempts` counts the failed AI calls that preceded the fallback.
 		await persist( fallbackOutput, 'fallback', {

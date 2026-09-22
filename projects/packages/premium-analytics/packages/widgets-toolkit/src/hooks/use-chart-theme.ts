@@ -37,6 +37,10 @@ export function useChartTheme(): ChartTheme {
 			leaderboardChart: {
 				labelSpacing: 'xs',
 			},
+			// The chart's 24px default does not fit twelve month blocks in a full-width card.
+			heatmapChart: {
+				groupGap: 16,
+			},
 			lineChart: {
 				lineStyles: {
 					comparison: {

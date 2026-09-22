@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Align the dashboard stage test with the router's route argument; no runtime change.
+
+

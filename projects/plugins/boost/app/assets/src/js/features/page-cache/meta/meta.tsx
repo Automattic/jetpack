@@ -9,6 +9,7 @@ import { usePageCache, useClearPageCacheAction } from '$lib/stores/page-cache';
 import clsx from 'clsx';
 import { useMutationNotice } from '$features/ui';
 import { useDataSyncSubset } from '@automattic/jetpack-react-data-sync-client';
+import { useTooltipLayer } from '$features/module/surface';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
@@ -265,6 +266,7 @@ type BypassPatternsExampleProps = {
 
 const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 	const [ show, setShow ] = useState( false );
+	const tooltipLayer = useTooltipLayer();
 
 	return (
 		<div className={ styles[ 'example-wrapper' ] }>
@@ -286,7 +288,8 @@ const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 					popoverAnchorStyle="wrapper"
 					forceShow={ show }
 					offset={ -10 }
-					className={ styles.tooltip }
+					popoverClassName={ styles.tooltip }
+					{ ...tooltipLayer }
 				>
 					<strong>{ __( 'Example:', 'jetpack-boost' ) }</strong>
 					<br />

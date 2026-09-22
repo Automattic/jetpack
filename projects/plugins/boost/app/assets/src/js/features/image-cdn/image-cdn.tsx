@@ -28,6 +28,7 @@ const ImageCdn = () => {
 			{ ! hasPremiumCdnFeatures && (
 				<InterstitialModalCTA
 					identifier="image-cdn"
+					showLicenseKeyLink
 					description={ __( 'Auto-resize lazy images and adjust their quality.', 'jetpack-boost' ) }
 				/>
 			) }

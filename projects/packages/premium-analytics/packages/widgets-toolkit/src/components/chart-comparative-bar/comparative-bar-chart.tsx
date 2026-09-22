@@ -22,7 +22,7 @@ import { useCallback, useId, useMemo, useState } from 'react';
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
 	appendTooltipExtras,
-	formatTooltipSeriesLabel,
+	formatTooltipPointLabel,
 	isEmptyChartData,
 	getFixedYAxis,
 	dateFormatForResolution,
@@ -204,10 +204,7 @@ export function ComparativeBarChart( {
 		[ xTickFormatType ]
 	);
 
-	const { primaryByGroup, seriesNames, isPaired } = useMemo(
-		() => resolveSeriesNames( series ),
-		[ series ]
-	);
+	const { primaryByGroup, seriesNames } = useMemo( () => resolveSeriesNames( series ), [ series ] );
 	// A legend item names a metric; the solid mark against its previous-period twin
 	// is what tells the periods apart, so a metric's two periods always collapse.
 	const legendConfig = useMemo(
@@ -216,26 +213,25 @@ export function ComparativeBarChart( {
 	);
 	const legendItems = useLockedPrimaryLegendItems( alignedSeries, legendConfig );
 
-	const { names: tooltipNames, namesRows } = useMemo(
-		() => resolveTooltipNames( seriesNames, isPaired, tooltipExtras ),
-		[ seriesNames, isPaired, tooltipExtras ]
+	const tooltipNames = useMemo(
+		() => resolveTooltipNames( seriesNames, tooltipExtras ),
+		[ seriesNames, tooltipExtras ]
 	);
 
 	// Comparison points carry the primary's date for axis alignment, so read
-	// `realDate`; a multi-metric chart also prefixes the metric to avoid duplicate names.
+	// `realDate`.
 	const getTooltipLabel = useCallback(
-		( datum: { date?: Date; realDate?: Date }, _index: number, key: string ): string => {
+		(
+			datum: { date: Date; realDate?: Date },
+			_index: number,
+			key: string,
+			value: string
+		): string => {
 			const displayDate = datum.realDate ?? datum.date;
-			if ( ! displayDate ) {
-				return key;
-			}
-			const name = tooltipNames.get( key );
 			const date = formatTooltipDate( displayDate, tooltipDateFormat );
-			// Without a name the row would otherwise lead with an internal label,
-			// so fall back to the date, which is always meaningful.
-			return namesRows && name ? formatTooltipSeriesLabel( name, date ) : date;
+			return formatTooltipPointLabel( value, tooltipNames.get( key ) ?? key, date );
 		},
-		[ tooltipNames, namesRows, formatTooltipDate, tooltipDateFormat ]
+		[ tooltipNames, formatTooltipDate, tooltipDateFormat ]
 	);
 
 	/**
@@ -303,6 +299,7 @@ export function ComparativeBarChart( {
 					seriesStyles={ seriesStyles }
 					seriesKeys={ seriesKeys }
 					indicatorType="rect"
+					layout="inline"
 					supplementaryRows={ supplementaryRows }
 					getLabel={ getTooltipLabel }
 				/>

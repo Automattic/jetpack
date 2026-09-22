@@ -5,7 +5,9 @@
  * @since 0.8.0
  */
 
+@use "@wordpress/base-styles/colors";
 @use "@wordpress/base-styles/mixins" as *;
+@use "@wordpress/base-styles/variables";
 
 // ---------------------------------------------------------------
 // Paste-code editor (V1)
@@ -129,6 +131,55 @@
 	.block-editor-block-card,
 	.block-editor-block-inspector__advanced {
 		display: none;
+	}
+}
+
+// ---------------------------------------------------------------
+// Account header
+// ---------------------------------------------------------------
+
+// Our row is the whole card, so what core drew in it goes.
+.block-editor-block-card:has(.jetpack-paypal-payment-buttons__account-header) {
+	padding: 0;
+
+	> :not(.jetpack-paypal-payment-buttons__account-header) {
+		display: none;
+	}
+}
+
+.jetpack-paypal-payment-buttons__account-header {
+	display: flex;
+	align-items: center;
+	gap: variables.$grid-unit-10;
+	padding: variables.$grid-unit-20 variables.$grid-unit-15;
+	border-bottom: variables.$border-width solid colors.$gray-300;
+
+	// Nested for the second class: .block-editor-block-inspector h2 sets a
+	// 1.5em bottom margin, which a single class loses to.
+	.jetpack-paypal-payment-buttons__account-header-title {
+		flex: 1 1 auto;
+		margin: 0;
+		font-size: variables.$font-size-medium;
+		font-weight: 600;
+		line-height: variables.$font-line-height-small;
+		color: colors.$gray-900;
+	}
+}
+
+.jetpack-paypal-payment-buttons__account-header-icon {
+	display: flex;
+	flex: 0 0 auto;
+}
+
+// The design greys the menu glyphs so the labels read first. Core paints them
+// currentColor. Log out keeps its red, where the glyph matches the label.
+.jetpack-paypal-payment-buttons__account-menu {
+
+	.components-menu-item__button:not(.is-destructive) {
+
+		.components-menu-items__item-icon {
+			color: colors.$gray-700;
+		}
 	}
 }
 
@@ -513,7 +564,6 @@
 // Renders as a bare child of the inspector fill rather than inside a PanelBody,
 // so it has to supply the separator and the 16px inset a panel would have given
 // it. Without them it reads as the footer of whichever panel sits above.
-// The line at the top of the sidebar saying what the save will do.
 .jetpack-paypal-payment-buttons__form-actions {
 	padding: 16px;
 	border-block-end: 1px solid #e0e0e0;
@@ -832,14 +882,16 @@
 	}
 }
 
-.jetpack-paypal-payment-buttons__delete-dialog {
+.jetpack-paypal-payment-buttons__delete-dialog,
+.jetpack-paypal-payment-buttons__log-out-dialog {
 
 	p {
 		margin: 0 0 12px;
 	}
 }
 
-.jetpack-paypal-payment-buttons__delete-dialog-actions {
+.jetpack-paypal-payment-buttons__delete-dialog-actions,
+.jetpack-paypal-payment-buttons__log-out-dialog-actions {
 	display: flex;
 	justify-content: flex-end;
 	gap: 8px;
@@ -970,8 +1022,91 @@
 	}
 }
 
-// The shared-link line — grey text under the save-status notice, not a notice
-// itself.
+// The link details view — the sidebar's default for a saved link. A plain
+// section with a divider, like the format section, not a collapsible panel.
+.jetpack-paypal-payment-buttons__details {
+	padding: variables.$grid-unit-10 variables.$grid-unit-15 variables.$grid-unit-15;
+	// `.components-panel__body` draws its own borders with this gray, so the
+	// section sits flush with the panels stacked under it.
+	border-block-end: variables.$border-width solid colors.$gray-200;
+}
+
+.jetpack-paypal-payment-buttons__details-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: variables.$grid-unit-10;
+}
+
+// Scoped, because core sets `margin-bottom: 1.5em` on every inspector `h2` -
+// `.interface-complementary-area h2` and `.block-editor-block-inspector h2` -
+// which outranks a single class. The gap to the price goes here, since the
+// price is a `<p>` the same pair of rules pins to `margin-top: 0`.
+.jetpack-paypal-payment-buttons__details .jetpack-paypal-payment-buttons__details-title {
+	margin: 0 0 variables.$grid-unit-05;
+	font-size: variables.$font-size-medium;
+	font-weight: 600;
+	line-height: variables.$font-line-height-small;
+	overflow-wrap: anywhere;
+}
+
+// The price already inherits the title's foreground, so only the type is set.
+.jetpack-paypal-payment-buttons__details-price {
+	margin: 0;
+	font-size: variables.$font-size-small;
+	line-height: variables.$font-line-height-x-small;
+}
+
+// The rows step one unit further in than the title. The rule above them is this
+// list's own top border, since core styles every `hr` inside
+// `.interface-complementary-area` and that outranks a single class.
+.jetpack-paypal-payment-buttons__details-list {
+	display: grid;
+	// A fixed label column, so the values line up down the panel.
+	grid-template-columns: (variables.$grid-unit * 12) 1fr;
+	column-gap: variables.$grid-unit-10;
+	row-gap: 0;
+	margin-block: variables.$grid-unit-20 0;
+	margin-inline: variables.$grid-unit-15;
+	border-block-start: variables.$border-width solid colors.$gray-200;
+	padding-block-start: variables.$grid-unit-20;
+	font-size: variables.$font-size-medium;
+	line-height: variables.$font-line-height-small;
+
+	// Design: 32px rows pulled together by 8, for rows 24px apart.
+	dt,
+	dd {
+		display: flex;
+		align-items: center;
+		min-height: variables.$grid-unit-40;
+	}
+
+	> dt:not(:first-of-type),
+	> dt:not(:first-of-type) + dd {
+		margin-block-start: -#{variables.$grid-unit-10};
+	}
+
+	// The value is greyer than its label.
+	dd {
+		margin: 0;
+		color: var(--wp-components-color-gray-600, var(--wpds-color-stroke-interactive-neutral));
+		overflow-wrap: anywhere;
+	}
+}
+
+// The back link above a saved link's form. Core turns every button the admin
+// accent on hover, so pairing the class with `.components-button` holds the
+// design's foreground steady under the pointer.
+.jetpack-paypal-payment-buttons__back-to-details {
+	margin-block-end: variables.$grid-unit-10;
+	padding-inline-start: 0;
+
+	&.components-button:hover:not(:disabled, [aria-disabled="true"]) {
+		color: var(--wp-components-color-foreground, var(--wpds-color-foreground-content-neutral));
+	}
+}
+
+// The shared-link line — grey text, not a notice itself.
 .jetpack-paypal-payment-buttons__shared-link-note {
 	margin: 8px 0 0;
 	color: #757575;

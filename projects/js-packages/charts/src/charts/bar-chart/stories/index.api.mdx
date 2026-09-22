@@ -93,7 +93,7 @@ Comparison shadow bars are styled via the chart theme at `barChart.barStyles.com
 type DataPointDate = {
 	date?: Date;
 	dateString?: string; // Multiple formats supported
-	value: number | null;
+	value: number | null; // null: the bucket has no reading, so it keeps its axis slot but draws no bar
 	label?: string;
 	color?: string; // BarChart only
 };

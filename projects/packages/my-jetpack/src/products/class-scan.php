@@ -210,7 +210,7 @@ class Scan extends Module_Product {
 	 */
 	public static function get_post_checkout_url() {
 		if ( static::is_jetpack_plugin_active() ) {
-			return 'admin.php?page=jetpack#/recommendations';
+			return static::get_manage_url();
 		}
 
 		// If Jetpack is not active, it means that the user has another standalone plugin active

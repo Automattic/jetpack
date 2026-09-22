@@ -2,6 +2,10 @@
  * External dependencies
  */
 import { Icon, Skeleton, VisuallyHidden } from '@jetpack-premium-analytics/externals';
+import {
+	DETAIL_HEADER_GLYPH_SIZE,
+	type DetailPageHeaderSlots,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 import { envelope as envelopeIcon, page as pageIcon, post as postIcon } from '@wordpress/icons';
 /**
@@ -12,7 +16,6 @@ import placeholders from '../../../detail-header.module.scss';
 import styles from './post-header-slots.module.scss';
 import type { PostSummary } from '../../hooks';
 import type { DateRange } from '@jetpack-premium-analytics/datetime';
-import type { DetailPageHeaderSlots } from '@jetpack-premium-analytics/widgets-toolkit';
 
 type PostHeaderSlotsArgs = {
 	summary: PostSummary;
@@ -86,13 +89,15 @@ export function postHeaderSlots( {
 	if ( variant === 'email' ) {
 		visual = (
 			<div className={ styles.emailTile } data-testid="post-summary-email-tile">
-				<Icon icon={ envelopeIcon } size={ 28 } />
+				<Icon icon={ envelopeIcon } size={ DETAIL_HEADER_GLYPH_SIZE } />
 			</div>
 		);
 	} else if ( imageUrl ) {
 		visual = <img src={ imageUrl } alt="" data-testid="post-summary-image" />;
 	} else {
-		visual = <Icon icon={ type === 'page' ? pageIcon : postIcon } size={ 28 } />;
+		visual = (
+			<Icon icon={ type === 'page' ? pageIcon : postIcon } size={ DETAIL_HEADER_GLYPH_SIZE } />
+		);
 	}
 
 	// The title lands on its own request, so the header would otherwise read as

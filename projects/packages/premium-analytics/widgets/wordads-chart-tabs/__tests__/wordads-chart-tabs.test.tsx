@@ -87,12 +87,15 @@ function wrapper( { children }: { children: ReactNode } ) {
 
 describe( 'useWordAdsChart', () => {
 	beforeEach( () => {
+		jest.useFakeTimers();
 		// The data package's query client is a module-level singleton; drop its
 		// cache so each test starts from a fresh fetch.
 		queryClient.clear();
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( PRIMARY_RESPONSE );
 	} );
+
+	afterEach( () => jest.useRealTimers() );
 
 	it( 'builds Ads Served, Average CPM, and Revenue tabs from the summary totals', async () => {
 		const reportParams: ReportParams = {
@@ -205,31 +208,28 @@ describe( 'WordAdsChartTabsWidget', () => {
 	// the URL state to whatever runs next.
 	afterEach( () => setMockRouteSearch( {} ) );
 
-	// The widget's body carries no Group by control: the bucket size is the one
-	// its header control saved, clamped to what this chart supports.
-	it( 'buckets by the interval its attributes carry', async () => {
+	// Each saved interval is one the old bucket control could store for its window.
+	it.each( [
+		[ 'two months', { from: '2026-05-01', to: '2026-06-30', interval: 'week' }, 'day' ],
+		[ 'four months', { from: '2026-03-02', to: '2026-06-30', interval: 'month' }, 'week' ],
+		[ 'over three years', { from: '2023-01-01', to: '2026-06-30', interval: 'year' }, 'month' ],
+	] as const )(
+		'buckets %s by its length, not by a saved interval',
+		async ( _window, reportParams, unit ) => {
+			render( <WordAdsChartTabsWidget attributes={ { reportParams } } /> );
+
+			await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+
+			const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
+			expect( requestedPath ).toContain( `unit=${ unit }` );
+		}
+	);
+
+	// A window under two days allows hours alone, which this chart has no bucket for.
+	it( 'draws a day-long window by day', async () => {
 		render(
 			<WordAdsChartTabsWidget
-				attributes={ {
-					reportParams: { from: '2026-05-01', to: '2026-06-30', interval: 'week' },
-				} }
-			/>
-		);
-
-		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
-
-		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		expect( requestedPath ).toContain( 'unit=week' );
-	} );
-
-	// This chart draws day through year, so `hour` is the one interval the range
-	// can still carry that it has no bucket for, and it clamps to the finest.
-	it( 'clamps an unsupported interval to the closest supported bucket', async () => {
-		render(
-			<WordAdsChartTabsWidget
-				attributes={ {
-					reportParams: { from: '2026-06-29', to: '2026-06-30', interval: 'hour' },
-				} }
+				attributes={ { reportParams: { from: '2026-06-29', to: '2026-06-30' } } }
 			/>
 		);
 
@@ -237,6 +237,22 @@ describe( 'WordAdsChartTabsWidget', () => {
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( 'unit=day' );
+	} );
+
+	it( 'draws the chart type its attributes carry', async () => {
+		render(
+			<WordAdsChartTabsWidget
+				attributes={ {
+					reportParams: { from: '2026-05-01', to: '2026-06-30' },
+					chartType: 'bar',
+				} }
+			/>
+		);
+
+		await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toHaveAttribute(
+			'data-chart-type',
+			'bar'
+		);
 	} );
 
 	/*
@@ -328,38 +344,23 @@ describe( 'WordAdsChartTabsWidget date control', () => {
 		} );
 	} );
 
-	// The menu and `render.tsx` read the same grain, so this fails if the widget
-	// stops handing it over.
-	it( 'offers no bucket the chart cannot draw', async () => {
-		const user = userEvent.setup();
-
-		// Two to six days is the window that puts hours on offer.
-		renderDateControl( {
-			data: {
-				reportParams: { from: '2026-06-01', to: '2026-06-03T23:59:59', interval: 'day' },
-			},
-			onChange: jest.fn(),
-		} );
-
-		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
-
-		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
-			'By days',
-		] );
-	} );
-
-	it( 'offers months alone on its longest window', async () => {
-		const user = userEvent.setup();
-
+	it( 'offers the window alone, with no bucket control', async () => {
 		renderDateControl( {
 			data: { reportParams: { preset: 'last-12-months', interval: 'month' } },
 			onChange: jest.fn(),
 		} );
 
-		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
+		await expect(
+			screen.findByRole( 'button', { name: 'Last 12 months' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /^Chart interval/ } ) ).not.toBeInTheDocument();
+	} );
 
-		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
-			'By months',
+	// The host draws the header fields in order, as the Subscribers chart does.
+	it( 'follows the date range with the chart type', () => {
+		expect( wordAdsChartTabsWidget.attributes.map( ( { id } ) => id ) ).toEqual( [
+			'reportParams',
+			'chartType',
 		] );
 	} );
 } );

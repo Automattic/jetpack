@@ -1175,65 +1175,6 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test saving and retrieving the recommendations data.
-	 *
-	 * @since 9.3.0
-	 */
-	public function test_recommendations_data() {
-		// Create a user and set it up as current.
-		$user = $this->create_and_get_user( 'administrator' );
-		$user->add_cap( 'jetpack_configure_modules' );
-		wp_set_current_user( $user->ID );
-
-		$test_data = array(
-			'param1' => 'val1',
-			'param2' => 'val2',
-		);
-
-		$response = $this->create_and_get_request(
-			'recommendations/data',
-			array(
-				'data' => $test_data,
-			),
-			'POST'
-		);
-		$this->assertResponseStatus( 200, $response );
-		$this->assertTrue( $response->get_data() );
-
-		$response = $this->create_and_get_request( 'recommendations/data', array(), 'GET' );
-		$this->assertResponseStatus( 200, $response );
-		$this->assertResponseData( $test_data, $response );
-	}
-
-	/**
-	 * Test saving and retrieving the recommendations step.
-	 *
-	 * @since 9.3.0
-	 */
-	public function test_recommendations_step() {
-		// Create a user and set it up as current.
-		$user = $this->create_and_get_user( 'administrator' );
-		$user->add_cap( 'jetpack_configure_modules' );
-		wp_set_current_user( $user->ID );
-
-		$test_data = 'step-1';
-
-		$response = $this->create_and_get_request(
-			'recommendations/step',
-			array(
-				'step' => $test_data,
-			),
-			'POST'
-		);
-		$this->assertResponseStatus( 200, $response );
-		$this->assertTrue( $response->get_data() );
-
-		$response = $this->create_and_get_request( 'recommendations/step', array(), 'GET' );
-		$this->assertResponseStatus( 200, $response );
-		$this->assertResponseData( array( 'step' => $test_data ), $response );
-	}
-
-	/**
 	 * Test fetching user connection data without a connection owner.
 	 *
 	 * @since 9.4
