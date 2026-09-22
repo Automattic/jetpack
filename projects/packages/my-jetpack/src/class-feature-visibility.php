@@ -14,7 +14,8 @@ use Automattic\Jetpack\Feature_Policy;
  * The Features page counterpart to the sidebar's `jetpack_admin_menu_visibility`.
  *
  * Display only: forcing a module on or off is `jetpack_active_modules`, which the page
- * already honors by dropping the toggle. `jetpack_feature_policy` feeds both filters.
+ * already honors by dropping the toggle. `jetpack_feature_policy` feeds that filter and this
+ * visibility one alike.
  */
 class Feature_Visibility {
 

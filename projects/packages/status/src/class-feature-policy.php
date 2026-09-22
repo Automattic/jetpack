@@ -98,17 +98,24 @@ class Feature_Policy {
 		 *   `jetpack_active_modules`. 'default-on' or 'default-off' change what Jetpack turns on when
 		 *   it activates its default modules, which happens at connection and upgrade, not on an
 		 *   existing site. 'default' leaves it alone.
-		 * - `visibility`: 'hidden' keeps the item off My Jetpack; 'visible' lists it.
+		 * - `visibility`: 'hidden' keeps the item off the My Jetpack Features page, 'visible' lists it
+		 *   there. The policy runs last, so 'visible' overrides a 'hidden' another
+		 *   `jetpack_my_jetpack_feature_visibility` callback set. The wp-admin sidebar menu is separate
+		 *   and answers to `jetpack_admin_menu_visibility`.
 		 *
 		 * Standalone plugin products (Akismet, Boost, CRM, Protect) take `visibility` only: WordPress
 		 * decides which plugins load before Jetpack runs, so forcing one needs `option_active_plugins`
 		 * in an mu-plugin.
 		 *
+		 * Register the policy before `after_setup_theme`, from an mu-plugin, plugin, or theme:
+		 * `Jetpack::load_modules()` runs there at priority -2, so a later policy (on `init`, say) misses
+		 * module loading while My Jetpack still honors it — the module runs on a page saying it is off.
+		 *
 		 * @since $$next-version$$
 		 *
 		 * @param array $policy Map of slug to policy, empty until a host adds to it.
 		 */
-		$policy = apply_filters( self::FILTER, array() );
+		$policy = apply_filters( 'jetpack_feature_policy', array() );
 
 		if ( ! is_array( $policy ) ) {
 			return array();
@@ -153,7 +160,10 @@ class Feature_Policy {
 	}
 
 	/**
-	 * Adds default-on modules to the defaults and drops default-off ones.
+	 * Adds default-on modules to the defaults and drops default-off and forced-off ones.
+	 *
+	 * Forced-off has to go too: the activation path writes whatever it activates to
+	 * `jetpack_active_modules`, so a forced-off default would be saved as active.
 	 *
 	 * @param array       $modules                  Default module slugs.
 	 * @param bool|string $min_version              Minimum module version, passed through from the caller.
@@ -176,7 +186,7 @@ class Feature_Policy {
 			$modules   = array_merge( $modules, array_intersect( $default_on, $available ) );
 		}
 
-		return array_values( array_unique( array_diff( $modules, self::get_slugs( $policy, 'activation', self::ACTIVATION_DEFAULT_OFF ) ) ) );
+		return array_values( array_unique( array_diff( $modules, self::get_slugs( $policy, 'activation', self::ACTIVATION_DEFAULT_OFF ), self::get_slugs( $policy, 'activation', self::ACTIVATION_FORCED_OFF ) ) ) );
 	}
 
 	/**

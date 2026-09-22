@@ -9,6 +9,7 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Feature_Policy;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -80,6 +81,13 @@ class Jetpack_Test extends WP_UnitTestCase {
 	 */
 	public static $deactivated_modules = array();
 
+	/**
+	 * The feature policy a test registered, kept so tear_down can unhook it.
+	 *
+	 * @var callable|null
+	 */
+	private $feature_policy = null;
+
 	public static function wpSetupBeforeClass() {
 		self::$admin_id = self::factory()->user->create(
 			array(
@@ -104,6 +112,24 @@ class Jetpack_Test extends WP_UnitTestCase {
 		unset( $_GET['for'] );
 		Constants::clear_constants();
 		StatusCache::clear();
+
+		if ( $this->feature_policy !== null ) {
+			remove_filter( 'jetpack_feature_policy', $this->feature_policy );
+			$this->feature_policy = null;
+		}
+		Feature_Policy::reset();
+	}
+
+	/**
+	 * Registers a feature policy for the duration of the test.
+	 *
+	 * @param array $policy Map of slug to policy.
+	 */
+	private function set_feature_policy( array $policy ) {
+		$this->feature_policy = function () use ( $policy ) {
+			return $policy;
+		};
+		add_filter( 'jetpack_feature_policy', $this->feature_policy );
 	}
 
 	/**
@@ -1290,21 +1316,29 @@ EXPECTED;
 	 * Tests that jetpack_feature_policy's default states change the default modules.
 	 */
 	public function test_get_default_modules_honors_feature_policy() {
-		$policy = function ( $policy ) {
-			$policy['carousel'] = array( 'activation' => 'default-on' );
-			$policy['blocks']   = array( 'activation' => 'default-off' );
-			return $policy;
-		};
-
 		$this->assertNotContains( 'carousel', Jetpack::get_default_modules() );
 		$this->assertContains( 'blocks', Jetpack::get_default_modules() );
 
-		add_filter( 'jetpack_feature_policy', $policy );
+		$this->set_feature_policy(
+			array(
+				'carousel' => array( 'activation' => 'default-on' ),
+				'blocks'   => array( 'activation' => 'default-off' ),
+			)
+		);
 		$defaults = Jetpack::get_default_modules();
-		remove_filter( 'jetpack_feature_policy', $policy );
-		\Automattic\Jetpack\Feature_Policy::reset();
 
 		$this->assertContains( 'carousel', $defaults );
 		$this->assertNotContains( 'blocks', $defaults );
+	}
+
+	/**
+	 * Tests that default activation never saves a forced-off module as active.
+	 */
+	public function test_activate_default_modules_skips_forced_off_modules() {
+		$this->set_feature_policy( array( 'blocks' => array( 'activation' => 'forced-off' ) ) );
+
+		Jetpack::activate_default_modules( false, false, array(), false, null, null, null );
+
+		$this->assertNotContains( 'blocks', (array) get_option( 'jetpack_active_modules', array() ) );
 	}
 }

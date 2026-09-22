@@ -109,7 +109,7 @@ class Feature_Policy_Test extends TestCase {
 	}
 
 	/**
-	 * Default-on only adds modules the caller could activate, and default-off removes.
+	 * Default-on only adds modules the caller could activate; default-off and forced-off remove.
 	 */
 	public function test_filter_default_modules_respects_availability() {
 		$this->set_policy(
@@ -125,7 +125,7 @@ class Feature_Policy_Test extends TestCase {
 			->andReturn( array( 'related-posts', 'sso', 'stats' ) );
 
 		$this->assertSame(
-			array( 'stats', 'related-posts' ),
+			array( 'related-posts' ),
 			Feature_Policy::filter_default_modules( array( 'sso', 'stats' ), false, false, false, null )
 		);
 	}
