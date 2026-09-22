@@ -47,6 +47,18 @@ if ( ! function_exists( 'wpcom_expiry_get_purchases' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wpcom_expiry_get_reverted_transfer' ) ) {
+	/**
+	 * Test source of revert data for the expiry-notices feature. See
+	 * wpcom_expiry_get_purchases() above for why it is pre-defined here.
+	 *
+	 * @return array{reverted_at:int,for_expired_plan:bool}|null
+	 */
+	function wpcom_expiry_get_reverted_transfer(): ?array {
+		return $GLOBALS['wpcom_expiry_reverted_transfer_test_value'] ?? null;
+	}
+}
+
 if ( ! function_exists( 'wpcom_is_vip' ) ) {
 	/**
 	 * A drop-in for a WordPress.com function. Defaults to false, matching a
@@ -57,6 +69,19 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) {
 	 */
 	function wpcom_is_vip() {
 		return ! empty( $GLOBALS['wpcom_is_vip_test_value'] );
+	}
+}
+
+if ( ! function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+	/**
+	 * A drop-in for the wpcomsh sticker check, which the package's
+	 * wpcom_has_blog_sticker() reads. Defaults to no stickers.
+	 *
+	 * @param string $sticker Blog sticker name.
+	 * @return bool
+	 */
+	function wpcomsh_is_site_sticker_active( $sticker ) {
+		return in_array( $sticker, $GLOBALS['wpcom_site_stickers_test_value'] ?? array(), true );
 	}
 }
 

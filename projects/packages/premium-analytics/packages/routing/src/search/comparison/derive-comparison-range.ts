@@ -1,15 +1,13 @@
 /**
  * External dependencies
  */
+import { normalizeReportParams } from '@jetpack-premium-analytics/data';
 import {
-	normalizeReportParams,
 	dateToISOStringWithLocalTZ,
-	localTZDate,
-} from '@jetpack-premium-analytics/data';
-import {
 	getComparisonOptions,
 	isComparisonPresetId,
 	isPrimaryPreset,
+	localTZDate,
 	reportingTimeZone,
 	type ComparisonPresetId,
 } from '@jetpack-premium-analytics/datetime';

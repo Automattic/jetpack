@@ -93,6 +93,9 @@ function statusText(
  * Never a written currency symbol: `formatCurrency` places the right one for
  * `currencyCode`, which WordPress.com chooses from where the site appears to be.
  *
+ * Returned as one element: the button is a flex container, so an interpolated
+ * price left bare becomes its own flex item, with the button's gap either side.
+ *
  * @param sizeText     - The add-on's size as WordPress.com words it, e.g. `100GB`.
  * @param monthlyPrice - One month of the add-on.
  * @param currencyCode - The currency WordPress.com priced it in.
@@ -105,9 +108,13 @@ function offerLabel( sizeText: string, monthlyPrice: number, currencyCode: strin
 		'jetpack-backup-pkg'
 	);
 
-	return createInterpolateElement( sprintf( offer, sizeText ), {
-		Price: <span>{ formatCurrency( monthlyPrice, currencyCode ) }</span>,
-	} );
+	return (
+		<span>
+			{ createInterpolateElement( sprintf( offer, sizeText ), {
+				Price: <span>{ formatCurrency( monthlyPrice, currencyCode ) }</span>,
+			} ) }
+		</span>
+	);
 }
 
 type Props = {

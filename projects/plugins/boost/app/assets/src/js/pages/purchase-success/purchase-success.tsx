@@ -3,15 +3,15 @@ import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import { useSingleModuleState } from '$features/module/lib/stores';
-import { useNavigate } from 'react-router';
 import CardPage from '$layout/card-page/card-page';
+import { useBoostNavigation } from '$lib/navigation/navigation-context';
 import styles from './purchase-success.module.scss';
 import { isWoaHosting } from '$lib/utils/hosting';
 import type { FC } from 'react';
 
 const PurchaseSuccess: FC = () => {
 	const [ , setCloudCssState ] = useSingleModuleState( 'cloud_css' );
-	const navigate = useNavigate();
+	const { returnToSettings } = useBoostNavigation();
 
 	useEffect( () => {
 		setCloudCssState( true );
@@ -89,7 +89,7 @@ const PurchaseSuccess: FC = () => {
 									link: <Link openInNewTab href={ wpcomPricingUrl } />,
 									strong: <strong />,
 								}
-						  )
+							)
 						: __( 'Dedicated email support', 'jetpack-boost' ) }
 				</li>
 			</ul>
@@ -101,7 +101,7 @@ const PurchaseSuccess: FC = () => {
 			<Button
 				label={ __( 'Continue', 'jetpack-boost' ) }
 				variant="primary"
-				onClick={ () => navigate( '/' ) }
+				onClick={ () => returnToSettings() }
 				className="mt-3"
 			>
 				{ __( 'Continue', 'jetpack-boost' ) }

@@ -3,6 +3,7 @@
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { loadI18nCatalogs } from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
+import { ensureDashboardEntities } from '@jetpack-premium-analytics/data';
 import apiFetch from '@wordpress/api-fetch';
 import { store as bootStore } from '@wordpress/boot';
 import { dispatch } from '@wordpress/data';
@@ -58,4 +59,7 @@ export async function init(): Promise< void > {
 	} );
 
 	await catalogs;
+
+	// After the catalogs: the entity labels are built with `__()` at call time.
+	ensureDashboardEntities();
 }

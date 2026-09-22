@@ -283,7 +283,7 @@ class Twitter_Cards {
 	 * Adds settings section and field.
 	 */
 	public static function settings_init() {
-		add_settings_section( 'jetpack-twitter-cards-settings', 'Twitter Cards', '__return_false', 'sharing' );
+		add_settings_section( 'jetpack-twitter-cards-settings', self::section_title(), '__return_false', 'sharing' );
 		add_settings_field(
 			'jetpack-twitter-cards-site-tag',
 			__( 'Twitter Site Tag', 'jetpack-post-media' ),
@@ -297,9 +297,26 @@ class Twitter_Cards {
 	}
 
 	/**
+	 * Name of the feature the settings field configures.
+	 *
+	 * @return string Section title.
+	 */
+	private static function section_title() {
+		return __( 'Twitter Cards', 'jetpack-post-media' );
+	}
+
+	/**
 	 * Add global sharing options.
+	 *
+	 * The title is printed here because `do_settings_fields()` prints fields
+	 * alone: a host that renders nothing else around them -- Settings > Sharing
+	 * with the Sharing module off -- would leave the field unlabelled.
 	 */
 	public static function sharing_global_options() {
+		printf(
+			'<tr><td colspan="2"><h3>%s</h3></td></tr>',
+			esc_html( self::section_title() )
+		);
 		do_settings_fields( 'sharing', 'jetpack-twitter-cards-settings' );
 	}
 

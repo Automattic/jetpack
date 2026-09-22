@@ -279,33 +279,6 @@ function wpcom_get_current_plan_name() {
 }
 
 /**
- * Relabels the WooCommerce menu item to "Store setup" on Commerce-plan sites.
- *
- * Only the sidebar label is changed; the page title is left untouched. This builds the
- * classic wp-admin sidebar; the nav-unified interface is handled by Atomic_Admin_Menu in
- * jetpack-masterbar. Both share Store_Plan::is_commerce_plan() so their scope stays in sync.
- * On a nav-unified Atomic site both relabelers run (harmless — both idempotently set "Store
- * setup"; this one runs last, so the jetpack-mu-wpcom text domain wins, same English string).
- */
-function wpcom_relabel_woocommerce_menu() {
-	global $menu;
-
-	if ( ! is_array( $menu ) || ! class_exists( \Automattic\Jetpack\Masterbar\Store_Plan::class ) || ! \Automattic\Jetpack\Masterbar\Store_Plan::is_commerce_plan() ) {
-		return;
-	}
-
-	foreach ( $menu as $position => $item ) {
-		if ( isset( $item[2] ) && 'woocommerce' === $item[2] ) {
-			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			$menu[ $position ][0] = __( 'Store setup', 'jetpack-mu-wpcom' );
-			break;
-		}
-	}
-}
-// Priority 999999 so it runs after WooCommerce registers its menu (default priority).
-add_action( 'admin_menu', 'wpcom_relabel_woocommerce_menu', 999999 );
-
-/**
  * Re-order the submenu items of the given menu slug according to a sorted array of submenu slugs.
  *
  * @param string $menu_slug The menu slug.
@@ -495,18 +468,24 @@ function wpcom_add_jetpack_submenu() {
 		);
 	}
 
-	// Jetpack > Activity Log. On WPCOM hosts we prefer the direct wordpress.com/activity-log link
-	// below; hide the native Jetpack Activity Log page added by the `jetpack-activity-log` package.
-	wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
-	add_submenu_page(
-		'jetpack',
-		/** "Activity Log" is a product name, do not translate. */
-		'Activity Log',
-		'Activity Log',
-		'manage_options',
-		'https://wordpress.com/activity-log/' . $domain,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
+	// Jetpack > Activity Log.
+	// Atomic sites use the native Activity Log page that the `jetpack-activity-log`
+	// package registers at `admin.php?page=jetpack-activity-log`, whichever admin
+	// interface the site uses, and behave like a self-hosted site when that page is
+	// not available: the Calypso Activity Log screen is being retired. Simple sites
+	// still hide the native page and link to wordpress.com/activity-log.
+	if ( $is_simple_site ) {
+		wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
+		add_submenu_page(
+			'jetpack',
+			/** "Activity Log" is a product name, do not translate. */
+			'Activity Log',
+			'Activity Log',
+			'manage_options',
+			'https://wordpress.com/activity-log/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+	}
 
 	wpcom_reorder_submenu(
 		'jetpack',
@@ -751,7 +730,6 @@ function wpcom_add_tools_menu() {
 		array(
 			'tools.php',
 			'advertising-moved',
-			'marketing',
 			'monetize',
 			'import',
 			'export.php',
@@ -765,6 +743,39 @@ function wpcom_add_tools_menu() {
 	);
 }
 add_action( 'admin_menu', 'wpcom_add_tools_menu', 999999 );
+
+/**
+ * Sends the retired Tools > Marketing URL to the dashboard.
+ *
+ * The page was removed in DOTCOM-18531. Nothing links to it any more, but the
+ * Calypso sidebar pointed at this exact URL until the removal shipped, so it is
+ * still in plenty of browser histories and bookmarks. Left alone, WordPress
+ * answers an unregistered page slug with a bare "Cannot load
+ * wpcom-marketing-tools.", which reads like a broken install rather than a page
+ * that went away. The dashboard mirrors where the Calypso URL now lands.
+ *
+ * This runs on admin_init, which fires before the point in wp-admin/admin.php
+ * where core gives up on the slug.
+ *
+ * Tombstone: delete this function and its hook by 2027-09-10. A year is long
+ * enough for the stale bookmarks to age out, and after that the redirect is
+ * just a puzzle for whoever reads this next.
+ */
+function wpcom_redirect_retired_marketing_page() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading a menu slug from a GET request, no state changes.
+	if ( ! isset( $_GET['page'] ) ) {
+		return;
+	}
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- As above.
+	if ( 'wpcom-marketing-tools' !== sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) {
+		return;
+	}
+
+	wp_safe_redirect( admin_url() );
+	exit; // @codeCoverageIgnore -- the tests unwind from the wp_redirect filter before this line.
+}
+add_action( 'admin_init', 'wpcom_redirect_retired_marketing_page' ); // @codeCoverageIgnore
 
 /**
  * Displays an Export/Erase Personal Date page for Simple sites.

@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.2.0] - 2026-09-21
+### Added
+- Conditional logic: Add a "Done" button to the rules dialog. [#52347]
+
+### Changed
+- Conditional logic: Open the Conditional logic panel by default on a field that has conditions. [#52347]
+- Dashboard: Reopen on the last tab used instead of always the default. [#52249]
+- Exclude source map files from the distributed package. [#52304]
+- Update package dependencies. [#52187]
+
+### Deprecated
+- Dashboard: Deprecate `Dashboard::SCRIPT_HANDLE`. [#52296]
+
+### Removed
+- Dashboard: Remove the legacy dashboard code and the deprecated `Dashboard_View_Switch` class. [#52296]
+
+### Fixed
+- Dashboard: Open the Forms tab when it is requested directly instead of falling back to Responses. [#52249]
+
+## [8.1.0] - 2026-09-15
+### Changed
+- Form editor: Add additional analytics to welcome guide. [#52148]
+- Hide the Forms sidebar item when Forms is not active. [#52156]
+- Update package dependencies. [#52105] [#52297]
+
+### Deprecated
+- Dashboard: Deprecate the `jetpack_forms_alpha` filter, which no longer selects anything. [#51395]
+
+### Fixed
+- Dashboard: Restore the missing border on the responses comment panel. [#52152]
+- Prevent extra forms from being created when the block placeholder is clicked more than once. [#52099]
+- Stop the Forms data stores from logging a duplicate registration error in the browser console. [#52153]
+
+## [8.0.3] - 2026-09-09
+### Changed
+- Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+
+## [8.0.2] - 2026-09-09
+### Fixed
+- Responses: Restore multi-page printing of a single response. [#52096]
+- Responses: Scroll a single response from the page edge instead of from inside the reading column. [#52096]
+
+## [8.0.1] - 2026-09-08
+### Changed
+- Update package dependencies. [#51701]
+
+### Fixed
+- Add an empty alt attribute to the image option thumbnails in the form success summary. [#51781]
+- Hide the Lead Capture pattern on WordPress.com, matching the block variation that is already hidden there. [#51857]
+- Keep editor-initialized defaults from marking imported forms as changed. [#52053]
+- Load active module state before the editor module store. [#51888]
+
 ## [8.0.0] - 2026-09-01
 ### Added
 - Add help text to form fields, and show the date field's expected format below the input instead of in its label. Preserve help text across field transformations and form details, and fix field descriptions for inset-label styles. [#51122]
@@ -2705,6 +2757,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[8.2.0]: https://github.com/automattic/jetpack-forms/compare/v8.1.0...v8.2.0
+[8.1.0]: https://github.com/automattic/jetpack-forms/compare/v8.0.3...v8.1.0
+[8.0.3]: https://github.com/automattic/jetpack-forms/compare/v8.0.2...v8.0.3
+[8.0.2]: https://github.com/automattic/jetpack-forms/compare/v8.0.1...v8.0.2
+[8.0.1]: https://github.com/automattic/jetpack-forms/compare/v8.0.0...v8.0.1
 [8.0.0]: https://github.com/automattic/jetpack-forms/compare/v7.26.0...v8.0.0
 [7.26.0]: https://github.com/automattic/jetpack-forms/compare/v7.25.0...v7.26.0
 [7.25.0]: https://github.com/automattic/jetpack-forms/compare/v7.24.0...v7.25.0

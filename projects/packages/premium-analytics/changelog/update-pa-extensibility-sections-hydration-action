@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the `jetpack_premium_analytics_register_dashboard_sections` action, so a plugin can register a dashboard section.

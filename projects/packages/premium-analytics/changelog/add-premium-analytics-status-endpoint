@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Expose the dashboard opt-in as a site setting, so administrators can turn the dashboard on and off through the site settings API.

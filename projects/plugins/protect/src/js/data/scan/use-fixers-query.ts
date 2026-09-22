@@ -65,15 +65,13 @@ export default function useFixersQuery( {
 	);
 
 	// Main query function to fetch fixer status
-	// eslint-disable-next-line @tanstack/query/exhaustive-deps -- Sticking `queryClient` and `showBulkNotices` in the key seems wrong, but what would be right?
 	const fixersQuery = useQuery( {
 		queryKey: [ QUERY_FIXERS_KEY, threatIds ],
 		queryFn: async () => {
 			// Fetch fixer status from API
 			const data = await API.getFixersStatus( threatIds );
 			const cachedData = queryClient.getQueryData( [ QUERY_FIXERS_KEY ] ) as
-				| FixersStatus
-				| undefined;
+				FixersStatus | undefined;
 
 			// Handle a top level error
 			if ( data.ok === false ) {
@@ -145,14 +143,15 @@ export default function useFixersQuery( {
 		enabled: isRegistered,
 	} );
 
-	// Handle error if present in the query result
+	// Once per error streak, not per failed poll: each failure is a new Error object, and
+	// polling one every 5s would interrupt the screen reader with the same message each time.
 	useEffect( () => {
-		if ( fixersQuery.isError && fixersQuery.error ) {
+		if ( fixersQuery.isError ) {
 			// Reset the query data to the initial state
 			queryClient.setQueryData( [ QUERY_FIXERS_KEY ], initialData );
 			showErrorNotice( __( 'An error occurred while fetching fixers status.', 'jetpack-protect' ) );
 		}
-	}, [ fixersQuery.isError, fixersQuery.error, queryClient, showErrorNotice ] );
+	}, [ fixersQuery.isError, queryClient, showErrorNotice ] );
 
 	return fixersQuery;
 }

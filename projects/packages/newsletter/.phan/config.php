@@ -15,6 +15,9 @@ return make_phan_config(
 	array(
 		'exclude_file_regex' => array(
 			'build/',
+			// Stands in for wpcom-only symbols. Analysing these makes Phan believe
+			// those symbols are declared, hiding the real gap in our stubs.
+			'tests/php/lib/',
 		),
 	)
 );

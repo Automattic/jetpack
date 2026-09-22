@@ -4,6 +4,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
 require_once __DIR__ . '/class.jetpack-admin-page.php';
@@ -28,12 +29,57 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	protected $is_redirecting = false;
 
 	/**
+	 * Hash routes the Settings app still renders; the legacy route redirect leaves them alone.
+	 *
+	 * Mirrors `settingsRoutes` in `_inc/client/main.jsx`, plus the app's other unredirected
+	 * paths: `/newsletter`, the connection screens and the admin skip-link anchors.
+	 *
+	 * @var string[]
+	 */
+	const SPA_ROUTES = array(
+		'/settings',
+		'/security',
+		'/performance',
+		'/writing',
+		'/sharing',
+		'/discussion',
+		'/earn',
+		'/reader',
+		'/traffic',
+		'/privacy',
+		'/newsletter',
+		'/setup',
+		'/connect-user',
+		'/connect-user-setup',
+		'/wpbody-content',
+		'/wp-toolbar',
+	);
+
+	/**
+	 * Sends the hash to its route's target, else to the fallback; unset targets stay in the app.
+	 *
+	 * @var string
+	 */
+	const LEGACY_ROUTE_REDIRECT_SCRIPT = <<<'JS'
+function ( keep, routes, fallback ) {
+	var path = window.location.hash.replace( /^#\/?/, '/' ).split( '?' )[ 0 ] || '/';
+	var hasRoute = Object.prototype.hasOwnProperty.call( routes, path );
+	var target = keep.indexOf( path ) === -1 && ( hasRoute ? routes[ path ] : fallback );
+	if ( target ) {
+		window.location.replace( target );
+	}
+}
+JS;
+
+	/**
 	 * Add the main admin Jetpack menu.
 	 *
 	 * @return string|false Return value from WordPress's `add_menu_page()`.
 	 */
 	public function get_page_hook() {
-		$icon = ( new Logo() )->get_base64_logo();
+		$logo = new Logo();
+		// Keep this fallback in sync with Jetpack_Network::add_network_admin_menu().
+		$icon = method_exists( $logo, 'get_base64_admin_menu_logo' ) ? $logo->get_base64_admin_menu_logo() : $logo->get_base64_logo();
 		return add_menu_page( 'Jetpack', 'Jetpack', 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), $icon, 3 );
 	}
 
@@ -64,6 +110,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		if ( ! $this->is_rest_api_enabled() ) {
 			$this->is_redirecting = true;
 			add_action( 'admin_head', array( $this, 'add_fallback_head_meta' ) );
+		} else {
+			add_action( 'admin_head', array( $this, 'print_legacy_route_redirect' ), 1 );
 		}
 
 		// Adding a redirect meta tag wrapped in noscript tags for all browsers in case they have JavaScript disabled.
@@ -96,6 +144,116 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		if ( $is_offline_mode || $has_my_jetpack || Jetpack::is_connection_ready() ) {
 			remove_submenu_page( 'jetpack', 'jetpack' );
 		}
+	}
+
+	/**
+	 * Where links into the removed dashboard routes land.
+	 *
+	 * Admins go to My Jetpack wherever it runs. Everyone else stays in the app,
+	 * whose unknown-route handler opens Settings. While the partner coupon screen
+	 * applies, every route goes there.
+	 *
+	 * @return array{keep: string[], routes: array<string, string>, fallback: string|null}
+	 */
+	public static function get_legacy_route_redirects() {
+		$coupon_screen = self::get_partner_coupon_redirect();
+		if ( $coupon_screen ) {
+			return array(
+				'keep'     => array(),
+				'routes'   => array(),
+				'fallback' => $coupon_screen,
+			);
+		}
+
+		$pricing_url = Redirect::get_url( 'jetpack-plans' );
+		$routes      = array(
+			'/plans'        => $pricing_url,
+			'/plans-prompt' => $pricing_url,
+		);
+		$fallback    = null;
+
+		if ( self::can_use_my_jetpack() ) {
+			$fallback = admin_url( 'admin.php?page=my-jetpack' );
+
+			foreach ( array( 'akismet', 'backup', 'scan', 'search', 'security', 'videopress' ) as $product ) {
+				$routes[ '/product/' . $product ] = $fallback . '#/add-' . $product;
+			}
+
+			$routes['/license/activation'] = $fallback . '#/add-license';
+
+			foreach ( array( '/reconnect', '/disconnect', '/woo-setup' ) as $route ) {
+				$routes[ $route ] = $fallback . '#/connection';
+			}
+		}
+
+		return array(
+			'keep'     => self::SPA_ROUTES,
+			'routes'   => $routes,
+			'fallback' => $fallback,
+		);
+	}
+
+	/**
+	 * Whether this request may be sent away from the app.
+	 *
+	 * @return bool
+	 */
+	public static function should_redirect_legacy_routes() {
+		// A pending error only renders via the SPA's state notices; losing it would strand the admin.
+		return ! Jetpack::state( 'error' );
+	}
+
+	/**
+	 * Print the legacy route redirect; it must run before the app because the server never sees the hash.
+	 */
+	public function print_legacy_route_redirect() {
+		if ( ! self::should_redirect_legacy_routes() ) {
+			return;
+		}
+
+		$table = self::get_legacy_route_redirects();
+		$flags = JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP;
+
+		wp_print_inline_script_tag(
+			sprintf(
+				'( %s )( %s, %s, %s );',
+				self::LEGACY_ROUTE_REDIRECT_SCRIPT,
+				wp_json_encode( $table['keep'], $flags ),
+				wp_json_encode( (object) $table['routes'], $flags ),
+				wp_json_encode( $table['fallback'], $flags )
+			)
+		);
+	}
+
+	/**
+	 * Whether My Jetpack can take over for the current user.
+	 *
+	 * @return bool
+	 */
+	private static function can_use_my_jetpack() {
+		return current_user_can( 'manage_options' )
+			&& class_exists( 'Automattic\Jetpack\My_Jetpack\Initializer' )
+			&& method_exists( 'Automattic\Jetpack\My_Jetpack\Initializer', 'should_initialize' )
+			&& \Automattic\Jetpack\My_Jetpack\Initializer::should_initialize();
+	}
+
+	/**
+	 * The My Jetpack coupon screen, while it should replace this page.
+	 *
+	 * An older My Jetpack bounces showCouponRedemption back here, so only forward to one that renders it.
+	 *
+	 * @return string|null
+	 */
+	private static function get_partner_coupon_redirect() {
+		if (
+			! class_exists( 'Automattic\Jetpack\My_Jetpack\Initializer' )
+			|| ! method_exists( 'Automattic\Jetpack\My_Jetpack\Initializer', 'get_partner_coupon_screen' )
+			|| null === \Automattic\Jetpack\My_Jetpack\Initializer::get_partner_coupon_screen()
+		) {
+			return null;
+		}
+
+		return admin_url( 'admin.php?page=my-jetpack&showCouponRedemption=1' );
 	}
 
 	/**
@@ -170,6 +328,11 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	/**
 	 * Jetpack Settings sub-link.
 	 *
+	 * Shares the bottom tier with Beta Tester so it lands below the alphabetical run
+	 * rather than inside it; the two sort by title within the tier. The upsell still
+	 * renders underneath — Admin_Menu appends that one after sorting, so it never
+	 * competes on position.
+	 *
 	 * @since 4.3.0
 	 * @since 9.7.0 If Connection does not have an owner, restrict it to admins
 	 */
@@ -181,7 +344,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'jetpack_admin_page',
 				Jetpack::admin_url( array( 'page' => 'jetpack#/settings' ) ),
 				null,
-				13
+				Admin_Menu::POSITION_LAST,
+				array( 'key' => 'jetpack-settings' )
 			);
 		}
 	}
@@ -248,7 +412,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		}
 
 		$allowed_paths = array(
-			'product-purchased' => admin_url( '/admin.php?page=jetpack#/recommendations/product-purchased' ),
+			'product-purchased' => admin_url( 'admin.php?page=jetpack' ),
 		);
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended

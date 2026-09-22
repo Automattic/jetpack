@@ -1,18 +1,10 @@
 /*
  * External dependencies
  */
-import {
-	ActionButton,
-	AdminPage,
-	Col,
-	Container,
-	GlobalNotices,
-	Notice,
-} from '@automattic/jetpack-components';
+import { ActionButton, AdminPage, Col, Container } from '@automattic/jetpack-components';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
-import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import clsx from 'clsx';
+import { Notice } from '@wordpress/ui';
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
 /*
@@ -34,12 +26,14 @@ import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
 import { useReplayPendingNotice } from '../my-jetpack-tab-panel/products/pending-notice';
-import { getDefaultMyJetpackSection, isValidMyJetpackSection } from '../my-jetpack-tab-panel/utils';
+import { resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
 import buildOptionalMenuItems from './build-optional-menu-items';
 import styles from './styles.module.scss';
 
-const GlobalNotice = ( { message, title, options } ) => {
+// Named export for testability: it has its own mount effect (Tracks view event) worth
+// covering without mounting the whole screen.
+export const GlobalNotice = ( { message, title, options } ) => {
 	const { recordEvent } = useAnalytics();
 	useEffect( () => {
 		const tracksArgs = options?.tracksArgs || {};
@@ -50,23 +44,28 @@ const GlobalNotice = ( { message, title, options } ) => {
 		} );
 	}, [ options.id, recordEvent, options?.tracksArgs ] );
 
-	const isBiggerThanMedium = useViewportMatch( 'large' );
-
 	const actionButtons = options.actions?.map( action => {
 		return (
 			<ActionButton key={ action.key || action.label } customClass={ styles.cta } { ...action } />
 		);
 	} );
 
+	// Watchers pass `hideCloseButton: false` plus `onClose` to override this default.
+	const hideCloseButton = options.hideCloseButton ?? true;
+
 	return (
-		<div
-			className={ clsx( styles.notice, {
-				[ styles[ 'bigger-than-medium' ] ]: isBiggerThanMedium,
-			} ) }
-		>
-			<Notice hideCloseButton={ true } { ...options } title={ title } actions={ actionButtons }>
-				<div className={ styles.message }>{ message }</div>
-			</Notice>
+		<div className={ styles.notice }>
+			<Notice.Root intent={ options.level || 'info' }>
+				{ title && <Notice.Title>{ title }</Notice.Title> }
+				{ /* `render={ <div /> }`: `message` can carry block content, but Description defaults to a `span`. */ }
+				<Notice.Description className={ styles.message } render={ <div /> }>
+					{ message }
+				</Notice.Description>
+				{ actionButtons && actionButtons.length > 0 && (
+					<Notice.Actions>{ actionButtons }</Notice.Actions>
+				) }
+				{ ! hideCloseButton && <Notice.CloseIcon onClick={ options.onClose } /> }
+			</Notice.Root>
 		</div>
 	);
 };
@@ -120,9 +119,7 @@ export default function MyJetpackScreen() {
 	// useLayoutEffect gets called before useEffect.
 	// We are using it here to ensure the `page_view` event gets triggered first.
 	// Determine current tab
-	const currentTab = isValidMyJetpackSection( params.section )
-		? params.section
-		: getDefaultMyJetpackSection();
+	const currentTab = resolveMyJetpackSection( params.section );
 
 	useLayoutEffect( () => {
 		let customTracksData = {};
@@ -199,7 +196,8 @@ export default function MyJetpackScreen() {
 			<MyJetpackTabPanel
 				beforeContent={
 					<>
-						<GlobalNotices />
+						{ /* No snackbar list here: the wp-build page shell already renders the
+						     notices store, and a second list showed every notice twice. */ }
 						{ ! isNewUser && (
 							<Container horizontalSpacing={ 0 }>
 								<Col>

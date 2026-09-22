@@ -3,7 +3,7 @@
  */
 import { ArrayCheckboxField } from '@jetpack-premium-analytics/fields';
 import { __ } from '@wordpress/i18n';
-import { megaphone } from '@wordpress/icons';
+import { payment } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -44,7 +44,7 @@ export const DEFAULT_WORDADS_EARNINGS_METRICS: WordAdsEarningsMetricId[] =
  * `example.attributes` doubles as the defaults for new instances.
  */
 export default {
-	icon: megaphone,
+	icon: payment,
 	attributes: [
 		{
 			id: 'metrics',

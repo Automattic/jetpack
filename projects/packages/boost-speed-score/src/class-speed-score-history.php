@@ -153,7 +153,7 @@ class Speed_Score_History {
 	 * staleness is measured by the timestamp, so it has to move or repeating scores look stale
 	 * forever.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.6.0
 	 */
 	public function touch_latest() {
 		$index = $this->count() - 1;

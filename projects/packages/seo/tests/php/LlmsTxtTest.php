@@ -313,6 +313,46 @@ class LlmsTxtTest extends TestCase {
 	}
 
 	/**
+	 * A Newsletter-gated post never contributes its body to llms.txt.
+	 *
+	 * @return void
+	 */
+	public function test_summary_omits_newsletter_gated_body_content() {
+		foreach ( array( 'subscribers', 'paid_subscribers', 'paid_subscribers_all_tiers' ) as $access_level ) {
+			$post = $this->insert_post( array( 'post_content' => 'Subscriber-only body text.' ) );
+			update_post_meta( $post->ID, '_jetpack_newsletter_access', $access_level );
+
+			$this->assertSame( '', $this->summary( get_post( $post->ID ) ), $access_level );
+		}
+	}
+
+	/**
+	 * An ungated post still gets its summary (control for the test above).
+	 *
+	 * @return void
+	 */
+	public function test_summary_kept_for_ungated_post() {
+		$post = $this->insert_post( array( 'post_content' => 'Public body text.' ) );
+		update_post_meta( $post->ID, '_jetpack_newsletter_access', 'everybody' );
+
+		$this->assertSame( 'Public body text.', $this->summary( get_post( $post->ID ) ) );
+	}
+
+	/**
+	 * A paywalled post summarizes the teaser the front end already publishes.
+	 *
+	 * @return void
+	 */
+	public function test_summary_uses_the_paywall_teaser() {
+		$post = $this->insert_post( array( 'post_content' => 'Free intro text.<!-- wp:jetpack/paywall /-->Paid body text.' ) );
+
+		$summary = $this->summary( get_post( $post->ID ) );
+
+		$this->assertSame( 'Free intro text.', $summary );
+		$this->assertStringNotContainsString( 'Paid body text.', $summary );
+	}
+
+	/**
 	 * A manually authored public excerpt remains safe to publish on gated posts.
 	 *
 	 * @return void

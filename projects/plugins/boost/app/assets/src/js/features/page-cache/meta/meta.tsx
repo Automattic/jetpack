@@ -9,13 +9,14 @@ import { usePageCache, useClearPageCacheAction } from '$lib/stores/page-cache';
 import clsx from 'clsx';
 import { useMutationNotice } from '$features/ui';
 import { useDataSyncSubset } from '@automattic/jetpack-react-data-sync-client';
+import { useModuleSurface, useTooltipLayer } from '$features/module/surface';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
-import ErrorNotice from '$features/error-notice/error-notice';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
 import type { ChangeEvent, ReactNode } from 'react';
 
 const Meta = () => {
+	const isRow = useModuleSurface() === 'row';
 	const pageCache = usePageCache();
 
 	const [ logging, mutateLogging ] = useDataSyncSubset( pageCache, 'logging' );
@@ -42,7 +43,7 @@ const Meta = () => {
 			return __( 'Clearing cache…', 'jetpack-boost' );
 		}
 
-		if ( totalBypassPatterns === 0 && ! logging ) {
+		if ( ! isRow && totalBypassPatterns === 0 && ! logging ) {
 			return __( 'No exceptions.', 'jetpack-boost' ) + ' ' + __( 'No logging.', 'jetpack-boost' );
 		}
 
@@ -55,13 +56,17 @@ const Meta = () => {
 			loggingMessage = __( 'No logging.', 'jetpack-boost' );
 		}
 
+		if ( isRow ) {
+			return loggingMessage;
+		}
+
 		return (
 			( totalBypassPatterns > 0
 				? sprintf(
 						/* translators: %d is the number of cache bypass patterns. */
 						_n( '%d exception.', '%d exceptions.', totalBypassPatterns, 'jetpack-boost' ),
 						totalBypassPatterns
-				  )
+					)
 				: __( 'No exceptions.', 'jetpack-boost' ) ) +
 			' ' +
 			loggingMessage
@@ -109,13 +114,17 @@ const Meta = () => {
 		</Button>
 	);
 
+	const exceptions = (
+		<BypassPatterns
+			patterns={ bypassPatterns.join( '\n' ) }
+			setPatterns={ updatePatterns }
+			showErrorNotice={ mutateBypassPatterns.isError }
+		/>
+	);
+
 	const content = (
 		<div className={ styles.body }>
-			<BypassPatterns
-				patterns={ bypassPatterns.join( '\n' ) }
-				setPatterns={ updatePatterns }
-				showErrorNotice={ mutateBypassPatterns.isError }
-			/>
+			{ ! isRow && exceptions }
 			<div className={ styles.section }>
 				<div className={ styles.title }>{ __( 'Logging', 'jetpack-boost' ) }</div>
 				<label htmlFor="cache-logging" className={ styles[ 'logging-toggle' ] }>
@@ -140,6 +149,16 @@ const Meta = () => {
 	return (
 		pageCache && (
 			<div className={ styles.wrapper } data-testid="page-cache-meta">
+				{ isRow && (
+					<CollapsibleMeta
+						exceptions={ bypassPatterns }
+						countExceptions
+						toggleText=""
+						tracksEvent="page_cache_except_panel_toggle"
+					>
+						<div className={ styles.body }>{ exceptions }</div>
+					</CollapsibleMeta>
+				) }
 				<CollapsibleMeta
 					headerText={ getSummary() }
 					extraButtons={ extraButtons }
@@ -164,6 +183,7 @@ const BypassPatterns = ( {
 	setPatterns,
 	showErrorNotice = false,
 }: BypassPatternsProps ) => {
+	const isRow = useModuleSurface() === 'row';
 	const [ inputValue, setInputValue ] = useState( patterns );
 	const [ showNotice, setShowNotice ] = useState( showErrorNotice );
 	const [ inputInvalid, setInputInvalid ] = useState( false );
@@ -206,11 +226,12 @@ const BypassPatterns = ( {
 
 	return (
 		<div
+			data-except-content={ isRow || undefined }
 			className={ clsx( styles.section, {
 				[ styles[ 'has-error' ] ]: inputInvalid,
 			} ) }
 		>
-			<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
+			{ ! isRow && <div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div> }
 			<label htmlFor="jb-cache-exceptions">
 				{ __( 'URLs of pages and posts that will never be cached:', 'jetpack-boost' ) }
 			</label>
@@ -266,6 +287,7 @@ type BypassPatternsExampleProps = {
 
 const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 	const [ show, setShow ] = useState( false );
+	const tooltipLayer = useTooltipLayer();
 
 	return (
 		<div className={ styles[ 'example-wrapper' ] }>
@@ -287,7 +309,8 @@ const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 					popoverAnchorStyle="wrapper"
 					forceShow={ show }
 					offset={ -10 }
-					className={ styles.tooltip }
+					popoverClassName={ styles.tooltip }
+					{ ...tooltipLayer }
 				>
 					<strong>{ __( 'Example:', 'jetpack-boost' ) }</strong>
 					<br />
@@ -306,10 +329,12 @@ export default () => {
 	return (
 		<ErrorBoundary
 			fallback={ _error => (
-				<ErrorNotice
-					title={ __( 'Error', 'jetpack-boost' ) }
-					error={ new Error( __( 'Unable to load Cache settings.', 'jetpack-boost' ) ) }
-				/>
+				<Notice.Root intent="error">
+					<Notice.Title>{ __( 'Error', 'jetpack-boost' ) }</Notice.Title>
+					<Notice.Description>
+						{ __( 'Unable to load Cache settings.', 'jetpack-boost' ) }
+					</Notice.Description>
+				</Notice.Root>
 			) }
 		>
 			<Meta />

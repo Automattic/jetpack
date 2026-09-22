@@ -44,7 +44,12 @@ export type StatsWordAdsEarningsRawResponse = {
 
 export type StatsWordAdsEarningsPeriod = {
 	amount: number;
-	pageviews: number;
+	/**
+	 * Ads served, or `undefined` when the payload has none: legacy rows carry
+	 * `"N/A"`, and sponsored and adjustment rows omit the field. `0` would
+	 * assert that no ads were served.
+	 */
+	pageviews: number | undefined;
 	/**
 	 * The payment status code, or `undefined` when the payload omits it. `0` is
 	 * itself a meaningful status ("Unpaid"), so a missing status must not
@@ -93,12 +98,13 @@ function summarizeWordAdsStats(
 
 function normalizeEarningsPeriod( value: StatsRecord ): StatsWordAdsEarningsPeriod {
 	// Not `safeParseFloat`: its `fallback = 0` fires on an explicit `undefined`,
-	// and `0` is itself a status ("Unpaid"), so an absent status must stay absent.
+	// and `0` means something for both fields, so an absent value must stay absent.
+	const pageviews = parseFloat( String( value.pageviews ) );
 	const status = parseFloat( String( value.status ) );
 
 	return {
 		amount: safeParseFloat( value.amount ),
-		pageviews: safeParseFloat( value.pageviews ),
+		pageviews: isNaN( pageviews ) ? undefined : pageviews,
 		status: isNaN( status ) ? undefined : status,
 	};
 }

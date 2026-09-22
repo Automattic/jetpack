@@ -64,12 +64,12 @@ export default function SidebarOptions() {
 		? __(
 				'Generate AI-powered answers to visitor queries using your site’s content.',
 				'jetpack-search-pkg'
-		  )
+			)
 		: __(
 				'Jetpack AI is turned off for this site. Your setting will apply again when AI is turned back on.',
 				'jetpack-search-pkg',
 				/* dummy arg to avoid bad minification */ 0
-		  );
+			);
 
 	const sortOptions = [
 		{ label: __( 'Relevance (recommended)', 'jetpack-search-pkg' ), value: 'relevance' },

@@ -1,18 +1,22 @@
 /**
  * External dependencies
  */
+import { Button, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
-import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
+import { Dropdown, MenuGroup, MenuItem, NavigableMenu, Tooltip } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { check, chevronDown, plus } from '@wordpress/icons';
-import clsx from 'clsx';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import {
+	DATE_CONTROL_TRIGGER_DEFAULTS,
+	openOnArrowDown,
+	type DateControlTriggerProps,
+} from '../utils/date-control-trigger';
 import type { ComparisonDateRangePreset } from '../use-comparison-date-presets';
 import type { ComparisonPresetId } from '@jetpack-premium-analytics/datetime';
-import './date-comparison-dropdown.scss';
 
 const NO_COMPARISON_VALUE = 'no-comparison';
 
@@ -33,6 +37,10 @@ type DateComparisonDropdownProps = {
 	 * text. Defaults to "Compare" / "Compare to" depending on the state.
 	 */
 	label?: string;
+	/** Greys the trigger out but keeps it focusable: a passing state, not a missing control. */
+	disabled?: boolean;
+	/** The trigger's look, over a neutral outline at the default size. */
+	triggerProps?: DateControlTriggerProps;
 	onPresetChange: ( id: ComparisonPresetId ) => void;
 	onClear: () => void;
 };
@@ -42,6 +50,8 @@ export function DateComparisonDropdown( {
 	enabled,
 	presetId,
 	label,
+	disabled = false,
+	triggerProps,
 	onPresetChange,
 	onClear,
 }: DateComparisonDropdownProps ) {
@@ -93,9 +103,9 @@ export function DateComparisonDropdown( {
 	 * Names the preset, not the period.
 	 */
 	return (
-		<div className="date-comparison-dropdown">
+		<Stack direction="row" align="center" gap="sm">
 			{ selectedPreset ? (
-				<span className="date-comparison-dropdown__prefix">
+				<span>
 					{ _x(
 						'vs',
 						'prefix naming what a report is compared against',
@@ -104,52 +114,54 @@ export function DateComparisonDropdown( {
 				</span>
 			) : null }
 
-			<DropdownMenu
-				className="date-comparison-dropdown__menu"
-				icon={ isComparisonActive ? chevronDown : plus }
-				text={ selectedPreset?.shortLabel ?? additiveLabel }
-				// The window the abbreviation stands for. `label` is the toggle's
-				// tooltip and the menu's name both, so the menu keeps its own.
-				label={ selectedPreset ? formatDateRange( selectedPreset.range ) : controlLabel }
-				menuProps={ { 'aria-label': controlLabel } }
+			<Dropdown
 				popoverProps={ { placement: 'bottom-start' } }
-				toggleProps={ {
-					className: clsx( 'date-comparison-dropdown__toggle', {
-						'date-comparison-dropdown__toggle--active': isComparisonActive,
-					} ),
-					iconPosition: 'right',
-					iconSize: 18,
-					// A tooltip only where the trigger's text is an abbreviation.
-					// Over the additive state it would repeat the label beneath it.
-					showTooltip: isComparisonActive,
-					// The trigger shows an abbreviation, so carry the full preset name
-					// for anyone not reading the glyphs — same as the preset pills.
-					'aria-label': selectedPreset?.label,
-				} }
-			>
-				{ ( { onClose } ) => (
-					<MenuGroup>
-						{ items.map( item => {
-							const isSelected = item.value === selectedValue;
-
-							return (
-								<MenuItem
-									key={ item.value }
-									role="menuitemradio"
-									isSelected={ isSelected }
-									icon={ isSelected ? check : undefined }
-									onClick={ () => {
-										handleSelect( item.value );
-										onClose();
-									} }
-								>
-									{ item.label }
-								</MenuItem>
-							);
-						} ) }
-					</MenuGroup>
+				renderToggle={ ( { isOpen, onToggle } ) => (
+					// The window the abbreviation stands for. Over the additive state
+					// a tooltip would repeat the label, so it stays empty there.
+					<Tooltip text={ selectedPreset && formatDateRange( selectedPreset.range ) }>
+						<Button
+							{ ...DATE_CONTROL_TRIGGER_DEFAULTS }
+							{ ...triggerProps }
+							disabled={ disabled }
+							onClick={ onToggle }
+							onKeyDown={ openOnArrowDown( { isOpen, onToggle, disabled } ) }
+							aria-expanded={ isOpen }
+							aria-haspopup="true"
+							// The trigger shows an abbreviation, so carry the full preset name
+							// for anyone not reading the glyphs — same as the preset pills.
+							aria-label={ selectedPreset?.label }
+						>
+							{ selectedPreset?.shortLabel ?? additiveLabel }
+							<Icon icon={ isComparisonActive ? chevronDown : plus } size={ 18 } />
+						</Button>
+					</Tooltip>
 				) }
-			</DropdownMenu>
-		</div>
+				renderContent={ ( { onClose } ) => (
+					<NavigableMenu role="menu" aria-label={ controlLabel }>
+						<MenuGroup>
+							{ items.map( item => {
+								const isSelected = item.value === selectedValue;
+
+								return (
+									<MenuItem
+										key={ item.value }
+										role="menuitemradio"
+										isSelected={ isSelected }
+										icon={ isSelected ? check : undefined }
+										onClick={ () => {
+											handleSelect( item.value );
+											onClose();
+										} }
+									>
+										{ item.label }
+									</MenuItem>
+								);
+							} ) }
+						</MenuGroup>
+					</NavigableMenu>
+				) }
+			/>
+		</Stack>
 	);
 }

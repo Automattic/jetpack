@@ -26,6 +26,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Plugin\Footer_Links;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -218,11 +219,7 @@ class Akismet_Admin_Chrome {
 				markup (#wpbody-content > #akismet-plugin-container > header/.akismet-lower/footer).
 				Scoped to both menu locations: jetpack_page_… and settings_page_…
 
-				The mixin uses physical `left`/`right` because its SCSS is compiled
-				through rtlcss, which emits a flipped stylesheet. This inline `<style>`
-				has no such build step, so it uses CSS logical properties
-				(`inset-inline-*`, `padding-inline-*`, `margin-inline`) to flip with the
-				admin menu under RTL locales. */
+				Logical properties throughout, like the mixin, so it flips under RTL. */
 			body[class*="_page_akismet-key-config"] #wpcontent {
 				padding-inline-start: 0;
 			}
@@ -350,9 +347,10 @@ class Akismet_Admin_Chrome {
 				<?php echo $this->jetpack_logo( 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
 				<span><?php esc_html_e( 'Jetpack', 'jetpack' ); ?></span>
 			</div>
-			<?php if ( ! ( new Host() )->is_wpcom_platform() ) : ?>
+			<?php if ( ! ( new Host() )->is_wpcom_platform() && Footer_Links::is_my_jetpack_available() ) : ?>
+				<?php $products_section = Footer_Links::get_my_jetpack_products_section(); ?>
 			<nav class="jp-akismet-footer__menu">
-				<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/products' ) ); ?>"><?php echo esc_html_x( 'Products', 'Navigation item', 'jetpack' ); ?></a>
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/' . $products_section['slug'] ) ); ?>"><?php echo esc_html( $products_section['label'] ); ?></a>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/help' ) ); ?>"><?php echo esc_html_x( 'Help', 'Navigation item', 'jetpack' ); ?></a>
 			</nav>
 			<?php endif; ?>

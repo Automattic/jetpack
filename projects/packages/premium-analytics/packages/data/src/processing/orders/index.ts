@@ -3,6 +3,7 @@
  */
 import { fetchReportOrders } from '../../api/report-orders-fetch';
 import { safeParseFloat, safeParseInt } from '../../utils/parsing';
+import { withBucketStamps } from '../utils';
 import type { Override } from '../../utils/types';
 
 type ReportsOrdersByDateResponse = Awaited< ReturnType< typeof fetchReportOrders > >;
@@ -28,9 +29,12 @@ type SanitizedOrdersByDateItem = Override<
 	}
 >;
 
-function sanitizeOrderItem( item: RawOrdersReportDataItem ): SanitizedOrdersByDateItem {
+function sanitizeOrderItem(
+	item: RawOrdersReportDataItem,
+	zone: string
+): SanitizedOrdersByDateItem {
 	return {
-		...item,
+		...withBucketStamps( item, zone ),
 		average_order_value: safeParseFloat( item.average_order_value ),
 		avg_items: safeParseFloat( item.avg_items ),
 		cogs_amount: safeParseFloat( item.cogs_amount ),
@@ -59,10 +63,11 @@ type SanitizedOrdersByDateResponse = {
  * mapper.
  */
 export const sanitizeReportOrdersResponse = (
-	response: ReportsOrdersByDateResponse
+	response: ReportsOrdersByDateResponse,
+	zone: string
 ): SanitizedOrdersByDateResponse => {
 	return {
-		summary: sanitizeOrderItem( response.summary ),
-		data: response.data.map( sanitizeOrderItem ),
+		summary: sanitizeOrderItem( response.summary, zone ),
+		data: response.data.map( item => sanitizeOrderItem( item, zone ) ),
 	};
 };
