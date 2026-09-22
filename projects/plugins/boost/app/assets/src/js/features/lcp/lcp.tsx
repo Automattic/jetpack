@@ -1,4 +1,5 @@
 import Module from '$features/module/module';
+import { useModuleSurface } from '$features/module/surface';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import RefreshIcon from '$svg/refresh';
 import { Button } from '@automattic/jetpack-components';
@@ -11,6 +12,7 @@ import Status from './status/status';
 import styles from './status/status.module.scss';
 
 const Lcp = () => {
+	const surface = useModuleSurface();
 	const [ query ] = useLcpState();
 	const lcpState = query?.data;
 
@@ -52,7 +54,10 @@ const Lcp = () => {
 			onEnable={ handleEnable }
 			onBeforeToggle={ handleBeforeToggle }
 		>
-			<div className={ styles.status }>
+			<div
+				className={ surface === 'row' ? styles.well : styles.status }
+				data-testid={ surface === 'row' ? 'lcp-status-well' : undefined }
+			>
 				<div className={ styles.summary }>
 					<Status />
 				</div>
