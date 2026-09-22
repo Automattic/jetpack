@@ -13,7 +13,6 @@ export const MODULES_SAVE_META = { dataSyncKey: 'modules_state' };
 
 // Register in the legacy bundle, whose Data Sync cache is separate from the route bundle's cache.
 export function observeLegacyModulesState( client: QueryClient ) {
-	let onboardingHeld = false;
 	let modulesHeld = false;
 	const isModulesSaving = () =>
 		client.isMutating( {
@@ -26,31 +25,10 @@ export function observeLegacyModulesState( client: QueryClient ) {
 			} )
 		);
 	};
-	const isOnboardingSaving = () =>
-		client.isMutating( {
-			predicate: mutation =>
-				mutation.options.meta?.dataSyncKey === ONBOARDING_SAVE_META.dataSyncKey,
-		} ) > 0;
-	const emitOnboarding = () => {
-		onboardingHeld = false;
-		window.dispatchEvent(
-			new CustomEvent( ONBOARDING_CHANGE_EVENT, {
-				detail: client.getQueryData( [ 'getting_started' ] ) === true,
-			} )
-		);
-	};
 
 	const stopQueries = client.getQueryCache().subscribe( event => {
 		if ( event.type !== 'updated' || event.action.type !== 'success' ) {
 			return;
-		}
-		if ( event.query.queryKey[ 0 ] === 'getting_started' ) {
-			// Data Sync writes its optimistic value, and any revert, before the save settles.
-			if ( isOnboardingSaving() ) {
-				onboardingHeld = true;
-			} else {
-				emitOnboarding();
-			}
 		}
 		if (
 			relayedQueryKeys.some( key => event.query.queryKey[ 0 ] === key ) &&
@@ -69,6 +47,47 @@ export function observeLegacyModulesState( client: QueryClient ) {
 			modulesHeld = false;
 			emitModules( 'modules_state' );
 		}
+	} );
+
+	return () => {
+		stopQueries();
+		stopMutations();
+	};
+}
+
+// Register in the legacy bundle beside observeLegacyModulesState(), for the same reason.
+export function observeLegacyOnboarding( client: QueryClient ) {
+	let onboardingHeld = false;
+	const isOnboardingSaving = () =>
+		client.isMutating( {
+			predicate: mutation =>
+				mutation.options.meta?.dataSyncKey === ONBOARDING_SAVE_META.dataSyncKey,
+		} ) > 0;
+	const emitOnboarding = () => {
+		onboardingHeld = false;
+		window.dispatchEvent(
+			new CustomEvent( ONBOARDING_CHANGE_EVENT, {
+				detail: client.getQueryData( [ 'getting_started' ] ) === true,
+			} )
+		);
+	};
+
+	const stopQueries = client.getQueryCache().subscribe( event => {
+		if (
+			event.type !== 'updated' ||
+			event.action.type !== 'success' ||
+			event.query.queryKey[ 0 ] !== 'getting_started'
+		) {
+			return;
+		}
+		// Data Sync writes its optimistic value, and any revert, before the save settles.
+		if ( isOnboardingSaving() ) {
+			onboardingHeld = true;
+		} else {
+			emitOnboarding();
+		}
+	} );
+	const stopMutations = client.getMutationCache().subscribe( event => {
 		if ( onboardingHeld && event.type === 'updated' && ! isOnboardingSaving() ) {
 			emitOnboarding();
 		}
