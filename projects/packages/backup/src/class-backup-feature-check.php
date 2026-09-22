@@ -64,8 +64,8 @@ class Backup_Feature_Check {
 	/**
 	 * WordPress.com's name for the entitlement this dashboard needs.
 	 *
-	 * Not the broader `backups`: this page manages and restores backups itself, which is what
-	 * self-serve grants — and it is what jetpack-mu-wpcom's Backup page reads to step aside.
+	 * Not the broader `backups`: this page manages and restores backups itself, which is
+	 * what self-serve grants.
 	 *
 	 * @var string
 	 */

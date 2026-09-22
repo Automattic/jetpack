@@ -266,10 +266,7 @@ class Backup_Feature_Check_Test extends TestCase {
 	}
 
 	/**
-	 * A site with no blog token has no plan to read, so the menu goes away.
-	 *
-	 * Without this a disconnected site keeps whatever it last had: the features read
-	 * fails, and a failed read is deliberately carried forward.
+	 * A site with no blog token answers no, rather than keeping what it last had.
 	 */
 	public function test_a_disconnected_site_answers_no() {
 		$this->arrange_stored_answer( true );
@@ -299,7 +296,7 @@ class Backup_Feature_Check_Test extends TestCase {
 	}
 
 	/**
-	 * Once per site, not once per page: a prime that failed still counts as asked.
+	 * A prime that failed still counts as asked.
 	 */
 	public function test_a_failed_prime_is_not_repeated_on_the_next_page() {
 		$this->arrange_wpcom( array(), 500 );
@@ -313,9 +310,6 @@ class Backup_Feature_Check_Test extends TestCase {
 
 	/**
 	 * Opening the page asks again even though My Jetpack answered seconds ago.
-	 *
-	 * The My Jetpack render that sent the user to checkout caches the features for
-	 * fifteen seconds, and that copy still describes the plan they just replaced.
 	 */
 	public function test_the_page_open_read_looks_past_my_jetpacks_cache() {
 		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );

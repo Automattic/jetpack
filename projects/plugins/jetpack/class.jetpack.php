@@ -861,7 +861,7 @@ class Jetpack {
 	 * @return void
 	 */
 	public static function configure_backup_package() {
-		// Backup does not support multisite, which is what the retired cloud link checked.
+		// The Backup package does not support multisite, so the dashboard is not offered there.
 		if ( is_multisite() ) {
 			return;
 		}
@@ -869,9 +869,9 @@ class Jetpack {
 		$backup = 'Automattic\\Jetpack\\Backup\\V0005\\Jetpack_Backup';
 
 		/*
-		 * A package version predating the init options ignores the argument and would
-		 * ensure the connection under its own `jetpack-backup` slug, renaming this
-		 * plugin's connection. Leave Backup to the cloud link when that version wins.
+		 * An older package ignores these options — see Jetpack_Backup::DEFAULT_INIT_OPTIONS
+		 * for the cost. Only the standalone plugin ships one that old, and it draws its own
+		 * Backup menu.
 		 */
 		if ( ! class_exists( $backup ) || ! defined( $backup . '::DEFAULT_INIT_OPTIONS' ) ) {
 			return;

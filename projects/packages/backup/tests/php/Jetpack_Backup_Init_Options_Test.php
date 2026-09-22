@@ -100,8 +100,8 @@ class Jetpack_Backup_Init_Options_Test extends TestCase {
 	/**
 	 * A host that owns the connection does not get the standalone's connection wiring.
 	 *
-	 * The license filter stands in for that whole block: re-ensuring the connection
-	 * under this package's slug is what would rename the host's own connection.
+	 * The license filter stands in for that whole block, which `initialize()` adds or
+	 * skips together.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
