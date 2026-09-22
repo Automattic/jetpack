@@ -27,7 +27,7 @@ type StatusTypes = {
 
 // Modern rows have no gutter for the legacy icon, so the notice stacks inside the text column.
 const ModernSummaryBody = ( { children }: { children: ReactNode } ) => (
-	<Stack direction="column" gap="md">
+	<Stack direction="column" gap="md" className={ styles[ 'modern-summary-body' ] }>
 		{ children }
 	</Stack>
 );
@@ -69,7 +69,12 @@ const Status: FC< StatusTypes > = ( {
 			providersWithErrors.length
 		),
 		{
-			advanced: (
+			advanced: isModern ? (
+				<Notice.ActionLink
+					href={ subpageHref( 'critical-css-advanced' ) }
+					onClick={ handleAdvancedClick }
+				/>
+			) : (
 				// eslint-disable-next-line jsx-a11y/anchor-has-content -- createInterpolateElement supplies the content.
 				<a href={ subpageHref( 'critical-css-advanced' ) } onClick={ handleAdvancedClick } />
 			),
