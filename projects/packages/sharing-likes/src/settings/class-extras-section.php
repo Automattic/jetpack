@@ -1,6 +1,6 @@
 <?php
 /**
- * Settings other features add to Settings > Sharing.
+ * The section of Settings > Sharing that hosts other features' settings.
  *
  * @package automattic/jetpack-sharing-likes
  */
