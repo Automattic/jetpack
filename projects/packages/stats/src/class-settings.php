@@ -54,6 +54,18 @@ class Settings {
 	 * @return array|WP_Error `changed` and the `settings` after the save, or why the values were refused.
 	 */
 	public static function update( array $values, array $keys ) {
+		$unknown = array_diff( $keys, self::KEYS );
+		if ( ! empty( $unknown ) ) {
+			return new WP_Error(
+				self::ERROR_PREFIX . 'unknown_setting',
+				sprintf(
+					/* translators: %s: comma-separated list of setting names. */
+					__( 'Unknown Stats settings: %s.', 'jetpack-stats-pkg' ),
+					implode( ', ', $unknown )
+				)
+			);
+		}
+
 		$provided = array_intersect_key( $values, array_flip( $keys ) );
 		if ( empty( $provided ) ) {
 			return new WP_Error(
@@ -67,6 +79,7 @@ class Settings {
 		}
 
 		$defaults    = Options::get_defaults();
+		$before      = self::get( $keys );
 		$known_roles = null;
 		foreach ( $keys as $role_field ) {
 			if ( ! array_key_exists( $role_field, $provided ) ) {
@@ -108,7 +121,7 @@ class Settings {
 						)
 					);
 				}
-				if ( ! in_array( $role, $known_roles, true ) ) {
+				if ( ! in_array( $role, $known_roles, true ) && ! in_array( $role, $before[ $role_field ], true ) ) {
 					return new WP_Error(
 						self::ERROR_PREFIX . 'invalid_role',
 						sprintf(
@@ -125,7 +138,6 @@ class Settings {
 			$provided[ $role_field ] = array_values( array_unique( $sanitized ) );
 		}
 
-		$before  = self::get( $keys );
 		$changes = array();
 		foreach ( $provided as $key => $value ) {
 			if ( is_bool( $defaults[ $key ] ?? null ) ) {

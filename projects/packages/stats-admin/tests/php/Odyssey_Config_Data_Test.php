@@ -11,6 +11,14 @@ use Automattic\Jetpack\Stats_Admin\TestCase as Stats_TestCase;
  */
 class Odyssey_Config_Data_Test extends Stats_TestCase {
 	/**
+	 * Returning the environment into its initial state.
+	 */
+	public function tearDown(): void {
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		parent::tearDown();
+	}
+
+	/**
 	 * Test configData set to JS.
 	 */
 	public function test_render_config_data() {
@@ -52,11 +60,7 @@ class Odyssey_Config_Data_Test extends Stats_TestCase {
 	 */
 	public function test_config_data_does_not_offer_the_settings_tab_on_simple_sites() {
 		Constants::set_constant( 'IS_WPCOM', true );
-		try {
-			$data = ( new Odyssey_Config_Data() )->get_data();
-		} finally {
-			Constants::clear_single_constant( 'IS_WPCOM' );
-		}
+		$data = ( new Odyssey_Config_Data() )->get_data();
 
 		$this->assertFalse( $data['intial_state']['sites']['items']['999']['options']['has_stats_settings'] );
 	}

@@ -1051,6 +1051,23 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( 'jetpack_stats_invalid_role', $result->get_error_code() );
 	}
 
+	public function test_update_settings_accepts_a_saved_role_the_site_no_longer_has(): void {
+		Options::set_options( array( 'roles' => array( 'administrator', 'shop_manager' ) ) );
+
+		$result = Stats_Abilities::update_settings( array( 'roles' => array( 'administrator', 'shop_manager', 'editor' ) ) );
+
+		$this->assertIsArray( $result );
+		$this->assertSame( array( 'administrator', 'shop_manager', 'editor' ), Options::get_option( 'roles' ) );
+	}
+
+	public function test_settings_update_refuses_a_key_outside_the_settings_list_instead_of_saving_it(): void {
+		$result = Settings::update( array( 'enable_odyssey_stats' => false ), array( 'enable_odyssey_stats' ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_stats_unknown_setting', $result->get_error_code() );
+		$this->assertTrue( Options::get_option( 'enable_odyssey_stats' ) );
+	}
+
 	public function test_update_settings_refuses_roles_given_as_a_string_instead_of_emptying_them(): void {
 		$result = Stats_Abilities::update_settings( array( 'roles' => 'editor' ) );
 		$this->assertInstanceOf( \WP_Error::class, $result );
