@@ -25,6 +25,7 @@ class Jetpack_Google_Font_Face_Native_Test extends WP_UnitTestCase {
 		add_filter( 'pre_jetpack_get_google_fonts_data', array( $this, 'catalogue' ) );
 		WP_Theme_JSON_Resolver::clean_cached_data();
 		if ( class_exists( 'WP_Theme_JSON_Resolver_Gutenberg' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			WP_Theme_JSON_Resolver_Gutenberg::clean_cached_data();
 		}
 	}
@@ -32,6 +33,7 @@ class Jetpack_Google_Font_Face_Native_Test extends WP_UnitTestCase {
 	public function tear_down() {
 		WP_Theme_JSON_Resolver::clean_cached_data();
 		if ( class_exists( 'WP_Theme_JSON_Resolver_Gutenberg' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			WP_Theme_JSON_Resolver_Gutenberg::clean_cached_data();
 		}
 		parent::tear_down();
@@ -95,6 +97,7 @@ class Jetpack_Google_Font_Face_Native_Test extends WP_UnitTestCase {
 		);
 		WP_Theme_JSON_Resolver::clean_cached_data();
 		if ( class_exists( 'WP_Theme_JSON_Resolver_Gutenberg' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			WP_Theme_JSON_Resolver_Gutenberg::clean_cached_data();
 		}
 	}
