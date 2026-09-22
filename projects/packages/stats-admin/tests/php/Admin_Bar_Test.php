@@ -159,6 +159,17 @@ class Admin_Bar_Test extends Stats_TestCase {
 		$this->assertNull( Admin_Bar::fetch_chart( 'admin-bar-hours-scale' ) );
 	}
 
+	public function test_chart_request_that_fails_is_dropped_instead_of_fatal() {
+		add_filter(
+			'pre_http_request',
+			function () {
+				return new \WP_Error( 'http_request_failed', 'Operation timed out' );
+			}
+		);
+
+		$this->assertNull( Admin_Bar::fetch_chart( 'admin-bar-hours-scale' ) );
+	}
+
 	public function test_unknown_chart_is_not_fetched() {
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 		$_GET['page']  = 'stats';

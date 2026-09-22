@@ -204,9 +204,11 @@ class Admin_Bar {
 			)
 		);
 
+		// A failed request has the code '', which PHP 8 cannot divide.
+		$code = (int) wp_remote_retrieve_response_code( $response );
 		$type = wp_remote_retrieve_header( $response, 'content-type' );
 		$body = wp_remote_retrieve_body( $response );
-		if ( 2 !== (int) ( wp_remote_retrieve_response_code( $response ) / 100 ) || ! is_string( $type ) || ! str_starts_with( $type, 'image/' ) || '' === $body ) {
+		if ( 2 !== (int) ( $code / 100 ) || ! is_string( $type ) || ! str_starts_with( $type, 'image/' ) || '' === $body ) {
 			return null;
 		}
 
