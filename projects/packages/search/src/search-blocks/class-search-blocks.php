@@ -692,11 +692,27 @@ class Search_Blocks {
 					// visitors won't actually get.
 					'defaultResultsPerPage'      => Helper::resolve_results_per_page(),
 					'maxResultsPerPage'          => Helper::get_max_posts_per_page(),
+					'hideFromInserter'           => self::should_hide_blocks_from_widgets_inserter(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
 			'before'
 		);
+	}
+
+	/**
+	 * Whether to keep the Search blocks out of the widgets editor inserter.
+	 *
+	 * The legacy Overlay's sidebar renders on `wp_footer`, after a block theme has printed the importmap, so a block's view module can't resolve `jetpack-search/store` and never hydrates.
+	 *
+	 * @return bool
+	 */
+	public static function should_hide_blocks_from_widgets_inserter(): bool {
+		if ( ! is_registered_sidebar( Instant_Search::INSTANT_SEARCH_SIDEBAR ) || ! function_exists( 'get_current_screen' ) ) {
+			return false;
+		}
+		$screen = get_current_screen();
+		return $screen && in_array( $screen->id, array( 'widgets', 'customize' ), true );
 	}
 
 	/**
