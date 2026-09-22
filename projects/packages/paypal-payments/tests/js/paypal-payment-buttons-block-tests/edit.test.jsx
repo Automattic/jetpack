@@ -7239,7 +7239,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
 			// The PanelBody mock renders closed panels too, so a second copy of the id would show.
 			expect( screen.getByText( 'Environment:' ) ).toBeInTheDocument();
-			expect( screen.getAllByText( /DETAIL1/ ) ).toHaveLength( 1 );
+			expect( screen.getAllByText( 'DETAIL1' ) ).toHaveLength( 1 );
 		} );
 	} );
 
