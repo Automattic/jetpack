@@ -331,7 +331,7 @@ describe( 'report params field', () => {
 		const { latest } = renderField();
 
 		await user.click( screen.getByRole( 'button', { name: /compare/i } ) );
-		await user.click( await screen.findByRole( 'menuitemradio', { name: /^previous /i } ) );
+		await user.click( await screen.findByRole( 'menuitemradio', { name: 'Previous 30 days' } ) );
 
 		expect( latest() ).toEqual(
 			expect.objectContaining( {
@@ -360,7 +360,7 @@ describe( 'report params field', () => {
 		const { latest } = renderField();
 
 		await user.click( screen.getByRole( 'button', { name: /compare/i } ) );
-		await user.click( await screen.findByRole( 'menuitemradio', { name: /^previous /i } ) );
+		await user.click( await screen.findByRole( 'menuitemradio', { name: 'Previous 30 days' } ) );
 		await pickPeriod( user, 'Last 24 hours' );
 
 		// The preset's own end, not the end of the day it falls in.

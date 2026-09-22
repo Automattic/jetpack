@@ -606,10 +606,7 @@ describe( 'getComparisonRangeFromPreset', () => {
 	} );
 
 	describe( 'weekday-aligned presets', () => {
-		/*
-		 * The number GA4 and Shopify both produce for this range: 52 whole weeks
-		 * back, so Monday 1 January 2024 lands on Monday 2 January 2023.
-		 */
+		// 52 whole weeks back, so Monday 1 January 2024 lands on Monday 2 January 2023.
 		it( 'shifts the previous year back 52 weeks across a leap February', () => {
 			const janToMar2024 = {
 				from: siteDate( 2024, 0, 1, 0, 0, 0, 0 ),

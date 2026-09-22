@@ -358,6 +358,24 @@ describe( 'comparison options', () => {
 		expect( options[ 1 ].shortLabel ).toBe( 'Prev. period (weekday)' );
 	} );
 
+	/*
+	 * From 358 days up the period's whole-week shift is 52 weeks, the year's
+	 * shift, so the two weekday variants name one window and the period keeps
+	 * it, as the calendar period does over the calendar year.
+	 */
+	it( 'lets the weekday period keep a window it shares with the weekday year', () => {
+		const days360 = daysRange( [ 2026, 0, 1 ], [ 2026, 11, 26 ] );
+		const options = getComparisonOptions( days360 );
+
+		expect( options.map( option => option.id ) ).toEqual( [
+			'previous-period',
+			'previous-period-match-day-of-week',
+			'previous-year',
+		] );
+		expect( options[ 1 ].label ).toBe( 'Previous 360 days (match day of week)' );
+		expect( options[ 1 ].range ).toEqual( daysRange( [ 2025, 0, 2 ], [ 2025, 11, 27 ] ) );
+	} );
+
 	it( 'withholds both year options from a range longer than 364 days', () => {
 		const ids365 = ids( daysRange( [ 2025, 8, 1 ], [ 2026, 7, 31 ] ) );
 

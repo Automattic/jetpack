@@ -82,8 +82,8 @@ const SHORT_LABELS: Record< ComparisonPresetId, () => string > = {
 };
 
 /**
- * Label for a weekday-aligned option: its calendar sibling's label with the
- * suffix GA4 and Shopify use for the same shift.
+ * Label for a weekday-aligned option: its calendar sibling's label with a
+ * suffix saying the comparison starts on the same weekday.
  *
  * @param siblingLabel - The label of the calendar-aligned option.
  * @return The label.

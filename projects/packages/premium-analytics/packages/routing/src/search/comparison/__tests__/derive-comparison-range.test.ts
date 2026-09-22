@@ -142,6 +142,25 @@ describe( 'deriveComparisonRange', () => {
 		} );
 	} );
 
+	// A weekday-aligned period on a single day is the same window last week
+	// names, so the menu lists it under previous-week; the link lands there,
+	// not on the previous day.
+	it( 'remaps a dropped weekday preset to the entry offering its window', () => {
+		expect(
+			deriveComparisonRange( {
+				from: '2026-06-08T00:00:00.000Z',
+				to: '2026-06-08T23:59:59.999Z',
+				comp: '1',
+				compare_preset: 'previous-period-match-day-of-week',
+				preset: 'yesterday',
+			} )
+		).toEqual( {
+			compare_from: '2026-06-01T00:00:00.000+00:00',
+			compare_to: '2026-06-01T23:59:59.999+00:00',
+			compare_preset: 'previous-week',
+		} );
+	} );
+
 	it( 'steps a to-date preset back by its completed window and stops where it does', () => {
 		// `last-12-months` as read on 20 August 2026.
 		const range = {
