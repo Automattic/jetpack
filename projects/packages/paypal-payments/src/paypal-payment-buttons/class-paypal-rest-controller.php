@@ -270,7 +270,17 @@ class PayPal_REST_Controller {
 					'methods'             => 'PUT',
 					'callback'            => array( __CLASS__, 'handle_update_button' ),
 					'permission_callback' => array( __CLASS__, 'manage_options_permission_check' ),
-					'args'                => self::get_button_create_args(),
+					'args'                => array_merge(
+						self::get_button_create_args(),
+						array(
+							'include_snippets' => array(
+								'required'    => false,
+								'type'        => 'boolean',
+								'default'     => false,
+								'description' => __( 'Read the payment back after updating it, for the SDK snippets a stacked block needs.', 'jetpack-paypal-payments' ),
+							),
+						)
+					),
 				),
 			)
 		);
@@ -707,10 +717,11 @@ class PayPal_REST_Controller {
 			return self::api_error_to_rest_error( $result );
 		}
 
-		// A PUT answers 204 with no code_snippets, so BUTTON mode re-reads the resource —
-		// otherwise a block switching to stacked stays blank until reload. Only the re-read
-		// gets `attributes`: the echo has no `id`, and mapping it would blank resourceId.
-		if ( 'BUTTON' === ( $resource_data['integration_mode'] ?? '' ) ) {
+		// PayPal answers a PUT with 204 and no code_snippets, so a caller that needs them asks
+		// for the resource to be read back; that read is how a block switching to stacked draws
+		// in the same save rather than after a reload. Only the re-read gets `attributes`: the
+		// echo has no `id`, and mapping it would blank the block's resourceId.
+		if ( $request->get_param( 'include_snippets' ) ) {
 			$fresh = PayPal_API_Client::get_resource( $resource_id );
 			if ( ! is_wp_error( $fresh ) ) {
 				$result               = $fresh;

@@ -1,0 +1,249 @@
+{
+	"_comment": "URLs a block attribute can carry, and what each side has to make of them. Read by tests/js/validation.test.js and tests/php/Paypal_Payment_Buttons_Test.php, so a rebuild that lands on one side only fails a test on the other. `accepted` and `rejected` are where the two agree: the same output from both, or nothing from either. `strictEditor` and `parserSplit` are where they differ, and both pin BOTH outputs, so closing a gap fails as loudly as opening one. `strictEditor` is a decision — the canvas injects a script src into wp-admin, so it takes https alone, where the published page would rather repair the scheme than drop a button a merchant already has. `parserSplit` is an accident the two live with: `new URL()` and `wp_parse_url()` reading the same bytes differently. A `why` is prose for whoever reads the row next, and carries no assertion. What each parser makes of a URL it has already accepted — whitespace, tabs, control characters, `%2e`, which characters it percent-encodes — is left unpinned: that set is unbounded, safe on both sides, and pinning it would fail the suite on a PHP or browser bump for nothing. The host list is pinned by test_paypal_host_allow_lists_are_in_sync() instead.",
+	"accepted": [
+		{
+			"name": "the SDK URL a stacked payment reads back",
+			"url": "https://www.paypal.com/sdk/js?client-id=ATd1_h-abcDEF&components=hosted-buttons&disable-funding=venmo&currency=USD",
+			"sanitized": "https://www.paypal.com/sdk/js?client-id=ATd1_h-abcDEF&components=hosted-buttons&disable-funding=venmo&currency=USD"
+		},
+		{
+			"name": "a payment link",
+			"url": "https://www.paypal.com/ncp/payment/PLB-4Y3SRZBNLRSQ",
+			"sanitized": "https://www.paypal.com/ncp/payment/PLB-4Y3SRZBNLRSQ"
+		},
+		{
+			"name": "a payment link already carrying the BN code",
+			"url": "https://www.paypal.com/ncp/payment/PLB-4Y3SRZBNLRSQ?at_code=WP_JetpackPayPal",
+			"sanitized": "https://www.paypal.com/ncp/payment/PLB-4Y3SRZBNLRSQ?at_code=WP_JetpackPayPal"
+		},
+		{
+			"name": "the sandbox host",
+			"url": "https://www.sandbox.paypal.com/sdk/js?client-id=abc",
+			"sanitized": "https://www.sandbox.paypal.com/sdk/js?client-id=abc"
+		},
+		{
+			"name": "paypal.com without the www",
+			"url": "https://paypal.com/sdk/js?client-id=abc",
+			"sanitized": "https://paypal.com/sdk/js?client-id=abc"
+		},
+		{
+			"name": "sandbox.paypal.com without the www",
+			"url": "https://sandbox.paypal.com/sdk/js?client-id=abc",
+			"sanitized": "https://sandbox.paypal.com/sdk/js?client-id=abc"
+		},
+		{
+			"name": "no query string",
+			"url": "https://www.paypal.com/sdk/js",
+			"sanitized": "https://www.paypal.com/sdk/js"
+		},
+		{
+			"name": "an empty query string",
+			"url": "https://www.paypal.com/sdk/js?",
+			"sanitized": "https://www.paypal.com/sdk/js",
+			"why": "URL.search is '' for a bare `?`, and the PHP drops an empty query rather than rebuilding one. It has to: PHP 8.0 began reporting `query => ''` where 7.4 left the key out, so keeping it would put a `?` on the end on one PHP and not the other. Same resource either way."
+		},
+		{
+			"name": "a path off the SDK route",
+			"url": "https://www.paypal.com/webapps/xoplatform",
+			"sanitized": "https://www.paypal.com/webapps/xoplatform"
+		},
+		{
+			"name": "a deep path",
+			"url": "https://www.paypal.com/sdk/js/some/deep/path.js",
+			"sanitized": "https://www.paypal.com/sdk/js/some/deep/path.js"
+		},
+		{
+			"name": "the default port spelled out",
+			"url": "https://www.paypal.com:443/sdk/js?a=1",
+			"sanitized": "https://www.paypal.com/sdk/js?a=1"
+		},
+		{
+			"name": "a port that is not the default",
+			"url": "https://www.paypal.com:8443/sdk/js",
+			"sanitized": "https://www.paypal.com/sdk/js"
+		},
+		{
+			"name": "a fully qualified host",
+			"url": "https://www.paypal.com./sdk/js?a=1",
+			"sanitized": "https://www.paypal.com/sdk/js?a=1"
+		},
+		{
+			"name": "a fully qualified sandbox host",
+			"url": "https://sandbox.paypal.com./sdk/js?a=1",
+			"sanitized": "https://sandbox.paypal.com/sdk/js?a=1"
+		},
+		{
+			"name": "a host in mixed case",
+			"url": "https://WWW.PayPal.com/sdk/js?a=1",
+			"sanitized": "https://www.paypal.com/sdk/js?a=1"
+		},
+		{
+			"name": "a fragment, which neither side keeps",
+			"url": "https://www.paypal.com/sdk/js#@evil.test",
+			"sanitized": "https://www.paypal.com/sdk/js"
+		},
+		{
+			"name": "credentials on a PayPal host, which neither side keeps",
+			"url": "https://user:pw@www.paypal.com/sdk/js",
+			"sanitized": "https://www.paypal.com/sdk/js"
+		},
+		{
+			"name": "PayPal's copy-html snippet, with the separators HTML-escaped",
+			"url": "https://www.paypal.com/sdk/js?client-id=ATd1_h-abcDEF&amp;components=hosted-buttons&amp;disable-funding=venmo&amp;currency=USD",
+			"sanitized": "https://www.paypal.com/sdk/js?client-id=ATd1_h-abcDEF&components=hosted-buttons&disable-funding=venmo&currency=USD"
+		},
+		{
+			"name": "escaped and raw separators in one query",
+			"url": "https://www.paypal.com/sdk/js?client-id=test&currency=USD&locale=en_US&amp;foo=bar",
+			"sanitized": "https://www.paypal.com/sdk/js?client-id=test&currency=USD&locale=en_US&foo=bar"
+		},
+		{
+			"name": "every component at once",
+			"url": "https://www.paypal.com:443/sdk/js?client-id=test&currency=USD&amp;foo=bar#init",
+			"sanitized": "https://www.paypal.com/sdk/js?client-id=test&currency=USD&foo=bar"
+		},
+		{
+			"name": "an escaped separator in the path, which is not a separator",
+			"url": "https://www.paypal.com/sdk/&amp;js?a=1",
+			"sanitized": "https://www.paypal.com/sdk/&amp;js?a=1"
+		},
+		{
+			"name": "an entity in upper case, which is not one",
+			"url": "https://www.paypal.com/sdk/js?a=1&AMP;b=2",
+			"sanitized": "https://www.paypal.com/sdk/js?a=1&AMP;b=2"
+		},
+		{
+			"name": "a percent-encoded ampersand in a value, which stays encoded",
+			"url": "https://www.paypal.com/ncp/payment/PLB-1?note=Tom%26Jerry",
+			"sanitized": "https://www.paypal.com/ncp/payment/PLB-1?note=Tom%26Jerry"
+		},
+		{
+			"name": "a percent-encoded entity in a value, which stays encoded",
+			"url": "https://www.paypal.com/ncp/payment/PLB-1?note=Tom%26amp%3BJerry",
+			"sanitized": "https://www.paypal.com/ncp/payment/PLB-1?note=Tom%26amp%3BJerry"
+		}
+	],
+	"rejected": [
+		{
+			"name": "an empty string",
+			"url": ""
+		},
+		{
+			"name": "the host from the security report",
+			"url": "https://attacker.example/malicious.js"
+		},
+		{
+			"name": "an arbitrary host",
+			"url": "https://evil.test/sdk/js?client-id=abc"
+		},
+		{
+			"name": "a lookalike host",
+			"url": "https://paypal.com.evil.test/sdk/js?client-id=abc"
+		},
+		{
+			"name": "a host that only starts the same",
+			"url": "https://evilpaypal.com/script.js"
+		},
+		{
+			"name": "a subdomain of a PayPal host",
+			"url": "https://evil.www.paypal.com/sdk/js?client-id=x"
+		},
+		{
+			"name": "a PayPal host used as userinfo",
+			"url": "https://paypal.com@evil.test/sdk/js?client-id=x"
+		},
+		{
+			"name": "a PayPal host used as a password",
+			"url": "https://a:paypal.com@evil.test/sdk/js"
+		},
+		{
+			"name": "a typo domain",
+			"url": "https://paypai.com/script.js"
+		},
+		{
+			"name": "a different TLD",
+			"url": "https://paypal.co/script.js"
+		},
+		{
+			"name": "a data: URL",
+			"url": "data:text/javascript,alert(1)"
+		},
+		{
+			"name": "a javascript: URL",
+			"url": "javascript:alert(1)"
+		},
+		{
+			"name": "a javascript: URL wearing a PayPal host",
+			"url": "javascript://www.paypal.com/%0aalert(1)",
+			"why": "The string the allow-list was written for: it parses with a PayPal hostname on both sides, so only the scheme tells it from a real SDK URL. The rebuild onto https kept it harmless before either side checked the scheme; both check it now."
+		},
+		{
+			"name": "an ftp: URL on a PayPal host",
+			"url": "ftp://www.paypal.com/sdk/js",
+			"why": "Same shape as the row above, with a scheme that is merely wrong rather than dangerous. It holds each side's scheme check to what it accepts: http and https on the published page, https alone on the canvas."
+		},
+		{
+			"name": "a wss: URL on a PayPal host",
+			"url": "wss://www.paypal.com/sdk/js",
+			"why": "A scheme `new URL()` treats as special, so the hostname parses out of it the same way. A script src or an href still has to refuse it."
+		},
+		{
+			"name": "a path with no host",
+			"url": "/script.js"
+		},
+		{
+			"name": "not a URL at all",
+			"url": "not-a-url"
+		},
+		{
+			"name": "whitespace",
+			"url": "   "
+		}
+	],
+	"strictEditor": [
+		{
+			"name": "plain HTTP",
+			"url": "http://www.paypal.com/sdk/js",
+			"js": "",
+			"php": "https://www.paypal.com/sdk/js",
+			"why": "The canvas injects this as a script src inside wp-admin, so it takes https alone. The published page repairs the scheme instead of dropping a button a merchant already has: a block attribute is hand-editable JSON in the comment delimiter and survives an import, and the rebuild lands on https either way."
+		}
+	],
+	"parserSplit": [
+		{
+			"name": "a scheme-relative URL",
+			"url": "//www.paypal.com/sdk/js?client-id=abc",
+			"js": "",
+			"php": "https://www.paypal.com/sdk/js?client-id=abc",
+			"why": "wp_parse_url() reads an authority off the leading //, and the absent scheme is repaired to https like plain HTTP above. `new URL()` with no base throws on the same bytes, so the canvas stops there."
+		},
+		{
+			"name": "an authority PayPal only appears to own",
+			"url": "https:www.paypal.com/../../wp-content/uploads/x.txt",
+			"js": "https://www.paypal.com/wp-content/uploads/x.txt",
+			"php": false,
+			"why": "`new URL()` fills in the missing slashes and walks the dot segments; wp_parse_url() finds only a path, `www.paypal.com/../../wp-content/uploads/x.txt`, and no host. Both outcomes are safe — this is the string the rebuild exists for — but the canvas previews a URL the published page drops."
+		},
+		{
+			"name": "a backslash where the path should start",
+			"url": "https://www.paypal.com\\evil.test/x.js",
+			"js": "https://www.paypal.com/evil.test/x.js",
+			"php": false,
+			"why": "`new URL()` reads a backslash as a path separator, so the authority ends at paypal.com and evil.test becomes a path segment. wp_parse_url() keeps the whole of `www.paypal.com\\evil.test` as the host, which then misses the allow-list. Same class as the row above, and the same reason the canvas rebuilds rather than passing the string through."
+		},
+		{
+			"name": "ideographic full stops in the host",
+			"url": "https://www。paypal。com/sdk/js",
+			"js": "https://www.paypal.com/sdk/js",
+			"php": false,
+			"why": "`new URL()` runs IDNA, which maps U+3002 to a label separator, so the host allow-list sees www.paypal.com. parse_url() runs none, and the host misses the list whatever the build makes of the bytes — some, macOS among them, replace the U+3002 continuation bytes with `_` first, since parse_url() strips whatever the local iscntrl() calls a control character. Both safe; the canvas is the more permissive one, and what it returns is a genuine PayPal URL."
+		},
+		{
+			"name": "no path at all",
+			"url": "https://www.paypal.com",
+			"js": "https://www.paypal.com/",
+			"php": "https://www.paypal.com",
+			"why": "`new URL()` always hands back a pathname; the PHP appends a path only when parse_url() reports one. Same resource either way."
+		}
+	]
+}

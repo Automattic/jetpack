@@ -16,6 +16,7 @@
 
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { sanitizePayPalUrl } from '../utils/validation';
 
 // Hoisted: the production build folds a ternary around __() and fails the i18n check.
 const PENDING_LABEL = __( 'The buttons appear once the post is saved.', 'jetpack-paypal-payments' );
@@ -43,8 +44,12 @@ export default function StackedButtonsPreview( {
 	const [ height, setHeight ] = useState( PENDING_HEIGHT );
 	const [ interactive, setInteractive ] = useState( false );
 
-	// The snippet is read back on the first save, once the payment is in BUTTON mode.
-	const pending = ! scriptSrc || ! hostedButtonId;
+	// scriptSrc comes straight from post content, and the frame below is same-origin
+	// with wp-admin, so only a PayPal URL is allowed through as a script src.
+	const sdkSrc = sanitizePayPalUrl( scriptSrc );
+
+	// scriptSrc comes back with the save's read-back, which only a stacked block asks for.
+	const pending = ! sdkSrc || ! hostedButtonId;
 
 	// Restore the overlay on deselect. Doing it on select would remove it at mousedown,
 	// while the click is still in flight.
@@ -54,6 +59,8 @@ export default function StackedButtonsPreview( {
 		}
 	}, [ isSelected ] );
 
+	// Once per mount: PayPalButtonPreview keys this component on the SDK URL and the
+	// payment, so either one changing remounts it and there is nothing here to rerun.
 	useEffect( () => {
 		const frame = frameRef.current;
 		const hostUrl = window.jetpackPayPalPayments?.sdkHostUrl;
@@ -72,7 +79,7 @@ export default function StackedButtonsPreview( {
 		const isolated = frame.ownerDocument.defaultView.crossOriginIsolated;
 
 		frame.setAttribute( 'src', hostUrl + ( isolated ? '&isolated=1' : '' ) );
-	}, [ pending ] );
+	}, [] );
 
 	const boot = () => {
 		const frame = frameRef.current;
@@ -80,7 +87,7 @@ export default function StackedButtonsPreview( {
 		const doc = frame?.contentDocument;
 		// An iframe with no src fires load for about:blank first, which has no host
 		// either, so wait for the real document.
-		if ( ! win || ! doc || ! win.location.host || bootedRef.current || pending ) {
+		if ( ! win || ! doc || ! win.location.host || bootedRef.current ) {
 			return;
 		}
 		bootedRef.current = true;
@@ -93,11 +100,19 @@ export default function StackedButtonsPreview( {
 		// Measure the container: PayPal sends a height only for the individual button frames,
 		// and the document's scrollHeight has a viewport floor, so the frame would only grow.
 		if ( win.ResizeObserver ) {
-			new win.ResizeObserver( () => setHeight( container.offsetHeight ) ).observe( container );
+			new win.ResizeObserver( () => {
+				// The first observation comes in before PayPal has painted, and a background tab
+				// puts that off further. A 0 there means nothing is drawn yet, so keep the
+				// height already on screen until the card shows up.
+				const measured = container.offsetHeight;
+				if ( measured > 0 ) {
+					setHeight( measured );
+				}
+			} ).observe( container );
 		}
 
 		const script = doc.createElement( 'script' );
-		script.src = scriptSrc;
+		script.src = sdkSrc;
 		script.setAttribute( 'data-namespace', 'paypal_payment_buttons' );
 		if ( partnerAttributionId ) {
 			script.setAttribute( 'data-paypal-partner-attribution-id', partnerAttributionId );

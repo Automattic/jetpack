@@ -12,6 +12,7 @@ import { render, screen } from '@testing-library/react';
 import QRCode from 'qrcode';
 import PayPalButtonPreview from '../../src/paypal-payment-buttons/components/paypal-button-preview';
 import { QR_OPTIONS } from '../../src/paypal-payment-buttons/utils/qr-options';
+import bootTheFrame from './boot-the-frame';
 
 // jsdom has no 2D context, so a real draw fails. Unlike qr-code.test.js's mock
 // this one resolves, because the preview chains .catch() on the returned promise.
@@ -473,7 +474,10 @@ describe( 'PayPalButtonPreview', () => {
 				<PayPalButtonPreview
 					{ ...defaultProps }
 					format="STACKED"
-					attributes={ { scriptSrc: 'https://www.paypal.test/sdk/js', resourceId: 'PLB-1' } }
+					attributes={ {
+						scriptSrc: 'https://www.paypal.com/sdk/js?client-id=abc',
+						resourceId: 'PLB-1',
+					} }
 				/>
 			);
 
@@ -481,6 +485,44 @@ describe( 'PayPalButtonPreview', () => {
 			expect(
 				document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
 			).not.toBeInTheDocument();
+		} );
+
+		const usd = 'https://www.paypal.com/sdk/js?client-id=abc&currency=USD';
+		const stacked = attributes => (
+			<PayPalButtonPreview { ...defaultProps } format="STACKED" attributes={ attributes } />
+		);
+
+		it.each( [
+			[
+				'the URL changes',
+				'scriptSrc',
+				'https://www.paypal.com/sdk/js?client-id=abc&currency=EUR',
+			],
+			[ 'the payment changes', 'resourceId', 'PLB-2' ],
+		] )( 'boots the SDK again when %s', ( _label, key, changed ) => {
+			const before = { scriptSrc: usd, resourceId: 'PLB-1' };
+
+			const { rerender } = render( stacked( before ) );
+			expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
+
+			rerender( stacked( { ...before, [ key ]: changed } ) );
+			const script = bootTheFrame().doc.querySelector( 'script' );
+			expect( script ).not.toBeNull();
+			expect( script.src ).toBe( 'scriptSrc' === key ? changed : usd );
+		} );
+
+		// The key is the SDK URL and the payment id. Keyed on the whole attributes
+		// object, every keystroke in the sidebar would reboot PayPal's SDK.
+		it( 'leaves the running SDK alone when another attribute changes', () => {
+			const before = { scriptSrc: usd, resourceId: 'PLB-1', productName: 'Premium Widget' };
+
+			const { rerender } = render( stacked( before ) );
+			expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
+
+			rerender( stacked( { ...before, productName: 'Deluxe Widget' } ) );
+			// A remount would boot into this second document; the first mount's frame
+			// carries on drawing instead.
+			expect( bootTheFrame().doc.querySelector( 'script' ) ).toBeNull();
 		} );
 
 		it( 'draws the button card for a format it does not know', () => {
@@ -518,6 +560,35 @@ describe( 'PayPalButtonPreview', () => {
 			expect( document.querySelector( '.jetpack-paypal-button__paypal-link' ) ).toHaveStyle( {
 				color: '#0000ff',
 				fontSize: '20px',
+			} );
+		} );
+
+		// paymentLink is a plain block attribute, so post content decides what the canvas
+		// links to and what the QR encodes.
+		describe.each( [
+			[ 'another host', 'https://evil.test/ncp/payment/ABC123' ],
+			[ 'a javascript: URL wearing a PayPal host', 'javascript://www.paypal.com/%0aalert(1)' ],
+		] )( 'a payment link on %s', ( _label, paymentLink ) => {
+			it( 'leaves the href empty', () => {
+				render(
+					<PayPalButtonPreview { ...defaultProps } format="LINK" paymentLink={ paymentLink } />
+				);
+
+				expect( document.querySelector( '.jetpack-paypal-button__paypal-link' ) ).toHaveAttribute(
+					'href',
+					''
+				);
+			} );
+
+			it( 'leaves the QR pending', () => {
+				render(
+					<PayPalButtonPreview { ...defaultProps } format="QR" paymentLink={ paymentLink } />
+				);
+
+				expect( QRCode.toCanvas ).not.toHaveBeenCalled();
+				expect( document.querySelector( '.jetpack-paypal-button__qr-canvas' ) ).toHaveClass(
+					'jetpack-paypal-button__qr-canvas--pending'
+				);
 			} );
 		} );
 

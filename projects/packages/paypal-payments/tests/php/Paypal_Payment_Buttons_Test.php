@@ -549,172 +549,120 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that valid PayPal URLs pass through unchanged.
+	 * Test that sanitize_paypal_script_url() returns what the shared URL table pins for
+	 * this side.
 	 *
-	 * @dataProvider valid_paypal_urls_provider
+	 * The other half runs in tests/js/validation.test.js against sanitizePayPalUrl(). The
+	 * two are meant to be mirrors, so a rebuild that lands on one side only fails here.
+	 * The host list they share is pinned by test_paypal_host_allow_lists_are_in_sync()
+	 * instead.
 	 *
-	 * @param string $url The URL to test.
+	 * @dataProvider provide_url_parity_cases
+	 * @param string       $url      The URL a block attribute carries.
+	 * @param string|false $expected What this side has to return.
 	 */
-	#[DataProvider( 'valid_paypal_urls_provider' )]
-	public function test_valid_paypal_urls_pass_through( $url ) {
-		$result = PayPal_Payment_Buttons::sanitize_paypal_script_url( $url );
-
-		$this->assertNotFalse( $result, "URL should not return false: $url" );
-
-		// Parse both URLs to compare hosts
-		$original_parsed = wp_parse_url( $url );
-		$result_parsed   = wp_parse_url( $result );
-
-		$this->assertEquals( $original_parsed['host'], $result_parsed['host'], "Host should remain unchanged for valid PayPal URL: $url" );
+	#[DataProvider( 'provide_url_parity_cases' )]
+	public function test_sanitize_paypal_script_url_matches_the_shared_url_table( $url, $expected ) {
+		$this->assertSame( $expected, PayPal_Payment_Buttons::sanitize_paypal_script_url( $url ) );
 	}
 
 	/**
-	 * Data provider for valid PayPal URLs.
+	 * Test that the canvas checks the same PayPal hosts the published page does.
 	 *
-	 * @return array
+	 * The url-parity.json table covers the URLs, not the host list: a fifth host added on
+	 * one side only would still pass every row in it. The two lists are compared outright
+	 * instead, as Conditional_Logic_Parity_Test does in the forms package.
 	 */
-	public static function valid_paypal_urls_provider() {
-		return array(
-			'paypal.com'                              => array( 'https://www.paypal.com/sdk/js' ),
-			'paypal.com subdomain'                    => array( 'https://www.paypal.com/sdk/js?client-id=test' ),
-			'paypal.com subdomain with escaped query' => array( 'https://www.paypal.com/sdk/js?client-id=test&amp;currency=USD' ),
-			'sandbox.paypal.com'                      => array( 'https://www.sandbox.paypal.com/sdk/js' ),
-			'sandbox.paypal.com with query'           => array( 'https://www.sandbox.paypal.com/sdk/js?client-id=test&currency=USD' ),
-			'www.paypal.com'                          => array( 'https://www.paypal.com/webapps/xoplatform' ),
-			'www.sandbox.paypal.com'                  => array( 'https://www.sandbox.paypal.com/webapps/xoplatform' ),
+	public function test_paypal_host_allow_lists_are_in_sync() {
+		$path = __DIR__ . '/../../src/paypal-payment-buttons/utils/validation.js';
+		$this->assertFileExists( $path, 'validation.js moved; update this test to match.' );
+
+		$source = (string) file_get_contents( $path );
+
+		$matched = preg_match( '/export const ALLOWED_PAYPAL_DOMAINS = \[(.*?)\];/s', $source, $block );
+		$this->assertSame( 1, $matched, 'Could not locate ALLOWED_PAYPAL_DOMAINS in validation.js.' );
+
+		preg_match_all( "/^\s*'([\w.-]+)',/m", $block[1], $matches );
+		$canvas = $matches[1];
+		$this->assertNotEmpty( $canvas, 'No hosts parsed from validation.js.' );
+
+		$published = PayPal_API_Client::ALLOWED_PAYPAL_DOMAINS;
+
+		sort( $canvas );
+		sort( $published );
+
+		$this->assertSame( $published, $canvas, 'Host drift between validation.js and PayPal_API_Client.' );
+	}
+
+	/**
+	 * Read one of the fixtures the JS suite also reads.
+	 *
+	 * A renamed or malformed fixture would otherwise leave a provider empty and the run
+	 * green, so every table the caller is about to read is checked first.
+	 *
+	 * @param string   $name   The file name under tests/fixtures.
+	 * @param string[] $tables The tables the caller reads.
+	 * @throws \RuntimeException When the fixture is unreadable or a table is missing.
+	 * @return array The decoded fixture.
+	 */
+	private static function load_parity_fixture( $name, array $tables ) {
+		$path    = __DIR__ . '/../fixtures/' . $name;
+		$fixture = json_decode( (string) file_get_contents( $path ), true );
+
+		// Checked before the loop, not inside it: an empty $tables would otherwise skip
+		// every check and hand the caller back whatever json_decode() made of the file.
+		if ( ! is_array( $fixture ) ) {
+			throw new \RuntimeException( 'Could not read ' . $path );
+		}
+
+		foreach ( $tables as $table ) {
+			if ( empty( $fixture[ $table ] ) ) {
+				throw new \RuntimeException( 'Could not read ' . $table . ' from ' . $path );
+			}
+		}
+
+		return $fixture;
+	}
+
+	/**
+	 * The shared URL fixture, read from the file the JS suite reads.
+	 *
+	 * @throws \RuntimeException When the fixture is unreadable or has duplicate names.
+	 * @return array<string, array<int, mixed>>
+	 */
+	public static function provide_url_parity_cases() {
+		$fixture = self::load_parity_fixture(
+			'url-parity.json',
+			array( 'accepted', 'rejected', 'strictEditor', 'parserSplit' )
 		);
-	}
 
-	/**
-	 * Test that invalid URLs are rejected and return false.
-	 *
-	 * @dataProvider invalid_urls_provider
-	 *
-	 * @param string $url The URL to test.
-	 */
-	#[DataProvider( 'invalid_urls_provider' )]
-	public function test_invalid_urls_are_rejected( $url ) {
-		$result = PayPal_Payment_Buttons::sanitize_paypal_script_url( $url );
-		$this->assertFalse( $result, "URL should return false: $url" );
-	}
+		$cases = array();
 
-	/**
-	 * Data provider for invalid URLs.
-	 *
-	 * @return array
-	 */
-	public static function invalid_urls_provider() {
-		return array(
-			'empty string'              => array( '' ),
-			'attacker domain'           => array( 'https://attacker.example/x.js' ),
-			'attacker with paypal name' => array( 'https://paypal.com.evil.com/script.js' ),
-			'subdomain injection'       => array( 'https://evilpaypal.com/script.js' ),
-			'javascript protocol'       => array( 'javascript:alert(1)' ),
-			'data protocol'             => array( 'data:text/html,<script>alert(1)</script>' ),
-			'no host'                   => array( '/script.js' ),
-			'malformed url'             => array( 'not-a-url' ),
-			'paypal typo domain'        => array( 'https://paypai.com/script.js' ),
-			'different TLD'             => array( 'https://paypal.co/script.js' ),
-		);
-	}
+		foreach ( $fixture['accepted'] as $case ) {
+			$cases[ 'accepts ' . $case['name'] ] = array( $case['url'], $case['sanitized'] );
+		}
 
-	/**
-	 * Test that paths are preserved when sanitizing URLs.
-	 */
-	public function test_paths_are_preserved() {
-		// Valid PayPal URL with path
-		$valid_url = 'https://www.paypal.com/sdk/js/some/deep/path.js';
-		$result    = PayPal_Payment_Buttons::sanitize_paypal_script_url( $valid_url );
+		foreach ( $fixture['rejected'] as $case ) {
+			$cases[ 'refuses ' . $case['name'] ] = array( $case['url'], false );
+		}
 
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( '/sdk/js/some/deep/path.js', $result_parsed['path'] );
-	}
+		// Where the two sides part company. Each case pins this side's answer as well as
+		// the canvas's, so closing a gap fails just as loudly as opening one.
+		foreach ( array( 'strictEditor', 'parserSplit' ) as $table ) {
+			foreach ( $fixture[ $table ] as $case ) {
+				$cases[ $table . ': ' . $case['name'] ] = array( $case['url'], $case['php'] );
+			}
+		}
 
-	/**
-	 * Test that query parameters are preserved when sanitizing URLs.
-	 */
-	public function test_query_parameters_are_preserved() {
-		// Valid PayPal URL with query params
-		$valid_url = 'https://www.paypal.com/sdk/js?client-id=test&currency=USD&locale=en_US&amp;foo=bar';
-		$result    = PayPal_Payment_Buttons::sanitize_paypal_script_url( $valid_url );
+		// A duplicate name would silently drop a case.
+		$expected = count( $fixture['accepted'] ) + count( $fixture['rejected'] )
+			+ count( $fixture['strictEditor'] ) + count( $fixture['parserSplit'] );
 
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'client-id=test&currency=USD&locale=en_US&foo=bar', $result_parsed['query'] );
-	}
+		if ( count( $cases ) !== $expected ) {
+			throw new \RuntimeException( 'url-parity.json has duplicate case names' );
+		}
 
-	/**
-	 * Test that fragments are stripped when sanitizing URLs.
-	 * PayPal SDK URLs don't use fragments, so they are not preserved.
-	 */
-	public function test_fragments_are_stripped() {
-		// Valid PayPal URL with fragment
-		$valid_url = 'https://www.paypal.com/sdk/js#section';
-		$result    = PayPal_Payment_Buttons::sanitize_paypal_script_url( $valid_url );
-
-		$result_parsed = wp_parse_url( $result );
-		$this->assertArrayNotHasKey( 'fragment', $result_parsed );
-	}
-
-	/**
-	 * Test that all URL components work together.
-	 */
-	public function test_all_url_components_together() {
-		// Valid PayPal URL with all components (fragment and port are stripped)
-		$valid_url = 'https://www.paypal.com:443/sdk/js?client-id=test&currency=USD&amp;foo=bar#init';
-		$result    = PayPal_Payment_Buttons::sanitize_paypal_script_url( $valid_url );
-
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'www.paypal.com', $result_parsed['host'] );
-		$this->assertEquals( 'https', $result_parsed['scheme'] );
-		$this->assertEquals( '/sdk/js', $result_parsed['path'] );
-		$this->assertEquals( 'client-id=test&currency=USD&foo=bar', $result_parsed['query'] );
-		$this->assertArrayNotHasKey( 'fragment', $result_parsed, 'Fragment should be stripped' );
-	}
-
-	/**
-	 * Test that HTTP scheme is upgraded to HTTPS.
-	 */
-	public function test_http_is_upgraded_to_https() {
-		// Valid PayPal URL with http should be upgraded to https
-		$http_url = 'http://www.paypal.com/sdk/js';
-		$result   = PayPal_Payment_Buttons::sanitize_paypal_script_url( $http_url );
-
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'https', $result_parsed['scheme'], 'HTTP should be upgraded to HTTPS' );
-	}
-
-	/**
-	 * Test that the XSS attack from the security report is mitigated.
-	 */
-	public function test_xss_attack_is_mitigated() {
-		$malicious_url = 'https://attacker.example/malicious.js';
-		$result        = PayPal_Payment_Buttons::sanitize_paypal_script_url( $malicious_url );
-
-		$this->assertFalse( $result, 'Malicious URL should be rejected' );
-	}
-
-	/**
-	 * Test that trailing dots in hostnames are normalized.
-	 * FQDNs can technically end with a dot (DNS root), so www.paypal.com. should be treated as www.paypal.com
-	 */
-	public function test_trailing_dot_is_normalized() {
-		// Test with trailing dot
-		$url_with_dot = 'https://www.paypal.com./sdk/js';
-		$result       = PayPal_Payment_Buttons::sanitize_paypal_script_url( $url_with_dot );
-
-		$this->assertNotFalse( $result, 'URL with trailing dot should be accepted' );
-
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'www.paypal.com', $result_parsed['host'], 'Trailing dot should be stripped' );
-
-		// Test sandbox with trailing dot
-		$sandbox_with_dot = 'https://sandbox.paypal.com./sdk/js';
-		$result           = PayPal_Payment_Buttons::sanitize_paypal_script_url( $sandbox_with_dot );
-
-		$this->assertNotFalse( $result, 'Sandbox URL with trailing dot should be accepted' );
-
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'sandbox.paypal.com', $result_parsed['host'], 'Trailing dot should be stripped from sandbox' );
+		return $cases;
 	}
 
 	/**
@@ -1726,14 +1674,10 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 * @return array<string, array<int, mixed>>
 	 */
 	public static function provide_style_parity_cases() {
-		$path    = __DIR__ . '/../fixtures/style-parity.json';
-		$fixture = json_decode( (string) file_get_contents( $path ), true );
-
-		foreach ( array( 'cases', 'textCases', 'rejectedCases', 'rejectedTextCases', 'buttonCases' ) as $table ) {
-			if ( ! is_array( $fixture ) || empty( $fixture[ $table ] ) ) {
-				throw new \RuntimeException( 'Could not read ' . $table . ' from ' . $path );
-			}
-		}
+		$fixture = self::load_parity_fixture(
+			'style-parity.json',
+			array( 'cases', 'textCases', 'rejectedCases', 'rejectedTextCases', 'buttonCases' )
+		);
 
 		$cases = array();
 
@@ -1821,8 +1765,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			);
 		}
 
-		// A renamed or malformed fixture would otherwise yield an empty provider
-		// and a green run.
+		// A duplicate name would silently drop a case.
 		$expected = count( $fixture['cases'] )
 			+ count( $fixture['rejectedCases'] ) * ( count( $targets ) + 1 )
 			+ count( $fixture['buttonCases'] )

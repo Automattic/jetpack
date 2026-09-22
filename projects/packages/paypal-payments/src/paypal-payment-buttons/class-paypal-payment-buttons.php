@@ -160,6 +160,10 @@ class PayPal_Payment_Buttons {
 	/**
 	 * Validates and sanitizes a script URL to ensure it's from an allowed PayPal domain.
 	 *
+	 * Mirrored in the editor by sanitizePayPalUrl(), utils/validation.js. Both run
+	 * tests/fixtures/url-parity.json, which pins each side's output for every URL in
+	 * it, including the rows where the two part company.
+	 *
 	 * @param string $url The URL to validate and sanitize.
 	 * @return string|false The sanitized URL, or false if URL is not from an allowed PayPal domain.
 	 */
@@ -173,19 +177,22 @@ class PayPal_Payment_Buttons {
 			return false;
 		}
 
+		// A missing scheme — scheme-relative, or a bare `host:port/path` — is kept and
+		// rebuilt as HTTPS below, the same as plain HTTP. Anything else is refused:
+		// `javascript://www.paypal.com/…` parses with a PayPal host on both sides, so
+		// the scheme is all that separates it from a real SDK URL. The rebuild below
+		// would leave it harmless, but the editor refuses it outright and so does this.
+		$scheme = strtolower( $parsed_url['scheme'] ?? 'https' );
+		if ( 'https' !== $scheme && 'http' !== $scheme ) {
+			return false;
+		}
+
 		// Normalize the host
 		$host = strtolower( $parsed_url['host'] );
 		$host = rtrim( $host, '.' );
 
 		// Only allow specific PayPal domains
-		$allowed_hosts = array(
-			'www.paypal.com',
-			'paypal.com',
-			'www.sandbox.paypal.com',
-			'sandbox.paypal.com',
-		);
-
-		if ( ! in_array( $host, $allowed_hosts, true ) ) {
+		if ( ! in_array( $host, PayPal_API_Client::ALLOWED_PAYPAL_DOMAINS, true ) ) {
 			return false;
 		}
 
@@ -195,7 +202,13 @@ class PayPal_Payment_Buttons {
 		if ( isset( $parsed_url['path'] ) ) {
 			$sanitized_url .= $parsed_url['path'];
 		}
-		if ( isset( $parsed_url['query'] ) ) {
+
+		// An empty query is dropped rather than rebuilt as a bare `?`. PHP 8.0 began
+		// reporting `query => ''` where 7.4 left the key out, so keeping it would make
+		// this method answer `https://www.paypal.com/sdk/js?` on one PHP and
+		// `https://www.paypal.com/sdk/js` on another. Same resource either way, and this
+		// is what the canvas returns too, since URL.search is '' for a bare `?`.
+		if ( isset( $parsed_url['query'] ) && '' !== $parsed_url['query'] ) {
 			// If we have escaped ampersands in the query string, we need to unescape them.
 			$sanitized_url .= '?' . str_replace( '&amp;', '&', $parsed_url['query'] );
 		}
@@ -676,6 +689,11 @@ class PayPal_Payment_Buttons {
 	 * link — has to carry the same `at_code`, or the resulting sales aren't
 	 * attributed to us. `add_query_arg()` replaces an existing `at_code`, so
 	 * this is safe to apply to a URL that already has one.
+	 *
+	 * Mirrored in the editor by withPartnerAttribution(), utils/partner-attribution.js,
+	 * which differs there: a URL sanitize_paypal_script_url() refuses comes back
+	 * unchanged here, for the caller's own escaping to deal with, where the editor
+	 * returns '' rather than show a merchant a link to copy or scan.
 	 *
 	 * @since 0.9.0
 	 *

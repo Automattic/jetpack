@@ -162,9 +162,15 @@ Create a payment resource via the PayPal API. Returns both a button-ready resour
   "integration_mode": "LINK",
   "status": "ACTIVE",
   "payment_link": "https://www.paypal.com/ncp/payment/ABC123DEF456",
-  "line_items": [ ... ]
+  "line_items": [ ... ],
+  "attributes": { ... }
 }
 ```
+
+> **Note:** `attributes` is the resource mapped onto block attributes - the payment link, the
+> integration mode and the SDK URL a stacked block renders with - so a block can take PayPal's
+> answer from this response alone. The GET route returns it too, and the PUT route with
+> `include_snippets`.
 
 > **Note:** PayPal's raw API returns the payment URL inside a HATEOAS `links` array
 > (`{ "rel": "payment_link", "href": "..." }`), not as a top-level field. The WordPress
@@ -203,17 +209,27 @@ Get a single payment resource.
 
 **URL parameter:** `resource_id` — PayPal resource ID (format: `PLB-XXXXXXXXXXXX`)
 
-**Response (200):** Full resource object (same as create response).
+**Response (200):** Full resource object (same as create response), plus `embeds` - how many
+published posts on this site embed this resource.
 
 ---
 
 ### PUT `/wpcom/v2/paypal/buttons/{resource_id}`
 
-Full replacement update of a payment resource. Same request body as create.
+Full replacement update of a payment resource. Same request body as create, plus one parameter of
+its own.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `include_snippets` | boolean | No | `false` | Read the resource back from PayPal after updating it, so the response includes `code_snippets` |
 
 **Response (200):** The request body echoed back, plus `id`. PayPal answers a successful update with
 `204 No Content`, so `status`, `payment_link` and `links` are absent - use the GET route to read
 PayPal's actual state.
+
+**Response (200) with `include_snippets`:** PayPal's current resource, read back after the update,
+plus `attributes`. `embeds` is on the GET route only. The re-read costs a second PayPal round trip,
+so ask for it only when the snippets are needed; a failed re-read falls back to the plain echo.
 
 ---
 

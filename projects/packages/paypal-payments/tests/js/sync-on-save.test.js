@@ -4,6 +4,7 @@
  * @package
  */
 
+import { getResourceAttributeUpdates } from '../../src/paypal-payment-buttons/utils/resource-sync';
 import {
 	forgetSyncedRequests,
 	heldBackReason,
@@ -451,6 +452,43 @@ describe( 'syncBlocksBeforeSave', () => {
 			expect( deps.reportError ).not.toHaveBeenCalled();
 		} );
 
+		// The create sends a smaller body than the save that follows it, so the dedup cache
+		// is keyed on what the save asked for. Keyed on the request instead, every stacked
+		// create would buy PayPal a round trip on the next save.
+		it( 'sends only the create when a stacked block adopts the SDK URL it brought back', async () => {
+			const granted = {
+				id: 'PLB-NEW1',
+				payment_link: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+				attributes: {
+					...stacked,
+					paymentLink: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+					integrationMode: 'BUTTON',
+					scriptSrc: 'https://www.paypal.com/sdk/js?client-id=abc',
+				},
+			};
+			const deps = fakeDeps( () => Promise.resolve( granted ) );
+
+			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: stacked } ], deps );
+			await syncBlocksBeforeSave(
+				[
+					{
+						clientId: 'a',
+						attributes: {
+							...stacked,
+							...granted.attributes,
+							isApiManaged: true,
+							resourceId: 'PLB-NEW1',
+						},
+					},
+				],
+				deps
+			);
+
+			expect( deps.requests.map( r => r.method ) ).toEqual( [ 'POST' ] );
+			// Deduped, rather than held back for an unread payment.
+			expect( deps.reportHeldBack ).not.toHaveBeenCalled();
+		} );
+
 		// A response with no attributes means the server skipped the read-back, so
 		// nothing yet says whether the account has stacked buttons.
 		it( 'asks the merchant to try again when the read-back is missing', async () => {
@@ -644,6 +682,198 @@ describe( 'syncBlocksBeforeSave', () => {
 			expect( item ).not.toHaveProperty( 'handling' );
 			expect( item ).not.toHaveProperty( 'discounts' );
 			expect( deps.updateBlockAttributes ).not.toHaveBeenCalled();
+		} );
+
+		describe( 'sharing a payment with a stacked block', () => {
+			const sibling = {
+				clientId: 'b',
+				attributes: { ...saved, format: 'LINK', integrationMode: 'LINK' },
+			};
+			const stackedBlock = { clientId: 'a', attributes: { ...saved, format: 'STACKED' } };
+			const sdkUrl = 'https://www.paypal.com/sdk/js?client-id=abc';
+
+			/**
+			 * Answer a PUT the way the server does: the payment for a caller that asked
+			 * for the snippets, PayPal's empty echo for everyone else.
+			 *
+			 * @param {object} options - The request.
+			 * @return {Promise<object>} The response.
+			 */
+			const readsBackWhenAsked = options =>
+				Promise.resolve(
+					options.data.include_snippets
+						? {
+								id: 'PLB-KEEP1',
+								attributes: { ...saved, integrationMode: 'BUTTON', scriptSrc: sdkUrl },
+							}
+						: {}
+				);
+
+			/**
+			 * Apply what a mount GET would write, through the same helper the editor's
+			 * read-back uses.
+			 *
+			 * @param {object} attributes - The block's stored attributes.
+			 * @return {object} The attributes it holds once it has read the payment back.
+			 */
+			const afterMountReadBack = attributes => ( {
+				...attributes,
+				...getResourceAttributeUpdates( attributes, {
+					...saved,
+					integrationMode: 'BUTTON',
+					scriptSrc: sdkUrl,
+				} ),
+			} );
+
+			beforeEach( () => recordPaymentRead( 'b', 'PLB-KEEP1' ) );
+
+			it( 'sends BUTTON mode for the sibling too', async () => {
+				const deps = fakeDeps( stored );
+
+				await syncBlocksBeforeSave(
+					[ { clientId: 'a', attributes: { ...saved, format: 'STACKED' } }, sibling ],
+					deps
+				);
+
+				expect( deps.requests.map( r => r.data.integration_mode ) ).toEqual( [
+					'BUTTON',
+					'BUTTON',
+				] );
+			} );
+
+			// Only the stacked block renders the SDK, and the read-back costs PayPal a
+			// round trip.
+			it( 'asks for the payment back only for the stacked block', async () => {
+				const deps = fakeDeps( readsBackWhenAsked );
+
+				await syncBlocksBeforeSave( [ stackedBlock, sibling ], deps );
+
+				expect( deps.requests.map( r => r.data.include_snippets ) ).toEqual( [ true, undefined ] );
+			} );
+
+			it( 'writes the SDK URL to the stacked block and nothing to the sibling', async () => {
+				const deps = fakeDeps( readsBackWhenAsked );
+
+				await syncBlocksBeforeSave( [ stackedBlock, sibling ], deps );
+
+				expect( deps.updateBlockAttributes ).toHaveBeenCalledWith( 'a', {
+					integrationMode: 'BUTTON',
+					scriptSrc: sdkUrl,
+				} );
+				expect( deps.updateBlockAttributes ).not.toHaveBeenCalledWith( 'b', expect.anything() );
+			} );
+
+			// The sibling's next mount GET hands it the payment in BUTTON mode, so it adopts
+			// the mode and keeps sending it even once the stacked block is deleted. That is
+			// safe: a BUTTON-mode payment still carries the payment_link a link or QR block
+			// draws on, checked against a live one.
+			it( 'keeps the sibling on BUTTON once it has read the shared payment back', async () => {
+				const deps = fakeDeps( readsBackWhenAsked );
+
+				await syncBlocksBeforeSave( [ stackedBlock, sibling ], deps );
+				expect( deps.updateBlockAttributes ).not.toHaveBeenCalledWith( 'b', expect.anything() );
+
+				// Reload the post with the stacked block deleted: the module state goes with the
+				// page, and the mount GET hands the sibling what PayPal now holds.
+				forgetSyncedRequests();
+				recordPaymentRead( 'b', 'PLB-KEEP1' );
+				await syncBlocksBeforeSave(
+					[ { clientId: 'b', attributes: afterMountReadBack( sibling.attributes ) } ],
+					deps
+				);
+
+				expect( deps.requests.map( r => r.data.integration_mode ) ).toEqual( [
+					'BUTTON',
+					'BUTTON',
+					'BUTTON',
+				] );
+			} );
+
+			// The guard keys on the payment, so a stacked block pulls only the blocks sharing
+			// its payment into BUTTON mode.
+			it( 'leaves a block on another payment in its own mode', async () => {
+				const deps = fakeDeps( readsBackWhenAsked );
+				recordPaymentRead( 'c', 'PLB-OTHER1' );
+
+				await syncBlocksBeforeSave(
+					[
+						stackedBlock,
+						sibling,
+						{
+							clientId: 'c',
+							attributes: { ...sibling.attributes, resourceId: 'PLB-OTHER1' },
+						},
+					],
+					deps
+				);
+
+				expect( deps.requests.map( r => r.data.integration_mode ) ).toEqual( [
+					'BUTTON',
+					'BUTTON',
+					'LINK',
+				] );
+			} );
+
+			// Switched to stacked, the sibling sends the same payment fields it sent as a link;
+			// the read-back flag is the only difference, and it sits in the key for exactly that.
+			// Keyed on the payment fields alone, the switch would read as unchanged and leave the
+			// block reporting that PayPal refused the mode.
+			it( 'writes the SDK URL to the sibling when the merchant switches it to stacked', async () => {
+				const deps = fakeDeps( readsBackWhenAsked );
+
+				await syncBlocksBeforeSave( [ stackedBlock, sibling ], deps );
+				await syncBlocksBeforeSave(
+					[
+						stackedBlock,
+						{ ...sibling, attributes: { ...sibling.attributes, format: 'STACKED' } },
+					],
+					deps
+				);
+
+				expect( deps.updateBlockAttributes ).toHaveBeenCalledWith( 'b', {
+					integrationMode: 'BUTTON',
+					scriptSrc: sdkUrl,
+				} );
+				// The account does have the mode, so saying otherwise would be a lie.
+				expect( deps.reportError ).not.toHaveBeenCalledWith(
+					expect.objectContaining( { clientId: 'b' } ),
+					expect.anything()
+				);
+			} );
+
+			// A 404 replaces the payment, and the create goes out in the block's own mode
+			// rather than the shared one.
+			it( 'creates the sibling a replacement payment in its own mode', async () => {
+				const deps = fakeDeps( options =>
+					options.method === 'PUT'
+						? Promise.reject( { code: 'paypal_api_resource_not_found', data: { status: 404 } } )
+						: Promise.resolve( { id: 'PLB-NEW1' } )
+				);
+
+				await syncBlocksBeforeSave( [ stackedBlock, sibling ], deps );
+
+				const created = deps.requests.filter( r => r.method === 'POST' );
+				expect( created.map( r => r.data.integration_mode ).sort() ).toEqual( [
+					'BUTTON',
+					'LINK',
+				] );
+			} );
+
+			// The stacked block is held back before it sends, so BUTTON has to come from the
+			// block list rather than from a request.
+			it( 'sends BUTTON mode even when the stacked block is held back', async () => {
+				const deps = fakeDeps( stored );
+
+				await syncBlocksBeforeSave(
+					[
+						{ clientId: 'a', attributes: { ...saved, format: 'STACKED', productName: '' } },
+						sibling,
+					],
+					deps
+				);
+
+				expect( deps.requests.map( r => r.data.integration_mode ) ).toEqual( [ 'BUTTON' ] );
+			} );
 		} );
 
 		it( 'does not send an unchanged block twice', async () => {

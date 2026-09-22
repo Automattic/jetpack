@@ -261,7 +261,13 @@ export default function PayPalButtonPreview( { format, ...props } ) {
 		case 'QR':
 			return <QrPreview { ...props } />;
 		case 'STACKED':
-			return <StackedButtonsPreview { ...props } />;
+			// The SDK boots once per mount, so the key remounts this on a new URL or payment.
+			return (
+				<StackedButtonsPreview
+					key={ `${ props.attributes?.scriptSrc }|${ props.attributes?.resourceId }` }
+					{ ...props }
+				/>
+			);
 		default:
 			return <ButtonPreview { ...props } />;
 	}

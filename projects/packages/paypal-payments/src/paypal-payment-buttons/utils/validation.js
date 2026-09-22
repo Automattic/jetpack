@@ -3,7 +3,8 @@
  *
  * Extracted from edit.js for testability. These functions validate
  * form inputs client-side before API submission and map API errors
- * to user-friendly messages.
+ * to user-friendly messages. sanitizePayPalUrl() does the same for a URL held
+ * in a block attribute rather than typed into a field.
  *
  * @package
  * @since 0.8.0
@@ -29,6 +30,16 @@ export const MAX_CUSTOMER_NOTES = 2;
 // Shipping modes that ask the merchant for an amount. The form draws the fee field
 // from this list and the validator checks it from the same one.
 export const SHIPPING_MODES_WITH_FEE = [ 'FLAT', 'QUANTITY' ];
+
+// A copy of `PayPal_API_Client::ALLOWED_PAYPAL_DOMAINS`, under the same name. Exported
+// because test_paypal_host_allow_lists_are_in_sync() reads this declaration out of the
+// file to compare the two.
+export const ALLOWED_PAYPAL_DOMAINS = [
+	'www.paypal.com',
+	'paypal.com',
+	'www.sandbox.paypal.com',
+	'sandbox.paypal.com',
+];
 
 // Shown under a field a merchant turned on and left empty. validateCustomerNotes()
 // reuses it.
@@ -270,6 +281,52 @@ function validateDiscount( type, value, comparisonPrice, currencyCode ) {
 	return 'PERCENTAGE' === type
 		? validateDiscountPercentage( value )
 		: validateDiscountAmount( value, comparisonPrice, currencyCode );
+}
+
+/**
+ * A PayPal URL rebuilt from its parsed parts, or '' for anything else.
+ *
+ * Mirrored server-side by `sanitize_paypal_script_url()`. `tests/fixtures/url-parity.json`
+ * pins both sides' output for every URL in it, including the rows where the two part
+ * company. This half takes `https:` and nothing else, because what comes out of it is
+ * injected as a script src inside wp-admin; the published page repairs the scheme instead,
+ * rather than dropping a button a merchant already has.
+ *
+ * Rebuilt rather than returned as given, because a URL is checked on its own and then
+ * used against the document it goes into: `https:www.paypal.com/../../x` parses to a
+ * PayPal host here, and resolves to the site's own origin once it is an href or a
+ * script src.
+ *
+ * `new URL()` does the parsing, so userinfo, backslashes, tabs, case and punycode
+ * follow the browser's rules rather than a second set of ours.
+ *
+ * @param {string} url - A URL from a block attribute.
+ * @return {string} The rebuilt PayPal URL, or '' for anything else.
+ */
+export function sanitizePayPalUrl( url ) {
+	let parsed;
+
+	try {
+		// No base, so a relative or scheme-relative string throws rather than picking up
+		// the editor's own origin.
+		parsed = new URL( url );
+	} catch {
+		return '';
+	}
+
+	const host = parsed.hostname.replace( /\.+$/, '' );
+
+	// `javascript://www.paypal.com/%0aalert(1)` parses with a PayPal hostname, so the
+	// protocol is checked as well as the host.
+	if ( 'https:' !== parsed.protocol || ! ALLOWED_PAYPAL_DOMAINS.includes( host ) ) {
+		return '';
+	}
+
+	// These URLs are block attributes read back out of post content, so an ampersand in
+	// the query can come back HTML-escaped. The PHP unescapes the query and leaves the
+	// rest alone, and this matches it: withPartnerAttribution() re-parses this output,
+	// where a surviving `&amp;` would become a parameter named `amp;…`.
+	return `https://${ host }${ parsed.pathname }${ parsed.search.replace( /&amp;/g, '&' ) }`;
 }
 
 /**

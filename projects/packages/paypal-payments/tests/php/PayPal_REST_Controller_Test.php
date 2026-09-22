@@ -942,7 +942,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 		);
 	}
 
-	public function test_update_button_re_reads_the_resource_in_button_mode() {
+	public function test_update_button_re_reads_the_resource_when_the_caller_asks_for_snippets() {
 		// A PUT answers 204 with no code_snippets, so a block switching to stacked
 		// would sit blank until the post was reloaded.
 		$this->set_up_connected_admin_state();
@@ -971,6 +971,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$request->set_param( 'resource_id', 'PLB-42' );
 		$request->set_param( 'type', 'BUY_NOW' );
 		$request->set_param( 'integration_mode', 'BUTTON' );
+		$request->set_param( 'include_snippets', true );
 		$request->set_param( 'line_items', $this->one_line_item() );
 
 		$data = PayPal_REST_Controller::handle_update_button( $request )->get_data();
@@ -982,7 +983,18 @@ class PayPal_REST_Controller_Test extends TestCase {
 		);
 	}
 
-	public function test_update_button_keeps_its_single_round_trip_in_link_mode() {
+	/**
+	 * Test that an update makes one round trip in either mode while the snippets flag
+	 * is absent.
+	 *
+	 * A link or QR block sharing a stacked block's payment sends BUTTON too, and only ever
+	 * wants the echo. The flag alone buys the read.
+	 *
+	 * @param string $integration_mode The mode the update sends.
+	 * @dataProvider integration_modes_provider
+	 */
+	#[DataProvider( 'integration_modes_provider' )]
+	public function test_update_button_keeps_its_single_round_trip_without_the_snippets_flag( $integration_mode ) {
 		$this->set_up_connected_admin_state();
 		$requests = array();
 		$this->mock_http_routes(
@@ -993,7 +1005,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-43' );
 		$request->set_param( 'resource_id', 'PLB-43' );
 		$request->set_param( 'type', 'BUY_NOW' );
-		$request->set_param( 'integration_mode', 'LINK' );
+		$request->set_param( 'integration_mode', $integration_mode );
 		$request->set_param( 'line_items', $this->one_line_item() );
 
 		$data = PayPal_REST_Controller::handle_update_button( $request )->get_data();
@@ -1001,6 +1013,18 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->assertCount( 1, $requests );
 		// The echo has no `id`, so mapping it would blank the block's resourceId.
 		$this->assertArrayNotHasKey( 'attributes', $data );
+	}
+
+	/**
+	 * Both modes reach the update route; the snippets flag is what asks for the re-read.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public static function integration_modes_provider() {
+		return array(
+			'link mode'   => array( 'LINK' ),
+			'button mode' => array( 'BUTTON' ),
+		);
 	}
 
 	public function test_update_button_falls_back_to_the_echo_when_the_re_read_fails() {
@@ -1023,6 +1047,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$request->set_param( 'resource_id', 'PLB-44' );
 		$request->set_param( 'type', 'BUY_NOW' );
 		$request->set_param( 'integration_mode', 'BUTTON' );
+		$request->set_param( 'include_snippets', true );
 		$request->set_param( 'line_items', $this->one_line_item() );
 
 		$result = PayPal_REST_Controller::handle_update_button( $request );
@@ -1224,6 +1249,29 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->assertNotNull( $args, 'No DELETE endpoint registered.' );
 		$this->assertArrayHasKey( 'unused_only', $args );
 		$this->assertArrayHasKey( 'post_id', $args );
+	}
+
+	/**
+	 * Test that the update route declares the snippets flag alongside the create args.
+	 */
+	public function test_update_route_declares_the_snippets_flag() {
+		$routes = $this->register_paypal_routes();
+
+		$args = null;
+		foreach ( $routes['/wpcom/v2/paypal/buttons/(?P<resource_id>PLB-[A-Za-z0-9]+)'] as $endpoint ) {
+			if ( ! empty( $endpoint['methods']['PUT'] ) ) {
+				$args = $endpoint['args'];
+			}
+		}
+
+		$this->assertNotNull( $args, 'No PUT endpoint registered.' );
+		// Registering it is what gives the flag a default and a sanitizer.
+		$this->assertArrayHasKey( 'include_snippets', $args );
+		$this->assertFalse( $args['include_snippets']['default'] );
+		// Typed, the string "false" comes through as false rather than buying a round trip.
+		$this->assertSame( 'boolean', $args['include_snippets']['type'] );
+		// The resource fields the create shares have to survive the merge.
+		$this->assertArrayHasKey( 'line_items', $args );
 	}
 
 	/**

@@ -1,21 +1,17 @@
 /* eslint-disable testing-library/no-node-access */
 /**
  * Tests for the stacked buttons preview: the placeholder, the host frame URL, the
- * SDK boot and the click overlay.
- *
- * jsdom gives the iframe an about:blank document with no `location.host`, which boot()
- * waits past, so the tests that reach boot() build a frame document themselves. That
- * document has no stylesheet, so the PHP tests cover the `flow-root` rule the
- * container is measured under.
+ * SDK boot, the frame's height and the click overlay.
  *
  * @package
  */
 
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import StackedButtonsPreview from '../../src/paypal-payment-buttons/components/stacked-buttons-preview';
+import bootTheFrame from './boot-the-frame';
 
 const SDK_HOST_URL = 'https://example.test/wp-admin/admin-post.php?action=jetpack_paypal_sdk_host';
-const SCRIPT_SRC = 'https://www.paypal.test/sdk/js?client-id=abc';
+const SCRIPT_SRC = 'https://www.paypal.com/sdk/js?client-id=abc';
 
 const ready = {
 	attributes: { scriptSrc: SCRIPT_SRC, resourceId: 'PLB-1' },
@@ -28,34 +24,6 @@ const frame = () => screen.getByTitle( 'PayPal buttons preview' );
 // the only way to reach it.
 const overlay = () =>
 	document.querySelector( '.jetpack-paypal-button-preview__interactive-overlay' );
-
-/**
- * Give the frame a document with a host, then fire the load boot() listens for.
- *
- * @return {object} The frame's window and document, and the nodes the ResizeObserver watches.
- */
-function bootTheFrame() {
-	const doc = document.implementation.createHTMLDocument( '' );
-	const observed = [];
-	const win = {
-		location: { host: 'example.test' },
-		ResizeObserver: class {
-			constructor( callback ) {
-				this.callback = callback;
-			}
-			observe( node ) {
-				observed.push( { node, resize: this.callback } );
-			}
-		},
-	};
-
-	const el = frame();
-	Object.defineProperty( el, 'contentWindow', { value: win, configurable: true } );
-	Object.defineProperty( el, 'contentDocument', { value: doc, configurable: true } );
-	fireEvent.load( el );
-
-	return { doc, observed, win };
-}
 
 describe( 'StackedButtonsPreview', () => {
 	beforeEach( () => {
@@ -70,6 +38,20 @@ describe( 'StackedButtonsPreview', () => {
 	it( 'draws the placeholder until the payment has been read back', () => {
 		// scriptSrc arrives on the first save, so there is nothing to draw before it.
 		render( <StackedButtonsPreview { ...ready } attributes={ { resourceId: 'PLB-1' } } /> );
+
+		expect( screen.getByRole( 'img' ) ).toBeInTheDocument();
+		expect( screen.queryByTitle( 'PayPal buttons preview' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'draws the placeholder for an SDK URL from another host', () => {
+		// scriptSrc comes from post content, and the frame is same-origin with wp-admin,
+		// so a URL on any other host stops at the placeholder.
+		render(
+			<StackedButtonsPreview
+				{ ...ready }
+				attributes={ { scriptSrc: 'https://evil.test/sdk/js?client-id=abc', resourceId: 'PLB-1' } }
+			/>
+		);
 
 		expect( screen.getByRole( 'img' ) ).toBeInTheDocument();
 		expect( screen.queryByTitle( 'PayPal buttons preview' ) ).not.toBeInTheDocument();
@@ -146,6 +128,26 @@ describe( 'StackedButtonsPreview', () => {
 			expect( doc.body.firstChild.tagName ).toBe( 'DIV' );
 		} );
 
+		// Stored, this reads as a PayPal host. Injected as it stands, the frame's own page
+		// would resolve it back to the site, so the rebuilt URL goes in instead.
+		it( 'injects the sanitized URL rather than the stored one', () => {
+			render(
+				<StackedButtonsPreview
+					{ ...ready }
+					attributes={ {
+						scriptSrc: 'https:www.paypal.com/../../wp-content/uploads/x.txt',
+						resourceId: 'PLB-1',
+					} }
+				/>
+			);
+
+			const { doc } = bootTheFrame( 'https://site.test/wp-admin/admin-post.php' );
+
+			expect( doc.querySelector( 'script' ).src ).toBe(
+				'https://www.paypal.com/wp-content/uploads/x.txt'
+			);
+		} );
+
 		// The document's scrollHeight is floored at the viewport, so measuring it would
 		// only ever let the frame grow.
 		it( 'sizes the frame from the container rather than the document', () => {
@@ -161,6 +163,24 @@ describe( 'StackedButtonsPreview', () => {
 			act( () => observed[ 0 ].resize() );
 
 			expect( frame() ).toHaveStyle( { height: '412px' } );
+		} );
+
+		// The container exists before PayPal paints into it, so the first observation
+		// measures an empty box, and writing that through collapses the block to zero.
+		it( 'keeps the placeholder height through an empty measurement', () => {
+			render( <StackedButtonsPreview { ...ready } /> );
+
+			const { doc, observed } = bootTheFrame();
+			const container = doc.body.firstChild;
+
+			Object.defineProperty( container, 'offsetHeight', { value: 0, configurable: true } );
+			act( () => observed[ 0 ].resize() );
+			expect( frame() ).toHaveStyle( { height: '306px' } );
+
+			// And still takes the card's own height once PayPal has drawn it.
+			Object.defineProperty( container, 'offsetHeight', { value: 271, configurable: true } );
+			act( () => observed[ 0 ].resize() );
+			expect( frame() ).toHaveStyle( { height: '271px' } );
 		} );
 
 		// The frontend falls back to the plain namespace the same way.

@@ -20,7 +20,9 @@ import { buildRequestData } from './request-data';
 import { getResourceAttributeUpdates } from './resource-sync';
 import { firstBlockingError, getUserFriendlyError, getValidationErrors } from './validation';
 
-// The last body each block sent, so an unchanged block is not re-sent on every save.
+// What each block's save asked for, so an unchanged block is not re-sent on every save.
+// A create sends a shorter body, without the sibling mode or the read-back, and comes back
+// with the mapped payment under an id no stacked block yet shares.
 const lastSynced = new Map();
 
 // The payment each block has read back, by id, since a block can later be pointed at
@@ -203,11 +205,13 @@ function reportStackedUnavailable( block, scriptSrc, reportError ) {
  * @param {Function} deps.updateBlockAttributes - Writes attributes onto a block by clientId.
  * @param {Function} deps.reportError           - Tells the merchant a block's save failed, and why.
  * @param {Function} deps.reportHeldBack        - Tells the merchant a block was not sent, and why.
+ * @param {Set}      stackedResources           - Payments a stacked block in this save draws from.
  * @return {Promise<boolean>} True when the block's attributes changed.
  */
 async function syncBlock(
 	{ clientId, attributes },
-	{ request, updateBlockAttributes, reportError, reportHeldBack }
+	{ request, updateBlockAttributes, reportError, reportHeldBack },
+	stackedResources
 ) {
 	const reason = heldBackReason( attributes );
 	if ( reason ) {
@@ -232,10 +236,25 @@ async function syncBlock(
 		return false;
 	}
 
-	const body = buildRequestData(
+	const ownBody = buildRequestData(
 		attributes,
 		hasVariantPricing( attributes.variantsEnabled, attributes.variants )
 	);
+
+	// Every block sharing a stacked block's payment sends BUTTON, so all of them keep it in the
+	// mode stacked needs. This is body-only: a link or QR sibling skips the read-back, so the
+	// save writes nothing onto it. Its next mount GET picks up BUTTON and an SDK URL it never
+	// renders, and it sends BUTTON from then on, which costs it nothing — a BUTTON-mode payment
+	// keeps its payment_link.
+	const sharedMode = stackedResources.has( resourceId ) ? { integration_mode: 'BUTTON' } : {};
+
+	// PayPal answers a PUT with 204 and no code_snippets, so the server re-reads the payment when
+	// asked. Only a stacked block renders the SDK, so only it pays for that read.
+	const snippets = 'STACKED' === attributes.format ? { include_snippets: true } : {};
+
+	// The read-back belongs in the key: a sibling switched to stacked sends the same fields it
+	// sent as a link, and would otherwise count as unchanged and be left without its SDK URL.
+	const body = { ...ownBody, ...sharedMode, ...snippets };
 	const key = JSON.stringify( body );
 
 	if ( resourceId && lastSynced.get( clientId ) === key ) {
@@ -259,18 +278,19 @@ async function syncBlock(
 					data: body,
 				} );
 
-				// PayPal answers a PUT with 204, so the server re-reads the resource in BUTTON
-				// mode — how a block switching to stacked gets its scriptSrc in the same save.
+				// The read-back is how a block switching to stacked gets its scriptSrc in the same
+				// save. Without one the response is the echo, which changes nothing.
 				result = { response, updates: resourceUpdatesFrom( attributes, response ) };
 			} catch ( err ) {
 				if ( ! isNotFound( err ) ) {
 					throw err;
 				}
-				// Gone from PayPal, or deleted from the admin page: give the block a new one.
-				result = await createPayment( request, clientId, attributes, body );
+				// Gone from PayPal, or deleted from the admin page: give the block a new one, in
+				// its own mode — a fresh payment is the block's alone, with no sibling to match.
+				result = await createPayment( request, clientId, attributes, ownBody );
 			}
 		} else {
-			result = await createPayment( request, clientId, attributes, body );
+			result = await createPayment( request, clientId, attributes, ownBody );
 		}
 
 		const { response, updates } = result;
@@ -319,7 +339,18 @@ async function syncBlock(
  * @return {Promise<boolean>} True when any block's attributes changed.
  */
 export async function syncBlocksBeforeSave( blocks, deps ) {
-	const results = await Promise.all( blocks.map( block => syncBlock( block, deps ) ) );
+	// The PUTs race, so a sibling sending LINK could finish last and take the payment out of
+	// the mode stacked needs, with no later save to undo it — the stacked block's body is
+	// unchanged, so its next save short-circuits.
+	const stackedResources = new Set(
+		blocks
+			.filter( ( { attributes } ) => 'STACKED' === attributes.format && attributes.resourceId )
+			.map( ( { attributes } ) => attributes.resourceId )
+	);
+
+	const results = await Promise.all(
+		blocks.map( block => syncBlock( block, deps, stackedResources ) )
+	);
 
 	return results.some( Boolean );
 }

@@ -98,7 +98,7 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 		// leaves it as it is. The mode is stored in its own right rather than inferred from
 		// scriptSrc, because an account without the stacked capability still takes BUTTON mode
 		// and returns no code_snippets: inferring would let a LINK or QR sibling downgrade such
-		// a payment, and a LINK-mode PUT skips the server re-read, so it would stay down.
+		// a payment, and only a stacked block's PUT re-reads, so it would stay down.
 		// Empty means the block has yet to read one, which is LINK.
 		integration_mode: 'STACKED' === format ? 'BUTTON' : integrationMode || 'LINK',
 		reusable: 'MULTIPLE',

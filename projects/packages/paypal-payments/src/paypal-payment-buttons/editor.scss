@@ -1248,7 +1248,7 @@
 	}
 }
 
-// Shown until the payment's snippet is read back on the first save.
+// Shown until a save brings the SDK URL back.
 .jetpack-paypal-button-preview--stacked-pending {
 
 	@extend %pending-placeholder;
