@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Read a negative comparison as zero on the modern Overview points badge; amends an unreleased entry.
+

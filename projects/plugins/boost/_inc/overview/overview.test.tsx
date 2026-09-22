@@ -760,11 +760,12 @@ test( 'opens the overall grade explanation and dismisses it with Escape', async 
 	expect( trigger ).toHaveFocus();
 } );
 
-test( 'hides a negative baseline delta while preserving the current measured bar', () => {
+test( 'reads a negative baseline delta as zero while preserving the current measured bar', () => {
 	render( <ScoreCard icon={ null } label="Mobile" value={ 40 } score={ 40 } noBoost={ 60 } /> );
 	expect( screen.getByRole( 'progressbar', { name: 'Mobile' } ) ).toHaveValue( 40 );
-	expect( screen.queryByText( /points/ ) ).not.toBeInTheDocument();
-	expect( screen.queryByRole( 'button', { name: 'About points' } ) ).not.toBeInTheDocument();
+	expect( screen.getByText( '0 points' ) ).toBeInTheDocument();
+	expect( screen.queryByText( '-20 points' ) ).not.toBeInTheDocument();
+	expect( screen.getByRole( 'button', { name: 'About points' } ) ).toBeInTheDocument();
 	expect( screen.getByText( 'Poor' ) ).toBeInTheDocument();
 } );
 

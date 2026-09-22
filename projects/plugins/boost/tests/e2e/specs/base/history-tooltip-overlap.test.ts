@@ -440,8 +440,11 @@ test( 'Score cards show gain badges, points help, and responsive dividers', asyn
 	const positiveBadge = desktop.first().getByText( '+10 points', { exact: true } );
 	await expect( positiveBadge ).toHaveCSS( 'background-color', 'rgb(222, 235, 250)' );
 	await expect( positiveBadge ).toHaveCSS( 'color', 'rgb(0, 27, 79)' );
-	await expect( mobile.getByText( /points/ ) ).toHaveCount( 0 );
-	await expect( mobile.getByRole( 'button', { name: 'About points' } ) ).toHaveCount( 0 );
+	const clampedBadge = mobile.getByText( '0 points', { exact: true } );
+	await expect( clampedBadge ).toHaveCSS( 'background-color', 'rgb(255, 255, 255)' );
+	await expect( clampedBadge ).toHaveCSS( 'border-top-width', '1px' );
+	await expect( clampedBadge ).toHaveCSS( 'border-top-style', 'solid' );
+	await expect( clampedBadge ).toHaveCSS( 'border-top-color', 'rgb(219, 219, 219)' );
 	await expect( desktop.nth( 1 ).getByText( /points/ ) ).toHaveCount( 0 );
 	await expect( desktop.nth( 1 ).getByRole( 'button' ) ).toHaveCount( 0 );
 	const pointsHelp = page.getByText( 'Points gained from optimizations', { exact: true } );

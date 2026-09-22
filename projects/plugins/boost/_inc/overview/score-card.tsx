@@ -33,6 +33,8 @@ export default function ScoreCard( {
 }: Props ) {
 	const headingId = useId();
 	const delta = score === undefined ? null : getScoreDelta( score, noBoost );
+	// The badge states what Boost improved, so a worse-than-baseline comparison reads as zero.
+	const gain = delta === null ? null : Math.max( 0, delta );
 	return (
 		<section className="jetpack-boost-overview__score-section" aria-labelledby={ headingId }>
 			<Stack direction="row" align="center" gap="sm">
@@ -59,15 +61,15 @@ export default function ScoreCard( {
 						value={ score }
 						aria-label={ label }
 					/>
-					{ delta !== null && delta >= 0 && (
+					{ gain !== null && (
 						<Stack
 							direction="row"
 							align="center"
 							gap="sm"
 							className="jetpack-boost-overview__delta"
 						>
-							<Badge intent={ delta > 0 ? 'informational' : 'none' }>
-								{ formatScoreDelta( delta ) }
+							<Badge intent={ gain > 0 ? 'informational' : 'none' }>
+								{ formatScoreDelta( gain ) }
 							</Badge>
 							<Popover.Root>
 								<Popover.Trigger

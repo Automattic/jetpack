@@ -112,6 +112,7 @@ test.each( [
 test.each( [
 	[ 'positive', 70, '+10 points', 'informational' ],
 	[ 'zero', 80, '0 points', 'none' ],
+	[ 'negative', 90, '0 points', 'none' ],
 ] )( 'shows a %s delta badge', ( _description, baseline, label, intent ) => {
 	render(
 		<ScoreCards
@@ -127,17 +128,15 @@ test.each( [
 	expect( card.getByText( label ) ).toHaveClass( new RegExp( `__is-${ intent }-intent$` ) );
 } );
 
-test( 'hides negative, unknown and stale deltas', () => {
+test( 'hides unknown and stale deltas', () => {
 	const scores = {
 		current: { desktop: 80, mobile: 60 },
-		noBoost: { desktop: 90, mobile: 70 },
+		noBoost: null,
 		isStale: false,
 	};
 	const { rerender } = render( <ScoreCards scores={ scores } /> );
 	expect( screen.queryByText( /points/ ) ).not.toBeInTheDocument();
 	expect( screen.queryByRole( 'button', { name: 'About points' } ) ).not.toBeInTheDocument();
-	rerender( <ScoreCards scores={ { ...scores, noBoost: null } } /> );
-	expect( screen.queryByText( /points/ ) ).not.toBeInTheDocument();
 	rerender(
 		<ScoreCards scores={ { ...scores, noBoost: { desktop: 70, mobile: 50 }, isStale: true } } />
 	);
