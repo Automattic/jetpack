@@ -32,7 +32,8 @@ use WP_REST_Server;
  * logged-out reader is cached and shared, so a nonce in it is everyone's. What
  * stands in is what the log-out relies on: the browser has to say the request is
  * same-origin, and the cookies it acts on are SameSite=Lax. A reader logged in
- * to the site gets the REST nonce, which cookie authentication needs.
+ * to the site gets the REST nonce, checked here rather than left to cookie
+ * authentication, which the admin-ajax dispatch never runs.
  */
 class Subscriptions extends WP_REST_Controller {
 
@@ -162,6 +163,14 @@ class Subscriptions extends WP_REST_Controller {
 
 		if ( '' !== $site && 'same-origin' !== $site ) {
 			return new WP_Error( 'cross_site', __( 'Invalid request.', 'jetpack-comments' ), array( 'status' => 403 ) );
+		}
+
+		if ( is_user_logged_in() ) {
+			$nonce = isset( $_SERVER['HTTP_X_WP_NONCE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_WP_NONCE'] ) ) : '';
+
+			if ( ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+				return new WP_Error( 'invalid_nonce', __( 'Invalid request.', 'jetpack-comments' ), array( 'status' => 403 ) );
+			}
 		}
 
 		// On Simple the route is registered ahead of the loader's gates, which skip admin-ajax. Gate here.
