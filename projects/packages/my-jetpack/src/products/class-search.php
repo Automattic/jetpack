@@ -558,7 +558,8 @@ class Search extends Hybrid_Product {
 	 * Bring this site's Search state in line after WordPress.com grants the product.
 	 *
 	 * WordPress.com writes the plan option from a separate request, so the copy cached in this
-	 * process predates it and has to be re-read before the module can activate.
+	 * process predates it and has to be re-read. A site already entitled through a plan or
+	 * bundle gets no such request at all, and this is the only thing that turns Search on.
 	 *
 	 * @return string `activated`, `unavailable` when this plugin does not ship jetpack-search,
 	 *                or an error code the caller can surface — re-running the activation repairs it.
