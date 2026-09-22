@@ -3,7 +3,7 @@
  */
 import { submitStatsUserFeedback } from '@jetpack-premium-analytics/data';
 import { Button, Dialog, Notice, Stack } from '@jetpack-premium-analytics/externals';
-import { useRegistry } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { store as preferencesStore } from '@wordpress/preferences';
 import { useCallback, useState } from 'react';
@@ -49,7 +49,15 @@ type FeedbackModalProps = {
  */
 export function FeedbackModal( { source, onSubmit, onClose }: FeedbackModalProps ) {
 	const trackEvent = useTrackEvent();
-	const registry = useRegistry();
+	const hasCustomized = useSelect( select => {
+		const layouts = (
+			select( preferencesStore ) as unknown as {
+				get: ( scope: string, key: string ) => unknown;
+			}
+		 ).get( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_LAYOUTS_KEY );
+
+		return !! layouts && typeof layouts === 'object' && Object.keys( layouts ).length > 0;
+	}, [] );
 	const [ readiness, setReadiness ] = useState< StatsFeedbackReadiness >();
 	const [ comment, setComment ] = useState( '' );
 	const [ hasSubmitted, setHasSubmitted ] = useState( false );
@@ -69,18 +77,12 @@ export function FeedbackModal( { source, onSubmit, onClose }: FeedbackModalProps
 		}
 
 		const message = comment.trim();
-		const layouts = (
-			registry.select( preferencesStore ) as unknown as {
-				get: ( scope: string, key: string ) => unknown;
-			}
-		 ).get( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_LAYOUTS_KEY );
 
 		trackEvent( 'jetpack_premium_analytics_feedback_submit', {
 			readiness,
 			comment: message,
 			source,
-			has_customized:
-				!! layouts && typeof layouts === 'object' && Object.keys( layouts ).length > 0,
+			has_customized: hasCustomized,
 		} );
 
 		// Second channel, deliberately not awaited: Tracks is a pixel and ad blockers drop it
@@ -99,7 +101,7 @@ export function FeedbackModal( { source, onSubmit, onClose }: FeedbackModalProps
 
 		setHasSubmitted( true );
 		onSubmit?.();
-	}, [ comment, onSubmit, readiness, registry, source, trackEvent ] );
+	}, [ comment, hasCustomized, onSubmit, readiness, source, trackEvent ] );
 
 	return (
 		<Dialog.Root open onOpenChange={ handleOpenChange }>

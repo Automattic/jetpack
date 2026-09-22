@@ -137,37 +137,33 @@ function typesMissingFrom( layout: DashboardWidget[], other: DashboardWidget[] )
  */
 export function useTrackCustomize( surface?: TrackingSurface, section?: string ) {
 	const trackEvent = useTrackEvent();
-	const pendingSave = useRef< Record< string, unknown > | null >( null );
+	const saved = useRef( false );
 
 	return useMemo( () => {
 		const properties = { surface, ...( section ? { section } : {} ) };
 
 		return {
-			start: () => trackEvent( 'jetpack_premium_analytics_customize_start', properties ),
+			start: () => {
+				saved.current = false;
+				trackEvent( 'jetpack_premium_analytics_customize_start', properties );
+			},
 
-			/*
-			 * Done commits the layout and leaves edit mode in the same call, so a commit is held
-			 * until the end of the tick: one no exit follows is an inline autosave, not a save.
-			 */
-			layoutChange: ( previous: DashboardWidget[], next: DashboardWidget[] ) => {
-				pendingSave.current = {
+			save: ( previous: DashboardWidget[], next: DashboardWidget[] ) => {
+				saved.current = true;
+				trackEvent( 'jetpack_premium_analytics_customize_save', {
+					...properties,
 					widget_count: next.length,
 					widgets_added: typesMissingFrom( next, previous ),
 					widgets_removed: typesMissingFrom( previous, next ),
-				};
-				queueMicrotask( () => {
-					pendingSave.current = null;
 				} );
 			},
 
 			exit: () => {
-				const save = pendingSave.current;
-				pendingSave.current = null;
-
-				if ( save ) {
-					trackEvent( 'jetpack_premium_analytics_customize_save', { ...properties, ...save } );
-				}
-				trackEvent( 'jetpack_premium_analytics_customize_exit', { ...properties, saved: !! save } );
+				trackEvent( 'jetpack_premium_analytics_customize_exit', {
+					...properties,
+					saved: saved.current,
+				} );
+				saved.current = false;
 			},
 
 			reset: () => trackEvent( 'jetpack_premium_analytics_customize_reset', properties ),

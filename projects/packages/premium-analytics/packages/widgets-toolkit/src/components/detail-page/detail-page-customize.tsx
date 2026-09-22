@@ -97,31 +97,35 @@ export function useDetailPageCustomize(
 		}
 	}, [] );
 
+	const startCustomizing = useCallback( () => {
+		if ( canCustomize ) {
+			track.start();
+			setIsCustomizing( true );
+		}
+	}, [ canCustomize, track ] );
+
 	const onEditChange = useCallback(
 		( nextEditMode: boolean ) => {
 			if ( nextEditMode && ! canCustomize ) {
 				return;
 			}
-			if ( nextEditMode !== isCustomizing ) {
-				if ( nextEditMode ) {
-					track.start();
-				} else {
-					track.exit();
-				}
+			// The dashboard's Cancel and Done leave edit mode through here.
+			if ( ! nextEditMode ) {
+				track.exit();
 			}
 			setIsCustomizing( nextEditMode );
 		},
-		[ canCustomize, isCustomizing, track ]
+		[ canCustomize, track ]
 	);
-
-	const startCustomizing = useCallback( () => onEditChange( true ), [ onEditChange ] );
 
 	const handleLayoutChange = useCallback(
 		( nextLayout: DashboardWidget[] ) => {
-			track.layoutChange( layout, nextLayout );
+			if ( isCustomizing ) {
+				track.save( layout, nextLayout );
+			}
 			onLayoutChange?.( nextLayout );
 		},
-		[ layout, onLayoutChange, track ]
+		[ isCustomizing, layout, onLayoutChange, track ]
 	);
 
 	// The dashboard's own reset did the same: reset, then leave the mode.

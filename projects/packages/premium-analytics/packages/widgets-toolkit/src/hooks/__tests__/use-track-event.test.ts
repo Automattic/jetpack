@@ -47,7 +47,7 @@ describe( 'useTrackCustomize', () => {
 
 		act( () => {
 			result.current.start();
-			result.current.layoutChange( before, after );
+			result.current.save( before, after );
 			result.current.exit();
 		} );
 
@@ -80,17 +80,17 @@ describe( 'useTrackCustomize', () => {
 		] );
 	} );
 
-	it( 'does not count an inline autosave as a save', async () => {
+	it( 'forgets a save once the session it belonged to has ended', () => {
 		const { result } = renderHook( () => useTrackCustomize( 'dashboard', 'traffic' ) );
 
-		act( () => result.current.layoutChange( before, after ) );
-		await Promise.resolve();
-		act( () => result.current.exit() );
+		act( () => {
+			result.current.save( before, after );
+			result.current.exit();
+			result.current.start();
+			result.current.exit();
+		} );
 
-		expect( events().map( ( [ name ] ) => name ) ).toEqual( [
-			'jetpack_premium_analytics_customize_exit',
-		] );
-		expect( events()[ 0 ][ 1 ] ).toMatchObject( { saved: false } );
+		expect( events().at( -1 )?.[ 1 ] ).toMatchObject( { saved: false } );
 	} );
 
 	it( 'records a confirmed reset', () => {
