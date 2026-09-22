@@ -12,7 +12,7 @@ import { bucketHistoryDays, type HistoryDay, type HistoryWindow } from './lib/hi
 import { getScoreTier, getScoreTierColor } from './lib/score-utils';
 import './history-chart-card.scss';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
-import type { BandHighlightSelection, SeriesData } from '@automattic/charts';
+import type { BandHighlightSelection, DataPointDate, SeriesData } from '@automattic/charts';
 import type { ComponentProps, ElementType } from 'react';
 
 type Props = {
@@ -202,6 +202,16 @@ export default function HistoryChartCard( {
 		[ data?.periods, startDate, endDate ]
 	);
 	const series = useMemo( () => buildHistorySeries( days ), [ days ] );
+	const barClassName = useCallback(
+		( datum: DataPointDate ) => {
+			const day = days.find( ( { date } ) => date === datum.label );
+			if ( ! day?.period ) {
+				return 'boost-daily-history__bar--empty';
+			}
+			return datum.value === 0 ? 'boost-daily-history__bar--zero' : undefined;
+		},
+		[ days ]
+	);
 	const tickValues = useMemo(
 		() =>
 			days.length
@@ -389,13 +399,7 @@ export default function HistoryChartCard( {
 										<BarChart
 											key={ `${ range.startDate }-${ range.endDate }` }
 											data={ [ deviceSeries ] }
-											barClassName={ datum =>
-												days.find( day => day.date === datum.label )?.period
-													? datum.value === 0
-														? 'boost-daily-history__bar--zero'
-														: undefined
-													: 'boost-daily-history__bar--empty'
-											}
+											barClassName={ barClassName }
 											tooltipStyle={ tooltipStyle }
 											withTooltips
 											gridVisibility="x"

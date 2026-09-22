@@ -68,7 +68,7 @@ describe( 'BarChart', () => {
 			].map( values => ( { orientation, values } ) )
 		)
 	)(
-		'adds datum classes without changing $orientation bar geometry for $values',
+		'adds datum classes without changing $orientation bar attributes for $values',
 		async ( { orientation, values } ) => {
 			const series = {
 				...defaultProps.data[ 0 ],
@@ -83,11 +83,13 @@ describe( 'BarChart', () => {
 			};
 			const view = renderWithTheme( props );
 			await waitFor( () => expect( getBarRects() ).toHaveLength( 6 ) );
-			const geometry = () =>
+			const attributes = () =>
 				Array.from( getBarRects(), bar =>
-					[ 'x', 'y', 'width', 'height', 'fill' ].map( attribute => bar.getAttribute( attribute ) )
+					[ 'x', 'y', 'width', 'height', 'fill', 'tabindex' ].map( attribute =>
+						bar.getAttribute( attribute )
+					)
 				);
-			const original = geometry();
+			const original = attributes();
 			view.unmount();
 			renderWithTheme( {
 				...props,
@@ -95,7 +97,7 @@ describe( 'BarChart', () => {
 					datum.value === values[ 0 ] ? 'first-value' : undefined,
 			} );
 			await waitFor( () => expect( getBarRects() ).toHaveLength( 6 ) );
-			expect( geometry() ).toEqual( original );
+			expect( attributes() ).toEqual( original );
 			expect( getBarRects()[ 0 ] ).toHaveClass( 'visx-bar', 'first-value' );
 			expect( getBarRects()[ 1 ] ).not.toHaveClass( 'first-value' );
 			expect( getBarRects()[ 3 ] ).toHaveClass( 'first-value' );

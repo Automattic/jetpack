@@ -30,6 +30,7 @@ export function bucketHistoryDays(
 		}
 		const day = dateI18n( 'Y-m-d', period.timestamp, false );
 		const previous = byDay.get( day );
+		// On equal timestamps the entry later in the response wins.
 		if ( ! previous || previous.timestamp <= period.timestamp ) {
 			byDay.set( day, period );
 		}

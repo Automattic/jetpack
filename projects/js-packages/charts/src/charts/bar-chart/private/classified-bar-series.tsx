@@ -30,7 +30,17 @@ const ClassifiedBarSeries = ( { barClassName, primaryKeys, groupPadding, ...prop
 		[ primaryKeys, bandScale, groupPadding ]
 	);
 	const renderGlyph = useCallback(
-		( { datum, x, y, color }: GlyphProps< DataPointDate > ) => {
+		( {
+			datum,
+			x,
+			y,
+			color,
+			onBlur,
+			onFocus,
+			onPointerMove,
+			onPointerOut,
+			onPointerUp,
+		}: GlyphProps< DataPointDate > ) => {
 			if ( ! bandScale?.bandwidth || ! valueScale ) return null;
 			const baseline = getValueScaleBaseline(
 				valueScale as Parameters< typeof getValueScaleBaseline >[ 0 ]
@@ -42,6 +52,13 @@ const ClassifiedBarSeries = ( { barClassName, primaryKeys, groupPadding, ...prop
 			return (
 				<rect
 					className={ clsx( 'visx-bar', barClassName( datum ) ) }
+					// visx's own Bars makes a bar focusable on the same condition.
+					tabIndex={ onFocus || onBlur ? 0 : undefined }
+					onBlur={ onBlur }
+					onFocus={ onFocus }
+					onPointerMove={ onPointerMove }
+					onPointerOut={ onPointerOut }
+					onPointerUp={ onPointerUp }
 					x={ horizontal ? Math.min( value, baseline ) : position }
 					y={ horizontal ? position : Math.min( value, baseline ) }
 					width={ horizontal ? Math.abs( value - baseline ) : groupScale.bandwidth() }

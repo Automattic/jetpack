@@ -1,3 +1,5 @@
+$tooltip-drop-shadow: 0 var(--wpds-border-width-xs) var(--wpds-border-width-sm) color-mix(in sRGB, var(--wpds-color-foreground-content-neutral) 33%, transparent);
+
 .boost-daily-history {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr);
@@ -132,7 +134,7 @@
 }
 
 .boost-daily-history .boost-daily-history__empty-tooltip {
-	box-shadow: 0 var(--wpds-border-width-xs) var(--wpds-border-width-sm) color-mix(in sRGB, var(--wpds-color-foreground-content-neutral) 33%, transparent);
+	box-shadow: $tooltip-drop-shadow;
 	inline-size: calc(var(--wpds-dimension-surface-width-xs) + var(--wpds-dimension-padding-2xl) + var(--wpds-border-width-xs));
 	padding: calc(var(--wpds-dimension-padding-lg) + var(--wpds-border-width-xs));
 	line-height: var(--wpds-typography-line-height-sm);
@@ -154,7 +156,7 @@
 	background: var(--wpds-color-background-surface-neutral-strong);
 	box-shadow:
 		inset 0 0 0 var(--wpds-border-width-xs) var(--jetpack-boost-history-empty),
-		0 var(--wpds-border-width-xs) var(--wpds-border-width-sm) color-mix(in sRGB, var(--wpds-color-foreground-content-neutral) 33%, transparent);
+		$tooltip-drop-shadow;
 	line-height: var(--wpds-typography-line-height-sm);
 
 	.jetpack-boost-overview__tooltip-date {

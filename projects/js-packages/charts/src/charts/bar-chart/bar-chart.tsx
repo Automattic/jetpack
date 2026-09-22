@@ -34,6 +34,7 @@ import {
 	useBarChartOptions,
 	BandHighlight,
 	BandTooltip,
+	ClassifiedBarSeries,
 	ComparisonBars,
 	DEFAULT_COMPARISON_WIDTH_FACTOR,
 	COMPARISON_INNER_GAP,
@@ -43,7 +44,6 @@ import {
 	countRenderedBars,
 	isBarRendered,
 } from './private';
-import ClassifiedBarSeries from './private/classified-bar-series';
 import type { ComparisonSeriesEntry } from './private';
 import type { BarChartProps } from './types';
 import type { DataPointDate, SeriesData, Optional } from '../../types';
