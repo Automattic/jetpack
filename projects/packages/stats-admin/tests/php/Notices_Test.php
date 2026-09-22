@@ -287,7 +287,8 @@ class Notices_Test extends Stats_TestCase {
 			if ( strpos( $url, '/jetpack-stats-dashboard/notices' ) === false || 'POST' !== $args['method'] ) {
 				return $response;
 			}
-			// The concurrent GET lands while WPCOM is still saving the dismissal.
+			// The concurrent GETs land while WPCOM is still saving the dismissal.
+			self::$notices->get_notices_to_show();
 			self::$notices->get_notices_to_show( true );
 			return array(
 				'response' => array(
@@ -301,6 +302,7 @@ class Notices_Test extends Stats_TestCase {
 
 		self::$notices->update_notice( 'pricing_grid', 'dismissed' );
 
+		$this->assertFalse( get_transient( Notices::STATS_DASHBOARD_NOTICES_CACHE_KEY ) );
 		$this->assertFalse( get_transient( Notices::STATS_DASHBOARD_NOTICES_DETAILS_CACHE_KEY ) );
 	}
 }
