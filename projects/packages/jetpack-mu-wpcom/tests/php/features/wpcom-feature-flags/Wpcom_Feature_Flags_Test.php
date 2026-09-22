@@ -39,6 +39,13 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	private static $bootstrap_wiring = array();
 
 	/**
+	 * The blog id the test started on, restored by tear_down().
+	 *
+	 * @var mixed
+	 */
+	private $original_blog_id;
+
+	/**
 	 * Record the bootstrap's hook registrations before any test disturbs them.
 	 */
 	public static function set_up_before_class() {
@@ -48,6 +55,15 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 			'filter' => has_filter( 'jetpack_feature_flag_enabled', array( Wpcom_Feature_Flags::class, 'filter_enabled' ) ),
 			'action' => has_action( 'admin_menu', array( Wpcom_Feature_Flags::class, 'register_admin_page' ) ),
 		);
+	}
+
+	/**
+	 * Remember the blog context, which the blog-switching test changes.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		$this->original_blog_id = $GLOBALS['blog_id'];
 	}
 
 	/**
@@ -64,7 +80,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		Wpcom_Feature_Flags::reset_overrides_cache();
 		remove_all_filters( 'jetpack_feature_flag_enabled' );
 		remove_all_filters( 'pre_option_' . Wpcom_Feature_Flags::OVERRIDES_OPTION );
-		$GLOBALS['blog_id'] = 1;
+		$GLOBALS['blog_id'] = $this->original_blog_id;
 		remove_all_filters( 'jetpack_feature_flag_enabled_my-feature' );
 		remove_all_filters( 'wp_die_handler' );
 		Feature_Flags::reset();
@@ -406,6 +422,8 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 			}
 		);
 		Wpcom_Feature_Flags::init();
+
+		$GLOBALS['blog_id'] = 1;
 
 		$this->assertTrue( Feature_Flags::is_enabled( 'my-feature' ) );
 
