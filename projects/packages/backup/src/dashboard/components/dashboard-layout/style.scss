@@ -15,3 +15,9 @@
 		padding: 24px;
 	}
 }
+
+// The body already pads the top, so drop the slot's own leading margin
+// and keep the gap above the card the same as on every other dashboard.
+.jpb-dashboard-body__inner > .jp-jitm-slot .jitm-card {
+	margin-block-start: 0;
+}

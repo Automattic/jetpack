@@ -5,7 +5,9 @@
 	padding: 0;
 
 	// `jitm-card` comes from packages/jitm/src/js/jetpack-jitm.js.
+	// Symmetric, so the gap to the page header above and the content
+	// below is the same on every dashboard.
 	.jitm-card {
-		margin: 0 0 var(--wpds-dimension-gap-xl);
+		margin: var(--wpds-dimension-gap-xl) 0;
 	}
 }
