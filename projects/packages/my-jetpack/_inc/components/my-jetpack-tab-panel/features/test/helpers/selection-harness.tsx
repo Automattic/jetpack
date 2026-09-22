@@ -1,5 +1,5 @@
 import { BulkBar } from '../../bulk-bar';
-import { FeatureList } from '../../feature-list';
+import { FeatureList, UnswitchableNote } from '../../feature-list';
 import { useFeatureSelection } from '../../use-feature-selection';
 import type { FeatureState } from '../../feature-state';
 
@@ -32,6 +32,7 @@ export function SelectionHarness( {
 	return (
 		<>
 			<BulkBar selection={ selection } />
+			<UnswitchableNote />
 			{ states.length > 0 && (
 				<FeatureList states={ states } selection={ selection } onOpen={ jest.fn() } />
 			) }

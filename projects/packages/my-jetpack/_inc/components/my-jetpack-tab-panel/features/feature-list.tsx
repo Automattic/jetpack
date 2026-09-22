@@ -13,6 +13,17 @@ import type { FeatureSelection } from './use-feature-selection';
 const UNSWITCHABLE_ID = 'feature-list-unswitchable';
 
 /**
+ * The reason every disabled row checkbox points at, rendered once for the page: the tab
+ * shows several of these lists, and repeating the id would leave each checkbox pointing at
+ * an ambiguous one.
+ *
+ * @return The rendered component.
+ */
+export function UnswitchableNote() {
+	return <VisuallyHidden id={ UNSWITCHABLE_ID }>{ getUnswitchableReason() }</VisuallyHidden>;
+}
+
+/**
  * Why a row cannot be picked for a bulk action.
  *
  * @return The translated reason.
@@ -92,8 +103,6 @@ type FeatureListProps = {
 export function FeatureList( { selection, states, onOpen, showIcon }: FeatureListProps ) {
 	return (
 		<div className={ styles[ 'feature-list' ] }>
-			<VisuallyHidden id={ UNSWITCHABLE_ID }>{ getUnswitchableReason() }</VisuallyHidden>
-
 			{ states.map( state => (
 				<FeatureItem
 					key={ state.feature.slug }

@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { moduleSwitchKey, useRequestedSwitches } from '../../../data/requested-switch-state';
-import { getProductModules } from '../products/mappings';
+import { PRODUCT_MODULES } from '../products/mappings';
 import { useAllJetpackModules } from '../products/use-all-jetpack-modules';
 import {
 	filterAndSortModules,
@@ -52,13 +52,13 @@ export function getModuleFeatureState(
 }
 
 /**
- * The module a row was built from.
+ * The module a row was built from, for the rows that have one.
  *
  * @param state - A row from one of these groups.
- * @return The module.
+ * @return The module, or null.
  */
-export function getStateModule( state: FeatureState ): MyJetpackModule {
-	return ( state.control as { module: MyJetpackModule } ).module;
+function getStateModule( state: FeatureState ): MyJetpackModule | null {
+	return state.control.kind === 'module' ? state.control.module : null;
 }
 
 /**
@@ -67,7 +67,9 @@ export function getStateModule( state: FeatureState ): MyJetpackModule {
  * @param features       - The main features, whose modules are already on the tab.
  * @param groups         - The headings, each naming its modules in display order.
  * @param modules        - Every Jetpack module on the site.
- * @param productModules - Product slug to module slug, where the two differ.
+ * @param productModules - Product slug to module slug, where the two differ. Ungated, unlike
+ *                       the map the cards resolve from: a module a pre-release gate hides on
+ *                       its own card is still that card's, and must not surface here instead.
  * @param requested      - Switch key to the value asked of it.
  * @return Non-empty groups in order, with every leftover module under Other, by name.
  */
@@ -125,9 +127,11 @@ export function filterMoreFeatures(
 		.map( group => ( {
 			...group,
 			states: terms
-				? rankBy( group.states, terms, state => moduleFields( getStateModule( state ) ) ).map(
-						( { item } ) => item
-					)
+				? rankBy( group.states, terms, state => {
+						const $module = getStateModule( state );
+
+						return $module ? moduleFields( $module ) : [ { value: state.feature.name, weight: 3 } ];
+					} ).map( ( { item } ) => item )
 				: group.states.filter( state => matchesFilter( state, filter ) ),
 		} ) )
 		.filter( group => group.states.length > 0 );
@@ -148,12 +152,12 @@ export function useMoreFeatures( state: MainFeaturesState ): MoreFeaturesGroup[]
 
 	return useMemo(
 		() =>
-			state.jetpack === 'active' && modules
+			state.jetpack === 'active' && modules && state.module_groups?.length
 				? groupMoreFeatures(
 						state.features,
-						state.module_groups ?? [],
+						state.module_groups,
 						modules,
-						getProductModules(),
+						PRODUCT_MODULES,
 						requested
 					)
 				: [],

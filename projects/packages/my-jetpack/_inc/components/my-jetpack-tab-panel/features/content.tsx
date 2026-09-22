@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router';
 import { BulkBar } from './bulk-bar';
 import { FeaturesEmptyState } from './empty-state';
 import { FeatureItem } from './feature-item';
-import { FeatureList } from './feature-list';
+import { FeatureList, UnswitchableNote } from './feature-list';
 import { FeatureModal } from './feature-modal';
 import { useFeatureStates } from './feature-state';
 import { MenuPointer } from './menu-pointer';
@@ -154,7 +154,7 @@ export function FeaturesContent() {
 				countsPending={ isLoading }
 				search={ search }
 				onSearchChange={ onSearchChange }
-				bulk={ view === 'list' ? <BulkBar selection={ selection } /> : null }
+				bulk={ view === 'list' && shownCount > 0 ? <BulkBar selection={ selection } /> : null }
 			/>
 
 			{ /* Always rendered, so a screen reader is listening before the count changes. */ }
@@ -165,6 +165,8 @@ export function FeaturesContent() {
 					shownCount
 				) }
 			</p>
+
+			{ view === 'list' && shownCount > 0 && <UnswitchableNote /> }
 
 			{ shownCount === 0 && ! settling && (
 				<FeaturesEmptyState
@@ -191,6 +193,7 @@ export function FeaturesContent() {
 				selection={ selection }
 				jetpack={ mainFeatures.jetpack }
 				isList={ view === 'list' }
+				isNarrowed={ filter !== 'all' || Boolean( search ) }
 			/>
 
 			{ open && (

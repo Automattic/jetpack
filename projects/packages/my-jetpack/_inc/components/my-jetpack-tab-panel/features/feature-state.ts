@@ -41,16 +41,21 @@ export type FeatureState = {
 };
 
 /**
- * Why a feature can't be switched here, when a host forced its module or plugin on or off.
+ * Why a feature can't be switched here: a host forced its module or plugin on or off, or
+ * the site cannot run the module at all, as with the ones unavailable on multisite.
  *
  * @param state - The feature's live state.
- * @return The reason, or null when nothing forced it.
+ * @return The reason, or null when it can be switched.
  */
 export function getForcedReason( state: FeatureState ): string | null {
 	const { control } = state;
 
-	if ( control.kind === 'module' && control.module.override ) {
-		return getModuleStatus( control.module ).reason ?? null;
+	if ( control.kind === 'module' ) {
+		const status = getModuleStatus( control.module );
+
+		if ( control.module.override || ! status.isAvailable ) {
+			return status.reason ?? null;
+		}
 	}
 
 	if ( control.kind === 'plugin' && control.override ) {

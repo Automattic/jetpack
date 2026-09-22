@@ -51,6 +51,25 @@ describe( 'groupMoreFeatures', () => {
 		] );
 	} );
 
+	it( 'leaves out a product\u2019s module even while a pre-release gate hides its card', () => {
+		// The AI card resolves no module while the gate is on; the module must not turn up
+		// under Other instead, offering the switch the gate withheld.
+		const withAi = { ...modules, ai: mod( 'ai' ) };
+		const aiFeature = [ { module: '', product: 'jetpack-ai' } ] as MainFeature[];
+
+		const withAiFeature = groupMoreFeatures(
+			aiFeature,
+			groups,
+			withAi,
+			{ 'jetpack-ai': 'ai' },
+			{}
+		);
+
+		expect(
+			withAiFeature.flatMap( group => group.states.map( state => state.feature.slug ) )
+		).not.toContain( 'ai' );
+	} );
+
 	it( 'shows the value a switch asked for while its request is out', () => {
 		const asked = groupMoreFeatures( features, groups, modules, {}, { 'module:monitor': true } );
 		const monitor = asked[ 0 ].states[ 0 ];

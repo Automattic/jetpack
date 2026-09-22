@@ -3,7 +3,10 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { FeaturesContent } from '../content';
+import { getModuleFeatureState } from '../use-more-features';
+import type { MyJetpackModule } from '../../../../types';
 import type { FeatureState } from '../feature-state';
+import type { MoreFeaturesGroup } from '../use-more-features';
 
 const activeStats = {
 	feature: { slug: 'stats', name: 'Stats', description: '', plans: [] },
@@ -11,8 +14,16 @@ const activeStats = {
 	control: { kind: 'none' },
 } as unknown as FeatureState;
 
+const moduleState = ( slug: string, activated: boolean ) =>
+	getModuleFeatureState(
+		{ module: slug, name: slug, description: '', activated, available: true } as MyJetpackModule,
+		{}
+	);
+
 let mockStates: FeatureState[] = [ activeStats ];
+let mockGroups: MoreFeaturesGroup[] = [];
 let mockMainFeatures: Record< string, unknown > = {
+	jetpack: 'active',
 	features: [ { slug: 'stats' } ],
 	isPlaceholderData: false,
 };
@@ -24,11 +35,14 @@ jest.mock( '../feature-state', () => ( {
 } ) );
 
 jest.mock( '../feature-item', () => ( { FeatureItem: () => <div>grid card</div> } ) );
-jest.mock( '../feature-list', () => ( { FeatureList: () => <div>list rows</div> } ) );
+jest.mock( '../feature-list', () => ( {
+	FeatureList: () => <div>list rows</div>,
+	UnswitchableNote: () => null,
+} ) );
 jest.mock( '../feature-modal', () => ( { FeatureModal: () => null } ) );
 jest.mock( '../use-more-features', () => ( {
 	...jest.requireActual( '../use-more-features' ),
-	useMoreFeatures: () => [],
+	useMoreFeatures: () => mockGroups,
 } ) );
 
 const renderAt = ( url: string ) =>
@@ -43,7 +57,12 @@ const renderAt = ( url: string ) =>
 describe( 'FeaturesContent', () => {
 	beforeEach( () => {
 		mockStates = [ activeStats ];
-		mockMainFeatures = { features: [ { slug: 'stats' } ], isPlaceholderData: false };
+		mockGroups = [];
+		mockMainFeatures = {
+			jetpack: 'active',
+			features: [ { slug: 'stats' } ],
+			isPlaceholderData: false,
+		};
 	} );
 
 	it( 'names the filter that matched nothing and switches back from the empty state', async () => {
@@ -115,5 +134,32 @@ describe( 'FeaturesContent', () => {
 		renderAt( '/features?view=list' );
 
 		expect( screen.getByText( 'list rows' ) ).toBeInTheDocument();
+	} );
+
+	it( 'counts the modules with the features, and offers one bulk bar over both lists', () => {
+		mockGroups = [
+			{
+				label: 'Security',
+				states: [ moduleState( 'monitor', false ), moduleState( 'sso', true ) ],
+			},
+		];
+
+		renderAt( '/features?view=list' );
+
+		// One feature and two modules, counted together. Read off the filter select, whose
+		// options carry the same counts as the pills in a readable form.
+		expect( screen.getByRole( 'option', { name: 'All (3)' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'option', { name: 'Active (2)' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'option', { name: 'Inactive (1)' } ) ).toBeInTheDocument();
+		expect( screen.getAllByRole( 'checkbox', { name: 'Select all features' } ) ).toHaveLength( 1 );
+	} );
+
+	it( 'drops the bulk bar when nothing is left to switch', () => {
+		renderAt( '/features?view=list&search=nothing-matches-this' );
+
+		expect(
+			screen.queryByRole( 'checkbox', { name: 'Select all features' } )
+		).not.toBeInTheDocument();
+		expect( screen.getByText( 'No features found.' ) ).toBeInTheDocument();
 	} );
 } );

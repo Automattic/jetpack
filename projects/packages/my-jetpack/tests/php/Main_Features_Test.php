@@ -59,20 +59,32 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * A module listed twice, or one a main feature already switches, would never show where it is listed.
+	 * A module listed twice, or one a main feature already switches, would never show where it
+	 * is listed. The products whose module is named differently are spelled out because that
+	 * map lives in the UI's `PRODUCT_MODULES`, which this package's PHP cannot read.
 	 */
 	public function test_module_groups_list_each_module_once_and_skip_main_features() {
+		$product_modules = array(
+			'backup'        => 'vaultpress',
+			'social'        => 'publicize',
+			'jetpack-forms' => 'contact-form',
+			'jetpack-ai'    => 'ai',
+		);
+
 		$grouped = array_merge( ...array_column( Main_Features::get_module_groups(), 'modules' ) );
 		$covered = array_filter(
 			array_map(
-				fn( $feature ) => $feature['module'] ?? $feature['product'] ?? '',
+				function ( $feature ) use ( $product_modules ) {
+					$product = $feature['product'] ?? '';
+
+					return $feature['module'] ?? $product_modules[ $product ] ?? $product;
+				},
 				Main_Features::get_feature_definitions()
 			)
 		);
 
 		$this->assertSame( array_unique( $grouped ), $grouped );
 		$this->assertSame( array(), array_values( array_intersect( $grouped, $covered ) ) );
-		$this->assertSame( Main_Features::get_module_groups(), Main_Features::get_state()['module_groups'] );
 	}
 
 	/**

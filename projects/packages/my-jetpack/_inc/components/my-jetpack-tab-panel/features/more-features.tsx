@@ -13,6 +13,7 @@ type MoreFeaturesProps = {
 	selection: FeatureSelection;
 	jetpack: MainFeaturePluginStatus;
 	isList?: boolean;
+	isNarrowed?: boolean;
 };
 
 /**
@@ -22,15 +23,28 @@ type MoreFeaturesProps = {
  * lists cannot drift apart. Shown only where Jetpack is installed; while it is off, the
  * modules cannot be read, so the section offers to activate it instead.
  *
- * @param {MoreFeaturesProps}   props           - The component props.
- * @param {MoreFeaturesGroup[]} props.groups    - The modules to show, grouped.
- * @param {FeatureSelection}    props.selection - The selection shared with the bulk bar.
- * @param {string}              props.jetpack   - The Jetpack plugin's status.
- * @param {boolean}             props.isList    - Whether the tab is in its list view.
+ * @param {MoreFeaturesProps}   props            - The component props.
+ * @param {MoreFeaturesGroup[]} props.groups     - The modules to show, grouped.
+ * @param {FeatureSelection}    props.selection  - The selection shared with the bulk bar.
+ * @param {string}              props.jetpack    - The Jetpack plugin's status.
+ * @param {boolean}             props.isList     - Whether the tab is in its list view.
+ * @param {boolean}             props.isNarrowed - Whether a filter or a search is in play, which an offer to activate Jetpack cannot answer.
  * @return The rendered component, or null when there is nothing to show.
  */
-export function MoreFeatures( { groups, selection, jetpack, isList = false }: MoreFeaturesProps ) {
+export function MoreFeatures( {
+	groups,
+	selection,
+	jetpack,
+	isList = false,
+	isNarrowed = false,
+}: MoreFeaturesProps ) {
 	if ( jetpack === 'not-installed' || ( jetpack === 'active' && ! groups.length ) ) {
+		return null;
+	}
+
+	// The page above has already said nothing matched; an offer to activate Jetpack is not an
+	// answer to a filter or a search.
+	if ( jetpack === 'inactive' && isNarrowed ) {
 		return null;
 	}
 
