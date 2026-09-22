@@ -22,7 +22,8 @@ type SearchTermsDataPoint = StatsNormalizedDataPoint< StatsSearchTermsItem > & {
 };
 
 /**
- * The Stats endpoint caps a summarized search-terms list at 500 rows. In
+ * The Stats endpoint caps a summarized search-terms list at 500 rows, counting
+ * the encrypted-searches pseudo term that becomes the Unknown row here. In
  * `period=day` summarize mode it has no rollup, so `other_search_terms` is
  * never positive and the cap is the only truncation signal.
  */
@@ -140,10 +141,9 @@ export function aggregateSearchTermRows(
 	// list rather than dropped to zero, so only a complete list treats a missing
 	// term as an explicit zero.
 	const comparisonOtherSearchTerms = getCount( comparisonReport.summary.other_search_terms );
-	const comparisonTermCount = comparisonRows.filter( row => row.id.startsWith( 'term:' ) ).length;
 	const comparisonTruncated =
 		( comparisonOtherSearchTerms !== undefined && comparisonOtherSearchTerms > 0 ) ||
-		comparisonTermCount >= SUMMARIZED_TERMS_CAP;
+		comparisonRows.length >= SUMMARIZED_TERMS_CAP;
 
 	return {
 		rows: primaryRows.map( row => {

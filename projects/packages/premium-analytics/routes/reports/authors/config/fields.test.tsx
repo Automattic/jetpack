@@ -115,6 +115,15 @@ describe( 'authors fields', () => {
 		expect( screen.getByText( author.views.toLocaleString() ) ).toBeInTheDocument();
 	} );
 
+	it( 'shows a dash and no delta for a post known only from the comparison period', () => {
+		renderField( 'views', { ...post, views: null, previousViews: 200 }, true );
+
+		expect( screen.getByText( '—' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( 'No data' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '0' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( '-100%' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'shows the views delta when a comparison row is available', () => {
 		renderField( 'views', { ...post, previousViews: 200 }, true );
 

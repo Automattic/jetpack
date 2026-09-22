@@ -190,6 +190,7 @@ export {
 	mergeStatsFileDownloadsComparisonRows,
 	mergeStatsLocationsComparisonRows,
 	mergeStatsSearchTermsComparisonRows,
+	hasPrimaryPeriodViews,
 	mergeStatsTopAuthorsComparisonRows,
 	mergeStatsTopPostsComparisonRows,
 	mergeStatsUtmComparisonRows,

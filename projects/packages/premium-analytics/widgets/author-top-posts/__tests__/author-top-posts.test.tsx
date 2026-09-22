@@ -79,6 +79,56 @@ describe( 'AuthorTopPostsWidget', () => {
 		expect( requestedPath ).toContain( 'max=0' );
 	} );
 
+	it( 'leaves out a post known only from the comparison period and keeps the bar scale', async () => {
+		const comparisonSummary = {
+			...TOP_AUTHORS_SUMMARY,
+			summary: {
+				authors: [
+					{
+						name: 'Priya',
+						author_id: 7,
+						views: 70,
+						posts: [
+							{ id: 1, title: 'Top post', url: 'https://example.com/top/', views: 30 },
+							{ id: 5, title: 'Gone post', url: 'https://example.com/gone/', views: 40 },
+						],
+					},
+				],
+			},
+		};
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve(
+				decodeURIComponent( path ).includes( 'date=2026-06-3' )
+					? comparisonSummary
+					: TOP_AUTHORS_SUMMARY
+			)
+		);
+
+		const { container } = render(
+			<AuthorTopPostsWidget
+				attributes={ {
+					reportParams: {
+						...WINDOW_PARAMS,
+						comp: '1',
+						compare_from: '2026-06-24T00:00:00.000+00:00',
+						compare_to: '2026-06-30T23:59:59.999+00:00',
+					},
+				} }
+			/>
+		);
+
+		await expect( screen.findByRole( 'link', { name: 'Top post' } ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Gone post' ) ).not.toBeInTheDocument();
+		// A full-width bar for the top post proves the scale ignored the unknown count.
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		const bars = [ ...container.querySelectorAll< HTMLElement >( '[style*="width"]' ) ];
+		expect( bars.map( bar => bar.style.width ) ).toEqual( [
+			expect.stringContaining( 'calc(100%' ),
+			expect.stringContaining( 'calc(50%' ),
+		] );
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 2 );
+	} );
+
 	it( 'shows the no-views empty state for an author missing from the period', async () => {
 		mockApiFetch.mockResolvedValue( TOP_AUTHORS_SUMMARY );
 

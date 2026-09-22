@@ -72,6 +72,17 @@ function getAuthorPostKey( post: StatsTopPostsItem ): string | null {
 	return typeof post.label === 'string' && post.label ? `title:${ post.label }` : null;
 }
 
+/**
+ * Whether an author's post has a view count for the primary period, which a
+ * post known only from the comparison period lacks; rankings and bar scales
+ * over primary views must skip those.
+ */
+export function hasPrimaryPeriodViews(
+	post: StatsTopAuthorsPostComparisonItem
+): post is StatsTopPostsItem & StatsTopAuthorsPostComparisonItem {
+	return post.views !== undefined;
+}
+
 function mergeStatsTopAuthorsPostRows(
 	primaryPosts: StatsTopPostsItem[],
 	comparisonPosts: StatsTopPostsItem[]

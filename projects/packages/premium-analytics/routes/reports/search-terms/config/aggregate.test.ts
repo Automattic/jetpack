@@ -298,12 +298,16 @@ describe( 'report search terms aggregate', () => {
 	 * A summarized comparison list that shares no term with the primary report and
 	 * reports no overflow, as `period=day` summarize mode never does.
 	 *
-	 * @param count - Distinct terms in the list.
+	 * @param count     - Distinct terms in the list.
+	 * @param encrypted - Encrypted searches, which the endpoint counts against the same cap.
 	 * @return The comparison report.
 	 */
-	function makeCappedComparison( count: number ): StatsNormalizedReport< StatsSearchTermsItem > {
+	function makeCappedComparison(
+		count: number,
+		encrypted = 0
+	): StatsNormalizedReport< StatsSearchTermsItem > {
 		return {
-			summary: { other_search_terms: 0, total_search_terms: 0 },
+			summary: { other_search_terms: 0, total_search_terms: 0, encrypted_search_terms: encrypted },
 			data: [
 				{
 					...report.data[ 0 ],
@@ -333,6 +337,21 @@ describe( 'report search terms aggregate', () => {
 			result.rows.find( row => row.id === 'term:jetpack stats' )?.previousViews
 		).toBeUndefined();
 		expect( result.hasComparison ).toBe( true );
+	} );
+
+	it( 'counts the Unknown row against the cap, since encrypted searches take one of its slots', () => {
+		const result = aggregateSearchTermRows(
+			report,
+			'Unknown search terms',
+			makeCappedComparison( 499, 42 )
+		);
+
+		expect(
+			result.rows.find( row => row.id === 'term:wordpress analytics' )?.previousViews
+		).toBeUndefined();
+		expect( result.rows.find( row => row.id === 'unknown-search-terms' )?.previousViews ).toBe(
+			42
+		);
 	} );
 
 	it( 'treats a comparison list under the endpoint cap as complete', () => {
