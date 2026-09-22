@@ -77,17 +77,12 @@ function applyStylesToSeries(
 		}
 
 		const { stroke, ...lineStyleProps } = style;
-		// An unset value must not shadow the theme's line style for that series.
-		const seriesLineStyle = Object.fromEntries(
-			Object.entries( lineStyleProps ).filter( ( [ , value ] ) => value !== undefined )
-		);
-
 		return {
 			...seriesItem,
 			options: {
 				...( seriesItem.options ?? {} ),
 				stroke,
-				...( Object.keys( seriesLineStyle ).length ? { seriesLineStyle } : {} ),
+				seriesLineStyle: lineStyleProps,
 			},
 		};
 	} );

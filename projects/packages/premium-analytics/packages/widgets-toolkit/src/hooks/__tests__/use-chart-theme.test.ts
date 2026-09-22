@@ -14,7 +14,7 @@ describe( 'useChartTheme', () => {
 
 		expect( seriesLineStyles ).toHaveLength( 1 );
 		expect( seriesLineStyles?.[ 0 ] ).not.toHaveProperty( 'strokeDasharray' );
-		expect( legend?.shapeStyles?.[ 1 ] ).not.toHaveProperty( 'strokeDasharray' );
+		expect( legend?.shapeStyles ).toBeUndefined();
 		expect( lineChart?.lineStyles?.comparison ).toHaveProperty( 'strokeDasharray' );
 	} );
 } );
