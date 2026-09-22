@@ -28,6 +28,13 @@
 	.warning-button {
 		position: relative;
 		z-index: 10;
+		padding: 0;
+		border: 0;
+		background: none;
+		color: inherit;
+		font: inherit;
+		text-decoration: underline;
+		cursor: pointer;
 	}
 
 	.warning-tooltip-wrapper {

@@ -2,7 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { ToggleControl } from '@wordpress/components';
 import styles from './prerender.module.scss';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { createInterpolateElement, useState } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useRef, useState } from '@wordpress/element';
 
 import { Link } from '@wordpress/ui';
 
@@ -79,27 +79,32 @@ type BypassPatternsExampleProps = {
 
 const PrerenderWarningMessage = ( { children }: BypassPatternsExampleProps ) => {
 	const [ show, setShow ] = useState( false );
+	const triggerRef = useRef< HTMLButtonElement >( null );
 	const tooltipLayer = useTooltipLayer();
+	const toggleTooltip = useCallback( () => {
+		recordBoostEvent( 'prerender_warning_message_clicked', {} );
+		setShow( value => ! value );
+	}, [] );
+	const closeTooltip = useCallback( () => setShow( false ), [] );
 
 	return (
 		<div className={ styles[ 'warning-wrapper' ] }>
-			{ /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
-			<a
-				href="#"
+			<button
+				type="button"
+				ref={ triggerRef }
+				aria-expanded={ show }
 				className={ styles[ 'warning-button' ] }
-				onClick={ e => {
-					recordBoostEvent( 'prerender_warning_message_clicked', {} );
-					e.preventDefault();
-					setShow( ! show );
-				} }
+				onClick={ toggleTooltip }
 			>
 				{ children }
-			</a>
+			</button>
 			<div className={ styles[ 'warning-tooltip-wrapper' ] }>
 				<IconTooltip
 					placement="bottom-end"
 					popoverAnchorStyle="wrapper"
 					forceShow={ show }
+					triggerRef={ triggerRef }
+					onClose={ closeTooltip }
 					offset={ -10 }
 					popoverClassName={ styles[ 'warning-tooltip' ] }
 					{ ...tooltipLayer }

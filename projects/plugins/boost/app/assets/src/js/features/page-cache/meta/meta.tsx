@@ -4,7 +4,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { Notice, Link as WPLink } from '@wordpress/ui';
 import Lightning from '$svg/lightning';
 import styles from './meta.module.scss';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePageCache, useClearPageCacheAction } from '$lib/stores/page-cache';
 import clsx from 'clsx';
 import { useMutationNotice } from '$features/ui';
@@ -287,27 +287,32 @@ type BypassPatternsExampleProps = {
 
 const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 	const [ show, setShow ] = useState( false );
+	const triggerRef = useRef< HTMLButtonElement >( null );
 	const tooltipLayer = useTooltipLayer();
+	const toggleTooltip = useCallback( () => {
+		recordBoostEvent( 'page_cache_see_example_clicked', {} );
+		setShow( value => ! value );
+	}, [] );
+	const closeTooltip = useCallback( () => setShow( false ), [] );
 
 	return (
 		<div className={ styles[ 'example-wrapper' ] }>
-			{ /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
-			<a
-				href="#"
+			<button
+				type="button"
+				ref={ triggerRef }
+				aria-expanded={ show }
 				className={ styles[ 'example-button' ] }
-				onClick={ e => {
-					recordBoostEvent( 'page_cache_see_example_clicked', {} );
-					e.preventDefault();
-					setShow( ! show );
-				} }
+				onClick={ toggleTooltip }
 			>
 				{ children }
-			</a>
+			</button>
 			<div className={ styles[ 'tooltip-wrapper' ] }>
 				<IconTooltip
 					placement="bottom-start"
 					popoverAnchorStyle="wrapper"
 					forceShow={ show }
+					triggerRef={ triggerRef }
+					onClose={ closeTooltip }
 					offset={ -10 }
 					popoverClassName={ styles.tooltip }
 					{ ...tooltipLayer }
