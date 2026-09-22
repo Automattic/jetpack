@@ -1,5 +1,5 @@
 /* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute -- This Jest project does not load jest-dom. */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ModuleSurfaceProvider } from '$features/module/surface';
 import CriticalCssMeta from './critical-css-meta';
 import { recordBoostEvent } from '$lib/utils/analytics';
@@ -93,4 +93,18 @@ test( 'shows an idle regeneration suggestion only when an invalidation reason ex
 		</ModuleSurfaceProvider>
 	);
 	expect( screen.queryByText( 'Regenerate Critical CSS' ) ).toBeNull();
+} );
+
+test( 'opens the Critical CSS info icon with its explanatory text', async () => {
+	render(
+		<ModernCriticalCssStatus cssState={ generated } isGenerating={ false } progress={ 100 } />
+	);
+	const icon = within( screen.getByTestId( 'icon-tooltip_wrapper' ) ).getByRole( 'button' );
+	// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
+	fireEvent.mouseDown( icon );
+	await expect(
+		screen.findByText(
+			'Critical CSS is the small set of styles needed to show the top of each page. Boost loads it first so pages appear faster while the rest of the CSS loads.'
+		)
+	).resolves.toBeTruthy();
 } );
