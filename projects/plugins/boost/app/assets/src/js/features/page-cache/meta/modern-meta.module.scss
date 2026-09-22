@@ -8,6 +8,9 @@
 
 	@include mixins.settings-well();
 
+	font-size: var(--wpds-typography-font-size-md);
+	line-height: var(--wpds-typography-line-height-sm);
+
 	> :first-child {
 		min-inline-size: 0;
 	}

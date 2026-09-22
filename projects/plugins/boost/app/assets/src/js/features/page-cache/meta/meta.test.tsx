@@ -85,6 +85,9 @@ it( 'keeps the legacy Clear Cache link and logging checkbox', () => {
 	fireEvent.click( screen.getByRole( 'button', { name: 'Clear Cache' } ) );
 	expect( mockClear.mutate ).toHaveBeenCalledTimes( 1 );
 	fireEvent.click( screen.getByRole( 'button', { name: 'Show Options' } ) );
+	expect( recordBoostEvent ).toHaveBeenCalledWith( 'page_cache_exceptions_panel_toggle', {
+		status: 'open',
+	} );
 	expect(
 		screen.getByRole( 'checkbox', { name: 'Activate logging to track all your cache events.' } )
 	).toBeTruthy();
