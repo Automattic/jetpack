@@ -2,6 +2,15 @@ import { formatNumber } from '@automattic/number-formatters';
 import { __ } from '@wordpress/i18n';
 
 /**
+ * Whether a value is a reading a scale can place.
+ *
+ * @param value - The point's value.
+ * @return True for a finite number.
+ */
+export const isReading = ( value: unknown ): value is number =>
+	typeof value === 'number' && Number.isFinite( value );
+
+/**
  * Whether a data point's value cannot be drawn.
  *
  * @param value                - The point's value.

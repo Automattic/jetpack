@@ -37,7 +37,7 @@ import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
-import { formatReading, isInvalidReading } from '../private/readings';
+import { formatReading, isInvalidReading, isReading } from '../private/readings';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType } from '../private/time-axis';
 import { buildTimeAxisOptions } from '../private/time-axis-options';
@@ -364,7 +364,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			for ( const series of dataSorted ) {
 				for ( const point of series.data ?? [] ) {
 					const value = point?.value;
-					if ( typeof value === 'number' && Number.isFinite( value ) ) {
+					if ( isReading( value ) ) {
 						min = Math.min( min, value );
 						max = Math.max( max, value );
 					}
@@ -409,7 +409,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 				}
 				for ( const point of series.data ) {
 					const value = point?.value;
-					if ( typeof value === 'number' && Number.isFinite( value ) ) {
+					if ( isReading( value ) ) {
 						min = Math.min( min, value );
 						max = Math.max( max, value );
 					}
