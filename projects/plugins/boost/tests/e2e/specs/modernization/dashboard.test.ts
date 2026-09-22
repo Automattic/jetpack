@@ -169,7 +169,7 @@ test.describe( 'Dashboard modernization', () => {
 
 		const firstGroup = page
 			.locator( '.jb-modern-settings' )
-			.getByRole( 'heading', { name: 'Code loading optimization', exact: true } );
+			.getByRole( 'button', { name: 'Page loading', exact: true } );
 		await expect( firstGroup ).toBeVisible();
 		const box = await overviewTab.boundingBox();
 		expect( box ).not.toBeNull();
