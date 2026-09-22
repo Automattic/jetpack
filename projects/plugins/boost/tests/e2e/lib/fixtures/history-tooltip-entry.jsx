@@ -1,5 +1,6 @@
 /* global document, window */
 import '@wordpress/theme/design-tokens.css';
+import '@wordpress/components/build-style/style.css';
 import '@automattic/jetpack-base-styles/root-variables';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';

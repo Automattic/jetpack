@@ -739,7 +739,7 @@ test.each( [
 	);
 	expect( screen.getByText( String( score ) ) ).toBeInTheDocument();
 	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( score );
-	expect( screen.getByText( '+10 points compared with Boost disabled' ) ).toBeInTheDocument();
+	expect( screen.getByText( '+10 points' ) ).toBeInTheDocument();
 	expect( screen.getByText( tier ) ).toBeInTheDocument();
 } );
 
@@ -760,10 +760,10 @@ test( 'opens the overall grade explanation and dismisses it with Escape', async 
 	expect( trigger ).toHaveFocus();
 } );
 
-test( 'hides a negative baseline delta while preserving the current measured bar', () => {
+test( 'shows a negative baseline delta while preserving the current measured bar', () => {
 	render( <ScoreCard icon={ null } label="Mobile" value={ 40 } score={ 40 } noBoost={ 60 } /> );
 	expect( screen.getByRole( 'progressbar', { name: 'Mobile' } ) ).toHaveValue( 40 );
-	expect( screen.queryByText( /compared with Boost disabled/ ) ).not.toBeInTheDocument();
+	expect( screen.getByText( '-20 points' ) ).toBeInTheDocument();
 	expect( screen.getByText( 'Poor' ) ).toBeInTheDocument();
 } );
 
@@ -771,10 +771,10 @@ test( 'hides stale and absent baselines while preserving measured scores', () =>
 	const { rerender } = render( <ScoreCards scores={ scores } /> );
 	expect( screen.getByText( /\+10 points/ ) ).toBeInTheDocument();
 	rerender( <ScoreCards scores={ { ...scores, isStale: true } } /> );
-	expect( screen.queryByText( /compared with Boost disabled/ ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( /points/ ) ).not.toBeInTheDocument();
 	expect( screen.getByText( '91' ) ).toBeInTheDocument();
 	rerender( <ScoreCards scores={ { ...scores, noBoost: null } } /> );
-	expect( screen.queryByText( /compared with Boost disabled/ ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( /points/ ) ).not.toBeInTheDocument();
 } );
 
 test( 'shows the free history upgrade without requesting history', async () => {

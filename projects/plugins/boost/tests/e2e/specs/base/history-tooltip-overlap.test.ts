@@ -409,7 +409,7 @@ test( 'Hiding retained history removes a keyboard tooltip until another selectio
 	await expect( page.getByRole( 'tooltip' ) ).toBeVisible();
 } );
 
-test( 'Score cards show the tier palette, baseline delta colors, and responsive dividers', async ( {
+test( 'Score cards show signed badges, points help, and responsive dividers', async ( {
 	page,
 } ) => {
 	await page.goto( 'http://boost-history.test/?scores' );
@@ -439,11 +439,32 @@ test( 'Score cards show the tier palette, baseline delta colors, and responsive 
 		await expect( track ).toHaveCSS( 'height', '4px' );
 		await expect( track ).toHaveCSS( 'border-radius', '4px' );
 	}
-	await expect( desktop.first().getByText( '+10 points compared with Boost disabled' ) ).toHaveCSS(
-		'color',
-		'rgb(0, 128, 48)'
-	);
-	await expect( mobile.getByText( /compared with Boost disabled/ ) ).toHaveCount( 0 );
+	const positiveBadge = desktop.first().getByText( '+10 points', { exact: true } );
+	await expect( positiveBadge ).toHaveCSS( 'background-color', 'rgb(222, 235, 250)' );
+	await expect( positiveBadge ).toHaveCSS( 'color', 'rgb(0, 27, 79)' );
+	const negativeBadge = mobile.getByText( '-10 points', { exact: true } );
+	await expect( negativeBadge ).toHaveCSS( 'background-color', 'rgb(255, 255, 255)' );
+	await expect( negativeBadge ).toHaveCSS( 'border-top-width', '1px' );
+	await expect( negativeBadge ).toHaveCSS( 'border-top-style', 'solid' );
+	await expect( negativeBadge ).toHaveCSS( 'border-top-color', 'rgb(219, 219, 219)' );
+	await expect( desktop.nth( 1 ).getByText( /points/ ) ).toHaveCount( 0 );
+	await expect( desktop.nth( 1 ).getByRole( 'button' ) ).toHaveCount( 0 );
+	const pointsHelp = page.getByText( 'Points gained from optimizations', { exact: true } );
+	await expect( pointsHelp ).toHaveCount( 0 );
+	const pointsTrigger = desktop.first().getByRole( 'button', { name: 'About points' } );
+	await pointsTrigger.hover();
+	await expect( pointsHelp ).toBeVisible();
+	await page.mouse.move( 0, 0 );
+	await expect( pointsHelp ).toBeHidden();
+	await pointsTrigger.click();
+	await expect( pointsHelp ).toBeVisible();
+	await page.keyboard.press( 'Escape' );
+	await expect( pointsHelp ).toBeHidden();
+	await expect( pointsTrigger ).toBeFocused();
+	await pointsTrigger.press( 'Enter' );
+	await expect( pointsHelp ).toBeVisible();
+	await page.keyboard.press( 'Escape' );
+	await expect( pointsHelp ).toBeHidden();
 	await expect( desktop.first() ).toHaveCSS( 'padding-top', '16px' );
 	await expect( desktop.first() ).toHaveCSS( 'padding-bottom', '16px' );
 	await expect( desktop.first() ).toHaveCSS( 'padding-left', '20px' );
@@ -473,13 +494,24 @@ test( 'Score cards show the tier palette, baseline delta colors, and responsive 
 		.boundingBox() )!;
 	const delta = ( await desktop
 		.first()
-		.getByText( '+10 points compared with Boost disabled' )
+		.locator( '.jetpack-boost-overview__delta' )
 		.boundingBox() )!;
 	expect( bar.width ).toBeGreaterThan( 0 );
 	expect( delta.x ).toBeGreaterThan( bar.x + bar.width );
-	expect( delta.x + delta.width ).toBeCloseTo( section.x + section.width - 20, 0 );
+	expect( delta.x + delta.width ).toBeLessThanOrEqual( section.x + section.width - 20 );
 	expect( delta.y ).toBeLessThan( bar.y + bar.height );
 	expect( delta.y + delta.height ).toBeGreaterThan( bar.y );
+	const badgeBox = ( await positiveBadge.boundingBox() )!;
+	const iconBox = ( await desktop.first().getByRole( 'button' ).boundingBox() )!;
+	expect( iconBox.x ).toBeGreaterThan( badgeBox.x + badgeBox.width );
+	expect( iconBox.y ).toBeLessThan( badgeBox.y + badgeBox.height );
+	await page.goto( 'http://boost-history.test/?score-states' );
+	const zeroBadge = page.getByText( '0 points', { exact: true } );
+	await expect( zeroBadge ).toBeVisible();
+	await expect( zeroBadge ).toHaveCSS( 'background-color', 'rgb(255, 255, 255)' );
+	await expect( zeroBadge ).toHaveCSS( 'border-top-width', '1px' );
+	await expect( zeroBadge ).toHaveCSS( 'border-top-style', 'solid' );
+	await expect( zeroBadge ).toHaveCSS( 'border-top-color', 'rgb(219, 219, 219)' );
 } );
 
 test( 'Score cards show calculating and failed states inside the card', async ( { page } ) => {
