@@ -436,8 +436,7 @@ describe( 'BarChart', () => {
 
 	describe( 'Grid tick counts', () => {
 		const getPositions = ( selector: string, coordinate: string ) => {
-			// Visx renders grid and tick lines without configurable test IDs or accessible roles.
-			// eslint-disable-next-line testing-library/no-node-access
+			// eslint-disable-next-line testing-library/no-node-access -- See the visx node constraint above.
 			const lines = screen.getByRole( 'grid' ).querySelectorAll( selector );
 			return Array.from( lines, line => Number( line.getAttribute( coordinate ) ) );
 		};

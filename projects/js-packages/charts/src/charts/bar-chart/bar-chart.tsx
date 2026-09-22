@@ -638,13 +638,13 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												<Grid
 													columns={ gridVisibility.includes( 'y' ) }
 													rows={ false }
-													numTicks={ chartOptions.axis.x.numTicks ?? 4 }
+													numTicks={ chartOptions.axis.x.numTicks }
 													{ ...{ tickValues: chartOptions.axis.x.tickValues } }
 												/>
 												<Grid
 													columns={ false }
 													rows={ gridVisibility.includes( 'x' ) }
-													numTicks={ chartOptions.axis.y.numTicks ?? 4 }
+													numTicks={ chartOptions.axis.y.numTicks }
 													{ ...{ tickValues: chartOptions.axis.y.tickValues } }
 												/>
 											</>
