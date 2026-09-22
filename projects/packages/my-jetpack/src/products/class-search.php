@@ -493,10 +493,16 @@ class Search extends Hybrid_Product {
 		$is_endpoint_refusal = array_key_exists( 'checkout_fallback', $data );
 
 		if ( ! $is_endpoint_refusal ) {
+			/*
+			 * Always 502, never the upstream status. This route exists; WordPress.com answering
+			 * 404 before the endpoint deploys is not our 404 — and relaying it would have the
+			 * REST client throw a bare Api404Error with no body, losing the `checkout_fallback`
+			 * that sends the user to checkout in exactly that window.
+			 */
 			return self::activation_error(
 				'jetpack_search_free_activation_failed',
 				__( 'Jetpack Search Free could not be activated for this site.', 'jetpack-my-jetpack' ),
-				self::error_status( $data, $status ),
+				502,
 				true
 			);
 		}
@@ -511,7 +517,7 @@ class Search extends Hybrid_Product {
 	}
 
 	/**
-	 * Pick an error status for the refusal, never a 2xx.
+	 * Pick an error status for an enumerated refusal, never a 2xx.
 	 *
 	 * A success status on a WP_Error reaches the browser as a 200, which both REST clients read
 	 * as a granted product.

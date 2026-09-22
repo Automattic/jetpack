@@ -313,6 +313,12 @@ class Search_Activate_Free_Test extends TestCase {
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertTrue( $result->get_error_data()['checkout_fallback'] );
+
+		/*
+		 * Never 404: the REST client special-cases that status and throws a bare error with no
+		 * body, so the `checkout_fallback` above would never reach the dashboard.
+		 */
+		$this->assertSame( 502, $result->get_error_data()['status'] );
 	}
 
 	/**
