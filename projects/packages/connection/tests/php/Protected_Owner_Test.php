@@ -805,6 +805,96 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
+	 * Answer the next XML-RPC request from WordPress.com, and keep the request that was sent.
+	 *
+	 * @param string $inner The `<params>` or `<fault>` element of the response.
+	 * @return \stdClass Filled in with the request's `url` and `body` once it is sent.
+	 */
+	private function answer_xmlrpc( $inner ) {
+		$sent = new \stdClass();
+
+		add_filter(
+			'pre_http_request',
+			static function ( $response, $args, $url ) use ( $inner, $sent ) {
+				if ( false === strpos( $url, 'xmlrpc.php' ) ) {
+					return $response;
+				}
+
+				$sent->url  = $url;
+				$sent->body = $args['body'];
+
+				return array(
+					'headers'  => array(),
+					'body'     => '<?xml version="1.0"?><methodResponse>' . $inner . '</methodResponse>',
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+					'cookies'  => array(),
+					'filename' => null,
+				);
+			},
+			10,
+			3
+		);
+
+		return $sent;
+	}
+
+	/**
+	 * Give the owner the blog and user tokens a signed request needs.
+	 */
+	private function connect_the_owner() {
+		Jetpack_Options::update_option( 'blog_token', 'blogkey.private' );
+		Jetpack_Options::update_option( 'user_tokens', array( $this->owner_id => 'ownerkey.private.' . $this->owner_id ) );
+	}
+
+	/**
+	 * The claim goes out as a signed XML-RPC call, and an accepted answer is anchored.
+	 */
+	public function test_set_protected_owner_claims_over_xmlrpc() {
+		$this->act_as_administrator();
+		$this->connect_the_owner();
+
+		$sent = $this->answer_xmlrpc(
+			'<params><param><value><struct>' .
+			'<member><name>status</name><value><string>recorded</string></value></member>' .
+			'<member><name>wpcom_user_id</name><value><int>' . self::ANCHORED_WPCOM_ID . '</int></value></member>' .
+			'</struct></value></param></params>'
+		);
+
+		$this->assertTrue( ( new Manager() )->set_protected_owner( $this->owner_id, 'popup' ) );
+
+		$this->assertStringContainsString( '<methodName>jetpack.assertProtectedOwner</methodName>', $sent->body );
+		$this->assertStringContainsString( 'popup', $sent->body );
+
+		$anchor = (array) Protected_Owner::get();
+		$this->assertSame( self::ANCHORED_WPCOM_ID, $anchor['wpcom_user_id'] ?? null );
+	}
+
+	/**
+	 * A fault is no answer, so nothing is anchored.
+	 */
+	public function test_set_protected_owner_fails_closed_on_an_xmlrpc_fault() {
+		$this->act_as_administrator();
+		$this->connect_the_owner();
+
+		$sent = $this->answer_xmlrpc(
+			'<fault><value><struct>' .
+			'<member><name>faultCode</name><value><int>-32601</int></value></member>' .
+			'<member><name>faultString</name><value><string>server error. requested method does not exist.</string></value></member>' .
+			'</struct></value></fault>'
+		);
+
+		$result = ( new Manager() )->set_protected_owner( $this->owner_id, 'popup' );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_unconfirmed', $result->get_error_code() );
+		$this->assertNull( Protected_Owner::get() );
+		$this->assertNotEmpty( $sent->body ?? null, 'The claim never went out, so the fault was not what refused it.' );
+	}
+
+	/**
 	 * Releasing the lock needs the same permission as taking it.
 	 */
 	public function test_clear_protected_owner_refuses_an_unauthorized_actor() {
