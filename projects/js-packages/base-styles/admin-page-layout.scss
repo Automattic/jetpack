@@ -255,7 +255,9 @@ $jp-breakpoint-mobile: 782px;
 	// fill their bounded slot. Form-style pages keep working: their
 	// children stay content-sized (default `flex: 0 1 auto`) and any
 	// overflow still falls back to Container's `overflow: auto`.
-	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) {
+	// The JITM slot is chrome, not the middle: excluded so it is not made the
+	// scrollable area, which would force its card into a column.
+	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer):not(.jp-jitm-slot) {
 		flex: 1 1 auto;
 		min-height: 0;
 		min-width: 0;
