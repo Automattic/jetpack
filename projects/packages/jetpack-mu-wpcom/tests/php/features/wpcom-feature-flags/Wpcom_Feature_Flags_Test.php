@@ -402,18 +402,18 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		add_filter(
 			'pre_option_' . Wpcom_Feature_Flags::OVERRIDES_OPTION,
 			function () {
-				return array( 'my-feature' => 2 === get_current_blog_id() );
+				return array( 'my-feature' => 1 === get_current_blog_id() );
 			}
 		);
 		Wpcom_Feature_Flags::init();
 
-		$this->assertFalse( Feature_Flags::is_enabled( 'my-feature' ) );
-
-		$GLOBALS['blog_id'] = 2;
 		$this->assertTrue( Feature_Flags::is_enabled( 'my-feature' ) );
 
+		$GLOBALS['blog_id'] = 2;
+		$this->assertSame( array( 'my-feature' => false ), Wpcom_Feature_Flags::get_overrides() );
+
 		$GLOBALS['blog_id'] = 1;
-		$this->assertFalse( Feature_Flags::is_enabled( 'my-feature' ) );
+		$this->assertSame( array( 'my-feature' => true ), Wpcom_Feature_Flags::get_overrides() );
 	}
 
 	/**

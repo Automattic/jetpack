@@ -84,8 +84,8 @@ class Wpcom_Feature_Flags {
 	 * Cache of one blog's sanitized override map; valid only for $overrides_blog_id.
 	 *
 	 * Keyed by blog rather than dropped on `switch_blog`: WordPress.com's public API
-	 * resolves flags before switching to the requested site, and a hook would miss
-	 * earlier callbacks and re-read the non-autoloaded option on every restore.
+	 * resolves flags before switching to the requested site, and a hook only helps
+	 * if it fires, and fires before any other callback that resolves a flag.
 	 *
 	 * @var array<array-key, bool>|null
 	 */
