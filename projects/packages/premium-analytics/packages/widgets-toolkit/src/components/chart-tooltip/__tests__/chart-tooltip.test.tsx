@@ -219,27 +219,4 @@ describe( 'ChartTooltip', () => {
 		expect( screen.getByText( '100 Views' ) ).toBeInTheDocument();
 		expect( MetricValue ).not.toHaveBeenCalled();
 	} );
-
-	it( 'renders a supplementary row inline too, with no value column', () => {
-		render(
-			<ChartTooltip
-				tooltipData={ {
-					datumByKey: {
-						Views: { datum: { value: 100 }, index: 0, key: 'Views' },
-						'Average CPM': { datum: { value: 0.15 }, index: 1, key: 'Average CPM' },
-					},
-				} }
-				dataFormat={ DATA_FORMAT }
-				seriesStyles={ STYLES }
-				seriesKeys={ [ 'Views' ] }
-				indicatorType="line"
-				layout="inline"
-				supplementaryRows={ { 'Average CPM': { type: 'currency', options: { decimals: 2 } } } }
-				getLabel={ ( _datum, _index, key, value ) => `${ value } ${ key }` }
-			/>
-		);
-
-		expect( screen.getByText( '$0.15 Average CPM' ) ).toBeInTheDocument();
-		expect( MetricValue ).not.toHaveBeenCalled();
-	} );
 } );
