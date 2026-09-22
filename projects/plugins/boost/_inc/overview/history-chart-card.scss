@@ -155,9 +155,12 @@
 	}
 }
 
-// Read-only and aria-hidden, so the pointer reaches the days under it.
-.boost-daily-history__positioner {
-	pointer-events: none;
+// Read-only and aria-hidden; a mouse passes through, a tap stays on the box.
+@media (hover: hover) and (pointer: fine) {
+
+	.boost-daily-history__positioner {
+		pointer-events: none;
+	}
 }
 
 .boost-daily-history__popover .boost-daily-history__score-tooltip {

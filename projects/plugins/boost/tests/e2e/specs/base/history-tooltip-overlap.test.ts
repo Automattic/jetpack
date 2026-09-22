@@ -550,6 +550,34 @@ test( 'Score cards show calculating and failed states inside the card', async ( 
 	expect( ( await desktop.boundingBox() )!.y ).toBeGreaterThan( notice.y + notice.height );
 } );
 
+test.describe( 'Day details on touch', () => {
+	test.use( { hasTouch: true } );
+
+	test( 'a tap on the open box reaches nothing under it', async ( { page } ) => {
+		const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
+		const bar = ( await chart.locator( '.visx-bar' ).nth( 21 ).boundingBox() )!;
+		await page.touchscreen.tap( bar.x + bar.width / 2, bar.y + bar.height / 2 );
+		const popover = page.locator( '.boost-daily-history__popover' );
+		const date = popover.locator( '.jetpack-boost-overview__tooltip-date' );
+		await expect( date ).toHaveText( 'September 1, 2026' );
+		await expect( popover ).toHaveCSS( 'pointer-events', 'auto' );
+		const box = ( await popover.boundingBox() )!;
+		const target = [ box.x + 20, bar.y + bar.height / 2 ];
+		expect(
+			await page.evaluate(
+				( [ px, py ] ) =>
+					Boolean(
+						document.elementFromPoint( px, py )?.closest( '.boost-daily-history__popover' )
+					),
+				target
+			)
+		).toBe( true );
+		await page.touchscreen.tap( target[ 0 ], target[ 1 ] );
+		await expect( popover ).toBeVisible();
+		await expect( date ).toHaveText( 'September 1, 2026' );
+	} );
+} );
+
 test.describe( 'Overall grade help', () => {
 	test.use( { hasTouch: true } );
 
