@@ -33,6 +33,8 @@ import {
 	ToolbarButton,
 	ToolbarGroup,
 } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import {
 	createInterpolateElement,
 	useState,
@@ -75,7 +77,7 @@ import {
 	resetToDefaults,
 	turnGateOff,
 } from './utils/resource-sync';
-import { recordPaymentRead, syncBlocksBeforeSave } from './utils/sync-on-save';
+import { recordPaymentRead } from './utils/sync-on-save';
 import { toast } from './utils/toast';
 import {
 	getUserFriendlyError,
@@ -587,7 +589,8 @@ export default function ApiManagedEdit( {
 			key => ! isSameValue( key, attributes[ key ], formOpenedWith.current[ key ] )
 		);
 	const [ showUnsavedConfirm, setShowUnsavedConfirm ] = useState( false );
-	const [ isSavingPayment, setIsSavingPayment ] = useState( false );
+	const [ isSavingPost, setIsSavingPost ] = useState( false );
+	const { savePost } = useDispatch( editorStore );
 
 	/**
 	 * Back from the form to the details, asking first when there is something to lose.
@@ -610,28 +613,15 @@ export default function ApiManagedEdit( {
 	};
 
 	/**
-	 * Write the payment now, as the post save would, and leave once it is written.
-	 * A failure is reported in the snackbar and keeps the form, so it can be fixed.
+	 * Save the post, which writes the payment to PayPal on the way, and leave once
+	 * it is saved. The editor reports the save and anything that went wrong in it.
 	 */
-	const savePayment = async () => {
-		setIsSavingPayment( true );
-		let failed = false;
-		const report = status => ( _block, message ) => {
-			failed = true;
-			toast( status, message );
-		};
-		await syncBlocksBeforeSave( [ { clientId: blockClientId, attributes } ], {
-			request: apiFetch,
-			updateBlockAttributes: ( _clientId, updates ) => setAttributes( updates ),
-			reportError: report( 'error' ),
-			reportHeldBack: report( 'warning' ),
-		} );
-		setIsSavingPayment( false );
+	const saveChanges = async () => {
+		setIsSavingPost( true );
+		await savePost();
+		setIsSavingPost( false );
 		setShowUnsavedConfirm( false );
-		if ( ! failed ) {
-			toast( 'success', __( 'Payment link saved.', 'jetpack-paypal-payments' ) );
-			setIsEditing( false );
-		}
+		setIsEditing( false );
 	};
 
 	// The changed-at-PayPal warning is done once the merchant leaves the details
@@ -945,7 +935,7 @@ export default function ApiManagedEdit( {
 	const paymentChangedNotice = paymentChanged ? (
 		<Notice status="warning" isDismissible={ false }>
 			{ __(
-				'This payment link was updated elsewhere and this block has been updated to match.',
+				'This payment link was updated elsewhere and this block has been updated to match. Save the post so this page shows the change.',
 				'jetpack-paypal-payments'
 			) }
 		</Notice>
@@ -1667,8 +1657,8 @@ export default function ApiManagedEdit( {
 			{ showUnsavedConfirm && (
 				<UnsavedChangesDialog
 					canSave={ isFormValid }
-					isSaving={ isSavingPayment }
-					onSave={ savePayment }
+					isSaving={ isSavingPost }
+					onSave={ saveChanges }
 					onDiscard={ discardChanges }
 					onCancel={ () => setShowUnsavedConfirm( false ) }
 				/>

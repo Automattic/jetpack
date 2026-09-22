@@ -102,12 +102,12 @@ export function LogOutDialog( { onConfirm, onCancel } ) {
 
 /**
  * The unsaved-changes confirmation, for leaving a saved link's form with changes
- * PayPal has not been sent.
+ * the post has not saved.
  *
  * @param {object}   props           - Component props.
- * @param {boolean}  props.canSave   - Whether the form is valid, so the payment can be written.
- * @param {boolean}  props.isSaving  - Whether the payment is being written.
- * @param {Function} props.onSave    - Write the payment, then leave.
+ * @param {boolean}  props.canSave   - Whether the form is valid, so the post can be saved.
+ * @param {boolean}  props.isSaving  - Whether the post is being saved; the dialog stays up until it is.
+ * @param {Function} props.onSave    - Save the post, then leave.
  * @param {Function} props.onDiscard - Put the link back as it was, then leave.
  * @param {Function} props.onCancel  - Close and stay on the form.
  * @return {Element} The dialog.
@@ -116,7 +116,7 @@ export function UnsavedChangesDialog( { canSave, isSaving, onSave, onDiscard, on
 	return (
 		<Modal
 			title={ __( 'Changes made', 'jetpack-paypal-payments' ) }
-			onRequestClose={ onCancel }
+			onRequestClose={ () => ! isSaving && onCancel() }
 			size="medium"
 			className="jetpack-paypal-payment-buttons__unsaved-dialog"
 		>

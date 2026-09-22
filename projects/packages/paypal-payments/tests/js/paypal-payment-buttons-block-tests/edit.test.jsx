@@ -99,9 +99,14 @@ jest.mock( 'qrcode', () => ( {
 } ) );
 
 const mockMarkNotPersistent = jest.fn();
+const mockSavePost = jest.fn( () => Promise.resolve() );
 jest.mock( '@wordpress/data', () => ( {
-	useDispatch: () => ( { __unstableMarkNextChangeAsNotPersistent: mockMarkNotPersistent } ),
+	useDispatch: () => ( {
+		__unstableMarkNextChangeAsNotPersistent: mockMarkNotPersistent,
+		savePost: mockSavePost,
+	} ),
 } ) );
+jest.mock( '@wordpress/editor', () => ( { store: 'core/editor' } ) );
 
 // The real snackbar dispatches to @wordpress/notices, so in jsdom the call is all
 // there is to assert on.
@@ -2997,7 +3002,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			forgetSyncedRequests();
 		} );
 
-		it( 'corrects a stale copy from the payment PayPal holds, without dirtying the post', async () => {
+		it( 'corrects a stale copy from the payment PayPal holds, as a change to save', async () => {
 			mockResource( { ...attributes, productName: 'duplicate', price: '49.00' } );
 
 			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
@@ -3005,7 +3010,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await waitFor( () =>
 				expect( setAttributes ).toHaveBeenCalledWith( { productName: 'duplicate', price: '49.00' } )
 			);
-			expect( mockMarkNotPersistent ).toHaveBeenCalledTimes( 1 );
+			expect( mockMarkNotPersistent ).not.toHaveBeenCalled();
 		} );
 
 		/**
@@ -5845,7 +5850,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			paymentLink: saved.paymentLink,
 		};
 		const notice =
-			/This payment link was updated elsewhere and this block has been updated to match\./;
+			/This payment link was updated elsewhere and this block has been updated to match\. Save the post so this page shows the change\./;
 
 		/**
 		 * Answer the connection check, then hand back one payment.
@@ -7232,11 +7237,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 
 		// The payment is written with the post, so leaving the form with changes
-		// asks whether to write it now or put the link back.
+		// asks whether to save the post now or put the link back.
 		describe( 'Changes made', () => {
 			const edited = { ...saved, productName: 'Pain au chocolat' };
-			const putRequests = () =>
-				apiFetch.mock.calls.filter( ( [ request ] ) => 'PUT' === request.method );
 
 			/**
 			 * Open a saved link's form and change its name. setAttributes is a mock,
@@ -7261,7 +7264,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			const back = () => screen.getByRole( 'button', { name: 'Edit Button' } );
 
 			beforeEach( () => {
-				forgetSyncedRequests();
+				mockSavePost.mockClear();
 			} );
 
 			it( 'goes straight back when nothing changed', async () => {
@@ -7302,54 +7305,34 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				);
 				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
-				expect( putRequests() ).toHaveLength( 0 );
+				expect( mockSavePost ).not.toHaveBeenCalled();
 			} );
 
-			it( 'writes the payment on Save, and shows the details', async () => {
+			it( 'saves the post on Save, and shows the details once it is saved', async () => {
 				const user = userEvent.setup();
 				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				let finishSave;
+				mockSavePost.mockImplementationOnce(
+					() => new Promise( resolve => ( finishSave = resolve ) )
+				);
 				await editForm( user );
 
 				await user.click( back() );
 				await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 
-				await waitFor( () => expect( putRequests() ).toHaveLength( 1 ) );
-				expect( putRequests()[ 0 ][ 0 ].path ).toBe( resourcePath );
-				expect( JSON.stringify( putRequests()[ 0 ][ 0 ].data ) ).toContain( 'Pain au chocolat' );
-				await waitFor( () =>
-					expect( mockToast ).toHaveBeenCalledWith( 'success', 'Payment link saved.' )
-				);
-				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( mockSavePost ).toHaveBeenCalledTimes( 1 );
+				const dialog = screen.getByRole( 'dialog', { name: 'Changes made' } );
+				expect( within( dialog ).getByRole( 'button', { name: 'Save' } ) ).toBeDisabled();
+				expect( within( dialog ).getByRole( 'button', { name: 'Don’t save' } ) ).toBeDisabled();
+				// Neither the X nor Escape closes the dialog mid-save.
+				await user.click( screen.getByTestId( 'modal-close' ) );
+				expect( screen.getByRole( 'dialog', { name: 'Changes made' } ) ).toBeInTheDocument();
+
+				finishSave();
+
+				await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
 				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
 				expect( setAttributes ).not.toHaveBeenCalled();
-			} );
-
-			it( 'keeps the form when the save fails', async () => {
-				const user = userEvent.setup();
-				apiFetch.mockImplementation( ( { path, method } ) => {
-					if ( path.endsWith( '/connection' ) ) {
-						return Promise.resolve( { connected: true, environment: 'sandbox' } );
-					}
-					if ( 'PUT' === method ) {
-						return Promise.reject( { message: 'PayPal is unavailable' } );
-					}
-					return Promise.resolve( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
-				} );
-				await editForm( user );
-
-				await user.click( back() );
-				await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
-
-				// The i18n mock's sprintf leaves positional placeholders alone, so match the fixed part.
-				await waitFor( () =>
-					expect( mockToast ).toHaveBeenCalledWith(
-						'error',
-						expect.stringContaining( 'did not save' )
-					)
-				);
-				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
-				expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
-				expect( screen.queryByText( 'Hosted ID' ) ).not.toBeInTheDocument();
 			} );
 
 			// A required field emptied still leaves, but only by discarding.
@@ -7377,7 +7360,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 				expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
 				expect( setAttributes ).not.toHaveBeenCalled();
-				expect( putRequests() ).toHaveLength( 0 );
+				expect( mockSavePost ).not.toHaveBeenCalled();
 			} );
 		} );
 
