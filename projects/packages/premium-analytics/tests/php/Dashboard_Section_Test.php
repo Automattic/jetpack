@@ -95,7 +95,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
-		remove_all_filters( ADS_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( DASHBOARD_PREVIEW_SCOPE_FILTER );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
 		delete_option( Enablement_Setting::ENABLED_OPTION );
@@ -160,7 +159,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 	private function enable_every_section() {
 		$this->set_admin_user();
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
-		add_filter( ADS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
 	}
 
 	/**
@@ -390,7 +388,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'insights'    => Dashboard_Section::DATE_FILTER_YEAR,
 				'subscribers' => Dashboard_Section::DATE_FILTER_RANGE,
 				'store'       => Dashboard_Section::DATE_FILTER_RANGE,
-				'ads'         => Dashboard_Section::DATE_FILTER_RANGE,
 			),
 			array_column(
 				array_map(
@@ -471,7 +468,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Ads, Insights and Subscribers move their date control to widgets and disable comparison.
+	 * Insights and Subscribers move their date control to widgets and disable comparison.
 	 */
 	public function test_built_in_sections_declare_their_date_filter_options() {
 		// Store needs both gates: the filter stands in for WooCommerce being active,
@@ -498,10 +495,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'store'       => array(
 					'with_date_comparison'     => true,
 					'with_header_date_control' => true,
-				),
-				'ads'         => array(
-					'with_date_comparison'     => false,
-					'with_header_date_control' => false,
 				),
 			),
 			array_column(
@@ -532,7 +525,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'insights'    => false,
 				'subscribers' => false,
 				'store'       => true,
-				'ads'         => false,
 			),
 			array_column(
 				array_map(
@@ -571,7 +563,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'insights'    => 'Site insights',
 				'subscribers' => 'Subscribers stats',
 				'store'       => null,
-				'ads'         => null,
 			),
 			array_column( $sections, 'title', 'slug' )
 		);
@@ -657,6 +648,21 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertFalse( $registry->register( 'example_dashboard', 'example/traffic', array( 'label' => 'Duplicate' ) ) );
 		$this->assertNotEmpty( $this->doing_it_wrong );
 		$this->assertSame( $first, $registry->get_registered( 'example_dashboard', 'example/traffic' ) );
+	}
+
+	/**
+	 * Two ids may not share a slug: the client keys tabs and stored layouts by it.
+	 */
+	public function test_register_rejects_a_duplicate_slug() {
+		$this->capture_doing_it_wrong();
+
+		$first  = register_dashboard_section( 'slug_dashboard', 'wordads/ads', array( 'label' => 'Ads' ) );
+		$second = register_dashboard_section( 'slug_dashboard', 'analytics/ads', array( 'label' => 'Ads again' ) );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $first );
+		$this->assertFalse( $second );
+		$this->assertNull( get_registered_dashboard_section( 'slug_dashboard', 'analytics/ads' ) );
+		$this->assertSame( array( Dashboard_Section_Registry::class . '::register' ), $this->doing_it_wrong );
 	}
 
 	/**
@@ -1015,7 +1021,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'analytics/insights',
 				'analytics/subscribers',
 				'woocommerce/store',
-				'analytics/ads',
 			),
 			array_map(
 				static function ( Dashboard_Section $section ) {
@@ -1152,176 +1157,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The Ads tab is available without a local module system.
-	 */
-	public function test_registers_ads_dashboard_section_without_a_module_system() {
-		$this->set_admin_user();
-
-		register_default_dashboard_sections();
-
-		$ads = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/ads' );
-
-		$this->assertInstanceOf( Dashboard_Section::class, $ads );
-		$this->assertTrue( $ads->is_available() );
-		$this->assertSame( 'Ads', $ads->label );
-		$this->assertSame( 50, $ads->order );
-		$this->assertContains( 'analytics/ads', $this->available_section_ids() );
-		$this->assertContains( 'jpa/wordads-highlights', array_column( $ads->get_default_layout(), 'type' ) );
-	}
-
-	/**
-	 * The Ads tab is hidden when the WordAds module is inactive.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_omits_ads_dashboard_section_when_module_is_inactive() {
-		$this->set_admin_user();
-		$this->fake_jetpack_plugin();
-
-		register_default_dashboard_sections();
-
-		$ads = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/ads' );
-
-		$this->assertInstanceOf( Dashboard_Section::class, $ads );
-		$this->assertFalse( $ads->is_available() );
-
-		$ids = $this->available_section_ids();
-
-		$this->assertNotContains( 'analytics/ads', $ids );
-		$this->assertContains( 'analytics/traffic', $ids );
-	}
-
-	/**
-	 * The Ads tab is available when the WordAds module is active.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_registers_ads_dashboard_section_when_module_is_active() {
-		$this->set_admin_user();
-		$this->fake_jetpack_plugin();
-		$this->activate_module( 'wordads' );
-
-		register_default_dashboard_sections();
-
-		$ads = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/ads' );
-
-		$this->assertInstanceOf( Dashboard_Section::class, $ads );
-		$this->assertTrue( $ads->is_available() );
-		$this->assertContains( 'analytics/ads', $this->available_section_ids() );
-	}
-
-	/**
-	 * On the WPCOM platform the plan feature decides, never the module list.
-	 *
-	 * The module stays active throughout, so each assertion also proves the
-	 * platform branch was the one taken.
-	 *
-	 * @dataProvider provide_wpcom_platform_sites
-	 *
-	 * @param array<string, mixed> $constants Constants that place the site on the platform.
-	 */
-	#[DataProvider( 'provide_wpcom_platform_sites' )]
-	public function test_ads_dashboard_section_follows_the_plan_feature_on_the_wpcom_platform( $constants ) {
-		$this->set_admin_user();
-		foreach ( $constants as $name => $value ) {
-			Constants::set_constant( $name, $value );
-		}
-		$this->activate_module( 'wordads' );
-
-		register_default_dashboard_sections();
-
-		$this->assertNotContains(
-			'analytics/ads',
-			$this->available_section_ids(),
-			'A plan without the feature has no ad surfaces.'
-		);
-
-		$GLOBALS['jpa_test_wpcom_features'] = array( 'wordads' );
-
-		$this->assertContains(
-			'analytics/ads',
-			$this->available_section_ids(),
-			'The wordads plan feature turns the tab on.'
-		);
-	}
-
-	/**
-	 * A plan carrying the feature keeps the tab with the module off, the routine
-	 * state on Atomic.
-	 *
-	 * @dataProvider provide_wpcom_platform_sites
-	 *
-	 * @param array<string, mixed> $constants Constants that place the site on the platform.
-	 */
-	#[DataProvider( 'provide_wpcom_platform_sites' )]
-	public function test_ads_dashboard_section_ignores_the_module_on_the_wpcom_platform( $constants ) {
-		$this->set_admin_user();
-		foreach ( $constants as $name => $value ) {
-			Constants::set_constant( $name, $value );
-		}
-		$GLOBALS['jpa_test_wpcom_features'] = array( 'wordads' );
-
-		register_default_dashboard_sections();
-
-		$this->assertContains( 'analytics/ads', $this->available_section_ids() );
-	}
-
-	/**
-	 * The constants that place a site on each half of the WPCOM platform.
-	 *
-	 * @return array<string, array{array<string, mixed>}>
-	 */
-	public static function provide_wpcom_platform_sites() {
-		return array(
-			'Simple' => array( array( 'IS_WPCOM' => true ) ),
-			'Atomic' => array(
-				array(
-					'ATOMIC_SITE_ID'       => 123,
-					'ATOMIC_CLIENT_ID'     => 456,
-					'WPCOMSH__PLUGIN_FILE' => '/plugins/wpcomsh/wpcomsh.php',
-				),
-			),
-		);
-	}
-
-	/**
-	 * The availability filter can hide the Ads tab.
-	 */
-	public function test_ads_availability_filter_overrides_the_module_state() {
-		$this->set_admin_user();
-		add_filter( ADS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
-
-		register_default_dashboard_sections();
-
-		$ads = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/ads' );
-
-		$this->assertInstanceOf( Dashboard_Section::class, $ads );
-		$this->assertFalse( $ads->is_available() );
-		$this->assertNotContains( 'analytics/ads', $this->available_section_ids() );
-	}
-
-	/**
-	 * A stats reader cannot access the Ads tab.
-	 */
-	public function test_omits_ads_dashboard_section_from_a_view_stats_reader() {
-		$user_id = $this->set_editor_user();
-		$this->grant_view_stats_to( $user_id );
-
-		register_default_dashboard_sections();
-
-		$ads = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/ads' );
-
-		$this->assertFalse( $ads->is_available() );
-		$this->assertNotContains( 'analytics/ads', $this->available_section_ids() );
-	}
-
-	/**
 	 * The customer preview exposes the Traffic and Insights tabs and nothing else.
 	 */
 	public function test_preview_scope_leaves_only_the_traffic_and_insights_sections() {
@@ -1347,7 +1182,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'analytics/insights',
 				'analytics/subscribers',
 				'woocommerce/store',
-				'analytics/ads',
 			),
 			$this->available_section_ids()
 		);
@@ -1363,7 +1197,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		register_default_dashboard_sections();
 
-		$this->assertCount( 5, $this->available_section_ids() );
+		$this->assertCount( 4, $this->available_section_ids() );
 	}
 
 	/**
@@ -1416,7 +1250,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		register_default_dashboard_sections();
 
-		$this->assertCount( 5, $this->available_section_ids() );
+		$this->assertCount( 4, $this->available_section_ids() );
 	}
 
 	/**
@@ -1501,7 +1335,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		register_default_dashboard_sections();
 
 		$this->assertSame(
-			array( 'traffic', 'insights', 'subscribers', 'store', 'ads' ),
+			array( 'traffic', 'insights', 'subscribers', 'store' ),
 			get_dashboard_preview_scope_sections()
 		);
 	}
@@ -1589,14 +1423,14 @@ class Dashboard_Section_Test extends BaseTestCase {
 		register_default_dashboard_sections();
 
 		$this->assertSame(
-			array( 'traffic', 'insights', 'subscribers', 'ads' ),
+			array( 'traffic', 'insights', 'subscribers' ),
 			$this->request_section_slugs()
 		);
 
 		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
 
 		$this->assertSame(
-			array( 'traffic', 'insights', 'ads' ),
+			array( 'traffic', 'insights' ),
 			$this->request_section_slugs()
 		);
 	}
@@ -1890,7 +1724,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame(
-			array( 'traffic', 'insights', 'subscribers', 'ads' ),
+			array( 'traffic', 'insights', 'subscribers' ),
 			array_column( $response->get_data(), 'slug' )
 		);
 
@@ -1903,7 +1737,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame(
-			array( 'traffic', 'insights', 'subscribers', 'store', 'ads' ),
+			array( 'traffic', 'insights', 'subscribers', 'store' ),
 			array_column( $response->get_data(), 'slug' )
 		);
 	}
