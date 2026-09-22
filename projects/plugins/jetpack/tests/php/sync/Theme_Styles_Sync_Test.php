@@ -209,6 +209,16 @@ class Theme_Styles_Sync_Test extends WP_UnitTestCase {
 		$this->assertSame( array(), $slice['settings']['color']['palette'] );
 	}
 
+	/**
+	 * Core's schema leaves `settings.color.palette` untouched when it is not an array, and the
+	 * WP_Theme_JSON constructor origin-keys it anyway -- so a scalar reaches the flattening.
+	 */
+	public function test_survives_a_palette_that_is_not_an_array() {
+		$this->replacing_theme_json( array( 'settings' => array( 'color' => array( 'palette' => 'oops' ) ) ) );
+
+		$this->assertSame( array(), $this->slice()['settings']['color']['palette'] );
+	}
+
 	public function test_refuses_a_payload_over_the_size_cap() {
 		$palette = array();
 		for ( $i = 0; $i < 5000; $i++ ) {

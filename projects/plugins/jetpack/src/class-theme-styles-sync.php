@@ -48,12 +48,15 @@ class Theme_Styles_Sync {
 		// holding the previous theme's design with nothing to say the theme had changed.
 		$slice = array(
 			'stylesheet' => get_stylesheet(),
-			'version'    => 3,
+			// Core's own, not a literal: it migrates raw data to the latest schema, so labelling a
+			// later shape with an older number would have the receiving end migrate it a second time.
+			'version'    => $raw['version'] ?? 3,
 			'settings'   => array( 'color' => array( 'palette' => $palette ) ),
 			'styles'     => $styles,
 		);
 
-		$encoded = wp_json_encode( $slice, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+		// phpcs:ignore Jetpack.Functions.JsonEncodeFlags.Missing -- measuring the wire representation, which Sync encodes with default flags.
+		$encoded = wp_json_encode( $slice );
 		if ( false === $encoded || strlen( $encoded ) > self::MAX_PAYLOAD_BYTES ) {
 			return null;
 		}
@@ -186,6 +189,10 @@ class Theme_Styles_Sync {
 	/**
 	 * Flatten an origin-keyed palette into the flat list `WP_Theme_JSON` expects for one origin.
 	 *
+	 * Each origin is checked rather than assumed: core's schema leaves a non-array `palette`
+	 * untouched and the `WP_Theme_JSON` constructor origin-keys it anyway, so a theme.json
+	 * declaring a scalar there reaches this with a string where a list belongs.
+	 *
 	 * @param array $palette Palette that may be origin-keyed or already flat.
 	 * @return array
 	 */
@@ -194,11 +201,13 @@ class Theme_Styles_Sync {
 			return $palette;
 		}
 
-		return array_merge(
-			$palette['default'] ?? array(),
-			$palette['blocks'] ?? array(),
-			$palette['theme'] ?? array(),
-			$palette['custom'] ?? array()
-		);
+		$flat = array();
+		foreach ( array( 'default', 'blocks', 'theme', 'custom' ) as $origin ) {
+			if ( isset( $palette[ $origin ] ) && is_array( $palette[ $origin ] ) ) {
+				$flat = array_merge( $flat, $palette[ $origin ] );
+			}
+		}
+
+		return $flat;
 	}
 }
