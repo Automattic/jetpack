@@ -8,8 +8,8 @@ const desktopScores = [
 	88, 88, 88, 95, 95, 95,
 ];
 const mobileScores = [
-	30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 55, 55, 55, 55, 55, 65, 65, 65, 65, 65, 65, 90,
-	90, 90, 68, 68, 68, 68,
+	30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 90,
+	90, 90, 58, 58, 58, 58,
 ];
 
 export function buildSampleHistory( window: HistoryWindow ): PerformanceHistoryData {

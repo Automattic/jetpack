@@ -1,5 +1,5 @@
 /* eslint-disable testing-library/prefer-user-event */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import HistoryUpsell, { previewExpandedKey } from './history-upsell';
 import { getHistoryWindow } from './lib/history-days';
 import { buildSampleHistory } from './lib/sample-history';
@@ -51,12 +51,25 @@ test( 'shows a collapsed one-line notice with the upgrade slot and no chart', ()
 	expect( screen.queryByRole( 'grid' ) ).not.toBeInTheDocument();
 } );
 
-test( 'expands a non-interactive sample chart and remembers it for the session', () => {
+test( 'expands a non-interactive sample chart and remembers it for the session', async () => {
 	const { unmount } = render( <HistoryUpsell range={ range } dayCount={ 30 } /> );
 	fireEvent.click( screen.getByRole( 'button', showPreview ) );
 	expect( screen.getByRole( 'button', hidePreview ) ).toHaveAttribute( 'aria-expanded', 'true' );
 	const preview = screen.getByRole( 'img', { name: 'Score history chart with sample data' } );
 	expect( preview ).toBeVisible();
+	await waitFor( () => {
+		expect(
+			// eslint-disable-next-line testing-library/no-node-access -- SVG bars have no accessible role.
+			Array.from( screen.getAllByTestId( 'bar-chart' )[ 1 ].querySelectorAll( '.visx-bar' ), bar =>
+				bar.getAttribute( 'fill' )
+			)
+		).toEqual( [
+			...Array( 12 ).fill( 'var(--jetpack-boost-score-poor)' ),
+			...Array( 11 ).fill( 'var(--jetpack-boost-score-medium)' ),
+			...Array( 3 ).fill( 'var(--jetpack-boost-score-good)' ),
+			...Array( 4 ).fill( 'var(--jetpack-boost-score-medium)' ),
+		] );
+	} );
 	// eslint-disable-next-line testing-library/no-node-access -- The inert wrapper has no role.
 	expect( preview.firstElementChild ).toHaveAttribute( 'inert' );
 	expect( screen.getByRole( 'heading', { name: 'Last 30 days' } ) ).toBeInTheDocument();
