@@ -68,6 +68,26 @@ describe( 'ChartTooltip', () => {
 		expect( screen.queryByText( '18.4K' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'reads a missing value as No data and keeps a real zero', () => {
+		render(
+			<ChartTooltip
+				tooltipData={ {
+					datumByKey: {
+						Views: { datum: { value: null }, index: 0, key: 'Views' },
+						Visitors: { datum: { value: 0 }, index: 1, key: 'Visitors' },
+					},
+				} }
+				dataFormat={ DATA_FORMAT }
+				seriesStyles={ STYLES }
+				indicatorType="rect"
+				getLabel={ ( _datum, _index, key ) => key }
+			/>
+		);
+
+		expect( screen.getAllByText( 'No data' ) ).toHaveLength( 1 );
+		expect( screen.getByText( '0' ) ).toBeInTheDocument();
+	} );
+
 	it( 'pairs each row with its own series style when given series keys', () => {
 		render(
 			<ChartTooltip
