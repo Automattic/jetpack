@@ -22,11 +22,14 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
 	MetricTabsChart: ( {
 		metrics,
+		baseline,
 	}: {
 		metrics: { key: string; value: number; current: { date: Date; value: number }[] }[];
+		baseline?: string;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
+			data-baseline={ baseline }
 			data-metric-keys={ metrics.map( metric => metric.key ).join( ',' ) }
 			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
 			data-days={ metrics[ 0 ]?.current.map( point => point.date.getDate() ).join( ',' ) }
@@ -98,6 +101,19 @@ describe( 'SubscribersChartWidget', () => {
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		expect( chart ).toHaveAttribute( 'data-metric-keys', 'subscribers,paid' );
+	} );
+
+	it( 'draws the cumulative count on a padded baseline', async () => {
+		mockUseStatsSubscribersReport.mockReturnValue(
+			reportWith( [ { date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: 0 } ] )
+		);
+
+		render(
+			<SubscribersChartWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } />
+		);
+
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		expect( chart ).toHaveAttribute( 'data-baseline', 'padded' );
 	} );
 
 	describe( 'widget-owned date range', () => {

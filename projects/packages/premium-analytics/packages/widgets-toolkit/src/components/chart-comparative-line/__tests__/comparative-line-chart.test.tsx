@@ -149,7 +149,10 @@ type RecordedLineProps = {
 	defaultHiddenSeries?: readonly string[];
 	legend: { collapseGroups: boolean; comparisonItem: boolean; interactive: boolean };
 	margin?: Record< string, number >;
-	options?: { yScale?: { domain?: [ number, number ] }; axis: { y: { display?: boolean } } };
+	options?: {
+		yScale?: { domain?: [ number, number ]; zero?: boolean };
+		axis: { y: { display?: boolean } };
+	};
 	renderTooltip: ( params: unknown ) => {
 		props: { getLabel: GetTooltipLabel; layout?: string };
 	};
@@ -234,6 +237,68 @@ describe( 'ComparativeLineChart', () => {
 			// margin here would clip the first and last dates, which still render.
 			expect( recordedProps().options.axis.y.display ).toBe( false );
 			expect( recordedProps().margin ).toBeUndefined();
+		} );
+	} );
+
+	describe( 'value axis baseline', () => {
+		const STEADY: ComparativeLineChartSeries[] = [
+			{
+				label: 'Subscribers',
+				group: 'subscribers',
+				data: [
+					{ date: JULY_1, value: 140 },
+					{ date: JULY_2, value: 144 },
+				],
+			},
+		];
+
+		it( 'starts at zero by default and lets the chart fit the rest', () => {
+			render( <ComparativeLineChart series={ STEADY } dataFormat={ DATA_FORMAT } /> );
+
+			expect( recordedProps().options.yScale ).toEqual( { zero: true } );
+		} );
+
+		it( 'pins a padded domain for a cumulative metric', () => {
+			render(
+				<ComparativeLineChart series={ STEADY } dataFormat={ DATA_FORMAT } baseline="padded" />
+			);
+
+			expect( recordedProps().options.yScale ).toEqual( { domain: [ 136, 144 ] } );
+		} );
+
+		it( 'falls back to zero when a padded chart draws more than one series', () => {
+			render(
+				<ComparativeLineChart
+					series={ [ ...STEADY, ...SERIES ] }
+					dataFormat={ DATA_FORMAT }
+					baseline="padded"
+				/>
+			);
+
+			expect( recordedProps().options.yScale ).toEqual( { zero: true } );
+		} );
+
+		it( 'keeps a percentage metric on 0 to 100% whatever the baseline', () => {
+			render(
+				<ComparativeLineChart
+					series={ STEADY }
+					dataFormat={ { type: 'percentage', options: { decimals: 0 } } }
+					baseline="padded"
+				/>
+			);
+
+			expect( recordedProps().options.yScale ).toEqual( { domain: [ 0, 1 ] } );
+		} );
+
+		it( 'keeps the empty-state axis for an all-zero period whatever the baseline', () => {
+			const empty: ComparativeLineChartSeries[] = [
+				{ label: 'Subscribers', group: 'subscribers', data: [ { date: JULY_1, value: 0 } ] },
+			];
+			render(
+				<ComparativeLineChart series={ empty } dataFormat={ DATA_FORMAT } baseline="padded" />
+			);
+
+			expect( recordedProps().options.yScale ).toEqual( { domain: [ 0, 80 ] } );
 		} );
 	} );
 

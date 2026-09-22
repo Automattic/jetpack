@@ -135,6 +135,7 @@ function MyWidget( { series } ) {
 | `chartId`    | `string`                       | No       | Identity the charts provider keys visibility on; generated when omitted. Change it whenever `defaultHiddenSeries` should be applied again |
 | `defaultHiddenSeries` | `readonly string[]`   | No       | Labels of series hidden until revealed from the legend. Applied once per `chartId`, so only useful with `legendInteractive` |
 | `legendInteractive` | `boolean`             | No       | Let the reader click legend items to show and hide series; the first item stays locked. Defaults to `false` |
+| `baseline`   | `'zero' \| 'padded'`          | No       | Where the Y-axis starts. `zero` (default) for a per-period metric; `padded` for a cumulative count, see below |
 
 ## SeriesStyle Type
 
@@ -159,6 +160,14 @@ The component aligns previous-period series onto the axis dates for X-axis displ
 3. The original date is preserved in `realDate` for tooltip display
 
 **Example**: A comparison series with Dec 25-31 dates will visually align to Jan 1-7 on the X-axis, but tooltips show the real Dec 25-31 dates.
+
+## Y-axis baseline
+
+The Y-axis starts at zero, so the line's height reads as the value and a week of near-identical values draws as a near-flat line. Hiding a series from the legend rescales the axis to what is visible.
+
+For a cumulative count such as total subscribers, a zero baseline flattens every change, while an axis fitted to the data turns a change of four into a cliff. Pass `baseline="padded"` and the axis starts a little below the data instead, so the data fills about half the chart; `getPaddedYDomain` in the helpers owns the exact rule. The padded axis is pinned, so it applies only when the chart draws a single series; with more, the chart falls back to the zero baseline.
+
+A percentage metric always reads 0% to 100%, and an all-zero period keeps the empty-state axis below, whichever baseline is set.
 
 ## Empty State
 

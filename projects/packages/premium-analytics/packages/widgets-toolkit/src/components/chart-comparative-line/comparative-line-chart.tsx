@@ -25,6 +25,7 @@ import {
 	formatTooltipPointLabel,
 	isEmptyChartData,
 	getFixedYAxis,
+	getPaddedYDomain,
 	dateFormatForResolution,
 	resolveSeriesNames,
 	resolveTooltipNames,
@@ -34,6 +35,7 @@ import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-line-chart.module.scss';
 import { alignSeriesDates } from './utils';
 import type { ComparativeLineChartSeries, SeriesStyle, TooltipExtraSeries } from './types';
+import type { ChartBaseline } from '../../helpers';
 import type { DataFormat } from '../../types';
 
 /** Series styles, with the explicit `styles` prop taking priority over `series[].options`. */
@@ -136,6 +138,14 @@ export type ComparativeLineChartProps = {
 	 * `TooltipExtraSeries` for what listing one changes about the rows.
 	 */
 	tooltipExtras?: TooltipExtraSeries[];
+
+	/**
+	 * Where the value axis starts. `zero` (the default) suits a per-period metric;
+	 * `padded` keeps a lone cumulative count's small changes visible, and falls back
+	 * to `zero` with several series. A percentage metric and an all-zero period pin
+	 * their own axis either way.
+	 */
+	baseline?: ChartBaseline;
 } & Omit<
 	ComponentProps< typeof LineChart >,
 	| 'data'
@@ -164,6 +174,7 @@ export function ComparativeLineChart( {
 	defaultHiddenSeries,
 	legendInteractive = false,
 	tooltipExtras,
+	baseline = 'zero',
 	onPointerDown,
 	onPointerUp,
 	onDatumActivate,
@@ -269,11 +280,19 @@ export function ComparativeLineChart( {
 		[ isEmptyData, tooltipExtras ]
 	);
 
-	// A pinned domain for percentage metrics and all-zero periods. Null lets the
-	// chart scale to the data.
+	// A pinned domain for percentage metrics and all-zero periods. Null falls
+	// through to the baseline below.
 	const fixedYAxis = useMemo(
 		() => getFixedYAxis( dataFormat.type, isEmptyData ),
 		[ dataFormat.type, isEmptyData ]
+	);
+
+	// Only a lone series gets the padded axis: a pinned domain cannot follow the
+	// legend, so a second series would leave the axis stuck when hidden.
+	const paddedDomain = useMemo(
+		() =>
+			baseline === 'padded' && styledSeries.length === 1 ? getPaddedYDomain( styledSeries ) : null,
+		[ baseline, styledSeries ]
 	);
 
 	const xTickFormat = useCallback(
@@ -298,12 +317,22 @@ export function ComparativeLineChart( {
 			},
 		};
 
-		if ( ! fixedYAxis ) {
-			return baseOptions;
+		const domain = fixedYAxis?.domain ?? paddedDomain;
+		if ( domain ) {
+			return { ...baseOptions, yScale: { domain } };
 		}
 
-		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
-	}, [ xTickFormat, xTickFormatType, tickResolution, yTickFormat, fixedYAxis, isCompact ] );
+		// `zero` rather than a domain, so hiding a series still rescales the axis.
+		return { ...baseOptions, yScale: { zero: true } };
+	}, [
+		xTickFormat,
+		xTickFormatType,
+		tickResolution,
+		yTickFormat,
+		fixedYAxis,
+		paddedDomain,
+		isCompact,
+	] );
 
 	return (
 		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>
