@@ -386,6 +386,9 @@ function wpcom_add_jetpack_submenu() {
 
 	// Jetpack > Backup.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
+	// Temporary: the Jetpack plugin's Backup dashboard claims this slug too, so hide its entry
+	// until the override below goes away. Hidden, not removed — the page stays reachable.
+	wpcom_hide_submenu_page( 'jetpack', 'jetpack-backup' );
 	add_submenu_page(
 		'jetpack',
 		/** "Backup" is a product name, do not translate. */

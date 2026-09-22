@@ -84,10 +84,9 @@ class Backup_Feature_Check {
 	/**
 	 * Asks My Jetpack and stores what it says.
 	 *
-	 * Also the `my_jetpack_site_features_updated` listener: that action fires once My Jetpack
-	 * has read and cached the feature list, so the read below is answered without a request.
-	 * Takes no argument on purpose — the action passes one, and a parameter here would
-	 * silently collect it.
+	 * Also the `my_jetpack_site_features_updated` listener, which fires just after the feature
+	 * list is cached — so the read below costs no request. Takes no argument on purpose: the
+	 * action passes one, and a parameter here would silently collect it.
 	 *
 	 * @return void
 	 */
