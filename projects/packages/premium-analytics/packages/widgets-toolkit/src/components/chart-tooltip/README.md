@@ -61,7 +61,7 @@ const renderTooltip = params => (
 | `indicatorType` | `'line' \| 'rect'`                         | Yes      | Shape indicator: line for line charts, rect for bars                                                                                                                                                                                                 |
 | `layout`        | `'split' \| 'inline'`                      | No       | `split` (default) sets the label left and the value right; `inline` renders the label alone, for a `getLabel` that spells the value into it                                                                                                          |
 | `getLabel`      | `(datum, index, key, value) => string`     | No       | Custom label extractor (default: `datum.label`). `key` is the series key/label; `value` is the row's value spelled out in full, in the row's own format                                                                                              |
-| `getValue`      | `(datum) => number`                        | No       | Custom value extractor (default: `datum.value`)                                                                                                                                                                                                      |
+| `getValue`      | `(datum) => number \| null`                | No       | Custom value extractor (default: `datum.value`). A `null` value reads "No data"                                                                                                                                                                      |
 
 ## TooltipStyle Type
 
@@ -87,9 +87,9 @@ function defaultGetLabel( datum: unknown, _index: number, _key: string, _value: 
 	return ( datum as { label: string } ).label ?? '';
 }
 
-// Default value extractor - uses datum.value
-function defaultGetValue( datum: unknown ): number {
-	return ( datum as { value: number } ).value;
+// Default value extractor - uses datum.value, reading a missing one as null
+function defaultGetValue( datum: unknown ): number | null {
+	return ( datum as { value?: number | null } ).value ?? null;
 }
 ```
 
