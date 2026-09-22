@@ -63,9 +63,6 @@ class Jetpack_WP_Build_Page {
 		}
 
 		if ( class_exists( WP_Build_Polyfills::class ) ) {
-			// wp-rich-text is needed because the AI Hub's Scheduled tasks tab reaches @wordpress/dataviews
-			// via @wordpress/ui, whose dataform controls unlock rich-text's privateApis at module
-			// scope. WP 6.9 exports none, so without it the bundle throws and the page is blank.
 			WP_Build_Polyfills::register(
 				'jetpack',
 				array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )

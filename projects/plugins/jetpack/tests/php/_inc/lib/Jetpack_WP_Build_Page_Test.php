@@ -56,9 +56,6 @@ class Jetpack_WP_Build_Page_Test extends WP_UnitTestCase {
 		$this->assertFalse( has_action( 'admin_enqueue_scripts', array( Jetpack_WP_Build_Page::class, 'alias_screen_id' ) ) );
 	}
 
-	/**
-	 * JITM builds its message path from the screen ID, so the alias must be handed back.
-	 */
 	public function test_screen_id_alias_round_trip() {
 		set_current_screen( 'dashboard' );
 		$original = get_current_screen()->id;
