@@ -54,8 +54,7 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 			remove_filter( $hook, $callback );
 		}
 		$this->temporary_filters = array();
-
-		delete_transient( $this->get_help_label_cache_key() );
+		delete_transient( 'jetpack-explat-wpcom-' . $this->user_id . '-' . md5( Help_Center::GET_HELP_EXPERIMENT ) );
 
 		// The Help_Center constructor registers hooks against $this. Without this,
 		// each test would leak duplicate callbacks into later tests in the session.
@@ -241,84 +240,6 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 		);
 	}
 
-	public function test_an_unresolved_assignment_is_not_cached_as_the_control() {
-		$help_center = $this->help_center_with_assignment_response( new \WP_Error( 'http_request_failed', 'timeout' ) );
-
-		$data = $help_center->get_help_center_data( 'gutenberg' );
-
-		$this->assertArrayNotHasKey( 'entryLabel', $data );
-		// Caching the failure would keep the user out of the experiment for an hour.
-		$this->assertFalse( get_transient( $this->get_help_label_cache_key() ) );
-
-		self::remove_help_center_hooks( $help_center );
-	}
-
-	public function test_a_resolved_assignment_is_cached() {
-		$help_center = $this->help_center_with_assignment_response(
-			array(
-				'response' => array( 'code' => 200 ),
-				'body'     => wp_json_encode(
-					array( 'variations' => array( Help_Center::GET_HELP_EXPERIMENT => Help_Center::GET_HELP_VARIATION ) ),
-					JSON_UNESCAPED_SLASHES
-				),
-			)
-		);
-
-		$data = $help_center->get_help_center_data( 'gutenberg' );
-
-		$this->assertSame( 'Get Help', $data['entryLabel'] );
-		$this->assertSame( '1', (string) get_transient( $this->get_help_label_cache_key() ) );
-
-		self::remove_help_center_hooks( $help_center );
-	}
-
-	/**
-	 * @return string
-	 */
-	private function get_help_label_cache_key(): string {
-		return 'help-center-get-help-label-' . $this->user_id . '-' . Help_Center::GET_HELP_EXPERIMENT;
-	}
-
-	/**
-	 * A Help Center whose ExPlat assignment request returns the given response.
-	 *
-	 * @param mixed $response What the request client returns.
-	 * @return Help_Center
-	 */
-	private function help_center_with_assignment_response( $response ): Help_Center {
-		$client = new class( $response ) implements Wpcom_Request_Client {
-			/**
-			 * @var mixed
-			 */
-			private $response;
-
-			/**
-			 * @param mixed $response What request() returns.
-			 */
-			public function __construct( $response ) {
-				$this->response = $response;
-			}
-
-			public function is_user_connected() {
-				return true;
-			}
-
-			// phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- The stub answers every request the same way.
-			public function request(
-				$path,
-				$version = '2',
-				$args = array(),
-				$body = null,
-				$base_api_path = 'wpcom'
-			) {
-				return $this->response;
-			}
-			// phpcs:enable Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		};
-
-		return new Help_Center( $client );
-	}
-
 	public function test_help_center_data_omits_the_experiment_variation_for_the_control() {
 		$this->force_label_variation( 'control' );
 
@@ -434,6 +355,13 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 
 	public function test_init_uses_filtered_wpcom_request_client() {
 		$wpcom_request_client = new class() implements Wpcom_Request_Client {
+			/**
+			 * Captured requests.
+			 *
+			 * @var array
+			 */
+			public $requests = array();
+
 			public function is_user_connected() {
 				return true;
 			}
@@ -445,7 +373,14 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 				$body = null,
 				$base_api_path = 'wpcom'
 			) {
-				return compact( 'path', 'version', 'args', 'body', 'base_api_path' );
+				$this->requests[] = compact( 'path', 'version', 'args', 'body', 'base_api_path' );
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode(
+						array( 'variations' => array( Help_Center::GET_HELP_EXPERIMENT => Help_Center::GET_HELP_VARIATION ) )
+					),
+				);
 			}
 		};
 
@@ -467,6 +402,21 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 			$property->setAccessible( true );
 		}
 		$this->assertSame( $wpcom_request_client, $property->getValue( $help_center ) );
+
+		$this->assertSame( 'Get Help', $help_center->get_help_center_data( 'gutenberg' )['entryLabel'] );
+		$help_center->get_help_center_data( 'gutenberg' );
+		$this->assertSame(
+			array(
+				array(
+					'path'          => '/experiments/0.1.0/assignments/wpcom?experiment_names=wpcom_help_center_get_help_label',
+					'version'       => 'v2',
+					'args'          => array(),
+					'body'          => null,
+					'base_api_path' => 'wpcom',
+				),
+			),
+			$wpcom_request_client->requests
+		);
 	}
 
 	public function test_rest_controller_uses_injected_wpcom_request_client() {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Launchpad personalization: stop caching an unanswered ExPlat lookup as the control for an hour.
