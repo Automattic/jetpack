@@ -107,6 +107,37 @@ final class Settings_Page {
 	}
 
 	/**
+	 * Warn when PHP has no mbstring extension.
+	 *
+	 * Sharing sources fall back to byte-wise string functions without it, which
+	 * can cut multibyte text mid-character when a service truncates it.
+	 */
+	private static function render_multibyte_warning(): void {
+		if ( function_exists( 'mb_stripos' ) ) {
+			return;
+		}
+
+		printf(
+			'<div class="notice notice-warning"><p><strong>%1$s</strong></p><p>%2$s</p></div>',
+			esc_html__( 'Warning! Multibyte support missing!', 'jetpack-sharing-likes' ),
+			wp_kses(
+				sprintf(
+					/* translators: placeholder is a link to a PHP support document. */
+					__( 'This plugin will work without it, but multibyte support is used <a href="%s" rel="noopener noreferrer" target="_blank">if available</a>. You may see minor problems with Tweets and other sharing services.', 'jetpack-sharing-likes' ),
+					'https://www.php.net/manual/en/mbstring.installation.php'
+				),
+				array(
+					'a' => array(
+						'href'   => array(),
+						'rel'    => array(),
+						'target' => array(),
+					),
+				)
+			)
+		);
+	}
+
+	/**
 	 * Render the screen.
 	 */
 	public static function render(): void {
@@ -114,6 +145,7 @@ final class Settings_Page {
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Sharing Settings', 'jetpack-sharing-likes' ); ?></h1>
 			<?php
+			self::render_multibyte_warning();
 			self::render_saved_notice();
 
 			/**
