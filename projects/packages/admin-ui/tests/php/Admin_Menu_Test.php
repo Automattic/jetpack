@@ -200,6 +200,17 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
+	 * A page core registers as admin_page_<slug>, for a user without the Jetpack menu, gets the same hooks.
+	 */
+	public function test_add_menu_covers_the_admin_page_fallback_hook() {
+		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'fallback_menu', '__return_null' );
+
+		$this->assertNotFalse( has_action( 'load-admin_page_fallback_menu', array( Admin_Menu::class, 'hide_core_admin_notices' ) ) );
+		Admin_Menu::maybe_enqueue_design_tokens( 'admin_page_fallback_menu' );
+		$this->assertTrue( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
+	}
+
+	/**
 	 * The core-notice CSS reaches the page through the style queue, not through a printed style element.
 	 *
 	 * @return void

@@ -478,14 +478,17 @@ class Admin_Menu {
 		 */
 		$hook = 'jetpack_page_' . $menu_slug;
 
-		// Track the page hook so the design-tokens stylesheet can be scoped to it.
-		self::$page_hooks[] = $hook;
+		// Core names the page admin_page_<slug> instead when the user has no Jetpack top-level menu.
+		foreach ( array( $hook, 'admin_page_' . $menu_slug ) as $page_hook ) {
+			// Track the page hook so the design-tokens stylesheet can be scoped to it.
+			self::$page_hooks[] = $page_hook;
 
-		// Hide WordPress core admin notices on this Jetpack page. The load-<hook>
-		// action only fires when the matching screen is being rendered, so this
-		// stays scoped to Jetpack pages and reaches every page registered here.
-		add_action( 'load-' . $hook, array( __CLASS__, 'hide_core_admin_notices' ) );
-		add_action( 'load-' . $hook . '-network', array( __CLASS__, 'hide_core_admin_notices' ) );
+			// Hide WordPress core admin notices on this Jetpack page. The load-<hook>
+			// action only fires when the matching screen is being rendered, so this
+			// stays scoped to Jetpack pages and reaches every page registered here.
+			add_action( 'load-' . $page_hook, array( __CLASS__, 'hide_core_admin_notices' ) );
+			add_action( 'load-' . $page_hook . '-network', array( __CLASS__, 'hide_core_admin_notices' ) );
+		}
 
 		return $hook;
 	}
