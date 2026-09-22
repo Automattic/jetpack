@@ -17,6 +17,10 @@ jest.mock( './subpage-frame', () => ( {
 		</div>
 	),
 } ) );
+jest.mock( './back-to-settings-link', () => ( {
+	__esModule: true,
+	default: () => <a href="#settings">back to settings</a>,
+} ) );
 jest.mock( '../../pages/critical-css-advanced/critical-css-advanced-cards', () => ( {
 	__esModule: true,
 	default: () => <div>critical css advanced</div>,
@@ -49,6 +53,15 @@ describe( 'ModernSubpage', () => {
 		render( <ModernSubpage subpage={ subpage as Subpage } /> );
 
 		expect( screen.getByRole( 'heading', { level: 1 } ).textContent ).toBe( title );
+	} );
+
+	it.each( [
+		[ 'critical-css-advanced', 1 ],
+		[ 'cache-debug-log', 0 ],
+	] )( 'shows the back link on %s %d time(s)', ( subpage, count ) => {
+		render( <ModernSubpage subpage={ subpage as Subpage } /> );
+
+		expect( screen.queryAllByText( 'back to settings' ) ).toHaveLength( count );
 	} );
 
 	it( 'renders only the requested sub-page', () => {
