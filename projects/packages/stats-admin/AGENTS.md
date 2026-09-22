@@ -20,6 +20,7 @@ src/
 ├── class-rest-controller.php         # REST API endpoints
 ├── class-wpcom-client.php            # General-purpose WPCOM API client with caching
 ├── class-notices.php                 # Admin notices handling
+├── class-admin-bar.php               # Admin bar views chart and Stats link
 ├── class-admin-post-list-column.php  # Post list view count column
 └── class-wp-dashboard-odyssey-widget.php # WP Dashboard widget
 ```
