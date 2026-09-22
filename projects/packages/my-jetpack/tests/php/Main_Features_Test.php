@@ -64,22 +64,18 @@ class Main_Features_Test extends TestCase {
 	 * map lives in the UI's `PRODUCT_MODULES`, which this package's PHP cannot read.
 	 */
 	public function test_module_groups_list_each_module_once_and_skip_main_features() {
-		$product_modules = array(
-			'backup'        => 'vaultpress',
-			'social'        => 'publicize',
-			'jetpack-forms' => 'contact-form',
-			'jetpack-ai'    => 'ai',
-		);
+		// The modules a product owns under a different name. That map lives in the UI's
+		// `PRODUCT_MODULES`, which this package's PHP cannot read.
+		$product_modules = array( 'vaultpress', 'publicize', 'contact-form', 'ai' );
 
-		$grouped = array_merge( ...array_column( Main_Features::get_module_groups(), 'modules' ) );
-		$covered = array_filter(
-			array_map(
-				function ( $feature ) use ( $product_modules ) {
-					$product = $feature['product'] ?? '';
-
-					return $feature['module'] ?? $product_modules[ $product ] ?? $product;
-				},
-				Main_Features::get_feature_definitions()
+		$definitions = Main_Features::get_feature_definitions();
+		$grouped     = array_merge( ...array_column( Main_Features::get_module_groups(), 'modules' ) );
+		$covered     = array_filter(
+			array_merge(
+				$product_modules,
+				array_column( $definitions, 'module' ),
+				// A product whose module is named after it covers that slug too.
+				array_column( $definitions, 'product' )
 			)
 		);
 
