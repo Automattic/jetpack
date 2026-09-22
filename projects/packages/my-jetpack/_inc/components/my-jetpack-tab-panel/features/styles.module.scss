@@ -207,8 +207,10 @@ $feature-icon-foreground: #0ced57;
 }
 
 
-// The grid's rows stop at the card edge, so this brings its own room.
+// The grid's rows stop at the card edge, so this brings its own room. The wider
+// measure keeps the search state's two buttons on one line.
 .empty-state {
+	max-inline-size: var(--wpds-dimension-surface-width-md);
 	padding-block: var(--wpds-dimension-padding-3xl);
 }
 
