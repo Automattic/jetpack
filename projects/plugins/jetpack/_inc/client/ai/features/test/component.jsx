@@ -88,6 +88,64 @@ describe( 'AiFeatures rendering', () => {
 		expect( toggle ).toBeEnabled();
 	} );
 
+	describe( 'SEO settings link', () => {
+		const originalSettings = window.jetpackAiSettings;
+
+		beforeEach( () => {
+			window.jetpackAiSettings = { seoSettingsUrl: 'admin.php?page=jetpack#/traffic' };
+		} );
+
+		afterEach( () => {
+			window.jetpackAiSettings = originalSettings;
+		} );
+
+		test.each( [ false, undefined ] )( 'hides the link when access is %s', canManageSeo => {
+			renderFeatures( {
+				can_manage_seo: canManageSeo,
+				features: { ai_seo: { enabled: true } },
+			} );
+
+			expect( screen.queryByRole( 'link', { name: 'Open SEO Settings' } ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'checkbox', { name: /AI SEO/ } ) ).toBeEnabled();
+			expect( screen.getByRole( 'checkbox', { name: /AI SEO/ } ) ).toBeChecked();
+		} );
+
+		test.each( [ 'admin.php?page=jetpack#/traffic', 'admin.php?page=jetpack-seo' ] )(
+			'uses the server-provided target %s when access is granted',
+			seoSettingsUrl => {
+				window.jetpackAiSettings = { seoSettingsUrl };
+				renderFeatures( {
+					can_manage_seo: true,
+					features: { ai_seo: { enabled: true } },
+				} );
+
+				expect( screen.getByRole( 'link', { name: 'Open SEO Settings' } ) ).toHaveAttribute(
+					'href',
+					seoSettingsUrl
+				);
+			}
+		);
+
+		test( 'does not invent a target when the server provides none', () => {
+			delete window.jetpackAiSettings;
+			renderFeatures( {
+				can_manage_seo: true,
+				features: { ai_seo: { enabled: true } },
+			} );
+
+			expect( screen.queryByRole( 'link', { name: 'Open SEO Settings' } ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'keeps the documentation link when AI SEO is disabled', () => {
+			renderFeatures( {
+				can_manage_seo: false,
+				features: { ai_seo: { enabled: false } },
+			} );
+
+			expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toBeInTheDocument();
+		} );
+	} );
+
 	test( 'the upgrade badge sits inside the Search group', () => {
 		renderFeatures();
 
