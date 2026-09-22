@@ -77,7 +77,7 @@ export default function LinkDetails( {
 						},
 						{
 							title: __( 'Change item', 'jetpack-paypal-payments' ),
-							icon: replace,
+							icon: update,
 							onClick: onChangeLink,
 							isDisabled: ! canChangeLink,
 						},
