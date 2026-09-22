@@ -271,6 +271,64 @@ class Jetpack_Google_Font_Face_Native_Test extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( 'example.org/catalogue.woff2', $output );
 	}
 	/** @return array */
+	public static function partial_native_faces() {
+		return array(
+			'variable upright' => array( array( array( '100 900', 'normal' ) ), array( '400-italic', '700-italic' ) ),
+			'static upright'   => array( array( array( '400', 'normal' ) ), array( '700-normal', '400-italic', '700-italic' ) ),
+			'keyword weights'  => array( array( array( 'bold', 'normal' ), array( 'normal', 'italic' ) ), array( '400-normal', '700-italic' ) ),
+			'full set'         => array( array( array( '100 900', 'normal' ), array( '100 900', 'italic' ) ), array() ),
+		);
+	}
+
+	/**
+	 * @dataProvider partial_native_faces
+	 * @param array    $native_faces Native weight and style pairs.
+	 * @param string[] $expected     Catalogue faces that should fill the gaps.
+	 */
+	#[DataProvider( 'partial_native_faces' )]
+	public function test_catalogue_fills_only_faces_native_font_lacks( $native_faces, $expected ) {
+		$catalogue_faces = array();
+		foreach ( array( '400-normal', '700-normal', '400-italic', '700-italic' ) as $face ) {
+			list( $weight, $style ) = explode( '-', $face );
+			$catalogue_faces[]      = array(
+				'fontFamily' => 'Catalogue Font',
+				'fontWeight' => $weight,
+				'fontStyle'  => $style,
+				'src'        => "https://example.org/catalogue-$face.woff2",
+			);
+		}
+		add_filter(
+			'pre_jetpack_get_google_fonts_data',
+			static function () use ( $catalogue_faces ) {
+				$family             = self::font_definition( 'Catalogue Font', 'catalogue-font', '' );
+				$family['fontFace'] = $catalogue_faces;
+				return array( 'fontFamilies' => array( $family ) );
+			},
+			100
+		);
+
+		$native             = self::font_definition( 'Catalogue Font', 'catalogue-font', '' );
+		$native['fontFace'] = array();
+		foreach ( $native_faces as $i => list( $weight, $style ) ) {
+			$native['fontFace'][] = array(
+				'fontFamily' => 'Catalogue Font',
+				'fontWeight' => $weight,
+				'fontStyle'  => $style,
+				'src'        => "https://example.org/native-$i.woff2",
+			);
+		}
+		$this->native_fonts( array( $native ), 'var(--wp--preset--font-family--catalogue-font), sans-serif' );
+
+		$output = $this->get_font_output();
+		foreach ( array_keys( $native_faces ) as $i ) {
+			$this->assertSame( 1, substr_count( $output, "https://example.org/native-$i.woff2" ) );
+		}
+		foreach ( array( '400-normal', '700-normal', '400-italic', '700-italic' ) as $face ) {
+			$this->assertSame( in_array( $face, $expected, true ) ? 1 : 0, substr_count( $output, "catalogue-$face.woff2" ), $face );
+		}
+	}
+
+	/** @return array */
 	public static function legacy_presets() {
 		return array(
 			'same slug' => array( 'catalogue-font' ),
