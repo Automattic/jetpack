@@ -1682,4 +1682,23 @@ class Contact_Form_Field_Test extends BaseTestCase {
 			),
 		);
 	}
+
+	/**
+	 * A rating scale above the cap only reaches this renderer through a shortcode or
+	 * hand-edited markup, since the editor control has always capped it.
+	 */
+	public function test_rating_field_render_caps_the_scale() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type' => 'rating',
+				'id'   => 'rating-id',
+				'max'  => '5000',
+			)
+		);
+
+		$this->assertSame(
+			Feedback_Field::MAX_RATING_ICONS,
+			substr_count( $field->render(), 'class="jetpack-field-rating__input' )
+		);
+	}
 } // end class

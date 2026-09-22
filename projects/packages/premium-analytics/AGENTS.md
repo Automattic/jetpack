@@ -163,6 +163,8 @@ Which one says yes also decides how many tabs the dashboard offers: the site's o
 customer preview and exposes only the sections in `PREVIEW_SECTIONS`, while a sticker or filter
 override exposes every section the site qualifies for. `jetpack_premium_analytics_dashboard_preview_scope`
 overrides that per section — `__return_true` gives a development or test site the whole dashboard.
+The `premium-analytics-a11n-all-sections` flag does the same for Automatticians only; see
+`docs/dashboard-sections.md`.
 
 The same list the tab bar gets over REST also reaches the client as
 `premium_analytics.preview_sections` in the script data, which is what keeps `/reports/…` out of a

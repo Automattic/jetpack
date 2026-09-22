@@ -39,6 +39,13 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	private static $bootstrap_wiring = array();
 
 	/**
+	 * The blog id the test started on, restored by tear_down().
+	 *
+	 * @var mixed
+	 */
+	private $original_blog_id;
+
+	/**
 	 * Record the bootstrap's hook registrations before any test disturbs them.
 	 */
 	public static function set_up_before_class() {
@@ -48,6 +55,15 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 			'filter' => has_filter( 'jetpack_feature_flag_enabled', array( Wpcom_Feature_Flags::class, 'filter_enabled' ) ),
 			'action' => has_action( 'admin_menu', array( Wpcom_Feature_Flags::class, 'register_admin_page' ) ),
 		);
+	}
+
+	/**
+	 * Remember the blog context, which the blog-switching test changes.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		$this->original_blog_id = $GLOBALS['blog_id'];
 	}
 
 	/**
@@ -63,6 +79,8 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		// These tests write the option directly, which save_overrides() is not there to notice.
 		Wpcom_Feature_Flags::reset_overrides_cache();
 		remove_all_filters( 'jetpack_feature_flag_enabled' );
+		remove_all_filters( 'pre_option_' . Wpcom_Feature_Flags::OVERRIDES_OPTION );
+		$GLOBALS['blog_id'] = $this->original_blog_id;
 		remove_all_filters( 'jetpack_feature_flag_enabled_my-feature' );
 		remove_all_filters( 'wp_die_handler' );
 		Feature_Flags::reset();
@@ -389,6 +407,50 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		Wpcom_Feature_Flags::init();
 
 		$this->assertTrue( Feature_Flags::is_enabled( 'not-registered-anywhere' ) );
+	}
+
+	/**
+	 * WordPress.com's public API resolves flags before it switches to the
+	 * requested site. The suite is single-site, so the blog changes through the
+	 * global get_current_blog_id() reads, without firing `switch_blog`.
+	 */
+	public function test_each_blog_resolves_its_own_overrides() {
+		add_filter(
+			'pre_option_' . Wpcom_Feature_Flags::OVERRIDES_OPTION,
+			function () {
+				return array( 'my-feature' => 1 === get_current_blog_id() );
+			}
+		);
+		Wpcom_Feature_Flags::init();
+
+		$GLOBALS['blog_id'] = 1;
+
+		$this->assertTrue( Feature_Flags::is_enabled( 'my-feature' ) );
+
+		$GLOBALS['blog_id'] = 2;
+		$this->assertSame( array( 'my-feature' => false ), Wpcom_Feature_Flags::get_overrides() );
+
+		$GLOBALS['blog_id'] = 1;
+		$this->assertSame( array( 'my-feature' => true ), Wpcom_Feature_Flags::get_overrides() );
+	}
+
+	/**
+	 * Repeat resolutions on the same blog answer from the cache.
+	 */
+	public function test_overrides_are_read_once_per_blog() {
+		$reads = 0;
+		add_filter(
+			'pre_option_' . Wpcom_Feature_Flags::OVERRIDES_OPTION,
+			function () use ( &$reads ) {
+				++$reads;
+				return array( 'my-feature' => true );
+			}
+		);
+		Wpcom_Feature_Flags::init();
+
+		$this->assertTrue( Feature_Flags::is_enabled( 'my-feature' ) );
+		$this->assertSame( array( 'my-feature' => true ), Wpcom_Feature_Flags::get_overrides() );
+		$this->assertSame( 1, $reads );
 	}
 
 	/**

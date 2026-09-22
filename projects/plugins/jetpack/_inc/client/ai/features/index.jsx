@@ -85,7 +85,7 @@ const SECTIONS = [
 				),
 				enabledAction: {
 					label: __( 'Open SEO Settings', 'jetpack' ),
-					href: seoSettingsUrl || 'admin.php?page=jetpack#/traffic',
+					href: seoSettingsUrl || 'admin.php?page=jetpack-settings#/traffic',
 				},
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),

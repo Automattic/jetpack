@@ -590,3 +590,41 @@ test( 'switches at the narrow breakpoint and pages by the visible number of days
 	await expect( bars ).toHaveCount( 30 );
 	await expect( page.getByText( 'Aug 11 – Sep 9, 2026', { exact: true } ) ).toBeVisible();
 } );
+
+for ( const { width, days } of [
+	{ width: 1280, days: 30 },
+	{ width: 390, days: 15 },
+] ) {
+	test.describe( `first history entry at ${ width }px`, () => {
+		test.afterEach( async ( { page } ) => {
+			if ( process.env.BOOST_HISTORY_EVIDENCE_DIR ) {
+				await page.screenshot( {
+					path: path.join( process.env.BOOST_HISTORY_EVIDENCE_DIR, `first-entry-${ width }.png` ),
+					fullPage: true,
+				} );
+			}
+		} );
+
+		test( `first history entry shows one score per chart at ${ width }px`, async ( { page } ) => {
+			await page.setViewportSize( { width, height: 900 } );
+			await page.goto( 'http://boost-history.test/?firstEntry' );
+			await expect( page.getByText( 'Sep 9, 2026', { exact: true } ) ).toBeVisible();
+			await expect(
+				page.getByRole( 'button', { name: `Previous ${ days } days` } )
+			).toBeDisabled();
+			await expect( page.getByText( /Jetpack Boost premium has been activated/ ) ).toHaveCount( 0 );
+			await expect( page.getByText( /Your scores will be recorded from now on/ ) ).toHaveCount( 0 );
+			for ( const device of [ 'Desktop', 'Mobile' ] ) {
+				const bars = page
+					.getByRole( 'region', { name: `${ device } score history` } )
+					.locator( '.visx-bar' );
+				await expect( bars ).toHaveCount( days );
+				const heights = await bars.evaluateAll( elements =>
+					elements.map( element => element.getBoundingClientRect().height )
+				);
+				expect( heights.filter( height => height === 4 ) ).toHaveLength( days - 1 );
+				expect( heights[ days - 1 ] ).toBeGreaterThan( 4 );
+			}
+		} );
+	} );
+}
