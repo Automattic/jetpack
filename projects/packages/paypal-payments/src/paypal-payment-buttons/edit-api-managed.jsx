@@ -569,19 +569,29 @@ export default function ApiManagedEdit( {
 		detailsWasShown.current = showDetails;
 	}, [ showDetails, dismissPaymentChanged ] );
 
-	// A block with nothing in it yet first offers the links the account already
-	// has, and the step is skipped when there are none.
-	const isFreshBlock = ! hasButton && ! productName && ! price;
-	const [ createNewChosen, setCreateNewChosen ] = useState( false );
+	// A block with nothing in it yet opens on the links the account already has,
+	// and the step is skipped when there are none. Decided once, as the block mounts:
+	// the form leaves the picker by choice, and comes back to it the same way.
+	const startedEmpty = useRef( ! hasButton && ! productName && ! price ).current;
+	const [ showPicker, setShowPicker ] = useState( startedEmpty );
 	const [ isPicking, setIsPicking ] = useState( false );
-	const wantsLinkStep = isFreshBlock && ! createNewChosen;
 	// A saved link reads the list too, so its menu can say whether there is another
 	// link to switch to. Only once selected: the sidebar is not up before that, and
 	// every block on the canvas mounts this component.
-	const { links: existingLinks, isLoading: linksLoading } = useExistingLinks( {
-		enabled: isConnected && ( wantsLinkStep || ( isSelected && ( showDetails || showSwitch ) ) ),
+	const {
+		links: existingLinks,
+		isLoading: linksLoading,
+		deleteLink,
+		isDeleting,
+	} = useExistingLinks( {
+		enabled:
+			isConnected &&
+			( ( startedEmpty && ! hasButton ) || ( isSelected && ( showDetails || showSwitch ) ) ),
 	} );
-	const showLinkStep = isConnected && wantsLinkStep && ( linksLoading || existingLinks.length > 0 );
+	const showLinkStep =
+		isConnected && ! hasButton && showPicker && ( linksLoading || existingLinks.length > 0 );
+	// The form of a new link can go back to the picker, once there are links to pick from.
+	const canReturnToPicker = ! hasButton && ! showPicker && existingLinks.length > 0;
 	const otherLinks = useMemo(
 		() => existingLinks.filter( link => link.id !== resourceId ),
 		[ existingLinks, resourceId ]
@@ -589,35 +599,92 @@ export default function ApiManagedEdit( {
 	const canChangeLink = isConnected && ! isBusy && ( linksLoading || otherLinks.length > 0 );
 
 	/**
+	 * Read a link back from PayPal and hand its attributes on.
+	 *
+	 * @param {object}   link  - A payment resource from the list.
+	 * @param {Function} apply - Receives the attributes PayPal holds for it.
+	 */
+	const readLink = useCallback( ( link, apply ) => {
+		setIsPicking( true );
+		apiFetch( { path: `${ API_BASE }/buttons/${ link.id }` } )
+			.then( response => {
+				if ( response?.attributes ) {
+					apply( response.attributes );
+				}
+			} )
+			.catch( err => toast( 'error', getUserFriendlyError( err ) ) )
+			.finally( () => setIsPicking( false ) );
+	}, [] );
+
+	/**
 	 * Point the block at an existing link, with the attributes PayPal holds for it.
 	 *
 	 * @param {object} link - A payment resource from the list.
 	 */
 	const pickExistingLink = useCallback(
-		link => {
-			setIsPicking( true );
-			apiFetch( { path: `${ API_BASE }/buttons/${ link.id }` } )
-				.then( response => {
-					if ( ! response?.attributes ) {
-						return;
-					}
-					// The block just read the payment, so the save can write it without a second fetch.
-					recordPaymentRead( blockClientId, link.id );
-					// The read only carries what the payment has, so what the last link had
-					// goes back to its default first. The image stays: it belongs to the block.
-					setAttributes( {
-						...resetToDefaults( ...RESOURCE_ATTRIBUTES ),
-						isApiManaged: true,
-						resourceId: link.id,
-						...response.attributes,
-					} );
-					toast( 'success', __( 'Payment link updated.', 'jetpack-paypal-payments' ) );
-				} )
-				.catch( err => toast( 'error', getUserFriendlyError( err ) ) )
-				.finally( () => setIsPicking( false ) );
-		},
-		[ blockClientId, setAttributes ]
+		link =>
+			readLink( link, linkAttributes => {
+				// The block just read the payment, so the save can write it without a second fetch.
+				recordPaymentRead( blockClientId, link.id );
+				// The read only carries what the payment has, so what the last link had
+				// goes back to its default first. The image stays: it belongs to the block.
+				setAttributes( {
+					...resetToDefaults( ...RESOURCE_ATTRIBUTES ),
+					isApiManaged: true,
+					resourceId: link.id,
+					...linkAttributes,
+				} );
+				toast( 'success', __( 'Payment link updated.', 'jetpack-paypal-payments' ) );
+			} ),
+		[ blockClientId, readLink, setAttributes ]
 	);
+
+	/**
+	 * Open the form with a copy of an existing link. The copy has no payment of its
+	 * own until the post is saved, which creates one.
+	 *
+	 * @param {object} link - A payment resource from the list.
+	 */
+	const duplicateLink = useCallback(
+		link =>
+			readLink( link, linkAttributes => {
+				const {
+					isApiManaged: _api,
+					resourceId: _id,
+					paymentLink: _link,
+					...copied
+				} = linkAttributes;
+				// Named as a copy, so it reads as one next to the original in the list and
+				// on PayPal. Cut to the limit rather than open the form on an error.
+				const copyName = copied.productName
+					? sprintf(
+							/* translators: %s: the product name of the link being copied */
+							__( 'Copy of %s', 'jetpack-paypal-payments' ),
+							copied.productName
+						).slice( 0, MAX_NAME_LENGTH )
+					: '';
+				setAttributes( {
+					...resetToDefaults( ...RESOURCE_ATTRIBUTES ),
+					...copied,
+					productName: copyName,
+				} );
+				setShowPicker( false );
+			} ),
+		[ readLink, setAttributes ]
+	);
+
+	/**
+	 * Leave the form for the picker. Whatever was typed or copied goes, so Create
+	 * new opens empty again.
+	 */
+	const returnToPicker = useCallback( () => {
+		setAttributes( {
+			...resetToDefaults( ...RESOURCE_ATTRIBUTES ),
+			imageUrl: undefined,
+			imageId: undefined,
+		} );
+		setShowPicker( true );
+	}, [ setAttributes ] );
 
 	// Loading state while checking connection.
 	if ( connectionLoading ) {
@@ -823,9 +890,11 @@ export default function ApiManagedEdit( {
 		<ExistingLinksStep
 			links={ existingLinks }
 			isLoading={ linksLoading }
-			onCreateNew={ () => setCreateNewChosen( true ) }
+			onCreateNew={ () => setShowPicker( false ) }
 			onPick={ pickExistingLink }
-			isPicking={ isPicking }
+			onDuplicate={ duplicateLink }
+			onDelete={ link => deleteLink( link.id ) }
+			isBusy={ isPicking || isDeleting }
 		/>
 	);
 
@@ -845,7 +914,7 @@ export default function ApiManagedEdit( {
 				links={ otherLinks }
 				isLoading={ linksLoading }
 				onPick={ pickExistingLink }
-				isPicking={ isPicking }
+				isBusy={ isPicking }
 			/>
 		</>
 	);
@@ -864,7 +933,7 @@ export default function ApiManagedEdit( {
 	const formPanels = (
 		<>
 			{ /* Form-wide notices go here. A field's own notice renders next to that field. */ }
-			{ ( hasButton || paymentChanged ) && (
+			{ ( hasButton || paymentChanged || canReturnToPicker ) && (
 				<div className="jetpack-paypal-payment-buttons__form-actions">
 					{ /* Plain, so the back link keeps the sidebar's own foreground -
 					     `tertiary` would paint it the admin accent. */ }
@@ -875,6 +944,15 @@ export default function ApiManagedEdit( {
 							className="jetpack-paypal-payment-buttons__back-to-details"
 						>
 							{ __( 'Edit Button', 'jetpack-paypal-payments' ) }
+						</Button>
+					) }
+					{ canReturnToPicker && (
+						<Button
+							icon={ isRTL() ? chevronRight : chevronLeft }
+							onClick={ returnToPicker }
+							className="jetpack-paypal-payment-buttons__back-to-details"
+						>
+							{ __( 'New payment link', 'jetpack-paypal-payments' ) }
 						</Button>
 					) }
 					{ sharedResourceNotice }
