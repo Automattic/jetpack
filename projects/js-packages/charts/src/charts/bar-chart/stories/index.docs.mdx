@@ -373,15 +373,17 @@ Enable rich interactive tooltips that display detailed information on hover:
 
 ### Band Highlight
 
-Set `withBandHighlight` alongside `withTooltips` to shade the active band across the plot. Hover a bar or use arrow keys after focusing the chart. Escape clears the keyboard selection and its tooltip; a hover highlight remains.
+Set `withBandHighlight` alongside `withTooltips` to shade the active band across the plot. Hover a bar or use arrow keys after focusing the chart. Escape clears the keyboard selection and its tooltip; a hover highlight remains. Without `withTooltips`, the chart still renders, but neither the highlight nor its callback runs; development builds warn about this configuration.
 
 <Canvas of={ BarChartStories.BandHighlight } />
 
-For an overlay outside the chart, `onBandHighlightChange` reports the active datum and the band rectangle in SVG coordinates, or `null` on dismissal. The callback also works without rendering the built-in highlight.
+For an overlay outside the chart, `onBandHighlightChange` reports the active datum, series `key`, point `index` within the rendered series, and the band rectangle in SVG coordinates. It reports the initial selection on mount (normally `null`), changes to that selection, and `null` on dismissal or unmount. The callback also works without rendering the built-in highlight.
 
 ### Beside Tooltips
 
 Use `tooltipPlacement="beside"` to offset the tooltip horizontally from the active band center on vertical bar charts without vertical flipping. It flips horizontally near an edge and stays within the viewport or clipping ancestor. Its top follows the selected datum unless `tooltipAnchorTop` overrides it. This override also applies to `"auto"` placement, which can still flip vertically. The anchor uses SVG coordinates: values less than `margin.top` are above the plot, and negative values are above the SVG.
+
+The horizontal anchor is the band center, not its edge, so a wide bar can be covered by the tooltip. Negative top anchors remain subject to clipping bounds and can be clamped back into view.
 
 <Canvas of={ BarChartStories.BesideTooltip } />
 

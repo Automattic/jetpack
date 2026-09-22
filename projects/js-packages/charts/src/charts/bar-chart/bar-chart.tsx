@@ -22,6 +22,7 @@ import {
 } from '../../providers';
 import { useDefaultHiddenSeries } from '../../providers/chart-context/hooks/use-default-hidden-series';
 import { attachSubComponents } from '../../utils';
+import { warnOnce } from '../../utils/warn-once';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
@@ -43,45 +44,13 @@ import {
 	isBarRendered,
 } from './private';
 import type { ComparisonSeriesEntry } from './private';
-import type {
-	BaseChartProps,
-	DataPointDate,
-	SeriesData,
-	SeriesChartLegendConfig,
-	SeriesVisibilityProps,
-	Optional,
-} from '../../types';
+import type { BarChartProps } from './types';
+import type { DataPointDate, SeriesData, Optional } from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
 import type { ResponsiveConfig } from '../private/with-responsive';
-import type { FC, ReactNode, ComponentType } from 'react';
+import type { FC, ComponentType } from 'react';
 
-export type BandHighlightSelection = {
-	datum: DataPointDate;
-	x: number;
-	y: number;
-	width: number;
-	height: number;
-};
-
-export interface BarChartProps extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps {
-	/**
-	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
-	 */
-	legend?: SeriesChartLegendConfig;
-	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
-	/** Place the tooltip beside its category without vertical flipping. */
-	tooltipPlacement?: 'auto' | 'beside';
-	/** Tooltip top anchor in SVG coordinates; negative offsets are supported. */
-	tooltipAnchorTop?: number;
-	orientation?: 'horizontal' | 'vertical';
-	withPatterns?: boolean;
-	showZeroValues?: boolean;
-	/** Highlight the active band across the plot when tooltips are enabled. */
-	withBandHighlight?: boolean;
-	/** Receive active band bounds in SVG coordinates, or null when dismissed. */
-	onBandHighlightChange?: ( selection: BandHighlightSelection | null ) => void;
-	children?: ReactNode;
-}
+export type { BarChartProps, BandHighlightSelection } from './types';
 
 // Base props type with optional responsive properties
 type BarChartBaseProps = Optional< BarChartProps, 'width' | 'height' | 'size' >;
@@ -160,6 +129,13 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	onPointerUp,
 	onDatumActivate,
 } ) => {
+	if ( ! withTooltips && ( withBandHighlight || onBandHighlightChange ) ) {
+		warnOnce(
+			'bar-chart-band-highlight-without-tooltips',
+			'BarChart: withBandHighlight and onBandHighlightChange require withTooltips.'
+		);
+	}
+
 	const legendInteractive = legend.interactive ?? false;
 	const legendCollapseGroups = legend.collapseGroups ?? false;
 	const legendComparisonItem = legend.comparisonItem ?? false;

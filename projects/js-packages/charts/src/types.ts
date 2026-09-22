@@ -134,6 +134,7 @@ export type ThemeAnnotationStyles = {
 export type DataPoint = {
 	label: string;
 	value: number;
+	/** Per-point fill override for BarChart; other built-in charts ignore it. */
 	color?: string;
 };
 
@@ -186,6 +187,7 @@ export type DataPointDate = {
 	dateString?: string;
 	value: number | null;
 	label?: string;
+	/** Per-point fill override for BarChart; other built-in charts ignore it. */
 	color?: string;
 };
 
