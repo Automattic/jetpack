@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Admin: Hide core admin notices and load design tokens on Jetpack pages that non-admin users open before the site is connected.
+Admin: Hide core admin notices and load design tokens on Jetpack pages that non-admin users open before the site is connected or while it is in offline mode.
