@@ -27,10 +27,6 @@ require_once __DIR__ . '/trait-wpcom-request-mock.php';
 /**
  * Tests for the synchronous reads that run while the admin menu is built.
  *
- * Every test runs in a child process: `initialize()` guards on
- * `did_action( 'jetpack_backup_initialized' )`, which a shared process would
- * leave fired for each later test.
- *
  * @covers \Automattic\Jetpack\Backup\V0005\Jetpack_Backup
  */
 #[CoversClass( Jetpack_Backup::class )]
@@ -73,8 +69,7 @@ class Backup_Feature_Refresh_Test extends TestCase {
 	}
 
 	/**
-	 * `admin_menu` fires before WordPress checks who may see the page, so without
-	 * the capability check any logged-in user could drive this remote read.
+	 * Only an admin can drive this synchronous remote read.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -90,26 +85,6 @@ class Backup_Feature_Refresh_Test extends TestCase {
 		Jetpack_Backup::maybe_refresh_backup_feature_check();
 
 		$this->assertSame( array(), $this->captured_urls );
-	}
-
-	/**
-	 * Opening the page reads, so a purchase is picked up on the checkout's own return.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_opening_the_page_refreshes() {
-		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
-		Jetpack_Backup::initialize( array( 'require_backup_plan' => true ) );
-		$this->arrange_stored_answer( false );
-		$this->enter_backup_admin_request();
-
-		Jetpack_Backup::maybe_refresh_backup_feature_check();
-
-		$this->assertCount( 1, $this->captured_urls );
-		$this->assertTrue( Backup_Feature_Check::has_backup() );
 	}
 
 	/**
@@ -160,8 +135,7 @@ class Backup_Feature_Refresh_Test extends TestCase {
 	}
 
 	/**
-	 * Any other admin page answers a site that has never been asked, so its menu
-	 * appears on this load rather than the next one.
+	 * Any other admin page answers a site that has never been asked, so its menu shows now.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled

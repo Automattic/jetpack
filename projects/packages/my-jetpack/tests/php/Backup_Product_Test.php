@@ -115,10 +115,7 @@ class Backup_Product_Test extends TestCase {
 	}
 
 	/**
-	 * Checkout lands on the dashboard the Jetpack plugin hosts, not the cloud.
-	 *
-	 * Manage cannot do the same: it is read while the site is still unentitled, so the
-	 * page it would point at is not registered yet.
+	 * Checkout lands on the hosted dashboard, while Manage still waits for the feature check.
 	 */
 	public function test_backup_post_checkout_url_targets_the_hosted_dashboard() {
 		activate_plugins( 'jetpack/jetpack.php' );

@@ -190,8 +190,7 @@ class Jetpack_Backup {
 
 		add_action( 'rest_api_init', array( __CLASS__, 'maybe_register_rest_routes' ) );
 
-		// Runs before the menu is built: a link straight into the Backup page 404s
-		// unless the page was registered during this same request.
+		// Before the menu is built, so a link straight into the page finds it registered.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_refresh_backup_feature_check' ), 0 );
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
@@ -242,22 +241,17 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Re-read the Backup feature check while the menu is being built.
-	 *
-	 * Only when the stored answer is no, since that is the one about to turn someone away:
-	 * a purchase that just completed, or a site nobody has asked about yet.
+	 * Re-read the Backup feature check while the menu is built, when the stored answer is no.
 	 *
 	 * @return void
 	 */
 	public static function maybe_refresh_backup_feature_check() {
-		// `admin_menu` fires before WordPress checks who may see the page, so without the
-		// capability check any logged-in user could drive this unthrottled remote read.
+		// `admin_menu` runs before the page's own capability check, so gate this remote read here.
 		if ( ! self::$require_backup_plan || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 
-		// An entitled site already draws both, and the refresh `has_backup()` queues for
-		// after the response keeps that answer current without anyone waiting on it.
+		// A yes is kept current by the refresh `has_backup()` queues for after the response.
 		if ( Backup_Feature_Check::has_backup() ) {
 			return;
 		}
@@ -271,14 +265,18 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Register the dashboard's REST routes, for a site whose plan clears the gate.
+	 * Register the dashboard's REST routes, behind the same gate as its menu.
 	 *
-	 * The same gate the menu uses: these routes exist to serve that dashboard, so a
-	 * site never shown it has no use for them.
+	 * Only the dashboard calls them, and all require `manage_options`, so a gated host skips
+	 * the plan read (and the refresh it may queue) on everyone else's REST requests.
 	 *
 	 * @return void
 	 */
 	public static function maybe_register_rest_routes() {
+		if ( self::$require_backup_plan && ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		if ( ! self::plan_allows_dashboard() ) {
 			return;
 		}
@@ -288,10 +286,7 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Whether the Backup dashboard is registered for this request.
-	 *
-	 * Public because My Jetpack links to the page: the link and the menu have to answer
-	 * the same question, or Manage lands on "you are not allowed to access this page".
+	 * Whether the Backup dashboard is registered for this request, so My Jetpack links agree with the menu.
 	 *
 	 * @return bool
 	 */

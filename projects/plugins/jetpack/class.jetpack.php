@@ -851,12 +851,9 @@ class Jetpack {
 	}
 
 	/**
-	 * Enable the bundled Backup dashboard, mirroring the standalone Jetpack VaultPress Backup plugin.
+	 * Enable the bundled Backup dashboard for sites entitled to Backup.
 	 *
-	 * The package ships with this plugin either way; this is what turns on its menu
-	 * and dashboard, for sites entitled to Backup. The standalone plugin initializes
-	 * the same package at file scope — before this runs on `plugins_loaded` — so when
-	 * both are active the standalone wins and this call is a no-op.
+	 * The standalone plugin initializes the package first, so with both active this is a no-op.
 	 *
 	 * @return void
 	 */
@@ -868,11 +865,8 @@ class Jetpack {
 
 		$backup = 'Automattic\\Jetpack\\Backup\\V0005\\Jetpack_Backup';
 
-		/*
-		 * An older package ignores these options — see Jetpack_Backup::DEFAULT_INIT_OPTIONS
-		 * for the cost. Only the standalone plugin ships one that old, and it draws its own
-		 * Backup menu.
-		 */
+		// An older package ignores these options (see Jetpack_Backup::DEFAULT_INIT_OPTIONS); only
+		// the standalone plugin ships one that old, and it draws its own menu.
 		if ( ! class_exists( $backup ) || ! defined( $backup . '::DEFAULT_INIT_OPTIONS' ) ) {
 			return;
 		}
@@ -981,12 +975,7 @@ class Jetpack {
 		// is not, the menu item links to the My Jetpack interstitial to activate it.
 		$config->ensure( 'videopress', array( 'admin_ui' => true ) );
 
-		/*
-		 * The bundled Backup dashboard's only surfaces are an admin menu and REST routes,
-		 * so it is gated like Import below: a plain front-end GET loads none of it, and the
-		 * REST branch waits for `rest_api_init` because a REST request cannot be identified
-		 * at `plugins_loaded`.
-		 */
+		// The Backup dashboard is only an admin menu and REST routes, so it is deferred like Import below.
 		if ( self::should_eager_load_packages() ) {
 			self::configure_backup_package();
 		} else {

@@ -103,6 +103,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 		$GLOBALS['wp_rest_server'] = null;
 		Jetpack::connection()->reset_connection_status();
 		delete_option( \Automattic\Jetpack\Backup\V0005\Backup_Feature_Check::OPTION );
+		wp_set_current_user( 0 );
 
 		set_current_screen( 'front' );
 		parent::tear_down();
@@ -388,9 +389,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * End-to-end counterpart for Backup. `/has-backup-plan` is registered only by
-	 * `Jetpack_Backup::initialize()`; the package's other routes come from its
-	 * autoloaded REST controller and would register with or without this bootstrap.
+	 * End-to-end counterpart for Backup, via `/has-backup-plan`, which only `initialize()` registers.
 	 */
 	public function test_deferred_backup_routes_register_when_rest_api_init_fires() {
 		$this->skip_unless_backup_is_supported();
@@ -399,8 +398,9 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 		$this->force_unfire_action( 'jetpack_backup_initialized' );
 		remove_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\V0005\\Jetpack_Backup', 'maybe_register_rest_routes' ) );
 
-		// The routes are gated on the site's plan, exactly as the menu is.
+		// The routes are gated on the site's plan and on an admin asking.
 		$this->arrange_backup_feature_check( true );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 
 		// Mirror the gate's deferred front-end-GET wiring.
 		add_action( 'rest_api_init', array( Jetpack::class, 'configure_backup_package' ), 0 );

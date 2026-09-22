@@ -21,12 +21,7 @@ use function wp_cache_delete;
 /**
  * Tests that the Manage link and the menu agree about the in-plugin dashboard.
  *
- * Lives here rather than in My Jetpack because it needs both halves real: My Jetpack
- * cannot see `Jetpack_Backup`, and a double there could only assert its own answer.
- *
- * Every test runs in a child process: `initialize()` guards on
- * `did_action( 'jetpack_backup_initialized' )`, which a shared process would
- * leave fired for each later test.
+ * Lives here, not in My Jetpack, because it needs a real `Jetpack_Backup`.
  *
  * @covers \Automattic\Jetpack\Backup\V0005\Jetpack_Backup
  */
@@ -60,10 +55,7 @@ class Backup_Manage_Url_Test extends TestCase {
 	}
 
 	/**
-	 * A site whose plan lacks Backup is sent to the cloud, not to a page that 403s.
-	 *
-	 * The `backups`-without-self-serve case: My Jetpack still counts that as a paid
-	 * plan, so Manage is offered while this plugin registers no page to serve it.
+	 * A site whose plan lacks self-serve Backup is sent to the cloud, not to a page that 403s.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled

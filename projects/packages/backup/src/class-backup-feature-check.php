@@ -22,11 +22,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Storage for My Jetpack's Backup feature check, so admin menus can read it without a request.
+ * Keeps My Jetpack's Backup feature check in an option, so admin menus can read it without a request.
  *
- * My Jetpack answers the question and caches it for fifteen seconds, which is enough for one
- * page render and not enough for someone clicking around wp-admin. This keeps the last answer
- * in an option and refreshes it after the response.
+ * My Jetpack only caches the answer for fifteen seconds; this refreshes it after the response.
  */
 class Backup_Feature_Check {
 
@@ -64,8 +62,7 @@ class Backup_Feature_Check {
 	/**
 	 * WordPress.com's name for the entitlement this dashboard needs.
 	 *
-	 * Not the broader `backups`: this page manages and restores backups itself, which is
-	 * what self-serve grants.
+	 * Not the broader `backups`: this page manages and restores backups itself.
 	 *
 	 * @var string
 	 */
@@ -94,9 +91,8 @@ class Backup_Feature_Check {
 	/**
 	 * Asks My Jetpack and stores what it says.
 	 *
-	 * Also the `my_jetpack_site_features_updated` listener, which fires just after the feature
-	 * list is cached — so the read below costs no request. Takes no argument on purpose: the
-	 * action passes one, and a parameter here would silently collect it.
+	 * Also the `my_jetpack_site_features_updated` listener, which fires once the features are
+	 * cached, so it costs no request there. It ignores the action's argument on purpose.
 	 *
 	 * @return void
 	 */
@@ -105,10 +101,9 @@ class Backup_Feature_Check {
 	}
 
 	/**
-	 * Asks again with My Jetpack's short-lived cache dropped first.
+	 * Asks again with My Jetpack's cache dropped first.
 	 *
-	 * For the page-open read: the My Jetpack render that sent the user to checkout may have
-	 * cached the features seconds ago, and that copy still describes the pre-purchase plan.
+	 * For the page-open read, where that cache may still describe the pre-purchase plan.
 	 *
 	 * @return void
 	 */
@@ -123,8 +118,7 @@ class Backup_Feature_Check {
 	/**
 	 * The first answer for a site that has never had one, in time for this request's menu.
 	 *
-	 * Costs one WordPress.com read per site, not per page: `store()` writes even for a read
-	 * that failed, so a site that has been asked once is never asked here again.
+	 * One read per site, not per page: `store()` writes even when the read failed.
 	 *
 	 * @return void
 	 */
@@ -135,10 +129,7 @@ class Backup_Feature_Check {
 	}
 
 	/**
-	 * The queued refresh, which asks only if the answer is still stale.
-	 *
-	 * Something else — the listener above, or the Backup page — can answer between the
-	 * moment a refresh is queued and the moment it runs.
+	 * The queued refresh, which asks only if nothing answered since it was queued.
 	 *
 	 * @return void
 	 */
@@ -152,10 +143,7 @@ class Backup_Feature_Check {
 	}
 
 	/**
-	 * Whether this request is the one that gets to make the slow read.
-	 *
-	 * The page is already written by now, so several concurrent requests can reach
-	 * this together and would otherwise each call WordPress.com.
+	 * Whether this request is the one that gets to make the read, among concurrent stale ones.
 	 *
 	 * @return bool
 	 */
@@ -170,10 +158,7 @@ class Backup_Feature_Check {
 	}
 
 	/**
-	 * Send the response and close the connection, where the SAPI can.
-	 *
-	 * `shutdown` runs with the page written but the request unfinished, so without this
-	 * the browser goes on showing it as loading for as long as WordPress.com takes.
+	 * Close the connection where the SAPI can, since `shutdown` otherwise keeps the browser waiting.
 	 *
 	 * @return void
 	 */
@@ -186,9 +171,7 @@ class Backup_Feature_Check {
 	/**
 	 * My Jetpack's answer, or null when WordPress.com could not be read.
 	 *
-	 * The feature check itself reports an unreadable site as "no feature", which is the safe
-	 * default for an upsell but not for a menu — here it has to stay distinct from a real no,
-	 * so the underlying read is checked for the error first. It is cached by then, not repeated.
+	 * The feature check reads a failure as "no feature", so the (cached) read is checked first.
 	 *
 	 * @return bool|null
 	 */
@@ -197,8 +180,7 @@ class Backup_Feature_Check {
 			return null;
 		}
 
-		// A site with no blog token has no plan here to read, so this is a settled no rather
-		// than a failed read — without it a disconnected site keeps the menu indefinitely.
+		// A settled no, not a failed read, or a disconnected site would keep the menu indefinitely.
 		if ( ! ( new Connection_Manager() )->is_connected() ) {
 			return false;
 		}
@@ -212,9 +194,6 @@ class Backup_Feature_Check {
 
 	/**
 	 * Whether the stored answer wants refreshing. Nothing stored is always stale.
-	 *
-	 * One clock covers both waits: `store()` sets it a full TTL out for an answer and a
-	 * short retry out for a failure, so there is no second condition to keep in step.
 	 *
 	 * @param array|null $stored The stored entry, if any.
 	 * @return bool
@@ -242,11 +221,7 @@ class Backup_Feature_Check {
 	}
 
 	/**
-	 * Writes the answer, or carries the last one forward when the read produced none.
-	 *
-	 * A read that failed is not an answer. Keeping the previous one is what stops a
-	 * WordPress.com blip from taking the menu item away mid-session; it is asked again
-	 * after the short retry rather than the full TTL.
+	 * Writes the answer, or carries the last one forward on the short retry when the read failed.
 	 *
 	 * @param bool|null $has_backup The answer, or null when the read failed.
 	 * @return void
@@ -256,8 +231,7 @@ class Backup_Feature_Check {
 		$failed = $has_backup === null;
 		$answer = $failed ? ( $stored !== null && $stored['has_backup'] ) : $has_backup;
 
-		// My Jetpack reads its feature list on most page loads and every read lands here, so
-		// an unchanged answer that is still fresh must not restamp the option each time.
+		// Every My Jetpack read lands here, so a fresh, unchanged answer is not rewritten.
 		if ( $stored !== null && $stored['has_backup'] === $answer && ! self::is_stale( $stored ) ) {
 			return;
 		}

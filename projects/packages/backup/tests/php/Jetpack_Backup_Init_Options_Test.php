@@ -12,19 +12,21 @@ use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
+use WorDBless\Users as WorDBless_Users;
 use WP_REST_Server;
 use function do_action;
 use function has_action;
 use function has_filter;
 use function rest_get_server;
 use function update_option;
+use function wp_insert_user;
+use function wp_rand;
+use function wp_set_current_user;
 
 /**
  * Tests for how a host plugin initializes the package.
  *
- * Every test here runs in a child process: `initialize()` guards on
- * `did_action( 'jetpack_backup_initialized' )`, which a shared process would
- * leave fired for each later test.
+ * Every test runs in a child process, because `initialize()` runs once per process.
  *
  * @covers \Automattic\Jetpack\Backup\V0005\Jetpack_Backup
  */
@@ -42,66 +44,81 @@ class Jetpack_Backup_Init_Options_Test extends TestCase {
 	 * Reset state.
 	 */
 	public function tearDown(): void {
+		wp_set_current_user( 0 );
 		WorDBless_Options::init()->clear_options();
+		WorDBless_Users::init()->clear_all_users();
 
 		parent::tearDown();
 	}
 
 	/**
-	 * The standalone plugin's menu does not depend on what WordPress.com says.
+	 * The standalone plugin's menu and routes do not depend on what WordPress.com says.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_menu_is_unconditional_by_default() {
+	public function test_ungated_dashboard_ignores_the_feature() {
 		Jetpack_Backup::initialize();
-
-		Jetpack_Backup::add_wp_admin_submenu();
-
-		$this->assertNotFalse( has_action( self::MENU_LOAD_HOOK, array( Jetpack_Backup::class, 'admin_init' ) ) );
-	}
-
-	/**
-	 * A host that gates on the plan draws no menu for a site whose plan lacks Backup.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_gated_menu_is_absent_without_the_feature() {
-		Jetpack_Backup::initialize( array( 'require_backup_plan' => true ) );
 		$this->arrange_stored_answer( false );
 
-		Jetpack_Backup::add_wp_admin_submenu();
-
-		$this->assertFalse( has_action( self::MENU_LOAD_HOOK, array( Jetpack_Backup::class, 'admin_init' ) ) );
+		$this->assertTrue( $this->has_backup_menu() );
+		$this->assertTrue( $this->has_backup_route() );
 	}
 
 	/**
-	 * The same host draws it once the site's plan includes Backup.
+	 * A host that gates on the plan draws nothing for a site whose plan lacks Backup.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_gated_menu_is_present_with_the_feature() {
+	public function test_gated_dashboard_is_absent_without_the_feature() {
+		Jetpack_Backup::initialize( array( 'require_backup_plan' => true ) );
+		$this->arrange_stored_answer( false );
+		$this->sign_in( 'administrator' );
+
+		$this->assertFalse( $this->has_backup_menu() );
+		$this->assertFalse( $this->has_backup_route() );
+	}
+
+	/**
+	 * The same host draws both once the site's plan includes Backup.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_gated_dashboard_is_present_with_the_feature() {
 		Jetpack_Backup::initialize( array( 'require_backup_plan' => true ) );
 		$this->arrange_stored_answer( true );
+		$this->sign_in( 'administrator' );
 
-		Jetpack_Backup::add_wp_admin_submenu();
+		$this->assertTrue( $this->has_backup_menu() );
+		$this->assertTrue( $this->has_backup_route() );
+	}
 
-		$this->assertNotFalse( has_action( self::MENU_LOAD_HOOK, array( Jetpack_Backup::class, 'admin_init' ) ) );
+	/**
+	 * Gated routes are skipped for anyone their permission checks would refuse anyway.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_gated_rest_routes_are_absent_for_a_non_admin() {
+		Jetpack_Backup::initialize( array( 'require_backup_plan' => true ) );
+		$this->arrange_stored_answer( true );
+		$this->sign_in( 'subscriber' );
+
+		$this->assertFalse( $this->has_backup_route() );
 	}
 
 	/**
 	 * A host that owns the connection does not get the standalone's connection wiring.
-	 *
-	 * The license filter stands in for that whole block, which `initialize()` adds or
-	 * skips together.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -131,10 +148,7 @@ class Jetpack_Backup_Init_Options_Test extends TestCase {
 	}
 
 	/**
-	 * With both plugins active, whichever initializes first wins and the second is ignored.
-	 *
-	 * The standalone plugin calls `initialize()` at file scope and the Jetpack plugin on
-	 * `plugins_loaded`, so in practice the standalone is always the one that wins.
+	 * With both plugins active, the first `initialize()` wins, which is always the standalone's.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -146,54 +160,19 @@ class Jetpack_Backup_Init_Options_Test extends TestCase {
 
 		Jetpack_Backup::initialize( array( 'require_backup_plan' => true ) );
 		$this->arrange_stored_answer( false );
+
+		$this->assertTrue( $this->has_backup_menu() );
+	}
+
+	/**
+	 * Build the admin menu and report whether Backup added its page.
+	 *
+	 * @return bool
+	 */
+	private function has_backup_menu() {
 		Jetpack_Backup::add_wp_admin_submenu();
 
-		$this->assertNotFalse( has_action( self::MENU_LOAD_HOOK, array( Jetpack_Backup::class, 'admin_init' ) ) );
-	}
-
-	/**
-	 * The dashboard's routes answer to the same gate its menu does.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_gated_rest_routes_are_absent_without_the_feature() {
-		Jetpack_Backup::initialize( array( 'require_backup_plan' => true ) );
-		$this->arrange_stored_answer( false );
-
-		$this->assertFalse( $this->has_backup_route() );
-	}
-
-	/**
-	 * And register once the site's plan includes Backup.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_gated_rest_routes_are_present_with_the_feature() {
-		Jetpack_Backup::initialize( array( 'require_backup_plan' => true ) );
-		$this->arrange_stored_answer( true );
-
-		$this->assertTrue( $this->has_backup_route() );
-	}
-
-	/**
-	 * The standalone plugin registers them whatever WordPress.com says.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_ungated_rest_routes_ignore_the_feature() {
-		Jetpack_Backup::initialize();
-		$this->arrange_stored_answer( false );
-
-		$this->assertTrue( $this->has_backup_route() );
+		return false !== has_action( self::MENU_LOAD_HOOK, array( Jetpack_Backup::class, 'admin_init' ) );
 	}
 
 	/**
@@ -209,38 +188,19 @@ class Jetpack_Backup_Init_Options_Test extends TestCase {
 	}
 
 	/**
-	 * My Jetpack links to the page, so its answer has to track the menu's.
+	 * Sign in a new user with this role.
 	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
+	 * @param string $role The user's role.
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_dashboard_availability_tracks_the_gated_menu() {
-		Jetpack_Backup::initialize( array( 'require_backup_plan' => true ) );
-
-		$this->arrange_stored_answer( false );
-		$this->assertFalse( Jetpack_Backup::is_dashboard_available() );
-
-		$this->arrange_stored_answer( true );
-		$this->assertTrue( Jetpack_Backup::is_dashboard_available() );
-	}
-
-	/**
-	 * A package that ships with a plugin but was never initialized registers no page.
-	 *
-	 * The Jetpack plugin only initializes on admin and REST requests, and My Jetpack
-	 * must not link to a page that a plain front-end request never registered.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_dashboard_is_unavailable_until_the_package_is_initialized() {
-		$this->arrange_stored_answer( true );
-
-		$this->assertFalse( Jetpack_Backup::is_dashboard_available() );
+	private function sign_in( $role ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => $role . '_' . wp_rand( 1, PHP_INT_MAX ),
+				'user_pass'  => 'dummy_pass',
+				'role'       => $role,
+			)
+		);
+		wp_set_current_user( $user_id );
 	}
 
 	/**

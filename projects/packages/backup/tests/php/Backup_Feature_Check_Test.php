@@ -48,56 +48,32 @@ class Backup_Feature_Check_Test extends TestCase {
 	}
 
 	/**
-	 * Nothing stored yet answers "no Backup" and queues a read rather than making one.
-	 */
-	public function test_unread_site_answers_no_without_calling_wpcom() {
-		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
-
-		$this->assertFalse( Backup_Feature_Check::has_backup() );
-		$this->assertSame( array(), $this->captured_urls );
-		$this->assertTrue( $this->refresh_is_queued() );
-	}
-
-	/**
 	 * A clear answer is stored and then served without further reads.
-	 *
-	 * This is the whole point of the option: My Jetpack's own cache lasts fifteen
-	 * seconds, which does not survive someone clicking around wp-admin.
 	 */
 	public function test_stored_answer_is_served_without_calling_wpcom() {
 		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
 
 		Backup_Feature_Check::refresh();
 		$this->assertCount( 1, $this->captured_urls );
+		$this->assertStringContainsString( '/sites/999/features', $this->captured_url );
 
 		$this->assertTrue( Backup_Feature_Check::has_backup() );
 		$this->assertCount( 1, $this->captured_urls );
 	}
 
 	/**
-	 * The answer comes from the same feature list My Jetpack's own Backup card reads.
-	 */
-	public function test_refresh_reads_the_site_features() {
-		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
-
-		Backup_Feature_Check::refresh();
-
-		$this->assertStringContainsString( '/sites/999/features', $this->captured_url );
-	}
-
-	/**
-	 * The point of storing the answer: a failed read never takes Backup away.
-	 *
-	 * My Jetpack's feature check reports an unreadable site as "no feature", so without
-	 * the error check in read_feature() this is where the menu item would disappear.
+	 * A failed read keeps the last clear answer, and asks again on the short retry.
 	 */
 	public function test_failed_read_keeps_the_last_clear_answer() {
-		$this->arrange_stored_answer( true );
+		$this->arrange_stored_answer( true, time() - 1 );
 		$this->arrange_wpcom( array(), 500 );
 
 		Backup_Feature_Check::refresh();
 
+		$stored = get_option( Backup_Feature_Check::OPTION );
 		$this->assertTrue( Backup_Feature_Check::has_backup() );
+		$this->assertGreaterThan( time(), $stored['stale_after'] );
+		$this->assertLessThanOrEqual( time() + Backup_Feature_Check::RETRY_INTERVAL, $stored['stale_after'] );
 	}
 
 	/**
@@ -113,11 +89,11 @@ class Backup_Feature_Check_Test extends TestCase {
 	}
 
 	/**
-	 * Only a clear answer takes Backup away.
+	 * Backups managed elsewhere (`backups` without self-serve) do not open this dashboard.
 	 */
-	public function test_a_feature_list_without_backup_removes_the_answer() {
+	public function test_a_plan_without_self_serve_answers_no() {
 		$this->arrange_stored_answer( true );
-		$this->arrange_wpcom_features( array( 'scan' ) );
+		$this->arrange_wpcom_features( array( 'backups', 'scan' ) );
 
 		Backup_Feature_Check::refresh();
 
@@ -125,19 +101,21 @@ class Backup_Feature_Check_Test extends TestCase {
 	}
 
 	/**
-	 * A plan whose backups are managed elsewhere does not open this dashboard.
+	 * A site with no blog token answers no, rather than keeping what it last had.
 	 */
-	public function test_backups_without_self_serve_answers_no() {
+	public function test_a_disconnected_site_answers_no() {
 		$this->arrange_stored_answer( true );
-		$this->arrange_wpcom_features( array( 'backups' ) );
+		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
+		$this->arrange_disconnected_site();
 
 		Backup_Feature_Check::refresh();
 
 		$this->assertFalse( Backup_Feature_Check::has_backup() );
+		$this->assertSame( array(), $this->captured_urls );
 	}
 
 	/**
-	 * A stale answer is still served while its refresh is queued.
+	 * A stale answer is still served, with its refresh queued last on shutdown.
 	 */
 	public function test_stale_answer_is_served_while_a_refresh_is_queued() {
 		$this->arrange_stored_answer( true, time() - 1 );
@@ -145,7 +123,7 @@ class Backup_Feature_Check_Test extends TestCase {
 
 		$this->assertTrue( Backup_Feature_Check::has_backup() );
 		$this->assertSame( array(), $this->captured_urls );
-		$this->assertTrue( $this->refresh_is_queued() );
+		$this->assertSame( PHP_INT_MAX, has_action( 'shutdown', array( Backup_Feature_Check::class, 'refresh_if_stale' ) ) );
 	}
 
 	/**
@@ -159,66 +137,7 @@ class Backup_Feature_Check_Test extends TestCase {
 	}
 
 	/**
-	 * A just-failed read is not retried on the next page load.
-	 *
-	 * Without the backoff every admin request re-queues the fetch for as long as
-	 * WordPress.com stays unreadable.
-	 */
-	public function test_a_just_failed_read_backs_off() {
-		$this->arrange_stored_answer( true );
-		$this->arrange_wpcom( array(), 500 );
-
-		Backup_Feature_Check::refresh();
-		remove_all_actions( 'shutdown' );
-
-		Backup_Feature_Check::has_backup();
-
-		$this->assertFalse( $this->refresh_is_queued() );
-	}
-
-	/**
-	 * A read that failed before any answer is recorded, so it is not retried every page load.
-	 */
-	public function test_failure_before_any_answer_comes_back_on_the_short_retry() {
-		$this->arrange_wpcom( array(), 500 );
-
-		Backup_Feature_Check::refresh();
-
-		$stored = get_option( Backup_Feature_Check::OPTION );
-		$this->assertFalse( $stored['has_backup'] );
-		$this->assertGreaterThan( time(), $stored['stale_after'] );
-		$this->assertLessThanOrEqual( time() + Backup_Feature_Check::RETRY_INTERVAL, $stored['stale_after'] );
-	}
-
-	/**
-	 * A failed read comes back on the short retry, not the full TTL.
-	 */
-	public function test_a_failed_read_shortens_the_wait() {
-		$this->arrange_stored_answer( true, time() - 1 );
-		$this->arrange_wpcom( array(), 500 );
-
-		Backup_Feature_Check::refresh();
-
-		$stored = get_option( Backup_Feature_Check::OPTION );
-		$this->assertTrue( $stored['has_backup'], 'The last clear answer must survive a failed read.' );
-		$this->assertLessThanOrEqual( time() + Backup_Feature_Check::RETRY_INTERVAL, $stored['stale_after'] );
-	}
-
-	/**
-	 * An answer is held for the full TTL, not the short retry.
-	 */
-	public function test_an_answer_is_held_for_the_full_ttl() {
-		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
-
-		Backup_Feature_Check::refresh();
-
-		$stored = get_option( Backup_Feature_Check::OPTION );
-		$this->assertGreaterThan( time() + Backup_Feature_Check::RETRY_INTERVAL, $stored['stale_after'] );
-	}
-
-	/**
-	 * The queued refresh runs when the response ends, so a cold option self-heals
-	 * within one request — no WP-Cron event, loopback request or system cron involved.
+	 * An unread site answers no, and the queued refresh answers it when the response ends.
 	 */
 	public function test_queued_refresh_runs_on_shutdown() {
 		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
@@ -234,9 +153,6 @@ class Backup_Feature_Check_Test extends TestCase {
 
 	/**
 	 * A queued refresh that something else answered first makes no second request.
-	 *
-	 * My Jetpack reading the site's features mid-request is the case: that fires
-	 * refresh() as a listener, leaving the queued one nothing to ask for.
 	 */
 	public function test_queued_refresh_is_dropped_once_something_else_answers() {
 		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
@@ -252,8 +168,7 @@ class Backup_Feature_Check_Test extends TestCase {
 	}
 
 	/**
-	 * My Jetpack reads its features on most page loads, and each read fires refresh() —
-	 * so an unchanged answer must not restamp the option every time.
+	 * Each My Jetpack read fires refresh(), so an unchanged answer must not restamp the option.
 	 */
 	public function test_an_unchanged_answer_is_not_rewritten() {
 		$this->arrange_stored_answer( true );
@@ -266,37 +181,7 @@ class Backup_Feature_Check_Test extends TestCase {
 	}
 
 	/**
-	 * A site with no blog token answers no, rather than keeping what it last had.
-	 */
-	public function test_a_disconnected_site_answers_no() {
-		$this->arrange_stored_answer( true );
-		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
-		$this->arrange_disconnected_site();
-
-		Backup_Feature_Check::refresh();
-
-		$this->assertFalse( Backup_Feature_Check::has_backup() );
-		$this->assertSame( array(), $this->captured_urls, 'A disconnected site has nothing to ask.' );
-	}
-
-	/**
-	 * The first admin page load on a site that has never been asked draws its own menu.
-	 */
-	public function test_a_site_that_has_never_answered_is_asked_once() {
-		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
-
-		Backup_Feature_Check::refresh_if_never_answered();
-
-		$this->assertTrue( Backup_Feature_Check::has_backup() );
-		$this->assertCount( 1, $this->captured_urls );
-
-		Backup_Feature_Check::refresh_if_never_answered();
-
-		$this->assertCount( 1, $this->captured_urls );
-	}
-
-	/**
-	 * A prime that failed still counts as asked.
+	 * A prime that failed still counts as asked, so the next page load does not ask again.
 	 */
 	public function test_a_failed_prime_is_not_repeated_on_the_next_page() {
 		$this->arrange_wpcom( array(), 500 );
@@ -305,47 +190,21 @@ class Backup_Feature_Check_Test extends TestCase {
 		$this->assertCount( 1, $this->captured_urls );
 
 		Backup_Feature_Check::refresh_if_never_answered();
-		$this->assertCount( 1, $this->captured_urls, 'The next page load must not ask again.' );
-	}
-
-	/**
-	 * Opening the page asks again even though My Jetpack answered seconds ago.
-	 */
-	public function test_the_page_open_read_looks_past_my_jetpacks_cache() {
-		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
-		My_Jetpack_Product::get_site_features_from_wpcom();
 		$this->assertCount( 1, $this->captured_urls );
-
-		Backup_Feature_Check::refresh_from_wpcom();
-
-		$this->assertCount( 2, $this->captured_urls );
-		$this->assertTrue( Backup_Feature_Check::has_backup() );
 	}
 
 	/**
-	 * Every other refresh rides that cache rather than making a second request.
+	 * An ordinary refresh rides My Jetpack's cache; the page-open read looks past it.
 	 */
-	public function test_an_ordinary_refresh_reuses_my_jetpacks_cache() {
+	public function test_only_the_page_open_read_looks_past_my_jetpacks_cache() {
 		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
 		My_Jetpack_Product::get_site_features_from_wpcom();
 
 		Backup_Feature_Check::refresh();
-
 		$this->assertCount( 1, $this->captured_urls );
-	}
 
-	/**
-	 * The queued refresh runs after everything else, because it closes the connection.
-	 */
-	public function test_the_queued_refresh_runs_last() {
-		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
-
-		Backup_Feature_Check::has_backup();
-
-		$this->assertSame(
-			PHP_INT_MAX,
-			has_action( 'shutdown', array( Backup_Feature_Check::class, 'refresh_if_stale' ) )
-		);
+		Backup_Feature_Check::refresh_from_wpcom();
+		$this->assertCount( 2, $this->captured_urls );
 	}
 
 	/**
@@ -358,8 +217,7 @@ class Backup_Feature_Check_Test extends TestCase {
 		Backup_Feature_Check::refresh_if_stale();
 		$this->assertCount( 1, $this->captured_urls );
 
-		// The racing request: it saw the stale answer before the first one wrote, and it
-		// raced My Jetpack's cache too, so its own read would reach WordPress.com.
+		// The racing request saw the stale answer, and missed My Jetpack's cache too.
 		$this->arrange_stored_answer( true, time() - 1 );
 		My_Jetpack_Product::reset_site_features_cache();
 		Backup_Feature_Check::refresh_if_stale();
@@ -368,10 +226,9 @@ class Backup_Feature_Check_Test extends TestCase {
 	}
 
 	/**
-	 * Claiming the read must not look like a fresh answer to `store()`, which would
-	 * leave an unchanged answer on the short retry clock instead of the full TTL.
+	 * A refreshed answer is held for the full TTL, not the short retry.
 	 */
-	public function test_a_claimed_refresh_still_holds_its_answer_for_the_full_ttl() {
+	public function test_a_refreshed_answer_is_held_for_the_full_ttl() {
 		$this->arrange_stored_answer( true, time() - 1 );
 		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
 
