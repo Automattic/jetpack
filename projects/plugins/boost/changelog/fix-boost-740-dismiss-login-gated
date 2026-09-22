@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: Dismissing one group of blocked pages no longer hides the other group as well.
