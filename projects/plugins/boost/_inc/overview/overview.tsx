@@ -98,9 +98,8 @@ function OverviewContent( {
 	useEffect( () => {
 		const onModulesChange = ( event: Event ) => {
 			const { key, data } = ( event as CustomEvent< ModulesStateChange > ).detail;
-			if ( key === 'modules_state' ) {
-				queryClient.invalidateQueries( { queryKey: [ key ] } );
-			} else if ( relayedQueryKeys.includes( key ) ) {
+			if ( relayedQueryKeys.includes( key ) ) {
+				void queryClient.cancelQueries( { queryKey: [ key ], exact: true } );
 				queryClient.setQueryData( [ key ], data );
 			}
 		};

@@ -1,6 +1,6 @@
 /* eslint-disable testing-library/prefer-user-event */
 import { requestSpeedScores } from '@automattic/jetpack-boost-score-api';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MutationObserver, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
 	act,
 	fireEvent,
@@ -441,93 +441,171 @@ test.each( [ 'critical_css_state', 'lcp_state' ] as const )(
 	}
 );
 
-test( 'regenerates scores after a Settings toggle and return to the mounted Overview', async () => {
-	const initialModules = {
-		performance_history: { available: true, active: true },
-		defer_js: { available: true, active: false },
-	};
-	let savedModules = initialModules;
-	window.jetpack_boost_ds!.modules_state!.value = initialModules;
-	legacyQueryClient.clear();
-	const stopObserving = observeLegacyModulesState( legacyQueryClient );
-	const hadFetch = Object.hasOwn( globalThis, 'fetch' );
-	if ( ! hadFetch ) {
-		Object.defineProperty( globalThis, 'fetch', {
-			configurable: true,
-			writable: true,
-			value: jest.fn(),
+test.each( [ 'immediate save', 'stale GET', 'delayed save', 'normalized save', 'unrelated save' ] )(
+	'syncs a Settings toggle with %s without extra fetches and refreshes scores',
+	async scenario => {
+		const initialModules = {
+			performance_history: { available: true, active: true },
+			defer_js: { available: true, active: false },
+		};
+		let savedModules = initialModules;
+		let finishSave!: () => void;
+		const pendingSave = new Promise< void >( resolve => {
+			finishSave = resolve;
 		} );
-	}
-	const fetchSpy = jest.spyOn( globalThis, 'fetch' ).mockImplementation( async ( url, options ) => {
-		if ( options.method === 'POST' ) {
-			savedModules = JSON.parse( options.body as string ).JSON;
-		}
-		return {
-			ok: true,
-			text: async () => JSON.stringify( { status: 'success', JSON: savedModules } ),
-		} as Response;
-	} );
-	const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
-	jest
-		.mocked( apiFetch )
-		.mockImplementation( options =>
-			options.url?.endsWith( '/modules-state' )
-				? Promise.resolve( { status: 'success', JSON: savedModules } )
-				: fetch( options )
-		);
-	function SettingsToggle() {
-		const [ state, setState ] = useSingleModuleState( 'defer_js' );
-		return (
-			<button onClick={ () => setState( ! state?.active ) }>Defer Non-Essential JavaScript</button>
-		);
-	}
-	const client = createQueryClient();
-	const dashboard = ( isOverview: boolean ) => (
-		<>
-			<div hidden={ ! isOverview }>
-				<QueryClientProvider client={ client }>
-					<Overview isVisible={ isOverview } onHeaderActionChange={ () => {} } />
-				</QueryClientProvider>
-			</div>
-			<div hidden={ isOverview }>
-				<QueryClientProvider client={ legacyQueryClient }>
-					<SettingsToggle />
-				</QueryClientProvider>
-			</div>
-		</>
-	);
-	const view = render( dashboard( true ) );
-	try {
-		await expect( screen.findByText( '91' ) ).resolves.toBeVisible();
-		await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
-		view.rerender( dashboard( false ) );
-		jest.mocked( requestSpeedScores ).mockResolvedValue( {
-			...scores,
-			current: { desktop: 95, mobile: 85 },
+		let finishStaleGet!: ( value: { status: string; JSON: typeof initialModules } ) => void;
+		const staleGet = new Promise< { status: string; JSON: typeof initialModules } >( resolve => {
+			finishStaleGet = resolve;
 		} );
-		fireEvent.click( screen.getByRole( 'button', { name: 'Defer Non-Essential JavaScript' } ) );
-		await waitFor( () => expect( savedModules.defer_js.active ).toBe( true ) );
-		view.rerender( dashboard( true ) );
-		await waitFor( () => expect( screen.getByText( '95' ) ).toBeVisible(), { timeout: 4000 } );
-		expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 );
-		expect( requestSpeedScores ).toHaveBeenLastCalledWith(
-			true,
-			wpApiSettings.root,
-			Jetpack_Boost.site.url,
-			wpApiSettings.nonce,
-			{ signal: expect.any( AbortSignal ) }
-		);
-	} finally {
-		stopObserving();
-		view.unmount();
-		client.clear();
+		let holdGet = false;
+		window.jetpack_boost_ds!.modules_state!.value = initialModules;
 		legacyQueryClient.clear();
-		fetchSpy.mockRestore();
+		const stopObserving = observeLegacyModulesState( legacyQueryClient );
+		const hadFetch = Object.hasOwn( globalThis, 'fetch' );
 		if ( ! hadFetch ) {
-			Reflect.deleteProperty( globalThis, 'fetch' );
+			Object.defineProperty( globalThis, 'fetch', {
+				configurable: true,
+				writable: true,
+				value: jest.fn(),
+			} );
+		}
+		const fetchSpy = jest
+			.spyOn( globalThis, 'fetch' )
+			.mockImplementation( async ( url, options ) => {
+				if ( options.method === 'POST' ) {
+					if ( scenario === 'delayed save' || scenario === 'unrelated save' ) {
+						await pendingSave;
+					}
+					savedModules = JSON.parse( options.body as string ).JSON;
+					if ( scenario === 'normalized save' ) {
+						savedModules.defer_js.available = false;
+					}
+				}
+				return {
+					ok: true,
+					text: async () => JSON.stringify( { status: 'success', JSON: savedModules } ),
+				} as Response;
+			} );
+		const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
+		jest
+			.mocked( apiFetch )
+			.mockImplementation( options =>
+				options.url?.endsWith( '/modules-state' )
+					? holdGet
+						? staleGet
+						: Promise.resolve( { status: 'success', JSON: savedModules } )
+					: fetch( options )
+			);
+		function SettingsToggle() {
+			const [ state, setState ] = useSingleModuleState( 'defer_js' );
+			return (
+				<button onClick={ () => setState( ! state?.active ) }>
+					Defer Non-Essential JavaScript
+				</button>
+			);
+		}
+		const client = createQueryClient();
+		const dashboard = ( isOverview: boolean ) => (
+			<>
+				<div hidden={ ! isOverview }>
+					<QueryClientProvider client={ client }>
+						<Overview isVisible={ isOverview } onHeaderActionChange={ () => {} } />
+					</QueryClientProvider>
+				</div>
+				<div hidden={ isOverview }>
+					<QueryClientProvider client={ legacyQueryClient }>
+						<SettingsToggle />
+					</QueryClientProvider>
+				</div>
+			</>
+		);
+		const view = render( dashboard( true ) );
+		try {
+			await expect( screen.findByText( '91' ) ).resolves.toBeVisible();
+			await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
+			view.rerender( dashboard( false ) );
+			if ( scenario === 'stale GET' ) {
+				holdGet = true;
+				act( () => {
+					void client.refetchQueries( { queryKey: [ 'modules_state' ] } );
+				} );
+			}
+			await waitFor( () =>
+				expect( client.isFetching( { queryKey: [ 'modules_state' ] } ) ).toBe(
+					scenario === 'stale GET' ? 1 : 0
+				)
+			);
+			fetchSpy.mockClear();
+			jest.mocked( apiFetch ).mockClear();
+			jest.mocked( requestSpeedScores ).mockResolvedValue( {
+				...scores,
+				current: { desktop: 95, mobile: 85 },
+			} );
+			if ( scenario === 'delayed save' ) {
+				jest.useFakeTimers();
+			}
+			fireEvent.click( screen.getByRole( 'button', { name: 'Defer Non-Essential JavaScript' } ) );
+			await waitFor( () => expect( fetchSpy ).toHaveBeenCalledTimes( 1 ) );
+			if ( scenario === 'unrelated save' ) {
+				await act( async () => {
+					await new MutationObserver( legacyQueryClient, {
+						mutationFn: async () => undefined,
+					} ).mutate();
+				} );
+				// eslint-disable-next-line jest/no-conditional-expect
+				expect( client.getQueryData( [ 'modules_state' ] ) ).toEqual( initialModules );
+			}
+			if ( scenario === 'delayed save' ) {
+				await act( async () => {
+					jest.advanceTimersByTime( 2500 );
+				} );
+			}
+			expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
+			jest.useRealTimers();
+			await act( async () => finishSave() );
+			await waitFor( () => expect( savedModules.defer_js.active ).toBe( true ) );
+			await waitFor( () =>
+				expect( client.getQueryData( [ 'modules_state' ] ) ).toEqual( savedModules )
+			);
+			if ( scenario === 'stale GET' ) {
+				await act( async () => {
+					finishStaleGet( { status: 'success', JSON: initialModules } );
+				} );
+			}
+			view.rerender( dashboard( true ) );
+			await waitFor( () => expect( screen.getByText( '95' ) ).toBeVisible(), { timeout: 4000 } );
+			expect( client.getQueryData( [ 'modules_state' ] ) ).toEqual( savedModules );
+			expect( fetchSpy ).toHaveBeenCalledTimes( 1 );
+			expect( fetchSpy ).toHaveBeenCalledWith(
+				expect.stringContaining( '/modules-state/set' ),
+				expect.objectContaining( { method: 'POST' } )
+			);
+			expect(
+				jest
+					.mocked( apiFetch )
+					.mock.calls.filter( ( [ options ] ) => options.url?.endsWith( '/modules-state' ) )
+			).toHaveLength( 0 );
+			expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 );
+			expect( requestSpeedScores ).toHaveBeenLastCalledWith(
+				true,
+				wpApiSettings.root,
+				Jetpack_Boost.site.url,
+				wpApiSettings.nonce,
+				{ signal: expect.any( AbortSignal ) }
+			);
+		} finally {
+			jest.useRealTimers();
+			stopObserving();
+			view.unmount();
+			client.clear();
+			legacyQueryClient.clear();
+			fetchSpy.mockRestore();
+			if ( ! hadFetch ) {
+				Reflect.deleteProperty( globalThis, 'fetch' );
+			}
 		}
 	}
-} );
+);
 
 test( 'keeps offline sites out of score and Data Sync requests', async () => {
 	Jetpack_Boost.site.online = false;
