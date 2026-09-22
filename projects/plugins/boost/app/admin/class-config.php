@@ -136,9 +136,10 @@ class Config {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return bool True if My Jetpack initialized on this request, false otherwise.
+	 * @return bool True if My Jetpack is reachable by the current user, false otherwise.
 	 */
 	public static function is_my_jetpack_available() {
-		return class_exists( My_Jetpack_Initializer::class ) && did_action( 'my_jetpack_init' ) > 0;
+		return method_exists( My_Jetpack_Initializer::class, 'is_admin_page_available' )
+			&& My_Jetpack_Initializer::is_admin_page_available();
 	}
 }
