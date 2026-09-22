@@ -81,11 +81,12 @@ const PrerenderWarningMessage = ( { children }: BypassPatternsExampleProps ) => 
 	const [ show, setShow ] = useState( false );
 	const triggerRef = useRef< HTMLAnchorElement >( null );
 	const tooltipLayer = useTooltipLayer();
+	// Modern Settings links share the @wordpress/ui Link colours in every state.
+	const Anchor = useModuleSurface() === 'row' ? Link : 'a';
 
 	return (
 		<div className={ styles[ 'warning-wrapper' ] }>
-			{ /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
-			<a
+			<Anchor
 				ref={ triggerRef }
 				href="#"
 				role="button"
@@ -104,7 +105,7 @@ const PrerenderWarningMessage = ( { children }: BypassPatternsExampleProps ) => 
 				} }
 			>
 				{ children }
-			</a>
+			</Anchor>
 			<div className={ styles[ 'warning-tooltip-wrapper' ] }>
 				<IconTooltip
 					placement="bottom-end"

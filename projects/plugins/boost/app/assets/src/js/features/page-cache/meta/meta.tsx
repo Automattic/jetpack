@@ -329,11 +329,11 @@ const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 	const [ show, setShow ] = useState( false );
 	const triggerRef = useRef< HTMLAnchorElement >( null );
 	const tooltipLayer = useTooltipLayer();
+	const Anchor = useModuleSurface() === 'row' ? WPLink : 'a';
 
 	return (
 		<div className={ styles[ 'example-wrapper' ] }>
-			{ /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
-			<a
+			<Anchor
 				ref={ triggerRef }
 				href="#"
 				role="button"
@@ -352,7 +352,7 @@ const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 				} }
 			>
 				{ children }
-			</a>
+			</Anchor>
 			<div className={ styles[ 'tooltip-wrapper' ] }>
 				<IconTooltip
 					placement="bottom-start"
