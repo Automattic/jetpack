@@ -539,8 +539,12 @@ export default function ApiManagedEdit( {
 	const formIsValid = useRef( isFormValid );
 	formIsValid.current = isFormValid;
 	const [ isEditing, setIsEditing ] = useState( ! isFormValid );
+	// A saved link can be switched for another of the account's links from its
+	// details menu. A new link, however it arrived, closes the picker.
+	const [ isSwitching, setIsSwitching ] = useState( false );
 	useEffect( () => {
 		setIsEditing( ! formIsValid.current );
+		setIsSwitching( false );
 	}, [ resourceId ] );
 	// An undo, or a read writing back a value that fails validation, can break the
 	// link later on, and the details have nowhere to show it. Opening only, so the
@@ -551,6 +555,7 @@ export default function ApiManagedEdit( {
 		}
 	}, [ isFormValid ] );
 	const showDetails = hasButton && ! isEditing;
+	const showSwitch = hasButton && isSwitching;
 
 	// The changed-at-PayPal warning is done once the merchant leaves the details
 	// screen it was raised on. Keyed to that screen rather than to selection, which
@@ -569,14 +574,19 @@ export default function ApiManagedEdit( {
 	const isFreshBlock = ! hasButton && ! productName && ! price;
 	const [ createNewChosen, setCreateNewChosen ] = useState( false );
 	const [ isPicking, setIsPicking ] = useState( false );
+	const wantsLinkStep = isFreshBlock && ! createNewChosen;
+	// A saved link reads the list too, so its menu can say whether there is another
+	// link to switch to. Only once selected: the sidebar is not up before that, and
+	// every block on the canvas mounts this component.
 	const { links: existingLinks, isLoading: linksLoading } = useExistingLinks( {
-		enabled: isConnected && isFreshBlock && ! createNewChosen,
+		enabled: isConnected && ( wantsLinkStep || ( isSelected && ( showDetails || showSwitch ) ) ),
 	} );
-	const showLinkStep =
-		isConnected &&
-		isFreshBlock &&
-		! createNewChosen &&
-		( linksLoading || existingLinks.length > 0 );
+	const showLinkStep = isConnected && wantsLinkStep && ( linksLoading || existingLinks.length > 0 );
+	const otherLinks = useMemo(
+		() => existingLinks.filter( link => link.id !== resourceId ),
+		[ existingLinks, resourceId ]
+	);
+	const canChangeLink = isConnected && ! isBusy && ( linksLoading || otherLinks.length > 0 );
 
 	/**
 	 * Point the block at an existing link, with the attributes PayPal holds for it.
@@ -593,11 +603,15 @@ export default function ApiManagedEdit( {
 					}
 					// The block just read the payment, so the save can write it without a second fetch.
 					recordPaymentRead( blockClientId, link.id );
+					// The read only carries what the payment has, so what the last link had
+					// goes back to its default first. The image stays: it belongs to the block.
 					setAttributes( {
+						...resetToDefaults( ...RESOURCE_ATTRIBUTES ),
 						isApiManaged: true,
 						resourceId: link.id,
 						...response.attributes,
 					} );
+					toast( 'success', __( 'Payment link updated.', 'jetpack-paypal-payments' ) );
 				} )
 				.catch( err => toast( 'error', getUserFriendlyError( err ) ) )
 				.finally( () => setIsPicking( false ) );
@@ -805,17 +819,35 @@ export default function ApiManagedEdit( {
 
 	const connectionLabel = isConnected ? labelConnected : labelDisconnected;
 
-	const linkStep = linksLoading ? (
-		<PanelBody title={ __( 'Payment link', 'jetpack-paypal-payments' ) } initialOpen={ true }>
-			<Spinner />
-		</PanelBody>
-	) : (
+	const linkStep = (
 		<ExistingLinksStep
 			links={ existingLinks }
+			isLoading={ linksLoading }
 			onCreateNew={ () => setCreateNewChosen( true ) }
 			onPick={ pickExistingLink }
 			isPicking={ isPicking }
 		/>
+	);
+
+	// The same picker, minus Create new and the link the block already has.
+	const switchView = (
+		<>
+			<div className="jetpack-paypal-payment-buttons__form-actions">
+				<Button
+					icon={ isRTL() ? chevronRight : chevronLeft }
+					onClick={ () => setIsSwitching( false ) }
+					className="jetpack-paypal-payment-buttons__back-to-details"
+				>
+					{ __( 'Change item', 'jetpack-paypal-payments' ) }
+				</Button>
+			</div>
+			<ExistingLinksStep
+				links={ otherLinks }
+				isLoading={ linksLoading }
+				onPick={ pickExistingLink }
+				isPicking={ isPicking }
+			/>
+		</>
 	);
 
 	const detailsView = (
@@ -824,6 +856,8 @@ export default function ApiManagedEdit( {
 			resource={ resource }
 			notices={ paymentChangedNotice }
 			onEdit={ () => setIsEditing( true ) }
+			onChangeLink={ () => setIsSwitching( true ) }
+			canChangeLink={ canChangeLink }
 		/>
 	);
 
@@ -1403,6 +1437,8 @@ export default function ApiManagedEdit( {
 	let sidebar = formPanels;
 	if ( showLinkStep ) {
 		sidebar = linkStep;
+	} else if ( showSwitch ) {
+		sidebar = switchView;
 	} else if ( showDetails ) {
 		sidebar = detailsView;
 	}

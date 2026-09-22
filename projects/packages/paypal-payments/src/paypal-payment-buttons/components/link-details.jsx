@@ -7,22 +7,33 @@
 import { DropdownMenu } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { moreVertical, pencil } from '@wordpress/icons';
+import { moreVertical, pencil, update } from '@wordpress/icons';
 import { linkDate } from '../utils/link-date';
 import { linkPrice } from '../utils/link-price';
 
 /**
  * What the sidebar shows for a saved link: its name and price, then when it
- * was made, its id and where it is used. Edit is in the menu beside the name.
+ * was made, its id and where it is used. Edit and Change item are in the menu
+ * beside the name.
  *
- * @param {object}       props            - Component props.
- * @param {object}       props.attributes - Block attributes.
- * @param {object|null}  props.resource   - The payment as last read from PayPal, null until then.
- * @param {Element|null} props.notices    - Notices about the link itself, shown above the view.
- * @param {Function}     props.onEdit     - Open the form.
+ * @param {object}       props               - Component props.
+ * @param {object}       props.attributes    - Block attributes.
+ * @param {object|null}  props.resource      - The payment as last read from PayPal, null until then.
+ * @param {Element|null} props.notices       - Notices about the link itself, shown above the view.
+ * @param {Function}     props.onEdit        - Open the form.
+ * @param {Function}     props.onChangeLink  - Open the picker of the account's other links.
+ * @param {boolean}      props.canChangeLink - Whether there is another link to switch to, or the
+ *                                           list is still being read.
  * @return {Element} The view.
  */
-export default function LinkDetails( { attributes, resource, notices, onEdit } ) {
+export default function LinkDetails( {
+	attributes,
+	resource,
+	notices,
+	onEdit,
+	onChangeLink,
+	canChangeLink,
+} ) {
 	const { productName, resourceId, adjustableQuantity, maxQuantity } = attributes;
 	const price = linkPrice( attributes );
 	// Shown until the payment has been read back, or when it could not be.
@@ -63,6 +74,12 @@ export default function LinkDetails( { attributes, resource, notices, onEdit } )
 							title: __( 'Edit', 'jetpack-paypal-payments' ),
 							icon: pencil,
 							onClick: onEdit,
+						},
+						{
+							title: __( 'Change item', 'jetpack-paypal-payments' ),
+							icon: update,
+							onClick: onChangeLink,
+							isDisabled: ! canChangeLink,
 						},
 					] }
 				/>
