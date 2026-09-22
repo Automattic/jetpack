@@ -1,3 +1,4 @@
+import { useModuleSurface } from '$features/module/surface';
 import { useState } from 'react';
 import { Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
@@ -9,6 +10,7 @@ import { useNotices } from '$features/notice/context';
 import { useMinifyDefaults } from './lib/stores';
 
 const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
+	const isRow = useModuleSurface() === 'row';
 	const noticeId = `minify-meta-${ datasyncKey }`;
 
 	const [ values, updateValues ] = useMetaQuery( datasyncKey, newState => {
@@ -89,8 +91,8 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 
 	const content = (
 		<div className={ styles.body }>
-			<div className={ styles.section }>
-				<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
+			<div className={ styles.section } data-except-content={ isRow || undefined }>
+				{ ! isRow && <div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div> }
 				<div className={ styles[ 'manage-excludes' ] }>
 					<label className={ styles[ 'sub-header' ] } htmlFor={ htmlId }>
 						{ subHeaderText }
@@ -133,6 +135,7 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 	return (
 		<div className={ styles.wrapper } data-testid={ `meta-${ datasyncKey }` }>
 			<CollapsibleMeta
+				exceptions={ isRow ? values : undefined }
 				headerText={ summary }
 				toggleText={ buttonText }
 				tracksEvent={ togglePanelTracksEvent }
