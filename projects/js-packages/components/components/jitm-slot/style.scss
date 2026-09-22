@@ -1,11 +1,12 @@
-// The slot is always rendered and usually empty, so it must take no space of its
-// own. Everything visual hangs off the card the JITM script injects.
+// The slot is always rendered and usually empty, so it must take
+// no space of its own. Everything visual hangs off the injected card.
 .jp-jitm-slot {
 	margin: 0;
 	padding: 0;
 
-	// `jitm-card` comes from the injected markup (packages/jitm/src/js/jetpack-jitm.js).
-	// Spacing lives here so a dismissed card leaves no gap behind it.
+	// `jitm-card` comes from the injected markup, in
+	// packages/jitm/src/js/jetpack-jitm.js. Spacing lives here so a
+	// dismissed card leaves no gap behind it.
 	.jitm-card {
 		margin: 0 0 var(--wpds-dimension-gap-xl);
 	}
