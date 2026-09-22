@@ -81,7 +81,8 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] >, SeriesVi
 
 export type TooltipDatum = {
 	key: string;
-	value: number;
+	/** The series' reading, or null when the bucket has none. */
+	value: number | null;
 };
 
 export type LineChartGlyphProps = {

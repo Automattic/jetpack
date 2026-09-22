@@ -51,7 +51,7 @@ import {
 	LineChartGlyph,
 	NearestPointerEvents,
 } from './private';
-import type { RenderLineGlyphProps, LineChartProps } from './types';
+import type { RenderLineGlyphProps, LineChartProps, TooltipDatum } from './types';
 import type {
 	BucketInfo,
 	DataPoint,
@@ -126,9 +126,7 @@ export const renderDefaultTooltip = (
 	const nearestDatum = tooltipData?.nearestDatum?.datum;
 	if ( ! nearestDatum ) return null;
 
-	const tooltipPoints: { key: string; value: number | null }[] = Object.entries(
-		tooltipData?.datumByKey || {}
-	)
+	const tooltipPoints: TooltipDatum[] = Object.entries( tooltipData?.datumByKey || {} )
 		.map( ( [ key, { datum } ] ) => ( {
 			key,
 			value: datum.value ?? null,
