@@ -455,6 +455,7 @@ class Jetpack_Carousel {
 				'url' => plugins_url( '_inc/blocks/swiper.js', JETPACK__PLUGIN_FILE ),
 			);
 			wp_localize_script( 'jetpack-carousel', 'jetpackSwiperLibraryPath', $swiper_library_path );
+			add_action( 'wp_footer', array( $this, 'prefetch_swiper_library' ) );
 
 			// Note: using  home_url() instead of admin_url() for ajaxurl to be sure  to get same domain on wpcom when using mapped domains (also works on self-hosted).
 			// Also: not hardcoding path since there is no guarantee site is running on site root in self-hosted context.
@@ -569,6 +570,22 @@ class Jetpack_Carousel {
 
 			$this->first_run = false;
 		}
+	}
+
+	/**
+	 * Hint the browser to fetch the Swiper library while it is idle.
+	 *
+	 * Swiper is only requested when the lightbox is first opened, which puts a network
+	 * round trip in front of that first click. This is deliberately `prefetch` rather than
+	 * `preload`: most visitors never open the lightbox, so the fetch must stay at low
+	 * priority and out of the way of the page's own images. `loadSwiper()` still loads the
+	 * library on demand, since a prefetch is a hint the browser is free to ignore.
+	 */
+	public function prefetch_swiper_library() {
+		printf(
+			'<link rel="prefetch" href="%s" as="script" />' . "\n",
+			esc_url( plugins_url( '_inc/blocks/swiper.js', JETPACK__PLUGIN_FILE ) )
+		);
 	}
 
 	/**
