@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Multistep: render a step as a single element on both surfaces, so its layout and its visibility live on the same div.

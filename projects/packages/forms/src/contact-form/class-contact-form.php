@@ -1577,8 +1577,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 				&& wp_verify_nonce( sanitize_key( wp_unslash( $_GET['_wpnonce'] ) ), "contact-form-sent-{$feedback_id}" );
 		}
 
+		/*
+		 * The steps are already rendered by the time the form builds its context, so
+		 * the only record of how many there are is in their markup. Accept the quotes
+		 * inside the attribute either raw or HTML-encoded: a step whose attribute is
+		 * written by `WP_HTML_Tag_Processor::set_attribute()` gets `&quot;`, while one
+		 * written by `wp_interactivity_data_wp_context()` gets `"`, and a form whose
+		 * steps do not match here silently loses `currentStep` and stops paginating.
+		 */
 		$max_steps = 0;
-		if ( preg_match_all( '/data-wp-context=[\'"]?{"step":(\d+)}[\'"]?/', $content, $matches ) ) {
+		if ( preg_match_all( '/data-wp-context=[\'"]?{(?:"|&quot;)step(?:"|&quot;):(\d+)}[\'"]?/', $content, $matches ) ) {
 			if ( ! empty( $matches[1] ) ) {
 				$max_steps = max( array_map( 'intval', $matches[1] ) );
 			}
