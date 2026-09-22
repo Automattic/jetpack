@@ -10,7 +10,9 @@
 		"verify-port": "./bin/verify-port.js"
 	},
 	"scripts": {
+		"setup:browsers": "playwright install chromium",
 		"test": "node --test src/*.test.js",
+		"test:smoke": "node --test test/*.test.js",
 		"verify-port": "node bin/verify-port.js"
 	},
 	"dependencies": {

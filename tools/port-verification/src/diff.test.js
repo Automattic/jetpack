@@ -36,6 +36,23 @@ describe( 'diffGeometry', () => {
 		assert.equal( result.status, 'ok' );
 	} );
 
+	it( 'honours a sub-pixel tolerance, since rects are stored unrounded', () => {
+		const before = { root: { label: 'r', rect: { width: 100.4 } } };
+		const after = { root: { label: 'r', rect: { width: 100.6 } } };
+		assert.equal( diffGeometry( before, after, { tolerancePx: 0.5 } )[ 0 ].status, 'ok' );
+		const [ tight ] = diffGeometry( before, after, { tolerancePx: 0.1 } );
+		assert.equal( tight.status, 'changed' );
+		assert.match( tight.details[ 0 ], /width: 100\.4px -> 100\.6px \(Δ0\.2px\)/ );
+	} );
+
+	it( 'flags a control whose selector matched more than one element', () => {
+		const before = { control: { label: 'Control', matchCount: 2, rect: { width: 10 } } };
+		const after = { control: { label: 'Control', matchCount: 1, rect: { width: 10 } } };
+		const [ result ] = diffGeometry( before, after );
+		assert.equal( result.status, 'changed' );
+		assert.match( result.details[ 0 ], /matched 2 element\(s\) -> 1; only the first is compared/ );
+	} );
+
 	it( 'flags a rect delta beyond tolerance', () => {
 		const before = { wpbodyContent: { label: 'x', rect: { width: 100 } } };
 		const after = { wpbodyContent: { label: 'x', rect: { width: 104 } } };
@@ -161,6 +178,13 @@ describe( 'normalizeRequestKey', () => {
 			'GET /relative/path'
 		);
 	} );
+
+	it( 'keeps the host, so the same path on two hosts is two requests', () => {
+		const a = { url: 'https://site.test/boot.js', method: 'GET' };
+		const b = { url: 'https://cdn.test/boot.js', method: 'GET' };
+		assert.notEqual( normalizeRequestKey( a ), normalizeRequestKey( b ) );
+		assert.match( normalizeRequestKey( a ), /site\.test/ );
+	} );
 } );
 
 describe( 'redactUrl', () => {
@@ -197,6 +221,8 @@ describe( 'diffNetwork', () => {
 			onlyAfter: [],
 			statusChanged: [],
 			countChanged: [],
+			beforeTotal: 1,
+			afterTotal: 1,
 		} );
 	} );
 
@@ -240,9 +266,38 @@ describe( 'diffNetwork', () => {
 		const after = [ { url, method: 'GET', status: 200 } ];
 		const result = diffNetwork( before, after );
 		assert.deepEqual( result.countChanged, [
-			{ key: 'GET /wp-json/jetpack/v4/settings', beforeCount: 3, afterCount: 1 },
+			{ key: 'GET site.test/wp-json/jetpack/v4/settings', beforeCount: 3, afterCount: 1 },
 		] );
 		assert.equal( result.statusChanged.length, 0 );
+	} );
+
+	it( 'drops per-event tracking traffic that would flood both sides', () => {
+		const before = [ { url: 'https://pixel.wp.com/t.gif?_ts=1', method: 'GET', status: 200 } ];
+		const after = [ { url: 'https://pixel.wp.com/t.gif?_ts=2', method: 'GET', status: 200 } ];
+		const result = diffNetwork( before, after );
+		assert.deepEqual( result.onlyBefore, [] );
+		assert.deepEqual( result.onlyAfter, [] );
+		assert.equal( result.beforeTotal, 0 );
+	} );
+
+	it( 'keeps a host the caller did not ask to ignore', () => {
+		const before = [ { url: 'https://stats.test/t.gif?_ts=1', method: 'GET', status: 200 } ];
+		const result = diffNetwork( before, [] );
+		assert.equal( result.onlyBefore.length, 1 );
+	} );
+
+	it( 'records a request that never got a response, from its failure entry', () => {
+		const after = [
+			{
+				url: 'http://nonexistent.invalid/boot.js',
+				method: 'GET',
+				status: 0,
+				failure: 'net::ERR_NAME_NOT_RESOLVED',
+			},
+		];
+		const result = diffNetwork( [], after );
+		assert.equal( result.onlyAfter.length, 1 );
+		assert.equal( result.onlyAfter[ 0 ].status, 0 );
 	} );
 
 	it( 'counts repeats of a request that fires on one side only', () => {

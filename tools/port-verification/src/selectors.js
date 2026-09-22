@@ -27,5 +27,9 @@ export const DEFAULT_IGNORED_QUERY_PARAMS = [
 	'_locale',
 ];
 
+// Hosts whose traffic is per-event by design: a Tracks pixel carries a timestamp in every
+// URL, so each load produces new keys and buries the real findings. --ignore-host adds more.
+export const DEFAULT_IGNORED_HOSTS = [ 'pixel.wp.com' ];
+
 // Below this, a geometry delta is rounding noise, not a real shift.
 export const DEFAULT_TOLERANCE_PX = 0.5;

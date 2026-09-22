@@ -70,7 +70,8 @@
 		],
 		"test-js": [
 			"cd tools/cli && pnpm test",
-			"cd tools/performance && pnpm test:unit"
+			"cd tools/performance && pnpm test:unit",
+			"cd tools/port-verification && pnpm test"
 		],
 		"post-install-cmd": [
 			"cd tools/php-test-env && composer install"

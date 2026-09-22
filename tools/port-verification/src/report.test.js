@@ -12,6 +12,19 @@ import {
 import { formatReport } from './report.js';
 import { DEFAULT_GEOMETRY_TARGETS } from './selectors.js';
 
+/**
+ * What `capturePage()` writes into `meta.targets` once --control-selector is given.
+ *
+ * @param {string} selector
+ * @return {object}
+ */
+function withControlSelector( selector ) {
+	return {
+		...DEFAULT_GEOMETRY_TARGETS,
+		control: { ...DEFAULT_GEOMETRY_TARGETS.control, selector, required: true },
+	};
+}
+
 describe( 'formatReport', () => {
 	it( 'includes the page, flag and capture timestamps in the header', () => {
 		const report = formatReport( diffSnapshots( flagOffSnapshot(), flagOnSnapshot() ), {
@@ -92,17 +105,65 @@ describe( 'formatReport', () => {
 		assert.match( report, /Only with flag off \(0\):\n {2}- none/ );
 	} );
 
-	it( 'summary counts nothing when the only configured target is the optional control', () => {
-		const before = { geometry: {}, network: [] };
-		const after = { geometry: {}, network: [] };
+	it( 'summary counts nothing for geometry when the only target is the optional control', () => {
+		const onlyControl = { control: DEFAULT_GEOMETRY_TARGETS.control };
+		const empty = { geometry: {}, network: [] };
+		const report = formatReport( diffSnapshots( empty, empty ), { url: 'x' }, onlyControl );
+		assert.match( report, /0 geometry finding\(s\)/ );
+	} );
+
+	it( 'treats a side that recorded no requests as a finding, not as agreement', () => {
+		const onlyControl = { control: DEFAULT_GEOMETRY_TARGETS.control };
+		const empty = { geometry: {}, network: [] };
+		const report = formatReport( diffSnapshots( empty, empty ), { url: 'x' }, onlyControl );
+		assert.match( report, /No requests recorded with the flag off or flag on/ );
+		assert.match( report, /2 network finding\(s\)/ );
+	} );
+
+	it( 'prints how many requests each side contributed', () => {
+		const report = formatReport( diffSnapshots( flagOffSnapshot(), flagOnSnapshot() ), {
+			url: 'x',
+		} );
+		assert.match( report, /Compared 2 request\(s\) with the flag off against 2 with it on\./ );
+	} );
+
+	it( 'warns when the two snapshots are of different pages', () => {
+		const report = formatReport( diffSnapshots( flagOffSnapshot(), flagOnSnapshot() ), {
+			url: 'x',
+			beforeUrl: 'https://site.test/wp-admin/admin.php?page=jetpack',
+			afterUrl: 'https://site.test/wp-admin/admin.php?page=jetpack-backup',
+		} );
+		assert.match( report, /The two captures are of different pages/ );
+	} );
+
+	it( 'treats a control that was asked for and then vanished as a finding', () => {
+		const before = flagOffSnapshot();
+		const after = flagOnSnapshot();
+		delete after.geometry.control;
 		const report = formatReport(
 			diffSnapshots( before, after ),
 			{ url: 'x' },
-			{
-				control: DEFAULT_GEOMETRY_TARGETS.control,
-			}
+			withControlSelector( '.real-button' )
 		);
-		assert.match( report, /0 geometry finding\(s\), 0 network finding\(s\)\./ );
+		assert.match(
+			report,
+			/\| Control \| MISSING \| not found in after \(flag on\) -- required target \|/
+		);
+		assert.match( report, /2 geometry finding\(s\)/ );
+	} );
+
+	it( 'says a control selector matched nothing, rather than that none was given', () => {
+		const before = flagOffSnapshot();
+		const after = flagOnSnapshot();
+		delete before.geometry.control;
+		delete after.geometry.control;
+		const report = formatReport(
+			diffSnapshots( before, after ),
+			{ url: 'x' },
+			withControlSelector( '.typo-button' )
+		);
+		assert.match( report, /\| Control \| NOT MEASURED \| selector matched in neither capture \|/ );
+		assert.match( report, /2 geometry finding\(s\)/ );
 	} );
 
 	it( 'escalates a required target missing from one side to a geometry finding', () => {

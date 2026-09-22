@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { parseOptions } from './options.js';
-import { DEFAULT_IGNORED_QUERY_PARAMS, DEFAULT_TOLERANCE_PX } from './selectors.js';
+import {
+	DEFAULT_IGNORED_HOSTS,
+	DEFAULT_IGNORED_QUERY_PARAMS,
+	DEFAULT_TOLERANCE_PX,
+} from './selectors.js';
 
 describe( 'parseOptions', () => {
 	it( 'camel-cases the kebab-case flags', () => {
@@ -65,6 +69,26 @@ describe( 'parseOptions', () => {
 			'cb',
 			'rand',
 		] );
+	} );
+
+	it( 'defaults the load state and accepts the Playwright ones', () => {
+		assert.equal( parseOptions( [], {} ).loadState, 'networkidle' );
+		assert.equal( parseOptions( [ '--load-state', 'load' ], {} ).loadState, 'load' );
+	} );
+
+	it( 'rejects a load state Playwright does not have', () => {
+		assert.throws( () => parseOptions( [ '--load-state', 'idle' ], {} ), /--load-state/ );
+	} );
+
+	it( 'appends repeated --ignore-host values to the defaults', () => {
+		const options = parseOptions( [ '--ignore-host', 'stats.test' ], {} );
+		assert.deepEqual( options.ignoreHosts, [ ...DEFAULT_IGNORED_HOSTS, 'stats.test' ] );
+		assert.equal( parseOptions( [], {} ).ignoreHosts, undefined );
+	} );
+
+	it( 'reads --autologin-url', () => {
+		const options = parseOptions( [ '--autologin-url', 'https://s.test/?auto_login' ], {} );
+		assert.equal( options.autologinUrl, 'https://s.test/?auto_login' );
 	} );
 
 	it( 'rejects an unknown flag rather than ignoring it', () => {

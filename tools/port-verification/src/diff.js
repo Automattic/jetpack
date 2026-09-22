@@ -3,7 +3,22 @@
  * takes and returns plain data, so it can run against fixtures without Playwright.
  */
 
-import { DEFAULT_IGNORED_QUERY_PARAMS, DEFAULT_TOLERANCE_PX } from './selectors.js';
+import {
+	DEFAULT_IGNORED_HOSTS,
+	DEFAULT_IGNORED_QUERY_PARAMS,
+	DEFAULT_TOLERANCE_PX,
+} from './selectors.js';
+
+/**
+ * Rects are stored unrounded so a sub-pixel tolerance means something. Whole numbers still
+ * print as whole numbers.
+ *
+ * @param {number} value
+ * @return {string}
+ */
+function px( value ) {
+	return `${ Number.isInteger( value ) ? value : value.toFixed( 1 ) }px`;
+}
 
 /**
  * Compare one geometry target's `rect` (numeric px fields) between before and after.
@@ -26,7 +41,7 @@ function diffRect( before, after, tolerancePx ) {
 		}
 		const delta = Math.abs( a - b );
 		if ( delta > tolerancePx ) {
-			lines.push( `${ field }: ${ b }px -> ${ a }px (Δ${ delta.toFixed( 1 ) }px)` );
+			lines.push( `${ field }: ${ px( b ) } -> ${ px( a ) } (Δ${ delta.toFixed( 1 ) }px)` );
 		}
 	}
 	return lines;
@@ -53,7 +68,7 @@ function diffStyle( before, after, tolerancePx ) {
 		if ( typeof b === 'number' && typeof a === 'number' ) {
 			const delta = Math.abs( a - b );
 			if ( delta > tolerancePx ) {
-				lines.push( `${ prop }: ${ b }px -> ${ a }px (Δ${ delta.toFixed( 1 ) }px)` );
+				lines.push( `${ prop }: ${ px( b ) } -> ${ px( a ) } (Δ${ delta.toFixed( 1 ) }px)` );
 			}
 			continue;
 		}
@@ -76,6 +91,23 @@ function diffStyle( before, after, tolerancePx ) {
  * @param {number} [options.tolerancePx] - See `DEFAULT_TOLERANCE_PX`.
  * @return {Array<object>} `{ key, label, status: 'ok'|'changed'|'missing'|'hidden-changed', details }`, one per target present on either side.
  */
+/**
+ * `querySelectorAll` found more than one element, so each side compared its own first match
+ * and the row may be measuring two different elements.
+ *
+ * @param {object} before
+ * @param {object} after
+ * @return {string[]}
+ */
+function ambiguousSelector( before, after ) {
+	const b = before.matchCount ?? 1;
+	const a = after.matchCount ?? 1;
+	if ( b > 1 || a > 1 ) {
+		return [ `selector matched ${ b } element(s) -> ${ a }; only the first is compared` ];
+	}
+	return [];
+}
+
 export function diffGeometry( before = {}, after = {}, options = {} ) {
 	const tolerancePx = options.tolerancePx ?? DEFAULT_TOLERANCE_PX;
 	const keys = new Set( [ ...Object.keys( before ), ...Object.keys( after ) ] );
@@ -116,6 +148,7 @@ export function diffGeometry( before = {}, after = {}, options = {} ) {
 		}
 
 		const details = [
+			...ambiguousSelector( b, a ),
 			...diffRect( b.rect, a.rect, tolerancePx ),
 			...diffStyle( b.style, a.style, tolerancePx ),
 		];
@@ -152,7 +185,9 @@ export function normalizeRequestKey( request, options = {} ) {
 	try {
 		const parsed = stripQueryParams( new URL( request.url ), ignoreQueryParams );
 		parsed.searchParams.sort();
-		return `${ request.method } ${ parsed.pathname }${ parsed.search }`;
+		// Host included: the same path on two hosts is not the same request, and a key that
+		// drops it cannot say which host a status change belongs to.
+		return `${ request.method } ${ parsed.host }${ parsed.pathname }${ parsed.search }`;
 	} catch {
 		// Not an absolute URL (e.g. already a bare path in a fixture). Compare as-is.
 		return `${ request.method } ${ request.url }`;
@@ -176,6 +211,29 @@ export function redactUrl( url, options = {} ) {
 	} catch {
 		return url;
 	}
+}
+
+/**
+ * Drop traffic from hosts whose URLs are per-event by design, so they cannot flood both
+ * "only with flag off" and "only with flag on" with the same events under new keys.
+ *
+ * @param {object[]} requests
+ * @param {object}   [options]
+ * @param {string[]} [options.ignoreHosts] - See `DEFAULT_IGNORED_HOSTS`.
+ * @return {object[]}
+ */
+function dropIgnoredHosts( requests, options = {} ) {
+	const ignoreHosts = options.ignoreHosts ?? DEFAULT_IGNORED_HOSTS;
+	if ( ignoreHosts.length === 0 ) {
+		return requests;
+	}
+	return requests.filter( request => {
+		try {
+			return ! ignoreHosts.includes( new URL( request.url ).host );
+		} catch {
+			return true;
+		}
+	} );
 }
 
 /**
@@ -220,11 +278,13 @@ function statusesOf( group ) {
  * @param {Array<object>} before    - `[{ url, method, status, resourceType }]`.
  * @param {Array<object>} after     - Same shape, from the flag-on capture.
  * @param {object}        [options]
- * @return {{onlyBefore: object[], onlyAfter: object[], statusChanged: object[], countChanged: object[]}}
+ * @return {{onlyBefore: object[], onlyAfter: object[], statusChanged: object[], countChanged: object[], beforeTotal: number, afterTotal: number}}
  */
 export function diffNetwork( before = [], after = [], options = {} ) {
-	const beforeGroups = groupByKey( before, options );
-	const afterGroups = groupByKey( after, options );
+	const keptBefore = dropIgnoredHosts( before, options );
+	const keptAfter = dropIgnoredHosts( after, options );
+	const beforeGroups = groupByKey( keptBefore, options );
+	const afterGroups = groupByKey( keptAfter, options );
 
 	const onlyBefore = [];
 	const onlyAfter = [];
@@ -252,7 +312,14 @@ export function diffNetwork( before = [], after = [], options = {} ) {
 		}
 	}
 
-	return { onlyBefore, onlyAfter, statusChanged, countChanged };
+	return {
+		onlyBefore,
+		onlyAfter,
+		statusChanged,
+		countChanged,
+		beforeTotal: keptBefore.length,
+		afterTotal: keptAfter.length,
+	};
 }
 
 /**

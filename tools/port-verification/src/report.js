@@ -116,6 +116,8 @@ function countChangeList( changes ) {
  * @param {{geometry: object[], network: object}} diffResult              - From `diffSnapshots()`.
  * @param {object}                                meta                    - Run context to print in the header.
  * @param {string}                                meta.url                - Page URL that was captured.
+ * @param {string}                                [meta.beforeUrl]        - URL the flag-off snapshot recorded.
+ * @param {string}                                [meta.afterUrl]         - URL the flag-on snapshot recorded.
  * @param {string}                                [meta.flag]             - Feature flag name.
  * @param {string}                                [meta.beforeCapturedAt] - ISO timestamp of the flag-off capture.
  * @param {string}                                [meta.afterCapturedAt]  - ISO timestamp of the flag-on capture.
@@ -144,11 +146,30 @@ export function formatReport(
 			}
 			return false;
 		} ).length + unmeasured.filter( u => u.required ).length;
+	// A side that recorded nothing is not agreement, it is a capture that did not happen.
+	const emptySides = [];
+	if ( network.beforeTotal === 0 ) {
+		emptySides.push( 'flag off' );
+	}
+	if ( network.afterTotal === 0 ) {
+		emptySides.push( 'flag on' );
+	}
 	const networkFindings =
 		network.onlyBefore.length +
 		network.onlyAfter.length +
 		network.statusChanged.length +
-		network.countChanged.length;
+		network.countChanged.length +
+		emptySides.length;
+
+	const warnings = [];
+	if ( emptySides.length ) {
+		warnings.push( `**No requests recorded with the ${ emptySides.join( ' or ' ) }.**` );
+	}
+	if ( meta.beforeUrl && meta.afterUrl && meta.beforeUrl !== meta.afterUrl ) {
+		warnings.push(
+			`**The two captures are of different pages:** \`${ meta.beforeUrl }\` vs \`${ meta.afterUrl }\`.`
+		);
+	}
 
 	const lines = [
 		'## Port verification -- steps 2 & 3 (JETPACK-2685)',
@@ -167,6 +188,8 @@ export function formatReport(
 		'',
 		'### Step 3 -- network panel',
 		'',
+		`Compared ${ network.beforeTotal ?? 0 } request(s) with the flag off against ${ network.afterTotal ?? 0 } with it on.`,
+		'',
 		`- Only with flag off (${ network.onlyBefore.length }):`,
 		requestList( network.onlyBefore, options ),
 		`- Only with flag on (${ network.onlyAfter.length }):`,
@@ -178,6 +201,8 @@ export function formatReport(
 		'',
 		'### Summary',
 		'',
+		...warnings,
+		warnings.length ? '' : null,
 		`${ geometryFindings } geometry finding(s), ${ networkFindings } network finding(s).`,
 		"The only difference JETPACK-2573 accepts is a uniform 8px inset from boot's stage gutter on the page root. Anything else above needs a look before merging.",
 	].filter( line => line !== null );

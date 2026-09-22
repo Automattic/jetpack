@@ -11,7 +11,7 @@ import readline from 'readline/promises';
 import { diffSnapshots } from '../src/diff.js';
 import { parseOptions } from '../src/options.js';
 import { formatReport } from '../src/report.js';
-import { DEFAULT_IGNORED_QUERY_PARAMS } from '../src/selectors.js';
+import { DEFAULT_IGNORED_HOSTS, DEFAULT_IGNORED_QUERY_PARAMS } from '../src/selectors.js';
 
 // Loaded lazily (only by `capture` and `run`) so `--help` and `diff` -- which need no
 // browser -- still work without Playwright installed.
@@ -22,10 +22,11 @@ async function loadCapturePage() {
 const USAGE = `Usage:
   verify-port run    --url <url> [--flag <name>] [--user <user> --pass <pass>]
                       [--control-selector <css>] [--wait-selector <css>]
-                      [--tolerance <px>] [--out <report.md>]
+                      [--load-state <state>] [--tolerance <px>] [--out <report.md>]
 
   verify-port capture --url <url> [--user <user> --pass <pass>]
-                      [--control-selector <css>] [--wait-selector <css>]
+                      [--autologin-url <url>] [--control-selector <css>]
+                      [--wait-selector <css>] [--load-state <state>]
                       --out <snapshot.json>
 
   verify-port diff   --before <before.json> --after <after.json>
@@ -34,6 +35,8 @@ const USAGE = `Usage:
 Credentials also read from WP_ADMIN_USER / WP_ADMIN_PASS.
 --ignore-query-param <name> (repeatable) adds to the default ignored list
 (${ DEFAULT_IGNORED_QUERY_PARAMS.join( ', ' ) }) for step 3's request matching and display.
+--ignore-host <host> (repeatable) adds to the ignored hosts (${ DEFAULT_IGNORED_HOSTS.join( ', ' ) }).
+The report goes to stdout; progress and prompts go to stderr, so '> report.md' is safe.
 See README.md for the full walkthrough, including how to flip the flag between captures.`;
 
 /**
@@ -56,7 +59,7 @@ async function runCapture( options ) {
 	const capturePage = await loadCapturePage();
 	const snapshot = await capturePage( options );
 	writeJson( options.out, snapshot );
-	console.log( `Captured ${ options.url } -> ${ options.out }` );
+	console.error( `Captured ${ options.url } -> ${ options.out }` );
 }
 
 /**
@@ -80,22 +83,26 @@ function runDiff( options ) {
  */
 function printReport( before, after, options ) {
 	const diffResult = diffSnapshots( before, after, options );
+	// The captures know which selectors they were actually given; the defaults call every
+	// control optional, which would let a control that vanished pass as "not present".
+	const targets = after.meta?.targets ?? before.meta?.targets ?? undefined;
 	const report = formatReport(
 		diffResult,
 		{
 			url: after.meta?.url ?? before.meta?.url ?? options.url,
+			beforeUrl: before.meta?.url,
+			afterUrl: after.meta?.url,
 			flag: options.flag,
 			beforeCapturedAt: before.meta?.capturedAt,
 			afterCapturedAt: after.meta?.capturedAt,
 		},
-		undefined,
+		targets,
 		options
 	);
 	if ( options.out ) {
 		fs.writeFileSync( options.out, report + '\n' );
-		console.log( `Report written to ${ options.out }` );
+		console.error( `Report written to ${ options.out }` );
 	}
-	console.log( '' );
 	console.log( report );
 }
 
@@ -110,21 +117,60 @@ async function runFull( options ) {
 	if ( ! options.url ) {
 		throw new Error( '--url is required for `run`.' );
 	}
+	if ( ! process.stdin.isTTY ) {
+		throw new Error(
+			'`run` needs an interactive terminal for the flag prompt. Use `capture` twice and `diff`.'
+		);
+	}
 	const capturePage = await loadCapturePage();
 
-	console.log( `Capturing with the flag OFF: ${ options.url }` );
-	const before = await capturePage( options );
+	// A --wait-selector names boot's mount, which exists only with the flag on. Requiring it
+	// flag-off would time out the first capture; requiring its absence proves the flip landed.
+	console.error( `Capturing with the flag OFF: ${ options.url }` );
+	const before = await capturePage( {
+		...options,
+		waitForSelector: undefined,
+		absentSelector: options.waitForSelector,
+	} );
 
-	const rl = readline.createInterface( { input: process.stdin, output: process.stdout } );
-	await rl.question(
-		`\nFlip ${ options.flag ?? 'the port flag' } ON on the site now, then press Enter to continue... `
-	);
-	rl.close();
+	await confirmFlagFlipped( options.flag );
 
-	console.log( `Capturing with the flag ON: ${ options.url }` );
-	const after = await capturePage( options );
+	console.error( `Capturing with the flag ON: ${ options.url }` );
+	const after = await capturePage( { ...options, absentSelector: undefined } );
 
 	printReport( before, after, options );
+}
+
+/**
+ * Ask for a word rather than a bare Enter, so a stray keypress buffered during the first
+ * capture cannot answer the prompt and leave both captures on the same side of the flag.
+ *
+ * @param {string} [flag] - Flag name, which doubles as the confirmation word.
+ * @return {Promise<void>}
+ */
+async function confirmFlagFlipped( flag ) {
+	const token = ( flag ?? 'on' ).toLowerCase();
+	const rl = readline.createInterface( { input: process.stdin, output: process.stderr } );
+	try {
+		const closedEarly = new Promise( ( _, reject ) => {
+			rl.once( 'close', () =>
+				reject( new Error( 'Input closed before the flag was confirmed.' ) )
+			);
+		} );
+		const answer = await Promise.race( [
+			rl.question(
+				`\nFlip ${ flag ?? 'the port flag' } ON now, then type "${ token }" and press Enter: `
+			),
+			closedEarly,
+		] );
+		if ( answer.trim().toLowerCase() !== token ) {
+			throw new Error(
+				`Expected "${ token }", got "${ answer.trim() }" -- stopping rather than capturing the same state twice.`
+			);
+		}
+	} finally {
+		rl.close();
+	}
 }
 
 async function main() {
@@ -135,7 +181,7 @@ async function main() {
 	const options = parseOptions( hasCommand ? argv.slice( 1 ) : argv );
 
 	if ( options.help || ! command ) {
-		console.log( USAGE );
+		( options.help ? console.log : console.error )( USAGE );
 		process.exit( options.help ? 0 : 1 );
 	}
 
@@ -147,7 +193,7 @@ async function main() {
 		await runFull( options );
 	} else {
 		console.error( `Unknown command: ${ command }\n` );
-		console.log( USAGE );
+		console.error( USAGE );
 		process.exit( 1 );
 	}
 }

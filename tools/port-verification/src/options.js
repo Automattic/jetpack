@@ -4,7 +4,13 @@
  */
 
 import { parseArgs } from 'util';
-import { DEFAULT_IGNORED_QUERY_PARAMS, DEFAULT_TOLERANCE_PX } from './selectors.js';
+import {
+	DEFAULT_IGNORED_HOSTS,
+	DEFAULT_IGNORED_QUERY_PARAMS,
+	DEFAULT_TOLERANCE_PX,
+} from './selectors.js';
+
+const LOAD_STATES = [ 'load', 'domcontentloaded', 'networkidle' ];
 
 export const OPTION_SPEC = {
 	url: { type: 'string' },
@@ -15,6 +21,9 @@ export const OPTION_SPEC = {
 	'wait-selector': { type: 'string' },
 	tolerance: { type: 'string' },
 	'ignore-query-param': { type: 'string', multiple: true, default: [] },
+	'ignore-host': { type: 'string', multiple: true, default: [] },
+	'autologin-url': { type: 'string' },
+	'load-state': { type: 'string' },
 	out: { type: 'string' },
 	before: { type: 'string' },
 	after: { type: 'string' },
@@ -41,6 +50,20 @@ function parseTolerance( raw ) {
 }
 
 /**
+ * @param {string|undefined} raw
+ * @return {string}
+ */
+function parseLoadState( raw ) {
+	if ( raw === undefined ) {
+		return 'networkidle';
+	}
+	if ( ! LOAD_STATES.includes( raw ) ) {
+		throw new Error( `--load-state must be one of ${ LOAD_STATES.join( ', ' ) }, got "${ raw }".` );
+	}
+	return raw;
+}
+
+/**
  * @param {string[]} argv  - Everything after the subcommand.
  * @param {object}   [env] - Defaults to `process.env`.
  * @return {object} Parsed options, camel-cased from `OPTION_SPEC`'s kebab-case keys.
@@ -53,11 +76,16 @@ export function parseOptions( argv, env = process.env ) {
 		flag: values.flag,
 		username: values.user ?? env.WP_ADMIN_USER,
 		password: values.pass ?? env.WP_ADMIN_PASS,
+		autologinUrl: values[ 'autologin-url' ],
 		controlSelector: values[ 'control-selector' ],
 		waitForSelector: values[ 'wait-selector' ],
+		loadState: parseLoadState( values[ 'load-state' ] ),
 		tolerancePx: parseTolerance( values.tolerance ),
 		ignoreQueryParams: extraIgnoreParams.length
 			? [ ...DEFAULT_IGNORED_QUERY_PARAMS, ...extraIgnoreParams ]
+			: undefined,
+		ignoreHosts: values[ 'ignore-host' ].length
+			? [ ...DEFAULT_IGNORED_HOSTS, ...values[ 'ignore-host' ] ]
 			: undefined,
 		out: values.out,
 		before: values.before,

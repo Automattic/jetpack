@@ -1,3 +1,4 @@
 node_modules/
+# Snapshots keep raw request URLs, nonces included -- only the report is redacted.
 *.snapshot.json
 *-report.md
