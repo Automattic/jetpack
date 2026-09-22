@@ -107,7 +107,12 @@ class Theme_Styles_Sync_Test extends WP_UnitTestCase {
 		$this->assertSame( '#111111', $styles['color']['text'] );
 	}
 
-	public function test_resolves_preset_variables_to_literals() {
+	/**
+	 * Resolving here would bake in the theme's stock value, so a creator who recolours a slug would
+	 * keep getting the stock colour in their email. The receiving end resolves against the creator's
+	 * record instead, which is the only place both are known.
+	 */
+	public function test_keeps_preset_references_and_the_presets_they_name() {
 		$this->with_theme_json(
 			array(
 				'settings' => array(
@@ -137,10 +142,13 @@ class Theme_Styles_Sync_Test extends WP_UnitTestCase {
 			)
 		);
 
-		$styles = $this->slice()['styles'];
+		$slice = $this->slice();
 
-		$this->assertSame( '#abcdef', $styles['color']['text'] );
-		$this->assertSame( '42px', $styles['typography']['fontSize'] );
+		$this->assertSame( 'var(--wp--preset--color--primary)', $slice['styles']['color']['text'] );
+		$this->assertSame( 'var(--wp--preset--font-size--huge)', $slice['styles']['typography']['fontSize'] );
+
+		$this->assertSame( array( 'primary' ), wp_list_pluck( $slice['settings']['color']['palette'], 'slug' ) );
+		$this->assertSame( array( 'huge' ), wp_list_pluck( $slice['settings']['typography']['fontSizes'], 'slug' ) );
 	}
 
 	/**
@@ -170,16 +178,18 @@ class Theme_Styles_Sync_Test extends WP_UnitTestCase {
 		$this->assertSame( array( 'primary' ), wp_list_pluck( $palette, 'slug' ) );
 	}
 
-	public function test_resolves_presets_core_defines() {
+	/**
+	 * Core's presets are left alone too: the receiving end merges core underneath the site's
+	 * settings before resolving, so it can reach them without them travelling.
+	 */
+	public function test_keeps_references_to_presets_core_defines() {
 		$this->with_theme_json(
 			array(
 				'styles' => array( 'color' => array( 'text' => 'var(--wp--preset--color--black)' ) ),
 			)
 		);
 
-		$text = $this->slice()['styles']['color']['text'];
-
-		$this->assertStringStartsNotWith( 'var(', $text );
+		$this->assertSame( 'var(--wp--preset--color--black)', $this->slice()['styles']['color']['text'] );
 	}
 
 	/**

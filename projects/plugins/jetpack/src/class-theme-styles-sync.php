@@ -1,13 +1,12 @@
 <?php
 /**
- * Resolves the slice of the active theme's design that a post email can inherit.
+ * The slice of the active theme's design that a post email can inherit.
  *
  * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Plugin;
 
-use WP_Theme_JSON;
 use WP_Theme_JSON_Resolver;
 
 /**
@@ -41,8 +40,7 @@ class Theme_Styles_Sync {
 
 		// User customisations are deliberately absent: they already reach WordPress.com through the
 		// synced `wp_global_styles` post, which is layered over this.
-		$styles  = self::inheritable_styles( self::resolved_styles( $theme ) );
-		$palette = self::flatten_palette( $raw['settings']['color']['palette'] ?? array() );
+		$styles = self::inheritable_styles( $raw['styles'] ?? array() );
 
 		// Reported even when empty: sync skips a null value, which would leave the receiving end
 		// holding the previous theme's design with nothing to say the theme had changed.
@@ -51,7 +49,7 @@ class Theme_Styles_Sync {
 			// Core's own, not a literal: it migrates raw data to the latest schema, so labelling a
 			// later shape with an older number would have the receiving end migrate it a second time.
 			'version'    => $raw['version'] ?? 3,
-			'settings'   => array( 'color' => array( 'palette' => $palette ) ),
+			'settings'   => self::preset_sources( $raw['settings'] ?? array() ),
 			'styles'     => $styles,
 		);
 
@@ -65,44 +63,34 @@ class Theme_Styles_Sync {
 	}
 
 	/**
-	 * The theme's styles with every preset variable replaced by the value it stands for.
+	 * The preset definitions a style's `var(--wp--preset--…)` reference needs to be resolved.
 	 *
-	 * `var()` is dead in most mail clients, and core's own presets can only be resolved here, where
-	 * core's data is available to resolve against.
+	 * Styles travel unresolved on purpose. Resolving here would bake in the theme's stock value and
+	 * lose the reference, so a creator who recolours a palette slug would keep getting the stock
+	 * colour in their email while their site renders the new one. The receiving end resolves instead,
+	 * against these merged under the creator's own record, which is the only place both are known.
 	 *
-	 * @param WP_Theme_JSON $theme The active theme's data.
+	 * @param array $settings The theme's settings.
 	 * @return array
 	 */
-	private static function resolved_styles( WP_Theme_JSON $theme ) {
-		$own = $theme->get_raw_data()['styles'] ?? array();
-		if ( empty( $own ) ) {
-			return array();
+	private static function preset_sources( array $settings ) {
+		$sources = array( 'color' => array( 'palette' => self::flatten_presets( $settings['color']['palette'] ?? array() ) ) );
+
+		$wanted = array(
+			'typography' => array( 'fontSizes', 'fontFamilies' ),
+			'spacing'    => array( 'spacingSizes' ),
+		);
+
+		foreach ( $wanted as $group => $keys ) {
+			foreach ( $keys as $key ) {
+				$presets = self::flatten_presets( $settings[ $group ][ $key ] ?? array() );
+				if ( ! empty( $presets ) ) {
+					$sources[ $group ][ $key ] = $presets;
+				}
+			}
 		}
 
-		$with_core = new WP_Theme_JSON();
-		$with_core->merge( WP_Theme_JSON_Resolver::get_core_data() );
-		$with_core->merge( $theme );
-		$resolved = WP_Theme_JSON::resolve_variables( $with_core )->get_raw_data()['styles'] ?? array();
-
-		// Core is merged in to resolve against, not to contribute: narrowing back to what the theme
-		// itself declared keeps core's default styles from syncing as though the site had chosen them.
-		return self::intersect( $resolved, self::shape_of( $own ) );
-	}
-
-	/**
-	 * A styles tree reduced to its shape, for use as an allowlist.
-	 *
-	 * @param array $styles A styles tree, or a branch of one.
-	 * @return array
-	 */
-	private static function shape_of( array $styles ) {
-		$shape = array();
-
-		foreach ( $styles as $key => $value ) {
-			$shape[ $key ] = is_array( $value ) ? self::shape_of( $value ) : true;
-		}
-
-		return $shape;
+		return $sources;
 	}
 
 	/**
@@ -187,24 +175,24 @@ class Theme_Styles_Sync {
 	}
 
 	/**
-	 * Flatten an origin-keyed palette into the flat list `WP_Theme_JSON` expects for one origin.
+	 * Flatten an origin-keyed preset list into the flat list `WP_Theme_JSON` expects for one origin.
 	 *
-	 * Each origin is checked rather than assumed: core's schema leaves a non-array `palette`
+	 * Each origin is checked rather than assumed: core's schema leaves a non-array preset list
 	 * untouched and the `WP_Theme_JSON` constructor origin-keys it anyway, so a theme.json
 	 * declaring a scalar there reaches this with a string where a list belongs.
 	 *
-	 * @param array $palette Palette that may be origin-keyed or already flat.
+	 * @param array $presets Preset list that may be origin-keyed or already flat.
 	 * @return array
 	 */
-	private static function flatten_palette( array $palette ) {
-		if ( empty( $palette ) || isset( $palette[0] ) ) {
-			return $palette;
+	private static function flatten_presets( array $presets ) {
+		if ( empty( $presets ) || isset( $presets[0] ) ) {
+			return $presets;
 		}
 
 		$flat = array();
 		foreach ( array( 'default', 'blocks', 'theme', 'custom' ) as $origin ) {
-			if ( isset( $palette[ $origin ] ) && is_array( $palette[ $origin ] ) ) {
-				$flat = array_merge( $flat, $palette[ $origin ] );
+			if ( isset( $presets[ $origin ] ) && is_array( $presets[ $origin ] ) ) {
+				$flat = array_merge( $flat, $presets[ $origin ] );
 			}
 		}
 
