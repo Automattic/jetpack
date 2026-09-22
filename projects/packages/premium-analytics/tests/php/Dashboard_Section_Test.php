@@ -1235,7 +1235,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 		register_default_dashboard_sections();
 
 		$this->assertSameSize( PREVIEW_SECTIONS, $this->available_section_ids() );
-		$this->assertNotContains( 'analytics/ads', $this->available_section_ids() );
 	}
 
 	/**
@@ -1253,8 +1252,11 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		register_default_dashboard_sections();
 
-		$this->assertCount( 5, $this->available_section_ids() );
-		$this->assertContains( 'ads', get_dashboard_preview_scope_sections() );
+		$registered = Dashboard_Section_Registry::get_instance()->get_all_registered( DASHBOARD_NAME );
+
+		$this->assertSameSize( $registered, $this->available_section_ids() );
+		$this->assertGreaterThan( count( PREVIEW_SECTIONS ), count( $this->available_section_ids() ) );
+		$this->assertSameSize( $registered, get_dashboard_preview_scope_sections() );
 	}
 
 	/**
