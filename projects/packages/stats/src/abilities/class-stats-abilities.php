@@ -26,7 +26,7 @@ use WP_Error;
 class Stats_Abilities extends Registrar {
 
 	const CATEGORY_SLUG = 'jetpack-stats';
-	const ERROR_PREFIX  = 'jetpack_stats_';
+	const ERROR_PREFIX  = Settings::ERROR_PREFIX;
 
 	/**
 	 * Allowed `type` values for `get-top-content`.
@@ -491,7 +491,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Update Stats settings', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Update one or more Jetpack Stats settings. All fields are optional; only fields present in the call are written, and unrelated keys are preserved. Idempotent — setting a value to its current state returns changed=false. Shape: { changed, settings: { admin_bar, roles, count_roles, do_not_track } }. Role slugs in `roles` and `count_roles` are validated against the site\'s registered roles; unknown slugs return jetpack_stats_invalid_role. Narrowing `roles` can revoke Stats access for whole groups of users — confirm with the user before removing roles.',
+				'Update one or more Jetpack Stats settings. All fields are optional; only fields present in the call are written, and unrelated keys are preserved. Idempotent — setting a value to its current state returns changed=false. Shape: { changed, settings: { admin_bar, roles, count_roles, do_not_track } }. Role slugs added to `roles` or `count_roles` must be registered roles on the site; unknown slugs return jetpack_stats_invalid_role. A slug that is already saved is kept even when its role no longer exists. Narrowing `roles` can revoke Stats access for whole groups of users — confirm with the user before removing roles.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -503,7 +503,7 @@ class Stats_Abilities extends Registrar {
 					),
 					'roles'        => array(
 						'type'        => 'array',
-						'description' => __( 'Role slugs that can view Stats. Must be non-empty; each slug must be a registered role.', 'jetpack-stats-pkg' ),
+						'description' => __( 'Role slugs that can view Stats. Must be non-empty; each added slug must be a registered role. `administrator` is always kept.', 'jetpack-stats-pkg' ),
 						'items'       => array( 'type' => 'string' ),
 						'minItems'    => 1,
 					),

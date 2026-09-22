@@ -187,7 +187,7 @@ class REST_Controller {
 							'type'        => 'boolean',
 						),
 						'roles'                      => array(
-							'description' => 'Roles that can view Stats',
+							'description' => 'Roles that can view Stats. `administrator` is always kept.',
 							'type'        => 'array',
 							'items'       => array( 'type' => 'string' ),
 							'minItems'    => 1,

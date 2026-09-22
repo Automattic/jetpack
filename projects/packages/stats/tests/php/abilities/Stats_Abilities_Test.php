@@ -1081,13 +1081,17 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( array( 'editor', 'author' ), Options::get_option( 'count_roles' ) );
 	}
 
-	public function test_update_settings_rejects_empty_roles_to_prevent_lockout(): void {
-		// Schema validation enforces minItems=1 on REST input, but direct PHP callers bypass
-		// that path; an empty `roles` array would revoke `view_stats` for every user, including
-		// the caller. Reject explicitly.
+	public function test_update_settings_refuses_an_empty_roles_list(): void {
 		$result = Stats_Abilities::update_settings( array( 'roles' => array() ) );
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertSame( 'jetpack_stats_invalid_roles', $result->get_error_code() );
+	}
+
+	public function test_update_settings_keeps_administrator_in_roles_so_admins_are_not_locked_out(): void {
+		$result = Stats_Abilities::update_settings( array( 'roles' => array( 'editor' ) ) );
+
+		$this->assertSame( array( 'administrator', 'editor' ), $result['settings']['roles'] );
+		$this->assertSame( array( 'administrator', 'editor' ), Options::get_option( 'roles' ) );
 	}
 
 	public function test_update_settings_changes_admin_bar(): void {

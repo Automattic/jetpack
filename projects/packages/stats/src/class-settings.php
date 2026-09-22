@@ -101,11 +101,11 @@ class Settings {
 					)
 				);
 			}
-			// An empty `roles` list would take `view_stats` from everyone, and direct PHP callers skip the REST schema's `minItems` check.
+			// Direct PHP callers skip the REST schema's `minItems` check.
 			if ( 'roles' === $role_field && empty( $provided[ $role_field ] ) ) {
 				return new WP_Error(
 					self::ERROR_PREFIX . 'invalid_roles',
-					__( 'Field `roles` must be a non-empty array of role slugs — an empty list would revoke Stats access for every user.', 'jetpack-stats-pkg' )
+					__( 'Field `roles` must be a non-empty array of role slugs.', 'jetpack-stats-pkg' )
 				);
 			}
 			$sanitized = array();
@@ -134,6 +134,10 @@ class Settings {
 					);
 				}
 				$sanitized[] = $role;
+			}
+			// Administrators keep `view_stats`, because the screen that changes this list needs it.
+			if ( 'roles' === $role_field && ! in_array( 'administrator', $sanitized, true ) ) {
+				array_unshift( $sanitized, 'administrator' );
 			}
 			$provided[ $role_field ] = array_values( array_unique( $sanitized ) );
 		}
