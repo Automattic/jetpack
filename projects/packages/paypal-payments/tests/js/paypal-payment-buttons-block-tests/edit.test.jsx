@@ -7009,7 +7009,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			).resolves.toBeInTheDocument();
 			expect( screen.getByText( '€12.00' ) ).toBeInTheDocument();
 			await waitFor( () => expect( detail( 'Created' ) ).toContain( '2026' ) );
-			expect( detail( 'Hosted ID' ) ).toBe( 'PLB-DETAIL1' );
+			// The hosted button id, as PayPal shows it: the resource id without its prefix.
+			expect( detail( 'Hosted ID' ) ).toBe( 'DETAIL1' );
 			expect( detail( 'Link used on' ) ).toBe( '2 published posts' );
 			expect( screen.queryByText( 'Max quantity' ) ).not.toBeInTheDocument();
 			expect( screen.getByTestId( 'dropdown-menu' ) ).toHaveAttribute(
@@ -7238,7 +7239,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
 			// The PanelBody mock renders closed panels too, so a second copy of the id would show.
 			expect( screen.getByText( 'Environment:' ) ).toBeInTheDocument();
-			expect( screen.getAllByText( 'PLB-DETAIL1' ) ).toHaveLength( 1 );
+			expect( screen.getAllByText( 'DETAIL1' ) ).toHaveLength( 1 );
 		} );
 	} );
 
