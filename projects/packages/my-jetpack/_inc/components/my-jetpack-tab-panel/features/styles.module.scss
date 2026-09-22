@@ -207,9 +207,11 @@ $feature-icon-foreground: #0ced57;
 }
 
 
-// The grid's rows stop at the card edge, so this brings its own room. The wider
-// measure keeps the search state's two buttons on one line.
+// EmptyState caps its own measure but sets no auto margins, so it needs both to
+// sit in the middle of the grid's column. The wider measure keeps the search
+// state's two buttons on one line.
 .empty-state {
+	margin-inline: auto;
 	max-inline-size: var(--wpds-dimension-surface-width-md);
 	padding-block: var(--wpds-dimension-padding-3xl);
 }
