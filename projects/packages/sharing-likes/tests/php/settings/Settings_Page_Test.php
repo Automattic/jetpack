@@ -222,10 +222,9 @@ class Settings_Page_Test extends BaseTestCase {
 
 	/**
 	 * Once both features moved to their blocks, placement governs nothing left on
-	 * the page. Simple keeps the extras section away because it would bring the
-	 * legacy Likes options back with it.
+	 * the page. Fields like the Twitter Site Tag stay: the Sharing Buttons block reads it.
 	 */
-	public function test_leaves_only_the_block_prompts_once_simple_switched_both_off(): void {
+	public function test_leaves_the_block_prompts_and_the_extras_once_simple_switched_both_off(): void {
 		Constants::set_constant( 'IS_WPCOM', true );
 		$this->given_block_theme();
 		$this->given_block( 'jetpack/sharing-buttons' );
@@ -238,9 +237,10 @@ class Settings_Page_Test extends BaseTestCase {
 		$html = $this->render_screen();
 
 		$this->assertStringNotContainsString( 'id="' . Placement_Section::ANCHOR . '"', $html );
-		$this->assertStringNotContainsString( 'third-party-field', $html );
 		$this->assertStringNotContainsString( 'sharing_save_services', $html );
 		$this->assertStringNotContainsString( 'name="wpl_default"', $html );
+		$this->assertSame( 1, substr_count( $html, 'third-party-field' ) );
+		$this->assertStringContainsString( 'value="save-extras"', $html );
 	}
 
 	/**

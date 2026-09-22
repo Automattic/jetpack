@@ -12,6 +12,8 @@ namespace Automattic\Jetpack\Sharing_Likes\Settings;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
+require_once __DIR__ . '/../lib/class-jetpack-likes-settings.php';
+
 /**
  * @covers \Automattic\Jetpack\Sharing_Likes\Settings\Extras_Section
  */
@@ -80,5 +82,30 @@ class Extras_Section_Test extends BaseTestCase {
 
 		$this->assertNotEmpty( $matches, 'The form carries no nonce.' );
 		$this->assertSame( 1, wp_verify_nonce( $matches[1], Extras_Section::NONCE_ACTION ) );
+	}
+
+	/**
+	 * Simple hangs the legacy Likes options on the same action. The Likes section
+	 * owns them, and they would not save from this form anyway.
+	 */
+	public function test_leaves_out_the_legacy_likes_options_and_keeps_them_hooked(): void {
+		$likes = new \Jetpack_Likes_Settings();
+		add_action( 'sharing_global_options', array( $likes, 'admin_settings_init' ) );
+		add_action( 'sharing_global_options', array( $this, 'print_field' ) );
+
+		$markup = $this->render();
+
+		$this->assertStringContainsString( 'jetpack-twitter-cards-site-tag', $markup );
+		$this->assertStringNotContainsString( 'legacy-likes-options', $markup );
+		$this->assertSame( 10, has_action( 'sharing_global_options', array( $likes, 'admin_settings_init' ) ) );
+	}
+
+	/**
+	 * With nothing else hooked, the legacy Likes options alone do not make a section.
+	 */
+	public function test_renders_nothing_when_only_the_legacy_likes_options_are_hooked(): void {
+		add_action( 'sharing_global_options', array( new \Jetpack_Likes_Settings(), 'admin_settings_init' ) );
+
+		$this->assertSame( '', $this->render() );
 	}
 }

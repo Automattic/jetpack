@@ -115,9 +115,10 @@ longer fires any of them.
 consumers are not all gated on that module — `Twitter_Cards` hangs the Twitter
 Site Tag there and is gated only on `jetpack_disable_twitter_cards`. That is what
 `Extras_Section` is for: whenever the services list is hidden it renders the same
-action in its own form and fires `sharing_admin_update` on save. Except on Simple,
-where wpcom still hangs the legacy Likes options off that action (see above), so
-the section would bring back what the switch removed, in a form that cannot save them.
+action in its own form and fires `sharing_admin_update` on save. It leaves out
+`Jetpack_Likes_Settings::admin_settings_init()`, which Simple still hangs off that
+action (see above): the Likes section owns those options, and their save checks a
+nonce this form does not carry.
 
 The Site Tag is worth that trouble because it still drives output with both
 Sharing and Publicize off. Open Graph is not the reason — `Jetpack::check_open_graph()`

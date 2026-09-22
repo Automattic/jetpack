@@ -61,11 +61,49 @@ final class Extras_Section {
 	 * button that saves nothing.
 	 */
 	private static function collect_fields(): string {
+		$unhooked = self::unhook_legacy_likes_options();
+
 		ob_start();
 
 		/** This action is documented in projects/packages/sharing-likes/src/settings/class-services-config.php */
 		do_action( 'sharing_global_options' );
 
-		return trim( (string) ob_get_clean() );
+		$fields = trim( (string) ob_get_clean() );
+
+		foreach ( $unhooked as list( $callback, $priority ) ) {
+			add_action( 'sharing_global_options', $callback, $priority );
+		}
+
+		return $fields;
+	}
+
+	/**
+	 * Take off the legacy Likes options Simple hangs on this action until CM-913.
+	 *
+	 * The Likes section owns those, and their save checks a nonce this form does not carry.
+	 *
+	 * @return array<int, array{0: callable, 1: int}> Each callback removed, with its priority.
+	 */
+	private static function unhook_legacy_likes_options(): array {
+		global $wp_filter;
+
+		$unhooked = array();
+
+		if ( ! isset( $wp_filter['sharing_global_options'] ) ) {
+			return $unhooked;
+		}
+
+		foreach ( $wp_filter['sharing_global_options']->callbacks as $priority => $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				$function = $callback['function'];
+
+				if ( is_array( $function ) && 'admin_settings_init' === $function[1] && is_a( $function[0], 'Jetpack_Likes_Settings', true ) ) {
+					remove_action( 'sharing_global_options', $function, $priority );
+					$unhooked[] = array( $function, $priority );
+				}
+			}
+		}
+
+		return $unhooked;
 	}
 }

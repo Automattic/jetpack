@@ -68,8 +68,7 @@ final class Settings_Page {
 			$sections[] = array( Placement_Section::class, 'render' );
 		}
 
-		// Simple hangs the legacy Likes options off the same action until CM-913, so the section would bring them back.
-		if ( ! Section_State::configures( $sharing_state ) && ! Environment::is_simple_site() ) {
+		if ( ! Section_State::configures( $sharing_state ) ) {
 			$sections[] = array( Extras_Section::class, 'render' );
 		}
 

@@ -8,11 +8,11 @@
 declare( strict_types = 1 );
 
 /**
- * A `Jetpack_Likes_Settings` that reports placement and nothing else.
+ * A `Jetpack_Likes_Settings` that reports placement and prints a stand-in for its legacy options.
  *
  * The real one ships with the Jetpack plugin's Likes module, which this package
- * does not depend on. Only `get_options()['show']` is read from here, and what
- * it returns is set per test through `$GLOBALS['sharing_likes_test_likes_show']`.
+ * does not depend on. `get_options()['show']` returns whatever a test sets in
+ * `$GLOBALS['sharing_likes_test_likes_show']`.
  *
  * Defining this makes `class_exists( 'Jetpack_Likes_Settings' )` true for the
  * whole process, so tests that need the class absent cannot live in this suite.
@@ -26,5 +26,12 @@ class Jetpack_Likes_Settings {
 	 */
 	public function get_options() {
 		return array( 'show' => $GLOBALS['sharing_likes_test_likes_show'] ?? array() );
+	}
+
+	/**
+	 * The legacy Likes options wpcom hooks onto `sharing_global_options` on Simple.
+	 */
+	public function admin_settings_init() {
+		echo '<tr id="legacy-likes-options"></tr>';
 	}
 }
