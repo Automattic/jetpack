@@ -18,7 +18,8 @@ type Box = { x: number; y: number; width: number; height: number };
  * @return Popover content locator.
  */
 async function openTooltip( page: Page ): Promise< Locator > {
-	await page.locator( '.icon-tooltip-wrapper button' ).first().click();
+	// The icon is positioned out of flow, leaving the button itself with no box to click.
+	await page.locator( '.icon-tooltip-wrapper button svg' ).first().click();
 	const content = page.locator( '.icon-tooltip-container .components-popover__content' );
 	await expect( content ).toBeVisible();
 	return content;
@@ -165,10 +166,7 @@ test( 'the premium tooltip takes focus and closes on Escape', async ( { page } )
 	await page.goto( 'http://boost-settings.test/' );
 	const content = await openTooltip( page );
 
-	// eslint-disable-next-line @wordpress/no-global-active-element -- Runs in the fixture page, which has one document.
-	expect( await content.evaluate( element => element.contains( document.activeElement ) ) ).toBe(
-		true
-	);
+	await expect( page.locator( '.icon-tooltip-container' ) ).toBeFocused();
 	await page.keyboard.press( 'Escape' );
 	await expect( content ).toBeHidden();
 } );
