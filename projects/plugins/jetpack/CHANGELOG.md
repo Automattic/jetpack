@@ -37,6 +37,7 @@
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Admin pages: Link the footer to the My Jetpack Features tab when it replaces the Products tab. [#52346]
+- Embeds: archive.org embeds are parsed using the HTML API instead of PCRE functions. [#52669]
 - Modules: Keep a module's name and description when no translation entry exists for it. [#52469]
 - PayPal Payment Buttons: Add a PayPal account menu to the top of the block settings sidebar. [#52509]
 - PayPal Payment Buttons: Add a Product ID field, shipping and handling fees, a discount, and flat-amount tax to payment links. [#52301]
