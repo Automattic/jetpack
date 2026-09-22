@@ -1,7 +1,8 @@
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
-import ConnectScreenBody from '@automattic/jetpack-my-jetpack/components/connection-screen/body';
+// The extension is required: esbuild does not complete package `exports` subpaths.
+import ConnectScreenBody from '@automattic/jetpack-my-jetpack/components/connection-screen/body.tsx';
 import { withDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import jQuery from 'jquery';

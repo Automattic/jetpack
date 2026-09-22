@@ -6,7 +6,15 @@
 			"*": [ "./*", "./_inc/client/*" ]
 		}
 	},
-	"include": [ "./_inc", "./extensions", "./global.d.ts", "./routes/**/*", "./packages/*/src" ],
+	"include": [
+		"./_inc",
+		"./extensions",
+		"./global.d.ts",
+		"./routes/**/*",
+		"./packages/*/src",
+		// main.jsx imports My Jetpack's connection-screen source, whose Window globals are declared here.
+		"../../packages/my-jetpack/global.d.ts"
+	],
 	// Jetpack puts build files into `_inc`, so we need exclude rules to skip those.
 	"exclude": [ "**/build/*", "_inc/blocks/*" ]
 }
