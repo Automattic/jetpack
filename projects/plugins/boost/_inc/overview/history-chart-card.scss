@@ -162,7 +162,7 @@
 .boost-daily-history__popover .boost-daily-history__empty-tooltip {
 
 	.jetpack-boost-overview__tooltip-date {
-		margin-block-end: calc(var(--wpds-dimension-gap-sm) + var(--wpds-border-width-sm));
+		margin-block-end: var(--wpds-dimension-gap-md);
 	}
 
 	.boost-daily-history__empty-copy {

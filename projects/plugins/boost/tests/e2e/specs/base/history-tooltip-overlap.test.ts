@@ -275,12 +275,12 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 }
 
 for ( const [ label, query, copy, height ] of [
-	[ 'a later empty day', '', 'No scores recorded for this day.', '84px' ],
+	[ 'a later empty day', '', 'No scores recorded for this day.', '86px' ],
 	[
 		'a day before the first score',
 		'?noOlderHistory',
 		'No scores recorded before the feature was unlocked.',
-		'104px',
+		'106px',
 	],
 ] as const ) {
 	test( `uses compact plots with three horizontal gridlines and no band legend (${ label })`, async ( {

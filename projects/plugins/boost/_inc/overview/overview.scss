@@ -101,6 +101,11 @@
 	}
 }
 
+// base-ui marks only the opening trigger, so this also covers the badge.
+.jetpack-boost-overview__delta:has([data-popup-open]) .jetpack-boost-overview__info-trigger {
+	color: var(--wpds-color-foreground-interactive-brand);
+}
+
 // @wordpress/ui paints the popover surface on the popup's only child.
 .jetpack-boost-overview__score-popover > * {
 	border-color: wpcolors.$gray-200;
