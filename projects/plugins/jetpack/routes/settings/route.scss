@@ -12,4 +12,9 @@ body.jetpack_page_jetpack-settings:not(.network-admin) {
 	#jp-plugin-container {
 		min-height: 100%;
 	}
+
+	// Boot's `img { max-width: 100% }` lets narrow banners shrink the 32px icon.
+	.dops-banner__icon-plan img {
+		max-width: none;
+	}
 }
