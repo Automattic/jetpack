@@ -1,0 +1,14 @@
+@use "$css/main/mixins";
+
+.clear-cache {
+	margin-block-end: var(--wpds-dimension-gap-md);
+}
+
+.well {
+
+	@include mixins.settings-well();
+
+	> :first-child {
+		min-inline-size: 0;
+	}
+}
