@@ -1,5 +1,5 @@
 /* eslint-disable testing-library/prefer-user-event */
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import GradeExplanation from './grade-explanation';
 import ScoreCards from './score-cards';
 
@@ -153,10 +153,17 @@ test( 'opens the points explanation beside the badge', async () => {
 		/>
 	);
 	expect( screen.queryByText( 'Points gained from optimizations' ) ).not.toBeInTheDocument();
-	fireEvent.mouseDown(
-		within( screen.getByRole( 'region', { name: 'Desktop' } ) ).getByRole( 'button' )
+	const trigger = within( screen.getByRole( 'region', { name: 'Desktop' } ) ).getByRole( 'button', {
+		name: 'About points',
+	} );
+	fireEvent.click( trigger );
+	await waitFor( () =>
+		expect( screen.getByText( 'Points gained from optimizations' ) ).toBeVisible()
 	);
-	await expect( screen.findByText( 'Points gained from optimizations' ) ).resolves.toBeVisible();
+	expect( trigger ).toHaveAttribute( 'aria-expanded', 'true' );
+	fireEvent.keyDown( screen.getByRole( 'dialog', { name: 'About points' } ), { key: 'Escape' } );
+	await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
+	expect( trigger ).toHaveFocus();
 } );
 
 test( 'shows one calculating status instead of the score sections before scores load', () => {

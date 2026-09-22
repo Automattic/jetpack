@@ -1,7 +1,7 @@
-import { IconTooltip } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { ProgressBar } from '@wordpress/components';
-import { Badge, Stack, Text } from '@wordpress/ui';
+import { Icon, info } from '@wordpress/icons';
+import { Badge, Popover, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import { useId } from 'react';
 import {
 	formatScoreDelta,
@@ -69,9 +69,24 @@ export default function ScoreCard( {
 							<Badge intent={ delta > 0 ? 'informational' : 'none' }>
 								{ formatScoreDelta( delta ) }
 							</Badge>
-							<IconTooltip placement="bottom" inline={ false } shift hoverShow>
-								{ __( 'Points gained from optimizations', 'jetpack-boost' ) }
-							</IconTooltip>
+							<Popover.Root>
+								<Popover.Trigger
+									openOnHover
+									delay={ 200 }
+									aria-label={ __( 'About points', 'jetpack-boost' ) }
+									className="jetpack-boost-overview__info-trigger"
+								>
+									<Icon icon={ info } className="jetpack-boost-overview__score-icon" />
+								</Popover.Trigger>
+								<Popover.Popup>
+									<VisuallyHidden render={ <Popover.Title /> }>
+										{ __( 'About points', 'jetpack-boost' ) }
+									</VisuallyHidden>
+									<Popover.Description>
+										{ __( 'Points gained from optimizations', 'jetpack-boost' ) }
+									</Popover.Description>
+								</Popover.Popup>
+							</Popover.Root>
 						</Stack>
 					) }
 				</div>
