@@ -11,7 +11,6 @@
 		"@types/react": "18.3.31",
 		"@wordpress/admin-ui": "2.10.0",
 		"@wordpress/api-fetch": "7.55.0",
-		"@wordpress/components": "40.1.0",
 		"@wordpress/data": "10.55.0",
 		"@wordpress/dataviews": "19.0.0",
 		"@wordpress/date": "5.55.0",
