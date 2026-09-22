@@ -74,7 +74,16 @@ function WordAdsEarningsHistoryReport() {
 					<ReportLink
 						report="earnings"
 						section="adjustments"
-						ariaLabel={ __( 'View adjustments history', 'jetpack-premium-analytics-pkg' ) }
+						ariaLabel={ sprintf(
+							/* translators: %d: number of adjustment rows in the site's earnings history. */
+							_n(
+								'%d adjustment, view adjustments history',
+								'%d adjustments, view adjustments history',
+								adjustmentCount,
+								'jetpack-premium-analytics-pkg'
+							),
+							adjustmentCount
+						) }
 					>
 						<Badge intent="high">
 							{ sprintf(

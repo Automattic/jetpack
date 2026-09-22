@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -114,7 +114,7 @@ describe( 'WordAdsEarningsHistory', () => {
 		await expect( screen.findByText( 'July 2026' ) ).resolves.toBeInTheDocument();
 
 		expect(
-			screen.queryByRole( 'link', { name: 'View adjustments history' } )
+			screen.queryByRole( 'link', { name: /view adjustments history/ } )
 		).not.toBeInTheDocument();
 	} );
 
@@ -135,8 +135,10 @@ describe( 'WordAdsEarningsHistory', () => {
 			render( <WordAdsEarningsHistory attributes={ {} } /> );
 			await expect( screen.findByText( 'July 2026' ) ).resolves.toBeInTheDocument();
 
-			const link = screen.getByRole( 'link', { name: 'View adjustments history' } );
-			expect( link ).toHaveTextContent( label );
+			const link = screen.getByRole( 'link', {
+				name: `${ label }, view adjustments history`,
+			} );
+			expect( within( link ).getByText( label ) ).toBeInTheDocument();
 			expect( link ).toHaveAttribute( 'href', expect.stringContaining( '/reports/earnings' ) );
 			expect( link ).toHaveAttribute( 'href', expect.stringContaining( 'section=adjustments' ) );
 			// The adjustment amounts stay on the report; the widget lists WordAds rows only.
