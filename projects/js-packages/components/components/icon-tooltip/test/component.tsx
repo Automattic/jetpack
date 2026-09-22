@@ -1,5 +1,7 @@
+import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { useCallback, useRef, useState } from 'react';
 import IconTooltip from '../index.tsx';
 import { IconTooltipProps } from '../types.ts';
 
@@ -104,6 +106,48 @@ describe( 'IconTooltip', () => {
 		expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Before' } ) ).toHaveFocus();
 		restoreLayout();
+	} );
+
+	it( 'reports Escape dismissal to a controlled caller', async () => {
+		const user = userEvent.setup();
+		const onClose = jest.fn();
+		render( <IconTooltip { ...testProps } onClose={ onClose } /> );
+		await user.click( screen.getByRole( 'button' ) );
+		await user.keyboard( '{Escape}' );
+		expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
+		expect( onClose ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( "waits for the click when the caller's own trigger is pressed", async () => {
+		const Controlled = () => {
+			const [ show, setShow ] = useState( false );
+			const triggerRef = useRef< HTMLButtonElement >( null );
+			const toggle = useCallback( () => setShow( value => ! value ), [] );
+			const close = useCallback( () => setShow( false ), [] );
+			return (
+				<>
+					<button ref={ triggerRef } onClick={ toggle }>
+						Toggle
+					</button>
+					<IconTooltip
+						{ ...testProps }
+						popoverAnchorStyle="wrapper"
+						forceShow={ show }
+						triggerRef={ triggerRef }
+						onClose={ close }
+					/>
+				</>
+			);
+		};
+		const user = userEvent.setup();
+		render( <Controlled /> );
+		const trigger = screen.getByRole( 'button', { name: 'Toggle' } );
+		await user.click( trigger );
+		expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
+		await user.pointer( { target: trigger, keys: '[MouseLeft>]' } );
+		expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
+		await user.pointer( { target: trigger, keys: '[/MouseLeft]' } );
+		expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the icon tooltip', () => {

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Tooltips: Add onClose and triggerRef props, so a tooltip a caller keeps open can be dismissed with Escape.

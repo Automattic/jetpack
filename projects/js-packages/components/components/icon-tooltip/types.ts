@@ -1,5 +1,5 @@
 import type { Icon } from '@wordpress/icons';
-import type { ComponentProps, ReactNode } from 'react';
+import type { ComponentProps, ReactNode, RefObject } from 'react';
 
 export type Placement = 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
 
@@ -70,6 +70,16 @@ export type IconTooltipProps = {
 	 * Force the Popover to show without an event trigger.
 	 */
 	forceShow?: boolean;
+
+	/**
+	 * Called when the popover dismisses itself; clear `forceShow` here when controlled.
+	 */
+	onClose?: () => void;
+
+	/**
+	 * The caller's own trigger, so a pointer press on it dismisses through that trigger.
+	 */
+	triggerRef?: RefObject< HTMLElement >;
 
 	/**
 	 * Enables the Popover to show on hover.

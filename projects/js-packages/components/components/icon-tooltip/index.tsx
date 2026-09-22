@@ -49,6 +49,8 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	children,
 	popoverAnchorStyle = 'icon',
 	forceShow = false,
+	onClose,
+	triggerRef,
 	hoverShow = false,
 	wide = false,
 	inline = true,
@@ -64,7 +66,10 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	const focusAfterClose = useRef< HTMLElement | null >( null );
 	// Opening on hover must not pull focus off whatever the visitor is using.
 	const openedByHover = useRef( false );
-	const hideTooltip = useCallback( () => setIsVisible( false ), [ setIsVisible ] );
+	const hideTooltip = useCallback( () => {
+		setIsVisible( false );
+		onClose?.();
+	}, [ onClose ] );
 	const toggleTooltip = useCallback(
 		e => {
 			e.preventDefault();
@@ -120,8 +125,9 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		flip: false,
 		offset, // The distance (in px) between the anchor and the popover.
 		// Focusing the popover itself puts Escape in reach even with nothing tabbable inside.
-		// A caller-controlled popover keeps the old behaviour until it can report dismissal.
-		focusOnMount: isForcedToShow ? 'firstElement' : ! openedByHover.current,
+		// A caller-controlled popover needs `triggerRef` first, or a press on that trigger
+		// would close it through the guard below and its own click would reopen it.
+		focusOnMount: isForcedToShow && ! triggerRef ? 'firstElement' : ! openedByHover.current,
 		// Tab moves through the popover in document order rather than cycling inside it, and
 		// handlePopoverKeyDown decides where it lands on the way out.
 		constrainTabbing: false,
@@ -130,7 +136,8 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		onClose: hideTooltip,
 		onFocusOutside: ( event: FocusEvent ) => {
 			// A pointer press on our own trigger dismisses through that trigger instead.
-			if ( ! wrapperRef.current?.contains( event.relatedTarget as Node ) ) {
+			const target = event.relatedTarget as Node;
+			if ( ! wrapperRef.current?.contains( target ) && ! triggerRef?.current?.contains( target ) ) {
 				hideTooltip();
 			}
 		},
