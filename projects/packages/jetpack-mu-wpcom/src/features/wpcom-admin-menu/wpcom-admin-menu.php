@@ -343,8 +343,9 @@ function wpcom_add_jetpack_submenu() {
 		// Jetpack > My Jetpack.
 		wpcom_hide_submenu_page( 'jetpack', 'my-jetpack' );
 
-		// Jetpack > Settings.
+		// Jetpack > Settings; WoA can pair this with a Jetpack serving either address.
 		wpcom_hide_submenu_page( 'jetpack', admin_url( 'admin.php?page=jetpack#/settings' ) );
+		wpcom_hide_submenu_page( 'jetpack', 'jetpack-settings' );
 
 		// Redirect My Jetpack page to Stats for Atomic sites on Personal or Premium plans.
 		add_action(
@@ -468,18 +469,24 @@ function wpcom_add_jetpack_submenu() {
 		);
 	}
 
-	// Jetpack > Activity Log. On WPCOM hosts we prefer the direct wordpress.com/activity-log link
-	// below; hide the native Jetpack Activity Log page added by the `jetpack-activity-log` package.
-	wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
-	add_submenu_page(
-		'jetpack',
-		/** "Activity Log" is a product name, do not translate. */
-		'Activity Log',
-		'Activity Log',
-		'manage_options',
-		'https://wordpress.com/activity-log/' . $domain,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
+	// Jetpack > Activity Log.
+	// Atomic sites use the native Activity Log page that the `jetpack-activity-log`
+	// package registers at `admin.php?page=jetpack-activity-log`, whichever admin
+	// interface the site uses, and behave like a self-hosted site when that page is
+	// not available: the Calypso Activity Log screen is being retired. Simple sites
+	// still hide the native page and link to wordpress.com/activity-log.
+	if ( $is_simple_site ) {
+		wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
+		add_submenu_page(
+			'jetpack',
+			/** "Activity Log" is a product name, do not translate. */
+			'Activity Log',
+			'Activity Log',
+			'manage_options',
+			'https://wordpress.com/activity-log/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+	}
 
 	wpcom_reorder_submenu(
 		'jetpack',
@@ -501,6 +508,7 @@ function wpcom_add_jetpack_submenu() {
 			'podcast',
 			'traffic',
 			'jetpack#/settings',
+			'jetpack-settings',
 		)
 	);
 }

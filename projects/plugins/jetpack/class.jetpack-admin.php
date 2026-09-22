@@ -57,6 +57,9 @@ class Jetpack_Admin {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
 		$jetpack_react = new Jetpack_React_Page();
 
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-settings-react-page.php';
+		$jetpack_settings = new Jetpack_Settings_React_Page();
+
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-settings-page.php';
 		$fallback_page = new Jetpack_Settings_Page();
 
@@ -69,7 +72,7 @@ class Jetpack_Admin {
 		add_action( 'admin_init', array( $jetpack_react, 'react_redirects' ), 0 );
 		add_action( 'admin_menu', array( $jetpack_react, 'add_actions' ), 998 );
 		add_action( 'admin_menu', array( $jetpack_react, 'remove_jetpack_menu' ), 2000 );
-		add_action( 'jetpack_admin_menu', array( $jetpack_react, 'jetpack_add_settings_sub_nav_item' ) );
+		add_action( 'jetpack_admin_menu', array( $jetpack_settings, 'add_actions' ) );
 		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_debugger' ) );
 		add_action( 'jetpack_admin_menu', array( $fallback_page, 'add_actions' ) );
 		add_action( 'jetpack_admin_menu', array( $jetpack_about, 'add_actions' ) );

@@ -16,6 +16,11 @@ require_once __DIR__ . '/rest-namespace.php';
 require_once __DIR__ . '/class-dashboard-section.php';
 require_once __DIR__ . '/class-dashboard-section-registry.php';
 
+// Guarded on a symbol the file declares, so a second copy of the package can't redeclare it.
+if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_feature_flags' ) ) {
+	require_once __DIR__ . '/dashboard-policy.php';
+}
+
 /**
  * Filter through which the preview's section scope is resolved.
  */
@@ -26,7 +31,7 @@ const DASHBOARD_PREVIEW_SCOPE_FILTER = 'jetpack_premium_analytics_dashboard_prev
  * sites is opened through the filter instead. Widget types are registered independently of
  * this, as they are of the per-section availability checks.
  */
-const PREVIEW_SECTIONS = array( DASHBOARD_TRAFFIC_SECTION_ID );
+const PREVIEW_SECTIONS = array( 'traffic', 'insights' );
 
 /**
  * Registers a dashboard section.
@@ -87,7 +92,8 @@ function is_dashboard_preview_scoped() {
 function is_dashboard_section_in_preview_scope( $dashboard_name, $slug ) {
 	$in_scope = DASHBOARD_NAME !== $dashboard_name
 		|| ! is_dashboard_preview_scoped()
-		|| in_array( $slug, PREVIEW_SECTIONS, true );
+		|| in_array( $slug, PREVIEW_SECTIONS, true )
+		|| is_dashboard_unlocked_for_a11n();
 
 	/**
 	 * Filters whether the preview exposes a dashboard section.
@@ -108,7 +114,7 @@ function is_dashboard_section_in_preview_scope( $dashboard_name, $slug ) {
  * Slugs of the tabs the dashboard exposes, for the client's report routes.
  *
  * Reads the same sections the tab list does, so a report cannot outlive the tab it sits
- * behind. Null, never `array()`, before the registry is hydrated: an empty array is a
+ * behind. Null, never `array()`, while nothing is registered: an empty array is a
  * published scope that exposes nothing.
  *
  * @since 0.6.0

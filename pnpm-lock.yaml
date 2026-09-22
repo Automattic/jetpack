@@ -413,7 +413,7 @@ importers:
         version: 2.1.1
       date-fns:
         specifier: ^4.1.0
-        version: 4.1.0
+        version: 4.4.0
       deepmerge:
         specifier: 4.3.1
         version: 4.3.1
@@ -520,9 +520,6 @@ importers:
 
   projects/js-packages/components:
     dependencies:
-      '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
       '@automattic/jetpack-api':
         specifier: workspace:*
         version: link:../api
@@ -1886,8 +1883,8 @@ importers:
         specifier: 4.55.0
         version: 4.55.0
       date-fns:
-        specifier: 4.1.0
-        version: 4.1.0
+        specifier: 4.4.0
+        version: 4.4.0
       fast-deep-equal:
         specifier: 3.1.3
         version: 3.1.3
@@ -3349,6 +3346,9 @@ importers:
       '@automattic/jetpack-licensing':
         specifier: workspace:*
         version: link:../../js-packages/licensing
+      '@automattic/jetpack-partner-coupon':
+        specifier: workspace:*
+        version: link:../../js-packages/partner-coupon
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
@@ -3524,9 +3524,6 @@ importers:
 
   projects/packages/newsletter:
     dependencies:
-      '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -3548,6 +3545,9 @@ importers:
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@jetpack-newsletter/init':
         specifier: link:packages/init
         version: link:packages/init
@@ -3745,6 +3745,9 @@ importers:
       '@wordpress/i18n':
         specifier: 6.28.0
         version: 6.28.0
+      '@wordpress/icons':
+        specifier: 16.0.0
+        version: 16.0.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/notices':
         specifier: 5.55.0
         version: 5.55.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4173,8 +4176,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       date-fns:
-        specifier: 4.1.0
-        version: 4.1.0
+        specifier: 4.4.0
+        version: 4.4.0
       fast-deep-equal:
         specifier: ^3.1.3
         version: 3.1.3
@@ -5934,24 +5937,15 @@ importers:
       '@automattic/jetpack-api':
         specifier: workspace:*
         version: link:../../js-packages/api
-      '@automattic/jetpack-boost-score-api':
-        specifier: workspace:*
-        version: link:../../js-packages/boost-score-api
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
-      '@automattic/jetpack-licensing':
-        specifier: workspace:*
-        version: link:../../js-packages/licensing
       '@automattic/jetpack-my-jetpack':
         specifier: workspace:*
         version: link:../../packages/my-jetpack
-      '@automattic/jetpack-partner-coupon':
-        specifier: workspace:*
-        version: link:../../js-packages/partner-coupon
       '@automattic/jetpack-publicize':
         specifier: workspace:*
         version: link:../../packages/publicize
@@ -6088,8 +6082,8 @@ importers:
         specifier: 14.0.0
         version: 14.0.0(webpack@5.107.2)
       date-fns:
-        specifier: 4.1.0
-        version: 4.1.0
+        specifier: 4.4.0
+        version: 4.4.0
       debounce:
         specifier: 2.2.0
         version: 2.2.0
@@ -6111,9 +6105,6 @@ importers:
       filesize:
         specifier: 10.1.6
         version: 10.1.6
-      focus-trap:
-        specifier: 6.3.0
-        version: 6.3.0
       gridicons:
         specifier: 3.4.3
         version: 3.4.3(react@18.3.1)
@@ -7011,7 +7002,7 @@ importers:
         version: 7.0.0-dev.20260707.2
       '@wordpress/eslint-plugin':
         specifier: 26.0.0
-        version: 26.0.0(@wordpress/theme@2.1.0(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.10.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.16.6(eslint@10.10.0)(jest@30.5.1)(typescript@6.0.3))(eslint-plugin-jsdoc@64.3.6(eslint@10.10.0)(typescript@6.0.3))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.10.0))(eslint-plugin-playwright@2.11.0(eslint@10.10.0))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.10.0))(eslint@10.10.0)(wp-prettier@3.9.6))(eslint-plugin-react-hooks@7.1.1(eslint@10.10.0))(eslint-plugin-react@7.37.5(eslint@10.10.0))(eslint@10.10.0)(typescript@6.0.3)(wp-prettier@3.9.6)
+        version: 26.0.0(@wordpress/theme@2.1.0(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.10.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.16.6(eslint@10.10.0)(jest@30.5.1)(typescript@6.0.3))(eslint-plugin-jsdoc@64.5.2(eslint@10.10.0)(typescript@6.0.3))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.10.0))(eslint-plugin-playwright@2.12.0(eslint@10.10.0))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.10.0))(eslint@10.10.0)(wp-prettier@3.9.6))(eslint-plugin-react-hooks@7.1.1(eslint@10.10.0))(eslint-plugin-react@7.37.5(eslint@10.10.0))(eslint@10.10.0)(typescript@6.0.3)(wp-prettier@3.9.6)
       '@wordpress/jest-console':
         specifier: 9.3.0
         version: 9.3.0(jest@30.5.1)
@@ -7055,23 +7046,23 @@ importers:
         specifier: 5.10.1
         version: 5.10.1(@testing-library/dom@10.4.2)(eslint@10.10.0)
       eslint-plugin-jsdoc:
-        specifier: 64.3.6
-        version: 64.3.6(eslint@10.10.0)(typescript@6.0.3)
+        specifier: 64.5.2
+        version: 64.5.2(eslint@10.10.0)(typescript@6.0.3)
       eslint-plugin-jsx-a11y:
         specifier: 6.10.2
         version: 6.10.2(eslint@10.10.0)
       eslint-plugin-lodash:
-        specifier: 8.0.0
-        version: 8.0.0(eslint@10.10.0)
+        specifier: 8.1.0
+        version: 8.1.0(eslint@10.10.0)
       eslint-plugin-n:
         specifier: 18.3.0
         version: 18.3.0(eslint@10.10.0)(typescript@6.0.3)
       eslint-plugin-package-json:
-        specifier: 1.8.0
-        version: 1.8.0(@eslint/json@2.1.0)(eslint@10.10.0)
+        specifier: 1.8.1
+        version: 1.8.1(@eslint/json@2.1.0)(eslint@10.10.0)
       eslint-plugin-playwright:
-        specifier: 2.11.0
-        version: 2.11.0(eslint@10.10.0)
+        specifier: 2.12.0
+        version: 2.12.0(eslint@10.10.0)
       eslint-plugin-prettier:
         specifier: 5.5.6
         version: 5.5.6(eslint-config-prettier@10.1.8(eslint@10.10.0))(eslint@10.10.0)(wp-prettier@3.9.6)
@@ -13225,9 +13216,6 @@ packages:
     resolution: {integrity: sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==}
     engines: {node: '>=0.11'}
 
-  date-fns@4.1.0:
-    resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
-
   date-fns@4.4.0:
     resolution: {integrity: sha512-+1UMbeh68lH1SegH83CGWwpb6OHHbpSgr3+s5Eww5M4CAgswBpoWS0AjTOfEJ33HiYKz1hdj/KTFprzXHmq/6w==}
 
@@ -13765,11 +13753,15 @@ packages:
       typescript:
         optional: true
 
-  eslint-plugin-jsdoc@64.3.6:
-    resolution: {integrity: sha512-lo7IXmgUUNy88SxW7KnJmmD2iPQBIRMomfCFPHidW1M3zNNVuzxlB2uoNrNyE1g4v2/L+RtYmiROPwQhSNzL8Q==}
+  eslint-plugin-jsdoc@64.5.2:
+    resolution: {integrity: sha512-GirLf/jpVQ/HSLVT98ztIrJ8GUlWWrrwExkofqzeIjjOxlqFtyqnpkRs30FLwEKh0xHEpgy35CU0qFn0I/Mh9w==}
     engines: {node: ^22.22.2 || >=24.15.0}
     peerDependencies:
       eslint: ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
+      typescript: '*'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   eslint-plugin-jsx-a11y@6.10.2:
     resolution: {integrity: sha512-scB3nz4WmG75pV8+3eRUQOHZlNSUhFNq37xnpgRkCCELU3XMvXAxLk1eqWWyE22Ki4Q01Fnsw9BA3cJHDPgn2Q==}
@@ -13777,8 +13769,8 @@ packages:
     peerDependencies:
       eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9 || ^10
 
-  eslint-plugin-lodash@8.0.0:
-    resolution: {integrity: sha512-7DA8485FolmWRzh+8t4S8Pzin2TTuWfb0ZW3j/2fYElgk82ZanFz8vDcvc4BBPceYdX1p/za+tkbO68maDBGGw==}
+  eslint-plugin-lodash@8.1.0:
+    resolution: {integrity: sha512-2ULyk2quC7j43VADNOJxpmohba5dbIZ34vx/iFx83Gyf3UAexNX0x1UNDUQFbv1j0vCaxDlY9hZlXGfylKaYYw==}
     engines: {node: '>=10'}
     peerDependencies:
       eslint: '>=9.0.0'
@@ -13796,8 +13788,8 @@ packages:
       typescript:
         optional: true
 
-  eslint-plugin-package-json@1.8.0:
-    resolution: {integrity: sha512-nfWWrak5t8yPgSVchNOHCjdFW/pl3+1135Bxsq0KZKo6PUdWWqUTqOVBrvzw1S+8BNOhhEx5c/YxeeCSYySFog==}
+  eslint-plugin-package-json@1.8.1:
+    resolution: {integrity: sha512-/Adb7EHfwIM2t13zdBuB6IjIsNSDkbPT+T9ZlIK0N6aAnj9hiekqFlFbUpEIsiQX4Zv7bASBDP2C3hu362e2kw==}
     engines: {node: ^22.22.2 || >=24.15.0}
     peerDependencies:
       '@eslint/json': '>=1.0.0'
@@ -13806,8 +13798,8 @@ packages:
       '@eslint/json':
         optional: true
 
-  eslint-plugin-playwright@2.11.0:
-    resolution: {integrity: sha512-zOIEYyv1TSn2izXkyg/yj0LXc4YBQI6pl3xIFWwMCcXt/dgQCz8dBqXiXFMoM3xc/GqZThAtaGYo8aPu/vBd+Q==}
+  eslint-plugin-playwright@2.12.0:
+    resolution: {integrity: sha512-7HpSKR/D2oCH4RKRauFskcrnDrHvLQKopW7Nen8lqrFZtx/SB+FgqVaH+zyQd32noZSZy9Lrsa+DsYrVUpn6hg==}
     engines: {node: '>=16.9.0'}
     peerDependencies:
       eslint: '>=8.40.0'
@@ -14105,9 +14097,6 @@ packages:
 
   fn.name@1.1.0:
     resolution: {integrity: sha512-GRnmB5gPyJpAhTQdSZTSp9uaPSvl09KoYcMQtsB9rQoOmzs9dH6ffeccH+Z+cv6P68Hu5bC6JjRh4Ah/mHSNRw==}
-
-  focus-trap@6.3.0:
-    resolution: {integrity: sha512-BBzvFfkPg5PqrVVCdQ1YOIVNKGvqG9YNVkiAUQFuDM66N8J9uADhs6mlYKrd30ofDJIzEniBnBKM7GO45iCzKQ==}
 
   follow-redirects@1.16.0:
     resolution: {integrity: sha512-y5rN/uOsadFT/JfYwhxRS5R7Qce+g3zG97+JrtFZlC9klX/W5hD7iiLzScI4nZqUS7DNUdhPgw4xI8W2LuXlUw==}
@@ -17777,9 +17766,6 @@ packages:
   synckit@0.11.13:
     resolution: {integrity: sha512-eNRKgb3z66Yp3D2CixVujOUvXLFUTij/zVnV8KRyvFdQwpz7I5DS8UfRkTeLzb64u+dkzDSdelE24izu+zSSUg==}
     engines: {node: ^14.18.0 || >=16.0.0}
-
-  tabbable@5.3.3:
-    resolution: {integrity: sha512-QD9qKY3StfbZqWOPLp0++pOrAVb/HbUi5xCc8cUo4XjP19808oaMiDzn0leBY5mCespIBM0CIZePzZjgzR83kA==}
 
   tabbable@6.5.0:
     resolution: {integrity: sha512-wieBHXygIm7OyQOu5hQlkk62/WyCFYGlWg7L6/ZCUZwx0o398Zkn4pVmMyfYhfMG8kGrj/Krt8eIk6UKC6VzwA==}
@@ -27151,7 +27137,7 @@ snapshots:
 
   '@wordpress/escape-html@3.55.0': {}
 
-  '@wordpress/eslint-plugin@26.0.0(@wordpress/theme@2.1.0(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.10.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.16.6(eslint@10.10.0)(jest@30.5.1)(typescript@6.0.3))(eslint-plugin-jsdoc@64.3.6(eslint@10.10.0)(typescript@6.0.3))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.10.0))(eslint-plugin-playwright@2.11.0(eslint@10.10.0))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.10.0))(eslint@10.10.0)(wp-prettier@3.9.6))(eslint-plugin-react-hooks@7.1.1(eslint@10.10.0))(eslint-plugin-react@7.37.5(eslint@10.10.0))(eslint@10.10.0)(typescript@6.0.3)(wp-prettier@3.9.6)':
+  '@wordpress/eslint-plugin@26.0.0(@wordpress/theme@2.1.0(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.10.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.16.6(eslint@10.10.0)(jest@30.5.1)(typescript@6.0.3))(eslint-plugin-jsdoc@64.5.2(eslint@10.10.0)(typescript@6.0.3))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.10.0))(eslint-plugin-playwright@2.12.0(eslint@10.10.0))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.10.0))(eslint@10.10.0)(wp-prettier@3.9.6))(eslint-plugin-react-hooks@7.1.1(eslint@10.10.0))(eslint-plugin-react@7.37.5(eslint@10.10.0))(eslint@10.10.0)(typescript@6.0.3)(wp-prettier@3.9.6)':
     dependencies:
       '@eslint-community/eslint-plugin-eslint-comments': 4.7.2(eslint@10.10.0)
       '@eslint/compat': 2.1.1(eslint@10.10.0)
@@ -27163,9 +27149,9 @@ snapshots:
       eslint-import-resolver-typescript: 4.4.5(eslint-plugin-import@2.32.0)(eslint@10.10.0)
       eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@4.4.5)(eslint@10.10.0)
       eslint-plugin-jest: 29.16.6(eslint@10.10.0)(jest@30.5.1)(typescript@6.0.3)
-      eslint-plugin-jsdoc: 64.3.6(eslint@10.10.0)(typescript@6.0.3)
+      eslint-plugin-jsdoc: 64.5.2(eslint@10.10.0)(typescript@6.0.3)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@10.10.0)
-      eslint-plugin-playwright: 2.11.0(eslint@10.10.0)
+      eslint-plugin-playwright: 2.12.0(eslint@10.10.0)
       eslint-plugin-prettier: 5.5.6(eslint-config-prettier@10.1.8(eslint@10.10.0))(eslint@10.10.0)(wp-prettier@3.9.6)
       eslint-plugin-react: 7.37.5(eslint@10.10.0)
       eslint-plugin-react-hooks: 7.1.1(eslint@10.10.0)
@@ -32142,8 +32128,6 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.29.7
 
-  date-fns@4.1.0: {}
-
   date-fns@4.4.0: {}
 
   debounce@1.2.1: {}
@@ -32725,7 +32709,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-jsdoc@64.3.6(eslint@10.10.0)(typescript@6.0.3):
+  eslint-plugin-jsdoc@64.5.2(eslint@10.10.0)(typescript@6.0.3):
     dependencies:
       '@es-joy/jsdoccomment': 0.97.0
       '@es-joy/resolve.exports': 1.2.0
@@ -32743,9 +32727,10 @@ snapshots:
       semver: 7.8.5
       spdx-expression-parse: 5.0.0
       to-valid-identifier: 1.0.0
+    optionalDependencies:
+      typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
-      - typescript
 
   eslint-plugin-jsx-a11y@6.10.2(eslint@10.10.0):
     dependencies:
@@ -32766,7 +32751,7 @@ snapshots:
       safe-regex-test: 1.1.0
       string.prototype.includes: 2.0.1
 
-  eslint-plugin-lodash@8.0.0(eslint@10.10.0):
+  eslint-plugin-lodash@8.1.0(eslint@10.10.0):
     dependencies:
       eslint: 10.10.0
       lodash: 4.18.1
@@ -32785,7 +32770,7 @@ snapshots:
     optionalDependencies:
       typescript: 6.0.3
 
-  eslint-plugin-package-json@1.8.0(@eslint/json@2.1.0)(eslint@10.10.0):
+  eslint-plugin-package-json@1.8.1(@eslint/json@2.1.0)(eslint@10.10.0):
     dependencies:
       '@altano/repository-tools': 2.1.1
       '@types/estree': 1.0.9
@@ -32803,7 +32788,7 @@ snapshots:
     optionalDependencies:
       '@eslint/json': 2.1.0
 
-  eslint-plugin-playwright@2.11.0(eslint@10.10.0):
+  eslint-plugin-playwright@2.12.0(eslint@10.10.0):
     dependencies:
       eslint: 10.10.0
       globals: 17.12.0
@@ -33181,10 +33166,6 @@ snapshots:
   flatted@3.4.4: {}
 
   fn.name@1.1.0: {}
-
-  focus-trap@6.3.0:
-    dependencies:
-      tabbable: 5.3.3
 
   follow-redirects@1.16.0: {}
 
@@ -36043,7 +36024,7 @@ snapshots:
   react-day-picker@10.0.1(@types/react@18.3.31)(react@18.3.1):
     dependencies:
       '@date-fns/tz': 1.5.0
-      date-fns: 4.1.0
+      date-fns: 4.4.0
       react: 18.3.1
     optionalDependencies:
       '@types/react': 18.3.31
@@ -37423,8 +37404,6 @@ snapshots:
   synckit@0.11.13:
     dependencies:
       '@pkgr/core': 0.3.6
-
-  tabbable@5.3.3: {}
 
   tabbable@6.5.0: {}
 

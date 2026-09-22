@@ -12,6 +12,9 @@ import styles from './detail-page-layout.module.scss';
 import type { SectionHeaderProps } from '@jetpack-premium-analytics/ui';
 import type { ReactNode } from 'react';
 
+/** Glyph size for the header's visual slot when a page has no image to show there. */
+export const DETAIL_HEADER_GLYPH_SIZE = 28;
+
 /** What a detail page hands the layout's header, owned by the header's own props. */
 export type DetailPageHeaderSlots = Pick<
 	SectionHeaderProps,

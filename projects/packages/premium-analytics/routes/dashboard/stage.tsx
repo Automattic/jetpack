@@ -313,7 +313,7 @@ function Dashboard(): JSX.Element {
 
 										{ activeSection === section.slug ? (
 											<div className={ styles.body }>
-												{ /* Behind the onboarding journey: it introduces the tab
+												{ /* Behind the onboarding journey: it introduces the tabs
 												     the banner asks about. */ }
 												<FeedbackBanner
 													enabled={

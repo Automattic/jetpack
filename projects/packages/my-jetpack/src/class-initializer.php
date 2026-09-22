@@ -25,6 +25,7 @@ use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Menu_Badges\Menu_Badges;
 use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Partner_Coupon;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host as Status_Host;
@@ -45,7 +46,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.3.0';
+	const PACKAGE_VERSION = '6.4.1';
 
 	/**
 	 * Feature flag that swaps the My Jetpack Products tab for a Features tab.
@@ -227,15 +228,6 @@ class Initializer {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
 		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Checking for partner coupon redemption flow
-		$show_coupon_redemption = isset( $_GET['showCouponRedemption'] );
-
-		// Redirect to Jetpack dashboard for partner coupon redemption
-		if ( $show_coupon_redemption ) {
-			wp_safe_redirect( admin_url( 'admin.php?page=jetpack&showCouponRedemption=1#/dashboard' ) );
-			exit( 0 );
-		}
-
 		// Handle onboarding redirects based on connection status
 		$redirect_args = self::get_onboarding_redirect_args( $step, $connection->is_connected(), self::is_onboarding_available() );
 
@@ -265,14 +257,48 @@ class Initializer {
 	 *
 	 * WordPress.com Simple sites are connected by definition and don't manage their
 	 * connection through My Jetpack, so the onboarding flow (which asks the user to
-	 * connect) never applies there.
+	 * connect) never applies there. A pending partner coupon brings its own connect screen.
 	 *
 	 * @internal Not part of the package's public API.
 	 *
 	 * @return bool
 	 */
 	public static function is_onboarding_available() {
-		return ! ( new Status_Host() )->is_wpcom_simple();
+		return ! ( new Status_Host() )->is_wpcom_simple() && null === self::get_partner_coupon_screen();
+	}
+
+	/**
+	 * The partner coupon screen's data, when it should replace the dashboard.
+	 *
+	 * Coupons exist only with the Jetpack plugin, which supplies their products and images.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array{coupon: array, assetBaseUrl: string}|null
+	 */
+	public static function get_partner_coupon_screen() {
+		if (
+			! self::should_initialize()
+			|| ! current_user_can( 'manage_options' )
+			|| ! Jetpack_Constants::is_defined( 'JETPACK__PLUGIN_FILE' )
+		) {
+			return null;
+		}
+
+		$coupon = Partner_Coupon::get_coupon();
+		if ( ! $coupon ) {
+			return null;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only picks which screen renders.
+		if ( ! isset( $_GET['showCouponRedemption'] ) && ( new Connection_Manager() )->has_connected_owner() ) {
+			return null;
+		}
+
+		return array(
+			'coupon'       => $coupon,
+			'assetBaseUrl' => plugins_url( '', Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
+		);
 	}
 
 	/**
@@ -347,7 +373,7 @@ class Initializer {
 	/**
 	 * Whether the dashboard shows a Features tab in place of the Products tab.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.4.0
 	 *
 	 * @return bool
 	 */
@@ -360,7 +386,7 @@ class Initializer {
 	 *
 	 * Null while the tab is unchanged, so links keep their own translated "Products" label.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.4.0
 	 *
 	 * @return array{slug: string, label: string}|null
 	 */
@@ -592,6 +618,7 @@ class Initializer {
 				'products'               => array(
 					'items' => Products::get_products(),
 				),
+				'mainFeatures'           => self::is_features_tab_enabled() ? Main_Features::get_state() : null,
 				'plugins'                => Plugins_Installer::get_plugins(),
 				'themes'                 => Sync_Functions::get_themes(),
 				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
@@ -629,6 +656,7 @@ class Initializer {
 				'isJetpackPluginActive'  => class_exists( 'Jetpack' ),
 				'latestBoostSpeedScores' => $latest_score,
 				'seoOptIn'               => self::get_seo_opt_in_state(),
+				'partnerCoupon'          => self::get_partner_coupon_screen(),
 			)
 		);
 
@@ -674,7 +702,7 @@ class Initializer {
 	}
 
 	/**
-	 * Add the package's image base URL and products tab to the admin script data.
+	 * Add My Jetpack availability, image base URL, and products tab to admin script data.
 	 *
 	 * Printed on every admin page by Script_Data, so the connection screen can resolve its
 	 * illustrations and Jetpack footers can link to the products tab off the My Jetpack page.
@@ -685,10 +713,28 @@ class Initializer {
 	 * @return array
 	 */
 	public static function add_admin_script_data( $data ) {
+		$data['myJetpack']['isAvailable']     = self::is_admin_page_available();
 		$data['myJetpack']['assetsUrl']       = self::get_assets_url();
 		$data['myJetpack']['productsSection'] = self::get_products_section();
 
 		return $data;
+	}
+
+	/**
+	 * Whether My Jetpack's admin page is available to the current user.
+	 *
+	 * Meaningful only after admin_menu has registered the page.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_admin_page_available() {
+		global $_registered_pages;
+
+		return did_action( 'my_jetpack_init' ) > 0
+			&& isset( $_registered_pages[ get_plugin_page_hookname( 'my-jetpack', 'jetpack' ) ] )
+			&& current_user_can( 'edit_posts' );
 	}
 
 	/**
@@ -872,6 +918,10 @@ class Initializer {
 		new REST_Zendesk_Chat();
 		( new REST_Jetpack_AI_JWT() )->register_rest_route();
 		new REST_Recommendations_Evaluation();
+
+		if ( self::is_features_tab_enabled() ) {
+			( new REST_Main_Features() )->register_rest_routes();
+		}
 
 		Products::register_product_endpoints();
 		Historically_Active_Modules::register_rest_endpoints();

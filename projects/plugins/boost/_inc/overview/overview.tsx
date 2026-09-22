@@ -7,13 +7,22 @@ import ScoreAlert from './score-alert';
 import ErrorBoundary from '../../app/assets/src/js/features/error-boundary/error-boundary';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import HistoryChartCard from './history-chart-card';
+import HistoryUpsell from './history-upsell';
 import { bucketHistoryDays } from './lib/history-days';
-import { OVERVIEW_MODULES_CHANGE_EVENT, relayedQueryKeys } from './lib/modules-state-bridge';
+import {
+	OVERVIEW_MODULES_CHANGE_EVENT,
+	relayedQueryKeys,
+	type ModulesStateChange,
+} from './lib/modules-state-bridge';
 import { useHistoryRange } from './lib/use-history-range';
-import { isSiteOnline, useModulesState, useScoreRefreshState } from './lib/use-modules-state';
+import {
+	canOfferUpgrade,
+	isSiteOnline,
+	useModulesState,
+	useScoreRefreshState,
+} from './lib/use-modules-state';
 import {
 	performanceHistoryQueryKey,
-	useDismissibleAlertState,
 	useHasOlderHistory,
 	usePerformanceHistory,
 } from './lib/use-performance-history';
@@ -23,6 +32,7 @@ import './overview.scss';
 import type { ReactNode } from 'react';
 
 type Props = {
+	scoresEnabled?: boolean;
 	isVisible?: boolean;
 	onHeaderActionChange: ( action: ReactNode ) => void;
 };
@@ -57,36 +67,40 @@ export default function Overview( props: Props ) {
 }
 
 function OverviewContent( {
+	scoresEnabled = true,
 	isVisible = true,
 	onHeaderActionChange,
 	focusFallback,
 }: Props & { focusFallback: () => void } ) {
 	const modules = useModulesState();
 	const refreshState = useScoreRefreshState( modules.data );
-	const [ scoreState, refreshScores ] = useSpeedScores( refreshState );
+	const [ scoreState, refreshScores ] = useSpeedScores( refreshState, scoresEnabled );
 	const historyAvailable = modules.data?.performance_history?.available === true;
+	const needsUpgrade = modules.data !== undefined && ! historyAvailable;
 	const { range, olderRanges, dayCount, onPrevious, onNext, canGoNext } = useHistoryRange();
 	const history = usePerformanceHistory( historyAvailable && isVisible, range );
-	const [ freshStartCompleted, dismissFreshStart ] = useDismissibleAlertState(
-		'performance_history_fresh_start'
-	);
-	// A window that starts on a recorded day keeps Previous enabled without older requests.
-	const opensEmpty =
-		history.isSuccess && ! bucketHistoryDays( history.data?.periods ?? [], range )[ 0 ]?.period;
+	const days = bucketHistoryDays( history.data?.periods ?? [], range );
+	const recordedDayCount = days.filter( day => day.period ).length;
+	const assumesOlderHistory = Boolean( days[ 0 ]?.period ) && recordedDayCount >= 2;
 	const olderHistory = useHasOlderHistory(
-		historyAvailable && isVisible && freshStartCompleted && opensEmpty,
+		historyAvailable && isVisible && history.isSuccess && ! assumesOlderHistory,
 		olderRanges
 	);
-	const hasOlderHistory = opensEmpty ? olderHistory.data : undefined;
+	const hasOlderHistory = olderHistory.isSuccess ? olderHistory.data : undefined;
+	const canGoPrevious =
+		history.isSuccess &&
+		( assumesOlderHistory || hasOlderHistory === true || olderHistory.isError );
+	const showSingleDate = recordedDayCount === 1 && hasOlderHistory === false;
 	const queryClient = useQueryClient();
 	const online = isSiteOnline();
 	const isLoading = scoreState.status === 'loading';
 
 	useEffect( () => {
 		const onModulesChange = ( event: Event ) => {
-			const key = ( event as CustomEvent< string > ).detail;
+			const { key, data } = ( event as CustomEvent< ModulesStateChange > ).detail;
 			if ( relayedQueryKeys.includes( key ) ) {
-				queryClient.invalidateQueries( { queryKey: [ key ] } );
+				void queryClient.cancelQueries( { queryKey: [ key ], exact: true } );
+				queryClient.setQueryData( [ key ], data );
 			}
 		};
 		window.addEventListener( OVERVIEW_MODULES_CHANGE_EVENT, onModulesChange );
@@ -104,10 +118,13 @@ function OverviewContent( {
 		}
 	}, [ online, scoreState.status, queryClient ] );
 
-	const onRefresh = useCallback( () => {
-		recordBoostEvent( 'speed_score_refresh_clicked', {} );
-		refreshScores( true );
-	}, [ refreshScores ] );
+	const onRefresh = useCallback(
+		( source: 'header' | 'score_card' ) => {
+			recordBoostEvent( 'speed_score_refresh_clicked', { source } );
+			refreshScores( true );
+		},
+		[ refreshScores ]
+	);
 
 	useEffect( () => {
 		if ( ! isVisible || ! online ) {
@@ -122,7 +139,7 @@ function OverviewContent( {
 				variant="solid"
 				size="compact"
 				disabled={ isLoading }
-				onClick={ onRefresh }
+				onClick={ () => onRefresh( 'header' ) }
 			>
 				{ __( 'Run speed test', 'jetpack-boost' ) }
 			</Button>
@@ -167,7 +184,7 @@ function OverviewContent( {
 				isLoading={ isLoading }
 				hasScores={ scoreState.hasScores }
 				error={ scoreState.error }
-				onRetry={ onRefresh }
+				onRetry={ () => onRefresh( 'score_card' ) }
 				isVisible={ isVisible }
 			/>
 			<ScoreAlert
@@ -192,23 +209,28 @@ function OverviewContent( {
 					</Notice.Actions>
 				</Notice.Root>
 			) }
-			<HistoryChartCard
-				range={ range }
-				dayCount={ dayCount }
-				onPrevious={ onPrevious }
-				onNext={ onNext }
-				canGoNext={ canGoNext }
-				hasOlderHistory={ hasOlderHistory }
-				isVisible={ isVisible }
-				data={ modules.isPending ? undefined : history.data }
-				isLoading={ modules.isPending || ( historyAvailable && history.isPending ) }
-				isError={ history.isError && ! history.isFetching }
-				error={ history.error }
-				onRetry={ () => history.refetch() }
-				needsUpgrade={ modules.data !== undefined && ! historyAvailable }
-				isFreshStart={ ! freshStartCompleted }
-				onDismissFreshStart={ dismissFreshStart }
-			/>
+			{ needsUpgrade ? (
+				canOfferUpgrade() && (
+					<HistoryUpsell range={ range } dayCount={ dayCount } isVisible={ isVisible } />
+				)
+			) : (
+				<HistoryChartCard
+					range={ range }
+					dayCount={ dayCount }
+					onPrevious={ onPrevious }
+					onNext={ onNext }
+					canGoNext={ canGoNext }
+					canGoPrevious={ canGoPrevious }
+					hasOlderHistory={ hasOlderHistory }
+					showSingleDate={ showSingleDate }
+					isVisible={ isVisible }
+					data={ modules.isPending ? undefined : history.data }
+					isLoading={ modules.isPending || ( historyAvailable && history.isPending ) }
+					isError={ history.isError && ! history.isFetching }
+					error={ history.error }
+					onRetry={ () => history.refetch() }
+				/>
+			) }
 		</div>
 	);
 }

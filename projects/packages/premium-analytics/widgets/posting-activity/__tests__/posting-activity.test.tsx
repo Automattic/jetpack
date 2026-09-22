@@ -113,18 +113,18 @@ describe( 'PostingActivityWidget', () => {
 		expect( selectedName() ).toBe( 'Sat, Nov 1, 2025: No data' );
 	} );
 
-	it( 'keeps the post wording and leads the tooltip with the count', async () => {
+	it( 'keeps the post wording and titles the tooltip with the date', async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		renderWidget();
 
 		await user.hover( screen.getByRole( 'gridcell', { name: 'Fri, Oct 3, 2025: 2' } ) );
-		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( '2 postsFri, Oct 3, 2025' );
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Fri, Oct 3, 20252 posts' );
 
 		await user.hover( screen.getByRole( 'gridcell', { name: 'Tue, Sep 15, 2026: 1' } ) );
-		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( '1 postTue, Sep 15, 2026' );
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Tue, Sep 15, 20261 post' );
 
 		await user.hover( screen.getByRole( 'gridcell', { name: 'Sat, Oct 4, 2025: No data' } ) );
-		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'No postsSat, Oct 4, 2025' );
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Sat, Oct 4, 2025No posts' );
 	} );
 
 	it( 'shows the empty state when only days outside the window have posts', () => {

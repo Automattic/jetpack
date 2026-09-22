@@ -5,12 +5,27 @@ export const OVERVIEW_MODULES_CHANGE_EVENT = 'jetpack-boost-overview-modules-cha
 
 export const relayedQueryKeys = [ 'modules_state', 'critical_css_state', 'lcp_state' ];
 
+export type ModulesStateChange = { key: string; data: unknown };
+
 /** Tag the Getting Started save with this mutation meta so the bridge holds its interim writes. */
 export const ONBOARDING_SAVE_META = { dataSyncKey: 'getting_started' };
+export const MODULES_SAVE_META = { dataSyncKey: 'modules_state' };
 
 // Register in the legacy bundle, whose Data Sync cache is separate from the route bundle's cache.
 export function observeLegacyModulesState( client: QueryClient ) {
 	let onboardingHeld = false;
+	let modulesHeld = false;
+	const isModulesSaving = () =>
+		client.isMutating( {
+			predicate: mutation => mutation.options.meta?.dataSyncKey === MODULES_SAVE_META.dataSyncKey,
+		} ) > 0;
+	const emitModules = ( key: string ) => {
+		window.dispatchEvent(
+			new CustomEvent< ModulesStateChange >( OVERVIEW_MODULES_CHANGE_EVENT, {
+				detail: { key, data: client.getQueryData( [ key ] ) },
+			} )
+		);
+	};
 	const isOnboardingSaving = () =>
 		client.isMutating( {
 			predicate: mutation =>
@@ -38,15 +53,22 @@ export function observeLegacyModulesState( client: QueryClient ) {
 			}
 		}
 		if (
-			event.action.manual &&
-			relayedQueryKeys.some( key => event.query.queryKey[ 0 ] === key )
+			relayedQueryKeys.some( key => event.query.queryKey[ 0 ] === key ) &&
+			( event.action.manual || event.query.queryKey[ 0 ] !== 'modules_state' )
 		) {
-			window.dispatchEvent(
-				new CustomEvent( OVERVIEW_MODULES_CHANGE_EVENT, { detail: event.query.queryKey[ 0 ] } )
-			);
+			const key = String( event.query.queryKey[ 0 ] );
+			if ( key === 'modules_state' && isModulesSaving() ) {
+				modulesHeld = true;
+			} else {
+				emitModules( key );
+			}
 		}
 	} );
 	const stopMutations = client.getMutationCache().subscribe( event => {
+		if ( modulesHeld && event.type === 'updated' && ! isModulesSaving() ) {
+			modulesHeld = false;
+			emitModules( 'modules_state' );
+		}
 		if ( onboardingHeld && event.type === 'updated' && ! isOnboardingSaving() ) {
 			emitOnboarding();
 		}

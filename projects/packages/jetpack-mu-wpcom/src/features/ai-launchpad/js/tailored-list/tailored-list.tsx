@@ -1,7 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import { createAboutPage } from '../lib/about-page.ts';
 import { createContactPage } from '../lib/contact-page.ts';
@@ -34,7 +34,7 @@ import {
 } from './model.ts';
 import { TailoredListSkeleton } from './skeleton.tsx';
 import { TaskCard } from './task-card.tsx';
-import type { GoalSlug, TailoredOutput, TailorResult } from '../lib/types.ts';
+import type { GoalSlug, SiteCopy, TailoredOutput, TailorResult } from '../lib/types.ts';
 
 import './style.scss';
 
@@ -64,6 +64,9 @@ interface Props {
 
 	// The wizard goal, used for the heading until the AI output supplies its own.
 	goal?: GoalSlug;
+
+	// The site-language copy the page tasks write into the pages they create.
+	copy: SiteCopy;
 }
 
 /**
@@ -77,9 +80,10 @@ interface Props {
  * @param props.initialData   - Composite read supplied by the host (returning users).
  * @param props.site          - Site context for the preview (always supplied by the host).
  * @param props.goal          - The wizard goal (wizard→list path), for the heading.
+ * @param props.copy          - Site-language copy for the pages the tasks create.
  * @return The tailored-list element.
  */
-export function TailoredList( { pendingTailor, initialData, site, goal }: Props = {} ) {
+export function TailoredList( { pendingTailor, initialData, site, goal, copy }: Props ) {
 	// Returning users seed straight from initialData so the first frame isn't the
 	// loading copy. The wizard→list path has no initialData and starts as loading.
 	const [ tasks, setTasks ] = useState< EnrichedTask[] | null >( () => initialData?.tasks ?? null );
@@ -226,7 +230,10 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 	if ( ! tasks ) {
 		return (
 			<Layout
-				progressLabel={ __( 'Tailoring your checklist…', 'jetpack-mu-wpcom' ) }
+				progressLabel={
+					/* translators: shown while the checklist is being generated. A status, not an instruction to the user. */
+					__( 'Tailoring your checklist…', 'jetpack-mu-wpcom' )
+				}
 				goal={ effectiveGoal }
 				siteUrl={ siteUrl }
 				siteTitle={ siteTitle }
@@ -240,7 +247,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 	const completedCount = visibleTasks.filter( task => task.completed ).length;
 	const progressLabel = sprintf(
 		/* translators: 1: number of completed tasks, 2: total number of tasks. */
-		__( '%1$d of %2$d completed', 'jetpack-mu-wpcom' ),
+		_n( '%1$d of %2$d completed', '%1$d of %2$d completed', completedCount, 'jetpack-mu-wpcom' ),
 		completedCount,
 		visibleTasks.length
 	);
@@ -254,12 +261,12 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 				{
 					trackTaskCtaClicked,
 					createFirstPostDraft,
-					createAboutPage,
-					createGalleryPage,
-					createContactPage,
-					createEventsPage,
-					createVideoPage,
-					createPortfolioPiece,
+					createAboutPage: draft => createAboutPage( draft, copy ),
+					createGalleryPage: intro => createGalleryPage( intro, copy ),
+					createContactPage: intro => createContactPage( intro, copy ),
+					createEventsPage: intro => createEventsPage( intro, copy ),
+					createVideoPage: intro => createVideoPage( intro, copy ),
+					createPortfolioPiece: () => createPortfolioPiece( copy ),
 				},
 				siteUrl
 			);

@@ -92,7 +92,7 @@ class Jetpack_Options {
 			'id',                                  // (int)    The Client ID/WP.com Blog ID of this site.
 			'publicize_connections',               // (array)  An array of Publicize connections from WordPress.com.
 			'master_user',                         // (int)    The local User ID of the user who connected this site to jetpack.wordpress.com.
-			'protected_owner',                     // (array)  Anchor identifying the locked connection owner. WordPress.com is authoritative; this is a local cache. Keys: wpcom_user_id, local_user_id, locked, confirmed_at, confirmed_by.
+			'protected_owner',                     // (array)  Anchor identifying the locked connection owner. WordPress.com is authoritative; this is a local cache. Keys: wpcom_user_id, local_user_id, locked, confirmed_at.
 			'version',                             // (string) Used during upgrade procedure to auto-activate new modules. version:time.
 			'old_version',                         // (string) Used to determine which modules are the most recently added. previous_version:time.
 			'fallback_no_verify_ssl_certs',        // (int)    Flag for determining if this host must skip SSL Certificate verification due to misconfigured SSL.
@@ -114,11 +114,11 @@ class Jetpack_Options {
 			'setup_wizard_questionnaire',          // (array)  (DEPRECATED) List of user choices from the setup wizard.
 			'setup_wizard_status',                 // (string) (DEPRECATED) Status of the setup wizard.
 			'licensing_error',                     // (string) Last error message occurred while attaching licenses that is yet to be surfaced to the user.
-			'recommendations_data',                // (array)  The user choice and other data for the recommendations.
-			'recommendations_step',                // (string) The current step of the recommendations.
-			'recommendations_conditional',         // (array)  An array of action-based recommendations.
+			'recommendations_data',                // (array)  (DEPRECATED) The user choice and other data for the recommendations.
+			'recommendations_step',                // (string) (DEPRECATED) The current step of the recommendations.
+			'recommendations_conditional',         // (array)  (DEPRECATED) An array of action-based recommendations.
 			'licensing_activation_notice_dismiss', // (array) The `last_detached_count` and the `last_dismissed_time` for the user-license activation notice.
-			'has_seen_wc_connection_modal',        // (bool) Whether the site has displayed the WooCommerce Connection modal
+			'has_seen_wc_connection_modal',        // (bool) (DEPRECATED) Whether the site has displayed the WooCommerce Connection modal
 			'partner_coupon',                      // (string) A Jetpack partner issued coupon to promote a sale together with Jetpack.
 			'partner_coupon_added',                // (string) A date for when `partner_coupon` was added, so we can auto-purge after a certain time interval.
 			'dismissed_backup_review_restore',     // (bool) Determines if the component review request is dismissed for successful restore requests.

@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.51.1] - 2026-09-21
+### Fixed
+- Chapters: Explain which formatting requirements prevent chapters in video descriptions from being saved. [#52488]
+- Dashboard: Restore the admin screen ID after the wp-build enqueue check. [#52471]
+
+## [0.51.0] - 2026-09-18
+### Added
+- Add an inline player mode that loads the VideoPress player once per page instead of once per embedded frame. [#52244]
+- Inline player: show each video's poster and load the player only when it is played. [#52011]
+- Inline player mode: the block editor previews video blocks with the same shared player instead of one frame per block. [#52052]
+
+### Changed
+- Exclude source map files from the distributed package. [#52304]
+- Update package dependencies. [#52187]
+- Welcome modal: body copy stepped up to the design system's lg size with the lede in the same colour as the value cards, and the dialog now sits at true center. Library: the upload dropzone text matches the design system's empty state, and the header's Upload button steps aside while that dropzone is the only thing to upload into. [#52061]
+
+### Fixed
+- Admin: Keep the notice, video list and video card icons colored now that @wordpress/icons 16 draws them as strokes. [#52187]
+- Dashboard: Keep the video editor footer at the bottom of the page. [#52489]
+
 ## [0.50.2] - 2026-09-15
 ### Added
 - Add a "Learn more" support link to the admin page. [#52111]
@@ -2240,6 +2260,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.51.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.51.0...v0.51.1
+[0.51.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.50.2...v0.51.0
 [0.50.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.50.1...v0.50.2
 [0.50.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.50.0...v0.50.1
 [0.50.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.49.0...v0.50.0

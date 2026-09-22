@@ -156,6 +156,7 @@ test.each( [
 ] )(
 	'offers license redemption only for a modern free non-WoA site (%o)',
 	async ( { mode, features, woa, visible } ) => {
+		Object.assign( globalThis, { Jetpack_Boost: { site: { myJetpack: true, addLicense: true } } } );
 		jest.mocked( detectMode ).mockReturnValue( mode );
 		jest.mocked( usePremiumFeatures ).mockReturnValue( features );
 		jest.mocked( isWoaHosting ).mockReturnValue( woa );

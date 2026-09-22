@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.4.1] - 2026-09-21
+### Fixed
+- Jetpack Manage: Only show the sidebar link to agency accounts. [#52336]
+- Products: Keep the tab working when a module name is unavailable. [#52469]
+
+## [6.4.0] - 2026-09-18
+### Added
+- Activity Log: list it under Security on the Products tab so it can be turned on and off there. [#49591]
+- Add a my-jetpack-features-tab feature flag that replaces the Products tab with a Features tab in the new dashboard. [#52346]
+
+### Changed
+- Exclude source map files from the distributed package. [#52304]
+- Show the dashboard in the new rounded admin page frame on every site. [#52446]
+- Show the Jetpack menu notification badge when a connection error is detected. [#52332]
+- Update package dependencies. [#52187]
+
+### Fixed
+- Activity Log: read and write the module state through the shared module option, so the toggle reports and changes what a standalone install actually serves. [#52409]
+- Keep the product card, interstitial and close icons colored now that @wordpress/icons 16 draws them as strokes. [#52187]
+- Stats: Restore the link from the stats card heading and chart to the Stats page. [#52121]
+
 ## [6.3.0] - 2026-09-15
 ### Added
 - Add a catalog of the main Jetpack features, with their copy, links and how to get each one. [#52295]
@@ -2917,6 +2938,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.4.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.4.0...6.4.1
+[6.4.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.3.0...6.4.0
 [6.3.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.2.2...6.3.0
 [6.2.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.2.1...6.2.2
 [6.2.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.2.0...6.2.1

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add an inline player mode that loads the VideoPress player once per page instead of once per embedded frame.

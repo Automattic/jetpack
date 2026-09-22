@@ -9,6 +9,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
+	type ChartDisplayChartType,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 /**
@@ -28,9 +29,14 @@ const DATA_FORMAT = {
 	options: { useMultipliers: true, decimals: 0 },
 };
 
-function WordAdsChartTabsInner() {
+function WordAdsChartTabsInner( { chartType }: { chartType?: ChartDisplayChartType } ) {
 	const { reportParams } = useWidgetRootContext();
-	const period: WordAdsPeriod = chartInterval( reportParams, WORDADS_GRAIN.periods );
+	// The window alone picks the bucket: one saved while the header still offered
+	// a bucket control would otherwise stick with no way to change it.
+	const period: WordAdsPeriod = chartInterval(
+		{ ...reportParams, interval: undefined },
+		WORDADS_GRAIN.periods
+	);
 
 	const { metrics, isLoading, isFetching, isError, isEmpty, refetch } = useWordAdsChart(
 		reportParams,
@@ -60,6 +66,7 @@ function WordAdsChartTabsInner() {
 				<MetricTabsChart
 					metrics={ metrics }
 					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
 					groupLabel={ __( 'WordAds metric', 'jetpack-premium-analytics-pkg' ) }
 					// As the classic chart: one hover reads out all three, whichever tab is up.
 					tooltipMetrics="all"
@@ -78,7 +85,7 @@ export default function WordAdsChartTabs( { attributes = {} }: WordAdsChartTabsW
 		// the header control is host chrome and takes its scope from the section provider.
 		<ReportScopeProvider offersComparison={ false }>
 			<WidgetRoot attributes={ { ...attributes, reportParams } }>
-				<WordAdsChartTabsInner />
+				<WordAdsChartTabsInner chartType={ attributes.chartType } />
 			</WidgetRoot>
 		</ReportScopeProvider>
 	);

@@ -2,7 +2,7 @@
 import 'jetpack-js-tools/jest/setup-jest-dom';
 // Test dependencies come from the plugin, not the wp-build route package.
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import { MutationObserver, QueryClient } from '@tanstack/react-query';
 import {
 	observeLegacyModulesState,
@@ -13,6 +13,21 @@ import { stage as Stage } from './stage';
 import type { ReactNode } from 'react';
 
 const mockNavigate = jest.fn();
+const mockScrollIntoView = jest.fn();
+const mockDisconnect = jest.fn();
+let resizeCallback: ResizeObserverCallback;
+let resizeObserver: ResizeObserver;
+
+beforeEach( () => {
+	Element.prototype.scrollIntoView = mockScrollIntoView;
+	mockScrollIntoView.mockClear();
+	mockDisconnect.mockClear();
+	jest.spyOn( window, 'ResizeObserver' ).mockImplementation( callback => {
+		resizeCallback = callback;
+		resizeObserver = { observe: jest.fn(), unobserve: jest.fn(), disconnect: mockDisconnect };
+		return resizeObserver;
+	} );
+} );
 
 jest.mock( '../../_inc/overview/overview', () => {
 	const { useEffect } = jest.requireActual< typeof import( 'react' ) >( 'react' );
@@ -20,9 +35,11 @@ jest.mock( '../../_inc/overview/overview', () => {
 		__esModule: true,
 		default: function MockOverview( {
 			isVisible,
+			scoresEnabled,
 			onHeaderActionChange,
 		}: {
 			isVisible: boolean;
+			scoresEnabled: boolean;
 			onHeaderActionChange: ( action: ReactNode ) => void;
 		} ) {
 			useEffect( () => {
@@ -32,15 +49,25 @@ jest.mock( '../../_inc/overview/overview', () => {
 				onHeaderActionChange( <button>Run speed test</button> );
 				return () => onHeaderActionChange( null );
 			}, [ isVisible, onHeaderActionChange ] );
-			return <div data-visible={ isVisible }>Performance Overview</div>;
+			return (
+				<div data-visible={ isVisible } data-scores-enabled={ scoresEnabled }>
+					Performance Overview
+				</div>
+			);
 		},
 	};
 } );
 
+// The router keeps its route, path and query, inside the `p` wp-admin arg; a tab beside it is not a route.
 jest.mock( '@wordpress/route', () => ( {
-	useSearch: () => ( { tab: new URLSearchParams( globalThis.location.search ).get( 'tab' ) } ),
+	useSearch: () => {
+		const route = new URLSearchParams( globalThis.location.search ).get( 'p' ) ?? '/';
+		return { tab: new URLSearchParams( route.split( '?' )[ 1 ] ).get( 'tab' ) };
+	},
 	useNavigate: () => mockNavigate,
 } ) );
+
+const SETTINGS_ARG = '&p=%2F%3Ftab%3Dsettings';
 
 jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 	__esModule: true,
@@ -100,44 +127,53 @@ const setGettingStarted = ( value: boolean ) => {
 };
 
 describe( 'Boost dashboard stage', () => {
-	it.each( [
-		[ '', 'Overview' ],
-		[ '&tab=settings', 'Settings' ],
-	] )( 'selects %s as the %s tab', ( query, tab ) => {
-		window.history.replaceState( null, '', `/?page=jetpack-boost${ query }` );
-		render( <Stage /> );
-
-		expect( screen.getByRole( 'tab', { selected: true } ) ).toBe(
-			screen.getByRole( 'tab', { name: tab } )
-		);
-		expect( getSubpageMount()?.hidden ).toBe( true );
-		expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute(
-			'data-visible',
-			String( tab === 'Overview' )
-		);
-		expect( getSettingsMount() ).not.toBeNull();
-		expect( screen.getByRole( 'tabpanel' ).tabIndex ).toBe( 0 );
-		expect( screen.getByRole( 'tabpanel' ).contains( getSettingsMount() ) ).toBe(
-			tab === 'Settings'
-		);
-		const header = within( screen.getByRole( 'banner' ) );
-		expect( header.getByText( 'Improve your site speed and performance.' ) ).toBeInTheDocument();
-		expect( header.queryAllByRole( 'button', { name: 'Run speed test' } ) ).toHaveLength(
-			tab === 'Overview' ? 1 : 0
-		);
-	} );
+	it.each( [ '', SETTINGS_ARG, '&tab=settings', '&p=%2F%3Ftab%3Doverview' ] )(
+		'renders one page for %s and scrolls to its destination',
+		query => {
+			window.history.replaceState( null, '', `/?page=jetpack-boost${ query }` );
+			render( <Stage /> );
+			const section = screen.getByRole( 'region', { name: 'Optimize your speed' } );
+			expect( section ).toContainElement( getSettingsMount() );
+			expect( screen.queryByRole( 'tab' ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'tabpanel' ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute(
+				'data-visible',
+				'true'
+			);
+			expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute(
+				'data-scores-enabled',
+				'true'
+			);
+			expect( screen.getByText( 'Performance Overview' ).compareDocumentPosition( section ) ).toBe(
+				Node.DOCUMENT_POSITION_FOLLOWING
+			);
+			expect( getSubpageMount()?.hidden ).toBe( true );
+			const target = mockScrollIntoView.mock.contexts.at( -1 );
+			expect( target ).toBe(
+				query === SETTINGS_ARG ? section : section.closest( '.jetpack-boost-page__content' )
+			);
+			const header = within( screen.getByRole( 'banner' ) );
+			expect( header.getByText( 'Improve your site speed and performance.' ) ).toBeInTheDocument();
+			expect( header.getByRole( 'button', { name: 'Run speed test' } ) ).toBeInTheDocument();
+		}
+	);
 
 	it.each(
 		subpages.flatMap( hash => [
 			[ hash, '' ],
-			[ hash, '&tab=settings' ],
+			[ hash, SETTINGS_ARG ],
 		] )
 	)( 'shows #%s in the full-page slot with query %s', ( hash, query ) => {
 		window.history.replaceState( null, '', `/?page=jetpack-boost${ query }#/${ hash }` );
 		render( <Stage /> );
 
 		expect( getSubpageMount()?.hidden ).toBe( false );
+		expect( mockScrollIntoView ).not.toHaveBeenCalled();
 		expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute( 'data-visible', 'false' );
+		expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute(
+			'data-scores-enabled',
+			'false'
+		);
 		expect( getSubpageMount()?.closest( '[role="tabpanel"]' ) ).toBeNull();
 		expect( screen.queryAllByRole( 'tablist' ) ).toHaveLength( 0 );
 		expect( getSettingsMount() ).not.toBeNull();
@@ -159,8 +195,50 @@ describe( 'Boost dashboard stage', () => {
 		}
 	);
 
+	it.each( [ 'cache-debug-log', 'critical-css-advanced' ] )(
+		'does not navigate again when leaving #%s for a Settings URL',
+		hash => {
+			const settings = '/?page=jetpack-boost&p=%2F%3Ftab%3Dsettings';
+			window.history.replaceState( null, '', `${ settings }#/${ hash }` );
+			render( <Stage /> );
+
+			act( () => window.history.pushState( null, '', settings ) );
+			expect( mockNavigate ).not.toHaveBeenCalled();
+			expect( getSubpageMount()?.hidden ).toBe( true );
+
+			act( () => {
+				window.history.replaceState( null, '', `${ settings }#/${ hash }` );
+				window.dispatchEvent( new PopStateEvent( 'popstate' ) );
+			} );
+			expect( getSubpageMount()?.hidden ).toBe( false );
+			act( () => {
+				window.history.replaceState( null, '', settings );
+				window.dispatchEvent( new PopStateEvent( 'popstate' ) );
+			} );
+			expect( mockNavigate ).not.toHaveBeenCalled();
+			expect( getSubpageMount()?.hidden ).toBe( true );
+		}
+	);
+
+	it( 'navigates to Settings when leaving a subpage for an Overview URL', () => {
+		window.history.replaceState(
+			null,
+			'',
+			`/?page=jetpack-boost${ SETTINGS_ARG }#/cache-debug-log`
+		);
+		render( <Stage /> );
+
+		act( () => {
+			window.history.pushState( null, '', '/?page=jetpack-boost&p=%2F%3Ftab%3Doverview' );
+		} );
+
+		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
+		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: true } );
+		expect( getSubpageMount()?.hidden ).toBe( true );
+	} );
+
 	it( 'follows pushState navigation into and out of a subpage', () => {
-		window.history.replaceState( null, '', '/?page=jetpack-boost&tab=settings' );
+		window.history.replaceState( null, '', `/?page=jetpack-boost${ SETTINGS_ARG }` );
 		render( <Stage /> );
 		expect( getSubpageMount()?.hidden ).toBe( true );
 
@@ -168,7 +246,7 @@ describe( 'Boost dashboard stage', () => {
 			window.history.pushState(
 				null,
 				'',
-				'/?page=jetpack-boost&tab=settings#/critical-css-advanced'
+				`/?page=jetpack-boost${ SETTINGS_ARG }#/critical-css-advanced`
 			);
 		} );
 
@@ -177,24 +255,23 @@ describe( 'Boost dashboard stage', () => {
 		expect( mockNavigate ).not.toHaveBeenCalled();
 
 		act( () => {
-			window.history.pushState( null, '', '/?page=jetpack-boost&tab=settings#/' );
+			window.history.pushState( null, '', `/?page=jetpack-boost${ SETTINGS_ARG }#/` );
 		} );
 
 		expect( getSubpageMount()?.hidden ).toBe( true );
-		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
-		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: true } );
+		expect( mockNavigate ).not.toHaveBeenCalled();
 	} );
 
-	it( 'keeps Overview and both mount nodes across tab changes and subpage visits', () => {
+	it( 'keeps Overview and both mount nodes across scroll destinations and subpage visits', () => {
 		const { rerender } = render( <Stage /> );
 		const overview = screen.getByText( 'Performance Overview' );
 		const settingsMount = getSettingsMount();
 		const subpageMount = getSubpageMount();
 
 		for ( const url of [
-			'/?page=jetpack-boost&tab=settings',
-			'/?page=jetpack-boost&tab=settings#/critical-css-advanced',
-			'/?page=jetpack-boost&tab=settings#/',
+			`/?page=jetpack-boost${ SETTINGS_ARG }`,
+			`/?page=jetpack-boost${ SETTINGS_ARG }#/critical-css-advanced`,
+			`/?page=jetpack-boost${ SETTINGS_ARG }#/`,
 			'/?page=jetpack-boost',
 		] ) {
 			act( () => {
@@ -205,21 +282,54 @@ describe( 'Boost dashboard stage', () => {
 
 			expect( screen.getByText( 'Performance Overview' ) ).toBe( overview );
 			expect( screen.queryAllByRole( 'button', { name: 'Run speed test' } ) ).toHaveLength(
-				url === '/?page=jetpack-boost' ? 1 : 0
+				url.includes( 'critical-css-advanced' ) ? 0 : 1
 			);
 			expect( getSettingsMount() ).toBe( settingsMount );
 			expect( getSubpageMount() ).toBe( subpageMount );
 		}
 	} );
 
-	it( 'uses the route query when selecting a tab', () => {
-		render( <Stage /> );
+	it( 'keeps the section aligned during loading and stops when the user scrolls', () => {
+		window.history.replaceState( null, '', `/?page=jetpack-boost${ SETTINGS_ARG }` );
+		const { unmount } = render( <Stage /> );
+		mockScrollIntoView.mockClear();
+		act( () => resizeCallback( [], resizeObserver ) );
+		expect( mockScrollIntoView.mock.contexts[ 0 ] ).toBe(
+			screen.getByRole( 'region', { name: 'Optimize your speed' } )
+		);
+		act( () => window.dispatchEvent( new Event( 'wheel' ) ) );
+		expect( mockDisconnect ).toHaveBeenCalled();
+		unmount();
+	} );
 
-		// This suite uses fireEvent because Boost does not depend on user-event.
-		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'tab', { name: 'Settings' } ) );
+	it( 'stops following after a programmatic scroll until the next activation', () => {
+		const { rerender } = render( <Stage /> );
+		const content = screen.getByRole( 'region', { name: 'Optimize your speed' } ).parentElement!;
+		content.parentElement!.scrollTop = 900;
+		mockScrollIntoView.mockClear();
+		act( () => resizeCallback( [], resizeObserver ) );
+		expect( mockDisconnect ).toHaveBeenCalled();
+		expect( mockScrollIntoView ).not.toHaveBeenCalled();
 
-		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: false } );
+		content.parentElement!.scrollTop = 0;
+		act( () => resizeCallback( [], resizeObserver ) );
+		expect( mockScrollIntoView ).not.toHaveBeenCalled();
+
+		act( () => window.history.replaceState( null, '', `/?page=jetpack-boost${ SETTINGS_ARG }` ) );
+		rerender( <Stage /> );
+		expect( mockScrollIntoView ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'retires the loading observer after a bounded interval', () => {
+		jest.useFakeTimers();
+		const { unmount } = render( <Stage /> );
+		mockScrollIntoView.mockClear();
+		act( () => jest.advanceTimersByTime( 5000 ) );
+		expect( mockDisconnect ).toHaveBeenCalled();
+		act( () => resizeCallback( [], resizeObserver ) );
+		expect( mockScrollIntoView ).not.toHaveBeenCalled();
+		unmount();
+		jest.useRealTimers();
 	} );
 
 	it( 'shows a loader instead of Overview while onboarding', () => {
@@ -331,7 +441,7 @@ describe( 'Boost dashboard stage', () => {
 
 	it( 'does not re-navigate when the Settings redirect rewrites history', () => {
 		mockNavigate.mockImplementation( () => {
-			window.history.replaceState( null, '', '/?page=jetpack-boost&tab=settings#/' );
+			window.history.replaceState( null, '', `/?page=jetpack-boost${ SETTINGS_ARG }#/` );
 		} );
 		render( <Stage /> );
 

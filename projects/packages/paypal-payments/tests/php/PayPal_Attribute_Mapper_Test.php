@@ -497,6 +497,27 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 		$this->assertEquals( 'invalid_return_url', $result->get_error_code() );
 	}
 
+	/**
+	 * PayPal's limit: a return URL of 127 characters passes, one more is rejected.
+	 */
+	public function test_validate_caps_the_return_url_at_127_characters() {
+		$at_limit   = str_pad( 'https://example.com/', 127, 'a' );
+		$attributes = array(
+			'productName'  => 'Widget',
+			'price'        => '10.00',
+			'currencyCode' => 'USD',
+			'returnUrl'    => $at_limit,
+		);
+
+		$this->assertTrue( PayPal_Attribute_Mapper::validate_attributes( $attributes ) );
+
+		$attributes['returnUrl'] = $at_limit . 'a';
+		$result                  = PayPal_Attribute_Mapper::validate_attributes( $attributes );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'return_url_too_long', $result->get_error_code() );
+	}
+
 	// --- validate_attributes: valid complete ---
 
 	/**

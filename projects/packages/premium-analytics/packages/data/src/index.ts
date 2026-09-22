@@ -13,6 +13,13 @@ export * from './hooks';
 export { ensureDashboardEntities } from './entities/dashboard-entities';
 export { latestPostQuery, postContentQuery, postsContentQuery } from './queries/latest-post-query';
 export type { LatestPost, LatestPostResponse } from './processing/latest-post';
+export { authorSummaryQuery } from './queries/author-summary-query';
+export { authorPostsQuery } from './queries/author-posts-query';
+export type {
+	AuthorPostsRecord,
+	AuthorSummaryRecord,
+	AuthorSummaryResponse,
+} from './processing/author';
 export { statsInsightsQuery } from './queries/stats-insights-query';
 export { type StatsVideoPlaysSummaryParams } from './queries/stats-video-plays-summary-query';
 export {
@@ -50,6 +57,7 @@ export {
 	computeDateRangeFromPreset,
 	getApiErrorCode,
 	getApiErrorStatus,
+	findAuthorRow,
 	isAccessDenied,
 	isUserRetryableError,
 	saveBlob,

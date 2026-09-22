@@ -21,7 +21,8 @@ Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connect
 (not on front-end page views, REST, cron, `admin-ajax.php`, or `admin-post.php` — see
 `renders_admin_chrome()`). The dashboard is served from one URL,
 `?page=jetpack-premium-analytics-wp-admin` (`Analytics::MENU_PAGE_SLUG`), registered with
-`add_menu_page()` and gated on `Capabilities::VIEW_ANALYTICS`. REST requests reach the dashboard's data
+`Admin_Menu::add_top_level_menu()` so hosts can hide it via `jetpack_admin_menu_visibility`, and
+gated on `Capabilities::VIEW_ANALYTICS`. REST requests reach the dashboard's data
 without the build: `Dashboard_Support_Routes::boot_routes()` registers the routes on
 `rest_api_init`, and `ensure_widget_registry_ready()` loads the widget manifest lazily, when a
 route callback actually reads it. `@wordpress/boot` provides the SPA shell and routing; each route
@@ -75,7 +76,24 @@ packages.
 Add a route: create `routes/<name>/package.json` (with `route.path` + `route.page`) and a
 `stage.tsx` exporting `stage()`; rebuild — routes are auto-discovered.
 
+Add a dashboard section, from this package or from another plugin: hook
+`jetpack_premium_analytics_register_dashboard_sections` and call `register_dashboard_section()`
+there; the callback receives the registry being hydrated, for lookups such as
+`get_registered_by_slug()`. The section registry hydrates on its first read, from wp-admin or from
+REST, and fires that action once; `src/default-dashboard-sections.php` registers the package's own sections the same
+way. A section declares its default layout in the registration; the
+`jetpack_premium_analytics_dashboard_default_layout` filter lets another plugin add an instance to
+any section by id. `docs/dashboard-sections.md` walks through the whole path with diagrams.
+
 Depends on `jetpack-connection`, `jetpack-stats`, `jetpack-sync`, `jetpack-config`.
+
+### Timing-dependent JS tests use fake timers
+
+Any Jest test that waits on time — `waitFor`, React Query updates, debounces, `setTimeout` — must
+call `jest.useFakeTimers()` and restore with `jest.useRealTimers()` in `afterEach`. On real timers
+a stalled CI runner can push the update past `waitFor`'s 1s deadline and flake the test. Tests
+driving `userEvent` also need `userEvent.setup( { advanceTimers: jest.advanceTimersByTime } )`.
+See `widgets/wordads-chart-tabs/__tests__/wordads-chart-tabs.test.tsx`.
 
 ## API
 
@@ -145,12 +163,14 @@ Which one says yes also decides how many tabs the dashboard offers: the site's o
 customer preview and exposes only the sections in `PREVIEW_SECTIONS`, while a sticker or filter
 override exposes every section the site qualifies for. `jetpack_premium_analytics_dashboard_preview_scope`
 overrides that per section — `__return_true` gives a development or test site the whole dashboard.
+The `premium-analytics-a11n-all-sections` flag does the same for Automatticians only; see
+`docs/dashboard-sections.md`.
 
 The same list the tab bar gets over REST also reaches the client as
 `premium_analytics.preview_sections` in the script data, which is what keeps `/reports/…` out of a
 scoped preview: each report declares the tab it belongs to, and `getReportDefinition()` treats one
-behind a hidden tab as unknown. The two detail routes follow their own report (`posts`, `videos`)
-rather than declaring a tab.
+behind a hidden tab as unknown. The detail routes follow their own report (`posts`, `videos`,
+`authors`) rather than declaring a tab.
 
 ### Route guards must use the shared site-readiness helpers
 

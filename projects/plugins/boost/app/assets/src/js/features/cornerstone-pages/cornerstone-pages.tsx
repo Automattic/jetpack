@@ -19,6 +19,12 @@ const CornerstonePages = () => {
 					title={
 						<div>
 							<h3>{ __( 'Cornerstone Pages', 'jetpack-boost' ) }</h3>
+							<p className={ styles.description }>
+								{ __(
+									'Choose the pages that matter most on your site so Boost can give them its most targeted optimizations.',
+									'jetpack-boost'
+								) }
+							</p>
 							{ summary }
 						</div>
 					}
@@ -45,7 +51,7 @@ const CornerstonePages = () => {
 	);
 };
 
-export const useCornerstoneSummary = () => {
+export const useCornerstoneSummary = ( includeLabel = true ) => {
 	const [ cornerstonePages ] = useCustomCornerstonePages();
 	if ( ! Array.isArray( cornerstonePages ) ) {
 		return null;
@@ -64,6 +70,10 @@ export const useCornerstoneSummary = () => {
 					),
 					cornerstonePages.length
 				);
+
+	if ( ! includeLabel ) {
+		return pages;
+	}
 
 	return sprintf(
 		/* translators: %s is the number of pages in the custom cornerstone pages list. */

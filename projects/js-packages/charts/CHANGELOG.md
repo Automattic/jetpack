@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.0] - 2026-09-18
+### Added
+- Bar chart: Add a beside tooltip placement that flips only horizontally. [#52234]
+- Bar chart: Add an optional band highlight. [#52234]
+- Bar chart: Support individual data point colors. [#52234]
+- Heatmap: add `columnGroups` for labeled, gapped column runs, a `keyboardNavigation="calendar"` mode that steps by day, week and month, and `buildMonthCalendarHeatmapData` / `useMonthCalendarHeatmapData`, which draw a date-keyed map as one month calendar per month on a shared scale. The column-label row is omitted when no column has a label, the grid takes an `ariaLabel`, the keyboard selection scrolls into view, calendar labels stay Gregorian under any locale, and `CompleteChartTheme.heatmapChart` gains a required `groupGap`. [#52259]
+- Heatmap chart: Add `tooltipVariant="dark"`, which draws the tooltip on the package's dark tooltip surface, `tooltipStyle` for inline box overrides, and a `variant="bar"` legend that joins the scale steps into one continuous band. [#52368]
+
+### Changed
+- Update package dependencies. [#52187]
+- Update package dependencies. [#52401]
+
+### Fixed
+- Bar chart: Align grid lines with axis ticks (explicit or derived). [#52234]
+- Bar chart: Return focus to the chart after pressing Escape. [#52234]
+- Bar chart: Select the bar under the pointer for tooltips and pointer callbacks. [#52234]
+- Keep keyboard focus on the first or last data point when an arrow key reaches the end of a chart, return focus to the chart when Escape closes a tooltip, skip hidden series during bar chart keyboard navigation, stop a focused chart from swallowing keys it does not use such as Page Down, and close the tooltip when the series it describes is hidden. [#50140]
+
 ## [4.1.1] - 2026-09-15
 ### Changed
 - Update package dependencies. [#52297]
@@ -1071,6 +1089,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[4.2.0]: https://github.com/Automattic/charts/compare/v4.1.1...v4.2.0
 [4.1.1]: https://github.com/Automattic/charts/compare/v4.1.0...v4.1.1
 [4.1.0]: https://github.com/Automattic/charts/compare/v4.0.0...v4.1.0
 [4.0.0]: https://github.com/Automattic/charts/compare/v3.2.0...v4.0.0

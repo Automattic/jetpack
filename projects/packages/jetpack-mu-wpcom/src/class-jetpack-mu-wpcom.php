@@ -133,6 +133,9 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'init', array( __CLASS__, 'schedule_translation_updates' ) );
 		}
 
+		// Premium Analytics offers the Ads tab wherever the plan includes WordAds, on Simple and Atomic.
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_premium_analytics_wordads_section' ) );
+
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
 
@@ -401,6 +404,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
 		require_once __DIR__ . '/features/wpcom-post-list/wpcom-post-types-tracking.php';
+		require_once __DIR__ . '/features/wpcom-unified-admin-page-view/wpcom-unified-admin-page-view.php';
 		require_once __DIR__ . '/features/wpcom-widgets/wpcom-widgets.php';
 		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
 
@@ -433,6 +437,14 @@ class Jetpack_Mu_Wpcom {
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\AI_Launchpad::init();
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Holiday_Snow::init();
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Dashboard::init();
+
+		// The front-end Action Bar lives in the jetpack-newsletter package, which mu-wpcom does not
+		// composer-require; the class comes from the sibling Jetpack autoloader. Not in
+		// load_wpcom_user_features(): logged-out visitors are the bar's main audience.
+		if ( class_exists( '\Automattic\Jetpack\Newsletter\Action_Bar' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			\Automattic\Jetpack\Newsletter\Action_Bar::init();
+		}
 
 		// Gets autoloaded from the Scheduled_Updates package.
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
@@ -968,6 +980,18 @@ class Jetpack_Mu_Wpcom {
 				'menu_title' => fn () => __( 'Stats v2', 'jetpack-mu-wpcom' ),
 			)
 		);
+	}
+
+	/**
+	 * Register the Ads tab of the Premium Analytics dashboard by plan feature.
+	 *
+	 * Hooks the dashboard's registry action, which only fires once the package boots, so this
+	 * is inert on a site without the dashboard.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function load_premium_analytics_wordads_section() {
+		require_once __DIR__ . '/features/premium-analytics/wordads-section.php';
 	}
 
 	/**

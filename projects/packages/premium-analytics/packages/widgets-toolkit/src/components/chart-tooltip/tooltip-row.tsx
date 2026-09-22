@@ -2,29 +2,24 @@
  * External dependencies
  */
 import { Stack } from '@jetpack-premium-analytics/externals';
-import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import { MetricValue } from '../metric-value';
 import styles from './chart-tooltip.module.scss';
+import { exactFormatOf } from './utils';
 import type { DataFormat } from '../../types';
 
 export type TooltipRowProps = {
 	/** Pre-rendered indicator element (LineShape, RectShape, etc.) */
 	indicator: React.ReactNode;
 	label: string;
-	value: number;
+	/** Omit when the label already carries the value. */
+	value?: number;
 	dataFormat: DataFormat;
 };
 
 export function TooltipRow( { indicator, label, value, dataFormat }: TooltipRowProps ) {
-	// The tooltip is where a compact chart value gets spelled out in full.
-	const exactFormat = useMemo(
-		() => ( { ...dataFormat, options: { ...dataFormat.options, useMultipliers: false } } ),
-		[ dataFormat ]
-	);
-
 	return (
 		<Stack
 			direction="row"
@@ -37,12 +32,14 @@ export function TooltipRow( { indicator, label, value, dataFormat }: TooltipRowP
 
 			<div className={ styles.label }>{ label }</div>
 
-			<MetricValue
-				value={ value }
-				dataFormat={ exactFormat }
-				fontSize="sm"
-				className={ styles.value }
-			/>
+			{ value !== undefined && (
+				<MetricValue
+					value={ value }
+					dataFormat={ exactFormatOf( dataFormat ) }
+					fontSize="sm"
+					className={ styles.value }
+				/>
+			) }
 		</Stack>
 	);
 }

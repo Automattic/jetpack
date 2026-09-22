@@ -55,6 +55,8 @@ export interface UserData {
  * Data My Jetpack prints on every Jetpack admin page, so other packages can link into it.
  */
 export interface MyJetpackScriptData {
+	/** Whether My Jetpack initialized and its admin page is reachable by the current user. */
+	isAvailable?: boolean;
 	/** Site editor state. Only on the My Jetpack page. */
 	siteEditor?: {
 		isBlockTheme: boolean;
