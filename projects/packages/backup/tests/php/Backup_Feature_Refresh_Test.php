@@ -113,23 +113,50 @@ class Backup_Feature_Refresh_Test extends TestCase {
 	}
 
 	/**
-	 * That read ignores a fresh answer, which a My Jetpack render may have just cached.
+	 * An entitled site opening the page asks nothing: it already has its answer.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_opening_the_page_refreshes_even_with_a_fresh_answer() {
+	public function test_opening_the_page_with_the_feature_asks_nothing() {
 		$this->arrange_wpcom_features( array( 'backups-self-serve' ) );
 		Jetpack_Backup::initialize( array( 'require_backup_plan' => true ) );
-		$this->arrange_stored_answer( false );
-		My_Jetpack_Product::get_site_features_from_wpcom();
+		$this->arrange_stored_answer( true );
 		$this->enter_backup_admin_request();
 
 		Jetpack_Backup::maybe_refresh_backup_feature_check();
 
+		$this->assertSame( array(), $this->captured_urls );
+	}
+
+	/**
+	 * The checkout return: the plan that arrived is seen past the cache that predates it.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_opening_the_page_looks_past_a_cache_from_before_the_purchase() {
+		$this->arrange_wpcom_answers(
+			array(
+				array( 'body' => $this->features_body( array() ) ),
+				array( 'body' => $this->features_body( array( 'backups-self-serve' ) ) ),
+			)
+		);
+		Jetpack_Backup::initialize( array( 'require_backup_plan' => true ) );
+
+		// The My Jetpack render that sent them to checkout, caching the plan they had then.
+		My_Jetpack_Product::get_site_features_from_wpcom();
+		$this->assertFalse( Backup_Feature_Check::has_backup() );
+
+		$this->enter_backup_admin_request();
+		Jetpack_Backup::maybe_refresh_backup_feature_check();
+
 		$this->assertCount( 2, $this->captured_urls );
+		$this->assertTrue( Backup_Feature_Check::has_backup() );
 	}
 
 	/**
@@ -182,6 +209,22 @@ class Backup_Feature_Refresh_Test extends TestCase {
 				'active'    => $active,
 				'available' => array(),
 			)
+		);
+	}
+
+	/**
+	 * A site features response body with this active list.
+	 *
+	 * @param string[] $active The site's active features.
+	 * @return string
+	 */
+	private function features_body( array $active ) {
+		return (string) wp_json_encode(
+			array(
+				'active'    => $active,
+				'available' => array(),
+			),
+			JSON_UNESCAPED_SLASHES
 		);
 	}
 

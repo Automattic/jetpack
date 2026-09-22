@@ -244,8 +244,8 @@ class Jetpack_Backup {
 	/**
 	 * Re-read the Backup feature check while the menu is being built.
 	 *
-	 * The two deliberately synchronous reads, because each decides whether the page about
-	 * to render is registered at all: the checkout's own return, and a site never asked.
+	 * Only when the stored answer is no, since that is the one about to turn someone away:
+	 * a purchase that just completed, or a site nobody has asked about yet.
 	 *
 	 * @return void
 	 */
@@ -253,6 +253,12 @@ class Jetpack_Backup {
 		// `admin_menu` fires before WordPress checks who may see the page, so without the
 		// capability check any logged-in user could drive this unthrottled remote read.
 		if ( ! self::$require_backup_plan || ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		// An entitled site already draws both, and the refresh `has_backup()` queues for
+		// after the response keeps that answer current without anyone waiting on it.
+		if ( Backup_Feature_Check::has_backup() ) {
 			return;
 		}
 
