@@ -92,7 +92,7 @@ export { monthlyHeatmapLifeStart } from './monthly-heatmap-life-start';
 export { monthRange, yearRange, type PeriodBounds } from './period-range';
 export { siteChartFormatting } from './site-chart-formatting';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
-export { formatTooltipSeriesLabel } from './format-tooltip-series-label';
+export { formatTooltipPointLabel } from './format-tooltip-point-label';
 export { resolveSeriesNames, type ResolvedSeriesNames } from './resolve-series-names';
 export { appendTooltipExtras, resolveTooltipNames } from './tooltip-extras';
 export {

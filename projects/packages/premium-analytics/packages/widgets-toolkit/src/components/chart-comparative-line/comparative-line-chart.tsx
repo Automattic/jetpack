@@ -22,7 +22,7 @@ import { type ComponentProps } from 'react';
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
 	appendTooltipExtras,
-	formatTooltipSeriesLabel,
+	formatTooltipPointLabel,
 	isEmptyChartData,
 	getFixedYAxis,
 	dateFormatForResolution,
@@ -187,7 +187,7 @@ export function ComparativeLineChart( {
 		[ stylesProp, series ]
 	);
 
-	const { seriesNames, isPaired } = useMemo( () => resolveSeriesNames( series ), [ series ] );
+	const { seriesNames } = useMemo( () => resolveSeriesNames( series ), [ series ] );
 	// A legend item names a metric; the solid mark against its previous-period twin is
 	// what tells the periods apart, so a metric's two periods always collapse into one.
 	const legendConfig = useMemo(
@@ -195,23 +195,25 @@ export function ComparativeLineChart( {
 		[ legendInteractive ]
 	);
 
-	const { names: tooltipNames, namesRows } = useMemo(
-		() => resolveTooltipNames( seriesNames, isPaired, tooltipExtras ),
-		[ seriesNames, isPaired, tooltipExtras ]
+	const tooltipNames = useMemo(
+		() => resolveTooltipNames( seriesNames, tooltipExtras ),
+		[ seriesNames, tooltipExtras ]
 	);
 
 	// Comparison points share the primary series' dates, so the tooltip reads back
-	// `realDate`; multi-metric charts also prefix each row so two rows don't share a date.
+	// `realDate`.
 	const getTooltipLabel = useCallback(
-		( datum: { date: Date; realDate?: Date }, _index: number, key: string ): string => {
-			const name = tooltipNames.get( key );
+		(
+			datum: { date: Date; realDate?: Date },
+			_index: number,
+			key: string,
+			value: string
+		): string => {
 			const displayDate = datum.realDate ?? datum.date;
 			const date = formatTooltipDate( displayDate, tooltipDateFormat );
-			// Without a name the row would otherwise lead with an internal label,
-			// so fall back to the date, which is always meaningful.
-			return namesRows && name ? formatTooltipSeriesLabel( name, date ) : date;
+			return formatTooltipPointLabel( value, tooltipNames.get( key ) ?? key, date );
 		},
-		[ tooltipNames, namesRows, formatTooltipDate, tooltipDateFormat ]
+		[ tooltipNames, formatTooltipDate, tooltipDateFormat ]
 	);
 
 	// `resolvedStyles` follows `series`; the tooltip's rows need not, so pair them
@@ -232,6 +234,7 @@ export function ComparativeLineChart( {
 					seriesStyles={ resolvedStyles }
 					seriesKeys={ seriesKeys }
 					indicatorType="line"
+					layout="inline"
 					supplementaryRows={ supplementaryRows }
 					getLabel={ getTooltipLabel }
 				/>
