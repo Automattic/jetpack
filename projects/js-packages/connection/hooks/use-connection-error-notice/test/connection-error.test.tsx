@@ -102,7 +102,8 @@ describe( 'ConnectionError', () => {
 			context: 'protect',
 			error_code: 'xmlrpc_request_blocked',
 			audience: 'site',
-			link_url: 'https://example.com/site-health',
+			// Stripped to a path — the per-site host and any query never reach Tracks.
+			link_url: '/site-health',
 		} );
 		expect( trackingCallback ).toHaveBeenCalledWith(
 			'jetpack_connection_error_notice_support_link_click',

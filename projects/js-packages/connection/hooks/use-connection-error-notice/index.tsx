@@ -190,10 +190,19 @@ export default function useConnectionErrorNotice( {
 			const source =
 				displayableErrors.find( error => error.error_data?.notice_link?.url === link.url ) ??
 				actionError;
+			// Report only the path, never the per-site absolute URL: the host, any
+			// query string, and (under the `jetpack_connection_get_verified_errors`
+			// filter) a possible token must not reach Tracks.
+			let linkPath: string | null;
+			try {
+				linkPath = new URL( link.url, window.location.href ).pathname;
+			} catch {
+				linkPath = null;
+			}
 			trackConnectionErrorNoticeEvent(
 				CONNECTION_ERROR_NOTICE_EVENTS.noticeLink,
 				{ trackingCallback, trackingContext, error: source },
-				{ link_url: link.url }
+				{ link_url: linkPath }
 			);
 		},
 		[ trackingCallback, trackingContext, displayableErrors, actionError ]

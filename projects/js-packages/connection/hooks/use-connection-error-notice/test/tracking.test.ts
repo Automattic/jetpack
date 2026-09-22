@@ -75,4 +75,19 @@ describe( 'trackConnectionErrorNoticeEvent', () => {
 			} )
 		).not.toThrow();
 	} );
+
+	it( 'drops a non-canonical event on the no-callback branch, but a callback still gets it', () => {
+		// A server-supplied event name that reached the tracker without a callback
+		// must never be recorded straight to Tracks…
+		trackConnectionErrorNoticeEvent( 'jetpack_evil_injected_event', {} );
+		expect( mockRecordEvent ).not.toHaveBeenCalled();
+
+		// …but a consumer that wired its own callback owns that decision.
+		const trackingCallback = jest.fn();
+		trackConnectionErrorNoticeEvent( 'jetpack_evil_injected_event', { trackingCallback } );
+		expect( trackingCallback ).toHaveBeenCalledWith(
+			'jetpack_evil_injected_event',
+			expect.objectContaining( { context: null } )
+		);
+	} );
 } );

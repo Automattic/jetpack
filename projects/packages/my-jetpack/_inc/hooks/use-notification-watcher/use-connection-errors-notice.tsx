@@ -30,7 +30,7 @@ const NO_ACTION_HANDLERS: Record< string, ( error: ConnectionErrorObject ) => vo
  *
  * @param {object}                    props         - Component props.
  * @param {ConnectionErrorNoticeLink} props.link    - The link to render.
- * @param {Function}                  props.onClick - Click handler.
+ * @param {Function}                  props.onClick - Optional click handler.
  * @return {React.ReactElement} The rendered link.
  */
 const NoticeLink = ( {
@@ -38,9 +38,12 @@ const NoticeLink = ( {
 	onClick,
 }: {
 	link: ConnectionErrorNoticeLink;
-	onClick: ( link: ConnectionErrorNoticeLink ) => void;
+	// Optional so that during a Jetpack update, an older shared jetpack-connection
+	// copy whose hook predates `trackNoticeLinkClick` degrades to no tracking
+	// rather than a TypeError on click.
+	onClick?: ( link: ConnectionErrorNoticeLink ) => void;
 } ) => {
-	const handleClick = useCallback( () => onClick( link ), [ link, onClick ] );
+	const handleClick = useCallback( () => onClick?.( link ), [ link, onClick ] );
 
 	return (
 		<Text mt={ 1 }>

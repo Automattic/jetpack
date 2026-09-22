@@ -45,18 +45,26 @@ export function trackConnectionErrorNoticeEvent(
 	extra: object = {}
 ): void {
 	const payload = {
-		context: trackingContext ?? null,
-		// The payload is server-shaped, so report a code only when it truly is one
-		// rather than sending Tracks whatever arrived.
-		error_code: typeof error?.error_code === 'string' ? error.error_code : null,
-		audience: error?.audience ?? 'site',
+		// `extra` first so the guarded standard fields below always win over any
+		// same-named key an event-specific addition might carry.
 		...extra,
+		context: trackingContext ?? null,
+		// The payload is server-shaped, so report these only when they truly are
+		// strings rather than sending Tracks whatever arrived.
+		error_code: typeof error?.error_code === 'string' ? error.error_code : null,
+		audience: typeof error?.audience === 'string' ? error.audience : 'site',
 	};
 
 	try {
 		if ( trackingCallback ) {
 			trackingCallback( event, payload );
-		} else {
+		} else if (
+			( Object.values( CONNECTION_ERROR_NOTICE_EVENTS ) as string[] ).includes( event )
+		) {
+			// The no-callback branch records straight to Tracks, so it fires only the
+			// canonical events — never a server-supplied event name that reached here
+			// via an error's `tracking_event`. A consumer with its own callback owns
+			// that decision itself.
 			jetpackAnalytics.tracks.recordEvent( event, payload );
 		}
 	} catch {

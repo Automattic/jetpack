@@ -1,5 +1,6 @@
 import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import ConnectionErrorNotice from '../index';
 import type { ActionItem } from '../types';
 
@@ -200,6 +201,39 @@ describe( 'ConnectionErrorNotice', () => {
 		render( <ConnectionErrorNotice message="Something is off." showSupportLink /> );
 
 		expect( screen.getAllByText( /Still having trouble\?/ ).length ).toBeGreaterThan( 0 );
+	} );
+
+	// Exercises the real DOM wiring the package adds — a hand-called handler would
+	// pass even if the onClick were never attached to the rendered links.
+	it( 'fires the notice-link and support-link callbacks on a real click', async () => {
+		const onNoticeLinkClick = jest.fn();
+		const onSupportLinkClick = jest.fn();
+		const link = { label: 'Visit Site Health', url: '/wp-admin/site-health.php' };
+
+		render(
+			<ConnectionErrorNotice
+				showSupportLink
+				onSupportLinkClick={ onSupportLinkClick }
+				onNoticeLinkClick={ onNoticeLinkClick }
+				errorGroups={ [
+					{ message: 'Blocked.', errors: [], detailLines: [], noticeLinks: [ link ] },
+				] }
+			/>
+		);
+
+		// The click callbacks still fire; this only stops jsdom's real anchor
+		// navigation (which logs an unexpected console.error the harness fails on).
+		const cancelNavigation = ( event: MouseEvent ) => event.preventDefault();
+		document.addEventListener( 'click', cancelNavigation );
+		try {
+			await userEvent.click( screen.getByRole( 'link', { name: 'Visit Site Health' } ) );
+			await userEvent.click( screen.getByRole( 'link', { name: /Contact Jetpack Support/ } ) );
+		} finally {
+			document.removeEventListener( 'click', cancelNavigation );
+		}
+
+		expect( onNoticeLinkClick ).toHaveBeenCalledWith( link );
+		expect( onSupportLinkClick ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'renders nothing when there is neither a message nor a group', () => {

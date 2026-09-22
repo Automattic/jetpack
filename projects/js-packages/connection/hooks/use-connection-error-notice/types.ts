@@ -175,10 +175,14 @@ export interface UseConnectionErrorNoticeResult {
 	 * Track a click on a notice-body link (e.g. "Visit Site Health"). Consumers
 	 * that render `errorGroups[].noticeLinks` themselves call this from the link's
 	 * `onClick`; the package's own `<ConnectionError />` wires it for them.
+	 *
+	 * Optional: a consumer can be built against a newer copy of this package than
+	 * the shared runtime one the Jetpack autoloader resolves at update time, so
+	 * callers must tolerate its absence rather than assume it.
 	 */
-	trackNoticeLinkClick: ( link: ConnectionErrorNoticeLink ) => void;
-	/** Track a click on the "Contact Jetpack Support" link. */
-	trackSupportLinkClick: () => void;
+	trackNoticeLinkClick?: ( link: ConnectionErrorNoticeLink ) => void;
+	/** Track a click on the "Contact Jetpack Support" link. Optional; see `trackNoticeLinkClick`. */
+	trackSupportLinkClick?: () => void;
 	/** Initiates a connection restore (or reconnect when restore is not possible). */
 	restoreConnection: RestoreConnection;
 	/** Whether a connection restore is currently in progress. */
