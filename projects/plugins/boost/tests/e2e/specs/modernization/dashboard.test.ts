@@ -145,6 +145,8 @@ test.describe( 'Dashboard modernization', () => {
 			page,
 		} ) => {
 			await boostUtils.setDashboardModernization( true );
+			// Compact Settings must exceed the viewport to exercise deep-link scrolling.
+			await page.setViewportSize( { width: 1280, height: 900 } );
 			await jetpackBoostPage.visit();
 			await page.goto( `${ page.url().split( '#' )[ 0 ] }${ destination }` );
 			const section = page.getByRole( 'region', { name: 'Optimize your speed' } );
