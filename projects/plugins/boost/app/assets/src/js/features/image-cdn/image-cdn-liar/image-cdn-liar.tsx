@@ -46,7 +46,7 @@ export default function ImageCdnLiar( { isPremium }: ImageCdnLiarProps ) {
 				<ToggleControl
 					label={ __( 'Auto-Resize Lazy Images', 'jetpack-boost' ) }
 					help={ __(
-						'Automatically resize images that are lazily loaded to fit the exact dimensions they occupy on the page.',
+						'Resize lazy-loaded images to match their displayed dimensions.',
 						'jetpack-boost'
 					) }
 					checked={ imageCdnLiar }
