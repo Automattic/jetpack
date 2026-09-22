@@ -88,9 +88,8 @@ function OverviewContent( {
 		historyAvailable && isVisible && opensEmpty,
 		olderRanges
 	);
-	const hasOlderHistory = opensEmpty
-		? ! olderHistory.isError && olderHistory.data === true
-		: undefined;
+	const hasOlderHistory =
+		history.isSuccess && ( ! opensEmpty || ( ! olderHistory.isError && olderHistory.data === true ) );
 	const queryClient = useQueryClient();
 	const online = isSiteOnline();
 	const isLoading = scoreState.status === 'loading';

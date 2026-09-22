@@ -975,6 +975,39 @@ test.each( [ 'pending', 'error' ] )(
 	}
 );
 
+test.each( [ 'pending', 'error' ] )(
+	'keeps Previous disabled and shows the date range when initial history is %s',
+	async status => {
+		window.jetpack_boost_ds!.dismissed_alerts!.value = { performance_history_fresh_start: false };
+		const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
+		jest.mocked( apiFetch ).mockImplementation( options => {
+			if ( options.url?.endsWith( '/performance-history/set' ) ) {
+				return status === 'pending'
+					? new Promise( () => {} )
+					: Promise.reject( new Error( 'History unavailable' ) );
+			}
+			return fetch( options );
+		} );
+		const { client } = renderOverview();
+		const { startDate, endDate } = getHistoryWindow( 0 );
+		await waitFor( () =>
+			expect(
+				client.getQueryState( [ 'performance_history', startDate, endDate ] )?.status
+			).toBe( status )
+		);
+		expect(
+			screen.getByText(
+				`${ dateI18n( 'M j', startDate, false ) } – ${ dateI18n( 'M j, Y', endDate, false ) }`
+			)
+		).toBeInTheDocument();
+		const previous = screen.getByRole( 'button', { name: 'Previous 30 days' } );
+		expect( previous ).toHaveAttribute( 'aria-disabled', 'true' );
+		jest.mocked( apiFetch ).mockClear();
+		fireEvent.click( previous );
+		expect( apiFetch ).not.toHaveBeenCalled();
+	}
+);
+
 test( 'debounces optimization changes and waits for generation to finish', async () => {
 	jest.useFakeTimers();
 	try {
