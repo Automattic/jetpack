@@ -1,6 +1,7 @@
 <?php
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Stats_Admin\TestCase as Stats_TestCase;
 
 /**
@@ -43,6 +44,21 @@ class Odyssey_Config_Data_Test extends Stats_TestCase {
 		$this->assertArrayHasKey( 'site_name', $data );
 		$this->assertArrayHasKey( 'intial_state', $data );
 		$this->assertArrayHasKey( 'is_running_in_jetpack_site', $data['features'] );
+		$this->assertTrue( $data['intial_state']['sites']['items']['999']['options']['has_stats_settings'] );
+	}
+
+	/**
+	 * On Simple sites the Stats app talks to WordPress.com, so it cannot use this package's settings route.
+	 */
+	public function test_config_data_does_not_offer_the_settings_tab_on_simple_sites() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		try {
+			$data = ( new Odyssey_Config_Data() )->get_data();
+		} finally {
+			Constants::clear_single_constant( 'IS_WPCOM' );
+		}
+
+		$this->assertFalse( $data['intial_state']['sites']['items']['999']['options']['has_stats_settings'] );
 	}
 
 	/**

@@ -1084,6 +1084,19 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertFalse( $result['settings']['admin_bar'] );
 	}
 
+	public function test_update_settings_refuses_a_save_that_did_not_persist(): void {
+		$keep_stored = static function ( $value, $old_value ) {
+			return $old_value;
+		};
+		add_filter( 'pre_update_option_stats_options', $keep_stored, 10, 2 );
+
+		$result = Stats_Abilities::update_settings( array( 'admin_bar' => false ) );
+		remove_filter( 'pre_update_option_stats_options', $keep_stored, 10 );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_stats_save_failed', $result->get_error_code() );
+	}
+
 	public function test_update_settings_is_idempotent_for_current_state(): void {
 		$before = Stats_Abilities::get_settings();
 		$result = Stats_Abilities::update_settings( array( 'admin_bar' => $before['admin_bar'] ) );

@@ -434,6 +434,41 @@ class REST_Controller_Test extends Stats_TestCase {
 		$this->assertSame( array( 'administrator' ), Stats_Options::get_option( 'roles' ) );
 	}
 
+	public function test_settings_read_leaves_out_roles_hidden_from_editable_roles() {
+		wp_set_current_user( $this->admin_id );
+		$hide_editor = static function ( $roles ) {
+			unset( $roles['editor'] );
+			return $roles;
+		};
+		add_filter( 'editable_roles', $hide_editor );
+
+		$response = $this->dispatch_settings_request( 'GET' );
+		remove_filter( 'editable_roles', $hide_editor );
+
+		$this->assertNotContains( 'editor', wp_list_pluck( $response->get_data()['roles'], 'slug' ) );
+	}
+
+	public function test_settings_save_with_a_misspelled_setting_is_refused() {
+		wp_set_current_user( $this->admin_id );
+
+		$response = $this->dispatch_settings_request( 'POST', array( 'adminbar' => false ) );
+
+		$this->assertSame( 400, $response->get_status() );
+	}
+
+	public function test_settings_save_reports_reader_views_that_did_not_persist() {
+		wp_set_current_user( $this->admin_id );
+		$keep_stored = static function ( $value, $old_value ) {
+			return $old_value;
+		};
+		add_filter( 'pre_update_option_wpcom_reader_views_enabled', $keep_stored, 10, 2 );
+
+		$response = $this->dispatch_settings_request( 'POST', array( 'wpcom_reader_views_enabled' => false ) );
+		remove_filter( 'pre_update_option_wpcom_reader_views_enabled', $keep_stored, 10 );
+
+		$this->assertSame( 400, $response->get_status() );
+	}
+
 	/**
 	 * Send a request to the Stats settings route.
 	 *

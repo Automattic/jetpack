@@ -29,19 +29,6 @@ class Stats_Abilities extends Registrar {
 	const ERROR_PREFIX  = 'jetpack_stats_';
 
 	/**
-	 * Whitelist of stats_options keys exposed via the settings abilities.
-	 *
-	 * Internal keys (`blog_id`, `notices`, `views`, `collapse_nudges`,
-	 * `version`, `odyssey_stats_changed_at`) are deliberately excluded —
-	 * agents can't act on them and they'd bloat the response.
-	 * `enable_odyssey_stats` is also excluded: it's a UI dashboard toggle
-	 * with no meaningful agent use case. The per-key type (bool /
-	 * role-array) is read from `Options::get_defaults()` at runtime, not
-	 * duplicated here.
-	 */
-	const SETTINGS_KEYS = array( 'admin_bar', 'roles', 'count_roles', 'do_not_track' );
-
-	/**
 	 * Allowed `type` values for `get-top-content`.
 	 */
 	const TOP_CONTENT_TYPES = array( 'posts', 'referrers', 'search-terms', 'clicks', 'tags', 'authors', 'countries', 'downloads', 'video-plays' );
@@ -884,7 +871,7 @@ class Stats_Abilities extends Registrar {
 	 */
 	public static function get_settings( $input = null ) {
 		unset( $input );
-		return Settings::get( self::SETTINGS_KEYS );
+		return Settings::get( Settings::KEYS );
 	}
 
 	/**
@@ -894,7 +881,7 @@ class Stats_Abilities extends Registrar {
 	 * @return array|WP_Error
 	 */
 	public static function update_settings( $input = null ) {
-		return Settings::update( is_array( $input ) ? $input : array(), self::SETTINGS_KEYS );
+		return Settings::update( is_array( $input ) ? $input : array(), Settings::KEYS );
 	}
 
 	/*

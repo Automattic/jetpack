@@ -16,6 +16,13 @@ class Settings {
 	const ERROR_PREFIX = 'jetpack_stats_';
 
 	/**
+	 * The `stats_options` keys a site owner can change. Each key's type comes from `Options::get_defaults()`.
+	 *
+	 * @var string[]
+	 */
+	const KEYS = array( 'admin_bar', 'roles', 'count_roles', 'do_not_track' );
+
+	/**
 	 * Get the current values of some `stats_options` keys.
 	 *
 	 * @param string[] $keys The keys to read.
@@ -131,12 +138,19 @@ class Settings {
 			$changes[ $key ] = $value;
 		}
 
-		// `changed` compares the values read before and after the write, so a write that did not persist is not reported.
 		if ( ! empty( $changes ) ) {
 			Options::set_options( $changes );
 		}
 
 		$after = self::get( $keys );
+		foreach ( $changes as $key => $value ) {
+			if ( $after[ $key ] !== $value ) {
+				return new WP_Error(
+					self::ERROR_PREFIX . 'save_failed',
+					__( 'The Stats settings could not be saved.', 'jetpack-stats-pkg' )
+				);
+			}
+		}
 
 		return array(
 			'changed'  => $after !== $before,

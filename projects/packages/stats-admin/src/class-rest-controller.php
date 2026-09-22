@@ -25,13 +25,6 @@ class REST_Controller {
 	const JETPACK_STATS_DASHBOARD_MODULE_SETTINGS_CACHE_KEY = 'jetpack_stats_dashboard_module_settings_cache_key';
 
 	/**
-	 * The `stats_options` keys the Stats settings screen can change.
-	 *
-	 * @var string[]
-	 */
-	const STATS_SETTINGS_KEYS = array( 'admin_bar', 'roles', 'count_roles' );
-
-	/**
 	 * Namespace for the REST API.
 	 *
 	 * @var string
@@ -189,17 +182,25 @@ class REST_Controller {
 					'callback'            => array( $this, 'update_stats_settings' ),
 					'permission_callback' => array( $this, 'can_user_manage_stats_settings_callback' ),
 					'args'                => array(
-						'admin_bar'                  => array( 'type' => 'boolean' ),
+						'admin_bar'                  => array(
+							'description' => 'Show a chart of the last 48 hours of views in the admin bar',
+							'type'        => 'boolean',
+						),
 						'roles'                      => array(
-							'type'     => 'array',
-							'items'    => array( 'type' => 'string' ),
-							'minItems' => 1,
+							'description' => 'Roles that can view Stats',
+							'type'        => 'array',
+							'items'       => array( 'type' => 'string' ),
+							'minItems'    => 1,
 						),
 						'count_roles'                => array(
-							'type'  => 'array',
-							'items' => array( 'type' => 'string' ),
+							'description' => 'Roles whose logged-in page views are counted',
+							'type'        => 'array',
+							'items'       => array( 'type' => 'string' ),
 						),
-						'wpcom_reader_views_enabled' => array( 'type' => 'boolean' ),
+						'wpcom_reader_views_enabled' => array(
+							'description' => 'Show post views in the WordPress.com Reader',
+							'type'        => 'boolean',
+						),
 					),
 				),
 			)
@@ -831,10 +832,23 @@ class REST_Controller {
 	 */
 	public function update_stats_settings( $req ) {
 		$params = $req->get_params();
+		$keys   = self::get_stats_settings_keys();
 
-		$stats_values = array_intersect_key( $params, array_flip( self::STATS_SETTINGS_KEYS ) );
+		$stats_values = array_intersect_key( $params, array_flip( $keys ) );
+		if ( empty( $stats_values ) && ! isset( $params['wpcom_reader_views_enabled'] ) ) {
+			return new WP_Error(
+				'jetpack_stats_missing_setting_field',
+				sprintf(
+					/* translators: %s: comma-separated list of the settings that can be changed. */
+					__( 'Provide at least one of: %s.', 'jetpack-stats-admin' ),
+					implode( ', ', array_merge( $keys, array( 'wpcom_reader_views_enabled' ) ) )
+				),
+				array( 'status' => 400 )
+			);
+		}
+
 		if ( ! empty( $stats_values ) ) {
-			$result = Stats_Settings::update( $stats_values, self::STATS_SETTINGS_KEYS );
+			$result = Stats_Settings::update( $stats_values, $keys );
 			if ( is_wp_error( $result ) ) {
 				$result->add_data( array( 'status' => 400 ) );
 				return $result;
@@ -842,10 +856,29 @@ class REST_Controller {
 		}
 
 		if ( isset( $params['wpcom_reader_views_enabled'] ) ) {
-			update_option( 'wpcom_reader_views_enabled', (int) $params['wpcom_reader_views_enabled'] );
+			$reader_views = (int) $params['wpcom_reader_views_enabled'];
+			update_option( 'wpcom_reader_views_enabled', $reader_views );
+			// update_option() also returns false for an unchanged value, so read the option back.
+			if ( (int) get_option( 'wpcom_reader_views_enabled', 1 ) !== $reader_views ) {
+				return new WP_Error(
+					'jetpack_stats_save_failed',
+					__( 'The Stats settings could not be saved.', 'jetpack-stats-admin' ),
+					array( 'status' => 400 )
+				);
+			}
 		}
 
 		return $this->get_stats_settings_response();
+	}
+
+	/**
+	 * The Stats settings the Settings screen offers.
+	 *
+	 * @return string[]
+	 */
+	private static function get_stats_settings_keys() {
+		// Nothing reads `do_not_track`, so the screen does not offer it.
+		return array_values( array_diff( Stats_Settings::KEYS, array( 'do_not_track' ) ) );
 	}
 
 	/**
@@ -854,17 +887,21 @@ class REST_Controller {
 	 * @return array
 	 */
 	private function get_stats_settings_response() {
+		if ( ! function_exists( 'get_editable_roles' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/user.php';
+		}
+
 		$roles = array();
-		foreach ( wp_roles()->get_names() as $slug => $name ) {
+		foreach ( get_editable_roles() as $slug => $role ) {
 			$roles[] = array(
 				'slug' => $slug,
-				'name' => translate_user_role( $name ),
+				'name' => translate_user_role( $role['name'] ),
 			);
 		}
 
 		return array(
 			'settings' => array_merge(
-				Stats_Settings::get( self::STATS_SETTINGS_KEYS ),
+				Stats_Settings::get( self::get_stats_settings_keys() ),
 				array( 'wpcom_reader_views_enabled' => (bool) get_option( 'wpcom_reader_views_enabled', true ) )
 			),
 			'roles'    => $roles,
