@@ -409,7 +409,7 @@ test( 'Hiding retained history removes a keyboard tooltip until another selectio
 	await expect( page.getByRole( 'tooltip' ) ).toBeVisible();
 } );
 
-test( 'Score cards show the tier palette, baseline delta colors, and responsive dividers', async ( {
+test( 'Score cards show signed badges, points help, and responsive dividers', async ( {
 	page,
 } ) => {
 	await page.goto( 'http://boost-history.test/?scores' );
@@ -439,11 +439,32 @@ test( 'Score cards show the tier palette, baseline delta colors, and responsive 
 		await expect( track ).toHaveCSS( 'height', '4px' );
 		await expect( track ).toHaveCSS( 'border-radius', '4px' );
 	}
-	await expect( desktop.first().getByText( '+10 points compared with Boost disabled' ) ).toHaveCSS(
-		'color',
-		'rgb(0, 128, 48)'
-	);
-	await expect( mobile.getByText( /compared with Boost disabled/ ) ).toHaveCount( 0 );
+	const positiveBadge = desktop.first().getByText( '+10 points', { exact: true } );
+	await expect( positiveBadge ).toHaveCSS( 'background-color', 'rgb(222, 235, 250)' );
+	await expect( positiveBadge ).toHaveCSS( 'color', 'rgb(0, 27, 79)' );
+	const negativeBadge = mobile.getByText( '-10 points', { exact: true } );
+	await expect( negativeBadge ).toHaveCSS( 'background-color', 'rgb(255, 255, 255)' );
+	await expect( negativeBadge ).toHaveCSS( 'border-top-width', '1px' );
+	await expect( negativeBadge ).toHaveCSS( 'border-top-style', 'solid' );
+	await expect( negativeBadge ).toHaveCSS( 'border-top-color', 'rgb(219, 219, 219)' );
+	await expect( desktop.nth( 1 ).getByText( /points/ ) ).toHaveCount( 0 );
+	await expect( desktop.nth( 1 ).getByRole( 'button' ) ).toHaveCount( 0 );
+	const pointsHelp = page.getByText( 'Points gained from optimizations', { exact: true } );
+	await expect( pointsHelp ).toHaveCount( 0 );
+	const pointsTrigger = desktop.first().getByRole( 'button', { name: 'About points' } );
+	await pointsTrigger.hover();
+	await expect( pointsHelp ).toBeVisible();
+	await page.mouse.move( 0, 0 );
+	await expect( pointsHelp ).toBeHidden();
+	await pointsTrigger.click();
+	await expect( pointsHelp ).toBeVisible();
+	await page.keyboard.press( 'Escape' );
+	await expect( pointsHelp ).toBeHidden();
+	await expect( pointsTrigger ).toBeFocused();
+	await pointsTrigger.press( 'Enter' );
+	await expect( pointsHelp ).toBeVisible();
+	await page.keyboard.press( 'Escape' );
+	await expect( pointsHelp ).toBeHidden();
 	await expect( desktop.first() ).toHaveCSS( 'padding-top', '16px' );
 	await expect( desktop.first() ).toHaveCSS( 'padding-bottom', '16px' );
 	await expect( desktop.first() ).toHaveCSS( 'padding-left', '20px' );
@@ -473,13 +494,24 @@ test( 'Score cards show the tier palette, baseline delta colors, and responsive 
 		.boundingBox() )!;
 	const delta = ( await desktop
 		.first()
-		.getByText( '+10 points compared with Boost disabled' )
+		.locator( '.jetpack-boost-overview__delta' )
 		.boundingBox() )!;
 	expect( bar.width ).toBeGreaterThan( 0 );
 	expect( delta.x ).toBeGreaterThan( bar.x + bar.width );
-	expect( delta.x + delta.width ).toBeCloseTo( section.x + section.width - 20, 0 );
+	expect( delta.x + delta.width ).toBeLessThanOrEqual( section.x + section.width - 20 );
 	expect( delta.y ).toBeLessThan( bar.y + bar.height );
 	expect( delta.y + delta.height ).toBeGreaterThan( bar.y );
+	const badgeBox = ( await positiveBadge.boundingBox() )!;
+	const iconBox = ( await desktop.first().getByRole( 'button' ).boundingBox() )!;
+	expect( iconBox.x ).toBeGreaterThan( badgeBox.x + badgeBox.width );
+	expect( iconBox.y ).toBeLessThan( badgeBox.y + badgeBox.height );
+	await page.goto( 'http://boost-history.test/?score-states' );
+	const zeroBadge = page.getByText( '0 points', { exact: true } );
+	await expect( zeroBadge ).toBeVisible();
+	await expect( zeroBadge ).toHaveCSS( 'background-color', 'rgb(255, 255, 255)' );
+	await expect( zeroBadge ).toHaveCSS( 'border-top-width', '1px' );
+	await expect( zeroBadge ).toHaveCSS( 'border-top-style', 'solid' );
+	await expect( zeroBadge ).toHaveCSS( 'border-top-color', 'rgb(219, 219, 219)' );
 } );
 
 test( 'Score cards show calculating and failed states inside the card', async ( { page } ) => {
@@ -560,3 +592,41 @@ test( 'switches at the narrow breakpoint and pages by the visible number of days
 	await expect( bars ).toHaveCount( 30 );
 	await expect( page.getByText( 'Aug 11 – Sep 9, 2026', { exact: true } ) ).toBeVisible();
 } );
+
+for ( const { width, days } of [
+	{ width: 1280, days: 30 },
+	{ width: 390, days: 15 },
+] ) {
+	test.describe( `first history entry at ${ width }px`, () => {
+		test.afterEach( async ( { page } ) => {
+			if ( process.env.BOOST_HISTORY_EVIDENCE_DIR ) {
+				await page.screenshot( {
+					path: path.join( process.env.BOOST_HISTORY_EVIDENCE_DIR, `first-entry-${ width }.png` ),
+					fullPage: true,
+				} );
+			}
+		} );
+
+		test( `first history entry shows one score per chart at ${ width }px`, async ( { page } ) => {
+			await page.setViewportSize( { width, height: 900 } );
+			await page.goto( 'http://boost-history.test/?firstEntry' );
+			await expect( page.getByText( 'Sep 9, 2026', { exact: true } ) ).toBeVisible();
+			await expect(
+				page.getByRole( 'button', { name: `Previous ${ days } days` } )
+			).toBeDisabled();
+			await expect( page.getByText( /Jetpack Boost premium has been activated/ ) ).toHaveCount( 0 );
+			await expect( page.getByText( /Your scores will be recorded from now on/ ) ).toHaveCount( 0 );
+			for ( const device of [ 'Desktop', 'Mobile' ] ) {
+				const bars = page
+					.getByRole( 'region', { name: `${ device } score history` } )
+					.locator( '.visx-bar' );
+				await expect( bars ).toHaveCount( days );
+				const heights = await bars.evaluateAll( elements =>
+					elements.map( element => element.getBoundingClientRect().height )
+				);
+				expect( heights.filter( height => height === 4 ) ).toHaveLength( days - 1 );
+				expect( heights[ days - 1 ] ).toBeGreaterThan( 4 );
+			}
+		} );
+	} );
+}

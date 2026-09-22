@@ -210,7 +210,7 @@ class Protected_Owner_Test extends TestCase {
 	 * @param int $wpcom_user_id The anchored WordPress.com user ID.
 	 */
 	private function anchor( $wpcom_user_id = self::ANCHORED_WPCOM_ID ) {
-		Protected_Owner::set( $wpcom_user_id, $this->owner_id, 'popup' );
+		Protected_Owner::set( $wpcom_user_id, $this->owner_id );
 	}
 
 	// ── has_protected_owner ──────────────────────────────────────────────
@@ -494,17 +494,13 @@ class Protected_Owner_Test extends TestCase {
 
 		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ) );
 
-		$this->assertTrue( $manager->set_protected_owner( $this->owner_id, 'recovery' ) );
+		$this->assertTrue( $manager->set_protected_owner( $this->owner_id ) );
 
 		$anchor = (array) Protected_Owner::get();
 
 		$this->assertSame( self::ANCHORED_WPCOM_ID, $anchor['wpcom_user_id'] ?? null );
 		$this->assertSame( $this->owner_id, $anchor['local_user_id'] ?? null );
 		$this->assertTrue( $anchor['locked'] ?? false );
-
-		// `confirmed_by` names the mechanism, not a user: it travels to WordPress.com, where a
-		// local user ID would mean nothing.
-		$this->assertSame( 'recovery', $anchor['confirmed_by'] ?? null );
 		$this->assertMatchesRegularExpression(
 			'/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/',
 			$anchor['confirmed_at'] ?? '',
@@ -528,7 +524,7 @@ class Protected_Owner_Test extends TestCase {
 		$this->act_as_administrator();
 
 		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ), $this->never() );
-		$result  = $manager->set_protected_owner( $subscriber, 'popup' );
+		$result  = $manager->set_protected_owner( $subscriber );
 
 		$this->assertInstanceOf( 'WP_Error', $result );
 		$this->assertSame( 'protected_owner_not_admin', $result->get_error_code() );
@@ -542,7 +538,7 @@ class Protected_Owner_Test extends TestCase {
 		$this->act_as_administrator();
 
 		$manager = $this->manager( $this->owner_id, false );
-		$result  = $manager->set_protected_owner( $this->owner_id, 'popup' );
+		$result  = $manager->set_protected_owner( $this->owner_id );
 
 		$this->assertInstanceOf( 'WP_Error', $result );
 		$this->assertSame( 'protected_owner_not_verified', $result->get_error_code() );
@@ -555,11 +551,11 @@ class Protected_Owner_Test extends TestCase {
 	 * `update_option()` reports false for that case as well as for a failed write.
 	 */
 	public function test_set_reports_success_when_the_anchor_already_says_this() {
-		$established = Protected_Owner::set( self::ANCHORED_WPCOM_ID, $this->owner_id, 'popup' );
+		$established = Protected_Owner::set( self::ANCHORED_WPCOM_ID, $this->owner_id );
 
 		// Back to back, so `confirmed_at` matches and the write is the no-op that
 		// `update_option()` reports as false.
-		$repeated = Protected_Owner::set( self::ANCHORED_WPCOM_ID, $this->owner_id, 'popup' );
+		$repeated = Protected_Owner::set( self::ANCHORED_WPCOM_ID, $this->owner_id );
 
 		$this->assertTrue( $established );
 		$this->assertTrue( $repeated, 'An anchor already saying exactly this is stored as requested.' );
@@ -576,7 +572,7 @@ class Protected_Owner_Test extends TestCase {
 	 */
 	#[DataProvider( 'unusable_anchor_ids' )]
 	public function test_set_refuses_to_write_an_anchor_naming_nobody( $wpcom_user_id, $local_user_id ) {
-		$this->assertFalse( Protected_Owner::set( $wpcom_user_id, $local_user_id, 'popup' ) );
+		$this->assertFalse( Protected_Owner::set( $wpcom_user_id, $local_user_id ) );
 		$this->assertNull( Protected_Owner::get() );
 		$this->assertFalse( Jetpack_Options::get_option( 'protected_owner' ) );
 	}
@@ -595,20 +591,6 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
-	 * Provenance that sanitizes away is not provenance, and is refused rather than stored blank.
-	 */
-	public function test_set_protected_owner_rejects_provenance_that_sanitizes_to_nothing() {
-		$this->act_as_administrator();
-
-		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ), $this->never() );
-		$result  = $manager->set_protected_owner( $this->owner_id, '!!!' );
-
-		$this->assertInstanceOf( 'WP_Error', $result );
-		$this->assertSame( 'protected_owner_missing_provenance', $result->get_error_code() );
-		$this->assertNull( Protected_Owner::get() );
-	}
-
-	/**
 	 * An anchor that could not be stored must not leave the site promoted: ownership would have
 	 * moved with nothing locking it, and the caller would have been told it worked.
 	 */
@@ -621,7 +603,7 @@ class Protected_Owner_Test extends TestCase {
 		add_filter( 'pre_update_option_jetpack_options', $block, 10, 2 );
 
 		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ) );
-		$result  = $manager->set_protected_owner( $this->owner_id, 'popup' );
+		$result  = $manager->set_protected_owner( $this->owner_id );
 
 		remove_filter( 'pre_update_option_jetpack_options', $block, 10 );
 
@@ -660,7 +642,7 @@ class Protected_Owner_Test extends TestCase {
 		wp_set_current_user( $this->actor( $role ) );
 
 		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ), $this->never() );
-		$result  = $manager->set_protected_owner( $this->owner_id, 'popup' );
+		$result  = $manager->set_protected_owner( $this->owner_id );
 
 		$this->assertInstanceOf( 'WP_Error', $result );
 		$this->assertSame( 'protected_owner_forbidden', $result->get_error_code() );
@@ -733,10 +715,10 @@ class Protected_Owner_Test extends TestCase {
 	 * The written anchor carries exactly the keys the option is documented to hold.
 	 */
 	public function test_the_anchor_carries_the_documented_keys() {
-		Protected_Owner::set( self::ANCHORED_WPCOM_ID, $this->owner_id, 'popup' );
+		Protected_Owner::set( self::ANCHORED_WPCOM_ID, $this->owner_id );
 
 		$this->assertSame(
-			array( 'wpcom_user_id', 'local_user_id', 'locked', 'confirmed_at', 'confirmed_by' ),
+			array( 'wpcom_user_id', 'local_user_id', 'locked', 'confirmed_at' ),
 			array_keys( (array) Protected_Owner::get() )
 		);
 	}
@@ -851,7 +833,6 @@ class Protected_Owner_Test extends TestCase {
 				'local_user_id' => $this->owner_id,
 				'locked'        => false,
 				'confirmed_at'  => '2026-01-01T00:00:00Z',
-				'confirmed_by'  => 'popup',
 			)
 		);
 		Jetpack_Options::update_option( 'master_user', $agency );
@@ -899,9 +880,9 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
-	 * Re-pointing is not a re-confirmation, so the provenance of the original claim survives.
+	 * Re-pointing is not a re-confirmation, so the time of the original claim survives.
 	 */
-	public function test_repointing_the_anchor_preserves_how_it_was_confirmed() {
+	public function test_repointing_the_anchor_preserves_when_it_was_confirmed() {
 		$this->anchor();
 		$before = Protected_Owner::get();
 		$second = $this->candidate( 'owner_second_account' );
@@ -913,7 +894,6 @@ class Protected_Owner_Test extends TestCase {
 		$this->assertIsArray( $after );
 		$this->assertSame( $second, (int) $after['local_user_id'] );
 		$this->assertSame( $before['confirmed_at'], $after['confirmed_at'] );
-		$this->assertSame( $before['confirmed_by'], $after['confirmed_by'] );
 	}
 
 	/**
@@ -976,7 +956,6 @@ class Protected_Owner_Test extends TestCase {
 				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
 				'locked'        => true,
 				'confirmed_at'  => '2026-01-01T00:00:00Z',
-				'confirmed_by'  => 'popup',
 			)
 		);
 

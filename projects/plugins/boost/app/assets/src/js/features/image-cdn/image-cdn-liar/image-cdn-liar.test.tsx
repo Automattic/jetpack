@@ -24,6 +24,9 @@ test( 'names the modern auto-resize toggle and saves its value', () => {
 		</ModuleSurfaceProvider>
 	);
 
+	expect(
+		screen.getByText( 'Resize lazy-loaded images to match their displayed dimensions.' )
+	).toBeTruthy();
 	const toggle = screen.getByRole( 'checkbox', { name: 'Auto-Resize Lazy Images' } );
 	// eslint-disable-next-line testing-library/prefer-user-event -- Match the synchronous control tests in this project.
 	fireEvent.click( toggle );
@@ -41,6 +44,11 @@ test( 'keeps the unlabelled toggle and h4 heading on the default legacy surface'
 		] as unknown as ReturnType< typeof useModulesState > );
 	render( <ImageCdnLiar isPremium /> );
 
+	expect(
+		screen.getByText(
+			'Automatically resize images that are lazily loaded to fit the exact dimensions they occupy on the page.'
+		)
+	).toBeTruthy();
 	expect( screen.getByRole( 'checkbox', { name: '' } ) ).toBeTruthy();
 	expect(
 		screen.getByRole( 'heading', { name: 'Auto-Resize Lazy Images', level: 4 } )

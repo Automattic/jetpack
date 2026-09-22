@@ -6,9 +6,10 @@ export {
 	processHierarchyLevels,
 	withHierarchyContext,
 } from './dataviews-drilldown-native';
-export { DateFiltersPanel } from './date-filters-panel';
+export { DateFiltersPanel, type DateFiltersPanelProps } from './date-filters-panel';
 export { DateIntervalDropdown } from './date-interval-dropdown';
 export { DatePeriodDropdown } from './date-period-dropdown';
+export type { DateControlTriggerProps } from './utils/date-control-trigger';
 export { PeriodChangeStatus } from './period-change-status';
 export { DateYearFilter, type DateYearFilterProps } from './date-year-filter';
 export {

@@ -1,3 +1,4 @@
+import { IconTooltip } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { Button, Notice, Stack, Text } from '@wordpress/ui';
@@ -5,6 +6,7 @@ import { getProvidersWithErrors } from '../lib/critical-css-errors';
 import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
 import type { CriticalCssState } from '../lib/stores/critical-css-state-types';
 import TimeAgo from '../time-ago/time-ago';
+import { useTooltipLayer } from '$features/module/surface';
 import ProgressBar from '$features/ui/progress-bar/progress-bar';
 import { subpageHref } from '$lib/modern/routes';
 import { recordBoostEvent } from '$lib/utils/analytics';
@@ -18,6 +20,7 @@ type Props = {
 
 export default function ModernCriticalCssStatus( { cssState, isGenerating, progress }: Props ) {
 	const regenerateAction = useRegenerateCriticalCssAction();
+	const tooltipLayer = useTooltipLayer();
 	const generating = isGenerating || cssState.status === 'pending';
 	const idle = cssState.status === 'not_generated';
 	const successCount = cssState.providers.filter(
@@ -37,7 +40,19 @@ export default function ModernCriticalCssStatus( { cssState, isGenerating, progr
 			<div className={ styles.well } data-testid="critical-css-meta">
 				<Stack direction="column" gap="sm">
 					<Stack direction="row" justify="space-between" align="center" gap="sm">
-						<Text>{ __( 'Critical CSS', 'jetpack-boost' ) }</Text>
+						<Stack direction="row" align="center" gap="xs">
+							<Text>{ __( 'Critical CSS', 'jetpack-boost' ) }</Text>
+							<IconTooltip
+								className={ styles[ 'info-icon' ] }
+								placement="bottom"
+								{ ...tooltipLayer }
+							>
+								{ __(
+									'Critical CSS is the small set of styles needed to show the top of each page. Boost loads it first so pages appear faster while the rest of the CSS loads.',
+									'jetpack-boost'
+								) }
+							</IconTooltip>
+						</Stack>
 						{ ! generating && (
 							<Button
 								variant="minimal"

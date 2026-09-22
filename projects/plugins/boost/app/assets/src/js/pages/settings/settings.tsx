@@ -59,7 +59,7 @@ const Group = ( {
 );
 
 const Settings = () => {
-	const summary = useCornerstoneSummary();
+	const summary = useCornerstoneSummary( false );
 
 	return (
 		<ModuleSurfaceProvider value="row">

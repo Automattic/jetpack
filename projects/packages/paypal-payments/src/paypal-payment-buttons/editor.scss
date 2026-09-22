@@ -183,6 +183,16 @@
 	}
 }
 
+// The menu focuses its first item as it opens, and the button style paints a
+// ring on any focus. Keep the ring for the keyboard only.
+.jetpack-paypal-payment-buttons__account-menu,
+.jetpack-paypal-payment-buttons__link-menu {
+
+	.components-menu-item__button:focus:not(:focus-visible) {
+		box-shadow: none;
+	}
+}
+
 // ---------------------------------------------------------------
 // Connection Wizard
 // ---------------------------------------------------------------
@@ -883,7 +893,8 @@
 }
 
 .jetpack-paypal-payment-buttons__delete-dialog,
-.jetpack-paypal-payment-buttons__log-out-dialog {
+.jetpack-paypal-payment-buttons__log-out-dialog,
+.jetpack-paypal-payment-buttons__unsaved-dialog {
 
 	p {
 		margin: 0 0 12px;
@@ -891,7 +902,8 @@
 }
 
 .jetpack-paypal-payment-buttons__delete-dialog-actions,
-.jetpack-paypal-payment-buttons__log-out-dialog-actions {
+.jetpack-paypal-payment-buttons__log-out-dialog-actions,
+.jetpack-paypal-payment-buttons__unsaved-dialog-actions {
 	display: flex;
 	justify-content: flex-end;
 	gap: 8px;
@@ -1149,8 +1161,12 @@
 	border-radius: 2px;
 }
 
+// The row is the pick button and, on a new block, the link's menu beside it.
 .jetpack-paypal-payment-buttons__links-item {
+	display: flex;
+	align-items: center;
 	margin: 0;
+	padding-inline-end: 4px;
 
 	& + & {
 		border-block-start: 1px solid #ddd;
@@ -1161,7 +1177,8 @@
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
-	inline-size: 100%;
+	flex: 1;
+	min-inline-size: 0;
 	block-size: auto;
 	padding: 8px 12px;
 	border-radius: 0;

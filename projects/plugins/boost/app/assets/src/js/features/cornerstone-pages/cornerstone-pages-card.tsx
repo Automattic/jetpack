@@ -29,7 +29,7 @@ const CornerstonePagesCard = () => {
 				<CollapsibleCard.Header render={ <h3 /> }>
 					<Stack direction="row" justify="space-between" align="center" gap="sm">
 						<Text variant="body-md" className={ styles.edit }>
-							{ __( 'Edit pages', 'jetpack-boost' ) }
+							{ __( 'Customize pages list', 'jetpack-boost' ) }
 						</Text>
 					</Stack>
 				</CollapsibleCard.Header>

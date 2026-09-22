@@ -68,6 +68,13 @@ test.each( [ 'row', 'block' ] as const )(
 				<CriticalCssModule />
 			</ModuleSurfaceProvider>
 		);
+		expect(
+			screen.getByText(
+				surface === 'row'
+					? /Prioritizes the styles needed to display the visible part of your page first/
+					: /Move important styling information to the start of the page/
+			)
+		).toBeTruthy();
 		// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Enable' } ) );
 		expect( mockRegenerate ).toHaveBeenCalledTimes( surface === 'row' ? 0 : 1 );
