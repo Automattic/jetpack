@@ -654,7 +654,20 @@ export default function ApiManagedEdit( {
 					paymentLink: _link,
 					...copied
 				} = linkAttributes;
-				setAttributes( { ...resetToDefaults( ...RESOURCE_ATTRIBUTES ), ...copied } );
+				// Named as a copy, so it reads as one next to the original in the list and
+				// on PayPal. Cut to the limit rather than open the form on an error.
+				const copyName = copied.productName
+					? sprintf(
+							/* translators: %s: the product name of the link being copied */
+							__( 'Copy of %s', 'jetpack-paypal-payments' ),
+							copied.productName
+						).slice( 0, MAX_NAME_LENGTH )
+					: '';
+				setAttributes( {
+					...resetToDefaults( ...RESOURCE_ATTRIBUTES ),
+					...copied,
+					productName: copyName,
+				} );
 				setShowPicker( false );
 			} ),
 		[ readLink, setAttributes ]

@@ -2222,7 +2222,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await waitFor( () =>
 				expect( setAttributes ).toHaveBeenCalledWith(
-					expect.objectContaining( { productName: 'Croissant', price: '12.00', taxValue: '7.5' } )
+					expect.objectContaining( {
+						productName: 'Copy of Croissant',
+						price: '12.00',
+						taxValue: '7.5',
+					} )
 				)
 			);
 			const copied = setAttributes.mock.calls[ 0 ][ 0 ];
