@@ -45,7 +45,12 @@ import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
 import styles from './line-chart.module.scss';
-import { LineChartAnnotation, LineChartAnnotationsOverlay, LineChartGlyph } from './private';
+import {
+	LineChartAnnotation,
+	LineChartAnnotationsOverlay,
+	LineChartGlyph,
+	NearestPointerEvents,
+} from './private';
 import type { RenderLineGlyphProps, LineChartProps } from './types';
 import type {
 	BucketInfo,
@@ -647,12 +652,9 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 											// xScale and yScale could be set in Axis as well, but they are `scale` props there.
 											xScale={ chartOptions.xScale }
 											yScale={ chartOptions.yScale }
-											onPointerDown={ zoom.handlers.onPointerDown }
-											onPointerUp={ zoom.handlers.onPointerUp }
-											onPointerMove={ zoom.handlers.onPointerMove }
 											onPointerOut={ onPointerOut }
-											pointerEventsDataKey="nearest"
 										>
+											<NearestPointerEvents { ...zoom.handlers } />
 											{ /* With every series hidden there is no data to scale against, so the grid and
 											     axes are dropped while the empty state stands in — otherwise they render
 											     squished at the top. */ }

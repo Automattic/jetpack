@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { render, screen, waitFor, within, act } from '@testing-library/react';
+import { render, screen, waitFor, within, act, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlyphDiamond } from '@visx/glyph';
 import { createElement, createRef } from 'react';
@@ -8,7 +8,7 @@ import { GlobalChartsProvider, defaultTheme } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
 import LineChart, { LineChartUnresponsive } from '../line-chart';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
-import type { DataPointDate } from '../../../types';
+import type { DataPointDate, SeriesData } from '../../../types';
 import type { ChartInstanceRef } from '../../private/chart-instance-context';
 import type { RenderLineGlyphProps } from '../types';
 
@@ -1951,6 +1951,98 @@ describe( 'LineChart', () => {
 				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
 			 )?.domain();
 			expect( after ).toEqual( before );
+		} );
+	} );
+
+	describe( 'pointer events', () => {
+		let screenTransform: PropertyDescriptor | undefined;
+
+		beforeAll( () => {
+			screenTransform = Object.getOwnPropertyDescriptor( SVGElement.prototype, 'getScreenCTM' );
+			// jsdom lacks the SVG transform used by visx to convert pointer coordinates.
+			Object.defineProperty( SVGElement.prototype, 'getScreenCTM', {
+				configurable: true,
+				value: () => null,
+			} );
+		} );
+
+		afterAll( () => {
+			if ( screenTransform ) {
+				Object.defineProperty( SVGElement.prototype, 'getScreenCTM', screenTransform );
+			} else {
+				Reflect.deleteProperty( SVGElement.prototype, 'getScreenCTM' );
+			}
+		} );
+
+		const pointer = ( type: string, clientX: number, clientY: number ) => {
+			// visx owns the pointer capture rect and does not expose an attribute prop for it.
+			// eslint-disable-next-line testing-library/no-node-access
+			const target = screen.getByRole( 'grid' ).querySelector( 'svg > rect[fill="transparent"]' );
+			fireEvent( target, new MouseEvent( type, { bubbles: true, clientX, clientY } ) );
+		};
+
+		const renderWithHandlers = ( data: SeriesData[] ) => {
+			const handlers = {
+				onPointerDown: jest.fn(),
+				onPointerMove: jest.fn(),
+				onPointerUp: jest.fn(),
+			};
+			mockUseXZoom.mockImplementation( () => ( { ...passthroughZoom(), handlers } ) );
+			const ref = createRef< ChartInstanceRef >();
+			renderUnwrappedWithTheme( { data }, 'default', ref );
+			const xScale = ref.current?.getScales()?.xScale as ( date: Date ) => number;
+			const yScale = ref.current?.getScales()?.yScale as ( value: number ) => number;
+			return { handlers, xScale, yScale };
+		};
+
+		const series = ( label: string, values: ( number | null )[] ) => ( {
+			label,
+			options: {},
+			data: values.map( ( value, index ) => ( {
+				date: new Date( 2024, 0, index + 1 ),
+				value,
+			} ) ),
+		} );
+
+		test( 'reports a bucket with no reading on pointer down, move and up', () => {
+			const data = [ series( 'Series A', [ null, 10, 20 ] ) ];
+			const { handlers, xScale } = renderWithHandlers( data );
+			const x = xScale( data[ 0 ].data[ 0 ].date );
+
+			for ( const [ type, handler ] of [
+				[ 'pointerdown', handlers.onPointerDown ],
+				[ 'pointermove', handlers.onPointerMove ],
+				[ 'pointerup', handlers.onPointerUp ],
+			] as const ) {
+				pointer( type, x, 150 );
+				expect( handler ).toHaveBeenCalledTimes( 1 );
+				expect( handler ).toHaveBeenLastCalledWith(
+					expect.objectContaining( { key: 'Series A', index: 0, datum: data[ 0 ].data[ 0 ] } )
+				);
+			}
+		} );
+
+		test( 'prefers a series with a reading over one without at the same bucket', () => {
+			const data = [ series( 'Series A', [ null, 10 ] ), series( 'Series B', [ 5, 10 ] ) ];
+			const { handlers, xScale, yScale } = renderWithHandlers( data );
+
+			pointer( 'pointerdown', xScale( data[ 0 ].data[ 0 ].date ), yScale( 10 ) );
+
+			expect( handlers.onPointerDown ).toHaveBeenCalledTimes( 1 );
+			expect( handlers.onPointerDown ).toHaveBeenLastCalledWith(
+				expect.objectContaining( { key: 'Series B', index: 0 } )
+			);
+		} );
+
+		test( 'reports the series nearest the pointer when every series has a reading', () => {
+			const data = [ series( 'Series A', [ 10, 10 ] ), series( 'Series B', [ 20, 20 ] ) ];
+			const { handlers, xScale, yScale } = renderWithHandlers( data );
+
+			pointer( 'pointerdown', xScale( data[ 0 ].data[ 1 ].date ), yScale( 11 ) );
+
+			expect( handlers.onPointerDown ).toHaveBeenLastCalledWith(
+				expect.objectContaining( { key: 'Series A', index: 1 } )
+			);
 		} );
 	} );
 
