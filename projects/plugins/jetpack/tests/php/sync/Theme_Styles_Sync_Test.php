@@ -178,6 +178,35 @@ class Theme_Styles_Sync_Test extends WP_UnitTestCase {
 		$this->assertSame( array( 'primary' ), wp_list_pluck( $palette, 'slug' ) );
 	}
 
+	public function test_carries_font_families_without_their_font_files() {
+		$this->replacing_theme_json(
+			array(
+				'settings' => array(
+					'typography' => array(
+						'fontFamilies' => array(
+							array(
+								'slug'       => 'body',
+								'name'       => 'Body',
+								'fontFamily' => 'Manrope, sans-serif',
+								'fontFace'   => array(
+									array(
+										'fontFamily' => 'Manrope',
+										'src'        => array( 'file:./assets/fonts/manrope.woff2' ),
+									),
+								),
+							),
+						),
+					),
+				),
+			)
+		);
+
+		$families = $this->slice()['settings']['typography']['fontFamilies'];
+
+		$this->assertSame( 'Manrope, sans-serif', $families[0]['fontFamily'] );
+		$this->assertArrayNotHasKey( 'fontFace', $families[0] );
+	}
+
 	/**
 	 * Core's presets are left alone too: the receiving end merges core underneath the site's
 	 * settings before resolving, so it can reach them without them travelling.

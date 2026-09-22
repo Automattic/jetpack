@@ -90,7 +90,27 @@ class Theme_Styles_Sync {
 			}
 		}
 
+		// The font files are two thirds of a family's bytes and no use to a mail client, which cannot
+		// load a web font. Only the family name resolves a `var(--wp--preset--font-family--…)`.
+		if ( isset( $sources['typography']['fontFamilies'] ) ) {
+			$sources['typography']['fontFamilies'] = array_map( array( self::class, 'without_font_files' ), $sources['typography']['fontFamilies'] );
+		}
+
 		return $sources;
+	}
+
+	/**
+	 * One font-family preset without its `fontFace` declarations.
+	 *
+	 * @param mixed $family A `fontFamilies` entry.
+	 * @return mixed
+	 */
+	private static function without_font_files( $family ) {
+		if ( is_array( $family ) ) {
+			unset( $family['fontFace'] );
+		}
+
+		return $family;
 	}
 
 	/**
