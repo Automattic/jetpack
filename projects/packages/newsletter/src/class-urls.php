@@ -20,4 +20,19 @@ class Urls {
 	public static function get_newsletter_settings_url() {
 		return admin_url( 'admin.php?page=jetpack-newsletter' );
 	}
+
+	/**
+	 * Get the URL of the Subscribers tab of the Newsletter page.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The URL, or null when the current user cannot open the tab.
+	 */
+	public static function get_subscribers_url() {
+		if ( ! Settings::is_subscribers_tab_available() ) {
+			return null;
+		}
+
+		return admin_url( 'admin.php?page=' . Settings::ADMIN_PAGE_SLUG . '&tab=subscribers' );
+	}
 }

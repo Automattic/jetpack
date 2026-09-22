@@ -13,6 +13,8 @@ declare module '@automattic/jetpack-script-data' {
 			csv_exports_enabled?: boolean;
 			// Whether the site runs VideoPress, which gates the video surfaces.
 			has_videopress?: boolean;
+			// The Newsletter page's Subscribers tab; null when this user cannot open it.
+			newsletter_subscribers_url?: string | null;
 			// Whether the dashboard offers adding, removing and resetting widgets: the
 			// premium-analytics-dashboard-composition feature flag, read by the policy.
 			dashboard_composition_enabled?: boolean;

@@ -22,12 +22,17 @@ import type { ComponentType } from 'react';
 
 registerReportMocks();
 
-// Only wp-admin supplies the slug; seed it so the names link in Storybook.
+// Only wp-admin supplies the slug and the Newsletter URL; seed them so the names and the footer link in Storybook.
 window.JetpackScriptData = {
 	...window.JetpackScriptData,
 	site: {
 		...window.JetpackScriptData?.site,
 		suffix: 'example.com',
+	},
+	premium_analytics: {
+		...window.JetpackScriptData?.premium_analytics,
+		newsletter_subscribers_url:
+			'https://example.com/wp-admin/admin.php?page=jetpack-newsletter&tab=subscribers',
 	},
 } as typeof window.JetpackScriptData;
 

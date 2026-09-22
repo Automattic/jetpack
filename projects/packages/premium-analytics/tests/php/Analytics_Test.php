@@ -1114,6 +1114,13 @@ class Analytics_Test extends TestCase {
 			),
 			'Simple still publishes the VideoPress availability flag.'
 		);
+		$this->assertNotFalse(
+			has_filter(
+				'jetpack_admin_js_script_data',
+				__NAMESPACE__ . '\\inject_newsletter_subscribers_script_data'
+			),
+			'Simple still publishes the Newsletter subscribers link.'
+		);
 	}
 
 	/**

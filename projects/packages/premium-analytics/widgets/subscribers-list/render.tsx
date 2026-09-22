@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getSiteData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { getScriptData, getSiteData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import {
 	getStatsReportItems,
 	useStatsFollowers,
@@ -14,6 +14,8 @@ import {
 	SubscriberList,
 	SubscriberListSkeleton,
 	WIDGET_ROW_LIMIT,
+	WidgetFooter,
+	WidgetFooterLink,
 	WidgetRoot,
 	WidgetState,
 	type ReportParamsFieldAttributes,
@@ -24,6 +26,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import styles from './style.module.css';
 import type { SubscribersListAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
@@ -133,9 +136,22 @@ type SubscribersListWidgetProps = WidgetRenderProps< SubscribersListRenderAttrib
 
 /** The followers query does not use dashboard report parameters. */
 export default function SubscribersList( { attributes = {} }: SubscribersListWidgetProps ) {
+	const manageSubscribersUrl = getScriptData()?.premium_analytics?.newsletter_subscribers_url;
+
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<SubscribersReport />
+			<div className={ styles.root }>
+				<div className={ styles.content }>
+					<SubscribersReport />
+				</div>
+				{ manageSubscribersUrl && (
+					<WidgetFooter>
+						<WidgetFooterLink href={ manageSubscribersUrl }>
+							{ __( 'Manage subscribers', 'jetpack-premium-analytics-pkg' ) }
+						</WidgetFooterLink>
+					</WidgetFooter>
+				) }
+			</div>
 		</WidgetRoot>
 	);
 }
