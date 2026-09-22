@@ -98,7 +98,7 @@ We recommend that you install Jetpack Boost, and try it for yourself. It include
 
 = Can I also defer non-essential CSS with Jetpack Boost? =
 
-Jetpack Boost automatically defers non-essential CSS if its “Optimize CSS Loading” feature is enabled.
+Jetpack Boost automatically defers non-essential CSS when its “Optimize CSS Loading” feature is enabled and Critical CSS has been generated.
 
 The “Optimize CSS Loading” feature identifies the most important CSS rules your site needs to display your pages as quickly as possible (commonly called “Critical CSS”), and defers all other CSS rules from loading until your main content has loaded.
 

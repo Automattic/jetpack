@@ -78,8 +78,13 @@ test.describe( 'Modern dashboard features', () => {
 		await page.getByRole( 'tab', { name: 'Settings', exact: true } ).click();
 		await expect( page.getByTestId( 'critical-css-meta' ) ).toBeHidden();
 
-		const generated = jetpackBoostPage.waitForCriticalCssGeneration( 240000 );
 		await jetpackBoostPage.toggleModule( 'critical_css', true );
+		await expect( page.getByTestId( 'critical-css-meta' ) ).toBeVisible();
+		const generate = page.getByRole( 'button', { name: 'Generate', exact: true } );
+		await expect( generate ).toBeVisible();
+
+		const generated = jetpackBoostPage.waitForCriticalCssGeneration( 240000 );
+		await generate.click();
 		await generated;
 		await expect( page.getByTestId( 'critical-css-meta' ) ).toBeVisible();
 		await expect( page.getByRole( 'button', { name: 'Regenerate', exact: true } ) ).toBeVisible();
