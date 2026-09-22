@@ -59,7 +59,7 @@ export default function ScoreCard( {
 						value={ score }
 						aria-label={ label }
 					/>
-					{ delta !== null && (
+					{ delta !== null && delta >= 0 && (
 						<Stack
 							direction="row"
 							align="center"
