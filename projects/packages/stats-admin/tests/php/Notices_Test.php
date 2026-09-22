@@ -278,4 +278,29 @@ class Notices_Test extends Stats_TestCase {
 		$this->assertFalse( get_transient( Notices::STATS_DASHBOARD_NOTICES_CACHE_KEY ) );
 		$this->assertFalse( get_transient( Notices::STATS_DASHBOARD_NOTICES_DETAILS_CACHE_KEY ) );
 	}
+
+	/**
+	 * Test a cache written while the dismissal POST is in flight does not survive the POST.
+	 */
+	public function test_update_notice_clears_a_cache_written_during_the_request() {
+		$this->forced_notices_filter = static function ( $response, $args, $url ) {
+			if ( strpos( $url, '/jetpack-stats-dashboard/notices' ) === false || 'POST' !== $args['method'] ) {
+				return $response;
+			}
+			// The concurrent GET lands while WPCOM is still saving the dismissal.
+			self::$notices->get_notices_to_show( true );
+			return array(
+				'response' => array(
+					'code'    => 200,
+					'message' => 'ok',
+				),
+				'body'     => '{"success":true}',
+			);
+		};
+		add_filter( 'pre_http_request', $this->forced_notices_filter, 11, 3 );
+
+		self::$notices->update_notice( 'pricing_grid', 'dismissed' );
+
+		$this->assertFalse( get_transient( Notices::STATS_DASHBOARD_NOTICES_DETAILS_CACHE_KEY ) );
+	}
 }
