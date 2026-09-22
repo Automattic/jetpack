@@ -18,7 +18,7 @@ type Box = { x: number; y: number; width: number; height: number };
  * @return Popover content locator.
  */
 async function openTooltip( page: Page ): Promise< Locator > {
-	await page.locator( '.icon-tooltip-wrapper button' ).first().dispatchEvent( 'mousedown' );
+	await page.locator( '.icon-tooltip-wrapper button' ).first().click();
 	const content = page.locator( '.icon-tooltip-container .components-popover__content' );
 	await expect( content ).toBeVisible();
 	return content;

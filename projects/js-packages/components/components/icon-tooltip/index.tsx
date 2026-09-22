@@ -1,7 +1,7 @@
 import { Popover } from '@wordpress/components';
 import { Icon, info } from '@wordpress/icons';
 import clsx from 'clsx';
-import { useCallback, useState, ReactElement, FC } from 'react';
+import { useCallback, useRef, useState, ReactElement, FC, FocusEvent } from 'react';
 import Button from '../button/index.tsx';
 import { IconTooltipProps, Placement, Position } from './types.ts';
 
@@ -47,14 +47,21 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	const POPOVER_HELPER_WIDTH = 124;
 	const [ isVisible, setIsVisible ] = useState( false );
 	const [ hoverTimeout, setHoverTimeout ] = useState( null );
+	const wrapperRef = useRef< HTMLDivElement >( null );
+	// Opening on hover must not pull focus off whatever the visitor is using.
+	const openedByHover = useRef( false );
 	const hideTooltip = useCallback( () => setIsVisible( false ), [ setIsVisible ] );
 	const toggleTooltip = useCallback(
 		e => {
 			e.preventDefault();
+			openedByHover.current = false;
 			setIsVisible( ! isVisible );
 		},
 		[ isVisible, setIsVisible ]
 	);
+
+	const isAnchorWrapper = popoverAnchorStyle === 'wrapper';
+	const isForcedToShow = isAnchorWrapper && forceShow;
 
 	const args = {
 		// To be compatible with deprecating prop `position`.
@@ -65,21 +72,27 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		resize: false,
 		flip: false,
 		offset, // The distance (in px) between the anchor and the popover.
-		focusOnMount: 'firstElement',
+		// Focusing the popover itself puts Escape in reach even with nothing tabbable inside.
+		// A caller-controlled popover keeps the old behaviour until it can report dismissal.
+		focusOnMount: isForcedToShow ? 'firstElement' : ! openedByHover.current,
+		// Tab has to leave, rather than land on a constrained-tabbing trap div.
+		constrainTabbing: false,
 		onClose: hideTooltip,
+		onFocusOutside: ( event: FocusEvent ) => {
+			// A pointer press on our own trigger dismisses through that trigger instead.
+			if ( ! wrapperRef.current?.contains( event.relatedTarget as Node ) ) {
+				hideTooltip();
+			}
+		},
 		className: clsx( 'icon-tooltip-container', popoverClassName ),
 		inline,
 		shift,
 	} satisfies Omit< React.ComponentProps< typeof Popover >, 'children' >;
 
-	const isAnchorWrapper = popoverAnchorStyle === 'wrapper';
-
 	const wrapperClassNames = clsx( 'icon-tooltip-wrapper', className );
 	const iconShiftBySize = {
 		left: isAnchorWrapper ? 0 : -( POPOVER_HELPER_WIDTH / 2 - iconSize / 2 ) + 'px',
 	};
-
-	const isForcedToShow = isAnchorWrapper && forceShow;
 
 	const handleMouseEnter = useCallback( () => {
 		if ( hoverShow ) {
@@ -87,6 +100,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 				clearTimeout( hoverTimeout );
 				setHoverTimeout( null );
 			}
+			openedByHover.current = true;
 			setIsVisible( true );
 		}
 	}, [ hoverShow, hoverTimeout ] );
@@ -103,13 +117,14 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 
 	return (
 		<div
+			ref={ wrapperRef }
 			className={ wrapperClassNames }
 			data-testid="icon-tooltip_wrapper"
 			onMouseEnter={ handleMouseEnter }
 			onMouseLeave={ handleMouseLeave }
 		>
 			{ ! isAnchorWrapper && (
-				<Button variant="link" onMouseDown={ toggleTooltip }>
+				<Button variant="link" aria-expanded={ isVisible } onClick={ toggleTooltip }>
 					<Icon className={ iconClassName } icon={ iconCode } size={ iconSize } />
 				</Button>
 			) }
