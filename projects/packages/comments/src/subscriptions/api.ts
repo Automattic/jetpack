@@ -17,6 +17,8 @@ export type Answer = {
 	state?: SubscriptionState | null;
 	ok: boolean;
 	signedOut: boolean;
+	/** The sign-in code went with this request and is spent, whatever else happened. */
+	redeemed: boolean;
 };
 
 export const fetchSubscriptions = async (
@@ -39,7 +41,7 @@ export const fetchSubscriptions = async (
 		fields[ name ] = typeof value === 'boolean' ? String( Number( value ) ) : value;
 	}
 
-	const failed: Answer = { ok: false, signedOut: false };
+	const failed: Answer = { ok: false, signedOut: false, redeemed: false };
 
 	try {
 		const response = await fetch( url, {
@@ -52,24 +54,27 @@ export const fetchSubscriptions = async (
 		const body = ( await response.json() ) as {
 			code?: string;
 			available?: boolean;
+			redeemed?: boolean;
 		} & Partial< SubscriptionState >;
+		const redeemed = body.redeemed === true;
 
 		if ( ! response.ok ) {
-			return { ...failed, signedOut: SIGN_IN_LOST.includes( body.code ?? '' ) };
+			return { ...failed, redeemed, signedOut: SIGN_IN_LOST.includes( body.code ?? '' ) };
 		}
 
 		if ( body.available === false ) {
-			return { state: null, ok: true, signedOut: false };
+			return { state: null, ok: true, signedOut: false, redeemed };
 		}
 
 		if ( ! body.email || ! body.notification ) {
-			return failed;
+			return { ...failed, redeemed };
 		}
 
 		return {
 			state: { email: body.email, notification: body.notification },
 			ok: true,
 			signedOut: false,
+			redeemed,
 		};
 	} catch {
 		return failed;

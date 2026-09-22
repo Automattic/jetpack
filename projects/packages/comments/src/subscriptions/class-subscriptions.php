@@ -177,7 +177,9 @@ class Subscriptions extends WP_REST_Controller {
 	 *
 	 * A fresh popup sign-in holds only a code until its first comment posts.
 	 * Given that code, it is redeemed here and the passport issued now, so the
-	 * comment that follows posts on the passport instead.
+	 * comment that follows posts on the passport instead. The answer then says
+	 * `redeemed` whatever WordPress.com replied, because the code is spent either
+	 * way and the form must not post it again.
 	 *
 	 * @param WP_REST_Request $request The request.
 	 * @return WP_REST_Response|WP_Error
@@ -188,6 +190,8 @@ class Subscriptions extends WP_REST_Controller {
 		if ( ! get_post( $post_id ) || ! Comment_Form::enabled_for_post_type( $post_id ) ) {
 			return new WP_Error( 'invalid_post', __( 'Invalid request.', 'jetpack-comments' ), array( 'status' => 400 ) );
 		}
+
+		$redeemed = false;
 
 		if ( is_user_logged_in() ) {
 			$email    = (string) wp_get_current_user()->user_email;
@@ -208,32 +212,33 @@ class Subscriptions extends WP_REST_Controller {
 				}
 
 				Passport::issue( $passport );
+				$redeemed = true;
 			}
 
 			$email    = (string) $passport['email'];
 			$provider = (string) $passport['provider'];
 		}
 
-		if ( '' === $email ) {
-			$response = new WP_REST_Response( array( 'available' => false ), 200 );
-			$response->header( 'Cache-Control', 'no-store' );
+		$status = 200;
+		$body   = array( 'available' => false );
 
-			return $response;
+		if ( '' !== $email ) {
+			$choice = array();
+
+			foreach ( array_keys( self::CHOICE ) as $name ) {
+				$choice[ $name ] = (string) $request->get_param( $name );
+			}
+
+			$result = self::send( $email, $provider, $post_id, $choice );
+			$status = $result['status'];
+			$body   = $result['body'];
 		}
 
-		$choice = array();
-
-		foreach ( array_keys( self::CHOICE ) as $name ) {
-			$choice[ $name ] = (string) $request->get_param( $name );
+		if ( $redeemed ) {
+			$body['redeemed'] = true;
 		}
 
-		$result = self::send( $email, $provider, $post_id, $choice );
-
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
-		$response = new WP_REST_Response( $result['body'], $result['status'] );
+		$response = new WP_REST_Response( $body, $status );
 		$response->header( 'Cache-Control', 'no-store' );
 
 		return $response;
@@ -300,7 +305,7 @@ class Subscriptions extends WP_REST_Controller {
 	 * @param string $provider How they identified, as the sign-in providers are named.
 	 * @param int    $post_id  The post the comment thread belongs to.
 	 * @param array  $choice   Keyed by CHOICE, empty strings for what to leave alone.
-	 * @return array|WP_Error status and body.
+	 * @return array status and body.
 	 */
 	private static function send( $email, $provider, $post_id, array $choice ) {
 		$response = Client::wpcom_json_api_request_as_blog(
@@ -325,12 +330,8 @@ class Subscriptions extends WP_REST_Controller {
 			'wpcom'
 		);
 
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
 		$status = (int) wp_remote_retrieve_response_code( $response );
-		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
+		$body   = is_wp_error( $response ) ? null : json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( ! is_array( $body ) ) {
 			return array(

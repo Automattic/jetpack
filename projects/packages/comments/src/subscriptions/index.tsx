@@ -81,7 +81,7 @@ export const SubscriptionOptions = () => {
 	const reading = useRef( false );
 
 	const settle = ( answer: Answer ) => {
-		if ( answer.ok && signedIn.value?.code ) {
+		if ( ( answer.ok || answer.redeemed ) && signedIn.value?.code ) {
 			signedIn.value = { ...signedIn.value, code: null };
 		}
 
