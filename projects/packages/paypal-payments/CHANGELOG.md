@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add a Product ID field, shipping and handling fees, a discount, and flat-amount tax, and check fees and tax rates against what the currency allows. [#52301]
 
 ### Changed
-- Open a saved payment link on its details in the block settings sidebar, with the form behind "Edit". [#52372]
+- Show a saved payment link's details in the block settings sidebar instead of its edit form. [#52372]
 - Show the result of deleting a link, disconnecting, or picking an existing link in a snackbar. [#52464]
 - Update package dependencies. [#52187]
 
