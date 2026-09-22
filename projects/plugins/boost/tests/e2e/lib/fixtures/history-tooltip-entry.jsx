@@ -58,11 +58,12 @@ const HistoryFixture = () => {
 				{ ...paging }
 				data={ data }
 				isVisible={ isVisible }
+				canGoPrevious={ ! new URLSearchParams( window.location.search ).has( 'noOlderHistory' ) }
+				showSingleDate={ false }
 				hasOlderHistory={
 					new URLSearchParams( window.location.search ).has( 'noOlderHistory' ) ? false : undefined
 				}
 				onRetry={ noop }
-				onDismissFreshStart={ noop }
 			/>
 		</div>
 	);

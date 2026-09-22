@@ -43,12 +43,13 @@ const history: PerformanceHistoryData = {
 };
 const callbacks = {
 	onRetry: jest.fn(),
-	onDismissFreshStart: jest.fn(),
 	onPrevious: jest.fn(),
 	onNext: jest.fn(),
 	range: window,
 	dayCount: 30 as const,
 	canGoNext: false,
+	canGoPrevious: true,
+	showSingleDate: false,
 };
 let queryClient: QueryClient;
 function wrapper( { children }: PropsWithChildren ) {
@@ -145,6 +146,7 @@ test.each( [ 1, 2 ] )(
 				data={ { ...history, periods: history.periods.slice( 0, count ) } }
 				hasOlderHistory={ false }
 				{ ...callbacks }
+				showSingleDate={ count === 1 }
 			/>,
 			{ wrapper }
 		);
@@ -454,6 +456,7 @@ test.each( [ 15, 30 ] as const )(
 				{ ...callbacks }
 				dayCount={ dayCount }
 				canGoNext
+				canGoPrevious={ false }
 				hasOlderHistory={ false }
 			/>
 		);
@@ -495,12 +498,6 @@ test.each( [ { range: getHistoryWindow( 1 ) }, { isVisible: false } ] )(
 	}
 );
 
-test( 'dismisses the paid fresh-start notice', () => {
-	render( <HistoryChartCard data={ history } isFreshStart { ...callbacks } />, { wrapper } );
-	fireEvent.click( screen.getByRole( 'button', { name: 'Okay, got it!' } ) );
-	expect( callbacks.onDismissFreshStart ).toHaveBeenCalledTimes( 1 );
-} );
-
 test( 'shows the history error message and offers retry', () => {
 	render(
 		<HistoryChartCard
@@ -513,20 +510,6 @@ test( 'shows the history error message and offers retry', () => {
 	expect( screen.getByText( 'History service unavailable' ) ).toBeInTheDocument();
 	fireEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
 	expect( callbacks.onRetry ).toHaveBeenCalledTimes( 1 );
-} );
-
-test( 'keeps the card padding for notices and drops it only for the charts', () => {
-	/* eslint-disable testing-library/no-node-access */
-	const { rerender } = render( <HistoryChartCard isError { ...callbacks } />, { wrapper } );
-	const zeroPaddingBody = () => document.querySelector( '.boost-daily-history__body' );
-	expect( zeroPaddingBody() ).toBeNull();
-	rerender( <HistoryChartCard isFreshStart { ...callbacks } /> );
-	expect( zeroPaddingBody() ).toBeNull();
-	rerender( <HistoryChartCard isLoading { ...callbacks } /> );
-	expect( zeroPaddingBody() ).not.toBeNull();
-	rerender( <HistoryChartCard data={ history } { ...callbacks } /> );
-	expect( zeroPaddingBody() ).toContainElement( screen.getAllByRole( 'grid' )[ 0 ] );
-	/* eslint-enable testing-library/no-node-access */
 } );
 
 test( 'keeps the header, axis, and empty tooltip on the same day in a UTC+14 site', async () => {
@@ -558,26 +541,4 @@ test( 'transitions from an error to paid history', () => {
 	expect( screen.getByRole( 'button', { name: 'Try again' } ) ).toBeInTheDocument();
 	rerender( <HistoryChartCard data={ history } { ...callbacks } /> );
 	expect( screen.getAllByRole( 'grid', { name: 'Bar chart' } ) ).toHaveLength( 2 );
-} );
-
-test( 'keeps the fresh-start notice silent while announcing errors', () => {
-	// WordPress creates live regions outside the React test container.
-	/* eslint-disable testing-library/no-node-access */
-	const regions = [ 'polite', 'assertive' ].map( politeness => {
-		const id = `a11y-speak-${ politeness }`;
-		const region = document.getElementById( id ) ?? document.createElement( 'div' );
-		region.id = id;
-		region.className = 'a11y-speak-region';
-		region.textContent = '';
-		document.body.appendChild( region );
-		return region;
-	} );
-	/* eslint-enable testing-library/no-node-access */
-	const [ polite, assertive ] = regions;
-	const { rerender } = render( <HistoryChartCard isFreshStart { ...callbacks } />, { wrapper } );
-	expect( screen.getByRole( 'button', { name: 'Okay, got it!' } ) ).toBeInTheDocument();
-	expect( polite ).toBeEmptyDOMElement();
-	expect( assertive ).toBeEmptyDOMElement();
-	rerender( <HistoryChartCard isError { ...callbacks } /> );
-	expect( assertive ).toHaveTextContent( 'Failed to load performance history' );
 } );

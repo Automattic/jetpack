@@ -783,17 +783,40 @@ test( 'retains the free history state when a modules refetch fails with a fresh-
 test.each( [
 	{
 		scoresAt: undefined,
+		currentDays: 0,
 		copy: 'No scores recorded before the feature was unlocked.',
 	},
-	{ scoresAt: 1, copy: 'No scores recorded for this day.' },
-	{ scoresAt: 3, copy: 'No scores recorded for this day.' },
-	{ scoresAt: 6, copy: 'No scores recorded for this day.' },
+	{
+		scoresAt: undefined,
+		currentDays: 2,
+		copy: 'No scores recorded before the feature was unlocked.',
+	},
+	{ scoresAt: 1, currentDays: 0, copy: 'No scores recorded for this day.' },
+	{ scoresAt: 3, currentDays: 0, copy: 'No scores recorded for this day.' },
+	{ scoresAt: 6, currentDays: 0, copy: 'No scores recorded for this day.' },
 ] )(
-	'checks six older windows in one request when history opens empty (scores in window $scoresAt)',
-	async ( { scoresAt, copy } ) => {
+	'checks older history when the window opens empty ($currentDays current days, older window $scoresAt)',
+	async ( { scoresAt, currentDays, copy } ) => {
 		const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
 		jest.mocked( apiFetch ).mockImplementation( options => {
 			const window = options.data?.JSON;
+			if (
+				options.url?.endsWith( '/performance-history/set' ) &&
+				currentDays === 2 &&
+				window.startDate === getHistoryWindow( 0 ).startDate
+			) {
+				return Promise.resolve( {
+					status: 'success',
+					JSON: {
+						...window,
+						periods: [
+							recordedPeriod( window.endDate - 2 * 86400000 ),
+							recordedPeriod( window.endDate - 86400000 ),
+						],
+						annotations: [],
+					},
+				} );
+			}
 			if (
 				options.url?.endsWith( '/performance-history/set' ) &&
 				scoresAt !== undefined &&
@@ -1017,7 +1040,7 @@ test( 'shows a single-day header and disables Previous for a first-slot record w
 } );
 
 test.each( [ 'pending', 'error' ] )(
-	'keeps unknown history paging disabled with a date range when older history is %s',
+	'keeps the range and disables Previous only while the older-history check is pending (%s)',
 	async status => {
 		window.jetpack_boost_ds!.dismissed_alerts!.value = { performance_history_fresh_start: false };
 		const period = recordedPeriod( getHistoryWindow( 0 ).endDate - 86400000 );
@@ -1054,10 +1077,12 @@ test.each( [ 'pending', 'error' ] )(
 			)
 		).toBeInTheDocument();
 		const previous = screen.getByRole( 'button', { name: 'Previous 30 days' } );
-		expect( previous ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( previous ).toHaveAttribute( 'aria-disabled', String( status === 'pending' ) );
 		jest.mocked( apiFetch ).mockClear();
 		fireEvent.click( previous );
-		expect( apiFetch ).not.toHaveBeenCalled();
+		await waitFor( () =>
+			expect( jest.mocked( apiFetch ).mock.calls.length > 0 ).toBe( status === 'error' )
+		);
 	}
 );
 

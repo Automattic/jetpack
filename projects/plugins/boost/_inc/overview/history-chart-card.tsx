@@ -21,17 +21,15 @@ type Props = {
 	onPrevious: () => void;
 	onNext: () => void;
 	canGoNext: boolean;
-	canGoPrevious?: boolean;
+	canGoPrevious: boolean;
 	hasOlderHistory?: boolean;
-	showSingleDate?: boolean;
+	showSingleDate: boolean;
 	data?: PerformanceHistoryData | null;
 	isLoading?: boolean;
 	isVisible?: boolean;
 	isError?: boolean;
 	error?: Error | null;
 	onRetry: () => void;
-	isFreshStart?: boolean;
-	onDismissFreshStart: () => void;
 };
 
 // The empty-bar selector in history-chart-card.scss matches this fill.
@@ -189,24 +187,21 @@ export default function HistoryChartCard( {
 	onNext,
 	canGoNext,
 	hasOlderHistory,
-	canGoPrevious = hasOlderHistory !== false,
-	showSingleDate = hasOlderHistory === false,
+	canGoPrevious,
+	showSingleDate,
 	data,
 	isLoading,
 	isVisible = true,
 	isError,
 	error,
 	onRetry,
-	isFreshStart,
-	onDismissFreshStart,
 }: Props ) {
 	const { startDate, endDate } = range;
 	const days = useMemo(
 		() => bucketHistoryDays( data?.periods ?? [], { startDate, endDate } ),
 		[ data?.periods, startDate, endDate ]
 	);
-	const recordedDays = days.filter( day => day.period );
-	const singleDate = showSingleDate && recordedDays.length === 1 ? recordedDays[ 0 ].date : null;
+	const singleDate = showSingleDate ? days.find( day => day.period )?.date : undefined;
 	const series = useMemo( () => buildHistorySeries( days ), [ days ] );
 	const tickValues = useMemo(
 		() =>
@@ -293,22 +288,6 @@ export default function HistoryChartCard( {
 				<Notice.Description>{ error?.message }</Notice.Description>
 				<Notice.Actions>
 					<Button onClick={ onRetry }>{ __( 'Try again', 'jetpack-boost' ) }</Button>
-				</Notice.Actions>
-			</Notice.Root>
-		);
-	} else if ( isFreshStart ) {
-		content = (
-			<Notice.Root intent="success" spokenMessage={ null }>
-				<Notice.Title>
-					{ __( 'Hello there! Jetpack Boost premium has been activated.', 'jetpack-boost' ) }
-				</Notice.Title>
-				<Notice.Description>
-					{ __( 'Your scores will be recorded from now on.', 'jetpack-boost' ) }
-				</Notice.Description>
-				<Notice.Actions>
-					<Button onClick={ onDismissFreshStart }>
-						{ __( 'Okay, got it!', 'jetpack-boost' ) }
-					</Button>
 				</Notice.Actions>
 			</Notice.Root>
 		);
@@ -477,42 +456,40 @@ export default function HistoryChartCard( {
 									dayCount
 								) }
 					</Card.Title>
-					{ ! isFreshStart && (
-						<Tooltip.Provider>
-							<div className="boost-daily-history__paging">
-								<PagingButton
-									label={ sprintf(
-										/* translators: %d is the number of days to page backward. */
-										__( 'Previous %d days', 'jetpack-boost' ),
-										dayCount
-									) }
-									icon={ isRTL() ? chevronRight : chevronLeft }
-									disabled={ ! canGoPrevious }
-									onClick={ onPrevious }
-								/>
-								<span aria-live="polite">
-									{ singleDate
-										? dateI18n( 'M j, Y', getDate( `${ singleDate }T12:00:00` ), false )
-										: sprintf(
-												/* translators: 1: first date, 2: last date of the visible history window. */
-												__( '%1$s – %2$s', 'jetpack-boost' ),
-												dateI18n( 'M j', range.startDate, false ),
-												dateI18n( 'M j, Y', range.endDate, false )
-											) }
-								</span>
-								<PagingButton
-									label={ sprintf(
-										/* translators: %d is the number of days to page forward. */
-										__( 'Next %d days', 'jetpack-boost' ),
-										dayCount
-									) }
-									icon={ isRTL() ? chevronLeft : chevronRight }
-									disabled={ ! canGoNext }
-									onClick={ onNext }
-								/>
-							</div>
-						</Tooltip.Provider>
-					) }
+					<Tooltip.Provider>
+						<div className="boost-daily-history__paging">
+							<PagingButton
+								label={ sprintf(
+									/* translators: %d is the number of days to page backward. */
+									__( 'Previous %d days', 'jetpack-boost' ),
+									dayCount
+								) }
+								icon={ isRTL() ? chevronRight : chevronLeft }
+								disabled={ ! canGoPrevious }
+								onClick={ onPrevious }
+							/>
+							<span aria-live="polite">
+								{ singleDate
+									? dateI18n( 'M j, Y', getDate( `${ singleDate }T12:00:00` ), false )
+									: sprintf(
+											/* translators: 1: first date, 2: last date of the visible history window. */
+											__( '%1$s – %2$s', 'jetpack-boost' ),
+											dateI18n( 'M j', range.startDate, false ),
+											dateI18n( 'M j, Y', range.endDate, false )
+										) }
+							</span>
+							<PagingButton
+								label={ sprintf(
+									/* translators: %d is the number of days to page forward. */
+									__( 'Next %d days', 'jetpack-boost' ),
+									dayCount
+								) }
+								icon={ isRTL() ? chevronLeft : chevronRight }
+								disabled={ ! canGoNext }
+								onClick={ onNext }
+							/>
+						</div>
+					</Tooltip.Provider>
 				</div>
 			</Card.Header>
 			<Card.Content className={ bodyClassName }>{ content }</Card.Content>

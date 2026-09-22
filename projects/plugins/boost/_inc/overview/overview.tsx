@@ -23,7 +23,6 @@ import {
 } from './lib/use-modules-state';
 import {
 	performanceHistoryQueryKey,
-	useDismissibleAlertState,
 	useHasOlderHistory,
 	usePerformanceHistory,
 } from './lib/use-performance-history';
@@ -80,25 +79,18 @@ function OverviewContent( {
 	const needsUpgrade = modules.data !== undefined && ! historyAvailable;
 	const { range, olderRanges, dayCount, onPrevious, onNext, canGoNext } = useHistoryRange();
 	const history = usePerformanceHistory( historyAvailable && isVisible, range );
-	const [ , dismissFreshStart ] = useDismissibleAlertState( 'performance_history_fresh_start' );
-	const recordedDayCount = bucketHistoryDays( history.data?.periods ?? [], range ).filter(
-		day => day.period
-	).length;
+	const days = bucketHistoryDays( history.data?.periods ?? [], range );
+	const recordedDayCount = days.filter( day => day.period ).length;
+	const assumesOlderHistory = Boolean( days[ 0 ]?.period ) && recordedDayCount >= 2;
 	const olderHistory = useHasOlderHistory(
-		historyAvailable && isVisible && history.isSuccess && recordedDayCount <= 1,
+		historyAvailable && isVisible && history.isSuccess && ! assumesOlderHistory,
 		olderRanges
 	);
-	const historyPagingState = ! history.isSuccess
-		? 'loading'
-		: recordedDayCount >= 2
-			? 'multi-day'
-			: ! olderHistory.isSuccess
-				? 'unknown'
-				: olderHistory.data
-					? 'older-history'
-					: recordedDayCount === 1
-						? 'single-day'
-						: 'empty';
+	const hasOlderHistory = olderHistory.isSuccess ? olderHistory.data : undefined;
+	const canGoPrevious =
+		history.isSuccess &&
+		( assumesOlderHistory || hasOlderHistory === true || olderHistory.isError );
+	const showSingleDate = recordedDayCount === 1 && hasOlderHistory === false;
 	const queryClient = useQueryClient();
 	const online = isSiteOnline();
 	const isLoading = scoreState.status === 'loading';
@@ -229,18 +221,15 @@ function OverviewContent( {
 					onPrevious={ onPrevious }
 					onNext={ onNext }
 					canGoNext={ canGoNext }
-					canGoPrevious={
-						historyPagingState === 'multi-day' || historyPagingState === 'older-history'
-					}
-					hasOlderHistory={ olderHistory.isSuccess ? olderHistory.data : undefined }
-					showSingleDate={ historyPagingState === 'single-day' }
+					canGoPrevious={ canGoPrevious }
+					hasOlderHistory={ hasOlderHistory }
+					showSingleDate={ showSingleDate }
 					isVisible={ isVisible }
 					data={ modules.isPending ? undefined : history.data }
 					isLoading={ modules.isPending || ( historyAvailable && history.isPending ) }
 					isError={ history.isError && ! history.isFetching }
 					error={ history.error }
 					onRetry={ () => history.refetch() }
-					onDismissFreshStart={ dismissFreshStart }
 				/>
 			) }
 		</div>
