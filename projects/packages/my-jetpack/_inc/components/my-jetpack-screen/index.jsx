@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { ActionButton, AdminPage, Col, Container } from '@automattic/jetpack-components';
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
@@ -201,7 +202,7 @@ export default function MyJetpackScreen() {
 						{ ! isNewUser && (
 							<Container horizontalSpacing={ 0 }>
 								<Col>
-									<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
+									<JitmSlot />
 								</Col>
 							</Container>
 						) }
