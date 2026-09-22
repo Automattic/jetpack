@@ -45,6 +45,13 @@ class Protected_Owner_Test extends TestCase {
 	private $caps_manager;
 
 	/**
+	 * XML-RPC answers this test added, removed in `tearDown()` whether or not they were used.
+	 *
+	 * @var callable[]
+	 */
+	private $xmlrpc_answers = array();
+
+	/**
 	 * Initialize the testing environment.
 	 */
 	public function setUp(): void {
@@ -73,6 +80,9 @@ class Protected_Owner_Test extends TestCase {
 		wp_set_current_user( 0 );
 		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
 		remove_all_filters( 'jetpack_connection_ownership_transferable' );
+		foreach ( $this->xmlrpc_answers as $answer ) {
+			remove_filter( 'pre_http_request', $answer, 10 );
+		}
 		WorDBless_Users::init()->clear_all_users();
 		WorDBless_Options::init()->clear_options();
 	}
@@ -813,30 +823,28 @@ class Protected_Owner_Test extends TestCase {
 	private function answer_xmlrpc( $inner ) {
 		$sent = new \stdClass();
 
-		add_filter(
-			'pre_http_request',
-			static function ( $response, $args, $url ) use ( $inner, $sent ) {
-				if ( false === strpos( $url, 'xmlrpc.php' ) ) {
-					return $response;
-				}
+		$answer = static function ( $response, $args, $url ) use ( $inner, $sent ) {
+			if ( false === strpos( $url, 'xmlrpc.php' ) ) {
+				return $response;
+			}
 
-				$sent->url  = $url;
-				$sent->body = $args['body'];
+			$sent->url  = $url;
+			$sent->body = $args['body'];
 
-				return array(
-					'headers'  => array(),
-					'body'     => '<?xml version="1.0"?><methodResponse>' . $inner . '</methodResponse>',
-					'response' => array(
-						'code'    => 200,
-						'message' => 'OK',
-					),
-					'cookies'  => array(),
-					'filename' => null,
-				);
-			},
-			10,
-			3
-		);
+			return array(
+				'headers'  => array(),
+				'body'     => '<?xml version="1.0"?><methodResponse>' . $inner . '</methodResponse>',
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+
+		$this->xmlrpc_answers[] = $answer;
+		add_filter( 'pre_http_request', $answer, 10, 3 );
 
 		return $sent;
 	}
