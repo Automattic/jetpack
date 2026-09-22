@@ -191,14 +191,14 @@
 
 		@media (min-width: 600px) {
 			grid-template-columns: minmax(0, 1fr);
-			padding-block-start: 0;
+			padding-block: var(--wpds-dimension-padding-lg, 16px);
 			border-block-start: 0;
 			padding-inline-start: var(--wpds-dimension-padding-lg, 16px);
 			border-inline-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dcdcde);
 		}
 
 		&:first-child {
-			padding: 0;
+			padding-inline: 0;
 			border: 0;
 		}
 	}
