@@ -105,6 +105,13 @@ class PayPal_Attribute_Mapper {
 	const MAX_BUTTON_TEXT_LENGTH = 50;
 
 	/**
+	 * Maximum return URL length PayPal accepts.
+	 *
+	 * @var int
+	 */
+	const MAX_RETURN_URL_LENGTH = 127;
+
+	/**
 	 * Maximum product id (SKU) length.
 	 *
 	 * @var int
@@ -500,6 +507,14 @@ class PayPal_Attribute_Mapper {
 				return new WP_Error(
 					'invalid_return_url',
 					__( 'Return URL must be a valid HTTPS URL.', 'jetpack-paypal-payments' ),
+					array( 'status' => 400 )
+				);
+			}
+			if ( mb_strlen( $return_url ) > self::MAX_RETURN_URL_LENGTH ) {
+				return new WP_Error(
+					'return_url_too_long',
+					/* translators: %d: maximum allowed characters */
+					sprintf( __( 'Return URL must be %d characters or fewer.', 'jetpack-paypal-payments' ), self::MAX_RETURN_URL_LENGTH ),
 					array( 'status' => 400 )
 				);
 			}
