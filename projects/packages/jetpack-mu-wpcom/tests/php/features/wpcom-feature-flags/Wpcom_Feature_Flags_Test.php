@@ -449,7 +449,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		Wpcom_Feature_Flags::init();
 
 		$this->assertTrue( Feature_Flags::is_enabled( 'my-feature' ) );
-		$this->assertTrue( Feature_Flags::is_enabled( 'my-feature' ) );
+		$this->assertSame( array( 'my-feature' => true ), Wpcom_Feature_Flags::get_overrides() );
 		$this->assertSame( 1, $reads );
 	}
 
