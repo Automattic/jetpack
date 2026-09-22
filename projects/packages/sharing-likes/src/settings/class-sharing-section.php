@@ -61,11 +61,7 @@ final class Sharing_Section {
 	private static function render_block_call_to_action(): void {
 		printf(
 			'<p>%s</p>',
-			esc_html_x(
-				'Add the Sharing Buttons block to your theme’s template.',
-				'Sharing Buttons block migration instruction',
-				'jetpack-sharing-likes'
-			)
+			esc_html__( 'Add the Sharing Buttons block to your theme’s template.', 'jetpack-sharing-likes' )
 		);
 		self::render_site_editor_link();
 	}
