@@ -95,13 +95,25 @@ add_action( 'load-theme-install.php', 'wpcom_themes_tab_enqueue_script' );
  * @return false|object|array
  */
 function wpcom_themes_tab_serve_themes_api( $result, $action, $args ) {
-	if (
-		false !== $result
-		|| 'query_themes' !== $action
-		|| ! isset( $args->browse )
-		|| WPCOM_THEMES_TAB !== $args->browse
-		|| ! wpcom_themes_tab_enabled()
-	) {
+	if ( false !== $result || 'query_themes' !== $action || ! wpcom_themes_tab_enabled() ) {
+		return $result;
+	}
+
+	// A `?theme=<slug>` preview link, loaded directly, looks its theme up by slug rather than by tab.
+	if ( ! isset( $args->browse ) && isset( $args->theme ) && is_string( $args->theme ) ) {
+		$theme = wpcom_themes_tab_find_theme( $args->theme );
+
+		return null === $theme ? $result : (object) array(
+			'info'   => array(
+				'page'    => 1,
+				'pages'   => 1,
+				'results' => 1,
+			),
+			'themes' => array( wpcom_themes_tab_to_api_theme( $theme ) ),
+		);
+	}
+
+	if ( ! isset( $args->browse ) || WPCOM_THEMES_TAB !== $args->browse ) {
 		return $result;
 	}
 
@@ -179,6 +191,29 @@ function wpcom_themes_tab_get_catalog( $page = 1 ) {
 	set_transient( $cache_key, $catalog, 6 * HOUR_IN_SECONDS );
 
 	return $catalog;
+}
+
+/**
+ * A theme the tab lists, found by slug across the catalog's pages.
+ *
+ * Only the tab's tier is searched, so a preview link for a WordPress.org theme that WordPress.com
+ * also offers in another tier (Twenty Twenty-Five, say) still goes to WordPress.org.
+ *
+ * @param string $slug Theme slug.
+ * @return array|null
+ */
+function wpcom_themes_tab_find_theme( $slug ) {
+	$page = 1;
+	do {
+		$catalog = wpcom_themes_tab_get_catalog( $page );
+		foreach ( $catalog['themes'] as $theme ) {
+			if ( $theme['slug'] === $slug ) {
+				return $theme;
+			}
+		}
+	} while ( ++$page <= ceil( $catalog['found'] / WPCOM_THEMES_TAB_PER_PAGE ) );
+
+	return null;
 }
 
 /**
