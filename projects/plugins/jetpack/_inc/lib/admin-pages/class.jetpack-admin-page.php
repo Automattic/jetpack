@@ -257,6 +257,8 @@ abstract class Jetpack_Admin_Page {
 		$connectable = ! Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode();
 
 		$my_jetpack_available = Footer_Links::is_my_jetpack_available();
+		$my_jetpack_url       = admin_url( 'admin.php?page=my-jetpack#/overview' );
+		$jetpack_logo         = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" height="20" role="img" aria-label="' . esc_attr__( 'Jetpack logo', 'jetpack' ) . '"><path fill="#069e08" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z"></path></svg>';
 
 		$jetpack_admin_url = admin_url( 'admin.php?page=jetpack' );
 		$jetpack_about_url = ! $connectable
@@ -275,15 +277,9 @@ abstract class Jetpack_Admin_Page {
 				<div class="jp-masthead__inside-container">
 					<div class="jp-masthead__title-container">
 						<?php if ( $my_jetpack_available ) : ?>
-							<a class="jp-masthead__logo-link" href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/overview' ) ); ?>">
+							<a class="jp-masthead__logo-link" href="<?php echo esc_url( $my_jetpack_url ); ?>"><?php echo $jetpack_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></a>
 						<?php else : ?>
-							<span class="jp-masthead__logo-link">
-						<?php endif; ?>
-							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" height="20" aria-label="<?php esc_attr_e( 'Jetpack logo', 'jetpack' ); ?>"><path fill="#069e08" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z"></path></svg>
-						<?php if ( $my_jetpack_available ) : ?>
-							</a>
-						<?php else : ?>
-							</span>
+							<span class="jp-masthead__logo-link"><?php echo $jetpack_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 						<?php endif; ?>
 						<h2 class="jp-masthead__title">
 							<?php
@@ -298,12 +294,13 @@ abstract class Jetpack_Admin_Page {
 							} elseif ( 'jetpack-debugger' === $page ) {
 								$current_label = __( 'Debug', 'jetpack' );
 							}
+							// "Jetpack" is a product name, do not translate.
 							?>
 							<?php if ( $current_label ) : ?>
 								<?php if ( $my_jetpack_available ) : ?>
-									<a class="jp-masthead__title-link" href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/overview' ) ); ?>">Jetpack</a><?php // "Jetpack" is a product name, do not translate. ?>
+									<a class="jp-masthead__title-link" href="<?php echo esc_url( $my_jetpack_url ); ?>">Jetpack</a>
 								<?php else : ?>
-									Jetpack<?php // "Jetpack" is a product name, do not translate. ?>
+									Jetpack
 								<?php endif; ?>
 								<span class="jp-masthead__title-separator" aria-hidden="true">/</span>
 								<?php if ( $is_offline_mode ) : ?>
@@ -312,7 +309,7 @@ abstract class Jetpack_Admin_Page {
 								<?php endif; ?>
 								<span class="jp-masthead__title-current"><?php echo esc_html( $current_label ); ?></span>
 							<?php else : ?>
-								Jetpack<?php // "Jetpack" is a product name, do not translate. ?>
+								Jetpack
 							<?php endif; ?>
 						</h2>
 					</div>
