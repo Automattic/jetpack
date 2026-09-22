@@ -105,7 +105,7 @@ final class Post_Handler {
 			( new Modules() )->deactivate( 'sharedaddy' );
 		}
 
-		return self::screen_url( true );
+		return self::redirect_url( true );
 	}
 
 	/**
@@ -127,7 +127,7 @@ final class Post_Handler {
 			( new Modules() )->deactivate( 'likes' );
 		}
 
-		return self::screen_url( true );
+		return self::redirect_url( true );
 	}
 
 	/**
@@ -174,7 +174,7 @@ final class Post_Handler {
 			update_option( 'jetpack_comment_likes_enabled', empty( $_POST['jetpack_comment_likes_enabled'] ) ? 0 : 1 );
 		}
 
-		return self::screen_url( true );
+		return self::redirect_url( true );
 	}
 
 	/**
@@ -191,7 +191,7 @@ final class Post_Handler {
 		/** This action is documented in projects/packages/sharing-likes/src/settings/class-services-config.php */
 		do_action( 'sharing_admin_update' );
 
-		return self::screen_url( true );
+		return self::redirect_url( true );
 	}
 
 	/**
@@ -224,7 +224,7 @@ final class Post_Handler {
 
 		update_option( 'sharing-options', $options );
 
-		return self::screen_url( true );
+		return self::redirect_url( true );
 	}
 
 	/**
@@ -243,14 +243,14 @@ final class Post_Handler {
 	}
 
 	/**
-	 * The screen this handler posts back to.
+	 * Where to send the browser once a submission is handled.
 	 *
-	 * @param bool $saved Whether to ask the screen to confirm a save.
+	 * @param bool $show_saved_notice Whether the screen should confirm a save.
 	 */
-	private static function screen_url( bool $saved ): string {
+	private static function redirect_url( bool $show_saved_notice ): string {
 		$url = admin_url( 'options-general.php?page=' . Settings_Page::SLUG );
 
-		return $saved ? $url . '&update=saved' : $url;
+		return $show_saved_notice ? $url . '&update=saved' : $url;
 	}
 
 	/**
@@ -269,7 +269,7 @@ final class Post_Handler {
 
 		( new Modules() )->activate( $module, false, false );
 
-		return self::screen_url( false );
+		return self::redirect_url( false );
 	}
 
 	/**
