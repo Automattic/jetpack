@@ -39,7 +39,7 @@ class Jetpack_WP_Build_Page {
 	 *
 	 * @param string $page_id The route's page id. It must not be the menu slug: the generated
 	 *                        standalone page.php intercepts `admin_init` for its own id and exits.
-	 * @return bool Whether the build output exists.
+	 * @return bool Whether the build output exists and can render the page.
 	 */
 	public static function load( $page_id ) {
 		$build_index = JETPACK__PLUGIN_DIR . 'build/build.php';
@@ -53,6 +53,14 @@ class Jetpack_WP_Build_Page {
 		// enqueue check it registers at the same priority.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id' ) );
 		require_once $build_index;
+
+		// A stale or partial build can't render the page, so don't swap core's scripts for it.
+		if ( ! function_exists( 'jetpack_plugin_' . str_replace( '-', '_', $page_id ) . '_wp_admin_render_page' ) ) {
+			remove_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id' ) );
+			self::$page_id = null;
+			return false;
+		}
+
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_i18n_loader' ) );
 

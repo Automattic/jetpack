@@ -5,7 +5,10 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-wp-build-page.php';
 
@@ -47,6 +50,24 @@ class Jetpack_WP_Build_Page_Test extends WP_UnitTestCase {
 		$property->setValue( null, $page_id );
 	}
 
+	/**
+	 * Skip unless `build/` exists; loading it defines global functions, so callers run in a separate process.
+	 */
+	private function skip_without_the_build() {
+		if ( ! file_exists( JETPACK__PLUGIN_DIR . 'build/build.php' ) ) {
+			$this->markTestSkipped( 'Needs a built checkout; CI runs unbuilt.' );
+		}
+	}
+
+	/**
+	 * Every consumer that has registered a polyfill.
+	 *
+	 * @return string[]
+	 */
+	private function polyfill_consumers() {
+		return array_merge( array(), ...array_values( WP_Build_Polyfills::get_consumers() ) );
+	}
+
 	public function test_load_returns_false_without_the_build() {
 		if ( file_exists( JETPACK__PLUGIN_DIR . 'build/build.php' ) ) {
 			$this->markTestSkipped( 'Needs an unbuilt checkout, as in CI.' );
@@ -54,6 +75,40 @@ class Jetpack_WP_Build_Page_Test extends WP_UnitTestCase {
 
 		$this->assertFalse( Jetpack_WP_Build_Page::load( 'jetpack-test-dashboard' ) );
 		$this->assertFalse( has_action( 'admin_enqueue_scripts', array( Jetpack_WP_Build_Page::class, 'alias_screen_id' ) ) );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_load_skips_a_page_the_build_cannot_render() {
+		$this->skip_without_the_build();
+
+		$this->assertFalse( Jetpack_WP_Build_Page::load( 'jetpack-no-such-page' ) );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', array( Jetpack_WP_Build_Page::class, 'alias_screen_id' ) ) );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', array( Jetpack_WP_Build_Page::class, 'restore_screen_id' ) ) );
+		$this->assertNotContains( 'jetpack', $this->polyfill_consumers() );
+
+		set_current_screen( 'dashboard' );
+		Jetpack_WP_Build_Page::alias_screen_id();
+		$this->assertSame( 'dashboard', get_current_screen()->id, 'The page id was not reset.' );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_load_accepts_the_built_pages() {
+		$this->skip_without_the_build();
+
+		foreach ( array( 'jetpack-ai-hub', 'jetpack-settings-dashboard' ) as $page_id ) {
+			$this->assertTrue( Jetpack_WP_Build_Page::load( $page_id ), $page_id );
+		}
+		$this->assertContains( 'jetpack', $this->polyfill_consumers() );
 	}
 
 	public function test_screen_id_alias_round_trip() {
