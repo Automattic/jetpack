@@ -4,7 +4,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { Notice, Link as WPLink } from '@wordpress/ui';
 import Lightning from '$svg/lightning';
 import styles from './meta.module.scss';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePageCache, useClearPageCacheAction } from '$lib/stores/page-cache';
 import clsx from 'clsx';
 import { useMutationNotice } from '$features/ui';
@@ -287,13 +287,23 @@ type BypassPatternsExampleProps = {
 
 const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 	const [ show, setShow ] = useState( false );
+	const triggerRef = useRef< HTMLAnchorElement >( null );
 	const tooltipLayer = useTooltipLayer();
 
 	return (
 		<div className={ styles[ 'example-wrapper' ] }>
 			{ /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
 			<a
+				ref={ triggerRef }
 				href="#"
+				role="button"
+				aria-expanded={ show }
+				onKeyDown={ event => {
+					if ( event.key === ' ' ) {
+						event.preventDefault();
+						event.currentTarget.click();
+					}
+				} }
 				className={ styles[ 'example-button' ] }
 				onClick={ e => {
 					recordBoostEvent( 'page_cache_see_example_clicked', {} );
@@ -308,6 +318,10 @@ const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
 					placement="bottom-start"
 					popoverAnchorStyle="wrapper"
 					forceShow={ show }
+					triggerRef={ triggerRef }
+					onClose={ () => {
+						setShow( false );
+					} }
 					offset={ -10 }
 					popoverClassName={ styles.tooltip }
 					{ ...tooltipLayer }
