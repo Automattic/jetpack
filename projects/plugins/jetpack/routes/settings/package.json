@@ -1,6 +1,9 @@
 {
 	"version": "1.0.0",
 	"private": true,
+	"dependencies": {
+		"@automattic/social-previews": "workspace:*"
+	},
 	"route": {
 		"path": "/",
 		"page": "jetpack-settings-dashboard"

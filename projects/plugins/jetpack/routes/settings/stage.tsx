@@ -1,4 +1,6 @@
 import SettingsRoot from '../../_inc/client/settings-root';
+// esbuild takes social-previews' dist/ JS, which leaves out its CSS; webpack compiles it from source.
+import '@automattic/social-previews/style.css';
 import './route.scss';
 import type { ComponentType } from 'react';
 
