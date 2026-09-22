@@ -18,6 +18,7 @@ import {
 import Edit from '../../../src/paypal-payment-buttons/edit';
 import {
 	forgetSyncedRequests,
+	getCardRevision,
 	syncBlocksBeforeSave,
 } from '../../../src/paypal-payment-buttons/utils/sync-on-save';
 import {
@@ -3227,6 +3228,21 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			expect( requests.map( r => [ r.method, r.path ] ) ).toEqual( [ [ 'PUT', resourcePath ] ] );
 			expect( reportHeldBack ).not.toHaveBeenCalled();
+		} );
+
+		// Writing back what the read returned changes nothing at PayPal.
+		it( 'leaves the card revision alone when the save writes back what the block read', async () => {
+			mockResource( { ...attributes } );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
+			);
+
+			const { requests } = await saveTheBlock();
+
+			expect( requests.map( r => r.method ) ).toEqual( [ 'PUT' ] );
+			expect( getCardRevision( 'PLB-SHARED1' ) ).toBe( 0 );
 		} );
 
 		// A PUT replaces the payment outright, so a block still on its block.json defaults
@@ -7688,6 +7704,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( request ).toHaveBeenCalledWith(
 				expect.objectContaining( { path: '/wpcom/v2/paypal/buttons/PLB-B2', method: 'PUT' } )
 			);
+			// The switch read the payment, so writing it back unchanged is no change.
+			expect( getCardRevision( 'PLB-B2' ) ).toBe( 0 );
 		} );
 
 		it( 'says so when the list comes back with no other link', async () => {

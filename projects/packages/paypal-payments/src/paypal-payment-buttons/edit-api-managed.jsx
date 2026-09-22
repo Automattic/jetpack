@@ -692,7 +692,7 @@ export default function ApiManagedEdit( {
 		link =>
 			readLink( link, linkAttributes => {
 				// The block just read the payment, so the save can write it without a second fetch.
-				recordPaymentRead( blockClientId, link.id );
+				recordPaymentRead( blockClientId, link.id, linkAttributes );
 				// The read only carries what the payment has, so what the last link had
 				// goes back to its default first. The image stays: it belongs to the block.
 				setAttributes( {

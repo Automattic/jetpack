@@ -13,6 +13,8 @@
  * @since 0.8.0
  */
 
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import {
@@ -26,6 +28,7 @@ import { formatPrice } from '../utils/currency-symbols';
 import { DEFAULT_LABEL } from '../utils/defaults';
 import { linkPrice } from '../utils/link-price';
 import { withPartnerAttribution } from '../utils/partner-attribution';
+import { getCardRevision } from '../utils/sync-on-save';
 import QrCodePreview from './qr-code-preview';
 import StackedButtonsPreview from './stacked-buttons-preview';
 import { hasVariantPricing } from './variant-builder';
@@ -253,6 +256,9 @@ function ButtonPreview( {
  * @return {Element} The preview for that format.
  */
 export default function PayPalButtonPreview( { format, ...props } ) {
+	// A save that changes a payment bumps its card revision, so render again when the save ends.
+	useSelect( select => select( editorStore ).isSavingPost(), [] );
+
 	// An unknown format falls back to the button, the same way
 	// render_api_managed_button() validates it server-side.
 	switch ( format ) {
@@ -261,10 +267,11 @@ export default function PayPalButtonPreview( { format, ...props } ) {
 		case 'QR':
 			return <QrPreview { ...props } />;
 		case 'STACKED':
-			// The SDK boots once per mount, so the key remounts this on a new URL or payment.
+			// The SDK boots once per mount, so the key remounts this on a new URL or payment,
+			// or when a save changed the payment.
 			return (
 				<StackedButtonsPreview
-					key={ `${ props.attributes?.scriptSrc }|${ props.attributes?.resourceId }` }
+					key={ `${ props.attributes?.scriptSrc }|${ props.attributes?.resourceId }|${ getCardRevision( props.attributes?.resourceId ) }` }
 					{ ...props }
 				/>
 			);

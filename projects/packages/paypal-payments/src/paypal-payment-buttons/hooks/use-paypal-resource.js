@@ -77,7 +77,7 @@ export function usePayPalResource( {
 					return;
 				}
 				// The block now has PayPal's values, so the save can write this payment.
-				recordPaymentRead( clientId, resourceId );
+				recordPaymentRead( clientId, resourceId, response.attributes );
 				// Take PayPal's value only where the attribute still matches what the block had
 				// when the request went out; anything else is the merchant's own edit.
 				const updates = Object.fromEntries(

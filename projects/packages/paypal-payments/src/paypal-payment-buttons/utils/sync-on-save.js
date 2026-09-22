@@ -33,6 +33,14 @@ const paymentsRead = new Map();
 // only a block that rendered is told to reload; the rest are sent to the visual editor.
 const blocksMounted = new Set();
 
+// What each payment held when a block last read it, as block attributes, until a save
+// writes it. Several blocks can share one payment.
+const paymentsHeld = new Map();
+
+// How many saves have changed each payment. The stacked preview keys on it, since
+// PayPal's SDK draws the card once and has no way to redraw it.
+const cardRevisions = new Map();
+
 // PayPal grants the mode stacked needs per account, and only a write tells us — a GET
 // reads the same either way. Without the capability there are no code_snippets and so
 // no scriptSrc. Nothing records the refusal, so an account granted it later just works.
@@ -56,6 +64,18 @@ export function forgetSyncedRequests() {
 	lastSynced.clear();
 	paymentsRead.clear();
 	blocksMounted.clear();
+	paymentsHeld.clear();
+	cardRevisions.clear();
+}
+
+/**
+ * How many saves have changed a payment.
+ *
+ * @param {string} resourceId - The payment.
+ * @return {number} The count, 0 before any.
+ */
+export function getCardRevision( resourceId ) {
+	return cardRevisions.get( resourceId ) || 0;
 }
 
 /**
@@ -72,9 +92,37 @@ export function recordBlockMounted( clientId ) {
  *
  * @param {string} clientId   - The block's client id.
  * @param {string} resourceId - The payment the block read.
+ * @param {object} [held]     - What PayPal holds for it, as block attributes.
  */
-export function recordPaymentRead( clientId, resourceId ) {
+export function recordPaymentRead( clientId, resourceId, held ) {
 	paymentsRead.set( clientId, resourceId );
+	if ( held ) {
+		paymentsHeld.set( resourceId, held );
+	}
+}
+
+/**
+ * Count a change for each payment a PUT wrote, unless every PUT wrote back what was read.
+ * With no read, a PUT is compared with block.json's defaults, which a named product
+ * never matches.
+ *
+ * @param {Map} written - Block attributes written by each payment's PUTs, by payment id.
+ */
+function recordPaymentsWritten( written ) {
+	written.forEach( ( writes, resourceId ) => {
+		const held = paymentsHeld.get( resourceId );
+		// Sibling PUTs can disagree, and which one PayPal applied last is unknown, so
+		// only a fresh read is worth comparing with.
+		paymentsHeld.delete( resourceId );
+
+		if (
+			writes.some(
+				attributes => Object.keys( getResourceAttributeUpdates( attributes, held ) ).length
+			)
+		) {
+			cardRevisions.set( resourceId, getCardRevision( resourceId ) + 1 );
+		}
+	} );
 }
 
 /**
@@ -148,7 +196,7 @@ async function createPayment( request, clientId, attributes, body ) {
 	const response = await request( { path: `${ API_BASE }/buttons`, method: 'POST', data: body } );
 
 	// This request is what PayPal now has, so the next save can update it without a read.
-	recordPaymentRead( clientId, response.id );
+	recordPaymentRead( clientId, response.id, response.attributes );
 
 	return {
 		response,
@@ -206,12 +254,14 @@ function reportStackedUnavailable( block, scriptSrc, reportError ) {
  * @param {Function} deps.reportError           - Tells the merchant a block's save failed, and why.
  * @param {Function} deps.reportHeldBack        - Tells the merchant a block was not sent, and why.
  * @param {Set}      stackedResources           - Payments a stacked block in this save draws from.
+ * @param {Map}      written                    - Collects the attributes each PUT wrote, by payment id.
  * @return {Promise<boolean>} True when the block's attributes changed.
  */
 async function syncBlock(
 	{ clientId, attributes },
 	{ request, updateBlockAttributes, reportError, reportHeldBack },
-	stackedResources
+	stackedResources,
+	written
 ) {
 	const reason = heldBackReason( attributes );
 	if ( reason ) {
@@ -277,6 +327,9 @@ async function syncBlock(
 					method: 'PUT',
 					data: body,
 				} );
+
+				// Compared with what was read once every PUT has settled.
+				written.set( resourceId, [ ...( written.get( resourceId ) || [] ), attributes ] );
 
 				// The read-back is how a block switching to stacked gets its scriptSrc in the same
 				// save. Without one the response is the echo, which changes nothing.
@@ -348,9 +401,13 @@ export async function syncBlocksBeforeSave( blocks, deps ) {
 			.map( ( { attributes } ) => attributes.resourceId )
 	);
 
+	const written = new Map();
 	const results = await Promise.all(
-		blocks.map( block => syncBlock( block, deps, stackedResources ) )
+		blocks.map( block => syncBlock( block, deps, stackedResources, written ) )
 	);
+
+	// After every PUT has settled, so blocks sharing a payment remount its preview once.
+	recordPaymentsWritten( written );
 
 	return results.some( Boolean );
 }

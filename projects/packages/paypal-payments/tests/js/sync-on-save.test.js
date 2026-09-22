@@ -4,9 +4,13 @@
  * @package
  */
 
-import { getResourceAttributeUpdates } from '../../src/paypal-payment-buttons/utils/resource-sync';
+import {
+	getResourceAttributeUpdates,
+	normalizeResourceVariants,
+} from '../../src/paypal-payment-buttons/utils/resource-sync';
 import {
 	forgetSyncedRequests,
+	getCardRevision,
 	heldBackReason,
 	isReadyForPayPal,
 	recordBlockMounted,
@@ -1062,5 +1066,137 @@ describe( 'syncBlocksBeforeSave', () => {
 				expect.objectContaining( { price: expect.anything() } )
 			);
 		} );
+	} );
+} );
+
+// PayPal's SDK draws the stacked card once, so the preview remounts when the revision goes up.
+describe( 'the card revision', () => {
+	const saved = { ...product, isApiManaged: true, resourceId: 'PLB-1' };
+	const echo = () => Promise.resolve( {} );
+	const image = { imageUrl: 'https://example.test/widget.png' };
+
+	/**
+	 * Save these blocks, all pointed at PLB-1 and each having read it.
+	 *
+	 * @param {Array}    changes - Attributes each block changes, one entry per block.
+	 * @param {Function} respond - Answers each request.
+	 * @return {Promise<object>} The deps the save ran with.
+	 */
+	const save = async ( changes, respond = echo ) => {
+		const deps = fakeDeps( respond );
+		await syncBlocksBeforeSave(
+			changes.map( ( change, i ) => ( {
+				clientId: `block-${ i }`,
+				attributes: { ...saved, ...change },
+			} ) ),
+			deps
+		);
+		return deps;
+	};
+
+	beforeEach( () => {
+		recordPaymentRead( 'block-0', 'PLB-1', product );
+		recordPaymentRead( 'block-1', 'PLB-1', product );
+	} );
+
+	// Anything a PUT changes at PayPal may show on the card, so every change counts once.
+	it.each( [
+		[ 'the name', { productName: 'Deluxe Widget' } ],
+		[ 'the price', { price: '31.00' } ],
+		[ 'the currency', { currencyCode: 'EUR' } ],
+		[ 'the options', { variantsEnabled: true, variants: variantsWithPrices( priced ) } ],
+		[ 'the tax', { taxEnabled: true, taxType: 'PERCENTAGE', taxValue: '10' } ],
+		[ 'the return URL', { returnUrl: 'https://example.test/thanks' } ],
+	] )( 'goes up when %s changes', async ( _label, change ) => {
+		await save( [ change ] );
+
+		expect( getCardRevision( 'PLB-1' ) ).toBe( 1 );
+	} );
+
+	// The first save after a load writes every block, and each reload costs an SDK load.
+	it.each( [
+		[ 'nothing changed', {} ],
+		[ 'only the format changed', { format: 'LINK' } ],
+		[ 'only the image changed', image ],
+	] )( 'stays put when %s', async ( _label, change ) => {
+		const deps = await save( [ change ] );
+
+		expect( deps.request ).toHaveBeenCalledTimes( 1 );
+		expect( getCardRevision( 'PLB-1' ) ).toBe( 0 );
+	} );
+
+	// The read carries PayPal's variants, and the block holds them with its editor keys.
+	it( 'stays put when the options are unchanged', async () => {
+		const variants = variantsWithPrices( priced );
+		recordPaymentRead( 'block-0', 'PLB-1', { ...product, variantsEnabled: true, variants } );
+
+		await save( [ { variantsEnabled: true, variants: normalizeResourceVariants( variants ) } ] );
+
+		expect( getCardRevision( 'PLB-1' ) ).toBe( 0 );
+	} );
+
+	it( 'goes up once when several blocks share the payment', async () => {
+		const deps = await save( [
+			{ productName: 'Deluxe Widget' },
+			{ productName: 'Deluxe Widget', format: 'LINK' },
+		] );
+
+		expect( deps.request ).toHaveBeenCalledTimes( 2 );
+		expect( getCardRevision( 'PLB-1' ) ).toBe( 1 );
+	} );
+
+	// PayPal keeps whichever of two disagreeing PUTs it applied last, so the save after
+	// cannot know what the card shows.
+	it( 'goes up for any PUT after a save wrote the payment', async () => {
+		await save( [ { productName: 'Deluxe Widget' }, {} ] );
+		await save( [ { productName: 'Deluxe Widget' }, image ] );
+
+		expect( getCardRevision( 'PLB-1' ) ).toBe( 2 );
+	} );
+
+	// A 404 counts as a read with nothing to compare against.
+	it( 'goes up for a PUT to a payment whose values it never read', async () => {
+		recordPaymentRead( 'block-0', 'PLB-2' );
+
+		await syncBlocksBeforeSave(
+			[ { clientId: 'block-0', attributes: { ...saved, resourceId: 'PLB-2' } } ],
+			fakeDeps( echo )
+		);
+
+		expect( getCardRevision( 'PLB-2' ) ).toBe( 1 );
+	} );
+
+	it.each( [
+		[ 'refuses the PUT', { code: 'paypal_api_error', message: 'No.' } ],
+		[ 'no longer has the payment', { code: 'paypal_api_resource_not_found' } ],
+	] )( 'stays put when PayPal %s', async ( _label, err ) => {
+		await save( [ { productName: 'Deluxe Widget' } ], ( { method } ) =>
+			'PUT' === method ? Promise.reject( err ) : Promise.resolve( { id: 'PLB-NEW1' } )
+		);
+
+		expect( getCardRevision( 'PLB-1' ) ).toBe( 0 );
+	} );
+
+	// The create answers with what PayPal made of the block, which the block then takes:
+	// its variants without the editor's keys, and the price the way PayPal writes it.
+	it( 'stays put when a save after the create writes back what PayPal holds', async () => {
+		const variants = variantsWithPrices( priced );
+		const block = {
+			...product,
+			variantsEnabled: true,
+			variants: normalizeResourceVariants( variants ),
+		};
+		const created = { ...block, price: '30.00', variants };
+		const deps = fakeDeps( () => Promise.resolve( { id: 'PLB-NEW1', attributes: created } ) );
+		const taken = { ...block, price: '30.00', isApiManaged: true, resourceId: 'PLB-NEW1' };
+
+		await syncBlocksBeforeSave(
+			[ { clientId: 'a', attributes: { ...block, price: '30' } } ],
+			deps
+		);
+		await syncBlocksBeforeSave( [ { clientId: 'a', attributes: { ...taken, ...image } } ], deps );
+
+		expect( deps.requests.map( r => r.method ) ).toEqual( [ 'POST', 'PUT' ] );
+		expect( getCardRevision( 'PLB-NEW1' ) ).toBe( 0 );
 	} );
 } );

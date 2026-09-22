@@ -8,10 +8,17 @@
  * @package
  */
 
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
+import { dispatch } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import QRCode from 'qrcode';
 import PayPalButtonPreview from '../../src/paypal-payment-buttons/components/paypal-button-preview';
 import { QR_OPTIONS } from '../../src/paypal-payment-buttons/utils/qr-options';
+import {
+	forgetSyncedRequests,
+	recordPaymentRead,
+	syncBlocksBeforeSave,
+} from '../../src/paypal-payment-buttons/utils/sync-on-save';
 import bootTheFrame from './boot-the-frame';
 
 // jsdom has no 2D context, so a real draw fails. Unlike qr-code.test.js's mock
@@ -19,6 +26,19 @@ import bootTheFrame from './boot-the-frame';
 jest.mock( 'qrcode', () => ( {
 	toCanvas: jest.fn( () => Promise.resolve() ),
 } ) );
+
+// Just the saving flag, which core/editor raises before the sync runs and drops after.
+jest.mock( '@wordpress/editor', () => {
+	const { createReduxStore, register } = jest.requireActual( '@wordpress/data' );
+	const store = createReduxStore( 'core/editor', {
+		reducer: ( saving = false, action ) =>
+			'SET_SAVING' === action.type ? action.saving : saving,
+		actions: { setSaving: saving => ( { type: 'SET_SAVING', saving } ) },
+		selectors: { isSavingPost: saving => saving },
+	} );
+	register( store );
+	return { store };
+} );
 
 const defaultProps = {
 	productName: 'Premium Widget',
@@ -511,8 +531,8 @@ describe( 'PayPalButtonPreview', () => {
 			expect( script.src ).toBe( 'scriptSrc' === key ? changed : usd );
 		} );
 
-		// The key is the SDK URL and the payment id. Keyed on the whole attributes
-		// object, every keystroke in the sidebar would reboot PayPal's SDK.
+		// Keyed on the whole attributes object, every keystroke in the sidebar would
+		// reboot PayPal's SDK.
 		it( 'leaves the running SDK alone when another attribute changes', () => {
 			const before = { scriptSrc: usd, resourceId: 'PLB-1', productName: 'Premium Widget' };
 
@@ -523,6 +543,60 @@ describe( 'PayPalButtonPreview', () => {
 			// A remount would boot into this second document; the first mount's frame
 			// carries on drawing instead.
 			expect( bootTheFrame().doc.querySelector( 'script' ) ).toBeNull();
+		} );
+
+		describe( 'after a save', () => {
+			const payment = { ...defaultProps, collectShippingAddress: false };
+			const block = { ...payment, format: 'STACKED', isApiManaged: true, resourceId: 'PLB-1' };
+
+			/**
+			 * Save the block the way core/editor does, with PayPal answering the PUT.
+			 *
+			 * @param {object} attributes - The block's attributes at the save.
+			 */
+			const save = async attributes => {
+				await act( () => dispatch( editorStore ).setSaving( true ) );
+				await syncBlocksBeforeSave( [ { clientId: 'a', attributes } ], {
+					request: () => Promise.resolve( {} ),
+					updateBlockAttributes: jest.fn(),
+					reportError: jest.fn(),
+					reportHeldBack: jest.fn(),
+				} );
+				await act( () => dispatch( editorStore ).setSaving( false ) );
+			};
+
+			beforeEach( () => {
+				forgetSyncedRequests();
+				recordPaymentRead( 'a', 'PLB-1', payment );
+			} );
+
+			// A new SDK asks PayPal for the card again.
+			it( 'boots the SDK again once a save that changed the payment ends', async () => {
+				render( stacked( { scriptSrc: usd, resourceId: 'PLB-1' } ) );
+				expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
+
+				await save( { ...block, productName: 'Deluxe Widget' } );
+
+				expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
+			} );
+
+			it( 'leaves the running SDK alone when the save changed nothing', async () => {
+				render( stacked( { scriptSrc: usd, resourceId: 'PLB-1' } ) );
+				expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
+
+				await save( block );
+
+				expect( bootTheFrame().doc.querySelector( 'script' ) ).toBeNull();
+			} );
+
+			it( 'leaves the SDK of another payment alone', async () => {
+				render( stacked( { scriptSrc: usd, resourceId: 'PLB-2' } ) );
+				expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
+
+				await save( { ...block, productName: 'Deluxe Widget' } );
+
+				expect( bootTheFrame().doc.querySelector( 'script' ) ).toBeNull();
+			} );
 		} );
 
 		it( 'draws the button card for a format it does not know', () => {

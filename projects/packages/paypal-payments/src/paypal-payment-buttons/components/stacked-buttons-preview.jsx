@@ -59,8 +59,9 @@ export default function StackedButtonsPreview( {
 		}
 	}, [ isSelected ] );
 
-	// Once per mount: PayPalButtonPreview keys this component on the SDK URL and the
-	// payment, so either one changing remounts it and there is nothing here to rerun.
+	// Once per mount: PayPalButtonPreview keys this component on the SDK URL, the payment
+	// and how many saves changed it, so any of them changing remounts it and there is
+	// nothing here to rerun.
 	useEffect( () => {
 		const frame = frameRef.current;
 		const hostUrl = window.jetpackPayPalPayments?.sdkHostUrl;
