@@ -241,11 +241,12 @@ export function sanitizeStatsEmailBreakdownResponse(
 	response: unknown,
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsEmailBreakdownItem > {
-	const items = parseEmailBreakdownRows( coerceStatsRecord( response ) );
+	const payload = coerceStatsRecord( response );
+	const items = parseEmailBreakdownRows( payload );
 
 	if ( ! items.length ) {
 		return {
-			summary: normalizeEmailBreakdownScalarSummary( coerceStatsRecord( response ) ),
+			summary: normalizeEmailBreakdownScalarSummary( payload ),
 			data: [],
 		};
 	}
