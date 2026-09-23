@@ -275,33 +275,6 @@ class Jetpack_Google_Font_Face {
 	}
 
 	/**
-	 * Get the font slug aliases that maps the font slug to the font family if they are different.
-	 *
-	 * The font definition may define an alias slug name, so we have to add the map from the slug name to the font family.
-	 * See https://github.com/WordPress/twentytwentyfour/blob/df92472089ede6fae5924c124a93c843b84e8cbd/theme.json#L215.
-	 */
-	public function get_font_slug_aliases() {
-		$font_slug_aliases = array();
-
-		$theme_json = WP_Theme_JSON_Resolver::get_theme_data();
-		$raw_data   = $theme_json->get_data();
-		if ( ! empty( $raw_data['settings']['typography']['fontFamilies'] ) ) {
-			foreach ( $raw_data['settings']['typography']['fontFamilies'] as $font ) {
-				if ( ! isset( $font['fontFamily'] ) ) {
-					continue;
-				}
-				$font_family_name = $this->format_font( $this->get_font_family_name( $font ) );
-				$font_slug        = $font['slug'] ?? '';
-				if ( $font_slug && $font_slug !== $font_family_name && ! array_key_exists( $font_slug, $font_slug_aliases ) ) {
-					$font_slug_aliases[ $font_slug ] = $font_family_name;
-				}
-			}
-		}
-
-		return $font_slug_aliases;
-	}
-
-	/**
 	 * Get the font family name from a font.
 	 *
 	 * @param array $font The font definition object.
