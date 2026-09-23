@@ -10,7 +10,7 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 420+ occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 210+ occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 200+ occurrences
     // PhanTypeMismatchReturn : 140+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 110+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 90+ occurrences
@@ -21,12 +21,12 @@ return [
     // PhanUndeclaredMethod : 35+ occurrences
     // PhanTypeMismatchDefault : 25+ occurrences
     // PhanTypeMismatchPropertyProbablyReal : 25+ occurrences
+    // PhanTypeMismatchArgumentNullable : 20+ occurrences
     // PhanTypeMismatchDimFetch : 20+ occurrences
     // PhanParamSignatureMismatch : 15+ occurrences
     // PhanSuspiciousMagicConstant : 15+ occurrences
     // PhanTypeArraySuspicious : 15+ occurrences
     // PhanTypeExpectedObjectPropAccess : 15+ occurrences
-    // PhanTypeMismatchArgumentNullable : 15+ occurrences
     // PhanTypeMismatchPropertyDefault : 15+ occurrences
     // PhanTypeSuspiciousNonTraversableForeach : 15+ occurrences
     // PhanPluginMixedKeyNoKey : 10+ occurrences
@@ -40,9 +40,9 @@ return [
     // PhanTypeComparisonToArray : 7 occurrences
     // PhanTypeMissingReturn : 7 occurrences
     // PhanCommentAbstractOnInheritedMethod : 6 occurrences
-    // PhanTypeMismatchArgumentInternal : 6 occurrences
     // PhanDeprecatedClass : 5 occurrences
     // PhanPossiblyUndeclaredVariable : 5 occurrences
+    // PhanTypeMismatchArgumentInternal : 5 occurrences
     // PhanTypeMismatchDimAssignment : 5 occurrences
     // PhanTypeInvalidDimOffset : 4 occurrences
     // PhanTypeInvalidLeftOperandOfAdd : 4 occurrences
@@ -252,7 +252,6 @@ return [
         'modules/comments/comments.php' => ['PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanUndeclaredFunction'],
         'modules/comments/subscription-modal-on-comment/class-jetpack-subscription-modal-on-comment.php' => ['PhanTypeMismatchReturnNullable'],
         'modules/custom-content-types.php' => ['PhanRedefineFunction'],
-        'modules/google-fonts/current/load-google-fonts.php' => ['PhanTypeArraySuspicious'],
         'modules/gravatar-hovercards.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'modules/infinite-scroll.php' => ['PhanUndeclaredClassMethod'],
         'modules/infinite-scroll/infinity.php' => ['PhanTypeComparisonToArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
