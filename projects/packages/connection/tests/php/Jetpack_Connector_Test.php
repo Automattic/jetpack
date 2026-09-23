@@ -99,6 +99,7 @@ class Jetpack_Connector_Test extends TestCase {
 
 		remove_all_filters( 'jetpack_offline_mode' );
 		remove_all_filters( 'jetpack_is_in_safe_mode' );
+		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
 		StatusCache::clear();
 	}
 
@@ -180,7 +181,38 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertArrayNotHasKey( 'siteDetails', $data );
 		$this->assertArrayNotHasKey( 'currentUser', $data );
 		$this->assertArrayNotHasKey( 'connectionOwner', $data );
+		$this->assertArrayNotHasKey( 'protectedOwner', $data );
 		$this->assertArrayNotHasKey( 'ssoStatus', $data );
+	}
+
+	/**
+	 * A consumer request exposes protected-owner card state before anyone has claimed it.
+	 */
+	public function test_protected_owner_card_state_when_a_consumer_requests_one() {
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertTrue( $data['protectedOwner']['required'] );
+		$this->assertFalse( $data['protectedOwner']['hasAnchor'] );
+		$this->assertFalse( $data['protectedOwner']['isEstablished'] );
+		$this->assertFalse( $data['protectedOwner']['isConnectedNonAdmin'] );
+		$this->assertSame( array(), $data['protectedOwner']['requestingPlugins'] );
+	}
+
+	/**
+	 * A stored anchor changes the card even when no consumer is requesting a protected owner.
+	 */
+	public function test_protected_owner_card_state_when_an_anchor_is_stored() {
+		Protected_Owner::set( 4242, $this->admin_id );
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertFalse( $data['protectedOwner']['required'] );
+		$this->assertTrue( $data['protectedOwner']['hasAnchor'] );
+		$this->assertFalse( $data['protectedOwner']['isEstablished'] );
+		$this->assertFalse( $data['protectedOwner']['isConnectedNonAdmin'] );
+		$this->assertSame( array(), $data['protectedOwner']['requestingPlugins'] );
 	}
 
 	/* ── get_connector_data() — offline mode ───────────────────── */

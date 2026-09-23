@@ -55,6 +55,7 @@ const isOfflineMode = Boolean( data.isOfflineMode );
 const isInSafeMode = Boolean( data.isInSafeMode );
 const isSafeModeConfirmed = Boolean( data.isSafeModeConfirmed );
 const idc = data.idc || null;
+const protectedOwner = data.protectedOwner || null;
 // Stats and Backups are Jetpack-plugin features, so only cite them as examples
 // of paused features when a Jetpack-family plugin is actually connected.
 // Other plugin families (WooCommerce, Automattic for Agencies) fall back to the
@@ -446,6 +447,176 @@ function ConnectedPluginsSection() {
 				)
 			)
 		)
+	);
+}
+
+/**
+ * Link-styled control that does not navigate.
+ *
+ * Protected-owner actions are display-only until the claim and recovery flows
+ * are wired to this card.
+ *
+ * @param {object} props          - Component props.
+ * @param {string} props.children - Link text.
+ * @return {object} React element.
+ */
+function InactiveLink( { children } ) {
+	return createElement(
+		Button,
+		{
+			variant: 'link',
+			disabled: true,
+			className: 'jetpack-connector__inactive-link',
+		},
+		children
+	);
+}
+
+/**
+ * Who requested the protected owner, for the confirm-slot subtext.
+ *
+ * @return {string} Plugin names, or a generic fallback when none are known.
+ */
+function protectedOwnerRequestedBy() {
+	const names = Array.isArray( protectedOwner?.requestingPlugins )
+		? protectedOwner.requestingPlugins.filter( name => typeof name === 'string' && name )
+		: [];
+
+	if ( names.length === 0 ) {
+		return sprintf(
+			// translators: %s: "site" or "store".
+			__( 'a plugin on this %s', 'jetpack-connection' ),
+			subjectNoun
+		);
+	}
+
+	if ( names.length === 1 ) {
+		return names[ 0 ];
+	}
+
+	const last = names[ names.length - 1 ];
+	return sprintf(
+		// translators: %1$s: plugin names except the last. %2$s: the last plugin name.
+		__( '%1$s and %2$s', 'jetpack-connection' ),
+		names.slice( 0, -1 ).join( ', ' ),
+		last
+	);
+}
+
+/**
+ * Title for the viewing admin's own account row.
+ *
+ * @param {object} user - Current user data, including isOwner.
+ * @return {string} Section title.
+ */
+function connectedAccountTitle( user ) {
+	if ( ! user.isOwner ) {
+		return __( 'Connected as', 'jetpack-connection' );
+	}
+
+	if ( protectedOwner && ! protectedOwner.isEstablished ) {
+		return __( 'Connected as manager', 'jetpack-connection' );
+	}
+
+	return __( 'Connected as owner', 'jetpack-connection' );
+}
+
+/**
+ * Whether the current master is only a manager.
+ *
+ * @return {boolean} True when a linked admin should see the manager title.
+ */
+function masterIsManager() {
+	return Boolean( protectedOwner && currentUser && ! protectedOwner.isEstablished );
+}
+
+/**
+ * Whether the protected-owner slot replaces the connection-owner row.
+ *
+ * @return {boolean} True when the slot should replace the connection-owner row.
+ */
+function showProtectedOwnerSlot() {
+	if ( ! protectedOwner || ! currentUser ) {
+		return false;
+	}
+
+	return ! protectedOwner.isEstablished || protectedOwner.isConnectedNonAdmin;
+}
+
+/**
+ * Protected-owner slot shown to a linked admin.
+ *
+ * @return {object} React element.
+ */
+function ProtectedOwnerSection() {
+	let body;
+
+	if ( protectedOwner.isConnectedNonAdmin ) {
+		body = createElement(
+			Text,
+			{ size: 13 },
+			createInterpolateElement(
+				__(
+					'The connection owner account is not an administrator. <role>Change the account role.</role>',
+					'jetpack-connection'
+				),
+				{ role: createElement( InactiveLink ) }
+			)
+		);
+	} else if ( protectedOwner.hasAnchor ) {
+		body = createElement(
+			Text,
+			{ size: 13 },
+			createInterpolateElement(
+				__(
+					'The connection owner needs to create or connect their account, or <support>contact support</support>.',
+					'jetpack-connection'
+				),
+				{ support: createElement( InactiveLink ) }
+			)
+		);
+	} else {
+		body = createElement(
+			VStack,
+			{ spacing: 2 },
+			createElement(
+				InactiveLink,
+				null,
+				sprintf(
+					// translators: %s: "site" or "store".
+					__( 'Confirm you are the %s owner.', 'jetpack-connection' ),
+					subjectNoun
+				)
+			),
+			createElement(
+				Text,
+				{ variant: 'muted', size: 12 },
+				sprintf(
+					// translators: %s: plugins requesting a protected owner, or a generic fallback.
+					__(
+						'Confirming ownership is requested by %s. This step secures that vital features are locked to one account. Ownership can be transferred later.',
+						'jetpack-connection'
+					),
+					protectedOwnerRequestedBy()
+				)
+			)
+		);
+	}
+
+	return createElement(
+		VStack,
+		{ spacing: 3, className: 'jetpack-connector__section' },
+		createElement(
+			Text,
+			{
+				variant: 'muted',
+				size: 11,
+				upperCase: true,
+				weight: 500,
+			},
+			__( 'Connection owner', 'jetpack-connection' )
+		),
+		body
 	);
 }
 
@@ -1161,9 +1332,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 		// Current user info + unlink action (only when the viewing admin is linked).
 		currentUser
 			? createElement( UserSection, {
-					title: currentUser.isOwner
-						? __( 'Connected as owner', 'jetpack-connection' )
-						: __( 'Connected as', 'jetpack-connection' ),
+					title: connectedAccountTitle( currentUser ),
 					user: currentUser,
 					actionSlot:
 						isManagedPlatformSite && currentUser.isOwner
@@ -1194,8 +1363,19 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 				} )
 			: null,
 
-		// Connection owner (shown to non-owners and unlinked admins).
-		connectionOwner && ! currentUser?.isOwner
+		// Manager row for a linked admin who is not the master.
+		masterIsManager() && connectionOwner && ! currentUser?.isOwner
+			? createElement( UserSection, {
+					title: __( 'Connected as manager', 'jetpack-connection' ),
+					user: connectionOwner,
+					subtitle: false,
+				} )
+			: null,
+
+		showProtectedOwnerSlot() ? createElement( ProtectedOwnerSection ) : null,
+
+		// Connection owner, unless the protected-owner slot is standing in for it.
+		connectionOwner && ! currentUser?.isOwner && ! showProtectedOwnerSlot()
 			? createElement( UserSection, {
 					title: __( 'Connection owner', 'jetpack-connection' ),
 					user: connectionOwner,

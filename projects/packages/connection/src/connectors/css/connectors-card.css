@@ -127,6 +127,17 @@
 	border-radius: 50%;
 }
 
+.jetpack-connector__inactive-link.jetpack-connector__inactive-link:disabled {
+	opacity: 1;
+	cursor: default;
+	text-decoration: underline;
+	block-size: auto;
+	padding-block: 0;
+	padding-inline: 0;
+	vertical-align: baseline;
+	color: var(--wp-admin-theme-color, #3858e9);
+}
+
 .jetpack-connector__user-link {
 	text-decoration: underline;
 	color: inherit;
