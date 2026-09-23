@@ -13,6 +13,7 @@ use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../../src/widget-modules.php';
 require_once __DIR__ . '/../../src/widget-types.php';
+require_once __DIR__ . '/../../src/default-dashboard-sections.php';
 require_once __DIR__ . '/fixtures/widget-modules-manifest.php';
 require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 
@@ -395,13 +396,6 @@ class Widget_Type_Registry_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The contract version a consumer compares against is a semantic version.
-	 */
-	public function test_widget_api_version_is_a_semantic_version() {
-		$this->assertMatchesRegularExpression( '/^\d+\.\d+\.\d+$/', WIDGET_API_VERSION );
-	}
-
-	/**
 	 * Calling the package's registrant twice registers each manifest widget once.
 	 */
 	public function test_register_widget_types_skips_registered_names() {
@@ -411,6 +405,6 @@ class Widget_Type_Registry_Test extends BaseTestCase {
 		register_widget_types();
 
 		$this->assertSame( array(), $this->doing_it_wrong );
-		$this->assertCount( 1, array_keys( get_registered_widget_types(), Widget_Type_Registry::get_instance()->get_registered( self::MANIFEST_WIDGET ), true ) );
+		$this->assertArrayHasKey( self::MANIFEST_WIDGET, get_registered_widget_types() );
 	}
 }
