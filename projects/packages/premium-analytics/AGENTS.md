@@ -249,6 +249,8 @@ See Automattic/jetpack#50266 for the PR that established this contract.
   `@automattic/charts` follows the same rule under `packages/`, but under `widgets/` and
   `routes/` it must come from `@jetpack-premium-analytics/widgets-toolkit` instead. See
   `packages/externals/README.md`.
+- Export from an internal package's barrel and its sub-barrels only what something outside that
+  package imports — types included. `git grep` the name outside the package to check.
 
 ## Comments and documentation
 
