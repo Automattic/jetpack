@@ -238,6 +238,16 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
+	 * The button card — the element Width goes on. The button fills it.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return string An inline CSS declaration list, empty when nothing is configured.
+	 */
+	private static function get_button_card_style( $attributes ) {
+		return self::css_rules( self::get_width_rules( $attributes ) );
+	}
+
+	/**
 	 * Margin, from the Border Settings panel.
 	 *
 	 * The QR card takes this and nothing else — Width and Border go on the QR frame.
@@ -251,16 +261,6 @@ class PayPal_Payment_Buttons {
 	 */
 	private static function get_margin_style( $attributes ) {
 		return self::css_rules( self::get_margin_rules( $attributes ) );
-	}
-
-	/**
-	 * The button card — the element Width goes on. The button fills it.
-	 *
-	 * @param array $attributes The block attributes.
-	 * @return string An inline CSS declaration list, empty when nothing is configured.
-	 */
-	private static function get_button_card_style( $attributes ) {
-		return self::css_rules( self::get_width_rules( $attributes ) );
 	}
 
 	/**
