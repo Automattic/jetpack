@@ -114,7 +114,12 @@ beforeAll( () => {
 beforeEach( () => {
 	resetInitialState();
 	setConnectionStore();
+	global.JetpackScriptData.user.current_user.capabilities = {};
 } );
+
+const asAdmin = () => {
+	global.JetpackScriptData.user.current_user.capabilities = { manage_options: true };
+};
 
 // TODO Mock requests with dummy data.
 describe( 'ConnectionStatusCard', () => {
@@ -134,9 +139,19 @@ describe( 'ConnectionStatusCard', () => {
 		};
 
 		it( 'renders the correct copy for the site connection line item', () => {
+			asAdmin();
 			setup();
 			expect( screen.getByText( 'Site not connected' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Connect your site with one click.' ) ).toBeInTheDocument();
+		} );
+
+		it( 'points a user who cannot connect at an admin instead', () => {
+			setup();
+			expect( screen.getByText( 'Site not connected' ) ).toBeInTheDocument();
+			expect(
+				screen.getByText( 'A site admin will need to connect this site to Jetpack.' )
+			).toBeInTheDocument();
+			expect( screen.queryByText( 'Connect your site with one click.' ) ).not.toBeInTheDocument();
 		} );
 	} );
 
@@ -153,6 +168,7 @@ describe( 'ConnectionStatusCard', () => {
 		};
 
 		it( 'renders the correct copy for the site connection line item', () => {
+			asAdmin();
 			setup();
 			expect( screen.getByText( 'Connect your site with one click.' ) ).toBeInTheDocument();
 		} );

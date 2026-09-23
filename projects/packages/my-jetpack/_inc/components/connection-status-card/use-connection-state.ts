@@ -18,7 +18,18 @@ export function useConnectionState(): ConnectionState {
 	const { isRegistered, isUserConnected, hasConnectedOwner } = useMyJetpackConnection();
 
 	if ( ! isRegistered ) {
-		// Ideally, we should never reach this point as the status is shown only when the site is connected.
+		// Reached by users who cannot connect: onboarding is skipped for them, so they land here.
+		if ( ! currentUserCan( 'manage_options' ) ) {
+			return {
+				label: __( 'Site not connected', 'jetpack-my-jetpack' ),
+				description: __(
+					'A site admin will need to connect this site to Jetpack.',
+					'jetpack-my-jetpack'
+				),
+				status: 'error',
+			};
+		}
+
 		return {
 			label: __( 'Site not connected', 'jetpack-my-jetpack' ),
 			description: __( 'Connect your site with one click.', 'jetpack-my-jetpack' ),

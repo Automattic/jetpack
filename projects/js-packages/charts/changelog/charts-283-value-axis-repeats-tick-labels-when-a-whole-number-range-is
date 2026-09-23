@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Line, bar and area charts: Label the value axis only at whole numbers when every value is a whole number.

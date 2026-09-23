@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.3.0] - 2026-09-23
+### Added
+- Add required key and index fields to BandHighlightSelection for identifying the selected series and rendered data point. [#52544]
+- Legend: Add a comparisonItem option that appends a static Comparison period item, and let a legend item opt out of interactivity. Keep comparison items visible when their labels match a metric. [#52423]
+
+### Changed
+- Bar chart: Start the value axis at zero by default; pass `zero: false` on the value scale to fit it to the data. [#52597]
+
+### Fixed
+- Bar chart: Draw a gap for a period with no data instead of refusing to render the chart. [#52522]
+- Bar chart: Give a flat or single-bucket series a value axis with height, so its bars are visible. [#52522]
+- Bar chart: Translate the "No data available" and "Invalid data" messages. [#52522]
+- Line, bar and area charts: Draw gridlines at the ticks set by each axis's `numTicks` and `tickValues`, matching the axis labels. [#52588]
+- Line, bar and area charts: Label the value axis only at whole numbers when every value is a whole number. [#52588]
+- Line chart: Break the line at a period with no data instead of refusing to render the chart. [#52580]
+- LineChart: Round the top of a zero-based value axis from zero, so the line no longer runs into the top edge. [#52601]
+- Line chart: Start the value axis at zero for a flat series, so its line is not drawn halfway up the plot. [#52580]
+- Line chart: Translate the "No data available" and "Invalid data" messages. [#52580]
+
 ## [4.2.0] - 2026-09-18
 ### Added
 - Bar chart: Add a beside tooltip placement that flips only horizontally. [#52234]
@@ -1089,6 +1108,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[4.3.0]: https://github.com/Automattic/charts/compare/v4.2.0...v4.3.0
 [4.2.0]: https://github.com/Automattic/charts/compare/v4.1.1...v4.2.0
 [4.1.1]: https://github.com/Automattic/charts/compare/v4.1.0...v4.1.1
 [4.1.0]: https://github.com/Automattic/charts/compare/v4.0.0...v4.1.0

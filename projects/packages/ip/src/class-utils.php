@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\IP;
  */
 class Utils {
 
-	const PACKAGE_VERSION = '0.6.0';
+	const PACKAGE_VERSION = '0.7.0';
 
 	/**
 	 * Get the current user's IP address.
@@ -225,7 +225,7 @@ class Utils {
 	 * address its host resolves to must pass ip_is_public(). A host that resolves to none fails.
 	 * Not covered: redirect hops (check each one), DNS rebinding, or AAAA records without ext-dns.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.7.0
 	 *
 	 * @param string $url URL to check.
 	 * @return bool True when the URL is safe to request, false otherwise.
@@ -267,7 +267,7 @@ class Utils {
 	 * IP literals are returned as-is. An empty list means the host is malformed or resolved
 	 * to nothing, and callers must treat it as unsafe.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.7.0
 	 *
 	 * @param string $host Host name or IP literal (IPv6 literals may be bracketed).
 	 * @return string[] List of IP addresses.
