@@ -1,4 +1,4 @@
 Significance: patch
-Type: changed
+Type: removed
 
-Move podcast package initialization on Simple sites to wpcom.
+Stop bundling the podcast package; Jetpack provides it on Simple and Atomic.
