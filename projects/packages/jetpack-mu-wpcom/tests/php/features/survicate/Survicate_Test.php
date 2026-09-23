@@ -640,7 +640,8 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 					array(
 						'dependencies' => array( 'wp-data' ),
 						'version'      => 'fetched',
-					)
+					),
+					JSON_UNESCAPED_SLASHES
 				),
 			)
 		);
