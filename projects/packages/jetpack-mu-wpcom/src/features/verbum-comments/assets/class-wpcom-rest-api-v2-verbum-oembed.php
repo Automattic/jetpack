@@ -64,10 +64,11 @@ class WPCOM_REST_API_V2_Verbum_OEmbed extends \WP_REST_Controller {
 	 * @return object|\WP_Error
 	 */
 	public function get_embed_data( WP_REST_Request $request ) {
+		$url      = sanitize_url( $request->get_param( 'embed_url' ) );
+		$instance = new WP_oEmbed();
 		// Skip discovery so only listed providers resolve, as with comment embeds on the front end.
-		$url        = sanitize_url( $request->get_param( 'embed_url' ) );
-		$instance   = new WP_oEmbed();
-		$embed_data = $instance->get_data( $url, array( 'discover' => false ) );
+		$args       = array( 'discover' => false );
+		$embed_data = $instance->get_data( $url, $args );
 
 		// Return error if the embed data is empty.
 		// This matches the core response.
@@ -77,7 +78,7 @@ class WPCOM_REST_API_V2_Verbum_OEmbed extends \WP_REST_Controller {
 
 		// data2html() sanitizes untrusted provider HTML; oembed_result matches the core oEmbed proxy.
 		/** This filter is documented in wp-includes/class-wp-oembed.php */
-		$embed_data->html = apply_filters( 'oembed_result', $instance->data2html( $embed_data, $url ), $url, array() );
+		$embed_data->html = apply_filters( 'oembed_result', $instance->data2html( $embed_data, $url ), $url, $args );
 
 		return $embed_data;
 	}
