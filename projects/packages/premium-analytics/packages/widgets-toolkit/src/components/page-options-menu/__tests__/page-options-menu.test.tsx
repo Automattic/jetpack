@@ -3,6 +3,8 @@
  */
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { dispatch } from '@wordpress/data';
+import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
  */
@@ -42,6 +44,9 @@ jest.mock( '../return-to-classic-stats', () => ( {
 
 const mockApiFetch = jest.fn();
 
+const DASHBOARD_SCOPE = 'jetpack-premium-analytics/dashboard';
+const DASHBOARD_LAYOUTS_KEY = 'dashboardSectionLayouts';
+
 const READY = "Yes, I'd be happy to switch now";
 const ALMOST = 'Almost — there are a few things missing';
 
@@ -56,6 +61,7 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 beforeEach( () => {
 	jest.clearAllMocks();
 	resetTracksIdentityForTesting();
+	dispatch( preferencesStore ).set( DASHBOARD_SCOPE, DASHBOARD_LAYOUTS_KEY, {} );
 	mockGetScriptData.mockReturnValue( {
 		site: { wpcom: { blog_id: 42 } },
 		user: { current_user: { wpcom: { ID: 7, login: 'reader' } } },
@@ -120,7 +126,7 @@ describe( 'PageOptionsMenu', () => {
 
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
 			'jetpack_premium_analytics_feedback_submit',
-			{ readiness: 'almost', comment: 'Needs a date picker', source: 'menu' }
+			{ readiness: 'almost', comment: 'Needs a date picker', source: 'menu', has_customized: false }
 		);
 	} );
 
@@ -142,7 +148,7 @@ describe( 'PageOptionsMenu', () => {
 
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
 			'jetpack_premium_analytics_feedback_submit',
-			{ readiness: 'not_yet', comment: '', source: 'menu' }
+			{ readiness: 'not_yet', comment: '', source: 'menu', has_customized: false }
 		);
 	} );
 
@@ -324,9 +330,24 @@ describe( 'the Happiness copy of the feedback', () => {
 
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
 			'jetpack_premium_analytics_feedback_submit',
-			{ readiness: 'ready', comment: '', source: 'menu' }
+			{ readiness: 'ready', comment: '', source: 'menu', has_customized: false }
 		);
 		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'says whether the reader has a customized dashboard layout', async () => {
+		dispatch( preferencesStore ).set( DASHBOARD_SCOPE, DASHBOARD_LAYOUTS_KEY, {
+			traffic: [ { uuid: 'card', type: 'jpa/card' } ],
+		} );
+		const user = await openModal();
+
+		await user.click( screen.getByRole( 'radio', { name: READY } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
+
+		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
+			'jetpack_premium_analytics_feedback_submit',
+			expect.objectContaining( { has_customized: true } )
+		);
 	} );
 
 	it( 'still thanks the reader when the endpoint fails', async () => {

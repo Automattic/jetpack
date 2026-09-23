@@ -99,7 +99,13 @@ function PostDetail(): JSX.Element {
 		startCustomizing,
 		resetToDefault,
 		onEditChange,
-	} = useDetailPageCustomize( layout, { layoutId: activeTab, onLayoutReset: resetLayout } );
+		onLayoutChange,
+	} = useDetailPageCustomize( layout, {
+		layoutId: activeTab,
+		onLayoutReset: resetLayout,
+		onLayoutChange: setLayout,
+		surface: 'post_detail',
+	} );
 
 	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
 
@@ -144,7 +150,7 @@ function PostDetail(): JSX.Element {
 					isResolvingWidgetTypes={ isResolvingWidgetTypes }
 					resolveWidgetModule={ resolveWidgetModuleWithI18n }
 					layout={ layout }
-					onLayoutChange={ setLayout }
+					onLayoutChange={ onLayoutChange }
 					onLayoutReset={ resetLayout }
 					gridSettings={ DETAIL_GRID }
 					editMode={ isCustomizing }
