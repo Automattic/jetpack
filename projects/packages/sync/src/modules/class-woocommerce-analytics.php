@@ -66,6 +66,16 @@ class WooCommerce_Analytics extends Module {
 	);
 
 	/**
+	 * WooCommerce Analytics' order class for each plain order class, which adds the report methods used here.
+	 *
+	 * @var string[]
+	 */
+	private static $analytics_order_classes = array(
+		'WC_Order'        => 'Automattic\WooCommerce\Admin\Overrides\Order',
+		'WC_Order_Refund' => 'Automattic\WooCommerce\Admin\Overrides\OrderRefund',
+	);
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -211,7 +221,7 @@ class WooCommerce_Analytics extends Module {
 			return array();
 		}
 
-		$orders = wc_get_orders(
+		$orders = self::get_analytics_orders(
 			array(
 				'post__in'    => $ids,
 				'post_status' => WooCommerce_HPOS_Orders::get_all_possible_order_status_keys(),
@@ -513,12 +523,21 @@ class WooCommerce_Analytics extends Module {
 	 * @return array The reports data.
 	 */
 	protected function build_woocommerce_analytics_reports_data( $order ) {
+		// Reload once here, or each getter below would read the order again.
+		$report_order = $order;
+		if ( $order instanceof WC_Abstract_Order ) {
+			$analytics_order = self::get_analytics_order( $order );
+			if ( $analytics_order ) {
+				$report_order = $analytics_order;
+			}
+		}
+
 		$data_types = array(
-			'order_stats'            => $this->get_order_stats_data( $order ),
-			'order_attribution_data' => $this->get_order_attribution_data( $order ),
-			'order_product_data'     => $this->get_order_product_data( $order ),
-			'order_coupon_data'      => $this->get_order_coupon_data( $order ),
-			'order_tax_data'         => $this->get_order_tax_data( $order ),
+			'order_stats'            => $this->get_order_stats_data( $report_order ),
+			'order_attribution_data' => $this->get_order_attribution_data( $report_order ),
+			'order_product_data'     => $this->get_order_product_data( $report_order ),
+			'order_coupon_data'      => $this->get_order_coupon_data( $report_order ),
+			'order_tax_data'         => $this->get_order_tax_data( $report_order ),
 		);
 
 		$reports_data = array_filter( $data_types );
@@ -652,7 +671,8 @@ class WooCommerce_Analytics extends Module {
 			return false;
 		}
 
-		// If the order does not exit, check if the stats item is present in the wc_order_stats table.
+		// If the order does not exist or cannot have report methods, read its wc_order_stats row instead.
+		$order = self::get_analytics_order( $order );
 		if ( ! $order ) {
 			$order_stats_data_from_db = $this->get_order_stats_data_from_db( $order_id );
 			return $order_stats_data_from_db;
@@ -816,6 +836,54 @@ class WooCommerce_Analytics extends Module {
 	}
 
 	/**
+	 * Get the order as WooCommerce Analytics' order class, which adds the report methods used here.
+	 *
+	 * WooCommerce swaps that class in only while Analytics is enabled, and an object cache can outlive the switch.
+	 *
+	 * @param WC_Abstract_Order|false $order The order object.
+	 * @return WC_Abstract_Order|false The order with report methods, or false if it cannot have them.
+	 */
+	private static function get_analytics_order( $order ) {
+		if ( ! $order || method_exists( $order, 'get_report_customer_id' ) ) {
+			return $order;
+		}
+
+		// Mirrors the exact-class check in WooCommerce's order_class_name filters, which leave subclasses alone.
+		$analytics_class = self::$analytics_order_classes[ get_class( $order ) ] ?? null;
+		if ( null === $analytics_class || ! class_exists( $analytics_class ) ) {
+			return false;
+		}
+
+		return new $analytics_class( $order->get_id() );
+	}
+
+	/**
+	 * Query orders, loading them as WooCommerce Analytics' order classes even while Analytics is disabled.
+	 *
+	 * @param array $query_args Arguments for wc_get_orders().
+	 * @return WC_Order[]|\stdClass What wc_get_orders() returns.
+	 */
+	private static function get_analytics_orders( $query_args ) {
+		$added_callbacks = array();
+		foreach ( self::$analytics_order_classes as $analytics_class ) {
+			$callback = array( $analytics_class, 'order_class_name' );
+			// Only add, and later remove, what WooCommerce has not, or its own filter goes with it.
+			if ( class_exists( $analytics_class ) && false === has_filter( 'woocommerce_order_class', $callback ) ) {
+				add_filter( 'woocommerce_order_class', $callback, 10, 3 );
+				$added_callbacks[] = $callback;
+			}
+		}
+
+		try {
+			return wc_get_orders( $query_args );
+		} finally {
+			foreach ( $added_callbacks as $callback ) {
+				remove_filter( 'woocommerce_order_class', $callback, 10 );
+			}
+		}
+	}
+
+	/**
 	 * Check if the COGS feature is enabled.
 	 *
 	 * @return bool True if the COGS feature is enabled, false otherwise.
@@ -840,7 +908,8 @@ class WooCommerce_Analytics extends Module {
 			return false;
 		}
 
-		// If the order does not exist, check if product lookup data exists in the database.
+		// If the order does not exist or cannot have report methods, read its lookup rows instead.
+		$order = self::get_analytics_order( $order );
 		if ( ! $order ) {
 			return $this->get_order_product_data_from_db( $order_id );
 		}
