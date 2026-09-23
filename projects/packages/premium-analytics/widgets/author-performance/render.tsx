@@ -15,7 +15,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -59,6 +59,9 @@ function AuthorPerformanceInner( { chartType }: AuthorPerformanceInnerProps ) {
 			{
 				key: 'views',
 				label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
+				countLabel: count =>
+					/* translators: %s: number of views. */
+					_n( '%s view', '%s views', count, 'jetpack-premium-analytics-pkg' ),
 				value: current.reduce( ( sum, point ) => sum + point.value, 0 ),
 				current,
 			},

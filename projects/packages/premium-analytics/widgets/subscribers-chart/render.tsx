@@ -75,11 +75,12 @@ const METRIC_ACCESSORS: Record<
  */
 function buildMetrics( state: SubscribersChartState ): MetricTab[] {
 	return SUBSCRIBERS_CHART_METRICS.filter( ( { id } ) => id !== 'paid' || state.hasPaid ).map(
-		( { id, label } ) => {
+		( { id, label, countLabel } ) => {
 			const accessor = METRIC_ACCESSORS[ id ];
 			return {
 				key: id,
 				label,
+				countLabel,
 				value: latest( state.current, accessor ),
 				current: state.current.map( point => ( { date: point.date, value: accessor( point ) } ) ),
 			};

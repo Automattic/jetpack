@@ -27,6 +27,7 @@ import {
 	getYTickFormat,
 	dateFormatForResolution,
 	resolveSeriesNames,
+	resolveTooltipCountLabels,
 	resolveTooltipNames,
 } from '../../helpers';
 import { useLockedPrimaryLegendItems } from '../../hooks/use-locked-primary-legend-items';
@@ -211,6 +212,10 @@ export function ComparativeLineChart( {
 		() => resolveTooltipNames( seriesNames, tooltipExtras ),
 		[ seriesNames, tooltipExtras ]
 	);
+	const tooltipCountLabels = useMemo(
+		() => resolveTooltipCountLabels( series, tooltipExtras ),
+		[ series, tooltipExtras ]
+	);
 
 	// Comparison points share the primary series' dates, so the tooltip reads back
 	// `realDate`.
@@ -219,13 +224,20 @@ export function ComparativeLineChart( {
 			datum: { date: Date; realDate?: Date },
 			_index: number,
 			key: string,
-			value: string
+			value: string,
+			rawValue: number
 		): string => {
 			const displayDate = datum.realDate ?? datum.date;
 			const date = formatTooltipDate( displayDate, tooltipDateFormat );
-			return formatTooltipPointLabel( value, tooltipNames.get( key ) ?? key, date );
+			return formatTooltipPointLabel(
+				value,
+				tooltipNames.get( key ) ?? key,
+				date,
+				rawValue,
+				tooltipCountLabels.get( key )
+			);
 		},
-		[ tooltipNames, formatTooltipDate, tooltipDateFormat ]
+		[ tooltipNames, tooltipCountLabels, formatTooltipDate, tooltipDateFormat ]
 	);
 
 	// `resolvedStyles` follows `series`; the tooltip's rows need not, so pair them

@@ -6,7 +6,7 @@ import {
 	type DataPointDate,
 	type LineStyles,
 } from '@jetpack-premium-analytics/externals';
-import type { DataFormat } from '../../types';
+import type { CountLabel, DataFormat } from '../../types';
 
 /**
  * Types
@@ -19,6 +19,8 @@ export type ComparativeDatePointDate = DataPointDate & {
 export type ComparativeLineChartSeries = SeriesData & {
 	// We expect SeriesData.data to be an array of DataPointDate.
 	data: ComparativeDatePointDate[];
+	/** The tooltip's unit for a count metric; a comparison series falls back to its group's. */
+	countLabel?: CountLabel;
 };
 
 /**
@@ -30,6 +32,7 @@ export type TooltipExtraSeries = {
 	data: ComparativeDatePointDate[];
 	/** Falls back to the chart's `dataFormat`. */
 	dataFormat?: DataFormat;
+	countLabel?: CountLabel;
 };
 
 /**

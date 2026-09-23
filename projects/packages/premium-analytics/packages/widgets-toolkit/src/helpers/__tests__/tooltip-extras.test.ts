@@ -1,7 +1,15 @@
 /**
+ * External dependencies
+ */
+import { _n } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
-import { appendTooltipExtras, resolveTooltipNames } from '../tooltip-extras';
+import {
+	appendTooltipExtras,
+	resolveTooltipCountLabels,
+	resolveTooltipNames,
+} from '../tooltip-extras';
 
 const JULY_1 = new Date( '2026-07-01T00:00:00Z' );
 const JULY_2 = new Date( '2026-07-02T00:00:00Z' );
@@ -97,5 +105,56 @@ describe( 'resolveTooltipNames', () => {
 		] );
 
 		expect( names.get( 'July' ) ).toBe( 'Views' );
+	} );
+} );
+
+describe( 'resolveTooltipCountLabels', () => {
+	const views = ( count: number ) =>
+		/* translators: %s: number of views. */
+		_n( '%s view', '%s views', count, 'jetpack-premium-analytics-pkg' );
+	const impressions = ( count: number ) =>
+		/* translators: %s: number of impressions. */
+		_n( '%s impression', '%s impressions', count, 'jetpack-premium-analytics-pkg' );
+
+	it( "gives a comparison series its group's count label", () => {
+		const labels = resolveTooltipCountLabels(
+			[
+				{ label: 'Views', group: 'views', data: [], countLabel: views },
+				{
+					label: 'Views · previous period',
+					group: 'views',
+					data: [],
+					options: { type: 'comparison' },
+				},
+			],
+			undefined
+		);
+
+		expect( labels.get( 'Views' ) ).toBe( views );
+		expect( labels.get( 'Views · previous period' ) ).toBe( views );
+	} );
+
+	it( 'leaves a series without a count label out, so it keeps its name as the unit', () => {
+		const labels = resolveTooltipCountLabels(
+			[ { label: 'Revenue', group: 'revenue', data: [] } ],
+			undefined
+		);
+
+		expect( labels.has( 'Revenue' ) ).toBe( false );
+	} );
+
+	it( "adds each extra's count label, without overriding a drawn series'", () => {
+		const labels = resolveTooltipCountLabels(
+			[ { label: 'Views', group: 'views', data: [], countLabel: views } ],
+			[
+				{ label: 'Impressions', data: [], countLabel: impressions },
+				{ label: 'Views', data: [], countLabel: impressions },
+				CPM,
+			]
+		);
+
+		expect( labels.get( 'Impressions' ) ).toBe( impressions );
+		expect( labels.get( 'Views' ) ).toBe( views );
+		expect( labels.has( 'Average CPM' ) ).toBe( false );
 	} );
 } );

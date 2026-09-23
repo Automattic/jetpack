@@ -40,6 +40,7 @@ export default function useWordAdsChart( reportParams: ReportParams, period: Wor
 					field: metric.id,
 					label: metric.label,
 					dataFormat: metric.dataFormat,
+					countLabel: metric.countLabel,
 					zone: timezone,
 				} )
 			),

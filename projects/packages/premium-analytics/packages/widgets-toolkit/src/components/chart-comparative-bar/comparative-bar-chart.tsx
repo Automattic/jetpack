@@ -27,6 +27,7 @@ import {
 	getFixedYAxis,
 	dateFormatForResolution,
 	resolveSeriesNames,
+	resolveTooltipCountLabels,
 	resolveTooltipNames,
 } from '../../helpers';
 import { useLockedPrimaryLegendItems } from '../../hooks/use-locked-primary-legend-items';
@@ -217,6 +218,10 @@ export function ComparativeBarChart( {
 		() => resolveTooltipNames( seriesNames, tooltipExtras ),
 		[ seriesNames, tooltipExtras ]
 	);
+	const tooltipCountLabels = useMemo(
+		() => resolveTooltipCountLabels( series, tooltipExtras ),
+		[ series, tooltipExtras ]
+	);
 
 	// Comparison points carry the primary's date for axis alignment, so read
 	// `realDate`.
@@ -225,13 +230,20 @@ export function ComparativeBarChart( {
 			datum: { date: Date; realDate?: Date },
 			_index: number,
 			key: string,
-			value: string
+			value: string,
+			rawValue: number
 		): string => {
 			const displayDate = datum.realDate ?? datum.date;
 			const date = formatTooltipDate( displayDate, tooltipDateFormat );
-			return formatTooltipPointLabel( value, tooltipNames.get( key ) ?? key, date );
+			return formatTooltipPointLabel(
+				value,
+				tooltipNames.get( key ) ?? key,
+				date,
+				rawValue,
+				tooltipCountLabels.get( key )
+			);
 		},
-		[ tooltipNames, formatTooltipDate, tooltipDateFormat ]
+		[ tooltipNames, tooltipCountLabels, formatTooltipDate, tooltipDateFormat ]
 	);
 
 	/**

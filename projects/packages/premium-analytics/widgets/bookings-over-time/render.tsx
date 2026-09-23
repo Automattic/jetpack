@@ -4,9 +4,10 @@
 import {
 	BookingOrderMetricWidget,
 	WidgetRoot,
+	type CountLabel,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -23,6 +24,10 @@ type BookingsOverTimeWidgetProps = WidgetRenderProps< BookingsOverTimeRenderAttr
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
+const bookingsCountLabel: CountLabel = count =>
+	/* translators: %s: number of bookings. */
+	_n( '%s booking', '%s bookings', count, 'jetpack-premium-analytics-pkg' );
+
 /**
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; BookingOrderMetricWidget
@@ -37,6 +42,7 @@ export default function BookingsOverTimeRender( {
 			<BookingOrderMetricWidget
 				metricKey="orders_no"
 				seriesLabel={ __( 'Bookings', 'jetpack-premium-analytics-pkg' ) }
+				seriesCountLabel={ bookingsCountLabel }
 				emptyStateText={ __( 'No bookings in this period.', 'jetpack-premium-analytics-pkg' ) }
 				errorText={ __(
 					"We couldn't load bookings. Please try again in a moment.",

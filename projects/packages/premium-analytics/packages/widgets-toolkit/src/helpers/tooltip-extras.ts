@@ -1,11 +1,13 @@
 /**
  * Internal dependencies
  */
+import { resolvePrimarySeriesByGroup } from './resolve-series-names';
 import type {
 	ComparativeDatePointDate,
+	ComparativeLineChartSeries,
 	TooltipExtraSeries,
 } from '../components/chart-comparative-line/types';
-import type { DataFormat } from '../types';
+import type { CountLabel, DataFormat } from '../types';
 
 type TooltipData = {
 	datumByKey?: Record< string, unknown >;
@@ -89,4 +91,38 @@ export function resolveTooltipNames(
 	} );
 
 	return names;
+}
+
+/**
+ * The plural-aware unit for each tooltip row that has one, keyed by row key. A
+ * comparison series without its own borrows its group's current-period one.
+ *
+ * @param series - The series the chart was handed.
+ * @param extras - The series to read out without drawing.
+ * @return The count labels keyed by row key.
+ */
+export function resolveTooltipCountLabels(
+	series: readonly ComparativeLineChartSeries[],
+	extras: readonly TooltipExtraSeries[] | undefined
+): Map< string, CountLabel > {
+	const primarySeriesByGroup = resolvePrimarySeriesByGroup( series );
+	const countLabels = new Map< string, CountLabel >();
+
+	for ( const item of series ) {
+		const countLabel =
+			item.countLabel ??
+			( item.group !== undefined ? primarySeriesByGroup.get( item.group )?.countLabel : undefined );
+
+		if ( countLabel ) {
+			countLabels.set( item.label, countLabel );
+		}
+	}
+
+	extras?.forEach( extra => {
+		if ( extra.countLabel && ! countLabels.has( extra.label ) ) {
+			countLabels.set( extra.label, extra.countLabel );
+		}
+	} );
+
+	return countLabels;
 }

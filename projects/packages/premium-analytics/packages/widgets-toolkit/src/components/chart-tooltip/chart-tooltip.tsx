@@ -77,8 +77,17 @@ export type ChartTooltipProps< TDatum = unknown > = {
 	 */
 	layout?: 'split' | 'inline';
 
-	/** `value` is the row's value spelled out in full, in the row's own format. */
-	getLabel?: ( datum: TDatum, index: number, key: string, value: string ) => string;
+	/**
+	 * `value` is the row's value spelled out in full, in the row's own format;
+	 * `rawValue` is the number it spells, for picking a plural form.
+	 */
+	getLabel?: (
+		datum: TDatum,
+		index: number,
+		key: string,
+		value: string,
+		rawValue: number
+	) => string;
 
 	getValue?: ( datum: TDatum ) => number;
 };
@@ -161,7 +170,8 @@ export function ChartTooltip< TDatum >( {
 					entry.datum,
 					index,
 					entry.key,
-					formatMetricValue( value, exactFormat.type, exactFormat.options )
+					formatMetricValue( value, exactFormat.type, exactFormat.options ),
+					value
 				);
 				const rowValue = layout === 'inline' ? undefined : value;
 

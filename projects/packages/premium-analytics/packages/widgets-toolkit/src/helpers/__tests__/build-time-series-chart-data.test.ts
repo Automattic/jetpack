@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { toBucketStamp } from '@jetpack-premium-analytics/datetime';
+import { _n } from '@wordpress/i18n';
 import { format } from 'date-fns';
 /**
  * Internal dependencies
@@ -40,6 +41,23 @@ describe( 'buildTimeSeriesChartData', () => {
 		expect( series[ 1 ].label ).toContain( 'Views' );
 		// The two share a group, so the legend collapses them into one item.
 		expect( series[ 1 ].group ).toBe( series[ 0 ].group );
+	} );
+
+	it( "puts the count label on the current period, where the comparison's tooltip row finds it", () => {
+		const views = ( count: number ) =>
+			/* translators: %s: number of views. */
+			_n( '%s view', '%s views', count, 'jetpack-premium-analytics-pkg' );
+		const [ current, previous ] = buildTimeSeriesChartData( {
+			primary,
+			comparison,
+			metricKey: 'views',
+			zone: FIXTURE_SITE_TIME_ZONE,
+			label: 'Views',
+			countLabel: views,
+		} );
+
+		expect( current.countLabel ).toBe( views );
+		expect( previous.group ).toBe( current.group );
 	} );
 
 	it( 'keeps the two labels distinct so the provider can address them separately', () => {

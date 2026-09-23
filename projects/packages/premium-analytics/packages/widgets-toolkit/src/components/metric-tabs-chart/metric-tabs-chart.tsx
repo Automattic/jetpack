@@ -22,7 +22,7 @@ import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
 import { MetricWithComparison } from '../metric-with-comparison';
 import styles from './metric-tabs-chart.module.scss';
-import type { DataFormat } from '../../types';
+import type { CountLabel, DataFormat } from '../../types';
 import type {
 	ComparativeLineChartSeries,
 	TooltipExtraSeries,
@@ -74,6 +74,8 @@ export interface MetricTab {
 	previous?: MetricTabDatum[];
 	/** Per-metric format override (e.g. percentage); falls back to the chart-level `dataFormat`. */
 	dataFormat?: DataFormat;
+	/** The tooltip's unit when the metric is a count; see `CountLabel`. */
+	countLabel?: CountLabel;
 	/** Optional explanatory text, surfaced as the card's tooltip. */
 	description?: string;
 	/**
@@ -148,7 +150,7 @@ function buildSeries(
 	chartType: MetricTabsChartType
 ): ComparativeLineChartSeries[] {
 	const series: ComparativeLineChartSeries[] = [
-		{ label: metric.label, group: metric.key, data: metric.current },
+		{ label: metric.label, group: metric.key, data: metric.current, countLabel: metric.countLabel },
 	];
 
 	if ( metric.previous?.length ) {
@@ -219,6 +221,7 @@ function MetricChart( {
 				label: candidate.label,
 				data: candidate.current,
 				dataFormat: candidate.dataFormat ?? dataFormat,
+				countLabel: candidate.countLabel,
 			} ) );
 	}, [ metrics, metric.key, tooltipMetrics, dataFormat ] );
 

@@ -3,6 +3,7 @@
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { setSettings } from '@wordpress/date';
+import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -590,6 +591,31 @@ describe( 'MetricTabsChart tooltipMetrics', () => {
 		expect( recordedExtras( mockLineSpy ) ).toEqual( [
 			{ label: 'Visitors', data: VISITORS.current, dataFormat: DATA_FORMAT },
 			{ label: 'Average CPM', data: CPM.current, dataFormat: CURRENCY },
+		] );
+	} );
+
+	it( "hands each metric's count label to its series and to the tooltip extras", () => {
+		const views = ( count: number ) =>
+			/* translators: %s: number of views. */
+			_n( '%s view', '%s views', count, 'jetpack-premium-analytics-pkg' );
+		const visitors = ( count: number ) =>
+			/* translators: %s: number of visitors. */
+			_n( '%s visitor', '%s visitors', count, 'jetpack-premium-analytics-pkg' );
+
+		render(
+			<MetricTabsChart
+				metrics={ [
+					{ ...METRIC, countLabel: views },
+					{ ...VISITORS, countLabel: visitors },
+				] }
+				dataFormat={ DATA_FORMAT }
+				tooltipMetrics="all"
+			/>
+		);
+
+		expect( recordedSeries( mockLineSpy )[ 0 ].countLabel ).toBe( views );
+		expect( recordedExtras( mockLineSpy ) ).toEqual( [
+			expect.objectContaining( { label: 'Visitors', countLabel: visitors } ),
 		] );
 	} );
 
