@@ -66,6 +66,14 @@ describe( 'FeaturesContent', () => {
 		expect( screen.queryByRole( 'heading' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'still answers a search that matched nothing while modules are in flight', () => {
+		mockStates = [ { ...activeStats, pending: true, status: 'inactive' } as FeatureState ];
+
+		renderAt( '/features?search=zzzz' );
+
+		expect( screen.getByRole( 'heading' ) ).toHaveTextContent( 'No features match “zzzz”.' );
+	} );
+
 	it( 'reports an empty catalog as a failure rather than a site with no features', () => {
 		mockStates = [];
 		mockMainFeatures = { features: [], isPlaceholderData: false };

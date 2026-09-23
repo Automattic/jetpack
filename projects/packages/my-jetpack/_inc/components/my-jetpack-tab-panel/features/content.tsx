@@ -115,9 +115,13 @@ export function FeaturesContent() {
 	// Neither read has anything to say yet: a seed-only catalog is not a failure to load
 	// one, and features whose modules are still in flight all read inactive, which would
 	// otherwise announce "nothing is active" on a site with plenty on.
+	// Only the status filters wait on the modules: a search or a plan filter is already
+	// a settled answer once the catalog is here, and an unreachable module read would
+	// otherwise leave those two with no message at all.
+	const onStatus = filter === 'active' || filter === 'inactive';
 	const settling =
 		( mainFeatures.isPlaceholderData && mainFeatures.features.length === 0 ) ||
-		states.some( state => state.pending );
+		( onStatus && states.some( state => state.pending ) );
 
 	return (
 		<section className={ styles.content }>

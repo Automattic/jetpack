@@ -70,7 +70,8 @@ export function FeaturesEmptyState( {
 
 	// Both filter states offer the same way out: drop the filter and show everything.
 	const exploreAll = (
-		// ds-allow: button -- Link's render target; this switches the filter rather than navigating.
+		// A raw button rather than `Button`: it is what `Link` renders as, and this
+		// control switches the filter in place rather than navigating anywhere.
 		<Link
 			className={ styles[ 'link-button' ] }
 			render={ <button type="button" /> }
