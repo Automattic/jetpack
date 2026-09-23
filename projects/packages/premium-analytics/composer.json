@@ -19,8 +19,7 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/phpunit-select-config": "@dev",
-		"automattic/jetpack-test-environment": "@dev",
-		"automattic/jetpack-newsletter": "@dev"
+		"automattic/jetpack-test-environment": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -76,11 +75,6 @@
 		},
 		"branch-alias": {
 			"dev-trunk": "0.8.x-dev"
-		},
-		"dependencies": {
-			"test-only": [
-				"packages/newsletter"
-			]
 		}
 	}
 }

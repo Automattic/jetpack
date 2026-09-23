@@ -6,7 +6,7 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import reportLinkStyles from '../report-link/report-link.module.scss';
+import styles from './widget-footer-link.module.scss';
 import type { ReactNode } from 'react';
 
 export type WidgetFooterLinkProps = {
@@ -26,7 +26,7 @@ export type WidgetFooterLinkProps = {
  */
 export function WidgetFooterLink( { href, children, className }: WidgetFooterLinkProps ) {
 	return (
-		<Link href={ href } className={ clsx( reportLinkStyles.reportLink, className ) }>
+		<Link href={ href } className={ clsx( styles.footerLink, className ) }>
 			{ children }
 		</Link>
 	);

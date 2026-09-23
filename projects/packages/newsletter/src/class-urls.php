@@ -26,13 +26,9 @@ class Urls {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string|null The URL, or null when the current user cannot open the tab, which includes any call before `admin_menu` has run.
+	 * @return string The Subscribers tab URL.
 	 */
 	public static function get_subscribers_url() {
-		if ( ! Settings::is_subscribers_tab_available() ) {
-			return null;
-		}
-
 		// The page's router reads its route and search only from `p`; a top-level `tab` is ignored.
 		return admin_url( 'admin.php?page=' . Settings::ADMIN_PAGE_SLUG . '&p=' . rawurlencode( '/?tab=subscribers' ) );
 	}

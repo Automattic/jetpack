@@ -155,6 +155,9 @@ class Settings {
 		// so an inline check here would always see the unfiltered default.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 
+		// Priority 20 runs after add_script_data(), which replaces the whole `newsletter` key on the Newsletter page.
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_subscribers_url_script_data' ), 20 );
+
 		$host = new Host();
 
 		// Admin-ajax rather than `/wp/v2/users/me`: WordPress.com's public API drops user meta it hasn't allowlisted.
@@ -686,15 +689,27 @@ class Settings {
 	}
 
 	/**
+	 * Publish the Subscribers tab URL so other dashboards can link to it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $data The existing script data.
+	 * @return array The script data, with `newsletter.subscribersUrl` set to null when the current user cannot open the tab.
+	 */
+	public static function add_subscribers_url_script_data( $data ) {
+		$data['newsletter']['subscribersUrl'] = self::is_subscribers_tab_available() ? Urls::get_subscribers_url() : null;
+
+		return $data;
+	}
+
+	/**
 	 * Whether the current user can open the Subscribers tab of the Newsletter page.
 	 *
 	 * Reads the admin menu, so it returns false until `admin_menu` has run.
 	 *
-	 * @since $$next-version$$
-	 *
 	 * @return bool
 	 */
-	public static function is_subscribers_tab_available() {
+	private static function is_subscribers_tab_available() {
 		// The legacy page and a host that manages subscribers elsewhere both leave the page Settings-only.
 		if ( ! self::is_modernized() || ! self::is_wp_admin_subscriber_management_enabled() ) {
 			return false;

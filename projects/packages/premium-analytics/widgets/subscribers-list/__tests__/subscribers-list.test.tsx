@@ -43,7 +43,7 @@ function setSiteData( isWpcomPlatform: boolean, suffix?: string ) {
 function setNewsletterSubscribersUrl( url: string | null ) {
 	window.JetpackScriptData = {
 		site: { is_wpcom_platform: false, suffix: 'example.com' },
-		premium_analytics: { newsletter_subscribers_url: url },
+		newsletter: { subscribersUrl: url },
 	} as typeof window.JetpackScriptData;
 }
 

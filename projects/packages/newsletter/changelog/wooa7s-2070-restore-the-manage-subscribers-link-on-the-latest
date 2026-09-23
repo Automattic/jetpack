@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add a helper that returns the Subscribers tab URL, or null when the current user cannot open it.
+Add the Subscribers tab URL to the admin script data, or null when the current user cannot open it.

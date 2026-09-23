@@ -356,12 +356,6 @@ class Analytics {
 		}
 		configure_videopress_availability();
 
-		// Where the Latest subscribers widget sends someone to manage subscribers.
-		if ( ! function_exists( __NAMESPACE__ . '\\configure_newsletter_subscribers_link' ) ) {
-			require_once __DIR__ . '/newsletter-subscribers-link.php';
-		}
-		configure_newsletter_subscribers_link();
-
 		// The composition flag's answer, read by the dashboard policy; the file is
 		// already loaded by boot_shared_services().
 		configure_dashboard_policy();

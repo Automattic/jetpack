@@ -136,7 +136,7 @@ type SubscribersListWidgetProps = WidgetRenderProps< SubscribersListRenderAttrib
 
 /** The followers query does not use dashboard report parameters. */
 export default function SubscribersList( { attributes = {} }: SubscribersListWidgetProps ) {
-	const manageSubscribersUrl = getScriptData()?.premium_analytics?.newsletter_subscribers_url;
+	const manageSubscribersUrl = getScriptData()?.newsletter?.subscribersUrl;
 
 	return (
 		<WidgetRoot attributes={ attributes }>

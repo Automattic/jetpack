@@ -29,9 +29,9 @@ window.JetpackScriptData = {
 		...window.JetpackScriptData?.site,
 		suffix: 'example.com',
 	},
-	premium_analytics: {
-		...window.JetpackScriptData?.premium_analytics,
-		newsletter_subscribers_url:
+	newsletter: {
+		...window.JetpackScriptData?.newsletter,
+		subscribersUrl:
 			'https://example.com/wp-admin/admin.php?page=jetpack-newsletter&p=%2F%3Ftab%3Dsubscribers',
 	},
 } as typeof window.JetpackScriptData;
