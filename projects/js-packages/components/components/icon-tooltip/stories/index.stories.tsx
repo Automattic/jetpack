@@ -117,3 +117,19 @@ HoverShow.args = {
 	placement: 'bottom-start',
 	hoverShow: true,
 };
+
+const TextTriggerTemplate = args => (
+	<div style={ { position: 'absolute', left: '300px', top: '200px', maxWidth: '420px' } }>
+		Prerender these pages to improve their loading performance, but <IconTooltip { ...args } /> of
+		potential drawbacks.
+	</div>
+);
+
+export const TextTrigger = TextTriggerTemplate.bind( {} );
+TextTrigger.args = {
+	trigger: 'be mindful',
+	popoverAnchorStyle: 'wrapper',
+	placement: 'bottom-end',
+	title: 'Warning',
+	children: <div>Prerendering pages can be unsafe if the pages are not properly configured.</div>,
+};
