@@ -12,10 +12,7 @@ import type { DataFormat } from '../../types';
 import type { MetricValueProps } from '../metric-value';
 
 export type MetricWithComparisonProps = {
-	/**
-	 * The current value. `null` when unknown: the value reads as a dash and no delta is shown.
-	 */
-	value: number | null;
+	value: number;
 
 	/**
 	 * The previous value for comparison. If null/undefined, delta won't be shown.
@@ -85,7 +82,7 @@ export function MetricWithComparison( {
 	deltaFallback,
 	showAbsoluteDelta = false,
 }: MetricWithComparisonProps ) {
-	const showDelta = value !== null && previousValue !== null && previousValue !== undefined;
+	const showDelta = previousValue !== null && previousValue !== undefined;
 
 	const absoluteFormat = dataFormat.type === 'currency' ? 'currency' : 'number';
 

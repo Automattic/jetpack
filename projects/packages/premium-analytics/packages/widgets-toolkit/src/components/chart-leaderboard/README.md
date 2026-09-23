@@ -213,7 +213,7 @@ type LeaderboardChartData = Array< {
 	label: string | ReactElement;
 	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 	ariaLabel?: string;
-	currentValue: number | null; // null when unknown, e.g. a row known only from the comparison period
+	currentValue: number;
 	previousValue?: number;
 	currentShare: number; // Percentage (0-100)
 	previousShare?: number; // Percentage (0-100); omitted when no comparison row matches
@@ -231,13 +231,13 @@ both shares:
 import { getCombinedPeriodMax, sharePercentage } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const maxValue = getCombinedPeriodMax(
-	rows.map( row => row.currentValue ?? 0 ),
+	rows.map( row => row.currentValue ),
 	rows.map( row => row.previousValue )
 );
 
 const data = rows.map( row => ( {
 	...row,
-	currentShare: row.currentValue === null ? 0 : sharePercentage( row.currentValue, maxValue ),
+	currentShare: sharePercentage( row.currentValue, maxValue ),
 	previousShare:
 		row.previousValue === undefined ? undefined : sharePercentage( row.previousValue, maxValue ),
 } ) );
@@ -246,8 +246,7 @@ const data = rows.map( row => ( {
 Do not normalize each period against a separate maximum. That can render equal-width bars for
 different values and visually contradict the displayed delta. Build the maximum from visible
 primary rows and their matching comparison values; omit missing comparison values rather than
-treating them as zero. A row known only from the comparison period has no current value: give it
-`currentValue: null` and `currentShare: 0`, and the chart draws a placeholder in the value column.
+treating them as zero.
 
 ### DataFormat Type
 

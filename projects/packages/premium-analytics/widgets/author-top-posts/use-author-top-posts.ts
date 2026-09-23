@@ -3,7 +3,6 @@
  */
 import {
 	findAuthorRow,
-	hasPrimaryPeriodViews,
 	useStatsTopAuthors,
 	type ReportParams,
 } from '@jetpack-premium-analytics/data';
@@ -50,7 +49,7 @@ export default function useAuthorTopPosts(
 
 	const rows = useMemo( () => {
 		const author = findAuthorRow( comparisonRows?.rows, authorId );
-		const posts = ( author?.children ?? [] ).filter( hasPrimaryPeriodViews ).slice( 0, maxRows );
+		const posts = ( author?.children ?? [] ).slice( 0, maxRows );
 		const maxValue = Math.max( ...posts.map( post => post.views ), 0 );
 
 		return posts.map( ( post, index ) => ( {

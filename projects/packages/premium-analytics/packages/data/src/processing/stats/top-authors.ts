@@ -21,13 +21,7 @@ export type StatsTopAuthorsItem = StatsNormalizedItemBase< StatsTopPostsItem > &
 	className?: string | null;
 };
 
-export type StatsTopAuthorsPostComparisonItem = Omit< StatsTopPostsItem, 'views' > & {
-	/**
-	 * Views in the primary period. `undefined` for a post known only from the
-	 * comparison period: the endpoint caps posts per author, so an absent post
-	 * has an unknown count, not zero.
-	 */
-	views?: number;
+export type StatsTopAuthorsPostComparisonItem = StatsTopPostsItem & {
 	previousViews?: number;
 };
 
@@ -72,22 +66,13 @@ function getAuthorPostKey( post: StatsTopPostsItem ): string | null {
 	return typeof post.label === 'string' && post.label ? `title:${ post.label }` : null;
 }
 
-/**
- * Whether an author's post has a view count for the primary period, which a
- * post known only from the comparison period lacks; rankings and bar scales
- * over primary views must skip those.
- */
-export function hasPrimaryPeriodViews(
-	post: StatsTopAuthorsPostComparisonItem
-): post is StatsTopPostsItem & StatsTopAuthorsPostComparisonItem {
-	return post.views !== undefined;
-}
-
 function mergeStatsTopAuthorsPostRows(
 	primaryPosts: StatsTopPostsItem[],
 	comparisonPosts: StatsTopPostsItem[]
 ): StatsTopAuthorsPostComparisonItem[] {
-	const { rows } = mergeStatsComparisonRows<
+	// A post missing from the primary list may have zero views or sit past the
+	// endpoint's per-author cap, so comparison-only posts are dropped, as in top posts.
+	return mergeStatsComparisonRows<
 		StatsTopPostsItem,
 		StatsTopPostsItem,
 		StatsTopAuthorsPostComparisonItem
@@ -101,22 +86,7 @@ function mergeStatsTopAuthorsPostRows(
 			...post,
 			previousViews: previousValue,
 		} ),
-	} );
-
-	// Posts known only from the comparison period keep their previous value and
-	// an unknown current one, so neither is silently dropped or faked as 0.
-	const primaryKeys = new Set(
-		primaryPosts.map( getAuthorPostKey ).filter( ( key ): key is string => key != null )
-	);
-	const droppedPosts = comparisonPosts
-		.filter( post => {
-			const key = getAuthorPostKey( post );
-
-			return key != null && ! primaryKeys.has( key );
-		} )
-		.map( post => ( { ...post, views: undefined, previousViews: post.views } ) );
-
-	return [ ...rows, ...droppedPosts ];
+	} ).rows;
 }
 
 export function sanitizeStatsTopAuthorsResponse(

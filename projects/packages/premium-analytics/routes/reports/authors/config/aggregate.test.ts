@@ -96,14 +96,6 @@ const comparisonReport: StatsDrilldownSourceReport< StatsTopAuthorsComparisonIte
 							link: 'https://example.com/analytical-engine/',
 							children: null,
 						},
-						{
-							id: 4,
-							label: 'Earlier post',
-							views: undefined,
-							previousViews: 3,
-							link: null,
-							children: null,
-						},
 					],
 				},
 			],
@@ -190,7 +182,7 @@ describe( 'report authors aggregate', () => {
 		expect( aggregateAuthorRows( undefined ) ).toEqual( [] );
 	} );
 
-	it( 'preserves comparison views and keeps a comparison-only post with unknown views', () => {
+	it( 'preserves comparison views for authors and nested posts', () => {
 		expect( aggregateAuthorRows( comparisonReport ) ).toEqual( [
 			{
 				id: 'id:42',
@@ -209,16 +201,6 @@ describe( 'report authors aggregate', () => {
 				postId: '1',
 				views: 6,
 				previousViews: 4,
-			},
-			{
-				id: 'id:42|post:id:4',
-				parentId: 'id:42',
-				parentName: 'Ada Lovelace',
-				label: 'Earlier post',
-				avatarUrl: null,
-				postId: '4',
-				views: null,
-				previousViews: 3,
 			},
 		] );
 	} );

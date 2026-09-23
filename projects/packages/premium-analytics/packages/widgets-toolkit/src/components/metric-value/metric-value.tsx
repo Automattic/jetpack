@@ -1,8 +1,6 @@
 /**
  * External dependencies
  */
-import { VisuallyHidden } from '@jetpack-premium-analytics/externals';
-import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -14,10 +12,7 @@ import type { FontSize } from '@wordpress/theme';
 import type { CSSProperties } from 'react';
 
 export type MetricValueProps = {
-	/**
-	 * The value to format. `null` reads as a dash with a hidden "No data" label.
-	 */
-	value: number | null;
+	value: number;
 
 	/**
 	 * Format configuration for value display
@@ -63,16 +58,7 @@ export function MetricValue( {
 			style={ style }
 			className={ clsx( styles.metricValue, styles[ `color--${ color }` ], className ) }
 		>
-			{ value === null ? (
-				<>
-					<span aria-hidden="true">—</span>
-					<VisuallyHidden render={ <span /> }>
-						{ __( 'No data', 'jetpack-premium-analytics-pkg' ) }
-					</VisuallyHidden>
-				</>
-			) : (
-				<AbbreviatedValue value={ value } dataFormat={ dataFormat } currencyCode={ currencyCode } />
-			) }
+			<AbbreviatedValue value={ value } dataFormat={ dataFormat } currencyCode={ currencyCode } />
 		</span>
 	);
 }

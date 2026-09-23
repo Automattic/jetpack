@@ -284,26 +284,25 @@ The LeaderboardChart expects pre-processed data. You'll need to transform your r
 	language="tsx"
 	code={ `// Transform your raw data into LeaderboardEntry format
 	function transformRawData(rawData) {
-		const maxValue = Math.max(...rawData.map(item => item.current_period?.value ?? 0));
+		const maxValue = Math.max(...rawData.map(item => item.current_period.value));
 
 		return rawData.map(item => {
-			// A row missing from either period has an unknown value there, not a
-			// zero: leave previousValue undefined, or set currentValue to null,
-			// and the chart draws a placeholder instead of a number.
-			const currentValue = item.current_period?.value ?? null;
+			// A row absent from the comparison period has an unknown previous
+			// value; leave the comparison fields undefined so the chart shows
+			// its missing-data placeholder.
 			const previousValue = item.previous_period?.value;
 
 			return {
 				id: item.id,
 				label: item.name,
-				currentValue,
+				currentValue: item.current_period.value,
 				previousValue,
-				currentShare: currentValue !== null ? (currentValue / maxValue) * 100 : 0,
+				currentShare: (item.current_period.value / maxValue) * 100,
 				previousShare: previousValue !== undefined ? (previousValue / maxValue) * 100 : undefined,
 				// Omit delta when the percentage change cannot be calculated,
 				// such as from a previous value of 0.
-				delta: currentValue !== null && previousValue
-					? ((currentValue - previousValue) / previousValue) * 100
+				delta: previousValue
+					? ((item.current_period.value - previousValue) / previousValue) * 100
 					: undefined,
 			};
 		});

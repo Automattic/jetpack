@@ -39,11 +39,7 @@ export {
 	mergeStatsFileDownloadsComparisonRows,
 	sanitizeStatsFileDownloadsResponse,
 } from './file-downloads';
-export {
-	hasPrimaryPeriodViews,
-	mergeStatsTopAuthorsComparisonRows,
-	sanitizeStatsTopAuthorsResponse,
-} from './top-authors';
+export { mergeStatsTopAuthorsComparisonRows, sanitizeStatsTopAuthorsResponse } from './top-authors';
 export { sanitizeStatsHighlightsResponse } from './highlights';
 export { mergeStatsLocationsComparisonRows, sanitizeStatsLocationsResponse } from './locations';
 export { mergeStatsVideoPlaysComparisonRows, sanitizeStatsVideoPlaysResponse } from './video-plays';

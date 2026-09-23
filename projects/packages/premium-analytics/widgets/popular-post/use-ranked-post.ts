@@ -3,7 +3,6 @@
  */
 import {
 	findAuthorRow,
-	hasPrimaryPeriodViews,
 	postContentQuery,
 	postsContentQuery,
 	useStatsQuery,
@@ -104,7 +103,7 @@ export function useAuthorRankedPost(
 		}
 		const author = findAuthorRow( ranking.comparisonRows?.rows, authorId );
 
-		return ( author?.children ?? [] ).filter( hasPrimaryPeriodViews );
+		return author?.children ?? [];
 	}, [ enabled, ranking.comparisonRows, authorId ] );
 	const candidateIds = useMemo(
 		() => rows.map( row => Number( row.id ) || 0 ).filter( Boolean ),

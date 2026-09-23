@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Premium Analytics: Show a dash instead of 0 (-100%) for an author's post that only appears in the comparison period.
+Premium Analytics: Stop listing an author's post that only appears in the comparison period as 0 (-100%).

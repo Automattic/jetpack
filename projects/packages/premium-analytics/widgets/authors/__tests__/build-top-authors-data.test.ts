@@ -281,7 +281,7 @@ describe( 'buildTopAuthorsData', () => {
 		} );
 	} );
 
-	it( 'aligns author posts across comparison periods and keeps comparison-only posts with an unknown current value', () => {
+	it( 'aligns author posts across comparison periods and leaves out comparison-only posts', () => {
 		const result = buildData(
 			makeReport( [
 				{
@@ -328,18 +328,8 @@ describe( 'buildTopAuthorsData', () => {
 				previousShare: undefined,
 				delta: undefined,
 			},
-			{
-				id: '3',
-				postId: 3,
-				title: 'Dropped post',
-				link: null,
-				currentValue: null,
-				previousValue: 10,
-				currentShare: 0,
-				previousShare: 33.33333333333333,
-				delta: undefined,
-			},
 		] );
+		expect( result[ 0 ] ).toMatchObject( { currentValue: 30, previousValue: 40, delta: -25 } );
 	} );
 } );
 

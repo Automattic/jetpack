@@ -24,16 +24,11 @@ type AuthorDrilldownMetadata = {
 	avatarUrl: string | null;
 	postId?: string;
 	previousViews?: number;
-	/** Set for a post known only from the comparison period, whose current views are unknown. */
-	hasUnknownViews?: true;
 };
 
-/** One author or nested post row in the report table; `views` is `null` when unknown. */
-export type AuthorRow = Omit<
-	StatsDrilldownRow< AuthorDrilldownMetadata >,
-	'value' | 'hasUnknownViews'
-> & {
-	views: number | null;
+/** One author or nested post row in the report table. */
+export type AuthorRow = Omit< StatsDrilldownRow< AuthorDrilldownMetadata >, 'value' > & {
+	views: number;
 };
 
 /**
@@ -115,14 +110,13 @@ function getAuthorDrilldownMetadata(
 		};
 	}
 
-	const post = item as StatsTopAuthorsPostComparisonItem;
+	const post = item as StatsTopPostsItem;
 
 	return {
 		avatarUrl: null,
 		parentName: String( context.parentItem?.label ?? '' ),
 		postId: post.id != null ? String( post.id ) : undefined,
 		...previousViews,
-		...( post.views === undefined ? { hasUnknownViews: true as const } : {} ),
 	};
 }
 
@@ -140,12 +134,8 @@ export function aggregateAuthorRows(
 		getChildren: item => item.children,
 		getId: getAuthorDrilldownId,
 		getLabel: item => String( item.label ?? '' ),
-		// An unknown count sorts with the zeros; the row's own flag keeps it from reading as one.
-		getValue: item => item.views ?? 0,
+		getValue: item => item.views,
 		isGroup: ( _item, { depth, hasChildren } ) => depth === 0 || hasChildren,
 		getRowMetadata: getAuthorDrilldownMetadata,
-	} ).map( ( { value, hasUnknownViews, ...row } ) => ( {
-		...row,
-		views: hasUnknownViews ? null : value,
-	} ) );
+	} ).map( ( { value, ...row } ) => ( { ...row, views: value } ) );
 }

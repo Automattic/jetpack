@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Leaderboard chart: Accept a null current value and draw a placeholder for it, for rows known only from the comparison period.

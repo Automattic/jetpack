@@ -22,10 +22,8 @@ type SearchTermsDataPoint = StatsNormalizedDataPoint< StatsSearchTermsItem > & {
 };
 
 /**
- * The Stats endpoint caps a summarized search-terms list at 500 rows, counting
- * the encrypted-searches pseudo term that becomes the Unknown row here. In
- * `period=day` summarize mode it has no rollup, so `other_search_terms` is
- * never positive and the cap is the only truncation signal.
+ * Stats caps a summarized search-terms list at 500 rows, the Unknown row included. With
+ * `period=day` it never reports `other_search_terms`, so the cap is the only truncation signal.
  */
 const SUMMARIZED_TERMS_CAP = 500;
 

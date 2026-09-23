@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Authors: Show a dash instead of 0 (-100%) for a post that only appears in the comparison period.
+Authors: Stop listing a post that only appears in the comparison period as 0 (-100%).

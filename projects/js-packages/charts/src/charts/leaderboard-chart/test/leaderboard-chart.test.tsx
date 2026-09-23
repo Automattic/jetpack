@@ -152,35 +152,6 @@ describe( 'LeaderboardChart', () => {
 		expect( container.querySelectorAll( '.bar' ) ).toHaveLength( 2 );
 	} );
 
-	it( 'shows a placeholder instead of a value when the current value is unknown', () => {
-		const valueFormatter = jest.fn( ( value: number ) => `${ value }$` );
-		const { container } = render(
-			<LeaderboardChart
-				data={ [
-					{
-						id: 'gone',
-						label: 'Gone Source',
-						currentValue: null,
-						previousValue: 400,
-						currentShare: 0,
-						previousShare: 40,
-					},
-				] }
-				withComparison={ true }
-				valueFormatter={ valueFormatter }
-			/>
-		);
-
-		expect( valueFormatter ).not.toHaveBeenCalled();
-		expect( screen.getByText( 'No data' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Percentage change unavailable' ) ).toBeInTheDocument();
-		expect( screen.queryByText( '-100%' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( '0$' ) ).not.toBeInTheDocument();
-		// The comparison bar still draws beside the zero-width current bar.
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-		expect( container.querySelectorAll( '.bar' ) ).toHaveLength( 2 );
-	} );
-
 	it( 'shows custom label when provided', () => {
 		render(
 			<LeaderboardChart

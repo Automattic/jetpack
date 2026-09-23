@@ -203,10 +203,9 @@ export type LeaderboardEntry = {
 	label: string | ReactElement;
 
 	/**
-	 * Value of the entry. `null` when the value is unknown, such as a row that
-	 * only exists in the comparison period; the chart draws a placeholder.
+	 * Value of the entry
 	 */
-	currentValue: number | null;
+	currentValue: number;
 
 	/**
 	 * Value of the entry in the previous period. Omit when this row has no
