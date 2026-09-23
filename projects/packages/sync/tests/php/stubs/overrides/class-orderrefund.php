@@ -1,21 +1,21 @@
 <?php
 /**
- * WooCommerce Analytics order stub, which adds the report methods to a plain order.
+ * WooCommerce Analytics refund stub, which adds the report methods to a plain refund.
  *
  * @package automattic/jetpack-sync
  */
 
 namespace Automattic\WooCommerce\Admin\Overrides;
 
-require_once __DIR__ . '/../class-wc-order.php';
+require_once __DIR__ . '/../class-wc-order-refund.php';
 
-if ( ! class_exists( Order::class, false ) ) {
+if ( ! class_exists( OrderRefund::class, false ) ) {
 	/**
-	 * WooCommerce Analytics order stub.
+	 * WooCommerce Analytics refund stub.
 	 */
-	class Order extends \WC_Order {
+	class OrderRefund extends \WC_Order_Refund {
 		/**
-		 * Swap WC_Order for this class, as WooCommerce's filter does.
+		 * Swap WC_Order_Refund for this class, as WooCommerce's filter does.
 		 *
 		 * @param string $classname  Order class name.
 		 * @param string $order_type Order type.
@@ -23,7 +23,7 @@ if ( ! class_exists( Order::class, false ) ) {
 		 * @return string
 		 */
 		public static function order_class_name( $classname, $order_type, $order_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			return 'WC_Order' === $classname ? self::class : $classname;
+			return 'WC_Order_Refund' === $classname ? self::class : $classname;
 		}
 
 		/**

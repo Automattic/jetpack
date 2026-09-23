@@ -481,6 +481,149 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A plain refund is reloaded as the Analytics refund class.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_plain_refund_is_reloaded_as_analytics_refund() {
+		require_once __DIR__ . '/../stubs/overrides/class-orderrefund.php';
+
+		$analytics_refund = $this->invoke_static_helper( 'get_analytics_order', new \WC_Order_Refund() );
+
+		$this->assertInstanceOf( \Automattic\WooCommerce\Admin\Overrides\OrderRefund::class, $analytics_refund );
+		$this->assertSame( 123, $analytics_refund->get_id() );
+	}
+
+	/**
+	 * Every report getter receives the same reloaded order.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_reports_data_reloads_a_plain_order_once() {
+		require_once __DIR__ . '/../stubs/overrides/class-order.php';
+
+		$this->module = new class() extends Modules\WooCommerce_Analytics {
+			/**
+			 * The order each getter received.
+			 *
+			 * @var array
+			 */
+			public $received = array();
+
+			/**
+			 * Record the order passed to a getter.
+			 *
+			 * @param object $order The order.
+			 * @return array
+			 */
+			private function record( $order ) {
+				$this->received[] = $order;
+				return array( 'data' );
+			}
+
+			/**
+			 * Record the order.
+			 *
+			 * @param object $order The order.
+			 * @return array
+			 */
+			protected function get_order_stats_data( $order ) {
+				return $this->record( $order );
+			}
+
+			/**
+			 * Record the order.
+			 *
+			 * @param object $order The order.
+			 * @return array
+			 */
+			protected function get_order_attribution_data( $order ) {
+				return $this->record( $order );
+			}
+
+			/**
+			 * Record the order.
+			 *
+			 * @param object $order The order.
+			 * @return array
+			 */
+			protected function get_order_product_data( $order ) {
+				return $this->record( $order );
+			}
+
+			/**
+			 * Record the order.
+			 *
+			 * @param object $order The order.
+			 * @return array
+			 */
+			protected function get_order_coupon_data( $order ) {
+				return $this->record( $order );
+			}
+
+			/**
+			 * Record the order.
+			 *
+			 * @param object $order The order.
+			 * @return array
+			 */
+			protected function get_order_tax_data( $order ) {
+				return $this->record( $order );
+			}
+		};
+
+		$this->invoke_instance_helper( 'build_woocommerce_analytics_reports_data', new \WC_Order() );
+
+		$this->assertCount( 5, $this->module->received );
+		$this->assertInstanceOf( \Automattic\WooCommerce\Admin\Overrides\Order::class, $this->module->received[0] );
+		$this->assertCount( 1, array_unique( array_map( 'spl_object_id', $this->module->received ) ) );
+	}
+
+	/**
+	 * Queried orders load as the Analytics class, and the filter added for it is removed afterwards.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_orders_are_queried_as_analytics_orders() {
+		require_once __DIR__ . '/../stubs/overrides/class-order.php';
+		require_once __DIR__ . '/../stubs/wc-get-orders.php';
+
+		$orders = $this->invoke_static_helper( 'get_analytics_orders', array( 'post__in' => array( 123 ) ) );
+
+		$this->assertInstanceOf( \Automattic\WooCommerce\Admin\Overrides\Order::class, $orders[0] );
+		$this->assertFalse( has_filter( 'woocommerce_order_class', array( \Automattic\WooCommerce\Admin\Overrides\Order::class, 'order_class_name' ) ) );
+	}
+
+	/**
+	 * The class filter WooCommerce adds while Analytics is enabled survives the query.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_querying_orders_keeps_woocommerce_analytics_filter() {
+		require_once __DIR__ . '/../stubs/overrides/class-order.php';
+		require_once __DIR__ . '/../stubs/wc-get-orders.php';
+
+		$callback = array( \Automattic\WooCommerce\Admin\Overrides\Order::class, 'order_class_name' );
+		add_filter( 'woocommerce_order_class', $callback, 10, 3 );
+
+		$this->invoke_static_helper( 'get_analytics_orders', array( 'post__in' => array( 123 ) ) );
+
+		$this->assertSame( 10, has_filter( 'woocommerce_order_class', $callback ) );
+	}
+
+	/**
 	 * The size filter always lets the first object through, then stops at the cap.
 	 */
 	public function test_filter_analytics_objects_by_size_always_allows_first_object() {
