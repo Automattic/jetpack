@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Backup\V0005;
 
 use Automattic\Jetpack\JITMS\JITM;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use function add_action;
 use function add_filter;
@@ -78,14 +79,31 @@ class Admin_Notices_Suppression_Test extends TestCase {
 		return array( $this->foreign_notice, $jitm_callback );
 	}
 
-	public function test_modern_dashboard_drops_a_third_party_notice() {
-		list( $foreign ) = $this->register_both_notices();
+	/**
+	 * @dataProvider provide_notice_hooks
+	 *
+	 * @param string $hook Hook the foreign notice is registered on.
+	 */
+	#[DataProvider( 'provide_notice_hooks' )]
+	public function test_modern_dashboard_drops_a_third_party_notice( $hook ) {
+		$this->register_both_notices();
+		add_action( $hook, $this->foreign_notice );
 
 		Jetpack_Backup::admin_init();
 
 		$this->assertFalse(
-			has_action( 'admin_notices', $foreign ),
+			has_action( $hook, $this->foreign_notice ),
 			"Another plugin's notice must not survive onto the modernized dashboard."
+		);
+	}
+
+	/**
+	 * @return array<string, array{0: string}>
+	 */
+	public static function provide_notice_hooks() {
+		return array(
+			'admin_notices'     => array( 'admin_notices' ),
+			'all_admin_notices' => array( 'all_admin_notices' ),
 		);
 	}
 
