@@ -61,7 +61,6 @@ class Settings_Test extends BaseTestCase {
 		// Clear the load action registered by add_wp_admin_menu on success.
 		remove_all_actions( 'load-jetpack_page_jetpack-newsletter' );
 		remove_all_actions( 'load-admin_page_jetpack-newsletter' );
-		remove_filter( 'jetpack_display_jitms_on_screen', array( Settings::class, 'hide_jitms_on_wp_build_dashboard' ) );
 	}
 
 	/**
@@ -83,7 +82,6 @@ class Settings_Test extends BaseTestCase {
 
 		remove_all_filters( Settings::MODERNIZATION_FILTER );
 		remove_all_filters( 'jetpack_show_newsletter_menu_item' );
-		remove_filter( 'jetpack_display_jitms_on_screen', array( Settings::class, 'hide_jitms_on_wp_build_dashboard' ) );
 		remove_all_filters( 'site_url' );
 		remove_all_filters( 'home_url' );
 		remove_all_filters( 'jetpack_feature_flag_enabled' );
@@ -567,22 +565,9 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The wp-build dashboard opts its own screen out of JITMs, and no other.
+	 * A hidden menu item registers under another screen ID.
 	 */
-	public function test_modernized_dashboard_opts_its_screen_out_of_jitms() {
-		$this->connect_site_with_subscriptions();
-
-		( new Settings() )->add_wp_admin_menu();
-
-		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-newsletter' ) );
-		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-social' ) );
-		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', false, 'jetpack_page_jetpack-social' ) );
-	}
-
-	/**
-	 * A hidden menu item registers under another screen ID, and that is the one opted out.
-	 */
-	public function test_hidden_menu_item_opts_its_own_screen_out_of_jitms() {
+	public function test_hidden_menu_item_registers_under_its_own_screen() {
 		$this->connect_site_with_subscriptions();
 		wp_set_current_user(
 			wp_insert_user(
@@ -599,12 +584,18 @@ class Settings_Test extends BaseTestCase {
 		$settings->add_wp_admin_menu();
 
 		$this->assertNotFalse( has_action( 'load-admin_page_jetpack-newsletter', array( $settings, 'admin_init' ) ) );
-		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', true, 'admin_page_jetpack-newsletter' ) );
-		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-newsletter' ) );
 	}
 
-	public function test_legacy_dashboard_keeps_jitms() {
+	/**
+	 * Both dashboards render the JITM slot, so neither opts its screen out.
+	 */
+	public function test_dashboard_keeps_jitms() {
 		$this->connect_site_with_subscriptions();
+
+		( new Settings() )->add_wp_admin_menu();
+
+		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-newsletter' ) );
+
 		add_filter( Settings::MODERNIZATION_FILTER, '__return_false' );
 
 		( new Settings() )->add_wp_admin_menu();

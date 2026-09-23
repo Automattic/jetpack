@@ -1,5 +1,4 @@
 Significance: patch
-Type: other
-Comment: Update composer.lock.
+Type: bugfix
 
-
+Show Jetpack in-dashboard messages on the modernized product dashboards again.
