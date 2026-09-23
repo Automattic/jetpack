@@ -10,7 +10,7 @@ import {
 	encodeRangeToSearchParams,
 	type ReportDateFilters,
 } from '@jetpack-premium-analytics/routing';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 
 // The tracker is a page-wide singleton: identify once per page load, not per event
 // and not on every consumer's mount.
@@ -75,41 +75,35 @@ type DateRangeApplyContext = {
 	offersComparison: boolean;
 };
 
-type TrackedDateFilters = Pick<
+type DateRangeState = Pick<
 	ReportDateFilters,
-	'onChange' | 'onApply' | 'presetId' | 'range' | 'interval' | 'comparisonPresetId'
+	'presetId' | 'range' | 'interval' | 'comparisonPresetId'
 >;
 
 type StagedRange = Parameters< ReportDateFilters[ 'onChange' ] >;
 
 /**
- * Wraps the date filters' `onChange` and `onApply` to record `jetpack_premium_analytics_date_range_apply`.
- * `onChange` remembers what it staged: a quick preset stages and applies in one tick, before any render.
+ * Records `jetpack_premium_analytics_date_range_apply`. Call `trackedOnChange` beside the date filters'
+ * `onChange`: a quick preset stages and applies in one tick, before `state` catches up.
  *
- * @param {TrackedDateFilters}    dateFilters - The page's date-filter controller.
- * @param {DateRangeApplyContext} context     - Where the range is applied.
- * @return The wrapped `onChange` and `onApply`.
+ * @param {DateRangeState}        state   - The date filters' rendered range, interval and comparison.
+ * @param {DateRangeApplyContext} context - Where the range is applied.
+ * @return `trackedOnChange` to remember a staged range, and `trackedOnApply` to record its apply.
  */
 export function useTrackedDateRangeApply(
-	dateFilters: TrackedDateFilters,
+	{ presetId, range, interval, comparisonPresetId }: DateRangeState,
 	{ surface, section, offersComparison }: DateRangeApplyContext
-): Pick< ReportDateFilters, 'onChange' | 'onApply' > {
+) {
 	const trackEvent = useTrackEvent();
-	const { onChange, onApply, presetId, range, interval, comparisonPresetId } = dateFilters;
 	const staged = useRef< StagedRange | null >( null );
 
-	const trackedOnChange = useCallback< ReportDateFilters[ 'onChange' ] >(
-		( ...args ) => {
-			staged.current = args;
-			onChange( ...args );
-		},
-		[ onChange ]
-	);
+	const trackedOnChange = useCallback( ( ...args: StagedRange ) => {
+		staged.current = args;
+	}, [] );
 
 	const trackedOnApply = useCallback( () => {
 		const [ stagedRange, stagedPresetId, options ] = staged.current ?? [];
 		staged.current = null;
-		onApply();
 
 		const appliedPresetId = stagedPresetId ?? presetId;
 		const appliedRange = stagedRange?.from && stagedRange.to ? stagedRange : range;
@@ -144,7 +138,6 @@ export function useTrackedDateRangeApply(
 			comparison: comparison ?? 'none',
 		} );
 	}, [
-		onApply,
 		presetId,
 		range,
 		interval,
@@ -155,8 +148,5 @@ export function useTrackedDateRangeApply(
 		offersComparison,
 	] );
 
-	return useMemo(
-		() => ( { onChange: trackedOnChange, onApply: trackedOnApply } ),
-		[ trackedOnChange, trackedOnApply ]
-	);
+	return { trackedOnChange, trackedOnApply };
 }

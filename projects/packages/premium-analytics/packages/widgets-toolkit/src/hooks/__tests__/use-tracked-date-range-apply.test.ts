@@ -22,7 +22,7 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 
 jest.mock( '@automattic/jetpack-script-data', () => ( { getScriptData: () => ( {} ) } ) );
 
-type Filters = Parameters< typeof useTrackedDateRangeApply >[ 0 ];
+type State = Parameters< typeof useTrackedDateRangeApply >[ 0 ];
 type Context = Parameters< typeof useTrackedDateRangeApply >[ 1 ];
 
 const EVENT = 'jetpack_premium_analytics_date_range_apply';
@@ -30,20 +30,18 @@ const LAST_30_DAYS = computePrimaryRange( 'last-30-days', 'UTC' )!;
 const LAST_7_DAYS = computePrimaryRange( 'last-7-days', 'UTC' )!;
 const DASHBOARD: Context = { surface: 'dashboard', section: 'traffic', offersComparison: true };
 
-// The controller as a render left it: the range applied before the click, by weeks.
-function renderTracked( overrides: Partial< Filters > = {}, context: Context = DASHBOARD ) {
-	const filters: Filters = {
-		onChange: jest.fn(),
-		onApply: jest.fn(),
+// The date filters as a render left them: the range applied before the click, by weeks.
+function renderTracked( overrides: Partial< State > = {}, context: Context = DASHBOARD ) {
+	const state: State = {
 		presetId: 'last-30-days',
 		range: LAST_30_DAYS,
 		interval: 'week',
 		comparisonPresetId: undefined,
 		...overrides,
 	};
-	const { result } = renderHook( () => useTrackedDateRangeApply( filters, context ) );
+	const { result } = renderHook( () => useTrackedDateRangeApply( state, context ) );
 
-	return { filters, tracked: result.current };
+	return result.current;
 }
 
 function trackedProperties() {
@@ -58,15 +56,13 @@ describe( 'useTrackedDateRangeApply', () => {
 	} );
 
 	it( 'records a quick preset staged and applied in the same tick', () => {
-		const { filters, tracked } = renderTracked();
+		const { trackedOnChange, trackedOnApply } = renderTracked();
 
 		act( () => {
-			tracked.onChange( LAST_7_DAYS, 'last-7-days' );
-			tracked.onApply();
+			trackedOnChange( LAST_7_DAYS, 'last-7-days' );
+			trackedOnApply();
 		} );
 
-		expect( filters.onChange ).toHaveBeenCalledWith( LAST_7_DAYS, 'last-7-days' );
-		expect( filters.onApply ).toHaveBeenCalledTimes( 1 );
 		// Last 7 days allows days only, so the staged weeks coerce as `buildRangePatch` does.
 		expect( mockRecordEvent ).toHaveBeenCalledWith( EVENT, {
 			surface: 'dashboard',
@@ -79,10 +75,10 @@ describe( 'useTrackedDateRangeApply', () => {
 	} );
 
 	it( 'records a custom range without a preset', () => {
-		const { tracked } = renderTracked();
+		const { trackedOnChange, trackedOnApply } = renderTracked();
 
-		act( () => tracked.onChange( LAST_7_DAYS, 'custom' ) );
-		act( () => tracked.onApply() );
+		act( () => trackedOnChange( LAST_7_DAYS, 'custom' ) );
+		act( () => trackedOnApply() );
 
 		const properties = trackedProperties();
 		expect( properties ).toMatchObject( { range_type: 'custom' } );
@@ -90,31 +86,33 @@ describe( 'useTrackedDateRangeApply', () => {
 	} );
 
 	it( 'falls back to the rendered range when nothing was staged since the last apply', () => {
-		const { tracked } = renderTracked();
+		const { trackedOnChange, trackedOnApply } = renderTracked();
 
 		act( () => {
-			tracked.onChange( LAST_7_DAYS, 'last-7-days' );
-			tracked.onApply();
+			trackedOnChange( LAST_7_DAYS, 'last-7-days' );
+			trackedOnApply();
 		} );
 		mockRecordEvent.mockClear();
-		act( () => tracked.onApply() );
+		act( () => trackedOnApply() );
 
 		expect( trackedProperties() ).toMatchObject( { preset: 'last-30-days', interval: 'week' } );
 	} );
 
 	it( 'records the comparison the new range keeps', () => {
-		const { tracked } = renderTracked( { comparisonPresetId: 'previous-year' } );
+		const { trackedOnChange, trackedOnApply } = renderTracked( {
+			comparisonPresetId: 'previous-year',
+		} );
 
 		act( () => {
-			tracked.onChange( LAST_7_DAYS, 'last-7-days' );
-			tracked.onApply();
+			trackedOnChange( LAST_7_DAYS, 'last-7-days' );
+			trackedOnApply();
 		} );
 
 		expect( trackedProperties() ).toMatchObject( { comparison: 'previous-year' } );
 	} );
 
 	it( 'records the previous period when the new range drops the comparison preset', () => {
-		const { tracked } = renderTracked( {
+		const { trackedOnChange, trackedOnApply } = renderTracked( {
 			presetId: 'last-7-days',
 			range: LAST_7_DAYS,
 			interval: 'day',
@@ -122,22 +120,22 @@ describe( 'useTrackedDateRangeApply', () => {
 		} );
 
 		act( () => {
-			tracked.onChange( LAST_30_DAYS, 'last-30-days' );
-			tracked.onApply();
+			trackedOnChange( LAST_30_DAYS, 'last-30-days' );
+			trackedOnApply();
 		} );
 
 		expect( trackedProperties() ).toMatchObject( { comparison: 'previous-period' } );
 	} );
 
 	it( 'records no comparison on a surface that does not show one', () => {
-		const { tracked } = renderTracked(
+		const { trackedOnChange, trackedOnApply } = renderTracked(
 			{ comparisonPresetId: 'previous-year' },
 			{ surface: 'post_detail', offersComparison: false }
 		);
 
 		act( () => {
-			tracked.onChange( LAST_7_DAYS, 'last-7-days' );
-			tracked.onApply();
+			trackedOnChange( LAST_7_DAYS, 'last-7-days' );
+			trackedOnApply();
 		} );
 
 		expect( mockRecordEvent ).toHaveBeenCalledWith( EVENT, {

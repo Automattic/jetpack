@@ -138,10 +138,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			Reset to default
 		</button>
 	),
-	useTrackedDateRangeApply: ( { onChange, onApply }: Record< string, unknown > ) => ( {
-		onChange,
-		onApply,
-	} ),
+	useTrackedDateRangeApply: () => ( { trackedOnChange: () => {}, trackedOnApply: () => {} } ),
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {

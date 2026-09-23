@@ -174,16 +174,32 @@ function Dashboard(): JSX.Element {
 		showsPeriodControl
 	);
 
+	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
+	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
+		{
+			presetId: dateFilters.presetId,
+			range: dateFilters.range,
+			interval: dateFilters.interval,
+			comparisonPresetId: dateFilters.comparisonPresetId,
+		},
+		{ surface: 'dashboard', section: activeSection, offersComparison: showComparison }
+	);
+	const onDateChange = useCallback< typeof changeDateRange >(
+		( ...args ) => {
+			changeDateRange( ...args );
+			trackedOnChange( ...args );
+		},
+		[ changeDateRange, trackedOnChange ]
+	);
+	const onDateApply = useCallback( () => {
+		applyDateRange();
+		trackedOnApply();
+	}, [ applyDateRange, trackedOnApply ] );
+
 	/*
 	 * The year surface applies on click — no Apply step of its own — so stage and
 	 * commit together, the way `DatePeriodDropdown` applies a period.
 	 */
-	const trackedDateFilters = useTrackedDateRangeApply( dateFilters, {
-		surface: 'dashboard',
-		section: activeSection,
-		offersComparison: showComparison,
-	} );
-	const { onChange: onDateChange, onApply: onDateApply } = trackedDateFilters;
 	const selectYear = useCallback(
 		( range: DateRange, presetId: YearSurfacePresetId ) => {
 			onDateChange( range, presetId );
@@ -253,7 +269,8 @@ function Dashboard(): JSX.Element {
 				 */
 				<DateFiltersPanel
 					{ ...dateFilters }
-					{ ...trackedDateFilters }
+					onChange={ onDateChange }
+					onApply={ onDateApply }
 					withIntervalControl
 					attentionId={ attentionId }
 				/>
