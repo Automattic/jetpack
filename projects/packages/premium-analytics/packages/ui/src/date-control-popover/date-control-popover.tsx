@@ -42,18 +42,13 @@ export function DateControlPopover( {
 	onOpenChange,
 	children,
 }: DateControlPopoverProps ) {
-	const popoverTrigger = <Popover.Trigger render={ trigger } />;
-
 	return (
 		<Popover.Root open={ open } onOpenChange={ onOpenChange }>
-			{ tooltip ? (
-				<Tooltip.Root>
-					<Tooltip.Trigger render={ popoverTrigger } />
-					<Tooltip.Popup>{ tooltip }</Tooltip.Popup>
-				</Tooltip.Root>
-			) : (
-				popoverTrigger
-			) }
+			{ /* Disabled rather than left out, so the trigger keeps its node as the tooltip comes and goes. */ }
+			<Tooltip.Root disabled={ ! tooltip }>
+				<Tooltip.Trigger render={ <Popover.Trigger render={ trigger } /> } />
+				<Tooltip.Popup>{ tooltip }</Tooltip.Popup>
+			</Tooltip.Root>
 			<Popover.Popup
 				className="date-control-popover"
 				positioner={ <Popover.Positioner side="bottom" align={ align } /> }
