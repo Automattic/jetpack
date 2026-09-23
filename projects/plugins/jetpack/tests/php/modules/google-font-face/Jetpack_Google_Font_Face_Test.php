@@ -199,7 +199,7 @@ class Jetpack_Google_Font_Face_Test extends WP_UnitTestCase {
 									'fontFamily' => 'Detection Test Font',
 									'fontStyle'  => 'normal',
 									'fontWeight' => '100 900',
-									'src'        => 'file:./assets/fonts/detection-test.woff2',
+									'src'        => 'https://example.org/detection-test.woff2',
 								),
 							),
 						),
@@ -243,7 +243,7 @@ class Jetpack_Google_Font_Face_Test extends WP_UnitTestCase {
 	private function assert_selected_font_output() {
 		$output = $this->get_font_output();
 		$this->assertStringContainsString( '@font-face', $output );
-		$this->assertStringContainsString( get_theme_file_uri( 'assets/fonts/detection-test.woff2' ), $output );
+		$this->assertStringContainsString( 'https://example.org/detection-test.woff2', $output );
 		$this->assertStringNotContainsString( 'unused-test.woff2', $output );
 	}
 }
