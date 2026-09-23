@@ -1,4 +1,4 @@
 Significance: minor
 Type: removed
 
-Remove the Publicize_UI methods deprecated in 0.42.3 that rendered the old Publicize box on Settings > Sharing: sharing_menu(), wrapper_admin_page(), management_page(), load_assets() and admin_page().
+Remove the Publicize_UI methods deprecated in 0.42.3 that backed the old Publicize box on Settings > Sharing: sharing_menu(), wrapper_admin_page(), management_page(), load_assets() and admin_page().
