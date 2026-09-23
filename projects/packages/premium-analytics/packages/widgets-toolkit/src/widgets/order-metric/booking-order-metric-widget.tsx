@@ -20,7 +20,6 @@ export type BookingOrderMetricWidgetProps = {
 	/** The metric's name, for the chart legend. */
 	seriesLabel?: string;
 
-	/** The tooltip's unit when the metric is a count. */
 	seriesCountLabel?: CountLabel;
 };
 

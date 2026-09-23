@@ -11,6 +11,5 @@ import type { CountLabel } from '../../types';
 export interface ReportChartMetric {
 	key: string;
 	label: string;
-	/** The tooltip's unit when the metric is a count. */
 	countLabel?: CountLabel;
 }

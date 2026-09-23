@@ -52,7 +52,6 @@ type BuildTimeSeriesChartOptions< T extends TimeSeriesData > = {
 	 * Omit it and each series is labelled with its own range.
 	 */
 	label?: string;
-	/** The tooltip's unit when the metric is a count. */
 	countLabel?: CountLabel;
 };
 

@@ -23,7 +23,6 @@ export type StorePerformanceMetric = {
 	description: string;
 	metricType: 'general' | 'booking' | 'visitors' | 'conversion' | 'customers';
 	metricKey: MetricKey;
-	/** The tooltip's unit, for the metrics that are counts. */
 	countLabel?: CountLabel;
 };
 

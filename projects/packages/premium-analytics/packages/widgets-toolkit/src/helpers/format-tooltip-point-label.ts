@@ -8,8 +8,8 @@ import { __, _x, sprintf } from '@wordpress/i18n';
 import type { CountLabel } from '../types';
 
 /**
- * Compose a tooltip row as one translatable sentence, so the value reads with
- * the metric as its unit: `86 Views · September 17, 2026`.
+ * Compose a tooltip row as one translatable sentence, value first: `1 View · September 17, 2026`.
+ * Without a `countLabel`, the metric name is the unit.
  *
  * @param value      - Formatted value.
  * @param name       - Metric name.

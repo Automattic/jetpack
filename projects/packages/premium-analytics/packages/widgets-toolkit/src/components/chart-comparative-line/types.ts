@@ -19,7 +19,7 @@ export type ComparativeDatePointDate = DataPointDate & {
 export type ComparativeLineChartSeries = SeriesData & {
 	// We expect SeriesData.data to be an array of DataPointDate.
 	data: ComparativeDatePointDate[];
-	/** The tooltip's unit for a count metric; a comparison series falls back to its group's. */
+	/** A comparison series reads its group's, as it does the group's name. */
 	countLabel?: CountLabel;
 };
 
@@ -32,7 +32,6 @@ export type TooltipExtraSeries = {
 	data: ComparativeDatePointDate[];
 	/** Falls back to the chart's `dataFormat`. */
 	dataFormat?: DataFormat;
-	/** Unlike a drawn series, an extra has no group to borrow a count label from. */
 	countLabel?: CountLabel;
 };
 

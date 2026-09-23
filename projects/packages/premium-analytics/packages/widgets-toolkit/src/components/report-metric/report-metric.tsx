@@ -73,7 +73,6 @@ export type ReportMetricWidgetProps = {
 	 */
 	seriesLabel?: string;
 
-	/** The tooltip's unit when the metric is a count; see `CountLabel`. */
 	seriesCountLabel?: CountLabel;
 };
 

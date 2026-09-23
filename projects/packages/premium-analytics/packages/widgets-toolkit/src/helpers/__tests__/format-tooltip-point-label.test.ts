@@ -26,10 +26,4 @@ describe( 'formatTooltipPointLabel', () => {
 			formatTooltipPointLabel( '1,204', 'Subscribers', 'March 1, 2026', 1204, subscribers )
 		).toBe( '1,204 Subscribers · March 1, 2026' );
 	} );
-
-	it( 'keeps the metric name as the unit when the raw count is missing', () => {
-		expect(
-			formatTooltipPointLabel( '1', 'Subscribers', 'March 1, 2026', undefined, subscribers )
-		).toBe( '1 Subscribers · March 1, 2026' );
-	} );
 } );

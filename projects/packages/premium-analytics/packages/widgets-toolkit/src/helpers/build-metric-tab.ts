@@ -30,7 +30,6 @@ export type BuildMetricTabOptions< TReport extends MetricReport > = {
 	label: string;
 	/** Per-metric format override (e.g. currency); falls back to the chart default. */
 	dataFormat?: DataFormat;
-	/** The tooltip's unit when the metric is a count. */
 	countLabel?: CountLabel;
 	/** The timezone the reports were built and normalized under. */
 	zone: string;
