@@ -195,6 +195,46 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @return array
+	 */
+	public static function paywall_access_level_on_save_provider() {
+		$with_paywall    = "<!-- wp:paragraph -->\n<p>Free part</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:jetpack/paywall /-->\n\n<!-- wp:paragraph -->\n<p>Subscriber part</p>\n<!-- /wp:paragraph -->";
+		$without_paywall = "<!-- wp:paragraph -->\n<p>Everything is free</p>\n<!-- /wp:paragraph -->";
+
+		return array(
+			'paywall block, no access set'           => array( $with_paywall, null, 'subscribers' ),
+			'paywall block, access everybody'        => array( $with_paywall, 'everybody', 'subscribers' ),
+			'paywall block, access paid subscribers' => array( $with_paywall, 'paid_subscribers', 'paid_subscribers' ),
+			'no paywall block, no access set'        => array( $without_paywall, null, '' ),
+			'no paywall block, access everybody'     => array( $without_paywall, 'everybody', 'everybody' ),
+		);
+	}
+
+	/**
+	 * Saves that skip the block editor must still gate a post with a Paywall block.
+	 *
+	 * @param string      $content         Post content.
+	 * @param string|null $initial_access  Access level stored before the save hook runs.
+	 * @param string      $expected_access Access level expected after the save hook runs.
+	 * @dataProvider paywall_access_level_on_save_provider
+	 */
+	#[DataProvider( 'paywall_access_level_on_save_provider' )]
+	public function test_paywall_block_sets_access_level_on_save( $content, $initial_access, $expected_access ) {
+		$post_id = $this->factory->post->create( array( 'post_content' => $content ) );
+		if ( null !== $initial_access ) {
+			update_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, $initial_access );
+		}
+
+		\Automattic\Jetpack\Extensions\Subscriptions\add_paywalled_content_post_meta( $post_id, get_post( $post_id ) );
+
+		$this->assertSame( $expected_access, get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true ) );
+		$this->assertSame(
+			in_array( $expected_access, array( 'subscribers', 'paid_subscribers' ), true ),
+			(bool) get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true )
+		);
+	}
+
+	/**
 	 * Contributors can submit a post for review without the "was ever published" meta
 	 * blocking the save. Regression test for NL-706 / CM-232: the meta is included in
 	 * the editor save payload, and its auth_callback previously required publish_posts,

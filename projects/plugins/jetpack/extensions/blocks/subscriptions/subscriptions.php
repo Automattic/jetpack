@@ -228,7 +228,10 @@ function register_newsletter_access_column( $columns ) {
 }
 
 /**
- * Add a meta to prevent publication on firehose, ES AI or Reader
+ * Add a meta to prevent publication on firehose, ES AI or Reader.
+ *
+ * Also gates a post with a Paywall block whose access is still "everybody": the editor sets
+ * this on insert, but REST, importer and agent saves skip the editor and gate nothing.
  *
  * @param int      $post_id Post id being saved.
  * @param \WP_Post $post Post being saved.
@@ -240,6 +243,14 @@ function add_paywalled_content_post_meta( int $post_id, \WP_Post $post ) {
 	}
 
 	$access_level = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+
+	if (
+		( empty( $access_level ) || Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level )
+		&& has_block( 'jetpack/paywall', $post )
+	) {
+		$access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS;
+		update_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, $access_level );
+	}
 
 	$is_paywalled = false;
 	switch ( $access_level ) {
