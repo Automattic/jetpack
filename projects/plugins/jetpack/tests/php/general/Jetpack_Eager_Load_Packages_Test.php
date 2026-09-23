@@ -422,6 +422,21 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A host can keep the Backup dashboard off, as WordPress.com does for WoA sites without a backup plan.
+	 */
+	public function test_backup_dashboard_can_be_filtered_off() {
+		$this->skip_unless_backup_is_supported();
+		$this->connect_owner();
+		$this->force_unfire_action( 'jetpack_backup_initialized' );
+		add_filter( 'jetpack_backup_dashboard_enabled', '__return_false' );
+
+		Jetpack::configure_backup_package();
+		remove_filter( 'jetpack_backup_dashboard_enabled', '__return_false' );
+
+		$this->assertSame( 0, did_action( 'jetpack_backup_initialized' ) );
+	}
+
+	/**
 	 * Connect the site with an administrator as its owner.
 	 */
 	private function connect_owner() {

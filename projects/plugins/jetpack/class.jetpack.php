@@ -864,6 +864,19 @@ class Jetpack {
 			return;
 		}
 
+		/**
+		 * Filters whether the Jetpack plugin offers its bundled Backup dashboard.
+		 *
+		 * Resolved at the earliest `plugins_loaded` priority, so hook it from a mu-plugin.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Whether to initialize the bundled Backup dashboard. Default true.
+		 */
+		if ( ! apply_filters( 'jetpack_backup_dashboard_enabled', true ) ) {
+			return;
+		}
+
 		$backup = 'Automattic\\Jetpack\\Backup\\V0005\\Jetpack_Backup';
 
 		// An older package would take over the connection (see Jetpack_Backup::DEFAULT_INIT_OPTIONS);
