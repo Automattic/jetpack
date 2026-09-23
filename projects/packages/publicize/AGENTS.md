@@ -49,7 +49,7 @@ The codebase handles two runtime environments:
 - **`Publicize_Base`** (abstract) — Core publicize logic: connection management, post meta handling, sharing eligibility checks
 - **`Publicize`** extends `Publicize_Base` — Concrete implementation for Jetpack-connected sites
 - **`Publicize_Setup`** — Static initialization orchestrator (entry point from Config package)
-- **`Publicize_UI`** — Admin UI rendering and classic editor integration
+- **`Publicize_UI`** — Classic editor integration: the Publicize metabox on the post screen, and its assets
 - **`Keyring_Helper`** — Site-side connection requests (`SERVICES`, today Google site verification) and Publicize disconnects, both through public-api
 
 ### REST API Controllers (`src/rest-api/`)
