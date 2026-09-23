@@ -2061,6 +2061,26 @@ describe( 'ChartContext', () => {
 
 				expect( colorAt( 1 ) ).toBe( createPaletteGenerator( [ seed ], '#ffffff' )( 1 ) );
 			} );
+
+			it( 'falls back to a white background when the background is transparent', () => {
+				const onWhite = createPaletteGenerator( [ seed ], '#ffffff' )( 1 );
+				const onBlack = createPaletteGenerator( [ seed ], '#000000' )( 1 );
+				expect( onWhite ).not.toBe( onBlack );
+
+				renderWithSlots( [ seed ], { '--a8c-charts-color-background': 'transparent' } );
+
+				expect( colorAt( 1 ) ).toBe( onWhite );
+			} );
+
+			it( 'falls back to a white background when the background is a translucent color', () => {
+				const onWhite = createPaletteGenerator( [ seed ], '#ffffff' )( 1 );
+				const onBlack = createPaletteGenerator( [ seed ], '#000000' )( 1 );
+				expect( onWhite ).not.toBe( onBlack );
+
+				renderWithSlots( [ seed ], { '--a8c-charts-color-background': 'rgba(0, 0, 0, 0.5)' } );
+
+				expect( colorAt( 1 ) ).toBe( onWhite );
+			} );
 		} );
 
 		describe( 'Server-Side Rendering', () => {

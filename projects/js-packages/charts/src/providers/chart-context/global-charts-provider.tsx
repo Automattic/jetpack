@@ -1,3 +1,4 @@
+import { color as d3Color } from '@visx/vendor/d3-color';
 import {
 	createContext,
 	useCallback,
@@ -114,14 +115,21 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			}
 		}
 
+		// A see-through background (transparent, or any alpha below 1) tells us nothing about
+		// what the chart will sit on, so treat it as unresolved rather than let its RGB
+		// leak into the palette (a transparent black would otherwise tune colors for a dark host).
+		const rawBackground = resolveCssVariable( CATALOG_POINTERS.background, wrapperRef.current );
+		const isOpaqueBackground = rawBackground ? d3Color( rawBackground )?.opacity === 1 : false;
+
 		const normalizedBackground = normalizeColorToHex(
 			CATALOG_POINTERS.background,
 			wrapperRef.current,
 			resolveCssVariable
 		);
-		const backgroundHex = isValidHexColor( normalizedBackground )
-			? normalizedBackground
-			: '#ffffff';
+		const backgroundHex =
+			isOpaqueBackground && isValidHexColor( normalizedBackground )
+				? normalizedBackground
+				: '#ffffff';
 
 		setColorCache( {
 			colors: resolvedColors,
