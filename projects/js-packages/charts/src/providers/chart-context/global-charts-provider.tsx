@@ -27,7 +27,7 @@ import { sanitizeFormatting } from '../../utils/date-formatting';
 import { ChartScopeContext } from '../chart-scope/chart-scope-context';
 import { CATALOG_POINTERS } from './private/catalog-pointers';
 import { createPaletteGenerator } from './private/palette-generator';
-import { SERIES_PALETTE_POINTERS } from './private/series-palette';
+import { SERIES_PALETTE_POINTERS, SERIES_SLOT_1_FALLBACK } from './private/series-palette';
 import { defaultTheme } from './themes';
 import type { GlobalChartsContextValue, ChartRegistration } from './types';
 import type { ChartTheme, CompleteChartTheme } from '../../types';
@@ -89,10 +89,12 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 	// Cache expensive color computations that only change when theme colors change
 	// Using useState + useLayoutEffect instead of useMemo to ensure CSS variables
 	// in <style> tags are applied to the DOM before we try to resolve them
+	// Seeded with what slot 1 resolves to where no DOM answers, so a one-series first render
+	// never builds the candidate grid and SSR matches the unthemed client palette.
 	const [ colorCache, setColorCache ] = useState< ColorCache >( () => ( {
 		colors: [],
 		background: '#ffffff',
-		colorAt: createPaletteGenerator( [], '#ffffff' ),
+		colorAt: createPaletteGenerator( [ SERIES_SLOT_1_FALLBACK ], '#ffffff' ),
 	} ) );
 
 	// Track if the color palette has been resolved from the DOM
