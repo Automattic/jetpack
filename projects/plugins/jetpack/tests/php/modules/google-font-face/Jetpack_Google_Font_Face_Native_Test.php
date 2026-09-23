@@ -23,20 +23,23 @@ class Jetpack_Google_Font_Face_Native_Test extends WP_UnitTestCase {
 		switch_theme( 'block-theme' );
 		$this->printer = new Jetpack_Google_Font_Face();
 		add_filter( 'pre_jetpack_get_google_fonts_data', array( $this, 'catalogue' ) );
-		WP_Theme_JSON_Resolver::clean_cached_data();
-		if ( class_exists( 'WP_Theme_JSON_Resolver_Gutenberg' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod
-			WP_Theme_JSON_Resolver_Gutenberg::clean_cached_data();
-		}
+		self::clean_theme_json_caches();
 	}
 
 	public function tear_down() {
+		self::clean_theme_json_caches();
+		parent::tear_down();
+	}
+
+	/**
+	 * Clears the core and Gutenberg theme JSON resolver caches.
+	 */
+	private static function clean_theme_json_caches() {
 		WP_Theme_JSON_Resolver::clean_cached_data();
 		if ( class_exists( 'WP_Theme_JSON_Resolver_Gutenberg' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			WP_Theme_JSON_Resolver_Gutenberg::clean_cached_data();
 		}
-		parent::tear_down();
 	}
 
 	/**
@@ -95,11 +98,7 @@ class Jetpack_Google_Font_Face_Native_Test extends WP_UnitTestCase {
 				return new $class( $data, 'user' === $origin ? 'custom' : 'theme' );
 			}
 		);
-		WP_Theme_JSON_Resolver::clean_cached_data();
-		if ( class_exists( 'WP_Theme_JSON_Resolver_Gutenberg' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod
-			WP_Theme_JSON_Resolver_Gutenberg::clean_cached_data();
-		}
+		self::clean_theme_json_caches();
 	}
 
 	/**
@@ -130,6 +129,47 @@ class Jetpack_Google_Font_Face_Native_Test extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 'fontFace', $font );
 		$catalogue = jetpack_get_google_fonts_data() ?? array();
 		$this->assertArrayHasKey( 'fontFace', $catalogue['fontFamilies'][0] );
+	}
+
+	public function test_resolver_registers_catalogue_without_faces_on_front_end() {
+		$font = self::get_resolved_catalogue_font();
+		$this->assertNotNull( $font );
+		$this->assertArrayNotHasKey( 'fontFace', $font );
+
+		add_filter( 'jetpack_google_fonts_load_font_faces', '__return_true' );
+		self::clean_theme_json_caches();
+		$this->assertArrayHasKey( 'fontFace', self::get_resolved_catalogue_font() );
+	}
+
+	/**
+	 * Finds the catalogue preset in the merged theme JSON settings.
+	 *
+	 * @return array|null
+	 */
+	private static function get_resolved_catalogue_font() {
+		$settings = WP_Theme_JSON_Resolver::get_merged_data()->get_settings();
+		foreach ( $settings['typography']['fontFamilies']['default'] ?? array() as $family ) {
+			if ( 'catalogue-font' === $family['slug'] ) {
+				return $family;
+			}
+		}
+		return null;
+	}
+
+	public function test_single_quoted_catalogue_family_is_detected() {
+		add_filter(
+			'pre_jetpack_get_google_fonts_data',
+			static function () {
+				$family               = self::font_definition( 'Catalogue Font', 'catalogue-font', 'https://example.org/catalogue.woff2' );
+				$family['fontFamily'] = "'Catalogue Font', serif";
+				return array( 'fontFamilies' => array( $family ) );
+			},
+			100
+		);
+		$this->native_fonts( array(), "'Catalogue Font', serif" );
+		$output = $this->get_font_output();
+		$this->assertSame( 1, substr_count( $output, 'https://example.org/catalogue.woff2' ) );
+		$this->assertStringNotContainsString( "\"'Catalogue Font", $output );
 	}
 
 	public function test_editor_keeps_full_catalogue() {
