@@ -48,13 +48,6 @@ export type DetailPageCustomizeOptions = {
  * Reset to default are the page options menu's, not the dashboard's own actions;
  * Reset is offered while customizing only, and leaves the mode (WOOA7S-2033).
  *
- * @param layout                 - The layout on show; while empty, edit mode cannot be entered.
- * @param options                - Which layout this is, and whether it can be customized at all.
- * @param options.layoutId       - Names the layout on show; a change ends customize mode.
- * @param options.enabled        - Whether there is anything to customize.
- * @param options.onLayoutReset  - Resets the stored layout.
- * @param options.onLayoutChange - Stores a committed layout.
- * @param options.surface        - The page, for the customize Tracks events.
  * @return The mode, the policy, and the transitions.
  */
 export function useDetailPageCustomize(
