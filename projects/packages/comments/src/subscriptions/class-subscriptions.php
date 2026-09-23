@@ -15,40 +15,27 @@ use WP_REST_Response;
 use WP_REST_Server;
 
 /**
- * The subscription options, and the one place a subscription is written.
+ * The subscription options, and the route that relays a reader's choices to WordPress.com.
  *
- * Everything reaches `wpcom/v2/sites/{id}/comments/subscriptions` over the blog
- * connection, served in process on Simple. A signed-in reader's toggles go there
- * as they are flipped, through the route below. A guest has no email until they
- * submit, so their choices ride along as hidden fields and are sent from
- * `comment_post` with the address they commented under.
- *
- * The route is served by the site's own REST API on self-hosted and Atomic.
- * Simple serves REST only from public-api, which never receives the passport, a
- * host-only cookie on a mapped domain, so there the same route is dispatched in
- * process from an admin-ajax action, as the log-out is.
- *
- * It carries no nonce for a passport holder, because a page rendered for a
- * logged-out reader is cached and shared, so a nonce in it is everyone's. What
- * stands in is what the log-out relies on: the browser has to say the request is
- * same-origin, and the cookies it acts on are SameSite=Lax. A reader logged in
- * to the site gets the REST nonce, checked here rather than left to cookie
- * authentication, which the admin-ajax dispatch never runs.
+ * On Simple the site host serves no REST API and the passport is a host-only cookie, so the
+ * route is dispatched in process from admin-ajax. A passport holder carries no nonce, since
+ * their page is cached and shared; SameSite=Lax and Sec-Fetch-Site stand in. A site login's
+ * REST nonce is checked here because the admin-ajax dispatch never runs cookie authentication.
  */
 class Subscriptions extends WP_REST_Controller {
 
 	/**
-	 * The route, under the `wpcom/v2` namespace.
+	 * The route.
 	 */
 	const ROUTE = 'comments/subscriptions';
 
 	/**
-	 * The admin-ajax action that dispatches the route on Simple.
+	 * The admin-ajax action on Simple.
 	 */
 	const ACTION = 'jetpack_comments_subscriptions';
 
 	/**
-	 * What a caller may set. An empty string leaves that option alone.
+	 * Accepted values per option. An empty string leaves that option alone.
 	 */
 	const CHOICE = array(
 		'email_posts'    => array( '', '0', '1' ),
@@ -65,7 +52,7 @@ class Subscriptions extends WP_REST_Controller {
 	private static $instance = null;
 
 	/**
-	 * Register the hooks. Safe to call more than once.
+	 * Register the hooks once.
 	 *
 	 * @return Subscriptions
 	 */
@@ -173,7 +160,7 @@ class Subscriptions extends WP_REST_Controller {
 			}
 		}
 
-		// On Simple the route is registered ahead of the loader's gates, which skip admin-ajax. Gate here.
+		// On Simple the route is registered on every site.
 		if ( ! Comments::is_enabled() ) {
 			return new WP_Error( 'not_enabled', __( 'Subscriptions are not available on this site.', 'jetpack-comments' ), array( 'status' => 404 ) );
 		}
@@ -184,11 +171,8 @@ class Subscriptions extends WP_REST_Controller {
 	/**
 	 * Relay a signed-in reader's choice and return what WordPress.com said.
 	 *
-	 * A fresh popup sign-in holds only a code until its first comment posts.
-	 * Given that code, it is redeemed here and the passport issued now, so the
-	 * comment that follows posts on the passport instead. The answer then says
-	 * `redeemed` whatever WordPress.com replied, because the code is spent either
-	 * way and the form must not post it again.
+	 * A fresh popup sign-in's code is redeemed here, and the answer says `redeemed` whatever
+	 * WordPress.com replied, so the form stops posting the spent code.
 	 *
 	 * @param WP_REST_Request $request The request.
 	 * @return WP_REST_Response|WP_Error
@@ -200,11 +184,11 @@ class Subscriptions extends WP_REST_Controller {
 			return new WP_Error( 'invalid_post', __( 'Invalid request.', 'jetpack-comments' ), array( 'status' => 400 ) );
 		}
 
-		$redeemed = false;
+		$redeemed     = false;
+		$commenter_id = '';
 
 		if ( is_user_logged_in() ) {
-			$email    = (string) wp_get_current_user()->user_email;
-			$provider = 'site';
+			$email = (string) wp_get_current_user()->user_email;
 		} else {
 			$passport = Passport::read();
 			$code     = sanitize_text_field( (string) $request->get_param( 'code' ) );
@@ -224,8 +208,8 @@ class Subscriptions extends WP_REST_Controller {
 				$redeemed = true;
 			}
 
-			$email    = (string) $passport['email'];
-			$provider = (string) $passport['provider'];
+			$email        = (string) $passport['email'];
+			$commenter_id = (string) $passport['site_commenter_id'];
 		}
 
 		$status = 200;
@@ -238,7 +222,7 @@ class Subscriptions extends WP_REST_Controller {
 				$choice[ $name ] = (string) $request->get_param( $name );
 			}
 
-			$result = self::send( $email, $provider, $post_id, $choice );
+			$result = self::send( $email, $post_id, $choice, $commenter_id );
 			$status = $result['status'];
 			$body   = $result['body'];
 		}
@@ -256,15 +240,14 @@ class Subscriptions extends WP_REST_Controller {
 	/**
 	 * Subscribe a guest to what they ticked, once their comment is in.
 	 *
-	 * Sent at shutdown so the commenter is not kept waiting on WordPress.com,
-	 * and only for a comment the form posted that was not held as spam or trashed.
+	 * Sent at shutdown so the commenter is not kept waiting on WordPress.com.
 	 *
 	 * @param int        $comment_id The comment.
 	 * @param int|string $approved   1, 0, 'spam' or 'trash'.
 	 * @return void
 	 */
 	public static function comment_posted( $comment_id, $approved ) {
-		// On Simple this is hooked on every site, feature or not, as the route is.
+		// On Simple this is hooked on every site.
 		if ( 'spam' === $approved || 'trash' === $approved || ! Comments::is_enabled() ) {
 			return;
 		}
@@ -273,7 +256,7 @@ class Subscriptions extends WP_REST_Controller {
 
 		foreach ( self::CHOICE as $name => $values ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Comment_Form::verify_nonce() ran on pre_comment_on_post.
-			$posted          = isset( $_POST[ self::field( $name ) ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::field( $name ) ] ) ) : '';
+			$posted          = isset( $_POST[ 'jetpack_comments_' . $name ] ) ? sanitize_text_field( wp_unslash( $_POST[ 'jetpack_comments_' . $name ] ) ) : '';
 			$choice[ $name ] = in_array( $posted, $values, true ) ? $posted : '';
 		}
 
@@ -293,31 +276,44 @@ class Subscriptions extends WP_REST_Controller {
 		add_action(
 			'shutdown',
 			static function () use ( $email, $post_id, $choice ) {
-				self::send( $email, 'guest', $post_id, $choice );
+				self::send( $email, $post_id, $choice );
 			}
 		);
 	}
 
 	/**
-	 * The POST field a choice rides in on a guest's comment.
+	 * Relay a choice to WordPress.com.
 	 *
-	 * @param string $name One of CHOICE.
-	 * @return string
-	 */
-	public static function field( $name ) {
-		return 'jetpack_comments_' . $name;
-	}
-
-	/**
-	 * Ask WordPress.com to apply a choice for an email, and hand back its answer.
-	 *
-	 * @param string $email    Whose subscriptions.
-	 * @param string $provider How they identified, as the sign-in providers are named.
-	 * @param int    $post_id  The post the comment thread belongs to.
-	 * @param array  $choice   Keyed by CHOICE, empty strings for what to leave alone.
+	 * @param string $email        Whose subscriptions.
+	 * @param int    $post_id      The post.
+	 * @param array  $choice       Keyed by CHOICE.
+	 * @param string $commenter_id The passport's site_commenter_id, which WordPress.com can verify.
 	 * @return array status and body.
 	 */
-	private static function send( $email, $provider, $post_id, array $choice ) {
+	private static function send( $email, $post_id, array $choice, $commenter_id = '' ) {
+		$body = array_merge(
+			array(
+				'email'   => $email,
+				'post_id' => (int) $post_id,
+			),
+			$choice
+		);
+
+		if ( '' !== $commenter_id ) {
+			$body['site_commenter_id'] = $commenter_id;
+		}
+
+		// For bkismet, as the Jetpack Subscriptions call passes them.
+		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? filter_var( wp_unslash( $_SERVER['REMOTE_ADDR'] ), FILTER_VALIDATE_IP ) : false;
+
+		if ( $ip ) {
+			$body['ip'] = $ip;
+		}
+
+		if ( ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			$body['user_agent'] = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
+		}
+
 		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/comments/subscriptions', Checkpoint::blog_id() ),
 			'2',
@@ -326,17 +322,7 @@ class Subscriptions extends WP_REST_Controller {
 				'headers' => array( 'Content-Type' => 'application/json; charset=utf-8' ),
 				'timeout' => 10,
 			),
-			(string) wp_json_encode(
-				array_merge(
-					array(
-						'email'    => $email,
-						'provider' => $provider,
-						'post_id'  => (int) $post_id,
-					),
-					$choice
-				),
-				JSON_UNESCAPED_SLASHES
-			),
+			(string) wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
 			'wpcom'
 		);
 
@@ -357,7 +343,7 @@ class Subscriptions extends WP_REST_Controller {
 	}
 
 	/**
-	 * Simple only: run the route from admin-ajax, the one same-origin entry the site host has. Does not return.
+	 * Simple only: run the route from admin-ajax. Does not return.
 	 *
 	 * @return void
 	 */
