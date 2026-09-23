@@ -327,7 +327,10 @@ describe( 'report params field', () => {
 	} );
 
 	it( 'commits a comparison range on selection', async () => {
-		const user = userEvent.setup();
+		// Pinned mid-month: on the last day of a 30-day month "Last 30 days" is a
+		// whole month and the entry reads "Previous month".
+		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00.000Z' ) );
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		const { latest } = renderField();
 
 		await user.click( screen.getByRole( 'button', { name: /compare/i } ) );
