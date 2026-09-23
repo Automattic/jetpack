@@ -540,6 +540,34 @@ class Generator_Test extends BaseTestCase {
 	}
 
 	/**
+	 * An empty rest_route never dispatches in rest_api_loaded(), so a page carrying one still generates.
+	 *
+	 * @dataProvider provide_empty_rest_routes
+	 *
+	 * @param string $value Value of the rest_route parameter.
+	 */
+	#[DataProvider( 'provide_empty_rest_routes' )]
+	public function test_empty_rest_route_is_still_a_generation_request( $value ) {
+		$_GET['rest_route']                       = $value;
+		$_SERVER['REQUEST_URI']                   = '/sample-page/?' . Generator::GENERATE_QUERY_ACTION . '=1700000000000';
+		$_GET[ Generator::GENERATE_QUERY_ACTION ] = '1700000000000';
+
+		$this->assertTrue( Generator::is_generating_critical_css() );
+	}
+
+	/**
+	 * Data provider for test_empty_rest_route_is_still_a_generation_request.
+	 *
+	 * @return array
+	 */
+	public static function provide_empty_rest_routes() {
+		return array(
+			'empty string' => array( '' ),
+			'zero string'  => array( '0' ),
+		);
+	}
+
+	/**
 	 * A relative redirect resolves against the request path, even when REQUEST_URI has a doubled slash.
 	 */
 	public function test_relative_login_redirect_resolves_against_a_doubled_slash_request_uri() {

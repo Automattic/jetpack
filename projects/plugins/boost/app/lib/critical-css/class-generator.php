@@ -336,9 +336,9 @@ class Generator {
 		}
 
 		// A site on plain permalinks reaches the REST API through this parameter instead. WP::parse_request()
-		// reads it from the body before the query, so a POST carrying it dispatches as REST too.
+		// reads it from the body before the query, and rest_api_loaded() ignores an empty value.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Read to classify the request, never to act on it.
-		if ( isset( $_GET['rest_route'] ) || isset( $_POST['rest_route'] ) ) {
+		if ( ! empty( $_GET['rest_route'] ) || ! empty( $_POST['rest_route'] ) ) {
 			return true;
 		}
 
