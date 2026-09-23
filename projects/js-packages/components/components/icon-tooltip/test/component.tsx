@@ -177,6 +177,51 @@ describe( 'IconTooltip', () => {
 			expect( trigger ).toHaveAttribute( 'aria-expanded', 'true' );
 		} );
 
+		it.each( [ true, false ] )(
+			'closes on a press outside, wherever focus is (link inside: %s)',
+			async withLink => {
+				const restoreLayout = withLayout();
+				const user = userEvent.setup();
+				render(
+					<>
+						<IconTooltip { ...triggerProps }>
+							{ withLink ? <a href="#learn">Learn more</a> : 'Content block' }
+						</IconTooltip>
+						<p>Elsewhere</p>
+					</>
+				);
+				await user.click( screen.getByRole( 'button', { name: 'See an example' } ) );
+				expect( screen.getByRole( 'button', { name: 'See an example' } ) ).toHaveAttribute(
+					'aria-expanded',
+					'true'
+				);
+				await user.click( screen.getByText( 'Elsewhere' ) );
+				expect( screen.getByRole( 'button', { name: 'See an example' } ) ).toHaveAttribute(
+					'aria-expanded',
+					'false'
+				);
+				restoreLayout();
+			}
+		);
+
+		it( 'stays open on a press outside when closeOnClickOutside is off', async () => {
+			const restoreLayout = withLayout();
+			const user = userEvent.setup();
+			render(
+				<>
+					<IconTooltip { ...triggerProps } closeOnClickOutside={ false }>
+						<a href="#learn">Learn more</a>
+					</IconTooltip>
+					<input aria-label="Exceptions" />
+				</>
+			);
+			await user.click( screen.getByRole( 'button', { name: 'See an example' } ) );
+			await user.click( screen.getByRole( 'textbox', { name: 'Exceptions' } ) );
+			expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'textbox', { name: 'Exceptions' } ) ).toHaveFocus();
+			restoreLayout();
+		} );
+
 		it( 'stays open while the trigger is held and closes on release', async () => {
 			const user = userEvent.setup();
 			render( <IconTooltip { ...triggerProps } inline={ false } /> );

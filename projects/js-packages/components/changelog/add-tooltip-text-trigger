@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-IconTooltip: Add a `trigger` prop that renders a text trigger in place of the icon.
+IconTooltip: Add a `trigger` prop that renders a text trigger in place of the icon, and a `closeOnClickOutside` prop to keep a tooltip open while the visitor works elsewhere on the page.

@@ -50,6 +50,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	popoverAnchorStyle = 'icon',
 	trigger,
 	onTriggerClick,
+	closeOnClickOutside = true,
 	forceShow = false,
 	hoverShow = false,
 	wide = false,
@@ -180,7 +181,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		},
 		onFocusOutside: ( event: FocusEvent ) => {
 			// A pointer press on our own trigger dismisses through that trigger instead.
-			if ( ! wrapperRef.current?.contains( event.relatedTarget as Node ) ) {
+			if ( closeOnClickOutside && ! wrapperRef.current?.contains( event.relatedTarget as Node ) ) {
 				hideTooltip();
 			}
 		},
@@ -197,6 +198,22 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	const iconShiftBySize = {
 		left: isAnchorWrapper ? 0 : -( POPOVER_HELPER_WIDTH / 2 - iconSize / 2 ) + 'px',
 	};
+
+	// Focus may never enter the popover, so outside presses are watched directly.
+	useEffect( () => {
+		if ( ! isVisible || isForcedToShow || ! closeOnClickOutside ) {
+			return;
+		}
+		const doc = wrapperRef.current?.ownerDocument;
+		const handlePointerDown = ( event: PointerEvent ) => {
+			const target = event.target as Node;
+			if ( ! wrapperRef.current?.contains( target ) && ! popoverRef.current?.contains( target ) ) {
+				hideTooltip();
+			}
+		};
+		doc?.addEventListener( 'pointerdown', handlePointerDown );
+		return () => doc?.removeEventListener( 'pointerdown', handlePointerDown );
+	}, [ isVisible, isForcedToShow, closeOnClickOutside, hideTooltip ] );
 
 	useEffect( () => {
 		if ( isForcedToShow || isVisible ) {
