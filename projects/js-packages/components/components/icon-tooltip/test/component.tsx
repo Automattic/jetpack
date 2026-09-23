@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import IconTooltip from '../index.tsx';
 import { IconTooltipProps } from '../types.ts';
@@ -271,6 +271,66 @@ describe( 'IconTooltip', () => {
 		await user.hover( screen.getByTestId( 'icon-tooltip_wrapper' ) );
 		expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
 		expect( politeRegion() ).not.toHaveTextContent( 'Content block' );
+	} );
+
+	it( 'tabs through the popover links and on to the next control', async () => {
+		const restoreLayout = withLayout();
+		const user = userEvent.setup();
+		render(
+			<>
+				<button>Before</button>
+				<IconTooltip title="Title" inline={ false }>
+					<a href="#one">One</a> <a href="#two">Two</a>
+				</IconTooltip>
+				<button>After</button>
+			</>
+		);
+		await user.click( screen.getByRole( 'button', { name: 'Before' } ) );
+		await user.tab();
+		await user.keyboard( '{Enter}' );
+		await user.tab();
+		expect( screen.getByRole( 'link', { name: 'One' } ) ).toHaveFocus();
+		await user.tab();
+		expect( screen.getByRole( 'link', { name: 'Two' } ) ).toHaveFocus();
+		await user.tab();
+		expect( screen.queryByRole( 'link', { name: 'Two' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'After' } ) ).toHaveFocus();
+		restoreLayout();
+	} );
+
+	it( 'closes when focus leaves the popover some other way', async () => {
+		const restoreLayout = withLayout();
+		const user = userEvent.setup();
+		render(
+			<>
+				<IconTooltip title="Title">
+					<a href="#learn">Learn more</a>
+				</IconTooltip>
+				<input aria-label="Elsewhere" />
+			</>
+		);
+		await user.tab();
+		await user.keyboard( '{Enter}' );
+		await user.tab();
+		expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toHaveFocus();
+		act( () => screen.getByRole( 'textbox', { name: 'Elsewhere' } ).focus() );
+		await waitFor( () =>
+			expect( screen.queryByRole( 'link', { name: 'Learn more' } ) ).not.toBeInTheDocument()
+		);
+		restoreLayout();
+	} );
+
+	it( 'closes a hover tooltip shortly after the pointer leaves, unless it comes back', async () => {
+		const user = userEvent.setup();
+		render( <IconTooltip { ...testProps } hoverShow /> );
+		const wrapper = screen.getByTestId( 'icon-tooltip_wrapper' );
+		await user.hover( wrapper );
+		await user.unhover( wrapper );
+		await user.hover( wrapper );
+		await new Promise( resolve => setTimeout( resolve, 150 ) );
+		expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
+		await user.unhover( wrapper );
+		await waitFor( () => expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument() );
 	} );
 
 	it( 'renders the icon tooltip', () => {
