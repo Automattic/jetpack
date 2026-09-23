@@ -9,7 +9,6 @@ const props = {
 	search: '',
 	filter: 'all' as const,
 	hasCatalog: true,
-	onClearSearch: jest.fn(),
 	onFilterChange: jest.fn(),
 };
 
@@ -34,12 +33,10 @@ describe( 'FeaturesEmptyState', () => {
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 
-	it( 'clears the search from the failed search state', async () => {
+	it( 'leaves the failed search with the link alone, and no buttons', () => {
 		render( <FeaturesEmptyState { ...props } search="bakcup" /> );
 
-		await userEvent.click( screen.getByRole( 'button', { name: 'Clear search' } ) );
-
-		expect( props.onClearSearch ).toHaveBeenCalled();
+		expect( screen.queryAllByRole( 'button' ) ).toHaveLength( 0 );
 	} );
 
 	it( 'sends someone with nothing active to the whole list', async () => {
@@ -47,7 +44,7 @@ describe( 'FeaturesEmptyState', () => {
 
 		expect( screen.getByRole( 'heading' ) ).toHaveTextContent( 'No features are active yet.' );
 
-		await userEvent.click( screen.getByRole( 'button', { name: 'Browse all features' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Explore all' } ) );
 
 		expect( props.onFilterChange ).toHaveBeenCalledWith( 'all' );
 	} );
@@ -76,22 +73,6 @@ describe( 'FeaturesEmptyState', () => {
 		render( <FeaturesEmptyState { ...props } hasCatalog={ false } search="backup" /> );
 
 		expect( screen.getByRole( 'heading' ) ).toHaveTextContent( 'We couldn’t load your features.' );
-	} );
-
-	it( 'marks the filter states with the Jetpack logo', () => {
-		const { rerender } = render( <FeaturesEmptyState { ...props } filter="active" /> );
-
-		expect( screen.getByRole( 'img', { name: 'Jetpack Logo' } ) ).toBeInTheDocument();
-
-		rerender( <FeaturesEmptyState { ...props } filter="inactive" /> );
-
-		expect( screen.getByRole( 'img', { name: 'Jetpack Logo' } ) ).toBeInTheDocument();
-	} );
-
-	it( 'keeps the logo off the failed search, which gets its own icon', () => {
-		render( <FeaturesEmptyState { ...props } search="bakcup" /> );
-
-		expect( screen.queryByRole( 'img', { name: 'Jetpack Logo' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'ignores a term of whitespace, which the grid does not treat as a search', () => {

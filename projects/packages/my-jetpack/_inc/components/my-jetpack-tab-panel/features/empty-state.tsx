@@ -1,7 +1,7 @@
-import { getRedirectUrl, JetpackLogo } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import { search as searchIcon } from '@wordpress/icons';
-import { Button, EmptyState, LinkButton } from '@wordpress/ui';
+import { info as infoIcon, search as searchIcon } from '@wordpress/icons';
+import { Button, EmptyState, Link } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { reloadPage } from '../products/reload-page';
 import { hasSearch } from '../products/utils';
@@ -9,13 +9,7 @@ import styles from './styles.module.scss';
 import type { FeatureFilter } from './use-feature-filter';
 import type { ReactNode } from 'react';
 
-// The logo is already a filled circle, so it takes the plain visual slot rather
-// than Icon's outlined badge.
-const jetpackMark = (
-	<EmptyState.Visual>
-		<JetpackLogo showText={ false } height={ 32 } />
-	</EmptyState.Visual>
-);
+const infoMark = <EmptyState.Icon icon={ infoIcon } />;
 const searchMark = <EmptyState.Icon icon={ searchIcon } />;
 
 type EmptyProps = {
@@ -53,7 +47,6 @@ export type FeaturesEmptyStateProps = {
 	// False when the catalog never arrived, which is a failure to load rather than a
 	// site with nothing to offer: the list itself is static.
 	hasCatalog: boolean;
-	onClearSearch: () => void;
 	onFilterChange: ( filter: FeatureFilter ) => void;
 };
 
@@ -64,7 +57,6 @@ export type FeaturesEmptyStateProps = {
  * @param {string}                  props.search         - The search term in play, if any.
  * @param {string}                  props.filter         - The filter in play.
  * @param {boolean}                 props.hasCatalog     - Whether the catalog arrived.
- * @param {Function}                props.onClearSearch  - Drops the search term.
  * @param {Function}                props.onFilterChange - Switches the filter.
  * @return The rendered component.
  */
@@ -72,7 +64,6 @@ export function FeaturesEmptyState( {
 	search,
 	filter,
 	hasCatalog,
-	onClearSearch,
 	onFilterChange,
 }: FeaturesEmptyStateProps ) {
 	const showAll = useCallback( () => onFilterChange( 'all' ), [ onFilterChange ] );
@@ -107,8 +98,7 @@ export function FeaturesEmptyState( {
 					'jetpack-my-jetpack'
 				) }
 			>
-				<LinkButton
-					variant="solid"
+				<Link
 					openInNewTab
 					href={ getRedirectUrl( 'jetpack-support', {
 						query: `s=${ encodeURIComponent( search ) }`,
@@ -119,10 +109,7 @@ export function FeaturesEmptyState( {
 						__( 'Search jetpack.com for “%s”', 'jetpack-my-jetpack' ),
 						search
 					) }
-				</LinkButton>
-				<Button variant="outline" onClick={ onClearSearch }>
-					{ __( 'Clear search', 'jetpack-my-jetpack' ) }
-				</Button>
+				</Link>
 			</Empty>
 		);
 	}
@@ -130,13 +117,18 @@ export function FeaturesEmptyState( {
 	if ( filter === 'active' ) {
 		return (
 			<Empty
-				mark={ jetpackMark }
+				mark={ infoMark }
 				heading={ __( 'No features are active yet.', 'jetpack-my-jetpack' ) }
 				body={ __( 'Turn one on and it will appear here.', 'jetpack-my-jetpack' ) }
 			>
-				<Button variant="solid" onClick={ showAll }>
-					{ __( 'Browse all features', 'jetpack-my-jetpack' ) }
-				</Button>
+				{ /* ds-allow: button -- Link's render target; this switches the filter rather than navigating. */ }
+				<Link
+					className={ styles[ 'link-button' ] }
+					render={ <button type="button" /> }
+					onClick={ showAll }
+				>
+					{ __( 'Explore all', 'jetpack-my-jetpack' ) }
+				</Link>
 			</Empty>
 		);
 	}
@@ -144,7 +136,7 @@ export function FeaturesEmptyState( {
 	if ( filter === 'inactive' ) {
 		return (
 			<Empty
-				mark={ jetpackMark }
+				mark={ infoMark }
 				heading={ __( 'Everything is turned on.', 'jetpack-my-jetpack' ) }
 				body={ __( 'There are no inactive features left on this site.', 'jetpack-my-jetpack' ) }
 			>

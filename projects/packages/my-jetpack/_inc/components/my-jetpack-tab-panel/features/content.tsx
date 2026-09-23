@@ -88,8 +88,6 @@ export function FeaturesContent() {
 		[ updateParams ]
 	);
 
-	const clearSearch = useCallback( () => onSearchChange( '' ), [ onSearchChange ] );
-
 	const onFilterChange = useCallback(
 		// Clears the search: a term in play replaces the grid outright, so a pill picked
 		// while searching would otherwise light up and change nothing.
@@ -145,7 +143,6 @@ export function FeaturesContent() {
 					search={ search }
 					filter={ filter }
 					hasCatalog={ mainFeatures.features.length > 0 }
-					onClearSearch={ clearSearch }
 					onFilterChange={ onFilterChange }
 				/>
 			) }
