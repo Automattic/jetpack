@@ -713,7 +713,7 @@ class Protected_Owner_Test extends TestCase {
 	public function test_establishing_fails_closed_when_wpcom_cannot_be_reached() {
 		$this->act_as_administrator();
 
-		$result = $this->asserting_manager( null )->set_protected_owner( $this->owner_id, 'popup' );
+		$result = $this->asserting_manager( null )->set_protected_owner( $this->owner_id );
 
 		$this->assertInstanceOf( 'WP_Error', $result );
 		$this->assertSame( 'protected_owner_unconfirmed', $result->get_error_code() );
@@ -734,7 +734,7 @@ class Protected_Owner_Test extends TestCase {
 				'wpcom_user_id' => 0,
 			)
 		)
-			->set_protected_owner( $this->owner_id, 'popup' );
+			->set_protected_owner( $this->owner_id );
 
 		$this->assertInstanceOf( 'WP_Error', $result );
 		$this->assertSame( 'protected_owner_claimed_by_other', $result->get_error_code() );
@@ -754,7 +754,7 @@ class Protected_Owner_Test extends TestCase {
 			)
 		);
 
-		$this->assertTrue( $manager->set_protected_owner( $this->owner_id, 'popup' ) );
+		$this->assertTrue( $manager->set_protected_owner( $this->owner_id ) );
 		$this->assertTrue( Protected_Owner::is_locked() );
 	}
 
@@ -770,7 +770,7 @@ class Protected_Owner_Test extends TestCase {
 				'status'        => 'recorded',
 				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
 			)
-		)->set_protected_owner( $other, 'popup' );
+		)->set_protected_owner( $other );
 
 		$this->assertInstanceOf( 'WP_Error', $result );
 		$this->assertSame( 'protected_owner_not_self', $result->get_error_code() );
@@ -793,7 +793,7 @@ class Protected_Owner_Test extends TestCase {
 				'status'        => $status,
 				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
 			)
-		)->set_protected_owner( $this->owner_id, 'popup' );
+		)->set_protected_owner( $this->owner_id );
 
 		$this->assertInstanceOf( 'WP_Error', $result );
 		$this->assertSame( 'protected_owner_not_verified', $result->get_error_code() );
@@ -871,32 +871,13 @@ class Protected_Owner_Test extends TestCase {
 			'</struct></value></param></params>'
 		);
 
-		$this->assertTrue( ( new Manager() )->set_protected_owner( $this->owner_id, 'popup' ) );
+		$this->assertTrue( ( new Manager() )->set_protected_owner( $this->owner_id ) );
 
 		$this->assertStringContainsString( '<methodName>jetpack.assertProtectedOwner</methodName>', $sent->body );
-		$this->assertStringContainsString( 'popup', $sent->body );
+		$this->assertStringNotContainsString( 'confirmed_by', $sent->body );
 
 		$anchor = (array) Protected_Owner::get();
 		$this->assertSame( self::ANCHORED_WPCOM_ID, $anchor['wpcom_user_id'] ?? null );
-	}
-
-	/**
-	 * WordPress.com records the provenance this site stores, not the raw argument.
-	 */
-	public function test_set_protected_owner_sends_the_sanitized_provenance() {
-		$this->act_as_administrator();
-		$this->connect_the_owner();
-
-		$sent = $this->answer_xmlrpc(
-			'<params><param><value><struct>' .
-			'<member><name>status</name><value><string>recorded</string></value></member>' .
-			'<member><name>wpcom_user_id</name><value><int>' . self::ANCHORED_WPCOM_ID . '</int></value></member>' .
-			'</struct></value></param></params>'
-		);
-
-		$this->assertTrue( ( new Manager() )->set_protected_owner( $this->owner_id, 'Pop-Up!' ) );
-		$this->assertStringContainsString( '<string>pop-up</string>', $sent->body );
-		$this->assertStringNotContainsString( 'Pop-Up!', $sent->body );
 	}
 
 	/**
@@ -913,7 +894,7 @@ class Protected_Owner_Test extends TestCase {
 			'</struct></value></fault>'
 		);
 
-		$result = ( new Manager() )->set_protected_owner( $this->owner_id, 'popup' );
+		$result = ( new Manager() )->set_protected_owner( $this->owner_id );
 
 		$this->assertInstanceOf( 'WP_Error', $result );
 		$this->assertSame( 'protected_owner_unconfirmed', $result->get_error_code() );
@@ -1013,7 +994,7 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
-	 * An unlocked anchor records provenance without locking ownership.
+	 * An unlocked anchor is still an anchor, but it does not lock ownership.
 	 */
 	public function test_an_unlocked_anchor_does_not_lock_ownership() {
 		Jetpack_Options::update_option(

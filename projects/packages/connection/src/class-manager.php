@@ -1504,17 +1504,15 @@ class Manager {
 	 * Claim this site's protected ownership for the current user with WordPress.com.
 	 *
 	 * Split from `set_protected_owner()` so the decision it drives can be exercised without a
-	 * network. The identity travels in the signature rather than the payload, so this sends only
-	 * how the confirmation was obtained.
+	 * network. The identity travels in the signature rather than the payload, so nothing is sent.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param string $confirmed_by How the confirmation was obtained.
 	 * @return array|null The record, or null when WordPress.com could not answer.
 	 */
-	protected function assert_protected_owner_record( $confirmed_by ) {
+	protected function assert_protected_owner_record() {
 		$xml = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
-		$xml->query( 'jetpack.assertProtectedOwner', array( 'confirmed_by' => $confirmed_by ) );
+		$xml->query( 'jetpack.assertProtectedOwner' );
 
 		if ( $xml->isError() ) {
 			return null;
@@ -1573,7 +1571,7 @@ class Manager {
 
 		// WordPress.com is asked before anything is written here. It owns the record, so a claim it
 		// has not accepted must not leave a locked anchor behind on this site.
-		$record = $this->assert_protected_owner_record( sanitize_key( $confirmed_by ) );
+		$record = $this->assert_protected_owner_record();
 
 		// Fail closed: unreachable, refused, or a WordPress.com that does not implement the call.
 		// A site that cannot get an answer must not end up protecting anybody on its own say-so.
