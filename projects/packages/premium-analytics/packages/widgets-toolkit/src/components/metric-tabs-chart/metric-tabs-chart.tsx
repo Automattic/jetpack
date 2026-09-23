@@ -85,7 +85,7 @@ export interface MetricTab {
 	 */
 	counterpartKey?: string;
 	/**
-	 * Why this metric has no data at the current bucket size. Set it and the card
+	 * Why this metric has no data for the current window. Set it and the card
 	 * shows a placeholder instead of a value, and the chart the reason instead of
 	 * a flat zero line. The tab stays selectable, so the reason is reachable.
 	 */

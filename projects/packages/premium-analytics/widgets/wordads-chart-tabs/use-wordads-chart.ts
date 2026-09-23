@@ -8,6 +8,7 @@ import {
 	type StatsWordAdsResponse,
 } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -32,8 +33,8 @@ export default function useWordAdsChart( reportParams: ReportParams, period: Wor
 
 	const metrics = useMemo(
 		() =>
-			WORDADS_CHART_METRICS.map( metric =>
-				buildMetricTab( {
+			WORDADS_CHART_METRICS.map( metric => ( {
+				...buildMetricTab( {
 					primary: primaryData,
 					comparison: undefined,
 					hasComparison: false,
@@ -42,8 +43,17 @@ export default function useWordAdsChart( reportParams: ReportParams, period: Wor
 					dataFormat: metric.dataFormat,
 					countLabel: metric.countLabel,
 					zone: timezone,
-				} )
-			),
+				} ),
+				// Only CPM goes null, when nothing was served: a ratio of nothing, not a zero.
+				...( primaryData?.summary[ metric.id ] === null
+					? {
+							unavailable: __(
+								'No ads were served in this period.',
+								'jetpack-premium-analytics-pkg'
+							),
+						}
+					: {} ),
+			} ) ),
 		[ primaryData, timezone ]
 	);
 
