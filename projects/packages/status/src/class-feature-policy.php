@@ -123,7 +123,7 @@ class Feature_Policy {
 		 * `Jetpack::load_modules()` runs there at priority -2, so a later policy (on `init`, say) misses
 		 * module loading while My Jetpack still honors it — the module runs on a page saying it is off.
 		 *
-		 * @since $$next-version$$
+		 * @since 7.1.0
 		 *
 		 * @param array $policy Map of slug to policy, empty until a host adds to it.
 		 */
@@ -204,7 +204,7 @@ class Feature_Policy {
 			$message = sprintf( 'Forced on "%s", which is not a Jetpack module on this site. It will report as active, but nothing will load it.', $slug );
 
 			// The version token is only replaced at release time when this call is on one line.
-			_doing_it_wrong( 'jetpack_feature_policy', esc_html( $message ), '$$next-version$$' );
+			_doing_it_wrong( 'jetpack_feature_policy', esc_html( $message ), '7.1.0' );
 		}
 	}
 
