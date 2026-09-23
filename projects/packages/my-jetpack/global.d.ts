@@ -518,6 +518,7 @@ interface Window {
 		fileSystemWriteAccess: 'yes' | 'no';
 		isStatsModuleActive: string;
 		canUserViewStats: boolean;
+		hiddenFeatures?: Array< string >;
 		isUserFromKnownHost: string;
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;

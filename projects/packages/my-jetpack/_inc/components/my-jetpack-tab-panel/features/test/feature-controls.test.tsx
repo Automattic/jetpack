@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FeatureAction } from '../feature-action';
+import { FeatureItem } from '../feature-item';
 import { FeatureModalActions } from '../feature-modal-actions';
 import type { MyJetpackModule } from '../../../../types';
 import type { FeatureState } from '../feature-state';
@@ -42,6 +43,12 @@ const buildState = ( control: FeatureState[ 'control' ], overrides = {} ): Featu
 	( { feature: buildFeature(), status: 'inactive', control, ...overrides } ) as FeatureState;
 
 const $module = { module: 'stats', available: true, activated: true } as MyJetpackModule;
+const forcedModule = {
+	module: 'activity-log',
+	available: true,
+	activated: true,
+	override: 'active',
+} as MyJetpackModule;
 
 beforeEach( () => {
 	mockRun.mockClear();
@@ -127,6 +134,14 @@ describe( 'FeatureAction', () => {
 		expect( countControls() ).toBe( 0 );
 	} );
 
+	it( 'leaves the switch slot empty for a module a host forced on', () => {
+		const { container } = render(
+			<FeatureAction state={ buildState( { kind: 'module', module: forcedModule } ) } />
+		);
+
+		expect( container ).toBeEmptyDOMElement();
+	} );
+
 	it( 'renders nothing when this site cannot switch the feature', () => {
 		const { container } = render( <FeatureAction state={ buildState( { kind: 'none' } ) } /> );
 
@@ -177,5 +192,54 @@ describe( 'FeatureModalActions', () => {
 
 		expect( screen.queryByRole( 'link', { name: 'Open' } ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Deactivate Boost' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'offers Open and says why there is no switch, for a module a host forced on', () => {
+		render(
+			<FeatureModalActions
+				state={ buildState(
+					{ kind: 'module', module: forcedModule },
+					{
+						status: 'active',
+						feature: buildFeature( { manage_url: '/wp-admin/admin.php?page=stats' } ),
+					}
+				) }
+			/>
+		);
+
+		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Enabled by your host or site administrator' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'leaves the reason for a module forced off to "How to get it"', () => {
+		const forcedOff = {
+			...forcedModule,
+			activated: false,
+			override: 'inactive',
+		} as MyJetpackModule;
+
+		render( <FeatureModalActions state={ buildState( { kind: 'module', module: forcedOff } ) } /> );
+
+		expect( screen.queryByText( /by your host or site administrator/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'FeatureItem', () => {
+	it( 'shows only the status for a module a host forced on: no switch, no note', () => {
+		const state = buildState(
+			{ kind: 'module', module: forcedModule },
+			{
+				status: 'active',
+				feature: buildFeature( { slug: 'stats', name: 'Stats', description: 'See who visits.' } ),
+			}
+		);
+
+		render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
+
+		expect( screen.getByText( 'Active' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /by your host or site administrator/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 	} );
 } );

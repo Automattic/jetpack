@@ -98,6 +98,11 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 
 	switch ( control.kind ) {
 		case 'module':
+			// FeatureItem shows why, under the description: this slot does not shrink.
+			if ( control.module.override ) {
+				return null;
+			}
+
 			return (
 				<ModuleToggle
 					module={ control.module }

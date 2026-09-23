@@ -152,6 +152,10 @@ $feature-icon-foreground: #0ced57;
 	z-index: 1;
 }
 
+.row-checkbox-placeholder {
+	visibility: hidden;
+}
+
 // Placeholders for the parts of a card that wait on live state: the status
 // badge, its switch, and the counts on the filter pills.
 .skeleton-badge {

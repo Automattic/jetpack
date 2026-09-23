@@ -6,6 +6,7 @@ import {
 	pluginSwitchKey,
 	useRequestedSwitches,
 } from '../../../data/requested-switch-state';
+import { getModuleStatus } from '../../modules-list/utils';
 import { getProductModules } from '../products/mappings';
 import { useAllJetpackModules } from '../products/use-all-jetpack-modules';
 import type { ProductCamelCase } from '../../../data/types';
@@ -38,6 +39,20 @@ export type FeatureState = {
 	// The product behind the feature, for the modal's copy.
 	product?: ProductCamelCase;
 };
+
+/**
+ * Why a feature can't be switched here, when a host forced its module on or off.
+ *
+ * @param state - The feature's live state.
+ * @return The reason, or null when nothing forced it.
+ */
+export function getForcedReason( state: FeatureState ): string | null {
+	const { control } = state;
+
+	return control.kind === 'module' && control.module.override
+		? ( getModuleStatus( control.module ).reason ?? null )
+		: null;
+}
 
 /**
  * Resolve one feature's state.

@@ -67,7 +67,10 @@ export function FeaturePaid( { state, onFilterByPlan }: FeaturePaidProps ) {
 	// paid list, so repeating it here says everything twice. The routes still matter.
 	const isPaidOnly = state.product?.status === PRODUCT_STATUSES.NEEDS_PLAN;
 	const highlights = isPaidOnly ? [] : ( feature.paid_highlights ?? [] );
-	const routes = plans.length > 0 || !! paidProduct;
+	// A host that forced it off decides this, not a purchase.
+	const isForcedOff =
+		state.control.kind === 'module' && state.control.module.override === 'inactive';
+	const routes = ! isForcedOff && ( plans.length > 0 || !! paidProduct );
 
 	if ( ! highlights.length && ! routes ) {
 		return null;

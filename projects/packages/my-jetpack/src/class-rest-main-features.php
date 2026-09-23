@@ -232,6 +232,13 @@ class REST_Main_Features {
 		// stats/stats.php) is active, which ends this request, as it does Jetpack's own route.
 		$switched = $active ? $modules->activate( $slug, false, false ) : $modules->deactivate( $slug );
 
+		// Saved, but a jetpack_active_modules callback can still hold it where it was.
+		if ( ( $switched || ! $active ) && $modules->is_active( $slug ) !== $active ) {
+			return $active
+				? new WP_Error( 'module_forced', __( 'Stays off: disabled by your host or site administrator.', 'jetpack-my-jetpack' ) )
+				: new WP_Error( 'module_forced', __( 'Stays on: enabled by your host or site administrator.', 'jetpack-my-jetpack' ) );
+		}
+
 		// Read after a feature name, alone or in a list; a retry rarely helps, so none is offered.
 		if ( ! $switched ) {
 			return $active
