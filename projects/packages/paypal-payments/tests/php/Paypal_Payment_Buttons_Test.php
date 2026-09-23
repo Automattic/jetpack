@@ -901,13 +901,14 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 */
 	public function test_render_block_labels_the_button_with_button_text() {
 		$attributes = array(
-			'isApiManaged' => true,
-			'resourceId'   => 'PLB-LABEL1',
-			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-LABEL1',
-			'productName'  => 'Widget',
-			'price'        => '10.00',
-			'currencyCode' => 'USD',
-			'buttonText'   => 'Checkout',
+			'isApiManaged'        => true,
+			'resourceId'          => 'PLB-LABEL1',
+			'paymentLink'         => 'https://www.paypal.com/ncp/payment/PLB-LABEL1',
+			'productName'         => 'Widget',
+			'price'               => '10.00',
+			'currencyCode'        => 'USD',
+			'buttonText'          => 'Checkout',
+			'buttonShowPoweredBy' => true,
 		);
 
 		$this->set_up_block_render_context( $attributes );
@@ -918,7 +919,10 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'<span class="jetpack-paypal-button__button-text">Checkout</span>',
 			$result
 		);
-		$this->assertStringNotContainsString( 'jetpack-paypal-button__logo', $result );
+		// The wordmark belongs to the attribution line, not the button face.
+		$this->assertSame( 1, preg_match( '#<a [^>]*jetpack-paypal-button__checkout-link.*?</a>#s', $result, $button ) );
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__logo', $button[0] );
+		$this->assertStringContainsString( 'jetpack-paypal-button__logo', $result );
 	}
 
 	/**
@@ -968,10 +972,10 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that the attribution line is off until the merchant asks for it.
+	 * Test that the attribution line is hidden when buttonShowPoweredBy is false.
 	 */
-	public function test_render_button_hides_the_attribution_by_default() {
-		$result = $this->render_button_format( array() );
+	public function test_render_button_hides_the_attribution_when_unchecked() {
+		$result = $this->render_button_format( array( 'buttonShowPoweredBy' => false ) );
 
 		$this->assertStringNotContainsString( 'jetpack-paypal-button__attribution', $result );
 		// Positive control: the button itself still rendered.
@@ -979,15 +983,37 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that buttonShowPoweredBy draws the attribution line.
+	 * Test that buttonShowPoweredBy draws "Powered by" and the PayPal wordmark.
+	 *
+	 * The word PayPal stays as text for screen readers, and style.scss draws it
+	 * as the wordmark.
 	 */
 	public function test_render_button_shows_the_attribution_when_asked() {
 		$result = $this->render_button_format( array( 'buttonShowPoweredBy' => true ) );
 
 		$this->assertStringContainsString(
-			'<p class="jetpack-paypal-button__attribution">Powered by PayPal</p>',
+			'<p class="jetpack-paypal-button__attribution">Powered by <span class="jetpack-paypal-button__logo">PayPal</span></p>',
 			$result
 		);
+	}
+
+	/**
+	 * Test that a block saved without buttonShowPoweredBy shows the attribution line.
+	 *
+	 * The editor leaves out attributes that match their block.json default.
+	 */
+	public function test_render_button_shows_the_attribution_by_default() {
+		register_block_type_from_metadata(
+			dirname( __DIR__, 2 ) . '/src/paypal-payment-buttons',
+			array( 'render_callback' => array( PayPal_Payment_Buttons::class, 'render_block' ) )
+		);
+
+		$html = do_blocks( '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-DEFAULT","paymentLink":"https://www.paypal.com/ncp/payment/PLB-DEFAULT"} /-->' );
+
+		unregister_block_type( 'jetpack/paypal-payment-buttons' );
+
+		$this->assertStringContainsString( '<p class="jetpack-paypal-button__attribution">', $html );
+		$this->assertStringContainsString( 'jetpack-paypal-button__logo', $html );
 	}
 
 	/**
@@ -1645,6 +1671,71 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		ksort( $declarations );
 		$this->assertSame( $declarations, $actual );
+	}
+
+	/**
+	 * Test that the product card matches the editor preview.
+	 *
+	 * The same cases run against the preview in paypal-button-preview.test.jsx.
+	 *
+	 * @dataProvider provide_product_card_parity_cases
+	 * @param array       $attributes The block attributes.
+	 * @param string|null $card       The card's markup, or null for no card.
+	 */
+	#[DataProvider( 'provide_product_card_parity_cases' )]
+	public function test_render_block_product_card_matches_the_editor_preview( $attributes, $card ) {
+		$attributes = array_merge(
+			array(
+				'isApiManaged' => true,
+				'resourceId'   => 'PLB-CARD',
+				'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-CARD',
+				'format'       => 'BUTTON',
+			),
+			$attributes
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		// Positive control: the block itself rendered.
+		$this->assertStringContainsString( 'jetpack-paypal-button__checkout-link', $result );
+
+		if ( null === $card ) {
+			$this->assertStringNotContainsString( 'class="jetpack-paypal-button__product"', $result );
+			return;
+		}
+
+		// Each case lists the full card markup, so a match covers the whole card.
+		$this->assertStringContainsString( $card, $result );
+		$this->assertSame( 1, substr_count( $result, 'class="jetpack-paypal-button__product"' ) );
+	}
+
+	/**
+	 * Product card cases shared with the JS preview test.
+	 *
+	 * @throws \RuntimeException When the file is unreadable or repeats a case name.
+	 * @return array<string, array<int, mixed>>
+	 */
+	public static function provide_product_card_parity_cases() {
+		$path    = __DIR__ . '/../fixtures/product-card-parity.json';
+		$fixture = json_decode( (string) file_get_contents( $path ), true );
+
+		if ( ! is_array( $fixture ) || empty( $fixture['cases'] ) ) {
+			throw new \RuntimeException( 'Could not read cases from ' . $path );
+		}
+
+		$cases = array();
+		foreach ( $fixture['cases'] as $case ) {
+			$cases[ $case['name'] ] = array( $case['attributes'], $case['card'] );
+		}
+
+		// A repeated name would overwrite an earlier case.
+		if ( count( $cases ) !== count( $fixture['cases'] ) ) {
+			throw new \RuntimeException( 'product-card-parity.json has duplicate case names' );
+		}
+
+		return $cases;
 	}
 
 	/**

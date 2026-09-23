@@ -15,7 +15,8 @@
 
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { __ } from '@wordpress/i18n';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import {
 	getButtonStyle,
@@ -118,7 +119,7 @@ function QrPreview( {
 
 	return (
 		<div
-			className="jetpack-paypal-button-preview jetpack-paypal-button-preview--qr"
+			className="jetpack-paypal-button jetpack-paypal-button-preview jetpack-paypal-button-preview--qr"
 			style={ getMarginStyle( attributes ) }
 		>
 			<QrCodePreview
@@ -169,34 +170,42 @@ function ButtonPreview( {
 		? ''
 		: `${ price ?? '' }`.trim();
 	const headlinePrice = linkPrice( { price, currencyCode: code, variantsEnabled, variants } );
+	// Trimmed, as render_api_managed_button() does. The card needs a name,
+	// description or price. The image is outside it.
+	const name = `${ productName ?? '' }`.trim();
+	const description = `${ productDescription ?? '' }`.trim();
+	const hasProduct = name !== '' || description !== '' || headlinePrice !== '';
 	const variantGroups = variantsEnabled ? getVariantGroups( variants, productPrice ) : [];
 	// A blank label would draw an unreadable button, so fall back to the same
 	// default render_api_managed_button() uses.
 	const label = `${ buttonText ?? '' }`.trim() || DEFAULT_LABEL;
 
 	return (
-		<div className="jetpack-paypal-button-preview" style={ getMarginStyle( attributes ) }>
+		<div
+			className="jetpack-paypal-button jetpack-paypal-button-preview"
+			style={ getMarginStyle( attributes ) }
+		>
 			{ /* Product image */ }
 			{ imageUrl && (
-				<div className="jetpack-paypal-button-preview__image">
-					<img src={ imageUrl } alt={ productName || '' } />
+				<div className="jetpack-paypal-button__product-image">
+					<img src={ imageUrl } alt={ name } />
 				</div>
 			) }
 
-			{ /* Product info card */ }
-			<div className="jetpack-paypal-button-preview__product">
-				<div className="jetpack-paypal-button-preview__product-info">
-					<span className="jetpack-paypal-button-preview__product-name">{ productName }</span>
-					{ productDescription && (
-						<span className="jetpack-paypal-button-preview__product-description">
-							{ productDescription }
-						</span>
+			{ /* Product card — the frontend's markup and class names. */ }
+			{ hasProduct && (
+				<div className="jetpack-paypal-button__product">
+					<div className="jetpack-paypal-button__product-info">
+						{ name !== '' && <span className="jetpack-paypal-button__product-name">{ name }</span> }
+						{ description !== '' && (
+							<span className="jetpack-paypal-button__product-description">{ description }</span>
+						) }
+					</div>
+					{ headlinePrice !== '' && (
+						<span className="jetpack-paypal-button__product-price">{ headlinePrice }</span>
 					) }
 				</div>
-				{ headlinePrice !== '' && (
-					<span className="jetpack-paypal-button-preview__product-price">{ headlinePrice }</span>
-				) }
-			</div>
+			) }
 
 			{ /* Variant summary — the frontend's markup and class names, so both sides look alike. */ }
 			{ variantGroups.length > 0 && (
@@ -227,11 +236,14 @@ function ButtonPreview( {
 
 			{ /* Checkout button preview — theme-native unless the Styles tab says
 			     otherwise, labeled with the buttonText attribute. */ }
-			<div className="jetpack-paypal-button-preview__buttons">
+			<div className="jetpack-paypal-button__buttons">
 				<div
-					className={ clsx( 'jetpack-paypal-button-preview__checkout-button', 'wp-element-button', {
-						'is-style-outline': isOutlineButton( attributes ),
-					} ) }
+					className={ clsx(
+						'jetpack-paypal-button__checkout-link',
+						'jetpack-paypal-button-preview__checkout-button',
+						'wp-element-button',
+						{ 'is-style-outline': isOutlineButton( attributes ) }
+					) }
 					style={ getButtonStyle( attributes ) }
 					aria-hidden="true"
 				>
@@ -241,7 +253,14 @@ function ButtonPreview( {
 
 			{ attributes.buttonShowPoweredBy && (
 				<p className="jetpack-paypal-button__attribution">
-					{ __( 'Powered by PayPal', 'jetpack-paypal-payments' ) }
+					{ createInterpolateElement(
+						sprintf(
+							/* translators: %s: the PayPal wordmark */
+							__( 'Powered by %s', 'jetpack-paypal-payments' ),
+							'<logo />'
+						),
+						{ logo: <span className="jetpack-paypal-button__logo">PayPal</span> }
+					) }
 				</p>
 			) }
 		</div>

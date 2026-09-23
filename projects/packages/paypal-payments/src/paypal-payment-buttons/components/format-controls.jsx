@@ -503,7 +503,7 @@ export default function PayPalFormatControls( {
 						{ /* TODO: add a `Show payment method logos` checkbox above this one,
 						     once legal signs off on the card-network marks. */ }
 						<CheckboxControl
-							label={ __( 'Show "Powered by PayPal" text', 'jetpack-paypal-payments' ) }
+							label={ __( 'Show "Powered by PayPal"', 'jetpack-paypal-payments' ) }
 							checked={ !! attributes.buttonShowPoweredBy }
 							onChange={ value => setAttributes( { buttonShowPoweredBy: value } ) }
 							disabled={ disabled }
