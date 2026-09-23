@@ -380,6 +380,44 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The old address may not redirect yet when the flow sends the reader back.
+	 */
+	public function test_activate_url_returns_to_the_new_address_when_the_transfer_changes_it() {
+		$warnings = array(
+			array( 'domain_names' => null ),
+			array(
+				'domain_names' => array(
+					'current' => 'example.wordpress.com',
+					'new'     => 'example.wpcomstaging.com',
+				),
+			),
+		);
+
+		parse_str( (string) wp_parse_url( WPCOM_Backup::get_activate_url( $warnings ), PHP_URL_QUERY ), $args );
+
+		$this->assertSame(
+			'https://example.wpcomstaging.com/wp-admin/admin.php?page=' . WPCOM_Backup::MENU_SLUG,
+			rawurldecode( $args['redirect_to'] )
+		);
+	}
+
+	/**
+	 * Only a bare hostname is swapped in, so the payload cannot redirect elsewhere.
+	 */
+	public function test_post_transfer_url_ignores_a_new_address_that_is_not_a_hostname() {
+		$warnings = array(
+			array(
+				'domain_names' => array(
+					'current' => 'example.wordpress.com',
+					'new'     => 'evil.example/path?x=',
+				),
+			),
+		);
+
+		$this->assertSame( WPCOM_Backup::get_page_url(), WPCOM_Backup::get_post_transfer_page_url( $warnings ) );
+	}
+
+	/**
 	 * The flow needs every argument to initiate, wait for the feature, and come
 	 * back; a missing one degrades silently to a half-finished activation.
 	 */

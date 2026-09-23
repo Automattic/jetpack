@@ -342,6 +342,7 @@ class WPCOM_Backup {
 		$eligibility = self::STATE_ACTIVATE === $state
 			? self::get_eligibility( $blog_id, $user_id )
 			: null;
+		$warnings    = self::get_transfer_warnings( $eligibility );
 
 		wp_localize_script(
 			$handle,
@@ -353,9 +354,9 @@ class WPCOM_Backup {
 				// failed a check; let the transfer flow reject it instead.
 				'isEligible'  => null === $eligibility || ! empty( $eligibility['is_eligible'] ),
 				'errors'      => self::get_transfer_errors( $eligibility ),
-				'warnings'    => self::get_transfer_warnings( $eligibility ),
+				'warnings'    => $warnings,
 				'upgradeUrl'  => self::get_upgrade_url( $domain ),
-				'activateUrl' => self::get_activate_url(),
+				'activateUrl' => self::get_activate_url( $warnings ),
 				'supportUrl'  => 'https://wordpress.com/support/backups/',
 			)
 		);
@@ -560,19 +561,45 @@ class WPCOM_Backup {
 	}
 
 	/**
-	 * URL of the Calypso flow that transfers the site and switches backups on.
+	 * Where this page will live once the transfer lands.
 	 *
-	 * The flow waits for the transfer to land before following `redirect_to`, which is
-	 * resolved fresh so it carries the new address when the transfer changes one.
+	 * Uses the new address from the address-change warning rather than trusting the old
+	 * one to redirect, which may not have propagated when the flow sends the reader back.
 	 *
+	 * @param array[] $warnings Result of get_transfer_warnings().
 	 * @return string
 	 */
-	public static function get_activate_url() {
+	public static function get_post_transfer_page_url( array $warnings ) {
+		$page_url = self::get_page_url();
+
+		foreach ( $warnings as $warning ) {
+			$new_host = $warning['domain_names']['new'] ?? '';
+
+			// A bare hostname only, so nothing in the payload can steer the scheme or path.
+			if ( is_string( $new_host ) && filter_var( $new_host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME ) ) {
+				$parts = wp_parse_url( $page_url );
+
+				return 'https://' . strtolower( $new_host ) . ( $parts['path'] ?? '' ) . ( isset( $parts['query'] ) ? '?' . $parts['query'] : '' );
+			}
+		}
+
+		return $page_url;
+	}
+
+	/**
+	 * URL of the Calypso flow that transfers the site and switches backups on.
+	 *
+	 * The flow waits for the transfer to land before following `redirect_to`.
+	 *
+	 * @param array[] $warnings Result of get_transfer_warnings(), for the post-transfer address.
+	 * @return string
+	 */
+	public static function get_activate_url( array $warnings = array() ) {
 		return add_query_arg(
 			array(
 				'siteId'                    => get_current_blog_id(),
 				'initiate_transfer_context' => self::TRANSFER_CONTEXT,
-				'redirect_to'               => rawurlencode( self::get_page_url() ),
+				'redirect_to'               => rawurlencode( self::get_post_transfer_page_url( $warnings ) ),
 			),
 			self::TRANSFER_FLOW_URL
 		);
