@@ -218,6 +218,8 @@ class Modules {
 			$active = array_intersect( $active, $this->get_available() );
 		}
 
+		Feature_Policy::ensure_hooks();
+
 		/**
 		 * Allow filtering of the active modules.
 		 *

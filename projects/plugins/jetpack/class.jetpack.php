@@ -22,6 +22,7 @@ use Automattic\Jetpack\CookieState;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Errors;
+use Automattic\Jetpack\Feature_Policy;
 use Automattic\Jetpack\Files;
 use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Identity_Crisis;
@@ -2343,6 +2344,10 @@ class Jetpack {
 					break;
 			}
 		}
+		if ( method_exists( Feature_Policy::class, 'ensure_hooks' ) ) {
+			Feature_Policy::ensure_hooks();
+		}
+
 		/**
 		 * Filters the array of default modules.
 		 *

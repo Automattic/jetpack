@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Features: Honor `jetpack_feature_policy` when hiding items from the page.
