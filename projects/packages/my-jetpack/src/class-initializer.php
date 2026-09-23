@@ -46,7 +46,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.4.1';
+	const PACKAGE_VERSION = '6.5.0';
 
 	/**
 	 * Feature flag that swaps the My Jetpack Products tab for a Features tab.
@@ -273,7 +273,7 @@ class Initializer {
 	 *
 	 * Coupons exist only with the Jetpack plugin, which supplies their products and images.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.5.0
 	 *
 	 * @return array{coupon: array, assetBaseUrl: string}|null
 	 */
@@ -726,7 +726,7 @@ class Initializer {
 	 *
 	 * Meaningful only after admin_menu has registered the page.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.5.0
 	 *
 	 * @return bool
 	 */

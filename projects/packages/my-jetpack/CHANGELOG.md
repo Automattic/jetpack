@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.5.0] - 2026-09-23
+### Added
+- Add a filterable grid of the main Jetpack features to the Features tab, with activation toggles and a details modal, behind the my-jetpack-features-tab feature flag. [#52494]
+- Add a list view to the Features tab that switches several features on or off at once, behind the my-jetpack-features-tab feature flag. [#52572]
+- Show partner coupon redemption in place of the dashboard. [#52514]
+
+### Changed
+- Answer module switch clicks immediately, and explain what happened when a change fails. [#52494]
+- Scan: Send buyers to the Scan dashboard after checkout instead of the retired Jetpack Assistant. [#52513]
+- Stats: Recognize the standalone Jetpack Stats plugin in My Jetpack. [#51083]
+
+### Fixed
+- Footer: Hide Products and Help links when My Jetpack is unavailable. [#52557]
+- Show each notice once instead of twice. [#52494]
+
 ## [6.4.1] - 2026-09-21
 ### Fixed
 - Jetpack Manage: Only show the sidebar link to agency accounts. [#52336]
@@ -2938,6 +2953,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.4.1...6.5.0
 [6.4.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.4.0...6.4.1
 [6.4.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.3.0...6.4.0
 [6.3.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.2.2...6.3.0
