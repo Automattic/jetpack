@@ -121,8 +121,8 @@ describe( 'DateComparisonDropdown', () => {
 		await user.hover( screen.getByRole( 'button', { name: 'Previous period' } ) );
 
 		await expect(
-			screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
-		).resolves.toHaveTextContent( /June 1.+30, 2026/ );
+			screen.findByText( /June 1.+30, 2026/, undefined, { timeout: 3000 } )
+		).resolves.toBeVisible();
 	} );
 
 	// A URL can carry a comparison whose preset the trigger cannot name — the

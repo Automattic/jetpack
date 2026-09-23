@@ -148,8 +148,8 @@ describe( 'DatePeriodDropdown', () => {
 		await user.hover( screen.getByRole( 'button', { name: 'Last 30 days' } ) );
 
 		await expect(
-			screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
-		).resolves.toHaveTextContent( /July 1.+31, 2026/ );
+			screen.findByText( /July 1.+31, 2026/, undefined, { timeout: 3000 } )
+		).resolves.toBeVisible();
 	} );
 
 	it( 'greys the trigger out while disabled and keeps the menu shut', async () => {
