@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Keep the dashboard views trend chart's comparison lines distinguishable, including for color-blind viewers.
