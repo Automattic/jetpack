@@ -33,6 +33,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	public function tear_down() {
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		unset( $GLOBALS['wp_scripts'] );
+		unset( $GLOBALS['submenu'] );
 		delete_transient( 'jetpack_ai_overview_plan_info' );
 		Status_Cache::clear();
 		Constants::clear_single_constant( 'IS_WPCOM' );
@@ -314,6 +315,46 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$settings = $this->get_injected_settings();
 
 		$this->assertFalse( $settings['canConnectSite'] );
+	}
+
+	/**
+	 * The AI Answers row links to the Search dashboard while a host leaves it registered.
+	 */
+	public function test_search_settings_url_points_at_the_search_dashboard() {
+		$GLOBALS['submenu'] = array(
+			'jetpack' => array( array( 'Search', 'manage_options', 'jetpack-search', 'Jetpack Search' ) ),
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-search#/ai-answers' ), $settings['searchSettingsUrl'] );
+	}
+
+	/**
+	 * Search registers menu-less (parent '') when its submenu filter says no; the
+	 * page is still reachable, so the link stays.
+	 */
+	public function test_search_settings_url_survives_a_menu_less_registration() {
+		$GLOBALS['submenu'] = array(
+			'' => array( array( 'Search', 'manage_options', 'jetpack-search', 'Jetpack Search' ) ),
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-search#/ai-answers' ), $settings['searchSettingsUrl'] );
+	}
+
+	/**
+	 * VIP removes the page on admin_menu; the row then gets no link rather than a dead one.
+	 */
+	public function test_search_settings_url_is_empty_when_the_page_was_removed() {
+		$GLOBALS['submenu'] = array(
+			'jetpack' => array( array( 'Settings', 'manage_options', 'jetpack-settings', 'Jetpack Settings' ) ),
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( '', $settings['searchSettingsUrl'] );
 	}
 
 	/**
