@@ -6,6 +6,7 @@ import {
 	useConnectionErrorNotice,
 	type ConnectionErrorNoticeLink,
 	type ConnectionErrorObject,
+	type ConnectionErrorTrackingCallback,
 } from '@automattic/jetpack-connection';
 import { Link } from '@wordpress/ui';
 import { useContext, useEffect, useCallback, useMemo } from 'react';
@@ -60,13 +61,10 @@ const useConnectionErrorsNotice = (
 
 	// Tracking callback for the shared resolver, preserving My Jetpack's
 	// "jetpack_"-prefixed event guard.
-	const trackingCallback = useCallback(
-		( event: string, data: object ) => {
+	const trackingCallback: ConnectionErrorTrackingCallback = useCallback(
+		( event, data ) => {
 			if ( event && event.startsWith( 'jetpack_' ) ) {
-				recordEvent(
-					event as `jetpack_${ string }`,
-					data as Parameters< typeof recordEvent >[ 1 ]
-				);
+				recordEvent( event as `jetpack_${ string }`, data );
 			}
 		},
 		[ recordEvent ]

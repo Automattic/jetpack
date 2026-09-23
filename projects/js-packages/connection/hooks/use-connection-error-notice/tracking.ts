@@ -1,5 +1,5 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import type { ConnectionErrorObject } from './types.ts';
+import type { ConnectionErrorObject, ConnectionErrorTrackingCallback } from './types.ts';
 
 /**
  * Canonical Tracks events for interactions inside a connection error notice.
@@ -18,13 +18,17 @@ export const CONNECTION_ERROR_NOTICE_EVENTS = {
 	supportLink: 'jetpack_connection_error_notice_support_link_click',
 } as const;
 
+// Hoisted and widened to string[] so the no-callback allowlist below can test an
+// arbitrary event string without a per-call cast, and only builds the list once.
+const CANONICAL_EVENTS: string[] = Object.values( CONNECTION_ERROR_NOTICE_EVENTS );
+
 export interface ConnectionErrorTrackingOptions {
 	/**
 	 * Consumer dispatch hook. When supplied (e.g. My Jetpack), events route
 	 * through it for the consumer's enriched analytics; when absent, they record
 	 * straight to Tracks so a bare notice still tracks without any wiring.
 	 */
-	trackingCallback?: ( ( event: string, data: object ) => void ) | null;
+	trackingCallback?: ConnectionErrorTrackingCallback | null;
 	/** The surface reporting the event, e.g. 'my-jetpack', 'protect'. */
 	trackingContext?: string;
 	/** The error the notice is describing, for the standard payload. */
@@ -58,9 +62,7 @@ export function trackConnectionErrorNoticeEvent(
 	try {
 		if ( trackingCallback ) {
 			trackingCallback( event, payload );
-		} else if (
-			( Object.values( CONNECTION_ERROR_NOTICE_EVENTS ) as string[] ).includes( event )
-		) {
+		} else if ( CANONICAL_EVENTS.includes( event ) ) {
 			// The no-callback branch records straight to Tracks, so it fires only the
 			// canonical events — never a server-supplied event name that reached here
 			// via an error's `tracking_event`. A consumer with its own callback owns

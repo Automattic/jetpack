@@ -65,9 +65,18 @@ export interface Action {
  */
 export type RestoreConnection = ( autoReconnectUser?: boolean ) => Promise< unknown >;
 
+/**
+ * Consumer dispatch hook for connection-error-notice Tracks events. `data` is a
+ * `Record` (not `object`) so a consumer can index it without a cast.
+ */
+export type ConnectionErrorTrackingCallback = (
+	event: string,
+	data: Record< string, unknown >
+) => void;
+
 export interface ConnectionErrorProps {
 	actionHandlers?: Record< string, ( error: ConnectionErrorObject ) => void >;
-	trackingCallback?: ( ( event: string, data: object ) => void ) | null;
+	trackingCallback?: ConnectionErrorTrackingCallback | null;
 	customActions?:
 		| ( (
 				error: ConnectionErrorObject,
