@@ -291,29 +291,25 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The notice drops its connect link on VIP, which needs the host in page data.
+	 * The notice only offers a connect link to a user the site would let connect it.
 	 */
-	public function test_vip_site_is_flagged_in_page_data() {
-		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+	public function test_admin_can_connect_site() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 
 		$settings = $this->get_injected_settings();
 
-		$this->assertTrue( $settings['isVip'] );
+		$this->assertTrue( $settings['canConnectSite'] );
 	}
 
 	/**
-	 * Only VIP sets the flag, so a host that merely lacks My Jetpack must not.
+	 * A user without manage_options cannot connect the site.
 	 */
-	public function test_non_vip_site_is_not_flagged_in_page_data() {
-		$this->given_woa( false );
-		// `hasMyJetpack` is false here too, so a flag derived from it would read
-		// this host as VIP.
-		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
+	public function test_subscriber_cannot_connect_site() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
 
 		$settings = $this->get_injected_settings();
 
-		$this->assertFalse( $settings['hasMyJetpack'] );
-		$this->assertFalse( $settings['isVip'] );
+		$this->assertFalse( $settings['canConnectSite'] );
 	}
 
 	/**
@@ -323,7 +319,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	public function test_notice_inputs_are_injected() {
 		$settings = $this->get_injected_settings();
 
-		foreach ( array( 'isConnected', 'hostAllowsAi', 'masterEnabled', 'masterForcedOff', 'isVip' ) as $key ) {
+		foreach ( array( 'isConnected', 'hostAllowsAi', 'masterEnabled', 'masterForcedOff', 'canConnectSite' ) as $key ) {
 			$this->assertArrayHasKey( $key, $settings );
 		}
 
@@ -331,7 +327,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$this->assertIsBool( $settings['hostAllowsAi'] );
 		$this->assertIsBool( $settings['masterEnabled'] );
 		$this->assertSame( '', $settings['masterForcedOff'] );
-		$this->assertIsBool( $settings['isVip'] );
+		$this->assertIsBool( $settings['canConnectSite'] );
 	}
 
 	/**
@@ -390,7 +386,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		remove_filter( 'jetpack_ai_admin_config', $filter );
 		$this->assertSame( '', $settings['userConnectionUrl'] );
 		$this->assertSame( '', $settings['manageUrl'] );
-		$this->assertFalse( $settings['isVip'] );
+		$this->assertFalse( $settings['canConnectSite'] );
 	}
 
 	/**

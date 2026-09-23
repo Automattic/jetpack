@@ -306,30 +306,20 @@ describe( 'PageNotice', () => {
 		);
 	} );
 
-	describe( 'the VIP host flag', () => {
-		it( 'sends a VIP site to VIP’s own doc instead of a connect link it cannot use', () => {
-			renderNotice( { state: 'site-disconnected', isVip: true } );
-			// Same title and description as every other host — only the action differs.
-			expect(
-				screen.getByText( 'This site is not connected to WordPress.com.', IGNORE_A11Y )
-			).toBeInTheDocument();
-			expect(
-				screen.getByText(
-					'Your feature settings are saved and will apply again once the site is connected.',
-					IGNORE_A11Y
-				)
-			).toBeInTheDocument();
+	describe( 'the connect capability', () => {
+		it( 'offers a doc, not a connect link, when the user cannot connect the site', () => {
+			renderNotice( { state: 'site-disconnected', canConnectSite: false } );
 			expect( screen.queryByRole( 'link', { name: 'Connect Jetpack' } ) ).not.toBeInTheDocument();
 			const learnMore = screen.getByRole( 'link', { name: /Learn more/ } );
 			expect( learnMore ).toHaveAttribute(
 				'href',
-				expect.stringContaining( 'source=jetpack-ai-hub-notice-site-disconnected-vip' )
+				expect.stringContaining( 'source=jetpack-ai-hub-notice-site-disconnected-cannot-connect' )
 			);
 			expect( learnMore ).toHaveAttribute( 'target', '_blank' );
 		} );
 
-		// `hasMyJetpack` is false on VIP and on hosts that filter My Jetpack off, so
-		// it must not stand in for the VIP flag.
+		// `hasMyJetpack` is false wherever My Jetpack is filtered off; it says nothing
+		// about whether this user may connect.
 		it( 'keeps the connect link on a host that merely lacks My Jetpack', () => {
 			renderNotice( {
 				state: 'site-disconnected',
@@ -343,10 +333,10 @@ describe( 'PageNotice', () => {
 			expect( screen.queryByRole( 'link', { name: /Learn more/ } ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'still offers a VIP admin the account link, which is theirs to use', () => {
+		it( 'still offers the account link to a user who cannot connect the site', () => {
 			renderNotice( {
 				state: 'user-unlinked',
-				isVip: true,
+				canConnectSite: false,
 				userConnectionUrl: 'admin.php?page=jetpack#/connect-user',
 			} );
 			expect( screen.getByRole( 'link', { name: 'Connect account' } ) ).toHaveAttribute(

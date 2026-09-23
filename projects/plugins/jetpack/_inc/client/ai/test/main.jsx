@@ -515,21 +515,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			).toHaveLength( 1 );
 		} );
 
-		// VIP ships the gated views closed, so only a host filtering `showGatedViews`
-		// back on reaches this notice there.
-		test( 'not connected on VIP: the VIP doc replaces the connect link', async () => {
-			window.jetpackAiSettings = { showFeaturesView: true, blogId: 0, isVip: true };
-			mockApiFetch( { featureGet: { ...enabledSettings(), is_connected: false } } );
-
-			render( <App /> );
-
-			await expect(
-				screen.findByRole( 'link', { name: /Learn more/ } )
-			).resolves.toBeInTheDocument();
-			expect( screen.queryByRole( 'link', { name: 'Connect Jetpack' } ) ).not.toBeInTheDocument();
-		} );
-
-		test( 'not connected: page data without isVip keeps the connect link', async () => {
+		test( 'not connected: page data without canConnectSite keeps the connect link', async () => {
 			window.jetpackAiSettings = { showFeaturesView: true, blogId: 0 };
 			mockApiFetch( { featureGet: { ...enabledSettings(), is_connected: false } } );
 
@@ -539,6 +525,18 @@ describe( 'AI admin page (main.jsx)', () => {
 				screen.findByRole( 'link', { name: 'Connect Jetpack' } )
 			).resolves.toBeInTheDocument();
 			expect( screen.queryByRole( 'link', { name: /Learn more/ } ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'not connected: a user who cannot connect gets the doc, not the link', async () => {
+			window.jetpackAiSettings = { showFeaturesView: true, blogId: 0, canConnectSite: false };
+			mockApiFetch( { featureGet: { ...enabledSettings(), is_connected: false } } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByRole( 'link', { name: /Learn more/ } )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByRole( 'link', { name: 'Connect Jetpack' } ) ).not.toBeInTheDocument();
 		} );
 
 		test( 'not connected: the connect ask wins over the master-off notice', async () => {
