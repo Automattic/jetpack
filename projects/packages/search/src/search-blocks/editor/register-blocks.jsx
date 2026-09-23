@@ -150,7 +150,7 @@ addFilter(
 );
 
 // Registered rather than skipped, so blocks already saved in a widget area still load and can be removed.
-if ( config.hideFromInserter === true ) {
+if ( config.hideFromWidgetsInserter === true ) {
 	addFilter(
 		'blocks.registerBlockType',
 		'jetpack-search/hide-from-widgets-inserter',

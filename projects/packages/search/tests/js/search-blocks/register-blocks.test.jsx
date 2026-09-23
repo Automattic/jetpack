@@ -101,7 +101,7 @@ describe( 'register-blocks inserter gate', () => {
 	} );
 
 	it( 'hides Search blocks from the inserter when the gate is on', () => {
-		const filter = loadWithConfig( { hideFromInserter: true } );
+		const filter = loadWithConfig( { hideFromWidgetsInserter: true } );
 
 		expect(
 			filter( { supports: { html: false } }, 'jetpack-search/filter-checkbox' ).supports
@@ -109,13 +109,13 @@ describe( 'register-blocks inserter gate', () => {
 	} );
 
 	it( 'leaves blocks from other namespaces insertable', () => {
-		const filter = loadWithConfig( { hideFromInserter: true } );
+		const filter = loadWithConfig( { hideFromWidgetsInserter: true } );
 		const settings = { supports: { html: false } };
 
 		expect( filter( settings, 'core/search' ) ).toBe( settings );
 	} );
 
 	it( 'registers no inserter filter when the gate is off', () => {
-		expect( loadWithConfig( { hideFromInserter: false } ) ).toBeUndefined();
+		expect( loadWithConfig( { hideFromWidgetsInserter: false } ) ).toBeUndefined();
 	} );
 } );
