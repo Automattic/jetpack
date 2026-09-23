@@ -306,6 +306,7 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 
 		$endpoint = null;
 		foreach ( $api->endpoints as $methods ) {
+			// @phan-suppress-next-line PhanTypeSuspiciousNonTraversableForeach -- The registry nests endpoints by method; the property docblock is one level short.
 			foreach ( $methods as $candidate ) {
 				if ( '/sites/%s/posts/new' === $candidate->path && '1.2' === $candidate->min_version ) {
 					$endpoint = $candidate;
