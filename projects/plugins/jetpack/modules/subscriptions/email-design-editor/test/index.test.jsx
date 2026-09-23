@@ -82,19 +82,72 @@ function mockRegisterBlockEditorStore( { createReduxStore, register } ) {
 	);
 }
 
+// Where core's Settings sidebar and the package's Styles panel both live. `active` is what the
+// real selector reports: undefined until something chooses, null once the sidebar is closed.
+const mockEnabledAreas = [];
+
+function mockRegisterInterfaceStore( { createReduxStore, register } ) {
+	register(
+		createReduxStore( 'core/interface', {
+			reducer: ( state = { active: undefined }, action ) => {
+				if ( 'SET_ACTIVE' === action.type ) {
+					return { active: action.area };
+				}
+
+				if ( 'ENABLE_COMPLEMENTARY_AREA' === action.type ) {
+					mockEnabledAreas.push( [ action.scope, action.area ] );
+
+					return { active: action.area };
+				}
+
+				return state;
+			},
+			actions: {
+				enableComplementaryArea: ( scope, area ) => ( {
+					type: 'ENABLE_COMPLEMENTARY_AREA',
+					scope,
+					area,
+				} ),
+
+				// Stands in for whoever chose first: core's sidebar on load, or the creator.
+				setActiveComplementaryArea: area => ( { type: 'SET_ACTIVE', area } ),
+			},
+			selectors: { getActiveComplementaryArea: state => state.active },
+		} )
+	);
+}
+
 mockRegisterBlockEditorStore( jest.requireActual( '@wordpress/data' ) );
+mockRegisterInterfaceStore( jest.requireActual( '@wordpress/data' ) );
 
 jest.mock( '@wordpress/block-editor', () => ( { useBlockProps: () => ( {} ) } ) );
+
+// Importing it for real resolves core's private APIs at load time and throws, the same trap that
+// keeps the entry point addressing the block editor's store by name.
+jest.mock( '@wordpress/editor', () => ( {
+	PluginDocumentSettingPanel: ( { children } ) => children,
+} ) );
+
+const mockRegisterPlugin = jest.fn();
+
+jest.mock( '@wordpress/plugins', () => ( {
+	registerPlugin: ( ...args ) => mockRegisterPlugin( ...args ),
+} ) );
 
 // The real stores rather than mocks. Mocking `@wordpress/data` wholesale drops `combineReducers`,
 // which `@wordpress/components` needs at import time by way of `@wordpress/rich-text`.
 const { render, screen } = require( '@testing-library/react' );
+const userEvent = require( '@testing-library/user-event' ).default;
 
 const { select, dispatch } = jest.requireActual( '@wordpress/data' );
 const { store: noticesStore } = jest.requireActual( '@wordpress/notices' );
 const { store: coreStore } = jest.requireActual( '@wordpress/core-data' );
 
 const ELEMENT_ID = 'jetpack-email-design-editor';
+
+// The `@wordpress/data` module the last `loadEntryPoint()` gave the entry, so a test can dispatch
+// into the registry the mount is watching.
+let mockIsolatedData = null;
 
 /**
  * The bootstrap response, in the shape the WordPress.com route returns it —
@@ -170,9 +223,12 @@ function pageData( overrides = {} ) {
  */
 async function loadEntryPoint() {
 	jest.isolateModules( () => {
-		// The isolated registry is a different one, so the stand-in store has to be registered in it
-		// too — otherwise the mount's own lockdown dispatch finds nothing and silently no-ops.
-		mockRegisterBlockEditorStore( require( '@wordpress/data' ) );
+		// The isolated registry is a different one, so the stand-in stores have to be registered in
+		// it too — otherwise the mount's own dispatches find nothing and silently no-op. Kept so a
+		// test can move that registry the way the editor would once it has mounted.
+		mockIsolatedData = require( '@wordpress/data' );
+		mockRegisterBlockEditorStore( mockIsolatedData );
+		mockRegisterInterfaceStore( mockIsolatedData );
 		require( '../src/index' );
 	} );
 
@@ -223,6 +279,9 @@ describe( 'Email design editor entry point', () => {
 		dispatch( noticesStore ).removeAllNotices( 'default', 'email-editor' );
 		Object.keys( mockBlockEditingModes ).forEach( key => delete mockBlockEditingModes[ key ] );
 		mockDispatchLog.length = 0;
+		mockEnabledAreas.length = 0;
+		mockRegisterPlugin.mockClear();
+		dispatch( 'core/interface' ).setActiveComplementaryArea( undefined );
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( bootstrapBundle() );
 		jest.spyOn( console, 'error' ).mockImplementation( () => {} );
@@ -947,6 +1006,155 @@ describe( 'Email design editor entry point', () => {
 			// A mode is a view setting. Unmarked, it lands as an undo step and the editor opens
 			// believing the creator has unsaved work.
 			expect( mockDispatchLog ).toEqual( [ 'MARK_NOT_PERSISTENT', 'SET_BLOCK_EDITING_MODE' ] );
+		} );
+	} );
+
+	// Three of three testers opened the sidebar, found Template and Blocks, and concluded the
+	// screen had no styles at all. NL-948.
+	describe( 'the Styles panel a creator has to find', () => {
+		const { openStylesSidebar, openStylesSidebarOnLoad, registerEditorPlugin } =
+			jest.requireActual( '../src/index' );
+
+		const setActive = area =>
+			mockIsolatedData.dispatch( 'core/interface' ).setActiveComplementaryArea( area );
+
+		// The watcher outlives the call that starts it, so it would answer the next test's
+		// dispatches too.
+		let stopWatching = () => {};
+
+		const watch = () => {
+			stopWatching = openStylesSidebarOnLoad();
+		};
+
+		afterEach( () => stopWatching() );
+
+		it( 'opens the panel the package registered, not one of core scope', () => {
+			openStylesSidebar();
+
+			expect( mockEnabledAreas ).toEqual( [ [ 'core', 'null/email-styles-sidebar' ] ] );
+		} );
+
+		it( 'waits for core to choose rather than opening into a decision core then overwrites', () => {
+			watch();
+
+			expect( mockEnabledAreas ).toEqual( [] );
+		} );
+
+		it( 'replaces the Settings sidebar core opens by default', () => {
+			watch();
+
+			dispatch( 'core/interface' ).setActiveComplementaryArea( 'edit-post/document' );
+
+			expect( mockEnabledAreas ).toEqual( [ [ 'core', 'null/email-styles-sidebar' ] ] );
+		} );
+
+		// Core's sidebar claims the scope more than once while the editor mounts, and again for
+		// every mount effect a development build of React runs twice.
+		it( 'asserts the panel again each time core claims the sidebar back', () => {
+			watch();
+
+			dispatch( 'core/interface' ).setActiveComplementaryArea( 'edit-post/document' );
+			dispatch( 'core/interface' ).setActiveComplementaryArea( 'edit-post/document' );
+
+			expect( mockEnabledAreas ).toEqual( [
+				[ 'core', 'null/email-styles-sidebar' ],
+				[ 'core', 'null/email-styles-sidebar' ],
+			] );
+		} );
+
+		it( 'leaves a sidebar the creator closed closed', () => {
+			watch();
+
+			dispatch( 'core/interface' ).setActiveComplementaryArea( null );
+
+			expect( mockEnabledAreas ).toEqual( [] );
+		} );
+
+		it( 'stops at the creator’s first move, so the tab they chose is the one they keep', () => {
+			watch();
+
+			window.dispatchEvent( new window.Event( 'pointerdown' ) );
+			dispatch( 'core/interface' ).setActiveComplementaryArea( 'edit-post/document' );
+
+			expect( mockEnabledAreas ).toEqual( [] );
+		} );
+
+		it( 'stops on a keystroke too, which is how the panel is closed without a pointer', () => {
+			watch();
+
+			window.dispatchEvent( new window.Event( 'keydown' ) );
+			dispatch( 'core/interface' ).setActiveComplementaryArea( 'edit-post/document' );
+
+			expect( mockEnabledAreas ).toEqual( [] );
+		} );
+
+		it( 'opens the panel as part of mounting, not only when called directly', async () => {
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+			setActive( 'edit-post/document' );
+
+			expect( mockEnabledAreas ).toEqual( [ [ 'core', 'null/email-styles-sidebar' ] ] );
+		} );
+
+		it( 'does not open a panel for an editor that never loaded', async () => {
+			mockApiFetch.mockRejectedValue( new Error( 'nope' ) );
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+			setActive( 'edit-post/document' );
+
+			expect( mockEnabledAreas ).toEqual( [] );
+		} );
+
+		describe( 'the way back in from the Template tab', () => {
+			/**
+			 * Mount whatever was registered for the package's plugin area.
+			 *
+			 * Rendered from this registry's copy of the entry point, not the isolated one: the
+			 * isolated module carries its own React, whose hooks are not the ones under test here.
+			 *
+			 * @return {void}
+			 */
+			const renderRegisteredPlugin = () => {
+				const [ , settings ] = mockRegisterPlugin.mock.calls[ 0 ];
+
+				render( <settings.render /> );
+			};
+
+			beforeEach( () => {
+				registerEditorPlugin();
+			} );
+
+			it( 'registers under the scope the package gives its plugin area', () => {
+				const [ name, settings ] = mockRegisterPlugin.mock.calls[ 0 ];
+
+				expect( name ).toBe( 'jetpack-email-design' );
+				expect( settings.scope ).toBe( 'woocommerce-email-editor' );
+			} );
+
+			it( 'registers as part of mounting, not only when called directly', async () => {
+				mockRegisterPlugin.mockClear();
+				window.JetpackEmailDesignEditor = pageData();
+
+				await loadEntryPoint();
+
+				expect( mockRegisterPlugin ).toHaveBeenCalledTimes( 1 );
+			} );
+
+			it( 'offers a labelled control, which the panel’s own icon is not', () => {
+				renderRegisteredPlugin();
+
+				expect( screen.getByRole( 'button', { name: 'Edit email styles' } ) ).toBeVisible();
+			} );
+
+			it( 'opens the Styles panel when it is pressed', async () => {
+				renderRegisteredPlugin();
+
+				await userEvent.click( screen.getByRole( 'button', { name: 'Edit email styles' } ) );
+
+				expect( mockEnabledAreas ).toEqual( [ [ 'core', 'null/email-styles-sidebar' ] ] );
+			} );
 		} );
 	} );
 

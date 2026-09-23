@@ -14,12 +14,14 @@ import { ExperimentalEmailEditor } from '@woocommerce/email-editor';
 import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps } from '@wordpress/block-editor';
 import { getBlockType, registerBlockType } from '@wordpress/blocks';
-import { Disabled, Notice } from '@wordpress/components';
+import { Button, Disabled, Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
-import { dispatch, select } from '@wordpress/data';
+import { dispatch, select, subscribe } from '@wordpress/data';
+import { PluginDocumentSettingPanel } from '@wordpress/editor';
 import { createRoot, RawHTML, StrictMode } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { registerPlugin } from '@wordpress/plugins';
 import { addQueryArgs } from '@wordpress/url';
 
 // Declared by the Jetpack plugin on every platform, answered by WordPress.com, so
@@ -40,6 +42,21 @@ const BLOCK_EDITOR_STORE = 'core/block-editor';
 
 // A save arrives as any of these, depending on whether core-data creates or updates.
 const WRITE_METHODS = [ 'POST', 'PUT', 'PATCH' ];
+
+// Addressed by name for a second reason as well: WordPress registers no `wp-interface` script, so
+// importing the package would add a dependency nothing answers and the bundle would never enqueue.
+const INTERFACE_STORE = 'core/interface';
+
+// Every sidebar on this screen, ours and core's, shares core's scope.
+const SIDEBAR_SCOPE = 'core';
+
+// `@woocommerce/email-editor` renders the Styles panel as a `PluginSidebar` outside any
+// `PluginArea`, so the plugin name the interface store keys it under is literally `null`.
+// Re-check on a package bump, alongside the private-API note in the screen's PHP.
+const STYLES_SIDEBAR = 'null/email-styles-sidebar';
+
+// The package renders a `PluginArea` under this scope, which is where our own fills land.
+const PLUGIN_SCOPE = 'woocommerce-email-editor';
 
 /**
  * Check that a URL the editor will navigate to is one the browser can navigate to.
@@ -441,6 +458,99 @@ export function lockCanvasEditing() {
 }
 
 /**
+ * Show the Styles panel, the only part of this screen that changes anything.
+ *
+ * @return {void}
+ */
+export function openStylesSidebar() {
+	// `dispatch()` answers null for a store the registry does not hold.
+	dispatch( INTERFACE_STORE )?.enableComplementaryArea( SIDEBAR_SCOPE, STYLES_SIDEBAR );
+}
+
+/**
+ * Open the Styles panel for a creator who has not closed the sidebar.
+ *
+ * Core's own Settings sidebar is active by default, so it claims the sidebar on load and offers
+ * Template and Blocks — two tabs that `lockCanvasEditing()` has emptied.
+ *
+ * Whether the sidebar shows at all is the one piece of this that persists between visits, so a
+ * creator who closed it is left alone. Which panel was showing is not persisted by anyone.
+ *
+ * @return {Function} Stops watching, for a caller that unmounts the editor.
+ */
+export function openStylesSidebarOnLoad() {
+	const interfaceSelect = select( INTERFACE_STORE );
+
+	if ( ! interfaceSelect ) {
+		return () => {};
+	}
+
+	const unsubscribe = subscribe( () => {
+		const active = interfaceSelect.getActiveComplementaryArea( SIDEBAR_SCOPE );
+
+		// Undefined until something chooses. Null once the sidebar is closed — by core on a phone,
+		// or by the creator on a previous visit, which is the one state worth leaving alone.
+		if ( undefined === active ) {
+			return;
+		}
+
+		if ( null === active ) {
+			stopWatching();
+		} else if ( STYLES_SIDEBAR !== active ) {
+			openStylesSidebar();
+		}
+	} );
+
+	/**
+	 * Stop asserting our choice.
+	 *
+	 * @return {void}
+	 */
+	function stopWatching() {
+		unsubscribe();
+		window.removeEventListener( 'pointerdown', stopWatching, true );
+		window.removeEventListener( 'keydown', stopWatching, true );
+	}
+
+	// Asserted until the creator's first move rather than once, because core's Settings sidebar
+	// claims the scope more than once while the editor mounts — twice more under a development
+	// build of React, which runs mount effects again. Capturing, so a creator who opens Template
+	// themselves gets it: this runs before the click that does so.
+	window.addEventListener( 'pointerdown', stopWatching, true );
+	window.addEventListener( 'keydown', stopWatching, true );
+
+	return stopWatching;
+}
+
+/**
+ * A labelled way into the Styles panel, for a creator who closed it.
+ *
+ * The panel's own affordance is an unlabelled icon in the top right, which three of three testers
+ * missed, and the Template tab this lands in has nothing else to offer while block editing is off.
+ * See NL-948.
+ *
+ * @return {import('react').ReactElement} The panel.
+ */
+function StylesPanelLink() {
+	return (
+		<PluginDocumentSettingPanel name="email-styles" title={ __( 'Email styles', 'jetpack' ) }>
+			<Button variant="secondary" onClick={ openStylesSidebar }>
+				{ __( 'Edit email styles', 'jetpack' ) }
+			</Button>
+		</PluginDocumentSettingPanel>
+	);
+}
+
+/**
+ * Register the fills the editor renders through its own plugin area.
+ *
+ * @return {void}
+ */
+export function registerEditorPlugin() {
+	registerPlugin( 'jetpack-email-design', { scope: PLUGIN_SCOPE, render: StylesPanelLink } );
+}
+
+/**
  * Catch the Styles panel's save and send it to WordPress.com instead.
  *
  * The editor writes a core-data `globalStyles` entity, but the design is stored in a WordPress.com
@@ -596,8 +706,10 @@ export async function mountEmailDesignEditor() {
 		// resolved against the registry at that moment. Registering later leaves the same
 		// unsupported-block errors, which looks identical to this never running.
 		registerEmailBlocks( bundle );
+		registerEditorPlugin();
 		lockCanvasEditing();
 		reportInactiveEmailDesign( bundle );
+		openStylesSidebarOnLoad();
 
 		const postId = getTemplateId( bundle );
 		const preload = buildPreloadMap( bundle, postId );
