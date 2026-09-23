@@ -10,6 +10,7 @@ import {
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
+import { steadyTrafficData } from '../../../stories/sample-data';
 import BarChart, { BarChartUnresponsive } from '../bar-chart';
 import { useBarChartOptions } from '../private';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
@@ -2459,6 +2460,83 @@ describe( 'BarChart', () => {
 				// SVG text elements don't have textOverflow style
 				expect( label.tagName.toLowerCase() ).not.toBe( 'div' );
 			} );
+		} );
+	} );
+
+	describe( 'Value axis baseline', () => {
+		it( 'starts the value axis at zero in horizontal charts', () => {
+			const { result } = renderHook( () => useBarChartOptions( steadyTrafficData, true, {} ) );
+			const xScale = result.current.xScale as { domain?: number[] };
+			expect( xScale.domain ).toEqual( [ 0, 989 ] );
+		} );
+
+		it( 'lets a caller opt out of the zero baseline', () => {
+			const { result } = renderHook( () =>
+				useBarChartOptions( steadyTrafficData, false, { yScale: { zero: false } } )
+			);
+			const yScale = result.current.yScale as { domain?: number[] };
+			expect( yScale.domain ).toBeUndefined();
+		} );
+
+		it( 'reads the opt-out from the x scale of a horizontal chart', () => {
+			const { result } = renderHook( () =>
+				useBarChartOptions( steadyTrafficData, true, { xScale: { zero: false } } )
+			);
+			const xScale = result.current.xScale as { domain?: number[] };
+			expect( xScale.domain ).toBeUndefined();
+		} );
+
+		it( 'keeps an explicit domain as given', () => {
+			const { result } = renderHook( () =>
+				useBarChartOptions( steadyTrafficData, false, { yScale: { domain: [ 900, 1000 ] } } )
+			);
+			const yScale = result.current.yScale as { domain?: number[] };
+			expect( yScale.domain ).toEqual( [ 900, 1000 ] );
+		} );
+
+		it( 'renders an explicit domain without stretching it to zero', () => {
+			render(
+				<BarChart
+					data={ steadyTrafficData }
+					width={ 400 }
+					height={ 300 }
+					options={ { yScale: { domain: [ 900, 1000 ] } } }
+				/>
+			);
+			const heights = Array.from( getBarRects() ).map( bar =>
+				parseFloat( bar.getAttribute( 'height' ) || '0' )
+			);
+			// 921 sits at 21% of a 900–1000 axis; on a 0–1000 axis it would be 92%.
+			expect( Math.min( ...heights ) / Math.max( ...heights ) ).toBeLessThan( 0.5 );
+		} );
+
+		it( 'keeps zero in the domain when the caller opts out but a comparison series is present', () => {
+			const data = [
+				...steadyTrafficData,
+				{
+					label: 'Previous',
+					options: { type: 'comparison' as const },
+					data: steadyTrafficData[ 0 ].data.map( point => ( {
+						...point,
+						value: point.value - 10,
+					} ) ),
+				},
+			];
+			const { result } = renderHook( () =>
+				useBarChartOptions( data, false, { yScale: { zero: false } } )
+			);
+			const yScale = result.current.yScale as { domain?: number[] };
+			expect( yScale.domain ).toEqual( [ 0, 989 ] );
+		} );
+
+		it( 'renders every bar of steady traffic at most a few percent shorter than the tallest', () => {
+			render( <BarChart data={ steadyTrafficData } width={ 400 } height={ 300 } /> );
+			const heights = Array.from( getBarRects() ).map( bar =>
+				parseFloat( bar.getAttribute( 'height' ) || '0' )
+			);
+			expect( heights ).toHaveLength( 7 );
+			const tallest = Math.max( ...heights );
+			expect( Math.min( ...heights ) / tallest ).toBeGreaterThan( 0.9 );
 		} );
 	} );
 

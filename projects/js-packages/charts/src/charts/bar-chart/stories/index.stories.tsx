@@ -8,6 +8,7 @@ import {
 	medalCountsData,
 	largeValuesData,
 	trafficData,
+	steadyTrafficData,
 	themeArgTypes,
 	type SeriesLegendStoryControls,
 } from '../../../stories';
@@ -678,6 +679,25 @@ BucketsWithNoData.parameters = {
 		description: {
 			story:
 				'A null value is a bucket with no reading. It keeps its place on the axis so the chart still spans the selected range, draws no bar, and its tooltip reads "No data" rather than zero. April is a real zero: with `showZeroValues` on it keeps a short stub, so a month with none reads differently from a month with no record.',
+		},
+	},
+};
+
+export const SteadyValues: Story = {
+	args: {
+		...Default.args,
+		data: steadyTrafficData,
+	},
+	argTypes: {
+		seriesCount: { table: { disable: true } },
+	},
+};
+
+SteadyValues.parameters = {
+	docs: {
+		description: {
+			story:
+				'A week of 921 to 989 views a day, a 7% swing. The value axis starts at zero, so the bars read as steady; fitted to the data they would swing between empty and full. Pass `options.yScale.zero: false` to fit the axis instead.',
 		},
 	},
 };
