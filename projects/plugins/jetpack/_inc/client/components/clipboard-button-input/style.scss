@@ -7,7 +7,7 @@
 	.dops-clipboard-button {
 		position: absolute;
 		top: 50%;
-		right: 4px;
+		inset-inline-end: 4px;
 		transform: translateY(-50%);
 		overflow: visible;
 
@@ -18,7 +18,7 @@
 		}
 
 		&:focus::before {
-			right: calc(100% + 3px);
+			inset-inline-end: calc(100% + 3px);
 		}
 	}
 }

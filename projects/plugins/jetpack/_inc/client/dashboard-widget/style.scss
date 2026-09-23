@@ -38,7 +38,9 @@
 
 		svg {
 			height: 20px;
-			margin: 0.15em 0 0 0.5em;
+			margin-block: 0.15em 0;
+			margin-inline-start: 0.5em;
+			margin-inline-end: 0;
 		}
 	}
 
@@ -63,7 +65,7 @@
 			overflow: hidden;
 
 			.button-primary {
-				float: right;
+				float: inline-end;
 			}
 		}
 
@@ -295,7 +297,7 @@
 		p.blocked-count {
 			margin-top: 0;
 			margin-bottom: 6px;
-			margin-right: 8px;
+			margin-inline-end: 8px;
 			font-weight: 500;
 			font-size: 2rem;
 			display: inline-block;
@@ -316,14 +318,16 @@
 		}
 
 		.footer-links {
-			margin: 0 0 1.5em 1.5em;
+			margin-block: 0;
+			margin-inline-start: 1.5em;
+			margin-inline-end: 0;
 
 			svg {
 				height: 20px;
 			}
 
 			span {
-				float: right;
+				float: inline-end;
 			}
 		}
 

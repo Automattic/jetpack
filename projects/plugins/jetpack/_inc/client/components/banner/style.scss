@@ -20,16 +20,20 @@
 
 .dops-banner.dops-card {
 	display: flex;
-	padding: 12px 6px 12px 12px;
+	padding-block: 12px;
+	padding-inline-start: 12px;
+	padding-inline-end: 6px;
 	position: relative;
 	z-index: 2;
 
 	&.is-card-link {
-		padding: 12px 48px 12px 16px;
+		padding-block: 12px;
+		padding-inline-start: 16px;
+		padding-inline-end: 48px;
 	}
 
 	&.is-dismissible {
-		padding-right: 48px;
+		padding-inline-end: 48px;
 	}
 
 	@include banner-color( colors.$blue-wordpress );
@@ -96,7 +100,7 @@
 		padding: 16px;
 
 		&.is-dismissible {
-			padding-right: 16px;
+			padding-inline-end: 16px;
 		}
 	}
 }
@@ -109,7 +113,7 @@
 		border-radius: 50%;
 		flex-shrink: 0;
 		height: 24px;
-		margin-right: 16px;
+		margin-inline-end: 16px;
 		margin-top: -2px;
 		text-align: center;
 		top: 4px;
@@ -125,6 +129,8 @@
 	.dops-banner__icon-circle {
 		color: #fff;
 		display: none;
+		// Paired with the SVG's translate(1px, 4px) below: kept physical so the
+		// 1px padding asymmetry still cancels the nudge (rule below, in RTL too).
 		padding: 3px 4px 4px 3px;
 	}
 
@@ -147,7 +153,7 @@
 
 .dops-banner__icon-plan {
 	display: flex;
-	margin-right: 16px;
+	margin-inline-end: 16px;
 
 	.dops-plan-icon {
 		height: 32px;
@@ -161,7 +167,7 @@
 }
 
 .dops-banner__icon-wp {
-	margin-right: 16px;
+	margin-inline-end: 16px;
 	width: 22px;
 	height: 22px;
 }
@@ -231,7 +237,7 @@
 
 		.dops-banner__list li .gridicon {
 			display: inline;
-			margin-right: 12px;
+			margin-inline-end: 12px;
 			vertical-align: bottom;
 		}
 	}
@@ -240,8 +246,10 @@
 .dops-banner__action {
 	align-self: center;
 	font-size: typography.$font-body-extra-small;
-	margin: 8px 0 0 8px;
-	text-align: left;
+	margin-block: 8px 0;
+	margin-inline-start: 8px;
+	margin-inline-end: 0;
+	text-align: start;
 	width: 100%;
 
 	.dops-banner__prices {
@@ -263,7 +271,9 @@
 	}
 
 	@include layout.breakpoint( ">480px" ) {
-		margin: 0 4px 0 8px;
+		margin-block: 0;
+		margin-inline-start: 8px;
+		margin-inline-end: 4px;
 		text-align: center;
 		width: auto;
 
@@ -273,7 +283,7 @@
 
 		.dops-banner__prices {
 			justify-content: flex-end;
-			text-align: right;
+			text-align: end;
 		}
 	}
 }

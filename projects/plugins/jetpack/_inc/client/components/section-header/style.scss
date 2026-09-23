@@ -29,17 +29,17 @@
 	font-weight: 500;
 
 	.dops-count {
-		margin-left: rem.convert(8px);
+		margin-inline-start: rem.convert(8px);
 	}
 }
 
 .dops-section-header__label-text {
 	position: relative;
-	margin-right: rem.convert(8px);
+	margin-inline-end: rem.convert(8px);
 	white-space: nowrap;
 	overflow: hidden;
 	width: 100%;
-	padding-right: rem.convert(8px);
+	padding-inline-end: rem.convert(8px);
 	min-width: 0; // weird fix for overflowing items
 
 	&::before {
