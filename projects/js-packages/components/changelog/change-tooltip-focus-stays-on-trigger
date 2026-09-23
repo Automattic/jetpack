@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+IconTooltip: Keep focus on the trigger when a tooltip opens, and announce its content to screen readers.

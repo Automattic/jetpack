@@ -20,6 +20,14 @@ const withLayout = () => {
 	};
 };
 
+/**
+ * WordPress's shared polite live region, where speak() announces.
+ *
+ * @return The region, or null before `@wordpress/a11y` has set it up.
+ */
+// eslint-disable-next-line testing-library/no-node-access
+const politeRegion = () => document.getElementById( 'a11y-speak-polite' );
+
 describe( 'IconTooltip', () => {
 	const testProps: IconTooltipProps = {
 		title: 'Title',
@@ -144,7 +152,7 @@ describe( 'IconTooltip', () => {
 			}
 		);
 
-		it( 'focuses a portaled popover link, tabs back and forth, and closes with Escape from inside', async () => {
+		it( 'keeps focus on the trigger, tabs into a portaled popover and back, and closes with Escape from inside', async () => {
 			const restoreLayout = withLayout();
 			const user = userEvent.setup();
 			render(
@@ -155,6 +163,8 @@ describe( 'IconTooltip', () => {
 			const trigger = screen.getByRole( 'button', { name: 'See an example' } );
 			await user.tab();
 			await user.keyboard( '{Enter}' );
+			expect( trigger ).toHaveFocus();
+			await user.tab();
 			expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toHaveFocus();
 			await user.tab( { shift: true } );
 			expect( trigger ).toHaveFocus();
@@ -232,6 +242,35 @@ describe( 'IconTooltip', () => {
 			await user.pointer( { keys: '[/MouseLeft]', target: trigger } );
 			expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
 		} );
+	} );
+
+	it( 'keeps focus on the icon when a tooltip with a link opens, and announces it', async () => {
+		const restoreLayout = withLayout();
+		const user = userEvent.setup();
+		render(
+			<IconTooltip title="Title">
+				<a href="#learn">Learn more</a>
+			</IconTooltip>
+		);
+		const trigger = screen.getByRole( 'button' );
+		await user.tab();
+		await user.keyboard( '{Enter}' );
+		expect( trigger ).toHaveFocus();
+		expect( politeRegion() ).toHaveTextContent( 'Learn more' );
+		await user.tab();
+		expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toHaveFocus();
+		await user.keyboard( '{Escape}' );
+		expect( trigger ).toHaveFocus();
+		restoreLayout();
+	} );
+
+	it( 'does not announce a tooltip opened on hover', async () => {
+		const user = userEvent.setup();
+		politeRegion()?.replaceChildren();
+		render( <IconTooltip { ...testProps } hoverShow /> );
+		await user.hover( screen.getByTestId( 'icon-tooltip_wrapper' ) );
+		expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
+		expect( politeRegion() ).not.toHaveTextContent( 'Content block' );
 	} );
 
 	it( 'renders the icon tooltip', () => {

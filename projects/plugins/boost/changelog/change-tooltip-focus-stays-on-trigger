@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Test-only: tooltip text queries now skip the speak() live region.
+
+

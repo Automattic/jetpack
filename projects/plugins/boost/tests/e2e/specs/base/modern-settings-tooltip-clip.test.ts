@@ -190,14 +190,16 @@ test( 'tabbing out of the portaled tooltip resumes from the trigger', async ( { 
 	await expect( trigger ).not.toBeFocused();
 } );
 
-test( 'the premium tooltip takes focus and closes on Escape', async ( { page } ) => {
+test( 'the premium tooltip keeps focus on its icon and closes on Escape', async ( { page } ) => {
 	await page.setViewportSize( { width: 1440, height: 900 } );
 	await page.goto( 'http://boost-settings.test/' );
+	const trigger = page.locator( '.icon-tooltip-wrapper button' ).first();
 	const content = await openTooltip( page );
 
-	await expect( page.locator( '.icon-tooltip-container' ) ).toBeFocused();
+	await expect( trigger ).toBeFocused();
 	await page.keyboard.press( 'Escape' );
 	await expect( content ).toBeHidden();
+	await expect( trigger ).toBeFocused();
 } );
 
 test( 'the premium tooltip rings its icon on keyboard focus only', async ( { page } ) => {
