@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.6.0] - 2026-09-23
+### Added
+- Add a filter letting hosts hide products and modules from My Jetpack. [#52505]
+- Features: Update the wp-admin sidebar in place when a feature is switched on or off, and point to its new menu item. [#52672]
+
+### Changed
+- Features: Honor `jetpack_feature_policy` when hiding items from the page. [#52587]
+- Features: Show a note instead of a switch on a plugin your host or site administrator has enabled or disabled. [#52584]
+- Show a note instead of a toggle on a module your host or site administrator has enabled or disabled. [#52505]
+- Use the shared wp-build-polyfills helper to order the screen-ID alias around wp-build's generated enqueue check. [#52583]
+
+### Fixed
+- Connection status card: Report a broken connection instead of claiming everything looks good, with the same details and actions as the connection error notice. The notice now shows a break only the connection owner can repair as a warning to everyone else. [#52130]
+- CRM: Keep the site owner on My Jetpack after activating Jetpack CRM, instead of sending them to CRM's full-screen setup wizard. [#52654]
+- Features tab: Open a feature's details with a subtle rise, and without the text blurring as the dialog appears. [#52590]
+- Fix My Jetpack failing to load for users who can edit posts but have no Jetpack menu, such as editors on unconnected sites. [#52614]
+- Point users who cannot connect the site at an administrator, instead of an onboarding screen they cannot complete. [#52614]
+- Report an error instead of success when switching a module your host or site administrator has enabled or disabled. [#52505]
+
 ## [6.5.0] - 2026-09-23
 ### Added
 - Add a filterable grid of the main Jetpack features to the Features tab, with activation toggles and a details modal, behind the my-jetpack-features-tab feature flag. [#52494]
@@ -2953,6 +2972,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.5.0...6.6.0
 [6.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.4.1...6.5.0
 [6.4.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.4.0...6.4.1
 [6.4.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.3.0...6.4.0

@@ -36,7 +36,7 @@ class Feature_Visibility {
 		 * slug. 'hidden' keeps the item off the page, search included; anything else lists it.
 		 * The whole map is passed so that two mu-plugins setting different keys merge.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.6.0
 		 *
 		 * @param array $states Map of slug to state, empty until a host adds to it.
 		 */

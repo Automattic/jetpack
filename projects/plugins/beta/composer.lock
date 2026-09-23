@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "5d08ef57c5a5cf61953c9d56a758acb921a69bd9"
+                "reference": "0cf9cbcaa3fc3781a502120bf1c34edb741466c1"
             },
             "require": {
                 "automattic/jetpack-redirect": "@dev",
@@ -38,7 +38,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.13.x-dev"
+                    "dev-trunk": "0.14.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -377,7 +377,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "85f7e6993d26c87357788708a2ba5fa1bbe81b30"
+                "reference": "b4d480b82597c1bc07fffbeda5936d88a333a685"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -402,7 +402,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "7.0.x-dev"
+                    "dev-trunk": "7.1.x-dev"
                 },
                 "dependencies": {
                     "test-only": [

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Tooltips: Resume tab order from the tooltip's trigger when focus leaves it.

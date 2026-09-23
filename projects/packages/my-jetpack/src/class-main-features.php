@@ -481,7 +481,7 @@ class Main_Features {
 	 * Mirrors `Jetpack_Modules_Overrides`: an `option_active_plugins` filter that adds or
 	 * drops the plugin whatever the stored list says, or a network activation.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.6.0
 	 *
 	 * @param string      $slug          WordPress.org plugin slug.
 	 * @param string|null $product_class The product behind the plugin, when it has one.
