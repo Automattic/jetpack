@@ -7172,6 +7172,12 @@ importers:
         specifier: ^1.48.0
         version: 1.60.0
 
+  tools/port-verification:
+    dependencies:
+      playwright:
+        specifier: ^1.48.0
+        version: 1.60.0
+
 packages:
 
   '@-xun/debug@2.0.2':
