@@ -9,7 +9,7 @@
 		flex: 1;
 		align-items: center;
 		justify-content: center;
-		padding: 24px;
+		padding: var(--wpds-dimension-padding-2xl);
 	}
 
 	// Ports the dashboard's `.dashboard-callout` rules. 600px is the width its
@@ -62,9 +62,15 @@
 	// Mirrors the Calypso dashboard's activation modal, but keyed to a WPDS
 	// surface token so both themes track the same design system.
 	&__domain {
-		padding-block: 12px;
-		padding-inline: 16px;
+		padding-block: var(--wpds-dimension-padding-md);
+		padding-inline: var(--wpds-dimension-padding-lg);
 		background-color: var(--wpds-color-background-surface-neutral-weak);
+	}
+
+	// Stands in for the dividers between steps in the dashboard's list.
+	&__hold + &__hold {
+		padding-block-start: var(--wpds-dimension-padding-lg);
+		border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral);
 	}
 
 	&__address {

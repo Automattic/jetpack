@@ -1,7 +1,6 @@
-import { Button, ExternalLink, Modal } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Badge, Stack, Text } from '@wordpress/ui';
+import { Badge, Button, Dialog, Link, LinkButton, Stack, Text } from '@wordpress/ui';
 import { splitDomainName } from './domain.ts';
 import { canProceed, hasAnyBlockingError, needsPlanUpgrade } from './eligibility.ts';
 import { ErrorContentInfo } from './error-content-info.tsx';
@@ -87,9 +86,9 @@ function Warning( { warning }: { warning: TransferWarning } ) {
 				{ warning.support_url && (
 					<>
 						{ ' ' }
-						<ExternalLink href={ warning.support_url }>
+						<Link href={ warning.support_url } openInNewTab>
 							{ __( 'Learn more', 'jetpack-mu-wpcom' ) }
-						</ExternalLink>
+						</Link>
 						.
 					</>
 				) }
@@ -135,52 +134,57 @@ export function TransferActivationModal( {
 	const isBlocked = hasAnyBlockingError( errors );
 	const needsUpgrade = needsPlanUpgrade( errors );
 
+	const actionLabel = needsUpgrade
+		? __( 'Upgrade and continue', 'jetpack-mu-wpcom' )
+		: __( 'Activate backups', 'jetpack-mu-wpcom' );
+
 	return (
-		<Modal
-			className="wpcom-backup__modal"
-			title={
-				errors.length > 0
-					? __( 'Backups cannot be activated', 'jetpack-mu-wpcom' )
-					: __( 'One more step', 'jetpack-mu-wpcom' )
-			}
-			onRequestClose={ onClose }
-			size="medium"
-		>
-			<Stack direction="column" gap="xl">
-				<Stack direction="column" gap="md">
-					{ isEligible && ! isBlocked && (
-						<Text>
-							{ __(
-								'To turn Jetpack VaultPress Backup on, we’ll need to move your site over to WordPress.com’s advanced managed cloud hosting.',
-								'jetpack-mu-wpcom'
-							) }
-						</Text>
-					) }
-					{ errors.length > 0 && <ErrorContentInfo errors={ errors } /> }
-					{ warnings.length > 0 && ! isBlocked && (
-						<Stack direction="column" gap="sm">
-							{ warnings.map( warning => (
-								<Warning key={ warning.id } warning={ warning } />
-							) ) }
-						</Stack>
-					) }
-				</Stack>
-				<Stack direction="row" gap="md" align="center" justify="space-between">
-					<Button variant="link" href={ supportUrl } target="_blank" rel="noopener noreferrer">
+		<Dialog.Root open onOpenChange={ open => ! open && onClose() }>
+			<Dialog.Popup className="wpcom-backup__modal" size="medium">
+				<Dialog.Header>
+					<Dialog.Title>
+						{ errors.length > 0
+							? __( 'Backups cannot be activated', 'jetpack-mu-wpcom' )
+							: __( 'One more step', 'jetpack-mu-wpcom' ) }
+					</Dialog.Title>
+					<Dialog.CloseIcon />
+				</Dialog.Header>
+				<Dialog.Content>
+					<Stack direction="column" gap="md">
+						{ isEligible && ! isBlocked && (
+							<Text>
+								{ __(
+									'To turn Jetpack VaultPress Backup on, we’ll need to move your site over to WordPress.com’s advanced managed cloud hosting.',
+									'jetpack-mu-wpcom'
+								) }
+							</Text>
+						) }
+						{ errors.length > 0 && <ErrorContentInfo errors={ errors } /> }
+						{ warnings.length > 0 && ! isBlocked && (
+							<Stack direction="column" gap="sm">
+								{ warnings.map( warning => (
+									<Warning key={ warning.id } warning={ warning } />
+								) ) }
+							</Stack>
+						) }
+					</Stack>
+				</Dialog.Content>
+				<Stack render={ <Dialog.Footer /> } align="center" justify="space-between" gap="md">
+					<Link href={ supportUrl } openInNewTab>
 						{ __( 'Need help?', 'jetpack-mu-wpcom' ) }
-					</Button>
-					<Button
-						__next40pxDefaultSize
-						variant="primary"
-						disabled={ ! canProceed( isEligible, errors ) }
-						href={ activateUrl }
-					>
-						{ needsUpgrade
-							? __( 'Upgrade and continue', 'jetpack-mu-wpcom' )
-							: __( 'Activate backups', 'jetpack-mu-wpcom' ) }
-					</Button>
+					</Link>
+					{ /* An anchor cannot be disabled, so a blocked transfer gets a button instead. */ }
+					{ canProceed( isEligible, errors ) ? (
+						<LinkButton variant="solid" href={ activateUrl }>
+							{ actionLabel }
+						</LinkButton>
+					) : (
+						<Button variant="solid" disabled>
+							{ actionLabel }
+						</Button>
+					) }
 				</Stack>
-			</Stack>
-		</Modal>
+			</Dialog.Popup>
+		</Dialog.Root>
 	);
 }

@@ -1,7 +1,5 @@
-import { Card, CardBody, CardDivider, CardHeader, ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Notice, Stack, Text } from '@wordpress/ui';
-import { Fragment } from 'react';
+import { Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import {
 	findFirstBlockingError,
 	findHoldingErrors,
@@ -21,7 +19,9 @@ function LearnMore( { supportUrl }: { supportUrl: string } ): ReactNode {
 	return (
 		<>
 			{ ' ' }
-			<ExternalLink href={ supportUrl }>{ __( 'Learn more', 'jetpack-mu-wpcom' ) }</ExternalLink>
+			<Link href={ supportUrl } openInNewTab>
+				{ __( 'Learn more', 'jetpack-mu-wpcom' ) }
+			</Link>
 		</>
 	);
 }
@@ -52,16 +52,16 @@ export function ErrorContentInfo( { errors }: { errors: TransferError[] } ) {
 				</Notice.Root>
 			) }
 			{ holds.length > 0 && (
-				<Card size="small">
-					<CardHeader>
+				<Card.Root>
+					<Card.Header>
 						<Text variant="heading-sm" render={ <h2 /> }>
 							{ __( 'To activate backups you’ll need to:', 'jetpack-mu-wpcom' ) }
 						</Text>
-					</CardHeader>
-					{ holds.map( ( hold, index ) => (
-						<Fragment key={ hold.code }>
-							<CardBody>
-								<Stack direction="column" gap="sm">
+					</Card.Header>
+					<Card.Content>
+						<Stack direction="column" gap="lg">
+							{ holds.map( hold => (
+								<Stack key={ hold.code } className="wpcom-backup__hold" direction="column" gap="sm">
 									<Text variant="heading-sm" render={ <h3 /> }>
 										{ hold.title }
 									</Text>
@@ -70,11 +70,10 @@ export function ErrorContentInfo( { errors }: { errors: TransferError[] } ) {
 										{ hold.supportUrl && <LearnMore supportUrl={ hold.supportUrl } /> }
 									</Text>
 								</Stack>
-							</CardBody>
-							{ index < holds.length - 1 && <CardDivider /> }
-						</Fragment>
-					) ) }
-				</Card>
+							) ) }
+						</Stack>
+					</Card.Content>
+				</Card.Root>
 			) }
 		</Stack>
 	);

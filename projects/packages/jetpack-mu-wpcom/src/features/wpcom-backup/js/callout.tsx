@@ -1,5 +1,4 @@
-import { Card, Icon } from '@wordpress/components';
-import { Stack, Text } from '@wordpress/ui';
+import { Card, Icon, Stack, Text } from '@wordpress/ui';
 import type { ComponentProps, ReactNode } from 'react';
 
 /**
@@ -27,7 +26,7 @@ export function Callout( {
 	actions?: ReactNode;
 } ) {
 	return (
-		<Card className="wpcom-backup__callout" role="article">
+		<Card.Root className="wpcom-backup__callout" role="article">
 			<Stack className="wpcom-backup__callout-container" direction="row" gap="xl" align="stretch">
 				<Stack
 					className="wpcom-backup__callout-content"
@@ -49,6 +48,6 @@ export function Callout( {
 					</div>
 				) }
 			</Stack>
-		</Card>
+		</Card.Root>
 	);
 }

@@ -1,7 +1,6 @@
-import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { backup } from '@wordpress/icons';
-import { Text } from '@wordpress/ui';
+import { Button, LinkButton, Text } from '@wordpress/ui';
 import { useState } from 'react';
 import { TransferActivationModal } from './activation-modal.tsx';
 import { Callout } from './callout.tsx';
@@ -42,9 +41,10 @@ export function UpgradeScreen( { state }: { state: InitialState } ) {
 				</>
 			}
 			actions={
-				<Button variant="primary" size="compact" icon={ upsell } href={ state.upgradeUrl }>
+				<LinkButton variant="solid" size="compact" href={ state.upgradeUrl }>
+					<LinkButton.Icon icon={ upsell } />
 					{ __( 'Upgrade plan', 'jetpack-mu-wpcom' ) }
-				</Button>
+				</LinkButton>
 			}
 		/>
 	);
@@ -82,15 +82,15 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 					</>
 				}
 				actions={
-					<Button
-						variant="primary"
-						size="compact"
-						{ ...( showModalFirst
-							? { onClick: () => setIsModalOpen( true ) }
-							: { href: state.activateUrl } ) }
-					>
-						{ __( 'Activate backups', 'jetpack-mu-wpcom' ) }
-					</Button>
+					showModalFirst ? (
+						<Button variant="solid" size="compact" onClick={ () => setIsModalOpen( true ) }>
+							{ __( 'Activate backups', 'jetpack-mu-wpcom' ) }
+						</Button>
+					) : (
+						<LinkButton variant="solid" size="compact" href={ state.activateUrl }>
+							{ __( 'Activate backups', 'jetpack-mu-wpcom' ) }
+						</LinkButton>
+					)
 				}
 			/>
 			{ isModalOpen && (
