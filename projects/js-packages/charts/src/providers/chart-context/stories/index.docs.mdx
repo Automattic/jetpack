@@ -673,9 +673,9 @@ When your data has more series than the palette has seeds, the Global Charts Con
 
 #### Perceptual Distribution
 
-Each generated color is chosen to stay as far as possible (CIEDE2000) from every earlier color in the palette, in normal vision and under simulated deuteranopia and protanopia. Each generated color also reaches a 3:1 contrast ratio against the chart background. Seeds are used as given and are not adjusted.
+Each generated color is chosen to stay as far as possible (CIEDE2000) from every earlier color in the palette, in normal vision and under simulated deuteranopia and protanopia. Each generated color also reaches a 3:1 contrast ratio against the chart background, treated as opaque (a background left transparent, or partly transparent, resolves to white for this purpose), for as long as the candidate grid still has a color at that contrast left to offer; once that runs out, generation continues without the 3:1 guarantee rather than repeat a color. Seeds are used as given and are not adjusted.
 
-**Note that only hex colors are supported for generating colors.**
+Seed colors given as hex, rgb, hsl, or a named CSS color are all normalized to hex before generation; a seed that cannot be parsed is skipped.
 
 #### Practical Example
 

@@ -41,7 +41,7 @@ Some roles are deliberately narrower than the obvious name, so that moving one t
 
 | Narrow role | Broad role | What the broad one also reaches |
 |---|---|---|
-| `--a8c-charts-color-label-axis` | `--a8c-charts-color-label` | legend labels, `.heatmap-chart__cell-value`, funnel labels, the line-chart tooltip |
+| `--a8c-charts-color-label-axis` | `--a8c-charts-color-label` | legend labels, `.heatmap-chart__cell-value`, funnel labels, the line-chart tooltip, pie labels on light slices |
 | `--a8c-charts-color-background` | — | — |
 
 Outside forced-colors mode, `--a8c-charts-color-label-axis` derives from `--a8c-charts-color-label`, so setting the broad role moves every label at once and setting the narrow one moves only the SVG axis labels. See [One pair of roles per axis](#one-pair-of-roles-per-axis) for forced-colors defaults.
