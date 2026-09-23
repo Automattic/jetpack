@@ -650,6 +650,123 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 
 		$cached = get_transient( Survicate::ASSET_TRANSIENT_KEY );
 		$this->assertSame( 'fetched', $cached['version'] );
+
+		global $wp_scripts;
+		$this->assertSame( 'fetched', $wp_scripts->registered['wpcom-survicate']->ver );
+	}
+
+	/**
+	 * Tests that a failed manifest fetch is cached so later requests do not block on the network again.
+	 */
+	public function test_enqueue_scripts_caches_asset_json_failures() {
+		$requests = 0;
+		add_filter(
+			'pre_http_request',
+			static function () use ( &$requests ) {
+				++$requests;
+				return new \WP_Error( 'offline' );
+			}
+		);
+
+		$this->enqueue_survicate_scripts();
+		$this->survicate->enqueue_scripts();
+
+		$this->assertSame( 1, $requests );
+		$this->assertFalse( wp_script_is( 'wpcom-survicate', 'enqueued' ) );
+	}
+
+	/**
+	 * Tests that nothing is enqueued when the manifest request returns a non-200 response.
+	 */
+	public function test_enqueue_scripts_does_not_enqueue_on_non_200_response() {
+		add_filter(
+			'pre_http_request',
+			static fn () => array(
+				'response' => array( 'code' => 404 ),
+				'body'     => '',
+			)
+		);
+
+		$this->enqueue_survicate_scripts();
+
+		$this->assertFalse( wp_script_is( 'wpcom-survicate', 'enqueued' ) );
+	}
+
+	/**
+	 * Tests that nothing is enqueued when the manifest has no version.
+	 */
+	public function test_enqueue_scripts_does_not_enqueue_when_manifest_has_no_version() {
+		add_filter(
+			'pre_http_request',
+			static fn () => array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( array( 'dependencies' => array( 'wp-data' ) ), JSON_UNESCAPED_SLASHES ),
+			)
+		);
+
+		$this->enqueue_survicate_scripts();
+
+		$this->assertFalse( wp_script_is( 'wpcom-survicate', 'enqueued' ) );
+	}
+
+	/**
+	 * Tests that proxied requests get a random version so sandboxed builds bypass the browser cache.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_enqueue_scripts_busts_cache_when_proxied() {
+		global $wp_scripts;
+
+		define( 'A8C_PROXIED_REQUEST', true );
+		$this->stub_asset_json(
+			array(
+				'dependencies' => array( 'wp-data' ),
+				'version'      => 'abc123',
+			)
+		);
+
+		$this->enqueue_survicate_scripts();
+
+		$this->assertTrue( wp_script_is( 'wpcom-survicate', 'enqueued' ) );
+		$this->assertNotSame( 'abc123', $wp_scripts->registered['wpcom-survicate']->ver );
+	}
+
+	/**
+	 * Tests that trait values cannot close the inline script tag.
+	 */
+	public function test_enqueue_scripts_escapes_script_tags_in_config() {
+		// Core sanitizes emails on insert; drop that so a hostile value reaches the traits.
+		remove_all_filters( 'pre_user_email' );
+
+		$this->stub_asset_json(
+			array(
+				'dependencies' => array( 'wp-data' ),
+				'version'      => 'abc123',
+			)
+		);
+
+		global $pagenow;
+		$pagenow = 'index.php';
+		$this->set_admin_context();
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_user_' . wp_rand(),
+				'user_pass'  => 'password',
+				'user_email' => 'x</script><script>alert(1)</script>@example.com',
+				'locale'     => 'en_US',
+			)
+		);
+		wp_set_current_user( $user_id );
+		$this->assertStringContainsString( '</script>', wp_get_current_user()->user_email );
+
+		$this->survicate->enqueue_scripts();
+
+		$before = $this->get_before_script();
+		$this->assertStringStartsWith( 'window.wpcomSurvicateConfig = ', $before );
+		$this->assertStringNotContainsString( '</script>', $before );
 	}
 
 	// ---- Singleton tests ----

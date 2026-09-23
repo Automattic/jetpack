@@ -27,6 +27,11 @@ class Survicate {
 	const ASSET_TRANSIENT_KEY = 'wpcom_survicate_asset_json';
 
 	/**
+	 * Value cached in the transient when the asset manifest could not be read.
+	 */
+	const ASSET_UNAVAILABLE = 'unavailable';
+
+	/**
 	 * Class instance.
 	 *
 	 * @var Survicate
@@ -38,6 +43,15 @@ class Survicate {
 	 */
 	public function __construct() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 100 );
+	}
+
+	/**
+	 * Returns whether the current request is coming from the a8c proxy.
+	 */
+	private static function is_proxied() {
+		return isset( $_SERVER['A8C_PROXIED_REQUEST'] )
+			? sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
+			: defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST;
 	}
 
 	/**
@@ -154,10 +168,16 @@ class Survicate {
 	 * the caller can skip Survicate entirely — surveys are optional and must
 	 * never break wp-admin.
 	 *
+	 * Failures are cached for a few minutes too, so an unreachable
+	 * widgets.wp.com does not add a blocking fetch to every admin page load.
+	 *
 	 * @return array|null Decoded manifest with `dependencies` and `version`, or null.
 	 */
 	private function get_asset_json() {
 		$asset = get_transient( self::ASSET_TRANSIENT_KEY );
+		if ( self::ASSET_UNAVAILABLE === $asset ) {
+			return null;
+		}
 		if ( is_array( $asset ) ) {
 			return $asset;
 		}
@@ -166,14 +186,14 @@ class Survicate {
 		if ( file_exists( $local_path ) ) {
 			$asset = json_decode( file_get_contents( $local_path ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		} else {
-			$response = wp_remote_get( 'https://' . self::ASSET_JSON_PATH );
-			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-				return null;
-			}
-			$asset = json_decode( wp_remote_retrieve_body( $response ), true );
+			$response = wp_remote_get( 'https://' . self::ASSET_JSON_PATH, array( 'timeout' => 2 ) );
+			$asset    = is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response )
+				? null
+				: json_decode( wp_remote_retrieve_body( $response ), true );
 		}
 
 		if ( ! is_array( $asset ) || empty( $asset['version'] ) ) {
+			set_transient( self::ASSET_TRANSIENT_KEY, self::ASSET_UNAVAILABLE, 5 * MINUTE_IN_SECONDS );
 			return null;
 		}
 
@@ -203,7 +223,7 @@ class Survicate {
 			'wpcom-survicate',
 			self::BUNDLE_URL,
 			$asset['dependencies'] ?? array(),
-			$asset['version'],
+			self::is_proxied() ? wp_rand() : $asset['version'],
 			true
 		);
 
