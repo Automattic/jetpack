@@ -89,26 +89,9 @@ describe( 'useStagedValue', () => {
 	it( 'ignores a commit with nothing staged', () => {
 		const { result, commits } = renderStagedValue();
 
-		let returned: Params | undefined = { preset: 'unset' };
-		act( () => {
-			returned = result.current.commit();
-		} );
+		act( () => result.current.commit() );
 
 		expect( commits ).toHaveLength( 0 );
-		expect( returned ).toBeUndefined();
-	} );
-
-	it( 'returns the draft it hands the store', () => {
-		const { result, commits } = renderStagedValue();
-
-		let returned: Params | undefined;
-		act( () => {
-			result.current.stage( { preset: 'last-7-days' } );
-			returned = result.current.commit();
-		} );
-
-		expect( returned ).toEqual( { preset: 'last-7-days' } );
-		expect( returned ).toBe( commits[ 0 ] );
 	} );
 
 	it( 'clears the draft once the commit lands', () => {

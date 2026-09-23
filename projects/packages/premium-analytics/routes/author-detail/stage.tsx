@@ -82,7 +82,7 @@ function AuthorDetail(): JSX.Element {
 	// it. WOOA7S-2137 anchors it on the author's first published content instead.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dateControls = useDetailDateControls( undefined, dateFilters );
-	const onDateApply = useTrackedDateRangeApply( dateFilters.onApply, {
+	const trackedDateFilters = useTrackedDateRangeApply( dateFilters, {
 		surface: 'author_detail',
 		offersComparison: false,
 	} );
@@ -196,7 +196,7 @@ function AuthorDetail(): JSX.Element {
 						// The presets render in every summary state, so the range stays
 						// adjustable while the author loads or errors.
 						controls={
-							<DateFiltersPanel { ...dateFilters } { ...dateControls } onApply={ onDateApply } />
+							<DateFiltersPanel { ...dateFilters } { ...dateControls } { ...trackedDateFilters } />
 						}
 					>
 						{ canRenderWidgets ? (

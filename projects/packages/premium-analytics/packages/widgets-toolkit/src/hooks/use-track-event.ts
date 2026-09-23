@@ -3,10 +3,14 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { hasComparisonEnabled, resolveIntervalForRange } from '@jetpack-premium-analytics/data';
+import { resolveIntervalForRange } from '@jetpack-premium-analytics/data';
 import { PRESET_CUSTOM } from '@jetpack-premium-analytics/datetime';
-import { useCallback } from 'react';
-import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
+import {
+	deriveComparisonRange,
+	encodeRangeToSearchParams,
+	type ReportDateFilters,
+} from '@jetpack-premium-analytics/routing';
+import { useCallback, useMemo, useRef } from 'react';
 
 // The tracker is a page-wide singleton: identify once per page load, not per event
 // and not on every consumer's mount.
@@ -71,47 +75,88 @@ type DateRangeApplyContext = {
 	offersComparison: boolean;
 };
 
+type TrackedDateFilters = Pick<
+	ReportDateFilters,
+	'onChange' | 'onApply' | 'presetId' | 'range' | 'interval' | 'comparisonPresetId'
+>;
+
+type StagedRange = Parameters< ReportDateFilters[ 'onChange' ] >;
+
 /**
- * Wraps a date-filter `onApply` to record `jetpack_premium_analytics_date_range_apply`
- * from the params it commits: the draft a same-tick quick preset stages is not yet in any render.
+ * Wraps the date filters' `onChange` and `onApply` to record `jetpack_premium_analytics_date_range_apply`.
+ * `onChange` remembers what it staged: a quick preset stages and applies in one tick, before any render.
  *
- * @param {ReportDateFilters[ 'onApply' ]} onApply - The date-filter controller's `onApply`.
- * @param {DateRangeApplyContext}          context - Where the range is applied.
- * @return The wrapped `onApply`.
+ * @param {TrackedDateFilters}    dateFilters - The page's date-filter controller.
+ * @param {DateRangeApplyContext} context     - Where the range is applied.
+ * @return The wrapped `onChange` and `onApply`.
  */
 export function useTrackedDateRangeApply(
-	onApply: ReportDateFilters[ 'onApply' ],
+	dateFilters: TrackedDateFilters,
 	{ surface, section, offersComparison }: DateRangeApplyContext
-): ReportDateFilters[ 'onApply' ] {
+): Pick< ReportDateFilters, 'onChange' | 'onApply' > {
 	const trackEvent = useTrackEvent();
+	const { onChange, onApply, presetId, range, interval, comparisonPresetId } = dateFilters;
+	const staged = useRef< StagedRange | null >( null );
 
-	return useCallback( () => {
-		const params = onApply();
+	const trackedOnChange = useCallback< ReportDateFilters[ 'onChange' ] >(
+		( ...args ) => {
+			staged.current = args;
+			onChange( ...args );
+		},
+		[ onChange ]
+	);
 
-		if ( ! params ) {
-			return params;
+	const trackedOnApply = useCallback( () => {
+		const [ stagedRange, stagedPresetId, options ] = staged.current ?? [];
+		staged.current = null;
+		onApply();
+
+		const appliedPresetId = stagedPresetId ?? presetId;
+		const appliedRange = stagedRange?.from && stagedRange.to ? stagedRange : range;
+
+		if ( ! appliedRange.from || ! appliedRange.to ) {
+			return;
 		}
 
-		const isCustom = ! params.preset || params.preset === PRESET_CUSTOM;
+		// Encoded and resolved the way `buildRangePatch` stages them, so the event matches the URL.
+		const { from, to } = encodeRangeToSearchParams(
+			{ from: appliedRange.from, to: appliedRange.to },
+			{ presetId: appliedPresetId, exactRange: options?.exactRange }
+		);
+		const isCustom = ! appliedPresetId || appliedPresetId === PRESET_CUSTOM;
+		const comparison =
+			offersComparison && comparisonPresetId
+				? deriveComparisonRange( {
+						comp: '1',
+						from,
+						to,
+						preset: appliedPresetId,
+						compare_preset: comparisonPresetId,
+					} )?.compare_preset
+				: undefined;
 
 		trackEvent( 'jetpack_premium_analytics_date_range_apply', {
 			surface,
 			...( section ? { section } : {} ),
 			range_type: isCustom ? 'custom' : 'preset',
-			...( isCustom ? {} : { preset: params.preset } ),
-			interval: resolveIntervalForRange(
-				params.preset,
-				params.from ?? '',
-				params.to ?? '',
-				params.interval
-			),
-			// Stored without a preset, a comparison is the previous period (see `deriveComparisonRange`).
-			comparison:
-				offersComparison && hasComparisonEnabled( params )
-					? ( params.compare_preset ?? 'previous-period' )
-					: 'none',
+			...( isCustom ? {} : { preset: appliedPresetId } ),
+			interval: resolveIntervalForRange( appliedPresetId, from, to, interval ),
+			comparison: comparison ?? 'none',
 		} );
+	}, [
+		onApply,
+		presetId,
+		range,
+		interval,
+		comparisonPresetId,
+		trackEvent,
+		surface,
+		section,
+		offersComparison,
+	] );
 
-		return params;
-	}, [ onApply, trackEvent, surface, section, offersComparison ] );
+	return useMemo(
+		() => ( { onChange: trackedOnChange, onApply: trackedOnApply } ),
+		[ trackedOnChange, trackedOnApply ]
+	);
 }

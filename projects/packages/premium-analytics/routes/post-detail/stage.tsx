@@ -67,7 +67,7 @@ function PostDetail(): JSX.Element {
 	// The resource, date range, and comparison all live in the URL search params.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
-	const onDateApply = useTrackedDateRangeApply( dateFilters.onApply, {
+	const trackedDateFilters = useTrackedDateRangeApply( dateFilters, {
 		surface: 'post_detail',
 		offersComparison: false,
 	} );
@@ -136,7 +136,7 @@ function PostDetail(): JSX.Element {
 		<DateFiltersPanel
 			{ ...dateFilters }
 			{ ...dateControls }
-			onApply={ onDateApply }
+			{ ...trackedDateFilters }
 			attentionId={ attentionId }
 		/>
 	);

@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import { renderHook } from '@testing-library/react';
+import { computePrimaryRange } from '@jetpack-premium-analytics/datetime';
+import { act, renderHook } from '@testing-library/react';
 /**
  * Internal dependencies
  */
 import { resetTracksIdentityForTesting, useTrackedDateRangeApply } from '../use-track-event';
-import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 
 const mockRecordEvent = jest.fn();
 
@@ -22,35 +22,33 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 
 jest.mock( '@automattic/jetpack-script-data', () => ( { getScriptData: () => ( {} ) } ) );
 
-type Params = ReturnType< ReportDateFilters[ 'onApply' ] >;
+type Filters = Parameters< typeof useTrackedDateRangeApply >[ 0 ];
+type Context = Parameters< typeof useTrackedDateRangeApply >[ 1 ];
 
 const EVENT = 'jetpack_premium_analytics_date_range_apply';
+const LAST_30_DAYS = computePrimaryRange( 'last-30-days', 'UTC' )!;
+const LAST_7_DAYS = computePrimaryRange( 'last-7-days', 'UTC' )!;
+const DASHBOARD: Context = { surface: 'dashboard', section: 'traffic', offersComparison: true };
 
-const LAST_7_DAYS = {
-	preset: 'last-7-days',
-	from: '2026-09-16T00:00:00+00:00',
-	to: '2026-09-22T23:59:59+00:00',
-	interval: 'day',
-} as const;
+// The controller as a render left it: the range applied before the click, by weeks.
+function renderTracked( overrides: Partial< Filters > = {}, context: Context = DASHBOARD ) {
+	const filters: Filters = {
+		onChange: jest.fn(),
+		onApply: jest.fn(),
+		presetId: 'last-30-days',
+		range: LAST_30_DAYS,
+		interval: 'week',
+		comparisonPresetId: undefined,
+		...overrides,
+	};
+	const { result } = renderHook( () => useTrackedDateRangeApply( filters, context ) );
 
-const COMPARISON = {
-	comp: '1',
-	compare_from: '2026-09-09T00:00:00+00:00',
-	compare_to: '2026-09-15T23:59:59+00:00',
-} as const;
+	return { filters, tracked: result.current };
+}
 
-function apply(
-	committed: Params,
-	context: Parameters< typeof useTrackedDateRangeApply >[ 1 ] = {
-		surface: 'dashboard',
-		section: 'traffic',
-		offersComparison: true,
-	}
-) {
-	const onApply = jest.fn( () => committed );
-	const { result } = renderHook( () => useTrackedDateRangeApply( onApply, context ) );
-
-	return result.current();
+function trackedProperties() {
+	expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+	return mockRecordEvent.mock.calls[ 0 ][ 1 ];
 }
 
 describe( 'useTrackedDateRangeApply', () => {
@@ -59,10 +57,17 @@ describe( 'useTrackedDateRangeApply', () => {
 		resetTracksIdentityForTesting();
 	} );
 
-	it( 'records a preset with its interval and returns the committed params', () => {
-		const committed = { ...LAST_7_DAYS };
+	it( 'records a quick preset staged and applied in the same tick', () => {
+		const { filters, tracked } = renderTracked();
 
-		expect( apply( committed ) ).toBe( committed );
+		act( () => {
+			tracked.onChange( LAST_7_DAYS, 'last-7-days' );
+			tracked.onApply();
+		} );
+
+		expect( filters.onChange ).toHaveBeenCalledWith( LAST_7_DAYS, 'last-7-days' );
+		expect( filters.onApply ).toHaveBeenCalledTimes( 1 );
+		// Last 7 days allows days only, so the staged weeks coerce as `buildRangePatch` does.
 		expect( mockRecordEvent ).toHaveBeenCalledWith( EVENT, {
 			surface: 'dashboard',
 			section: 'traffic',
@@ -74,25 +79,66 @@ describe( 'useTrackedDateRangeApply', () => {
 	} );
 
 	it( 'records a custom range without a preset', () => {
-		apply( { ...LAST_7_DAYS, preset: 'custom' } );
+		const { tracked } = renderTracked();
 
-		const [ , properties ] = mockRecordEvent.mock.calls[ 0 ];
+		act( () => tracked.onChange( LAST_7_DAYS, 'custom' ) );
+		act( () => tracked.onApply() );
+
+		const properties = trackedProperties();
 		expect( properties ).toMatchObject( { range_type: 'custom' } );
 		expect( properties ).not.toHaveProperty( 'preset' );
 	} );
 
-	it( 'records the comparison preset, defaulting to previous-period', () => {
-		apply( { ...LAST_7_DAYS, ...COMPARISON, compare_preset: 'previous-year' } );
-		apply( { ...LAST_7_DAYS, ...COMPARISON } );
+	it( 'falls back to the rendered range when nothing was staged since the last apply', () => {
+		const { tracked } = renderTracked();
 
-		expect( mockRecordEvent.mock.calls.map( ( [ , p ] ) => p.comparison ) ).toEqual( [
-			'previous-year',
-			'previous-period',
-		] );
+		act( () => {
+			tracked.onChange( LAST_7_DAYS, 'last-7-days' );
+			tracked.onApply();
+		} );
+		mockRecordEvent.mockClear();
+		act( () => tracked.onApply() );
+
+		expect( trackedProperties() ).toMatchObject( { preset: 'last-30-days', interval: 'week' } );
+	} );
+
+	it( 'records the comparison the new range keeps', () => {
+		const { tracked } = renderTracked( { comparisonPresetId: 'previous-year' } );
+
+		act( () => {
+			tracked.onChange( LAST_7_DAYS, 'last-7-days' );
+			tracked.onApply();
+		} );
+
+		expect( trackedProperties() ).toMatchObject( { comparison: 'previous-year' } );
+	} );
+
+	it( 'records the previous period when the new range drops the comparison preset', () => {
+		const { tracked } = renderTracked( {
+			presetId: 'last-7-days',
+			range: LAST_7_DAYS,
+			interval: 'day',
+			comparisonPresetId: 'previous-week',
+		} );
+
+		act( () => {
+			tracked.onChange( LAST_30_DAYS, 'last-30-days' );
+			tracked.onApply();
+		} );
+
+		expect( trackedProperties() ).toMatchObject( { comparison: 'previous-period' } );
 	} );
 
 	it( 'records no comparison on a surface that does not show one', () => {
-		apply( { ...LAST_7_DAYS, ...COMPARISON }, { surface: 'post_detail', offersComparison: false } );
+		const { tracked } = renderTracked(
+			{ comparisonPresetId: 'previous-year' },
+			{ surface: 'post_detail', offersComparison: false }
+		);
+
+		act( () => {
+			tracked.onChange( LAST_7_DAYS, 'last-7-days' );
+			tracked.onApply();
+		} );
 
 		expect( mockRecordEvent ).toHaveBeenCalledWith( EVENT, {
 			surface: 'post_detail',
@@ -101,10 +147,5 @@ describe( 'useTrackedDateRangeApply', () => {
 			interval: 'day',
 			comparison: 'none',
 		} );
-	} );
-
-	it( 'records nothing when nothing was committed', () => {
-		expect( apply( undefined ) ).toBeUndefined();
-		expect( mockRecordEvent ).not.toHaveBeenCalled();
 	} );
 } );
