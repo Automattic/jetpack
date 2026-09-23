@@ -105,9 +105,6 @@ describe( 'SocialPage', () => {
 			</SocialPage>
 		);
 
-		expect( screen.getByTestId( 'jp-jitm-slot' ) ).toHaveAttribute(
-			'id',
-			'jp-admin-notices'
-		);
+		expect( screen.getByTestId( 'jp-jitm-slot' ) ).toHaveAttribute( 'id', 'jp-admin-notices' );
 	} );
 } );
