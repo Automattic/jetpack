@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useStatsWordAdsEarnings } from '@jetpack-premium-analytics/data';
-import { Stack } from '@jetpack-premium-analytics/externals';
+import { Badge, Stack } from '@jetpack-premium-analytics/externals';
 import {
 	EarningsHistoryList,
 	ReportLink,
@@ -12,7 +12,7 @@ import {
 	flattenEarningsBreakdown,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -36,6 +36,9 @@ function WordAdsEarningsHistoryReport() {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsWordAdsEarnings();
 
 	const rows = useMemo( () => flattenEarningsBreakdown( data?.wordads ), [ data ] );
+	// Adjustments are why the all-time balance can differ from the WordAds rows,
+	// and the report is their only home now; most sites have none.
+	const adjustmentCount = Object.keys( data?.adjustment ?? {} ).length;
 
 	return (
 		<Stack className={ styles.root }>
@@ -66,6 +69,36 @@ function WordAdsEarningsHistoryReport() {
 					report="earnings"
 					ariaLabel={ __( 'View all earnings history', 'jetpack-premium-analytics-pkg' ) }
 				/>
+				{ /* Second in the footer: View all keeps its place, this takes the far end. */ }
+				{ adjustmentCount > 0 && (
+					<ReportLink
+						report="earnings"
+						section="adjustments"
+						ariaLabel={ sprintf(
+							/* translators: %d: number of adjustment rows in the site's earnings history. */
+							_n(
+								'%d adjustment, view adjustments history',
+								'%d adjustments, view adjustments history',
+								adjustmentCount,
+								'jetpack-premium-analytics-pkg'
+							),
+							adjustmentCount
+						) }
+					>
+						<Badge intent="high">
+							{ sprintf(
+								/* translators: %d: number of adjustment rows in the site's earnings history. */
+								_n(
+									'%d adjustment',
+									'%d adjustments',
+									adjustmentCount,
+									'jetpack-premium-analytics-pkg'
+								),
+								adjustmentCount
+							) }
+						</Badge>
+					</ReportLink>
+				) }
 			</WidgetFooter>
 		</Stack>
 	);

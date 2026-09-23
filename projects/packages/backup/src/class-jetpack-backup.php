@@ -1307,7 +1307,7 @@ class Jetpack_Backup {
 	 * Hooked only when modernization is on AND we're on the Backup admin page,
 	 * so this never affects any other request.
 	 *
-	 * @since $$next-version$$ Takes no argument; hooked on `admin_enqueue_scripts`.
+	 * @since 5.0.4 Takes no argument; hooked on `admin_enqueue_scripts`.
 	 *
 	 * @return void
 	 */
@@ -1324,7 +1324,7 @@ class Jetpack_Backup {
 	/**
 	 * Undo alias_screen_id_for_wp_build(), so code after the generated check sees the real screen ID.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.0.4
 	 *
 	 * @return void
 	 */

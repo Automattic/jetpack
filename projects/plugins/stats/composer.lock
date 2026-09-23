@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7d20e0bb197791b6041be3d61f13b755",
+    "content-hash": "229a9c756163d5cdfcc2a810f465f756",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -65,7 +65,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "23eaa0573e92a9aacd3f3d3666fd3d161562b1cc"
+                "reference": "5d08ef57c5a5cf61953c9d56a758acb921a69bd9"
             },
             "require": {
                 "automattic/jetpack-redirect": "@dev",
@@ -91,7 +91,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.12.x-dev"
+                    "dev-trunk": "0.13.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -533,7 +533,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "679b3d3ab91daf740974057d4f5fd22741460e89"
+                "reference": "26a50338ef39090a719e2c803c2995e6187d1409"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -570,7 +570,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.4.x-dev"
+                    "dev-trunk": "9.6.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -854,7 +854,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/ip",
-                "reference": "56f25b07b2ba1a7423e9335e1c744dd5c1bf1702"
+                "reference": "958f6d3944e9839db8f22a4875e61a80500ee1e7"
             },
             "require": {
                 "php": ">=7.4"
@@ -875,7 +875,7 @@
                     "link-template": "https://github.com/automattic/jetpack-ip/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.6.x-dev"
+                    "dev-trunk": "0.7.x-dev"
                 },
                 "textdomain": "jetpack-ip",
                 "version-constants": {
@@ -1158,7 +1158,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "3810df33ecaa2f01b95ae33e018f79315efca4ea"
+                "reference": "7f617af2b08e4f45c8f4843cc75285eebf4b9d37"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1200,7 +1200,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.4.x-dev"
+                    "dev-trunk": "6.5.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1684,7 +1684,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "7b88aec702d79f0ce75438b0cab7795045a4d7fc"
+                "reference": "9d2c199732027364c672b1dc26ddfc18b28eaf5c"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1713,7 +1713,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.21.x-dev"
+                    "dev-trunk": "0.22.x-dev"
                 },
                 "textdomain": "jetpack-stats-pkg"
             },
@@ -1752,7 +1752,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "fdc75850da54c9a732337b3ff799f2f6754993a3"
+                "reference": "cf5a3ba3eb5c2df14b58058ee3c9fbc9ea6d6eac"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1778,7 +1778,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.36.x-dev"
+                    "dev-trunk": "0.38.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {

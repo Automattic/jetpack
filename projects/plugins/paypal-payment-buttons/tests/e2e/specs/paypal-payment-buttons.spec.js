@@ -537,7 +537,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
 				timeout: 5000,
 			} );
-			await expect( block.locator( '.jetpack-paypal-button-preview__product-name' ) ).toHaveText(
+			await expect( block.locator( '.jetpack-paypal-button__product-name' ) ).toHaveText(
 				'Test Product'
 			);
 		} );

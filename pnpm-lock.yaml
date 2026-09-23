@@ -520,9 +520,6 @@ importers:
 
   projects/js-packages/components:
     dependencies:
-      '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
       '@automattic/jetpack-api':
         specifier: workspace:*
         version: link:../api
@@ -3349,6 +3346,9 @@ importers:
       '@automattic/jetpack-licensing':
         specifier: workspace:*
         version: link:../../js-packages/licensing
+      '@automattic/jetpack-partner-coupon':
+        specifier: workspace:*
+        version: link:../../js-packages/partner-coupon
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
@@ -3524,9 +3524,6 @@ importers:
 
   projects/packages/newsletter:
     dependencies:
-      '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -3548,6 +3545,9 @@ importers:
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@jetpack-newsletter/init':
         specifier: link:packages/init
         version: link:packages/init
@@ -4106,6 +4106,9 @@ importers:
       '@tanstack/react-query':
         specifier: 5.102.8
         version: 5.102.8(react@18.3.1)
+      '@visx/scale':
+        specifier: 4.0.0
+        version: 4.0.0
       '@wordpress/admin-ui':
         specifier: 2.10.0
         version: 2.10.0(@date-fns/tz@1.5.0)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -5937,24 +5940,15 @@ importers:
       '@automattic/jetpack-api':
         specifier: workspace:*
         version: link:../../js-packages/api
-      '@automattic/jetpack-boost-score-api':
-        specifier: workspace:*
-        version: link:../../js-packages/boost-score-api
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
-      '@automattic/jetpack-licensing':
-        specifier: workspace:*
-        version: link:../../js-packages/licensing
       '@automattic/jetpack-my-jetpack':
         specifier: workspace:*
         version: link:../../packages/my-jetpack
-      '@automattic/jetpack-partner-coupon':
-        specifier: workspace:*
-        version: link:../../js-packages/partner-coupon
       '@automattic/jetpack-publicize':
         specifier: workspace:*
         version: link:../../packages/publicize
@@ -6081,9 +6075,6 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
-      component-uid:
-        specifier: 0.0.2
-        version: 0.0.2
       cookie:
         specifier: 1.0.2
         version: 1.0.2
@@ -6114,9 +6105,6 @@ importers:
       filesize:
         specifier: 10.1.6
         version: 10.1.6
-      focus-trap:
-        specifier: 6.3.0
-        version: 6.3.0
       gridicons:
         specifier: 3.4.3
         version: 3.4.3(react@18.3.1)
@@ -12913,9 +12901,6 @@ packages:
   compare-versions@6.1.1:
     resolution: {integrity: sha512-4hm4VPpIecmlg59CHXnRDnqGplJFrbLG4aFEl5vl6cK1u76ws3LLvX7ikFnTDl5vo39sjWD6AaDPYodJp/NNHg==}
 
-  component-uid@0.0.2:
-    resolution: {integrity: sha512-LpbuRIGCbQpJDhyWlHmJqMNuMiR0s9nzlZ40kA8T/PC+hN2YrsBgBgOETtR9y2kE1HkbpQ0/l96kgyYKy6HzCA==}
-
   compressible@2.0.18:
     resolution: {integrity: sha512-AF3r7P5dWxL8MxyITRMlORQNaOA2IkAFaTr4k7BUumjPtRpGDTZpl0Pb1XCO6JeDCBdp126Cgs9sMxqSjgYyRg==}
     engines: {node: '>= 0.6'}
@@ -14109,9 +14094,6 @@ packages:
 
   fn.name@1.1.0:
     resolution: {integrity: sha512-GRnmB5gPyJpAhTQdSZTSp9uaPSvl09KoYcMQtsB9rQoOmzs9dH6ffeccH+Z+cv6P68Hu5bC6JjRh4Ah/mHSNRw==}
-
-  focus-trap@6.3.0:
-    resolution: {integrity: sha512-BBzvFfkPg5PqrVVCdQ1YOIVNKGvqG9YNVkiAUQFuDM66N8J9uADhs6mlYKrd30ofDJIzEniBnBKM7GO45iCzKQ==}
 
   follow-redirects@1.16.0:
     resolution: {integrity: sha512-y5rN/uOsadFT/JfYwhxRS5R7Qce+g3zG97+JrtFZlC9klX/W5hD7iiLzScI4nZqUS7DNUdhPgw4xI8W2LuXlUw==}
@@ -17781,9 +17763,6 @@ packages:
   synckit@0.11.13:
     resolution: {integrity: sha512-eNRKgb3z66Yp3D2CixVujOUvXLFUTij/zVnV8KRyvFdQwpz7I5DS8UfRkTeLzb64u+dkzDSdelE24izu+zSSUg==}
     engines: {node: ^14.18.0 || >=16.0.0}
-
-  tabbable@5.3.3:
-    resolution: {integrity: sha512-QD9qKY3StfbZqWOPLp0++pOrAVb/HbUi5xCc8cUo4XjP19808oaMiDzn0leBY5mCespIBM0CIZePzZjgzR83kA==}
 
   tabbable@6.5.0:
     resolution: {integrity: sha512-wieBHXygIm7OyQOu5hQlkk62/WyCFYGlWg7L6/ZCUZwx0o398Zkn4pVmMyfYhfMG8kGrj/Krt8eIk6UKC6VzwA==}
@@ -31814,8 +31793,6 @@ snapshots:
 
   compare-versions@6.1.1: {}
 
-  component-uid@0.0.2: {}
-
   compressible@2.0.18:
     dependencies:
       mime-db: 1.54.0
@@ -33184,10 +33161,6 @@ snapshots:
   flatted@3.4.4: {}
 
   fn.name@1.1.0: {}
-
-  focus-trap@6.3.0:
-    dependencies:
-      tabbable: 5.3.3
 
   follow-redirects@1.16.0: {}
 
@@ -37426,8 +37399,6 @@ snapshots:
   synckit@0.11.13:
     dependencies:
       '@pkgr/core': 0.3.6
-
-  tabbable@5.3.3: {}
 
   tabbable@6.5.0: {}
 

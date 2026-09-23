@@ -2,11 +2,10 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
 import { useCallback, useMemo, useState } from 'react';
 import { isDashboardSectionLayouts } from '../../config';
-import { DASHBOARD_PREFERENCES_SCOPE } from '../constants';
+import { DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_SECTION_LAYOUTS_KEY } from '../constants';
 import type { DashboardSection, DashboardSectionId, DashboardSectionLayouts } from '../../config';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
-const PREFERENCES_KEY = 'dashboardSectionLayouts';
 const EMPTY_SECTION_LAYOUTS: DashboardSectionLayouts = {};
 
 type PreferencesActions = {
@@ -35,7 +34,7 @@ export function useDashboardSectionLayout(
 			select( preferencesStore ) as unknown as {
 				get: ( scope: string, key: string ) => unknown;
 			}
-		 ).get( DASHBOARD_PREFERENCES_SCOPE, PREFERENCES_KEY );
+		 ).get( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_SECTION_LAYOUTS_KEY );
 
 		return isDashboardSectionLayouts( value ) ? value : EMPTY_SECTION_LAYOUTS;
 	}, [] );
@@ -59,7 +58,7 @@ export function useDashboardSectionLayout(
 
 	const setLayout = useCallback(
 		( nextLayout: DashboardWidget[] ) => {
-			void set( DASHBOARD_PREFERENCES_SCOPE, PREFERENCES_KEY, {
+			void set( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_SECTION_LAYOUTS_KEY, {
 				...sectionLayouts,
 				[ activeSectionId ]: nextLayout,
 			} );
@@ -75,7 +74,7 @@ export function useDashboardSectionLayout(
 
 		const nextLayouts = { ...sectionLayouts };
 		delete nextLayouts[ activeSectionId ];
-		void set( DASHBOARD_PREFERENCES_SCOPE, PREFERENCES_KEY, nextLayouts );
+		void set( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_SECTION_LAYOUTS_KEY, nextLayouts );
 	}, [ activeSectionId, sectionLayouts, set ] );
 
 	return [ layout, setLayout, resetLayout ];

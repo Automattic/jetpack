@@ -1,4 +1,5 @@
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
+import { getLocaleData, resetLocaleData, setLocaleData } from '@wordpress/i18n';
 import {
 	formatScoreDelta,
 	getScoreDelta,
@@ -48,8 +49,34 @@ test( 'distinguishes missing baselines from zero and formats improvements', () =
 	expect( getScoreDelta( 80 ) ).toBeNull();
 	expect( getScoreDelta( 80, 0 ) ).toBe( 80 );
 	expect( getScoreDelta( 80.2, 70 ) ).toBe( 10 );
-	expect( formatScoreDelta( 1 ) ).toBe( '+1 point compared with Boost disabled' );
-	expect( formatScoreDelta( 10 ) ).toBe( '+10 points compared with Boost disabled' );
-	expect( formatScoreDelta( 0 ) ).toBeNull();
-	expect( formatScoreDelta( -10 ) ).toBeNull();
+	expect( formatScoreDelta( 1 ) ).toBe( '+1 point' );
+	expect( formatScoreDelta( 10 ) ).toBe( '+10 points' );
+	expect( formatScoreDelta( 0 ) ).toBe( '0 points' );
+	expect( formatScoreDelta( -10 ) ).toBe( '-10 points' );
+} );
+
+test( 'formats signed deltas using translated plural forms', () => {
+	const localeData = getLocaleData( 'jetpack-boost' );
+	try {
+		setLocaleData(
+			{
+				'': {
+					'plural-forms':
+						'nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);',
+				},
+				'%s point': [ '%s punkt', '%s punkty', '%s punktów' ],
+			},
+			'jetpack-boost'
+		);
+		for ( const [ delta, word ] of [
+			[ 1, 'punkt' ],
+			[ 2, 'punkty' ],
+			[ 5, 'punktów' ],
+		] as const ) {
+			expect( formatScoreDelta( delta ) ).toBe( `+${ delta } ${ word }` );
+			expect( formatScoreDelta( -delta ) ).toBe( `-${ delta } ${ word }` );
+		}
+	} finally {
+		resetLocaleData( localeData, 'jetpack-boost' );
+	}
 } );

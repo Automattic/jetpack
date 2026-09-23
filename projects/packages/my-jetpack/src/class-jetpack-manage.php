@@ -50,7 +50,7 @@ class Jetpack_Manage {
 	/**
 	 * Key of the transient this class used before the answer moved to per-user meta.
 	 *
-	 * @deprecated $$next-version$$ Nothing reads it; the answer now lives in PARTNER_TYPE_USER_META_KEY.
+	 * @deprecated 6.4.1 Nothing reads it; the answer now lives in PARTNER_TYPE_USER_META_KEY.
 	 *
 	 * @var string
 	 */

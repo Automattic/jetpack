@@ -6,7 +6,6 @@ import { formatNumber } from '@automattic/number-formatters';
 import {
 	Button,
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
@@ -645,7 +644,7 @@ function StageInner() {
 								{ __( 'Create a form to manage and reuse it across your site.', 'jetpack-forms' ) }
 							</EmptyState.Description>
 							<EmptyState.Actions>
-								<HStack justify="center" spacing="2">
+								<Stack align="center" direction="row" gap="sm" justify="center">
 									<CreateFormButton
 										label={ __( 'Create a new form', 'jetpack-forms' ) }
 										variant="primary"
@@ -656,7 +655,7 @@ function StageInner() {
 											{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
 										</Button>
 									) }
-								</HStack>
+								</Stack>
 							</EmptyState.Actions>
 						</EmptyState.Root>
 					)

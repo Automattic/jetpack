@@ -17,7 +17,7 @@ use Jetpack_Tracks_Client;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.12.1';
+	const PACKAGE_VERSION = '0.13.0';
 
 	/**
 	 * Slug used for the upgrade menu item and redirect URL.
@@ -412,7 +412,7 @@ class Admin_Menu {
 	 * Unlike add_menu(), the page gets neither the core-notice CSS nor the design tokens.
 	 * Parameters mirror add_menu_page(), with $args appended.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 *
 	 * @param string        $page_title The text to be displayed in the title tags of the page when the menu
 	 *                                  is selected.

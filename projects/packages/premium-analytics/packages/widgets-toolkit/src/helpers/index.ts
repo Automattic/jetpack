@@ -45,7 +45,14 @@ export {
 } from './build-visitors-by-location-data';
 export { flagUrl } from './flag-url';
 export { isEmptyChartData, isEmptyPieChartData, getEmptyChartDomain } from './chart-empty-state';
-export { getFixedYAxis, type FixedYAxis } from './fixed-y-axis';
+export {
+	getFixedYAxis,
+	getPaddedYAxis,
+	getPinnedYTicks,
+	getYTickFormat,
+	type ChartBaseline,
+	type FixedYAxis,
+} from './fixed-y-axis';
 export { formatDisplayLabel } from './format-display-label';
 export {
 	buildCsv,
@@ -92,7 +99,7 @@ export { monthlyHeatmapLifeStart } from './monthly-heatmap-life-start';
 export { monthRange, yearRange, type PeriodBounds } from './period-range';
 export { siteChartFormatting } from './site-chart-formatting';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
-export { formatTooltipSeriesLabel } from './format-tooltip-series-label';
+export { formatTooltipPointLabel } from './format-tooltip-point-label';
 export { resolveSeriesNames, type ResolvedSeriesNames } from './resolve-series-names';
 export { appendTooltipExtras, resolveTooltipNames } from './tooltip-extras';
 export {

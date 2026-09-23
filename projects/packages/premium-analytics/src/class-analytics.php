@@ -24,7 +24,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.7.0';
+	const PACKAGE_VERSION = '0.8.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -285,8 +285,7 @@ class Analytics {
 
 		Sync_Status_Tracker::configure();
 
-		// TEMPORARY (WOOA7S-1550): register the interim woocommerce_analytics sync module so
-		// Sync_Status_Tracker has a full sync to observe. Remove when the shared sync-modules package lands.
+		// Opts in to the shared woocommerce_analytics sync module so Sync_Status_Tracker has a full sync to observe.
 		Sync_Configuration::register();
 	}
 
