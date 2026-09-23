@@ -126,6 +126,40 @@ class Protected_Owner {
 	}
 
 	/**
+	 * Lock or unlock the anchor without disturbing what it records.
+	 *
+	 * Unlocking is how a site fails closed without forgetting: the anchor keeps the identity it
+	 * recorded and only stops counting as protection, so a later verification restores the lock
+	 * without asking the owner to confirm again.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $locked Whether the anchor should protect its owner.
+	 * @return bool Whether the anchor is now in that state.
+	 */
+	public static function set_locked( $locked ) {
+		$anchor = self::get();
+
+		if ( ! $anchor ) {
+			return false;
+		}
+
+		$locked = (bool) $locked;
+
+		if ( ! empty( $anchor['locked'] ) === $locked ) {
+			return true;
+		}
+
+		$anchor['locked'] = $locked;
+
+		if ( Jetpack_Options::update_option( self::OPTION, $anchor ) ) {
+			return true;
+		}
+
+		return Jetpack_Options::get_option( self::OPTION ) === $anchor;
+	}
+
+	/**
 	 * Get the anchor, but only while it is locked.
 	 *
 	 * An unlocked anchor names an owner without preventing ownership moving, so it protects
