@@ -732,6 +732,7 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertTrue( wp_script_is( 'wpcom-survicate', 'enqueued' ) );
 		$this->assertNotSame( 'abc123', $wp_scripts->registered['wpcom-survicate']->ver );
+		$this->assertIsInt( $wp_scripts->registered['wpcom-survicate']->ver );
 	}
 
 	/**
