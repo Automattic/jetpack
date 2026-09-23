@@ -569,10 +569,11 @@ export function openStylesSidebarOnLoad() {
 		window.removeEventListener( 'keydown', stopWatching, true );
 	}
 
-	// Asserted until the creator's first move rather than once, because core's Settings sidebar
-	// claims the scope more than once while the editor mounts — twice more under a development
-	// build of React, which runs mount effects again. Capturing, so a creator who opens Template
-	// themselves gets it: this runs before the click that does so.
+	// Asserted until the creator touches the editor chrome rather than once, because core's
+	// Settings sidebar claims the scope more than once while the editor mounts — twice more under
+	// a development build of React, which runs mount effects again. Capturing, so a creator who
+	// opens Template themselves gets it: this runs before the click that does so. The canvas is an
+	// iframe, so its own events never arrive and the watch can outlast the editor settling.
 	window.addEventListener( 'pointerdown', stopWatching, true );
 	window.addEventListener( 'keydown', stopWatching, true );
 
@@ -592,9 +593,8 @@ export function showStylesSidebar() {
 /**
  * A labelled way into the Styles panel, for a creator who closed it.
  *
- * The panel's own affordance is an unlabelled icon in the top right, which three of three testers
- * missed, and the Template tab this lands in has nothing else to offer while block editing is off.
- * See NL-948.
+ * The panel's own affordance is an unlabelled icon in the top right, and the Template tab this
+ * lands in has nothing else to offer while block editing is off. See NL-948.
  *
  * @return {import('react').ReactElement} The panel.
  */
@@ -621,20 +621,24 @@ function StylesPanelLink() {
  * @return {void}
  */
 export function expandStylesPanelOnce() {
+	// Declining rather than throwing into the mount's catch, for `lockCanvasEditing()`'s reason:
+	// a disclosure that opens itself is not worth replacing the screen with an error over.
 	const preferences = dispatch( PREFERENCES_STORE );
+	const preferenceValues = select( PREFERENCES_STORE );
 	const editor = dispatch( EDITOR_STORE );
+	const editorPanels = select( EDITOR_STORE );
 
-	if ( ! preferences || ! editor ) {
+	if ( ! preferences || ! preferenceValues || ! editor || ! editorPanels ) {
 		return;
 	}
 
-	if ( select( PREFERENCES_STORE ).get( PREFERENCE_SCOPE, 'expandedStylesPanel' ) ) {
+	if ( preferenceValues.get( PREFERENCE_SCOPE, 'expandedStylesPanel' ) ) {
 		return;
 	}
 
 	preferences.set( PREFERENCE_SCOPE, 'expandedStylesPanel', true );
 
-	if ( ! select( EDITOR_STORE ).isEditorPanelOpened( STYLES_PANEL ) ) {
+	if ( ! editorPanels.isEditorPanelOpened( STYLES_PANEL ) ) {
 		editor.toggleEditorPanelOpened( STYLES_PANEL );
 	}
 }
