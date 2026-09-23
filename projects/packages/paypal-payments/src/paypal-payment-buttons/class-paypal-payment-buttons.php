@@ -210,8 +210,7 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * Width and Border, for whichever element the format puts them on — the
-	 * checkout button or the QR frame.
+	 * Width and Border, for the QR frame.
 	 *
 	 * Every value is validated before the style engine sees it.
 	 * wp_style_engine_get_styles() is not a sanitizer: its only filter is
@@ -225,17 +224,7 @@ class PayPal_Payment_Buttons {
 	 * @return array A list of CSS declarations, empty when nothing is configured.
 	 */
 	private static function get_width_and_border_rules( $attributes ) {
-		$rules = array();
-
-		// max-width keeps a set Width inside the card. With no Width the stylesheet
-		// sizes the element.
-		$width = self::chosen_width( $attributes );
-		if ( '' !== $width ) {
-			$rules[] = sprintf( 'width:%s', $width );
-			$rules[] = 'max-width:100%';
-		}
-
-		return array_merge( $rules, self::get_border_rules( $attributes ) );
+		return array_merge( self::get_width_rules( $attributes ), self::get_border_rules( $attributes ) );
 	}
 
 	/**
@@ -251,9 +240,9 @@ class PayPal_Payment_Buttons {
 	/**
 	 * Margin, from the Border Settings panel.
 	 *
-	 * The button card and the QR card take this and nothing else — Width and Border
-	 * go on the button or the QR frame. A QR-to-BUTTON format switch can leave a
-	 * margin behind, so the card keeps reading it.
+	 * The QR card takes this and nothing else — Width and Border go on the QR frame.
+	 * The button card takes it with Width, through get_unit_style(). A QR-to-BUTTON
+	 * format switch can leave a margin behind, so the button card keeps reading it.
 	 *
 	 * Mirrors getMarginStyle() in utils/block-styles.js.
 	 *
@@ -262,6 +251,21 @@ class PayPal_Payment_Buttons {
 	 */
 	private static function get_margin_style( $attributes ) {
 		return self::css_rules( self::get_margin_rules( $attributes ) );
+	}
+
+	/**
+	 * Margin and Width, for the button card.
+	 *
+	 * Width sizes the whole card — image, product, button and "Powered by" — so they
+	 * share the button's edges. The button fills the card and keeps the border.
+	 *
+	 * Mirrors getUnitStyle() in utils/block-styles.js.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return string An inline CSS declaration list, empty when nothing is configured.
+	 */
+	private static function get_unit_style( $attributes ) {
+		return self::css_rules( array_merge( self::get_margin_rules( $attributes ), self::get_width_rules( $attributes ) ) );
 	}
 
 	/**
@@ -286,11 +290,16 @@ class PayPal_Payment_Buttons {
 	 * sees it, so a spacing preset would be emitted raw — the width
 	 * control cannot produce one, and this keeps it that way.
 	 *
+	 * max-width keeps a set Width inside whatever holds the element. With no Width
+	 * the stylesheet sizes it. Mirrors getWidthStyle() in utils/block-styles.js.
+	 *
 	 * @param array $attributes The block attributes.
-	 * @return string The width, or '' when none is set.
+	 * @return array A list of CSS declarations, empty when none is set.
 	 */
-	private static function chosen_width( $attributes ) {
-		return self::plain_length( $attributes['blockWidth'] ?? '' );
+	private static function get_width_rules( $attributes ) {
+		$width = self::plain_length( $attributes['blockWidth'] ?? '' );
+
+		return '' === $width ? array() : array( sprintf( 'width:%s', $width ), 'max-width:100%' );
 	}
 
 	/**
@@ -510,8 +519,8 @@ class PayPal_Payment_Buttons {
 			array_merge(
 				self::get_text_rules( $attributes['buttonTextColor'] ?? '', $attributes['buttonFontSize'] ?? '' ),
 				$rules,
-				// Width and Border go on the button, not the card — see get_margin_style().
-				self::get_width_and_border_rules( $attributes )
+				// Width goes on the card around it — see get_unit_style().
+				self::get_border_rules( $attributes )
 			)
 		);
 	}
@@ -1082,8 +1091,8 @@ class PayPal_Payment_Buttons {
 		}
 
 		$wrapper_attributes = get_block_wrapper_attributes();
-		// Width and Border go on the button, not this card — see get_button_style().
-		$block_style = self::style_attr( self::get_margin_style( $attributes ) );
+		// Width sizes this card, and the button fills it — see get_unit_style().
+		$block_style = self::style_attr( self::get_unit_style( $attributes ) );
 
 		// A blank label would draw an unreadable button, so fall back to the same
 		// default the editor preview uses.

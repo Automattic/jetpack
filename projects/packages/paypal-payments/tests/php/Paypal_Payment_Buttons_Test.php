@@ -949,12 +949,12 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that the product card takes the margin and nothing else.
+	 * Test that Width sizes the card and Border stays on the button.
 	 *
-	 * Width and Border go on the button, so a revert that put them back on the
-	 * card has to fail here.
+	 * The button fills the card, so the product, image and "Powered by" share its
+	 * edges.
 	 */
-	public function test_render_button_leaves_width_and_border_off_the_card() {
+	public function test_render_button_puts_width_on_the_card_and_border_on_the_button() {
 		$result = $this->render_button_format(
 			array(
 				'blockWidth' => '75%',
@@ -965,9 +965,17 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			)
 		);
 
-		$this->assertMatchesRegularExpression(
-			'/<div class="jetpack-paypal-button" style="margin-top:8px;">/',
-			$result
+		$this->assertSame(
+			array(
+				'margin-top' => '8px',
+				'max-width'  => '100%',
+				'width'      => '75%',
+			),
+			$this->read_style( $result, 'class="jetpack-paypal-button"' )
+		);
+		$this->assertSame(
+			array( 'border-radius' => '6px' ),
+			$this->read_style( $result, 'class="jetpack-paypal-button__checkout-link wp-element-button"' )
 		);
 	}
 
@@ -1628,7 +1636,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 * Test that the published page emits what the canvas emits.
 	 *
 	 * The other half of this table runs in tests/js/block-styles.test.js against
-	 * getMarginStyle(), getWidthAndBorderStyle(), getButtonStyle() and getTextStyle(). A value one side
+	 * getMarginStyle(), getWidthAndBorderStyle(), getUnitStyle(), getButtonStyle() and getTextStyle(). A value one side
 	 * drops and the other keeps is a divergence between the canvas and the published page, so it fails here.
 	 *
 	 * @dataProvider provide_style_parity_cases
@@ -1849,10 +1857,12 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$cases = array();
 
 		// The QR splits across two elements: the card takes margin, the frame
-		// inside it takes Width and the stroke. The JS half reads the same field.
+		// inside it takes Width and the stroke. The button card takes margin and
+		// Width. The JS half reads the same field.
 		$targets = array(
-			'card'  => 'class="jetpack-paypal-button jetpack-paypal-button--qr-format"',
-			'frame' => 'class="jetpack-paypal-button__qr-frame"',
+			'card'  => array( 'class="jetpack-paypal-button jetpack-paypal-button--qr-format"', 'QR' ),
+			'frame' => array( 'class="jetpack-paypal-button__qr-frame"', 'QR' ),
+			'unit'  => array( 'class="jetpack-paypal-button"', 'BUTTON' ),
 		);
 
 		foreach ( $fixture['cases'] as $case ) {
@@ -1862,11 +1872,13 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 				throw new \RuntimeException( 'Unknown target on style-parity case: ' . $case['name'] );
 			}
 
+			list( $selector, $format ) = $targets[ $case['target'] ];
+
 			$cases[ $case['name'] ] = array(
 				$case['attributes'],
 				$case['declarations'],
-				$targets[ $case['target'] ],
-				'QR',
+				$selector,
+				$format,
 			);
 		}
 
@@ -1885,15 +1897,15 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		}
 
 		// The canvas refuses these too, so no element on either side may emit a
-		// declaration. Run against the button as well: width and border are emitted
-		// a second time there, onto a different element.
+		// declaration. Run against the button as well: the border is emitted a
+		// second time there, onto a different element.
 		foreach ( $fixture['rejectedCases'] as $case ) {
-			foreach ( $targets as $target => $selector ) {
+			foreach ( $targets as $target => list( $selector, $format ) ) {
 				$cases[ 'refuses ' . $case['name'] . ' on the ' . $target ] = array(
 					$case['attributes'],
 					array(),
 					$selector,
-					'QR',
+					$format,
 				);
 			}
 

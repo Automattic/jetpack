@@ -151,11 +151,17 @@ function plainBox( sides ) {
 /**
  * The chosen width, with its unit.
  *
+ * max-width keeps a set Width inside whatever holds the element. With no Width
+ * the stylesheet sizes it. Mirrors get_width_rules() in
+ * class-paypal-payment-buttons.php.
+ *
  * @param {object} attributes - The block attributes.
- * @return {string} The width, or '' when none is set.
+ * @return {object} A React style object, empty when none is set.
  */
-function chosenWidth( attributes ) {
-	return plainLength( attributes.blockWidth );
+function getWidthStyle( attributes ) {
+	const width = plainLength( attributes.blockWidth );
+
+	return width ? { width, maxWidth: '100%' } : {};
 }
 
 /**
@@ -173,9 +179,9 @@ export function isOutlineButton( attributes = {} ) {
 /**
  * Margin, from the Border Settings panel.
  *
- * The button card and the QR card take this and nothing else — Width and Border
- * go on the button or the QR frame. A QR-to-BUTTON format switch can leave a
- * margin behind, so the card keeps reading it.
+ * The QR card takes this and nothing else — Width and Border go on the QR frame.
+ * The button card takes it with Width, through getUnitStyle(). A QR-to-BUTTON
+ * format switch can leave a margin behind, so the button card keeps reading it.
  *
  * @param {object} attributes - The block attributes.
  * @return {object} A React style object, empty when nothing is configured.
@@ -213,20 +219,32 @@ function getBorderStyle( attributes ) {
 }
 
 /**
- * Width and Border, for whichever element the format puts them on — the
- * checkout button or the QR frame. Mirrors get_width_and_border_rules().
+ * Width and Border, for the QR frame. Mirrors get_width_and_border_rules().
  *
  * @param {object} attributes - The block attributes.
  * @return {object} A React style object, empty when nothing is configured.
  */
 export function getWidthAndBorderStyle( attributes = {} ) {
-	// max-width keeps a set Width inside the card. With no Width the stylesheet
-	// sizes the element.
-	const width = chosenWidth( attributes );
-
 	return {
-		...( width ? { width, maxWidth: '100%' } : {} ),
+		...getWidthStyle( attributes ),
 		...getBorderStyle( attributes ),
+	};
+}
+
+/**
+ * Margin and Width, for the button card.
+ *
+ * Width sizes the whole card — image, product, button and "Powered by" — so they
+ * share the button's edges. The button fills the card and keeps the border.
+ * Mirrors get_unit_style() in class-paypal-payment-buttons.php.
+ *
+ * @param {object} attributes - The block attributes.
+ * @return {object} A React style object, empty when nothing is configured.
+ */
+export function getUnitStyle( attributes = {} ) {
+	return {
+		...getMarginStyle( attributes ),
+		...getWidthStyle( attributes ),
 	};
 }
 
@@ -311,8 +329,7 @@ export function getButtonStyle( attributes = {} ) {
 	return {
 		...getTextStyle( buttonTextColor, buttonFontSize ),
 		...( background ? { backgroundColor: background } : {} ),
-		// Width and Border go on the button, not the product card — see
-		// getMarginStyle().
-		...getWidthAndBorderStyle( attributes ),
+		// Width goes on the card around it — see getUnitStyle().
+		...getBorderStyle( attributes ),
 	};
 }
