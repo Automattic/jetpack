@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+LineChart: Round the top of a zero-based value axis from zero, so the line no longer runs into the top edge.

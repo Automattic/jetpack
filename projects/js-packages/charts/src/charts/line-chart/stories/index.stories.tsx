@@ -553,6 +553,33 @@ SmartFormatting.parameters = {
 	},
 };
 
+export const ZeroBaseline: StoryObj< StoryArgs > = Template.bind( {} );
+ZeroBaseline.args = {
+	...lineChartStoryArgs,
+	showLegend: false,
+	withGradientFill: false,
+	data: [
+		{
+			label: 'Views',
+			data: [ 921, 989, 954, 924, 967, 933, 978 ].map( ( value, day ) => ( {
+				date: new Date( 2024, 0, day + 1 ),
+				value,
+			} ) ),
+		},
+	],
+	options: {
+		yScale: { zero: true },
+	},
+};
+ZeroBaseline.parameters = {
+	docs: {
+		description: {
+			story:
+				"`yScale.zero` starts the value axis at zero, so a series that only moves between 921 and 989 reads as steady rather than as a swing. The axis top is rounded from zero, not from the data's floor: here it ends at 1,000 with a labelled tick, instead of at 990 with the line running into the top edge.",
+		},
+	},
+};
+
 // Offset for dashed line to prevent overlapping with solid line
 const DASHED_LINE_OFFSET = 100;
 

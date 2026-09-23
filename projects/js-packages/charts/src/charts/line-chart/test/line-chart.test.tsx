@@ -3,7 +3,7 @@
 import { render, screen, waitFor, within, act, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlyphDiamond } from '@visx/glyph';
-import { createElement, createRef } from 'react';
+import { createElement, createRef, type ComponentProps } from 'react';
 import { GlobalChartsProvider, defaultTheme } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
 import LineChart, { LineChartUnresponsive } from '../line-chart';
@@ -2190,6 +2190,138 @@ describe( 'LineChart', () => {
 			'clip-path',
 			'url(#chart-zoom-clip-zoomtest)'
 		);
+	} );
+
+	describe( 'Value axis baseline', () => {
+		const steadySeries = [
+			{
+				label: 'Views',
+				data: [ 921, 989, 954, 924, 967, 933, 978 ].map( ( value, day ) => ( {
+					date: new Date( 2024, 0, day + 1 ),
+					value,
+					label: `Jan ${ day + 1 }`,
+				} ) ),
+				options: {},
+			},
+		];
+		const twoSeries = [
+			{
+				label: 'Views',
+				data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+				options: {},
+			},
+			{
+				label: 'Visitors',
+				data: [ { date: new Date( '2024-01-01' ), value: 200, label: 'Jan 1' } ],
+				options: {},
+			},
+		];
+
+		const renderForDomain = (
+			props: Partial< ComponentProps< typeof LineChartUnresponsive > >
+		) => {
+			let context: GlobalChartsContextValue | undefined;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+			const ref = createRef< ChartInstanceRef >();
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withGradientFill={ false }
+						chartId="line-baseline"
+						ref={ ref }
+						data={ steadySeries }
+						{ ...props }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			return {
+				domain: () =>
+					( ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined )?.domain(),
+				hide: ( label: string ) =>
+					act( () => context?.toggleSeriesVisibility( 'line-baseline', label ) ),
+			};
+		};
+
+		it( 'fits the axis to the data by default', () => {
+			expect( renderForDomain( {} ).domain() ).toEqual( [ 920, 990 ] );
+		} );
+
+		it( 'rounds the top of a zero-based axis from zero, not from the data floor', () => {
+			expect( renderForDomain( { options: { yScale: { zero: true } } } ).domain() ).toEqual( [
+				0, 1000,
+			] );
+		} );
+
+		it( 'leaves a log scale to fit the data, since it cannot hold zero', () => {
+			const { domain } = renderForDomain( { options: { yScale: { type: 'log', zero: true } } } );
+			expect( domain() ).toEqual( [ 100, 1000 ] );
+		} );
+
+		it( 'extends a zero-based axis below zero when a series goes negative', () => {
+			const { domain } = renderForDomain( {
+				options: { yScale: { zero: true } },
+				data: [
+					{
+						label: 'Net change',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: -15, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 30, label: 'Jan 2' },
+						],
+						options: {},
+					},
+				],
+			} );
+			expect( domain() ).toEqual( [ -15, 30 ] );
+		} );
+
+		it( 'gives an all-zero series an axis from 0 to 1 instead of a spanless one', () => {
+			const { domain } = renderForDomain( {
+				options: { yScale: { zero: true } },
+				data: [
+					{
+						label: 'Views',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 0, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 0, label: 'Jan 2' },
+						],
+						options: {},
+					},
+				],
+			} );
+			expect( domain() ).toEqual( [ 0, 1 ] );
+		} );
+
+		it( 'rescales a zero-based axis to the visible series', () => {
+			const { domain, hide } = renderForDomain( {
+				options: { yScale: { zero: true } },
+				data: twoSeries,
+			} );
+			expect( domain() ).toEqual( [ 0, 200 ] );
+
+			hide( 'Visitors' );
+
+			expect( domain() ).toEqual( [ 0, 20 ] );
+		} );
+
+		it( 'pins a zero-based axis when rescaleYOnVisibilityChange is false', () => {
+			const { domain, hide } = renderForDomain( {
+				options: { yScale: { zero: true } },
+				rescaleYOnVisibilityChange: false,
+				data: twoSeries,
+			} );
+
+			hide( 'Visitors' );
+
+			expect( domain() ).toEqual( [ 0, 200 ] );
+		} );
 	} );
 
 	describe( 'Legend group collapsing', () => {
