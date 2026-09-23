@@ -63,6 +63,7 @@ Jetpack_Application_Password_Extras::init();
 // Simple this bootstrap never runs. The class self-initializes when loaded.
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-settings.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-feature-flags.php';
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-settings-feature-flags.php';
 
 \Automattic\Jetpack\Newsletter\Settings::register_feature_flags();
 
@@ -74,6 +75,10 @@ if ( is_admin() ) {
 	\Automattic\Jetpack\Newsletter\Settings::init();
 
 	\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget::init();
+
+	// Settings > Sharing owns its own screen, so it exists whichever modules are active.
+	\Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::init();
+	\Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::init();
 
 	\Automattic\Jetpack\Plugin\Jetpack_Script_Data::configure();
 }

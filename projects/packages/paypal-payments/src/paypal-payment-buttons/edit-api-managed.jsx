@@ -33,6 +33,8 @@ import {
 	ToolbarButton,
 	ToolbarGroup,
 } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import {
 	createInterpolateElement,
 	useState,
@@ -48,7 +50,7 @@ import clsx from 'clsx';
 import GridiconPlus from 'gridicons/dist/plus-small';
 import PayPalAccountHeader from './components/account-header';
 import AmountField from './components/amount-field';
-import ConfirmDialogs from './components/confirm-dialogs';
+import ConfirmDialogs, { UnsavedChangesDialog } from './components/confirm-dialogs';
 import ConnectionWizard, { OnboardingFrame } from './components/connection-wizard';
 import ExistingLinksStep from './components/existing-links-step';
 import PayPalFormatControls from './components/format-controls';
@@ -68,8 +70,15 @@ import { usePayPalResource } from './hooks/use-paypal-resource';
 import { API_BASE } from './utils/api-base';
 import { SUPPORTED_CURRENCIES } from './utils/currencies';
 import { CURRENCY_SYMBOLS, getPricePlaceholder, getPriceStep } from './utils/currency-symbols';
+import { markExistingLinksDirty, removeExistingLink } from './utils/existing-links';
 import { withPartnerAttribution } from './utils/partner-attribution';
-import { RESOURCE_ATTRIBUTES, resetToDefaults, turnGateOff } from './utils/resource-sync';
+import {
+	isSameValue,
+	PAYMENT_ATTRIBUTES,
+	RESOURCE_ATTRIBUTES,
+	resetToDefaults,
+	turnGateOff,
+} from './utils/resource-sync';
 import { recordPaymentRead } from './utils/sync-on-save';
 import { toast } from './utils/toast';
 import {
@@ -77,6 +86,7 @@ import {
 	getValidationErrors,
 	hasBlockingError,
 	hasCheckoutOptionError,
+	isNotFound,
 	MAX_CUSTOMER_NOTES,
 	MAX_DESCRIPTION_LENGTH,
 	MAX_NAME_LENGTH,
@@ -86,6 +96,12 @@ import {
 
 // Button type is always 'single' — the hosted payment page handles
 // payment method selection (PayPal, cards, wallets, etc.).
+
+// What the form edits: the payment's own attributes and the block's image, which
+// is sent with them.
+const FORM_FIELDS = [ ...RESOURCE_ATTRIBUTES, 'imageUrl', 'imageId' ];
+const formFieldsOf = attributes =>
+	Object.fromEntries( FORM_FIELDS.map( key => [ key, attributes[ key ] ] ) );
 
 // Touched marks key on the row index. A stable `_key` would make every mount report a
 // change, since resource-sync.js strips `_key` from variants only.
@@ -384,6 +400,9 @@ export default function ApiManagedEdit( {
 	 */
 	const hasButton = !! ( isApiManaged && resourceId && paymentLink );
 
+	// A paste-code block, drawn by LegacyBlock.
+	const isLegacy = ! isApiManaged && !! ( scriptSrc || hostedButtonId );
+
 	/**
 	 * Show a field's error once the merchant leaves it, or right away on a saved
 	 * button - the same rule as noteErrorFor() below and VariantBuilder's showAll.
@@ -448,7 +467,7 @@ export default function ApiManagedEdit( {
 			// Clear block attributes so the block shows the connect wizard.
 			setAttributes( {
 				// Back to block.json defaults, so reconnecting starts the next payment clean.
-				...resetToDefaults( 'isApiManaged', 'resourceId', ...RESOURCE_ATTRIBUTES ),
+				...resetToDefaults( ...PAYMENT_ATTRIBUTES ),
 				// The image is block-owned and has no default to read.
 				imageUrl: undefined,
 				imageId: undefined,
@@ -539,8 +558,13 @@ export default function ApiManagedEdit( {
 	const formIsValid = useRef( isFormValid );
 	formIsValid.current = isFormValid;
 	const [ isEditing, setIsEditing ] = useState( ! isFormValid );
+	// A saved link can be switched for another of the account's links from its
+	// details menu. A new link, however it arrived, closes the picker.
+	const [ isSwitching, setIsSwitching ] = useState( false );
 	useEffect( () => {
 		setIsEditing( ! formIsValid.current );
+		setIsSwitching( false );
+		setShowUnsavedConfirm( false );
 	}, [ resourceId ] );
 	// An undo, or a read writing back a value that fails validation, can break the
 	// link later on, and the details have nowhere to show it. Opening only, so the
@@ -551,6 +575,60 @@ export default function ApiManagedEdit( {
 		}
 	}, [ isFormValid ] );
 	const showDetails = hasButton && ! isEditing;
+	const showSwitch = hasButton && isSwitching;
+
+	// The form's fields as it opened, so leaving with them changed can ask first.
+	// Retaken when PayPal's own values arrive while the form is open: those are not
+	// the merchant's changes.
+	const formOpenedWith = useRef( null );
+	const latestAttributes = useRef( attributes );
+	latestAttributes.current = attributes;
+	useEffect( () => {
+		if ( isEditing ) {
+			formOpenedWith.current = formFieldsOf( latestAttributes.current );
+		}
+	}, [ isEditing, paymentChanged ] );
+	const hasUnsavedChanges =
+		isEditing &&
+		!! formOpenedWith.current &&
+		FORM_FIELDS.some(
+			key => ! isSameValue( key, attributes[ key ], formOpenedWith.current[ key ] )
+		);
+	const [ showUnsavedConfirm, setShowUnsavedConfirm ] = useState( false );
+	const [ isSavingPost, setIsSavingPost ] = useState( false );
+	const { savePost } = useDispatch( editorStore );
+
+	/**
+	 * Back from the form to the details, asking first when there is something to lose.
+	 */
+	const leaveForm = () => {
+		if ( hasUnsavedChanges ) {
+			setShowUnsavedConfirm( true );
+		} else {
+			setIsEditing( false );
+		}
+	};
+
+	/**
+	 * Put the link back as the form found it, and leave.
+	 */
+	const discardChanges = () => {
+		setAttributes( formOpenedWith.current );
+		setShowUnsavedConfirm( false );
+		setIsEditing( false );
+	};
+
+	/**
+	 * Save the post, which writes the payment to PayPal on the way, and leave once
+	 * it is saved. The editor reports the save and anything that went wrong in it.
+	 */
+	const saveChanges = async () => {
+		setIsSavingPost( true );
+		await savePost();
+		setIsSavingPost( false );
+		setShowUnsavedConfirm( false );
+		setIsEditing( false );
+	};
 
 	// The changed-at-PayPal warning is done once the merchant leaves the details
 	// screen it was raised on. Keyed to that screen rather than to selection, which
@@ -564,19 +642,72 @@ export default function ApiManagedEdit( {
 		detailsWasShown.current = showDetails;
 	}, [ showDetails, dismissPaymentChanged ] );
 
-	// A block with nothing in it yet first offers the links the account already
-	// has, and the step is skipped when there are none.
-	const isFreshBlock = ! hasButton && ! productName && ! price;
-	const [ createNewChosen, setCreateNewChosen ] = useState( false );
+	// A block with nothing in it yet opens on the links the account already has,
+	// and the step is skipped when there are none. Decided once, as the block mounts:
+	// the form leaves the picker by choice, and comes back to it the same way.
+	const startedEmpty = useRef( ! hasButton && ! productName && ! price ).current;
+	const [ showPicker, setShowPicker ] = useState( startedEmpty );
 	const [ isPicking, setIsPicking ] = useState( false );
-	const { links: existingLinks, isLoading: linksLoading } = useExistingLinks( {
-		enabled: isConnected && isFreshBlock && ! createNewChosen,
+	// A new block reads the list again, for links made in wp-admin or another tab.
+	useEffect( () => {
+		if ( startedEmpty && ! isLegacy ) {
+			markExistingLinksDirty();
+		}
+	}, [ startedEmpty, isLegacy ] );
+	// The picker: the first step of a new link, or Change item on a saved one.
+	const pickerShown = isConnected && ! isLegacy && ( ( showPicker && ! hasButton ) || showSwitch );
+	// A shown picker reads the list even when deselected, for its hint on the canvas.
+	// Other blocks wait until selected, since every block on the canvas mounts this.
+	const {
+		links: existingLinks,
+		isLoading: linksLoading,
+		deleteLink,
+		isDeleting,
+	} = useExistingLinks( {
+		enabled: pickerShown || ( isConnected && ! isLegacy && isSelected ),
+		showing: pickerShown,
 	} );
 	const showLinkStep =
-		isConnected &&
-		isFreshBlock &&
-		! createNewChosen &&
-		( linksLoading || existingLinks.length > 0 );
+		isConnected && ! hasButton && showPicker && ( linksLoading || existingLinks.length > 0 );
+	// With no link to offer, skip the step for good, as Create new does, so the form
+	// stays put when another block creates a link.
+	const skipsLinkStep = isConnected && ! hasButton && showPicker && ! showLinkStep;
+	useEffect( () => {
+		if ( skipsLinkStep ) {
+			setShowPicker( false );
+		}
+	}, [ skipsLinkStep ] );
+	// The form of a new link can go back to the picker, once there are links to pick from.
+	const canReturnToPicker = ! hasButton && ! showPicker && existingLinks.length > 0;
+	const otherLinks = useMemo(
+		() => existingLinks.filter( link => link.id !== resourceId ),
+		[ existingLinks, resourceId ]
+	);
+	const canChangeLink = isConnected && ! isBusy && ( linksLoading || otherLinks.length > 0 );
+
+	/**
+	 * Read a link back from PayPal and hand its attributes on.
+	 *
+	 * @param {object}   link  - A payment resource from the list.
+	 * @param {Function} apply - Receives the attributes PayPal holds for it.
+	 */
+	const readLink = useCallback( ( link, apply ) => {
+		setIsPicking( true );
+		apiFetch( { path: `${ API_BASE }/buttons/${ link.id }` } )
+			.then( response => {
+				if ( response?.attributes ) {
+					apply( response.attributes );
+				}
+			} )
+			.catch( err => {
+				// Gone from PayPal, so drop it from every block's picker.
+				if ( isNotFound( err ) ) {
+					removeExistingLink( link.id );
+				}
+				toast( 'error', getUserFriendlyError( err ) );
+			} )
+			.finally( () => setIsPicking( false ) );
+	}, [] );
 
 	/**
 	 * Point the block at an existing link, with the attributes PayPal holds for it.
@@ -584,26 +715,83 @@ export default function ApiManagedEdit( {
 	 * @param {object} link - A payment resource from the list.
 	 */
 	const pickExistingLink = useCallback(
-		link => {
-			setIsPicking( true );
-			apiFetch( { path: `${ API_BASE }/buttons/${ link.id }` } )
-				.then( response => {
-					if ( ! response?.attributes ) {
-						return;
-					}
-					// The block just read the payment, so the save can write it without a second fetch.
-					recordPaymentRead( blockClientId, link.id );
-					setAttributes( {
-						isApiManaged: true,
-						resourceId: link.id,
-						...response.attributes,
-					} );
-				} )
-				.catch( err => toast( 'error', getUserFriendlyError( err ) ) )
-				.finally( () => setIsPicking( false ) );
-		},
-		[ blockClientId, setAttributes ]
+		link =>
+			readLink( link, linkAttributes => {
+				// The block just read the payment, so the save can write it without a second fetch.
+				recordPaymentRead( blockClientId, link.id, linkAttributes );
+				// The read only carries what the payment has, so what the last link had
+				// goes back to its default first. The image stays: it belongs to the block.
+				setAttributes( {
+					...resetToDefaults( ...RESOURCE_ATTRIBUTES ),
+					isApiManaged: true,
+					resourceId: link.id,
+					...linkAttributes,
+				} );
+				toast( 'success', __( 'Payment link updated.', 'jetpack-paypal-payments' ) );
+			} ),
+		[ blockClientId, readLink, setAttributes ]
 	);
+
+	/**
+	 * Open the form with a copy of an existing link. The copy has no payment of its
+	 * own until the post is saved, which creates one.
+	 *
+	 * @param {object} link - A payment resource from the list.
+	 */
+	const duplicateLink = useCallback(
+		link =>
+			readLink( link, linkAttributes => {
+				const {
+					isApiManaged: _api,
+					resourceId: _id,
+					paymentLink: _link,
+					scriptSrc: _script,
+					integrationMode: _mode,
+					...copied
+				} = linkAttributes;
+				// Named as a copy, so it reads as one next to the original in the list and
+				// on PayPal. Cut to the limit rather than open the form on an error.
+				const copyName = copied.productName
+					? sprintf(
+							/* translators: %s: the product name of the link being copied */
+							__( 'Copy of %s', 'jetpack-paypal-payments' ),
+							copied.productName
+						).slice( 0, MAX_NAME_LENGTH )
+					: '';
+				// Let go of any payment the block points at, so the save creates a new one.
+				setAttributes( {
+					...resetToDefaults( ...PAYMENT_ATTRIBUTES ),
+					...copied,
+					productName: copyName,
+				} );
+				setShowPicker( false );
+			} ),
+		[ readLink, setAttributes ]
+	);
+
+	/**
+	 * Leave the form for the picker. Whatever was typed or copied goes, along with any
+	 * payment the block points at, so Create new opens empty again.
+	 */
+	const returnToPicker = useCallback( () => {
+		setAttributes( {
+			...resetToDefaults( ...PAYMENT_ATTRIBUTES ),
+			imageUrl: undefined,
+			imageId: undefined,
+		} );
+		setShowPicker( true );
+	}, [ setAttributes ] );
+
+	/**
+	 * Leave the picker for an empty form. A pick read back with an empty link still
+	 * sets resourceId, so clear the payment first.
+	 */
+	const createNew = useCallback( () => {
+		if ( resourceId ) {
+			setAttributes( resetToDefaults( ...PAYMENT_ATTRIBUTES ) );
+		}
+		setShowPicker( false );
+	}, [ resourceId, setAttributes ] );
 
 	// Loading state while checking connection.
 	if ( connectionLoading ) {
@@ -618,7 +806,7 @@ export default function ApiManagedEdit( {
 	}
 
 	// Legacy paste-code block — render as-is without the new UI.
-	if ( ! isApiManaged && ( scriptSrc || hostedButtonId ) ) {
+	if ( isLegacy ) {
 		return (
 			<LegacyBlock
 				setAttributes={ setAttributes }
@@ -725,15 +913,17 @@ export default function ApiManagedEdit( {
 	);
 
 	// The Styles tab — Embed as and the format's own controls — is a fill of its own.
-	const formatControls = (
+	// Only once there is a link, so the editor hides the tab bar until then.
+	const formatControls = hasButton ? (
 		<PayPalFormatControls
 			format={ activeFormat }
 			attributes={ attributes }
 			setAttributes={ setAttributes }
-			paymentUrl={ withPartnerAttribution( paymentLink, partnerAttributionId ) }
+			paymentUrl={ linkDeleted ? '' : withPartnerAttribution( paymentLink, partnerAttributionId ) }
 			disabled={ isBusy }
+			environment={ environment }
 		/>
-	);
+	) : null;
 
 	// Shared confirmation dialogs — extracted so they render regardless of which return branch is active.
 	const confirmDialogs = (
@@ -787,7 +977,7 @@ export default function ApiManagedEdit( {
 	const paymentChangedNotice = paymentChanged ? (
 		<Notice status="warning" isDismissible={ false }>
 			{ __(
-				'This payment link was updated elsewhere and this block has been updated to match.',
+				'This payment link was updated elsewhere and this block has been updated to match. Save the post so this page shows the change.',
 				'jetpack-paypal-payments'
 			) }
 		</Notice>
@@ -805,17 +995,37 @@ export default function ApiManagedEdit( {
 
 	const connectionLabel = isConnected ? labelConnected : labelDisconnected;
 
-	const linkStep = linksLoading ? (
-		<PanelBody title={ __( 'Payment link', 'jetpack-paypal-payments' ) } initialOpen={ true }>
-			<Spinner />
-		</PanelBody>
-	) : (
+	const linkStep = (
 		<ExistingLinksStep
 			links={ existingLinks }
-			onCreateNew={ () => setCreateNewChosen( true ) }
+			isLoading={ linksLoading }
+			onCreateNew={ createNew }
 			onPick={ pickExistingLink }
-			isPicking={ isPicking }
+			onDuplicate={ duplicateLink }
+			onDelete={ link => deleteLink( link.id ) }
+			isBusy={ isPicking || isDeleting }
 		/>
+	);
+
+	// The same picker, minus Create new and the link the block already has.
+	const switchView = (
+		<>
+			<div className="jetpack-paypal-payment-buttons__form-actions">
+				<Button
+					icon={ isRTL() ? chevronRight : chevronLeft }
+					onClick={ () => setIsSwitching( false ) }
+					className="jetpack-paypal-payment-buttons__back-to-details"
+				>
+					{ __( 'Change item', 'jetpack-paypal-payments' ) }
+				</Button>
+			</div>
+			<ExistingLinksStep
+				links={ otherLinks }
+				isLoading={ linksLoading }
+				onPick={ pickExistingLink }
+				isBusy={ isPicking }
+			/>
+		</>
 	);
 
 	const detailsView = (
@@ -824,23 +1034,34 @@ export default function ApiManagedEdit( {
 			resource={ resource }
 			notices={ paymentChangedNotice }
 			onEdit={ () => setIsEditing( true ) }
+			onChangeLink={ () => setIsSwitching( true ) }
+			canChangeLink={ canChangeLink }
 		/>
 	);
 
 	const formPanels = (
 		<>
 			{ /* Form-wide notices go here. A field's own notice renders next to that field. */ }
-			{ ( hasButton || paymentChanged ) && (
+			{ ( hasButton || paymentChanged || canReturnToPicker ) && (
 				<div className="jetpack-paypal-payment-buttons__form-actions">
 					{ /* Plain, so the back link keeps the sidebar's own foreground -
 					     `tertiary` would paint it the admin accent. */ }
 					{ hasButton && (
 						<Button
 							icon={ isRTL() ? chevronRight : chevronLeft }
-							onClick={ () => setIsEditing( false ) }
+							onClick={ leaveForm }
 							className="jetpack-paypal-payment-buttons__back-to-details"
 						>
 							{ __( 'Edit Button', 'jetpack-paypal-payments' ) }
+						</Button>
+					) }
+					{ canReturnToPicker && (
+						<Button
+							icon={ isRTL() ? chevronRight : chevronLeft }
+							onClick={ returnToPicker }
+							className="jetpack-paypal-payment-buttons__back-to-details"
+						>
+							{ __( 'New payment link', 'jetpack-paypal-payments' ) }
 						</Button>
 					) }
 					{ sharedResourceNotice }
@@ -1403,6 +1624,8 @@ export default function ApiManagedEdit( {
 	let sidebar = formPanels;
 	if ( showLinkStep ) {
 		sidebar = linkStep;
+	} else if ( showSwitch ) {
+		sidebar = switchView;
 	} else if ( showDetails ) {
 		sidebar = detailsView;
 	}
@@ -1468,11 +1691,22 @@ export default function ApiManagedEdit( {
 						qrShowCaption={ qrShowCaption }
 						qrCaption={ qrCaption }
 						attributes={ attributes }
+						resource={ resource }
+						isSelected={ isSelected }
 					/>
 				) }
 			</div>
 
 			{ confirmDialogs }
+			{ showUnsavedConfirm && (
+				<UnsavedChangesDialog
+					canSave={ isFormValid }
+					isSaving={ isSavingPost }
+					onSave={ saveChanges }
+					onDiscard={ discardChanges }
+					onCancel={ () => setShowUnsavedConfirm( false ) }
+				/>
+			) }
 		</div>
 	);
 }

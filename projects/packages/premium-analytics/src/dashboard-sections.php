@@ -16,6 +16,11 @@ require_once __DIR__ . '/rest-namespace.php';
 require_once __DIR__ . '/class-dashboard-section.php';
 require_once __DIR__ . '/class-dashboard-section-registry.php';
 
+// Guarded on a symbol the file declares, so a second copy of the package can't redeclare it.
+if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_feature_flags' ) ) {
+	require_once __DIR__ . '/dashboard-policy.php';
+}
+
 /**
  * Filter through which the preview's section scope is resolved.
  */
@@ -87,7 +92,8 @@ function is_dashboard_preview_scoped() {
 function is_dashboard_section_in_preview_scope( $dashboard_name, $slug ) {
 	$in_scope = DASHBOARD_NAME !== $dashboard_name
 		|| ! is_dashboard_preview_scoped()
-		|| in_array( $slug, PREVIEW_SECTIONS, true );
+		|| in_array( $slug, PREVIEW_SECTIONS, true )
+		|| is_dashboard_unlocked_for_a11n();
 
 	/**
 	 * Filters whether the preview exposes a dashboard section.

@@ -425,4 +425,40 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 			'The slug must still match once the added slashes are stripped.'
 		);
 	}
+
+	/**
+	 * WoA can pair mu-wpcom with a Jetpack that serves Settings at either address.
+	 *
+	 * @dataProvider provide_settings_addresses
+	 *
+	 * @param string $address Which Settings address the Jetpack plugin registers.
+	 */
+	#[DataProvider( 'provide_settings_addresses' )]
+	public function test_jetpack_submenu_orders_settings_at_either_address( $address ) {
+		global $submenu;
+		\Jetpack_Options::update_option( 'id', 200 );
+		$settings_slug = 'legacy' === $address ? admin_url( 'admin.php?page=jetpack#/settings' ) : 'jetpack-settings';
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$submenu['jetpack'] = array(
+			array( 'Zzz Unlisted', 'manage_options', 'zzz-unlisted' ),
+			array( 'Settings', 'manage_options', $settings_slug ),
+		);
+
+		wpcom_add_jetpack_submenu();
+
+		$slugs = array_column( $submenu['jetpack'], 2 );
+		$this->assertLessThan( array_search( 'zzz-unlisted', $slugs, true ), array_search( $settings_slug, $slugs, true ) );
+	}
+
+	/**
+	 * Settings addresses across Jetpack releases.
+	 *
+	 * @return array
+	 */
+	public static function provide_settings_addresses() {
+		return array(
+			'hash on page=jetpack'  => array( 'legacy' ),
+			'page=jetpack-settings' => array( 'own' ),
+		);
+	}
 }

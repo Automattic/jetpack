@@ -394,6 +394,115 @@ describe( 'BarChart', () => {
 		expect( lines ).toHaveLength( 3 );
 	} );
 
+	describe( 'Whole-number value ticks', () => {
+		const wholeNumberData: SeriesData[] = [
+			{
+				label: 'Series A',
+				data: [
+					{ label: 'Mon', value: 0 },
+					{ label: 'Tue', value: 1 },
+					{ label: 'Wed', value: 1 },
+				],
+			},
+		];
+
+		test( 'labels a whole-number range smaller than the tick count once per whole number', () => {
+			renderWithTheme( { data: wholeNumberData } );
+			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
+		} );
+
+		test( 'labels a horizontal whole-number range once per whole number', () => {
+			renderWithTheme( { data: wholeNumberData, orientation: 'horizontal' } );
+			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
+		} );
+
+		test( 'draws a flat series of ones on a 0 and 1 axis', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ label: 'Mon', value: 1 },
+							{ label: 'Tue', value: 1 },
+						],
+					},
+				],
+			} );
+			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
+		} );
+
+		test.each( [ 'vertical', 'horizontal' ] as const )(
+			'keeps every tick on a value domain the caller pinned (%s)',
+			orientation => {
+				const valueAxis = orientation === 'horizontal' ? 'x' : 'y';
+				renderWithTheme( {
+					orientation,
+					data: [
+						{
+							label: 'Series A',
+							data: [
+								{ label: 'Mon', value: 0 },
+								{ label: 'Tue', value: 0 },
+							],
+						},
+					],
+					options: {
+						[ `${ valueAxis }Scale` ]: { domain: [ 0, 1 ] },
+						axis: {
+							[ valueAxis ]: { tickFormat: ( value: number ) => `${ Math.round( value * 100 ) }%` },
+						},
+					},
+				} );
+				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				expect( within( chart ).getAllByText( /^\d+%$/ ) ).toHaveLength( 6 );
+			}
+		);
+
+		test( "keeps a caller's value tickValues", () => {
+			renderWithTheme( {
+				data: wholeNumberData,
+				options: { axis: { y: { tickValues: [ 0, 0.5, 1 ] } } },
+			} );
+			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			expect( within( chart ).getAllByText( /^-?[\d.,]+$/ ) ).toHaveLength( 3 );
+		} );
+	} );
+
+	test( 'draws category grid lines at the x axis numTicks', () => {
+		const data: SeriesData[] = [
+			{
+				label: 'Series A',
+				data: Array.from( { length: 30 }, ( _, i ) => ( { label: `Day ${ i + 1 }`, value: i } ) ),
+			},
+		];
+		const countColumns = ( numTicks: number ) => {
+			const { container, unmount } = renderWithTheme( {
+				data,
+				gridVisibility: 'y',
+				options: { axis: { x: { numTicks } } },
+			} );
+			// See the visx node constraint at getBarRects.
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			const count = container.querySelectorAll( '.visx-columns line' ).length;
+			unmount();
+			return count;
+		};
+
+		expect( countColumns( 15 ) ).toBeGreaterThan( countColumns( 4 ) );
+	} );
+
 	describe( 'Data Validation', () => {
 		test( 'handles empty data array', () => {
 			renderWithTheme( { data: [] } );

@@ -1,5 +1,5 @@
 /* eslint-disable testing-library/prefer-user-event */
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import GradeExplanation from './grade-explanation';
 import ScoreCards from './score-cards';
 
@@ -109,26 +109,40 @@ test.each( [
 	}
 } );
 
-test( 'shows positive baseline deltas only for current scores', () => {
+test.each( [
+	[ 'positive', 70, '+10 points', 'informational' ],
+	[ 'zero', 80, '0 points', 'none' ],
+	[ 'negative', 90, '-10 points', 'none' ],
+] )( 'shows a %s delta badge', ( _description, baseline, label, intent ) => {
+	render(
+		<ScoreCards
+			scores={ {
+				current: { desktop: 80, mobile: 80 },
+				noBoost: { desktop: Number( baseline ), mobile: Number( baseline ) },
+				isStale: false,
+			} }
+		/>
+	);
+	const card = within( screen.getByRole( 'region', { name: 'Desktop' } ) );
+	expect( card.getByText( label ) ).toBeVisible();
+	expect( card.getByText( label ) ).toHaveClass( new RegExp( `__is-${ intent }-intent$` ) );
+} );
+
+test( 'hides unknown and stale deltas', () => {
 	const scores = {
 		current: { desktop: 80, mobile: 60 },
-		noBoost: { desktop: 70, mobile: 70 },
+		noBoost: null,
 		isStale: false,
 	};
 	const { rerender } = render( <ScoreCards scores={ scores } /> );
-	expect( screen.getByText( '+10 points compared with Boost disabled' ) ).toBeVisible();
-	expect(
-		within( screen.getByRole( 'region', { name: 'Mobile' } ) ).queryByText(
-			/compared with Boost disabled/
-		)
-	).not.toBeInTheDocument();
-	rerender( <ScoreCards scores={ { ...scores, isStale: true } } /> );
-	expect( screen.queryByText( /compared with Boost disabled/ ) ).not.toBeInTheDocument();
-	rerender( <ScoreCards scores={ { ...scores, noBoost: scores.current } } /> );
-	expect( screen.queryByText( /compared with Boost disabled/ ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( /points/ ) ).not.toBeInTheDocument();
+	rerender(
+		<ScoreCards scores={ { ...scores, noBoost: { desktop: 70, mobile: 50 }, isStale: true } } />
+	);
+	expect( screen.queryByText( /points/ ) ).not.toBeInTheDocument();
 } );
 
-test( 'omits an unchanged device delta while preserving the improved device delta', () => {
+test( 'opens the points explanation beside the badge', async () => {
 	render(
 		<ScoreCards
 			scores={ {
@@ -138,16 +152,18 @@ test( 'omits an unchanged device delta while preserving the improved device delt
 			} }
 		/>
 	);
-	expect(
-		within( screen.getByRole( 'region', { name: 'Desktop' } ) ).getByText(
-			'+10 points compared with Boost disabled'
-		)
-	).toBeVisible();
-	expect(
-		within( screen.getByRole( 'region', { name: 'Mobile' } ) ).queryByText(
-			/compared with Boost disabled/
-		)
-	).not.toBeInTheDocument();
+	expect( screen.queryByText( 'Points gained from optimizations' ) ).not.toBeInTheDocument();
+	const trigger = within( screen.getByRole( 'region', { name: 'Desktop' } ) ).getByRole( 'button', {
+		name: 'About points',
+	} );
+	fireEvent.click( trigger );
+	await waitFor( () =>
+		expect( screen.getByText( 'Points gained from optimizations' ) ).toBeVisible()
+	);
+	expect( trigger ).toHaveAttribute( 'aria-expanded', 'true' );
+	fireEvent.keyDown( screen.getByRole( 'dialog', { name: 'About points' } ), { key: 'Escape' } );
+	await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
+	expect( trigger ).toHaveFocus();
 } );
 
 test( 'shows one calculating status instead of the score sections before scores load', () => {

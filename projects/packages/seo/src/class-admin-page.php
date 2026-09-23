@@ -137,7 +137,7 @@ class Admin_Page {
 	 * Alias the current screen id to wp-build's expected slug so its
 	 * auto-generated enqueue callback fires for our user-facing page.
 	 *
-	 * @since $$next-version$$ Takes no argument; hooked on `admin_enqueue_scripts`.
+	 * @since 0.9.5 Takes no argument; hooked on `admin_enqueue_scripts`.
 	 *
 	 * @return void
 	 */
@@ -154,7 +154,7 @@ class Admin_Page {
 	/**
 	 * Undo alias_screen_id_for_wp_build(), so code after the generated check sees the real screen ID.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.5
 	 *
 	 * @return void
 	 */
@@ -184,7 +184,7 @@ class Admin_Page {
 	 *
 	 * Fetching a JITM records a view, so one the page hides would still be counted.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.5
 	 *
 	 * @param bool   $show      Whether to show JITMs on the screen.
 	 * @param string $screen_id The screen ID.

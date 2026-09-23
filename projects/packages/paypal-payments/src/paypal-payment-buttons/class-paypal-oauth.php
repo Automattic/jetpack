@@ -71,6 +71,20 @@ class PayPal_OAuth {
 	const PRODUCTION_BASE_URL = 'https://api.paypal.com';
 
 	/**
+	 * PayPal sandbox JavaScript SDK URL.
+	 *
+	 * @var string
+	 */
+	const SANDBOX_SDK_URL = 'https://www.sandbox.paypal.com/sdk/js';
+
+	/**
+	 * PayPal production JavaScript SDK URL.
+	 *
+	 * @var string
+	 */
+	const PRODUCTION_SDK_URL = 'https://www.paypal.com/sdk/js';
+
+	/**
 	 * OAuth token endpoint path.
 	 *
 	 * @var string
@@ -132,6 +146,17 @@ class PayPal_OAuth {
 		return 'production' === self::get_environment()
 			? self::PRODUCTION_BASE_URL
 			: self::SANDBOX_BASE_URL;
+	}
+
+	/**
+	 * Get the PayPal JavaScript SDK URL for the current environment.
+	 *
+	 * @return string The SDK URL, before its query string.
+	 */
+	public static function get_sdk_base_url() {
+		return 'production' === self::get_environment()
+			? self::PRODUCTION_SDK_URL
+			: self::SANDBOX_SDK_URL;
 	}
 
 	/**

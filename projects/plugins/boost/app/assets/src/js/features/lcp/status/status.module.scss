@@ -37,14 +37,13 @@
 }
 
 .well {
+
+	@include mixins.settings-well();
+
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: var(--wpds-dimension-gap-md);
-	padding: var(--wpds-dimension-padding-lg);
-	border-radius: var(--wpds-border-radius-lg);
-	background: var(--wpds-color-background-surface-neutral);
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	font-size: var(--wpds-typography-font-size-md);
 	line-height: var(--wpds-typography-line-height-sm);
 

@@ -40,7 +40,7 @@ const renderState = ( state: LcpState ) => {
 
 test.each( [
 	[ 'not_analyzed', "Click the optimize button to start optimizing your Cornerstone Page's LCP." ],
-	[ 'pending', "Jetpack Boost is optimizing your Cornerstone Page's LCP for you." ],
+	[ 'pending', "Jetpack Boost is optimizing your Cornerstone Page's LCP…" ],
 	[ 'analyzed', /Last optimized/ ],
 	[ 'error', "An error occurred while optimizing your Cornerstone Page's LCP. Please try again." ],
 ] as const )( 'shows %s in the status well and preserves the Optimize action', ( status, text ) => {
@@ -86,4 +86,7 @@ test( 'keeps the status container without a well on the default legacy surface',
 	// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The legacy container has no role or test ID.
 	expect( container.querySelector( `.${ styles.status }` ) ).toBeTruthy();
 	expect( screen.queryByTestId( 'lcp-status-well' ) ).toBeNull();
+	expect(
+		screen.getByText( "Jetpack Boost is optimizing your Cornerstone Page's LCP for you." )
+	).toBeTruthy();
 } );

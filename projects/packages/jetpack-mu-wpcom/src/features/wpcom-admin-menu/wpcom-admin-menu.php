@@ -343,8 +343,9 @@ function wpcom_add_jetpack_submenu() {
 		// Jetpack > My Jetpack.
 		wpcom_hide_submenu_page( 'jetpack', 'my-jetpack' );
 
-		// Jetpack > Settings.
+		// Jetpack > Settings; WoA can pair this with a Jetpack serving either address.
 		wpcom_hide_submenu_page( 'jetpack', admin_url( 'admin.php?page=jetpack#/settings' ) );
+		wpcom_hide_submenu_page( 'jetpack', 'jetpack-settings' );
 
 		// Redirect My Jetpack page to Stats for Atomic sites on Personal or Premium plans.
 		add_action(
@@ -507,6 +508,7 @@ function wpcom_add_jetpack_submenu() {
 			'podcast',
 			'traffic',
 			'jetpack#/settings',
+			'jetpack-settings',
 		)
 	);
 }

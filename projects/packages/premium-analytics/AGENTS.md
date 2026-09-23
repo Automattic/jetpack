@@ -78,8 +78,9 @@ Add a route: create `routes/<name>/package.json` (with `route.path` + `route.pag
 
 Add a dashboard section, from this package or from another plugin: hook
 `jetpack_premium_analytics_register_dashboard_sections` and call `register_dashboard_section()`
-there. The section registry hydrates on its first read, from wp-admin or from REST, and fires
-that action once; `src/default-dashboard-sections.php` registers the package's own sections the same
+there; the callback receives the registry being hydrated, for lookups such as
+`get_registered_by_slug()`. The section registry hydrates on its first read, from wp-admin or from
+REST, and fires that action once; `src/default-dashboard-sections.php` registers the package's own sections the same
 way. A section declares its default layout in the registration; the
 `jetpack_premium_analytics_dashboard_default_layout` filter lets another plugin add an instance to
 any section by id. `docs/dashboard-sections.md` walks through the whole path with diagrams.
@@ -162,6 +163,8 @@ Which one says yes also decides how many tabs the dashboard offers: the site's o
 customer preview and exposes only the sections in `PREVIEW_SECTIONS`, while a sticker or filter
 override exposes every section the site qualifies for. `jetpack_premium_analytics_dashboard_preview_scope`
 overrides that per section — `__return_true` gives a development or test site the whole dashboard.
+The `premium-analytics-a11n-all-sections` flag does the same for Automatticians only; see
+`docs/dashboard-sections.md`.
 
 The same list the tab bar gets over REST also reaches the client as
 `premium_analytics.preview_sections` in the script data, which is what keeps `/reports/…` out of a

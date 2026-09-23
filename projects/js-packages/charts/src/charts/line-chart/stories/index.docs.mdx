@@ -437,6 +437,12 @@ Values are automatically formatted as:
 - **1K and above**: "1k"
 - **Below 1K**: "1,234"
 
+### Buckets With No Data
+
+Set a point's `value` to `null` when its bucket has no reading, such as the days before a site launched. The bucket keeps its place on the axis, so the chart still spans the full range, but the line and its gradient fill break at that point instead of connecting across it, and its tooltip reads "No data" rather than 0. The start and end glyphs land on the first and last bucket that has a reading, skipping any null buckets at either end. Pointer handlers and drag-to-zoom still reach a null bucket, and `onPointerDown` / `onPointerUp` receive its datum with a `null` value. If no visible series has a reading, the y axis falls back to a `[0, 1]` range (`[1, 10]` on a log scale). If every reading has the same value, as when a flat count follows the null buckets, a linear y axis runs from 0 to that value, so the line sits at the top of the plot as its bars would. Both fallbacks yield to `options.yScale.domain`, and to an axis pinned with `rescaleYOnVisibilityChange={ false }` when the data across all series has a range. Use `0` only for a real reading of zero: in the example below April is a real zero, so the line starts there, at 0, while the months before it have nothing.
+
+<Canvas of={ LineChartStories.BucketsWithNoData } />
+
 ## Error Handling
 
 The chart gracefully handles various error states and edge cases:
@@ -446,7 +452,8 @@ The chart gracefully handles various error states and edge cases:
 **Supported scenarios:**
 - Empty data arrays
 - Invalid date values
-- Null or NaN numeric values
+- NaN numeric values
+- Buckets with no reading (null), which break the line instead of being rejected
 - Single data points
 - Missing data properties
 
@@ -701,6 +708,10 @@ Customize axes with formatting, orientation, and tick options:
 		}}
 	/>` }
 />
+
+When every visible value is a whole number, the value axis places ticks only on whole numbers, instead of repeating a rounded label at fractional steps. Pass `options.axis.y.tickValues` to choose the ticks yourself. A y domain you pin with `options.yScale.domain` keeps every tick, so a percentage axis on `[ 0, 1 ]` still steps by 20%.
+
+<Canvas of={ LineChartStories.SmallWholeNumberRange } />
 
 ### Value Axis Baseline
 

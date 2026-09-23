@@ -209,7 +209,7 @@ function sanitize_widget_actions( $actions ) {
 				$action['href']
 			);
 			// One line: tools/replace-next-version-tag.sh only rewrites the token in a single-line call.
-			_doing_it_wrong( __FUNCTION__, esc_html( $message ), 'jetpack-premium-analytics-$$next-version$$' );
+			_doing_it_wrong( __FUNCTION__, esc_html( $message ), 'jetpack-premium-analytics-0.8.0' );
 			continue;
 		}
 

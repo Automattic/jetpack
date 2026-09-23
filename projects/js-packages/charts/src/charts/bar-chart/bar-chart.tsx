@@ -1,4 +1,3 @@
-import { formatNumber } from '@automattic/number-formatters';
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __, sprintf } from '@wordpress/i18n';
@@ -26,7 +25,9 @@ import { warnOnce } from '../../utils/warn-once';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
+import { formatReading, isInvalidReading } from '../private/readings';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
+import { hasOnlyWholeNumbers, WholeNumberTicks } from '../private/whole-number-ticks';
 import { withResponsive } from '../private/with-responsive';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
 import styles from './bar-chart.module.scss';
@@ -71,8 +72,7 @@ const validateData = ( data: SeriesData[] ) => {
 	const hasInvalidData = data.some( series =>
 		series.data.some(
 			point =>
-				// A null value is a bucket with no reading, which the chart draws as a gap.
-				( point.value !== null && isNaN( point.value as number ) ) ||
+				isInvalidReading( point.value, { allowMissing: true } ) ||
 				( ! point.label &&
 					( ! ( 'date' in point && point.date ) || isNaN( point.date.getTime() ) ) )
 		)
@@ -96,10 +96,6 @@ const renderTooltipRow = ( label: string | undefined, value: string ) => (
 		) }
 	</div>
 );
-
-// formatNumber( null ) is "0", which would claim a reading of zero for a bucket that has none.
-const formatTooltipValue = ( value: number | null | undefined ) =>
-	value == null ? __( 'No data', 'jetpack-charts' ) : formatNumber( value );
 
 const BarChartInternal: FC< BarChartProps > = ( {
 	data,
@@ -174,12 +170,24 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ isSeriesVisible ]
 	);
 
+	const hasWholeNumberValues = useMemo(
+		() => hasOnlyWholeNumbers( dataSorted.filter( isSeriesRendered ) ),
+		[ dataSorted, isSeriesRendered ]
+	);
+
 	const chartOptions = useBarChartOptions(
 		dataWithVisibleZeros,
 		horizontal,
 		options,
 		isSeriesRendered
 	);
+	const valueAxis = horizontal ? chartOptions.axis.x : chartOptions.axis.y;
+	const callerValueDomain = horizontal ? options.xScale?.domain : options.yScale?.domain;
+	const wholeNumberTicksProps = {
+		axis: horizontal ? ( 'x' as const ) : ( 'y' as const ),
+		numTicks: valueAxis.numTicks,
+		enabled: hasWholeNumberValues && ! valueAxis.tickValues && ! callerValueDomain,
+	};
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const chartRef = useRef< HTMLDivElement >( null );
 
@@ -390,10 +398,10 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				return (
 					<div className={ styles[ 'bar-chart__tooltip' ] }>
 						<div className={ styles[ 'bar-chart__tooltip-header' ] }>{ categoryLabel }</div>
-						{ renderTooltipRow( primaryKey, formatTooltipValue( nearestDatum.value ) ) }
+						{ renderTooltipRow( primaryKey, formatReading( nearestDatum.value ) ) }
 						{ renderTooltipRow(
 							comparisonEntry.series.label,
-							formatTooltipValue( comparisonDatum.value )
+							formatReading( comparisonDatum.value )
 						) }
 					</div>
 				);
@@ -402,7 +410,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			return (
 				<div className={ styles[ 'bar-chart__tooltip' ] }>
 					<div className={ styles[ 'bar-chart__tooltip-header' ] }>{ primaryKey }</div>
-					{ renderTooltipRow( categoryLabel, formatTooltipValue( nearestDatum.value ) ) }
+					{ renderTooltipRow( categoryLabel, formatReading( nearestDatum.value ) ) }
 				</div>
 			);
 		},
@@ -614,21 +622,33 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										) }
 
 										{ ! allSeriesHidden && (
-											<>
-												{ /* Visx forwards tickValues to its grid primitives but omits it from GridProps. */ }
-												<Grid
-													columns={ gridVisibility.includes( 'y' ) }
-													rows={ false }
-													numTicks={ 4 }
-													{ ...{ tickValues: chartOptions.axis.x.tickValues } }
-												/>
-												<Grid
-													columns={ false }
-													rows={ gridVisibility.includes( 'x' ) }
-													numTicks={ 4 }
-													{ ...{ tickValues: chartOptions.axis.y.tickValues } }
-												/>
-											</>
+											<WholeNumberTicks { ...wholeNumberTicksProps }>
+												{ valueTicks => (
+													<>
+														{ /* Visx forwards tickValues to its grid primitives but omits it from GridProps. */ }
+														<Grid
+															columns={ gridVisibility.includes( 'y' ) }
+															rows={ false }
+															numTicks={ chartOptions.axis.x.numTicks }
+															{ ...{
+																tickValues:
+																	( horizontal ? valueTicks : undefined ) ??
+																	chartOptions.axis.x.tickValues,
+															} }
+														/>
+														<Grid
+															columns={ false }
+															rows={ gridVisibility.includes( 'x' ) }
+															numTicks={ chartOptions.axis.y.numTicks }
+															{ ...{
+																tickValues:
+																	( horizontal ? undefined : valueTicks ) ??
+																	chartOptions.axis.y.tickValues,
+															} }
+														/>
+													</>
+												) }
+											</WholeNumberTicks>
 										) }
 
 										{ withPatterns && (
@@ -711,10 +731,22 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										     visx collapses the domain and the axes render squished at the top. Drop them
 										     while the empty state stands in. */ }
 										{ ! allSeriesHidden && (
-											<>
-												<Axis { ...chartOptions.axis.x } />
-												<Axis { ...chartOptions.axis.y } />
-											</>
+											<WholeNumberTicks { ...wholeNumberTicksProps }>
+												{ valueTicks => (
+													<>
+														<Axis
+															{ ...chartOptions.axis.x }
+															{ ...( horizontal && valueTicks ? { tickValues: valueTicks } : {} ) }
+														/>
+														<Axis
+															{ ...chartOptions.axis.y }
+															{ ...( ! horizontal && valueTicks
+																? { tickValues: valueTicks }
+																: {} ) }
+														/>
+													</>
+												) }
+											</WholeNumberTicks>
 										) }
 
 										{ withTooltips && (
