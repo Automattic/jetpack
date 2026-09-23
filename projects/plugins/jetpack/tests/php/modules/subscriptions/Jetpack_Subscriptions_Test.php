@@ -247,7 +247,7 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 
 		add_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, 'paid_subscribers' );
 
-		$this->assertSame( array( 'paid_subscribers' ), get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ) );
+		$this->assertSame( array( 'paid_subscribers' ), get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, false ) );
 		$this->assertTrue( (bool) get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
 	}
 
@@ -263,7 +263,7 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 
 		update_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, 'everybody' );
 
-		$this->assertSame( array( 'everybody' ), get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ) );
+		$this->assertSame( array( 'everybody' ), get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, false ) );
 		$this->assertEmpty( get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
 	}
 
@@ -317,7 +317,7 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		$response = $endpoint->callback( sprintf( '/sites/%d/posts/new', $blog_id ), $blog_id );
 
 		$this->assertIsArray( $response );
-		$this->assertSame( array( 'paid_subscribers' ), get_post_meta( $response['ID'], META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ) );
+		$this->assertSame( array( 'paid_subscribers' ), get_post_meta( $response['ID'], META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, false ) );
 		$this->assertTrue( (bool) get_post_meta( $response['ID'], META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
 	}
 
