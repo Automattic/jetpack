@@ -31,6 +31,10 @@
 //                                                   `Tabs.List`; see the
 //                                                   "Tabs strip" section
 //                                                   below)
+//   Tabs marker:             .jp-admin-page-has-tabs
+//                                                  (style-free; the page has a
+//                                                   tab strip that is not
+//                                                   .jp-admin-page-tabs)
 
 // Implementation note — `postcss-custom-properties` with `preserve: false`:
 // several consumer packages in this monorepo (publicize, videopress, search,
@@ -223,9 +227,10 @@ $jp-breakpoint-mobile: 782px;
 	}
 
 	// When the page hosts a tabs strip, drop the header's bottom border so the
-	// strip's own hairline is the only divider. The header keeps its bottom
-	// padding: removing it spaced these pages differently from the rest.
-	.jp-admin-page__page:has(.jp-admin-page-tabs) > :first-child {
+	// strip's own hairline is the only divider. Leave its padding: removing that
+	// spaced these pages differently from the rest. `.jp-admin-page-has-tabs` is
+	// the style-free marker for a strip that is not `.jp-admin-page-tabs`.
+	.jp-admin-page__page:has(.jp-admin-page-tabs, .jp-admin-page-has-tabs) > :first-child {
 		border-bottom: none;
 	}
 
