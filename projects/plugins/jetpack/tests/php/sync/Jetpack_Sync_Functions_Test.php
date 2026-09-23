@@ -6,6 +6,7 @@ use Automattic\Jetpack\Connection\SSO\Helpers;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Plugin\Theme_Styles_Sync;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Modules;
@@ -146,6 +147,7 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 			'jetpack_connection_active_plugins' => Functions::get_jetpack_connection_active_plugins(),
 			'jetpack_sync_active_modules'       => Functions::get_jetpack_sync_active_modules(),
 			'jetpack_package_versions'          => Functions::get_jetpack_package_versions(),
+			'jetpack_site_visibility'           => Functions::get_site_visibility(),
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {
@@ -289,6 +291,56 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 
 		$synced_value = $this->server_replica_storage->get_callable( 'active_modules' );
 		$this->assertEquals( array( 'json-api' ), $synced_value );
+	}
+
+	public function test_sync_always_sync_changes_to_site_visibility_right_away() {
+		update_option( 'blog_public', '1' );
+		$this->sender->do_sync();
+		$this->assertSame( 1, $this->server_replica_storage->get_callable( 'jetpack_site_visibility' ) );
+
+		$this->server_replica_storage->reset();
+
+		// No timeout reset here: the option change alone has to unlock the callable.
+		update_option( 'blog_public', '0' );
+		$this->sender->do_sync();
+		$this->assertSame( 0, $this->server_replica_storage->get_callable( 'jetpack_site_visibility' ) );
+	}
+
+	public function test_site_visibility_is_sent_on_non_admin_requests() {
+		update_option( 'blog_public', '1' );
+		$this->sender->do_sync();
+		$this->server_replica_storage->reset();
+
+		// Off the admin, only the always-sent callables go out.
+		set_current_screen( 'front' );
+		Constants::set_constant( 'WP_CLI', true );
+
+		update_option( 'blog_public', '0' );
+		$this->sender->do_sync();
+
+		Constants::set_constant( 'WP_CLI', false );
+
+		$this->assertSame( 0, $this->server_replica_storage->get_callable( 'jetpack_site_visibility' ) );
+	}
+
+	public function test_site_visibility_resyncs_when_private_site_filter_changes() {
+		update_option( 'blog_public', '1' );
+		Status_Cache::clear();
+		$this->sender->do_sync();
+		$this->assertSame( 1, $this->server_replica_storage->get_callable( 'jetpack_site_visibility' ) );
+
+		add_filter( 'jetpack_is_private_site', '__return_true' );
+		Status_Cache::clear();
+		$this->resetCallableAndConstantTimeouts();
+		$this->sender->do_sync();
+		$this->assertSame( -1, $this->server_replica_storage->get_callable( 'jetpack_site_visibility' ) );
+		$this->assertSame( 1, (int) get_option( 'blog_public' ) );
+
+		remove_filter( 'jetpack_is_private_site', '__return_true' );
+		Status_Cache::clear();
+		$this->resetCallableAndConstantTimeouts();
+		$this->sender->do_sync();
+		$this->assertSame( 1, $this->server_replica_storage->get_callable( 'jetpack_site_visibility' ) );
 	}
 
 	public function test_sync_always_sync_changes_to_home_siteurl_right_away() {
