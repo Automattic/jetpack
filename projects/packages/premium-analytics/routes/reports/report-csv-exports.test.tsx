@@ -488,9 +488,10 @@ describe( 'report CSV exports', () => {
 				opens: 20,
 				opens_rate: 40,
 				clicks: 4,
-				clicks_rate: 8,
+				// Clicks with no attributable recipient: the click rate alone is unknown.
+				clicks_rate: 0,
 				unique_opens: 16,
-				unique_clicks: 4,
+				unique_clicks: 0,
 				total_sends: 40,
 			},
 		];
@@ -503,7 +504,7 @@ describe( 'report CSV exports', () => {
 			EmailsReportPage,
 			'emails',
 			[ rows[ 1 ], rows[ 0 ] ],
-			[ 'Second email', '2026-02-01', 20, 40, 4, 8 ]
+			[ 'Second email', '2026-02-01', 20, 40, 4, undefined ]
 		);
 	} );
 

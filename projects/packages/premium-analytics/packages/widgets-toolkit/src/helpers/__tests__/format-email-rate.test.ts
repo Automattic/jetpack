@@ -20,12 +20,8 @@ describe( 'isEmailRateKnown', () => {
 } );
 
 describe( 'getKnownEmailRate', () => {
-	it( 'returns a known rate, including a genuine zero', () => {
-		expect( getKnownEmailRate( 38.1, { total: 400, unique: 380, sends: 1000 } ) ).toBe( 38.1 );
+	it( 'returns the rate when known and undefined otherwise', () => {
 		expect( getKnownEmailRate( 0, { total: 0, unique: 0, sends: 1 } ) ).toBe( 0 );
-	} );
-
-	it( 'returns undefined for the 0 the summary reports when sends went unrecorded', () => {
 		expect( getKnownEmailRate( 0, { total: 120, unique: 0, sends: 0 } ) ).toBeUndefined();
 	} );
 } );

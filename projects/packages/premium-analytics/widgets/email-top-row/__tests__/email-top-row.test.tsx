@@ -101,6 +101,27 @@ describe( 'EmailTopRowWidget', () => {
 		expect( screen.getByText( '38.1%' ) ).toBeInTheDocument();
 	} );
 
+	it( 'renders the Opens view without asking the clicks endpoint when sends are recorded', async () => {
+		mockApiFetch.mockImplementation( options =>
+			String( ( options as { path?: string } )?.path ).includes( '/clicks/emails/' )
+				? Promise.reject( { status: 403, message: 'Forbidden' } )
+				: routeRateResponse( options )
+		);
+
+		render(
+			<EmailTopRowWidget
+				attributes={ {
+					metric: 'opens',
+					reportParams: { ...getDefaultQueryParams( false ), post_id: 2000 },
+				} }
+			/>
+		);
+
+		await expect( screen.findByText( '38.1%' ) ).resolves.toBeInTheDocument();
+		const requestedPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
+		expect( requestedPaths.some( path => path.includes( '/clicks/emails/' ) ) ).toBe( false );
+	} );
+
 	it( "shows a legacy send's opens from the clicks endpoint instead of an empty state", async () => {
 		rateResponses = { opens: LEGACY_OPENS_RATE_RESPONSE, clicks: LEGACY_CLICKS_RATE_RESPONSE };
 
@@ -136,7 +157,7 @@ describe( 'EmailTopRowWidget', () => {
 		expect( screen.queryByText( 'Emails sent' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Unique opens' ) ).not.toBeInTheDocument();
 
-		// Both views read both rate summaries.
+		// Total opens comes from the opens summary.
 		const requestedPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
 		expect( requestedPaths.some( path => path.includes( 'stats/opens/emails/2000/rate' ) ) ).toBe(
 			true
@@ -144,6 +165,25 @@ describe( 'EmailTopRowWidget', () => {
 		expect( requestedPaths.some( path => path.includes( 'stats/clicks/emails/2000/rate' ) ) ).toBe(
 			true
 		);
+	} );
+
+	it( 'lets the clicks summary win a shared key in the Clicks view', async () => {
+		rateResponses = {
+			opens: { ...OPENS_RATE_RESPONSE, total_opens: 400 },
+			clicks: { ...CLICKS_RATE_RESPONSE, total_opens: 999 },
+		};
+
+		render(
+			<EmailTopRowWidget
+				attributes={ {
+					metric: 'clicks',
+					reportParams: { ...getDefaultQueryParams( false ), post_id: 2000 },
+				} }
+			/>
+		);
+
+		await expect( screen.findByText( '999' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( '400' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows the empty state when the email has no stats', async () => {

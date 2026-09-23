@@ -281,7 +281,7 @@ describe( 'usePostDetailTabs', () => {
 		expect( commit ).not.toHaveBeenCalled();
 	} );
 
-	it( 'holds an email deep link until both gate queries answer', () => {
+	it( 'holds an email deep link until the clicks fallback answers', () => {
 		mockRateSummary( mockUseOpensBreakdown, {} );
 		mockRateSummary( mockUseClicksBreakdown, undefined, 'loading' );
 		const { stage, commit } = mockSearch( 'email-opens' );
@@ -289,6 +289,37 @@ describe( 'usePostDetailTabs', () => {
 		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
 
 		expect( result.current.activeTab ).toBe( 'email-opens' );
+		expect( stage ).not.toHaveBeenCalled();
+		expect( commit ).not.toHaveBeenCalled();
+	} );
+
+	it( 'skips the clicks query when the opens summary shows sends', () => {
+		mockSearch( 'email-opens' );
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
+
+		expect( result.current.activeTab ).toBe( 'email-opens' );
+		expect( mockUseClicksBreakdown ).toHaveBeenCalledWith( POST_ID, 'rate', { enabled: false } );
+	} );
+
+	it( 'keeps the email tabs when the opens summary shows sends and clicks fails', () => {
+		mockRateSummary( mockUseOpensBreakdown, { total_sends: 3 } );
+		mockRateSummary( mockUseClicksBreakdown, undefined, 'error' );
+		mockSearch( 'email-opens' );
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
+
+		expect( result.current.activeTab ).toBe( 'email-opens' );
+	} );
+
+	it( 'preserves an email deep link when the clicks fallback fails', () => {
+		mockRateSummary( mockUseOpensBreakdown, {} );
+		mockRateSummary( mockUseClicksBreakdown, undefined, 'error' );
+		const { stage, commit } = mockSearch( 'email-opens' );
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
+
+		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [ 'post-traffic' ] );
 		expect( stage ).not.toHaveBeenCalled();
 		expect( commit ).not.toHaveBeenCalled();
 	} );
