@@ -9,6 +9,7 @@ use Automattic\Jetpack\Waf\Waf_Operators;
 use Automattic\Jetpack\Waf\Waf_Runtime;
 use Automattic\Jetpack\Waf\Waf_Transforms;
 use PHPUnit\Framework\Attributes\Before;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
@@ -374,13 +375,19 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 	 *
 	 * The unit bootstrap leaves ABSPATH undefined, which is what standalone mode looks like.
 	 *
+	 * Global state must not be preserved: other tests define JETPACK_WAF_MODE in the parent
+	 * process, and PHPUnit 9 exports the parent's constants into the child by default.
+	 *
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function testBlockOnIpBlockListDoesNotRequireWordPress() {
 		$tmp_dir   = sys_get_temp_dir();
 		$log_file  = tempnam( $tmp_dir, 'waf-block-log-' );
 		$prior_log = ini_get( 'error_log' );
+		$log       = '';
 
 		define( 'JETPACK_WAF_DIR', $tmp_dir );
 		define( 'JETPACK_WAF_WPCONFIG', $tmp_dir . '/wp-config-does-not-exist.php' );
@@ -393,8 +400,8 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 		ini_set( 'error_log', $log_file ); // phpcs:ignore WordPress.PHP.IniSet.Risky -- Captures the block log so it does not pollute the test output.
 
 		try {
-			$this->runtime->block( 'block', -1, 'ip block list' );
-			$log = file_get_contents( $log_file );
+			$this->runtime->block( 'block', '-1', 'ip block list' );
+			$log = (string) file_get_contents( $log_file );
 		} finally {
 			ini_set( 'error_log', $prior_log ); // phpcs:ignore WordPress.PHP.IniSet.Risky -- Restores the value captured above.
 			unlink( $log_file );
