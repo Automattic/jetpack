@@ -33,7 +33,7 @@ index dae3268..40997a2 100755
  			...sassOptions,
  		} ),
 diff --git a/lib/compile-inline-style.mjs b/lib/compile-inline-style.mjs
-index 1872439..dc70b84 100644
+index 1872439..6c2bb30 100644
 --- a/lib/compile-inline-style.mjs
 +++ b/lib/compile-inline-style.mjs
 @@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
@@ -58,8 +58,55 @@ index 1872439..dc70b84 100644
  } = {} ) {
  	/**
  	 * @param {string} cssText  CSS source to compile.
-@@ -65,29 +68,58 @@ export function compileInlineStyle( {
+@@ -47,47 +50,88 @@ export function compileInlineStyle( {
+ 				} )
+ 			);
+ 		}
+-		if ( minify ) {
+-			plugins.push(
+-				cssnano( {
+-					preset: [
+-						'default',
+-						{ discardComments: { removeAll: true } },
+-					],
+-				} )
+-			);
++		const minifier = minify
++			? [
++					cssnano( {
++						preset: [
++							'default',
++							{ discardComments: { removeAll: true } },
++						],
++					} ),
++			  ]
++			: [];
++		// rtlcss reads `/*rtl:*/` directives, so minify only after it runs.
++		if ( ! rtl ) {
++			plugins.push( ...minifier );
+ 		}
  
+-		const { css } = await postcss( plugins ).process( cssText, {
++		let { css } = await postcss( plugins ).process( cssText, {
+ 			from: filePath,
+ 			map: false,
+ 		} );
+ 
++		// Only styles that rtlcss changes get a variant, picked where the style is injected.
++		let rtlCss = css;
++		if ( rtl ) {
++			( { css: rtlCss } = await postcss( [
++				rtlcss(),
++				...minifier,
++			] ).process( css, { from: filePath, map: false } ) );
++			if ( minify ) {
++				( { css } = await postcss( minifier ).process( css, {
++					from: filePath,
++					map: false,
++				} ) );
++			}
++		}
++
  		// Hash the transformed CSS so that the dedup key reflects the actual
  		// injected content, including mangled CSS module class names.
 -		const hash = createHash( 'sha1' )
@@ -70,13 +117,6 @@ index 1872439..dc70b84 100644
 +			createHash( 'sha1' ).update( text ).digest( 'hex' ).slice( 0, 10 );
 +		const hash = hashOf( css );
 +
-+		// Only styles that rtlcss changes get a variant, picked where the style is injected.
-+		let rtlCss = css;
-+		if ( rtl ) {
-+			( { css: rtlCss } = await postcss( [ rtlcss() ] ).process( css, {
-+				from: undefined,
-+			} ) );
-+		}
 +		const isRtl = `document.documentElement.dir === 'rtl'`;
  		const shouldInjectStyle =
  			`typeof process === 'undefined' || ` +
