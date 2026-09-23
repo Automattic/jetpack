@@ -40,7 +40,7 @@ class Publicize_Test extends BaseTestCase {
 	public function tear_down() {
 		remove_action( 'deprecated_function_run', array( $this, 'capture_deprecation' ) );
 		remove_filter( 'deprecated_function_trigger_error', '__return_false' );
-		unset( $_GET['action'] );
+		unset( $_GET['action'], $_GET['service'], $_GET['publicize_error'] );
 
 		parent::tear_down();
 	}
@@ -54,18 +54,12 @@ class Publicize_Test extends BaseTestCase {
 		$this->deprecated[] = $function_name;
 	}
 
-	/**
-	 * The Sharing settings screen is not hooked at all.
-	 */
 	public function test_does_not_hook_the_sharing_settings_screen() {
 		$publicize = new Publicize();
 
 		$this->assertFalse( has_action( 'load-settings_page_sharing', array( $publicize, 'admin_page_load' ) ) );
 	}
 
-	/**
-	 * The admin_page_load() shim is deprecated and registers nothing.
-	 */
 	public function test_admin_page_load_is_deprecated_and_hooks_nothing() {
 		$_GET['action'] = 'error';
 		$publicize      = new Publicize();
@@ -78,11 +72,13 @@ class Publicize_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The display_connection_error() shim is deprecated and prints nothing.
+	 * `service` and `publicize_error` are the arguments the removed body turned into an
+	 * error notice; the shim has to stay silent on them.
 	 */
 	public function test_display_connection_error_is_deprecated_and_prints_nothing() {
-		$_GET['action'] = 'error';
-		$publicize      = new Publicize();
+		$_GET['service']         = 'facebook';
+		$_GET['publicize_error'] = '400';
+		$publicize               = new Publicize();
 
 		ob_start();
 		// @phan-suppress-next-line PhanDeprecatedFunction -- the test is the contract for the deprecated shim.
