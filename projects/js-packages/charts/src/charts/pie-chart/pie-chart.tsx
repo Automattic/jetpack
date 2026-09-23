@@ -277,9 +277,14 @@ const PieChartInternal = ( {
 			CATALOG_POINTERS.labelBackground,
 			rootRef.current
 		);
+		// Hex drops alpha, so a see-through label role would win the comparison and paint nothing.
+		const rawLabel = resolveCssVariable( CATALOG_POINTERS.label, rootRef.current );
+		const isLabelOpaque = rawLabel ? d3Color( rawLabel )?.opacity === 1 : false;
 		setLabelPointers( {
 			hasPlate: rawLabelBackground ? ( d3Color( rawLabelBackground )?.opacity ?? 0 ) > 0 : false,
-			labelHex: normalizeColorToHex( CATALOG_POINTERS.label, rootRef.current, resolveCssVariable ),
+			labelHex: isLabelOpaque
+				? normalizeColorToHex( CATALOG_POINTERS.label, rootRef.current, resolveCssVariable )
+				: '',
 			labelInverseHex: normalizeColorToHex(
 				CATALOG_POINTERS.labelInverse,
 				rootRef.current,

@@ -200,6 +200,19 @@ describe( 'PieChart', () => {
 			expect( label ).toHaveClass( 'pie-chart__label-text--on-light' );
 		} );
 
+		test( 'keeps the inverse label color when the label role is see-through', () => {
+			injectedStyle = document.createElement( 'style' );
+			injectedStyle.textContent =
+				'.clear-label-pie { --a8c-charts-color-label: rgba(0, 0, 0, 0); }';
+			document.head.appendChild( injectedStyle );
+
+			renderWithTheme( { data: contrastData, className: 'clear-label-pie' } );
+
+			screen
+				.getAllByTestId( 'pie-label' )
+				.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
+		} );
+
 		test( 'keeps the inverse label color when the fill cannot be resolved', () => {
 			renderWithTheme( {
 				data: [ { label: 'Unresolved', value: 100, color: 'var(--not-set)' } ],
