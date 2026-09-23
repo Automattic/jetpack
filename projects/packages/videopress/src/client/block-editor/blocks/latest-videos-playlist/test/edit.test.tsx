@@ -2,8 +2,14 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import LatestVideosPlaylistEdit from '../edit';
+import type { LatestVideosPlaylistContext } from '../context';
 import type { LatestVideosPlaylistAttributes } from '../types';
 import type { BlockEditProps } from '@wordpress/blocks';
+
+// What the block last handed its inner Video Playlist block.
+let providedContext: LatestVideosPlaylistContext | undefined;
+// Inner blocks options the block last rendered with.
+let innerBlocksOptions: Record< string, unknown > | undefined;
 
 // The publish-tracking hook has its own isolated test suite.
 jest.mock( '../../playlist/use-publish-tracking', () => ( {
@@ -13,6 +19,20 @@ jest.mock( '../../playlist/use-publish-tracking', () => ( {
 
 jest.mock( '@wordpress/block-editor', () => ( {
 	useBlockProps: ( props: Record< string, unknown > = {} ) => props,
+	useInnerBlocksProps: ( props: Record< string, unknown >, options: Record< string, unknown > ) => {
+		innerBlocksOptions = options;
+		return { ...props, children: <div data-testid="inner-blocks" /> };
+	},
+	BlockContextProvider: ( {
+		value,
+		children,
+	}: {
+		value: Record< string, LatestVideosPlaylistContext >;
+		children: React.ReactNode;
+	} ) => {
+		providedContext = value[ 'videopress/latestVideosPlaylist' ];
+		return <>{ children }</>;
+	},
 	InspectorControls: ( { children }: { children: React.ReactNode } ) => (
 		<div data-testid="inspector-controls">{ children }</div>
 	),
@@ -27,18 +47,6 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
 	default: jest.fn(),
-} ) );
-
-// Titles are live data resolved per GUID, like the Video Playlist block.
-jest.mock( '../../../../lib/fetch-video-item', () => ( {
-	fetchVideoItem: jest.fn( ( { guid }: { guid: string } ) =>
-		Promise.resolve( { title: `Title of ${ guid }` } )
-	),
-} ) );
-
-jest.mock( '../../../../lib/get-media-token', () => ( {
-	__esModule: true,
-	default: jest.fn( () => Promise.resolve( { token: null } ) ),
 } ) );
 
 const apiFetchMock = apiFetch as unknown as jest.Mock;
@@ -92,6 +100,8 @@ function requestQuery( call = 0 ): Record< string, string > {
 
 beforeEach( () => {
 	jest.clearAllMocks();
+	providedContext = undefined;
+	innerBlocksOptions = undefined;
 	apiFetchMock.mockResolvedValue( [
 		{
 			id: 3,
@@ -107,15 +117,23 @@ beforeEach( () => {
 } );
 
 describe( 'LatestVideosPlaylistEdit', () => {
-	it( 'previews the newest videos from the library', async () => {
-		renderEdit();
+	it( 'hands the newest videos and its options to a locked inner playlist block', async () => {
+		renderEdit( { layout: 'grid' } );
 
-		expect( screen.getByText( 'Loading your latest videos…' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'inner-blocks' ) ).toBeInTheDocument();
+		expect( innerBlocksOptions ).toMatchObject( {
+			template: [ [ 'videopress/playlist' ] ],
+			templateLock: 'all',
+			renderAppender: false,
+		} );
+		expect( providedContext ).toMatchObject( { status: 'loading', videos: [] } );
 
-		await expect( screen.findByTitle( 'Title of aaaaaaaa' ) ).resolves.toBeInTheDocument();
-		expect( screen.getAllByText( '2 videos' ).length ).toBeGreaterThan( 0 );
-		expect( screen.getByText( 'Title of bbbbbbbb' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Up next' ) ).toBeInTheDocument();
+		await waitFor( () => expect( providedContext?.status ).toBe( 'ready' ) );
+		expect( providedContext?.videos ).toEqual( [
+			{ guid: 'aaaaaaaa', durationMs: 60000, height: 1080 },
+			{ guid: 'bbbbbbbb', durationMs: 120000, height: 2160 },
+		] );
+		expect( providedContext?.attributes ).toMatchObject( { layout: 'grid', showTitle: true } );
 
 		expect( requestQuery() ).toMatchObject( {
 			per_page: '5',
@@ -127,17 +145,17 @@ describe( 'LatestVideosPlaylistEdit', () => {
 
 	it( 'offers no way to add videos by hand', async () => {
 		renderEdit();
-		await expect( screen.findByTitle( 'Title of aaaaaaaa' ) ).resolves.toBeInTheDocument();
+		await waitFor( () => expect( providedContext?.status ).toBe( 'ready' ) );
 
 		expect( screen.queryByPlaceholderText( 'Paste a video URL' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Media Library' } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: /Remove/ } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'stores the chosen number of videos and reloads the preview', async () => {
+	it( 'stores the chosen number of videos and reloads them', async () => {
 		const setAttributes = jest.fn();
 		const { rerender } = renderEdit( {}, setAttributes );
-		await expect( screen.findByTitle( 'Title of aaaaaaaa' ) ).resolves.toBeInTheDocument();
+		await waitFor( () => expect( providedContext?.status ).toBe( 'ready' ) );
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- user-event cannot drive range inputs.
 		fireEvent.change( screen.getByRole( 'slider', { name: 'Number of videos' } ), {
@@ -160,27 +178,17 @@ describe( 'LatestVideosPlaylistEdit', () => {
 		expect( requestQuery( 1 ).per_page ).toBe( '8' );
 	} );
 
-	it( 'explains an empty library', async () => {
-		apiFetchMock.mockResolvedValue( [] );
-		renderEdit();
-
-		await expect( screen.findByText( 'No VideoPress videos yet' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'Up next' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'reports when the library cannot be read', async () => {
+	it( 'reports an unreadable library to the inner block', async () => {
 		apiFetchMock.mockRejectedValue( new Error( 'offline' ) );
 		renderEdit();
 
-		await expect(
-			screen.findByText( 'Your latest videos could not be loaded' )
-		).resolves.toBeInTheDocument();
+		await waitFor( () => expect( providedContext?.status ).toBe( 'error' ) );
 	} );
 
-	it( 'keeps the shared playback and display settings', async () => {
+	it( 'keeps the shared playback and display settings on this block', async () => {
 		const setAttributes = jest.fn();
 		renderEdit( {}, setAttributes );
-		await expect( screen.findByTitle( 'Title of aaaaaaaa' ) ).resolves.toBeInTheDocument();
+		await waitFor( () => expect( providedContext?.status ).toBe( 'ready' ) );
 
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Loop playlist' } ) );
 		expect( setAttributes ).toHaveBeenCalledWith( { loopPlaylist: true } );

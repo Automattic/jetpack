@@ -17,9 +17,11 @@ import { closeSmall, dragHandle, Icon } from '@wordpress/icons';
  */
 import { fetchVideoItem } from '../../../lib/fetch-video-item';
 import { isVideoPressGuid, pickGUIDFromUrl } from '../../../lib/url';
+import { LATEST_VIDEOS_PLAYLIST_CONTEXT } from '../latest-videos-playlist/context';
 import { VideoPressIcon } from '../video/components/icons';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../video/constants';
 import { PlaylistSettingsPanels, PlaylistStylesControls } from './inspector-controls';
+import LatestVideosInnerPlaylist from './latest-videos-inner';
 import PlaylistPreview from './preview';
 import usePlaylistLiveMetadata, { liveMetadataWithSignedPoster } from './use-live-metadata';
 import usePublishTracking from './use-publish-tracking';
@@ -37,6 +39,7 @@ import './editor.scss';
  */
 import type { PlaylistAttributes, PlaylistEntry, PlaylistLiveMetadata } from './types';
 import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../types';
+import type { LatestVideosPlaylistContext } from '../latest-videos-playlist/context';
 import type { BlockEditProps } from '@wordpress/blocks';
 
 /**
@@ -103,6 +106,27 @@ function entryMetaLine( entry: PlaylistEntry ): string {
 /**
  * Video Playlist block edit component.
  *
+ * Inside a Latest Videos Playlist block the playlist is that block's locked
+ * canvas and renders what the parent provides; on its own it is the full
+ * editing experience below.
+ *
+ * @param props - Block edit props.
+ * @return Edit component.
+ */
+export default function PlaylistEdit( props: BlockEditProps< PlaylistAttributes > ) {
+	const latestVideos = props.context?.[ LATEST_VIDEOS_PLAYLIST_CONTEXT ] as
+		LatestVideosPlaylistContext | undefined;
+
+	if ( latestVideos ) {
+		return <LatestVideosInnerPlaylist context={ latestVideos } />;
+	}
+
+	return <StandalonePlaylistEdit { ...props } />;
+}
+
+/**
+ * The standalone Video Playlist block.
+ *
  * The canvas is a live, non-editable preview of the front end; every
  * playlist operation (add, reorder, remove, display options) lives in the
  * block settings sidebar.
@@ -113,7 +137,7 @@ function entryMetaLine( entry: PlaylistEntry ): string {
  * @param props.clientId      - This block instance's client id.
  * @return Edit component.
  */
-export default function PlaylistEdit( {
+function StandalonePlaylistEdit( {
 	attributes,
 	setAttributes,
 	clientId,

@@ -353,6 +353,29 @@ class Latest_Videos_Playlist_Block_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The inner Video Playlist block is the editor canvas only: whatever it
+	 * stores never renders, and the parent renders the library's newest videos.
+	 */
+	public function test_render_skips_the_inner_playlist_block() {
+		$this->create_video( 'library1', '2024-01-01 10:00:00' );
+		VideoPress_Initializer::register_videopress_playlist_block( $this->write_fixture( 'videopress/playlist' ) );
+		VideoPress_Initializer::register_videopress_latest_videos_playlist_block( $this->write_fixture( 'videopress/latest-videos-playlist' ) );
+
+		$markup = do_blocks(
+			'<!-- wp:videopress/latest-videos-playlist {"count":3,"layout":"strip"} -->' .
+			'<!-- wp:videopress/playlist {"videos":[{"guid":"injected1"}],"layout":"grid"} /-->' .
+			'<!-- /wp:videopress/latest-videos-playlist -->'
+		);
+
+		$this->assertSame( 1, substr_count( $markup, '<figure' ) );
+		$this->assertStringContainsString( 'wp-block-videopress-latest-videos-playlist', $markup );
+		$this->assertStringContainsString( 'is-layout-strip', $markup );
+		$this->assertStringContainsString( 'data-guid="library1"', $markup );
+		$this->assertStringNotContainsString( 'injected1', $markup );
+		$this->assertStringNotContainsString( 'is-layout-grid', $markup );
+	}
+
+	/**
 	 * Without VideoPress videos the block renders nothing.
 	 */
 	public function test_render_returns_empty_without_videos() {
@@ -381,6 +404,7 @@ class Latest_Videos_Playlist_Block_Test extends BaseTestCase {
 			array( VideoPress_Initializer::class, 'render_videopress_latest_videos_playlist_block' ),
 			$block_type->render_callback
 		);
+		$this->assertTrue( $block_type->skip_inner_blocks );
 
 		// A second call must not fatal on the already-registered block.
 		VideoPress_Initializer::register_videopress_latest_videos_playlist_block( $fixture );

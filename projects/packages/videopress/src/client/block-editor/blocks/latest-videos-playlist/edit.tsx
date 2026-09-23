@@ -1,19 +1,21 @@
 /**
  * WordPress dependencies
  */
-import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, Placeholder, RangeControl, Spinner } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
+import {
+	BlockContextProvider,
+	InspectorControls,
+	useBlockProps,
+	useInnerBlocksProps,
+} from '@wordpress/block-editor';
+import { PanelBody, RangeControl } from '@wordpress/components';
+import { useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { PlaylistSettingsPanels, PlaylistStylesControls } from '../playlist/inspector-controls';
-import PlaylistPreview from '../playlist/preview';
-import usePlaylistLiveMetadata from '../playlist/use-live-metadata';
 import usePublishTracking from '../playlist/use-publish-tracking';
-import { playlistFontVariables, playlistWrapperClasses } from '../playlist/utils';
-import { VideoPressIcon } from '../video/components/icons';
+import { LATEST_VIDEOS_PLAYLIST_CONTEXT } from './context';
 import {
 	clampVideoCount,
 	fetchLatestVideos,
@@ -23,18 +25,21 @@ import {
 /**
  * Types
  */
+import type { LatestVideosPlaylistContext, LatestVideosStatus } from './context';
 import type { LatestVideosPlaylistAttributes } from './types';
 import type { PlaylistEntry } from '../playlist/types';
 import type { BlockEditProps } from '@wordpress/blocks';
 
-type LoadStatus = 'loading' | 'ready' | 'error';
+// The canvas is one locked Video Playlist block, rendered from this block's context.
+const TEMPLATE: Array< [ string ] > = [ [ 'videopress/playlist' ] ];
 
 /**
  * Latest Videos Playlist block edit component.
  *
- * The canvas previews the site's newest VideoPress videos exactly as the
- * front end renders them; the sidebar sets how many to show plus the same
- * playback and display options as the Video Playlist block.
+ * The block owns the settings: how many videos to show plus the same
+ * playback and display options as the Video Playlist block. Its canvas is a
+ * Video Playlist inner block that renders whatever this block hands it
+ * through block context, so nothing about the videos is stored in the post.
  *
  * @param props               - Block edit props.
  * @param props.attributes    - Block attributes.
@@ -47,11 +52,10 @@ export default function LatestVideosPlaylistEdit( {
 	setAttributes,
 	clientId,
 }: BlockEditProps< LatestVideosPlaylistAttributes > ) {
-	const { count, layout, entryTitleFontFamily } = attributes;
+	const { count, layout } = attributes;
 
 	const [ videos, setVideos ] = useState< PlaylistEntry[] >( [] );
-	const [ status, setStatus ] = useState< LoadStatus >( 'loading' );
-	const [ previewIndex, setPreviewIndex ] = useState( 0 );
+	const [ status, setStatus ] = useState< LatestVideosStatus >( 'loading' );
 
 	useEffect( () => {
 		let cancelled = false;
@@ -75,8 +79,6 @@ export default function LatestVideosPlaylistEdit( {
 		};
 	}, [ count ] );
 
-	const { liveMetadata } = usePlaylistLiveMetadata( videos );
-
 	// Records a Tracks event when a post/page is published with the playlist.
 	usePublishTracking( {
 		clientId,
@@ -86,88 +88,44 @@ export default function LatestVideosPlaylistEdit( {
 		eventName: 'jetpack_videopress_latest_videos_playlist_block_published',
 	} );
 
-	const currentIndex = Math.min( previewIndex, Math.max( 0, videos.length - 1 ) );
-
-	const blockProps = useBlockProps( {
-		className: videos.length
-			? playlistWrapperClasses( attributes )
-			: 'videopress-playlist is-empty',
-		style: playlistFontVariables( entryTitleFontFamily ),
-	} );
-
-	const inspectorControls = (
-		<InspectorControls>
-			<PanelBody title={ __( 'Videos', 'jetpack-videopress-pkg' ) }>
-				<RangeControl
-					__next40pxDefaultSize
-					__nextHasNoMarginBottom
-					label={ __( 'Number of videos', 'jetpack-videopress-pkg' ) }
-					min={ MIN_VIDEO_COUNT }
-					max={ MAX_VIDEO_COUNT }
-					value={ clampVideoCount( count ) }
-					onChange={ ( value?: number ) => setAttributes( { count: clampVideoCount( value ) } ) }
-				/>
-				<p className="videopress-playlist-editor__help">
-					{ __(
-						'Shows the newest videos in your VideoPress library, newest first. New uploads appear here automatically.',
-						'jetpack-videopress-pkg'
-					) }
-				</p>
-			</PanelBody>
-
-			<PlaylistSettingsPanels attributes={ attributes } setAttributes={ setAttributes } />
-		</InspectorControls>
+	const context = useMemo< Record< string, LatestVideosPlaylistContext > >(
+		() => ( { [ LATEST_VIDEOS_PLAYLIST_CONTEXT ]: { videos, status, attributes } } ),
+		[ videos, status, attributes ]
 	);
 
-	const stylesControls = (
-		<PlaylistStylesControls attributes={ attributes } setAttributes={ setAttributes } />
+	const innerBlocksProps = useInnerBlocksProps(
+		useBlockProps( { className: 'videopress-latest-videos-playlist' } ),
+		{ template: TEMPLATE, templateLock: 'all', renderAppender: false }
 	);
-
-	if ( status !== 'ready' || ! videos.length ) {
-		// Kept as separate statements so the minifier can't merge the __() calls.
-		const loadingLabel = __( 'Loading your latest videos…', 'jetpack-videopress-pkg' );
-		const errorLabel = __( 'Your latest videos could not be loaded', 'jetpack-videopress-pkg' );
-		const emptyLabel = __( 'No VideoPress videos yet', 'jetpack-videopress-pkg' );
-
-		let label: string = emptyLabel;
-		if ( status === 'loading' ) {
-			label = loadingLabel;
-		} else if ( status === 'error' ) {
-			label = errorLabel;
-		}
-
-		let instructions: string | undefined;
-		if ( status === 'error' ) {
-			instructions = __( 'Reload the editor to try again.', 'jetpack-videopress-pkg' );
-		} else if ( status === 'ready' ) {
-			instructions = __(
-				'Upload a video to VideoPress and it will show up here.',
-				'jetpack-videopress-pkg'
-			);
-		}
-
-		return (
-			<div { ...blockProps }>
-				{ inspectorControls }
-				{ stylesControls }
-				<Placeholder icon={ VideoPressIcon } label={ label } instructions={ instructions }>
-					{ status === 'loading' && <Spinner /> }
-				</Placeholder>
-			</div>
-		);
-	}
 
 	return (
-		<figure { ...blockProps }>
-			{ inspectorControls }
-			{ stylesControls }
-			<PlaylistPreview
-				videos={ videos }
-				attributes={ attributes }
-				currentIndex={ currentIndex }
-				liveMetadata={ liveMetadata }
-				onSelect={ setPreviewIndex }
-			/>
-		</figure>
+		<>
+			<InspectorControls>
+				<PanelBody title={ __( 'Videos', 'jetpack-videopress-pkg' ) }>
+					<RangeControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Number of videos', 'jetpack-videopress-pkg' ) }
+						min={ MIN_VIDEO_COUNT }
+						max={ MAX_VIDEO_COUNT }
+						value={ clampVideoCount( count ) }
+						onChange={ ( value?: number ) => setAttributes( { count: clampVideoCount( value ) } ) }
+					/>
+					<p className="videopress-playlist-editor__help">
+						{ __(
+							'Shows the newest videos in your VideoPress library, newest first. New uploads appear here automatically.',
+							'jetpack-videopress-pkg'
+						) }
+					</p>
+				</PanelBody>
+
+				<PlaylistSettingsPanels attributes={ attributes } setAttributes={ setAttributes } />
+			</InspectorControls>
+			<PlaylistStylesControls attributes={ attributes } setAttributes={ setAttributes } />
+
+			<BlockContextProvider value={ context }>
+				<div { ...innerBlocksProps } />
+			</BlockContextProvider>
+		</>
 	);
 }

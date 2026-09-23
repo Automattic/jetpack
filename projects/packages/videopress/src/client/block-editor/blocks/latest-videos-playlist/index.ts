@@ -1,7 +1,9 @@
 /**
  * WordPress dependencies
  */
+import { InnerBlocks } from '@wordpress/block-editor';
 import { registerBlockType } from '@wordpress/blocks';
+import { createElement } from '@wordpress/element';
 /**
  * Internal dependencies
  */
@@ -22,8 +24,9 @@ registerBlockType< LatestVideosPlaylistAttributes >( name, {
 	category,
 	title,
 	icon,
-	// Dynamic block: the markup is produced by the render callback in
+	// Only the locked inner Video Playlist block is serialized; the markup is
+	// produced by the render callback in
 	// Initializer::render_videopress_latest_videos_playlist_block().
-	save: () => null,
+	save: () => createElement( InnerBlocks.Content ),
 	attributes,
 } );

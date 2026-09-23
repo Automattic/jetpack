@@ -649,7 +649,8 @@ class Initializer {
 	 * Register the Latest Videos Playlist block.
 	 *
 	 * It reuses the Video Playlist block's registered view script and styles, so
-	 * it is only registered once that block is.
+	 * it is only registered once that block is. Its inner Video Playlist block is
+	 * the editor canvas only: the front end renders the newest videos fresh.
 	 *
 	 * @param string|null $metadata_file Path to the block.json metadata file. Defaults to the
 	 *                                   package build output; tests can point it at a fixture.
@@ -683,7 +684,8 @@ class Initializer {
 		register_block_type(
 			$metadata_file,
 			array(
-				'render_callback' => array( __CLASS__, 'render_videopress_latest_videos_playlist_block' ),
+				'render_callback'   => array( __CLASS__, 'render_videopress_latest_videos_playlist_block' ),
+				'skip_inner_blocks' => true,
 			)
 		);
 	}
@@ -693,7 +695,7 @@ class Initializer {
 	 * on the site, rendered by the Video Playlist block's callback.
 	 *
 	 * @param array          $block_attributes Block attributes.
-	 * @param string         $content          Current block markup.
+	 * @param string         $content          Current block markup, unused: the inner block is never rendered.
 	 * @param \WP_Block|null $block            Current block.
 	 *
 	 * @return string Block markup, or an empty string when the site has no VideoPress videos.

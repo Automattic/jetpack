@@ -14,8 +14,12 @@ jest.mock( '../use-publish-tracking', () => ( {
 	default: jest.fn(),
 } ) );
 
+// Editing mode the inner playlist asks for when a Latest Videos Playlist owns it.
+const mockUseBlockEditingMode = jest.fn();
+
 jest.mock( '@wordpress/block-editor', () => ( {
 	useBlockProps: ( props: Record< string, unknown > = {} ) => props,
+	useBlockEditingMode: ( mode?: string ) => mockUseBlockEditingMode( mode ),
 	InspectorControls: ( { children }: { children: React.ReactNode } ) => (
 		<div data-testid="inspector-controls">{ children }</div>
 	),
@@ -94,18 +98,37 @@ const DEFAULT_ATTRIBUTES: PlaylistAttributes = {
  *
  * @param overrides     - Attribute overrides.
  * @param setAttributes - setAttributes mock.
+ * @param context       - Block context, as a parent block would provide it.
  */
 function renderEdit(
 	overrides: Partial< PlaylistAttributes > = {},
-	setAttributes: jest.Mock = jest.fn()
+	setAttributes: jest.Mock = jest.fn(),
+	context: Record< string, unknown > = {}
 ) {
 	const props = {
 		attributes: { ...DEFAULT_ATTRIBUTES, ...overrides },
 		setAttributes,
 		clientId: 'playlist-client-1',
+		context,
 	} as unknown as BlockEditProps< PlaylistAttributes >;
 
 	render( <PlaylistEdit { ...props } /> );
+}
+
+/**
+ * Render the block as the inner canvas of a Latest Videos Playlist block.
+ *
+ * @param latestVideos - Overrides for what the parent provides.
+ */
+function renderAsLatestVideosCanvas( latestVideos: Record< string, unknown > = {} ) {
+	renderEdit( {}, jest.fn(), {
+		'videopress/latestVideosPlaylist': {
+			status: 'ready',
+			videos: [ { guid: 'aaaaaaaa', durationMs: 60000, height: 1080 }, { guid: 'bbbbbbbb' } ],
+			attributes: { ...DEFAULT_ATTRIBUTES, layout: 'grid' },
+			...latestVideos,
+		},
+	} );
 }
 
 /**
@@ -136,6 +159,38 @@ beforeEach( () => {
 			return Promise.resolve( { title: `Video ${ numbered[ 1 ] }` } );
 		}
 		return Promise.resolve( LIVE_TITLES[ guid ] ? { title: LIVE_TITLES[ guid ] } : {} );
+	} );
+} );
+
+describe( 'PlaylistEdit inside a Latest Videos Playlist block', () => {
+	it( 'renders the videos the parent provides and nothing editable', async () => {
+		renderAsLatestVideosCanvas();
+
+		expect( mockUseBlockEditingMode ).toHaveBeenCalledWith( 'disabled' );
+		await expect( screen.findByTitle( 'First' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Second' ) ).toBeInTheDocument();
+		expect( screen.getAllByText( '2 videos' ).length ).toBeGreaterThan( 0 );
+		// The parent's options drive the wrapper, not this block's own attributes.
+		expect( screen.getByRole( 'figure' ) ).toHaveClass( 'is-layout-grid' );
+
+		expect( screen.queryByTestId( 'inspector-controls' ) ).not.toBeInTheDocument();
+		expect( screen.queryByPlaceholderText( 'Paste a video URL' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /Remove/ } ) ).not.toBeInTheDocument();
+	} );
+
+	it( "shows the parent's loading state", () => {
+		renderAsLatestVideosCanvas( { status: 'loading', videos: [] } );
+		expect( screen.getByText( 'Loading your latest videos…' ) ).toBeInTheDocument();
+	} );
+
+	it( 'explains an empty library', () => {
+		renderAsLatestVideosCanvas( { videos: [] } );
+		expect( screen.getByText( 'No VideoPress videos yet' ) ).toBeInTheDocument();
+	} );
+
+	it( 'reports when the library could not be read', () => {
+		renderAsLatestVideosCanvas( { status: 'error', videos: [] } );
+		expect( screen.getByText( 'Your latest videos could not be loaded' ) ).toBeInTheDocument();
 	} );
 } );
 

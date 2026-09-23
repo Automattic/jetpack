@@ -5,6 +5,10 @@ jest.mock( '@wordpress/blocks', () => ( {
 	registerBlockType: jest.fn(),
 } ) );
 
+jest.mock( '@wordpress/block-editor', () => ( {
+	InnerBlocks: { Content: () => null },
+} ) );
+
 // Keep the registration test from dragging in the whole block editor.
 jest.mock( '../edit', () => ( {
 	__esModule: true,
@@ -27,7 +31,8 @@ describe( 'latest videos playlist block registration', () => {
 		// No stored entries: the videos come from the library at render time.
 		expect( settings.attributes.videos ).toBeUndefined();
 
-		// Dynamic block: the front end comes from the PHP render callback.
-		expect( settings.save() ).toBeNull();
+		// Only the locked inner playlist block is serialized; the front end
+		// comes from the PHP render callback.
+		expect( settings.save() ).not.toBeNull();
 	} );
 } );
