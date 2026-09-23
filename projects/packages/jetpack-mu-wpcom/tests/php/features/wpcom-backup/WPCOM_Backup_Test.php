@@ -10,6 +10,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-backup/wpcom-backup.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-menu/wpcom-admin-menu.php';
 
 /**
  * Tests for the Backup page.
@@ -214,7 +215,6 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 			$GLOBALS['plugin_page'],
 			$_GET['page']
 		);
-		remove_action( 'admin_head', array( WPCOM_Backup::class, 'hide_menu_entry' ), 0 );
 		Constants::clear_constants();
 		WPCOM_Backup::reset();
 
@@ -224,8 +224,7 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * The Jetpack plugin registers this slug through Admin_Menu at `admin_menu`
 	 * priority 1000, before this page's own hook. Adding a second entry would
-	 * leave two, and hide_menu_entry() would drop theirs rather than ours —
-	 * deleting a correctly sorted entry and leaving ours in the wrong tier.
+	 * leave two.
 	 */
 	public function test_page_steps_aside_when_another_plugin_owns_the_slug() {
 		global $submenu;
@@ -244,8 +243,7 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Routing resolves the render hook by searching $submenu for the page, so
-	 * removing the entry too early stops the page rendering at all.
+	 * Routing resolves the render hook by searching $submenu for the page.
 	 */
 	public function test_page_hook_still_resolves_on_the_backup_request() {
 		$this->set_up_admin_menu();
@@ -260,38 +258,16 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The entry has to be gone before menu-header.php prints the sidebar.
+	 * Registration must land between Jetpack's Admin_Menu and the WordPress.com menu's hide pass.
 	 */
-	public function test_menu_entry_is_hidden_by_admin_head() {
-		$this->set_up_admin_menu();
-		$this->set_up_backup_request();
+	public function test_page_registers_between_admin_menu_and_the_wpcom_menu_hide() {
+		remove_action( 'admin_menu', array( WPCOM_Backup::class, 'register_page' ), WPCOM_Backup::REGISTER_PRIORITY );
 
-		WPCOM_Backup::register_page();
+		WPCOM_Backup::init();
+		$priority = has_action( 'admin_menu', array( WPCOM_Backup::class, 'register_page' ) );
 
-		$this->assertSame(
-			0,
-			has_action( 'admin_head', array( WPCOM_Backup::class, 'hide_menu_entry' ) ),
-			'Hiding must be hooked before menu-header.php prints.'
-		);
-
-		WPCOM_Backup::hide_menu_entry();
-
-		$slugs = array_column( $GLOBALS['submenu']['jetpack'] ?? array(), 2 );
-		$this->assertNotContains( WPCOM_Backup::MENU_SLUG, $slugs );
-	}
-
-	/**
-	 * Off the Backup page nothing needs the entry, so it goes immediately —
-	 * admin_head never fires on the REST requests that build the wpcom sidebar.
-	 */
-	public function test_menu_entry_is_hidden_immediately_elsewhere() {
-		$this->set_up_admin_menu();
-
-		WPCOM_Backup::register_page();
-
-		$slugs = array_column( $GLOBALS['submenu']['jetpack'] ?? array(), 2 );
-		$this->assertNotContains( WPCOM_Backup::MENU_SLUG, $slugs );
-		$this->assertArrayHasKey( self::SCREEN_ID, $GLOBALS['_registered_pages'] );
+		$this->assertGreaterThan( 1000, $priority );
+		$this->assertLessThan( has_action( 'admin_menu', 'wpcom_add_jetpack_submenu' ), $priority );
 	}
 
 	/**

@@ -36,6 +36,11 @@ class WPCOM_Backup {
 	const RENDER_CALLBACK = 'jetpack_mu_wpcom_wpcom_backup_wp_admin_render_page';
 
 	/**
+	 * `admin_menu` priority for register_page().
+	 */
+	const REGISTER_PRIORITY = 999998;
+
+	/**
 	 * Calypso flow that initiates the transfer, reports progress and returns here.
 	 */
 	const TRANSFER_FLOW_URL = 'https://wordpress.com/setup/transferring-hosted-site';
@@ -84,7 +89,9 @@ class WPCOM_Backup {
 			return;
 		}
 
-		add_action( 'admin_menu', array( __CLASS__, 'register_page' ), 1000000 );
+		// After Admin_Menu (1000) so a claimed slug is visible, and before wpcom_add_jetpack_submenu()
+		// (999999), which hides the entry from the sidebar.
+		add_action( 'admin_menu', array( __CLASS__, 'register_page' ), self::REGISTER_PRIORITY );
 
 		if ( ! self::is_backup_admin_request() ) {
 			return;
@@ -156,14 +163,12 @@ class WPCOM_Backup {
 	}
 
 	/**
-	 * Register the Backup page, then take it back out of the Jetpack menu.
-	 * Removed from the menu until the mirroring Calypso page is deprecated.
+	 * Register the Backup page, unless something else already serves the slug.
 	 *
 	 * @return void
 	 */
 	public static function register_page() {
-		// A second entry under a slug someone else owns would leave two, and
-		// hide_menu_entry() would then drop theirs rather than ours.
+		// A second entry under a slug someone else owns would leave two.
 		if ( self::slug_is_claimed() ) {
 			return;
 		}
@@ -178,21 +183,13 @@ class WPCOM_Backup {
 
 		add_submenu_page(
 			'jetpack',
-			// "VaultPress Backup" is a product name, do not translate.
+			// Product names, do not translate.
 			'Jetpack VaultPress Backup',
-			'VaultPress Backup',
+			'Backup',
 			'manage_options',
 			self::MENU_SLUG,
 			$callback
 		);
-
-		// On this page's own request, defer removal until after routing and before menu-header.php prints.
-		if ( self::is_backup_admin_request() ) {
-			add_action( 'admin_head', array( __CLASS__, 'hide_menu_entry' ), 0 );
-			return;
-		}
-
-		self::hide_menu_entry();
 	}
 
 	/**
@@ -236,17 +233,6 @@ class WPCOM_Backup {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Drop the Backup entry from the Jetpack submenu, leaving it routable by URL.
-	 *
-	 * Deleting this call is all that is needed to surface the page in the sidebar.
-	 *
-	 * @return void
-	 */
-	public static function hide_menu_entry() {
-		remove_submenu_page( 'jetpack', self::MENU_SLUG );
 	}
 
 	/**
