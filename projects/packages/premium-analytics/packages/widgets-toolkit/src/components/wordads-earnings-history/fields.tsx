@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
-import { Badge, Stack } from '@jetpack-premium-analytics/externals';
+import { Badge } from '@jetpack-premium-analytics/externals';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -169,18 +169,15 @@ function compareOptionalCounts( a: unknown, b: unknown, direction: 'asc' | 'desc
 export function EarningsStatusBadge( { status }: { status: number | undefined } ) {
 	const { label, tooltip, intent, detail } = getEarningsStatus( status );
 
-	// Inline-flex blockifies the badge, so every status stands the same full height.
-	const stackProps = { direction: 'row', align: 'center', gap: 'xs', render: <span /> } as const;
-
 	if ( detail ) {
 		return (
-			<Stack { ...stackProps }>
+			<span className={ styles.root }>
 				<InfoTip label={ detail } size={ 16 }>
 					<span className={ styles.reason }>{ detail }</span>
 					{ tooltip }
 				</InfoTip>
 				<Badge intent={ intent }>{ label }</Badge>
-			</Stack>
+			</span>
 		);
 	}
 
@@ -191,9 +188,9 @@ export function EarningsStatusBadge( { status }: { status: number | undefined } 
 	);
 
 	return (
-		<Stack { ...stackProps }>
+		<span className={ styles.root }>
 			{ tooltip ? <Tooltip text={ tooltip }>{ badge }</Tooltip> : badge }
-		</Stack>
+		</span>
 	);
 }
 
