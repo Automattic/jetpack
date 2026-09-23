@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add ConnectionErrorDetails, for describing a connection error outside a notice, and a severity to useConnectionErrorNotice rating how much the error is the viewer's to fix.
+Add ConnectionErrorDetails, for describing a connection error outside a notice, and rate each error for the viewer so the connection error notice shows a break only the connection owner can repair as a warning.

@@ -143,6 +143,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		hasConnectionError,
 		severity,
 		errorTitle,
+		connectionErrorMessage,
 		errorGroups,
 		showSupportLink,
 		actions,
@@ -236,14 +237,19 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 								</Text>
 							) }
 							{ /* The card's body copy is a step below a notice's, so the shared
-							     description is asked for at the card's size. */ }
-							<ConnectionErrorDetails
-								variant="body-sm"
-								errorGroups={ errorGroups }
-								showSupportLink={ showSupportLink }
-								onNoticeLinkClick={ trackNoticeLinkClick }
-								onSupportLinkClick={ trackSupportLinkClick }
-							/>
+							     description is asked for at the card's size. An older shared
+							     jetpack-connection script may predate the component. */ }
+							{ typeof ConnectionErrorDetails === 'function' ? (
+								<ConnectionErrorDetails
+									variant="body-sm"
+									errorGroups={ errorGroups }
+									showSupportLink={ showSupportLink }
+									onNoticeLinkClick={ trackNoticeLinkClick }
+									onSupportLinkClick={ trackSupportLinkClick }
+								/>
+							) : (
+								<Text variant="body-sm">{ connectionErrorMessage }</Text>
+							) }
 						</Stack>
 						<Stack direction="column" align="start" gap="sm">
 							{ actions.map( ( action, index ) => (

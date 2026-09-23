@@ -120,9 +120,8 @@ const useConnectionErrorsNotice = (
 			return;
 		}
 
-		// Keep the backend message as the headline, then group broken-token errors under one
-		// shared description with each error's scope beneath it. Both the grouping and the
-		// scope lines come from the connection package.
+		// A hand-built copy of the package's `ConnectionErrorDetails`, kept until My Jetpack
+		// renders the package's `<ConnectionError />` directly. Don't extend it.
 		const errorMessage = (
 			<Col>
 				{ restoreConnectionError && (

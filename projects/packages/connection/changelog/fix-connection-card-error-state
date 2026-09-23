@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection error notice: Show a break only the connection owner can repair as a warning to everyone else, and share the error description with other connection surfaces, such as My Jetpack's connection card.

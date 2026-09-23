@@ -1,3 +1,4 @@
+import type { ConnectionErrorSeverity } from '../../hooks/use-connection-error-notice/types';
 import type { ConnectionErrorDetailsProps } from '../connection-error-details/types';
 import type { ReactElement } from 'react';
 
@@ -19,4 +20,6 @@ export interface ConnectionErrorNoticeProps extends Omit< ConnectionErrorDetails
 	isRestoringConnection?: boolean;
 	restoreConnectionError?: string | null;
 	actions?: ActionItem[];
+	/** How the notice reads to this viewer; `warning` for a break only somebody else can repair. */
+	severity?: ConnectionErrorSeverity;
 }

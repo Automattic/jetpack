@@ -264,6 +264,7 @@ export function ConnectionError( {
 }: ConnectionErrorProps = {} ): ReactElement | null {
 	const {
 		hasConnectionError,
+		severity,
 		connectionErrorMessage,
 		connectionError,
 		errorTitle,
@@ -301,6 +302,7 @@ export function ConnectionError( {
 			actions={ actions }
 			onNoticeLinkClick={ trackNoticeLinkClick }
 			onSupportLinkClick={ trackSupportLinkClick }
+			severity={ severity ?? 'error' }
 		/>
 	);
 }

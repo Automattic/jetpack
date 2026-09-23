@@ -126,6 +126,18 @@ describe( 'ConnectionErrorNotice', () => {
 	} );
 
 	// Rendering the groups is ConnectionErrorDetails' job; this only checks the hand-off.
+	it.each( [
+		[ 'error', undefined ],
+		[ 'warning', 'warning' as const ],
+	] )( 'uses the %s intent for severity %s', ( intent, severity ) => {
+		const { container } = render(
+			<ConnectionErrorNotice message="Connection failed" severity={ severity } />
+		);
+
+		// eslint-disable-next-line testing-library/no-node-access, testing-library/no-container -- The intent is only exposed as a class.
+		expect( container.querySelector( `[class*="is-${ intent }"]` ) ).not.toBeNull();
+	} );
+
 	it( 'renders the error groups it was given', () => {
 		render(
 			<ConnectionErrorNotice

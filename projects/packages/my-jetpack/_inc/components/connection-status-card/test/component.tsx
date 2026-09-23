@@ -8,6 +8,18 @@ import ConnectionStatusCard from '../index';
 import type { StateProducts, MyJetpackInitialState } from '../../../data/types';
 import type { ConnectionErrorObject } from '@automattic/jetpack-connection';
 
+let mockDetailsMissing = false;
+jest.mock( '@automattic/jetpack-connection', () => {
+	const actual = jest.requireActual( '@automattic/jetpack-connection' );
+
+	return {
+		...actual,
+		get ConnectionErrorDetails() {
+			return mockDetailsMissing ? undefined : actual.ConnectionErrorDetails;
+		},
+	};
+} );
+
 const mockRecordEvent = jest.fn();
 jest.mock( '../../../hooks/use-analytics', () => ( {
 	__esModule: true,
@@ -319,6 +331,19 @@ describe( 'ConnectionStatusCard', () => {
 			expect(
 				screen.getByText( 'Your site is not connected to WordPress.com.' )
 			).toBeInTheDocument();
+		} );
+
+		it( 'falls back to the error message when the shared script predates ConnectionErrorDetails', () => {
+			mockDetailsMissing = true;
+			try {
+				setupWithError( { error: { audience: 'site' } } );
+				expect(
+					screen.getByText( 'Your site is not connected to WordPress.com.' )
+				).toBeInTheDocument();
+				expect( screen.getByRole( 'button', { name: 'Restore Connection' } ) ).toBeInTheDocument();
+			} finally {
+				mockDetailsMissing = false;
+			}
 		} );
 
 		it( 'flags the fault beside the heading', () => {

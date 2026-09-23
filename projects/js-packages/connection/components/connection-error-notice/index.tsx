@@ -24,6 +24,7 @@ function ConnectionErrorNotice( {
 	showSupportLink = false,
 	onNoticeLinkClick,
 	onSupportLinkClick,
+	severity = 'error',
 }: ConnectionErrorNoticeProps ): ReactNode {
 	if ( ! message && ! errorGroups.length ) {
 		return null;
@@ -79,7 +80,7 @@ function ConnectionErrorNotice( {
 	return (
 		<>
 			{ errorRender }
-			<Notice.Root key="error" intent="error">
+			<Notice.Root key="error" intent={ severity }>
 				{ context && <Notice.Title>{ context }</Notice.Title> }
 				<Notice.Description>
 					<ConnectionErrorDetails
