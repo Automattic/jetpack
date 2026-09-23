@@ -1500,6 +1500,31 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
+	 * The reconcile goes out as a signed XML-RPC call carrying the anchored identity.
+	 *
+	 * Every other test here stubs the lookup, so a wrong method name or payload key would reach
+	 * production unnoticed.
+	 */
+	public function test_reconcile_asks_wpcom_over_xmlrpc() {
+		$this->act_as_administrator();
+		$this->connect_the_owner();
+		$this->anchor();
+
+		$sent = $this->answer_xmlrpc(
+			'<params><param><value><struct>' .
+			'<member><name>has_owner</name><value><boolean>1</boolean></value></member>' .
+			'<member><name>matches</name><value><boolean>1</boolean></value></member>' .
+			'</struct></value></param></params>'
+		);
+
+		$this->assertTrue( ( new Manager() )->verify_protected_owner() );
+
+		$this->assertStringContainsString( '<methodName>jetpack.getProtectedOwner</methodName>', $sent->body );
+		$this->assertStringContainsString( '<name>anchored_wpcom_user_id</name>', $sent->body );
+		$this->assertStringContainsString( '<int>' . self::ANCHORED_WPCOM_ID . '</int>', $sent->body );
+	}
+
+	/**
 	 * Every other test here calls the method directly, so a wrong hook name would leave the
 	 * reconcile inert in production while they all still pass. Runs in a separate process because
 	 * `configure()` registers many hooks and schedules cron as side effects.
