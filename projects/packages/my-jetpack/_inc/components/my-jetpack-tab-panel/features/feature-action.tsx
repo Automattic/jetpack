@@ -112,6 +112,10 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 			);
 
 		case 'plugin':
+			if ( control.override ) {
+				return null;
+			}
+
 			return (
 				<PluginToggle
 					plugin={ control.plugin }

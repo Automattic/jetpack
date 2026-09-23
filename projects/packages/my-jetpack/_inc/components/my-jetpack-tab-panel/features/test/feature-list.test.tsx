@@ -75,6 +75,19 @@ describe( 'FeatureList', () => {
 		expect( screen.getByRole( 'status' ) ).toHaveTextContent( '1 selected' );
 	} );
 
+	it( 'offers no checkbox for a plugin a host forced on or off', async () => {
+		const forcedBoost = pluginState( 'boost', 'active', {
+			control: { kind: 'plugin', plugin: 'boost', override: 'active' },
+		} );
+		render( <FeatureList states={ [ akismet, forcedBoost ] } onOpen={ jest.fn() } /> );
+
+		expect( screen.queryByRole( 'checkbox', { name: 'Select boost' } ) ).not.toBeInTheDocument();
+
+		await userEvent.click( checkbox( 'Select all features' ) );
+
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( '1 selected' );
+	} );
+
 	it( 'shows select-all as partly checked when only some rows are picked', async () => {
 		render( <FeatureList states={ [ akismet, boost ] } onOpen={ jest.fn() } /> );
 

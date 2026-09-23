@@ -23,6 +23,12 @@ const moduleState = ( override: false | 'active' | 'inactive', status: 'active' 
 		},
 	} ) as FeatureState;
 
+const forcedOffPlugin = {
+	feature: { ...feature, slug: 'boost', name: 'Boost', in_jetpack: false, plugin: 'jetpack-boost' },
+	status: 'inactive',
+	control: { kind: 'plugin', plugin: 'jetpack-boost', override: 'inactive' },
+} as FeatureState;
+
 describe( 'FeatureDelivery', () => {
 	it( 'says why a module a host forced off cannot be turned on, instead of how to', () => {
 		render( <FeatureDelivery state={ moduleState( 'inactive', 'inactive' ) } /> );
@@ -31,6 +37,12 @@ describe( 'FeatureDelivery', () => {
 		expect( screen.getByText( 'Disabled by your host or site administrator' ) ).toBeInTheDocument();
 		expect( screen.queryByText( /Activate turns/ ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'In Jetpack' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'says why a plugin a host forced off cannot be turned on', () => {
+		render( <FeatureDelivery state={ forcedOffPlugin } /> );
+
+		expect( screen.getByText( 'Disabled by your host or site administrator' ) ).toBeInTheDocument();
 	} );
 
 	it( 'still explains how to turn on a module nobody forced', () => {
@@ -45,6 +57,12 @@ describe( 'FeaturePaid', () => {
 		render(
 			<FeaturePaid state={ moduleState( 'inactive', 'inactive' ) } onFilterByPlan={ jest.fn() } />
 		);
+
+		expect( screen.queryByText( 'Available in' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'leaves out "Available in" for a plugin a host forced off', () => {
+		render( <FeaturePaid state={ forcedOffPlugin } onFilterByPlan={ jest.fn() } /> );
 
 		expect( screen.queryByText( 'Available in' ) ).not.toBeInTheDocument();
 	} );
