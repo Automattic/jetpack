@@ -1,8 +1,12 @@
-import { loadBundleI18nCatalog } from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
+import {
+	loadBundleI18nCatalog,
+	loadI18nManifest,
+} from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useEffect, useState } from '@wordpress/element';
 import { useWidgetTypes } from '@wordpress/widget-primitives';
 import {
+	createWidgetModuleResolver,
 	preloadWidgetModuleCatalogs,
 	resolveWidgetModuleWithI18n,
 	useWidgetTypesWithI18n,
@@ -14,6 +18,7 @@ type WidgetModule = Awaited< ReturnType< ResolveWidgetModule > >;
 
 jest.mock( '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs', () => ( {
 	loadBundleI18nCatalog: jest.fn( () => Promise.resolve() ),
+	loadI18nManifest: jest.fn( () => Promise.resolve() ),
 } ) );
 
 jest.mock( '@wordpress/widget-primitives', () => ( {
@@ -21,6 +26,7 @@ jest.mock( '@wordpress/widget-primitives', () => ( {
 } ) );
 
 const loadCatalogMock = loadBundleI18nCatalog as jest.Mock;
+const loadManifestMock = loadI18nManifest as jest.Mock;
 const useWidgetTypesMock = useWidgetTypes as jest.Mock;
 
 /**
@@ -59,6 +65,7 @@ function runIdleCallbacks(): void {
 beforeEach( () => {
 	loadCatalogMock.mockClear();
 	loadCatalogMock.mockImplementation( () => Promise.resolve() );
+	loadManifestMock.mockClear();
 	useWidgetTypesMock.mockClear();
 	useWidgetTypesMock.mockImplementation( useWidgetTypesSyncStandIn );
 
@@ -90,9 +97,15 @@ describe( 'widgetModuleBundlePath', () => {
 		).toBe( 'build/widgets/search-terms/widget.js' );
 	} );
 
+	it( "maps another build's widget module id the same way, whatever its handle prefix", () => {
+		expect( widgetModuleBundlePath( 'jetpack-wordads/widgets/chart-tabs/render' ) ).toBe(
+			'build/widgets/chart-tabs/render.js'
+		);
+	} );
+
 	it( 'returns null for module ids that are not widget modules', () => {
 		expect( widgetModuleBundlePath( '@jetpack-premium-analytics/init' ) ).toBeNull();
-		expect( widgetModuleBundlePath( 'other-plugin/widgets/foo/render' ) ).toBeNull();
+		expect( widgetModuleBundlePath( '@other/widgets/foo/render' ) ).toBeNull();
 		expect(
 			widgetModuleBundlePath( 'jetpack-premium-analytics/widgets/foo/render/extra' )
 		).toBeNull();
@@ -161,6 +174,70 @@ describe( 'resolveWidgetModuleWithI18n', () => {
 	} );
 } );
 
+describe( 'createWidgetModuleResolver', () => {
+	const RECORDS = [
+		{
+			name: 'jpa/a',
+			render_module: 'jetpack-premium-analytics/widgets/a/render',
+			widget_module: 'jetpack-premium-analytics/widgets/a/widget',
+			textdomain: 'jetpack-premium-analytics-pkg',
+		},
+		{
+			name: 'wordads/chart-tabs',
+			render_module: 'jetpack-wordads/widgets/chart-tabs/render',
+			widget_module: 'jetpack-wordads/widgets/chart-tabs/widget',
+			textdomain: 'jetpack-wordads-pkg',
+			i18n_manifest:
+				'https://example.org/wp-content/plugins/jetpack/vendor/wordads/build/i18n-manifest.json',
+		},
+	] as WidgetModuleRecord[];
+
+	it( "loads a plugin's widget catalog under the domain its record declares, after registering its manifest", async () => {
+		const importModule = jest.fn( () => Promise.resolve( {} as WidgetModule ) );
+		const resolve = createWidgetModuleResolver( RECORDS, importModule );
+
+		await resolve( 'jetpack-wordads/widgets/chart-tabs/render' );
+
+		expect( loadManifestMock ).toHaveBeenCalledWith(
+			'jetpack-wordads-pkg',
+			'https://example.org/wp-content/plugins/jetpack/vendor/wordads/build/i18n-manifest.json'
+		);
+		expect( loadCatalogMock ).toHaveBeenCalledWith(
+			'jetpack-wordads-pkg',
+			'build/widgets/chart-tabs/render.js'
+		);
+		expect( loadManifestMock.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+			loadCatalogMock.mock.invocationCallOrder[ 0 ]
+		);
+		expect( importModule ).toHaveBeenCalledWith( 'jetpack-wordads/widgets/chart-tabs/render' );
+	} );
+
+	it( "loads the package's own widget catalog under its domain without a manifest request", async () => {
+		const importModule = jest.fn( () => Promise.resolve( {} as WidgetModule ) );
+		const resolve = createWidgetModuleResolver( RECORDS, importModule );
+
+		await resolve( 'jetpack-premium-analytics/widgets/a/render' );
+
+		expect( loadManifestMock ).not.toHaveBeenCalled();
+		expect( loadCatalogMock ).toHaveBeenCalledWith(
+			'jetpack-premium-analytics-pkg',
+			'build/widgets/a/render.js'
+		);
+	} );
+
+	it( "treats a module no record claims as one of the package's own", async () => {
+		const importModule = jest.fn( () => Promise.resolve( {} as WidgetModule ) );
+		const resolve = createWidgetModuleResolver( RECORDS, importModule );
+
+		await resolve( 'jetpack-premium-analytics/widgets/unlisted/render' );
+
+		expect( loadCatalogMock ).toHaveBeenCalledWith(
+			'jetpack-premium-analytics-pkg',
+			'build/widgets/unlisted/render.js'
+		);
+	} );
+} );
+
 describe( 'preloadWidgetModuleCatalogs', () => {
 	it( 'requests one catalog per record with a mappable widget module, with a generous bound', async () => {
 		await preloadWidgetModuleCatalogs( [
@@ -177,6 +254,26 @@ describe( 'preloadWidgetModuleCatalogs', () => {
 		expect( loadCatalogMock.mock.calls ).toEqual( [
 			[ 'jetpack-premium-analytics-pkg', 'build/widgets/a/widget.js', 15000 ],
 			[ 'jetpack-premium-analytics-pkg', 'build/widgets/b/widget.js', 15000 ],
+		] );
+	} );
+
+	it( "requests a plugin's metadata catalog under its own domain, registering its manifest first", async () => {
+		await preloadWidgetModuleCatalogs( [
+			{ name: 'jpa/a', widget_module: 'jetpack-premium-analytics/widgets/a/widget' },
+			{
+				name: 'wordads/highlights',
+				widget_module: 'jetpack-wordads/widgets/highlights/widget',
+				textdomain: 'jetpack-wordads-pkg',
+				i18n_manifest: 'https://example.org/wordads/build/i18n-manifest.json',
+			},
+		] as WidgetModuleRecord[] );
+
+		expect( loadManifestMock.mock.calls ).toEqual( [
+			[ 'jetpack-wordads-pkg', 'https://example.org/wordads/build/i18n-manifest.json' ],
+		] );
+		expect( loadCatalogMock.mock.calls ).toEqual( [
+			[ 'jetpack-premium-analytics-pkg', 'build/widgets/a/widget.js', 15000 ],
+			[ 'jetpack-wordads-pkg', 'build/widgets/highlights/widget.js', 15000 ],
 		] );
 	} );
 } );

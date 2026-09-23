@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "3.1.0",
+	"version": "3.1.2",
 	"description": "Jetpack Components Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/components/#readme",
 	"bugs": {
@@ -82,7 +82,6 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
-		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-boost-score-api": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
@@ -95,6 +94,7 @@
 		"@wordpress/compose": "8.8.0",
 		"@wordpress/data": "10.55.0",
 		"@wordpress/date": "5.55.0",
+		"@wordpress/dom": "4.55.0",
 		"@wordpress/element": "8.7.0",
 		"@wordpress/i18n": "6.28.0",
 		"@wordpress/icons": "16.0.0",

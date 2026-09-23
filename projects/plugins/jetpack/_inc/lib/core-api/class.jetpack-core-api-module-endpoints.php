@@ -92,6 +92,14 @@ class Jetpack_Core_API_Module_Toggle_Endpoint extends Jetpack_Core_API_XMLRPC_Co
 		}
 
 		if ( Jetpack::activate_module( $module_slug, false, false ) ) {
+			if ( ! Jetpack::is_module_active( $module_slug ) ) {
+				return new WP_Error(
+					'module_forced',
+					esc_html__( 'The requested Jetpack module is disabled by your host or site administrator, so it stays off.', 'jetpack' ),
+					array( 'status' => 409 )
+				);
+			}
+
 			return rest_ensure_response(
 				array(
 					'code'    => 'success',
@@ -153,7 +161,18 @@ class Jetpack_Core_API_Module_Toggle_Endpoint extends Jetpack_Core_API_XMLRPC_Co
 			);
 		}
 
-		if ( Jetpack::deactivate_module( $module_slug ) ) {
+		$deactivated = Jetpack::deactivate_module( $module_slug );
+
+		// A module that was never saved as active leaves nothing to change, so check the outcome.
+		if ( Jetpack::is_module_active( $module_slug ) ) {
+			return new WP_Error(
+				'module_forced',
+				esc_html__( 'The requested Jetpack module is enabled by your host or site administrator, so it stays on.', 'jetpack' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		if ( $deactivated ) {
 			return rest_ensure_response(
 				array(
 					'code'    => 'success',
@@ -263,7 +282,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 		$failed    = array();
 
 		foreach ( $request['modules'] as $module ) {
-			if ( Jetpack::activate_module( $module, false, false ) ) {
+			if ( Jetpack::activate_module( $module, false, false ) && Jetpack::is_module_active( $module ) ) {
 				$activated[] = $module;
 			} else {
 				$failed[] = $module;

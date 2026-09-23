@@ -379,9 +379,11 @@ class Main_Features {
 					__( 'Region and city locations, beyond country level', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
-					'jetpack' => true,
-					'plugin'  => '',
-					'free'    => true,
+					'jetpack'     => true,
+					'plugin'      => 'jetpack-stats',
+					'plugin_name' => __( 'Jetpack Stats', 'jetpack-my-jetpack' ),
+					'plugin_url'  => 'https://wordpress.org/plugins/jetpack-stats/',
+					'free'        => true,
 				),
 				'plans'            => array( 'growth', 'complete' ),
 				'paid_product'     => __( 'Jetpack Stats', 'jetpack-my-jetpack' ),
@@ -471,6 +473,46 @@ class Main_Features {
 		return 'inactive' === Plugins_Installer::get_plugin_status( $file )
 			? self::PLUGIN_INACTIVE
 			: self::PLUGIN_ACTIVE;
+	}
+
+	/**
+	 * Whether a plugin is forced on or off where this site's own switch can't change it.
+	 *
+	 * Mirrors `Jetpack_Modules_Overrides`: an `option_active_plugins` filter that adds or
+	 * drops the plugin whatever the stored list says, or a network activation.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string      $slug          WordPress.org plugin slug.
+	 * @param string|null $product_class The product behind the plugin, when it has one.
+	 * @return string 'active' or 'inactive' when forced, or an empty string when the owner decides.
+	 */
+	public static function get_plugin_override( $slug, $product_class = null ) {
+		$file = self::get_plugin_file( $slug, $product_class );
+
+		if ( ! $file ) {
+			return '';
+		}
+
+		if ( 'network-active' === Plugins_Installer::get_plugin_status( $file ) ) {
+			return self::PLUGIN_ACTIVE;
+		}
+
+		if ( ! has_filter( 'option_active_plugins' ) ) {
+			return '';
+		}
+
+		/** This filter is documented in wp-includes/option.php */
+		if ( in_array( $file, (array) apply_filters( 'option_active_plugins', array(), 'active_plugins' ), true ) ) {
+			return self::PLUGIN_ACTIVE;
+		}
+
+		/** This filter is documented in wp-includes/option.php */
+		if ( ! in_array( $file, (array) apply_filters( 'option_active_plugins', array( $file ), 'active_plugins' ), true ) ) {
+			return self::PLUGIN_INACTIVE;
+		}
+
+		return '';
 	}
 
 	/**
@@ -621,8 +663,15 @@ class Main_Features {
 	 */
 	public static function get_features() {
 		$features = array();
+		$hidden   = Feature_Visibility::get_hidden();
 
 		foreach ( self::get_feature_definitions() as $slug => $definition ) {
+			// A host can name the feature by its own slug or by its product's or module's.
+			$names = array_filter( array( $slug, $definition['product'] ?? '', $definition['module'] ?? '' ) );
+			if ( array_intersect( $names, $hidden ) ) {
+				continue;
+			}
+
 			$delivery      = $definition['delivery'] ?? array();
 			$plugin        = $delivery['plugin'] ?? '';
 			$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
@@ -640,6 +689,7 @@ class Main_Features {
 				'plugin_name'      => $plugin ? ( $delivery['plugin_name'] ?? $definition['name'] ) : '',
 				'plugin_url'       => $plugin ? ( $delivery['plugin_url'] ?? '' ) : '',
 				'plugin_status'    => $plugin ? self::get_plugin_status( $plugin, $product_class ) : self::PLUGIN_NOT_INSTALLED,
+				'plugin_override'  => $plugin ? self::get_plugin_override( $plugin, $product_class ) : '',
 				'paid_highlights'  => $definition['paid_highlights'] ?? array(),
 				'plans'            => self::get_plan_badges( $definition ),
 				'paid_product'     => $definition['paid_product'] ?? '',

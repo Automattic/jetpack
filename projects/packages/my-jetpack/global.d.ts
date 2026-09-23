@@ -482,6 +482,8 @@ type MainFeature = {
 	plugin_name: string;
 	plugin_url: string;
 	plugin_status: MainFeaturePluginStatus;
+	// Set when the host forces the plugin, so the owner's switch would only flip back.
+	plugin_override: '' | 'active' | 'inactive';
 	paid_highlights: string[];
 	plans: Array< { slug: string; name: string } >;
 	paid_product: string;
@@ -518,6 +520,7 @@ interface Window {
 		fileSystemWriteAccess: 'yes' | 'no';
 		isStatsModuleActive: string;
 		canUserViewStats: boolean;
+		hiddenFeatures?: Array< string >;
 		isUserFromKnownHost: string;
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
@@ -693,6 +696,25 @@ interface Window {
 			showCard: boolean;
 			redirect: string;
 		};
+		// Null unless the partner coupon screen replaces the dashboard.
+		partnerCoupon?: {
+			coupon: {
+				coupon_code: string;
+				preset: string;
+				partner: {
+					name: string;
+					prefix: string;
+					logo?: { src: string; width: number; height: number } | null;
+				};
+				product: {
+					title: string;
+					slug: string;
+					description: string;
+					features: string[];
+				};
+			};
+			assetBaseUrl: string;
+		} | null;
 	};
 	myJetpackRest?: {
 		apiRoot: string;

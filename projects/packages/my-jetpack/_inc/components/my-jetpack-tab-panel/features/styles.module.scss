@@ -150,6 +150,10 @@ $feature-icon-foreground: #0ced57;
 	z-index: 1;
 }
 
+.row-checkbox-placeholder {
+	visibility: hidden;
+}
+
 // Placeholders for the parts of a card that wait on live state: the status
 // badge, its switch, and the counts on the filter pills.
 .skeleton-badge {
@@ -390,29 +394,27 @@ $feature-icon-foreground: #0ced57;
 	min-block-size: min(34rem, calc(100dvh - 5rem));
 }
 
-// One feature replacing another: a fade, with nothing moving, so the dialog
-// does not appear to slide while its own size settles.
-.modal-step {
-	animation:
-		jetpack-feature-step var(--wpds-motion-duration-lg)
-		var(--wpds-motion-easing-subtle);
+// Mounts already open, so `@wordpress/ui`'s entrance never plays. Rise in by
+// translating rather than scaling, which would resample the text.
+@media (min-width: 600px) and (prefers-reduced-motion: no-preference) {
+
+	.modal-popup {
+		animation:
+			jetpack-feature-modal-rise var(--wpds-motion-duration-md)
+			var(--wpds-motion-easing-expressive) backwards;
+	}
 }
 
-@keyframes jetpack-feature-step {
+@keyframes jetpack-feature-modal-rise {
 
 	from {
 		opacity: 0;
+		transform: translate(-50%, calc(-50% + 0.75rem));
 	}
 
 	to {
 		opacity: 1;
-	}
-}
-
-@media (prefers-reduced-motion: reduce) {
-
-	.modal-step {
-		animation: none;
+		transform: translate(-50%, -50%);
 	}
 }
 
@@ -649,6 +651,63 @@ $feature-icon-foreground: #0ced57;
 @media (max-width: 599px) and (prefers-reduced-motion: reduce) {
 
 	.modal-popup {
+		animation: none;
+	}
+}
+
+// Styled as core's Tooltip, which cannot anchor to a sidebar item.
+.menu-pointer :global(.components-popover__content) {
+	background: gb.$gray-900;
+	border-radius: gb.$radius-small;
+	box-shadow: none;
+	color: gb.$white;
+	font-size: 12px;
+	line-height: 1.4;
+	padding-block: 4px;
+	padding-inline: 8px;
+	white-space: nowrap;
+}
+
+:global(#adminmenu) a:has(> .menu-pointer__dot) {
+	position: relative;
+}
+
+.menu-pointer__dot {
+	position: absolute;
+	inset-block-start: 50%;
+	inset-inline-end: 12px;
+	inline-size: 8px;
+	block-size: 8px;
+	margin-block-start: -4px;
+	border-radius: 50%;
+	background: var(--jp-green-40);
+
+	&::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+		background: inherit;
+		animation: menu-pointer-pulse 1.6s ease-out infinite;
+	}
+}
+
+@keyframes menu-pointer-pulse {
+
+	from {
+		opacity: 0.7;
+		transform: scale(1);
+	}
+
+	to {
+		opacity: 0;
+		transform: scale(3);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.menu-pointer__dot::after {
 		animation: none;
 	}
 }

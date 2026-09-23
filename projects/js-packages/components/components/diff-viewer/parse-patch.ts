@@ -46,10 +46,10 @@ export default function parsePatch( uniDiff: string ) {
 			}
 
 			// Diff index
-			const header = /^(?:Index:|diff(?: -r \w+)+)\s+(.+?)\s*$/.exec( line );
+			const header = /^(?:Index:|diff(?: -r \w+)+)\s+/.exec( line );
 
 			if ( header ) {
-				index.index = header[ 1 ];
+				index.index = line.substring( header[ 0 ].length ).trim();
 			}
 
 			i++;
@@ -93,7 +93,7 @@ export default function parsePatch( uniDiff: string ) {
 	 * @param {object[]} index.hunks - hunks
 	 */
 	function parseFileHeader( index: Index ) {
-		const fileHeader = /^(---|\+\+\+)\s+(.*)\r?$/.exec( diffstr[ i ] );
+		const fileHeader = /^(---|\+\+\+)\s+(\S.*|)\r?$/.exec( diffstr[ i ] );
 
 		if ( fileHeader ) {
 			const keyPrefix = fileHeader[ 1 ] === '---' ? 'old' : 'new';

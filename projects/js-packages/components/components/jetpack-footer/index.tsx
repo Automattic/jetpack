@@ -27,7 +27,11 @@ declare global {
 const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherProps } ) => {
 	let items: JetpackFooterMenuItem[] = [];
 
-	if ( ! isWpcomPlatformSite() && ! window?.JetpackNetworkAdminData ) {
+	if (
+		getScriptData()?.myJetpack?.isAvailable === true &&
+		! isWpcomPlatformSite() &&
+		! window?.JetpackNetworkAdminData
+	) {
 		// Published by My Jetpack, whose products tab can be renamed Features.
 		const productsSection = getScriptData()?.myJetpack?.productsSection;
 

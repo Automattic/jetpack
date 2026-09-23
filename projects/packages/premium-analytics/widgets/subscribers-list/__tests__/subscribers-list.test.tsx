@@ -40,6 +40,13 @@ function setSiteData( isWpcomPlatform: boolean, suffix?: string ) {
 	} as typeof window.JetpackScriptData;
 }
 
+function setNewsletterSubscribersUrl( url: string | null ) {
+	window.JetpackScriptData = {
+		site: { is_wpcom_platform: false, suffix: 'example.com' },
+		newsletter: { subscribersUrl: url },
+	} as typeof window.JetpackScriptData;
+}
+
 describe( 'SubscribersListWidget', () => {
 	beforeEach( () => {
 		// The data package's query client is a module-level singleton; drop its
@@ -100,5 +107,26 @@ describe( 'SubscribersListWidget', () => {
 		await expect( screen.findByText( 'Reader One' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Reader Two' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'links Manage subscribers to the Newsletter Subscribers tab in wp-admin', async () => {
+		const url =
+			'https://example.com/wp-admin/admin.php?page=jetpack-newsletter&p=%2F%3Ftab%3Dsubscribers';
+		setNewsletterSubscribersUrl( url );
+
+		render( <SubscribersListWidget attributes={ {} } /> );
+
+		await expect(
+			screen.findByRole( 'link', { name: 'Manage subscribers' } )
+		).resolves.toHaveAttribute( 'href', url );
+	} );
+
+	it( 'shows no Manage subscribers link when the user cannot open the Newsletter page', async () => {
+		setNewsletterSubscribersUrl( null );
+
+		render( <SubscribersListWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( 'Ada Lovelace' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Manage subscribers' ) ).not.toBeInTheDocument();
 	} );
 } );

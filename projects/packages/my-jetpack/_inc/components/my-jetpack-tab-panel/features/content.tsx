@@ -6,11 +6,13 @@ import { FeatureItem } from './feature-item';
 import { FeatureList } from './feature-list';
 import { FeatureModal } from './feature-modal';
 import { useFeatureStates } from './feature-state';
+import { MenuPointer } from './menu-pointer';
 import styles from './styles.module.scss';
 import { Toolbar } from './toolbar';
 import { getFeatureFilters, isFeatureFilter, matchesFilter } from './use-feature-filter';
 import { useFeatureSearch } from './use-feature-search';
 import { useMainFeatures } from './use-main-features';
+import { useSidebarSync } from './use-sidebar-sync';
 import type { FeaturesView } from './toolbar';
 import type { FeatureFilter } from './use-feature-filter';
 
@@ -25,6 +27,7 @@ import type { FeatureFilter } from './use-feature-filter';
 export function FeaturesContent() {
 	const mainFeatures = useMainFeatures();
 	const { states, isLoading } = useFeatureStates( mainFeatures );
+	const { pointer, dismissPointer } = useSidebarSync( mainFeatures.features );
 
 	const [ searchParams, setSearchParams ] = useSearchParams();
 
@@ -160,6 +163,8 @@ export function FeaturesContent() {
 						) ) }
 					</div>
 				) ) }
+
+			{ pointer && <MenuPointer target={ pointer } onDismiss={ dismissPointer } /> }
 
 			{ open && (
 				<FeatureModal state={ open } onClose={ closeFeature } onFilterByPlan={ onFilterByPlan } />

@@ -34,6 +34,15 @@ const crm = pluginState( 'crm', 'inactive', {
 	control: { kind: 'install-plugin', plugin: 'crm' },
 } );
 
+const forcedStats = {
+	feature: { slug: 'stats', name: 'stats' },
+	status: 'active',
+	control: {
+		kind: 'module',
+		module: { module: 'stats', available: true, activated: true, override: 'active' },
+	},
+} as FeatureState;
+
 const checkbox = ( name: string ) => screen.getByRole( 'checkbox', { name } );
 const button = ( name: string ) => screen.getByRole( 'button', { name } );
 // @wordpress/ui buttons stay focusable when disabled, so they carry aria-disabled instead.
@@ -54,6 +63,29 @@ describe( 'FeatureList', () => {
 		expect( checkbox( 'Select boost' ) ).toBeChecked();
 		expect( checkbox( 'Select crm' ) ).not.toBeChecked();
 		expect( screen.getByRole( 'status' ) ).toHaveTextContent( '2 selected' );
+	} );
+
+	it( 'offers no checkbox for a module a host forced on or off', async () => {
+		render( <FeatureList states={ [ akismet, forcedStats ] } onOpen={ jest.fn() } /> );
+
+		expect( screen.queryByRole( 'checkbox', { name: 'Select stats' } ) ).not.toBeInTheDocument();
+
+		await userEvent.click( checkbox( 'Select all features' ) );
+
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( '1 selected' );
+	} );
+
+	it( 'offers no checkbox for a plugin a host forced on or off', async () => {
+		const forcedBoost = pluginState( 'boost', 'active', {
+			control: { kind: 'plugin', plugin: 'boost', override: 'active' },
+		} );
+		render( <FeatureList states={ [ akismet, forcedBoost ] } onOpen={ jest.fn() } /> );
+
+		expect( screen.queryByRole( 'checkbox', { name: 'Select boost' } ) ).not.toBeInTheDocument();
+
+		await userEvent.click( checkbox( 'Select all features' ) );
+
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( '1 selected' );
 	} );
 
 	it( 'shows select-all as partly checked when only some rows are picked', async () => {

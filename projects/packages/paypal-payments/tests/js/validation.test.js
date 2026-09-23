@@ -23,11 +23,13 @@ import {
 	validateDiscountPercentage,
 	validateDiscountAmount,
 	validateReturnUrl,
+	sanitizePayPalUrl,
 	getUserFriendlyError,
 	MAX_NAME_LENGTH,
 	MAX_DESCRIPTION_LENGTH,
 	REQUIRED_FIELD_ERROR,
 } from '../../src/paypal-payment-buttons/utils/validation';
+import parity from '../fixtures/url-parity.json';
 
 // The only test that spells out the wording. The rest read the const.
 describe( 'REQUIRED_FIELD_ERROR', () => {
@@ -317,6 +319,20 @@ describe( 'validateReturnUrl', () => {
 		expect( validateReturnUrl( 'https://example.com/thanks' ) ).toBeNull();
 	} );
 
+	// PayPal's limit; an editor URL with its query string can run past it.
+	it( 'accepts a URL of exactly 127 characters, and rejects one more', () => {
+		const atLimit = 'https://example.com/'.padEnd( 127, 'a' );
+		expect( atLimit ).toHaveLength( 127 );
+		expect( validateReturnUrl( atLimit ) ).toBeNull();
+		expect( validateReturnUrl( `${ atLimit }a` ) ).toBe(
+			'Return URL must be 127 characters or fewer.'
+		);
+	} );
+
+	it( 'reports the scheme before the length', () => {
+		expect( validateReturnUrl( 'http://example.com/'.padEnd( 200, 'a' ) ) ).toBe( httpsOnly );
+	} );
+
 	it.each( [
 		[ 'plain HTTP', 'http://example.com/thanks' ],
 		[ 'a scheme-relative URL', '//example.com/thanks' ],
@@ -324,6 +340,34 @@ describe( 'validateReturnUrl', () => {
 		[ 'the scheme on its own', 'https://' ],
 	] )( 'returns an error for %s', ( _label, value ) => {
 		expect( validateReturnUrl( value ) ).toBe( httpsOnly );
+	} );
+} );
+
+// The other half of this table runs in tests/php against sanitize_paypal_script_url().
+// The two are meant to be mirrors, so a rebuild that lands on one side only fails
+// there as well as here. The host list they share is pinned there too, by
+// test_paypal_host_allow_lists_are_in_sync().
+describe( 'sanitizePayPalUrl', () => {
+	it.each( parity.accepted.map( c => [ c.name, c ] ) )( 'accepts %s', ( _name, testCase ) => {
+		expect( sanitizePayPalUrl( testCase.url ) ).toBe( testCase.sanitized );
+	} );
+
+	it.each( parity.rejected.map( c => [ c.name, c ] ) )( 'refuses %s', ( _name, testCase ) => {
+		expect( sanitizePayPalUrl( testCase.url ) ).toBe( '' );
+	} );
+
+	// Where the two sides part company. Each case pins this side's answer as well as
+	// the PHP's, so closing a gap fails just as loudly as opening one.
+	it.each( [ ...parity.strictEditor, ...parity.parserSplit ].map( c => [ c.name, c ] ) )(
+		'differs from the published page on %s',
+		( _name, testCase ) => {
+			expect( sanitizePayPalUrl( testCase.url ) ).toBe( testCase.js );
+		}
+	);
+
+	// JSON cannot carry `undefined`, so the no-argument call stays out of the fixture.
+	it( 'refuses a missing argument', () => {
+		expect( sanitizePayPalUrl() ).toBe( '' );
 	} );
 } );
 

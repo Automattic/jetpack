@@ -351,7 +351,7 @@ export default function DashboardPage( { isLoading = false } ) {
 							<>
 								{ hasConnectionError && (
 									<Stack direction="column">
-										<ConnectionError />
+										<ConnectionError trackingContext="search" />
 									</Stack>
 								) }
 								{ isNewPricing && supportsInstantSearch && (

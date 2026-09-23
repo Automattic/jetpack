@@ -1468,7 +1468,7 @@ class Manager {
 	 * invalidated any stored one.
 	 *
 	 * @internal Hooked on `jetpack_user_authorized`.
-	 * @since $$next-version$$
+	 * @since 9.5.0
 	 */
 	public function promote_protected_owner_on_connect() {
 		$anchor = Protected_Owner::get_locked();
@@ -1508,12 +1508,12 @@ class Manager {
 	 * registered the connection's capabilities is refused rather than trusted.
 	 *
 	 * @since 9.3.0
+	 * @since 9.6.0 No longer takes how the owner was confirmed.
 	 *
-	 * @param int    $user_id      The local user to anchor.
-	 * @param string $confirmed_by How the confirmation was obtained, e.g. `popup` or `recovery`.
+	 * @param int $user_id The local user to anchor.
 	 * @return true|WP_Error True on success, WP_Error otherwise.
 	 */
-	public function set_protected_owner( $user_id, $confirmed_by ) {
+	public function set_protected_owner( $user_id ) {
 		// Authorization precedes validation, so an unauthorized caller cannot use the argument
 		// errors below to learn which users are administrators or hold a token.
 		if ( ! current_user_can( 'jetpack_connect' ) ) {
@@ -1526,14 +1526,6 @@ class Manager {
 
 		$user_id = absint( $user_id );
 		$roles   = new Roles();
-
-		if ( ! sanitize_key( $confirmed_by ) ) {
-			return new WP_Error(
-				'protected_owner_missing_provenance',
-				__( 'Recording a protected owner requires naming how it was confirmed.', 'jetpack-connection' ),
-				array( 'status' => 400 )
-			);
-		}
 
 		if ( ! user_can( $user_id, $roles->translate_role_to_cap( 'administrator' ) ) ) {
 			return new WP_Error(
@@ -1559,7 +1551,7 @@ class Manager {
 		// here on. Routed through the deduping writer, which clears the ID off any previous holder.
 		Utils::set_wpcom_user_id( $user_id, (int) $owner_data['ID'] );
 
-		if ( ! Protected_Owner::set( (int) $owner_data['ID'], $user_id, $confirmed_by ) ) {
+		if ( ! Protected_Owner::set( (int) $owner_data['ID'], $user_id ) ) {
 			return new WP_Error(
 				'protected_owner_not_stored',
 				__( 'Could not store the protected owner.', 'jetpack-connection' ),

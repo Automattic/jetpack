@@ -8,6 +8,7 @@ import {
 	medalCountsData,
 	largeValuesData,
 	trafficData,
+	steadyTrafficData,
 	themeArgTypes,
 	type SeriesLegendStoryControls,
 } from '../../../stories';
@@ -160,6 +161,43 @@ export const PerPointColors: Story = {
 			},
 		},
 	},
+};
+
+export const DatumClasses: Story = {
+	args: {
+		width: 600,
+		height: 300,
+		data: [
+			{
+				label: 'Scores',
+				data: [
+					{ label: 'Empty', value: 0 },
+					{ label: 'Recorded', value: 80 },
+				],
+			},
+		],
+		barClassName: datum => ( datum.value === 0 ? 'bar-story-empty' : undefined ),
+		withTooltips: true,
+		tooltipStyle: { padding: 'var(--wpds-dimension-padding-lg)' },
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Use per-datum classes to keep zero-value marks visible and tooltipStyle to customize the tooltip box.',
+			},
+		},
+	},
+	render: args => (
+		<>
+			<style>
+				{
+					'.bar-story-empty { height: var(--wpds-dimension-gap-xs); translate: 0 calc(-1 * var(--wpds-dimension-gap-xs)); }'
+				}
+			</style>
+			<BarChart { ...args } />
+		</>
+	),
 };
 
 export const BandHighlight: Story = {
@@ -439,10 +477,7 @@ export const ErrorStates: Story = {
 						data={ [
 							{
 								label: 'Invalid Series',
-								data: [
-									{ date: new Date( 'invalid' ), value: 10, label: 'Invalid Date' },
-									{ date: new Date( '2024-01-02' ), value: null, label: 'Null Value' },
-								],
+								data: [ { date: new Date( 'invalid' ), value: 10 } ],
 								options: {},
 							},
 						] }
@@ -644,6 +679,94 @@ export const ZeroValueComparison: Story = {
 			description: {
 				story:
 					'Comparison showing the difference between disabled and enabled zero value display modes. The feature preserves data integrity by keeping the original value for tooltips while providing visual feedback through minimum bar heights. Zero-value bars remain visible even in small chart heights.',
+			},
+		},
+	},
+};
+
+const siteLaunchedInApril: SeriesData[] = [
+	{
+		label: 'Subscribers',
+		data: [
+			{ date: new Date( 2026, 0, 1 ), value: null },
+			{ date: new Date( 2026, 1, 1 ), value: null },
+			{ date: new Date( 2026, 2, 1 ), value: null },
+			{ date: new Date( 2026, 3, 1 ), value: 0 },
+			{ date: new Date( 2026, 4, 1 ), value: 12 },
+			{ date: new Date( 2026, 5, 1 ), value: 31 },
+			{ date: new Date( 2026, 6, 1 ), value: 58 },
+		],
+	},
+];
+
+export const BucketsWithNoData: Story = {
+	args: {
+		...Default.args,
+		data: siteLaunchedInApril,
+		showZeroValues: true,
+	},
+	argTypes: {
+		// The series-count control swaps in the medal data, which has no gaps to show.
+		seriesCount: { table: { disable: true } },
+	},
+};
+
+BucketsWithNoData.parameters = {
+	docs: {
+		description: {
+			story:
+				'A null value is a bucket with no reading. It keeps its place on the axis so the chart still spans the selected range, draws no bar, and its tooltip reads "No data" rather than zero. April is a real zero: with `showZeroValues` on it keeps a short stub, so a month with none reads differently from a month with no record.',
+		},
+	},
+};
+
+export const SteadyValues: Story = {
+	args: {
+		...Default.args,
+		data: steadyTrafficData,
+	},
+	argTypes: {
+		seriesCount: { table: { disable: true } },
+	},
+};
+
+SteadyValues.parameters = {
+	docs: {
+		description: {
+			story:
+				'A week of 921 to 989 views a day, a 7% swing. The value axis starts at zero, so the bars read as steady; fitted to the data they would swing between empty and full. Pass `options.yScale.zero: false` to fit the axis instead.',
+		},
+	},
+};
+
+const wholeNumberRangeData: SeriesData[] = [
+	{
+		label: 'Errors',
+		data: [
+			{ date: new Date( 2026, 0, 1 ), value: 0 },
+			{ date: new Date( 2026, 1, 1 ), value: 1 },
+			{ date: new Date( 2026, 2, 1 ), value: 1 },
+			{ date: new Date( 2026, 3, 1 ), value: 0 },
+			{ date: new Date( 2026, 4, 1 ), value: 1 },
+			{ date: new Date( 2026, 5, 1 ), value: 1 },
+		],
+	},
+];
+
+export const SmallWholeNumberRange: Story = {
+	args: {
+		...Default.args,
+		data: wholeNumberRangeData,
+	},
+	argTypes: {
+		// The series-count control swaps in the medal data, which isn't a whole-number range.
+		seriesCount: { table: { disable: true } },
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'When every visible value is a whole number, the value axis places ticks only on whole numbers, instead of repeating a rounded label at fractional steps. Pass `options.axis.y.tickValues` to choose the ticks yourself (`axis.x` on a horizontal chart). A value domain you pin with `options.yScale.domain` (`xScale` on a horizontal chart) keeps every tick, so a percentage axis on `[ 0, 1 ]` still steps by 20%.',
 			},
 		},
 	},

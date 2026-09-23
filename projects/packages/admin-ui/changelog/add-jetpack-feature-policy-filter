@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Honor `jetpack_feature_policy` when deciding which Jetpack items appear in the sidebar.

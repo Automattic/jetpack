@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.0] - 2026-09-21
+### Changed
+- Daily Writing Prompt: Stop offering the Write editor after a switch to the Block editor. [#52230]
+- Exclude source map files from the distributed package. [#52304]
+- Update package dependencies. [#52187]
+
+### Fixed
+- Dashboard: Restore the admin screen ID after the wp-build enqueue check. [#52471]
+
 ## [0.15.0] - 2026-09-15
 ### Added
 - Daily Writing Prompt: Add a "Freshly Pressed" tab listing the posts WordPress.com is currently featuring. [#52077]
@@ -369,6 +378,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.16.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.14.1...v0.15.0
 [0.14.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.13.0...v0.14.0

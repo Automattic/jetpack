@@ -9,13 +9,14 @@ import { usePageCache, useClearPageCacheAction } from '$lib/stores/page-cache';
 import clsx from 'clsx';
 import { useMutationNotice } from '$features/ui';
 import { useDataSyncSubset } from '@automattic/jetpack-react-data-sync-client';
-import { useTooltipLayer } from '$features/module/surface';
+import { useModuleSurface, useTooltipLayer } from '$features/module/surface';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
 import type { ChangeEvent, ReactNode } from 'react';
 
 const Meta = () => {
+	const isRow = useModuleSurface() === 'row';
 	const pageCache = usePageCache();
 
 	const [ logging, mutateLogging ] = useDataSyncSubset( pageCache, 'logging' );
@@ -42,7 +43,7 @@ const Meta = () => {
 			return __( 'Clearing cache…', 'jetpack-boost' );
 		}
 
-		if ( totalBypassPatterns === 0 && ! logging ) {
+		if ( ! isRow && totalBypassPatterns === 0 && ! logging ) {
 			return __( 'No exceptions.', 'jetpack-boost' ) + ' ' + __( 'No logging.', 'jetpack-boost' );
 		}
 
@@ -53,6 +54,10 @@ const Meta = () => {
 
 		if ( ! logging ) {
 			loggingMessage = __( 'No logging.', 'jetpack-boost' );
+		}
+
+		if ( isRow ) {
+			return loggingMessage;
 		}
 
 		return (
@@ -109,13 +114,17 @@ const Meta = () => {
 		</Button>
 	);
 
+	const exceptions = (
+		<BypassPatterns
+			patterns={ bypassPatterns.join( '\n' ) }
+			setPatterns={ updatePatterns }
+			showErrorNotice={ mutateBypassPatterns.isError }
+		/>
+	);
+
 	const content = (
 		<div className={ styles.body }>
-			<BypassPatterns
-				patterns={ bypassPatterns.join( '\n' ) }
-				setPatterns={ updatePatterns }
-				showErrorNotice={ mutateBypassPatterns.isError }
-			/>
+			{ ! isRow && exceptions }
 			<div className={ styles.section }>
 				<div className={ styles.title }>{ __( 'Logging', 'jetpack-boost' ) }</div>
 				<label htmlFor="cache-logging" className={ styles[ 'logging-toggle' ] }>
@@ -140,6 +149,16 @@ const Meta = () => {
 	return (
 		pageCache && (
 			<div className={ styles.wrapper } data-testid="page-cache-meta">
+				{ isRow && (
+					<CollapsibleMeta
+						exceptions={ bypassPatterns }
+						countExceptions
+						toggleText=""
+						tracksEvent="page_cache_except_panel_toggle"
+					>
+						<div className={ styles.body }>{ exceptions }</div>
+					</CollapsibleMeta>
+				) }
 				<CollapsibleMeta
 					headerText={ getSummary() }
 					extraButtons={ extraButtons }
@@ -164,6 +183,7 @@ const BypassPatterns = ( {
 	setPatterns,
 	showErrorNotice = false,
 }: BypassPatternsProps ) => {
+	const isRow = useModuleSurface() === 'row';
 	const [ inputValue, setInputValue ] = useState( patterns );
 	const [ showNotice, setShowNotice ] = useState( showErrorNotice );
 	const [ inputInvalid, setInputInvalid ] = useState( false );
@@ -206,11 +226,12 @@ const BypassPatterns = ( {
 
 	return (
 		<div
+			data-except-content={ isRow || undefined }
 			className={ clsx( styles.section, {
 				[ styles[ 'has-error' ] ]: inputInvalid,
 			} ) }
 		>
-			<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
+			{ ! isRow && <div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div> }
 			<label htmlFor="jb-cache-exceptions">
 				{ __( 'URLs of pages and posts that will never be cached:', 'jetpack-boost' ) }
 			</label>
@@ -265,42 +286,28 @@ type BypassPatternsExampleProps = {
 };
 
 const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
-	const [ show, setShow ] = useState( false );
 	const tooltipLayer = useTooltipLayer();
 
 	return (
-		<div className={ styles[ 'example-wrapper' ] }>
-			{ /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
-			<a
-				href="#"
-				className={ styles[ 'example-button' ] }
-				onClick={ e => {
-					recordBoostEvent( 'page_cache_see_example_clicked', {} );
-					e.preventDefault();
-					setShow( ! show );
-				} }
-			>
-				{ children }
-			</a>
-			<div className={ styles[ 'tooltip-wrapper' ] }>
-				<IconTooltip
-					placement="bottom-start"
-					popoverAnchorStyle="wrapper"
-					forceShow={ show }
-					offset={ -10 }
-					popoverClassName={ styles.tooltip }
-					{ ...tooltipLayer }
-				>
-					<strong>{ __( 'Example:', 'jetpack-boost' ) }</strong>
-					<br />
-					checkout
-					<br />
-					gallery/.*
-					<br />
-					specific-page
-				</IconTooltip>
-			</div>
-		</div>
+		<IconTooltip
+			trigger={ children }
+			closeOnClickOutside={ false }
+			className={ styles[ 'example-trigger' ] }
+			onTriggerClick={ () => recordBoostEvent( 'page_cache_see_example_clicked', {} ) }
+			placement="bottom-start"
+			popoverAnchorStyle="wrapper"
+			offset={ -10 }
+			popoverClassName={ styles.tooltip }
+			{ ...tooltipLayer }
+		>
+			<strong>{ __( 'Example:', 'jetpack-boost' ) }</strong>
+			<br />
+			checkout
+			<br />
+			gallery/.*
+			<br />
+			specific-page
+		</IconTooltip>
 	);
 };
 

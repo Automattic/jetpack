@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Report an error instead of success when switching a module your host or site administrator has enabled or disabled.

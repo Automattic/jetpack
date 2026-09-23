@@ -65,7 +65,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "23eaa0573e92a9aacd3f3d3666fd3d161562b1cc"
+                "reference": "5d08ef57c5a5cf61953c9d56a758acb921a69bd9"
             },
             "require": {
                 "automattic/jetpack-redirect": "@dev",
@@ -91,7 +91,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.12.x-dev"
+                    "dev-trunk": "0.13.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -418,7 +418,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "679b3d3ab91daf740974057d4f5fd22741460e89"
+                "reference": "26a50338ef39090a719e2c803c2995e6187d1409"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -455,7 +455,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.4.x-dev"
+                    "dev-trunk": "9.6.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -560,7 +560,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/ip",
-                "reference": "56f25b07b2ba1a7423e9335e1c744dd5c1bf1702"
+                "reference": "958f6d3944e9839db8f22a4875e61a80500ee1e7"
             },
             "require": {
                 "php": ">=7.4"
@@ -581,7 +581,7 @@
                     "link-template": "https://github.com/automattic/jetpack-ip/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.6.x-dev"
+                    "dev-trunk": "0.7.x-dev"
                 },
                 "textdomain": "jetpack-ip",
                 "version-constants": {
