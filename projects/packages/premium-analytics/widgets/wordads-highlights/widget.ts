@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { ArrayCheckboxField } from '@jetpack-premium-analytics/fields';
 import { __ } from '@wordpress/i18n';
 import { payment } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
@@ -49,9 +48,8 @@ export default {
 		{
 			id: 'metrics',
 			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
-			type: 'array',
+			type: 'jpa/array-checkbox',
 			relevance: 'high',
-			Edit: ArrayCheckboxField,
 			elements: WORDADS_EARNINGS_METRICS.map( metric => ( {
 				value: metric.id,
 				label: metric.label,
