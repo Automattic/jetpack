@@ -31,6 +31,8 @@ let editedContent = '';
 
 const noopReducer = ( state = {} ) => state;
 const noopAction = () => ( { type: 'NOOP' } );
+// The real toast() dispatches here, so tests can read what the merchant was shown.
+const createNotice = jest.fn( noopAction );
 
 register(
 	createReduxStore( 'core/editor', {
@@ -60,7 +62,7 @@ register(
 	createReduxStore( 'core/notices', {
 		reducer: noopReducer,
 		selectors: {},
-		actions: { createNotice: noopAction, removeNotice: noopAction },
+		actions: { createNotice, removeNotice: noopAction },
 	} )
 );
 
@@ -191,6 +193,7 @@ describe( 'registerSaveSync', () => {
 		await runSaveFilter( { content: blockComment( 'PLB-A1' ) }, { isAutosave: true } );
 
 		expect( apiFetch ).not.toHaveBeenCalled();
+		expect( createNotice ).not.toHaveBeenCalled();
 	} );
 
 	// The only path that rewrites what the editor is about to save, so a filter that
@@ -218,5 +221,77 @@ describe( 'registerSaveSync', () => {
 			expect.objectContaining( { path: `${ API_BASE }/buttons`, method: 'POST' } )
 		);
 		expect( result.content ).toBe( synced );
+	} );
+
+	describe( 'the saved snackbar', () => {
+		const saved = message => [
+			'success',
+			message,
+			{ type: 'snackbar', id: 'jetpack-paypal-saved' },
+		];
+
+		it( 'shows one for several blocks, and a create wins', async () => {
+			blocks.set( 'a', payPalBlock( 'a' ) );
+			blocks.set( 'b', payPalBlock( 'b', 'PLB-B2' ) );
+			recordPaymentRead( 'b', 'PLB-B2' );
+			apiFetch.mockImplementation( ( { path, method } ) => {
+				if ( path === `${ API_BASE }/connection` ) {
+					return Promise.resolve( { connected: true } );
+				}
+				if ( 'POST' === method ) {
+					return Promise.resolve( { id: 'PLB-NEW1' } );
+				}
+
+				return Promise.resolve( {} );
+			} );
+
+			await runSaveFilter( { content: blockComment( 'PLB-B2' ) } );
+
+			expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { method: 'POST' } ) );
+			expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { method: 'PUT' } ) );
+			expect( createNotice.mock.calls ).toEqual( [
+				saved( 'Payment link successfully created.' ),
+			] );
+		} );
+
+		// The PUT's echo changes no attributes, so the filter returns early after it.
+		it( 'says the changes were saved after an update', async () => {
+			blocks.set( 'a', payPalBlock( 'a', 'PLB-A1' ) );
+			recordPaymentRead( 'a', 'PLB-A1' );
+
+			await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
+
+			expect( createNotice.mock.calls ).toEqual( [ saved( 'Changes saved.' ) ] );
+		} );
+
+		it( 'stays quiet when nothing was sent to PayPal', async () => {
+			blocks.set( 'a', payPalBlock( 'a', 'PLB-A1' ) );
+			recordPaymentRead( 'a', 'PLB-A1' );
+			await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
+			createNotice.mockClear();
+
+			// The same block again is not re-sent.
+			await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
+
+			expect( createNotice ).not.toHaveBeenCalled();
+		} );
+
+		it( 'stays quiet about a block held back', async () => {
+			const block = payPalBlock( 'a' );
+			blocks.set( 'a', { ...block, attributes: { ...block.attributes, price: '' } } );
+
+			await runSaveFilter( { content: '' } );
+
+			expect( createNotice ).toHaveBeenCalledWith(
+				'warning',
+				expect.anything(),
+				expect.anything()
+			);
+			expect( createNotice ).not.toHaveBeenCalledWith(
+				'success',
+				expect.anything(),
+				expect.anything()
+			);
+		} );
 	} );
 } );

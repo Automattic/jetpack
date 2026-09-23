@@ -185,7 +185,7 @@ export function isReadyForPayPal( attributes ) {
  * @param {string}   clientId   - The block's client id.
  * @param {object}   attributes - The block's current attributes.
  * @param {object}   body       - The request body.
- * @return {Promise<object>} The API response, and the attributes to set on the block.
+ * @return {Promise<object>} The API response, that it was a create, and the attributes to set on the block.
  */
 async function createPayment( request, clientId, attributes, body ) {
 	const response = await request( { path: `${ API_BASE }/buttons`, method: 'POST', data: body } );
@@ -197,6 +197,7 @@ async function createPayment( request, clientId, attributes, body ) {
 
 	return {
 		response,
+		created: true,
 		updates: {
 			isApiManaged: true,
 			resourceId: response.id,
@@ -250,13 +251,14 @@ function reportStackedUnavailable( block, scriptSrc, reportError ) {
  * @param {Function} deps.updateBlockAttributes - Writes attributes onto a block by clientId.
  * @param {Function} deps.reportError           - Tells the merchant a block's save failed, and why.
  * @param {Function} deps.reportHeldBack        - Tells the merchant a block was not sent, and why.
+ * @param {Function} deps.reportSaved           - Tells the merchant a block's payment was written, and whether it was created.
  * @param {Set}      stackedResources           - Payments a stacked block in this save draws from.
  * @param {Map}      written                    - Collects the attributes each PUT wrote, by payment id.
  * @return {Promise<boolean>} True when the block's attributes changed.
  */
 async function syncBlock(
 	{ clientId, attributes },
-	{ request, updateBlockAttributes, reportError, reportHeldBack },
+	{ request, updateBlockAttributes, reportError, reportHeldBack, reportSaved },
 	stackedResources,
 	written
 ) {
@@ -332,7 +334,7 @@ async function syncBlock(
 
 				// The read-back is how a block switching to stacked gets its scriptSrc in the same
 				// save. Without one the response is the echo, which changes nothing.
-				result = { response, updates: resourceUpdatesFrom( attributes, response ) };
+				result = { response, created: false, updates: resourceUpdatesFrom( attributes, response ) };
 			} catch ( err ) {
 				if ( ! isNotFound( err ) ) {
 					throw err;
@@ -346,7 +348,10 @@ async function syncBlock(
 			result = await createPayment( request, clientId, attributes, ownBody );
 		}
 
-		const { response, updates } = result;
+		const { response, created, updates } = result;
+
+		// PayPal has the write even when the block's attributes stay as they were.
+		reportSaved?.( created );
 
 		if ( Object.keys( updates ).length > 0 ) {
 			updateBlockAttributes( clientId, updates );

@@ -100,6 +100,7 @@ function fakeDeps( respond ) {
 		updateBlockAttributes: jest.fn(),
 		reportError: jest.fn(),
 		reportHeldBack: jest.fn(),
+		reportSaved: jest.fn(),
 	};
 }
 
@@ -441,6 +442,7 @@ describe( 'syncBlocksBeforeSave', () => {
 			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
 			integrationMode: 'LINK',
 		} );
+		expect( deps.reportSaved ).toHaveBeenCalledWith( true );
 	} );
 
 	describe( 'stacked buttons PayPal has yet to grant', () => {
@@ -644,6 +646,7 @@ describe( 'syncBlocksBeforeSave', () => {
 		expect( changed ).toBe( false );
 		expect( deps.request ).not.toHaveBeenCalled();
 		expect( deps.reportError ).not.toHaveBeenCalled();
+		expect( deps.reportSaved ).not.toHaveBeenCalled();
 		expect( deps.reportHeldBack ).toHaveBeenCalledWith(
 			{ clientId: 'a', attributes: { ...product, price: '' } },
 			'Price is required.'
@@ -725,6 +728,8 @@ describe( 'syncBlocksBeforeSave', () => {
 			expect( item ).not.toHaveProperty( 'handling' );
 			expect( item ).not.toHaveProperty( 'discounts' );
 			expect( deps.updateBlockAttributes ).not.toHaveBeenCalled();
+			// Nothing on the block changed, but PayPal took the write.
+			expect( deps.reportSaved ).toHaveBeenCalledWith( false );
 		} );
 
 		describe( 'sharing a payment with a stacked block', () => {
@@ -934,6 +939,7 @@ describe( 'syncBlocksBeforeSave', () => {
 			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: saved } ], deps );
 			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: saved } ], deps );
 			expect( deps.requests ).toHaveLength( 1 );
+			expect( deps.reportSaved ).toHaveBeenCalledTimes( 1 );
 
 			await syncBlocksBeforeSave(
 				[ { clientId: 'a', attributes: { ...saved, price: '31.00' } } ],
@@ -970,6 +976,7 @@ describe( 'syncBlocksBeforeSave', () => {
 					paymentLink: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
 				} )
 			);
+			expect( deps.reportSaved.mock.calls ).toEqual( [ [ true ] ] );
 		} );
 
 		it( 'swaps the deleted link for the new one in the list of existing links', async () => {
@@ -1007,6 +1014,8 @@ describe( 'syncBlocksBeforeSave', () => {
 				expect.stringContaining( 'PayPal turned the payment down.' )
 			);
 			expect( deps.updateBlockAttributes ).toHaveBeenCalledWith( 'b', expect.anything() );
+			// Only the create went through.
+			expect( deps.reportSaved.mock.calls ).toEqual( [ [ true ] ] );
 		} );
 	} );
 
@@ -1027,6 +1036,7 @@ describe( 'syncBlocksBeforeSave', () => {
 			expect( changed ).toBe( false );
 			expect( deps.request ).not.toHaveBeenCalled();
 			expect( deps.reportError ).not.toHaveBeenCalled();
+			expect( deps.reportSaved ).not.toHaveBeenCalled();
 			expect( deps.reportHeldBack ).toHaveBeenCalledWith(
 				{ clientId: 'a', attributes: saved },
 				unread

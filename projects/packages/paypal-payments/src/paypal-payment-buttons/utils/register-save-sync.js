@@ -70,6 +70,8 @@ export function registerSaveSync( isEnabled ) {
 				return edits;
 			}
 
+			// Whether each payment written in this save was created, for one snackbar per save.
+			const saved = [];
 			const changed = await syncBlocksBeforeSave( blocks, {
 				request: apiFetch,
 				updateBlockAttributes: dispatch( blockEditorStore ).updateBlockAttributes,
@@ -91,7 +93,19 @@ export function registerSaveSync( isEnabled ) {
 						),
 						`jetpack-paypal-held-back-${ clientId }`
 					),
+				reportSaved: created => saved.push( created ),
 			} );
+
+			// Before the early return: a PUT can reach PayPal and still change no attributes.
+			if ( saved.length ) {
+				toast(
+					'success',
+					saved.includes( true )
+						? __( 'Payment link successfully created.', 'jetpack-paypal-payments' )
+						: __( 'Changes saved.', 'jetpack-paypal-payments' ),
+					'jetpack-paypal-saved'
+				);
+			}
 
 			if ( ! changed ) {
 				return edits;
