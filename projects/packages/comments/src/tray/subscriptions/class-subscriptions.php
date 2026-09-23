@@ -256,8 +256,9 @@ class Subscriptions extends WP_REST_Controller {
 
 		foreach ( self::CHOICE as $name => $values ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Comment_Form::verify_nonce() ran on pre_comment_on_post.
-			$posted          = isset( $_POST[ 'jetpack_comments_' . $name ] ) ? sanitize_text_field( wp_unslash( $_POST[ 'jetpack_comments_' . $name ] ) ) : '';
-			$choice[ $name ] = in_array( $posted, $values, true ) ? $posted : '';
+			$posted = isset( $_POST[ 'jetpack_comments_' . $name ] ) ? sanitize_text_field( wp_unslash( $_POST[ 'jetpack_comments_' . $name ] ) ) : '';
+			// A guest may only opt in; turning things off is the tray's, for a reader the site knows.
+			$choice[ $name ] = in_array( $posted, $values, true ) && '0' !== $posted ? $posted : '';
 		}
 
 		if ( '1' !== $choice['email_posts'] && '1' !== $choice['email_comments'] ) {
