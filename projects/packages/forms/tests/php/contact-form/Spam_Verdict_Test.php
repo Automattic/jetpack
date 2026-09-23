@@ -222,11 +222,13 @@ class Spam_Verdict_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 		$_SERVER['REMOTE_ADDR'] = '203.0.113.9';
 
-		$recorded = array();
+		$pixel_url = '';
 		add_filter(
 			'pre_http_request',
-			function ( $preempt, $args, $url ) use ( &$recorded ) {
-				$recorded[] = $url;
+			function ( $preempt, $args, $url ) use ( &$pixel_url ) {
+				if ( '' === $pixel_url ) {
+					$pixel_url = (string) $url;
+				}
 				return array(
 					'response' => array( 'code' => 200 ),
 					'body'     => '',
@@ -238,17 +240,18 @@ class Spam_Verdict_Test extends BaseTestCase {
 
 		Contact_Form_Plugin::init()->record_tracks_event( 'forms_spam_verdict_probe', array() );
 
-		$this->assertNotEmpty(
-			$recorded,
+		$this->assertNotSame(
+			'',
+			$pixel_url,
 			'A Tracks event should be recorded for an anonymous visitor when the site has a connected owner.'
 		);
 
 		$query = array();
-		parse_str( (string) wp_parse_url( $recorded[0], PHP_URL_QUERY ), $query );
+		parse_str( (string) wp_parse_url( $pixel_url, PHP_URL_QUERY ), $query );
 
 		$this->assertSame( 'wpcom:user_id', $query['_ut'] ?? null );
 		$this->assertSame( '99001', $query['_ui'] ?? null );
 		$this->assertArrayNotHasKey( '_via_ip', $query, 'The visitor address must not be sent with an event attributed to the master user.' );
-		$this->assertStringNotContainsString( '203.0.113.9', $recorded[0] );
+		$this->assertStringNotContainsString( '203.0.113.9', $pixel_url );
 	}
 }

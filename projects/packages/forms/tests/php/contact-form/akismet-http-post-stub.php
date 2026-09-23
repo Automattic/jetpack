@@ -14,9 +14,11 @@ if ( ! function_exists( 'akismet_http_post' ) ) {
 	 * @param string $request Query string of the values being checked.
 	 * @param string $host    API host.
 	 * @param string $path    API path.
-	 * @param string $port    API port.
+	 * @param int    $port    API port.
 	 *
 	 * @return array Akismet-shaped response: response headers, then the body.
+	 *
+	 * @phan-suppress PhanRedefineFunction -- .phan/stubs/akismet-stubs.php declares this for analysis; the runtime definition is what makes the Akismet path reachable under PHPUnit.
 	 */
 	function akismet_http_post( $request, $host, $path, $port = 80 ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Akismet owns this name.
 		/**
@@ -26,7 +28,7 @@ if ( ! function_exists( 'akismet_http_post' ) ) {
 		 * @param string $request  Query string of the values being checked.
 		 * @param string $host     API host.
 		 * @param string $path     API path.
-		 * @param string $port     API port.
+		 * @param int    $port     API port.
 		 */
 		return apply_filters( 'jetpack_forms_test_akismet_response', array( array(), 'false' ), $request, $host, $path, $port );
 	}
