@@ -1636,8 +1636,9 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 * Test that the published page emits what the canvas emits.
 	 *
 	 * The other half of this table runs in tests/js/block-styles.test.js against
-	 * getMarginStyle(), getWidthAndBorderStyle(), getUnitStyle(), getButtonStyle() and getTextStyle(). A value one side
-	 * drops and the other keeps is a divergence between the canvas and the published page, so it fails here.
+	 * getMarginStyle(), getWidthAndBorderStyle(), getUnitStyle(), getButtonStyle()
+	 * and getTextStyle(). A value one side drops and the other keeps is a
+	 * divergence between the canvas and the published page, so it fails here.
 	 *
 	 * @dataProvider provide_style_parity_cases
 	 * @param array  $attributes   The block attributes.

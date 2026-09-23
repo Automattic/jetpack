@@ -32,8 +32,8 @@ $paypal-wordmark: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/200
 
 .jetpack-paypal-button {
 	// Defaults only — Border Settings overrides margin with an inline style here,
-	// and so does Width on the button format. The QR puts Width on its frame, and
-	// the stroke goes on the button or the QR frame.
+	// and a button-format Width overrides max-width. The QR puts Width on its
+	// frame, and the stroke goes on the button or the QR frame.
 	max-width: 400px;
 	margin: 24px 0;
 	font-family: $font-stack;

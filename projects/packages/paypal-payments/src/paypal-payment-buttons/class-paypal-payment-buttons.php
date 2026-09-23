@@ -241,8 +241,6 @@ class PayPal_Payment_Buttons {
 	 * Margin, from the Border Settings panel.
 	 *
 	 * The QR card takes this and nothing else — Width and Border go on the QR frame.
-	 * The button card takes it with Width, through get_unit_style(). A QR-to-BUTTON
-	 * format switch can leave a margin behind, so the button card keeps reading it.
 	 *
 	 * Mirrors getMarginStyle() in utils/block-styles.js.
 	 *
@@ -257,7 +255,9 @@ class PayPal_Payment_Buttons {
 	 * Margin and Width, for the button card.
 	 *
 	 * Width sizes the whole card — image, product, button and "Powered by" — so they
-	 * share the button's edges. The button fills the card and keeps the border.
+	 * share the button's edges. The button fills the card and keeps the border. A
+	 * QR-to-BUTTON format switch can leave a margin behind, so the card keeps
+	 * reading it.
 	 *
 	 * Mirrors getUnitStyle() in utils/block-styles.js.
 	 *
@@ -284,7 +284,7 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * The chosen width, with its unit.
+	 * Width, for whichever element the format sizes.
 	 *
 	 * Width has its own unit, so it goes through as typed. The style engine never
 	 * sees it, so a spacing preset would be emitted raw — the width
