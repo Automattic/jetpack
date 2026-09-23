@@ -858,8 +858,9 @@ class Jetpack {
 	 * @return void
 	 */
 	public static function configure_backup_package() {
-		// The Backup package does not support multisite, so the dashboard is not offered there.
-		if ( is_multisite() ) {
+		// Not offered on multisite, which the Backup package does not support, or without a
+		// connected owner, since buying and managing backups needs a linked account.
+		if ( is_multisite() || ! self::is_connection_ready() || ! self::connection()->has_connected_owner() ) {
 			return;
 		}
 

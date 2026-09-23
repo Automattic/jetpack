@@ -285,6 +285,8 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 */
 	public function test_admin_request_does_not_defer_backup_to_rest_api_init() {
 		$this->skip_unless_backup_is_supported();
+		$this->connect_owner();
+		$this->force_unfire_action( 'jetpack_backup_initialized' );
 		set_current_screen( 'dashboard' );
 		$_SERVER['REQUEST_METHOD'] = 'GET';
 
@@ -341,12 +343,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 */
 	public function test_deferred_import_routes_register_when_rest_api_init_fires() {
 		// The importer only registers its REST routes for a connected owner.
-		$owner = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		Jetpack_Options::update_option( 'blog_token', 'dummy.blogtoken' );
-		Jetpack_Options::update_option( 'id', 1234 );
-		Jetpack_Options::update_option( 'master_user', $owner );
-		Jetpack_Options::update_option( 'user_tokens', array( $owner => "dummy.usertoken.$owner" ) );
-		Jetpack::connection()->reset_connection_status();
+		$this->connect_owner();
 
 		// Start from a clean slate so registration can only happen via the re-add below.
 		$this->force_unfire_action( 'jetpack_import_initialized' );
@@ -391,6 +388,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 */
 	public function test_deferred_backup_routes_register_when_rest_api_init_fires() {
 		$this->skip_unless_backup_is_supported();
+		$this->connect_owner();
 
 		// Clean slate so registration can only happen via the re-add below.
 		$this->force_unfire_action( 'jetpack_backup_initialized' );
@@ -406,6 +404,33 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 			$this->has_route_under( '/jetpack/v4/has-backup-plan' ),
 			'Deferred Backup bootstrap did not register its REST routes when rest_api_init fired.'
 		);
+	}
+
+	/**
+	 * A site without a connected owner does not get the Backup dashboard.
+	 */
+	public function test_backup_needs_a_connected_owner() {
+		$this->skip_unless_backup_is_supported();
+		Jetpack_Options::update_option( 'blog_token', 'dummy.blogtoken' );
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack::connection()->reset_connection_status();
+		$this->force_unfire_action( 'jetpack_backup_initialized' );
+
+		Jetpack::configure_backup_package();
+
+		$this->assertSame( 0, did_action( 'jetpack_backup_initialized' ) );
+	}
+
+	/**
+	 * Connect the site with an administrator as its owner.
+	 */
+	private function connect_owner() {
+		$owner = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		Jetpack_Options::update_option( 'blog_token', 'dummy.blogtoken' );
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'master_user', $owner );
+		Jetpack_Options::update_option( 'user_tokens', array( $owner => "dummy.usertoken.$owner" ) );
+		Jetpack::connection()->reset_connection_status();
 	}
 
 	/**
