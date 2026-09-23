@@ -241,7 +241,7 @@ class Initial_State_Test extends TestCase {
 		\Jetpack_Options::update_option( 'master_user', $owner_id );
 		\Jetpack_Options::update_option( 'user_tokens', array( $owner_id => 'token.secret.' . $owner_id ) );
 		Utils::set_wpcom_user_id( $owner_id, 4242 );
-		Protected_Owner::set( 4242, $owner_id, 'popup' );
+		Protected_Owner::set( 4242, $owner_id );
 		( new Manager() )->reset_connection_status();
 
 		$this->assertTrue( self::get_data()['hasProtectedOwner'] );
