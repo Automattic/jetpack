@@ -15,6 +15,7 @@ class Generator {
 		if ( static::is_generating_critical_css() ) {
 			add_action( 'wp_head', array( $generator, 'display_generate_meta' ), 0 );
 			add_filter( 'wp_redirect', array( $generator, 'prevent_login_redirect' ), PHP_INT_MAX );
+			add_action( 'shutdown', array( $generator, 'block_login_redirect_header' ), 0 );
 			$generator->force_logged_out_render();
 		}
 	}
@@ -44,10 +45,63 @@ class Generator {
 	 * @return string|false
 	 */
 	public function prevent_login_redirect( $location ) {
-		if ( ! is_string( $location ) ) {
-			return $location;
+		if ( is_string( $location ) && self::is_login_location( $location ) ) {
+			$this->send_login_blocked_response();
 		}
 
+		return $location;
+	}
+
+	/**
+	 * Replace a login redirect that never passed through wp_redirect().
+	 *
+	 * A gate can set the header itself and exit, which no filter sees. PHP holds headers until output
+	 * begins, so the redirect can still be replaced here. A gate that redirects before this guard is
+	 * installed on plugins_loaded stays out of reach.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function block_login_redirect_header() {
+		if ( headers_sent() || ! self::login_redirect_in_headers( headers_list() ) ) {
+			return;
+		}
+
+		header_remove( 'Location' );
+		header( self::BLOCKED_HEADER . ': login-required' );
+		status_header( 403 );
+
+		echo esc_html__( 'Critical CSS cannot be generated for a page that requires login.', 'jetpack-boost' );
+	}
+
+	/**
+	 * Whether a list of response headers redirects to the login page.
+	 *
+	 * @param string[] $headers Headers as headers_list() returns them.
+	 * @return bool
+	 */
+	private static function login_redirect_in_headers( $headers ) {
+		foreach ( $headers as $header ) {
+			if ( ! is_string( $header ) || 0 !== stripos( $header, 'location:' ) ) {
+				continue;
+			}
+
+			$location = trim( substr( $header, strlen( 'location:' ) ) );
+
+			if ( '' !== $location && self::is_login_location( $location ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether a redirect target addresses the login page.
+	 *
+	 * @param string $location The path or URL being redirected to.
+	 * @return bool
+	 */
+	private static function is_login_location( $location ) {
 		$targets = array( self::normalize_url( $location ) );
 
 		// A location starting with `//` is protocol-relative, but treat `//wp-login.php` as the login
@@ -67,12 +121,12 @@ class Generator {
 
 			foreach ( $targets as $target ) {
 				if ( is_array( $target ) && self::is_same_endpoint( $target, $login ) ) {
-					$this->send_login_blocked_response();
+					return true;
 				}
 			}
 		}
 
-		return $location;
+		return false;
 	}
 
 	/**

@@ -556,4 +556,49 @@ class Generator_Test extends BaseTestCase {
 		$this->expectException( \RuntimeException::class );
 		apply_filters( 'wp_redirect', 'wp-login.php', 302 );
 	}
+
+	/**
+	 * Call the private header matcher, which reads a list headers_list() cannot produce under CLI.
+	 *
+	 * @param string[] $headers Response headers.
+	 * @return bool
+	 */
+	private function login_redirect_in_headers( $headers ) {
+		$method = new \ReflectionMethod( Generator::class, 'login_redirect_in_headers' );
+		$method->setAccessible( true );
+
+		return $method->invoke( null, $headers );
+	}
+
+	/**
+	 * A Location header sent without wp_redirect() is still recognized as the login page.
+	 *
+	 * @dataProvider provide_redirect_headers
+	 *
+	 * @param bool     $expected Whether the headers redirect to login.
+	 * @param string[] $headers  Response headers.
+	 */
+	#[DataProvider( 'provide_redirect_headers' )]
+	public function test_login_redirect_in_headers( $expected, $headers ) {
+		$this->assertSame( $expected, $this->login_redirect_in_headers( $headers ) );
+	}
+
+	/**
+	 * Data provider for test_login_redirect_in_headers.
+	 *
+	 * @return array
+	 */
+	public static function provide_redirect_headers() {
+		return array(
+			'login absolute'    => array( true, array( 'Location: http://example.org/wp-login.php?redirect_to=%2Fprivate%2F' ) ),
+			'login relative'    => array( true, array( 'Location: /wp-login.php' ) ),
+			'login lower name'  => array( true, array( 'location: /wp-login.php' ) ),
+			'login among other' => array( true, array( 'X-Frame-Options: SAMEORIGIN', 'Location: /wp-login.php' ) ),
+			'protocol relative' => array( true, array( 'Location: //example.org/wp-login.php' ) ),
+			'ordinary redirect' => array( false, array( 'Location: /sample-page/' ) ),
+			'no location'       => array( false, array( 'Content-Type: text/html' ) ),
+			'empty location'    => array( false, array( 'Location:' ) ),
+			'no headers'        => array( false, array() ),
+		);
+	}
 }
