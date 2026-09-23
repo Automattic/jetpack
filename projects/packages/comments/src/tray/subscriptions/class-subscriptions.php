@@ -222,7 +222,7 @@ class Subscriptions extends WP_REST_Controller {
 				$choice[ $name ] = (string) $request->get_param( $name );
 			}
 
-			$result = self::send( $email, $post_id, $choice, $commenter_id );
+			$result = self::send( $email, $post_id, $choice, $commenter_id, true );
 			$status = $result['status'];
 			$body   = $result['body'];
 		}
@@ -288,9 +288,10 @@ class Subscriptions extends WP_REST_Controller {
 	 * @param int    $post_id      The post.
 	 * @param array  $choice       Keyed by CHOICE.
 	 * @param string $commenter_id The passport's site_commenter_id, which WordPress.com can verify.
+	 * @param bool   $signed_in    Whether the site identified the reader; a guest's typed address may only opt in.
 	 * @return array status and body.
 	 */
-	private static function send( $email, $post_id, array $choice, $commenter_id = '' ) {
+	private static function send( $email, $post_id, array $choice, $commenter_id = '', $signed_in = false ) {
 		$body = array_merge(
 			array(
 				'email'   => $email,
@@ -301,6 +302,10 @@ class Subscriptions extends WP_REST_Controller {
 
 		if ( '' !== $commenter_id ) {
 			$body['site_commenter_id'] = $commenter_id;
+		}
+
+		if ( $signed_in ) {
+			$body['signed_in'] = true;
 		}
 
 		// For bkismet, as the Jetpack Subscriptions call passes them.
