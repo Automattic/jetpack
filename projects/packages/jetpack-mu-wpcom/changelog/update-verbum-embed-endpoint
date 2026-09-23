@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Verbum: Filter embed preview HTML the same way as the core oEmbed proxy.

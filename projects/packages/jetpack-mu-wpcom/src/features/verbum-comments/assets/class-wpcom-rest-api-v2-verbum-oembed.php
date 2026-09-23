@@ -74,6 +74,10 @@ class WPCOM_REST_API_V2_Verbum_OEmbed extends \WP_REST_Controller {
 			return new \WP_Error( 'oembed_invalid_url', get_status_header_desc( 404 ), array( 'status' => 404 ) );
 		}
 
+		// Run the same filter as the core oEmbed proxy, so HTML from untrusted providers gets sanitized.
+		/** This filter is documented in wp-includes/class-wp-oembed.php */
+		$embed_data->html = apply_filters( 'oembed_result', $instance->data2html( $embed_data, $url ), $url, array() );
+
 		return $embed_data;
 	}
 }
