@@ -225,7 +225,7 @@ export function ComparativeBarChart( {
 			datum: { date: Date; realDate?: Date },
 			_index: number,
 			key: string,
-			value: string
+			value: string | null
 		): string => {
 			const displayDate = datum.realDate ?? datum.date;
 			const date = formatTooltipDate( displayDate, tooltipDateFormat );
