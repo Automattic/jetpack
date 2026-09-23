@@ -206,12 +206,12 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes, isContain
 									? __(
 											'Show or hide this group, and everything in it, based on the answer to a field.',
 											'jetpack-forms'
-									  )
+										)
 									: __(
 											'Show or hide this field based on the answer to another field.',
 											'jetpack-forms',
 											0
-									  ) }
+										) }
 							</Text>
 						) }
 

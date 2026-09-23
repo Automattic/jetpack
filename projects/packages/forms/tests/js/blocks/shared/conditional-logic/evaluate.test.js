@@ -547,7 +547,7 @@ describe( 'containment parity with PHP', () => {
 								action: field.action || 'show',
 								logicalOperator: 'all',
 								groups: [ { logicalOperator: 'all', rules: [ field.rule ] } ],
-						  }
+							}
 						: null,
 				};
 			}
