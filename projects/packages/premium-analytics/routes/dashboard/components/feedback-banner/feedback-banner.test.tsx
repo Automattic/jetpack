@@ -63,7 +63,7 @@ describe( 'FeedbackBanner', () => {
 		// The notice speaks its message through `@wordpress/a11y`, which mirrors
 		// the text into a live region on `document.body`.
 		expect( container ).toHaveTextContent(
-			"Tell us what's better, what's worse, and what you miss about the new Traffic tab."
+			"Tell us what's better, what's worse, and what you miss about the new Traffic and Insights tabs."
 		);
 	} );
 

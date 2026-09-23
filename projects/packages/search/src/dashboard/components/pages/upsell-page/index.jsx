@@ -153,7 +153,7 @@ const OldPricingComponent = ( { sendToCart } ) => {
 		<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 			{ hasConnectionError && (
 				<Col lg={ 12 } md={ 12 } sm={ 12 }>
-					<ConnectionError />
+					<ConnectionError trackingContext="search" />
 				</Col>
 			) }
 			<Col lg={ 6 } md={ 6 } sm={ 4 }>
@@ -233,7 +233,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 		<Container horizontalSpacing={ 8 } className="jp-search-upsell-container">
 			{ hasConnectionError && (
 				<Col lg={ 12 } md={ 12 } sm={ 12 }>
-					<ConnectionError />
+					<ConnectionError trackingContext="search" />
 				</Col>
 			) }
 

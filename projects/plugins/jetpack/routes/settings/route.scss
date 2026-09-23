@@ -1,0 +1,38 @@
+// The stylesheet the webpack page loads as style.min.css.
+@use "../../_inc/client/scss/style";
+
+body.jetpack_page_jetpack-settings:not(.network-admin) {
+
+	// wp-admin's body color, not the #1e1e1e that boot's stage sets.
+	:is(.boot-layout__stage, [class*="__stage"]) {
+		color: #3c434a;
+	}
+
+	// Legacy 100vh overflows boot's shorter stage, adding an empty scroll.
+	#jp-plugin-container {
+		min-height: 100%;
+		display: flex;
+		flex-direction: column;
+	}
+
+	// Stretch AdminPage to the stage, so short tabs pin the footer to the bottom.
+	#jp-plugin-container :has(.jp-admin-page),
+	.jp-admin-page {
+		flex: 1 0 auto;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.jp-admin-page__page {
+		flex: 1 0 auto;
+	}
+
+	.jp-admin-page__page > .jetpack-footer {
+		margin-block-start: auto;
+	}
+
+	// Boot's `img { max-width: 100% }` lets narrow banners shrink the 32px icon.
+	.dops-banner__icon-plan img {
+		max-width: none;
+	}
+}

@@ -13,6 +13,9 @@
  * @since 0.8.0
  */
 
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import {
@@ -22,23 +25,14 @@ import {
 	getWidthAndBorderStyle,
 	isOutlineButton,
 } from '../utils/block-styles';
-import { CURRENCY_SYMBOLS } from '../utils/currency-symbols';
+import { formatPrice } from '../utils/currency-symbols';
 import { DEFAULT_LABEL } from '../utils/defaults';
+import { linkPrice } from '../utils/link-price';
 import { withPartnerAttribution } from '../utils/partner-attribution';
+import { getCardRevision } from '../utils/sync-on-save';
 import QrCodePreview from './qr-code-preview';
-import { getLowestVariantPrice, hasVariantPricing } from './variant-builder';
-
-/**
- * Format a price with currency symbol.
- *
- * @param {string} priceValue   - The price value string.
- * @param {string} currencyCode - The ISO currency code.
- * @return {string} Formatted price string.
- */
-function formatPrice( priceValue, currencyCode ) {
-	const symbol = CURRENCY_SYMBOLS[ currencyCode ] || currencyCode;
-	return `${ symbol }${ priceValue }`;
-}
+import StackedButtonsPreview, { getStackedSdkSrc } from './stacked-buttons-preview';
+import { hasVariantPricing } from './variant-builder';
 
 /**
  * Build the variant summary the way render_api_managed_button() builds it.
@@ -125,7 +119,7 @@ function QrPreview( {
 
 	return (
 		<div
-			className="jetpack-paypal-button-preview jetpack-paypal-button-preview--qr"
+			className="jetpack-paypal-button jetpack-paypal-button-preview jetpack-paypal-button-preview--qr"
 			style={ getMarginStyle( attributes ) }
 		>
 			<QrCodePreview
@@ -166,51 +160,52 @@ function ButtonPreview( {
 	buttonText,
 	attributes = {},
 } ) {
+	// An empty currencyCode attribute arrives as '', which the destructure
+	// default above lets through, so it needs a fallback of its own.
+	const code = currencyCode || 'USD';
 	// Mirrors render_api_managed_button(): PayPal drops the product-level amount
 	// once the options have their own prices, but the block keeps what was typed.
 	// Prices stay strings, because PayPal accepts 0 and the empty test is ''.
-	const productPrice = hasVariantPricing( variantsEnabled, variants ) ? '' : `${ price ?? '' }`;
-	const lowestVariantPrice =
-		productPrice === '' && variantsEnabled ? getLowestVariantPrice( variants ) : null;
+	const productPrice = hasVariantPricing( variantsEnabled, variants )
+		? ''
+		: `${ price ?? '' }`.trim();
+	const headlinePrice = linkPrice( { price, currencyCode: code, variantsEnabled, variants } );
+	// Trimmed, as render_api_managed_button() does. The card needs a name,
+	// description or price. The image is outside it.
+	const name = `${ productName ?? '' }`.trim();
+	const description = `${ productDescription ?? '' }`.trim();
+	const hasProduct = name !== '' || description !== '' || headlinePrice !== '';
 	const variantGroups = variantsEnabled ? getVariantGroups( variants, productPrice ) : [];
 	// A blank label would draw an unreadable button, so fall back to the same
 	// default render_api_managed_button() uses.
 	const label = `${ buttonText ?? '' }`.trim() || DEFAULT_LABEL;
 
 	return (
-		<div className="jetpack-paypal-button-preview" style={ getMarginStyle( attributes ) }>
+		<div
+			className="jetpack-paypal-button jetpack-paypal-button-preview"
+			style={ getMarginStyle( attributes ) }
+		>
 			{ /* Product image */ }
 			{ imageUrl && (
-				<div className="jetpack-paypal-button-preview__image">
-					<img src={ imageUrl } alt={ productName || '' } />
+				<div className="jetpack-paypal-button__product-image">
+					<img src={ imageUrl } alt={ name } />
 				</div>
 			) }
 
-			{ /* Product info card */ }
-			<div className="jetpack-paypal-button-preview__product">
-				<div className="jetpack-paypal-button-preview__product-info">
-					<span className="jetpack-paypal-button-preview__product-name">{ productName }</span>
-					{ productDescription && (
-						<span className="jetpack-paypal-button-preview__product-description">
-							{ productDescription }
-						</span>
+			{ /* Product card — the frontend's markup and class names. */ }
+			{ hasProduct && (
+				<div className="jetpack-paypal-button__product">
+					<div className="jetpack-paypal-button__product-info">
+						{ name !== '' && <span className="jetpack-paypal-button__product-name">{ name }</span> }
+						{ description !== '' && (
+							<span className="jetpack-paypal-button__product-description">{ description }</span>
+						) }
+					</div>
+					{ headlinePrice !== '' && (
+						<span className="jetpack-paypal-button__product-price">{ headlinePrice }</span>
 					) }
 				</div>
-				{ productPrice !== '' && (
-					<span className="jetpack-paypal-button-preview__product-price">
-						{ formatPrice( productPrice, currencyCode ) }
-					</span>
-				) }
-				{ productPrice === '' && lowestVariantPrice !== null && (
-					<span className="jetpack-paypal-button-preview__product-price">
-						{ sprintf(
-							/* translators: %s: formatted price, e.g. "$29.99" */
-							__( 'From %s', 'jetpack-paypal-payments' ),
-							formatPrice( lowestVariantPrice, currencyCode )
-						) }
-					</span>
-				) }
-			</div>
+			) }
 
 			{ /* Variant summary — the frontend's markup and class names, so both sides look alike. */ }
 			{ variantGroups.length > 0 && (
@@ -228,7 +223,7 @@ function ButtonPreview( {
 										<>
 											{ ' ' }
 											<span className="jetpack-paypal-button__variant-price">
-												{ formatPrice( option.price, currencyCode ) }
+												{ formatPrice( option.price, code ) }
 											</span>
 										</>
 									) }
@@ -241,11 +236,14 @@ function ButtonPreview( {
 
 			{ /* Checkout button preview — theme-native unless the Styles tab says
 			     otherwise, labeled with the buttonText attribute. */ }
-			<div className="jetpack-paypal-button-preview__buttons">
+			<div className="jetpack-paypal-button__buttons">
 				<div
-					className={ clsx( 'jetpack-paypal-button-preview__checkout-button', 'wp-element-button', {
-						'is-style-outline': isOutlineButton( attributes ),
-					} ) }
+					className={ clsx(
+						'jetpack-paypal-button__checkout-link',
+						'jetpack-paypal-button-preview__checkout-button',
+						'wp-element-button',
+						{ 'is-style-outline': isOutlineButton( attributes ) }
+					) }
 					style={ getButtonStyle( attributes ) }
 					aria-hidden="true"
 				>
@@ -255,7 +253,14 @@ function ButtonPreview( {
 
 			{ attributes.buttonShowPoweredBy && (
 				<p className="jetpack-paypal-button__attribution">
-					{ __( 'Powered by PayPal', 'jetpack-paypal-payments' ) }
+					{ createInterpolateElement(
+						sprintf(
+							/* translators: %s: the PayPal wordmark */
+							__( 'Powered by %s', 'jetpack-paypal-payments' ),
+							'<logo />'
+						),
+						{ logo: <span className="jetpack-paypal-button__logo">PayPal</span> }
+					) }
 				</p>
 			) }
 		</div>
@@ -266,10 +271,13 @@ function ButtonPreview( {
  * The block's canvas preview, by Display Format.
  *
  * @param {object} props        - Component props. The rest go to the format's own preview.
- * @param {string} props.format - Display format: BUTTON, LINK or QR.
+ * @param {string} props.format - Display format: BUTTON, LINK, QR or STACKED.
  * @return {Element} The preview for that format.
  */
 export default function PayPalButtonPreview( { format, ...props } ) {
+	// Render again when a save ends, so the stacked key below reads the new card revision.
+	useSelect( select => select( editorStore ).isSavingPost(), [] );
+
 	// An unknown format falls back to the button, the same way
 	// render_api_managed_button() validates it server-side.
 	switch ( format ) {
@@ -277,6 +285,14 @@ export default function PayPalButtonPreview( { format, ...props } ) {
 			return <LinkPreview { ...props } />;
 		case 'QR':
 			return <QrPreview { ...props } />;
+		case 'STACKED':
+			// The SDK boots once per mount, so the key remounts this on a new URL, payment or card revision.
+			return (
+				<StackedButtonsPreview
+					key={ `${ getStackedSdkSrc( props.attributes, props.resource ) }|${ props.attributes?.resourceId }|${ getCardRevision( props.attributes?.resourceId ) }` }
+					{ ...props }
+				/>
+			);
 		default:
 			return <ButtonPreview { ...props } />;
 	}

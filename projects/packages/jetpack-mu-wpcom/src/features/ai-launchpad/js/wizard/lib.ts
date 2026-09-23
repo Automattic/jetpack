@@ -18,6 +18,7 @@ export interface WizardState {
 	siteName: string;
 	intent: string;
 	locale: string;
+	uiLocale: string;
 }
 
 /**
@@ -56,6 +57,7 @@ export function toPrewarmInput( state: WizardState ): Partial< WizardInput > {
 		site_name: state.siteName,
 		description: state.intent,
 		locale: state.locale,
+		ui_locale: state.uiLocale,
 	};
 }
 
@@ -74,6 +76,7 @@ export function buildWizardPayload( goal: GoalSlug, state: WizardState ): Wizard
 		site_name: state.siteName,
 		description: state.intent,
 		locale: state.locale,
+		ui_locale: state.uiLocale,
 	};
 }
 

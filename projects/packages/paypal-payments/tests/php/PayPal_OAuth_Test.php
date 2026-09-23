@@ -51,8 +51,10 @@ class PayPal_OAuth_Test extends TestCase {
 		// credentials cache, which otherwise leaks between tests in the same
 		// process and makes has_credentials() report a stale true.
 		PayPal_OAuth::disconnect();
-		// The partner id lives on another class's option, which disconnect() leaves alone.
+		// The partner id and the account email live on another class's options, which
+		// disconnect() leaves alone.
 		delete_option( PayPal_Partner_Onboarding::PARTNER_ID_OPTION_KEY );
+		delete_option( PayPal_Partner_Onboarding::MERCHANT_EMAIL_OPTION_KEY );
 
 		// The blog connection is per-test; leaving it set makes later tests that
 		// expect a disconnected site pass or fail depending on test order.
@@ -352,6 +354,31 @@ class PayPal_OAuth_Test extends TestCase {
 		$this->assertIsArray( $status );
 		$this->assertTrue( $status['connected'] );
 		$this->assertEquals( 'production', $status['environment'] );
+	}
+
+	/**
+	 * Test the connection status includes the stored account email.
+	 */
+	public function test_connection_status_includes_account_email() {
+		PayPal_OAuth::store_credentials( 'test_client_id', 'test_client_secret' );
+		update_option( PayPal_Partner_Onboarding::MERCHANT_EMAIL_OPTION_KEY, 'junior@sports.com', false );
+
+		$status = PayPal_OAuth::get_connection_status();
+
+		$this->assertEquals( 'junior@sports.com', $status['account_email'] );
+	}
+
+	/**
+	 * Test the account email key is left out when no email is stored, which is the
+	 * case for a merchant who pasted their own API credentials.
+	 */
+	public function test_connection_status_omits_account_email_when_unset() {
+		PayPal_OAuth::store_credentials( 'test_client_id', 'test_client_secret' );
+
+		$status = PayPal_OAuth::get_connection_status();
+
+		$this->assertTrue( $status['connected'] );
+		$this->assertArrayNotHasKey( 'account_email', $status );
 	}
 
 	/**

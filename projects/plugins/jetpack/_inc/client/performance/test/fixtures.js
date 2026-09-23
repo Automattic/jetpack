@@ -6,7 +6,6 @@
 function siteDataFixture() {
 	return {
 		requests: {
-			isFetchingSiteDiscount: false,
 			isFetchingSitePurchases: false,
 		},
 		data: {

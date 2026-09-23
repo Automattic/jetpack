@@ -5,7 +5,9 @@
  * @since 0.8.0
  */
 
+@use "@wordpress/base-styles/colors";
 @use "@wordpress/base-styles/mixins" as *;
+@use "@wordpress/base-styles/variables";
 
 // ---------------------------------------------------------------
 // Paste-code editor (V1)
@@ -129,6 +131,65 @@
 	.block-editor-block-card,
 	.block-editor-block-inspector__advanced {
 		display: none;
+	}
+}
+
+// ---------------------------------------------------------------
+// Account header
+// ---------------------------------------------------------------
+
+// Our row is the whole card, so what core drew in it goes.
+.block-editor-block-card:has(.jetpack-paypal-payment-buttons__account-header) {
+	padding: 0;
+
+	> :not(.jetpack-paypal-payment-buttons__account-header) {
+		display: none;
+	}
+}
+
+.jetpack-paypal-payment-buttons__account-header {
+	display: flex;
+	align-items: center;
+	gap: variables.$grid-unit-10;
+	padding: variables.$grid-unit-20 variables.$grid-unit-15;
+	border-bottom: variables.$border-width solid colors.$gray-300;
+
+	// Nested for the second class: .block-editor-block-inspector h2 sets a
+	// 1.5em bottom margin, which a single class loses to.
+	.jetpack-paypal-payment-buttons__account-header-title {
+		flex: 1 1 auto;
+		margin: 0;
+		font-size: variables.$font-size-medium;
+		font-weight: 600;
+		line-height: variables.$font-line-height-small;
+		color: colors.$gray-900;
+	}
+}
+
+.jetpack-paypal-payment-buttons__account-header-icon {
+	display: flex;
+	flex: 0 0 auto;
+}
+
+// The design greys the menu glyphs so the labels read first. Core paints them
+// currentColor. Log out keeps its red, where the glyph matches the label.
+.jetpack-paypal-payment-buttons__account-menu {
+
+	.components-menu-item__button:not(.is-destructive) {
+
+		.components-menu-items__item-icon {
+			color: colors.$gray-700;
+		}
+	}
+}
+
+// The menu focuses its first item as it opens, and the button style paints a
+// ring on any focus. Keep the ring for the keyboard only.
+.jetpack-paypal-payment-buttons__account-menu,
+.jetpack-paypal-payment-buttons__link-menu {
+
+	.components-menu-item__button:focus:not(:focus-visible) {
+		box-shadow: none;
 	}
 }
 
@@ -513,7 +574,6 @@
 // Renders as a bare child of the inspector fill rather than inside a PanelBody,
 // so it has to supply the separator and the 16px inset a panel would have given
 // it. Without them it reads as the footer of whichever panel sits above.
-// The line at the top of the sidebar saying what the save will do.
 .jetpack-paypal-payment-buttons__form-actions {
 	padding: 16px;
 	border-block-end: 1px solid #e0e0e0;
@@ -566,13 +626,6 @@
 // PayPal Button Preview Component
 // ---------------------------------------------------------------
 
-.jetpack-paypal-button-preview {
-	// Matches style.scss's .jetpack-paypal-button — the canvas and the published
-	// page have to start from the same box before any setting is applied.
-	max-width: 400px;
-	margin: 24px 0;
-}
-
 // The canvas preview has no link row, so it centers the frame and caption
 // itself.
 .jetpack-paypal-button-preview--qr {
@@ -581,21 +634,27 @@
 	align-items: center;
 }
 
-// No link to encode yet, so the canvas is sized but never drawn into. Opaque
-// on purpose: a see-through tint shows the frame's rounded border through it.
-.jetpack-paypal-button__qr-canvas--pending {
+// A shimmer where a preview will be. Opaque on purpose: a see-through tint
+// shows the frame's rounded border through it.
+%pending-placeholder {
 	background-color: #eeeff5; // QR_OPTIONS.color.dark at 8% over white
 	background-image: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
 	background-repeat: no-repeat;
 	background-size: 200% 100%;
-	animation: jetpack-paypal-qr-shimmer 1.4s ease-in-out infinite;
+	animation: jetpack-paypal-shimmer 1.4s ease-in-out infinite;
 
 	@media (prefers-reduced-motion: reduce) {
 		animation: none;
 	}
 }
 
-@keyframes jetpack-paypal-qr-shimmer {
+// No link to encode yet, so the canvas is sized but never drawn into.
+.jetpack-paypal-button__qr-canvas--pending {
+
+	@extend %pending-placeholder;
+}
+
+@keyframes jetpack-paypal-shimmer {
 
 	from {
 		background-position: -100% 0;
@@ -606,96 +665,10 @@
 	}
 }
 
-// Product image in preview
-.jetpack-paypal-button-preview__image {
-	margin-bottom: 12px;
-	text-align: center;
-
-	img {
-		display: block;
-		max-width: 100%;
-		height: auto;
-		border-radius: 6px;
-		margin: 0 auto;
-	}
-}
-
-// Product card
-.jetpack-paypal-button-preview__product {
-	display: flex;
-	justify-content: space-between;
-	align-items: flex-start;
-	padding: 16px;
-	margin-bottom: 16px;
-	background: #f6f7f7;
-	border-radius: 4px;
-	border: 1px solid #e0e0e0;
-}
-
-.jetpack-paypal-button-preview__product-info {
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
-	flex: 1;
-	min-width: 0;
-}
-
-.jetpack-paypal-button-preview__product-name {
-	font-weight: 600;
-	font-size: 15px;
-	color: #1e1e1e;
-}
-
-.jetpack-paypal-button-preview__product-description {
-	font-size: 13px;
-	color: #757575;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.jetpack-paypal-button-preview__product-price {
-	font-weight: 700;
-	font-size: 18px;
-	color: #1e1e1e;
-	white-space: nowrap;
-	padding-left: 12px;
-}
-
-// Buttons container
-.jetpack-paypal-button-preview__buttons {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-	margin-bottom: 12px;
-}
-
-// Checkout button preview — layout only, the same as the frontend's
-// __checkout-link. Appearance comes from the theme via wp-element-button.
-.jetpack-paypal-button-preview__checkout-button {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 100%;
+// The canvas button uses the frontend's __checkout-link rules but is a div, so
+// it gets the default cursor. Two classes, so this outranks style.scss.
+.jetpack-paypal-button-preview__checkout-button.jetpack-paypal-button__checkout-link {
 	cursor: default;
-	text-align: center;
-	text-decoration: none;
-}
-
-// Canvas twin of the .jetpack-paypal-button__checkout-link outline rule in
-// style.scss — change one, change the other. The theme's button styles load
-// in the canvas iframe too, so hover needs the same override here.
-.jetpack-paypal-button-preview__checkout-button.is-style-outline {
-
-	&,
-	&:hover,
-	&:focus,
-	&:active {
-		background-color: transparent;
-		background-image: none;
-		border: solid 1px currentColor;
-		color: currentColor;
-	}
 }
 
 // ---------------------------------------------------------------
@@ -832,14 +805,18 @@
 	}
 }
 
-.jetpack-paypal-payment-buttons__delete-dialog {
+.jetpack-paypal-payment-buttons__delete-dialog,
+.jetpack-paypal-payment-buttons__log-out-dialog,
+.jetpack-paypal-payment-buttons__unsaved-dialog {
 
 	p {
 		margin: 0 0 12px;
 	}
 }
 
-.jetpack-paypal-payment-buttons__delete-dialog-actions {
+.jetpack-paypal-payment-buttons__delete-dialog-actions,
+.jetpack-paypal-payment-buttons__log-out-dialog-actions,
+.jetpack-paypal-payment-buttons__unsaved-dialog-actions {
 	display: flex;
 	justify-content: flex-end;
 	gap: 8px;
@@ -970,8 +947,91 @@
 	}
 }
 
-// The shared-link line — grey text under the save-status notice, not a notice
-// itself.
+// The link details view — the sidebar's default for a saved link. A plain
+// section with a divider, like the format section, not a collapsible panel.
+.jetpack-paypal-payment-buttons__details {
+	padding: variables.$grid-unit-10 variables.$grid-unit-15 variables.$grid-unit-15;
+	// `.components-panel__body` draws its own borders with this gray, so the
+	// section sits flush with the panels stacked under it.
+	border-block-end: variables.$border-width solid colors.$gray-200;
+}
+
+.jetpack-paypal-payment-buttons__details-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: variables.$grid-unit-10;
+}
+
+// Scoped, because core sets `margin-bottom: 1.5em` on every inspector `h2` -
+// `.interface-complementary-area h2` and `.block-editor-block-inspector h2` -
+// which outranks a single class. The gap to the price goes here, since the
+// price is a `<p>` the same pair of rules pins to `margin-top: 0`.
+.jetpack-paypal-payment-buttons__details .jetpack-paypal-payment-buttons__details-title {
+	margin: 0 0 variables.$grid-unit-05;
+	font-size: variables.$font-size-medium;
+	font-weight: 600;
+	line-height: variables.$font-line-height-small;
+	overflow-wrap: anywhere;
+}
+
+// The price already inherits the title's foreground, so only the type is set.
+.jetpack-paypal-payment-buttons__details-price {
+	margin: 0;
+	font-size: variables.$font-size-small;
+	line-height: variables.$font-line-height-x-small;
+}
+
+// The rows step one unit further in than the title. The rule above them is this
+// list's own top border, since core styles every `hr` inside
+// `.interface-complementary-area` and that outranks a single class.
+.jetpack-paypal-payment-buttons__details-list {
+	display: grid;
+	// A fixed label column, so the values line up down the panel.
+	grid-template-columns: (variables.$grid-unit * 12) 1fr;
+	column-gap: variables.$grid-unit-10;
+	row-gap: 0;
+	margin-block: variables.$grid-unit-20 0;
+	margin-inline: variables.$grid-unit-15;
+	border-block-start: variables.$border-width solid colors.$gray-200;
+	padding-block-start: variables.$grid-unit-20;
+	font-size: variables.$font-size-medium;
+	line-height: variables.$font-line-height-small;
+
+	// Design: 32px rows pulled together by 8, for rows 24px apart.
+	dt,
+	dd {
+		display: flex;
+		align-items: center;
+		min-height: variables.$grid-unit-40;
+	}
+
+	> dt:not(:first-of-type),
+	> dt:not(:first-of-type) + dd {
+		margin-block-start: -#{variables.$grid-unit-10};
+	}
+
+	// The value is greyer than its label.
+	dd {
+		margin: 0;
+		color: var(--wp-components-color-gray-600, var(--wpds-color-stroke-interactive-neutral));
+		overflow-wrap: anywhere;
+	}
+}
+
+// The back link above a saved link's form. Core turns every button the admin
+// accent on hover, so pairing the class with `.components-button` holds the
+// design's foreground steady under the pointer.
+.jetpack-paypal-payment-buttons__back-to-details {
+	margin-block-end: variables.$grid-unit-10;
+	padding-inline-start: 0;
+
+	&.components-button:hover:not(:disabled, [aria-disabled="true"]) {
+		color: var(--wp-components-color-foreground, var(--wpds-color-foreground-content-neutral));
+	}
+}
+
+// The shared-link line — grey text, not a notice itself.
 .jetpack-paypal-payment-buttons__shared-link-note {
 	margin: 8px 0 0;
 	color: #757575;
@@ -1014,8 +1074,12 @@
 	border-radius: 2px;
 }
 
+// The row is the pick button and, on a new block, the link's menu beside it.
 .jetpack-paypal-payment-buttons__links-item {
+	display: flex;
+	align-items: center;
 	margin: 0;
+	padding-inline-end: 4px;
 
 	& + & {
 		border-block-start: 1px solid #ddd;
@@ -1026,7 +1090,8 @@
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
-	inline-size: 100%;
+	flex: 1;
+	min-inline-size: 0;
 	block-size: auto;
 	padding: 8px 12px;
 	border-radius: 0;
@@ -1073,4 +1138,37 @@
 .jetpack-paypal-payment-buttons__links-hint {
 	margin: 0;
 	color: #757575;
+}
+
+// ---------------------------------------------------------------
+// Stacked format
+// ---------------------------------------------------------------
+
+// Positioned so the click overlay can cover the frame.
+.jetpack-paypal-button-preview--stacked {
+	position: relative;
+
+	iframe {
+		display: block;
+		width: 100%;
+		border: 0;
+	}
+}
+
+// Shown until a save brings the SDK URL back.
+.jetpack-paypal-button-preview--stacked-pending {
+
+	@extend %pending-placeholder;
+	border-radius: 4px;
+}
+
+// Core's embed overlay: all four insets, opacity 0 so it still takes clicks,
+// and no z-index — document order is enough.
+.jetpack-paypal-button-preview__interactive-overlay {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	opacity: 0;
 }

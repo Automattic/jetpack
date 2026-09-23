@@ -61,7 +61,7 @@ describe( 'withWidgetTypeAliases', () => {
 	it( 'maps a layout’s alias names back to their base types, once each', () => {
 		expect(
 			toWidgetTypeBaseNames(
-				[ 'jpa/author-views', 'jpa/popular-post--author', 'jpa/popular-post' ],
+				[ 'jpa/author-performance', 'jpa/popular-post--author', 'jpa/popular-post' ],
 				[
 					{
 						baseType: 'jpa/popular-post',
@@ -69,6 +69,6 @@ describe( 'withWidgetTypeAliases', () => {
 					},
 				]
 			)
-		).toEqual( [ 'jpa/author-views', 'jpa/popular-post' ] );
+		).toEqual( [ 'jpa/author-performance', 'jpa/popular-post' ] );
 	} );
 } );

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Dashboard: widget module records carry the text domain and the i18n manifest of the build that serves them, so widgets another plugin registers load their translations.

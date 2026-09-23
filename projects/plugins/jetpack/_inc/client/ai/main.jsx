@@ -13,20 +13,16 @@
  * MCP hub as the landing view and no tab bar.
  */
 
-import {
-	AdminPage,
-	GlobalNotices,
-	useGlobalNotices,
-	getRedirectUrl,
-} from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { AdminPage, GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components';
+import { useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, Icon } from '@wordpress/icons';
 import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
 import ChunkErrorBoundary from './components/chunk-error-boundary/index';
 import LoadingSpinner from './components/loading-spinner/index';
-import MasterOffNotice from './components/master-off-notice';
+import PageNotice, { getPageNoticeState } from './components/page-notice';
+import { GATED_VIEWS } from './constants';
 import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
 import McpConnectCallout from './mcp/connect-callout';
@@ -60,19 +56,11 @@ const LEGACY_VIEW_ALIASES = {
 	setup: 'mcp/setup',
 };
 
-// Views that retain an internal-testing badge when a host enables them for a
-// test request. MCP and Connectors ships publicly, so it is not in here.
-const GATED_VIEWS = [ 'overview', 'features' ];
-
-// Views the master switch governs. MCP and Scheduled tasks are not gated by
-// it, so they never show the master-off notice.
-const MASTER_SWITCH_VIEWS = [ 'overview', 'features' ];
-
 // Read at call time, not module scope, so the flag reflects the injected page data.
 const getTabViews = () => {
 	const views = [];
 	if ( window?.jetpackAiSettings?.showFeaturesView ) {
-		views.push( 'overview', 'features' );
+		views.push( ...GATED_VIEWS );
 	}
 	if ( window?.jetpackAiSettings?.featureFlags?.[ 'ai-hub-scheduled-tasks' ] ) {
 		views.push( 'scheduled-tasks' );
@@ -199,8 +187,15 @@ export default function App() {
 		apiNonce,
 		upgradeUrl,
 		planName,
-		isUserConnected,
+		isUserConnected: pageUserConnected,
+		isConnected = true,
+		hostAllowsAi = true,
+		masterEnabled = true,
+		masterForcedOff = '',
 		userConnectionUrl = 'admin.php?page=my-jetpack#/connection',
+		manageUrl = 'admin.php?page=my-jetpack#/products',
+		hasMyJetpack = true,
+		isOfflineMode = false,
 		showFeaturesView = false,
 		showA12sBadge = false,
 	} = window?.jetpackAiSettings ?? {};
@@ -209,9 +204,13 @@ export default function App() {
 	// design-system SnackbarList behind @wordpress/notices): transient,
 	// auto-dismissing, no page-level styling needed.
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
+	const { hasConnectionError } = useConnectionErrorNotice();
 	const mcpViewedRecorded = useRef( false );
 	// Strict false: older page data (undefined) must not read as unlinked.
-	const userUnlinked = isUserConnected === false;
+	const userUnlinked = pageUserConnected === false;
+	// The three gated surfaces share page data's answer, which is right on every
+	// host and there on first paint. MCP keeps userUnlinked, unchanged.
+	const isUserConnected = ! userUnlinked;
 	// MCP settings ride the site's and the user's own WordPress.com connections,
 	// so with either one missing the MCP body gives way to a connection notice —
 	// and the settings fetch is skipped, since it could only fail.
@@ -226,7 +225,23 @@ export default function App() {
 		updateSettings: updateAiSettings,
 	} = useFeatureSettings( showFeaturesView );
 
-	const masterEnabled = aiSettings?.master_enabled !== false;
+	// One answer for the page, from page data alone, so it is right on the first
+	// paint. Overview asks for usage only when there is nothing to say.
+	const noticeState = getPageNoticeState( {
+		view,
+		blogId,
+		isUserConnected,
+		isConnected,
+		isOfflineMode,
+		hostAllowsAi,
+		masterEnabled,
+		masterForcedOff,
+		hasConnectionError,
+	} );
+
+	// The three things the usage endpoint needs: a registered site, a host that
+	// allows AI, and this user's own account linked. Nothing else stops it.
+	const canLoadUsage = !! blogId && hostAllowsAi !== false && isUserConnected !== false;
 
 	// The hash is the single source of truth for the current view: popstate
 	// covers back/forward, hashchange covers direct hash edits and links.
@@ -418,10 +433,13 @@ export default function App() {
 				) }
 				<GlobalNotices />
 
-				{ ! masterEnabled &&
-					MASTER_SWITCH_VIEWS.includes( view ) &&
-					aiSettings?.is_connected !== false &&
-					aiSettings?.host_allows_ai !== false && <MasterOffNotice /> }
+				<PageNotice
+					state={ noticeState }
+					masterForcedOff={ masterForcedOff }
+					userConnectionUrl={ userConnectionUrl }
+					manageUrl={ manageUrl }
+					hasMyJetpack={ hasMyJetpack }
+				/>
 
 				{ isMcpContext && (
 					<>
@@ -486,12 +504,10 @@ export default function App() {
 
 				{ view === 'overview' && (
 					<AiOverview
-						blogId={ blogId }
 						activityLogUrl={ activityLogUrl }
 						upgradeUrl={ upgradeUrl }
 						planName={ planName }
-						isUserConnected={ isUserConnected }
-						hostAllowsAi={ aiSettings?.host_allows_ai }
+						canLoadUsage={ canLoadUsage }
 						// Same preconditions the MCP hub applies to its copy of the
 						// row: the copy promises AI-agent actions, which need MCP.
 						showActivityLog={
@@ -508,24 +524,18 @@ export default function App() {
 							<LoadErrorNotice message={ aiSettingsError } />
 						) }
 
-						{ ! isAiSettingsLoading &&
-							! aiSettingsError &&
-							( aiSettings?.host_allows_ai === false ? (
-								<Notice.Root intent="warning">
-									<Notice.Description>
-										{ __( 'Jetpack AI is not available for this site.', 'jetpack' ) }{ ' ' }
-										<ExternalLink href={ getRedirectUrl( 'jetpack-ai-hub-docs-wp-supports-ai' ) }>
-											{ __( 'Learn more', 'jetpack' ) }
-										</ExternalLink>
-									</Notice.Description>
-								</Notice.Root>
-							) : (
-								<AiFeatures
-									settings={ aiSettings }
-									savingKeys={ aiSavingKeys }
-									onUpdate={ handleAiSettingsUpdate }
-								/>
-							) ) }
+						{ /* The host gate comes from page data, the same answer the notice uses:
+						    two sources, computed in two requests, could disagree into a tab
+						    with no card and no notice. */ }
+						{ ! isAiSettingsLoading && ! aiSettingsError && hostAllowsAi !== false && (
+							<AiFeatures
+								settings={ aiSettings }
+								isUserConnected={ isUserConnected }
+								masterForcedOff={ masterForcedOff }
+								savingKeys={ aiSavingKeys }
+								onUpdate={ handleAiSettingsUpdate }
+							/>
+						) }
 					</>
 				) }
 

@@ -45,7 +45,7 @@ class Manager {
 	 * `RE_EVALUATE` is the race: the gate said false, and by the time the state was classified the
 	 * owner matched after all. It is not a problem to report, it is an instruction to ask again.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.4.0
 	 */
 	const PO_STATE_NOT_ELIGIBLE               = 'NOT_ELIGIBLE';
 	const PO_STATE_NEEDS_CONNECT_TO_ESTABLISH = 'NEEDS_CONNECT_TO_ESTABLISH';
@@ -188,6 +188,7 @@ class Manager {
 		Webhooks::init( $manager );
 
 		add_action( 'pre_update_jetpack_option_user_tokens', array( $manager, 'unbind_wpcom_user_ids_for_new_tokens' ), 10, 2 );
+		add_action( 'jetpack_user_authorized', array( $manager, 'promote_protected_owner_on_connect' ) );
 
 		// Unlink user before deleting the user from WP.com.
 		add_action( 'deleted_user', array( $manager, 'disconnect_user_force' ), 9, 1 );
@@ -1410,7 +1411,7 @@ class Manager {
 	 * whoever holds the anchored ID, so it cannot be confused by a second user carrying the same
 	 * meta, and never costs a network call. It is a hint for copy, not a gate.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.4.0
 	 *
 	 * @return array{status: string, is_current_user_the_po: bool}
 	 */
@@ -1460,6 +1461,46 @@ class Manager {
 	}
 
 	/**
+	 * Re-point the connection owner at the protected owner when they connect.
+	 *
+	 * Local only: it promotes an owner WordPress.com has already confirmed, and never establishes.
+	 * The binding is resolved rather than read because the token written moments earlier
+	 * invalidated any stored one.
+	 *
+	 * @internal Hooked on `jetpack_user_authorized`.
+	 * @since 9.5.0
+	 */
+	public function promote_protected_owner_on_connect() {
+		$anchor = Protected_Owner::get_locked();
+
+		if ( ! $anchor ) {
+			return;
+		}
+
+		$user_id = get_current_user_id();
+
+		if ( ! $user_id ) {
+			return;
+		}
+
+		// `jetpack_connect_user` drops to `read` once an owner exists, so any user can authorize.
+		if ( ! user_can( $user_id, ( new Roles() )->translate_role_to_cap( 'administrator' ) ) ) {
+			return;
+		}
+
+		if ( $this->resolve_wpcom_user_id( $user_id ) !== (int) $anchor['wpcom_user_id'] ) {
+			return;
+		}
+
+		// The cached local ID moves with the owner even when the master slot already agrees.
+		Protected_Owner::repoint( $user_id );
+
+		if ( (int) \Jetpack_Options::get_option( 'master_user' ) !== $user_id ) {
+			\Jetpack_Options::update_option( 'master_user', $user_id );
+		}
+	}
+
+	/**
 	 * Record a user as the protected owner and promote them to connection owner.
 	 *
 	 * Gated on `jetpack_connect` rather than on a role: a host can narrow that capability and
@@ -1467,12 +1508,12 @@ class Manager {
 	 * registered the connection's capabilities is refused rather than trusted.
 	 *
 	 * @since 9.3.0
+	 * @since 9.6.0 No longer takes how the owner was confirmed.
 	 *
-	 * @param int    $user_id      The local user to anchor.
-	 * @param string $confirmed_by How the confirmation was obtained, e.g. `popup` or `recovery`.
+	 * @param int $user_id The local user to anchor.
 	 * @return true|WP_Error True on success, WP_Error otherwise.
 	 */
-	public function set_protected_owner( $user_id, $confirmed_by ) {
+	public function set_protected_owner( $user_id ) {
 		// Authorization precedes validation, so an unauthorized caller cannot use the argument
 		// errors below to learn which users are administrators or hold a token.
 		if ( ! current_user_can( 'jetpack_connect' ) ) {
@@ -1485,14 +1526,6 @@ class Manager {
 
 		$user_id = absint( $user_id );
 		$roles   = new Roles();
-
-		if ( ! sanitize_key( $confirmed_by ) ) {
-			return new WP_Error(
-				'protected_owner_missing_provenance',
-				__( 'Recording a protected owner requires naming how it was confirmed.', 'jetpack-connection' ),
-				array( 'status' => 400 )
-			);
-		}
 
 		if ( ! user_can( $user_id, $roles->translate_role_to_cap( 'administrator' ) ) ) {
 			return new WP_Error(
@@ -1518,7 +1551,7 @@ class Manager {
 		// here on. Routed through the deduping writer, which clears the ID off any previous holder.
 		Utils::set_wpcom_user_id( $user_id, (int) $owner_data['ID'] );
 
-		if ( ! Protected_Owner::set( (int) $owner_data['ID'], $user_id, $confirmed_by ) ) {
+		if ( ! Protected_Owner::set( (int) $owner_data['ID'], $user_id ) ) {
 			return new WP_Error(
 				'protected_owner_not_stored',
 				__( 'Could not store the protected owner.', 'jetpack-connection' ),

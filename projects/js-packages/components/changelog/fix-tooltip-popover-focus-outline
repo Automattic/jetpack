@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix the focus outline #52661 left on keyboard-opened tooltips; that change is unreleased.
+
+

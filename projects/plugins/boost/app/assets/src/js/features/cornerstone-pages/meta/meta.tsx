@@ -1,3 +1,4 @@
+import { useModuleSurface } from '$features/module/surface';
 import { isCriticalCssEnabled } from '$features/critical-css/lib/is-critical-css-enabled';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import { useRegenerationReason } from '$features/critical-css/lib/stores/suggest-regenerate';
@@ -127,26 +128,29 @@ const CornerstonePagesContent = () => {
 };
 
 export const CornerstonePagesDescription = () => {
+	const legacyDescription = __(
+		'List the most important pages of your site. These pages will receive specially tailored optimizations, including targeted critical CSS. The Page Speed scores are based on your homepage, which is automatically included. <b><link>Learn More</link></b>',
+		'jetpack-boost'
+	);
+	const modernDescription = __(
+		'Add your most important pages for targeted optimizations, including Critical CSS. Your homepage is included automatically for PageSpeed scoring. <link>Learn more</link>',
+		'jetpack-boost'
+	);
+	const isModern = useModuleSurface() === 'row';
 	const cornerstonePagesSupportLink = getRedirectUrl( 'jetpack-boost-cornerstone-pages' );
 
-	return createInterpolateElement(
-		__(
-			'List the most important pages of your site. These pages will receive specially tailored optimizations, including targeted critical CSS. The Page Speed scores are based on your homepage, which is automatically included. <b><link>Learn More</link></b>',
-			'jetpack-boost'
+	return createInterpolateElement( isModern ? modernDescription : legacyDescription, {
+		link: (
+			<Link
+				openInNewTab
+				href={ cornerstonePagesSupportLink }
+				onClick={ () => {
+					recordBoostEvent( 'clicked_cornerstone_pages_learn_more', {} );
+				} }
+			/>
 		),
-		{
-			link: (
-				<Link
-					openInNewTab
-					href={ cornerstonePagesSupportLink }
-					onClick={ () => {
-						recordBoostEvent( 'clicked_cornerstone_pages_learn_more', {} );
-					} }
-				/>
-			),
-			b: <b />,
-		}
-	);
+		b: <b />,
+	} );
 };
 
 export const CornerstonePagesEditor = () => {
@@ -178,6 +182,7 @@ type ListProps = {
 };
 
 export const CornerstonePagesUpgradeCTA = () => {
+	const isModern = useModuleSurface() === 'row';
 	const cornerstonePagesProperties = useCornerstonePagesProperties();
 	const premiumFeatures = usePremiumFeatures();
 	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
@@ -191,11 +196,19 @@ export const CornerstonePagesUpgradeCTA = () => {
 			<InterstitialModalCTA
 				identifier="cornerstone-10-pages"
 				showLicenseKeyLink
-				description={ sprintf(
-					/* translators: %d is the number of cornerstone pages. */
-					__( 'Premium users can add up to %d cornerstone pages.', 'jetpack-boost' ),
-					cornerstonePagesProperties.max_pages_premium
-				) }
+				description={
+					isModern
+						? sprintf(
+								/* translators: %d is the number of cornerstone pages. */
+								__( 'Add up to %d cornerstone pages.', 'jetpack-boost' ),
+								cornerstonePagesProperties.max_pages_premium
+							)
+						: sprintf(
+								/* translators: %d is the number of cornerstone pages. */
+								__( 'Premium users can add up to %d cornerstone pages.', 'jetpack-boost' ),
+								cornerstonePagesProperties.max_pages_premium
+							)
+				}
 			/>
 		</div>
 	);

@@ -66,7 +66,7 @@ const Infos = ( {
 	disabled: boolean;
 	actions?: React.ReactNode | React.ReactNode[];
 } ) => {
-	const { hasIncompleteChapters } = useChaptersLiveParsing( description );
+	const { hasIncompleteChapters, chapterValidationIssues } = useChaptersLiveParsing( description );
 
 	return (
 		<>
@@ -101,7 +101,10 @@ const Infos = ( {
 					/>
 					<div className={ styles[ 'chapters-help-container' ] }>
 						{ hasIncompleteChapters ? (
-							<IncompleteChaptersNotice className={ styles[ 'incomplete-chapters-notice' ] } />
+							<IncompleteChaptersNotice
+								className={ styles[ 'incomplete-chapters-notice' ] }
+								issues={ chapterValidationIssues }
+							/>
 						) : (
 							<div className={ styles[ 'learn-more' ] }>
 								<ChaptersLearnMoreHelper />

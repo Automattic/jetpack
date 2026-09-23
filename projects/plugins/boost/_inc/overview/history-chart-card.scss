@@ -1,3 +1,5 @@
+$tooltip-drop-shadow: 0 var(--wpds-border-width-xs) var(--wpds-border-width-sm) color-mix(in sRGB, var(--wpds-color-foreground-content-neutral) 33%, transparent);
+
 .boost-daily-history {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr);
@@ -79,14 +81,14 @@
 		isolation: isolate;
 
 		// Keep zeros visible without lifting empty marks above the baseline.
-		.visx-bar[height="0"] {
+		.boost-daily-history__bar--zero {
 			height: var(--wpds-border-width-sm);
-			transform: translateY(calc(-1 * var(--wpds-border-width-sm)));
+			translate: 0 calc(-1 * var(--wpds-border-width-sm));
 		}
 
-		.visx-bar[fill="var(--jetpack-boost-history-empty)"] {
+		.boost-daily-history__bar--empty {
 			height: var(--wpds-dimension-gap-xs);
-			transform: translateY(calc(-1 * var(--wpds-dimension-gap-xs)));
+			translate: 0 calc(-1 * var(--wpds-dimension-gap-xs));
 			rx: var(--wpds-border-radius-sm);
 		}
 
@@ -98,11 +100,16 @@
 		.visx-grid line {
 			stroke: var(--wpds-color-stroke-surface-neutral-weak);
 		}
-	}
 
-	.visx-tooltip {
-		padding: 0 !important;
+		[role="grid"]:focus-visible {
+			outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+			outline-offset: var(--wpds-border-width-focus);
+		}
 	}
+}
+
+.boost-daily-history,
+.boost-daily-history__popover {
 
 	.jetpack-boost-overview__history-tooltip {
 		color: var(--wpds-color-foreground-content-neutral);
@@ -127,6 +134,7 @@
 }
 
 .boost-daily-history .boost-daily-history__empty-tooltip {
+	box-shadow: $tooltip-drop-shadow;
 	inline-size: calc(var(--wpds-dimension-surface-width-xs) + var(--wpds-dimension-padding-2xl) + var(--wpds-border-width-xs));
 	padding: calc(var(--wpds-dimension-padding-lg) + var(--wpds-border-width-xs));
 	line-height: var(--wpds-typography-line-height-sm);
@@ -140,14 +148,20 @@
 	}
 }
 
-.boost-daily-history .boost-daily-history__score-tooltip {
+.boost-daily-history__popover .boost-daily-history__score-tooltip {
 	inline-size: calc(var(--wpds-dimension-surface-width-xs) + var(--wpds-dimension-padding-2xl) + var(--wpds-border-width-xs));
 	padding: calc(var(--wpds-dimension-padding-lg) + var(--wpds-border-width-xs));
 	border: 0;
-	box-shadow: inset 0 0 0 var(--wpds-border-width-xs) var(--jetpack-boost-history-empty);
+	// It floats on the page, so it takes the popover surface, not the card one.
+	background: var(--wpds-color-background-surface-neutral-strong);
+	box-shadow:
+		inset 0 0 0 var(--wpds-border-width-xs) var(--jetpack-boost-history-empty),
+		$tooltip-drop-shadow;
 	line-height: var(--wpds-typography-line-height-sm);
 
 	.jetpack-boost-overview__tooltip-date {
+		// Undo the popover title's heading type.
+		font: inherit;
 		font-weight: var(--wpds-typography-font-weight-default);
 		margin-block-end: var(--wpds-dimension-gap-md);
 	}

@@ -19,13 +19,14 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
-use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
 require_once dirname( __DIR__ ) . '/class-jetpack-ai-feature-flags.php';
+require_once dirname( __DIR__ ) . '/class-jetpack-ai-settings.php';
+require_once __DIR__ . '/class-jetpack-wp-build-page.php';
 
 /**
  * Builds the Jetpack AI admin page and its sidebar menu entry.
@@ -33,22 +34,11 @@ require_once dirname( __DIR__ ) . '/class-jetpack-ai-feature-flags.php';
 class Jetpack_AI_Page {
 
 	/**
-	 * The wp-build route's page id.
-	 *
-	 * Deliberately not the `jetpack-ai` menu slug: the generated standalone page.php
-	 * intercepts `admin_init` for its own id and exits, which would bypass wp-admin's
-	 * chrome entirely. The generated wp-admin enqueue matches the screen ID against this.
+	 * The wp-build route's page id, which must not be the `jetpack-ai` menu slug.
 	 *
 	 * @var string
 	 */
 	const WP_BUILD_PAGE_ID = 'jetpack-ai-hub';
-
-	/**
-	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
-	 *
-	 * @var string|null
-	 */
-	private static $wp_build_original_screen_id = null;
 
 	/**
 	 * Whether this request renders through wp-build.
@@ -56,7 +46,7 @@ class Jetpack_AI_Page {
 	 * Checks the render function too: if the build output is missing, the request would
 	 * otherwise get no bundle at all now that the legacy entry is gone.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.3
 	 *
 	 * @return bool
 	 */
@@ -67,7 +57,7 @@ class Jetpack_AI_Page {
 	/**
 	 * Whether the current request targets the AI Hub admin page.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.3
 	 *
 	 * @return bool
 	 */
@@ -83,77 +73,14 @@ class Jetpack_AI_Page {
 	/**
 	 * Load wp-build for the AI Hub page.
 	 *
-	 * Scoped to this page so WP_Build_Polyfills does not replace core scripts everywhere else.
-	 *
-	 * @since $$next-version$$
+	 * @since 16.3
 	 *
 	 * @return void
 	 */
 	public static function maybe_load_wp_build() {
-		if ( ! self::is_ai_admin_request() ) {
-			return;
+		if ( self::is_ai_admin_request() ) {
+			Jetpack_WP_Build_Page::load( self::WP_BUILD_PAGE_ID );
 		}
-
-		$build_index = JETPACK__PLUGIN_DIR . 'build/build.php';
-		if ( ! file_exists( $build_index ) ) {
-			return;
-		}
-
-		// Hooked on either side of the require, so the alias holds only for the generated
-		// enqueue check it registers at the same priority.
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
-		require_once $build_index;
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
-
-		// wp-build hooks module registration to wp_default_scripts, which has already fired by
-		// admin_menu — call it directly or the init module never reaches the import map.
-		if ( function_exists( 'jetpack_plugin_register_script_modules' ) ) {
-			jetpack_plugin_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
-		}
-
-		if ( class_exists( WP_Build_Polyfills::class ) ) {
-			// wp-rich-text is needed because the Scheduled tasks tab reaches @wordpress/dataviews
-			// via @wordpress/ui, whose dataform controls unlock rich-text's privateApis at module
-			// scope. WP 6.9 exports none, so without it the bundle throws and the page is blank.
-			WP_Build_Polyfills::register(
-				'jetpack',
-				array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
-			);
-		}
-	}
-
-	/**
-	 * Point the screen ID at the wp-build page while its generated enqueue check runs.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return void
-	 */
-	public static function alias_screen_id_for_wp_build() {
-		$screen = get_current_screen();
-		if ( ! $screen ) {
-			return;
-		}
-
-		self::$wp_build_original_screen_id = $screen->id;
-		$screen->id                        = self::WP_BUILD_PAGE_ID;
-	}
-
-	/**
-	 * Undo alias_screen_id_for_wp_build(), since JITM builds its message path from the screen ID.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return void
-	 */
-	public static function restore_screen_id_after_wp_build() {
-		$screen = get_current_screen();
-		if ( ! $screen || null === self::$wp_build_original_screen_id ) {
-			return;
-		}
-
-		$screen->id                        = self::$wp_build_original_screen_id;
-		self::$wp_build_original_screen_id = null;
 	}
 
 	/**
@@ -361,7 +288,7 @@ class Jetpack_AI_Page {
 		 * it answers only the cohort half, and page registration requires both
 		 * (see packages/seo Initializer::init()).
 		 */
-		$seo_settings_url          = admin_url( 'admin.php?page=jetpack#/traffic' );
+		$seo_settings_url          = admin_url( 'admin.php?page=jetpack-settings#/traffic' );
 		$is_internal_test          = jetpack_is_internal_testing_environment();
 		$show_scheduled_tasks_view = self::is_scheduled_tasks_enabled();
 		if (
@@ -380,12 +307,6 @@ class Jetpack_AI_Page {
 		wp_register_script( 'jetpack-ai-admin', false, array(), $script_version, true );
 		wp_enqueue_script( 'jetpack-ai-admin' );
 
-		// Registered on every admin page but only enqueued when depended on, and the esbuild
-		// bundles don't pull it in — without it every string renders untranslated.
-		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
-			wp_enqueue_script( 'wp-jp-i18n-loader' );
-		}
-
 		// The Tracks sender (w.js); without it, queued events never leave the
 		// browser. Consent-gated like the other surfaces that load it.
 		$can_send_tracks = ( new Tracking( 'jetpack', new Connection_Manager() ) )->should_enable_tracking( new Terms_Of_Service(), $status );
@@ -393,11 +314,13 @@ class Jetpack_AI_Page {
 			Tracking::register_tracks_functions_scripts( true );
 		}
 
-		if ( $show_scheduled_tasks_view ) {
-			Connection_Initial_State::render_script( 'jetpack-ai-admin' );
-		}
+		// Unconditional, as on the other Jetpack admin pages: the connection store
+		// reads it, and only Scheduled tasks used to need it here.
+		Connection_Initial_State::render_script( 'jetpack-ai-admin' );
 
-		$host = new Host();
+		$host            = new Host();
+		$has_my_jetpack  = self::has_my_jetpack();
+		$is_offline_mode = $status->is_offline_mode();
 
 		/**
 		 * Filters the host-specific AI Hub configuration.
@@ -414,11 +337,24 @@ class Jetpack_AI_Page {
 				'showGatedViews'    => ! $host->is_vip_site()
 					&& ( ! $host->is_wpcom_platform() || ( $host->is_woa_site() && $is_internal_test ) ),
 				'showA12sBadge'     => $host->is_woa_site() && $is_internal_test,
-				'isUserConnected'   => ( new Connection_Manager() )->is_user_connected(),
-				// My Jetpack is removed on VIP, so that route dead-ends there.
-				'userConnectionUrl' => $host->is_vip_site()
-					? 'admin.php?page=jetpack#/connect-user'
-					: 'admin.php?page=my-jetpack#/connection',
+				// The same verdicts the feature-settings endpoint reports. That call
+				// exists for the AI Features toggles; the notice must not wait on it.
+				'isUserConnected'   => Jetpack_AI_Settings::user_is_connected(),
+				'isConnected'       => Jetpack_AI_Settings::site_is_connected(),
+				'hostAllowsAi'      => Jetpack_AI_Settings::host_allows_ai(),
+				'masterEnabled'     => Jetpack_AI_Settings::is_master_enabled(),
+				// The route, not a flag: each one documents a different hook.
+				'masterForcedOff'   => Jetpack_AI_Settings::get_master_forced_off_route(),
+				'isOfflineMode'     => $is_offline_mode,
+				// These three answer one question; a filter changing one alone leaves
+				// a label pointing at a page that is not there.
+				'hasMyJetpack'      => $has_my_jetpack,
+				'userConnectionUrl' => $has_my_jetpack
+					? 'admin.php?page=my-jetpack#/connection'
+					: 'admin.php?page=jetpack-settings#/connect-user',
+				'manageUrl'         => $has_my_jetpack
+					? 'admin.php?page=my-jetpack#/products'
+					: 'admin.php?page=jetpack_modules',
 				'mcpSettingsApi'    => array(
 					'path'   => '/wpcom/v2/jetpack-ai/mcp-settings',
 					'format' => 'jetpack',
@@ -435,7 +371,22 @@ class Jetpack_AI_Page {
 			'activityLogUrl'    => $activity_log_url,
 			'seoSettingsUrl'    => $seo_settings_url,
 			'siteAdminUrl'      => admin_url(),
-			'userConnectionUrl' => esc_url_raw( $config['userConnectionUrl'] ),
+			'userConnectionUrl' => esc_url_raw( $config['userConnectionUrl'] ?? '' ),
+			'manageUrl'         => esc_url_raw( $config['manageUrl'] ?? '' ),
+			'hasMyJetpack'      => ! empty( $config['hasMyJetpack'] ),
+			'isConnected'       => ! empty( $config['isConnected'] ),
+			'hostAllowsAi'      => ! empty( $config['hostAllowsAi'] ),
+			'masterEnabled'     => ! empty( $config['masterEnabled'] ),
+			'masterForcedOff'   => in_array(
+				$config['masterForcedOff'] ?? '',
+				array(
+					Jetpack_AI_Settings::FORCED_OFF_ROUTE_FILTER,
+					Jetpack_AI_Settings::FORCED_OFF_ROUTE_FILTER_VIP,
+					Jetpack_AI_Settings::FORCED_OFF_ROUTE_MODULES,
+				),
+				true
+			) ? $config['masterForcedOff'] : '',
+			'isOfflineMode'     => ! empty( $config['isOfflineMode'] ),
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'pluginUrl'         => plugins_url( '', JETPACK__PLUGIN_FILE ),
@@ -466,7 +417,7 @@ class Jetpack_AI_Page {
 			// Identity for Tracks; the lookup can call WordPress.com on a
 			// cache miss, so it shares the sender's guard.
 			'tracksUserData'    => $can_send_tracks ? self::get_tracks_user_data() : null,
-			'mcpSettingsApi'    => $config['mcpSettingsApi'],
+			'mcpSettingsApi'    => $config['mcpSettingsApi'] ?? array(),
 		);
 
 		wp_add_inline_script(
@@ -538,6 +489,24 @@ class Jetpack_AI_Page {
 			: '';
 
 		return '' !== $email && '@automattic.com' === substr( $email, -15 );
+	}
+
+	/**
+	 * Whether My Jetpack is loaded on this host.
+	 *
+	 * Hosts drop it with the `jetpack_my_jetpack_should_initialize` filter, and
+	 * VIP removes it from outside this codebase, where that filter cannot answer.
+	 *
+	 * @return bool
+	 */
+	private static function has_my_jetpack() {
+		if ( ( new Host() )->is_vip_site() ) {
+			return false;
+		}
+
+		return class_exists( 'Automattic\\Jetpack\\My_Jetpack\\Initializer' )
+			&& method_exists( 'Automattic\\Jetpack\\My_Jetpack\\Initializer', 'should_initialize' )
+			&& \Automattic\Jetpack\My_Jetpack\Initializer::should_initialize();
 	}
 
 	/**

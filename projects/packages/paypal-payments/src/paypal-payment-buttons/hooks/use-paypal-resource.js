@@ -5,15 +5,12 @@
  */
 
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
-import { store as blockEditorStore } from '@wordpress/block-editor';
-import { useDispatch } from '@wordpress/data';
 import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { API_BASE } from '../utils/api-base';
-import { getResourceAttributeUpdates, isSameValue } from '../utils/resource-sync';
-import { isNotFound, recordBlockMounted, recordPaymentRead } from '../utils/sync-on-save';
-import { toast } from '../utils/toast';
-import { getUserFriendlyError } from '../utils/validation';
+import { deleteExistingLink, removeExistingLink } from '../utils/existing-links';
+import { getResourceAttributeUpdates, isBookkeeping, isSameValue } from '../utils/resource-sync';
+import { recordBlockMounted, recordPaymentRead } from '../utils/sync-on-save';
+import { isNotFound } from '../utils/validation';
 
 /**
  * The PayPal payment resource this block points at: reading it back and
@@ -26,7 +23,7 @@ import { getUserFriendlyError } from '../utils/validation';
  * @param {boolean}  props.isConnected          - Whether the site is connected to PayPal.
  * @param {string}   props.clientId             - The block's client id.
  * @param {Function} props.setShowDeleteConfirm - Setter for the delete confirmation dialog.
- * @return {object} Resource state and the delete handlers.
+ * @return {object} The payment as last read, resource state, and the delete handlers.
  */
 export function usePayPalResource( {
 	attributes,
@@ -40,11 +37,15 @@ export function usePayPalResource( {
 	const [ isBusy, setIsBusy ] = useState( false );
 	const [ linkDeleted, setLinkDeleted ] = useState( false );
 	const [ paymentChanged, setPaymentChanged ] = useState( false );
+	// What PayPal holds, with the site's own embed count - the details view reads it.
+	const [ resource, setResource ] = useState( null );
+
+	// The screen showing the warning decides when the merchant is done with it.
+	const dismissPaymentChanged = useCallback( () => setPaymentChanged( false ), [] );
 
 	// Two blocks can share one PayPal payment — a duplicate, or one product
 	// shown as a button, a link and a QR code — and only the block that saved
 	// last has seen what PayPal holds. Read it back so every block agrees.
-	const { __unstableMarkNextChangeAsNotPersistent } = useDispatch( blockEditorStore );
 	const latestAttributes = useRef( attributes );
 	latestAttributes.current = attributes;
 
@@ -63,14 +64,19 @@ export function usePayPalResource( {
 
 		let cancelled = false;
 		const atRequest = latestAttributes.current;
+		setResource( null );
 
 		apiFetch( { path: `${ API_BASE }/buttons/${ resourceId }` } )
 			.then( response => {
-				if ( cancelled || ! response?.attributes ) {
+				if ( cancelled ) {
+					return;
+				}
+				setResource( response || null );
+				if ( ! response?.attributes ) {
 					return;
 				}
 				// The block now has PayPal's values, so the save can write this payment.
-				recordPaymentRead( clientId, resourceId );
+				recordPaymentRead( clientId, resourceId, response.attributes );
 				// Take PayPal's value only where the attribute still matches what the block had
 				// when the request went out; anything else is the merchant's own edit.
 				const updates = Object.fromEntries(
@@ -81,9 +87,17 @@ export function usePayPalResource( {
 				if ( ! Object.keys( updates ).length ) {
 					return;
 				}
-				setPaymentChanged( true );
-				// Opening a post must not mark it dirty.
-				__unstableMarkNextChangeAsNotPersistent?.();
+				// The mode, and a first SDK URL, are the block catching up with the payment
+				// rather than a change someone made at PayPal.
+				if (
+					Object.keys( updates ).some(
+						key => ! isBookkeeping( key, atRequest[ key ], atRequest.format )
+					)
+				) {
+					setPaymentChanged( true );
+				}
+				// An ordinary edit, so the post is dirty: the page renders the saved values, and
+				// they are stale until the post is saved again.
 				setAttributes( updates );
 			} )
 			// A payment deleted on PayPal is re-created when the post is next saved,
@@ -95,19 +109,14 @@ export function usePayPalResource( {
 				// A 404 counts as the read, so the save can run and re-create the payment.
 				recordPaymentRead( clientId, resourceId );
 				setLinkDeleted( true );
+				// Gone from PayPal, so drop it from every block's picker.
+				removeExistingLink( resourceId );
 			} );
 
 		return () => {
 			cancelled = true;
 		};
-	}, [
-		isConnected,
-		isApiManaged,
-		resourceId,
-		clientId,
-		setAttributes,
-		__unstableMarkNextChangeAsNotPersistent,
-	] );
+	}, [ isConnected, isApiManaged, resourceId, clientId, setAttributes ] );
 
 	/**
 	 * Request delete confirmation via ConfirmDialog.
@@ -127,28 +136,17 @@ export function usePayPalResource( {
 		setShowDeleteConfirm( false );
 		setIsBusy( true );
 
-		const clearPayment = message => {
-			setAttributes( {
-				isApiManaged: false,
-				resourceId: undefined,
-				paymentLink: undefined,
-			} );
-			toast( 'success', message );
-		};
-
-		apiFetch( {
-			path: `${ API_BASE }/buttons/${ resourceId }`,
-			method: 'DELETE',
-		} )
-			.then( () => clearPayment( __( 'Payment link deleted.', 'jetpack-paypal-payments' ) ) )
-			.catch( err => {
-				// Already deleted on PayPal's side (404), so clear the block anyway.
-				if ( isNotFound( err ) ) {
-					clearPayment(
-						__( 'The payment link was already removed from PayPal.', 'jetpack-paypal-payments' )
-					);
-				} else {
-					toast( 'error', getUserFriendlyError( err ) );
+		deleteExistingLink( resourceId )
+			.then( deleted => {
+				// Also true when PayPal had already deleted the link.
+				if ( deleted ) {
+					setAttributes( {
+						isApiManaged: false,
+						resourceId: undefined,
+						paymentLink: undefined,
+						scriptSrc: undefined,
+						integrationMode: undefined,
+					} );
 				}
 			} )
 			.finally( () => {
@@ -157,9 +155,11 @@ export function usePayPalResource( {
 	}, [ resourceId, setAttributes, setShowDeleteConfirm ] );
 
 	return {
+		resource,
 		isBusy,
 		linkDeleted,
 		paymentChanged,
+		dismissPaymentChanged,
 		handleDeleteButton,
 		executeDeleteButton,
 	};

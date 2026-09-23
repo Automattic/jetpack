@@ -62,7 +62,7 @@ export default function DashboardLayout( { activeTab, children, actions, hideFoo
 		>
 			{ hasConnectionError && (
 				<Stack direction="column">
-					<ConnectionError />
+					<ConnectionError trackingContext="videopress" />
 				</Stack>
 			) }
 			<Tabs.Root className="vp-dashboard-tabs" value={ activeTab } onValueChange={ onValueChange }>

@@ -2,12 +2,13 @@
  * External dependencies
  */
 import { LineShape, RectShape, Stack } from '@jetpack-premium-analytics/externals';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 /**
  * Internal dependencies
  */
 import styles from './chart-tooltip.module.scss';
 import { TooltipRow } from './tooltip-row';
-import { isChartDatumEntry } from './utils';
+import { exactFormatOf, isChartDatumEntry } from './utils';
 import type { DataFormat } from '../../types';
 
 /** Swatch box per indicator type; a supplementary row's spacer takes the width. */
@@ -70,10 +71,55 @@ export type ChartTooltipProps< TDatum = unknown > = {
 	 */
 	supplementaryRows?: Record< string, DataFormat | undefined >;
 
-	getLabel?: ( datum: TDatum, index: number, key: string ) => string;
+	/**
+	 * `split` sets the label left and the value right; `inline` renders the label
+	 * alone, for a `getLabel` that already spells the value into it.
+	 */
+	layout?: 'split' | 'inline';
+
+	/** `value` is the row's value spelled out in full, in the row's own format. */
+	getLabel?: ( datum: TDatum, index: number, key: string, value: string ) => string;
 
 	getValue?: ( datum: TDatum ) => number;
 };
+
+// No positional fallback once `seriesKeys` is given: that lookup is the bug
+// the prop exists to fix, and on a miss it paints a plausible wrong swatch.
+function seriesStyleFor(
+	key: string,
+	index: number,
+	seriesStyles: TooltipStyle[],
+	seriesKeys: string[] | undefined
+): TooltipStyle {
+	const style = seriesKeys ? seriesStyles[ seriesKeys.indexOf( key ) ] : seriesStyles[ index ];
+	return style || seriesStyles[ 0 ];
+}
+
+function SeriesIndicator( {
+	indicatorType,
+	style,
+}: {
+	indicatorType: ChartTooltipProps[ 'indicatorType' ];
+	style: TooltipStyle;
+} ) {
+	const { stroke, ...lineShapeStyle } = style;
+
+	return indicatorType === 'line' ? (
+		<LineShape
+			fill={ stroke || 'currentColor' }
+			width={ INDICATOR_SIZE.line.width }
+			height={ INDICATOR_SIZE.line.height }
+			style={ lineShapeStyle }
+		/>
+	) : (
+		<RectShape
+			fill={ stroke || 'currentColor' }
+			height={ INDICATOR_SIZE.rect.height }
+			width={ INDICATOR_SIZE.rect.width }
+			style={ { opacity: lineShapeStyle.opacity } }
+		/>
+	);
+}
 
 /**
  * Self-contained chart tooltip. Indicators use the chart library's own
@@ -86,6 +132,7 @@ export function ChartTooltip< TDatum >( {
 	seriesKeys,
 	indicatorType,
 	supplementaryRows,
+	layout = 'split',
 	getLabel = defaultGetLabel,
 	getValue = defaultGetValue,
 }: ChartTooltipProps< TDatum > ) {
@@ -106,58 +153,39 @@ export function ChartTooltip< TDatum >( {
 					return null;
 				}
 
-				const label = getLabel( entry.datum, index, entry.key );
 				const value = getValue( entry.datum );
-
-				if ( supplementaryRows && entry.key in supplementaryRows ) {
-					return (
-						<TooltipRow
-							key={ entry.key }
-							// Holds the swatch's width, so the labels stay aligned.
-							indicator={
-								<span
-									className={ styles.indicatorSpacer }
-									style={ { inlineSize: INDICATOR_SIZE[ indicatorType ].width } }
-									aria-hidden="true"
-								/>
-							}
-							label={ label }
-							value={ value }
-							dataFormat={ supplementaryRows[ entry.key ] ?? dataFormat }
-						/>
-					);
-				}
-
-				// No positional fallback once `seriesKeys` is given: that lookup is the bug
-				// the prop exists to fix, and on a miss it paints a plausible wrong swatch.
-				const style = seriesKeys
-					? seriesStyles[ seriesKeys.indexOf( entry.key ) ]
-					: seriesStyles[ index ];
-				const { stroke, ...lineShapeStyle } = style || seriesStyles[ 0 ];
+				const isSupplementary = supplementaryRows !== undefined && entry.key in supplementaryRows;
+				const rowFormat = ( isSupplementary && supplementaryRows[ entry.key ] ) || dataFormat;
+				const exactFormat = exactFormatOf( rowFormat );
+				const label = getLabel(
+					entry.datum,
+					index,
+					entry.key,
+					formatMetricValue( value, exactFormat.type, exactFormat.options )
+				);
+				const rowValue = layout === 'inline' ? undefined : value;
 
 				return (
 					<TooltipRow
 						key={ entry.key }
 						indicator={
-							indicatorType === 'line' ? (
-								<LineShape
-									fill={ stroke || 'currentColor' }
-									width={ INDICATOR_SIZE.line.width }
-									height={ INDICATOR_SIZE.line.height }
-									style={ lineShapeStyle }
+							isSupplementary ? (
+								// Holds the swatch's width, so the labels stay aligned.
+								<span
+									className={ styles.indicatorSpacer }
+									style={ { inlineSize: INDICATOR_SIZE[ indicatorType ].width } }
+									aria-hidden="true"
 								/>
 							) : (
-								<RectShape
-									fill={ stroke || 'currentColor' }
-									height={ INDICATOR_SIZE.rect.height }
-									width={ INDICATOR_SIZE.rect.width }
-									style={ { opacity: lineShapeStyle.opacity } }
+								<SeriesIndicator
+									indicatorType={ indicatorType }
+									style={ seriesStyleFor( entry.key, index, seriesStyles, seriesKeys ) }
 								/>
 							)
 						}
 						label={ label }
-						value={ value }
-						dataFormat={ dataFormat }
+						value={ rowValue }
+						dataFormat={ rowFormat }
 					/>
 				);
 			} ) }

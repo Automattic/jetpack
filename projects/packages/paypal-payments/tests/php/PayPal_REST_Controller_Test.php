@@ -808,6 +808,130 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * Test that reading a button says how many published posts embed it.
+	 */
+	public function test_get_button_counts_published_embeds() {
+		$this->set_up_connected_admin_state();
+		$this->embed_in_published_post( 1000, 'PLB-42' );
+		$this->mock_http_routes(
+			array(
+				'/v1/checkout/payment-resources' => $this->http_response( 200, array( 'id' => 'PLB-42' ) ),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+
+		$this->assertSame( 1, PayPal_REST_Controller::handle_get_button( $request )->get_data()['embeds'] );
+
+		$request->set_param( 'resource_id', 'PLB-99' );
+		$this->mock_http_routes(
+			array(
+				'/v1/checkout/payment-resources' => $this->http_response( 200, array( 'id' => 'PLB-99' ) ),
+			)
+		);
+
+		$this->assertSame( 0, PayPal_REST_Controller::handle_get_button( $request )->get_data()['embeds'] );
+	}
+
+	/**
+	 * Read PLB-42 as a LINK-mode payment in the given currency, using a cached token.
+	 *
+	 * @param string|null $currency The payment's currency, or null for none on the line item.
+	 * @return array The response data.
+	 */
+	private function read_button_with_sdk_url( $currency = 'EUR' ) {
+		set_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY, PayPal_OAuth::encrypt( 'fake_access_token_12345' ), 3600 );
+		$line_item = array( 'name' => 'Widget' );
+		if ( $currency ) {
+			$line_item['unit_amount'] = array(
+				'currency_code' => $currency,
+				'value'         => '49.00',
+			);
+		}
+		$this->mock_http_routes(
+			array(
+				'/v1/checkout/payment-resources' => $this->http_response(
+					200,
+					array(
+						'id'               => 'PLB-42',
+						'integration_mode' => 'LINK',
+						'line_items'       => array( $line_item ),
+					)
+				),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+
+		return PayPal_REST_Controller::handle_get_button( $request )->get_data();
+	}
+
+	/**
+	 * The SDK host for each stored environment.
+	 *
+	 * @return array<string, array<int, string|null>>
+	 */
+	public static function provide_sdk_hosts() {
+		return array(
+			'no environment stored' => array( null, 'https://www.paypal.com/sdk/js' ),
+			'production'            => array( 'production', 'https://www.paypal.com/sdk/js' ),
+			'sandbox'               => array( 'sandbox', 'https://www.sandbox.paypal.com/sdk/js' ),
+		);
+	}
+
+	/**
+	 * A read includes the SDK URL for the payment, in the format of PayPal's stacked button snippet.
+	 *
+	 * @dataProvider provide_sdk_hosts
+	 *
+	 * @param string|null $environment The stored environment, or null for none.
+	 * @param string      $sdk_url     The SDK URL for it.
+	 */
+	#[DataProvider( 'provide_sdk_hosts' )]
+	public function test_get_button_includes_the_sdk_url_for_the_environment( $environment, $sdk_url ) {
+		$this->set_up_connected_admin_state();
+		if ( $environment ) {
+			PayPal_OAuth::set_environment( $environment );
+		} else {
+			delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );
+		}
+
+		$data = $this->read_button_with_sdk_url();
+
+		$this->assertSame(
+			$sdk_url . '?client-id=test_client_id&components=hosted-buttons&enable-funding=venmo&currency=EUR',
+			$data['sdk_url']
+		);
+		$this->assertStringNotContainsString( 'test_client_secret', wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) );
+	}
+
+	public function test_get_button_sdk_url_falls_back_to_usd() {
+		$this->set_up_connected_admin_state();
+
+		$this->assertStringEndsWith( '&currency=USD', $this->read_button_with_sdk_url( null )['sdk_url'] );
+	}
+
+	public function test_get_button_sdk_url_encodes_the_client_id() {
+		$this->set_up_connected_admin_state();
+		// store_credentials() keeps + / =, and a bare + in a query reads as a space.
+		PayPal_OAuth::store_credentials( 'id+with/slash=', 'test_client_secret' );
+
+		$this->assertStringContainsString(
+			'?client-id=id%2Bwith%2Fslash%3D&',
+			$this->read_button_with_sdk_url()['sdk_url']
+		);
+	}
+
+	public function test_get_button_sdk_url_is_empty_when_credentials_are_deleted() {
+		$this->set_up_connected_admin_state();
+		PayPal_OAuth::delete_credentials();
+
+		$this->assertSame( '', $this->read_button_with_sdk_url()['sdk_url'] );
+	}
+
+	/**
 	 * Test that an API failure while listing is surfaced as a REST error.
 	 */
 	public function test_list_buttons_converts_api_error() {
@@ -848,6 +972,192 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertEquals( 'missing_line_items', $result->get_error_code() );
+	}
+
+	/**
+	 * The stacked snippets, as the live API returns them.
+	 *
+	 * @return array
+	 */
+	private function stacked_snippets() {
+		return array(
+			'stacked' => array(
+				array(
+					'framework'        => 'HTML',
+					// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- A fixture of PayPal's snippet, not an enqueue.
+					'head'             => '<script src="https://www.paypal.com/sdk/js?client-id=abc"></script>',
+					'button_placement' => 'BODY',
+				),
+			),
+		);
+	}
+
+	/**
+	 * A line item complete enough to pass validation.
+	 *
+	 * @return array
+	 */
+	private function one_line_item() {
+		return array(
+			array(
+				'name'        => 'Widget',
+				'unit_amount' => array(
+					'currency_code' => 'USD',
+					'value'         => '29.99',
+				),
+			),
+		);
+	}
+
+	public function test_create_button_returns_the_block_attributes_with_the_sdk_url() {
+		// Otherwise a new stacked block saves an empty scriptSrc and stays that way:
+		// the mount GET comes after the post is serialized.
+		$this->set_up_connected_admin_state();
+		$this->mock_http_response(
+			201,
+			array(
+				'id'               => 'PLB-NEW',
+				'integration_mode' => 'BUTTON',
+				'payment_link'     => 'https://www.paypal.com/ncp/payment/PLB-NEW',
+				'code_snippets'    => $this->stacked_snippets(),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/buttons' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'BUTTON' );
+		$request->set_param( 'line_items', $this->one_line_item() );
+
+		$result = PayPal_REST_Controller::handle_create_button( $request );
+
+		$this->assertSame( 201, $result->get_status() );
+		$data = $result->get_data();
+		$this->assertSame( 'BUTTON', $data['attributes']['integrationMode'] );
+		$this->assertSame(
+			'https://www.paypal.com/sdk/js?client-id=abc',
+			$data['attributes']['scriptSrc']
+		);
+	}
+
+	public function test_update_button_re_reads_the_resource_when_the_caller_asks_for_snippets() {
+		// A PUT answers 204 with no code_snippets, so a block switching to stacked
+		// would sit blank until the post was reloaded.
+		$this->set_up_connected_admin_state();
+		// The PUT and the re-read share a URL, so they can only be told apart by method.
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args ) {
+				if ( 'PUT' === ( $args['method'] ?? '' ) ) {
+					return $this->http_response( 204, array() );
+				}
+				return $this->http_response(
+					200,
+					array(
+						'id'               => 'PLB-42',
+						'integration_mode' => 'BUTTON',
+						'code_snippets'    => $this->stacked_snippets(),
+						'line_items'       => $this->one_line_item(),
+					)
+				);
+			},
+			10,
+			3
+		);
+
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'BUTTON' );
+		$request->set_param( 'include_snippets', true );
+		$request->set_param( 'line_items', $this->one_line_item() );
+
+		$data = PayPal_REST_Controller::handle_update_button( $request )->get_data();
+
+		$this->assertSame( 'PLB-42', $data['id'] );
+		$this->assertSame(
+			'https://www.paypal.com/sdk/js?client-id=abc',
+			$data['attributes']['scriptSrc']
+		);
+	}
+
+	/**
+	 * Test that an update makes one round trip in either mode while the snippets flag
+	 * is absent.
+	 *
+	 * A link or QR block sharing a stacked block's payment sends BUTTON too, and only ever
+	 * wants the echo. The flag alone buys the read.
+	 *
+	 * @param string $integration_mode The mode the update sends.
+	 * @dataProvider integration_modes_provider
+	 */
+	#[DataProvider( 'integration_modes_provider' )]
+	public function test_update_button_keeps_its_single_round_trip_without_the_snippets_flag( $integration_mode ) {
+		$this->set_up_connected_admin_state();
+		$requests = array();
+		$this->mock_http_routes(
+			array( '/v1/checkout/payment-resources' => $this->http_response( 204, array() ) ),
+			$requests
+		);
+
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-43' );
+		$request->set_param( 'resource_id', 'PLB-43' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', $integration_mode );
+		$request->set_param( 'line_items', $this->one_line_item() );
+
+		$data = PayPal_REST_Controller::handle_update_button( $request )->get_data();
+
+		$this->assertCount( 1, $requests );
+		// The echo has no `id`, so mapping it would blank the block's resourceId.
+		$this->assertArrayNotHasKey( 'attributes', $data );
+	}
+
+	/**
+	 * Both modes reach the update route; the snippets flag is what asks for the re-read.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public static function integration_modes_provider() {
+		return array(
+			'link mode'   => array( 'LINK' ),
+			'button mode' => array( 'BUTTON' ),
+		);
+	}
+
+	public function test_update_button_falls_back_to_the_echo_when_the_re_read_fails() {
+		$this->set_up_connected_admin_state();
+		$methods = array();
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args ) use ( &$methods ) {
+				$methods[] = $args['method'] ?? '';
+				if ( 'PUT' === ( $args['method'] ?? '' ) ) {
+					return $this->http_response( 204, array() );
+				}
+				return new \WP_Error( 'http_request_failed', 'Connection timed out' );
+			},
+			10,
+			3
+		);
+
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-44' );
+		$request->set_param( 'resource_id', 'PLB-44' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'BUTTON' );
+		$request->set_param( 'include_snippets', true );
+		$request->set_param( 'line_items', $this->one_line_item() );
+
+		$result = PayPal_REST_Controller::handle_update_button( $request );
+
+		// The save still succeeds, and the block gets the SDK URL on its next read.
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertArrayNotHasKey( 'attributes', $result->get_data() );
+		// The save goes out once, whatever the re-read does.
+		$this->assertCount( 1, array_keys( $methods, 'PUT', true ) );
+		$this->assertNotEmpty(
+			array_keys( $methods, 'GET', true ),
+			'The echo is the fallback -- the re-read still has to be attempted.'
+		);
 	}
 
 	/**
@@ -1036,6 +1346,29 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->assertNotNull( $args, 'No DELETE endpoint registered.' );
 		$this->assertArrayHasKey( 'unused_only', $args );
 		$this->assertArrayHasKey( 'post_id', $args );
+	}
+
+	/**
+	 * Test that the update route declares the snippets flag alongside the create args.
+	 */
+	public function test_update_route_declares_the_snippets_flag() {
+		$routes = $this->register_paypal_routes();
+
+		$args = null;
+		foreach ( $routes['/wpcom/v2/paypal/buttons/(?P<resource_id>PLB-[A-Za-z0-9]+)'] as $endpoint ) {
+			if ( ! empty( $endpoint['methods']['PUT'] ) ) {
+				$args = $endpoint['args'];
+			}
+		}
+
+		$this->assertNotNull( $args, 'No PUT endpoint registered.' );
+		// Registering it is what gives the flag a default and a sanitizer.
+		$this->assertArrayHasKey( 'include_snippets', $args );
+		$this->assertFalse( $args['include_snippets']['default'] );
+		// Typed, the string "false" comes through as false rather than buying a round trip.
+		$this->assertSame( 'boolean', $args['include_snippets']['type'] );
+		// The resource fields the create shares have to survive the merge.
+		$this->assertArrayHasKey( 'line_items', $args );
 	}
 
 	/**

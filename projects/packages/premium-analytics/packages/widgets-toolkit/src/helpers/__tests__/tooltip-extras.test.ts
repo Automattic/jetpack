@@ -78,25 +78,21 @@ describe( 'resolveTooltipNames', () => {
 	const seriesNames = new Map( [ [ 'Views', 'Views' ] ] );
 
 	it( 'hands the series names back as they are without extras', () => {
-		expect( resolveTooltipNames( seriesNames, false, undefined ) ).toEqual( {
-			names: seriesNames,
-			namesRows: false,
-		} );
-		expect( resolveTooltipNames( seriesNames, true, [] ).namesRows ).toBe( true );
+		expect( resolveTooltipNames( seriesNames, undefined ) ).toBe( seriesNames );
+		expect( resolveTooltipNames( seriesNames, [] ) ).toBe( seriesNames );
 	} );
 
-	it( 'names each extra after itself and turns row naming on', () => {
-		const { names, namesRows } = resolveTooltipNames( seriesNames, false, [ CPM ] );
+	it( 'names each extra after itself', () => {
+		const names = resolveTooltipNames( seriesNames, [ CPM ] );
 
 		expect( names.get( 'Views' ) ).toBe( 'Views' );
 		expect( names.get( 'Average CPM' ) ).toBe( 'Average CPM' );
-		expect( namesRows ).toBe( true );
 		// The input map is not mutated.
 		expect( seriesNames.has( 'Average CPM' ) ).toBe( false );
 	} );
 
 	it( 'keeps the name resolved for a drawn series that is also listed as an extra', () => {
-		const { names } = resolveTooltipNames( new Map( [ [ 'July', 'Views' ] ] ), false, [
+		const names = resolveTooltipNames( new Map( [ [ 'July', 'Views' ] ] ), [
 			{ label: 'July', data: [] },
 		] );
 

@@ -2,22 +2,13 @@
  * WordPress dependencies
  */
 import {
-	__experimentalFontFamilyControl as FontFamilyControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	InspectorControls,
 	MediaUpload,
 	MediaUploadCheck,
 	useBlockProps,
-	useSettings,
 } from '@wordpress/block-editor';
-import {
-	Button,
-	Notice,
-	PanelBody,
-	Placeholder,
-	TextControl,
-	ToggleControl,
-} from '@wordpress/components';
-import { useEffect, useRef, useState } from '@wordpress/element';
+import { Button, Notice, PanelBody, Placeholder, TextControl } from '@wordpress/components';
+import { useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { closeSmall, dragHandle, Icon } from '@wordpress/icons';
@@ -25,31 +16,30 @@ import { closeSmall, dragHandle, Icon } from '@wordpress/icons';
  * Internal dependencies
  */
 import { fetchVideoItem } from '../../../lib/fetch-video-item';
-import getMediaToken from '../../../lib/get-media-token';
 import { isVideoPressGuid, pickGUIDFromUrl } from '../../../lib/url';
+import { LATEST_VIDEOS_PLAYLIST_CONTEXT } from '../latest-videos-playlist/context';
 import { VideoPressIcon } from '../video/components/icons';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../video/constants';
+import { PlaylistSettingsPanels, PlaylistStylesControls } from './inspector-controls';
+import LatestVideosInnerPlaylist from './latest-videos-inner';
+import PlaylistPreview from './preview';
+import usePlaylistLiveMetadata, { liveMetadataWithSignedPoster } from './use-live-metadata';
 import usePublishTracking from './use-publish-tracking';
 import {
-	formatRuntime,
 	formatTimecode,
 	moveEntry,
-	playlistEmbedUrl,
+	playlistFontVariables,
 	playlistRuntimeMs,
+	playlistWrapperClasses,
 	resolutionLabel,
-	withMetadataToken,
 } from './utils';
 import './editor.scss';
 /**
  * Types
  */
-import type {
-	PlaylistAttributes,
-	PlaylistEntry,
-	PlaylistLayout,
-	PlaylistLiveMetadata,
-} from './types';
+import type { PlaylistAttributes, PlaylistEntry, PlaylistLiveMetadata } from './types';
 import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../types';
+import type { LatestVideosPlaylistContext } from '../latest-videos-playlist/context';
 import type { BlockEditProps } from '@wordpress/blocks';
 
 /**
@@ -57,14 +47,6 @@ import type { BlockEditProps } from '@wordpress/blocks';
  * numbers in the sidebar manager, matching the long-playlist design.
  */
 const LONG_PLAYLIST_THRESHOLD = 8;
-
-type LayoutOption = { value: PlaylistLayout; label: string };
-
-const LAYOUT_OPTIONS: LayoutOption[] = [
-	{ value: 'side-rail', label: __( 'Side rail', 'jetpack-videopress-pkg' ) },
-	{ value: 'grid', label: __( 'Grid', 'jetpack-videopress-pkg' ) },
-	{ value: 'strip', label: __( 'Strip', 'jetpack-videopress-pkg' ) },
-];
 
 /**
  * Resolve raw user input (a VideoPress URL or a bare GUID) to a GUID.
@@ -110,65 +92,6 @@ function entryFromApiResponse( guid: string, item: Record< string, unknown > ): 
 }
 
 /**
- * Pick the live display metadata (title, poster) out of a videos API
- * response item.
- *
- * @param item - The videos API response.
- * @return Live metadata; fields are omitted when the API has none.
- */
-function liveMetadataFromApiResponse( item: Record< string, unknown > ): PlaylistLiveMetadata {
-	const metadata: PlaylistLiveMetadata = {};
-
-	if ( typeof item?.title === 'string' && item.title ) {
-		metadata.title = decodeEntities( item.title );
-	}
-	if ( typeof item?.poster === 'string' && item.poster ) {
-		metadata.poster = item.poster;
-	}
-
-	return metadata;
-}
-
-/**
- * Build an entry's live metadata, signing the poster URL for private videos:
- * the API returns the poster's bare file URL, which the file host refuses
- * without a token. The token comes from the same local cache fetchVideoItem
- * used to read the metadata, so this rarely costs an extra request.
- *
- * @param guid - The video GUID.
- * @param item - The videos API response.
- * @return Live metadata.
- */
-async function liveMetadataWithSignedPoster(
-	guid: string,
-	item: Record< string, unknown >
-): Promise< PlaylistLiveMetadata > {
-	const metadata = liveMetadataFromApiResponse( item );
-
-	if ( metadata.poster && item?.is_private === true ) {
-		try {
-			const { token } = await getMediaToken( 'playback', { guid } );
-			if ( token ) {
-				metadata.poster = withMetadataToken( metadata.poster, token );
-			} else {
-				// A poster the file host would refuse is worse than the fallback.
-				delete metadata.poster;
-				metadata.isPrivateLocked = true;
-			}
-		} catch {
-			delete metadata.poster;
-			metadata.isPrivateLocked = true;
-		}
-	}
-
-	if ( metadata.isPrivateLocked ) {
-		metadata.title = __( 'Private video', 'jetpack-videopress-pkg' );
-	}
-
-	return metadata;
-}
-
-/**
  * Format the "1080p · 12:04" meta line of an entry.
  *
  * @param entry - Playlist entry.
@@ -181,191 +104,28 @@ function entryMetaLine( entry: PlaylistEntry ): string {
 }
 
 /**
- * The front-end-mirroring preview rendered in the editor canvas.
+ * Video Playlist block edit component.
  *
- * @param props              - Component props.
- * @param props.attributes   - Block attributes.
- * @param props.currentIndex - Index of the entry shown in the player.
- * @param props.liveMetadata - Live title/poster per GUID, from the video data.
- * @param props.onSelect     - Called with an entry index when it is clicked.
- * @return Preview element.
+ * Inside a Latest Videos Playlist block the playlist is that block's locked
+ * canvas and renders what the parent provides; on its own it is the full
+ * editing experience below.
+ *
+ * @param props - Block edit props.
+ * @return Edit component.
  */
-function PlaylistPreview( {
-	attributes,
-	currentIndex,
-	liveMetadata,
-	onSelect,
-}: {
-	attributes: PlaylistAttributes;
-	currentIndex: number;
-	liveMetadata: Record< string, PlaylistLiveMetadata >;
-	onSelect: ( index: number ) => void;
-} ) {
-	const { videos, muteByDefault, showPositionNumber, showTotalRuntime } = attributes;
-	const current = videos[ currentIndex ];
+export default function PlaylistEdit( props: BlockEditProps< PlaylistAttributes > ) {
+	const latestVideos = props.context?.[ LATEST_VIDEOS_PLAYLIST_CONTEXT ] as
+		LatestVideosPlaylistContext | undefined;
 
-	/*
-	 * Mirrors the front-end view script: while more entries hide beyond the
-	 * scroll position — below it in the capped side rail, past the trailing
-	 * edge in the horizontal strip — the list shows the matching fade.
-	 */
-	const entriesRef = useRef< HTMLOListElement | null >( null );
-	const [ hasMoreBelow, setHasMoreBelow ] = useState( false );
-	const updateScrollHint = () => {
-		const container = entriesRef.current;
-		if ( ! container ) {
-			return;
-		}
-		const moreBelow = container.scrollHeight - container.scrollTop - container.clientHeight > 1;
-		// scrollLeft is negative in right-to-left scrollers.
-		const moreInline =
-			container.scrollWidth - Math.abs( container.scrollLeft ) - container.clientWidth > 1;
-		setHasMoreBelow( moreBelow || moreInline );
-	};
-	useEffect( updateScrollHint, [ videos, attributes.layout, liveMetadata ] );
-	const runtime = formatRuntime( playlistRuntimeMs( videos ) );
-	const countLabel = sprintf(
-		/* translators: %d: number of videos in the playlist. */
-		_n( '%d video', '%d videos', videos.length, 'jetpack-videopress-pkg' ),
-		videos.length
-	);
-	return (
-		<>
-			<div className="videopress-playlist__body">
-				<div className="videopress-playlist__stage">
-					<div className="videopress-playlist__player">
-						<iframe
-							className="videopress-playlist__iframe"
-							title={
-								liveMetadata[ current.guid ]?.title ||
-								__( 'Video Playlist player', 'jetpack-videopress-pkg' )
-							}
-							src={ playlistEmbedUrl( current.guid, false, muteByDefault ) }
-							allowFullScreen
-							allow="clipboard-write"
-						/>
-					</div>
-					{ showTotalRuntime && runtime && (
-						<div className="videopress-playlist__now">
-							<span className="videopress-playlist__now-runtime">
-								{ `${ countLabel } · ${ runtime }` }
-							</span>
-						</div>
-					) }
-				</div>
+	if ( latestVideos ) {
+		return <LatestVideosInnerPlaylist context={ latestVideos } />;
+	}
 
-				<div
-					className={
-						hasMoreBelow ? 'videopress-playlist__list has-more-videos' : 'videopress-playlist__list'
-					}
-				>
-					<div className="videopress-playlist__list-header">
-						<span className="videopress-playlist__list-label videopress-playlist__list-label--rail">
-							{ __( 'Up next', 'jetpack-videopress-pkg' ) }
-						</span>
-						<span className="videopress-playlist__list-label videopress-playlist__list-label--strip">
-							{ sprintf(
-								/* translators: %d: number of videos in the playlist. */
-								__( 'Playlist — %d videos', 'jetpack-videopress-pkg' ),
-								videos.length
-							) }
-						</span>
-						<span className="videopress-playlist__list-meta">
-							<span className="videopress-playlist__count">{ countLabel }</span>
-							{ showTotalRuntime && runtime && (
-								<span className="videopress-playlist__runtime">{ runtime }</span>
-							) }
-						</span>
-						<span className="videopress-playlist__list-progress">
-							{ sprintf(
-								/* translators: 1: position of the current video. 2: number of videos. 3: total playlist timecode. */
-								__( '%1$d / %2$d · %3$s total', 'jetpack-videopress-pkg' ),
-								currentIndex + 1,
-								videos.length,
-								formatTimecode( playlistRuntimeMs( videos ) )
-							) }
-						</span>
-					</div>
-					<ol
-						className="videopress-playlist__entries"
-						ref={ entriesRef }
-						onScroll={ updateScrollHint }
-					>
-						{ videos.map( ( entry, index ) => (
-							<li className="videopress-playlist__entry" key={ `${ entry.guid }-${ index }` }>
-								<button
-									type="button"
-									className={ [
-										'videopress-playlist__select',
-										index === currentIndex ? 'is-current' : '',
-										liveMetadata[ entry.guid ]?.isPrivateLocked ? 'is-locked' : '',
-									]
-										.filter( Boolean )
-										.join( ' ' ) }
-									aria-current={ index === currentIndex ? 'true' : undefined }
-									onClick={ () => onSelect( index ) }
-								>
-									{ showPositionNumber && (
-										<span className="videopress-playlist__entry-number">
-											{ String( index + 1 ).padStart( 2, '0' ) }
-										</span>
-									) }
-									<span className="videopress-playlist__entry-thumb">
-										{ liveMetadata[ entry.guid ]?.poster && (
-											<img src={ liveMetadata[ entry.guid ].poster } alt="" loading="lazy" />
-										) }
-										<span className="videopress-playlist__entry-flag">
-											{ __( 'Playing', 'jetpack-videopress-pkg' ) }
-										</span>
-										{ /* Mirrors the server render: shown via the button's is-locked class. */ }
-										<span className="videopress-playlist__entry-lock">
-											<svg
-												viewBox="0 0 24 24"
-												xmlns="http://www.w3.org/2000/svg"
-												aria-hidden="true"
-												focusable="false"
-											>
-												<path d="M17 10h-1.2V7.3c0-2.1-1.7-3.8-3.8-3.8-2.1 0-3.8 1.7-3.8 3.8V10H7c-.6 0-1 .4-1 1v8c0 .6.4 1 1 1h10c.6 0 1-.4 1-1v-8c0-.6-.4-1-1-1Zm-2.7 0H9.7V7.3c0-1.3 1-2.3 2.3-2.3 1.3 0 2.3 1 2.3 2.3V10Z" />
-											</svg>
-											<span className="videopress-playlist__entry-lock-label">
-												{ __( 'Private video', 'jetpack-videopress-pkg' ) }
-											</span>
-										</span>
-										{ formatTimecode( entry.durationMs ) && (
-											<span className="videopress-playlist__entry-time">
-												{ formatTimecode( entry.durationMs ) }
-											</span>
-										) }
-									</span>
-									<span className="videopress-playlist__entry-body">
-										<span className="videopress-playlist__entry-title">
-											{ liveMetadata[ entry.guid ]?.title || entry.guid }
-										</span>
-										<span className="videopress-playlist__entry-meta">
-											{ resolutionLabel( entry.height ) && (
-												<span className="videopress-playlist__entry-resolution">
-													{ resolutionLabel( entry.height ) }
-												</span>
-											) }
-											{ formatTimecode( entry.durationMs ) && (
-												<span className="videopress-playlist__entry-duration">
-													{ formatTimecode( entry.durationMs ) }
-												</span>
-											) }
-										</span>
-									</span>
-								</button>
-							</li>
-						) ) }
-					</ol>
-				</div>
-			</div>
-		</>
-	);
+	return <StandalonePlaylistEdit { ...props } />;
 }
 
 /**
- * Video Playlist block edit component.
+ * The standalone Video Playlist block.
  *
  * The canvas is a live, non-editable preview of the front end; every
  * playlist operation (add, reorder, remove, display options) lives in the
@@ -377,48 +137,12 @@ function PlaylistPreview( {
  * @param props.clientId      - This block instance's client id.
  * @return Edit component.
  */
-export default function PlaylistEdit( {
+function StandalonePlaylistEdit( {
 	attributes,
 	setAttributes,
 	clientId,
 }: BlockEditProps< PlaylistAttributes > ) {
-	const {
-		videos,
-		layout,
-		darkPlayer,
-		autoplayNext,
-		muteByDefault,
-		loopPlaylist,
-		showThumbnail,
-		showTitle,
-		showResolution,
-		showDuration,
-		showPositionNumber,
-		showTotalRuntime,
-		entryTitleFontFamily,
-	} = attributes;
-
-	/*
-	 * Theme font-family presets, as used by core blocks' typography tools.
-	 * Queried per origin — the bare `typography.fontFamilies` path returns
-	 * the raw origins object, not a list. Attributes store the preset slug;
-	 * the control works in CSS values.
-	 */
-	type FontFamilyPreset = { name?: string; slug: string; fontFamily: string };
-	const [ customFontFamilies, themeFontFamilies, defaultFontFamilies ] = useSettings(
-		'typography.fontFamilies.custom',
-		'typography.fontFamilies.theme',
-		'typography.fontFamilies.default'
-	) as Array< FontFamilyPreset[] | undefined >;
-	const fontFamilies: FontFamilyPreset[] = [
-		...( customFontFamilies ?? [] ),
-		...( themeFontFamilies ?? [] ),
-		...( defaultFontFamilies ?? [] ),
-	];
-	const fontFamilyValueOf = ( slug: string ) =>
-		fontFamilies.find( preset => preset.slug === slug )?.fontFamily ?? '';
-	const fontFamilySlugOf = ( value: string ) =>
-		fontFamilies.find( preset => preset.fontFamily === value )?.slug ?? '';
+	const { videos, layout, entryTitleFontFamily } = attributes;
 
 	const [ previewIndex, setPreviewIndex ] = useState( 0 );
 	const [ urlInput, setUrlInput ] = useState( '' );
@@ -429,46 +153,7 @@ export default function PlaylistEdit( {
 	const [ dragIndex, setDragIndex ] = useState< number | null >( null );
 	const [ dropIndex, setDropIndex ] = useState< number | null >( null );
 
-	/*
-	 * Live display metadata (title, poster) per GUID. It is never written to
-	 * block attributes: the editor reads it fresh from the video data, the
-	 * same way the front-end view script does.
-	 */
-	const [ liveMetadata, setLiveMetadata ] = useState< Record< string, PlaylistLiveMetadata > >(
-		{}
-	);
-	// GUIDs with a lookup already started this session; failed lookups keep the fallback.
-	const metadataFetchesStarted = useRef( new Set< string >() );
-
-	const cacheLiveMetadata = ( guid: string, metadata: PlaylistLiveMetadata ) => {
-		if ( ! Object.keys( metadata ).length ) {
-			return;
-		}
-		setLiveMetadata( cache => ( { ...cache, [ guid ]: { ...cache[ guid ], ...metadata } } ) );
-	};
-
-	useEffect( () => {
-		videos.forEach( ( { guid } ) => {
-			if ( metadataFetchesStarted.current.has( guid ) ) {
-				return;
-			}
-			metadataFetchesStarted.current.add( guid );
-
-			fetchVideoItem( { guid, isPrivate: false, skipRatingControl: true } )
-				.then( item => liveMetadataWithSignedPoster( guid, item as Record< string, unknown > ) )
-				.then( metadata => cacheLiveMetadata( guid, metadata ) )
-				.catch( ( error: Error & { cause?: { error?: string } } ) => {
-					// A video this user cannot authorize at all shows the lock
-					// placeholder; anything else keeps the GUID fallback.
-					if ( error?.cause?.error === 'auth' ) {
-						cacheLiveMetadata( guid, {
-							title: __( 'Private video', 'jetpack-videopress-pkg' ),
-							isPrivateLocked: true,
-						} );
-					}
-				} );
-		} );
-	}, [ videos ] );
+	const { liveMetadata, cacheLiveMetadata, markFetched } = usePlaylistLiveMetadata( videos );
 
 	const displayTitle = ( guid: string ) => liveMetadata[ guid ]?.title || guid;
 
@@ -479,30 +164,11 @@ export default function PlaylistEdit( {
 	const isLongPlaylist = videos.length > LONG_PLAYLIST_THRESHOLD;
 	const isFiltering = isLongPlaylist && filter.trim() !== '';
 
-	const wrapperClasses = [
-		'videopress-playlist',
-		`is-layout-${ layout }`,
-		darkPlayer ? 'is-dark' : '',
-		showThumbnail ? '' : 'hide-thumbnails',
-		showTitle ? '' : 'hide-titles',
-		showResolution ? '' : 'hide-resolutions',
-		showDuration ? '' : 'hide-durations',
-		showTotalRuntime ? '' : 'hide-runtime',
-	]
-		.filter( Boolean )
-		.join( ' ' );
-
-	// The chosen presets reach the stylesheet as CSS custom properties, the
-	// same way the PHP render exposes them on the front end.
-	const fontVariables: Record< string, string > = {};
-	if ( entryTitleFontFamily ) {
-		fontVariables[ '--vpp-entry-title-font' ] =
-			`var(--wp--preset--font-family--${ entryTitleFontFamily })`;
-	}
-
 	const blockProps = useBlockProps( {
-		className: videos.length ? wrapperClasses : 'videopress-playlist is-empty',
-		style: fontVariables,
+		className: videos.length
+			? playlistWrapperClasses( attributes )
+			: 'videopress-playlist is-empty',
+		style: playlistFontVariables( entryTitleFontFamily ),
 	} );
 
 	const clearFeedback = () => {
@@ -516,7 +182,7 @@ export default function PlaylistEdit( {
 
 		try {
 			const item = await fetchVideoItem( { guid, isPrivate: false, skipRatingControl: true } );
-			metadataFetchesStarted.current.add( guid );
+			markFetched( guid );
 			cacheLiveMetadata(
 				guid,
 				await liveMetadataWithSignedPoster( guid, item as Record< string, unknown > )
@@ -740,17 +406,6 @@ export default function PlaylistEdit( {
 				.includes( filter.trim().toLowerCase() );
 		} );
 
-	// Kept as separate statements: a shared ternary of __() calls would let
-	// the minifier merge them, breaking translation extraction.
-	const autoplayHelp = __(
-		'Play the next video automatically when one ends.',
-		'jetpack-videopress-pkg'
-	);
-	const autoplayImpliedHelp = __(
-		'Looping the playlist keeps autoplay on.',
-		'jetpack-videopress-pkg'
-	);
-
 	const inspectorControls = (
 		<InspectorControls>
 			<PanelBody title={ __( 'Add a video', 'jetpack-videopress-pkg' ) }>
@@ -922,131 +577,12 @@ export default function PlaylistEdit( {
 				) }
 			</PanelBody>
 
-			<PanelBody title={ __( 'Playback', 'jetpack-videopress-pkg' ) }>
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Autoplay next', 'jetpack-videopress-pkg' ) }
-					help={ loopPlaylist ? autoplayImpliedHelp : autoplayHelp }
-					checked={ autoplayNext || loopPlaylist }
-					disabled={ loopPlaylist }
-					onChange={ ( value: boolean ) => setAttributes( { autoplayNext: value } ) }
-				/>
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Mute by default', 'jetpack-videopress-pkg' ) }
-					help={ __( 'Start playback muted.', 'jetpack-videopress-pkg' ) }
-					checked={ muteByDefault }
-					onChange={ ( value: boolean ) => setAttributes( { muteByDefault: value } ) }
-				/>
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Loop playlist', 'jetpack-videopress-pkg' ) }
-					help={ __(
-						'Restart from the first video after the last one ends.',
-						'jetpack-videopress-pkg'
-					) }
-					checked={ loopPlaylist }
-					onChange={ ( value: boolean ) => setAttributes( { loopPlaylist: value } ) }
-				/>
-			</PanelBody>
-
-			<PanelBody title={ __( 'Show on each entry', 'jetpack-videopress-pkg' ) }>
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Thumbnail', 'jetpack-videopress-pkg' ) }
-					checked={ showThumbnail }
-					onChange={ ( value: boolean ) => setAttributes( { showThumbnail: value } ) }
-				/>
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Title', 'jetpack-videopress-pkg' ) }
-					checked={ showTitle }
-					onChange={ ( value: boolean ) => setAttributes( { showTitle: value } ) }
-				/>
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Resolution', 'jetpack-videopress-pkg' ) }
-					checked={ showResolution }
-					onChange={ ( value: boolean ) => setAttributes( { showResolution: value } ) }
-				/>
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Duration', 'jetpack-videopress-pkg' ) }
-					checked={ showDuration }
-					onChange={ ( value: boolean ) => setAttributes( { showDuration: value } ) }
-				/>
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Position number', 'jetpack-videopress-pkg' ) }
-					checked={ showPositionNumber }
-					onChange={ ( value: boolean ) => setAttributes( { showPositionNumber: value } ) }
-				/>
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Total runtime in header', 'jetpack-videopress-pkg' ) }
-					checked={ showTotalRuntime }
-					onChange={ ( value: boolean ) => setAttributes( { showTotalRuntime: value } ) }
-				/>
-			</PanelBody>
+			<PlaylistSettingsPanels attributes={ attributes } setAttributes={ setAttributes } />
 		</InspectorControls>
 	);
 
-	// In the Styles tab, where WordPress surfaces style settings for core blocks.
 	const stylesControls = (
-		<InspectorControls group="styles">
-			<PanelBody title={ __( 'Layout', 'jetpack-videopress-pkg' ) }>
-				<div
-					className="videopress-playlist-editor__layouts"
-					role="group"
-					aria-label={ __( 'Layout', 'jetpack-videopress-pkg' ) }
-				>
-					{ LAYOUT_OPTIONS.map( option => (
-						<button
-							key={ option.value }
-							type="button"
-							className={
-								layout === option.value
-									? 'videopress-playlist-editor__layout is-selected'
-									: 'videopress-playlist-editor__layout'
-							}
-							aria-pressed={ layout === option.value }
-							onClick={ () => setAttributes( { layout: option.value } ) }
-						>
-							<span
-								className={ `videopress-playlist-editor__layout-sketch is-${ option.value }` }
-								aria-hidden="true"
-							>
-								<i />
-								<i />
-								<i />
-								<i />
-							</span>
-							{ option.label }
-						</button>
-					) ) }
-				</div>
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Dark player surface', 'jetpack-videopress-pkg' ) }
-					checked={ darkPlayer }
-					onChange={ ( value: boolean ) => setAttributes( { darkPlayer: value } ) }
-				/>
-			</PanelBody>
-			{ fontFamilies.length > 0 && (
-				<PanelBody title={ __( 'Typography', 'jetpack-videopress-pkg' ) }>
-					<div className="videopress-playlist-editor__font-control">
-						<FontFamilyControl
-							fontFamilies={ fontFamilies }
-							label={ __( 'Entry titles', 'jetpack-videopress-pkg' ) }
-							value={ fontFamilyValueOf( entryTitleFontFamily ) }
-							onChange={ ( value: string ) =>
-								setAttributes( { entryTitleFontFamily: fontFamilySlugOf( value ) } )
-							}
-						/>
-					</div>
-				</PanelBody>
-			) }
-		</InspectorControls>
+		<PlaylistStylesControls attributes={ attributes } setAttributes={ setAttributes } />
 	);
 
 	if ( ! videos.length ) {
@@ -1085,6 +621,7 @@ export default function PlaylistEdit( {
 			{ inspectorControls }
 			{ stylesControls }
 			<PlaylistPreview
+				videos={ videos }
 				attributes={ attributes }
 				currentIndex={ currentIndex }
 				liveMetadata={ liveMetadata }

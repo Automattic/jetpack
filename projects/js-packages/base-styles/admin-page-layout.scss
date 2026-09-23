@@ -374,6 +374,14 @@ $jp-breakpoint-mobile: 782px;
 
 	@include jetpack-admin-page-layout;
 
+	// Boot's stage scrolls, but this layout scrolls the page's middle. Clip
+	// the stage like `#wpbody-content`, or absolute content anchored above the
+	// middle adds a second scrollbar. `clip`, not `hidden`: a `hidden` stage
+	// still scrolls to focused content.
+	#wpbody-content :is(.boot-layout__stage, [class*="__stage"]):has(.jp-admin-page) {
+		overflow: clip;
+	}
+
 	// admin-ui's `<Breadcrumbs>` renders semantic `<ul>/<li>/<a>` so it
 	// inherits two wp-admin globals that misbehave inside the header:
 	//   `ul li { margin-bottom: 6px }` inflates the breadcrumb `<ul>`'s

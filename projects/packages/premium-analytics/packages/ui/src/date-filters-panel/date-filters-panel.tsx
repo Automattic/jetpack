@@ -20,6 +20,7 @@ import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import { DateIntervalDropdown } from '../date-interval-dropdown';
 import { DatePeriodDropdown } from '../date-period-dropdown';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
+import type { DateControlTriggerProps } from '../utils/date-control-trigger';
 
 import './date-filters-panel.scss';
 
@@ -121,6 +122,9 @@ export type DateFiltersPanelProps = {
 	 */
 	disabled?: boolean;
 
+	/** The look of every trigger in the row, e.g. compact in a widget header. */
+	triggerProps?: DateControlTriggerProps;
+
 	/** Passed to the period trigger; see `DatePeriodDropdown`. */
 	attentionId?: DatePeriodDropdownProps[ 'attentionId' ];
 };
@@ -156,6 +160,7 @@ export function DateFiltersPanel( {
 	canApply = true,
 	timeZone,
 	disabled = false,
+	triggerProps,
 	attentionId,
 }: DateFiltersPanelProps ) {
 	/*
@@ -218,6 +223,7 @@ export function DateFiltersPanel( {
 				presetId={ validatedComparisonPresetId }
 				label={ comparisonLabel }
 				disabled={ disabled }
+				triggerProps={ triggerProps }
 				onPresetChange={ presetChange }
 				onClear={ clearComparison }
 			/>
@@ -229,6 +235,7 @@ export function DateFiltersPanel( {
 			disabled,
 			presetChange,
 			presets,
+			triggerProps,
 			validatedComparisonPresetId,
 		]
 	);
@@ -240,10 +247,11 @@ export function DateFiltersPanel( {
 					options={ intervalOptions }
 					value={ interval }
 					disabled={ disabled }
+					triggerProps={ triggerProps }
 					onChange={ onIntervalChange }
 				/>
 			) : null,
-		[ withIntervalControl, interval, intervalOptions, disabled, onIntervalChange ]
+		[ withIntervalControl, interval, intervalOptions, disabled, triggerProps, onIntervalChange ]
 	);
 
 	return (
@@ -269,6 +277,7 @@ export function DateFiltersPanel( {
 						canApply={ canApply }
 						timeZone={ timeZone }
 						disabled={ disabled }
+						triggerProps={ triggerProps }
 						onOpenChange={ setIsPrimaryPickerOpen }
 						presetIds={ presetIds }
 						allTimeStart={ allTimeStart }

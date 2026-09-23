@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add protected owner fields and a default UI filter to the connection initial state.
