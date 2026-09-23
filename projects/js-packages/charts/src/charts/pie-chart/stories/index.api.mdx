@@ -39,7 +39,7 @@ Label colors are CSS custom properties, set inside the provider tree:
 
 | Custom property | Default | Description |
 | --- | --- | --- |
-| `--a8c-charts-color-label-inverse` | `#f0f0f0` | Label text color. Used unless the slice fill contrasts better with `--a8c-charts-color-label`, or a label plate is set |
+| `--a8c-charts-color-label-inverse` | `#f0f0f0` | Label text color. Used by default, and always once a label plate is set; without a plate, a slice whose fill contrasts more with `--a8c-charts-color-label` uses that role instead |
 | `--a8c-charts-color-label` | `#1e1e1e` | Label text color used automatically on light slice fills, unless a label plate is set |
 | `--a8c-charts-color-label-background` | `transparent` | The plate behind a label. Set any color to enable it; once set, the label always uses `--a8c-charts-color-label-inverse` |
 
