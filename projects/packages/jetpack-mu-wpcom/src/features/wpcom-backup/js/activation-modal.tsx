@@ -112,7 +112,6 @@ function Warning( { warning }: { warning: TransferWarning } ) {
  * @param props.errors      - Blocking errors to explain instead of proceeding.
  * @param props.warnings    - Non-blocking warnings to surface before proceeding.
  * @param props.activateUrl - Where to send the reader to start the transfer.
- * @param props.supportUrl  - Backup documentation, for the help link.
  * @param props.onClose     - Dismiss handler.
  * @return The rendered modal.
  */
@@ -121,14 +120,12 @@ export function TransferActivationModal( {
 	errors,
 	warnings,
 	activateUrl,
-	supportUrl,
 	onClose,
 }: {
 	isEligible: boolean;
 	errors: TransferError[];
 	warnings: TransferWarning[];
 	activateUrl: string;
-	supportUrl: string;
 	onClose: () => void;
 } ) {
 	const isBlocked = hasAnyBlockingError( errors );
@@ -169,10 +166,7 @@ export function TransferActivationModal( {
 						) }
 					</Stack>
 				</Dialog.Content>
-				<Stack render={ <Dialog.Footer /> } align="center" justify="space-between" gap="md">
-					<Link href={ supportUrl } openInNewTab>
-						{ __( 'Need help?', 'jetpack-mu-wpcom' ) }
-					</Link>
+				<Dialog.Footer>
 					{ /* An anchor cannot be disabled, so a blocked transfer gets a button instead. */ }
 					{ canProceed( isEligible, errors ) ? (
 						<LinkButton variant="solid" href={ activateUrl }>
@@ -183,7 +177,7 @@ export function TransferActivationModal( {
 							{ actionLabel }
 						</Button>
 					) }
-				</Stack>
+				</Dialog.Footer>
 			</Dialog.Popup>
 		</Dialog.Root>
 	);

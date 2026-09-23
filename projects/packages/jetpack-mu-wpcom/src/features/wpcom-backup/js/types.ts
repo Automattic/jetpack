@@ -49,7 +49,6 @@ export type InitialState = {
 	warnings: TransferWarning[];
 	upgradeUrl: string;
 	activateUrl: string;
-	supportUrl: string;
 };
 
 declare global {

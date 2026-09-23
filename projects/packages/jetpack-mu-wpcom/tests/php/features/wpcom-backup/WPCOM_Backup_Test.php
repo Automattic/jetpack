@@ -528,7 +528,7 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 		$payload = (array) $this->localized_initial_state();
 
 		$this->assertSame(
-			array( 'state', 'domain', 'isEligible', 'errors', 'warnings', 'upgradeUrl', 'activateUrl', 'supportUrl' ),
+			array( 'state', 'domain', 'isEligible', 'errors', 'warnings', 'upgradeUrl', 'activateUrl' ),
 			array_keys( $payload )
 		);
 		$this->assertSame( WPCOM_Backup::STATE_UPGRADE, $payload['state'] );

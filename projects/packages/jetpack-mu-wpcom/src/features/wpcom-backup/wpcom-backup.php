@@ -357,7 +357,6 @@ class WPCOM_Backup {
 				'warnings'    => $warnings,
 				'upgradeUrl'  => self::get_upgrade_url( $domain ),
 				'activateUrl' => self::get_activate_url( $warnings ),
-				'supportUrl'  => 'https://wordpress.com/support/backups/',
 			)
 		);
 	}

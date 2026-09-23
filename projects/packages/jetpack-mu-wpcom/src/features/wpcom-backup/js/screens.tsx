@@ -99,7 +99,6 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 					errors={ state.errors }
 					warnings={ state.warnings }
 					activateUrl={ state.activateUrl }
-					supportUrl={ state.supportUrl }
 					onClose={ () => setIsModalOpen( false ) }
 				/>
 			) }
