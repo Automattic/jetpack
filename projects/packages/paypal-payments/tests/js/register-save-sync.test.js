@@ -282,8 +282,9 @@ describe( 'registerSaveSync', () => {
 			}
 		);
 
-		// The PUT's echo changes no attributes, so the filter returns before the content rewrite.
-		it( 'says the changes were saved after a PUT that changes nothing', async () => {
+		// Nothing was read to compare with, so the PUT counts as a change. Its echo changes no
+		// attributes, so the filter returns before the content rewrite.
+		it( 'says the changes were saved after a PUT that changes no attributes', async () => {
 			blocks.set( 'a', payPalBlock( 'a', 'PLB-A1' ) );
 			recordPaymentRead( 'a', 'PLB-A1' );
 			const edits = { content: blockComment( 'PLB-A1' ) };
@@ -293,6 +294,21 @@ describe( 'registerSaveSync', () => {
 
 			expect( result ).toBe( edits );
 			expect( mockToast.mock.calls ).toEqual( [ saved( 'Changes saved.' ) ] );
+		} );
+
+		// The first save after a reload PUTs the block even when it matches what was read.
+		it( 'stays quiet after a PUT that matches the read', async () => {
+			const block = payPalBlock( 'a', 'PLB-A1' );
+			blocks.set( 'a', block );
+			recordPaymentRead( 'a', 'PLB-A1', block.attributes );
+
+			await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
+			runSavedAction();
+
+			expect( apiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( { path: `${ API_BASE }/buttons/PLB-A1`, method: 'PUT' } )
+			);
+			expect( mockToast ).not.toHaveBeenCalled();
 		} );
 
 		it( 'stays quiet when nothing was sent to PayPal', async () => {

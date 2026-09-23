@@ -75,7 +75,7 @@ export function registerSaveSync( isEnabled ) {
 				return edits;
 			}
 
-			// Whether each payment written in this save was created, for one snackbar per save.
+			// Whether each payment this save created or changed was created, for one snackbar.
 			const saved = [];
 			const changed = await syncBlocksBeforeSave( blocks, {
 				request: apiFetch,
@@ -101,7 +101,7 @@ export function registerSaveSync( isEnabled ) {
 				reportSaved: created => saved.push( created ),
 			} );
 
-			// Set even when no attributes changed: a PUT can still have saved to PayPal. A
+			// Set even when no block attributes changed: the PUT still changed the payment. A
 			// create wins over an update, from this save or one whose post save failed.
 			if ( saved.includes( true ) ) {
 				savedMessage = __( 'Payment link successfully created.', 'jetpack-paypal-payments' );

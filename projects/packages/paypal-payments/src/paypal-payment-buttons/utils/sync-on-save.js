@@ -108,24 +108,36 @@ export function recordPaymentRead( clientId, resourceId, held ) {
 }
 
 /**
- * Bump the card revision of each payment a PUT changed from its last read. Without a
- * read, a PUT is compared with block.json's defaults, which a named product differs from.
+ * Bump the card revision of each payment a PUT changed from its last read, and report
+ * the ones the PUTs changed. Without a read, a PUT is compared with block.json's
+ * defaults, which a named product differs from.
  *
- * @param {Map} written - Block attributes written by each payment's PUTs, by payment id.
+ * @param {Map}      written     - What each payment's PUTs wrote, by payment id.
+ * @param {Function} reportSaved - Called once for each payment the PUTs changed.
  */
-function recordPaymentsWritten( written ) {
+function recordPaymentsWritten( written, reportSaved ) {
 	written.forEach( ( writes, resourceId ) => {
 		const held = paymentsHeld.get( resourceId );
 		// Blocks sharing a payment can PUT different values in any order, so the next save
 		// needs a fresh read to compare with.
 		paymentsHeld.delete( resourceId );
 
-		if (
-			writes.some(
-				attributes => Object.keys( getResourceAttributeUpdates( attributes, held ) ).length
-			)
-		) {
+		const changed = writes.some(
+			( { attributes } ) => Object.keys( getResourceAttributeUpdates( attributes, held ) ).length
+		);
+		if ( changed ) {
 			cardRevisions.set( resourceId, getCardRevision( resourceId ) + 1 );
+		}
+
+		// The first save after a reload PUTs every block, changed or not, so only a PUT that
+		// differs from the read is reported. The mode is compared as sent: switching to
+		// stacked sends BUTTON and leaves the attribute as it was.
+		if (
+			! held ||
+			changed ||
+			writes.some( ( { mode } ) => mode !== ( held.integrationMode || 'LINK' ) )
+		) {
+			reportSaved?.( false );
 		}
 	} );
 }
@@ -251,9 +263,9 @@ function reportStackedUnavailable( block, scriptSrc, reportError ) {
  * @param {Function} deps.updateBlockAttributes - Writes attributes onto a block by clientId.
  * @param {Function} deps.reportError           - Tells the merchant a block's save failed, and why.
  * @param {Function} deps.reportHeldBack        - Tells the merchant a block was not sent, and why.
- * @param {Function} deps.reportSaved           - Called when a block's payment is written, with whether it was created.
+ * @param {Function} deps.reportSaved           - Called when a payment is created or changed, with whether it was created.
  * @param {Set}      stackedResources           - Payments a stacked block in this save draws from.
- * @param {Map}      written                    - Collects the attributes each PUT wrote, by payment id.
+ * @param {Map}      written                    - Collects the attributes and mode each PUT wrote, by payment id.
  * @return {Promise<boolean>} True when the block's attributes changed.
  */
 async function syncBlock(
@@ -330,7 +342,10 @@ async function syncBlock(
 				markExistingLinksDirty();
 
 				// Compared with what was read once every PUT has settled.
-				written.set( resourceId, [ ...( written.get( resourceId ) || [] ), attributes ] );
+				written.set( resourceId, [
+					...( written.get( resourceId ) || [] ),
+					{ attributes, mode: body.integration_mode },
+				] );
 
 				// The read-back is how a block switching to stacked gets its scriptSrc in the same
 				// save. Without one the response is the echo, which changes nothing.
@@ -350,8 +365,10 @@ async function syncBlock(
 
 		const { response, created, updates } = result;
 
-		// Report it even when no attributes change: PayPal still saved the payment.
-		reportSaved?.( created );
+		// An update is reported once every PUT has settled, and only if it changed the payment.
+		if ( created ) {
+			reportSaved?.( true );
+		}
 
 		if ( Object.keys( updates ).length > 0 ) {
 			updateBlockAttributes( clientId, updates );
@@ -411,8 +428,9 @@ export async function syncBlocksBeforeSave( blocks, deps ) {
 		blocks.map( block => syncBlock( block, deps, stackedResources, written ) )
 	);
 
-	// Once every PUT has settled, so blocks sharing a payment bump its card revision once.
-	recordPaymentsWritten( written );
+	// Once every PUT has settled, so blocks sharing a payment bump its card revision, and
+	// report it, once.
+	recordPaymentsWritten( written, deps.reportSaved );
 
 	return results.some( Boolean );
 }
