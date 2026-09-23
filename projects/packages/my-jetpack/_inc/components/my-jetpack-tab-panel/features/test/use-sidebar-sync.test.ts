@@ -95,7 +95,13 @@ describe( 'useSidebarSync', () => {
 
 	it( 'aborts a refresh a newer write supersedes', async () => {
 		fetchMock
-			.mockReturnValueOnce( new Promise( () => {} ) )
+			// Rejects on abort, as fetch does, so the queue hold it took is released.
+			.mockImplementationOnce(
+				( _url: string, { signal }: RequestInit ) =>
+					new Promise( ( _resolve, reject ) =>
+						signal?.addEventListener( 'abort', () => reject( new Error( 'aborted' ) ) )
+					)
+			)
 			.mockReturnValueOnce( respond( page( 'my-jetpack', 'stats' ) ) );
 
 		const { result } = renderHook( () => useSidebarSync( [ feature( 'stats' ) ] ) );
@@ -107,5 +113,32 @@ describe( 'useSidebarSync', () => {
 
 		expect( fetchMock.mock.calls[ 0 ][ 1 ].signal.aborted ).toBe( true );
 		expect( fetchMock.mock.calls[ 1 ][ 1 ].signal.aborted ).toBe( false );
+	} );
+
+	it( 'retries a failed refresh once', async () => {
+		fetchMock
+			.mockReturnValueOnce( Promise.reject( new Error( 'offline' ) ) )
+			.mockReturnValueOnce( respond( page( 'my-jetpack', 'stats' ) ) );
+
+		const { result } = renderHook( () => useSidebarSync( [ feature( 'stats' ) ] ) );
+
+		act( () => switchWritten() );
+
+		await waitFor( () => expect( result.current.pointer ).not.toBeNull() );
+
+		expect( fetchMock ).toHaveBeenCalledTimes( 2 );
+	} );
+
+	it( 'gives up after one retry', async () => {
+		fetchMock.mockImplementation( () => Promise.reject( new Error( 'offline' ) ) );
+
+		renderHook( () => useSidebarSync( [ feature( 'stats' ) ] ) );
+
+		act( () => switchWritten() );
+
+		await waitFor( () => expect( fetchMock ).toHaveBeenCalledTimes( 2 ) );
+		await act( () => new Promise( resolve => setTimeout( resolve, 20 ) ) );
+
+		expect( fetchMock ).toHaveBeenCalledTimes( 2 );
 	} );
 } );

@@ -84,6 +84,27 @@ describe( 'syncAdminMenu', () => {
 			'menu-tools',
 		] );
 	} );
+
+	it( 'gives a top-level item its first submenu, and takes its last away', () => {
+		const crm = ( pages: string ) =>
+			`<li id="toplevel_page_crm"><a href="admin.php?page=crm">CRM</a>${ pages }</li>`;
+
+		syncAdminMenu( live, freshMenu( [ 'my-jetpack', 'jetpack' ], crm( '' ) ) );
+
+		const added = syncAdminMenu(
+			live,
+			freshMenu( [ 'my-jetpack', 'jetpack' ], crm( submenu( 'crm', 'crm-contacts' ) ) )
+		);
+		const item = live.querySelector( '#toplevel_page_crm' );
+
+		expect( added.map( entry => entry.textContent ) ).toEqual( [ 'crm', 'crm-contacts' ] );
+		expect( item ).toHaveClass( 'wp-has-submenu' );
+
+		syncAdminMenu( live, freshMenu( [ 'my-jetpack', 'jetpack' ], crm( '' ) ) );
+
+		expect( item.querySelector( '.wp-submenu' ) ).toBeNull();
+		expect( item ).not.toHaveClass( 'wp-has-submenu' );
+	} );
 } );
 
 describe( 'syncAdminMenu keys', () => {

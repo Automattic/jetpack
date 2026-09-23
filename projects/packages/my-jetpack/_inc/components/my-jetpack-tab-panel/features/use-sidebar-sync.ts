@@ -1,6 +1,10 @@
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { _n, __, sprintf } from '@wordpress/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+	holdActivationQueue,
+	queueActivationRequest,
+} from '../../../data/queue-activation-request';
 import { onSwitchWritten } from '../../../data/switch-written';
 import { fetchAdminMenu, linksTo, menuLinkOf, syncAdminMenu } from '../../../utils/admin-menu-sync';
 
@@ -33,16 +37,17 @@ export function useSidebarSync( features: MainFeature[] ) {
 
 		let controller: AbortController | undefined;
 
-		const unsubscribe = onSwitchWritten( () => {
-			// A newer write supersedes the refresh in flight, which could otherwise land last.
-			controller?.abort();
-			controller = new AbortController();
-
-			// Tools is the cheapest admin page to render, and every page carries the same menu.
-			fetchAdminMenu( getAdminUrl( 'tools.php' ), controller.signal )
+		const refresh = ( signal: AbortSignal, retries: number ) =>
+			// Rendering any admin page runs `admin_init`, where plugins do deferred activation
+			// work, so no switch may be written while it is out. A retry comes later, when a
+			// switch may already be out, so it queues behind it instead.
+			( retries > 0 ? holdActivationQueue : queueActivationRequest )( () =>
+				// Tools is the cheapest admin page to render, and every page carries the same menu.
+				fetchAdminMenu( getAdminUrl( 'tools.php' ), signal )
+			)
 				.then( fresh => {
 					if ( ! fresh ) {
-						return;
+						throw new Error( 'The admin page had no menu.' );
 					}
 
 					const added = syncAdminMenu( live, fresh );
@@ -51,8 +56,19 @@ export function useSidebarSync( features: MainFeature[] ) {
 					// this one just took away.
 					setPointer( added.length ? pickPointer( added, latest.current ) : null );
 				} )
-				// A failed refresh costs nothing: the next page load has the menu.
-				.catch( () => {} );
+				.catch( () => {
+					// Retried once: a switched-off feature's item would otherwise stay clickable
+					// until the next page load.
+					if ( retries > 0 && ! signal.aborted ) {
+						refresh( signal, retries - 1 );
+					}
+				} );
+
+		const unsubscribe = onSwitchWritten( () => {
+			// A newer write supersedes the refresh in flight, which could otherwise land last.
+			controller?.abort();
+			controller = new AbortController();
+			refresh( controller.signal, 1 );
 		} );
 
 		return () => {

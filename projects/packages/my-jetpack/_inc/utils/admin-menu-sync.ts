@@ -118,6 +118,16 @@ export function syncAdminMenu( live: Element, fresh: Element ): HTMLElement[] {
 
 			if ( liveSubmenu && freshSubmenu ) {
 				added.push( ...syncAdminMenu( liveSubmenu, freshSubmenu ) );
+			} else if ( freshSubmenu ) {
+				// A plugin's top-level item gaining its first subpage.
+				const submenu = live.ownerDocument.importNode( freshSubmenu, true ) as HTMLElement;
+
+				existing.append( submenu );
+				existing.classList.add( 'wp-has-submenu' );
+				added.push( ...( Array.from( submenu.children ).filter( keyOf ) as HTMLElement[] ) );
+			} else if ( liveSubmenu ) {
+				liveSubmenu.remove();
+				existing.classList.remove( 'wp-has-submenu' );
 			}
 
 			previous = existing;
