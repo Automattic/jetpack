@@ -149,6 +149,50 @@ describe( 'PieChart', () => {
 		} );
 	} );
 
+	describe( 'Label Text Contrast', () => {
+		const contrastData = [
+			{ label: 'Light', value: 60, color: '#f5d76e' },
+			{ label: 'Dark', value: 40, color: '#1e3a8a' },
+		];
+
+		test( 'uses dark label text on a light slice', () => {
+			renderWithTheme( { data: contrastData } );
+
+			const [ light, dark ] = screen.getAllByTestId( 'pie-label' );
+			expect( light ).toHaveClass( 'pie-chart__label-text--on-light' );
+			expect( dark ).not.toHaveClass( 'pie-chart__label-text--on-light' );
+		} );
+
+		test( 'keeps the inverse label color when a label plate is set', () => {
+			const container = document.createElement( 'div' );
+			container.style.setProperty( '--a8c-charts-color-label-background', 'rgba(0, 0, 0, 0.75)' );
+			document.body.appendChild( container );
+
+			render(
+				<GlobalChartsProvider>
+					<PieChart { ...defaultProps } data={ contrastData } />
+				</GlobalChartsProvider>,
+				{ container }
+			);
+
+			screen
+				.getAllByTestId( 'pie-label' )
+				.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
+
+			document.body.removeChild( container );
+		} );
+
+		test( 'keeps the inverse label color when the fill cannot be resolved', () => {
+			renderWithTheme( {
+				data: [ { label: 'Unresolved', value: 100, color: 'var(--not-set)' } ],
+			} );
+
+			screen
+				.getAllByTestId( 'pie-label' )
+				.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
+		} );
+	} );
+
 	describe( 'Legend Value Display', () => {
 		// Values that give clean percentages: 60/100=60%, 23/100=23%, 17/100=17%
 		const testData = [

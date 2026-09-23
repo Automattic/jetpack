@@ -1,6 +1,7 @@
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import { useTooltip } from '@visx/tooltip';
+import { color as d3Color } from '@visx/vendor/d3-color';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo, useRef } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
@@ -15,12 +16,21 @@ import {
 	GlobalChartsProvider,
 	useChartId,
 	useChartRegistration,
+	useChartScopeElement,
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 	GlobalChartsContext,
 } from '../../providers';
+import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
+import { contrastRatio } from '../../providers/chart-context/private/perceptual-color';
 import { useStandaloneScopeClass } from '../../providers/chart-scope';
-import { attachSubComponents, resolveFontSize } from '../../utils';
+import {
+	attachSubComponents,
+	isValidHexColor,
+	normalizeColorToHex,
+	resolveCssVariable,
+	resolveFontSize,
+} from '../../utils';
 import { getStringWidth } from '../../visx/text';
 import { Center } from '../private/center';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
@@ -162,6 +172,47 @@ const validateData = ( data: DataPointPercentage[] ) => {
 };
 
 /**
+ * The label pointers resolved once per render, at the chart's scope element.
+ */
+interface ResolvedLabelPointers {
+	/** Whether a consumer set a label plate; when true the label always sits on it. */
+	hasPlate: boolean;
+	/** `CATALOG_POINTERS.label`, normalized to hex. */
+	labelHex: string;
+	/** `CATALOG_POINTERS.labelInverse`, normalized to hex. */
+	labelInverseHex: string;
+}
+
+/**
+ * Whether a pie slice's label should use the dark `label` role instead of the default `label-inverse` role.
+ *
+ * A label plate always wins: the text sits on the plate, not the slice fill, so it never flips.
+ * Otherwise the role that contrasts more with the resolved slice fill wins.
+ *
+ * @param fill     - The slice's resolved fill color.
+ * @param pointers - The label pointers resolved once per render.
+ * @return Whether the label needs dark text.
+ */
+const labelNeedsDarkText = ( fill: string, pointers: ResolvedLabelPointers ): boolean => {
+	if ( pointers.hasPlate ) {
+		return false;
+	}
+
+	const fillHex = normalizeColorToHex( fill );
+	if (
+		! isValidHexColor( fillHex ) ||
+		! isValidHexColor( pointers.labelHex ) ||
+		! isValidHexColor( pointers.labelInverseHex )
+	) {
+		return false;
+	}
+
+	return (
+		contrastRatio( fillHex, pointers.labelHex ) > contrastRatio( fillHex, pointers.labelInverseHex )
+	);
+};
+
+/**
  * Renders a pie or donut chart using the provided data.
  *
  * @param {PieChartProps} props - Component props
@@ -195,6 +246,7 @@ const PieChartInternal = ( {
 
 	const providerTheme = useGlobalChartsTheme();
 	const chartId = useChartId( providedChartId );
+	const scopeElement = useChartScopeElement();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentageCalculated >();
 	const standaloneScopeClass = useStandaloneScopeClass();
@@ -266,6 +318,18 @@ const PieChartInternal = ( {
 			</div>
 		);
 	}
+
+	// Resolved once per render, at the chart's scope element, rather than per arc.
+	const rawLabelBackground = resolveCssVariable( CATALOG_POINTERS.labelBackground, scopeElement );
+	const labelPointers: ResolvedLabelPointers = {
+		hasPlate: rawLabelBackground ? ( d3Color( rawLabelBackground )?.opacity ?? 0 ) > 0 : false,
+		labelHex: normalizeColorToHex( CATALOG_POINTERS.label, scopeElement, resolveCssVariable ),
+		labelInverseHex: normalizeColorToHex(
+			CATALOG_POINTERS.labelInverse,
+			scopeElement,
+			resolveCssVariable
+		),
+	};
 
 	// Calculate the angle between each (use original data length for consistent spacing)
 	const padAngle = gapScale * ( ( 2 * Math.PI ) / data.length );
@@ -405,13 +469,15 @@ const PieChartInternal = ( {
 														} );
 													};
 
+													const fill = accessors.fill( arc.data );
 													const pathProps: SVGProps< SVGPathElement > & {
 														'data-testid'?: string;
 													} = {
 														d: pie.path( arc ) || '',
-														fill: accessors.fill( arc.data ),
+														fill,
 														'data-testid': 'pie-segment',
 													};
+													const needsDarkLabelText = labelNeedsDarkText( fill, labelPointers );
 
 													const groupProps: SVGProps< SVGGElement > = {};
 													if ( withTooltips ) {
@@ -446,7 +512,11 @@ const PieChartInternal = ( {
 																		pointerEvents="none"
 																	/>
 																	<text
-																		className={ styles[ 'pie-chart__label-text' ] }
+																		className={ clsx( styles[ 'pie-chart__label-text' ], {
+																			[ styles[ 'pie-chart__label-text--on-light' ] ]:
+																				needsDarkLabelText,
+																		} ) }
+																		data-testid="pie-label"
 																		x={ centroidX }
 																		y={ centroidY }
 																		dy=".33em"

@@ -224,8 +224,9 @@ Label colors are CSS custom properties, set anywhere inside the provider tree:
 
 **Label Color Roles:**
 
-- **`--a8c-charts-color-label-inverse`** - Label text on a filled surface: a pie segment here, a heatmap cell elsewhere.
-- **`--a8c-charts-color-label-background`** - The plate behind a label. Defaults to `transparent`, so the label reads straight off the segment. Set any color to get a rounded rectangle behind each label; a semi-transparent one (`rgba()`) keeps the segment color visible through it.
+- **`--a8c-charts-color-label-inverse`** - Label text on a filled surface: a pie segment here, a heatmap cell elsewhere. This is the default for a pie label; it also stays in effect whenever a label plate is set.
+- **`--a8c-charts-color-label`** - Dark label text. A pie label switches to this role automatically when it contrasts more with the slice fill than `--a8c-charts-color-label-inverse` does, unless a label plate is set.
+- **`--a8c-charts-color-label-background`** - The plate behind a label. Defaults to `transparent`, so the label reads straight off the segment. Set any color to get a rounded rectangle behind each label; a semi-transparent one (`rgba()`) keeps the segment color visible through it. Once set, the label always uses `--a8c-charts-color-label-inverse`, regardless of the slice fill.
 
 **Best Practices:**
 - Use high contrast between the label text and its plate for optimal readability
