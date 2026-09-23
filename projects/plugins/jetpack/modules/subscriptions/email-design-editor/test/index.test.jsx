@@ -1067,10 +1067,21 @@ describe( 'Email design editor entry point', () => {
 			openStylesSidebar,
 			openStylesSidebarOnLoad,
 			registerEditorPlugin,
+			showStylesSidebar,
 		} = jest.requireActual( '../src/index' );
 
 		const setActive = area =>
 			mockIsolatedData.dispatch( 'core/interface' ).setActiveComplementaryArea( area );
+
+		// The default fixture reports a creator who may not edit, which is the case the preload
+		// tests need. There is no panel to open for them, so these cases need the other one.
+		beforeEach( () => {
+			mockApiFetch.mockResolvedValue(
+				bootstrapBundle( {
+					global_styles: { ...bootstrapBundle().global_styles, can_edit: true },
+				} )
+			);
+		} );
 
 		// The watcher outlives the call that starts it, so it would answer the next test's
 		// dispatches too.
@@ -1090,6 +1101,14 @@ describe( 'Email design editor entry point', () => {
 
 		it( 'waits for core to choose rather than opening into a decision core then overwrites', () => {
 			watch();
+
+			expect( mockEnabledAreas ).toEqual( [] );
+		} );
+
+		it( 'keeps waiting while the store reports that nothing has chosen yet', () => {
+			watch();
+
+			dispatch( 'core/interface' ).setActiveComplementaryArea( undefined );
 
 			expect( mockEnabledAreas ).toEqual( [] );
 		} );
@@ -1120,6 +1139,17 @@ describe( 'Email design editor entry point', () => {
 			watch();
 
 			dispatch( 'core/interface' ).setActiveComplementaryArea( null );
+
+			expect( mockEnabledAreas ).toEqual( [] );
+		} );
+
+		// Declining once is not enough: core reopens its own sidebar as the editor mounts, and
+		// answering that would reopen a panel the creator had shut.
+		it( 'stops for good once it finds the sidebar closed', () => {
+			watch();
+
+			dispatch( 'core/interface' ).setActiveComplementaryArea( null );
+			dispatch( 'core/interface' ).setActiveComplementaryArea( 'edit-post/document' );
 
 			expect( mockEnabledAreas ).toEqual( [] );
 		} );
@@ -1159,6 +1189,77 @@ describe( 'Email design editor entry point', () => {
 			setActive( 'edit-post/document' );
 
 			expect( mockEnabledAreas ).toEqual( [] );
+		} );
+
+		// The package registers its sidebar only for a creator who may edit global styles. Opening
+		// it for anyone else leaves the interface holding an identifier nothing fills, and the
+		// sidebar collapses to an empty region.
+		describe( 'a creator the package gives no panel', () => {
+			beforeEach( async () => {
+				mockApiFetch.mockResolvedValue( bootstrapBundle() );
+				window.JetpackEmailDesignEditor = pageData();
+
+				await loadEntryPoint();
+			} );
+
+			it( 'opens nothing when core claims the sidebar', () => {
+				setActive( 'edit-post/document' );
+
+				expect( mockEnabledAreas ).toEqual( [] );
+			} );
+
+			it( 'offers no way in from the Template tab either', () => {
+				expect( mockRegisterPlugin ).not.toHaveBeenCalled();
+			} );
+
+			it( 'leaves the Template tab as it found it', () => {
+				expect(
+					mockIsolatedData
+						.select( 'core/editor' )
+						.isEditorPanelOpened( 'jetpack-email-design/email-styles' )
+				).toBe( false );
+			} );
+		} );
+
+		// The button sits in the sidebar that opening Styles replaces, so by the time the panel is
+		// there the creator's focus has fallen back to the document.
+		describe( 'the focus the panel takes with it', () => {
+			// The id `ComplementaryArea` gives the panel, which is what the code looks it up by.
+			const addPanel = () =>
+				render( <div id="null:email-styles-sidebar" data-testid="styles-panel" /> );
+
+			const settle = ms => new Promise( resolve => setTimeout( resolve, ms ) );
+
+			it( 'moves focus into a panel that is already on screen', () => {
+				addPanel();
+
+				showStylesSidebar();
+
+				expect( screen.getByTestId( 'styles-panel' ) ).toHaveFocus();
+			} );
+
+			it( 'waits for a panel React has not rendered yet', async () => {
+				showStylesSidebar();
+
+				expect( document.body ).toHaveFocus();
+
+				addPanel();
+				await settle( 60 );
+
+				expect( screen.getByTestId( 'styles-panel' ) ).toHaveFocus();
+			} );
+
+			it( 'gives up rather than searching for a panel that never arrives', async () => {
+				showStylesSidebar();
+
+				// Longer than the ten frames it will wait, so the search is over by the time the
+				// panel turns up.
+				await settle( 400 );
+				addPanel();
+				await settle( 60 );
+
+				expect( screen.getByTestId( 'styles-panel' ) ).not.toHaveFocus();
+			} );
 		} );
 
 		describe( 'the way back in from the Template tab', () => {
