@@ -231,7 +231,7 @@ function register_newsletter_access_column( $columns ) {
  * Add a meta to prevent publication on firehose, ES AI or Reader.
  *
  * Also gates a post with a Paywall block whose access is still "everybody": the editor sets
- * this on insert, but REST, importer and agent saves skip the editor and gate nothing.
+ * this on insert, but REST, WP-CLI and agent saves skip the editor and gate nothing.
  *
  * @param int      $post_id Post id being saved.
  * @param \WP_Post $post Post being saved.
@@ -244,8 +244,13 @@ function add_paywalled_content_post_meta( int $post_id, \WP_Post $post ) {
 
 	$access_level = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 
+	// Importers add the source site's access level after this hook, and the first meta row wins on
+	// read, so skip the auto-gate while importing. WP-CLI's `wp import` never defines WP_IMPORTING.
+	$is_importing = ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) || did_action( 'import_start' ) > did_action( 'import_end' );
+
 	if (
-		( empty( $access_level ) || Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level )
+		! $is_importing
+		&& ( empty( $access_level ) || Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level )
 		&& has_block( 'jetpack/paywall', $post )
 	) {
 		$access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS;

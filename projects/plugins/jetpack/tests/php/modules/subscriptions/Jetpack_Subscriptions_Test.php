@@ -31,6 +31,8 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	protected $plan_id;
 	protected $product_id = 1234;
 
+	const PAYWALL_POST_CONTENT = "<!-- wp:paragraph -->\n<p>Free part</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:jetpack/paywall /-->\n\n<!-- wp:paragraph -->\n<p>Subscriber part</p>\n<!-- /wp:paragraph -->";
+
 	public function set_up() {
 		parent::set_up();
 		Jetpack_Subscriptions::init();
@@ -198,7 +200,7 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	 * @return array
 	 */
 	public static function paywall_access_level_on_save_provider() {
-		$with_paywall    = "<!-- wp:paragraph -->\n<p>Free part</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:jetpack/paywall /-->\n\n<!-- wp:paragraph -->\n<p>Subscriber part</p>\n<!-- /wp:paragraph -->";
+		$with_paywall    = self::PAYWALL_POST_CONTENT;
 		$without_paywall = "<!-- wp:paragraph -->\n<p>Everything is free</p>\n<!-- /wp:paragraph -->";
 
 		return array(
@@ -232,6 +234,20 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 			in_array( $expected_access, array( 'subscribers', 'paid_subscribers' ), true ),
 			(bool) get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true )
 		);
+	}
+
+	/**
+	 * Importers add the source site's access level after the save hook, so the hook must not gate first.
+	 */
+	public function test_paywall_block_does_not_gate_during_import() {
+		$post_id = $this->factory->post->create( array( 'post_content' => self::PAYWALL_POST_CONTENT ) );
+
+		do_action( 'import_start' );
+		\Automattic\Jetpack\Extensions\Subscriptions\add_paywalled_content_post_meta( $post_id, get_post( $post_id ) );
+		add_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, 'paid_subscribers' );
+		do_action( 'import_end' );
+
+		$this->assertSame( 'paid_subscribers', get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true ) );
 	}
 
 	/**
