@@ -2,6 +2,7 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { formatNumber } from '@automattic/number-formatters';
 import {
 	Button,
@@ -694,6 +695,7 @@ function StageInner() {
 					</p>
 				</ConfirmDialog>
 				<DataViewsHeaderRow activeTab="forms" />
+				<JitmSlot />
 				<DataViews.Layout />
 				<DataViews.Footer />
 			</DataViews>

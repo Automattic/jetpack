@@ -194,17 +194,16 @@ export default function MyJetpackScreen() {
 
 			{ isRedirectingFromOnboarding && <OnboardingTour /> }
 
-			{ ! isNewUser && (
-				<Container horizontalSpacing={ 0 }>
-					<Col>
-						<JitmSlot />
-					</Col>
-				</Container>
-			) }
-
 			<MyJetpackTabPanel
 				beforeContent={
 					<>
+						{ ! isNewUser && (
+							<Container horizontalSpacing={ 0 }>
+								<Col>
+									<JitmSlot />
+								</Col>
+							</Container>
+						) }
 						{ /* No snackbar list here: the wp-build page shell already renders the
 						     notices store, and a second list showed every notice twice. */ }
 						{ noticeMessage && (

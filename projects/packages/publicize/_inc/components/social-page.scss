@@ -33,12 +33,4 @@ body.toplevel_page_jetpack-social {
 	.jetpack-social-page__content--padded {
 		padding: $jetpack-social-inset;
 	}
-
-	// The slot sits above the tabs, so it takes the wider of the two content
-	// columns rather than tracking the active tab. Padding matches the content.
-	.jetpack-social-jitm-card {
-		margin-inline: auto;
-		max-inline-size: 720px;
-		inline-size: 100%;
-	}
 }

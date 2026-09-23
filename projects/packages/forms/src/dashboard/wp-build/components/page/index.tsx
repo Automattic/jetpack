@@ -2,7 +2,6 @@
  * External dependencies
  */
 import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
-import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { Page } from '@wordpress/admin-ui';
 import type { ComponentProps, ReactNode } from 'react';
 
@@ -41,7 +40,6 @@ export default function FormsPage( {
 	return (
 		<div className="jp-admin-page">
 			<Page className="jp-admin-page__page" { ...pageProps }>
-				<JitmSlot className="jp-forms__jitm-slot" />
 				{ children }
 				{ showFooter && <JetpackFooter /> }
 			</Page>

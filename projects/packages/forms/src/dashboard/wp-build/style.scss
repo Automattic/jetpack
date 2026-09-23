@@ -67,11 +67,18 @@ body.jetpack-forms-responses {
 			flex: 1 1 auto;
 			min-block-size: 0;
 
+			// The JITM slot is chrome like the toolbar and footer: natural height,
+			// and inset to the table's gutter since the wrapper has no padding.
 			.jp-forms-dataviews__view-actions,
 			.jp-forms-dataviews-filters__container,
+			.jp-jitm-slot,
 			.dataviews-footer {
 				flex: 0 0 auto;
 				min-block-size: 0;
+			}
+
+			.jp-jitm-slot .jitm-card {
+				margin-inline: 24px;
 			}
 
 			// The layout mixin above blanket-sets `flex-direction: column` on
@@ -109,10 +116,4 @@ body.jetpack-forms-responses {
 	.jp-admin-page:has(.jp-forms__single-response) .jp-forms__single-response-card {
 		flex: 0 0 auto;
 	}
-}
-
-// The Forms routes render without page padding, so inset the card rather than
-// the slot -- an empty slot must still take no space.
-.jp-forms__jitm-slot .jitm-card {
-	margin-inline: 16px;
 }

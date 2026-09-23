@@ -2,6 +2,7 @@
  * External dependencies
  */
 import Gravatar from '@automattic/jetpack-components/gravatar';
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { formatNumber } from '@automattic/number-formatters';
 /**
  * WordPress dependencies
@@ -895,6 +896,7 @@ function StageInner() {
 						} }
 						onStatusChange={ onStatusChange }
 					/>
+					<JitmSlot />
 					<DataViews.Layout className={ answerColumnsClassName } />
 					<DataViews.Footer />
 				</DataViews>

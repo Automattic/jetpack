@@ -90,6 +90,7 @@ export default function SocialPage( {
 
 	const content = (
 		<div className="jetpack-social-page__content jetpack-social-page__content--padded">
+			<JitmSlot />
 			{ children }
 		</div>
 	);
@@ -103,7 +104,6 @@ export default function SocialPage( {
 				subTitle={ SUBTITLES[ activeTab ]() }
 				actions={ headerActions }
 			>
-				<JitmSlot className="jetpack-social-jitm-card" />
 				<SocialGate gate={ gate } onDismissPricing={ dismissPricing }>
 					{ showTabs ? (
 						<Tabs.Root
