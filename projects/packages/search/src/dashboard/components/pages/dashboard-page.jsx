@@ -1,4 +1,5 @@
 import { AdminPage, Button, getProductCheckoutUrl } from '@automattic/jetpack-components';
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -330,15 +331,9 @@ export default function DashboardPage( { isLoading = false } ) {
 							<Tabs.Tab value="ai-answers">{ __( 'AI Answers', 'jetpack-search-pkg' ) }</Tabs.Tab>
 						</Tabs.List>
 					</div>
+					<JitmSlot />
 					<Tabs.Panel value="overview">
 						<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
-							{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
-							<div className="jp-search-dashboard-row">
-								<div
-									id="jp-admin-notices"
-									className="jetpack-search-jitm-card sm-col-span-4 md-col-span-8 lg-col-span-12"
-								/>
-							</div>
 							{ isPageLoading && <Loading /> }
 							{ ! isPageLoading && (
 								<MockedSearchContent
