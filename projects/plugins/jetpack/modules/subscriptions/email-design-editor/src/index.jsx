@@ -76,6 +76,10 @@ const PREFERENCE_SCOPE = 'jetpack/email-design';
 const EDITOR_STORE = 'core/editor';
 const PREFERENCES_STORE = 'core/preferences';
 
+// Where the package sends a test email, and where a newsletter blog has to send one instead.
+const TEST_SEND_PATH = '/woocommerce-email-editor/v1/send_preview_email';
+const TEST_SEND_TARGET = '/wpcom/v2/send-email-preview';
+
 /**
  * Check that a URL the editor will navigate to is one the browser can navigate to.
  *
@@ -727,6 +731,116 @@ export function createDesignSaveMiddleware( id ) {
 }
 
 /**
+ * A failure the package's modal can print.
+ *
+ * It renders `JSON.stringify( error.error )` and nothing else, so a REST error body reaches the
+ * creator as the literal `undefined`.
+ */
+class TestSendError extends Error {
+	/**
+	 * @param {string} message - What to tell the creator.
+	 */
+	constructor( message ) {
+		super( message );
+		this.name = 'TestSendError';
+		this.error = message;
+	}
+}
+
+/**
+ * Save the design the creator is looking at, if they have not.
+ *
+ * The send renders from the design WordPress.com stored, so without this an unsaved edit sends
+ * the previous design and the modal reports success. Routed through core-data rather than the
+ * bootstrap route directly so it takes `createDesignSaveMiddleware` with it.
+ *
+ * @param {number|null} id - The global-styles id the bundle named.
+ * @return {Promise<void>} Resolves once there is nothing pending.
+ */
+async function flushDesign( id ) {
+	if ( ! id || ! select( coreStore ).hasEditsForEntityRecord( 'root', 'globalStyles', id ) ) {
+		return;
+	}
+
+	await dispatch( coreStore ).saveEditedEntityRecord( 'root', 'globalStyles', id );
+}
+
+/**
+ * The post the test send renders.
+ *
+ * This screen edits a design rather than a post, so there is nothing here to send and the newest
+ * published post stands in. Both platforms seed one at install, so a blog with none is a creator
+ * who deleted it.
+ *
+ * @return {Promise<number|null>} The post's id, or null when the blog has published nothing.
+ */
+async function newestPublishedPostId() {
+	const posts = await apiFetch( {
+		path: addQueryArgs( '/wp/v2/posts', {
+			status: 'publish',
+			per_page: 1,
+			orderby: 'date',
+			order: 'desc',
+			_fields: 'id',
+		} ),
+	} );
+
+	return Array.isArray( posts ) && posts[ 0 ]?.id ? posts[ 0 ].id : null;
+}
+
+/**
+ * Catch the package's test send and route it through the newsletter one.
+ *
+ * The package posts to a route in WooCommerce's namespace, which registers it and a newsletter
+ * blog does not. `send-email-preview` sends through `Subscription_Mailer`, so what arrives is the
+ * email a subscriber gets rather than WooCommerce's own render of it. See NL-953.
+ *
+ * @param {number|null} globalStylesPostId - The global-styles id the bundle named.
+ * @return {Function} An `apiFetch` middleware.
+ */
+export function createTestSendMiddleware( globalStylesPostId ) {
+	return async ( options, next ) => {
+		const path = 'string' === typeof options.path ? options.path.split( '?' )[ 0 ] : '';
+		const method = ( options.method || 'GET' ).toUpperCase();
+
+		if ( TEST_SEND_PATH !== path || 'POST' !== method ) {
+			return next( options );
+		}
+
+		try {
+			await flushDesign( globalStylesPostId );
+
+			const id = await newestPublishedPostId();
+
+			if ( ! id ) {
+				throw new TestSendError(
+					__(
+						'Publish a post first — test emails are sent using your most recent post.',
+						'jetpack'
+					)
+				);
+			}
+
+			// The package's own `postId` is this screen's template id, which the route would read
+			// as a post.
+			return await apiFetch( {
+				path: TEST_SEND_TARGET,
+				method: 'POST',
+				data: { id, email: options.data?.email },
+			} );
+		} catch ( error ) {
+			if ( error instanceof TestSendError ) {
+				throw error;
+			}
+
+			throw new TestSendError(
+				error?.message ?? __( 'Your test email could not be sent.', 'jetpack' )
+			);
+		}
+	};
+}
+
+/**
  * Tell the creator when a design saved here would never reach anyone.
  *
  * `renders_through_email_editor` is the blog's state, not the reader's — independent of
@@ -824,6 +938,8 @@ export async function mountEmailDesignEditor() {
 		if ( config.globalStylesPostId ) {
 			apiFetch.use( createDesignSaveMiddleware( config.globalStylesPostId ) );
 		}
+
+		apiFetch.use( createTestSendMiddleware( config.globalStylesPostId ) );
 
 		if ( preload ) {
 			// Registered last so it runs first: api-fetch applies middlewares right to

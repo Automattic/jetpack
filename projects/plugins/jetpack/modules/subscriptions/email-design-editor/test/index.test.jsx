@@ -811,9 +811,9 @@ describe( 'Email design editor entry point', () => {
 			expect( mockCreatePreloadingMiddleware ).not.toHaveBeenCalled();
 			expect( renderedTheErrorState() ).toBe( false );
 
-			// The save middleware still installs: the page named a record even though the
-			// bundle carried none, and a write to it is still ours to catch.
-			expect( mockUse ).toHaveBeenCalledTimes( 1 );
+			// The save and test-send middlewares still install: the page named a record even
+			// though the bundle carried none, and a write to it is still ours to catch.
+			expect( mockUse ).toHaveBeenCalledTimes( 2 );
 		} );
 
 		describe( 'the Allow header the preloaded responses carry', () => {
@@ -1723,6 +1723,151 @@ describe( 'Email design editor entry point', () => {
 
 			expect( mockApiFetch ).not.toHaveBeenCalled();
 			expect( next ).toHaveBeenCalled();
+		} );
+	} );
+
+	describe( 'when the creator sends a test email', () => {
+		const { createTestSendMiddleware } = jest.requireActual( '../src/index' );
+
+		// A record per test: core-data holds pending edits for the life of the store, so a shared
+		// id would carry one case's unsaved edit into the next.
+		let ourId = 900000000;
+		const sendRequest = {
+			path: '/woocommerce-email-editor/v1/send_preview_email',
+			method: 'POST',
+			data: { email: 'creator@example.com', postId: 'pub/stylesheet//wpcom-newsletter' },
+		};
+
+		/**
+		 * Answer the post lookup with a published post, and the send with a success.
+		 *
+		 * @param {Array} posts - What the posts route returns.
+		 * @return {void}
+		 */
+		const arrangeSend = ( posts = [ { id: 42 } ] ) => {
+			mockApiFetch.mockReset();
+			mockApiFetch.mockImplementation( options => {
+				if ( options.path.startsWith( '/wp/v2/posts' ) ) {
+					return Promise.resolve( posts );
+				}
+
+				return Promise.resolve( 'Email preview sent successfully.' );
+			} );
+		};
+
+		beforeEach( () => {
+			ourId += 1;
+			dispatch( coreStore ).receiveEntityRecords( 'root', 'globalStyles', [
+				{ id: ourId, styles: {}, settings: {} },
+			] );
+			arrangeSend();
+		} );
+
+		it( 'sends through the newsletter route rather than the one WooCommerce registers', async () => {
+			const next = jest.fn();
+
+			await createTestSendMiddleware( ourId )( sendRequest, next );
+
+			expect( next ).not.toHaveBeenCalled();
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: '/wpcom/v2/send-email-preview',
+				method: 'POST',
+				data: { id: 42, email: 'creator@example.com' },
+			} );
+		} );
+
+		it( 'asks for the newest published post, which is what the send renders', async () => {
+			await createTestSendMiddleware( ourId )( sendRequest, jest.fn() );
+
+			const [ lookup ] = mockApiFetch.mock.calls
+				.map( ( [ options ] ) => options.path )
+				.filter( path => path.startsWith( '/wp/v2/posts' ) );
+
+			expect( lookup ).toContain( 'status=publish' );
+			expect( lookup ).toContain( 'per_page=1' );
+			expect( lookup ).toContain( 'orderby=date' );
+			expect( lookup ).toContain( 'order=desc' );
+		} );
+
+		it( 'saves a design the creator has not saved yet, which is what the send renders', async () => {
+			dispatch( coreStore ).editEntityRecord( 'root', 'globalStyles', ourId, {
+				styles: { color: { background: '#c0ffee' } },
+			} );
+
+			await createTestSendMiddleware( ourId )( sendRequest, jest.fn() );
+
+			const paths = mockApiFetch.mock.calls.map( ( [ options ] ) => options.path );
+
+			expect( paths.some( path => path.includes( `/wp/v2/global-styles/${ ourId }` ) ) ).toBe(
+				true
+			);
+			expect( paths[ paths.length - 1 ] ).toBe( '/wpcom/v2/send-email-preview' );
+		} );
+
+		it( 'does not save a design nobody edited', async () => {
+			await createTestSendMiddleware( ourId )( sendRequest, jest.fn() );
+
+			const paths = mockApiFetch.mock.calls.map( ( [ options ] ) => options.path );
+
+			expect( paths.some( path => path.includes( 'global-styles' ) ) ).toBe( false );
+		} );
+
+		it( 'refuses with guidance when the blog has nothing published to send', async () => {
+			arrangeSend( [] );
+
+			await expect(
+				createTestSendMiddleware( ourId )( sendRequest, jest.fn() )
+			).rejects.toMatchObject( { error: expect.stringContaining( 'Publish a post' ) } );
+
+			const paths = mockApiFetch.mock.calls.map( ( [ options ] ) => options.path );
+
+			expect( paths ).not.toContain( '/wpcom/v2/send-email-preview' );
+		} );
+
+		it( 'reshapes a failure into the key the editor prints', async () => {
+			mockApiFetch.mockReset();
+			mockApiFetch.mockImplementation( options => {
+				if ( options.path.startsWith( '/wp/v2/posts' ) ) {
+					return Promise.resolve( [ { id: 42 } ] );
+				}
+
+				return Promise.reject( {
+					code: 'unverified',
+					message: 'Your email address must be verified.',
+				} );
+			} );
+
+			// The editor renders `JSON.stringify( error.error )` and nothing else, so a `WP_Error`
+			// body passed through unchanged prints the literal `undefined`.
+			await expect(
+				createTestSendMiddleware( ourId )( sendRequest, jest.fn() )
+			).rejects.toMatchObject( { error: 'Your email address must be verified.' } );
+		} );
+
+		it( 'reshapes a design that could not be saved, which is a failure too', async () => {
+			mockApiFetch.mockReset();
+			mockApiFetch.mockRejectedValue( {
+				code: 'email_design_unavailable',
+				message: 'Your email design could not be saved.',
+			} );
+			dispatch( coreStore ).editEntityRecord( 'root', 'globalStyles', ourId, {
+				styles: { color: { background: '#c0ffee' } },
+			} );
+
+			await expect(
+				createTestSendMiddleware( ourId )( sendRequest, jest.fn() )
+			).rejects.toMatchObject( { error: 'Your email design could not be saved.' } );
+		} );
+
+		it.each( [
+			[ 'another path', { path: '/wp/v2/posts', method: 'POST' } ],
+			[ 'a read of the same path', { path: sendRequest.path, method: 'GET' } ],
+		] )( 'leaves %s to the rest of the chain', async ( _label, options ) => {
+			const next = jest.fn();
+
+			await createTestSendMiddleware( ourId )( options, next );
+
+			expect( next ).toHaveBeenCalledWith( options );
 		} );
 	} );
 
