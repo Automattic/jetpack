@@ -1,31 +1,17 @@
 import { resetLocaleData, setLocaleData } from '@wordpress/i18n';
 import { compareEmailBreakdownItems, sanitizeStatsEmailBreakdownResponse } from '..';
 import {
+	emailClientsFixture,
 	emailCountriesFixture,
-	emailFieldlessClientsFixture,
-	emailFieldlessCountriesFixture,
-	emailFieldlessLinksFixture,
-	emailMatrixClientsFixture,
+	emailLinksFixture,
+	emailUserContentLinksFixture,
 } from '../__fixtures__/email-breakdown';
 
-describe( 'Stats email breakdown normalizer', () => {
-	it( 'normalizes email breakdown matrices', () => {
-		expect(
-			sanitizeStatsEmailBreakdownResponse( emailCountriesFixture, {
-				period: 'day',
-				date: '2026-06-16',
-			} ).data[ 0 ].items[ 0 ]
-		).toEqual(
-			expect.objectContaining( {
-				label: 'New Zealand',
-				value: 12,
-				countryCode: 'NZ',
-				countryFull: 'New Zealand',
-			} )
-		);
-	} );
+const itemsOf = ( response: unknown ) =>
+	sanitizeStatsEmailBreakdownResponse( response ).data[ 0 ].items;
 
-	it( 'returns summary-only data when no matrix metric is present', () => {
+describe( 'Stats email breakdown normalizer', () => {
+	it( 'returns summary-only data for the scalar rate payload', () => {
 		expect(
 			sanitizeStatsEmailBreakdownResponse( {
 				total_opens: '12',
@@ -40,8 +26,11 @@ describe( 'Stats email breakdown normalizer', () => {
 		} );
 	} );
 
-	it( 'normalizes fieldless email country breakdowns', () => {
-		const result = sanitizeStatsEmailBreakdownResponse( emailFieldlessCountriesFixture );
+	it( 'normalizes country breakdowns', () => {
+		const result = sanitizeStatsEmailBreakdownResponse( emailCountriesFixture, {
+			period: 'day',
+			date: '2026-06-16',
+		} );
 
 		expect( result.summary ).toEqual( { value: 32 } );
 		expect( result.data[ 0 ].items ).toEqual( [
@@ -62,50 +51,41 @@ describe( 'Stats email breakdown normalizer', () => {
 			expect.objectContaining( {
 				label: 'Unknown',
 				value: 2,
+				countryCode: undefined,
 			} ),
 		] );
 	} );
 
-	it( 'normalizes fieldless email clients and keeps Other last', () => {
-		expect(
-			sanitizeStatsEmailBreakdownResponse( emailFieldlessClientsFixture ).data[ 0 ].items
-		).toEqual( [
-			expect.objectContaining( { label: 'Apple Mail', value: 10 } ),
-			expect.objectContaining( { label: 'Gmail', value: 8 } ),
-			expect.objectContaining( { label: 'Other', value: 9, isOther: true } ),
-		] );
-	} );
-
-	it( 'normalizes matrix email clients and keeps Other last', () => {
-		expect(
-			sanitizeStatsEmailBreakdownResponse( emailMatrixClientsFixture ).data[ 0 ].items
-		).toEqual( [
+	it( 'normalizes clients and pins the catch-all bucket last by flag', () => {
+		expect( itemsOf( emailClientsFixture ) ).toEqual( [
 			expect.objectContaining( { label: 'Apple Mail', value: 200 } ),
 			expect.objectContaining( { label: 'Thunderbird', value: 180 } ),
 			expect.objectContaining( { label: 'Other', value: 265, isOther: true } ),
 		] );
+		expect( itemsOf( emailClientsFixture )[ 0 ].isOther ).toBeUndefined();
 	} );
 
-	it( 'flags the catch-all client bucket so sorting never depends on its label', () => {
-		const [ appleMail ] = sanitizeStatsEmailBreakdownResponse( emailFieldlessClientsFixture )
-			.data[ 0 ].items;
-
-		expect( appleMail.isOther ).toBeUndefined();
-	} );
-
-	it( 'normalizes fieldless email link breakdowns', () => {
-		expect(
-			sanitizeStatsEmailBreakdownResponse( emailFieldlessLinksFixture ).data[ 0 ].items
-		).toEqual( [
+	it( 'maps internal link types, skips user_link, and buckets unknown types', () => {
+		expect( itemsOf( emailLinksFixture ) ).toEqual( [
 			expect.objectContaining( { label: 'Post URL', value: 7 } ),
+			expect.objectContaining( { label: 'Like', value: 1 } ),
+			expect.objectContaining( { label: 'Other', value: 3, isOther: true } ),
+		] );
+		expect( itemsOf( emailLinksFixture ).every( item => item.link === undefined ) ).toBe( true );
+	} );
+
+	it( 'keeps user-content links as linked rows', () => {
+		expect( itemsOf( emailUserContentLinksFixture ) ).toEqual( [
 			expect.objectContaining( {
 				label: 'https://example.com/a',
 				link: 'https://example.com/a',
 				value: 4,
 			} ),
-			expect.objectContaining( { label: 'https://example.com/b', value: 2 } ),
-			expect.objectContaining( { label: 'Like', value: 1 } ),
-			expect.objectContaining( { label: 'Other', value: 3, isOther: true } ),
+			expect.objectContaining( {
+				label: 'https://example.com/b',
+				link: 'https://example.com/b',
+				value: 2,
+			} ),
 		] );
 	} );
 } );
@@ -120,10 +100,13 @@ describe( 'Stats email breakdown localization', () => {
 	it( 'translates the catch-all label and keeps it pinned last', () => {
 		setLocaleData( { Other: [ 'Sonstige' ] }, 'jetpack-premium-analytics-pkg' );
 
-		const items = sanitizeStatsEmailBreakdownResponse( emailFieldlessClientsFixture ).data[ 0 ]
-			.items;
+		const items = itemsOf( emailClientsFixture );
 
-		expect( items.map( item => item.label ) ).toEqual( [ 'Apple Mail', 'Gmail', 'Sonstige' ] );
+		expect( items.map( item => item.label ) ).toEqual( [
+			'Apple Mail',
+			'Thunderbird',
+			'Sonstige',
+		] );
 	} );
 
 	it( 'translates internal link type labels', () => {
@@ -136,7 +119,7 @@ describe( 'Stats email breakdown localization', () => {
 			'jetpack-premium-analytics-pkg'
 		);
 
-		const items = sanitizeStatsEmailBreakdownResponse( emailFieldlessLinksFixture ).data[ 0 ].items;
+		const items = itemsOf( emailLinksFixture );
 
 		expect( items.map( item => item.label ) ).toEqual(
 			expect.arrayContaining( [ 'URL des Beitrags', 'Gefällt mir', 'Sonstige Links' ] )
@@ -146,8 +129,7 @@ describe( 'Stats email breakdown localization', () => {
 	it( 'translates the unknown-country fallback label', () => {
 		setLocaleData( { Unknown: [ 'Unbekannt' ] }, 'jetpack-premium-analytics-pkg' );
 
-		const items = sanitizeStatsEmailBreakdownResponse( emailFieldlessCountriesFixture ).data[ 0 ]
-			.items;
+		const items = itemsOf( emailCountriesFixture );
 
 		expect( items.map( item => item.label ) ).toContain( 'Unbekannt' );
 	} );
