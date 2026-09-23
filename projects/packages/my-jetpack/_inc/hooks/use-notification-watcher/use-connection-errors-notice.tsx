@@ -6,13 +6,12 @@ import {
 	useConnectionErrorNotice,
 	type ConnectionErrorNoticeLink,
 	type ConnectionErrorObject,
-	type ConnectionErrorTrackingCallback,
 } from '@automattic/jetpack-connection';
 import { Link } from '@wordpress/ui';
 import { useContext, useEffect, useCallback, useMemo } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
-import useAnalytics from '../use-analytics';
+import useConnectionErrorTracking from '../use-connection-error-tracking';
 import { assignLocation } from './assignLocation';
 import type { NoticeOptions, NoticeButtonAction } from '../../context/notices/types';
 
@@ -57,18 +56,7 @@ const useConnectionErrorsNotice = (
 	actionHandlers: Record< string, ( error: ConnectionErrorObject ) => void > = NO_ACTION_HANDLERS
 ) => {
 	const { setNotice } = useContext( NoticeContext );
-	const { recordEvent } = useAnalytics();
-
-	// Tracking callback for the shared resolver, preserving My Jetpack's
-	// "jetpack_"-prefixed event guard.
-	const trackingCallback: ConnectionErrorTrackingCallback = useCallback(
-		( event, data ) => {
-			if ( event && event.startsWith( 'jetpack_' ) ) {
-				recordEvent( event as `jetpack_${ string }`, data );
-			}
-		},
-		[ recordEvent ]
-	);
+	const trackingCallback = useConnectionErrorTracking();
 
 	// Detection, copy and action resolution are owned by the connection package;
 	// we only map what it derived into a My Jetpack notice and re-attach our own

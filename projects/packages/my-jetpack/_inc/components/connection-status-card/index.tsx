@@ -23,6 +23,7 @@ import { useAllProducts } from '../../data/products/use-all-products';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useAnalytics from '../../hooks/use-analytics';
+import useConnectionErrorTracking from '../../hooks/use-connection-error-tracking';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { assignLocation } from '../../hooks/use-notification-watcher/assignLocation';
 import { ConnectionOwnerInfo } from './connection-owner-info';
@@ -137,6 +138,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	// The same package data the My Jetpack connection error notice runs on, so the
 	// card describes a live error in the notice's words and offers its CTAs, rather
 	// than a second account of the same fault.
+	const connectionErrorTrackingCallback = useConnectionErrorTracking();
 	const {
 		hasConnectionError,
 		severity,
@@ -145,7 +147,11 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		showSupportLink,
 		actions,
 		restoreConnectionError,
+		trackNoticeLinkClick,
+		trackSupportLinkClick,
 	} = useConnectionErrorNotice( {
+		trackingCallback: connectionErrorTrackingCallback,
+		trackingContext: 'my-jetpack-connection-card',
 		navigate: assignLocation,
 	} );
 
@@ -230,6 +236,8 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 								variant="body-sm"
 								errorGroups={ errorGroups }
 								showSupportLink={ showSupportLink }
+								onNoticeLinkClick={ trackNoticeLinkClick }
+								onSupportLinkClick={ trackSupportLinkClick }
 							/>
 						</Stack>
 						{ /* Repairing the connection is the whole point of the card in this state,

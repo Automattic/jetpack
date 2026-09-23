@@ -1,11 +1,18 @@
 import '@testing-library/jest-dom';
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { render, renderHook, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { useSelect } from '@wordpress/data';
 import Providers from '../../../providers';
 import ConnectionStatusCard from '../index';
 import type { StateProducts, MyJetpackInitialState } from '../../../data/types';
 import type { ConnectionErrorObject } from '@automattic/jetpack-connection';
+
+const mockRecordEvent = jest.fn();
+jest.mock( '../../../hooks/use-analytics', () => ( {
+	__esModule: true,
+	default: () => ( { recordEvent: mockRecordEvent } ),
+} ) );
 
 interface TestMyJetpackInitialState {
 	lifecycleStats: Pick<
@@ -380,6 +387,32 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.getByRole( 'link', { name: 'Visit Site Health' } ) ).toHaveAttribute(
 				'href',
 				'/wp-admin/site-health.php'
+			);
+		} );
+
+		it( 'tracks a click on a link the error declared as coming from the card', async () => {
+			setupWithError( {
+				error: {
+					audience: 'site',
+					error_data: {
+						action: 'none',
+						notice_link: { label: 'Visit Site Health', url: '/wp-admin/site-health.php' },
+					},
+				},
+			} );
+
+			// Stops jsdom's real anchor navigation, which logs a console.error the harness fails on.
+			const cancelNavigation = ( event: MouseEvent ) => event.preventDefault();
+			document.addEventListener( 'click', cancelNavigation );
+			try {
+				await userEvent.click( screen.getByRole( 'link', { name: 'Visit Site Health' } ) );
+			} finally {
+				document.removeEventListener( 'click', cancelNavigation );
+			}
+
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_connection_error_notice_link_click',
+				expect.objectContaining( { context: 'my-jetpack-connection-card' } )
 			);
 		} );
 
