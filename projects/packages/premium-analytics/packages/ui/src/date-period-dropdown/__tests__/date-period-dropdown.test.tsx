@@ -141,6 +141,14 @@ describe( 'DatePeriodDropdown', () => {
 		] );
 	} );
 
+	it( 'describes the trigger with its exact dates', () => {
+		renderDropdown();
+
+		expect( screen.getByRole( 'button', { name: 'Last 30 days' } ) ).toHaveAccessibleDescription(
+			/July 1.+31, 2026/
+		);
+	} );
+
 	it( 'spells the exact dates out in the trigger tooltip', async () => {
 		const user = userEvent.setup();
 		renderDropdown();

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Popover, Tooltip, VisuallyHidden } from '@jetpack-premium-analytics/externals';
-import type { ReactElement, ReactNode } from 'react';
+import { useId, type ReactElement, type ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -15,8 +15,8 @@ type DateControlPopoverProps = {
 	/** Names the popup for assistive tech; not drawn. */
 	title: string;
 
-	/** Shown over the trigger on hover and focus; nothing is shown without it. */
-	tooltip?: ReactNode;
+	/** Shown over the trigger on hover and focus, and read as its description; nothing is shown without it. */
+	tooltip?: string;
 
 	/** Which edge of the trigger the menu lines up with. */
 	align: 'start' | 'end';
@@ -42,13 +42,20 @@ export function DateControlPopover( {
 	onOpenChange,
 	children,
 }: DateControlPopoverProps ) {
+	const descriptionId = useId();
+
 	return (
 		<Popover.Root open={ open } onOpenChange={ onOpenChange }>
 			{ /* Disabled rather than left out, so the trigger keeps its node as the tooltip comes and goes. */ }
 			<Tooltip.Root disabled={ ! tooltip }>
-				<Tooltip.Trigger render={ <Popover.Trigger render={ trigger } /> } />
+				<Tooltip.Trigger
+					// The ui Tooltip describes nothing, so the text is also wired up as a description.
+					aria-describedby={ tooltip ? descriptionId : undefined }
+					render={ <Popover.Trigger render={ trigger } /> }
+				/>
 				<Tooltip.Popup>{ tooltip }</Tooltip.Popup>
 			</Tooltip.Root>
+			{ tooltip && <VisuallyHidden id={ descriptionId }>{ tooltip }</VisuallyHidden> }
 			<Popover.Popup
 				className="date-control-popover"
 				positioner={ <Popover.Positioner side="bottom" align={ align } /> }
