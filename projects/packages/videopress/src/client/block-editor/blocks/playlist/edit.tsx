@@ -7,7 +7,14 @@ import {
 	MediaUploadCheck,
 	useBlockProps,
 } from '@wordpress/block-editor';
-import { Button, Notice, PanelBody, Placeholder, TextControl } from '@wordpress/components';
+import {
+	Button,
+	Notice,
+	PanelBody,
+	Placeholder,
+	TextareaControl,
+	TextControl,
+} from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -24,6 +31,7 @@ import { PlaylistSettingsPanels, PlaylistStylesControls } from './inspector-cont
 import LatestVideosInnerPlaylist from './latest-videos-inner';
 import PlaylistPreview from './preview';
 import usePlaylistLiveMetadata, { liveMetadataWithSignedPoster } from './use-live-metadata';
+import usePlaylistId from './use-playlist-id';
 import usePublishTracking from './use-publish-tracking';
 import {
 	formatTimecode,
@@ -142,7 +150,8 @@ function StandalonePlaylistEdit( {
 	setAttributes,
 	clientId,
 }: BlockEditProps< PlaylistAttributes > ) {
-	const { videos, layout, entryTitleFontFamily } = attributes;
+	const { playlistId, playlistTitle, playlistDescription, videos, layout, entryTitleFontFamily } =
+		attributes;
 
 	const [ previewIndex, setPreviewIndex ] = useState( 0 );
 	const [ urlInput, setUrlInput ] = useState( '' );
@@ -156,6 +165,9 @@ function StandalonePlaylistEdit( {
 	const { liveMetadata, cacheLiveMetadata, markFetched } = usePlaylistLiveMetadata( videos );
 
 	const displayTitle = ( guid: string ) => liveMetadata[ guid ]?.title || guid;
+
+	// Keys this playlist in the site's playlist index.
+	usePlaylistId( { clientId, playlistId, setAttributes } );
 
 	// Records a Tracks event when a post/page is published with the playlist.
 	usePublishTracking( { clientId, layout, videoCount: videos.length } );
@@ -408,6 +420,26 @@ function StandalonePlaylistEdit( {
 
 	const inspectorControls = (
 		<InspectorControls>
+			<PanelBody title={ __( 'Playlist details', 'jetpack-videopress-pkg' ) }>
+				<TextControl
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
+					label={ __( 'Title', 'jetpack-videopress-pkg' ) }
+					value={ playlistTitle }
+					onChange={ ( value: string ) => setAttributes( { playlistTitle: value } ) }
+				/>
+				<TextareaControl
+					__nextHasNoMarginBottom
+					className="videopress-playlist-editor__description"
+					label={ __( 'Description', 'jetpack-videopress-pkg' ) }
+					value={ playlistDescription }
+					onChange={ ( value: string ) => setAttributes( { playlistDescription: value } ) }
+				/>
+				<p className="videopress-playlist-editor__help">
+					{ __( 'Shown wherever the site lists its playlists.', 'jetpack-videopress-pkg' ) }
+				</p>
+			</PanelBody>
+
 			<PanelBody title={ __( 'Add a video', 'jetpack-videopress-pkg' ) }>
 				{ addForm }
 				<p className="videopress-playlist-editor__help">
