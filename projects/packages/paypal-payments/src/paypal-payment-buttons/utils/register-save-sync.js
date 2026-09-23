@@ -48,14 +48,14 @@ async function isConnected() {
  *
  * Runs on `editor.preSavePost`, which awaits it and saves the content it returns.
  * The post is saved whether or not PayPal cooperated: an error is reported, and the
- * merchant can save again. What PayPal saved is shown on `editor.savePost`, which runs
- * only once the post has saved.
+ * merchant can save again. The success snackbar waits for `editor.savePost`, which runs
+ * after the post saves.
  *
  * @param {Function} isEnabled - Whether API-managed buttons are on for this site.
  */
 export function registerSaveSync( isEnabled ) {
-	// The snackbar for what PayPal saved, held until the post saves. A failed post save
-	// keeps it: the retry finds nothing new to send, but PayPal still has the write.
+	// The success message, shown after the next post save that succeeds. It stays set through
+	// a failed post save, since PayPal already has the change.
 	let savedMessage = null;
 
 	addFilter(
@@ -75,7 +75,7 @@ export function registerSaveSync( isEnabled ) {
 				return edits;
 			}
 
-			// Whether each payment this save created or changed was created, for one snackbar.
+			// One entry per payment this save created (true) or changed (false).
 			const saved = [];
 			const changed = await syncBlocksBeforeSave( blocks, {
 				request: apiFetch,
@@ -101,8 +101,8 @@ export function registerSaveSync( isEnabled ) {
 				reportSaved: created => saved.push( created ),
 			} );
 
-			// Set even when no block attributes changed: the PUT still changed the payment. A
-			// create wins over an update, from this save or one whose post save failed.
+			// Set before the `changed` check: a PUT can change the payment and leave the block as
+			// it is. The create message replaces a pending "Changes saved", and stays until shown.
 			if ( saved.includes( true ) ) {
 				savedMessage = __( 'Payment link successfully created.', 'jetpack-paypal-payments' );
 			} else if ( saved.length && ! savedMessage ) {
@@ -122,9 +122,8 @@ export function registerSaveSync( isEnabled ) {
 		}
 	);
 
-	// Runs only once the post has saved, so a failed save doesn't also show a success snackbar.
-	// An autosave runs it too, but sends nothing to PayPal, so it leaves the snackbar for the
-	// next save.
+	// Runs after the post saves. An autosave skips the PayPal sync, so the message waits
+	// for the next save.
 	addAction(
 		'editor.savePost',
 		'jetpack/paypal-payment-buttons/saved-snackbar',

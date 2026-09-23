@@ -108,11 +108,11 @@ export function recordPaymentRead( clientId, resourceId, held ) {
 }
 
 /**
- * Bump the card revision of each payment a PUT changed from its last read, and report
- * the ones the PUTs changed. Without a read, a PUT is compared with block.json's
- * defaults, which a named product differs from.
+ * Bump the card revision of each payment a PUT changed from its last read, and call
+ * reportSaved for each payment a PUT changed. Without a read, a PUT is compared with
+ * block.json's defaults, which a named product differs from.
  *
- * @param {Map}      written     - What each payment's PUTs wrote, by payment id.
+ * @param {Map}      written     - The attributes and mode each PUT wrote, by payment id.
  * @param {Function} reportSaved - Called once for each payment the PUTs changed.
  */
 function recordPaymentsWritten( written, reportSaved ) {
@@ -129,9 +129,9 @@ function recordPaymentsWritten( written, reportSaved ) {
 			cardRevisions.set( resourceId, getCardRevision( resourceId ) + 1 );
 		}
 
-		// The first save after a reload PUTs every block, changed or not, so only a PUT that
-		// differs from the read is reported. The mode is compared as sent: switching to
-		// stacked sends BUTTON and leaves the attribute as it was.
+		// The first save after a reload PUTs every ready block, so reportSaved is called for a PUT
+		// that differs from the read, or has no read values. A switch to stacked sends BUTTON and
+		// leaves integrationMode as it was, so the mode is compared as sent.
 		if (
 			! held ||
 			changed ||
@@ -197,7 +197,7 @@ export function isReadyForPayPal( attributes ) {
  * @param {string}   clientId   - The block's client id.
  * @param {object}   attributes - The block's current attributes.
  * @param {object}   body       - The request body.
- * @return {Promise<object>} The API response, whether it created the payment, and the attributes to set on the block.
+ * @return {Promise<object>} The API response, created: true, and the attributes to set on the block.
  */
 async function createPayment( request, clientId, attributes, body ) {
 	const response = await request( { path: `${ API_BASE }/buttons`, method: 'POST', data: body } );
@@ -263,7 +263,7 @@ function reportStackedUnavailable( block, scriptSrc, reportError ) {
  * @param {Function} deps.updateBlockAttributes - Writes attributes onto a block by clientId.
  * @param {Function} deps.reportError           - Tells the merchant a block's save failed, and why.
  * @param {Function} deps.reportHeldBack        - Tells the merchant a block was not sent, and why.
- * @param {Function} deps.reportSaved           - Called when a payment is created or changed, with whether it was created.
+ * @param {Function} deps.reportSaved           - Called with true for a payment created, false for one changed.
  * @param {Set}      stackedResources           - Payments a stacked block in this save draws from.
  * @param {Map}      written                    - Collects the attributes and mode each PUT wrote, by payment id.
  * @return {Promise<boolean>} True when the block's attributes changed.
@@ -365,7 +365,7 @@ async function syncBlock(
 
 		const { response, created, updates } = result;
 
-		// An update is reported once every PUT has settled, and only if it changed the payment.
+		// recordPaymentsWritten() calls reportSaved for an update once every PUT has settled.
 		if ( created ) {
 			reportSaved?.( true );
 		}
@@ -428,8 +428,8 @@ export async function syncBlocksBeforeSave( blocks, deps ) {
 		blocks.map( block => syncBlock( block, deps, stackedResources, written ) )
 	);
 
-	// Once every PUT has settled, so blocks sharing a payment bump its card revision, and
-	// report it, once.
+	// Once every PUT has settled, so a shared payment gets at most one card revision bump
+	// and one reportSaved call.
 	recordPaymentsWritten( written, deps.reportSaved );
 
 	return results.some( Boolean );

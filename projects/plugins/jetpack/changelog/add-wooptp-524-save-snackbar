@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-PayPal Payment Buttons: Show a snackbar when saving the post creates or updates a payment link on PayPal.
+PayPal Payment Buttons: Show a snackbar after a post save that creates or changes a PayPal payment link.

@@ -239,7 +239,7 @@ describe( 'registerSaveSync', () => {
 	describe( 'the saved snackbar', () => {
 		const saved = message => [ 'success', message, 'jetpack-paypal-saved' ];
 
-		it( 'waits for the post to save', async () => {
+		it( 'shows the snackbar after the post saves', async () => {
 			blocks.set( 'a', payPalBlock( 'a', 'PLB-A1' ) );
 			recordPaymentRead( 'a', 'PLB-A1' );
 
@@ -251,9 +251,9 @@ describe( 'registerSaveSync', () => {
 			expect( mockToast.mock.calls ).toEqual( [ saved( 'Changes saved.' ) ] );
 		} );
 
-		// Either request can answer last, so the create has to win from both sides.
+		// Either request can answer last.
 		it.each( [ 'PUT', 'POST' ] )(
-			'shows one snackbar for several blocks, saying created when any was created (%s answers last)',
+			'shows one created snackbar when a save creates one payment and updates another (%s answers last)',
 			async slow => {
 				blocks.set( 'a', payPalBlock( 'a', 'PLB-A1' ) );
 				blocks.set( 'b', payPalBlock( 'b' ) );
@@ -282,9 +282,8 @@ describe( 'registerSaveSync', () => {
 			}
 		);
 
-		// Nothing was read to compare with, so the PUT counts as a change. Its echo changes no
-		// attributes, so the filter returns before the content rewrite.
-		it( 'says the changes were saved after a PUT that changes no attributes', async () => {
+		// The read recorded no values, so the PUT counts as a change.
+		it( 'shows "Changes saved" after a PUT that leaves the block attributes as they are', async () => {
 			blocks.set( 'a', payPalBlock( 'a', 'PLB-A1' ) );
 			recordPaymentRead( 'a', 'PLB-A1' );
 			const edits = { content: blockComment( 'PLB-A1' ) };
@@ -296,8 +295,8 @@ describe( 'registerSaveSync', () => {
 			expect( mockToast.mock.calls ).toEqual( [ saved( 'Changes saved.' ) ] );
 		} );
 
-		// The first save after a reload PUTs the block even when it matches what was read.
-		it( 'stays quiet after a PUT that matches the read', async () => {
+		// The first save after a reload PUTs every block.
+		it( 'skips the snackbar for a PUT that matches the read', async () => {
 			const block = payPalBlock( 'a', 'PLB-A1' );
 			blocks.set( 'a', block );
 			recordPaymentRead( 'a', 'PLB-A1', block.attributes );
@@ -311,7 +310,7 @@ describe( 'registerSaveSync', () => {
 			expect( mockToast ).not.toHaveBeenCalled();
 		} );
 
-		it( 'stays quiet when nothing was sent to PayPal', async () => {
+		it( 'skips the snackbar when the save sends nothing to PayPal', async () => {
 			blocks.set( 'a', payPalBlock( 'a', 'PLB-A1' ) );
 			recordPaymentRead( 'a', 'PLB-A1' );
 			await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
@@ -320,7 +319,7 @@ describe( 'registerSaveSync', () => {
 			mockToast.mockClear();
 			apiFetch.mockClear();
 
-			// The same block again is not re-sent.
+			// Save the unchanged block again.
 			await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
 			runSavedAction();
 
@@ -328,7 +327,7 @@ describe( 'registerSaveSync', () => {
 			expect( mockToast ).not.toHaveBeenCalled();
 		} );
 
-		it( 'stays quiet about a block held back', async () => {
+		it( 'shows only the held-back warning when the block is held back', async () => {
 			const block = payPalBlock( 'a', 'PLB-A1' );
 			blocks.set( 'a', { ...block, attributes: { ...block.attributes, price: '' } } );
 			recordPaymentRead( 'a', 'PLB-A1' );
@@ -345,8 +344,7 @@ describe( 'registerSaveSync', () => {
 			] );
 		} );
 
-		// The editor skips the action when the post fails to save. The retry has nothing new
-		// to send, but the block now points at the payment the failed save created.
+		// The editor skips `editor.savePost` when the post fails to save.
 		it( "shows a failed save's snackbar on the next save that succeeds", async () => {
 			blocks.set( 'a', payPalBlock( 'a' ) );
 			apiFetch.mockImplementation( ( { path, method } ) => {
@@ -370,8 +368,7 @@ describe( 'registerSaveSync', () => {
 			expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment link successfully created.' ) ] );
 		} );
 
-		// An autosave sends nothing to PayPal, so it leaves the snackbar for the next save.
-		it( "keeps a failed save's snackbar through an autosave", async () => {
+		it( "keeps a failed save's snackbar through an autosave and shows it once", async () => {
 			blocks.set( 'a', payPalBlock( 'a', 'PLB-A1' ) );
 			recordPaymentRead( 'a', 'PLB-A1' );
 			await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
@@ -387,7 +384,7 @@ describe( 'registerSaveSync', () => {
 			expect( mockToast.mock.calls ).toEqual( [ saved( 'Changes saved.' ) ] );
 		} );
 
-		it( 'says created when an earlier failed save created the payment', async () => {
+		it( 'shows the created snackbar when an earlier failed save created the payment', async () => {
 			blocks.set( 'a', payPalBlock( 'a' ) );
 			apiFetch.mockImplementation( ( { path, method } ) => {
 				if ( path === `${ API_BASE }/connection` ) {
@@ -412,9 +409,8 @@ describe( 'registerSaveSync', () => {
 			expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment link successfully created.' ) ] );
 		} );
 
-		// The PUT went through, so both are true: the payment saved, and the stacked
-		// buttons still need another save.
-		it( 'shows the saved snackbar beside a stacked read-back error', async () => {
+		// The PUT went through, and the stacked buttons still need another save.
+		it( 'shows the saved snackbar after a stacked read-back error', async () => {
 			const block = payPalBlock( 'a', 'PLB-A1' );
 			blocks.set( 'a', { ...block, attributes: { ...block.attributes, format: 'STACKED' } } );
 			recordPaymentRead( 'a', 'PLB-A1' );

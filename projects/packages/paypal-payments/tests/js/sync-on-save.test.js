@@ -617,7 +617,7 @@ describe( 'syncBlocksBeforeSave', () => {
 			deps.reportError.mockClear();
 			await syncBlocksBeforeSave( [ block ], deps );
 			expect( deps.reportError ).toHaveBeenCalledWith( expect.anything(), unavailable );
-			// Nothing was written this time.
+			// Only the first save sent a PUT.
 			expect( deps.reportSaved ).toHaveBeenCalledTimes( 1 );
 
 			// PayPal grants it. A changed body gets through, and the message stops.
@@ -735,7 +735,7 @@ describe( 'syncBlocksBeforeSave', () => {
 			expect( item ).not.toHaveProperty( 'handling' );
 			expect( item ).not.toHaveProperty( 'discounts' );
 			expect( deps.updateBlockAttributes ).not.toHaveBeenCalled();
-			// Nothing was read to compare with, so the PUT counts as a change.
+			// The read recorded no values, so the PUT counts as a change.
 			expect( deps.reportSaved ).toHaveBeenCalledWith( false );
 		} );
 
@@ -1280,7 +1280,7 @@ describe( 'the card revision', () => {
 	} );
 } );
 
-describe( 'what a PUT reports', () => {
+describe( 'reportSaved after a PUT', () => {
 	const saved = { ...product, isApiManaged: true, resourceId: 'PLB-1' };
 	const echo = () => Promise.resolve( {} );
 
@@ -1307,20 +1307,19 @@ describe( 'what a PUT reports', () => {
 		recordPaymentRead( 'block-1', 'PLB-1', product );
 	} );
 
-	// The first save after a reload PUTs every block. PayPal ignores the image.
+	// The first save after a reload PUTs every block. The image is sent but never compared.
 	it.each( [
 		[ 'nothing changed', {} ],
 		[ 'only the image changed', { imageUrl: 'https://example.test/widget.png' } ],
 		[ 'only a format with the same mode changed', { format: 'QR' } ],
-	] )( 'reports nothing when %s', async ( _label, change ) => {
+	] )( 'skips reportSaved when %s', async ( _label, change ) => {
 		const deps = await save( [ change ] );
 
 		expect( deps.requests.map( r => r.method ) ).toEqual( [ 'PUT' ] );
 		expect( deps.reportSaved ).not.toHaveBeenCalled();
 	} );
 
-	// The payment is already in BUTTON mode, so neither block changes it.
-	it( 'reports nothing for a stacked block and its sibling on a BUTTON payment', async () => {
+	it( 'skips reportSaved for a stacked block and its sibling on a payment already in BUTTON mode', async () => {
 		const button = { ...product, integrationMode: 'BUTTON' };
 		recordPaymentRead( 'block-0', 'PLB-1', button );
 		recordPaymentRead( 'block-1', 'PLB-1', button );
@@ -1334,8 +1333,8 @@ describe( 'what a PUT reports', () => {
 		expect( deps.reportSaved ).not.toHaveBeenCalled();
 	} );
 
-	// The create records what PayPal made, and the block takes it.
-	it( 'reports nothing for an image-only PUT after a create', async () => {
+	// The create records what PayPal made as the read to compare with.
+	it( 'skips reportSaved for an image-only PUT after a create', async () => {
 		const deps = fakeDeps( ( { method } ) =>
 			Promise.resolve( 'POST' === method ? { id: 'PLB-NEW1', attributes: product } : {} )
 		);
@@ -1361,14 +1360,14 @@ describe( 'what a PUT reports', () => {
 		expect( deps.reportSaved ).not.toHaveBeenCalled();
 	} );
 
-	it( 'reports a changed field', async () => {
+	it( 'calls reportSaved for a changed price', async () => {
 		const deps = await save( [ { price: '31.00' } ] );
 
 		expect( deps.reportSaved.mock.calls ).toEqual( [ [ false ] ] );
 	} );
 
-	// The attributes stay the same, and only the mode sent says the payment changed.
-	it( 'reports a switch to stacked, without a new card revision', async () => {
+	// Only the mode sent changes.
+	it( 'calls reportSaved for a switch to stacked and keeps the card revision', async () => {
 		const deps = await save( [ { format: 'STACKED' } ] );
 
 		expect( deps.requests[ 0 ].data.integration_mode ).toBe( 'BUTTON' );
@@ -1376,15 +1375,15 @@ describe( 'what a PUT reports', () => {
 		expect( getCardRevision( 'PLB-1' ) ).toBe( 0 );
 	} );
 
-	it( 'reports a shared payment once when one of its blocks changed it', async () => {
+	it( 'calls reportSaved once when one of two blocks sharing a payment changes it', async () => {
 		const deps = await save( [ {}, { price: '31.00' } ] );
 
 		expect( deps.requests ).toHaveLength( 2 );
 		expect( deps.reportSaved.mock.calls ).toEqual( [ [ false ] ] );
 	} );
 
-	// The first PUT drops the read, and a second one only goes out with a changed body.
-	it( 'reports a second changed save in the same page load', async () => {
+	// The first PUT drops the read to compare with.
+	it( 'calls reportSaved for a second changed save in the same page load', async () => {
 		await save( [ { price: '31.00' } ] );
 		const deps = await save( [ { price: '32.00' } ] );
 
@@ -1392,7 +1391,7 @@ describe( 'what a PUT reports', () => {
 	} );
 
 	// A read that 404s records the payment without its values.
-	it( 'reports a PUT with nothing read to compare with', async () => {
+	it( 'calls reportSaved for a PUT to a payment read without its values', async () => {
 		recordPaymentRead( 'block-0', 'PLB-2' );
 		const deps = fakeDeps( echo );
 
