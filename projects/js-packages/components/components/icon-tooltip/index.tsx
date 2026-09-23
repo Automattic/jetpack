@@ -79,7 +79,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		[ isVisible, setIsVisible, onTriggerClick ]
 	);
 
-	// A text trigger keeps focus while its tooltip is open, so it handles the dialog keys itself.
+	// Focus can stay on a text trigger while its tooltip is open, so it handles the dialog keys too.
 	const handleTriggerKeyDown = useCallback(
 		( event: KeyboardEvent< HTMLAnchorElement > ) => {
 			// A link only activates on Enter; a button also activates on Space.
@@ -150,7 +150,10 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		[ hideTooltip ]
 	);
 
-	const focusOnOpen = isForcedToShow ? 'firstElement' : ! openedByHover.current;
+	const focusOnOpen =
+		isForcedToShow || ( hasTextTrigger && ! openedByHover.current )
+			? 'firstElement'
+			: ! openedByHover.current;
 	const args = {
 		// To be compatible with deprecating prop `position`.
 		position: placementsToPositions( placement ),
@@ -161,8 +164,8 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		flip: false,
 		offset, // The distance (in px) between the anchor and the popover.
 		// Focusing the popover itself puts Escape in reach even with nothing tabbable inside. A text
-		// trigger keeps focus instead, and a caller-controlled popover focuses its first element.
-		focusOnMount: hasTextTrigger ? false : focusOnOpen,
+		// trigger or caller-controlled popover moves focus to its first link, if it has one.
+		focusOnMount: focusOnOpen,
 		// Tab moves through the popover in document order rather than cycling inside it, and
 		// handlePopoverKeyDown decides where it lands on the way out.
 		constrainTabbing: false,

@@ -144,7 +144,7 @@ describe( 'IconTooltip', () => {
 			}
 		);
 
-		it( 'tabs into a portaled popover, back to the trigger, and closes with Escape from inside', async () => {
+		it( 'focuses a portaled popover link, tabs back and forth, and closes with Escape from inside', async () => {
 			const restoreLayout = withLayout();
 			const user = userEvent.setup();
 			render(
@@ -155,12 +155,12 @@ describe( 'IconTooltip', () => {
 			const trigger = screen.getByRole( 'button', { name: 'See an example' } );
 			await user.tab();
 			await user.keyboard( '{Enter}' );
-			await user.tab();
 			expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toHaveFocus();
 			await user.tab( { shift: true } );
 			expect( trigger ).toHaveFocus();
 			expect( trigger ).toHaveAttribute( 'aria-expanded', 'true' );
 			await user.tab();
+			expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toHaveFocus();
 			await user.keyboard( '{Escape}' );
 			expect( screen.queryByRole( 'link', { name: 'Learn more' } ) ).not.toBeInTheDocument();
 			expect( trigger ).toHaveFocus();
