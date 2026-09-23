@@ -23,11 +23,19 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 	}: {
-		metrics: { key: string; value: number; current: { date: Date; value: number }[] }[];
+		metrics: {
+			key: string;
+			value: number;
+			current: { date: Date; value: number }[];
+			countLabel?: ( count: number ) => string;
+		}[];
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
 			data-metric-keys={ metrics.map( metric => metric.key ).join( ',' ) }
+			data-count-labels={ metrics
+				.map( metric => `${ metric.countLabel?.( 1 ) }|${ metric.countLabel?.( 2 ) }` )
+				.join( ',' ) }
 			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
 			data-days={ metrics[ 0 ]?.current.map( point => point.date.getDate() ).join( ',' ) }
 		/>
@@ -98,6 +106,10 @@ describe( 'SubscribersChartWidget', () => {
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		expect( chart ).toHaveAttribute( 'data-metric-keys', 'subscribers,paid' );
+		expect( chart ).toHaveAttribute(
+			'data-count-labels',
+			'%s Subscriber|%s Subscribers,%s Paid subscriber|%s Paid subscribers'
+		);
 	} );
 
 	describe( 'widget-owned date range', () => {

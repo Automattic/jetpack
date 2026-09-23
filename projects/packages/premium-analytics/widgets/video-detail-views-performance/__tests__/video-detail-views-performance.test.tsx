@@ -24,6 +24,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			label: string;
 			value: number;
 			current: { date: Date; value: number }[];
+			countLabel?: ( count: number ) => string;
 			dataFormat?: { type: string };
 		}[];
 		chartType?: string;
@@ -35,6 +36,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 				metrics.map( metric => ( {
 					key: metric.key,
 					label: metric.label,
+					countLabels: [ metric.countLabel?.( 1 ), metric.countLabel?.( 2 ) ],
 					value: metric.value,
 					format: metric.dataFormat?.type,
 					values: metric.current.map( point => point.value ),
@@ -55,6 +57,7 @@ const mockApiFetch = apiFetch as unknown as jest.Mock;
 type ChartedMetric = {
 	key: string;
 	label: string;
+	countLabels: ( string | null )[];
 	value: number;
 	format?: string;
 	values: number[];
@@ -175,6 +178,8 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		const [ views, impressions, watchTime, retention ] = metrics;
 		expect( views.values ).toEqual( [ 0, 5, 0, 7, 0, 0, 0 ] );
 		expect( views.value ).toBe( 12 );
+		expect( views.countLabels ).toEqual( [ '%s View', '%s Views' ] );
+		expect( impressions.countLabels ).toEqual( [ '%s Impression', '%s Impressions' ] );
 		expect( impressions.values ).toEqual( [ 0, 10, 0, 14, 0, 0, 0 ] );
 		expect( impressions.value ).toBe( 24 );
 		expect( watchTime.values ).toEqual( [ 0, 1.25, 0, 1.75, 0, 0, 0 ] );
