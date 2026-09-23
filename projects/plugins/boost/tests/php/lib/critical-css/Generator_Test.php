@@ -631,4 +631,14 @@ class Generator_Test extends BaseTestCase {
 			'no headers'        => array( false, array() ),
 		);
 	}
+
+	/**
+	 * The shutdown guard runs on every generation request, so it must stay silent without a redirect.
+	 */
+	public function test_block_login_redirect_header_is_silent_without_a_login_redirect() {
+		ob_start();
+		( new Generator() )->block_login_redirect_header();
+
+		$this->assertSame( '', ob_get_clean() );
+	}
 }
