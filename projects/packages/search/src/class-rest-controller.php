@@ -425,7 +425,7 @@ class REST_Controller {
 			return true;
 		}
 
-		if ( true === $reader_chat && ! Search_Blocks::supports_paid_search() ) {
+		if ( true === $reader_chat && ( ! $this->plan->supports_search() || $this->plan->is_free_plan() ) ) {
 			return new WP_Error(
 				'rest_forbidden',
 				esc_html__( 'Site Chat requires a paid Jetpack Search plan.', 'jetpack-search-pkg' ),

@@ -31,7 +31,7 @@ export default function ReaderChatControl( {
 } ) {
 	const supportsPaidSearch = useSelect( select => {
 		const store = select( STORE_ID );
-		return store.supportsInstantSearch() && ! store.isFreePlan();
+		return store.supportsSearch() && ! store.isFreePlan();
 	}, [] );
 	const toggle = useCallback(
 		next => {

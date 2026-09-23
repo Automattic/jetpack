@@ -19,11 +19,11 @@ class Plan_Info {
 	public static $jetpack_reader_chat_test_double = true;
 
 	/**
-	 * Whether the test plan supports Instant Search.
+	 * Whether the test plan supports Search.
 	 *
 	 * @var bool
 	 */
-	public static $supports_instant_search = true;
+	public static $supports_search = true;
 
 	/** @var bool Whether the plan is free. */
 	public static $is_free = false;
@@ -52,12 +52,12 @@ class Plan_Info {
 	}
 
 	/**
-	 * Whether the plan supports Instant Search.
+	 * Whether the plan supports Search.
 	 *
 	 * @return bool
 	 */
-	public function supports_instant_search() {
-		return self::$supports_instant_search;
+	public function supports_search() {
+		return self::$supports_search;
 	}
 
 	/**
