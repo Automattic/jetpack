@@ -20,8 +20,7 @@ import { aggregateSearchTermRows } from './aggregate';
  * @return Table records.
  */
 export function useSearchTermsReportRecords( reportParams: ReportParams ) {
-	// Match legacy Stats' full custom-range request for client-side search, sort, and paging;
-	// `SUMMARIZED_TERMS_CAP` explains the list's size limit.
+	// Match legacy Stats' full custom-range request for client-side search, sort, and paging.
 	const recordsParams = useMemo(
 		() => ( {
 			...reportParams,

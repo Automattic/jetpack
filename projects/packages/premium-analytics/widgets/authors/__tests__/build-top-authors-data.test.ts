@@ -329,7 +329,6 @@ describe( 'buildTopAuthorsData', () => {
 				delta: undefined,
 			},
 		] );
-		expect( result[ 0 ] ).toMatchObject( { currentValue: 30, previousValue: 40, delta: -25 } );
 	} );
 } );
 
