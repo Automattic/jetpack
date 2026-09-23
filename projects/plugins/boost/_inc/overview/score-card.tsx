@@ -25,8 +25,8 @@ type Props = {
 /**
  * What the badge's tooltip says about the comparison behind it.
  *
- * The badge itself clamps a worse-than-baseline comparison to zero, so the tooltip is the only place
- * a drop is named. "Speed score has fallen" matches the notice that reports the same drop.
+ * The badge clamps a worse-than-baseline comparison to zero, so a drop is only legible in words —
+ * these match the "Speed score has fallen" notice that reports the same drop.
  *
  * @param delta - Points against the Boost-disabled baseline, or null when there is no comparison.
  */
