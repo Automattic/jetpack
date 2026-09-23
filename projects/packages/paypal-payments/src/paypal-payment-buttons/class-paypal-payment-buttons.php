@@ -826,6 +826,62 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
+	 * The price a payment link charges, as text.
+	 *
+	 * The product price, or the cheapest option as "From $29.99" when the
+	 * options carry the prices. Same rule as linkPrice() in utils/link-price.js.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $attributes The link's block attributes.
+	 * @return string The formatted price, or '' when there is none.
+	 */
+	public static function link_price( array $attributes ) {
+		$price            = $attributes['price'] ?? '';
+		$currency         = $attributes['currencyCode'] ?? 'USD';
+		$variants_enabled = ! empty( $attributes['variantsEnabled'] );
+		$variants         = $attributes['variants'] ?? null;
+
+		// PayPal drops the product-level amount once the options have their own
+		// prices, but the block keeps whatever the merchant typed. Ignore it.
+		if ( $variants_enabled && PayPal_Attribute_Mapper::variants_have_pricing( $variants ) ) {
+			$price = '';
+		}
+
+		// PayPal accepts a price of 0, so the empty test is '' — empty() drops it.
+		// Trimmed, as the editor preview does.
+		$price = trim( (string) $price );
+		if ( '' !== $price ) {
+			return self::format_price( $price, $currency );
+		}
+
+		$lowest = $variants_enabled ? self::get_lowest_variant_price( $variants ) : null;
+		if ( null === $lowest ) {
+			return '';
+		}
+
+		return sprintf(
+			/* translators: %s: formatted price, e.g. "$29.99" */
+			__( 'From %s', 'jetpack-paypal-payments' ),
+			self::format_price( $lowest, $currency )
+		);
+	}
+
+	/**
+	 * The same price, read off a payment resource from PayPal.
+	 *
+	 * Same as resourcePrice() in utils/link-price.js.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $resource A payment resource.
+	 * @return string The formatted price, or '' when there is none.
+	 */
+	public static function resource_price( array $resource ) {
+		return self::link_price( PayPal_Attribute_Mapper::api_response_to_attributes( $resource ) );
+	}
+
+	/**
 	 * Render an API-managed PayPal payment button on the frontend.
 	 *
 	 * @param array $attributes The block attributes.
@@ -995,36 +1051,20 @@ class PayPal_Payment_Buttons {
 			);
 		}
 
-		// PayPal drops the product-level amount once the options have their own
-		// prices, but the block keeps whatever the merchant typed. Ignore it.
+		// The option list below hides an option price that repeats the product
+		// price, so it needs the same product price the headline uses.
 		if ( $variants_enabled && PayPal_Attribute_Mapper::variants_have_pricing( $variants ) ) {
 			$price = '';
 		}
+		$price = trim( (string) $price );
 
-		// Headline price: the product price, or the cheapest option when there is none.
-		// PayPal accepts a price of 0, so the empty test is '' — empty() drops it.
-		// Trimmed, as the editor preview does.
-		$price      = trim( (string) $price );
-		$price_html = '';
-		if ( '' !== $price ) {
+		$headline_price = self::link_price( $attributes );
+		$price_html     = '';
+		if ( '' !== $headline_price ) {
 			$price_html = sprintf(
 				'<span class="jetpack-paypal-button__product-price">%s</span>',
-				esc_html( self::format_price( $price, $currency ) )
+				esc_html( $headline_price )
 			);
-		} elseif ( $variants_enabled ) {
-			$lowest = self::get_lowest_variant_price( $variants );
-			if ( null !== $lowest ) {
-				$price_html = sprintf(
-					'<span class="jetpack-paypal-button__product-price">%s</span>',
-					esc_html(
-						sprintf(
-							/* translators: %s: formatted price, e.g. "$29.99" */
-							__( 'From %s', 'jetpack-paypal-payments' ),
-							self::format_price( $lowest, $currency )
-						)
-					)
-				);
-			}
 		}
 
 		// The card needs a name, description or price. The image is outside it.
