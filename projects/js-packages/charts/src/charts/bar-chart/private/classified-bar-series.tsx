@@ -59,8 +59,9 @@ const ClassifiedBarSeries = ( { barClassName, primaryKeys, groupPadding, ...prop
 					onPointerMove={ onPointerMove }
 					onPointerOut={ onPointerOut }
 					onPointerUp={ onPointerUp }
-					x={ horizontal ? Math.min( value, baseline ) : position }
-					y={ horizontal ? position : Math.min( value, baseline ) }
+					// Same arithmetic as visx BaseBarGroup, so rounding matches the unclassified bars.
+					x={ horizontal ? baseline + Math.min( 0, value - baseline ) : position }
+					y={ horizontal ? position : baseline + Math.min( 0, value - baseline ) }
 					width={ horizontal ? Math.abs( value - baseline ) : groupScale.bandwidth() }
 					height={ horizontal ? groupScale.bandwidth() : Math.abs( value - baseline ) }
 					fill={ color }
