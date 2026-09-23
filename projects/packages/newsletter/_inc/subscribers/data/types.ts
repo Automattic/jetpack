@@ -13,7 +13,7 @@ export type SubscriptionStatus =
 	| 'Blocked'
 	| string;
 
-export type SubscriptionStatusReason = 'opted_out' | 'bounced' | 'blocked';
+export type SubscriptionStatusReason = 'emails_paused' | 'bounced' | 'blocked';
 
 export type SubscriptionPlan = {
 	subscription_id?: number;

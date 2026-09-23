@@ -1,7 +1,7 @@
-import { Icon, info } from '@wordpress/icons';
 import { Badge, Tooltip } from '@wordpress/ui';
 import {
 	getSubscriptionStatusLabel,
+	getSubscriptionStatusReasonBadgeLabel,
 	getSubscriptionStatusReasonLabel,
 } from '../../lib/subscription-status';
 import type { SubscriptionStatus, SubscriptionStatusReason } from '../../data/types';
@@ -47,7 +47,7 @@ function getBadgeIntent( status: SubscriptionStatus ): BadgeIntent {
  *
  * @param props        - Component props.
  * @param props.status - Raw status string from the API.
- * @param props.reason - Raw subscription_status_reason from the API; adds an info tooltip.
+ * @param props.reason - Raw subscription_status_reason from the API; names the badge and adds a tooltip.
  * @return Status badge, or null when status is missing.
  */
 export default function SubscriptionStatusCell( { status, reason }: Props ): JSX.Element | null {
@@ -55,27 +55,27 @@ export default function SubscriptionStatusCell( { status, reason }: Props ): JSX
 		return null;
 	}
 
+	const badgeLabel = getSubscriptionStatusReasonBadgeLabel( reason );
+	const description = getSubscriptionStatusReasonLabel( reason );
 	const badge = (
-		<Badge intent={ getBadgeIntent( status ) }>{ getSubscriptionStatusLabel( status ) }</Badge>
+		<Badge intent={ getBadgeIntent( status ) }>
+			{ badgeLabel ?? getSubscriptionStatusLabel( status ) }
+		</Badge>
 	);
-	const reasonLabel = getSubscriptionStatusReasonLabel( reason );
 
-	if ( ! reasonLabel ) {
+	if ( ! badgeLabel || ! description ) {
 		return badge;
 	}
 
 	return (
-		<span className="jetpack-newsletter__status-reason">
-			{ badge }
-			<Tooltip.Root>
-				<Tooltip.Trigger
-					className="jetpack-newsletter__status-reason-trigger"
-					aria-label={ reasonLabel }
-				>
-					<Icon icon={ info } size={ 20 } />
-				</Tooltip.Trigger>
-				<Tooltip.Popup>{ reasonLabel }</Tooltip.Popup>
-			</Tooltip.Root>
-		</span>
+		<Tooltip.Root>
+			<Tooltip.Trigger
+				className="jetpack-newsletter__status-reason-trigger"
+				aria-label={ `${ badgeLabel }: ${ description }` }
+			>
+				{ badge }
+			</Tooltip.Trigger>
+			<Tooltip.Popup>{ description }</Tooltip.Popup>
+		</Tooltip.Root>
 	);
 }

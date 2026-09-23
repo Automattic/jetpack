@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Subscribers: Explain why a subscriber is "Not sending" in a tooltip on the status badge.
+Subscribers: Label "Not sending" subscribers as "Bounced" or "Emails paused", with the reason in a tooltip.

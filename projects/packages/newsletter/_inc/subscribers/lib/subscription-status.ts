@@ -26,6 +26,25 @@ export function getSubscriptionStatusLabel( status: SubscriptionStatus ): string
 }
 
 /**
+ * Explain why a "Not sending" subscriber is not being sent to, in a short badge label.
+ *
+ * @param reason - Raw subscription_status_reason from the API.
+ * @return Translated label, or null to keep the plain "Not sending" badge.
+ */
+export function getSubscriptionStatusReasonBadgeLabel(
+	reason?: SubscriptionStatusReason | null
+): string | null {
+	switch ( reason ) {
+		case 'emails_paused':
+			return __( 'Emails paused', 'jetpack-newsletter' );
+		case 'bounced':
+			return __( 'Bounced', 'jetpack-newsletter' );
+		default:
+			return null;
+	}
+}
+
+/**
  * Explain why a "Not sending" subscriber is not being sent to.
  *
  * @param reason - Raw subscription_status_reason from the API.
@@ -35,14 +54,14 @@ export function getSubscriptionStatusReasonLabel(
 	reason?: SubscriptionStatusReason | null
 ): string | null {
 	switch ( reason ) {
-		case 'opted_out':
+		case 'emails_paused':
 			return __(
-				'This user paused all WordPress.com emails in their account settings. Only they can change this.',
+				'This subscriber turned off all WordPress.com emails. Ask them to turn emails back on in their WordPress.com settings.',
 				'jetpack-newsletter'
 			);
 		case 'bounced':
 			return __(
-				'Emails to this address bounced, so we stopped sending to it.',
+				"Emails to this address couldn't be delivered. Check it's correct or ask for another one.",
 				'jetpack-newsletter'
 			);
 		default:
