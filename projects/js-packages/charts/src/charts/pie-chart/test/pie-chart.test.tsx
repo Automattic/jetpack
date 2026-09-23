@@ -200,6 +200,19 @@ describe( 'PieChart', () => {
 			expect( label ).toHaveClass( 'pie-chart__label-text--on-light' );
 		} );
 
+		test( 'keeps the inverse label color when the plate uses color syntax d3 cannot parse', () => {
+			injectedStyle = document.createElement( 'style' );
+			injectedStyle.textContent =
+				'.modern-plate-pie { --a8c-charts-color-label-background: rgb(0 0 0 / 50%); }';
+			document.head.appendChild( injectedStyle );
+
+			renderWithTheme( { data: contrastData, className: 'modern-plate-pie' } );
+
+			screen
+				.getAllByTestId( 'pie-label' )
+				.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
+		} );
+
 		test( 'keeps the inverse label color when the label role is see-through', () => {
 			injectedStyle = document.createElement( 'style' );
 			injectedStyle.textContent =
