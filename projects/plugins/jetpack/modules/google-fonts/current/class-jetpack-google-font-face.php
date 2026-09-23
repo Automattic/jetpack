@@ -143,15 +143,7 @@ class Jetpack_Google_Font_Face {
 			$faces = array();
 			foreach ( $catalogue_faces as $face ) {
 				$face['font-family'] = $name;
-				if ( ! empty( $face['src'] ) ) {
-					$face['src'] = array_map(
-						static function ( $src ) {
-							return str_starts_with( $src, 'file:./' ) ? get_theme_file_uri( substr( $src, 7 ) ) : $src;
-						},
-						(array) $face['src']
-					);
-				}
-				$converted = array();
+				$converted           = array();
 				foreach ( $face as $property => $value ) {
 					$converted[ _wp_to_kebab_case( $property ) ] = $value;
 				}
