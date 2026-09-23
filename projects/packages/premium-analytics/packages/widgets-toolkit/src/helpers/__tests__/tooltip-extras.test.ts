@@ -46,6 +46,16 @@ describe( 'appendTooltipExtras', () => {
 		expect( supplementaryRows ).toBeUndefined();
 	} );
 
+	it( 'keeps an extra whose point for the hovered date has no reading', () => {
+		const gap = { ...CPM, data: [ { date: JULY_1, value: null } ] };
+		const { tooltipData, supplementaryRows } = appendTooltipExtras( hoveredAt( JULY_1 ), [ gap ] );
+
+		expect( tooltipData?.datumByKey?.[ 'Average CPM' ] ).toEqual(
+			expect.objectContaining( { datum: { date: JULY_1, value: null } } )
+		);
+		expect( supplementaryRows ).toEqual( { 'Average CPM': CURRENCY } );
+	} );
+
 	it( 'leaves a key the chart already reports alone, swatch included', () => {
 		const drawn = { label: 'Views', data: [ { date: JULY_1, value: 999 } ] };
 
