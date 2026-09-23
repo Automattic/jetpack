@@ -133,6 +133,11 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_backup' ) );
 		}
 
+		// At mu-plugin scope, because the Jetpack plugin resolves this filter at the earliest plugins_loaded priority.
+		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
+			add_filter( 'jetpack_backup_dashboard_enabled', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup::class, 'filter_jetpack_backup_dashboard' ) );
+		}
+
 		// These features run only on atomic sites.
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );

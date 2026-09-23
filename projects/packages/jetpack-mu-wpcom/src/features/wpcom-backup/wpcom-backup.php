@@ -129,6 +129,18 @@ class WPCOM_Backup {
 	}
 
 	/**
+	 * Keep the Jetpack plugin's Backup dashboard off a WoA site whose plan lacks backups.
+	 *
+	 * Otherwise it claims the slug first and this page's upgrade prompt steps aside.
+	 *
+	 * @param bool $enabled Whether the Jetpack plugin offers its Backup dashboard.
+	 * @return bool
+	 */
+	public static function filter_jetpack_backup_dashboard( $enabled ) {
+		return $enabled && self::has_backup_feature();
+	}
+
+	/**
 	 * Whether the current request targets the Backup admin page.
 	 *
 	 * @return bool

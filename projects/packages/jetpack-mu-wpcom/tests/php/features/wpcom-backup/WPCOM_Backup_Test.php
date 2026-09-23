@@ -50,6 +50,13 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Without the plan, the Jetpack plugin's dashboard is held back so this page gets the slug.
+	 */
+	public function test_jetpack_dashboard_is_held_back_without_the_plan() {
+		$this->assertFalse( WPCOM_Backup::filter_jetpack_backup_dashboard( true ) );
+	}
+
+	/**
 	 * The upsell hands the reader a cart, not a plan comparison.
 	 */
 	public function test_upgrade_url_goes_straight_to_checkout() {
