@@ -243,6 +243,24 @@ describe( 'useConnectionErrorsNotice', () => {
 		expect( getNoticeText() ).toContain( 'Connection failed' );
 	} );
 
+	it( 'takes the notice level from the severity the package rated', async () => {
+		setHookResult( {
+			...noError,
+			hasConnectionError: true,
+			severity: 'warning',
+			connectionErrorMessage: 'Connection failed',
+			connectionError: { error_message: 'Connection failed' },
+		} );
+
+		renderWithNoticeContext();
+
+		await waitFor( () => {
+			expect( mockSetNotice ).toHaveBeenCalled();
+		} );
+
+		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].options.level ).toBe( 'warning' );
+	} );
+
 	it( 'shows every displayable error, not just the effective one', async () => {
 		setHookResult( {
 			...noError,
