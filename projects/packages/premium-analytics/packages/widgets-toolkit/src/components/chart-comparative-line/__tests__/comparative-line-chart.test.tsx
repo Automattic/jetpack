@@ -40,6 +40,7 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 				.map( series => ( { label: series.label, color: '#3858E9' } ) ),
 		LineShape: () => null,
 		RectShape: () => null,
+		scaleLinear: jest.requireActual( '@visx/scale' ).scaleLinear,
 		useGlobalChartsContext: () => ( { getHiddenSeries: () => new Set( mockHiddenSeries ) } ),
 		// The wrapper measures this element, so the stand-in must take the ref.
 		Stack: forwardRef(
@@ -154,7 +155,13 @@ type RecordedLineProps = {
 	margin?: Record< string, number >;
 	options?: {
 		yScale?: { domain?: [ number, number ]; zero?: boolean };
-		axis: { y: { display?: boolean } };
+		axis: {
+			y: {
+				display?: boolean;
+				tickValues?: number[];
+				tickFormat: ( value: number ) => string;
+			};
+		};
 	};
 	renderTooltip: ( params: unknown ) => {
 		props: { getLabel: GetTooltipLabel; layout?: string };
@@ -296,6 +303,31 @@ describe( 'ComparativeLineChart', () => {
 			);
 
 			expect( recordedProps().options.yScale ).toEqual( { domain: [ 136, 144 ] } );
+		} );
+
+		it( 'labels a small change on a large count in full so no two ticks repeat', () => {
+			const large: ComparativeLineChartSeries[] = [
+				{
+					label: 'Subscribers',
+					group: 'subscribers',
+					data: [
+						{ date: JULY_1, value: 4200 },
+						{ date: JULY_2, value: 4210 },
+					],
+				},
+			];
+			render(
+				<ComparativeLineChart series={ large } dataFormat={ DATA_FORMAT } baseline="padded" />
+			);
+
+			const { tickValues, tickFormat } = recordedProps().options.axis.y;
+			expect( tickValues.map( tickFormat ) ).toEqual( [
+				'4,190',
+				'4,195',
+				'4,200',
+				'4,205',
+				'4,210',
+			] );
 		} );
 
 		it( 'keeps a percentage metric on 0 to 100% whatever the baseline', () => {

@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { scaleLinear } from '@jetpack-premium-analytics/externals';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+/**
  * Internal dependencies
  */
 import { getEmptyChartDomain, type SeriesWithData } from './chart-empty-state';
@@ -13,8 +18,11 @@ export type ChartBaseline = 'zero' | 'padded';
 /** How much of the minimum may sit below the data as padding. */
 const PADDING_RATIO = 0.2;
 
-/** LineChart draws `numTicks: 4`; a shorter span lands them on fractions, which round to duplicate labels. */
-const MIN_SPAN = 4;
+/** LineChart's `numTicks`; the axis draws about this many steps. */
+const Y_TICK_COUNT = 4;
+
+/** A shorter span lands the ticks on fractions, which round to duplicate labels. */
+const MIN_SPAN = Y_TICK_COUNT;
 
 /**
  * A y-axis domain pinned by the chart rather than derived from the data.
@@ -82,4 +90,34 @@ export function getPaddedYAxis( series: SeriesWithData[] ): FixedYAxis | null {
 
 	// At zero the padded axis is the zero baseline, which the chart draws itself.
 	return start > 0 ? { domain: [ start, max ] } : null;
+}
+
+/**
+ * The ticks LineChart draws across a pinned domain, which it nices before ticking.
+ *
+ * @param domain - The pinned y-axis domain.
+ * @return The tick values.
+ */
+export function getPinnedYTicks( domain: [ number, number ] ): number[] {
+	return scaleLinear( { domain, nice: true } ).ticks( Y_TICK_COUNT );
+}
+
+/**
+ * A y-axis label format: compact, unless compact labels would repeat across `ticks`,
+ * as 4,190 and 4,195 both read 4.2K.
+ *
+ * @param metricType - The data format type (currency, number, percentage).
+ * @param ticks      - The ticks the axis draws, when the chart pins them.
+ * @return The tick formatter.
+ */
+export function getYTickFormat(
+	metricType: Parameters< typeof formatMetricValue >[ 1 ],
+	ticks?: number[]
+) {
+	const compact = ( value: number ) =>
+		formatMetricValue( value, metricType, { useMultipliers: true } );
+	if ( ! ticks || new Set( ticks.map( compact ) ).size === ticks.length ) {
+		return compact;
+	}
+	return ( value: number ) => formatMetricValue( value, metricType );
 }

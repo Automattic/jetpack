@@ -1,4 +1,4 @@
-import { getPaddedYAxis } from '../fixed-y-axis';
+import { getPaddedYAxis, getPinnedYTicks, getYTickFormat } from '../fixed-y-axis';
 
 const series = ( ...values: Array< number | null > ) => [
 	{ data: values.map( ( value, index ) => ( { date: new Date( 2026, 8, 12 + index ), value } ) ) },
@@ -40,5 +40,37 @@ describe( 'getPaddedYAxis', () => {
 
 	test( 'leaves an empty series to the chart', () => {
 		expect( getPaddedYAxis( series( null, null ) ) ).toBeNull();
+	} );
+} );
+
+describe( 'getPinnedYTicks', () => {
+	test( 'ticks a pinned domain the way the chart does', () => {
+		expect( getPinnedYTicks( [ 4190, 4210 ] ) ).toEqual( [ 4190, 4195, 4200, 4205, 4210 ] );
+	} );
+
+	test( 'nices the domain before ticking it', () => {
+		expect( getPinnedYTicks( [ 3361, 4190 ] ) ).toEqual( [ 3400, 3600, 3800, 4000, 4200 ] );
+	} );
+} );
+
+describe( 'getYTickFormat', () => {
+	test( 'labels in compact form while the labels stay distinct', () => {
+		const format = getYTickFormat( 'number', [ 3600, 3800, 4000, 4200, 4400 ] );
+		expect( [ 3600, 4400 ].map( format ) ).toEqual( [ '3.6K', '4.4K' ] );
+	} );
+
+	test( 'labels in full when compact labels would repeat', () => {
+		const ticks = [ 4190, 4195, 4200, 4205, 4210 ];
+		expect( ticks.map( getYTickFormat( 'number', ticks ) ) ).toEqual( [
+			'4,190',
+			'4,195',
+			'4,200',
+			'4,205',
+			'4,210',
+		] );
+	} );
+
+	test( 'labels in compact form when the chart picks its own ticks', () => {
+		expect( getYTickFormat( 'number' )( 4190 ) ).toBe( '4.2K' );
 	} );
 } );

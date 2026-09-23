@@ -8,11 +8,7 @@ import {
 	useGlobalChartsContext,
 	type TickResolution,
 } from '@jetpack-premium-analytics/externals';
-import {
-	formatDate,
-	formatMetricValue,
-	type DateFormatName,
-} from '@jetpack-premium-analytics/formatters';
+import { formatDate, type DateFormatName } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
 import clsx from 'clsx';
 import { useCallback, useId, useMemo, useState } from 'react';
@@ -27,6 +23,8 @@ import {
 	isEmptyChartData,
 	getFixedYAxis,
 	getPaddedYAxis,
+	getPinnedYTicks,
+	getYTickFormat,
 	dateFormatForResolution,
 	resolveSeriesNames,
 	resolveTooltipNames,
@@ -257,13 +255,6 @@ export function ComparativeLineChart( {
 		[ dataFormat, resolvedStyles, seriesKeys, getTooltipLabel, tooltipExtras ]
 	);
 
-	// Multipliers keep the tick labels short.
-	const yTickFormat = useMemo(
-		() => ( value: number ) =>
-			formatMetricValue( value, dataFormat.type, { useMultipliers: true } ),
-		[ dataFormat ]
-	);
-
 	const alignedSeries = useMemo( () => alignSeriesDates( series ), [ series ] );
 
 	const styledSeries = useMemo( () => {
@@ -295,6 +286,16 @@ export function ComparativeLineChart( {
 		return getPaddedYAxis( styledSeries.filter( s => ! hiddenSeries.has( s.label ) ) );
 	}, [ dataFormat.type, isEmptyData, baseline, styledSeries, getHiddenSeries, resolvedChartId ] );
 
+	// Pinned ticks let the label format see exactly what the axis draws.
+	const yTicks = useMemo(
+		() => ( pinnedYAxis ? getPinnedYTicks( pinnedYAxis.domain ) : undefined ),
+		[ pinnedYAxis ]
+	);
+	const yTickFormat = useMemo(
+		() => getYTickFormat( dataFormat.type, yTicks ),
+		[ dataFormat.type, yTicks ]
+	);
+
 	const xTickFormat = useCallback(
 		( date: number ) => formatDate( date, xTickFormatType ),
 		[ xTickFormatType ]
@@ -311,6 +312,7 @@ export function ComparativeLineChart( {
 				},
 				y: {
 					tickFormat: yTickFormat,
+					...( yTicks ? { tickValues: yTicks } : {} ),
 					// Hide the y-axis on short tiles; its labels would otherwise overlap.
 					...( isCompact ? { display: false } : {} ),
 				},
@@ -323,7 +325,15 @@ export function ComparativeLineChart( {
 
 		// `zero` rather than a domain, so hiding a series still rescales the axis.
 		return { ...baseOptions, yScale: { zero: true } };
-	}, [ xTickFormat, xTickFormatType, tickResolution, yTickFormat, pinnedYAxis, isCompact ] );
+	}, [
+		xTickFormat,
+		xTickFormatType,
+		tickResolution,
+		yTickFormat,
+		yTicks,
+		pinnedYAxis,
+		isCompact,
+	] );
 
 	return (
 		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>

@@ -14,6 +14,7 @@
 	],
 	"dependencies": {
 		"@automattic/charts": "workspace:*",
+		"@visx/scale": "4.0.0",
 		"@wordpress/dataviews": "19.0.1-next.v.202609031004.0",
 		"@wordpress/ui": "0.22.0",
 		"react": "18.3.1"
