@@ -363,6 +363,25 @@ add_action(
 );
 
 /**
+ * Drop wp-admin notices on the Write page, where the fixed editor header
+ * covers them and leaves only a clipped strip visible.
+ *
+ * Runs on in_admin_header, the last hook before admin-header.php prints notices,
+ * so notices registered late are caught too.
+ */
+function wpcom_write_remove_admin_notices() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only page routing.
+	if ( ! isset( $_GET['page'] ) || 'write' !== $_GET['page'] ) {
+		return;
+	}
+	remove_all_actions( 'admin_notices' );
+	remove_all_actions( 'all_admin_notices' );
+	remove_all_actions( 'network_admin_notices' );
+	remove_all_actions( 'user_admin_notices' );
+}
+add_action( 'in_admin_header', 'wpcom_write_remove_admin_notices', PHP_INT_MAX );
+
+/**
  * Convert wp:embed video blocks to placeholder tokens for the Write editor.
  *
  * Video embed blocks are replaced with inert HTML comment tokens that survive

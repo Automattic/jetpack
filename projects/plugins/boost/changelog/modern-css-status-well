@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Settings: Show upgrade notices without prices and add an explicit Generate step for manual Critical CSS in the modern dashboard.

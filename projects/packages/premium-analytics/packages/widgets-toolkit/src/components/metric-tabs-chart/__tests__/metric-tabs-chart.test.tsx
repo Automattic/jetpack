@@ -40,6 +40,7 @@ type ChartProps = {
 	chartId?: string;
 	defaultHiddenSeries?: readonly string[];
 	legendInteractive?: boolean;
+	baseline?: 'zero' | 'padded';
 	onPointerDown?: ( params: PointerParams ) => void;
 	onPointerUp?: ( params: PointerParams ) => void;
 	onDatumActivate?: ( params: { datum: unknown } ) => void;
@@ -167,6 +168,27 @@ describe( 'MetricTabsChart', () => {
 
 		expect( screen.getByTestId( 'bar-chart' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'line-chart' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'hands the baseline to the line chart only', () => {
+		render(
+			<MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } baseline="padded" />
+		);
+		expect( mockLineSpy ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { baseline: 'padded' } )
+		);
+
+		render(
+			<MetricTabsChart
+				metrics={ [ METRIC ] }
+				dataFormat={ DATA_FORMAT }
+				chartType="bar"
+				baseline="padded"
+			/>
+		);
+		expect( mockBarSpy ).toHaveBeenLastCalledWith(
+			expect.not.objectContaining( { baseline: expect.anything() } )
+		);
 	} );
 
 	it( 'keeps the previous period as a same-group comparison series in both chart types', () => {

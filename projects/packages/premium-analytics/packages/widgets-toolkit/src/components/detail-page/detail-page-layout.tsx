@@ -2,13 +2,18 @@
  * External dependencies
  */
 import { SectionHeader } from '@jetpack-premium-analytics/ui';
+import { useReducedMotion } from '@wordpress/compose';
 import clsx from 'clsx';
+import { useEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
 import styles from './detail-page-layout.module.scss';
 import type { SectionHeaderProps } from '@jetpack-premium-analytics/ui';
 import type { ReactNode } from 'react';
+
+/** Glyph size for the header's visual slot when a page has no image to show there. */
+export const DETAIL_HEADER_GLYPH_SIZE = 28;
 
 /** What a detail page hands the layout's header, owned by the header's own props. */
 export type DetailPageHeaderSlots = Pick<
@@ -23,6 +28,12 @@ export interface DetailPageLayoutProps {
 	tabs?: ReactNode;
 	/** Date controls for the header row. Omit to leave the header's control cell out. */
 	controls?: ReactNode;
+	/**
+	 * Each new defined value brings the scroll area back to its top and moves
+	 * focus to the header: for a card below the fold that re-scoped the cards
+	 * above it, leaving the reader looking at nothing that changed.
+	 */
+	returnToTopKey?: number;
 	/** The stacked page sections (the widget grid, a notice, …). */
 	children: ReactNode;
 }
@@ -34,11 +45,32 @@ export interface DetailPageLayoutProps {
  * @param {DetailPageLayoutProps} props - The component props.
  * @return The detail page scaffold.
  */
-export function DetailPageLayout( { header, tabs, controls, children }: DetailPageLayoutProps ) {
+export function DetailPageLayout( {
+	header,
+	tabs,
+	controls,
+	returnToTopKey,
+	children,
+}: DetailPageLayoutProps ) {
+	const scrollArea = useRef< HTMLDivElement >( null );
+	const title = useRef< HTMLHeadingElement >( null );
+	const reducedMotion = useReducedMotion();
+
+	useEffect( () => {
+		if ( returnToTopKey === undefined ) {
+			return;
+		}
+		// Focus first, without scrolling: the focus jump would cut the smooth scroll short.
+		title.current?.focus( { preventScroll: true } );
+		scrollArea.current?.scrollTo?.( { top: 0, behavior: reducedMotion ? 'auto' : 'smooth' } );
+		// Only a new key returns the reader to the top; a motion preference flip alone must not.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ returnToTopKey ] );
+
 	return (
-		<div className={ styles.root }>
+		<div ref={ scrollArea } className={ styles.root }>
 			{ tabs }
-			<SectionHeader pinned { ...header }>
+			<SectionHeader pinned titleRef={ title } { ...header }>
 				{ controls }
 			</SectionHeader>
 			{ children }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "322ae0393abf28902a8b7658c32ea20b",
+    "content-hash": "8fdd29caa0b70a6ffa13f148b3b55010",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -176,7 +176,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "90d15a9f439112c170b983f1506862ac7956b8f7"
+                "reference": "24301bb7959ddcd649dbf3db623840b0d92739c4"
             },
             "require": {
                 "automattic/jetpack-redirect": "@dev",
@@ -202,7 +202,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.11.x-dev"
+                    "dev-trunk": "0.13.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -667,7 +667,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/comments",
-                "reference": "9cec01e1810b43fd6b6a6f34cfd246aa5d1a67ad"
+                "reference": "bcf71524bdb74e26a2f50d6b73d7748cd5c4528b"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -682,7 +682,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-comments/compare/v${old}...v${new}"
@@ -892,7 +892,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "e4db513a37153bd0b72e183083de7f94d89819bc"
+                "reference": "69d51cd46e23ae743b89192cd3777ec0fd68d6ad"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -929,7 +929,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.2.x-dev"
+                    "dev-trunk": "9.6.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1406,7 +1406,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/ip",
-                "reference": "9e6f58f4d18dc38293eaea9bd5764cb4db6b966b"
+                "reference": "13a75ac95fcee43afcb03e1f8f8abeb4af288879"
             },
             "require": {
                 "php": ">=7.4"
@@ -1427,7 +1427,7 @@
                     "link-template": "https://github.com/automattic/jetpack-ip/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.6.x-dev"
+                    "dev-trunk": "0.7.x-dev"
                 },
                 "textdomain": "jetpack-ip",
                 "version-constants": {
@@ -2099,9 +2099,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "db9e1e326079ce7b0d1c71af2defd236a7a458ff"
+                "reference": "7d604fdc54f6ed68f1bd2f771de001ea9a188c44"
             },
             "require": {
+                "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
@@ -2130,7 +2131,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-premium-analytics/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.6.x-dev"
+                    "dev-trunk": "0.8.x-dev"
                 }
             },
             "autoload": {
@@ -2354,7 +2355,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "614ac3d20cba6a1feceb6920f16e32218c85ead9"
+                "reference": "8e320b60bfc458eb45545823989c3226062b8190"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2383,7 +2384,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.21.x-dev"
+                    "dev-trunk": "0.22.x-dev"
                 },
                 "textdomain": "jetpack-stats-pkg"
             },
@@ -2422,9 +2423,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "073fed26e8ffe994c55d59a68ea3784386dfa085"
+                "reference": "725e85e7164b74633eeae11f9ce08f2baf763a61"
             },
             "require": {
+                "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-jitm": "@dev",
@@ -2447,7 +2449,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.35.x-dev"
+                    "dev-trunk": "0.38.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {
@@ -2829,16 +2831,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.11.8",
+            "version": "v2.11.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "0c058d67c384d15752691402dd8031824387b6da"
+                "reference": "01dacf401792f455da725fa07657f2a031d06628"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/0c058d67c384d15752691402dd8031824387b6da",
-                "reference": "0c058d67c384d15752691402dd8031824387b6da",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/01dacf401792f455da725fa07657f2a031d06628",
+                "reference": "01dacf401792f455da725fa07657f2a031d06628",
                 "shasum": ""
             },
             "require-dev": {
@@ -2880,7 +2882,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "time": "2026-09-03T14:06:44+00:00"
+            "time": "2026-09-16T13:59:30+00:00"
         },
         {
             "name": "automattic/woocommerce-analytics",

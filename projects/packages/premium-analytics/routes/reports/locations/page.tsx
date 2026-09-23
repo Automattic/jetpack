@@ -124,7 +124,7 @@ export default function LocationsReportPage(): JSX.Element {
 							label: __( 'Country', 'jetpack-premium-analytics-pkg' ),
 							getValue: ( row: LocationRow ) => row.countryFull,
 						},
-				  ]
+					]
 				: [] ),
 			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
 		],

@@ -208,7 +208,7 @@ function gatherValidationIssues( blocks ) {
 						__( issue.args[ 0 ], 'jetpack' ),
 						...issue.args.slice( 1 )
 					)
-			  )
+				)
 			: [];
 		return {
 			name: block.name || 'unknown',

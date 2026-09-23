@@ -1,3 +1,4 @@
+import { useModuleSurface } from '$features/module/surface';
 import { isCriticalCssEnabled } from '$features/critical-css/lib/is-critical-css-enabled';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import { useRegenerationReason } from '$features/critical-css/lib/stores/suggest-regenerate';
@@ -126,38 +127,50 @@ const CornerstonePagesContent = () => {
 	);
 };
 
-const Meta = () => {
+export const CornerstonePagesDescription = () => {
+	const legacyDescription = __(
+		'List the most important pages of your site. These pages will receive specially tailored optimizations, including targeted critical CSS. The Page Speed scores are based on your homepage, which is automatically included. <b><link>Learn More</link></b>',
+		'jetpack-boost'
+	);
+	const modernDescription = __(
+		'Add your most important pages for targeted optimizations, including Critical CSS. Your homepage is included automatically for PageSpeed scoring. <link>Learn more</link>',
+		'jetpack-boost'
+	);
+	const isModern = useModuleSurface() === 'row';
 	const cornerstonePagesSupportLink = getRedirectUrl( 'jetpack-boost-cornerstone-pages' );
+
+	return createInterpolateElement( isModern ? modernDescription : legacyDescription, {
+		link: (
+			<Link
+				openInNewTab
+				href={ cornerstonePagesSupportLink }
+				onClick={ () => {
+					recordBoostEvent( 'clicked_cornerstone_pages_learn_more', {} );
+				} }
+			/>
+		),
+		b: <b />,
+	} );
+};
+
+export const CornerstonePagesEditor = () => {
 	const cornerstonePagesProperties = useCornerstonePagesProperties();
 
 	return (
-		<div className={ styles.wrapper } data-testid="cornerstone-pages-meta">
-			<p>
-				{ createInterpolateElement(
-					__(
-						'List the most important pages of your site. These pages will receive specially tailored optimizations, including targeted critical CSS. The Page Speed scores are based on your homepage, which is automatically included. <b><link>Learn More</link></b>',
-						'jetpack-boost'
-					),
-					{
-						link: (
-							<Link
-								openInNewTab
-								href={ cornerstonePagesSupportLink }
-								onClick={ () => {
-									recordBoostEvent( 'clicked_cornerstone_pages_learn_more', {} );
-								} }
-							/>
-						),
-						b: <b />,
-					}
-				) }
-			</p>
-			<div className={ styles.body }>
-				{ cornerstonePagesProperties ? <CornerstonePagesContent /> : <MetaError /> }
-			</div>
+		<div className={ styles.body }>
+			{ cornerstonePagesProperties ? <CornerstonePagesContent /> : <MetaError /> }
 		</div>
 	);
 };
+
+const Meta = () => (
+	<div className={ styles.wrapper } data-testid="cornerstone-pages-meta">
+		<p>
+			<CornerstonePagesDescription />
+		</p>
+		<CornerstonePagesEditor />
+	</div>
+);
 
 type ListProps = {
 	items: string;
@@ -169,6 +182,7 @@ type ListProps = {
 };
 
 export const CornerstonePagesUpgradeCTA = () => {
+	const isModern = useModuleSurface() === 'row';
 	const cornerstonePagesProperties = useCornerstonePagesProperties();
 	const premiumFeatures = usePremiumFeatures();
 	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
@@ -181,11 +195,20 @@ export const CornerstonePagesUpgradeCTA = () => {
 		<div className={ styles.wrapper }>
 			<InterstitialModalCTA
 				identifier="cornerstone-10-pages"
-				description={ sprintf(
-					/* translators: %d is the number of cornerstone pages. */
-					__( 'Premium users can add up to %d cornerstone pages.', 'jetpack-boost' ),
-					cornerstonePagesProperties.max_pages_premium
-				) }
+				showLicenseKeyLink
+				description={
+					isModern
+						? sprintf(
+								/* translators: %d is the number of cornerstone pages. */
+								__( 'Add up to %d cornerstone pages.', 'jetpack-boost' ),
+								cornerstonePagesProperties.max_pages_premium
+							)
+						: sprintf(
+								/* translators: %d is the number of cornerstone pages. */
+								__( 'Premium users can add up to %d cornerstone pages.', 'jetpack-boost' ),
+								cornerstonePagesProperties.max_pages_premium
+							)
+				}
 			/>
 		</div>
 	);
@@ -256,7 +279,7 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 					__( 'Include %1$d of %2$d default pages (plan limit).', 'jetpack-boost' ),
 					pagesToLoad,
 					missingDefaults.length
-			  )
+				)
 			: sprintf(
 					/* translators: %d is the number of pages that will be included */
 					_n(
@@ -266,7 +289,7 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 						'jetpack-boost'
 					),
 					pagesToLoad
-			  );
+				);
 	};
 
 	const loadDefaultValue = () => {

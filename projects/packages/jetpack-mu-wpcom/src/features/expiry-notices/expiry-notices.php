@@ -152,6 +152,10 @@ function wpcom_expiry_notices_eligible_state( bool $flush = false ): ?array {
 		return $memo;
 	}
 
+	if ( wpcom_expiry_notices_store_is_sandboxed() ) {
+		return $memo;
+	}
+
 	$state = Expiry_Data::get_expiry_state();
 	if ( null === $state || Expiry_Data::STATE_ACTIVE === $state['state'] ) {
 		return $memo;
@@ -159,6 +163,21 @@ function wpcom_expiry_notices_eligible_state( bool $flush = false ): ?array {
 
 	$memo = $state;
 	return $memo;
+}
+
+/**
+ * Whether this Simple request reads the Store Sandbox instead of the store.
+ *
+ * The sandbox's purchases are test rows nothing renews or expires, so what
+ * they say about expiry is noise; the notices stand down for them. Atomic reads
+ * synced purchases and never sees the sandbox, so this is false there.
+ */
+function wpcom_expiry_notices_store_is_sandboxed(): bool {
+	if ( ! Constants::is_true( 'IS_WPCOM' ) || ! class_exists( 'Store_Sandbox' ) ) {
+		return false;
+	}
+	// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only, guarded by class_exists().
+	return (bool) \Store_Sandbox::get_instance()->is_sandboxed();
 }
 
 /**

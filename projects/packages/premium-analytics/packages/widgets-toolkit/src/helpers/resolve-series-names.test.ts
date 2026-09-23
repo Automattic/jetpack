@@ -53,34 +53,9 @@ describe( 'resolveSeriesNames', () => {
 		} );
 	} );
 
-	it( 'is not paired when a single metric carries a previous period', () => {
-		const { isPaired } = resolveSeriesNames( [
-			series( 'Views', 'views' ),
-			series( 'Views · previous period', 'views', { type: 'comparison' } ),
-		] );
+	it( 'names a group-less metric after itself, as the performance chart draws them', () => {
+		const { seriesNames } = resolveSeriesNames( [ series( 'Views' ), series( 'Likes' ) ] );
 
-		expect( isPaired ).toBe( false );
-	} );
-
-	it( 'is paired as soon as a second metric arrives, visible or not', () => {
-		// The counterpart ships seeded hidden, so this counts what the chart was
-		// handed rather than what it currently draws.
-		const { isPaired } = resolveSeriesNames( [
-			series( 'Views', 'views' ),
-			series( 'Visitors', 'visitors' ),
-		] );
-
-		expect( isPaired ).toBe( true );
-	} );
-
-	it( 'counts group-less metrics too, as the performance chart draws them', () => {
-		const { isPaired, seriesNames } = resolveSeriesNames( [
-			series( 'Views' ),
-			series( 'Visitors' ),
-			series( 'Likes' ),
-		] );
-
-		expect( isPaired ).toBe( true );
 		expect( seriesNames.get( 'Likes' ) ).toBe( 'Likes' );
 	} );
 
@@ -88,7 +63,6 @@ describe( 'resolveSeriesNames', () => {
 		expect( resolveSeriesNames( [] ) ).toEqual( {
 			primaryByGroup: new Map(),
 			seriesNames: new Map(),
-			isPaired: false,
 		} );
 	} );
 } );

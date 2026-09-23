@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Return up to 100 payment links per request instead of 10.

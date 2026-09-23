@@ -8,6 +8,7 @@ import {
 	medalCountsData,
 	largeValuesData,
 	trafficData,
+	steadyTrafficData,
 	themeArgTypes,
 	type SeriesLegendStoryControls,
 } from '../../../stories';
@@ -131,6 +132,70 @@ export const SingleSeries: Story = {
 		docs: {
 			description: {
 				story: 'Bar chart with a single data series.',
+			},
+		},
+	},
+};
+
+export const PerPointColors: Story = {
+	args: {
+		...SingleSeries.args,
+		options: { yScale: { zero: true } },
+		data: [
+			{
+				label: 'Daily score',
+				data: [
+					{ label: 'Monday', value: 92, color: 'var(--a8c-charts-color-trend-up)' },
+					{ label: 'Tuesday', value: 35, color: 'var(--a8c-charts-color-trend-down)' },
+					{ label: 'Wednesday', value: 88, color: 'var(--a8c-charts-color-trend-up)' },
+					{ label: 'Thursday', value: 65 },
+				],
+			},
+		],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Point colors override the series fill. Thursday has no override and keeps the series color. Enable patterns to check that they take precedence.',
+			},
+		},
+	},
+};
+
+export const BandHighlight: Story = {
+	args: {
+		...SingleSeries.args,
+		withBandHighlight: true,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Hover a bar or focus the chart and use arrow keys to highlight its band across the plot. Escape clears the keyboard selection and its tooltip; a hover highlight remains.',
+			},
+		},
+	},
+};
+
+export const BesideTooltip: Story = {
+	args: {
+		...BandHighlight.args,
+		tooltipPlacement: 'beside',
+		tooltipAnchorTop: 40,
+	},
+	argTypes: {
+		tooltipPlacement: {
+			control: 'radio',
+			options: [ 'auto', 'beside' ],
+		},
+		tooltipAnchorTop: { control: 'number' },
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Hover the first and last bars to check horizontal flipping. The tooltip stays at the SVG top anchor, subject to clipping bounds. Change tooltipAnchorTop to move that anchor, including above the SVG with negative values.',
 			},
 		},
 	},
@@ -375,10 +440,7 @@ export const ErrorStates: Story = {
 						data={ [
 							{
 								label: 'Invalid Series',
-								data: [
-									{ date: new Date( 'invalid' ), value: 10, label: 'Invalid Date' },
-									{ date: new Date( '2024-01-02' ), value: null, label: 'Null Value' },
-								],
+								data: [ { date: new Date( 'invalid' ), value: 10 } ],
 								options: {},
 							},
 						] }
@@ -580,6 +642,94 @@ export const ZeroValueComparison: Story = {
 			description: {
 				story:
 					'Comparison showing the difference between disabled and enabled zero value display modes. The feature preserves data integrity by keeping the original value for tooltips while providing visual feedback through minimum bar heights. Zero-value bars remain visible even in small chart heights.',
+			},
+		},
+	},
+};
+
+const siteLaunchedInApril: SeriesData[] = [
+	{
+		label: 'Subscribers',
+		data: [
+			{ date: new Date( 2026, 0, 1 ), value: null },
+			{ date: new Date( 2026, 1, 1 ), value: null },
+			{ date: new Date( 2026, 2, 1 ), value: null },
+			{ date: new Date( 2026, 3, 1 ), value: 0 },
+			{ date: new Date( 2026, 4, 1 ), value: 12 },
+			{ date: new Date( 2026, 5, 1 ), value: 31 },
+			{ date: new Date( 2026, 6, 1 ), value: 58 },
+		],
+	},
+];
+
+export const BucketsWithNoData: Story = {
+	args: {
+		...Default.args,
+		data: siteLaunchedInApril,
+		showZeroValues: true,
+	},
+	argTypes: {
+		// The series-count control swaps in the medal data, which has no gaps to show.
+		seriesCount: { table: { disable: true } },
+	},
+};
+
+BucketsWithNoData.parameters = {
+	docs: {
+		description: {
+			story:
+				'A null value is a bucket with no reading. It keeps its place on the axis so the chart still spans the selected range, draws no bar, and its tooltip reads "No data" rather than zero. April is a real zero: with `showZeroValues` on it keeps a short stub, so a month with none reads differently from a month with no record.',
+		},
+	},
+};
+
+export const SteadyValues: Story = {
+	args: {
+		...Default.args,
+		data: steadyTrafficData,
+	},
+	argTypes: {
+		seriesCount: { table: { disable: true } },
+	},
+};
+
+SteadyValues.parameters = {
+	docs: {
+		description: {
+			story:
+				'A week of 921 to 989 views a day, a 7% swing. The value axis starts at zero, so the bars read as steady; fitted to the data they would swing between empty and full. Pass `options.yScale.zero: false` to fit the axis instead.',
+		},
+	},
+};
+
+const wholeNumberRangeData: SeriesData[] = [
+	{
+		label: 'Errors',
+		data: [
+			{ date: new Date( 2026, 0, 1 ), value: 0 },
+			{ date: new Date( 2026, 1, 1 ), value: 1 },
+			{ date: new Date( 2026, 2, 1 ), value: 1 },
+			{ date: new Date( 2026, 3, 1 ), value: 0 },
+			{ date: new Date( 2026, 4, 1 ), value: 1 },
+			{ date: new Date( 2026, 5, 1 ), value: 1 },
+		],
+	},
+];
+
+export const SmallWholeNumberRange: Story = {
+	args: {
+		...Default.args,
+		data: wholeNumberRangeData,
+	},
+	argTypes: {
+		// The series-count control swaps in the medal data, which isn't a whole-number range.
+		seriesCount: { table: { disable: true } },
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'When every visible value is a whole number, the value axis places ticks only on whole numbers, instead of repeating a rounded label at fractional steps. Pass `options.axis.y.tickValues` to choose the ticks yourself (`axis.x` on a horizontal chart). A value domain you pin with `options.yScale.domain` (`xScale` on a horizontal chart) keeps every tick, so a percentage axis on `[ 0, 1 ]` still steps by 20%.',
 			},
 		},
 	},

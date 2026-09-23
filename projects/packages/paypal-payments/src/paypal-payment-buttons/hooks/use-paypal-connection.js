@@ -8,6 +8,7 @@ import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-un
 import { useState, useEffect, useCallback, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { API_BASE } from '../utils/api-base';
+import { forgetExistingLinks } from '../utils/existing-links';
 import {
 	ONBOARD_CALLBACK_NAME,
 	ONBOARDING_FRAME_SHELL,
@@ -31,6 +32,10 @@ export const CONNECTION_CHANGED_EVENT = 'jetpack-paypal-payments-connection-chan
  * @param {boolean} connected - The new connection state.
  */
 export function broadcastConnectionChange( connected ) {
+	// A new connection may be another account, with its own links.
+	if ( connected ) {
+		forgetExistingLinks();
+	}
 	window.dispatchEvent( new CustomEvent( CONNECTION_CHANGED_EVENT, { detail: { connected } } ) );
 }
 
@@ -47,6 +52,9 @@ export function usePayPalConnection() {
 	const [ connectionLoading, setConnectionLoading ] = useState( true );
 	// PayPal partner attribution (BN) code, appended to links we hand out.
 	const [ partnerAttributionId, setPartnerAttributionId ] = useState( '' );
+	// The connected account's PayPal email, shown under Log out in the account
+	// menu. PayPal reports it only for merchants we referred.
+	const [ accountEmail, setAccountEmail ] = useState( '' );
 
 	// Set when the merchant asks to reconnect from a block that still holds a
 	// button — that block keeps its attributes, so the wizard has to be opened
@@ -137,6 +145,7 @@ export function usePayPalConnection() {
 				setEnvironment( response.environment );
 				setPartnerReferralsAvailable( !! response.partner_referrals_available );
 				setPartnerAttributionId( response.partner_attribution_id || '' );
+				setAccountEmail( response.account_email || '' );
 				if ( ! response.connected && ! response.partner_referrals_available ) {
 					setWizardStep( 'dashboard' );
 				}
@@ -267,12 +276,13 @@ export function usePayPalConnection() {
 				merchant_id_in_paypal: merchantIdInPayPal || '',
 			},
 		} )
-			.then( () => {
+			.then( response => {
 				setSignupUrl( '' );
 				setOnboardingRequested( false );
 				setIsConnected( true );
 				setShowReconnect( false );
 				setWizardStep( 'success' );
+				setAccountEmail( response?.account_email || '' );
 				broadcastConnectionChange( true );
 			} )
 			.catch( err => {
@@ -544,6 +554,7 @@ export function usePayPalConnection() {
 		setEnvironment,
 		connectionLoading,
 		partnerAttributionId,
+		accountEmail,
 		showReconnect,
 		setShowReconnect,
 		signupUrl,

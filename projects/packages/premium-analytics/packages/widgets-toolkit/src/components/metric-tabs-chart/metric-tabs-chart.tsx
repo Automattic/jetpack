@@ -16,7 +16,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 /**
  * Internal dependencies
  */
-import { formatComparisonSeriesLabel } from '../../helpers';
+import { formatComparisonSeriesLabel, type ChartBaseline } from '../../helpers';
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
@@ -127,6 +127,11 @@ export interface MetricTabsChartProps {
 	 * classic WordAds chart lists ads served, CPM and revenue whichever tab is up.
 	 */
 	tooltipMetrics?: 'active' | 'all';
+	/**
+	 * Where a line chart's value axis starts; see `ComparativeLineChart`. Bars
+	 * pick their own baseline; see `ComparativeBarChart`.
+	 */
+	baseline?: ChartBaseline;
 }
 
 /**
@@ -162,7 +167,7 @@ function buildSeries(
 								fromOpacity: 0,
 								toOpacity: 0,
 							},
-					  },
+						},
 		} );
 	}
 
@@ -186,6 +191,7 @@ function MetricChart( {
 	chartId,
 	tickResolution,
 	onDatumClick,
+	baseline,
 }: {
 	metric: MetricTab;
 	counterpart?: MetricTab;
@@ -193,6 +199,7 @@ function MetricChart( {
 	tooltipMetrics: 'active' | 'all';
 	dataFormat: DataFormat;
 	chartType: MetricTabsChartType;
+	baseline?: ChartBaseline;
 	chartId: string;
 	tickResolution?: TickResolution;
 	onDatumClick?: ( date: Date ) => void;
@@ -287,7 +294,7 @@ function MetricChart( {
 				onPointerDown: handlePointerDown,
 				onPointerUp: handlePointerUp,
 				onDatumActivate: handleActivate,
-		  }
+			}
 		: {};
 
 	// Resolved from the chart theme so the lines and the tooltip glyphs match. Bars
@@ -327,6 +334,7 @@ function MetricChart( {
 			tickResolution={ tickResolution }
 			formatTooltipDate={ formatTooltipDate }
 			tooltipExtras={ tooltipExtras }
+			baseline={ baseline }
 			compactWhenShort
 			{ ...drillHandlers }
 		/>
@@ -408,6 +416,7 @@ export function MetricTabsChart( {
 	tickResolution,
 	onDatumClick,
 	tooltipMetrics = 'active',
+	baseline,
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 
@@ -498,6 +507,7 @@ export function MetricTabsChart( {
 						counterpart={ counterpartFor( activeMetric ) }
 						metrics={ metrics }
 						tooltipMetrics={ tooltipMetrics }
+						baseline={ baseline }
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( activeMetric ) }
@@ -569,6 +579,7 @@ export function MetricTabsChart( {
 							counterpart={ counterpartFor( activeMetric ) }
 							metrics={ metrics }
 							tooltipMetrics={ tooltipMetrics }
+							baseline={ baseline }
 							dataFormat={ dataFormat }
 							chartType={ chartType }
 							chartId={ chartIdFor( activeMetric ) }
@@ -616,6 +627,7 @@ export function MetricTabsChart( {
 						counterpart={ counterpartFor( metric ) }
 						metrics={ metrics }
 						tooltipMetrics={ tooltipMetrics }
+						baseline={ baseline }
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( metric ) }

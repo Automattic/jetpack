@@ -64,6 +64,10 @@ export {
 	getConnectionErrorDetails,
 	formatConnectionErrorDetailLine,
 } from './hooks/use-connection-error-notice/error-details';
+export {
+	CONNECTION_ERROR_NOTICE_EVENTS,
+	trackConnectionErrorNoticeEvent,
+} from './hooks/use-connection-error-notice/tracking';
 
 /**
  * Public type contract for connection-error consumers. Forwarded via `export *`

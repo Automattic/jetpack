@@ -33,18 +33,13 @@ export function useChartTheme(): ChartTheme {
 					rowGap: 'var( --wpds-dimension-padding-sm )',
 					columnGap: 'var( --wpds-dimension-padding-sm )',
 				},
-				shapeStyles: [
-					{
-						transform: 'translate(0, 1px)',
-					},
-					{
-						transform: 'translate(0, 1px)',
-						strokeDasharray: '2, 2, 3, 2, 3, 2, 2',
-					},
-				],
 			},
 			leaderboardChart: {
 				labelSpacing: 'xs',
+			},
+			// The chart's 24px default does not fit twelve month blocks in a full-width card.
+			heatmapChart: {
+				groupGap: 16,
 			},
 			lineChart: {
 				lineStyles: {
@@ -57,15 +52,10 @@ export function useChartTheme(): ChartTheme {
 					},
 				},
 			},
+			// Comparison lines are styled by `lineChart.lineStyles.comparison`, never by index.
 			seriesLineStyles: [
 				{
 					strokeWidth: 2,
-				},
-				{
-					strokeDasharray: '4 4',
-					strokeWidth: 1.5,
-					strokeLinecap: 'square' as const,
-					strokeDashoffset: 2,
 				},
 			],
 		};

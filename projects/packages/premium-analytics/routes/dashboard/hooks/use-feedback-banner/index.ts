@@ -1,6 +1,1 @@
-export {
-	resetFeedbackBannerForTesting,
-	useFeedbackBanner,
-	type FeedbackBanner,
-	type FeedbackBannerOptions,
-} from './use-feedback-banner';
+export { useFeedbackBanner } from './use-feedback-banner';

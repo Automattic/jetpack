@@ -8,4 +8,10 @@
 
 	flex-direction: column;
 	gap: 24px;
+
+	// Isolate flex items so their controls stay below page overlays.
+	// Notices are left out so they still overlay the page.
+	> :not(:global(.stackable-snackbars)) {
+		z-index: 0;
+	}
 }

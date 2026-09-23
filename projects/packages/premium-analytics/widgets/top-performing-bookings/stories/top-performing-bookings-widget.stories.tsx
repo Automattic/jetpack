@@ -157,8 +157,7 @@ type TopPerformingBookingsStoryProps = TopPerformingBookingsWidgetProps &
 	TopPerformingBookingsStoryControls;
 
 interface TopPerformingBookingsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		TopPerformingBookingsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, TopPerformingBookingsStoryControls {}
 
 function getTopPerformingBookingsAttributes(
 	withComparison = false,

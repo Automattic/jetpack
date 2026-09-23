@@ -61,7 +61,7 @@ function makeAuthor( {
 					page: null,
 					actions: [],
 					children: null,
-			  } ) )
+				} ) )
 			: null,
 	};
 }
@@ -281,7 +281,7 @@ describe( 'buildTopAuthorsData', () => {
 		} );
 	} );
 
-	it( 'aligns author posts across comparison periods and includes dropped posts', () => {
+	it( 'aligns author posts across comparison periods and leaves out comparison-only posts', () => {
 		const result = buildData(
 			makeReport( [
 				{
@@ -327,17 +327,6 @@ describe( 'buildTopAuthorsData', () => {
 				currentShare: 33.33333333333333,
 				previousShare: undefined,
 				delta: undefined,
-			},
-			{
-				id: '3',
-				postId: 3,
-				title: 'Dropped post',
-				link: null,
-				currentValue: 0,
-				previousValue: 10,
-				currentShare: 0,
-				previousShare: 33.33333333333333,
-				delta: -100,
 			},
 		] );
 	} );

@@ -30,8 +30,7 @@ interface UtmInsightsStoryControls {
 }
 
 interface UtmInsightsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		UtmInsightsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, UtmInsightsStoryControls {}
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/UtmInsights',

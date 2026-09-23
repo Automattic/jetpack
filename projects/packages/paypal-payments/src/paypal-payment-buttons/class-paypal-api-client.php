@@ -101,6 +101,11 @@ class PayPal_API_Client {
 	/**
 	 * Allowed PayPal domains for payment link URLs.
 	 *
+	 * Checked by validate_paypal_url() on a link PayPal returns, and by
+	 * PayPal_Payment_Buttons::sanitize_paypal_script_url() on a URL stored in a block
+	 * attribute. The editor keeps its own copy in utils/validation.js, and
+	 * test_paypal_host_allow_lists_are_in_sync() compares the two.
+	 *
 	 * @var array
 	 */
 	const ALLOWED_PAYPAL_DOMAINS = array(
@@ -184,7 +189,7 @@ class PayPal_API_Client {
 	 * Every write through this class invalidates the cache, so a page reads fresh
 	 * right after a create, update or delete.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param int    $page_size  Number of results per page.
 	 * @param string $page_token Pagination cursor from a previous response. Default empty.
@@ -211,7 +216,7 @@ class PayPal_API_Client {
 	 *
 	 * Updating or deleting the resource through this class drops its entry.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param string $resource_id PayPal resource ID (format: PLB-XXXXXXXXXXXX).
 	 * @return array|\WP_Error Same as get_resource(). Errors are not cached.
@@ -234,7 +239,7 @@ class PayPal_API_Client {
 	/**
 	 * Drop every cached list page, and one cached resource when named.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param string $resource_id A resource whose cached copy is stale too. Default none.
 	 * @return void
@@ -367,7 +372,7 @@ class PayPal_API_Client {
 	/**
 	 * Record a deleted link, so a published block still pointing at it renders nothing.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param string $resource_id PayPal resource ID.
 	 * @return void
@@ -383,7 +388,7 @@ class PayPal_API_Client {
 	/**
 	 * Whether a link was deleted through this site.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param string $resource_id PayPal resource ID.
 	 * @return bool

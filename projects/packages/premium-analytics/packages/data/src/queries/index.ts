@@ -57,6 +57,7 @@ export type { StatsFollowersParams, StatsFollowersResponse } from './stats-follo
 export { statsCommentsQuery, type StatsCommentsParams } from './stats-comments-query';
 export {
 	statsSubscribersCountsQuery,
+	statsSubscribersDaysAgoQuery,
 	statsSubscribersQuery,
 	type StatsSubscribersCountsParams,
 	type StatsSubscribersParams,
