@@ -31,7 +31,7 @@ const DASHBOARD_PREVIEW_SCOPE_FILTER = 'jetpack_premium_analytics_dashboard_prev
  * sites is opened through the filter instead. Widget types are registered independently of
  * this, as they are of the per-section availability checks.
  */
-const PREVIEW_SECTIONS = array( 'traffic', 'insights' );
+const PREVIEW_SECTIONS = array( 'traffic', 'insights', 'subscribers', 'ads' );
 
 /**
  * Registers a dashboard section.
