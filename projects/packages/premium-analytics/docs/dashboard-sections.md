@@ -6,7 +6,7 @@ Sections are registered on the server by whoever owns them, the package for its 
 
 The package owns the dashboard, not the features: a section belongs to the code that knows its feature is there. Traffic and Insights are the package's own, since the dashboard is the Stats feature. A section that depends on another feature being present registers from that feature's code, in the plugin, the module or, on the WordPress.com platform, in `jetpack-mu-wpcom`.
 
-This page covers sections only. Widget types and report pages have their own registration paths, described at the end.
+This page covers sections only. Widget types have their own page, [Dashboard widget types](dashboard-widgets.md); report pages are described at the end.
 
 ## Vocabulary
 
@@ -207,7 +207,7 @@ Both declare the same layout, `get_ads_section_default_layout()` from the packag
 
 ## Not covered here
 
-Widget types are registered from the build manifest through `Widget_Type_Registry` (`src/widget-types.php`). A public registration for other plugins is the next step.
+Widget types are registered through `Widget_Type_Registry` the same way, from `jetpack_premium_analytics_register_widget_types`: see [Dashboard widget types](dashboard-widgets.md).
 
 Report pages are a client-side map in `routes/reports/registry.ts`, to be registered on the server the way sections are.
 
