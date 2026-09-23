@@ -30,7 +30,7 @@ import { useCallback, useEffect, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { useWidgetModules } from '../use-widget-modules';
-import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
+import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import {
 	DashboardSections,
 	FeedbackBanner,
@@ -105,6 +105,7 @@ function Dashboard(): JSX.Element {
 	}, [ isSyncComplete ] );
 
 	const widgetModules = useWidgetModules();
+	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
 
 	const [ editMode, setEditMode ] = useState( false );
 	const trackCustomize = useTrackCustomize( 'dashboard', activeSection );
@@ -290,7 +291,7 @@ function Dashboard(): JSX.Element {
 					<WidgetDashboard
 						widgetTypes={ widgetTypes }
 						isResolvingWidgetTypes={ isResolvingWidgetTypes }
-						resolveWidgetModule={ resolveWidgetModuleWithI18n }
+						resolveWidgetModule={ resolveWidgetModule }
 						layout={ layout }
 						onLayoutChange={ onLayoutChange }
 						onLayoutReset={ resetLayout }

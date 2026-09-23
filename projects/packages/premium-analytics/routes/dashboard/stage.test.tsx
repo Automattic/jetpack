@@ -317,7 +317,7 @@ jest.mock( './components', () => ( {
 } ) );
 
 jest.mock( '../widget-module-i18n', () => ( {
-	resolveWidgetModuleWithI18n: jest.fn(),
+	useWidgetModuleResolver: () => jest.fn(),
 	useWidgetTypesWithI18n: () => [ [], false ],
 } ) );
 

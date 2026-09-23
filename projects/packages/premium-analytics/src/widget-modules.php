@@ -79,6 +79,8 @@ function get_widget_modules_response() {
 			'icon'          => $widget_type->icon,
 			'actions'       => $widget_type->actions,
 			'keywords'      => $widget_type->keywords,
+			'textdomain'    => $widget_type->textdomain,
+			'i18n_manifest' => $widget_type->i18n_manifest,
 		);
 	}
 
