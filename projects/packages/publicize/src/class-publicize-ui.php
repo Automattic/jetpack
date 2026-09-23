@@ -13,7 +13,7 @@ use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Status\Host;
 
 /**
- * Only user facing pieces of Publicize are found here.
+ * Classic editor integration: the Publicize metabox on the post screen, and its assets.
  */
 class Publicize_UI {
 	/**
@@ -24,7 +24,7 @@ class Publicize_UI {
 	public $publicize;
 
 	/**
-	 * URL to Sharing settings page in wordpress.com
+	 * URL of the admin page where Publicize connections are managed.
 	 *
 	 * @var string
 	 */
