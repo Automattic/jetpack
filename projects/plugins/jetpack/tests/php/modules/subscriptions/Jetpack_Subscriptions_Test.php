@@ -240,9 +240,8 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	 * Importers add the source site's access level after the save hook, so the hook must not gate first.
 	 */
 	public function test_paywall_block_does_not_gate_during_import() {
-		$post_id = $this->factory->post->create( array( 'post_content' => self::PAYWALL_POST_CONTENT ) );
-
 		do_action( 'import_start' );
+		$post_id = $this->factory->post->create( array( 'post_content' => self::PAYWALL_POST_CONTENT ) );
 		\Automattic\Jetpack\Extensions\Subscriptions\add_paywalled_content_post_meta( $post_id, get_post( $post_id ) );
 		add_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, 'paid_subscribers' );
 		do_action( 'import_end' );
