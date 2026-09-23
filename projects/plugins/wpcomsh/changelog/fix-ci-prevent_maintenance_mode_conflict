@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tests: Prevent parallel test conflicts when setup triggers maintenance mode.
