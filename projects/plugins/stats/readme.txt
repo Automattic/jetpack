@@ -164,8 +164,3 @@ To build the plugin from source, follow the instructions in the monorepo [develo
 
 = 0.1.0-alpha =
 * Initial release.
-
-== Upgrade Notice ==
-
-= 0.1.0-alpha =
-Initial release — install Jetpack Stats to see simple, privacy-friendly traffic insights right inside your WordPress dashboard.
