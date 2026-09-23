@@ -97,7 +97,7 @@ class PayPal_Email_Sender {
 			);
 		}
 
-		// A malformed ID can't be read, so turn it away before the rate limit and the read.
+		// Reject a malformed ID before the rate limit and the PayPal read.
 		if ( ! PayPal_Attribute_Mapper::is_valid_resource_id( $resource_id ) ) {
 			wp_send_json_error(
 				array( 'message' => __( 'Invalid or missing PayPal payment link.', 'jetpack-paypal-payments' ) ),
@@ -136,11 +136,10 @@ class PayPal_Email_Sender {
 			);
 		}
 
-		// The link, name and price all come from the payment itself, so the
-		// email matches the button. The detail view has just cached it.
+		// Read the link, name and price from PayPal so the email matches the button.
 		$resource = PayPal_API_Client::get_resource_cached( $resource_id );
 		if ( is_wp_error( $resource ) ) {
-			// Pass on PayPal's status, as the REST routes do. A network error reports 0, so 503.
+			// Pass on PayPal's status. A network error has status 0, so send 503.
 			$error_data = $resource->get_error_data();
 			$status     = (int) ( $error_data['status'] ?? 500 );
 			wp_send_json_error(
@@ -167,7 +166,7 @@ class PayPal_Email_Sender {
 			);
 		}
 
-		// A link needs a price, on the product or on its options, before it can be emailed.
+		// Email only a link with a price, on the product or its options.
 		if ( '' === $price ) {
 			wp_send_json_error(
 				array( 'message' => __( 'This payment link has no price.', 'jetpack-paypal-payments' ) ),

@@ -751,7 +751,7 @@ class PayPal_Admin_Page {
 			self::render_detail_row( __( 'Description', 'jetpack-paypal-payments' ), $line_item['description'] );
 		}
 
-		// A link priced per option has no product price, so read it as the block does.
+		// Same price the block shows, so a link priced per option shows "From" the cheapest option.
 		$link_attributes = PayPal_Attribute_Mapper::api_response_to_attributes( $resource );
 		$price_display   = PayPal_Payment_Buttons::link_price( $link_attributes );
 		if ( '' !== $price_display ) {

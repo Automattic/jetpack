@@ -2449,7 +2449,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that a link priced per option shows the cheapest option over the option prices.
+	 * Test that a link priced per option shows "From" the cheapest option above the option prices.
 	 */
 	public function test_render_block_lists_option_prices_under_a_from_headline() {
 		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes( self::per_option_resource() );
@@ -2478,7 +2478,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that format_price returns '' for a blank price, not a bare symbol.
+	 * Test that format_price returns '' for a blank price.
 	 *
 	 * @dataProvider provide_blank_prices
 	 *
@@ -2505,7 +2505,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	// --- link_price ---
 
 	/**
-	 * Test that link_price shows a product price of 0. Blank is not zero.
+	 * Test that link_price shows a product price of 0.
 	 */
 	public function test_link_price_shows_a_product_price_of_zero() {
 		$attributes = array(
@@ -2517,9 +2517,9 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that link_price is empty when neither the product nor an option is priced.
+	 * Test that link_price is empty when the product and options are unpriced.
 	 */
-	public function test_link_price_is_empty_when_nothing_is_priced() {
+	public function test_link_price_is_empty_for_an_unpriced_link() {
 		$attributes = array(
 			'price'           => '',
 			'currencyCode'    => 'USD',
@@ -2543,10 +2543,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that link_price leaves out the option prices while the options are off.
-	 *
-	 * The attributes can still hold priced options with the switch off, but
-	 * PayPal is sent none of them, so they are not a price.
+	 * Test that link_price ignores option prices while options are off, since only enabled options go to PayPal.
 	 */
 	public function test_link_price_ignores_option_prices_when_options_are_off() {
 		$attributes                    = PayPal_Attribute_Mapper::api_response_to_attributes( self::per_option_resource() );
@@ -2556,9 +2553,9 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that link_price ignores a stale product price once the options are priced.
+	 * Test that link_price uses the option prices over a stale product price.
 	 */
-	public function test_link_price_ignores_a_stale_product_price() {
+	public function test_link_price_uses_option_prices_over_a_stale_product_price() {
 		$attributes          = PayPal_Attribute_Mapper::api_response_to_attributes( self::per_option_resource() );
 		$attributes['price'] = '9.99';
 
@@ -2566,7 +2563,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that resource_price reads the price off a payment resource as PayPal returns it.
+	 * Test that resource_price formats the price of a PayPal payment resource.
 	 *
 	 * @dataProvider provide_priced_resources
 	 *
@@ -2574,7 +2571,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 * @param string $expected The formatted price.
 	 */
 	#[DataProvider( 'provide_priced_resources' )]
-	public function test_resource_price_reads_the_resource( $resource, $expected ) {
+	public function test_resource_price_formats_a_paypal_resource( $resource, $expected ) {
 		$this->assertSame( $expected, PayPal_Payment_Buttons::resource_price( $resource ) );
 	}
 
@@ -2588,8 +2585,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'product price'  => array( self::product_price_resource(), '$11.00' ),
 			'priced options' => array( self::per_option_resource(), 'From $24.50' ),
 			'yen options'    => array( self::per_option_yen_resource(), 'From ¥1000' ),
-			'nothing priced' => array( array( 'line_items' => array( array( 'name' => 'Test' ) ) ), '' ),
-			'no line items'  => array( array( 'id' => 'PLB-EMPTY' ), '' ),
+			'unpriced'       => array( array( 'line_items' => array( array( 'name' => 'Test' ) ) ), '' ),
+			'id only'        => array( array( 'id' => 'PLB-EMPTY' ), '' ),
 		);
 	}
 
@@ -2606,7 +2603,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'reusable'         => 'MULTIPLE',
 			'line_items'       => array(
 				array(
-					'name'                     => 'C67 link ONE',
+					'name'                     => 'Test Link',
 					'unit_amount'              => array(
 						'currency_code' => 'USD',
 						'value'         => '11.00',
@@ -2632,8 +2629,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'reusable'         => 'MULTIPLE',
 			'line_items'       => array(
 				array(
-					'name'                     => 'WOOPTP-491 Test Widget',
-					'description'              => 'P6 M1 canvas/frontend parity fixture.',
+					'name'                     => 'Test Widget',
+					'description'              => 'A widget in three sizes.',
 					'collect_shipping_address' => true,
 					'variants'                 => array(
 						'dimensions' => array(
@@ -2694,7 +2691,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'reusable'         => 'MULTIPLE',
 			'line_items'       => array(
 				array(
-					'name'                     => 'U6 Yen Widget',
+					'name'                     => 'Yen Widget',
 					'description'              => "First line.\nSecond line.\n\nAfter a blank line.",
 					'taxes'                    => array(
 						array(

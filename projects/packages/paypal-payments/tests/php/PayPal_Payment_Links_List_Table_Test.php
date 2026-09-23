@@ -322,7 +322,7 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 	}
 
 	/**
-	 * Test column_price shows the product price exactly.
+	 * Test column_price shows the product price.
 	 */
 	public function test_column_price_shows_the_product_price() {
 		$table = new PayPal_Payment_Links_List_Table();
@@ -344,7 +344,7 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 			'payment_link' => 'https://www.sandbox.paypal.com/ncp/payment/PLB-ZC45RDYZRHS9',
 			'line_items'   => array(
 				array(
-					'name'     => 'WOOPTP-491 Test Widget',
+					'name'     => 'Test Widget',
 					'variants' => array(
 						'dimensions' => array(
 							array(

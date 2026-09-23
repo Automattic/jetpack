@@ -821,7 +821,7 @@ class PayPal_Payment_Buttons {
 	 * @return string Formatted price string (e.g., "$29.99"), or '' for a blank price.
 	 */
 	public static function format_price( $price, $currency ) {
-		// A blank price gets no bare symbol. Compared to '' so a price of 0 still shows.
+		// A blank price returns ''. Compare to '' so a price of 0 still shows.
 		if ( '' === trim( (string) $price ) ) {
 			return '';
 		}
@@ -831,15 +831,15 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * The price a payment link charges, as text.
+	 * The formatted price of a payment link.
 	 *
-	 * The product price, or the cheapest option as "From $29.99" when the
-	 * options carry the prices. Same rule as linkPrice() in utils/link-price.js.
+	 * The product price, or "From $29.99" with the cheapest option when the
+	 * options have prices. Matches linkPrice() in utils/link-price.js.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param array $attributes The link's block attributes.
-	 * @return string The formatted price, or '' when there is none.
+	 * @return string The formatted price, or ''.
 	 */
 	public static function link_price( array $attributes ) {
 		$price    = self::product_price( $attributes );
@@ -871,7 +871,7 @@ class PayPal_Payment_Buttons {
 	 * @since $$next-version$$
 	 *
 	 * @param array $attributes The link's block attributes.
-	 * @return string The price, or '' when there is none or the options carry the prices.
+	 * @return string The price, or '' when blank or the options have prices.
 	 */
 	private static function product_price( array $attributes ) {
 		$variants_enabled = ! empty( $attributes['variantsEnabled'] );
@@ -883,20 +883,19 @@ class PayPal_Payment_Buttons {
 			return '';
 		}
 
-		// PayPal accepts a price of 0, so the empty test is '' — empty() drops it.
-		// Trimmed, as the editor preview does.
+		// Trim like the editor preview. A price of 0 stays, since callers compare to ''.
 		return trim( (string) ( $attributes['price'] ?? '' ) );
 	}
 
 	/**
-	 * The price a payment resource from PayPal charges, as text.
+	 * The formatted price of a payment resource from PayPal.
 	 *
-	 * Same as resourcePrice() in utils/link-price.js.
+	 * Matches resourcePrice() in utils/link-price.js.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param array $resource A payment resource.
-	 * @return string The formatted price, or '' when there is none.
+	 * @return string The formatted price, or ''.
 	 */
 	public static function resource_price( array $resource ) {
 		return self::link_price( PayPal_Attribute_Mapper::api_response_to_attributes( $resource ) );
@@ -1071,8 +1070,7 @@ class PayPal_Payment_Buttons {
 			);
 		}
 
-		// The option list below hides an option price that repeats the product
-		// price, so it needs the same product price the headline uses.
+		// The option list below hides option prices that match the product price.
 		$price          = self::product_price( $attributes );
 		$headline_price = self::link_price( $attributes );
 		$price_html     = '';

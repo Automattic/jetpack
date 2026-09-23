@@ -722,9 +722,9 @@ class PayPal_Admin_Page_Test extends TestCase {
 	}
 
 	/**
-	 * Test detail view leaves out the Price and Currency rows for a link with no price.
+	 * Test detail view hides the Price and Currency rows for an unpriced link.
 	 */
-	public function test_detail_view_omits_the_price_rows_for_an_unpriced_link() {
+	public function test_detail_view_hides_the_price_rows_for_an_unpriced_link() {
 		$resource = $this->get_sample_resource();
 		unset( $resource['line_items'][0]['unit_amount'] );
 
@@ -736,7 +736,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 	}
 
 	/**
-	 * Test the email form posts only the resource ID. The sender reads the rest from PayPal.
+	 * Test the email form posts only the resource ID.
 	 */
 	public function test_detail_view_email_form_posts_only_the_resource_id() {
 		$output = $this->render_detail_view( $this->get_per_option_resource() );
@@ -1162,8 +1162,8 @@ class PayPal_Admin_Page_Test extends TestCase {
 			'reusable'         => 'MULTIPLE',
 			'line_items'       => array(
 				array(
-					'name'                     => 'WOOPTP-491 Test Widget',
-					'description'              => 'P6 M1 canvas/frontend parity fixture.',
+					'name'                     => 'Test Widget',
+					'description'              => 'A widget in three sizes.',
 					'collect_shipping_address' => true,
 					'variants'                 => array(
 						'dimensions' => array(
@@ -1225,7 +1225,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 			'reusable'         => 'MULTIPLE',
 			'line_items'       => array(
 				array(
-					'name'                     => 'U6 Yen Widget',
+					'name'                     => 'Yen Widget',
 					'description'              => "First line.\nSecond line.\n\nAfter a blank line.",
 					'taxes'                    => array(
 						array(

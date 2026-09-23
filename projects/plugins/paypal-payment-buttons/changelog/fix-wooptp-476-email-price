@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Show "From" and the lowest option price, in the options' currency, in the payment link email, list and details for links priced per option.
+The Send via Email card now shows the right price for links priced per option. Before, it showed just "$".

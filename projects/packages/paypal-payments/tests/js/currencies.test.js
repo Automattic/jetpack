@@ -66,7 +66,7 @@ describe( 'formatPrice', () => {
 		expect( formatPrice( 0, 'USD' ) ).toBe( '$0' );
 	} );
 
-	it( 'falls back to the code for a currency with no symbol', () => {
+	it( 'puts the currency code before the price for an unknown currency', () => {
 		expect( formatPrice( '5', 'XYZ' ) ).toBe( 'XYZ5' );
 	} );
 

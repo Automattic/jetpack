@@ -155,9 +155,9 @@ class PayPal_Email_Sender_Test extends TestCase {
 	}
 
 	/**
-	 * Test send_email prints the formatted price as it is given.
+	 * Test send_email shows the formatted price as given.
 	 */
-	public function test_send_email_prints_the_price_as_given() {
+	public function test_send_email_shows_the_price_as_given() {
 		$mail = $this->capture_mail();
 
 		PayPal_Email_Sender::send_email(
@@ -218,9 +218,9 @@ class PayPal_Email_Sender_Test extends TestCase {
 	}
 
 	/**
-	 * Test handle_send takes the link, name and price from the resource, not the post.
+	 * Test handle_send takes the link, name and price from PayPal over the posted fields.
 	 */
-	public function test_handle_send_reads_the_resource_not_the_post() {
+	public function test_handle_send_takes_the_link_name_and_price_from_paypal() {
 		$mail = $this->capture_mail();
 		$this->mock_get_resource_response( $this->get_per_option_resource() );
 
@@ -236,7 +236,7 @@ class PayPal_Email_Sender_Test extends TestCase {
 
 		$this->assertTrue( $response['success'] );
 		$this->assertSame( 'buyer@example.com', $mail->to );
-		$this->assertStringContainsString( 'WOOPTP-491 Test Widget', $mail->subject );
+		$this->assertStringContainsString( 'Test Widget', $mail->subject );
 		$this->assertStringContainsString( '>From $24.50</p>', $mail->message );
 		$this->assertStringContainsString( 'sandbox.paypal.com/ncp/payment/PLB-ZC45RDYZRHS9', $mail->message );
 		$this->assertStringNotContainsString( 'PLB-POSTED', $mail->message );
@@ -245,9 +245,9 @@ class PayPal_Email_Sender_Test extends TestCase {
 	}
 
 	/**
-	 * Test handle_send fails and sends nothing when the resource can't be read.
+	 * Test handle_send passes on PayPal's 404 and skips the email.
 	 */
-	public function test_handle_send_fails_when_the_resource_cannot_be_read() {
+	public function test_handle_send_fails_with_404_when_paypal_returns_404() {
 		$mail = $this->capture_mail();
 		$this->set_up_connected_state();
 		add_filter(
@@ -285,9 +285,9 @@ class PayPal_Email_Sender_Test extends TestCase {
 	}
 
 	/**
-	 * Test handle_send answers 500 for a read error with no status, like a missing connection.
+	 * Test handle_send returns 500 while PayPal is disconnected.
 	 */
-	public function test_handle_send_fails_with_500_when_paypal_is_not_connected() {
+	public function test_handle_send_fails_with_500_while_paypal_is_disconnected() {
 		$mail     = $this->capture_mail();
 		$requests = $this->count_http_requests();
 
@@ -301,12 +301,11 @@ class PayPal_Email_Sender_Test extends TestCase {
 	}
 
 	/**
-	 * Test handle_send answers 503 for a read error with status 0, a network error.
+	 * Test handle_send returns 503 on a network error.
 	 */
 	public function test_handle_send_fails_with_503_on_a_network_error() {
 		$mail = $this->capture_mail();
-		// The client retries a network error with real sleeps, so plant the error it ends with.
-		// The cache never holds errors in production.
+		// Cache the final error directly, since a real network error retries with sleeps.
 		set_transient(
 			'paypal_resource_plb-zc45rdyzrhs9',
 			new \WP_Error( 'paypal_api_request_failed', 'PayPal API request failed: timeout', array( 'status' => 0 ) )
@@ -321,11 +320,11 @@ class PayPal_Email_Sender_Test extends TestCase {
 	}
 
 	/**
-	 * Test handle_send rejects a malformed resource ID before it counts or calls PayPal.
+	 * Test handle_send rejects a malformed resource ID before the rate limit or any PayPal request.
 	 *
 	 * @dataProvider provide_malformed_resource_ids
 	 *
-	 * @param string $resource_id A resource ID that is not PLB-XXXX.
+	 * @param string $resource_id A malformed resource ID.
 	 */
 	#[DataProvider( 'provide_malformed_resource_ids' )]
 	public function test_handle_send_rejects_a_malformed_resource_id( $resource_id ) {
@@ -344,23 +343,23 @@ class PayPal_Email_Sender_Test extends TestCase {
 	}
 
 	/**
-	 * Resource IDs that are not PLB-XXXX.
+	 * Malformed resource IDs.
 	 *
 	 * @return array<string, array{0: string}>
 	 */
 	public static function provide_malformed_resource_ids() {
 		return array(
-			'empty'     => array( '' ),
-			'no prefix' => array( 'ZC45RDYZRHS9' ),
-			'no body'   => array( 'PLB-' ),
-			'path'      => array( 'PLB-ZC45/../x' ),
+			'empty'          => array( '' ),
+			'missing prefix' => array( 'ZC45RDYZRHS9' ),
+			'prefix only'    => array( 'PLB-' ),
+			'path'           => array( 'PLB-ZC45/../x' ),
 		);
 	}
 
 	/**
-	 * Test handle_send falls back to the resource ID when the product has no name.
+	 * Test handle_send uses the resource ID when the product name is blank.
 	 */
-	public function test_handle_send_names_a_nameless_product_by_its_id() {
+	public function test_handle_send_uses_the_resource_id_for_a_blank_product_name() {
 		$mail     = $this->capture_mail();
 		$resource = $this->get_product_price_resource();
 
@@ -374,9 +373,9 @@ class PayPal_Email_Sender_Test extends TestCase {
 	}
 
 	/**
-	 * Test handle_send fails and sends nothing when the resource has no price.
+	 * Test handle_send rejects a link without a price.
 	 */
-	public function test_handle_send_fails_when_the_resource_has_no_price() {
+	public function test_handle_send_requires_a_price() {
 		$mail     = $this->capture_mail();
 		$resource = $this->get_per_option_resource();
 		foreach ( $resource['line_items'][0]['variants']['dimensions'][0]['options'] as $i => $option ) {
@@ -394,9 +393,9 @@ class PayPal_Email_Sender_Test extends TestCase {
 	}
 
 	/**
-	 * Test handle_send fails and sends nothing when the resource has no payment link.
+	 * Test handle_send rejects a resource without a payment link.
 	 */
-	public function test_handle_send_fails_when_the_resource_has_no_payment_link() {
+	public function test_handle_send_requires_a_payment_link() {
 		$mail     = $this->capture_mail();
 		$resource = $this->get_product_price_resource();
 		unset( $resource['payment_link'] );
@@ -696,7 +695,7 @@ class PayPal_Email_Sender_Test extends TestCase {
 			'reusable'         => 'MULTIPLE',
 			'line_items'       => array(
 				array(
-					'name'                     => 'C67 link ONE',
+					'name'                     => 'Test Link',
 					'unit_amount'              => array(
 						'currency_code' => 'USD',
 						'value'         => '11.00',
@@ -722,8 +721,8 @@ class PayPal_Email_Sender_Test extends TestCase {
 			'reusable'         => 'MULTIPLE',
 			'line_items'       => array(
 				array(
-					'name'                     => 'WOOPTP-491 Test Widget',
-					'description'              => 'P6 M1 canvas/frontend parity fixture.',
+					'name'                     => 'Test Widget',
+					'description'              => 'A widget in three sizes.',
 					'collect_shipping_address' => true,
 					'variants'                 => array(
 						'dimensions' => array(

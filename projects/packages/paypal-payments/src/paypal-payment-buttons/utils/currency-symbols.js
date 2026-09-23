@@ -70,7 +70,7 @@ export function getPricePlaceholder( currencyCode ) {
  * @return {string} Formatted price string, or an empty string for a blank price.
  */
 export function formatPrice( priceValue, currencyCode ) {
-	// A blank price gets no bare symbol. Compared to '' so a price of 0 still shows.
+	// A blank price returns ''. Compare to '' so a price of 0 still shows.
 	if ( `${ priceValue ?? '' }`.trim() === '' ) {
 		return '';
 	}
