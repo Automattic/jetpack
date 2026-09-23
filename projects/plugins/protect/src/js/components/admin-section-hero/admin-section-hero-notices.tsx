@@ -10,7 +10,7 @@ const AdminSectionHeroNotices: FC = () => {
 		<Container horizontalSpacing={ 0 }>
 			{ hasConnectionError && (
 				<Col className={ styles[ 'connection-error-col' ] }>
-					<ConnectionError />
+					<ConnectionError trackingContext="protect" />
 				</Col>
 			) }
 			<Col>
