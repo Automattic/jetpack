@@ -6,7 +6,13 @@ import {
 	queueActivationRequest,
 } from '../../../data/queue-activation-request';
 import { onSwitchWritten } from '../../../data/switch-written';
-import { fetchAdminMenu, linksTo, menuLinkOf, syncAdminMenu } from '../../../utils/admin-menu-sync';
+import {
+	fetchAdminMenu,
+	linksTo,
+	menuLinkOf,
+	slideIn,
+	syncAdminMenu,
+} from '../../../utils/admin-menu-sync';
 
 export type MenuPointerTarget = {
 	elements: HTMLElement[];
@@ -51,6 +57,8 @@ export function useSidebarSync( features: MainFeature[] ) {
 					}
 
 					const added = syncAdminMenu( live, fresh );
+
+					slideIn( added );
 
 					// A refresh that only removes retires the pointer, which may mark an item
 					// this one just took away.

@@ -93,14 +93,16 @@ export function syncAdminMenu( live: Element, fresh: Element ): HTMLElement[] {
 	Array.from( live.children ).forEach( item => {
 		const key = keyOf( item );
 
-		if ( ! key ) {
+		// Still closing from an earlier refresh: never matched, so an item switched straight
+		// back on comes in fresh rather than as this one, which is about to go.
+		if ( ! key || item.hasAttribute( LEAVING ) ) {
 			return;
 		}
 
 		if ( freshItems.has( key ) ) {
 			liveItems.set( key, item as HTMLElement );
 		} else {
-			item.remove();
+			slideOut( item as HTMLElement );
 		}
 	} );
 
@@ -175,4 +177,70 @@ export function linksTo( item: Element, url: string ): boolean {
 	return page
 		? link.searchParams.get( 'page' ) === page
 		: link.pathname === target.pathname && link.search === target.search;
+}
+
+const LEAVING = 'data-jp-menu-leaving';
+
+/**
+ * Animate a menu item's height between nothing and its own, clipping it meanwhile.
+ *
+ * @param item    - The menu item.
+ * @param opening - True to grow it open, false to close it.
+ * @return Settles when the animation ends or is cancelled; null when it cannot run.
+ */
+function slide( item: HTMLElement, opening: boolean ): Promise< unknown > | null {
+	const height = item.offsetHeight;
+
+	// Hidden items (a folded sidebar's submenus) have no height to animate.
+	if (
+		! height ||
+		typeof item.animate !== 'function' ||
+		window.matchMedia?.( '(prefers-reduced-motion: reduce)' ).matches
+	) {
+		return null;
+	}
+
+	const open = { height: `${ height }px`, opacity: 1 };
+	const closed = { height: '0px', opacity: 0 };
+
+	item.style.overflow = 'hidden';
+
+	return (
+		item
+			.animate( opening ? [ closed, open ] : [ open, closed ], {
+				duration: 300,
+				easing: 'cubic-bezier(0.2, 0, 0, 1)',
+			} )
+			// A cancelled animation rejects; the item is settled either way.
+			.finished.catch( () => undefined )
+	);
+}
+
+/**
+ * Grow new menu items open, so they push the items below down rather than appear at once.
+ *
+ * @param items - Menu items just added.
+ */
+export function slideIn( items: HTMLElement[] ): void {
+	items.forEach( item =>
+		slide( item, true )?.then( () => item.style.removeProperty( 'overflow' ) )
+	);
+}
+
+/**
+ * Close a menu item and then remove it, pulling the items below up.
+ *
+ * @param item - The menu item leaving the menu.
+ */
+function slideOut( item: HTMLElement ): void {
+	item.setAttribute( LEAVING, '' );
+	item.style.pointerEvents = 'none';
+
+	const closing = slide( item, false );
+
+	if ( closing ) {
+		closing.then( () => item.remove() );
+	} else {
+		item.remove();
+	}
 }

@@ -1,4 +1,4 @@
-import { fetchAdminMenu, linksTo, syncAdminMenu } from '../admin-menu-sync';
+import { fetchAdminMenu, linksTo, slideIn, syncAdminMenu } from '../admin-menu-sync';
 
 const submenu = ( ...pages: string[] ) =>
 	`<ul class="wp-submenu"><li class="wp-submenu-head">Jetpack</li>${ pages
@@ -203,5 +203,83 @@ describe( 'linksTo', () => {
 
 		expect( linksTo( tools, 'https://example.com/wp-admin/tools.php' ) ).toBe( true );
 		expect( linksTo( tools, 'https://example.com/wp-admin/upload.php' ) ).toBe( false );
+	} );
+} );
+
+describe( 'slideIn', () => {
+	const item = ( height: number ) => {
+		const element = document.createElement( 'li' );
+
+		Object.defineProperty( element, 'offsetHeight', { value: height } );
+		Object.defineProperty( element, 'animate', {
+			value: jest.fn( () => ( { finished: Promise.resolve() } ) ),
+		} );
+
+		return element;
+	};
+
+	it( 'grows an item from nothing to its height, clipping it meanwhile', async () => {
+		const element = item( 34 );
+
+		slideIn( [ element ] );
+
+		expect( element.animate ).toHaveBeenCalledWith(
+			[
+				{ height: '0px', opacity: 0 },
+				{ height: '34px', opacity: 1 },
+			],
+			expect.objectContaining( { duration: 300 } )
+		);
+		expect( element ).toHaveStyle( { overflow: 'hidden' } );
+
+		await new Promise( resolve => setTimeout( resolve, 0 ) );
+
+		// eslint-disable-next-line jest-dom/prefer-to-have-style -- toHaveStyle misreads a removed `overflow` shorthand in jsdom.
+		expect( element ).toHaveAttribute( 'style', '' );
+	} );
+
+	it( 'leaves hidden items alone', () => {
+		const element = item( 0 );
+
+		slideIn( [ element ] );
+
+		expect( element.animate ).not.toHaveBeenCalled();
+	} );
+
+	it( 'closes an item before removing it, and never matches it meanwhile', async () => {
+		document.body.innerHTML = `<ul id="adminmenu">${ menuHtml( [ 'my-jetpack', 'stats' ] ) }</ul>`;
+		const live = document.getElementById( 'adminmenu' ) as HTMLUListElement;
+		const stats = live.querySelector( 'a[href="admin.php?page=stats"]' ).parentElement;
+		let finish: () => void = () => undefined;
+
+		Object.defineProperty( stats, 'offsetHeight', { value: 34 } );
+		Object.defineProperty( stats, 'animate', {
+			value: jest.fn( () => ( {
+				finished: new Promise< void >( resolve => ( finish = resolve ) ),
+			} ) ),
+		} );
+
+		syncAdminMenu( live, freshMenu( [ 'my-jetpack' ] ) );
+
+		expect( stats.animate ).toHaveBeenCalledWith(
+			[
+				{ height: '34px', opacity: 1 },
+				{ height: '0px', opacity: 0 },
+			],
+			expect.objectContaining( { duration: 300 } )
+		);
+		expect( stats.isConnected ).toBe( true );
+
+		// Switched back on before it has closed: a new item comes in, the old one still goes.
+		const added = syncAdminMenu( live, freshMenu( [ 'my-jetpack', 'stats' ] ) );
+
+		expect( added ).toHaveLength( 1 );
+		expect( added[ 0 ] ).not.toBe( stats );
+
+		finish();
+		await new Promise( resolve => setTimeout( resolve, 0 ) );
+
+		expect( stats.isConnected ).toBe( false );
+		expect( added[ 0 ].isConnected ).toBe( true );
 	} );
 } );
