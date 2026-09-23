@@ -368,14 +368,14 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A plain order, as loaded while WooCommerce Analytics is disabled, falls back to its lookup rows.
+	 * A plain order falls back to its lookup rows when WooCommerce Analytics' order class is unavailable.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_plain_order_falls_back_to_lookup_rows() {
+	public function test_plain_order_without_analytics_class_falls_back_to_lookup_rows() {
 		global $wpdb;
 
 		require_once __DIR__ . '/../stubs/class-wc-order.php';
@@ -442,6 +442,42 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 		$this->assertSame( 123, $stats['order_id'] );
 		$this->assertSame( 'wc-completed', $stats['status'] );
 		$this->assertSame( array( 'products_from_db' => 123 ), $products );
+	}
+
+	/**
+	 * A plain order, as loaded while WooCommerce Analytics is disabled, is reloaded as the Analytics order class.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_plain_order_is_reloaded_as_analytics_order() {
+		require_once __DIR__ . '/../stubs/overrides/class-order.php';
+
+		$analytics_order = $this->invoke_static_helper( 'get_analytics_order', new \WC_Order() );
+
+		$this->assertInstanceOf( \Automattic\WooCommerce\Admin\Overrides\Order::class, $analytics_order );
+		$this->assertSame( 123, $analytics_order->get_id() );
+	}
+
+	/**
+	 * An order that already has the report methods is used as is, and other order classes are not swapped.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_only_plain_orders_are_reloaded_as_analytics_orders() {
+		require_once __DIR__ . '/../stubs/overrides/class-order.php';
+
+		$analytics_order = new \Automattic\WooCommerce\Admin\Overrides\Order();
+		$order_subclass  = new class() extends \WC_Order {};
+
+		$this->assertSame( $analytics_order, $this->invoke_static_helper( 'get_analytics_order', $analytics_order ) );
+		$this->assertFalse( $this->invoke_static_helper( 'get_analytics_order', $order_subclass ) );
+		$this->assertFalse( $this->invoke_static_helper( 'get_analytics_order', false ) );
 	}
 
 	/**

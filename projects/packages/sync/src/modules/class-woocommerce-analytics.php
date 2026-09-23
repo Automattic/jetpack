@@ -652,8 +652,9 @@ class WooCommerce_Analytics extends Module {
 			return false;
 		}
 
-		// If the order does not exist or cannot compute report data, read its wc_order_stats row instead.
-		if ( ! $order || ! self::is_analytics_order( $order ) ) {
+		// If the order does not exist or cannot have report methods, read its wc_order_stats row instead.
+		$order = self::get_analytics_order( $order );
+		if ( ! $order ) {
 			$order_stats_data_from_db = $this->get_order_stats_data_from_db( $order_id );
 			return $order_stats_data_from_db;
 		}
@@ -816,15 +817,29 @@ class WooCommerce_Analytics extends Module {
 	}
 
 	/**
-	 * Whether the order is one of WooCommerce Analytics' order classes, which add the report methods used here.
+	 * Get the order as WooCommerce Analytics' order class, which adds the report methods used here.
 	 *
-	 * WooCommerce swaps them in only while Analytics is enabled, and an object cache can outlive that switch.
+	 * WooCommerce swaps that class in only while Analytics is enabled, and an object cache can outlive the switch.
 	 *
-	 * @param WC_Abstract_Order $order The order object.
-	 * @return bool
+	 * @param WC_Abstract_Order|false $order The order object.
+	 * @return WC_Abstract_Order|false The order with report methods, or false if it cannot have them.
 	 */
-	private static function is_analytics_order( $order ) {
-		return method_exists( $order, 'get_report_customer_id' );
+	private static function get_analytics_order( $order ) {
+		if ( ! $order || method_exists( $order, 'get_report_customer_id' ) ) {
+			return $order;
+		}
+
+		// Mirrors the exact-class check in WooCommerce's order_class_name filters, which leave subclasses alone.
+		$analytics_classes = array(
+			'WC_Order'        => 'Automattic\WooCommerce\Admin\Overrides\Order',
+			'WC_Order_Refund' => 'Automattic\WooCommerce\Admin\Overrides\OrderRefund',
+		);
+		$analytics_class   = $analytics_classes[ get_class( $order ) ] ?? null;
+		if ( null === $analytics_class || ! class_exists( $analytics_class ) ) {
+			return false;
+		}
+
+		return new $analytics_class( $order->get_id() );
 	}
 
 	/**
@@ -852,8 +867,9 @@ class WooCommerce_Analytics extends Module {
 			return false;
 		}
 
-		// If the order does not exist or cannot compute report data, read its lookup rows instead.
-		if ( ! $order || ! self::is_analytics_order( $order ) ) {
+		// If the order does not exist or cannot have report methods, read its lookup rows instead.
+		$order = self::get_analytics_order( $order );
+		if ( ! $order ) {
 			return $this->get_order_product_data_from_db( $order_id );
 		}
 
