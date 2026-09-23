@@ -12,9 +12,19 @@ namespace A8C\FSE;
  */
 class Survicate {
 	/**
-	 * Survicate workspace key.
+	 * The shared Survicate bundle, built from wp-calypso's `apps/survicate` and served from widgets.wp.com.
 	 */
-	const WORKSPACE_KEY = 'e4794374cce15378101b63de24117572';
+	const BUNDLE_URL = 'https://widgets.wp.com/survicate/survicate.min.js';
+
+	/**
+	 * Path (without scheme) of the bundle's asset manifest: `dependencies` and `version`.
+	 */
+	const ASSET_JSON_PATH = 'widgets.wp.com/survicate/survicate.asset.json';
+
+	/**
+	 * Transient caching the decoded asset manifest.
+	 */
+	const ASSET_TRANSIENT_KEY = 'wpcom_survicate_asset_json';
 
 	/**
 	 * Class instance.
@@ -139,94 +149,74 @@ class Survicate {
 	}
 
 	/**
-	 * Enqueue Survicate scripts.
+	 * Reads the bundle's asset manifest: from disk on WordPress.com, over the
+	 * network on Atomic. Cached for an hour. Returns null when unavailable so
+	 * the caller can skip Survicate entirely — surveys are optional and must
+	 * never break wp-admin.
+	 *
+	 * @return array|null Decoded manifest with `dependencies` and `version`, or null.
+	 */
+	private function get_asset_json() {
+		$asset = get_transient( self::ASSET_TRANSIENT_KEY );
+		if ( is_array( $asset ) ) {
+			return $asset;
+		}
+
+		$local_path = ABSPATH . '/' . self::ASSET_JSON_PATH;
+		if ( file_exists( $local_path ) ) {
+			$asset = json_decode( file_get_contents( $local_path ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		} else {
+			$response = wp_remote_get( 'https://' . self::ASSET_JSON_PATH );
+			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+				return null;
+			}
+			$asset = json_decode( wp_remote_retrieve_body( $response ), true );
+		}
+
+		if ( ! is_array( $asset ) || empty( $asset['version'] ) ) {
+			return null;
+		}
+
+		set_transient( self::ASSET_TRANSIENT_KEY, $asset, HOUR_IN_SECONDS );
+
+		return $asset;
+	}
+
+	/**
+	 * Enqueue the shared Survicate bundle and the config it reads.
+	 *
+	 * PHP decides whether the user, screen and site are eligible and which
+	 * site-level traits to attach; the bundle owns the SDK lifecycle and the
+	 * survey suppression rules (see `packages/survicate` in wp-calypso).
 	 */
 	public function enqueue_scripts() {
 		if ( ! $this->should_load() ) {
 			return;
 		}
 
-		$traits_json   = wp_json_encode( $this->get_visitor_traits(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-		$workspace_key = self::WORKSPACE_KEY;
+		$asset = $this->get_asset_json();
+		if ( null === $asset ) {
+			return;
+		}
 
-		wp_register_script(
+		wp_enqueue_script(
 			'wpcom-survicate',
-			false,
-			array( 'wp-data' ),
-			'1.0',
-			false
+			self::BUNDLE_URL,
+			$asset['dependencies'] ?? array(),
+			$asset['version'],
+			true
+		);
+
+		$config = array(
+			'locale' => get_user_locale(),
+			'traits' => $this->get_visitor_traits(),
 		);
 
 		wp_add_inline_script(
 			'wpcom-survicate',
-			<<<JS
-( function () {
-	if ( window.__wpcomSurvicateInit ) {
-		return;
-	}
-	window.__wpcomSurvicateInit = true;
-	if ( window.innerWidth < 480 ) {
-		return;
-	}
-	var script = document.createElement( 'script' );
-	script.src = 'https://survey.survicate.com/workspaces/{$workspace_key}/web_surveys.js';
-	script.async = true;
-	document.head.appendChild( script );
-	var traits = {$traits_json};
-
-	// The Help Center registers this @wordpress/data store from a separate bundle
-	// loaded from widgets.wp.com; reads are guarded in case it is not yet registered.
-	function isHelpCenterShown() {
-		try {
-			var store = window.wp && window.wp.data && window.wp.data.select( 'automattic/help-center' );
-			return !! ( store && typeof store.isHelpCenterShown === 'function' && store.isHelpCenterShown() );
-		} catch ( e ) {
-			return false;
-		}
-	}
-	function closeAnySurvey() {
-		if ( window._sva && typeof window._sva.closeSurvey === 'function' ) {
-			window._sva.closeSurvey();
-		}
-	}
-
-	if ( window.wp && window.wp.data && typeof window.wp.data.subscribe === 'function' ) {
-		var wasShown = isHelpCenterShown();
-		// Scope the subscription to the Help Center store so the callback does not
-		// fire on every dispatch across all registered stores (e.g. block editor).
-		window.wp.data.subscribe( function () {
-			var shown = isHelpCenterShown();
-			if ( shown && ! wasShown ) {
-				closeAnySurvey();
-			}
-			wasShown = shown;
-		}, 'automattic/help-center' );
-	}
-
-	window.addEventListener( 'SurvicateReady', function () {
-		window._sva.setVisitorTraits( traits );
-
-		// Covers the race where the Help Center opened before the SDK finished loading.
-		if ( isHelpCenterShown() ) {
-			closeAnySurvey();
-		}
-
-		if ( typeof window._sva.addEventListener === 'function' ) {
-			// The SDK does not expose a pre-display hook, so we close on the
-			// post-display event. This causes a brief flash but is the best the
-			// public API allows.
-			window._sva.addEventListener( 'survey_displayed', function () {
-				if ( isHelpCenterShown() ) {
-					closeAnySurvey();
-				}
-			} );
-		}
-	} );
-} )();
-JS
+			'window.wpcomSurvicateConfig = ' . wp_json_encode( $config, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+			'before'
 		);
-
-		wp_enqueue_script( 'wpcom-survicate' );
 	}
 }
 
