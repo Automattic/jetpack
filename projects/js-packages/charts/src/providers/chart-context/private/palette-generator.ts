@@ -34,31 +34,90 @@ const getCandidateGrid = (): Candidate[] => {
 	return candidateGrid;
 };
 
-/** The full candidate grid, exposed only so tests can seed a generator past it without rebuilding it via selection. */
-export const getCandidateGridForTesting = getCandidateGrid;
-
 const legibleCandidatesFor = ( background: string ): Candidate[] =>
 	getCandidateGrid().filter(
 		candidate => contrastRatio( candidate.hex, background ) >= MIN_BACKGROUND_CONTRAST
 	);
 
-const pickFarthest = ( candidates: Candidate[], palette: Candidate[] ): Candidate => {
-	let best = candidates[ 0 ];
-	let bestDistance = -Infinity;
-	for ( const candidate of candidates ) {
-		let nearest = Infinity;
+/** A candidate pool with each unused candidate's current nearest distance to the palette. */
+interface Tracker {
+	pool: Candidate[];
+	nearest: Float64Array;
+}
+
+/**
+ * Build a tracker for a candidate pool, seeding each unused candidate's nearest distance against
+ * every color already in the palette.
+ *
+ * @param pool      - Candidates to track, in selection-priority order.
+ * @param palette   - Colors already placed.
+ * @param usedHexes - Hex values already placed; a used candidate's distance is never read.
+ * @return The tracker.
+ */
+const buildTracker = (
+	pool: Candidate[],
+	palette: readonly Candidate[],
+	usedHexes: ReadonlySet< string >
+): Tracker => {
+	const nearest = new Float64Array( pool.length ).fill( Infinity );
+	for ( let i = 0; i < pool.length; i++ ) {
+		if ( usedHexes.has( pool[ i ].hex ) ) {
+			continue;
+		}
 		for ( const color of palette ) {
-			nearest = Math.min( nearest, viewDistance( candidate.views, color.views ) );
-			if ( nearest <= bestDistance ) {
-				break;
+			const distance = viewDistance( pool[ i ].views, color.views );
+			if ( distance < nearest[ i ] ) {
+				nearest[ i ] = distance;
 			}
 		}
-		if ( nearest > bestDistance ) {
-			best = candidate;
-			bestDistance = nearest;
+	}
+	return { pool, nearest };
+};
+
+/**
+ * Fold one newly placed color into a tracker's nearest distances.
+ *
+ * @param tracker    - Tracker to update.
+ * @param addedColor - Color just added to the palette.
+ * @param usedHexes  - Hex values already placed; a used candidate's distance is never read.
+ */
+const updateTracker = (
+	tracker: Tracker,
+	addedColor: Candidate,
+	usedHexes: ReadonlySet< string >
+): void => {
+	for ( let i = 0; i < tracker.pool.length; i++ ) {
+		if ( usedHexes.has( tracker.pool[ i ].hex ) ) {
+			continue;
+		}
+		const distance = viewDistance( tracker.pool[ i ].views, addedColor.views );
+		if ( distance < tracker.nearest[ i ] ) {
+			tracker.nearest[ i ] = distance;
 		}
 	}
-	return best;
+};
+
+/**
+ * Pick the unused candidate whose nearest distance to the palette is largest, keeping the first
+ * in pool order on a tie.
+ *
+ * @param tracker   - Tracker to read.
+ * @param usedHexes - Hex values already placed; a used candidate is never picked.
+ * @return The farthest candidate, or null if every candidate in the pool is used.
+ */
+const pickFarthest = ( tracker: Tracker, usedHexes: ReadonlySet< string > ): Candidate | null => {
+	let bestIndex = -1;
+	let bestDistance = -Infinity;
+	for ( let i = 0; i < tracker.pool.length; i++ ) {
+		if ( usedHexes.has( tracker.pool[ i ].hex ) ) {
+			continue;
+		}
+		if ( tracker.nearest[ i ] > bestDistance ) {
+			bestDistance = tracker.nearest[ i ];
+			bestIndex = i;
+		}
+	}
+	return bestIndex === -1 ? null : tracker.pool[ bestIndex ];
 };
 
 /**
@@ -75,27 +134,47 @@ export const createPaletteGenerator = (
 ): ( ( index: number ) => string ) => {
 	const palette: Candidate[] = seeds.map( hex => ( { hex, views: hexToViews( hex ) } ) );
 	const usedHexes = new Set< string >( seeds );
-	let legiblePool: Candidate[] | null = null;
+
+	let legibleTracker: Tracker | null = null;
+	let legibleExhausted = false;
+	let gridTracker: Tracker | null = null;
+	let gridExhausted = false;
+
+	const nextColor = (): Candidate => {
+		legibleTracker ??= buildTracker( legibleCandidatesFor( background ), palette, usedHexes );
+		if ( ! legibleExhausted ) {
+			const picked = pickFarthest( legibleTracker, usedHexes );
+			if ( picked ) {
+				return picked;
+			}
+			legibleExhausted = true;
+		}
+		if ( ! gridExhausted ) {
+			gridTracker ??= buildTracker( getCandidateGrid(), palette, usedHexes );
+			const picked = pickFarthest( gridTracker, usedHexes );
+			if ( picked ) {
+				return picked;
+			}
+			gridExhausted = true;
+		}
+		// Every candidate is already in the palette; repeat the first color rather than throw.
+		return palette[ palette.length % palette.length ];
+	};
 
 	return ( index: number ): string => {
 		if ( index < palette.length ) {
 			return palette[ index ].hex;
 		}
-		legiblePool ??= legibleCandidatesFor( background );
-		const grid = getCandidateGrid();
 		while ( palette.length <= index ) {
-			const fromLegible = legiblePool.filter( candidate => ! usedHexes.has( candidate.hex ) );
-			const remaining =
-				fromLegible.length > 0
-					? fromLegible
-					: grid.filter( candidate => ! usedHexes.has( candidate.hex ) );
-			// Every candidate is already in the palette; repeat the first color rather than throw.
-			const next =
-				remaining.length > 0
-					? pickFarthest( remaining, palette )
-					: palette[ palette.length % palette.length ];
+			const next = nextColor();
 			usedHexes.add( next.hex );
 			palette.push( next );
+			if ( legibleTracker && ! legibleExhausted ) {
+				updateTracker( legibleTracker, next, usedHexes );
+			}
+			if ( gridTracker && ! gridExhausted ) {
+				updateTracker( gridTracker, next, usedHexes );
+			}
 		}
 		return palette[ index ].hex;
 	};
