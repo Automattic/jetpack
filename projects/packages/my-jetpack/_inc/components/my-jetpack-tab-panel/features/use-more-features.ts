@@ -132,7 +132,8 @@ export function filterMoreFeatures(
 
 						return $module ? moduleFields( $module ) : [ { value: state.feature.name, weight: 3 } ];
 					} ).map( ( { item } ) => item )
-				: group.states.filter( state => matchesFilter( state, filter ) ),
+				: // A module being switched stays put, for the reason the main list keeps its card.
+					group.states.filter( state => matchesFilter( state, filter ) || state.isSwitching ),
 		} ) )
 		.filter( group => group.states.length > 0 );
 }

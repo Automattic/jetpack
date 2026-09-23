@@ -90,6 +90,17 @@ describe( 'groupMoreFeatures', () => {
 		expect( filtered( 'essential' ) ).toEqual( [] );
 	} );
 
+	it( 'keeps a module whose switch is still in flight, whatever the filter says', () => {
+		const asked = groupMoreFeatures( features, groups, modules, {}, { 'module:monitor': true } );
+
+		// The click moved it to Active, but it must not leave the Inactive list mid-request.
+		expect(
+			filterMoreFeatures( asked, 'inactive', '' ).flatMap( group =>
+				group.states.map( state => state.feature.slug )
+			)
+		).toContain( 'monitor' );
+	} );
+
 	it( 'searches regardless of the filter', () => {
 		const found = filterMoreFeatures( grouped, 'active', 'monitor' );
 
