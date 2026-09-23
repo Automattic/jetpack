@@ -95,7 +95,9 @@ export function resolveFeatureState(
 			return { feature, product, pending: true, status: 'inactive', control: { kind: 'none' } };
 		}
 
-		if ( $module?.available ) {
+		// A host's override decides the module whatever the plan, so it explains itself
+		// rather than falling through to the standalone plugin.
+		if ( $module?.available || $module?.override ) {
 			return {
 				feature,
 				product,
