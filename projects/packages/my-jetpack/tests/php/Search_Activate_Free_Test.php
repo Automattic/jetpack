@@ -428,6 +428,59 @@ class Search_Activate_Free_Test extends TestCase {
 	}
 
 	/**
+	 * A site WordPress.com never pushed configuration to still lands on the same experience a
+	 * granted site gets, rather than falling through to inline.
+	 */
+	public function test_a_site_without_an_experience_gets_the_default() {
+		$this->connect_user();
+		$this->expect_wpcom_response(
+			200,
+			array(
+				'success' => true,
+				'status'  => 'already_entitled',
+			)
+		);
+		$this->expect_wpcom_response(
+			200,
+			array(
+				'supports_search'         => true,
+				'supports_instant_search' => true,
+			)
+		);
+
+		Search::activate_free_product( 'my-jetpack' );
+
+		$this->assertSame( 'overlay', get_option( 'jetpack_search_experience' ) );
+	}
+
+	/**
+	 * Turning Search off keeps the chosen experience for the next activation, so activating
+	 * again must not overwrite it with the default.
+	 */
+	public function test_an_existing_experience_survives_activation() {
+		$this->connect_user();
+		update_option( 'jetpack_search_experience', 'embedded' );
+		$this->expect_wpcom_response(
+			200,
+			array(
+				'success' => true,
+				'status'  => 'already_entitled',
+			)
+		);
+		$this->expect_wpcom_response(
+			200,
+			array(
+				'supports_search'         => true,
+				'supports_instant_search' => true,
+			)
+		);
+
+		Search::activate_free_product( 'my-jetpack' );
+
+		$this->assertSame( 'embedded', get_option( 'jetpack_search_experience' ) );
+	}
+
+	/**
 	 * A grant that lands while the local module stays off must be visible, not silent —
 	 * re-running the activation is what repairs it.
 	 */

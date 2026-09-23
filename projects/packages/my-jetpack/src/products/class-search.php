@@ -584,13 +584,33 @@ class Search extends Hybrid_Product {
 			return 'unavailable';
 		}
 
-		$activated = ( new Search_Module_Control() )->activate();
+		$module_control = new Search_Module_Control();
+		$activated      = $module_control->activate();
 
 		if ( is_wp_error( $activated ) ) {
 			return $activated->get_error_code();
 		}
 
+		self::set_default_experience_if_unset( $module_control );
+
 		return $activated ? 'activated' : 'already_active';
+	}
+
+	/**
+	 * Give a site with no experience of its own the same one WordPress.com would have pushed.
+	 *
+	 * Only fires when nothing is stored: deactivating Search deliberately keeps the choice for
+	 * the next re-activation, so a site that picked Embedded must not be flipped to Overlay.
+	 *
+	 * @param Search_Module_Control $module_control Module control for this site.
+	 */
+	private static function set_default_experience_if_unset( $module_control ) {
+		if ( get_option( Search_Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY ) ) {
+			return;
+		}
+
+		// Mirrors Jetpack_Plans_Search::DEFAULT_SEARCH_EXPERIENCE on the WordPress.com side.
+		$module_control->update_experience( Search_Module_Control::EXPERIENCE_OVERLAY );
 	}
 
 	/**
