@@ -28,10 +28,7 @@ export function registerFieldTypes(): void {
 	FIELD_TYPES.forEach( fieldType => registerFieldType( fieldType ) );
 }
 
-type ResolvableAttribute = {
-	type?: string;
-	isValid?: FieldTypeDefinition[ 'isValid' ];
-};
+type ResolvableAttribute = { type?: string };
 
 /**
  * Resolves attributes that reference a registered field type into plain
@@ -53,15 +50,7 @@ export function resolveFieldTypes< Attribute extends ResolvableAttribute >(
 		const defaults: Partial< FieldTypeDefinition > = { ...fieldType };
 		delete defaults.name;
 		delete defaults.baseType;
-		delete defaults.isValid;
 
-		return {
-			...defaults,
-			...attribute,
-			type: fieldType.baseType,
-			...( fieldType.isValid || attribute.isValid
-				? { isValid: { ...fieldType.isValid, ...attribute.isValid } }
-				: {} ),
-		} as Attribute;
+		return { ...defaults, ...attribute, type: fieldType.baseType } as Attribute;
 	} );
 }

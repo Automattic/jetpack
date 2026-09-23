@@ -19,16 +19,28 @@ const contentView: WidgetAttributeField< Attributes > = {
 };
 
 describe( 'registerFieldTypes', () => {
-	it( 'registers every field type under a name upstream accepts', async () => {
+	it( 'gives every field type a name upstream accepts', async () => {
+		await jest.isolateModulesAsync( async () => {
+			const { registerFieldType } = await import( '@wordpress/widget-primitives' );
+			const { FIELD_TYPES: fieldTypes } = await import( '../field-types' );
+
+			// A first registration returns the definition; an invalid name returns `undefined`.
+			for ( const fieldType of fieldTypes ) {
+				expect( registerFieldType( fieldType ) ).toBe( fieldType );
+			}
+		} );
+	} );
+
+	it( 'claims every name', async () => {
 		await jest.isolateModulesAsync( async () => {
 			const { registerFieldType } = await import( '@wordpress/widget-primitives' );
 			const { FIELD_TYPES: fieldTypes, registerFieldTypes } = await import( '../field-types' );
 
 			registerFieldTypes();
 
-			// Upstream returns `undefined` for a taken name: each one was accepted the first time.
+			// The names are valid (above), so `undefined` here means the name is taken.
 			for ( const fieldType of fieldTypes ) {
-				expect( registerFieldType( fieldType ) ).toBeUndefined();
+				expect( registerFieldType( { ...fieldType } ) ).toBeUndefined();
 			}
 		} );
 	} );
@@ -56,14 +68,11 @@ describe( 'resolveFieldTypes', () => {
 		] );
 	} );
 
-	it( 'lets the attribute win over the definition and merges validation rules', () => {
+	it( 'lets the attribute win over the definition', () => {
 		const Edit = () => null;
-		const [ resolved ] = resolveFieldTypes( [
-			{ ...contentView, Edit, isValid: { required: true } },
-		] );
+		const [ resolved ] = resolveFieldTypes( [ { ...contentView, Edit } ] );
 
 		expect( resolved.Edit ).toBe( Edit );
-		expect( resolved.isValid ).toEqual( { required: true } );
 	} );
 
 	it( 'passes an unregistered type through untouched', () => {
