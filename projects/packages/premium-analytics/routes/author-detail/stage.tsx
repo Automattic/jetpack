@@ -96,7 +96,13 @@ function AuthorDetail(): JSX.Element {
 		startCustomizing,
 		resetToDefault,
 		onEditChange,
-	} = useDetailPageCustomize( layout, { enabled: canRenderWidgets, onLayoutReset: resetLayout } );
+		onLayoutChange,
+	} = useDetailPageCustomize( layout, {
+		enabled: canRenderWidgets,
+		onLayoutReset: resetLayout,
+		onLayoutChange: setLayout,
+		surface: 'author_detail',
+	} );
 
 	// The trail is fixed to Stats / All authors / Author regardless of which report
 	// the reader arrived from: the author list is this page's only parent.
@@ -164,7 +170,7 @@ function AuthorDetail(): JSX.Element {
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
 				resolveWidgetModule={ resolveWidgetModuleWithI18n }
 				layout={ layout }
-				onLayoutChange={ setLayout }
+				onLayoutChange={ onLayoutChange }
 				onLayoutReset={ resetLayout }
 				gridSettings={ DETAIL_GRID }
 				editMode={ isCustomizing }

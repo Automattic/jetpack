@@ -1,10 +1,30 @@
 import '@testing-library/jest-dom';
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { render, renderHook, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { useSelect } from '@wordpress/data';
 import Providers from '../../../providers';
 import ConnectionStatusCard from '../index';
 import type { StateProducts, MyJetpackInitialState } from '../../../data/types';
+import type { ConnectionErrorObject } from '@automattic/jetpack-connection';
+
+let mockDetailsMissing = false;
+jest.mock( '@automattic/jetpack-connection', () => {
+	const actual = jest.requireActual( '@automattic/jetpack-connection' );
+
+	return {
+		...actual,
+		get ConnectionErrorDetails() {
+			return mockDetailsMissing ? undefined : actual.ConnectionErrorDetails;
+		},
+	};
+} );
+
+const mockRecordEvent = jest.fn();
+jest.mock( '../../../hooks/use-analytics', () => ( {
+	__esModule: true,
+	default: () => ( { recordEvent: mockRecordEvent } ),
+} ) );
 
 interface TestMyJetpackInitialState {
 	lifecycleStats: Pick<
@@ -55,6 +75,7 @@ const resetInitialState = () => {
 
 const adminUserConnectionData = {
 	currentUser: {
+		id: 1,
 		permissions: {
 			manage_options: true,
 		},
@@ -68,6 +89,7 @@ const adminUserConnectionData = {
 
 const nonAdminUserConnectionData = {
 	currentUser: {
+		id: 1,
 		permissions: {
 			manage_options: false,
 		},
@@ -85,6 +107,8 @@ const setConnectionStore = ( {
 	isUserConnected = false,
 	hasConnectedOwner = false,
 	userConnectionData = adminUserConnectionData,
+	connectionErrors = {},
+	connectionOwner = null,
 } = {} ) => {
 	let storeSelect;
 	renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ), [] ), {
@@ -98,6 +122,8 @@ const setConnectionStore = ( {
 		.spyOn( storeSelect, 'getUserConnectionData' )
 		.mockReset()
 		.mockReturnValue( userConnectionData );
+	jest.spyOn( storeSelect, 'getConnectionErrors' ).mockReset().mockReturnValue( connectionErrors );
+	jest.spyOn( storeSelect, 'getConnectionOwner' ).mockReset().mockReturnValue( connectionOwner );
 };
 beforeAll( () => {
 	global.JetpackScriptData = {
@@ -112,6 +138,7 @@ beforeAll( () => {
 	};
 } );
 beforeEach( () => {
+	mockRecordEvent.mockClear();
 	resetInitialState();
 	setConnectionStore();
 	global.JetpackScriptData.user.current_user.capabilities = {};
@@ -255,6 +282,237 @@ describe( 'ConnectionStatusCard', () => {
 			setup();
 			expect( screen.getByText( /Connected as/ ) ).toBeInTheDocument();
 		} );
+
+		// Matched as a direct child of the heading: the manage-connection button holds its own chevron.
+		it( 'shows no fault icon', () => {
+			const { container } = setup();
+
+			// eslint-disable-next-line testing-library/no-node-access, testing-library/no-container -- The icon is decorative, so it has no role or text to query by.
+			expect( container.querySelector( 'h4 > svg' ) ).toBeNull();
+		} );
+	} );
+
+	describe( 'When the connection is fully established but broken', () => {
+		const setupWithError = ( {
+			error = { audience: 'site' },
+			userId = '1',
+			isAdmin = true,
+			connectionOwner = null,
+			connectionErrors,
+		}: {
+			error?: Partial< ConnectionErrorObject >;
+			userId?: string;
+			isAdmin?: boolean;
+			connectionOwner?: { id: number; displayName: string } | null;
+			connectionErrors?: Record< string, Record< string, ConnectionErrorObject > >;
+		} = {} ) => {
+			global.JetpackScriptData.user.current_user.capabilities.manage_options = isAdmin;
+			setConnectionStore( {
+				isRegistered: true,
+				isUserConnected: true,
+				hasConnectedOwner: true,
+				connectionOwner,
+				connectionErrors: connectionErrors ?? {
+					invalid_token: {
+						[ userId ]: {
+							error_code: 'invalid_token',
+							error_message: 'Your site is not connected to WordPress.com.',
+							user_id: userId,
+							...error,
+						},
+					},
+				},
+			} );
+			return render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
+		};
+
+		// setupWithError writes manage_options; clear it so later describes see their own caps.
+		afterEach( () => {
+			global.JetpackScriptData.user.current_user.capabilities = {};
+		} );
+
+		it( 'does not claim everything looks good', () => {
+			setupWithError();
+			expect( screen.queryByText( 'Everything looks good.' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Site and account connected' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'describes the error in the package’s own words', () => {
+			setupWithError( { error: { audience: 'site' } } );
+			expect( screen.getByText( 'Jetpack Connection error: Site connection' ) ).toBeInTheDocument();
+			expect(
+				screen.getByText( 'Your site is not connected to WordPress.com.' )
+			).toBeInTheDocument();
+		} );
+
+		it( 'falls back to the error message when the shared script predates ConnectionErrorDetails', () => {
+			mockDetailsMissing = true;
+			try {
+				setupWithError( { error: { audience: 'site' } } );
+				expect(
+					screen.getByText( 'Your site is not connected to WordPress.com.' )
+				).toBeInTheDocument();
+				expect( screen.getByRole( 'button', { name: 'Restore Connection' } ) ).toBeInTheDocument();
+			} finally {
+				mockDetailsMissing = false;
+			}
+		} );
+
+		it( 'flags the fault beside the heading', () => {
+			const { container } = setupWithError();
+
+			// eslint-disable-next-line testing-library/no-node-access, testing-library/no-container -- The icon is decorative, so it has no role or text to query by.
+			expect( container.querySelector( 'h4 > svg' ) ).toBeInTheDocument();
+		} );
+
+		it( 'names the viewer’s own account as the broken half in the title', () => {
+			setupWithError( { error: { audience: 'user' } } );
+			expect( screen.getByText( 'Jetpack Connection error: Your account' ) ).toBeInTheDocument();
+		} );
+
+		it( 'counts the errors and lists their scopes when two halves are broken', () => {
+			setupWithError( {
+				connectionErrors: {
+					invalid_token: {
+						1: {
+							error_code: 'invalid_token',
+							error_message: 'Your site is not connected to WordPress.com.',
+							user_id: '1',
+							audience: 'site',
+						},
+					},
+					invalid_user_token: {
+						1: {
+							error_code: 'invalid_user_token',
+							error_message: 'Your account is not connected to WordPress.com.',
+							user_id: '1',
+							audience: 'user',
+						},
+					},
+				},
+			} );
+			expect( screen.getByText( '2 Jetpack Connection errors' ) ).toBeInTheDocument();
+			expect( screen.getByText( '- Site connection' ) ).toBeInTheDocument();
+			expect( screen.getByText( '- Your account' ) ).toBeInTheDocument();
+		} );
+
+		it( 'offers the package’s CTA for the error', () => {
+			setupWithError();
+			expect( screen.getByRole( 'button', { name: 'Restore Connection' } ) ).toBeInTheDocument();
+		} );
+
+		it( 'renders a link the error declared', () => {
+			setupWithError( {
+				error: {
+					audience: 'site',
+					error_data: {
+						action: 'none',
+						notice_link: { label: 'Visit Site Health', url: '/wp-admin/site-health.php' },
+					},
+				},
+			} );
+			expect( screen.getByRole( 'link', { name: 'Visit Site Health' } ) ).toHaveAttribute(
+				'href',
+				'/wp-admin/site-health.php'
+			);
+		} );
+
+		it( 'tracks a click on a link the error declared as coming from the card', async () => {
+			setupWithError( {
+				error: {
+					audience: 'site',
+					error_data: {
+						action: 'none',
+						notice_link: { label: 'Visit Site Health', url: '/wp-admin/site-health.php' },
+					},
+				},
+			} );
+
+			// Stops jsdom's real anchor navigation, which logs a console.error the harness fails on.
+			const cancelNavigation = ( event: MouseEvent ) => event.preventDefault();
+			document.addEventListener( 'click', cancelNavigation );
+			try {
+				await userEvent.click( screen.getByRole( 'link', { name: 'Visit Site Health' } ) );
+			} finally {
+				document.removeEventListener( 'click', cancelNavigation );
+			}
+
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_connection_error_notice_link_click',
+				expect.objectContaining( { context: 'my-jetpack-connection-card' } )
+			);
+		} );
+
+		it( 'offers the repair as a button and manage connection as a link', () => {
+			setupWithError();
+
+			expect( screen.getByRole( 'button', { name: 'Restore Connection' } ) ).not.toHaveClass(
+				'is-link'
+			);
+			expect( screen.getByRole( 'button', { name: 'Manage connection' } ) ).toHaveClass(
+				'is-link'
+			);
+		} );
+
+		it( 'names the manage connection action rather than hanging it off the heading', () => {
+			setupWithError();
+			expect(
+				screen.queryByRole( 'button', { name: /Jetpack Connection error/ } )
+			).not.toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Manage connection' } ) ).toBeInTheDocument();
+		} );
+
+		it( 'points at the owner when the broken token is theirs and the viewer is not them', () => {
+			setupWithError( {
+				error: { audience: 'owner' },
+				userId: '2',
+				connectionOwner: { id: 2, displayName: 'Owner' },
+			} );
+			expect(
+				screen.getByText( "Jetpack Connection error: Connection owner's account (Owner)" )
+			).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'When the account is still to be connected and something is broken', () => {
+		afterEach( () => {
+			global.JetpackScriptData.user.current_user.capabilities = {};
+		} );
+
+		it( 'keeps the connect prompt rather than replacing it with the fault', () => {
+			global.JetpackScriptData.user.current_user.capabilities.manage_options = true;
+			setConnectionStore( {
+				isRegistered: true,
+				isUserConnected: false,
+				hasConnectedOwner: true,
+				connectionErrors: {
+					invalid_token: {
+						1: {
+							error_code: 'invalid_token',
+							error_message: 'Your site is not connected to WordPress.com.',
+							user_id: '1',
+							audience: 'site',
+						},
+					},
+				},
+			} );
+			render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
+
+			expect( screen.getByText( 'Site connected' ) ).toBeInTheDocument();
+			expect(
+				screen.getByText( 'Connect your account to unlock all the features.' )
+			).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Connect my account' } ) ).toBeInTheDocument();
+			expect( screen.queryByText( /Jetpack Connection error/ ) ).not.toBeInTheDocument();
+		} );
 	} );
 
 	describe( 'When on WoA site and user is connection owner', () => {
@@ -263,6 +521,7 @@ describe( 'ConnectionStatusCard', () => {
 
 			const woaOwnerConnectionData = {
 				currentUser: {
+					id: 1,
 					permissions: {
 						manage_options: true,
 					},
@@ -303,6 +562,7 @@ describe( 'ConnectionStatusCard', () => {
 		const setup = () => {
 			const userDataWithErrors = {
 				currentUser: {
+					id: 1,
 					permissions: {
 						manage_options: true,
 					},

@@ -4,12 +4,14 @@ import useConnection from '../../components/use-connection';
 import useRestoreConnection from '../../hooks/use-restore-connection';
 import { getConnectionErrorDetails, isConnectionErrorMap } from './error-details';
 import { resolveConnectionErrorActions } from './resolve-actions';
+import { getConnectionErrorSeverity } from './severity';
 import { CONNECTION_ERROR_NOTICE_EVENTS, trackConnectionErrorNoticeEvent } from './tracking';
 import type {
 	ConnectionErrorMap,
 	ConnectionErrorNoticeLink,
 	ConnectionErrorObject,
 	ConnectionErrorProps,
+	ConnectionErrorSeverity,
 	ConnectionErrorViewer,
 	UseConnectionErrorNoticeResult,
 } from './types';
@@ -152,6 +154,13 @@ export default function useConnectionErrorNotice( {
 	// message — the filtering undone by the flag that was meant to respect it.
 	const hasConnectionError = displayableErrors.length > 0;
 
+	// How much of a problem the break is for this viewer. Derived here so a notice
+	// and a status surface built on this hook cannot rate the same break differently.
+	const severity: ConnectionErrorSeverity | null = useMemo(
+		() => getConnectionErrorSeverity( displayableErrors, viewer ),
+		[ displayableErrors, viewer ]
+	);
+
 	const actions = useMemo(
 		() =>
 			actionError
@@ -221,6 +230,7 @@ export default function useConnectionErrorNotice( {
 
 	return {
 		hasConnectionError,
+		severity,
 		connectionErrorMessage,
 		connectionError: actionError, // Full error object with error_type, etc.
 		connectionErrors: errorMap, // All errors for advanced use cases.
@@ -254,6 +264,7 @@ export function ConnectionError( {
 }: ConnectionErrorProps = {} ): ReactElement | null {
 	const {
 		hasConnectionError,
+		severity,
 		connectionErrorMessage,
 		connectionError,
 		errorTitle,
@@ -291,6 +302,7 @@ export function ConnectionError( {
 			actions={ actions }
 			onNoticeLinkClick={ trackNoticeLinkClick }
 			onSupportLinkClick={ trackSupportLinkClick }
+			severity={ severity ?? 'error' }
 		/>
 	);
 }

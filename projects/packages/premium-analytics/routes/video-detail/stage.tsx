@@ -85,7 +85,13 @@ function VideoDetail(): JSX.Element {
 		startCustomizing,
 		resetToDefault,
 		onEditChange,
-	} = useDetailPageCustomize( layout, { enabled: canRenderWidgets, onLayoutReset: resetLayout } );
+		onLayoutChange,
+	} = useDetailPageCustomize( layout, {
+		enabled: canRenderWidgets,
+		onLayoutReset: resetLayout,
+		onLayoutChange: setLayout,
+		surface: 'video_detail',
+	} );
 
 	// Error and not-found responses have no trustworthy title, so only a
 	// resolved video adds the title crumb.
@@ -135,7 +141,7 @@ function VideoDetail(): JSX.Element {
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
 				resolveWidgetModule={ resolveWidgetModuleWithI18n }
 				layout={ layout }
-				onLayoutChange={ setLayout }
+				onLayoutChange={ onLayoutChange }
 				onLayoutReset={ resetLayout }
 				gridSettings={ DETAIL_GRID }
 				editMode={ isCustomizing }

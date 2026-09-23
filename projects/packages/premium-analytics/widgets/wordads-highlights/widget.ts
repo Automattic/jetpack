@@ -6,8 +6,7 @@ import { payment } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
- * Earnings cards the widget can show, in display order. Single source for the
- * settings checkboxes and rendered tiles so the two cannot drift apart.
+ * Earnings cards the widget shows, in display order.
  */
 export const WORDADS_EARNINGS_METRICS = [
 	{ id: 'earnings', label: __( 'Earnings', 'jetpack-premium-analytics-pkg' ) },
@@ -15,50 +14,21 @@ export const WORDADS_EARNINGS_METRICS = [
 	{ id: 'outstanding', label: __( 'Outstanding amount', 'jetpack-premium-analytics-pkg' ) },
 ] as const satisfies readonly { id: string; label: string }[];
 
-/**
- * Identifier persisted in the widget's `metrics` attribute for one earnings card.
- */
 export type WordAdsEarningsMetricId = ( typeof WORDADS_EARNINGS_METRICS )[ number ][ 'id' ];
 
 /**
- * Configurable attributes for the WordAds earnings widget. The widget has no
- * date range — the `wordads/earnings` endpoint reports all-time totals and is
- * not period-scoped.
+ * No configurable attributes; the empty record allows host-provided fields. A
+ * `metrics` subset persisted by an earlier version is ignored.
  */
-export type WordAdsHighlightsAttributes = {
-	/**
-	 * Earnings cards to show in the widget body.
-	 */
-	metrics?: WordAdsEarningsMetricId[];
-};
+export type WordAdsHighlightsAttributes = Record< never, never >;
 
 /**
- * Default selection for new widget instances: every card enabled.
- */
-export const DEFAULT_WORDADS_EARNINGS_METRICS: WordAdsEarningsMetricId[] =
-	WORDADS_EARNINGS_METRICS.map( metric => metric.id );
-
-/**
- * `help` mirrors the Calypso WordAds payout notice (threshold and timing).
- * `example.attributes` doubles as the defaults for new instances.
+ * `help` in widget.json mirrors the Calypso WordAds payout notice (threshold and timing).
  */
 export default {
 	icon: payment,
-	attributes: [
-		{
-			id: 'metrics',
-			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
-			type: 'jpa/array-checkbox',
-			relevance: 'high',
-			elements: WORDADS_EARNINGS_METRICS.map( metric => ( {
-				value: metric.id,
-				label: metric.label,
-			} ) ),
-		},
-	] as WidgetAttributeField< WordAdsHighlightsAttributes >[],
+	attributes: [] as WidgetAttributeField< WordAdsHighlightsAttributes >[],
 	example: {
-		attributes: {
-			metrics: DEFAULT_WORDADS_EARNINGS_METRICS,
-		},
+		attributes: {},
 	},
 };

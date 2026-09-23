@@ -19,7 +19,11 @@ import {
 	StatsBreadcrumbs,
 	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
-import { PageOptionsMenu, ResetLayoutAction } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	PageOptionsMenu,
+	ResetLayoutAction,
+	useTrackCustomize,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
@@ -54,6 +58,7 @@ import {
 import './overlay-focus-ring.scss';
 import styles from './stage.module.scss';
 import type { DateRange, YearSurfacePresetId } from '@jetpack-premium-analytics/datetime';
+import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 /**
  * Premium Analytics dashboard page stage component.
@@ -102,11 +107,33 @@ function Dashboard(): JSX.Element {
 	const widgetModules = useWidgetModules();
 
 	const [ editMode, setEditMode ] = useState( false );
-	const startCustomizing = useCallback( () => setEditMode( true ), [] );
+	const trackCustomize = useTrackCustomize( 'dashboard', activeSection );
+	// Every way into and out of edit mode arrives here: the menu below, the command
+	// palette, an empty layout, and the dashboard's own Cancel and Done.
+	const onEditChange = useCallback(
+		( nextEditMode: boolean ) => {
+			if ( nextEditMode ) {
+				trackCustomize.start();
+			} else {
+				trackCustomize.exit();
+			}
+			setEditMode( nextEditMode );
+		},
+		[ trackCustomize ]
+	);
+	const startCustomizing = useCallback( () => onEditChange( true ), [ onEditChange ] );
+	const onLayoutChange = useCallback(
+		( nextLayout: DashboardWidget[] ) => {
+			trackCustomize.layoutChange( layout, nextLayout );
+			setLayout( nextLayout );
+		},
+		[ layout, setLayout, trackCustomize ]
+	);
 	const resetToDefault = useCallback( () => {
+		trackCustomize.reset();
 		resetLayout();
 		setEditMode( false );
-	}, [ resetLayout ] );
+	}, [ resetLayout, trackCustomize ] );
 
 	// The tour's anchors, handed in by the elements below once they mount.
 	const [ optionsMenuFrame, setOptionsMenuFrame ] = useState< HTMLDivElement | null >( null );
@@ -265,11 +292,11 @@ function Dashboard(): JSX.Element {
 						isResolvingWidgetTypes={ isResolvingWidgetTypes }
 						resolveWidgetModule={ resolveWidgetModuleWithI18n }
 						layout={ layout }
-						onLayoutChange={ setLayout }
+						onLayoutChange={ onLayoutChange }
 						onLayoutReset={ resetLayout }
 						gridSettings={ gridSettings }
 						editMode={ editMode }
-						onEditChange={ setEditMode }
+						onEditChange={ onEditChange }
 					>
 						<Page
 							visual={ <StatsPageIcon /> }

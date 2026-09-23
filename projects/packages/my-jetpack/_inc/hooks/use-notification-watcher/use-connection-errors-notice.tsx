@@ -6,13 +6,12 @@ import {
 	useConnectionErrorNotice,
 	type ConnectionErrorNoticeLink,
 	type ConnectionErrorObject,
-	type ConnectionErrorTrackingCallback,
 } from '@automattic/jetpack-connection';
 import { Link } from '@wordpress/ui';
 import { useContext, useEffect, useCallback, useMemo } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
-import useAnalytics from '../use-analytics';
+import useConnectionErrorTracking from '../use-connection-error-tracking';
 import { assignLocation } from './assignLocation';
 import type { NoticeOptions, NoticeButtonAction } from '../../context/notices/types';
 
@@ -57,24 +56,14 @@ const useConnectionErrorsNotice = (
 	actionHandlers: Record< string, ( error: ConnectionErrorObject ) => void > = NO_ACTION_HANDLERS
 ) => {
 	const { setNotice } = useContext( NoticeContext );
-	const { recordEvent } = useAnalytics();
-
-	// Tracking callback for the shared resolver, preserving My Jetpack's
-	// "jetpack_"-prefixed event guard.
-	const trackingCallback: ConnectionErrorTrackingCallback = useCallback(
-		( event, data ) => {
-			if ( event && event.startsWith( 'jetpack_' ) ) {
-				recordEvent( event as `jetpack_${ string }`, data );
-			}
-		},
-		[ recordEvent ]
-	);
+	const trackingCallback = useConnectionErrorTracking();
 
 	// Detection, copy and action resolution are owned by the connection package;
 	// we only map what it derived into a My Jetpack notice and re-attach our own
 	// tracking event for the reconnect CTA.
 	const {
 		hasConnectionError,
+		severity,
 		connectionError,
 		displayableErrors,
 		errorTitle,
@@ -131,9 +120,8 @@ const useConnectionErrorsNotice = (
 			return;
 		}
 
-		// Keep the backend message as the headline, then group broken-token errors under one
-		// shared description with each error's scope beneath it. Both the grouping and the
-		// scope lines come from the connection package.
+		// A hand-built copy of the package's `ConnectionErrorDetails`, kept until My Jetpack
+		// renders the package's `<ConnectionError />` directly. Don't extend it.
 		const errorMessage = (
 			<Col>
 				{ restoreConnectionError && (
@@ -145,10 +133,6 @@ const useConnectionErrorsNotice = (
 							{ group.message }
 						</Text>
 						{ group.detailLines.length > 0 && (
-							// A real list, so assistive tech announces how many scopes an error
-							// covers instead of reading loose lines. `Text` supplies the margin
-							// and padding reset; only the marker has to be turned off by hand,
-							// and one declaration does not earn a stylesheet of its own.
 							<Text component="ul" style={ { listStyle: 'none' } }>
 								{ group.detailLines.map( ( line, index ) => (
 									<Text
@@ -188,7 +172,9 @@ const useConnectionErrorsNotice = (
 
 		const noticeOptions: NoticeOptions = {
 			id: 'connection-error-notice',
-			level: 'error',
+			// The package rates the break for this viewer; a broken owner token is a
+			// warning to everybody but the owner, who is the only one who can fix it.
+			level: severity ?? 'error',
 			actions: noticeActions,
 			priority: NOTICE_PRIORITY_HIGH + ( isRestoringConnection ? 1 : 0 ),
 			tracksArgs,
@@ -202,6 +188,7 @@ const useConnectionErrorsNotice = (
 	}, [
 		setNotice,
 		hasConnectionError,
+		severity,
 		tracksArgs,
 		errorGroups,
 		errorTitle,
