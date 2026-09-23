@@ -28,11 +28,11 @@ const toComparisonPresetId = ( value?: string ): ComparisonPresetId | undefined 
 
 /**
  * Resolve the comparison params for the main range, in the site timezone: the
- * active preset where the range still offers it, else the previous period, so
- * a range change never strands a comparison the picker cannot name. The primary
- * preset travels along, so a to-date preset's previous period is its previous
- * whole period rather than a day count. Returns ISO strings with the site
- * offset, plus the preset they came from.
+ * active preset where the range still offers it (by name or as an alias), else
+ * the previous period, so a range change never strands a comparison the picker
+ * cannot name. The primary preset travels along, so a to-date preset's previous
+ * period is its previous whole period rather than a day count. Returns ISO
+ * strings with the site offset, plus the preset they came from.
  *
  * @param opts - Report params carrying the main range and comparison state.
  * @return The comparison params, or undefined when comparison is off or the range unreadable.
@@ -71,9 +71,9 @@ export function deriveComparisonRange( opts: ReportParams ):
 	const presetId = toComparisonPresetId( opts.compare_preset );
 
 	// A preset the menu folded into another entry for naming the same window
-	// lands on that entry; one the range cannot offer at all — or an id from
-	// an old link — falls back to the previous period, which every range
-	// offers, so the comparison intent survives a range change.
+	// takes that entry's window but keeps its own id, so it comes back once the
+	// range offers it again; one the range cannot offer at all — or an id from
+	// an old link — falls back to the previous period, which every range offers.
 	const option =
 		( presetId &&
 			options.find(
@@ -88,6 +88,6 @@ export function deriveComparisonRange( opts: ReportParams ):
 	return {
 		compare_from: dateToISOStringWithLocalTZ( option.range.from ),
 		compare_to: dateToISOStringWithLocalTZ( option.range.to ),
-		compare_preset: option.id,
+		compare_preset: presetId && option.aliases.includes( presetId ) ? presetId : option.id,
 	};
 }

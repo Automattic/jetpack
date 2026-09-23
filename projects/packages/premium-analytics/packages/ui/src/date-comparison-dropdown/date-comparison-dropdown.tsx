@@ -66,10 +66,14 @@ export function DateComparisonDropdown( {
 		];
 	}, [ noComparisonLabel, presets ] );
 
-	// A preset the current range cannot produce leaves the trigger with nothing
-	// to name, so the control falls back to its additive state.
+	// A preset folded into another entry checks that entry. One the current
+	// range cannot produce leaves the trigger with nothing to name, so the
+	// control falls back to its additive state.
 	const selectedPreset = useMemo(
-		() => ( enabled && presetId ? presets.find( preset => preset.id === presetId ) : undefined ),
+		() =>
+			enabled && presetId
+				? presets.find( preset => preset.id === presetId || preset.aliases.includes( presetId ) )
+				: undefined,
 		[ enabled, presetId, presets ]
 	);
 
