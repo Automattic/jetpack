@@ -111,7 +111,6 @@ export const SubscriptionOptions = () => {
 	}
 
 	const state = subscriptions.value ?? NO_SUBSCRIPTION;
-	const isLoading = subscriptions.value === undefined;
 
 	const apply = async ( change: SubscriptionChange ) => {
 		const answer = settle(
@@ -127,7 +126,7 @@ export const SubscriptionOptions = () => {
 	return (
 		<div className="jetpack-comments__options">
 			<Options
-				disabled={ isLoading }
+				disabled={ subscriptions.value === undefined }
 				notifications={
 					offerNotifications
 						? {

@@ -1,13 +1,11 @@
 import { GravatarQuickEditorCore } from '@gravatar-com/quick-editor';
 import clsx from 'clsx';
-import { useContext, useEffect, useRef, useState } from 'preact/hooks';
+import { useContext, useRef, useState } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
 import { hasSubscriptionOptions } from '../subscriptions';
 import { GearIcon } from './checkpoint/icons';
 
 import './style.scss';
-
-const AVATAR_REFRESH_MS = 2000;
 
 const bustAvatarCache = ( avatar: string, stamp: number ) => {
 	if ( ! stamp ) {
@@ -21,12 +19,6 @@ const bustAvatarCache = ( avatar: string, stamp: number ) => {
 	} catch {
 		return avatar;
 	}
-};
-
-type Current = {
-	avatar: string;
-	name: string;
-	email: string;
 };
 
 export const CommentingAs = () => {
@@ -49,55 +41,43 @@ export const CommentingAs = () => {
 };
 
 type UserSettingsProps = {
-	current: Current;
+	current: { avatar: string; name: string; email: string };
 };
 
 const UserSettings = ( { current }: UserSettingsProps ) => {
 	const { formSettings, isTrayOpen } = useContext( CommentSignals );
-	const { strings } = JetpackComments;
-	const [ isLoading, setIsLoading ] = useState( false );
+	const { strings, locale } = JetpackComments;
+	const [ isRefreshing, setIsRefreshing ] = useState( false );
 	const [ stamp, setStamp ] = useState( 0 );
-	const timer = useRef< ReturnType< typeof setTimeout > | null >( null );
 	const editor = useRef< GravatarQuickEditorCore | null >( null );
 	const hasOptions = hasSubscriptionOptions();
-
-	useEffect( () => {
-		return () => {
-			if ( timer.current !== null ) {
-				clearTimeout( timer.current );
-			}
-		};
-	}, [] );
 
 	const editAvatar = ( event: Event ) => {
 		event.preventDefault();
 
 		if ( ! editor.current ) {
-			const { locale } = JetpackComments;
-
 			editor.current = new GravatarQuickEditorCore( {
 				scope: [ 'avatars' ],
 				email: current.email,
 				// Gravatar serves the editor from a per-language subdomain; only Chinese has a regional one.
 				locale: locale === 'zh_TW' ? 'zh-TW' : locale.replace( /_.*$/, '' ),
 				utm: 'jetpack-comments',
-				onProfileUpdated: () => {
-					setIsLoading( true );
-
-					if ( timer.current !== null ) {
-						clearTimeout( timer.current );
+				// Gravatar says nothing about when its CDN has the new image; its own editor waits like this too.
+				onProfileUpdated: type => {
+					if ( type !== 'avatar_updated' ) {
+						return;
 					}
 
-					timer.current = setTimeout( () => {
-						setIsLoading( false );
+					setIsRefreshing( true );
+					setTimeout( () => {
 						setStamp( Date.now() );
-						timer.current = null;
-					}, AVATAR_REFRESH_MS );
+						setIsRefreshing( false );
+					}, 2000 );
 				},
 			} );
 		}
 
-		editor.current.open( current.email );
+		editor.current.open();
 	};
 
 	return (
@@ -106,7 +86,7 @@ const UserSettings = ( { current }: UserSettingsProps ) => {
 				<button
 					type="button"
 					aria-label={ strings.editGravatar }
-					className={ clsx( 'jetpack-comments__profile', { 'is-loading': isLoading } ) }
+					className={ clsx( 'jetpack-comments__profile', { 'is-loading': isRefreshing } ) }
 					onClick={ editAvatar }
 				>
 					{ current.avatar && (

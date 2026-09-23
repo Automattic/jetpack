@@ -10,25 +10,20 @@ type FrequencyToggleProps = {
 
 const FREQUENCIES: Frequency[] = [ 'instantly', 'daily', 'weekly' ];
 
-const useMediaQuery = ( query: string ) => {
-	const [ matches, setMatches ] = useState( () => window.matchMedia( query ).matches );
-
-	useEffect( () => {
-		const list = window.matchMedia( query );
-		const update = () => setMatches( list.matches );
-
-		update();
-		list.addEventListener( 'change', update );
-
-		return () => list.removeEventListener( 'change', update );
-	}, [ query ] );
-
-	return matches;
-};
+const NARROW = '(max-width: 400px)';
 
 export const FrequencyToggle = ( { name, value, onChange, disabled }: FrequencyToggleProps ) => {
 	const { strings } = JetpackComments;
-	const isNarrow = useMediaQuery( '(max-width: 400px)' );
+	const [ isNarrow, setIsNarrow ] = useState( () => window.matchMedia( NARROW ).matches );
+
+	useEffect( () => {
+		const list = window.matchMedia( NARROW );
+		const update = () => setIsNarrow( list.matches );
+
+		list.addEventListener( 'change', update );
+
+		return () => list.removeEventListener( 'change', update );
+	}, [] );
 
 	if ( isNarrow ) {
 		return (
@@ -54,7 +49,6 @@ export const FrequencyToggle = ( { name, value, onChange, disabled }: FrequencyT
 				<legend className="jetpack-comments__visually-hidden">{ strings.emailNewPosts }</legend>
 				{ FREQUENCIES.map( frequency => {
 					const id = `${ name }-${ frequency }`;
-					const checked = frequency === value;
 
 					return (
 						<span key={ frequency } className="jetpack-comments__frequency-option">
@@ -63,7 +57,7 @@ export const FrequencyToggle = ( { name, value, onChange, disabled }: FrequencyT
 								name={ name }
 								id={ id }
 								value={ frequency }
-								checked={ checked }
+								checked={ frequency === value }
 								disabled={ disabled }
 								onChange={ () => onChange( frequency ) }
 							/>
