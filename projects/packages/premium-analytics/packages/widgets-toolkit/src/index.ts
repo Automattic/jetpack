@@ -279,7 +279,6 @@ export {
 	useStoredDetailLayout,
 	useTrackCustomize,
 	useTrackEvent,
-	type TrackingSurface,
 	useWidgetDrillDown,
 } from './hooks';
 
