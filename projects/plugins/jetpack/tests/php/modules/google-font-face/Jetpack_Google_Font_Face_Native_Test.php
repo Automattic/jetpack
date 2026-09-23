@@ -179,18 +179,36 @@ class Jetpack_Google_Font_Face_Native_Test extends WP_UnitTestCase {
 		set_current_screen( 'front' );
 	}
 
-	public function test_json_request_keeps_full_catalogue() {
-		$accept                 = $_SERVER['HTTP_ACCEPT'] ?? null;
-		$_SERVER['HTTP_ACCEPT'] = 'application/json';
+	/** @return array */
+	public static function request_urls() {
+		return array(
+			'front-end page'                  => array( '/hello-world/', array(), null, false ),
+			'front-end page with JSON Accept' => array( '/hello-world/', array(), 'application/json, text/plain, */*', false ),
+			'REST path'                       => array( '/wp-json/wp/v2/global-styles/themes/block-theme', array(), null, true ),
+			'rest_route query'                => array( '/', array( 'rest_route' => '/wp/v2/settings' ), null, true ),
+		);
+	}
+
+	/**
+	 * @dataProvider request_urls
+	 * @param string      $uri      Request URI.
+	 * @param array       $get      Query arguments.
+	 * @param string|null $accept   Accept header.
+	 * @param bool        $expected Whether catalogue faces load.
+	 */
+	#[DataProvider( 'request_urls' )]
+	public function test_rest_urls_keep_full_catalogue_before_rest_request_is_defined( $uri, $get, $accept, $expected ) {
+		$server                 = $_SERVER;
+		$query                  = $_GET;
+		$_SERVER['REQUEST_URI'] = $uri;
+		$_SERVER['HTTP_ACCEPT'] = $accept;
+		$_GET                   = $get;
 		try {
 			$data = jetpack_register_google_fonts_to_theme_json( new WP_Theme_JSON_Data( array( 'version' => 3 ), 'default' ) )->get_data();
-			$this->assertArrayHasKey( 'fontFace', $data['settings']['typography']['fontFamilies']['default'][0] );
+			$this->assertSame( $expected, isset( $data['settings']['typography']['fontFamilies']['default'][0]['fontFace'] ) );
 		} finally {
-			if ( null === $accept ) {
-				unset( $_SERVER['HTTP_ACCEPT'] );
-			} else {
-				$_SERVER['HTTP_ACCEPT'] = $accept;
-			}
+			$_SERVER = $server;
+			$_GET    = $query;
 		}
 	}
 

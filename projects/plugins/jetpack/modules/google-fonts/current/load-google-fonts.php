@@ -122,6 +122,24 @@ function jetpack_get_available_google_fonts_map( $google_fonts_data ) {
 }
 
 /**
+ * Whether the request URL is a REST route.
+ *
+ * Theme JSON can resolve before REST_REQUEST is defined, and the Accept header also matches front-end requests.
+ *
+ * @since $$next-version$$
+ *
+ * @return bool
+ */
+function jetpack_google_fonts_is_rest_url() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only used to classify the request.
+	if ( isset( $_GET['rest_route'] ) ) {
+		return true;
+	}
+	$path = (string) wp_parse_url( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '', PHP_URL_PATH ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Parsed for path comparison only.
+	return str_contains( $path, '/' . rest_get_url_prefix() . '/' );
+}
+
+/**
  * Whether catalogue faces are needed in theme JSON for an editor or API request.
  *
  * @since $$next-version$$
@@ -131,7 +149,7 @@ function jetpack_get_available_google_fonts_map( $google_fonts_data ) {
 function jetpack_google_fonts_load_font_faces() {
 	$load_font_faces = is_admin()
 		|| ( defined( 'REST_REQUEST' ) && REST_REQUEST )
-		|| wp_is_json_request()
+		|| jetpack_google_fonts_is_rest_url()
 		|| ( defined( 'WP_CLI' ) && WP_CLI );
 
 	/**
