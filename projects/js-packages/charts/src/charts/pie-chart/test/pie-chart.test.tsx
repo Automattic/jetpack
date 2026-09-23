@@ -163,23 +163,36 @@ describe( 'PieChart', () => {
 			expect( dark ).not.toHaveClass( 'pie-chart__label-text--on-light' );
 		} );
 
-		test( 'keeps the inverse label color when a label plate is set', () => {
-			const container = document.createElement( 'div' );
-			container.style.setProperty( '--a8c-charts-color-label-background', 'rgba(0, 0, 0, 0.75)' );
-			document.body.appendChild( container );
+		test( "keeps the inverse label color when a label plate is set on the chart's own class", () => {
+			const style = document.createElement( 'style' );
+			style.textContent =
+				'.plated-pie { --a8c-charts-color-label-background: rgba(0, 0, 0, 0.75); }';
+			document.head.appendChild( style );
 
-			render(
-				<GlobalChartsProvider>
-					<PieChart { ...defaultProps } data={ contrastData } />
-				</GlobalChartsProvider>,
-				{ container }
-			);
+			renderWithTheme( { data: contrastData, className: 'plated-pie' } );
 
 			screen
 				.getAllByTestId( 'pie-label' )
 				.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
 
-			document.body.removeChild( container );
+			document.head.removeChild( style );
+		} );
+
+		test( "compares against a label-inverse override set on the chart's own class", () => {
+			const style = document.createElement( 'style' );
+			// Matches the slice fill exactly, so the inverse role loses to the default dark label role.
+			style.textContent = '.overridden-pie { --a8c-charts-color-label-inverse: #1e3a8a; }';
+			document.head.appendChild( style );
+
+			renderWithTheme( {
+				data: [ { label: 'Dark', value: 100, color: '#1e3a8a' } ],
+				className: 'overridden-pie',
+			} );
+
+			const [ label ] = screen.getAllByTestId( 'pie-label' );
+			expect( label ).toHaveClass( 'pie-chart__label-text--on-light' );
+
+			document.head.removeChild( style );
 		} );
 
 		test( 'keeps the inverse label color when the fill cannot be resolved', () => {
