@@ -6,12 +6,11 @@
 
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
 import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { API_BASE } from '../utils/api-base';
+import { deleteExistingLink, removeExistingLink } from '../utils/existing-links';
 import { getResourceAttributeUpdates, isBookkeeping, isSameValue } from '../utils/resource-sync';
-import { isNotFound, recordBlockMounted, recordPaymentRead } from '../utils/sync-on-save';
-import { toast } from '../utils/toast';
-import { getUserFriendlyError } from '../utils/validation';
+import { recordBlockMounted, recordPaymentRead } from '../utils/sync-on-save';
+import { isNotFound } from '../utils/validation';
 
 /**
  * The PayPal payment resource this block points at: reading it back and
@@ -110,6 +109,8 @@ export function usePayPalResource( {
 				// A 404 counts as the read, so the save can run and re-create the payment.
 				recordPaymentRead( clientId, resourceId );
 				setLinkDeleted( true );
+				// Gone from PayPal, so drop it from every block's picker.
+				removeExistingLink( resourceId );
 			} );
 
 		return () => {
@@ -135,30 +136,17 @@ export function usePayPalResource( {
 		setShowDeleteConfirm( false );
 		setIsBusy( true );
 
-		const clearPayment = message => {
-			setAttributes( {
-				isApiManaged: false,
-				resourceId: undefined,
-				paymentLink: undefined,
-				scriptSrc: undefined,
-				integrationMode: undefined,
-			} );
-			toast( 'success', message );
-		};
-
-		apiFetch( {
-			path: `${ API_BASE }/buttons/${ resourceId }`,
-			method: 'DELETE',
-		} )
-			.then( () => clearPayment( __( 'Payment link deleted.', 'jetpack-paypal-payments' ) ) )
-			.catch( err => {
-				// Already deleted on PayPal's side (404), so clear the block anyway.
-				if ( isNotFound( err ) ) {
-					clearPayment(
-						__( 'The payment link was already removed from PayPal.', 'jetpack-paypal-payments' )
-					);
-				} else {
-					toast( 'error', getUserFriendlyError( err ) );
+		deleteExistingLink( resourceId )
+			.then( deleted => {
+				// Also true when PayPal had already deleted the link.
+				if ( deleted ) {
+					setAttributes( {
+						isApiManaged: false,
+						resourceId: undefined,
+						paymentLink: undefined,
+						scriptSrc: undefined,
+						integrationMode: undefined,
+					} );
 				}
 			} )
 			.finally( () => {

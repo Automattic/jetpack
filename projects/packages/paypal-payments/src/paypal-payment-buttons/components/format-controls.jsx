@@ -254,7 +254,6 @@ function QrOutputControls( { attributes, setAttributes, qrUrl, disabled } ) {
 					caption={ qrCaption }
 					captionStyle={ getTextStyle( attributes.captionColor, attributes.captionFontSize ) }
 					showDownload
-					showPendingLabel={ false }
 				/>
 			</div>
 
@@ -431,7 +430,7 @@ function LinkOutputControls( { attributes, setAttributes, paymentUrl, disabled }
 				disabled={ disabled }
 			/>
 
-			{ /* No URL until the post is saved and the payment exists. */ }
+			{ /* Hidden once PayPal has deleted the link, until the next save makes a new one. */ }
 			{ !! paymentUrl && (
 				<div className="jetpack-paypal-payment-buttons__link-url">
 					<TextControl
@@ -464,7 +463,7 @@ function LinkOutputControls( { attributes, setAttributes, paymentUrl, disabled }
  * @param {string}   props.format        - Display format: BUTTON, STACKED, LINK or QR.
  * @param {object}   props.attributes    - The block attributes.
  * @param {Function} props.setAttributes - Update block attributes.
- * @param {string}   props.paymentUrl    - The attributed payment URL — encoded by QR, copied by LINK.
+ * @param {string}   props.paymentUrl    - The attributed payment URL — encoded by QR, copied by LINK. Empty once PayPal has deleted the link.
  * @param {boolean}  props.disabled      - Whether the format switcher and the per-format output controls are locked.
  * @param {string}   props.environment   - 'production' or 'sandbox', for the PayPal settings link.
  * @return {Element} The Styles tab contents.

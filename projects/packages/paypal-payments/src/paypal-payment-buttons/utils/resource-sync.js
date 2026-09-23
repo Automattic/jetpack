@@ -52,6 +52,12 @@ export const RESOURCE_ATTRIBUTES = [
 ];
 
 /**
+ * The payment the block points at and everything read from it. Reset together, so the
+ * next save creates a new payment.
+ */
+export const PAYMENT_ATTRIBUTES = [ 'isApiManaged', 'resourceId', ...RESOURCE_ATTRIBUTES ];
+
+/**
  * Attributes each gating control owns, keyed by the attribute that gates them.
  *
  * A gate switched off drops its feature from the request, so everything it owns goes
@@ -230,7 +236,9 @@ export function isBookkeeping( key, prior, format ) {
  * Work out which block attributes differ from the payment PayPal holds.
  *
  * A field the payment no longer carries goes back to its block.json default,
- * so a description or a per-option price removed elsewhere clears here too.
+ * so a description or a per-option price removed elsewhere clears here too. The
+ * link is the exception: it is fixed to the payment's id, so a read with an empty
+ * link keeps the block's.
  *
  * @param {object} current      - The block's current attributes.
  * @param {object} fromResource - Attributes mapped from the payment by the server.
@@ -240,6 +248,10 @@ export function getResourceAttributeUpdates( current, fromResource ) {
 	const updates = {};
 
 	RESOURCE_ATTRIBUTES.forEach( key => {
+		if ( key === 'paymentLink' && ! fromResource?.paymentLink ) {
+			return;
+		}
+
 		const fallback = metadata.attributes[ key ]?.default;
 		const value = current?.[ key ] === undefined ? fallback : current[ key ];
 

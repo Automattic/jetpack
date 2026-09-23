@@ -5,6 +5,11 @@
  */
 
 import {
+	forgetExistingLinks,
+	getExistingLinks,
+	loadExistingLinks,
+} from '../../src/paypal-payment-buttons/utils/existing-links';
+import {
 	getResourceAttributeUpdates,
 	normalizeResourceVariants,
 } from '../../src/paypal-payment-buttons/utils/resource-sync';
@@ -18,6 +23,7 @@ import {
 	syncBlocksBeforeSave,
 } from '../../src/paypal-payment-buttons/utils/sync-on-save';
 import { REQUIRED_FIELD_ERROR } from '../../src/paypal-payment-buttons/utils/validation';
+const apiFetch = require( '@wordpress/api-fetch' );
 
 const product = {
 	productName: 'Test Widget',
@@ -27,6 +33,23 @@ const product = {
 };
 
 const priced = [ '10.00', '20.00' ];
+
+/**
+ * Let the pending read settle.
+ *
+ * @return {Promise} Resolves once it has.
+ */
+const settle = () => new Promise( resolve => setTimeout( resolve ) );
+
+/**
+ * Read the list of existing links, as a picker would, and let the read settle.
+ *
+ * @return {Promise} Resolves once it has.
+ */
+const readList = () => {
+	loadExistingLinks();
+	return settle();
+};
 
 /**
  * A variants structure with one primary option group.
@@ -80,7 +103,12 @@ function fakeDeps( respond ) {
 	};
 }
 
-beforeEach( forgetSyncedRequests );
+beforeEach( () => {
+	apiFetch.mockReset();
+	apiFetch.mockResolvedValue( { resources: [] } );
+	forgetSyncedRequests();
+	forgetExistingLinks();
+} );
 
 describe( 'isReadyForPayPal', () => {
 	it( 'accepts a complete product', () => {
@@ -594,6 +622,17 @@ describe( 'syncBlocksBeforeSave', () => {
 		} );
 	} );
 
+	it( 'lists a new payment first and reads the list again', async () => {
+		apiFetch.mockResolvedValueOnce( { resources: [ { id: 'PLB-OLD1' } ] } );
+		await readList();
+
+		await syncBlocksBeforeSave( [ { clientId: 'a', attributes: product } ], fakeDeps() );
+
+		expect( getExistingLinks().links.map( link => link.id ) ).toEqual( [ 'PLB-NEW1', 'PLB-OLD1' ] );
+		await readList();
+		expect( apiFetch ).toHaveBeenCalledTimes( 2 );
+	} );
+
 	it( 'leaves an incomplete block alone and says why', async () => {
 		const deps = fakeDeps();
 
@@ -880,6 +919,15 @@ describe( 'syncBlocksBeforeSave', () => {
 			} );
 		} );
 
+		it( 'reads the list of existing links again after an update', async () => {
+			await readList();
+
+			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: saved } ], fakeDeps( stored ) );
+			await readList();
+
+			expect( apiFetch ).toHaveBeenCalledTimes( 2 );
+		} );
+
 		it( 'does not send an unchanged block twice', async () => {
 			const deps = fakeDeps( stored );
 
@@ -922,6 +970,20 @@ describe( 'syncBlocksBeforeSave', () => {
 					paymentLink: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
 				} )
 			);
+		} );
+
+		it( 'swaps the deleted link for the new one in the list of existing links', async () => {
+			apiFetch.mockResolvedValueOnce( { resources: [ { id: saved.resourceId } ] } );
+			await readList();
+			const deps = fakeDeps( options =>
+				options.method === 'POST'
+					? Promise.resolve( { id: 'PLB-NEW1' } )
+					: Promise.reject( { code: 'paypal_api_resource_not_found', data: { status: 404 } } )
+			);
+
+			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: saved } ], deps );
+
+			expect( getExistingLinks().links ).toEqual( [ { id: 'PLB-NEW1' } ] );
 		} );
 
 		it( 'reports a refusal and keeps going', async () => {
