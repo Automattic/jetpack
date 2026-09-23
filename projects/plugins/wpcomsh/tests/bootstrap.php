@@ -52,6 +52,13 @@ tests_add_filter(
 	}
 );
 
+// Prevent concurrent runs with multisite upgrades from stopping the run.
+// Note that `__return_false` isn't defined early enough to use.
+tests_add_filter( 'enable_maintenance_mode', function() {
+		return false;
+	}
+);
+
 /**
  * Manually load the plugin being tested.
  */
