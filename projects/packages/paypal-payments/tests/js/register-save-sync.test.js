@@ -248,7 +248,7 @@ describe( 'registerSaveSync', () => {
 
 			runSavedAction();
 
-			expect( mockToast.mock.calls ).toEqual( [ saved( 'Changes saved.' ) ] );
+			expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment link changes saved.' ) ] );
 		} );
 
 		// Either request can answer last.
@@ -283,7 +283,7 @@ describe( 'registerSaveSync', () => {
 		);
 
 		// The read recorded no values, so the PUT counts as a change.
-		it( 'shows "Changes saved" after a PUT that leaves the block attributes as they are', async () => {
+		it( 'shows "Payment link changes saved" after a PUT that leaves the block attributes as they are', async () => {
 			blocks.set( 'a', payPalBlock( 'a', 'PLB-A1' ) );
 			recordPaymentRead( 'a', 'PLB-A1' );
 			const edits = { content: blockComment( 'PLB-A1' ) };
@@ -292,7 +292,7 @@ describe( 'registerSaveSync', () => {
 			runSavedAction();
 
 			expect( result ).toBe( edits );
-			expect( mockToast.mock.calls ).toEqual( [ saved( 'Changes saved.' ) ] );
+			expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment link changes saved.' ) ] );
 		} );
 
 		// The first save after a reload PUTs every block.
@@ -315,7 +315,7 @@ describe( 'registerSaveSync', () => {
 			recordPaymentRead( 'a', 'PLB-A1' );
 			await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
 			runSavedAction();
-			expect( mockToast ).toHaveBeenCalledWith( ...saved( 'Changes saved.' ) );
+			expect( mockToast ).toHaveBeenCalledWith( ...saved( 'Payment link changes saved.' ) );
 			mockToast.mockClear();
 			apiFetch.mockClear();
 
@@ -381,7 +381,7 @@ describe( 'registerSaveSync', () => {
 			runSavedAction();
 			runSavedAction();
 
-			expect( mockToast.mock.calls ).toEqual( [ saved( 'Changes saved.' ) ] );
+			expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment link changes saved.' ) ] );
 		} );
 
 		it( 'shows the created snackbar when an earlier failed save created the payment', async () => {
@@ -424,7 +424,7 @@ describe( 'registerSaveSync', () => {
 					'There was an issue saving your stacked buttons. Please try again.',
 					'jetpack-paypal-sync-a',
 				],
-				saved( 'Changes saved.' ),
+				saved( 'Payment link changes saved.' ),
 			] );
 		} );
 	} );
