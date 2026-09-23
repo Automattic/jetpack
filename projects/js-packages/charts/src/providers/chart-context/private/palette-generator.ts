@@ -1,4 +1,5 @@
-import { contrastRatio, hexToViews, oklchToHex, viewDistance } from './perceptual-color';
+import { relativeLuminance } from '../../../utils';
+import { hexToViews, luminanceContrastRatio, oklchToHex, viewDistance } from './perceptual-color';
 import type { ColorViews } from './perceptual-color';
 
 /** WCAG 1.4.11 non-text contrast, which a series mark needs against the chart background. */
@@ -7,6 +8,7 @@ export const MIN_BACKGROUND_CONTRAST = 3;
 interface Candidate {
 	hex: string;
 	views: ColorViews;
+	luminance: number;
 }
 
 const LIGHTNESS_STEPS = Array.from( { length: 13 }, ( _, step ) => 0.45 + step * 0.025 );
@@ -25,7 +27,11 @@ const getCandidateGrid = (): Candidate[] => {
 					const hex = oklchToHex( lightness, chroma, hue );
 					if ( hex && ! seen.has( hex ) ) {
 						seen.add( hex );
-						candidateGrid.push( { hex, views: hexToViews( hex ) } );
+						candidateGrid.push( {
+							hex,
+							views: hexToViews( hex ),
+							luminance: relativeLuminance( hex ),
+						} );
 					}
 				}
 			}
@@ -34,10 +40,23 @@ const getCandidateGrid = (): Candidate[] => {
 	return candidateGrid;
 };
 
-const legibleCandidatesFor = ( background: string ): Candidate[] =>
-	getCandidateGrid().filter(
-		candidate => contrastRatio( candidate.hex, background ) >= MIN_BACKGROUND_CONTRAST
-	);
+// Every provider on a page usually shares one background, so each filters the grid only once.
+const legiblePools = new Map< string, Candidate[] >();
+
+const legibleCandidatesFor = ( rawBackground: string ): Candidate[] => {
+	const background = rawBackground.toLowerCase();
+	let pool = legiblePools.get( background );
+	if ( ! pool ) {
+		const backgroundLuminance = relativeLuminance( background );
+		pool = getCandidateGrid().filter(
+			candidate =>
+				luminanceContrastRatio( candidate.luminance, backgroundLuminance ) >=
+				MIN_BACKGROUND_CONTRAST
+		);
+		legiblePools.set( background, pool );
+	}
+	return pool;
+};
 
 /** A candidate pool with each unused candidate's current nearest distance to the palette. */
 interface Tracker {
@@ -133,7 +152,11 @@ export const createPaletteGenerator = (
 	background: string
 ): ( ( index: number ) => string ) => {
 	const normalizedSeeds = seeds.map( hex => hex.toLowerCase() );
-	const palette: Candidate[] = normalizedSeeds.map( hex => ( { hex, views: hexToViews( hex ) } ) );
+	const palette: Candidate[] = normalizedSeeds.map( hex => ( {
+		hex,
+		views: hexToViews( hex ),
+		luminance: relativeLuminance( hex ),
+	} ) );
 	const usedHexes = new Set< string >( normalizedSeeds );
 
 	let legibleTracker: Tracker | null = null;
@@ -145,8 +168,8 @@ export const createPaletteGenerator = (
 	let repeatCount = 0;
 
 	const nextColor = (): Candidate => {
-		legibleTracker ??= buildTracker( legibleCandidatesFor( background ), palette, usedHexes );
 		if ( ! legibleExhausted ) {
+			legibleTracker ??= buildTracker( legibleCandidatesFor( background ), palette, usedHexes );
 			const picked = pickFarthest( legibleTracker, usedHexes );
 			if ( picked ) {
 				return picked;

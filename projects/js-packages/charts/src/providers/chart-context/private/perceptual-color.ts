@@ -178,6 +178,16 @@ export const oklchToHex = ( lightness: number, chroma: number, hue: number ): st
 };
 
 /**
+ * WCAG contrast ratio between two relative luminances.
+ *
+ * @param first  - First relative luminance.
+ * @param second - Second relative luminance.
+ * @return Ratio from 1 to 21.
+ */
+export const luminanceContrastRatio = ( first: number, second: number ): number =>
+	( Math.max( first, second ) + 0.05 ) / ( Math.min( first, second ) + 0.05 );
+
+/**
  * WCAG contrast ratio between two hex colors.
  *
  * @param  first  - First hex color.
@@ -185,9 +195,5 @@ export const oklchToHex = ( lightness: number, chroma: number, hue: number ): st
  * @return Ratio from 1 to 21.
  * @throws {Error} if either hex string is malformed
  */
-export const contrastRatio = ( first: string, second: string ): number => {
-	const [ lighter, darker ] = [ relativeLuminance( first ), relativeLuminance( second ) ].sort(
-		( x, y ) => y - x
-	);
-	return ( lighter + 0.05 ) / ( darker + 0.05 );
-};
+export const contrastRatio = ( first: string, second: string ): number =>
+	luminanceContrastRatio( relativeLuminance( first ), relativeLuminance( second ) );
