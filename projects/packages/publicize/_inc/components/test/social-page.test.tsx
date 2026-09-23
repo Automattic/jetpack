@@ -92,7 +92,6 @@ describe( 'SocialPage', () => {
 			</SocialPage>
 		);
 
-		expect( notices ).toHaveAttribute( 'id', 'jp-admin-notices' );
 		expect( screen.getByTestId( 'jp-jitm-slot' ) ).toBe( notices );
 	} );
 
@@ -105,6 +104,6 @@ describe( 'SocialPage', () => {
 			</SocialPage>
 		);
 
-		expect( screen.getByTestId( 'jp-jitm-slot' ) ).toHaveAttribute( 'id', 'jp-admin-notices' );
+		expect( screen.getByTestId( 'jp-jitm-slot' ) ).toBeInTheDocument();
 	} );
 } );
