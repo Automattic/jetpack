@@ -1844,11 +1844,23 @@ describe( 'Email design editor entry point', () => {
 			).rejects.toMatchObject( { error: 'Your email address must be verified.' } );
 		} );
 
-		it( 'reshapes a design that could not be saved, which is a failure too', async () => {
+		it( 'refuses when the design could not be saved, rather than sending the stored one', async () => {
+			// Only the save fails. Rejecting everything would let this pass on the post lookup's
+			// rejection instead, and go on passing with the save dropped altogether.
 			mockApiFetch.mockReset();
-			mockApiFetch.mockRejectedValue( {
-				code: 'email_design_unavailable',
-				message: 'Your email design could not be saved.',
+			mockApiFetch.mockImplementation( options => {
+				if ( options.path.includes( 'global-styles' ) ) {
+					return Promise.reject( {
+						code: 'email_design_unavailable',
+						message: 'Your email design could not be saved.',
+					} );
+				}
+
+				if ( options.path.startsWith( '/wp/v2/posts' ) ) {
+					return Promise.resolve( [ { id: 42 } ] );
+				}
+
+				return Promise.resolve( 'Email preview sent successfully.' );
 			} );
 			dispatch( coreStore ).editEntityRecord( 'root', 'globalStyles', ourId, {
 				styles: { color: { background: '#c0ffee' } },
@@ -1857,6 +1869,10 @@ describe( 'Email design editor entry point', () => {
 			await expect(
 				createTestSendMiddleware( ourId )( sendRequest, jest.fn() )
 			).rejects.toMatchObject( { error: 'Your email design could not be saved.' } );
+
+			const paths = mockApiFetch.mock.calls.map( ( [ options ] ) => options.path );
+
+			expect( paths ).not.toContain( '/wpcom/v2/send-email-preview' );
 		} );
 
 		it.each( [

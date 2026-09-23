@@ -762,7 +762,11 @@ async function flushDesign( id ) {
 		return;
 	}
 
-	await dispatch( coreStore ).saveEditedEntityRecord( 'root', 'globalStyles', id );
+	// core-data suppresses save errors by default, which would send the stored design and report
+	// success — the outcome this function exists to prevent.
+	await dispatch( coreStore ).saveEditedEntityRecord( 'root', 'globalStyles', id, {
+		throwOnError: true,
+	} );
 }
 
 /**
