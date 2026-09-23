@@ -594,7 +594,7 @@ class Functions {
 	}
 
 	/**
-	 * Returns the site's `blog_public` value, or -1 when Jetpack considers the site private.
+	 * Returns the site's visibility as a `blog_public` value, or -1 when Jetpack considers the site private.
 	 *
 	 * Lets `jetpack_is_private_site` report the site as private to WordPress.com without changing
 	 * the `blog_public` option itself, since core and other plugins do not expect a -1 there.
@@ -603,7 +603,7 @@ class Functions {
 	 *
 	 * @return int -1 when private, otherwise the stored `blog_public` value.
 	 */
-	public static function get_blog_public() {
+	public static function get_site_visibility() {
 		if ( ( new Status() )->is_private_site() ) {
 			return -1;
 		}
