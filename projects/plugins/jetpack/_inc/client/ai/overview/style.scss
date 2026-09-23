@@ -277,8 +277,8 @@
 	display: none;
 }
 
-// On plans with no usage card and no connection notices the intro Stack
-// renders empty; drop it so the outer Stack's 3xl gap doesn't double.
+// With the banner dismissed and no usage card, the intro Stack renders
+// empty; drop it so the outer Stack's 3xl gap doesn't double.
 .jetpack-ai-overview__intro:empty {
 	display: none;
 }

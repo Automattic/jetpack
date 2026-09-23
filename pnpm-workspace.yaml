@@ -36,7 +36,7 @@ minimumReleaseAgeExclude:
   - '@woocommerce/*'
   - '@wordpress/*'
   - 'gridicons'
-  - 'i18n-calypso'
+  - 'wpcom-proxy-request'
 
 trustPolicy: no-downgrade
 trustPolicyExclude:

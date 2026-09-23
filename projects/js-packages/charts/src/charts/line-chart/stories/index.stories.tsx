@@ -343,10 +343,7 @@ export const ErrorStates: StoryObj< StoryArgs > = {
 					data={ [
 						{
 							label: 'Invalid Values',
-							data: [
-								{ date: new Date( '2024-01-01' ), value: NaN },
-								{ date: new Date( '2024-01-02' ), value: null as number | null },
-							],
+							data: [ { date: new Date( '2024-01-01' ), value: NaN } ],
 							options: {},
 						},
 					] }
@@ -377,6 +374,72 @@ export const ErrorStates: StoryObj< StoryArgs > = {
 			description: {
 				story: 'Examples of how the line chart handles various error states and edge cases.',
 			},
+		},
+	},
+};
+
+const siteLaunchedInApril: SeriesData[] = [
+	{
+		label: 'Subscribers',
+		data: [
+			{ date: new Date( 2026, 0, 1 ), value: null },
+			{ date: new Date( 2026, 1, 1 ), value: null },
+			{ date: new Date( 2026, 2, 1 ), value: null },
+			{ date: new Date( 2026, 3, 1 ), value: 0 },
+			{ date: new Date( 2026, 4, 1 ), value: 12 },
+			{ date: new Date( 2026, 5, 1 ), value: 31 },
+			{ date: new Date( 2026, 6, 1 ), value: 58 },
+		],
+	},
+];
+
+export const BucketsWithNoData: StoryObj< StoryArgs > = Template.bind( {} );
+BucketsWithNoData.args = {
+	...Default.args,
+	data: siteLaunchedInApril,
+};
+BucketsWithNoData.argTypes = {
+	// The series-count control swaps in the sample data, which has no gaps to show.
+	seriesCount: { table: { disable: true } },
+	zoomable: { control: 'boolean' },
+};
+BucketsWithNoData.parameters = {
+	docs: {
+		description: {
+			story:
+				'A null value is a bucket with no reading. It keeps its place on the axis so the chart still spans the selected range, but breaks the line and its gradient fill at that point, and its tooltip reads "No data" rather than zero. April is a real zero, so the line starts there, at 0, rather than in May. Pointer events still reach a bucket with no reading, so with `zoomable` a drag can start in January.',
+		},
+	},
+};
+
+const wholeNumberRange: SeriesData[] = [
+	{
+		label: 'Errors',
+		data: [
+			{ date: new Date( 2026, 0, 1 ), value: 0 },
+			{ date: new Date( 2026, 1, 1 ), value: 1 },
+			{ date: new Date( 2026, 2, 1 ), value: 1 },
+			{ date: new Date( 2026, 3, 1 ), value: 0 },
+			{ date: new Date( 2026, 4, 1 ), value: 1 },
+			{ date: new Date( 2026, 5, 1 ), value: 1 },
+		],
+	},
+];
+
+export const SmallWholeNumberRange: StoryObj< StoryArgs > = Template.bind( {} );
+SmallWholeNumberRange.args = {
+	...Default.args,
+	data: wholeNumberRange,
+};
+SmallWholeNumberRange.argTypes = {
+	// The series-count control swaps in the sample data, which isn't a whole-number range.
+	seriesCount: { table: { disable: true } },
+};
+SmallWholeNumberRange.parameters = {
+	docs: {
+		description: {
+			story:
+				'When every visible value is a whole number, the value axis places ticks only on whole numbers, instead of repeating a rounded label at fractional steps. Pass `options.axis.y.tickValues` to choose the ticks yourself. A y domain you pin with `options.yScale.domain` keeps every tick, so a percentage axis on `[ 0, 1 ]` still steps by 20%.',
 		},
 	},
 };
@@ -486,6 +549,33 @@ SmartFormatting.parameters = {
 		description: {
 			story:
 				'Demonstrates the Smart Formatting feature (formatYTick) that automatically formats Y-axis tick labels based on the data range. Values ≥1B are formatted as "1.23B", ≥1M as "1.2M", ≥1K as "1k", and smaller values as "1,234". This example shows revenue in billions and users in millions.',
+		},
+	},
+};
+
+export const ZeroBaseline: StoryObj< StoryArgs > = Template.bind( {} );
+ZeroBaseline.args = {
+	...lineChartStoryArgs,
+	showLegend: false,
+	withGradientFill: false,
+	data: [
+		{
+			label: 'Views',
+			data: [ 921, 989, 954, 924, 967, 933, 978 ].map( ( value, day ) => ( {
+				date: new Date( 2024, 0, day + 1 ),
+				value,
+			} ) ),
+		},
+	],
+	options: {
+		yScale: { zero: true },
+	},
+};
+ZeroBaseline.parameters = {
+	docs: {
+		description: {
+			story:
+				"`yScale.zero` starts the value axis at zero, so a series that only moves between 921 and 989 reads as steady rather than as a swing. The axis top is rounded from zero, not from the data's floor: here it ends at 1,000 with a labelled tick, instead of at 990 with the line running into the top edge.",
 		},
 	},
 };

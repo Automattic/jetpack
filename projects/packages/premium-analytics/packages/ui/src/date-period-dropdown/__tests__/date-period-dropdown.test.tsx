@@ -3,6 +3,13 @@ jest.mock( '@wordpress/compose', () => ( {
 	useMediaQuery: jest.fn( () => false ),
 } ) );
 
+// Loading the barrels' unused libraries (core-data, charts, dataviews) costs more than every test here.
+jest.mock( '@jetpack-premium-analytics/data', () =>
+	jest.requireActual( '../../../../data/src/providers/period-change-signal' )
+);
+jest.mock( '@automattic/charts', () => ( {} ) );
+jest.mock( '@wordpress/dataviews', () => ( {} ) );
+
 import { TZDate } from '@date-fns/tz';
 import { configure, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -319,6 +326,15 @@ describe( 'DatePeriodDropdown attention', () => {
 
 		view.rerender( <DatePeriodDropdown { ...baseProps() } /> );
 		expect( overlay() ).toBeNull();
+	} );
+
+	it( 'keeps the class its fill is isolated on when a surface adds one', () => {
+		renderDropdown( { attentionId: 1, triggerProps: { className: 'surface-trigger' } } );
+
+		expect( screen.getByRole( 'button', { name: 'Last 30 days' } ) ).toHaveClass(
+			'date-period-dropdown__toggle',
+			'surface-trigger'
+		);
 	} );
 
 	it( 'restarts for a new id by drawing a fresh fill', () => {

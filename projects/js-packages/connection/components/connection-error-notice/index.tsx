@@ -1,12 +1,42 @@
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Link, Notice, Stack, Text } from '@wordpress/ui';
+import { useCallback } from 'react';
 import { getReconnectErrorMessage } from '../../helpers/get-reconnect-error-message';
 import { formatConnectionErrorDetailLine } from '../../hooks/use-connection-error-notice/error-details';
 import ConnectionErrorSupportLink from '../connection-error-support-link';
 import styles from './styles.module.scss';
 import type { ConnectionErrorNoticeProps } from './types';
+import type { ConnectionErrorNoticeLink } from '../../hooks/use-connection-error-notice/types';
 import type { ReactNode } from 'react';
+
+/**
+ * One notice-body link (e.g. "Visit Site Health"), with its click handler bound
+ * to the link so the list can pass a stable reference rather than a per-item
+ * arrow (`react/jsx-no-bind`).
+ *
+ * @param {object}                    props         - Component props.
+ * @param {ConnectionErrorNoticeLink} props.link    - The link to render.
+ * @param {Function}                  props.onClick - Optional click handler.
+ * @return {ReactNode} The rendered link.
+ */
+function NoticeLink( {
+	link,
+	onClick,
+}: {
+	link: ConnectionErrorNoticeLink;
+	onClick?: ( link: ConnectionErrorNoticeLink ) => void;
+} ): ReactNode {
+	const handleClick = useCallback( () => onClick?.( link ), [ link, onClick ] );
+
+	return (
+		<Text>
+			<Link href={ link.url } onClick={ handleClick }>
+				{ link.label }
+			</Link>
+		</Text>
+	);
+}
 
 /**
  * The presentational connection error notice.
@@ -23,6 +53,8 @@ function ConnectionErrorNotice( {
 	actions = [],
 	errorGroups = [],
 	showSupportLink = false,
+	onNoticeLinkClick,
+	onSupportLinkClick,
 }: ConnectionErrorNoticeProps ): ReactNode {
 	if ( ! message && ! errorGroups.length ) {
 		return null;
@@ -77,7 +109,7 @@ function ConnectionErrorNotice( {
 
 	const supportLink = showSupportLink ? (
 		<Text>
-			<ConnectionErrorSupportLink />
+			<ConnectionErrorSupportLink onClick={ onSupportLinkClick } />
 		</Text>
 	) : null;
 
@@ -113,9 +145,7 @@ function ConnectionErrorNotice( {
 						</Stack>
 					) }
 					{ group.noticeLinks.map( link => (
-						<Text key={ link.url }>
-							<Link href={ link.url }>{ link.label }</Link>
-						</Text>
+						<NoticeLink key={ link.url } link={ link } onClick={ onNoticeLinkClick } />
 					) ) }
 				</Stack>
 			) ) }

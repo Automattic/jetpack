@@ -24,6 +24,7 @@ import {
 import { useResizeObserver } from '@wordpress/compose';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { seen } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -142,6 +143,7 @@ function PostTrafficActivityInner() {
 							: __( 'No data', 'jetpack-premium-analytics-pkg' )
 					}
 					formatValue={ formatViewCount }
+					icon={ seen }
 				/>
 			);
 		},
@@ -191,6 +193,7 @@ function PostTrafficActivityInner() {
 									rowLabels={ rowLabels }
 									primaryColor="var(--wp-admin-theme-color, #3858e9)"
 									withTooltips
+									tooltipVariant="dark"
 									// The page span is already sized to the card, so width tracks
 									// never need to shrink below the design's 64px.
 									maxCellWidth={ 64 }

@@ -292,6 +292,78 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Run wpcom_write_remove_admin_notices() for a given page with one notice
+	 * registered on each notice hook, and report which hooks still have it.
+	 *
+	 * @param string $page Value of the `page` query arg.
+	 * @return array<string,bool> Hook name => whether the notice survived.
+	 */
+	private function notices_surviving_on_page( $page ) {
+		global $wp_filter;
+
+		$hooks  = array( 'admin_notices', 'all_admin_notices', 'network_admin_notices', 'user_admin_notices' );
+		$backup = array();
+		foreach ( $hooks as $hook ) {
+			$backup[ $hook ] = isset( $wp_filter[ $hook ] ) ? clone $wp_filter[ $hook ] : null;
+			add_action( $hook, 'wpcom_expiry_notices_render_admin_banner' );
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$_GET['page'] = $page;
+		wpcom_write_remove_admin_notices();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		unset( $_GET['page'] );
+
+		$surviving = array();
+		foreach ( $hooks as $hook ) {
+			$surviving[ $hook ] = false !== has_action( $hook, 'wpcom_expiry_notices_render_admin_banner' );
+			if ( null === $backup[ $hook ] ) {
+				unset( $wp_filter[ $hook ] );
+			} else {
+				$wp_filter[ $hook ] = $backup[ $hook ]; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			}
+		}
+		return $surviving;
+	}
+
+	/**
+	 * Test that admin notices are removed on the Write page.
+	 */
+	public function test_admin_notices_removed_on_write_page() {
+		$this->assertSame(
+			array(
+				'admin_notices'         => false,
+				'all_admin_notices'     => false,
+				'network_admin_notices' => false,
+				'user_admin_notices'    => false,
+			),
+			$this->notices_surviving_on_page( 'write' )
+		);
+	}
+
+	/**
+	 * Test that admin notices are left alone on other admin pages.
+	 */
+	public function test_admin_notices_kept_on_other_pages() {
+		$this->assertSame(
+			array(
+				'admin_notices'         => true,
+				'all_admin_notices'     => true,
+				'network_admin_notices' => true,
+				'user_admin_notices'    => true,
+			),
+			$this->notices_surviving_on_page( 'jetpack' )
+		);
+	}
+
+	/**
+	 * Test that the notice removal is hooked right before admin-header.php prints notices.
+	 */
+	public function test_admin_notice_removal_is_hooked() {
+		$this->assertSame( PHP_INT_MAX, has_action( 'in_admin_header', 'wpcom_write_remove_admin_notices' ) );
+	}
+
+	/**
 	 * Test that the image modal renders the media library section alongside
 	 * the existing upload zone and URL paste — the three sources Write supports
 	 * after RSM-594.

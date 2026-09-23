@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/social-previews",
-	"version": "3.3.10",
+	"version": "3.3.12",
 	"description": "A suite of components to generate previews for a post for both social and search engines.",
 	"keywords": [
 		"wordpress",
@@ -28,7 +28,10 @@
 			"import": "./dist/index.mjs",
 			"require": "./dist/index.cjs"
 		},
-		"./style.css": "./dist/style.css"
+		"./style.css": {
+			"jetpack:src": "./src/style.css",
+			"default": "./dist/style.css"
+		}
 	},
 	"main": "dist/index.cjs",
 	"module": "dist/index.mjs",

@@ -70,6 +70,14 @@ const ROWS: [ string, number ][] = [
 	[ '2026-03-01', 450 ],
 ];
 
+// The month request and the first month's day request share one mock, told apart by period.
+function mockVisits(
+	months: ReturnType< typeof useStatsVisits >,
+	days: ReturnType< typeof useStatsVisits > = visitsResult( undefined )
+) {
+	mockUseStatsVisits.mockImplementation( params => ( params.period === 'day' ? days : months ) );
+}
+
 const NOW = new Date( '2026-03-15T12:00:00.000Z' );
 
 function renderWidget( attributes: Record< string, unknown > = {} ) {
@@ -95,7 +103,7 @@ describe( 'ViewsOverYears widget', () => {
 	beforeEach( () => {
 		mockOpenSectionRange.mockReset();
 		mockUseStatsVisits.mockReset();
-		mockUseStatsVisits.mockReturnValue( visitsResult( ROWS ) );
+		mockVisits( visitsResult( ROWS ) );
 		jest.useFakeTimers();
 		jest.setSystemTime( NOW );
 	} );
@@ -115,12 +123,59 @@ describe( 'ViewsOverYears widget', () => {
 		expect( screen.getByText( 'Fewer views' ) ).toBeInTheDocument();
 	} );
 
-	it( 'draws views per day under the average metric', () => {
+	it( 'draws views per day under the average metric, from the first day with views', () => {
+		mockVisits(
+			visitsResult( ROWS ),
+			visitsResult( [
+				[ '2025-11-23', 0 ],
+				[ '2025-11-24', 5 ],
+			] )
+		);
 		renderWidget( { metric: 'average' } );
 
-		// March is 15 days in: 450 / 15.
+		// Nov 24 through Nov 30: 300 / 7, the year over 7 + 31 days, and March 15 days in: 450 / 15.
+		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 43' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'gridcell', { name: 'Totals 2025: 24' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'gridcell', { name: 'Mar 2026: 30' } ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Fewer views per day' ) ).toBeInTheDocument();
+	} );
+
+	it( 'opens the Traffic tab over the first month from its first day with views', async () => {
+		mockVisits(
+			visitsResult( ROWS ),
+			visitsResult( [
+				[ '2025-11-23', 0 ],
+				[ '2025-11-24', 5 ],
+			] )
+		);
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		renderWidget();
+
+		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 300' } ) );
+		await user.click( screen.getByRole( 'gridcell', { name: 'Totals 2025: 920' } ) );
+
+		expect( mockOpenSectionRange ).toHaveBeenNthCalledWith( 1, 'traffic', {
+			from: new Date( '2025-11-24T00:00:00.000Z' ),
+			to: new Date( '2025-11-30T23:59:59.999Z' ),
+		} );
+		expect( mockOpenSectionRange ).toHaveBeenNthCalledWith( 2, 'traffic', {
+			from: new Date( '2025-11-24T00:00:00.000Z' ),
+			to: new Date( '2025-12-31T23:59:59.999Z' ),
+		} );
+	} );
+
+	it( 'shows the skeleton until the first day with views is known', () => {
+		mockVisits( visitsResult( ROWS ), visitsResult( undefined, { isLoading: true } ) );
+		renderWidget( { metric: 'average' } );
+
+		expect( screen.queryByRole( 'gridcell', { name: /Nov 2025/ } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'draws the totals without waiting for the first day with views', () => {
+		mockVisits( visitsResult( ROWS ), visitsResult( undefined, { isLoading: true } ) );
+		renderWidget( { metric: 'total' } );
+
+		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 300' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'opens the Traffic tab over a clicked month', async () => {
@@ -148,16 +203,14 @@ describe( 'ViewsOverYears widget', () => {
 	} );
 
 	it( 'reports a site with no views as empty', () => {
-		mockUseStatsVisits.mockReturnValue( visitsResult( [ [ '2026-03-01', 0 ] ] ) );
+		mockVisits( visitsResult( [ [ '2026-03-01', 0 ] ] ) );
 		renderWidget();
 
 		expect( screen.getByText( 'No views yet.' ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps the drawn rows when a background refetch fails', () => {
-		mockUseStatsVisits.mockReturnValue(
-			visitsResult( ROWS, { isError: true, error: new Error( 'boom' ) } )
-		);
+		mockVisits( visitsResult( ROWS, { isError: true, error: new Error( 'boom' ) } ) );
 		renderWidget();
 
 		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 300' } ) ).toBeInTheDocument();
@@ -168,9 +221,7 @@ describe( 'ViewsOverYears widget', () => {
 
 	it( 'offers a retry when the request fails with nothing on screen', async () => {
 		const refetch = jest.fn();
-		mockUseStatsVisits.mockReturnValue(
-			visitsResult( undefined, { isError: true, error: new Error( 'boom' ), refetch } )
-		);
+		mockVisits( visitsResult( undefined, { isError: true, error: new Error( 'boom' ), refetch } ) );
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		renderWidget();
 

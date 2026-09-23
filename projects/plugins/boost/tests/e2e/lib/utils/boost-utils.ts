@@ -211,11 +211,37 @@ export async function resetDashboardModernization() {
 }
 
 /**
+ * Configure the targeted dashboard message fixture.
+ * @param enabled - Whether to inject the message.
+ */
+export async function setDashboardJitm( enabled: boolean ) {
+	await executeWpCommand( 'plugin activate e2e-dashboard-jitm' );
+	await executeWpCommand( [
+		'option',
+		'update',
+		'e2e_boost_dashboard_jitm',
+		JSON.stringify( enabled ),
+		'--format=json',
+	] );
+}
+
+/**
+ * Deactivate the message fixture and remove its option.
+ */
+export async function resetDashboardJitm() {
+	await executeWpCommand( [
+		'eval',
+		"if ( is_plugin_active( 'e2e-dashboard-jitm.php' ) ) { deactivate_plugins( 'e2e-dashboard-jitm.php' ); } delete_option( 'e2e_boost_dashboard_jitm' );",
+	] );
+}
+
+/**
  * Reset the environment.
  */
 export async function resetEnvironment() {
 	logger.debug( 'Resetting Jetpack Boost' );
 	await resetDashboardModernization();
+	await resetDashboardJitm();
 	await executeWpCommand( 'plugin activate jetpack-boost' );
 	await disconnect();
 	await unMockConnection();

@@ -248,7 +248,7 @@ export default function DashboardPage( { isLoading = false } ) {
 			editTemplateUrl: activeThemeStylesheet
 				? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
 						activeThemeStylesheet
-				  ) }%2F%2Fjetpack-search-product-results&canvas=edit`
+					) }%2F%2Fjetpack-search-product-results&canvas=edit`
 				: `${ siteAdminUrl }site-editor.php?p=%2Ftemplate`,
 			editLabel: __( 'Edit the product search template', 'jetpack-search-pkg' ),
 		};
@@ -351,7 +351,7 @@ export default function DashboardPage( { isLoading = false } ) {
 							<>
 								{ hasConnectionError && (
 									<Stack direction="column">
-										<ConnectionError />
+										<ConnectionError trackingContext="search" />
 									</Stack>
 								) }
 								{ isNewPricing && supportsInstantSearch && (

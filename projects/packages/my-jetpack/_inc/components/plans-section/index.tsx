@@ -16,6 +16,7 @@ import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import { isLifetimePurchase } from '../../utils/is-lifetime-purchase';
 import { GoldenTokenTooltip } from '../golden-token/tooltip';
+import { getProductsSectionPath } from '../my-jetpack-tab-panel/utils';
 import styles from './style.module.scss';
 import type { FC } from 'react';
 
@@ -241,7 +242,7 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 				<li className={ styles[ 'actions-list-item' ] }>
 					<Link
 						onClick={ viewIncludedFeaturesClickHandler }
-						href={ getMyJetpackUrl( '#/products?filter=included' ) }
+						href={ getMyJetpackUrl( `#${ getProductsSectionPath( '?filter=included' ) }` ) }
 					>
 						{ __( 'View included features', 'jetpack-my-jetpack' ) }
 					</Link>

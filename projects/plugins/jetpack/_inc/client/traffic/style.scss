@@ -1,6 +1,8 @@
 @use "../scss/functions/rem";
 @use "../scss/variables/colors";
+@use "../scss/calypso-colors";
 @use "../scss/mixins/breakpoints";
+@use "../scss/mixins/ui";
 @use "../scss/typography";
 
 .jp-form-google-label-unverified {
@@ -254,6 +256,86 @@ $twitter-pofile-image-padding: 17px;
 
 #jp-settings-site-stats .jp-foldable-settings-standalone .jp-form-settings-group .jp-support-info {
 	top: 1em;
+}
+
+// site-stats.jsx still renders these classes for the inactive-Stats state.
+.jp-at-a-glance__stats-card {
+	padding: 0;
+
+	@include ui.dashboard-card-shadow;
+	margin-bottom: 24px;
+
+	.jp-link-button {
+		background: colors.$white;
+		border: none;
+		padding: 2px 0;
+	}
+}
+
+.jp-at-a-glance__stats-inactive {
+	padding: rem.convert(16px);
+
+	@include breakpoints.breakpoint( ">660px" ) {
+		display: flex;
+		flex-wrap: nowrap;
+		flex-direction: row;
+		align-items: center;
+	}
+}
+
+.jp-at-a-glance__stats-inactive-icon {
+	padding: 0;
+	display: flex;
+	flex-grow: 0;
+
+	@include breakpoints.breakpoint( "<660px" ) {
+		display: none;
+	}
+}
+
+.jp-at-a-glance__stats-inactive-text {
+	font-size: typography.$font-body-small;
+	line-height: 1.5;
+	letter-spacing: -0.3px;
+	color: calypso-colors.$gray-80;
+	flex-grow: 1;
+
+	h3 {
+		margin: 0;
+		font-size: 15px;
+		font-weight: 700;
+		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
+		line-height: 136%;
+		color: colors.$black;
+	}
+
+	@include breakpoints.breakpoint( "<660px" ) {
+		padding: 0 0 rem.convert(16px);
+	}
+
+	@include breakpoints.breakpoint( ">660px" ) {
+		flex-basis: 50%;
+		padding: 0 rem.convert(16px);
+	}
+}
+
+.jp-at-a-glance__stats-inactive-button {
+	text-align: start;
+
+	button.dops-button.is-primary {
+		padding: 4px 20px;
+		font-size: typography.$font-body-small;
+
+		&:focus {
+			border: 1px solid colors.$white;
+			box-shadow: 0 0 0 1px colors.$black;
+		}
+	}
+
+	@include breakpoints.breakpoint( ">660px" ) {
+		flex-grow: 0;
+		margin-inline-start: 64px;
+	}
 }
 
 .jp-stats-form-fieldset {

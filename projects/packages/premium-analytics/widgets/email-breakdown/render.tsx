@@ -75,9 +75,9 @@ function buildLeaderboardData(
 			view === 'countries'
 				? {
 						kind: 'flag',
-						url: row.countryCode ? flagUrl( row.countryCode ) ?? undefined : undefined,
+						url: row.countryCode ? ( flagUrl( row.countryCode ) ?? undefined ) : undefined,
 						country: row.countryFull ?? row.label,
-				  }
+					}
 				: { kind: 'none' };
 		// Link rows come from remote data, so only render an anchor for safe
 		// http(s) URLs. Other link-type rows fall back to static text.

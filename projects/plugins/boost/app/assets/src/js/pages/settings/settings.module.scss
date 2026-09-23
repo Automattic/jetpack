@@ -1,5 +1,11 @@
+@use "$css/main/mixins";
+
 .settings {
-	inline-size: 100%;
-	max-inline-size: var(--wpds-dimension-surface-width-xl);
-	margin-inline: auto;
+
+	@include mixins.content-column;
+}
+
+.rows > * + :not([data-settings-inset]) {
+	border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	padding-block-start: var(--wpds-dimension-gap-xl);
 }

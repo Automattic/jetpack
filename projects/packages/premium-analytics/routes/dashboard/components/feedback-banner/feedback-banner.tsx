@@ -30,7 +30,7 @@ export function FeedbackBanner( { enabled }: FeedbackBannerProps ): JSX.Element 
 	} );
 
 	const message = __(
-		"Tell us what's better, what's worse, and what you miss about the new Traffic tab.",
+		"Tell us what's better, what's worse, and what you miss about the new Traffic and Insights tabs.",
 		'jetpack-premium-analytics-pkg'
 	);
 

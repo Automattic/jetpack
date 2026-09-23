@@ -75,4 +75,39 @@ describe( 'SocialPage', () => {
 		expect( screen.queryByRole( 'tab', { name: 'Settings' } ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'overview-content' ) ).toBeInTheDocument();
 	} );
+
+	it( 'keeps one JITM container across tab switches', () => {
+		mockCurrentUserCan.mockReturnValue( true );
+
+		const { rerender } = render(
+			<SocialPage activeTab="overview">
+				<div />
+			</SocialPage>
+		);
+		const notices = screen.getByTestId( 'jetpack-social-jitm-card' );
+
+		rerender(
+			<SocialPage activeTab="settings">
+				<div />
+			</SocialPage>
+		);
+
+		expect( notices ).toHaveAttribute( 'id', 'jp-admin-notices' );
+		expect( screen.getByTestId( 'jetpack-social-jitm-card' ) ).toBe( notices );
+	} );
+
+	it( 'renders the JITM container without the tab chrome', () => {
+		mockCurrentUserCan.mockReturnValue( false );
+
+		render(
+			<SocialPage activeTab="overview">
+				<div />
+			</SocialPage>
+		);
+
+		expect( screen.getByTestId( 'jetpack-social-jitm-card' ) ).toHaveAttribute(
+			'id',
+			'jp-admin-notices'
+		);
+	} );
 } );

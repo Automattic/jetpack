@@ -29,8 +29,14 @@ return array(
 	HEAD,
 	'basedir' => "$work_dir/gutenberg/",
 	'files'   => array(
-		'lib/client-assets.php' => array(
+		'lib/client-assets.php'                      => array(
 			'function' => array( 'gutenberg_dir_path', 'gutenberg_override_script' ),
+		),
+		'lib/compat/wordpress-7.0/global-styles.php' => array(
+			'function' => array( 'gutenberg_print_font_faces' ),
+		),
+		'lib/global-styles-and-settings.php'         => array(
+			'function' => array( 'gutenberg_get_global_settings', 'gutenberg_get_global_styles' ),
 		),
 	),
 );

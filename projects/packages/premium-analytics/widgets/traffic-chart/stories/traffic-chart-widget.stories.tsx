@@ -194,8 +194,7 @@ export const Empty: Story = {
 };
 
 interface TrafficChartDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		TrafficChartStoryControls {}
+	extends WidgetDashboardWithWidgetControls, TrafficChartStoryControls {}
 
 function TrafficChartDashboardStory( {
 	withComparison,
