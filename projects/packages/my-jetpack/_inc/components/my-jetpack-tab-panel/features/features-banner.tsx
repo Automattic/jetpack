@@ -49,7 +49,7 @@ export function FeaturesBanner() {
 			<Button
 				className={ styles.banner__close }
 				icon={ closeSmall }
-				label={ __( 'Dismiss', 'jetpack-my-jetpack' ) }
+				label={ __( 'Dismiss banner', 'jetpack-my-jetpack' ) }
 				size="small"
 				onClick={ onDismiss }
 			/>

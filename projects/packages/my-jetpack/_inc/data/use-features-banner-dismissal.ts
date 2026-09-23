@@ -1,5 +1,4 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { __ } from '@wordpress/i18n';
 import { QUERY_DISMISS_FEATURES_BANNER_KEY, REST_API_DISMISS_FEATURES_BANNER } from './constants';
 import useSimpleMutation from './use-simple-mutation';
 import { getMyJetpackWindowInitialState } from './utils/get-my-jetpack-window-state';
@@ -37,7 +36,6 @@ export default function useFeaturesBannerDismissal() {
 			onMutate: () => queryClient.setQueryData( DISMISSED_QUERY_KEY, true ),
 			onError: () => queryClient.setQueryData( DISMISSED_QUERY_KEY, false ),
 		},
-		errorMessage: __( 'There was a problem dismissing the Features banner.', 'jetpack-my-jetpack' ),
 	} );
 
 	return { isDismissed, dismiss };

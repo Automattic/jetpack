@@ -83,8 +83,7 @@ $banner-foreground: #daffdc;
 	inset-block-start: -96px;
 }
 
-// Deeper than the AI Hub's -96px: this banner is half the height, so the same
-// offset left most of the sphere showing as a hard edge rather than a glow.
+// Deep enough that this short banner shows a glow, not the sphere's hard edge.
 .banner__orb--bottom {
 	inset-block-end: -140px;
 }
