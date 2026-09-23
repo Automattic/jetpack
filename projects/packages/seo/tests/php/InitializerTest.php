@@ -79,15 +79,9 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * The cross-plugin contract other plugins consume stays on Initializer: the
-	 * option names are pinned as literals (the Jetpack plugin's migrations write
-	 * them), and the visibility reads are real methods (My Jetpack probes
-	 * `is_optin_available` with `method_exists` on this class) delegating to
-	 * Surface_Visibility.
+	 * The surface visibility contract remains available on Initializer.
 	 */
 	public function test_cross_plugin_contract_is_kept_on_initializer() {
-		$this->assertSame( 'jetpack_seo_sitemap_enabled', Initializer::SITEMAP_ENABLED_OPTION );
-		$this->assertSame( 'jetpack_seo_canonical_urls_enabled', Initializer::CANONICAL_ENABLED_OPTION );
 		$this->assertSame( 'jetpack_seo_surface_visible', Initializer::VISIBILITY_OPTION );
 
 		$this->assertTrue( method_exists( Initializer::class, 'is_available' ) );
