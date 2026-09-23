@@ -89,11 +89,17 @@ class Search_Activate_Free_Test extends TestCase {
 	/**
 	 * Stands in for WordPress.com.
 	 *
+	 * @throws \RuntimeException If a request is made with no queued response.
 	 * @return array|WP_Error
 	 */
 	public function answer_as_wpcom( $preempt = false, $args = array() ) {
 		++$this->http_calls;
 		$this->request_bodies[] = json_decode( $args['body'] ?? '{}', true ) ?? array();
+
+		// Returning false here would let the request reach WordPress.com for real.
+		if ( ! $this->wpcom_responses ) {
+			throw new \RuntimeException( 'Unexpected outbound request: no queued WordPress.com response.' );
+		}
 
 		return count( $this->wpcom_responses ) > 1
 			? array_shift( $this->wpcom_responses )

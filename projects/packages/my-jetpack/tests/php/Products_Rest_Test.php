@@ -207,6 +207,33 @@ class Products_Rest_Test extends TestCase {
 	}
 
 	/**
+	 * Keep the activate-free calls inside the test process. The route reaches WordPress.com
+	 * once a user connection exists, and a test must not depend on the live endpoint.
+	 *
+	 * @return array
+	 */
+	public function block_activate_free_http() {
+		return array(
+			'headers'  => array(),
+			'body'     => wp_json_encode(
+				array(
+					'code'    => 'rest_cannot_activate',
+					'message' => 'Blocked in tests.',
+					'data'    => array(
+						'status'            => 403,
+						'checkout_fallback' => false,
+					),
+				),
+				JSON_UNESCAPED_SLASHES
+			),
+			'response' => array(
+				'code'    => 403,
+				'message' => 'Forbidden',
+			),
+		);
+	}
+
+	/**
 	 * `POST site/products/search/activate-free` is closed to anonymous callers.
 	 */
 	public function test_activate_search_free_not_logged() {
@@ -238,6 +265,7 @@ class Products_Rest_Test extends TestCase {
 	 */
 	public function test_activate_search_free_refusal_carries_checkout_fallback() {
 		wp_set_current_user( self::$user_id );
+		add_filter( 'pre_http_request', array( $this, 'block_activate_free_http' ) );
 
 		$response = $this->server->dispatch(
 			new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/search/activate-free' )
@@ -256,6 +284,7 @@ class Products_Rest_Test extends TestCase {
 	 */
 	public function test_activate_search_free_accepts_an_unfamiliar_source() {
 		wp_set_current_user( self::$user_id );
+		add_filter( 'pre_http_request', array( $this, 'block_activate_free_http' ) );
 
 		$request = new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/search/activate-free' );
 		$request->set_header( 'content-type', 'application/json' );
