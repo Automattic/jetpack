@@ -56,6 +56,7 @@ class Settings_Page_Test extends BaseTestCase {
 		remove_all_actions( 'admin_menu' );
 		remove_all_actions( 'pre_admin_screen_sharing' );
 		remove_all_actions( 'sharing_global_options' );
+		remove_all_filters( 'jetpack_disable_twitter_cards' );
 
 		$submenu           = array();
 		$_registered_pages = array();
@@ -192,11 +193,13 @@ class Settings_Page_Test extends BaseTestCase {
 	 * sections render and the extras section does not, so there is exactly one.
 	 */
 	public function test_rules_off_between_sections_but_not_after_the_last(): void {
+		add_filter( 'jetpack_disable_twitter_cards', '__return_true' );
+
 		$this->assertSame( 1, substr_count( $this->render_screen(), '<hr />' ) );
 	}
 
 	/**
-	 * Hook a field onto `sharing_global_options`, as Twitter Cards does.
+	 * Hook a field onto `sharing_global_options`, as a third party does.
 	 */
 	private function given_extra_field(): void {
 		add_action(
@@ -222,7 +225,7 @@ class Settings_Page_Test extends BaseTestCase {
 
 	/**
 	 * Once both features moved to their blocks, placement governs nothing left on
-	 * the page. Fields like the Twitter Site Tag stay: the Sharing Buttons block reads it.
+	 * the page. Fields other features hang there stay, like Simple's Twitter username.
 	 */
 	public function test_leaves_the_block_prompts_and_the_extras_once_simple_switched_both_off(): void {
 		Constants::set_constant( 'IS_WPCOM', true );
@@ -295,6 +298,8 @@ class Settings_Page_Test extends BaseTestCase {
 	 * With no section offering settings, a Save button would save nothing.
 	 */
 	public function test_renders_no_save_button_without_settings(): void {
+		add_filter( 'jetpack_disable_twitter_cards', '__return_true' );
+
 		$this->assertStringNotContainsString( 'Save Changes', $this->render_screen() );
 	}
 }

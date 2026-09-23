@@ -173,13 +173,23 @@ final class Post_Handler {
 			self::save_comment_likes();
 		}
 
-		// Once, from whichever section rendered `sharing_global_options`; never both.
+		// Once, from whichever section rendered `Services_Config::global_options()`; never both.
 		if ( array_intersect( array( Settings_Form::SECTION_SHARING, Settings_Form::SECTION_EXTRAS ), $sections ) ) {
-			/** This action is documented in projects/packages/sharing-likes/src/settings/class-services-config.php */
-			do_action( 'sharing_admin_update' );
+			self::save_global_options();
 		}
 
 		return self::redirect_url( true );
+	}
+
+	/**
+	 * Save the rows that close the settings table, ours and then third parties'.
+	 */
+	private static function save_global_options(): void {
+		Sharing_Resources::save();
+		Twitter_Site_Tag::save();
+
+		/** This action is documented in projects/packages/sharing-likes/src/settings/class-services-config.php */
+		do_action( 'sharing_admin_update' );
 	}
 
 	/**

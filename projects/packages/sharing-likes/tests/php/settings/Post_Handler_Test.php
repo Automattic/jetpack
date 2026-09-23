@@ -47,6 +47,8 @@ class Post_Handler_Test extends BaseTestCase {
 		delete_option( 'disabled_reblogs' );
 		delete_option( 'jetpack_comment_likes_enabled' );
 		delete_option( 'sharing-services' );
+		delete_option( Twitter_Site_Tag::OPTION );
+		delete_option( Sharing_Resources::OPTION );
 		Constants::clear_constants();
 
 		parent::tear_down();
@@ -455,6 +457,32 @@ class Post_Handler_Test extends BaseTestCase {
 	 */
 	public function test_save_leaves_the_third_party_hook_alone_when_no_host_rendered(): void {
 		$this->assertSame( 0, $this->count_admin_updates( array( Settings_Form::SECTION_LIKES, Settings_Form::SECTION_PLACEMENT ) ) );
+	}
+
+	/**
+	 * The screen saves its own rows in the extras section, under its own nonce,
+	 * and leaves out any it did not render there.
+	 */
+	public function test_extras_save_stores_the_site_tag_and_leaves_the_legacy_resources_alone(): void {
+		update_option( Sharing_Resources::OPTION, 1 );
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_EXTRAS ), array( Twitter_Site_Tag::OPTION => '@jetpack' ) ) );
+
+		$this->assertSame( 'jetpack', get_option( Twitter_Site_Tag::OPTION ) );
+		$this->assertSame( 1, get_option( Sharing_Resources::OPTION ) );
+	}
+
+	/**
+	 * Neither host rendered, so the Site Tag field was not on the screen either.
+	 */
+	public function test_save_leaves_the_site_tag_alone_when_no_host_rendered(): void {
+		update_option( Twitter_Site_Tag::OPTION, 'jetpack' );
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_LIKES ) ) );
+
+		$this->assertSame( 'jetpack', get_option( Twitter_Site_Tag::OPTION ) );
 	}
 
 	/**
