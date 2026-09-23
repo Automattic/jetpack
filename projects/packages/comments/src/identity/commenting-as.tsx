@@ -9,7 +9,7 @@ import './style.scss';
 
 const AVATAR_REFRESH_MS = 2000;
 
-const bust = ( avatar: string, stamp: number ) => {
+const bustAvatarCache = ( avatar: string, stamp: number ) => {
 	if ( ! stamp ) {
 		return avatar;
 	}
@@ -110,7 +110,11 @@ const UserSettings = ( { current }: UserSettingsProps ) => {
 					onClick={ editAvatar }
 				>
 					{ current.avatar && (
-						<img src={ bust( current.avatar, stamp ) } alt={ current.name } loading="lazy" />
+						<img
+							src={ bustAvatarCache( current.avatar, stamp ) }
+							alt={ current.name }
+							loading="lazy"
+						/>
 					) }
 				</button>
 				{ hasOptions && (
