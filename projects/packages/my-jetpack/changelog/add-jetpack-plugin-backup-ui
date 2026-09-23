@@ -1,4 +1,4 @@
-Significance: minor
-Type: added
+Significance: patch
+Type: changed
 
-Add a `my_jetpack_site_features_updated` action, fired when the site's features are read from WordPress.com, and send Backup checkout to the in-plugin Backup dashboard when the Jetpack plugin hosts it.
+Backup: Send Manage and checkout to the in-plugin Backup dashboard when the Jetpack plugin hosts it.

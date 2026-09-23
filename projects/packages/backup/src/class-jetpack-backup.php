@@ -155,24 +155,15 @@ class Jetpack_Backup {
 	private static $wp_build_original_screen_id = null;
 
 	/**
-	 * Initialization options, and what a host plugin overrides them for.
+	 * Initialization options.
 	 *
 	 * @var array
 	 */
 	const DEFAULT_INIT_OPTIONS = array(
 		// A host that already ensured a connection under its own slug must not have it
 		// re-ensured here as `jetpack-backup`, which would rename the site's connection.
-		'manage_connection'   => true,
-		// The standalone plugin *is* the Backup product, so its menu is unconditional.
-		'require_backup_plan' => false,
+		'manage_connection' => true,
 	);
-
-	/**
-	 * Whether the admin menu is gated on the site's plan including Backup.
-	 *
-	 * @var bool
-	 */
-	private static $require_backup_plan = false;
 
 	/**
 	 * Constructor.
@@ -186,45 +177,14 @@ class Jetpack_Backup {
 
 		$options = array_merge( self::DEFAULT_INIT_OPTIONS, $options );
 
-		self::$require_backup_plan = (bool) $options['require_backup_plan'];
+		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( \Automattic\Jetpack\Backup\V0005\REST\Rest_Controller::class, 'register_routes' ) );
 
-		add_action( 'rest_api_init', array( __CLASS__, 'maybe_register_rest_routes' ) );
-
-		// Before the menu is built, so a link straight into the page finds it registered.
-		add_action( 'admin_menu', array( __CLASS__, 'maybe_refresh_backup_feature_check' ), 0 );
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
 
 		if ( $options['manage_connection'] ) {
-			// Set up the REST authentication hooks.
-			Connection_Rest_Authentication::init();
-
-			// Init Jetpack packages.
-			add_action(
-				'plugins_loaded',
-				function () {
-					$config = new Config();
-					// Connection package.
-					$config->ensure(
-						'connection',
-						array(
-							'slug'     => self::JETPACK_BACKUP_SLUG,
-							'name'     => self::JETPACK_BACKUP_NAME,
-							'url_info' => self::JETPACK_BACKUP_URI,
-						)
-					);
-					// Sync package.
-					$config->ensure( 'sync' );
-
-					// Identity crisis package.
-					$config->ensure( 'identity_crisis' );
-				},
-				1
-			);
-
-			add_action( 'plugins_loaded', array( __CLASS__, 'maybe_upgrade_db' ), 20 );
-
-			add_filter( 'jetpack_connection_user_has_license', array( __CLASS__, 'jetpack_check_user_licenses' ), 10, 3 );
+			self::init_standalone_connection();
 		}
 
 		// Jetpack Backup abilities are registered from `actions.php` at package
@@ -241,76 +201,44 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Re-read the Backup feature check while the menu is built, when the stored answer is no.
-	 *
-	 * @return void
+	 * Set up the connection, sync and identity-crisis packages under the standalone plugin's slug.
 	 */
-	public static function maybe_refresh_backup_feature_check() {
-		// `admin_menu` runs before the page's own capability check, so gate this remote read here.
-		if ( ! self::$require_backup_plan || ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
+	private static function init_standalone_connection() {
+		// Set up the REST authentication hooks.
+		Connection_Rest_Authentication::init();
 
-		// A yes is kept current by the refresh `has_backup()` queues for after the response.
-		if ( Backup_Feature_Check::has_backup() ) {
-			return;
-		}
+		// Init Jetpack packages.
+		add_action(
+			'plugins_loaded',
+			function () {
+				$config = new Config();
+				// Connection package.
+				$config->ensure(
+					'connection',
+					array(
+						'slug'     => self::JETPACK_BACKUP_SLUG,
+						'name'     => self::JETPACK_BACKUP_NAME,
+						'url_info' => self::JETPACK_BACKUP_URI,
+					)
+				);
+				// Sync package.
+				$config->ensure( 'sync' );
 
-		if ( self::is_backup_admin_request() ) {
-			Backup_Feature_Check::refresh_from_wpcom();
-			return;
-		}
+				// Identity crisis package.
+				$config->ensure( 'identity_crisis' );
+			},
+			1
+		);
 
-		Backup_Feature_Check::refresh_if_never_answered();
-	}
+		add_action( 'plugins_loaded', array( __CLASS__, 'maybe_upgrade_db' ), 20 );
 
-	/**
-	 * Register the dashboard's REST routes, behind the same gate as its menu.
-	 *
-	 * Only the dashboard calls them, and all require `manage_options`, so a gated host skips
-	 * the plan read (and the refresh it may queue) on everyone else's REST requests.
-	 *
-	 * @return void
-	 */
-	public static function maybe_register_rest_routes() {
-		if ( self::$require_backup_plan && ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-
-		if ( ! self::plan_allows_dashboard() ) {
-			return;
-		}
-
-		self::register_rest_routes();
-		\Automattic\Jetpack\Backup\V0005\REST\Rest_Controller::register_routes();
-	}
-
-	/**
-	 * Whether the Backup dashboard is registered for this request, so My Jetpack links agree with the menu.
-	 *
-	 * @return bool
-	 */
-	public static function is_dashboard_available() {
-		return did_action( 'jetpack_backup_initialized' ) > 0 && self::plan_allows_dashboard();
-	}
-
-	/**
-	 * Whether the site's plan clears the gate the host plugin asked for.
-	 *
-	 * @return bool
-	 */
-	private static function plan_allows_dashboard() {
-		return ! self::$require_backup_plan || Backup_Feature_Check::has_backup();
+		add_filter( 'jetpack_connection_user_has_license', array( __CLASS__, 'jetpack_check_user_licenses' ), 10, 3 );
 	}
 
 	/**
 	 * The page to be added to submenu
 	 */
 	public static function add_wp_admin_submenu() {
-		if ( ! self::plan_allows_dashboard() ) {
-			return;
-		}
-
 		$wp_build_active = self::is_wp_build_dashboard_active();
 		$callback        = $wp_build_active
 			? 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page'

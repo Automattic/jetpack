@@ -99,7 +99,7 @@ class Admin_Sidebar_Link {
 	 * Refreshes the state cache via API call. Called via cron.
 	 *
 	 * Still warms the rewind state, which this class no longer reads itself:
-	 * Jetpack_Recommendations::plugin_auto_update_settings_changed() does.
+	 * Jetpack_Core_Json_Api_Endpoints::rewind_data() serves it from that cache.
 	 */
 	public function refresh_state_cache() {
 		Jetpack_Core_Json_Api_Endpoints::get_scan_state();

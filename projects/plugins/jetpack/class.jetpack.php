@@ -851,7 +851,7 @@ class Jetpack {
 	}
 
 	/**
-	 * Enable the bundled Backup dashboard for sites entitled to Backup.
+	 * Enable the bundled Backup dashboard.
 	 *
 	 * The standalone plugin initializes the package first, so with both active this is a no-op.
 	 *
@@ -865,18 +865,13 @@ class Jetpack {
 
 		$backup = 'Automattic\\Jetpack\\Backup\\V0005\\Jetpack_Backup';
 
-		// An older package ignores these options (see Jetpack_Backup::DEFAULT_INIT_OPTIONS); only
-		// the standalone plugin ships one that old, and it draws its own menu.
+		// An older package would take over the connection (see Jetpack_Backup::DEFAULT_INIT_OPTIONS);
+		// only the standalone plugin ships one that old, and it draws its own menu.
 		if ( ! class_exists( $backup ) || ! defined( $backup . '::DEFAULT_INIT_OPTIONS' ) ) {
 			return;
 		}
 
-		$backup::initialize(
-			array(
-				'manage_connection'   => false,
-				'require_backup_plan' => true,
-			)
-		);
+		$backup::initialize( array( 'manage_connection' => false ) );
 	}
 
 	/**

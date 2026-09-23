@@ -102,8 +102,6 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 		// does not leak into other suites, and clear the connection-owner memo.
 		$GLOBALS['wp_rest_server'] = null;
 		Jetpack::connection()->reset_connection_status();
-		delete_option( \Automattic\Jetpack\Backup\V0005\Backup_Feature_Check::OPTION );
-		wp_set_current_user( 0 );
 
 		set_current_screen( 'front' );
 		parent::tear_down();
@@ -396,11 +394,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 
 		// Clean slate so registration can only happen via the re-add below.
 		$this->force_unfire_action( 'jetpack_backup_initialized' );
-		remove_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\V0005\\Jetpack_Backup', 'maybe_register_rest_routes' ) );
-
-		// The routes are gated on the site's plan and on an admin asking.
-		$this->arrange_backup_feature_check( true );
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		remove_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\V0005\\Jetpack_Backup', 'register_rest_routes' ) );
 
 		// Mirror the gate's deferred front-end-GET wiring.
 		add_action( 'rest_api_init', array( Jetpack::class, 'configure_backup_package' ), 0 );
@@ -421,21 +415,5 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 		if ( is_multisite() ) {
 			$this->markTestSkipped( 'The bundled Backup dashboard is not initialized on multisite.' );
 		}
-	}
-
-	/**
-	 * Store the answer the Backup menu and REST routes are both gated on.
-	 *
-	 * @param bool $has_backup Whether the site's plan includes Backup.
-	 */
-	private function arrange_backup_feature_check( $has_backup ) {
-		update_option(
-			\Automattic\Jetpack\Backup\V0005\Backup_Feature_Check::OPTION,
-			array(
-				'has_backup'  => $has_backup,
-				'stale_after' => time() + HOUR_IN_SECONDS,
-			),
-			false
-		);
 	}
 }

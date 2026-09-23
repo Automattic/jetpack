@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Let a host plugin initialize the Backup dashboard without re-ensuring the connection. Remember whether the site's plan includes Backup, so the menu no longer disappears when WordPress.com cannot be read and a just-purchased plan is picked up right away.
+Let a host plugin initialize the Backup dashboard without re-ensuring the connection.

@@ -394,18 +394,6 @@ abstract class Product {
 		self::$site_features_success         = $features;
 		self::$site_features_success_expires = time() + self::MY_JETPACK_SITE_FEATURES_CACHE_DURATION;
 
-		/**
-		 * Fires when the site's features have just been read from WordPress.com.
-		 *
-		 * Only fires on a real read, not on a cache hit, so a listener can treat it as
-		 * "the answer may have changed" — after a purchase, for instance.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param array $features The site's features, with 'active' and 'available' keys.
-		 */
-		do_action( 'my_jetpack_site_features_updated', $features );
-
 		return $features;
 	}
 
