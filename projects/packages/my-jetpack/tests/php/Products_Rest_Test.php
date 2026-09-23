@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Constants;
 use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -103,6 +104,11 @@ class Products_Rest_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		parent::tearDown();
+
+		// Filters outlive the test that adds them, so a stub left behind answers the next one.
+		remove_filter( 'pre_http_request', array( $this, 'block_activate_free_http' ) );
+		remove_filter( 'pre_http_request', array( $this, 'grant_activate_free_http' ) );
+		Constants::clear_constants();
 
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
@@ -234,6 +240,30 @@ class Products_Rest_Test extends TestCase {
 	}
 
 	/**
+	 * Stand in for a WordPress.com grant, so the success path can be exercised offline.
+	 *
+	 * @return array
+	 */
+	public function grant_activate_free_http() {
+		return array(
+			'headers'  => array(),
+			'body'     => wp_json_encode(
+				array(
+					'success'                 => true,
+					'status'                  => 'granted',
+					'supports_search'         => true,
+					'supports_instant_search' => true,
+				),
+				JSON_UNESCAPED_SLASHES
+			),
+			'response' => array(
+				'code'    => 200,
+				'message' => 'ok',
+			),
+		);
+	}
+
+	/**
 	 * `POST site/products/search/activate-free` is closed to anonymous callers.
 	 */
 	public function test_activate_search_free_not_logged() {
@@ -276,6 +306,26 @@ class Products_Rest_Test extends TestCase {
 		// A handler-level refusal, not the route turning the caller away.
 		$this->assertNotSame( 'rest_forbidden', $error->get_error_code() );
 		$this->assertArrayHasKey( 'checkout_fallback', (array) $error->get_error_data() );
+	}
+
+	/**
+	 * A granted product comes back to the caller as a 200 with the WordPress.com payload.
+	 */
+	public function test_activate_search_free_returns_the_granted_product() {
+		wp_set_current_user( self::$user_id );
+		// The grant needs a user token to sign with, or it refuses before reaching the endpoint.
+		( new Tokens() )->update_blog_token( 'test.test' );
+		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
+		Jetpack_Options::update_option( 'id', 123 );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		add_filter( 'pre_http_request', array( $this, 'grant_activate_free_http' ) );
+
+		$response = $this->server->dispatch(
+			new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/search/activate-free' )
+		);
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( 'granted', $response->get_data()['status'] );
 	}
 
 	/**

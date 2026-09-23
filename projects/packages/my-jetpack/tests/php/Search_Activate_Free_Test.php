@@ -273,6 +273,52 @@ class Search_Activate_Free_Test extends TestCase {
 	}
 
 	/**
+	 * A refusal that names no status of its own still has to answer as an error, or the REST
+	 * client reads the 2xx as a granted product.
+	 */
+	public function test_refusal_without_a_status_of_its_own_becomes_a_bad_gateway() {
+		$this->connect_user();
+		$this->expect_wpcom_response(
+			200,
+			array(
+				'code'    => 'jetpack_search_free_disabled',
+				'message' => 'Jetpack Search Free has already been used for this site.',
+				'data'    => array( 'checkout_fallback' => false ),
+			)
+		);
+
+		$result = Search::activate_free_product( 'my-jetpack' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'jetpack_search_free_disabled', $result->get_error_code() );
+		$this->assertSame( 502, $result->get_error_data()['status'] );
+		$this->assertFalse( $result->get_error_data()['checkout_fallback'] );
+	}
+
+	/**
+	 * A plan refresh that never reaches WordPress.com is reported, not swallowed — re-running
+	 * the activation is what repairs it.
+	 */
+	public function test_unreachable_plan_refresh_is_reported_on_the_grant() {
+		$this->connect_user();
+		$this->expect_wpcom_response(
+			200,
+			array(
+				'success' => true,
+				'status'  => 'granted',
+			)
+		);
+		// Second leg: the plan refresh this site makes after the grant.
+		$this->wpcom_responses[] = new WP_Error( 'http_request_failed', 'Simulated WPCOM failure.' );
+
+		$result = Search::activate_free_product( 'my-jetpack' );
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 'granted', $result['status'] );
+		$this->assertSame( 'http_request_failed', $result['local_activation'] );
+	}
+
+	/**
 	 * A request that never reached WordPress.com leaves checkout worth trying.
 	 */
 	public function test_transport_failure_falls_back_to_checkout() {
