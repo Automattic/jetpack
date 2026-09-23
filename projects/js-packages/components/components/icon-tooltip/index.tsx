@@ -48,6 +48,9 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	title,
 	children,
 	popoverAnchorStyle = 'icon',
+	trigger,
+	onTriggerClick,
+	closeOnClickOutside = true,
 	forceShow = false,
 	hoverShow = false,
 	wide = false,
@@ -59,6 +62,8 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	const [ hoverTimeout, setHoverTimeout ] = useState( null );
 	const wrapperRef = useRef< HTMLDivElement >( null );
 	const popoverRef = useRef< HTMLDivElement >( null );
+	const triggerRef = useRef< HTMLAnchorElement >( null );
+	const hasTextTrigger = trigger !== undefined;
 	// Where focus should land after Tab leaves the tooltip. The effect below applies it, rather
 	// than the handler, because Popover puts focus back on the trigger as it unmounts.
 	const focusAfterClose = useRef< HTMLElement | null >( null );
@@ -68,10 +73,41 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	const toggleTooltip = useCallback(
 		e => {
 			e.preventDefault();
+			onTriggerClick?.();
 			openedByHover.current = false;
 			setIsVisible( ! isVisible );
 		},
-		[ isVisible, setIsVisible ]
+		[ isVisible, setIsVisible, onTriggerClick ]
+	);
+
+	// Focus can stay on a text trigger while its tooltip is open, so it handles the dialog keys too.
+	const handleTriggerKeyDown = useCallback(
+		( event: KeyboardEvent< HTMLAnchorElement > ) => {
+			// A link only activates on Enter; a button also activates on Space.
+			if ( event.key === ' ' ) {
+				if ( ! event.repeat ) {
+					toggleTooltip( event );
+				}
+				return;
+			}
+			if ( ! isVisible ) {
+				return;
+			}
+			if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				hideTooltip();
+			} else if ( event.key === 'Tab' ) {
+				// Step into the popover even when it is portaled away from the trigger.
+				const first = event.shiftKey ? null : focus.tabbable.find( popoverRef.current )[ 0 ];
+				if ( first ) {
+					event.preventDefault();
+					first.focus();
+				} else {
+					hideTooltip();
+				}
+			}
+		},
+		[ isVisible, hideTooltip, toggleTooltip ]
 	);
 
 	const isAnchorWrapper = popoverAnchorStyle === 'wrapper';
@@ -93,6 +129,11 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 			if ( ! leaving ) {
 				return;
 			}
+			if ( event.shiftKey && triggerRef.current ) {
+				event.preventDefault();
+				triggerRef.current.focus();
+				return;
+			}
 			// A popover rendered in a portal sits at the end of the document, so Tab out of it has
 			// to resume from the trigger's place in the page instead of the popover's.
 			const step = event.shiftKey ? focus.tabbable.findPrevious : focus.tabbable.findNext;
@@ -110,6 +151,10 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		[ hideTooltip ]
 	);
 
+	const focusOnOpen =
+		isForcedToShow || ( hasTextTrigger && ! openedByHover.current )
+			? 'firstElement'
+			: ! openedByHover.current;
 	const args = {
 		// To be compatible with deprecating prop `position`.
 		position: placementsToPositions( placement ),
@@ -119,18 +164,24 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		resize: false,
 		flip: false,
 		offset, // The distance (in px) between the anchor and the popover.
-		// Focusing the popover itself puts Escape in reach even with nothing tabbable inside.
-		// A caller-controlled popover keeps the old behaviour until it can report dismissal.
-		focusOnMount: isForcedToShow ? 'firstElement' : ! openedByHover.current,
+		// Focusing the popover itself puts Escape in reach even with nothing tabbable inside. A text
+		// trigger or caller-controlled popover moves focus to its first link, if it has one.
+		focusOnMount: focusOnOpen,
 		// Tab moves through the popover in document order rather than cycling inside it, and
 		// handlePopoverKeyDown decides where it lands on the way out.
 		constrainTabbing: false,
 		onKeyDownCapture: handlePopoverKeyDown,
 		ref: popoverRef,
-		onClose: hideTooltip,
+		onClose: () => {
+			const popover = popoverRef.current;
+			if ( hasTextTrigger && popover?.contains( popover.ownerDocument.activeElement ) ) {
+				focusAfterClose.current = triggerRef.current;
+			}
+			hideTooltip();
+		},
 		onFocusOutside: ( event: FocusEvent ) => {
 			// A pointer press on our own trigger dismisses through that trigger instead.
-			if ( ! wrapperRef.current?.contains( event.relatedTarget as Node ) ) {
+			if ( closeOnClickOutside && ! wrapperRef.current?.contains( event.relatedTarget as Node ) ) {
 				hideTooltip();
 			}
 		},
@@ -139,10 +190,30 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		shift,
 	} satisfies Omit< React.ComponentProps< typeof Popover >, 'children' >;
 
-	const wrapperClassNames = clsx( 'icon-tooltip-wrapper', className );
+	const wrapperClassNames = clsx(
+		'icon-tooltip-wrapper',
+		{ 'has-text-trigger': hasTextTrigger },
+		className
+	);
 	const iconShiftBySize = {
 		left: isAnchorWrapper ? 0 : -( POPOVER_HELPER_WIDTH / 2 - iconSize / 2 ) + 'px',
 	};
+
+	// Focus may never enter the popover, so outside presses are watched directly.
+	useEffect( () => {
+		if ( ! isVisible || isForcedToShow || ! closeOnClickOutside ) {
+			return;
+		}
+		const doc = wrapperRef.current?.ownerDocument;
+		const handlePointerDown = ( event: PointerEvent ) => {
+			const target = event.target as Node;
+			if ( ! wrapperRef.current?.contains( target ) && ! popoverRef.current?.contains( target ) ) {
+				hideTooltip();
+			}
+		};
+		doc?.addEventListener( 'pointerdown', handlePointerDown );
+		return () => doc?.removeEventListener( 'pointerdown', handlePointerDown );
+	}, [ isVisible, isForcedToShow, closeOnClickOutside, hideTooltip ] );
 
 	useEffect( () => {
 		if ( isForcedToShow || isVisible ) {
@@ -174,6 +245,19 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		}
 	}, [ hoverShow ] );
 
+	const helper = (
+		<div className={ clsx( 'icon-tooltip-helper', { 'is-wide': wide } ) } style={ iconShiftBySize }>
+			{ ( isForcedToShow || isVisible ) && (
+				<Popover { ...args }>
+					<div>
+						{ title && <div className="icon-tooltip-title">{ title }</div> }
+						<div className="icon-tooltip-content">{ children }</div>
+					</div>
+				</Popover>
+			) }
+		</div>
+	);
+
 	return (
 		<div
 			ref={ wrapperRef }
@@ -182,24 +266,31 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 			onMouseEnter={ handleMouseEnter }
 			onMouseLeave={ handleMouseLeave }
 		>
-			{ ! isAnchorWrapper && (
+			{ hasTextTrigger && (
+				<>
+					{ /* A link, not a button, so it keeps the host page's link styling. */ }
+					<a
+						ref={ triggerRef }
+						href="#"
+						role="button"
+						className="icon-tooltip-trigger"
+						aria-expanded={ isVisible }
+						onClick={ toggleTooltip }
+						onKeyDown={ handleTriggerKeyDown }
+					>
+						{ trigger }
+					</a>
+					<span className="icon-tooltip-anchor">
+						<span>{ helper }</span>
+					</span>
+				</>
+			) }
+			{ ! hasTextTrigger && ! isAnchorWrapper && (
 				<Button variant="link" aria-expanded={ isVisible } onClick={ toggleTooltip }>
 					<Icon className={ iconClassName } icon={ iconCode } size={ iconSize } />
 				</Button>
 			) }
-			<div
-				className={ clsx( 'icon-tooltip-helper', { 'is-wide': wide } ) }
-				style={ iconShiftBySize }
-			>
-				{ ( isForcedToShow || isVisible ) && (
-					<Popover { ...args }>
-						<div>
-							{ title && <div className="icon-tooltip-title">{ title }</div> }
-							<div className="icon-tooltip-content">{ children }</div>
-						</div>
-					</Popover>
-				) }
-			</div>
+			{ ! hasTextTrigger && helper }
 		</div>
 	);
 };

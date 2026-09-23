@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import IconTooltip from '../index.tsx';
@@ -104,6 +105,133 @@ describe( 'IconTooltip', () => {
 		expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Before' } ) ).toHaveFocus();
 		restoreLayout();
+	} );
+
+	describe( 'with a text trigger', () => {
+		const triggerProps: IconTooltipProps = {
+			...testProps,
+			popoverAnchorStyle: 'wrapper',
+			trigger: 'See an example',
+		};
+
+		it( 'toggles on clicks and reports each one', async () => {
+			const user = userEvent.setup();
+			const onTriggerClick = jest.fn();
+			render( <IconTooltip { ...triggerProps } onTriggerClick={ onTriggerClick } /> );
+			const trigger = screen.getByRole( 'button', { name: 'See an example' } );
+			await user.click( trigger );
+			expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
+			expect( trigger ).toHaveAttribute( 'aria-expanded', 'true' );
+			await user.click( trigger );
+			expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
+			expect( onTriggerClick ).toHaveBeenCalledTimes( 2 );
+		} );
+
+		it.each( [ true, false ] )(
+			'closes with Escape and refocuses the trigger (inline: %s)',
+			async inline => {
+				const user = userEvent.setup();
+				render( <IconTooltip { ...triggerProps } inline={ inline } /> );
+				const trigger = screen.getByRole( 'button', { name: 'See an example' } );
+				await user.tab();
+				await user.keyboard( '{Enter}' );
+				expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
+				expect( trigger ).toHaveFocus();
+				await user.keyboard( '{Escape}' );
+				expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
+				expect( trigger ).toHaveFocus();
+				expect( trigger ).toHaveAttribute( 'aria-expanded', 'false' );
+			}
+		);
+
+		it( 'focuses a portaled popover link, tabs back and forth, and closes with Escape from inside', async () => {
+			const restoreLayout = withLayout();
+			const user = userEvent.setup();
+			render(
+				<IconTooltip { ...triggerProps } inline={ false }>
+					<a href="#learn">Learn more</a>
+				</IconTooltip>
+			);
+			const trigger = screen.getByRole( 'button', { name: 'See an example' } );
+			await user.tab();
+			await user.keyboard( '{Enter}' );
+			expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toHaveFocus();
+			await user.tab( { shift: true } );
+			expect( trigger ).toHaveFocus();
+			expect( trigger ).toHaveAttribute( 'aria-expanded', 'true' );
+			await user.tab();
+			expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toHaveFocus();
+			await user.keyboard( '{Escape}' );
+			expect( screen.queryByRole( 'link', { name: 'Learn more' } ) ).not.toBeInTheDocument();
+			expect( trigger ).toHaveFocus();
+			restoreLayout();
+		} );
+
+		it( 'toggles once per Space press', async () => {
+			const user = userEvent.setup();
+			render( <IconTooltip { ...triggerProps } /> );
+			const trigger = screen.getByRole( 'button', { name: 'See an example' } );
+			await user.tab();
+			await user.keyboard( ' ' );
+			expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
+			expect( trigger ).toHaveAttribute( 'aria-expanded', 'true' );
+		} );
+
+		it.each( [ true, false ] )(
+			'closes on a press outside, wherever focus is (link inside: %s)',
+			async withLink => {
+				const restoreLayout = withLayout();
+				const user = userEvent.setup();
+				render(
+					<>
+						<IconTooltip { ...triggerProps }>
+							{ withLink ? <a href="#learn">Learn more</a> : 'Content block' }
+						</IconTooltip>
+						<p>Elsewhere</p>
+					</>
+				);
+				await user.click( screen.getByRole( 'button', { name: 'See an example' } ) );
+				expect( screen.getByRole( 'button', { name: 'See an example' } ) ).toHaveAttribute(
+					'aria-expanded',
+					'true'
+				);
+				await user.click( screen.getByText( 'Elsewhere' ) );
+				expect( screen.getByRole( 'button', { name: 'See an example' } ) ).toHaveAttribute(
+					'aria-expanded',
+					'false'
+				);
+				restoreLayout();
+			}
+		);
+
+		it( 'stays open on a press outside when closeOnClickOutside is off', async () => {
+			const restoreLayout = withLayout();
+			const user = userEvent.setup();
+			render(
+				<>
+					<IconTooltip { ...triggerProps } closeOnClickOutside={ false }>
+						<a href="#learn">Learn more</a>
+					</IconTooltip>
+					<input aria-label="Exceptions" />
+				</>
+			);
+			await user.click( screen.getByRole( 'button', { name: 'See an example' } ) );
+			await user.click( screen.getByRole( 'textbox', { name: 'Exceptions' } ) );
+			expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'textbox', { name: 'Exceptions' } ) ).toHaveFocus();
+			restoreLayout();
+		} );
+
+		it( 'stays open while the trigger is held and closes on release', async () => {
+			const user = userEvent.setup();
+			render( <IconTooltip { ...triggerProps } inline={ false } /> );
+			const trigger = screen.getByRole( 'button', { name: 'See an example' } );
+			await user.click( trigger );
+			await user.pointer( { keys: '[MouseLeft>]', target: trigger } );
+			expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
+			await user.pointer( { keys: '[/MouseLeft]', target: trigger } );
+			expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
+		} );
 	} );
 
 	it( 'renders the icon tooltip', () => {

@@ -79,9 +79,41 @@ $arrow-color: var(--jp-gray);
 	}
 }
 
+// A text trigger flows with the sentence around it.
+.icon-tooltip-wrapper.has-text-trigger {
+	display: inline;
+	color: inherit;
+}
+
+// The popover anchors at the trigger's baseline and paints under it.
+.icon-tooltip-trigger {
+	position: relative;
+	z-index: 10;
+}
+
+.icon-tooltip-anchor {
+	position: absolute;
+	inset-block-start: 0;
+	inset-inline-start: 0;
+	z-index: 9;
+
+	> span {
+		display: inline-block;
+		position: relative;
+		color: var(--jp-black);
+	}
+}
+
 .icon-tooltip-container {
 	// Recover events
 	pointer-events: all;
+	// Takes focus on open, but its box is wider than the visible content,
+	// so the ring goes on the content instead.
+	outline: none;
+
+	&:focus-visible .components-popover__content {
+		outline: var(--wp-admin-border-width-focus, 2px) solid var(--wp-admin-theme-color, #3858e9);
+	}
 
 	// __content styles here covers both the inline and portal modes
 	.components-popover__content {
