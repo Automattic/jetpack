@@ -55,6 +55,7 @@ const DEFAULT_ATTRIBUTES: LatestVideosPlaylistAttributes = {
 	count: 5,
 	layout: 'side-rail',
 	darkPlayer: false,
+	showPlayer: true,
 	autoplayNext: false,
 	muteByDefault: false,
 	loopPlaylist: false,
@@ -195,5 +196,8 @@ describe( 'LatestVideosPlaylistEdit', () => {
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Grid' } ) );
 		expect( setAttributes ).toHaveBeenCalledWith( { layout: 'grid' } );
+
+		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Show player' } ) );
+		expect( setAttributes ).toHaveBeenCalledWith( { showPlayer: false } );
 	} );
 } );

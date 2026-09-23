@@ -37,6 +37,7 @@ const LAYOUT_OPTIONS: LayoutOption[] = [
  */
 export function PlaylistSettingsPanels( { attributes, setAttributes }: ControlsProps ) {
 	const {
+		showPlayer,
 		autoplayNext,
 		muteByDefault,
 		loopPlaylist,
@@ -64,10 +65,21 @@ export function PlaylistSettingsPanels( { attributes, setAttributes }: ControlsP
 			<PanelBody title={ __( 'Playback', 'jetpack-videopress-pkg' ) }>
 				<ToggleControl
 					__nextHasNoMarginBottom
+					label={ __( 'Show player', 'jetpack-videopress-pkg' ) }
+					help={ __(
+						'Turn off to list the videos only. Each one then opens on VideoPress in a new tab.',
+						'jetpack-videopress-pkg'
+					) }
+					checked={ showPlayer }
+					onChange={ ( value: boolean ) => setAttributes( { showPlayer: value } ) }
+				/>
+				{ /* The remaining options only apply to the block's own player. */ }
+				<ToggleControl
+					__nextHasNoMarginBottom
 					label={ __( 'Autoplay next', 'jetpack-videopress-pkg' ) }
 					help={ loopPlaylist ? autoplayImpliedHelp : autoplayHelp }
 					checked={ autoplayNext || loopPlaylist }
-					disabled={ loopPlaylist }
+					disabled={ loopPlaylist || ! showPlayer }
 					onChange={ ( value: boolean ) => setAttributes( { autoplayNext: value } ) }
 				/>
 				<ToggleControl
@@ -75,6 +87,7 @@ export function PlaylistSettingsPanels( { attributes, setAttributes }: ControlsP
 					label={ __( 'Mute by default', 'jetpack-videopress-pkg' ) }
 					help={ __( 'Start playback muted.', 'jetpack-videopress-pkg' ) }
 					checked={ muteByDefault }
+					disabled={ ! showPlayer }
 					onChange={ ( value: boolean ) => setAttributes( { muteByDefault: value } ) }
 				/>
 				<ToggleControl
@@ -85,6 +98,7 @@ export function PlaylistSettingsPanels( { attributes, setAttributes }: ControlsP
 						'jetpack-videopress-pkg'
 					) }
 					checked={ loopPlaylist }
+					disabled={ ! showPlayer }
 					onChange={ ( value: boolean ) => setAttributes( { loopPlaylist: value } ) }
 				/>
 			</PanelBody>

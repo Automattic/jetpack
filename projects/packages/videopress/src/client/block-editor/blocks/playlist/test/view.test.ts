@@ -214,6 +214,45 @@ describe( 'initPlaylistBlock', () => {
 		).toBe( EMBED_B );
 	} );
 
+	it( 'only hydrates a block without a player, leaving its link entries alone', async () => {
+		document.body.innerHTML = `
+			<figure class="wp-block-videopress-playlist videopress-playlist is-layout-side-rail hide-player" data-autoplay-next="0" data-loop="0">
+				<div class="videopress-playlist__list">
+					<ol class="videopress-playlist__entries">
+						<li><a class="videopress-playlist__select" href="https://videopress.com/v/aaaaaaaa" target="_blank" rel="noopener noreferrer" data-guid="aaaaaaaa" data-title="Video 1">
+							<span class="videopress-playlist__entry-thumb"></span>
+							<span class="videopress-playlist__entry-title">Video 1</span>
+						</a></li>
+						<li><a class="videopress-playlist__select" href="https://videopress.com/v/bbbbbbbb" target="_blank" rel="noopener noreferrer" data-guid="bbbbbbbb" data-title="Video 2">
+							<span class="videopress-playlist__entry-thumb"></span>
+							<span class="videopress-playlist__entry-title">Video 2</span>
+						</a></li>
+					</ol>
+				</div>
+			</figure>
+		`;
+		mockLiveMetadata = {
+			aaaaaaaa: { title: 'Live first', poster: 'https://example.com/first.jpg' },
+		};
+		const root = document.querySelector< HTMLElement >( '.wp-block-videopress-playlist' );
+
+		expect( () => initPlaylistBlock( root ) ).not.toThrow();
+		await hydratePlaylistMetadata( root );
+
+		const entries = root.querySelectorAll< HTMLAnchorElement >( '.videopress-playlist__select' );
+		expect( entries[ 0 ].querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(
+			'Live first'
+		);
+		expect( entries[ 0 ].querySelector( 'img' ) ).toHaveAttribute(
+			'src',
+			'https://example.com/first.jpg'
+		);
+		// Nothing is "playing": the links keep their targets and no entry is marked current.
+		expect( root.querySelector( '.is-current' ) ).toBeNull();
+		expect( entries[ 0 ] ).toHaveAttribute( 'href', 'https://videopress.com/v/aaaaaaaa' );
+		expect( entries[ 0 ] ).toHaveAttribute( 'target', '_blank' );
+	} );
+
 	it( 'does nothing on a block without playable entries', () => {
 		document.body.innerHTML = `
 			<figure class="wp-block-videopress-playlist" data-autoplay-next="1">

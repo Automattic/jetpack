@@ -147,6 +147,8 @@ class Playlist_Block_Test extends BaseTestCase {
 		// First entry is marked current.
 		$this->assertStringContainsString( 'videopress-playlist__select is-current', $markup );
 		$this->assertStringContainsString( 'aria-current="true"', $markup );
+		$this->assertStringNotContainsString( 'hide-player', $markup );
+		$this->assertStringContainsString( '>Up next<', $markup );
 
 		// The count · runtime meta line lives in the list header, next to "Up next".
 		$this->assertStringContainsString(
@@ -249,6 +251,44 @@ class Playlist_Block_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'hide-durations', $markup );
 		$this->assertStringContainsString( 'hide-runtime', $markup );
 		$this->assertStringContainsString( '<span class="videopress-playlist__entry-number">01</span>', $markup );
+	}
+
+	/**
+	 * Without the player the entries link to their VideoPress pages in a new tab.
+	 */
+	public function test_render_without_player_links_entries_to_videopress() {
+		$markup = VideoPress_Initializer::render_videopress_playlist_block(
+			$this->attributes( array( 'showPlayer' => false ) )
+		);
+
+		$this->assertStringContainsString( 'hide-player', $markup );
+		$this->assertStringNotContainsString( 'videopress-playlist__stage', $markup );
+		$this->assertStringNotContainsString( 'videopress-playlist__iframe', $markup );
+		$this->assertStringNotContainsString( 'videopress.com/embed/', $markup );
+		$this->assertStringNotContainsString( 'data-embed-url', $markup );
+
+		$this->assertStringContainsString(
+			'<a class="videopress-playlist__select" href="https://videopress.com/v/abcDEF12" target="_blank" rel="noopener noreferrer" data-guid="abcDEF12"',
+			$markup
+		);
+		$this->assertStringContainsString( 'href="https://videopress.com/v/ghiJKL34"', $markup );
+		$this->assertStringNotContainsString( '<button', $markup );
+		$this->assertSame( 2, substr_count( $markup, '</a></li>' ) );
+
+		// Nothing is playing: no current entry, no progress counter, and the rail
+		// header no longer announces what is "up next".
+		$this->assertStringNotContainsString( 'is-current', $markup );
+		$this->assertStringNotContainsString( 'aria-current', $markup );
+		$this->assertStringNotContainsString( 'videopress-playlist__list-progress', $markup );
+		$this->assertStringContainsString( '>Playlist<', $markup );
+		$this->assertStringNotContainsString( '>Up next<', $markup );
+
+		// The list header keeps the count · runtime line, and the grid layout its runtime row.
+		$this->assertStringContainsString( '<span class="videopress-playlist__count">2 videos</span>', $markup );
+		$this->assertStringContainsString(
+			'<div class="videopress-playlist__now"><span class="videopress-playlist__now-runtime">2 videos · 19 min</span></div>',
+			$markup
+		);
 	}
 
 	/**

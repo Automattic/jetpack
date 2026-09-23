@@ -11,6 +11,7 @@ import {
 	formatTimecode,
 	playlistEmbedUrl,
 	playlistRuntimeMs,
+	playlistVideoUrl,
 	resolutionLabel,
 } from './utils';
 /**
@@ -28,7 +29,8 @@ type PlaylistPreviewProps = {
 
 /**
  * The front-end-mirroring preview rendered in the editor canvas, shared by
- * every block that renders a playlist.
+ * every block that renders a playlist. Without the player, entries are the
+ * links the front end renders, kept from navigating away from the editor.
  *
  * @param props              - Component props.
  * @param props.videos       - The entries to preview.
@@ -45,7 +47,7 @@ export default function PlaylistPreview( {
 	liveMetadata,
 	onSelect,
 }: PlaylistPreviewProps ) {
-	const { muteByDefault, showPositionNumber, showTotalRuntime } = attributes;
+	const { muteByDefault, showPlayer, showPositionNumber, showTotalRuntime } = attributes;
 	const current = videos[ currentIndex ];
 
 	/*
@@ -73,30 +75,33 @@ export default function PlaylistPreview( {
 		_n( '%d video', '%d videos', videos.length, 'jetpack-videopress-pkg' ),
 		videos.length
 	);
+	const nowRuntime = showTotalRuntime && runtime && (
+		<div className="videopress-playlist__now">
+			<span className="videopress-playlist__now-runtime">{ `${ countLabel } · ${ runtime }` }</span>
+		</div>
+	);
 	return (
 		<>
 			<div className="videopress-playlist__body">
-				<div className="videopress-playlist__stage">
-					<div className="videopress-playlist__player">
-						<iframe
-							className="videopress-playlist__iframe"
-							title={
-								liveMetadata[ current.guid ]?.title ||
-								__( 'Video Playlist player', 'jetpack-videopress-pkg' )
-							}
-							src={ playlistEmbedUrl( current.guid, false, muteByDefault ) }
-							allowFullScreen
-							allow="clipboard-write"
-						/>
-					</div>
-					{ showTotalRuntime && runtime && (
-						<div className="videopress-playlist__now">
-							<span className="videopress-playlist__now-runtime">
-								{ `${ countLabel } · ${ runtime }` }
-							</span>
+				{ showPlayer ? (
+					<div className="videopress-playlist__stage">
+						<div className="videopress-playlist__player">
+							<iframe
+								className="videopress-playlist__iframe"
+								title={
+									liveMetadata[ current.guid ]?.title ||
+									__( 'Video Playlist player', 'jetpack-videopress-pkg' )
+								}
+								src={ playlistEmbedUrl( current.guid, false, muteByDefault ) }
+								allowFullScreen
+								allow="clipboard-write"
+							/>
 						</div>
-					) }
-				</div>
+						{ nowRuntime }
+					</div>
+				) : (
+					nowRuntime
+				) }
 
 				<div
 					className={
@@ -105,7 +110,8 @@ export default function PlaylistPreview( {
 				>
 					<div className="videopress-playlist__list-header">
 						<span className="videopress-playlist__list-label videopress-playlist__list-label--rail">
-							{ __( 'Up next', 'jetpack-videopress-pkg' ) }
+							{ showPlayer && __( 'Up next', 'jetpack-videopress-pkg' ) }
+							{ ! showPlayer && __( 'Playlist', 'jetpack-videopress-pkg' ) }
 						</span>
 						<span className="videopress-playlist__list-label videopress-playlist__list-label--strip">
 							{ sprintf(
@@ -120,35 +126,34 @@ export default function PlaylistPreview( {
 								<span className="videopress-playlist__runtime">{ runtime }</span>
 							) }
 						</span>
-						<span className="videopress-playlist__list-progress">
-							{ sprintf(
-								/* translators: 1: position of the current video. 2: number of videos. 3: total playlist timecode. */
-								__( '%1$d / %2$d · %3$s total', 'jetpack-videopress-pkg' ),
-								currentIndex + 1,
-								videos.length,
-								formatTimecode( playlistRuntimeMs( videos ) )
-							) }
-						</span>
+						{ showPlayer && (
+							<span className="videopress-playlist__list-progress">
+								{ sprintf(
+									/* translators: 1: position of the current video. 2: number of videos. 3: total playlist timecode. */
+									__( '%1$d / %2$d · %3$s total', 'jetpack-videopress-pkg' ),
+									currentIndex + 1,
+									videos.length,
+									formatTimecode( playlistRuntimeMs( videos ) )
+								) }
+							</span>
+						) }
 					</div>
 					<ol
 						className="videopress-playlist__entries"
 						ref={ entriesRef }
 						onScroll={ updateScrollHint }
 					>
-						{ videos.map( ( entry, index ) => (
-							<li className="videopress-playlist__entry" key={ `${ entry.guid }-${ index }` }>
-								<button
-									type="button"
-									className={ [
-										'videopress-playlist__select',
-										index === currentIndex ? 'is-current' : '',
-										liveMetadata[ entry.guid ]?.isPrivateLocked ? 'is-locked' : '',
-									]
-										.filter( Boolean )
-										.join( ' ' ) }
-									aria-current={ index === currentIndex ? 'true' : undefined }
-									onClick={ () => onSelect( index ) }
-								>
+						{ videos.map( ( entry, index ) => {
+							const isCurrent = showPlayer && index === currentIndex;
+							const entryClasses = [
+								'videopress-playlist__select',
+								isCurrent ? 'is-current' : '',
+								liveMetadata[ entry.guid ]?.isPrivateLocked ? 'is-locked' : '',
+							]
+								.filter( Boolean )
+								.join( ' ' );
+							const entryContent = (
+								<>
 									{ showPositionNumber && (
 										<span className="videopress-playlist__entry-number">
 											{ String( index + 1 ).padStart( 2, '0' ) }
@@ -198,9 +203,34 @@ export default function PlaylistPreview( {
 											) }
 										</span>
 									</span>
-								</button>
-							</li>
-						) ) }
+								</>
+							);
+
+							return (
+								<li className="videopress-playlist__entry" key={ `${ entry.guid }-${ index }` }>
+									{ showPlayer ? (
+										<button
+											type="button"
+											className={ entryClasses }
+											aria-current={ isCurrent ? 'true' : undefined }
+											onClick={ () => onSelect( index ) }
+										>
+											{ entryContent }
+										</button>
+									) : (
+										<a
+											className={ entryClasses }
+											href={ playlistVideoUrl( entry.guid ) }
+											target="_blank"
+											rel="noopener noreferrer"
+											onClick={ ( event: React.MouseEvent ) => event.preventDefault() }
+										>
+											{ entryContent }
+										</a>
+									) }
+								</li>
+							);
+						} ) }
 					</ol>
 				</div>
 			</div>

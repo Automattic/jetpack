@@ -892,6 +892,7 @@ class Initializer {
 			? $block_attributes['layout']
 			: 'side-rail';
 
+		$show_player    = $enabled( 'showPlayer' );
 		$show_thumbnail = $enabled( 'showThumbnail' );
 		$show_title     = $enabled( 'showTitle' );
 		$show_res       = $enabled( 'showResolution' );
@@ -903,6 +904,9 @@ class Initializer {
 		$classes = array( 'videopress-playlist', 'is-layout-' . $layout );
 		if ( $enabled( 'darkPlayer', false ) ) {
 			$classes[] = 'is-dark';
+		}
+		if ( ! $show_player ) {
+			$classes[] = 'hide-player';
 		}
 		if ( ! $show_thumbnail ) {
 			$classes[] = 'hide-thumbnails';
@@ -981,26 +985,46 @@ class Initializer {
 				? sprintf( '<span class="videopress-playlist__entry-duration">%s</span>', esc_html( $timecode ) )
 				: '';
 
+			if ( $show_player ) {
+				$entry_open  = sprintf(
+					'<button type="button" class="videopress-playlist__select%1$s"%2$s data-guid="%3$s" data-embed-url="%4$s" data-title="%5$s" data-position="%6$s" data-details="%7$s" data-progress="%8$s">',
+					0 === $index ? ' is-current' : '',
+					0 === $index ? ' aria-current="true"' : '',
+					esc_attr( $entry['guid'] ),
+					esc_url( self::playlist_embed_url( $entry['guid'], true, $muted ) ),
+					esc_attr( $title ),
+					esc_attr( $position ),
+					esc_attr( $details ),
+					esc_attr( $progress )
+				);
+				$entry_close = '</button>';
+			} else {
+				// No player to load the video into: the entry opens its VideoPress page instead.
+				$entry_open  = sprintf(
+					'<a class="videopress-playlist__select" href="%1$s" target="_blank" rel="noopener noreferrer" data-guid="%2$s" data-title="%3$s" data-position="%4$s" data-details="%5$s">',
+					esc_url( 'https://videopress.com/v/' . $entry['guid'] ),
+					esc_attr( $entry['guid'] ),
+					esc_attr( $title ),
+					esc_attr( $position ),
+					esc_attr( $details )
+				);
+				$entry_close = '</a>';
+			}
+
 			$items .= sprintf(
-				'<li class="videopress-playlist__entry"><button type="button" class="videopress-playlist__select%1$s"%2$s data-guid="%3$s" data-embed-url="%4$s" data-title="%5$s" data-position="%6$s" data-details="%7$s" data-progress="%8$s">' .
-					'%9$s<span class="videopress-playlist__entry-thumb"><span class="videopress-playlist__entry-flag">%10$s</span>%15$s%11$s</span>' .
-					'<span class="videopress-playlist__entry-body"><span class="videopress-playlist__entry-title">%12$s</span><span class="videopress-playlist__entry-meta">%13$s%14$s</span></span>' .
-					'</button></li>',
-				0 === $index ? ' is-current' : '',
-				0 === $index ? ' aria-current="true"' : '',
-				esc_attr( $entry['guid'] ),
-				esc_url( self::playlist_embed_url( $entry['guid'], true, $muted ) ),
-				esc_attr( $title ),
-				esc_attr( $position ),
-				esc_attr( $details ),
-				esc_attr( $progress ),
+				'<li class="videopress-playlist__entry">%1$s' .
+					'%2$s<span class="videopress-playlist__entry-thumb"><span class="videopress-playlist__entry-flag">%3$s</span>%4$s%5$s</span>' .
+					'<span class="videopress-playlist__entry-body"><span class="videopress-playlist__entry-title">%6$s</span><span class="videopress-playlist__entry-meta">%7$s%8$s</span></span>' .
+					'%9$s</li>',
+				$entry_open,
 				$number_markup,
 				esc_html__( 'Playing', 'jetpack-videopress-pkg' ),
+				$lock_markup,
 				$time_markup,
 				esc_html( $title ),
 				$resolution_markup,
 				$duration_markup,
-				$lock_markup
+				$entry_close
 			);
 		}
 
@@ -1029,15 +1053,18 @@ class Initializer {
 			)
 			: '';
 
-		$stage_markup = sprintf(
-			'<div class="videopress-playlist__stage">' .
-				'<div class="videopress-playlist__player"><iframe class="videopress-playlist__iframe" title="%1$s" src="%2$s" allowfullscreen allow="clipboard-write"></iframe></div>%3$s</div>',
-			esc_attr( $first_title ),
-			esc_url( self::playlist_embed_url( $first['guid'], false, $muted ) ),
-			$now_markup
-		);
+		// Without a player only the grid layout's runtime line remains of the stage.
+		$stage_markup = $show_player
+			? sprintf(
+				'<div class="videopress-playlist__stage">' .
+					'<div class="videopress-playlist__player"><iframe class="videopress-playlist__iframe" title="%1$s" src="%2$s" allowfullscreen allow="clipboard-write"></iframe></div>%3$s</div>',
+				esc_attr( $first_title ),
+				esc_url( self::playlist_embed_url( $first['guid'], false, $muted ) ),
+				$now_markup
+			)
+			: $now_markup;
 
-		$progress_markup = '' !== $total_timecode
+		$progress_markup = $show_player && '' !== $total_timecode
 			? sprintf(
 				'<span class="videopress-playlist__list-progress">%s</span>',
 				/* translators: 1: position of the current video. 2: number of videos. 3: total playlist timecode. */
@@ -1051,7 +1078,9 @@ class Initializer {
 				'<span class="videopress-playlist__list-label videopress-playlist__list-label--rail">%1$s</span>' .
 				'<span class="videopress-playlist__list-label videopress-playlist__list-label--strip">%2$s</span>%3$s%4$s</div>' .
 				'<ol class="videopress-playlist__entries">%5$s</ol></div>',
-			esc_html__( 'Up next', 'jetpack-videopress-pkg' ),
+			$show_player
+				? esc_html__( 'Up next', 'jetpack-videopress-pkg' )
+				: esc_html__( 'Playlist', 'jetpack-videopress-pkg' ),
 			/* translators: %s: number of videos in the playlist, e.g. "5 videos". */
 			esc_html( sprintf( __( 'Playlist — %s', 'jetpack-videopress-pkg' ), $count_label ) ),
 			$list_meta_markup,

@@ -32,6 +32,10 @@
 			"type": "boolean",
 			"default": false
 		},
+		"showPlayer": {
+			"type": "boolean",
+			"default": true
+		},
 		"autoplayNext": {
 			"type": "boolean",
 			"default": false

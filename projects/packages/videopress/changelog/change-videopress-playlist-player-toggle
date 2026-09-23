@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Video Playlist and Latest Videos Playlist blocks: Add a setting to hide the player; the list then links each video to its VideoPress page, opened in a new tab.

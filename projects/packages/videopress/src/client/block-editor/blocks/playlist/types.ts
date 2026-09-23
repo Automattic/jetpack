@@ -33,6 +33,7 @@ export type PlaylistLayout = 'side-rail' | 'grid' | 'strip';
 export type PlaylistDisplayAttributes = {
 	layout: PlaylistLayout;
 	darkPlayer: boolean;
+	showPlayer: boolean;
 	autoplayNext: boolean;
 	muteByDefault: boolean;
 	loopPlaylist: boolean;

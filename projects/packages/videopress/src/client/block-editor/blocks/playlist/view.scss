@@ -4,6 +4,8 @@
  * One markup structure, restyled per layout via the wrapper classes
  * `is-layout-side-rail`, `is-layout-grid` and `is-layout-strip`, with an
  * `is-dark` surface variant and `hide-*` classes for the display toggles.
+ * `hide-player` drops the stage: the list stands alone and each entry links
+ * to its video's VideoPress page.
  */
 
 // Numeric/meta text stack, as specified by the design.
@@ -72,6 +74,32 @@ $vpp-mono: ui-monospace, menlo, monospace;
 	&.hide-runtime &__now-runtime,
 	&.hide-runtime &__list-progress {
 		display: none;
+	}
+
+	/* Without a player the entries are links; keep the theme's link styling
+	   off them. */
+
+	&.hide-player &__select,
+	&.hide-player &__select:hover,
+	&.hide-player &__select:focus {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	&.hide-player.is-layout-strip &__list {
+		margin-block-start: 0;
+	}
+
+	/* The side rail has no player column to sit beside, so it fills the block
+	   uncapped. */
+
+	&.hide-player.is-layout-side-rail &__body {
+		grid-template-columns: 1fr;
+	}
+
+	&.hide-player.is-layout-side-rail &__list {
+		block-size: auto;
+		min-block-size: 0;
 	}
 
 	/* Player stage */

@@ -88,6 +88,7 @@ const DEFAULT_ATTRIBUTES: PlaylistAttributes = {
 	videos: [],
 	layout: 'side-rail',
 	darkPlayer: false,
+	showPlayer: true,
 	autoplayNext: false,
 	muteByDefault: false,
 	loopPlaylist: false,
@@ -553,6 +554,9 @@ describe( 'PlaylistEdit', () => {
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Dark player surface' } ) );
 		expect( setAttributes ).toHaveBeenCalledWith( { darkPlayer: true } );
 
+		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Show player' } ) );
+		expect( setAttributes ).toHaveBeenCalledWith( { showPlayer: false } );
+
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Autoplay next' } ) );
 		expect( setAttributes ).toHaveBeenCalledWith( { autoplayNext: true } );
 
@@ -572,6 +576,35 @@ describe( 'PlaylistEdit', () => {
 		expect( autoplayToggle ).toBeChecked();
 		expect( autoplayToggle ).toBeDisabled();
 		expect( screen.getByText( 'Looping the playlist keeps autoplay on.' ) ).toBeInTheDocument();
+	} );
+
+	it( 'links entries to their VideoPress pages instead of rendering a player when the player is off', async () => {
+		renderEdit( { videos: [ { guid: 'aaaaaaaa' }, { guid: 'bbbbbbbb' } ], showPlayer: false } );
+		// Let the live metadata lookups settle.
+		await expect( screen.findAllByText( 'Second' ) ).resolves.toBeTruthy();
+
+		const canvas = screen.getByRole( 'figure' );
+		expect( canvas ).toHaveClass( 'hide-player' );
+		expect( screen.queryByTitle( 'Video Playlist player' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTitle( 'First' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { current: true } ) ).not.toBeInTheDocument();
+		// The rail header no longer announces what is "up next" (the sidebar's
+		// "Playlist" panel title is a button, the canvas label a span).
+		expect( screen.getByText( 'Playlist', { selector: 'span' } ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Up next' ) ).not.toBeInTheDocument();
+
+		const links = screen.getAllByRole( 'link' );
+		expect( links ).toHaveLength( 2 );
+		expect( links[ 0 ] ).toHaveAttribute( 'href', 'https://videopress.com/v/aaaaaaaa' );
+		expect( links[ 0 ] ).toHaveAttribute( 'target', '_blank' );
+		expect( links[ 0 ] ).toHaveAttribute( 'rel', 'noopener noreferrer' );
+		expect( links[ 0 ] ).not.toHaveAttribute( 'aria-current' );
+		expect( links[ 1 ] ).toHaveAttribute( 'href', 'https://videopress.com/v/bbbbbbbb' );
+
+		// The other playback options only apply to the block's own player.
+		expect( screen.getByRole( 'checkbox', { name: 'Autoplay next' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'checkbox', { name: 'Mute by default' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'checkbox', { name: 'Loop playlist' } ) ).toBeDisabled();
 	} );
 
 	it( 'changes the per-entry display options from the sidebar', async () => {
