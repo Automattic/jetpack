@@ -5,8 +5,7 @@ import ContentCreationCard from '../content-creation-card';
 import CustomizeLinksCard from '../customize-links-card';
 import CustomizeMediaCard from '../customize-media-card';
 
-// `@wordpress/jest-console` augments the global jest matchers at runtime, but
-// the package typecheck doesn't pick up its types — declare the one we use.
+// The `jetpack-js-tools` console guard registers matchers but does not include types.
 declare global {
 	// eslint-disable-next-line @typescript-eslint/no-namespace
 	namespace jest {
