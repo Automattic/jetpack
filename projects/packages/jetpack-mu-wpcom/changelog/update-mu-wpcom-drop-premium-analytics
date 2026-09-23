@@ -1,4 +1,4 @@
 Significance: minor
 Type: removed
 
-Premium Analytics: Stop bundling the dashboard and starting it on WordPress.com Simple, which now runs the copy shipped with the Jetpack plugin.
+Premium Analytics: Stop starting the dashboard on WordPress.com Simple, which now starts it itself.
