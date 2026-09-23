@@ -11,11 +11,6 @@ body.jetpack_page_jetpack-videopress {
 	// Tabs.Root via a stable class so we don't reach into nested tabpanels
 	// inside individual routes (e.g. the Overview screen's KPI tablist /
 	// chart tabpanel).
-	// Above the tab panels, so outside any padded container.
-	.jp-jitm-slot .jitm-card {
-		margin-inline: var(--wpds-dimension-padding-2xl);
-	}
-
 	.vp-dashboard-tabs {
 		display: flex;
 		flex-direction: column;
@@ -28,6 +23,10 @@ body.jetpack_page_jetpack-videopress {
 			flex: 1 1 0;
 			min-height: 0;
 		}
+	}
+
+	.jp-jitm-slot .jitm-card {
+		margin-inline: var(--wpds-dimension-padding-2xl);
 	}
 
 }

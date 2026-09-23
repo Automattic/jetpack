@@ -4,12 +4,10 @@
 	margin: 0;
 	padding: 0;
 
-	// `jitm-card` comes from packages/jitm/src/js/jetpack-jitm.js.
-	// Symmetric, so the gap to the page header above and the content
-	// below is the same on every dashboard.
-	// A page that drops the slot outside its padded container owes the card
-	// `margin-inline: var(--wpds-dimension-padding-2xl)`, the page gutter
-	// admin-ui's header uses -- see the Search, Forms and Protect sheets.
+	// `jitm-card` comes from packages/jitm/src/js/jetpack-jitm.js. A page that
+	// renders the slot outside its padded container owes the card
+	// `margin-inline: var(--wpds-dimension-padding-2xl)`, the gutter admin-ui's
+	// page header uses.
 	.jitm-card {
 		margin: var(--wpds-dimension-gap-xl) 0;
 	}

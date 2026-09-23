@@ -6,7 +6,6 @@
 
 		@include jetpack-admin-page-layout;
 
-		// Above the tab panels, so outside any padded container.
 		.jp-jitm-slot .jitm-card {
 			margin-inline: var(--wpds-dimension-padding-2xl);
 		}

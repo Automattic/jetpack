@@ -31,10 +31,7 @@
 //                                                   `Tabs.List`; see the
 //                                                   "Tabs strip" section
 //                                                   below)
-//   Tabs marker:             .jp-admin-page-has-tabs
-//                                                  (style-free; the page has a
-//                                                   tab strip that is not
-//                                                   .jp-admin-page-tabs)
+//   Tabs marker:             .jp-admin-page-has-tabs (see "Tabs strip" below)
 
 // Implementation note — `postcss-custom-properties` with `preserve: false`:
 // several consumer packages in this monorepo (publicize, videopress, search,

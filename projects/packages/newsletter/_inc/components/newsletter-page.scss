@@ -26,7 +26,6 @@ body.jetpack_page_jetpack-newsletter {
 		padding: $jetpack-newsletter-inset;
 	}
 
-	// Outside the padded content, so it carries the page gutter itself.
 	.jp-jitm-slot .jitm-card {
 		margin-inline: $jetpack-newsletter-inset;
 	}
