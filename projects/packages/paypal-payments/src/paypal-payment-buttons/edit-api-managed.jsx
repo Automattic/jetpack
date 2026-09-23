@@ -33,7 +33,7 @@ import {
 	ToolbarButton,
 	ToolbarGroup,
 } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import {
 	createInterpolateElement,
@@ -42,6 +42,7 @@ import {
 	useEffect,
 	useMemo,
 	useRef,
+	useSyncExternalStore,
 } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
@@ -72,9 +73,11 @@ import { SUPPORTED_CURRENCIES } from './utils/currencies';
 import { CURRENCY_SYMBOLS, getPricePlaceholder, getPriceStep } from './utils/currency-symbols';
 import { markExistingLinksDirty, removeExistingLink } from './utils/existing-links';
 import { withPartnerAttribution } from './utils/partner-attribution';
+import { getPostSaveCount, subscribeToPostSaves } from './utils/register-save-sync';
 import {
 	isSameValue,
 	PAYMENT_ATTRIBUTES,
+	PAYPAL_SET_ATTRIBUTES,
 	RESOURCE_ATTRIBUTES,
 	resetToDefaults,
 	turnGateOff,
@@ -97,9 +100,13 @@ import {
 // Button type is always 'single' — the hosted payment page handles
 // payment method selection (PayPal, cards, wallets, etc.).
 
-// What the form edits: the payment's own attributes and the block's image, which
-// is sent with them.
-const FORM_FIELDS = [ ...RESOURCE_ATTRIBUTES, 'imageUrl', 'imageId' ];
+// What the form edits: the payment's attributes the merchant sets, and the block's
+// image, which is sent with them.
+const FORM_FIELDS = [
+	...RESOURCE_ATTRIBUTES.filter( key => ! PAYPAL_SET_ATTRIBUTES.includes( key ) ),
+	'imageUrl',
+	'imageId',
+];
 const formFieldsOf = attributes =>
 	Object.fromEntries( FORM_FIELDS.map( key => [ key, attributes[ key ] ] ) );
 
@@ -577,31 +584,42 @@ export default function ApiManagedEdit( {
 	const showDetails = hasButton && ! isEditing;
 	const showSwitch = hasButton && isSwitching;
 
-	// The form's fields as it opened, so leaving with them changed can ask first.
-	// Retaken when PayPal's own values arrive while the form is open: those are not
-	// the merchant's changes.
+	// The form's fields as last opened or saved, so leaving with them changed can ask
+	// first. Retaken when PayPal's own values come in while the form is open.
 	const formOpenedWith = useRef( null );
 	const latestAttributes = useRef( attributes );
 	latestAttributes.current = attributes;
+	const postSaves = useSyncExternalStore( subscribeToPostSaves, getPostSaveCount );
 	useEffect( () => {
 		if ( isEditing ) {
 			formOpenedWith.current = formFieldsOf( latestAttributes.current );
 		}
-	}, [ isEditing, paymentChanged ] );
-	const hasUnsavedChanges =
-		isEditing &&
-		!! formOpenedWith.current &&
-		FORM_FIELDS.some(
-			key => ! isSameValue( key, attributes[ key ], formOpenedWith.current[ key ] )
-		);
+	}, [ isEditing, paymentChanged, postSaves ] );
 	const [ showUnsavedConfirm, setShowUnsavedConfirm ] = useState( false );
-	const [ isSavingPost, setIsSavingPost ] = useState( false );
+	// A post save while the dialog is open saves the changes it asks about, so leave.
+	const dialogOpen = useRef( showUnsavedConfirm );
+	dialogOpen.current = showUnsavedConfirm;
+	useEffect( () => {
+		if ( dialogOpen.current ) {
+			setShowUnsavedConfirm( false );
+			setIsEditing( false );
+		}
+	}, [ postSaves ] );
+	const [ isSavingFromModal, setIsSavingFromModal ] = useState( false );
+	// savePost() returns at once while another save runs, so the dialog's buttons stay
+	// disabled until it ends.
+	const isSavingPost = useSelect( select => select( editorStore ).isSavingPost(), [] );
 	const { savePost } = useDispatch( editorStore );
 
 	/**
 	 * Back from the form to the details, asking first when there is something to lose.
+	 * Compared on the click, since the snapshot is retaken in an effect after the render.
 	 */
 	const leaveForm = () => {
+		const hasUnsavedChanges = FORM_FIELDS.some(
+			key => ! isSameValue( key, attributes[ key ], formOpenedWith.current[ key ] )
+		);
+
 		if ( hasUnsavedChanges ) {
 			setShowUnsavedConfirm( true );
 		} else {
@@ -610,7 +628,7 @@ export default function ApiManagedEdit( {
 	};
 
 	/**
-	 * Put the link back as the form found it, and leave.
+	 * Put the form back as it was last opened, saved or read from PayPal, and leave.
 	 */
 	const discardChanges = () => {
 		setAttributes( formOpenedWith.current );
@@ -623,11 +641,15 @@ export default function ApiManagedEdit( {
 	 * it is saved. The editor reports the save and anything that went wrong in it.
 	 */
 	const saveChanges = async () => {
-		setIsSavingPost( true );
+		const saves = getPostSaveCount();
+		setIsSavingFromModal( true );
 		await savePost();
-		setIsSavingPost( false );
+		setIsSavingFromModal( false );
 		setShowUnsavedConfirm( false );
-		setIsEditing( false );
+		// savePost() resolves on a failed save too, so leave only if the save count went up.
+		if ( getPostSaveCount() > saves ) {
+			setIsEditing( false );
+		}
 	};
 
 	// The changed-at-PayPal warning is done once the merchant leaves the details
@@ -1701,7 +1723,7 @@ export default function ApiManagedEdit( {
 			{ showUnsavedConfirm && (
 				<UnsavedChangesDialog
 					canSave={ isFormValid }
-					isSaving={ isSavingPost }
+					isSaving={ isSavingFromModal || isSavingPost }
 					onSave={ saveChanges }
 					onDiscard={ discardChanges }
 					onCancel={ () => setShowUnsavedConfirm( false ) }

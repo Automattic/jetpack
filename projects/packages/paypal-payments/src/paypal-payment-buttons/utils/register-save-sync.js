@@ -1,5 +1,5 @@
 /**
- * Hook the payment sync into the post save.
+ * Hook the payment sync into the post save, and count the post saves for blocks to read.
  *
  * @package
  */
@@ -14,6 +14,47 @@ import metadata from '../block.json';
 import { API_BASE } from './api-base';
 import { syncBlocksBeforeSave } from './sync-on-save';
 import { toast } from './toast';
+
+// Successful post saves other than autosaves.
+let postSaves = 0;
+const listeners = new Set();
+
+/**
+ * Set the count and call the listeners.
+ *
+ * @param {number} next - The new count.
+ */
+function update( next ) {
+	postSaves = next;
+	listeners.forEach( listener => listener() );
+}
+
+/**
+ * Call a function whenever the count changes.
+ *
+ * @param {Function} listener - Called with no arguments.
+ * @return {Function} Unsubscribes the listener.
+ */
+export function subscribeToPostSaves( listener ) {
+	listeners.add( listener );
+	return () => listeners.delete( listener );
+}
+
+/**
+ * How many post saves have succeeded.
+ *
+ * @return {number} The count, starting at 0.
+ */
+export function getPostSaveCount() {
+	return postSaves;
+}
+
+/**
+ * Forget the post saves counted. Tests start clean with this.
+ */
+export function forgetPostSaves() {
+	update( 0 );
+}
 
 /**
  * Every PayPal block in the post, inner blocks included.
@@ -136,4 +177,13 @@ export function registerSaveSync( isEnabled ) {
 			savedMessage = null;
 		}
 	);
+
+	// Runs after the post saves, and counts every save except autosaves.
+	addAction( 'editor.savePost', 'jetpack/paypal-payment-buttons/post-saves', ( post, options ) => {
+		if ( options?.isAutosave ) {
+			return;
+		}
+
+		update( postSaves + 1 );
+	} );
 }

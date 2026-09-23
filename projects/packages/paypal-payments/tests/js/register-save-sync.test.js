@@ -8,7 +8,12 @@ import { createReduxStore, register } from '@wordpress/data';
 import { addAction, addFilter } from '@wordpress/hooks';
 import metadata from '../../src/paypal-payment-buttons/block.json';
 import { API_BASE } from '../../src/paypal-payment-buttons/utils/api-base';
-import { registerSaveSync } from '../../src/paypal-payment-buttons/utils/register-save-sync';
+import {
+	forgetPostSaves,
+	getPostSaveCount,
+	registerSaveSync,
+	subscribeToPostSaves,
+} from '../../src/paypal-payment-buttons/utils/register-save-sync';
 import {
 	forgetSyncedRequests,
 	recordPaymentRead,
@@ -120,14 +125,14 @@ async function runSaveFilter( edits, options = {}, afterSync, enabled = true ) {
 }
 
 /**
- * Run the registered `editor.savePost` action, as the editor does once the post has saved.
+ * Run the registered `editor.savePost` actions, as the editor does once the post has saved.
  *
  * @param {object} options - Save options, as the editor passes them.
  */
 function runSavedAction( options = {} ) {
-	const [ , , callback ] = addAction.mock.calls.find( ( [ hook ] ) => 'editor.savePost' === hook );
-
-	callback( { id: 17, type: 'post' }, options );
+	addAction.mock.calls
+		.filter( ( [ hook ] ) => 'editor.savePost' === hook )
+		.forEach( ( [ , , callback ] ) => callback( { id: 17, type: 'post' }, options ) );
 }
 
 beforeEach( () => {
@@ -137,6 +142,7 @@ beforeEach( () => {
 	jest.clearAllMocks();
 	// An unchanged block is not re-sent, and that memo outlives a test.
 	forgetSyncedRequests();
+	forgetPostSaves();
 	// isConnected() runs before the sync, so the connection has to answer yes for a
 	// test to reach what it measures.
 	apiFetch.mockImplementation( ( { path } ) =>
@@ -234,6 +240,35 @@ describe( 'registerSaveSync', () => {
 			expect.objectContaining( { path: `${ API_BASE }/buttons`, method: 'POST' } )
 		);
 		expect( result.content ).toBe( synced );
+	} );
+
+	it( 'counts each post save and skips an autosave', () => {
+		registerSaveSync( () => true );
+
+		runSavedAction( { isAutosave: true } );
+		expect( getPostSaveCount() ).toBe( 0 );
+
+		runSavedAction();
+		expect( getPostSaveCount() ).toBe( 1 );
+	} );
+
+	it( 'calls a subscriber on each post save and reset until it unsubscribes', () => {
+		registerSaveSync( () => true );
+		const listener = jest.fn();
+		const unsubscribe = subscribeToPostSaves( listener );
+
+		runSavedAction( { isAutosave: true } );
+		expect( listener ).not.toHaveBeenCalled();
+
+		runSavedAction();
+		expect( listener ).toHaveBeenCalledTimes( 1 );
+
+		forgetPostSaves();
+		expect( listener ).toHaveBeenCalledTimes( 2 );
+
+		unsubscribe();
+		runSavedAction();
+		expect( listener ).toHaveBeenCalledTimes( 2 );
 	} );
 
 	describe( 'the saved snackbar', () => {
