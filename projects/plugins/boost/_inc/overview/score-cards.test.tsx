@@ -167,6 +167,28 @@ test( 'opens the points explanation beside the badge', async () => {
 	expect( trigger ).toHaveFocus();
 } );
 
+test.each( [
+	[ 'a zero delta', 60, 'No improvements in score' ],
+	[ 'a clamped negative delta', 80, 'No improvements in score' ],
+	[ 'a positive delta', 50, 'Points gained from optimizations' ],
+] )( 'explains %s in the points tooltip', async ( _description, baseline, explanation ) => {
+	render(
+		<ScoreCards
+			scores={ {
+				current: { desktop: 80, mobile: 60 },
+				noBoost: { desktop: 80, mobile: baseline },
+				isStale: false,
+			} }
+		/>
+	);
+	const trigger = within( screen.getByRole( 'region', { name: 'Mobile' } ) ).getByRole( 'button', {
+		name: 'About points',
+	} );
+	fireEvent.click( trigger );
+
+	await waitFor( () => expect( screen.getByText( explanation ) ).toBeVisible() );
+} );
+
 test( 'shows one calculating status instead of the score sections before scores load', () => {
 	const { container } = render(
 		<ScoreCards

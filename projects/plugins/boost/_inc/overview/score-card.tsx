@@ -85,7 +85,9 @@ export default function ScoreCard( {
 										{ __( 'About points', 'jetpack-boost' ) }
 									</VisuallyHidden>
 									<Popover.Description>
-										{ __( 'Points gained from optimizations', 'jetpack-boost' ) }
+										{ gain > 0
+											? __( 'Points gained from optimizations', 'jetpack-boost' )
+											: __( 'No improvements in score', 'jetpack-boost' ) }
 									</Popover.Description>
 								</Popover.Popup>
 							</Popover.Root>
