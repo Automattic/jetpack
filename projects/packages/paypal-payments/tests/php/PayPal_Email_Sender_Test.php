@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\PaypalPayments;
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -23,6 +24,13 @@ class PayPal_Email_Sender_Test extends TestCase {
 	 * Per-flag filter that forces the API-managed buttons on.
 	 */
 	private const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG;
+
+	/**
+	 * HTTP status of the last ajax response.
+	 *
+	 * @var int|null
+	 */
+	private $response_status;
 
 	public function test_maybe_init_does_nothing_while_the_flag_is_off() {
 		remove_all_actions( 'wp_ajax_' . PayPal_Email_Sender::AJAX_ACTION );
@@ -250,10 +258,100 @@ class PayPal_Email_Sender_Test extends TestCase {
 		$response = $this->send_payment_link( 'PLB-ZC45RDYZRHS9' );
 
 		$this->assertFalse( $response['success'] );
+		$this->assertSame( 404, $this->response_status );
 		$this->assertNotEmpty( $response['data']['message'] );
 		$this->assertNull( $mail->to );
 		$this->assertFalse( get_transient( 'paypal_email_rate_' . get_current_user_id() ) );
 		$this->assertEmpty( PayPal_Email_Sender::get_log_for_resource( 'PLB-ZC45RDYZRHS9' ) );
+	}
+
+	/**
+	 * Test handle_send answers 500 for a read error with no status, like a missing connection.
+	 */
+	public function test_handle_send_fails_with_500_when_paypal_is_not_connected() {
+		$mail     = $this->capture_mail();
+		$requests = $this->count_http_requests();
+
+		$response = $this->send_payment_link( 'PLB-ZC45RDYZRHS9' );
+
+		$this->assertFalse( $response['success'] );
+		$this->assertSame( 500, $this->response_status );
+		$this->assertNotEmpty( $response['data']['message'] );
+		$this->assertSame( 0, $requests->count );
+		$this->assertNull( $mail->to );
+	}
+
+	/**
+	 * Test handle_send answers 503 for a read error with status 0, a network error.
+	 */
+	public function test_handle_send_fails_with_503_on_a_network_error() {
+		$mail = $this->capture_mail();
+		// The client retries a network error with real sleeps, so plant the error it ends with.
+		// The cache never holds errors in production.
+		set_transient(
+			'paypal_resource_plb-zc45rdyzrhs9',
+			new \WP_Error( 'paypal_api_request_failed', 'PayPal API request failed: timeout', array( 'status' => 0 ) )
+		);
+
+		$response = $this->send_payment_link( 'PLB-ZC45RDYZRHS9' );
+
+		$this->assertFalse( $response['success'] );
+		$this->assertSame( 503, $this->response_status );
+		$this->assertSame( 'PayPal API request failed: timeout', $response['data']['message'] );
+		$this->assertNull( $mail->to );
+	}
+
+	/**
+	 * Test handle_send rejects a malformed resource ID before it counts or calls PayPal.
+	 *
+	 * @dataProvider provide_malformed_resource_ids
+	 *
+	 * @param string $resource_id A resource ID that is not PLB-XXXX.
+	 */
+	#[DataProvider( 'provide_malformed_resource_ids' )]
+	public function test_handle_send_rejects_a_malformed_resource_id( $resource_id ) {
+		$mail     = $this->capture_mail();
+		$requests = $this->count_http_requests();
+		$this->set_up_connected_state();
+
+		$response = $this->send_payment_link( $resource_id );
+
+		$this->assertFalse( $response['success'] );
+		$this->assertSame( 400, $this->response_status );
+		$this->assertSame( 'Invalid or missing PayPal payment link.', $response['data']['message'] );
+		$this->assertSame( 0, $requests->count );
+		$this->assertNull( $mail->to );
+		$this->assertFalse( get_transient( 'paypal_email_rate_' . get_current_user_id() ) );
+	}
+
+	/**
+	 * Resource IDs that are not PLB-XXXX.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public static function provide_malformed_resource_ids() {
+		return array(
+			'empty'     => array( '' ),
+			'no prefix' => array( 'ZC45RDYZRHS9' ),
+			'no body'   => array( 'PLB-' ),
+			'path'      => array( 'PLB-ZC45/../x' ),
+		);
+	}
+
+	/**
+	 * Test handle_send falls back to the resource ID when the product has no name.
+	 */
+	public function test_handle_send_names_a_nameless_product_by_its_id() {
+		$mail     = $this->capture_mail();
+		$resource = $this->get_product_price_resource();
+
+		$resource['line_items'][0]['name'] = '';
+		$this->mock_get_resource_response( $resource );
+
+		$response = $this->send_payment_link( 'PLB-U7XQRUHKESAZ' );
+
+		$this->assertTrue( $response['success'] );
+		$this->assertStringContainsString( 'PLB-U7XQRUHKESAZ', $mail->subject );
 	}
 
 	/**
@@ -443,6 +541,17 @@ class PayPal_Email_Sender_Test extends TestCase {
 			}
 		);
 
+		$this->response_status = null;
+		add_filter(
+			'status_header',
+			function ( $status_header, $code ) {
+				$this->response_status = $code;
+				return $status_header;
+			},
+			10,
+			2
+		);
+
 		ob_start();
 		try {
 			$handler();
@@ -453,8 +562,32 @@ class PayPal_Email_Sender_Test extends TestCase {
 
 		remove_all_filters( 'wp_doing_ajax' );
 		remove_all_filters( 'wp_die_ajax_handler' );
+		remove_all_filters( 'status_header' );
 
 		return json_decode( $output, true );
+	}
+
+	/**
+	 * Count the HTTP requests made from here on, answering each with a 404.
+	 *
+	 * @return object The count, kept up to date.
+	 */
+	private function count_http_requests() {
+		$requests = (object) array( 'count' => 0 );
+		add_filter(
+			'pre_http_request',
+			function () use ( $requests ) {
+				++$requests->count;
+				return array(
+					'response' => array(
+						'code'    => 404,
+						'message' => '',
+					),
+					'body'     => '',
+				);
+			}
+		);
+		return $requests;
 	}
 
 	/**

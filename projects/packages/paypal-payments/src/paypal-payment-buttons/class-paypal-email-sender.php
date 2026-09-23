@@ -97,6 +97,15 @@ class PayPal_Email_Sender {
 			);
 		}
 
+		// A malformed ID can't be read, so turn it away before the rate limit and the read.
+		if ( ! PayPal_Attribute_Mapper::is_valid_resource_id( $resource_id ) ) {
+			wp_send_json_error(
+				array( 'message' => __( 'Invalid or missing PayPal payment link.', 'jetpack-paypal-payments' ) ),
+				400,
+				JSON_HEX_TAG | JSON_HEX_AMP
+			);
+		}
+
 		// Rate limiting: max 10 sends per 60-second window + 50/day cap per user.
 		$user_id     = get_current_user_id();
 		$rate_key    = 'paypal_email_rate_' . $user_id;
@@ -131,17 +140,24 @@ class PayPal_Email_Sender {
 		// email matches the button. The detail view has just cached it.
 		$resource = PayPal_API_Client::get_resource_cached( $resource_id );
 		if ( is_wp_error( $resource ) ) {
+			// Pass on PayPal's status, as the REST routes do. A network error reports 0, so 503.
+			$error_data = $resource->get_error_data();
+			$status     = (int) ( $error_data['status'] ?? 500 );
 			wp_send_json_error(
 				array( 'message' => $resource->get_error_message() ),
-				500,
+				0 === $status ? 503 : $status,
 				JSON_HEX_TAG | JSON_HEX_AMP
 			);
 		}
 
 		$link_attributes = PayPal_Attribute_Mapper::api_response_to_attributes( $resource );
 		$payment_link    = PayPal_Payment_Buttons::sanitize_paypal_script_url( $link_attributes['paymentLink'] ?? '' );
-		$product_name    = $link_attributes['productName'] ?? $resource_id;
+		$product_name    = $link_attributes['productName'] ?? '';
 		$price           = PayPal_Payment_Buttons::link_price( $link_attributes );
+
+		if ( '' === $product_name ) {
+			$product_name = $resource_id;
+		}
 
 		if ( false === $payment_link || empty( $payment_link ) ) {
 			wp_send_json_error(
@@ -151,7 +167,7 @@ class PayPal_Email_Sender {
 			);
 		}
 
-		// Every payment has a price, on the product or on its options.
+		// A link needs a price, on the product or on its options, before it can be emailed.
 		if ( '' === $price ) {
 			wp_send_json_error(
 				array( 'message' => __( 'This payment link has no price.', 'jetpack-paypal-payments' ) ),
