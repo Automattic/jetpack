@@ -4,6 +4,8 @@ require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/subscriptions.php';
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/paywall/paywall.php';
+require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
@@ -200,28 +202,28 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	 * @return array
 	 */
 	public static function paywall_access_level_on_save_provider() {
-		$with_paywall    = self::PAYWALL_POST_CONTENT;
 		$without_paywall = "<!-- wp:paragraph -->\n<p>Everything is free</p>\n<!-- /wp:paragraph -->";
 
 		return array(
-			'paywall block, no access set'           => array( $with_paywall, null, 'subscribers' ),
-			'paywall block, access everybody'        => array( $with_paywall, 'everybody', 'subscribers' ),
-			'paywall block, access paid subscribers' => array( $with_paywall, 'paid_subscribers', 'paid_subscribers' ),
-			'no paywall block, no access set'        => array( $without_paywall, null, '' ),
-			'no paywall block, access everybody'     => array( $without_paywall, 'everybody', 'everybody' ),
+			'paywall block, no access set'           => array( self::PAYWALL_POST_CONTENT, null, 'subscribers', true ),
+			'paywall block, access everybody'        => array( self::PAYWALL_POST_CONTENT, 'everybody', 'subscribers', true ),
+			'paywall block, access paid subscribers' => array( self::PAYWALL_POST_CONTENT, 'paid_subscribers', 'paid_subscribers', true ),
+			'no paywall block, no access set'        => array( $without_paywall, null, '', false ),
+			'no paywall block, access everybody'     => array( $without_paywall, 'everybody', 'everybody', false ),
 		);
 	}
 
 	/**
 	 * Saves that skip the block editor must still gate a post with a Paywall block.
 	 *
-	 * @param string      $content         Post content.
-	 * @param string|null $initial_access  Access level stored before the save hook runs.
-	 * @param string      $expected_access Access level expected after the save hook runs.
+	 * @param string      $content            Post content.
+	 * @param string|null $initial_access     Access level stored before the save hook runs.
+	 * @param string      $expected_access    Access level expected after the save hook runs.
+	 * @param bool        $expected_paywalled Whether the post is flagged as containing paywalled content.
 	 * @dataProvider paywall_access_level_on_save_provider
 	 */
 	#[DataProvider( 'paywall_access_level_on_save_provider' )]
-	public function test_paywall_block_sets_access_level_on_save( $content, $initial_access, $expected_access ) {
+	public function test_paywall_block_sets_access_level_on_save( $content, $initial_access, $expected_access, $expected_paywalled ) {
 		$post_id = $this->factory->post->create( array( 'post_content' => $content ) );
 		if ( null !== $initial_access ) {
 			update_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, $initial_access );
@@ -230,23 +232,93 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		\Automattic\Jetpack\Extensions\Subscriptions\add_paywalled_content_post_meta( $post_id, get_post( $post_id ) );
 
 		$this->assertSame( $expected_access, get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true ) );
-		$this->assertSame(
-			in_array( $expected_access, array( 'subscribers', 'paid_subscribers' ), true ),
-			(bool) get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true )
-		);
+		$this->assertSame( $expected_paywalled, (bool) get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
 	}
 
 	/**
-	 * Importers add the source site's access level after the save hook, so the hook must not gate first.
+	 * An access row added after the auto-gate, as the WXR importer does, replaces the auto-gated row.
 	 */
-	public function test_paywall_block_does_not_gate_during_import() {
-		do_action( 'import_start' );
-		$post_id = $this->factory->post->create( array( 'post_content' => self::PAYWALL_POST_CONTENT ) );
-		\Automattic\Jetpack\Extensions\Subscriptions\add_paywalled_content_post_meta( $post_id, get_post( $post_id ) );
-		add_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, 'paid_subscribers' );
-		do_action( 'import_end' );
+	public function test_later_access_level_replaces_auto_gate() {
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+		register_subscription_block();
 
-		$this->assertSame( 'paid_subscribers', get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true ) );
+		$post_id = $this->factory->post->create( array( 'post_content' => self::PAYWALL_POST_CONTENT ) );
+		$this->assertSame( 'subscribers', get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true ) );
+
+		add_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, 'paid_subscribers' );
+
+		$this->assertSame( array( 'paid_subscribers' ), get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ) );
+		$this->assertTrue( (bool) get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
+	}
+
+	/**
+	 * An access level updated after the auto-gate also updates the paywalled-content flag.
+	 */
+	public function test_later_access_level_update_clears_paywalled_flag() {
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+		register_subscription_block();
+
+		$post_id = $this->factory->post->create( array( 'post_content' => self::PAYWALL_POST_CONTENT ) );
+		$this->assertTrue( (bool) get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
+
+		update_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, 'everybody' );
+
+		$this->assertSame( array( 'everybody' ), get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ) );
+		$this->assertEmpty( get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
+	}
+
+	/**
+	 * The v1.2 posts endpoint writes metadata after wp_after_insert_post, so a paid post created with
+	 * `operation: add` must not read back as the auto-gated `subscribers`.
+	 */
+	public function test_v1_2_posts_new_with_added_paid_access_keeps_paid_access() {
+		global $blog_id;
+
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+		register_subscription_block();
+		wp_set_current_user( $this->admin_user_id );
+
+		if ( ! defined( 'WPCOM_JSON_API__BASE' ) ) {
+			define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
+		}
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+		$_SERVER['HTTP_HOST']      = '127.0.0.1';
+		$_SERVER['REQUEST_URI']    = '/';
+
+		$api                = WPCOM_JSON_API::init();
+		$api->token_details = array( 'blog_id' => $blog_id );
+		$api->post_body     = wp_json_encode(
+			array(
+				'title'    => 'Paid post',
+				'content'  => self::PAYWALL_POST_CONTENT,
+				'status'   => 'draft',
+				'metadata' => array(
+					array(
+						'key'       => META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+						'value'     => 'paid_subscribers',
+						'operation' => 'add',
+					),
+				),
+			),
+			JSON_UNESCAPED_SLASHES
+		);
+		$api->content_type  = 'application/json';
+
+		$endpoint = null;
+		foreach ( $api->endpoints as $methods ) {
+			foreach ( $methods as $candidate ) {
+				if ( '/sites/%s/posts/new' === $candidate->path && '1.2' === $candidate->min_version ) {
+					$endpoint = $candidate;
+				}
+			}
+		}
+		$this->assertNotNull( $endpoint, 'The v1.2 posts/new endpoint should be registered.' );
+
+		$response = $endpoint->callback( sprintf( '/sites/%d/posts/new', $blog_id ), $blog_id );
+
+		$this->assertIsArray( $response );
+		$this->assertSame( array( 'paid_subscribers' ), get_post_meta( $response['ID'], META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ) );
+		$this->assertTrue( (bool) get_post_meta( $response['ID'], META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
 	}
 
 	/**
