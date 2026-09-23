@@ -57,8 +57,7 @@ Storybook and tests hand widget types to the dashboard without going through
 ## Adding a field
 
 Controls implement dataviews' `DataFormControlProps< Item >`. Add the control
-to `FIELD_TYPES` so widgets can name it, and export it from `src/index.ts` for
-direct use.
+to `FIELD_TYPES` so widgets can name it; the name is the only public route to it.
 
 A control that needs per-widget options cannot be named: a field type is one
 control for every attribute that references it, and dataviews rebuilds a
