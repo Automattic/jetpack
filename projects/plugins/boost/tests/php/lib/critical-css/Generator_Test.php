@@ -40,6 +40,7 @@ class Generator_Test extends BaseTestCase {
 		remove_all_filters( 'rest_url_prefix' );
 		remove_all_filters( 'home_url' );
 		unset( $_GET['rest_route'] );
+		unset( $_POST['rest_route'] );
 		if ( null === $this->request_uri ) {
 			unset( $_SERVER['REQUEST_URI'] );
 		} else {
@@ -381,6 +382,12 @@ class Generator_Test extends BaseTestCase {
 					$_SERVER['REQUEST_URI'] = self::rest_request_uri( '/index.php' );
 				},
 			),
+			// Resolving this away would hand the request back to generation, so the unresolved form counts too.
+			'rest dot out' => array(
+				function () {
+					$_SERVER['REQUEST_URI'] = '/' . rest_get_url_prefix() . '/../sample-page/?' . Generator::GENERATE_QUERY_ACTION . '=1700000000000';
+				},
+			),
 		);
 	}
 
@@ -482,5 +489,71 @@ class Generator_Test extends BaseTestCase {
 		$location = wp_login_url( home_url( '/private-page/' ), true );
 
 		$this->assertSame( $location, apply_filters( 'wp_redirect', $location, 302 ) );
+	}
+
+	/**
+	 * A root install whose home URL ends in a slash still recognizes an index-permalink REST request.
+	 */
+	public function test_rest_index_request_with_trailing_slash_home_is_not_a_generation_request() {
+		add_filter(
+			'option_home',
+			function () {
+				return 'http://example.org/';
+			}
+		);
+		$_SERVER['REQUEST_URI']                   = self::rest_request_uri( '/index.php' );
+		$_GET[ Generator::GENERATE_QUERY_ACTION ] = '1700000000000';
+
+		$this->assertFalse( Generator::is_generating_critical_css() );
+	}
+
+	/**
+	 * A REST prefix of more than one segment is matched whole, so pages under its tail still generate.
+	 */
+	public function test_multi_segment_rest_prefix_does_not_capture_unrelated_pages() {
+		add_filter(
+			'rest_url_prefix',
+			function () {
+				return 'api/v2';
+			}
+		);
+		add_filter(
+			'option_home',
+			function () {
+				return 'http://example.org/';
+			}
+		);
+		$_SERVER['REQUEST_URI']                   = '/v2/sample-page/?' . Generator::GENERATE_QUERY_ACTION . '=1700000000000';
+		$_GET[ Generator::GENERATE_QUERY_ACTION ] = '1700000000000';
+
+		$this->assertTrue( Generator::is_generating_critical_css() );
+	}
+
+	/**
+	 * WP::parse_request() reads rest_route from the body before the query, so a POST carrying it is REST.
+	 */
+	public function test_rest_route_in_post_body_is_not_a_generation_request() {
+		$_POST['rest_route']                      = '/jetpack-boost-ds/critical-css-state';
+		$_GET[ Generator::GENERATE_QUERY_ACTION ] = '1700000000000';
+
+		$this->assertFalse( Generator::is_generating_critical_css() );
+	}
+
+	/**
+	 * A relative redirect resolves against the request path, even when REQUEST_URI has a doubled slash.
+	 */
+	public function test_relative_login_redirect_resolves_against_a_doubled_slash_request_uri() {
+		add_filter(
+			'login_url',
+			function () {
+				return 'http://example.org/members/area/wp-login.php';
+			}
+		);
+		$_SERVER['REQUEST_URI'] = '//members/area/?' . Generator::GENERATE_QUERY_ACTION . '=1700000000000';
+		$this->make_wp_die_throw();
+		$this->init_request( true );
+
+		$this->expectException( \RuntimeException::class );
+		apply_filters( 'wp_redirect', 'wp-login.php', 302 );
 	}
 }

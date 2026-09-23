@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: Recognize REST requests on more site shapes, so generation never runs on one and logs an administrator out.
