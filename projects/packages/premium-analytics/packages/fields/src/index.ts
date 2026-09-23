@@ -10,3 +10,5 @@ export { ArrayCheckboxField } from './field-array-checkbox';
 export { SelectField } from './field-select';
 
 export { ToggleGroupField } from './field-toggle-group';
+
+export { FIELD_TYPES, registerFieldTypes, resolveFieldTypes } from './field-types';
