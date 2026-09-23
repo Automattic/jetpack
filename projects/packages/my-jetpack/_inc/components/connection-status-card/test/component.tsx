@@ -126,6 +126,7 @@ beforeAll( () => {
 	};
 } );
 beforeEach( () => {
+	mockRecordEvent.mockClear();
 	resetInitialState();
 	setConnectionStore();
 } );

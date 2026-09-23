@@ -245,10 +245,6 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 								onSupportLinkClick={ trackSupportLinkClick }
 							/>
 						</Stack>
-						{ /* Repairing the connection is the whole point of the card in this state,
-						     so the package's repair is a button with the card's own action as a
-						     link beneath it. The lead is the first action rather than a `primary`
-						     one: the package leaves `variant` unset on the common restore case. */ }
 						<Stack direction="column" align="start" gap="sm">
 							{ actions.map( ( action, index ) => (
 								<UIButton

@@ -12,12 +12,7 @@ export interface ConnectionErrorDetailsProps {
 	errorGroups?: ConnectionErrorGroup[];
 	/** Whether to append the "Contact Jetpack Support" link. */
 	showSupportLink?: boolean;
-	/**
-	 * Type scale for the headlines and the support link, so a surface with smaller
-	 * body copy than a notice does not read as a notice dropped into it. Defaults
-	 * to `Text`'s own default. The scope lines under a headline stay `body-sm`
-	 * either way, being the smallest step the body scale has.
-	 */
+	/** Type scale for the headlines and the support link. Defaults to `Text`'s own default. */
 	variant?: ComponentProps< typeof Text >[ 'variant' ];
 	/** Fired when a notice-body link (e.g. "Visit Site Health") is clicked. */
 	onNoticeLinkClick?: ( link: ConnectionErrorNoticeLink ) => void;

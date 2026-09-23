@@ -9,11 +9,7 @@ export type ConnectionState = {
 	description?: string;
 	action?: 'CONNECT_USER' | 'CONNECT_SITE';
 	status: 'error' | 'warning' | 'success';
-	/**
-	 * True only when the label is a diagnosis rather than a standing. The card then
-	 * stops using the label as the Manage connection trigger, so a chevron beside
-	 * a fault label can't read as "click to fix" and land on Disconnect.
-	 */
+	/** True only when the label is a diagnosis rather than a standing. */
 	isDiagnosis?: boolean;
 };
 
@@ -52,8 +48,6 @@ export function useConnectionState( error: ConnectionErrorStanding ): Connection
 
 	if ( isUserConnected ) {
 		if ( error.hasConnectionError ) {
-			// The label, the description and the CTAs are all the package's, so the card
-			// and the notice above it say the same thing about the same error.
 			return {
 				label: error.errorTitle,
 				status: error.severity ?? 'error',
@@ -61,7 +55,6 @@ export function useConnectionState( error: ConnectionErrorStanding ): Connection
 			};
 		}
 
-		// If the user is connected and nothing is broken, all good!
 		return {
 			label: __( 'Site and account connected', 'jetpack-my-jetpack' ),
 			description: __( 'Everything looks good.', 'jetpack-my-jetpack' ),

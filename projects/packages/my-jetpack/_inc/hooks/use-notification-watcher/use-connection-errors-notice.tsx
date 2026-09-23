@@ -134,10 +134,6 @@ const useConnectionErrorsNotice = (
 							{ group.message }
 						</Text>
 						{ group.detailLines.length > 0 && (
-							// A real list, so assistive tech announces how many scopes an error
-							// covers instead of reading loose lines. `Text` supplies the margin
-							// and padding reset; only the marker has to be turned off by hand,
-							// and one declaration does not earn a stylesheet of its own.
 							<Text component="ul" style={ { listStyle: 'none' } }>
 								{ group.detailLines.map( ( line, index ) => (
 									<Text
