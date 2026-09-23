@@ -34,13 +34,13 @@ const getCandidateGrid = (): Candidate[] => {
 	return candidateGrid;
 };
 
-const candidatesFor = ( background: string ): Candidate[] => {
-	const grid = getCandidateGrid();
-	const legible = grid.filter(
+/** The full candidate grid, exposed only so tests can seed a generator past it without rebuilding it via selection. */
+export const getCandidateGridForTesting = getCandidateGrid;
+
+const legibleCandidatesFor = ( background: string ): Candidate[] =>
+	getCandidateGrid().filter(
 		candidate => contrastRatio( candidate.hex, background ) >= MIN_BACKGROUND_CONTRAST
 	);
-	return legible.length > 0 ? legible : grid;
-};
 
 const pickFarthest = ( candidates: Candidate[], palette: Candidate[] ): Candidate => {
 	let best = candidates[ 0 ];
@@ -74,16 +74,28 @@ export const createPaletteGenerator = (
 	background: string
 ): ( ( index: number ) => string ) => {
 	const palette: Candidate[] = seeds.map( hex => ( { hex, views: hexToViews( hex ) } ) );
-	let candidates: Candidate[] | null = null;
+	const usedHexes = new Set< string >( seeds );
+	let legiblePool: Candidate[] | null = null;
 
 	return ( index: number ): string => {
 		if ( index < palette.length ) {
 			return palette[ index ].hex;
 		}
-		candidates ??= candidatesFor( background );
+		legiblePool ??= legibleCandidatesFor( background );
+		const grid = getCandidateGrid();
 		while ( palette.length <= index ) {
-			const remaining = candidates.filter( candidate => ! palette.includes( candidate ) );
-			palette.push( palette.length === 0 ? remaining[ 0 ] : pickFarthest( remaining, palette ) );
+			const fromLegible = legiblePool.filter( candidate => ! usedHexes.has( candidate.hex ) );
+			const remaining =
+				fromLegible.length > 0
+					? fromLegible
+					: grid.filter( candidate => ! usedHexes.has( candidate.hex ) );
+			// Every candidate is already in the palette; repeat the first color rather than throw.
+			const next =
+				remaining.length > 0
+					? pickFarthest( remaining, palette )
+					: palette[ palette.length % palette.length ];
+			usedHexes.add( next.hex );
+			palette.push( next );
 		}
 		return palette[ index ].hex;
 	};

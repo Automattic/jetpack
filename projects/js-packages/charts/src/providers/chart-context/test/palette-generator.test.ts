@@ -1,4 +1,8 @@
-import { createPaletteGenerator, MIN_BACKGROUND_CONTRAST } from '../private/palette-generator';
+import {
+	createPaletteGenerator,
+	getCandidateGridForTesting,
+	MIN_BACKGROUND_CONTRAST,
+} from '../private/palette-generator';
 import { contrastRatio, hexToViews, viewDistance } from '../private/perceptual-color';
 
 const WP_ADMIN_ACCENTS = [ '#3858e9', '#04a4cc', '#a3b745', '#e14d43', '#9ebaa0', '#dd823b' ];
@@ -76,5 +80,26 @@ describe( 'createPaletteGenerator', () => {
 		const palette = paletteOf( [], '#ffffff', 3 );
 		palette.forEach( color => expect( color ).toMatch( /^#[0-9a-f]{6}$/ ) );
 		expect( minPairwiseDistance( palette ) ).toBeGreaterThanOrEqual( 15 );
+	} );
+
+	it( 'keeps generating past a small non-empty legible set without throwing', () => {
+		// #9b9b9b has 5 legible candidates in the grid, so asking for 10 falls back to the rest of it.
+		const palette = paletteOf( [], '#9b9b9b', 10 );
+		palette.forEach( color => expect( color ).toMatch( /^#[0-9a-f]{6}$/ ) );
+		expect( new Set( palette ).size ).toBe( palette.length );
+	} );
+
+	it( 'never regenerates a color equal to a seed', () => {
+		const [ , duplicateSeed ] = paletteOf( [ '#3858e9' ], '#ffffff', 2 );
+		const generated = paletteOf( [ '#3858e9', duplicateSeed ], '#ffffff', 22 ).slice( 2 );
+		expect( generated ).not.toContain( duplicateSeed );
+	} );
+
+	it( 'repeats rather than throws once the whole grid is used up', () => {
+		const grid = getCandidateGridForTesting();
+		const seeds = grid.slice( 0, grid.length - 1 ).map( candidate => candidate.hex );
+		const colorAt = createPaletteGenerator( seeds, '#ffffff' );
+		expect( colorAt( grid.length - 1 ) ).toMatch( /^#[0-9a-f]{6}$/ );
+		expect( colorAt( grid.length ) ).toBe( seeds[ 0 ] );
 	} );
 } );
