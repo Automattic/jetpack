@@ -491,10 +491,12 @@ type MainFeature = {
 	plugin_status: MainFeaturePluginStatus;
 	// Set when the host forces the plugin, so the owner's switch would only flip back.
 	plugin_override: '' | 'active' | 'inactive';
+	free_highlights: string[];
 	paid_highlights: string[];
+	// The My Jetpack route that sells the feature, such as `/add-akismet`, and the product it sells.
+	upgrade: { path: string; name: string };
 	plans: Array< { slug: string; name: string } >;
 	paid_product: string;
-	screenshot: string;
 	info_url: string;
 	docs_url: string;
 	product: string;

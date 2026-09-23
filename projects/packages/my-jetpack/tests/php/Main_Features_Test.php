@@ -17,7 +17,7 @@ class Main_Features_Test extends TestCase {
 	 */
 	public function test_every_feature_carries_the_required_fields() {
 		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
-			foreach ( array( 'name', 'description', 'long_description', 'icon', 'image', 'info_url', 'docs_url', 'delivery' ) as $key ) {
+			foreach ( array( 'name', 'description', 'long_description', 'icon', 'info_url', 'docs_url', 'delivery' ) as $key ) {
 				$this->assertNotEmpty( $feature[ $key ] ?? null, "Feature {$slug} has no {$key}." );
 			}
 
@@ -97,13 +97,12 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * These are rendered as links and images straight into the page, so a typo'd or
+	 * These are rendered as links straight into the page, so a typo'd or
 	 * non-https value would ship a broken card or a mixed-content warning.
 	 */
 	public function test_urls_are_absolute_https() {
 		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
 			$urls = array(
-				'image'      => $feature['image'],
 				'info_url'   => $feature['info_url'],
 				'docs_url'   => $feature['docs_url'],
 				'plugin_url' => $feature['delivery']['plugin_url'] ?? '',
@@ -243,6 +242,19 @@ class Main_Features_Test extends TestCase {
 			$this->assertNotEmpty(
 				$feature['paid_product'] ?? '',
 				"Feature {$slug} lists paid highlights but no paid product."
+			);
+		}
+	}
+
+	/**
+	 * The modal's free column must not appear for a feature that has no free tier, nor be missing for one that does.
+	 */
+	public function test_free_highlights_match_the_free_flag() {
+		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
+			$this->assertSame(
+				$feature['delivery']['free'],
+				! empty( $feature['free_highlights'] ),
+				"Feature {$slug} disagrees with its free flag about having free highlights."
 			);
 		}
 	}
@@ -416,5 +428,37 @@ class Main_Features_Test extends TestCase {
 		$this->assertNotContains( 'search', $slugs );
 		$this->assertNotContains( 'newsletter', $slugs );
 		$this->assertContains( 'stats', $slugs );
+	}
+
+	/**
+	 * A feature listing Jetpack Complete must offer a way to buy it.
+	 */
+	public function test_every_feature_in_complete_has_an_upgrade() {
+		foreach ( Main_Features::get_features() as $feature ) {
+			if ( ! in_array( 'complete', array_column( $feature['plans'], 'slug' ), true ) ) {
+				continue;
+			}
+
+			$this->assertNotEmpty( $feature['upgrade']['path'], "Feature {$feature['slug']} lists Complete but has no upgrade." );
+			$this->assertNotEmpty( $feature['upgrade']['name'], "Feature {$feature['slug']} does not name what its upgrade sells." );
+		}
+	}
+
+	/**
+	 * Without a product page of its own, the upgrade sells Jetpack Complete and says so.
+	 */
+	public function test_upgrade_falls_back_to_complete() {
+		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+
+		$this->assertSame( '/add-complete', $upgrades['activity-log']['path'] );
+		$this->assertSame( 'Jetpack Complete', $upgrades['activity-log']['name'] );
+		$this->assertSame( '/add-akismet', $upgrades['anti-spam']['path'] );
+		$this->assertSame(
+			array(
+				'path' => '',
+				'name' => '',
+			),
+			$upgrades['blaze']
+		);
 	}
 }

@@ -39,7 +39,13 @@ jest.mock( '../feature-list', () => ( {
 	FeatureList: () => <div>list rows</div>,
 	UnswitchableNote: () => null,
 } ) );
-jest.mock( '../feature-modal', () => ( { FeatureModal: () => null } ) );
+let mockModalProps: Record< string, unknown > | null = null;
+jest.mock( '../feature-modal', () => ( {
+	FeatureModal: ( props: Record< string, unknown > ) => {
+		mockModalProps = props;
+		return null;
+	},
+} ) );
 jest.mock( '../use-more-features', () => ( {
 	...jest.requireActual( '../use-more-features' ),
 	useMoreFeatures: () => mockGroups,
@@ -162,5 +168,30 @@ describe( 'FeaturesContent', () => {
 			screen.queryByRole( 'checkbox', { name: 'Select all features' } )
 		).not.toBeInTheDocument();
 		expect( screen.getByText( 'No features match “nothing-matches-this”.' ) ).toBeInTheDocument();
+	} );
+
+	it( 'steps the modal through the features the filter shows, skipping the rest', () => {
+		const feature = ( slug: string, status: string ) =>
+			( {
+				...activeStats,
+				feature: { ...activeStats.feature, slug, name: slug },
+				status,
+			} ) as FeatureState;
+		mockStates = [
+			feature( 'stats', 'active' ),
+			feature( 'anti-spam', 'inactive' ),
+			feature( 'forms', 'active' ),
+			feature( 'podcast', 'active' ),
+		];
+		mockModalProps = null;
+
+		renderAt( '/features?filter=active&feature=forms' );
+
+		expect( mockModalProps ).toMatchObject( {
+			previous: 'stats',
+			next: 'podcast',
+			position: 2,
+			total: 3,
+		} );
 	} );
 } );

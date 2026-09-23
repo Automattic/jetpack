@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { FeatureDelivery } from '../feature-delivery';
 import { FeaturePaid } from '../feature-paid';
 import type { FeatureState } from '../feature-state';
@@ -11,6 +12,7 @@ const feature = {
 	plans: [ { slug: 'complete', name: 'Jetpack Complete' } ],
 	paid_product: '',
 	paid_highlights: [ 'Secure file uploads' ],
+	upgrade: { path: '', name: '' },
 } as unknown as MainFeature;
 
 const moduleState = ( override: false | 'active' | 'inactive', status: 'active' | 'inactive' ) =>
@@ -29,49 +31,114 @@ const forcedOffPlugin = {
 	control: { kind: 'plugin', plugin: 'jetpack-boost', override: 'inactive' },
 } as FeatureState;
 
+const installedPlugin = {
+	feature: {
+		...feature,
+		slug: 'anti-spam',
+		name: 'Akismet Anti-spam',
+		in_jetpack: false,
+		plugin: 'akismet',
+		plugin_name: 'Akismet Anti-spam',
+		plugin_url: 'https://wordpress.org/plugins/akismet/',
+		plans: [ { slug: 'security', name: 'Jetpack Security' } ],
+		upgrade: { path: '/add-akismet', name: 'Jetpack Akismet Anti-spam' },
+		paid_product: 'Jetpack Akismet Anti-spam',
+	},
+	status: 'inactive',
+	control: { kind: 'plugin', plugin: 'akismet' },
+} as FeatureState;
+
 describe( 'FeatureDelivery', () => {
-	it( 'says why a module a host forced off cannot be turned on, instead of how to', () => {
-		render( <FeatureDelivery state={ moduleState( 'inactive', 'inactive' ) } /> );
+	it( 'says nothing about turning on a module a host forced off', () => {
+		const { container } = render(
+			<FeatureDelivery state={ moduleState( 'inactive', 'inactive' ) } />
+		);
 
-		expect( screen.getByText( 'How to get it' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Disabled by your host or site administrator' ) ).toBeInTheDocument();
-		expect( screen.queryByText( /Activate turns/ ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'In Jetpack' ) ).not.toBeInTheDocument();
+		expect( container ).toBeEmptyDOMElement();
 	} );
 
-	it( 'says why a plugin a host forced off cannot be turned on', () => {
-		render( <FeatureDelivery state={ forcedOffPlugin } /> );
+	it( 'says nothing about turning on a plugin a host forced off', () => {
+		const { container } = render( <FeatureDelivery state={ forcedOffPlugin } /> );
 
-		expect( screen.getByText( 'Disabled by your host or site administrator' ) ).toBeInTheDocument();
+		expect( container ).toBeEmptyDOMElement();
 	} );
 
-	it( 'still explains how to turn on a module nobody forced', () => {
+	it( 'says nothing once the feature is on', () => {
+		const { container } = render( <FeatureDelivery state={ moduleState( false, 'active' ) } /> );
+
+		expect( container ).toBeEmptyDOMElement();
+	} );
+
+	it( 'explains how to turn on a module nobody forced', () => {
 		render( <FeatureDelivery state={ moduleState( false, 'inactive' ) } /> );
 
-		expect( screen.getByText( /Activate turns Forms on/ ) ).toBeInTheDocument();
+		expect( screen.getByText( /Built into Jetpack/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'links the installed plugin it will switch on', () => {
+		render( <FeatureDelivery state={ installedPlugin } /> );
+
+		expect( screen.getByRole( 'link', { name: 'Akismet Anti-spam' } ) ).toHaveAttribute(
+			'href',
+			'https://wordpress.org/plugins/akismet/'
+		);
 	} );
 } );
 
 describe( 'FeaturePaid', () => {
-	it( 'leaves out "Available in" for a module a host forced off', () => {
+	it( 'leaves out the plans for a module a host forced off', () => {
 		render(
 			<FeaturePaid state={ moduleState( 'inactive', 'inactive' ) } onFilterByPlan={ jest.fn() } />
 		);
 
-		expect( screen.queryByText( 'Available in' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /Included in/ ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'leaves out "Available in" for a plugin a host forced off', () => {
-		render( <FeaturePaid state={ forcedOffPlugin } onFilterByPlan={ jest.fn() } /> );
-
-		expect( screen.queryByText( 'Available in' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'keeps "Available in" for a module nobody forced', () => {
+	it( 'leaves out the plans and the upgrade for a plugin a host forced off', () => {
 		render(
-			<FeaturePaid state={ moduleState( false, 'inactive' ) } onFilterByPlan={ jest.fn() } />
+			<FeaturePaid
+				state={ {
+					...forcedOffPlugin,
+					feature: {
+						...forcedOffPlugin.feature,
+						upgrade: { path: '/add-boost', name: 'Jetpack Boost' },
+					},
+				} }
+				onFilterByPlan={ jest.fn() }
+			/>
 		);
 
-		expect( screen.getByText( 'Available in' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /Included in/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /Upgrade/ } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'filters the list by a plan when its name is clicked', async () => {
+		const onFilterByPlan = jest.fn();
+		render(
+			<FeaturePaid state={ moduleState( false, 'inactive' ) } onFilterByPlan={ onFilterByPlan } />
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Jetpack Complete' } ) );
+
+		expect( onFilterByPlan ).toHaveBeenCalledWith( 'complete' );
+	} );
+
+	it( 'links to the upgrade for a feature that sells on its own', () => {
+		render( <FeaturePaid state={ installedPlugin } onFilterByPlan={ jest.fn() } /> );
+
+		expect(
+			screen.getByRole( 'link', { name: 'Upgrade to Jetpack Akismet Anti-spam' } )
+		).toHaveAttribute( 'href', '#/add-akismet' );
+	} );
+
+	it( 'drops the upgrade once the site has a paid plan for the product', () => {
+		const state = {
+			...installedPlugin,
+			product: { hasPaidPlanForProduct: true },
+		} as FeatureState;
+		render( <FeaturePaid state={ state } onFilterByPlan={ jest.fn() } /> );
+
+		expect( screen.queryByRole( 'link', { name: /Upgrade/ } ) ).not.toBeInTheDocument();
+		expect( screen.getByText( /Included in/ ) ).toBeInTheDocument();
 	} );
 } );

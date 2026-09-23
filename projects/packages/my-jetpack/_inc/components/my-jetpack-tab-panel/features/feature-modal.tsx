@@ -1,10 +1,11 @@
-import { __ } from '@wordpress/i18n';
+import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { check } from '@wordpress/icons';
-import { Badge, Dialog, Icon, Stack, Text } from '@wordpress/ui';
+import { Badge, Dialog, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useRef } from 'react';
 import { getActivationStatusLabel } from '../utils';
-import { FeatureBand } from './feature-band';
+import { getArrowStep } from './arrow-navigation';
 import { FeatureDelivery } from './feature-delivery';
+import { FeatureHighlights } from './feature-highlights';
 import { FeatureIcon } from './feature-icon';
 import { FeatureLinks } from './feature-links';
 import { FeatureModalActions } from './feature-modal-actions';
@@ -18,6 +19,11 @@ const CLOSE_ICON_ATTR = 'data-wp-ui-dialog-close-icon';
 
 type FeatureModalProps = {
 	state: FeatureState;
+	previous?: string;
+	next?: string;
+	position: number;
+	total: number;
+	onStep: ( slug: string ) => void;
 	onClose: () => void;
 	onFilterByPlan: ( plan: FeatureFilter ) => void;
 };
@@ -27,14 +33,28 @@ type FeatureModalProps = {
  *
  * @param {FeatureModalProps} props                - The component props.
  * @param {FeatureState}      props.state          - Live state for the feature being shown.
+ * @param {string}            props.previous       - Slug of the preceding shown feature, if any.
+ * @param {string}            props.next           - Slug of the following shown feature, if any.
+ * @param {number}            props.position       - This feature's 1-based place among those shown, 0 when hidden.
+ * @param {number}            props.total          - How many features are shown.
+ * @param {Function}          props.onStep         - Switches the modal to another feature.
  * @param {Function}          props.onClose        - Closes the modal.
  * @param {Function}          props.onFilterByPlan - Filters the grid to one plan.
  * @return The rendered component.
  */
-export function FeatureModal( { state, onClose, onFilterByPlan }: FeatureModalProps ) {
+export function FeatureModal( {
+	state,
+	previous,
+	next,
+	position,
+	total,
+	onStep,
+	onClose,
+	onFilterByPlan,
+}: FeatureModalProps ) {
 	const { feature, product } = state;
 	const isActive = state.status === 'active';
-	const highlights = product?.features ?? [];
+	const freeHighlights = feature.free_highlights ?? [];
 
 	const onOpenChange = useCallback(
 		( open: boolean ) => {
@@ -85,6 +105,29 @@ export function FeatureModal( { state, onClose, onFilterByPlan }: FeatureModalPr
 		}
 	}, [ feature.slug, findAction, state ] );
 
+	useEffect( () => {
+		const onKeyDown = ( event: KeyboardEvent ) => {
+			const step = getArrowStep( event, isRTL() );
+			const target = step === 'previous' ? previous : next;
+
+			if ( ! step ) {
+				return;
+			}
+
+			event.preventDefault();
+
+			if ( target ) {
+				// Parked on the dialog, the claim above hands focus to the new feature's action.
+				popupRef.current?.focus();
+				onStep( target );
+			}
+		};
+
+		// Capture phase: the dialog stops keydown propagating, so bubbling never reaches us.
+		document.addEventListener( 'keydown', onKeyDown, true );
+		return () => document.removeEventListener( 'keydown', onKeyDown, true );
+	}, [ next, onStep, previous ] );
+
 	return (
 		<Dialog.Root open onOpenChange={ onOpenChange }>
 			<Dialog.Popup
@@ -93,76 +136,64 @@ export function FeatureModal( { state, onClose, onFilterByPlan }: FeatureModalPr
 				className={ styles[ 'modal-popup' ] }
 				initialFocus={ initialFocus }
 			>
-				{ /* Full-bleed, so it sits outside Dialog.Content's padding. Close renders
-				     before the artwork so a keyboard user reaches it in one Tab. */ }
-				<div className={ styles[ 'modal-band' ] }>
-					<Dialog.CloseIcon className={ styles[ 'modal-band__close' ] } />
-					<div className={ styles[ 'modal-step' ] }>
-						<FeatureBand feature={ feature } />
-					</div>
-				</div>
-
-				<Dialog.Content className={ styles[ 'modal-body' ] }>
-					<div className={ styles[ 'modal-step' ] }>
-						<Stack direction="row" align="start" gap="md" wrap="wrap">
-							<span className={ styles[ 'modal-icon' ] } aria-hidden="true">
-								<FeatureIcon feature={ feature } />
-							</span>
-							<Stack direction="column" gap="xs">
-								<Dialog.Title>{ feature.name }</Dialog.Title>
-								<Stack direction="row" align="center" gap="sm" wrap="wrap">
-									<Badge intent={ isActive ? 'stable' : 'none' }>
-										{ getActivationStatusLabel( isActive ) }
-									</Badge>
-									{ feature.essential ? (
-										<Badge intent="informational">
-											{ __( 'Essential', 'jetpack-my-jetpack' ) }
-										</Badge>
-									) : null }
-								</Stack>
-							</Stack>
-
-							{ /* Beside the name rather than in a footer: the switch and the way in
-							     are what the modal is open for, so they sit with what they act on. */ }
-							<Stack
-								direction="row"
-								align="center"
-								gap="sm"
-								className={ styles[ 'modal-actions' ] }
-							>
-								<FeatureModalActions state={ state } />
+				<Dialog.Header className={ styles[ 'modal-header' ] }>
+					<span className={ styles[ 'modal-icon' ] } aria-hidden="true">
+						<FeatureIcon feature={ feature } />
+					</span>
+					<div className={ styles[ 'modal-header__main' ] }>
+						<Stack direction="column" gap="xs" className={ styles[ 'modal-heading' ] }>
+							<Dialog.Title>{ feature.name }</Dialog.Title>
+							<Stack direction="row" align="center" gap="sm" wrap="wrap">
+								<Badge intent={ isActive ? 'stable' : 'draft' }>
+									{ getActivationStatusLabel( isActive ) }
+								</Badge>
+								{ feature.essential ? (
+									<Badge intent="informational">{ __( 'Essential', 'jetpack-my-jetpack' ) }</Badge>
+								) : null }
 							</Stack>
 						</Stack>
 
-						<Dialog.Description>
-							{ feature.long_description || product?.longDescription || feature.description }
-						</Dialog.Description>
-
-						{ /* auto-fit rather than three fixed tracks: a section that renders
-						     nothing would otherwise leave a dead column behind it. */ }
-						<div className={ styles[ 'modal-panels' ] }>
-							{ highlights.length > 0 && (
-								<section className={ styles[ 'detail-section' ] }>
-									<Text variant="heading-sm" render={ <h3 /> }>
-										{ __( 'What you get', 'jetpack-my-jetpack' ) }
-									</Text>
-									<Stack direction="column" gap="sm">
-										{ highlights.map( highlight => (
-											<Stack key={ highlight } direction="row" align="start" gap="sm">
-												<Icon icon={ check } size={ 20 } />
-												<Text variant="body-md">{ highlight }</Text>
-											</Stack>
-										) ) }
-									</Stack>
-								</section>
-							) }
-
-							<FeatureDelivery state={ state } />
-							<FeaturePaid state={ state } onFilterByPlan={ onFilterByPlan } />
-						</div>
-
-						<FeatureLinks feature={ feature } />
+						<Stack direction="row" align="center" gap="sm" className={ styles[ 'modal-actions' ] }>
+							<FeatureModalActions state={ state } />
+						</Stack>
 					</div>
+					<Dialog.CloseIcon className={ styles[ 'modal-close' ] } />
+				</Dialog.Header>
+
+				<Dialog.Content className={ styles[ 'modal-body' ] }>
+					<p className="screen-reader-text" role="status">
+						{ position > 0
+							? sprintf(
+									/* translators: 1: a feature name, 2: its place in the list, 3: how many are listed. */
+									__( '%1$s, %2$d of %3$d', 'jetpack-my-jetpack' ),
+									feature.name,
+									position,
+									total
+								)
+							: feature.name }
+					</p>
+
+					<FeatureDelivery state={ state } />
+
+					<Dialog.Description>
+						{ feature.long_description || product?.longDescription || feature.description }
+					</Dialog.Description>
+
+					{ /* auto-fit rather than fixed tracks: a feature with only one tier gets the full width. */ }
+					<div className={ styles[ 'modal-panels' ] }>
+						{ freeHighlights.length > 0 && (
+							<section className={ styles[ 'detail-section' ] }>
+								<Text variant="heading-sm" render={ <h3 /> }>
+									{ __( 'Free', 'jetpack-my-jetpack' ) }
+								</Text>
+								<FeatureHighlights items={ freeHighlights } icon={ check } />
+							</section>
+						) }
+
+						<FeaturePaid state={ state } onFilterByPlan={ onFilterByPlan } />
+					</div>
+
+					<FeatureLinks feature={ feature } />
 				</Dialog.Content>
 			</Dialog.Popup>
 		</Dialog.Root>

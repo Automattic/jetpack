@@ -132,6 +132,8 @@ export function FeaturesContent() {
 	);
 
 	const open = states.find( item => item.feature.slug === openSlug );
+	// Arrow keys step through what the grid shows, so a filter or search bounds them too.
+	const openIndex = visible.findIndex( item => item.feature.slug === openSlug );
 
 	// Neither read has anything to say yet: a seed-only catalog is not a failure to load
 	// one, and features whose modules are still in flight all read inactive, which would
@@ -200,7 +202,16 @@ export function FeaturesContent() {
 			/>
 
 			{ open && (
-				<FeatureModal state={ open } onClose={ closeFeature } onFilterByPlan={ onFilterByPlan } />
+				<FeatureModal
+					state={ open }
+					previous={ visible[ openIndex - 1 ]?.feature.slug }
+					next={ openIndex < 0 ? undefined : visible[ openIndex + 1 ]?.feature.slug }
+					position={ openIndex + 1 }
+					total={ visible.length }
+					onStep={ openFeature }
+					onClose={ closeFeature }
+					onFilterByPlan={ onFilterByPlan }
+				/>
 			) }
 		</section>
 	);

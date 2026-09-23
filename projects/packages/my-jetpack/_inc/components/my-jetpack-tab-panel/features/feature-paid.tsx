@@ -1,36 +1,37 @@
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { starFilled } from '@wordpress/icons';
-import { Badge, Icon, Stack, Text } from '@wordpress/ui';
+import { Link, LinkButton, Stack, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
-import { PRODUCT_STATUSES } from '../../../constants';
+import { FeatureHighlights } from './feature-highlights';
 import { getForcedReason } from './feature-state';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
 import type { FeatureFilter } from './use-feature-filter';
 
-type PlanBadgeProps = {
+type PlanLinkProps = {
 	plan: { slug: string; name: string };
 	onSelect: ( plan: FeatureFilter ) => void;
 };
 
 /**
- * A plan badge that filters the list to everything that plan includes.
+ * A plan name that filters the list to everything that plan includes.
  *
- * @param {PlanBadgeProps} props          - The component props.
- * @param {object}         props.plan     - The plan's slug and display name.
- * @param {Function}       props.onSelect - Filters the list to one plan.
+ * @param {PlanLinkProps} props          - The component props.
+ * @param {object}        props.plan     - The plan's slug and display name.
+ * @param {Function}      props.onSelect - Filters the list to one plan.
  * @return The rendered component.
  */
-function PlanBadge( { plan, onSelect }: PlanBadgeProps ) {
+function PlanLink( { plan, onSelect }: PlanLinkProps ) {
 	const onClick = useCallback(
 		() => onSelect( plan.slug as FeatureFilter ),
 		[ onSelect, plan.slug ]
 	);
 
 	return (
-		<button
-			type="button"
-			className={ styles[ 'badge-link' ] }
+		<Link
+			render={ <button type="button" /> }
+			className={ styles[ 'plan-link' ] }
 			onClick={ onClick }
 			title={ sprintf(
 				/* translators: %s is a plan name, such as "Jetpack Complete". */
@@ -38,9 +39,27 @@ function PlanBadge( { plan, onSelect }: PlanBadgeProps ) {
 				plan.name
 			) }
 		>
-			<Badge intent="informational">{ plan.name }</Badge>
-		</button>
+			{ plan.name }
+		</Link>
 	);
+}
+
+/**
+ * The sentence naming the plans that include a feature, with a `<planN />` per plan.
+ *
+ * @param count - How many plans there are.
+ * @return The sentence.
+ */
+function getIncludedIn( count: number ): string {
+	if ( count === 1 ) {
+		return __( 'Included in <plan0 />', 'jetpack-my-jetpack' );
+	}
+
+	if ( count === 2 ) {
+		return __( 'Included in <plan0 /> and <plan1 />', 'jetpack-my-jetpack' );
+	}
+
+	return __( 'Included in <plan0 />, <plan1 /> and <plan2 />', 'jetpack-my-jetpack' );
 }
 
 type FeaturePaidProps = {
@@ -49,10 +68,7 @@ type FeaturePaidProps = {
 };
 
 /**
- * What a paid plan adds, and what to buy to get it.
- *
- * The two belong together: a list of benefits with no way to act on it, or a row of
- * plan names with nothing to justify them, are each half an answer.
+ * What a paid plan adds, which plans include it, and the way to buy it.
  *
  * @param {FeaturePaidProps} props                - The component props.
  * @param {FeatureState}     props.state          - Live state for the feature.
@@ -60,19 +76,16 @@ type FeaturePaidProps = {
  * @return The rendered component.
  */
 export function FeaturePaid( { state, onFilterByPlan }: FeaturePaidProps ) {
-	const { feature } = state;
+	const { feature, product } = state;
 	const plans = feature.plans ?? [];
-	const paidProduct = feature.paid_product;
-
-	// When the feature can only be had by buying, "What you get" above is already the
-	// paid list, so repeating it here says everything twice. The routes still matter.
-	const isPaidOnly = state.product?.status === PRODUCT_STATUSES.NEEDS_PLAN;
-	const highlights = isPaidOnly ? [] : ( feature.paid_highlights ?? [] );
+	const highlights = feature.paid_highlights ?? [];
 	// A host that forced it off decides this, not a purchase.
 	const isForcedOff = state.status !== 'active' && !! getForcedReason( state );
-	const routes = ! isForcedOff && ( plans.length > 0 || !! paidProduct );
+	const showPlans = ! isForcedOff && plans.length > 0;
+	const upgrade = feature.upgrade ?? { path: '', name: '' };
+	const upgradePath = ! isForcedOff && ! product?.hasPaidPlanForProduct ? upgrade.path : '';
 
-	if ( ! highlights.length && ! routes ) {
+	if ( ! highlights.length && ! showPlans && ! upgradePath ) {
 		return null;
 	}
 
@@ -82,26 +95,38 @@ export function FeaturePaid( { state, onFilterByPlan }: FeaturePaidProps ) {
 				{ __( 'With a paid plan', 'jetpack-my-jetpack' ) }
 			</Text>
 
-			{ highlights.length ? (
-				<Stack direction="column" gap="sm">
-					{ highlights.map( highlight => (
-						<Stack key={ highlight } direction="row" align="start" gap="sm">
-							<Icon icon={ starFilled } size={ 20 } />
-							<Text variant="body-md">{ highlight }</Text>
-						</Stack>
-					) ) }
-				</Stack>
-			) : null }
+			{ highlights.length ? <FeatureHighlights items={ highlights } icon={ starFilled } /> : null }
 
-			{ routes ? (
-				<Stack direction="column" gap="sm" className={ styles[ 'paid-routes' ] }>
-					<Text variant="body-sm">{ __( 'Available in', 'jetpack-my-jetpack' ) }</Text>
-					<Stack direction="row" align="center" gap="sm" wrap="wrap">
-						{ plans.map( plan => (
-							<PlanBadge key={ plan.slug } plan={ plan } onSelect={ onFilterByPlan } />
-						) ) }
-						{ paidProduct ? <Badge>{ paidProduct }</Badge> : null }
-					</Stack>
+			{ showPlans || upgradePath ? (
+				<Stack direction="column" gap="sm" align="start" className={ styles[ 'paid-routes' ] }>
+					{ showPlans ? (
+						<Text variant="body-sm">
+							{ createInterpolateElement(
+								getIncludedIn( plans.length ),
+								Object.fromEntries(
+									plans.map( ( plan, index ) => [
+										`plan${ index }`,
+										<PlanLink key={ plan.slug } plan={ plan } onSelect={ onFilterByPlan } />,
+									] )
+								)
+							) }
+						</Text>
+					) : null }
+
+					{ upgradePath ? (
+						<LinkButton
+							href={ `#${ upgradePath }` }
+							variant="outline"
+							size="compact"
+							aria-label={ sprintf(
+								/* translators: %s is a product name, such as "Jetpack Akismet Anti-spam". */
+								__( 'Upgrade to %s', 'jetpack-my-jetpack' ),
+								upgrade.name || feature.name
+							) }
+						>
+							{ __( 'Upgrade', 'jetpack-my-jetpack' ) }
+						</LinkButton>
+					) : null }
 				</Stack>
 			) : null }
 		</section>

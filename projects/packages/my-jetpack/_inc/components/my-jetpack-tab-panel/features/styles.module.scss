@@ -513,7 +513,7 @@ $banner-foreground: #daffdc;
 	inline-size: min(42.5rem, calc(100vw - 3rem));
 	max-block-size: calc(100dvh - 5rem);
 	max-inline-size: min(42.5rem, calc(100vw - 3rem));
-	min-block-size: min(34rem, calc(100dvh - 5rem));
+	min-block-size: min(22rem, calc(100dvh - 5rem));
 }
 
 // Mounts already open, so `@wordpress/ui`'s entrance never plays. Rise in by
@@ -540,110 +540,48 @@ $banner-foreground: #daffdc;
 	}
 }
 
-// Fixed height, not an aspect ratio: the artwork is third-party marketing
-// imagery at a dozen ratios, and a ratio-driven band would resize the modal
-// on every step.
-.modal-band {
+.modal-header {
 	align-items: center;
-	background: $feature-icon-background;
-	block-size: 14rem;
-	box-sizing: border-box;
-	color: $feature-icon-foreground;
-	display: flex;
-	flex: 0 0 auto;
-	justify-content: center;
-	min-block-size: 0;
-	overflow: hidden;
-	// Inset every image the same: some assets carry their own margin and some
-	// bleed to the edge, so without it the artwork sits inconsistently.
-	padding-block: var(--wpds-dimension-padding-md);
+	gap: var(--wpds-dimension-gap-md);
+	// Room for the close button, which sits in the corner rather than in the row.
+	padding-inline-end: 3.5rem;
 	position: relative;
 }
 
-.modal-band .modal-step {
-	align-items: center;
-	block-size: 100%;
-	display: flex;
-	inline-size: 100%;
-	justify-content: center;
+.modal-header .modal-close {
+	inset-block-start: var(--wpds-dimension-padding-md);
+	inset-inline-end: var(--wpds-dimension-padding-md);
+	position: absolute;
 }
 
-// `contain`, not `cover`: every one of these assets is square or portrait, so
-// cropping to the band's 4.75:1 would land on empty canvas.
-.modal-band__image {
-	block-size: 100%;
-	inline-size: 100%;
-	object-fit: contain;
-	opacity: 0;
-	transition: opacity 200ms ease-out;
-}
-
-.modal-band__image--loaded {
-	opacity: 1;
-}
-
-@media (prefers-reduced-motion: reduce) {
-
-	.modal-band__image {
-		transition: none;
-	}
-}
-
-.modal-band__glyph {
+// Only the name and actions wrap, so close keeps its corner on a phone.
+.modal-header__main {
 	align-items: center;
 	display: flex;
-	justify-content: center;
-
-	svg {
-		fill: currentColor;
-	}
+	flex: 1 1 0;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-md);
+	min-inline-size: 0;
 }
 
-.modal-band__skeleton {
-	block-size: 100%;
-	inset: 0;
-	position: absolute;
-	inline-size: 100%;
-}
-
-// A lone control over artwork earns a 44px hit target; the visual stays 32px.
-// Nested so the white wins over the design system's own dark foreground, which
-// is invisible against the band.
-.modal-band .modal-band__close {
-	background: rgba(0, 0, 0, 0.35);
-	border-radius: 50%;
-	color: #fff;
-	inset-block-start: var(--wpds-dimension-padding-lg);
-	inset-inline-end: var(--wpds-dimension-padding-lg);
-	position: absolute;
-	z-index: 1;
-
-	&:hover,
-	&:focus-visible {
-		background: rgba(0, 0, 0, 0.55);
-		color: #fff;
-	}
-
-	&::after {
-		content: "";
-		inset: -6px;
-		position: absolute;
-	}
+.modal-heading {
+	flex: 1 1 12rem;
+	min-inline-size: 0;
 }
 
 .modal-body {
 	container-type: inline-size;
-}
-
-.modal-body .modal-step {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg);
 }
 
-// The switch and the way in, pushed to the end of the row the name starts.
-// Sized to the title and badge rows beside it, so the tile is flush with both
-// rather than floating between them.
+// Top, not centred: on a phone the name and actions wrap to two rows beside it.
+.modal-icon {
+	align-self: flex-start;
+}
+
+// Sized to the title and badge rows beside it, so the tile is flush with both.
 .modal-icon .feature-icon {
 	block-size: 3.25rem;
 	inline-size: 3.25rem;
@@ -655,9 +593,7 @@ $banner-foreground: #daffdc;
 }
 
 .modal-actions {
-	align-self: center;
 	flex-shrink: 0;
-	margin-inline-start: auto;
 
 	// A narrow dialog must wrap the row, never the words inside a button.
 	a,
@@ -666,72 +602,60 @@ $banner-foreground: #daffdc;
 	}
 }
 
-// auto-fit rather than three fixed tracks: Activity Log, Blaze, Newsletter and
-// Podcast render no highlights, and an empty track would leave a dead column.
+.delivery-note {
+	background: var(--wpds-color-background-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-md);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	padding-block: var(--wpds-dimension-padding-sm);
+	padding-inline: var(--wpds-dimension-padding-md);
+}
+
+.highlight-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+
+	li {
+		margin: 0;
+	}
+}
+
+// Beside text that wraps, a flex item shrinks unless told not to.
+.highlight-icon {
+	flex-shrink: 0;
+}
+
 .modal-panels {
 	display: grid;
 	gap: var(--wpds-dimension-gap-xl);
-	grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
 }
 
-// Replaces the filled panel, which cost 40px of padding and 32px of margin
-// per section — 216px across three, inside a 624px budget.
 .detail-section {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-sm);
-	position: relative;
-
-	// Centred in the column gap rather than drawn as a border, so all three
-	// columns keep an identical content width.
-	& + &::before {
-		background: var(--wpds-color-stroke-surface-neutral-weak);
-		content: "";
-		inline-size: var(--wpds-border-width-xs);
-		inset-block: 0;
-		inset-inline-start: calc(var(--wpds-dimension-gap-xl) / -2);
-		position: absolute;
-	}
 }
 
 // The grid collapses when the MODAL narrows, not the viewport: the popup
 // shrinks long before any phone breakpoint would fire.
-@container (max-width: 34rem) {
+@container (max-width: 30rem) {
 
 	.modal-panels {
 		grid-template-columns: minmax(0, 1fr);
 	}
-
-	// Stacked now, so the rule between sections turns horizontal.
-	.detail-section + .detail-section::before {
-		block-size: var(--wpds-border-width-xs);
-		inline-size: auto;
-		inset-block: calc(var(--wpds-dimension-gap-xl) / -2) auto;
-		inset-inline: 0;
-	}
-}
-
-
-.badge-link {
-	background: none;
-	border: 0;
-	cursor: pointer;
-	display: inline-flex;
-	padding: 0;
-	text-decoration: none;
 }
 
 .paid-routes {
-	margin-block-start: var(--wpds-dimension-gap-md);
+	margin-block-start: var(--wpds-dimension-gap-sm);
 }
 
-// The artwork took nearly a third of the dialog's height at its desktop size,
-// which a small screen cannot spare.
-@media (max-width: 782px) {
-
-	.modal-band {
-		block-size: 9rem;
-	}
+.plan-link {
+	background: none;
+	border: 0;
+	cursor: pointer;
+	font: inherit;
+	padding: 0;
 }
 
 // Core's modal becomes a bottom sheet below 600px: full width, anchored to the
