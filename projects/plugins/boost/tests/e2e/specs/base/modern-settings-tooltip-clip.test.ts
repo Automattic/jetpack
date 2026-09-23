@@ -199,3 +199,25 @@ test( 'the premium tooltip takes focus and closes on Escape', async ( { page } )
 	await page.keyboard.press( 'Escape' );
 	await expect( content ).toBeHidden();
 } );
+
+test( 'the premium tooltip rings its icon on keyboard focus only', async ( { page } ) => {
+	await page.setViewportSize( { width: 1440, height: 900 } );
+	await page.goto( 'http://boost-settings.test/' );
+	const trigger = page.locator( '.icon-tooltip-wrapper button' ).first();
+	const icon = trigger.locator( 'svg' );
+
+	await expect( async () => {
+		await page.keyboard.press( 'Tab' );
+		await expect( trigger ).toBeFocused( { timeout: 100 } );
+	} ).toPass( { intervals: [ 0 ], timeout: 10000 } );
+	await expect( icon ).toHaveCSS( 'outline-style', 'solid' );
+
+	// Pressing the icon focuses the button too, but not visibly.
+	await page.reload();
+	const box = ( await icon.boundingBox() )!;
+	await page.mouse.move( box.x + box.width / 2, box.y + box.height / 2 );
+	await page.mouse.down();
+	await expect( trigger ).toBeFocused();
+	await expect( icon ).toHaveCSS( 'outline-style', 'none' );
+	await page.mouse.up();
+} );
