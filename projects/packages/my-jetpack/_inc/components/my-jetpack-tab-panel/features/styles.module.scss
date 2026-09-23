@@ -213,6 +213,9 @@ $feature-icon-foreground: #0ced57;
 .empty-state {
 	margin-inline: auto;
 	max-inline-size: var(--wpds-dimension-surface-width-md);
+	// A search term is echoed into both the heading and a button label, and an
+	// unbroken one would otherwise run past the column.
+	overflow-wrap: anywhere;
 	padding-block: var(--wpds-dimension-padding-3xl);
 }
 

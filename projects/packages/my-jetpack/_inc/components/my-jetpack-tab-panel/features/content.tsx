@@ -111,9 +111,12 @@ export function FeaturesContent() {
 
 	const open = states.find( item => item.feature.slug === openSlug );
 
-	// With no catalog on the page there is nothing to say until the read settles: an
-	// empty list mid-request is not yet a failure to load one.
-	const settling = mainFeatures.isPending && mainFeatures.features.length === 0;
+	// Neither read has anything to say yet: a seed-only catalog is not a failure to load
+	// one, and features whose modules are still in flight all read inactive, which would
+	// otherwise announce "nothing is active" on a site with plenty on.
+	const settling =
+		( mainFeatures.isPlaceholderData && mainFeatures.features.length === 0 ) ||
+		states.some( state => state.pending );
 
 	return (
 		<section className={ styles.content }>

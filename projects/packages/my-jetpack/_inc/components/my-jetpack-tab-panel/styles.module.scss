@@ -48,10 +48,16 @@
 // TabPanel) matches the tabbed layout exactly.
 @mixin tab-content-surface {
 	background-color: #fcfcfc;
+	display: flex;
+	flex-direction: column;
 
 	.my-jetpack-tab-panel-inner {
 
 		@include full-width-container;
+		// Takes the slack on a tab that does not fill the screen. Overview and Help
+		// render their footer as the next sibling, so without this the extra height
+		// lands after the footer as a band of surface below it.
+		flex: 1;
 	}
 }
 

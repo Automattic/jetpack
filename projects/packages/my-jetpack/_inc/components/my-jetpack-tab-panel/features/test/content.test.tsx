@@ -11,7 +11,10 @@ const activeStats = {
 } as unknown as FeatureState;
 
 let mockStates: FeatureState[] = [ activeStats ];
-let mockMainFeatures: Record< string, unknown > = { features: [ { slug: 'stats' } ] };
+let mockMainFeatures: Record< string, unknown > = {
+	features: [ { slug: 'stats' } ],
+	isPlaceholderData: false,
+};
 
 jest.mock( '../use-main-features', () => ( { useMainFeatures: () => mockMainFeatures } ) );
 
@@ -33,7 +36,7 @@ const renderAt = ( url: string ) =>
 describe( 'FeaturesContent', () => {
 	beforeEach( () => {
 		mockStates = [ activeStats ];
-		mockMainFeatures = { features: [ { slug: 'stats' } ] };
+		mockMainFeatures = { features: [ { slug: 'stats' } ], isPlaceholderData: false };
 	} );
 
 	it( 'names the filter that matched nothing and switches back from the empty state', async () => {
@@ -48,16 +51,24 @@ describe( 'FeaturesContent', () => {
 
 	it( 'waits for the read to settle before calling an empty catalog a failure', () => {
 		mockStates = [];
-		mockMainFeatures = { features: [], isPending: true };
+		mockMainFeatures = { features: [], isPlaceholderData: true };
 
 		renderAt( '/features' );
 
 		expect( screen.queryByRole( 'heading' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'holds the empty state back while the modules a feature depends on are in flight', () => {
+		mockStates = [ { ...activeStats, pending: true, status: 'inactive' } as FeatureState ];
+
+		renderAt( '/features?filter=active' );
+
+		expect( screen.queryByRole( 'heading' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'reports an empty catalog as a failure rather than a site with no features', () => {
 		mockStates = [];
-		mockMainFeatures = { features: [], isPending: false };
+		mockMainFeatures = { features: [], isPlaceholderData: false };
 
 		renderAt( '/features' );
 
