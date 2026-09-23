@@ -320,6 +320,107 @@ describe( 'LineChart', () => {
 			} );
 		} );
 
+		test( 'labels a whole-number range smaller than the tick count once per whole number', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 1, 1, 0 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+				],
+			} );
+
+			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
+		} );
+
+		test( 'ignores a hidden fractional series when checking for whole numbers', () => {
+			renderWithTheme( {
+				defaultHiddenSeries: [ 'Series B' ],
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 1, 1, 0 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+					{
+						label: 'Series B',
+						data: [ 0.5, 0.5, 0.5, 0.5 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+				],
+			} );
+
+			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
+		} );
+
+		test( 'keeps fractional ticks when the data has fractions', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 0.5, 1 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+				],
+			} );
+
+			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			expect( within( chart ).getAllByText( /^-?[\d.,]+$/ ).length ).toBeGreaterThan( 2 );
+		} );
+
+		test( "keeps a caller's y tickValues", () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 1 ].map( ( value, i ) => ( { date: new Date( 2024, i + 2, 1 ), value } ) ),
+					},
+				],
+				options: { axis: { y: { tickValues: [ 0, 0.5, 1 ] } } },
+			} );
+
+			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			expect( within( chart ).getAllByText( /^-?[\d.,]+$/ ) ).toHaveLength( 3 );
+		} );
+
+		test( 'keeps every tick on a y domain the caller pinned', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 0, 0 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+				],
+				options: {
+					yScale: { domain: [ 0, 1 ] },
+					axis: { y: { tickFormat: ( value: number ) => `${ Math.round( value * 100 ) }%` } },
+				},
+			} );
+
+			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			expect( within( chart ).getAllByText( /^\d+%$/ ) ).toHaveLength( 6 );
+		} );
+
 		test( 'keeps a positive y domain on a log scale when every visible bucket has no reading', () => {
 			const ref = createRef< ChartInstanceRef >();
 

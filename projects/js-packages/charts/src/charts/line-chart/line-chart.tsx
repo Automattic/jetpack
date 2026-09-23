@@ -41,6 +41,7 @@ import { formatReading, isInvalidReading, isReading } from '../private/readings'
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType } from '../private/time-axis';
 import { buildTimeAxisOptions } from '../private/time-axis-options';
+import { hasOnlyWholeNumbers, WholeNumberTicks } from '../private/whole-number-ticks';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
@@ -417,6 +418,11 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			return min <= max ? [ min, max ] : undefined;
 		}, [ dataSorted, isSeriesVisible ] );
 
+		const hasWholeNumberValues = useMemo(
+			() => hasOnlyWholeNumbers( dataSorted.filter( series => isSeriesVisible( series.label ) ) ),
+			[ dataSorted, isSeriesVisible ]
+		);
+
 		const chartOptions = useMemo( () => {
 			const fallbackYDomain = getFallbackYDomain(
 				visibleReadingExtent,
@@ -664,15 +670,36 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 											{ /* With every series hidden there is no data to scale against, so the grid and
 											     axes are dropped while the empty state stands in — otherwise they render
 											     squished at the top. */ }
-											{ ! allSeriesHidden && gridVisibility !== 'none' && (
-												<Grid columns={ false } numTicks={ 4 } />
-											) }
-											{ ! allSeriesHidden && chartOptions.axis.x.display && (
-												<Axis { ...chartOptions.axis.x } />
-											) }
-											{ ! allSeriesHidden && chartOptions.axis.y.display && (
-												<Axis { ...chartOptions.axis.y } />
-											) }
+											<WholeNumberTicks
+												axis="y"
+												numTicks={ chartOptions.axis.y.numTicks }
+												enabled={
+													hasWholeNumberValues &&
+													! chartOptions.axis.y.tickValues &&
+													! options?.yScale?.domain
+												}
+											>
+												{ tickValues => (
+													<>
+														{ ! allSeriesHidden && gridVisibility !== 'none' && (
+															<Grid
+																columns={ false }
+																numTicks={ chartOptions.axis.y.numTicks }
+																{ ...{ tickValues: tickValues ?? chartOptions.axis.y.tickValues } }
+															/>
+														) }
+														{ ! allSeriesHidden && chartOptions.axis.x.display && (
+															<Axis { ...chartOptions.axis.x } />
+														) }
+														{ ! allSeriesHidden && chartOptions.axis.y.display && (
+															<Axis
+																{ ...chartOptions.axis.y }
+																{ ...( tickValues ? { tickValues } : {} ) }
+															/>
+														) }
+													</>
+												) }
+											</WholeNumberTicks>
 
 											{ allSeriesHidden ? (
 												<SvgEmptyState

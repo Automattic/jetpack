@@ -575,6 +575,10 @@ Advanced configuration for scales and axes:
 	/>` }
 />
 
+When every visible value is a whole number, the value axis places ticks only on whole numbers, instead of repeating a rounded label at fractional steps. Pass `options.axis.y.tickValues` to choose the ticks yourself (`axis.x` on a horizontal chart). A value domain you pin with `options.yScale.domain` (`xScale` on a horizontal chart) keeps every tick, so a percentage axis on `[ 0, 1 ]` still steps by 20%.
+
+<Canvas of={ BarChartStories.SmallWholeNumberRange } />
+
 ## Accessibility
 
 See [Keyboard Navigation](#keyboard-navigation) for supported keys and focus behavior.
