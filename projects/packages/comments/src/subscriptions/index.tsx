@@ -133,7 +133,7 @@ export const SubscriptionOptions = () => {
 						? {
 								checked: state.notification.send_posts,
 								onChange: value => apply( { notify_posts: value } ),
-						  }
+							}
 						: undefined
 				}
 				posts={
@@ -143,7 +143,7 @@ export const SubscriptionOptions = () => {
 								frequency: state.email.post_delivery_frequency,
 								onChange: value => apply( { email_posts: value } ),
 								onFrequency: value => apply( { frequency: value } ),
-						  }
+							}
 						: undefined
 				}
 				comments={
@@ -151,7 +151,7 @@ export const SubscriptionOptions = () => {
 						? {
 								checked: state.email.send_comments,
 								onChange: value => apply( { email_comments: value } ),
-						  }
+							}
 						: undefined
 				}
 			/>
