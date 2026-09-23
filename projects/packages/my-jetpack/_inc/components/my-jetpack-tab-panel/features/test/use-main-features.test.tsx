@@ -90,6 +90,45 @@ beforeEach( () => {
 	window.myJetpackInitialState = { mainFeatures: pageState } as Window[ 'myJetpackInitialState' ];
 } );
 
+describe( 'useMainFeatures', () => {
+	it( 'calls a seedless first read placeholder data, not a catalog that came back empty', async () => {
+		window.myJetpackInitialState = {} as Window[ 'myJetpackInitialState' ];
+
+		let land: ( state: MainFeaturesState ) => void = () => undefined;
+		mockApiFetch.mockImplementation(
+			() =>
+				new Promise( resolve => {
+					land = resolve;
+				} )
+		);
+
+		const { result } = renderHook( () => useMainFeatures(), {
+			wrapper: wrapper( new QueryClient() ),
+		} );
+
+		expect( result.current.features ).toEqual( [] );
+		expect( result.current.isPlaceholderData ).toBe( true );
+
+		act( () => land( pageState ) );
+
+		await waitFor( () => expect( result.current.isPlaceholderData ).toBe( false ) );
+		expect( result.current.features ).toHaveLength( 2 );
+	} );
+
+	it( 'hands back the same object until the state itself changes', () => {
+		mockApiFetch.mockImplementation( () => new Promise( () => undefined ) );
+
+		const { result, rerender } = renderHook( () => useMainFeatures(), {
+			wrapper: wrapper( new QueryClient() ),
+		} );
+		const first = result.current;
+
+		rerender();
+
+		expect( result.current ).toBe( first );
+	} );
+} );
+
 describe( 'useFeaturePlugin', () => {
 	it( 'looks busy while another caller, such as a bulk switch, has asked for the plugin', () => {
 		mockApiFetch.mockImplementation( () => new Promise( () => undefined ) );
