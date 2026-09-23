@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { formatEmailRate, isEmailRateKnown } from '../format-email-rate';
+import { formatEmailRate, getKnownEmailRate, isEmailRateKnown } from '../format-email-rate';
 
 describe( 'isEmailRateKnown', () => {
 	it( 'is known when recipients engaged, or when nobody engaged', () => {
@@ -16,6 +16,17 @@ describe( 'isEmailRateKnown', () => {
 	it( 'is unknown when nothing was sent', () => {
 		expect( isEmailRateKnown( { total: 0, unique: 0, sends: 0 } ) ).toBe( false );
 		expect( isEmailRateKnown( { total: 12, unique: 10, sends: 0 } ) ).toBe( false );
+	} );
+} );
+
+describe( 'getKnownEmailRate', () => {
+	it( 'returns a known rate, including a genuine zero', () => {
+		expect( getKnownEmailRate( 38.1, { total: 400, unique: 380, sends: 1000 } ) ).toBe( 38.1 );
+		expect( getKnownEmailRate( 0, { total: 0, unique: 0, sends: 1 } ) ).toBe( 0 );
+	} );
+
+	it( 'returns undefined for the 0 the summary reports when sends went unrecorded', () => {
+		expect( getKnownEmailRate( 0, { total: 120, unique: 0, sends: 0 } ) ).toBeUndefined();
 	} );
 } );
 

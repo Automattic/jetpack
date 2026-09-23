@@ -1,7 +1,10 @@
 /**
  * External dependencies
  */
-import { useStatsEmailOpensBreakdown } from '@jetpack-premium-analytics/data';
+import {
+	useStatsEmailClicksBreakdown,
+	useStatsEmailOpensBreakdown,
+} from '@jetpack-premium-analytics/data';
 import { useStagedSearch } from '@jetpack-premium-analytics/routing';
 import { renderHook, waitFor } from '@testing-library/react';
 /**
@@ -25,9 +28,10 @@ jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => mockRouteSearch,
 } ) );
 
-// The email tabs gate on the per-post opens rate summary; the query itself is
-// exercised in the data package, so stub the hook with a controllable result.
+// The email tabs gate on the per-post rate summaries; the queries themselves are
+// exercised in the data package, so stub the hooks with controllable results.
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	useStatsEmailClicksBreakdown: jest.fn(),
 	useStatsEmailOpensBreakdown: jest.fn(),
 } ) );
 
@@ -45,28 +49,51 @@ const mockUseStagedSearch = useStagedSearch as jest.MockedFunction< typeof useSt
 const mockUseOpensBreakdown = useStatsEmailOpensBreakdown as jest.MockedFunction<
 	typeof useStatsEmailOpensBreakdown
 >;
+const mockUseClicksBreakdown = useStatsEmailClicksBreakdown as jest.MockedFunction<
+	typeof useStatsEmailClicksBreakdown
+>;
 
 const POST_ID = 91;
 
-/**
- * Mock the opens rate summary that gates the email tabs.
- *
- * @param totalSends - The summary's `total_sends`; `undefined` mocks a query
- *                   that has not answered yet, positioned by `state`.
- * @param state      - Where an answerless query sits: fetching its first load,
- *                   retrying with the retryer paused (a background tab or an
- *                   offline blip, which drops `isLoading` without answering),
- *                   or finally failed.
- */
-function mockEmailSends( totalSends?: number, state: 'loading' | 'paused' | 'error' = 'loading' ) {
-	const answered = totalSends !== undefined;
+type GateState = 'loading' | 'paused' | 'error';
 
-	mockUseOpensBreakdown.mockReturnValue( {
-		data: answered ? { summary: { total_sends: totalSends } } : undefined,
+/**
+ * Mock one rate summary that gates the email tabs.
+ *
+ * @param hook    - The rate breakdown hook to mock.
+ * @param summary - The sanitized summary; `undefined` mocks a query that has not
+ *                answered yet, positioned by `state`.
+ * @param state   - Where an answerless query sits: fetching its first load,
+ *                retrying with the retryer paused (a background tab or an
+ *                offline blip, which drops `isLoading` without answering),
+ *                or finally failed.
+ */
+function mockRateSummary(
+	hook: typeof mockUseOpensBreakdown | typeof mockUseClicksBreakdown,
+	summary?: Record< string, number >,
+	state: GateState = 'loading'
+) {
+	const answered = summary !== undefined;
+
+	hook.mockReturnValue( {
+		data: answered ? { summary } : undefined,
 		isLoading: ! answered && state === 'loading',
 		isSuccess: answered,
 		isError: ! answered && state === 'error',
 	} as unknown as ReturnType< typeof useStatsEmailOpensBreakdown > );
+}
+
+/**
+ * Mock both rate summaries reporting the same send count.
+ *
+ * @param totalSends - `total_sends` on both; `undefined` leaves both unanswered.
+ * @param state      - Where unanswered queries sit.
+ */
+function mockEmailSends( totalSends?: number, state: GateState = 'loading' ) {
+	const summary = totalSends === undefined ? undefined : { total_sends: totalSends };
+
+	mockRateSummary( mockUseOpensBreakdown, summary, state );
+	mockRateSummary( mockUseClicksBreakdown, summary, state );
 }
 
 /**
@@ -235,6 +262,37 @@ describe( 'usePostDetailTabs', () => {
 		} );
 	} );
 
+	it( 'exposes the email tabs for a legacy send whose opens only the clicks endpoint reports', () => {
+		// The opens endpoint nulls every field when sends went unrecorded, and the
+		// sanitizer drops null keys.
+		mockRateSummary( mockUseOpensBreakdown, {} );
+		mockRateSummary( mockUseClicksBreakdown, {
+			total_sends: 0,
+			total_opens: 120,
+			total_clicks: 5,
+			unique_clicks: 0,
+		} );
+		const { stage, commit } = mockSearch( 'email-opens' );
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
+
+		expect( result.current.activeTab ).toBe( 'email-opens' );
+		expect( stage ).not.toHaveBeenCalled();
+		expect( commit ).not.toHaveBeenCalled();
+	} );
+
+	it( 'holds an email deep link until both gate queries answer', () => {
+		mockRateSummary( mockUseOpensBreakdown, {} );
+		mockRateSummary( mockUseClicksBreakdown, undefined, 'loading' );
+		const { stage, commit } = mockSearch( 'email-opens' );
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
+
+		expect( result.current.activeTab ).toBe( 'email-opens' );
+		expect( stage ).not.toHaveBeenCalled();
+		expect( commit ).not.toHaveBeenCalled();
+	} );
+
 	it( 'keeps the email tabs hidden while the send summary is still loading', () => {
 		mockEmailSends( undefined, 'loading' );
 		mockSearch( 'post-traffic' );
@@ -308,12 +366,13 @@ describe( 'usePostDetailTabs', () => {
 		expect( commit ).not.toHaveBeenCalled();
 	} );
 
-	it( 'disables the send query without a valid post scope', () => {
+	it( 'disables the gate queries without a valid post scope', () => {
 		mockSearch( 'post-traffic' );
 
 		renderHook( () => usePostDetailTabs( 0 ) );
 
 		expect( mockUseOpensBreakdown ).toHaveBeenCalledWith( 0, 'rate', { enabled: false } );
+		expect( mockUseClicksBreakdown ).toHaveBeenCalledWith( 0, 'rate', { enabled: false } );
 	} );
 
 	it( 'does not hold an email tab open on a scope whose gate never runs', async () => {

@@ -9,6 +9,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { compareOptionalNumbers } from '../../helpers/compare-optional-numbers';
 import type { StatsWordAdsEarningsBreakdown } from '@jetpack-premium-analytics/data';
 import type { Field } from '@jetpack-premium-analytics/externals';
 import type { ComponentProps } from 'react';
@@ -149,25 +150,6 @@ export function EarningsStatusLabel( { status }: { status: number | undefined } 
 }
 
 /**
- * Numeric sort that keeps rows without a count last in either direction.
- *
- * @param a         - One field value.
- * @param b         - The other field value.
- * @param direction - The sort direction.
- * @return The comparator result.
- */
-function compareOptionalCounts( a: unknown, b: unknown, direction: 'asc' | 'desc' ): number {
-	const aCount = typeof a === 'number' ? a : undefined;
-	const bCount = typeof b === 'number' ? b : undefined;
-
-	if ( aCount === undefined || bCount === undefined ) {
-		return ( aCount === undefined ? 1 : 0 ) - ( bCount === undefined ? 1 : 0 );
-	}
-
-	return direction === 'asc' ? aCount - bCount : bCount - aCount;
-}
-
-/**
  * A payment status as a badge, with its explanation in a tooltip when there is
  * one. The report table's rendering; the widget list keeps the plain label.
  *
@@ -214,9 +196,7 @@ export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 		{
 			id: 'pageviews',
 			label: __( 'Ads Served', 'jetpack-premium-analytics-pkg' ),
-			// The default sort would call `localeCompare` on a missing count and throw.
-			// DataViews hands `sort` the field values, not the items, despite its types.
-			sort: ( a, b, direction ) => compareOptionalCounts( a, b, direction ),
+			sort: compareOptionalNumbers,
 			render: ( { item } ) => (
 				<>{ item.pageviews === undefined ? '—' : formatMetricValue( item.pageviews, 'number' ) }</>
 			),
