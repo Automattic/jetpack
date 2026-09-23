@@ -677,6 +677,71 @@ describe( 'BarChart', () => {
 		} );
 	} );
 
+	describe( 'Grid tick counts', () => {
+		const getPositions = ( selector: string, coordinate: string ) => {
+			// eslint-disable-next-line testing-library/no-node-access -- See the visx node constraint above.
+			const lines = screen.getByRole( 'grid' ).querySelectorAll( selector );
+			return Array.from( lines, line => Number( line.getAttribute( coordinate ) ) );
+		};
+
+		test.each( [ 'x', 'y' ] )( 'aligns an explicit tick count with the %s axis', axis => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Views',
+						data: Array.from( { length: 8 }, ( _, index ) => ( {
+							label: `Day ${ index + 1 }`,
+							value: ( index + 1 ) * 10,
+						} ) ),
+					},
+				],
+				gridVisibility: 'xy',
+				options: {
+					axis: { [ axis ]: { numTicks: 2, tickFormat: String, axisClassName: 'test-value-axis' } },
+				},
+			} );
+			const grid = getPositions(
+				axis === 'x' ? '.visx-columns line' : '.visx-rows line',
+				`${ axis }1`
+			);
+			const ticks = getPositions( '.test-value-axis .visx-axis-tick line', `${ axis }1` );
+			expect( ticks.length ).toBeGreaterThan( 0 );
+			expect( grid ).toEqual( ticks );
+		} );
+
+		test.each( [ false, true ] )(
+			'preserves the default tick count (horizontal=%s)',
+			horizontal => {
+				const axis = horizontal ? 'x' : 'y';
+				const positionsFor = ( axisOptions: object ) => {
+					const { unmount } = renderWithTheme( {
+						orientation: horizontal ? 'horizontal' : 'vertical',
+						gridVisibility: 'xy',
+						options: {
+							axis: { [ axis ]: { axisClassName: 'test-value-axis', ...axisOptions } },
+						},
+					} );
+					const positions = {
+						grid: getPositions(
+							horizontal ? '.visx-columns line' : '.visx-rows line',
+							`${ axis }1`
+						),
+						ticks: getPositions( '.test-value-axis .visx-axis-tick line', `${ axis }1` ),
+					};
+					unmount();
+					return positions;
+				};
+
+				const omitted = positionsFor( {} );
+				const explicit = positionsFor( { numTicks: 4 } );
+
+				expect( omitted.ticks.length ).toBeGreaterThan( 0 );
+				expect( omitted.grid ).toEqual( omitted.ticks );
+				expect( omitted.grid ).toEqual( explicit.grid );
+			}
+		);
+	} );
+
 	describe( 'Grid Visibility', () => {
 		test( 'renders with different grid visibility options', () => {
 			const { rerender } = renderWithTheme( { gridVisibility: 'x' } );
