@@ -249,8 +249,12 @@ See Automattic/jetpack#50266 for the PR that established this contract.
   `@automattic/charts` follows the same rule under `packages/`, but under `widgets/` and
   `routes/` it must come from `@jetpack-premium-analytics/widgets-toolkit` instead. See
   `packages/externals/README.md`.
-- Export from an internal package's barrel and its sub-barrels only what something outside that
-  package imports — types included. `git grep` the name outside the package to check.
+- An internal package's public API is every name its root `src/index.ts` exports, including
+  names re-exported from a sub-barrel, whether by `export *` (`data` → `./hooks`) or by name
+  (`widgets-toolkit` → `useElementSize` from `./hooks`). Add a name there only when something
+  outside the package imports it — types included; `git grep` outside the package to check. A
+  sub-barrel name the root does not re-export, like `reportBookingsQuery` in
+  `data/src/queries/index.ts`, is internal and may serve the package's own imports.
 
 ## Comments and documentation
 
