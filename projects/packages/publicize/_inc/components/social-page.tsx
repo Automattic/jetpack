@@ -90,7 +90,7 @@ export default function SocialPage( {
 
 	const content = (
 		<>
-			<JitmSlot />
+			<JitmSlot inset />
 			<div className="jetpack-social-page__content jetpack-social-page__content--padded">
 				{ children }
 			</div>

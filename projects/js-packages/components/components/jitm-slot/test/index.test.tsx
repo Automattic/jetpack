@@ -20,6 +20,12 @@ describe( 'JitmSlot', () => {
 		expect( slot ).toHaveClass( 'jetpack-backup-jitm-card' );
 	} );
 
+	it( 'takes the page gutter when inset', () => {
+		render( <JitmSlot inset /> );
+
+		expect( screen.getByTestId( 'jp-jitm-slot' ) ).toHaveClass( 'jp-jitm-slot--inset' );
+	} );
+
 	it( 'renders empty, so a page with no message shows nothing', () => {
 		render( <JitmSlot /> );
 

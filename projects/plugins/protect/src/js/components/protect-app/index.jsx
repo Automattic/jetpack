@@ -102,7 +102,7 @@ const ProtectApp = () => {
 						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-protect' ) }</Tabs.Tab>
 					</Tabs.List>
 				</div>
-				<JitmSlot />
+				<JitmSlot inset />
 				{ /* Every tab panel shares the same react-router <Outlet />, which always
 				     renders the active route. Tabs.Panel (via @base-ui/react) keeps the
 				     outgoing panel mounted until its close transition completes, so

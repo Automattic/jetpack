@@ -68,7 +68,7 @@ export default function DashboardLayout( { activeTab, children, actions, hideFoo
 			) }
 			<Tabs.Root className="vp-dashboard-tabs" value={ activeTab } onValueChange={ onValueChange }>
 				<DashboardTabs />
-				<JitmSlot />
+				<JitmSlot inset />
 				{ TAB_VALUES.map( tab => (
 					<Tabs.Panel key={ tab } value={ tab }>
 						{ activeTab === tab ? children : null }

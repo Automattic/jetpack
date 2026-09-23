@@ -33,7 +33,7 @@ const getNotices = (): HTMLElement => {
  * @param {JitmSlotProps} props - Component props.
  * @return {JSX.Element} The slot.
  */
-const JitmSlot: FC< JitmSlotProps > = ( { className } ) => {
+const JitmSlot: FC< JitmSlotProps > = ( { className, inset } ) => {
 	const ref = useRef< HTMLDivElement >( null );
 
 	useLayoutEffect( () => {
@@ -56,7 +56,11 @@ const JitmSlot: FC< JitmSlotProps > = ( { className } ) => {
 	}, [] );
 
 	return (
-		<div ref={ ref } className={ clsx( 'jp-jitm-slot', className ) } data-testid="jp-jitm-slot" />
+		<div
+			ref={ ref }
+			className={ clsx( 'jp-jitm-slot', { 'jp-jitm-slot--inset': inset }, className ) }
+			data-testid="jp-jitm-slot"
+		/>
 	);
 };
 

@@ -128,7 +128,7 @@ export default function DataViewsHeaderRow( {
 					<DataViews.ViewConfig />
 				</Stack>
 			</Stack>
-			<JitmSlot />
+			<JitmSlot inset />
 			<DataViews.FiltersToggled className="jp-forms-dataviews-filters__container" />
 		</>
 	);

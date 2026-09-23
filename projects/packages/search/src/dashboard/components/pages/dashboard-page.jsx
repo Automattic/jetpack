@@ -331,7 +331,7 @@ export default function DashboardPage( { isLoading = false } ) {
 							<Tabs.Tab value="ai-answers">{ __( 'AI Answers', 'jetpack-search-pkg' ) }</Tabs.Tab>
 						</Tabs.List>
 					</div>
-					<JitmSlot />
+					<JitmSlot inset />
 					<Tabs.Panel value="overview">
 						<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
 							{ isPageLoading && <Loading /> }

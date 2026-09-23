@@ -4,11 +4,13 @@
 	margin: 0;
 	padding: 0;
 
-	// `jitm-card` comes from packages/jitm/src/js/jetpack-jitm.js. A page that
-	// renders the slot outside its padded container owes the card
-	// `margin-inline: var(--wpds-dimension-padding-2xl)`, the gutter admin-ui's
-	// page header uses.
+	// `jitm-card` comes from packages/jitm/src/js/jetpack-jitm.js.
 	.jitm-card {
 		margin: var(--wpds-dimension-gap-xl) 0;
 	}
+}
+
+// Same specificity as the rule above, so it has to come after it.
+.jp-jitm-slot--inset .jitm-card {
+	margin-inline: var(--wpds-dimension-padding-2xl);
 }

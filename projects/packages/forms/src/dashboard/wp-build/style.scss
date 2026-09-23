@@ -76,10 +76,6 @@ body.jetpack-forms-responses {
 				min-block-size: 0;
 			}
 
-			.jp-jitm-slot .jitm-card {
-				margin-inline: var(--wpds-dimension-padding-2xl);
-			}
-
 			// The layout mixin above blanket-sets `flex-direction: column` on
 			// the scrollable middle's direct children (its `> *` rule). That
 			// column is only wanted on narrow screens; the toolbar is a Stack

@@ -112,7 +112,7 @@ export default function NewsletterPage( {
 
 	const content = (
 		<>
-			<JitmSlot />
+			<JitmSlot inset />
 			<div className={ contentClass }>{ children }</div>
 		</>
 	);

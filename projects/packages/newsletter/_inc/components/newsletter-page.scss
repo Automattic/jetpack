@@ -26,10 +26,6 @@ body.jetpack_page_jetpack-newsletter {
 		padding: $jetpack-newsletter-inset;
 	}
 
-	.jp-jitm-slot .jitm-card {
-		margin-inline: $jetpack-newsletter-inset;
-	}
-
 	// `AdminPage` wraps its children in `<Container><Col>`; the layout mixin
 	// flexes that pair but stops at `Col`. Continue the flex column through our
 	// `Tabs.Root`. The tab strip (`.jp-admin-page-tabs`) is `position: sticky`
