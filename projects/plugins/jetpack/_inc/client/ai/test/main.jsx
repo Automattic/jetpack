@@ -278,6 +278,59 @@ describe( 'AI admin page (main.jsx)', () => {
 			).resolves.toBeInTheDocument();
 		} );
 
+		test.each( [ 'filter', 'filter-vip', 'modules', 'future-reason' ] )(
+			'%s disables every feature toggle without changing saved values',
+			async masterForcedOff => {
+				window.jetpackAiSettings = {
+					showFeaturesView: true,
+					blogId: 1,
+					isUserConnected: true,
+					masterForcedOff,
+				};
+				mockApiFetch( {
+					featureGet: {
+						...enabledSettings(),
+						features: {
+							writing_assistant: { enabled: true },
+							image_editor: { enabled: false },
+							ai_seo: { enabled: true },
+							ai_search: { enabled: false },
+						},
+					},
+				} );
+
+				render( <App /> );
+
+				const toggles = await screen.findAllByRole( 'checkbox' );
+				expect( toggles ).toHaveLength( 4 );
+				toggles.forEach( toggle => expect( toggle ).toBeDisabled() );
+				expect( toggles.map( toggle => toggle.checked ) ).toEqual( [ true, false, true, false ] );
+				await userEvent.click( toggles[ 0 ] );
+				expect( apiFetch.mock.calls.some( ( [ request ] ) => request.method === 'POST' ) ).toBe(
+					false
+				);
+			}
+		);
+
+		test.each( [ '', null, undefined ] )(
+			'masterForcedOff=%s leaves usable feature toggles enabled',
+			async masterForcedOff => {
+				window.jetpackAiSettings = {
+					showFeaturesView: true,
+					blogId: 1,
+					isUserConnected: true,
+					masterForcedOff,
+				};
+				mockApiFetch();
+
+				render( <App /> );
+
+				await expect(
+					screen.findByRole( 'checkbox', { name: /Writing Assistant/ } )
+				).resolves.toBeEnabled();
+			}
+		);
+
 		// Trunk shows the card in offline mode and on a broken connection; this PR
 		// consolidates notices and must not quietly change that.
 		test.each( [

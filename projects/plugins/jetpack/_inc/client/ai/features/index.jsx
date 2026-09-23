@@ -153,6 +153,7 @@ export function visibleSections( sections, features ) {
  * @param {boolean}  props.checked         - Whether the feature is enabled.
  * @param {boolean}  props.isSaving        - Whether this toggle is being saved.
  * @param {boolean}  props.masterEnabled   - Whether the site-wide AI master switch is on.
+ * @param {string}   props.masterForcedOff - The reason custom code forces AI off, or an empty string.
  * @param {boolean}  props.isConnected     - Whether the AI connection gate passes (connected owner, not offline).
  * @param {boolean}  props.isUserConnected - Whether the current user's own WordPress.com account is linked.
  * @param {Function} props.onChange        - Called with (key, enabled) on toggle.
@@ -164,6 +165,7 @@ function FeatureRow( {
 	checked,
 	isSaving,
 	masterEnabled,
+	masterForcedOff,
 	isConnected,
 	isUserConnected,
 	onChange,
@@ -174,15 +176,13 @@ function FeatureRow( {
 	);
 
 	const action = ( checked ? feature.enabledAction : feature.disabledAction ) ?? feature.action;
-	// The toggle keeps showing the SAVED value but can't be used while the site
-	// or user connection gate fails, while the master switch is off, or while
-	// the plan doesn't include the feature. There is deliberately no site-wide
-	// plan gate here: every connected site can run the free tier.
+	// Preserve saved values when connection, master-switch or plan restrictions prevent use.
 	const isDisabled =
 		isSaving ||
 		! isConnected ||
 		! isUserConnected ||
 		! masterEnabled ||
+		!! masterForcedOff ||
 		!! reported?.requires_upgrade;
 
 	return (
@@ -214,11 +214,18 @@ function FeatureRow( {
  * @param {object}   props                 - Component props.
  * @param {object}   props.settings        - Full settings shape from the feature-settings endpoint.
  * @param {boolean}  props.isUserConnected - Whether this user's WordPress.com account is linked.
+ * @param {string}   props.masterForcedOff - The reason custom code forces AI off, or an empty string.
  * @param {Set}      props.savingKeys      - Keys currently being saved.
  * @param {Function} props.onUpdate        - Called with a partial settings update payload; resolves true when the save succeeded.
  * @return {object} Component markup.
  */
-export default function AiFeatures( { settings, isUserConnected = true, savingKeys, onUpdate } ) {
+export default function AiFeatures( {
+	settings,
+	isUserConnected = true,
+	masterForcedOff = '',
+	savingKeys,
+	onUpdate,
+} ) {
 	const features = settings?.features ?? {};
 	// Children keep their saved values while the master switch is off, rather
 	// than misreporting the user's choices as off. PageNotice explains why.
@@ -276,6 +283,7 @@ export default function AiFeatures( { settings, isUserConnected = true, savingKe
 			checked={ !! features[ feature.key ]?.enabled }
 			isSaving={ savingKeys.has( feature.key ) }
 			masterEnabled={ masterEnabled }
+			masterForcedOff={ masterForcedOff }
 			isConnected={ isConnected }
 			isUserConnected={ isUserConnected }
 			onChange={ handleToggle }
