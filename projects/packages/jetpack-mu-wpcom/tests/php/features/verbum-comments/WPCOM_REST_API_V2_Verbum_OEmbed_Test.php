@@ -44,15 +44,6 @@ class WPCOM_REST_API_V2_Verbum_OEmbed_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tear down.
-	 */
-	public function tear_down() {
-		remove_all_filters( 'pre_http_request' );
-		remove_all_filters( 'oembed_providers' );
-		parent::tear_down();
-	}
-
-	/**
 	 * Serve the provider's page, which advertises an oEmbed endpoint, and the endpoint itself.
 	 *
 	 * @param false|array $response Short-circuit response.
