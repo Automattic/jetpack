@@ -2082,7 +2082,7 @@ describe( 'ChartContext', () => {
 				expect( colorAt( 1 ) ).toBe( onWhite );
 			} );
 
-			it( 'assigns a group the background-aware color even with zero valid seeds', () => {
+			it( 'uses the resolved background for group colors when no seed resolves', () => {
 				const background = '#1e1e1e';
 
 				// An unparseable slot 1 keeps the resolved palette empty even after resolution;

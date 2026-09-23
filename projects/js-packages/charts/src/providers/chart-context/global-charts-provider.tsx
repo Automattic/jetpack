@@ -150,9 +150,8 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		() => new Map()
 	);
 
-	// Keyed on the resolved colors and background rather than the cache object, so a consumer
-	// passing an inline `theme` cannot reset the map on every render, and a chart with zero
-	// resolved seeds still gets a fresh map once the background resolves.
+	// Keyed on the resolved colors and background, not the cache object, so a consumer passing an
+	// inline `theme` cannot reset the map on every render.
 	const paletteKey = `${ colorCache.colors.join( ',' ) }|${ colorCache.background }`;
 
 	useEffect( () => {
