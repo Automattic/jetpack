@@ -177,7 +177,10 @@ export default function SubscribersDataViews( {
 				getValue: ( { item }: { item: Subscriber } ) =>
 					getSubscriptionStatusLabel( item.subscription_status ),
 				render: ( { item }: { item: Subscriber } ) => (
-					<SubscriptionStatusCell status={ item.subscription_status } />
+					<SubscriptionStatusCell
+						status={ item.subscription_status }
+						reason={ item.subscription_status_reason }
+					/>
 				),
 				elements: [
 					{

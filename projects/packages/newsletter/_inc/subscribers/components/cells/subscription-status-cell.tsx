@@ -1,9 +1,15 @@
-import { Badge } from '@wordpress/ui';
-import { getSubscriptionStatusLabel } from '../../lib/subscription-status';
-import type { SubscriptionStatus } from '../../data/types';
+import { Icon, info } from '@wordpress/icons';
+import { Badge, Tooltip } from '@wordpress/ui';
+import {
+	getSubscriptionStatusLabel,
+	getSubscriptionStatusReasonLabel,
+} from '../../lib/subscription-status';
+import type { SubscriptionStatus, SubscriptionStatusReason } from '../../data/types';
+import './subscription-status-cell.scss';
 
 type Props = {
 	status?: SubscriptionStatus;
+	reason?: SubscriptionStatusReason | null;
 };
 
 type BadgeIntent = React.ComponentProps< typeof Badge >[ 'intent' ];
@@ -41,13 +47,35 @@ function getBadgeIntent( status: SubscriptionStatus ): BadgeIntent {
  *
  * @param props        - Component props.
  * @param props.status - Raw status string from the API.
+ * @param props.reason - Raw subscription_status_reason from the API; adds an info tooltip.
  * @return Status badge, or null when status is missing.
  */
-export default function SubscriptionStatusCell( { status }: Props ): JSX.Element | null {
+export default function SubscriptionStatusCell( { status, reason }: Props ): JSX.Element | null {
 	if ( ! status ) {
 		return null;
 	}
-	return (
+
+	const badge = (
 		<Badge intent={ getBadgeIntent( status ) }>{ getSubscriptionStatusLabel( status ) }</Badge>
+	);
+	const reasonLabel = getSubscriptionStatusReasonLabel( reason );
+
+	if ( ! reasonLabel ) {
+		return badge;
+	}
+
+	return (
+		<span className="jetpack-newsletter__status-reason">
+			{ badge }
+			<Tooltip.Root>
+				<Tooltip.Trigger
+					className="jetpack-newsletter__status-reason-trigger"
+					aria-label={ reasonLabel }
+				>
+					<Icon icon={ info } size={ 20 } />
+				</Tooltip.Trigger>
+				<Tooltip.Popup>{ reasonLabel }</Tooltip.Popup>
+			</Tooltip.Root>
+		</span>
 	);
 }

@@ -1,0 +1,14 @@
+.jetpack-newsletter__status-reason {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+}
+
+// Tooltip.Trigger renders a button; strip its styles so only the icon shows.
+.jetpack-newsletter__status-reason-trigger {
+	display: inline-flex;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+}
