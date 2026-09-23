@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Plugin;
  *
  * In `src/` rather than on `Jetpack_Admin_Page` for the reason `Footer_Links` documents.
  */
-class Chrome_Logo {
+class Admin_Chrome_Logo {
 
 	/**
 	 * Render the green Jetpack mark.

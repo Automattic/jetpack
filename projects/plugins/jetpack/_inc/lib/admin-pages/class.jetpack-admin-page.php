@@ -7,7 +7,7 @@
 
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Identity_Crisis;
-use Automattic\Jetpack\Plugin\Chrome_Logo;
+use Automattic\Jetpack\Plugin\Admin_Chrome_Logo;
 use Automattic\Jetpack\Plugin\Footer_Links;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -280,7 +280,7 @@ abstract class Jetpack_Admin_Page {
 
 		$my_jetpack_available = Footer_Links::is_my_jetpack_available();
 		$my_jetpack_url       = admin_url( 'admin.php?page=my-jetpack#/overview' );
-		$jetpack_logo         = Chrome_Logo::render( 20, '', __( 'Jetpack logo', 'jetpack' ) );
+		$jetpack_logo         = Admin_Chrome_Logo::render( 20, '', __( 'Jetpack logo', 'jetpack' ) );
 
 		$jetpack_about_url = ! $connectable
 			? admin_url( 'admin.php?page=jetpack_about' )

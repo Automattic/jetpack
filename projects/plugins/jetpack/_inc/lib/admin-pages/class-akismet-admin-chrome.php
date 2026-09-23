@@ -26,7 +26,7 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Plugin\Chrome_Logo;
+use Automattic\Jetpack\Plugin\Admin_Chrome_Logo;
 use Automattic\Jetpack\Plugin\Footer_Links;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -335,7 +335,7 @@ class Akismet_Admin_Chrome {
 		?>
 		<footer class="jp-akismet-footer jetpack-footer" aria-label="<?php esc_attr_e( 'Jetpack', 'jetpack' ); ?>" role="contentinfo">
 			<div class="jp-akismet-footer__logo">
-				<?php echo Chrome_Logo::render( 16, 'jp-akismet-logo' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
+				<?php echo Admin_Chrome_Logo::render( 16, 'jp-akismet-logo' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
 				<span><?php esc_html_e( 'Jetpack', 'jetpack' ); ?></span>
 			</div>
 			<?php if ( ! ( new Host() )->is_wpcom_platform() && Footer_Links::is_my_jetpack_available() ) : ?>
