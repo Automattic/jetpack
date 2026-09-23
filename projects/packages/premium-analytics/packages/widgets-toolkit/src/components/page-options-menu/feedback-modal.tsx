@@ -3,11 +3,14 @@
  */
 import { submitStatsUserFeedback } from '@jetpack-premium-analytics/data';
 import { Button, Dialog, Notice, Stack } from '@jetpack-premium-analytics/externals';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { store as preferencesStore } from '@wordpress/preferences';
 import { useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */
+import { DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_SECTION_LAYOUTS_KEY } from '../../constants';
 import { useTrackEvent } from '../../hooks/use-track-event';
 import { ReadinessFields, readinessSummary, type StatsFeedbackReadiness } from './feedback-fields';
 
@@ -43,6 +46,15 @@ type FeedbackModalProps = {
  */
 export function FeedbackModal( { source, onSubmit, onClose }: FeedbackModalProps ) {
 	const trackEvent = useTrackEvent();
+	const hasCustomized = useSelect( select => {
+		const layouts = (
+			select( preferencesStore ) as unknown as {
+				get: ( scope: string, key: string ) => unknown;
+			}
+		 ).get( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_SECTION_LAYOUTS_KEY );
+
+		return !! layouts && typeof layouts === 'object' && Object.keys( layouts ).length > 0;
+	}, [] );
 	const [ readiness, setReadiness ] = useState< StatsFeedbackReadiness >();
 	const [ comment, setComment ] = useState( '' );
 	const [ hasSubmitted, setHasSubmitted ] = useState( false );
@@ -67,6 +79,7 @@ export function FeedbackModal( { source, onSubmit, onClose }: FeedbackModalProps
 			readiness,
 			comment: message,
 			source,
+			has_customized: hasCustomized,
 		} );
 
 		// Second channel, deliberately not awaited: Tracks is a pixel and ad blockers drop it
@@ -85,7 +98,7 @@ export function FeedbackModal( { source, onSubmit, onClose }: FeedbackModalProps
 
 		setHasSubmitted( true );
 		onSubmit?.();
-	}, [ comment, onSubmit, readiness, source, trackEvent ] );
+	}, [ comment, hasCustomized, onSubmit, readiness, source, trackEvent ] );
 
 	return (
 		<Dialog.Root open onOpenChange={ handleOpenChange }>
@@ -109,7 +122,7 @@ export function FeedbackModal( { source, onSubmit, onClose }: FeedbackModalProps
 								</Notice.Title>
 								<Notice.Description>
 									{ __(
-										"It'll help us decide what to fix before the new Traffic tab replaces the old one. You can send more any time from the page options menu.",
+										"It'll help us decide what to fix before the new Traffic and Insights tabs replace the old ones. You can send more any time from the page options menu.",
 										'jetpack-premium-analytics-pkg'
 									) }
 								</Notice.Description>

@@ -102,9 +102,32 @@ add_filter(
 );
 ```
 
-The whole map is passed at once so two mu-plugins setting different keys merge rather than clobber each other. `visible` cannot expose a page to someone who lacks the capability for it — `add_submenu_page()` refuses those regardless.
+The whole map is passed at once so two mu-plugins setting different keys merge rather than clobber each other. `visible` cannot expose a page to someone who lacks the capability for it: an item is only registered for users who have it.
 
-Only items registered through `Admin_Menu::add_menu()` are in the map. Anything added with a bare `add_submenu_page()` is out of this filter's reach.
+Only items registered through `Admin_Menu::add_menu()` or `Admin_Menu::add_top_level_menu()` are in the map. Anything added with a bare `add_submenu_page()` or `add_menu_page()` is out of this filter's reach.
+
+### Top level pages
+
+A few Jetpack pages deliberately sit outside the Jetpack menu. `add_top_level_menu()` registers those under the same gate, filter and hidden-but-reachable behavior as `add_menu()`. The parameters mirror `add_menu_page()`, with the visibility declaration appended:
+
+```PHP
+$page_suffix = Admin_Menu::add_top_level_menu(
+	__( 'My Dashboard', 'my-plugin' ),
+	__( 'My Dashboard', 'my-plugin' ),
+	'manage_options',
+	'my-dashboard',
+	array( $this, 'render' ),
+	'dashicons-chart-bar',
+	30,
+	array( 'key' => 'jetpack-my-dashboard' )
+);
+```
+
+A gate removes the item wherever it resolves false, so check it holds in every context that registers the page — a standalone plugin can run without the Jetpack plugin a `product` gate may assume.
+
+Stats and Premium Analytics register this way, under the keys `jetpack-stats` and `jetpack-premium-analytics`.
+
+Unlike `add_menu()`, the page gets neither the core-notice CSS nor the WPDS design tokens; call `Admin_Menu::hide_core_admin_notices()` or `Admin_Menu::enqueue_design_tokens()` on its own `load-` hook for either. Registering only top level items never builds the Jetpack menu.
 
 ## Security
 

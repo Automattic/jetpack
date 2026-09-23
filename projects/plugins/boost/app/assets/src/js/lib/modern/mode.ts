@@ -54,7 +54,7 @@ function findSlots( doc: Document ): ModernSlots | null {
  *
  * This app can boot before the chassis renders, so the modern mount waits rather
  * than assuming the slots exist. There is deliberately no timeout: without a
- * chassis there is no tab shell to render into either.
+ * chassis there is no dashboard to render into either.
  *
  * @param doc - Document to observe.
  * @return Both slots.

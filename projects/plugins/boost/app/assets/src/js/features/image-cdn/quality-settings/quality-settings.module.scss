@@ -1,3 +1,5 @@
+@use "$css/main/mixins";
+
 .section-title {
 	display: flex;
 	font-weight: 700;
@@ -18,6 +20,10 @@
 	line-height: 1.5;
 }
 
+.popover {
+	color: var(--jp-black);
+}
+
 .info-icon {
 	vertical-align: text-top;
 	// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
@@ -25,4 +31,27 @@
 	display: inline-block;
 	margin-left: 8px;
 	margin-right: 8px;
+}
+
+.well {
+
+	@include mixins.settings-well();
+
+	font-size: var(--wpds-typography-font-size-md);
+	line-height: var(--wpds-typography-line-height-sm);
+}
+
+.well-body {
+	padding-block-start: var(--wpds-dimension-padding-sm);
+}
+
+.well .section-title {
+	align-items: center;
+
+	h4 {
+		margin: 0;
+		font-size: var(--wpds-typography-font-size-md);
+		font-weight: var(--wpds-typography-font-weight-emphasis);
+		line-height: var(--wpds-typography-line-height-sm);
+	}
 }

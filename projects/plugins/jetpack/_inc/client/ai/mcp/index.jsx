@@ -25,6 +25,7 @@ import {
 } from '@wordpress/icons';
 import { Badge, Button, Stack } from '@wordpress/ui';
 import { isWriteTool } from './categories';
+import McpHowItWorks from './how-it-works';
 import { recordMcpTracksEvent } from './tracks';
 import {
 	getAccountMcpAbilities,
@@ -206,7 +207,7 @@ export default function McpHub( {
 	const siteAccountAbilities = siteContextToolIds.size
 		? Object.fromEntries(
 				Object.entries( accountAbilities ).filter( ( [ id ] ) => siteContextToolIds.has( id ) )
-		  )
+			)
 		: accountAbilities;
 	const isMcpEnabled = getSiteLevelEnabled( mcpAbilities ?? {}, blogId );
 	const merged = mergeSiteMcpAbilities( siteAccountAbilities, siteAbilities, isMcpEnabled );
@@ -258,11 +259,12 @@ export default function McpHub( {
 
 	return (
 		<>
+			<McpHowItWorks />
 			<Card className="jetpack-ai-mcp__access-card">
 				<CardBody>
 					<Stack direction="column" gap="md">
 						<Stack direction="column" gap="xs">
-							<Text as="h3" weight={ 600 }>
+							<Text as="h2" weight={ 600 }>
 								{ __( 'External AI agent access', 'jetpack' ) }
 							</Text>
 							<Text variant="muted">

@@ -354,7 +354,7 @@ export default function FeaturedImage( {
 					'jetpack-ai-client'
 				),
 				featuredImageCost
-		  )
+			)
 		: null;
 
 	const acceptButton = (

@@ -9,7 +9,7 @@ import { Link } from '@wordpress/ui';
 import { getRedirectUrl, IconTooltip } from '@automattic/jetpack-components';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import ModuleRow from '$features/module/module-row';
-import { useModuleSurface } from '$features/module/surface';
+import { useModuleSurface, useTooltipLayer } from '$features/module/surface';
 import { useNotices } from '$features/notice/context';
 const unsafeSpeculationRulesLink = getRedirectUrl( 'jetpack-boost-unsafe-speculation-rules' );
 import type { ReactNode } from 'react';
@@ -79,6 +79,7 @@ type BypassPatternsExampleProps = {
 
 const PrerenderWarningMessage = ( { children }: BypassPatternsExampleProps ) => {
 	const [ show, setShow ] = useState( false );
+	const tooltipLayer = useTooltipLayer();
 
 	return (
 		<div className={ styles[ 'warning-wrapper' ] }>
@@ -100,7 +101,8 @@ const PrerenderWarningMessage = ( { children }: BypassPatternsExampleProps ) => 
 					popoverAnchorStyle="wrapper"
 					forceShow={ show }
 					offset={ -10 }
-					className={ styles[ 'warning-tooltip' ] }
+					popoverClassName={ styles[ 'warning-tooltip' ] }
+					{ ...tooltipLayer }
 				>
 					<strong>{ __( 'Warning', 'jetpack-boost' ) }</strong>
 					<br />

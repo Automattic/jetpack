@@ -134,11 +134,11 @@ export default function RestoreScreen() {
 											'jetpack-backup-pkg'
 										),
 										dateI18n( 'M j, Y', restorePoint, undefined )
-								  )
+									)
 								: __(
 										"A restore is already running for this site. You can't start another from here until it finishes.",
 										'jetpack-backup-pkg'
-								  ) }
+									) }
 						</Notice>
 					) }
 					{ ( state.phase === 'idle' || state.phase === 'submitting' ) && (

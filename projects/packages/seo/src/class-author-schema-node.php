@@ -244,6 +244,12 @@ class Author_Schema_Node {
 			return $user;
 		}
 
+		// Plugins such as PublishPress Authors replace the author archive's queried
+		// object with their own class; casting that to int silently yields user 1.
+		if ( ! is_numeric( $user ) ) {
+			return null;
+		}
+
 		$user = get_userdata( (int) $user );
 		return $user instanceof WP_User ? $user : null;
 	}

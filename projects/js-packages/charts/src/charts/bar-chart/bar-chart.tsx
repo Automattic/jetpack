@@ -1,4 +1,3 @@
-import { formatNumber } from '@automattic/number-formatters';
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __, sprintf } from '@wordpress/i18n';
@@ -22,46 +21,38 @@ import {
 } from '../../providers';
 import { useDefaultHiddenSeries } from '../../providers/chart-context/hooks/use-default-hidden-series';
 import { attachSubComponents } from '../../utils';
+import { warnOnce } from '../../utils/warn-once';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
+import { formatReading, isInvalidReading } from '../private/readings';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
+import { hasOnlyWholeNumbers, WholeNumberTicks } from '../private/whole-number-ticks';
 import { withResponsive } from '../private/with-responsive';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
 import styles from './bar-chart.module.scss';
 import {
 	useBarChartOptions,
+	BandHighlight,
+	BandTooltip,
+	ClassifiedBarSeries,
 	ComparisonBars,
 	DEFAULT_COMPARISON_WIDTH_FACTOR,
 	COMPARISON_INNER_GAP,
 	MAX_GROUP_PADDING,
 	COMPARISON_TICK_GAP_FACTOR,
 	BASE_BAND_PADDING_INNER,
+	countRenderedBars,
+	isBarRendered,
 } from './private';
 import type { ComparisonSeriesEntry } from './private';
-import type {
-	BaseChartProps,
-	DataPointDate,
-	SeriesData,
-	SeriesChartLegendConfig,
-	SeriesVisibilityProps,
-	Optional,
-} from '../../types';
+import type { BarChartProps } from './types';
+import type { DataPointDate, SeriesData, Optional } from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
 import type { ResponsiveConfig } from '../private/with-responsive';
-import type { FC, ReactNode, ComponentType } from 'react';
+import type { FC, ComponentType } from 'react';
 
-export interface BarChartProps extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps {
-	/**
-	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
-	 */
-	legend?: SeriesChartLegendConfig;
-	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
-	orientation?: 'horizontal' | 'vertical';
-	withPatterns?: boolean;
-	showZeroValues?: boolean;
-	children?: ReactNode;
-}
+export type { BarChartProps, BandHighlightSelection } from './types';
 
 // Base props type with optional responsive properties
 type BarChartBaseProps = Optional< BarChartProps, 'width' | 'height' | 'size' >;
@@ -77,20 +68,18 @@ type BarChartResponsiveComponent = FC< BarChartBaseProps & ResponsiveConfig > &
 
 // Validation function similar to LineChart
 const validateData = ( data: SeriesData[] ) => {
-	if ( ! data?.length ) return 'No data available';
+	if ( ! data?.length ) return __( 'No data available', 'jetpack-charts' );
 
 	const hasInvalidData = data.some( series =>
 		series.data.some(
 			point =>
-				isNaN( point.value as number ) ||
-				point.value === null ||
-				point.value === undefined ||
+				isInvalidReading( point.value, { allowMissing: true } ) ||
 				( ! point.label &&
 					( ! ( 'date' in point && point.date ) || isNaN( point.date.getTime() ) ) )
 		)
 	);
 
-	if ( hasInvalidData ) return 'Invalid data';
+	if ( hasInvalidData ) return __( 'Invalid data', 'jetpack-charts' );
 	return null;
 };
 
@@ -121,10 +110,16 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	legend = {},
 	gridVisibility: gridVisibilityProp,
 	renderTooltip,
+	tooltipPlacement,
+	tooltipAnchorTop,
+	tooltipStyle,
+	barClassName,
 	options = {},
 	orientation = 'vertical',
 	withPatterns = false,
 	showZeroValues = false,
+	withBandHighlight = false,
+	onBandHighlightChange,
 	defaultHiddenSeries,
 	animation,
 	children,
@@ -133,8 +128,16 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	onPointerUp,
 	onDatumActivate,
 } ) => {
+	if ( ! withTooltips && ( withBandHighlight || onBandHighlightChange ) ) {
+		warnOnce(
+			'bar-chart-band-highlight-without-tooltips',
+			'BarChart: withBandHighlight and onBandHighlightChange require withTooltips.'
+		);
+	}
+
 	const legendInteractive = legend.interactive ?? false;
 	const legendCollapseGroups = legend.collapseGroups ?? false;
+	const legendComparisonItem = legend.comparisonItem ?? false;
 	const horizontal = orientation === 'horizontal';
 	const chartId = useChartId( providedChartId );
 	const hiddenSeries = useDefaultHiddenSeries( chartId, defaultHiddenSeries );
@@ -155,8 +158,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	// Create legend items using the reusable hook
 	const legendOptions = useMemo(
-		() => ( { collapseGroups: legendCollapseGroups } ),
-		[ legendCollapseGroups ]
+		() => ( { collapseGroups: legendCollapseGroups, comparisonItem: legendComparisonItem } ),
+		[ legendCollapseGroups, legendComparisonItem ]
 	);
 	const legendItems = useChartLegendItems( dataSorted, legendOptions );
 
@@ -170,12 +173,24 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ isSeriesVisible ]
 	);
 
+	const hasWholeNumberValues = useMemo(
+		() => hasOnlyWholeNumbers( dataSorted.filter( isSeriesRendered ) ),
+		[ dataSorted, isSeriesRendered ]
+	);
+
 	const chartOptions = useBarChartOptions(
 		dataWithVisibleZeros,
 		horizontal,
 		options,
 		isSeriesRendered
 	);
+	const valueAxis = horizontal ? chartOptions.axis.x : chartOptions.axis.y;
+	const callerValueDomain = horizontal ? options.xScale?.domain : options.yScale?.domain;
+	const wholeNumberTicksProps = {
+		axis: horizontal ? ( 'x' as const ) : ( 'y' as const ),
+		numTicks: valueAxis.numTicks,
+		enabled: hasWholeNumberValues && ! valueAxis.tickValues && ! callerValueDomain,
+	};
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const chartRef = useRef< HTMLDivElement >( null );
 
@@ -192,13 +207,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 	const [ isNavigating, setIsNavigating ] = useState( false );
-
-	// Comparison series have no .visx-bar elements; count only primary series so
-	// keyboard navigation doesn't cycle phantom indices into comparison-only slots.
-	const primarySeriesForNav = dataWithVisibleZeros.filter( s => s.options?.type !== 'comparison' );
-	const totalPoints =
-		Math.max( 0, ...primarySeriesForNav.map( s => s.data?.length || 0 ) ) *
-		primarySeriesForNav.length;
 
 	// Add visibility information from the shared legend state.
 	const seriesWithVisibility = useMemo(
@@ -224,6 +232,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			),
 		[ seriesWithVisibility ]
 	);
+
+	const totalPoints =
+		Math.max( 0, ...primaryEntries.map( e => e.series.data.length ) ) * primaryEntries.length;
 
 	const primaryKeys = useMemo(
 		() => primaryEntries.map( ( { series } ) => series.label ),
@@ -259,6 +270,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ primaryEntries, onDatumActivate ]
 	);
 
+	const visibleSeriesKey = useMemo( () => JSON.stringify( primaryKeys ), [ primaryKeys ] );
+
 	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
 		selectedIndex,
 		setSelectedIndex,
@@ -267,6 +280,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		chartRef,
 		totalPoints,
 		onActivate: activateSelectedBar,
+		visibleSeriesKey,
 	} );
 
 	const comparisonEntries = useMemo( () => {
@@ -342,10 +356,10 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	}, [ comparisonEntries.length, chartOptions.xScale, chartOptions.yScale, horizontal ] );
 
 	const getBarBackground = useCallback(
-		( index: number ) => () =>
+		( index: number ) => ( datum: DataPointDate ) =>
 			withPatterns
 				? `url(#${ getPatternId( chartId, index ) })`
-				: getElementStyles( { data: dataSorted[ index ], index } ).color,
+				: ( datum.color ?? getElementStyles( { data: dataSorted[ index ], index } ).color ),
 		[ withPatterns, getElementStyles, dataSorted, chartId ]
 	);
 
@@ -383,14 +397,14 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 			// With a paired comparison value, show the category as the header and one row
 			// per period (primary + comparison).
-			if ( comparisonEntry && comparisonDatum && comparisonDatum.value != null ) {
+			if ( comparisonEntry && comparisonDatum ) {
 				return (
 					<div className={ styles[ 'bar-chart__tooltip' ] }>
 						<div className={ styles[ 'bar-chart__tooltip-header' ] }>{ categoryLabel }</div>
-						{ renderTooltipRow( primaryKey, formatNumber( nearestDatum.value as number ) ) }
+						{ renderTooltipRow( primaryKey, formatReading( nearestDatum.value ) ) }
 						{ renderTooltipRow(
 							comparisonEntry.series.label,
-							formatNumber( comparisonDatum.value as number )
+							formatReading( comparisonDatum.value )
 						) }
 					</div>
 				);
@@ -399,7 +413,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			return (
 				<div className={ styles[ 'bar-chart__tooltip' ] }>
 					<div className={ styles[ 'bar-chart__tooltip-header' ] }>{ primaryKey }</div>
-					{ renderTooltipRow( categoryLabel, formatNumber( nearestDatum.value as number ) ) }
+					{ renderTooltipRow( categoryLabel, formatReading( nearestDatum.value ) ) }
 				</div>
 			);
 		},
@@ -461,34 +475,33 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const createKeyboardHighlightStyle = useCallback( () => {
 		if ( selectedIndex === undefined ) return '';
 
-		// Use only primary entries — comparison series have no .visx-bar elements so
+		// Use only primary entries: comparison series have no .visx-bar elements, so
 		// their indices must not appear in the nth-child selector.
 		// Pattern: [series1[0], series2[0], series3[0], series1[1], series2[1], series3[1], ...]
 		const primaryCount = primaryEntries.length;
-		const maxDataPoints = Math.max( ...primaryEntries.map( e => e.series.data.length ) );
+		if ( ! primaryCount ) {
+			return '';
+		}
 		const dataPointIndex = Math.floor( selectedIndex / primaryCount );
 		const seriesIndex = selectedIndex % primaryCount;
-
-		// Only highlight if we're within valid bounds
-		if ( dataPointIndex >= maxDataPoints || seriesIndex >= primaryCount ) {
-			return '';
-		}
-
 		const seriesData = primaryEntries[ seriesIndex ]?.series;
-		if ( ! seriesData || dataPointIndex >= seriesData.data.length ) {
+		const datum = seriesData?.data[ dataPointIndex ];
+
+		if ( ! seriesData || ! datum || ! isBarRendered( datum ) ) {
 			return '';
 		}
 
-		// Based on the DOM structure analysis:
-		// - All bars are in a single .visx-bar-group
-		// - Bars are ordered as: [series1[0], series1[1], series2[0], series2[1], ...]
-		// - So we need to calculate the actual bar index in the DOM
-		const actualBarIndex = seriesIndex * maxDataPoints + dataPointIndex;
+		// The single .visx-bar-group holds series after series, and only the points visx drew a bar for.
+		const domBarIndex =
+			primaryEntries
+				.slice( 0, seriesIndex )
+				.reduce( ( count, { series } ) => count + countRenderedBars( series.data ), 0 ) +
+			countRenderedBars( seriesData.data.slice( 0, dataPointIndex ) );
 
 		// Use a CSS class selector instead of ID since useId() generates invalid CSS ID characters
 		const generatedStyles = `
 			.bar-chart[data-chart-id="bar-chart-${ chartId }"] .visx-bar-group .visx-bar:nth-child(${
-				actualBarIndex + 1
+				domBarIndex + 1
 			}) {
 				stroke: #005fcc;
 				stroke-width: 2px;
@@ -581,6 +594,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					return (
 						<div
 							role="grid"
+							ref={ chartRef }
 							aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
 							tabIndex={ 0 }
 							onKeyDown={ onChartKeyDown }
@@ -588,7 +602,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 							onBlur={ onChartBlur }
 						>
 							{ chartHeight > 0 && (
-								<div ref={ chartRef } className={ plotStyles[ 'xy-plot' ] }>
+								<div className={ plotStyles[ 'xy-plot' ] }>
 									<XYChart
 										theme={ theme }
 										width={ width }
@@ -600,16 +614,44 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										xScale={ xScale }
 										yScale={ yScale }
 										horizontal={ horizontal }
-										onPointerDown={ onPointerDown }
-										onPointerUp={ onPointerUp }
 										pointerEventsDataKey="nearest"
 									>
-										{ ! allSeriesHidden && (
-											<Grid
-												columns={ gridVisibility.includes( 'y' ) }
-												rows={ gridVisibility.includes( 'x' ) }
-												numTicks={ 4 }
+										{ withTooltips && ( withBandHighlight || onBandHighlightChange ) && (
+											<BandHighlight
+												visible={ withBandHighlight }
+												horizontal={ horizontal }
+												onChange={ onBandHighlightChange }
 											/>
+										) }
+
+										{ ! allSeriesHidden && (
+											<WholeNumberTicks { ...wholeNumberTicksProps }>
+												{ valueTicks => (
+													<>
+														{ /* Visx forwards tickValues to its grid primitives but omits it from GridProps. */ }
+														<Grid
+															columns={ gridVisibility.includes( 'y' ) }
+															rows={ false }
+															numTicks={ chartOptions.axis.x.numTicks }
+															{ ...{
+																tickValues:
+																	( horizontal ? valueTicks : undefined ) ??
+																	chartOptions.axis.x.tickValues,
+															} }
+														/>
+														<Grid
+															columns={ false }
+															rows={ gridVisibility.includes( 'x' ) }
+															numTicks={ chartOptions.axis.y.numTicks }
+															{ ...{
+																tickValues:
+																	( horizontal ? undefined : valueTicks ) ??
+																	chartOptions.axis.y.tickValues,
+															} }
+														/>
+													</>
+												) }
+											</WholeNumberTicks>
 										) }
 
 										{ withPatterns && (
@@ -633,7 +675,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											</>
 										) }
 
-										{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
+										{ highlightedBarStyle && (
+											<style data-testid="bar-chart-keyboard-highlight">
+												{ highlightedBarStyle }
+											</style>
+										) }
 
 										{ allSeriesHidden ? (
 											<SvgEmptyState
@@ -661,31 +707,74 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											resolveFill={ resolveComparisonFill }
 										/>
 
-										<BarGroup padding={ groupPadding }>
-											{ primaryEntries.map( ( { series: seriesData, index } ) => (
-												<BarSeries
-													key={ seriesData?.label }
-													dataKey={ seriesData?.label }
-													data={ seriesData.data as DataPointDate[] }
-													yAccessor={ chartOptions.accessors.yAccessor }
-													xAccessor={ chartOptions.accessors.xAccessor }
-													colorAccessor={ getBarBackground( index ) }
-												/>
-											) ) }
-										</BarGroup>
+										{ barClassName ? (
+											<g className="visx-bar-group">
+												{ primaryEntries.map( ( { series: seriesData, index } ) => (
+													<ClassifiedBarSeries
+														key={ seriesData.label }
+														dataKey={ seriesData.label }
+														data={ seriesData.data as DataPointDate[] }
+														xAccessor={ chartOptions.accessors.xAccessor }
+														yAccessor={ chartOptions.accessors.yAccessor }
+														colorAccessor={ getBarBackground( index ) }
+														barClassName={ barClassName }
+														primaryKeys={ primaryKeys }
+														groupPadding={ groupPadding }
+													/>
+												) ) }
+											</g>
+										) : (
+											<BarGroup padding={ groupPadding }>
+												{ primaryEntries.map( ( { series: seriesData, index } ) => (
+													<BarSeries
+														key={ seriesData?.label }
+														dataKey={ seriesData?.label }
+														data={ seriesData.data as DataPointDate[] }
+														yAccessor={ chartOptions.accessors.yAccessor }
+														xAccessor={ chartOptions.accessors.xAccessor }
+														colorAccessor={ getBarBackground( index ) }
+													/>
+												) ) }
+											</BarGroup>
+										) }
+										{ /* Do not reorder: for one key the last showTooltip wins, so this must run after the primary series. */ }
+										{ ( withTooltips || onPointerDown || onPointerUp ) && (
+											<BandTooltip
+												keys={ primaryKeys }
+												groupPadding={ groupPadding }
+												withTooltips={ withTooltips }
+												onPointerDown={ onPointerDown }
+												onPointerUp={ onPointerUp }
+											/>
+										) }
 
 										{ /* With every series hidden there is no data to build the value scale from, so
 										     visx collapses the domain and the axes render squished at the top. Drop them
 										     while the empty state stands in. */ }
 										{ ! allSeriesHidden && (
-											<>
-												<Axis { ...chartOptions.axis.x } />
-												<Axis { ...chartOptions.axis.y } />
-											</>
+											<WholeNumberTicks { ...wholeNumberTicksProps }>
+												{ valueTicks => (
+													<>
+														<Axis
+															{ ...chartOptions.axis.x }
+															{ ...( horizontal && valueTicks ? { tickValues: valueTicks } : {} ) }
+														/>
+														<Axis
+															{ ...chartOptions.axis.y }
+															{ ...( ! horizontal && valueTicks
+																? { tickValues: valueTicks }
+																: {} ) }
+														/>
+													</>
+												) }
+											</WholeNumberTicks>
 										) }
 
 										{ withTooltips && (
 											<AccessibleTooltip
+												tooltipPlacement={ tooltipPlacement }
+												tooltipAnchorTop={ tooltipAnchorTop }
+												style={ tooltipStyle }
 												detectBounds
 												snapTooltipToDatumX
 												snapTooltipToDatumY

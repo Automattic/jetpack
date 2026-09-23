@@ -1,11 +1,86 @@
 import analytics from '@automattic/jetpack-analytics';
-import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
-import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
+import { getSiteData, isSimpleSite, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { createInterpolateElement, useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { arrowLeft, arrowRight } from '@wordpress/icons';
 import { IconButton, Link, LinkButton, Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
+
+// Set by the Write editor when someone leaves it for the Block editor, in both
+// localStorage and a cookie of this name. The two packages ship independently,
+// so the name is all they share.
+// See projects/packages/jetpack-mu-wpcom/src/features/write/view.js.
+const BLOCK_EDITOR_PREFERRED_KEY = 'wpcom-write-block-editor-preferred';
+
+// The exact cookie Write writes, so a re-armed one is indistinguishable from it.
+const BLOCK_EDITOR_PREFERRED_COOKIE = `${ BLOCK_EDITOR_PREFERRED_KEY }=1`;
+const BLOCK_EDITOR_PREFERRED_MAX_AGE = 400 * 24 * 60 * 60;
+
+/**
+ * Whether the opt-out cookie holds the value Write writes.
+ *
+ * @return {boolean} True if the cookie is set to 1.
+ */
+const hasOptOutCookie = () => {
+	try {
+		return document.cookie
+			.split( ';' )
+			.some( pair => pair.trim() === BLOCK_EDITOR_PREFERRED_COOKIE );
+	} catch {
+		return false;
+	}
+};
+
+/**
+ * Whether localStorage holds the opt-out.
+ *
+ * @return {boolean} True if the key is set to 1.
+ */
+const hasOptOutStorage = () => {
+	try {
+		return window.localStorage.getItem( BLOCK_EDITOR_PREFERRED_KEY ) === '1';
+	} catch {
+		return false;
+	}
+};
+
+/**
+ * Rewrite the opt-out cookie from the localStorage copy.
+ *
+ * Safari drops a script-set cookie after seven days, and Write is its only
+ * other writer — which someone who has opted out no longer opens. Without this
+ * the server-side divert in write.php could never come back.
+ */
+const rearmOptOutCookie = () => {
+	try {
+		document.cookie = `${ BLOCK_EDITOR_PREFERRED_COOKIE }; path=/; max-age=${ BLOCK_EDITOR_PREFERRED_MAX_AGE }; SameSite=Lax${
+			window.location.protocol === 'https:' ? '; Secure' : ''
+		}`;
+	} catch {
+		// No-op: this widget still hides Write, from localStorage.
+	}
+};
+
+/**
+ * Whether this browser has opted out of the Write editor.
+ *
+ * Either store counts; view.js explains why Write writes two. Storage we cannot
+ * read counts as no opt-out, so a visitor still gets the editor the site would
+ * otherwise offer.
+ *
+ * @return {boolean} True if Write should no longer be offered here.
+ */
+const prefersBlockEditor = () => {
+	if ( hasOptOutCookie() ) {
+		return true;
+	}
+	if ( ! hasOptOutStorage() ) {
+		return false;
+	}
+	rearmOptOutCookie();
+	return true;
+};
 
 /**
  * The writing prompt view: one prompt at a time, with controls to browse the
@@ -22,14 +97,18 @@ import { addQueryArgs } from '@wordpress/url';
 const PromptPanel = ( { prompts, siteType, readerUrl, openReaderInNewTab, onReaderClick } ) => {
 	const [ index, setIndex ] = useState( 0 );
 
+	// Read once on mount: changing either half means navigating away from here.
+	const usesWriteEditor = useMemo( () => isWpcomPlatformSite() && ! prefersBlockEditor(), [] );
+
 	const goToPrevious = useCallback( () => setIndex( current => current - 1 ), [] );
 	const goToNext = useCallback( () => setIndex( current => current + 1 ), [] );
 	const recordPostAnswerClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_newsletter_writing_prompt_post_answer_click', {
 			site_type: siteType,
 			prompt_id: prompts[ index ].id,
+			editor: usesWriteEditor ? 'write' : 'block',
 		} );
-	}, [ prompts, index, siteType ] );
+	}, [ prompts, index, siteType, usesWriteEditor ] );
 	const recordViewResponsesClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_newsletter_writing_prompt_view_responses_click', {
 			site_type: siteType,
@@ -62,20 +141,32 @@ const PromptPanel = ( { prompts, siteType, readerUrl, openReaderInNewTab, onRead
 	}
 
 	const prompt = prompts[ index ];
+	const blogId = getSiteData()?.wpcom?.blog_id;
 
 	// "Post your answer" opens the Write editor on WordPress.com-platform sites
-	// (Simple/Atomic, where Write exists); on self-hosted it falls back to the
-	// classic new-post screen, where the jetpack/blogging-prompt block editor
-	// script seeds the same prompt.
-	const postAnswerHref = isWpcomPlatformSite()
-		? addQueryArgs( 'admin.php', {
-				page: 'write',
-				answer_prompt: prompt.id,
-				// Separates prompt answers from the rest of the dashboard in
-				// the Write funnel; without it they report as `dashboard`.
-				source: 'writing_prompt',
-		  } )
-		: addQueryArgs( 'post-new.php', { answer_prompt: prompt.id } );
+	// (Simple/Atomic, where Write exists) unless this browser has already left
+	// Write for the Block editor.
+	//
+	// Opted out, the destination depends on where post-new.php can seed the
+	// prompt. The block that carries it is inserted by the Jetpack plugin's
+	// editor script, so Atomic and self-hosted land there directly, while
+	// Simple — which does not run that plugin — would get the prompt's tags and
+	// an empty editor. Send Simple to Calypso instead, the same place its own
+	// blogging-prompt card points at.
+	let postAnswerHref = addQueryArgs( 'post-new.php', { answer_prompt: prompt.id } );
+	if ( usesWriteEditor ) {
+		postAnswerHref = addQueryArgs( 'admin.php', {
+			page: 'write',
+			answer_prompt: prompt.id,
+			// Separates prompt answers from the rest of the dashboard in
+			// the Write funnel; without it they report as `dashboard`.
+			source: 'writing_prompt',
+		} );
+	} else if ( isSimpleSite() && blogId ) {
+		postAnswerHref = addQueryArgs( `https://wordpress.com/post/${ blogId }`, {
+			answer_prompt: prompt.id,
+		} );
+	}
 
 	return (
 		<Stack direction="column" gap="md">

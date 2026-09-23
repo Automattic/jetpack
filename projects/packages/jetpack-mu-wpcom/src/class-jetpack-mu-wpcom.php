@@ -25,14 +25,29 @@ class Jetpack_Mu_Wpcom {
 	// Gutenberg plugin releases known to break with React 19.
 	const REACT_19_INCOMPATIBLE_GUTENBERG = array( '23.9.0' );
 
-	// Themes (by template slug) and plugins (by basename) known to break with React 19.
-	const REACT_19_INCOMPATIBLE_THEMES  = array( 'divi', 'woodmart' );
+	/*
+	 * Themes (by template slug) and plugins (by basename) known to break with React 19,
+	 * each mapped to the release that fixed it. Null means no fixed release exists yet.
+	 */
+	const REACT_19_INCOMPATIBLE_THEMES  = array(
+		'divi'     => null,
+		'woodmart' => '8.6.1',
+	);
 	const REACT_19_INCOMPATIBLE_PLUGINS = array(
-		'wp-table-builder/wp-table-builder.php',
-		'ultimate-blocks/ultimate-blocks.php',
-		'beehive-analytics/beehive-analytics.php',
-		'xspeed/xspeed.php',
-		'classified-listing/classified-listing.php',
+		'wp-table-builder/wp-table-builder.php'          => null,
+		'ultimate-blocks/ultimate-blocks.php'            => '3.6.0',
+		'beehive-analytics/beehive-analytics.php'        => null,
+		'xspeed/xspeed.php'                              => null,
+		'classified-listing/classified-listing.php'      => null,
+		'advanced-coupons-for-woocommerce-free/advanced-coupons-for-woocommerce-free.php' => null,
+		'advanced-coupons-for-woocommerce/advanced-coupons-for-woocommerce.php' => null,
+		'sb-analytics/sb-analytics-pro.php'              => null,
+		'brave-popup-builder/index.php'                  => null,
+		'bravepopup-pro/index.php'                       => null,
+		'astra-sites/astra-sites.php'                    => null,
+		'llms-full-txt-generator/llms-txt-generator.php' => null,
+		'wp-post-author/aft-wp-post-author.php'          => null,
+		'adminify/adminify.php'                          => null,
 	);
 
 	/**
@@ -91,10 +106,14 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_newspack_blocks' ) );
 
+		// At mu-plugin scope, because Comments::is_enabled() is resolved at plugins_loaded on both hosts.
+		add_filter( 'jetpack_comments_new_hotness', array( __CLASS__, 'enable_jetpack_comments_for_sticker' ) );
+
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_jetpack_ai' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_jetpack_comments_routes' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			// Registered at mu-plugin scope rather than on plugins_loaded, because
@@ -113,6 +132,9 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );
 			add_action( 'init', array( __CLASS__, 'schedule_translation_updates' ) );
 		}
+
+		// Premium Analytics offers the Ads tab wherever the plan includes WordAds, on Simple and Atomic.
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_premium_analytics_wordads_section' ) );
 
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
@@ -382,6 +404,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
 		require_once __DIR__ . '/features/wpcom-post-list/wpcom-post-types-tracking.php';
+		require_once __DIR__ . '/features/wpcom-unified-admin-page-view/wpcom-unified-admin-page-view.php';
 		require_once __DIR__ . '/features/wpcom-widgets/wpcom-widgets.php';
 		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
 
@@ -414,6 +437,14 @@ class Jetpack_Mu_Wpcom {
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\AI_Launchpad::init();
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Holiday_Snow::init();
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Dashboard::init();
+
+		// The front-end Action Bar lives in the jetpack-newsletter package, which mu-wpcom does not
+		// composer-require; the class comes from the sibling Jetpack autoloader. Not in
+		// load_wpcom_user_features(): logged-out visitors are the bar's main audience.
+		if ( class_exists( '\Automattic\Jetpack\Newsletter\Action_Bar' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			\Automattic\Jetpack\Newsletter\Action_Bar::init();
+		}
 
 		// Gets autoloaded from the Scheduled_Updates package.
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
@@ -822,6 +853,38 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Register Jetpack Comments' browser-facing routes ahead of the comment
+	 * experience gates. admin-ajax is is_admin(), and a public-api request runs
+	 * plugins_loaded on the wrong blog, so load_verbum_comments() skips both.
+	 * Runs on every request, blog 1 and P2s included, on purpose: the routes
+	 * gate themselves on the feature filter, as Posts_To_Podcast_Endpoint does.
+	 */
+	public static function load_jetpack_comments_routes() {
+		if ( class_exists( '\Automattic\Jetpack\Comments\Checkpoint_Endpoint' ) ) {
+			\Automattic\Jetpack\Comments\Checkpoint_Endpoint::init();
+		}
+	}
+
+	/**
+	 * Turn on the rebuilt Jetpack Comments form for a Simple or Atomic site
+	 * carrying the rollout sticker.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $enabled Whether it is already on.
+	 * @return bool
+	 */
+	public static function enable_jetpack_comments_for_sticker( $enabled ) {
+		if ( $enabled ) {
+			return true;
+		}
+
+		$blog_id = (int) get_wpcom_blog_id();
+
+		return $blog_id > 0 && wpcom_has_blog_sticker( 'comment-new-hotness', $blog_id );
+	}
+
+	/**
 	 * Load Verbum Comments Settings.
 	 */
 	public static function load_verbum_comments_admin() {
@@ -920,6 +983,18 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Register the Ads tab of the Premium Analytics dashboard by plan feature.
+	 *
+	 * Hooks the dashboard's registry action, which only fires once the package boots, so this
+	 * is inert on a site without the dashboard.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function load_premium_analytics_wordads_section() {
+		require_once __DIR__ . '/features/premium-analytics/wordads-section.php';
+	}
+
+	/**
 	 * Load the Jetpack Custom CSS feature.
 	 */
 	public static function load_custom_css() {
@@ -990,7 +1065,7 @@ class Jetpack_Mu_Wpcom {
 			} elseif ( self::has_react_19_incompatible_extension() ) {
 				$is_enabled = false;
 			} else {
-				$current_segment = 20; // Segment of Atomic sites in the experiment, in %.
+				$current_segment = 40; // Segment of Atomic sites in the experiment, in %.
 				$site_segment    = $site_id % 100;
 
 				/*
@@ -1105,17 +1180,45 @@ class Jetpack_Mu_Wpcom {
 			return true;
 		}
 
-		if ( in_array( strtolower( get_template() ), self::REACT_19_INCOMPATIBLE_THEMES, true ) ) {
-			return true;
+		$template = strtolower( get_template() );
+		if ( array_key_exists( $template, self::REACT_19_INCOMPATIBLE_THEMES ) ) {
+			$theme_version = (string) wp_get_theme( get_template() )->get( 'Version' );
+
+			if ( self::is_react_19_incompatible_version( $theme_version, self::REACT_19_INCOMPATIBLE_THEMES[ $template ] ) ) {
+				return true;
+			}
 		}
 
-		foreach ( self::REACT_19_INCOMPATIBLE_PLUGINS as $plugin_file ) {
-			if ( is_plugin_active( $plugin_file ) ) {
+		foreach ( self::REACT_19_INCOMPATIBLE_PLUGINS as $plugin_file => $fixed_in ) {
+			if ( ! is_plugin_active( $plugin_file ) ) {
+				continue;
+			}
+
+			$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_file, false, false );
+
+			if ( self::is_react_19_incompatible_version( (string) $plugin_data['Version'], $fixed_in ) ) {
 				return true;
 			}
 		}
 
 		return false;
+	}
+
+	/**
+	 * Whether an installed version predates the release that fixed its React 19 incompatibility.
+	 *
+	 * An unreadable version counts as incompatible, so a missing header can't opt a site in.
+	 *
+	 * @param string      $version  The installed version.
+	 * @param string|null $fixed_in The release that fixed the incompatibility, or null if there is none.
+	 * @return bool
+	 */
+	private static function is_react_19_incompatible_version( $version, $fixed_in ) {
+		if ( null === $fixed_in || '' === $version ) {
+			return true;
+		}
+
+		return version_compare( $version, $fixed_in, '<' );
 	}
 
 	/**

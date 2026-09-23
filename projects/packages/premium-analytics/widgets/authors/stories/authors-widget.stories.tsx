@@ -121,8 +121,7 @@ export const Empty: Story = {
 };
 
 interface AuthorsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		AuthorsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, AuthorsStoryControls {}
 
 function AuthorsDashboardStory( { withComparison, ...dashboardArgs }: AuthorsDashboardStoryProps ) {
 	return (

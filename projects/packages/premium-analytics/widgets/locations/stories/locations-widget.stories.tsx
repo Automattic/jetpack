@@ -31,8 +31,7 @@ interface LocationsStoryControls {
 }
 
 interface LocationsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		LocationsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, LocationsStoryControls {}
 
 function getLocationsAttributes( {
 	withComparison,

@@ -395,7 +395,7 @@ class Write_Post_Publish_Survey_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_survey_blog_id_is_never_the_local_blog_id() {
 		$this->assertSame( 1, get_current_blog_id(), 'Fixture expects the local blog ID to be 1.' );
-		$this->assertSame( 0, wpcom_write_survey_blog_id() );
+		$this->assertSame( 0, wpcom_write_wpcom_blog_id() );
 	}
 
 	/**
@@ -403,7 +403,7 @@ class Write_Post_Publish_Survey_Test extends \WorDBless\BaseTestCase {
 	 * response is dropped rather than filed under whatever ID happens to be handy.
 	 */
 	public function test_store_is_refused_without_a_wpcom_blog_id() {
-		$this->assertSame( 0, wpcom_write_survey_blog_id() );
+		$this->assertSame( 0, wpcom_write_wpcom_blog_id() );
 		$this->assertFalse( wpcom_write_store_survey_response( array( 'experience' => 'easier' ) ) );
 	}
 

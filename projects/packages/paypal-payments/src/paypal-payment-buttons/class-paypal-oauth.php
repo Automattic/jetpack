@@ -71,6 +71,20 @@ class PayPal_OAuth {
 	const PRODUCTION_BASE_URL = 'https://api.paypal.com';
 
 	/**
+	 * PayPal sandbox JavaScript SDK URL.
+	 *
+	 * @var string
+	 */
+	const SANDBOX_SDK_URL = 'https://www.sandbox.paypal.com/sdk/js';
+
+	/**
+	 * PayPal production JavaScript SDK URL.
+	 *
+	 * @var string
+	 */
+	const PRODUCTION_SDK_URL = 'https://www.paypal.com/sdk/js';
+
+	/**
 	 * OAuth token endpoint path.
 	 *
 	 * @var string
@@ -132,6 +146,17 @@ class PayPal_OAuth {
 		return 'production' === self::get_environment()
 			? self::PRODUCTION_BASE_URL
 			: self::SANDBOX_BASE_URL;
+	}
+
+	/**
+	 * Get the PayPal JavaScript SDK URL for the current environment.
+	 *
+	 * @return string The SDK URL, before its query string.
+	 */
+	public static function get_sdk_base_url() {
+		return 'production' === self::get_environment()
+			? self::PRODUCTION_SDK_URL
+			: self::SANDBOX_SDK_URL;
 	}
 
 	/**
@@ -595,6 +620,7 @@ class PayPal_OAuth {
 	 *     @type string $environment                 Current environment ('sandbox' or 'production').
 	 *     @type string $onboarding_method           How the merchant connected, when that is known.
 	 *     @type string $merchant_id                 The merchant's PayPal ID, when that is known.
+	 *     @type string $account_email               The merchant's PayPal email, when that is known.
 	 *     @type bool   $partner_referrals_available Whether this site can start onboarding through WordPress.com.
 	 * }
 	 */
@@ -613,6 +639,12 @@ class PayPal_OAuth {
 		$merchant_id = get_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, '' );
 		if ( ! empty( $merchant_id ) ) {
 			$status['merchant_id'] = $merchant_id;
+		}
+
+		// Partner Referrals merchants only; the account menu shows it under Log out.
+		$account_email = get_option( PayPal_Partner_Onboarding::MERCHANT_EMAIL_OPTION_KEY, '' );
+		if ( ! empty( $account_email ) ) {
+			$status['account_email'] = $account_email;
 		}
 
 		// Partner Referrals goes through WordPress.com: on WordPress.com the call is

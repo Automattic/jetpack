@@ -134,7 +134,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 										__( 'View regions in %s', 'jetpack-premium-analytics-pkg' ),
 										location.countryFull
 									),
-							  }
+								}
 							: { kind: 'static' },
 				} ),
 				currentValue: location.value,

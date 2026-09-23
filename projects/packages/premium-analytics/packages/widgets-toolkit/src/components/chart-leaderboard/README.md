@@ -149,16 +149,19 @@ detail route instead of the post one. Same constraints: no media, never a chart 
 action: { kind: 'videoLink', id: 9, search: { from: '2026-03-01', to: '2026-03-10' } },
 ```
 
-Inside a widget, use `LeaderboardPostLabel` instead of building a post action by hand. It reads
-the report window from `WidgetRootContext` and passes it as `search`, so the detail page opens on
-the range the row was read against:
+Inside a widget, use `LeaderboardPostLabel` instead of building a post action by hand. It reads the report window from `WidgetRootContext` and names the report the detail breadcrumb returns to:
 
 ```tsx
-<LeaderboardPostLabel id={ row.postId } label={ row.label } link={ row.link } />
+<LeaderboardPostLabel
+	id={ row.postId }
+	label={ row.label }
+	link={ row.link }
+	origin={ { report: 'posts', section: 'posts-pages' } }
+/>
 ```
 
 Pass `section` to `LeaderboardPostLabel` to open a named tab on the detail page, such as
-`email-opens`.
+`email-opens`. That destination tab is distinct from `origin.section`, which becomes `ref_section`.
 
 There is no `LeaderboardVideoLabel`, so a widget building a `videoLink` action takes that same
 window from `useWidgetNavigationSearch()` and passes it as `search`.
@@ -175,7 +178,7 @@ fallback, and default alt-text policy:
 | `icon`      | 20 × 20px | No image; takes a glyph          |
 | `none`      | No media  | Renders text only                |
 
-`icon` takes a `@wordpress/icons` glyph rather than a URL: `media: { kind: 'icon', icon: category }`.
+`icon` takes a `@wordpress/icons` glyph rather than a URL and draws it in the muted neutral color: `media: { kind: 'icon', icon: category }`.
 
 Use `resolveLeaderboardRowAction` when raw data can contain both an external URL and children.
 It applies the shared precedence: drill-down for rows with children, external links for

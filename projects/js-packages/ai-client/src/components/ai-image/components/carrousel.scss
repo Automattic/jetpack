@@ -85,10 +85,10 @@ $scale-factor: 0.55;
 					}
 
 					&-icon {
-						fill: #fff;
+						color: #fff;
 
 						&.is-disabled {
-							fill: #808080;
+							color: #808080;
 						}
 					}
 				}
@@ -128,7 +128,7 @@ $scale-factor: 0.55;
 					&-icon {
 
 						&.is-disabled {
-							fill: #808080;
+							color: #808080;
 						}
 					}
 				}

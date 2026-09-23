@@ -2,21 +2,22 @@
  * External dependencies
  */
 import { useStatsWordAdsEarnings } from '@jetpack-premium-analytics/data';
+import { Badge, Stack } from '@jetpack-premium-analytics/externals';
 import {
-	EARNINGS_HISTORY_VIEW,
-	WidgetDataTable,
+	EarningsHistoryList,
+	ReportLink,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	flattenEarningsBreakdown,
-	getWordAdsHistoryFields,
-	type EarningsHistoryRow,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import styles from './style.module.css';
 import type { WordAdsEarningsHistoryAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
@@ -25,11 +26,9 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type RenderAttributes = WordAdsEarningsHistoryAttributes & Partial< ReportParamsFieldAttributes >;
 type WordAdsEarningsHistoryProps = WidgetRenderProps< RenderAttributes >;
 
-const getRowId = ( item: EarningsHistoryRow ) => item.id;
-
 /**
  * Fetches WordAds earnings and renders the `wordads` breakdown as a history
- * table. The earnings module is not period-scoped, so nothing is read from
+ * list. The earnings module is not period-scoped, so nothing is read from
  * report params. Ported from the `earningsTable()` helper on the Jetpack Stats
  * WordAds page (wp-calypso client/my-sites/stats/wordads/earnings.jsx).
  */
@@ -37,32 +36,71 @@ function WordAdsEarningsHistoryReport() {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsWordAdsEarnings();
 
 	const rows = useMemo( () => flattenEarningsBreakdown( data?.wordads ), [ data ] );
-	const fields = useMemo( () => getWordAdsHistoryFields(), [] );
+	// Adjustments are why the all-time balance can differ from the WordAds rows,
+	// and the report is their only home now; most sites have none.
+	const adjustmentCount = Object.keys( data?.adjustment ?? {} ).length;
 
 	return (
-		<WidgetState
-			isLoading={ isLoading }
-			isFetching={ isFetching }
-			isError={ isError }
-			isEmpty={ rows.length === 0 }
-			error={ {
-				description: __(
-					"We couldn't load WordAds earnings. Please try again in a moment.",
-					'jetpack-premium-analytics-pkg'
-				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-			} }
-			empty={ {
-				description: __( 'No earnings history to show yet.', 'jetpack-premium-analytics-pkg' ),
-			} }
-		>
-			<WidgetDataTable< EarningsHistoryRow >
-				data={ rows }
-				fields={ fields }
-				getItemId={ getRowId }
-				initialView={ EARNINGS_HISTORY_VIEW }
-			/>
-		</WidgetState>
+		<Stack className={ styles.root }>
+			<div className={ styles.content }>
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					isError={ isError }
+					isEmpty={ rows.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load WordAds earnings. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						),
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
+					} }
+					empty={ {
+						description: __( 'No earnings history to show yet.', 'jetpack-premium-analytics-pkg' ),
+					} }
+				>
+					<EarningsHistoryList rows={ rows } />
+				</WidgetState>
+			</div>
+			<WidgetFooter>
+				<ReportLink
+					report="earnings"
+					ariaLabel={ __( 'View all earnings history', 'jetpack-premium-analytics-pkg' ) }
+				/>
+				{ /* Second in the footer: View all keeps its place, this takes the far end. */ }
+				{ adjustmentCount > 0 && (
+					<ReportLink
+						report="earnings"
+						section="adjustments"
+						ariaLabel={ sprintf(
+							/* translators: %d: number of adjustment rows in the site's earnings history. */
+							_n(
+								'%d adjustment, view adjustments history',
+								'%d adjustments, view adjustments history',
+								adjustmentCount,
+								'jetpack-premium-analytics-pkg'
+							),
+							adjustmentCount
+						) }
+					>
+						<Badge intent="high">
+							{ sprintf(
+								/* translators: %d: number of adjustment rows in the site's earnings history. */
+								_n(
+									'%d adjustment',
+									'%d adjustments',
+									adjustmentCount,
+									'jetpack-premium-analytics-pkg'
+								),
+								adjustmentCount
+							) }
+						</Badge>
+					</ReportLink>
+				) }
+			</WidgetFooter>
+		</Stack>
 	);
 }
 
