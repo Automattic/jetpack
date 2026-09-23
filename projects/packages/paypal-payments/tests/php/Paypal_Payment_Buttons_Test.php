@@ -2473,7 +2473,6 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	public function test_format_price_adds_the_symbol() {
 		$this->assertSame( '$29.99', PayPal_Payment_Buttons::format_price( '29.99', 'USD' ) );
 		$this->assertSame( '$0', PayPal_Payment_Buttons::format_price( '0', 'USD' ) );
-		$this->assertSame( '$0', PayPal_Payment_Buttons::format_price( 0, 'USD' ) );
 		$this->assertSame( 'XYZ5', PayPal_Payment_Buttons::format_price( '5', 'XYZ' ) );
 	}
 

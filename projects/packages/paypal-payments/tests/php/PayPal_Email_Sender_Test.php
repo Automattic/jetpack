@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\PaypalPayments;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -27,6 +29,9 @@ class PayPal_Email_Sender_Test extends TestCase {
 
 	/**
 	 * HTTP status of the last ajax response.
+	 *
+	 * WordPress sends it only before any output, and PHPUnit 9 prints before the
+	 * tests, so tests that check it run in a separate process.
 	 *
 	 * @var int|null
 	 */
@@ -246,7 +251,12 @@ class PayPal_Email_Sender_Test extends TestCase {
 
 	/**
 	 * Test handle_send passes on PayPal's 404 and skips the email.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_handle_send_fails_with_404_when_paypal_returns_404() {
 		$mail = $this->capture_mail();
 		$this->set_up_connected_state();
@@ -286,7 +296,12 @@ class PayPal_Email_Sender_Test extends TestCase {
 
 	/**
 	 * Test handle_send returns 500 while PayPal is disconnected.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_handle_send_fails_with_500_while_paypal_is_disconnected() {
 		$mail     = $this->capture_mail();
 		$requests = $this->count_http_requests();
@@ -302,7 +317,12 @@ class PayPal_Email_Sender_Test extends TestCase {
 
 	/**
 	 * Test handle_send returns 503 on a network error.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_handle_send_fails_with_503_on_a_network_error() {
 		$mail = $this->capture_mail();
 		// Cache the final error directly, since a real network error retries with sleeps.
@@ -323,10 +343,14 @@ class PayPal_Email_Sender_Test extends TestCase {
 	 * Test handle_send rejects a malformed resource ID before the rate limit or any PayPal request.
 	 *
 	 * @dataProvider provide_malformed_resource_ids
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 *
 	 * @param string $resource_id A malformed resource ID.
 	 */
 	#[DataProvider( 'provide_malformed_resource_ids' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_handle_send_rejects_a_malformed_resource_id( $resource_id ) {
 		$mail     = $this->capture_mail();
 		$requests = $this->count_http_requests();
@@ -374,7 +398,12 @@ class PayPal_Email_Sender_Test extends TestCase {
 
 	/**
 	 * Test handle_send rejects a link without a price.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_handle_send_requires_a_price() {
 		$mail     = $this->capture_mail();
 		$resource = $this->get_per_option_resource();
@@ -394,7 +423,12 @@ class PayPal_Email_Sender_Test extends TestCase {
 
 	/**
 	 * Test handle_send rejects a resource without a payment link.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_handle_send_requires_a_payment_link() {
 		$mail     = $this->capture_mail();
 		$resource = $this->get_product_price_resource();
