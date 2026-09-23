@@ -90,7 +90,6 @@ describe( 'EarningsReportPage', () => {
 		expect( screen.getByText( 'September 2026' ) ).toBeInTheDocument();
 		expect( screen.getByText( '1,414,489' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Unpaid' ) ).toBeInTheDocument();
-		expect( screen.getByText( /Ads Served is the number of ads/ ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders a dash rather than zero when a row has no Ads Served count', () => {
@@ -148,7 +147,6 @@ describe( 'EarningsReportPage', () => {
 			screen.getByRole( 'heading', { name: 'Adjustments history report' } )
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'columnheader', { name: /Ads Served/ } ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( /Ads Served is the number of ads/ ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'June 2026' ) ).toBeInTheDocument();
 		expect( screen.getByText( '-$50.00' ) ).toBeInTheDocument();
 	} );

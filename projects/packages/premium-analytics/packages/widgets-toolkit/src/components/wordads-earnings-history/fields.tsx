@@ -222,7 +222,8 @@ export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 			// Searches and sorts the raw `YYYY-MM`, which keeps the order chronological.
 			// A query therefore matches a year or `2026-09`, not the "September 2026" on screen.
 			enableGlobalSearch: true,
-			render: ( { item } ) => <>{ formatEarningsPeriod( item.period ) }</>,
+			// The row's label, bold as in the design; the widget list formats its own.
+			render: ( { item } ) => <strong>{ formatEarningsPeriod( item.period ) }</strong>,
 		},
 		{
 			id: 'amount',

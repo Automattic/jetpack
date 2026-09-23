@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { Text } from '@jetpack-premium-analytics/externals';
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
@@ -32,7 +31,6 @@ import {
 	resolveSection,
 	useEarningsReportRecords,
 } from './config';
-import styles from './page.module.css';
 
 const ROUTE_FROM = route.path;
 
@@ -152,25 +150,15 @@ function EarningsReport(): JSX.Element {
 						onRetry={ retry }
 					/>
 				) : (
-					<>
-						{ showAdsServed && (
-							<Text className={ styles.note } variant="body-md" render={ <p /> }>
-								{ __(
-									'Ads Served is the number of ads we attempted to display (page impressions × available ad slots). Not every ad served results in a paid impression.',
-									'jetpack-premium-analytics-pkg'
-								) }
-							</Text>
-						) }
-						<ReportRecordsTable< EarningsHistoryRow >
-							key={ tab }
-							data={ records.rows }
-							fields={ fields }
-							getItemId={ getEarningsRowId }
-							isLoading={ records.isLoading }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search earnings history', 'jetpack-premium-analytics-pkg' ) }
-						/>
-					</>
+					<ReportRecordsTable< EarningsHistoryRow >
+						key={ tab }
+						data={ records.rows }
+						fields={ fields }
+						getItemId={ getEarningsRowId }
+						isLoading={ records.isLoading }
+						initialView={ RECORDS_VIEW }
+						searchLabel={ __( 'Search earnings history', 'jetpack-premium-analytics-pkg' ) }
+					/>
 				) }
 			</ReportPageLayout>
 		</ReportPageShell>
