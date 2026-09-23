@@ -476,3 +476,61 @@ export const HostTimeZoneDatesDayStrings: Story = {
 		await expect( await losAngeles.findByText( 'Aug 2' ) ).toBeInTheDocument();
 	},
 };
+
+// wp-admin's own accent set, from `WP_ADMIN_COLOR_SCHEMES`' `--wp-admin-theme-color` values.
+const WP_ADMIN_ACCENTS = [ '#3858e9', '#04a4cc', '#a3b745', '#e14d43', '#9ebaa0', '#dd823b' ];
+
+const generatedPaletteData: DataPointPercentage[] = [
+	{ label: 'Organic search', value: 32 },
+	{ label: 'Direct', value: 24 },
+	{ label: 'Social', value: 18 },
+	{ label: 'Referral', value: 12 },
+	{ label: 'Email', value: 9 },
+	{ label: 'Other', value: 5 },
+];
+
+const generatedPaletteAccentClassName = ( accent: string ) =>
+	`generated-palette-accent-${ accent.replace( '#', '' ) }`;
+
+/**
+ * Each block seeds only `--a8c-charts-color-series-1` with a wp-admin accent, scoped to its own
+ * wrapper with `.<class> .a8c-charts-scope { ... }` the way the "Practical Example" in this
+ * page's docs does: `:where(.a8c-charts-scope)` in `chart-scope.scss` has zero specificity, so a
+ * bare `.a8c-charts-scope` rule (or an ancestor-qualified one, here) always outranks it.
+ */
+export const GeneratedPalette: Story = {
+	render: () => (
+		<div
+			style={ {
+				display: 'grid',
+				gridTemplateColumns: 'repeat(3, 260px)',
+				gap: '3rem',
+			} }
+		>
+			{ WP_ADMIN_ACCENTS.map( accent => {
+				const className = generatedPaletteAccentClassName( accent );
+				return (
+					<div key={ accent } className={ className }>
+						<style>
+							{ `.${ className } .a8c-charts-scope { --a8c-charts-color-series-1: ${ accent }; }` }
+						</style>
+						<p style={ { margin: '0 0 8px', textAlign: 'center', fontFamily: 'monospace' } }>
+							{ accent }
+						</p>
+						<GlobalChartsProvider>
+							<PieChart width={ 260 } height={ 260 } data={ generatedPaletteData } showLabels />
+						</GlobalChartsProvider>
+					</div>
+				);
+			} ) }
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Six slices per accent, with only the first palette slot seeded. The remaining five slice colors are generated to stay perceptually separable from the seed and from each other, including under simulated color vision deficiency, and pie labels pick dark or light text per slice contrast.',
+			},
+		},
+	},
+};
