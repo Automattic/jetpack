@@ -118,7 +118,7 @@ class JITM {
 	}
 
 	/**
-	 * Clears admin notices from the current screen, keeping Jetpack's own.
+	 * Clears admin notices from the current screen, keeping JITMs.
 	 *
 	 * A screen that opted out through `jetpack_display_jitms_on_screen` has nothing
 	 * to keep, so it stays silent.
