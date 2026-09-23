@@ -12,6 +12,83 @@ $feature-icon-foreground: #0ced57;
 	padding-block-end: var(--wpds-dimension-padding-3xl);
 }
 
+// The dark-green banner the AI Hub uses, rebuilt here: My Jetpack is a package
+// and cannot import the Jetpack plugin's own shell. Colours are literal there
+// too, because neither page is wrapped in Jetpack's ThemeProvider.
+.banner {
+	align-items: flex-start;
+	background: $feature-icon-background;
+	border-radius: var(--wpds-border-radius-lg);
+	box-sizing: border-box;
+	display: flex;
+	// Keeps the orbs' stacking inside the banner, away from the sticky toolbar.
+	isolation: isolate;
+	margin-block-end: var(--wpds-dimension-gap-sm);
+	overflow: hidden;
+	padding: var(--wpds-dimension-padding-3xl);
+	position: relative;
+}
+
+.banner__content {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+	max-inline-size: 32.5rem;
+	position: relative;
+	z-index: 1;
+}
+
+// Two classes, for the weight: My Jetpack styles every h2 inside the tab
+// wrapper, which a single class of ours loses to.
+.banner .banner__title {
+	color: #daffdc;
+	font-size: 24px;
+	font-weight: 500;
+	line-height: 40px;
+	margin: 0;
+}
+
+.banner .banner__description {
+	color: #daffdc;
+	font-size: 13px;
+	line-height: 20px;
+	margin: 0;
+}
+
+.banner__close {
+	color: #fff !important;
+	inset-block-start: var(--wpds-dimension-padding-sm);
+	inset-inline-end: var(--wpds-dimension-padding-sm);
+	position: absolute;
+	z-index: 1;
+
+	&:hover {
+		color: #daffdc !important;
+	}
+}
+
+.banner__orb {
+	background: linear-gradient(to right, #04c, #48ff50);
+	block-size: 180px;
+	border-radius: 50%;
+	inline-size: 180px;
+	// Shared by both orbs, so the glow and the sphere share a vertical axis.
+	inset-inline-end: 56px;
+	pointer-events: none;
+	position: absolute;
+}
+
+.banner__orb--top {
+	filter: blur(25px);
+	inset-block-start: -96px;
+}
+
+// Deeper than the AI Hub's -96px: this banner is half the height, so the same
+// offset left most of the sphere showing as a hard edge rather than a glow.
+.banner__orb--bottom {
+	inset-block-end: -140px;
+}
+
 .feature-grid {
 	display: grid;
 	gap: var(--wpds-dimension-gap-lg);
