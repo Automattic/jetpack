@@ -818,9 +818,14 @@ class PayPal_Payment_Buttons {
 	 *
 	 * @param string $price    The price value.
 	 * @param string $currency The ISO currency code.
-	 * @return string Formatted price string (e.g., "$29.99").
+	 * @return string Formatted price string (e.g., "$29.99"), or '' for a blank price.
 	 */
 	public static function format_price( $price, $currency ) {
+		// A blank price gets no bare symbol. Compared to '' so a price of 0 still shows.
+		if ( '' === trim( (string) $price ) ) {
+			return '';
+		}
+
 		$symbol = self::$currency_symbols[ $currency ] ?? $currency;
 		return $symbol . $price;
 	}
@@ -837,25 +842,18 @@ class PayPal_Payment_Buttons {
 	 * @return string The formatted price, or '' when there is none.
 	 */
 	public static function link_price( array $attributes ) {
-		$price            = $attributes['price'] ?? '';
-		$currency         = $attributes['currencyCode'] ?? 'USD';
-		$variants_enabled = ! empty( $attributes['variantsEnabled'] );
-		$variants         = $attributes['variants'] ?? null;
+		$price    = self::product_price( $attributes );
+		$currency = $attributes['currencyCode'] ?? 'USD';
 
-		// PayPal drops the product-level amount once the options have their own
-		// prices, but the block keeps whatever the merchant typed. Ignore it.
-		if ( $variants_enabled && PayPal_Attribute_Mapper::variants_have_pricing( $variants ) ) {
-			$price = '';
-		}
-
-		// PayPal accepts a price of 0, so the empty test is '' — empty() drops it.
-		// Trimmed, as the editor preview does.
-		$price = trim( (string) $price );
 		if ( '' !== $price ) {
 			return self::format_price( $price, $currency );
 		}
 
-		$lowest = $variants_enabled ? self::get_lowest_variant_price( $variants ) : null;
+		if ( empty( $attributes['variantsEnabled'] ) ) {
+			return '';
+		}
+
+		$lowest = self::get_lowest_variant_price( $attributes['variants'] ?? null );
 		if ( null === $lowest ) {
 			return '';
 		}
@@ -865,6 +863,29 @@ class PayPal_Payment_Buttons {
 			__( 'From %s', 'jetpack-paypal-payments' ),
 			self::format_price( $lowest, $currency )
 		);
+	}
+
+	/**
+	 * The product-level price, trimmed.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $attributes The link's block attributes.
+	 * @return string The price, or '' when the options carry the prices.
+	 */
+	private static function product_price( array $attributes ) {
+		$variants_enabled = ! empty( $attributes['variantsEnabled'] );
+		$variants         = $attributes['variants'] ?? null;
+
+		// PayPal drops the product-level amount once the options have their own
+		// prices, but the block keeps whatever the merchant typed. Ignore it.
+		if ( $variants_enabled && PayPal_Attribute_Mapper::variants_have_pricing( $variants ) ) {
+			return '';
+		}
+
+		// PayPal accepts a price of 0, so the empty test is '' — empty() drops it.
+		// Trimmed, as the editor preview does.
+		return trim( (string) ( $attributes['price'] ?? '' ) );
 	}
 
 	/**
@@ -891,7 +912,6 @@ class PayPal_Payment_Buttons {
 		$resource_id         = $attributes['resourceId'] ?? '';
 		$payment_url         = $attributes['paymentLink'] ?? '';
 		$product_name        = trim( (string) ( $attributes['productName'] ?? '' ) );
-		$price               = $attributes['price'] ?? '';
 		$currency            = $attributes['currencyCode'] ?? 'USD';
 		$product_description = trim( (string) ( $attributes['productDescription'] ?? '' ) );
 		$image_url           = $attributes['imageUrl'] ?? '';
@@ -1053,11 +1073,7 @@ class PayPal_Payment_Buttons {
 
 		// The option list below hides an option price that repeats the product
 		// price, so it needs the same product price the headline uses.
-		if ( $variants_enabled && PayPal_Attribute_Mapper::variants_have_pricing( $variants ) ) {
-			$price = '';
-		}
-		$price = trim( (string) $price );
-
+		$price          = self::product_price( $attributes );
 		$headline_price = self::link_price( $attributes );
 		$price_html     = '';
 		if ( '' !== $headline_price ) {

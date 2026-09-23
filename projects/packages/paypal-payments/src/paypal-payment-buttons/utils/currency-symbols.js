@@ -67,9 +67,14 @@ export function getPricePlaceholder( currencyCode ) {
  *
  * @param {string} priceValue   - The price value string.
  * @param {string} currencyCode - The ISO currency code.
- * @return {string} Formatted price string.
+ * @return {string} Formatted price string, or an empty string for a blank price.
  */
 export function formatPrice( priceValue, currencyCode ) {
+	// A blank price gets no bare symbol. Compared to '' so a price of 0 still shows.
+	if ( `${ priceValue ?? '' }`.trim() === '' ) {
+		return '';
+	}
+
 	const symbol = CURRENCY_SYMBOLS[ currencyCode ] || currencyCode;
 	return `${ symbol }${ priceValue }`;
 }

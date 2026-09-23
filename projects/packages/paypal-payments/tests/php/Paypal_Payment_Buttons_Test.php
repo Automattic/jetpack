@@ -2465,6 +2465,43 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertSame( 3, substr_count( $result, 'jetpack-paypal-button__variant-price' ) );
 	}
 
+	// --- format_price ---
+
+	/**
+	 * Test that format_price puts the symbol before the price, including 0.
+	 */
+	public function test_format_price_adds_the_symbol() {
+		$this->assertSame( '$29.99', PayPal_Payment_Buttons::format_price( '29.99', 'USD' ) );
+		$this->assertSame( '$0', PayPal_Payment_Buttons::format_price( '0', 'USD' ) );
+		$this->assertSame( '$0', PayPal_Payment_Buttons::format_price( 0, 'USD' ) );
+		$this->assertSame( 'XYZ5', PayPal_Payment_Buttons::format_price( '5', 'XYZ' ) );
+	}
+
+	/**
+	 * Test that format_price returns '' for a blank price, not a bare symbol.
+	 *
+	 * @dataProvider provide_blank_prices
+	 *
+	 * @param mixed $price A blank price.
+	 */
+	#[DataProvider( 'provide_blank_prices' )]
+	public function test_format_price_is_empty_for_a_blank_price( $price ) {
+		$this->assertSame( '', PayPal_Payment_Buttons::format_price( $price, 'USD' ) );
+	}
+
+	/**
+	 * Blank prices.
+	 *
+	 * @return array<string, array{0: mixed}>
+	 */
+	public static function provide_blank_prices() {
+		return array(
+			'empty'      => array( '' ),
+			'whitespace' => array( '  ' ),
+			'null'       => array( null ),
+		);
+	}
+
 	// --- link_price ---
 
 	/**
