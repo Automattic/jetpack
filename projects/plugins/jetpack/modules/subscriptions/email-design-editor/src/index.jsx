@@ -14,12 +14,14 @@ import { ExperimentalEmailEditor } from '@woocommerce/email-editor';
 import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps } from '@wordpress/block-editor';
 import { getBlockType, registerBlockType } from '@wordpress/blocks';
-import { Disabled, Notice } from '@wordpress/components';
+import { Button, Disabled, Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
-import { dispatch, select } from '@wordpress/data';
+import { dispatch, select, subscribe } from '@wordpress/data';
+import { PluginDocumentSettingPanel } from '@wordpress/editor';
 import { createRoot, RawHTML, StrictMode } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { registerPlugin } from '@wordpress/plugins';
 import { addQueryArgs } from '@wordpress/url';
 
 // Declared by the Jetpack plugin on every platform, answered by WordPress.com, so
@@ -40,6 +42,39 @@ const BLOCK_EDITOR_STORE = 'core/block-editor';
 
 // A save arrives as any of these, depending on whether core-data creates or updates.
 const WRITE_METHODS = [ 'POST', 'PUT', 'PATCH' ];
+
+// Addressed by name for a second reason as well: WordPress registers no `wp-interface` script, so
+// importing the package would add a dependency nothing answers and the bundle would never enqueue.
+const INTERFACE_STORE = 'core/interface';
+
+// Every sidebar on this screen, ours and core's, shares core's scope.
+const SIDEBAR_SCOPE = 'core';
+
+// `@woocommerce/email-editor` renders the Styles panel as a `PluginSidebar` outside any
+// `PluginArea`, so the plugin name the interface store keys it under is literally `null`.
+// Re-check on a package bump, alongside the private-API note in the screen's PHP.
+const STYLES_SIDEBAR = 'null/email-styles-sidebar';
+
+// The panel's own container, which `ComplementaryArea` ids after the identifier.
+const STYLES_SIDEBAR_ID = STYLES_SIDEBAR.replace( '/', ':' );
+
+// Frames to wait for a panel React has not committed yet — far more than the one or two it takes,
+// and bounded so a panel that never arrives stops the search rather than polling forever.
+const FOCUS_ATTEMPTS = 10;
+
+// The package renders a `PluginArea` under this scope, which is where our own fills land.
+const PLUGIN_SCOPE = 'woocommerce-email-editor';
+
+// The Template tab's styles row. Core keys an editor panel by plugin and panel name together.
+const PLUGIN_NAME = 'jetpack-email-design';
+const STYLES_PANEL_NAME = 'email-styles';
+const STYLES_PANEL = `${ PLUGIN_NAME }/${ STYLES_PANEL_NAME }`;
+
+// Ours rather than core's, so the one-time expansion below is remembered without standing in for
+// the creator's own answer about whether that row is open.
+const PREFERENCE_SCOPE = 'jetpack/email-design';
+const EDITOR_STORE = 'core/editor';
+const PREFERENCES_STORE = 'core/preferences';
 
 /**
  * Check that a URL the editor will navigate to is one the browser can navigate to.
@@ -441,6 +476,183 @@ export function lockCanvasEditing() {
 }
 
 /**
+ * Show the Styles panel, the only part of this screen that changes anything.
+ *
+ * @return {void}
+ */
+export function openStylesSidebar() {
+	// `dispatch()` answers null for a store the registry does not hold.
+	dispatch( INTERFACE_STORE )?.enableComplementaryArea( SIDEBAR_SCOPE, STYLES_SIDEBAR );
+}
+
+/**
+ * Whether the package will register a Styles panel for this creator at all.
+ *
+ * It renders its sidebar only for someone who may edit global styles — the same `can_edit` the
+ * preloaded `Allow` header is built from. Opening it for anyone else swaps core's Settings sidebar
+ * for an identifier nothing fills, and the sidebar collapses to an empty region.
+ *
+ * @param {object} bundle - The response from the bootstrap route.
+ * @return {boolean} True when there is a panel to open.
+ */
+export function canEditDesign( bundle ) {
+	return !! bundle?.global_styles?.can_edit;
+}
+
+/**
+ * Move focus into the Styles panel once it is on screen.
+ *
+ * Whatever opened it sat in the sidebar it replaces, so that element is already gone and focus has
+ * fallen back to the document. Without this a creator on a keyboard resumes at the top of the page
+ * with no sign the panel opened.
+ *
+ * @param {number} attempts - Frames left to wait for the panel to render.
+ * @return {void}
+ */
+export function focusStylesSidebar( attempts = FOCUS_ATTEMPTS ) {
+	const panel = document.getElementById( STYLES_SIDEBAR_ID );
+
+	if ( panel ) {
+		// A plain div takes focus only once it is allowed to hold it.
+		panel.tabIndex = -1;
+		panel.focus();
+		return;
+	}
+
+	if ( attempts > 0 ) {
+		window.requestAnimationFrame( () => focusStylesSidebar( attempts - 1 ) );
+	}
+}
+
+/**
+ * Open the Styles panel for a creator who has not closed the sidebar.
+ *
+ * Core's own Settings sidebar is active by default, so it claims the sidebar on load and offers
+ * Template and Blocks — two tabs that `lockCanvasEditing()` has emptied.
+ *
+ * Whether the sidebar shows at all is the one piece of this that persists between visits, so a
+ * creator who closed it is left alone. Which panel was showing is not persisted by anyone.
+ *
+ * @return {Function} Stops watching, for a caller that unmounts the editor.
+ */
+export function openStylesSidebarOnLoad() {
+	const interfaceSelect = select( INTERFACE_STORE );
+
+	if ( ! interfaceSelect ) {
+		return () => {};
+	}
+
+	const unsubscribe = subscribe( () => {
+		const active = interfaceSelect.getActiveComplementaryArea( SIDEBAR_SCOPE );
+
+		// Undefined until something chooses. Null once the sidebar is closed — by core on a phone,
+		// or by the creator on a previous visit, which is the one state worth leaving alone.
+		if ( undefined === active ) {
+			return;
+		}
+
+		if ( null === active ) {
+			stopWatching();
+		} else if ( STYLES_SIDEBAR !== active ) {
+			openStylesSidebar();
+		}
+	} );
+
+	/**
+	 * Stop asserting our choice.
+	 *
+	 * @return {void}
+	 */
+	function stopWatching() {
+		unsubscribe();
+		window.removeEventListener( 'pointerdown', stopWatching, true );
+		window.removeEventListener( 'keydown', stopWatching, true );
+	}
+
+	// Asserted until the creator touches the editor chrome rather than once, because core's
+	// Settings sidebar claims the scope more than once while the editor mounts — twice more under
+	// a development build of React, which runs mount effects again. Capturing, so a creator who
+	// opens Template themselves gets it: this runs before the click that does so. The canvas is an
+	// iframe, so its own events never arrive and the watch can outlast the editor settling.
+	window.addEventListener( 'pointerdown', stopWatching, true );
+	window.addEventListener( 'keydown', stopWatching, true );
+
+	return stopWatching;
+}
+
+/**
+ * Open the Styles panel and take the creator with it.
+ *
+ * @return {void}
+ */
+export function showStylesSidebar() {
+	openStylesSidebar();
+	focusStylesSidebar();
+}
+
+/**
+ * A labelled way into the Styles panel, for a creator who closed it.
+ *
+ * The panel's own affordance is an unlabelled icon in the top right, and the Template tab this
+ * lands in has nothing else to offer while block editing is off. See NL-948.
+ *
+ * @return {import('react').ReactElement} The panel.
+ */
+function StylesPanelLink() {
+	return (
+		<PluginDocumentSettingPanel
+			name={ STYLES_PANEL_NAME }
+			title={ __( 'Email styles', 'jetpack' ) }
+		>
+			<Button variant="secondary" onClick={ showStylesSidebar }>
+				{ __( 'Edit email styles', 'jetpack' ) }
+			</Button>
+		</PluginDocumentSettingPanel>
+	);
+}
+
+/**
+ * Show that row open the first time a creator reaches this screen.
+ *
+ * `PluginDocumentSettingPanel` is the only slot that renders in the Template tab, and it is a
+ * disclosure that starts closed — which would leave the way into Styles a click further away than
+ * the icon it exists to make findable. Done once, so a creator who collapses it keeps it collapsed.
+ *
+ * @return {void}
+ */
+export function expandStylesPanelOnce() {
+	// Declining rather than throwing into the mount's catch, for `lockCanvasEditing()`'s reason:
+	// a disclosure that opens itself is not worth replacing the screen with an error over.
+	const preferences = dispatch( PREFERENCES_STORE );
+	const preferenceValues = select( PREFERENCES_STORE );
+	const editor = dispatch( EDITOR_STORE );
+	const editorPanels = select( EDITOR_STORE );
+
+	if ( ! preferences || ! preferenceValues || ! editor || ! editorPanels ) {
+		return;
+	}
+
+	if ( preferenceValues.get( PREFERENCE_SCOPE, 'expandedStylesPanel' ) ) {
+		return;
+	}
+
+	preferences.set( PREFERENCE_SCOPE, 'expandedStylesPanel', true );
+
+	if ( ! editorPanels.isEditorPanelOpened( STYLES_PANEL ) ) {
+		editor.toggleEditorPanelOpened( STYLES_PANEL );
+	}
+}
+
+/**
+ * Register the fills the editor renders through its own plugin area.
+ *
+ * @return {void}
+ */
+export function registerEditorPlugin() {
+	registerPlugin( PLUGIN_NAME, { scope: PLUGIN_SCOPE, render: StylesPanelLink } );
+}
+
+/**
  * Catch the Styles panel's save and send it to WordPress.com instead.
  *
  * The editor writes a core-data `globalStyles` entity, but the design is stored in a WordPress.com
@@ -582,6 +794,7 @@ export async function mountEmailDesignEditor() {
 	}
 
 	const root = createRoot( container );
+	let stopWatchingSidebar = null;
 
 	try {
 		const bundle = await apiFetch( {
@@ -599,6 +812,12 @@ export async function mountEmailDesignEditor() {
 		lockCanvasEditing();
 		reportInactiveEmailDesign( bundle );
 
+		// Everything that leads to the Styles panel, only for a creator the package will give one.
+		if ( canEditDesign( bundle ) ) {
+			registerEditorPlugin();
+			expandStylesPanelOnce();
+		}
+
 		const postId = getTemplateId( bundle );
 		const preload = buildPreloadMap( bundle, postId );
 
@@ -614,6 +833,12 @@ export async function mountEmailDesignEditor() {
 			apiFetch.use( apiFetch.createPreloadingMiddleware( preload ) );
 		}
 
+		// Last, so nothing above it can throw and leave a watcher asserting a sidebar over an
+		// error screen.
+		if ( canEditDesign( bundle ) ) {
+			stopWatchingSidebar = openStylesSidebarOnLoad();
+		}
+
 		root.render(
 			<StrictMode>
 				<ExperimentalEmailEditor
@@ -624,6 +849,8 @@ export async function mountEmailDesignEditor() {
 			</StrictMode>
 		);
 	} catch ( error ) {
+		stopWatchingSidebar?.();
+
 		// The notice deliberately does not name which half failed; this does.
 		// eslint-disable-next-line no-console
 		console.error( 'Jetpack email design editor:', error );
