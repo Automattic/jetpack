@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import IconTooltip from '../index.tsx';
@@ -104,6 +105,54 @@ describe( 'IconTooltip', () => {
 		expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Before' } ) ).toHaveFocus();
 		restoreLayout();
+	} );
+
+	describe( 'with a text trigger', () => {
+		const triggerProps: IconTooltipProps = {
+			...testProps,
+			popoverAnchorStyle: 'wrapper',
+			trigger: 'See an example',
+		};
+
+		it( 'toggles on clicks and reports each one', async () => {
+			const user = userEvent.setup();
+			const onTriggerClick = jest.fn();
+			render( <IconTooltip { ...triggerProps } onTriggerClick={ onTriggerClick } /> );
+			const trigger = screen.getByRole( 'button', { name: 'See an example' } );
+			await user.click( trigger );
+			expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
+			expect( trigger ).toHaveAttribute( 'aria-expanded', 'true' );
+			await user.click( trigger );
+			expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
+			expect( onTriggerClick ).toHaveBeenCalledTimes( 2 );
+		} );
+
+		it.each( [ true, false ] )(
+			'closes with Escape and refocuses the trigger (inline: %s)',
+			async inline => {
+				const user = userEvent.setup();
+				render( <IconTooltip { ...triggerProps } inline={ inline } /> );
+				const trigger = screen.getByRole( 'button', { name: 'See an example' } );
+				await user.tab();
+				await user.keyboard( '{Enter}' );
+				expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
+				await user.keyboard( '{Escape}' );
+				expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
+				expect( trigger ).toHaveFocus();
+				expect( trigger ).toHaveAttribute( 'aria-expanded', 'false' );
+			}
+		);
+
+		it( 'stays open while the trigger is held and closes on release', async () => {
+			const user = userEvent.setup();
+			render( <IconTooltip { ...triggerProps } inline={ false } /> );
+			const trigger = screen.getByRole( 'button', { name: 'See an example' } );
+			await user.click( trigger );
+			await user.pointer( { keys: '[MouseLeft>]', target: trigger } );
+			expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
+			await user.pointer( { keys: '[/MouseLeft]', target: trigger } );
+			expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
+		} );
 	} );
 
 	it( 'renders the icon tooltip', () => {

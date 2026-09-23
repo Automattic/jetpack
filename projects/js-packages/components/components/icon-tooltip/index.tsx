@@ -48,6 +48,8 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	title,
 	children,
 	popoverAnchorStyle = 'icon',
+	trigger,
+	onTriggerClick,
 	forceShow = false,
 	hoverShow = false,
 	wide = false,
@@ -68,10 +70,11 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	const toggleTooltip = useCallback(
 		e => {
 			e.preventDefault();
+			onTriggerClick?.();
 			openedByHover.current = false;
 			setIsVisible( ! isVisible );
 		},
-		[ isVisible, setIsVisible ]
+		[ isVisible, setIsVisible, onTriggerClick ]
 	);
 
 	const isAnchorWrapper = popoverAnchorStyle === 'wrapper';
@@ -139,7 +142,11 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		shift,
 	} satisfies Omit< React.ComponentProps< typeof Popover >, 'children' >;
 
-	const wrapperClassNames = clsx( 'icon-tooltip-wrapper', className );
+	const wrapperClassNames = clsx(
+		'icon-tooltip-wrapper',
+		{ 'has-text-trigger': trigger !== undefined },
+		className
+	);
 	const iconShiftBySize = {
 		left: isAnchorWrapper ? 0 : -( POPOVER_HELPER_WIDTH / 2 - iconSize / 2 ) + 'px',
 	};
@@ -182,7 +189,17 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 			onMouseEnter={ handleMouseEnter }
 			onMouseLeave={ handleMouseLeave }
 		>
-			{ ! isAnchorWrapper && (
+			{ trigger !== undefined && (
+				<button
+					type="button"
+					className="icon-tooltip-trigger"
+					aria-expanded={ isVisible }
+					onClick={ toggleTooltip }
+				>
+					{ trigger }
+				</button>
+			) }
+			{ trigger === undefined && ! isAnchorWrapper && (
 				<Button variant="link" aria-expanded={ isVisible } onClick={ toggleTooltip }>
 					<Icon className={ iconClassName } icon={ iconCode } size={ iconSize } />
 				</Button>

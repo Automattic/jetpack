@@ -79,6 +79,27 @@ $arrow-color: var(--jp-gray);
 	}
 }
 
+// A text trigger reads as part of the sentence around it.
+.icon-tooltip-wrapper.has-text-trigger {
+	color: inherit;
+}
+
+.icon-tooltip-trigger {
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	text-decoration: underline;
+	cursor: pointer;
+
+	// Anchor the popover below the text rather than over it.
+	+ .icon-tooltip-helper {
+		top: 100%;
+		height: 0;
+	}
+}
+
 .icon-tooltip-container {
 	// Recover events
 	pointer-events: all;
