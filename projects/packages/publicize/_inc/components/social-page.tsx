@@ -1,4 +1,5 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { currentUserCan, getSiteData } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -89,12 +90,6 @@ export default function SocialPage( {
 
 	const content = (
 		<div className="jetpack-social-page__content jetpack-social-page__content--padded">
-			{ /* The JITM script moves its card here, since the page template hides the default spot. */ }
-			<div
-				id="jp-admin-notices"
-				className={ `jetpack-social-jitm-card jetpack-social-jitm-card--${ activeTab }` }
-				data-testid="jetpack-social-jitm-card"
-			/>
 			{ children }
 		</div>
 	);
@@ -108,6 +103,7 @@ export default function SocialPage( {
 				subTitle={ SUBTITLES[ activeTab ]() }
 				actions={ headerActions }
 			>
+				<JitmSlot className="jetpack-social-jitm-card" />
 				<SocialGate gate={ gate } onDismissPricing={ dismissPricing }>
 					{ showTabs ? (
 						<Tabs.Root
