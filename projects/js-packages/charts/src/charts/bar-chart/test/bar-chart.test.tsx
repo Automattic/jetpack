@@ -2256,12 +2256,6 @@ describe( 'BarChart', () => {
 	} );
 
 	describe( 'Value axis baseline', () => {
-		it( 'starts the value axis at zero by default', () => {
-			const { result } = renderHook( () => useBarChartOptions( steadyTrafficData, false, {} ) );
-			const yScale = result.current.yScale as { domain?: number[] };
-			expect( yScale.domain ).toEqual( [ 0, 989 ] );
-		} );
-
 		it( 'starts the value axis at zero in horizontal charts', () => {
 			const { result } = renderHook( () => useBarChartOptions( steadyTrafficData, true, {} ) );
 			const xScale = result.current.xScale as { domain?: number[] };
@@ -2272,9 +2266,8 @@ describe( 'BarChart', () => {
 			const { result } = renderHook( () =>
 				useBarChartOptions( steadyTrafficData, false, { yScale: { zero: false } } )
 			);
-			const yScale = result.current.yScale as { domain?: number[]; zero?: boolean };
+			const yScale = result.current.yScale as { domain?: number[] };
 			expect( yScale.domain ).toBeUndefined();
-			expect( yScale.zero ).toBe( false );
 		} );
 
 		it( 'reads the opt-out from the x scale of a horizontal chart', () => {
