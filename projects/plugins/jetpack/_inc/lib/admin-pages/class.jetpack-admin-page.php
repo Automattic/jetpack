@@ -297,9 +297,9 @@ abstract class Jetpack_Admin_Page {
 				<div class="jp-masthead__inside-container">
 					<div class="jp-masthead__title-container">
 						<?php if ( $my_jetpack_available ) : ?>
-							<a class="jp-masthead__logo-link" href="<?php echo esc_url( $my_jetpack_url ); ?>"><?php echo $jetpack_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></a>
+							<a class="jp-masthead__logo-link" href="<?php echo esc_url( $my_jetpack_url ); ?>"><?php echo $jetpack_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG built above. ?></a>
 						<?php else : ?>
-							<span class="jp-masthead__logo-link"><?php echo $jetpack_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+							<span class="jp-masthead__logo-link"><?php echo $jetpack_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG built above. ?></span>
 						<?php endif; ?>
 						<h2 class="jp-masthead__title">
 							<?php
