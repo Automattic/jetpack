@@ -66,7 +66,7 @@ describe( 'FeatureList with the shared selection', () => {
 	} );
 
 	it( 'offers no checkbox for a module a host forced on or off', async () => {
-		render( <FeatureList states={ [ akismet, forcedStats ] } onOpen={ jest.fn() } /> );
+		render( <SelectionHarness states={ [ akismet, forcedStats ] } /> );
 
 		expect( screen.queryByRole( 'checkbox', { name: 'Select stats' } ) ).not.toBeInTheDocument();
 
@@ -79,7 +79,7 @@ describe( 'FeatureList with the shared selection', () => {
 		const forcedBoost = pluginState( 'boost', 'active', {
 			control: { kind: 'plugin', plugin: 'boost', override: 'active' },
 		} );
-		render( <FeatureList states={ [ akismet, forcedBoost ] } onOpen={ jest.fn() } /> );
+		render( <SelectionHarness states={ [ akismet, forcedBoost ] } /> );
 
 		expect( screen.queryByRole( 'checkbox', { name: 'Select boost' } ) ).not.toBeInTheDocument();
 
