@@ -264,11 +264,12 @@ const PieChartInternal = ( {
 	}, [ withTooltips, hideTooltip ] );
 
 	const { getElementStyles, isSeriesVisible, isColorPaletteResolved } = useGlobalChartsContext();
+	const { isValid, message } = validateData( data );
 
-	// Skipped entirely when labels are off, so a tooltip-only donut doesn't pay for this on
-	// every mouse move. Re-resolves when `className` changes and when the palette resolves.
+	// Skipped when labels are off, or before the chart's own root element mounts (the invalid-data
+	// branch renders a plain div, so `rootRef` is not yet attached).
 	useLayoutEffect( () => {
-		if ( ! showLabels ) {
+		if ( ! showLabels || ! rootRef.current ) {
 			return;
 		}
 
@@ -285,7 +286,7 @@ const PieChartInternal = ( {
 				resolveCssVariable
 			),
 		} );
-	}, [ showLabels, className, isColorPaletteResolved ] );
+	}, [ showLabels, className, isColorPaletteResolved, isValid ] );
 
 	// Calculate percentages from values (single source of truth)
 	const dataWithPercentages = useDataWithPercentages( data );
@@ -305,8 +306,6 @@ const PieChartInternal = ( {
 
 	// Create legend items using legendData (has recalculated percentages for visible items)
 	const legendItems = useChartLegendItems( legendData, legendOptions );
-
-	const { isValid, message } = validateData( data );
 
 	// Process children to extract compound components
 	const { svgChildren, htmlChildren, legendChildren, otherChildren } = useChartChildren(
@@ -386,7 +385,6 @@ const PieChartInternal = ( {
 				legendChildren={ legendChildren }
 				gap={ gap }
 				rootRef={ rootRef }
-				data-testid="pie-chart"
 				className={ clsx(
 					'pie-chart',
 					styles[ 'pie-chart' ],
