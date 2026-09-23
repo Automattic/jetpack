@@ -17,6 +17,7 @@ import {
 	DetailPageShell,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
+	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
@@ -63,6 +64,10 @@ function VideoDetail(): JSX.Element {
 	// The applied report date range lives in the URL search params.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
+	const onDateApply = useTrackedDateRangeApply( dateFilters.onApply, {
+		surface: 'video_detail',
+		offersComparison: false,
+	} );
 
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportDateParams( search );
@@ -164,7 +169,9 @@ function VideoDetail(): JSX.Element {
 						} ) }
 						// The presets render in every summary state, so the range stays
 						// adjustable while the video loads or errors.
-						controls={ <DateFiltersPanel { ...dateFilters } { ...dateControls } /> }
+						controls={
+							<DateFiltersPanel { ...dateFilters } { ...dateControls } onApply={ onDateApply } />
+						}
 					>
 						{ canRenderWidgets ? (
 							<DetailPageSection>

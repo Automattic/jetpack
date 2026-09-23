@@ -46,9 +46,10 @@ export type UseStagedSearchReturn< TSearch extends AnyObject > = {
 	stage: ( patch: Partial< TSearch > ) => void;
 
 	/**
-	 * Commit all staged changes in a single atomic navigate().
+	 * Commit all staged changes in a single atomic navigate(), returning the
+	 * committed search; `undefined` when nothing was staged.
 	 */
-	commit: ( opts?: { replace?: boolean } ) => void;
+	commit: ( opts?: { replace?: boolean } ) => TSearch | undefined;
 
 	/**
 	 * Discard local changes and return to committed snapshot.

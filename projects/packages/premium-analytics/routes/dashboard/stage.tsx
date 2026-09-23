@@ -19,7 +19,11 @@ import {
 	StatsBreadcrumbs,
 	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
-import { PageOptionsMenu, ResetLayoutAction } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	PageOptionsMenu,
+	ResetLayoutAction,
+	useTrackedDateRangeApply,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
@@ -174,7 +178,12 @@ function Dashboard(): JSX.Element {
 	 * The year surface applies on click — no Apply step of its own — so stage and
 	 * commit together, the way `DatePeriodDropdown` applies a period.
 	 */
-	const { onChange: onDateChange, onApply: onDateApply } = dateFilters;
+	const onDateApply = useTrackedDateRangeApply( dateFilters.onApply, {
+		surface: 'dashboard',
+		section: activeSection,
+		offersComparison: showComparison,
+	} );
+	const { onChange: onDateChange } = dateFilters;
 	const selectYear = useCallback(
 		( range: DateRange, presetId: YearSurfacePresetId ) => {
 			onDateChange( range, presetId );
@@ -242,7 +251,12 @@ function Dashboard(): JSX.Element {
 				 * Report pages mount this same panel over records tables, which have no
 				 * interval, so the control is asked for rather than implied.
 				 */
-				<DateFiltersPanel { ...dateFilters } withIntervalControl attentionId={ attentionId } />
+				<DateFiltersPanel
+					{ ...dateFilters }
+					onApply={ onDateApply }
+					withIntervalControl
+					attentionId={ attentionId }
+				/>
 			);
 	}
 

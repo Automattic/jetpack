@@ -23,6 +23,7 @@ import {
 	describeError,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
+	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -81,6 +82,10 @@ function AuthorDetail(): JSX.Element {
 	// it. WOOA7S-2137 anchors it on the author's first published content instead.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dateControls = useDetailDateControls( undefined, dateFilters );
+	const onDateApply = useTrackedDateRangeApply( dateFilters.onApply, {
+		surface: 'author_detail',
+		offersComparison: false,
+	} );
 
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportDateParams( search );
@@ -190,7 +195,9 @@ function AuthorDetail(): JSX.Element {
 						header={ authorHeaderSlots( { summary } ) }
 						// The presets render in every summary state, so the range stays
 						// adjustable while the author loads or errors.
-						controls={ <DateFiltersPanel { ...dateFilters } { ...dateControls } /> }
+						controls={
+							<DateFiltersPanel { ...dateFilters } { ...dateControls } onApply={ onDateApply } />
+						}
 					>
 						{ canRenderWidgets ? (
 							<DetailPageSection>
