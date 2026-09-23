@@ -69,6 +69,31 @@ describe( 'usePublishTracking', () => {
 		expect( recordEventMock ).not.toHaveBeenCalled();
 	} );
 
+	it( 'reports for another block type under its own event name', () => {
+		mockIsPublishing = true;
+		mockPlaylistClientIds = [ 'latest-videos-client-1' ];
+
+		renderHook( () =>
+			usePublishTracking( {
+				clientId: 'latest-videos-client-1',
+				layout: 'grid',
+				videoCount: 4,
+				blockName: 'videopress/latest-videos-playlist',
+				eventName: 'jetpack_videopress_latest_videos_playlist_block_published',
+			} )
+		);
+
+		expect( recordEventMock ).toHaveBeenCalledWith(
+			'jetpack_videopress_latest_videos_playlist_block_published',
+			{
+				post_type: 'post',
+				layout: 'grid',
+				video_count: 4,
+				playlist_count: 1,
+			}
+		);
+	} );
+
 	it( 'counts every playlist block in the post', () => {
 		mockIsPublishing = true;
 		mockPlaylistClientIds = [ 'playlist-client-1', 'another-playlist' ];
