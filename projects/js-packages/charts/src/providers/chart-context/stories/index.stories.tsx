@@ -515,6 +515,9 @@ export const GeneratedPalette: Story = {
 		</div>
 	),
 	argTypes: {
+		themeName: { table: { disable: true } },
+		accentColor: { table: { disable: true } },
+		adminColorScheme: { table: { disable: true } },
 		showUnitedStates: { table: { disable: true } },
 		showGreatBritain: { table: { disable: true } },
 		showJapan: { table: { disable: true } },
