@@ -4,15 +4,19 @@ import { MemoryRouter } from 'react-router';
 import { FeaturesContent } from '../content';
 import type { FeatureState } from '../feature-state';
 
-const mockStates = [
-	{
-		feature: { slug: 'stats', name: 'Stats', description: '', plans: [] },
-		status: 'active',
-		control: { kind: 'none' },
-	},
-] as unknown as FeatureState[];
+const activeStats = {
+	feature: { slug: 'stats', name: 'Stats', description: '', plans: [] },
+	status: 'active',
+	control: { kind: 'none' },
+} as unknown as FeatureState;
 
-jest.mock( '../use-main-features', () => ( { useMainFeatures: () => ( {} ) } ) );
+let mockStates: FeatureState[] = [ activeStats ];
+let mockMainFeatures: Record< string, unknown > = {
+	features: [ { slug: 'stats' } ],
+	isPlaceholderData: false,
+};
+
+jest.mock( '../use-main-features', () => ( { useMainFeatures: () => mockMainFeatures } ) );
 
 jest.mock( '../feature-state', () => ( {
 	useFeatureStates: () => ( { states: mockStates, isLoading: false } ),
@@ -30,6 +34,57 @@ const renderAt = ( url: string ) =>
 	);
 
 describe( 'FeaturesContent', () => {
+	beforeEach( () => {
+		mockStates = [ activeStats ];
+		mockMainFeatures = { features: [ { slug: 'stats' } ], isPlaceholderData: false };
+	} );
+
+	it( 'names the filter that matched nothing and switches back from the empty state', async () => {
+		renderAt( '/features?filter=inactive' );
+
+		expect( screen.getByRole( 'heading', { name: 'Everything is turned on.' } ) ).toBeVisible();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Explore all' } ) );
+
+		expect( screen.getByText( 'grid card' ) ).toBeInTheDocument();
+	} );
+
+	it( 'waits for the read to settle before calling an empty catalog a failure', () => {
+		mockStates = [];
+		mockMainFeatures = { features: [], isPlaceholderData: true };
+
+		renderAt( '/features' );
+
+		expect( screen.queryByRole( 'heading' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'holds the empty state back while the modules a feature depends on are in flight', () => {
+		mockStates = [ { ...activeStats, pending: true, status: 'inactive' } as FeatureState ];
+
+		renderAt( '/features?filter=active' );
+
+		expect( screen.queryByRole( 'heading' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'still answers a search that matched nothing while modules are in flight', () => {
+		mockStates = [ { ...activeStats, pending: true, status: 'inactive' } as FeatureState ];
+
+		renderAt( '/features?search=zzzz' );
+
+		expect( screen.getByRole( 'heading' ) ).toHaveTextContent( 'No features match “zzzz”.' );
+	} );
+
+	it( 'reports an empty catalog as a failure rather than a site with no features', () => {
+		mockStates = [];
+		mockMainFeatures = { features: [], isPlaceholderData: false };
+
+		renderAt( '/features' );
+
+		expect(
+			screen.getByRole( 'heading', { name: 'We couldn’t load your features.' } )
+		).toBeVisible();
+	} );
+
 	it( 'shows the grid by default and switches to the list from the toolbar', async () => {
 		renderAt( '/features' );
 

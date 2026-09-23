@@ -213,10 +213,28 @@ $feature-icon-foreground: #0ced57;
 }
 
 
-.empty-heading {
+// `Link` styles an anchor; rendered as a button it inherits the control chrome
+// that the UA stylesheet puts on one, so that has to come back off.
+.link-button {
+	appearance: none;
+	background: none;
+	border: 0;
+	cursor: pointer;
+	font: inherit;
+	padding: 0;
+	text-decoration: underline;
+}
 
-	@include gb.heading-x-large;
-	margin-block: 0;
+// EmptyState caps its own measure but sets no auto margins, so it needs both to
+// sit in the middle of the grid's column. The wider measure keeps the search
+// state's link on one line.
+.empty-state {
+	margin-inline: auto;
+	max-inline-size: var(--wpds-dimension-surface-width-md);
+	// A search term is echoed into both the heading and the link, and an
+	// unbroken one would otherwise run past the column.
+	overflow-wrap: anywhere;
+	padding-block: var(--wpds-dimension-padding-3xl);
 }
 
 // Sticky so the filters stay reachable while scrolling a long grid. The
