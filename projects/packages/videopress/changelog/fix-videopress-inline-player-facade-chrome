@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Inline player: draw the facade's play button like the player's and show the player's loading spinner from the click until the player has mounted.
