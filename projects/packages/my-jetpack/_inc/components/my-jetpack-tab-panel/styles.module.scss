@@ -58,6 +58,9 @@
 		// render their footer as the next sibling, so without this the extra height
 		// lands after the footer as a band of surface below it.
 		flex: 1;
+		// The auto inline margins above suppress a flex item's cross-axis
+		// stretch, so without this the column shrinks to fit its content.
+		inline-size: 100%;
 	}
 }
 
