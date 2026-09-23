@@ -1,7 +1,6 @@
 import { Badge, Tooltip } from '@wordpress/ui';
 import {
 	getSubscriptionStatusLabel,
-	getSubscriptionStatusReasonBadgeLabel,
 	getSubscriptionStatusReasonLabel,
 } from '../../lib/subscription-status';
 import type { SubscriptionStatus, SubscriptionStatusReason } from '../../data/types';
@@ -55,15 +54,11 @@ export default function SubscriptionStatusCell( { status, reason }: Props ): JSX
 		return null;
 	}
 
-	const badgeLabel = getSubscriptionStatusReasonBadgeLabel( reason );
+	const badgeLabel = getSubscriptionStatusLabel( status, reason );
+	const badge = <Badge intent={ getBadgeIntent( status ) }>{ badgeLabel }</Badge>;
 	const description = getSubscriptionStatusReasonLabel( reason );
-	const badge = (
-		<Badge intent={ getBadgeIntent( status ) }>
-			{ badgeLabel ?? getSubscriptionStatusLabel( status ) }
-		</Badge>
-	);
 
-	if ( ! badgeLabel || ! description ) {
+	if ( ! description ) {
 		return badge;
 	}
 

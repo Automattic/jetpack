@@ -6,9 +6,13 @@ import type { SubscriptionStatus, SubscriptionStatusReason } from '../data/types
  * Calypso's `SubscribersStatus` constant.
  *
  * @param status - Raw status string from the API.
+ * @param reason - Raw subscription_status_reason.
  * @return Translated label, or the raw string if no mapping exists.
  */
-export function getSubscriptionStatusLabel( status: SubscriptionStatus ): string {
+export function getSubscriptionStatusLabel(
+	status: SubscriptionStatus,
+	reason?: SubscriptionStatusReason | null
+): string {
 	switch ( status ) {
 		case 'Subscribed':
 			return __( 'Subscribed', 'jetpack-newsletter' );
@@ -19,28 +23,15 @@ export function getSubscriptionStatusLabel( status: SubscriptionStatus ): string
 			return __( 'Not subscribed', 'jetpack-newsletter' );
 		case 'Not sending':
 		case 'Blocked':
+			if ( 'bounced' === reason ) {
+				return __( 'Bounced', 'jetpack-newsletter' );
+			}
+			if ( 'emails_paused' === reason ) {
+				return __( 'Emails paused', 'jetpack-newsletter' );
+			}
 			return __( 'Not sending', 'jetpack-newsletter' );
 		default:
 			return status;
-	}
-}
-
-/**
- * Explain why a "Not sending" subscriber is not being sent to, in a short badge label.
- *
- * @param reason - Raw subscription_status_reason from the API.
- * @return Translated label, or null to keep the plain "Not sending" badge.
- */
-export function getSubscriptionStatusReasonBadgeLabel(
-	reason?: SubscriptionStatusReason | null
-): string | null {
-	switch ( reason ) {
-		case 'emails_paused':
-			return __( 'Emails paused', 'jetpack-newsletter' );
-		case 'bounced':
-			return __( 'Bounced', 'jetpack-newsletter' );
-		default:
-			return null;
 	}
 }
 
