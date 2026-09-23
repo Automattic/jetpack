@@ -50,7 +50,7 @@ The codebase handles two runtime environments:
 - **`Publicize`** extends `Publicize_Base` — Concrete implementation for Jetpack-connected sites
 - **`Publicize_Setup`** — Static initialization orchestrator (entry point from Config package)
 - **`Publicize_UI`** — Admin UI rendering and classic editor integration
-- **`Keyring_Helper`** — Starts Keyring requests through public-api for services that are still connected from the site itself. Today that is only Google site verification (`SERVICES`); Jetpack Social's networks connect from WordPress.com with `for=connect` / `auth_flow=v2`, not through this class. It does not depend on any wp-admin page.
+- **`Keyring_Helper`** — Site-side connection requests (`SERVICES`, today Google site verification) and Publicize disconnects, both through public-api
 
 ### REST API Controllers (`src/rest-api/`)
 

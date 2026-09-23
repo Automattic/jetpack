@@ -13,9 +13,8 @@ use Jetpack_IXR_Client;
 use Jetpack_Options;
 
 /**
- * A series of utilities to start Keyring requests through public-api for
- * services that are connected from the site rather than from WordPress.com (today,
- * Google site verification).
+ * Starts Keyring connection requests and removes Publicize connections, both
+ * through public-api.
  */
 class Keyring_Helper {
 	/**
@@ -37,9 +36,8 @@ class Keyring_Helper {
 	}
 
 	/**
-	 * Services still connected through the site's own admin_url() and the
-	 * `?jetpack=publicize` branch of public-api. Jetpack Social connects its
-	 * networks from WordPress.com directly and does not go through here.
+	 * Services whose connection request starts from the site. Jetpack Social's
+	 * networks start theirs from WordPress.com instead.
 	 */
 	const SERVICES = array(
 		'google_site_verification' => array(
