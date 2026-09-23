@@ -19,25 +19,6 @@ type CommentFormProps = {
 // enough that a reader who navigates away mid-sentence keeps it.
 const DRAFT_DEBOUNCE_MS = 300;
 
-// Set once a signed-in reader closes the tray, so it stops opening itself on this site.
-const TRAY_SEEN_KEY = 'jetpack-comments-tray-seen';
-
-const hasSeenTray = () => {
-	try {
-		return localStorage.getItem( TRAY_SEEN_KEY ) === '1';
-	} catch {
-		return false;
-	}
-};
-
-const markTraySeen = () => {
-	try {
-		localStorage.setItem( TRAY_SEEN_KEY, '1' );
-	} catch {
-		// Storage is off; the tray opens again next time, which is the old behaviour.
-	}
-};
-
 const CommentForm = ( { form }: CommentFormProps ) => {
 	const {
 		formSettings,
@@ -47,9 +28,9 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 		isSavingComment,
 		isTrayOpen,
 		isSignedIn,
+		signedIn,
 	} = useContext( CommentSignals );
 	const isSubmitting = useRef( false );
-	const wasTrayOpen = useRef( false );
 
 	useEffect( () => {
 		if ( isSignedIn.value && ! hasSubscriptionOptions() ) {
@@ -58,19 +39,15 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 	}, [ isSignedIn.value, isTrayOpen ] );
 
 	// Opens only as the comment goes from empty to not, so closing the tray mid-sentence sticks.
+	// A reader who arrived signed in, on the passport or a site login, gets it from the gear instead;
+	// a fresh popup sign-in still holds its code.
 	useEffect( () => {
-		if ( ! isEmptyComment.value && ! ( isSignedIn.value && hasSeenTray() ) ) {
+		const isReturning = isSignedIn.value && ! signedIn.value?.code;
+
+		if ( ! isEmptyComment.value && ! isReturning ) {
 			isTrayOpen.value = true;
 		}
-	}, [ isEmptyComment.value, isSignedIn, isTrayOpen ] );
-
-	useEffect( () => {
-		if ( wasTrayOpen.current && ! isTrayOpen.value && isSignedIn.value ) {
-			markTraySeen();
-		}
-
-		wasTrayOpen.current = isTrayOpen.value;
-	}, [ isTrayOpen.value, isSignedIn ] );
+	}, [ isEmptyComment.value, isSignedIn, signedIn, isTrayOpen ] );
 
 	useEffect( () => {
 		const parentInput = form.querySelector< HTMLInputElement >( '#comment_parent' );
