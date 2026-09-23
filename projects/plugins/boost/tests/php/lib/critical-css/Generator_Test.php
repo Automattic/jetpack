@@ -565,7 +565,9 @@ class Generator_Test extends BaseTestCase {
 	 */
 	private function login_redirect_in_headers( $headers ) {
 		$method = new \ReflectionMethod( Generator::class, 'login_redirect_in_headers' );
-		$method->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		return $method->invoke( null, $headers );
 	}
@@ -600,5 +602,26 @@ class Generator_Test extends BaseTestCase {
 			'empty location'    => array( false, array( 'Location:' ) ),
 			'no headers'        => array( false, array() ),
 		);
+	}
+
+	/**
+	 * A queued login redirect is replaced by the blocked response.
+	 */
+	public function test_replace_login_redirect_sends_the_blocked_response() {
+		$method = new \ReflectionMethod( Generator::class, 'replace_login_redirect' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		ob_start();
+		$method->invoke( new Generator(), array( 'Location: /wp-login.php' ) );
+		$blocked = ob_get_clean();
+
+		ob_start();
+		$method->invoke( new Generator(), array( 'Location: /sample-page/' ) );
+		$allowed = ob_get_clean();
+
+		$this->assertStringContainsString( 'requires login', $blocked );
+		$this->assertSame( '', $allowed );
 	}
 }

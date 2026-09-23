@@ -62,7 +62,20 @@ class Generator {
 	 * @since $$next-version$$
 	 */
 	public function block_login_redirect_header() {
-		if ( headers_sent() || ! self::login_redirect_in_headers( headers_list() ) ) {
+		if ( headers_sent() ) {
+			return;
+		}
+
+		$this->replace_login_redirect( headers_list() );
+	}
+
+	/**
+	 * Swap a login redirect for the blocked response, given the headers already queued.
+	 *
+	 * @param string[] $headers Headers as headers_list() returns them.
+	 */
+	private function replace_login_redirect( $headers ) {
+		if ( ! self::login_redirect_in_headers( $headers ) ) {
 			return;
 		}
 
