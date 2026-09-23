@@ -1,4 +1,4 @@
-import type { SubscriptionChange, SubscriptionState } from '../../shared/types';
+import type { Answer, SubscriptionChange, SubscriptionState } from './types';
 
 export const NO_SUBSCRIPTION: SubscriptionState = {
 	email: { send_posts: false, send_comments: false, post_delivery_frequency: 'daily' },
@@ -12,14 +12,6 @@ const SIGN_IN_LOST = [
 	'invalid_code',
 	'blog_mismatch',
 ];
-
-export type Answer = {
-	state?: SubscriptionState | null;
-	ok: boolean;
-	signedOut: boolean;
-	/** The sign-in code went with this request and is spent, whatever else happened. */
-	redeemed: boolean;
-};
 
 export const fetchSubscriptions = async (
 	postId: number,

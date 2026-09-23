@@ -2,7 +2,9 @@ import { signal, computed } from '@preact/signals';
 import { createContext } from 'preact';
 import { readDraft } from '../form/draft';
 import { readPassport } from '../identity/passport';
-import type { Commenter, FormSettings, Provider, SignedIn, SubscriptionState } from './types';
+import type { Commenter, FormSettings } from './types';
+import type { Provider, SignedIn } from '../identity/types';
+import type { SubscriptionState } from '../tray/subscriptions/types';
 
 /**
  * One form's signals.

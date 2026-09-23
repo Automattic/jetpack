@@ -1,3 +1,6 @@
+import type { IdentitySettings, Provider } from '../identity/types';
+import type { SubscriptionSettings } from '../tray/subscriptions/types';
+
 export type Commenter = {
 	author: string;
 	email: string;
@@ -8,71 +11,6 @@ export type CurrentUser = {
 	avatarUrl: string;
 	commentingAs: string;
 	email: string;
-};
-
-export type Provider = 'wordpress' | 'google' | 'facebook';
-
-export type ConnectUrl = {
-	url: string;
-	expires: number;
-	challenge: string;
-};
-
-export type Passport = {
-	provider: Provider;
-	name: string;
-	avatar: string;
-};
-
-export type IdentitySettings = {
-	blogId: number;
-	providers: Provider[];
-	connect: Partial< Record< Provider, ConnectUrl > >;
-	origin: string;
-	codeField: string;
-	passportField: string;
-	displayCookie: string;
-	cookiePath: string;
-	cookieDomain: string;
-	defaultAvatar: string;
-	refreshUrl: string;
-	logoutUrl: string;
-	logoutAction: string;
-};
-
-/** `code` is held until the first subscriptions read or the comment posts; then the passport takes over. */
-export type SignedIn = Passport & {
-	code: string | null;
-};
-
-export type Frequency = 'instantly' | 'daily' | 'weekly';
-
-export type SubscriptionState = {
-	email: {
-		send_posts: boolean;
-		send_comments: boolean;
-		post_delivery_frequency: Frequency;
-	};
-	notification: {
-		send_posts: boolean;
-	};
-};
-
-/** What to set. Anything left out is left alone. */
-export type SubscriptionChange = {
-	email_posts?: boolean;
-	email_comments?: boolean;
-	notify_posts?: boolean;
-	frequency?: Frequency;
-};
-
-export type SubscriptionSettings = {
-	blog: boolean;
-	comments: boolean;
-	notifications: boolean;
-	url: string;
-	action: string;
-	nonce: string;
 };
 
 export type FormSettings = {

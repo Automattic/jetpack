@@ -4,7 +4,7 @@ import { signIn } from '../identity/checkpoint';
 import { CommentSignals } from '../shared/state';
 import { FacebookIcon, GoogleIcon, MailIcon, WordPressIcon } from '../ui/icons';
 import { GuestFields } from './guest-fields';
-import type { Provider } from '../shared/types';
+import type { Provider } from '../identity/types';
 
 const icons = {
 	wordpress: WordPressIcon,
