@@ -82,6 +82,8 @@ $arrow-color: var(--jp-gray);
 .icon-tooltip-container {
 	// Recover events
 	pointer-events: all;
+	// Takes focus on open, but its box is wider than the visible content.
+	outline: none;
 
 	// __content styles here covers both the inline and portal modes
 	.components-popover__content {
