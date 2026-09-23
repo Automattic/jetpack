@@ -8,7 +8,7 @@ import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-un
 import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { API_BASE } from '../utils/api-base';
-import { getResourceAttributeUpdates, isSameValue } from '../utils/resource-sync';
+import { getResourceAttributeUpdates, isBookkeeping, isSameValue } from '../utils/resource-sync';
 import { isNotFound, recordBlockMounted, recordPaymentRead } from '../utils/sync-on-save';
 import { toast } from '../utils/toast';
 import { getUserFriendlyError } from '../utils/validation';
@@ -77,7 +77,7 @@ export function usePayPalResource( {
 					return;
 				}
 				// The block now has PayPal's values, so the save can write this payment.
-				recordPaymentRead( clientId, resourceId );
+				recordPaymentRead( clientId, resourceId, response.attributes );
 				// Take PayPal's value only where the attribute still matches what the block had
 				// when the request went out; anything else is the merchant's own edit.
 				const updates = Object.fromEntries(
@@ -88,7 +88,15 @@ export function usePayPalResource( {
 				if ( ! Object.keys( updates ).length ) {
 					return;
 				}
-				setPaymentChanged( true );
+				// The mode, and a first SDK URL, are the block catching up with the payment
+				// rather than a change someone made at PayPal.
+				if (
+					Object.keys( updates ).some(
+						key => ! isBookkeeping( key, atRequest[ key ], atRequest.format )
+					)
+				) {
+					setPaymentChanged( true );
+				}
 				// An ordinary edit, so the post is dirty: the page renders the saved values, and
 				// they are stale until the post is saved again.
 				setAttributes( updates );
@@ -132,6 +140,8 @@ export function usePayPalResource( {
 				isApiManaged: false,
 				resourceId: undefined,
 				paymentLink: undefined,
+				scriptSrc: undefined,
+				integrationMode: undefined,
 			} );
 			toast( 'success', message );
 		};

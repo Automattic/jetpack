@@ -8,16 +8,39 @@
  * @package
  */
 
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
+import { dispatch } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import QRCode from 'qrcode';
 import PayPalButtonPreview from '../../src/paypal-payment-buttons/components/paypal-button-preview';
 import { QR_OPTIONS } from '../../src/paypal-payment-buttons/utils/qr-options';
+import {
+	forgetSyncedRequests,
+	recordPaymentRead,
+	syncBlocksBeforeSave,
+} from '../../src/paypal-payment-buttons/utils/sync-on-save';
+import bootTheFrame from './boot-the-frame';
 
 // jsdom has no 2D context, so a real draw fails. Unlike qr-code.test.js's mock
 // this one resolves, because the preview chains .catch() on the returned promise.
 jest.mock( 'qrcode', () => ( {
 	toCanvas: jest.fn( () => Promise.resolve() ),
 } ) );
+
+// Only the saving flag, which core/editor sets while the sync runs.
+jest.mock( '@wordpress/editor', () => {
+	const { createReduxStore, register } = jest.requireActual( '@wordpress/data' );
+	const store = createReduxStore( 'core/editor', {
+		reducer: ( saving = false, action ) =>
+			'SET_SAVING' === action.type ? action.saving : saving,
+		actions: { setSaving: saving => ( { type: 'SET_SAVING', saving } ) },
+		selectors: { isSavingPost: saving => saving },
+	} );
+	register( store );
+	return { store };
+} );
+
+const SDK_HOST_URL = 'https://example.test/wp-admin/admin-post.php?action=jetpack_paypal_sdk_host';
 
 const defaultProps = {
 	productName: 'Premium Widget',
@@ -458,6 +481,11 @@ describe( 'PayPalButtonPreview', () => {
 	describe( 'Display Format', () => {
 		beforeEach( () => {
 			QRCode.toCanvas.mockClear();
+			window.jetpackPayPalPayments = { sdkHostUrl: SDK_HOST_URL };
+		} );
+
+		afterEach( () => {
+			delete window.jetpackPayPalPayments;
 		} );
 
 		it( 'draws the button card for BUTTON', () => {
@@ -467,9 +495,149 @@ describe( 'PayPalButtonPreview', () => {
 			).toBeInTheDocument();
 		} );
 
+		it( 'draws the SDK preview for STACKED', () => {
+			// PayPal draws the whole card from one container, so the button card gives way.
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					format="STACKED"
+					attributes={ {
+						scriptSrc: 'https://www.paypal.com/sdk/js?client-id=abc',
+						resourceId: 'PLB-1',
+					} }
+				/>
+			);
+
+			expect( screen.getByTitle( 'PayPal buttons preview' ) ).toBeInTheDocument();
+			expect(
+				document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+			).not.toBeInTheDocument();
+		} );
+
+		const usd = 'https://www.paypal.com/sdk/js?client-id=abc&currency=USD';
+		const stacked = ( attributes, resource ) => (
+			<PayPalButtonPreview
+				{ ...defaultProps }
+				format="STACKED"
+				attributes={ attributes }
+				resource={ resource }
+			/>
+		);
+
+		it.each( [
+			[
+				'the URL changes',
+				'scriptSrc',
+				'https://www.paypal.com/sdk/js?client-id=abc&currency=EUR',
+			],
+			[ 'the payment changes', 'resourceId', 'PLB-2' ],
+		] )( 'boots the SDK again when %s', ( _label, key, changed ) => {
+			const before = { scriptSrc: usd, resourceId: 'PLB-1' };
+
+			const { rerender } = render( stacked( before ) );
+			expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
+
+			rerender( stacked( { ...before, [ key ]: changed } ) );
+			const script = bootTheFrame().doc.querySelector( 'script' );
+			expect( script ).not.toBeNull();
+			expect( script.src ).toBe( 'scriptSrc' === key ? changed : usd );
+		} );
+
+		// The frame is keyed on the SDK URL, payment id, and card revision, so typing in the
+		// sidebar keeps PayPal's SDK running.
+		it( 'leaves the running SDK alone when another attribute changes', () => {
+			const before = { scriptSrc: usd, resourceId: 'PLB-1', productName: 'Premium Widget' };
+
+			const { rerender } = render( stacked( before ) );
+			expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
+
+			rerender( stacked( { ...before, productName: 'Deluxe Widget' } ) );
+			// A remount would boot into this second document; the first mount's frame
+			// carries on drawing instead.
+			expect( bootTheFrame().doc.querySelector( 'script' ) ).toBeNull();
+		} );
+
+		it( 'boots the SDK from the read URL when the read finishes after the first render', () => {
+			const attributes = { resourceId: 'PLB-1' };
+
+			const { rerender } = render( stacked( attributes ) );
+			expect( screen.queryByTitle( 'PayPal buttons preview' ) ).not.toBeInTheDocument();
+
+			rerender( stacked( attributes, { id: 'PLB-1', sdk_url: usd } ) );
+			expect( screen.getByTitle( 'PayPal buttons preview' ) ).toHaveAttribute(
+				'src',
+				SDK_HOST_URL
+			);
+			expect( bootTheFrame().doc.querySelector( 'script' ).src ).toBe( usd );
+		} );
+
+		it( 'leaves the running SDK alone when the read finishes for a block with a scriptSrc', () => {
+			const attributes = { scriptSrc: usd, resourceId: 'PLB-1' };
+
+			const { rerender } = render( stacked( attributes ) );
+			expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
+
+			rerender( stacked( attributes, { id: 'PLB-1', sdk_url: `${ usd }&enable-funding=venmo` } ) );
+			expect( bootTheFrame().doc.querySelector( 'script' ) ).toBeNull();
+		} );
+
+		describe( 'after a save', () => {
+			const payment = { ...defaultProps, collectShippingAddress: false };
+			const block = { ...payment, format: 'STACKED', isApiManaged: true, resourceId: 'PLB-1' };
+
+			/**
+			 * Save the block the way core/editor does, with a PUT that succeeds.
+			 *
+			 * @param {object} attributes - The block's attributes at the save.
+			 */
+			const save = async attributes => {
+				await act( () => dispatch( editorStore ).setSaving( true ) );
+				await syncBlocksBeforeSave( [ { clientId: 'a', attributes } ], {
+					request: () => Promise.resolve( {} ),
+					updateBlockAttributes: jest.fn(),
+					reportError: jest.fn(),
+					reportHeldBack: jest.fn(),
+				} );
+				await act( () => dispatch( editorStore ).setSaving( false ) );
+			};
+
+			beforeEach( () => {
+				forgetSyncedRequests();
+				recordPaymentRead( 'a', 'PLB-1', payment );
+			} );
+
+			// A new SDK load fetches the updated card from PayPal.
+			it( 'boots the SDK again after a save that changes the payment', async () => {
+				render( stacked( { scriptSrc: usd, resourceId: 'PLB-1' } ) );
+				expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
+
+				await save( { ...block, productName: 'Deluxe Widget' } );
+
+				expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
+			} );
+
+			it( 'leaves the running SDK alone after a save that writes the payment unchanged', async () => {
+				render( stacked( { scriptSrc: usd, resourceId: 'PLB-1' } ) );
+				expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
+
+				await save( block );
+
+				expect( bootTheFrame().doc.querySelector( 'script' ) ).toBeNull();
+			} );
+
+			it( 'leaves the running SDK alone when a save changes another payment', async () => {
+				render( stacked( { scriptSrc: usd, resourceId: 'PLB-2' } ) );
+				expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
+
+				await save( { ...block, productName: 'Deluxe Widget' } );
+
+				expect( bootTheFrame().doc.querySelector( 'script' ) ).toBeNull();
+			} );
+		} );
+
 		it( 'draws the button card for a format it does not know', () => {
 			// render_api_managed_button() validates the same way server-side.
-			render( <PayPalButtonPreview { ...defaultProps } format="STACKED" /> );
+			render( <PayPalButtonPreview { ...defaultProps } format="NOT_A_FORMAT" /> );
 			expect(
 				document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
 			).toBeInTheDocument();
@@ -502,6 +670,35 @@ describe( 'PayPalButtonPreview', () => {
 			expect( document.querySelector( '.jetpack-paypal-button__paypal-link' ) ).toHaveStyle( {
 				color: '#0000ff',
 				fontSize: '20px',
+			} );
+		} );
+
+		// paymentLink is a plain block attribute, so post content decides what the canvas
+		// links to and what the QR encodes.
+		describe.each( [
+			[ 'another host', 'https://evil.test/ncp/payment/ABC123' ],
+			[ 'a javascript: URL wearing a PayPal host', 'javascript://www.paypal.com/%0aalert(1)' ],
+		] )( 'a payment link on %s', ( _label, paymentLink ) => {
+			it( 'leaves the href empty', () => {
+				render(
+					<PayPalButtonPreview { ...defaultProps } format="LINK" paymentLink={ paymentLink } />
+				);
+
+				expect( document.querySelector( '.jetpack-paypal-button__paypal-link' ) ).toHaveAttribute(
+					'href',
+					''
+				);
+			} );
+
+			it( 'leaves the QR pending', () => {
+				render(
+					<PayPalButtonPreview { ...defaultProps } format="QR" paymentLink={ paymentLink } />
+				);
+
+				expect( QRCode.toCanvas ).not.toHaveBeenCalled();
+				expect( document.querySelector( '.jetpack-paypal-button__qr-canvas' ) ).toHaveClass(
+					'jetpack-paypal-button__qr-canvas--pending'
+				);
 			} );
 		} );
 

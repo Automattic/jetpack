@@ -33,6 +33,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		\WP_Block_Supports::$block_to_render = null;
 
 		remove_all_filters( self::FLAG_FILTER );
+		wp_set_current_user( 0 );
+		PayPal_OAuth::delete_credentials();
 		Feature_Flags::reset();
 	}
 
@@ -161,6 +163,23 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
+	 * Content can render before the visible pass, so a legacy stacked button draws its
+	 * container and render call on every render.
+	 */
+	public function test_a_legacy_stacked_button_renders_on_every_pass() {
+		$attributes = array(
+			'buttonType'     => 'stacked',
+			'scriptSrc'      => 'https://www.paypal.com/sdk/js?client-id=test',
+			'hostedButtonId' => 'LEGACYTWICE',
+		);
+
+		$html = PayPal_Payment_Buttons::render_block( $attributes, '' ) . PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertSame( 2, substr_count( $html, 'id="paypal-container-LEGACYTWICE"' ) );
+		$this->assertSame( 2, $this->count_render_calls( 'LEGACYTWICE' ) );
+	}
+
+	/**
 	 * A `file:` asset field here makes core register the editor bundle a second time,
 	 * on top of the copy load_editor_scripts() already enqueues.
 	 */
@@ -242,172 +261,484 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that valid PayPal URLs pass through unchanged.
+	 * An API-managed block on a BUTTON-mode payment.
 	 *
-	 * @dataProvider valid_paypal_urls_provider
-	 *
-	 * @param string $url The URL to test.
+	 * @param array $extra Attributes to add or override.
+	 * @return array
 	 */
-	#[DataProvider( 'valid_paypal_urls_provider' )]
-	public function test_valid_paypal_urls_pass_through( $url ) {
-		$result = PayPal_Payment_Buttons::sanitize_paypal_script_url( $url );
+	private function stacked_attributes( array $extra = array() ) {
+		return array_merge(
+			array(
+				'isApiManaged' => true,
+				'format'       => 'STACKED',
+				'resourceId'   => 'PLB-STACKED1',
+				'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-STACKED1',
+				'productName'  => 'Widget',
+				'price'        => '10.00',
+				'currencyCode' => 'USD',
+				'scriptSrc'    => 'https://www.paypal.com/sdk/js?client-id=abc',
+			),
+			$extra
+		);
+	}
 
-		$this->assertNotFalse( $result, "URL should not return false: $url" );
+	public function test_render_block_stacked_draws_the_sdk_container() {
+		$attributes = $this->stacked_attributes();
+		$this->set_up_block_render_context( $attributes );
 
-		// Parse both URLs to compare hosts
-		$original_parsed = wp_parse_url( $url );
-		$result_parsed   = wp_parse_url( $result );
+		$html = PayPal_Payment_Buttons::render_block( $attributes, '' );
 
-		$this->assertEquals( $original_parsed['host'], $result_parsed['host'], "Host should remain unchanged for valid PayPal URL: $url" );
+		$this->assertStringContainsString( 'id="paypal-container-PLB-STACKED1"', $html );
+		// PayPal draws the whole card, so the block adds nothing around the container.
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__button', $html );
 	}
 
 	/**
-	 * Data provider for valid PayPal URLs.
-	 *
-	 * @return array
+	 * The block path puts the block wrapper around PayPal's container.
 	 */
-	public static function valid_paypal_urls_provider() {
-		return array(
-			'paypal.com'                              => array( 'https://www.paypal.com/sdk/js' ),
-			'paypal.com subdomain'                    => array( 'https://www.paypal.com/sdk/js?client-id=test' ),
-			'paypal.com subdomain with escaped query' => array( 'https://www.paypal.com/sdk/js?client-id=test&amp;currency=USD' ),
-			'sandbox.paypal.com'                      => array( 'https://www.sandbox.paypal.com/sdk/js' ),
-			'sandbox.paypal.com with query'           => array( 'https://www.sandbox.paypal.com/sdk/js?client-id=test&currency=USD' ),
-			'www.paypal.com'                          => array( 'https://www.paypal.com/webapps/xoplatform' ),
-			'www.sandbox.paypal.com'                  => array( 'https://www.sandbox.paypal.com/webapps/xoplatform' ),
+	public function test_render_block_stacked_wraps_the_container_in_the_block_wrapper() {
+		register_block_type_from_metadata(
+			dirname( __DIR__, 2 ) . '/src/paypal-payment-buttons',
+			array( 'render_callback' => array( PayPal_Payment_Buttons::class, 'render_block' ) )
+		);
+
+		$html = do_blocks(
+			'<!-- wp:jetpack/paypal-payment-buttons ' . wp_json_encode(
+				$this->stacked_attributes(
+					array(
+						'resourceId'  => 'PLB-WRAP1',
+						'paymentLink' => 'https://www.paypal.com/ncp/payment/PLB-WRAP1',
+					)
+				),
+				JSON_UNESCAPED_SLASHES
+			) . ' /-->'
+		);
+
+		unregister_block_type( 'jetpack/paypal-payment-buttons' );
+
+		$this->assertMatchesRegularExpression(
+			'#class="[^"]*wp-block-jetpack-paypal-payment-buttons[^"]*"[^>]*><div id="paypal-container-PLB-WRAP1"></div></div>#',
+			$html
+		);
+	}
+
+	public function test_render_block_stacked_falls_back_to_the_single_button_on_an_empty_script_src() {
+		// PayPal grants the mode per account, and an empty scriptSrc means it has yet
+		// to. The editor says so on every save, and the published page still has to sell.
+		$attributes = $this->stacked_attributes( array( 'scriptSrc' => '' ) );
+		$this->set_up_block_render_context( $attributes );
+
+		$html = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__button', $html );
+		$this->assertStringNotContainsString( 'paypal-container-', $html );
+	}
+
+	public function test_render_block_stacked_falls_back_when_the_script_src_is_off_paypal() {
+		$attributes = $this->stacked_attributes( array( 'scriptSrc' => 'https://evil.example.com/sdk.js' ) );
+		$this->set_up_block_render_context( $attributes );
+
+		$html = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__button', $html );
+		$this->assertStringNotContainsString( 'evil.example.com', $html );
+	}
+
+	public function test_render_block_stacked_draws_the_container_on_every_render() {
+		// Content can render before the visible pass, so every pass keeps the container.
+		$attributes = $this->stacked_attributes();
+		$this->set_up_block_render_context( $attributes );
+
+		$first  = PayPal_Payment_Buttons::render_block( $attributes, '' );
+		$second = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'id="paypal-container-PLB-STACKED1"', $first );
+		$this->assertStringContainsString( 'id="paypal-container-PLB-STACKED1"', $second );
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__button', $second );
+		$this->assertSame( 2, $this->count_render_calls( 'PLB-STACKED1' ) );
+	}
+
+	public function test_legacy_and_api_managed_stacked_blocks_share_one_sdk_tag() {
+		$attributes = $this->stacked_attributes();
+		$this->set_up_block_render_context( $attributes );
+
+		PayPal_Payment_Buttons::render_block( $attributes, '' );
+		PayPal_Payment_Buttons::render_block(
+			array(
+				'buttonType'     => 'stacked',
+				'scriptSrc'      => 'https://www.paypal.com/sdk/js?client-id=abc',
+				'hostedButtonId' => 'LEGACY1',
+			),
+			''
+		);
+
+		ob_start();
+		wp_scripts()->do_items( array( PayPal_Payment_Buttons::SDK_SCRIPT_HANDLE ) );
+		$html = (string) ob_get_clean();
+
+		$this->assertSame( 1, substr_count( $html, 'src="https://www.paypal.com/sdk/js' ) );
+		$this->assertSame( 1, substr_count( $html, 'data-namespace=' ) );
+		$this->assertSame( 1, substr_count( $html, 'data-paypal-partner-attribution-id=' ) );
+		$this->assertSame( 1, $this->count_render_calls( 'PLB-STACKED1' ) );
+		$this->assertSame( 1, $this->count_render_calls( 'LEGACY1' ) );
+	}
+
+	/**
+	 * Count the queued HostedButtons render calls for a button id.
+	 *
+	 * @param string $hosted_button_id The hosted button id.
+	 * @return int
+	 */
+	private function count_render_calls( $hosted_button_id ) {
+		$after = (array) wp_scripts()->get_data( PayPal_Payment_Buttons::SDK_SCRIPT_HANDLE, 'after' );
+		return substr_count( implode( '', $after ), '.render("#paypal-container-' . $hosted_button_id . '")' );
+	}
+
+	public function test_tag_paypal_sdk_script_adds_the_namespace_and_the_partner_attribution_id() {
+		$tag = PayPal_Payment_Buttons::tag_paypal_sdk_script(
+			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- A fixture of PayPal's snippet, not an enqueue.
+			'<script src="https://www.paypal.com/sdk/js"></script>',
+			PayPal_Payment_Buttons::SDK_SCRIPT_HANDLE
+		);
+
+		$this->assertStringContainsString( 'data-namespace="paypal_payment_buttons"', $tag );
+		$this->assertStringContainsString(
+			'data-paypal-partner-attribution-id="' . PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID . '"',
+			$tag
+		);
+	}
+
+	public function test_tag_paypal_sdk_script_leaves_other_scripts_alone() {
+		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- A fixture of PayPal's snippet, not an enqueue.
+		$other = '<script src="https://example.com/app.js"></script>';
+
+		$this->assertSame( $other, PayPal_Payment_Buttons::tag_paypal_sdk_script( $other, 'some-other-handle' ) );
+	}
+
+	public function test_sdk_host_endpoint_waits_for_the_feature_flag() {
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_post_' . PayPal_Payment_Buttons::SDK_HOST_ACTION );
+
+		PayPal_Payment_Buttons::register_feature_flags();
+
+		PayPal_Payment_Buttons::init_admin();
+		do_action( 'init' );
+
+		$this->assertFalse( has_action( 'admin_post_' . PayPal_Payment_Buttons::SDK_HOST_ACTION ) );
+
+		remove_all_actions( 'init' );
+	}
+
+	public function test_sdk_host_endpoint_is_registered_once_the_flag_is_on() {
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_post_' . PayPal_Payment_Buttons::SDK_HOST_ACTION );
+
+		PayPal_Payment_Buttons::register_feature_flags();
+		add_filter( self::FLAG_FILTER, '__return_true' );
+
+		PayPal_Payment_Buttons::init_admin();
+		do_action( 'init' );
+
+		$this->assertNotFalse(
+			has_action( 'admin_post_' . PayPal_Payment_Buttons::SDK_HOST_ACTION ),
+			'The editor cannot draw the stacked preview without this endpoint.'
+		);
+		// The frame is for logged-in editors, so the nopriv twin stays off.
+		$this->assertFalse(
+			has_action( 'admin_post_nopriv_' . PayPal_Payment_Buttons::SDK_HOST_ACTION )
+		);
+
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_post_' . PayPal_Payment_Buttons::SDK_HOST_ACTION );
+	}
+
+	public function test_sdk_host_styles_include_both_sizing_rules() {
+		// Losing either rule clips every stacked card in the editor.
+		$print = new \ReflectionMethod( PayPal_Payment_Buttons::class, 'print_sdk_host_styles' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$print->setAccessible( true );
+		}
+
+		ob_start();
+		$print->invoke( null );
+		$css = preg_replace( '/\s+/', ' ', (string) ob_get_clean() );
+
+		$this->assertStringContainsString( 'body { margin: 0; }', $css );
+		$this->assertStringContainsString( 'body > div { display: flow-root; }', $css );
+	}
+
+	public function test_sdk_host_url_points_at_the_admin_post_action() {
+		$this->assertStringContainsString(
+			'action=' . PayPal_Payment_Buttons::SDK_HOST_ACTION,
+			PayPal_Payment_Buttons::get_sdk_host_url()
 		);
 	}
 
 	/**
-	 * Test that invalid URLs are rejected and return false.
+	 * Both states of the API-managed buttons flag.
 	 *
-	 * @dataProvider invalid_urls_provider
-	 *
-	 * @param string $url The URL to test.
+	 * @return array<string, array<int, bool>>
 	 */
-	#[DataProvider( 'invalid_urls_provider' )]
-	public function test_invalid_urls_are_rejected( $url ) {
-		$result = PayPal_Payment_Buttons::sanitize_paypal_script_url( $url );
-		$this->assertFalse( $result, "URL should return false: $url" );
-	}
-
-	/**
-	 * Data provider for invalid URLs.
-	 *
-	 * @return array
-	 */
-	public static function invalid_urls_provider() {
+	public static function provide_flag_states() {
 		return array(
-			'empty string'              => array( '' ),
-			'attacker domain'           => array( 'https://attacker.example/x.js' ),
-			'attacker with paypal name' => array( 'https://paypal.com.evil.com/script.js' ),
-			'subdomain injection'       => array( 'https://evilpaypal.com/script.js' ),
-			'javascript protocol'       => array( 'javascript:alert(1)' ),
-			'data protocol'             => array( 'data:text/html,<script>alert(1)</script>' ),
-			'no host'                   => array( '/script.js' ),
-			'malformed url'             => array( 'not-a-url' ),
-			'paypal typo domain'        => array( 'https://paypai.com/script.js' ),
-			'different TLD'             => array( 'https://paypal.co/script.js' ),
+			'flag on'  => array( true ),
+			'flag off' => array( false ),
 		);
 	}
 
 	/**
-	 * Test that paths are preserved when sanitizing URLs.
+	 * Any editor user loads the editor script data, so it has only the SDK host URL. The
+	 * client id comes with an admin's read of a payment.
+	 *
+	 * @dataProvider provide_flag_states
+	 *
+	 * @param bool $enabled Whether the flag is on.
 	 */
-	public function test_paths_are_preserved() {
-		// Valid PayPal URL with path
-		$valid_url = 'https://www.paypal.com/sdk/js/some/deep/path.js';
-		$result    = PayPal_Payment_Buttons::sanitize_paypal_script_url( $valid_url );
+	#[DataProvider( 'provide_flag_states' )]
+	public function test_editor_script_data_has_only_the_sdk_host_url( $enabled ) {
+		add_filter( self::FLAG_FILTER, $enabled ? '__return_true' : '__return_false' );
+		PayPal_OAuth::store_credentials( 'stored-client-id', 'stored-client-secret' );
 
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( '/sdk/js/some/deep/path.js', $result_parsed['path'] );
+		PayPal_Payment_Buttons::load_editor_scripts();
+
+		$this->assertSame(
+			array( 'window.jetpackPayPalPayments = {"sdkHostUrl":' . wp_json_encode( PayPal_Payment_Buttons::get_sdk_host_url(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . '};' ),
+			array_values( array_filter( (array) wp_scripts()->get_data( 'jp-paypal-payments-ncps-blocks', 'before' ) ) )
+		);
 	}
 
 	/**
-	 * Test that query parameters are preserved when sanitizing URLs.
+	 * The arguments wp_die() was last called with.
+	 *
+	 * @var array|null
 	 */
-	public function test_query_parameters_are_preserved() {
-		// Valid PayPal URL with query params
-		$valid_url = 'https://www.paypal.com/sdk/js?client-id=test&currency=USD&locale=en_US&amp;foo=bar';
-		$result    = PayPal_Payment_Buttons::sanitize_paypal_script_url( $valid_url );
+	private $wp_die_args = null;
 
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'client-id=test&currency=USD&locale=en_US&foo=bar', $result_parsed['query'] );
+	/**
+	 * A wp_die() handler that throws instead of ending the process, so the refusal
+	 * can be asserted on.
+	 *
+	 * @return callable
+	 */
+	public function throwing_wp_die_handler() {
+		/**
+		 * Record the wp_die() call and throw where it would have exited.
+		 *
+		 * @param string $message The wp_die() message.
+		 * @param string $title   The wp_die() title.
+		 * @param array  $args    The wp_die() arguments.
+		 * @return never
+		 * @throws \RuntimeException Always.
+		 */
+		return function ( $message, $title, $args ) {
+			$this->wp_die_args = array_merge(
+				array(
+					'message' => $message,
+					'title'   => $title,
+				),
+				$args
+			);
+			throw new \RuntimeException( 'wp_die' );
+		};
 	}
 
 	/**
-	 * Test that fragments are stripped when sanitizing URLs.
-	 * PayPal SDK URLs don't use fragments, so they are not preserved.
+	 * Where run_sdk_host() stopped: 'wp_die' or 'markup'.
+	 *
+	 * @var string|null
 	 */
-	public function test_fragments_are_stripped() {
-		// Valid PayPal URL with fragment
-		$valid_url = 'https://www.paypal.com/sdk/js#section';
-		$result    = PayPal_Payment_Buttons::sanitize_paypal_script_url( $valid_url );
+	private $sdk_host_stopped_at = null;
 
-		$result_parsed = wp_parse_url( $result );
-		$this->assertArrayNotHasKey( 'fragment', $result_parsed );
+	/**
+	 * Run render_sdk_host() and return what it emitted.
+	 *
+	 * Both of its exits have to be caught. wp_die() ends the process, so its handler is
+	 * swapped for one that throws, and the page itself ends in exit(), so the esc_html()
+	 * on the <title> throws instead. Everything up to the title is within reach that way.
+	 *
+	 * @return string The markup emitted before the run was stopped.
+	 */
+	private function run_sdk_host() {
+		$this->wp_die_args         = null;
+		$this->sdk_host_stopped_at = null;
+
+		// The refusal copy goes through esc_html too, so let that one string past and a
+		// denied request still reaches wp_die(). Everything else the page escapes stops
+		// the run here, so a title copy change keeps working.
+		$stop_at_the_markup = static function ( $safe_text, $text ) {
+			if ( 'Sorry, you are not allowed to access this page.' !== $text ) {
+				throw new \RuntimeException( 'markup' );
+			}
+			return $safe_text;
+		};
+
+		add_filter( 'wp_die_handler', array( $this, 'throwing_wp_die_handler' ) );
+		add_filter( 'esc_html', $stop_at_the_markup, 10, 2 );
+
+		ob_start();
+		try {
+			PayPal_Payment_Buttons::render_sdk_host();
+		} catch ( \RuntimeException $e ) {
+			$this->sdk_host_stopped_at = $e->getMessage();
+		} finally {
+			$markup = ob_get_clean();
+			remove_filter( 'esc_html', $stop_at_the_markup, 10 );
+			remove_filter( 'wp_die_handler', array( $this, 'throwing_wp_die_handler' ) );
+		}
+
+		return $markup;
+	}
+
+	public function test_sdk_host_turns_away_a_logged_out_visitor() {
+		wp_set_current_user( 0 );
+
+		$markup = $this->run_sdk_host();
+
+		$this->assertSame(
+			'wp_die',
+			$this->sdk_host_stopped_at,
+			'Stopped in the markup: run_sdk_host() lets only the refusal copy past esc_html, so it has to match.'
+		);
+		$this->assertSame( 403, $this->wp_die_args['response'] ?? null );
+		$this->assertNotEmpty( $this->wp_die_args['message'] ?? '', 'A refusal has to say why.' );
+		$this->assertSame( '', $markup, 'A refusal serves no markup.' );
+	}
+
+	public function test_sdk_host_serves_the_frame_to_an_editor() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'sdk-host-editor',
+					'user_pass'  => 'password',
+					'role'       => 'editor',
+				)
+			)
+		);
+
+		$markup = $this->run_sdk_host();
+
+		$this->assertSame( 'markup', $this->sdk_host_stopped_at, 'An editor gets the frame.' );
+		$this->assertStringContainsString( '<!DOCTYPE html>', $markup );
+		$this->assertStringContainsString( '<meta charset=', $markup );
+		// The page has to include the stylesheet, not just be able to emit one.
+		$this->assertStringContainsString( 'display: flow-root;', $markup );
 	}
 
 	/**
-	 * Test that all URL components work together.
+	 * Test that sanitize_paypal_script_url() returns what the shared URL table pins for
+	 * this side.
+	 *
+	 * The other half runs in tests/js/validation.test.js against sanitizePayPalUrl(). The
+	 * two are meant to be mirrors, so a rebuild that lands on one side only fails here.
+	 * The host list they share is pinned by test_paypal_host_allow_lists_are_in_sync()
+	 * instead.
+	 *
+	 * @dataProvider provide_url_parity_cases
+	 * @param string       $url      The URL a block attribute carries.
+	 * @param string|false $expected What this side has to return.
 	 */
-	public function test_all_url_components_together() {
-		// Valid PayPal URL with all components (fragment and port are stripped)
-		$valid_url = 'https://www.paypal.com:443/sdk/js?client-id=test&currency=USD&amp;foo=bar#init';
-		$result    = PayPal_Payment_Buttons::sanitize_paypal_script_url( $valid_url );
-
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'www.paypal.com', $result_parsed['host'] );
-		$this->assertEquals( 'https', $result_parsed['scheme'] );
-		$this->assertEquals( '/sdk/js', $result_parsed['path'] );
-		$this->assertEquals( 'client-id=test&currency=USD&foo=bar', $result_parsed['query'] );
-		$this->assertArrayNotHasKey( 'fragment', $result_parsed, 'Fragment should be stripped' );
+	#[DataProvider( 'provide_url_parity_cases' )]
+	public function test_sanitize_paypal_script_url_matches_the_shared_url_table( $url, $expected ) {
+		$this->assertSame( $expected, PayPal_Payment_Buttons::sanitize_paypal_script_url( $url ) );
 	}
 
 	/**
-	 * Test that HTTP scheme is upgraded to HTTPS.
+	 * Test that the canvas checks the same PayPal hosts the published page does.
+	 *
+	 * The url-parity.json table covers the URLs, not the host list: a fifth host added on
+	 * one side only would still pass every row in it. The two lists are compared outright
+	 * instead, as Conditional_Logic_Parity_Test does in the forms package.
 	 */
-	public function test_http_is_upgraded_to_https() {
-		// Valid PayPal URL with http should be upgraded to https
-		$http_url = 'http://www.paypal.com/sdk/js';
-		$result   = PayPal_Payment_Buttons::sanitize_paypal_script_url( $http_url );
+	public function test_paypal_host_allow_lists_are_in_sync() {
+		$path = __DIR__ . '/../../src/paypal-payment-buttons/utils/validation.js';
+		$this->assertFileExists( $path, 'validation.js moved; update this test to match.' );
 
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'https', $result_parsed['scheme'], 'HTTP should be upgraded to HTTPS' );
+		$source = (string) file_get_contents( $path );
+
+		$matched = preg_match( '/export const ALLOWED_PAYPAL_DOMAINS = \[(.*?)\];/s', $source, $block );
+		$this->assertSame( 1, $matched, 'Could not locate ALLOWED_PAYPAL_DOMAINS in validation.js.' );
+
+		preg_match_all( "/^\s*'([\w.-]+)',/m", $block[1], $matches );
+		$canvas = $matches[1];
+		$this->assertNotEmpty( $canvas, 'No hosts parsed from validation.js.' );
+
+		$published = PayPal_API_Client::ALLOWED_PAYPAL_DOMAINS;
+
+		sort( $canvas );
+		sort( $published );
+
+		$this->assertSame( $published, $canvas, 'Host drift between validation.js and PayPal_API_Client.' );
 	}
 
 	/**
-	 * Test that the XSS attack from the security report is mitigated.
+	 * Read one of the fixtures the JS suite also reads.
+	 *
+	 * A renamed or malformed fixture would otherwise leave a provider empty and the run
+	 * green, so every table the caller is about to read is checked first.
+	 *
+	 * @param string   $name   The file name under tests/fixtures.
+	 * @param string[] $tables The tables the caller reads.
+	 * @throws \RuntimeException When the fixture is unreadable or a table is missing.
+	 * @return array The decoded fixture.
 	 */
-	public function test_xss_attack_is_mitigated() {
-		$malicious_url = 'https://attacker.example/malicious.js';
-		$result        = PayPal_Payment_Buttons::sanitize_paypal_script_url( $malicious_url );
+	private static function load_parity_fixture( $name, array $tables ) {
+		$path    = __DIR__ . '/../fixtures/' . $name;
+		$fixture = json_decode( (string) file_get_contents( $path ), true );
 
-		$this->assertFalse( $result, 'Malicious URL should be rejected' );
+		// Checked before the loop, not inside it: an empty $tables would otherwise skip
+		// every check and hand the caller back whatever json_decode() made of the file.
+		if ( ! is_array( $fixture ) ) {
+			throw new \RuntimeException( 'Could not read ' . $path );
+		}
+
+		foreach ( $tables as $table ) {
+			if ( empty( $fixture[ $table ] ) ) {
+				throw new \RuntimeException( 'Could not read ' . $table . ' from ' . $path );
+			}
+		}
+
+		return $fixture;
 	}
 
 	/**
-	 * Test that trailing dots in hostnames are normalized.
-	 * FQDNs can technically end with a dot (DNS root), so www.paypal.com. should be treated as www.paypal.com
+	 * The shared URL fixture, read from the file the JS suite reads.
+	 *
+	 * @throws \RuntimeException When the fixture is unreadable or has duplicate names.
+	 * @return array<string, array<int, mixed>>
 	 */
-	public function test_trailing_dot_is_normalized() {
-		// Test with trailing dot
-		$url_with_dot = 'https://www.paypal.com./sdk/js';
-		$result       = PayPal_Payment_Buttons::sanitize_paypal_script_url( $url_with_dot );
+	public static function provide_url_parity_cases() {
+		$fixture = self::load_parity_fixture(
+			'url-parity.json',
+			array( 'accepted', 'rejected', 'strictEditor', 'parserSplit' )
+		);
 
-		$this->assertNotFalse( $result, 'URL with trailing dot should be accepted' );
+		$cases = array();
 
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'www.paypal.com', $result_parsed['host'], 'Trailing dot should be stripped' );
+		foreach ( $fixture['accepted'] as $case ) {
+			$cases[ 'accepts ' . $case['name'] ] = array( $case['url'], $case['sanitized'] );
+		}
 
-		// Test sandbox with trailing dot
-		$sandbox_with_dot = 'https://sandbox.paypal.com./sdk/js';
-		$result           = PayPal_Payment_Buttons::sanitize_paypal_script_url( $sandbox_with_dot );
+		foreach ( $fixture['rejected'] as $case ) {
+			$cases[ 'refuses ' . $case['name'] ] = array( $case['url'], false );
+		}
 
-		$this->assertNotFalse( $result, 'Sandbox URL with trailing dot should be accepted' );
+		// Where the two sides part company. Each case pins this side's answer as well as
+		// the canvas's, so closing a gap fails just as loudly as opening one.
+		foreach ( array( 'strictEditor', 'parserSplit' ) as $table ) {
+			foreach ( $fixture[ $table ] as $case ) {
+				$cases[ $table . ': ' . $case['name'] ] = array( $case['url'], $case['php'] );
+			}
+		}
 
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'sandbox.paypal.com', $result_parsed['host'], 'Trailing dot should be stripped from sandbox' );
+		// A duplicate name would silently drop a case.
+		$expected = count( $fixture['accepted'] ) + count( $fixture['rejected'] )
+			+ count( $fixture['strictEditor'] ) + count( $fixture['parserSplit'] );
+
+		if ( count( $cases ) !== $expected ) {
+			throw new \RuntimeException( 'url-parity.json has duplicate case names' );
+		}
+
+		return $cases;
 	}
 
 	/**
@@ -1419,14 +1750,10 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 * @return array<string, array<int, mixed>>
 	 */
 	public static function provide_style_parity_cases() {
-		$path    = __DIR__ . '/../fixtures/style-parity.json';
-		$fixture = json_decode( (string) file_get_contents( $path ), true );
-
-		foreach ( array( 'cases', 'textCases', 'rejectedCases', 'rejectedTextCases', 'buttonCases' ) as $table ) {
-			if ( ! is_array( $fixture ) || empty( $fixture[ $table ] ) ) {
-				throw new \RuntimeException( 'Could not read ' . $table . ' from ' . $path );
-			}
-		}
+		$fixture = self::load_parity_fixture(
+			'style-parity.json',
+			array( 'cases', 'textCases', 'rejectedCases', 'rejectedTextCases', 'buttonCases' )
+		);
 
 		$cases = array();
 
@@ -1514,8 +1841,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			);
 		}
 
-		// A renamed or malformed fixture would otherwise yield an empty provider
-		// and a green run.
+		// A duplicate name would silently drop a case.
 		$expected = count( $fixture['cases'] )
 			+ count( $fixture['rejectedCases'] ) * ( count( $targets ) + 1 )
 			+ count( $fixture['buttonCases'] )

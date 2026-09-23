@@ -13,6 +13,8 @@
  * @since 0.8.0
  */
 
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import {
@@ -26,7 +28,9 @@ import { formatPrice } from '../utils/currency-symbols';
 import { DEFAULT_LABEL } from '../utils/defaults';
 import { linkPrice } from '../utils/link-price';
 import { withPartnerAttribution } from '../utils/partner-attribution';
+import { getCardRevision } from '../utils/sync-on-save';
 import QrCodePreview from './qr-code-preview';
+import StackedButtonsPreview, { getStackedSdkSrc } from './stacked-buttons-preview';
 import { hasVariantPricing } from './variant-builder';
 
 /**
@@ -248,10 +252,13 @@ function ButtonPreview( {
  * The block's canvas preview, by Display Format.
  *
  * @param {object} props        - Component props. The rest go to the format's own preview.
- * @param {string} props.format - Display format: BUTTON, LINK or QR.
+ * @param {string} props.format - Display format: BUTTON, LINK, QR or STACKED.
  * @return {Element} The preview for that format.
  */
 export default function PayPalButtonPreview( { format, ...props } ) {
+	// Render again when a save ends, so the stacked key below reads the new card revision.
+	useSelect( select => select( editorStore ).isSavingPost(), [] );
+
 	// An unknown format falls back to the button, the same way
 	// render_api_managed_button() validates it server-side.
 	switch ( format ) {
@@ -259,6 +266,14 @@ export default function PayPalButtonPreview( { format, ...props } ) {
 			return <LinkPreview { ...props } />;
 		case 'QR':
 			return <QrPreview { ...props } />;
+		case 'STACKED':
+			// The SDK boots once per mount, so the key remounts this on a new URL, payment or card revision.
+			return (
+				<StackedButtonsPreview
+					key={ `${ getStackedSdkSrc( props.attributes, props.resource ) }|${ props.attributes?.resourceId }|${ getCardRevision( props.attributes?.resourceId ) }` }
+					{ ...props }
+				/>
+			);
 		default:
 			return <ButtonPreview { ...props } />;
 	}

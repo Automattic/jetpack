@@ -692,7 +692,7 @@ export default function ApiManagedEdit( {
 		link =>
 			readLink( link, linkAttributes => {
 				// The block just read the payment, so the save can write it without a second fetch.
-				recordPaymentRead( blockClientId, link.id );
+				recordPaymentRead( blockClientId, link.id, linkAttributes );
 				// The read only carries what the payment has, so what the last link had
 				// goes back to its default first. The image stays: it belongs to the block.
 				setAttributes( {
@@ -719,6 +719,8 @@ export default function ApiManagedEdit( {
 					isApiManaged: _api,
 					resourceId: _id,
 					paymentLink: _link,
+					scriptSrc: _script,
+					integrationMode: _mode,
 					...copied
 				} = linkAttributes;
 				// Named as a copy, so it reads as one next to the original in the list and
@@ -880,6 +882,7 @@ export default function ApiManagedEdit( {
 			setAttributes={ setAttributes }
 			paymentUrl={ withPartnerAttribution( paymentLink, partnerAttributionId ) }
 			disabled={ isBusy }
+			environment={ environment }
 		/>
 	);
 
@@ -1649,6 +1652,8 @@ export default function ApiManagedEdit( {
 						qrShowCaption={ qrShowCaption }
 						qrCaption={ qrCaption }
 						attributes={ attributes }
+						resource={ resource }
+						isSelected={ isSelected }
 					/>
 				) }
 			</div>

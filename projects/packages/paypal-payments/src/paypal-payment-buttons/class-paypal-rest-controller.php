@@ -270,7 +270,17 @@ class PayPal_REST_Controller {
 					'methods'             => 'PUT',
 					'callback'            => array( __CLASS__, 'handle_update_button' ),
 					'permission_callback' => array( __CLASS__, 'manage_options_permission_check' ),
-					'args'                => self::get_button_create_args(),
+					'args'                => array_merge(
+						self::get_button_create_args(),
+						array(
+							'include_snippets' => array(
+								'required'    => false,
+								'type'        => 'boolean',
+								'default'     => false,
+								'description' => __( 'Read the payment back after updating it, for the SDK snippets a stacked block needs.', 'jetpack-paypal-payments' ),
+							),
+						)
+					),
 				),
 			)
 		);
@@ -633,6 +643,10 @@ class PayPal_REST_Controller {
 			return self::api_error_to_rest_error( $result );
 		}
 
+		// The 201 includes code_snippets, so map it here too: a new stacked block would
+		// otherwise save an empty scriptSrc, and the mount GET comes too late to fix it.
+		$result['attributes'] = PayPal_Attribute_Mapper::api_response_to_attributes( $result );
+
 		return new WP_REST_Response( $result, 201 );
 	}
 
@@ -676,7 +690,35 @@ class PayPal_REST_Controller {
 		$result['attributes'] = PayPal_Attribute_Mapper::api_response_to_attributes( $result );
 		$result['embeds']     = PayPal_Admin_Page::count_published_embeds()[ $resource_id ] ?? 0;
 
+		// The editor's stacked preview loads PayPal's SDK from this until the block has a scriptSrc.
+		$result['sdk_url'] = self::get_sdk_url( $result['attributes']['currencyCode'] ?? 'USD' );
+
 		return new WP_REST_Response( $result, 200 );
+	}
+
+	/**
+	 * Build the PayPal SDK URL for the connected account, with the same parameters as
+	 * PayPal's stacked buttons snippet.
+	 *
+	 * @param string $currency The payment's currency.
+	 * @return string The URL, or '' when PayPal is disconnected.
+	 */
+	private static function get_sdk_url( $currency ) {
+		$credentials = PayPal_OAuth::get_credentials();
+		if ( false === $credentials ) {
+			return '';
+		}
+
+		// add_query_arg() leaves values as they are, and a client id can contain + / =.
+		return add_query_arg(
+			array(
+				'client-id'      => rawurlencode( $credentials['client_id'] ),
+				'components'     => 'hosted-buttons',
+				'enable-funding' => 'venmo',
+				'currency'       => rawurlencode( $currency ),
+			),
+			PayPal_OAuth::get_sdk_base_url()
+		);
 	}
 
 	/**
@@ -701,6 +743,18 @@ class PayPal_REST_Controller {
 
 		if ( is_wp_error( $result ) ) {
 			return self::api_error_to_rest_error( $result );
+		}
+
+		// PayPal answers a PUT with 204 and no code_snippets, so a caller that needs them asks
+		// for the resource to be read back; that read is how a block switching to stacked draws
+		// in the same save rather than after a reload. Only the re-read gets `attributes`: the
+		// echo has no `id`, and mapping it would blank the block's resourceId.
+		if ( $request->get_param( 'include_snippets' ) ) {
+			$fresh = PayPal_API_Client::get_resource( $resource_id );
+			if ( ! is_wp_error( $fresh ) ) {
+				$result               = $fresh;
+				$result['attributes'] = PayPal_Attribute_Mapper::api_response_to_attributes( $result );
+			}
 		}
 
 		return new WP_REST_Response( $result, 200 );
