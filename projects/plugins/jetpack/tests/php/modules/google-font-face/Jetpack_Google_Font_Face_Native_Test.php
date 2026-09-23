@@ -154,6 +154,20 @@ class Jetpack_Google_Font_Face_Native_Test extends WP_UnitTestCase {
 		}
 	}
 
+	public function test_filter_can_strip_catalogue_faces_in_editor() {
+		set_current_screen( 'post.php' );
+		add_filter( 'jetpack_google_fonts_load_font_faces', '__return_false' );
+		$data = jetpack_register_google_fonts_to_theme_json( new WP_Theme_JSON_Data( array( 'version' => 3 ), 'default' ) )->get_data();
+		$this->assertArrayNotHasKey( 'fontFace', $data['settings']['typography']['fontFamilies']['default'][0] );
+		set_current_screen( 'front' );
+	}
+
+	public function test_forced_full_catalogue_prints_each_face_once() {
+		add_filter( 'jetpack_google_fonts_load_font_faces', '__return_true' );
+		$this->native_fonts( array(), 'var(--wp--preset--font-family--catalogue-font), sans-serif' );
+		$this->assertSame( 1, substr_count( $this->get_font_output(), 'https://example.org/catalogue.woff2' ) );
+	}
+
 	public function test_native_hooks_are_preserved() {
 		add_action( 'wp_head', 'wp_print_font_faces', 50 );
 		add_action( 'wp_head', 'gutenberg_print_font_faces', 50 );
