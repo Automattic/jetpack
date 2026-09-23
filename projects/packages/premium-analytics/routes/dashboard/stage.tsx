@@ -108,29 +108,26 @@ function Dashboard(): JSX.Element {
 
 	const [ editMode, setEditMode ] = useState( false );
 	const trackCustomize = useTrackCustomize( 'dashboard', activeSection );
-	const startCustomizing = useCallback( () => {
-		trackCustomize.start();
-		setEditMode( true );
-	}, [ trackCustomize ] );
-	// The dashboard's Cancel and Done leave edit mode through here.
+	// Every way into and out of edit mode arrives here: the menu below, the command
+	// palette, an empty layout, and the dashboard's own Cancel and Done.
 	const onEditChange = useCallback(
 		( nextEditMode: boolean ) => {
-			if ( ! nextEditMode ) {
+			if ( nextEditMode ) {
+				trackCustomize.start();
+			} else {
 				trackCustomize.exit();
 			}
 			setEditMode( nextEditMode );
 		},
 		[ trackCustomize ]
 	);
-	// Outside edit mode this is an inline widget edit saving itself, not a customized layout.
+	const startCustomizing = useCallback( () => onEditChange( true ), [ onEditChange ] );
 	const onLayoutChange = useCallback(
 		( nextLayout: DashboardWidget[] ) => {
-			if ( editMode ) {
-				trackCustomize.save( layout, nextLayout );
-			}
+			trackCustomize.layoutChange( layout, nextLayout );
 			setLayout( nextLayout );
 		},
-		[ editMode, layout, setLayout, trackCustomize ]
+		[ layout, setLayout, trackCustomize ]
 	);
 	const resetToDefault = useCallback( () => {
 		trackCustomize.reset();

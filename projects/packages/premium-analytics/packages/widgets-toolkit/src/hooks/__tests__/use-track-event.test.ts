@@ -43,7 +43,7 @@ describe( 'useTrackCustomize', () => {
 
 		act( () => {
 			result.current.start();
-			result.current.save( before, after );
+			result.current.layoutChange( before, after );
 			result.current.exit();
 		} );
 
@@ -76,16 +76,22 @@ describe( 'useTrackCustomize', () => {
 		] );
 	} );
 
-	it( 'forgets a save once the session it belonged to has ended', () => {
+	// Upstream flushes a pending inline widget edit when edit mode turns on, and that
+	// commit reaches the page with no exit behind it.
+	it( 'leaves an inline widget edit saving itself out of the session', async () => {
 		const { result } = renderHook( () => useTrackCustomize( 'dashboard', 'traffic' ) );
 
-		act( () => {
-			result.current.save( before, after );
-			result.current.exit();
-			result.current.start();
-			result.current.exit();
+		act( () => result.current.start() );
+		act( () => result.current.layoutChange( before, after ) );
+		await act( async () => {
+			await Promise.resolve();
 		} );
+		act( () => result.current.exit() );
 
+		expect( events().map( ( [ name ] ) => name ) ).toEqual( [
+			'jetpack_premium_analytics_customize_start',
+			'jetpack_premium_analytics_customize_exit',
+		] );
 		expect( events().at( -1 )?.[ 1 ] ).toMatchObject( { saved: false } );
 	} );
 

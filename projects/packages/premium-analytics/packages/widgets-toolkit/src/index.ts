@@ -191,7 +191,11 @@ export {
 /**
  * Constants
  */
-export { WIDGET_ROW_LIMIT } from './constants';
+export {
+	DASHBOARD_PREFERENCES_SCOPE,
+	DASHBOARD_SECTION_LAYOUTS_KEY,
+	WIDGET_ROW_LIMIT,
+} from './constants';
 
 /**
  * Widget edit fields

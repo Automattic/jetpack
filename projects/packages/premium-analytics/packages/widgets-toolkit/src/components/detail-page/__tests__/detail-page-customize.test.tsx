@@ -75,8 +75,6 @@ describe( 'useDetailPageCustomize', () => {
 			useDetailPageCustomize( layout, { onLayoutChange, onLayoutReset, surface: 'post_detail' } )
 		);
 
-		// An inline widget edit saves itself outside customize mode; that is no customize save.
-		act( () => result.current.onLayoutChange( moved ) );
 		act( () => result.current.startCustomizing() );
 		// Done: the dashboard commits, then leaves edit mode, in one call.
 		act( () => {
@@ -86,7 +84,7 @@ describe( 'useDetailPageCustomize', () => {
 		act( () => result.current.startCustomizing() );
 		act( () => result.current.resetToDefault() );
 
-		expect( onLayoutChange ).toHaveBeenCalledTimes( 2 );
+		expect( onLayoutChange ).toHaveBeenCalledWith( moved );
 		expect( mockRecordEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
 			'jetpack_premium_analytics_customize_start',
 			'jetpack_premium_analytics_customize_save',

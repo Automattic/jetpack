@@ -125,7 +125,7 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 
 const mockTrackCustomize = {
 	start: jest.fn(),
-	save: jest.fn(),
+	layoutChange: jest.fn(),
 	exit: jest.fn(),
 	reset: jest.fn(),
 };

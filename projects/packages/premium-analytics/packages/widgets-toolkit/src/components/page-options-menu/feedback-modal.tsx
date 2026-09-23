@@ -10,16 +10,13 @@ import { useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */
+import { DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_SECTION_LAYOUTS_KEY } from '../../constants';
 import { useTrackEvent } from '../../hooks/use-track-event';
 import { ReadinessFields, readinessSummary, type StatsFeedbackReadiness } from './feedback-fields';
 
 // Reaches Happiness as the subject line of the feedback email ("Feedback received
 // from …"), so it has to name the surface without any further context.
 const PRODUCT_NAME = 'Jetpack Stats v2';
-
-// Where the dashboard route stores each section's customized layout; reset deletes the entry.
-const DASHBOARD_PREFERENCES_SCOPE = 'jetpack-premium-analytics/dashboard';
-const DASHBOARD_LAYOUTS_KEY = 'dashboardSectionLayouts';
 
 export type FeedbackSource = 'menu' | 'banner';
 
@@ -54,7 +51,7 @@ export function FeedbackModal( { source, onSubmit, onClose }: FeedbackModalProps
 			select( preferencesStore ) as unknown as {
 				get: ( scope: string, key: string ) => unknown;
 			}
-		 ).get( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_LAYOUTS_KEY );
+		 ).get( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_SECTION_LAYOUTS_KEY );
 
 		return !! layouts && typeof layouts === 'object' && Object.keys( layouts ).length > 0;
 	}, [] );
