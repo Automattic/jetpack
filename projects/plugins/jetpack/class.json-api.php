@@ -684,7 +684,7 @@ class WPCOM_JSON_API {
 
 		if ( 'text/plain' === $content_type ||
 			'text/html' === $content_type ) {
-			status_header( $status_code );
+			status_header( self::renderable_status_code( $status_code ) );
 			header( 'Content-Type: ' . $content_type );
 			foreach ( $extra as $key => $value ) {
 				header( "$key: $value" );
@@ -706,7 +706,7 @@ class WPCOM_JSON_API {
 			$content_type = 'application/json';
 		}
 
-		status_header( $status_code );
+		status_header( self::renderable_status_code( $status_code ) );
 		header( "Content-Type: $content_type" );
 		if ( isset( $this->query['callback'] ) && is_string( $this->query['callback'] ) ) {
 			$callback = preg_replace( '/[^a-z0-9_.]/i', '', $this->query['callback'] );
@@ -731,6 +731,17 @@ class WPCOM_JSON_API {
 		}
 
 		return $content_type;
+	}
+
+	/**
+	 * Map a status status_header() can't render to a generic proxy error, so it never silently no-ops to 200.
+	 *
+	 * @param int $status_code HTTP status code.
+	 * @return int A status_header()-renderable code.
+	 */
+	public static function renderable_status_code( $status_code ) {
+		// status_header() no-ops on codes WP can't describe (508, Cloudflare 52x), leaving the default 200.
+		return get_status_header_desc( (int) $status_code ) ? (int) $status_code : 502;
 	}
 
 	/**
