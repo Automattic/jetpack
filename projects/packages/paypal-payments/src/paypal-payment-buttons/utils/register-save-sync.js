@@ -54,16 +54,14 @@ async function isConnected() {
  * @param {Function} isEnabled - Whether API-managed buttons are on for this site.
  */
 export function registerSaveSync( isEnabled ) {
-	// The snackbar for what this save wrote to PayPal, held until the post has saved.
+	// The snackbar for what PayPal saved, held until the post saves. A failed post save
+	// keeps it: the retry finds nothing new to send, but PayPal still has the write.
 	let savedMessage = null;
 
 	addFilter(
 		'editor.preSavePost',
 		'jetpack/paypal-payment-buttons/sync-payments',
 		async ( edits, options ) => {
-			// A save that failed never reaches the action below, so drop what it left.
-			savedMessage = null;
-
 			if ( options?.isAutosave || ! isEnabled() ) {
 				return edits;
 			}
@@ -103,11 +101,12 @@ export function registerSaveSync( isEnabled ) {
 				reportSaved: created => saved.push( created ),
 			} );
 
-			// Set even when no attributes changed: a PUT can still have saved to PayPal.
-			if ( saved.length ) {
-				savedMessage = saved.includes( true )
-					? __( 'Payment link successfully created.', 'jetpack-paypal-payments' )
-					: __( 'Changes saved.', 'jetpack-paypal-payments' );
+			// Set even when no attributes changed: a PUT can still have saved to PayPal. A
+			// create wins over an update, from this save or one whose post save failed.
+			if ( saved.includes( true ) ) {
+				savedMessage = __( 'Payment link successfully created.', 'jetpack-paypal-payments' );
+			} else if ( saved.length && ! savedMessage ) {
+				savedMessage = __( 'Changes saved.', 'jetpack-paypal-payments' );
 			}
 
 			if ( ! changed ) {
@@ -124,10 +123,18 @@ export function registerSaveSync( isEnabled ) {
 	);
 
 	// Runs only once the post has saved, so a failed save doesn't also show a success snackbar.
-	addAction( 'editor.savePost', 'jetpack/paypal-payment-buttons/saved-snackbar', () => {
-		if ( savedMessage ) {
+	// An autosave runs it too, but sends nothing to PayPal, so it leaves the snackbar for the
+	// next save.
+	addAction(
+		'editor.savePost',
+		'jetpack/paypal-payment-buttons/saved-snackbar',
+		( post, options ) => {
+			if ( options?.isAutosave || ! savedMessage ) {
+				return;
+			}
+
 			toast( 'success', savedMessage, 'jetpack-paypal-saved' );
 			savedMessage = null;
 		}
-	} );
+	);
 }

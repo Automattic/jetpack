@@ -121,11 +121,13 @@ async function runSaveFilter( edits, options = {}, afterSync, enabled = true ) {
 
 /**
  * Run the registered `editor.savePost` action, as the editor does once the post has saved.
+ *
+ * @param {object} options - Save options, as the editor passes them.
  */
-function runSavedAction() {
+function runSavedAction( options = {} ) {
 	const [ , , callback ] = addAction.mock.calls.find( ( [ hook ] ) => 'editor.savePost' === hook );
 
-	callback( { id: 17, type: 'post' }, {} );
+	callback( { id: 17, type: 'post' }, options );
 }
 
 beforeEach( () => {
@@ -327,17 +329,71 @@ describe( 'registerSaveSync', () => {
 			] );
 		} );
 
-		// The editor skips the action when the post fails to save, and an autosave
-		// writes nothing to PayPal, so neither may show the failed save's snackbar.
-		it( 'drops the snackbar of a save that failed', async () => {
+		// The editor skips the action when the post fails to save. The retry has nothing new
+		// to send, but the block now points at the payment the failed save created.
+		it( "shows a failed save's snackbar on the next save that succeeds", async () => {
+			blocks.set( 'a', payPalBlock( 'a' ) );
+			apiFetch.mockImplementation( ( { path, method } ) => {
+				if ( path === `${ API_BASE }/connection` ) {
+					return Promise.resolve( { connected: true } );
+				}
+
+				return Promise.resolve( 'POST' === method ? { id: 'PLB-NEW1' } : {} );
+			} );
+			await runSaveFilter( { content: '' }, {}, blockComment( 'PLB-NEW1' ) );
+			expect( mockToast ).not.toHaveBeenCalled();
+			blocks.set( 'a', payPalBlock( 'a', 'PLB-NEW1' ) );
+			apiFetch.mockClear();
+
+			await runSaveFilter( { content: blockComment( 'PLB-NEW1' ) } );
+			runSavedAction();
+
+			expect( apiFetch ).not.toHaveBeenCalledWith(
+				expect.objectContaining( { method: expect.stringMatching( /^(POST|PUT)$/ ) } )
+			);
+			expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment link successfully created.' ) ] );
+		} );
+
+		// An autosave sends nothing to PayPal, so it leaves the snackbar for the next save.
+		it( "keeps a failed save's snackbar through an autosave", async () => {
 			blocks.set( 'a', payPalBlock( 'a', 'PLB-A1' ) );
 			recordPaymentRead( 'a', 'PLB-A1' );
 			await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
 
 			await runSaveFilter( { content: blockComment( 'PLB-A1' ) }, { isAutosave: true } );
+			runSavedAction( { isAutosave: true } );
+			expect( mockToast ).not.toHaveBeenCalled();
+
+			await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
+			runSavedAction();
 			runSavedAction();
 
-			expect( mockToast ).not.toHaveBeenCalled();
+			expect( mockToast.mock.calls ).toEqual( [ saved( 'Changes saved.' ) ] );
+		} );
+
+		it( 'says created when an earlier failed save created the payment', async () => {
+			blocks.set( 'a', payPalBlock( 'a' ) );
+			apiFetch.mockImplementation( ( { path, method } ) => {
+				if ( path === `${ API_BASE }/connection` ) {
+					return Promise.resolve( { connected: true } );
+				}
+
+				return Promise.resolve( 'POST' === method ? { id: 'PLB-NEW1' } : {} );
+			} );
+			await runSaveFilter( { content: '' }, {}, blockComment( 'PLB-NEW1' ) );
+
+			// A second failed save, this one an update.
+			const block = payPalBlock( 'a', 'PLB-NEW1' );
+			blocks.set( 'a', { ...block, attributes: { ...block.attributes, price: '31.00' } } );
+			await runSaveFilter( { content: blockComment( 'PLB-NEW1' ) } );
+			expect( apiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( { path: `${ API_BASE }/buttons/PLB-NEW1`, method: 'PUT' } )
+			);
+
+			await runSaveFilter( { content: blockComment( 'PLB-NEW1' ) } );
+			runSavedAction();
+
+			expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment link successfully created.' ) ] );
 		} );
 
 		// The PUT went through, so both are true: the payment saved, and the stacked
