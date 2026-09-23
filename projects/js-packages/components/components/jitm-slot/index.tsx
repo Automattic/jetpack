@@ -38,6 +38,10 @@ const JitmSlot: FC< JitmSlotProps > = ( { className } ) => {
 
 	useLayoutEffect( () => {
 		const host = ref.current;
+		if ( ! host ) {
+			return;
+		}
+
 		const element = getNotices();
 		element.hidden = false;
 		host.appendChild( element );

@@ -104,6 +104,7 @@ describe( 'SocialPage', () => {
 			</SocialPage>
 		);
 
+		expect( screen.queryAllByRole( 'tab' ) ).toHaveLength( 0 );
 		expect( screen.getByTestId( 'jp-jitm-slot' ) ).toBeInTheDocument();
 	} );
 } );
