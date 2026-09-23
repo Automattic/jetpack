@@ -1337,7 +1337,7 @@ EXPECTED;
 	public function test_activate_default_modules_skips_forced_off_modules() {
 		$this->set_feature_policy( array( 'blocks' => array( 'activation' => 'forced-off' ) ) );
 
-		Jetpack::activate_default_modules( false, false, array(), false, null, null, null );
+		Jetpack::activate_default_modules( false, false, array(), false, false, null, null );
 
 		$this->assertNotContains( 'blocks', (array) get_option( 'jetpack_active_modules', array() ) );
 	}
