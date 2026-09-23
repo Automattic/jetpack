@@ -140,6 +140,8 @@ export function usePayPalResource( {
 				isApiManaged: false,
 				resourceId: undefined,
 				paymentLink: undefined,
+				scriptSrc: undefined,
+				integrationMode: undefined,
 			} );
 			toast( 'success', message );
 		};

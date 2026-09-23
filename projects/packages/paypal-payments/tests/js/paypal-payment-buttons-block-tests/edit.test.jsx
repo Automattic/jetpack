@@ -2218,9 +2218,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				currencyCode: 'USD',
 				taxEnabled: true,
 				taxValue: '7.5',
+				scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test&components=hosted-buttons',
+				integrationMode: 'BUTTON',
 			} );
 
-			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			const { unmount } = render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
 			await expect(
 				screen.findByRole( 'button', { name: 'Create new' } )
@@ -2240,8 +2242,16 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( copied ).not.toHaveProperty( 'isApiManaged' );
 			expect( copied ).not.toHaveProperty( 'resourceId' );
 			expect( copied.paymentLink ).toBe( '' );
+			expect( copied.scriptSrc ).toBe( '' );
+			expect( copied.integrationMode ).toBe( '' );
 			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'button', { name: 'New payment link' } ) ).toBeInTheDocument();
+
+			// The copy reopens on the V2 form.
+			unmount();
+			render( <Edit attributes={ copied } setAttributes={ setAttributes } /> );
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( /legacy paste-code format/ ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'goes back from the form to the list, emptying the form on the way', async () => {
@@ -5768,6 +5778,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			isApiManaged: true,
 			resourceId: 'PLB-DELETE1',
 			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-DELETE1',
+			format: 'STACKED',
+			scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test&components=hosted-buttons',
+			integrationMode: 'BUTTON',
 		};
 
 		/**
@@ -5828,7 +5841,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				return Promise.resolve( {} );
 			} );
 
-			renderForm( saved );
+			const { unmount } = renderForm( saved );
 
 			await user.click( await screen.findByTestId( 'toolbar-Delete payment link' ) );
 			await user.click( screen.getByLabelText( 'I understand this cannot be undone.' ) );
@@ -5841,11 +5854,20 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				)
 			);
 
-			expect( setAttributes ).toHaveBeenCalledWith( {
+			const cleared = setAttributes.mock.calls.at( -1 )[ 0 ];
+			expect( cleared ).toStrictEqual( {
 				isApiManaged: false,
 				resourceId: undefined,
 				paymentLink: undefined,
+				scriptSrc: undefined,
+				integrationMode: undefined,
 			} );
+
+			// The block reopens on the V2 form.
+			unmount();
+			renderForm( { ...saved, ...cleared } );
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( /legacy paste-code format/ ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'cancelling closes the dialog without deleting', async () => {

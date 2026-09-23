@@ -719,6 +719,8 @@ export default function ApiManagedEdit( {
 					isApiManaged: _api,
 					resourceId: _id,
 					paymentLink: _link,
+					scriptSrc: _script,
+					integrationMode: _mode,
 					...copied
 				} = linkAttributes;
 				// Named as a copy, so it reads as one next to the original in the list and
