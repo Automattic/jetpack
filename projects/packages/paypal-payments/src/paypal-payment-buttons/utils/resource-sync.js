@@ -18,10 +18,17 @@ import metadata from '../block.json';
  */
 export const RESOURCE_ATTRIBUTES = [
 	'paymentLink',
+	// The payment's own integration_mode, so a LINK or QR block re-sends it as it is.
+	'integrationMode',
+	// The PayPal SDK URL, which only a BUTTON-mode payment has. The legacy paste-code
+	// path shares the attribute, and its blocks have neither resourceId nor isApiManaged,
+	// so the read-back GET leaves them alone.
+	'scriptSrc',
 	'productName',
 	'price',
 	'currencyCode',
 	'productDescription',
+	'productId',
 	'variantsEnabled',
 	'variants',
 	'adjustableQuantity',
@@ -31,9 +38,62 @@ export const RESOURCE_ATTRIBUTES = [
 	'taxType',
 	'taxName',
 	'taxValue',
-	'returnUrl',
+	'handlingEnabled',
+	'handlingValue',
+	'discountEnabled',
+	'discountType',
+	'discountValue',
+	'shippingEnabled',
+	'shippingMode',
+	'shippingValue',
+	'shippingAdditionalValue',
 	'collectShippingAddress',
+	'returnUrl',
 ];
+
+/**
+ * The payment the block points at and everything read from it. Reset together, so the
+ * next save creates a new payment.
+ */
+export const PAYMENT_ATTRIBUTES = [ 'isApiManaged', 'resourceId', ...RESOURCE_ATTRIBUTES ];
+
+/**
+ * Attributes each gating control owns, keyed by the attribute that gates them.
+ *
+ * A gate switched off drops its feature from the request, so everything it owns goes
+ * back to its block.json default in the same `setAttributes` call, before the next
+ * read-back overwrites it silently.
+ */
+export const GATED_ATTRIBUTES = {
+	variantsEnabled: [ 'variants' ],
+	adjustableQuantity: [ 'maxQuantity' ],
+	taxEnabled: [ 'taxType', 'taxName', 'taxValue' ],
+	handlingEnabled: [ 'handlingValue' ],
+	discountEnabled: [ 'discountType', 'discountValue' ],
+	shippingEnabled: [ 'shippingMode', 'shippingValue', 'shippingAdditionalValue' ],
+};
+
+/**
+ * Block.json's defaults for the attributes named, as a setAttributes payload.
+ *
+ * Reading the metadata keeps block.json the one copy of every default.
+ *
+ * @param {...string} keys - Attribute names.
+ * @return {object} Each attribute at its default.
+ */
+export function resetToDefaults( ...keys ) {
+	return Object.fromEntries( keys.map( key => [ key, metadata.attributes[ key ]?.default ] ) );
+}
+
+/**
+ * The payload a gate's control writes when it is switched off.
+ *
+ * @param {string} gate - The gating attribute, a key of GATED_ATTRIBUTES.
+ * @return {object} The gate and everything it owns, at their defaults.
+ */
+export function turnGateOff( gate ) {
+	return resetToDefaults( gate, ...GATED_ATTRIBUTES[ gate ] );
+}
 
 let nextKey = 1;
 
@@ -131,9 +191,9 @@ export function withCurrency( variants, currencyCode ) {
  * @param {string} key - Attribute name.
  * @param {*}      a   - Current value.
  * @param {*}      b   - Value from the payment.
- * @return {boolean} True when no update is needed.
+ * @return {boolean} True when both values mean the same thing.
  */
-function isSameValue( key, a, b ) {
+export function isSameValue( key, a, b ) {
 	if ( key === 'variants' ) {
 		return JSON.stringify( comparableVariants( a ) ) === JSON.stringify( comparableVariants( b ) );
 	}
@@ -144,10 +204,41 @@ function isSameValue( key, a, b ) {
 }
 
 /**
+ * Whether a read-back change is bookkeeping rather than something done at PayPal.
+ *
+ * `integrationMode` belongs to the payment: a sibling going stacked flips it, and the
+ * merchant never sets or sees it. A first `scriptSrc` arriving is the same. One that
+ * went empty means the payment lost BUTTON mode, which matters only to a stacked block,
+ * so only a stacked block is told.
+ *
+ * @param {string} key    - Attribute name.
+ * @param {*}      prior  - The block's value before the read-back.
+ * @param {string} format - The block's display format.
+ * @return {boolean} True when the change says nothing to the merchant.
+ */
+export function isBookkeeping( key, prior, format ) {
+	if ( key === 'integrationMode' ) {
+		return true;
+	}
+	if ( key !== 'scriptSrc' ) {
+		return false;
+	}
+	if ( 'STACKED' !== format ) {
+		return true;
+	}
+
+	const fallback = metadata.attributes.scriptSrc.default;
+
+	return ( prior ?? fallback ) === fallback;
+}
+
+/**
  * Work out which block attributes differ from the payment PayPal holds.
  *
  * A field the payment no longer carries goes back to its block.json default,
- * so a description or a per-option price removed elsewhere clears here too.
+ * so a description or a per-option price removed elsewhere clears here too. The
+ * link is the exception: it is fixed to the payment's id, so a read with an empty
+ * link keeps the block's.
  *
  * @param {object} current      - The block's current attributes.
  * @param {object} fromResource - Attributes mapped from the payment by the server.
@@ -157,6 +248,10 @@ export function getResourceAttributeUpdates( current, fromResource ) {
 	const updates = {};
 
 	RESOURCE_ATTRIBUTES.forEach( key => {
+		if ( key === 'paymentLink' && ! fromResource?.paymentLink ) {
+			return;
+		}
+
 		const fallback = metadata.attributes[ key ]?.default;
 		const value = current?.[ key ] === undefined ? fallback : current[ key ];
 

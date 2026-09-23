@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+With the inline player setting on, show the poster of private videos, and of videos the server could not look up, before they are played instead of a black box.

@@ -1,0 +1,30 @@
+/* Inline-flex blockifies the badge, so it stands its full line height plus
+ * padding, as in the design, and every status comes out the same height. */
+.root {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs);
+	white-space: nowrap;
+}
+
+.info {
+	display: inline-flex;
+	align-items: center;
+	border: none;
+	padding: 0;
+	background: none;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	cursor: pointer;
+}
+
+.popup {
+	max-inline-size: 20rem;
+}
+
+/* The reason leads the explanation; the popover title is heading-sized,
+ * so it stays hidden. */
+.reason {
+	display: block;
+	margin-block-end: var(--wpds-dimension-gap-xs);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}

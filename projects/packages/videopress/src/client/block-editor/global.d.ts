@@ -19,6 +19,8 @@ declare global {
 			imagesURLBase: string;
 			playerBridgeUrl: string;
 			webpackPublicPath: string;
+			// Bundle URLs when the site renders players from the shared script; null while it embeds with iframes.
+			inlinePlayer?: { script: string; style: string; preloadDisabled?: boolean } | null;
 		};
 	}
 }

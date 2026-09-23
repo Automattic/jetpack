@@ -41,7 +41,7 @@ const LIBRARY_SEEN_KEY_PREFIX = 'jetpack-videopress-library-seen';
 export function getScopedStorageKey( prefix: string ): string {
 	const data = getScriptData();
 	const blogId = data?.site?.wpcom?.blog_id;
-	const scope = typeof blogId === 'number' && blogId > 0 ? blogId : data?.site?.host ?? 'site';
+	const scope = typeof blogId === 'number' && blogId > 0 ? blogId : ( data?.site?.host ?? 'site' );
 	const userId = data?.user?.current_user?.id ?? 'user';
 
 	return `${ prefix }-${ scope }-${ userId }`;

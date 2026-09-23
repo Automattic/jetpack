@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Features: Update the wp-admin sidebar in place when a feature is switched on or off, and point to its new menu item.

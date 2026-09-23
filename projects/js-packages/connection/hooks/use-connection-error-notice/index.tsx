@@ -1,13 +1,17 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import ConnectionErrorNotice from '../../components/connection-error-notice';
 import useConnection from '../../components/use-connection';
 import useRestoreConnection from '../../hooks/use-restore-connection';
 import { getConnectionErrorDetails, isConnectionErrorMap } from './error-details';
 import { resolveConnectionErrorActions } from './resolve-actions';
+import { getConnectionErrorSeverity } from './severity';
+import { CONNECTION_ERROR_NOTICE_EVENTS, trackConnectionErrorNoticeEvent } from './tracking';
 import type {
 	ConnectionErrorMap,
+	ConnectionErrorNoticeLink,
 	ConnectionErrorObject,
 	ConnectionErrorProps,
+	ConnectionErrorSeverity,
 	ConnectionErrorViewer,
 	UseConnectionErrorNoticeResult,
 } from './types';
@@ -45,6 +49,7 @@ const NO_ACTION_HANDLERS: NonNullable< ConnectionErrorProps[ 'actionHandlers' ] 
 export default function useConnectionErrorNotice( {
 	actionHandlers = NO_ACTION_HANDLERS,
 	trackingCallback = null,
+	trackingContext,
 	customActions = null,
 	reconnectTrackingEvent,
 	navigate,
@@ -72,7 +77,7 @@ export default function useConnectionErrorNotice( {
 		// Only consumers that opted in (i.e. actually ran the probe) inherit it; for
 		// everyone else the shared health slot is invisible.
 		const healthErrorMap: ConnectionErrorMap = includeHealthErrors
-			? connectionHealthErrors ?? {}
+			? ( connectionHealthErrors ?? {} )
 			: {};
 
 		// Precedence: real WPCOM-reported store errors win; health-check failures are
@@ -149,23 +154,32 @@ export default function useConnectionErrorNotice( {
 	// message — the filtering undone by the flag that was meant to respect it.
 	const hasConnectionError = displayableErrors.length > 0;
 
+	// How much of a problem the break is for this viewer. Derived here so a notice
+	// and a status surface built on this hook cannot rate the same break differently.
+	const severity: ConnectionErrorSeverity | null = useMemo(
+		() => getConnectionErrorSeverity( displayableErrors, viewer ),
+		[ displayableErrors, viewer ]
+	);
+
 	const actions = useMemo(
 		() =>
 			actionError
 				? resolveConnectionErrorActions( actionError, {
 						actionHandlers,
 						trackingCallback,
+						trackingContext,
 						customActions,
 						restoreConnection,
 						isRestoringConnection,
 						reconnectTrackingEvent,
 						navigate,
-				  } )
+					} )
 				: [],
 		[
 			actionError,
 			actionHandlers,
 			trackingCallback,
+			trackingContext,
 			customActions,
 			restoreConnection,
 			isRestoringConnection,
@@ -174,8 +188,49 @@ export default function useConnectionErrorNotice( {
 		]
 	);
 
+	// The two links a notice can carry (Site Health and Contact Support) render
+	// outside `actions`, and hook-mode consumers draw them in their own JSX — so
+	// expose the same wired trackers the package's `<ConnectionError />` uses.
+	// Each attributes the click to the error that actually supplied the link, not
+	// to `actionError` (the CTA's error), which in a multi-error notice can be a
+	// different one; `actionError` remains the fallback.
+	const trackNoticeLinkClick = useCallback(
+		( link: ConnectionErrorNoticeLink ) => {
+			const source =
+				displayableErrors.find( error => error.error_data?.notice_link?.url === link.url ) ??
+				actionError;
+			// Report only the path, never the per-site absolute URL: the host, any
+			// query string, and (under the `jetpack_connection_get_verified_errors`
+			// filter) a possible token must not reach Tracks.
+			let linkPath: string | null;
+			try {
+				linkPath = new URL( link.url, window.location.href ).pathname;
+			} catch {
+				linkPath = null;
+			}
+			trackConnectionErrorNoticeEvent(
+				CONNECTION_ERROR_NOTICE_EVENTS.noticeLink,
+				{ trackingCallback, trackingContext, error: source },
+				{ link_url: linkPath }
+			);
+		},
+		[ trackingCallback, trackingContext, displayableErrors, actionError ]
+	);
+
+	const trackSupportLinkClick = useCallback( () => {
+		// The support link is notice-wide; attribute it to the first error that
+		// asked for it — representative when more than one did.
+		const source = displayableErrors.find( error => error.error_data?.support_link ) ?? actionError;
+		trackConnectionErrorNoticeEvent( CONNECTION_ERROR_NOTICE_EVENTS.supportLink, {
+			trackingCallback,
+			trackingContext,
+			error: source,
+		} );
+	}, [ trackingCallback, trackingContext, displayableErrors, actionError ] );
+
 	return {
 		hasConnectionError,
+		severity,
 		connectionErrorMessage,
 		connectionError: actionError, // Full error object with error_type, etc.
 		connectionErrors: errorMap, // All errors for advanced use cases.
@@ -185,6 +240,8 @@ export default function useConnectionErrorNotice( {
 		showSupportLink,
 		viewer,
 		actions, // Resolved CTA actions for the connection error.
+		trackNoticeLinkClick,
+		trackSupportLinkClick,
 		restoreConnection,
 		isRestoringConnection,
 		restoreConnectionError,
@@ -207,12 +264,15 @@ export function ConnectionError( {
 }: ConnectionErrorProps = {} ): ReactElement | null {
 	const {
 		hasConnectionError,
+		severity,
 		connectionErrorMessage,
 		connectionError,
 		errorTitle,
 		errorGroups,
 		showSupportLink,
 		actions,
+		trackNoticeLinkClick,
+		trackSupportLinkClick,
 		restoreConnection,
 		isRestoringConnection,
 		restoreConnectionError,
@@ -240,6 +300,9 @@ export function ConnectionError( {
 			// so it wins the one slot the notice has for it.
 			context={ context ?? errorTitle }
 			actions={ actions }
+			onNoticeLinkClick={ trackNoticeLinkClick }
+			onSupportLinkClick={ trackSupportLinkClick }
+			severity={ severity ?? 'error' }
 		/>
 	);
 }

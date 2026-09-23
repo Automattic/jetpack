@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Test and document the grid tick behavior fixed in #52588; no code change.

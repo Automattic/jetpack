@@ -1,15 +1,21 @@
 /* eslint-disable testing-library/prefer-user-event */
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import apiFetch from '@wordpress/api-fetch';
 import { dateI18n, getSettings, setSettings } from '@wordpress/date';
-import HistoryChartCard, { buildHistorySeries, HistoryTooltip } from './history-chart-card';
+import { type PropsWithChildren } from 'react';
+import HistoryChartCard from './history-chart-card';
+import { getHistoryWindow } from './lib/history-days';
+import { getScoreTierColor } from './lib/score-utils';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
 
-jest.mock( './upgrade-cta', () => ( {
-	__esModule: true,
-	default: () => <button>Upgrade now</button>,
+jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
+jest.mock( '../../app/assets/src/js/lib/utils/analytics', () => ( {
+	recordBoostEvent: jest.fn(),
 } ) );
-
-const timestamp = Date.UTC( 2026, 8, 1 );
+const fetchMock = jest.mocked( apiFetch );
+const window = getHistoryWindow( 0 );
+const timestamp = window.startDate + 12 * 3600000;
 const dimensions = {
 	desktop_overall_score: 90,
 	mobile_overall_score: 80,
@@ -20,34 +26,41 @@ const dimensions = {
 	mobile_lcp: 2.4,
 	mobile_tbt: 0.4,
 };
-const history: NonNullable< PerformanceHistoryData > = {
-	startDate: timestamp,
-	endDate: timestamp + 86400000,
+const history: PerformanceHistoryData = {
+	...window,
 	periods: [
 		{ timestamp, dimensions },
-		{ timestamp: timestamp + 86400000, dimensions },
+		{
+			timestamp: timestamp + 86400000,
+			dimensions: { ...dimensions, desktop_overall_score: 70, mobile_overall_score: 30 },
+		},
+		{
+			timestamp: timestamp + 2 * 86400000,
+			dimensions: { ...dimensions, desktop_overall_score: 30, mobile_overall_score: 95 },
+		},
 	],
-	annotations: [ { timestamp, text: 'Image CDN enabled' } ],
+	annotations: [],
 };
-const callbacks = { onRetry: jest.fn(), onDismissFreshStart: jest.fn() };
-
-// SVG geometry and legend swatches have no accessible queries.
-/* eslint-disable testing-library/no-node-access */
-function getSeriesColor( label: string ) {
-	const item = screen
-		.getAllByRole( 'listitem' )
-		.find( entry => within( entry ).queryByText( label ) );
-	return item?.querySelector( 'line' )?.getAttribute( 'stroke' );
+const callbacks = {
+	onRetry: jest.fn(),
+	onPrevious: jest.fn(),
+	onNext: jest.fn(),
+	range: window,
+	dayCount: 30 as const,
+	canGoNext: false,
+	canGoPrevious: true,
+	showSingleDate: false,
+};
+let queryClient: QueryClient;
+function wrapper( { children }: PropsWithChildren ) {
+	return <QueryClientProvider client={ queryClient }>{ children }</QueryClientProvider>;
 }
 
-function getSeriesPath( container: HTMLElement, label: string ) {
-	const color = getSeriesColor( label );
-	expect( color ).toBeTruthy();
-	const path = container.querySelector( `path.visx-line[stroke="${ color }"]` );
-	expect( path ).not.toBeNull();
-	return path!;
+function getBars( chart: HTMLElement ) {
+	// SVG bars do not expose an accessible role.
+
+	return chart.querySelectorAll( '.visx-bar' );
 }
-/* eslint-enable testing-library/no-node-access */
 
 beforeAll( () => {
 	jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockReturnValue( {
@@ -60,6 +73,11 @@ beforeAll( () => {
 		width: 800,
 		height: 300,
 		toJSON: () => ( {} ),
+	} );
+	// jsdom lacks the SVG transform visx uses to map pointer coordinates.
+	Object.defineProperty( SVGElement.prototype, 'getScreenCTM', {
+		configurable: true,
+		value: () => null,
 	} );
 	globalThis.ResizeObserver = class {
 		constructor( private callback: ResizeObserverCallback ) {}
@@ -74,209 +92,127 @@ beforeAll( () => {
 	};
 } );
 
-beforeEach( () => jest.clearAllMocks() );
+beforeEach( () => {
+	jest.clearAllMocks();
+	fetchMock.mockReset();
+	queryClient = new QueryClient( {
+		defaultOptions: { queries: { retry: false, gcTime: Infinity } },
+	} );
+	Object.defineProperty( globalThis, 'Jetpack_Boost', {
+		configurable: true,
+		value: { site: { online: true } },
+	} );
+	globalThis.window.jetpack_boost_ds = {
+		rest_api: { nonce: 'rest-nonce', value: 'https://example.org/wp-json/jetpack-boost-ds/' },
+		performance_history: { nonce: 'history-nonce', value: null },
+	};
+} );
+afterEach( () => queryClient.clear() );
 afterAll( () => jest.restoreAllMocks() );
 
-test( 'renders actual Charts lines and annotations using millisecond history dates', async () => {
-	jest.useFakeTimers();
-	const { container, unmount } = render( <HistoryChartCard data={ history } { ...callbacks } /> );
-	try {
-		expect(
-			screen.getByRole( 'heading', { level: 2, name: 'Historical performance' } )
-		).toBeInTheDocument();
-		expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Desktop' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Mobile' ) ).toBeInTheDocument();
-		await expect( screen.findByText( 'Image CDN enabled' ) ).resolves.toBeTruthy();
-		const desktopPath = getSeriesPath( container, 'Desktop' );
-		const mobilePath = getSeriesPath( container, 'Mobile' );
-		expect( desktopPath ).toHaveAttribute( 'd', expect.stringMatching( /^M/ ) );
-		expect( mobilePath ).toHaveAttribute( 'd', expect.stringMatching( /^M/ ) );
-		expect( desktopPath.getAttribute( 'stroke' ) ).not.toBe( mobilePath.getAttribute( 'stroke' ) );
-		const firstY = ( path: Element ) =>
-			Number( path.getAttribute( 'd' )?.match( /^M[^,]+,([^L]+)/ )?.[ 1 ] );
-		expect( firstY( desktopPath ) ).toBeLessThan( firstY( mobilePath ) );
-		expect( buildHistorySeries( history )[ 0 ].data[ 0 ] ).toEqual( {
-			date: new Date( '2026-09-01T00:00:00Z' ),
-			value: 90,
-		} );
-	} finally {
-		unmount();
-		jest.useRealTimers();
+test( 'renders thirty daily bars for each device using score band colours and empty slots', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	expect( screen.getByRole( 'heading', { name: 'Last 30 days', level: 2 } ) ).toBeInTheDocument();
+	expect( screen.getByRole( 'heading', { name: 'Desktop', level: 3 } ) ).toBeInTheDocument();
+	expect( screen.getAllByRole( 'grid', { name: 'Bar chart' } ) ).toHaveLength( 2 );
+	expect( screen.queryByText( 'Could be improved' ) ).not.toBeInTheDocument();
+	for ( const [ device, tiers ] of [
+		[ 'Desktop', [ 'good', 'medium', 'poor' ] ],
+		[ 'Mobile', [ 'good', 'poor', 'good' ] ],
+	] as const ) {
+		const bars = await waitFor(
+			() => {
+				const chart = within(
+					screen.getByRole( 'region', { name: `${ device } score history` } )
+				).getByTestId( 'bar-chart' );
+				const renderedBars = getBars( chart );
+				expect( renderedBars ).toHaveLength( 30 );
+				return renderedBars;
+			},
+			{ timeout: 5000 }
+		);
+		tiers.forEach( ( tier, index ) =>
+			expect( bars[ index ] ).toHaveAttribute( 'fill', getScoreTierColor( tier ) )
+		);
+		expect( bars[ 3 ] ).toHaveAttribute( 'fill', 'var(--jetpack-boost-history-empty)' );
+		expect( bars[ 3 ] ).toHaveClass( 'boost-daily-history__bar--empty' );
 	}
 } );
 
-test( 'only renders annotations inside the displayed date domain, including its boundaries', async () => {
+test.each( [ 1, 2 ] )(
+	'renders %i recorded days with empty stubs and the matching header',
+	async count => {
+		render(
+			<HistoryChartCard
+				data={ { ...history, periods: history.periods.slice( 0, count ) } }
+				hasOlderHistory={ false }
+				{ ...callbacks }
+				showSingleDate={ count === 1 }
+			/>,
+			{ wrapper }
+		);
+		const label =
+			count === 1
+				? dateI18n( 'M j, Y', timestamp, false )
+				: `${ dateI18n( 'M j', window.startDate, false ) } – ${ dateI18n( 'M j, Y', window.endDate, false ) }`;
+		expect( screen.getByText( label ) ).toBeInTheDocument();
+		for ( const chart of screen.getAllByTestId( 'bar-chart' ) ) {
+			await waitFor( () => expect( getBars( chart ) ).toHaveLength( 30 ) );
+			const bars = Array.from( getBars( chart ) );
+			expect(
+				bars.filter( bar => bar.getAttribute( 'fill' ) === 'var(--jetpack-boost-history-empty)' )
+			).toHaveLength( 30 - count );
+			expect(
+				bars.slice( 0, count ).every( bar => Number( bar.getAttribute( 'height' ) ) > 0 )
+			).toBe( true );
+		}
+	}
+);
+
+test( 'retains a recorded zero and its poor-score colour rather than treating it as missing', async () => {
 	render(
 		<HistoryChartCard
 			data={ {
 				...history,
-				annotations: [
-					{ timestamp: timestamp - 20 * 86400000, text: 'Older annotation' },
-					{ timestamp, text: 'Start annotation' },
-					{ timestamp: history.endDate, text: 'End annotation' },
-					{ timestamp: history.endDate + 1, text: 'Future annotation' },
-				],
-			} }
-			{ ...callbacks }
-		/>
-	);
-	await expect( screen.findByText( 'Start annotation' ) ).resolves.toBeInTheDocument();
-	expect( screen.getByText( 'End annotation' ) ).toBeInTheDocument();
-	for ( const annotationDate of [ timestamp, history.endDate ] ) {
-		expect(
-			screen.getByRole( 'button', {
-				name: `View performance history annotation for ${ dateI18n( 'F j, Y', annotationDate ) }`,
-			} )
-		).toBeInTheDocument();
-	}
-	expect( screen.queryByText( 'Older annotation' ) ).not.toBeInTheDocument();
-	expect( screen.queryByText( 'Future annotation' ) ).not.toBeInTheDocument();
-} );
-
-test( 'preserves annotation HTML and focusable links in the shared popover', async () => {
-	render(
-		<HistoryChartCard
-			data={ {
-				...history,
-				annotations: [
+				periods: [
 					{
 						timestamp,
-						text: 'Enabled <strong>Image CDN</strong>. <a href="https://jetpack.com/boost/">Learn more</a>',
+						dimensions: { ...dimensions, desktop_overall_score: 0 },
 					},
 				],
 			} }
 			{ ...callbacks }
-		/>
+		/>,
+		{ wrapper }
 	);
-	const trigger = await screen.findByRole( 'button', {
-		name: `View performance history annotation for ${ dateI18n( 'F j, Y', timestamp ) }`,
+	const chart = within( screen.getByRole( 'region', { name: 'Desktop score history' } ) );
+	const bar = await waitFor( () => {
+		const renderedBar = getBars( chart.getByTestId( 'bar-chart' ) )[ 0 ];
+		expect( renderedBar ).toHaveAttribute( 'fill', 'var(--jetpack-boost-score-poor)' );
+		return renderedBar;
 	} );
-	const popover = screen.getByTestId( 'line-chart-annotation-label-popover' );
-	expect( trigger ).toHaveAttribute( 'popovertarget', popover.id );
-	expect( popover ).toHaveAttribute( 'popover', 'auto' );
-	expect( within( popover ).getByText( 'Image CDN', { selector: 'strong' } ) ).toBeInTheDocument();
-	const link = within( popover ).getByRole( 'link', { hidden: true, name: 'Learn more' } );
-	expect( link ).toHaveAttribute( 'href', 'https://jetpack.com/boost/' );
-	link.focus();
-	expect( link ).toHaveFocus();
-} );
-
-test( 'sorts both device series without mutating the cached periods', () => {
-	const periods = [ history.periods[ 1 ], history.periods[ 0 ] ];
-	const series = buildHistorySeries( { ...history, periods } );
-	for ( const device of series ) {
-		expect( device.data.map( point => point.date?.getTime() ) ).toEqual( [
-			timestamp,
-			timestamp + 86400000,
-		] );
-	}
-	expect( periods.map( period => period.timestamp ) ).toEqual( [
-		timestamp + 86400000,
-		timestamp,
-	] );
-} );
-
-test.each( [
-	[ 'multiple periods', history.periods, timestamp ],
-	[ 'one recent period', [ { timestamp: timestamp + 18 * 3600000, dimensions } ], timestamp ],
-	[ 'one older period', [ history.periods[ 0 ] ], timestamp - 43200000 ],
-] )( 'fits a wide requested window to %s', async ( _label, periods, expectedStart ) => {
-	const data = { ...history, periods, startDate: timestamp - 30 * 86400000 };
-	const { container, rerender } = render( <HistoryChartCard data={ data } { ...callbacks } /> );
-	await waitFor( () => expect( getSeriesPath( container, 'Desktop' ) ).toHaveAttribute( 'd' ) );
-	const wideWindowPath = getSeriesPath( container, 'Desktop' ).getAttribute( 'd' );
-	// Place a second point at the expected domain start to measure the actual rendered scale.
-	rerender(
-		<HistoryChartCard
-			data={ {
-				...data,
-				startDate: expectedStart,
-				periods: [ { timestamp: expectedStart, dimensions }, ...periods ],
-			} }
-			{ ...callbacks }
-		/>
-	);
-	const referencePath = getSeriesPath( container, 'Desktop' ).getAttribute( 'd' );
-	const firstX = ( path: string | null ) => Number( path?.match( /^M([^,]+)/ )?.[ 1 ] );
-	const lastX = ( path: string | null ) => Number( path?.match( /[ML]([^,]+),[^ML]+$/ )?.[ 1 ] );
-	const referenceX = periods.length > 1 ? firstX( referencePath ) : lastX( referencePath );
-	expect( firstX( wideWindowPath ) ).toBe( referenceX );
-} );
-
-test( 'renders visible glyphs for a single recorded period', async () => {
-	const { container } = render(
-		<HistoryChartCard data={ { ...history, periods: [ history.periods[ 0 ] ] } } { ...callbacks } />
-	);
-	await waitFor( () => {
-		for ( const device of [ 'Desktop', 'Mobile' ] ) {
-			const color = getSeriesColor( device );
-			// SVG series glyphs do not expose an accessible role.
-			// eslint-disable-next-line testing-library/no-node-access, testing-library/no-container
-			expect( container.querySelector( `circle[fill="${ color }"]` ) ).toHaveAttribute( 'r', '4' );
-		}
+	expect( bar ).toHaveClass( 'boost-daily-history__bar--zero' );
+	expect( bar ).not.toHaveClass( 'boost-daily-history__bar--empty' );
+	fireEvent.keyDown( chart.getByRole( 'grid' ), { key: 'ArrowRight' } );
+	await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveTextContent( '0/100' );
+	expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+		padding: '0px',
+		backgroundColor: 'rgba(0, 0, 0, 0)',
+		boxShadow: 'none',
 	} );
 } );
 
-test( 'keeps the WordPress date and all eight history dimensions in the tooltip', () => {
-	render(
-		<HistoryTooltip
-			period={ { ...history.periods[ 0 ], timestamp: new Date( 2026, 8, 1, 12 ).getTime() } }
-		/>
-	);
+test( 'exposes the date, grade, and both device metrics through keyboard tooltips', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	fireEvent.keyDown( screen.getAllByRole( 'grid' )[ 0 ], { key: 'ArrowRight' } );
+	const tooltip = await screen.findByTestId( 'chart-tooltip-0' );
 	for ( const value of [
-		'September 1, 2026',
-		'90 / 100',
-		'80 / 100',
-		'0.01',
-		'1.20s',
-		'0.20s',
-		'0.03',
-		'2.40s',
-		'0.40s',
-	] ) {
-		expect( screen.getByText( value ) ).toBeInTheDocument();
-	}
-} );
-
-test.each( [ 'blur', 'hidden' ] )(
-	'closes a selected tooltip when the chart is %s',
-	async action => {
-		const { rerender } = render( <HistoryChartCard data={ history } { ...callbacks } /> );
-		const chart = screen.getByRole( 'grid', { name: /line chart/i } );
-		fireEvent.keyDown( chart, { key: 'ArrowRight' } );
-		const tooltip = await screen.findByTestId( 'chart-tooltip-0' );
-		expect( screen.getAllByText( 'Desktop score' ) ).toHaveLength( 1 );
-		await waitFor( () => expect( tooltip ).toHaveFocus() );
-		if ( action === 'blur' ) {
-			fireEvent.blur( tooltip, { relatedTarget: document.body } );
-		} else {
-			rerender( <HistoryChartCard data={ history } isVisible={ false } { ...callbacks } /> );
-		}
-		expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Desktop score' ) ).not.toBeInTheDocument();
-		rerender( <HistoryChartCard data={ history } { ...callbacks } /> );
-		expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Desktop score' ) ).not.toBeInTheDocument();
-		fireEvent.keyDown( screen.getByRole( 'grid', { name: /line chart/i } ), { key: 'ArrowRight' } );
-		await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toBeInTheDocument();
-	}
-);
-
-test( 'announces the selected date and measurements during arrow-key navigation', async () => {
-	render( <HistoryChartCard data={ history } { ...callbacks } /> );
-	const chart = screen.getByRole( 'grid', { name: /line chart/i } );
-	fireEvent.keyDown( chart, { key: 'ArrowRight' } );
-	const firstTooltip = await screen.findByTestId( 'chart-tooltip-0' );
-	expect( screen.getByTestId( 'tooltip-axis-pointer' ) ).toBeInTheDocument();
-	await waitFor( () => expect( firstTooltip ).toHaveFocus() );
-	for ( const value of [
-		'September 1, 2026',
+		dateI18n( 'F j, Y', timestamp, false ),
 		'Overall score',
-		'Desktop score',
-		'90 / 100',
-		'Mobile score',
-		'80 / 100',
+		'Desktop',
+		'90/100',
+		'Mobile',
+		'80/100',
 		'1.20s',
 		'0.20s',
 		'0.01',
@@ -284,73 +220,297 @@ test( 'announces the selected date and measurements during arrow-key navigation'
 		'0.40s',
 		'0.03',
 	] ) {
-		expect( firstTooltip ).toHaveTextContent( value );
+		expect( tooltip ).toHaveTextContent( value );
 	}
-	fireEvent.keyDown( firstTooltip, { key: 'ArrowRight' } );
-	const secondTooltip = await screen.findByTestId( 'chart-tooltip-1' );
-	await waitFor( () => expect( secondTooltip ).toHaveFocus() );
-	expect( secondTooltip ).toHaveTextContent( 'September 2, 2026' );
 } );
 
-test( 'uses the non-UTC site date for both axis and tooltip', async () => {
-	const settings = getSettings();
-	setSettings( {
-		...settings,
-		timezone: { offset: -12, offsetFormatted: '-12', string: 'Etc/GMT+12', abbr: '-12' },
+function hoverChart() {
+	const chart = screen.getByTestId( 'history-chart' );
+	fireEvent.mouseEnter( chart );
+	fireEvent.mouseMove( chart );
+	return chart;
+}
+
+test( 'keeps a recorded day popover open once the chart drops its highlight', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	const chart = hoverChart();
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	const popover = await screen.findByTestId( 'history-popover' );
+	expect( desktop ).not.toContainElement( popover );
+	expect( popover ).toHaveTextContent( dateI18n( 'F j, Y', timestamp, false ) );
+	expect( popover ).toHaveTextContent( '90/100' );
+	// Leaving the plot clears the chart's own selection while the popover stays reachable.
+	fireEvent.keyDown( desktop, { key: 'Tab' } );
+	fireEvent.blur( desktop );
+	await waitFor( () =>
+		expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument()
+	);
+	expect( screen.getByTestId( 'history-popover' ) ).toHaveTextContent( '90/100' );
+	fireEvent.mouseLeave( chart );
+	await waitFor( () =>
+		expect( screen.queryByTestId( 'history-popover' ) ).not.toBeInTheDocument()
+	);
+} );
+
+test( 'exposes a recorded day once while the popover repeats it visually', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	fireEvent.keyDown( screen.getAllByRole( 'grid' )[ 0 ], { key: 'ArrowRight' } );
+	const popover = await screen.findByTestId( 'history-popover' );
+	expect( popover ).toHaveTextContent( '90/100' );
+	const tooltip = screen.getByRole( 'tooltip' );
+	expect( screen.getAllByRole( 'definition' ) ).toEqual(
+		within( tooltip ).getAllByRole( 'definition' )
+	);
+} );
+
+test( 'keeps the held day open when the chart is clicked', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	const chart = hoverChart();
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	await expect( screen.findByTestId( 'history-popover' ) ).resolves.toHaveTextContent( '90/100' );
+	fireEvent.keyDown( desktop, { key: 'Tab' } );
+	fireEvent.blur( desktop );
+	// A click within 500ms of the hover opening counts as part of that same interaction.
+	await act( () => new Promise( resolve => setTimeout( resolve, 600 ) ) );
+	fireEvent.click( chart );
+	await waitFor( () =>
+		expect( screen.getByTestId( 'history-popover' ) ).toHaveTextContent( '90/100' )
+	);
+} );
+
+async function pressDay( index: number, pointerType: string ) {
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	const bar = await waitFor( () => {
+		const bars = getBars( screen.getAllByTestId( 'bar-chart' )[ 0 ] );
+		expect( bars ).toHaveLength( 30 );
+		return bars[ index ];
 	} );
-	try {
-		const { container } = render(
-			<>
-				<HistoryChartCard data={ history } { ...callbacks } />
-				<HistoryTooltip period={ history.periods[ 0 ] } />
-			</>
-		);
-		await expect( screen.findByText( 'Image CDN enabled' ) ).resolves.toBeInTheDocument();
-		const ticks = screen.getAllByText( /^[A-Z][a-z]{2} \d{1,2}$/ );
-		expect( ticks[ 0 ] ).toHaveTextContent( /^Aug 31$/ );
-		expect( screen.getByText( 'August 31, 2026' ) ).toBeInTheDocument();
-		expect(
-			screen.getByRole( 'button', {
-				name: 'View performance history annotation for August 31, 2026',
-			} )
-		).toBeInTheDocument();
-		expect( screen.queryByText( 'September 1, 2026' ) ).not.toBeInTheDocument();
-		// Tick coordinates must refer to the same instants as the measured scores.
-		/* eslint-disable testing-library/no-container, testing-library/no-node-access */
-		const axisTicks = container
-			.querySelectorAll( '.visx-axis' )[ 0 ]
-			.querySelectorAll( '.visx-axis-tick text' );
-		const pointXs = Array.from(
-			getSeriesPath( container, 'Desktop' )
-				.getAttribute( 'd' )!
-				.matchAll( /[ML]([^,]+),/g ),
-			match => Number( match[ 1 ] )
-		);
-		expect( axisTicks.length ).toBeGreaterThan( 0 );
-		for ( const tick of axisTicks ) {
-			expect( pointXs ).toContain( Number( tick.getAttribute( 'x' ) ) );
-		}
-		/* eslint-enable testing-library/no-container, testing-library/no-node-access */
-	} finally {
-		setSettings( settings );
+	const clientX = Number( bar.getAttribute( 'x' ) ) + Number( bar.getAttribute( 'width' ) ) / 2;
+	// visx owns the pointer capture rect and does not expose an attribute prop for it.
+	// eslint-disable-next-line testing-library/no-node-access
+	const target = desktop.querySelector( 'svg > rect[fill="transparent"]' );
+	for ( const type of [ 'pointermove', 'pointerdown' ] ) {
+		const event = new MouseEvent( type, { bubbles: true, clientX, clientY: 150 } );
+		fireEvent( target, Object.assign( event, { pointerType } ) );
+	}
+	await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
+	fireEvent.click( target, { clientX, clientY: 150 } );
+}
+
+test( 'opens a recorded day when it is tapped by touch', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	await pressDay( 0, 'touch' );
+	await expect( screen.findByTestId( 'history-popover' ) ).resolves.toHaveTextContent( '90/100' );
+} );
+
+test( 'does not open a recorded day when it is clicked with a mouse', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	await pressDay( 0, 'mouse' );
+	await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent( '90/100' );
+	await expect( screen.findByTestId( 'history-popover' ) ).rejects.toThrow();
+} );
+
+test( 'shows nothing beyond the empty-day tooltip when an empty day is clicked', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	await pressDay( 3, 'mouse' );
+	await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
+		'No scores recorded for this day.'
+	);
+	expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+		padding: '0px',
+		backgroundColor: 'rgba(0, 0, 0, 0)',
+		boxShadow: 'none',
+	} );
+	await expect( screen.findByTestId( 'history-popover' ) ).rejects.toThrow();
+} );
+
+test( "keeps a keyboard-opened day showing through the chart's own keys", async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	await expect( screen.findByTestId( 'history-popover' ) ).resolves.toBeInTheDocument();
+	for ( const key of [ 'Enter', ' ', 'Home', 'a' ] ) {
+		fireEvent.keyDown( screen.getByTestId( 'chart-tooltip-0' ), { key } );
+		expect( screen.getByTestId( 'history-popover' ) ).toHaveTextContent( '90/100' );
 	}
 } );
 
-test.each( [ { isError: true, data: history }, { isLoading: true } ] )(
-	'offers the premium upgrade before errors or loading without rendering paid history (%o)',
-	state => {
-		render( <HistoryChartCard needsUpgrade { ...state } { ...callbacks } /> );
-		expect( screen.getByRole( 'button', { name: 'Upgrade now' } ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'grid' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Try again' } ) ).not.toBeInTheDocument();
+test( 'does not reopen the day the pointer left once the chart has no highlight', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	const chart = hoverChart();
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	await expect( screen.findByTestId( 'history-popover' ) ).resolves.toBeInTheDocument();
+	fireEvent.mouseLeave( chart );
+	fireEvent.keyDown( desktop, { key: 'Tab' } );
+	fireEvent.blur( desktop );
+	await waitFor( () =>
+		expect( screen.queryByTestId( 'history-highlight' ) ).not.toBeInTheDocument()
+	);
+	// Returning over a device heading selects no day, so nothing is left to show.
+	hoverChart();
+	await expect( screen.findByTestId( 'history-popover' ) ).rejects.toThrow();
+} );
+
+test( 'follows arrow keys while the pointer rests on the chart', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	hoverChart();
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	await expect( screen.findByTestId( 'history-popover' ) ).resolves.toHaveTextContent( '90/100' );
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	await waitFor( () =>
+		expect( screen.getByTestId( 'history-popover' ) ).toHaveTextContent( '70/100' )
+	);
+} );
+
+test( 'opens a recorded day popover by keyboard and closes it with Escape', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	const tooltip = await screen.findByTestId( 'chart-tooltip-0' );
+	await waitFor( () => expect( tooltip ).toHaveFocus() );
+	expect( screen.getByTestId( 'history-popover' ) ).toHaveTextContent( '80/100' );
+	fireEvent.keyDown( tooltip, { key: 'Escape' } );
+	await waitFor( () =>
+		expect( screen.queryByTestId( 'history-popover' ) ).not.toBeInTheDocument()
+	);
+	expect( desktop ).toHaveFocus();
+} );
+
+test( 'shows empty days after loading and explains them on keyboard focus', async () => {
+	const { rerender } = render( <HistoryChartCard isLoading { ...callbacks } />, { wrapper } );
+	expect( screen.queryByRole( 'grid' ) ).not.toBeInTheDocument();
+	rerender( <HistoryChartCard data={ null } { ...callbacks } /> );
+	expect( screen.getAllByRole( 'grid' ) ).toHaveLength( 2 );
+	fireEvent.keyDown( screen.getAllByRole( 'grid' )[ 0 ], { key: 'ArrowRight' } );
+	const tooltip = await screen.findByTestId( 'chart-tooltip-0' );
+	expect( tooltip ).toHaveTextContent( dateI18n( 'F j, Y', timestamp, false ) );
+	expect( tooltip ).toHaveTextContent( 'No scores recorded for this day.' );
+} );
+
+test( 'explains empty days before the first recorded score only without older history', async () => {
+	const later = {
+		...history,
+		periods: history.periods.map( entry => ( {
+			...entry,
+			timestamp: entry.timestamp + 10 * 86400000,
+		} ) ),
+	};
+	const { rerender } = render(
+		<HistoryChartCard data={ later } { ...callbacks } hasOlderHistory={ false } />,
+		{ wrapper }
+	);
+	const chart = screen.getAllByRole( 'grid' )[ 0 ];
+	const move = ( key: string, steps: number ) => {
+		for ( let step = 0; step < steps; step++ ) {
+			fireEvent.keyDown( chart, { key } );
+		}
+	};
+	move( 'ArrowRight', 1 );
+	await waitFor( () =>
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent(
+			'No scores recorded before the feature was unlocked.'
+		)
+	);
+	move( 'ArrowRight', 13 );
+	await waitFor( () =>
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'No scores recorded for this day.' )
+	);
+	rerender( <HistoryChartCard data={ later } { ...callbacks } /> );
+	move( 'ArrowLeft', 13 );
+	await waitFor( () =>
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'No scores recorded for this day.' )
+	);
+}, 20000 );
+
+test( 'shows the paging labels as tooltips on the chevrons', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } hasOlderHistory={ false } />, {
+		wrapper,
+	} );
+	for ( const name of [ 'Previous 30 days', 'Next 30 days' ] ) {
+		const button = screen.getByRole( 'button', { name } );
+		fireEvent.keyDown( document.body, { key: 'Tab' } );
+		act( () => button.focus() );
+		await expect( screen.findByText( name, {}, { timeout: 3000 } ) ).resolves.toBeVisible();
+	}
+} );
+
+test.each( [ 15, 30 ] as const )(
+	'delegates %i-day paging and disables the future window',
+	dayCount => {
+		const { rerender } = render(
+			<HistoryChartCard data={ history } { ...callbacks } dayCount={ dayCount } />,
+			{ wrapper }
+		);
+		expect(
+			screen.getByRole( 'heading', { name: `Last ${ dayCount } days`, level: 2 } )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: `Next ${ dayCount } days` } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		fireEvent.click( screen.getByRole( 'button', { name: `Next ${ dayCount } days` } ) );
+		expect( callbacks.onNext ).not.toHaveBeenCalled();
+		fireEvent.click( screen.getByRole( 'button', { name: `Previous ${ dayCount } days` } ) );
+		expect( callbacks.onPrevious ).toHaveBeenCalledTimes( 1 );
+		rerender(
+			<HistoryChartCard data={ history } { ...callbacks } dayCount={ dayCount } canGoNext />
+		);
+		fireEvent.click( screen.getByRole( 'button', { name: `Next ${ dayCount } days` } ) );
+		expect( callbacks.onNext ).toHaveBeenCalledTimes( 1 );
+		expect(
+			screen.getByRole( 'heading', { name: 'Score history', level: 2 } )
+		).toBeInTheDocument();
+		rerender(
+			<HistoryChartCard
+				data={ history }
+				{ ...callbacks }
+				dayCount={ dayCount }
+				canGoNext
+				canGoPrevious={ false }
+				hasOlderHistory={ false }
+			/>
+		);
+		expect( screen.getByRole( 'button', { name: `Previous ${ dayCount } days` } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		fireEvent.click( screen.getByRole( 'button', { name: `Previous ${ dayCount } days` } ) );
+		expect( callbacks.onPrevious ).toHaveBeenCalledTimes( 1 );
+		expect( fetchMock ).not.toHaveBeenCalled();
 	}
 );
 
-test( 'dismisses the paid fresh-start notice', () => {
-	render( <HistoryChartCard data={ history } isFreshStart { ...callbacks } /> );
-	fireEvent.click( screen.getByRole( 'button', { name: 'Okay, got it!' } ) );
-	expect( callbacks.onDismissFreshStart ).toHaveBeenCalledTimes( 1 );
+test( 'leaving one chart resets its tooltip without remounting the next chart', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	const [ desktop, mobile ] = screen.getAllByRole( 'grid' );
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toBeInTheDocument();
+	fireEvent.keyDown( desktop, { key: 'Tab' } );
+	fireEvent.blur( desktop, { relatedTarget: mobile } );
+	expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+	expect( screen.getAllByRole( 'grid' )[ 1 ] ).toBe( mobile );
+	expect( screen.getAllByRole( 'grid' )[ 0 ] ).toBe( desktop );
 } );
+
+test.each( [ { range: getHistoryWindow( 1 ) }, { isVisible: false } ] )(
+	'clears the active highlight when the chart window or visibility changes (%o)',
+	async state => {
+		const { rerender, unmount } = render( <HistoryChartCard data={ history } { ...callbacks } />, {
+			wrapper,
+		} );
+		fireEvent.keyDown( screen.getAllByRole( 'grid' )[ 0 ], { key: 'ArrowRight' } );
+		await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByTestId( 'history-highlight' ) ).toBeInTheDocument();
+		rerender( <HistoryChartCard data={ history } { ...callbacks } { ...state } /> );
+		expect( screen.queryByTestId( 'history-highlight' ) ).not.toBeInTheDocument();
+		unmount();
+		expect( screen.queryByTestId( 'history-highlight' ) ).not.toBeInTheDocument();
+	}
+);
 
 test( 'shows the history error message and offers retry', () => {
 	render(
@@ -358,57 +518,67 @@ test( 'shows the history error message and offers retry', () => {
 			isError
 			error={ new Error( 'History service unavailable' ) }
 			{ ...callbacks }
-		/>
+		/>,
+		{ wrapper }
 	);
 	expect( screen.getByText( 'History service unavailable' ) ).toBeInTheDocument();
 	fireEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
 	expect( callbacks.onRetry ).toHaveBeenCalledTimes( 1 );
 } );
 
-test( 'waits for the initial fetch before showing the empty state', () => {
-	const { rerender } = render( <HistoryChartCard isLoading { ...callbacks } /> );
-	expect( screen.queryByText( /Performance history will appear/ ) ).not.toBeInTheDocument();
-	rerender( <HistoryChartCard { ...callbacks } /> );
-	expect(
-		screen.getByRole( 'heading', { level: 3, name: 'No performance history yet' } )
-	).toBeInTheDocument();
-	expect( screen.getByText( /Performance history will appear/ ) ).toBeInTheDocument();
+test( 'keeps the card padding for notices and drops it only for the charts', () => {
+	/* eslint-disable testing-library/no-node-access */
+	const { rerender } = render( <HistoryChartCard isError { ...callbacks } />, { wrapper } );
+	const zeroPaddingBody = () => document.querySelector( '.boost-daily-history__body' );
+	expect( zeroPaddingBody() ).toBeNull();
+	rerender( <HistoryChartCard isLoading { ...callbacks } /> );
+	expect( zeroPaddingBody() ).not.toBeNull();
+	rerender( <HistoryChartCard data={ history } { ...callbacks } /> );
+	expect( zeroPaddingBody() ).toContainElement( screen.getAllByRole( 'grid' )[ 0 ] );
+	/* eslint-enable testing-library/no-node-access */
 } );
 
-test( 'transitions between upgrade, error, and paid history states', () => {
-	const { rerender } = render( <HistoryChartCard needsUpgrade { ...callbacks } /> );
-	expect( screen.getByRole( 'button', { name: 'Upgrade now' } ) ).toBeInTheDocument();
-	rerender( <HistoryChartCard isError { ...callbacks } /> );
+test( 'keeps the header, axis, and empty tooltip on the same day in a UTC+14 site', async () => {
+	const settings = getSettings();
+	setSettings( {
+		...settings,
+		timezone: { offset: 14, offsetFormatted: '+14', string: 'Pacific/Kiritimati', abbr: '+14' },
+	} );
+	try {
+		const visibleWindow = getHistoryWindow( 0 );
+		const firstDay = dateI18n( 'M j', visibleWindow.startDate, false );
+		const lastDay = dateI18n( 'M j, Y', visibleWindow.endDate, false );
+		render( <HistoryChartCard data={ null } { ...callbacks } range={ visibleWindow } />, {
+			wrapper,
+		} );
+		expect( screen.getByText( `${ firstDay } – ${ lastDay }` ) ).toBeInTheDocument();
+		await waitFor( () => expect( screen.getAllByText( firstDay ) ).toHaveLength( 2 ) );
+		fireEvent.keyDown( screen.getAllByRole( 'grid' )[ 0 ], { key: 'ArrowRight' } );
+		const tooltip = await screen.findByTestId( 'chart-tooltip-0' );
+		expect( tooltip ).toHaveTextContent( dateI18n( 'F j, Y', visibleWindow.startDate, false ) );
+		expect( tooltip ).toHaveTextContent( 'No scores recorded for this day.' );
+	} finally {
+		setSettings( settings );
+	}
+} );
+
+test( 'transitions from an error to paid history', () => {
+	const { rerender } = render( <HistoryChartCard isError { ...callbacks } />, { wrapper } );
 	expect( screen.getByRole( 'button', { name: 'Try again' } ) ).toBeInTheDocument();
 	rerender( <HistoryChartCard data={ history } { ...callbacks } /> );
-	expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toBeInTheDocument();
+	expect( screen.getAllByRole( 'grid', { name: 'Bar chart' } ) ).toHaveLength( 2 );
 } );
 
-test( 'keeps upgrade and fresh-start notices silent and safe to switch while announcing errors', () => {
+test( 'announces history errors in the assertive live region', () => {
 	// WordPress creates live regions outside the React test container.
 	/* eslint-disable testing-library/no-node-access */
-	const regions = [ 'polite', 'assertive' ].map( politeness => {
-		const id = `a11y-speak-${ politeness }`;
-		const region = document.getElementById( id ) ?? document.createElement( 'div' );
-		region.id = id;
-		region.className = 'a11y-speak-region';
-		region.textContent = '';
-		document.body.appendChild( region );
-		return region;
-	} );
+	const assertive =
+		document.getElementById( 'a11y-speak-assertive' ) ?? document.createElement( 'div' );
+	assertive.id = 'a11y-speak-assertive';
+	assertive.className = 'a11y-speak-region';
+	assertive.textContent = '';
+	document.body.appendChild( assertive );
 	/* eslint-enable testing-library/no-node-access */
-	const [ polite, assertive ] = regions;
-	const { rerender } = render( <HistoryChartCard needsUpgrade { ...callbacks } /> );
-	expect( polite ).toBeEmptyDOMElement();
-	expect( assertive ).toBeEmptyDOMElement();
-	expect( () => rerender( <HistoryChartCard isFreshStart { ...callbacks } /> ) ).not.toThrow();
-	expect( screen.getByRole( 'button', { name: 'Okay, got it!' } ) ).toBeInTheDocument();
-	expect( polite ).toBeEmptyDOMElement();
-	expect( assertive ).toBeEmptyDOMElement();
-	expect( () => rerender( <HistoryChartCard needsUpgrade { ...callbacks } /> ) ).not.toThrow();
-	expect( screen.getByRole( 'button', { name: 'Upgrade now' } ) ).toBeInTheDocument();
-	expect( polite ).toBeEmptyDOMElement();
-	expect( assertive ).toBeEmptyDOMElement();
-	rerender( <HistoryChartCard isError { ...callbacks } /> );
+	render( <HistoryChartCard isError { ...callbacks } />, { wrapper } );
 	expect( assertive ).toHaveTextContent( 'Failed to load performance history' );
 } );

@@ -5,44 +5,45 @@
  */
 
 import { withCurrency } from './resource-sync';
+import { SHIPPING_MODES_WITH_FEE } from './validation';
 
 /**
- * Line-item fields set outside the block form.
+ * Whether a shipping mode has everything it needs to go out.
  *
- * A PUT is a full replacement, so a field the request leaves out is one the
- * merchant deletes by pressing Update. These ride back out from the payment itself.
+ * PROFILE and FREE send their own value. FLAT and QUANTITY need a fee, and '0' is a
+ * fee PayPal stores, so the test is for a blank string.
+ *
+ * @param {string} mode  - PROFILE, QUANTITY, FLAT or FREE.
+ * @param {string} value - The fee.
+ * @return {boolean} True when the entry can be built.
  */
-export const PAYPAL_ONLY_LINE_ITEM_FIELDS = [
-	'product_id',
-	'shipping',
-	'handling',
-	'discounts',
-	'collect_shipping_address',
-];
+function hasShippingValue( mode, value ) {
+	return ! SHIPPING_MODES_WITH_FEE.includes( mode ) || '' !== ( value ?? '' );
+}
 
 /**
- * Put the fields set outside the form back into an update request.
+ * Build the single `shipping` entry a mode sends.
  *
- * @param {object} data     - The request built from the block's attributes.
- * @param {object} resource - The payment as it currently stands at PayPal.
- * @return {object} The request with those fields copied in.
+ * Four modes map onto two PayPal types: PROFILE and FREE share `PREFERENCE`, FLAT
+ * and QUANTITY share `FLAT` plus `additional_unit_value`. The mapper reads them back.
+ *
+ * @param {string} mode       - PROFILE, QUANTITY, FLAT or FREE.
+ * @param {string} value      - The fee, or the first-item fee under QUANTITY.
+ * @param {string} additional - The per-extra-item fee. QUANTITY only, optional.
+ * @return {object} The entry.
  */
-export function keepPayPalOnlyFields( data, resource ) {
-	const stored = resource?.line_items?.[ 0 ];
-	if ( ! stored ) {
-		return data;
+function buildShipping( mode, value, additional ) {
+	if ( ! SHIPPING_MODES_WITH_FEE.includes( mode ) ) {
+		return { type: 'PREFERENCE', value: 'FREE' === mode ? 'FREE_SHIPPING' : 'PROFILE' };
 	}
 
-	const kept = {};
-	PAYPAL_ONLY_LINE_ITEM_FIELDS.forEach( key => {
-		if ( stored[ key ] !== undefined && stored[ key ] !== null ) {
-			kept[ key ] = stored[ key ];
-		}
-	} );
-
-	// PayPal's stored value wins: for these the form only ever sends its own
-	// defaults.
-	return { ...data, line_items: [ { ...data.line_items[ 0 ], ...kept } ] };
+	return {
+		type: 'FLAT',
+		value,
+		...( 'QUANTITY' === mode && '' !== ( additional ?? '' )
+			? { additional_unit_value: additional }
+			: {} ),
+	};
 }
 
 /**
@@ -54,10 +55,13 @@ export function keepPayPalOnlyFields( data, resource ) {
  */
 export function buildRequestData( attributes, usesVariantPricing ) {
 	const {
+		format,
+		integrationMode,
 		productName,
 		price,
 		currencyCode,
 		productDescription,
+		productId,
 		imageUrl,
 		returnUrl,
 		variantsEnabled,
@@ -69,12 +73,34 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 		taxType,
 		taxName,
 		taxValue,
+		handlingEnabled,
+		handlingValue,
+		discountEnabled,
+		discountType,
+		discountValue,
+		shippingEnabled,
+		shippingMode,
+		shippingValue,
+		shippingAdditionalValue,
 		collectShippingAddress,
 	} = attributes;
 
+	// PREFERENCE takes its rate from the merchant's PayPal profile.
+	const taxAmount = 'PREFERENCE' === taxType ? 'PROFILE' : taxValue;
+
+	// FLAT is the default the editor and the validator both fall back to.
+	const activeShippingMode = shippingMode || 'FLAT';
+
 	return {
 		type: 'BUY_NOW',
-		integration_mode: 'LINK',
+		// Stacked needs BUTTON mode — that is what makes PayPal return code_snippets. Other
+		// formats re-send the payment's current mode, so a sibling block sharing the payment
+		// leaves it as it is. The mode is stored in its own right rather than inferred from
+		// scriptSrc, because an account without the stacked capability still takes BUTTON mode
+		// and returns no code_snippets: inferring would let a LINK or QR sibling downgrade such
+		// a payment, and only a stacked block's PUT re-reads, so it would stay down.
+		// Empty means the block has yet to read one, which is LINK.
+		integration_mode: 'STACKED' === format ? 'BUTTON' : integrationMode || 'LINK',
 		reusable: 'MULTIPLE',
 		line_items: [
 			{
@@ -89,8 +115,9 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 								currency_code: currencyCode || 'USD',
 								value: price,
 							},
-					  } ),
+						} ),
 				...( productDescription ? { description: productDescription } : {} ),
+				...( productId?.trim() ? { product_id: productId.trim() } : {} ),
 				// The block owns the image: leaving it out here removes it at PayPal.
 				...( imageUrl ? { image_url: imageUrl } : {} ),
 				...( variantsEnabled && variants
@@ -102,7 +129,7 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 				...( customerNotes?.length > 0
 					? { customer_notes: customerNotes.filter( n => n.label?.trim() ) }
 					: {} ),
-				...( taxEnabled
+				...( taxEnabled && '' !== ( taxAmount ?? '' )
 					? {
 							taxes: [
 								{
@@ -111,14 +138,28 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 									// one. Sending an empty one would overwrite it.
 									...( taxName ? { name: taxName } : {} ),
 									type: taxType || 'PERCENTAGE',
-									value: taxType === 'PREFERENCE' ? 'PROFILE' : taxValue || '0',
+									value: taxAmount,
 								},
 							],
-					  }
+						}
 					: {} ),
-				// Omitting this makes PayPal collect an address whatever the
-				// payment said before, so it goes out on every request. On an
-				// update the payment's own value replaces this one.
+				// FLAT is the only type PayPal takes here, and '0' is a fee it stores.
+				...( handlingEnabled && '' !== ( handlingValue ?? '' )
+					? { handling: [ { type: 'FLAT', value: handlingValue } ] }
+					: {} ),
+				// The attribute holds PayPal's own type, so it goes out as it stands.
+				...( discountEnabled && '' !== ( discountValue ?? '' )
+					? { discounts: [ { type: discountType || 'FLAT', value: discountValue } ] }
+					: {} ),
+				...( shippingEnabled && hasShippingValue( activeShippingMode, shippingValue )
+					? {
+							shipping: [
+								buildShipping( activeShippingMode, shippingValue, shippingAdditionalValue ),
+							],
+						}
+					: {} ),
+				// PayPal turns address collection on for a request that omits this, so it goes out
+				// every time.
 				collect_shipping_address: !! collectShippingAddress,
 			},
 		],

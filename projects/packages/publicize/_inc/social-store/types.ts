@@ -113,11 +113,7 @@ export type UnifiedModalState = {
  * OAuth boundary and have no back affordance.
  */
 export type ConnectionFlowStep =
-	| 'select-platform'
-	| 'platform-input'
-	| 'authorizing'
-	| 'confirm'
-	| 'creating';
+	'select-platform' | 'platform-input' | 'authorizing' | 'confirm' | 'creating';
 
 /**
  * Where the flow was started from — drives Tracks and post-connect behaviour.

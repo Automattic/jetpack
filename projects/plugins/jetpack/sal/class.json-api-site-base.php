@@ -1580,6 +1580,19 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Whether the site is still on the pre-2026 feature gating.
+	 *
+	 * @return bool
+	 */
+	public function is_legacy_gating_site() {
+		if ( ! method_exists( 'WPCOM_Features', 'is_legacy_gating_site' ) ) {
+			return false;
+		}
+
+		return (bool) WPCOM_Features::is_legacy_gating_site( $this->blog_id );
+	}
+
+	/**
 	 * Get the option of site intent which value is coming from the Hero Flow
 	 *
 	 * @return string
@@ -1880,5 +1893,15 @@ abstract class SAL_Site {
 	public function get_jetpack_recovery_mode_status() {
 		$status = get_option( 'jetpack_recovery_mode_status' );
 		return is_array( $status ) ? $status : null;
+	}
+
+	/**
+	 * Whether WordPress.com accounts must have two-step authentication to log in through SSO.
+	 *
+	 * @return bool
+	 */
+	public function get_jetpack_sso_require_two_step() {
+		/** This filter is documented in projects/packages/connection/src/sso/class-helpers.php */
+		return (bool) apply_filters( 'jetpack_sso_require_two_step', get_option( 'jetpack_sso_require_two_step', false ) );
 	}
 }

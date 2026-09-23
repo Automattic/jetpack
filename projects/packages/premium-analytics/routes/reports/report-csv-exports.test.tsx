@@ -150,6 +150,10 @@ jest.mock( './annual-insights/config', () => ( {
 } ) );
 
 jest.mock( './earnings/config', () => ( {
+	getEarningsReportTabs: () => [ { id: 'wordads', label: 'Earnings history' } ],
+	getTabTitle: ( id: string ) => ( id === 'wordads' ? 'Earnings history' : id ),
+	hasAdsServed: ( tab: string ) => tab === 'wordads',
+	resolveSection: ( value: string | undefined ) => value ?? 'wordads',
 	useEarningsReportRecords: jest.fn(),
 } ) );
 
@@ -355,15 +359,34 @@ describe( 'report CSV exports', () => {
 		];
 		useEarningsReportRecordsMock.mockReturnValue( {
 			...reportStatus,
+			tab: 'wordads',
+			availableTabs: [ 'wordads' ],
 			rows,
 		} as ReturnType< typeof useEarningsReportRecords > );
 
 		expectCsvExport(
 			EarningsReportPage,
-			'earnings',
+			'earnings-wordads',
 			[ rows[ 1 ], rows[ 0 ] ],
 			[ '2026-09', 30.25, 300, 'Unpaid' ]
 		);
+	} );
+
+	it( 'exports a pending status with its reason', () => {
+		const rows = [ { id: '2026-09', period: '2026-09', amount: 30.25, pageviews: 300, status: 3 } ];
+		useEarningsReportRecordsMock.mockReturnValue( {
+			...reportStatus,
+			tab: 'wordads',
+			availableTabs: [ 'wordads' ],
+			rows,
+		} as ReturnType< typeof useEarningsReportRecords > );
+
+		expectCsvExport( EarningsReportPage, 'earnings-wordads', rows, [
+			'2026-09',
+			30.25,
+			300,
+			'Pending (Missing tax info)',
+		] );
 	} );
 
 	it( 'configures the Clicks export with parent rows in hierarchy order', () => {

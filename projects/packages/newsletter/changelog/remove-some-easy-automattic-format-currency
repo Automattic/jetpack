@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Replace use of deprecated `@automattic/format-currency` with `@automattic/number-formatters`.
+
+

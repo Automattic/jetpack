@@ -92,7 +92,7 @@ function mockEndpoints( {
 						current: { orderedItems: activityRows() },
 						totalItems: 2,
 						totalPages: 1,
-				  } );
+					} );
 		}
 		if ( path === '/jetpack/v4/restores' ) {
 			return Promise.resolve( restores );

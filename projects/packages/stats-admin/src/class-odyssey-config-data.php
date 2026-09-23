@@ -160,6 +160,7 @@ class Odyssey_Config_Data {
 							'stats_admin_version'   => Main::VERSION,
 							'software_version'      => $wp_version,
 							'can_blaze'             => $can_blaze,
+							'has_stats_settings'    => ! $host->is_wpcom_simple(),
 						),
 					),
 				),

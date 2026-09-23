@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Stats: Load the admin bar chart and Stats link from the Stats Admin package, and deprecate the matching functions in the Stats module.

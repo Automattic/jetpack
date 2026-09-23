@@ -160,12 +160,12 @@ export default function ResumableUpload( { file } ) {
 										/* translators: %s: an upload progress percentage number, from 0-100. */
 										__( 'Paused (%s%%)', 'jetpack' ),
 										roundedProgress
-								  )
+									)
 								: sprintf(
 										/* translators: %s: an upload progress percentage number, from 0-100. */
 										__( 'Uploading (%s%%)', 'jetpack' ),
 										roundedProgress
-								  ) }
+									) }
 						</div>
 						<div className="resumable-upload__file-size">{ fileSizeLabel }</div>
 					</div>

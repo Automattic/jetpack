@@ -107,8 +107,9 @@ export function hydratePlaylistMetadata( root: HTMLElement ): Promise< void[] > 
 				// reuse its translated label as the entry title in place of the
 				// positional fallback.
 				entry.classList.add( 'is-locked' );
-				const lockLabel = entry.querySelector( '.videopress-playlist__entry-lock-label' )
-					?.textContent;
+				const lockLabel = entry.querySelector(
+					'.videopress-playlist__entry-lock-label'
+				)?.textContent;
 				if ( lockLabel ) {
 					entry.dataset.title = lockLabel;
 					const titleElement = entry.querySelector( '.videopress-playlist__entry-title' );
@@ -268,11 +269,14 @@ export function initPlaylistBlock( root: HTMLElement ) {
 }
 
 /**
- * Initialize every Video Playlist block on the page.
+ * Initialize every playlist block on the page: the Video Playlist block and
+ * the Latest Videos Playlist block share this script and markup.
  */
 export function initAllPlaylistBlocks() {
 	document
-		.querySelectorAll< HTMLElement >( '.wp-block-videopress-playlist' )
+		.querySelectorAll< HTMLElement >(
+			'.wp-block-videopress-playlist, .wp-block-videopress-latest-videos-playlist'
+		)
 		.forEach( initPlaylistBlock );
 }
 

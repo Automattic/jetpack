@@ -220,6 +220,131 @@ class WpcomFeaturesMapTest extends WP_UnitTestCase {
 		$this->assertTrue( WPCOM_Features::purchase_in_products_map( $this->purchase( 'business-bundle' ), $map ) );
 	}
 
+	/**
+	 * The cohort override exists so a caller can ask what a site *would* hold on the other side of the
+	 * flip. It has to beat the site's own stickers in both directions, or the pre-purchase warning
+	 * cannot be computed at all.
+	 */
+	public function test_assume_legacy_overrides_the_site_cohort() {
+		$legacy_only = array(
+			array(
+				'before_feature_gating_2026' => true,
+				'business-bundle',
+			),
+		);
+
+		// The fixture site is below the cutoff, so it is legacy and would normally be granted.
+		$this->assertFalse( WPCOM_Features::purchase_in_products_map( $this->purchase( 'business-bundle' ), $legacy_only, null, false ) );
+
+		$this->add_sticker( WPCOM_Features::STICKER_FEATURE_GATING_2026 );
+
+		// And now that it is off legacy, the override puts it back.
+		$this->assertTrue( WPCOM_Features::purchase_in_products_map( $this->purchase( 'business-bundle' ), $legacy_only, null, true ) );
+	}
+
+	/**
+	 * Every existing caller passes no override, so null has to stay indistinguishable from reading the
+	 * cohort off the site.
+	 */
+	public function test_null_assume_legacy_reads_the_cohort_from_the_site() {
+		$legacy_only = array(
+			array(
+				'before_feature_gating_2026' => true,
+				'business-bundle',
+			),
+		);
+
+		$this->assertTrue( WPCOM_Features::purchase_in_products_map( $this->purchase( 'business-bundle' ), $legacy_only, null, null ) );
+
+		$this->add_sticker( WPCOM_Features::STICKER_FEATURE_GATING_2026 );
+
+		$this->assertFalse( WPCOM_Features::purchase_in_products_map( $this->purchase( 'business-bundle' ), $legacy_only, null, null ) );
+	}
+
+	/**
+	 * Function has_feature() is the entry point callers actually use, so the override has to survive the hop.
+	 */
+	public function test_has_feature_passes_the_override_through() {
+		$purchases = array( $this->purchase( 'value_bundle' ) );
+
+		$this->assertTrue( WPCOM_Features::has_feature( WPCOM_Features::DONATIONS, $purchases, 'wpcom', null, true ) );
+		$this->assertTrue( WPCOM_Features::has_feature( WPCOM_Features::DONATIONS, $purchases, 'wpcom', null, false ) );
+
+		// Personal reaches donations only through the pre-2026 branch, so the two cohorts disagree.
+		$personal = array( $this->purchase( 'personal-bundle' ) );
+
+		$this->assertTrue( WPCOM_Features::has_feature( WPCOM_Features::DONATIONS, $personal, 'wpcom', null, true ) );
+		$this->assertFalse( WPCOM_Features::has_feature( WPCOM_Features::DONATIONS, $personal, 'wpcom', null, false ) );
+	}
+
+	public function test_get_cohort_sensitive_features_lists_the_cohort_gated_features() {
+		$features = WPCOM_Features::get_cohort_sensitive_features();
+
+		$this->assertNotEmpty( $features );
+		$this->assertContains( WPCOM_Features::DONATIONS, $features );
+		$this->assertContains( WPCOM_Features::FIELD_FILE, $features );
+
+		// A feature granted the same way to both cohorts must not appear: ADVANCED_SEO is unconditional
+		// at Premium, and BACKUPS_DAILY is Personal-and-Premium with no cohort branch at all.
+		$this->assertNotContains( WPCOM_Features::ADVANCED_SEO, $features );
+		$this->assertNotContains( WPCOM_Features::BACKUPS_DAILY, $features );
+	}
+
+	/**
+	 * The helper only inspects the top level of each definition, which is where the key is written
+	 * today. Searching the whole definition independently catches both a branch it missed and a branch
+	 * nested deeper than it looks -- the second would make the helper silently incomplete.
+	 */
+	public function test_get_cohort_sensitive_features_matches_the_map() {
+		$listed = WPCOM_Features::get_cohort_sensitive_features();
+
+		foreach ( WPCOM_Features::get_feature_slugs() as $feature ) {
+			$mentions_key = false;
+
+			// A local, because array_walk_recursive() takes its array by reference and cannot accept an
+			// expression there.
+			$definition = self::feature_definition( $feature );
+
+			array_walk_recursive(
+				$definition,
+				function ( $value, $key ) use ( &$mentions_key ) {
+					if ( 'before_feature_gating_2026' === $key ) {
+						$mentions_key = true;
+					}
+				}
+			);
+
+			$this->assertSame(
+				$mentions_key,
+				in_array( $feature, $listed, true ),
+				"$feature is cohort-gated in the map but not listed, or listed without being gated."
+			);
+		}
+	}
+
+	/**
+	 * Memoized, so a second call has to agree with the first.
+	 */
+	public function test_get_cohort_sensitive_features_is_stable() {
+		$this->assertSame(
+			WPCOM_Features::get_cohort_sensitive_features(),
+			WPCOM_Features::get_cohort_sensitive_features()
+		);
+	}
+
+	/**
+	 * One feature's definition out of the private products map.
+	 *
+	 * @param string $feature Feature slug.
+	 *
+	 * @return array
+	 */
+	private static function feature_definition( $feature ) {
+		$map = ( new ReflectionClass( 'WPCOM_Features' ) )->getConstants()['FEATURES_MAP'];
+
+		return (array) ( $map[ $feature ] ?? array() );
+	}
+
 	public function test_cache_suffix_names_the_gating_cohort() {
 		$blog_id = _wpcom_get_current_blog_id();
 

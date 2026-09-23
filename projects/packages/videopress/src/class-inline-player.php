@@ -25,6 +25,21 @@ class Inline_Player {
 	const BOOT_HANDLE   = 'videopress-inline-player';
 
 	const PLACEHOLDER_CLASS = 'jetpack-videopress-player__inline';
+	const FACADE_CLASS      = 'jetpack-videopress-player__facade';
+
+	/**
+	 * How many placeholders this request has rendered; the first poster stays eager, later ones lazy-load.
+	 *
+	 * @var int
+	 */
+	private static $rendered = 0;
+
+	/**
+	 * Whether the boot script's config has been printed for this request.
+	 *
+	 * @var bool
+	 */
+	private static $config_printed = false;
 
 	/**
 	 * Whether embeds rendered by this site should mount an inline player instead of an iframe.
@@ -128,7 +143,7 @@ class Inline_Player {
 		/**
 		 * Filter the options passed to an inline VideoPress player.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.50.2
 		 *
 		 * @param array $options    Player options.
 		 * @param array $attributes The block or shortcode attributes they were built from.
@@ -193,21 +208,198 @@ class Inline_Player {
 	}
 
 	/**
-	 * Enqueue the shared player assets and the boot script, once per page.
+	 * Versioned URLs of the player bundle and its stylesheet, for anything that loads the player itself.
+	 *
+	 * @return array{script: string, style: string}
 	 */
-	public static function enqueue_assets() {
-		wp_enqueue_style( self::PLAYER_HANDLE, self::PLAYER_STYLE_URL, array(), Package_Version::PACKAGE_VERSION );
-		wp_enqueue_script( self::PLAYER_HANDLE, self::PLAYER_SCRIPT_URL, array(), Package_Version::PACKAGE_VERSION, true );
+	public static function get_asset_config() {
+		return array(
+			'script' => add_query_arg( 'ver', Package_Version::PACKAGE_VERSION, self::PLAYER_SCRIPT_URL ),
+			'style'  => add_query_arg( 'ver', Package_Version::PACKAGE_VERSION, self::PLAYER_STYLE_URL ),
+		);
+	}
+
+	/**
+	 * Enqueue the boot script and, unless every player on the page sits behind a facade, the shared player assets.
+	 *
+	 * The boot script never depends on the player handle: behind a facade it fetches the
+	 * bundle itself on the first click, from the URLs printed in its config.
+	 *
+	 * @param bool $defer_player True to leave the player bundle for the boot script to load on demand.
+	 */
+	public static function enqueue_assets( $defer_player = false ) {
 		wp_enqueue_script(
 			self::BOOT_HANDLE,
 			plugins_url( '../build/lib/inline-player.js', __FILE__ ),
-			array( self::PLAYER_HANDLE ),
+			array(),
 			Package_Version::PACKAGE_VERSION,
 			true
 		);
 
+		if ( ! self::$config_printed ) {
+			self::$config_printed = true;
+			wp_add_inline_script(
+				self::BOOT_HANDLE,
+				'window.jetpackVideoPressInlinePlayer = ' . wp_json_encode( self::get_asset_config(), JSON_UNESCAPED_SLASHES ) . ';',
+				'before'
+			);
+		}
+
+		if ( ! $defer_player ) {
+			wp_enqueue_style( self::PLAYER_HANDLE, self::PLAYER_STYLE_URL, array(), Package_Version::PACKAGE_VERSION );
+			wp_enqueue_script( self::PLAYER_HANDLE, self::PLAYER_SCRIPT_URL, array(), Package_Version::PACKAGE_VERSION, true );
+		}
+
 		// Private videos ask the page for a playback token, same as iframes do.
 		Jwt_Token_Bridge::enqueue_jwt_token_bridge();
+	}
+
+	/**
+	 * Whether a placeholder should start as a poster facade instead of a mounted player.
+	 *
+	 * Autoplaying videos need the player at once; everything else can wait for a click.
+	 *
+	 * @param array $options Player options, see `get_player_options()`.
+	 * @return bool
+	 */
+	public static function should_use_facade( array $options = array() ) {
+		$use_facade = empty( $options['autoPlay'] );
+
+		/**
+		 * Filter whether inline VideoPress players start as a poster facade and load the player on click.
+		 *
+		 * @since 0.51.0
+		 *
+		 * @param bool  $use_facade Whether to render the facade.
+		 * @param array $options    The player options for this video.
+		 */
+		return (bool) apply_filters( 'jetpack_videopress_inline_player_facade', $use_facade, $options );
+	}
+
+	/**
+	 * Resolve the poster to show in a facade, without ever exposing a private video's frame.
+	 *
+	 * Order: the block's own poster attribute, the attachment's VideoPress metadata
+	 * ( by `id`, else by GUID ), then the transient-cached video details lookup.
+	 *
+	 * @param string $guid       Video GUID.
+	 * @param array  $attributes Block or shortcode attributes ( `poster`, `id`, `isPrivate`, `privacySetting` ).
+	 * @return string|null Poster URL, or null when none is usable.
+	 */
+	public static function get_poster_url( $guid, array $attributes = array() ) {
+		$poster = null;
+
+		if ( ! empty( $attributes['poster'] ) && is_string( $attributes['poster'] ) ) {
+			$poster = esc_url_raw( $attributes['poster'] );
+		} elseif ( ! self::is_private( $attributes ) ) {
+			$poster = self::get_poster_from_attachment( $guid, $attributes['id'] ?? 0 );
+
+			if ( null === $poster && function_exists( 'videopress_get_video_details' ) ) {
+				$details = videopress_get_video_details( $guid );
+				if ( is_object( $details ) && empty( $details->is_private ) && ! empty( $details->poster ) && is_string( $details->poster ) ) {
+					$poster = esc_url_raw( $details->poster );
+				}
+			}
+		}
+
+		/**
+		 * Filter the poster shown by an inline VideoPress player's facade.
+		 *
+		 * @since 0.51.0
+		 *
+		 * @param string|null $poster     Poster URL, or null for a plain dark facade.
+		 * @param string      $guid       Video GUID.
+		 * @param array       $attributes The block or shortcode attributes.
+		 */
+		$poster = apply_filters( 'jetpack_videopress_inline_player_poster', $poster, $guid, $attributes );
+
+		return is_string( $poster ) && '' !== $poster ? $poster : null;
+	}
+
+	/**
+	 * Whether the attributes describe a private video, treating "site default" as the site's own setting.
+	 *
+	 * @param array $attributes Block attributes.
+	 * @return bool
+	 */
+	private static function is_private( array $attributes ) {
+		if ( ! empty( $attributes['isPrivate'] ) ) {
+			return true;
+		}
+
+		// A privacy setting of one is private and two follows the site default; anything else is public.
+		$privacy = isset( $attributes['privacySetting'] ) ? (int) $attributes['privacySetting'] : 2;
+		if ( 1 === $privacy ) {
+			return true;
+		}
+
+		return 2 === $privacy && Data::get_videopress_videos_private_for_site();
+	}
+
+	/**
+	 * Poster from the local attachment's VideoPress metadata, when the attachment belongs to this GUID.
+	 *
+	 * @param string $guid          Video GUID.
+	 * @param int    $attachment_id Attachment ID from the block, 0 to look the post up by GUID.
+	 * @return string|null
+	 */
+	private static function get_poster_from_attachment( $guid, $attachment_id = 0 ) {
+		$attachment_id = (int) $attachment_id;
+
+		if ( $attachment_id <= 0 && function_exists( 'videopress_get_post_by_guid' ) ) {
+			$post          = videopress_get_post_by_guid( $guid );
+			$attachment_id = ( $post instanceof \WP_Post ) ? $post->ID : 0;
+		}
+
+		if ( $attachment_id <= 0 ) {
+			return null;
+		}
+
+		$meta       = wp_get_attachment_metadata( $attachment_id );
+		$videopress = is_array( $meta ) && isset( $meta['videopress'] ) && is_array( $meta['videopress'] ) ? $meta['videopress'] : array();
+		$poster     = $videopress['poster'] ?? '';
+		$meta_guid  = $videopress['guid'] ?? '';
+
+		if ( ! is_string( $poster ) || '' === $poster ) {
+			return null;
+		}
+
+		// A block can point at another video than its attachment does; trust the GUID.
+		if ( is_string( $meta_guid ) && '' !== $meta_guid && $meta_guid !== $guid ) {
+			return null;
+		}
+
+		return esc_url_raw( $poster );
+	}
+
+	/**
+	 * Stylesheet for the facade, printed inline so no extra request stands between the HTML and the poster.
+	 *
+	 * The play button, pre-play scrim and loading spinner copy the player's own chrome, so
+	 * nothing visibly changes when the player takes the facade's place.
+	 *
+	 * @return string CSS.
+	 */
+	private static function facade_css() {
+		$p = '.' . self::PLACEHOLDER_CLASS;
+		$f = '.' . self::FACADE_CLASS;
+		return $p . '.is-facade{background:#000;container-type:inline-size;--jetpack-videopress-play-size:min(max(calc(100vw / 8),60px),90px)}'
+			. $f . '{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;background:transparent;cursor:pointer;display:block;line-height:0}'
+			. $f . '-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}'
+			. $f . '-scrim{position:absolute;inset:0;pointer-events:none;background:radial-gradient(50% 50% at 50% 50%,rgba(0,0,0,.14) 0%,rgba(0,0,0,.3) 100%)}'
+			. $f . '-play{position:absolute;top:50%;left:50%;width:var(--jetpack-videopress-play-size);height:var(--jetpack-videopress-play-size);transform:translate(-50%,-50%);display:block;transition:transform .25s cubic-bezier(.4,0,.6,1) .04s;will-change:transform}'
+			. $f . '-play svg{display:block;width:100%;height:100%;fill:#fff}'
+			. $p . '.is-facade:hover ' . $f . '-play{transform:translate(-50%,-50%) scale(1.08)}'
+			. $f . ':focus-visible{outline:2px solid #fff;outline-offset:-4px}'
+			. $f . '-spinner{position:absolute;inset:0;z-index:2;display:none;align-items:center;justify-content:center;pointer-events:none}'
+			. $f . '-spinner span{display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:999px;background:rgba(18,18,18,.55);-webkit-backdrop-filter:blur(12px) saturate(1.2);backdrop-filter:blur(12px) saturate(1.2);box-shadow:0 4px 16px rgba(0,0,0,.35)}'
+			. $f . '-spinner span::after{content:"";box-sizing:border-box;width:24px;height:24px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:jetpack-videopress-spin 750ms linear infinite}'
+			. $p . '.is-loading ' . $f . '-play{display:none}'
+			. $p . '.is-loading ' . $f . '-spinner{display:flex}'
+			. '@keyframes jetpack-videopress-spin{to{transform:rotate(360deg)}}'
+			. '@container (max-width:250px){' . $f . '-spinner span{width:40px;height:40px}}'
+			. '@media screen and (max-width:200px){' . $p . '.is-facade{--jetpack-videopress-play-size:40px}' . $f . '-play{opacity:.75}}'
+			. '@media (prefers-reduced-motion:reduce){' . $f . '-play{transition:none}}';
 	}
 
 	/**
@@ -216,14 +408,17 @@ class Inline_Player {
 	 * @param string     $guid    Video GUID.
 	 * @param array      $options Player options, see `get_player_options()`.
 	 * @param float|null $ratio   Height as a percentage of width (the block's `videoRatio`); 16:9 when unknown.
+	 * @param array      $args    Optional `poster` ( URL ), `title` ( for the play button's label ) and `facade` ( bool, default `should_use_facade()` ).
 	 * @return string Placeholder markup, or an empty string for an invalid GUID.
 	 */
-	public static function render( $guid, array $options = array(), $ratio = null ) {
+	public static function render( $guid, array $options = array(), $ratio = null, array $args = array() ) {
 		if ( ! is_string( $guid ) || ! ctype_alnum( $guid ) ) {
 			return '';
 		}
 
-		self::enqueue_assets();
+		$facade = isset( $args['facade'] ) ? (bool) $args['facade'] : self::should_use_facade( $options );
+
+		self::enqueue_assets( $facade );
 
 		$ratio = is_numeric( $ratio ) && (float) $ratio > 0 ? (float) $ratio : 56.25;
 		$style = sprintf(
@@ -231,13 +426,62 @@ class Inline_Player {
 			rtrim( rtrim( number_format( $ratio, 4, '.', '' ), '0' ), '.' )
 		);
 
+		$inner = '';
+		if ( $facade ) {
+			wp_register_style( self::BOOT_HANDLE, false, array(), Package_Version::PACKAGE_VERSION );
+			wp_enqueue_style( self::BOOT_HANDLE );
+			if ( 0 === self::$rendered ) {
+				wp_add_inline_style( self::BOOT_HANDLE, self::facade_css() );
+			}
+
+			$title = isset( $args['title'] ) && is_string( $args['title'] ) ? trim( $args['title'] ) : '';
+			$label = '' !== $title
+				/* translators: %s is the video title */
+				? sprintf( __( 'Play video: %s', 'jetpack-videopress-pkg' ), $title )
+				: __( 'Play video', 'jetpack-videopress-pkg' );
+
+			$poster = '';
+			if ( ! empty( $args['poster'] ) && is_string( $args['poster'] ) ) {
+				// The first poster on the page is a likely LCP candidate; later ones can wait for the viewport.
+				$poster = sprintf(
+					'<img class="%1$s-poster" src="%2$s" alt="" decoding="async"%3$s>',
+					esc_attr( self::FACADE_CLASS ),
+					esc_url( $args['poster'] ),
+					self::$rendered > 0 ? ' loading="lazy"' : ' fetchpriority="high"'
+				);
+			}
+
+			// The glyph is the player's own large play icon.
+			$inner = sprintf(
+				'<button type="button" class="%1$s" aria-label="%2$s">%3$s<span class="%1$s-scrim" aria-hidden="true"></span><span class="%1$s-play" aria-hidden="true"><svg viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M6.25725 1.075C6.10279 0.977449 5.91041 0.974889 5.75365 1.06832C5.59689 1.16174 5.5 1.3367 5.5 1.52632V20.4737C5.5 20.6633 5.59689 20.8383 5.75365 20.9317C5.91041 21.0251 6.10279 21.0226 6.25725 20.925L21.2573 11.4513C21.4079 11.3562 21.5 11.1849 21.5 11C21.5 10.8151 21.4079 10.6438 21.2573 10.5487L6.25725 1.075Z"/></svg></span></button>'
+				. '<span class="%1$s-spinner" role="status" aria-live="polite" aria-label="%4$s"><span></span></span>',
+				esc_attr( self::FACADE_CLASS ),
+				esc_attr( $label ),
+				$poster,
+				esc_attr__( 'Loading…', 'jetpack-videopress-pkg' )
+			);
+		}
+
+		++self::$rendered;
+
 		return sprintf(
-			'<div class="%1$s" data-videopress-guid="%2$s" data-videopress-options="%3$s" style="%4$s"></div>',
+			'<div class="%1$s%5$s" data-videopress-guid="%2$s" data-videopress-options="%3$s"%6$s style="%4$s">%7$s</div>',
 			esc_attr( self::PLACEHOLDER_CLASS ),
 			esc_attr( $guid ),
 			esc_attr( wp_json_encode( (object) $options, JSON_UNESCAPED_SLASHES ) ),
-			esc_attr( $style )
+			esc_attr( $style ),
+			$facade ? ' is-facade' : '',
+			$facade ? ' data-videopress-facade="1"' : '',
+			$inner
 		);
+	}
+
+	/**
+	 * Forget per-request state ( tests ).
+	 */
+	public static function reset() {
+		self::$rendered       = 0;
+		self::$config_printed = false;
 	}
 
 	/**

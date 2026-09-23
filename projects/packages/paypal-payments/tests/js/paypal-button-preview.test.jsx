@@ -8,16 +8,41 @@
  * @package
  */
 
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
+import { dispatch } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import QRCode from 'qrcode';
+import metadata from '../../src/paypal-payment-buttons/block.json';
 import PayPalButtonPreview from '../../src/paypal-payment-buttons/components/paypal-button-preview';
 import { QR_OPTIONS } from '../../src/paypal-payment-buttons/utils/qr-options';
+import {
+	forgetSyncedRequests,
+	recordPaymentRead,
+	syncBlocksBeforeSave,
+} from '../../src/paypal-payment-buttons/utils/sync-on-save';
+import cardParity from '../fixtures/product-card-parity.json';
+import bootTheFrame from './boot-the-frame';
 
 // jsdom has no 2D context, so a real draw fails. Unlike qr-code.test.js's mock
 // this one resolves, because the preview chains .catch() on the returned promise.
 jest.mock( 'qrcode', () => ( {
 	toCanvas: jest.fn( () => Promise.resolve() ),
 } ) );
+
+// Only the saving flag, which core/editor sets while the sync runs.
+jest.mock( '@wordpress/editor', () => {
+	const { createReduxStore, register } = jest.requireActual( '@wordpress/data' );
+	const store = createReduxStore( 'core/editor', {
+		reducer: ( saving = false, action ) =>
+			'SET_SAVING' === action.type ? action.saving : saving,
+		actions: { setSaving: saving => ( { type: 'SET_SAVING', saving } ) },
+		selectors: { isSavingPost: saving => saving },
+	} );
+	register( store );
+	return { store };
+} );
+
+const SDK_HOST_URL = 'https://example.test/wp-admin/admin-post.php?action=jetpack_paypal_sdk_host';
 
 const defaultProps = {
 	productName: 'Premium Widget',
@@ -36,6 +61,30 @@ describe( 'PayPalButtonPreview', () => {
 	it( 'renders the formatted price with currency symbol', () => {
 		render( <PayPalButtonPreview { ...defaultProps } /> );
 		expect( screen.getByText( '$29.99' ) ).toBeInTheDocument();
+	} );
+
+	// An empty currencyCode is '' rather than undefined, so the prop default never fires
+	// and the fallback in the option list is the one that does.
+	it( 'prices the options in USD when the block carries no currency', () => {
+		render(
+			<PayPalButtonPreview
+				{ ...defaultProps }
+				price=""
+				currencyCode=""
+				variantsEnabled={ true }
+				variants={ {
+					dimensions: [
+						{
+							name: 'Size',
+							primary: true,
+							options: [ { label: 'Small', unit_amount: { value: '4.50' } } ],
+						},
+					],
+				} }
+			/>
+		);
+
+		expect( screen.getByText( '$4.50' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders the description when provided', () => {
@@ -65,20 +114,45 @@ describe( 'PayPalButtonPreview', () => {
 
 	it( 'keeps the wordmark off the button face', () => {
 		// The branding reads on the attribution line, not the button face.
-		render( <PayPalButtonPreview { ...defaultProps } /> );
-		expect( document.querySelector( '.jetpack-paypal-button__logo' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'leaves the attribution line off until the merchant asks for it', () => {
-		render( <PayPalButtonPreview { ...defaultProps } /> );
-		expect( screen.queryByText( 'Powered by PayPal' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'renders the attribution line with buttonShowPoweredBy on, as the frontend does', () => {
 		render(
 			<PayPalButtonPreview { ...defaultProps } attributes={ { buttonShowPoweredBy: true } } />
 		);
-		expect( screen.getByText( 'Powered by PayPal' ) ).toBeInTheDocument();
+		const button = document.querySelector( '.jetpack-paypal-button-preview__checkout-button' );
+		expect( button.querySelector( '.jetpack-paypal-button__logo' ) ).not.toBeInTheDocument();
+		// Positive control: the wordmark is on the attribution line.
+		expect(
+			document.querySelector( '.jetpack-paypal-button__attribution .jetpack-paypal-button__logo' )
+		).toBeInTheDocument();
+	} );
+
+	it( 'shows the attribution line by default', () => {
+		render(
+			<PayPalButtonPreview
+				{ ...defaultProps }
+				attributes={ { buttonShowPoweredBy: metadata.attributes.buttonShowPoweredBy.default } }
+			/>
+		);
+		expect( document.querySelector( '.jetpack-paypal-button__attribution' ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides the attribution line when buttonShowPoweredBy is false', () => {
+		render(
+			<PayPalButtonPreview { ...defaultProps } attributes={ { buttonShowPoweredBy: false } } />
+		);
+		expect(
+			document.querySelector( '.jetpack-paypal-button__attribution' )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'renders "Powered by" and the PayPal wordmark, as the frontend does', () => {
+		render(
+			<PayPalButtonPreview { ...defaultProps } attributes={ { buttonShowPoweredBy: true } } />
+		);
+		// Same markup as the PHP test. The word PayPal stays as text for screen
+		// readers, and style.scss draws it as the wordmark.
+		expect( document.querySelector( '.jetpack-paypal-button__attribution' ).outerHTML ).toBe(
+			'<p class="jetpack-paypal-button__attribution">Powered by <span class="jetpack-paypal-button__logo">PayPal</span></p>'
+		);
 	} );
 
 	// The canvas half of what render_api_managed_button() puts on the anchor.
@@ -177,6 +251,19 @@ describe( 'PayPalButtonPreview', () => {
 		expect( screen.queryByText( 'Copy' ) ).not.toBeInTheDocument();
 	} );
 
+	// style.scss sets the block's width, margin and font on this class.
+	it( 'adds the jetpack-paypal-button class to the button and QR previews', () => {
+		const { rerender } = render( <PayPalButtonPreview { ...defaultProps } /> );
+		expect( document.querySelector( '.jetpack-paypal-button-preview' ) ).toHaveClass(
+			'jetpack-paypal-button'
+		);
+
+		rerender( <PayPalButtonPreview { ...defaultProps } format="QR" /> );
+		expect( document.querySelector( '.jetpack-paypal-button-preview--qr' ) ).toHaveClass(
+			'jetpack-paypal-button'
+		);
+	} );
+
 	it( 'renders non-interactive preview buttons as div elements', () => {
 		render( <PayPalButtonPreview { ...defaultProps } /> );
 		const button = document.querySelector( '.jetpack-paypal-button-preview__checkout-button' );
@@ -187,11 +274,13 @@ describe( 'PayPalButtonPreview', () => {
 		// Theme button styles key off `.wp-element-button`, like the frontend
 		// checkout link, so the preview carries it too.
 		expect( button ).toHaveClass( 'wp-element-button' );
+		// The frontend checkout link's class, for the same layout rules.
+		expect( button ).toHaveClass( 'jetpack-paypal-button__checkout-link' );
 	} );
 
 	it( 'renders product image when imageUrl is provided', () => {
 		render( <PayPalButtonPreview { ...defaultProps } imageUrl="https://example.com/widget.jpg" /> );
-		const imageContainer = document.querySelector( '.jetpack-paypal-button-preview__image' );
+		const imageContainer = document.querySelector( '.jetpack-paypal-button__product-image' );
 		expect( imageContainer ).toBeInTheDocument();
 		const img = imageContainer.querySelector( 'img' );
 		expect( img ).toHaveAttribute( 'src', 'https://example.com/widget.jpg' );
@@ -200,7 +289,7 @@ describe( 'PayPalButtonPreview', () => {
 
 	it( 'does not render product image when imageUrl is not provided', () => {
 		render( <PayPalButtonPreview { ...defaultProps } /> );
-		const imageContainer = document.querySelector( '.jetpack-paypal-button-preview__image' );
+		const imageContainer = document.querySelector( '.jetpack-paypal-button__product-image' );
 		expect( imageContainer ).not.toBeInTheDocument();
 	} );
 
@@ -398,9 +487,7 @@ describe( 'PayPalButtonPreview', () => {
 
 		it( 'shows a product price of 0', () => {
 			render( <PayPalButtonPreview { ...defaultProps } price="0" /> );
-			expect( screen.getByText( '$0' ) ).toHaveClass(
-				'jetpack-paypal-button-preview__product-price'
-			);
+			expect( screen.getByText( '$0' ) ).toHaveClass( 'jetpack-paypal-button__product-price' );
 		} );
 
 		it( 'keeps a group named 0 and an option labeled 0', () => {
@@ -434,6 +521,11 @@ describe( 'PayPalButtonPreview', () => {
 	describe( 'Display Format', () => {
 		beforeEach( () => {
 			QRCode.toCanvas.mockClear();
+			window.jetpackPayPalPayments = { sdkHostUrl: SDK_HOST_URL };
+		} );
+
+		afterEach( () => {
+			delete window.jetpackPayPalPayments;
 		} );
 
 		it( 'draws the button card for BUTTON', () => {
@@ -443,9 +535,149 @@ describe( 'PayPalButtonPreview', () => {
 			).toBeInTheDocument();
 		} );
 
+		it( 'draws the SDK preview for STACKED', () => {
+			// PayPal draws the whole card from one container, so the button card gives way.
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					format="STACKED"
+					attributes={ {
+						scriptSrc: 'https://www.paypal.com/sdk/js?client-id=abc',
+						resourceId: 'PLB-1',
+					} }
+				/>
+			);
+
+			expect( screen.getByTitle( 'PayPal buttons preview' ) ).toBeInTheDocument();
+			expect(
+				document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+			).not.toBeInTheDocument();
+		} );
+
+		const usd = 'https://www.paypal.com/sdk/js?client-id=abc&currency=USD';
+		const stacked = ( attributes, resource ) => (
+			<PayPalButtonPreview
+				{ ...defaultProps }
+				format="STACKED"
+				attributes={ attributes }
+				resource={ resource }
+			/>
+		);
+
+		it.each( [
+			[
+				'the URL changes',
+				'scriptSrc',
+				'https://www.paypal.com/sdk/js?client-id=abc&currency=EUR',
+			],
+			[ 'the payment changes', 'resourceId', 'PLB-2' ],
+		] )( 'boots the SDK again when %s', ( _label, key, changed ) => {
+			const before = { scriptSrc: usd, resourceId: 'PLB-1' };
+
+			const { rerender } = render( stacked( before ) );
+			expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
+
+			rerender( stacked( { ...before, [ key ]: changed } ) );
+			const script = bootTheFrame().doc.querySelector( 'script' );
+			expect( script ).not.toBeNull();
+			expect( script.src ).toBe( 'scriptSrc' === key ? changed : usd );
+		} );
+
+		// The frame is keyed on the SDK URL, payment id, and card revision, so typing in the
+		// sidebar keeps PayPal's SDK running.
+		it( 'leaves the running SDK alone when another attribute changes', () => {
+			const before = { scriptSrc: usd, resourceId: 'PLB-1', productName: 'Premium Widget' };
+
+			const { rerender } = render( stacked( before ) );
+			expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
+
+			rerender( stacked( { ...before, productName: 'Deluxe Widget' } ) );
+			// A remount would boot into this second document; the first mount's frame
+			// carries on drawing instead.
+			expect( bootTheFrame().doc.querySelector( 'script' ) ).toBeNull();
+		} );
+
+		it( 'boots the SDK from the read URL when the read finishes after the first render', () => {
+			const attributes = { resourceId: 'PLB-1' };
+
+			const { rerender } = render( stacked( attributes ) );
+			expect( screen.queryByTitle( 'PayPal buttons preview' ) ).not.toBeInTheDocument();
+
+			rerender( stacked( attributes, { id: 'PLB-1', sdk_url: usd } ) );
+			expect( screen.getByTitle( 'PayPal buttons preview' ) ).toHaveAttribute(
+				'src',
+				SDK_HOST_URL
+			);
+			expect( bootTheFrame().doc.querySelector( 'script' ).src ).toBe( usd );
+		} );
+
+		it( 'leaves the running SDK alone when the read finishes for a block with a scriptSrc', () => {
+			const attributes = { scriptSrc: usd, resourceId: 'PLB-1' };
+
+			const { rerender } = render( stacked( attributes ) );
+			expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
+
+			rerender( stacked( attributes, { id: 'PLB-1', sdk_url: `${ usd }&enable-funding=venmo` } ) );
+			expect( bootTheFrame().doc.querySelector( 'script' ) ).toBeNull();
+		} );
+
+		describe( 'after a save', () => {
+			const payment = { ...defaultProps, collectShippingAddress: false };
+			const block = { ...payment, format: 'STACKED', isApiManaged: true, resourceId: 'PLB-1' };
+
+			/**
+			 * Save the block the way core/editor does, with a PUT that succeeds.
+			 *
+			 * @param {object} attributes - The block's attributes at the save.
+			 */
+			const save = async attributes => {
+				await act( () => dispatch( editorStore ).setSaving( true ) );
+				await syncBlocksBeforeSave( [ { clientId: 'a', attributes } ], {
+					request: () => Promise.resolve( {} ),
+					updateBlockAttributes: jest.fn(),
+					reportError: jest.fn(),
+					reportHeldBack: jest.fn(),
+				} );
+				await act( () => dispatch( editorStore ).setSaving( false ) );
+			};
+
+			beforeEach( () => {
+				forgetSyncedRequests();
+				recordPaymentRead( 'a', 'PLB-1', payment );
+			} );
+
+			// A new SDK load fetches the updated card from PayPal.
+			it( 'boots the SDK again after a save that changes the payment', async () => {
+				render( stacked( { scriptSrc: usd, resourceId: 'PLB-1' } ) );
+				expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
+
+				await save( { ...block, productName: 'Deluxe Widget' } );
+
+				expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
+			} );
+
+			it( 'leaves the running SDK alone after a save that writes the payment unchanged', async () => {
+				render( stacked( { scriptSrc: usd, resourceId: 'PLB-1' } ) );
+				expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
+
+				await save( block );
+
+				expect( bootTheFrame().doc.querySelector( 'script' ) ).toBeNull();
+			} );
+
+			it( 'leaves the running SDK alone when a save changes another payment', async () => {
+				render( stacked( { scriptSrc: usd, resourceId: 'PLB-2' } ) );
+				expect( bootTheFrame().doc.querySelector( 'script' ) ).not.toBeNull();
+
+				await save( { ...block, productName: 'Deluxe Widget' } );
+
+				expect( bootTheFrame().doc.querySelector( 'script' ) ).toBeNull();
+			} );
+		} );
+
 		it( 'draws the button card for a format it does not know', () => {
 			// render_api_managed_button() validates the same way server-side.
-			render( <PayPalButtonPreview { ...defaultProps } format="STACKED" /> );
+			render( <PayPalButtonPreview { ...defaultProps } format="NOT_A_FORMAT" /> );
 			expect(
 				document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
 			).toBeInTheDocument();
@@ -478,6 +710,35 @@ describe( 'PayPalButtonPreview', () => {
 			expect( document.querySelector( '.jetpack-paypal-button__paypal-link' ) ).toHaveStyle( {
 				color: '#0000ff',
 				fontSize: '20px',
+			} );
+		} );
+
+		// paymentLink is a plain block attribute, so post content decides what the canvas
+		// links to and what the QR encodes.
+		describe.each( [
+			[ 'another host', 'https://evil.test/ncp/payment/ABC123' ],
+			[ 'a javascript: URL wearing a PayPal host', 'javascript://www.paypal.com/%0aalert(1)' ],
+		] )( 'a payment link on %s', ( _label, paymentLink ) => {
+			it( 'leaves the href empty', () => {
+				render(
+					<PayPalButtonPreview { ...defaultProps } format="LINK" paymentLink={ paymentLink } />
+				);
+
+				expect( document.querySelector( '.jetpack-paypal-button__paypal-link' ) ).toHaveAttribute(
+					'href',
+					''
+				);
+			} );
+
+			it( 'leaves the QR pending', () => {
+				render(
+					<PayPalButtonPreview { ...defaultProps } format="QR" paymentLink={ paymentLink } />
+				);
+
+				expect( QRCode.toCanvas ).not.toHaveBeenCalled();
+				expect( document.querySelector( '.jetpack-paypal-button__qr-canvas' ) ).toHaveClass(
+					'jetpack-paypal-button__qr-canvas--pending'
+				);
 			} );
 		} );
 
@@ -661,8 +922,16 @@ describe( 'PayPalButtonPreview', () => {
 
 		it( 'leaves the attribution line off the QR', () => {
 			// The button carries the branding; the QR does not.
-			render( <PayPalButtonPreview { ...defaultProps } format="QR" /> );
-			expect( screen.queryByText( 'Powered by PayPal' ) ).not.toBeInTheDocument();
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					format="QR"
+					attributes={ { buttonShowPoweredBy: true } }
+				/>
+			);
+			expect(
+				document.querySelector( '.jetpack-paypal-button__attribution' )
+			).not.toBeInTheDocument();
 		} );
 
 		it( 'encodes the attributed link, not the bare one', () => {
@@ -691,5 +960,19 @@ describe( 'PayPalButtonPreview', () => {
 				document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
 			).not.toBeInTheDocument();
 		} );
+	} );
+} );
+
+// The same cases run against the PHP render in Paypal_Payment_Buttons_Test.
+describe( 'product card matches the published page', () => {
+	it.each( cardParity.cases.map( c => [ c.name, c ] ) )( '%s', ( _name, testCase ) => {
+		render( <PayPalButtonPreview { ...testCase.attributes } attributes={ testCase.attributes } /> );
+
+		const card = document.querySelector( '.jetpack-paypal-button__product' );
+		expect( card?.outerHTML ?? null ).toBe( testCase.card );
+		// Positive control: the preview itself rendered.
+		expect(
+			document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+		).toBeInTheDocument();
 	} );
 } );

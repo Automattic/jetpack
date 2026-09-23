@@ -117,7 +117,7 @@ The `gradient` option in `SeriesData.options` accepts the following configuratio
 type DataPointDate = {
 	date?: Date;
 	dateString?: string; // Multiple formats supported
-	value: number | null;
+	value: number | null; // null: the bucket has no reading, breaking the line at that point
 	label?: string;
 };
 ```
@@ -160,7 +160,7 @@ type AnnotationStyles = {
 type ChartOptions = {
 	yScale?: {
 		type?: 'linear' | 'log';
-		zero?: boolean;
+		zero?: boolean; // Start the axis at zero; the top is rounded from zero, not from the data floor. Ignored on a log scale.
 		domain?: [number, number];
 		nice?: boolean;
 	};
@@ -199,6 +199,9 @@ type SeriesChartLegendConfig = {
 	interactive?: boolean;
 	// Collapse series sharing a `group` into one item (line, bar, area charts only).
 	collapseGroups?: boolean;
+	// Append a static "Comparison period" item styled like the `type: 'comparison'` series
+	// (a string replaces the label). Only added when those series have no item of their own.
+	comparisonItem?: boolean | string;
 	itemClassName?: string;
 	itemStyles?: LegendItemStyles;
 	labelStyles?: LegendLabelStyles;

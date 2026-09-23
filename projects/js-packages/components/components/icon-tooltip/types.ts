@@ -4,18 +4,17 @@ import type { ComponentProps, ReactNode } from 'react';
 export type Placement = 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
 
 export type Position =
-	| 'top left'
-	| 'top center'
-	| 'top right'
-	| 'bottom left'
-	| 'bottom center'
-	| 'bottom right';
+	'top left' | 'top center' | 'top right' | 'bottom left' | 'bottom center' | 'bottom right';
 
 export type IconTooltipProps = {
 	/**
 	 * The wrapper class name of this IconTooltip component.
 	 */
 	className?: string;
+	/**
+	 * The class name applied to the Popover, which is outside the wrapper when not inline.
+	 */
+	popoverClassName?: string;
 
 	/**
 	 * The class name applied to the icon.
@@ -68,7 +67,24 @@ export type IconTooltipProps = {
 	popoverAnchorStyle?: 'icon' | 'wrapper';
 
 	/**
-	 * Force the Popover to show without an event trigger.
+	 * Text to render as the trigger in place of the icon. The component owns the open state.
+	 */
+	trigger?: ReactNode;
+
+	/**
+	 * Called on every press of the trigger, e.g. to record analytics.
+	 */
+	onTriggerClick?: () => void;
+
+	/**
+	 * Whether a press outside the trigger and popover closes the tooltip. Turn it off for a
+	 * reference the visitor keeps open while working elsewhere on the page.
+	 */
+	closeOnClickOutside?: boolean;
+
+	/**
+	 * Force the Popover to show without an event trigger. Only for a wrapper-anchored
+	 * tooltip with no `trigger`, such as a programmatic tour step.
 	 */
 	forceShow?: boolean;
 
@@ -78,7 +94,8 @@ export type IconTooltipProps = {
 	hoverShow?: boolean;
 
 	/**
-	 * Uses a wider content area when enabled.
+	 * Uses a wider content area when enabled. Has no effect when `inline` is false: it widens the
+	 * wrapper element the popover leaves behind, so a portalled popover needs its own width.
 	 */
 	wide?: boolean;
 

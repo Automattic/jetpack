@@ -90,7 +90,7 @@ export default function useResponsePageNavigation(
 			Number.isFinite( currentId ) && liveRecords
 				? liveRecords.findIndex(
 						( item: FormResponse ) => Number( getItemId( item ) ) === currentId
-				  )
+					)
 				: -1,
 		[ liveRecords, currentId ]
 	);

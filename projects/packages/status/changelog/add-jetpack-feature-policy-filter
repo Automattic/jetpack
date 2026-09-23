@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a `jetpack_feature_policy` filter that forces, defaults, or hides features from one place.

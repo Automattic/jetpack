@@ -1,78 +1,31 @@
 /* eslint-disable react/jsx-no-bind */
 /**
- * PayPal Payment Buttons — The first step of a new block: reuse a link or create one.
+ * PayPal Payment Buttons — The account's existing links, offered to a new block or
+ * to a saved one switching links.
  *
  * @package
  */
 
-import { Button, PanelBody, SearchControl, Spinner } from '@wordpress/components';
+import {
+	Button,
+	DropdownMenu,
+	MenuGroup,
+	MenuItem,
+	PanelBody,
+	SearchControl,
+	Spinner,
+} from '@wordpress/components';
 import { useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { CURRENCY_SYMBOLS } from '../utils/currency-symbols';
+import { copy, moreVertical, trash } from '@wordpress/icons';
+import { linkDate } from '../utils/link-date';
+import { resourcePrice } from '../utils/link-price';
+import { DeleteLinkDialog } from './confirm-dialogs';
 
 /**
  * Lists longer than this get a search box.
  */
 export const SEARCH_THRESHOLD = 10;
-
-/**
- * The price a payment link charges, as text.
- *
- * A link priced per option has no product price; the lowest option price
- * stands in for it.
- *
- * @param {object} resource - A payment resource from the list route.
- * @return {string} The formatted price, or an empty string when the link has none.
- */
-export function linkPrice( resource ) {
-	const item = resource?.line_items?.[ 0 ];
-	if ( ! item ) {
-		return '';
-	}
-
-	const amounts = [];
-	if ( item.unit_amount?.value ) {
-		amounts.push( item.unit_amount );
-	}
-	( item.variants?.dimensions || [] ).forEach( dim =>
-		( dim.options || [] ).forEach( opt => {
-			if ( opt.unit_amount?.value ) {
-				amounts.push( opt.unit_amount );
-			}
-		} )
-	);
-	if ( ! amounts.length ) {
-		return '';
-	}
-
-	const lowest = amounts.reduce( ( min, amount ) =>
-		parseFloat( amount.value ) < parseFloat( min.value ) ? amount : min
-	);
-	const symbol = CURRENCY_SYMBOLS[ lowest.currency_code ] || `${ lowest.currency_code } `;
-	const price = `${ symbol }${ lowest.value }`;
-
-	return item.unit_amount?.value
-		? price
-		: sprintf(
-				/* translators: %s: the lowest option price of a payment link */
-				__( 'From %s', 'jetpack-paypal-payments' ),
-				price
-		  );
-}
-
-/**
- * The day a payment link was created, in the browser's locale.
- *
- * @param {object} resource - A payment resource from the list route.
- * @return {string} The date, or an empty string when the link has none.
- */
-export function linkDate( resource ) {
-	const time = resource?.create_time ? new Date( resource.create_time ) : null;
-	if ( ! time || Number.isNaN( time.getTime() ) ) {
-		return '';
-	}
-	return time.toLocaleDateString( undefined, { year: 'numeric', month: 'short', day: 'numeric' } );
-}
 
 /**
  * The links whose name, description or price contain the search text.
@@ -88,50 +41,99 @@ export function filterLinks( links, search ) {
 	}
 	return links.filter( link => {
 		const item = link?.line_items?.[ 0 ] || {};
-		return [ item.name, item.description, linkPrice( link ) ].some( text =>
+		return [ item.name, item.description, resourcePrice( link ) ].some( text =>
 			( text || '' ).toLowerCase().includes( needle )
 		);
 	} );
 }
 
+// The comments sit on the calls, where the minifier keeps them with the string.
+const titleReuse =
+	/* translators: %d: number of payment links the account already has */
+	__( 'Or reuse an existing link (%d)', 'jetpack-paypal-payments' );
+const titleSwitch = __( 'Choose a button to change', 'jetpack-paypal-payments' );
+const helpSwitch = __(
+	'The button will take the name, price and details of the link you pick.',
+	'jetpack-paypal-payments'
+);
+const emptyNoMatch = __( 'No payment links match your search.', 'jetpack-paypal-payments' );
+const emptyNoOther = __( 'No other payment links available.', 'jetpack-paypal-payments' );
+
 /**
- * The sidebar step that offers the account's existing links before the form.
+ * The name a link is listed under.
  *
- * @param {object}   props             - Component props.
- * @param {Array}    props.links       - Payment resources from the list route.
- * @param {Function} props.onCreateNew - Go on to the empty form.
- * @param {Function} props.onPick      - Reuse one link; receives the resource.
- * @param {boolean}  props.isPicking   - Whether a picked link is being read back.
+ * @param {object} link - A payment resource.
+ * @return {string} Its product name, or its id.
+ */
+const linkName = link => link.line_items?.[ 0 ]?.name || link.id;
+
+/**
+ * The sidebar step that offers the account's existing links.
+ *
+ * With onCreateNew it is a new block's first step, before the form, and each
+ * link carries a menu to duplicate or delete it. Without it, it is a saved block
+ * switching to another of the account's links.
+ *
+ * @param {object}   props               - Component props.
+ * @param {Array}    props.links         - Payment resources from the list route.
+ * @param {boolean}  props.isLoading     - Whether the list is still being read.
+ * @param {Function} [props.onCreateNew] - Go on to the empty form.
+ * @param {Function} props.onPick        - Reuse one link; receives the resource.
+ * @param {Function} [props.onDuplicate] - Open the form with a copy of one link; receives the resource.
+ * @param {Function} [props.onDelete]    - Delete one link, once confirmed; receives the resource.
+ * @param {boolean}  props.isBusy        - Whether a link is being read back or deleted.
  * @return {Element} The step.
  */
-export default function ExistingLinksStep( { links, onCreateNew, onPick, isPicking } ) {
+export default function ExistingLinksStep( {
+	links,
+	isLoading,
+	onCreateNew,
+	onPick,
+	onDuplicate,
+	onDelete,
+	isBusy,
+} ) {
 	const [ search, setSearch ] = useState( '' );
+	const [ linkToDelete, setLinkToDelete ] = useState( null );
 	const shown = useMemo( () => filterLinks( links, search ), [ links, search ] );
+	const isSwitch = ! onCreateNew;
+
+	if ( isLoading ) {
+		return (
+			<PanelBody title={ __( 'Payment link', 'jetpack-paypal-payments' ) } initialOpen={ true }>
+				<Spinner />
+			</PanelBody>
+		);
+	}
 
 	return (
 		<PanelBody title={ __( 'Payment link', 'jetpack-paypal-payments' ) } initialOpen={ true }>
-			<p className="jetpack-paypal-payment-buttons__links-intro">
-				{ __(
-					'Create a new payment link for this block, or reuse one you already have.',
-					'jetpack-paypal-payments'
-				) }
-			</p>
-			<Button
-				variant="primary"
-				onClick={ onCreateNew }
-				disabled={ isPicking }
-				className="jetpack-paypal-payment-buttons__links-create"
-			>
-				{ __( 'Create new', 'jetpack-paypal-payments' ) }
-			</Button>
-			<div className="jetpack-paypal-payment-buttons__links-section">
+			{ ! isSwitch && (
+				<>
+					<p className="jetpack-paypal-payment-buttons__links-intro">
+						{ __(
+							'Create a new payment link for this block, or reuse one you already have.',
+							'jetpack-paypal-payments'
+						) }
+					</p>
+					<Button
+						variant="primary"
+						onClick={ onCreateNew }
+						disabled={ isBusy }
+						className="jetpack-paypal-payment-buttons__links-create"
+					>
+						{ __( 'Create new', 'jetpack-paypal-payments' ) }
+					</Button>
+				</>
+			) }
+			{ /* The section's divider separates the list from Create new, so it goes with it. */ }
+			<div className={ isSwitch ? undefined : 'jetpack-paypal-payment-buttons__links-section' }>
 				<h3 className="jetpack-paypal-payment-buttons__links-title">
-					{ sprintf(
-						/* translators: %d: number of payment links the account already has */
-						__( 'Or reuse an existing link (%d)', 'jetpack-paypal-payments' ),
-						links.length
-					) }
+					{ isSwitch ? titleSwitch : sprintf( titleReuse, links.length ) }
 				</h3>
+				{ isSwitch && (
+					<p className="jetpack-paypal-payment-buttons__links-intro">{ helpSwitch }</p>
+				) }
 				{ links.length > SEARCH_THRESHOLD && (
 					<SearchControl
 						label={ __( 'Search payment links', 'jetpack-paypal-payments' ) }
@@ -141,36 +143,86 @@ export default function ExistingLinksStep( { links, onCreateNew, onPick, isPicki
 						__nextHasNoMarginBottom
 					/>
 				) }
-				{ isPicking && <Spinner /> }
-				<ul className="jetpack-paypal-payment-buttons__links" aria-busy={ isPicking }>
+				{ isBusy && <Spinner /> }
+				<ul className="jetpack-paypal-payment-buttons__links" aria-busy={ isBusy }>
 					{ shown.map( link => (
 						<li key={ link.id } className="jetpack-paypal-payment-buttons__links-item">
 							<Button
 								className="jetpack-paypal-payment-buttons__link"
 								onClick={ () => onPick( link ) }
-								disabled={ isPicking }
+								disabled={ isBusy }
 							>
 								<span className="jetpack-paypal-payment-buttons__link-row">
 									<span className="jetpack-paypal-payment-buttons__link-name">
-										{ link.line_items?.[ 0 ]?.name || link.id }
+										{ linkName( link ) }
 									</span>
 									<span className="jetpack-paypal-payment-buttons__link-price">
-										{ linkPrice( link ) }
+										{ resourcePrice( link ) }
 									</span>
 								</span>
 								<span className="jetpack-paypal-payment-buttons__link-date">
 									{ linkDate( link ) }
 								</span>
 							</Button>
+							{ ! isSwitch && (
+								<DropdownMenu
+									icon={ moreVertical }
+									label={ sprintf(
+										/* translators: %s: the payment link's product name */
+										__( 'Options for %s', 'jetpack-paypal-payments' ),
+										linkName( link )
+									) }
+									toggleProps={ { size: 'small', disabled: isBusy } }
+									popoverProps={ {
+										placement: 'bottom-end',
+										className: 'jetpack-paypal-payment-buttons__link-menu',
+									} }
+								>
+									{ ( { onClose } ) => (
+										<MenuGroup>
+											<MenuItem
+												icon={ copy }
+												iconPosition="left"
+												onClick={ () => {
+													onClose();
+													onDuplicate( link );
+												} }
+											>
+												{ __( 'Duplicate', 'jetpack-paypal-payments' ) }
+											</MenuItem>
+											<MenuItem
+												icon={ trash }
+												iconPosition="left"
+												isDestructive
+												onClick={ () => {
+													onClose();
+													setLinkToDelete( link );
+												} }
+											>
+												{ __( 'Delete', 'jetpack-paypal-payments' ) }
+											</MenuItem>
+										</MenuGroup>
+									) }
+								</DropdownMenu>
+							) }
 						</li>
 					) ) }
 				</ul>
 				{ shown.length === 0 && (
 					<p className="jetpack-paypal-payment-buttons__links-empty">
-						{ __( 'No payment links match your search.', 'jetpack-paypal-payments' ) }
+						{ links.length === 0 ? emptyNoOther : emptyNoMatch }
 					</p>
 				) }
 			</div>
+			{ linkToDelete && (
+				<DeleteLinkDialog
+					onConfirm={ () => {
+						onDelete( linkToDelete );
+						setLinkToDelete( null );
+					} }
+					onCancel={ () => setLinkToDelete( null ) }
+				/>
+			) }
 		</PanelBody>
 	);
 }

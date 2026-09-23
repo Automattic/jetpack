@@ -111,7 +111,7 @@ export default function MessageBoxControl( {
 						title: <code>{ '{title}' }</code>,
 						url: <code>{ '{url}' }</code>,
 					}
-			  )
+				)
 			: sprintf(
 					/* translators: %d: the number of characters remaining. */
 					_n(
@@ -121,7 +121,7 @@ export default function MessageBoxControl( {
 						'jetpack-publicize-pkg'
 					),
 					charactersRemaining
-			  ) );
+				) );
 
 	return (
 		<div className={ styles[ 'message-box-control' ] }>

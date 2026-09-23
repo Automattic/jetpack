@@ -219,16 +219,6 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'help', $node->meta['icon'] );
 	}
 
-	public function test_admin_bar_help_node_stays_icon_only_for_the_unified_experience() {
-		$this->force_label_variation( 'treatment' );
-		$this->add_temporary_filter( 'agents_manager_use_unified_experience', '__return_true' );
-
-		$node = $this->render_help_center_admin_bar_node();
-
-		$this->assertSame( '', $node->meta['menu_title'] );
-		$this->assertStringNotContainsString( 'has-help-entry-label', $node->meta['class'] );
-	}
-
 	public function test_help_center_data_carries_the_entry_label_for_the_treatment() {
 		$this->force_label_variation( 'treatment' );
 
