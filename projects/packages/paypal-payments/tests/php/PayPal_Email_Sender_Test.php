@@ -170,6 +170,25 @@ class PayPal_Email_Sender_Test extends TestCase {
 		$this->assertStringContainsString( '>From $24.50</p>', $mail->message );
 	}
 
+	/**
+	 * Test send_email adds the partner attribution code to the emailed link.
+	 */
+	public function test_send_email_adds_the_partner_code_to_the_link() {
+		$mail = $this->capture_mail();
+
+		PayPal_Email_Sender::send_email(
+			'test@example.com',
+			'https://www.paypal.com/ncp/payment/PLB-TEST123',
+			'Test Product',
+			'$29.99'
+		);
+
+		$this->assertStringContainsString(
+			'href="https://www.paypal.com/ncp/payment/PLB-TEST123?at_code=' . PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID . '"',
+			$mail->message
+		);
+	}
+
 	// --- handle_send ---
 
 	/**

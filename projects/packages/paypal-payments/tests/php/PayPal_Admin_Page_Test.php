@@ -722,6 +722,20 @@ class PayPal_Admin_Page_Test extends TestCase {
 	}
 
 	/**
+	 * Test detail view leaves out the Price and Currency rows for a link with no price.
+	 */
+	public function test_detail_view_omits_the_price_rows_for_an_unpriced_link() {
+		$resource = $this->get_sample_resource();
+		unset( $resource['line_items'][0]['unit_amount'] );
+
+		$output = $this->render_detail_view( $resource );
+
+		$this->assertStringContainsString( '<tr><th scope="row">Product Name</th><td>Premium Widget</td></tr>', $output );
+		$this->assertStringNotContainsString( '<th scope="row">Price</th>', $output );
+		$this->assertStringNotContainsString( '<th scope="row">Currency</th>', $output );
+	}
+
+	/**
 	 * Test the email form posts only the resource ID. The sender reads the rest from PayPal.
 	 */
 	public function test_detail_view_email_form_posts_only_the_resource_id() {

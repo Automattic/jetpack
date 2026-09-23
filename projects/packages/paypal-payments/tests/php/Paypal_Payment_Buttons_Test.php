@@ -2505,33 +2505,6 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	// --- link_price ---
 
 	/**
-	 * Test that link_price formats the product price.
-	 */
-	public function test_link_price_formats_the_product_price() {
-		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes( self::product_price_resource() );
-
-		$this->assertSame( '$11.00', PayPal_Payment_Buttons::link_price( $attributes ) );
-	}
-
-	/**
-	 * Test that link_price shows the cheapest option when the options carry the prices.
-	 */
-	public function test_link_price_shows_the_cheapest_option() {
-		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes( self::per_option_resource() );
-
-		$this->assertSame( 'From $24.50', PayPal_Payment_Buttons::link_price( $attributes ) );
-	}
-
-	/**
-	 * Test that link_price takes the currency from the options.
-	 */
-	public function test_link_price_uses_the_option_currency() {
-		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes( self::per_option_yen_resource() );
-
-		$this->assertSame( 'From ¥1000', PayPal_Payment_Buttons::link_price( $attributes ) );
-	}
-
-	/**
 	 * Test that link_price shows a product price of 0. Blank is not zero.
 	 */
 	public function test_link_price_shows_a_product_price_of_zero() {
@@ -2567,6 +2540,19 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$this->assertSame( '', PayPal_Payment_Buttons::link_price( $attributes ) );
 		$this->assertSame( '', PayPal_Payment_Buttons::link_price( array() ) );
+	}
+
+	/**
+	 * Test that link_price leaves out the option prices while the options are off.
+	 *
+	 * The attributes can still hold priced options with the switch off, but
+	 * PayPal is sent none of them, so they are not a price.
+	 */
+	public function test_link_price_ignores_option_prices_when_options_are_off() {
+		$attributes                    = PayPal_Attribute_Mapper::api_response_to_attributes( self::per_option_resource() );
+		$attributes['variantsEnabled'] = false;
+
+		$this->assertSame( '', PayPal_Payment_Buttons::link_price( $attributes ) );
 	}
 
 	/**

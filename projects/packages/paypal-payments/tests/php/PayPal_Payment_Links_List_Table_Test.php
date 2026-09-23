@@ -392,6 +392,18 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 	}
 
 	/**
+	 * Test column_price escapes the price.
+	 */
+	public function test_column_price_escapes_the_price() {
+		$table = new PayPal_Payment_Links_List_Table();
+		$item  = $this->get_sample_items()[0];
+
+		$item['line_items'][0]['unit_amount']['value'] = '9.99 & "up"';
+
+		$this->assertSame( '$9.99 &amp; &quot;up&quot;', $table->column_price( $item ) );
+	}
+
+	/**
 	 * Test column_status renders ACTIVE badge.
 	 */
 	public function test_column_status_renders_active_badge() {
