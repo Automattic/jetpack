@@ -4,21 +4,20 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-autoloader": "@dev",
-		"automattic/jetpack-composer-plugin": "@dev",
-		"automattic/jetpack-config": "@dev",
-		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-my-jetpack": "@dev",
-		"automattic/jetpack-stats": "@dev",
-		"automattic/jetpack-stats-admin": "@dev",
-		"automattic/jetpack-status": "@dev",
-		"automattic/jetpack-sync": "@dev"
+		"automattic/jetpack-assets": "^5.0.6",
+		"automattic/jetpack-autoloader": "^6.0.0",
+		"automattic/jetpack-composer-plugin": "^5.0.0",
+		"automattic/jetpack-config": "^4.0.0",
+		"automattic/jetpack-connection": "^9.6.0",
+		"automattic/jetpack-my-jetpack": "^6.5.0",
+		"automattic/jetpack-stats": "^0.22.0",
+		"automattic/jetpack-stats-admin": "^0.38.0",
+		"automattic/jetpack-status": "^7.0.2",
+		"automattic/jetpack-sync": "^5.1.3"
 	},
 	"require-dev": {
-		"automattic/phpunit-select-config": "@dev",
-		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-test-environment": "@dev"
+		"automattic/phpunit-select-config": "^1.0.11",
+		"yoast/phpunit-polyfills": "^4.0.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -32,15 +31,7 @@
 		"test-php": "@composer phpunit",
 		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
+	"repositories": [],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
@@ -58,7 +49,10 @@
 		},
 		"version-constants": {
 			"JETPACK_STATS_PLUGIN__VERSION": "jetpack-stats.php"
-		}
+		},
+		"non-mirrored-require-dev": [
+			"automattic/jetpack-test-environment"
+		]
 	},
 	"config": {
 		"sort-packages": true,
