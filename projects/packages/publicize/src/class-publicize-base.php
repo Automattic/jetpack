@@ -1011,8 +1011,10 @@ abstract class Publicize_Base {
 	abstract public function post_is_done_sharing( $post_id = null );
 
 	/**
-	 * Retrieve the connect URL for every available service.
+	 * Retrieve the available Publicize services and their connect URLs.
 	 *
+	 * @since 0.1.0
+	 * @since-jetpack 6.7.0
 	 * @deprecated $$next-version$$ Services and their connect URLs come from the `publicize/services` REST endpoint.
 	 *
 	 * @return array Always empty.
