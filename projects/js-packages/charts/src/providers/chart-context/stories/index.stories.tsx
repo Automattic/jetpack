@@ -477,7 +477,7 @@ export const HostTimeZoneDatesDayStrings: Story = {
 	},
 };
 
-// wp-admin's own accent set, from `WP_ADMIN_COLOR_SCHEMES`' `--wp-admin-theme-color` values.
+// The six wp-admin accent colors this story shows the generated palette against.
 const WP_ADMIN_ACCENTS = [ '#3858e9', '#04a4cc', '#a3b745', '#e14d43', '#9ebaa0', '#dd823b' ];
 
 const generatedPaletteData: DataPointPercentage[] = [
