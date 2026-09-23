@@ -1,10 +1,10 @@
 import { useContext, useEffect, useRef, useState } from 'preact/hooks';
-import { CommentSignals } from '../shared/state';
-import { Toggle } from '../ui/toggle';
+import { CommentSignals } from '../../shared/state';
+import { Toggle } from '../../ui/toggle';
 import { NO_SUBSCRIPTION, fetchSubscriptions } from './api';
 import { FrequencyToggle } from './frequency';
 import type { Answer } from './api';
-import type { Frequency, SubscriptionChange } from '../shared/types';
+import type { Frequency, SubscriptionChange } from '../../shared/types';
 
 import './style.scss';
 

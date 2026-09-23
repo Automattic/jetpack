@@ -1,50 +1,23 @@
-import clsx from 'clsx';
 import { render } from 'preact';
 import { useContext, useEffect, useRef } from 'preact/hooks';
-import { CommentingAs, Identity } from '../identity';
+import { Footer } from '../footer';
 import { CommentSignals, createSignals } from '../shared/state';
-import { hasSubscriptionOptions } from '../subscriptions';
+import { Tray } from '../tray';
 import { CommentField } from './comment-field';
 import { markSubmitted, resolveSubmitted, saveDraft } from './draft';
-import { SubmitButton } from './submit-button';
 import type { FormSettings } from '../shared/types';
 
+import '../ui/style.scss';
 import './style.scss';
 
 type CommentFormProps = {
 	form: HTMLFormElement;
 };
 
-// Short enough that a reader who navigates away mid-sentence keeps the draft.
-const DRAFT_DEBOUNCE_MS = 300;
-
 const CommentForm = ( { form }: CommentFormProps ) => {
-	const {
-		formSettings,
-		commentParent,
-		commentValue,
-		isEmptyComment,
-		isSavingComment,
-		isTrayOpen,
-		isSignedIn,
-		signedIn,
-	} = useContext( CommentSignals );
+	const { formSettings, commentParent, commentValue, isSavingComment } =
+		useContext( CommentSignals );
 	const isSubmitting = useRef( false );
-
-	useEffect( () => {
-		if ( isSignedIn.value && ! hasSubscriptionOptions() ) {
-			isTrayOpen.value = true;
-		}
-	}, [ isSignedIn.value, isTrayOpen ] );
-
-	// On the empty-to-not transition only, so closing the tray mid-sentence sticks.
-	useEffect( () => {
-		const isReturning = isSignedIn.value && ! signedIn.value?.code;
-
-		if ( ! isEmptyComment.value && ! isReturning ) {
-			isTrayOpen.value = true;
-		}
-	}, [ isEmptyComment.value, isSignedIn, signedIn, isTrayOpen ] );
 
 	useEffect( () => {
 		const parentInput = form.querySelector< HTMLInputElement >( '#comment_parent' );
@@ -66,10 +39,8 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 	}, [ form, commentParent ] );
 
 	useEffect( () => {
-		const timer = setTimeout(
-			() => saveDraft( formSettings.postId, commentValue.value ),
-			DRAFT_DEBOUNCE_MS
-		);
+		// Short enough that a reader who navigates away mid-sentence keeps the draft.
+		const timer = setTimeout( () => saveDraft( formSettings.postId, commentValue.value ), 300 );
 
 		return () => clearTimeout( timer );
 	}, [ formSettings, commentValue.value ] );
@@ -111,18 +82,8 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 	return (
 		<>
 			<CommentField />
-			<div
-				id={ `jetpack-comments-tray-${ formSettings.postId }` }
-				className={ clsx( 'jetpack-comments__tray', { 'is-open': isTrayOpen.value } ) }
-			>
-				<div>
-					<Identity />
-				</div>
-			</div>
-			<div className="jetpack-comments__footer">
-				<CommentingAs />
-				<SubmitButton />
-			</div>
+			<Tray />
+			<Footer />
 		</>
 	);
 };

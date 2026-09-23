@@ -1,8 +1,6 @@
 import { useContext } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
 
-import './style.scss';
-
 /**
  * Shown when the site only takes comments from registered users.
  *

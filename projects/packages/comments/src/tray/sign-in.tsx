@@ -1,12 +1,10 @@
 import clsx from 'clsx';
 import { useContext, useEffect, useRef } from 'preact/hooks';
-import { CommentSignals } from '../../shared/state';
-import { GuestFields } from '../guest-fields';
-import { signIn } from './checkpoint';
-import { FacebookIcon, GoogleIcon, MailIcon, WordPressIcon } from './icons';
-import type { Provider } from '../../shared/types';
-
-import './style.scss';
+import { signIn } from '../identity/checkpoint';
+import { CommentSignals } from '../shared/state';
+import { FacebookIcon, GoogleIcon, MailIcon, WordPressIcon } from '../ui/icons';
+import { GuestFields } from './guest-fields';
+import type { Provider } from '../shared/types';
 
 const icons = {
 	wordpress: WordPressIcon,
@@ -15,13 +13,7 @@ const icons = {
 	mail: MailIcon,
 };
 
-/**
- * The sign-in row: a prompt, one round button per provider, and the guest
- * fields behind the mail button.
- *
- * @return The logged-out identity block.
- */
-export const LoggedOut = () => {
+export const SignIn = () => {
 	const { activeService, isSigningIn, signInError, signedIn, commentParent } =
 		useContext( CommentSignals );
 	const { requireNameEmail, mustLogIn, strings, identity } = JetpackComments;

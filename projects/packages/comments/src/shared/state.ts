@@ -1,7 +1,7 @@
 import { signal, computed } from '@preact/signals';
 import { createContext } from 'preact';
 import { readDraft } from '../form/draft';
-import { readPassport } from '../identity/checkpoint/passport';
+import { readPassport } from '../identity/passport';
 import type { Commenter, FormSettings, Provider, SignedIn, SubscriptionState } from './types';
 
 /**

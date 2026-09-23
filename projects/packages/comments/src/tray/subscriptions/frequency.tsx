@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
-import type { Frequency } from '../shared/types';
+import type { Frequency } from '../../shared/types';
 
 type FrequencyToggleProps = {
 	name: string;

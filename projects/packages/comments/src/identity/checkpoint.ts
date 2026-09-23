@@ -3,7 +3,7 @@
  */
 
 import { clearPassport } from './passport';
-import type { ConnectUrl, Provider } from '../../shared/types';
+import type { ConnectUrl, Provider } from '../shared/types';
 
 export type CheckpointResult =
 	{ code: string; name: string; avatar: string } | { error: string } | { cancelled: true };

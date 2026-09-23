@@ -76,52 +76,6 @@
 	}
 }
 
-.jetpack-comments__footer {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	padding: 16px;
-	border-block-start: 1px solid var(--jetpack-comments-border-color);
-	justify-content: flex-end;
-}
-
-.jetpack-comments__submit {
-	all: unset;
-	display: inline-block;
-	padding: 7px 20px;
-	border: 1px solid transparent;
-	border-radius: 4px;
-	background: var(--jetpack-comments-accent-color);
-	color: var(--jetpack-comments-accent-text-color);
-	font-family: inherit;
-	font-size: 14px;
-	text-align: center;
-	text-decoration: none;
-	text-shadow: none;
-	white-space: nowrap;
-	cursor: pointer;
-
-	&:disabled {
-		background: transparent;
-		border-color: var(--jetpack-comments-border-color);
-		color: var(--jetpack-comments-disabled-color);
-		cursor: not-allowed;
-	}
-
-	&:not(:disabled):hover {
-		background: var(--jetpack-comments-accent-hover-color);
-	}
-
-	&:focus-visible {
-		outline: 2px solid var(--jetpack-comments-accent-color);
-		outline-offset: 1px;
-	}
-
-	&.is-busy {
-		cursor: progress;
-	}
-}
-
 .jetpack-comments__fields {
 	display: contents;
 }

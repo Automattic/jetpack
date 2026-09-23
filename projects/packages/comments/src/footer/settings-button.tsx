@@ -2,10 +2,8 @@ import { GravatarQuickEditorCore } from '@gravatar-com/quick-editor';
 import clsx from 'clsx';
 import { useContext, useRef, useState } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
-import { hasSubscriptionOptions } from '../subscriptions';
-import { GearIcon } from './checkpoint/icons';
-
-import './style.scss';
+import { hasSubscriptionOptions } from '../tray/subscriptions';
+import { GearIcon } from '../ui/icons';
 
 const bustAvatarCache = ( avatar: string, stamp: number ) => {
 	if ( ! stamp ) {
@@ -21,36 +19,17 @@ const bustAvatarCache = ( avatar: string, stamp: number ) => {
 	}
 };
 
-export const CommentingAs = () => {
-	const { signedIn } = useContext( CommentSignals );
-	const { user } = JetpackComments;
-
-	if ( user ) {
-		return <UserSettings current={ { avatar: user.avatarUrl, name: '', email: user.email } } />;
-	}
-
-	if ( signedIn.value ) {
-		return (
-			<UserSettings
-				current={ { avatar: signedIn.value.avatar, name: signedIn.value.name, email: '' } }
-			/>
-		);
-	}
-
-	return null;
-};
-
-type UserSettingsProps = {
-	current: { avatar: string; name: string; email: string };
-};
-
-const UserSettings = ( { current }: UserSettingsProps ) => {
-	const { formSettings, isTrayOpen } = useContext( CommentSignals );
-	const { strings, locale } = JetpackComments;
+export const SettingsButton = () => {
+	const { formSettings, signedIn, isTrayOpen } = useContext( CommentSignals );
+	const { user, strings, locale } = JetpackComments;
 	const [ isRefreshing, setIsRefreshing ] = useState( false );
 	const [ stamp, setStamp ] = useState( 0 );
 	const editor = useRef< GravatarQuickEditorCore | null >( null );
 	const hasOptions = hasSubscriptionOptions();
+
+	const current = user
+		? { avatar: user.avatarUrl, name: '', email: user.email }
+		: { avatar: signedIn.value?.avatar ?? '', name: signedIn.value?.name ?? '', email: '' };
 
 	const editAvatar = ( event: Event ) => {
 		event.preventDefault();

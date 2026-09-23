@@ -73,10 +73,11 @@ something which reads it.**
 src/
   class-comments.php    the filter, and what to boot
   class-avatars.php     avatars on comments already written
-  form/                 takeover, mount, nonce, layout, the text box, submit
-  identity/             who is commenting: guest fields, log-in prompt, the tray, the footer
-    checkpoint/         the popup sign-in, the exchange, the passport cookie, its REST routes
-  subscriptions/        the options, and the site's channel to WordPress.com for them
+  form/                 takeover, mount, nonce, the text box, drafts
+  tray/                 under the text box: the sign-in row, guest fields, the signed-in card
+    subscriptions/      the options in the tray, and the site's channel to WordPress.com for them
+  footer/               the avatar and gear, and the submit button
+  identity/             the popup sign-in, the exchange, the passport cookie, its REST routes
   ui/                   widgets shared across the form
   shared/               signals, and the PHP-to-JS settings shape
 ```

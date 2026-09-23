@@ -1,3 +1,126 @@
+// Hidden, not just collapsed, so nothing in a closed tray can take focus.
+// The flip waits for the collapse.
+.jetpack-comments__tray {
+	display: grid;
+	grid-template-rows: 0fr;
+	visibility: hidden;
+	transition:
+		grid-template-rows 0.3s ease-in-out,
+		visibility 0s linear 0.3s;
+
+	&.is-open {
+		grid-template-rows: 1fr;
+		visibility: visible;
+		transition:
+			grid-template-rows 0.3s ease-in-out,
+			visibility 0s;
+	}
+
+	> div {
+		overflow: hidden;
+	}
+}
+
+.jetpack-comments__identity {
+	padding: 16px;
+	border-block-start: 1px solid var(--jetpack-comments-border-color);
+	background: var(--jetpack-comments-wrapper-background-color);
+}
+
+.jetpack-comments__prompt {
+	all: unset;
+	display: block;
+	padding-block-end: 16px;
+	font-size: 18px;
+	font-weight: 400;
+	color: var(--jetpack-comments-font-color);
+}
+
+.jetpack-comments__login {
+	display: inline-block;
+	padding: 7px 20px;
+	border: 1px solid var(--jetpack-comments-border-color);
+	border-radius: 4px;
+	color: inherit;
+	font-size: 14px;
+	text-decoration: none;
+
+	&:hover,
+	&:focus-visible {
+		border-color: var(--jetpack-comments-accent-color);
+	}
+}
+
+.jetpack-comments__guest {
+	display: flex;
+	flex-direction: column;
+	border: 1px solid var(--jetpack-comments-border-color);
+	border-radius: 4px;
+}
+
+.jetpack-comments__guest-field {
+	all: unset;
+	position: relative;
+	display: flex;
+	align-items: center;
+	block-size: 45px;
+	border-block-end: 1px solid var(--jetpack-comments-border-color);
+	color: var(--jetpack-comments-font-color);
+
+	svg {
+		position: absolute;
+		inset-block: 0;
+		inset-inline-start: 16px;
+		margin-block: auto;
+	}
+
+	input {
+		all: initial;
+		box-sizing: border-box;
+		inline-size: 100%;
+		block-size: 100%;
+		padding-inline: 44px 16px;
+		border: none;
+		background: transparent;
+		color: var(--jetpack-comments-font-color);
+		font-family: inherit;
+		font-size: 14px;
+
+		&::placeholder {
+			color: var(--jetpack-comments-font-color);
+			opacity: 0.8;
+		}
+
+		&:focus-visible {
+			outline: 1px solid var(--jetpack-comments-accent-color);
+			outline-offset: -1px;
+		}
+	}
+}
+
+.jetpack-comments__options {
+	padding: 16px 21px;
+	border-block-start: 1px solid var(--jetpack-comments-border-color);
+}
+
+.jetpack-comments__guest-field:last-child {
+	border-block-end: none;
+}
+
+.jetpack-comments__guest-field:has(+ .jetpack-comments__options) {
+	border-block-end: none;
+}
+
+.jetpack-comments__options + .jetpack-comments__options {
+	padding-block-start: 0;
+	border-block-start: none;
+}
+
+.jetpack-comments__logout {
+	color: inherit;
+	font-size: 14px;
+}
+
 .jetpack-comments__notice {
 	all: unset;
 	display: block;
@@ -185,103 +308,5 @@
 
 	&:focus-visible {
 		outline: 2px solid var(--jetpack-comments-accent-color);
-	}
-}
-
-.jetpack-comments__user-settings {
-	all: unset;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	overflow: hidden;
-	// The 2px margin below is what the focus ring needs; this pulls it back in.
-	margin-block: -2px;
-	margin-inline-start: -2px;
-
-	.jetpack-comments__profile,
-	.jetpack-comments__tray-toggle {
-		all: unset;
-		box-sizing: content-box;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		inline-size: 37px;
-		block-size: 37px;
-		margin: 2px;
-		padding: 0;
-		border: 1px solid var(--jetpack-comments-border-color);
-		background-color: var(--jetpack-comments-content-background-color);
-		overflow: hidden;
-	}
-
-	.jetpack-comments__profile {
-		margin-inline-end: -2px;
-		border-start-start-radius: 4px;
-		border-end-start-radius: 4px;
-		border-inline-end-width: 0;
-		cursor: pointer;
-
-		img {
-			inline-size: 37px;
-			block-size: 37px;
-		}
-
-		&.is-loading img {
-			background-color: var(--jetpack-comments-background-color);
-			border-color: var(--jetpack-comments-background-color);
-			animation: jetpack-comments-avatar-pulse 2s infinite ease-in-out;
-		}
-
-		&:focus-visible {
-			outline: 2px solid var(--jetpack-comments-accent-color);
-			z-index: 1;
-		}
-	}
-
-	&.is-bare {
-		inline-size: 37px;
-
-		.jetpack-comments__profile {
-			margin-inline-end: 2px;
-			border-radius: 4px;
-			border-inline-end-width: 1px;
-		}
-	}
-
-	.jetpack-comments__tray-toggle {
-		border-start-end-radius: 4px;
-		border-end-end-radius: 4px;
-		border-inline-start-width: 0;
-		color: var(--jetpack-comments-font-color);
-		cursor: pointer;
-
-		svg {
-			inline-size: 37px;
-			block-size: 16px;
-		}
-
-		svg path {
-			transition: transform 0.5s ease-in-out 0.2s;
-		}
-
-		&:focus-visible {
-			outline: 2px solid var(--jetpack-comments-accent-color);
-			z-index: 1;
-		}
-	}
-}
-
-@keyframes jetpack-comments-avatar-pulse {
-
-	0% {
-		opacity: 1;
-	}
-
-	50% {
-		opacity: 0.2;
-	}
-
-	100% {
-		opacity: 1;
 	}
 }

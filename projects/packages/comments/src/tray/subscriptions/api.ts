@@ -1,4 +1,4 @@
-import type { SubscriptionChange, SubscriptionState } from '../shared/types';
+import type { SubscriptionChange, SubscriptionState } from '../../shared/types';
 
 export const NO_SUBSCRIPTION: SubscriptionState = {
 	email: { send_posts: false, send_comments: false, post_delivery_frequency: 'daily' },

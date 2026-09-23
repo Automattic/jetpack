@@ -1,13 +1,10 @@
 import clsx from 'clsx';
 import { useContext } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
-import { GuestSubscriptionOptions, hasSubscriptionOptions } from '../subscriptions';
 import { EmailIcon, NameIcon, WebsiteIcon } from '../ui/icons';
 import { Toggle } from '../ui/toggle';
+import { GuestSubscriptionOptions, hasSubscriptionOptions } from './subscriptions';
 import type { Commenter } from '../shared/types';
-
-import '../ui/style.scss';
-import './style.scss';
 
 type GuestFieldsProps = {
 	/** Hidden fields leave the DOM, so a required one cannot block submit. */

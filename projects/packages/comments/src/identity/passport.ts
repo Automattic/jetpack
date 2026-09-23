@@ -4,7 +4,7 @@
  * a returning commenter's identity can come from.
  */
 
-import type { Passport, Provider } from '../../shared/types';
+import type { Passport, Provider } from '../shared/types';
 
 const PROVIDERS: Provider[] = [ 'wordpress', 'google', 'facebook' ];
 
