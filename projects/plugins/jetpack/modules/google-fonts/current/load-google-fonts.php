@@ -129,11 +129,23 @@ function jetpack_get_available_google_fonts_map( $google_fonts_data ) {
  * @return bool
  */
 function jetpack_google_fonts_load_font_faces() {
-	return is_admin()
+	$load_font_faces = is_admin()
 		|| ( defined( 'REST_REQUEST' ) && REST_REQUEST )
 		|| wp_is_json_request()
-		|| is_customize_preview()
 		|| ( defined( 'WP_CLI' ) && WP_CLI );
+
+	/**
+	 * Filters whether catalogue font faces are loaded into theme JSON.
+	 *
+	 * When true, the catalogue's files reach theme JSON and the native font printer prints all of them.
+	 *
+	 * @module google-fonts
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $load_font_faces Whether to load catalogue font faces. Default true for editor, API and CLI requests.
+	 */
+	return (bool) apply_filters( 'jetpack_google_fonts_load_font_faces', $load_font_faces );
 }
 
 /**
