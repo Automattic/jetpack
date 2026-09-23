@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Account Protection: Do not activate the module by default on new connections. Existing sites keep their current setting.
