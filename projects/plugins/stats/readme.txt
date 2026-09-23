@@ -161,6 +161,6 @@ The dashboard interface itself is a React application called Odyssey Stats. It i
 To build the plugin from source, follow the instructions in the monorepo [development guide](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md).
 
 == Changelog ==
-
-= 0.1.0-alpha =
-* Initial release.
+### 1.0.0 - 2026-09-23
+#### Added
+- Initial release of Jetpack Stats as a standalone plugin.

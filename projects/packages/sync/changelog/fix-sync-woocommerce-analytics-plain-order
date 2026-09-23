@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-WooCommerce Analytics: Fix a fatal error when syncing orders while WooCommerce Analytics is disabled.
