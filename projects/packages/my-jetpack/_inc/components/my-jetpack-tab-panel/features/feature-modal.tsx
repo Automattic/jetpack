@@ -6,6 +6,7 @@ import { getActivationStatusLabel } from '../utils';
 import { FeatureBand } from './feature-band';
 import { FeatureDelivery } from './feature-delivery';
 import { FeatureIcon } from './feature-icon';
+import { FeatureInstallNotice } from './feature-install-notice';
 import { FeatureLinks } from './feature-links';
 import { FeatureModalActions } from './feature-modal-actions';
 import { FeaturePaid } from './feature-paid';
@@ -137,6 +138,8 @@ export function FeatureModal( { state, onClose, onFilterByPlan }: FeatureModalPr
 						<Dialog.Description>
 							{ feature.long_description || product?.longDescription || feature.description }
 						</Dialog.Description>
+
+						<FeatureInstallNotice state={ state } />
 
 						{ /* auto-fit rather than three fixed tracks: a section that renders
 						     nothing would otherwise leave a dead column behind it. */ }

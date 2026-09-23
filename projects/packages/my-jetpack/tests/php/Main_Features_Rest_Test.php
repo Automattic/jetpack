@@ -290,6 +290,73 @@ class Main_Features_Rest_Test extends TestCase {
 	}
 
 	/**
+	 * DISALLOW_FILE_MODS stops administrators too, so the refusal must not blame their role.
+	 */
+	public function test_says_installs_are_off_when_file_changes_are_disallowed() {
+		add_filter( 'file_mod_allowed', '__return_false' );
+
+		$response = $this->send( 'zero-bs-crm', 'install' );
+		$state    = $this->server->dispatch( new WP_REST_Request( 'GET', '/wpcom/v2/my-jetpack/site/features' ) );
+
+		remove_filter( 'file_mod_allowed', '__return_false' );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'install_disabled', $response->get_data()['code'] );
+		$this->assertSame( Main_Features::INSTALLS_DISABLED, $state->get_data()['plugin_installs'] );
+	}
+
+	public function test_the_state_says_whether_the_user_may_install_plugins() {
+		$get = function () {
+			return $this->server->dispatch( new WP_REST_Request( 'GET', '/wpcom/v2/my-jetpack/site/features' ) )->get_data()['plugin_installs'];
+		};
+
+		$this->assertSame( Main_Features::INSTALLS_ALLOWED, $get() );
+
+		$deny = function ( $caps ) {
+			$caps['install_plugins'] = false;
+			return $caps;
+		};
+		add_filter( 'user_has_cap', $deny );
+		$denied = $get();
+		remove_filter( 'user_has_cap', $deny );
+
+		$this->assertSame( Main_Features::INSTALLS_NOT_PERMITTED, $denied );
+	}
+
+	public function test_explains_a_download_that_failed() {
+		$fail = function () {
+			return new \WP_Error( 'download_failed', 'Download failed.' );
+		};
+		add_filter( 'upgrader_pre_download', $fail );
+
+		$response = $this->send( 'zero-bs-crm', 'install' );
+
+		remove_filter( 'upgrader_pre_download', $fail );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'no_package', $response->get_data()['code'] );
+		$this->assertStringContainsString( 'reach WordPress.org', $response->get_data()['message'] );
+	}
+
+	/**
+	 * Without direct file access WordPress needs server credentials, which only the Plugins screen asks for.
+	 */
+	public function test_explains_a_filesystem_it_could_not_write_to() {
+		$ftp = function () {
+			return 'ftpext';
+		};
+		add_filter( 'filesystem_method', $ftp );
+
+		$response = $this->send( 'zero-bs-crm', 'install' );
+
+		remove_filter( 'filesystem_method', $ftp );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertStringStartsWith( 'fs_', $response->get_data()['code'] );
+		$this->assertStringContainsString( 'Plugins screen', $response->get_data()['message'] );
+	}
+
+	/**
 	 * A module that refuses to switch on does not undo the plugin that is now active, so
 	 * the route reports the state rather than an error the caller would retry forever.
 	 */

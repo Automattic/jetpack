@@ -7,6 +7,7 @@ import { useCallback } from 'react';
 import { getActivationStatusLabel } from '../utils';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
+import { FeatureInstallNotice } from './feature-install-notice';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
 import type { ReactNode } from 'react';
@@ -94,6 +95,8 @@ export function FeatureItem( { state, onOpen, leading, className }: FeatureItemP
 				<Text variant="body-md" className={ styles[ 'feature-item__description' ] }>
 					{ feature.description }
 				</Text>
+
+				<FeatureInstallNotice state={ state } />
 			</span>
 
 			<span className={ styles[ 'feature-action-slot' ] }>

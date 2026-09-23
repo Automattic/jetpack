@@ -33,6 +33,21 @@ class Main_Features {
 	const PLUGIN_ACTIVE = 'active';
 
 	/**
+	 * The current user may install plugins here.
+	 */
+	const INSTALLS_ALLOWED = 'allowed';
+
+	/**
+	 * Nobody may install plugins here: file changes are turned off for the whole site.
+	 */
+	const INSTALLS_DISABLED = 'disabled';
+
+	/**
+	 * Others may install plugins here, but not the current user.
+	 */
+	const INSTALLS_NOT_PERMITTED = 'not_permitted';
+
+	/**
 	 * The static feature catalog.
 	 *
 	 * Keyed by feature slug. `delivery` says what switches the feature: Protect and
@@ -644,15 +659,37 @@ class Main_Features {
 	}
 
 	/**
-	 * Everything the Features tab renders from: the Jetpack plugin's status and each feature.
+	 * Everything the Features tab renders from: the Jetpack plugin's status, each feature, and
+	 * whether the current user may install the plugins behind them.
 	 *
-	 * @return array{jetpack: string, features: array} The state.
+	 * @return array{jetpack: string, features: array, plugin_installs: string} The state.
 	 */
 	public static function get_state() {
 		return array(
-			'jetpack'  => self::get_plugin_status( Product::JETPACK_PLUGIN_SLUG ),
-			'features' => self::get_features(),
+			'jetpack'         => self::get_plugin_status( Product::JETPACK_PLUGIN_SLUG ),
+			'features'        => self::get_features(),
+			'plugin_installs' => self::get_install_access(),
 		);
+	}
+
+	/**
+	 * Whether the current user may install plugins here, and if not, why not.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string One of the INSTALLS_* constants.
+	 */
+	public static function get_install_access() {
+		if ( current_user_can( 'install_plugins' ) ) {
+			return self::INSTALLS_ALLOWED;
+		}
+
+		// Core's own map_meta_cap() check for install_plugins: DISALLOW_FILE_MODS or the file_mod_allowed filter.
+		if ( ! wp_is_file_mod_allowed( 'capability_update_core' ) ) {
+			return self::INSTALLS_DISABLED;
+		}
+
+		return self::INSTALLS_NOT_PERMITTED;
 	}
 
 	/**

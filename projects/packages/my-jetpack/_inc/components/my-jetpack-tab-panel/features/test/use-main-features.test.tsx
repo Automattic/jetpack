@@ -7,15 +7,17 @@ import {
 	setRequestedSwitch,
 } from '../../../../data/requested-switch-state';
 import { useFeatureStates } from '../feature-state';
-import { useFeaturePlugin, useMainFeatures } from '../use-main-features';
+import { useFeaturePlugin, useInstallError, useMainFeatures } from '../use-main-features';
 import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch' );
 
+const mockCreateErrorNotice = jest.fn();
+
 jest.mock( '@automattic/jetpack-components', () => ( {
 	useGlobalNotices: () => ( {
 		createSuccessNotice: jest.fn(),
-		createErrorNotice: jest.fn(),
+		createErrorNotice: mockCreateErrorNotice,
 	} ),
 } ) );
 
@@ -87,7 +89,105 @@ const renderTab = () => {
 
 beforeEach( () => {
 	mockApiFetch.mockReset();
+	mockCreateErrorNotice.mockClear();
 	window.myJetpackInitialState = { mainFeatures: pageState } as Window[ 'myJetpackInitialState' ];
+} );
+
+describe( 'installing a plugin', () => {
+	const crm = {
+		...buildFeature( 'crm', 'zero-bs-crm' ),
+		plugin_status: 'not-installed',
+	} as MainFeature;
+	const missing = { jetpack: 'active', features: [ crm ] } as MainFeaturesState;
+	const installed = {
+		jetpack: 'active',
+		features: [ { ...crm, plugin_status: 'active' } ],
+	} as MainFeaturesState;
+
+	const renderInstall = () => {
+		const client = new QueryClient( { defaultOptions: { mutations: { retry: false } } } );
+
+		return renderHook(
+			() => {
+				const { states } = useFeatureStates( useMainFeatures() );
+
+				return {
+					crm: states.find( item => item.feature.slug === 'crm' ),
+					plugin: useFeaturePlugin( 'zero-bs-crm', 'Jetpack CRM' ),
+					error: useInstallError( 'zero-bs-crm' ),
+				};
+			},
+			{ wrapper: wrapper( client ) }
+		);
+	};
+
+	beforeEach( () => {
+		window.myJetpackInitialState = { mainFeatures: missing } as Window[ 'myJetpackInitialState' ];
+	} );
+
+	it( 'keeps offering Install, busy, until the plugin is really there', async () => {
+		let settle: ( state: MainFeaturesState ) => void = () => undefined;
+		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
+			method === 'POST'
+				? new Promise( resolve => ( settle = resolve ) )
+				: Promise.resolve( missing )
+		);
+
+		const { result } = renderInstall();
+
+		act( () => result.current.plugin.run( 'install' ) );
+
+		await waitFor( () => expect( result.current.plugin.isBusy ).toBe( true ) );
+		expect( result.current.crm?.control.kind ).toBe( 'install-plugin' );
+		expect( result.current.crm?.status ).toBe( 'inactive' );
+
+		act( () => settle( installed ) );
+
+		await waitFor( () => expect( result.current.crm?.control.kind ).toBe( 'plugin' ) );
+		expect( result.current.crm?.status ).toBe( 'active' );
+		expect( result.current.plugin.isBusy ).toBe( false );
+	} );
+
+	it( 'keeps a failed install on the feature instead of a notice, until it is tried again', async () => {
+		let attempts = 0;
+		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) => {
+			if ( method !== 'POST' ) {
+				return Promise.resolve( attempts > 1 ? installed : missing );
+			}
+
+			attempts += 1;
+			return attempts === 1
+				? Promise.reject( { code: 'no_package', message: 'Could not download.' } )
+				: Promise.resolve( installed );
+		} );
+
+		const { result } = renderInstall();
+
+		act( () => result.current.plugin.run( 'install' ) );
+
+		await waitFor( () => expect( result.current.error ).toBe( 'Could not download.' ) );
+		expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
+
+		act( () => result.current.plugin.run( 'install' ) );
+
+		await waitFor( () => expect( result.current.crm?.control.kind ).toBe( 'plugin' ) );
+		expect( result.current.error ).toBeNull();
+	} );
+
+	it( 'marks the install blocked, and why, when the user cannot make it', () => {
+		window.myJetpackInitialState = {
+			mainFeatures: { ...missing, plugin_installs: 'disabled' },
+		} as Window[ 'myJetpackInitialState' ];
+		mockApiFetch.mockImplementation( () => new Promise( () => undefined ) );
+
+		const { result } = renderInstall();
+
+		expect( result.current.crm?.control ).toEqual( {
+			kind: 'install-plugin',
+			plugin: 'zero-bs-crm',
+			blocked: 'disabled',
+		} );
+	} );
 } );
 
 describe( 'useFeaturePlugin', () => {

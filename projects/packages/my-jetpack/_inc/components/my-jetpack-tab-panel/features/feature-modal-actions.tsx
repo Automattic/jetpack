@@ -131,7 +131,7 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 				<PluginSwitch plugin={ control.plugin } isOn={ isActive } name={ pluginName } />
 			) : null }
 
-			{ control.kind === 'install-plugin' ? (
+			{ control.kind === 'install-plugin' && ! control.blocked ? (
 				<InstallButton
 					plugin={ control.plugin }
 					name={ pluginName }
@@ -140,7 +140,7 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 				/>
 			) : null }
 
-			{ control.kind === 'install-jetpack' ? (
+			{ control.kind === 'install-jetpack' && ! control.blocked ? (
 				<JetpackButton installed={ control.installed } />
 			) : null }
 		</>

@@ -18,6 +18,11 @@ type FeatureDeliveryProps = {
 function getNote( state: FeatureState, pluginName: string ): string {
 	const { feature, control } = state;
 
+	// Each note describes the modal's button, and a blocked install has none.
+	if ( 'blocked' in control && control.blocked ) {
+		return '';
+	}
+
 	switch ( control.kind ) {
 		case 'install-plugin':
 			return sprintf(

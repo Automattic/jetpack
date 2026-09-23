@@ -467,7 +467,12 @@ type MainFeaturePluginStatus = 'not-installed' | 'inactive' | 'active';
 type MainFeaturesState = {
 	jetpack: MainFeaturePluginStatus;
 	features: MainFeature[];
+	// Optional: a plugin carrying an older copy of this package sends none.
+	plugin_installs?: MainFeatureInstallAccess;
 };
+
+// Whether the current user may install plugins here: not while file changes are off site-wide, or not with their role.
+type MainFeatureInstallAccess = 'allowed' | 'disabled' | 'not_permitted';
 
 type MainFeature = {
 	slug: string;

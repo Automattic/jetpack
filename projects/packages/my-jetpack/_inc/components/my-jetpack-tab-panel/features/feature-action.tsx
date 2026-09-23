@@ -61,10 +61,20 @@ type InstallButtonProps = {
 export function InstallButton( { plugin, name, label, action }: InstallButtonProps ) {
 	const { run, isBusy } = useFeaturePlugin( plugin, name );
 	const onClick = useCallback( () => run( action ), [ action, run ] );
+	const busyLabel =
+		action === 'install'
+			? __( 'Installing…', 'jetpack-my-jetpack' )
+			: __( 'Activating…', 'jetpack-my-jetpack' );
 
 	return (
-		<Button variant="outline" size="compact" disabled={ isBusy } onClick={ onClick }>
-			{ label }
+		<Button
+			variant="outline"
+			size="compact"
+			disabled={ isBusy }
+			aria-busy={ isBusy || undefined }
+			onClick={ onClick }
+		>
+			{ isBusy ? busyLabel : label }
 		</Button>
 	);
 }
@@ -127,6 +137,11 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 			);
 
 		case 'install-plugin':
+			// FeatureInstallNotice says why, under the description.
+			if ( control.blocked ) {
+				return null;
+			}
+
 			return (
 				<InstallButton
 					plugin={ control.plugin }
@@ -137,6 +152,10 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 			);
 
 		case 'install-jetpack':
+			if ( control.blocked ) {
+				return null;
+			}
+
 			return <JetpackButton installed={ control.installed } />;
 
 		default:
