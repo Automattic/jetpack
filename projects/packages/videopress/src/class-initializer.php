@@ -195,6 +195,7 @@ class Initializer {
 		Initial_State::init();
 		XMLRPC::init();
 		Block_Editor_Content::init();
+		Channel::init();
 
 		/*
 		 * These endpoints only add their routes on REST init, so defer calling
@@ -277,6 +278,9 @@ class Initializer {
 
 		// Register Video Playlist block.
 		self::register_videopress_playlist_block();
+
+		// Register the Video Playlists block ( channel feature ).
+		Channel::register_playlists_block();
 	}
 
 	/**
@@ -776,7 +780,36 @@ class Initializer {
 	 * @return string Block markup, or an empty string when the playlist has no playable entries.
 	 */
 	public static function render_videopress_playlist_block( $block_attributes, $content = '', $block = null ) {
-		$entries = self::sanitize_playlist_entries( $block_attributes['videos'] ?? null );
+		$post_id = $block->context['postId'] ?? get_the_ID();
+		$source  = isset( $block_attributes['source'] ) && in_array( $block_attributes['source'], Channel::playlist_sources(), true )
+			? $block_attributes['source']
+			: 'manual';
+		$layout  = isset( $block_attributes['layout'] ) && in_array( $block_attributes['layout'], array( 'side-rail', 'grid', 'strip', 'list', 'queue' ), true )
+			? $block_attributes['layout']
+			: 'side-rail';
+
+		/*
+		 * Post-sourced playlists ( the channel feature ): the entries come from
+		 * posts. The `list` and `queue` layouts render rows that link to each
+		 * video's page; the player layouts fall through to the regular renderer
+		 * with the posts' VideoPress videos and titles.
+		 */
+		$titles = array();
+		if ( 'manual' !== $source ) {
+			$posts = Channel::playlist_source_posts( $block_attributes, $post_id ? (int) $post_id : null );
+			if ( in_array( $layout, array( 'list', 'queue' ), true ) ) {
+				return Channel::render_playlist_rows( $posts, $block_attributes, $post_id ? (int) $post_id : null );
+			}
+			$entries = Channel::playlist_entries_from_posts( $posts );
+			foreach ( $entries as $entry ) {
+				$titles[ $entry['guid'] ] = $entry['title'];
+			}
+		} else {
+			if ( in_array( $layout, array( 'list', 'queue' ), true ) ) {
+				$layout = 'side-rail'; // The linked layouts need a post source.
+			}
+			$entries = self::sanitize_playlist_entries( $block_attributes['videos'] ?? null );
+		}
 
 		if ( ! $entries ) {
 			return '';
@@ -785,7 +818,6 @@ class Initializer {
 		// Record the rendered GUIDs in the post's cached GUID list so private playlist
 		// entries pass the playback authorization check, including when the playlist
 		// sits inside a synced pattern, template, or template part.
-		$post_id = $block->context['postId'] ?? get_the_ID();
 		if ( ! empty( $post_id ) ) {
 			Access_Control::ensure_post_guids_cached( absint( $post_id ), array_column( $entries, 'guid' ) );
 		}
@@ -793,10 +825,6 @@ class Initializer {
 		$enabled = function ( $key, $default_value = true ) use ( $block_attributes ) {
 			return isset( $block_attributes[ $key ] ) ? (bool) $block_attributes[ $key ] : $default_value;
 		};
-
-		$layout = isset( $block_attributes['layout'] ) && in_array( $block_attributes['layout'], array( 'side-rail', 'grid', 'strip' ), true )
-			? $block_attributes['layout']
-			: 'side-rail';
 
 		$show_thumbnail = $enabled( 'showThumbnail' );
 		$show_title     = $enabled( 'showTitle' );
@@ -856,6 +884,9 @@ class Initializer {
 			 */
 			/* translators: %d: position of the video in the playlist. */
 			$title = sprintf( __( 'Video %d', 'jetpack-videopress-pkg' ), $index + 1 );
+			if ( isset( $titles[ $entry['guid'] ] ) && '' !== $titles[ $entry['guid'] ] ) {
+				$title = $titles[ $entry['guid'] ]; // Post title of a post-sourced entry ( escaped below ).
+			}
 
 			$timecode   = self::playlist_timecode( $entry['durationMs'] );
 			$resolution = self::playlist_resolution_label( $entry['height'] );
@@ -911,7 +942,7 @@ class Initializer {
 		}
 
 		$first          = $entries[0];
-		$first_title    = __( 'Video 1', 'jetpack-videopress-pkg' );
+		$first_title    = isset( $titles[ $first['guid'] ] ) && '' !== $titles[ $first['guid'] ] ? $titles[ $first['guid'] ] : __( 'Video 1', 'jetpack-videopress-pkg' );
 		$runtime_label  = self::playlist_runtime_label( $total_ms );
 		$runtime_markup = $show_runtime && '' !== $runtime_label
 			? sprintf( '<span class="videopress-playlist__runtime">%s</span>', esc_html( $runtime_label ) )

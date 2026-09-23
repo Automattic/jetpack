@@ -564,6 +564,124 @@ $vpp-mono: ui-monospace, menlo, monospace;
 		color: var(--vpp-muted);
 	}
 
+	/*
+	 * List and queue: post-sourced rows that link to each video's page, no
+	 * player. The queue adds a playlist header with the viewer's position.
+	 */
+
+	&.is-linked &__list {
+		border: 1px solid var(--vpp-border);
+		border-radius: 6px;
+		overflow: hidden;
+	}
+
+	&.is-linked &__list-header {
+		display: flex;
+		align-items: baseline;
+		gap: 8px;
+		padding: 9px 12px;
+		border-block-end: 1px solid var(--vpp-border-soft);
+	}
+
+	&.is-linked &__queue-name {
+		font-weight: 600;
+		color: inherit;
+		text-decoration: none;
+	}
+
+	&.is-linked &__list-progress {
+		margin-inline-start: auto;
+		color: var(--vpp-muted);
+		font-family: $vpp-mono;
+		font-size: 0.75rem;
+	}
+
+	&.is-linked &__entries {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	&.is-linked &__link {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding: 10px 12px;
+		border-inline-start: 3px solid transparent;
+		color: inherit;
+		text-decoration: none;
+	}
+
+	&.is-linked &__entry:not(:first-child) &__link {
+		border-block-start: 1px solid var(--vpp-border-soft);
+	}
+
+	&.is-linked &__link:hover &__entry-title,
+	&.is-linked &__link:focus-visible &__entry-title {
+		text-decoration: underline;
+	}
+
+	&.is-linked &__entry.is-current &__link {
+		background: var(--vpp-accent-tint);
+		border-inline-start-color: var(--vpp-accent);
+	}
+
+	&.is-linked &__entry-number {
+		flex: none;
+		inline-size: 1.5em;
+		color: var(--vpp-muted);
+		font-family: $vpp-mono;
+		font-size: 0.75rem;
+		text-align: center;
+	}
+
+	&.is-linked &__entry-thumb {
+		position: relative;
+		flex: none;
+		inline-size: 96px;
+		aspect-ratio: 16 / 9;
+		border-radius: 4px;
+		background: var(--vpp-thumb-bg);
+		overflow: hidden;
+
+		img {
+			display: block;
+			inline-size: 100%;
+			block-size: 100%;
+			object-fit: cover;
+		}
+	}
+
+	&.is-linked &__entry-time {
+		position: absolute;
+		inset-inline-end: 4px;
+		inset-block-end: 4px;
+		padding: 1px 4px;
+		border-radius: 3px;
+		background: rgba(0, 0, 0, 0.75);
+		color: #fff;
+		font-family: $vpp-mono;
+		font-size: 0.6875rem;
+	}
+
+	&.is-linked &__entry-body {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		min-inline-size: 0;
+	}
+
+	&.is-linked &__entry-title {
+		font-size: 0.875rem;
+		font-weight: 500;
+		line-height: 1.3;
+	}
+
+	&.is-linked &__entry-meta {
+		color: var(--vpp-muted);
+		font-size: 0.75rem;
+	}
+
 	/* Narrow containers: the side rail stacks under the player. */
 
 	@media ( max-width: 599px ) {

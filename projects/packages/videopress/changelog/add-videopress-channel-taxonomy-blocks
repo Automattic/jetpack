@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Channel: Add the VideoPress Channel feature for channel themes: a playlist taxonomy, cached video durations and views, Query Loop orderings and filters, a `videopress/channel` block-bindings source, post-sourced Video Playlist blocks with linked list and queue layouts, and a Video Playlists block.

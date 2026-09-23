@@ -64,6 +64,20 @@ jest.mock( '../../../../lib/fetch-video-item', () => ( {
 	fetchVideoItem: jest.fn(),
 } ) );
 
+// Playlist terms for the source picker; none by default.
+let mockPlaylistTerms: Array< { id: number; name: string } > = [];
+jest.mock( '@wordpress/core-data', () => ( {
+	useEntityRecords: () => ( { records: mockPlaylistTerms } ),
+} ) );
+jest.mock( '@wordpress/server-side-render', () => ( {
+	__esModule: true,
+	default: ( { block, attributes }: { block: string; attributes: Record< string, unknown > } ) => (
+		<div data-testid="server-side-render" data-block={ block }>
+			{ JSON.stringify( attributes ) }
+		</div>
+	),
+} ) );
+
 // Token get-media-token resolves with; used to sign private posters.
 let mockPlaybackToken: string | null = null;
 jest.mock( '../../../../lib/get-media-token', () => ( {
@@ -75,6 +89,11 @@ const fetchVideoItemMock = fetchVideoItem as unknown as jest.Mock;
 
 const DEFAULT_ATTRIBUTES: PlaylistAttributes = {
 	videos: [],
+	source: 'manual',
+	playlistId: 0,
+	limit: 0,
+	excludeCurrent: false,
+	showMeta: true,
 	layout: 'side-rail',
 	darkPlayer: false,
 	autoplayNext: false,
@@ -671,5 +690,51 @@ describe( 'PlaylistEdit', () => {
 		await userEvent.keyboard( '{ArrowUp}' );
 
 		expect( setAttributes ).not.toHaveBeenCalled();
+	} );
+	describe( 'post sources', () => {
+		beforeEach( () => {
+			mockPlaylistTerms = [ { id: 7, name: 'Classic dungeons' } ];
+		} );
+
+		test( 'a post source shows a server-rendered preview and hides the manual panels', () => {
+			renderEdit( { source: 'latest' } );
+
+			const preview = screen.getByTestId( 'server-side-render' );
+			expect( preview ).toHaveAttribute( 'data-block', 'videopress/playlist' );
+			expect( preview ).toHaveTextContent( '"source":"latest"' );
+			expect( screen.queryByText( 'Build a video playlist' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Add a video' ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'Number of videos' ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'List' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Queue' } ) ).toBeInTheDocument();
+		} );
+
+		test( 'the playlist source lists the playlist terms', async () => {
+			const setAttributes = jest.fn();
+			renderEdit( { source: 'playlist' }, setAttributes );
+
+			const picker = screen.getByLabelText( 'Playlist' );
+			expect( within( picker ).getByText( 'Classic dungeons' ) ).toBeInTheDocument();
+			await userEvent.selectOptions( picker, '7' );
+			expect( setAttributes ).toHaveBeenCalledWith( { playlistId: 7 } );
+		} );
+
+		test( 'switching back to manual drops a linked layout', async () => {
+			const setAttributes = jest.fn();
+			renderEdit( { source: 'latest', layout: 'queue' }, setAttributes );
+
+			expect( screen.queryByText( 'Playback' ) ).not.toBeInTheDocument();
+			await userEvent.selectOptions( screen.getByLabelText( 'Videos come from' ), 'manual' );
+			expect( setAttributes ).toHaveBeenCalledWith( { source: 'manual', layout: 'side-rail' } );
+		} );
+
+		test( 'manual playlists offer only the player layouts', async () => {
+			renderEdit( { videos: [ { guid: 'abcDEF12' } ] } );
+
+			await expect(
+				screen.findByRole( 'button', { name: 'Side rail' } )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'List' } ) ).not.toBeInTheDocument();
+		} );
 	} );
 } );

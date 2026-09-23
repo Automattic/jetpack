@@ -1,0 +1,107 @@
+/**
+ * Video Playlists block — front-end and editor styles.
+ */
+
+.videopress-playlists {
+	--vpl-muted: #6f6f6f;
+	--vpl-thumb-bg: #e6e4df;
+
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+	gap: 24px 20px;
+
+	&.is-compact {
+		grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+		gap: 16px;
+	}
+
+	&.is-empty {
+		display: block;
+		color: var(--vpl-muted);
+	}
+
+	&__card {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+		color: inherit;
+		text-decoration: none;
+	}
+
+	/* Two offset plates behind the thumbnail suggest a stack of videos. */
+
+	&__stack {
+		position: absolute;
+		inset-inline: 10px;
+		inset-block-start: -8px;
+		block-size: 12px;
+
+		span {
+			position: absolute;
+			inset-inline: 0;
+			inset-block-start: 0;
+			block-size: 100%;
+			border-radius: 4px;
+			background: var(--vpl-thumb-bg);
+			opacity: 0.6;
+
+			&:nth-child(2) {
+				inset-inline: 6px;
+				inset-block-start: -6px;
+				opacity: 0.35;
+			}
+		}
+	}
+
+	&__thumb {
+		position: relative;
+		aspect-ratio: 16 / 9;
+		border-radius: 6px;
+		background: var(--vpl-thumb-bg);
+		overflow: hidden;
+
+		img {
+			display: block;
+			inline-size: 100%;
+			block-size: 100%;
+			object-fit: cover;
+		}
+	}
+
+	&__count {
+		position: absolute;
+		inset-inline-end: 6px;
+		inset-block-end: 6px;
+		padding: 2px 6px;
+		border-radius: 3px;
+		background: rgba(0, 0, 0, 0.75);
+		color: #fff;
+		font-size: 0.75rem;
+	}
+
+	&__name {
+		font-weight: 600;
+		line-height: 1.3;
+	}
+
+	&__card:hover &__name,
+	&__card:focus-visible &__name {
+		text-decoration: underline;
+	}
+
+	&__description {
+		color: var(--vpl-muted);
+		font-size: 0.875rem;
+		line-height: 1.4;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		overflow: hidden;
+	}
+
+	&__updated {
+		color: var(--vpl-muted);
+		font-size: 0.75rem;
+	}
+}

@@ -5121,6 +5121,9 @@ importers:
       '@wordpress/route':
         specifier: 0.21.0
         version: 0.21.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/server-side-render':
+        specifier: 6.31.0
+        version: 6.31.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/theme':
         specifier: 2.1.0
         version: 2.1.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
