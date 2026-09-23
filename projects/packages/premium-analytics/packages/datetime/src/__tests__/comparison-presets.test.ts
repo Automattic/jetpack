@@ -329,6 +329,19 @@ describe( 'comparison options', () => {
 		] );
 	} );
 
+	// 52 weeks back from 31 December is 1 January of the same year; the label
+	// follows the calendar entry above it rather than naming the range's own year.
+	it( 'names the weekday-aligned year after its calendar sibling on 31 December', () => {
+		const options = getComparisonOptions( daysRange( [ 2025, 11, 31 ], [ 2025, 11, 31 ] ) );
+		const weekdayYear = options.find( option => option.id === 'previous-year-match-day-of-week' );
+
+		expect( options.find( option => option.id === 'previous-year' )?.label ).toBe(
+			'Same period in 2024'
+		);
+		expect( weekdayYear?.label ).toBe( 'Same period in 2024 (match day of week)' );
+		expect( weekdayYear?.range ).toEqual( daysRange( [ 2025, 0, 1 ], [ 2025, 0, 1 ] ) );
+	} );
+
 	it( 'shifts the weekday-aligned year back 52 weeks and names the year it lands in', () => {
 		const tenDays = daysRange( [ 2026, 7, 21 ], [ 2026, 7, 30 ] );
 		const options = getComparisonOptions( tenDays );

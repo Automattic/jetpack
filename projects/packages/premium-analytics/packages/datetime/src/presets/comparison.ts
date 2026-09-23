@@ -177,7 +177,8 @@ function getPreviousSpanLabel( reference: Required< DateRange > ): string {
 
 /**
  * Label for an option, naming the comparison target rather than the offset: a
- * range set in 2025 offers "Same period in 2024".
+ * range set in 2025 offers "Same period in 2024". Both year entries name the year
+ * before the range starts, so the weekday one never reads as the range's own year.
  *
  * @param id         - The comparison preset.
  * @param reference  - The applied range.
@@ -206,7 +207,7 @@ function getOptionLabel(
 		const label = sprintf(
 			/* translators: %s: the year the comparison period starts in, e.g. "2025". */
 			_x( 'Same period in %s', 'previous year comparison', 'jetpack-premium-analytics-pkg' ),
-			String( comparison.from.getFullYear() )
+			String( reference.from.getFullYear() - 1 )
 		);
 		return id === COMPARISON_PREVIOUS_YEAR ? label : getMatchDayOfWeekLabel( label );
 	}
