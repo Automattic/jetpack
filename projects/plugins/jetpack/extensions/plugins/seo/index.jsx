@@ -60,41 +60,45 @@ const canHaveAutoEnhance = canAutoEnhanceMetadata();
 // rendered at all.
 const isAiSeoFeatureEnabled = isAiSeoEnabled();
 
-const Seo = () => {
-	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
-		useModuleStatus( 'seo-tools' );
+// Separate component because `useSeoRequests` reaches the AI feature endpoint and a
+// hook cannot be called conditionally — rendering it only where it can act keeps that
+// request off every other editor load.
+const SeoAutoEnhance = () => {
 	const isPrePublishPanelOpen = useSelect(
 		select => select( editorStore ).isPublishSidebarOpened?.(),
 		[]
 	);
-
 	const { updateSeoData, isBusy } = useSeoRequests();
-	const isViewable = useSelect( select => {
-		const postTypeName = select( editorStore ).getCurrentPostType();
-		const postTypeObject = select( coreStore ).getPostType( postTypeName );
-
-		return postTypeObject?.viewable;
-	}, [] );
 	const previousIsOpenRef = useRef( false );
 	const { isEnabled: isAutoEnhanceEnabled, isToggling } = useSeoModuleSettings();
-	const { closePublishSidebar } = useDispatch( editorStore );
 
 	useEffect( () => {
 		if (
-			isSeoEnhancerAvailable &&
 			isPrePublishPanelOpen &&
 			! previousIsOpenRef.current &&
 			! isBusy &&
 			isAutoEnhanceEnabled &&
-			! isToggling &&
-			canHaveAutoEnhance &&
-			supportsPublishSidebar
+			! isToggling
 		) {
 			updateSeoData( { trigger: 'auto' } );
 		}
 
 		previousIsOpenRef.current = isPrePublishPanelOpen;
 	}, [ isPrePublishPanelOpen, updateSeoData, isBusy, isAutoEnhanceEnabled, isToggling ] );
+
+	return null;
+};
+
+const Seo = () => {
+	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
+		useModuleStatus( 'seo-tools' );
+	const isViewable = useSelect( select => {
+		const postTypeName = select( editorStore ).getCurrentPostType();
+		const postTypeObject = select( coreStore ).getPostType( postTypeName );
+
+		return postTypeObject?.viewable;
+	}, [] );
+	const { closePublishSidebar } = useDispatch( editorStore );
 
 	const handleSummaryEdit = async () => {
 		await closePublishSidebar();
@@ -289,5 +293,12 @@ const Seo = () => {
 };
 
 export const settings = {
-	render: () => <Seo />,
+	// Outside Seo, which returns early for non-viewable post types and an inactive
+	// module — auto-enhance still has to run on those paths.
+	render: () => (
+		<>
+			{ isSeoEnhancerAvailable && canHaveAutoEnhance && <SeoAutoEnhance /> }
+			<Seo />
+		</>
+	),
 };

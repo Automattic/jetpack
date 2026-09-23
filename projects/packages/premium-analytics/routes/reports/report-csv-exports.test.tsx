@@ -372,6 +372,23 @@ describe( 'report CSV exports', () => {
 		);
 	} );
 
+	it( 'exports a pending status with its reason', () => {
+		const rows = [ { id: '2026-09', period: '2026-09', amount: 30.25, pageviews: 300, status: 3 } ];
+		useEarningsReportRecordsMock.mockReturnValue( {
+			...reportStatus,
+			tab: 'wordads',
+			availableTabs: [ 'wordads' ],
+			rows,
+		} as ReturnType< typeof useEarningsReportRecords > );
+
+		expectCsvExport( EarningsReportPage, 'earnings-wordads', rows, [
+			'2026-09',
+			30.25,
+			300,
+			'Pending (Missing tax info)',
+		] );
+	} );
+
 	it( 'configures the Clicks export with parent rows in hierarchy order', () => {
 		const group = { id: 'social', clickedUrl: 'Social', isGroup: true, clicks: 10 };
 		const lowerRow = {
