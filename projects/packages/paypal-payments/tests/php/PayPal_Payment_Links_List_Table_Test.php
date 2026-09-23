@@ -322,6 +322,76 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 	}
 
 	/**
+	 * Test column_price shows the product price exactly.
+	 */
+	public function test_column_price_shows_the_product_price() {
+		$table = new PayPal_Payment_Links_List_Table();
+
+		$this->assertSame( '$29.99', $table->column_price( $this->get_sample_items()[0] ) );
+		$this->assertSame( '€9.99', $table->column_price( $this->get_sample_items()[1] ) );
+	}
+
+	/**
+	 * Test column_price shows the cheapest option for a link priced per option.
+	 */
+	public function test_column_price_shows_the_from_price_for_priced_options() {
+		$table = new PayPal_Payment_Links_List_Table();
+		$item  = array(
+			'id'           => 'PLB-ZC45RDYZRHS9',
+			'type'         => 'BUY_NOW',
+			'status'       => 'ACTIVE',
+			'create_time'  => '2026-09-11T17:32:35Z',
+			'payment_link' => 'https://www.sandbox.paypal.com/ncp/payment/PLB-ZC45RDYZRHS9',
+			'line_items'   => array(
+				array(
+					'name'     => 'WOOPTP-491 Test Widget',
+					'variants' => array(
+						'dimensions' => array(
+							array(
+								'name'    => 'Size',
+								'primary' => true,
+								'options' => array(
+									array(
+										'label'       => 'Small',
+										'unit_amount' => array(
+											'currency_code' => 'USD',
+											'value' => '24.50',
+										),
+									),
+									array(
+										'label'       => 'Medium',
+										'unit_amount' => array(
+											'currency_code' => 'USD',
+											'value' => '29.50',
+										),
+									),
+									array(
+										'label'       => 'Large',
+										'unit_amount' => array(
+											'currency_code' => 'USD',
+											'value' => '34.50',
+										),
+									),
+								),
+							),
+							array(
+								'name'    => 'Color',
+								'primary' => false,
+								'options' => array(
+									array( 'label' => 'Red' ),
+									array( 'label' => 'Blue' ),
+								),
+							),
+						),
+					),
+				),
+			),
+		);
+
+		$this->assertSame( 'From $24.50', $table->column_price( $item ) );
+	}
+
+	/**
 	 * Test column_status renders ACTIVE badge.
 	 */
 	public function test_column_status_renders_active_badge() {

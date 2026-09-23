@@ -56,10 +56,23 @@ class PayPal_Email_Sender_Test extends TestCase {
 		wp_set_current_user( 0 );
 
 		// Clean up rate limit transients.
-		$users = get_users( array( 'fields' => 'ID' ) );
-		foreach ( $users as $uid ) {
+		$users   = get_users( array( 'fields' => 'ID' ) );
+		$users[] = username_exists( 'testadmin_email_sender' );
+		foreach ( array_filter( $users ) as $uid ) {
 			delete_transient( 'paypal_email_rate_' . $uid );
+			delete_transient( 'paypal_email_daily_' . $uid . '_' . gmdate( 'Y-m-d' ) );
 		}
+
+		delete_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY );
+		delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );
+		delete_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY );
+		delete_transient( 'paypal_resource_plb-zc45rdyzrhs9' );
+		delete_transient( 'paypal_resource_plb-u7xqruhkesaz' );
+		remove_all_filters( 'pre_http_request' );
+		remove_all_filters( 'pre_wp_mail' );
+
+		$_POST    = array();
+		$_REQUEST = array();
 	}
 
 	// --- Constants ---
@@ -103,8 +116,7 @@ class PayPal_Email_Sender_Test extends TestCase {
 			'test@example.com',
 			'https://www.paypal.com/ncp/payment/PLB-TEST123',
 			'Test Product',
-			'29.99',
-			'USD',
+			'$29.99',
 			'Here is your link.'
 		);
 
@@ -127,12 +139,140 @@ class PayPal_Email_Sender_Test extends TestCase {
 			'test@example.com',
 			'https://www.paypal.com/ncp/payment/PLB-TEST123',
 			'Test Product',
-			'29.99',
-			'USD'
+			'$29.99'
 		);
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertEquals( 'email_send_failed', $result->get_error_code() );
+	}
+
+	/**
+	 * Test send_email prints the formatted price as it is given.
+	 */
+	public function test_send_email_prints_the_price_as_given() {
+		$mail = $this->capture_mail();
+
+		PayPal_Email_Sender::send_email(
+			'test@example.com',
+			'https://www.paypal.com/ncp/payment/PLB-TEST123',
+			'Test Product',
+			'From $24.50'
+		);
+
+		$this->assertStringContainsString( '>From $24.50</p>', $mail->message );
+	}
+
+	// --- handle_send ---
+
+	/**
+	 * Test the email for a link priced per option shows the cheapest option.
+	 */
+	public function test_handle_send_emails_the_from_price_for_priced_options() {
+		$mail = $this->capture_mail();
+		$this->mock_get_resource_response( $this->get_per_option_resource() );
+
+		$response = $this->send_payment_link( 'PLB-ZC45RDYZRHS9' );
+
+		$this->assertTrue( $response['success'] );
+		$this->assertStringContainsString( '>From $24.50</p>', $mail->message );
+	}
+
+	/**
+	 * Test the email for a link priced on the product shows that price.
+	 */
+	public function test_handle_send_emails_the_product_price() {
+		$mail = $this->capture_mail();
+		$this->mock_get_resource_response( $this->get_product_price_resource() );
+
+		$response = $this->send_payment_link( 'PLB-U7XQRUHKESAZ' );
+
+		$this->assertTrue( $response['success'] );
+		$this->assertStringContainsString( '>$11.00</p>', $mail->message );
+	}
+
+	/**
+	 * Test handle_send takes the link, name and price from the resource, not the post.
+	 */
+	public function test_handle_send_reads_the_resource_not_the_post() {
+		$mail = $this->capture_mail();
+		$this->mock_get_resource_response( $this->get_per_option_resource() );
+
+		$response = $this->send_payment_link(
+			'PLB-ZC45RDYZRHS9',
+			array(
+				'payment_link' => 'https://www.paypal.com/ncp/payment/PLB-POSTED',
+				'product_name' => 'Posted Name',
+				'price'        => '1.00',
+				'currency'     => 'EUR',
+			)
+		);
+
+		$this->assertTrue( $response['success'] );
+		$this->assertSame( 'buyer@example.com', $mail->to );
+		$this->assertStringContainsString( 'WOOPTP-491 Test Widget', $mail->subject );
+		$this->assertStringContainsString( '>From $24.50</p>', $mail->message );
+		$this->assertStringContainsString( 'sandbox.paypal.com/ncp/payment/PLB-ZC45RDYZRHS9', $mail->message );
+		$this->assertStringNotContainsString( 'PLB-POSTED', $mail->message );
+		$this->assertStringNotContainsString( 'Posted Name', $mail->message );
+		$this->assertStringNotContainsString( '€1.00', $mail->message );
+	}
+
+	/**
+	 * Test handle_send fails and sends nothing when the resource can't be read.
+	 */
+	public function test_handle_send_fails_when_the_resource_cannot_be_read() {
+		$mail = $this->capture_mail();
+		$this->set_up_connected_state();
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) {
+				if ( false !== strpos( $url, '/v1/oauth2/token' ) ) {
+					return $preempt;
+				}
+				return array(
+					'response' => array(
+						'code'    => 404,
+						'message' => '',
+					),
+					'body'     => wp_json_encode(
+						array(
+							'name'    => 'RESOURCE_NOT_FOUND',
+							'message' => 'The specified resource does not exist.',
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+				);
+			},
+			10,
+			3
+		);
+
+		$response = $this->send_payment_link( 'PLB-ZC45RDYZRHS9' );
+
+		$this->assertFalse( $response['success'] );
+		$this->assertNotEmpty( $response['data']['message'] );
+		$this->assertNull( $mail->to );
+		$this->assertFalse( get_transient( 'paypal_email_rate_' . get_current_user_id() ) );
+		$this->assertEmpty( PayPal_Email_Sender::get_log_for_resource( 'PLB-ZC45RDYZRHS9' ) );
+	}
+
+	/**
+	 * Test handle_send fails and sends nothing when the resource has no price.
+	 */
+	public function test_handle_send_fails_when_the_resource_has_no_price() {
+		$mail     = $this->capture_mail();
+		$resource = $this->get_per_option_resource();
+		foreach ( $resource['line_items'][0]['variants']['dimensions'][0]['options'] as $i => $option ) {
+			unset( $resource['line_items'][0]['variants']['dimensions'][0]['options'][ $i ]['unit_amount'] );
+		}
+		$this->mock_get_resource_response( $resource );
+
+		$response = $this->send_payment_link( 'PLB-ZC45RDYZRHS9' );
+
+		$this->assertFalse( $response['success'] );
+		$this->assertSame( 'This payment link has no price.', $response['data']['message'] );
+		$this->assertNull( $mail->to );
+		$this->assertFalse( get_transient( 'paypal_email_rate_' . get_current_user_id() ) );
 	}
 
 	// --- get_log_for_resource ---
@@ -225,5 +365,238 @@ class PayPal_Email_Sender_Test extends TestCase {
 		$entry = array_values( $log )[0];
 		$this->assertStringContainsString( '***', $entry['email'] );
 		$this->assertStringNotContainsString( 'customer', $entry['email'] );
+	}
+
+	// --- Helpers ---
+
+	/**
+	 * Capture the next wp_mail() call instead of sending it.
+	 *
+	 * @return object The captured to, subject and message, null until a send.
+	 */
+	private function capture_mail() {
+		$mail = (object) array(
+			'to'      => null,
+			'subject' => null,
+			'message' => null,
+		);
+		add_filter(
+			'pre_wp_mail',
+			function ( $preempt, $atts ) use ( $mail ) {
+				$mail->to      = $atts['to'];
+				$mail->subject = $atts['subject'];
+				$mail->message = $atts['message'];
+				return true;
+			},
+			10,
+			2
+		);
+		return $mail;
+	}
+
+	/**
+	 * Post the send form as an admin and return the JSON response.
+	 *
+	 * @param string $resource_id PayPal resource ID.
+	 * @param array  $extra       More fields to post.
+	 * @return array<string, mixed> Decoded response.
+	 */
+	private function send_payment_link( $resource_id, array $extra = array() ) {
+		wp_set_current_user( $this->create_admin_user() );
+
+		$_POST    = array_merge(
+			array(
+				'action'      => PayPal_Email_Sender::AJAX_ACTION,
+				'_wpnonce'    => wp_create_nonce( PayPal_Email_Sender::AJAX_ACTION ),
+				'resource_id' => $resource_id,
+				'recipient'   => 'buyer@example.com',
+				'message'     => '',
+			),
+			$extra
+		);
+		$_REQUEST = $_POST;
+
+		return $this->capture_ajax_json( array( PayPal_Email_Sender::class, 'handle_send' ) );
+	}
+
+	/**
+	 * Invoke an ajax handler and return its JSON envelope as an array.
+	 *
+	 * WordPress's wp_send_json_* echoes the response then calls wp_die(); force the
+	 * ajax path and throw from the die handler so we can capture the buffered JSON
+	 * without ending the test process.
+	 *
+	 * @param callable $handler Ajax handler to invoke.
+	 * @return array<string, mixed> Decoded response.
+	 */
+	private function capture_ajax_json( $handler ) {
+		add_filter( 'wp_doing_ajax', '__return_true' );
+		add_filter(
+			'wp_die_ajax_handler',
+			function () {
+				// Throw so wp_send_json_*'s wp_die() unwinds back to the test rather
+				// than ending the process. A `never` return type would break PHP <8.1.
+				// @phan-suppress-next-line PhanPluginNeverReturnFunction
+				return function () {
+					throw new \Exception( 'wp_die' );
+				};
+			}
+		);
+
+		ob_start();
+		try {
+			$handler();
+		} catch ( \Exception $e ) {
+			unset( $e ); // wp_die() from wp_send_json_*; expected.
+		}
+		$output = ob_get_clean();
+
+		remove_all_filters( 'wp_doing_ajax' );
+		remove_all_filters( 'wp_die_ajax_handler' );
+
+		return json_decode( $output, true );
+	}
+
+	/**
+	 * Create an admin user for testing.
+	 *
+	 * @return int User ID.
+	 */
+	private function create_admin_user() {
+		$user_id = username_exists( 'testadmin_email_sender' );
+		if ( $user_id ) {
+			return $user_id;
+		}
+
+		return wp_insert_user(
+			array(
+				'user_login' => 'testadmin_email_sender',
+				'user_pass'  => wp_generate_password(),
+				'role'       => 'administrator',
+			)
+		);
+	}
+
+	/**
+	 * Set up a connected PayPal state with a cached token.
+	 */
+	private function set_up_connected_state() {
+		PayPal_OAuth::store_credentials( 'test_client_id', 'test_client_secret' );
+		PayPal_OAuth::set_environment( 'production' );
+		set_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY, PayPal_OAuth::encrypt( 'fake_access_token' ), 3600 );
+	}
+
+	/**
+	 * Mock a get_resource API response.
+	 *
+	 * @param array $resource The resource data to return.
+	 */
+	private function mock_get_resource_response( $resource ) {
+		$this->set_up_connected_state();
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $resource ) {
+				if ( false !== strpos( $url, '/v1/oauth2/token' ) ) {
+					return $preempt;
+				}
+				return array(
+					'response' => array(
+						'code'    => 200,
+						'message' => '',
+					),
+					'body'     => wp_json_encode( $resource, JSON_UNESCAPED_SLASHES ),
+				);
+			},
+			10,
+			3
+		);
+	}
+
+	/**
+	 * A payment priced on the product, as PayPal returns it.
+	 *
+	 * @return array
+	 */
+	private function get_product_price_resource() {
+		return array(
+			'id'               => 'PLB-U7XQRUHKESAZ',
+			'integration_mode' => 'LINK',
+			'type'             => 'BUY_NOW',
+			'reusable'         => 'MULTIPLE',
+			'line_items'       => array(
+				array(
+					'name'                     => 'C67 link ONE',
+					'unit_amount'              => array(
+						'currency_code' => 'USD',
+						'value'         => '11.00',
+					),
+					'collect_shipping_address' => false,
+				),
+			),
+			'status'           => 'ACTIVE',
+			'payment_link'     => 'https://www.sandbox.paypal.com/ncp/payment/PLB-U7XQRUHKESAZ',
+		);
+	}
+
+	/**
+	 * A payment priced per Size, with an unpriced Color, as PayPal returns it.
+	 *
+	 * @return array
+	 */
+	private function get_per_option_resource() {
+		return array(
+			'id'               => 'PLB-ZC45RDYZRHS9',
+			'integration_mode' => 'LINK',
+			'type'             => 'BUY_NOW',
+			'reusable'         => 'MULTIPLE',
+			'line_items'       => array(
+				array(
+					'name'                     => 'WOOPTP-491 Test Widget',
+					'description'              => 'P6 M1 canvas/frontend parity fixture.',
+					'collect_shipping_address' => true,
+					'variants'                 => array(
+						'dimensions' => array(
+							array(
+								'name'    => 'Size',
+								'primary' => true,
+								'options' => array(
+									array(
+										'label'       => 'Small',
+										'unit_amount' => array(
+											'currency_code' => 'USD',
+											'value' => '24.50',
+										),
+									),
+									array(
+										'label'       => 'Medium',
+										'unit_amount' => array(
+											'currency_code' => 'USD',
+											'value' => '29.50',
+										),
+									),
+									array(
+										'label'       => 'Large',
+										'unit_amount' => array(
+											'currency_code' => 'USD',
+											'value' => '34.50',
+										),
+									),
+								),
+							),
+							array(
+								'name'    => 'Color',
+								'primary' => false,
+								'options' => array(
+									array( 'label' => 'Red' ),
+									array( 'label' => 'Blue' ),
+								),
+							),
+						),
+					),
+				),
+			),
+			'status'           => 'ACTIVE',
+			'payment_link'     => 'https://www.sandbox.paypal.com/ncp/payment/PLB-ZC45RDYZRHS9',
+		);
 	}
 }

@@ -2447,4 +2447,281 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$this->assertStringContainsString( 'jetpack-paypal-button__product-price">$9.99</span>', $result );
 	}
+
+	/**
+	 * Test that a link priced per option shows the cheapest option over the option prices.
+	 */
+	public function test_render_block_lists_option_prices_under_a_from_headline() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes( self::per_option_resource() );
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__product-price">From $24.50</span>', $result );
+		$this->assertStringContainsString( 'jetpack-paypal-button__variant-price">$24.50</span>', $result );
+		$this->assertStringContainsString( 'jetpack-paypal-button__variant-price">$29.50</span>', $result );
+		$this->assertStringContainsString( 'jetpack-paypal-button__variant-price">$34.50</span>', $result );
+		$this->assertSame( 3, substr_count( $result, 'jetpack-paypal-button__variant-price' ) );
+	}
+
+	// --- link_price ---
+
+	/**
+	 * Test that link_price formats the product price.
+	 */
+	public function test_link_price_formats_the_product_price() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes( self::product_price_resource() );
+
+		$this->assertSame( '$11.00', PayPal_Payment_Buttons::link_price( $attributes ) );
+	}
+
+	/**
+	 * Test that link_price shows the cheapest option when the options carry the prices.
+	 */
+	public function test_link_price_shows_the_cheapest_option() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes( self::per_option_resource() );
+
+		$this->assertSame( 'From $24.50', PayPal_Payment_Buttons::link_price( $attributes ) );
+	}
+
+	/**
+	 * Test that link_price takes the currency from the options.
+	 */
+	public function test_link_price_uses_the_option_currency() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes( self::per_option_yen_resource() );
+
+		$this->assertSame( 'From ¥1000', PayPal_Payment_Buttons::link_price( $attributes ) );
+	}
+
+	/**
+	 * Test that link_price shows a product price of 0. Blank is not zero.
+	 */
+	public function test_link_price_shows_a_product_price_of_zero() {
+		$attributes = array(
+			'price'        => '0',
+			'currencyCode' => 'USD',
+		);
+
+		$this->assertSame( '$0', PayPal_Payment_Buttons::link_price( $attributes ) );
+	}
+
+	/**
+	 * Test that link_price is empty when neither the product nor an option is priced.
+	 */
+	public function test_link_price_is_empty_when_nothing_is_priced() {
+		$attributes = array(
+			'price'           => '',
+			'currencyCode'    => 'USD',
+			'variantsEnabled' => true,
+			'variants'        => array(
+				'dimensions' => array(
+					array(
+						'name'    => 'Size',
+						'primary' => true,
+						'options' => array(
+							array( 'label' => 'Small' ),
+							array( 'label' => 'Large' ),
+						),
+					),
+				),
+			),
+		);
+
+		$this->assertSame( '', PayPal_Payment_Buttons::link_price( $attributes ) );
+		$this->assertSame( '', PayPal_Payment_Buttons::link_price( array() ) );
+	}
+
+	/**
+	 * Test that link_price ignores a stale product price once the options are priced.
+	 */
+	public function test_link_price_ignores_a_stale_product_price() {
+		$attributes          = PayPal_Attribute_Mapper::api_response_to_attributes( self::per_option_resource() );
+		$attributes['price'] = '9.99';
+
+		$this->assertSame( 'From $24.50', PayPal_Payment_Buttons::link_price( $attributes ) );
+	}
+
+	/**
+	 * Test that resource_price reads the price off a payment resource as PayPal returns it.
+	 *
+	 * @dataProvider provide_priced_resources
+	 *
+	 * @param array  $resource A payment resource.
+	 * @param string $expected The formatted price.
+	 */
+	#[DataProvider( 'provide_priced_resources' )]
+	public function test_resource_price_reads_the_resource( $resource, $expected ) {
+		$this->assertSame( $expected, PayPal_Payment_Buttons::resource_price( $resource ) );
+	}
+
+	/**
+	 * Payment resources as PayPal returns them, and the price each one charges.
+	 *
+	 * @return array<string, array{0: array, 1: string}>
+	 */
+	public static function provide_priced_resources() {
+		return array(
+			'product price'  => array( self::product_price_resource(), '$11.00' ),
+			'priced options' => array( self::per_option_resource(), 'From $24.50' ),
+			'yen options'    => array( self::per_option_yen_resource(), 'From ¥1000' ),
+			'nothing priced' => array( array( 'line_items' => array( array( 'name' => 'Test' ) ) ), '' ),
+			'no line items'  => array( array( 'id' => 'PLB-EMPTY' ), '' ),
+		);
+	}
+
+	/**
+	 * A payment priced on the product, as PayPal returns it.
+	 *
+	 * @return array
+	 */
+	private static function product_price_resource() {
+		return array(
+			'id'               => 'PLB-U7XQRUHKESAZ',
+			'integration_mode' => 'LINK',
+			'type'             => 'BUY_NOW',
+			'reusable'         => 'MULTIPLE',
+			'line_items'       => array(
+				array(
+					'name'                     => 'C67 link ONE',
+					'unit_amount'              => array(
+						'currency_code' => 'USD',
+						'value'         => '11.00',
+					),
+					'collect_shipping_address' => false,
+				),
+			),
+			'status'           => 'ACTIVE',
+			'payment_link'     => 'https://www.sandbox.paypal.com/ncp/payment/PLB-U7XQRUHKESAZ',
+		);
+	}
+
+	/**
+	 * A payment priced per Size, with an unpriced Color, as PayPal returns it.
+	 *
+	 * @return array
+	 */
+	private static function per_option_resource() {
+		return array(
+			'id'               => 'PLB-ZC45RDYZRHS9',
+			'integration_mode' => 'LINK',
+			'type'             => 'BUY_NOW',
+			'reusable'         => 'MULTIPLE',
+			'line_items'       => array(
+				array(
+					'name'                     => 'WOOPTP-491 Test Widget',
+					'description'              => 'P6 M1 canvas/frontend parity fixture.',
+					'collect_shipping_address' => true,
+					'variants'                 => array(
+						'dimensions' => array(
+							array(
+								'name'    => 'Size',
+								'primary' => true,
+								'options' => array(
+									array(
+										'label'       => 'Small',
+										'unit_amount' => array(
+											'currency_code' => 'USD',
+											'value' => '24.50',
+										),
+									),
+									array(
+										'label'       => 'Medium',
+										'unit_amount' => array(
+											'currency_code' => 'USD',
+											'value' => '29.50',
+										),
+									),
+									array(
+										'label'       => 'Large',
+										'unit_amount' => array(
+											'currency_code' => 'USD',
+											'value' => '34.50',
+										),
+									),
+								),
+							),
+							array(
+								'name'    => 'Color',
+								'primary' => false,
+								'options' => array(
+									array( 'label' => 'Red' ),
+									array( 'label' => 'Blue' ),
+								),
+							),
+						),
+					),
+				),
+			),
+			'status'           => 'ACTIVE',
+			'payment_link'     => 'https://www.sandbox.paypal.com/ncp/payment/PLB-ZC45RDYZRHS9',
+		);
+	}
+
+	/**
+	 * A payment priced per option in yen, as PayPal returns it.
+	 *
+	 * @return array
+	 */
+	private static function per_option_yen_resource() {
+		return array(
+			'id'               => 'PLB-Q5Z4GDYFS367',
+			'integration_mode' => 'LINK',
+			'type'             => 'BUY_NOW',
+			'reusable'         => 'MULTIPLE',
+			'line_items'       => array(
+				array(
+					'name'                     => 'U6 Yen Widget',
+					'description'              => "First line.\nSecond line.\n\nAfter a blank line.",
+					'taxes'                    => array(
+						array(
+							'name'  => 'Sales Tax',
+							'type'  => 'FLAT',
+							'value' => '1500',
+						),
+					),
+					'shipping'                 => array(
+						array(
+							'type'                  => 'FLAT',
+							'value'                 => '500',
+							'additional_unit_value' => '200',
+						),
+					),
+					'handling'                 => array(
+						array(
+							'type'  => 'FLAT',
+							'value' => '400',
+						),
+					),
+					'collect_shipping_address' => false,
+					'variants'                 => array(
+						'dimensions' => array(
+							array(
+								'name'    => 'Size',
+								'primary' => true,
+								'options' => array(
+									array(
+										'label'       => 'Small',
+										'unit_amount' => array(
+											'currency_code' => 'JPY',
+											'value' => '1000',
+										),
+									),
+									array(
+										'label'       => 'Large',
+										'unit_amount' => array(
+											'currency_code' => 'JPY',
+											'value' => '2000',
+										),
+									),
+								),
+							),
+						),
+					),
+				),
+			),
+			'status'           => 'ACTIVE',
+			'payment_link'     => 'https://www.sandbox.paypal.com/ncp/payment/PLB-Q5Z4GDYFS367',
+		);
+	}
 }
