@@ -132,7 +132,7 @@ describe( 'EarningsReportPage', () => {
 		} );
 	} );
 
-	it( 'drops Ads Served and its note on the Adjustments tab', () => {
+	it( 'drops Ads Served on the Adjustments tab', () => {
 		useRecordsMock.mockReturnValue(
 			buildRecords( {
 				tab: 'adjustments',

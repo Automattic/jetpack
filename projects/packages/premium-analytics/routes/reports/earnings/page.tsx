@@ -34,11 +34,13 @@ import {
 
 const ROUTE_FROM = route.path;
 
+// Period is the row's title field: DataViews draws it bold in the content
+// colour, as in the design, and sizes it to the width the other columns leave.
 const RECORDS_VIEW = {
+	titleField: 'period',
 	sort: { field: 'period', direction: 'desc' as const },
 	layout: {
 		styles: {
-			period: { width: '100%' },
 			amount: { align: 'end' as const },
 			pageviews: { align: 'end' as const },
 		},
