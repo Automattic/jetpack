@@ -222,14 +222,11 @@ $jp-breakpoint-mobile: 782px;
 		flex-shrink: 0;              // pinned at top of the flex column.
 	}
 
-	// When the page hosts a tabs strip, drop the header's bottom border AND
-	// its bottom padding so the strip sits flush against the header. The
-	// strip's own hairline becomes the only divider between header and tab
-	// content. Same `:has()` pattern used elsewhere in this mixin to react
-	// to the page's content shape.
+	// When the page hosts a tabs strip, drop the header's bottom border so the
+	// strip's own hairline is the only divider. The header keeps its bottom
+	// padding: removing it spaced these pages differently from the rest.
 	.jp-admin-page__page:has(.jp-admin-page-tabs) > :first-child {
 		border-bottom: none;
-		padding-bottom: 0;
 	}
 
 	// The scrollable middle. <AdminPage> does not pass `hasPadding` to
