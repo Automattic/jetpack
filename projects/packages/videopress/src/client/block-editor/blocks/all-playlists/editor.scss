@@ -1,0 +1,17 @@
+/**
+ * All Playlists block — editor styles.
+ *
+ * The canvas reuses the front-end stylesheet (view.scss); the server-rendered
+ * markup arrives wrapped in its own block wrapper, which these rules flatten.
+ */
+
+.videopress-all-playlists-editor {
+
+	> .wp-block-videopress-all-playlists {
+		margin: 0;
+	}
+
+	.videopress-all-playlists__item {
+		pointer-events: none;
+	}
+}

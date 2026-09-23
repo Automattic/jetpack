@@ -1,0 +1,73 @@
+/**
+ * All Playlists block — placeholder front-end styles.
+ *
+ * Deliberately plain: the block's visual design is still to come, so this only
+ * makes the grid and list layouts distinguishable.
+ */
+
+.videopress-all-playlists {
+
+	&__items {
+		display: grid;
+		gap: 24px;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	&.is-layout-grid &__items {
+		grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	}
+
+	&.is-layout-list &__items {
+		grid-template-columns: 1fr;
+	}
+
+	&__item {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		margin: 0;
+	}
+
+	&.is-layout-list &__item {
+		flex-direction: row;
+		align-items: flex-start;
+	}
+
+	&__thumb {
+		flex: 0 0 auto;
+		inline-size: 100%;
+		aspect-ratio: 16 / 9;
+		border-radius: 4px;
+		background: rgba(30, 30, 30, 0.1);
+	}
+
+	&.is-layout-list &__thumb {
+		inline-size: 160px;
+	}
+
+	&__body {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		min-inline-size: 0;
+	}
+
+	&__title {
+		margin: 0;
+		font-size: 1rem;
+		line-height: 1.3;
+	}
+
+	&__description {
+		margin: 0;
+		font-size: 0.875rem;
+		opacity: 0.8;
+	}
+
+	&__count {
+		font-size: 0.75rem;
+		opacity: 0.7;
+	}
+}
