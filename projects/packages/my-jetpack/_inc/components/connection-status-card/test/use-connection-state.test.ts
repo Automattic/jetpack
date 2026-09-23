@@ -88,9 +88,7 @@ beforeAll( () => {
 const renderConnectionState = () =>
 	renderHook(
 		() => {
-			const { hasConnectionError, severity } = useConnectionErrorNotice( {
-				resolveActions: false,
-			} );
+			const { hasConnectionError, severity } = useConnectionErrorNotice();
 
 			return useConnectionState( {
 				hasConnectionError,
@@ -101,8 +99,7 @@ const renderConnectionState = () =>
 		{ wrapper: Providers }
 	);
 
-// The card's tint is the only thing carrying the error while the connect prompt
-// holds the copy, so it has to be the package's rating rather than a flat 'error'.
+// The tint is the only sign of the error here, so it is the package's rating, not a flat 'error'.
 describe( 'useConnectionState — status while the account is still to be connected', () => {
 	it( 'softens a break only the owner can repair to a warning', () => {
 		setConnectionStore( { connectionErrors: ownerTokenBroken, connectionOwner: owner } );
@@ -121,8 +118,6 @@ describe( 'useConnectionState — status while the account is still to be connec
 	} );
 } );
 
-// The label and the description are the package's once an error is live, so the
-// card cannot describe the fault in words the notice above it does not use.
 describe( 'useConnectionState — a live error on a connected account', () => {
 	it( 'takes the package title as its label and leaves the copy to the package', () => {
 		setConnectionStore( { isUserConnected: true, connectionErrors: siteTokenBroken } );

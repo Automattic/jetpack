@@ -9,9 +9,11 @@ export type ConnectionState = {
 	description?: string;
 	action?: 'CONNECT_USER' | 'CONNECT_SITE';
 	status: 'error' | 'warning' | 'success';
-	// True only when the label is a diagnosis rather than a standing. The card then
-	// stops using the label as the Manage connection trigger, so a chevron beside
-	// "needs attention" can't read as "click to fix" and land on Disconnect.
+	/**
+	 * True only when the label is a diagnosis rather than a standing. The card then
+	 * stops using the label as the Manage connection trigger, so a chevron beside
+	 * a fault label can't read as "click to fix" and land on Disconnect.
+	 */
 	isDiagnosis?: boolean;
 };
 
@@ -67,11 +69,8 @@ export function useConnectionState( error: ConnectionErrorStanding ): Connection
 		};
 	}
 
-	// Below here the account is still to be connected, and that prompt is the most
-	// useful thing the card can say — so a live error only tints the connector
-	// line, and never displaces the call to action. The tint is the package's
-	// rating, not a flat 'error': a break only the owner can repair stays a warning
-	// for everybody else, as it does once the account is connected.
+	// Connecting the account stays the prompt; a live error only tints the line, at
+	// the package's severity.
 	const status = error.hasConnectionError ? ( error.severity ?? 'error' ) : 'warning';
 
 	// If the user is not an admin, they can't connect their account unless an admin has connected their account.

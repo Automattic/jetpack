@@ -1,7 +1,7 @@
 import type {
 	ConnectionErrorGroup,
 	ConnectionErrorNoticeLink,
-} from '../../hooks/use-connection-error-notice/types';
+} from '../../hooks/use-connection-error-notice/types.ts';
 import type { Text } from '@wordpress/ui';
 import type { ComponentProps, ReactElement } from 'react';
 

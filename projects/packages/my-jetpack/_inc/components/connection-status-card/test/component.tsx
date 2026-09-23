@@ -254,9 +254,7 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.getByText( /Connected as/ ) ).toBeInTheDocument();
 		} );
 
-		// The fault icon and the package's description belong to a broken connection;
-		// a healthy card shows what it always did. Matched as a direct child of the
-		// heading, since the manage-connection button holds a chevron of its own.
+		// Matched as a direct child of the heading: the manage-connection button holds its own chevron.
 		it( 'shows no fault icon', () => {
 			const { container } = setup();
 
@@ -314,8 +312,6 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.queryByText( 'Site and account connected' ) ).not.toBeInTheDocument();
 		} );
 
-		// The card says what the notice says: the package's title names the broken
-		// half, and its message describes the fault.
 		it( 'describes the error in the package’s own words', () => {
 			setupWithError( { error: { audience: 'site' } } );
 			expect( screen.getByText( 'Jetpack Connection error: Site connection' ) ).toBeInTheDocument();
@@ -336,8 +332,6 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.getByText( 'Jetpack Connection error: Your account' ) ).toBeInTheDocument();
 		} );
 
-		// One title for the pair, then a scope line per error, rather than the card
-		// picking one half and describing the wrong problem.
 		it( 'counts the errors and lists their scopes when two halves are broken', () => {
 			setupWithError( {
 				connectionErrors: {
@@ -360,20 +354,15 @@ describe( 'ConnectionStatusCard', () => {
 				},
 			} );
 			expect( screen.getByText( '2 Jetpack Connection errors' ) ).toBeInTheDocument();
-			// Listed, so assistive tech announces how many halves are broken.
 			expect( screen.getByText( '- Site connection' ) ).toBeInTheDocument();
 			expect( screen.getByText( '- Your account' ) ).toBeInTheDocument();
 		} );
 
-		// The error's own CTA, resolved by the package, so the card's button and the
-		// notice's button do the same thing.
 		it( 'offers the package’s CTA for the error', () => {
 			setupWithError();
 			expect( screen.getByRole( 'button', { name: 'Restore Connection' } ) ).toBeInTheDocument();
 		} );
 
-		// Site Health reaches the card as a link the error asked for, not as a link the
-		// card decided to add.
 		it( 'renders a link the error declared', () => {
 			setupWithError( {
 				error: {
@@ -416,8 +405,6 @@ describe( 'ConnectionStatusCard', () => {
 			);
 		} );
 
-		// The repair is the point of the card in this state, so it is a button; the
-		// secondary action stays a link beneath it.
 		it( 'offers the repair as a button and manage connection as a link', () => {
 			setupWithError();
 
@@ -437,8 +424,6 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.getByRole( 'button', { name: 'Manage connection' } ) ).toBeInTheDocument();
 		} );
 
-		// The viewer cannot repair somebody else's token, so the package phrases the
-		// scope as the owner's account rather than the viewer's own.
 		it( 'points at the owner when the broken token is theirs and the viewer is not them', () => {
 			setupWithError( {
 				error: { audience: 'owner' },
@@ -456,8 +441,6 @@ describe( 'ConnectionStatusCard', () => {
 			global.JetpackScriptData.user.current_user.capabilities = {};
 		} );
 
-		// Connecting the account is the most useful thing this viewer can do, so a live
-		// error tints the card without displacing that prompt.
 		it( 'keeps the connect prompt rather than replacing it with the fault', () => {
 			global.JetpackScriptData.user.current_user.capabilities.manage_options = true;
 			setConnectionStore( {

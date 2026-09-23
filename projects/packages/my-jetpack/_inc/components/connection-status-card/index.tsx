@@ -184,9 +184,14 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 				<img src={ cloud } alt="" className={ styles.cloud } />
 			</div>
 
-			<section className={ styles[ 'connection-state' ] }>
+			<Stack
+				render={ <section /> }
+				direction="column"
+				gap={ state.isDiagnosis ? 'sm' : undefined }
+				className={ styles[ 'connection-state' ] }
+			>
 				<h4>
-					{ ( state.isDiagnosis || hasConnectionError || ! isRegistered ) && (
+					{ ( hasConnectionError || ! isRegistered ) && (
 						<Icon
 							className={ clsx( styles[ 'state-icon' ], styles[ state.status ] ) }
 							icon={ errorIcon }
@@ -251,7 +256,9 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 									variant={ index === 0 ? 'solid' : 'outline' }
 									onClick={ action.onClick }
 									loading={ action.isLoading }
-									loadingAnnouncement={ action.loadingText }
+									loadingAnnouncement={
+										action.loadingText || __( 'Loading…', 'jetpack-my-jetpack' )
+									}
 								>
 									{ action.label }
 								</UIButton>
@@ -277,7 +284,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 						</Stack>
 					</div>
 				) }
-			</section>
+			</Stack>
 
 			<ConnectionOwnerInfo />
 

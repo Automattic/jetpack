@@ -243,8 +243,6 @@ describe( 'useConnectionErrorsNotice', () => {
 		expect( getNoticeText() ).toContain( 'Connection failed' );
 	} );
 
-	// A broken owner token is a warning to everybody but the owner, and the card
-	// says so; the notice beside it must not call the same break an error.
 	it( 'takes the notice level from the severity the package rated', async () => {
 		setHookResult( {
 			...noError,

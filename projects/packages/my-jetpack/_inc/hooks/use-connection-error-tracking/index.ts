@@ -3,6 +3,16 @@ import useAnalytics from '../use-analytics';
 import type { ConnectionErrorTrackingCallback } from '@automattic/jetpack-connection';
 
 /**
+ * Whether an event name is in the namespace My Jetpack's `recordEvent` accepts.
+ *
+ * @param {string} event - The event name.
+ * @return {boolean} Whether it is `jetpack_`-prefixed.
+ */
+function isJetpackEvent( event: string ): event is `jetpack_${ string }` {
+	return event.startsWith( 'jetpack_' );
+}
+
+/**
  * Tracking callback for the connection package's error events, routed through
  * My Jetpack's analytics.
  *
@@ -16,8 +26,8 @@ export default function useConnectionErrorTracking(): ConnectionErrorTrackingCal
 
 	return useCallback(
 		( event, data ) => {
-			if ( event && event.startsWith( 'jetpack_' ) ) {
-				recordEvent( event as `jetpack_${ string }`, data );
+			if ( event && isJetpackEvent( event ) ) {
+				recordEvent( event, data );
 			}
 		},
 		[ recordEvent ]

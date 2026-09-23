@@ -54,7 +54,6 @@ export default function useConnectionErrorNotice( {
 	reconnectTrackingEvent,
 	navigate,
 	includeHealthErrors = false,
-	resolveActions = true,
 }: ConnectionErrorProps = {} ): UseConnectionErrorNoticeResult {
 	const { connectionErrors, connectionHealthErrors, connectionOwner, userConnectionData } =
 		useConnection( {} );
@@ -162,11 +161,9 @@ export default function useConnectionErrorNotice( {
 		[ displayableErrors, viewer ]
 	);
 
-	// A caller that reads the error set without offering a CTA opts out, and skips
-	// the action objects, their labels and their bound callbacks with it.
 	const actions = useMemo(
 		() =>
-			resolveActions && actionError
+			actionError
 				? resolveConnectionErrorActions( actionError, {
 						actionHandlers,
 						trackingCallback,
@@ -179,7 +176,6 @@ export default function useConnectionErrorNotice( {
 					} )
 				: [],
 		[
-			resolveActions,
 			actionError,
 			actionHandlers,
 			trackingCallback,

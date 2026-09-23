@@ -125,8 +125,7 @@ describe( 'ConnectionErrorNotice', () => {
 		expect( screen.getByText( 'Secondary Action' ) ).toBeInTheDocument();
 	} );
 
-	// The derived groups are the details component's to render; this only checks
-	// the notice hands them over.
+	// Rendering the groups is ConnectionErrorDetails' job; this only checks the hand-off.
 	it( 'renders the error groups it was given', () => {
 		render(
 			<ConnectionErrorNotice

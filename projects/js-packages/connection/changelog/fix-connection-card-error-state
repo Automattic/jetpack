@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add a severity to useConnectionErrorNotice, rating how much a connection error is the viewer's to fix.
+Add ConnectionErrorDetails, for describing a connection error outside a notice, and a severity to useConnectionErrorNotice rating how much the error is the viewer's to fix.
