@@ -652,8 +652,8 @@ class WooCommerce_Analytics extends Module {
 			return false;
 		}
 
-		// If the order does not exit, check if the stats item is present in the wc_order_stats table.
-		if ( ! $order ) {
+		// If the order does not exist or cannot compute report data, read its wc_order_stats row instead.
+		if ( ! $order || ! self::is_analytics_order( $order ) ) {
 			$order_stats_data_from_db = $this->get_order_stats_data_from_db( $order_id );
 			return $order_stats_data_from_db;
 		}
@@ -816,6 +816,18 @@ class WooCommerce_Analytics extends Module {
 	}
 
 	/**
+	 * Whether the order is one of WooCommerce Analytics' order classes, which add the report methods used here.
+	 *
+	 * WooCommerce swaps them in only while Analytics is enabled, and an object cache can outlive that switch.
+	 *
+	 * @param WC_Abstract_Order $order The order object.
+	 * @return bool
+	 */
+	private static function is_analytics_order( $order ) {
+		return method_exists( $order, 'get_report_customer_id' );
+	}
+
+	/**
 	 * Check if the COGS feature is enabled.
 	 *
 	 * @return bool True if the COGS feature is enabled, false otherwise.
@@ -840,8 +852,8 @@ class WooCommerce_Analytics extends Module {
 			return false;
 		}
 
-		// If the order does not exist, check if product lookup data exists in the database.
-		if ( ! $order ) {
+		// If the order does not exist or cannot compute report data, read its lookup rows instead.
+		if ( ! $order || ! self::is_analytics_order( $order ) ) {
 			return $this->get_order_product_data_from_db( $order_id );
 		}
 

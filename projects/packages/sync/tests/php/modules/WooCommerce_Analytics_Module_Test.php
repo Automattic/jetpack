@@ -368,6 +368,83 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A plain order, as loaded while WooCommerce Analytics is disabled, falls back to its lookup rows.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_plain_order_falls_back_to_lookup_rows() {
+		global $wpdb;
+
+		require_once __DIR__ . '/../stubs/class-wc-order.php';
+
+		$order         = new \WC_Order();
+		$original_wpdb = $wpdb;
+		$wpdb          = new class() {
+			/**
+			 * WordPress table prefix.
+			 *
+			 * @var string
+			 */
+			public $prefix = 'wp_';
+
+			/**
+			 * Return the order ID as the prepared query.
+			 *
+			 * @param string $query    Query template.
+			 * @param int    $order_id Order ID.
+			 * @return int
+			 */
+			public function prepare( $query, $order_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return $order_id;
+			}
+
+			/**
+			 * Return the order's wc_order_stats row.
+			 *
+			 * @param int    $order_id Prepared order ID.
+			 * @param string $output   Requested output format.
+			 * @return array
+			 */
+			public function get_row( $order_id, $output ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return array(
+					'order_id'       => $order_id,
+					'status'         => 'wc-completed',
+					'date_created'   => '2026-09-01 10:00:00',
+					'date_completed' => null,
+					'date_paid'      => null,
+				);
+			}
+		};
+		$this->module  = new class() extends Modules\WooCommerce_Analytics {
+			/**
+			 * Stand in for the wc_order_product_lookup query.
+			 *
+			 * @param int $order_id Order ID.
+			 * @return array
+			 */
+			protected function get_order_product_data_from_db( $order_id ) {
+				return array( 'products_from_db' => $order_id );
+			}
+		};
+
+		$stats    = null;
+		$products = null;
+		try {
+			$stats    = $this->invoke_instance_helper( 'get_order_stats_data', $order );
+			$products = $this->invoke_instance_helper( 'get_order_product_data', $order );
+		} finally {
+			$wpdb = $original_wpdb;
+		}
+
+		$this->assertSame( 123, $stats['order_id'] );
+		$this->assertSame( 'wc-completed', $stats['status'] );
+		$this->assertSame( array( 'products_from_db' => 123 ), $products );
+	}
+
+	/**
 	 * The size filter always lets the first object through, then stops at the cap.
 	 */
 	public function test_filter_analytics_objects_by_size_always_allows_first_object() {
