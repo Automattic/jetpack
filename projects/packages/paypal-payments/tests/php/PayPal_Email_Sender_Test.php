@@ -368,7 +368,26 @@ class PayPal_Email_Sender_Test extends TestCase {
 		$response = $this->send_payment_link( 'PLB-ZC45RDYZRHS9' );
 
 		$this->assertFalse( $response['success'] );
+		$this->assertSame( 400, $this->response_status );
 		$this->assertSame( 'This payment link has no price.', $response['data']['message'] );
+		$this->assertNull( $mail->to );
+		$this->assertFalse( get_transient( 'paypal_email_rate_' . get_current_user_id() ) );
+	}
+
+	/**
+	 * Test handle_send fails and sends nothing when the resource has no payment link.
+	 */
+	public function test_handle_send_fails_when_the_resource_has_no_payment_link() {
+		$mail     = $this->capture_mail();
+		$resource = $this->get_product_price_resource();
+		unset( $resource['payment_link'] );
+		$this->mock_get_resource_response( $resource );
+
+		$response = $this->send_payment_link( 'PLB-U7XQRUHKESAZ' );
+
+		$this->assertFalse( $response['success'] );
+		$this->assertSame( 400, $this->response_status );
+		$this->assertSame( 'Invalid or missing PayPal payment link.', $response['data']['message'] );
 		$this->assertNull( $mail->to );
 		$this->assertFalse( get_transient( 'paypal_email_rate_' . get_current_user_id() ) );
 	}

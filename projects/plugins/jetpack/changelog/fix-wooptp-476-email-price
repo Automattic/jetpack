@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-PayPal Payment Buttons: Show "From" and the lowest option price in the payment link email, list and details for links priced per option.
+PayPal Payment Buttons: Show "From" and the lowest option price, in the options' currency, in the payment link email, list and details for links priced per option.

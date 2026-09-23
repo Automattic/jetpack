@@ -871,7 +871,7 @@ class PayPal_Payment_Buttons {
 	 * @since $$next-version$$
 	 *
 	 * @param array $attributes The link's block attributes.
-	 * @return string The price, or '' when the options carry the prices.
+	 * @return string The price, or '' when there is none or the options carry the prices.
 	 */
 	private static function product_price( array $attributes ) {
 		$variants_enabled = ! empty( $attributes['variantsEnabled'] );
@@ -889,7 +889,7 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * The same price, read off a payment resource from PayPal.
+	 * The price a payment resource from PayPal charges, as text.
 	 *
 	 * Same as resourcePrice() in utils/link-price.js.
 	 *
