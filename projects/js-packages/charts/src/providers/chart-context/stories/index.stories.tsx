@@ -492,12 +492,7 @@ const generatedPaletteData: DataPointPercentage[] = [
 const generatedPaletteAccentClassName = ( accent: string ) =>
 	`generated-palette-accent-${ accent.replace( '#', '' ) }`;
 
-/**
- * Each block seeds only `--a8c-charts-color-series-1` with a wp-admin accent, scoped to its own
- * wrapper with `.<class> .a8c-charts-scope { ... }` the way the "Practical Example" in this
- * page's docs does: `:where(.a8c-charts-scope)` in `chart-scope.scss` has zero specificity, so a
- * bare `.a8c-charts-scope` rule (or an ancestor-qualified one, here) always outranks it.
- */
+// Sets slot 1 per accent; the selector targets `.a8c-charts-scope` itself, see TOKENS.md Precedence.
 export const GeneratedPalette: Story = {
 	render: () => (
 		<div
