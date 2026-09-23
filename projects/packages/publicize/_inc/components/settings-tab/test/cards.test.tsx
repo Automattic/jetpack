@@ -5,16 +5,6 @@ import ContentCreationCard from '../content-creation-card';
 import CustomizeLinksCard from '../customize-links-card';
 import CustomizeMediaCard from '../customize-media-card';
 
-// The `jetpack-js-tools` console guard registers matchers but does not include types.
-declare global {
-	// eslint-disable-next-line @typescript-eslint/no-namespace
-	namespace jest {
-		interface Matchers< R > {
-			toHaveErrored(): R;
-		}
-	}
-}
-
 const SOCIAL_STORE = 'jetpack-social';
 
 // The cards import the real social store only for its `store` descriptor,
