@@ -117,8 +117,55 @@ function mockRegisterInterfaceStore( { createReduxStore, register } ) {
 	);
 }
 
+// Where the Template tab's styles row records whether it is expanded, and where the one-time
+// expansion records that it has happened.
+function mockRegisterPanelStores( { createReduxStore, register } ) {
+	register(
+		createReduxStore( 'core/preferences', {
+			reducer: ( state = {}, action ) => {
+				if ( 'RESET_PREFERENCES' === action.type ) {
+					return {};
+				}
+
+				return 'SET_PREFERENCE' === action.type
+					? { ...state, [ `${ action.scope }/${ action.name }` ]: action.value }
+					: state;
+			},
+			actions: {
+				set: ( scope, name, value ) => ( { type: 'SET_PREFERENCE', scope, name, value } ),
+				resetPreferences: () => ( { type: 'RESET_PREFERENCES' } ),
+			},
+			selectors: { get: ( state, scope, name ) => state[ `${ scope }/${ name }` ] },
+		} )
+	);
+
+	register(
+		createReduxStore( 'core/editor', {
+			reducer: ( state = [], action ) => {
+				if ( 'RESET_PANELS' === action.type ) {
+					return [];
+				}
+
+				if ( 'TOGGLE_PANEL' !== action.type ) {
+					return state;
+				}
+
+				return state.includes( action.name )
+					? state.filter( name => name !== action.name )
+					: [ ...state, action.name ];
+			},
+			actions: {
+				toggleEditorPanelOpened: name => ( { type: 'TOGGLE_PANEL', name } ),
+				resetPanels: () => ( { type: 'RESET_PANELS' } ),
+			},
+			selectors: { isEditorPanelOpened: ( state, name ) => state.includes( name ) },
+		} )
+	);
+}
+
 mockRegisterBlockEditorStore( jest.requireActual( '@wordpress/data' ) );
 mockRegisterInterfaceStore( jest.requireActual( '@wordpress/data' ) );
+mockRegisterPanelStores( jest.requireActual( '@wordpress/data' ) );
 
 jest.mock( '@wordpress/block-editor', () => ( { useBlockProps: () => ( {} ) } ) );
 
@@ -229,6 +276,7 @@ async function loadEntryPoint() {
 		mockIsolatedData = require( '@wordpress/data' );
 		mockRegisterBlockEditorStore( mockIsolatedData );
 		mockRegisterInterfaceStore( mockIsolatedData );
+		mockRegisterPanelStores( mockIsolatedData );
 		require( '../src/index' );
 	} );
 
@@ -282,6 +330,8 @@ describe( 'Email design editor entry point', () => {
 		mockEnabledAreas.length = 0;
 		mockRegisterPlugin.mockClear();
 		dispatch( 'core/interface' ).setActiveComplementaryArea( undefined );
+		dispatch( 'core/preferences' ).resetPreferences();
+		dispatch( 'core/editor' ).resetPanels();
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( bootstrapBundle() );
 		jest.spyOn( console, 'error' ).mockImplementation( () => {} );
@@ -1012,8 +1062,12 @@ describe( 'Email design editor entry point', () => {
 	// Three of three testers opened the sidebar, found Template and Blocks, and concluded the
 	// screen had no styles at all. NL-948.
 	describe( 'the Styles panel a creator has to find', () => {
-		const { openStylesSidebar, openStylesSidebarOnLoad, registerEditorPlugin } =
-			jest.requireActual( '../src/index' );
+		const {
+			expandStylesPanelOnce,
+			openStylesSidebar,
+			openStylesSidebarOnLoad,
+			registerEditorPlugin,
+		} = jest.requireActual( '../src/index' );
 
 		const setActive = area =>
 			mockIsolatedData.dispatch( 'core/interface' ).setActiveComplementaryArea( area );
@@ -1140,6 +1194,50 @@ describe( 'Email design editor entry point', () => {
 				await loadEntryPoint();
 
 				expect( mockRegisterPlugin ).toHaveBeenCalledTimes( 1 );
+			} );
+
+			// Its slot renders a disclosure that starts closed, which would put the button a click
+			// further away than the icon it exists to make findable.
+			describe( 'the row starting expanded', () => {
+				const isOpen = () =>
+					select( 'core/editor' ).isEditorPanelOpened( 'jetpack-email-design/email-styles' );
+
+				it( 'expands the row a creator has never seen', () => {
+					expandStylesPanelOnce();
+
+					expect( isOpen() ).toBe( true );
+				} );
+
+				it( 'leaves the row collapsed once the creator has collapsed it', () => {
+					expandStylesPanelOnce();
+					dispatch( 'core/editor' ).toggleEditorPanelOpened( 'jetpack-email-design/email-styles' );
+
+					expandStylesPanelOnce();
+
+					expect( isOpen() ).toBe( false );
+				} );
+
+				// The row outlived this code being added, so a creator can arrive with it already
+				// expanded and no preference recorded. Toggling then would close it.
+				it( 'leaves a row that is already expanded alone', () => {
+					dispatch( 'core/editor' ).toggleEditorPanelOpened( 'jetpack-email-design/email-styles' );
+
+					expandStylesPanelOnce();
+
+					expect( isOpen() ).toBe( true );
+				} );
+
+				it( 'expands the row as part of mounting, not only when called directly', async () => {
+					window.JetpackEmailDesignEditor = pageData();
+
+					await loadEntryPoint();
+
+					expect(
+						mockIsolatedData
+							.select( 'core/editor' )
+							.isEditorPanelOpened( 'jetpack-email-design/email-styles' )
+					).toBe( true );
+				} );
 			} );
 
 			it( 'offers a labelled control, which the panel’s own icon is not', () => {

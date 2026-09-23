@@ -58,6 +58,17 @@ const STYLES_SIDEBAR = 'null/email-styles-sidebar';
 // The package renders a `PluginArea` under this scope, which is where our own fills land.
 const PLUGIN_SCOPE = 'woocommerce-email-editor';
 
+// The Template tab's styles row. Core keys an editor panel by plugin and panel name together.
+const PLUGIN_NAME = 'jetpack-email-design';
+const STYLES_PANEL_NAME = 'email-styles';
+const STYLES_PANEL = `${ PLUGIN_NAME }/${ STYLES_PANEL_NAME }`;
+
+// Ours rather than core's, so the one-time expansion below is remembered without standing in for
+// the creator's own answer about whether that row is open.
+const PREFERENCE_SCOPE = 'jetpack/email-design';
+const EDITOR_STORE = 'core/editor';
+const PREFERENCES_STORE = 'core/preferences';
+
 /**
  * Check that a URL the editor will navigate to is one the browser can navigate to.
  *
@@ -533,7 +544,10 @@ export function openStylesSidebarOnLoad() {
  */
 function StylesPanelLink() {
 	return (
-		<PluginDocumentSettingPanel name="email-styles" title={ __( 'Email styles', 'jetpack' ) }>
+		<PluginDocumentSettingPanel
+			name={ STYLES_PANEL_NAME }
+			title={ __( 'Email styles', 'jetpack' ) }
+		>
 			<Button variant="secondary" onClick={ openStylesSidebar }>
 				{ __( 'Edit email styles', 'jetpack' ) }
 			</Button>
@@ -542,12 +556,40 @@ function StylesPanelLink() {
 }
 
 /**
+ * Show that row open the first time a creator reaches this screen.
+ *
+ * `PluginDocumentSettingPanel` is the only slot that renders in the Template tab, and it is a
+ * disclosure that starts closed — which would leave the way into Styles a click further away than
+ * the icon it exists to make findable. Done once, so a creator who collapses it keeps it collapsed.
+ *
+ * @return {void}
+ */
+export function expandStylesPanelOnce() {
+	const preferences = dispatch( PREFERENCES_STORE );
+	const editor = dispatch( EDITOR_STORE );
+
+	if ( ! preferences || ! editor ) {
+		return;
+	}
+
+	if ( select( PREFERENCES_STORE ).get( PREFERENCE_SCOPE, 'expandedStylesPanel' ) ) {
+		return;
+	}
+
+	preferences.set( PREFERENCE_SCOPE, 'expandedStylesPanel', true );
+
+	if ( ! select( EDITOR_STORE ).isEditorPanelOpened( STYLES_PANEL ) ) {
+		editor.toggleEditorPanelOpened( STYLES_PANEL );
+	}
+}
+
+/**
  * Register the fills the editor renders through its own plugin area.
  *
  * @return {void}
  */
 export function registerEditorPlugin() {
-	registerPlugin( 'jetpack-email-design', { scope: PLUGIN_SCOPE, render: StylesPanelLink } );
+	registerPlugin( PLUGIN_NAME, { scope: PLUGIN_SCOPE, render: StylesPanelLink } );
 }
 
 /**
@@ -707,6 +749,7 @@ export async function mountEmailDesignEditor() {
 		// unsupported-block errors, which looks identical to this never running.
 		registerEmailBlocks( bundle );
 		registerEditorPlugin();
+		expandStylesPanelOnce();
 		lockCanvasEditing();
 		reportInactiveEmailDesign( bundle );
 		openStylesSidebarOnLoad();
