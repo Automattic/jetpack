@@ -669,33 +669,13 @@ When setting the catalog roles, ensure sufficient contrast between background an
 
 ### Automatic Color Generation
 
-When your data has more series than the palette has seeds, the Global Charts Context automatically generates additional colors using a sophisticated algorithm:
+When your data has more series than the palette has seeds, the Global Charts Context automatically generates additional colors.
 
-#### Golden Ratio Distribution
+#### Perceptual Distribution
 
-The system uses the **golden ratio (φ ≈ 0.618)** to generate mathematically pleasing color distributions:
-
-- **Hue spacing** - New hues are distributed for optimal visual separation
-- **Hue range constraint** - Generated colors stay within an expanded range (130%) of the palette slots you set
-- **Wrap-around handling** - Intelligently handles cases where those colors span across the 0° hue boundary
+Each generated color is chosen to stay as far as possible (CIEDE2000) from every earlier color in the palette, in normal vision and under simulated deuteranopia and protanopia. Each generated color also reaches a 3:1 contrast ratio against the chart background. Seeds are used as given and are not adjusted.
 
 **Note that only hex colors are supported for generating colors.**
-
-#### Accessibility-First Generation
-
-All generated colors maintain WCAG AA compliance:
-
-- **Base lightness: 35%** - Ensures 4.5:1 contrast ratio against white backgrounds
-- **Lightness variations** - Creates 4 levels (35%, 43%, 51%, 59%) for variety while maintaining accessibility
-- **Saturation variations** - Uses 3 levels (60%, 75%, 90%) for visual distinction
-
-#### Perceptual Distance Optimization
-
-The algorithm ensures visual distinction between colors:
-
-- **Minimum distance threshold** - Maintains 25+ units of perceptual distance between colors
-- **Smart retry logic** - Up to 50 attempts per color to find sufficiently different options
-- **Distance calculation** - Uses weighted HSL distance optimized for chart readability
 
 #### Practical Example
 
@@ -716,11 +696,11 @@ The algorithm ensures visual distinction between colors:
 		{ label: 'Series 1', group: 'A' }, // Uses #006DAB
 		{ label: 'Series 2', group: 'B' }, // Uses #1F9828
 		{ label: 'Series 3', group: 'C' }, // Uses #FF8C8F
-		{ label: 'Series 4', group: 'D' }, // Auto-generated: ~hsl(193, 75%, 43%)
-		{ label: 'Series 5', group: 'E' }, // Auto-generated: ~hsl(76, 60%, 51%)
-		{ label: 'Series 6', group: 'F' }, // Auto-generated: ~hsl(318, 90%, 35%)
-		{ label: 'Series 7', group: 'G' }, // Auto-generated: ~hsl(201, 75%, 59%)
-		{ label: 'Series 8', group: 'H' }, // Auto-generated: ~hsl(84, 60%, 35%)
+		{ label: 'Series 4', group: 'D' }, // Auto-generated
+		{ label: 'Series 5', group: 'E' }, // Auto-generated
+		{ label: 'Series 6', group: 'F' }, // Auto-generated
+		{ label: 'Series 7', group: 'G' }, // Auto-generated
+		{ label: 'Series 8', group: 'H' }, // Auto-generated
 	];
 
 	// All colors remain consistent across charts and re-renders

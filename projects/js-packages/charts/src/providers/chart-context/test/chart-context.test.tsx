@@ -4,6 +4,7 @@ import { GlobalChartsProvider } from '../global-charts-provider';
 import { useChartId } from '../hooks/use-chart-id';
 import { useChartRegistration } from '../hooks/use-chart-registration';
 import { useGlobalChartsContext } from '../hooks/use-global-charts-context';
+import { contrastRatio } from '../private/perceptual-color';
 import { defaultTheme } from '../themes';
 import type { BaseLegendItem } from '../../../components/legend';
 import type { SeriesData } from '../../../types';
@@ -1893,12 +1894,21 @@ describe( 'ChartContext', () => {
 			return <div>Test</div>;
 		};
 
-		const renderWithSlots = ( slots: Array< string | undefined > ) => {
+		const renderWithSlots = (
+			slots: Array< string | undefined >,
+			extraRoles?: Record< string, string >
+		) => {
 			slots.forEach( ( color, slot ) => {
 				if ( color !== undefined ) {
 					container.style.setProperty( `--a8c-charts-color-series-${ slot + 1 }`, color );
 				}
 			} );
+
+			if ( extraRoles ) {
+				Object.entries( extraRoles ).forEach( ( [ property, value ] ) =>
+					container.style.setProperty( property, value )
+				);
+			}
 
 			return render(
 				<GlobalChartsProvider>
@@ -1990,19 +2000,16 @@ describe( 'ChartContext', () => {
 		} );
 
 		describe( 'Error Handling', () => {
-			it( 'keeps an unparseable value without crashing', () => {
+			it( 'compacts out an unparseable value without crashing', () => {
 				expect( () => renderWithSlots( [ '#invalid', '#ff0000' ] ) ).not.toThrow();
 
-				expect( colorAt( 0 ) ).toBe( '#invalid' );
-				expect( colorAt( 1 ) ).toBe( '#ff0000' );
+				expect( colorAt( 0 ) ).toBe( '#ff0000' );
 			} );
 
-			it( 'keeps malformed hex values without crashing', () => {
+			it( 'compacts out malformed hex values without crashing', () => {
 				expect( () => renderWithSlots( [ '#ff', '#gggggg', '#00ff00' ] ) ).not.toThrow();
 
-				expect( colorAt( 0 ) ).toBe( '#ff' );
-				expect( colorAt( 1 ) ).toBe( '#gggggg' );
-				expect( colorAt( 2 ) ).toBe( '#00ff00' );
+				expect( colorAt( 0 ) ).toBe( '#00ff00' );
 			} );
 
 			it( 'keeps resolving the later slots after one fails to convert', () => {
@@ -2031,6 +2038,20 @@ describe( 'ChartContext', () => {
 				} ).color;
 
 				expect( [ '#ff0000', '#00ff00', '#0000ff' ] ).toContain( groupColor );
+			} );
+		} );
+
+		describe( 'Background-aware generation', () => {
+			it( 'generates colors legible on the background the scope resolves', () => {
+				renderWithSlots( [ '#3858e9' ], { '--a8c-charts-color-background': '#1e1e1e' } );
+
+				expect( contrastRatio( colorAt( 1 ), '#1e1e1e' ) ).toBeGreaterThanOrEqual( 3 );
+			} );
+
+			it( 'generates a valid hex color when the background is transparent', () => {
+				renderWithSlots( [ '#3858e9' ], { '--a8c-charts-color-background': 'transparent' } );
+
+				expect( colorAt( 1 ) ).toMatch( /^#[0-9a-f]{6}$/i );
 			} );
 		} );
 

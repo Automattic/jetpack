@@ -1,4 +1,3 @@
-import { hsl as d3Hsl } from '@visx/vendor/d3-color';
 import {
 	createContext,
 	useCallback,
@@ -17,6 +16,7 @@ import {
 	getItemShapeStyles,
 	getSeriesBarStyles,
 	getSeriesLineStyles,
+	isValidHexColor,
 	mergeThemes,
 	resolveCssVariable,
 	normalizeColorToHex,
@@ -24,12 +24,18 @@ import {
 import { sanitizeFormatting } from '../../utils/date-formatting';
 // Imported from the module rather than the `chart-scope` barrel: the barrel also pulls `use-standalone-scope-class`, which imports `GlobalChartsContext` back from this file. That cycle resolves today only because the binding is read lazily inside the hook body.
 import { ChartScopeContext } from '../chart-scope/chart-scope-context';
-import { getChartColor, type ColorCache } from './private/get-chart-color';
+import { CATALOG_POINTERS } from './private/catalog-pointers';
+import { createPaletteGenerator } from './private/palette-generator';
 import { SERIES_PALETTE_POINTERS } from './private/series-palette';
 import { defaultTheme } from './themes';
 import type { GlobalChartsContextValue, ChartRegistration } from './types';
 import type { ChartTheme, CompleteChartTheme } from '../../types';
 import type { FC, ReactNode } from 'react';
+
+interface ColorCache {
+	colors: string[];
+	colorAt: ( index: number ) => string;
+}
 
 export const GlobalChartsContext = createContext< GlobalChartsContextValue | null >( null );
 
@@ -83,10 +89,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 	// in <style> tags are applied to the DOM before we try to resolve them
 	const [ colorCache, setColorCache ] = useState< ColorCache >( () => ( {
 		colors: [],
-		hues: [],
-		existingHslColors: [],
-		minHue: 360,
-		maxHue: 0,
+		colorAt: createPaletteGenerator( [], '#ffffff' ),
 	} ) );
 
 	// Track if the color palette has been resolved from the DOM
@@ -100,45 +103,29 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 	useLayoutEffect( () => {
 		setIsColorPaletteResolved( false );
 		const resolvedColors: string[] = [];
-		const hues: number[] = [];
-		const existingHslColors: Array< [ number, number, number ] > = [];
-		let minHue = 360;
-		let maxHue = 0;
 
 		for ( const color of SERIES_PALETTE_POINTERS ) {
-			// Normalize color to hex format, handling CSS variables, RGB, HSL, etc.
-			// This uses normalizeColorToHex which resolves CSS variables and converts
-			// rgb(), rgba(), hsl() formats to hex
 			const normalizedColor = normalizeColorToHex( color, wrapperRef.current, resolveCssVariable );
 
-			// Only process valid hex colors. An unset palette slot returns its own
-			// `var()` unchanged, so this is also what compacts the palette: slots the
-			// consumer never set drop out here and `getChartColor` generates past
-			// whatever survived.
-			if ( normalizedColor.startsWith( '#' ) ) {
+			// An unset palette slot returns its own `var()` unchanged, so this is also what
+			// compacts the palette: a slot the consumer never set drops out here.
+			if ( isValidHexColor( normalizedColor ) ) {
 				resolvedColors.push( normalizedColor );
-				const hslColor = d3Hsl( normalizedColor );
-				// d3Hsl returns NaN values for invalid colors
-				if ( ! isNaN( hslColor.h ) ) {
-					const hslTuple: [ number, number, number ] = [
-						hslColor.h,
-						hslColor.s * 100,
-						hslColor.l * 100,
-					];
-					hues.push( hslTuple[ 0 ] );
-					existingHslColors.push( hslTuple );
-					minHue = Math.min( minHue, hslTuple[ 0 ] );
-					maxHue = Math.max( maxHue, hslTuple[ 0 ] );
-				}
 			}
 		}
 
+		const normalizedBackground = normalizeColorToHex(
+			CATALOG_POINTERS.background,
+			wrapperRef.current,
+			resolveCssVariable
+		);
+		const backgroundHex = isValidHexColor( normalizedBackground )
+			? normalizedBackground
+			: '#ffffff';
+
 		setColorCache( {
 			colors: resolvedColors,
-			hues,
-			existingHslColors,
-			minHue,
-			maxHue,
+			colorAt: createPaletteGenerator( resolvedColors, backgroundHex ),
 		} );
 	}, [] );
 
@@ -206,13 +193,13 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 				// Use map size as index to assign colors sequentially (0, 1, 2...)
 				// ensuring each new group gets the next available palette color
 				const assignedCount = groupToColorMap.size;
-				const color = getChartColor( assignedCount, colorCache );
+				const color = colorCache.colorAt( assignedCount );
 				groupToColorMap.set( group, color );
 
 				return color;
 			}
 
-			return getChartColor( index, colorCache );
+			return colorCache.colorAt( index );
 		},
 		[ colorCache, groupToColorMap ]
 	);
