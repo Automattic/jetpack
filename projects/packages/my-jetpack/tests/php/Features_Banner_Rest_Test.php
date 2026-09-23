@@ -4,17 +4,12 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Jetpack_Options;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
 use WP_REST_Request;
 use WP_REST_Server;
 
-/**
- * @covers \Automattic\Jetpack\My_Jetpack\REST_Main_Features
- */
-#[CoversClass( REST_Main_Features::class )]
 class Features_Banner_Rest_Test extends TestCase {
 
 	const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . Initializer::FEATURES_TAB_FEATURE_FLAG;
