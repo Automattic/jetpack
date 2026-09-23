@@ -638,3 +638,60 @@ $feature-icon-foreground: #0ced57;
 		animation: none;
 	}
 }
+
+// Styled as core's Tooltip, which cannot anchor to a sidebar item.
+.menu-pointer :global(.components-popover__content) {
+	background: gb.$gray-900;
+	border-radius: gb.$radius-small;
+	box-shadow: none;
+	color: gb.$white;
+	font-size: 12px;
+	line-height: 1.4;
+	padding-block: 4px;
+	padding-inline: 8px;
+	white-space: nowrap;
+}
+
+:global(#adminmenu) a:has(> .menu-pointer__dot) {
+	position: relative;
+}
+
+.menu-pointer__dot {
+	position: absolute;
+	inset-block-start: 50%;
+	inset-inline-end: 12px;
+	inline-size: 8px;
+	block-size: 8px;
+	margin-block-start: -4px;
+	border-radius: 50%;
+	background: var(--jp-green-40);
+
+	&::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+		background: inherit;
+		animation: menu-pointer-pulse 1.6s ease-out infinite;
+	}
+}
+
+@keyframes menu-pointer-pulse {
+
+	from {
+		opacity: 0.7;
+		transform: scale(1);
+	}
+
+	to {
+		opacity: 0;
+		transform: scale(3);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.menu-pointer__dot::after {
+		animation: none;
+	}
+}
