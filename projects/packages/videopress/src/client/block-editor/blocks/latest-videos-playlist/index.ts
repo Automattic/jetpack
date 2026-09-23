@@ -13,17 +13,17 @@ import Edit from './edit';
 /**
  * Types
  */
-import type { DynamicPlaylistAttributes } from './types';
+import type { LatestVideosPlaylistAttributes } from './types';
 
 export const { name, title, description, attributes, category } = metadata;
 
-registerBlockType< DynamicPlaylistAttributes >( name, {
+registerBlockType< LatestVideosPlaylistAttributes >( name, {
 	edit: Edit,
 	category,
 	title,
 	icon,
 	// Dynamic block: the markup is produced by the render callback in
-	// Initializer::render_videopress_dynamic_playlist_block().
+	// Initializer::render_videopress_latest_videos_playlist_block().
 	save: () => null,
 	attributes,
 } );

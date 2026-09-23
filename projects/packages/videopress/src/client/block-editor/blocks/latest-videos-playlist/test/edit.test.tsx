@@ -1,8 +1,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
-import DynamicPlaylistEdit from '../edit';
-import type { DynamicPlaylistAttributes } from '../types';
+import LatestVideosPlaylistEdit from '../edit';
+import type { LatestVideosPlaylistAttributes } from '../types';
 import type { BlockEditProps } from '@wordpress/blocks';
 
 // The publish-tracking hook has its own isolated test suite.
@@ -43,7 +43,7 @@ jest.mock( '../../../../lib/get-media-token', () => ( {
 
 const apiFetchMock = apiFetch as unknown as jest.Mock;
 
-const DEFAULT_ATTRIBUTES: DynamicPlaylistAttributes = {
+const DEFAULT_ATTRIBUTES: LatestVideosPlaylistAttributes = {
 	count: 5,
 	layout: 'side-rail',
 	darkPlayer: false,
@@ -67,16 +67,16 @@ const DEFAULT_ATTRIBUTES: DynamicPlaylistAttributes = {
  * @return The render result.
  */
 function renderEdit(
-	overrides: Partial< DynamicPlaylistAttributes > = {},
+	overrides: Partial< LatestVideosPlaylistAttributes > = {},
 	setAttributes: jest.Mock = jest.fn()
 ) {
 	const props = {
 		attributes: { ...DEFAULT_ATTRIBUTES, ...overrides },
 		setAttributes,
-		clientId: 'dynamic-playlist-client-1',
-	} as unknown as BlockEditProps< DynamicPlaylistAttributes >;
+		clientId: 'latest-videos-client-1',
+	} as unknown as BlockEditProps< LatestVideosPlaylistAttributes >;
 
-	return render( <DynamicPlaylistEdit { ...props } /> );
+	return render( <LatestVideosPlaylistEdit { ...props } /> );
 }
 
 /**
@@ -106,7 +106,7 @@ beforeEach( () => {
 	] );
 } );
 
-describe( 'DynamicPlaylistEdit', () => {
+describe( 'LatestVideosPlaylistEdit', () => {
 	it( 'previews the newest videos from the library', async () => {
 		renderEdit();
 
@@ -147,12 +147,12 @@ describe( 'DynamicPlaylistEdit', () => {
 		expect( setAttributes ).toHaveBeenCalledWith( { count: 8 } );
 
 		rerender(
-			<DynamicPlaylistEdit
+			<LatestVideosPlaylistEdit
 				{ ...( {
 					attributes: { ...DEFAULT_ATTRIBUTES, count: 8 },
 					setAttributes,
-					clientId: 'dynamic-playlist-client-1',
-				} as unknown as BlockEditProps< DynamicPlaylistAttributes > ) }
+					clientId: 'latest-videos-client-1',
+				} as unknown as BlockEditProps< LatestVideosPlaylistAttributes > ) }
 			/>
 		);
 

@@ -71,20 +71,20 @@ describe( 'usePublishTracking', () => {
 
 	it( 'reports for another block type under its own event name', () => {
 		mockIsPublishing = true;
-		mockPlaylistClientIds = [ 'dynamic-client-1' ];
+		mockPlaylistClientIds = [ 'latest-videos-client-1' ];
 
 		renderHook( () =>
 			usePublishTracking( {
-				clientId: 'dynamic-client-1',
+				clientId: 'latest-videos-client-1',
 				layout: 'grid',
 				videoCount: 4,
-				blockName: 'videopress/dynamic-playlist',
-				eventName: 'jetpack_videopress_dynamic_playlist_block_published',
+				blockName: 'videopress/latest-videos-playlist',
+				eventName: 'jetpack_videopress_latest_videos_playlist_block_published',
 			} )
 		);
 
 		expect( recordEventMock ).toHaveBeenCalledWith(
-			'jetpack_videopress_dynamic_playlist_block_published',
+			'jetpack_videopress_latest_videos_playlist_block_published',
 			{
 				post_type: 'post',
 				layout: 'grid',

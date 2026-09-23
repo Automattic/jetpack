@@ -275,7 +275,7 @@ export function initPlaylistBlock( root: HTMLElement ) {
 export function initAllPlaylistBlocks() {
 	document
 		.querySelectorAll< HTMLElement >(
-			'.wp-block-videopress-playlist, .wp-block-videopress-dynamic-playlist'
+			'.wp-block-videopress-playlist, .wp-block-videopress-latest-videos-playlist'
 		)
 		.forEach( initPlaylistBlock );
 }

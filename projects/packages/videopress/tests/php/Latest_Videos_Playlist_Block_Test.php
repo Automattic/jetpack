@@ -15,8 +15,8 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use WorDBless\BaseTestCase;
 
 /**
- * Test suite for Initializer::register_videopress_dynamic_playlist_block,
- * Initializer::render_videopress_dynamic_playlist_block and
+ * Test suite for Initializer::register_videopress_latest_videos_playlist_block,
+ * Initializer::render_videopress_latest_videos_playlist_block and
  * Data::get_latest_videopress_playlist_entries.
  *
  * Runs in separate processes for the same reason as Playlist_Block_Test:
@@ -27,7 +27,7 @@ use WorDBless\BaseTestCase;
  */
 #[RunTestsInSeparateProcesses]
 #[PreserveGlobalState( false )]
-class Dynamic_Playlist_Block_Test extends BaseTestCase {
+class Latest_Videos_Playlist_Block_Test extends BaseTestCase {
 
 	/**
 	 * Directories holding the block.json fixtures written for registration tests.
@@ -56,7 +56,7 @@ class Dynamic_Playlist_Block_Test extends BaseTestCase {
 	 */
 	protected function set_up() {
 		\WP_Block_Supports::$block_to_render = array(
-			'blockName' => 'videopress/dynamic-playlist',
+			'blockName' => 'videopress/latest-videos-playlist',
 			'attrs'     => array(),
 		);
 
@@ -80,7 +80,7 @@ class Dynamic_Playlist_Block_Test extends BaseTestCase {
 		$this->captured_query = null;
 
 		$registry = \WP_Block_Type_Registry::get_instance();
-		foreach ( array( 'videopress/dynamic-playlist', 'videopress/playlist' ) as $name ) {
+		foreach ( array( 'videopress/latest-videos-playlist', 'videopress/playlist' ) as $name ) {
 			if ( $registry->is_registered( $name ) ) {
 				unregister_block_type( $name );
 			}
@@ -143,7 +143,7 @@ class Dynamic_Playlist_Block_Test extends BaseTestCase {
 	 */
 	private function write_fixture( $name ) {
 		// register_block_type() only accepts metadata files named block.json.
-		$dir = get_temp_dir() . 'dynamic-playlist-block-' . wp_generate_password( 8, false );
+		$dir = get_temp_dir() . 'latest-videos-playlist-block-' . wp_generate_password( 8, false );
 		mkdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
 		file_put_contents( // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 			$dir . '/block.json',
@@ -283,16 +283,16 @@ class Dynamic_Playlist_Block_Test extends BaseTestCase {
 
 		// Registered, so the wrapper carries the block class the view script looks for.
 		VideoPress_Initializer::register_videopress_playlist_block( $this->write_fixture( 'videopress/playlist' ) );
-		VideoPress_Initializer::register_videopress_dynamic_playlist_block( $this->write_fixture( 'videopress/dynamic-playlist' ) );
+		VideoPress_Initializer::register_videopress_latest_videos_playlist_block( $this->write_fixture( 'videopress/latest-videos-playlist' ) );
 
-		$markup = VideoPress_Initializer::render_videopress_dynamic_playlist_block(
+		$markup = VideoPress_Initializer::render_videopress_latest_videos_playlist_block(
 			array(
 				'count'  => 5,
 				'layout' => 'grid',
 			)
 		);
 
-		$this->assertStringContainsString( 'wp-block-videopress-dynamic-playlist', $markup );
+		$this->assertStringContainsString( 'wp-block-videopress-latest-videos-playlist', $markup );
 		$this->assertStringContainsString( 'videopress-playlist is-layout-grid', $markup );
 		$this->assertStringContainsString( 'data-guid="newest02"', $markup );
 		$this->assertStringContainsString( 'data-guid="oldest01"', $markup );
@@ -315,23 +315,23 @@ class Dynamic_Playlist_Block_Test extends BaseTestCase {
 			$this->create_video( 'video00' . $i, '2024-0' . $i . '-01 10:00:00' );
 		}
 
-		$one = VideoPress_Initializer::render_videopress_dynamic_playlist_block( array( 'count' => 1 ) );
+		$one = VideoPress_Initializer::render_videopress_latest_videos_playlist_block( array( 'count' => 1 ) );
 		$this->assertSame( 1, substr_count( $one, 'data-guid=' ) );
 		$this->assertStringContainsString( 'data-guid="video003"', $one );
 
-		$clamped = VideoPress_Initializer::render_videopress_dynamic_playlist_block( array( 'count' => 0 ) );
+		$clamped = VideoPress_Initializer::render_videopress_latest_videos_playlist_block( array( 'count' => 0 ) );
 		$this->assertSame( 1, substr_count( $clamped, 'data-guid=' ) );
 
-		$default = VideoPress_Initializer::render_videopress_dynamic_playlist_block( array( 'count' => 'lots' ) );
+		$default = VideoPress_Initializer::render_videopress_latest_videos_playlist_block( array( 'count' => 'lots' ) );
 		$this->assertSame( 3, substr_count( $default, 'data-guid=' ) );
 		$this->assertSame(
-			VideoPress_Initializer::DYNAMIC_PLAYLIST_DEFAULT_COUNT,
+			VideoPress_Initializer::LATEST_VIDEOS_PLAYLIST_DEFAULT_COUNT,
 			$this->captured_query->get( 'posts_per_page' )
 		);
 
-		VideoPress_Initializer::render_videopress_dynamic_playlist_block( array( 'count' => 999 ) );
+		VideoPress_Initializer::render_videopress_latest_videos_playlist_block( array( 'count' => 999 ) );
 		$this->assertSame(
-			VideoPress_Initializer::DYNAMIC_PLAYLIST_MAX_COUNT,
+			VideoPress_Initializer::LATEST_VIDEOS_PLAYLIST_MAX_COUNT,
 			$this->captured_query->get( 'posts_per_page' )
 		);
 	}
@@ -342,7 +342,7 @@ class Dynamic_Playlist_Block_Test extends BaseTestCase {
 	public function test_render_ignores_a_stored_videos_attribute() {
 		$this->create_video( 'library1', '2024-01-01 10:00:00' );
 
-		$markup = VideoPress_Initializer::render_videopress_dynamic_playlist_block(
+		$markup = VideoPress_Initializer::render_videopress_latest_videos_playlist_block(
 			array(
 				'videos' => array( array( 'guid' => 'injected' ) ),
 			)
@@ -358,33 +358,33 @@ class Dynamic_Playlist_Block_Test extends BaseTestCase {
 	public function test_render_returns_empty_without_videos() {
 		$this->create_attachment( 'video/mp4', '2024-04-01 10:00:00' );
 
-		$this->assertSame( '', VideoPress_Initializer::render_videopress_dynamic_playlist_block( array() ) );
+		$this->assertSame( '', VideoPress_Initializer::render_videopress_latest_videos_playlist_block( array() ) );
 	}
 
 	/**
 	 * Registration reads the metadata file and registers the block once, after the playlist block.
 	 */
-	public function test_register_videopress_dynamic_playlist_block() {
+	public function test_register_videopress_latest_videos_playlist_block() {
 		$registry = \WP_Block_Type_Registry::get_instance();
-		$fixture  = $this->write_fixture( 'videopress/dynamic-playlist' );
+		$fixture  = $this->write_fixture( 'videopress/latest-videos-playlist' );
 
 		// It borrows the playlist block's assets, so it waits for that block.
-		VideoPress_Initializer::register_videopress_dynamic_playlist_block( $fixture );
-		$this->assertFalse( $registry->is_registered( 'videopress/dynamic-playlist' ) );
+		VideoPress_Initializer::register_videopress_latest_videos_playlist_block( $fixture );
+		$this->assertFalse( $registry->is_registered( 'videopress/latest-videos-playlist' ) );
 
 		VideoPress_Initializer::register_videopress_playlist_block( $this->write_fixture( 'videopress/playlist' ) );
-		VideoPress_Initializer::register_videopress_dynamic_playlist_block( $fixture );
-		$this->assertTrue( $registry->is_registered( 'videopress/dynamic-playlist' ) );
+		VideoPress_Initializer::register_videopress_latest_videos_playlist_block( $fixture );
+		$this->assertTrue( $registry->is_registered( 'videopress/latest-videos-playlist' ) );
 
-		$block_type = $registry->get_registered( 'videopress/dynamic-playlist' );
+		$block_type = $registry->get_registered( 'videopress/latest-videos-playlist' );
 		$this->assertSame(
-			array( VideoPress_Initializer::class, 'render_videopress_dynamic_playlist_block' ),
+			array( VideoPress_Initializer::class, 'render_videopress_latest_videos_playlist_block' ),
 			$block_type->render_callback
 		);
 
 		// A second call must not fatal on the already-registered block.
-		VideoPress_Initializer::register_videopress_dynamic_playlist_block( $fixture );
-		$this->assertTrue( $registry->is_registered( 'videopress/dynamic-playlist' ) );
+		VideoPress_Initializer::register_videopress_latest_videos_playlist_block( $fixture );
+		$this->assertTrue( $registry->is_registered( 'videopress/latest-videos-playlist' ) );
 	}
 
 	/**
@@ -392,10 +392,10 @@ class Dynamic_Playlist_Block_Test extends BaseTestCase {
 	 */
 	public function test_register_without_metadata_file_is_a_noop() {
 		VideoPress_Initializer::register_videopress_playlist_block( $this->write_fixture( 'videopress/playlist' ) );
-		VideoPress_Initializer::register_videopress_dynamic_playlist_block( '/nonexistent/block.json' );
+		VideoPress_Initializer::register_videopress_latest_videos_playlist_block( '/nonexistent/block.json' );
 
 		$this->assertFalse(
-			\WP_Block_Type_Registry::get_instance()->is_registered( 'videopress/dynamic-playlist' )
+			\WP_Block_Type_Registry::get_instance()->is_registered( 'videopress/latest-videos-playlist' )
 		);
 	}
 
@@ -405,21 +405,21 @@ class Dynamic_Playlist_Block_Test extends BaseTestCase {
 	 */
 	public function test_register_defaults_to_build_metadata() {
 		VideoPress_Initializer::register_videopress_playlist_block();
-		VideoPress_Initializer::register_videopress_dynamic_playlist_block();
+		VideoPress_Initializer::register_videopress_latest_videos_playlist_block();
 
 		$initializer_dir = dirname( ( new \ReflectionClass( VideoPress_Initializer::class ) )->getFileName() );
-		$build_metadata  = $initializer_dir . '/../build/block-editor/blocks/dynamic-playlist/block.json';
+		$build_metadata  = $initializer_dir . '/../build/block-editor/blocks/latest-videos-playlist/block.json';
 
 		$registry = \WP_Block_Type_Registry::get_instance();
 
 		// Registered exactly when the package build output exists.
-		$this->assertSame( file_exists( $build_metadata ), $registry->is_registered( 'videopress/dynamic-playlist' ) );
+		$this->assertSame( file_exists( $build_metadata ), $registry->is_registered( 'videopress/latest-videos-playlist' ) );
 
 		if ( ! file_exists( $build_metadata ) ) {
 			return;
 		}
 
-		$block_type = $registry->get_registered( 'videopress/dynamic-playlist' );
+		$block_type = $registry->get_registered( 'videopress/latest-videos-playlist' );
 		$this->assertSame( array( 'videopress-playlist-view-script' ), $block_type->view_script_handles );
 		$this->assertSame( array( 'videopress-playlist-view-style' ), $block_type->view_style_handles );
 		$this->assertSame(

@@ -24,8 +24,8 @@ class VideoPress_Video_Extension_Test extends WP_UnitTestCase {
 	/** @var string|null Temporary block.json fixture path. */
 	private $temp_fixture = null;
 
-	/** @var string|null Temporary dynamic playlist block.json fixture path. */
-	private $temp_dynamic_fixture = null;
+	/** @var string|null Temporary latest videos playlist block.json fixture path. */
+	private $temp_latest_videos_fixture = null;
 
 	/** @var string|null Temporary directory holding the fixture. */
 	private $temp_dir = null;
@@ -37,10 +37,10 @@ class VideoPress_Video_Extension_Test extends WP_UnitTestCase {
 		parent::set_up();
 
 		$dir = sys_get_temp_dir() . '/videopress-test-' . uniqid();
-		mkdir( $dir . '/dynamic', 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
-		$this->temp_dir             = $dir;
-		$this->temp_fixture         = $dir . '/block.json';
-		$this->temp_dynamic_fixture = $dir . '/dynamic/block.json';
+		mkdir( $dir . '/latest-videos', 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+		$this->temp_dir                   = $dir;
+		$this->temp_fixture               = $dir . '/block.json';
+		$this->temp_latest_videos_fixture = $dir . '/latest-videos/block.json';
 		file_put_contents( // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 			$this->temp_fixture,
 			wp_json_encode(
@@ -53,11 +53,11 @@ class VideoPress_Video_Extension_Test extends WP_UnitTestCase {
 			)
 		);
 		file_put_contents( // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-			$this->temp_dynamic_fixture,
+			$this->temp_latest_videos_fixture,
 			wp_json_encode(
 				array(
 					'apiVersion' => 3,
-					'name'       => 'videopress/dynamic-playlist',
+					'name'       => 'videopress/latest-videos-playlist',
 					'title'      => 'Latest Videos Playlist',
 				),
 				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
@@ -70,25 +70,25 @@ class VideoPress_Video_Extension_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		$registry = \WP_Block_Type_Registry::get_instance();
-		foreach ( array( 'videopress/dynamic-playlist', 'videopress/playlist' ) as $name ) {
+		foreach ( array( 'videopress/latest-videos-playlist', 'videopress/playlist' ) as $name ) {
 			if ( $registry->is_registered( $name ) ) {
 				unregister_block_type( $name );
 			}
 		}
 
-		foreach ( array( $this->temp_dynamic_fixture, $this->temp_fixture ) as $fixture ) {
+		foreach ( array( $this->temp_latest_videos_fixture, $this->temp_fixture ) as $fixture ) {
 			if ( $fixture && file_exists( $fixture ) ) {
 				wp_delete_file( $fixture );
 			}
 		}
 		if ( $this->temp_dir && is_dir( $this->temp_dir ) ) {
-			rmdir( $this->temp_dir . '/dynamic' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+			rmdir( $this->temp_dir . '/latest-videos' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
 			rmdir( $this->temp_dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
 		}
 
-		$this->temp_fixture         = null;
-		$this->temp_dynamic_fixture = null;
-		$this->temp_dir             = null;
+		$this->temp_fixture               = null;
+		$this->temp_latest_videos_fixture = null;
+		$this->temp_dir                   = null;
 
 		parent::tear_down();
 	}
@@ -132,24 +132,24 @@ class VideoPress_Video_Extension_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The dynamic playlist block follows the playlist block's registration.
+	 * The latest videos playlist block follows the playlist block's registration.
 	 */
-	public function test_dynamic_playlist_block_follows_playlist_block_registration() {
+	public function test_latest_videos_playlist_block_follows_playlist_block_registration() {
 		$registry = \WP_Block_Type_Registry::get_instance();
 
-		Automattic\Jetpack\Extensions\VideoPress_Video\register_videopress_blocks( $this->temp_fixture, $this->temp_dynamic_fixture );
+		Automattic\Jetpack\Extensions\VideoPress_Video\register_videopress_blocks( $this->temp_fixture, $this->temp_latest_videos_fixture );
 		$this->assertFalse(
-			$registry->is_registered( 'videopress/dynamic-playlist' ),
-			'videopress/dynamic-playlist must not be registered when the VideoPress module is inactive.'
+			$registry->is_registered( 'videopress/latest-videos-playlist' ),
+			'videopress/latest-videos-playlist must not be registered when the VideoPress module is inactive.'
 		);
 
 		add_filter( 'jetpack_active_modules', array( $this, 'filter_add_videopress_module' ) );
-		Automattic\Jetpack\Extensions\VideoPress_Video\register_videopress_blocks( $this->temp_fixture, $this->temp_dynamic_fixture );
+		Automattic\Jetpack\Extensions\VideoPress_Video\register_videopress_blocks( $this->temp_fixture, $this->temp_latest_videos_fixture );
 		remove_filter( 'jetpack_active_modules', array( $this, 'filter_add_videopress_module' ) );
 
 		$this->assertTrue(
-			$registry->is_registered( 'videopress/dynamic-playlist' ),
-			'videopress/dynamic-playlist must be registered when the VideoPress module is active.'
+			$registry->is_registered( 'videopress/latest-videos-playlist' ),
+			'videopress/latest-videos-playlist must be registered when the VideoPress module is active.'
 		);
 	}
 

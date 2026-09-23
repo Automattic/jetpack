@@ -197,7 +197,7 @@ describe( 'initPlaylistBlock', () => {
 
 	it( 'initializes Latest Videos Playlist blocks too', () => {
 		document.body.innerHTML = `
-			<figure class="wp-block-videopress-dynamic-playlist videopress-playlist" data-autoplay-next="0" data-loop="0">
+			<figure class="wp-block-videopress-latest-videos-playlist videopress-playlist" data-autoplay-next="0" data-loop="0">
 				<iframe class="videopress-playlist__iframe" src="about:blank" title="First"></iframe>
 				<ol class="videopress-playlist__entries">
 					<li><button type="button" class="videopress-playlist__select is-current" data-guid="aaaaaaaa" data-embed-url="${ EMBED_A }"></button></li>

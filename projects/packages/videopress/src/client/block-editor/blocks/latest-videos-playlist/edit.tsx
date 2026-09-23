@@ -23,7 +23,7 @@ import {
 /**
  * Types
  */
-import type { DynamicPlaylistAttributes } from './types';
+import type { LatestVideosPlaylistAttributes } from './types';
 import type { PlaylistEntry } from '../playlist/types';
 import type { BlockEditProps } from '@wordpress/blocks';
 
@@ -42,11 +42,11 @@ type LoadStatus = 'loading' | 'ready' | 'error';
  * @param props.clientId      - This block instance's client id.
  * @return Edit component.
  */
-export default function DynamicPlaylistEdit( {
+export default function LatestVideosPlaylistEdit( {
 	attributes,
 	setAttributes,
 	clientId,
-}: BlockEditProps< DynamicPlaylistAttributes > ) {
+}: BlockEditProps< LatestVideosPlaylistAttributes > ) {
 	const { count, layout, entryTitleFontFamily } = attributes;
 
 	const [ videos, setVideos ] = useState< PlaylistEntry[] >( [] );
@@ -82,8 +82,8 @@ export default function DynamicPlaylistEdit( {
 		clientId,
 		layout,
 		videoCount: videos.length,
-		blockName: 'videopress/dynamic-playlist',
-		eventName: 'jetpack_videopress_dynamic_playlist_block_published',
+		blockName: 'videopress/latest-videos-playlist',
+		eventName: 'jetpack_videopress_latest_videos_playlist_block_published',
 	} );
 
 	const currentIndex = Math.min( previewIndex, Math.max( 0, videos.length - 1 ) );

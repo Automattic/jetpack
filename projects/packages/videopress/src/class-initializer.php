@@ -16,9 +16,9 @@ class Initializer {
 	 * Bounds of the Latest Videos Playlist block's "Number of videos" setting;
 	 * the editor control uses the same range.
 	 */
-	const DYNAMIC_PLAYLIST_MIN_COUNT     = 1;
-	const DYNAMIC_PLAYLIST_MAX_COUNT     = 20;
-	const DYNAMIC_PLAYLIST_DEFAULT_COUNT = 5;
+	const LATEST_VIDEOS_PLAYLIST_MIN_COUNT     = 1;
+	const LATEST_VIDEOS_PLAYLIST_MAX_COUNT     = 20;
+	const LATEST_VIDEOS_PLAYLIST_DEFAULT_COUNT = 5;
 
 	const JETPACK_VIDEOPRESS_IFRAME_API_HANDLER = 'jetpack-videopress-iframe-api';
 
@@ -287,7 +287,7 @@ class Initializer {
 		self::register_videopress_playlist_block();
 
 		// Register Latest Videos Playlist block.
-		self::register_videopress_dynamic_playlist_block();
+		self::register_videopress_latest_videos_playlist_block();
 	}
 
 	/**
@@ -656,13 +656,13 @@ class Initializer {
 	 *
 	 * @return void
 	 */
-	public static function register_videopress_dynamic_playlist_block( $metadata_file = null ) {
+	public static function register_videopress_latest_videos_playlist_block( $metadata_file = null ) {
 		if ( ! \WP_Block_Type_Registry::get_instance()->is_registered( 'videopress/playlist' ) ) {
 			return;
 		}
 
 		if ( null === $metadata_file ) {
-			$metadata_file = __DIR__ . '/../build/block-editor/blocks/dynamic-playlist/block.json';
+			$metadata_file = __DIR__ . '/../build/block-editor/blocks/latest-videos-playlist/block.json';
 		}
 
 		if ( ! file_exists( $metadata_file ) ) {
@@ -683,7 +683,7 @@ class Initializer {
 		register_block_type(
 			$metadata_file,
 			array(
-				'render_callback' => array( __CLASS__, 'render_videopress_dynamic_playlist_block' ),
+				'render_callback' => array( __CLASS__, 'render_videopress_latest_videos_playlist_block' ),
 			)
 		);
 	}
@@ -698,11 +698,11 @@ class Initializer {
 	 *
 	 * @return string Block markup, or an empty string when the site has no VideoPress videos.
 	 */
-	public static function render_videopress_dynamic_playlist_block( $block_attributes, $content = '', $block = null ) {
+	public static function render_videopress_latest_videos_playlist_block( $block_attributes, $content = '', $block = null ) {
 		$count = isset( $block_attributes['count'] ) && is_numeric( $block_attributes['count'] )
 			? (int) $block_attributes['count']
-			: self::DYNAMIC_PLAYLIST_DEFAULT_COUNT;
-		$count = max( self::DYNAMIC_PLAYLIST_MIN_COUNT, min( self::DYNAMIC_PLAYLIST_MAX_COUNT, $count ) );
+			: self::LATEST_VIDEOS_PLAYLIST_DEFAULT_COUNT;
+		$count = max( self::LATEST_VIDEOS_PLAYLIST_MIN_COUNT, min( self::LATEST_VIDEOS_PLAYLIST_MAX_COUNT, $count ) );
 
 		$block_attributes['videos'] = Data::get_latest_videopress_playlist_entries( $count );
 
