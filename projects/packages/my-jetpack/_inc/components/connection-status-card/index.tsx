@@ -1,9 +1,16 @@
-import { CONNECTION_STORE_ID, ManageConnectionDialog } from '@automattic/jetpack-connection';
-import { currentUserCan, getAdminUrl, isWoASite } from '@automattic/jetpack-script-data';
+import {
+	CONNECTION_STORE_ID,
+	ConnectionErrorDetails,
+	getReconnectErrorMessage,
+	ManageConnectionDialog,
+	useConnectionErrorNotice,
+} from '@automattic/jetpack-connection';
+import { currentUserCan, isWoASite } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Icon, error as errorIcon } from '@wordpress/icons';
+import { Button as UIButton, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useMemo, useState } from 'react';
 import {
@@ -17,6 +24,7 @@ import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import { assignLocation } from '../../hooks/use-notification-watcher/assignLocation';
 import { ConnectionOwnerInfo } from './connection-owner-info';
 import styles from './styles.module.scss';
 import { useConnectionState } from './use-connection-state';
@@ -126,12 +134,22 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		[ connectUserFn, recordEvent, tracksEventData ]
 	);
 
-	const state = useConnectionState();
+	// The same package data the My Jetpack connection error notice runs on, so the
+	// card describes a live error in the notice's words and offers its CTAs, rather
+	// than a second account of the same fault.
+	const {
+		hasConnectionError,
+		severity,
+		errorTitle,
+		errorGroups,
+		showSupportLink,
+		actions,
+		restoreConnectionError,
+	} = useConnectionErrorNotice( {
+		navigate: assignLocation,
+	} );
 
-	// The link navigates on its own; this only records that it was taken.
-	const handleViewSiteHealth = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_connection_site_health_click', tracksEventData );
-	}, [ recordEvent, tracksEventData ] );
+	const state = useConnectionState( { hasConnectionError, severity, errorTitle } );
 
 	// Prevent opening dialog for WoA sites when user is connection owner
 	const isConnectionOwner = userConnectionData.currentUser?.isMaster;
@@ -162,6 +180,13 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 
 			<section className={ styles[ 'connection-state' ] }>
 				<h4>
+					{ ( state.isDiagnosis || hasConnectionError || ! isRegistered ) && (
+						<Icon
+							className={ clsx( styles[ 'state-icon' ], styles[ state.status ] ) }
+							icon={ errorIcon }
+							size={ 24 }
+						/>
+					) }
 					{ /* While the label diagnoses a fault it is text only: a chevron there would
 					     promise a fix and open the disconnect dialog. Manage connection moves
 					     down into the named actions instead. */ }
@@ -191,32 +216,59 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 						</Button>
 					) }
 				</h4>
-				<div>
-					<Text variant="body-md" className={ styles.description }>
-						{ state.description }
-					</Text>
-					<Stack direction="row" wrap="wrap" align="center" gap="lg">
-						{ state.action === 'CONNECT_USER' ? (
-							<Button variant="link" onClick={ handleConnectUser }>
-								{ __( 'Connect my account', 'jetpack-my-jetpack' ) }
-							</Button>
-						) : null }
-						{ state.action === 'VIEW_SITE_HEALTH' ? (
-							<Button
-								variant="link"
-								href={ getAdminUrl( 'site-health.php' ) }
-								onClick={ handleViewSiteHealth }
-							>
-								{ __( 'Check your site’s health', 'jetpack-my-jetpack' ) }
-							</Button>
-						) : null }
-						{ state.isDiagnosis && allowDisconnect ? (
-							<Button variant="link" onClick={ openManageSiteConnectionFromAction }>
-								{ __( 'Manage connection', 'jetpack-my-jetpack' ) }
-							</Button>
-						) : null }
+				{ state.isDiagnosis ? (
+					<Stack direction="column" gap="md">
+						<Stack direction="column" gap="xs" className={ styles.details }>
+							{ restoreConnectionError && (
+								<Text variant="body-sm">
+									{ getReconnectErrorMessage( restoreConnectionError ) }
+								</Text>
+							) }
+							{ /* The card's body copy is a step below a notice's, so the shared
+							     description is asked for at the card's size. */ }
+							<ConnectionErrorDetails
+								variant="body-sm"
+								errorGroups={ errorGroups }
+								showSupportLink={ showSupportLink }
+							/>
+						</Stack>
+						{ /* Repairing the connection is the whole point of the card in this state,
+						     so the package's repair is a button with the card's own action as a
+						     link beneath it. The lead is the first action rather than a `primary`
+						     one: the package leaves `variant` unset on the common restore case. */ }
+						<Stack direction="column" align="start" gap="sm">
+							{ actions.map( ( action, index ) => (
+								<UIButton
+									key={ action.label }
+									variant={ index === 0 ? 'solid' : 'outline' }
+									onClick={ action.onClick }
+									loading={ action.isLoading }
+									loadingAnnouncement={ action.loadingText }
+								>
+									{ action.label }
+								</UIButton>
+							) ) }
+							{ allowDisconnect ? (
+								<Button variant="link" onClick={ openManageSiteConnectionFromAction }>
+									{ __( 'Manage connection', 'jetpack-my-jetpack' ) }
+								</Button>
+							) : null }
+						</Stack>
 					</Stack>
-				</div>
+				) : (
+					<div>
+						<Text variant="body-md" className={ styles.description }>
+							{ state.description }
+						</Text>
+						<Stack direction="row" wrap="wrap" align="center" gap="lg">
+							{ state.action === 'CONNECT_USER' ? (
+								<Button variant="link" onClick={ handleConnectUser }>
+									{ __( 'Connect my account', 'jetpack-my-jetpack' ) }
+								</Button>
+							) : null }
+						</Stack>
+					</div>
+				) }
 			</section>
 
 			<ConnectionOwnerInfo />

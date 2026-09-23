@@ -4,12 +4,11 @@ import useConnection from '../../components/use-connection';
 import useRestoreConnection from '../../hooks/use-restore-connection';
 import { getConnectionErrorDetails, isConnectionErrorMap } from './error-details';
 import { resolveConnectionErrorActions } from './resolve-actions';
-import { getConnectionErrorScope, getConnectionErrorSeverity } from './scope';
+import { getConnectionErrorSeverity } from './severity';
 import type {
 	ConnectionErrorMap,
 	ConnectionErrorObject,
 	ConnectionErrorProps,
-	ConnectionErrorScope,
 	ConnectionErrorSeverity,
 	ConnectionErrorViewer,
 	UseConnectionErrorNoticeResult,
@@ -153,15 +152,12 @@ export default function useConnectionErrorNotice( {
 	// message — the filtering undone by the flag that was meant to respect it.
 	const hasConnectionError = displayableErrors.length > 0;
 
-	// Which half of the connection is at fault and how much it matters to this
-	// viewer. Derived here so a notice and a status surface built on this hook
-	// cannot rate the same break differently.
-	const scope: ConnectionErrorScope | null = useMemo(
-		() => getConnectionErrorScope( displayableErrors, viewer ),
+	// How much of a problem the break is for this viewer. Derived here so a notice
+	// and a status surface built on this hook cannot rate the same break differently.
+	const severity: ConnectionErrorSeverity | null = useMemo(
+		() => getConnectionErrorSeverity( displayableErrors, viewer ),
 		[ displayableErrors, viewer ]
 	);
-	const severity: ConnectionErrorSeverity | null =
-		scope === null ? null : getConnectionErrorSeverity( scope );
 
 	// A caller that reads the error set without offering a CTA opts out, and skips
 	// the action objects, their labels and their bound callbacks with it.
@@ -193,7 +189,6 @@ export default function useConnectionErrorNotice( {
 
 	return {
 		hasConnectionError,
-		scope,
 		severity,
 		connectionErrorMessage,
 		connectionError: actionError, // Full error object with error_type, etc.

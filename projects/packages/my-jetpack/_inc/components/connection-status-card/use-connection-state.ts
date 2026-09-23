@@ -1,13 +1,13 @@
-import { useConnectionStatusSummary } from '@automattic/jetpack-connection';
 import { currentUserCan } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import type { ConnectionErrorScope, ConnectionErrorSeverity } from '@automattic/jetpack-connection';
+import type { ConnectionErrorSeverity } from '@automattic/jetpack-connection';
 
 export type ConnectionState = {
 	label: string;
-	description: string;
-	action?: 'CONNECT_USER' | 'CONNECT_SITE' | 'VIEW_SITE_HEALTH';
+	/** The card's own copy. Absent while an error is on screen: the package's words describe it instead. */
+	description?: string;
+	action?: 'CONNECT_USER' | 'CONNECT_SITE';
 	status: 'error' | 'warning' | 'success';
 	// True only when the label is a diagnosis rather than a standing. The card then
 	// stops using the label as the Manage connection trigger, so a chevron beside
@@ -16,73 +16,25 @@ export type ConnectionState = {
 };
 
 /**
- * Put My Jetpack's words to the connection standing the package reported.
- *
- * Every branch here is a diagnosis, so the caller stamps `isDiagnosis` once rather
- * than each branch repeating it.
- *
- * @param {ConnectionErrorScope}    scope    - The half of the connection at fault.
- * @param {ConnectionErrorSeverity} severity - How much of a problem it is for this viewer.
- * @return {ConnectionState} The label, description and status to render.
+ * What the connection package reported about a live error, as the card reads it.
  */
-function getConnectionErrorState(
-	scope: ConnectionErrorScope,
-	severity: ConnectionErrorSeverity
-): Omit< ConnectionState, 'isDiagnosis' > {
-	const action = currentUserCan( 'manage_options' ) ? ( 'VIEW_SITE_HEALTH' as const ) : undefined;
-
-	switch ( scope ) {
-		case 'site':
-			return {
-				label: __( 'Site connection needs attention', 'jetpack-my-jetpack' ),
-				description: __(
-					'Your site’s connection to WordPress.com isn’t working, so some features are paused.',
-					'jetpack-my-jetpack'
-				),
-				action,
-				status: severity,
-			};
-
-		case 'account':
-			return {
-				label: __( 'Account connection needs attention', 'jetpack-my-jetpack' ),
-				description: __(
-					'Your WordPress.com account connection isn’t working, so some features are paused.',
-					'jetpack-my-jetpack'
-				),
-				action,
-				status: severity,
-			};
-
-		case 'owner-account':
-			return {
-				label: __( 'Connection needs attention', 'jetpack-my-jetpack' ),
-				description: __(
-					'The connection owner needs to reconnect their account before some features work again.',
-					'jetpack-my-jetpack'
-				),
-				action,
-				status: severity,
-			};
-
-		default:
-			return {
-				label: __( 'Connection needs attention', 'jetpack-my-jetpack' ),
-				description: __( 'There’s a problem with your Jetpack connection.', 'jetpack-my-jetpack' ),
-				action,
-				status: severity,
-			};
-	}
-}
+export type ConnectionErrorStanding = {
+	/** Whether there is an error worth showing this viewer. */
+	hasConnectionError: boolean;
+	/** How much of a problem it is for them, or null when nothing is broken. */
+	severity: ConnectionErrorSeverity | null;
+	/** The package's headline for the error, shown in place of the card's own label. */
+	errorTitle: string;
+};
 
 /**
  * Hook to determine the connection state of the site and user.
  *
+ * @param {ConnectionErrorStanding} error - What the connection package reported, read by the card so the two agree on one rating.
  * @return The connection state
  */
-export function useConnectionState(): ConnectionState {
+export function useConnectionState( error: ConnectionErrorStanding ): ConnectionState {
 	const { isRegistered, isUserConnected, hasConnectedOwner } = useMyJetpackConnection();
-	const connection = useConnectionStatusSummary();
 
 	if ( ! isRegistered ) {
 		// Ideally, we should never reach this point as the status is shown only when the site is connected.
@@ -97,9 +49,12 @@ export function useConnectionState(): ConnectionState {
 	// We are here, which means the site is connected.
 
 	if ( isUserConnected ) {
-		if ( connection.hasConnectionError ) {
+		if ( error.hasConnectionError ) {
+			// The label, the description and the CTAs are all the package's, so the card
+			// and the notice above it say the same thing about the same error.
 			return {
-				...getConnectionErrorState( connection.scope, connection.severity ),
+				label: error.errorTitle,
+				status: error.severity ?? 'error',
 				isDiagnosis: true,
 			};
 		}
@@ -117,7 +72,7 @@ export function useConnectionState(): ConnectionState {
 	// line, and never displaces the call to action. The tint is the package's
 	// rating, not a flat 'error': a break only the owner can repair stays a warning
 	// for everybody else, as it does once the account is connected.
-	const status = connection.hasConnectionError ? connection.severity : 'warning';
+	const status = error.hasConnectionError ? ( error.severity ?? 'error' ) : 'warning';
 
 	// If the user is not an admin, they can't connect their account unless an admin has connected their account.
 	if ( ! currentUserCan( 'manage_options' ) && ! hasConnectedOwner ) {

@@ -56,6 +56,7 @@ const resetInitialState = () => {
 
 const adminUserConnectionData = {
 	currentUser: {
+		id: 1,
 		permissions: {
 			manage_options: true,
 		},
@@ -69,6 +70,7 @@ const adminUserConnectionData = {
 
 const nonAdminUserConnectionData = {
 	currentUser: {
+		id: 1,
 		permissions: {
 			manage_options: false,
 		},
@@ -244,6 +246,16 @@ describe( 'ConnectionStatusCard', () => {
 			setup();
 			expect( screen.getByText( /Connected as/ ) ).toBeInTheDocument();
 		} );
+
+		// The fault icon and the package's description belong to a broken connection;
+		// a healthy card shows what it always did. Matched as a direct child of the
+		// heading, since the manage-connection button holds a chevron of its own.
+		it( 'shows no fault icon', () => {
+			const { container } = setup();
+
+			// eslint-disable-next-line testing-library/no-node-access, testing-library/no-container -- The icon is decorative, so it has no role or text to query by.
+			expect( container.querySelector( 'h4 > svg' ) ).toBeNull();
+		} );
 	} );
 
 	describe( 'When the connection is fully established but broken', () => {
@@ -295,61 +307,31 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.queryByText( 'Site and account connected' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'names the site as the broken half for a site-audience error', () => {
+		// The card says what the notice says: the package's title names the broken
+		// half, and its message describes the fault.
+		it( 'describes the error in the package’s own words', () => {
 			setupWithError( { error: { audience: 'site' } } );
-			expect( screen.getByText( 'Site connection needs attention' ) ).toBeInTheDocument();
-		} );
-
-		it( 'names the account as the broken half for the viewer’s own token', () => {
-			setupWithError( { error: { audience: 'user' } } );
-			expect( screen.getByText( 'Account connection needs attention' ) ).toBeInTheDocument();
-		} );
-
-		it( 'falls back to the site scope when the error carries no audience', () => {
-			setupWithError( { error: {} } );
-			expect( screen.getByText( 'Site connection needs attention' ) ).toBeInTheDocument();
-		} );
-
-		it( 'offers Site Health to an admin', () => {
-			setupWithError();
-			expect( screen.getByRole( 'link', { name: /Check your site’s health/ } ) ).toHaveAttribute(
-				'href',
-				expect.stringContaining( 'site-health.php' )
-			);
-		} );
-
-		it( 'withholds Site Health from a user who cannot open it', () => {
-			setupWithError( { isAdmin: false } );
-			expect( screen.queryByText( /Check your site’s health/ ) ).not.toBeInTheDocument();
-		} );
-
-		it( 'names the manage connection action rather than hanging it off the heading', () => {
-			setupWithError();
+			expect( screen.getByText( 'Jetpack Connection error: Site connection' ) ).toBeInTheDocument();
 			expect(
-				screen.queryByRole( 'button', { name: /Site connection needs attention/ } )
-			).not.toBeInTheDocument();
-			expect( screen.getByRole( 'button', { name: 'Manage connection' } ) ).toBeInTheDocument();
-		} );
-
-		// The viewer cannot repair somebody else's token, so the card names the owner
-		// as the one who has to act rather than pointing at the viewer's own account.
-		it( 'points at the owner when the broken token is theirs and the viewer is not them', () => {
-			setupWithError( {
-				error: { audience: 'owner' },
-				userId: '2',
-				connectionOwner: { id: 2, displayName: 'Owner' },
-			} );
-			expect( screen.getByText( 'Connection needs attention' ) ).toBeInTheDocument();
-			expect(
-				screen.getByText(
-					'The connection owner needs to reconnect their account before some features work again.'
-				)
+				screen.getByText( 'Your site is not connected to WordPress.com.' )
 			).toBeInTheDocument();
 		} );
 
-		// Two halves broken at once: the card stops naming a half rather than picking
-		// one of them and describing the wrong problem.
-		it( 'stays general when the errors do not agree on one half', () => {
+		it( 'flags the fault beside the heading', () => {
+			const { container } = setupWithError();
+
+			// eslint-disable-next-line testing-library/no-node-access, testing-library/no-container -- The icon is decorative, so it has no role or text to query by.
+			expect( container.querySelector( 'h4 > svg' ) ).toBeInTheDocument();
+		} );
+
+		it( 'names the viewer’s own account as the broken half in the title', () => {
+			setupWithError( { error: { audience: 'user' } } );
+			expect( screen.getByText( 'Jetpack Connection error: Your account' ) ).toBeInTheDocument();
+		} );
+
+		// One title for the pair, then a scope line per error, rather than the card
+		// picking one half and describing the wrong problem.
+		it( 'counts the errors and lists their scopes when two halves are broken', () => {
 			setupWithError( {
 				connectionErrors: {
 					invalid_token: {
@@ -370,9 +352,68 @@ describe( 'ConnectionStatusCard', () => {
 					},
 				},
 			} );
-			expect( screen.getByText( 'Connection needs attention' ) ).toBeInTheDocument();
+			expect( screen.getByText( '2 Jetpack Connection errors' ) ).toBeInTheDocument();
+			// Listed, so assistive tech announces how many halves are broken.
+			expect( screen.getByText( '- Site connection' ) ).toBeInTheDocument();
+			expect( screen.getByText( '- Your account' ) ).toBeInTheDocument();
+		} );
+
+		// The error's own CTA, resolved by the package, so the card's button and the
+		// notice's button do the same thing.
+		it( 'offers the package’s CTA for the error', () => {
+			setupWithError();
+			expect( screen.getByRole( 'button', { name: 'Restore Connection' } ) ).toBeInTheDocument();
+		} );
+
+		// Site Health reaches the card as a link the error asked for, not as a link the
+		// card decided to add.
+		it( 'renders a link the error declared', () => {
+			setupWithError( {
+				error: {
+					audience: 'site',
+					error_data: {
+						action: 'none',
+						notice_link: { label: 'Visit Site Health', url: '/wp-admin/site-health.php' },
+					},
+				},
+			} );
+			expect( screen.getByRole( 'link', { name: 'Visit Site Health' } ) ).toHaveAttribute(
+				'href',
+				'/wp-admin/site-health.php'
+			);
+		} );
+
+		// The repair is the point of the card in this state, so it is a button; the
+		// secondary action stays a link beneath it.
+		it( 'offers the repair as a button and manage connection as a link', () => {
+			setupWithError();
+
+			expect( screen.getByRole( 'button', { name: 'Restore Connection' } ) ).not.toHaveClass(
+				'is-link'
+			);
+			expect( screen.getByRole( 'button', { name: 'Manage connection' } ) ).toHaveClass(
+				'is-link'
+			);
+		} );
+
+		it( 'names the manage connection action rather than hanging it off the heading', () => {
+			setupWithError();
 			expect(
-				screen.getByText( 'There’s a problem with your Jetpack connection.' )
+				screen.queryByRole( 'button', { name: /Jetpack Connection error/ } )
+			).not.toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Manage connection' } ) ).toBeInTheDocument();
+		} );
+
+		// The viewer cannot repair somebody else's token, so the package phrases the
+		// scope as the owner's account rather than the viewer's own.
+		it( 'points at the owner when the broken token is theirs and the viewer is not them', () => {
+			setupWithError( {
+				error: { audience: 'owner' },
+				userId: '2',
+				connectionOwner: { id: 2, displayName: 'Owner' },
+			} );
+			expect(
+				screen.getByText( "Jetpack Connection error: Connection owner's account (Owner)" )
 			).toBeInTheDocument();
 		} );
 	} );
@@ -412,7 +453,7 @@ describe( 'ConnectionStatusCard', () => {
 				screen.getByText( 'Connect your account to unlock all the features.' )
 			).toBeInTheDocument();
 			expect( screen.getByRole( 'button', { name: 'Connect my account' } ) ).toBeInTheDocument();
-			expect( screen.queryByText( 'Site connection needs attention' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( /Jetpack Connection error/ ) ).not.toBeInTheDocument();
 		} );
 	} );
 
@@ -422,6 +463,7 @@ describe( 'ConnectionStatusCard', () => {
 
 			const woaOwnerConnectionData = {
 				currentUser: {
+					id: 1,
 					permissions: {
 						manage_options: true,
 					},
@@ -462,6 +504,7 @@ describe( 'ConnectionStatusCard', () => {
 		const setup = () => {
 			const userDataWithErrors = {
 				currentUser: {
+					id: 1,
 					permissions: {
 						manage_options: true,
 					},

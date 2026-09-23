@@ -1,4 +1,4 @@
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { CONNECTION_STORE_ID, useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { renderHook } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import Providers from '../../../providers';
@@ -79,13 +79,35 @@ beforeAll( () => {
 	};
 } );
 
+/**
+ * Run the card's state hook on the package's own reading of the store, which is
+ * what the card passes it.
+ *
+ * @return {object} The rendered hook result.
+ */
+const renderConnectionState = () =>
+	renderHook(
+		() => {
+			const { hasConnectionError, severity } = useConnectionErrorNotice( {
+				resolveActions: false,
+			} );
+
+			return useConnectionState( {
+				hasConnectionError,
+				severity,
+				errorTitle: 'Jetpack Connection error: Site connection',
+			} );
+		},
+		{ wrapper: Providers }
+	);
+
 // The card's tint is the only thing carrying the error while the connect prompt
 // holds the copy, so it has to be the package's rating rather than a flat 'error'.
 describe( 'useConnectionState — status while the account is still to be connected', () => {
 	it( 'softens a break only the owner can repair to a warning', () => {
 		setConnectionStore( { connectionErrors: ownerTokenBroken, connectionOwner: owner } );
 
-		const { result } = renderHook( () => useConnectionState(), { wrapper: Providers } );
+		const { result } = renderConnectionState();
 
 		expect( result.current.status ).toBe( 'warning' );
 	} );
@@ -93,8 +115,24 @@ describe( 'useConnectionState — status while the account is still to be connec
 	it( 'keeps a site-wide break an error', () => {
 		setConnectionStore( { connectionErrors: siteTokenBroken } );
 
-		const { result } = renderHook( () => useConnectionState(), { wrapper: Providers } );
+		const { result } = renderConnectionState();
 
 		expect( result.current.status ).toBe( 'error' );
+	} );
+} );
+
+// The label and the description are the package's once an error is live, so the
+// card cannot describe the fault in words the notice above it does not use.
+describe( 'useConnectionState — a live error on a connected account', () => {
+	it( 'takes the package title as its label and leaves the copy to the package', () => {
+		setConnectionStore( { isUserConnected: true, connectionErrors: siteTokenBroken } );
+
+		const { result } = renderConnectionState();
+
+		expect( result.current ).toEqual( {
+			label: 'Jetpack Connection error: Site connection',
+			status: 'error',
+			isDiagnosis: true,
+		} );
 	} );
 } );

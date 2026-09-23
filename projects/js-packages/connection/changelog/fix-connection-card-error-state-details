@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add ConnectionErrorDetails, the shared description of a connection error for surfaces that are not notices.

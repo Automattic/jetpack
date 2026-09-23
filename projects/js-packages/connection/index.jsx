@@ -23,6 +23,8 @@ export { default as ConnectScreen } from './components/connect-screen/basic';
 export { default as ConnectScreenLayout } from './components/connect-screen/layout';
 export { default as ConnectScreenRequiredPlan } from './components/connect-screen/required-plan';
 export { default as ConnectButton } from './components/connect-button';
+export { default as ConnectionErrorDetails } from './components/connection-error-details';
+export * from './components/connection-error-details/types.ts';
 export { default as ConnectionErrorNotice } from './components/connection-error-notice';
 export { default as ConnectionErrorSupportLink } from './components/connection-error-support-link';
 export { ConnectionError } from './hooks/use-connection-error-notice';
@@ -54,8 +56,6 @@ export {
 	isOtherUsersConnectionError,
 	getConnectionErrorUserScope,
 } from './hooks/use-connection-error-notice/viewer-scope';
-export { default as useConnectionStatusSummary } from './hooks/use-connection-status-summary';
-export * from './hooks/use-connection-status-summary/types.ts';
 
 /**
  * Connection-error presentation. The notice copy lives here so every consumer

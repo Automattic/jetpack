@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-My Jetpack: Report a broken connection on the connection card instead of claiming everything looks good.
+My Jetpack: Report a broken connection on the connection card instead of claiming everything looks good, with the same details and actions as the connection error notice.

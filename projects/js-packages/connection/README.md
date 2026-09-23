@@ -97,6 +97,38 @@ const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 />
 ```
 
+## Component `ConnectionErrorDetails`
+What a connection error says, without the chrome that carries it: each error's headline, the scopes it applies to, any link it asks for (e.g. Site Health) and the support link.
+
+Render it wherever a connection error has to be described outside a notice — a status card, a settings panel — so that surface uses the same words `ConnectionErrorNotice` does. It renders nothing when given neither a message nor a group.
+
+### Properties
+- *message* - string | element, fallback copy for callers with no derived groups.
+- *errorGroups* - array, the groups from `useConnectionErrorNotice`'s `errorGroups`.
+- *showSupportLink* - boolean, whether to append the "Contact Jetpack Support" link. Pass the hook's `showSupportLink`.
+- *variant* - string, a `@wordpress/ui` `Text` variant for the headlines and support link, for surfaces whose body copy is smaller than a notice's. The scope lines under a headline stay `body-sm` regardless.
+
+### Basic Usage
+```jsx
+import { ConnectionErrorDetails, useConnectionErrorNotice } from '@automattic/jetpack-connection';
+
+const StatusPanel = () => {
+	const { hasConnectionError, errorTitle, errorGroups, showSupportLink } =
+		useConnectionErrorNotice();
+
+	if ( ! hasConnectionError ) {
+		return null;
+	}
+
+	return (
+		<>
+			<h4>{ errorTitle }</h4>
+			<ConnectionErrorDetails errorGroups={ errorGroups } showSupportLink={ showSupportLink } />
+		</>
+	);
+};
+```
+
 ## Component `DisconnectDialog`
 The `DisconnectDialog` component displays a 'Disconnect' button that, upon clicking, will open a Dialog that presents the user the option to Disconnect their site.
 Upon confirming, both site and user are disconnected and the user is presented with a success message along with a "Return to WordPress" button that closes the dialog.
@@ -179,35 +211,4 @@ export default withSelect( select => {
 		connectionStatus: select( CONNECTION_STORE_ID ).getConnectionStatus(),
 	}
 } )( SampleComponent );
-```
-
-# Hooks
-## Hook `useConnectionStatusSummary`
-Reports the connection's standing for a status surface — a card, a badge, a health row: whether it is broken, which half broke, and how much it is this viewer's problem.
-
-Use it wherever a surface describes the connection in its own words. For the error *message* and its CTAs, use `useConnectionErrorNotice` (or the ready-made `ConnectionError` component) instead — the summary reads the same `scope` and `severity` that hook derives, so surfaces built on either cannot rate the same break differently.
-
-### Returns
-- *hasConnectionError* - boolean, whether there is an error worth showing this viewer. Another user's broken token is not one.
-- *scope* - `'site'` | `'account'` | `'owner-account'` | `'mixed'`, the half of the connection at fault, or `null` when nothing is broken. `owner-account` means the connection owner's account, and the viewer is not them.
-- *severity* - `'error'` | `'warning'`, or `null` when nothing is broken. `warning` marks a break only somebody else can repair, so the viewer is being told rather than asked to act.
-
-The summary carries no copy, so each consumer keeps its own voice and text domain.
-
-The return type is discriminated on `hasConnectionError`: `scope` and `severity` are non-null exactly when it is `true`. TypeScript consumers should hold the summary as an object rather than destructuring it, so that a `hasConnectionError` check narrows the other two.
-
-### Basic Usage
-```jsx
-import { useConnectionStatusSummary } from '@automattic/jetpack-connection';
-
-const ConnectionBadge = () => {
-	const connection = useConnectionStatusSummary();
-
-	if ( ! connection.hasConnectionError ) {
-		return <Badge level="success">{ __( 'Connected', 'my-text-domain' ) }</Badge>;
-	}
-
-	// `scope` and `severity` are known non-null here.
-	return <Badge level={ connection.severity }>{ labelFor( connection.scope ) }</Badge>;
-};
 ```
