@@ -77,7 +77,7 @@ type DateRangeApplyContext = {
 
 type DateRangeState = Pick<
 	ReportDateFilters,
-	'presetId' | 'range' | 'interval' | 'comparisonPresetId'
+	'presetId' | 'range' | 'interval' | 'comparisonPresetId' | 'appliedComparisonRange'
 >;
 
 type StagedRange = Parameters< ReportDateFilters[ 'onChange' ] >;
@@ -91,7 +91,7 @@ type StagedRange = Parameters< ReportDateFilters[ 'onChange' ] >;
  * @return `trackedOnChange` to remember a staged range, and `trackedOnApply` to record its apply.
  */
 export function useTrackedDateRangeApply(
-	{ presetId, range, interval, comparisonPresetId }: DateRangeState,
+	{ presetId, range, interval, comparisonPresetId, appliedComparisonRange }: DateRangeState,
 	{ surface, section, offersComparison }: DateRangeApplyContext
 ) {
 	const trackEvent = useTrackEvent();
@@ -118,8 +118,9 @@ export function useTrackedDateRangeApply(
 			{ presetId: appliedPresetId, exactRange: options?.exactRange }
 		);
 		const isCustom = ! appliedPresetId || appliedPresetId === PRESET_CUSTOM;
+		// A comparison linked without a preset commits as the previous period, so test the range too.
 		const comparison =
-			offersComparison && comparisonPresetId
+			offersComparison && ( comparisonPresetId || appliedComparisonRange )
 				? deriveComparisonRange( {
 						comp: '1',
 						from,
@@ -142,6 +143,7 @@ export function useTrackedDateRangeApply(
 		range,
 		interval,
 		comparisonPresetId,
+		appliedComparisonRange,
 		trackEvent,
 		surface,
 		section,

@@ -37,6 +37,7 @@ function renderTracked( overrides: Partial< State > = {}, context: Context = DAS
 		range: LAST_30_DAYS,
 		interval: 'week',
 		comparisonPresetId: undefined,
+		appliedComparisonRange: undefined,
 		...overrides,
 	};
 	const { result } = renderHook( () => useTrackedDateRangeApply( state, context ) );
@@ -121,6 +122,19 @@ describe( 'useTrackedDateRangeApply', () => {
 
 		act( () => {
 			trackedOnChange( LAST_30_DAYS, 'last-30-days' );
+			trackedOnApply();
+		} );
+
+		expect( trackedProperties() ).toMatchObject( { comparison: 'previous-period' } );
+	} );
+
+	it( 'records the previous period for a comparison linked without a preset', () => {
+		const { trackedOnChange, trackedOnApply } = renderTracked( {
+			appliedComparisonRange: computePrimaryRange( 'last-month', 'UTC' )!,
+		} );
+
+		act( () => {
+			trackedOnChange( LAST_7_DAYS, 'last-7-days' );
 			trackedOnApply();
 		} );
 

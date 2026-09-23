@@ -89,6 +89,7 @@ function AuthorDetail(): JSX.Element {
 			range: dateFilters.range,
 			interval: dateFilters.interval,
 			comparisonPresetId: dateFilters.comparisonPresetId,
+			appliedComparisonRange: dateFilters.appliedComparisonRange,
 		},
 		{ surface: 'author_detail', offersComparison: false }
 	);

@@ -181,6 +181,7 @@ function Dashboard(): JSX.Element {
 			range: dateFilters.range,
 			interval: dateFilters.interval,
 			comparisonPresetId: dateFilters.comparisonPresetId,
+			appliedComparisonRange: dateFilters.appliedComparisonRange,
 		},
 		{ surface: 'dashboard', section: activeSection, offersComparison: showComparison }
 	);

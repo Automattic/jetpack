@@ -72,6 +72,7 @@ function VideoDetail(): JSX.Element {
 			range: dateFilters.range,
 			interval: dateFilters.interval,
 			comparisonPresetId: dateFilters.comparisonPresetId,
+			appliedComparisonRange: dateFilters.appliedComparisonRange,
 		},
 		{ surface: 'video_detail', offersComparison: false }
 	);

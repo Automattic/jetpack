@@ -74,6 +74,7 @@ function PostDetail(): JSX.Element {
 			range: dateFilters.range,
 			interval: dateFilters.interval,
 			comparisonPresetId: dateFilters.comparisonPresetId,
+			appliedComparisonRange: dateFilters.appliedComparisonRange,
 		},
 		{ surface: 'post_detail', offersComparison: false }
 	);
