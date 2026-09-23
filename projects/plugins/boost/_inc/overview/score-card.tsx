@@ -22,6 +22,26 @@ type Props = {
 	noBoost?: number | null;
 };
 
+/**
+ * What the badge's tooltip says about the comparison behind it.
+ *
+ * The badge itself clamps a worse-than-baseline comparison to zero, so the tooltip is the only place
+ * a drop is named. "Speed score has fallen" matches the notice that reports the same drop.
+ *
+ * @param delta - Points against the Boost-disabled baseline, or null when there is no comparison.
+ */
+function explainDelta( delta: number | null ): string {
+	if ( delta !== null && delta > 0 ) {
+		return __( 'Points gained from optimizations', 'jetpack-boost' );
+	}
+
+	if ( delta !== null && delta < 0 ) {
+		return __( 'Speed score has fallen', 'jetpack-boost' );
+	}
+
+	return __( 'No improvements in score', 'jetpack-boost' );
+}
+
 export default function ScoreCard( {
 	icon,
 	label,
@@ -84,11 +104,7 @@ export default function ScoreCard( {
 									<VisuallyHidden render={ <Popover.Title /> }>
 										{ __( 'About points', 'jetpack-boost' ) }
 									</VisuallyHidden>
-									<Popover.Description>
-										{ gain > 0
-											? __( 'Points gained from optimizations', 'jetpack-boost' )
-											: __( 'No improvements in score', 'jetpack-boost' ) }
-									</Popover.Description>
+									<Popover.Description>{ explainDelta( delta ) }</Popover.Description>
 								</Popover.Popup>
 							</Popover.Root>
 						</Stack>

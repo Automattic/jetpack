@@ -169,7 +169,7 @@ test( 'opens the points explanation beside the badge', async () => {
 
 test.each( [
 	[ 'a zero delta', 60, 'No improvements in score' ],
-	[ 'a clamped negative delta', 80, 'No improvements in score' ],
+	[ 'a clamped negative delta', 80, 'Speed score has fallen' ],
 	[ 'a positive delta', 50, 'Points gained from optimizations' ],
 ] )( 'explains %s in the points tooltip', async ( _description, baseline, explanation ) => {
 	render(
