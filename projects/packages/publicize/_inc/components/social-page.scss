@@ -33,4 +33,9 @@ body.toplevel_page_jetpack-social {
 	.jetpack-social-page__content--padded {
 		padding: $jetpack-social-inset;
 	}
+
+	// Outside the padded content, so it carries the page gutter itself.
+	.jp-jitm-slot .jitm-card {
+		margin-inline: $jetpack-social-inset;
+	}
 }

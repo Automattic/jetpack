@@ -124,8 +124,7 @@
 	}
 }
 
-// The slot sits above the tab panels so every tab has it, which puts it
-// outside `.jp-search-dashboard-wrap` -- the only padded container here.
+// Above the tab panels, so outside `.jp-search-dashboard-wrap`.
 .jp-jitm-slot .jitm-card {
-	margin-inline: 24px;
+	margin-inline: var(--wpds-dimension-padding-2xl);
 }

@@ -1,4 +1,5 @@
 import { AdminPage as JetpackAdminPage } from '@automattic/jetpack-components';
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { useConnection } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { Tabs } from '@wordpress/ui';
@@ -101,6 +102,7 @@ const ProtectApp = () => {
 						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-protect' ) }</Tabs.Tab>
 					</Tabs.List>
 				</div>
+				<JitmSlot />
 				{ /* Every tab panel shares the same react-router <Outlet />, which always
 				     renders the active route. Tabs.Panel (via @base-ui/react) keeps the
 				     outgoing panel mounted until its close transition completes, so

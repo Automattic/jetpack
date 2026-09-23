@@ -6,15 +6,14 @@ import type { FC } from 'react';
 const AdminSectionHeroNotices: FC = () => {
 	const { hasConnectionError } = useConnectionErrorNotice();
 
+	if ( ! hasConnectionError ) {
+		return null;
+	}
+
 	return (
 		<Container horizontalSpacing={ 0 }>
-			{ hasConnectionError && (
-				<Col className={ styles[ 'connection-error-col' ] }>
-					<ConnectionError trackingContext="protect" />
-				</Col>
-			) }
-			<Col>
-				<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
+			<Col className={ styles[ 'connection-error-col' ] }>
+				<ConnectionError trackingContext="protect" />
 			</Col>
 		</Container>
 	);

@@ -88,11 +88,15 @@ export default function SocialPage( {
 		[ navigate ]
 	);
 
+	// The slot sits outside the padded content so it lands the same distance
+	// below the tabs as it does on every other dashboard.
 	const content = (
-		<div className="jetpack-social-page__content jetpack-social-page__content--padded">
+		<>
 			<JitmSlot />
-			{ children }
-		</div>
+			<div className="jetpack-social-page__content jetpack-social-page__content--padded">
+				{ children }
+			</div>
+		</>
 	);
 
 	return (

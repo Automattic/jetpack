@@ -78,7 +78,7 @@ body.jetpack-forms-responses {
 			}
 
 			.jp-jitm-slot .jitm-card {
-				margin-inline: 24px;
+				margin-inline: var(--wpds-dimension-padding-2xl);
 			}
 
 			// The layout mixin above blanket-sets `flex-direction: column` on
