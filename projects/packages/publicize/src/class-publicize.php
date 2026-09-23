@@ -81,7 +81,7 @@ class Publicize extends Publicize_Base {
 	/**
 	 * Show error on settings page if applicable.
 	 *
-	 * @deprecated $$next-version$$ WordPress.com shows connection errors in the connection window; Settings > Sharing no longer hosts them.
+	 * @deprecated $$next-version$$ Settings > Sharing no longer hosts connection errors.
 	 *
 	 * @return void
 	 */
@@ -92,7 +92,7 @@ class Publicize extends Publicize_Base {
 	/**
 	 * Display an error message.
 	 *
-	 * @deprecated $$next-version$$ WordPress.com shows connection errors in the connection window; Settings > Sharing no longer hosts them.
+	 * @deprecated $$next-version$$ Settings > Sharing no longer hosts connection errors.
 	 *
 	 * @return void
 	 */

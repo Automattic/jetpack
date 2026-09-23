@@ -1,4 +1,4 @@
 Significance: patch
 Type: removed
 
-Remove the connection-error notice from Settings > Sharing. WordPress.com shows connection errors in the connection window instead.
+Remove the connection-error notice from Settings > Sharing, which loaded a whole wp-admin screen inside the connection popup.
