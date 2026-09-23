@@ -650,6 +650,7 @@ class Initializer {
 					'items' => Products::get_products(),
 				),
 				'mainFeatures'           => self::is_features_tab_enabled() ? Main_Features::get_state() : null,
+				'featuresBanner'         => self::is_features_tab_enabled() ? array( 'isDismissed' => REST_Main_Features::is_banner_dismissed() ) : null,
 				'plugins'                => Plugins_Installer::get_plugins(),
 				'themes'                 => Sync_Functions::get_themes(),
 				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),

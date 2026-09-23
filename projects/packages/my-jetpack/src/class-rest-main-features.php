@@ -27,6 +27,11 @@ class REST_Main_Features {
 	const ROUTE_NAMESPACE = 'wpcom/v2';
 
 	/**
+	 * User meta that keeps the Features tab banner hidden for the user who dismissed it.
+	 */
+	const BANNER_DISMISSED_META = 'jetpack_my_jetpack_features_banner_dismissed';
+
+	/**
 	 * Register the route.
 	 *
 	 * @return void
@@ -39,6 +44,17 @@ class REST_Main_Features {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_state',
 				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
+
+		register_rest_route(
+			self::ROUTE_NAMESPACE,
+			'my-jetpack/site/features/banner/dismiss',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => __CLASS__ . '::dismiss_banner',
+				// Anyone who can see My Jetpack sees the banner, so anyone who can see it may dismiss it.
+				'permission_callback' => array( Initializer::class, 'permissions_callback' ),
 			)
 		);
 
@@ -102,6 +118,26 @@ class REST_Main_Features {
 	 */
 	public static function permissions_callback() {
 		return REST_Products::edit_permissions_callback();
+	}
+
+	/**
+	 * Whether the current user has dismissed the Features tab banner.
+	 *
+	 * @return bool
+	 */
+	public static function is_banner_dismissed() {
+		return (bool) get_user_meta( get_current_user_id(), self::BANNER_DISMISSED_META, true );
+	}
+
+	/**
+	 * Hide the Features tab banner for the current user, for good.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function dismiss_banner() {
+		update_user_meta( get_current_user_id(), self::BANNER_DISMISSED_META, 1 );
+
+		return rest_ensure_response( array( 'isDismissed' => true ) );
 	}
 
 	/**

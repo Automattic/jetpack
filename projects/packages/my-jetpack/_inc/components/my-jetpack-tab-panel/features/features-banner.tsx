@@ -1,20 +1,18 @@
+import apiFetch from '@wordpress/api-fetch';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { closeSmall } from '@wordpress/icons';
 import { useCallback, useEffect, useState } from 'react';
+import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
 import styles from './styles.module.scss';
 
-// Per browser, not per user: an explainer banner does not earn a REST route to store it.
-const STORAGE_KEY = 'jetpack-my-jetpack-features-banner-dismissed';
+// The page's initial state is a snapshot from the load, so a dismissal made since has to
+// outlive this component: switching tabs away and back remounts it.
+let dismissedSinceLoad: boolean | null = null;
 
-const wasDismissed = () => {
-	try {
-		return window.localStorage.getItem( STORAGE_KEY ) === '1';
-	} catch {
-		return false;
-	}
-};
+const wasDismissed = () =>
+	dismissedSinceLoad ?? getMyJetpackWindowInitialState( 'featuresBanner' )?.isDismissed === true;
 
 /**
  * The dismissible explainer above the features grid.
@@ -34,14 +32,18 @@ export function FeaturesBanner() {
 	}, [] );
 
 	const onDismiss = useCallback( () => {
+		dismissedSinceLoad = true;
 		setIsDismissed( true );
 		recordEvent( 'jetpack_myjetpack_features_banner_dismiss', {} );
 
-		try {
-			window.localStorage.setItem( STORAGE_KEY, '1' );
-		} catch {
-			// A browser that refuses storage just shows the banner again next visit.
-		}
+		apiFetch( {
+			path: '/wpcom/v2/my-jetpack/site/features/banner/dismiss',
+			method: 'POST',
+		} ).catch( () => {
+			// Put it back rather than hide a dismissal that the next load would undo.
+			dismissedSinceLoad = false;
+			setIsDismissed( false );
+		} );
 	}, [ recordEvent ] );
 
 	if ( isDismissed ) {
