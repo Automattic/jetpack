@@ -59,7 +59,8 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	const [ hoverTimeout, setHoverTimeout ] = useState( null );
 	const wrapperRef = useRef< HTMLDivElement >( null );
 	const popoverRef = useRef< HTMLDivElement >( null );
-	// Applied once the popover has gone, so Popover's own focus return does not overwrite it.
+	// Where focus should land after Tab leaves the tooltip. The effect below applies it, rather
+	// than the handler, because Popover puts focus back on the trigger as it unmounts.
 	const focusAfterClose = useRef< HTMLElement | null >( null );
 	// Opening on hover must not pull focus off whatever the visitor is using.
 	const openedByHover = useRef( false );
