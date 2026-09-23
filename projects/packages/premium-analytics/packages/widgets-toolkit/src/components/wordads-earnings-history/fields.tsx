@@ -2,14 +2,14 @@
  * External dependencies
  */
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
-import { Badge, Icon, Popover, VisuallyHidden } from '@jetpack-premium-analytics/externals';
+import { Badge, Stack } from '@jetpack-premium-analytics/externals';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { info } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import { InfoTip } from '../info-tip';
 import styles from './earnings-status-badge.module.scss';
 import type { StatsWordAdsEarningsBreakdown } from '@jetpack-premium-analytics/data';
 import type { Field } from '@jetpack-premium-analytics/externals';
@@ -169,25 +169,18 @@ function compareOptionalCounts( a: unknown, b: unknown, direction: 'asc' | 'desc
 export function EarningsStatusBadge( { status }: { status: number | undefined } ) {
 	const { label, tooltip, intent, detail } = getEarningsStatus( status );
 
+	// Inline-flex blockifies the badge, so every status stands the same full height.
+	const stackProps = { direction: 'row', align: 'center', gap: 'xs', render: <span /> } as const;
+
 	if ( detail ) {
-		// Click-open like the widget header's info icon; non-modal, so Tab leaves and closes it.
 		return (
-			<span className={ styles.root }>
-				<Popover.Root>
-					<Popover.Trigger aria-label={ detail } className={ styles.info }>
-						<Icon icon={ info } size={ 16 } />
-					</Popover.Trigger>
-					<Popover.Popup className={ styles.popup }>
-						<Popover.Arrow />
-						<VisuallyHidden render={ <Popover.Title /> }>{ detail }</VisuallyHidden>
-						<Popover.Description>
-							<span className={ styles.reason }>{ detail }</span>
-							{ tooltip }
-						</Popover.Description>
-					</Popover.Popup>
-				</Popover.Root>
+			<Stack { ...stackProps }>
+				<InfoTip label={ detail } size={ 16 }>
+					<span className={ styles.reason }>{ detail }</span>
+					{ tooltip }
+				</InfoTip>
 				<Badge intent={ intent }>{ label }</Badge>
-			</span>
+			</Stack>
 		);
 	}
 
@@ -198,9 +191,9 @@ export function EarningsStatusBadge( { status }: { status: number | undefined } 
 	);
 
 	return (
-		<span className={ styles.root }>
+		<Stack { ...stackProps }>
 			{ tooltip ? <Tooltip text={ tooltip }>{ badge }</Tooltip> : badge }
-		</span>
+		</Stack>
 	);
 }
 

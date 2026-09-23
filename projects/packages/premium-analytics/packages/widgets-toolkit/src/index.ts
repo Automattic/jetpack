@@ -86,6 +86,8 @@ export {
 	type WidgetFooterProps,
 	ReportLink,
 	type ReportLinkProps,
+	InfoTip,
+	type InfoTipProps,
 	PostTitleLink,
 	POST_URL_SEARCH_PARAM,
 	type PostTitleLinkProps,
