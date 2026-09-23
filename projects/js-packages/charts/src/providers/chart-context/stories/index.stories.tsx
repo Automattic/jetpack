@@ -19,7 +19,7 @@ import {
 	osUsageData,
 	trafficSourcesData,
 } from '../../../stories/sample-data';
-import { themeArgTypes } from '../../../stories/theme-config';
+import { themeArgTypes, WP_ADMIN_COLOR_SCHEMES } from '../../../stories/theme-config';
 
 type StoryArgs = ChartStoryArgs< {
 	showUnitedStates?: boolean;
@@ -477,9 +477,6 @@ export const HostTimeZoneDatesDayStrings: Story = {
 	},
 };
 
-// The six wp-admin accent colors this story shows the generated palette against.
-const WP_ADMIN_ACCENTS = [ '#3858e9', '#04a4cc', '#a3b745', '#e14d43', '#9ebaa0', '#dd823b' ];
-
 const generatedPaletteData: DataPointPercentage[] = [
 	{ label: 'Organic search', value: 32 },
 	{ label: 'Direct', value: 24 },
@@ -489,28 +486,25 @@ const generatedPaletteData: DataPointPercentage[] = [
 	{ label: 'Other', value: 5 },
 ];
 
-const generatedPaletteAccentClassName = ( accent: string ) =>
-	`generated-palette-accent-${ accent.replace( '#', '' ) }`;
-
-// Sets slot 1 per accent; the selector targets `.a8c-charts-scope` itself, see TOKENS.md Precedence.
+// Sets slot 1 per scheme; the selector targets `.a8c-charts-scope` itself, see TOKENS.md Precedence.
 export const GeneratedPalette: Story = {
 	render: () => (
 		<div
 			style={ {
 				display: 'grid',
-				gridTemplateColumns: 'repeat(3, 260px)',
+				gridTemplateColumns: 'repeat(4, 260px)',
 				gap: '3rem',
 			} }
 		>
-			{ WP_ADMIN_ACCENTS.map( accent => {
-				const className = generatedPaletteAccentClassName( accent );
+			{ Object.entries( WP_ADMIN_COLOR_SCHEMES ).map( ( [ scheme, seed ] ) => {
+				const className = `generated-palette-${ scheme }`;
 				return (
-					<div key={ accent } className={ className }>
+					<div key={ scheme } className={ className }>
 						<style>
-							{ `.${ className } .a8c-charts-scope { --a8c-charts-color-series-1: ${ accent }; }` }
+							{ `.${ className } .a8c-charts-scope { --a8c-charts-color-series-1: ${ seed }; }` }
 						</style>
-						<p style={ { margin: '0 0 8px', textAlign: 'center', fontFamily: 'monospace' } }>
-							{ accent }
+						<p style={ { margin: '0 0 8px', textAlign: 'center' } }>
+							{ scheme } <code>{ seed }</code>
 						</p>
 						<GlobalChartsProvider>
 							<PieChart width={ 260 } height={ 260 } data={ generatedPaletteData } showLabels />
@@ -520,11 +514,16 @@ export const GeneratedPalette: Story = {
 			} ) }
 		</div>
 	),
+	argTypes: {
+		showUnitedStates: { table: { disable: true } },
+		showGreatBritain: { table: { disable: true } },
+		showJapan: { table: { disable: true } },
+	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Six slices per accent, with only the first palette slot seeded. The remaining five slice colors are generated to stay perceptually separable from the seed and from each other, including under simulated color vision deficiency, and pie labels pick dark or light text per slice contrast.',
+					"One chart per wp-admin color scheme, seeded with that scheme's `--wp-admin-theme-color` in the first palette slot only. The remaining five slice colors are generated to stay perceptually separable from the seed and from each other, including under simulated color vision deficiency, and pie labels pick dark or light text per slice contrast.",
 			},
 		},
 	},

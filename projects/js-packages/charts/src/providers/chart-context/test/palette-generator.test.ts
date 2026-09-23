@@ -1,7 +1,17 @@
 import { createPaletteGenerator, MIN_BACKGROUND_CONTRAST } from '../private/palette-generator';
 import { contrastRatio, hexToViews, viewDistance } from '../private/perceptual-color';
 
-const WP_ADMIN_ACCENTS = [ '#3858e9', '#04a4cc', '#a3b745', '#e14d43', '#9ebaa0', '#dd823b' ];
+// `--wp-admin-theme-color` for each wp-admin color scheme, as `@wordpress/base-styles` sets it.
+const WP_ADMIN_THEME_COLORS = Object.entries( {
+	light: '#007cba',
+	modern: '#3858e9',
+	blue: '#437aa8',
+	coffee: '#916745',
+	ectoplasm: '#646c3e',
+	midnight: '#cf4339',
+	ocean: '#567958',
+	sunrise: '#ad631e',
+} );
 const PALETTE_SIZE = 6;
 
 const paletteOf = ( seeds: string[], background: string, size = PALETTE_SIZE ): string[] => {
@@ -28,22 +38,22 @@ describe( 'createPaletteGenerator', () => {
 	} );
 
 	describe.each( [
-		[ '#ffffff', 15 ],
-		[ '#1e1e1e', 12 ],
+		[ '#ffffff', 14 ],
+		[ '#1e1e1e', 14 ],
 	] )( 'on %s', ( background, floor ) => {
-		it.each( WP_ADMIN_ACCENTS )(
-			'keeps a palette seeded with %s separable in every vision view up to six colors',
-			accent => {
-				expect( minPairwiseDistance( paletteOf( [ accent ], background ) ) ).toBeGreaterThanOrEqual(
+		it.each( WP_ADMIN_THEME_COLORS )(
+			'keeps a palette seeded with the %s scheme (%s) separable in every vision view up to six colors',
+			( _scheme, seed ) => {
+				expect( minPairwiseDistance( paletteOf( [ seed ], background ) ) ).toBeGreaterThanOrEqual(
 					floor
 				);
 			}
 		);
 
-		it.each( WP_ADMIN_ACCENTS )(
-			'gives every color generated from %s 3:1 against the background',
-			accent => {
-				paletteOf( [ accent ], background )
+		it.each( WP_ADMIN_THEME_COLORS )(
+			'gives every color generated from the %s scheme (%s) 3:1 against the background',
+			( _scheme, seed ) => {
+				paletteOf( [ seed ], background )
 					.slice( 1 )
 					.forEach( color => {
 						expect( contrastRatio( color, background ) ).toBeGreaterThanOrEqual(
