@@ -185,7 +185,7 @@ export function isReadyForPayPal( attributes ) {
  * @param {string}   clientId   - The block's client id.
  * @param {object}   attributes - The block's current attributes.
  * @param {object}   body       - The request body.
- * @return {Promise<object>} The API response, that it was a create, and the attributes to set on the block.
+ * @return {Promise<object>} The API response, whether it created the payment, and the attributes to set on the block.
  */
 async function createPayment( request, clientId, attributes, body ) {
 	const response = await request( { path: `${ API_BASE }/buttons`, method: 'POST', data: body } );
@@ -251,7 +251,7 @@ function reportStackedUnavailable( block, scriptSrc, reportError ) {
  * @param {Function} deps.updateBlockAttributes - Writes attributes onto a block by clientId.
  * @param {Function} deps.reportError           - Tells the merchant a block's save failed, and why.
  * @param {Function} deps.reportHeldBack        - Tells the merchant a block was not sent, and why.
- * @param {Function} deps.reportSaved           - Tells the merchant a block's payment was written, and whether it was created.
+ * @param {Function} deps.reportSaved           - Called when a block's payment is written, with whether it was created.
  * @param {Set}      stackedResources           - Payments a stacked block in this save draws from.
  * @param {Map}      written                    - Collects the attributes each PUT wrote, by payment id.
  * @return {Promise<boolean>} True when the block's attributes changed.
@@ -350,7 +350,7 @@ async function syncBlock(
 
 		const { response, created, updates } = result;
 
-		// PayPal has the write even when the block's attributes stay as they were.
+		// Report it even when no attributes change: PayPal still saved the payment.
 		reportSaved?.( created );
 
 		if ( Object.keys( updates ).length > 0 ) {

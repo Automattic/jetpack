@@ -5,7 +5,7 @@
  */
 
 import { createReduxStore, register } from '@wordpress/data';
-import { addFilter } from '@wordpress/hooks';
+import { addAction, addFilter } from '@wordpress/hooks';
 import metadata from '../../src/paypal-payment-buttons/block.json';
 import { API_BASE } from '../../src/paypal-payment-buttons/utils/api-base';
 import { registerSaveSync } from '../../src/paypal-payment-buttons/utils/register-save-sync';
@@ -22,7 +22,12 @@ jest.mock( '@wordpress/editor', () => ( { store: 'core/editor' } ) );
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.mock( '@wordpress/block-editor', () => ( { store: 'core/block-editor' } ) );
 
-jest.mock( '@wordpress/hooks', () => ( { addFilter: jest.fn() } ) );
+jest.mock( '@wordpress/hooks', () => ( { addAction: jest.fn(), addFilter: jest.fn() } ) );
+
+const mockToast = jest.fn();
+jest.mock( '../../src/paypal-payment-buttons/utils/toast', () => ( {
+	toast: ( ...args ) => mockToast( ...args ),
+} ) );
 
 // What the stub stores answer with. Set per test.
 const blocks = new Map();
@@ -31,8 +36,6 @@ let editedContent = '';
 
 const noopReducer = ( state = {} ) => state;
 const noopAction = () => ( { type: 'NOOP' } );
-// The real toast() dispatches here, so tests can read what the merchant was shown.
-const createNotice = jest.fn( noopAction );
 
 register(
 	createReduxStore( 'core/editor', {
@@ -62,7 +65,7 @@ register(
 	createReduxStore( 'core/notices', {
 		reducer: noopReducer,
 		selectors: {},
-		actions: { createNotice, removeNotice: noopAction },
+		actions: { createNotice: noopAction, removeNotice: noopAction },
 	} )
 );
 
@@ -114,6 +117,15 @@ async function runSaveFilter( edits, options = {}, afterSync, enabled = true ) {
 	editedContent = afterSync ?? edits.content;
 
 	return callback( edits, options );
+}
+
+/**
+ * Run the registered `editor.savePost` action, as the editor does once the post has saved.
+ */
+function runSavedAction() {
+	const [ , , callback ] = addAction.mock.calls.find( ( [ hook ] ) => 'editor.savePost' === hook );
+
+	callback( { id: 17, type: 'post' }, {} );
 }
 
 beforeEach( () => {
@@ -193,7 +205,6 @@ describe( 'registerSaveSync', () => {
 		await runSaveFilter( { content: blockComment( 'PLB-A1' ) }, { isAutosave: true } );
 
 		expect( apiFetch ).not.toHaveBeenCalled();
-		expect( createNotice ).not.toHaveBeenCalled();
 	} );
 
 	// The only path that rewrites what the editor is about to save, so a filter that
@@ -224,74 +235,129 @@ describe( 'registerSaveSync', () => {
 	} );
 
 	describe( 'the saved snackbar', () => {
-		const saved = message => [
-			'success',
-			message,
-			{ type: 'snackbar', id: 'jetpack-paypal-saved' },
-		];
+		const saved = message => [ 'success', message, 'jetpack-paypal-saved' ];
 
-		it( 'shows one for several blocks, and a create wins', async () => {
-			blocks.set( 'a', payPalBlock( 'a' ) );
-			blocks.set( 'b', payPalBlock( 'b', 'PLB-B2' ) );
-			recordPaymentRead( 'b', 'PLB-B2' );
-			apiFetch.mockImplementation( ( { path, method } ) => {
-				if ( path === `${ API_BASE }/connection` ) {
-					return Promise.resolve( { connected: true } );
-				}
-				if ( 'POST' === method ) {
-					return Promise.resolve( { id: 'PLB-NEW1' } );
-				}
-
-				return Promise.resolve( {} );
-			} );
-
-			await runSaveFilter( { content: blockComment( 'PLB-B2' ) } );
-
-			expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { method: 'POST' } ) );
-			expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { method: 'PUT' } ) );
-			expect( createNotice.mock.calls ).toEqual( [
-				saved( 'Payment link successfully created.' ),
-			] );
-		} );
-
-		// The PUT's echo changes no attributes, so the filter returns early after it.
-		it( 'says the changes were saved after an update', async () => {
+		it( 'waits for the post to save', async () => {
 			blocks.set( 'a', payPalBlock( 'a', 'PLB-A1' ) );
 			recordPaymentRead( 'a', 'PLB-A1' );
 
 			await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
+			expect( mockToast ).not.toHaveBeenCalled();
 
-			expect( createNotice.mock.calls ).toEqual( [ saved( 'Changes saved.' ) ] );
+			runSavedAction();
+
+			expect( mockToast.mock.calls ).toEqual( [ saved( 'Changes saved.' ) ] );
+		} );
+
+		// Either request can answer last, so the create has to win from both sides.
+		it.each( [ 'PUT', 'POST' ] )(
+			'shows one snackbar for several blocks, saying created when any was created (%s answers last)',
+			async slow => {
+				blocks.set( 'a', payPalBlock( 'a', 'PLB-A1' ) );
+				blocks.set( 'b', payPalBlock( 'b' ) );
+				recordPaymentRead( 'a', 'PLB-A1' );
+				apiFetch.mockImplementation( ( { path, method } ) => {
+					if ( path === `${ API_BASE }/connection` ) {
+						return Promise.resolve( { connected: true } );
+					}
+					const response = 'POST' === method ? { id: 'PLB-NEW1' } : {};
+
+					return slow === method
+						? new Promise( resolve => setTimeout( () => resolve( response ), 0 ) )
+						: Promise.resolve( response );
+				} );
+
+				await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
+				runSavedAction();
+
+				expect( apiFetch ).toHaveBeenCalledWith(
+					expect.objectContaining( { path: `${ API_BASE }/buttons/PLB-A1`, method: 'PUT' } )
+				);
+				expect( apiFetch ).toHaveBeenCalledWith(
+					expect.objectContaining( { path: `${ API_BASE }/buttons`, method: 'POST' } )
+				);
+				expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment link successfully created.' ) ] );
+			}
+		);
+
+		// The PUT's echo changes no attributes, so the filter returns before the content rewrite.
+		it( 'says the changes were saved after a PUT that changes nothing', async () => {
+			blocks.set( 'a', payPalBlock( 'a', 'PLB-A1' ) );
+			recordPaymentRead( 'a', 'PLB-A1' );
+			const edits = { content: blockComment( 'PLB-A1' ) };
+
+			const result = await runSaveFilter( edits );
+			runSavedAction();
+
+			expect( result ).toBe( edits );
+			expect( mockToast.mock.calls ).toEqual( [ saved( 'Changes saved.' ) ] );
 		} );
 
 		it( 'stays quiet when nothing was sent to PayPal', async () => {
 			blocks.set( 'a', payPalBlock( 'a', 'PLB-A1' ) );
 			recordPaymentRead( 'a', 'PLB-A1' );
 			await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
-			createNotice.mockClear();
+			runSavedAction();
+			expect( mockToast ).toHaveBeenCalledWith( ...saved( 'Changes saved.' ) );
+			mockToast.mockClear();
+			apiFetch.mockClear();
 
 			// The same block again is not re-sent.
 			await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
+			runSavedAction();
 
-			expect( createNotice ).not.toHaveBeenCalled();
+			expect( apiFetch ).not.toHaveBeenCalledWith( expect.objectContaining( { method: 'PUT' } ) );
+			expect( mockToast ).not.toHaveBeenCalled();
 		} );
 
 		it( 'stays quiet about a block held back', async () => {
-			const block = payPalBlock( 'a' );
+			const block = payPalBlock( 'a', 'PLB-A1' );
 			blocks.set( 'a', { ...block, attributes: { ...block.attributes, price: '' } } );
+			recordPaymentRead( 'a', 'PLB-A1' );
 
-			await runSaveFilter( { content: '' } );
+			await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
+			runSavedAction();
 
-			expect( createNotice ).toHaveBeenCalledWith(
-				'warning',
-				expect.anything(),
-				expect.anything()
-			);
-			expect( createNotice ).not.toHaveBeenCalledWith(
-				'success',
-				expect.anything(),
-				expect.anything()
-			);
+			expect( mockToast.mock.calls ).toEqual( [
+				[
+					'warning',
+					'The PayPal button "Widget" was not sent to PayPal: Price is required.',
+					'jetpack-paypal-held-back-a',
+				],
+			] );
+		} );
+
+		// The editor skips the action when the post fails to save, and an autosave
+		// writes nothing to PayPal, so neither may show the failed save's snackbar.
+		it( 'drops the snackbar of a save that failed', async () => {
+			blocks.set( 'a', payPalBlock( 'a', 'PLB-A1' ) );
+			recordPaymentRead( 'a', 'PLB-A1' );
+			await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
+
+			await runSaveFilter( { content: blockComment( 'PLB-A1' ) }, { isAutosave: true } );
+			runSavedAction();
+
+			expect( mockToast ).not.toHaveBeenCalled();
+		} );
+
+		// The PUT went through, so both are true: the payment saved, and the stacked
+		// buttons still need another save.
+		it( 'shows the saved snackbar beside a stacked read-back error', async () => {
+			const block = payPalBlock( 'a', 'PLB-A1' );
+			blocks.set( 'a', { ...block, attributes: { ...block.attributes, format: 'STACKED' } } );
+			recordPaymentRead( 'a', 'PLB-A1' );
+
+			await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
+			runSavedAction();
+
+			expect( mockToast.mock.calls ).toEqual( [
+				[
+					'error',
+					'There was an issue saving your stacked buttons. Please try again.',
+					'jetpack-paypal-sync-a',
+				],
+				saved( 'Changes saved.' ),
+			] );
 		} );
 	} );
 } );

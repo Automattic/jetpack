@@ -461,6 +461,8 @@ describe( 'syncBlocksBeforeSave', () => {
 				expect.objectContaining( { clientId: 'a' } ),
 				unavailable
 			);
+			// The payment was still created.
+			expect( deps.reportSaved.mock.calls ).toEqual( [ [ true ] ] );
 		} );
 
 		it( 'stores the SDK URL a create brings back, and stays quiet', async () => {
@@ -539,6 +541,8 @@ describe( 'syncBlocksBeforeSave', () => {
 				'There was an issue saving your stacked buttons. Please try again.'
 			);
 			expect( deps.reportError ).not.toHaveBeenCalledWith( expect.anything(), unavailable );
+			// The PUT still went through.
+			expect( deps.reportSaved.mock.calls ).toEqual( [ [ false ] ] );
 		} );
 
 		it( 'leaves a link block alone when the read-back is missing', async () => {
@@ -606,12 +610,15 @@ describe( 'syncBlocksBeforeSave', () => {
 
 			await syncBlocksBeforeSave( [ block ], deps );
 			expect( deps.reportError ).toHaveBeenCalledWith( expect.anything(), unavailable );
+			expect( deps.reportSaved.mock.calls ).toEqual( [ [ false ] ] );
 
 			// The body is unchanged, so the sync short-circuits and the block still
 			// has an empty scriptSrc.
 			deps.reportError.mockClear();
 			await syncBlocksBeforeSave( [ block ], deps );
 			expect( deps.reportError ).toHaveBeenCalledWith( expect.anything(), unavailable );
+			// Nothing was written this time.
+			expect( deps.reportSaved ).toHaveBeenCalledTimes( 1 );
 
 			// PayPal grants it. A changed body gets through, and the message stops.
 			scriptSrc = 'https://www.paypal.com/sdk/js?client-id=abc';

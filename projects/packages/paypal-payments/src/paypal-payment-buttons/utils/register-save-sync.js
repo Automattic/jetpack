@@ -8,7 +8,7 @@ import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-un
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { dispatch, select } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { addFilter } from '@wordpress/hooks';
+import { addAction, addFilter } from '@wordpress/hooks';
 import { __, sprintf } from '@wordpress/i18n';
 import metadata from '../block.json';
 import { API_BASE } from './api-base';
@@ -48,15 +48,22 @@ async function isConnected() {
  *
  * Runs on `editor.preSavePost`, which awaits it and saves the content it returns.
  * The post is saved whether or not PayPal cooperated: an error is reported, and the
- * merchant can save again.
+ * merchant can save again. What PayPal saved is shown on `editor.savePost`, which runs
+ * only once the post has saved.
  *
  * @param {Function} isEnabled - Whether API-managed buttons are on for this site.
  */
 export function registerSaveSync( isEnabled ) {
+	// The snackbar for what this save wrote to PayPal, held until the post has saved.
+	let savedMessage = null;
+
 	addFilter(
 		'editor.preSavePost',
 		'jetpack/paypal-payment-buttons/sync-payments',
 		async ( edits, options ) => {
+			// A save that failed never reaches the action below, so drop what it left.
+			savedMessage = null;
+
 			if ( options?.isAutosave || ! isEnabled() ) {
 				return edits;
 			}
@@ -96,15 +103,11 @@ export function registerSaveSync( isEnabled ) {
 				reportSaved: created => saved.push( created ),
 			} );
 
-			// Before the early return: a PUT can reach PayPal and still change no attributes.
+			// Set even when no attributes changed: a PUT can still have saved to PayPal.
 			if ( saved.length ) {
-				toast(
-					'success',
-					saved.includes( true )
-						? __( 'Payment link successfully created.', 'jetpack-paypal-payments' )
-						: __( 'Changes saved.', 'jetpack-paypal-payments' ),
-					'jetpack-paypal-saved'
-				);
+				savedMessage = saved.includes( true )
+					? __( 'Payment link successfully created.', 'jetpack-paypal-payments' )
+					: __( 'Changes saved.', 'jetpack-paypal-payments' );
 			}
 
 			if ( ! changed ) {
@@ -119,4 +122,12 @@ export function registerSaveSync( isEnabled ) {
 			return { ...edits, content };
 		}
 	);
+
+	// Runs only once the post has saved, so a failed save doesn't also show a success snackbar.
+	addAction( 'editor.savePost', 'jetpack/paypal-payment-buttons/saved-snackbar', () => {
+		if ( savedMessage ) {
+			toast( 'success', savedMessage, 'jetpack-paypal-saved' );
+			savedMessage = null;
+		}
+	} );
 }
