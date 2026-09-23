@@ -345,7 +345,7 @@ class Jetpack_Activity_Log {
 	 * the user-facing URL. Hooked only for the Activity Log request, so this
 	 * never affects any other screen.
 	 *
-	 * @since $$next-version$$ Takes no argument; hooked on `admin_enqueue_scripts`.
+	 * @since 0.4.1 Takes no argument; hooked on `admin_enqueue_scripts`.
 	 *
 	 * @return void
 	 */
@@ -362,7 +362,7 @@ class Jetpack_Activity_Log {
 	/**
 	 * Undo alias_screen_id_for_wp_build(), so code after the generated check sees the real screen ID.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.4.1
 	 *
 	 * @return void
 	 */
@@ -392,7 +392,7 @@ class Jetpack_Activity_Log {
 	 *
 	 * Fetching a JITM records a view, so one the page hides would still be counted.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.4.1
 	 *
 	 * @param bool   $show      Whether to show JITMs on the screen.
 	 * @param string $screen_id The screen ID.

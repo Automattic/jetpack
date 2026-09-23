@@ -138,6 +138,7 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
 					groupLabel={ groupLabel }
+					baseline="padded"
 				/>
 			</WidgetState>
 		</div>

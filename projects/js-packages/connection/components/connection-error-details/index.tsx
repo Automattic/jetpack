@@ -1,8 +1,38 @@
 import { Link, Stack, Text } from '@wordpress/ui';
+import { useCallback } from 'react';
 import { formatConnectionErrorDetailLine } from '../../hooks/use-connection-error-notice/error-details';
 import ConnectionErrorSupportLink from '../connection-error-support-link';
 import type { ConnectionErrorDetailsProps } from './types';
+import type { ConnectionErrorNoticeLink } from '../../hooks/use-connection-error-notice/types';
 import type { ReactNode } from 'react';
+
+/**
+ * One notice-body link (e.g. "Visit Site Health"), with its click handler bound
+ * to the link so the list can pass a stable reference rather than a per-item
+ * arrow (`react/jsx-no-bind`).
+ *
+ * @param {object}                    props         - Component props.
+ * @param {ConnectionErrorNoticeLink} props.link    - The link to render.
+ * @param {Function}                  props.onClick - Optional click handler.
+ * @return {ReactNode} The rendered link.
+ */
+function NoticeLink( {
+	link,
+	onClick,
+}: {
+	link: ConnectionErrorNoticeLink;
+	onClick?: ( link: ConnectionErrorNoticeLink ) => void;
+} ): ReactNode {
+	const handleClick = useCallback( () => onClick?.( link ), [ link, onClick ] );
+
+	return (
+		<Text>
+			<Link href={ link.url } onClick={ handleClick }>
+				{ link.label }
+			</Link>
+		</Text>
+	);
+}
 
 /**
  * What a connection error says, without the chrome that carries it.
@@ -19,6 +49,8 @@ function ConnectionErrorDetails( {
 	errorGroups = [],
 	showSupportLink = false,
 	variant,
+	onNoticeLinkClick,
+	onSupportLinkClick,
 }: ConnectionErrorDetailsProps ): ReactNode {
 	if ( ! message && ! errorGroups.length ) {
 		return null;
@@ -26,7 +58,7 @@ function ConnectionErrorDetails( {
 
 	const supportLink = showSupportLink ? (
 		<Text variant={ variant }>
-			<ConnectionErrorSupportLink />
+			<ConnectionErrorSupportLink onClick={ onSupportLinkClick } />
 		</Text>
 	) : null;
 
@@ -71,9 +103,7 @@ function ConnectionErrorDetails( {
 						</Stack>
 					) }
 					{ group.noticeLinks.map( link => (
-						<Text key={ link.url }>
-							<Link href={ link.url }>{ link.label }</Link>
-						</Text>
+						<NoticeLink key={ link.url } link={ link } onClick={ onNoticeLinkClick } />
 					) ) }
 				</Stack>
 			) ) }

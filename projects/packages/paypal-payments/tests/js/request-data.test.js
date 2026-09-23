@@ -52,6 +52,31 @@ const attributes = {
 };
 
 describe( 'buildRequestData', () => {
+	describe( 'integration_mode', () => {
+		// BUTTON mode is what makes PayPal answer with the SDK snippet.
+		it( 'sends BUTTON mode for a stacked block', () => {
+			expect(
+				buildRequestData( { ...attributes, format: 'STACKED' }, true ).integration_mode
+			).toBe( 'BUTTON' );
+		} );
+
+		// Two blocks can share one payment, and a downgrade drops the code_snippets
+		// the stacked one draws from.
+		it( 'keeps the mode the payment already has', () => {
+			expect(
+				buildRequestData( { ...attributes, format: 'LINK', integrationMode: 'BUTTON' }, true )
+					.integration_mode
+			).toBe( 'BUTTON' );
+		} );
+
+		it( 'falls back to LINK before the payment has been read', () => {
+			expect(
+				buildRequestData( { ...attributes, format: 'LINK', integrationMode: '' }, true )
+					.integration_mode
+			).toBe( 'LINK' );
+		} );
+	} );
+
 	it( 'sends every field the block models, with the option prices in the product currency', () => {
 		expect( buildRequestData( attributes, true ) ).toEqual( {
 			type: 'BUY_NOW',

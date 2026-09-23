@@ -107,6 +107,8 @@ Render it wherever a connection error has to be described outside a notice — a
 - *errorGroups* - array, the groups from `useConnectionErrorNotice`'s `errorGroups`.
 - *showSupportLink* - boolean, whether to append the "Contact Jetpack Support" link. Pass the hook's `showSupportLink`.
 - *variant* - string, a `@wordpress/ui` `Text` variant for the headlines and support link, for surfaces whose body copy is smaller than a notice's. The scope lines under a headline stay `body-sm` regardless.
+- *onNoticeLinkClick* - function, called with the link when a notice-body link (e.g. "Visit Site Health") is clicked, e.g. for tracking.
+- *onSupportLinkClick* - function, called when the "Contact Jetpack Support" link is clicked.
 
 ### Basic Usage
 ```jsx

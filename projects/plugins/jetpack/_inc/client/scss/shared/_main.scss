@@ -20,7 +20,8 @@
 
 // General Elements
 
-.wp-admin.toplevel_page_jetpack {
+.wp-admin.toplevel_page_jetpack,
+.wp-admin.jetpack_page_jetpack-settings:not(.network-admin) {
 	background-color: colors.$gray-light;
 	line-height: 1.4; // fixes core bug that sets an em unit on body
 	height: auto;
@@ -62,7 +63,8 @@
 }
 
 // restyled the arrow to match our gray
-.toplevel_page_jetpack ul#adminmenu a.wp-has-current-submenu::after {
+.toplevel_page_jetpack ul#adminmenu a.wp-has-current-submenu::after,
+.jetpack_page_jetpack-settings:not(.network-admin) ul#adminmenu a.wp-has-current-submenu::after {
 	border-right-color: colors.$gray-light;
 }
 

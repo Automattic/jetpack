@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [3.1.1] - 2026-09-21
+### Changed
+- Update dependencies.
+
 ## [3.1.0] - 2026-09-18
 ### Added
 - IconTooltip: Add a `popoverClassName` prop to style the popover when it renders outside its wrapper. [#52465]
@@ -1946,6 +1950,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[3.1.1]: https://github.com/Automattic/jetpack-components/compare/3.1.0...3.1.1
 [3.1.0]: https://github.com/Automattic/jetpack-components/compare/3.0.3...3.1.0
 [3.0.3]: https://github.com/Automattic/jetpack-components/compare/3.0.2...3.0.3
 [3.0.2]: https://github.com/Automattic/jetpack-components/compare/3.0.1...3.0.2

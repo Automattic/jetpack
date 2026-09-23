@@ -639,9 +639,12 @@ SettingsCard.propTypes = {
  */
 const getSeoUpgradeUrl = state => {
 	const siteFragment = getSiteFragment();
-	const redirectTo = addQueryArgs( getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/traffic', {
-		feature: 'seo',
-	} );
+	const redirectTo = addQueryArgs(
+		getSiteAdminUrl( state ) + 'admin.php?page=jetpack-settings#/traffic',
+		{
+			feature: 'seo',
+		}
+	);
 	return addQueryArgs( `https://wordpress.com/checkout/${ siteFragment }/${ PLAN_BUSINESS }`, {
 		redirect_to: redirectTo,
 	} );

@@ -197,7 +197,7 @@ export default function PageNotice( props ) {
 	if ( state === PAGE_NOTICE_STATES.CONNECTION_ERROR ) {
 		return (
 			<div className="jetpack-ai-admin__page-notice">
-				<ConnectionError />
+				<ConnectionError trackingContext="jetpack-ai" />
 			</div>
 		);
 	}

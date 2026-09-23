@@ -1,4 +1,7 @@
-import type { ConnectionErrorGroup } from '../../hooks/use-connection-error-notice/types';
+import type {
+	ConnectionErrorGroup,
+	ConnectionErrorNoticeLink,
+} from '../../hooks/use-connection-error-notice/types';
 import type { ReactElement } from 'react';
 
 export interface ActionItem {
@@ -18,4 +21,8 @@ export interface ConnectionErrorNoticeProps {
 	actions?: ActionItem[];
 	errorGroups?: ConnectionErrorGroup[];
 	showSupportLink?: boolean;
+	/** Fired when a notice-body link (e.g. "Visit Site Health") is clicked. */
+	onNoticeLinkClick?: ( link: ConnectionErrorNoticeLink ) => void;
+	/** Fired when the "Contact Jetpack Support" link is clicked. */
+	onSupportLinkClick?: () => void;
 }

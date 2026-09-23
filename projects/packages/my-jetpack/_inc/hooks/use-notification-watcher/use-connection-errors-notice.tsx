@@ -4,7 +4,9 @@ import {
 	formatConnectionErrorDetailLine,
 	getReconnectErrorMessage,
 	useConnectionErrorNotice,
+	type ConnectionErrorNoticeLink,
 	type ConnectionErrorObject,
+	type ConnectionErrorTrackingCallback,
 } from '@automattic/jetpack-connection';
 import { Link } from '@wordpress/ui';
 import { useContext, useEffect, useCallback, useMemo } from 'react';
@@ -23,6 +25,34 @@ import type { NoticeOptions, NoticeButtonAction } from '../../context/notices/ty
  */
 const NO_ACTION_HANDLERS: Record< string, ( error: ConnectionErrorObject ) => void > = {};
 
+/**
+ * One notice-body link with its click handler bound to the link, so the list
+ * passes a stable reference instead of a per-item arrow (`react/jsx-no-bind`).
+ *
+ * @param {object}                    props         - Component props.
+ * @param {ConnectionErrorNoticeLink} props.link    - The link to render.
+ * @param {Function}                  props.onClick - Optional click handler.
+ * @return {React.ReactElement} The rendered link.
+ */
+const NoticeLink = ( {
+	link,
+	onClick,
+}: {
+	link: ConnectionErrorNoticeLink;
+	// Optional so that during a Jetpack update, an older shared jetpack-connection
+	// copy whose hook predates `trackNoticeLinkClick` degrades to no tracking
+	// rather than a TypeError on click.
+	onClick?: ( link: ConnectionErrorNoticeLink ) => void;
+} ) => {
+	const handleClick = useCallback( () => onClick?.( link ), [ link, onClick ] );
+
+	return (
+		<Text mt={ 1 }>
+			<Link href={ link.url } onClick={ handleClick } children={ link.label } />
+		</Text>
+	);
+};
+
 const useConnectionErrorsNotice = (
 	actionHandlers: Record< string, ( error: ConnectionErrorObject ) => void > = NO_ACTION_HANDLERS
 ) => {
@@ -31,13 +61,10 @@ const useConnectionErrorsNotice = (
 
 	// Tracking callback for the shared resolver, preserving My Jetpack's
 	// "jetpack_"-prefixed event guard.
-	const trackingCallback = useCallback(
-		( event: string, data: object ) => {
+	const trackingCallback: ConnectionErrorTrackingCallback = useCallback(
+		( event, data ) => {
 			if ( event && event.startsWith( 'jetpack_' ) ) {
-				recordEvent(
-					event as `jetpack_${ string }`,
-					data as Parameters< typeof recordEvent >[ 1 ]
-				);
+				recordEvent( event as `jetpack_${ string }`, data );
 			}
 		},
 		[ recordEvent ]
@@ -55,13 +82,15 @@ const useConnectionErrorsNotice = (
 		errorGroups,
 		showSupportLink,
 		actions,
+		trackNoticeLinkClick,
+		trackSupportLinkClick,
 		isRestoringConnection,
 		restoreConnectionError,
 	} = useConnectionErrorNotice( {
 		actionHandlers,
 		trackingCallback,
+		trackingContext: 'my-jetpack',
 		navigate: assignLocation,
-		reconnectTrackingEvent: 'jetpack_my_jetpack_connection_error_notice_reconnect_cta_click',
 	} );
 
 	// Report the error the CTA belongs to rather than whichever came first in the
@@ -135,9 +164,7 @@ const useConnectionErrorsNotice = (
 							</Text>
 						) }
 						{ group.noticeLinks.map( link => (
-							<Text key={ link.url } mt={ 1 }>
-								<Link href={ link.url } children={ link.label } />
-							</Text>
+							<NoticeLink key={ link.url } link={ link } onClick={ trackNoticeLinkClick } />
 						) ) }
 					</div>
 				) ) }
@@ -145,7 +172,7 @@ const useConnectionErrorsNotice = (
 					// The copy and the destination are the connection package's, shared with
 					// its own notice so a translator sees one string and the two cannot drift.
 					<Text mt={ 1 }>
-						<ConnectionErrorSupportLink />
+						<ConnectionErrorSupportLink onClick={ trackSupportLinkClick } />
 					</Text>
 				) }
 			</Col>
@@ -184,6 +211,8 @@ const useConnectionErrorsNotice = (
 		errorTitle,
 		showSupportLink,
 		actions,
+		trackNoticeLinkClick,
+		trackSupportLinkClick,
 		isRestoringConnection,
 		restoreConnectionError,
 	] );

@@ -200,7 +200,7 @@ class Dashboard_Data {
 	 * The site-settings API stores a cleared page type as `''` (see JETPACK-2284), so the
 	 * option is looser than the Settings tab's type; anything not a token list becomes `array()`.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.5
 	 *
 	 * @param mixed $stored Raw option value.
 	 * @return array<string, array<int, array{type: string, value: string}>>

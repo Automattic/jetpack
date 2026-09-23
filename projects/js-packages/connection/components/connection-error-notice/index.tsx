@@ -22,6 +22,8 @@ function ConnectionErrorNotice( {
 	actions = [],
 	errorGroups = [],
 	showSupportLink = false,
+	onNoticeLinkClick,
+	onSupportLinkClick,
 }: ConnectionErrorNoticeProps ): ReactNode {
 	if ( ! message && ! errorGroups.length ) {
 		return null;
@@ -84,6 +86,8 @@ function ConnectionErrorNotice( {
 						message={ message }
 						errorGroups={ errorGroups }
 						showSupportLink={ showSupportLink }
+						onNoticeLinkClick={ onNoticeLinkClick }
+						onSupportLinkClick={ onSupportLinkClick }
 					/>
 				</Notice.Description>
 				{ actionButtons.length > 0 && <Notice.Actions>{ actionButtons }</Notice.Actions> }

@@ -1,4 +1,7 @@
-import type { ConnectionErrorGroup } from '../../hooks/use-connection-error-notice/types';
+import type {
+	ConnectionErrorGroup,
+	ConnectionErrorNoticeLink,
+} from '../../hooks/use-connection-error-notice/types';
 import type { Text } from '@wordpress/ui';
 import type { ComponentProps, ReactElement } from 'react';
 
@@ -16,4 +19,8 @@ export interface ConnectionErrorDetailsProps {
 	 * either way, being the smallest step the body scale has.
 	 */
 	variant?: ComponentProps< typeof Text >[ 'variant' ];
+	/** Fired when a notice-body link (e.g. "Visit Site Health") is clicked. */
+	onNoticeLinkClick?: ( link: ConnectionErrorNoticeLink ) => void;
+	/** Fired when the "Contact Jetpack Support" link is clicked. */
+	onSupportLinkClick?: () => void;
 }
