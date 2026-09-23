@@ -130,6 +130,7 @@ TextTrigger.args = {
 	trigger: 'be mindful',
 	popoverAnchorStyle: 'wrapper',
 	placement: 'bottom-end',
+	offset: -10,
 	title: 'Warning',
 	children: <div>Prerendering pages can be unsafe if the pages are not properly configured.</div>,
 };

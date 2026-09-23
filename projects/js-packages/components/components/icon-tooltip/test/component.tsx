@@ -136,12 +136,46 @@ describe( 'IconTooltip', () => {
 				await user.tab();
 				await user.keyboard( '{Enter}' );
 				expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
+				expect( trigger ).toHaveFocus();
 				await user.keyboard( '{Escape}' );
 				expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
 				expect( trigger ).toHaveFocus();
 				expect( trigger ).toHaveAttribute( 'aria-expanded', 'false' );
 			}
 		);
+
+		it( 'tabs into a portaled popover, back to the trigger, and closes with Escape from inside', async () => {
+			const restoreLayout = withLayout();
+			const user = userEvent.setup();
+			render(
+				<IconTooltip { ...triggerProps } inline={ false }>
+					<a href="#learn">Learn more</a>
+				</IconTooltip>
+			);
+			const trigger = screen.getByRole( 'button', { name: 'See an example' } );
+			await user.tab();
+			await user.keyboard( '{Enter}' );
+			await user.tab();
+			expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toHaveFocus();
+			await user.tab( { shift: true } );
+			expect( trigger ).toHaveFocus();
+			expect( trigger ).toHaveAttribute( 'aria-expanded', 'true' );
+			await user.tab();
+			await user.keyboard( '{Escape}' );
+			expect( screen.queryByRole( 'link', { name: 'Learn more' } ) ).not.toBeInTheDocument();
+			expect( trigger ).toHaveFocus();
+			restoreLayout();
+		} );
+
+		it( 'toggles once per Space press', async () => {
+			const user = userEvent.setup();
+			render( <IconTooltip { ...triggerProps } /> );
+			const trigger = screen.getByRole( 'button', { name: 'See an example' } );
+			await user.tab();
+			await user.keyboard( ' ' );
+			expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
+			expect( trigger ).toHaveAttribute( 'aria-expanded', 'true' );
+		} );
 
 		it( 'stays open while the trigger is held and closes on release', async () => {
 			const user = userEvent.setup();
