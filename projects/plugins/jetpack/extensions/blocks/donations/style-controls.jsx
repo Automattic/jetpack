@@ -11,21 +11,18 @@ import {
 	Button,
 	ColorIndicator,
 	Dropdown,
-	Flex,
-	FlexItem,
 	PanelBody,
 	PanelRow,
 	TabPanel,
 	__experimentalDropdownContentWrapper as DropdownContentWrapper, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToolsPanel as ToolsPanel, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToolsPanelItem as ToolsPanelItem, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalZStack as ZStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 
 /**
  * One row of color settings, modeled after the standard Color panel's "Button"
@@ -38,10 +35,9 @@ const COMPOUND_POPOVER_PROPS = { placement: 'left-start', offset: 36 };
 /**
  * Render a row in our color settings panels with the same look as the
  * standard "Color (Block support panel)" rows: a labeled-indicators toggle
- * button (slightly overlapping swatches via ZStack with offset:-8) inside a
- * ToolsPanelItem so that the standard
- * `block-editor-tools-panel-color-gradient-settings__item` styles (borders,
- * rounded corners, kebab-menu reset) apply for free.
+ * button (slightly overlapping swatches) inside a ToolsPanelItem so that the
+ * standard `block-editor-tools-panel-color-gradient-settings__item` styles
+ * (borders, rounded corners, kebab-menu reset) apply for free.
  *
  * Accepts 1+ settings; one setting renders one swatch, two render an
  * overlapping pair (matches the standard "Button" row).
@@ -63,18 +59,14 @@ const CompoundColorRow = ( { label, settings } ) => {
 				aria-label={ label }
 				__next40pxDefaultSize
 			>
-				<HStack justify="flex-start">
-					<ZStack isLayered={ false } offset={ -8 }>
+				<Stack direction="row" align="center" justify="flex-start" gap="sm">
+					<span className="jp-donations-compound-color-swatches">
 						{ settings.map( ( s, i ) => (
-							<Flex key={ i } expanded={ false }>
-								<ColorIndicator colorValue={ s.value } />
-							</Flex>
+							<ColorIndicator key={ i } colorValue={ s.value } />
 						) ) }
-					</ZStack>
-					<FlexItem className="block-editor-panel-color-gradient-settings__color-name">
-						{ label }
-					</FlexItem>
-				</HStack>
+					</span>
+					<span className="block-editor-panel-color-gradient-settings__color-name">{ label }</span>
+				</Stack>
 			</Button>
 		),
 		[ label, settings ]

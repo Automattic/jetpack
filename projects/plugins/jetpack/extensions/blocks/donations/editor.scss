@@ -174,3 +174,13 @@
 		text-overflow: clip;
 	}
 }
+
+// Overlapping color swatches for compound color rows.
+.jp-donations-compound-color-swatches {
+	display: inline-flex;
+	align-items: center;
+
+	> :not(:first-child) {
+		margin-inline-start: -8px;
+	}
+}
