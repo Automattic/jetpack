@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+Comment: Replace experimental ZStack/HStack with custom CSS and Stack from @wordpress/ui in Donations style controls.
+
