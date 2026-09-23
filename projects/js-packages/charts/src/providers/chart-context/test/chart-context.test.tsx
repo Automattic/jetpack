@@ -4,7 +4,7 @@ import { GlobalChartsProvider } from '../global-charts-provider';
 import { useChartId } from '../hooks/use-chart-id';
 import { useChartRegistration } from '../hooks/use-chart-registration';
 import { useGlobalChartsContext } from '../hooks/use-global-charts-context';
-import { contrastRatio } from '../private/perceptual-color';
+import { createPaletteGenerator } from '../private/palette-generator';
 import { defaultTheme } from '../themes';
 import type { BaseLegendItem } from '../../../components/legend';
 import type { SeriesData } from '../../../types';
@@ -2042,16 +2042,24 @@ describe( 'ChartContext', () => {
 		} );
 
 		describe( 'Background-aware generation', () => {
-			it( 'generates colors legible on the background the scope resolves', () => {
-				renderWithSlots( [ '#3858e9' ], { '--a8c-charts-color-background': '#1e1e1e' } );
+			const seed = '#3858e9';
 
-				expect( contrastRatio( colorAt( 1 ), '#1e1e1e' ) ).toBeGreaterThanOrEqual( 3 );
+			it( 'wires the resolved dark background into the generator', () => {
+				// Fixture guard: proves index 1 actually depends on the background for this seed,
+				// so a match below can't pass by coincidence.
+				const onDark = createPaletteGenerator( [ seed ], '#1e1e1e' )( 1 );
+				const onLight = createPaletteGenerator( [ seed ], '#ffffff' )( 1 );
+				expect( onDark ).not.toBe( onLight );
+
+				renderWithSlots( [ seed ], { '--a8c-charts-color-background': '#1e1e1e' } );
+
+				expect( colorAt( 1 ) ).toBe( onDark );
 			} );
 
-			it( 'generates a valid hex color when the background is transparent', () => {
-				renderWithSlots( [ '#3858e9' ], { '--a8c-charts-color-background': 'transparent' } );
+			it( 'falls back to a white background when the resolved value does not normalize to hex', () => {
+				renderWithSlots( [ seed ], { '--a8c-charts-color-background': 'not-a-real-color' } );
 
-				expect( colorAt( 1 ) ).toMatch( /^#[0-9a-f]{6}$/i );
+				expect( colorAt( 1 ) ).toBe( createPaletteGenerator( [ seed ], '#ffffff' )( 1 ) );
 			} );
 		} );
 
