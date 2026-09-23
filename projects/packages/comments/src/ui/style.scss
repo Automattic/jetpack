@@ -1,7 +1,3 @@
-/**
- * Widgets shared across the form.
- */
-
 .jetpack-comments__toggle {
 	all: unset;
 	display: inline-flex;
@@ -84,8 +80,7 @@
 	font-size: 13px;
 }
 
-// Named by its own class rather than the theme's .screen-reader-text, which is
-// not guaranteed to be there.
+// Not the theme's .screen-reader-text, which may not exist.
 .jetpack-comments__visually-hidden {
 	position: absolute;
 	inline-size: 1px;

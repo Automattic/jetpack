@@ -5,10 +5,10 @@ import { readPassport } from '../identity/checkpoint/passport';
 import type { Commenter, FormSettings, Provider, SignedIn, SubscriptionState } from './types';
 
 /**
- * Build one form's signals.
+ * One form's signals.
  *
- * @param formSettings - Values belonging to this form rather than to the page.
- * @return The signals for a single form.
+ * @param formSettings - This form's settings.
+ * @return The signals.
  */
 export function createSignals( formSettings: FormSettings ) {
 	const commentValue = signal( readDraft( formSettings.postId ) );
@@ -29,7 +29,6 @@ export function createSignals( formSettings: FormSettings ) {
 
 	const signedIn = signal< SignedIn | null >( passport ? { ...passport, code: null } : null );
 
-	// Which sign-in the reader has picked: a provider while its popup is open, or mail.
 	const activeService = signal< '' | 'mail' | Provider >( '' );
 
 	const isSigningIn = computed(
@@ -38,7 +37,6 @@ export function createSignals( formSettings: FormSettings ) {
 
 	const signInError = signal( '' );
 
-	// The identity tray under the textarea: opened by typing, or by the gear once signed in.
 	const isTrayOpen = signal( false );
 
 	const isSignedIn = computed( () => Boolean( JetpackComments.user ) || signedIn.value !== null );
@@ -73,12 +71,7 @@ export function createSignals( formSettings: FormSettings ) {
 
 export type CommentSignalsValue = ReturnType< typeof createSignals >;
 
-/**
- * Every form renders inside a Provider, so this default is never the one in use.
- * It is empty because createContext() insists on a value, and building real
- * signals here would read the settings blob and sessionStorage at import time,
- * before either is known to be there.
- */
+// A placeholder: real signals here would read the settings blob at import time.
 export const CommentSignals = createContext< CommentSignalsValue >(
 	undefined as unknown as CommentSignalsValue
 );

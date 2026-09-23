@@ -40,10 +40,7 @@ export type IdentitySettings = {
 	logoutAction: string;
 };
 
-/**
- * Who the reader signed in as through the popup, or the passport that brought
- * them back. `code` is set until the comment posts and the passport takes over.
- */
+/** `code` is held until the first subscriptions read or the comment posts; then the passport takes over. */
 export type SignedIn = Passport & {
 	code: string | null;
 };

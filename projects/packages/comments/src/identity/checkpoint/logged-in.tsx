@@ -16,8 +16,7 @@ export const LoggedIn = () => {
 	}
 
 	const leave = async () => {
-		// Always, even on a fresh code with no passport yet: the site takes back
-		// any httponly cookie, and the next popup is told to ask the provider again.
+		// Even on a fresh code with no passport: the next popup must be told to ask the provider again.
 		await logOut();
 
 		signedIn.value = null;

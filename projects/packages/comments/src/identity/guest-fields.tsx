@@ -10,22 +10,12 @@ import '../ui/style.scss';
 import './style.scss';
 
 type GuestFieldsProps = {
-	/** Whether the fields are shown. They leave the DOM when hidden, so nothing is required of them. */
+	/** Hidden fields leave the DOM, so a required one cannot block submit. */
 	open?: boolean;
-	/** Draw only the fields, for a block that already has its own prompt. */
 	bare?: boolean;
 };
 
-/**
- * Email, name and website for a reader who is not logged in to this site.
- *
- * These use core's own field names, so wp-comments-post.php reads them unchanged.
- *
- * @param props      - Component props.
- * @param props.open - Whether the fields are shown.
- * @param props.bare - Whether to leave out the prompt and wrapper.
- * @return The guest fields.
- */
+// Core's own field names, so wp-comments-post.php reads them unchanged.
 export const GuestFields = ( { open = true, bare = false }: GuestFieldsProps ) => {
 	const { commenter } = useContext( CommentSignals );
 	const { requireNameEmail, showCookiesConsent, strings } = JetpackComments;

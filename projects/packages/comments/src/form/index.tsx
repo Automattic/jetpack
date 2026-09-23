@@ -15,8 +15,7 @@ type CommentFormProps = {
 	form: HTMLFormElement;
 };
 
-// Long enough to stop a synchronous write landing on every keystroke, short
-// enough that a reader who navigates away mid-sentence keeps it.
+// Short enough that a reader who navigates away mid-sentence keeps the draft.
 const DRAFT_DEBOUNCE_MS = 300;
 
 const CommentForm = ( { form }: CommentFormProps ) => {
@@ -38,9 +37,7 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 		}
 	}, [ isSignedIn.value, isTrayOpen ] );
 
-	// Opens only as the comment goes from empty to not, so closing the tray mid-sentence sticks.
-	// A reader who arrived signed in, on the passport or a site login, gets it from the gear instead;
-	// a fresh popup sign-in still holds its code.
+	// On the empty-to-not transition only, so closing the tray mid-sentence sticks.
 	useEffect( () => {
 		const isReturning = isSignedIn.value && ! signedIn.value?.code;
 
@@ -97,8 +94,7 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 			}
 		};
 
-		// Flush whatever the debounce above is still holding. Safe for bfcache in
-		// a way beforeunload is not.
+		// pagehide rather than beforeunload, which would keep the page out of bfcache.
 		const onPageHide = () => saveDraft( formSettings.postId, commentValue.peek() );
 
 		form.addEventListener( 'submit', onSubmit );
@@ -141,8 +137,7 @@ document.querySelectorAll< HTMLElement >( '.jetpack-comments' ).forEach( element
 	let formSettings: FormSettings;
 
 	try {
-		// `||` rather than `??`: wp_json_encode() returns false on bad input, which
-		// reaches the attribute as an empty string that JSON.parse() would throw on.
+		// `||`, not `??`: a wp_json_encode() failure lands here as an empty string.
 		formSettings = JSON.parse( element.dataset.jetpackComments || '{}' ) as FormSettings;
 	} catch {
 		return;

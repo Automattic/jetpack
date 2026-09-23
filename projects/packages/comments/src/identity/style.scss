@@ -1,9 +1,5 @@
-/**
- * The identity block.
- */
-
-// Hidden, not just collapsed, so nothing inside a closed tray can take focus.
-// The visibility flip waits for the rows to finish collapsing.
+// Hidden, not just collapsed, so nothing in a closed tray can take focus.
+// The flip waits for the collapse.
 .jetpack-comments__tray {
 	display: grid;
 	grid-template-rows: 0fr;
