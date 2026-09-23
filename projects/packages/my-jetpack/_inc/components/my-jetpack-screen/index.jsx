@@ -204,8 +204,6 @@ export default function MyJetpackScreen() {
 								</Col>
 							</Container>
 						) }
-						{ /* No snackbar list here: the wp-build page shell already renders the
-						     notices store, and a second list showed every notice twice. */ }
 						{ noticeMessage && (
 							<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 								<Col>

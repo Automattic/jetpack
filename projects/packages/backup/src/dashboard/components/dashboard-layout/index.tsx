@@ -53,7 +53,6 @@ export default function DashboardLayout( { children, actions }: Props ) {
 		>
 			<div className="jpb-dashboard-body">
 				<div className="jpb-dashboard-body__inner">
-					{ /* Above <Gates>, so messages reach the no-plan screen too. */ }
 					<JitmSlot />
 					<Gates>{ children }</Gates>
 				</div>

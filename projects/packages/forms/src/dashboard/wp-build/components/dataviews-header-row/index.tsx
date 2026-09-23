@@ -128,7 +128,6 @@ export default function DataViewsHeaderRow( {
 					<DataViews.ViewConfig />
 				</Stack>
 			</Stack>
-			{ /* A row of its own, directly under the tabs. */ }
 			<JitmSlot />
 			<DataViews.FiltersToggled className="jp-forms-dataviews-filters__container" />
 		</>
