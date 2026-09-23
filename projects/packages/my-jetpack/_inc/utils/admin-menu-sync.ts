@@ -43,6 +43,10 @@ export function menuLinkOf( item: Element ): HTMLElement | null {
 	return item.querySelector< HTMLElement >( ':scope > a' );
 }
 
+/* Args core bakes the current page into: Appearance > Customize carries the page it was
+   rendered on, so matching on the raw href makes it new on every refresh. */
+const VOLATILE_ARGS = [ 'return', '_wpnonce' ];
+
 /**
  * The key an item is matched on across the two menus.
  *
@@ -54,7 +58,18 @@ function keyOf( item: Element ): string {
 		return `#${ item.id }`;
 	}
 
-	return menuLinkOf( item )?.getAttribute( 'href' ) ?? '';
+	const href = menuLinkOf( item )?.getAttribute( 'href' );
+
+	if ( ! href ) {
+		return '';
+	}
+
+	const link = new URL( href, window.location.href );
+
+	VOLATILE_ARGS.forEach( arg => link.searchParams.delete( arg ) );
+	link.searchParams.sort();
+
+	return link.pathname + link.search;
 }
 
 /**

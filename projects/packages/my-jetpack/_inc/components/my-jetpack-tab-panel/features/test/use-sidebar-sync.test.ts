@@ -79,6 +79,20 @@ describe( 'useSidebarSync', () => {
 		] );
 	} );
 
+	it( 'retires the pointer when a later refresh only takes items away', async () => {
+		fetchMock
+			.mockReturnValueOnce( respond( page( 'my-jetpack', 'stats' ) ) )
+			.mockReturnValueOnce( respond( page( 'my-jetpack' ) ) );
+
+		const { result } = renderHook( () => useSidebarSync( [ feature( 'stats' ) ] ) );
+
+		act( () => switchWritten() );
+		await waitFor( () => expect( result.current.pointer ).not.toBeNull() );
+
+		act( () => switchWritten() );
+		await waitFor( () => expect( result.current.pointer ).toBeNull() );
+	} );
+
 	it( 'aborts a refresh a newer write supersedes', async () => {
 		fetchMock
 			.mockReturnValueOnce( new Promise( () => {} ) )

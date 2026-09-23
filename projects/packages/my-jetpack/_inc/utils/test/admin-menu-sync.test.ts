@@ -1,4 +1,4 @@
-import { linksTo, syncAdminMenu } from '../admin-menu-sync';
+import { fetchAdminMenu, linksTo, syncAdminMenu } from '../admin-menu-sync';
 
 const submenu = ( ...pages: string[] ) =>
 	`<ul class="wp-submenu"><li class="wp-submenu-head">Jetpack</li>${ pages
@@ -86,6 +86,81 @@ describe( 'syncAdminMenu', () => {
 	} );
 } );
 
+describe( 'syncAdminMenu keys', () => {
+	const withCustomize = ( ret: string ) =>
+		new DOMParser()
+			.parseFromString(
+				`<ul id="adminmenu"><li id="menu-appearance"><a href="themes.php">Appearance</a><ul class="wp-submenu"><li><a href="customize.php?return=${ ret }">Customize</a></li></ul></li></ul>`,
+				'text/html'
+			)
+			.getElementById( 'adminmenu' ) as HTMLUListElement;
+
+	it( 'keeps an item whose link only differs by the page it was rendered on', () => {
+		document.body.innerHTML = withCustomize(
+			'%2Fwp-admin%2Fadmin.php%3Fpage%3Dmy-jetpack'
+		).outerHTML;
+		const live = document.getElementById( 'adminmenu' ) as HTMLUListElement;
+		const customize = live.querySelector( '.wp-submenu li' );
+
+		const added = syncAdminMenu( live, withCustomize( '%2Fwp-admin%2Ftools.php' ) );
+
+		expect( added ).toEqual( [] );
+		expect( live.querySelector( '.wp-submenu li' ) ).toBe( customize );
+	} );
+
+	it( 'inserts a new item before the first one both menus share', () => {
+		document.body.innerHTML = `<ul id="adminmenu"><li id="toplevel_page_jetpack"><a href="admin.php?page=my-jetpack">Jetpack</a></li></ul>`;
+		const live = document.getElementById( 'adminmenu' ) as HTMLUListElement;
+
+		const added = syncAdminMenu(
+			live,
+			freshMenu( [ 'my-jetpack' ] ) // starts with menu-dashboard, which live lacks
+		);
+
+		expect( added[ 0 ].id ).toBe( 'menu-dashboard' );
+		expect( labels( live )[ 0 ] ).toBe( 'menu-dashboard' );
+	} );
+
+	it( 'appends when the fresh menu shares nothing with the live one', () => {
+		document.body.innerHTML = `<ul id="adminmenu"><li id="menu-gone"><a href="gone.php">Gone</a></li></ul>`;
+		const live = document.getElementById( 'adminmenu' ) as HTMLUListElement;
+
+		const added = syncAdminMenu(
+			live,
+			new DOMParser()
+				.parseFromString(
+					`<ul id="adminmenu"><li id="menu-new"><a href="new.php">New</a></li></ul>`,
+					'text/html'
+				)
+				.getElementById( 'adminmenu' ) as HTMLUListElement
+		);
+
+		expect( added.map( item => item.id ) ).toEqual( [ 'menu-new' ] );
+		expect( labels( live ) ).toEqual( [ 'menu-new' ] );
+	} );
+} );
+
+describe( 'fetchAdminMenu', () => {
+	let fetchMock: jest.Mock;
+
+	beforeEach( () => {
+		fetchMock = jest.fn();
+		global.fetch = fetchMock;
+	} );
+
+	it( 'returns null when the page does not come back', async () => {
+		fetchMock.mockResolvedValue( { ok: false, text: async () => '' } );
+
+		await expect( fetchAdminMenu( 'https://example.com/wp-admin/tools.php' ) ).resolves.toBeNull();
+	} );
+
+	it( 'returns null when the page carries no menu', async () => {
+		fetchMock.mockResolvedValue( { ok: true, text: async () => '<html></html>' } );
+
+		await expect( fetchAdminMenu( 'https://example.com/wp-admin/tools.php' ) ).resolves.toBeNull();
+	} );
+} );
+
 describe( 'linksTo', () => {
 	it( 'matches an absolute URL to a relative menu link by its page', () => {
 		const [ , , advertising ] = Array.from(
@@ -98,5 +173,14 @@ describe( 'linksTo', () => {
 		expect( linksTo( advertising, 'https://example.com/wp-admin/admin.php?page=search' ) ).toBe(
 			false
 		);
+	} );
+
+	it( 'falls back to the path when the URL has no page argument', () => {
+		const [ tools ] = Array.from(
+			freshMenu( [] ).querySelectorAll< HTMLElement >( '#menu-tools' )
+		);
+
+		expect( linksTo( tools, 'https://example.com/wp-admin/tools.php' ) ).toBe( true );
+		expect( linksTo( tools, 'https://example.com/wp-admin/upload.php' ) ).toBe( false );
 	} );
 } );

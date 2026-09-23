@@ -26,7 +26,14 @@ export function onSwitchWritten( listener: () => void ): () => void {
 			const result = next( options );
 			if ( SWITCH_PATHS.some( path => path.test( options.path ?? '' ) ) ) {
 				result.then(
-					() => listeners.forEach( notify => notify() ),
+					() =>
+						listeners.forEach( notify => {
+							try {
+								notify();
+							} catch {
+								// One listener throwing must not cost the others their turn.
+							}
+						} ),
 					() => {}
 				);
 			}

@@ -44,7 +44,8 @@ export function MenuPointer( { target, onDismiss }: MenuPointerProps ) {
 		const timer = setTimeout( onDismiss, isDesktop ? DISMISS_AFTER : 0 );
 
 		return () => clearTimeout( timer );
-	}, [ isDesktop, onDismiss ] );
+		// target restarts the countdown, so a second pointer gets its own full window.
+	}, [ isDesktop, onDismiss, target ] );
 
 	if ( ! isDesktop ) {
 		return null;

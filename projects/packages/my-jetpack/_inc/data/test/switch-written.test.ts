@@ -21,6 +21,21 @@ describe( 'onSwitchWritten', () => {
 		expect( listener ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it( 'keeps notifying once a listener throws', async () => {
+		const after = jest.fn();
+		const stopThrowing = onSwitchWritten( () => {
+			throw new Error( 'nope' );
+		} );
+		const stopAfter = onSwitchWritten( after );
+
+		await apiFetch( { path: '/jetpack/v4/module/stats/active', method: 'POST' } );
+
+		expect( after ).toHaveBeenCalledTimes( 1 );
+
+		stopThrowing();
+		stopAfter();
+	} );
+
 	it( 'ignores other routes', async () => {
 		await apiFetch( { path: '/jetpack/v4/module/all' } );
 		await apiFetch( { path: '/wpcom/v2/my-jetpack/site/features' } );

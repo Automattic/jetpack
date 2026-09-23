@@ -47,9 +47,9 @@ export function useSidebarSync( features: MainFeature[] ) {
 
 					const added = syncAdminMenu( live, fresh );
 
-					if ( added.length ) {
-						setPointer( pickPointer( added, latest.current ) );
-					}
+					// A refresh that only removes retires the pointer, which may mark an item
+					// this one just took away.
+					setPointer( added.length ? pickPointer( added, latest.current ) : null );
 				} )
 				// A failed refresh costs nothing: the next page load has the menu.
 				.catch( () => {} );
