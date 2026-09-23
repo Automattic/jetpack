@@ -1,15 +1,18 @@
 <?php
 /**
- * The All Playlists block: every Video Playlist on the site, as a grid or a list.
+ * The All Playlists block: every Video Playlist on the site, as a gallery or a list.
  *
  * @package automattic/jetpack-videopress
  */
 
 namespace Automattic\Jetpack\VideoPress;
 
+use WP_Post;
+
 /**
  * Registers and renders the `videopress/all-playlists` block from the playlist
- * index. The markup is a placeholder until the block's design lands.
+ * index: a paginated gallery or list of playlist cards, each linking to the
+ * post its playlist lives in.
  */
 class All_Playlists_Block {
 
@@ -25,7 +28,38 @@ class All_Playlists_Block {
 	 *
 	 * @var string[]
 	 */
-	const LAYOUTS = array( 'grid', 'list' );
+	const LAYOUTS = array( 'gallery', 'list' );
+
+	/**
+	 * Supported orders, the first being the default.
+	 *
+	 * @var string[]
+	 */
+	const ORDERS = array( 'newest', 'oldest', 'title' );
+
+	/**
+	 * Supported pagination styles, the first being the default.
+	 *
+	 * @var string[]
+	 */
+	const PAGINATIONS = array( 'numbered', 'load-more' );
+
+	/**
+	 * Bounds of the layout settings; the editor controls use the same range.
+	 */
+	const MIN_COLUMNS      = 1;
+	const MAX_COLUMNS      = 6;
+	const DEFAULT_COLUMNS  = 3;
+	const MIN_PER_PAGE     = 1;
+	const MAX_PER_PAGE     = 48;
+	const DEFAULT_PER_PAGE = 6;
+
+	/**
+	 * Query argument carrying the current page of a numbered pagination.
+	 *
+	 * @var string
+	 */
+	const PAGE_QUERY_ARG = 'playlists-page';
 
 	/**
 	 * Register the block.
@@ -70,6 +104,124 @@ class All_Playlists_Block {
 	}
 
 	/**
+	 * Normalize the block attributes into the values the render uses.
+	 *
+	 * @param mixed $block_attributes Block attributes; anything but an array counts as none.
+	 *
+	 * @return array{layout: string, columns: int, per_page: int, order_by: string, show_description: bool, show_video_count: bool, show_total_runtime: bool, pagination: string}
+	 */
+	public static function settings( $block_attributes ) {
+		$block_attributes = is_array( $block_attributes ) ? $block_attributes : array();
+
+		$pick  = function ( $key, $allowed ) use ( $block_attributes ) {
+			return isset( $block_attributes[ $key ] ) && in_array( $block_attributes[ $key ], $allowed, true )
+				? $block_attributes[ $key ]
+				: $allowed[0];
+		};
+		$clamp = function ( $key, $min, $max, $default_value ) use ( $block_attributes ) {
+			return isset( $block_attributes[ $key ] ) && is_numeric( $block_attributes[ $key ] )
+				? max( $min, min( $max, (int) $block_attributes[ $key ] ) )
+				: $default_value;
+		};
+		$flag  = function ( $key, $default_value ) use ( $block_attributes ) {
+			return isset( $block_attributes[ $key ] ) ? (bool) $block_attributes[ $key ] : $default_value;
+		};
+
+		return array(
+			'layout'             => $pick( 'layout', self::LAYOUTS ),
+			'columns'            => $clamp( 'columns', self::MIN_COLUMNS, self::MAX_COLUMNS, self::DEFAULT_COLUMNS ),
+			'per_page'           => $clamp( 'perPage', self::MIN_PER_PAGE, self::MAX_PER_PAGE, self::DEFAULT_PER_PAGE ),
+			'order_by'           => $pick( 'orderBy', self::ORDERS ),
+			'show_description'   => $flag( 'showDescription', true ),
+			'show_video_count'   => $flag( 'showVideoCount', true ),
+			'show_total_runtime' => $flag( 'showTotalRuntime', false ),
+			'pagination'         => $pick( 'pagination', self::PAGINATIONS ),
+		);
+	}
+
+	/**
+	 * The indexed playlists in display order, each with its source post resolved.
+	 *
+	 * @param string $order_by One of ORDERS.
+	 *
+	 * @return array[] Records with `key`, `title`, `description`, `videos` and `post` (WP_Post|null).
+	 */
+	public static function ordered_playlists( $order_by ) {
+		$playlists = array();
+		$post_ids  = array();
+		foreach ( Playlist_Index::get_playlists() as $key => $record ) {
+			if ( ! is_array( $record ) ) {
+				continue;
+			}
+			$post_id     = isset( $record['post_id'] ) ? absint( $record['post_id'] ) : 0;
+			$playlists[] = array(
+				'key'         => (string) $key,
+				'title'       => isset( $record['title'] ) && is_string( $record['title'] ) ? $record['title'] : '',
+				'description' => isset( $record['description'] ) && is_string( $record['description'] ) ? $record['description'] : '',
+				'videos'      => isset( $record['videos'] ) && is_array( $record['videos'] ) ? $record['videos'] : array(),
+				'post_id'     => $post_id,
+				'post'        => null,
+			);
+			if ( $post_id ) {
+				$post_ids[] = $post_id;
+			}
+		}
+
+		if ( $post_ids ) {
+			_prime_post_caches( array_unique( $post_ids ), false, false );
+			foreach ( $playlists as &$playlist ) {
+				$post = $playlist['post_id'] ? get_post( $playlist['post_id'] ) : null;
+				if ( $post instanceof WP_Post && 'publish' === $post->post_status ) {
+					$playlist['post'] = $post;
+				}
+			}
+			unset( $playlist );
+		}
+
+		if ( 'title' === $order_by ) {
+			usort(
+				$playlists,
+				function ( $a, $b ) {
+					$result = strnatcasecmp( $a['title'], $b['title'] );
+					return 0 !== $result ? $result : strcmp( $a['key'], $b['key'] );
+				}
+			);
+		} else {
+			// Newest first by the source post's publish date; playlists without a post go last.
+			$date_of = function ( $playlist ) {
+				return $playlist['post'] ? $playlist['post']->post_date_gmt : '';
+			};
+			usort(
+				$playlists,
+				function ( $a, $b ) use ( $date_of, $order_by ) {
+					$date_a = $date_of( $a );
+					$date_b = $date_of( $b );
+					if ( '' === $date_a || '' === $date_b ) {
+						$result = strcmp( $date_b, $date_a );
+					} else {
+						$result = 'newest' === $order_by ? strcmp( $date_b, $date_a ) : strcmp( $date_a, $date_b );
+					}
+					return 0 !== $result ? $result : strcmp( $a['key'], $b['key'] );
+				}
+			);
+		}
+
+		return $playlists;
+	}
+
+	/**
+	 * The page a numbered pagination is showing, from the request.
+	 *
+	 * @return int 1-based page number.
+	 */
+	private static function requested_page() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only pagination argument, like core's paged.
+		$page = isset( $_GET[ self::PAGE_QUERY_ARG ] ) ? absint( wp_unslash( $_GET[ self::PAGE_QUERY_ARG ] ) ) : 1;
+
+		return max( 1, $page );
+	}
+
+	/**
 	 * Render callback.
 	 *
 	 * @param array $block_attributes Block attributes.
@@ -77,65 +229,255 @@ class All_Playlists_Block {
 	 * @return string Block markup, or an empty string when the site has no playlists.
 	 */
 	public static function render( $block_attributes ) {
-		$playlists = Playlist_Index::get_playlists();
-		if ( ! $playlists ) {
+		$settings  = self::settings( $block_attributes );
+		$playlists = self::ordered_playlists( $settings['order_by'] );
+		$total     = count( $playlists );
+		if ( ! $total ) {
 			return '';
 		}
 
-		$layout = isset( $block_attributes['layout'] ) && in_array( $block_attributes['layout'], self::LAYOUTS, true )
-			? $block_attributes['layout']
-			: self::LAYOUTS[0];
+		$total_videos = array_sum( array_map( 'count', array_column( $playlists, 'videos' ) ) );
+		$per_page     = $settings['per_page'];
+		$pages        = (int) ceil( $total / $per_page );
+		$is_load_more = 'load-more' === $settings['pagination'];
+		$current_page = $is_load_more ? 1 : min( $pages, self::requested_page() );
 
 		$items = '';
-		foreach ( $playlists as $key => $playlist ) {
-			if ( ! is_array( $playlist ) ) {
+		foreach ( $playlists as $index => $playlist ) {
+			$page = (int) floor( $index / $per_page ) + 1;
+			if ( ! $is_load_more && $page !== $current_page ) {
 				continue;
 			}
+			$items .= self::render_item( $playlist, $settings, $page, $is_load_more && $page > 1 );
+		}
 
-			$videos = isset( $playlist['videos'] ) && is_array( $playlist['videos'] ) ? $playlist['videos'] : array();
-			$title  = isset( $playlist['title'] ) && is_string( $playlist['title'] ) && '' !== $playlist['title']
-				? $playlist['title']
-				: __( 'Untitled playlist', 'jetpack-videopress-pkg' );
+		if ( $is_load_more ) {
+			$shown   = min( $per_page, $total );
+			$summary = sprintf(
+				/* translators: 1: number of playlists shown. 2: number of playlists on the site. */
+				__( 'Showing %1$s of %2$s', 'jetpack-videopress-pkg' ),
+				number_format_i18n( $shown ),
+				number_format_i18n( $total )
+			);
+			$pagination = $total > $shown ? self::render_load_more( $total - $shown, $per_page ) : '';
+		} else {
+			$summary = sprintf(
+				/* translators: %s: number of playlists on the site. */
+				_n( '%s playlist', '%s playlists', $total, 'jetpack-videopress-pkg' ),
+				number_format_i18n( $total )
+			);
+			$pagination = $pages > 1 ? self::render_numbered_pagination( $current_page, $pages ) : '';
+		}
 
-			$description = isset( $playlist['description'] ) && is_string( $playlist['description'] ) && '' !== $playlist['description']
-				? sprintf( '<p class="videopress-all-playlists__description">%s</p>', esc_html( $playlist['description'] ) )
-				: '';
+		$classes = array(
+			'videopress-all-playlists',
+			'is-layout-' . $settings['layout'],
+			'is-pagination-' . $settings['pagination'],
+		);
 
-			$items .= sprintf(
-				'<li class="videopress-all-playlists__item" data-playlist="%1$s">' .
-					'<div class="videopress-all-playlists__thumb" aria-hidden="true"></div>' .
-					'<div class="videopress-all-playlists__body">' .
-						'<h3 class="videopress-all-playlists__title">%2$s</h3>%3$s' .
-						'<span class="videopress-all-playlists__count">%4$s</span>' .
-					'</div>' .
-				'</li>',
-				esc_attr( (string) $key ),
-				esc_html( $title ),
-				$description,
+		$wrapper_attributes = get_block_wrapper_attributes(
+			array(
+				'class'               => implode( ' ', $classes ),
+				'style'               => '--vpap-columns:' . $settings['columns'] . ';',
+				'data-playlist-total' => (string) $total,
+				'data-video-total'    => (string) $total_videos,
+				'data-per-page'       => (string) $per_page,
+				/* translators: 1: number of playlists shown. 2: number of playlists on the site. */
+				'data-summary'        => __( 'Showing %1$s of %2$s', 'jetpack-videopress-pkg' ),
+			)
+		);
+
+		return sprintf(
+			'<div %1$s>' .
+				'<div class="videopress-all-playlists__header"><h2 class="videopress-all-playlists__heading">%2$s</h2><span class="videopress-all-playlists__summary">%3$s</span></div>' .
+				'<ul class="videopress-all-playlists__items">%4$s</ul>%5$s' .
+			'</div>',
+			$wrapper_attributes,
+			esc_html__( 'Playlists', 'jetpack-videopress-pkg' ),
+			esc_html( $summary ),
+			$items,
+			$pagination
+		);
+	}
+
+	/**
+	 * Render one playlist card.
+	 *
+	 * @param array $playlist A record from ordered_playlists().
+	 * @param array $settings Normalized settings.
+	 * @param int   $page     The page the card belongs to.
+	 * @param bool  $hidden   Whether the card starts hidden, waiting for "Load more".
+	 *
+	 * @return string Card markup.
+	 */
+	private static function render_item( $playlist, $settings, $page, $hidden ) {
+		$title       = '' !== $playlist['title'] ? $playlist['title'] : __( 'Untitled playlist', 'jetpack-videopress-pkg' );
+		$permalink   = $playlist['post'] ? get_permalink( $playlist['post'] ) : '';
+		$video_count = count( $playlist['videos'] );
+		$first_guid  = $video_count && isset( $playlist['videos'][0]['guid'] ) && is_string( $playlist['videos'][0]['guid'] )
+			? $playlist['videos'][0]['guid']
+			: '';
+
+		$item_classes   = array( 'videopress-all-playlists__item' );
+		$item_classes[] = $first_guid ? 'is-poster-loading' : 'is-poster-missing';
+
+		$badge = '';
+		if ( $settings['show_video_count'] ) {
+			$badge = sprintf(
+				'<span class="videopress-all-playlists__badge"><span class="videopress-all-playlists__badge-icon" aria-hidden="true">≡</span>%s</span>',
 				esc_html(
 					sprintf(
-						/* translators: %d: number of videos in the playlist. */
-						_n( '%d video', '%d videos', count( $videos ), 'jetpack-videopress-pkg' ),
-						count( $videos )
+						/* translators: %s: number of videos in the playlist. */
+						_n( '%s video', '%s videos', $video_count, 'jetpack-videopress-pkg' ),
+						number_format_i18n( $video_count )
 					)
 				)
 			);
 		}
 
-		if ( '' === $items ) {
-			return '';
+		$poster = sprintf(
+			'<span class="videopress-all-playlists__deck" aria-hidden="true"></span>' .
+			'<span class="videopress-all-playlists__poster-frame">' .
+				'<img class="videopress-all-playlists__poster-image" alt="" loading="lazy" hidden />' .
+				'<span class="videopress-all-playlists__poster-missing">%1$s</span>%2$s' .
+			'</span>',
+			esc_html__( 'No poster available', 'jetpack-videopress-pkg' ),
+			$badge
+		);
+		$poster = $permalink
+			? sprintf(
+				'<a class="videopress-all-playlists__poster" href="%1$s" aria-label="%2$s"%3$s>%4$s</a>',
+				esc_url( $permalink ),
+				esc_attr( $title ),
+				$first_guid ? ' data-guid="' . esc_attr( $first_guid ) . '"' : '',
+				$poster
+			)
+			: sprintf(
+				'<span class="videopress-all-playlists__poster"%1$s>%2$s</span>',
+				$first_guid ? ' data-guid="' . esc_attr( $first_guid ) . '"' : '',
+				$poster
+			);
+
+		$body = sprintf(
+			'<h3 class="videopress-all-playlists__title">%s</h3>',
+			$permalink
+				? sprintf( '<a href="%1$s">%2$s</a>', esc_url( $permalink ), esc_html( $title ) )
+				: esc_html( $title )
+		);
+		if ( $settings['show_description'] && '' !== $playlist['description'] ) {
+			$body .= sprintf( '<p class="videopress-all-playlists__description">%s</p>', esc_html( $playlist['description'] ) );
+		}
+		if ( $settings['show_total_runtime'] ) {
+			$runtime = Initializer::playlist_runtime_label(
+				array_sum(
+					array_map(
+						function ( $video ) {
+							return isset( $video['durationMs'] ) && is_numeric( $video['durationMs'] ) ? (int) $video['durationMs'] : 0;
+						},
+						$playlist['videos']
+					)
+				)
+			);
+			if ( '' !== $runtime ) {
+				$body .= sprintf( '<span class="videopress-all-playlists__runtime">%s</span>', esc_html( $runtime ) );
+			}
+		}
+		$body .= sprintf(
+			'<span class="videopress-all-playlists__poster-note">%s</span>',
+			esc_html__( 'First video is private or was deleted.', 'jetpack-videopress-pkg' )
+		);
+		if ( $permalink ) {
+			$body .= sprintf(
+				'<a class="videopress-all-playlists__link" href="%1$s">%2$s</a>',
+				esc_url( $permalink ),
+				esc_html__( 'View full playlist →', 'jetpack-videopress-pkg' )
+			);
 		}
 
-		$wrapper_attributes = get_block_wrapper_attributes(
-			array(
-				'class' => 'videopress-all-playlists is-layout-' . $layout,
-			)
+		return sprintf(
+			'<li class="%1$s" data-playlist="%2$s" data-page="%3$d"%4$s>%5$s<div class="videopress-all-playlists__body">%6$s</div></li>',
+			esc_attr( implode( ' ', $item_classes ) ),
+			esc_attr( $playlist['key'] ),
+			$page,
+			$hidden ? ' hidden' : '',
+			$poster,
+			$body
 		);
+	}
+
+	/**
+	 * Render the numbered pagination.
+	 *
+	 * @param int $current Current page.
+	 * @param int $pages   Number of pages.
+	 *
+	 * @return string Pagination markup.
+	 */
+	private static function render_numbered_pagination( $current, $pages ) {
+		$url_for = function ( $page ) {
+			return 1 === $page
+				? remove_query_arg( self::PAGE_QUERY_ARG )
+				: add_query_arg( self::PAGE_QUERY_ARG, $page );
+		};
+
+		$links = $current > 1
+			? sprintf(
+				'<a class="videopress-all-playlists__page videopress-all-playlists__page--prev" href="%1$s">%2$s</a>',
+				esc_url( $url_for( $current - 1 ) ),
+				esc_html__( '← Previous', 'jetpack-videopress-pkg' )
+			)
+			: sprintf(
+				'<span class="videopress-all-playlists__page videopress-all-playlists__page--prev is-disabled" aria-disabled="true">%s</span>',
+				esc_html__( '← Previous', 'jetpack-videopress-pkg' )
+			);
+
+		for ( $page = 1; $page <= $pages; $page++ ) {
+			$links .= $page === $current
+				? sprintf(
+					'<span class="videopress-all-playlists__page videopress-all-playlists__page--number is-current" aria-current="page">%d</span>',
+					$page
+				)
+				: sprintf(
+					'<a class="videopress-all-playlists__page videopress-all-playlists__page--number" href="%1$s">%2$d</a>',
+					esc_url( $url_for( $page ) ),
+					$page
+				);
+		}
+
+		$links .= $current < $pages
+			? sprintf(
+				'<a class="videopress-all-playlists__page videopress-all-playlists__page--next" href="%1$s">%2$s</a>',
+				esc_url( $url_for( $current + 1 ) ),
+				esc_html__( 'Next →', 'jetpack-videopress-pkg' )
+			)
+			: sprintf(
+				'<span class="videopress-all-playlists__page videopress-all-playlists__page--next is-disabled" aria-disabled="true">%s</span>',
+				esc_html__( 'Next →', 'jetpack-videopress-pkg' )
+			);
 
 		return sprintf(
-			'<div %1$s><ul class="videopress-all-playlists__items">%2$s</ul></div>',
-			$wrapper_attributes,
-			$items
+			'<nav class="videopress-all-playlists__pagination" aria-label="%1$s">%2$s</nav>',
+			esc_attr__( 'Playlists pagination', 'jetpack-videopress-pkg' ),
+			$links
+		);
+	}
+
+	/**
+	 * Render the "Load more" button.
+	 *
+	 * @param int $remaining Playlists not shown yet.
+	 * @param int $per_page  Playlists revealed per click.
+	 *
+	 * @return string Button markup.
+	 */
+	private static function render_load_more( $remaining, $per_page ) {
+		/* translators: %s: number of playlists the button reveals. */
+		$label = __( 'Load %s more', 'jetpack-videopress-pkg' );
+
+		return sprintf(
+			'<div class="videopress-all-playlists__load-more"><button type="button" class="videopress-all-playlists__load-more-button" data-label="%1$s">%2$s</button></div>',
+			esc_attr( $label ),
+			esc_html( sprintf( $label, number_format_i18n( min( $remaining, $per_page ) ) ) )
 		);
 	}
 }

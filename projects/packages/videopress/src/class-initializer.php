@@ -822,7 +822,7 @@ class Initializer {
 	 *
 	 * @return string Runtime label, or an empty string when the duration is unknown.
 	 */
-	private static function playlist_runtime_label( $duration_ms ) {
+	public static function playlist_runtime_label( $duration_ms ) {
 		if ( $duration_ms <= 0 ) {
 			return '';
 		}

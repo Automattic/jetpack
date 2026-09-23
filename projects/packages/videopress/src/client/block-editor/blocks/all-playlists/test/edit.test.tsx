@@ -19,6 +19,20 @@ jest.mock( '@wordpress/block-editor', () => ( {
 
 const apiFetchMock = apiFetch as unknown as jest.Mock;
 
+const DEFAULT_ATTRIBUTES: AllPlaylistsAttributes = {
+	layout: 'gallery',
+	columns: 3,
+	perPage: 6,
+	orderBy: 'newest',
+	showDescription: true,
+	showVideoCount: true,
+	showTotalRuntime: false,
+	pagination: 'numbered',
+};
+
+const RENDERED =
+	'<div class="wp-block-videopress-all-playlists videopress-all-playlists is-layout-gallery" data-playlist-total="2" data-video-total="9">Playlists</div>';
+
 /**
  * Render the edit component.
  *
@@ -30,7 +44,7 @@ function renderEdit(
 	setAttributes: jest.Mock = jest.fn()
 ) {
 	const props = {
-		attributes: { layout: 'grid', ...overrides },
+		attributes: { ...DEFAULT_ATTRIBUTES, ...overrides },
 		setAttributes,
 		clientId: 'all-playlists-client-1',
 	} as unknown as BlockEditProps< AllPlaylistsAttributes >;
@@ -43,30 +57,39 @@ beforeEach( () => {
 } );
 
 describe( 'AllPlaylistsEdit', () => {
-	it( 'renders the server-rendered markup for the current layout', async () => {
-		apiFetchMock.mockResolvedValue( {
-			rendered: '<div class="videopress-all-playlists is-layout-list">Playlists</div>',
-		} );
+	it( 'renders the server-rendered markup with every setting sent along', async () => {
+		apiFetchMock.mockResolvedValue( { rendered: RENDERED } );
 
-		renderEdit( { layout: 'list' } );
+		renderEdit( { layout: 'list', perPage: 4, pagination: 'load-more' } );
 
-		expect( screen.getByText( 'Loading playlists…' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'status', { name: 'Loading playlists…' } ) ).toBeInTheDocument();
 		await expect( screen.findByText( 'Playlists' ) ).resolves.toBeInTheDocument();
-		expect( apiFetchMock.mock.calls[ 0 ][ 0 ].path ).toContain(
-			'/wp/v2/block-renderer/videopress/all-playlists'
-		);
-		expect( apiFetchMock.mock.calls[ 0 ][ 0 ].path ).toContain( 'layout%5D=list' );
+
+		const path = decodeURIComponent( apiFetchMock.mock.calls[ 0 ][ 0 ].path );
+		expect( path ).toContain( '/wp/v2/block-renderer/videopress/all-playlists' );
+		expect( path ).toContain( 'attributes[layout]=list' );
+		expect( path ).toContain( 'attributes[perPage]=4' );
+		expect( path ).toContain( 'attributes[pagination]=load-more' );
 	} );
 
-	it( 'shows the empty placeholder when the site has no playlists', async () => {
+	it( 'summarizes the index from the rendered markup', async () => {
+		apiFetchMock.mockResolvedValue( { rendered: RENDERED } );
+
+		renderEdit();
+
+		await expect( screen.findByText( '2 playlists · 9 videos' ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( 'shows the empty state when the site has no playlists', async () => {
 		apiFetchMock.mockResolvedValue( { rendered: '' } );
 
 		renderEdit();
 
 		await expect( screen.findByText( 'No playlists yet' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( '0 playlists · 0 videos' ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows the error placeholder when rendering fails', async () => {
+	it( 'shows the error state when rendering fails', async () => {
 		apiFetchMock.mockRejectedValue( new Error( 'nope' ) );
 
 		renderEdit();
@@ -76,15 +99,43 @@ describe( 'AllPlaylistsEdit', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
-	it( 'switches the layout from the sidebar', async () => {
+	it( 'switches the layout and offers columns for the gallery only', async () => {
 		apiFetchMock.mockResolvedValue( { rendered: '' } );
 		const setAttributes = jest.fn();
 
 		renderEdit( {}, setAttributes );
 		await waitFor( () => expect( apiFetchMock ).toHaveBeenCalled() );
 
+		expect( screen.getByRole( 'slider', { name: 'Columns' } ) ).toBeInTheDocument();
 		await userEvent.click( screen.getByRole( 'radio', { name: 'List' } ) );
-
 		expect( setAttributes ).toHaveBeenCalledWith( { layout: 'list' } );
+	} );
+
+	it( 'hides the columns control in the list layout', async () => {
+		apiFetchMock.mockResolvedValue( { rendered: '' } );
+
+		renderEdit( { layout: 'list' } );
+		await waitFor( () => expect( apiFetchMock ).toHaveBeenCalled() );
+
+		expect( screen.queryByRole( 'slider', { name: 'Columns' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'clamps the playlists per page and sets the order and pagination', async () => {
+		apiFetchMock.mockResolvedValue( { rendered: '' } );
+		const setAttributes = jest.fn();
+
+		renderEdit( {}, setAttributes );
+		await waitFor( () => expect( apiFetchMock ).toHaveBeenCalled() );
+
+		const perPage = screen.getByRole( 'spinbutton', { name: 'Playlists per page' } );
+		await userEvent.clear( perPage );
+		await userEvent.type( perPage, '99' );
+		expect( setAttributes ).toHaveBeenLastCalledWith( { perPage: 48 } );
+
+		await userEvent.selectOptions( screen.getByRole( 'combobox', { name: 'Order by' } ), 'title' );
+		expect( setAttributes ).toHaveBeenLastCalledWith( { orderBy: 'title' } );
+
+		await userEvent.click( screen.getByRole( 'radio', { name: '“Load more” button' } ) );
+		expect( setAttributes ).toHaveBeenLastCalledWith( { pagination: 'load-more' } );
 	} );
 } );

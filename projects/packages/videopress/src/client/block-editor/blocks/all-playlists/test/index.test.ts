@@ -23,8 +23,17 @@ describe( 'all playlists block registration', () => {
 		expect( settings.category ).toBe( 'media' );
 		expect( typeof settings.edit ).toBe( 'function' );
 		expect( settings.icon ).toBeDefined();
-		expect( settings.attributes.layout.default ).toBe( 'grid' );
-		expect( settings.attributes.layout.enum ).toEqual( [ 'grid', 'list' ] );
+
+		const { attributes } = settings;
+		expect( attributes.layout.default ).toBe( 'gallery' );
+		expect( attributes.layout.enum ).toEqual( [ 'gallery', 'list' ] );
+		expect( attributes.columns.default ).toBe( 3 );
+		expect( attributes.perPage.default ).toBe( 6 );
+		expect( attributes.orderBy.default ).toBe( 'newest' );
+		expect( attributes.showDescription.default ).toBe( true );
+		expect( attributes.showVideoCount.default ).toBe( true );
+		expect( attributes.showTotalRuntime.default ).toBe( false );
+		expect( attributes.pagination.default ).toBe( 'numbered' );
 
 		// Dynamic block: the front end comes from the PHP render callback.
 		expect( settings.save() ).toBeNull();
