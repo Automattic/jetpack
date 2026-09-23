@@ -67,7 +67,18 @@ export function FeaturesEmptyState( {
 	onFilterChange,
 }: FeaturesEmptyStateProps ) {
 	const showAll = useCallback( () => onFilterChange( 'all' ), [ onFilterChange ] );
-	const showActive = useCallback( () => onFilterChange( 'active' ), [ onFilterChange ] );
+
+	// Both filter states offer the same way out: drop the filter and show everything.
+	const exploreAll = (
+		// ds-allow: button -- Link's render target; this switches the filter rather than navigating.
+		<Link
+			className={ styles[ 'link-button' ] }
+			render={ <button type="button" /> }
+			onClick={ showAll }
+		>
+			{ __( 'Explore all', 'jetpack-my-jetpack' ) }
+		</Link>
+	);
 
 	// Checked before the search: a term that matched nothing in a list that never arrived
 	// would otherwise blame the term.
@@ -121,14 +132,7 @@ export function FeaturesEmptyState( {
 				heading={ __( 'No features are active yet.', 'jetpack-my-jetpack' ) }
 				body={ __( 'Turn one on and it will appear here.', 'jetpack-my-jetpack' ) }
 			>
-				{ /* ds-allow: button -- Link's render target; this switches the filter rather than navigating. */ }
-				<Link
-					className={ styles[ 'link-button' ] }
-					render={ <button type="button" /> }
-					onClick={ showAll }
-				>
-					{ __( 'Explore all', 'jetpack-my-jetpack' ) }
-				</Link>
+				{ exploreAll }
 			</Empty>
 		);
 	}
@@ -140,9 +144,7 @@ export function FeaturesEmptyState( {
 				heading={ __( 'Everything is turned on.', 'jetpack-my-jetpack' ) }
 				body={ __( 'There are no inactive features left on this site.', 'jetpack-my-jetpack' ) }
 			>
-				<Button variant="solid" onClick={ showActive }>
-					{ __( 'View active features', 'jetpack-my-jetpack' ) }
-				</Button>
+				{ exploreAll }
 			</Empty>
 		);
 	}

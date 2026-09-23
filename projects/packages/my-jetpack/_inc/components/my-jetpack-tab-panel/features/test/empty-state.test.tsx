@@ -54,9 +54,9 @@ describe( 'FeaturesEmptyState', () => {
 
 		expect( screen.getByRole( 'heading' ) ).toHaveTextContent( 'Everything is turned on.' );
 
-		await userEvent.click( screen.getByRole( 'button', { name: 'View active features' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Explore all' } ) );
 
-		expect( props.onFilterChange ).toHaveBeenCalledWith( 'active' );
+		expect( props.onFilterChange ).toHaveBeenCalledWith( 'all' );
 	} );
 
 	it( 'reports a catalog that never arrived as a failure, not as an empty site', async () => {

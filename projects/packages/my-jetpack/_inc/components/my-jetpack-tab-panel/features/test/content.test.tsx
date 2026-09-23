@@ -44,7 +44,7 @@ describe( 'FeaturesContent', () => {
 
 		expect( screen.getByRole( 'heading', { name: 'Everything is turned on.' } ) ).toBeVisible();
 
-		await userEvent.click( screen.getByRole( 'button', { name: 'View active features' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Explore all' } ) );
 
 		expect( screen.getByText( 'grid card' ) ).toBeInTheDocument();
 	} );
