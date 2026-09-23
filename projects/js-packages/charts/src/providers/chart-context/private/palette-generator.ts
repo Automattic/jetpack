@@ -132,13 +132,17 @@ export const createPaletteGenerator = (
 	seeds: readonly string[],
 	background: string
 ): ( ( index: number ) => string ) => {
-	const palette: Candidate[] = seeds.map( hex => ( { hex, views: hexToViews( hex ) } ) );
-	const usedHexes = new Set< string >( seeds );
+	const normalizedSeeds = seeds.map( hex => hex.toLowerCase() );
+	const palette: Candidate[] = normalizedSeeds.map( hex => ( { hex, views: hexToViews( hex ) } ) );
+	const usedHexes = new Set< string >( normalizedSeeds );
 
 	let legibleTracker: Tracker | null = null;
 	let legibleExhausted = false;
 	let gridTracker: Tracker | null = null;
 	let gridExhausted = false;
+	// Colors placed by the time the grid ran out; the fallback below cycles through only these.
+	let placedBeforeExhaustion = 0;
+	let repeatCount = 0;
 
 	const nextColor = (): Candidate => {
 		legibleTracker ??= buildTracker( legibleCandidatesFor( background ), palette, usedHexes );
@@ -156,9 +160,12 @@ export const createPaletteGenerator = (
 				return picked;
 			}
 			gridExhausted = true;
+			placedBeforeExhaustion = palette.length;
 		}
-		// Every candidate is already in the palette; repeat the first color rather than throw.
-		return palette[ palette.length % palette.length ];
+		// Every candidate is already in the palette; cycle through the ones placed before the grid ran out.
+		const repeated = palette[ repeatCount % placedBeforeExhaustion ];
+		repeatCount++;
+		return repeated;
 	};
 
 	return ( index: number ): string => {

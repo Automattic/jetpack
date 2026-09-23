@@ -86,15 +86,30 @@ describe( 'createPaletteGenerator', () => {
 	} );
 
 	it( 'never regenerates a color equal to a seed', () => {
-		const [ , duplicateSeed ] = paletteOf( [ '#3858e9' ], '#ffffff', 2 );
-		const generated = paletteOf( [ '#3858e9', duplicateSeed ], '#ffffff', 22 ).slice( 2 );
-		expect( generated ).not.toContain( duplicateSeed );
+		// #9b9b9b has exactly 5 legible candidates, so seeding one and asking for the rest of
+		// the pool (plus one more, which forces the first grid fallback) exhausts it deterministically.
+		const legible = paletteOf( [], '#9b9b9b', 5 );
+		const seed = legible[ 0 ];
+		const generated = paletteOf( [ seed ], '#9b9b9b', 6 ).slice( 1 );
+		expect( generated ).not.toContain( seed );
+	} );
+
+	it( 'excludes a seed from the grid even when it is given in uppercase', () => {
+		const legible = paletteOf( [], '#9b9b9b', 5 );
+		const seed = legible[ 0 ];
+		const generated = paletteOf( [ seed.toUpperCase() ], '#9b9b9b', 6 ).slice( 1 );
+		expect( generated ).not.toContain( seed );
 	} );
 
 	it( 'repeats rather than throws once the whole grid is used up', () => {
 		// The candidate grid holds roughly 2,757 distinct in-gamut colors; 3000 comfortably exceeds it.
 		const palette = paletteOf( [], '#ffffff', 3000 );
 		palette.forEach( color => expect( color ).toMatch( /^#[0-9a-f]{6}$/ ) );
-		expect( new Set( palette ).size ).toBeLessThan( palette.length );
+		const placedCount = new Set( palette ).size;
+		expect( placedCount ).toBeLessThan( palette.length );
+
+		// The repeats cycle through the colors placed before the grid ran out, not always the first.
+		expect( palette[ placedCount ] ).toBe( palette[ 0 ] );
+		expect( palette[ placedCount + 1 ] ).toBe( palette[ 1 ] );
 	} );
 } );
