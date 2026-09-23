@@ -286,6 +286,66 @@ describe( 'resolveConnectionErrorActions', () => {
 
 		expect( actions ).toEqual( [] );
 	} );
+
+	describe( 'self-service connect_user errors', () => {
+		const ownTokenError: ConnectionErrorObject = {
+			error_message: 'Your connection is broken.',
+			audience: 'user',
+			error_data: { action: 'none', self_service: 'connect_user' },
+		};
+		const relinkUser = jest.fn( () => Promise.resolve() );
+
+		it( "resolves a Reconnect your account action ahead of 'none'", () => {
+			const trackingCallback = jest.fn();
+			const actions = resolveConnectionErrorActions( ownTokenError, {
+				...baseOptions,
+				relinkUser,
+				trackingCallback,
+			} );
+
+			expect( actions ).toHaveLength( 1 );
+			expect( actions[ 0 ].label ).toBe( 'Reconnect your account' );
+
+			actions[ 0 ].onClick();
+			expect( relinkUser ).toHaveBeenCalled();
+			expect( restoreConnection ).not.toHaveBeenCalled();
+			expect( trackingCallback ).toHaveBeenCalledWith(
+				DEFAULT_RECONNECT_TRACKING_EVENT,
+				expect.objectContaining( { audience: 'user' } )
+			);
+		} );
+
+		it( 'reflects an in-progress relink as loading', () => {
+			const actions = resolveConnectionErrorActions( ownTokenError, {
+				...baseOptions,
+				isRestoringConnection: true,
+				relinkUser,
+			} );
+
+			expect( actions[ 0 ].isLoading ).toBe( true );
+		} );
+
+		// Callers that cannot relink keep the 'none' behavior, never the restore fallback.
+		it( 'offers no action when no relinkUser is supplied', () => {
+			expect( resolveConnectionErrorActions( ownTokenError, baseOptions ) ).toEqual( [] );
+		} );
+
+		it( 'consumes a failed relink so it does not leak as an unhandled rejection', async () => {
+			const rejection = Promise.reject( new Error( 'unlink failed' ) );
+			const catchSpy = jest.spyOn( rejection, 'catch' );
+
+			const actions = resolveConnectionErrorActions( ownTokenError, {
+				...baseOptions,
+				relinkUser: jest.fn( () => rejection ),
+			} );
+
+			expect( () => actions[ 0 ].onClick() ).not.toThrow();
+			expect( catchSpy ).toHaveBeenCalled();
+
+			await rejection.catch( () => {} );
+		} );
+	} );
+
 	// The default restore is not scoped to the error that supplied it:
 	// restoreConnection() restores the blog token and then walks the user through
 	// reconnecting their own account when needed. A label naming one error's scope

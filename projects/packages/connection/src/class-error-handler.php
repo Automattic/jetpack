@@ -275,9 +275,11 @@ class Error_Handler {
 	 *
 	 * error_data.action is only set when it deviates from the default behavior
 	 * (e.g. 'none' to suppress the reconnect CTA); when absent, readers fall back
-	 * to offering the reconnect CTA.
+	 * to offering the reconnect CTA. error_data.self_service = 'connect_user' marks
+	 * a viewer's own broken user token they can relink but not reconnect.
 	 *
 	 * @since 6.13.10
+	 * @since $$next-version$$ Flags a viewer's own relinkable error with error_data.self_service.
 	 *
 	 * @return array Array of displayable errors with hierarchical structure.
 	 *               Example:
@@ -374,8 +376,9 @@ class Error_Handler {
 						}
 					}
 
-					$message = $generic_message;
-					$action  = null;
+					$message      = $generic_message;
+					$action       = null;
+					$self_service = null;
 
 					if ( isset( $display_config['message_callback'] ) ) {
 						$message = call_user_func( $display_config['message_callback'], $error );
@@ -430,10 +433,13 @@ class Error_Handler {
 					}
 
 					// Relinking your own account and restoring the site are different actions
-					// with different capabilities, and this notice only offers the second one.
+					// with different capabilities, so the site-scoped reconnect is suppressed and
+					// the relink is flagged separately. Clients that predate the flag see only
+					// 'none', so they offer nothing rather than a reconnect this viewer can't use.
 					// A reporter-declared action is something else, so it is left alone.
 					if ( $viewer_owns_error && ! $viewer_can_connect && empty( $error['error_data']['action'] ) ) {
-						$action = 'none';
+						$action       = 'none';
+						$self_service = 'connect_user';
 					}
 
 					$error['audience']      = $audience;
@@ -451,6 +457,10 @@ class Error_Handler {
 
 						if ( null !== $action ) {
 							$error_data['action'] = $action;
+						}
+
+						if ( null !== $self_service ) {
+							$error_data['self_service'] = $self_service;
 						}
 
 						// Flags a reconnect-may-not-fix-it error so the notice offers a

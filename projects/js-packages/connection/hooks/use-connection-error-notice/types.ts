@@ -24,6 +24,11 @@ export interface ConnectionErrorData {
 	 * `Error_Handler`'s `notice_link` display config.
 	 */
 	notice_link?: { label: string; url: string };
+	/**
+	 * Set server-side alongside `action: 'none'` on a viewer's own broken user token
+	 * when they can relink their account but not reconnect the site.
+	 */
+	self_service?: 'connect_user';
 	[ key: string ]: unknown;
 }
 
@@ -66,6 +71,12 @@ export interface Action {
 export type RestoreConnection = ( autoReconnectUser?: boolean ) => Promise< unknown >;
 
 /**
+ * Unlinks the current user's broken token (when one is stored) and sends them to
+ * authorize again. Returns the underlying API request promise.
+ */
+export type RelinkUser = ( hasStoredToken?: boolean ) => Promise< unknown >;
+
+/**
  * Consumer dispatch hook for connection-error-notice Tracks events. `data` is a
  * `Record` (not `object`) so a consumer can index it without a cast.
  */
@@ -87,7 +98,8 @@ export interface ConnectionErrorProps {
 		  ) => Action[] )
 		| null;
 	/**
-	 * Tracking event fired when the fallback "Restore Connection" CTA is clicked.
+	 * Tracking event fired when the fallback "Restore Connection" or the
+	 * "Reconnect your account" CTA is clicked.
 	 * Defaults to the canonical reconnect event; a non-canonical override only
 	 * fires when a `trackingCallback` is also supplied, since the no-callback
 	 * branch records the canonical events alone.

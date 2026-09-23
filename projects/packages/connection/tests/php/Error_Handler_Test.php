@@ -2889,6 +2889,58 @@ class Error_Handler_Test extends BaseTestCase {
 			$displayed['error_data']['action'],
 			'The reconnect CTA is site-scoped, so it is suppressed for a viewer who can only relink their own account.'
 		);
+		$this->assertSame( 'connect_user', $displayed['error_data']['self_service'] );
+	}
+
+	/**
+	 * Test that a reporter-declared action on a non-admin's own error is neither
+	 * replaced with 'none' nor flagged for self-service relinking.
+	 */
+	public function test_get_displayable_errors_keeps_reporter_action_on_own_error_for_non_admin() {
+		$owner_id = wp_insert_user(
+			array(
+				'user_login' => 'declared_action_owner',
+				'user_pass'  => 'password',
+				'user_email' => 'declared_action_owner@example.org',
+				'role'       => 'administrator',
+			)
+		);
+		$this->assertIsInt( $owner_id );
+		\Jetpack_Options::update_option( 'master_user', $owner_id );
+		\Jetpack_Options::update_option( 'user_tokens', array( $owner_id => 'token.secret.' . $owner_id ) );
+
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'declared_action_editor',
+				'user_pass'  => 'password',
+				'user_email' => 'declared_action_editor@example.org',
+				'role'       => 'editor',
+			)
+		);
+		$this->assertIsInt( $editor_id );
+		wp_set_current_user( $editor_id );
+
+		update_option(
+			Error_Handler::STORED_VERIFIED_ERRORS_OPTION,
+			array(
+				'no_valid_user_token' => array(
+					(string) $editor_id => array(
+						'error_code'    => 'no_valid_user_token',
+						'user_id'       => (string) $editor_id,
+						'error_message' => 'Test message',
+						'error_data'    => array( 'action' => 'custom_action' ),
+						'timestamp'     => time(),
+						'nonce'         => 'test_nonce',
+						'error_type'    => 'xmlrpc',
+					),
+				),
+			)
+		);
+
+		$error_data = $this->error_handler->get_displayable_errors()['no_valid_user_token'][ (string) $editor_id ]['error_data'];
+
+		$this->assertSame( 'custom_action', $error_data['action'] );
+		$this->assertArrayNotHasKey( 'self_service', $error_data );
 	}
 
 	/**
@@ -2926,6 +2978,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$this->assertArrayHasKey( 'no_valid_user_token', $result );
 		$this->assertArrayNotHasKey( 'action', $result['no_valid_user_token'][ (string) $admin_id ]['error_data'] );
+		$this->assertArrayNotHasKey( 'self_service', $result['no_valid_user_token'][ (string) $admin_id ]['error_data'] );
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a "Reconnect your account" action to connection error notices for users whose own account connection is broken.

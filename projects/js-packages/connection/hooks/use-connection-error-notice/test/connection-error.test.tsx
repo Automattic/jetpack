@@ -11,10 +11,12 @@ jest.unstable_mockModule( '../../../components/use-connection', () => ( {
 } ) );
 
 // Restore-connection touches window/REST at import; stub it out.
+const relinkUser = jest.fn( () => Promise.resolve() );
 jest.unstable_mockModule( '../../use-restore-connection', () => ( {
 	__esModule: true,
 	default: () => ( {
 		restoreConnection: jest.fn(),
+		relinkUser,
 		isRestoringConnection: false,
 		restoreConnectionError: null,
 	} ),
@@ -181,6 +183,39 @@ describe( 'ConnectionError', () => {
 		expect( props.actions ).toHaveLength( 0 );
 		// The default "Restore Connection" fallback must also be suppressed.
 		expect( props.restoreConnectionCallback ).toBeNull();
+	} );
+
+	describe( "a non-admin's own broken user token", () => {
+		const ownTokenError = {
+			no_valid_user_token: {
+				'7': {
+					error_message: 'Your connection is broken.',
+					error_code: 'no_valid_user_token',
+					user_id: '7',
+					audience: 'user',
+					error_data: { action: 'none', self_service: 'connect_user' },
+				},
+			},
+		};
+
+		it.each( [
+			[ 'unlinks the stored token first', true ],
+			[ 'skips the unlink when no token is stored', false ],
+		] )( 'offers Reconnect your account and %s', ( _, isConnected ) => {
+			mockConnection( {
+				connectionErrors: ownTokenError,
+				userConnectionData: { currentUser: { id: 7, isConnected } },
+			} );
+
+			render( <ConnectionError /> );
+
+			const props = ConnectionErrorNotice.mock.calls[ 0 ][ 0 ];
+			expect( props.actions ).toHaveLength( 1 );
+			expect( props.actions[ 0 ].label ).toBe( 'Reconnect your account' );
+
+			props.actions[ 0 ].onClick();
+			expect( relinkUser ).toHaveBeenCalledWith( isConnected );
+		} );
 	} );
 
 	// Only that user can restore their own token, so the notice drops the error —

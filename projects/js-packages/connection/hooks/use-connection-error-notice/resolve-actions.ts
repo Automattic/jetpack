@@ -5,25 +5,29 @@ import type {
 	ConnectionErrorData,
 	ConnectionErrorObject,
 	ConnectionErrorProps,
+	RelinkUser,
 	RestoreConnection,
 } from './types';
 
 /**
- * Default tracking event fired when the fallback "Restore Connection" CTA is clicked.
+ * Default tracking event fired when the fallback "Restore Connection" or the
+ * "Reconnect your account" CTA is clicked.
  * Consumers can override this via `reconnectTrackingEvent`, but the canonical
  * default lets every surface report the same event and split by `context`.
  */
 export const DEFAULT_RECONNECT_TRACKING_EVENT = CONNECTION_ERROR_NOTICE_EVENTS.reconnect;
 
 /**
- * The resolver's options: the public `ConnectionErrorProps` plus the two fields
- * the hook supplies internally (`restoreConnection` / `isRestoringConnection`).
+ * The resolver's options: the public `ConnectionErrorProps` plus the fields the
+ * hook supplies internally.
  */
 export interface ResolveActionsOptions extends ConnectionErrorProps {
 	/** Initiates a connection restore (the default fallback action). */
 	restoreConnection: RestoreConnection;
-	/** Whether a connection restore is currently in progress. */
+	/** Whether a connection restore (or account relink) is currently in progress. */
 	isRestoringConnection: boolean;
+	/** Relinks the viewer's own account. Without it, a `self_service` error offers no CTA. */
+	relinkUser?: RelinkUser;
 }
 
 /**
@@ -48,6 +52,7 @@ export function resolveConnectionErrorActions(
 		restoreConnection,
 		isRestoringConnection,
 		reconnectTrackingEvent = DEFAULT_RECONNECT_TRACKING_EVENT,
+		relinkUser,
 		navigate = ( url: string ) => {
 			window.location.href = url;
 		},
@@ -78,6 +83,27 @@ export function resolveConnectionErrorActions(
 
 	const errorData: ConnectionErrorData = connectionError.error_data ?? {};
 	const suggestedAction = errorData.action;
+
+	// The viewer's own broken token, which they can relink but not reconnect. The
+	// server pairs this flag with 'none', so it has to be checked before that.
+	if ( errorData.self_service === 'connect_user' && relinkUser ) {
+		return [
+			{
+				label: __( 'Reconnect your account', 'jetpack-connection-js' ),
+				onClick: () => {
+					try {
+						track( reconnectTrackingEvent );
+						// Failure surfaces via restoreConnectionError, as for the restore CTA below.
+						relinkUser().catch( () => {} );
+					} catch {
+						// Silently fail if relinking throws synchronously.
+					}
+				},
+				isLoading: isRestoringConnection,
+				loadingText: __( 'Reconnecting your account…', 'jetpack-connection-js' ),
+			},
+		];
+	}
 
 	// An explicit 'none' action marks the error as informational only (for example,
 	// a secondary admin viewing a locked connection owner's error). Surface no CTA.

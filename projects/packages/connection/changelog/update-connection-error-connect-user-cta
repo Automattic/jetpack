@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Flag a user's own broken account connection as one they can reconnect themselves.
