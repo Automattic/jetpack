@@ -831,10 +831,10 @@ class PayPal_Payment_Buttons {
 	private static function render_api_managed_button( $attributes ) {
 		$resource_id         = $attributes['resourceId'] ?? '';
 		$payment_url         = $attributes['paymentLink'] ?? '';
-		$product_name        = $attributes['productName'] ?? '';
+		$product_name        = trim( (string) ( $attributes['productName'] ?? '' ) );
 		$price               = $attributes['price'] ?? '';
 		$currency            = $attributes['currencyCode'] ?? 'USD';
-		$product_description = $attributes['productDescription'] ?? '';
+		$product_description = trim( (string) ( $attributes['productDescription'] ?? '' ) );
 		$image_url           = $attributes['imageUrl'] ?? '';
 		$variants_enabled    = ! empty( $attributes['variantsEnabled'] );
 		$variants            = $attributes['variants'] ?? null;
@@ -932,7 +932,7 @@ class PayPal_Payment_Buttons {
 				)
 				: '';
 
-			// No attribution line: the `Show "Powered by PayPal" text` checkbox is
+			// No attribution line: the `Show "Powered by PayPal"` checkbox is
 			// the button's alone, so the QR draws the code and its caption and
 			// nothing else.
 			return sprintf(
@@ -975,9 +975,17 @@ class PayPal_Payment_Buttons {
 			);
 		}
 
-		// Build product info section.
+		// Build product info section. Compared to '' so a name or description of '0' shows.
+		$name_html = '';
+		if ( '' !== $product_name ) {
+			$name_html = sprintf(
+				'<span class="jetpack-paypal-button__product-name">%s</span>',
+				esc_html( $product_name )
+			);
+		}
+
 		$description_html = '';
-		if ( ! empty( $product_description ) ) {
+		if ( '' !== $product_description ) {
 			$description_html = sprintf(
 				'<span class="jetpack-paypal-button__product-description">%s</span>',
 				esc_html( $product_description )
@@ -992,7 +1000,8 @@ class PayPal_Payment_Buttons {
 
 		// Headline price: the product price, or the cheapest option when there is none.
 		// PayPal accepts a price of 0, so the empty test is '' — empty() drops it.
-		$price      = (string) $price;
+		// Trimmed, as the editor preview does.
+		$price      = trim( (string) $price );
 		$price_html = '';
 		if ( '' !== $price ) {
 			$price_html = sprintf(
@@ -1013,6 +1022,15 @@ class PayPal_Payment_Buttons {
 					)
 				);
 			}
+		}
+
+		// The card needs a name, description or price. The image is outside it.
+		$product_html = '';
+		if ( '' !== $name_html . $description_html . $price_html ) {
+			$product_html = '<div class="jetpack-paypal-button__product">'
+				. '<div class="jetpack-paypal-button__product-info">' . $name_html . $description_html . '</div>'
+				. $price_html
+				. '</div>';
 		}
 
 		// Build variant options display.
@@ -1073,10 +1091,13 @@ class PayPal_Payment_Buttons {
 
 		$attribution_html = empty( $attributes['buttonShowPoweredBy'] )
 			? ''
-			: sprintf(
-				'<p class="jetpack-paypal-button__attribution">%s</p>',
-				esc_html__( 'Powered by PayPal', 'jetpack-paypal-payments' )
-			);
+			: '<p class="jetpack-paypal-button__attribution">'
+				. sprintf(
+					/* translators: %s: the PayPal wordmark */
+					esc_html__( 'Powered by %s', 'jetpack-paypal-payments' ),
+					'<span class="jetpack-paypal-button__logo">PayPal</span>'
+				)
+				. '</p>';
 
 		// `is-style-outline` is the name core and the other Jetpack blocks already
 		// use, so themes recognize it.
@@ -1085,29 +1106,21 @@ class PayPal_Payment_Buttons {
 		$button_style = self::style_attr( self::get_button_style( $attributes ) );
 
 		return sprintf(
-			'<div %8$s>
-	<div class="jetpack-paypal-button"%11$s>
-		%9$s
-		<div class="jetpack-paypal-button__product">
-			<div class="jetpack-paypal-button__product-info">
-				<span class="jetpack-paypal-button__product-name">%1$s</span>
-				%2$s
-			</div>
-			%3$s
-		</div>
+			'<div %6$s>
+	<div class="jetpack-paypal-button"%9$s>
 		%7$s
+		%1$s
+		%5$s
 		<div class="jetpack-paypal-button__buttons">
-			<a href="%4$s" class="%12$s"%13$s target="_blank" rel="noopener noreferrer">
-				<span class="jetpack-paypal-button__button-text">%5$s</span>
-				<span class="screen-reader-text">%10$s</span>
+			<a href="%2$s" class="%10$s"%11$s target="_blank" rel="noopener noreferrer">
+				<span class="jetpack-paypal-button__button-text">%3$s</span>
+				<span class="screen-reader-text">%8$s</span>
 			</a>
 		</div>
-		%6$s
+		%4$s
 	</div>
 </div>',
-			esc_html( $product_name ),
-			$description_html,
-			$price_html,
+			$product_html,
 			$action_url,
 			esc_html( $label ),
 			$attribution_html,

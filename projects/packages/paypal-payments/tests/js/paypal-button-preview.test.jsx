@@ -12,6 +12,7 @@ import { act, render, screen } from '@testing-library/react';
 import { dispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import QRCode from 'qrcode';
+import metadata from '../../src/paypal-payment-buttons/block.json';
 import PayPalButtonPreview from '../../src/paypal-payment-buttons/components/paypal-button-preview';
 import { QR_OPTIONS } from '../../src/paypal-payment-buttons/utils/qr-options';
 import {
@@ -19,6 +20,7 @@ import {
 	recordPaymentRead,
 	syncBlocksBeforeSave,
 } from '../../src/paypal-payment-buttons/utils/sync-on-save';
+import cardParity from '../fixtures/product-card-parity.json';
 import bootTheFrame from './boot-the-frame';
 
 // jsdom has no 2D context, so a real draw fails. Unlike qr-code.test.js's mock
@@ -112,20 +114,45 @@ describe( 'PayPalButtonPreview', () => {
 
 	it( 'keeps the wordmark off the button face', () => {
 		// The branding reads on the attribution line, not the button face.
-		render( <PayPalButtonPreview { ...defaultProps } /> );
-		expect( document.querySelector( '.jetpack-paypal-button__logo' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'leaves the attribution line off until the merchant asks for it', () => {
-		render( <PayPalButtonPreview { ...defaultProps } /> );
-		expect( screen.queryByText( 'Powered by PayPal' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'renders the attribution line with buttonShowPoweredBy on, as the frontend does', () => {
 		render(
 			<PayPalButtonPreview { ...defaultProps } attributes={ { buttonShowPoweredBy: true } } />
 		);
-		expect( screen.getByText( 'Powered by PayPal' ) ).toBeInTheDocument();
+		const button = document.querySelector( '.jetpack-paypal-button-preview__checkout-button' );
+		expect( button.querySelector( '.jetpack-paypal-button__logo' ) ).not.toBeInTheDocument();
+		// Positive control: the wordmark is on the attribution line.
+		expect(
+			document.querySelector( '.jetpack-paypal-button__attribution .jetpack-paypal-button__logo' )
+		).toBeInTheDocument();
+	} );
+
+	it( 'shows the attribution line by default', () => {
+		render(
+			<PayPalButtonPreview
+				{ ...defaultProps }
+				attributes={ { buttonShowPoweredBy: metadata.attributes.buttonShowPoweredBy.default } }
+			/>
+		);
+		expect( document.querySelector( '.jetpack-paypal-button__attribution' ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides the attribution line when buttonShowPoweredBy is false', () => {
+		render(
+			<PayPalButtonPreview { ...defaultProps } attributes={ { buttonShowPoweredBy: false } } />
+		);
+		expect(
+			document.querySelector( '.jetpack-paypal-button__attribution' )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'renders "Powered by" and the PayPal wordmark, as the frontend does', () => {
+		render(
+			<PayPalButtonPreview { ...defaultProps } attributes={ { buttonShowPoweredBy: true } } />
+		);
+		// Same markup as the PHP test. The word PayPal stays as text for screen
+		// readers, and style.scss draws it as the wordmark.
+		expect( document.querySelector( '.jetpack-paypal-button__attribution' ).outerHTML ).toBe(
+			'<p class="jetpack-paypal-button__attribution">Powered by <span class="jetpack-paypal-button__logo">PayPal</span></p>'
+		);
 	} );
 
 	// The canvas half of what render_api_managed_button() puts on the anchor.
@@ -224,6 +251,19 @@ describe( 'PayPalButtonPreview', () => {
 		expect( screen.queryByText( 'Copy' ) ).not.toBeInTheDocument();
 	} );
 
+	// style.scss sets the block's width, margin and font on this class.
+	it( 'adds the jetpack-paypal-button class to the button and QR previews', () => {
+		const { rerender } = render( <PayPalButtonPreview { ...defaultProps } /> );
+		expect( document.querySelector( '.jetpack-paypal-button-preview' ) ).toHaveClass(
+			'jetpack-paypal-button'
+		);
+
+		rerender( <PayPalButtonPreview { ...defaultProps } format="QR" /> );
+		expect( document.querySelector( '.jetpack-paypal-button-preview--qr' ) ).toHaveClass(
+			'jetpack-paypal-button'
+		);
+	} );
+
 	it( 'renders non-interactive preview buttons as div elements', () => {
 		render( <PayPalButtonPreview { ...defaultProps } /> );
 		const button = document.querySelector( '.jetpack-paypal-button-preview__checkout-button' );
@@ -234,11 +274,13 @@ describe( 'PayPalButtonPreview', () => {
 		// Theme button styles key off `.wp-element-button`, like the frontend
 		// checkout link, so the preview carries it too.
 		expect( button ).toHaveClass( 'wp-element-button' );
+		// The frontend checkout link's class, for the same layout rules.
+		expect( button ).toHaveClass( 'jetpack-paypal-button__checkout-link' );
 	} );
 
 	it( 'renders product image when imageUrl is provided', () => {
 		render( <PayPalButtonPreview { ...defaultProps } imageUrl="https://example.com/widget.jpg" /> );
-		const imageContainer = document.querySelector( '.jetpack-paypal-button-preview__image' );
+		const imageContainer = document.querySelector( '.jetpack-paypal-button__product-image' );
 		expect( imageContainer ).toBeInTheDocument();
 		const img = imageContainer.querySelector( 'img' );
 		expect( img ).toHaveAttribute( 'src', 'https://example.com/widget.jpg' );
@@ -247,7 +289,7 @@ describe( 'PayPalButtonPreview', () => {
 
 	it( 'does not render product image when imageUrl is not provided', () => {
 		render( <PayPalButtonPreview { ...defaultProps } /> );
-		const imageContainer = document.querySelector( '.jetpack-paypal-button-preview__image' );
+		const imageContainer = document.querySelector( '.jetpack-paypal-button__product-image' );
 		expect( imageContainer ).not.toBeInTheDocument();
 	} );
 
@@ -445,9 +487,7 @@ describe( 'PayPalButtonPreview', () => {
 
 		it( 'shows a product price of 0', () => {
 			render( <PayPalButtonPreview { ...defaultProps } price="0" /> );
-			expect( screen.getByText( '$0' ) ).toHaveClass(
-				'jetpack-paypal-button-preview__product-price'
-			);
+			expect( screen.getByText( '$0' ) ).toHaveClass( 'jetpack-paypal-button__product-price' );
 		} );
 
 		it( 'keeps a group named 0 and an option labeled 0', () => {
@@ -882,8 +922,16 @@ describe( 'PayPalButtonPreview', () => {
 
 		it( 'leaves the attribution line off the QR', () => {
 			// The button carries the branding; the QR does not.
-			render( <PayPalButtonPreview { ...defaultProps } format="QR" /> );
-			expect( screen.queryByText( 'Powered by PayPal' ) ).not.toBeInTheDocument();
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					format="QR"
+					attributes={ { buttonShowPoweredBy: true } }
+				/>
+			);
+			expect(
+				document.querySelector( '.jetpack-paypal-button__attribution' )
+			).not.toBeInTheDocument();
 		} );
 
 		it( 'encodes the attributed link, not the bare one', () => {
@@ -912,5 +960,19 @@ describe( 'PayPalButtonPreview', () => {
 				document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
 			).not.toBeInTheDocument();
 		} );
+	} );
+} );
+
+// The same cases run against the PHP render in Paypal_Payment_Buttons_Test.
+describe( 'product card matches the published page', () => {
+	it.each( cardParity.cases.map( c => [ c.name, c ] ) )( '%s', ( _name, testCase ) => {
+		render( <PayPalButtonPreview { ...testCase.attributes } attributes={ testCase.attributes } /> );
+
+		const card = document.querySelector( '.jetpack-paypal-button__product' );
+		expect( card?.outerHTML ?? null ).toBe( testCase.card );
+		// Positive control: the preview itself rendered.
+		expect(
+			document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+		).toBeInTheDocument();
 	} );
 } );

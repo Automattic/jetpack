@@ -161,7 +161,7 @@
 		},
 		"buttonShowPoweredBy": {
 			"type": "boolean",
-			"default": false
+			"default": true
 		},
 		"buttonStyle": {
 			"type": "string",

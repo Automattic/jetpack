@@ -7218,22 +7218,23 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( screen.queryByTestId( 'toggle-group-Styles' ) ).not.toBeInTheDocument();
 			} );
 
-			it( 'starts with the attribution line off and toggles it on', async () => {
+			// Edit gets only the attributes passed here, so the block.json default is set by hand.
+			it( 'starts with the attribution line on and toggles it off', async () => {
 				const user = userEvent.setup();
 				render(
 					<Edit
-						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						attributes={ { ...qrAttributes, format: 'BUTTON', buttonShowPoweredBy: true } }
 						setAttributes={ setAttributes }
 					/>
 				);
 
 				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				const checkbox = within( styles ).getByLabelText( 'Show "Powered by PayPal" text' );
-				expect( checkbox ).not.toBeChecked();
+				const checkbox = within( styles ).getByLabelText( 'Show "Powered by PayPal"' );
+				expect( checkbox ).toBeChecked();
 
 				await user.click( checkbox );
 
-				expect( setAttributes ).toHaveBeenCalledWith( { buttonShowPoweredBy: true } );
+				expect( setAttributes ).toHaveBeenCalledWith( { buttonShowPoweredBy: false } );
 			} );
 
 			// Only the button format offers the choice; the QR draws the code and its
@@ -7245,9 +7246,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				await expect(
 					screen.findByTestId( 'inspector-controls-styles' )
 				).resolves.toBeInTheDocument();
-				expect(
-					screen.queryByLabelText( 'Show "Powered by PayPal" text' )
-				).not.toBeInTheDocument();
+				expect( screen.queryByLabelText( 'Show "Powered by PayPal"' ) ).not.toBeInTheDocument();
 
 				rerender(
 					<Edit
@@ -7255,9 +7254,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 						setAttributes={ setAttributes }
 					/>
 				);
-				expect(
-					screen.queryByLabelText( 'Show "Powered by PayPal" text' )
-				).not.toBeInTheDocument();
+				expect( screen.queryByLabelText( 'Show "Powered by PayPal"' ) ).not.toBeInTheDocument();
 			} );
 
 			// The button puts Width Settings between Color and Typography; QR does
