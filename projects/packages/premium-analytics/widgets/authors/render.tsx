@@ -84,8 +84,7 @@ export function AuthorsLeaderboard( {
 	}, [ selectedAuthorId, selectedAuthor, isLoading, isFetching, clearSelectedAuthor ] );
 
 	const chartData: LeaderboardChartData = useMemo( () => {
-		// The data layer already aligned current/comparison values, including posts
-		// that only existed in the comparison period.
+		// The data layer already aligned current/comparison values.
 		if ( selectedAuthor ) {
 			return selectedAuthor.posts.map( post => ( {
 				id: post.id,
