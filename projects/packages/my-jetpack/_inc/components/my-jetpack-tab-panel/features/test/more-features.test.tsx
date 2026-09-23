@@ -71,7 +71,9 @@ describe( 'MoreFeatures', () => {
 		renderSection();
 
 		expect( screen.getByRole( 'heading', { name: 'Engagement' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'heading', { name: sharing.name } ) ).toBeInTheDocument();
+		// Not a heading: WPDS fonts those differently, and these must read like the cards above.
+		expect( screen.getByText( sharing.name ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'heading', { name: sharing.name } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: /Learn more about/ } ) ).not.toBeInTheDocument();
 	} );
 } );

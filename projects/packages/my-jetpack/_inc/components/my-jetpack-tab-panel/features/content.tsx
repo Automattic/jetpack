@@ -15,8 +15,8 @@ import { getFeatureFilters, isFeatureFilter, matchesFilter } from './use-feature
 import { useFeatureSearch } from './use-feature-search';
 import { useFeatureSelection } from './use-feature-selection';
 import { useMainFeatures } from './use-main-features';
-import { useSidebarSync } from './use-sidebar-sync';
 import { filterMoreFeatures, useMoreFeatures } from './use-more-features';
+import { useSidebarSync } from './use-sidebar-sync';
 import type { FeaturesView } from './toolbar';
 import type { FeatureFilter } from './use-feature-filter';
 

@@ -91,7 +91,8 @@ export function FeatureItem( {
 									) }
 								/>
 							) : (
-								<h4 />
+								// A span, like the interactive card's button, so both read the same.
+								<span className={ styles[ 'feature-item__static-title' ] } />
 							)
 						}
 					>
