@@ -2081,6 +2081,21 @@ describe( 'ChartContext', () => {
 
 				expect( colorAt( 1 ) ).toBe( onWhite );
 			} );
+
+			it( 'assigns a group the background-aware color even with zero valid seeds', () => {
+				const background = '#1e1e1e';
+
+				// An unparseable slot 1 keeps the resolved palette empty even after resolution;
+				// an unset slot 1 would instead fall back to its own terminal literal.
+				renderWithSlots( [ '#invalid' ], { '--a8c-charts-color-background': background } );
+
+				const groupColor = contextValue.getElementStyles( {
+					data: createMockDataWithGroup( 'test-group' ),
+					index: 0,
+				} ).color;
+
+				expect( groupColor ).toBe( createPaletteGenerator( [], background )( 0 ) );
+			} );
 		} );
 
 		describe( 'Server-Side Rendering', () => {

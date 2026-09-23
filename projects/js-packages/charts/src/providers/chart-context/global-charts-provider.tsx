@@ -35,6 +35,7 @@ import type { FC, ReactNode } from 'react';
 
 interface ColorCache {
 	colors: string[];
+	background: string;
 	colorAt: ( index: number ) => string;
 }
 
@@ -90,6 +91,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 	// in <style> tags are applied to the DOM before we try to resolve them
 	const [ colorCache, setColorCache ] = useState< ColorCache >( () => ( {
 		colors: [],
+		background: '#ffffff',
 		colorAt: createPaletteGenerator( [], '#ffffff' ),
 	} ) );
 
@@ -133,6 +135,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 
 		setColorCache( {
 			colors: resolvedColors,
+			background: backgroundHex,
 			colorAt: createPaletteGenerator( resolvedColors, backgroundHex ),
 		} );
 	}, [] );
@@ -147,9 +150,10 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		() => new Map()
 	);
 
-	// Keyed on the resolved colors rather than the cache object, so a consumer passing an inline
-	// `theme` cannot reset the map on every render.
-	const paletteKey = colorCache.colors.join( ',' );
+	// Keyed on the resolved colors and background rather than the cache object, so a consumer
+	// passing an inline `theme` cannot reset the map on every render, and a chart with zero
+	// resolved seeds still gets a fresh map once the background resolves.
+	const paletteKey = `${ colorCache.colors.join( ',' ) }|${ colorCache.background }`;
 
 	useEffect( () => {
 		// Create a completely new Map instance to trigger dependencies, e.g. useChartLegendItems
