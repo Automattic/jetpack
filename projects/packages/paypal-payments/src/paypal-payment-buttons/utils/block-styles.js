@@ -151,8 +151,8 @@ function plainBox( sides ) {
 /**
  * Width, for the button card or the QR frame.
  *
- * max-width keeps a set Width inside whatever holds the element. With no Width
- * the stylesheet sizes it. Mirrors get_width_rules() in
+ * max-width keeps a set Width inside its container. With no Width the
+ * stylesheet sizes the element. Mirrors get_width_rules() in
  * class-paypal-payment-buttons.php.
  *
  * @param {object} attributes - The block attributes.
@@ -179,9 +179,8 @@ export function isOutlineButton( attributes = {} ) {
 /**
  * Margin, from the Border Settings panel.
  *
- * The QR card takes this and nothing else — Width and Border go on the QR frame.
- * The button format has no margin control, so its card ignores a margin left
- * over from QR.
+ * Only the QR card takes this. Width and Border go on the frame inside it.
+ * Margin is a QR-only control, so the button card drops a margin left over from QR.
  *
  * @param {object} attributes - The block attributes.
  * @return {object} A React style object, empty when nothing is configured.
@@ -312,7 +311,7 @@ export function getButtonStyle( attributes = {} ) {
 	return {
 		...getTextStyle( buttonTextColor, buttonFontSize ),
 		...( background ? { backgroundColor: background } : {} ),
-		// Width goes on the card around it — see getWidthStyle().
+		// Width goes on the card around the button, see getWidthStyle().
 		...getBorderStyle( attributes ),
 	};
 }

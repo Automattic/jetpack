@@ -194,7 +194,7 @@ describe( 'getButtonStyle', () => {
 		expect( getButtonStyle( {} ) ).toEqual( {} );
 	} );
 
-	it( 'leaves the width to the card around it', () => {
+	it( 'leaves Width to the card around the button', () => {
 		expect( getButtonStyle( { blockWidth: '900px' } ) ).toEqual( {} );
 	} );
 

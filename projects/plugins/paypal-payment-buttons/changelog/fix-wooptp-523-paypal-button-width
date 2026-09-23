@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Make the Width setting size the whole payment button block, so the product, image and "Powered by PayPal" line up with the button.
+Make Width size the whole payment button, so the product and "Powered by PayPal" line up with it.

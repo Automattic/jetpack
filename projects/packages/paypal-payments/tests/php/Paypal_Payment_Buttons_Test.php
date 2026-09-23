@@ -950,9 +950,6 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 	/**
 	 * Test that Width sizes the card and Border stays on the button.
-	 *
-	 * The button fills the card, so the product, image and "Powered by" share its
-	 * edges.
 	 */
 	public function test_render_button_puts_width_on_the_card_and_border_on_the_button() {
 		$result = $this->render_button_format(
@@ -965,7 +962,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			)
 		);
 
-		// A margin left over from QR stays off: the button format has no control for it.
+		// The card takes Width and drops a margin left over from QR.
 		$this->assertSame(
 			array(
 				'max-width' => '100%',
@@ -2014,7 +2011,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 *
 	 * @dataProvider provide_width_formats
 	 * @param string $format  The display format to render.
-	 * @param string $control Markup the format always renders.
+	 * @param string $control A class the format renders.
 	 */
 	#[DataProvider( 'provide_width_formats' )]
 	public function test_render_block_refuses_a_hostile_width( $format, $control ) {
@@ -2036,7 +2033,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * The formats that take Width, each with markup it always renders.
+	 * The formats that take Width, each with a class it renders.
 	 *
 	 * @return array<string, array<int, string>>
 	 */

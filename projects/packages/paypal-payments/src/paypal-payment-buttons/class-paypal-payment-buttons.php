@@ -238,7 +238,7 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * The button card — the element Width goes on. The button fills it.
+	 * Width, for the button card. The button fills the card.
 	 *
 	 * @param array $attributes The block attributes.
 	 * @return string An inline CSS declaration list, empty when nothing is configured.
@@ -250,9 +250,8 @@ class PayPal_Payment_Buttons {
 	/**
 	 * Margin, from the Border Settings panel.
 	 *
-	 * The QR card takes this and nothing else — Width and Border go on the QR frame.
-	 * The button format has no margin control, so its card ignores a margin left
-	 * over from QR.
+	 * Only the QR card takes this. Width and Border go on the frame inside it.
+	 * Margin is a QR-only control, so the button card drops a margin left over from QR.
 	 *
 	 * Mirrors getMarginStyle() in utils/block-styles.js.
 	 *
@@ -285,8 +284,8 @@ class PayPal_Payment_Buttons {
 	 * sees it, so a spacing preset would be emitted raw — the width
 	 * control cannot produce one, and this keeps it that way.
 	 *
-	 * max-width keeps a set Width inside whatever holds the element. With no Width
-	 * the stylesheet sizes it. Mirrors getWidthStyle() in utils/block-styles.js.
+	 * max-width keeps a set Width inside its container. With no Width the
+	 * stylesheet sizes the element. Mirrors getWidthStyle() in utils/block-styles.js.
 	 *
 	 * @param array $attributes The block attributes.
 	 * @return array A list of CSS declarations, empty when none is set.
@@ -514,7 +513,7 @@ class PayPal_Payment_Buttons {
 			array_merge(
 				self::get_text_rules( $attributes['buttonTextColor'] ?? '', $attributes['buttonFontSize'] ?? '' ),
 				$rules,
-				// Width goes on the card around it — see get_button_card_style().
+				// Width goes on the card around the button, see get_button_card_style().
 				self::get_border_rules( $attributes )
 			)
 		);

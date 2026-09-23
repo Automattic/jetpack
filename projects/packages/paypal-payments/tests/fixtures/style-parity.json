@@ -115,7 +115,7 @@
 			}
 		},
 		{
-			"name": "width goes on the button card",
+			"name": "width on the button card, the border dropped",
 			"target": "buttonCard",
 			"attributes": {
 				"blockWidth": "75%",
@@ -132,7 +132,7 @@
 			}
 		},
 		{
-			"name": "a margin left over from QR stays off the button card",
+			"name": "a margin left over from QR is dropped, the width beside it kept",
 			"target": "buttonCard",
 			"attributes": {
 				"blockWidth": "150px",
@@ -601,7 +601,7 @@
 			}
 		},
 		{
-			"name": "border goes on the button, width does not",
+			"name": "border goes on the button, width on the card",
 			"attributes": {
 				"blockWidth": "75%",
 				"style": {
