@@ -1,7 +1,17 @@
 import { Popover } from '@wordpress/components';
+import { focus } from '@wordpress/dom';
 import { Icon, info } from '@wordpress/icons';
 import clsx from 'clsx';
-import { useCallback, useRef, useState, ReactElement, FC, FocusEvent } from 'react';
+import {
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+	ReactElement,
+	FC,
+	FocusEvent,
+	KeyboardEvent,
+} from 'react';
 import Button from '../button/index.tsx';
 import { IconTooltipProps, Placement, Position } from './types.ts';
 
@@ -48,6 +58,9 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	const [ isVisible, setIsVisible ] = useState( false );
 	const [ hoverTimeout, setHoverTimeout ] = useState( null );
 	const wrapperRef = useRef< HTMLDivElement >( null );
+	const popoverRef = useRef< HTMLDivElement >( null );
+	// Applied once the popover has gone, so Popover's own focus return does not overwrite it.
+	const focusAfterClose = useRef< HTMLElement | null >( null );
 	// Opening on hover must not pull focus off whatever the visitor is using.
 	const openedByHover = useRef( false );
 	const hideTooltip = useCallback( () => setIsVisible( false ), [ setIsVisible ] );
@@ -63,6 +76,39 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	const isAnchorWrapper = popoverAnchorStyle === 'wrapper';
 	const isForcedToShow = isAnchorWrapper && forceShow;
 
+	const handlePopoverKeyDown = useCallback(
+		( event: KeyboardEvent< HTMLDivElement > ) => {
+			const wrapper = wrapperRef.current;
+			const popover = popoverRef.current;
+			if ( event.key !== 'Tab' || ! wrapper || ! popover ) {
+				return;
+			}
+			const tabbables = focus.tabbable.find( popover );
+			const boundary = event.shiftKey ? tabbables[ 0 ] : tabbables[ tabbables.length - 1 ];
+			const leaving =
+				! tabbables.length ||
+				event.target === boundary ||
+				( event.shiftKey && event.target === popover );
+			if ( ! leaving ) {
+				return;
+			}
+			// A popover rendered in a portal sits at the end of the document, so Tab out of it has
+			// to resume from the trigger's place in the page instead of the popover's.
+			const step = event.shiftKey ? focus.tabbable.findPrevious : focus.tabbable.findNext;
+			let destination = step( wrapper );
+			while (
+				destination &&
+				( wrapper.contains( destination ) || popover.contains( destination ) )
+			) {
+				destination = step( destination );
+			}
+			event.preventDefault();
+			focusAfterClose.current = destination ?? null;
+			hideTooltip();
+		},
+		[ hideTooltip ]
+	);
+
 	const args = {
 		// To be compatible with deprecating prop `position`.
 		position: placementsToPositions( placement ),
@@ -75,8 +121,11 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		// Focusing the popover itself puts Escape in reach even with nothing tabbable inside.
 		// A caller-controlled popover keeps the old behaviour until it can report dismissal.
 		focusOnMount: isForcedToShow ? 'firstElement' : ! openedByHover.current,
-		// Tab has to leave, rather than land on a constrained-tabbing trap div.
+		// Tab moves through the popover in document order rather than cycling inside it, and
+		// handlePopoverKeyDown decides where it lands on the way out.
 		constrainTabbing: false,
+		onKeyDownCapture: handlePopoverKeyDown,
+		ref: popoverRef,
 		onClose: hideTooltip,
 		onFocusOutside: ( event: FocusEvent ) => {
 			// A pointer press on our own trigger dismisses through that trigger instead.
@@ -93,6 +142,15 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	const iconShiftBySize = {
 		left: isAnchorWrapper ? 0 : -( POPOVER_HELPER_WIDTH / 2 - iconSize / 2 ) + 'px',
 	};
+
+	useEffect( () => {
+		if ( isForcedToShow || isVisible ) {
+			return;
+		}
+		const destination = focusAfterClose.current;
+		focusAfterClose.current = null;
+		destination?.focus();
+	}, [ isForcedToShow, isVisible ] );
 
 	const handleMouseEnter = useCallback( () => {
 		if ( hoverShow ) {

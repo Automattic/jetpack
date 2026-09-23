@@ -161,6 +161,35 @@ test( 'the legacy dashboard keeps its inline popover and its 70vw mobile width',
 	} );
 } );
 
+test( 'tabbing out of the portaled tooltip resumes from the trigger', async ( { page } ) => {
+	await page.setViewportSize( { width: 1440, height: 900 } );
+	await page.goto( 'http://boost-settings.test/' );
+	const trigger = page.locator( '.icon-tooltip-wrapper button' ).first();
+	const content = page.locator( '.icon-tooltip-container .components-popover__content' );
+
+	await trigger.focus();
+	await page.keyboard.press( 'Space' );
+	await expect( content ).toBeVisible();
+
+	// This tooltip holds a CTA, so the first Tab has to reach it rather than dismiss.
+	await page.keyboard.press( 'Tab' );
+	await expect( page.getByRole( 'button', { name: 'Upgrade now' } ) ).toBeFocused();
+	await expect( content ).toBeVisible();
+
+	// Leaving it: the popover renders in a portal at the end of the document, so document order
+	// would otherwise send Tab to whatever follows the portal, not to the trigger's neighbour.
+	await page.keyboard.press( 'Tab' );
+	await expect( content ).toBeHidden();
+	await expect( page.getByRole( 'button', { name: 'Generate' } ) ).toBeFocused();
+
+	await trigger.focus();
+	await page.keyboard.press( 'Space' );
+	await expect( content ).toBeVisible();
+	await page.keyboard.press( 'Shift+Tab' );
+	await expect( content ).toBeHidden();
+	await expect( trigger ).not.toBeFocused();
+} );
+
 test( 'the premium tooltip takes focus and closes on Escape', async ( { page } ) => {
 	await page.setViewportSize( { width: 1440, height: 900 } );
 	await page.goto( 'http://boost-settings.test/' );
