@@ -149,7 +149,7 @@ function plainBox( sides ) {
 }
 
 /**
- * Width, for whichever element the format sizes.
+ * Width, for the button card or the QR frame.
  *
  * max-width keeps a set Width inside whatever holds the element. With no Width
  * the stylesheet sizes it. Mirrors get_width_rules() in
@@ -158,7 +158,7 @@ function plainBox( sides ) {
  * @param {object} attributes - The block attributes.
  * @return {object} A React style object, empty when none is set.
  */
-function getWidthStyle( attributes ) {
+export function getWidthStyle( attributes = {} ) {
 	const width = plainLength( attributes.blockWidth );
 
 	return width ? { width, maxWidth: '100%' } : {};
@@ -180,7 +180,8 @@ export function isOutlineButton( attributes = {} ) {
  * Margin, from the Border Settings panel.
  *
  * The QR card takes this and nothing else — Width and Border go on the QR frame.
- * The button card takes it with Width, through getUnitStyle().
+ * The button format has no margin control, so its card ignores a margin left
+ * over from QR.
  *
  * @param {object} attributes - The block attributes.
  * @return {object} A React style object, empty when nothing is configured.
@@ -227,26 +228,6 @@ export function getWidthAndBorderStyle( attributes = {} ) {
 	return {
 		...getWidthStyle( attributes ),
 		...getBorderStyle( attributes ),
-	};
-}
-
-/**
- * Margin and Width, for the button card.
- *
- * Width sizes the whole card — image, product, button and "Powered by" — so they
- * share the button's edges. The button fills the card and keeps the border. A
- * QR-to-BUTTON format switch can leave a margin behind, so the card keeps
- * reading it.
- *
- * Mirrors get_unit_style() in class-paypal-payment-buttons.php.
- *
- * @param {object} attributes - The block attributes.
- * @return {object} A React style object, empty when nothing is configured.
- */
-export function getUnitStyle( attributes = {} ) {
-	return {
-		...getMarginStyle( attributes ),
-		...getWidthStyle( attributes ),
 	};
 }
 
@@ -331,7 +312,7 @@ export function getButtonStyle( attributes = {} ) {
 	return {
 		...getTextStyle( buttonTextColor, buttonFontSize ),
 		...( background ? { backgroundColor: background } : {} ),
-		// Width goes on the card around it — see getUnitStyle().
+		// Width goes on the card around it — see getWidthStyle().
 		...getBorderStyle( attributes ),
 	};
 }

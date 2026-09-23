@@ -965,11 +965,11 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			)
 		);
 
+		// A margin left over from QR stays off: the button format has no control for it.
 		$this->assertSame(
 			array(
-				'margin-top' => '8px',
-				'max-width'  => '100%',
-				'width'      => '75%',
+				'max-width' => '100%',
+				'width'     => '75%',
 			),
 			$this->read_style( $result, 'class="jetpack-paypal-button"' )
 		);
@@ -1636,7 +1636,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 * Test that the published page emits what the canvas emits.
 	 *
 	 * The other half of this table runs in tests/js/block-styles.test.js against
-	 * getMarginStyle(), getWidthAndBorderStyle(), getUnitStyle(), getButtonStyle()
+	 * getMarginStyle(), getWidthAndBorderStyle(), getWidthStyle(), getButtonStyle()
 	 * and getTextStyle(). A value one side drops and the other keeps is a
 	 * divergence between the canvas and the published page, so it fails here.
 	 *
@@ -1858,12 +1858,12 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$cases = array();
 
 		// The QR splits across two elements: the card takes margin, the frame
-		// inside it takes Width and the stroke. The button card takes margin and
-		// Width. The JS half reads the same field.
+		// inside it takes Width and the stroke. The button card takes Width alone.
+		// The JS half reads the same field.
 		$targets = array(
-			'card'  => array( 'class="jetpack-paypal-button jetpack-paypal-button--qr-format"', 'QR' ),
-			'frame' => array( 'class="jetpack-paypal-button__qr-frame"', 'QR' ),
-			'unit'  => array( 'class="jetpack-paypal-button"', 'BUTTON' ),
+			'card'       => array( 'class="jetpack-paypal-button jetpack-paypal-button--qr-format"', 'QR' ),
+			'frame'      => array( 'class="jetpack-paypal-button__qr-frame"', 'QR' ),
+			'buttonCard' => array( 'class="jetpack-paypal-button"', 'BUTTON' ),
 		);
 
 		foreach ( $fixture['cases'] as $case ) {
@@ -2011,13 +2011,18 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 	/**
 	 * Test that a hostile width cannot smuggle declarations either.
+	 *
+	 * @dataProvider provide_width_formats
+	 * @param string $format  The display format to render.
+	 * @param string $control Markup the format always renders.
 	 */
-	public function test_render_block_refuses_a_hostile_width() {
+	#[DataProvider( 'provide_width_formats' )]
+	public function test_render_block_refuses_a_hostile_width( $format, $control ) {
 		$attributes = array(
 			'isApiManaged' => true,
 			'resourceId'   => 'PLB-WIDTH',
 			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-WIDTH',
-			'format'       => 'QR',
+			'format'       => $format,
 			'blockWidth'   => '50%;background-image:url(https://evil.example/x.png)',
 		);
 
@@ -2027,7 +2032,19 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$this->assertStringNotContainsString( 'evil.example', $result );
 		$this->assertStringNotContainsString( 'max-width', $result );
-		$this->assertStringContainsString( 'jetpack-paypal-button__qr-canvas', $result );
+		$this->assertStringContainsString( $control, $result );
+	}
+
+	/**
+	 * The formats that take Width, each with markup it always renders.
+	 *
+	 * @return array<string, array<int, string>>
+	 */
+	public static function provide_width_formats() {
+		return array(
+			'QR'     => array( 'QR', 'jetpack-paypal-button__qr-canvas' ),
+			'BUTTON' => array( 'BUTTON', 'jetpack-paypal-button__checkout-link' ),
+		);
 	}
 
 	/**

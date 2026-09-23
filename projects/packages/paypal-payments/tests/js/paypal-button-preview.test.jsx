@@ -226,11 +226,15 @@ describe( 'PayPalButtonPreview', () => {
 			borderColor: '#1e1e1e',
 			borderStyle: 'solid',
 		} );
-		expect( button ).not.toHaveStyle( { width: '75%' } );
+		// No width or max-width on the button. Anchored to the start of a
+		// declaration, so border-width does not match.
+		expect( button.getAttribute( 'style' ) ).not.toMatch( /(^|;)\s*(max-)?width:/ );
 
+		// Width alone. A margin left over from QR stays off: the button format has
+		// no control for it.
 		const card = document.querySelector( '.jetpack-paypal-button-preview' );
-		expect( card ).toHaveStyle( { marginTop: '8px', width: '75%', maxWidth: '100%' } );
-		expect( card ).not.toHaveStyle( { borderRadius: '8px' } );
+		expect( card ).toHaveStyle( { width: '75%', maxWidth: '100%' } );
+		expect( card.getAttribute( 'style' ) ).not.toMatch( /margin|border/ );
 	} );
 
 	it( 'never renders a debit/credit button', () => {

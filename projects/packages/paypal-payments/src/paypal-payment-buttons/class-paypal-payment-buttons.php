@@ -241,6 +241,8 @@ class PayPal_Payment_Buttons {
 	 * Margin, from the Border Settings panel.
 	 *
 	 * The QR card takes this and nothing else — Width and Border go on the QR frame.
+	 * The button format has no margin control, so its card ignores a margin left
+	 * over from QR.
 	 *
 	 * Mirrors getMarginStyle() in utils/block-styles.js.
 	 *
@@ -252,20 +254,13 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * Margin and Width, for the button card.
-	 *
-	 * Width sizes the whole card — image, product, button and "Powered by" — so they
-	 * share the button's edges. The button fills the card and keeps the border. A
-	 * QR-to-BUTTON format switch can leave a margin behind, so the card keeps
-	 * reading it.
-	 *
-	 * Mirrors getUnitStyle() in utils/block-styles.js.
+	 * The button card — the element Width goes on. The button fills it.
 	 *
 	 * @param array $attributes The block attributes.
 	 * @return string An inline CSS declaration list, empty when nothing is configured.
 	 */
-	private static function get_unit_style( $attributes ) {
-		return self::css_rules( array_merge( self::get_margin_rules( $attributes ), self::get_width_rules( $attributes ) ) );
+	private static function get_button_card_style( $attributes ) {
+		return self::css_rules( self::get_width_rules( $attributes ) );
 	}
 
 	/**
@@ -284,7 +279,7 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * Width, for whichever element the format sizes.
+	 * Width, for the button card or the QR frame.
 	 *
 	 * Width has its own unit, so it goes through as typed. The style engine never
 	 * sees it, so a spacing preset would be emitted raw — the width
@@ -519,7 +514,7 @@ class PayPal_Payment_Buttons {
 			array_merge(
 				self::get_text_rules( $attributes['buttonTextColor'] ?? '', $attributes['buttonFontSize'] ?? '' ),
 				$rules,
-				// Width goes on the card around it — see get_unit_style().
+				// Width goes on the card around it — see get_button_card_style().
 				self::get_border_rules( $attributes )
 			)
 		);
@@ -1091,8 +1086,8 @@ class PayPal_Payment_Buttons {
 		}
 
 		$wrapper_attributes = get_block_wrapper_attributes();
-		// Width sizes this card, and the button fills it — see get_unit_style().
-		$block_style = self::style_attr( self::get_unit_style( $attributes ) );
+		// Width sizes this card, and the button fills it.
+		$block_style = self::style_attr( self::get_button_card_style( $attributes ) );
 
 		// A blank label would draw an unreadable button, so fall back to the same
 		// default the editor preview uses.

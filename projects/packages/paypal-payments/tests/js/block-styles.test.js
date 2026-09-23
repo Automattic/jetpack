@@ -10,8 +10,8 @@ import {
 	getButtonStyle,
 	getMarginStyle,
 	getTextStyle,
-	getUnitStyle,
 	getWidthAndBorderStyle,
+	getWidthStyle,
 } from '../../src/paypal-payment-buttons/utils/block-styles';
 import parity from '../fixtures/style-parity.json';
 
@@ -31,12 +31,12 @@ const asDeclarations = style =>
 	);
 
 // Each case says which element it belongs on — the QR card takes margin, the
-// frame takes Width and the stroke, and the button card takes margin and Width.
-// The PHP half reads the same field.
+// frame takes Width and the stroke, and the button card takes Width alone. The
+// PHP half reads the same field.
 const TARGETS = {
 	card: getMarginStyle,
 	frame: getWidthAndBorderStyle,
-	unit: getUnitStyle,
+	buttonCard: getWidthStyle,
 };
 
 // The other half of this table runs in tests/php. A value one side drops and the
@@ -62,7 +62,7 @@ describe( 'style parity with the published page', () => {
 	it.each( parity.rejectedCases.map( c => [ c.name, c ] ) )( 'refuses %s', ( _name, testCase ) => {
 		expect( getMarginStyle( testCase.attributes ) ).toEqual( {} );
 		expect( getWidthAndBorderStyle( testCase.attributes ) ).toEqual( {} );
-		expect( getUnitStyle( testCase.attributes ) ).toEqual( {} );
+		expect( getWidthStyle( testCase.attributes ) ).toEqual( {} );
 	} );
 
 	it.each( parity.rejectedTextCases.map( c => [ c.name, c ] ) )(
@@ -102,7 +102,7 @@ describe( 'getMarginStyle', () => {
 		).toEqual( { marginTop: 'var(--wp--preset--spacing--50)' } );
 	} );
 
-	it( 'takes the margin and leaves Width and the stroke to the others', () => {
+	it( 'takes the margin and leaves Width and the stroke to the QR frame', () => {
 		expect(
 			getMarginStyle( {
 				blockWidth: '75%',
@@ -162,25 +162,6 @@ describe( 'getWidthAndBorderStyle', () => {
 		expect( getWidthAndBorderStyle( { style: { spacing: { margin: { top: '8px' } } } } ) ).toEqual(
 			{}
 		);
-	} );
-} );
-
-describe( 'getUnitStyle', () => {
-	it( 'is empty when nothing is configured', () => {
-		expect( getUnitStyle( {} ) ).toEqual( {} );
-	} );
-
-	it( 'takes the margin alone', () => {
-		expect( getUnitStyle( { style: { spacing: { margin: { top: '8px' } } } } ) ).toEqual( {
-			marginTop: '8px',
-		} );
-	} );
-
-	it( 'caps a width so it cannot spill out of the column', () => {
-		expect( getUnitStyle( { blockWidth: '900px' } ) ).toEqual( {
-			width: '900px',
-			maxWidth: '100%',
-		} );
 	} );
 } );
 
