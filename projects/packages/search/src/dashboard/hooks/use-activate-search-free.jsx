@@ -65,7 +65,15 @@ export default function useActivateSearchFree( { sendToCheckout } ) {
 			setIsActivating( true );
 
 			const fail = error => {
-				if ( error?.response?.data?.checkout_fallback ) {
+				const data = error?.response?.data;
+				/*
+				 * Only our own handler sets this flag, so an error without it never reached the
+				 * handler — a stale nonce, a gateway error. Checkout is a plain navigation that
+				 * needs neither, so fall back rather than dead-end on someone else's error.
+				 */
+				const refusedByEndpoint = !! data && 'checkout_fallback' in data;
+
+				if ( ! refusedByEndpoint || data.checkout_fallback ) {
 					// Leaves the in-flight flags set: checkout navigates away from this page.
 					sendToCheckout();
 					return;

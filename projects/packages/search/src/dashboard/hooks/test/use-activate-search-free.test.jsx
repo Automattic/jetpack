@@ -97,6 +97,29 @@ describe( 'useActivateSearchFree', () => {
 		expect( sendToCheckout ).not.toHaveBeenCalled();
 	} );
 
+	test( 'an error raised before our handler runs falls back to checkout', async () => {
+		// WordPress answers a stale nonce with this, well before the route's callback. It
+		// carries no checkout_fallback because our handler never ran — and checkout, being a
+		// plain navigation, works fine without a valid nonce.
+		mockActivate.mockReturnValue( rejectWith( 'rest_cookie_invalid_nonce', { status: 403 } ) );
+
+		const { result } = renderActivateHook();
+		act( () => result.current.run() );
+
+		await waitFor( () => expect( sendToCheckout ).toHaveBeenCalled() );
+		expect( mockErrorNotice ).not.toHaveBeenCalled();
+	} );
+
+	test( 'an error with no body at all still falls back to checkout', async () => {
+		mockActivate.mockReturnValue( Promise.reject( new Error( 'Network down.' ) ) );
+
+		const { result } = renderActivateHook();
+		act( () => result.current.run() );
+
+		await waitFor( () => expect( sendToCheckout ).toHaveBeenCalled() );
+		expect( mockErrorNotice ).not.toHaveBeenCalled();
+	} );
+
 	test( 'WPCOM Simple goes straight to checkout, since the route is not registered there', () => {
 		mockIsWpcom = true;
 

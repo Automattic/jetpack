@@ -72,6 +72,18 @@ describe( 'useActivateSearchFreeProduct', () => {
 		expect( createErrorNotice ).not.toHaveBeenCalled();
 	} );
 
+	it( 'falls back to checkout when the error never reached our handler', async () => {
+		// A stale nonce is answered by WordPress before the route's callback, so the error
+		// carries no checkout_fallback. Checkout needs no nonce, so it is still worth trying.
+		mockApiFetch.mockRejectedValue( restError( 'rest_cookie_invalid_nonce', { status: 403 } ) );
+
+		const { result } = renderActivateHook();
+		act( () => result.current.run() );
+
+		await waitFor( () => expect( sendToCheckout ).toHaveBeenCalled() );
+		expect( createErrorNotice ).not.toHaveBeenCalled();
+	} );
+
 	it( 'surfaces a refusal checkout could not resolve instead of dead-ending there', async () => {
 		mockApiFetch.mockRejectedValue(
 			restError( 'jetpack_search_free_disabled', { status: 403, checkout_fallback: false } )

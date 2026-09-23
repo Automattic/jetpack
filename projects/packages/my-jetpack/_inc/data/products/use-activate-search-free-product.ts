@@ -60,7 +60,13 @@ const useActivateSearchFreeProduct = ( {
 							return;
 						}
 
-						if ( error?.data?.checkout_fallback ) {
+						/*
+						 * Only our own handler sets this flag, so an error without it never
+						 * reached the handler — a stale nonce, a gateway error. Checkout needs
+						 * neither, so fall back rather than dead-end on someone else's error.
+						 */
+						const data = error?.data;
+						if ( ! data || ! ( 'checkout_fallback' in data ) || data.checkout_fallback ) {
 							sendToCheckout( null, checkoutRedirect );
 							return;
 						}
