@@ -61,12 +61,13 @@ class WPCOM_REST_API_V2_Verbum_OEmbed extends \WP_REST_Controller {
 	 * Get the embed data for the embed block.
 	 *
 	 * @param WP_REST_Request $request The request object.
-	 * @return array|\WP_Error
+	 * @return object|\WP_Error
 	 */
 	public function get_embed_data( WP_REST_Request $request ) {
+		// Skip discovery so only listed providers resolve, as with comment embeds on the front end.
 		$url        = sanitize_url( $request->get_param( 'embed_url' ) );
 		$instance   = new WP_oEmbed();
-		$embed_data = $instance->get_data( $url, array() );
+		$embed_data = $instance->get_data( $url, array( 'discover' => false ) );
 
 		// Return error if the embed data is empty.
 		// This matches the core response.
@@ -74,7 +75,7 @@ class WPCOM_REST_API_V2_Verbum_OEmbed extends \WP_REST_Controller {
 			return new \WP_Error( 'oembed_invalid_url', get_status_header_desc( 404 ), array( 'status' => 404 ) );
 		}
 
-		// Run the same filter as the core oEmbed proxy, so HTML from untrusted providers gets sanitized.
+		// data2html() sanitizes untrusted provider HTML; oembed_result matches the core oEmbed proxy.
 		/** This filter is documented in wp-includes/class-wp-oembed.php */
 		$embed_data->html = apply_filters( 'oembed_result', $instance->data2html( $embed_data, $url ), $url, array() );
 

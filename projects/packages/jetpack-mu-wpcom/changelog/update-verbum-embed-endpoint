@@ -1,4 +1,4 @@
 Significance: patch
 Type: security
 
-Verbum: Filter embed preview HTML the same way as the core oEmbed proxy.
+Verbum: Only resolve listed oEmbed providers in embed previews, and build their HTML like the core oEmbed proxy.

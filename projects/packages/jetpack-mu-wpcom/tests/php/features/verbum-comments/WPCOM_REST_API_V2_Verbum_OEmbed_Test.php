@@ -21,22 +21,39 @@ class WPCOM_REST_API_V2_Verbum_OEmbed_Test extends \WorDBless\BaseTestCase {
 	const EMBED_URL = 'https://provider.example/post/1';
 
 	/**
-	 * The HTML the fake oEmbed provider returns.
+	 * The oEmbed data the fake provider returns.
 	 *
-	 * @var string
+	 * @var array
 	 */
-	private $provider_html = '';
+	private $provider_data = array();
+
+	/**
+	 * URLs requested during the test.
+	 *
+	 * @var string[]
+	 */
+	private $requested_urls = array();
+
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		add_filter( 'pre_http_request', array( $this, 'fake_provider' ), 10, 3 );
+	}
 
 	/**
 	 * Tear down.
 	 */
 	public function tear_down() {
 		remove_all_filters( 'pre_http_request' );
+		remove_all_filters( 'oembed_providers' );
 		parent::tear_down();
 	}
 
 	/**
-	 * Serve a discoverable oEmbed provider without hitting the network.
+	 * Serve the provider's page, which advertises an oEmbed endpoint, and the endpoint itself.
 	 *
 	 * @param false|array $response Short-circuit response.
 	 * @param array       $args     Request arguments.
@@ -44,15 +61,10 @@ class WPCOM_REST_API_V2_Verbum_OEmbed_Test extends \WorDBless\BaseTestCase {
 	 * @return array
 	 */
 	public function fake_provider( $response, $args, $url ) {
+		$this->requested_urls[] = $url;
+
 		if ( str_starts_with( $url, 'https://provider.example/oembed' ) ) {
-			$body = wp_json_encode(
-				array(
-					'version' => '1.0',
-					'type'    => 'rich',
-					'html'    => $this->provider_html,
-				),
-				JSON_UNESCAPED_SLASHES
-			);
+			$body = wp_json_encode( $this->provider_data, JSON_UNESCAPED_SLASHES );
 		} else {
 			$body = '<html><head><link rel="alternate" type="application/json+oembed" href="https://provider.example/oembed?url=' . rawurlencode( self::EMBED_URL ) . '" /></head></html>';
 		}
@@ -69,15 +81,22 @@ class WPCOM_REST_API_V2_Verbum_OEmbed_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Add the fake provider to the oEmbed provider list.
+	 *
+	 * @param array $providers oEmbed providers.
+	 * @return array
+	 */
+	public function list_provider( $providers ) {
+		$providers['#https?://provider\.example/post/.*#i'] = array( 'https://provider.example/oembed', true );
+		return $providers;
+	}
+
+	/**
 	 * Fetch embed data for EMBED_URL through the endpoint.
 	 *
-	 * @param string $provider_html HTML the provider returns.
 	 * @return object|WP_Error
 	 */
-	private function get_embed_data( $provider_html ) {
-		$this->provider_html = $provider_html;
-		add_filter( 'pre_http_request', array( $this, 'fake_provider' ), 10, 3 );
-
+	private function get_embed_data() {
 		$request = new WP_REST_Request( 'GET', '/wpcom/v2/verbum/embed' );
 		$request->set_param( 'embed_url', self::EMBED_URL );
 
@@ -85,23 +104,33 @@ class WPCOM_REST_API_V2_Verbum_OEmbed_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * An untrusted provider that returns only markup, with no iframe, gets no HTML through.
+	 * A provider that isn't on the list is never discovered or fetched.
 	 */
-	public function test_untrusted_provider_markup_without_iframe_is_dropped() {
-		$data = $this->get_embed_data( '<svg width="1" height="1" onload="alert(document.domain)"></svg>' );
+	public function test_unlisted_provider_is_not_discovered() {
+		$data = $this->get_embed_data();
 
-		$this->assertFalse( $data->html );
+		$this->assertInstanceOf( WP_Error::class, $data );
+		$this->assertSame( 'oembed_invalid_url', $data->get_error_code() );
+		$this->assertSame( array(), $this->requested_urls );
 	}
 
 	/**
-	 * An untrusted provider's iframe is kept, sandboxed, and stripped of other markup.
+	 * The response HTML is built by data2html() instead of passed through from the provider.
 	 */
-	public function test_untrusted_provider_html_is_sanitized() {
-		$data = $this->get_embed_data( '<svg onload="alert(1)"></svg><iframe src="https://provider.example/frame" onload="alert(2)"></iframe>' );
+	public function test_listed_provider_html_is_built_by_core() {
+		add_filter( 'oembed_providers', array( $this, 'list_provider' ) );
+		$this->provider_data = array(
+			'version' => '1.0',
+			'type'    => 'photo',
+			'url'     => 'https://provider.example/photo.jpg',
+			'width'   => 100,
+			'height'  => 100,
+			'html'    => '<svg onload="alert(document.domain)"></svg>',
+		);
+
+		$data = $this->get_embed_data();
 
 		$this->assertStringNotContainsString( 'onload', $data->html );
-		$this->assertStringNotContainsString( '<svg', $data->html );
-		$this->assertStringContainsString( 'sandbox="allow-scripts"', $data->html );
-		$this->assertStringContainsString( 'src="https://provider.example/frame', $data->html );
+		$this->assertStringContainsString( '<img src="https://provider.example/photo.jpg"', $data->html );
 	}
 }
