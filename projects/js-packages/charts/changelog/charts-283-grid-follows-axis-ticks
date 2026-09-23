@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Line, bar and area charts: Draw gridlines at the ticks set by each axis's `numTicks` and `tickValues`, matching the axis labels.

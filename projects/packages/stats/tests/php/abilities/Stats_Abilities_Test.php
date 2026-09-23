@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Stats\Abilities;
 
 use Automattic\Jetpack\Stats\Main;
 use Automattic\Jetpack\Stats\Options;
+use Automattic\Jetpack\Stats\Settings;
 use Automattic\Jetpack\Stats\StatsBaseTestCase;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -21,8 +22,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
  *   composer phpunit -- --filter Stats_Abilities_Test
  *
  * @covers \Automattic\Jetpack\Stats\Abilities\Stats_Abilities
+ * @covers \Automattic\Jetpack\Stats\Settings
  */
 #[CoversClass( Stats_Abilities::class )]
+#[CoversClass( Settings::class )]
 class Stats_Abilities_Test extends StatsBaseTestCase {
 
 	/**
@@ -1048,13 +1051,47 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( 'jetpack_stats_invalid_role', $result->get_error_code() );
 	}
 
-	public function test_update_settings_rejects_empty_roles_to_prevent_lockout(): void {
-		// Schema validation enforces minItems=1 on REST input, but direct PHP callers bypass
-		// that path; an empty `roles` array would revoke `view_stats` for every user, including
-		// the caller. Reject explicitly.
+	public function test_update_settings_accepts_a_saved_role_the_site_no_longer_has(): void {
+		Options::set_options( array( 'roles' => array( 'administrator', 'shop_manager' ) ) );
+
+		$result = Stats_Abilities::update_settings( array( 'roles' => array( 'administrator', 'shop_manager', 'editor' ) ) );
+
+		$this->assertIsArray( $result );
+		$this->assertSame( array( 'administrator', 'shop_manager', 'editor' ), Options::get_option( 'roles' ) );
+	}
+
+	public function test_settings_update_refuses_a_key_outside_the_settings_list_instead_of_saving_it(): void {
+		$result = Settings::update( array( 'enable_odyssey_stats' => false ), array( 'enable_odyssey_stats' ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_stats_unknown_setting', $result->get_error_code() );
+		$this->assertTrue( Options::get_option( 'enable_odyssey_stats' ) );
+	}
+
+	public function test_update_settings_refuses_roles_given_as_a_string_instead_of_emptying_them(): void {
+		$result = Stats_Abilities::update_settings( array( 'roles' => 'editor' ) );
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_stats_invalid_roles', $result->get_error_code() );
+	}
+
+	public function test_update_settings_saves_the_counted_roles(): void {
+		$result = Stats_Abilities::update_settings( array( 'count_roles' => array( 'editor', 'author' ) ) );
+
+		$this->assertSame( array( 'editor', 'author' ), $result['settings']['count_roles'] );
+		$this->assertSame( array( 'editor', 'author' ), Options::get_option( 'count_roles' ) );
+	}
+
+	public function test_update_settings_refuses_an_empty_roles_list(): void {
 		$result = Stats_Abilities::update_settings( array( 'roles' => array() ) );
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertSame( 'jetpack_stats_invalid_roles', $result->get_error_code() );
+	}
+
+	public function test_update_settings_keeps_administrator_in_roles_so_admins_are_not_locked_out(): void {
+		$result = Stats_Abilities::update_settings( array( 'roles' => array( 'editor' ) ) );
+
+		$this->assertSame( array( 'administrator', 'editor' ), $result['settings']['roles'] );
+		$this->assertSame( array( 'administrator', 'editor' ), Options::get_option( 'roles' ) );
 	}
 
 	public function test_update_settings_changes_admin_bar(): void {
@@ -1066,6 +1103,19 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertIsArray( $result );
 		$this->assertTrue( $result['changed'] );
 		$this->assertFalse( $result['settings']['admin_bar'] );
+	}
+
+	public function test_update_settings_refuses_a_save_that_did_not_persist(): void {
+		$keep_stored = static function ( $value, $old_value ) {
+			return $old_value;
+		};
+		add_filter( 'pre_update_option_stats_options', $keep_stored, 10, 2 );
+
+		$result = Stats_Abilities::update_settings( array( 'admin_bar' => false ) );
+		remove_filter( 'pre_update_option_stats_options', $keep_stored, 10 );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_stats_save_failed', $result->get_error_code() );
 	}
 
 	public function test_update_settings_is_idempotent_for_current_state(): void {

@@ -2,7 +2,8 @@
 /**
  * The package's own dashboard sections: the built-in tabs, their availability gates and default
  * layouts, and the filters over those gates. They register through the section API in
- * dashboard-sections.php, the same way a plugin extending the dashboard would.
+ * dashboard-sections.php, the same way a plugin extending the dashboard does; the Ads tab is
+ * one such plugin section, registered by the WordAds module and by WordPress.com.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -10,7 +11,6 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Modules;
-use Automattic\Jetpack\Status\Host;
 
 // Guarded on a symbol the file declares, so a second copy of the package can't
 // redeclare it. See the include block in Analytics::load_dashboard_components().
@@ -27,11 +27,6 @@ const WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytic
  * Filter through which Subscribers section availability is resolved.
  */
 const SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_subscribers_dashboard_section_available';
-
-/**
- * Filter for Ads section availability.
- */
-const ADS_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_ads_dashboard_section_available';
 
 /**
  * Whether the WooCommerce dashboard section should be exposed.
@@ -84,44 +79,6 @@ function is_subscribers_dashboard_section_available() {
 	 * @param bool $is_available Whether the subscriptions module was detected in the current request.
 	 */
 	return (bool) apply_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, $is_available );
-}
-
-/**
- * Whether the Ads dashboard section is available.
- *
- * WPCOM reads the plan feature rather than the module, which is a false negative
- * on Atomic and meaningless on Simple. Mirrors is_videopress_available().
- *
- * @since 0.4.0
- *
- * @return bool True when the site can produce WordAds earnings.
- */
-function is_ads_dashboard_section_available() {
-	if ( ( new Host() )->is_wpcom_platform() ) {
-		$is_available = function_exists( 'wpcom_site_has_feature' ) && \wpcom_site_has_feature( 'wordads' );
-	} else {
-		$is_available = ! class_exists( 'Jetpack' ) || ( new Modules() )->is_active( 'wordads' );
-	}
-
-	/**
-	 * Filters whether the Ads dashboard section is available.
-	 *
-	 * @since 0.4.0
-	 *
-	 * @param bool $is_available Whether WordAds was detected in the current request.
-	 */
-	return (bool) apply_filters( ADS_DASHBOARD_SECTION_AVAILABLE_FILTER, $is_available );
-}
-
-/**
- * Whether the current user can access the Ads dashboard section.
- *
- * @since 0.4.0
- *
- * @return bool
- */
-function is_ads_dashboard_section_available_to_current_user() {
-	return is_ads_dashboard_section_available() && Capabilities::current_user_can_view_ad_reports();
 }
 
 /**
@@ -450,7 +407,8 @@ function get_store_section_default_layout() {
 }
 
 /**
- * The Ads tab's default widget layout.
+ * The Ads section's default widget layout, shared by its registrants: the WordAds module and
+ * jetpack-mu-wpcom compose the section from the package's WordAds widgets until those move.
  *
  * @return array Widget instances.
  */
@@ -504,7 +462,6 @@ function register_default_dashboard_sections( $registry = null ) {
 			'order'          => 10,
 			'default_layout' => __NAMESPACE__ . '\\get_traffic_section_default_layout',
 		),
-
 		'analytics/insights'    => array(
 			'label'               => __( 'Insights', 'jetpack-premium-analytics-pkg' ),
 			'title'               => __( 'Site insights', 'jetpack-premium-analytics-pkg' ),
@@ -519,7 +476,6 @@ function register_default_dashboard_sections( $registry = null ) {
 			),
 			'default_layout'      => __NAMESPACE__ . '\\get_insights_section_default_layout',
 		),
-
 		'analytics/subscribers' => array(
 			'label'               => __( 'Subscribers', 'jetpack-premium-analytics-pkg' ),
 			'title'               => __( 'Subscribers stats', 'jetpack-premium-analytics-pkg' ),
@@ -533,7 +489,6 @@ function register_default_dashboard_sections( $registry = null ) {
 			),
 			'default_layout'      => __NAMESPACE__ . '\\get_subscribers_section_default_layout',
 		),
-
 		// Store registers no heading of its own, so it falls back to the label.
 		'woocommerce/store'     => array(
 			'label'          => __( 'Store', 'jetpack-premium-analytics-pkg' ),
@@ -543,19 +498,6 @@ function register_default_dashboard_sections( $registry = null ) {
 			// full sync. The site sections above read data it already holds.
 			'requires_sync'  => true,
 			'default_layout' => __NAMESPACE__ . '\\get_store_section_default_layout',
-		),
-
-		'analytics/ads'         => array(
-			'label'               => __( 'Ads', 'jetpack-premium-analytics-pkg' ),
-			'order'               => 50,
-			'is_available'        => __NAMESPACE__ . '\\is_ads_dashboard_section_available_to_current_user',
-			// Only the chart supports dates, so it owns the control. No Ads widget
-			// supports comparison.
-			'date_filter_options' => array(
-				'with_date_comparison'     => false,
-				'with_header_date_control' => false,
-			),
-			'default_layout'      => __NAMESPACE__ . '\\get_ads_section_default_layout',
 		),
 	);
 

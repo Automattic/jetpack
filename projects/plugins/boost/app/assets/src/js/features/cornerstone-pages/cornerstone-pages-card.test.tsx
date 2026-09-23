@@ -3,7 +3,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import CornerstonePagesCard from './cornerstone-pages-card';
 
-jest.mock( './cornerstone-pages', () => ( { useCornerstoneSummary: () => mockSummary } ) );
 jest.mock( './meta/meta', () => ( {
 	CornerstonePagesDescription: () => <>description</>,
 	CornerstonePagesEditor: () => <div>editor</div>,
@@ -15,31 +14,29 @@ jest.mock( '$features/module/lib/stores', () => ( {
 } ) );
 jest.mock( '$lib/utils/analytics', () => ( { recordBoostEvent: jest.fn() } ) );
 
-let mockSummary: string | null;
 let mockSpeculationRules: { active: boolean; available: boolean } | undefined;
 
 describe( 'CornerstonePagesCard', () => {
 	beforeEach( () => {
-		mockSummary = 'Added: Homepage + 2 pages';
 		mockSpeculationRules = { active: false, available: true };
 	} );
 
-	it( 'describes the feature under the title, then summarises the list on the editor header', () => {
+	it( 'describes the feature without a duplicate heading', () => {
 		render( <CornerstonePagesCard /> );
 
-		expect( screen.getByRole( 'heading', { level: 2 } ).textContent ).toBe( 'Cornerstone pages' );
+		expect( screen.queryByRole( 'heading', { name: 'Cornerstone pages' } ) ).toBeNull();
 		expect( screen.getByText( 'description' ).tagName ).toBe( 'P' );
-		expect( screen.getByRole( 'button', { name: /Edit pages/ } ) ).toBeTruthy();
+		expect( screen.getByRole( 'button', { name: /Customize pages list/ } ) ).toBeTruthy();
 		expect( screen.getByText( 'prerender' ) ).toBeTruthy();
 	} );
 
-	it( 'puts the summary before "Edit pages" on the trigger, with the description outside it', () => {
+	it( 'labels the editor without repeating the section summary or description', () => {
 		render( <CornerstonePagesCard /> );
-		const trigger = screen.getByRole( 'button', { name: /Edit pages/ } );
+		const trigger = screen.getByRole( 'button', { name: /Customize pages list/ } );
 
 		const description = screen.getByText( 'description' );
 
-		expect( trigger.textContent ).toBe( 'Added: Homepage + 2 pagesEdit pages' );
+		expect( trigger.textContent ).toBe( 'Customize pages list' );
 		expect( trigger.contains( description ) ).toBe( false );
 		expect( description.closest( '[hidden]' ) ).toBeNull();
 	} );
@@ -52,7 +49,7 @@ describe( 'CornerstonePagesCard', () => {
 		expect( editor.closest( '[hidden]' ) ).not.toBeNull();
 		expect( cta.closest( '[hidden]' ) ).toBe( editor.closest( '[hidden]' ) );
 
-		fireEvent.click( screen.getByRole( 'button', { name: /Edit pages/ } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: /Customize pages list/ } ) );
 
 		expect( editor.closest( '[hidden]' ) ).toBeNull();
 	} );
@@ -68,7 +65,7 @@ describe( 'CornerstonePagesCard', () => {
 		const { recordBoostEvent } = jest.requireMock( '$lib/utils/analytics' );
 		render( <CornerstonePagesCard /> );
 
-		fireEvent.click( screen.getByRole( 'button', { name: /Edit pages/ } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: /Customize pages list/ } ) );
 
 		expect( recordBoostEvent ).toHaveBeenCalledWith( 'cornerstone_pages_panel_toggle', {
 			status: 'open',

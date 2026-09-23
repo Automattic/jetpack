@@ -372,9 +372,9 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The Ads tab declares its WordAds widgets in the prototype's order.
+	 * The Ads layout the two registrants share declares the WordAds widgets in the prototype's order.
 	 */
-	public function test_ads_section_declares_the_bundled_widgets() {
+	public function test_ads_layout_helper_declares_the_wordads_widgets() {
 		$layout = get_ads_section_default_layout();
 
 		// Widths fill the three-column grid.
@@ -387,8 +387,6 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			$layout
 		);
 
-		// The chart's bucket follows the page interval control, so no default
-		// instance seeds attributes any more.
 		foreach ( $layout as $instance ) {
 			$this->assertArrayNotHasKey( 'attributes', $instance, $instance['uuid'] );
 		}

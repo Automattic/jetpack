@@ -702,6 +702,39 @@ SteadyValues.parameters = {
 	},
 };
 
+const wholeNumberRangeData: SeriesData[] = [
+	{
+		label: 'Errors',
+		data: [
+			{ date: new Date( 2026, 0, 1 ), value: 0 },
+			{ date: new Date( 2026, 1, 1 ), value: 1 },
+			{ date: new Date( 2026, 2, 1 ), value: 1 },
+			{ date: new Date( 2026, 3, 1 ), value: 0 },
+			{ date: new Date( 2026, 4, 1 ), value: 1 },
+			{ date: new Date( 2026, 5, 1 ), value: 1 },
+		],
+	},
+];
+
+export const SmallWholeNumberRange: Story = {
+	args: {
+		...Default.args,
+		data: wholeNumberRangeData,
+	},
+	argTypes: {
+		// The series-count control swaps in the medal data, which isn't a whole-number range.
+		seriesCount: { table: { disable: true } },
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'When every visible value is a whole number, the value axis places ticks only on whole numbers, instead of repeating a rounded label at fractional steps. Pass `options.axis.y.tickValues` to choose the ticks yourself (`axis.x` on a horizontal chart). A value domain you pin with `options.yScale.domain` (`xScale` on a horizontal chart) keeps every tick, so a percentage axis on `[ 0, 1 ]` still steps by 20%.',
+			},
+		},
+	},
+};
+
 // Data with long categorical labels to demonstrate overlapping issue
 const longLabelData = [
 	{

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Resolve the stylesheet export to a source placeholder for in-monorepo tooling, as charts does.
+
+

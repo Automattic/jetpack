@@ -10,6 +10,7 @@ import ModernApp from './modern-app';
 
 const mockRecordBoostEvent = jest.fn();
 let mockShouldGetStarted = false;
+let mockRedirectSubpage = false;
 
 jest.mock( '$lib/utils/analytics', () => ( {
 	...jest.requireActual( '$lib/utils/analytics' ),
@@ -32,10 +33,22 @@ jest.mock( './modern-settings', () => ( {
 	__esModule: true,
 	default: ( { hidden }: { hidden?: boolean } ) => <div data-testid="settings" hidden={ hidden } />,
 } ) );
-jest.mock( './modern-subpage', () => ( {
-	__esModule: true,
-	default: ( { subpage }: { subpage: string } ) => <div data-testid="subpage">{ subpage }</div>,
-} ) );
+jest.mock( './modern-subpage', () => {
+	const { navigateTo, settingsUrl } =
+		jest.requireActual< typeof import( '$lib/modern/routes' ) >( '$lib/modern/routes' );
+	const { useEffect } = jest.requireActual< typeof import( 'react' ) >( 'react' );
+	return {
+		__esModule: true,
+		default: function MockSubpage( { subpage }: { subpage: string } ) {
+			useEffect( () => {
+				if ( mockRedirectSubpage ) {
+					navigateTo( settingsUrl() );
+				}
+			}, [] );
+			return <div data-testid="subpage">{ subpage }</div>;
+		},
+	};
+} );
 
 const BASE_URL = 'http://localhost/wp-admin/admin.php?page=jetpack-boost';
 
@@ -67,6 +80,7 @@ const renderApp = () => {
 describe( 'ModernApp', () => {
 	beforeEach( () => {
 		mockShouldGetStarted = false;
+		mockRedirectSubpage = false;
 		mockRecordBoostEvent.mockClear();
 		window.history.replaceState( null, '', BASE_URL );
 	} );
@@ -109,33 +123,31 @@ describe( 'ModernApp', () => {
 
 		expect( mockRecordBoostEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
 			'page_view_overview',
-			'page_view_settings',
 			'page_view_cache_debug_log',
 		] );
 	} );
 
-	it( 'records Settings on a cold load of the chassis Settings route', () => {
+	it( 'records Overview on a cold load of the former Settings route', () => {
 		window.history.replaceState( null, '', `${ BASE_URL }${ SETTINGS_ARG }` );
 
 		renderApp();
 
 		expect( mockRecordBoostEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
-			'page_view_settings',
+			'page_view_overview',
 		] );
 	} );
 
-	it( 'records Settings when the chassis switches tab', () => {
+	it( 'does not record another page view when the scroll destination changes', () => {
 		renderApp();
 
 		goTo( SETTINGS_ARG );
 
 		expect( mockRecordBoostEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
 			'page_view_overview',
-			'page_view_settings',
 		] );
 	} );
 
-	it( 'records Settings again on the way back from a sub-page', () => {
+	it( 'records Overview again on the way back from a sub-page', () => {
 		renderApp();
 
 		goTo( '#/cache-debug-log' );
@@ -144,7 +156,7 @@ describe( 'ModernApp', () => {
 		expect( mockRecordBoostEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
 			'page_view_overview',
 			'page_view_cache_debug_log',
-			'page_view_settings',
+			'page_view_overview',
 		] );
 	} );
 
@@ -156,23 +168,37 @@ describe( 'ModernApp', () => {
 		expect( mockRecordBoostEvent ).toHaveBeenCalledTimes( 2 );
 	} );
 
-	it( 'promotes a tab carried in the hash and records it once as Settings', () => {
+	it( 'promotes a tab carried in the hash without recording a second page view', () => {
 		renderApp();
 		goTo( '#/?tab=settings' );
 
 		expect( window.location.hash ).toBe( '' );
 		expect( window.location.search ).toContain( 'p=%2F%3Ftab%3Dsettings' );
-		expect( mockRecordBoostEvent ).toHaveBeenLastCalledWith( 'page_view_settings', { path: '/' } );
+		expect( mockRecordBoostEvent ).toHaveBeenCalledTimes( 1 );
+		expect( mockRecordBoostEvent ).toHaveBeenLastCalledWith( 'page_view_overview', { path: '/' } );
 	} );
 
-	it( 'redirects an onboarding user off a guarded route without recording it', () => {
-		mockShouldGetStarted = true;
-		const { slots } = renderApp();
+	it.each( [ '', SETTINGS_ARG, '#/cache-debug-log', '#/critical-css-advanced' ] )(
+		'redirects %s without recording the hidden route',
+		suffix => {
+			window.history.replaceState( null, '', `${ BASE_URL }${ suffix }` );
+			mockShouldGetStarted = true;
+			const { slots } = renderApp();
 
-		expect( window.location.hash ).toBe( '#/getting-started' );
-		expect( within( slots.subpage ).getByText( 'getting-started' ) ).toBeTruthy();
+			expect( window.location.hash ).toBe( '#/getting-started' );
+			expect( within( slots.subpage ).getByText( 'getting-started' ) ).toBeTruthy();
+			expect( mockRecordBoostEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
+				'page_view_getting_started',
+			] );
+		}
+	);
+
+	it( 'does not record a sub-page that redirects before it becomes visible', () => {
+		mockRedirectSubpage = true;
+		window.history.replaceState( null, '', `${ BASE_URL }#/critical-css-advanced` );
+		renderApp();
 		expect( mockRecordBoostEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
-			'page_view_getting_started',
+			'page_view_overview',
 		] );
 	} );
 

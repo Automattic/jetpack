@@ -328,6 +328,15 @@ describe( 'DatePeriodDropdown attention', () => {
 		expect( overlay() ).toBeNull();
 	} );
 
+	it( 'keeps the class its fill is isolated on when a surface adds one', () => {
+		renderDropdown( { attentionId: 1, triggerProps: { className: 'surface-trigger' } } );
+
+		expect( screen.getByRole( 'button', { name: 'Last 30 days' } ) ).toHaveClass(
+			'date-period-dropdown__toggle',
+			'surface-trigger'
+		);
+	} );
+
 	it( 'restarts for a new id by drawing a fresh fill', () => {
 		const view = renderDropdownView( { attentionId: 1 } );
 		const first = overlay();

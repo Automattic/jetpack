@@ -281,7 +281,7 @@ class Admin_Page {
 	/**
 	 * Alias the current screen id to wp-build's expected slug.
 	 *
-	 * @since $$next-version$$ Takes no argument; hooked on `admin_enqueue_scripts`.
+	 * @since 2.1.3 Takes no argument; hooked on `admin_enqueue_scripts`.
 	 */
 	public static function alias_screen_id_for_wp_build() {
 		$screen = get_current_screen();
@@ -296,7 +296,7 @@ class Admin_Page {
 	/**
 	 * Undo alias_screen_id_for_wp_build(), so code after the generated check sees the real screen ID.
 	 *
-	 * @since $$next-version$$
+	 * @since 2.1.3
 	 */
 	public static function restore_screen_id_after_wp_build() {
 		$screen = get_current_screen();
@@ -323,7 +323,7 @@ class Admin_Page {
 	 *
 	 * Fetching a JITM records a view, so one the page hides would still be counted.
 	 *
-	 * @since $$next-version$$
+	 * @since 2.1.3
 	 *
 	 * @param bool   $show      Whether to show JITMs on the screen.
 	 * @param string $screen_id The screen ID.
