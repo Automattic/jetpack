@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+Comment: Bar chart: Match visx rounding for classified bars; fixes an unreleased change.
+
