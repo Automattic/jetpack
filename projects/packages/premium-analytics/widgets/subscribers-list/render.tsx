@@ -144,13 +144,13 @@ export default function SubscribersList( { attributes = {} }: SubscribersListWid
 				<div className={ styles.content }>
 					<SubscribersReport />
 				</div>
-				{ manageSubscribersUrl && (
-					<WidgetFooter>
+				<WidgetFooter>
+					{ manageSubscribersUrl && (
 						<WidgetFooterLink href={ manageSubscribersUrl }>
 							{ __( 'Manage subscribers', 'jetpack-premium-analytics-pkg' ) }
 						</WidgetFooterLink>
-					</WidgetFooter>
-				) }
+					) }
+				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);
