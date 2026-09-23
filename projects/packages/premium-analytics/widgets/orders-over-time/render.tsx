@@ -29,7 +29,7 @@ type OrdersOverTimeWidgetProps = WidgetRenderProps< OrdersOverTimeRenderAttribut
 
 const ordersCountLabel: CountLabel = count =>
 	/* translators: %s: number of orders. */
-	_n( '%s order', '%s orders', count, 'jetpack-premium-analytics-pkg' );
+	_n( '%s Order', '%s Orders', count, 'jetpack-premium-analytics-pkg' );
 
 /**
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query

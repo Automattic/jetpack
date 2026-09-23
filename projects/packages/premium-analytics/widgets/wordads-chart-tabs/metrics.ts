@@ -27,7 +27,7 @@ export const WORDADS_CHART_METRICS: WordAdsChartMetric[] = [
 		label: __( 'Ads Served', 'jetpack-premium-analytics-pkg' ),
 		countLabel: count =>
 			/* translators: %s: number of ads served. */
-			_n( '%s ad served', '%s ads served', count, 'jetpack-premium-analytics-pkg' ),
+			_n( '%s Ad Served', '%s Ads Served', count, 'jetpack-premium-analytics-pkg' ),
 	},
 	{
 		id: 'cpm',

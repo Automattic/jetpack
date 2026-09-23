@@ -240,7 +240,7 @@ export default function useVideoMetrics(
 			points: StatsSingleVideoDataPoint[],
 			serverTotal: number | undefined,
 			dataFormat: DataFormat,
-			countLabel: CountLabel
+			countLabel?: CountLabel
 		): MetricTab => {
 			const current = toBucketPoints( buckets, bucketTotals( points, buckets ), timezone );
 			return {
@@ -262,7 +262,7 @@ export default function useVideoMetrics(
 				COUNT_FORMAT,
 				count =>
 					/* translators: %s: number of views. */
-					_n( '%s view', '%s views', count, 'jetpack-premium-analytics-pkg' )
+					_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' )
 			),
 		];
 
@@ -278,7 +278,7 @@ export default function useVideoMetrics(
 					COUNT_FORMAT,
 					count =>
 						/* translators: %s: number of impressions. */
-						_n( '%s impression', '%s impressions', count, 'jetpack-premium-analytics-pkg' )
+						_n( '%s Impression', '%s Impressions', count, 'jetpack-premium-analytics-pkg' )
 				)
 			);
 		}
@@ -289,10 +289,7 @@ export default function useVideoMetrics(
 					__( 'Hours watched', 'jetpack-premium-analytics-pkg' ),
 					data.series.watch_time,
 					total?.watch_time,
-					HOURS_FORMAT,
-					count =>
-						/* translators: %s: number of hours watched. */
-						_n( '%s hour watched', '%s hours watched', count, 'jetpack-premium-analytics-pkg' )
+					HOURS_FORMAT
 				)
 			);
 		}

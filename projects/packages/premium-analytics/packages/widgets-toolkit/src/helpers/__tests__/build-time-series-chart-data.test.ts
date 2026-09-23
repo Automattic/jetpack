@@ -46,7 +46,7 @@ describe( 'buildTimeSeriesChartData', () => {
 	it( "puts the count label on the current period, where the comparison's tooltip row finds it", () => {
 		const views = ( count: number ) =>
 			/* translators: %s: number of views. */
-			_n( '%s view', '%s views', count, 'jetpack-premium-analytics-pkg' );
+			_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
 		const [ current, previous ] = buildTimeSeriesChartData( {
 			primary,
 			comparison,

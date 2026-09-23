@@ -32,6 +32,7 @@ export type TooltipExtraSeries = {
 	data: ComparativeDatePointDate[];
 	/** Falls back to the chart's `dataFormat`. */
 	dataFormat?: DataFormat;
+	/** Unlike a drawn series, an extra has no group to borrow a count label from. */
 	countLabel?: CountLabel;
 };
 

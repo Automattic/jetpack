@@ -597,10 +597,10 @@ describe( 'MetricTabsChart tooltipMetrics', () => {
 	it( "hands each metric's count label to its series and to the tooltip extras", () => {
 		const views = ( count: number ) =>
 			/* translators: %s: number of views. */
-			_n( '%s view', '%s views', count, 'jetpack-premium-analytics-pkg' );
+			_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
 		const visitors = ( count: number ) =>
 			/* translators: %s: number of visitors. */
-			_n( '%s visitor', '%s visitors', count, 'jetpack-premium-analytics-pkg' );
+			_n( '%s Visitor', '%s Visitors', count, 'jetpack-premium-analytics-pkg' );
 
 		render(
 			<MetricTabsChart

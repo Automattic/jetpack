@@ -60,10 +60,10 @@ function metricCountLabel( metric: EmailTimeSeriesMetric ): CountLabel {
 	return metric === 'clicks'
 		? count =>
 				/* translators: %s: number of clicks. */
-				_n( '%s click', '%s clicks', count, 'jetpack-premium-analytics-pkg' )
+				_n( '%s Click', '%s Clicks', count, 'jetpack-premium-analytics-pkg' )
 		: count =>
 				/* translators: %s: number of opens. */
-				_n( '%s open', '%s opens', count, 'jetpack-premium-analytics-pkg' );
+				_n( '%s Open', '%s Opens', count, 'jetpack-premium-analytics-pkg' );
 }
 
 type EmailTimeSeriesReportProps = {

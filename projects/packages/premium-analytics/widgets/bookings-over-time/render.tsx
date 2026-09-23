@@ -26,7 +26,7 @@ type BookingsOverTimeWidgetProps = WidgetRenderProps< BookingsOverTimeRenderAttr
 
 const bookingsCountLabel: CountLabel = count =>
 	/* translators: %s: number of bookings. */
-	_n( '%s booking', '%s bookings', count, 'jetpack-premium-analytics-pkg' );
+	_n( '%s Booking', '%s Bookings', count, 'jetpack-premium-analytics-pkg' );
 
 /**
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query

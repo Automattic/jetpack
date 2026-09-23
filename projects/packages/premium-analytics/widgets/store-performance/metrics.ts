@@ -52,7 +52,7 @@ export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 		metricKey: 'orders_no',
 		countLabel: count =>
 			/* translators: %s: number of orders. */
-			_n( '%s order', '%s orders', count, 'jetpack-premium-analytics-pkg' ),
+			_n( '%s Order', '%s Orders', count, 'jetpack-premium-analytics-pkg' ),
 	},
 	{
 		id: 'bookings',
@@ -65,7 +65,7 @@ export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 		metricKey: 'orders_no',
 		countLabel: count =>
 			/* translators: %s: number of bookings. */
-			_n( '%s booking', '%s bookings', count, 'jetpack-premium-analytics-pkg' ),
+			_n( '%s Booking', '%s Bookings', count, 'jetpack-premium-analytics-pkg' ),
 	},
 	{
 		id: 'visitors',
@@ -78,7 +78,7 @@ export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 		metricKey: 'visitors',
 		countLabel: count =>
 			/* translators: %s: number of visitors. */
-			_n( '%s visitor', '%s visitors', count, 'jetpack-premium-analytics-pkg' ),
+			_n( '%s Visitor', '%s Visitors', count, 'jetpack-premium-analytics-pkg' ),
 	},
 	{
 		id: 'conversion-rate',
@@ -101,6 +101,6 @@ export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 		metricKey: 'customers',
 		countLabel: count =>
 			/* translators: %s: number of customers. */
-			_n( '%s customer', '%s customers', count, 'jetpack-premium-analytics-pkg' ),
+			_n( '%s Customer', '%s Customers', count, 'jetpack-premium-analytics-pkg' ),
 	},
 ];

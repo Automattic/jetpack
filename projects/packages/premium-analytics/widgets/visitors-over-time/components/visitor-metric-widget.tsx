@@ -11,7 +11,7 @@ import { __, _n } from '@wordpress/i18n';
 
 const visitorsCountLabel: CountLabel = count =>
 	/* translators: %s: number of visitors. */
-	_n( '%s visitor', '%s visitors', count, 'jetpack-premium-analytics-pkg' );
+	_n( '%s Visitor', '%s Visitors', count, 'jetpack-premium-analytics-pkg' );
 
 export function VisitorMetricWidget() {
 	const { reportParams } = useWidgetRootContext();

@@ -111,10 +111,10 @@ describe( 'resolveTooltipNames', () => {
 describe( 'resolveTooltipCountLabels', () => {
 	const views = ( count: number ) =>
 		/* translators: %s: number of views. */
-		_n( '%s view', '%s views', count, 'jetpack-premium-analytics-pkg' );
+		_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
 	const impressions = ( count: number ) =>
 		/* translators: %s: number of impressions. */
-		_n( '%s impression', '%s impressions', count, 'jetpack-premium-analytics-pkg' );
+		_n( '%s Impression', '%s Impressions', count, 'jetpack-premium-analytics-pkg' );
 
 	it( "gives a comparison series its group's count label", () => {
 		const labels = resolveTooltipCountLabels(

@@ -45,28 +45,28 @@ function getDefaultMetrics(): ReportChartMetric[] {
 			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 			countLabel: count =>
 				/* translators: %s: number of views. */
-				_n( '%s view', '%s views', count, 'jetpack-premium-analytics-pkg' ),
+				_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			key: 'visitors',
 			label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ),
 			countLabel: count =>
 				/* translators: %s: number of visitors. */
-				_n( '%s visitor', '%s visitors', count, 'jetpack-premium-analytics-pkg' ),
+				_n( '%s Visitor', '%s Visitors', count, 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			key: 'comments',
 			label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
 			countLabel: count =>
 				/* translators: %s: number of comments. */
-				_n( '%s comment', '%s comments', count, 'jetpack-premium-analytics-pkg' ),
+				_n( '%s Comment', '%s Comments', count, 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			key: 'likes',
 			label: __( 'Likes', 'jetpack-premium-analytics-pkg' ),
 			countLabel: count =>
 				/* translators: %s: number of likes. */
-				_n( '%s like', '%s likes', count, 'jetpack-premium-analytics-pkg' ),
+				_n( '%s Like', '%s Likes', count, 'jetpack-premium-analytics-pkg' ),
 		},
 	];
 }

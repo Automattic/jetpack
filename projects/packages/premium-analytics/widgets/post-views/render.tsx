@@ -61,7 +61,7 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 				label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 				countLabel: count =>
 					/* translators: %s: number of views. */
-					_n( '%s view', '%s views', count, 'jetpack-premium-analytics-pkg' ),
+					_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' ),
 				value: current.reduce( ( sum, point ) => sum + point.value, 0 ),
 				current,
 			},

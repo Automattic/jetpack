@@ -413,7 +413,7 @@ describe( 'ComparativeLineChart', () => {
 		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
 		const views = ( count: number ) =>
 			/* translators: %s: number of views. */
-			_n( '%s view', '%s views', count, 'jetpack-premium-analytics-pkg' );
+			_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
 		const [ current, comparison ] = SERIES_WITH_COMPARISON;
 
 		render(
@@ -424,11 +424,11 @@ describe( 'ComparativeLineChart', () => {
 		);
 
 		expect( tooltipLabelFor( { date: JULY_1 }, 0, 'Views', '1', 1 ) ).toBe(
-			'1 view · July 1, 2026'
+			'1 View · July 1, 2026'
 		);
 		// The comparison row has no count label of its own and borrows its group's.
 		expect( tooltipLabelFor( COMPARISON_POINT, 1, 'Views · previous period', '2', 2 ) ).toBe(
-			'2 views · June 1, 2026'
+			'2 Views · June 1, 2026'
 		);
 	} );
 
@@ -436,7 +436,7 @@ describe( 'ComparativeLineChart', () => {
 		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
 		const impressions = ( count: number ) =>
 			/* translators: %s: number of impressions. */
-			_n( '%s impression', '%s impressions', count, 'jetpack-premium-analytics-pkg' );
+			_n( '%s Impression', '%s Impressions', count, 'jetpack-premium-analytics-pkg' );
 
 		render(
 			<ComparativeLineChart
@@ -449,7 +449,7 @@ describe( 'ComparativeLineChart', () => {
 		);
 
 		expect( tooltipLabelFor( { date: JULY_1 }, 1, 'Impressions', '1', 1 ) ).toBe(
-			'1 impression · July 1, 2026'
+			'1 Impression · July 1, 2026'
 		);
 		// The drawn series has no count label, so its name stays the unit.
 		expect( tooltipLabelFor( { date: JULY_1 }, 0, 'Views', '1', 1 ) ).toBe(

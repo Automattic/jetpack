@@ -52,16 +52,16 @@ const renderTooltip = params => (
 
 ## Props
 
-| Prop            | Type                                       | Required | Description                                                                                                                                                                                                                                          |
-| --------------- | ------------------------------------------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tooltipData`   | `{ datumByKey?: Record<string, unknown> }` | No       | Tooltip data from visx chart                                                                                                                                                                                                                         |
-| `dataFormat`    | `DataFormat`                               | Yes      | Format for values: currency, number, percentage                                                                                                                                                                                                      |
-| `seriesStyles`  | `TooltipStyle[]`                           | Yes      | Styles for each series (color, stroke properties)                                                                                                                                                                                                    |
-| `seriesKeys`    | `string[]`                                 | No       | Series keys in the same order as `seriesStyles`. Pairs a row with its style by key rather than by position, for charts that emit rows out of series order (a bar chart drawing two metrics lists both current periods before either previous period) |
-| `indicatorType` | `'line' \| 'rect'`                         | Yes      | Shape indicator: line for line charts, rect for bars                                                                                                                                                                                                 |
-| `layout`        | `'split' \| 'inline'`                      | No       | `split` (default) sets the label left and the value right; `inline` renders the label alone, for a `getLabel` that spells the value into it                                                                                                          |
-| `getLabel`      | `(datum, index, key, value) => string`     | No       | Custom label extractor (default: `datum.label`). `key` is the series key/label; `value` is the row's value spelled out in full, in the row's own format                                                                                              |
-| `getValue`      | `(datum) => number`                        | No       | Custom value extractor (default: `datum.value`)                                                                                                                                                                                                      |
+| Prop            | Type                                             | Required | Description                                                                                                                                                                                                                                          |
+| --------------- | ------------------------------------------------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tooltipData`   | `{ datumByKey?: Record<string, unknown> }`       | No       | Tooltip data from visx chart                                                                                                                                                                                                                         |
+| `dataFormat`    | `DataFormat`                                     | Yes      | Format for values: currency, number, percentage                                                                                                                                                                                                      |
+| `seriesStyles`  | `TooltipStyle[]`                                 | Yes      | Styles for each series (color, stroke properties)                                                                                                                                                                                                    |
+| `seriesKeys`    | `string[]`                                       | No       | Series keys in the same order as `seriesStyles`. Pairs a row with its style by key rather than by position, for charts that emit rows out of series order (a bar chart drawing two metrics lists both current periods before either previous period) |
+| `indicatorType` | `'line' \| 'rect'`                               | Yes      | Shape indicator: line for line charts, rect for bars                                                                                                                                                                                                 |
+| `layout`        | `'split' \| 'inline'`                            | No       | `split` (default) sets the label left and the value right; `inline` renders the label alone, for a `getLabel` that spells the value into it                                                                                                          |
+| `getLabel`      | `(datum, index, key, value, rawValue) => string` | No       | Custom label extractor (default: `datum.label`). `key` is the series key/label; `value` is the row's value spelled out in full, in the row's own format; `rawValue` is the number it spells, for picking a plural form                               |
+| `getValue`      | `(datum) => number`                              | No       | Custom value extractor (default: `datum.value`)                                                                                                                                                                                                      |
 
 ## TooltipStyle Type
 
@@ -95,15 +95,21 @@ function defaultGetValue( datum: unknown ): number {
 
 ### When to Use Custom Extractors
 
-**Line charts with dates**: Pass a custom `getLabel` with `layout="inline"`, so a row reads as value, metric, then date (`86 Views · September 17, 2026`). `tooltipNames` is the map `resolveTooltipNames( seriesNames, tooltipExtras )` returns, so an extra's key resolves too:
+**Line charts with dates**: Pass a custom `getLabel` with `layout="inline"`, so a row reads as value, metric, then date (`86 Views · September 17, 2026`). `tooltipNames` is the map `resolveTooltipNames( seriesNames, tooltipExtras )` returns, so an extra's key resolves too. `tooltipCountLabels` is the map `resolveTooltipCountLabels( series, tooltipExtras )` returns; a count metric's row then reads `1 View`, not `1 Views`:
 
 ```tsx
-const getLabel = ( datum, _index, key, value ) => {
+const getLabel = ( datum, _index, key, value, rawValue ) => {
 	// A comparison point is identified by carrying `realDate`, not by its index:
 	// a chart can draw more than one current-period metric, so index 1+ is not
 	// necessarily a comparison.
 	const displayDate = datum.realDate ?? datum.date;
-	return formatTooltipPointLabel( value, tooltipNames.get( key ) ?? key, formatDate( displayDate ) );
+	return formatTooltipPointLabel(
+		value,
+		tooltipNames.get( key ) ?? key,
+		formatDate( displayDate ),
+		rawValue,
+		tooltipCountLabels.get( key )
+	);
 };
 ```
 

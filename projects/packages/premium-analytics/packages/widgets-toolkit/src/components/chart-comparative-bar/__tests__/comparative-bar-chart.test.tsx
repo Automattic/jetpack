@@ -382,7 +382,7 @@ describe( 'ComparativeBarChart', () => {
 	it( "reads a count metric's rows, comparison included, in the count's plural form", () => {
 		const views = ( count: number ) =>
 			/* translators: %s: number of views. */
-			_n( '%s view', '%s views', count, 'jetpack-premium-analytics-pkg' );
+			_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
 		const [ current, comparison ] = SERIES_WITH_COMPARISON;
 
 		render(
@@ -397,7 +397,7 @@ describe( 'ComparativeBarChart', () => {
 		} ).props;
 
 		expect( getLabel( { date: JULY_1 }, 0, current.label, '1', 1 ) ).toBe(
-			'1 view · July 1, 2026'
+			'1 View · July 1, 2026'
 		);
 		expect(
 			getLabel(
@@ -407,7 +407,7 @@ describe( 'ComparativeBarChart', () => {
 				'1',
 				1
 			)
-		).toBe( '1 view · June 1, 2026' );
+		).toBe( '1 View · June 1, 2026' );
 	} );
 
 	it( 'renders the rows inline, the value spelled into each label', () => {

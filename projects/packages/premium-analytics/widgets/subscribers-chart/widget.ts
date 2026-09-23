@@ -41,14 +41,14 @@ export const SUBSCRIBERS_CHART_METRICS = [
 		label: __( 'Subscribers', 'jetpack-premium-analytics-pkg' ),
 		countLabel: count =>
 			/* translators: %s: number of subscribers. */
-			_n( '%s subscriber', '%s subscribers', count, 'jetpack-premium-analytics-pkg' ),
+			_n( '%s Subscriber', '%s Subscribers', count, 'jetpack-premium-analytics-pkg' ),
 	},
 	{
 		id: 'paid',
 		label: __( 'Paid subscribers', 'jetpack-premium-analytics-pkg' ),
 		countLabel: count =>
 			/* translators: %s: number of paid subscribers. */
-			_n( '%s paid subscriber', '%s paid subscribers', count, 'jetpack-premium-analytics-pkg' ),
+			_n( '%s Paid subscriber', '%s Paid subscribers', count, 'jetpack-premium-analytics-pkg' ),
 	},
 ] as const satisfies readonly { id: string; label: string; countLabel: CountLabel }[];
 
