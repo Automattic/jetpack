@@ -9,6 +9,7 @@ export type ConnectUrl = {
 export type Passport = {
 	provider: Provider;
 	name: string;
+	email: string;
 	avatar: string;
 };
 

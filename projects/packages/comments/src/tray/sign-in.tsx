@@ -71,7 +71,13 @@ export const SignIn = () => {
 		popup.current = null;
 
 		if ( 'code' in result ) {
-			signedIn.value = { provider, name: result.name, avatar: result.avatar, code: result.code };
+			signedIn.value = {
+				provider,
+				name: result.name,
+				email: '',
+				avatar: result.avatar,
+				code: result.code,
+			};
 			activeService.value = '';
 			return;
 		}
@@ -112,7 +118,7 @@ export const SignIn = () => {
 		: [ ...identity.providers, 'mail' ];
 
 	return (
-		<div className="jetpack-comments__identity">
+		<div className="jetpack-comments__tray-view">
 			<p className="jetpack-comments__prompt">{ prompt() }</p>
 			{ signInError.value && (
 				<p className="jetpack-comments__notice" role="status">

@@ -31,6 +31,7 @@ export const FrequencyToggle = ( { name, value, onChange, disabled }: FrequencyT
 				className="jetpack-comments__frequency-select"
 				value={ value }
 				title={ strings.emailNewPosts }
+				aria-label={ strings.emailNewPosts }
 				disabled={ disabled }
 				onChange={ event => onChange( event.currentTarget.value as Frequency ) }
 			>

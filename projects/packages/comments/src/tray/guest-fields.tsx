@@ -102,7 +102,7 @@ export const GuestFields = ( { open = true, bare = false }: GuestFieldsProps ) =
 	}
 
 	return (
-		<div className="jetpack-comments__identity">
+		<div className="jetpack-comments__tray-view">
 			<p className="jetpack-comments__prompt">
 				{ requireNameEmail ? strings.guestPromptRequired : strings.guestPrompt }
 			</p>

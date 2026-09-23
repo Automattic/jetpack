@@ -29,7 +29,11 @@ export const SettingsButton = () => {
 
 	const current = user
 		? { avatar: user.avatarUrl, name: '', email: user.email }
-		: { avatar: signedIn.value?.avatar ?? '', name: signedIn.value?.name ?? '', email: '' };
+		: {
+				avatar: signedIn.value?.avatar ?? '',
+				name: signedIn.value?.name ?? '',
+				email: signedIn.value?.email ?? '',
+			};
 
 	const editAvatar = ( event: Event ) => {
 		event.preventDefault();
@@ -59,28 +63,29 @@ export const SettingsButton = () => {
 		editor.current.open();
 	};
 
+	const avatar = current.avatar && (
+		<img src={ bustAvatarCache( current.avatar, stamp ) } alt={ current.name } loading="lazy" />
+	);
+
 	return (
 		<div className="jetpack-comments__user">
 			<div className={ clsx( 'jetpack-comments__user-settings', { 'is-bare': ! hasOptions } ) }>
-				<button
-					type="button"
-					aria-label={ strings.editGravatar }
-					className={ clsx( 'jetpack-comments__profile', { 'is-loading': isRefreshing } ) }
-					onClick={ editAvatar }
-				>
-					{ current.avatar && (
-						<img
-							src={ bustAvatarCache( current.avatar, stamp ) }
-							alt={ current.name }
-							loading="lazy"
-						/>
-					) }
-				</button>
+				{ current.email ? (
+					<button
+						type="button"
+						aria-label={ strings.editGravatar }
+						className={ clsx( 'jetpack-comments__profile', { 'is-loading': isRefreshing } ) }
+						onClick={ editAvatar }
+					>
+						{ avatar }
+					</button>
+				) : (
+					<span className="jetpack-comments__profile">{ avatar }</span>
+				) }
 				{ hasOptions && (
 					<button
 						type="button"
 						aria-label={ strings.settings }
-						aria-pressed={ isTrayOpen.value }
 						aria-expanded={ isTrayOpen.value }
 						aria-controls={ `jetpack-comments-tray-${ formSettings.postId }` }
 						className={ clsx( 'jetpack-comments__tray-toggle', { 'is-open': isTrayOpen.value } ) }
@@ -90,7 +95,7 @@ export const SettingsButton = () => {
 					</button>
 				) }
 			</div>
-			{ isTrayOpen.value && (
+			{ isTrayOpen.value && current.email && (
 				<a
 					className="jetpack-comments__edit-gravatar"
 					href="https://gravatar.com/profile/avatars"

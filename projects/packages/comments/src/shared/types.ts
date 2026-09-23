@@ -9,7 +9,7 @@ export type Commenter = {
 
 export type CurrentUser = {
 	avatarUrl: string;
-	commentingAs: string;
+	heading: string;
 	email: string;
 };
 

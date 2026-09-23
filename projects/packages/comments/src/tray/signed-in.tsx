@@ -23,7 +23,7 @@ export const SignedIn = () => {
 
 	return (
 		<div
-			className={ clsx( 'jetpack-comments__identity jetpack-comments__identity--signed-in', {
+			className={ clsx( 'jetpack-comments__tray-view jetpack-comments__tray-view--signed-in', {
 				'is-bare': ! hasOptions,
 			} ) }
 		>
@@ -32,7 +32,7 @@ export const SignedIn = () => {
 					<div>
 						{ user && (
 							<>
-								<span className="jetpack-comments__signed-in-name">{ user.commentingAs }</span>{ ' ' }
+								<span className="jetpack-comments__signed-in-name">{ user.heading }</span>{ ' ' }
 								<a className="jetpack-comments__logout" href={ formSettings.logoutUrl }>
 									{ strings.logOut }
 								</a>

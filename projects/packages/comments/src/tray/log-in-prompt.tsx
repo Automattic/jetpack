@@ -11,7 +11,7 @@ export const LogInPrompt = () => {
 	const { strings } = JetpackComments;
 
 	return (
-		<div className="jetpack-comments__identity">
+		<div className="jetpack-comments__tray-view">
 			<p className="jetpack-comments__prompt">{ strings.mustLogInPrompt }</p>
 			<a className="jetpack-comments__login" href={ formSettings.loginUrl }>
 				{ strings.logIn }

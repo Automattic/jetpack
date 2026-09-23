@@ -1,4 +1,5 @@
 import { useContext, useEffect, useRef, useState } from 'preact/hooks';
+import { readPassport } from '../../identity/passport';
 import { CommentSignals } from '../../shared/state';
 import { Toggle } from '../../ui/toggle';
 import { NO_SUBSCRIPTION, fetchSubscriptions } from './api';
@@ -81,7 +82,8 @@ export const SubscriptionOptions = () => {
 
 	const settle = ( answer: Answer ) => {
 		if ( ( answer.ok || answer.redeemed ) && signedIn.value?.code ) {
-			signedIn.value = { ...signedIn.value, code: null };
+			// The passport is issued now, and its display cookie carries the email.
+			signedIn.value = { ...( readPassport() ?? signedIn.value ), code: null };
 		}
 
 		if ( answer.signedOut && signedIn.value ) {
