@@ -160,6 +160,6 @@ describe( 'FeaturesContent', () => {
 		expect(
 			screen.queryByRole( 'checkbox', { name: 'Select all features' } )
 		).not.toBeInTheDocument();
-		expect( screen.getByText( 'No features found.' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'No features match “nothing-matches-this”.' ) ).toBeInTheDocument();
 	} );
 } );

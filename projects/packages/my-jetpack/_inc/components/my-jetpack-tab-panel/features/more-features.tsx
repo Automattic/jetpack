@@ -38,13 +38,11 @@ export function MoreFeatures( {
 	isList = false,
 	isNarrowed = false,
 }: MoreFeaturesProps ) {
-	if ( jetpack === 'not-installed' || ( jetpack === 'active' && ! groups.length ) ) {
-		return null;
-	}
+	// Without modules the only thing left to show is the offer to activate Jetpack, and that
+	// answers neither a filter nor a search. Covers a status the page has not yet read.
+	const offersActivate = jetpack === 'inactive' && ! isNarrowed;
 
-	// The page above has already said nothing matched; an offer to activate Jetpack is not an
-	// answer to a filter or a search.
-	if ( jetpack === 'inactive' && isNarrowed ) {
+	if ( ! groups.length && ! offersActivate ) {
 		return null;
 	}
 
