@@ -119,7 +119,8 @@ the top of the page, `sharing_global_options` at the end of the services table,
 `sharing_admin_update` on any save that rendered that action's fields, and
 `sharing_show_buttons_on_row_start` / `_end` around the placement row. All four
 are now documented here rather than in `modules/sharedaddy/sharing.php`, which no
-longer fires any of them.
+longer fires any of them. Nothing in the monorepo hooks
+`pre_admin_screen_sharing` either; it fires for third parties only.
 
 `sharing_global_options` is the one with a gap to watch. It normally fires from
 `Services_Config`, which only renders when the Sharing section configures, but its
