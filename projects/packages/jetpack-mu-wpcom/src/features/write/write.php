@@ -13,6 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 if ( ! defined( 'WPCOM_WRITE_VERSION' ) ) {
@@ -66,6 +67,19 @@ function wpcom_write_url() {
 }
 
 /**
+ * The wpcom blog ID, which Atomic's local `get_current_blog_id()` is not.
+ *
+ * @return int Blog ID, or 0 when the site has no wpcom identity.
+ */
+function wpcom_write_wpcom_blog_id() {
+	if ( ! class_exists( Connection_Manager::class ) ) {
+		return 0;
+	}
+
+	return (int) Connection_Manager::get_site_id( true );
+}
+
+/**
  * Resolve the editor's back/close destination from the source the user arrived from.
  *
  * Maps a short allowlist of known source tokens to known internal destinations.
@@ -79,8 +93,19 @@ function wpcom_write_url() {
  * @return string The destination URL for the back/close button.
  */
 function wpcom_write_resolve_back_url( $source ) {
+	// The prompt cards send a per-surface token rather than a bare
+	// `writing_prompt`: that one comes from the wp-admin Daily Writing Prompt
+	// widget, which belongs back on the dashboard the default below already gives.
+	if ( 'writing_prompt_home' === $source ) {
+		// A bare /home resolves to whichever landing page the account prefers,
+		// which need not be this site, so the id has to be in the URL.
+		$blog_id = wpcom_write_wpcom_blog_id();
+		return $blog_id ? 'https://wordpress.com/home/' . $blog_id : admin_url();
+	}
+
 	$destinations = array(
-		'reader' => 'https://wordpress.com/reader',
+		'reader'                => 'https://wordpress.com/reader',
+		'writing_prompt_reader' => 'https://wordpress.com/reader',
 	);
 
 	return $destinations[ $source ] ?? admin_url();
