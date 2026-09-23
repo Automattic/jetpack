@@ -246,7 +246,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 		return array(
 			'host_allows_ai'    => Jetpack_AI_Settings::host_allows_ai(),
 			'is_connected'      => $is_connected,
-			'can_manage_seo'    => $is_connected && $this->can_manage_seo(),
 			'is_user_connected' => Jetpack_AI_Settings::user_is_connected(),
 			'plan'              => array(
 				'supports_ai'         => class_exists( Current_Plan::class ) && Current_Plan::supports( 'ai-assistant' ),
@@ -265,8 +264,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 					'available' => $this->is_feature_clip_available(),
 				),
 				'ai_seo'            => array(
-					'enabled'   => $stored['ai_seo'],
-					'available' => $this->is_ai_seo_available(),
+					'enabled'    => $stored['ai_seo'],
+					'available'  => $this->is_ai_seo_available(),
+					'can_manage' => $is_connected && $this->can_manage_seo(),
 				),
 				'ai_search'         => array(
 					'enabled'          => $stored['ai_search'],
@@ -279,6 +279,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 	/**
 	 * Whether the site's active features include SEO settings.
 	 *
+	 * The is_ai_seo_available() check accepts plan defaults, which can report SEO
+	 * support even when site-specific restrictions, such as VIP's, block settings.
+	 *
 	 * @return bool
 	 */
 	private function can_manage_seo() {
@@ -287,7 +290,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 			return false;
 		}
 
-		// Plan defaults omit site-specific restrictions, such as VIP's SEO exclusion.
 		$active_features = $site_data->plan->features->active ?? null;
 		return is_array( $active_features ) && in_array( 'advanced-seo', $active_features, true );
 	}

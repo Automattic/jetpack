@@ -301,7 +301,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		$mock = \Patchwork\redefine( Connection_Manager::class . '::get_connected_site_data', \Patchwork\always( $site_data ) );
 
 		try {
-			$this->assertSame( $expected, $this->dispatch( 'GET' )->get_data()['can_manage_seo'] );
+			$this->assertSame( $expected, $this->dispatch( 'GET' )->get_data()['features']['ai_seo']['can_manage'] );
 		} finally {
 			if ( null !== $mock ) {
 				\Patchwork\restore( $mock );
@@ -336,7 +336,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		);
 
 		try {
-			$this->assertFalse( $this->dispatch( 'GET' )->get_data()['can_manage_seo'] );
+			$this->assertFalse( $this->dispatch( 'GET' )->get_data()['features']['ai_seo']['can_manage'] );
 		} finally {
 			if ( null !== $mock ) {
 				\Patchwork\restore( $mock );

@@ -246,7 +246,7 @@ export default function AiFeatures( { settings, isUserConnected = true, savingKe
 			);
 
 	const seoSettingsUrl =
-		settings?.can_manage_seo === true ? window?.jetpackAiSettings?.seoSettingsUrl : undefined;
+		features.ai_seo?.can_manage === true ? window?.jetpackAiSettings?.seoSettingsUrl : undefined;
 	const sections = visibleSections( getSections( seoSettingsUrl ), features );
 
 	const handleToggle = useCallback(

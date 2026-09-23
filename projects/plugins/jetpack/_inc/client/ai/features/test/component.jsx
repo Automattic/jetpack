@@ -103,8 +103,7 @@ describe( 'AiFeatures rendering', () => {
 			'shows Learn more instead of settings when access is %s',
 			canManageSeo => {
 				renderFeatures( {
-					can_manage_seo: canManageSeo,
-					features: { ai_seo: { enabled: true } },
+					features: { ai_seo: { enabled: true, can_manage: canManageSeo } },
 				} );
 
 				expect(
@@ -124,8 +123,7 @@ describe( 'AiFeatures rendering', () => {
 			seoSettingsUrl => {
 				window.jetpackAiSettings = { seoSettingsUrl };
 				renderFeatures( {
-					can_manage_seo: true,
-					features: { ai_seo: { enabled: true } },
+					features: { ai_seo: { enabled: true, can_manage: true } },
 				} );
 
 				expect( screen.getByRole( 'link', { name: 'Open SEO Settings' } ) ).toHaveAttribute(
@@ -138,8 +136,7 @@ describe( 'AiFeatures rendering', () => {
 		test( 'does not invent a target when the server provides none', () => {
 			delete window.jetpackAiSettings;
 			renderFeatures( {
-				can_manage_seo: true,
-				features: { ai_seo: { enabled: true } },
+				features: { ai_seo: { enabled: true, can_manage: true } },
 			} );
 
 			expect( screen.queryByRole( 'link', { name: 'Open SEO Settings' } ) ).not.toBeInTheDocument();
@@ -153,8 +150,7 @@ describe( 'AiFeatures rendering', () => {
 			'keeps the documentation link when AI SEO is disabled and access is %s',
 			canManageSeo => {
 				renderFeatures( {
-					can_manage_seo: canManageSeo,
-					features: { ai_seo: { enabled: false } },
+					features: { ai_seo: { enabled: false, can_manage: canManageSeo } },
 				} );
 
 				expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
