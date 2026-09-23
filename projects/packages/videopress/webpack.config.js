@@ -71,7 +71,7 @@ module.exports = [
 			'block-editor/blocks/playlist/index': './src/client/block-editor/blocks/playlist/index.ts',
 			'block-editor/blocks/playlist/view': './src/client/block-editor/blocks/playlist/view.ts',
 
-			// Dynamic Video Playlist block: editor only, it shares the playlist block's view assets.
+			// Latest Videos Playlist block: editor only, it shares the playlist block's view assets.
 			'block-editor/blocks/dynamic-playlist/index':
 				'./src/client/block-editor/blocks/dynamic-playlist/index.ts',
 

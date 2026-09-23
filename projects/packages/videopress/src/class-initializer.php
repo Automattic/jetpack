@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\VideoPress;
 class Initializer {
 
 	/**
-	 * Bounds of the Dynamic Video Playlist block's "Number of videos" setting;
+	 * Bounds of the Latest Videos Playlist block's "Number of videos" setting;
 	 * the editor control uses the same range.
 	 */
 	const DYNAMIC_PLAYLIST_MIN_COUNT     = 1;
@@ -286,7 +286,7 @@ class Initializer {
 		// Register Video Playlist block.
 		self::register_videopress_playlist_block();
 
-		// Register Dynamic Video Playlist block.
+		// Register Latest Videos Playlist block.
 		self::register_videopress_dynamic_playlist_block();
 	}
 
@@ -646,7 +646,7 @@ class Initializer {
 	}
 
 	/**
-	 * Register the Dynamic Video Playlist block.
+	 * Register the Latest Videos Playlist block.
 	 *
 	 * It reuses the Video Playlist block's registered view script and styles, so
 	 * it is only registered once that block is.
@@ -689,7 +689,7 @@ class Initializer {
 	}
 
 	/**
-	 * Dynamic Video Playlist block render callback: the newest VideoPress videos
+	 * Latest Videos Playlist block render callback: the newest VideoPress videos
 	 * on the site, rendered by the Video Playlist block's callback.
 	 *
 	 * @param array          $block_attributes Block attributes.

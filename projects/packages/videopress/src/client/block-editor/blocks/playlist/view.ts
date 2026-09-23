@@ -270,7 +270,7 @@ export function initPlaylistBlock( root: HTMLElement ) {
 
 /**
  * Initialize every playlist block on the page: the Video Playlist block and
- * the Dynamic Video Playlist block share this script and markup.
+ * the Latest Videos Playlist block share this script and markup.
  */
 export function initAllPlaylistBlocks() {
 	document

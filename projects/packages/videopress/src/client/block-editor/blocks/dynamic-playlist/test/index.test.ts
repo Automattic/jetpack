@@ -13,13 +13,13 @@ jest.mock( '../edit', () => ( {
 
 const registerBlockTypeMock = registerBlockType as jest.Mock;
 
-describe( 'dynamic playlist block registration', () => {
+describe( 'latest videos playlist block registration', () => {
 	it( 'registers videopress/dynamic-playlist as a dynamic block', () => {
 		expect( registerBlockTypeMock ).toHaveBeenCalledTimes( 1 );
 
 		const [ name, settings ] = registerBlockTypeMock.mock.calls[ 0 ];
 		expect( name ).toBe( 'videopress/dynamic-playlist' );
-		expect( settings.title ).toBe( 'Dynamic Video Playlist' );
+		expect( settings.title ).toBe( 'Latest Videos Playlist' );
 		expect( settings.category ).toBe( 'media' );
 		expect( typeof settings.edit ).toBe( 'function' );
 		expect( settings.icon ).toBeDefined();

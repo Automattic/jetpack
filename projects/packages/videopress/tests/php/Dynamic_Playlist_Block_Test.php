@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the Dynamic Video Playlist block registration and render callback.
+ * Tests for the Latest Videos Playlist block registration and render callback.
  *
  * @package automattic/jetpack-videopress
  */

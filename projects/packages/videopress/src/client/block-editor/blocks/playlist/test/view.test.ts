@@ -195,7 +195,7 @@ describe( 'initPlaylistBlock', () => {
 		expect( iframe.src ).toBe( initialSrc );
 	} );
 
-	it( 'initializes Dynamic Video Playlist blocks too', () => {
+	it( 'initializes Latest Videos Playlist blocks too', () => {
 		document.body.innerHTML = `
 			<figure class="wp-block-videopress-dynamic-playlist videopress-playlist" data-autoplay-next="0" data-loop="0">
 				<iframe class="videopress-playlist__iframe" src="about:blank" title="First"></iframe>

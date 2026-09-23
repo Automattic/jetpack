@@ -30,7 +30,7 @@ import type { BlockEditProps } from '@wordpress/blocks';
 type LoadStatus = 'loading' | 'ready' | 'error';
 
 /**
- * Dynamic Video Playlist block edit component.
+ * Latest Videos Playlist block edit component.
  *
  * The canvas previews the site's newest VideoPress videos exactly as the
  * front end renders them; the sidebar sets how many to show plus the same

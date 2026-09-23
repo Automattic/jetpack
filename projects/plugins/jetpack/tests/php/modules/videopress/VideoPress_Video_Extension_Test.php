@@ -58,7 +58,7 @@ class VideoPress_Video_Extension_Test extends WP_UnitTestCase {
 				array(
 					'apiVersion' => 3,
 					'name'       => 'videopress/dynamic-playlist',
-					'title'      => 'Dynamic Video Playlist',
+					'title'      => 'Latest Videos Playlist',
 				),
 				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 			)
