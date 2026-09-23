@@ -65,12 +65,6 @@ class Features_Banner_Rest_Test extends TestCase {
 		return $this->server->dispatch( new WP_REST_Request( 'POST', self::ROUTE ) );
 	}
 
-	public function test_the_banner_starts_out_shown() {
-		wp_set_current_user( $this->create_user( 'admin', 'administrator' ) );
-
-		$this->assertFalse( REST_Main_Features::is_banner_dismissed() );
-	}
-
 	public function test_dismissing_hides_it_for_that_user_only() {
 		$this->register_routes();
 

@@ -44,6 +44,7 @@ jest.mock( '../use-more-features', () => ( {
 	...jest.requireActual( '../use-more-features' ),
 	useMoreFeatures: () => mockGroups,
 } ) );
+jest.mock( '../features-banner', () => ( { FeaturesBanner: () => null } ) );
 
 const renderAt = ( url: string ) =>
 	render(

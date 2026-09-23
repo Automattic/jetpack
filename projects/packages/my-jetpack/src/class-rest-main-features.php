@@ -137,7 +137,7 @@ class REST_Main_Features {
 	public static function dismiss_banner() {
 		update_user_meta( get_current_user_id(), self::BANNER_DISMISSED_META, 1 );
 
-		return rest_ensure_response( array( 'isDismissed' => true ) );
+		return rest_ensure_response( true );
 	}
 
 	/**

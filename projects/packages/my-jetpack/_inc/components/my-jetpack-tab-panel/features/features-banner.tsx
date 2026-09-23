@@ -1,18 +1,10 @@
-import apiFetch from '@wordpress/api-fetch';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { closeSmall } from '@wordpress/icons';
-import { useCallback, useEffect, useState } from 'react';
-import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
+import { useCallback, useEffect } from 'react';
+import useFeaturesBannerDismissal from '../../../data/use-features-banner-dismissal';
 import useAnalytics from '../../../hooks/use-analytics';
 import styles from './styles.module.scss';
-
-// The page's initial state is a snapshot from the load, so a dismissal made since has to
-// outlive this component: switching tabs away and back remounts it.
-let dismissedSinceLoad: boolean | null = null;
-
-const wasDismissed = () =>
-	dismissedSinceLoad ?? getMyJetpackWindowInitialState( 'featuresBanner' )?.isDismissed === true;
 
 /**
  * The dismissible explainer above the features grid.
@@ -21,7 +13,7 @@ const wasDismissed = () =>
  */
 export function FeaturesBanner() {
 	const { recordEvent } = useAnalytics();
-	const [ isDismissed, setIsDismissed ] = useState( wasDismissed );
+	const { isDismissed, dismiss } = useFeaturesBannerDismissal();
 
 	useEffect( () => {
 		if ( ! isDismissed ) {
@@ -32,19 +24,9 @@ export function FeaturesBanner() {
 	}, [] );
 
 	const onDismiss = useCallback( () => {
-		dismissedSinceLoad = true;
-		setIsDismissed( true );
+		dismiss();
 		recordEvent( 'jetpack_myjetpack_features_banner_dismiss', {} );
-
-		apiFetch( {
-			path: '/wpcom/v2/my-jetpack/site/features/banner/dismiss',
-			method: 'POST',
-		} ).catch( () => {
-			// Put it back rather than hide a dismissal that the next load would undo.
-			dismissedSinceLoad = false;
-			setIsDismissed( false );
-		} );
-	}, [ recordEvent ] );
+	}, [ dismiss, recordEvent ] );
 
 	if ( isDismissed ) {
 		return null;
