@@ -5,6 +5,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\Connection\SSO\Helpers;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Plugin\Theme_Styles_Sync;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Functions;
@@ -134,6 +135,7 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 			'roles'                             => Functions::roles(),
 			'timezone'                          => Functions::get_timezone(),
 			'available_jetpack_blocks'          => Jetpack_Gutenberg::get_availability(),
+			'theme_styles'                      => Theme_Styles_Sync::get_theme_styles(),
 			'paused_themes'                     => Functions::get_paused_themes(),
 			'paused_plugins'                    => Functions::get_paused_plugins(),
 			'main_network_site_wpcom_id'        => Functions::main_network_site_wpcom_id(),
