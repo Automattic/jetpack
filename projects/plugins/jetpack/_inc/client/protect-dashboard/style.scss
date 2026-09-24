@@ -1,0 +1,130 @@
+@use "sass:meta";
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// DataViews ships its table styles separately; the reused Scan list needs them.
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
+// Same content column as the Jetpack AI page (708px wrapper, 24px gutters).
+$column: 660px;
+$gutter: 24px;
+
+body.jetpack_page_jetpack-protect-dashboard {
+
+	@include jetpack-admin-page-layout;
+}
+
+.jp-protect-dashboard__panel {
+	box-sizing: border-box;
+	max-inline-size: $column + 2 * $gutter;
+	margin-inline: auto;
+	padding: $gutter;
+}
+
+.jp-protect-dashboard__boxes {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.jp-protect-dashboard__section-title {
+	margin-block: 32px 16px;
+	font-size: 16px;
+}
+
+.jp-protect-box {
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	background: #fff;
+}
+
+.jp-protect-box__header {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 20px 24px;
+}
+
+.jp-protect-box__icon {
+	flex-shrink: 0;
+	fill: currentColor;
+}
+
+.jp-protect-box__title {
+	margin: 0;
+	font-size: 18px;
+	font-weight: 400;
+}
+
+.jp-protect-box__badge {
+	color: #757575;
+	font-size: 14px;
+}
+
+.jp-protect-box__toggle {
+	margin-inline-start: auto;
+}
+
+.jp-protect-box__description {
+	margin: 0;
+	padding: 0 24px 20px;
+	border-block-end: 1px solid #f0f0f0;
+	font-size: 14px;
+}
+
+.jp-protect-box__row {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 20px 24px;
+
+	& + & {
+		border-block-start: 1px solid #f0f0f0;
+	}
+}
+
+.jp-protect-box__row-extra {
+	padding-inline-start: 52px;
+}
+
+.jp-protect-box__actions {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+}
+
+.jp-protect-box__stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+	gap: 12px;
+}
+
+.jp-protect-box__stat {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 12px 16px;
+	border-radius: 6px;
+	background: #f6f7f7;
+
+	&.is-ok .jp-protect-box__stat-value {
+		color: #008710;
+	}
+
+	&.is-warning .jp-protect-box__stat-value {
+		color: #d63638;
+	}
+}
+
+.jp-protect-box__stat-value {
+	font-size: 18px;
+	font-weight: 500;
+}
+
+.jp-protect-box__stat-label {
+	color: #757575;
+	font-size: 12px;
+}
+
+.jp-protect-box__row > .components-button {
+	align-self: flex-start;
+}
