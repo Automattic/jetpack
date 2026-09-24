@@ -44,6 +44,13 @@ class Comment_Form {
 	private $settings_printed = false;
 
 	/**
+	 * The form defaults last seen, for the must-log-in branch, which core fires with no arguments.
+	 *
+	 * @var array
+	 */
+	private $defaults = array();
+
+	/**
 	 * Register the form's hooks. Safe to call more than once.
 	 *
 	 * @return Comment_Form
@@ -199,7 +206,9 @@ class Comment_Form {
 			$defaults['title_reply'] = $greeting;
 		}
 
-		return array_merge( $args, $defaults );
+		$this->defaults = array_merge( $args, $defaults );
+
+		return $this->defaults;
 	}
 
 	/**
@@ -263,12 +272,12 @@ class Comment_Form {
 			return;
 		}
 
-		$this->enqueue_assets();
+		$this->enqueue_assets( $this->defaults );
 
 		printf(
 			'<form action="%s" method="post" id="commentform" class="comment-form">%s</form>',
 			esc_url( site_url( '/wp-comments-post.php' ) ),
-			$this->markup() // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped as it is built.
+			$this->markup( $this->defaults ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped as it is built.
 		);
 	}
 
