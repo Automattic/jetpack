@@ -13,7 +13,12 @@
  * MCP hub as the landing view and no tab bar.
  */
 
-import { AdminPage, GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components';
+import {
+	AdminPage,
+	GlobalNotices,
+	JitmSlot,
+	useGlobalNotices,
+} from '@automattic/jetpack-components';
 import { useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
@@ -423,6 +428,8 @@ export default function App() {
 					</Tabs.Root>
 				</div>
 			) }
+			{ /* Outside the padded content div, so it takes the page gutter via `inset`. */ }
+			<JitmSlot inset />
 			<div
 				className={ `jetpack-ai-admin__content${
 					view === 'scheduled-tasks' ? ' jetpack-ai-admin__content--scheduled-tasks' : ''
