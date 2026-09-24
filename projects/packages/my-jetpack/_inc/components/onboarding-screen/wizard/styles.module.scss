@@ -829,63 +829,6 @@ $rail-row-min-height: 40px;
 	}
 }
 
-/* ------------------------------------------------------------- progress */
-
-/*
- * Every measurement here is one step up the scale from where it started, the
- * dots and the pill together: at 4px tall against a 24px counter the row read
- * as an afterthought. Adam's call, 23 Sep.
- */
-.progress {
-	display: flex;
-	align-items: center;
-	gap: var(--wpds-dimension-gap-lg);
-}
-
-.progress-dots {
-	display: flex;
-	align-items: center;
-	gap: var(--wpds-dimension-gap-sm);
-}
-
-.progress-dot {
-	inline-size: var(--wpds-dimension-size-4xs);
-	block-size: var(--wpds-dimension-size-4xs);
-	border-radius: var(--wpds-border-radius-xl);
-	background: var(--wpds-color-stroke-surface-neutral-weak);
-	transition:
-		inline-size var(--wpds-motion-duration-lg) var(--wpds-motion-easing-subtle),
-		background-color var(--wpds-motion-duration-lg) var(--wpds-motion-easing-subtle);
-
-	@media (prefers-reduced-motion: reduce) {
-		transition: none;
-	}
-
-	// The current dot grows to a pill rather than only changing colour, at the
-	// same 1:5 it had before both were scaled up.
-	&.is-current {
-		inline-size: var(--wpds-dimension-size-lg);
-		background: var(--jp-green-50);
-	}
-
-	&.is-done {
-		background: var(--wpds-color-foreground-interactive-neutral-weak);
-	}
-}
-
-.progress-count {
-	margin-inline-start: auto;
-	padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
-	border-radius: var(--wpds-border-radius-sm);
-	background: var(--wpds-color-background-interactive-neutral-weak-active);
-	color: var(--wpds-color-foreground-content-neutral-weak);
-	font-size: var(--wpds-typography-font-size-sm);
-	font-weight: var(--wpds-typography-font-weight-emphasis);
-	font-variant-numeric: tabular-nums;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-}
-
 /* ----------------------------------------------------------- step body */
 
 .step-description {
