@@ -155,7 +155,6 @@ jest.mock( './annual-insights/config', () => ( {
 jest.mock( './earnings/config', () => ( {
 	getEarningsReportTabs: () => [ { id: 'wordads', label: 'Earnings history' } ],
 	getTabTitle: ( id: string ) => ( id === 'wordads' ? 'Earnings history' : id ),
-	hasAdsServed: ( tab: string ) => tab === 'wordads',
 	resolveSection: ( value: string | undefined ) => value ?? 'wordads',
 	useEarningsReportRecords: jest.fn(),
 } ) );
