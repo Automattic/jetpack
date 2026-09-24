@@ -182,8 +182,7 @@ add_action( 'init', 'wpcomsh_remove_gutenberg_experiments' );
  */
 function wpcomsh_filter_gutenberg_experiments() {
 	return array(
-		'gutenberg-content-guidelines' => true,
-		'gutenberg-guidelines'         => true,
+		'gutenberg-guidelines' => true,
 	);
 }
 
