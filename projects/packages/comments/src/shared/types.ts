@@ -91,10 +91,8 @@ export type Settings = {
 	/** The site user's avatar, the saved guest's, or the site default. Empty when avatars are off. */
 	avatarUrl: string;
 	site: { name: string; iconUrl: string };
-	/** Where a reader manages their subscriptions to this site. Empty where the host offers none. */
-	subscriptionsUrl: string;
-	/** The same for a reader the popup signed in, who has a WordPress.com account. */
-	readerSubscriptionsUrl: string;
+	/** Where a reader manages their subscriptions to this site. URLs are empty where the host offers none. */
+	subscriptions: { url: string; byEmail: boolean; signedInUrl: string };
 	strings: Strings;
 	commenter: Commenter;
 	user: { name: string } | null;

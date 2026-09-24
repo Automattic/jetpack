@@ -1,19 +1,22 @@
 import { useContext } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
 import { logOut } from './checkpoint/checkpoint';
-import { BellIcon, LogOutIcon } from './icons';
+import { BellIcon, EnvelopeIcon, LogOutIcon } from './icons';
 
 import './style.scss';
 
 /**
- * Where the reader manages what they get by email from this site.
+ * Where the reader manages their subscriptions to this site: a bell for a
+ * WordPress.com account, which manages them in the Reader, and an envelope for
+ * anyone managing them by email address.
  *
  * @return The link, or nothing where the host offers no subscriptions.
  */
 const ManageSubscriptions = () => {
 	const { signedIn } = useContext( CommentSignals );
-	const { subscriptionsUrl, readerSubscriptionsUrl, strings } = JetpackComments;
-	const url = signedIn.value ? readerSubscriptionsUrl : subscriptionsUrl;
+	const { subscriptions, strings } = JetpackComments;
+	const url = signedIn.value ? subscriptions.signedInUrl : subscriptions.url;
+	const Icon = signedIn.value || ! subscriptions.byEmail ? BellIcon : EnvelopeIcon;
 
 	if ( ! url ) {
 		return null;
@@ -28,7 +31,7 @@ const ManageSubscriptions = () => {
 			rel="noopener"
 		>
 			<span className="jetpack-comments__visually-hidden">{ strings.manageSubscriptions }</span>
-			<BellIcon />
+			<Icon />
 		</a>
 	);
 };

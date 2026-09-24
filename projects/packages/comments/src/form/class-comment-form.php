@@ -392,44 +392,63 @@ class Comment_Form {
 
 		return array_merge(
 			array(
-				'requireNameEmail'       => (bool) get_option( 'require_name_email' ),
-				'mustLogIn'              => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
-				'maxLength'              => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
-				'site'                   => array(
+				'requireNameEmail' => (bool) get_option( 'require_name_email' ),
+				'mustLogIn'        => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
+				'maxLength'        => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
+				'site'             => array(
 					'name'    => get_bloginfo( 'name' ),
 					'iconUrl' => (string) get_site_icon_url( 64 ),
 				),
-				'subscriptionsUrl'       => self::subscriptions_url( defined( 'IS_WPCOM' ) && IS_WPCOM && is_user_logged_in() ),
-				// For a reader the popup signs in, who has a WordPress.com account by definition.
-				'readerSubscriptionsUrl' => self::subscriptions_url( true ),
-				'strings'                => self::strings( $args ),
+				'subscriptions'    => self::subscriptions_links(),
+				'strings'          => self::strings( $args ),
 			),
 			Identity::settings()
 		);
 	}
 
 	/**
-	 * Where a reader manages their subscriptions to this site.
+	 * Where a reader manages their subscriptions to this site, the way the Action Bar links it.
 	 *
-	 * With an account it is the site's page in the Reader, which offers Subscribe
-	 * to a reader who has not and the settings to one who has. The Reader's
-	 * subscription page itself only answers for someone already subscribed.
+	 * A WordPress.com account manages them in the Reader: the subscription itself
+	 * when the site knows it exists, else the list filtered to this site. Anyone
+	 * else manages them by email address. The page is cached for a reader the popup
+	 * signs in, so their link is decided in the browser from `signedInUrl`.
 	 *
-	 * @param bool $has_account Whether they hold a WordPress.com account, which the Reader needs.
-	 * @return string Empty where the host offers no subscriptions.
+	 * @return array `url` and `byEmail` for the reader the page rendered for, and `signedInUrl`. All empty where the host offers no subscriptions.
 	 */
-	private static function subscriptions_url( $has_account ) {
+	private static function subscriptions_links() {
+		$links = array(
+			'url'         => '',
+			'byEmail'     => true,
+			'signedInUrl' => '',
+		);
+
 		if ( ! function_exists( 'subscription_comment_form' ) && ! class_exists( 'Jetpack_Subscriptions' ) ) {
-			return '';
+			return $links;
 		}
 
-		$blog_id = Checkpoint::blog_id();
+		$host = (string) wp_parse_url( home_url(), PHP_URL_HOST );
 
-		if ( $has_account && $blog_id > 0 ) {
-			return 'https://wordpress.com/reader/blogs/' . $blog_id;
+		$links['url']         = 'https://subscribe.wordpress.com/';
+		$links['signedInUrl'] = 'https://wordpress.com/reader/subscriptions?s=' . rawurlencode( $host );
+
+		if ( ! is_user_logged_in() || ! function_exists( 'wpcom_subs_is_subscribed' ) ) {
+			return $links;
 		}
 
-		return 'https://subscribe.wordpress.com/';
+		$subscription_id = wpcom_subs_is_subscribed(
+			array(
+				'user_id' => get_current_user_id(),
+				'blog_id' => Checkpoint::blog_id(),
+			)
+		);
+
+		$links['byEmail'] = false;
+		$links['url']     = $subscription_id
+			? 'https://wordpress.com/reader/subscriptions/' . (int) $subscription_id
+			: $links['signedInUrl'];
+
+		return $links;
 	}
 
 	/**
