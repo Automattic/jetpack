@@ -152,7 +152,7 @@
 	font-size: 0.875em;
 }
 
-// WordPress.com's own blue, not the theme's button: this one is ours.
+// WordPress.com's Blueberry, not the theme's button: this one is ours.
 .jetpack-comments .jetpack-comments__wpcom {
 	display: inline-flex;
 	align-items: center;
@@ -161,7 +161,7 @@
 	padding: 0.75em 1.5em;
 	border: 0;
 	border-radius: 4px;
-	background: #0675c4;
+	background: #3858e9;
 	box-shadow: none;
 	color: #fff;
 	font: inherit;
@@ -177,11 +177,11 @@
 	}
 
 	&:hover {
-		background: #055d9c;
+		background: #183ad6;
 	}
 
 	&:focus-visible {
-		outline: 2px solid #0675c4;
+		outline: 2px solid #3858e9;
 		outline-offset: 2px;
 	}
 }
