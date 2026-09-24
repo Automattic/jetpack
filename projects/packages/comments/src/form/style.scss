@@ -51,21 +51,20 @@
 			visibility 0s;
 	}
 
-	// The negative margins give focus rings room inside the clipped box.
 	> div {
 		overflow: hidden;
-		margin: 0 -4px -4px;
-		padding: 0 4px 4px;
 	}
 }
 
+// The negative margins give focus rings room inside the tray's clipped box.
 .jetpack-comments__actions {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	justify-content: space-between;
 	gap: 12px;
-	padding-block-start: 1em;
+	margin: 0 -4px -4px;
+	padding: 1em 4px 4px;
 }
 
 .jetpack-comments__submit {
