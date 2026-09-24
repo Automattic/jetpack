@@ -756,6 +756,19 @@ $banner-foreground: #daffdc;
 	min-inline-size: 0;
 }
 
+.modal-footer {
+	align-items: center;
+	border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	gap: var(--wpds-dimension-gap-md);
+	justify-content: space-between;
+	padding-block: var(--wpds-dimension-padding-md);
+}
+
+// Right-hand even when a feature has no links to sit beside them.
+.modal-steps {
+	margin-inline-start: auto;
+}
+
 .modal-body {
 	container-type: inline-size;
 	display: flex;

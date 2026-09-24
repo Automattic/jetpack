@@ -1,6 +1,7 @@
+import { useViewportMatch } from '@wordpress/compose';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
-import { check } from '@wordpress/icons';
-import { Badge, Dialog, Stack, Text } from '@wordpress/ui';
+import { check, chevronLeft, chevronRight } from '@wordpress/icons';
+import { Badge, Dialog, IconButton, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useRef } from 'react';
 import { getActivationStatusLabel } from '../utils';
 import { getArrowStep } from './arrow-navigation';
@@ -19,10 +20,59 @@ import type { FeatureFilter } from './use-feature-filter';
 // Set by @wordpress/ui on the dialog's own close button.
 const CLOSE_ICON_ATTR = 'data-wp-ui-dialog-close-icon';
 
+type FeatureNeighbor = { slug: string; name: string };
+
+/**
+ * The arrow key a step button answers to, for its tooltip and accessible description.
+ *
+ * @param key - Which arrow.
+ * @return The shortcut.
+ */
+function getArrowShortcut( key: 'left' | 'right' ) {
+	return key === 'left'
+		? {
+				displayShortcut: '←',
+				ariaKeyShortcut: 'ArrowLeft',
+				label: __( 'Left arrow', 'jetpack-my-jetpack' ),
+			}
+		: {
+				displayShortcut: '→',
+				ariaKeyShortcut: 'ArrowRight',
+				label: __( 'Right arrow', 'jetpack-my-jetpack' ),
+			};
+}
+
+/**
+ * The label for a step button, naming where it goes.
+ *
+ * @param direction - Which way the button steps.
+ * @param neighbor  - The feature it steps to, if any.
+ * @return The label.
+ */
+function getStepLabel( direction: 'previous' | 'next', neighbor?: FeatureNeighbor ): string {
+	if ( ! neighbor ) {
+		return direction === 'previous'
+			? __( 'Previous feature', 'jetpack-my-jetpack' )
+			: __( 'Next feature', 'jetpack-my-jetpack' );
+	}
+
+	return direction === 'previous'
+		? sprintf(
+				/* translators: %s is a feature name, such as "Stats". */
+				__( 'Previous: %s', 'jetpack-my-jetpack' ),
+				neighbor.name
+			)
+		: sprintf(
+				/* translators: %s is a feature name, such as "Stats". */
+				__( 'Next: %s', 'jetpack-my-jetpack' ),
+				neighbor.name
+			);
+}
+
 type FeatureModalProps = {
 	state: FeatureState;
-	previous?: string;
-	next?: string;
+	previous?: FeatureNeighbor;
+	next?: FeatureNeighbor;
 	position: number;
 	total: number;
 	onStep: ( slug: string ) => void;
@@ -35,8 +85,8 @@ type FeatureModalProps = {
  *
  * @param {FeatureModalProps} props                - The component props.
  * @param {FeatureState}      props.state          - Live state for the feature being shown.
- * @param {string}            props.previous       - Slug of the preceding shown feature, if any.
- * @param {string}            props.next           - Slug of the following shown feature, if any.
+ * @param {FeatureNeighbor}   props.previous       - The preceding shown feature, if any.
+ * @param {FeatureNeighbor}   props.next           - The following shown feature, if any.
  * @param {number}            props.position       - This feature's 1-based place among those shown, 0 when hidden.
  * @param {number}            props.total          - How many features are shown.
  * @param {Function}          props.onStep         - Switches the modal to another feature.
@@ -121,7 +171,7 @@ export function FeatureModal( {
 			if ( target ) {
 				// Parked on the dialog, the claim above hands focus to the new feature's action.
 				popupRef.current?.focus();
-				onStep( target );
+				onStep( target.slug );
 			}
 		};
 
@@ -129,6 +179,12 @@ export function FeatureModal( {
 		document.addEventListener( 'keydown', onKeyDown, true );
 		return () => document.removeEventListener( 'keydown', onKeyDown, true );
 	}, [ next, onStep, previous ] );
+
+	// Only a centered dialog has room for a pinned footer; the phone sheet keeps its links in the body.
+	const isDesktop = useViewportMatch( 'small' );
+	const rtl = isRTL();
+	const onPrevious = useCallback( () => previous && onStep( previous.slug ), [ onStep, previous ] );
+	const onNext = useCallback( () => next && onStep( next.slug ), [ next, onStep ] );
 
 	return (
 		<Dialog.Root open onOpenChange={ onOpenChange }>
@@ -203,8 +259,36 @@ export function FeatureModal( {
 						<FeaturePaid state={ state } onFilterByPlan={ onFilterByPlan } />
 					</div>
 
-					<FeatureLinks feature={ feature } />
+					{ ! isDesktop && <FeatureLinks feature={ feature } /> }
 				</Dialog.Content>
+
+				{ isDesktop && (
+					<Dialog.Footer className={ styles[ 'modal-footer' ] }>
+						<FeatureLinks feature={ feature } />
+						<Stack direction="row" gap="xs" className={ styles[ 'modal-steps' ] }>
+							<IconButton
+								icon={ rtl ? chevronRight : chevronLeft }
+								label={ getStepLabel( 'previous', previous ) }
+								shortcut={ getArrowShortcut( rtl ? 'right' : 'left' ) }
+								variant="outline"
+								size="compact"
+								disabled={ ! previous }
+								focusableWhenDisabled
+								onClick={ onPrevious }
+							/>
+							<IconButton
+								icon={ rtl ? chevronLeft : chevronRight }
+								label={ getStepLabel( 'next', next ) }
+								shortcut={ getArrowShortcut( rtl ? 'left' : 'right' ) }
+								variant="outline"
+								size="compact"
+								disabled={ ! next }
+								focusableWhenDisabled
+								onClick={ onNext }
+							/>
+						</Stack>
+					</Dialog.Footer>
+				) }
 			</Dialog.Popup>
 		</Dialog.Root>
 	);

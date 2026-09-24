@@ -188,8 +188,8 @@ describe( 'FeaturesContent', () => {
 		renderAt( '/features?filter=active&feature=forms' );
 
 		expect( mockModalProps ).toMatchObject( {
-			previous: 'stats',
-			next: 'podcast',
+			previous: { slug: 'stats' },
+			next: { slug: 'podcast' },
 			position: 2,
 			total: 3,
 		} );
