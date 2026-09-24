@@ -143,8 +143,10 @@ only enables it for those two modules, so the `twitter:site` meta tag does go aw
 The Sharing Buttons block is: `Sharing_Source_Block::sharing_x_via()` reads the same
 `jetpack_twitter_cards_site_tag` filter for the X share URL's `via`, and that block is
 registered on `init` whatever the modules are doing. Which is the route this screen
-sends people down when it offers `BLOCK_CALL_TO_ACTION`. Simple gets no Site Tag
-field: its Twitter Cards read `twitter_via` instead.
+sends people down when it offers `BLOCK_CALL_TO_ACTION`. Simple shows the field
+too, although its Twitter Cards read `twitter_via`: wpcom serves and saves
+`jetpack-twitter-cards-site-tag` from `twitter_via` there, so the field manages
+the value Simple uses. Do not give Simple a second field for `twitter_via`.
 
 Each `save()` bails where its `render()` would have printed nothing: an unchecked
 box posts nothing, so saving a field that was not on screen would switch it off.

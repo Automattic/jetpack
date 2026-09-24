@@ -54,12 +54,12 @@ class Twitter_Site_Tag_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Simple's Twitter Cards read `twitter_via`, so this option would configure nothing there.
+	 * Simple's Twitter Cards read `twitter_via`, and wpcom maps this option onto it, so the field configures them there too.
 	 */
-	public function test_renders_nothing_on_simple(): void {
+	public function test_renders_on_simple(): void {
 		Constants::set_constant( 'IS_WPCOM', true );
 
-		$this->assertSame( '', Twitter_Site_Tag::render() );
+		$this->assertStringContainsString( 'name="jetpack-twitter-cards-site-tag"', Twitter_Site_Tag::render() );
 	}
 
 	/**

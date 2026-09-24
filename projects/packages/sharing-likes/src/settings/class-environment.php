@@ -152,13 +152,9 @@ final class Environment {
 	 * Whether anything on this site reads the Twitter Site Tag option.
 	 *
 	 * Twitter Cards read it, and through them the Sharing Buttons block's X `via`.
-	 * Simple's Twitter Cards read `twitter_via` instead.
+	 * Simple's Twitter Cards read `twitter_via`, which wpcom serves and saves this option from.
 	 */
 	public static function twitter_site_tag_used(): bool {
-		if ( self::is_simple_site() ) {
-			return false;
-		}
-
 		/** This filter is documented in projects/plugins/jetpack/class.jetpack.php */
 		return ! apply_filters( 'jetpack_disable_twitter_cards', false );
 	}
