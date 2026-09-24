@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the Ads tab registered on the Premium Analytics dashboard by plan feature and WordAds state.
+ * Tests for the Ads tab the Premium Analytics dashboard registers when the plan includes WordAds and it is on.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -66,9 +66,9 @@ class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A plan carrying WordAds gets the tab, keyed by the `ads` slug the client expects.
+	 * A plan carrying WordAds, with the module on, gets the tab keyed by the `ads` slug the client expects.
 	 */
-	public function test_registers_the_ads_tab_when_the_plan_includes_wordads() {
+	public function test_registers_the_ads_tab_when_the_plan_includes_wordads_and_it_is_on() {
 		$this->enable_wordads_on_atomic();
 		$user_id = wp_insert_user(
 			array(

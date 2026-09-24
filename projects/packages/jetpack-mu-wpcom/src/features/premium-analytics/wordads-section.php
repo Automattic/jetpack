@@ -2,8 +2,9 @@
 /**
  * The Ads section of the Premium Analytics dashboard on the WordPress.com platform.
  *
- * Simple runs no Jetpack plugin, and on Atomic the WordAds module is routinely off while the plan
- * includes WordAds, so the plan feature decides here and the module registrant skips the platform.
+ * Simple runs no Jetpack plugin, so the module registrant skips the platform and this file decides
+ * for both: the plan must include WordAds, and the site must have it on (Atomic: the WordAds module;
+ * Simple: the WordAds approval stickers), as classic Stats does.
  *
  * @package automattic/jetpack-mu-wpcom
  */

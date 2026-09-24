@@ -123,7 +123,7 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'init', array( __CLASS__, 'schedule_translation_updates' ) );
 		}
 
-		// Premium Analytics offers the Ads tab wherever the plan includes WordAds, on Simple and Atomic.
+		// Premium Analytics offers the Ads tab on Simple and Atomic sites whose plan includes WordAds and that have it on.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_premium_analytics_wordads_section' ) );
 
 		// Unified navigation fix for changes in WordPress 6.2.
@@ -887,7 +887,7 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Register the Ads tab of the Premium Analytics dashboard by plan feature.
+	 * Register the Ads tab of the Premium Analytics dashboard where the plan includes WordAds and it is on.
 	 *
 	 * Hooks the dashboard's registry action, which only fires once the package boots, so this
 	 * is inert on a site without the dashboard.
