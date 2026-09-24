@@ -11,7 +11,7 @@ import type { CountLabel } from '../types';
  * Compose a tooltip row as one translatable sentence, value first: `1 View · September 17, 2026`.
  * Without a `countLabel`, the metric name is the unit.
  *
- * @param value      - Formatted value.
+ * @param value      - Formatted value, or null for a bucket with no reading.
  * @param name       - Metric name.
  * @param date       - Formatted date.
  * @param count      - The row's raw value, which picks `countLabel`'s plural form.
@@ -19,14 +19,23 @@ import type { CountLabel } from '../types';
  * @return The tooltip row label.
  */
 export function formatTooltipPointLabel(
-	value: string,
+	value: string | null,
 	name: string,
 	date: string,
-	count?: number,
+	count?: number | null,
 	countLabel?: CountLabel
 ): string {
+	if ( value === null ) {
+		return sprintf(
+			/* translators: 1: metric name, 2: date. */
+			__( 'No data for %1$s · %2$s', 'jetpack-premium-analytics-pkg' ),
+			name,
+			date
+		);
+	}
+
 	// A plural-only `name` cannot agree with a count of 1, nor with a locale's other forms.
-	if ( countLabel && count !== undefined ) {
+	if ( countLabel && count !== undefined && count !== null ) {
 		return sprintf(
 			/* translators: 1: a count with its unit, such as "1 Subscriber", 2: date. */
 			_x( '%1$s · %2$s', 'chart tooltip: count and date', 'jetpack-premium-analytics-pkg' ),

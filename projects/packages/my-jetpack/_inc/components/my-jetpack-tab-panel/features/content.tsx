@@ -1,15 +1,18 @@
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
+import { FeaturesEmptyState } from './empty-state';
 import { FeatureItem } from './feature-item';
 import { FeatureList } from './feature-list';
 import { FeatureModal } from './feature-modal';
 import { useFeatureStates } from './feature-state';
+import { MenuPointer } from './menu-pointer';
 import styles from './styles.module.scss';
 import { Toolbar } from './toolbar';
 import { getFeatureFilters, isFeatureFilter, matchesFilter } from './use-feature-filter';
 import { useFeatureSearch } from './use-feature-search';
 import { useMainFeatures } from './use-main-features';
+import { useSidebarSync } from './use-sidebar-sync';
 import type { FeaturesView } from './toolbar';
 import type { FeatureFilter } from './use-feature-filter';
 
@@ -24,6 +27,7 @@ import type { FeatureFilter } from './use-feature-filter';
 export function FeaturesContent() {
 	const mainFeatures = useMainFeatures();
 	const { states, isLoading } = useFeatureStates( mainFeatures );
+	const { pointer, dismissPointer } = useSidebarSync( mainFeatures.features );
 
 	const [ searchParams, setSearchParams ] = useSearchParams();
 
@@ -108,6 +112,17 @@ export function FeaturesContent() {
 
 	const open = states.find( item => item.feature.slug === openSlug );
 
+	// Neither read has anything to say yet: a seed-only catalog is not a failure to load
+	// one, and features whose modules are still in flight all read inactive, which would
+	// otherwise announce "nothing is active" on a site with plenty on.
+	// Only the status filters wait on the modules: a search or a plan filter is already
+	// a settled answer once the catalog is here, and an unreachable module read would
+	// otherwise leave those two with no message at all.
+	const onStatus = filter === 'active' || filter === 'inactive';
+	const settling =
+		( mainFeatures.isPlaceholderData && mainFeatures.features.length === 0 ) ||
+		( onStatus && states.some( state => state.pending ) );
+
 	return (
 		<section className={ styles.content }>
 			<Toolbar
@@ -130,10 +145,13 @@ export function FeaturesContent() {
 				) }
 			</p>
 
-			{ visible.length === 0 && (
-				<h3 className={ styles[ 'empty-heading' ] }>
-					{ __( 'No features found.', 'jetpack-my-jetpack' ) }
-				</h3>
+			{ visible.length === 0 && ! settling && (
+				<FeaturesEmptyState
+					search={ search }
+					filter={ filter }
+					hasCatalog={ mainFeatures.features.length > 0 }
+					onFilterChange={ onFilterChange }
+				/>
 			) }
 			{ visible.length > 0 &&
 				( view === 'list' ? (
@@ -149,6 +167,8 @@ export function FeaturesContent() {
 						) ) }
 					</div>
 				) ) }
+
+			{ pointer && <MenuPointer target={ pointer } onDismiss={ dismissPointer } /> }
 
 			{ open && (
 				<FeatureModal state={ open } onClose={ closeFeature } onFilterByPlan={ onFilterByPlan } />

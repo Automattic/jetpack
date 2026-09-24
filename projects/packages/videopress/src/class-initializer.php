@@ -12,6 +12,14 @@ namespace Automattic\Jetpack\VideoPress;
  */
 class Initializer {
 
+	/**
+	 * Bounds of the Latest Videos Playlist block's "Number of videos" setting;
+	 * the editor control uses the same range.
+	 */
+	const LATEST_VIDEOS_PLAYLIST_MIN_COUNT     = 1;
+	const LATEST_VIDEOS_PLAYLIST_MAX_COUNT     = 20;
+	const LATEST_VIDEOS_PLAYLIST_DEFAULT_COUNT = 5;
+
 	const JETPACK_VIDEOPRESS_IFRAME_API_HANDLER = 'jetpack-videopress-iframe-api';
 
 	/**
@@ -277,6 +285,9 @@ class Initializer {
 
 		// Register Video Playlist block.
 		self::register_videopress_playlist_block();
+
+		// Register Latest Videos Playlist block.
+		self::register_videopress_latest_videos_playlist_block();
 	}
 
 	/**
@@ -632,6 +643,72 @@ class Initializer {
 				'render_callback' => array( __CLASS__, 'render_videopress_playlist_block' ),
 			)
 		);
+	}
+
+	/**
+	 * Register the Latest Videos Playlist block.
+	 *
+	 * It reuses the Video Playlist block's registered view script and styles, so
+	 * it is only registered once that block is. Its inner Video Playlist block is
+	 * the editor canvas only: the front end renders the newest videos fresh.
+	 *
+	 * @param string|null $metadata_file Path to the block.json metadata file. Defaults to the
+	 *                                   package build output; tests can point it at a fixture.
+	 *
+	 * @return void
+	 */
+	public static function register_videopress_latest_videos_playlist_block( $metadata_file = null ) {
+		if ( ! \WP_Block_Type_Registry::get_instance()->is_registered( 'videopress/playlist' ) ) {
+			return;
+		}
+
+		if ( null === $metadata_file ) {
+			$metadata_file = __DIR__ . '/../build/block-editor/blocks/latest-videos-playlist/block.json';
+		}
+
+		if ( ! file_exists( $metadata_file ) ) {
+			return;
+		}
+
+		$metadata = json_decode(
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			file_get_contents( $metadata_file )
+		);
+
+		if ( empty( $metadata->name )
+			|| \WP_Block_Type_Registry::get_instance()->is_registered( $metadata->name )
+		) {
+			return;
+		}
+
+		register_block_type(
+			$metadata_file,
+			array(
+				'render_callback'   => array( __CLASS__, 'render_videopress_latest_videos_playlist_block' ),
+				'skip_inner_blocks' => true,
+			)
+		);
+	}
+
+	/**
+	 * Latest Videos Playlist block render callback: the newest VideoPress videos
+	 * on the site, rendered by the Video Playlist block's callback.
+	 *
+	 * @param array          $block_attributes Block attributes.
+	 * @param string         $content          Current block markup, unused: the inner block is never rendered.
+	 * @param \WP_Block|null $block            Current block.
+	 *
+	 * @return string Block markup, or an empty string when the site has no VideoPress videos.
+	 */
+	public static function render_videopress_latest_videos_playlist_block( $block_attributes, $content = '', $block = null ) {
+		$count = isset( $block_attributes['count'] ) && is_numeric( $block_attributes['count'] )
+			? (int) $block_attributes['count']
+			: self::LATEST_VIDEOS_PLAYLIST_DEFAULT_COUNT;
+		$count = max( self::LATEST_VIDEOS_PLAYLIST_MIN_COUNT, min( self::LATEST_VIDEOS_PLAYLIST_MAX_COUNT, $count ) );
+
+		$block_attributes['videos'] = Data::get_latest_videopress_playlist_entries( $count );
+
+		return self::render_videopress_playlist_block( $block_attributes, $content, $block );
 	}
 
 	/**

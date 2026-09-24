@@ -15,16 +15,11 @@ import { __ } from '@wordpress/i18n';
 import { Badge, Card, Link, Popover, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import { EVENTS, recordAiHubEvent } from '../tracks';
 
-// Server-computed target for the AI SEO row: the dedicated Jetpack SEO page
-// where it exists, the Traffic settings card otherwise. Falls back to Traffic
-// when jetpackAiSettings is unavailable (e.g. in tests).
-const { seoSettingsUrl } = window?.jetpackAiSettings ?? {};
-
 // Per the design, a row's action link depends on the toggle state: enabled
 // features invite you to try them (AI SEO opens its settings), disabled ones
 // link to documentation via registered Jetpack Redirects handlers. A row with
 // a single `action` shows that link in both states.
-const SECTIONS = [
+const getSections = seoSettingsUrl => [
 	{
 		key: 'content',
 		title: __( 'Content', 'jetpack' ),
@@ -83,11 +78,10 @@ const SECTIONS = [
 					'AI recommendations to optimize titles, meta descriptions, and content for search engines.',
 					'jetpack'
 				),
-				enabledAction: {
-					label: __( 'Open SEO Settings', 'jetpack' ),
-					href: seoSettingsUrl || 'admin.php?page=jetpack-settings#/traffic',
-				},
-				disabledAction: {
+				enabledAction: seoSettingsUrl
+					? { label: __( 'Open SEO Settings', 'jetpack' ), href: seoSettingsUrl }
+					: undefined,
+				action: {
 					label: __( 'Learn more', 'jetpack' ),
 					href: getRedirectUrl( 'jetpack-ai-settings-seo-learn-more' ),
 					external: true,
@@ -128,7 +122,7 @@ const SECTIONS = [
  * and not explicitly marked unavailable (e.g. the SEO enhancer where the
  * seo-tools module is off). Sections left with no rows are dropped entirely.
  *
- * @param {Array}  sections - SECTIONS-shaped list.
+ * @param {Array}  sections - List of sections and their feature rows.
  * @param {object} features - The features object from the settings response.
  * @return {Array} Sections containing only reported, available feature rows.
  */
@@ -148,7 +142,7 @@ export function visibleSections( sections, features ) {
  * A single feature row: toggle + description + optional action link.
  *
  * @param {object}   props                 - Component props.
- * @param {object}   props.feature         - Entry from SECTIONS[].features.
+ * @param {object}   props.feature         - Feature row from the section list.
  * @param {object}   props.reported        - This feature's object from the settings response.
  * @param {boolean}  props.checked         - Whether the feature is enabled.
  * @param {boolean}  props.isSaving        - Whether this toggle is being saved.
@@ -258,7 +252,9 @@ export default function AiFeatures( {
 				/* dummy arg to avoid bad minification */ 0
 			);
 
-	const sections = visibleSections( SECTIONS, features );
+	const seoSettingsUrl =
+		features.ai_seo?.can_manage === true ? window?.jetpackAiSettings?.seoSettingsUrl : undefined;
+	const sections = visibleSections( getSections( seoSettingsUrl ), features );
 
 	const handleToggle = useCallback(
 		( key, enabled ) => {

@@ -51,9 +51,9 @@ const DATA_FORMAT = {
  */
 function latest(
 	points: SubscribersChartPoint[],
-	accessor: ( point: SubscribersChartPoint ) => number
+	accessor: ( point: SubscribersChartPoint ) => number | null
 ): number {
-	return points.length ? accessor( points[ points.length - 1 ] ) : 0;
+	return points.length ? ( accessor( points[ points.length - 1 ] ) ?? 0 ) : 0;
 }
 
 /**
@@ -62,7 +62,7 @@ function latest(
  */
 const METRIC_ACCESSORS: Record<
 	SubscribersChartMetricId,
-	( point: SubscribersChartPoint ) => number
+	( point: SubscribersChartPoint ) => number | null
 > = {
 	subscribers: point => point.subscribers,
 	paid: point => point.paid,

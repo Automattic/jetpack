@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Stats: Recognize the standalone Jetpack Stats plugin in My Jetpack, and install it when Stats is activated there.

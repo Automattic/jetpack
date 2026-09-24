@@ -5,11 +5,6 @@ import { __ } from '@wordpress/i18n';
 import { mapMarker } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
-/**
- * Internal dependencies
- */
-import { SelectField } from '@jetpack-premium-analytics/fields';
-
 export type LocationsAttributes = {
 	geoGranularity?: 'country' | 'region' | 'city';
 };
@@ -25,8 +20,7 @@ export default {
 		{
 			id: 'geoGranularity',
 			label: __( 'View by', 'jetpack-premium-analytics-pkg' ),
-			type: 'text',
-			Edit: SelectField,
+			type: 'jpa/select',
 			elements: [
 				{
 					label: __( 'Countries', 'jetpack-premium-analytics-pkg' ),

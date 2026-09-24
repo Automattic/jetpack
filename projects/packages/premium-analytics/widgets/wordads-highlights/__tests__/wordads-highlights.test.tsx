@@ -8,6 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import WordAdsHighlightsWidget from '../render';
+import widgetDefinition from '../widget';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -109,18 +110,16 @@ describe( 'WordAdsHighlightsWidget', () => {
 		expect( screen.queryByText( 'Earnings' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'hides a card when it is not in the metrics attribute', async () => {
-		render( <WordAdsHighlightsWidget attributes={ { metrics: [ 'earnings' ] } } /> );
-
-		await expect( screen.findByText( 'Earnings' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'Paid' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Outstanding amount' ) ).not.toBeInTheDocument();
+	it( 'offers no attribute controls', () => {
+		expect( widgetDefinition.attributes ).toEqual( [] );
 	} );
 
-	it( 'prompts to select a metric without requesting earnings when metrics are empty', () => {
-		render( <WordAdsHighlightsWidget attributes={ { metrics: [] } } /> );
+	it( 'ignores a metrics subset persisted by an earlier version', async () => {
+		const legacyAttributes: Record< string, unknown > = { metrics: [ 'earnings' ] };
+		render( <WordAdsHighlightsWidget attributes={ legacyAttributes } /> );
 
-		expect( screen.getByText( 'Select at least one metric to display.' ) ).toBeInTheDocument();
-		expect( mockApiFetch ).not.toHaveBeenCalled();
+		await expect( screen.findByText( 'Earnings' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Paid' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Outstanding amount' ) ).toBeInTheDocument();
 	} );
 } );

@@ -60,6 +60,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		wp_set_current_user( 0 );
 		delete_option( 'wpcom_write_rewrite_version' );
+		Jetpack_Options::delete_option( 'id' );
 		parent::tear_down();
 	}
 
@@ -89,6 +90,40 @@ class Write_Test extends \WorDBless\BaseTestCase {
 			'https://wordpress.com/reader',
 			wpcom_write_resolve_back_url( 'reader' )
 		);
+	}
+
+	/**
+	 * Test that the prompt cards' per-surface tokens return the user to the
+	 * Calypso surface they came from rather than to wp-admin.
+	 */
+	public function test_resolve_back_url_maps_writing_prompt_surfaces() {
+		$this->assertSame( 1, get_current_blog_id(), 'Fixture expects the local blog ID to be 1.' );
+		Jetpack_Options::update_option( 'id', 123456 );
+
+		$this->assertSame(
+			'https://wordpress.com/home/123456',
+			wpcom_write_resolve_back_url( 'writing_prompt_home' )
+		);
+		$this->assertSame(
+			'https://wordpress.com/reader',
+			wpcom_write_resolve_back_url( 'writing_prompt_reader' )
+		);
+	}
+
+	/**
+	 * Test that My Home falls back to the dashboard when the wpcom blog ID is unknown.
+	 */
+	public function test_resolve_back_url_falls_back_when_blog_id_unknown() {
+		$this->assertSame( 0, wpcom_write_wpcom_blog_id(), 'Fixture expects no wpcom blog ID.' );
+
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'writing_prompt_home' ) );
+	}
+
+	/**
+	 * Test that the bare token the wp-admin prompt widget sends still resolves to the dashboard.
+	 */
+	public function test_resolve_back_url_keeps_dashboard_for_wp_admin_prompt_widget() {
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'writing_prompt' ) );
 	}
 
 	/**

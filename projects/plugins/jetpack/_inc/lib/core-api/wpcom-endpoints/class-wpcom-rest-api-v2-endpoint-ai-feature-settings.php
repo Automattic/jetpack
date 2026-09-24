@@ -10,17 +10,13 @@
  *        the site-local options backing the toggles. Returns the fresh GET
  *        shape.
  *
- * Unlike the MCP settings endpoint, nothing here proxies to WPCOM: the
- * settings are site-local wp_options, so the endpoint works the same on
- * Atomic and self-hosted sites. On WordPress.com Simple the route does not
- * register at all — Simple keeps the existing wp.com settings contract, and
- * with core settings REST also refusing these options there, the new
- * per-feature options stay unwritten on Simple while the reused SEO/Search
- * options keep their existing owning surfaces.
+ * Toggles use site-local options; SEO settings access uses the cached WordPress.com site record.
+ * WordPress.com Simple keeps its existing settings endpoint.
  *
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Search\Plan as Search_Plan;
 use Automattic\Jetpack\SEO\Ai_Seo;
@@ -228,7 +224,8 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 	 * @return array
 	 */
 	private function build_settings_response() {
-		$search_plan = class_exists( Search_Plan::class ) ? new Search_Plan() : null;
+		$search_plan  = class_exists( Search_Plan::class ) ? new Search_Plan() : null;
+		$is_connected = Jetpack_AI_Settings::site_is_connected();
 
 		// Entitlement: the plan includes some Search product (Classic or Instant).
 		$supports_search = $search_plan && $search_plan->supports_search();
@@ -248,7 +245,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 
 		return array(
 			'host_allows_ai'    => Jetpack_AI_Settings::host_allows_ai(),
-			'is_connected'      => Jetpack_AI_Settings::site_is_connected(),
+			'is_connected'      => $is_connected,
 			'is_user_connected' => Jetpack_AI_Settings::user_is_connected(),
 			'plan'              => array(
 				'supports_ai'         => class_exists( Current_Plan::class ) && Current_Plan::supports( 'ai-assistant' ),
@@ -267,8 +264,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 					'available' => $this->is_feature_clip_available(),
 				),
 				'ai_seo'            => array(
-					'enabled'   => $stored['ai_seo'],
-					'available' => $this->is_ai_seo_available(),
+					'enabled'    => $stored['ai_seo'],
+					'available'  => $this->is_ai_seo_available(),
+					'can_manage' => $is_connected && $this->can_manage_seo(),
 				),
 				'ai_search'         => array(
 					'enabled'          => $stored['ai_search'],
@@ -276,6 +274,24 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 				),
 			),
 		);
+	}
+
+	/**
+	 * Whether the site's active features include SEO settings.
+	 *
+	 * The is_ai_seo_available() check accepts plan defaults, which can report SEO
+	 * support even when site-specific restrictions, such as VIP's, block settings.
+	 *
+	 * @return bool
+	 */
+	private function can_manage_seo() {
+		$site_data = ( new Manager( 'jetpack' ) )->get_connected_site_data();
+		if ( is_wp_error( $site_data ) ) {
+			return false;
+		}
+
+		$active_features = $site_data->plan->features->active ?? null;
+		return is_array( $active_features ) && in_array( 'advanced-seo', $active_features, true );
 	}
 
 	/**

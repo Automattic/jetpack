@@ -26,7 +26,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		metrics: {
 			key: string;
 			value: number;
-			current: { date: Date; value: number }[];
+			current: { date: Date; value: number | null }[];
 			countLabel?: ( count: number ) => string;
 		}[];
 	} ) => (
@@ -36,7 +36,8 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			data-count-labels={ metrics
 				.map( metric => `${ metric.countLabel?.( 1 ) }|${ metric.countLabel?.( 2 ) }` )
 				.join( ',' ) }
-			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
+			data-values={ JSON.stringify( metrics[ 0 ]?.current.map( point => point.value ) ) }
+			data-headline={ metrics[ 0 ]?.value }
 			data-days={ metrics[ 0 ]?.current.map( point => point.date.getDate() ).join( ',' ) }
 		/>
 	),
@@ -85,7 +86,7 @@ describe( 'SubscribersChartWidget', () => {
 			// Reading these buckets in the runner's zone would report the previous
 			// day (3,4).
 			expect( chart ).toHaveAttribute( 'data-days', '4,5' );
-			expect( chart ).toHaveAttribute( 'data-values', '5,6' );
+			expect( chart ).toHaveAttribute( 'data-values', '[5,6]' );
 		} finally {
 			if ( runnerTimeZone === undefined ) {
 				delete env.TZ;
@@ -93,6 +94,24 @@ describe( 'SubscribersChartWidget', () => {
 				env.TZ = runnerTimeZone;
 			}
 		}
+	} );
+
+	it( 'charts a missing count as a gap and a real zero as zero', async () => {
+		mockUseStatsSubscribersReport.mockReturnValue(
+			reportWith( [
+				{ date_start: '2026-03-01T00:00:00', value: 0, subscribers: null, subscribers_paid: null },
+				{ date_start: '2026-04-01T00:00:00', value: 0, subscribers: 0, subscribers_paid: 0 },
+				{ date_start: '2026-05-01T00:00:00', value: 5, subscribers: 5, subscribers_paid: 0 },
+			] )
+		);
+
+		render(
+			<SubscribersChartWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } />
+		);
+
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		expect( chart ).toHaveAttribute( 'data-values', '[null,0,5]' );
+		expect( chart ).toHaveAttribute( 'data-headline', '5' );
 	} );
 
 	it( 'offers the Paid subscribers tab only when the site has paid subscribers', async () => {

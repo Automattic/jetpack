@@ -2,13 +2,15 @@
  * External dependencies
  */
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
-import { Badge } from '@jetpack-premium-analytics/externals';
+import { Badge, Icon, Popover, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { info } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import styles from './earnings-status-badge.module.scss';
 import type { StatsWordAdsEarningsBreakdown } from '@jetpack-premium-analytics/data';
 import type { Field } from '@jetpack-premium-analytics/externals';
 import type { ComponentProps } from 'react';
@@ -24,21 +26,27 @@ export type EarningsHistoryRow = {
 
 type EarningsStatusIntent = NonNullable< ComponentProps< typeof Badge >[ 'intent' ] >;
 
-type EarningsStatus = { label: string; tooltip?: string; intent: EarningsStatusIntent };
+type EarningsStatus = {
+	label: string;
+	tooltip?: string;
+	intent: EarningsStatusIntent;
+	/** Why a payment is pending; shown beside the badge, not in it, so the label stays short. */
+	detail?: string;
+};
 
 /** Automattic-internal status: never shown to site owners, so kept out of the Status filter. */
 const A8C_ONLY_STATUS = 2;
 
 /**
- * WordAds payment statuses by code, ported verbatim from the Jetpack Stats WordAds
- * `getStatus` map (wp-calypso client/my-sites/stats/wordads/earnings.jsx).
+ * WordAds payment statuses by code, adapted from the Jetpack Stats WordAds
+ * `getStatus` map (wp-calypso client/my-sites/stats/wordads/earnings.jsx),
  *
- * @return The label, optional tooltip and badge intent for each known code.
+ * @return The label, optional tooltip, badge intent and pending detail for each known code.
  */
 function getEarningsStatuses(): Record< number, EarningsStatus > {
 	return {
-		// Unpaid is red as in the design and the widget; the pending codes wait on
-		// the site owner, so they get the warning tint instead.
+		// Unpaid is red as in the design; the pending codes wait on the site owner,
+		// so they get the warning tint, one word, and the reason beside the badge.
 		0: {
 			label: __( 'Unpaid', 'jetpack-premium-analytics-pkg' ),
 			tooltip: __(
@@ -57,7 +65,8 @@ function getEarningsStatuses(): Record< number, EarningsStatus > {
 			intent: 'draft',
 		},
 		3: {
-			label: __( 'Pending (Missing Tax Info)', 'jetpack-premium-analytics-pkg' ),
+			label: __( 'Pending', 'jetpack-premium-analytics-pkg' ),
+			detail: __( 'Missing tax info', 'jetpack-premium-analytics-pkg' ),
 			tooltip: __(
 				'Payment is pending due to missing information. You can provide tax information in the settings screen.',
 				'jetpack-premium-analytics-pkg'
@@ -65,7 +74,8 @@ function getEarningsStatuses(): Record< number, EarningsStatus > {
 			intent: 'medium',
 		},
 		4: {
-			label: __( 'Pending (Invalid PayPal)', 'jetpack-premium-analytics-pkg' ),
+			label: __( 'Pending', 'jetpack-premium-analytics-pkg' ),
+			detail: __( 'Invalid PayPal', 'jetpack-premium-analytics-pkg' ),
 			tooltip: __(
 				'Payment processing has failed due to invalid PayPal address. You can correct the PayPal address in the settings screen.',
 				'jetpack-premium-analytics-pkg'
@@ -130,25 +140,6 @@ export function formatEarningsPeriod( period: string ): string {
 }
 
 /**
- * A payment status label, with its explanation in a tooltip when there is one.
- *
- * @param props        - The component props.
- * @param props.status - The numeric status from the earnings payload, if any.
- * @return The rendered label.
- */
-export function EarningsStatusLabel( { status }: { status: number | undefined } ) {
-	const { label, tooltip } = getEarningsStatus( status );
-
-	return tooltip ? (
-		<Tooltip text={ tooltip }>
-			<span tabIndex={ 0 }>{ label }</span>
-		</Tooltip>
-	) : (
-		<span>{ label }</span>
-	);
-}
-
-/**
  * Numeric sort that keeps rows without a count last in either direction.
  *
  * @param a         - One field value.
@@ -168,22 +159,49 @@ function compareOptionalCounts( a: unknown, b: unknown, direction: 'asc' | 'desc
 }
 
 /**
- * A payment status as a badge, with its explanation in a tooltip when there is
- * one. The report table's rendering; the widget list keeps the plain label.
+ * A payment status as a badge. A pending status puts its reason in an info icon
+ * beside the badge; any other status keeps its explanation on the badge itself.
  *
  * @param props        - The component props.
  * @param props.status - The numeric status from the earnings payload, if any.
  * @return The rendered badge.
  */
 export function EarningsStatusBadge( { status }: { status: number | undefined } ) {
-	const { label, tooltip, intent } = getEarningsStatus( status );
+	const { label, tooltip, intent, detail } = getEarningsStatus( status );
+
+	if ( detail ) {
+		// Click-open like the widget header's info icon; non-modal, so Tab leaves and closes it.
+		return (
+			<span className={ styles.root }>
+				<Popover.Root>
+					<Popover.Trigger aria-label={ detail } className={ styles.info }>
+						<Icon icon={ info } size={ 16 } />
+					</Popover.Trigger>
+					<Popover.Popup className={ styles.popup }>
+						<Popover.Arrow />
+						<VisuallyHidden render={ <Popover.Title /> }>{ detail }</VisuallyHidden>
+						<Popover.Description>
+							<span className={ styles.reason }>{ detail }</span>
+							{ tooltip }
+						</Popover.Description>
+					</Popover.Popup>
+				</Popover.Root>
+				<Badge intent={ intent }>{ label }</Badge>
+			</span>
+		);
+	}
+
 	const badge = (
 		<Badge intent={ intent } tabIndex={ tooltip ? 0 : undefined }>
 			{ label }
 		</Badge>
 	);
 
-	return tooltip ? <Tooltip text={ tooltip }>{ badge }</Tooltip> : badge;
+	return (
+		<span className={ styles.root }>
+			{ tooltip ? <Tooltip text={ tooltip }>{ badge }</Tooltip> : badge }
+		</span>
+	);
 }
 
 /**
@@ -227,9 +245,13 @@ export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 			// A filter rather than search: a substring match for "Paid" also finds "Unpaid".
 			// Sorts and filters by the visible label rather than the numeric code.
 			getValue: ( { item } ) => getEarningsStatus( item.status ).label,
+			// Both pending codes share a label, so one "Pending" option covers them.
 			elements: Object.entries( getEarningsStatuses() )
 				.filter( ( [ code ] ) => Number( code ) !== A8C_ONLY_STATUS )
-				.map( ( [ , { label } ] ) => ( { value: label, label } ) ),
+				.map( ( [ , { label } ] ) => ( { value: label, label } ) )
+				.filter(
+					( option, index, all ) => all.findIndex( o => o.value === option.value ) === index
+				),
 			filterBy: { operators: [ 'is' ] },
 			render: ( { item } ) => <EarningsStatusBadge status={ item.status } />,
 		},

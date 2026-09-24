@@ -56,11 +56,11 @@ describe( 'DashboardLayout', () => {
 		expect( notice.compareDocumentPosition( tabList ) ).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
 	} );
 
-	it( 'renders the notice with no props, so every tab describes the error the same way', () => {
+	it( 'renders the notice with only the tracking context, so every tab describes the error the same way', () => {
 		render( <DashboardLayout activeTab="settings">Settings body</DashboardLayout> );
 
 		expect( mockConnectionError ).toHaveBeenCalled();
-		expect( mockConnectionError.mock.calls[ 0 ][ 0 ] ).toEqual( {} );
+		expect( mockConnectionError.mock.calls[ 0 ][ 0 ] ).toEqual( { trackingContext: 'videopress' } );
 	} );
 
 	it( 'leaves no notice behind when the connection is healthy', () => {

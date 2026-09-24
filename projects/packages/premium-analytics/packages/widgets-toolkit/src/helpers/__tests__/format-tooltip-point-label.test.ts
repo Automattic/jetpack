@@ -26,4 +26,13 @@ describe( 'formatTooltipPointLabel', () => {
 			formatTooltipPointLabel( '1,204', 'Subscribers', 'March 1, 2026', 1204, subscribers )
 		).toBe( '1,204 Subscribers · March 1, 2026' );
 	} );
+
+	it( 'names the metric a bucket has no reading for', () => {
+		expect( formatTooltipPointLabel( null, 'Subscribers', 'March 1, 2026' ) ).toBe(
+			'No data for Subscribers · March 1, 2026'
+		);
+		expect(
+			formatTooltipPointLabel( null, 'Subscribers', 'March 1, 2026', null, subscribers )
+		).toBe( 'No data for Subscribers · March 1, 2026' );
+	} );
 } );

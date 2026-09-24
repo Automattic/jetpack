@@ -6,6 +6,7 @@ import {
 	pluginSwitchKey,
 	useRequestedSwitches,
 } from '../../../data/requested-switch-state';
+import { getModuleStatus, getOverrideReason } from '../../modules-list/utils';
 import { getProductModules } from '../products/mappings';
 import { useAllJetpackModules } from '../products/use-all-jetpack-modules';
 import type { ProductCamelCase } from '../../../data/types';
@@ -19,7 +20,7 @@ import type { JetpackModuleSlug, MyJetpackModule } from '../../../types';
  */
 export type FeatureControl =
 	| { kind: 'module'; module: MyJetpackModule }
-	| { kind: 'plugin'; plugin: string }
+	| { kind: 'plugin'; plugin: string; override?: 'active' | 'inactive' }
 	| { kind: 'install-plugin'; plugin: string }
 	| { kind: 'install-jetpack'; installed: boolean }
 	| { kind: 'none' };
@@ -38,6 +39,26 @@ export type FeatureState = {
 	// The product behind the feature, for the modal's copy.
 	product?: ProductCamelCase;
 };
+
+/**
+ * Why a feature can't be switched here, when a host forced its module or plugin on or off.
+ *
+ * @param state - The feature's live state.
+ * @return The reason, or null when nothing forced it.
+ */
+export function getForcedReason( state: FeatureState ): string | null {
+	const { control } = state;
+
+	if ( control.kind === 'module' && control.module.override ) {
+		return getModuleStatus( control.module ).reason ?? null;
+	}
+
+	if ( control.kind === 'plugin' && control.override ) {
+		return getOverrideReason( control.override );
+	}
+
+	return null;
+}
 
 /**
  * Resolve one feature's state.
@@ -103,7 +124,11 @@ export function resolveFeatureState(
 			feature,
 			product,
 			status: feature.plugin_status === 'active' || moduleIsOn ? 'active' : 'inactive',
-			control: { kind: 'plugin', plugin: feature.plugin },
+			control: {
+				kind: 'plugin',
+				plugin: feature.plugin,
+				override: feature.plugin_override || undefined,
+			},
 		};
 	}
 

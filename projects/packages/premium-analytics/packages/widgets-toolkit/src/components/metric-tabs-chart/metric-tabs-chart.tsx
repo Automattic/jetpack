@@ -53,7 +53,8 @@ type ChartActivateParams = Parameters<
 
 export interface MetricTabDatum {
 	date: Date;
-	value: number;
+	/** Null for a bucket with no reading, which the chart draws as a gap. */
+	value: number | null;
 }
 
 /**

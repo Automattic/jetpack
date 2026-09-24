@@ -84,6 +84,8 @@ export {
 	type WidgetBackLinkProps,
 	WidgetFooter,
 	type WidgetFooterProps,
+	WidgetFooterLink,
+	type WidgetFooterLinkProps,
 	ReportLink,
 	type ReportLinkProps,
 	PostTitleLink,
@@ -191,7 +193,11 @@ export {
 /**
  * Constants
  */
-export { WIDGET_ROW_LIMIT } from './constants';
+export {
+	DASHBOARD_PREFERENCES_SCOPE,
+	DASHBOARD_SECTION_LAYOUTS_KEY,
+	WIDGET_ROW_LIMIT,
+} from './constants';
 
 /**
  * Widget edit fields
@@ -277,6 +283,7 @@ export {
 	useSegmentStyles,
 	useSeriesStyles,
 	useStoredDetailLayout,
+	useTrackCustomize,
 	useTrackEvent,
 	useWidgetDrillDown,
 } from './hooks';

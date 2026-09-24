@@ -67,7 +67,24 @@ export type IconTooltipProps = {
 	popoverAnchorStyle?: 'icon' | 'wrapper';
 
 	/**
-	 * Force the Popover to show without an event trigger.
+	 * Text to render as the trigger in place of the icon. The component owns the open state.
+	 */
+	trigger?: ReactNode;
+
+	/**
+	 * Called on every press of the trigger, e.g. to record analytics.
+	 */
+	onTriggerClick?: () => void;
+
+	/**
+	 * Whether a press outside the trigger and popover closes the tooltip. Turn it off for a
+	 * reference the visitor keeps open while working elsewhere on the page.
+	 */
+	closeOnClickOutside?: boolean;
+
+	/**
+	 * Force the Popover to show without an event trigger. Only for a wrapper-anchored
+	 * tooltip with no `trigger`, such as a programmatic tour step.
 	 */
 	forceShow?: boolean;
 

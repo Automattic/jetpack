@@ -40,6 +40,8 @@ const Settings = () => (
 						CSS structure of your site.
 					</p>
 					<PremiumTooltip />
+					{ /* Stands in for the real card's Generate button: what Tab should reach next. */ }
+					<button type="button">Generate</button>
 				</div>
 			</Group>
 			<Group
