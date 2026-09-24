@@ -28,7 +28,7 @@ class Conditional_Logic_Required_Field_Test extends BaseTestCase {
 
 	protected function set_up() {
 		parent::set_up();
-		add_filter( 'jetpack_feature_flag_enabled_forms-conditional-logic', '__return_true' );
+		add_filter( 'jetpack_forms_conditional_logic_enabled', '__return_true' );
 
 		// Registered, never removed. The shortcode table is global and other suites register
 		// it once per class, so tearing it down here would leave them parsing nothing.
@@ -38,7 +38,7 @@ class Conditional_Logic_Required_Field_Test extends BaseTestCase {
 	}
 
 	protected function tear_down() {
-		remove_filter( 'jetpack_feature_flag_enabled_forms-conditional-logic', '__return_true' );
+		remove_filter( 'jetpack_forms_conditional_logic_enabled', '__return_true' );
 		Contact_Form::reset_seen_refs();
 		$_POST = array();
 		parent::tear_down();

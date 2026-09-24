@@ -647,7 +647,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return void
 	 */
 	public function apply_initial_field_visibility() {
-		if ( empty( $this->body ) || ! Jetpack_Forms::is_conditional_logic_enabled() ) {
+		if ( empty( $this->body ) || ! $this->has_conditional_fields() || ! Jetpack_Forms::is_conditional_logic_enabled() ) {
 			return;
 		}
 
@@ -2766,8 +2766,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			// Contact_Form::validate() re-validates every field once the form is fully parsed,
 			// and skips the ones conditional logic resolves as hidden, so nothing is lost by
 			// deferring: a visible field still gets its error, just a moment later.
-			$defer_to_full_form_validation = Jetpack_Forms::is_conditional_logic_enabled()
-				&& $field->has_conditional_logic();
+			$defer_to_full_form_validation = $field->has_conditional_logic()
+				&& Jetpack_Forms::is_conditional_logic_enabled();
 
 			if ( ! $defer_to_full_form_validation ) {
 				$field->validate();
@@ -4000,10 +4000,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return array Either an empty array or `array( 'types' => ..., 'logic' => ... )`.
 	 */
 	public function get_conditional_logic_context() {
-		if ( ! Jetpack_Forms::is_conditional_logic_enabled() ) {
-			return array();
-		}
-
 		$types   = array();
 		$logic   = array();
 		$formats = array();
@@ -4022,7 +4018,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 		}
 
-		if ( empty( $logic ) ) {
+		if ( empty( $logic ) || ! Jetpack_Forms::is_conditional_logic_enabled() ) {
 			return array();
 		}
 
@@ -4062,15 +4058,26 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Whether any field in the form carries conditions; cheaper than the plan check it precedes.
+	 *
+	 * @return bool
+	 */
+	private function has_conditional_fields() {
+		foreach ( (array) $this->fields as $field ) {
+			if ( $field->has_conditional_logic() ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Resolve which fields are visible, without caching.
 	 *
 	 * @return array Map of field id to bool visibility.
 	 */
 	private function compute_field_visibility() {
-		if ( ! Jetpack_Forms::is_conditional_logic_enabled() ) {
-			return array();
-		}
-
 		if ( ! is_array( $this->fields ) || empty( $this->fields ) ) {
 			return array();
 		}
