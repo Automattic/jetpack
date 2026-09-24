@@ -59,6 +59,31 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * A module listed twice, or one a main feature already switches, would never show where it
+	 * is listed. The products whose module is named differently are spelled out because that
+	 * map lives in the UI's `PRODUCT_MODULES`, which this package's PHP cannot read.
+	 */
+	public function test_module_groups_list_each_module_once_and_skip_main_features() {
+		// The modules a product owns under a different name. That map lives in the UI's
+		// `PRODUCT_MODULES`, which this package's PHP cannot read.
+		$product_modules = array( 'vaultpress', 'publicize', 'contact-form', 'ai' );
+
+		$definitions = Main_Features::get_feature_definitions();
+		$grouped     = array_merge( ...array_column( Main_Features::get_module_groups(), 'modules' ) );
+		$covered     = array_filter(
+			array_merge(
+				$product_modules,
+				array_column( $definitions, 'module' ),
+				// A product whose module is named after it covers that slug too.
+				array_column( $definitions, 'product' )
+			)
+		);
+
+		$this->assertSame( array_unique( $grouped ), $grouped );
+		$this->assertSame( array(), array_values( array_intersect( $grouped, $covered ) ) );
+	}
+
+	/**
 	 * The essential set is what a site is nudged towards, so it is asserted explicitly
 	 * rather than left to whoever edits the catalog next.
 	 */

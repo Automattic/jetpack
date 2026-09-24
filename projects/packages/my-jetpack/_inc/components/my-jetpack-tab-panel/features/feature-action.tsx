@@ -5,6 +5,7 @@ import { Button } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { ModuleToggle } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
+import { getForcedReason } from './feature-state';
 import styles from './styles.module.scss';
 import { useFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
@@ -98,9 +99,9 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 	}
 
 	switch ( control.kind ) {
-		case 'module':
+		case 'module': {
 			// FeatureItem shows why, under the description: this slot does not shrink.
-			if ( control.module.override ) {
+			if ( getForcedReason( state ) ) {
 				return null;
 			}
 
@@ -111,6 +112,7 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 					describedby={ describedby }
 				/>
 			);
+		}
 
 		case 'plugin':
 			if ( control.override ) {

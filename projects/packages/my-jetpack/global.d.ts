@@ -467,6 +467,13 @@ type MainFeaturePluginStatus = 'not-installed' | 'inactive' | 'active';
 type MainFeaturesState = {
 	jetpack: MainFeaturePluginStatus;
 	features: MainFeature[];
+	// Optional: a plugin carrying an older copy of this package sends none.
+	module_groups?: MainFeatureModuleGroup[];
+};
+
+type MainFeatureModuleGroup = {
+	label: string;
+	modules: string[];
 };
 
 type MainFeature = {

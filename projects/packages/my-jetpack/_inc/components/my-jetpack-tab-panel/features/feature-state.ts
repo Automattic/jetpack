@@ -41,16 +41,21 @@ export type FeatureState = {
 };
 
 /**
- * Why a feature can't be switched here, when a host forced its module or plugin on or off.
+ * Why a feature can't be switched here: a host forced its module or plugin on or off, or
+ * the site cannot run the module at all, as with the ones unavailable on multisite.
  *
  * @param state - The feature's live state.
- * @return The reason, or null when nothing forced it.
+ * @return The reason, or null when it can be switched.
  */
 export function getForcedReason( state: FeatureState ): string | null {
 	const { control } = state;
 
-	if ( control.kind === 'module' && control.module.override ) {
-		return getModuleStatus( control.module ).reason ?? null;
+	if ( control.kind === 'module' ) {
+		const status = getModuleStatus( control.module );
+
+		if ( control.module.override || ! status.isAvailable ) {
+			return status.reason ?? null;
+		}
 	}
 
 	if ( control.kind === 'plugin' && control.override ) {
@@ -58,6 +63,27 @@ export function getForcedReason( state: FeatureState ): string | null {
 	}
 
 	return null;
+}
+
+/**
+ * The Jetpack module behind a feature, if any.
+ *
+ * A product's module is rarely named after it (Social runs 'publicize'). Resolved the way
+ * the Products tab builds its cards, which also keeps the pre-release gate on Jetpack AI:
+ * with the flag off that map drops AI, so no module resolves.
+ *
+ * @param feature        - The feature, from the map-backed catalog.
+ * @param productModules - Product slug to module slug, where the two differ.
+ * @return The module slug, or an empty string.
+ */
+export function getFeatureModuleSlug(
+	feature: MainFeature,
+	productModules: Record< string, string >
+): string {
+	return (
+		feature.module ||
+		( feature.product ? productModules[ feature.product ] || feature.product : '' )
+	);
 }
 
 /**
@@ -79,12 +105,7 @@ export function resolveFeatureState(
 	productModules: Record< string, string >,
 	modulesLoading = false
 ): FeatureState {
-	// A product's module is rarely named after it (Social runs 'publicize'). Resolved the
-	// way the Products tab builds its cards, which also keeps the pre-release gate on
-	// Jetpack AI: with the flag off that map drops AI, so no module resolves.
-	const moduleSlug =
-		feature.module ||
-		( feature.product ? productModules[ feature.product ] || feature.product : '' );
+	const moduleSlug = getFeatureModuleSlug( feature, productModules );
 	const $module =
 		moduleSlug && jetpack === 'active' ? modules?.[ moduleSlug as JetpackModuleSlug ] : undefined;
 
