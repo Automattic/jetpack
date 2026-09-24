@@ -36,6 +36,7 @@ class Note_Test extends BaseTestCase {
 
 		delete_option( $option );
 		add_filter( 'wordbless_wpdb_query_results', $insert, 10, 2 );
+		add_filter( 'wp_doing_cron', '__return_true' );
 		try {
 			$this->assertSame( 'missing', get_option( $option, 'missing' ) );
 			$this->assertFalse( $note->enabled() );
@@ -53,6 +54,7 @@ class Note_Test extends BaseTestCase {
 			$this->assertSame( 1, $inserts );
 		} finally {
 			remove_filter( 'wordbless_wpdb_query_results', $insert );
+			remove_filter( 'wp_doing_cron', '__return_true' );
 		}
 	}
 
@@ -73,6 +75,7 @@ class Note_Test extends BaseTestCase {
 			return $result;
 		};
 		add_filter( 'wordbless_wpdb_query_results', $enable, 10, 2 );
+		add_filter( 'wp_doing_cron', '__return_true' );
 
 		try {
 			$this->assertTrue( $note->enabled() );
@@ -80,6 +83,50 @@ class Note_Test extends BaseTestCase {
 			$this->assertTrue( $injected );
 		} finally {
 			remove_filter( 'wordbless_wpdb_query_results', $enable );
+			remove_filter( 'wp_doing_cron', '__return_true' );
+		}
+	}
+
+	/**
+	 * Only seed from a safe context without a persistent object cache.
+	 */
+	public function test_enabled_skips_seeding_on_frontend_and_with_external_cache() {
+		$option = Note::JETPACK_SOCIAL_NOTE_CPT;
+		$note   = new Note();
+		delete_option( $option );
+
+		$this->assertFalse( is_admin() );
+		$this->assertFalse( wp_doing_cron() );
+		$this->assertFalse( defined( 'WP_CLI' ) && WP_CLI );
+		$this->assertFalse( $note->enabled() );
+		$this->assertSame( 'missing', get_option( $option, 'missing' ) );
+
+		$was_external = wp_using_ext_object_cache();
+		wp_using_ext_object_cache( true );
+		add_filter( 'wp_doing_cron', '__return_true' );
+		try {
+			$this->assertFalse( $note->enabled() );
+			$this->assertSame( 'missing', get_option( $option, 'missing' ) );
+		} finally {
+			remove_filter( 'wp_doing_cron', '__return_true' );
+			wp_using_ext_object_cache( $was_external );
+		}
+	}
+
+	/**
+	 * Ignore non-scalar values returned by option filters.
+	 */
+	public function test_enabled_ignores_non_scalar_option_value() {
+		$option = Note::JETPACK_SOCIAL_NOTE_CPT;
+		$filter = static function () {
+			return array( 'enabled' => true );
+		};
+		add_option( $option, false );
+		add_filter( "option_{$option}", $filter );
+		try {
+			$this->assertFalse( ( new Note() )->enabled() );
+		} finally {
+			remove_filter( "option_{$option}", $filter );
 		}
 	}
 }
