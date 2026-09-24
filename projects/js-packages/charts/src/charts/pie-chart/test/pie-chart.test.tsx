@@ -226,6 +226,19 @@ describe( 'PieChart', () => {
 				.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
 		} );
 
+		test( 'uses the label role on every slice when the inverse role is see-through', () => {
+			injectedStyle = document.createElement( 'style' );
+			injectedStyle.textContent =
+				'.clear-inverse-pie { --a8c-charts-color-label-inverse: rgba(255, 255, 255, 0); }';
+			document.head.appendChild( injectedStyle );
+
+			renderWithTheme( { data: contrastData, className: 'clear-inverse-pie' } );
+
+			screen
+				.getAllByTestId( 'pie-label' )
+				.forEach( label => expect( label ).toHaveClass( 'pie-chart__label-text--on-light' ) );
+		} );
+
 		test( 'keeps the inverse label color when the fill cannot be resolved', () => {
 			renderWithTheme( {
 				data: [ { label: 'Unresolved', value: 100, color: 'var(--not-set)' } ],

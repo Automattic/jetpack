@@ -178,6 +178,8 @@ interface ResolvedLabelPointers {
 	hasPlate: boolean;
 	labelHex: string;
 	labelInverseHex: string;
+	/** True when the inverse role is see-through, so only the `label` role can be seen on a fill. */
+	isInverseSeeThrough: boolean;
 }
 
 /**
@@ -197,11 +199,13 @@ const labelNeedsDarkText = ( fill: string, pointers: ResolvedLabelPointers | nul
 	}
 
 	const fillHex = normalizeColorToHex( fill );
-	if (
-		! isValidHexColor( fillHex ) ||
-		! isValidHexColor( pointers.labelHex ) ||
-		! isValidHexColor( pointers.labelInverseHex )
-	) {
+	if ( ! isValidHexColor( fillHex ) || ! isValidHexColor( pointers.labelHex ) ) {
+		return false;
+	}
+	if ( pointers.isInverseSeeThrough ) {
+		return true;
+	}
+	if ( ! isValidHexColor( pointers.labelInverseHex ) ) {
 		return false;
 	}
 
@@ -280,6 +284,8 @@ const PieChartInternal = ( {
 		// Hex drops alpha, so a see-through label role would win the comparison and paint nothing.
 		const rawLabel = resolveCssVariable( CATALOG_POINTERS.label, rootRef.current );
 		const isLabelOpaque = rawLabel ? d3Color( rawLabel )?.opacity === 1 : false;
+		const rawLabelInverse = resolveCssVariable( CATALOG_POINTERS.labelInverse, rootRef.current );
+		const labelInverseColor = rawLabelInverse ? d3Color( rawLabelInverse ) : null;
 		// A plate value d3 cannot parse (CSS Color 4 syntax, say) is still one CSS paints, so it counts.
 		const plateColor = rawLabelBackground ? d3Color( rawLabelBackground ) : null;
 		setLabelPointers( {
@@ -292,6 +298,7 @@ const PieChartInternal = ( {
 				rootRef.current,
 				resolveCssVariable
 			),
+			isInverseSeeThrough: labelInverseColor ? labelInverseColor.opacity < 1 : false,
 		} );
 	}, [ showLabels, className, isColorPaletteResolved, isValid ] );
 
