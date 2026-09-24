@@ -14,7 +14,7 @@ import {
 	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { envelope, payment, people, scheduled, share } from '@wordpress/icons';
 /**
  * Internal dependencies
@@ -40,6 +40,8 @@ const DAYS_AGO_LABELS: Record< ( typeof DAYS_AGO )[ number ], string > = {
 	60: __( '60 days ago', 'jetpack-premium-analytics-pkg' ),
 	90: __( '90 days ago', 'jetpack-premium-analytics-pkg' ),
 };
+
+const ALL_TIME_LABEL = __( 'All-time subscribers', 'jetpack-premium-analytics-pkg' );
 
 const DAYS_AGO_NOTES: Record< ( typeof DAYS_AGO )[ number ], string > = {
 	30: __(
@@ -105,9 +107,10 @@ function SubscriberHighlightsReport() {
 						label: __( 'Social followers', 'jetpack-premium-analytics-pkg' ),
 						icon: share,
 						value: social ?? null,
-						note: __(
-							'Social media subscribers, not included in All-time subscribers',
-							'jetpack-premium-analytics-pkg'
+						note: sprintf(
+							/* translators: %s is the label of the All-time subscribers tile. */
+							__( 'Social media subscribers, not included in %s', 'jetpack-premium-analytics-pkg' ),
+							ALL_TIME_LABEL
 						),
 					},
 				]
@@ -124,7 +127,7 @@ function SubscriberHighlightsReport() {
 	const tiles: Tile[] = [
 		{
 			key: 'total',
-			label: __( 'All-time subscribers', 'jetpack-premium-analytics-pkg' ),
+			label: ALL_TIME_LABEL,
 			icon: people,
 			value: total ?? null,
 			note: __(

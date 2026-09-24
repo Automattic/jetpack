@@ -148,6 +148,7 @@ describe( 'SubscriberHighlightsWidget', () => {
 			'Social media subscribers, not included in All-time subscribers',
 		] ) {
 			expect( screen.getByText( note ) ).toBeInTheDocument();
+			expect( screen.getByTitle( note ) ).toBeInTheDocument();
 		}
 	} );
 
@@ -164,6 +165,7 @@ describe( 'SubscriberHighlightsWidget', () => {
 			'Social media subscribers, not included in All-time subscribers',
 		] ) {
 			expect( screen.getByText( note ) ).toBeInTheDocument();
+			expect( screen.getByTitle( note ) ).toBeInTheDocument();
 		}
 	} );
 
