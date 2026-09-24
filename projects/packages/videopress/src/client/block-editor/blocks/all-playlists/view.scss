@@ -38,16 +38,9 @@
 		margin-block: 0;
 	}
 
-	&__heading {
-		font-size: 1.375rem;
-		font-weight: 600;
-		line-height: 1.2;
-		letter-spacing: -0.01em;
-	}
-
 	&__summary {
 		font-family: ui-monospace, Menlo, monospace;
-		font-size: 0.75rem;
+		font-size: 0.75em;
 		color: var(--vpap-muted);
 	}
 
@@ -154,7 +147,7 @@
 		position: absolute;
 		inset: 0;
 		place-items: center;
-		font-size: 0.6875rem;
+		font-size: 0.6875em;
 		color: var(--vpap-muted);
 	}
 
@@ -172,14 +165,14 @@
 		padding: 3px 7px;
 		border-radius: 3px;
 		background: rgba(20, 20, 22, 0.82);
-		font-size: 0.6875rem;
+		font-size: 0.6875em;
 		font-weight: 500;
 		line-height: 1.3;
 		color: #fff;
 	}
 
 	&__badge-icon {
-		font-size: 0.625rem;
+		font-size: 0.9em;
 	}
 
 	&__body {
@@ -193,11 +186,10 @@
 		padding-block-start: 12px;
 	}
 
+	// Titles are headings: the theme's heading styles and the block's own
+	// typography and color settings apply, so only the margin is reset here.
 	&__title {
 		margin: 0;
-		font-size: 0.90625rem;
-		font-weight: 600;
-		line-height: 1.3;
 
 		a {
 			color: inherit;
@@ -210,17 +202,13 @@
 		}
 	}
 
-	&.is-layout-list &__title {
-		font-size: 1rem;
-	}
-
 	&__description {
 		display: -webkit-box;
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 2;
 		overflow: hidden;
 		margin: 4px 0 0;
-		font-size: 0.78125rem;
+		font-size: 0.78125em;
 		line-height: 1.45;
 		color: var(--vpap-muted);
 	}
@@ -229,20 +217,20 @@
 		display: block;
 		max-inline-size: 520px;
 		margin-block-start: 6px;
-		font-size: 0.8125rem;
+		font-size: 0.8125em;
 		line-height: 1.55;
 	}
 
 	&__runtime {
 		margin-block-start: 4px;
-		font-size: 0.75rem;
+		font-size: 0.75em;
 		color: var(--vpap-muted);
 	}
 
 	&__poster-note {
 		display: none;
 		margin-block-start: 4px;
-		font-size: 0.71875rem;
+		font-size: 0.71875em;
 		line-height: 1.4;
 		color: var(--vpap-muted);
 	}
@@ -254,7 +242,7 @@
 	&__link {
 		display: none;
 		margin-block-start: 12px;
-		font-size: 0.78125rem;
+		font-size: 0.78125em;
 		font-weight: 500;
 		text-decoration: none;
 
@@ -278,7 +266,7 @@
 		margin-block-start: 30px;
 		padding-block-start: 20px;
 		border-block-start: 1px solid var(--vpap-rule);
-		font-size: 0.8125rem;
+		font-size: 0.8125em;
 	}
 
 	&__page {
@@ -323,7 +311,7 @@
 		border-radius: 4px;
 		background: transparent;
 		font: inherit;
-		font-size: 0.8125rem;
+		font-size: 0.8125em;
 		font-weight: 500;
 		color: inherit;
 		cursor: pointer;
