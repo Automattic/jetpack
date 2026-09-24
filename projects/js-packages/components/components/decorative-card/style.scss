@@ -43,7 +43,10 @@
 	&__icon-container {
 		position: absolute;
 		top: 50%;
-		inset-inline-start: 50%;
+		// Kept physical: translate(-50%) shifts by a fixed direction, not a
+		// logical one, so left must stay paired with it or the box goes
+		// off-center by its own width under RTL without rtlcss.
+		left: 50%;
 		transform: translate(-50%, -50%);
 		width: 80px;
 		height: 80px;
@@ -54,7 +57,7 @@
 	&__icon {
 		position: absolute;
 		top: 50%;
-		inset-inline-start: 50%;
+		left: 50%;
 		transform: translate(-50%, -50%);
 	}
 
