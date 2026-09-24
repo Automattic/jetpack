@@ -60,15 +60,17 @@ class Main_Features_Test extends TestCase {
 
 	/**
 	 * A module listed twice, or one a main feature already switches, would never show where it
-	 * is listed. The products whose module is named differently are spelled out because that
-	 * map lives in the UI's `PRODUCT_MODULES`, which this package's PHP cannot read.
+	 * is listed. A plugin-delivered feature switches its plugin, so it covers no module.
 	 */
 	public function test_module_groups_list_each_module_once_and_skip_main_features() {
-		// The modules a product owns under a different name. That map lives in the UI's
-		// `PRODUCT_MODULES`, which this package's PHP cannot read.
-		$product_modules = array( 'vaultpress', 'publicize', 'contact-form', 'ai' );
+		// The Jetpack-delivered products whose module is named differently. That map lives in
+		// the UI's `PRODUCT_MODULES`, which this package's PHP cannot read.
+		$product_modules = array( 'publicize', 'contact-form', 'ai' );
 
-		$definitions = Main_Features::get_feature_definitions();
+		$definitions = array_filter(
+			Main_Features::get_feature_definitions(),
+			fn( $definition ) => ! empty( $definition['delivery']['jetpack'] )
+		);
 		$grouped     = array_merge( ...array_column( Main_Features::get_module_groups(), 'modules' ) );
 		$covered     = array_filter(
 			array_merge(

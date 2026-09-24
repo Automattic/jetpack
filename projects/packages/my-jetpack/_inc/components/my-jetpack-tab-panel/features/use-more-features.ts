@@ -80,8 +80,14 @@ export function groupMoreFeatures(
 	productModules: Record< string, string >,
 	requested: Record< string, boolean >
 ): MoreFeaturesGroup[] {
+	const named = new Set( groups.flatMap( group => group.modules ) );
+	// A plugin-delivered card switches its plugin, not the module it shares a slug with, so a
+	// module a group names still gets its own row: Protect's card vs. Brute Force Protection.
 	const covered = new Set(
-		features.map( feature => getFeatureModuleSlug( feature, productModules ) )
+		features
+			.map( feature => ( { feature, slug: getFeatureModuleSlug( feature, productModules ) } ) )
+			.filter( ( { feature, slug } ) => feature.in_jetpack || ! named.has( slug ) )
+			.map( ( { slug } ) => slug )
 	);
 	// Sorted by name, with the legacy modules dropped, the way the Products tab lists them.
 	const remaining = new Map(

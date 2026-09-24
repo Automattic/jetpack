@@ -73,6 +73,25 @@ describe( 'groupMoreFeatures', () => {
 		).not.toContain( 'ai' );
 	} );
 
+	it( 'keeps a grouped module that a plugin-delivered feature shares a slug with', () => {
+		const withProtect = { ...modules, protect: mod( 'protect' ) };
+		const protectGroups = [ { label: 'Security', modules: [ 'protect' ] } ];
+		const slugs = ( inJetpack: boolean ) =>
+			slugsOf(
+				groupMoreFeatures(
+					[ { module: '', product: 'protect', in_jetpack: inJetpack } ] as MainFeature[],
+					protectGroups,
+					withProtect,
+					{},
+					{}
+				)
+			)[ 0 ];
+
+		expect( slugs( false ) ).toEqual( [ 'Security', [ 'protect' ] ] );
+		// Where Jetpack's module is the card's own switch, the card already covers it.
+		expect( slugs( true ) ).not.toEqual( [ 'Security', [ 'protect' ] ] );
+	} );
+
 	it( 'shows the value a switch asked for while its request is out', () => {
 		const asked = groupMoreFeatures( features, groups, modules, {}, { 'module:monitor': true } );
 		const monitor = asked[ 1 ].states[ 0 ];

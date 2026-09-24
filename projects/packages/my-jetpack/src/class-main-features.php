@@ -655,7 +655,7 @@ class Main_Features {
 		return array(
 			array(
 				'label'   => __( 'Security', 'jetpack-my-jetpack' ),
-				'modules' => array( 'account-protection', 'monitor', 'sso', 'waf' ),
+				'modules' => array( 'account-protection', 'monitor', 'protect', 'sso', 'waf' ),
 			),
 			array(
 				'label'   => __( 'Performance', 'jetpack-my-jetpack' ),
