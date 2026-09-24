@@ -510,19 +510,19 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 		return array(
 			'javascript'      => array( 'javascript:alert(1)' ),
 			'ftp'             => array( 'ftp://example.com/thanks' ),
-			// wp_http_validate_url() passes this one, so only the scheme check rejects it.
+			// wp_http_validate_url() accepts this one; the scheme check rejects it.
 			'scheme-relative' => array( '//example.com/thanks' ),
 		);
 	}
 
 	/**
-	 * Test that http and https return URLs are accepted. PayPal takes both.
+	 * Test that http and https return URLs are accepted.
 	 *
 	 * @param string $return_url The valid return URL to test.
 	 * @dataProvider valid_return_url_provider
 	 */
 	#[DataProvider( 'valid_return_url_provider' )]
-	public function test_validate_accepts_valid_return_url( $return_url ) {
+	public function test_validate_accepts_http_and_https_return_urls( $return_url ) {
 		$result = PayPal_Attribute_Mapper::validate_attributes(
 			array(
 				'productName'  => 'Widget',

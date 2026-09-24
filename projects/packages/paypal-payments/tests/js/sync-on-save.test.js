@@ -123,8 +123,8 @@ describe( 'isReadyForPayPal', () => {
 		);
 	} );
 
-	// PHP answers a bad one with a 400, so sending it would fail on every save.
-	it( 'holds back a bad return URL', () => {
+	// The server answers it with a 400.
+	it( 'holds back a scheme-relative return URL', () => {
 		expect( heldBackReason( { ...product, returnUrl: '//example.com/thanks' } ) ).toBe(
 			'Return URL must be a valid URL (e.g., https://example.com/thank-you).'
 		);

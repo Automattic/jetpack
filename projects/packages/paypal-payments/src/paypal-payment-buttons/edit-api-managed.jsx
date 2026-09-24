@@ -423,9 +423,7 @@ export default function ApiManagedEdit( {
 
 	const returnUrlError = errorFor( 'returnUrl' );
 
-	// Whether the form is valid: no validation errors on any field, variant or customer note.
-	// Derived over the errors rather than listed field by field, so a new one cannot be
-	// forgotten here.
+	// Valid once every field, option group and customer note is free of errors.
 	const isFormValid =
 		! hasBlockingError( validationErrors ) &&
 		variantErrors.length === 0 &&
@@ -1600,7 +1598,7 @@ export default function ApiManagedEdit( {
 					</>
 				) }
 			</PanelBody>
-			{ /* Opens itself on a bad return URL, which blocks the save. */ }
+			{ /* Opens itself on a return URL error. */ }
 			<PanelBody
 				title={ __( 'URL Redirect', 'jetpack-paypal-payments' ) }
 				initialOpen={ !! validationErrors.returnUrl }
@@ -1617,7 +1615,7 @@ export default function ApiManagedEdit( {
 						label={ __( 'Return URL (optional)', 'jetpack-paypal-payments' ) }
 						className="jetpack-paypal-payment-buttons__return-url"
 						value={ returnUrl || '' }
-						// A pasted URL can bring a stray space at either end.
+						// Pasted URLs often bring a stray space at either end.
 						onChange={ value => setAttributes( { returnUrl: value.trim() } ) }
 						required={ false }
 						disabled={ isBusy }

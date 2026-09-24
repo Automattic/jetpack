@@ -1959,7 +1959,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * PayPal takes an http return URL, so the route sends it on.
+	 * An http return URL goes through to PayPal unchanged.
 	 */
 	public function test_create_button_sends_an_http_return_url() {
 		$this->set_up_connected_admin_state();

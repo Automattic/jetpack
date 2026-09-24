@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Accept http return URLs. A malformed return URL now shows an error in the block and is not sent to PayPal.
+Allow http return URLs, and show an error in the block when a return URL is invalid.

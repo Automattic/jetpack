@@ -5725,7 +5725,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( setAttributes ).toHaveBeenCalledWith( { returnUrl: 'h' } );
 		} );
 
-		it( 'trims the whitespace a pasted URL brings at either end', async () => {
+		it( 'trims spaces from a pasted URL', async () => {
 			const user = userEvent.setup();
 			renderWith( '' );
 
@@ -5737,7 +5737,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 		// People paste into this field, so a URL that is still being typed is not yet
 		// wrong. Nothing is said until the merchant leaves the field.
-		it( 'says nothing about a bad URL until the field is left', async () => {
+		it( 'keeps the help line on a bad URL until the field is left', async () => {
 			renderWith( 'example.com' );
 
 			await expect( screen.findByLabelText( label ) ).resolves.toBeInTheDocument();
@@ -5745,7 +5745,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( urlControl().getByText( helpLine ) ).toBeInTheDocument();
 		} );
 
-		it( 'flags a bad URL once the field is left', async () => {
+		it( 'shows the URL error once the field is left', async () => {
 			const user = userEvent.setup();
 			renderWith( 'example.com' );
 
@@ -6037,8 +6037,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		/**
 		 * Whether a save over a block in this state sends the payment to PayPal.
 		 *
-		 * This covers the save reading the errors, rather than only the form's own copy
-		 * of the rule.
+		 * Checks the save's own reading of the errors, apart from the form's.
 		 *
 		 * @param {string} key - The validationErrors key under test.
 		 * @return {Promise<boolean>} True when the save sent a request.

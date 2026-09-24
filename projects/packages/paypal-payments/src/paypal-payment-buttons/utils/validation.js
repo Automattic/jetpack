@@ -332,10 +332,8 @@ export function sanitizePayPalUrl( url ) {
 /**
  * Validate a return URL (optional field).
  *
- * http or https, in lowercase, with a host, no username and no whitespace. The server
- * rejects a missing host or a username, lowercases the scheme and encodes spaces, so
- * each would fail the save or leave PayPal with a different URL than the block.
- * Empty means the buyer is not redirected anywhere.
+ * An http or https URL with a lowercase scheme and a host, free of a username or spaces,
+ * so the server accepts it unchanged. Empty means the buyer is not redirected anywhere.
  *
  * @param {string} value - The return URL.
  * @return {string|null} Error message or null if valid.
@@ -507,7 +505,7 @@ export function getValidationErrors( {
 }
 
 /**
- * Whether any field has an error. Every error blocks the save.
+ * Whether any field has an error. Any error blocks the save.
  *
  * Derived rather than a hand-written list of fields, so a new key cannot be
  * forgotten on the gate side.

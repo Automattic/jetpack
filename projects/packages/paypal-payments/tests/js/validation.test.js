@@ -315,7 +315,7 @@ describe( 'validateReturnUrl', () => {
 		expect( validateReturnUrl( value ) ).toBeNull();
 	} );
 
-	// PayPal takes both.
+	// A port and an @ in the query are both allowed.
 	it.each( [
 		'http://example.com/thanks',
 		'https://example.com/thanks',
@@ -325,7 +325,7 @@ describe( 'validateReturnUrl', () => {
 		expect( validateReturnUrl( value ) ).toBeNull();
 	} );
 
-	// PayPal's limit, measured: 1025 characters is a 400.
+	// PayPal's limit: one more character is a 400.
 	it( 'accepts a URL of exactly 1024 characters, and rejects one more', () => {
 		const atLimit = 'https://example.com/'.padEnd( 1024, 'a' );
 		expect( atLimit ).toHaveLength( 1024 );
@@ -344,7 +344,7 @@ describe( 'validateReturnUrl', () => {
 		[ 'a bare host', 'example.com' ],
 		[ 'a URL with no scheme', 'example.com/thanks' ],
 		[ 'an FTP URL', 'ftp://example.com/thanks' ],
-		// The server lowercases the scheme, so PayPal would store a different URL.
+		// The server lowercases the scheme, which changes the URL PayPal stores.
 		[ 'an uppercase scheme', 'HTTPS://example.com' ],
 		[ 'a URL with a space', 'https://example.com/thank you' ],
 		[ 'the scheme on its own', 'https://' ],

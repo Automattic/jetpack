@@ -105,7 +105,7 @@ class PayPal_Attribute_Mapper {
 	const MAX_BUTTON_TEXT_LENGTH = 50;
 
 	/**
-	 * Maximum return URL length PayPal accepts. Measured: one more is a 400.
+	 * Maximum return URL length PayPal accepts.
 	 *
 	 * @var int
 	 */
@@ -549,7 +549,7 @@ class PayPal_Attribute_Mapper {
 		// Optional: return URL validation.
 		if ( ! empty( $attributes['returnUrl'] ) ) {
 			$return_url = esc_url_raw( $attributes['returnUrl'] );
-			// wp_http_validate_url() passes `//example.com`, so the scheme is checked too.
+			// wp_http_validate_url() accepts `//example.com`, so check the scheme as well.
 			if ( empty( $return_url ) || ! wp_http_validate_url( $return_url ) || ! preg_match( '#^https?://#', $return_url ) ) {
 				return new WP_Error(
 					'invalid_return_url',
