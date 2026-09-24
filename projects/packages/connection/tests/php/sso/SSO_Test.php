@@ -321,7 +321,7 @@ class SSO_Test extends BaseTestCase {
 		$output = ob_get_clean();
 
 		$this->assertMatchesRegularExpression( '/<a [^>]*button-primary[^>]*source=calypso-me-security-two-step/', $output );
-		$this->assertMatchesRegularExpression( '/calypso-me-security-two-step.*genericon-wordpress.*force_reauth=1.*jetpack-sso-or.*jetpack-sso-toggle/s', $output );
+		$this->assertMatchesRegularExpression( '/calypso-me-security-two-step.*jetpack-sso-then.*genericon-wordpress.*force_reauth=1.*jetpack-sso-or.*jetpack-sso-toggle/s', $output );
 		$this->assertSame( 1, substr_count( $output, 'button-primary' ) );
 		$this->assertSame( 1, substr_count( $output, 'jetpack-sso-or' ) );
 	}

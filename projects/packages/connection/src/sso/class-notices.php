@@ -34,11 +34,12 @@ class Notices {
 		}
 
 		$allowed_html = array(
-			'a' => array(
+			'a'      => array(
 				'href'   => array(),
 				'rel'    => array(),
 				'target' => array(),
 			),
+			'strong' => array(),
 		);
 		$setup_url    = esc_url( Redirect::get_url( 'calypso-me-security-two-step' ) );
 
@@ -46,10 +47,10 @@ class Notices {
 			$error = sprintf(
 				wp_kses(
 					/* translators: %1$s is a WordPress.com account name, %2$s is the URL of the two-step authentication settings. */
-					__( 'You are logged in to WordPress.com as %1$s, but this site requires two-step authentication. <a href="%2$s" rel="noopener noreferrer" target="_blank">Set it up for your account</a>, then log in again.', 'jetpack-connection' ),
+					__( 'You are logged in to WordPress.com as <strong>%1$s</strong>, but this site requires two-step authentication. <a href="%2$s" rel="noopener noreferrer" target="_blank">Set it up for your account</a>, then log in again.', 'jetpack-connection' ),
 					$allowed_html
 				),
-				'<strong>' . esc_html( $account_name ) . '</strong>',
+				esc_html( $account_name ),
 				$setup_url
 			);
 		} else {
