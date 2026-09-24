@@ -85,14 +85,9 @@ class PayPal_Email_Sender {
 		}
 
 		// Validate inputs.
-		$recipient    = isset( $_POST['recipient'] ) ? sanitize_email( wp_unslash( $_POST['recipient'] ) ) : '';
-		$payment_link = isset( $_POST['payment_link'] ) ? esc_url_raw( wp_unslash( $_POST['payment_link'] ) ) : '';
-		$payment_link = PayPal_Payment_Buttons::sanitize_paypal_script_url( $payment_link );
-		$product_name = isset( $_POST['product_name'] ) ? sanitize_text_field( wp_unslash( $_POST['product_name'] ) ) : '';
-		$price        = isset( $_POST['price'] ) ? sanitize_text_field( wp_unslash( $_POST['price'] ) ) : '';
-		$currency     = isset( $_POST['currency'] ) ? sanitize_text_field( wp_unslash( $_POST['currency'] ) ) : 'USD';
-		$message      = isset( $_POST['message'] ) ? sanitize_textarea_field( wp_unslash( $_POST['message'] ) ) : '';
-		$resource_id  = isset( $_POST['resource_id'] ) ? sanitize_text_field( wp_unslash( $_POST['resource_id'] ) ) : '';
+		$recipient   = isset( $_POST['recipient'] ) ? sanitize_email( wp_unslash( $_POST['recipient'] ) ) : '';
+		$message     = isset( $_POST['message'] ) ? sanitize_textarea_field( wp_unslash( $_POST['message'] ) ) : '';
+		$resource_id = isset( $_POST['resource_id'] ) ? sanitize_text_field( wp_unslash( $_POST['resource_id'] ) ) : '';
 
 		if ( ! is_email( $recipient ) ) {
 			wp_send_json_error(
@@ -102,7 +97,8 @@ class PayPal_Email_Sender {
 			);
 		}
 
-		if ( false === $payment_link || empty( $payment_link ) ) {
+		// Reject a malformed ID before the rate limit and the PayPal read.
+		if ( ! PayPal_Attribute_Mapper::is_valid_resource_id( $resource_id ) ) {
 			wp_send_json_error(
 				array( 'message' => __( 'Invalid or missing PayPal payment link.', 'jetpack-paypal-payments' ) ),
 				400,
@@ -140,6 +136,44 @@ class PayPal_Email_Sender {
 			);
 		}
 
+		// Read the link, name and price from PayPal so the email matches the button.
+		$resource = PayPal_API_Client::get_resource_cached( $resource_id );
+		if ( is_wp_error( $resource ) ) {
+			// Pass on PayPal's status, as the REST endpoints do.
+			$error = PayPal_REST_Controller::api_error_to_rest_error( $resource );
+			wp_send_json_error(
+				array( 'message' => $error->get_error_message() ),
+				$error->get_error_data()['status'],
+				JSON_HEX_TAG | JSON_HEX_AMP
+			);
+		}
+
+		$link_attributes = PayPal_Attribute_Mapper::api_response_to_attributes( $resource );
+		$payment_link    = PayPal_Payment_Buttons::sanitize_paypal_script_url( $link_attributes['paymentLink'] ?? '' );
+		$product_name    = $link_attributes['productName'] ?? '';
+		$price           = PayPal_Payment_Buttons::link_price( $link_attributes );
+
+		if ( '' === $product_name ) {
+			$product_name = $resource_id;
+		}
+
+		if ( false === $payment_link || empty( $payment_link ) ) {
+			wp_send_json_error(
+				array( 'message' => __( 'Invalid or missing PayPal payment link.', 'jetpack-paypal-payments' ) ),
+				400,
+				JSON_HEX_TAG | JSON_HEX_AMP
+			);
+		}
+
+		// Email only a link with a price, on the product or its options.
+		if ( '' === $price ) {
+			wp_send_json_error(
+				array( 'message' => __( 'This payment link has no price.', 'jetpack-paypal-payments' ) ),
+				400,
+				JSON_HEX_TAG | JSON_HEX_AMP
+			);
+		}
+
 		// Rate counter uses a timestamped structure to avoid resetting the TTL
 		// on every increment (which would create a sliding window instead of
 		// a fixed window). The transient stores { count, window_start }.
@@ -171,7 +205,7 @@ class PayPal_Email_Sender {
 		}
 
 		// Build and send email.
-		$result = self::send_email( $recipient, $payment_link, $product_name, $price, $currency, $message );
+		$result = self::send_email( $recipient, $payment_link, $product_name, $price, $message );
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error(
@@ -203,12 +237,11 @@ class PayPal_Email_Sender {
 	 * @param string $recipient    Recipient email address.
 	 * @param string $payment_link PayPal payment URL.
 	 * @param string $product_name Product name.
-	 * @param string $price        Price value.
-	 * @param string $currency     Currency code.
+	 * @param string $price        Formatted price, e.g. "From $29.99".
 	 * @param string $message      Optional personal message from merchant.
 	 * @return true|\WP_Error True on success, WP_Error on failure.
 	 */
-	public static function send_email( $recipient, $payment_link, $product_name, $price, $currency, $message = '' ) {
+	public static function send_email( $recipient, $payment_link, $product_name, $price, $message = '' ) {
 		$site_name = get_bloginfo( 'name' );
 
 		$subject = sprintf(
@@ -218,7 +251,7 @@ class PayPal_Email_Sender {
 			$product_name
 		);
 
-		$html_body = self::build_email_html( $site_name, $payment_link, $product_name, $price, $currency, $message );
+		$html_body = self::build_email_html( $site_name, $payment_link, $product_name, $price, $message );
 
 		// Temporarily set content type to HTML.
 		$set_html_content_type = function () {
@@ -248,19 +281,17 @@ class PayPal_Email_Sender {
 	 * @param string $site_name    Site name.
 	 * @param string $payment_link PayPal payment URL.
 	 * @param string $product_name Product name.
-	 * @param string $price        Price value.
-	 * @param string $currency     Currency code.
+	 * @param string $price        Formatted price.
 	 * @param string $message      Optional personal message.
 	 * @return string HTML email body.
 	 */
-	private static function build_email_html( $site_name, $payment_link, $product_name, $price, $currency, $message ) {
-		$formatted_price = PayPal_Payment_Buttons::format_price( $price, $currency );
+	private static function build_email_html( $site_name, $payment_link, $product_name, $price, $message ) {
 		// The emailed link goes straight to a buyer, so it carries the same
 		// attribution code as the rendered button.
 		$escaped_link  = esc_url( PayPal_Payment_Buttons::add_partner_attribution( $payment_link ) );
 		$escaped_name  = esc_html( $product_name );
 		$escaped_site  = esc_html( $site_name );
-		$escaped_price = esc_html( $formatted_price );
+		$escaped_price = esc_html( $price );
 
 		$message_html = '';
 		if ( ! empty( $message ) ) {

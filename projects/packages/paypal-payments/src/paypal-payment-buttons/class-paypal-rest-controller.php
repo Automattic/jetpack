@@ -1387,7 +1387,7 @@ class PayPal_REST_Controller {
 	 * @param WP_Error $error The API client error.
 	 * @return WP_Error Error with appropriate REST status code.
 	 */
-	private static function api_error_to_rest_error( WP_Error $error ) {
+	public static function api_error_to_rest_error( WP_Error $error ) {
 		$data   = $error->get_error_data();
 		$status = $data['status'] ?? 500;
 

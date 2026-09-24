@@ -12,6 +12,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
+require_once __DIR__ . '/trait-paypal-resource-fixtures.php';
+
 /**
  * Class Paypal_Payment_Buttons_Test
  *
@@ -20,6 +22,8 @@ use PHPUnit\Framework\TestCase;
  */
 #[CoversClass( PayPal_Payment_Buttons::class )]
 class Paypal_Payment_Buttons_Test extends TestCase {
+
+	use PayPal_Resource_Fixtures;
 
 	/**
 	 * Clean up after each test.
@@ -2446,5 +2450,146 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
 
 		$this->assertStringContainsString( 'jetpack-paypal-button__product-price">$9.99</span>', $result );
+	}
+
+	/**
+	 * Test that a link priced per option shows "From" the cheapest option above the option prices.
+	 */
+	public function test_render_block_lists_option_prices_under_a_from_headline() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes( self::get_per_option_resource() );
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__product-price">From $24.50</span>', $result );
+		$this->assertStringContainsString( 'jetpack-paypal-button__variant-price">$24.50</span>', $result );
+		$this->assertStringContainsString( 'jetpack-paypal-button__variant-price">$29.50</span>', $result );
+		$this->assertStringContainsString( 'jetpack-paypal-button__variant-price">$34.50</span>', $result );
+		$this->assertSame( 3, substr_count( $result, 'jetpack-paypal-button__variant-price' ) );
+	}
+
+	// --- format_price ---
+
+	/**
+	 * Test that format_price puts the symbol before the price, including 0.
+	 */
+	public function test_format_price_adds_the_symbol() {
+		$this->assertSame( '$29.99', PayPal_Payment_Buttons::format_price( '29.99', 'USD' ) );
+		$this->assertSame( '$0', PayPal_Payment_Buttons::format_price( '0', 'USD' ) );
+		$this->assertSame( 'XYZ5', PayPal_Payment_Buttons::format_price( '5', 'XYZ' ) );
+	}
+
+	/**
+	 * Test that format_price returns '' for a blank price.
+	 *
+	 * @dataProvider provide_blank_prices
+	 *
+	 * @param mixed $price A blank price.
+	 */
+	#[DataProvider( 'provide_blank_prices' )]
+	public function test_format_price_is_empty_for_a_blank_price( $price ) {
+		$this->assertSame( '', PayPal_Payment_Buttons::format_price( $price, 'USD' ) );
+	}
+
+	/**
+	 * Blank prices.
+	 *
+	 * @return array<string, array{0: mixed}>
+	 */
+	public static function provide_blank_prices() {
+		return array(
+			'empty'      => array( '' ),
+			'whitespace' => array( '  ' ),
+			'null'       => array( null ),
+		);
+	}
+
+	// --- link_price ---
+
+	/**
+	 * Test that link_price shows a product price of 0.
+	 */
+	public function test_link_price_shows_a_product_price_of_zero() {
+		$attributes = array(
+			'price'        => '0',
+			'currencyCode' => 'USD',
+		);
+
+		$this->assertSame( '$0', PayPal_Payment_Buttons::link_price( $attributes ) );
+	}
+
+	/**
+	 * Test that link_price is empty when the product and options are unpriced.
+	 */
+	public function test_link_price_is_empty_for_an_unpriced_link() {
+		$attributes = array(
+			'price'           => '',
+			'currencyCode'    => 'USD',
+			'variantsEnabled' => true,
+			'variants'        => array(
+				'dimensions' => array(
+					array(
+						'name'    => 'Size',
+						'primary' => true,
+						'options' => array(
+							array( 'label' => 'Small' ),
+							array( 'label' => 'Large' ),
+						),
+					),
+				),
+			),
+		);
+
+		$this->assertSame( '', PayPal_Payment_Buttons::link_price( $attributes ) );
+		$this->assertSame( '', PayPal_Payment_Buttons::link_price( array() ) );
+	}
+
+	/**
+	 * Test that link_price ignores option prices while options are off, since only enabled options go to PayPal.
+	 */
+	public function test_link_price_ignores_option_prices_when_options_are_off() {
+		$attributes                    = PayPal_Attribute_Mapper::api_response_to_attributes( self::get_per_option_resource() );
+		$attributes['variantsEnabled'] = false;
+
+		$this->assertSame( '', PayPal_Payment_Buttons::link_price( $attributes ) );
+	}
+
+	/**
+	 * Test that link_price uses the option prices over a stale product price.
+	 */
+	public function test_link_price_uses_option_prices_over_a_stale_product_price() {
+		$attributes          = PayPal_Attribute_Mapper::api_response_to_attributes( self::get_per_option_resource() );
+		$attributes['price'] = '9.99';
+
+		$this->assertSame( 'From $24.50', PayPal_Payment_Buttons::link_price( $attributes ) );
+	}
+
+	/**
+	 * Test that resource_price formats the price of a PayPal payment resource.
+	 *
+	 * @dataProvider provide_priced_resources
+	 *
+	 * @param array  $resource A payment resource.
+	 * @param string $expected The formatted price.
+	 */
+	#[DataProvider( 'provide_priced_resources' )]
+	public function test_resource_price_formats_a_paypal_resource( $resource, $expected ) {
+		$this->assertSame( $expected, PayPal_Payment_Buttons::resource_price( $resource ) );
+	}
+
+	/**
+	 * Payment resources as PayPal returns them, and the price each one charges.
+	 *
+	 * @return array<string, array{0: array, 1: string}>
+	 */
+	public static function provide_priced_resources() {
+		return array(
+			'product price'  => array( self::get_product_price_resource(), '$11.00' ),
+			'priced options' => array( self::get_per_option_resource(), 'From $24.50' ),
+			'yen options'    => array( self::get_per_option_yen_resource(), 'From ¥1000' ),
+			'unpriced'       => array( array( 'line_items' => array( array( 'name' => 'Test' ) ) ), '' ),
+			'id only'        => array( array( 'id' => 'PLB-EMPTY' ), '' ),
+		);
 	}
 }
