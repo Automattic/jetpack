@@ -57,10 +57,12 @@
 }
 
 // The negative margins give focus rings room inside the tray's clipped box.
+// Top-aligned, so the identity line sits by the textarea rather than
+// halfway down a tall theme button.
 .jetpack-comments__actions {
 	display: flex;
 	flex-wrap: wrap;
-	align-items: center;
+	align-items: flex-start;
 	justify-content: space-between;
 	gap: 12px;
 	margin: 0 -4px -4px;
