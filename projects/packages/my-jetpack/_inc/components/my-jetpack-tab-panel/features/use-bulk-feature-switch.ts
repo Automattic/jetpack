@@ -13,6 +13,7 @@ import {
 	pluginSwitchKey,
 	setRequestedSwitch,
 } from '../../../data/requested-switch-state';
+import { getModuleStatus } from '../../modules-list/utils';
 import { QUERY_KEY } from './use-main-features';
 import type { FeatureState } from './feature-state';
 
@@ -37,7 +38,7 @@ export function isBulkSwitchable( state: FeatureState ): boolean {
 	const { control } = state;
 
 	if ( control.kind === 'module' ) {
-		return hasPlainSwitch( control.module );
+		return hasPlainSwitch( control.module ) && getModuleStatus( control.module ).isAvailable;
 	}
 
 	return control.kind === 'plugin' && ! control.override;

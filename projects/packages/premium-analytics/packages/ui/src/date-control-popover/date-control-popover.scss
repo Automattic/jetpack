@@ -1,0 +1,19 @@
+// The popup keeps the look the date menus had as a `@wordpress/components`
+// Dropdown: as wide as the menu, unpadded, and with light group dividers.
+.date-control-popover {
+	width: min-content;
+
+	// The surface. The menu groups and the calendar pad themselves.
+	> * {
+		overflow: hidden;
+		padding: 0;
+	}
+
+	.components-menu-group {
+		padding: var(--wpds-dimension-padding-sm);
+	}
+
+	.components-menu-group + .components-menu-group {
+		border-top-color: var(--wpds-color-stroke-surface-neutral);
+	}
+}

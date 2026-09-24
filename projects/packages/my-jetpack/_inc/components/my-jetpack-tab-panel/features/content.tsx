@@ -1,17 +1,21 @@
 import { _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
+import { BulkBar } from './bulk-bar';
 import { FeaturesEmptyState } from './empty-state';
 import { FeatureItem } from './feature-item';
-import { FeatureList } from './feature-list';
+import { FeatureList, UnswitchableNote } from './feature-list';
 import { FeatureModal } from './feature-modal';
 import { useFeatureStates } from './feature-state';
 import { MenuPointer } from './menu-pointer';
+import { MoreFeatures } from './more-features';
 import styles from './styles.module.scss';
 import { Toolbar } from './toolbar';
 import { getFeatureFilters, isFeatureFilter, matchesFilter } from './use-feature-filter';
 import { useFeatureSearch } from './use-feature-search';
+import { useFeatureSelection } from './use-feature-selection';
 import { useMainFeatures } from './use-main-features';
+import { filterMoreFeatures, useMoreFeatures } from './use-more-features';
 import { useSidebarSync } from './use-sidebar-sync';
 import type { FeaturesView } from './toolbar';
 import type { FeatureFilter } from './use-feature-filter';
@@ -28,6 +32,7 @@ export function FeaturesContent() {
 	const mainFeatures = useMainFeatures();
 	const { states, isLoading } = useFeatureStates( mainFeatures );
 	const { pointer, dismissPointer } = useSidebarSync( mainFeatures.features );
+	const moreFeatures = useMoreFeatures( mainFeatures );
 
 	const [ searchParams, setSearchParams ] = useSearchParams();
 
@@ -66,19 +71,34 @@ export function FeaturesContent() {
 			states.filter( state => matchesFilter( state, filter ) || state.isSwitching ),
 		[ filter, results, states ]
 	);
+	const visibleMore = useMemo(
+		() => filterMoreFeatures( moreFeatures, filter, search ),
+		[ moreFeatures, filter, search ]
+	);
+	// Flattened once: the bulk bar selects over both lists, and the counts read both.
+	const visibleMoreStates = useMemo(
+		() => visibleMore.flatMap( group => group.states ),
+		[ visibleMore ]
+	);
+	const shownCount = visible.length + visibleMoreStates.length;
+
+	const selection = useFeatureSelection(
+		useMemo( () => [ ...visible, ...visibleMoreStates ], [ visible, visibleMoreStates ] ),
+		mainFeatures.jetpack === 'active'
+	);
 
 	// Counted against every feature, not the visible ones, so a pill says how many it
 	// would show rather than how many survived the filter already in play.
-	const counts = useMemo(
-		() =>
-			Object.fromEntries(
-				getFeatureFilters( filter ).map( ( { value } ) => [
-					value,
-					states.filter( state => matchesFilter( state, value ) ).length,
-				] )
-			) as Record< FeatureFilter, number >,
-		[ states, filter ]
-	);
+	const counts = useMemo( () => {
+		const countable = [ ...states, ...moreFeatures.flatMap( group => group.states ) ];
+
+		return Object.fromEntries(
+			getFeatureFilters( filter ).map( ( { value } ) => [
+				value,
+				countable.filter( state => matchesFilter( state, value ) ).length,
+			] )
+		) as Record< FeatureFilter, number >;
+	}, [ states, moreFeatures, filter ] );
 
 	const openFeature = useCallback(
 		( slug: string ) => updateParams( { feature: slug } ),
@@ -134,18 +154,21 @@ export function FeaturesContent() {
 				countsPending={ isLoading }
 				search={ search }
 				onSearchChange={ onSearchChange }
+				bulk={ view === 'list' && shownCount > 0 ? <BulkBar selection={ selection } /> : null }
 			/>
 
 			{ /* Always rendered, so a screen reader is listening before the count changes. */ }
 			<p className="screen-reader-text" role="status">
 				{ sprintf(
 					/* translators: %d is how many features the filter or search matched. */
-					_n( '%d feature shown', '%d features shown', visible.length, 'jetpack-my-jetpack' ),
-					visible.length
+					_n( '%d feature shown', '%d features shown', shownCount, 'jetpack-my-jetpack' ),
+					shownCount
 				) }
 			</p>
 
-			{ visible.length === 0 && ! settling && (
+			{ view === 'list' && shownCount > 0 && <UnswitchableNote /> }
+
+			{ shownCount === 0 && ! settling && (
 				<FeaturesEmptyState
 					search={ search }
 					filter={ filter }
@@ -155,11 +178,7 @@ export function FeaturesContent() {
 			) }
 			{ visible.length > 0 &&
 				( view === 'list' ? (
-					<FeatureList
-						states={ visible }
-						onOpen={ openFeature }
-						canDeactivatePlugins={ mainFeatures.jetpack === 'active' }
-					/>
+					<FeatureList states={ visible } onOpen={ openFeature } selection={ selection } />
 				) : (
 					<div className={ styles[ 'feature-grid' ] }>
 						{ visible.map( state => (
@@ -169,6 +188,13 @@ export function FeaturesContent() {
 				) ) }
 
 			{ pointer && <MenuPointer target={ pointer } onDismiss={ dismissPointer } /> }
+			<MoreFeatures
+				groups={ visibleMore }
+				selection={ selection }
+				jetpack={ mainFeatures.jetpack }
+				isList={ view === 'list' }
+				isNarrowed={ filter !== 'all' || Boolean( search ) }
+			/>
 
 			{ open && (
 				<FeatureModal state={ open } onClose={ closeFeature } onFilterByPlan={ onFilterByPlan } />

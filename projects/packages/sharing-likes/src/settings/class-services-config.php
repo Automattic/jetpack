@@ -282,15 +282,9 @@ final class Services_Config {
 	/**
 	 * The rows that close the settings table: the screen's own, then whatever
 	 * `sharing_global_options` adds. `Post_Handler::save_global_options()` saves them.
-	 *
-	 * Leaves out `Jetpack_Likes_Settings::admin_settings_init()`, which Simple
-	 * hangs on the action until CM-913: the Likes section owns those options,
-	 * and a second set of the same radios would join the same form.
 	 */
 	public static function global_options(): string {
 		$markup = Sharing_Resources::render() . Twitter_Site_Tag::render();
-
-		$unhooked = self::unhook_legacy_likes_options();
 
 		ob_start();
 
@@ -305,39 +299,7 @@ final class Services_Config {
 
 		$markup .= (string) ob_get_clean();
 
-		foreach ( $unhooked as list( $callback, $priority ) ) {
-			add_action( 'sharing_global_options', $callback, $priority );
-		}
-
 		return trim( $markup );
-	}
-
-	/**
-	 * Take the legacy Likes options off `sharing_global_options`.
-	 *
-	 * @return array<int, array{0: callable, 1: int}> Each callback removed, with its priority.
-	 */
-	private static function unhook_legacy_likes_options(): array {
-		global $wp_filter;
-
-		$unhooked = array();
-
-		if ( ! isset( $wp_filter['sharing_global_options'] ) ) {
-			return $unhooked;
-		}
-
-		foreach ( $wp_filter['sharing_global_options']->callbacks as $priority => $callbacks ) {
-			foreach ( $callbacks as $callback ) {
-				$function = $callback['function'];
-
-				if ( is_array( $function ) && 'admin_settings_init' === $function[1] && is_a( $function[0], 'Jetpack_Likes_Settings', true ) ) {
-					remove_action( 'sharing_global_options', $function, $priority );
-					$unhooked[] = array( $function, $priority );
-				}
-			}
-		}
-
-		return $unhooked;
 	}
 
 	/**

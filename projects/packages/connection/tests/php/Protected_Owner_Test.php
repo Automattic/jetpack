@@ -45,6 +45,13 @@ class Protected_Owner_Test extends TestCase {
 	private $caps_manager;
 
 	/**
+	 * XML-RPC answers this test added, removed in `tearDown()` whether or not they were used.
+	 *
+	 * @var callable[]
+	 */
+	private $xmlrpc_answers = array();
+
+	/**
 	 * Initialize the testing environment.
 	 */
 	public function setUp(): void {
@@ -73,6 +80,9 @@ class Protected_Owner_Test extends TestCase {
 		wp_set_current_user( 0 );
 		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
 		remove_all_filters( 'jetpack_connection_ownership_transferable' );
+		foreach ( $this->xmlrpc_answers as $answer ) {
+			remove_filter( 'pre_http_request', $answer, 10 );
+		}
 		WorDBless_Users::init()->clear_all_users();
 		WorDBless_Options::init()->clear_options();
 	}
@@ -135,6 +145,24 @@ class Protected_Owner_Test extends TestCase {
 		} else {
 			$manager->expects( $lookup_matcher )->method( 'get_connected_user_data' )->willReturn( $owner_data );
 		}
+
+		return $manager;
+	}
+
+	/**
+	 * Build a Manager whose WordPress.com claim is stubbed.
+	 *
+	 * @param mixed $record What the assert should answer, or null for an unreachable WordPress.com.
+	 * @return \PHPUnit\Framework\MockObject\MockObject|Manager
+	 */
+	private function asserting_manager( $record ) {
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'get_connection_owner_id', 'get_tokens', 'assert_protected_owner_record' ) )
+			->getMock();
+
+		$manager->method( 'get_connection_owner_id' )->willReturn( $this->owner_id );
+		$manager->method( 'get_tokens' )->willReturn( $this->connected_tokens( $this->owner_id ) );
+		$manager->method( 'assert_protected_owner_record' )->willReturn( $record );
 
 		return $manager;
 	}
@@ -492,7 +520,12 @@ class Protected_Owner_Test extends TestCase {
 	public function test_set_protected_owner_writes_the_anchor_and_promotes_the_owner() {
 		$this->act_as_administrator();
 
-		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ) );
+		$manager = $this->asserting_manager(
+			array(
+				'status'        => 'recorded',
+				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
+			)
+		);
 
 		$this->assertTrue( $manager->set_protected_owner( $this->owner_id ) );
 
@@ -537,7 +570,12 @@ class Protected_Owner_Test extends TestCase {
 	public function test_set_protected_owner_rejects_an_unconfirmed_identity() {
 		$this->act_as_administrator();
 
-		$manager = $this->manager( $this->owner_id, false );
+		$manager = $this->asserting_manager(
+			array(
+				'status'        => 'recorded',
+				'wpcom_user_id' => 0,
+			)
+		);
 		$result  = $manager->set_protected_owner( $this->owner_id );
 
 		$this->assertInstanceOf( 'WP_Error', $result );
@@ -602,7 +640,12 @@ class Protected_Owner_Test extends TestCase {
 		};
 		add_filter( 'pre_update_option_jetpack_options', $block, 10, 2 );
 
-		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ) );
+		$manager = $this->asserting_manager(
+			array(
+				'status'        => 'recorded',
+				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
+			)
+		);
 		$result  = $manager->set_protected_owner( $this->owner_id );
 
 		remove_filter( 'pre_update_option_jetpack_options', $block, 10 );
@@ -661,6 +704,202 @@ class Protected_Owner_Test extends TestCase {
 			'a subscriber'     => array( 'subscriber' ),
 			'an editor'        => array( 'editor' ),
 		);
+	}
+
+	/**
+	 * An unreachable WordPress.com leaves nothing behind. The site cannot confirm who owns it, so
+	 * it must not end up protecting anybody on its own say-so.
+	 */
+	public function test_establishing_fails_closed_when_wpcom_cannot_be_reached() {
+		$this->act_as_administrator();
+
+		$result = $this->asserting_manager( null )->set_protected_owner( $this->owner_id );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_unconfirmed', $result->get_error_code() );
+		$this->assertNull( Protected_Owner::get() );
+		$this->assertFalse( Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
+	 * A site already held by another account is refused and told to contact support. Nothing is
+	 * written locally: an owner the next claimant could overwrite protects nobody.
+	 */
+	public function test_a_site_held_by_another_account_is_sent_to_support() {
+		$this->act_as_administrator();
+
+		$result = $this->asserting_manager(
+			array(
+				'status'        => 'locked_to_other',
+				'wpcom_user_id' => 0,
+			)
+		)
+			->set_protected_owner( $this->owner_id );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_claimed_by_other', $result->get_error_code() );
+		$this->assertNull( Protected_Owner::get() );
+	}
+
+	/**
+	 * The owner re-confirming an existing claim is accepted rather than refused.
+	 */
+	public function test_the_owner_reconfirming_its_own_claim_succeeds() {
+		$this->act_as_administrator();
+
+		$manager = $this->asserting_manager(
+			array(
+				'status'        => 'already_yours',
+				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
+			)
+		);
+
+		$this->assertTrue( $manager->set_protected_owner( $this->owner_id ) );
+		$this->assertTrue( Protected_Owner::is_locked() );
+	}
+
+	/**
+	 * A claim can only anchor the user making it, because it is signed as them.
+	 */
+	public function test_an_admin_cannot_anchor_somebody_else() {
+		$this->act_as_administrator();
+		$other = $this->candidate( 'other_admin' );
+
+		$result = $this->asserting_manager(
+			array(
+				'status'        => 'recorded',
+				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
+			)
+		)->set_protected_owner( $other );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_not_self', $result->get_error_code() );
+		$this->assertNull( Protected_Owner::get() );
+	}
+
+	/**
+	 * A verdict other than acceptance is refused even when it carries an ID.
+	 *
+	 * @dataProvider unaccepted_verdicts
+	 *
+	 * @param string $status The verdict WordPress.com gives.
+	 */
+	#[DataProvider( 'unaccepted_verdicts' )]
+	public function test_set_protected_owner_refuses_a_verdict_that_is_not_acceptance( $status ) {
+		$this->act_as_administrator();
+
+		$result = $this->asserting_manager(
+			array(
+				'status'        => $status,
+				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
+			)
+		)->set_protected_owner( $this->owner_id );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_not_verified', $result->get_error_code() );
+		$this->assertNull( Protected_Owner::get() );
+		$this->assertSame( 0, Utils::get_wpcom_user_id( $this->owner_id ) );
+		$this->assertFalse( Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
+	 * Verdicts that do not mean the claim landed.
+	 *
+	 * @return array
+	 */
+	public static function unaccepted_verdicts() {
+		return array(
+			'refused'            => array( 'invalid' ),
+			'an unknown verdict' => array( 'pending' ),
+		);
+	}
+
+	/**
+	 * Answer the next XML-RPC request from WordPress.com, and keep the request that was sent.
+	 *
+	 * @param string $inner The `<params>` or `<fault>` element of the response.
+	 * @return \stdClass Filled in with the request's `url` and `body` once it is sent.
+	 */
+	private function answer_xmlrpc( $inner ) {
+		$sent = new \stdClass();
+
+		$answer = static function ( $response, $args, $url ) use ( $inner, $sent ) {
+			if ( false === strpos( $url, 'xmlrpc.php' ) ) {
+				return $response;
+			}
+
+			$sent->url  = $url;
+			$sent->body = $args['body'];
+
+			return array(
+				'headers'  => array(),
+				'body'     => '<?xml version="1.0"?><methodResponse>' . $inner . '</methodResponse>',
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+
+		$this->xmlrpc_answers[] = $answer;
+		add_filter( 'pre_http_request', $answer, 10, 3 );
+
+		return $sent;
+	}
+
+	/**
+	 * Give the owner the blog and user tokens a signed request needs.
+	 */
+	private function connect_the_owner() {
+		Jetpack_Options::update_option( 'blog_token', 'blogkey.private' );
+		Jetpack_Options::update_option( 'user_tokens', array( $this->owner_id => 'ownerkey.private.' . $this->owner_id ) );
+	}
+
+	/**
+	 * The claim goes out as a signed XML-RPC call, and an accepted answer is anchored.
+	 */
+	public function test_set_protected_owner_claims_over_xmlrpc() {
+		$this->act_as_administrator();
+		$this->connect_the_owner();
+
+		$sent = $this->answer_xmlrpc(
+			'<params><param><value><struct>' .
+			'<member><name>status</name><value><string>recorded</string></value></member>' .
+			'<member><name>wpcom_user_id</name><value><int>' . self::ANCHORED_WPCOM_ID . '</int></value></member>' .
+			'</struct></value></param></params>'
+		);
+
+		$this->assertTrue( ( new Manager() )->set_protected_owner( $this->owner_id ) );
+
+		$this->assertStringContainsString( '<methodName>jetpack.assertProtectedOwner</methodName>', $sent->body );
+		$this->assertStringNotContainsString( 'confirmed_by', $sent->body );
+
+		$anchor = (array) Protected_Owner::get();
+		$this->assertSame( self::ANCHORED_WPCOM_ID, $anchor['wpcom_user_id'] ?? null );
+	}
+
+	/**
+	 * A fault is no answer, so nothing is anchored.
+	 */
+	public function test_set_protected_owner_fails_closed_on_an_xmlrpc_fault() {
+		$this->act_as_administrator();
+		$this->connect_the_owner();
+
+		$sent = $this->answer_xmlrpc(
+			'<fault><value><struct>' .
+			'<member><name>faultCode</name><value><int>-32601</int></value></member>' .
+			'<member><name>faultString</name><value><string>server error. requested method does not exist.</string></value></member>' .
+			'</struct></value></fault>'
+		);
+
+		$result = ( new Manager() )->set_protected_owner( $this->owner_id );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_unconfirmed', $result->get_error_code() );
+		$this->assertNull( Protected_Owner::get() );
+		$this->assertNotEmpty( $sent->body ?? null, 'The claim never went out, so the fault was not what refused it.' );
 	}
 
 	/**
@@ -755,7 +994,7 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
-	 * An unlocked anchor records provenance without locking ownership.
+	 * An unlocked anchor is still an anchor, but it does not lock ownership.
 	 */
 	public function test_an_unlocked_anchor_does_not_lock_ownership() {
 		Jetpack_Options::update_option(

@@ -22,7 +22,6 @@
 		"automattic/jetpack-google-analytics": "@dev",
 		"automattic/jetpack-help-center": "@dev",
 		"automattic/jetpack-masterbar": "@dev",
-		"automattic/jetpack-podcast": "@dev",
 		"automattic/jetpack-premium-analytics": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-rtc": "@dev",
@@ -38,6 +37,7 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/jetpack-test-environment": "@dev",
+		"automattic/jetpack-podcast": "@dev",
 		"brain/monkey": "^2.6.2",
 		"automattic/phpunit-select-config": "@dev"
 	},

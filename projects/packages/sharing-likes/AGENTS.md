@@ -7,9 +7,12 @@ Guidance for AI coding agents working on the Sharing & Likes package.
 Today it owns the wp-admin Settings > Sharing screen, under `src/settings/`: menu
 registration, the two feature sections (Sharing buttons, Like buttons), the
 shared placement section, the extras section, and the form handling for all of
-them. The Jetpack plugin registers it unconditionally from the `is_admin()`
-block in `load-jetpack.php`, so the screen and every section on it exist
-whichever modules are active.
+them. The Jetpack plugin hooks it up from the `is_admin()` block in
+`load-jetpack.php`, so the screen and every section on it exist whichever
+modules are active. The menu itself only registers where
+`Environment::settings_screen_supported()` holds (Simple, a connected site, or
+offline mode): anywhere else neither the modules nor their blocks load, so
+the screen would have nothing to offer.
 
 `Section_State` decides which of four variants a section renders. `Environment`
 reads the site facts it needs. Everything else renders.
@@ -88,14 +91,6 @@ the plugin's copy of that class. `modules/likes.php` never loads on Simple;
 delete from `Jetpack_Likes_Settings` can therefore break Simple without a single
 reference in this repo.
 
-**Simple still hangs the Likes settings on `sharing_global_options`**, from
-`wp-content/mu-plugins/likes/jetpack-likes.php`, until CM-913 removes that hookup.
-`Services_Config::global_options()` leaves `admin_settings_init()` out wherever it
-fires the action: the Likes section renders those settings itself, and a second
-set of the same radios would join the same form. Do not delete
-`admin_settings_init()` or `admin_settings_callback()` from `Jetpack_Likes_Settings`
-before that lands; wpcom still calls them.
-
 **`WP_SHARING_PLUGIN_URL` is not the same thing in both environments.** The
 plugin defines it with `plugin_dir_url()`; wpcom hardcodes a sun/moon-aware path
 in `post-flair.php`. Moving the admin assets out of `modules/sharedaddy/` is a
@@ -140,8 +135,10 @@ only enables it for those two modules, so the `twitter:site` meta tag does go aw
 The Sharing Buttons block is: `Sharing_Source_Block::sharing_x_via()` reads the same
 `jetpack_twitter_cards_site_tag` filter for the X share URL's `via`, and that block is
 registered on `init` whatever the modules are doing. Which is the route this screen
-sends people down when it offers `BLOCK_CALL_TO_ACTION`. Simple gets no Site Tag
-field: its Twitter Cards read `twitter_via` instead.
+sends people down when it offers `BLOCK_CALL_TO_ACTION`. Simple shows the field
+too, although its Twitter Cards read `twitter_via`: wpcom serves and saves
+`jetpack-twitter-cards-site-tag` from `twitter_via` there, so the field manages
+the value Simple uses. Do not give Simple a second field for `twitter_via`.
 
 Each `save()` bails where its `render()` would have printed nothing: an unchecked
 box posts nothing, so saving a field that was not on screen would switch it off.
@@ -151,8 +148,8 @@ between the two requests, though — a service added since the form was built fl
 `Sharing_Resources::is_available()` on — so `Post_Handler` gates that one on the
 services section having claimed the form too. Firing it under a nonce its consumers did not mint is not free, and the
 rule is not "consumers verify their own nonces" — check before adding one. A
-consumer that verifies `sharing-options` — `Jetpack_Likes_Settings::admin_settings_callback()`,
-hooked on Simple — fails closed and silently saves nothing. A consumer that
+consumer that verifies the old screen's `sharing-options` nonce fails closed and
+silently saves nothing. A consumer that
 verifies nothing, relying on the caller having done it, writes whatever the
 request carries.
 

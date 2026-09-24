@@ -53,6 +53,23 @@ $feature-icon-foreground: #0ced57;
 	}
 }
 
+// A card with nothing to open: no hover, and the chevron's column kept as
+// padding, so its switch lines up with the cards that have one.
+.feature-item--static {
+	padding-inline-end: calc(var(--wpds-dimension-padding-xl) + 36px);
+
+	&:hover {
+		background: var(--wpds-color-background-surface-neutral-strong);
+		border-color: var(--wpds-color-stroke-surface-neutral-weak);
+	}
+}
+
+// The interactive card's title is a button, which resets the font; WPDS would
+// give a heading element a font its own defense rule protects instead.
+.feature-item__static-title {
+	font: inherit;
+}
+
 @media (prefers-reduced-motion: reduce) {
 
 	.feature-item {
@@ -225,6 +242,32 @@ $feature-icon-foreground: #0ced57;
 	text-decoration: underline;
 }
 
+// Jetpack's other modules, under their group headings.
+.more-features {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg);
+	margin-block-start: var(--wpds-dimension-gap-xl);
+
+	h2 {
+		margin: 0;
+	}
+}
+
+.more-features__group {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md);
+}
+
+.more-features__inactive {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-md);
+}
+
+
 // EmptyState caps its own measure but sets no auto margins, so it needs both to
 // sit in the middle of the grid's column. The wider measure keeps the search
 // state's link on one line.
@@ -330,12 +373,12 @@ $feature-icon-foreground: #0ced57;
 
 .bulk-bar {
 	align-items: center;
-	border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--wpds-dimension-gap-md);
-	padding-block: var(--wpds-dimension-padding-md);
-	padding-inline: var(--wpds-dimension-padding-xl);
+	margin-block-start: var(--wpds-dimension-gap-md);
+	padding-block-start: var(--wpds-dimension-padding-md);
 }
 
 .bulk-bar__count {
@@ -354,6 +397,7 @@ $feature-icon-foreground: #0ced57;
 		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	}
 }
+
 
 // The pills are the wide layout; the select is the narrow one. Only ever one.
 .filter-select {
