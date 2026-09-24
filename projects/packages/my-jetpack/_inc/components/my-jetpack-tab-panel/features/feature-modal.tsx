@@ -270,8 +270,9 @@ export function FeatureModal( {
 								icon={ rtl ? chevronRight : chevronLeft }
 								label={ getStepLabel( 'previous', previous ) }
 								shortcut={ getArrowShortcut( rtl ? 'right' : 'left' ) }
-								variant="outline"
-								size="compact"
+								variant="minimal"
+								tone="neutral"
+								size="small"
 								disabled={ ! previous }
 								focusableWhenDisabled
 								onClick={ onPrevious }
@@ -280,8 +281,9 @@ export function FeatureModal( {
 								icon={ rtl ? chevronLeft : chevronRight }
 								label={ getStepLabel( 'next', next ) }
 								shortcut={ getArrowShortcut( rtl ? 'left' : 'right' ) }
-								variant="outline"
-								size="compact"
+								variant="minimal"
+								tone="neutral"
+								size="small"
 								disabled={ ! next }
 								focusableWhenDisabled
 								onClick={ onNext }
