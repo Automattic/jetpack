@@ -53,6 +53,9 @@ for ( const [ methodName, matcherName ] of Object.entries( matcherNames ) ) {
 		[ `${ matcherName }With` ]: createMatcher( methodName, true ),
 	} );
 
+	// Ignore calls made while loading test files.
+	beforeAll( () => spy.mockClear() );
+
 	afterEach( () => {
 		try {
 			if ( ! asserted.has( methodName ) && spy.mock.calls.length > 0 ) {
