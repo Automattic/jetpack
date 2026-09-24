@@ -216,6 +216,36 @@ describe( 'ConnectionError', () => {
 			props.actions[ 0 ].onClick();
 			expect( relinkUser ).toHaveBeenCalledWith( isConnected );
 		} );
+
+		// The notice has one CTA slot, so the first resolvable error in store order takes it.
+		it.each( [
+			[ 'relink first', [ 'no_valid_user_token', 'plugin_error' ], 'Reconnect your account' ],
+			[ 'reporter action first', [ 'plugin_error', 'no_valid_user_token' ], 'Update plugin' ],
+		] )( 'takes the CTA from the first of several own errors (%s)', ( _, order, label ) => {
+			const errors = {
+				...ownTokenError,
+				plugin_error: {
+					'7': {
+						error_message: 'The plugin needs updating.',
+						error_code: 'plugin_error',
+						user_id: '7',
+						audience: 'user',
+						error_data: { action: 'update_plugin', action_label: 'Update plugin' },
+					},
+				},
+			};
+			mockConnection( {
+				connectionErrors: Object.fromEntries( order.map( code => [ code, errors[ code ] ] ) ),
+				userConnectionData: { currentUser: { id: 7, isConnected: true } },
+			} );
+
+			render( <ConnectionError actionHandlers={ { update_plugin: jest.fn() } } /> );
+
+			const props = ConnectionErrorNotice.mock.calls[ 0 ][ 0 ];
+			expect( props.actions.map( action => action.label ) ).toEqual( [ label ] );
+			// Both errors are still described, whichever supplies the CTA.
+			expect( props.errorGroups ).toHaveLength( 2 );
+		} );
 	} );
 
 	// Only that user can restore their own token, so the notice drops the error —

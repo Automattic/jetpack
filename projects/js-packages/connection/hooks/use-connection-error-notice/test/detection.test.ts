@@ -18,6 +18,12 @@ jest.unstable_mockModule( '../../use-restore-connection', () => ( {
 	} ),
 } ) );
 
+// Never rendered by the hook; mocked so the suite skips loading @wordpress/ui and components.
+jest.unstable_mockModule( '../../../components/connection-error-notice', () => ( {
+	__esModule: true,
+	default: () => null,
+} ) );
+
 const { default: useConnectionErrorNotice } = await import( '../index' );
 
 const mockConnection = overrides =>
