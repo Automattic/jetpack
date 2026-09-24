@@ -51,7 +51,7 @@ export function useMainFeatures(): MainFeaturesState & { isPlaceholderData: bool
 		queryFn: () => apiFetch< MainFeaturesState >( { path: '/wpcom/v2/my-jetpack/site/features' } ),
 		// The page's own copy renders the grid immediately; it is never cached, so a remount
 		// reads the site again rather than restoring a snapshot the site has moved past.
-		// Something switched elsewhere — the Products tab, the Plugins screen — is picked up
+		// Something switched elsewhere — More Features, the Plugins screen — is picked up
 		// on the next mount rather than only on a full page load.
 		placeholderData: initialState,
 		staleTime: 30_000,
@@ -121,7 +121,7 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 		},
 		onSuccess: ( _state, action ) => {
 			// A product switches its Jetpack module along with its plugin, so the modules
-			// store the Products tab reads from is now behind.
+			// store More Features reads from is now behind.
 			invalidateResolution( 'getJetpackModules', [] );
 
 			const deactivated = sprintf(

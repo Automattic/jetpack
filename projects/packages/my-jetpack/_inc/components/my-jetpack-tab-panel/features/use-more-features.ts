@@ -77,7 +77,7 @@ export function groupMoreFeatures(
 	const covered = new Set(
 		features.map( feature => getFeatureModuleSlug( feature, productModules ) )
 	);
-	// Sorted by name, with the legacy modules dropped, the way the Products tab lists them.
+	// Sorted by name, with the legacy modules dropped.
 	const remaining = new Map(
 		filterAndSortModules( Object.values( modules ) )
 			.filter( $module => $module.available && ! covered.has( $module.module ) )
@@ -102,8 +102,7 @@ export function groupMoreFeatures(
 /**
  * Narrow the groups to what the filter or search shows, dropping any left empty.
  *
- * A search replaces the filter, as it does for the main features, and ranks modules the way
- * the Products tab ranks them.
+ * A search replaces the filter and ranks the modules, as it does for the main features.
  *
  * @param groups - The grouped modules.
  * @param filter - The active filter.

@@ -295,7 +295,7 @@ const PlansSection: FC = () => {
 						) )
 					) : (
 						<section className={ styles[ 'plan-container' ] }>
-							{ /* TODO: Convert this to link when the Products tab filtering is ready */ }
+							{ /* TODO: Convert this to link when the Features tab filtering is ready */ }
 							<h4>
 								{ __( 'Jetpack Essentials', 'jetpack-my-jetpack' ) }
 								<svg

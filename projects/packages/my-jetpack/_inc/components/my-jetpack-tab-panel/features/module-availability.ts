@@ -1,6 +1,6 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
-import { MyJetpackModule } from '../../types';
+import { MyJetpackModule } from '../../../types';
 
 export const JETPACK_MODULES_NOT_FOR_MULTISITE = [ 'waf', 'wordads' ];
 
@@ -30,8 +30,8 @@ export function getModuleStatus( $module: MyJetpackModule ) {
 	}
 
 	// If the module is not supported on multisite, we set the availability to false and provide a reason.
-	// Optional: the helper is now read from the Features tab too, and a surface that renders
-	// before the page prints its script data would otherwise throw here.
+	// Optional: a surface that renders before the page prints its script data would
+	// otherwise throw here.
 	if ( getScriptData()?.site?.is_multisite ) {
 		if ( JETPACK_MODULES_NOT_FOR_MULTISITE.includes( $module.module ) ) {
 			return {

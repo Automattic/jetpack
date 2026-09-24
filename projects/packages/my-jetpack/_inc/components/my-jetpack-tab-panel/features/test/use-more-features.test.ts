@@ -22,7 +22,7 @@ const modules = Object.fromEntries(
 		mod( 'zeta' ),
 		mod( 'alpha' ),
 		mod( 'waf', { available: false } ),
-		// Legacy: the Products tab hides it while it is off, and so does this.
+		// Legacy: hidden while it is off.
 		mod( 'google-fonts' ),
 	].map( $module => [ $module.module, $module ] )
 );

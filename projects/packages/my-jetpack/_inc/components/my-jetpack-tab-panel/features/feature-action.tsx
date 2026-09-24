@@ -78,9 +78,8 @@ type FeatureActionProps = {
 /**
  * The card's control, as the feature map decides it.
  *
- * Nothing here reloads the page, unlike the Products tab's switches, so several features
- * can be flipped in a row; the wp-admin sidebar is refreshed in place after each switch
- * (see `use-sidebar-sync.ts`).
+ * Nothing here reloads the page, so several features can be flipped in a row; the
+ * wp-admin sidebar is refreshed in place after each switch (see `use-sidebar-sync.ts`).
  *
  * @param {FeatureActionProps} props             - The component props.
  * @param {FeatureState}       props.state       - Live state for the feature.
