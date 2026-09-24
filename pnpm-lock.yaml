@@ -7012,9 +7012,6 @@ importers:
       '@wordpress/eslint-plugin':
         specifier: 26.0.0
         version: 26.0.0(@wordpress/theme@2.1.0(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.10.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.16.6(eslint@10.10.0)(jest@30.5.1)(typescript@6.0.3))(eslint-plugin-jsdoc@64.5.2(eslint@10.10.0)(typescript@6.0.3))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.10.0))(eslint-plugin-playwright@2.12.0(eslint@10.10.0))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.10.0))(eslint@10.10.0)(wp-prettier@3.9.6))(eslint-plugin-react-hooks@7.1.1(eslint@10.10.0))(eslint-plugin-react@7.37.5(eslint@10.10.0))(eslint@10.10.0)(typescript@6.0.3)(wp-prettier@3.9.6)
-      '@wordpress/jest-console':
-        specifier: 9.3.0
-        version: 9.3.0(jest@30.5.1)
       '@wordpress/stylelint-config':
         specifier: 25.0.0
         version: 25.0.0(@stylistic/stylelint-plugin@5.2.1(stylelint@17.14.1(typescript@6.0.3)))(@wordpress/theme@2.1.0(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3)))(stylelint-config-recommended-scss@17.0.1(postcss@8.5.23)(stylelint@17.14.1(typescript@6.0.3)))(stylelint-config-recommended@18.0.0(stylelint@17.14.1(typescript@6.0.3)))(stylelint-scss@7.2.0(stylelint@17.14.1(typescript@6.0.3)))(stylelint@17.14.1(typescript@6.0.3))
@@ -11668,13 +11665,6 @@ packages:
   '@wordpress/is-shallow-equal@5.55.0':
     resolution: {integrity: sha512-hL3fkQ6ac/Zq0hSQlqxq0fW1hVjyJGzLQYTC2S1n7aJhNyrkEMN9ozoTyeMlUWUx8uPakWbmsAwm/dGPiVHo3Q==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
-  '@wordpress/jest-console@9.3.0':
-    resolution: {integrity: sha512-kqsqg6YV7QF4oidB4pOl4Qoe0QE15hxwLmNQdQ0yMmqILWJ9FpaGsaVG+QslbEtlyQE0uPXtRV03Ep90T+ZlIw==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
-    peerDependencies:
-      jest: '>=30'
 
   '@wordpress/kebab-case@1.2.0':
     resolution: {integrity: sha512-7NJKsIHbWYqXjG6ku6t9GhXPz2vBXlH25lAH9SUYKV8EvyupeeboIiI/+tr9fAjCxwunW9smZB0nq+X44zIVpw==}
@@ -28111,12 +28101,6 @@ snapshots:
       - vite
 
   '@wordpress/is-shallow-equal@5.55.0': {}
-
-  '@wordpress/jest-console@9.3.0(jest@30.5.1)':
-    dependencies:
-      jest: 30.5.1
-      jest-matcher-utils: 30.5.1
-      jest-mock: 30.5.1
 
   '@wordpress/kebab-case@1.2.0':
     dependencies:

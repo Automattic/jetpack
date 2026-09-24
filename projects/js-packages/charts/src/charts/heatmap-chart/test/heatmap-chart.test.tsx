@@ -494,7 +494,7 @@ describe( 'HeatmapChart keyboard tooltip', () => {
 } );
 
 describe( 'HeatmapChart tooltip position', () => {
-	// Restore only this spy: `restoreAllMocks` would also unspy jest-console, and
+	// Restore only this spy: `restoreAllMocks` would also unspy the console guard, and
 	// every later `toHaveWarned` in the file would find no spy.
 	let rects: jest.SpyInstance;
 	afterEach( () => {
