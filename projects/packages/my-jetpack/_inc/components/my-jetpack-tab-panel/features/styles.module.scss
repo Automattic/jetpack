@@ -551,10 +551,10 @@ $banner-foreground: #daffdc;
 // on every step.
 .modal-band {
 	align-items: center;
-	background: $feature-icon-background;
+	background: #f8f8f8;
 	block-size: 14rem;
 	box-sizing: border-box;
-	color: $feature-icon-foreground;
+	color: $feature-icon-background;
 	display: flex;
 	flex: 0 0 auto;
 	justify-content: center;
@@ -566,12 +566,109 @@ $banner-foreground: #daffdc;
 	position: relative;
 }
 
+// Registered so the band's colors and glow positions interpolate, which is what
+// morphs one feature's band into the next when stepping.
+@property --band-a {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: #f3e4bf;
+}
+
+@property --band-b {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: #d0d8f2;
+}
+
+@property --band-c {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: #e3f0e0;
+}
+
+@property --band-ax {
+	syntax: "<percentage>";
+	inherits: true;
+	initial-value: 24%;
+}
+
+@property --band-ay {
+	syntax: "<percentage>";
+	inherits: true;
+	initial-value: 22%;
+}
+
+@property --band-bx {
+	syntax: "<percentage>";
+	inherits: true;
+	initial-value: 66%;
+}
+
+@property --band-by {
+	syntax: "<percentage>";
+	inherits: true;
+	initial-value: 26%;
+}
+
+@property --band-cx {
+	syntax: "<percentage>";
+	inherits: true;
+	initial-value: 70%;
+}
+
+@property --band-cy {
+	syntax: "<percentage>";
+	inherits: true;
+	initial-value: 92%;
+}
+
+// One glow of the band, centered on that color's position.
+@function band-glow($size, $name, $fade) {
+	$at: var(--band-#{$name}x) var(--band-#{$name}y);
+	$color: var(--band-#{$name});
+
+	@return radial-gradient($size at $at, $color, transparent $fade);
+}
+
+// A soft wedge of the feature's colors; see band-palette.ts.
+.modal-band::before {
+	background:
+		band-glow(38% 72%, a, 72%),
+		band-glow(44% 80%, b, 72%),
+		band-glow(60% 90%, c, 76%),
+		color-mix(in srgb, var(--band-c) 55%, #f8f8f8);
+	clip-path: polygon(11% 0, 100% 0, 100% 100%, 60% 100%);
+	content: "";
+	inset: 0;
+	position: absolute;
+	transition-duration: 700ms;
+	transition-property:
+		--band-a,
+		--band-b,
+		--band-c,
+		--band-ax,
+		--band-ay,
+		--band-bx,
+		--band-by,
+		--band-cx,
+		--band-cy;
+	transition-timing-function: ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.modal-band::before {
+		transition: none;
+	}
+}
+
 .modal-band__art {
 	align-items: center;
 	block-size: 100%;
 	display: flex;
 	inline-size: 100%;
 	justify-content: center;
+	position: relative;
 }
 
 // `contain`, not `cover`: every one of these assets is square or portrait, so
