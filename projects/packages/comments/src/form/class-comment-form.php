@@ -411,7 +411,11 @@ class Comment_Form {
 	/**
 	 * Where a reader manages their subscriptions to this site.
 	 *
-	 * @param bool $has_account Whether they hold a WordPress.com account, which the Reader's page needs.
+	 * With an account it is the site's page in the Reader, which offers Subscribe
+	 * to a reader who has not and the settings to one who has. The Reader's
+	 * subscription page itself only answers for someone already subscribed.
+	 *
+	 * @param bool $has_account Whether they hold a WordPress.com account, which the Reader needs.
 	 * @return string Empty where the host offers no subscriptions.
 	 */
 	private static function subscriptions_url( $has_account ) {
@@ -422,7 +426,7 @@ class Comment_Form {
 		$blog_id = Checkpoint::blog_id();
 
 		if ( $has_account && $blog_id > 0 ) {
-			return 'https://wordpress.com/reader/site/subscription/' . $blog_id;
+			return 'https://wordpress.com/reader/blogs/' . $blog_id;
 		}
 
 		return 'https://subscribe.wordpress.com/';
