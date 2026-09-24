@@ -56,10 +56,10 @@ describe( 'register-blocks', () => {
 	it( 'registers the no-results variant with its per-condition variations', () => {
 		const settings = settingsFor( 'jetpack-search/no-results-slot' );
 
-		expect( settings.variations.map( variation => variation.name ) ).toEqual( [
-			'any',
-			'filtered',
-			'error',
+		expect( settings.variations.map( ( { name, title } ) => [ name, title ] ) ).toEqual( [
+			[ 'any', 'Any Empty Search' ],
+			[ 'filtered', 'Filters Are Active' ],
+			[ 'error', 'Search Failed' ],
 		] );
 	} );
 
