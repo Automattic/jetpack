@@ -32,6 +32,12 @@ type StartStepProps = {
  * Log's permission callback requires one outright. `redirectUri` brings them back
  * to the wizard, which resumes past this step from the connection itself.
  *
+ * `skipPricingPage` is what makes that return actually happen. Without it
+ * WordPress.com shows its plans page after the authorization, and that page does
+ * not carry `redirect_after_auth`, so the user lands on My Jetpack and the wizard
+ * is over. Every one of the six features this wizard offers is free, so there is
+ * nothing to choose there anyway.
+ *
  * @param props             - The component props.
  * @param props.titleId     - The id the panel region is labelled by.
  * @param props.title       - The screen's heading.
@@ -40,7 +46,11 @@ type StartStepProps = {
  */
 export function StartStep( { titleId, title, description }: StartStepProps ) {
 	const { handleRegisterSite, siteIsRegistering, userIsConnecting, registrationError } =
-		useConnection( { from: CONNECTION_FROM, redirectUri: CONNECTION_RETURN_URL } );
+		useConnection( {
+			from: CONNECTION_FROM,
+			redirectUri: CONNECTION_RETURN_URL,
+			skipPricingPage: true,
+		} );
 	const { recordEvent } = useAnalytics();
 
 	// Only registration failures reach the store. Fetching the authorization URL can
