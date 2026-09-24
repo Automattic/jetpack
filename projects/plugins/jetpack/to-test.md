@@ -19,10 +19,17 @@ Jetpack 16.3 ships the new Stats v2 dashboard. The Jetpack plugin has no toggle 
 
 - Use a Jetpack-connected site with the Stats module active and a few days of views.
 - Switch on the dashboard: run `wp option update jetpack_premium_analytics_enabled 1`. You get the customer preview, which has only the Traffic, Insights and Subscribers tabs.
-- To also see the Ads and Store tabs:
-  - Run `wp option delete jetpack_premium_analytics_enabled`.
-  - Add a mu-plugin containing `add_filter( 'jetpack_premium_analytics_enabled', '__return_true' );`.
-  - Turn on the Subscriptions module (for the Subscribers tab), the WordAds module (for Ads) and WooCommerce (for Store).
+  - No WP-CLI? Use the mu-plugin from the next step instead. It switches the dashboard on with every tab, so skip the tab check in section 1, step 2.
+- To also see the Ads tab:
+  - If you ran the WP-CLI command above, run `wp option delete jetpack_premium_analytics_enabled`.
+  - Create the file `wp-content/mu-plugins/stats-v2.php` with this content:
+
+    ```php
+    <?php
+    add_filter( 'jetpack_premium_analytics_enabled', '__return_true' );
+    ```
+
+  - Turn on the Subscriptions module (for the Subscribers tab) and the WordAds module (for Ads).
 - In wp-admin, open **Stats v2** in the sidebar. It sits next to the existing Stats menu.
 
 **1. First visit and date controls**
@@ -53,7 +60,7 @@ Jetpack 16.3 ships the new Stats v2 dashboard. The Jetpack plugin has no toggle 
 
 **4. Subscribers and Ads**
 
-This section needs the Ads tab: use the ["To also see the Ads and Store tabs" setup](#premium-analytics-setup) above. The Ads tab also needs a plan that includes WordAds. When you finish, remove the mu-plugin again.
+**Needs:** a plan that includes WordAds, and the ["To also see the Ads tab" setup](#premium-analytics-setup) above. Real earnings data needs a site that runs WordAds. Keep the mu-plugin until you finish the Locations map section below, then delete it.
 
 1. Subscribers: Confirm the tab has no date control of its own. The date range now sits on the Subscriber summary chart.
 2. Subscriber highlights shows All-time stats.
@@ -83,7 +90,7 @@ _The Regions and Cities tabs (steps 3–6, and the Regions and Cities part of st
 
 ### Search: AI Search upgrade prompt and real error messages ([#52274](https://github.com/Automattic/jetpack/pull/52274))
 
-**Setup:** Any Jetpack-connected site set up with Jetpack Search Free. Step 3 needs a paid Jetpack Search plan.
+**Setup:** Any Jetpack-connected site set up with Jetpack Search Free, which you can add at no cost from My Jetpack. Step 3 is optional: it needs a paid Jetpack Search plan.
 
 Before this release: the editor showed no upgrade prompt for the block, and asking a question on the published page showed "There was an error while generating the answer. Please try again later." with an `invalid_ask_response` / 500 response.
 
@@ -136,7 +143,7 @@ On Windows you can use a High Contrast theme instead of the DevTools emulation.
 _Test on a single-site install, not on multisite._
 
 1. In My Jetpack, turn Activity Log off. Its sidebar entry disappears. Turn it back on and the entry returns.
-2. Go to Jetpack → Modules and turn off one of these: Social (the Publicize module), Jetpack AI or VideoPress. Its item disappears from the Jetpack menu. Turn it back on and confirm the item returns.
+2. Open the Modules page at `/wp-admin/admin.php?page=jetpack_modules` and turn off one of these: Social (the Publicize module), Jetpack AI or VideoPress. Its item disappears from the Jetpack menu. Turn it back on and confirm the item returns.
 
 ### Forms ([#52099](https://github.com/Automattic/jetpack/pull/52099), [#52249](https://github.com/Automattic/jetpack/pull/52249))
 
