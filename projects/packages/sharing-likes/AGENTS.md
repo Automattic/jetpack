@@ -91,14 +91,6 @@ the plugin's copy of that class. `modules/likes.php` never loads on Simple;
 delete from `Jetpack_Likes_Settings` can therefore break Simple without a single
 reference in this repo.
 
-**Simple still hangs the Likes settings on `sharing_global_options`**, from
-`wp-content/mu-plugins/likes/jetpack-likes.php`, until CM-913 removes that hookup.
-`Services_Config::global_options()` leaves `admin_settings_init()` out wherever it
-fires the action: the Likes section renders those settings itself, and a second
-set of the same radios would join the same form. Do not delete
-`admin_settings_init()` or `admin_settings_callback()` from `Jetpack_Likes_Settings`
-before that lands; wpcom still calls them.
-
 **`WP_SHARING_PLUGIN_URL` is not the same thing in both environments.** The
 plugin defines it with `plugin_dir_url()`; wpcom hardcodes a sun/moon-aware path
 in `post-flair.php`. Moving the admin assets out of `modules/sharedaddy/` is a
@@ -156,8 +148,8 @@ between the two requests, though — a service added since the form was built fl
 `Sharing_Resources::is_available()` on — so `Post_Handler` gates that one on the
 services section having claimed the form too. Firing it under a nonce its consumers did not mint is not free, and the
 rule is not "consumers verify their own nonces" — check before adding one. A
-consumer that verifies `sharing-options` — `Jetpack_Likes_Settings::admin_settings_callback()`,
-hooked on Simple — fails closed and silently saves nothing. A consumer that
+consumer that verifies the old screen's `sharing-options` nonce fails closed and
+silently saves nothing. A consumer that
 verifies nothing, relying on the caller having done it, writes whatever the
 request carries.
 
