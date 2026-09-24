@@ -258,10 +258,6 @@ export default function ApiManagedEdit( {
 
 	const blockProps = useBlockProps();
 
-	// Separate __() calls keep each msgid literal for the minifier.
-	const labelConnected = __( 'PayPal Connected', 'jetpack-paypal-payments' );
-	const labelDisconnected = __( 'PayPal Disconnected', 'jetpack-paypal-payments' );
-
 	const {
 		isConnected,
 		setIsConnected,
@@ -1005,18 +1001,6 @@ export default function ApiManagedEdit( {
 		</Notice>
 	) : null;
 
-	const connectionStatus = (
-		<span
-			className={ `jetpack-paypal-payment-buttons__status-dot ${
-				isConnected
-					? 'jetpack-paypal-payment-buttons__status-dot--connected'
-					: 'jetpack-paypal-payment-buttons__status-dot--disconnected'
-			}` }
-		/>
-	);
-
-	const connectionLabel = isConnected ? labelConnected : labelDisconnected;
-
 	const linkStep = (
 		<ExistingLinksStep
 			links={ existingLinks }
@@ -1666,16 +1650,6 @@ export default function ApiManagedEdit( {
 			{ formatControls }
 
 			<div className="jetpack-paypal-payment-buttons__preview">
-				<div className="jetpack-paypal-payment-buttons__preview-status">
-					{ connectionStatus }
-					{ connectionLabel }
-					{ environment === 'sandbox' && (
-						<span className="jetpack-paypal-payment-buttons__sandbox-badge">
-							{ __( 'Sandbox', 'jetpack-paypal-payments' ) }
-						</span>
-					) }
-				</div>
-
 				{ /* The inspector only mounts when the block is selected, so notices about a
 				     broken block go on the canvas. */ }
 				{ disconnectedNotice }

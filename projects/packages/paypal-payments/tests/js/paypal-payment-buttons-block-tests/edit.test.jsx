@@ -6593,11 +6593,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			mockPayment( { ...carried, integrationMode: 'LINK' } );
 			renderForm( saved );
 
-			await expect( screen.findByText( 'PayPal Connected' ) ).resolves.toBeInTheDocument();
-			expect( screen.queryByText( notice ) ).not.toBeInTheDocument();
-			expect( setAttributes ).toHaveBeenCalledWith(
-				expect.objectContaining( { integrationMode: 'LINK' } )
+			await waitFor( () =>
+				expect( setAttributes ).toHaveBeenCalledWith(
+					expect.objectContaining( { integrationMode: 'LINK' } )
+				)
 			);
+			expect( screen.queryByText( notice ) ).not.toBeInTheDocument();
 		} );
 
 		// The mode belongs to the payment, not the block: a sibling block going stacked
@@ -6606,11 +6607,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			mockPayment( { ...carried, integrationMode: 'BUTTON' } );
 			renderForm( { ...saved, integrationMode: 'LINK' } );
 
-			await expect( screen.findByText( 'PayPal Connected' ) ).resolves.toBeInTheDocument();
-			expect( screen.queryByText( notice ) ).not.toBeInTheDocument();
-			expect( setAttributes ).toHaveBeenCalledWith(
-				expect.objectContaining( { integrationMode: 'BUTTON' } )
+			await waitFor( () =>
+				expect( setAttributes ).toHaveBeenCalledWith(
+					expect.objectContaining( { integrationMode: 'BUTTON' } )
+				)
 			);
+			expect( screen.queryByText( notice ) ).not.toBeInTheDocument();
 		} );
 
 		// Only a stacked block draws with the SDK URL, so losing it is worth saying out loud.
@@ -6755,7 +6757,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
 		} );
 
-		it( 'shows PayPal Connected status', async () => {
+		// The design draws no status row on the canvas, so the sidebar carries it.
+		it( 'shows the connection in the sidebar, not on the canvas', async () => {
 			render(
 				<Edit
 					attributes={ {
@@ -6767,10 +6770,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				/>
 			);
 
-			await expect( screen.findByText( 'PayPal Connected' ) ).resolves.toBeInTheDocument();
+			const disconnect = await screen.findByRole( 'button', { name: 'Disconnect' } );
+			expect( screen.getByTestId( 'inspector-controls' ) ).toContainElement( disconnect );
+			expect( screen.queryByText( 'PayPal Connected' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'shows sandbox badge when in sandbox mode', async () => {
+		it( 'shows the sandbox environment in the sidebar, not on the canvas', async () => {
 			render(
 				<Edit
 					attributes={ {
@@ -6782,7 +6787,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				/>
 			);
 
-			await expect( screen.findByText( 'Sandbox' ) ).resolves.toBeInTheDocument();
+			const environment = await screen.findByText( 'sandbox' );
+			expect( screen.getByTestId( 'inspector-controls' ) ).toContainElement( environment );
+			expect( screen.queryByText( 'Sandbox' ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'shows button preview when API-managed button exists', async () => {
