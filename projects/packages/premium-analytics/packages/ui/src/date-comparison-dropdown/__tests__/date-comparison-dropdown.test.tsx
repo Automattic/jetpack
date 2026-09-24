@@ -10,12 +10,14 @@ const presets: ComparisonDateRangePreset[] = [
 		label: 'Previous period',
 		shortLabel: 'Prev. period',
 		range: { from: new TZDate( '2026-06-01', 'UTC' ), to: new TZDate( '2026-06-30', 'UTC' ) },
+		aliases: [],
 	},
 	{
 		id: 'previous-month',
 		label: 'Previous month',
 		shortLabel: 'Prev. month',
 		range: { from: new TZDate( '2026-05-01', 'UTC' ), to: new TZDate( '2026-05-31', 'UTC' ) },
+		aliases: [ 'previous-period-match-day-of-week' ],
 	},
 ];
 
@@ -76,6 +78,28 @@ describe( 'DateComparisonDropdown', () => {
 		// The way back out is the same menu the `+` opens.
 		await user.click( screen.getByRole( 'menuitemradio', { name: 'No comparison' } ) );
 		expect( onClear ).toHaveBeenCalled();
+	} );
+
+	// A folded preset stays in the URL so it can come back on the next range
+	// change; meanwhile the entry naming its window is the one checked.
+	it( 'checks the entry a folded preset is listed under', async () => {
+		const user = userEvent.setup();
+
+		render(
+			<DateComparisonDropdown
+				presets={ presets }
+				enabled
+				presetId="previous-period-match-day-of-week"
+				onPresetChange={ jest.fn() }
+				onClear={ jest.fn() }
+			/>
+		);
+
+		const trigger = screen.getByRole( 'button', { name: 'Previous month' } );
+		expect( trigger ).toHaveTextContent( 'Prev. month' );
+
+		await user.click( trigger );
+		expect( screen.getByRole( 'menuitemradio', { name: 'Previous month' } ) ).toBeChecked();
 	} );
 
 	it( 'marks an active comparison with a vs prefix', () => {
