@@ -1,0 +1,38 @@
+{
+	"name": "@automattic/jetpack-premium-analytics-api",
+	"version": "0.1.0-alpha",
+	"private": true,
+	"description": "The API the Premium Analytics dashboard provides to plugins that extend it.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/premium-analytics-api/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Premium Analytics Api"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/premium-analytics-api"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.d.ts",
+			"default": "./src/index.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"types": "./src/index.d.ts",
+	"wpScriptModuleExports": "./src/index.js",
+	"scripts": {
+		"typecheck": "tsgo --noEmit"
+	},
+	"peerDependencies": {
+		"react": "^18.0.0"
+	},
+	"devDependencies": {
+		"@types/react": "18.3.31",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
+		"react": "18.3.1"
+	}
+}
