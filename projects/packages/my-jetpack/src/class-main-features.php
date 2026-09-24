@@ -225,11 +225,13 @@ class Main_Features {
 				'product'          => 'jetpack-ai',
 				'interstitial'     => '/add-jetpack-ai',
 				'free_highlights'  => array(
-					__( '20 requests to try it out', 'jetpack-my-jetpack' ),
+					/* translators: %d is the number of free requests, such as 20. */
+					sprintf( __( '%d requests to try it out', 'jetpack-my-jetpack' ), Products\Jetpack_Ai::FREE_REQUESTS ),
 					__( 'Generate, rewrite and translate in the editor', 'jetpack-my-jetpack' ),
 				),
 				'paid_highlights'  => array(
-					__( 'Keep creating after your 20 free requests run out', 'jetpack-my-jetpack' ),
+					/* translators: %d is the number of free requests, such as 20. */
+					sprintf( __( 'Keep creating after your %d free requests run out', 'jetpack-my-jetpack' ), Products\Jetpack_Ai::FREE_REQUESTS ),
 					__( 'Generate a logo for your site', 'jetpack-my-jetpack' ),
 					__( 'Priority support', 'jetpack-my-jetpack' ),
 				),
@@ -504,10 +506,29 @@ class Main_Features {
 	/**
 	 * Where the modal's Upgrade button goes: the feature's own product page, else Jetpack Complete.
 	 *
-	 * @param array $definition A single entry from the feature catalog.
+	 * @param array       $definition    A single entry from the feature catalog.
+	 * @param string|null $product_class The product behind the feature, when it has one.
 	 * @return array{path: string, name: string} The My Jetpack route and the product it sells, both empty when nothing does.
 	 */
-	private static function get_upgrade( $definition ) {
+	private static function get_upgrade( $definition, $product_class ) {
+		$none = array(
+			'path' => '',
+			'name' => '',
+		);
+
+		// Nothing to sell a site that already pays for the feature, directly or through a bundle.
+		if ( $product_class && $product_class::has_paid_plan_for_product() ) {
+			return $none;
+		}
+
+		foreach ( $definition['plans'] ?? array() as $plan ) {
+			$bundle_class = Products::get_product_class( $plan );
+
+			if ( $bundle_class && $bundle_class::has_paid_plan_for_product() ) {
+				return $none;
+			}
+		}
+
 		if ( ! empty( $definition['interstitial'] ) ) {
 			return array(
 				'path' => $definition['interstitial'],
@@ -526,10 +547,7 @@ class Main_Features {
 			);
 		}
 
-		return array(
-			'path' => '',
-			'name' => '',
-		);
+		return $none;
 	}
 
 	/**
@@ -848,7 +866,7 @@ class Main_Features {
 				'plugin_override'  => $plugin ? self::get_plugin_override( $plugin, $product_class ) : '',
 				'free_highlights'  => $definition['free_highlights'] ?? array(),
 				'paid_highlights'  => $definition['paid_highlights'] ?? array(),
-				'upgrade'          => self::get_upgrade( $definition ),
+				'upgrade'          => self::get_upgrade( $definition, $product_class ),
 				'screenshot'       => $definition['image'],
 				'plans'            => self::get_plan_badges( $definition ),
 				'info_url'         => $definition['info_url'],

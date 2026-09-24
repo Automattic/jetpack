@@ -521,7 +521,8 @@ $band-ground: #f8f8f8;
 	view-transition-name: jetpack-feature-modal;
 }
 
-.modal-portal :global([class*="__backdrop"]) {
+// @wordpress/ui's backdrop test id; feature-modal-steps.test.tsx pins it.
+.modal-portal :global([data-testid="dialog-backdrop"]) {
 	view-transition-name: jetpack-feature-modal-backdrop;
 }
 

@@ -52,14 +52,19 @@ jest.mock( '../use-more-features', () => ( {
 } ) );
 jest.mock( '../features-banner', () => ( { FeaturesBanner: () => null } ) );
 
-const renderAt = ( url: string ) =>
-	render(
-		<QueryClientProvider client={ new QueryClient() }>
-			<MemoryRouter initialEntries={ [ url ] }>
-				<FeaturesContent />
-			</MemoryRouter>
-		</QueryClientProvider>
-	);
+const tree = ( url: string, client: QueryClient ) => (
+	<QueryClientProvider client={ client }>
+		<MemoryRouter initialEntries={ [ url ] }>
+			<FeaturesContent />
+		</MemoryRouter>
+	</QueryClientProvider>
+);
+const renderAt = ( url: string ) => {
+	const client = new QueryClient();
+	const view = render( tree( url, client ) );
+
+	return { ...view, rerenderAt: () => view.rerender( tree( url, client ) ) };
+};
 
 describe( 'FeaturesContent', () => {
 	beforeEach( () => {
@@ -186,6 +191,36 @@ describe( 'FeaturesContent', () => {
 		mockModalProps = null;
 
 		renderAt( '/features?filter=active&feature=forms' );
+
+		expect( mockModalProps ).toMatchObject( {
+			previous: { slug: 'stats' },
+			next: { slug: 'podcast' },
+			position: 2,
+			total: 3,
+		} );
+	} );
+
+	it( 'keeps stepping from a feature switched out of the status filter it was opened under', () => {
+		const feature = ( slug: string, status: string ) =>
+			( {
+				...activeStats,
+				feature: { ...activeStats.feature, slug, name: slug },
+				status,
+			} ) as FeatureState;
+		mockStates = [
+			feature( 'stats', 'inactive' ),
+			feature( 'forms', 'inactive' ),
+			feature( 'podcast', 'inactive' ),
+		];
+		const url = '/features?filter=inactive&feature=forms';
+		const { rerenderAt } = renderAt( url );
+
+		mockStates = [
+			feature( 'stats', 'inactive' ),
+			feature( 'forms', 'active' ),
+			feature( 'podcast', 'inactive' ),
+		];
+		rerenderAt();
 
 		expect( mockModalProps ).toMatchObject( {
 			previous: { slug: 'stats' },

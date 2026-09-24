@@ -4,6 +4,12 @@ import { FeatureDelivery } from '../feature-delivery';
 import { FeaturePaid } from '../feature-paid';
 import type { FeatureState } from '../feature-state';
 
+const mockRecordEvent = jest.fn();
+jest.mock( '../../../../hooks/use-analytics', () => ( {
+	__esModule: true,
+	default: () => ( { recordEvent: mockRecordEvent } ),
+} ) );
+
 const feature = {
 	slug: 'jetpack-forms',
 	name: 'Forms',
@@ -129,14 +135,27 @@ describe( 'FeaturePaid', () => {
 		).toHaveAttribute( 'href', '#/add-akismet' );
 	} );
 
-	it( 'drops the upgrade once the site has a paid plan for the product', () => {
+	it( 'drops the upgrade when the catalog has nothing to sell this site', () => {
 		const state = {
 			...installedPlugin,
-			product: { hasPaidPlanForProduct: true },
+			feature: { ...installedPlugin.feature, upgrade: { path: '', name: '' } },
 		} as FeatureState;
 		render( <FeaturePaid state={ state } onFilterByPlan={ jest.fn() } /> );
 
 		expect( screen.queryByRole( 'link', { name: /Upgrade/ } ) ).not.toBeInTheDocument();
 		expect( screen.getByText( /Included in/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'records which feature an upgrade was chosen from', async () => {
+		render( <FeaturePaid state={ installedPlugin } onFilterByPlan={ jest.fn() } /> );
+
+		await userEvent.click(
+			screen.getByRole( 'link', { name: 'Upgrade to Jetpack Akismet Anti-spam' } )
+		);
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_features_upgrade_click', {
+			feature: 'anti-spam',
+			target: '/add-akismet',
+		} );
 	} );
 } );

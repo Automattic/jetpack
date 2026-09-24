@@ -3,6 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { starFilled } from '@wordpress/icons';
 import { Link, LinkButton, Stack, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
+import useAnalytics from '../../../hooks/use-analytics';
 import { FeatureHighlights } from './feature-highlights';
 import { getForcedReason } from './feature-state';
 import styles from './styles.module.scss';
@@ -76,14 +77,24 @@ type FeaturePaidProps = {
  * @return The rendered component.
  */
 export function FeaturePaid( { state, onFilterByPlan }: FeaturePaidProps ) {
-	const { feature, product } = state;
+	const { feature } = state;
+	const { recordEvent } = useAnalytics();
 	const plans = feature.plans ?? [];
 	const highlights = feature.paid_highlights ?? [];
 	// A host that forced it off decides this, not a purchase.
 	const isForcedOff = state.status !== 'active' && !! getForcedReason( state );
 	const showPlans = ! isForcedOff && plans.length > 0;
+	// Empty when the site already pays for the feature; the catalog decides that, not the client.
 	const upgrade = feature.upgrade ?? { path: '', name: '' };
-	const upgradePath = ! isForcedOff && ! product?.hasPaidPlanForProduct ? upgrade.path : '';
+	const upgradePath = isForcedOff ? '' : upgrade.path;
+	const onUpgrade = useCallback(
+		() =>
+			recordEvent( 'jetpack_myjetpack_features_upgrade_click', {
+				feature: feature.slug,
+				target: upgradePath,
+			} ),
+		[ feature.slug, recordEvent, upgradePath ]
+	);
 
 	if ( ! highlights.length && ! showPlans && ! upgradePath ) {
 		return null;
@@ -116,6 +127,7 @@ export function FeaturePaid( { state, onFilterByPlan }: FeaturePaidProps ) {
 					{ upgradePath ? (
 						<LinkButton
 							href={ `#${ upgradePath }` }
+							onClick={ onUpgrade }
 							variant="outline"
 							size="compact"
 							aria-label={ sprintf(

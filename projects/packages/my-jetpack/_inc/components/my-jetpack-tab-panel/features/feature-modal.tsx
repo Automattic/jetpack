@@ -141,13 +141,13 @@ export function FeatureModal( {
 		setPopupNode( node );
 	}, [] );
 	const claimedRef = useRef< string | null >( null );
-	// Set by an arrow-key step, so the new feature's action takes focus wherever it was.
-	const steppedRef = useRef( false );
+	// The feature an arrow-key step went to, whose action then takes focus wherever it was.
+	const steppedToRef = useRef< string | null >( null );
 
 	// The header's action, which is what the modal is open in order to reach — not the
 	// first link in the body.
 	const findAction = useCallback( () => {
-		const actions = popupRef.current?.querySelector( `.${ styles[ 'modal-actions' ] }` );
+		const actions = popupRef.current?.querySelector( '[data-feature-actions]' );
 
 		return Array.from( actions?.querySelectorAll< HTMLElement >( 'button, a[href]' ) ?? [] ).find(
 			element =>
@@ -168,7 +168,9 @@ export function FeatureModal( {
 			claimedRef.current === feature.slug ||
 			! popup ||
 			! active ||
-			( ! steppedRef.current && active !== popup && ! active.hasAttribute( CLOSE_ICON_ATTR ) )
+			( steppedToRef.current !== feature.slug &&
+				active !== popup &&
+				! active.hasAttribute( CLOSE_ICON_ATTR ) )
 		) {
 			return;
 		}
@@ -177,7 +179,7 @@ export function FeatureModal( {
 
 		if ( action ) {
 			claimedRef.current = feature.slug;
-			steppedRef.current = false;
+			steppedToRef.current = null;
 			action.focus();
 		}
 	}, [ feature.slug, findAction, state ] );
@@ -196,7 +198,7 @@ export function FeatureModal( {
 			const target = step === 'previous' ? previous : next;
 
 			if ( target ) {
-				steppedRef.current = true;
+				steppedToRef.current = target.slug;
 				onStep( target.slug );
 			}
 		};
@@ -243,7 +245,13 @@ export function FeatureModal( {
 							</Stack>
 						</Stack>
 
-						<Stack direction="row" align="center" gap="sm" className={ styles[ 'modal-actions' ] }>
+						<Stack
+							direction="row"
+							align="center"
+							gap="sm"
+							className={ styles[ 'modal-actions' ] }
+							data-feature-actions
+						>
 							<FeatureModalActions state={ state } />
 						</Stack>
 					</div>

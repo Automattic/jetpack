@@ -446,6 +446,60 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * Fakes the site's purchases, so ownership is read without a request to WordPress.com.
+	 *
+	 * @param string[] $product_slugs The WordPress.com product slugs the site pays for.
+	 */
+	private function own( array $product_slugs ) {
+		$purchases = array_map(
+			fn( $slug ) => (object) array(
+				'product_slug'  => $slug,
+				'expiry_status' => 'active',
+				'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) ),
+			),
+			$product_slugs
+		);
+
+		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchases, HOUR_IN_SECONDS );
+		set_transient( Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, array( 'active' => array() ), HOUR_IN_SECONDS );
+	}
+
+	/**
+	 * Clears the faked purchases.
+	 */
+	public function tearDown(): void {
+		delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
+		delete_transient( Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
+		parent::tearDown();
+	}
+
+	/**
+	 * A site that owns Complete is offered no upgrade, including features with no product of their own.
+	 */
+	public function test_no_upgrade_for_a_site_that_owns_complete() {
+		$this->own( array( 'jetpack_complete' ) );
+
+		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+
+		foreach ( array( 'activity-log', 'podcast', 'jetpack-forms', 'newsletter', 'anti-spam' ) as $slug ) {
+			$this->assertSame( '', $upgrades[ $slug ]['path'], "Feature {$slug} still offers an upgrade to a Complete site." );
+		}
+	}
+
+	/**
+	 * Owning a smaller bundle covers only the features that bundle lists.
+	 */
+	public function test_no_upgrade_for_features_a_smaller_bundle_covers() {
+		$this->own( array( 'jetpack_growth_yearly' ) );
+
+		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+
+		$this->assertSame( '', $upgrades['podcast']['path'] );
+		$this->assertSame( '', $upgrades['newsletter']['path'] );
+		$this->assertSame( '/add-complete', $upgrades['activity-log']['path'] );
+	}
+
+	/**
 	 * Without a product page of its own, the upgrade sells Jetpack Complete and says so.
 	 */
 	public function test_upgrade_falls_back_to_complete() {

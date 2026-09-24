@@ -1,5 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, Skeleton } from '@wordpress/ui';
+import { addQueryArgs } from '@wordpress/url';
 import clsx from 'clsx';
 import { useCallback, useState } from 'react';
 import { getFeatureIcon } from './icons';
@@ -41,7 +42,8 @@ export function FeatureBand( { feature }: FeatureBandProps ) {
 				className={ clsx( styles[ 'modal-band__image' ], {
 					[ styles[ 'modal-band__image--loaded' ] ]: hasLoaded,
 				} ) }
-				src={ feature.screenshot }
+				// jetpack.com resizes on request; the full files are several times the band's size.
+				src={ addQueryArgs( feature.screenshot, { w: 600 } ) }
 				onLoad={ onLoad }
 				onError={ onError }
 				decoding="async"

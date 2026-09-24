@@ -18,6 +18,7 @@ import { useFeatureSelection } from './use-feature-selection';
 import { useMainFeatures } from './use-main-features';
 import { filterMoreFeatures, useMoreFeatures } from './use-more-features';
 import { useSidebarSync } from './use-sidebar-sync';
+import { useStepOrder } from './use-step-order';
 import type { FeaturesView } from './toolbar';
 import type { FeatureFilter } from './use-feature-filter';
 
@@ -133,7 +134,8 @@ export function FeaturesContent() {
 
 	const open = states.find( item => item.feature.slug === openSlug );
 	// Arrow keys step through what the grid shows, so a filter or search bounds them too.
-	const openIndex = visible.findIndex( item => item.feature.slug === openSlug );
+	const stepOrder = useStepOrder( visible, openSlug, `${ filter }|${ search }` );
+	const openIndex = stepOrder.findIndex( feature => feature.slug === openSlug );
 
 	// Neither read has anything to say yet: a seed-only catalog is not a failure to load
 	// one, and features whose modules are still in flight all read inactive, which would
@@ -204,10 +206,10 @@ export function FeaturesContent() {
 			{ open && (
 				<FeatureModal
 					state={ open }
-					previous={ openIndex > 0 ? visible[ openIndex - 1 ].feature : undefined }
-					next={ openIndex >= 0 ? visible[ openIndex + 1 ]?.feature : undefined }
+					previous={ openIndex > 0 ? stepOrder[ openIndex - 1 ] : undefined }
+					next={ openIndex >= 0 ? stepOrder[ openIndex + 1 ] : undefined }
 					position={ openIndex + 1 }
-					total={ visible.length }
+					total={ stepOrder.length }
 					onStep={ openFeature }
 					onClose={ closeFeature }
 					onFilterByPlan={ onFilterByPlan }
