@@ -19,7 +19,6 @@ jest.mock( '@wordpress/block-editor', () => {
 
 jest.mock( '@wordpress/i18n', () => ( {
 	__: text => text,
-	_n: ( single, plural, count ) => ( count === 1 ? single : plural ),
 } ) );
 
 let mockInnerBlockCount = 0;

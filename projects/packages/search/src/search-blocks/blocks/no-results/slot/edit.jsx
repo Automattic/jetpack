@@ -11,7 +11,7 @@
  */
 import { InnerBlocks, store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
-import { __, _n } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 
 const CONDITIONS = [ 'any', 'filtered', 'error' ];
 
@@ -53,18 +53,12 @@ export const conditionLabels = () => ( {
 } );
 
 const conditionDescriptions = () => ( {
-	any: __(
-		'Shown when a search finds no results. Add blocks to replace the default message.',
-		'jetpack-search-pkg'
-	),
+	any: __( 'Shown when a search finds no results.', 'jetpack-search-pkg' ),
 	filtered: __(
-		'Shown when a search with filters applied finds no results. Add blocks to replace the default message.',
+		'Shown when a search with filters applied finds no results.',
 		'jetpack-search-pkg'
 	),
-	error: __(
-		'Shown when the search request fails. Add blocks to replace the default message.',
-		'jetpack-search-pkg'
-	),
+	error: __( 'Shown when the search request fails.', 'jetpack-search-pkg' ),
 } );
 
 /**
@@ -133,12 +127,9 @@ export default function NoResultsSlotEdit( { attributes, clientId } ) {
 			) ) }
 			{ messages.length > 0 && (
 				<p className="jetpack-search-no-results__hint">
-					{ _n(
-						'Default message. Add blocks to replace it.',
-						'Default messages. Add blocks to replace them.',
-						messages.length,
-						'jetpack-search-pkg'
-					) }
+					{ messages.length > 1
+						? __( 'Default messages. Add blocks to replace them.', 'jetpack-search-pkg' )
+						: __( 'Default message. Add blocks to replace it.', 'jetpack-search-pkg' ) }
 				</p>
 			) }
 			{ /* Never unmount `InnerBlocks`: the drop target comes from `useInnerBlocksProps`, and
