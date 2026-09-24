@@ -57,7 +57,7 @@ class Main_Features {
 			'activity-log'  => array(
 				'info_url'         => 'https://jetpack.com/security/activity-log/',
 				'docs_url'         => 'https://jetpack.com/support/activity-log/',
-				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/activity-log401x-1.png',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/activity-log.png',
 				'name'             => __( 'Activity Log', 'jetpack-my-jetpack' ),
 				'description'      => __( 'See what changed on your site, when it happened, and who did it.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'When something breaks, see exactly what changed and who changed it, from published posts to plugin updates and logins. Every connected site gets its 20 most recent events for free.', 'jetpack-my-jetpack' ),
@@ -83,7 +83,7 @@ class Main_Features {
 			'anti-spam'     => array(
 				'info_url'         => 'https://akismet.com/',
 				'docs_url'         => 'https://akismet.com/support/',
-				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/anti-spam401x.png',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/anti-spam.png',
 				'name'             => __( 'Akismet Anti-spam', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Stop comment and form spam without making visitors solve CAPTCHAs.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Akismet filters spam out of your comments and form submissions in the background, so you stop moderating junk and visitors never have to prove they are human. When it gets one wrong, mark it and Akismet learns from your correction.', 'jetpack-my-jetpack' ),
@@ -113,7 +113,7 @@ class Main_Features {
 			'backup'        => array(
 				'info_url'         => 'https://jetpack.com/backup/',
 				'docs_url'         => 'https://jetpack.com/support/backup/',
-				'image'            => 'https://jetpack.com/wp-content/uploads/2024/01/24358-46709-backup-restore-card.jpg',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/backup.png',
 				'name'             => __( 'VaultPress Backup', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Get your site back online in one click if anything goes wrong.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Every change you make is saved off-site as it happens, so your content and WooCommerce orders stay safe even if your host goes down. Restore your site in one click, even when it is offline.', 'jetpack-my-jetpack' ),
@@ -138,7 +138,7 @@ class Main_Features {
 			'blaze'         => array(
 				'info_url'         => 'https://jetpack.com/blaze/',
 				'docs_url'         => 'https://jetpack.com/support/blaze/',
-				'image'            => 'https://jetpack.com/wp-content/uploads/2024/03/68752-43696-hero-blaze-2x-1.png',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/blaze.png',
 				'name'             => __( 'Blaze Ads', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Put your best posts in front of new readers on WordPress.com and Tumblr.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Turn a post or page into an ad shown across Tumblr and WordPress.com, aimed at the locations, languages and interests you choose. There is no plan to buy: set a budget for each campaign and pay only for the ad views you get.', 'jetpack-my-jetpack' ),
@@ -156,7 +156,7 @@ class Main_Features {
 			'boost'         => array(
 				'info_url'         => 'https://jetpack.com/boost/',
 				'docs_url'         => 'https://jetpack.com/support/jetpack-boost/',
-				'image'            => 'https://jetpack.com/wp-content/uploads/2024/04/511f4-1ad9b-performance-and-ux-1.png',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/boost.png',
 				'name'             => __( 'Boost', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Make your site load faster in a few clicks, no developer required.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Your pages reach visitors sooner: Boost caches them, defers non-essential JavaScript and serves resized images from a worldwide network. Mobile and desktop performance scores show you the impact of each change.', 'jetpack-my-jetpack' ),
@@ -187,7 +187,7 @@ class Main_Features {
 			'crm'           => array(
 				'info_url'         => 'https://jetpackcrm.com/',
 				'docs_url'         => 'https://kb.jetpackcrm.com/article-categories/getting-started/',
-				'image'            => 'https://jetpackcrm.com/wp-content/uploads/2022/02/jpcrm-styled-1.png',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/crm.png',
 				'name'             => __( 'Jetpack CRM', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Keep every lead and customer in one place, right inside WordPress.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Track leads, send quotes and invoices, and see each customer’s full history from your dashboard. Because it runs on your own site, your customer data stays yours.', 'jetpack-my-jetpack' ),
@@ -217,7 +217,7 @@ class Main_Features {
 			'jetpack-ai'    => array(
 				'info_url'         => 'https://jetpack.com/ai/',
 				'docs_url'         => 'https://jetpack.com/support/create-better-content-with-jetpack-ai/',
-				'image'            => 'https://jetpack.com/wp-content/uploads/2024/09/b76cf-48ca0-image-hero.png',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/jetpack-ai-1.png',
 				'name'             => __( 'Jetpack AI', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Turn your ideas into ready-to-publish content without leaving the editor.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Generate posts, tables, forms and images from a prompt, then change the tone, translate, or fix unclear sentences to make your writing easier to read. Before you publish, improve your title and create a featured image in one click.', 'jetpack-my-jetpack' ),
@@ -244,7 +244,7 @@ class Main_Features {
 			'jetpack-forms' => array(
 				'info_url'         => 'https://jetpack.com/forms/',
 				'docs_url'         => 'https://jetpack.com/support/jetpack-blocks/contact-form/',
-				'image'            => 'https://jetpack.com/wp-content/uploads/2024/03/14c11-5f571-hero-forms-2x.png',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/jetpack-forms.png',
 				'name'             => __( 'Forms', 'jetpack-my-jetpack' ),
 				'description'      => __( 'From quick contact forms to multistep surveys, everything you need is included.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Break long forms into steps with a progress bar, and get every response by email and in your dashboard, with no limit on responses. Upgrade to add secure file uploads that keep harmful files off your server.', 'jetpack-my-jetpack' ),
@@ -271,7 +271,7 @@ class Main_Features {
 			'newsletter'    => array(
 				'info_url'         => 'https://jetpack.com/newsletter/',
 				'docs_url'         => 'https://jetpack.com/support/newsletter/',
-				'image'            => 'https://jetpack.com/wp-content/uploads/2024/04/95dca-69c7b-jetpack-newsletter-lp.png',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/newsletter.png',
 				'name'             => __( 'Newsletter', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Turn every post you publish into an email your readers receive.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Subscribers get each new post by email as soon as you publish, or in a daily or weekly digest they choose. You can also earn from your writing with paid subscriptions for exclusive posts.', 'jetpack-my-jetpack' ),
@@ -298,7 +298,7 @@ class Main_Features {
 			'podcast'       => array(
 				'info_url'         => 'https://jetpack.com/podcast/',
 				'docs_url'         => 'https://jetpack.com/support/jetpack-podcast/',
-				'image'            => 'https://jetpack.com/wp-content/uploads/2026/08/9c2fc-jp-sync-6397e6142b48-image-5.png',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/podcast.png',
 				'name'             => __( 'Podcast', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Start a podcast on your own site and reach listeners on every major app.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Publish unlimited episodes as posts, with your podcast feed served from your own domain. Submit your show to Apple Podcasts, Spotify, Pocket Casts and more from one place.', 'jetpack-my-jetpack' ),
@@ -326,7 +326,7 @@ class Main_Features {
 			'protect'       => array(
 				'info_url'         => 'https://jetpack.com/protect/',
 				'docs_url'         => 'https://jetpack.com/support/jetpack-protect/',
-				'image'            => 'https://jetpack.com/wp-content/uploads/2024/05/6c5c0-d16e7-hero-scan-2x.png',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/protect.png',
 				'name'             => __( 'Protect', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Get warned about vulnerable plugins and stop login attacks on your site.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Your WordPress version, plugins and themes are checked daily against a database of known vulnerabilities, with results in your dashboard. Login attacks are blocked automatically, and you can block specific IP addresses yourself.', 'jetpack-my-jetpack' ),
@@ -357,7 +357,7 @@ class Main_Features {
 			'search'        => array(
 				'info_url'         => 'https://jetpack.com/search/',
 				'docs_url'         => 'https://jetpack.com/support/search/',
-				'image'            => 'https://s0.wp.com/wp-content/themes/a8c/jetpack-2026/assets/legacy-hero-visual/search/hero-search.png',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/search.png',
 				'name'             => __( 'Search', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Help your visitors find the right post or product as they type.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Visitors see relevant results as they type and can filter by category, tag, date or author, so they find what they need instead of leaving. Match search to your theme without writing code.', 'jetpack-my-jetpack' ),
@@ -386,7 +386,7 @@ class Main_Features {
 			'social'        => array(
 				'info_url'         => 'https://jetpack.com/social/',
 				'docs_url'         => 'https://jetpack.com/support/jetpack-social/',
-				'image'            => 'https://jetpack.com/wp-content/uploads/2026/03/9529d-db753-lets-share-social-jetpack.png',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/social.png',
 				'name'             => __( 'Social', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Share your posts to your social networks automatically when you publish.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Reach your followers on Facebook, Instagram, Threads, Bluesky, LinkedIn, Mastodon, Nextdoor and Tumblr without leaving WordPress. Posts share automatically when you publish, and you can re-share or schedule them later.', 'jetpack-my-jetpack' ),
@@ -415,7 +415,7 @@ class Main_Features {
 			'stats'         => array(
 				'info_url'         => 'https://jetpack.com/stats/',
 				'docs_url'         => 'https://jetpack.com/support/jetpack-stats/',
-				'image'            => 'https://jetpack.com/wp-content/uploads/2024/03/184b2-9d17c-hero-stats-2x.png',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/stats.png',
 				'name'             => __( 'Stats', 'jetpack-my-jetpack' ),
 				'description'      => __( 'See how many people visit your site and which posts they read.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Track views, visitors, top posts, referrers and visitor countries right from your WordPress dashboard. Learn what works without seeing who your individual visitors are.', 'jetpack-my-jetpack' ),
@@ -445,7 +445,7 @@ class Main_Features {
 			'videopress'    => array(
 				'info_url'         => 'https://jetpack.com/videopress/',
 				'docs_url'         => 'https://jetpack.com/support/jetpack-videopress/',
-				'image'            => 'https://jetpack.com/wp-content/uploads/2026/08/d3d23-videopress-built-for-wp-2x.jpeg',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/videopress-3.png',
 				'name'             => __( 'VideoPress', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Share ad-free, high-quality video that keeps visitors on your site.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Your videos play in an ad-free 4K player you can match to your brand, so visitors stay on your site. Drag and drop uploads right in the WordPress editor.', 'jetpack-my-jetpack' ),
