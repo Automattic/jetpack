@@ -156,7 +156,7 @@ class Main_Features {
 			'boost'         => array(
 				'info_url'         => 'https://jetpack.com/boost/',
 				'docs_url'         => 'https://jetpack.com/support/jetpack-boost/',
-				'image'            => 'https://jetpack.com/wp-content/uploads/2026/08/2c483-boost_performance-2x.png',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2024/04/511f4-1ad9b-performance-and-ux-1.png',
 				'name'             => __( 'Boost', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Make your site load faster in a few clicks, no developer required.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Your pages reach visitors sooner: Boost caches them, defers non-essential JavaScript and serves resized images from a worldwide network. Mobile and desktop performance scores show you the impact of each change.', 'jetpack-my-jetpack' ),
@@ -357,7 +357,7 @@ class Main_Features {
 			'search'        => array(
 				'info_url'         => 'https://jetpack.com/search/',
 				'docs_url'         => 'https://jetpack.com/support/search/',
-				'image'            => 'https://jetpack.com/wp-content/uploads/2026/05/8bcc4-5b7cc-woocommerce-product-search-1.png',
+				'image'            => 'https://s0.wp.com/wp-content/themes/a8c/jetpack-2026/assets/legacy-hero-visual/search/hero-search.png',
 				'name'             => __( 'Search', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Help your visitors find the right post or product as they type.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Visitors see relevant results as they type and can filter by category, tag, date or author, so they find what they need instead of leaving. Match search to your theme without writing code.', 'jetpack-my-jetpack' ),
@@ -415,7 +415,7 @@ class Main_Features {
 			'stats'         => array(
 				'info_url'         => 'https://jetpack.com/stats/',
 				'docs_url'         => 'https://jetpack.com/support/jetpack-stats/',
-				'image'            => 'https://jetpack.com/wp-content/uploads/2026/08/23631-stats-primary-desktop.png',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2024/03/184b2-9d17c-hero-stats-2x.png',
 				'name'             => __( 'Stats', 'jetpack-my-jetpack' ),
 				'description'      => __( 'See how many people visit your site and which posts they read.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Track views, visitors, top posts, referrers and visitor countries right from your WordPress dashboard. Learn what works without seeing who your individual visitors are.', 'jetpack-my-jetpack' ),
