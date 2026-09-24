@@ -138,6 +138,66 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Turn the setup wizard's feature flag on for one test.
+	 */
+	private function enable_wizard_flag() {
+		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-onboarding-wizard', '__return_true' );
+	}
+
+	/**
+	 * With its flag on, the wizard runs on a self-hosted site.
+	 */
+	public function test_wizard_is_enabled_on_self_hosted_with_the_flag_on() {
+		$this->enable_wizard_flag();
+
+		$this->assertTrue( Initializer::is_onboarding_wizard_enabled() );
+		$this->assertNotNull( Initializer::get_onboarding_wizard_state() );
+	}
+
+	/**
+	 * The wizard is off by default, flag or no platform.
+	 */
+	public function test_wizard_is_disabled_by_default() {
+		$this->assertFalse( Initializer::is_onboarding_wizard_enabled() );
+		$this->assertNull( Initializer::get_onboarding_wizard_state() );
+	}
+
+	/**
+	 * The wizard never runs on WordPress.com Simple, even with its flag on: the
+	 * platform owns the connection and nobody chose to install Jetpack there.
+	 */
+	public function test_wizard_is_disabled_on_wpcom_simple() {
+		$this->enable_wizard_flag();
+		Constants::set_constant( 'IS_WPCOM', true );
+		StatusCache::clear();
+
+		$this->assertFalse( Initializer::is_onboarding_wizard_enabled() );
+		$this->assertNull( Initializer::get_onboarding_wizard_state() );
+	}
+
+	/**
+	 * The wizard never runs on WordPress.com Atomic either, and this is the case
+	 * that matters: wpcomsh filters `jetpack_is_connection_ready` to require a
+	 * connection owner, so a WoA site that lost its owner reports disconnected and
+	 * is redirected into onboarding while WordPress.com still manages it.
+	 *
+	 * Note this deliberately differs from is_onboarding_available(), which stays
+	 * true on WoA — only the wizard is gated, the existing takeover is untouched.
+	 */
+	public function test_wizard_is_disabled_on_woa() {
+		$this->enable_wizard_flag();
+		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 123 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/tmp/wpcomsh/wpcomsh.php' );
+		StatusCache::clear();
+
+		$this->assertFalse( Initializer::is_onboarding_wizard_enabled() );
+		$this->assertNull( Initializer::get_onboarding_wizard_state() );
+		// The existing onboarding is unaffected by the wizard's gate.
+		$this->assertTrue( Initializer::is_onboarding_available() );
+	}
+
+	/**
 	 * Data provider for the onboarding redirect decision.
 	 *
 	 * @return array

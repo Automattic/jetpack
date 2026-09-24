@@ -409,11 +409,24 @@ class Initializer {
 	/**
 	 * Whether the onboarding takeover renders the setup wizard.
 	 *
+	 * Self-hosted only. On WordPress.com the platform owns the connection and nobody chose
+	 * to install Jetpack, so a screen inviting them to start with it and connect an account
+	 * does not apply. `is_wpcom_platform()` covers Simple and WordPress.com on Atomic, and
+	 * requires wpcomsh, so other Atomic-hosted products still count as self-hosted here.
+	 *
+	 * Atomic is the case that matters: wpcomsh filters `jetpack_is_connection_ready` to
+	 * require a connection owner, so a site whose owner was removed reports disconnected
+	 * and is redirected into onboarding while WordPress.com still manages its connection.
+	 *
 	 * @since $$next-version$$
 	 *
 	 * @return bool
 	 */
 	public static function is_onboarding_wizard_enabled() {
+		if ( ( new Status_Host() )->is_wpcom_platform() ) {
+			return false;
+		}
+
 		return Feature_Flags::is_enabled( self::ONBOARDING_WIZARD_FEATURE_FLAG );
 	}
 
