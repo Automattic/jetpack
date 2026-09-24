@@ -1,8 +1,9 @@
 import analytics from '@automattic/jetpack-analytics';
+import { getUserConnectionUrl } from '@automattic/jetpack-connection/get-user-connection-url';
 import useConnection from '@automattic/jetpack-connection/use-connection';
 import { getSiteData, getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { useCallback, useEffect, useRef } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
 import { useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import NewsletterPage, { type NewsletterTab } from '../../_inc/components/newsletter-page';
@@ -86,6 +87,16 @@ const Stage = () => {
 	const canManageSubscribers =
 		isSimpleSite() || ( isRegistered && hasConnectedOwner && isUserConnected );
 
+	// Simple sites have no Jetpack connection to check.
+	const settingsHasConnectedOwner = isSimpleSite() || hasConnectedOwner;
+	const connectUrl = useMemo(
+		() =>
+			getUserConnectionUrl( {
+				from: 'jetpack-newsletter',
+			} ),
+		[]
+	);
+
 	// `handleRegisterSite` registers the site if needed and then connects the
 	// user; on an already-registered site it connects the user directly.
 	const handleConnect = useCallback( () => {
@@ -163,11 +174,21 @@ const Stage = () => {
 										{ activeTab === 'subscribers' ? subscribersPanel : null }
 									</Tabs.Panel>
 									<Tabs.Panel value="settings">
-										{ activeTab === 'settings' ? <NewsletterSettingsBody isModernized /> : null }
+										{ activeTab === 'settings' ? (
+											<NewsletterSettingsBody
+												isModernized
+												hasConnectedOwner={ settingsHasConnectedOwner }
+												connectUrl={ connectUrl }
+											/>
+										) : null }
 									</Tabs.Panel>
 								</>
 							) : (
-								<NewsletterSettingsBody isModernized />
+								<NewsletterSettingsBody
+									isModernized
+									hasConnectedOwner={ settingsHasConnectedOwner }
+									connectUrl={ connectUrl }
+								/>
 							) }
 						</NewsletterPage>
 					);
