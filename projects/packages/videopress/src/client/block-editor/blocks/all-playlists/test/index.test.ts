@@ -6,6 +6,9 @@ jest.mock( '@wordpress/blocks', () => ( {
 } ) );
 
 // Keep the registration test from dragging in the whole block editor.
+jest.mock( '@wordpress/block-editor', () => ( {
+	InnerBlocks: { Content: () => null },
+} ) );
 jest.mock( '../edit', () => ( {
 	__esModule: true,
 	default: () => null,
@@ -14,7 +17,7 @@ jest.mock( '../edit', () => ( {
 const registerBlockTypeMock = registerBlockType as jest.Mock;
 
 describe( 'all playlists block registration', () => {
-	it( 'registers videopress/all-playlists as a dynamic block', () => {
+	it( 'registers videopress/all-playlists with its heading inner block saved', () => {
 		expect( registerBlockTypeMock ).toHaveBeenCalledTimes( 1 );
 
 		const [ name, settings ] = registerBlockTypeMock.mock.calls[ 0 ];
@@ -35,7 +38,8 @@ describe( 'all playlists block registration', () => {
 		expect( attributes.showTotalRuntime.default ).toBe( false );
 		expect( attributes.pagination.default ).toBe( 'numbered' );
 
-		// Dynamic block: the front end comes from the PHP render callback.
-		expect( settings.save() ).toBeNull();
+		// Dynamic block: save() keeps only the heading inner block in the post.
+		expect( typeof settings.save ).toBe( 'function' );
+		expect( settings.save() ).not.toBeNull();
 	} );
 } );

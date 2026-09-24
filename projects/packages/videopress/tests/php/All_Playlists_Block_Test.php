@@ -251,7 +251,7 @@ class All_Playlists_Block_Test extends BaseTestCase {
 		$this->assertStringContainsString( '--vpap-columns:4"', $markup );
 		$this->assertStringContainsString( 'data-playlist-total="2"', $markup );
 		$this->assertStringContainsString( 'data-video-total="2"', $markup );
-		$this->assertStringContainsString( '<h2 class="videopress-all-playlists__heading">Playlists</h2>', $markup );
+		$this->assertStringContainsString( '<div class="videopress-all-playlists__header"><h2 class="videopress-all-playlists__heading">Playlists</h2>', $markup );
 		$this->assertStringContainsString( '<span class="videopress-all-playlists__summary">2 playlists</span>', $markup );
 		$this->assertSame( 2, substr_count( $markup, 'class="videopress-all-playlists__item ' ) );
 
@@ -277,6 +277,19 @@ class All_Playlists_Block_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'videopress-all-playlists__runtime', $markup );
 		$this->assertStringNotContainsString( 'videopress-all-playlists__pagination', $markup );
 		$this->assertStringNotContainsString( 'videopress-all-playlists__load-more', $markup );
+	}
+
+	/**
+	 * The saved heading block takes the fallback heading's place in the header.
+	 */
+	public function test_render_uses_the_saved_heading_block() {
+		$this->seed_index( array( 'one' => $this->record( 'One', $this->create_post() ) ) );
+		$heading = '<h3 class="wp-block-heading has-vivid-red-color has-text-color">My <em>videos</em></h3>';
+
+		$markup = All_Playlists_Block::render( array(), "\n" . $heading . "\n" );
+
+		$this->assertStringContainsString( '<div class="videopress-all-playlists__header">' . $heading . '<span class="videopress-all-playlists__summary">', $markup );
+		$this->assertStringNotContainsString( 'videopress-all-playlists__heading', $markup );
 	}
 
 	/**

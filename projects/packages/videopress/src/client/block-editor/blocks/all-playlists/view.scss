@@ -9,6 +9,19 @@
 	--vpap-columns: 3;
 	--vpap-muted: rgba(30, 30, 30, 0.62);
 	--vpap-rule: rgba(30, 30, 30, 0.1);
+	--vpap-frame: rgba(30, 30, 30, 0.08);
+	--vpap-deck: rgba(30, 30, 30, 0.22);
+	--vpap-deck-back: rgba(30, 30, 30, 0.34);
+
+	// Muted text, rules and the poster chrome follow the block's text color
+	// where the browser can mix it.
+	@supports (color: color-mix(in srgb, red 50%, transparent)) {
+		--vpap-muted: color-mix(in srgb, currentColor 62%, transparent);
+		--vpap-rule: color-mix(in srgb, currentColor 12%, transparent);
+		--vpap-frame: color-mix(in srgb, currentColor 8%, transparent);
+		--vpap-deck: color-mix(in srgb, currentColor 22%, transparent);
+		--vpap-deck-back: color-mix(in srgb, currentColor 34%, transparent);
+	}
 
 	&__header {
 		display: flex;
@@ -18,8 +31,14 @@
 		margin-block-end: 20px;
 	}
 
+	// The heading is a core Heading block (or the plain fallback); the header
+	// aligns it with the summary, so its outer margins go.
+	&__header > :is(h1, h2, h3, h4, h5, h6),
+	&__heading > :is(h1, h2, h3, h4, h5, h6) {
+		margin-block: 0;
+	}
+
 	&__heading {
-		margin: 0;
 		font-size: 1.375rem;
 		font-weight: 600;
 		line-height: 1.2;
@@ -94,7 +113,7 @@
 		inset-inline: 16px;
 		block-size: 12px;
 		border-radius: 6px 6px 0 0;
-		background: rgba(30, 30, 30, 0.22);
+		background: var(--vpap-deck);
 
 		&::after {
 			content: "";
@@ -103,7 +122,7 @@
 			inset-inline: -8px;
 			block-size: 12px;
 			border-radius: 6px 6px 0 0;
-			background: rgba(30, 30, 30, 0.34);
+			background: var(--vpap-deck-back);
 		}
 	}
 
@@ -113,7 +132,7 @@
 		aspect-ratio: 16 / 9;
 		overflow: hidden;
 		border-radius: 6px;
-		background: rgba(30, 30, 30, 0.08);
+		background: var(--vpap-frame);
 	}
 
 	&__poster-image {
@@ -279,12 +298,8 @@
 
 		&.is-current {
 			border-color: currentColor;
-			background: currentColor;
-			font-weight: 500;
-
-			// The number sits on the current-color fill, so it takes the inverse.
-			color: #1e1e1e;
-			-webkit-text-fill-color: #fff;
+			background: var(--vpap-rule);
+			font-weight: 600;
 		}
 
 		&.is-disabled {

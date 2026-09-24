@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
+import { InspectorControls, useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import {
 	PanelBody,
 	RadioControl,
@@ -12,11 +12,12 @@ import {
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import { RawHTML } from '@wordpress/element';
+import { RawHTML, useEffect, useRef } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { hydratePoster } from './hydrate-poster';
 import { MAX_COLUMNS, MAX_PER_PAGE, MIN_COLUMNS, MIN_PER_PAGE } from './types';
 import useRenderedPreview from './use-rendered-preview';
 import './editor.scss';
@@ -30,6 +31,14 @@ import type {
 	AllPlaylistsPagination,
 } from './types';
 import type { BlockEditProps } from '@wordpress/blocks';
+
+/**
+ * The block's one inner block: a core Heading the user edits in place, with
+ * every heading option (level, typography, colors) the core block offers.
+ */
+const HEADING_TEMPLATE: Array< [ string, Record< string, unknown > ] > = [
+	[ 'core/heading', { level: 2, content: __( 'Playlists', 'jetpack-videopress-pkg' ) } ],
+];
 
 /**
  * Keep a number setting inside its bounds.
@@ -73,11 +82,36 @@ export default function AllPlaylistsEdit( {
 		showTotalRuntime,
 		pagination,
 	} = attributes;
-	const { status, html, stats } = useRenderedPreview( attributes );
+	const { status, html, summary, stats } = useRenderedPreview( attributes );
 
 	const blockProps = useBlockProps( {
-		className: `videopress-all-playlists-editor is-layout-${ layout }`,
+		className: `videopress-all-playlists-editor videopress-all-playlists is-layout-${ layout }`,
 	} );
+	const headingProps = useInnerBlocksProps(
+		{ className: 'videopress-all-playlists__heading' },
+		{
+			allowedBlocks: [ 'core/heading' ],
+			template: HEADING_TEMPLATE,
+			templateLock: 'all',
+			renderAppender: false,
+		}
+	);
+
+	// The view script does not run in the canvas, so the cards' posters are
+	// resolved here once the server markup is in the DOM.
+	const previewRef = useRef< HTMLDivElement | null >( null );
+	useEffect( () => {
+		previewRef.current
+			?.querySelectorAll< HTMLElement >( '.videopress-all-playlists__item' )
+			.forEach( item => ! item.hidden && hydratePoster( item ) );
+	}, [ html ] );
+
+	const header = (
+		<div className="videopress-all-playlists__header">
+			<div { ...headingProps } />
+			{ summary && <span className="videopress-all-playlists__summary">{ summary }</span> }
+		</div>
+	);
 
 	const indexSummary = sprintf(
 		/* translators: 1: number of playlists, e.g. "18 playlists". 2: number of videos, e.g. "214 videos". */
@@ -254,6 +288,7 @@ export default function AllPlaylistsEdit( {
 		return (
 			<div { ...blockProps }>
 				{ inspectorControls }
+				{ header }
 				<div className="videopress-all-playlists-editor__empty">
 					<span className="videopress-all-playlists-editor__empty-title">
 						{ status === 'error' ? errorLabel : emptyLabel }
@@ -269,7 +304,10 @@ export default function AllPlaylistsEdit( {
 	return (
 		<div { ...blockProps }>
 			{ inspectorControls }
-			<RawHTML>{ html }</RawHTML>
+			{ header }
+			<div ref={ previewRef }>
+				<RawHTML>{ html }</RawHTML>
+			</div>
 		</div>
 	);
 }

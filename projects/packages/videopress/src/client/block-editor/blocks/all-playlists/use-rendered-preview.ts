@@ -18,8 +18,11 @@ export type IndexStats = {
 
 export type RenderedPreview = {
 	status: PreviewStatus;
-	// The server-rendered block markup; empty when the site has no playlists.
+	// The server-rendered cards and pagination, without the header the editor
+	// renders itself; empty when the site has no playlists.
 	html: string;
+	// The header's "N playlists" / "Showing X of N" line.
+	summary: string;
 	// What the playlist index holds, as reported by the render.
 	stats: IndexStats;
 };
@@ -27,22 +30,33 @@ export type RenderedPreview = {
 const EMPTY_STATS: IndexStats = { playlists: 0, videos: 0 };
 
 /**
- * Read the index totals the render stamps on its wrapper.
+ * Split the server render into what the canvas shows: the header's summary
+ * line, the index totals stamped on the wrapper, and the markup without the
+ * header (the editor renders the heading as an inner block).
  *
  * @param html - Rendered block markup.
- * @return The totals; zeros when the markup carries none.
+ * @return The preview parts; empty when the markup carries no block.
  */
-export function readIndexStats( html: string ): IndexStats {
-	const wrapper = new DOMParser()
-		.parseFromString( html, 'text/html' )
-		.querySelector( '[data-playlist-total]' );
+export function splitRenderedPreview(
+	html: string
+): Pick< RenderedPreview, 'html' | 'summary' | 'stats' > {
+	const document = new DOMParser().parseFromString( html, 'text/html' );
+	const wrapper = document.querySelector< HTMLElement >( '[data-playlist-total]' );
 	if ( ! wrapper ) {
-		return EMPTY_STATS;
+		return { html: '', summary: '', stats: EMPTY_STATS };
 	}
 
+	const header = wrapper.querySelector( '.videopress-all-playlists__header' );
+	const summary = header?.querySelector( '.videopress-all-playlists__summary' )?.textContent ?? '';
+	header?.remove();
+
 	return {
-		playlists: Number( wrapper.getAttribute( 'data-playlist-total' ) ) || 0,
-		videos: Number( wrapper.getAttribute( 'data-video-total' ) ) || 0,
+		html: wrapper.outerHTML,
+		summary,
+		stats: {
+			playlists: Number( wrapper.getAttribute( 'data-playlist-total' ) ) || 0,
+			videos: Number( wrapper.getAttribute( 'data-video-total' ) ) || 0,
+		},
 	};
 }
 
@@ -67,6 +81,7 @@ export default function useRenderedPreview( attributes: AllPlaylistsAttributes )
 	const [ preview, setPreview ] = useState< RenderedPreview >( {
 		status: 'loading',
 		html: '',
+		summary: '',
 		stats: EMPTY_STATS,
 	} );
 
@@ -91,13 +106,12 @@ export default function useRenderedPreview( attributes: AllPlaylistsAttributes )
 		} )
 			.then( response => {
 				if ( ! cancelled ) {
-					const html = response?.rendered ?? '';
-					setPreview( { status: 'ready', html, stats: readIndexStats( html ) } );
+					setPreview( { status: 'ready', ...splitRenderedPreview( response?.rendered ?? '' ) } );
 				}
 			} )
 			.catch( () => {
 				if ( ! cancelled ) {
-					setPreview( { status: 'error', html: '', stats: EMPTY_STATS } );
+					setPreview( { status: 'error', html: '', summary: '', stats: EMPTY_STATS } );
 				}
 			} );
 

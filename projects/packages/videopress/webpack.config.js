@@ -77,7 +77,7 @@ module.exports = [
 
 			// All Playlists block
 			'block-editor/blocks/all-playlists/index':
-				'./src/client/block-editor/blocks/all-playlists/index.ts',
+				'./src/client/block-editor/blocks/all-playlists/index.tsx',
 			'block-editor/blocks/all-playlists/view':
 				'./src/client/block-editor/blocks/all-playlists/view.ts',
 

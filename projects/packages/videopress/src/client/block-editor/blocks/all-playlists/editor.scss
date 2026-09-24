@@ -9,12 +9,19 @@
 
 	// Cards link to their posts on the front end; in the canvas a click
 	// selects the block instead.
-	a {
+	.videopress-all-playlists__item a {
 		pointer-events: none;
 	}
 
-	> .wp-block-videopress-all-playlists {
+	.wp-block-videopress-all-playlists {
 		margin: 0;
+	}
+
+	// The heading inner block's list wrapper takes the heading's place in
+	// the header.
+	.videopress-all-playlists__heading {
+		flex: 1 1 auto;
+		min-inline-size: 0;
 	}
 
 	&__source {

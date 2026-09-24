@@ -224,11 +224,12 @@ class All_Playlists_Block {
 	/**
 	 * Render callback.
 	 *
-	 * @param array $block_attributes Block attributes.
+	 * @param array  $block_attributes Block attributes.
+	 * @param string $content          The rendered inner blocks: the heading the user edits in the editor.
 	 *
 	 * @return string Block markup, or an empty string when the site has no playlists.
 	 */
-	public static function render( $block_attributes ) {
+	public static function render( $block_attributes, $content = '' ) {
 		$settings  = self::settings( $block_attributes );
 		$playlists = self::ordered_playlists( $settings['order_by'] );
 		$total     = count( $playlists );
@@ -289,14 +290,34 @@ class All_Playlists_Block {
 
 		return sprintf(
 			'<div %1$s>' .
-				'<div class="videopress-all-playlists__header"><h2 class="videopress-all-playlists__heading">%2$s</h2><span class="videopress-all-playlists__summary">%3$s</span></div>' .
+				'<div class="videopress-all-playlists__header">%2$s<span class="videopress-all-playlists__summary">%3$s</span></div>' .
 				'<ul class="videopress-all-playlists__items">%4$s</ul>%5$s' .
 			'</div>',
 			$wrapper_attributes,
-			esc_html__( 'Playlists', 'jetpack-videopress-pkg' ),
+			self::render_heading( $content ),
 			esc_html( $summary ),
 			$items,
 			$pagination
+		);
+	}
+
+	/**
+	 * The header's heading: the core Heading block saved with the post, or a
+	 * plain fallback for content saved before the heading became editable.
+	 *
+	 * @param string $content Rendered inner blocks.
+	 *
+	 * @return string Heading markup.
+	 */
+	private static function render_heading( $content ) {
+		$content = is_string( $content ) ? trim( $content ) : '';
+		if ( '' !== $content ) {
+			return $content;
+		}
+
+		return sprintf(
+			'<h2 class="videopress-all-playlists__heading">%s</h2>',
+			esc_html__( 'Playlists', 'jetpack-videopress-pkg' )
 		);
 	}
 

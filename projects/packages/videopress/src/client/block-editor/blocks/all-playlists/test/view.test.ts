@@ -1,4 +1,5 @@
-import { hydratePoster, initAllPlaylistsBlock, initAllPlaylistsBlocks } from '../view';
+import { hydratePoster } from '../hydrate-poster';
+import { initAllPlaylistsBlock, initAllPlaylistsBlocks } from '../view';
 
 // What the mocked live-metadata lookup returns per GUID.
 let mockLiveMetadata: Record< string, { poster?: string } | 'locked' | null > = {};
