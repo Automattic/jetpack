@@ -15,6 +15,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
@@ -653,6 +654,47 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		update_option( 'jetpack_ai_seo_enabled', 0 );
 
 		$this->assertFalse( Jetpack_AI_Settings::is_ai_seo_enabled() );
+	}
+
+	/**
+	 * @dataProvider seo_filter_sites
+	 * @param string $site Site environment.
+	 */
+	#[DataProvider( 'seo_filter_sites' )]
+	public function test_ai_filter_disables_seo_despite_feature_filter( $site ) {
+		$this->force_ai_module_active();
+		if ( 'simple' === $site ) {
+			Constants::set_constant( 'IS_WPCOM', true );
+		} elseif ( 'atomic' === $site ) {
+			$this->force_atomic_site();
+		}
+		add_filter( 'jetpack_ai_seo_enabled', '__return_true', 999 );
+
+		try {
+			$this->assertTrue( Jetpack_AI_Settings::is_ai_seo_enabled() );
+
+			add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+			$this->assertFalse( Jetpack_AI_Settings::is_ai_seo_enabled() );
+			$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'ai_seo' ) );
+
+			remove_filter( 'jetpack_ai_enabled', '__return_false' );
+
+			$this->assertTrue( Jetpack_AI_Settings::is_ai_seo_enabled() );
+		} finally {
+			remove_filter( 'jetpack_ai_seo_enabled', '__return_true', 999 );
+		}
+	}
+
+	/**
+	 * @return array Site environments.
+	 */
+	public static function seo_filter_sites() {
+		return array(
+			'self-hosted'   => array( 'self-hosted' ),
+			'WordPress.com' => array( 'simple' ),
+			'Atomic'        => array( 'atomic' ),
+		);
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: Disable AI Answers when the site-wide Jetpack AI filter turns AI off.
