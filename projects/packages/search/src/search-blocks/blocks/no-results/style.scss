@@ -62,3 +62,10 @@
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 }
+
+.jetpack-search-no-results--default .jetpack-search-no-results__hint {
+	margin-block-start: 0.75rem;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	font-size: 0.75rem;
+	font-style: italic;
+}

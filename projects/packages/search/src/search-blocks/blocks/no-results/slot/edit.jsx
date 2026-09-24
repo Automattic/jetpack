@@ -11,7 +11,7 @@
  */
 import { InnerBlocks, store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 
 const CONDITIONS = [ 'any', 'filtered', 'error' ];
 
@@ -124,15 +124,26 @@ export default function NoResultsSlotEdit( { attributes, clientId } ) {
 			: 'jetpack-search-no-results__variant jetpack-search-no-results--default',
 	} );
 
+	const messages = hasInnerBlocks ? [] : defaultMessages( condition, hasFilteredSibling );
+
 	return (
 		<div { ...blockProps } data-testid="no-results-variant">
-			{ ! hasInnerBlocks &&
-				defaultMessages( condition, hasFilteredSibling ).map( ( { label, text } ) => (
-					<p key={ text }>
-						{ label && <span className="jetpack-search-no-results__preview-label">{ label }</span> }
-						{ text }
-					</p>
-				) ) }
+			{ messages.map( ( { label, text } ) => (
+				<p key={ text }>
+					{ label && <span className="jetpack-search-no-results__preview-label">{ label }</span> }
+					{ text }
+				</p>
+			) ) }
+			{ messages.length > 0 && (
+				<p className="jetpack-search-no-results__hint">
+					{ _n(
+						'Default message. Add blocks to replace it.',
+						'Default messages. Add blocks to replace them.',
+						messages.length,
+						'jetpack-search-pkg'
+					) }
+				</p>
+			) }
 			{ /* Never unmount `InnerBlocks`: the drop target comes from `useInnerBlocksProps`, and
 			     without it a drag onto an unselected variant resolves to the container, which rejects
 			     it. See AGENTS.md's "InnerBlocks appender boundary trap". */ }

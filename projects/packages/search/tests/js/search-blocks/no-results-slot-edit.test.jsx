@@ -19,6 +19,7 @@ jest.mock( '@wordpress/block-editor', () => {
 
 jest.mock( '@wordpress/i18n', () => ( {
 	__: text => text,
+	_n: ( single, plural, count ) => ( count === 1 ? single : plural ),
 } ) );
 
 let mockInnerBlockCount = 0;
@@ -106,11 +107,21 @@ describe( 'NoResultsSlotEdit', () => {
 		expect( authored ).not.toHaveClass( 'jetpack-search-no-results--default' );
 	} );
 
+	it.each( [
+		[ 'one default message', { condition: 'error' }, 'Default message. Add blocks to replace it.' ],
+		[ 'two default messages', {}, 'Default messages. Add blocks to replace them.' ],
+	] )( 'tells the author how to replace %s', ( _label, attributes, hint ) => {
+		render( <NoResultsSlotEdit attributes={ attributes } clientId="v-1" /> );
+
+		expect( screen.getByText( hint ) ).toBeInTheDocument();
+	} );
+
 	it( 'drops the preview once the variant has inner blocks', () => {
 		mockInnerBlockCount = 1;
 		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
 
 		expect( screen.queryByText( UNFILTERED_DEFAULT ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /Add blocks to replace/ ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'variant-inner-blocks' ) ).toBeInTheDocument();
 	} );
 
