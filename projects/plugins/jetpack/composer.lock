@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "059410fc052b1d4642564eb5cc48c27d",
+    "content-hash": "6bc46baf6805fd6ae2333dd21fb3ccba",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -3076,7 +3076,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "f82fd3ae8ffca8674d061cfe7f032536ad27f76d"
+                "reference": "d082156e7fe2fb467b95bf6e23eca683f6b03ef6"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3088,7 +3088,7 @@
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",
-                "automattic/woocommerce-analytics": "^0.17",
+                "automattic/woocommerce-analytics": "^0.18",
                 "php": ">=7.4"
             },
             "require-dev": {
@@ -4353,16 +4353,16 @@
         },
         {
             "name": "automattic/woocommerce-analytics",
-            "version": "0.17.0",
+            "version": "0.18.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/woocommerce-analytics.git",
-                "reference": "7275076635c72139c1a8d9dabc96cdb2532e8484"
+                "reference": "4ce84e0d4ebbaba1c1e346607c026e3afb652bf4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/woocommerce-analytics/zipball/7275076635c72139c1a8d9dabc96cdb2532e8484",
-                "reference": "7275076635c72139c1a8d9dabc96cdb2532e8484",
+                "url": "https://api.github.com/repos/Automattic/woocommerce-analytics/zipball/4ce84e0d4ebbaba1c1e346607c026e3afb652bf4",
+                "reference": "4ce84e0d4ebbaba1c1e346607c026e3afb652bf4",
                 "shasum": ""
             },
             "require": {
@@ -4399,9 +4399,9 @@
             ],
             "description": "Enhanced analytics for WooCommerce users.",
             "support": {
-                "source": "https://github.com/Automattic/woocommerce-analytics/tree/v0.17.0"
+                "source": "https://github.com/Automattic/woocommerce-analytics/tree/v0.18.0"
             },
-            "time": "2026-08-25T13:45:57+00:00"
+            "time": "2026-09-24T10:11:58+00:00"
         },
         {
             "name": "wikimedia/aho-corasick",
