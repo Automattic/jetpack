@@ -1,17 +1,13 @@
 <?php
 /**
- * Tests that the conditional-logic feature flag gates the whole runtime.
- *
- * The flag has to cover the editor panel, the front-end context and the submission-time
- * enforcement together. Gating only part of it would let a form hide a field from the
- * visitor while still requiring it on submit, or store a field the visitor never saw.
+ * Tests that the conditional-logic plan gate covers the whole runtime.
  *
  * @package automattic/jetpack-forms
  */
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
-use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
@@ -20,10 +16,10 @@ use WorDBless\BaseTestCase;
  * @covers Automattic\Jetpack\Forms\Jetpack_Forms
  */
 #[CoversClass( Jetpack_Forms::class )]
-class Conditional_Logic_Feature_Flag_Test extends BaseTestCase {
+class Conditional_Logic_Plan_Gate_Test extends BaseTestCase {
 
 	protected function tear_down() {
-		remove_filter( 'jetpack_feature_flag_enabled_forms-conditional-logic', '__return_true' );
+		remove_all_filters( 'jetpack_forms_conditional_logic_enabled' );
 		parent::tear_down();
 		$_POST = array();
 	}
@@ -32,10 +28,15 @@ class Conditional_Logic_Feature_Flag_Test extends BaseTestCase {
 	 * Build a form whose required second field is conditional on the first, with the trigger
 	 * value set so the dependent field would be hidden if the feature were on.
 	 *
+	 * @param bool $available Whether the site's plan includes conditional logic.
 	 * @return Contact_Form
 	 */
-	private function build_form(): Contact_Form {
-		$form = new Contact_Form( array( 'id' => 'cf-flag-test' ) );
+	private function build_form( bool $available = true ): Contact_Form {
+		if ( ! $available ) {
+			add_filter( 'jetpack_forms_conditional_logic_enabled', '__return_false' );
+		}
+
+		$form = new Contact_Form( array( 'id' => 'cf-plan-gate-test' ) );
 
 		$trigger = new Contact_Form_Field(
 			array(
@@ -90,52 +91,38 @@ class Conditional_Logic_Feature_Flag_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The flag is registered with the shared package, so it is discoverable through
-	 * `Feature_Flags::all()` and carries the metadata that says who owns it.
+	 * Self-hosted sites resolve through the Jetpack plan data, where every plan includes it.
 	 */
-	public function test_the_flag_is_registered_with_the_feature_flags_package() {
-		Jetpack_Forms::register_feature_flags();
-
-		$definition = Feature_Flags::get( Jetpack_Forms::CONDITIONAL_LOGIC_FLAG );
-
-		$this->assertNotNull( $definition, 'The flag must be registered, not merely filtered.' );
-		$this->assertFalse( $definition['default'], 'It ships disabled.' );
-		$this->assertSame( 'jetpack-forms', $definition['owner'] );
-		$this->assertNotSame( '', $definition['description'] );
+	public function test_a_jetpack_free_plan_includes_the_feature() {
+		$this->assertTrue( Jetpack_Forms::is_conditional_logic_enabled() );
 	}
 
 	/**
-	 * The generic package filter controls it too, not just the per-flag variant, so a policy
-	 * layer can switch many flags from one place.
+	 * @dataProvider provide_availability
+	 * @param string $filter The filter callback forcing availability.
+	 * @param bool   $expected Whether the editor should offer the builder.
 	 */
-	public function test_the_generic_package_filter_turns_the_feature_on() {
-		Jetpack_Forms::register_feature_flags();
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_availability' )]
+	public function test_the_editor_feature_map_matches_the_runtime( $filter, $expected ) {
+		add_filter( 'jetpack_forms_conditional_logic_enabled', $filter );
 
-		$callback = static function ( $enabled, $flag_name ) {
-			return Jetpack_Forms::CONDITIONAL_LOGIC_FLAG === $flag_name ? true : $enabled;
-		};
-		add_filter( 'jetpack_feature_flag_enabled', $callback, 10, 2 );
+		$features = Contact_Form_Block::register_feature( array() );
 
-		$this->assertTrue( Jetpack_Forms::is_conditional_logic_enabled() );
-
-		remove_filter( 'jetpack_feature_flag_enabled', $callback, 10 );
+		$this->assertSame( $expected, $features[ Jetpack_Forms::CONDITIONAL_LOGIC_FEATURE ] );
 	}
 
-	public function test_the_feature_is_off_by_default() {
-		$this->assertFalse(
-			Jetpack_Forms::is_conditional_logic_enabled(),
-			'Conditional logic must stay off until the flag is explicitly enabled.'
+	/**
+	 * @return array
+	 */
+	public static function provide_availability() {
+		return array(
+			'available'   => array( '__return_true', true ),
+			'unavailable' => array( '__return_false', false ),
 		);
 	}
 
-	public function test_the_filter_turns_the_feature_on() {
-		add_filter( 'jetpack_feature_flag_enabled_forms-conditional-logic', '__return_true' );
-
-		$this->assertTrue( Jetpack_Forms::is_conditional_logic_enabled() );
-	}
-
 	public function test_no_front_end_context_is_emitted_when_disabled() {
-		$form = $this->build_form();
+		$form = $this->build_form( false );
 
 		$this->assertSame(
 			array(),
@@ -145,7 +132,7 @@ class Conditional_Logic_Feature_Flag_Test extends BaseTestCase {
 	}
 
 	public function test_every_field_resolves_visible_when_disabled() {
-		$form = $this->build_form();
+		$form = $this->build_form( false );
 
 		$this->assertSame(
 			array(),
@@ -159,7 +146,7 @@ class Conditional_Logic_Feature_Flag_Test extends BaseTestCase {
 	 * ignored entirely, so the required field is enforced like any other.
 	 */
 	public function test_conditions_are_ignored_during_validation_when_disabled() {
-		$form = $this->build_form();
+		$form = $this->build_form( false );
 
 		$form->validate();
 
@@ -170,7 +157,7 @@ class Conditional_Logic_Feature_Flag_Test extends BaseTestCase {
 	}
 
 	public function test_conditions_are_ignored_during_storage_when_disabled() {
-		$form = $this->build_form();
+		$form = $this->build_form( false );
 
 		$feedback = Feedback::from_submission(
 			array(
@@ -189,14 +176,14 @@ class Conditional_Logic_Feature_Flag_Test extends BaseTestCase {
 		$this->assertSame( 'stored anyway', $field->get_value() );
 	}
 
-	public function test_the_same_form_hides_the_field_once_the_flag_is_on() {
-		add_filter( 'jetpack_feature_flag_enabled_forms-conditional-logic', '__return_true' );
+	public function test_the_same_form_hides_the_field_when_available() {
+		add_filter( 'jetpack_forms_conditional_logic_enabled', '__return_true' );
 
 		$form = $this->build_form();
 
 		$this->assertFalse(
 			$form->get_resolved_field_visibility()['dependent'],
-			'The flag is the only difference between this and the disabled case.'
+			'Availability is the only difference between this and the disabled case.'
 		);
 	}
 }

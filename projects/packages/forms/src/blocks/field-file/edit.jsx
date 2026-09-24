@@ -123,7 +123,11 @@ export default function FileFieldEdit( props ) {
 			<div { ...restInnerBlocksProps }>
 				{ requiresCustomUpgradeNudge &&
 					( selectedFormClientId === formClientId || formClientId === selectedBlockClientId ) && (
-						<UpsellNudge requiredPlan={ fieldFileAvailability?.details?.required_plan } />
+						<UpsellNudge
+							requiredPlan={ fieldFileAvailability?.details?.required_plan }
+							title={ __( 'Upgrade to a paid plan to use file uploads.', 'jetpack-forms' ) }
+							block="jetpack/field-file"
+						/>
 					) }
 				{ children }
 			</div>

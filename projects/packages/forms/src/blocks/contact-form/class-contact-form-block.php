@@ -206,9 +206,9 @@ class Contact_Form_Block {
 		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
 		$features['form-webhooks']  = Current_Plan::supports( 'form-webhooks' );
 
-		// Bridges the jetpack-feature-flags registration to the editor, so JS `hasFeatureFlag()`
-		// and PHP `Feature_Flags::is_enabled()` answer from one source under one name.
-		$features[ Jetpack_Forms::CONDITIONAL_LOGIC_FLAG ] = Jetpack_Forms::is_conditional_logic_enabled();
+		// The same check the front end and submission handling use, so the editor never offers
+		// conditions the runtime would ignore.
+		$features[ Jetpack_Forms::CONDITIONAL_LOGIC_FEATURE ] = Jetpack_Forms::is_conditional_logic_enabled();
 
 		return self::register_central_form_management_default( $features );
 	}
