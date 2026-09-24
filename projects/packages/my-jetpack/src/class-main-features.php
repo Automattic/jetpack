@@ -57,7 +57,7 @@ class Main_Features {
 			'activity-log'  => array(
 				'info_url'         => 'https://jetpack.com/security/activity-log/',
 				'docs_url'         => 'https://jetpack.com/support/activity-log/',
-				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/activity-log401x.png',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/activity-log401x-1.png',
 				'name'             => __( 'Activity Log', 'jetpack-my-jetpack' ),
 				'description'      => __( 'See what changed on your site, when it happened, and who did it.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'When something breaks, see exactly what changed and who changed it, from published posts to plugin updates and logins. Every connected site gets its 20 most recent events for free.', 'jetpack-my-jetpack' ),
@@ -83,7 +83,7 @@ class Main_Features {
 			'anti-spam'     => array(
 				'info_url'         => 'https://akismet.com/',
 				'docs_url'         => 'https://akismet.com/support/',
-				'image'            => 'https://s0.wp.com/wp-content/themes/a8c/jetpack-2026/assets/legacy-hero-visual/anti-spam/hero-anti-spam.png',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/anti-spam401x.png',
 				'name'             => __( 'Akismet Anti-spam', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Stop comment and form spam without making visitors solve CAPTCHAs.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Akismet filters spam out of your comments and form submissions in the background, so you stop moderating junk and visitors never have to prove they are human. When it gets one wrong, mark it and Akismet learns from your correction.', 'jetpack-my-jetpack' ),
