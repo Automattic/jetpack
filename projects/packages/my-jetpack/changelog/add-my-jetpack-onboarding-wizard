@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Onboarding: Add a full-screen setup wizard shell behind a feature flag, off by default.
