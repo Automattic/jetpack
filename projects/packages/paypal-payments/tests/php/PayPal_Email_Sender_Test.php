@@ -233,10 +233,11 @@ class PayPal_Email_Sender_Test extends TestCase {
 	public function test_handle_send_passes_on_a_paypal_error() {
 		$mail = $this->capture_mail();
 		$this->set_up_connected_state();
-		$this->count_http_requests();
+		$requests = $this->count_http_requests();
 
 		$response = $this->send_payment_link( 'PLB-ZC45RDYZRHS9' );
 
+		$this->assertSame( 1, $requests->count );
 		$this->assertFalse( $response['success'] );
 		$this->assertSame( 'This PayPal button no longer exists. It may have been deleted from PayPal. Please create a new button.', $response['data']['message'] );
 		$this->assertNull( $mail->to );
