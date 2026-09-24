@@ -103,11 +103,12 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 
 	useEffect( () => {
 		const onSubmit = ( event: SubmitEvent ) => {
-			// A reader the site does not know is asked first; the dialog's own buttons submit again.
+			// A reader the site does not know is asked who they are first, and anyone is
+			// asked about subscriptions where there are any. The dialog's own buttons submit again.
 			const isKnown =
 				isLoggedIn || signedIn.peek() || ( commenter.author !== '' && commenter.email !== '' );
 
-			if ( ! isKnown && ! isModalOpen.peek() ) {
+			if ( ( ! isKnown || formSettings.subscriptions.length > 0 ) && ! isModalOpen.peek() ) {
 				event.preventDefault();
 				isModalOpen.value = true;
 				return;

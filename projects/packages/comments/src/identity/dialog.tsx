@@ -7,24 +7,27 @@ import type { Commenter } from '../shared/types';
 import './style.scss';
 
 /**
- * Asks a reader the site does not know who they are, on their way to posting.
+ * Asks a reader who they are on their way to posting, and which subscriptions
+ * they want where the host offers any.
  *
- * It sits inside the form, so its fields post with the comment. "Save and post"
- * is the submit button carrying core's cookies-consent field; "No, thanks"
- * submits without it, so core clears any saved details instead.
+ * It sits inside the form, so its fields post with the comment. For a guest,
+ * "Save and post" is the submit button carrying core's cookies-consent field
+ * and "No, thanks" submits without it, so core clears any saved details. A
+ * reader the site knows gets one plain submit.
  *
  * @return The dialog.
  */
 export const IdentityDialog = () => {
-	const { formSettings, commenter, signedIn, isModalOpen } = useContext( CommentSignals );
-	const { site, strings, isLoggedIn, mustLogIn, requireNameEmail, identity } = JetpackComments;
+	const { formSettings, commenter, commentParent, signedIn, isModalOpen } =
+		useContext( CommentSignals );
+	const { site, strings, user, isLoggedIn, mustLogIn, requireNameEmail, identity } =
+		JetpackComments;
 	const dialog = useRef< HTMLDialogElement >( null );
 	const popup = useRef< Window | null >( null );
 	// Bumped per sign-in, so a popup closed to open another cannot answer for it.
 	const attempt = useRef( 0 );
 	const [ isSigningIn, setIsSigningIn ] = useState( false );
 	const [ signInError, setSignInError ] = useState( '' );
-	const submitOnSignIn = useRef( false );
 
 	useEffect( () => {
 		const element = dialog.current;
@@ -35,16 +38,6 @@ export const IdentityDialog = () => {
 			element.close();
 		}
 	}, [ isModalOpen.value ] );
-
-	// The dialog was opened by a submit, so a sign-in that lands finishes it. From an
-	// effect, because the identity line renders the hidden code input on the same
-	// commit, and a submit made straight after setting signedIn posts without it.
-	useEffect( () => {
-		if ( submitOnSignIn.current && signedIn.value ) {
-			submitOnSignIn.current = false;
-			dialog.current?.closest( 'form' )?.requestSubmit();
-		}
-	}, [ signedIn.value ] );
 
 	const cancel = () => {
 		attempt.current++;
@@ -71,7 +64,6 @@ export const IdentityDialog = () => {
 		setIsSigningIn( false );
 
 		if ( 'code' in result ) {
-			submitOnSignIn.current = true;
 			signedIn.value = { name: result.name, avatar: result.avatar, code: result.code };
 		} else if ( 'error' in result ) {
 			setSignInError(
@@ -101,6 +93,9 @@ export const IdentityDialog = () => {
 	];
 
 	const titleId = `jetpack-comments-dialog-title-${ formSettings.postId }`;
+	const known = isLoggedIn || signedIn.value !== null;
+	const name = user ? user.name : ( signedIn.value?.name ?? '' );
+	const submitLabel = commentParent.value ? strings.reply : formSettings.submitLabel;
 
 	return (
 		<dialog
@@ -132,9 +127,10 @@ export const IdentityDialog = () => {
 				</button>
 			</div>
 			<p className="jetpack-comments__dialog-intro">
-				{ mustLogIn ? strings.logInToComment : strings.intro }
+				{ known && strings.commentingAs.replace( '%s', () => name ) }
+				{ ! known && ( mustLogIn ? strings.logInToComment : strings.intro ) }
 			</p>
-			{ ! mustLogIn && ! isLoggedIn && ! signedIn.value && (
+			{ ! mustLogIn && ! known && (
 				<div className="jetpack-comments__guest">
 					{ fields.map( ( { field, hint, ...input } ) => (
 						<div key={ field } className="jetpack-comments__guest-field">
@@ -153,7 +149,7 @@ export const IdentityDialog = () => {
 					) ) }
 				</div>
 			) }
-			{ ! mustLogIn && formSettings.subscriptions.length > 0 && (
+			{ ( known || ! mustLogIn ) && formSettings.subscriptions.length > 0 && (
 				<div className="jetpack-comments__subscriptions">
 					{ formSettings.subscriptions.map( subscription => {
 						const id = `jetpack-comments-${ subscription.name }-${ formSettings.postId }`;
@@ -178,7 +174,12 @@ export const IdentityDialog = () => {
 				</div>
 			) }
 			<div className="jetpack-comments__dialog-actions">
-				{ ! mustLogIn && (
+				{ known && (
+					<span className={ formSettings.submitWrapClass }>
+						<input type="submit" className={ formSettings.submitClass } value={ submitLabel } />
+					</span>
+				) }
+				{ ! known && ! mustLogIn && (
 					<>
 						<span className={ formSettings.submitWrapClass }>
 							{ /* The label is what posts; core only checks that the consent field is set. */ }
@@ -194,7 +195,7 @@ export const IdentityDialog = () => {
 						</button>
 					</>
 				) }
-				{ identity.canSignIn && isSigningIn && (
+				{ ! known && identity.canSignIn && isSigningIn && (
 					<span className="jetpack-comments__signing-in">
 						<span className="jetpack-comments__spinner" aria-hidden="true" />
 						<button type="button" className="jetpack-comments__link-button" onClick={ cancel }>
@@ -202,7 +203,7 @@ export const IdentityDialog = () => {
 						</button>
 					</span>
 				) }
-				{ identity.canSignIn && ! isSigningIn && (
+				{ ! known && identity.canSignIn && ! isSigningIn && (
 					<span className="jetpack-comments__sign-in">
 						<button
 							type="button"
