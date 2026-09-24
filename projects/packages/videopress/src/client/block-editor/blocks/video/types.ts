@@ -159,6 +159,8 @@ export type VideoControlProps = {
 
 export type PosterPanelProps = VideoControlProps & {
 	isGeneratingPoster?: boolean;
+	posterError?: string | null;
+	onRetryPoster?: () => void;
 	videoBelongToSite?: boolean;
 };
 
