@@ -33,7 +33,9 @@ jest.mock( '@wordpress/data', () => ( {
 			return {
 				getBlockCount: () => mockInnerBlockCount,
 				getBlockRootClientId: () => 'nr-1',
-				getBlocks: () => mockSiblings,
+				getBlockOrder: () => mockSiblings.map( sibling => sibling.clientId ),
+				getBlockAttributes: id =>
+					mockSiblings.find( sibling => sibling.clientId === id )?.attributes,
 				isBlockSelected: () => mockIsSelected,
 				hasSelectedInnerBlock: () => mockHasSelectedInnerBlock,
 			};
@@ -51,7 +53,7 @@ describe( 'NoResultsSlotEdit', () => {
 		mockInnerBlockCount = 0;
 		mockIsSelected = false;
 		mockHasSelectedInnerBlock = false;
-		mockSiblings = [];
+		mockSiblings = [ { clientId: 'v-1', attributes: {} } ];
 	} );
 
 	// Selecting by store object rather than the 'core/block-editor' string survives a store rename.

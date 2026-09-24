@@ -101,13 +101,10 @@ export default function NoResultsSlotEdit( { attributes, clientId } ) {
 			const editor = select( blockEditorStore );
 			return {
 				hasInnerBlocks: editor.getBlockCount( clientId ) > 0,
+				// Stands in for the front end's page-global `hasScopedNoResultsFiltered`: one container per page.
 				hasFilteredSibling: editor
-					.getBlocks( editor.getBlockRootClientId( clientId ) )
-					.some(
-						block =>
-							block.clientId !== clientId &&
-							normalizeCondition( block.attributes?.condition ) === 'filtered'
-					),
+					.getBlockOrder( editor.getBlockRootClientId( clientId ) )
+					.some( id => editor.getBlockAttributes( id )?.condition === 'filtered' ),
 				isActive:
 					editor.isBlockSelected( clientId ) || editor.hasSelectedInnerBlock( clientId, true ),
 			};
