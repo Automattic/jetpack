@@ -1,0 +1,18 @@
+@use "$css/main/mixins";
+
+.well {
+
+	@include mixins.settings-well();
+}
+
+.description {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.info-icon {
+	display: flex;
+
+	svg {
+		display: block;
+	}
+}

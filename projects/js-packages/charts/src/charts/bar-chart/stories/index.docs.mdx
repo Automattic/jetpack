@@ -70,9 +70,14 @@ The simplest bar chart requires only a `data` prop with categorical data:
 - **`resizeDebounceTime`**: Debounce delay for resize events in ms (default: `300`)
 
 **Visual Styling:**
+
+- **`barClassName`**: A callback returning an additional CSS class for each primary bar's datum, on top of `visx-bar`. Use it to style empty or zero-value marks independently of their fill color.
+- **`tooltipStyle`**: Inline style overrides for the tooltip box
 - **`orientation`**: Bar orientation (`'vertical'` or `'horizontal'`, defaults to `'vertical'`)
 - **`withPatterns`**: Use pattern fills instead of solid colors (`false` by default)
 - **`gridVisibility`**: Grid line visibility (`'x'`, `'y'`, `'xy'`, or `'none'`)
+
+<Canvas of={ BarChartStories.DatumClasses } />
 
 **Interactivity:**
 - **`withTooltips`**: Enable interactive tooltips (`false` by default)
@@ -352,6 +357,8 @@ The chart gracefully handles various error states and edge cases:
 
 ### Tooltips
 
+Use `tooltipStyle` to override tooltip box styles, including padding, without CSS priority overrides.
+
 Enable rich interactive tooltips that display detailed information on hover:
 
 <Source
@@ -544,7 +551,7 @@ Control chart layout with precise margin settings:
 
 ### Scale and Axis Configuration
 
-Advanced configuration for scales and axes:
+The value axis starts at zero, so a bar's length is proportional to its value and a run of similar values reads as flat rather than as swings between empty and full. Pass `zero: false` on the value scale (`yScale`, or `xScale` for a horizontal chart) to fit the axis to the data instead; comparison mode keeps the zero baseline regardless, and an explicit `domain` is used as given.
 
 <Source
 	language="jsx"
@@ -553,7 +560,7 @@ Advanced configuration for scales and axes:
 		options={{
 			yScale: {
 				type: 'linear',
-				zero: true,
+				zero: false,
 				nice: true
 			},
 			xScale: {
@@ -574,6 +581,10 @@ Advanced configuration for scales and axes:
 		}}
 	/>` }
 />
+
+When every visible value is a whole number, the value axis places ticks only on whole numbers, instead of repeating a rounded label at fractional steps. Pass `options.axis.y.tickValues` to choose the ticks yourself (`axis.x` on a horizontal chart). A value domain you pin with `options.yScale.domain` (`xScale` on a horizontal chart) keeps every tick, so a percentage axis on `[ 0, 1 ]` still steps by 20%.
+
+<Canvas of={ BarChartStories.SmallWholeNumberRange } />
 
 ## Accessibility
 

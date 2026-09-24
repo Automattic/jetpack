@@ -531,6 +531,7 @@ export default function App() {
 							<AiFeatures
 								settings={ aiSettings }
 								isUserConnected={ isUserConnected }
+								masterForcedOff={ masterForcedOff }
 								savingKeys={ aiSavingKeys }
 								onUpdate={ handleAiSettingsUpdate }
 							/>

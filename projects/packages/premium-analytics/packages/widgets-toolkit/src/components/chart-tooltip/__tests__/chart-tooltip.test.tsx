@@ -68,6 +68,26 @@ describe( 'ChartTooltip', () => {
 		expect( screen.queryByText( '18.4K' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'reads a missing value as No data and keeps a real zero', () => {
+		render(
+			<ChartTooltip
+				tooltipData={ {
+					datumByKey: {
+						Views: { datum: { value: null }, index: 0, key: 'Views' },
+						Visitors: { datum: { value: 0 }, index: 1, key: 'Visitors' },
+					},
+				} }
+				dataFormat={ DATA_FORMAT }
+				seriesStyles={ STYLES }
+				indicatorType="rect"
+				getLabel={ ( _datum, _index, key ) => key }
+			/>
+		);
+
+		expect( screen.getAllByText( 'No data' ) ).toHaveLength( 1 );
+		expect( screen.getByText( '0' ) ).toBeInTheDocument();
+	} );
+
 	it( 'pairs each row with its own series style when given series keys', () => {
 		render(
 			<ChartTooltip
@@ -173,7 +193,7 @@ describe( 'ChartTooltip', () => {
 		expect( screen.getByText( '40' ) ).toBeInTheDocument();
 	} );
 
-	it( "hands getLabel each row's value spelled out in that row's format", () => {
+	it( "hands getLabel each row's value spelled out in that row's format, and the raw value", () => {
 		const getLabel = jest.fn( ( _datum, _index, key: string ) => key );
 
 		render(
@@ -193,12 +213,13 @@ describe( 'ChartTooltip', () => {
 			/>
 		);
 
-		expect( getLabel ).toHaveBeenCalledWith( { value: 18432 }, 0, 'Ads Served', '18,432' );
+		expect( getLabel ).toHaveBeenCalledWith( { value: 18432 }, 0, 'Ads Served', '18,432', 18432 );
 		expect( getLabel ).toHaveBeenCalledWith(
 			{ value: 0.15 },
 			1,
 			'Average CPM',
-			expect.stringMatching( /\$0\.15/ )
+			expect.stringMatching( /\$0\.15/ ),
+			0.15
 		);
 	} );
 
@@ -218,5 +239,28 @@ describe( 'ChartTooltip', () => {
 
 		expect( screen.getByText( '100 Views' ) ).toBeInTheDocument();
 		expect( MetricValue ).not.toHaveBeenCalled();
+	} );
+
+	it( 'hands getLabel null for a missing value, and a real zero as 0', () => {
+		const getLabel = jest.fn( ( _datum, _index, key: string ) => key );
+
+		render(
+			<ChartTooltip
+				tooltipData={ {
+					datumByKey: {
+						Views: { datum: { value: null }, index: 0, key: 'Views' },
+						Visitors: { datum: { value: 0 }, index: 1, key: 'Visitors' },
+					},
+				} }
+				dataFormat={ DATA_FORMAT }
+				seriesStyles={ STYLES }
+				indicatorType="line"
+				layout="inline"
+				getLabel={ getLabel }
+			/>
+		);
+
+		expect( getLabel ).toHaveBeenCalledWith( { value: null }, 0, 'Views', null, null );
+		expect( getLabel ).toHaveBeenCalledWith( { value: 0 }, 1, 'Visitors', '0', 0 );
 	} );
 } );

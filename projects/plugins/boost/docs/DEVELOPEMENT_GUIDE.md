@@ -117,5 +117,5 @@ Notes:
 
 * The parameters only work for logged-in users with the `manage_options` capability (administrators); for everyone else they are ignored.
 * Handles may only contain alphanumerics, dashes, underscores and dots; anything else is discarded. Case is preserved, so enter the handle exactly as registered (handles are matched case-sensitively).
-* Nothing is persisted — the merged exclude list only applies to the current request. To make an exclusion permanent, add it in Boost's Advanced Settings.
+* Nothing is persisted — the merged exclude list only applies to the current request. To make an exclusion permanent in the modern dashboard, expand the relevant Concatenate module's **Except** panel, enter the handles, and click **Save**. On the legacy dashboard, use Boost's Advanced Settings.
 * This does not interact with Boost's Page Cache: logged-in users are never served cached pages, nor are their page views written to the cache.

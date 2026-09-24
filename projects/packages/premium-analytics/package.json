@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-premium-analytics",
-	"version": "0.7.0",
+	"version": "0.8.0",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -57,6 +57,7 @@
 		"@jetpack-premium-analytics/ui": "link:packages/ui",
 		"@jetpack-premium-analytics/widgets-toolkit": "link:packages/widgets-toolkit",
 		"@tanstack/react-query": "5.102.8",
+		"@visx/scale": "4.0.0",
 		"@wordpress/admin-ui": "2.10.0",
 		"@wordpress/api-fetch": "7.55.0",
 		"@wordpress/boot": "0.22.0",

@@ -9,9 +9,6 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\PremiumAnalytics\Analytics as Premium_Analytics;
-use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting as Premium_Analytics_Enablement_Setting;
-
 define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
 /**
  * Jetpack_Mu_Wpcom main class.
@@ -116,15 +113,8 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_jetpack_comments_routes' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
-			// Registered at mu-plugin scope rather than on plugins_loaded, because
-			// should_load_wpcom_simple_premium_analytics() resolves this filter at plugins_loaded
-			// priority 10.
-			add_filter( 'jetpack_premium_analytics_enabled', array( __CLASS__, 'enable_wpcom_simple_premium_analytics_for_sticker' ) );
-			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_premium_analytics' ) );
-			add_action( 'rest_api_init', array( __CLASS__, 'load_wpcom_simple_premium_analytics_enablement_setting' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
-			add_action( 'plugins_loaded', array( __CLASS__, 'load_podcast' ) );
 		}
 
 		// These features run only on atomic sites.
@@ -132,6 +122,9 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );
 			add_action( 'init', array( __CLASS__, 'schedule_translation_updates' ) );
 		}
+
+		// Premium Analytics offers the Ads tab wherever the plan includes WordAds, on Simple and Atomic.
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_premium_analytics_wordads_section' ) );
 
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
@@ -435,6 +428,14 @@ class Jetpack_Mu_Wpcom {
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Holiday_Snow::init();
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Dashboard::init();
 
+		// The front-end Action Bar lives in the jetpack-newsletter package, which mu-wpcom does not
+		// composer-require; the class comes from the sibling Jetpack autoloader. Not in
+		// load_wpcom_user_features(): logged-out visitors are the bar's main audience.
+		if ( class_exists( '\Automattic\Jetpack\Newsletter\Action_Bar' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			\Automattic\Jetpack\Newsletter\Action_Bar::init();
+		}
+
 		// Gets autoloaded from the Scheduled_Updates package.
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
 			Scheduled_Updates::init();
@@ -527,17 +528,6 @@ class Jetpack_Mu_Wpcom {
 
 		require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
 		require_once __DIR__ . '/features/wpcom-contact-form-flags/wpcom-contact-form-flags.php';
-	}
-
-	/**
-	 * Load the Podcast module on Simple sites.
-	 *
-	 * Atomic and self-hosted load Podcast through the Jetpack module system
-	 * (Jetpack::late_initialization). Simple doesn't boot that Jetpack class, so
-	 * initialize the module directly here.
-	 */
-	public static function load_podcast() {
-		\Automattic\Jetpack\Podcast\Podcast::init();
 	}
 
 	/**
@@ -897,78 +887,15 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Whether Premium Analytics should be loaded on WordPress.com Simple.
+	 * Register the Ads tab of the Premium Analytics dashboard by plan feature.
 	 *
-	 * Resolves the same filter over the same option that connected sites use, so one hook answers
-	 * for every platform. The Jetpack plugin, which resolves it everywhere else, does not run on
-	 * Simple, so the question is asked here instead.
-	 *
-	 * @return bool
-	 */
-	public static function should_load_wpcom_simple_premium_analytics() {
-		/** This filter is documented in projects/plugins/jetpack/class.jetpack.php */
-		return (bool) apply_filters( 'jetpack_premium_analytics_enabled', (bool) get_option( 'jetpack_premium_analytics_enabled' ) );
-	}
-
-	/**
-	 * Lets the rollout sticker switch the dashboard on, as wpcomsh_enable_premium_analytics() does
-	 * for Atomic.
-	 *
-	 * Answers the shared filter from the sticker alone. Answering it from
-	 * should_load_wpcom_simple_premium_analytics() would recurse, because that resolves this filter.
-	 *
-	 * @todo Retire alongside wpcomsh_enable_premium_analytics(); the opt-in is meant to be the
-	 *       only signal once the rollout no longer needs a lever we control.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param bool $enabled Whether Premium Analytics is already enabled.
-	 * @return bool
-	 */
-	public static function enable_wpcom_simple_premium_analytics_for_sticker( $enabled ) {
-		return $enabled || self::has_wpcom_simple_premium_analytics_sticker();
-	}
-
-	/**
-	 * Whether this Simple site carries the Premium Analytics rollout sticker.
-	 *
-	 * @return bool
-	 */
-	private static function has_wpcom_simple_premium_analytics_sticker() {
-		$blog_id = (int) get_wpcom_blog_id();
-
-		return $blog_id > 0 && wpcom_has_blog_sticker( 'jetpack-premium-analytics', $blog_id );
-	}
-
-	/**
-	 * Expose the setting that turns Premium Analytics on and off for a Simple site.
-	 *
-	 * Deliberately not behind should_load_wpcom_simple_premium_analytics(): this is the setting
-	 * that flips that gate, so it has to answer while the dashboard is still off.
+	 * Hooks the dashboard's registry action, which only fires once the package boots, so this
+	 * is inert on a site without the dashboard.
 	 *
 	 * @since $$next-version$$
 	 */
-	public static function load_wpcom_simple_premium_analytics_enablement_setting() {
-		if ( class_exists( Premium_Analytics_Enablement_Setting::class ) ) {
-			Premium_Analytics_Enablement_Setting::register();
-		}
-	}
-
-	/**
-	 * Load Premium Analytics on WordPress.com Simple sites behind the rollout gate.
-	 */
-	public static function load_wpcom_simple_premium_analytics() {
-		if ( ! self::should_load_wpcom_simple_premium_analytics() ) {
-			return;
-		}
-
-		Premium_Analytics::init_wpcom_simple(
-			array(
-				// A closure, not a string: we run on plugins_loaded, too early to translate.
-				// The package calls this back on admin_menu.
-				'menu_title' => fn () => __( 'Stats v2', 'jetpack-mu-wpcom' ),
-			)
-		);
+	public static function load_premium_analytics_wordads_section() {
+		require_once __DIR__ . '/features/premium-analytics/wordads-section.php';
 	}
 
 	/**

@@ -1,6 +1,9 @@
+import { useModuleSurface } from '$features/module/surface';
+import ExceptPanel from './except-panel';
 import styles from './collapsible-meta.module.scss';
 import { Button } from '@automattic/jetpack-components';
 import { useState } from 'react';
+import clsx from 'clsx';
 import type { ReactNode } from 'react';
 import ChevronDown from '$svg/chevron-down';
 import ChevronUp from '$svg/chevron-up';
@@ -8,10 +11,13 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 
 type CollapsibleMetaProps = {
 	children: ReactNode;
+	exceptions?: string[];
+	countExceptions?: boolean;
 	header?: ReactNode;
 	summary?: ReactNode;
 	toggleText: string;
 	headerText?: string;
+	compactHeader?: boolean;
 	tracksEvent?: string;
 	extraButtons?: ReactNode;
 	onToggleHandler?: ( isExpanded: boolean ) => void;
@@ -22,15 +28,19 @@ type CollapsibleMetaProps = {
  */
 const CollapsibleMeta = ( {
 	children,
+	exceptions,
+	countExceptions = false,
 	header = null,
 	summary = null,
 	toggleText = '',
 	tracksEvent = '',
 	extraButtons = null,
 	headerText = '',
+	compactHeader = false,
 	onToggleHandler = () => {},
 }: CollapsibleMetaProps ) => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
+	const surface = useModuleSurface();
 
 	const onToggle = () => {
 		const newIsExpanded = ! isExpanded;
@@ -43,12 +53,25 @@ const CollapsibleMeta = ( {
 		}
 	};
 
+	if ( surface === 'row' && exceptions ) {
+		return (
+			<ExceptPanel
+				exceptions={ exceptions }
+				countExceptions={ countExceptions }
+				isExpanded={ isExpanded }
+				onToggle={ onToggle }
+			>
+				{ children }
+			</ExceptPanel>
+		);
+	}
+
 	/*
 	 * The header of the collapsible meta section.
 	 * It displays the header, extra buttons and the toggle button.
 	 */
 	const sectionHeader = (
-		<div className={ styles.header }>
+		<div className={ clsx( styles.header, { [ styles[ 'compact-header' ] ]: compactHeader } ) }>
 			{ header ? header : <div className={ styles.summary }>{ headerText }</div> }
 			<div className={ styles.actions }>
 				{ extraButtons && extraButtons }{ ' ' }

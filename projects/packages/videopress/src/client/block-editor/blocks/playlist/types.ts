@@ -26,8 +26,11 @@ export type PlaylistLiveMetadata = {
 
 export type PlaylistLayout = 'side-rail' | 'grid' | 'strip';
 
-export type PlaylistAttributes = {
-	videos: PlaylistEntry[];
+/**
+ * The display and playback options shared by every playlist-style block;
+ * each block adds its own source of entries on top.
+ */
+export type PlaylistDisplayAttributes = {
 	layout: PlaylistLayout;
 	darkPlayer: boolean;
 	autoplayNext: boolean;
@@ -45,4 +48,8 @@ export type PlaylistAttributes = {
 	 * empty string inherits the surrounding font.
 	 */
 	entryTitleFontFamily: string;
+};
+
+export type PlaylistAttributes = PlaylistDisplayAttributes & {
+	videos: PlaylistEntry[];
 };

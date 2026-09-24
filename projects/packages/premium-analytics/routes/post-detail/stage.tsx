@@ -33,7 +33,7 @@ import { DETAIL_GRID } from '../grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { useWidgetModules } from '../use-widget-modules';
-import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
+import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { withWidgetTypeAliases } from '../widget-type-aliases';
 import { postHeaderSlots } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
@@ -99,11 +99,18 @@ function PostDetail(): JSX.Element {
 		startCustomizing,
 		resetToDefault,
 		onEditChange,
-	} = useDetailPageCustomize( layout, { layoutId: activeTab, onLayoutReset: resetLayout } );
+		onLayoutChange,
+	} = useDetailPageCustomize( layout, {
+		layoutId: activeTab,
+		onLayoutReset: resetLayout,
+		onLayoutChange: setLayout,
+		surface: 'post_detail',
+	} );
 
 	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
 
 	const widgetModules = useWidgetModules();
+	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
@@ -142,9 +149,9 @@ function PostDetail(): JSX.Element {
 				<WidgetDashboard
 					widgetTypes={ pageWidgetTypes }
 					isResolvingWidgetTypes={ isResolvingWidgetTypes }
-					resolveWidgetModule={ resolveWidgetModuleWithI18n }
+					resolveWidgetModule={ resolveWidgetModule }
 					layout={ layout }
-					onLayoutChange={ setLayout }
+					onLayoutChange={ onLayoutChange }
 					onLayoutReset={ resetLayout }
 					gridSettings={ DETAIL_GRID }
 					editMode={ isCustomizing }

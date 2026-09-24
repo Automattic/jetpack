@@ -14,12 +14,21 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 /**
  * Stores Widget_Type instances keyed by their namespaced name.
  *
- * Singleton hydrated once per request from the build manifest at `init` (see
- * widget-types.php); consumers query the registry instead of re-parsing the
- * manifest.
+ * Hydrates on its first read: the registration action fires once, and every registrant, the
+ * manifest hydration in widget-types.php included, registers its widget types from there. Reads
+ * happen after `init`, while the page boot dependencies are built and from REST, so hooking the
+ * action is the one moment that covers both paths.
  */
 #[\AllowDynamicProperties]
 final class Widget_Type_Registry {
+
+	/**
+	 * Action through which widget types are registered, fired once on the first read.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
+	const REGISTER_ACTION = 'jetpack_premium_analytics_register_widget_types';
 
 	/**
 	 * Registered widget types, as `$name => $instance` pairs.
@@ -27,6 +36,13 @@ final class Widget_Type_Registry {
 	 * @var Widget_Type[]
 	 */
 	private $registered_widget_types = array();
+
+	/**
+	 * Whether the registration action has fired.
+	 *
+	 * @var bool
+	 */
+	private $hydrated = false;
 
 	/**
 	 * Container for the main instance of the class.
@@ -145,6 +161,8 @@ final class Widget_Type_Registry {
 	 *                          registered.
 	 */
 	public function get_registered( $name ) {
+		$this->ensure_hydrated();
+
 		if ( ! $this->is_registered( $name ) ) {
 			return null;
 		}
@@ -158,17 +176,55 @@ final class Widget_Type_Registry {
 	 * @return Widget_Type[] Associative array of `$name => $widget_type` pairs.
 	 */
 	public function get_all_registered() {
+		$this->ensure_hydrated();
+
 		return $this->registered_widget_types;
 	}
 
 	/**
-	 * Checks if a widget type is registered.
+	 * Checks if a widget type is registered. Does not hydrate: register() relies on it, and a
+	 * registrant may run before the action fires.
 	 *
 	 * @param string $name Widget type name including namespace.
 	 * @return bool True if the widget type is registered, false otherwise.
 	 */
 	public function is_registered( $name ) {
 		return isset( $this->registered_widget_types[ $name ] );
+	}
+
+	/**
+	 * Fires the registration action once, on the first read after `init`.
+	 *
+	 * @return void
+	 */
+	private function ensure_hydrated() {
+		if ( $this->hydrated ) {
+			return;
+		}
+
+		// Latching this early would drop every registrant hooked later, so the read skips the action.
+		if ( ! did_action( 'init' ) ) {
+			$message = __( 'Widget types are read after init. A read before it does not hydrate the registry and answers only what was registered directly.', 'jetpack-premium-analytics-pkg' );
+			// One line: tools/replace-next-version-tag.sh only rewrites the token in a single-line call.
+			_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-premium-analytics-$$next-version$$' );
+			return;
+		}
+
+		// Latched before the action so a registrant that reads the registry cannot re-enter.
+		$this->hydrated = true;
+
+		/**
+		 * Fires when the widget type registry hydrates, on its first read after `init`.
+		 *
+		 * Register widget types here rather than on `init`: the registry is read while the page
+		 * boot dependencies are built and from REST, and each path loads it at a different
+		 * moment. A registrant that may run twice guards with `is_registered()`.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param Widget_Type_Registry $registry The registry being hydrated.
+		 */
+		do_action( self::REGISTER_ACTION, $this );
 	}
 
 	/**

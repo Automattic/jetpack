@@ -570,11 +570,11 @@ function wpcom_expiry_notices_frontend_banner_is_due(): bool {
  * WordPress.com's resolver shows a single banner per request, picked from a
  * fixed key list; a key it does not know leaves it nothing to show.
  *
- * @param array<string,callable> $banners Banners registered so far.
- * @return array<string,callable>
+ * @param array<string,callable>|mixed $banners Banners registered so far; another callback may have returned a non-array.
+ * @return array<string,callable>|mixed
  */
-function wpcom_expiry_notices_claim_wpcom_banner_slot( array $banners ): array {
-	if ( ! wpcom_expiry_notices_frontend_banner_is_due() ) {
+function wpcom_expiry_notices_claim_wpcom_banner_slot( $banners ) {
+	if ( ! is_array( $banners ) || ! wpcom_expiry_notices_frontend_banner_is_due() ) {
 		return $banners;
 	}
 	return array( 'wpcom_expiry_banner' => '__return_null' );

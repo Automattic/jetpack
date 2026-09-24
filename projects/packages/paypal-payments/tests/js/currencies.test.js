@@ -12,6 +12,7 @@ import {
 } from '../../src/paypal-payment-buttons/utils/currencies';
 import {
 	CURRENCY_SYMBOLS,
+	formatPrice,
 	getPricePlaceholder,
 } from '../../src/paypal-payment-buttons/utils/currency-symbols';
 
@@ -53,4 +54,26 @@ describe( 'getPricePlaceholder', () => {
 	it( 'shows a whole amount for a currency PayPal prices whole', () => {
 		expect( getPricePlaceholder( 'JPY' ) ).toBe( '1500' );
 	} );
+} );
+
+describe( 'formatPrice', () => {
+	it( 'puts the symbol before the price', () => {
+		expect( formatPrice( '29.99', 'USD' ) ).toBe( '$29.99' );
+	} );
+
+	it( 'formats a price of 0', () => {
+		expect( formatPrice( '0', 'USD' ) ).toBe( '$0' );
+		expect( formatPrice( 0, 'USD' ) ).toBe( '$0' );
+	} );
+
+	it( 'puts the currency code before the price for an unknown currency', () => {
+		expect( formatPrice( '5', 'XYZ' ) ).toBe( 'XYZ5' );
+	} );
+
+	it.each( [ '', '  ', undefined, null ] )(
+		'returns an empty string for a blank price (%p)',
+		price => {
+			expect( formatPrice( price, 'USD' ) ).toBe( '' );
+		}
+	);
 } );

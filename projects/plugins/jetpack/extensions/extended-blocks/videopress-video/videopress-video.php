@@ -26,9 +26,10 @@ add_action(
  *
  * Named so tests can invoke it directly without re-running the global init action.
  *
- * @param string|null $playlist_metadata_file Path to the playlist block.json; null uses the package default.
+ * @param string|null $playlist_metadata_file         Path to the playlist block.json; null uses the package default.
+ * @param string|null $latest_videos_playlist_metadata_file Path to the latest videos playlist block.json; null uses the package default.
  */
-function register_videopress_blocks( $playlist_metadata_file = null ) {
+function register_videopress_blocks( $playlist_metadata_file = null, $latest_videos_playlist_metadata_file = null ) {
 	$extensions                            = \Jetpack_Gutenberg::get_extensions();
 	$is_videopress_video_extension_enabled = in_array( 'videopress/video', $extensions, true );
 
@@ -43,6 +44,11 @@ function register_videopress_blocks( $playlist_metadata_file = null ) {
 	// register_videopress_playlist_block(), so register it unconditionally here.
 	if ( method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'register_videopress_playlist_block' ) ) {
 		VideoPress_Pkg_Initializer::register_videopress_playlist_block( $playlist_metadata_file );
+	}
+
+	// Depends on the playlist block above: it registers only once that one is.
+	if ( method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'register_videopress_latest_videos_playlist_block' ) ) {
+		VideoPress_Pkg_Initializer::register_videopress_latest_videos_playlist_block( $latest_videos_playlist_metadata_file );
 	}
 }
 // Ignore the empty argument supplied by do_action( 'init' ) so metadata uses the package default.

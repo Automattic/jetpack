@@ -167,6 +167,27 @@ describe( 'ProductCardAction', () => {
 		expect( screen.getByRole( 'checkbox' ) ).toBeInTheDocument();
 	} );
 
+	it.each( [
+		[ 'Forms', buildProduct() ],
+		[ 'Stats', buildProduct( { slug: 'stats', name: 'Stats', hasPaidPlanForProduct: true } ) ],
+	] )(
+		'shows a note instead of a toggle when a host forced the %s module on',
+		( _name, product ) => {
+			const forcedModule = {
+				available: true,
+				activated: true,
+				override: 'active',
+			} as unknown as MyJetpackModule;
+
+			render( <ProductCardAction product={ product } module={ forcedModule } /> );
+
+			expect(
+				screen.getByText( 'Enabled by your host or site administrator' )
+			).toBeInTheDocument();
+			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		}
+	);
+
 	it( 'disables the toggle when the Forms module is unavailable', () => {
 		const unavailableModule = { available: false, activated: false } as unknown as MyJetpackModule;
 		render(

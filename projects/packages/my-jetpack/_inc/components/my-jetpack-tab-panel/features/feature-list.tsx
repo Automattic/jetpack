@@ -3,6 +3,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, Text, VisuallyHidden } from '@wordpress/ui';
 import { useCallback, useMemo, useState } from 'react';
 import { FeatureItem } from './feature-item';
+import { getForcedReason } from './feature-state';
 import styles from './styles.module.scss';
 import { isBulkSwitchable, useBulkFeatureSwitch } from './use-bulk-feature-switch';
 import type { FeatureState } from './feature-state';
@@ -41,6 +42,15 @@ function RowCheckbox( { state, isSelected, onSelect }: RowCheckboxProps ) {
 		( checked: boolean ) => onSelect( slug, checked ),
 		[ slug, onSelect ]
 	);
+
+	// A forced feature has no control to point at, so it gets no checkbox; the hidden one holds the column.
+	if ( getForcedReason( state ) ) {
+		return (
+			<span className={ styles[ 'row-checkbox-placeholder' ] } aria-hidden="true">
+				<CheckboxControl __nextHasNoMarginBottom checked={ false } disabled onChange={ onChange } />
+			</span>
+		);
+	}
 
 	return (
 		// The title is on the wrapper: a disabled input gets no hover events of its own.

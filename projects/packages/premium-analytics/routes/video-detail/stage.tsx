@@ -28,7 +28,7 @@ import { DETAIL_GRID } from '../grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { useWidgetModules } from '../use-widget-modules';
-import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
+import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { videoHeaderSlots } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
 import { useVideoSummary } from './hooks';
@@ -57,6 +57,7 @@ function VideoDetail(): JSX.Element {
 	const summary = useVideoSummary( Number( videoIdParam ) );
 
 	const widgetModules = useWidgetModules();
+	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
@@ -85,7 +86,13 @@ function VideoDetail(): JSX.Element {
 		startCustomizing,
 		resetToDefault,
 		onEditChange,
-	} = useDetailPageCustomize( layout, { enabled: canRenderWidgets, onLayoutReset: resetLayout } );
+		onLayoutChange,
+	} = useDetailPageCustomize( layout, {
+		enabled: canRenderWidgets,
+		onLayoutReset: resetLayout,
+		onLayoutChange: setLayout,
+		surface: 'video_detail',
+	} );
 
 	// Error and not-found responses have no trustworthy title, so only a
 	// resolved video adds the title crumb.
@@ -133,9 +140,9 @@ function VideoDetail(): JSX.Element {
 			<WidgetDashboard
 				widgetTypes={ widgetTypes }
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
-				resolveWidgetModule={ resolveWidgetModuleWithI18n }
+				resolveWidgetModule={ resolveWidgetModule }
 				layout={ layout }
-				onLayoutChange={ setLayout }
+				onLayoutChange={ onLayoutChange }
 				onLayoutReset={ resetLayout }
 				gridSettings={ DETAIL_GRID }
 				editMode={ isCustomizing }

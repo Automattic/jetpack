@@ -80,6 +80,23 @@ class PayPal_Payment_Buttons {
 	public const STYLE_HANDLE = 'jetpack-block-paypal-payment-buttons';
 
 	/**
+	 * The admin-post.php action serving the page the editor nests the PayPal SDK in.
+	 *
+	 * @var string
+	 */
+	public const SDK_HOST_ACTION = 'jetpack_paypal_sdk_host';
+
+	/**
+	 * The handle the PayPal SDK is enqueued under.
+	 *
+	 * One handle for every stacked block on a page: WordPress keeps the first URL and
+	 * drops the rest, and a second SDK script in one document breaks both blocks.
+	 *
+	 * @var string
+	 */
+	public const SDK_SCRIPT_HANDLE = 'paypal-payment-buttons-block-head';
+
+	/**
 	 * Register the feature flags this package owns.
 	 *
 	 * Call it from every bootstrap before `init`, so the flag exists on every
@@ -136,6 +153,10 @@ class PayPal_Payment_Buttons {
 	/**
 	 * Validates and sanitizes a script URL to ensure it's from an allowed PayPal domain.
 	 *
+	 * Mirrored in the editor by sanitizePayPalUrl(), utils/validation.js. Both run
+	 * tests/fixtures/url-parity.json, which pins each side's output for every URL in
+	 * it, including the rows where the two part company.
+	 *
 	 * @param string $url The URL to validate and sanitize.
 	 * @return string|false The sanitized URL, or false if URL is not from an allowed PayPal domain.
 	 */
@@ -149,19 +170,22 @@ class PayPal_Payment_Buttons {
 			return false;
 		}
 
+		// A missing scheme — scheme-relative, or a bare `host:port/path` — is kept and
+		// rebuilt as HTTPS below, the same as plain HTTP. Anything else is refused:
+		// `javascript://www.paypal.com/…` parses with a PayPal host on both sides, so
+		// the scheme is all that separates it from a real SDK URL. The rebuild below
+		// would leave it harmless, but the editor refuses it outright and so does this.
+		$scheme = strtolower( $parsed_url['scheme'] ?? 'https' );
+		if ( 'https' !== $scheme && 'http' !== $scheme ) {
+			return false;
+		}
+
 		// Normalize the host
 		$host = strtolower( $parsed_url['host'] );
 		$host = rtrim( $host, '.' );
 
 		// Only allow specific PayPal domains
-		$allowed_hosts = array(
-			'www.paypal.com',
-			'paypal.com',
-			'www.sandbox.paypal.com',
-			'sandbox.paypal.com',
-		);
-
-		if ( ! in_array( $host, $allowed_hosts, true ) ) {
+		if ( ! in_array( $host, PayPal_API_Client::ALLOWED_PAYPAL_DOMAINS, true ) ) {
 			return false;
 		}
 
@@ -171,7 +195,13 @@ class PayPal_Payment_Buttons {
 		if ( isset( $parsed_url['path'] ) ) {
 			$sanitized_url .= $parsed_url['path'];
 		}
-		if ( isset( $parsed_url['query'] ) ) {
+
+		// An empty query is dropped rather than rebuilt as a bare `?`. PHP 8.0 began
+		// reporting `query => ''` where 7.4 left the key out, so keeping it would make
+		// this method answer `https://www.paypal.com/sdk/js?` on one PHP and
+		// `https://www.paypal.com/sdk/js` on another. Same resource either way, and this
+		// is what the canvas returns too, since URL.search is '' for a bare `?`.
+		if ( isset( $parsed_url['query'] ) && '' !== $parsed_url['query'] ) {
 			// If we have escaped ampersands in the query string, we need to unescape them.
 			$sanitized_url .= '?' . str_replace( '&amp;', '&', $parsed_url['query'] );
 		}
@@ -180,8 +210,7 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * Width and Border, for whichever element the format puts them on — the
-	 * checkout button or the QR frame.
+	 * Width and Border, for the QR frame.
 	 *
 	 * Every value is validated before the style engine sees it.
 	 * wp_style_engine_get_styles() is not a sanitizer: its only filter is
@@ -195,17 +224,7 @@ class PayPal_Payment_Buttons {
 	 * @return array A list of CSS declarations, empty when nothing is configured.
 	 */
 	private static function get_width_and_border_rules( $attributes ) {
-		$rules = array();
-
-		// max-width keeps a set Width inside the card. With no Width the stylesheet
-		// sizes the element.
-		$width = self::chosen_width( $attributes );
-		if ( '' !== $width ) {
-			$rules[] = sprintf( 'width:%s', $width );
-			$rules[] = 'max-width:100%';
-		}
-
-		return array_merge( $rules, self::get_border_rules( $attributes ) );
+		return array_merge( self::get_width_rules( $attributes ), self::get_border_rules( $attributes ) );
 	}
 
 	/**
@@ -219,11 +238,20 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
+	 * Width, for the button card. The button fills the card.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return string An inline CSS declaration list, empty when nothing is configured.
+	 */
+	private static function get_button_card_style( $attributes ) {
+		return self::css_rules( self::get_width_rules( $attributes ) );
+	}
+
+	/**
 	 * Margin, from the Border Settings panel.
 	 *
-	 * The button card and the QR card take this and nothing else — Width and Border
-	 * go on the button or the QR frame. A QR-to-BUTTON format switch can leave a
-	 * margin behind, so the card keeps reading it.
+	 * Only the QR card takes this. Width and Border go on the frame inside it.
+	 * Margin is a QR-only control, so the button card drops a margin left over from QR.
 	 *
 	 * Mirrors getMarginStyle() in utils/block-styles.js.
 	 *
@@ -250,17 +278,22 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * The chosen width, with its unit.
+	 * Width, for the button card or the QR frame.
 	 *
 	 * Width has its own unit, so it goes through as typed. The style engine never
 	 * sees it, so a spacing preset would be emitted raw — the width
 	 * control cannot produce one, and this keeps it that way.
 	 *
+	 * max-width keeps a set Width inside its container. With no Width the
+	 * stylesheet sizes the element. Mirrors getWidthStyle() in utils/block-styles.js.
+	 *
 	 * @param array $attributes The block attributes.
-	 * @return string The width, or '' when none is set.
+	 * @return array A list of CSS declarations, empty when none is set.
 	 */
-	private static function chosen_width( $attributes ) {
-		return self::plain_length( $attributes['blockWidth'] ?? '' );
+	private static function get_width_rules( $attributes ) {
+		$width = self::plain_length( $attributes['blockWidth'] ?? '' );
+
+		return '' === $width ? array() : array( sprintf( 'width:%s', $width ), 'max-width:100%' );
 	}
 
 	/**
@@ -480,8 +513,8 @@ class PayPal_Payment_Buttons {
 			array_merge(
 				self::get_text_rules( $attributes['buttonTextColor'] ?? '', $attributes['buttonFontSize'] ?? '' ),
 				$rules,
-				// Width and Border go on the button, not the card — see get_margin_style().
-				self::get_width_and_border_rules( $attributes )
+				// Width goes on the card around the button, see get_button_card_style().
+				self::get_border_rules( $attributes )
 			)
 		);
 	}
@@ -653,6 +686,11 @@ class PayPal_Payment_Buttons {
 	 * attributed to us. `add_query_arg()` replaces an existing `at_code`, so
 	 * this is safe to apply to a URL that already has one.
 	 *
+	 * Mirrored in the editor by withPartnerAttribution(), utils/partner-attribution.js,
+	 * which differs there: a URL sanitize_paypal_script_url() refuses comes back
+	 * unchanged here, for the caller's own escaping to deal with, where the editor
+	 * returns '' rather than show a merchant a link to copy or scan.
+	 *
 	 * @since 0.9.0
 	 *
 	 * @param string $url A PayPal payment URL.
@@ -780,11 +818,87 @@ class PayPal_Payment_Buttons {
 	 *
 	 * @param string $price    The price value.
 	 * @param string $currency The ISO currency code.
-	 * @return string Formatted price string (e.g., "$29.99").
+	 * @return string Formatted price string (e.g., "$29.99"), or '' for a blank price.
 	 */
 	public static function format_price( $price, $currency ) {
+		// A blank price returns ''. Compare to '' so a price of 0 still shows.
+		if ( '' === trim( (string) $price ) ) {
+			return '';
+		}
+
 		$symbol = self::$currency_symbols[ $currency ] ?? $currency;
 		return $symbol . $price;
+	}
+
+	/**
+	 * The formatted price of a payment link.
+	 *
+	 * The product price, or "From $29.99" with the cheapest option when the
+	 * options have prices. Matches linkPrice() in utils/link-price.js.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $attributes The link's block attributes.
+	 * @return string The formatted price, or ''.
+	 */
+	public static function link_price( array $attributes ) {
+		$price    = self::product_price( $attributes );
+		$currency = $attributes['currencyCode'] ?? 'USD';
+
+		if ( '' !== $price ) {
+			return self::format_price( $price, $currency );
+		}
+
+		if ( empty( $attributes['variantsEnabled'] ) ) {
+			return '';
+		}
+
+		$lowest = self::get_lowest_variant_price( $attributes['variants'] ?? null );
+		if ( null === $lowest ) {
+			return '';
+		}
+
+		return sprintf(
+			/* translators: %s: formatted price, e.g. "$29.99" */
+			__( 'From %s', 'jetpack-paypal-payments' ),
+			self::format_price( $lowest, $currency )
+		);
+	}
+
+	/**
+	 * The product-level price, trimmed.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $attributes The link's block attributes.
+	 * @return string The price, or '' when blank or the options have prices.
+	 */
+	private static function product_price( array $attributes ) {
+		$variants_enabled = ! empty( $attributes['variantsEnabled'] );
+		$variants         = $attributes['variants'] ?? null;
+
+		// PayPal drops the product-level amount once the options have their own
+		// prices, but the block keeps whatever the merchant typed. Ignore it.
+		if ( $variants_enabled && PayPal_Attribute_Mapper::variants_have_pricing( $variants ) ) {
+			return '';
+		}
+
+		// Trim like the editor preview. A price of 0 stays, since callers compare to ''.
+		return trim( (string) ( $attributes['price'] ?? '' ) );
+	}
+
+	/**
+	 * The formatted price of a payment resource from PayPal.
+	 *
+	 * Matches resourcePrice() in utils/link-price.js.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $resource A payment resource.
+	 * @return string The formatted price, or ''.
+	 */
+	public static function resource_price( array $resource ) {
+		return self::link_price( PayPal_Attribute_Mapper::api_response_to_attributes( $resource ) );
 	}
 
 	/**
@@ -796,10 +910,9 @@ class PayPal_Payment_Buttons {
 	private static function render_api_managed_button( $attributes ) {
 		$resource_id         = $attributes['resourceId'] ?? '';
 		$payment_url         = $attributes['paymentLink'] ?? '';
-		$product_name        = $attributes['productName'] ?? '';
-		$price               = $attributes['price'] ?? '';
+		$product_name        = trim( (string) ( $attributes['productName'] ?? '' ) );
 		$currency            = $attributes['currencyCode'] ?? 'USD';
-		$product_description = $attributes['productDescription'] ?? '';
+		$product_description = trim( (string) ( $attributes['productDescription'] ?? '' ) );
 		$image_url           = $attributes['imageUrl'] ?? '';
 		$variants_enabled    = ! empty( $attributes['variantsEnabled'] );
 		$variants            = $attributes['variants'] ?? null;
@@ -810,7 +923,7 @@ class PayPal_Payment_Buttons {
 		$link_text           = trim( (string) ( $attributes['linkText'] ?? '' ) );
 
 		// Validate — only known format values are accepted.
-		if ( ! in_array( $format, array( 'BUTTON', 'LINK', 'QR' ), true ) ) {
+		if ( ! in_array( $format, array( 'BUTTON', 'LINK', 'QR', 'STACKED' ), true ) ) {
 			$format = 'BUTTON';
 		}
 
@@ -838,6 +951,17 @@ class PayPal_Payment_Buttons {
 
 		// Append BN code for revenue attribution tracking.
 		$action_url = esc_url( self::add_partner_attribution( $sanitized_payment_url ) );
+
+		// ─── STACKED format: PayPal draws the whole card ─────────────────
+		// Falls through to the single button when render_stacked_buttons() has nothing
+		// to draw with.
+		if ( 'STACKED' === $format ) {
+			$stacked = self::render_stacked_buttons( $attributes['scriptSrc'] ?? '', $resource_id );
+			if ( $stacked ) {
+				$wrapper_attributes = get_block_wrapper_attributes();
+				return sprintf( '<div %s>%s</div>', $wrapper_attributes, $stacked );
+			}
+		}
 
 		// ─── LINK format: plain anchor ───────────────────────────────────
 		if ( 'LINK' === $format ) {
@@ -886,7 +1010,7 @@ class PayPal_Payment_Buttons {
 				)
 				: '';
 
-			// No attribution line: the `Show "Powered by PayPal" text` checkbox is
+			// No attribution line: the `Show "Powered by PayPal"` checkbox is
 			// the button's alone, so the QR draws the code and its caption and
 			// nothing else.
 			return sprintf(
@@ -929,44 +1053,41 @@ class PayPal_Payment_Buttons {
 			);
 		}
 
-		// Build product info section.
+		// Build product info section. Compared to '' so a name or description of '0' shows.
+		$name_html = '';
+		if ( '' !== $product_name ) {
+			$name_html = sprintf(
+				'<span class="jetpack-paypal-button__product-name">%s</span>',
+				esc_html( $product_name )
+			);
+		}
+
 		$description_html = '';
-		if ( ! empty( $product_description ) ) {
+		if ( '' !== $product_description ) {
 			$description_html = sprintf(
 				'<span class="jetpack-paypal-button__product-description">%s</span>',
 				esc_html( $product_description )
 			);
 		}
 
-		// PayPal drops the product-level amount once the options have their own
-		// prices, but the block keeps whatever the merchant typed. Ignore it.
-		if ( $variants_enabled && PayPal_Attribute_Mapper::variants_have_pricing( $variants ) ) {
-			$price = '';
-		}
-
-		// Headline price: the product price, or the cheapest option when there is none.
-		// PayPal accepts a price of 0, so the empty test is '' — empty() drops it.
-		$price      = (string) $price;
-		$price_html = '';
-		if ( '' !== $price ) {
+		// The option list below hides option prices that match the product price.
+		$price          = self::product_price( $attributes );
+		$headline_price = self::link_price( $attributes );
+		$price_html     = '';
+		if ( '' !== $headline_price ) {
 			$price_html = sprintf(
 				'<span class="jetpack-paypal-button__product-price">%s</span>',
-				esc_html( self::format_price( $price, $currency ) )
+				esc_html( $headline_price )
 			);
-		} elseif ( $variants_enabled ) {
-			$lowest = self::get_lowest_variant_price( $variants );
-			if ( null !== $lowest ) {
-				$price_html = sprintf(
-					'<span class="jetpack-paypal-button__product-price">%s</span>',
-					esc_html(
-						sprintf(
-							/* translators: %s: formatted price, e.g. "$29.99" */
-							__( 'From %s', 'jetpack-paypal-payments' ),
-							self::format_price( $lowest, $currency )
-						)
-					)
-				);
-			}
+		}
+
+		// The card needs a name, description or price. The image is outside it.
+		$product_html = '';
+		if ( '' !== $name_html . $description_html . $price_html ) {
+			$product_html = '<div class="jetpack-paypal-button__product">'
+				. '<div class="jetpack-paypal-button__product-info">' . $name_html . $description_html . '</div>'
+				. $price_html
+				. '</div>';
 		}
 
 		// Build variant options display.
@@ -1018,8 +1139,8 @@ class PayPal_Payment_Buttons {
 		}
 
 		$wrapper_attributes = get_block_wrapper_attributes();
-		// Width and Border go on the button, not this card — see get_button_style().
-		$block_style = self::style_attr( self::get_margin_style( $attributes ) );
+		// Width sizes this card, and the button fills it.
+		$block_style = self::style_attr( self::get_button_card_style( $attributes ) );
 
 		// A blank label would draw an unreadable button, so fall back to the same
 		// default the editor preview uses.
@@ -1027,10 +1148,13 @@ class PayPal_Payment_Buttons {
 
 		$attribution_html = empty( $attributes['buttonShowPoweredBy'] )
 			? ''
-			: sprintf(
-				'<p class="jetpack-paypal-button__attribution">%s</p>',
-				esc_html__( 'Powered by PayPal', 'jetpack-paypal-payments' )
-			);
+			: '<p class="jetpack-paypal-button__attribution">'
+				. sprintf(
+					/* translators: %s: the PayPal wordmark */
+					esc_html__( 'Powered by %s', 'jetpack-paypal-payments' ),
+					'<span class="jetpack-paypal-button__logo">PayPal</span>'
+				)
+				. '</p>';
 
 		// `is-style-outline` is the name core and the other Jetpack blocks already
 		// use, so themes recognize it.
@@ -1039,29 +1163,21 @@ class PayPal_Payment_Buttons {
 		$button_style = self::style_attr( self::get_button_style( $attributes ) );
 
 		return sprintf(
-			'<div %8$s>
-	<div class="jetpack-paypal-button"%11$s>
-		%9$s
-		<div class="jetpack-paypal-button__product">
-			<div class="jetpack-paypal-button__product-info">
-				<span class="jetpack-paypal-button__product-name">%1$s</span>
-				%2$s
-			</div>
-			%3$s
-		</div>
+			'<div %6$s>
+	<div class="jetpack-paypal-button"%9$s>
 		%7$s
+		%1$s
+		%5$s
 		<div class="jetpack-paypal-button__buttons">
-			<a href="%4$s" class="%12$s"%13$s target="_blank" rel="noopener noreferrer">
-				<span class="jetpack-paypal-button__button-text">%5$s</span>
-				<span class="screen-reader-text">%10$s</span>
+			<a href="%2$s" class="%10$s"%11$s target="_blank" rel="noopener noreferrer">
+				<span class="jetpack-paypal-button__button-text">%3$s</span>
+				<span class="screen-reader-text">%8$s</span>
 			</a>
 		</div>
-		%6$s
+		%4$s
 	</div>
 </div>',
-			esc_html( $product_name ),
-			$description_html,
-			$price_html,
+			$product_html,
 			$action_url,
 			esc_html( $label ),
 			$attribution_html,
@@ -1111,6 +1227,77 @@ class PayPal_Payment_Buttons {
 		}
 
 		return $lowest;
+	}
+
+	/**
+	 * The stacked PayPal / Venmo / Checkout card.
+	 *
+	 * PayPal draws everything inside the container — product name, price, the buttons
+	 * and the payment-method logo row. The container comes back bare, for the caller
+	 * to wrap.
+	 *
+	 * @param string $script_src       The PayPal SDK URL, read back from the payment.
+	 * @param string $hosted_button_id The hosted button id. For an API-managed block this is the PLB resource id.
+	 * @return string|void The container markup, or nothing when there is nothing to draw.
+	 */
+	private static function render_stacked_buttons( $script_src, $hosted_button_id ) {
+		if ( empty( $script_src ) || empty( $hosted_button_id ) ) {
+			return;
+		}
+
+		// Sanitize the script URL to ensure it's from an allowed PayPal domain.
+		$sanitized_url = self::sanitize_paypal_script_url( $script_src );
+		if ( false === $sanitized_url ) {
+			return;
+		}
+
+		self::register_hooks();
+
+		// No version argument — a `?ver=` on the PayPal SDK URL causes a 400.
+		wp_enqueue_script( self::SDK_SCRIPT_HANDLE, $sanitized_url, array(), null, false ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+
+		$container_id = 'paypal-container-' . $hosted_button_id;
+		$container    = '<div id="' . esc_attr( $container_id ) . '"></div>';
+
+		$inline_script = sprintf(
+			'(window.paypal_payment_buttons || window.paypal).HostedButtons({
+					hostedButtonId: %s,
+				}).render(%s);',
+			wp_json_encode( $hosted_button_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ),
+			wp_json_encode( '#' . $container_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
+		);
+
+		wp_add_inline_script( self::SDK_SCRIPT_HANDLE, $inline_script );
+
+		return $container;
+	}
+
+	/**
+	 * Tag the PayPal SDK script with the namespace and the partner attribution id.
+	 *
+	 * The strpos() checks keep each attribute single when a legacy block tags the same handle too.
+	 *
+	 * @param string $tag    The script tag.
+	 * @param string $handle The script handle.
+	 * @return string The tag.
+	 */
+	public static function tag_paypal_sdk_script( $tag, $handle ) {
+		if ( self::SDK_SCRIPT_HANDLE !== $handle ) {
+			return $tag;
+		}
+
+		// Namespace it so another PayPal SDK on the page cannot collide with ours.
+		if ( false === strpos( $tag, 'data-namespace' ) ) {
+			$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-namespace="paypal_payment_buttons" src=$2', $tag );
+		}
+
+		// The SDK's own attribution channel, separate from the payment link's at_code —
+		// the Payment Links API takes attribution as a query parameter instead.
+		if ( false === strpos( $tag, 'data-paypal-partner-attribution-id' ) ) {
+			$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-paypal-partner-attribution-id="' . self::PAYPAL_PARTNER_ATTRIBUTION_ID . '" src=$2', $tag );
+		}
+
+		return $tag;
 	}
 
 	/**
@@ -1245,6 +1432,99 @@ class PayPal_Payment_Buttons {
 				'css_path'   => null,
 			)
 		);
+
+		// The stacked preview needs a same-origin URL it can point an iframe at.
+		wp_add_inline_script(
+			'jp-paypal-payments-ncps-blocks',
+			'window.jetpackPayPalPayments = ' . wp_json_encode(
+				array( 'sdkHostUrl' => self::get_sdk_host_url() ),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+			) . ';',
+			'before'
+		);
+	}
+
+	/**
+	 * URL of the blank page the editor nests the PayPal SDK inside.
+	 *
+	 * The editor appends `&isolated=1` to it — see render_sdk_host().
+	 *
+	 * @return string
+	 */
+	public static function get_sdk_host_url() {
+		return admin_url( 'admin-post.php?action=' . self::SDK_HOST_ACTION );
+	}
+
+	/**
+	 * Emit the blank page the editor nests the PayPal SDK inside.
+	 *
+	 * The editor owns the frame's contents. The URL has to be a real same-origin one
+	 * because the SDK's zoid layer reads `location.host`, which is empty in the editor's
+	 * blob: canvas.
+	 *
+	 * PHP rather than a static file: Gutenberg sets Document-Isolation-Policy on the
+	 * editor screen, and a frame whose isolation differs from its parent's reads
+	 * `contentDocument` as null, either way round. The editor passes its own state in so
+	 * this page can answer with the matching header.
+	 *
+	 * @see https://github.com/WordPress/gutenberg/blob/trunk/lib/media/load.php
+	 * @return never
+	 */
+	public static function render_sdk_host() {
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_die(
+				esc_html__( 'Sorry, you are not allowed to access this page.', 'jetpack-paypal-payments' ),
+				'',
+				array( 'response' => 403 )
+			);
+		}
+
+		nocache_headers();
+
+		if ( ! headers_sent() ) {
+			header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
+
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only: chooses a response header to match the editor document.
+			if ( ! empty( $_GET['isolated'] ) ) {
+				header( 'Document-Isolation-Policy: isolate-and-credentialless' );
+			}
+		}
+
+		?>
+<!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+	<meta charset="<?php echo esc_attr( get_option( 'blog_charset' ) ); ?>" />
+		<?php self::print_sdk_host_styles(); ?>
+	<title><?php esc_html_e( 'PayPal buttons preview', 'jetpack-paypal-payments' ); ?></title>
+</head>
+<body></body>
+</html>
+		<?php
+		exit;
+	}
+
+	/**
+	 * The SDK host page's stylesheet.
+	 *
+	 * Both rules are about measurement: the frame is sized from a ResizeObserver on the
+	 * container div, so body margins would add 16px, and the container needs its own
+	 * block formatting context to contain PayPal's card margins.
+	 *
+	 * @return void
+	 */
+	private static function print_sdk_host_styles() {
+		?>
+	<style>
+		body {
+			margin: 0;
+		}
+
+		body > div {
+			display: flow-root;
+		}
+	</style>
+		<?php
 	}
 
 	/**
@@ -1271,6 +1551,7 @@ class PayPal_Payment_Buttons {
 		$registered = true;
 
 		add_filter( 'safe_style_css', array( __CLASS__, 'add_style_display' ) );
+		add_filter( 'script_loader_tag', array( __CLASS__, 'tag_paypal_sdk_script' ), 10, 2 );
 	}
 
 	/**
@@ -1416,6 +1697,10 @@ class PayPal_Payment_Buttons {
 
 				PayPal_Admin_Page::maybe_init();
 				PayPal_Email_Sender::maybe_init();
+
+				// The stacked preview's frame, served from admin-post.php so it can send a
+				// Document-Isolation-Policy header. Editor-only, so no `admin_post_nopriv_`.
+				add_action( 'admin_post_' . self::SDK_HOST_ACTION, array( __CLASS__, 'render_sdk_host' ) );
 			}
 		);
 	}

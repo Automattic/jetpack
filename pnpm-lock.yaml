@@ -520,9 +520,6 @@ importers:
 
   projects/js-packages/components:
     dependencies:
-      '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
       '@automattic/jetpack-api':
         specifier: workspace:*
         version: link:../api
@@ -541,6 +538,9 @@ importers:
       '@gravatar-com/hovercards':
         specifier: 0.16.0
         version: 0.16.0
+      '@wordpress/a11y':
+        specifier: 4.55.0
+        version: 4.55.0
       '@wordpress/admin-ui':
         specifier: 2.10.0
         version: 2.10.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -559,6 +559,9 @@ importers:
       '@wordpress/date':
         specifier: 5.55.0
         version: 5.55.0
+      '@wordpress/dom':
+        specifier: 4.55.0
+        version: 4.55.0
       '@wordpress/element':
         specifier: 8.7.0
         version: 8.7.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3527,9 +3530,6 @@ importers:
 
   projects/packages/newsletter:
     dependencies:
-      '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -3551,6 +3551,9 @@ importers:
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@jetpack-newsletter/init':
         specifier: link:packages/init
         version: link:packages/init
@@ -4109,6 +4112,9 @@ importers:
       '@tanstack/react-query':
         specifier: 5.102.8
         version: 5.102.8(react@18.3.1)
+      '@visx/scale':
+        specifier: 4.0.0
+        version: 4.0.0
       '@wordpress/admin-ui':
         specifier: 2.10.0
         version: 2.10.0(@date-fns/tz@1.5.0)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -6075,9 +6081,6 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
-      component-uid:
-        specifier: 0.0.2
-        version: 0.0.2
       cookie:
         specifier: 1.0.2
         version: 1.0.2
@@ -7168,6 +7171,12 @@ importers:
       dotenv:
         specifier: ^16.3.1
         version: 16.6.1
+      playwright:
+        specifier: ^1.48.0
+        version: 1.60.0
+
+  tools/port-verification:
+    dependencies:
       playwright:
         specifier: ^1.48.0
         version: 1.60.0
@@ -11660,6 +11669,7 @@ packages:
   '@wordpress/jest-console@9.3.0':
     resolution: {integrity: sha512-kqsqg6YV7QF4oidB4pOl4Qoe0QE15hxwLmNQdQ0yMmqILWJ9FpaGsaVG+QslbEtlyQE0uPXtRV03Ep90T+ZlIw==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     peerDependencies:
       jest: '>=30'
 
@@ -12903,9 +12913,6 @@ packages:
 
   compare-versions@6.1.1:
     resolution: {integrity: sha512-4hm4VPpIecmlg59CHXnRDnqGplJFrbLG4aFEl5vl6cK1u76ws3LLvX7ikFnTDl5vo39sjWD6AaDPYodJp/NNHg==}
-
-  component-uid@0.0.2:
-    resolution: {integrity: sha512-LpbuRIGCbQpJDhyWlHmJqMNuMiR0s9nzlZ40kA8T/PC+hN2YrsBgBgOETtR9y2kE1HkbpQ0/l96kgyYKy6HzCA==}
 
   compressible@2.0.18:
     resolution: {integrity: sha512-AF3r7P5dWxL8MxyITRMlORQNaOA2IkAFaTr4k7BUumjPtRpGDTZpl0Pb1XCO6JeDCBdp126Cgs9sMxqSjgYyRg==}
@@ -31798,8 +31805,6 @@ snapshots:
   commondir@1.0.1: {}
 
   compare-versions@6.1.1: {}
-
-  component-uid@0.0.2: {}
 
   compressible@2.0.18:
     dependencies:

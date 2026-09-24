@@ -1,3 +1,4 @@
+import { useModuleSurface } from '$features/module/surface';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -7,6 +8,15 @@ import RenderBlockingJsMeta from '$features/render-blocking-js/render-blocking-j
 import { recordBoostEvent } from '$lib/utils/analytics';
 
 const RenderBlockingJs = () => {
+	const legacyDescription = __(
+		'Run non-essential JavaScript after the page has loaded so that styles and images can load more quickly. Read more on <link>web.dev</link>.',
+		'jetpack-boost'
+	);
+	const modernDescription = __(
+		'Delays non-essential JavaScript until the main page content has loaded. Read more on <link>web.dev</link>.',
+		'jetpack-boost'
+	);
+	const isModern = useModuleSurface() === 'row';
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
 
 	return (
@@ -15,21 +25,15 @@ const RenderBlockingJs = () => {
 			title={ __( 'Defer Non-Essential JavaScript', 'jetpack-boost' ) }
 			description={
 				<p>
-					{ createInterpolateElement(
-						__(
-							'Run non-essential JavaScript after the page has loaded so that styles and images can load more quickly. Read more on <link>web.dev</link>.',
-							'jetpack-boost'
+					{ createInterpolateElement( isModern ? modernDescription : legacyDescription, {
+						link: (
+							<Link
+								openInNewTab
+								onClick={ () => recordBoostEvent( 'defer_js_link_clicked', {} ) }
+								href={ deferJsLink }
+							/>
 						),
-						{
-							link: (
-								<Link
-									openInNewTab
-									onClick={ () => recordBoostEvent( 'defer_js_link_clicked', {} ) }
-									href={ deferJsLink }
-								/>
-							),
-						}
-					) }
+					} ) }
 				</p>
 			}
 		>

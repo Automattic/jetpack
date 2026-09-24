@@ -10,14 +10,23 @@
 
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { doActionAsync, removeAction, removeFilter } from '@wordpress/hooks';
 import {
 	validateCustomerNotes,
 	validateVariants,
 	VARIANT_ERROR_FIELDS,
 } from '../../../src/paypal-payment-buttons/components/variant-builder';
 import Edit from '../../../src/paypal-payment-buttons/edit';
+import { broadcastConnectionChange } from '../../../src/paypal-payment-buttons/hooks/use-paypal-connection';
+import { forgetExistingLinks } from '../../../src/paypal-payment-buttons/utils/existing-links';
+import {
+	forgetPostSaves,
+	registerSaveSync,
+} from '../../../src/paypal-payment-buttons/utils/register-save-sync';
 import {
 	forgetSyncedRequests,
+	getCardRevision,
+	recordPaymentRead,
 	syncBlocksBeforeSave,
 } from '../../../src/paypal-payment-buttons/utils/sync-on-save';
 import {
@@ -85,8 +94,11 @@ jest.mock( '@wordpress/icons', () => {
 	return {
 		chevronLeft: icon( 'chevron-left' ),
 		chevronRight: icon( 'chevron-right' ),
+		copy: icon( 'copy' ),
 		moreVertical: icon( 'more-vertical' ),
 		pencil: icon( 'pencil' ),
+		replace: icon( 'replace' ),
+		trash: icon( 'trash' ),
 	};
 } );
 
@@ -96,9 +108,26 @@ jest.mock( 'qrcode', () => ( {
 } ) );
 
 const mockMarkNotPersistent = jest.fn();
+/**
+ * Run editor.savePost, as core/editor does once the post has saved.
+ *
+ * @param {object} [options] - Save options, as the editor passes them.
+ * @return {Promise} Settles once the handlers have run.
+ */
+const postSaved = ( options = {} ) =>
+	doActionAsync( 'editor.savePost', { id: 1, type: 'post' }, options );
+// A post save that succeeds. Resolving without postSaved() makes one fail.
+const mockSavePost = jest.fn( () => postSaved() );
+// Whether core/editor is saving. Set per test.
+let mockIsSavingPost = false;
 jest.mock( '@wordpress/data', () => ( {
-	useDispatch: () => ( { __unstableMarkNextChangeAsNotPersistent: mockMarkNotPersistent } ),
+	useDispatch: () => ( {
+		__unstableMarkNextChangeAsNotPersistent: mockMarkNotPersistent,
+		savePost: mockSavePost,
+	} ),
+	useSelect: mapSelect => mapSelect( () => ( { isSavingPost: () => mockIsSavingPost } ) ),
 } ) );
+jest.mock( '@wordpress/editor', () => ( { store: 'core/editor' } ) );
 
 // The real snackbar dispatches to @wordpress/notices, so in jsdom the call is all
 // there is to assert on.
@@ -309,7 +338,12 @@ jest.mock( '@wordpress/components', () => ( {
 			{ children
 				? children( { onClose: () => {} } )
 				: ( controls || [] ).flat().map( control => (
-						<button key={ control.title } type="button" onClick={ control.onClick }>
+						<button
+							key={ control.title }
+							type="button"
+							onClick={ control.onClick }
+							disabled={ control.isDisabled }
+						>
 							{ control.title }
 						</button>
 					) ) }
@@ -586,11 +620,20 @@ jest.mock( '../../../src/paypal-payment-buttons/components/paypal-button-preview
 				data-testid="paypal-button-preview"
 				data-product-name={ props.productName }
 				data-format={ props.format }
+				data-sdk-url={ props.resource?.sdk_url }
 			>
 				Preview: { props.productName } - { props.price } { props.currencyCode }
 			</div>
 		);
 	};
+} );
+
+// The real save hooks, so postSaved() counts the save.
+beforeAll( () => registerSaveSync( () => true ) );
+afterAll( () => {
+	removeFilter( 'editor.preSavePost', 'jetpack/paypal-payment-buttons/sync-payments' );
+	removeAction( 'editor.savePost', 'jetpack/paypal-payment-buttons/saved-snackbar' );
+	removeAction( 'editor.savePost', 'jetpack/paypal-payment-buttons/post-saves' );
 } );
 
 describe( 'PayPalPaymentButtonsEdit (V2)', () => {
@@ -678,11 +721,15 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 	beforeEach( () => {
 		jest.clearAllMocks();
+		forgetPostSaves();
+		mockIsSavingPost = false;
 		// One test runs on fake timers; leaving them on hangs every test after it.
 		jest.useRealTimers();
 		mockCopiedText.last = null;
 		// Clear persisted wizard step to ensure tests start from 'welcome'.
 		window.localStorage.removeItem( 'jetpack-paypal-wizard-step' );
+		// Clear the links list every block shares, so each test reads its own.
+		forgetExistingLinks();
 		// Default: connection check returns not connected.
 		apiFetch.mockReset();
 		apiFetch.mockResolvedValue( { connected: false, environment: 'sandbox' } );
@@ -1823,6 +1870,29 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await expect( screen.findByText( /legacy paste-code format/ ) ).resolves.toBeInTheDocument();
 		} );
+
+		it( 'skips reading the payment links for a paste-code block', async () => {
+			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
+
+			render(
+				<Edit
+					attributes={ {
+						isApiManaged: false,
+						scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test',
+						hostedButtonId: 'BTN_123',
+					} }
+					setAttributes={ setAttributes }
+					isSelected
+				/>
+			);
+
+			await expect( screen.findByText( /legacy paste-code format/ ) ).resolves.toBeInTheDocument();
+			expect(
+				apiFetch.mock.calls.some( ( [ { path } ] ) =>
+					path.startsWith( '/wpcom/v2/paypal/buttons' )
+				)
+			).toBe( false );
+		} );
 	} );
 
 	describe( 'Create Form (connected, no button)', () => {
@@ -2111,6 +2181,17 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 		} );
 
+		it( 'hides the styles group on the picker', async () => {
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ] );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect(
+				screen.findByRole( 'button', { name: 'Create new' } )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByTestId( 'inspector-controls-styles' ) ).not.toBeInTheDocument();
+		} );
+
 		it( 'reports a failed link pick in the snackbar', async () => {
 			const user = userEvent.setup();
 			apiFetch.mockImplementation( ( { path } ) => {
@@ -2130,6 +2211,36 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await waitFor( () =>
 				expect( mockToast ).toHaveBeenCalledWith( 'error', 'PayPal is unavailable' )
 			);
+			expect( setAttributes ).not.toHaveBeenCalled();
+		} );
+
+		it( 'drops a picked link from the list when PayPal has deleted it', async () => {
+			const user = userEvent.setup();
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path === listPath ) {
+					return Promise.resolve( {
+						resources: [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ],
+					} );
+				}
+				if ( path.endsWith( '/buttons/PLB-A1' ) ) {
+					return Promise.reject( {
+						code: 'paypal_api_resource_not_found',
+						message: 'Payment link not found.',
+						data: { status: 404 },
+					} );
+				}
+				return Promise.resolve( { connected: true, environment: 'sandbox' } );
+			} );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await user.click( await screen.findByRole( 'button', { name: /Croissant/ } ) );
+
+			await waitFor( () =>
+				expect( screen.queryByRole( 'button', { name: /Croissant/ } ) ).not.toBeInTheDocument()
+			);
+			expect( screen.getByRole( 'button', { name: /Baguette/ } ) ).toBeInTheDocument();
+			expect( mockToast ).toHaveBeenCalledWith( 'error', 'Payment link not found.' );
 			expect( setAttributes ).not.toHaveBeenCalled();
 		} );
 
@@ -2162,6 +2273,713 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await user.clear( search );
 			await user.type( search, 'brioche' );
 			expect( screen.getByText( 'No payment links match your search.' ) ).toBeInTheDocument();
+		} );
+
+		/**
+		 * The menu item of one link's row. The DropdownMenu mock lays its items out flat.
+		 *
+		 * @param {string} name   - The link's product name.
+		 * @param {string} action - 'Duplicate' or 'Delete'.
+		 * @return {Element} The menu item.
+		 */
+		const rowAction = ( name, action ) =>
+			within( screen.getByLabelText( `Options for ${ name }` ) ).getByRole( 'menuitem', {
+				name: action,
+			} );
+
+		const deleteRequests = () =>
+			apiFetch.mock.calls.filter( ( [ request ] ) => 'DELETE' === request.method );
+
+		it( 'offers Duplicate and Delete on each link', async () => {
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ] );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect(
+				screen.findByRole( 'button', { name: 'Create new' } )
+			).resolves.toBeInTheDocument();
+			expect( screen.getAllByRole( 'menuitem', { name: 'Duplicate' } ) ).toHaveLength( 2 );
+			expect( screen.getAllByRole( 'menuitem', { name: 'Delete' } ) ).toHaveLength( 2 );
+			expect( screen.getByLabelText( 'Options for Croissant' ) ).toBeInTheDocument();
+		} );
+
+		it( 'opens the form with a copy of a duplicated link, and no payment of its own', async () => {
+			const user = userEvent.setup();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ], {
+				isApiManaged: true,
+				resourceId: 'PLB-A1',
+				paymentLink: 'https://www.paypal.com/ncp/payment/PLB-A1',
+				productName: 'Croissant',
+				price: '12.00',
+				currencyCode: 'USD',
+				taxEnabled: true,
+				taxValue: '7.5',
+				scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test&components=hosted-buttons',
+				integrationMode: 'BUTTON',
+			} );
+
+			const { unmount } = render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect(
+				screen.findByRole( 'button', { name: 'Create new' } )
+			).resolves.toBeInTheDocument();
+			await user.click( screen.getByRole( 'menuitem', { name: 'Duplicate' } ) );
+
+			await waitFor( () =>
+				expect( setAttributes ).toHaveBeenCalledWith(
+					expect.objectContaining( {
+						productName: 'Copy of Croissant',
+						price: '12.00',
+						taxValue: '7.5',
+					} )
+				)
+			);
+			const copied = setAttributes.mock.calls[ 0 ][ 0 ];
+			expect( copied ).toMatchObject( {
+				isApiManaged: false,
+				resourceId: '',
+				paymentLink: '',
+				scriptSrc: '',
+				integrationMode: '',
+			} );
+			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'New payment link' } ) ).toBeInTheDocument();
+
+			// The copy reopens on the V2 form.
+			unmount();
+			render( <Edit attributes={ copied } setAttributes={ setAttributes } /> );
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( /legacy paste-code format/ ) ).not.toBeInTheDocument();
+		} );
+
+		/**
+		 * Run the save sync on one block.
+		 *
+		 * @param {string} clientId   - The block's client id.
+		 * @param {object} attributes - The block's attributes.
+		 * @return {Promise<Function>} The request mock.
+		 */
+		const saveBlock = async ( clientId, attributes ) => {
+			const request = jest.fn( () => Promise.resolve( { id: 'PLB-NEW' } ) );
+			await act( () =>
+				syncBlocksBeforeSave( [ { clientId, attributes } ], {
+					request,
+					updateBlockAttributes: jest.fn(),
+					reportError: jest.fn(),
+				} )
+			);
+			return request;
+		};
+
+		/**
+		 * Find the setAttributes payload that turned off isApiManaged.
+		 *
+		 * @return {object|undefined} The payload.
+		 */
+		const letGoCall = () =>
+			setAttributes.mock.calls
+				.map( ( [ payload ] ) => payload )
+				.find( payload => payload.isApiManaged === false );
+
+		it( 'creates a new payment for a duplicate made in a block holding an old payment id', async () => {
+			const user = userEvent.setup();
+			forgetSyncedRequests();
+			const stale = { isApiManaged: true, resourceId: 'PLB-OLD', paymentLink: '' };
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ], {
+				productName: 'Croissant',
+				price: '12.00',
+				currencyCode: 'USD',
+			} );
+
+			render(
+				<Edit attributes={ stale } setAttributes={ setAttributes } clientId="a" isSelected />
+			);
+			await expect(
+				screen.findByRole( 'button', { name: 'Create new' } )
+			).resolves.toBeInTheDocument();
+			await user.click( screen.getByRole( 'menuitem', { name: 'Duplicate' } ) );
+			await waitFor( () =>
+				expect( setAttributes ).toHaveBeenCalledWith(
+					expect.objectContaining( { productName: 'Copy of Croissant' } )
+				)
+			);
+
+			const copy = setAttributes.mock.calls
+				.map( ( [ payload ] ) => payload )
+				.find( payload => payload.productName === 'Copy of Croissant' );
+			const request = await saveBlock( 'a', { ...stale, ...copy } );
+
+			expect( request ).toHaveBeenCalledTimes( 1 );
+			expect( request ).toHaveBeenCalledWith(
+				expect.objectContaining( { path: '/wpcom/v2/paypal/buttons', method: 'POST' } )
+			);
+		} );
+
+		// A pick whose read returns an empty link leaves the block on the picker with that payment id.
+		it( 'creates a new payment on Create new from a block holding a picked payment id', async () => {
+			const user = userEvent.setup();
+			forgetSyncedRequests();
+			const picked = { isApiManaged: true, resourceId: 'PLB-A1', paymentLink: '' };
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ], {
+				productName: 'Croissant',
+				price: '12.00',
+				currencyCode: 'USD',
+			} );
+
+			render(
+				<Edit attributes={ picked } setAttributes={ setAttributes } clientId="a" isSelected />
+			);
+			await user.click( await screen.findByRole( 'button', { name: 'Create new' } ) );
+
+			expect( letGoCall() ).toMatchObject( {
+				isApiManaged: false,
+				resourceId: '',
+				productName: '',
+			} );
+			const request = await saveBlock( 'a', {
+				...picked,
+				...letGoCall(),
+				productName: 'Scone',
+				price: '4.00',
+			} );
+
+			expect( request ).toHaveBeenCalledTimes( 1 );
+			expect( request ).toHaveBeenCalledWith(
+				expect.objectContaining( { path: '/wpcom/v2/paypal/buttons', method: 'POST' } )
+			);
+		} );
+
+		it( 'goes back from the form to the list, emptying the form on the way', async () => {
+			const user = userEvent.setup();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ] );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await user.click( await screen.findByRole( 'button', { name: 'Create new' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'New payment link' } ) );
+
+			expect( screen.getByRole( 'button', { name: 'Create new' } ) ).toBeInTheDocument();
+			expect( screen.queryByLabelText( 'Product Name' ) ).not.toBeInTheDocument();
+			expect( setAttributes ).toHaveBeenCalledWith(
+				expect.objectContaining( { productName: '', price: '', imageUrl: undefined } )
+			);
+		} );
+
+		// An autosaved, unpublished block reopens on its form.
+		it( 'goes back to the list from a draft form that reopened', async () => {
+			const user = userEvent.setup();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ] );
+
+			render(
+				<Edit
+					attributes={ { productName: 'Draft widget', price: '5.00' } }
+					setAttributes={ setAttributes }
+					isSelected
+				/>
+			);
+
+			await user.click( await screen.findByRole( 'button', { name: 'New payment link' } ) );
+
+			expect( screen.getByRole( 'button', { name: 'Create new' } ) ).toBeInTheDocument();
+			expect( setAttributes ).toHaveBeenCalledWith(
+				expect.objectContaining( { productName: '', price: '' } )
+			);
+		} );
+
+		it( 'keeps the picker hint on the canvas once the block is deselected', async () => {
+			const user = userEvent.setup();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ] );
+			const draft = { productName: 'Draft widget', price: '5.00' };
+
+			const { rerender } = render(
+				<Edit attributes={ draft } setAttributes={ setAttributes } isSelected />
+			);
+			await user.click( await screen.findByRole( 'button', { name: 'New payment link' } ) );
+			rerender( <Edit attributes={ draft } setAttributes={ setAttributes } /> );
+
+			expect(
+				screen.getByText(
+					'Choose a payment link you already have, or create a new one, in the block settings.'
+				)
+			).toBeInTheDocument();
+			expect( screen.queryByTestId( 'paypal-button-preview' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'creates a new payment after going back to the list from a form with a payment id', async () => {
+			const user = userEvent.setup();
+			forgetSyncedRequests();
+			const stale = {
+				isApiManaged: true,
+				resourceId: 'PLB-OLD',
+				paymentLink: '',
+				productName: 'Draft widget',
+				price: '5.00',
+			};
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ], {
+				productName: 'Draft widget',
+				price: '5.00',
+			} );
+
+			render(
+				<Edit attributes={ stale } setAttributes={ setAttributes } clientId="a" isSelected />
+			);
+			await user.click( await screen.findByRole( 'button', { name: 'New payment link' } ) );
+			const [ reset ] = setAttributes.mock.lastCall;
+			expect( reset ).toMatchObject( { isApiManaged: false, resourceId: '', productName: '' } );
+			await user.click( screen.getByRole( 'button', { name: 'Create new' } ) );
+
+			const request = await saveBlock( 'a', {
+				...stale,
+				...reset,
+				productName: 'Scone',
+				price: '4.00',
+			} );
+
+			expect( request ).toHaveBeenCalledTimes( 1 );
+			expect( request ).toHaveBeenCalledWith(
+				expect.objectContaining( { path: '/wpcom/v2/paypal/buttons', method: 'POST' } )
+			);
+		} );
+
+		it( 'offers no way back to the list when the account has none', async () => {
+			mockLinks( [] );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'button', { name: 'New payment link' } )
+			).not.toBeInTheDocument();
+		} );
+
+		it( 'asks before deleting a link, then drops it from the list', async () => {
+			const user = userEvent.setup();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ] );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect(
+				screen.findByRole( 'button', { name: 'Create new' } )
+			).resolves.toBeInTheDocument();
+			await user.click( rowAction( 'Croissant', 'Delete' ) );
+
+			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment link' } );
+			const confirm = within( dialog ).getByRole( 'button', { name: 'Delete permanently' } );
+			expect( confirm ).toBeDisabled();
+			await user.click( within( dialog ).getByLabelText( 'I understand this cannot be undone.' ) );
+			await user.click( confirm );
+
+			await waitFor( () => expect( deleteRequests() ).toHaveLength( 1 ) );
+			expect( deleteRequests()[ 0 ][ 0 ].path ).toContain( '/buttons/PLB-A1' );
+			await waitFor( () =>
+				expect( screen.queryByRole( 'button', { name: /Croissant/ } ) ).not.toBeInTheDocument()
+			);
+			expect( screen.getByRole( 'button', { name: /Baguette/ } ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Or reuse an existing link (1)' ) ).toBeInTheDocument();
+			expect( mockToast ).toHaveBeenCalledWith( 'success', 'Payment link deleted.' );
+			expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+			expect( setAttributes ).not.toHaveBeenCalled();
+		} );
+
+		it( 'keeps the link when the delete is cancelled', async () => {
+			const user = userEvent.setup();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ] );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect(
+				screen.findByRole( 'button', { name: 'Create new' } )
+			).resolves.toBeInTheDocument();
+			await user.click( screen.getByRole( 'menuitem', { name: 'Delete' } ) );
+			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment link' } );
+			await user.click( within( dialog ).getByRole( 'button', { name: 'Cancel' } ) );
+
+			expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+			expect( deleteRequests() ).toHaveLength( 0 );
+			expect( screen.getByRole( 'button', { name: /Croissant/ } ) ).toBeInTheDocument();
+		} );
+
+		it( 'reports a failed delete in the snackbar and keeps the link', async () => {
+			const user = userEvent.setup();
+			apiFetch.mockImplementation( ( { path, method } ) => {
+				if ( 'DELETE' === method ) {
+					return Promise.reject( { message: 'PayPal is unavailable' } );
+				}
+				if ( path === listPath ) {
+					return Promise.resolve( { resources: [ resource( 'PLB-A1', 'Croissant' ) ] } );
+				}
+				return Promise.resolve( { connected: true, environment: 'sandbox' } );
+			} );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect(
+				screen.findByRole( 'button', { name: 'Create new' } )
+			).resolves.toBeInTheDocument();
+			await user.click( screen.getByRole( 'menuitem', { name: 'Delete' } ) );
+			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment link' } );
+			await user.click( within( dialog ).getByLabelText( 'I understand this cannot be undone.' ) );
+			await user.click( within( dialog ).getByRole( 'button', { name: 'Delete permanently' } ) );
+
+			await waitFor( () =>
+				expect( mockToast ).toHaveBeenCalledWith( 'error', 'PayPal is unavailable' )
+			);
+			expect( screen.getByRole( 'button', { name: /Croissant/ } ) ).toBeInTheDocument();
+		} );
+
+		// PayPal 404s a link already deleted from the admin page or another tab.
+		it( 'drops a link PayPal had already deleted', async () => {
+			const user = userEvent.setup();
+			apiFetch.mockImplementation( ( { path, method } ) => {
+				if ( 'DELETE' === method ) {
+					return Promise.reject( { code: 'paypal_api_resource_not_found', data: { status: 404 } } );
+				}
+				if ( path === listPath ) {
+					return Promise.resolve( { resources: [ resource( 'PLB-A1', 'Croissant' ) ] } );
+				}
+				return Promise.resolve( { connected: true, environment: 'sandbox' } );
+			} );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect(
+				screen.findByRole( 'button', { name: 'Create new' } )
+			).resolves.toBeInTheDocument();
+			await user.click( screen.getByRole( 'menuitem', { name: 'Delete' } ) );
+			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment link' } );
+			await user.click( within( dialog ).getByLabelText( 'I understand this cannot be undone.' ) );
+			await user.click( within( dialog ).getByRole( 'button', { name: 'Delete permanently' } ) );
+
+			await waitFor( () =>
+				expect( screen.queryByRole( 'button', { name: /Croissant/ } ) ).not.toBeInTheDocument()
+			);
+			expect( mockToast ).toHaveBeenCalledWith(
+				'success',
+				'The payment link was already removed from PayPal.'
+			);
+		} );
+
+		const listRequests = () =>
+			apiFetch.mock.calls.filter( ( [ request ] ) => request.path === listPath );
+
+		/**
+		 * Run the save sync on a new block, which creates its payment at PayPal.
+		 *
+		 * @param {object} created - The resource the create returns.
+		 * @return {Promise} Resolves once the save sync finishes.
+		 */
+		const saveNewLink = created =>
+			act( () =>
+				syncBlocksBeforeSave(
+					[
+						{
+							clientId: 'other',
+							attributes: { productName: 'Scone', price: '4.00', currencyCode: 'USD' },
+						},
+					],
+					{
+						request: () => Promise.resolve( created ),
+						updateBlockAttributes: jest.fn(),
+						reportError: jest.fn(),
+					}
+				)
+			);
+
+		it( 'shares one list read across blocks', async () => {
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ] );
+
+			render(
+				<>
+					<Edit attributes={ {} } setAttributes={ setAttributes } clientId="a" />
+					<Edit attributes={ {} } setAttributes={ setAttributes } clientId="b" />
+				</>
+			);
+
+			await waitFor( () =>
+				expect( screen.getAllByRole( 'button', { name: 'Create new' } ) ).toHaveLength( 2 )
+			);
+			expect( listRequests() ).toHaveLength( 1 );
+		} );
+
+		// A link can be made in wp-admin or another tab while the post is open.
+		it( 'reads the list again for a new block, showing the last list while it loads', async () => {
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ] );
+			const blockA = (
+				<Edit key="a" attributes={ {} } setAttributes={ setAttributes } clientId="a" />
+			);
+			const { rerender } = render( <>{ blockA }</> );
+			await expect(
+				screen.findByRole( 'button', { name: /Croissant/ } )
+			).resolves.toBeInTheDocument();
+
+			let answerList;
+			apiFetch.mockImplementation( ( { path } ) =>
+				path === listPath
+					? new Promise( resolve => {
+							answerList = resolve;
+						} )
+					: Promise.resolve( { connected: true, environment: 'sandbox' } )
+			);
+			rerender(
+				<>
+					{ blockA }
+					<Edit key="b" attributes={ {} } setAttributes={ setAttributes } clientId="b" />
+				</>
+			);
+
+			await waitFor( () => expect( listRequests() ).toHaveLength( 2 ) );
+			expect( screen.getAllByRole( 'button', { name: /Croissant/ } ) ).toHaveLength( 2 );
+			expect( screen.queryByTestId( 'spinner' ) ).not.toBeInTheDocument();
+
+			await act( async () =>
+				answerList( {
+					resources: [ resource( 'PLB-N1', 'Scone' ), resource( 'PLB-A1', 'Croissant' ) ],
+				} )
+			);
+
+			expect( screen.getAllByRole( 'button', { name: /Scone/ } ) ).toHaveLength( 2 );
+		} );
+
+		it( 'reads the list again for the next block after a failed read', async () => {
+			let listFails = true;
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path === listPath ) {
+					return listFails
+						? Promise.reject( new Error( 'down' ) )
+						: Promise.resolve( { resources: [ resource( 'PLB-A1', 'Croissant' ) ] } );
+				}
+				return Promise.resolve( { connected: true, environment: 'sandbox' } );
+			} );
+			const blockA = (
+				<Edit key="a" attributes={ {} } setAttributes={ setAttributes } clientId="a" isSelected />
+			);
+			const { rerender } = render( <>{ blockA }</> );
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+
+			listFails = false;
+			rerender(
+				<>
+					{ blockA }
+					<Edit key="b" attributes={ {} } setAttributes={ setAttributes } clientId="b" />
+				</>
+			);
+
+			await expect(
+				screen.findByRole( 'button', { name: 'Create new' } )
+			).resolves.toBeInTheDocument();
+			expect( listRequests() ).toHaveLength( 2 );
+			// The first block stays on its form, with the way back to the list.
+			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'New payment link' } ) ).toBeInTheDocument();
+		} );
+
+		it( 'shows a link renamed by a save on the way back to the list', async () => {
+			const user = userEvent.setup();
+			forgetSyncedRequests();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ] );
+			render(
+				<Edit
+					attributes={ { productName: 'Draft widget', price: '5.00' } }
+					setAttributes={ setAttributes }
+					isSelected
+				/>
+			);
+			const back = await screen.findByRole( 'button', { name: 'New payment link' } );
+
+			mockLinks( [ resource( 'PLB-A1', 'Pain au chocolat' ) ] );
+			recordPaymentRead( 'other', 'PLB-A1' );
+			await saveBlock( 'other', {
+				isApiManaged: true,
+				resourceId: 'PLB-A1',
+				productName: 'Pain au chocolat',
+				price: '12.00',
+				currencyCode: 'USD',
+			} );
+			await user.click( back );
+
+			await expect(
+				screen.findByRole( 'button', { name: /Pain au chocolat/ } )
+			).resolves.toBeInTheDocument();
+			expect( listRequests() ).toHaveLength( 2 );
+		} );
+
+		it( 'reads the new account’s links after a reconnect', async () => {
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ] );
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await expect(
+				screen.findByRole( 'button', { name: /Croissant/ } )
+			).resolves.toBeInTheDocument();
+
+			mockLinks( [ resource( 'PLB-Z9', 'Bagel' ) ] );
+			await act( async () => broadcastConnectionChange( true ) );
+
+			await expect( screen.findByRole( 'button', { name: /Bagel/ } ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: /Croissant/ } ) ).not.toBeInTheDocument();
+			expect( listRequests() ).toHaveLength( 2 );
+		} );
+
+		it( 'skips reading the list on a disconnect', async () => {
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ] );
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await expect(
+				screen.findByRole( 'button', { name: /Croissant/ } )
+			).resolves.toBeInTheDocument();
+
+			await act( async () => broadcastConnectionChange( false ) );
+
+			expect( listRequests() ).toHaveLength( 1 );
+		} );
+
+		it( 'keeps the new account’s links when the old read finishes after a reconnect', async () => {
+			let answerOldRead;
+			apiFetch.mockImplementation( ( { path } ) =>
+				path === listPath
+					? new Promise( resolve => {
+							answerOldRead = resolve;
+						} )
+					: Promise.resolve( { connected: true, environment: 'sandbox' } )
+			);
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await waitFor( () => expect( listRequests() ).toHaveLength( 1 ) );
+
+			mockLinks( [ resource( 'PLB-Z9', 'Bagel' ) ] );
+			await act( async () => broadcastConnectionChange( true ) );
+			await expect( screen.findByRole( 'button', { name: /Bagel/ } ) ).resolves.toBeInTheDocument();
+			await act( async () =>
+				answerOldRead( { resources: [ resource( 'PLB-A1', 'Croissant' ) ] } )
+			);
+
+			expect( screen.queryByRole( 'button', { name: /Croissant/ } ) ).not.toBeInTheDocument();
+			expect( listRequests() ).toHaveLength( 2 );
+		} );
+
+		it( 'drops a link deleted in one block from every block', async () => {
+			const user = userEvent.setup();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ] );
+
+			render(
+				<>
+					<Edit attributes={ {} } setAttributes={ setAttributes } clientId="a" />
+					<Edit attributes={ {} } setAttributes={ setAttributes } clientId="b" />
+				</>
+			);
+
+			await waitFor( () =>
+				expect( screen.getAllByRole( 'button', { name: /Croissant/ } ) ).toHaveLength( 2 )
+			);
+			await user.click(
+				within( screen.getAllByLabelText( 'Options for Croissant' )[ 0 ] ).getByRole( 'menuitem', {
+					name: 'Delete',
+				} )
+			);
+			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment link' } );
+			await user.click( within( dialog ).getByLabelText( 'I understand this cannot be undone.' ) );
+			await user.click( within( dialog ).getByRole( 'button', { name: 'Delete permanently' } ) );
+
+			await waitFor( () =>
+				expect( screen.queryByRole( 'button', { name: /Croissant/ } ) ).not.toBeInTheDocument()
+			);
+			expect( screen.getAllByRole( 'button', { name: /Baguette/ } ) ).toHaveLength( 2 );
+		} );
+
+		it( 'drops a link deleted from another block’s toolbar from the list', async () => {
+			const user = userEvent.setup();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ] );
+
+			render(
+				<>
+					<Edit
+						attributes={ {
+							isApiManaged: true,
+							resourceId: 'PLB-A1',
+							paymentLink: 'https://www.paypal.com/ncp/payment/PLB-A1',
+						} }
+						setAttributes={ setAttributes }
+						clientId="a"
+					/>
+					<Edit attributes={ {} } setAttributes={ setAttributes } clientId="b" />
+				</>
+			);
+
+			await expect(
+				screen.findByRole( 'button', { name: /Croissant/ } )
+			).resolves.toBeInTheDocument();
+			await user.click( screen.getByTestId( 'toolbar-Delete payment link' ) );
+			await user.click( screen.getByLabelText( 'I understand this cannot be undone.' ) );
+			await user.click( screen.getByRole( 'button', { name: 'Delete permanently' } ) );
+
+			await waitFor( () =>
+				expect( screen.queryByRole( 'button', { name: /Croissant/ } ) ).not.toBeInTheDocument()
+			);
+			expect( screen.getByRole( 'button', { name: /Baguette/ } ) ).toBeInTheDocument();
+		} );
+
+		it( 'drops a link from the list when another block finds it deleted at PayPal', async () => {
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path === listPath ) {
+					return Promise.resolve( {
+						resources: [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ],
+					} );
+				}
+				if ( path.endsWith( '/buttons/PLB-A1' ) ) {
+					return Promise.reject( { code: 'paypal_api_resource_not_found', data: { status: 404 } } );
+				}
+				return Promise.resolve( { connected: true, environment: 'sandbox' } );
+			} );
+
+			render(
+				<>
+					<Edit
+						attributes={ {
+							isApiManaged: true,
+							resourceId: 'PLB-A1',
+							paymentLink: 'https://www.paypal.com/ncp/payment/PLB-A1',
+						} }
+						setAttributes={ setAttributes }
+						clientId="a"
+					/>
+					<Edit attributes={ {} } setAttributes={ setAttributes } clientId="b" />
+				</>
+			);
+
+			await expect(
+				screen.findByText( /This payment link was deleted from PayPal/ )
+			).resolves.toBeInTheDocument();
+			await expect(
+				screen.findByRole( 'button', { name: /Baguette/ } )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: /Croissant/ } ) ).not.toBeInTheDocument();
+		} );
+
+		// PayPal lists newest first, so the new link goes to the top.
+		it( 'lists a link another block just created first', async () => {
+			forgetSyncedRequests();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ] );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await expect(
+				screen.findByRole( 'button', { name: /Croissant/ } )
+			).resolves.toBeInTheDocument();
+
+			await saveNewLink( resource( 'PLB-N1', 'Scone' ) );
+
+			expect( screen.getByText( 'Or reuse an existing link (2)' ) ).toBeInTheDocument();
+			expect( screen.getAllByRole( 'button', { name: /Scone|Croissant/ } )[ 0 ] ).toHaveTextContent(
+				'Scone'
+			);
+		} );
+
+		it( 'keeps a form open when another block creates the first link', async () => {
+			forgetSyncedRequests();
+			mockLinks( [] );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } isSelected /> );
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+
+			await saveNewLink( resource( 'PLB-N1', 'Scone' ) );
+
+			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'New payment link' } ) ).toBeInTheDocument();
 		} );
 
 		it( 'is not offered to a block that already has a product typed in', async () => {
@@ -2790,7 +3608,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			forgetSyncedRequests();
 		} );
 
-		it( 'corrects a stale copy from the payment PayPal holds, without dirtying the post', async () => {
+		it( 'corrects a stale copy from the payment PayPal holds, as a change to save', async () => {
 			mockResource( { ...attributes, productName: 'duplicate', price: '49.00' } );
 
 			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
@@ -2798,7 +3616,29 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await waitFor( () =>
 				expect( setAttributes ).toHaveBeenCalledWith( { productName: 'duplicate', price: '49.00' } )
 			);
-			expect( mockMarkNotPersistent ).toHaveBeenCalledTimes( 1 );
+			expect( mockMarkNotPersistent ).not.toHaveBeenCalled();
+		} );
+
+		// The stacked preview boots from this URL until the block has a scriptSrc.
+		it( 'passes the read SDK URL to the preview', async () => {
+			const sdkUrl = 'https://www.sandbox.paypal.com/sdk/js?client-id=abc&currency=USD';
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				return Promise.resolve(
+					path === resourcePath ? { id: 'PLB-SHARED1', attributes, sdk_url: sdkUrl } : {}
+				);
+			} );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+
+			await waitFor( () =>
+				expect( screen.getByTestId( 'paypal-button-preview' ) ).toHaveAttribute(
+					'data-sdk-url',
+					sdkUrl
+				)
+			);
 		} );
 
 		/**
@@ -3017,6 +3857,20 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( reportHeldBack ).not.toHaveBeenCalled();
 		} );
 
+		it( 'keeps the card revision when the save writes back the payment as read', async () => {
+			mockResource( { ...attributes } );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
+			);
+
+			const { requests } = await saveTheBlock();
+
+			expect( requests.map( r => r.method ) ).toEqual( [ 'PUT' ] );
+			expect( getCardRevision( 'PLB-SHARED1' ) ).toBe( 0 );
+		} );
+
 		// A PUT replaces the payment outright, so a block still on its block.json defaults
 		// would wipe the product id set at PayPal.
 		it( 'holds back the save while the read is still running', async () => {
@@ -3105,6 +3959,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					? Promise.resolve( {
 							id: 'PLB-NEW1',
 							payment_link: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+							attributes: {
+								...attributes,
+								resourceId: 'PLB-NEW1',
+								paymentLink: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+							},
 						} )
 					: Promise.reject( { code: 'paypal_api_resource_not_found', data: { status: 404 } } )
 			);
@@ -3112,7 +3971,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( requests.map( r => r.method ) ).toEqual( [ 'PUT', 'POST' ] );
 			expect( updateBlockAttributes ).toHaveBeenCalledWith(
 				'a',
-				expect.objectContaining( { resourceId: 'PLB-NEW1' } )
+				expect.objectContaining( {
+					resourceId: 'PLB-NEW1',
+					// The old link points at a payment PayPal dropped, so keeping it would
+					// send every buyer to a not-found page.
+					paymentLink: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+				} )
 			);
 			expect( reportHeldBack ).not.toHaveBeenCalled();
 		} );
@@ -5375,6 +6239,41 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.queryByText( notice ) ).not.toBeInTheDocument();
 		} );
 
+		/**
+		 * Answer the connection check, and 404 the payment read.
+		 *
+		 * @return {jest.Mock} The apiFetch mock.
+		 */
+		const mockGone = () =>
+			apiFetch.mockImplementation( request =>
+				request.path.endsWith( '/connection' )
+					? Promise.resolve( { connected: true, environment: 'sandbox' } )
+					: Promise.reject( { code: 'paypal_api_resource_not_found', data: { status: 404 } } )
+			);
+
+		// The next save makes a new link with a new URL.
+		it( 'hides the URL and Copy once PayPal has deleted the link', async () => {
+			mockGone();
+			renderForm( { ...saved, format: 'LINK' } );
+
+			await expect( screen.findByText( notice ) ).resolves.toBeInTheDocument();
+			const styles = screen.getByTestId( 'inspector-controls-styles' );
+			expect( within( styles ).queryByLabelText( 'URL' ) ).not.toBeInTheDocument();
+			expect( within( styles ).queryByText( 'Copy' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'swaps the QR code for its placeholder once PayPal has deleted the link', async () => {
+			mockGone();
+			renderForm( { ...saved, format: 'QR' } );
+
+			await expect( screen.findByText( notice ) ).resolves.toBeInTheDocument();
+			const styles = screen.getByTestId( 'inspector-controls-styles' );
+			expect( within( styles ).queryByText( 'Download' ) ).not.toBeInTheDocument();
+			expect(
+				within( styles ).getByRole( 'img', { name: 'The QR code appears once the post is saved.' } )
+			).toBeInTheDocument();
+		} );
+
 		// Any other failure is not evidence the link is gone.
 		it( 'stays quiet when the lookup fails for another reason', async () => {
 			apiFetch.mockImplementation( request =>
@@ -5508,6 +6407,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			isApiManaged: true,
 			resourceId: 'PLB-DELETE1',
 			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-DELETE1',
+			format: 'STACKED',
+			scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test&components=hosted-buttons',
+			integrationMode: 'BUTTON',
 		};
 
 		/**
@@ -5568,7 +6470,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				return Promise.resolve( {} );
 			} );
 
-			renderForm( saved );
+			const { unmount } = renderForm( saved );
 
 			await user.click( await screen.findByTestId( 'toolbar-Delete payment link' ) );
 			await user.click( screen.getByLabelText( 'I understand this cannot be undone.' ) );
@@ -5581,11 +6483,20 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				)
 			);
 
-			expect( setAttributes ).toHaveBeenCalledWith( {
+			const cleared = setAttributes.mock.calls.at( -1 )[ 0 ];
+			expect( cleared ).toStrictEqual( {
 				isApiManaged: false,
 				resourceId: undefined,
 				paymentLink: undefined,
+				scriptSrc: undefined,
+				integrationMode: undefined,
 			} );
+
+			// The block reopens on the V2 form.
+			unmount();
+			renderForm( { ...saved, ...cleared } );
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( /legacy paste-code format/ ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'cancelling closes the dialog without deleting', async () => {
@@ -5638,7 +6549,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			paymentLink: saved.paymentLink,
 		};
 		const notice =
-			/This payment link was updated elsewhere and this block has been updated to match\./;
+			/This payment link was updated elsewhere and this block has been updated to match\. Save the post so this page shows the change\./;
 
 		/**
 		 * Answer the connection check, then hand back one payment.
@@ -5674,6 +6585,54 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( setAttributes ).toHaveBeenCalledWith(
 				expect.objectContaining( { price: '200.00' } )
 			);
+		} );
+
+		// A block saved before integrationMode existed has the block.json default of ''.
+		// Filling it in from the payment is bookkeeping, not an edit made elsewhere.
+		it( 'stays quiet when the payment fills in the mode on an older block', async () => {
+			mockPayment( { ...carried, integrationMode: 'LINK' } );
+			renderForm( saved );
+
+			await expect( screen.findByText( 'PayPal Connected' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( notice ) ).not.toBeInTheDocument();
+			expect( setAttributes ).toHaveBeenCalledWith(
+				expect.objectContaining( { integrationMode: 'LINK' } )
+			);
+		} );
+
+		// The mode belongs to the payment, not the block: a sibling block going stacked
+		// flips it, and the merchant has nothing to act on.
+		it( 'stays quiet when a sibling block changed the mode', async () => {
+			mockPayment( { ...carried, integrationMode: 'BUTTON' } );
+			renderForm( { ...saved, integrationMode: 'LINK' } );
+
+			await expect( screen.findByText( 'PayPal Connected' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( notice ) ).not.toBeInTheDocument();
+			expect( setAttributes ).toHaveBeenCalledWith(
+				expect.objectContaining( { integrationMode: 'BUTTON' } )
+			);
+		} );
+
+		// Only a stacked block draws with the SDK URL, so losing it is worth saying out loud.
+		it( 'says so when the payment loses the SDK URL a stacked block draws with', async () => {
+			mockPayment( carried );
+			renderForm( {
+				...saved,
+				format: 'STACKED',
+				scriptSrc: 'https://www.paypal.com/sdk/js?client-id=abc',
+			} );
+
+			await expect( screen.findByText( notice ) ).resolves.toBeInTheDocument();
+			expect( setAttributes ).toHaveBeenCalledWith( expect.objectContaining( { scriptSrc: '' } ) );
+		} );
+
+		// The link follows from the payment id, so an empty link in the read is ignored.
+		it( 'keeps the link when the payment read returns an empty one', async () => {
+			mockPayment( { ...carried, price: '200.00', paymentLink: '' } );
+			renderForm( { ...saved, price: '100.00' } );
+
+			await expect( screen.findByText( notice ) ).resolves.toBeInTheDocument();
+			expect( setAttributes.mock.lastCall[ 0 ] ).toEqual( { price: '200.00' } );
 		} );
 
 		it( 'stays quiet when the block already agrees with the payment', async () => {
@@ -5920,14 +6879,53 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( setAttributes ).toHaveBeenCalledWith( { buttonText: 'B' } );
 			} );
 
-			// A block with no payment yet draws the styles tab down a different
-			// render path, so it gets its own case.
-			it( 'offers the button text field before a button exists', async () => {
+			it( 'hides the styles group before a link exists', async () => {
 				apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
-				renderForm( { format: 'BUTTON', buttonText: '' } );
+				renderForm( { format: 'BUTTON' } );
+
+				await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+				expect( screen.queryByTestId( 'inspector-controls-styles' ) ).not.toBeInTheDocument();
+			} );
+
+			it( 'draws the styles group once the save writes the link', async () => {
+				apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
+				const form = {
+					productName: 'Test Widget',
+					price: '29.99',
+					currencyCode: 'USD',
+					format: 'LINK',
+				};
+				const link = 'https://www.paypal.com/paymentpage/PLB-TEST123';
+				const { rerender } = render( <Edit attributes={ form } setAttributes={ setAttributes } /> );
+
+				await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+				expect( screen.queryByTestId( 'inspector-controls-styles' ) ).not.toBeInTheDocument();
+
+				rerender(
+					<Edit
+						attributes={ {
+							...form,
+							isApiManaged: true,
+							resourceId: 'PLB-TEST123',
+							paymentLink: link,
+						} }
+						setAttributes={ setAttributes }
+					/>
+				);
 
 				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				expect( within( styles ).getByLabelText( 'Button text' ) ).toBeInTheDocument();
+				expect( within( styles ).getByLabelText( 'URL' ) ).toHaveValue( link );
+			} );
+
+			// A saved button still works while disconnected, so it stays stylable.
+			it( 'keeps the styles group while PayPal is disconnected', async () => {
+				apiFetch.mockResolvedValue( { connected: false, environment: 'sandbox' } );
+				render( <Edit attributes={ qrAttributes } setAttributes={ setAttributes } /> );
+
+				await expect(
+					screen.findByText( /PayPal account is disconnected/ )
+				).resolves.toBeInTheDocument();
+				expect( screen.getByTestId( 'inspector-controls-styles' ) ).toBeInTheDocument();
 			} );
 
 			it( 'leaves no button text field in the settings tab', async () => {
@@ -5967,6 +6965,61 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				styles = await screen.findByTestId( 'inspector-controls-styles' );
 				expect( within( styles ).getByLabelText( 'Embed as' ) ).toHaveValue( 'LINK' );
 				expect( screen.queryByLabelText( 'Button text' ) ).not.toBeInTheDocument();
+			} );
+
+			// Stacked buttons are styled account-wide at PayPal, so only that format
+			// gets the link.
+			it( 'links to the PayPal settings on stacked buttons only', async () => {
+				const { rerender } = render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'STACKED' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				// The connection is a sandbox one, so the link stays on the sandbox
+				// dashboard.
+				expect(
+					within( styles ).getByRole( 'link', { name: /Edit default settings in PayPal/ } )
+				).toHaveAttribute(
+					'href',
+					'https://www.sandbox.paypal.com/ncp/settings?initial_tab=stackedButtons'
+				);
+
+				for ( const format of [ 'BUTTON', 'QR', 'LINK' ] ) {
+					rerender(
+						<Edit attributes={ { ...qrAttributes, format } } setAttributes={ setAttributes } />
+					);
+					// Check the format changed before checking the link, so a stale
+					// render cannot pass.
+					const rendered = await screen.findByTestId( 'inspector-controls-styles' );
+					expect( within( rendered ).getByLabelText( 'Embed as' ) ).toHaveValue( format );
+					expect( screen.queryByText( 'Edit default settings in PayPal' ) ).not.toBeInTheDocument();
+				}
+			} );
+
+			// Sandbox is opt-in, so only a sandbox connection gets the sandbox dashboard.
+			it.each( [
+				[ 'a live merchant', 'production' ],
+				[ 'an unknown environment', undefined ],
+			] )( 'sends %s to the live dashboard', async ( _label, environment ) => {
+				apiFetch.mockResolvedValue( { connected: true, environment } );
+
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'STACKED' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				expect(
+					within( styles ).getByRole( 'link', { name: /Edit default settings in PayPal/ } )
+				).toHaveAttribute(
+					'href',
+					'https://www.paypal.com/ncp/settings?initial_tab=stackedButtons'
+				);
 			} );
 
 			// Embed as is a single choice, so a QR under the button has no home
@@ -6192,22 +7245,23 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( screen.queryByTestId( 'toggle-group-Styles' ) ).not.toBeInTheDocument();
 			} );
 
-			it( 'starts with the attribution line off and toggles it on', async () => {
+			// Edit gets only the attributes passed here, so the block.json default is set by hand.
+			it( 'starts with the attribution line on and toggles it off', async () => {
 				const user = userEvent.setup();
 				render(
 					<Edit
-						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						attributes={ { ...qrAttributes, format: 'BUTTON', buttonShowPoweredBy: true } }
 						setAttributes={ setAttributes }
 					/>
 				);
 
 				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				const checkbox = within( styles ).getByLabelText( 'Show "Powered by PayPal" text' );
-				expect( checkbox ).not.toBeChecked();
+				const checkbox = within( styles ).getByLabelText( 'Show "Powered by PayPal"' );
+				expect( checkbox ).toBeChecked();
 
 				await user.click( checkbox );
 
-				expect( setAttributes ).toHaveBeenCalledWith( { buttonShowPoweredBy: true } );
+				expect( setAttributes ).toHaveBeenCalledWith( { buttonShowPoweredBy: false } );
 			} );
 
 			// Only the button format offers the choice; the QR draws the code and its
@@ -6219,9 +7273,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				await expect(
 					screen.findByTestId( 'inspector-controls-styles' )
 				).resolves.toBeInTheDocument();
-				expect(
-					screen.queryByLabelText( 'Show "Powered by PayPal" text' )
-				).not.toBeInTheDocument();
+				expect( screen.queryByLabelText( 'Show "Powered by PayPal"' ) ).not.toBeInTheDocument();
 
 				rerender(
 					<Edit
@@ -6229,9 +7281,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 						setAttributes={ setAttributes }
 					/>
 				);
-				expect(
-					screen.queryByLabelText( 'Show "Powered by PayPal" text' )
-				).not.toBeInTheDocument();
+				expect( screen.queryByLabelText( 'Show "Powered by PayPal"' ) ).not.toBeInTheDocument();
 			} );
 
 			// The button puts Width Settings between Color and Typography; QR does
@@ -6509,7 +7559,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( within( styles ).getByText( 'Copy' ) ).toBeInTheDocument();
 			} );
 
-			// No payment link until the post is saved, so there is nothing to copy.
 			it( 'restarts the confirmation when Copy is clicked twice', async () => {
 				jest.useFakeTimers();
 				const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
@@ -6539,15 +7588,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					jest.advanceTimersByTime( 1000 );
 				} );
 				expect( within( styles ).getByText( 'Copy' ) ).toBeInTheDocument();
-			} );
-
-			it( 'leaves out the URL row before a button exists', async () => {
-				apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
-				renderForm( { format: 'LINK', linkText: '' } );
-
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				expect( within( styles ).getByLabelText( 'Link text' ) ).toBeInTheDocument();
-				expect( within( styles ).queryByLabelText( 'URL' ) ).not.toBeInTheDocument();
 			} );
 
 			// The panels are shared with the QR caption, so the thing worth
@@ -6802,7 +7842,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			).resolves.toBeInTheDocument();
 			expect( screen.getByText( '€12.00' ) ).toBeInTheDocument();
 			await waitFor( () => expect( detail( 'Created' ) ).toContain( '2026' ) );
-			expect( detail( 'Hosted ID' ) ).toBe( 'PLB-DETAIL1' );
+			// The hosted button id, as PayPal shows it: the resource id without its prefix.
+			expect( detail( 'Hosted ID' ) ).toBe( 'DETAIL1' );
 			expect( detail( 'Link used on' ) ).toBe( '2 published posts' );
 			expect( screen.queryByText( 'Max quantity' ) ).not.toBeInTheDocument();
 			expect( screen.getByTestId( 'dropdown-menu' ) ).toHaveAttribute(
@@ -7023,6 +8064,278 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.queryByLabelText( 'Product Name' ) ).not.toBeInTheDocument();
 		} );
 
+		// The payment is written with the post, so leaving the form with changes
+		// asks whether to save the post now or put the link back.
+		describe( 'Changes made', () => {
+			const edited = { ...saved, productName: 'Pain au chocolat' };
+
+			/**
+			 * Open a saved link's form and change its name. setAttributes is a mock,
+			 * so the edit arrives as a rerender.
+			 *
+			 * @param {object} user       - userEvent instance.
+			 * @param {object} attributes - What the form holds after the edit.
+			 * @return {object} Testing Library render result.
+			 */
+			const editForm = async ( user, attributes = edited ) => {
+				const view = render(
+					<Edit attributes={ saved } setAttributes={ setAttributes } clientId="a" />
+				);
+				await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
+				await user.click( screen.getByRole( 'button', { name: 'Edit' } ) );
+				view.rerender(
+					<Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" />
+				);
+				return view;
+			};
+
+			const back = () => screen.getByRole( 'button', { name: 'Edit Button' } );
+
+			beforeEach( () => {
+				mockSavePost.mockClear();
+			} );
+
+			it( 'goes straight back when nothing changed', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user, saved );
+
+				await user.click( back() );
+
+				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
+			} );
+
+			it( 'asks before leaving the form with unsaved changes', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user );
+
+				await user.click( back() );
+
+				const dialog = screen.getByRole( 'dialog', { name: 'Changes made' } );
+				expect( within( dialog ).getByText( /save before leaving/ ) ).toBeInTheDocument();
+				expect( within( dialog ).getByRole( 'button', { name: 'Save' } ) ).toBeEnabled();
+				expect( within( dialog ).getByRole( 'button', { name: 'Don’t save' } ) ).toBeEnabled();
+				expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
+			} );
+
+			it( 'puts the link back as it was on Don’t save, and shows the details', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user );
+
+				await user.click( back() );
+				await user.click( screen.getByRole( 'button', { name: 'Don’t save' } ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith(
+					expect.objectContaining( { productName: 'Croissant', price: '12.00' } )
+				);
+				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
+				expect( mockSavePost ).not.toHaveBeenCalled();
+			} );
+
+			it( 'saves the post on Save, and shows the details once it is saved', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				let finishSave;
+				mockSavePost.mockImplementationOnce( () =>
+					new Promise( resolve => ( finishSave = resolve ) ).then( () => postSaved() )
+				);
+				await editForm( user );
+
+				await user.click( back() );
+				await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+				expect( mockSavePost ).toHaveBeenCalledTimes( 1 );
+				const dialog = screen.getByRole( 'dialog', { name: 'Changes made' } );
+				expect( within( dialog ).getByRole( 'button', { name: 'Save' } ) ).toBeDisabled();
+				expect( within( dialog ).getByRole( 'button', { name: 'Don’t save' } ) ).toBeDisabled();
+				// Neither the X nor Escape closes the dialog mid-save.
+				await user.click( screen.getByTestId( 'modal-close' ) );
+				expect( screen.getByRole( 'dialog', { name: 'Changes made' } ) ).toBeInTheDocument();
+
+				finishSave();
+
+				await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
+				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
+				expect( setAttributes ).not.toHaveBeenCalled();
+			} );
+
+			// A required field emptied still leaves, but only by discarding.
+			it( 'offers Don’t save alone while the form is invalid', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user, { ...saved, productName: '' } );
+
+				expect( back() ).toBeEnabled();
+				await user.click( back() );
+
+				const dialog = screen.getByRole( 'dialog', { name: 'Changes made' } );
+				expect( within( dialog ).getByRole( 'button', { name: 'Save' } ) ).toBeDisabled();
+				expect( within( dialog ).getByRole( 'button', { name: 'Don’t save' } ) ).toBeEnabled();
+			} );
+
+			it( 'keeps the form and the changes when the dialog is closed', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user );
+
+				await user.click( back() );
+				await user.click( screen.getByTestId( 'modal-close' ) );
+
+				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
+				expect( setAttributes ).not.toHaveBeenCalled();
+				expect( mockSavePost ).not.toHaveBeenCalled();
+			} );
+
+			it( 'goes straight back once the post is saved from the toolbar', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user );
+
+				await act( () => postSaved() );
+				await user.click( back() );
+
+				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
+			} );
+
+			it( 'puts back only the changes since the post save on Don’t save, and shows the details', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				const view = await editForm( user );
+				await act( () => postSaved() );
+				// The merchant changes the price after the save.
+				view.rerender(
+					<Edit
+						attributes={ { ...edited, price: '14.00' } }
+						setAttributes={ setAttributes }
+						clientId="a"
+					/>
+				);
+
+				await user.click( back() );
+				await user.click( screen.getByRole( 'button', { name: 'Don’t save' } ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith(
+					expect.objectContaining( { productName: 'Pain au chocolat', price: '12.00' } )
+				);
+				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
+				expect( mockSavePost ).not.toHaveBeenCalled();
+			} );
+
+			it( 'asks after an autosave, and Don’t save puts back what the form opened with', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user );
+
+				await act( () => postSaved( { isAutosave: true } ) );
+				await user.click( back() );
+
+				expect( screen.getByRole( 'dialog', { name: 'Changes made' } ) ).toBeInTheDocument();
+				await user.click( screen.getByRole( 'button', { name: 'Don’t save' } ) );
+				expect( setAttributes ).toHaveBeenCalledWith(
+					expect.objectContaining( { productName: 'Croissant', price: '12.00' } )
+				);
+				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
+				expect( mockSavePost ).not.toHaveBeenCalled();
+			} );
+
+			it( 'keeps the form open when the post fails to save', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				mockSavePost.mockImplementationOnce( () => Promise.resolve() );
+				await editForm( user );
+
+				await user.click( back() );
+				await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+				expect( mockSavePost ).toHaveBeenCalledTimes( 1 );
+				await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
+				expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
+			} );
+
+			it( 'disables Save and Don’t save while the editor is already saving', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				mockIsSavingPost = true;
+				await editForm( user );
+
+				await user.click( back() );
+
+				const dialog = screen.getByRole( 'dialog', { name: 'Changes made' } );
+				expect( within( dialog ).getByRole( 'button', { name: 'Save' } ) ).toBeDisabled();
+				expect( within( dialog ).getByRole( 'button', { name: 'Don’t save' } ) ).toBeDisabled();
+			} );
+
+			it( 'closes the dialog and shows the details when the post saves', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user );
+				await user.click( back() );
+
+				await act( () => postSaved() );
+
+				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
+				expect( setAttributes ).not.toHaveBeenCalled();
+				expect( mockSavePost ).not.toHaveBeenCalled();
+			} );
+
+			it( 'keeps the dialog open through an autosave', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user );
+				await user.click( back() );
+
+				await act( () => postSaved( { isAutosave: true } ) );
+
+				expect( screen.getByRole( 'dialog', { name: 'Changes made' } ) ).toBeInTheDocument();
+				expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
+			} );
+
+			// What PayPal sets on a read while the form is open.
+			const fromPayPal = {
+				integrationMode: 'BUTTON',
+				scriptSrc: 'https://www.paypal.com/sdk/js?client-id=abc',
+				paymentLink: 'https://www.paypal.com/ncp/payment/PLB-DETAIL1-NEW',
+			};
+
+			it( 'goes straight back when only the link, SDK URL and mode changed', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user, { ...saved, ...fromPayPal } );
+
+				await user.click( back() );
+
+				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
+				expect( mockSavePost ).not.toHaveBeenCalled();
+			} );
+
+			it( 'keeps PayPal’s link, SDK URL and mode on Don’t save', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user, { ...edited, ...fromPayPal } );
+
+				await user.click( back() );
+				await user.click( screen.getByRole( 'button', { name: 'Don’t save' } ) );
+
+				expect( setAttributes ).toHaveBeenCalledTimes( 1 );
+				const [ putBack ] = setAttributes.mock.calls[ 0 ];
+				expect( putBack ).toMatchObject( { productName: 'Croissant' } );
+				Object.keys( fromPayPal ).forEach( key => expect( putBack ).not.toHaveProperty( key ) );
+				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
+				expect( mockSavePost ).not.toHaveBeenCalled();
+			} );
+		} );
+
 		it( 'drops the id from the connection panel, which the details carry now', async () => {
 			mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
 
@@ -7031,7 +8344,323 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
 			// The PanelBody mock renders closed panels too, so a second copy of the id would show.
 			expect( screen.getByText( 'Environment:' ) ).toBeInTheDocument();
-			expect( screen.getAllByText( 'PLB-DETAIL1' ) ).toHaveLength( 1 );
+			expect( screen.getAllByText( 'DETAIL1' ) ).toHaveLength( 1 );
+		} );
+	} );
+
+	describe( 'Change item', () => {
+		const listPath = '/wpcom/v2/paypal/buttons?page_size=100';
+		const saved = {
+			isApiManaged: true,
+			resourceId: 'PLB-A1',
+			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-A1',
+			productName: 'Croissant',
+			price: '12.00',
+			currencyCode: 'USD',
+		};
+
+		/**
+		 * A payment resource as the list route returns it.
+		 *
+		 * @param {string} id   - Resource id.
+		 * @param {string} name - Product name.
+		 * @return {object} The resource.
+		 */
+		const resource = ( id, name ) => ( {
+			id,
+			create_time: '2026-09-01T10:00:00Z',
+			payment_link: `https://www.paypal.com/ncp/payment/${ id }`,
+			line_items: [ { name, unit_amount: { value: '12.00', currency_code: 'USD' } } ],
+		} );
+
+		/**
+		 * Reply connected, with these links on the account and this behind each link read.
+		 *
+		 * @param {Array}  links      - Resources the list route returns.
+		 * @param {object} attributes - What reading a link back returns, keyed by id.
+		 */
+		const mockLinks = ( links, attributes = {} ) => {
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				if ( path === listPath ) {
+					return Promise.resolve( { resources: links } );
+				}
+				const id = path.match( /\/buttons\/(PLB-\w+)$/ )?.[ 1 ];
+				if ( id ) {
+					return Promise.resolve( {
+						id,
+						attributes: attributes[ id ] || { ...saved, resourceId: id },
+					} );
+				}
+				return Promise.resolve( {} );
+			} );
+		};
+
+		beforeEach( () => {
+			forgetSyncedRequests();
+		} );
+
+		const listRequests = () =>
+			apiFetch.mock.calls.filter( ( [ request ] ) => request.path === listPath );
+
+		/**
+		 * Render the saved block as the selected one, which is when the sidebar is up.
+		 *
+		 * @param {object} attributes - Attributes to set on top of the saved link.
+		 * @return {object} Testing Library render result.
+		 */
+		const renderSelected = ( attributes = {} ) =>
+			render(
+				<Edit
+					attributes={ { ...saved, ...attributes } }
+					setAttributes={ setAttributes }
+					clientId="a"
+					isSelected
+				/>
+			);
+
+		const changeItem = () => screen.getByRole( 'button', { name: 'Change item' } );
+
+		it( 'is greyed out while the account has no other link', async () => {
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ] );
+
+			renderSelected();
+
+			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
+			await waitFor( () => expect( changeItem() ).toBeDisabled() );
+			expect( screen.getByRole( 'button', { name: 'Edit' } ) ).toBeEnabled();
+		} );
+
+		it( 'is greyed out while PayPal is disconnected', async () => {
+			apiFetch.mockResolvedValue( { connected: false, environment: 'sandbox' } );
+
+			renderSelected();
+
+			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
+			expect( changeItem() ).toBeDisabled();
+			expect( listRequests() ).toHaveLength( 0 );
+		} );
+
+		it( 'reads the list once the block is selected, not for every block on the canvas', async () => {
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ] );
+
+			const { rerender } = render(
+				<Edit attributes={ saved } setAttributes={ setAttributes } clientId="a" />
+			);
+
+			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
+			expect( listRequests() ).toHaveLength( 0 );
+
+			rerender(
+				<Edit attributes={ saved } setAttributes={ setAttributes } clientId="a" isSelected />
+			);
+
+			await waitFor( () => expect( listRequests() ).toHaveLength( 1 ) );
+			await waitFor( () => expect( changeItem() ).toBeEnabled() );
+		} );
+
+		it( 'offers the other links, without the one the block has, and goes back to the details', async () => {
+			const user = userEvent.setup();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ] );
+
+			renderSelected();
+
+			await waitFor( () => expect( changeItem() ).toBeEnabled() );
+			await user.click( changeItem() );
+
+			expect( screen.getByText( 'Choose a button to change' ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: /Baguette/ } ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: /Croissant/ } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'Create new' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'menuitem', { name: 'Duplicate' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Hosted ID' ) ).not.toBeInTheDocument();
+			// The current button stays on the canvas while another link is picked.
+			expect( screen.getByTestId( 'paypal-button-preview' ) ).toBeInTheDocument();
+
+			await user.click( screen.getByRole( 'button', { name: 'Change item' } ) );
+
+			expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
+			expect( setAttributes ).not.toHaveBeenCalled();
+		} );
+
+		it( 'reads the list again once a save has updated a link', async () => {
+			const user = userEvent.setup();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ] );
+			renderSelected();
+			await waitFor( () => expect( changeItem() ).toBeEnabled() );
+
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Ficelle' ) ] );
+			recordPaymentRead( 'b', 'PLB-B2' );
+			await act( () =>
+				syncBlocksBeforeSave(
+					[
+						{
+							clientId: 'b',
+							attributes: { ...saved, resourceId: 'PLB-B2', productName: 'Ficelle' },
+						},
+					],
+					{
+						request: () => Promise.resolve( {} ),
+						updateBlockAttributes: jest.fn(),
+						reportError: jest.fn(),
+					}
+				)
+			);
+			await user.click( changeItem() );
+
+			await expect(
+				screen.findByRole( 'button', { name: /Ficelle/ } )
+			).resolves.toBeInTheDocument();
+			expect( listRequests() ).toHaveLength( 2 );
+		} );
+
+		it( 'keeps the styles group while picking another link', async () => {
+			const user = userEvent.setup();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ] );
+
+			renderSelected();
+
+			await waitFor( () => expect( changeItem() ).toBeEnabled() );
+			await user.click( changeItem() );
+
+			expect( screen.getByText( 'Choose a button to change' ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'inspector-controls-styles' ) ).toBeInTheDocument();
+		} );
+
+		it( 'switches the block to the picked link, with what PayPal holds for it, and keeps the image', async () => {
+			const user = userEvent.setup();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ], {
+				'PLB-B2': {
+					isApiManaged: true,
+					resourceId: 'PLB-B2',
+					paymentLink: 'https://www.paypal.com/ncp/payment/PLB-B2',
+					productName: 'Baguette',
+					price: '3.50',
+					currencyCode: 'EUR',
+				},
+			} );
+
+			renderSelected( {
+				taxEnabled: true,
+				taxType: 'PERCENTAGE',
+				taxValue: '7.5',
+				imageUrl: 'https://example.com/croissant.png',
+				imageId: 7,
+			} );
+
+			await waitFor( () => expect( changeItem() ).toBeEnabled() );
+			await user.click( changeItem() );
+			await user.click( screen.getByRole( 'button', { name: /Baguette/ } ) );
+
+			await waitFor( () =>
+				expect( setAttributes ).toHaveBeenCalledWith(
+					expect.objectContaining( {
+						isApiManaged: true,
+						resourceId: 'PLB-B2',
+						paymentLink: 'https://www.paypal.com/ncp/payment/PLB-B2',
+						productName: 'Baguette',
+						price: '3.50',
+						currencyCode: 'EUR',
+						// What the old link had goes back to block.json's defaults.
+						taxEnabled: false,
+						taxValue: '',
+					} )
+				)
+			);
+			expect( setAttributes.mock.calls[ 0 ][ 0 ] ).not.toHaveProperty( 'imageUrl' );
+			expect( mockToast ).toHaveBeenCalledWith( 'success', 'Payment link updated.' );
+		} );
+
+		// The switch reads the payment, so the next save can write it.
+		it( 'lets the post save write the payment it switched to', async () => {
+			const user = userEvent.setup();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ] );
+
+			renderSelected();
+
+			await waitFor( () => expect( changeItem() ).toBeEnabled() );
+			await user.click( changeItem() );
+			await user.click( screen.getByRole( 'button', { name: /Baguette/ } ) );
+			await waitFor( () =>
+				expect( setAttributes ).toHaveBeenCalledWith(
+					expect.objectContaining( { resourceId: 'PLB-B2' } )
+				)
+			);
+
+			const request = jest.fn( () => Promise.resolve( {} ) );
+			const reportHeldBack = jest.fn();
+			await syncBlocksBeforeSave(
+				[ { clientId: 'a', attributes: { ...saved, resourceId: 'PLB-B2' } } ],
+				{ request, updateBlockAttributes: jest.fn(), reportError: jest.fn(), reportHeldBack }
+			);
+
+			expect( reportHeldBack ).not.toHaveBeenCalled();
+			expect( request ).toHaveBeenCalledWith(
+				expect.objectContaining( { path: '/wpcom/v2/paypal/buttons/PLB-B2', method: 'PUT' } )
+			);
+			// The switch read the payment, so writing it back unchanged keeps the card revision.
+			expect( getCardRevision( 'PLB-B2' ) ).toBe( 0 );
+		} );
+
+		it( 'says so when the list comes back with no other link', async () => {
+			const user = userEvent.setup();
+			let resolveList;
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path === listPath ) {
+					return new Promise( resolve => {
+						resolveList = resolve;
+					} );
+				}
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				return Promise.resolve( { id: 'PLB-A1', attributes: saved } );
+			} );
+
+			renderSelected();
+
+			// Still reading the list, so the menu cannot say there is nothing to switch to.
+			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
+			expect( changeItem() ).toBeEnabled();
+			await user.click( changeItem() );
+			expect( within( panel( 'Payment link' ) ).getByTestId( 'spinner' ) ).toBeInTheDocument();
+
+			await act( async () => resolveList( { resources: [ resource( 'PLB-A1', 'Croissant' ) ] } ) );
+
+			expect( screen.getByText( 'Choose a button to change' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'No other payment links available.' ) ).toBeInTheDocument();
+		} );
+
+		it( 'reports a failed switch in the snackbar and keeps the block as it was', async () => {
+			const user = userEvent.setup();
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				if ( path === listPath ) {
+					return Promise.resolve( {
+						resources: [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ],
+					} );
+				}
+				if ( path.endsWith( '/buttons/PLB-B2' ) ) {
+					return Promise.reject( { message: 'PayPal is unavailable' } );
+				}
+				return Promise.resolve( { id: 'PLB-A1', attributes: saved } );
+			} );
+
+			renderSelected();
+
+			await waitFor( () => expect( changeItem() ).toBeEnabled() );
+			await user.click( changeItem() );
+			await user.click( screen.getByRole( 'button', { name: /Baguette/ } ) );
+
+			await waitFor( () =>
+				expect( mockToast ).toHaveBeenCalledWith( 'error', 'PayPal is unavailable' )
+			);
+			expect( setAttributes ).not.toHaveBeenCalled();
+			expect( screen.getByRole( 'button', { name: /Baguette/ } ) ).toBeEnabled();
 		} );
 	} );
 

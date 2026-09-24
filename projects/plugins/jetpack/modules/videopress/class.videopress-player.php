@@ -734,13 +734,18 @@ class VideoPress_Player {
 
 			$guid = (string) $this->video->guid;
 
+			// The video data already carries the poster frame VideoPress serves for this site.
+			$poster = ! empty( $this->video->poster_frame_uri ) && is_string( $this->video->poster_frame_uri )
+				? $this->video->poster_frame_uri
+				: Inline_Player::get_poster_url( $guid );
+
 			return "<div id='" . esc_attr( $video_container_id ) . "'>"
 				. Inline_Player::render(
 					$guid,
 					Inline_Player::get_player_options( $attributes ),
 					$ratio,
 					array(
-						'poster' => Inline_Player::get_poster_url( $guid ),
+						'poster' => $poster,
 						'title'  => isset( $this->video->title ) ? (string) $this->video->title : '',
 					)
 				)
