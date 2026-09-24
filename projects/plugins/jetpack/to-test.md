@@ -13,16 +13,13 @@ You can see a [full list of changes in this release here](https://github.com/Aut
 
 ### Premium Analytics (new Stats v2 dashboard)
 
-Jetpack 16.3 ships the new dashboard, but for now it is only offered on Simple and Atomic sites. The "Try the new Traffic and Insights tabs" banner in Stats only shows there, and the Jetpack plugin has no toggle of its own. Please test it on self-hosted sites too: switch it on by hand as described in the setup below.
+Jetpack 16.3 ships the new Stats v2 dashboard. The Jetpack plugin has no toggle for it yet, so switch it on by hand as described in the setup below.
 
 **Setup**
 
 - Use a Jetpack-connected site with the Stats module active and a few days of views.
-- Switch on the dashboard:
-  - Simple or Atomic: go to Jetpack → Stats and select **Switch it on** in the "Try the new Traffic and Insights tabs" banner.
-  - Self-hosted: run `wp option update jetpack_premium_analytics_enabled 1`.
-  - Either way, you get the customer preview, which has only the Traffic, Insights and Subscribers tabs.
-- To see every tab (self-hosted only):
+- Switch on the dashboard: run `wp option update jetpack_premium_analytics_enabled 1`. You get the customer preview, which has only the Traffic, Insights and Subscribers tabs.
+- To also see the Ads and Store tabs:
   - Run `wp option delete jetpack_premium_analytics_enabled`.
   - Add a mu-plugin containing `add_filter( 'jetpack_premium_analytics_enabled', '__return_true' );`.
   - Turn on the Subscriptions module (for the Subscribers tab), the WordAds module (for Ads) and WooCommerce (for Store).
@@ -69,7 +66,7 @@ This section needs every tab: use the "To see every tab" setup above. The Ads ta
 
 ### Locations map in Premium Analytics ([#51808](https://github.com/Automattic/jetpack/pull/51808))
 
-**Setup:** a Jetpack-connected site with the new Stats v2 dashboard (Simple or Atomic only currently; on a self-hosted site, switch it on as described in the Premium Analytics setup above), with location stats for the period you pick. Go to Stats v2 → Traffic tab.
+**Setup:** a Jetpack-connected site with the new Stats v2 dashboard (switch it on as described in the Premium Analytics setup above), with location stats for the period you pick. Go to Stats v2 → Traffic tab.
 
 1. Scroll to the Top locations widget and select View all.
 2. On the Countries tab, confirm a world map draws above the table, shaded for the countries the table lists.
@@ -130,12 +127,11 @@ On Windows you can use a High Contrast theme instead of the DevTools emulation.
 
 1. Open the VideoPress admin page
 2. Confirm the subtitle ends with "Learn more"
-3. In WP.com, clicking it opens the Help Center
-4. In self-hosted, clicking it opens https://jetpack.com/support/jetpack-videopress/ in a new tab
+3. Click it. It opens https://jetpack.com/support/jetpack-videopress/ in a new tab
 
 ### Turning features off hides their menu items ([#49591](https://github.com/Automattic/jetpack/pull/49591), [#52156](https://github.com/Automattic/jetpack/pull/52156))
 
-_Test on a self-hosted single site: not on multisite or WordPress.com Atomic._
+_Test on a single-site install, not on multisite._
 
 1. In My Jetpack, turn Activity Log off. Its sidebar entry disappears. Turn it back on and the entry returns.
 2. Go to Jetpack → Modules and turn off one of these: Social (the Publicize module), Jetpack AI or VideoPress. Its item disappears from the Jetpack menu. Turn it back on and confirm the item returns.
