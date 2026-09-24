@@ -1,6 +1,7 @@
 import {
 	contrastRatio,
 	deltaE2000,
+	hexToOklch,
 	hexToViews,
 	oklchToHex,
 	viewDistance,
@@ -45,6 +46,20 @@ describe( 'oklchToHex', () => {
 
 	it( 'returns null outside the sRGB gamut', () => {
 		expect( oklchToHex( 0.9, 0.3, 140 ) ).toBeNull();
+	} );
+} );
+
+describe( 'hexToOklch', () => {
+	it( 'is the inverse of oklchToHex', () => {
+		const { chroma, hue } = hexToOklch( '#ff0000' );
+		expect( chroma ).toBeCloseTo( 0.257683, 3 );
+		expect( hue ).toBeCloseTo( 29.2339, 1 );
+	} );
+
+	it( 'keeps hue between 0 and 360 for a color whose angle is negative', () => {
+		const { hue } = hexToOklch( '#ff00ff' );
+		expect( hue ).toBeGreaterThanOrEqual( 0 );
+		expect( hue ).toBeLessThan( 360 );
 	} );
 } );
 

@@ -178,6 +178,26 @@ export const oklchToHex = ( lightness: number, chroma: number, hue: number ): st
 };
 
 /**
+ * OKLCH chroma and hue of a hex color.
+ *
+ * @param  hex - Six-digit hex color.
+ * @return Chroma, and hue in degrees from 0 to 360.
+ * @throws {Error} if hex string is malformed
+ */
+export const hexToOklch = ( hex: string ): { chroma: number; hue: number } => {
+	const [ r, g, b ] = hexToLinear( hex );
+	const l = Math.cbrt( 0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b );
+	const m = Math.cbrt( 0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b );
+	const s = Math.cbrt( 0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b );
+	const a = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s;
+	const bAxis = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s;
+	return {
+		chroma: Math.hypot( a, bAxis ),
+		hue: ( Math.atan2( bAxis, a ) / DEGREES + 360 ) % 360,
+	};
+};
+
+/**
  * WCAG contrast ratio between two relative luminances.
  *
  * @param first  - First relative luminance.

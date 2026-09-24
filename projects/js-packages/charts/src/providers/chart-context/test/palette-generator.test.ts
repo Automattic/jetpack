@@ -1,5 +1,9 @@
-import { createPaletteGenerator, MIN_BACKGROUND_CONTRAST } from '../private/palette-generator';
-import { contrastRatio, hexToViews, viewDistance } from '../private/perceptual-color';
+import {
+	createPaletteGenerator,
+	MIN_BACKGROUND_CONTRAST,
+	PREFERRED_SEPARATION,
+} from '../private/palette-generator';
+import { contrastRatio, hexToOklch, hexToViews, viewDistance } from '../private/perceptual-color';
 
 // `--wp-admin-theme-color` for each wp-admin color scheme, as `@wordpress/base-styles` sets it.
 const WP_ADMIN_THEME_COLORS = Object.entries( {
@@ -37,15 +41,12 @@ describe( 'createPaletteGenerator', () => {
 		expect( colorAt( 1 ) ).toBe( '#00ff00' );
 	} );
 
-	describe.each( [
-		[ '#ffffff', 14 ],
-		[ '#1e1e1e', 14 ],
-	] )( 'on %s', ( background, floor ) => {
+	describe.each( [ '#ffffff', '#1e1e1e' ] )( 'on %s', background => {
 		it.each( WP_ADMIN_THEME_COLORS )(
 			'keeps a palette seeded with the %s scheme (%s) separable in every vision view up to six colors',
 			( _scheme, seed ) => {
 				expect( minPairwiseDistance( paletteOf( [ seed ], background ) ) ).toBeGreaterThanOrEqual(
-					floor
+					PREFERRED_SEPARATION
 				);
 			}
 		);
@@ -63,6 +64,15 @@ describe( 'createPaletteGenerator', () => {
 			}
 		);
 	} );
+
+	it.each( [ '#007cba', '#3858e9', '#437aa8' ] )(
+		'places the first generated color just ahead of %s on the hue wheel',
+		seed => {
+			const seedHue = hexToOklch( seed ).hue;
+			const nextHue = hexToOklch( paletteOf( [ seed ], '#ffffff', 2 )[ 1 ] ).hue;
+			expect( ( nextHue - seedHue + 360 ) % 360 ).toBeLessThan( 45 );
+		}
+	);
 
 	it( 'returns the same colors whatever order they are asked for in', () => {
 		const inOrder = paletteOf( [ '#3858e9' ], '#ffffff', 8 );

@@ -1,18 +1,44 @@
 import { relativeLuminance } from '../../../utils';
-import { hexToViews, luminanceContrastRatio, oklchToHex, viewDistance } from './perceptual-color';
+import {
+	hexToOklch,
+	hexToViews,
+	luminanceContrastRatio,
+	oklchToHex,
+	viewDistance,
+} from './perceptual-color';
 import type { ColorViews } from './perceptual-color';
 
 /** WCAG 1.4.11 non-text contrast, which a series mark needs against the chart background. */
 export const MIN_BACKGROUND_CONTRAST = 3;
 
+/** ΔE00 every earlier color must clear before a candidate may be picked for its hue. */
+export const PREFERRED_SEPARATION = 12;
+
+/** Degrees of hue one unit of OKLCH chroma is worth when ranking candidates. */
+const CHROMA_WEIGHT = 300;
+
 interface Candidate {
 	hex: string;
 	views: ColorViews;
 	luminance: number;
+	hue: number;
+	chroma: number;
 }
 
+const toCandidate = ( hex: string, oklch = hexToOklch( hex ) ): Candidate => ( {
+	hex,
+	views: hexToViews( hex ),
+	luminance: relativeLuminance( hex ),
+	hue: oklch.hue,
+	chroma: oklch.chroma,
+} );
+
+// Degrees from the anchor hue going round the wheel, less a bonus for saturation.
+const wheelRank = ( candidate: Candidate, anchorHue: number ): number =>
+	( ( candidate.hue - anchorHue + 360 ) % 360 ) - candidate.chroma * CHROMA_WEIGHT;
+
 const LIGHTNESS_STEPS = Array.from( { length: 13 }, ( _, step ) => 0.45 + step * 0.025 );
-const CHROMA_STEPS = [ 0.09, 0.12, 0.15, 0.18, 0.21 ];
+const CHROMA_STEPS = [ 0.12, 0.15, 0.18, 0.21 ];
 const HUE_STEPS = Array.from( { length: 72 }, ( _, step ) => step * 5 );
 
 let candidateGrid: Candidate[] | null = null;
@@ -27,11 +53,7 @@ const getCandidateGrid = (): Candidate[] => {
 					const hex = oklchToHex( lightness, chroma, hue );
 					if ( hex && ! seen.has( hex ) ) {
 						seen.add( hex );
-						candidateGrid.push( {
-							hex,
-							views: hexToViews( hex ),
-							luminance: relativeLuminance( hex ),
-						} );
+						candidateGrid.push( toCandidate( hex, { hue, chroma } ) );
 					}
 				}
 			}
@@ -117,26 +139,45 @@ const updateTracker = (
 };
 
 /**
- * Pick the unused candidate whose nearest distance to the palette is largest, keeping the first
- * in pool order on a tie.
+ * Pick the next color: among unused candidates that clear `PREFERRED_SEPARATION` from every
+ * earlier color, the one nearest the anchor hue; otherwise the farthest candidate.
  *
  * @param tracker   - Tracker to read.
  * @param usedHexes - Hex values already placed; a used candidate is never picked.
- * @return The farthest candidate, or null if every candidate in the pool is used.
+ * @param anchorHue - Hue the wheel walk starts from, or null to always take the farthest.
+ * @return The picked candidate, or null if every candidate in the pool is used.
  */
-const pickFarthest = ( tracker: Tracker, usedHexes: ReadonlySet< string > ): Candidate | null => {
-	let bestIndex = -1;
-	let bestDistance = -Infinity;
+const pickNext = (
+	tracker: Tracker,
+	usedHexes: ReadonlySet< string >,
+	anchorHue: number | null
+): Candidate | null => {
+	let farthestIndex = -1;
+	let farthestDistance = -Infinity;
+	let nearestHueIndex = -1;
+	let nearestHueRank = Infinity;
 	for ( let i = 0; i < tracker.pool.length; i++ ) {
 		if ( usedHexes.has( tracker.pool[ i ].hex ) ) {
 			continue;
 		}
-		if ( tracker.nearest[ i ] > bestDistance ) {
-			bestDistance = tracker.nearest[ i ];
-			bestIndex = i;
+		const distance = tracker.nearest[ i ];
+		if ( distance > farthestDistance ) {
+			farthestDistance = distance;
+			farthestIndex = i;
+		}
+		if ( anchorHue !== null && distance >= PREFERRED_SEPARATION ) {
+			const rank = wheelRank( tracker.pool[ i ], anchorHue );
+			if (
+				rank < nearestHueRank ||
+				( rank === nearestHueRank && distance > tracker.nearest[ nearestHueIndex ] )
+			) {
+				nearestHueRank = rank;
+				nearestHueIndex = i;
+			}
 		}
 	}
-	return bestIndex === -1 ? null : tracker.pool[ bestIndex ];
+	const index = nearestHueIndex === -1 ? farthestIndex : nearestHueIndex;
+	return index === -1 ? null : tracker.pool[ index ];
 };
 
 /**
@@ -152,12 +193,9 @@ export const createPaletteGenerator = (
 	background: string
 ): ( ( index: number ) => string ) => {
 	const normalizedSeeds = seeds.map( hex => hex.toLowerCase() );
-	const palette: Candidate[] = normalizedSeeds.map( hex => ( {
-		hex,
-		views: hexToViews( hex ),
-		luminance: relativeLuminance( hex ),
-	} ) );
+	const palette: Candidate[] = normalizedSeeds.map( hex => toCandidate( hex ) );
 	const usedHexes = new Set< string >( normalizedSeeds );
+	const anchorHue = palette.length > 0 ? palette[ 0 ].hue : null;
 
 	let legibleTracker: Tracker | null = null;
 	let legibleExhausted = false;
@@ -170,7 +208,7 @@ export const createPaletteGenerator = (
 	const nextColor = (): Candidate => {
 		if ( ! legibleExhausted ) {
 			legibleTracker ??= buildTracker( legibleCandidatesFor( background ), palette, usedHexes );
-			const picked = pickFarthest( legibleTracker, usedHexes );
+			const picked = pickNext( legibleTracker, usedHexes, anchorHue );
 			if ( picked ) {
 				return picked;
 			}
@@ -178,7 +216,7 @@ export const createPaletteGenerator = (
 		}
 		if ( ! gridExhausted ) {
 			gridTracker ??= buildTracker( getCandidateGrid(), palette, usedHexes );
-			const picked = pickFarthest( gridTracker, usedHexes );
+			const picked = pickNext( gridTracker, usedHexes, anchorHue );
 			if ( picked ) {
 				return picked;
 			}
