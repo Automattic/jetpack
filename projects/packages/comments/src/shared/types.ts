@@ -70,6 +70,7 @@ export type Strings = {
 	required: string;
 	website: string;
 	intro: string;
+	introOr: string;
 	saveAndPost: string;
 	postWithoutSaving: string;
 	close: string;

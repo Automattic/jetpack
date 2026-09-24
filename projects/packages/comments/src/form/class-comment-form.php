@@ -521,6 +521,7 @@ class Comment_Form {
 			'required'            => __( '(required)', 'jetpack-comments' ),
 			'website'             => __( 'Website (optional)', 'jetpack-comments' ),
 			'intro'               => __( 'Add your name and email to post your comment.', 'jetpack-comments' ),
+			'introOr'             => __( 'Or add your name and email to post your comment.', 'jetpack-comments' ),
 			'saveAndPost'         => __( 'Save and post comment', 'jetpack-comments' ),
 			'postWithoutSaving'   => __( 'No, thanks. I just want to post a comment', 'jetpack-comments' ),
 			'close'               => __( 'Close', 'jetpack-comments' ),

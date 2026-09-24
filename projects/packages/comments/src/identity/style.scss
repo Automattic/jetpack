@@ -138,10 +138,15 @@
 	margin-block-start: 24px;
 }
 
-.jetpack-comments__sign-in,
+.jetpack-comments__sign-in {
+	display: grid;
+	justify-items: center;
+	gap: 8px;
+	margin-block-start: 16px;
+}
+
 .jetpack-comments__signing-in {
 	display: inline-flex;
-	flex-wrap: wrap;
 	align-items: center;
 	gap: 8px;
 	font-size: 0.875em;
@@ -150,7 +155,7 @@
 .jetpack-comments__wpcom {
 	display: inline-flex;
 	align-items: center;
-	gap: 6px;
+	gap: 0.5em;
 }
 
 .jetpack-comments__spinner {

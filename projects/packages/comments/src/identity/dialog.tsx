@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
 import { signIn } from './checkpoint/checkpoint';
@@ -102,6 +103,35 @@ export const IdentityDialog = () => {
 	const name = user ? user.name : ( signedIn.value?.name ?? '' );
 	const submitLabel = commentParent.value ? strings.reply : formSettings.submitLabel;
 
+	const signInBlock = ! known && identity.canSignIn && (
+		<div className="jetpack-comments__sign-in">
+			{ isSigningIn ? (
+				<span className="jetpack-comments__signing-in">
+					<span className="jetpack-comments__spinner" aria-hidden="true" />
+					<button type="button" className="jetpack-comments__link-button" onClick={ cancel }>
+						{ strings.cancel }
+					</button>
+				</span>
+			) : (
+				<span className={ formSettings.submitWrapClass }>
+					<button
+						type="button"
+						className={ clsx( formSettings.submitClass, 'jetpack-comments__wpcom' ) }
+						onClick={ start }
+					>
+						<WordPressIcon />
+						{ strings.logInWithWordPress }
+					</button>
+				</span>
+			) }
+			{ signInError && (
+				<span className="jetpack-comments__notice" role="status">
+					{ signInError }
+				</span>
+			) }
+		</div>
+	);
+
 	return (
 		<dialog
 			ref={ dialog }
@@ -131,10 +161,20 @@ export const IdentityDialog = () => {
 					<CloseIcon />
 				</button>
 			</div>
-			<p className="jetpack-comments__dialog-intro">
-				{ known && strings.commentingAs.replace( '%s', () => name ) }
-				{ ! known && ( mustLogIn ? strings.mustLogIn : strings.intro ) }
-			</p>
+			{ ! known && mustLogIn && (
+				<p className="jetpack-comments__dialog-intro">{ strings.mustLogIn }</p>
+			) }
+			{ signInBlock }
+			{ known && (
+				<p className="jetpack-comments__dialog-intro">
+					{ strings.commentingAs.replace( '%s', () => name ) }
+				</p>
+			) }
+			{ ! known && ! mustLogIn && (
+				<p className="jetpack-comments__dialog-intro">
+					{ identity.canSignIn ? strings.introOr : strings.intro }
+				</p>
+			) }
 			{ ! mustLogIn && ! known && (
 				<div className="contact-form jetpack-comments__guest">
 					{ fields.map( ( { field, kind, hint, ...input } ) => (
@@ -220,31 +260,6 @@ export const IdentityDialog = () => {
 							{ strings.postWithoutSaving }
 						</button>
 					</>
-				) }
-				{ ! known && identity.canSignIn && isSigningIn && (
-					<span className="jetpack-comments__signing-in">
-						<span className="jetpack-comments__spinner" aria-hidden="true" />
-						<button type="button" className="jetpack-comments__link-button" onClick={ cancel }>
-							{ strings.cancel }
-						</button>
-					</span>
-				) }
-				{ ! known && identity.canSignIn && ! isSigningIn && (
-					<span className="jetpack-comments__sign-in">
-						<button
-							type="button"
-							className="jetpack-comments__link-button jetpack-comments__wpcom"
-							onClick={ start }
-						>
-							<WordPressIcon />
-							{ strings.logInWithWordPress }
-						</button>
-						{ signInError && (
-							<span className="jetpack-comments__notice" role="status">
-								{ signInError }
-							</span>
-						) }
-					</span>
 				) }
 			</div>
 		</dialog>
