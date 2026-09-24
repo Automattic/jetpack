@@ -3,6 +3,7 @@
 // Matches the product-card icon palette in ../products/styles.module.scss.
 $feature-icon-background: #003010;
 $feature-icon-foreground: #0ced57;
+$banner-foreground: #daffdc;
 
 .content {
 	display: flex;
@@ -10,6 +11,81 @@ $feature-icon-foreground: #0ced57;
 	gap: var(--wpds-dimension-gap-sm);
 	// The page footer sits straight under the grid, so the last row needs room.
 	padding-block-end: var(--wpds-dimension-padding-3xl);
+}
+
+// The AI Hub's dark-green banner, rebuilt: a package cannot import the
+// Jetpack plugin's shell.
+.banner {
+	align-items: flex-start;
+	background: $feature-icon-background;
+	border-radius: var(--wpds-border-radius-lg);
+	box-sizing: border-box;
+	display: flex;
+	// Keeps the orbs' stacking inside the banner, away from the sticky toolbar.
+	isolation: isolate;
+	margin-block-end: var(--wpds-dimension-gap-sm);
+	overflow: hidden;
+	padding: var(--wpds-dimension-padding-3xl);
+	position: relative;
+}
+
+.banner__content {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+	max-inline-size: 32.5rem;
+	position: relative;
+	z-index: 1;
+}
+
+// Two classes, to outweigh the tab wrapper's rule for every h2.
+.banner .banner__title {
+	color: $banner-foreground;
+	font-size: 32px;
+	font-weight: 500;
+	line-height: 40px;
+	margin: 0;
+}
+
+.banner__description {
+	color: $banner-foreground;
+	font-size: 13px;
+	line-height: 20px;
+	margin: 0;
+}
+
+// Two classes, to outweigh the Button's own colour rules.
+.banner .banner__close {
+	color: #fff;
+	inset-block-start: var(--wpds-dimension-padding-sm);
+	inset-inline-end: var(--wpds-dimension-padding-sm);
+	position: absolute;
+	z-index: 1;
+
+	&:hover:not(:disabled) {
+		color: $banner-foreground;
+	}
+}
+
+.banner__orb {
+	background: linear-gradient(to right, #04c, #48ff50);
+	block-size: 180px;
+	border-radius: 50%;
+	inline-size: 180px;
+	// Shared by both orbs, so the glow and the sphere share a vertical axis.
+	inset-inline-end: 56px;
+	pointer-events: none;
+	position: absolute;
+}
+
+.banner__orb--top {
+	filter: blur(25px);
+	inset-block-start: -96px;
+}
+
+// Deep enough that this short banner shows a glow, not the sphere's hard edge.
+.banner__orb--bottom {
+	inset-block-end: -140px;
 }
 
 .feature-grid {

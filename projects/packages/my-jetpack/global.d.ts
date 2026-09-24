@@ -504,6 +504,7 @@ type MainFeature = {
 interface Window {
 	myJetpackInitialState?: {
 		mainFeatures: MainFeaturesState | null;
+		featuresBanner: { isDismissed: boolean } | null;
 		siteSuffix: string;
 		siteUrl: string;
 		latestBoostSpeedScores: {

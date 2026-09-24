@@ -7,6 +7,7 @@ import { FeatureItem } from './feature-item';
 import { FeatureList, UnswitchableNote } from './feature-list';
 import { FeatureModal } from './feature-modal';
 import { useFeatureStates } from './feature-state';
+import { FeaturesBanner } from './features-banner';
 import { MenuPointer } from './menu-pointer';
 import { MoreFeatures } from './more-features';
 import styles from './styles.module.scss';
@@ -145,6 +146,8 @@ export function FeaturesContent() {
 
 	return (
 		<section className={ styles.content }>
+			<FeaturesBanner />
+
 			<Toolbar
 				view={ view }
 				onViewChange={ onViewChange }
