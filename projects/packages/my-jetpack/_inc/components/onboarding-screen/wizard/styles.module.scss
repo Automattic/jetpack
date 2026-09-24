@@ -143,6 +143,14 @@ $panel-art-width: 77%;
 $panel-art-draw-duration: 1.4s;
 
 /*
+ * The feature row's icon tile, from the prototype's group-step.tsx: `size-12`,
+ * so 48px. The size scale stops at 40 (--wpds-dimension-size-lg), and a 40px
+ * tile around a 20px glyph leaves too little ground for the dark fill to read
+ * as a tile rather than as a badge. The glyph inside it is on the scale.
+ */
+$feature-glyph-tile: 48px;
+
+/*
  * The option rows' cascade, from the prototype's questions-card.tsx: 0.3s, a
  * 10px rise, delay 0.12 + index * 0.05. Its own comment records why the step
  * was cut from 0.12: at five options the commit button sat unusable for 1.29s,
@@ -997,6 +1005,10 @@ $rail-row-min-height: 40px;
 .feature-rows {
 	display: flex;
 	flex-direction: column;
+
+	// Ruled top and bottom as well as between, unlike the answers above: this is a
+	// list of things being done to the site, not a set of answers to one question.
+	border-block: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 }
 
 .feature-row__wrap {
@@ -1015,14 +1027,44 @@ $rail-row-min-height: 40px;
 .feature-row {
 	display: flex;
 	align-items: center;
+
+	// The prototype's own two gaps: the glyph sits closer to its words than the
+	// words sit to the switch, so the row reads as a thing and a control.
 	gap: var(--wpds-dimension-gap-lg);
-	min-block-size: $row-min-height;
-	padding-block: var(--wpds-dimension-padding-lg);
+	padding-block: var(--wpds-dimension-padding-md);
+}
+
+/*
+ * The dark tile the glyph sits on, which is what makes these read as products
+ * rather than as settings. Brand greens rather than WPDS: the design system has
+ * no Jetpack green, and this pairing is the prototype's, drawn from the same
+ * ramp as the panel.
+ */
+.feature-row__glyph {
+	display: flex;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+	inline-size: $feature-glyph-tile;
+	block-size: $feature-glyph-tile;
+	border-radius: var(--wpds-border-radius-md);
+	background: var(--jp-green-100);
+	color: var(--jp-green-30);
+
+	svg {
+		inline-size: var(--wpds-dimension-size-xs);
+		block-size: var(--wpds-dimension-size-xs);
+		fill: currentColor;
+	}
 }
 
 .feature-row__copy {
+	display: flex;
 	min-inline-size: 0;
+	flex-direction: column;
 	flex-grow: 1;
+	gap: var(--wpds-dimension-gap-xs);
+	margin-inline-end: var(--wpds-dimension-gap-md);
 }
 
 .feature-row__name {
@@ -1031,7 +1073,17 @@ $rail-row-min-height: 40px;
 	font-weight: var(--wpds-typography-font-weight-emphasis);
 }
 
+/*
+ * Two lines whether it needs them or not, as the prototype does, so six rows of
+ * uneven copy still make one even list. Longer lines are clamped rather than
+ * allowed to push their row taller than its neighbours.
+ */
 .feature-row__description {
+	display: -webkit-box;
+	overflow: hidden;
+	min-block-size: 2lh;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
 	color: var(--wpds-color-foreground-content-neutral-weak);
 	text-wrap: pretty;
 }

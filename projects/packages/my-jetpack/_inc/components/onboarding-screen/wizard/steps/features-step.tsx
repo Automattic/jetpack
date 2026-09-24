@@ -1,5 +1,5 @@
 import { FormToggle } from '@wordpress/components';
-import { Stack, Text } from '@wordpress/ui';
+import { Icon, Stack, Text } from '@wordpress/ui';
 import { useCallback, useId } from 'react';
 import { isWanted } from '../lib';
 import styles from '../styles.module.scss';
@@ -44,6 +44,10 @@ function FeatureRow( {
 
 	return (
 		<div className={ styles[ 'feature-row' ] }>
+			<span className={ styles[ 'feature-row__glyph' ] } aria-hidden="true">
+				<Icon icon={ module.icon } />
+			</span>
+
 			<div className={ styles[ 'feature-row__copy' ] }>
 				<Text variant="body-lg" className={ styles[ 'feature-row__name' ] } render={ <span /> }>
 					{ module.name }

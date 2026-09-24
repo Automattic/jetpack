@@ -1,5 +1,6 @@
 import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { bell, chartBar, envelope, listView, postCommentsForm, shield } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import { requestModuleSwitch } from '../../../data/module-switch';
 import { isWanted } from './lib';
@@ -27,6 +28,21 @@ export const SETUP_MODULES = [
 
 export type SetupModuleSlug = ( typeof SETUP_MODULES )[ number ];
 
+/*
+ * A glyph per module. Modules carry no icon of their own, and the Features grid
+ * keys its icons off a catalog field these do not have, so the mapping lives
+ * here. `@wordpress/icons` rather than the brand product SVGs, which is what the
+ * Features grid uses and what the prototype's row shape was drawn around.
+ */
+const SETUP_MODULE_ICONS: Record< SetupModuleSlug, typeof shield > = {
+	stats: chartBar,
+	'contact-form': postCommentsForm,
+	protect: shield,
+	'activity-log': listView,
+	subscriptions: envelope,
+	monitor: bell,
+};
+
 export type SetupModule = {
 	slug: SetupModuleSlug;
 	// Jetpack's own name and line for the module, already translated. Written here
@@ -34,6 +50,7 @@ export type SetupModule = {
 	// noticed.
 	name: string;
 	description: string;
+	icon: typeof shield;
 	// Whether the site runs it now. Five of the six ship on, so this screen mostly
 	// shows the user what was going to happen anyway.
 	activated: boolean;
@@ -75,6 +92,7 @@ export function useSetupModules(): { modules: SetupModule[]; isLoading: boolean 
 				slug,
 				name: modules[ slug ].name,
 				description: modules[ slug ].description,
+				icon: SETUP_MODULE_ICONS[ slug ],
 				activated: Boolean( modules[ slug ].activated ),
 			} ) ),
 		} ),
