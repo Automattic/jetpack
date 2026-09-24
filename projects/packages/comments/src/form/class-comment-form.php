@@ -223,9 +223,25 @@ class Comment_Form {
 			return $submit_field;
 		}
 
-		// The subscribe checkboxes each host draws itself, read back to draw in the
-		// dialog under the host's own field names: Jetpack Subscriptions appends its
-		// own to the submit field at priority 10, and WordPress.com has a function.
+		$args['subscriptions'] = self::subscriptions( $submit_field );
+
+		// Fires after this filter, and would draw the subscribe options again below the form.
+		remove_action( 'comment_form', 'subscription_comment_form' );
+
+		$this->enqueue_assets( $args );
+
+		return $this->markup( $args );
+	}
+
+	/**
+	 * The subscribe checkboxes each host draws itself, read back to draw in the
+	 * dialog under the host's own field names: Jetpack Subscriptions appends its
+	 * own to the submit field at priority 10, and WordPress.com has a function.
+	 *
+	 * @param string $submit_field The submit field after the filters before this one.
+	 * @return array Each with the field `name`, the `label` to show and whether it starts `checked`.
+	 */
+	private static function subscriptions( $submit_field ) {
 		$drawn = $submit_field;
 
 		if ( function_exists( 'subscription_comment_form' ) ) {
@@ -242,11 +258,11 @@ class Comment_Form {
 			),
 		);
 
-		$args['subscriptions'] = array();
+		$subscriptions = array();
 
 		foreach ( $labels as $name => $label ) {
 			if ( preg_match( '/<input\b[^>]*\bname="' . $name . '"[^>]*>/', $drawn, $input ) ) {
-				$args['subscriptions'][] = array(
+				$subscriptions[] = array(
 					'name'    => $name,
 					'label'   => $label,
 					'checked' => false !== strpos( $input[0], 'checked' ),
@@ -254,12 +270,7 @@ class Comment_Form {
 			}
 		}
 
-		// Fires after this filter, and would draw the subscribe options again below the form.
-		remove_action( 'comment_form', 'subscription_comment_form' );
-
-		$this->enqueue_assets( $args );
-
-		return $this->markup( $args );
+		return $subscriptions;
 	}
 
 	/**
@@ -272,12 +283,20 @@ class Comment_Form {
 			return;
 		}
 
-		$this->enqueue_assets( $this->defaults );
+		$args = $this->defaults;
+
+		// Core skips the submit field on this branch, so the hosts never draw their
+		// checkboxes. Run that filter here without this class on it, to ask them.
+		remove_filter( 'comment_form_submit_field', array( $this, 'render' ), 20 );
+		$args['subscriptions'] = self::subscriptions( (string) apply_filters( 'comment_form_submit_field', '', $args ) );
+		add_filter( 'comment_form_submit_field', array( $this, 'render' ), 20, 2 );
+
+		$this->enqueue_assets( $args );
 
 		printf(
 			'<form action="%s" method="post" id="commentform" class="comment-form">%s</form>',
 			esc_url( site_url( '/wp-comments-post.php' ) ),
-			$this->markup( $this->defaults ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped as it is built.
+			$this->markup( $args ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped as it is built.
 		);
 	}
 
