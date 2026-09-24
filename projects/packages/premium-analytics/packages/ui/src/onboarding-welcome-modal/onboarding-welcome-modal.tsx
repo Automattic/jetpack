@@ -62,14 +62,11 @@ export function OnboardingWelcomeModal( {
 					</div>
 					<Stack direction="column" gap="md">
 						<Dialog.Title>
-							{ __(
-								'Welcome to the new Traffic and Insights tabs',
-								'jetpack-premium-analytics-pkg'
-							) }
+							{ __( 'Welcome to the new Stats', 'jetpack-premium-analytics-pkg' ) }
 						</Dialog.Title>
 						<Dialog.Description>
 							{ __(
-								"They're built from widgets you can move and resize, so each page can match how you read your site. This is an early version and we'll keep adding new tabs and features in regular updates.",
+								"It's built from widgets you can move and resize, so the page can match how you read your site. This is an early version and we'll keep adding new tabs and features in regular updates.",
 								'jetpack-premium-analytics-pkg'
 							) }
 						</Dialog.Description>

@@ -16,7 +16,7 @@ describe( 'OnboardingWelcomeModal', () => {
 		renderModal();
 
 		const dialog = screen.getByRole( 'dialog', {
-			name: 'Welcome to the new Traffic and Insights tabs',
+			name: 'Welcome to the new Stats',
 		} );
 		expect( dialog ).toBeInTheDocument();
 		expect( dialog ).toHaveTextContent(
@@ -66,7 +66,7 @@ describe( 'OnboardingWelcomeModal', () => {
 		await userEvent.click( document.body );
 
 		expect(
-			screen.getByRole( 'dialog', { name: 'Welcome to the new Traffic and Insights tabs' } )
+			screen.getByRole( 'dialog', { name: 'Welcome to the new Stats' } )
 		).toBeInTheDocument();
 		expect( onDismiss ).not.toHaveBeenCalled();
 	} );
