@@ -17,7 +17,7 @@ class Main_Features_Test extends TestCase {
 	 */
 	public function test_every_feature_carries_the_required_fields() {
 		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
-			foreach ( array( 'name', 'description', 'long_description', 'icon', 'info_url', 'docs_url', 'delivery' ) as $key ) {
+			foreach ( array( 'name', 'description', 'long_description', 'icon', 'image', 'info_url', 'docs_url', 'delivery' ) as $key ) {
 				$this->assertNotEmpty( $feature[ $key ] ?? null, "Feature {$slug} has no {$key}." );
 			}
 
@@ -97,12 +97,13 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * These are rendered as links straight into the page, so a typo'd or
+	 * These are rendered as links and images straight into the page, so a typo'd or
 	 * non-https value would ship a broken card or a mixed-content warning.
 	 */
 	public function test_urls_are_absolute_https() {
 		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
 			$urls = array(
+				'image'      => $feature['image'],
 				'info_url'   => $feature['info_url'],
 				'docs_url'   => $feature['docs_url'],
 				'plugin_url' => $feature['delivery']['plugin_url'] ?? '',

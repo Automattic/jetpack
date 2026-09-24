@@ -513,7 +513,7 @@ $banner-foreground: #daffdc;
 	inline-size: min(42.5rem, calc(100vw - 3rem));
 	max-block-size: calc(100dvh - 5rem);
 	max-inline-size: min(42.5rem, calc(100vw - 3rem));
-	min-block-size: min(22rem, calc(100dvh - 5rem));
+	min-block-size: min(34rem, calc(100dvh - 5rem));
 }
 
 // Mounts already open, so `@wordpress/ui`'s entrance never plays. Rise in by
@@ -540,18 +540,100 @@ $banner-foreground: #daffdc;
 	}
 }
 
-.modal-header {
+// Fixed height, not an aspect ratio: the artwork is third-party marketing
+// imagery at a dozen ratios, and a ratio-driven band would resize the modal
+// on every step.
+.modal-band {
 	align-items: center;
-	gap: var(--wpds-dimension-gap-md);
-	// Room for the close button, which sits in the corner rather than in the row.
-	padding-inline-end: 3.5rem;
+	background: $feature-icon-background;
+	block-size: 14rem;
+	box-sizing: border-box;
+	color: $feature-icon-foreground;
+	display: flex;
+	flex: 0 0 auto;
+	justify-content: center;
+	min-block-size: 0;
+	overflow: hidden;
+	// Inset every image the same: some assets carry their own margin and some
+	// bleed to the edge, so without it the artwork sits inconsistently.
+	padding-block: var(--wpds-dimension-padding-md);
 	position: relative;
 }
 
-.modal-header .modal-close {
-	inset-block-start: var(--wpds-dimension-padding-md);
-	inset-inline-end: var(--wpds-dimension-padding-md);
+.modal-band__art {
+	align-items: center;
+	block-size: 100%;
+	display: flex;
+	inline-size: 100%;
+	justify-content: center;
+}
+
+// `contain`, not `cover`: every one of these assets is square or portrait, so
+// cropping to the band's 4.75:1 would land on empty canvas.
+.modal-band__image {
+	block-size: 100%;
+	inline-size: 100%;
+	object-fit: contain;
+	opacity: 0;
+	transition: opacity 200ms ease-out;
+}
+
+.modal-band__image--loaded {
+	opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.modal-band__image {
+		transition: none;
+	}
+}
+
+.modal-band__glyph {
+	align-items: center;
+	display: flex;
+	justify-content: center;
+
+	svg {
+		fill: currentColor;
+	}
+}
+
+.modal-band__skeleton {
+	block-size: 100%;
+	inset: 0;
 	position: absolute;
+	inline-size: 100%;
+}
+
+// A lone control over artwork earns a 44px hit target; the visual stays 32px.
+// Nested so the white wins over the design system's own dark foreground, which
+// is invisible against the band.
+.modal-band .modal-band__close {
+	background: rgba(0, 0, 0, 0.35);
+	border-radius: 50%;
+	color: #fff;
+	inset-block-start: var(--wpds-dimension-padding-lg);
+	inset-inline-end: var(--wpds-dimension-padding-lg);
+	position: absolute;
+	z-index: 1;
+
+	&:hover,
+	&:focus-visible {
+		background: rgba(0, 0, 0, 0.55);
+		color: #fff;
+	}
+
+	&::after {
+		content: "";
+		inset: -6px;
+		position: absolute;
+	}
+}
+
+.modal-header {
+	align-items: center;
+	gap: var(--wpds-dimension-gap-md);
 }
 
 // Only the name and actions wrap, so close keeps its corner on a phone.
@@ -656,6 +738,15 @@ $banner-foreground: #daffdc;
 	cursor: pointer;
 	font: inherit;
 	padding: 0;
+}
+
+// The artwork took nearly a third of the dialog's height at its desktop size,
+// which a small screen cannot spare.
+@media (max-width: 782px) {
+
+	.modal-band {
+		block-size: 9rem;
+	}
 }
 
 // Core's modal becomes a bottom sheet below 600px: full width, anchored to the

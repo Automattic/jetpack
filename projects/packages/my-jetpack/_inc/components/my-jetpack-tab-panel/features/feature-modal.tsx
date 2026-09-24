@@ -4,6 +4,7 @@ import { Badge, Dialog, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useRef } from 'react';
 import { getActivationStatusLabel } from '../utils';
 import { getArrowStep } from './arrow-navigation';
+import { FeatureBand } from './feature-band';
 import { FeatureDelivery } from './feature-delivery';
 import { FeatureHighlights } from './feature-highlights';
 import { FeatureIcon } from './feature-icon';
@@ -136,6 +137,14 @@ export function FeatureModal( {
 				className={ styles[ 'modal-popup' ] }
 				initialFocus={ initialFocus }
 			>
+				{ /* Close renders before the artwork so a keyboard user reaches it in one Tab. */ }
+				<div className={ styles[ 'modal-band' ] }>
+					<Dialog.CloseIcon className={ styles[ 'modal-band__close' ] } />
+					<div className={ styles[ 'modal-band__art' ] }>
+						<FeatureBand feature={ feature } />
+					</div>
+				</div>
+
 				<Dialog.Header className={ styles[ 'modal-header' ] }>
 					<span className={ styles[ 'modal-icon' ] } aria-hidden="true">
 						<FeatureIcon feature={ feature } />
@@ -157,7 +166,6 @@ export function FeatureModal( {
 							<FeatureModalActions state={ state } />
 						</Stack>
 					</div>
-					<Dialog.CloseIcon className={ styles[ 'modal-close' ] } />
 				</Dialog.Header>
 
 				<Dialog.Content className={ styles[ 'modal-body' ] }>
