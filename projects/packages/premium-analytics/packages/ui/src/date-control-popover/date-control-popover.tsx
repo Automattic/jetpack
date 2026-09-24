@@ -2,15 +2,26 @@
  * External dependencies
  */
 import { Popover, Tooltip, VisuallyHidden } from '@jetpack-premium-analytics/externals';
-import { useId, type ReactElement, type ReactNode } from 'react';
+import {
+	useId,
+	type AriaAttributes,
+	type KeyboardEventHandler,
+	type MouseEventHandler,
+	type ReactElement,
+	type ReactNode,
+} from 'react';
 /**
  * Internal dependencies
  */
 import './date-control-popover.scss';
 
 type DateControlPopoverProps = {
-	/** The button that opens the menu. */
-	trigger: ReactElement;
+	/** The button that opens the menu. Must forward onClick/onKeyDown/aria-* props, since Popover.Trigger clones them onto it. */
+	trigger: ReactElement< {
+		onClick?: MouseEventHandler;
+		onKeyDown?: KeyboardEventHandler;
+		'aria-haspopup'?: AriaAttributes[ 'aria-haspopup' ];
+	} >;
 
 	/** Names the popup for assistive tech; not drawn. */
 	title: string;
