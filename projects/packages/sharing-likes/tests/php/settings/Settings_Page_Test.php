@@ -21,6 +21,7 @@ require_once __DIR__ . '/../lib/trait-section-environment.php';
  * The screen exists whichever modules are active. That is the guarantee this
  * class was written for, and the one the old per-module registration could not
  * make: with sharedaddy, likes and comment-likes all off, there was no screen.
+ * It still needs a site that can load them: Simple, connected, or offline.
  *
  * @covers \Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page
  */
@@ -56,6 +57,7 @@ class Settings_Page_Test extends BaseTestCase {
 		remove_all_actions( 'admin_menu' );
 		remove_all_actions( 'pre_admin_screen_sharing' );
 		remove_all_actions( 'sharing_global_options' );
+		remove_all_filters( 'jetpack_offline_mode' );
 		remove_all_filters( 'jetpack_disable_twitter_cards' );
 
 		$submenu           = array();
@@ -93,31 +95,67 @@ class Settings_Page_Test extends BaseTestCase {
 	 * Comparing against the constant would follow a rename that broke both.
 	 */
 	public function test_registers_the_menu_with_no_module_active(): void {
-		global $submenu;
-
+		$this->given_connection( true );
 		Jetpack_Options::update_option( 'active_modules', array() );
 		wp_set_current_user( $this->create_user( 'administrator' ) );
 
-		Settings_Page::register_menu();
-
-		$slugs = wp_list_pluck( $submenu['options-general.php'] ?? array(), 2 );
-
-		$this->assertContains( 'sharing', $slugs );
+		$this->assertContains( 'sharing', $this->register_and_list_settings_slugs() );
 	}
 
 	/**
-	 * Registering unconditionally must not mean registering for everyone.
+	 * Registering whatever the modules are doing must not mean registering for everyone.
 	 */
 	public function test_does_not_register_for_users_without_the_capability(): void {
-		global $submenu;
-
+		$this->given_connection( true );
 		wp_set_current_user( $this->create_user( 'subscriber' ) );
+
+		$this->assertNotContains( Settings_Page::SLUG, $this->register_and_list_settings_slugs() );
+	}
+
+	/**
+	 * Neither the legacy features nor their blocks load on such a site, so the
+	 * screen would have nothing to configure and no way to turn anything on.
+	 */
+	public function test_does_not_register_the_menu_on_a_disconnected_site_outside_offline_mode(): void {
+		$this->given_connection( false );
+		wp_set_current_user( $this->create_user( 'administrator' ) );
+
+		$this->assertNotContains( Settings_Page::SLUG, $this->register_and_list_settings_slugs() );
+	}
+
+	/**
+	 * Offline mode loads the blocks and lets the Sharing module be turned on.
+	 */
+	public function test_registers_the_menu_in_offline_mode_without_a_connection(): void {
+		$this->given_connection( false );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		wp_set_current_user( $this->create_user( 'administrator' ) );
+
+		$this->assertContains( Settings_Page::SLUG, $this->register_and_list_settings_slugs() );
+	}
+
+	/**
+	 * Simple loads both features without a Jetpack connection.
+	 */
+	public function test_registers_the_menu_on_simple_without_a_connection(): void {
+		$this->given_connection( false );
+		Constants::set_constant( 'IS_WPCOM', true );
+		wp_set_current_user( $this->create_user( 'administrator' ) );
+
+		$this->assertContains( Settings_Page::SLUG, $this->register_and_list_settings_slugs() );
+	}
+
+	/**
+	 * Run the registration and hand back every slug under Settings.
+	 *
+	 * @return string[]
+	 */
+	private function register_and_list_settings_slugs(): array {
+		global $submenu;
 
 		Settings_Page::register_menu();
 
-		$slugs = wp_list_pluck( $submenu['options-general.php'] ?? array(), 2 );
-
-		$this->assertNotContains( Settings_Page::SLUG, $slugs );
+		return wp_list_pluck( $submenu['options-general.php'] ?? array(), 2 );
 	}
 
 	/**
