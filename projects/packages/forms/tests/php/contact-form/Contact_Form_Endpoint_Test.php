@@ -1572,10 +1572,6 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		update_option( 'active_plugins', array( 'zero-bs-crm/ZeroBSCRM.php' ) );
 
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations/zero-bs-crm' );
-	public function test_get_crm_integration_falls_back_to_the_default_plugin_file() {
-		update_option( 'active_plugins', array( 'zero-bs-crm/ZeroBSCRM.php' ) );
-
-		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations/zero-bs-crm' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -1595,34 +1591,6 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_get_crm_integration_follows_a_renamed_plugin_file() {
-		define( 'ZBS_ROOTFILE', WP_PLUGIN_DIR . '/HereTogetherCRM/HereTogetherCRM.php' );
-		define( 'ZBS_ROOTPLUGIN', 'HereTogetherCRM/HereTogetherCRM.php' );
-		update_option( 'active_plugins', array( 'HereTogetherCRM/HereTogetherCRM.php' ) );
-
-		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations/zero-bs-crm' );
-		$response = $this->server->dispatch( $request );
-		$data     = $response->get_data();
-
-		$this->assertEquals( 200, $response->get_status() );
-		$this->assertSame( 'HereTogetherCRM/HereTogetherCRM', $data['pluginFile'] );
-		$this->assertTrue( $data['isActive'] );
-	}
-
-	/**
-	 * Test the CRM integration maps a symlinked install back to its folder in the plugins directory.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_get_crm_integration_follows_a_symlinked_plugin_folder() {
-		// What wp_register_plugin_realpath() records for plugins/zero-bs-crm -> /srv/crm-checkout.
-		$GLOBALS['wp_plugin_paths'][ wp_normalize_path( WP_PLUGIN_DIR . '/zero-bs-crm' ) ] = '/srv/crm-checkout';
-		define( 'ZBS_ROOTFILE', '/srv/crm-checkout/ZeroBSCRM.php' );
-		define( 'ZBS_ROOTPLUGIN', 'crm-checkout/ZeroBSCRM.php' );
-		update_option( 'active_plugins', array( 'zero-bs-crm/ZeroBSCRM.php' ) );
 	public function test_get_crm_integration_follows_a_renamed_plugin_file() {
 		define( 'ZBS_ROOTFILE', WP_PLUGIN_DIR . '/HereTogetherCRM/HereTogetherCRM.php' );
 		define( 'ZBS_ROOTPLUGIN', 'HereTogetherCRM/HereTogetherCRM.php' );
