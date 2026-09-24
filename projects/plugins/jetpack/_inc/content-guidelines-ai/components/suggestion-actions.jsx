@@ -74,12 +74,12 @@ export default function SuggestionActions( { slug } ) {
 				onAccept={ handleAccept }
 				height={ textareaHeight }
 			/>
-			<div className="jetpack-content-guidelines-ai__suggestion-actions">
-				<Button variant="primary" onClick={ handleAccept }>
-					{ __( 'Accept suggestion', 'jetpack' ) }
-				</Button>
+			<div className="jetpack-content-guidelines-ai__suggestion-actions jetpack-content-guidelines-ai__suggestion-actions--end">
 				<Button variant="tertiary" onClick={ handleDismiss }>
 					{ __( 'Dismiss', 'jetpack' ) }
+				</Button>
+				<Button variant="primary" onClick={ handleAccept }>
+					{ __( 'Accept suggestion', 'jetpack' ) }
 				</Button>
 			</div>
 		</div>

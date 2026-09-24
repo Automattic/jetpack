@@ -88,6 +88,11 @@ $cg-diff-removed: #f8d7da;
 	gap: 8px;
 }
 
+// Accept/Dismiss follow Gutenberg's action rows: right-aligned, primary last.
+.jetpack-content-guidelines-ai__suggestion-actions--end {
+	justify-content: flex-end;
+}
+
 // Green shimmer overlay on the textarea during AI generation.
 // We make the textarea wrapper positioned so the ::after overlay works.
 .is-jetpack-loading .components-textarea-control {
