@@ -56,7 +56,7 @@
 	box-sizing: border-box;
 	inline-size: min(100% - 32px, 480px);
 	max-block-size: calc(100% - 32px);
-	padding: 24px;
+	padding: 32px;
 	border: 0;
 	border-radius: 8px;
 	// The page's own surface and text, not a preset the theme may not use. The
@@ -101,8 +101,9 @@
 	cursor: pointer;
 }
 
-.jetpack-comments__dialog-intro {
-	margin-block: 16px 24px;
+// Own the margins outright: themes zero out paragraphs inside .comment-form.
+.jetpack-comments .jetpack-comments__dialog-intro {
+	margin: 24px 0;
 	text-align: center;
 }
 
@@ -127,22 +128,22 @@
 
 .jetpack-comments__subscriptions {
 	display: grid;
-	gap: 8px;
-	margin-block-start: 16px;
+	gap: 12px;
+	margin-block-start: 24px;
 }
 
 .jetpack-comments__dialog-actions {
 	display: grid;
 	justify-items: center;
-	gap: 12px;
-	margin-block-start: 24px;
+	gap: 16px;
+	margin-block-start: 32px;
 }
 
 .jetpack-comments__sign-in {
 	display: grid;
 	justify-items: center;
 	gap: 8px;
-	margin-block-start: 16px;
+	margin-block-start: 24px;
 }
 
 .jetpack-comments__signing-in {
