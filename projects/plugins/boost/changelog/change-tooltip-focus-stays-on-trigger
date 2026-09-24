@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Critical CSS: Show the focus ring on the manual regeneration info icon after clicking it, as on other settings controls.
+Settings: Keep focus on tooltip triggers when their tooltips open, announce the content to screen readers, and show a focus ring after clicking an info icon.

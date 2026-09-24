@@ -1,8 +1,11 @@
 import { jest } from '@jest/globals';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, configure, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import IconTooltip from '../index.tsx';
 import { IconTooltipProps } from '../types.ts';
+
+// speak() copies tooltip text into `@wordpress/a11y`'s live region; match the tooltip only.
+configure( { defaultIgnore: 'script, style, #a11y-speak-polite' } );
 
 /**
  * Make elements measurable, since jsdom reports no layout and the tabbable helpers skip
