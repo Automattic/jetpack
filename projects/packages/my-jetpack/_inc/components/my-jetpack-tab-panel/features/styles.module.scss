@@ -505,15 +505,21 @@ $banner-foreground: #daffdc;
 }
 
 
-// Sized to its content between a floor and the viewport, not pinned: at a fixed
-// 50rem most features left a third of the dialog empty. The floor keeps the
-// common ones the same height, so stepping does not resize under the cursor.
+// One height for every feature, sized to the tallest, so stepping never resizes
+// the dialog under the cursor; a longer body scrolls inside it.
 .modal-popup {
-	block-size: auto;
+	block-size: min(44rem, calc(100dvh - 5rem));
 	inline-size: min(42.5rem, calc(100vw - 3rem));
 	max-block-size: calc(100dvh - 5rem);
 	max-inline-size: min(42.5rem, calc(100vw - 3rem));
-	min-block-size: min(34rem, calc(100dvh - 5rem));
+	// Boot runs a view transition on every URL change, stepping included, and
+	// its stage snapshot paints over anything unnamed. Named, the modal and its
+	// backdrop get layers of their own above it and cross-fade instead.
+	view-transition-name: jetpack-feature-modal;
+}
+
+.modal-portal :global([class*="__backdrop"]) {
+	view-transition-name: jetpack-feature-modal-backdrop;
 }
 
 // Mounts already open, so `@wordpress/ui`'s entrance never plays. Rise in by
@@ -760,9 +766,9 @@ $banner-foreground: #daffdc;
 		inline-size: 100%;
 		inset-block: auto 0;
 		inset-inline: 0 auto;
+		block-size: auto;
 		max-block-size: calc(100% - 2.5rem);
 		max-inline-size: none;
-		min-block-size: 0;
 		transform: none;
 		// Core's own mobile entrance: the sheet rises from below the screen.
 		animation-duration: var(--wpds-motion-duration-md);

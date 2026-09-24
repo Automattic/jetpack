@@ -135,6 +135,7 @@ export function FeatureModal( {
 				ref={ popupRef }
 				size="stretch"
 				className={ styles[ 'modal-popup' ] }
+				portal={ <Dialog.Portal className={ styles[ 'modal-portal' ] } /> }
 				initialFocus={ initialFocus }
 			>
 				{ /* Close renders before the artwork so a keyboard user reaches it in one Tab. */ }
