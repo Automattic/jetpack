@@ -146,11 +146,15 @@ field: its Twitter Cards read `twitter_via` instead.
 Each `save()` bails where its `render()` would have printed nothing: an unchecked
 box posts nothing, so saving a field that was not on screen would switch it off.
 That is also why `sharing_admin_update` only fires when one of its two hosts was
-on screen. Firing it under a nonce its consumers did not mint is not free, and the
+on screen. A `save()` alone is not enough for a field whose availability can move
+between the two requests, though — a service added since the form was built flips
+`Sharing_Resources::is_available()` on — so `Post_Handler` gates that one on the
+services section having claimed the form too. Firing it under a nonce its consumers did not mint is not free, and the
 rule is not "consumers verify their own nonces" — check before adding one. A
 consumer that verifies `sharing-options` — `Jetpack_Likes_Settings::admin_settings_callback()`,
 hooked on Simple — fails closed and silently saves nothing. A consumer that
-verifies nothing and relies on the caller writes whatever the request carries.
+verifies nothing, relying on the caller having done it, writes whatever the
+request carries.
 
 ## Placement defaults
 

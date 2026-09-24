@@ -17,6 +17,7 @@ use RuntimeException;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../lib/class-sharing-service.php';
+require_once __DIR__ . '/../lib/trait-section-environment.php';
 
 /**
  * @covers \Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler
@@ -24,12 +25,23 @@ require_once __DIR__ . '/../lib/class-sharing-service.php';
 #[CoversClass( Post_Handler::class )]
 class Post_Handler_Test extends BaseTestCase {
 
+	use Section_Environment;
+
 	/**
 	 * Where `maybe_handle()` sent the browser, or null if it never got that far.
 	 *
 	 * @var string|null
 	 */
 	private $redirected_to = null;
+
+	/**
+	 * Start every case from a site with no theme, no blocks and no modules.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		$this->set_up_site();
+	}
 
 	/**
 	 * Leave no request state or options behind.
@@ -49,6 +61,7 @@ class Post_Handler_Test extends BaseTestCase {
 		delete_option( 'sharing-services' );
 		delete_option( Twitter_Site_Tag::OPTION );
 		delete_option( Sharing_Resources::OPTION );
+		$this->tear_down_site();
 		Constants::clear_constants();
 
 		parent::tear_down();
@@ -470,6 +483,35 @@ class Post_Handler_Test extends BaseTestCase {
 		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_EXTRAS ), array( Twitter_Site_Tag::OPTION => '@jetpack' ) ) );
 
 		$this->assertSame( 'jetpack', get_option( Twitter_Site_Tag::OPTION ) );
+		$this->assertSame( 1, get_option( Sharing_Resources::OPTION ) );
+	}
+
+	/**
+	 * "Disable CSS and JS" renders with the services list, so the services
+	 * section's save is its only route now that sharedaddy stopped saving it.
+	 */
+	public function test_sharing_save_stores_the_legacy_resources_checkbox(): void {
+		$this->given_connection( true );
+		$this->given_modules( array( 'sharedaddy' ) );
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_SHARING ), array( 'disable_resources' => 'on' ) ) );
+
+		$this->assertSame( 1, get_option( Sharing_Resources::OPTION ) );
+	}
+
+	/**
+	 * A form built while the services list was hidden carries no checkbox, so a
+	 * service added in the meantime must not turn the reading of its absence into an "off".
+	 */
+	public function test_extras_save_leaves_the_legacy_resources_alone_once_sharing_configures(): void {
+		update_option( Sharing_Resources::OPTION, 1 );
+		$this->given_connection( true );
+		$this->given_modules( array( 'sharedaddy' ) );
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_EXTRAS ) ) );
+
 		$this->assertSame( 1, get_option( Sharing_Resources::OPTION ) );
 	}
 
