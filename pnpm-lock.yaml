@@ -5961,6 +5961,9 @@ importers:
       '@automattic/jetpack-publicize':
         specifier: workspace:*
         version: link:../../packages/publicize
+      '@automattic/jetpack-scan-page':
+        specifier: workspace:*
+        version: link:../../packages/scan
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
@@ -5988,6 +5991,9 @@ importers:
       '@react-spring/web':
         specifier: 10.1.1
         version: 10.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@tanstack/react-query':
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
       '@visx/curve':
         specifier: 4.0.0
         version: 4.0.0
@@ -6060,6 +6066,9 @@ importers:
       '@wordpress/rich-text':
         specifier: 7.55.0
         version: 7.55.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/route':
+        specifier: 0.21.0
+        version: 0.21.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/theme':
         specifier: 2.1.0
         version: 2.1.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -6249,7 +6258,7 @@ importers:
         version: 5.55.0
       '@wordpress/build':
         specifier: 0.23.0
-        version: 0.23.0(patch_hash=151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022)(@babel/core@7.29.7)(@wordpress/theme@2.1.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+        version: 0.23.0(patch_hash=151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022)(@babel/core@7.29.7)(@wordpress/route@0.21.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@2.1.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@wordpress/components':
         specifier: 40.1.0
         version: 40.1.0(@date-fns/tz@1.5.0)(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
