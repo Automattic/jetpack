@@ -15,7 +15,7 @@ You can see a [full list of changes in this release here](https://github.com/Aut
 
 Jetpack 16.3 ships the new Stats v2 dashboard. The Jetpack plugin has no toggle for it yet, so switch it on by hand as described in the setup below.
 
-**Setup**
+#### Premium Analytics setup
 
 - Use a Jetpack-connected site with the Stats module active and a few days of views.
 - Switch on the dashboard: run `wp option update jetpack_premium_analytics_enabled 1`. You get the customer preview, which has only the Traffic, Insights and Subscribers tabs.
@@ -53,7 +53,7 @@ Jetpack 16.3 ships the new Stats v2 dashboard. The Jetpack plugin has no toggle 
 
 **4. Subscribers and Ads**
 
-This section needs every tab: use the "To see every tab" setup above. The Ads tab also needs a plan that includes WordAds. When you finish, remove the mu-plugin again.
+This section needs the Ads tab: use the ["To also see the Ads and Store tabs" setup](#premium-analytics-setup) above. The Ads tab also needs a plan that includes WordAds. When you finish, remove the mu-plugin again.
 
 1. Subscribers: Confirm the tab has no date control of its own. The date range now sits on the Subscriber summary chart.
 2. Subscriber highlights shows All-time stats.
@@ -66,7 +66,7 @@ This section needs every tab: use the "To see every tab" setup above. The Ads ta
 
 ### Locations map in Premium Analytics ([#51808](https://github.com/Automattic/jetpack/pull/51808))
 
-**Setup:** a Jetpack-connected site with the new Stats v2 dashboard (switch it on as described in the Premium Analytics setup above), with location stats for the period you pick. Go to Stats v2 → Traffic tab.
+**Setup:** a Jetpack-connected site with the new Stats v2 dashboard (switch it on as described in the [Premium Analytics setup](#premium-analytics-setup) above), with location stats for the period you pick. Go to Stats v2 → Traffic tab.
 
 1. Scroll to the Top locations widget and select View all.
 2. On the Countries tab, confirm a world map draws above the table, shaded for the countries the table lists.
