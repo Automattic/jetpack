@@ -92,13 +92,15 @@
 	padding: 26px 24px;
 }
 
-.jetpack-sso-or {
+.jetpack-sso-or,
+.jetpack-sso-then {
 	margin-bottom: 16px;
 	position: relative;
 	text-align: center;
 }
 
-.jetpack-sso-or::before {
+.jetpack-sso-or::before,
+.jetpack-sso-then::before {
 	background: #dcdcde;
 	content: "";
 	height: 1px;
@@ -108,7 +110,8 @@
 	width: 100%;
 }
 
-.jetpack-sso-or span {
+.jetpack-sso-or span,
+.jetpack-sso-then span {
 	background: #fff;
 	color: #777;
 	position: relative;

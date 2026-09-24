@@ -1,8 +1,6 @@
 document.addEventListener( 'DOMContentLoaded', () => {
 	const body = document.querySelector( 'body' ),
 		toggleSSO = document.querySelector( '.jetpack-sso-toggle' ),
-		userLogin = document.getElementById( 'user_login' ),
-		userPassword = document.getElementById( 'user_pass' ),
 		ssoWrap = document.getElementById( 'jetpack-sso-wrap' ),
 		loginForm = document.getElementById( 'loginform' ),
 		overflow = document.createElement( 'div' );
@@ -16,10 +14,13 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	loginForm.appendChild( ssoWrap );
 	body.classList.add( 'jetpack-sso-repositioned' );
 
-	// The toggle is not rendered when the login form is hidden or two-step setup is required.
+	// The toggle is not rendered when the login form is hidden.
 	if ( ! toggleSSO ) {
 		return;
 	}
+
+	const userLogin = document.getElementById( 'user_login' ),
+		userPassword = document.getElementById( 'user_pass' );
 
 	toggleSSO.addEventListener( 'click', e => {
 		e.preventDefault();
