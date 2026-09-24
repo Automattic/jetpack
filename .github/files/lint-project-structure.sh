@@ -35,11 +35,11 @@ done
 NONJSPACKAGES='{}'
 for PROJECT in projects/*/*; do
 	if [[ "$PROJECT" != projects/js-packages/* && -f "$PROJECT/package.json" ]]; then
-		NONJSPACKAGES=$(jq -c --arg P "${PROJECT#projects/}" --slurpfile c "$PROJECT/composer.json" --slurpfile p "$PROJECT/package.json" '.[ $p[0].name // empty ] |= $P' <<<"$NONJSPACKAGES")
+		NONJSPACKAGES=$(jq -c --arg P "${PROJECT#projects/}" --slurpfile p "$PROJECT/package.json" '.[ $p[0].name // empty ] |= $P' <<<"$NONJSPACKAGES")
 	fi
 done
 
-# Check that `@dev`, `dev-foo`, and `1.2.x-dev` style deps are used appropraitely.
+# Check that `@dev`, `dev-foo`, and `1.2.x-dev` style deps are used appropriately.
 #
 # - $1: What is being checked.
 # - $2: Path to the composer.json to check.
