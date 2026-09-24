@@ -10,6 +10,7 @@ const baseArgs = {
 	isSiteConnected: true,
 	isJetpackPluginActive: true,
 	isSimpleSite: false,
+	isFeaturesTabEnabled: false,
 	onModulesClick: jest.fn(),
 	onResetClick: jest.fn(),
 	onResetKeyDown: jest.fn(),
@@ -25,6 +26,14 @@ describe( 'buildOptionalMenuItems', () => {
 				label: 'Modules',
 				href: 'https://example.com/wp-admin/admin.php?page=jetpack_modules',
 			} );
+		} );
+
+		it( 'links the Modules item to the Features list view when the Features tab is enabled', () => {
+			const items = buildOptionalMenuItems( { ...baseArgs, isFeaturesTabEnabled: true } );
+
+			expect( items[ 0 ].href ).toBe(
+				'https://example.com/wp-admin/admin.php?page=my-jetpack#/features?view=list'
+			);
 		} );
 
 		it( 'omits the Modules link for non-admin users', () => {

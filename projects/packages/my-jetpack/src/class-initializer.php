@@ -373,7 +373,7 @@ class Initializer {
 		Feature_Flags::register(
 			self::FEATURES_TAB_FEATURE_FLAG,
 			array(
-				'default'     => false,
+				'default'     => true,
 				'description' => 'Replace the My Jetpack Products tab with a Features tab.',
 				'owner'       => 'my-jetpack',
 			)

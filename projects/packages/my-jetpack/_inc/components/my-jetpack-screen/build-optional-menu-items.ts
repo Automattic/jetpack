@@ -15,6 +15,7 @@ type BuildOptionalMenuItemsArgs = {
 	isSiteConnected: boolean;
 	isJetpackPluginActive: boolean;
 	isSimpleSite: boolean;
+	isFeaturesTabEnabled: boolean;
 	onModulesClick: () => void;
 	onResetClick: () => void;
 	onResetKeyDown: ( event: KeyboardEvent ) => void;
@@ -27,6 +28,7 @@ const buildOptionalMenuItems = ( {
 	isSiteConnected,
 	isJetpackPluginActive,
 	isSimpleSite,
+	isFeaturesTabEnabled,
 	onModulesClick,
 	onResetClick,
 	onResetKeyDown,
@@ -46,7 +48,9 @@ const buildOptionalMenuItems = ( {
 				'Access the full list of Jetpack modules available on your site.',
 				'jetpack-my-jetpack'
 			),
-			href: `${ adminUrl }admin.php?page=jetpack_modules`,
+			href: isFeaturesTabEnabled
+				? `${ adminUrl }admin.php?page=my-jetpack#/features?view=list`
+				: `${ adminUrl }admin.php?page=jetpack_modules`,
 			onClick: onModulesClick,
 		} );
 	}

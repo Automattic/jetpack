@@ -161,7 +161,7 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 		$self_hosted = $this->render( array( $chrome, 'render_footer' ) );
 
 		$this->assertStringContainsString( 'class="jp-akismet-footer__menu"', $self_hosted );
-		$this->assertStringContainsString( 'page=my-jetpack#/products', $self_hosted );
+		$this->assertStringContainsString( 'page=my-jetpack#/', $self_hosted );
 
 		Constants::set_constant( 'IS_WPCOM', true );
 		Status_Cache::clear();

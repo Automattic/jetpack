@@ -3,6 +3,8 @@ import { __ } from '@wordpress/i18n';
 import { Link, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
+import { MY_JETPACK_SECTION_FEATURES } from '../constants';
+import { getProductsSection } from '../utils';
 import styles from './styles.module.scss';
 import { useHelpTracking } from './use-help-tracking';
 
@@ -67,7 +69,11 @@ export function HelpFooter() {
 							<ul>
 								<li>
 									<Link
-										href={ getAdminUrl( 'admin.php?page=jetpack_modules' ) }
+										href={ getAdminUrl(
+											getProductsSection() === MY_JETPACK_SECTION_FEATURES
+												? 'admin.php?page=my-jetpack#/features?view=list'
+												: 'admin.php?page=jetpack_modules'
+										) }
 										onClick={ handleAllModulesClick }
 									>
 										{ __( 'All Jetpack modules', 'jetpack-my-jetpack' ) }
