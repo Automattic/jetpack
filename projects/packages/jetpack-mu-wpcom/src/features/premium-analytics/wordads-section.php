@@ -62,10 +62,10 @@ function wpcom_premium_analytics_register_wordads_section( $registry ) {
  */
 function wpcom_premium_analytics_wordads_is_enabled() {
 	if ( ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ) {
-		// Simple keeps its own WordAds record. Until the wpcom function behind the
-		// SAL's has_wordads() is wired here, the plan feature alone decides, as before.
-		// TODO WOOA7S-2208: call that function.
-		return ! function_exists( 'wpcom_wordads_is_enabled' ) || (bool) wpcom_wordads_is_enabled();
+		// The stickers the sites API's has_wordads() reads on Simple. Without the
+		// stickers API the plan feature alone decides, rather than no site getting the tab.
+		return ! function_exists( 'has_any_blog_stickers' )
+			|| (bool) has_any_blog_stickers( array( 'wordads-approved', 'wordads-approved-misfits' ), get_current_blog_id() );
 	}
 
 	// Atomic runs the Jetpack plugin, where classic reads the WordAds module. Not

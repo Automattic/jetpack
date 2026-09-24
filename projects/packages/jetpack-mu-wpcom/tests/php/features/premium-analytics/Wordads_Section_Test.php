@@ -114,20 +114,42 @@ class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Simple reads its own WordAds record rather than the module list.
+	 * Simple reads the WordAds stickers rather than the module list, as the sites API does.
 	 */
-	public function test_simple_follows_the_wpcom_wordads_record() {
+	public function test_simple_follows_the_wordads_stickers() {
 		Constants::set_constant( 'IS_WPCOM', true );
 		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
-		Functions\when( 'wpcom_wordads_is_enabled' )->justReturn( false );
+		Functions\when( 'has_any_blog_stickers' )->justReturn( false );
 
 		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, 'wordads/ads' ) );
 	}
 
 	/**
-	 * Simple without the wpcom record wired keeps today's plan-only behaviour rather than losing the tab.
+	 * An approved WordAds site on Simple gets the tab.
+	 */
+	public function test_simple_registers_the_tab_for_an_approved_site() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
+		// `when()` rather than `expect()`: an expectation does not override an earlier test's stub here.
+		$asked = array();
+		Functions\when( 'has_any_blog_stickers' )->alias(
+			function ( $stickers, $blog_id ) use ( &$asked ) {
+				$asked = array( $stickers, $blog_id );
+				return true;
+			}
+		);
+
+		$this->assertInstanceOf( Dashboard_Section::class, get_registered_dashboard_section( DASHBOARD_NAME, 'wordads/ads' ) );
+		$this->assertSame(
+			array( array( 'wordads-approved', 'wordads-approved-misfits' ), get_current_blog_id() ),
+			$asked
+		);
+	}
+
+	/**
+	 * Simple without the stickers API keeps the plan-only behaviour rather than losing the tab.
 	 *
-	 * Its own process: a Brain Monkey stub of the record function from another test would otherwise
+	 * Its own process: a Brain Monkey stub of the stickers function from another test would otherwise
 	 * make `function_exists()` true here.
 	 *
 	 * @runInSeparateProcess
@@ -135,7 +157,7 @@ class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_simple_falls_back_to_the_plan_feature_without_the_wpcom_record() {
+	public function test_simple_falls_back_to_the_plan_feature_without_the_stickers_api() {
 		Constants::set_constant( 'IS_WPCOM', true );
 		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
 
