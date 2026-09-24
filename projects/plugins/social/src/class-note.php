@@ -21,6 +21,11 @@ class Note {
 	 * Check if the feature is enabled.
 	 */
 	public function enabled() {
+		$missing = new \stdClass();
+		if ( $missing === get_option( self::JETPACK_SOCIAL_NOTE_CPT, $missing ) ) {
+			add_option( self::JETPACK_SOCIAL_NOTE_CPT, false, '', true );
+		}
+
 		return (bool) get_option( self::JETPACK_SOCIAL_NOTE_CPT );
 	}
 
