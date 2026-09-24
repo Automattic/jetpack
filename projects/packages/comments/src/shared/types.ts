@@ -73,6 +73,7 @@ export type Strings = {
 	postWithoutSaving: string;
 	close: string;
 	edit: string;
+	manageSubscriptions: string;
 	logInToComment: string;
 	logInWithWordPress: string;
 	logOut: string;
@@ -90,6 +91,10 @@ export type Settings = {
 	/** The site user's avatar, the saved guest's, or the site default. Empty when avatars are off. */
 	avatarUrl: string;
 	site: { name: string; iconUrl: string };
+	/** Where a reader manages their subscriptions to this site. Empty where the host offers none. */
+	subscriptionsUrl: string;
+	/** The same for a reader the popup signed in, who has a WordPress.com account. */
+	readerSubscriptionsUrl: string;
 	strings: Strings;
 	commenter: Commenter;
 	user: { name: string } | null;

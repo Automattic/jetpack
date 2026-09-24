@@ -392,17 +392,40 @@ class Comment_Form {
 
 		return array_merge(
 			array(
-				'requireNameEmail' => (bool) get_option( 'require_name_email' ),
-				'mustLogIn'        => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
-				'maxLength'        => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
-				'site'             => array(
+				'requireNameEmail'       => (bool) get_option( 'require_name_email' ),
+				'mustLogIn'              => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
+				'maxLength'              => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
+				'site'                   => array(
 					'name'    => get_bloginfo( 'name' ),
 					'iconUrl' => (string) get_site_icon_url( 64 ),
 				),
-				'strings'          => self::strings( $args ),
+				'subscriptionsUrl'       => self::subscriptions_url( defined( 'IS_WPCOM' ) && IS_WPCOM && is_user_logged_in() ),
+				// For a reader the popup signs in, who has a WordPress.com account by definition.
+				'readerSubscriptionsUrl' => self::subscriptions_url( true ),
+				'strings'                => self::strings( $args ),
 			),
 			Identity::settings()
 		);
+	}
+
+	/**
+	 * Where a reader manages their subscriptions to this site.
+	 *
+	 * @param bool $has_account Whether they hold a WordPress.com account, which the Reader's page needs.
+	 * @return string Empty where the host offers no subscriptions.
+	 */
+	private static function subscriptions_url( $has_account ) {
+		if ( ! function_exists( 'subscription_comment_form' ) && ! class_exists( 'Jetpack_Subscriptions' ) ) {
+			return '';
+		}
+
+		$blog_id = Checkpoint::blog_id();
+
+		if ( $has_account && $blog_id > 0 ) {
+			return 'https://wordpress.com/reader/site/subscription/' . $blog_id;
+		}
+
+		return 'https://subscribe.wordpress.com/';
 	}
 
 	/**
@@ -459,28 +482,29 @@ class Comment_Form {
 	 */
 	private static function strings( $args ) {
 		$strings = array(
-			'reply'              => _x( 'Reply', 'verb', 'jetpack-comments' ),
-			'commentLabel'       => _x( 'Comment', 'noun', 'jetpack-comments' ),
-			'replyLabel'         => _x( 'Reply', 'noun', 'jetpack-comments' ),
-			'placeholder'        => __( 'Write a comment...', 'jetpack-comments' ),
-			'replyPlaceholder'   => __( 'Write a reply...', 'jetpack-comments' ),
-			'name'               => __( 'Name', 'jetpack-comments' ),
-			'email'              => __( 'Email', 'jetpack-comments' ),
-			'emailHint'          => __( 'Address never made public', 'jetpack-comments' ),
-			'website'            => __( 'Website (optional)', 'jetpack-comments' ),
-			'intro'              => __( 'Add your name and email to post your comment.', 'jetpack-comments' ),
-			'saveAndPost'        => __( 'Save and post comment', 'jetpack-comments' ),
-			'postWithoutSaving'  => __( 'No, thanks. I just want to post a comment', 'jetpack-comments' ),
-			'close'              => __( 'Close', 'jetpack-comments' ),
-			'edit'               => __( 'Edit', 'jetpack-comments' ),
-			'logInToComment'     => __( 'Log in to comment', 'jetpack-comments' ),
-			'logInWithWordPress' => __( 'Log in with WordPress.com', 'jetpack-comments' ),
-			'logOut'             => __( 'Log out', 'jetpack-comments' ),
+			'reply'               => _x( 'Reply', 'verb', 'jetpack-comments' ),
+			'commentLabel'        => _x( 'Comment', 'noun', 'jetpack-comments' ),
+			'replyLabel'          => _x( 'Reply', 'noun', 'jetpack-comments' ),
+			'placeholder'         => __( 'Write a comment...', 'jetpack-comments' ),
+			'replyPlaceholder'    => __( 'Write a reply...', 'jetpack-comments' ),
+			'name'                => __( 'Name', 'jetpack-comments' ),
+			'email'               => __( 'Email', 'jetpack-comments' ),
+			'emailHint'           => __( 'Address never made public', 'jetpack-comments' ),
+			'website'             => __( 'Website (optional)', 'jetpack-comments' ),
+			'intro'               => __( 'Add your name and email to post your comment.', 'jetpack-comments' ),
+			'saveAndPost'         => __( 'Save and post comment', 'jetpack-comments' ),
+			'postWithoutSaving'   => __( 'No, thanks. I just want to post a comment', 'jetpack-comments' ),
+			'close'               => __( 'Close', 'jetpack-comments' ),
+			'edit'                => __( 'Edit', 'jetpack-comments' ),
+			'manageSubscriptions' => __( 'Manage subscriptions', 'jetpack-comments' ),
+			'logInToComment'      => __( 'Log in to comment', 'jetpack-comments' ),
+			'logInWithWordPress'  => __( 'Log in with WordPress.com', 'jetpack-comments' ),
+			'logOut'              => __( 'Log out', 'jetpack-comments' ),
 			/* translators: %s is the commenter's name. */
-			'commentingAs'       => __( 'Commenting as %s', 'jetpack-comments' ),
-			'cancel'             => __( 'Cancel', 'jetpack-comments' ),
-			'signInFailed'       => __( 'We could not sign you in. Please try again.', 'jetpack-comments' ),
-			'signInRateLimited'  => __( 'Too many sign-in attempts. Please wait a moment and try again.', 'jetpack-comments' ),
+			'commentingAs'        => __( 'Commenting as %s', 'jetpack-comments' ),
+			'cancel'              => __( 'Cancel', 'jetpack-comments' ),
+			'signInFailed'        => __( 'We could not sign you in. Please try again.', 'jetpack-comments' ),
+			'signInRateLimited'   => __( 'Too many sign-in attempts. Please wait a moment and try again.', 'jetpack-comments' ),
 		);
 
 		/**

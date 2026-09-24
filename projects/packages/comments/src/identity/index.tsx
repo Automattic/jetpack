@@ -1,8 +1,37 @@
 import { useContext } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
 import { logOut } from './checkpoint/checkpoint';
+import { BellIcon, LogOutIcon } from './icons';
 
 import './style.scss';
+
+/**
+ * Where the reader manages what they get by email from this site.
+ *
+ * @return The link, or nothing where the host offers no subscriptions.
+ */
+const ManageSubscriptions = () => {
+	const { signedIn } = useContext( CommentSignals );
+	const { subscriptionsUrl, readerSubscriptionsUrl, strings } = JetpackComments;
+	const url = signedIn.value ? readerSubscriptionsUrl : subscriptionsUrl;
+
+	if ( ! url ) {
+		return null;
+	}
+
+	return (
+		<a
+			className="jetpack-comments__icon-link"
+			href={ url }
+			title={ strings.manageSubscriptions }
+			target="_blank"
+			rel="noopener"
+		>
+			<span className="jetpack-comments__visually-hidden">{ strings.manageSubscriptions }</span>
+			<BellIcon />
+		</a>
+	);
+};
 
 /**
  * Who the comment will be attributed to, for a reader the site already knows,
@@ -18,9 +47,15 @@ export const Identity = () => {
 		return (
 			<span className="jetpack-comments__who">
 				<span>{ strings.commentingAs.replace( '%s', () => user.name ) }</span>
-				<a className="jetpack-comments__logout" href={ formSettings.logoutUrl }>
-					{ strings.logOut }
+				<a
+					className="jetpack-comments__icon-link"
+					href={ formSettings.logoutUrl }
+					title={ strings.logOut }
+				>
+					<span className="jetpack-comments__visually-hidden">{ strings.logOut }</span>
+					<LogOutIcon />
 				</a>
+				<ManageSubscriptions />
 			</span>
 		);
 	}
@@ -41,9 +76,16 @@ export const Identity = () => {
 		return (
 			<span className="jetpack-comments__who">
 				<span>{ strings.commentingAs.replace( '%s', () => current.name ) }</span>
-				<button type="button" className="jetpack-comments__link-button" onClick={ leave }>
-					{ strings.logOut }
+				<button
+					type="button"
+					className="jetpack-comments__icon-link"
+					title={ strings.logOut }
+					onClick={ leave }
+				>
+					<span className="jetpack-comments__visually-hidden">{ strings.logOut }</span>
+					<LogOutIcon />
 				</button>
+				<ManageSubscriptions />
 				{ current.code !== null ? (
 					<input type="hidden" name={ identity.codeField } value={ current.code } />
 				) : (
@@ -72,6 +114,7 @@ export const Identity = () => {
 				>
 					{ strings.edit }
 				</button>
+				<ManageSubscriptions />
 			</span>
 		);
 	}

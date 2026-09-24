@@ -21,3 +21,38 @@ export const CloseIcon = () => (
 		<path d="M12 13.06l3.712 3.713 1.061-1.06L13.061 12l3.712-3.712-1.06-1.06L12 10.938 8.288 7.227l-1.061 1.06L10.939 12l-3.712 3.712 1.06 1.061L12 13.061z" />
 	</svg>
 );
+
+// @wordpress/icons "login", mirrored so the arrow leaves the door.
+export const LogOutIcon = () => (
+	<svg
+		viewBox="0 0 24 24"
+		width="24"
+		height="24"
+		fill="currentColor"
+		aria-hidden="true"
+		focusable="false"
+	>
+		<path
+			transform="matrix(-1 0 0 1 24 0)"
+			d="M11 14.5l1.1 1.1 3-3 .5-.5-.6-.6-3-3-1 1 1.7 1.7H5v1.5h7.7L11 14.5zM16.8 5h-7c-1.1 0-2 .9-2 2v1.5h1.5V7c0-.3.2-.5.5-.5h7c.3 0 .5.2.5.5v10c0 .3-.2.5-.5.5h-7c-.3 0-.5-.2-.5-.5v-1.5H7.8V17c0 1.1.9 2 2 2h7c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z"
+		/>
+	</svg>
+);
+
+// @wordpress/icons "bell".
+export const BellIcon = () => (
+	<svg
+		viewBox="0 0 24 24"
+		width="24"
+		height="24"
+		fill="currentColor"
+		aria-hidden="true"
+		focusable="false"
+	>
+		<path
+			fill-rule="evenodd"
+			clip-rule="evenodd"
+			d="M17 11.5c0 1.353.17 2.368.976 3 .266.209.602.376 1.024.5v1H5v-1c.422-.124.757-.291 1.024-.5.806-.632.976-1.647.976-3V9c0-2.8 2.2-5 5-5s5 2.2 5 5v2.5ZM15.5 9v2.5c0 .93.066 1.98.515 2.897l.053.103H7.932a4.018 4.018 0 0 0 .053-.103c.449-.917.515-1.967.515-2.897V9c0-1.972 1.528-3.5 3.5-3.5s3.5 1.528 3.5 3.5Zm-5.492 9.008c0-.176.023-.346.065-.508h3.854A1.996 1.996 0 0 1 12 20c-1.1 0-1.992-.892-1.992-1.992Z"
+		/>
+	</svg>
+);

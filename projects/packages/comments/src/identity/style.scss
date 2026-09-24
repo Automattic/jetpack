@@ -16,6 +16,27 @@
 	font-size: 0.875em;
 }
 
+// Icon-only link or button in the theme's link colour; label as tooltip.
+.jetpack-comments__icon-link {
+	display: inline-flex;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	box-shadow: none;
+	color: inherit;
+	cursor: pointer;
+
+	svg {
+		inline-size: 1.25em;
+		block-size: 1.25em;
+	}
+
+	&:hover svg {
+		opacity: 0.7;
+	}
+}
+
 // A button that reads as a link, in the theme's link colour.
 .jetpack-comments__link-button {
 	margin: 0;
