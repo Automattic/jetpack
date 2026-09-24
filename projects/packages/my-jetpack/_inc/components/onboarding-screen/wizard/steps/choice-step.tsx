@@ -4,15 +4,13 @@ import { Icon, InputControl, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useRef } from 'react';
 import styles from '../styles.module.scss';
 import type { WizardStepOption } from '../lib';
-import type { ChangeEvent, KeyboardEvent, MouseEvent, ReactNode } from 'react';
+import type { ChangeEvent, KeyboardEvent, MouseEvent } from 'react';
 
 type ChoiceStepProps = {
 	// Owned by the wizard so the panel region can be labelled by the heading.
 	titleId: string;
 	title: string;
 	description: string;
-	// The dots and counter, which sit under the standfirst and above the options.
-	progress?: ReactNode;
 	// An empty list renders the heading alone, with nothing to choose.
 	options: WizardStepOption[];
 	value?: string;
@@ -92,7 +90,6 @@ function FreeTextField( {
  * @param props.titleId          - The id the panel region is labelled by.
  * @param props.title            - The step heading.
  * @param props.description      - The line under the heading.
- * @param props.progress         - The progress dots and counter.
  * @param props.options          - The choices offered, possibly none.
  * @param props.value            - The chosen option's value, if any.
  * @param props.onChange         - Called with the value the user picks.
@@ -104,7 +101,6 @@ export function ChoiceStep( {
 	titleId,
 	title,
 	description,
-	progress,
 	options,
 	value,
 	onChange,
@@ -156,8 +152,6 @@ export function ChoiceStep( {
 					{ description }
 				</Text>
 			</Stack>
-
-			{ progress }
 
 			{ options.length > 0 && (
 				<div>

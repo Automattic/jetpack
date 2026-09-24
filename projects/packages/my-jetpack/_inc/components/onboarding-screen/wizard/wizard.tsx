@@ -182,26 +182,6 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 		TOTAL_STEPS
 	);
 
-	const progress = (
-		<div className={ styles.progress }>
-			<span aria-hidden="true" className={ styles[ 'progress-dots' ] }>
-				{ steps.map( ( item, index ) => (
-					<span
-						key={ item.id }
-						className={ clsx(
-							styles[ 'progress-dot' ],
-							index === step && styles[ 'is-current' ],
-							index < step && styles[ 'is-done' ]
-						) }
-					/>
-				) ) }
-			</span>
-			<Text variant="body-sm" className={ styles[ 'progress-count' ] }>
-				{ stepCount }
-			</Text>
-		</div>
-	);
-
 	return (
 		<ThemeProvider color={ { background: SHELL_BACKGROUND } }>
 			<div className={ styles.layout }>
@@ -284,7 +264,6 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 											titleId={ titleId }
 											title={ meta.title }
 											description={ meta.description }
-											progress={ progress }
 											options={ meta.options }
 											value={ choices[ step ] }
 											onChange={ handleChoice }

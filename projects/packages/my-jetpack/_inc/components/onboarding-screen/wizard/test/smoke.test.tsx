@@ -332,9 +332,9 @@ describe( 'Wizard resume after connecting', () => {
 		setupWizard( { isUserConnected: true } );
 
 		expect( heading() ).toHaveTextContent( "Tell us what you're building" );
-		// The rail names the steps and the questions column counts them, so the
-		// counter is written twice from here on.
-		expect( screen.getAllByText( 'Step 2 of 4' ) ).toHaveLength( 2 );
+		// The rail is the only thing that counts the steps; the question column
+		// carries the question and nothing else.
+		expect( screen.getAllByText( 'Step 2 of 4' ) ).toHaveLength( 1 );
 		expect( screen.queryByRole( 'button', { name: 'Get started' } ) ).not.toBeInTheDocument();
 	} );
 
