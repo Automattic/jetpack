@@ -1617,7 +1617,8 @@ export default function ApiManagedEdit( {
 						label={ __( 'Return URL (optional)', 'jetpack-paypal-payments' ) }
 						className="jetpack-paypal-payment-buttons__return-url"
 						value={ returnUrl || '' }
-						onChange={ value => setAttributes( { returnUrl: value } ) }
+						// A pasted URL can bring a stray space at either end.
+						onChange={ value => setAttributes( { returnUrl: value.trim() } ) }
 						required={ false }
 						disabled={ isBusy }
 						help={

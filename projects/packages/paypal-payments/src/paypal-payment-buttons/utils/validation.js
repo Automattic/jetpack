@@ -20,7 +20,7 @@ import { ZERO_DECIMAL_CURRENCIES } from './currency-symbols';
  */
 export const MAX_NAME_LENGTH = 127;
 export const MAX_DESCRIPTION_LENGTH = 2048;
-// Measured against PayPal.
+// PayPal rejects a longer return URL with a 400.
 export const MAX_RETURN_URL_LENGTH = 1024;
 // Caps the Product ID input. The server answers a longer one with product_id_too_long.
 export const MAX_PRODUCT_ID_LENGTH = 50;
@@ -332,9 +332,10 @@ export function sanitizePayPalUrl( url ) {
 /**
  * Validate a return URL (optional field).
  *
- * http or https, in lowercase, with no whitespace. The server lowercases the scheme
- * and encodes spaces, so either would leave PayPal with a different URL than the
- * block. Empty means the buyer is not redirected anywhere.
+ * http or https, in lowercase, with a host, no username and no whitespace. The server
+ * rejects a missing host or a username, lowercases the scheme and encodes spaces, so
+ * each would fail the save or leave PayPal with a different URL than the block.
+ * Empty means the buyer is not redirected anywhere.
  *
  * @param {string} value - The return URL.
  * @return {string|null} Error message or null if valid.
@@ -344,9 +345,9 @@ export function validateReturnUrl( value ) {
 		return null;
 	}
 
-	if ( ! /^https?:\/\/\S+$/.test( value ) ) {
+	if ( ! /^https?:\/\/[^/?#@\s]+(?:[/?#]\S*)?$/.test( value ) ) {
 		return __(
-			'Return URL must be a valid URL (e.g., http://example.com/thank-you).',
+			'Return URL must be a valid URL (e.g., https://example.com/thank-you).',
 			'jetpack-paypal-payments'
 		);
 	}
@@ -506,13 +507,13 @@ export function getValidationErrors( {
 }
 
 /**
- * Whether any error is one that blocks the save.
+ * Whether any field has an error. Every error blocks the save.
  *
  * Derived rather than a hand-written list of fields, so a new key cannot be
  * forgotten on the gate side.
  *
  * @param {object} errors - Errors from getValidationErrors().
- * @return {boolean} True when a blocking field is in error.
+ * @return {boolean} True when a field has an error.
  */
 export function hasBlockingError( errors ) {
 	return null !== firstBlockingError( errors );

@@ -27,7 +27,6 @@ import {
 	getUserFriendlyError,
 	MAX_NAME_LENGTH,
 	MAX_DESCRIPTION_LENGTH,
-	MAX_RETURN_URL_LENGTH,
 	REQUIRED_FIELD_ERROR,
 } from '../../src/paypal-payment-buttons/utils/validation';
 import parity from '../fixtures/url-parity.json';
@@ -309,7 +308,7 @@ describe( 'validateDiscountAmount', () => {
 } );
 
 describe( 'validateReturnUrl', () => {
-	const invalidUrl = 'Return URL must be a valid URL (e.g., http://example.com/thank-you).';
+	const invalidUrl = 'Return URL must be a valid URL (e.g., https://example.com/thank-you).';
 
 	// The field is optional, so no URL is a valid answer.
 	it.each( [ null, undefined, '' ] )( 'returns null for %p', value => {
@@ -317,26 +316,27 @@ describe( 'validateReturnUrl', () => {
 	} );
 
 	// PayPal takes both.
-	it.each( [ 'http://example.com/thanks', 'https://example.com/thanks' ] )(
-		'returns null for %s',
-		value => {
-			expect( validateReturnUrl( value ) ).toBeNull();
-		}
-	);
+	it.each( [
+		'http://example.com/thanks',
+		'https://example.com/thanks',
+		'https://example.com:8080/thanks',
+		'https://example.com/thanks?email=buyer@example.com',
+	] )( 'returns null for %s', value => {
+		expect( validateReturnUrl( value ) ).toBeNull();
+	} );
 
-	it( 'accepts a URL at the length limit, and rejects one more', () => {
-		const atLimit = 'https://example.com/'.padEnd( MAX_RETURN_URL_LENGTH, 'a' );
-		expect( atLimit ).toHaveLength( MAX_RETURN_URL_LENGTH );
+	// PayPal's limit, measured: 1025 characters is a 400.
+	it( 'accepts a URL of exactly 1024 characters, and rejects one more', () => {
+		const atLimit = 'https://example.com/'.padEnd( 1024, 'a' );
+		expect( atLimit ).toHaveLength( 1024 );
 		expect( validateReturnUrl( atLimit ) ).toBeNull();
 		expect( validateReturnUrl( `${ atLimit }a` ) ).toBe(
-			`Return URL must be ${ MAX_RETURN_URL_LENGTH } characters or fewer.`
+			'Return URL must be 1024 characters or fewer.'
 		);
 	} );
 
 	it( 'reports the scheme before the length', () => {
-		expect(
-			validateReturnUrl( 'ftp://example.com/'.padEnd( MAX_RETURN_URL_LENGTH + 1, 'a' ) )
-		).toBe( invalidUrl );
+		expect( validateReturnUrl( 'ftp://example.com/'.padEnd( 1025, 'a' ) ) ).toBe( invalidUrl );
 	} );
 
 	it.each( [
@@ -348,6 +348,9 @@ describe( 'validateReturnUrl', () => {
 		[ 'an uppercase scheme', 'HTTPS://example.com' ],
 		[ 'a URL with a space', 'https://example.com/thank you' ],
 		[ 'the scheme on its own', 'https://' ],
+		[ 'an empty host', 'https:///x' ],
+		[ 'a query where the host should be', 'http://?q' ],
+		[ 'a username before the host', 'https://user@host.com/x' ],
 	] )( 'returns an error for %s', ( _label, value ) => {
 		expect( validateReturnUrl( value ) ).toBe( invalidUrl );
 	} );

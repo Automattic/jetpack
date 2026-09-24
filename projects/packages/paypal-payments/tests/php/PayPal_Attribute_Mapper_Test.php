@@ -548,10 +548,10 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * PayPal's limit: a return URL at the cap passes, one more is rejected.
+	 * PayPal's limit: a return URL of 1024 characters passes, one more is rejected.
 	 */
-	public function test_validate_caps_the_return_url_length() {
-		$at_limit   = str_pad( 'https://example.com/', PayPal_Attribute_Mapper::MAX_RETURN_URL_LENGTH, 'a' );
+	public function test_validate_caps_the_return_url_at_1024_characters() {
+		$at_limit   = str_pad( 'https://example.com/', 1024, 'a' );
 		$attributes = array(
 			'productName'  => 'Widget',
 			'price'        => '10.00',

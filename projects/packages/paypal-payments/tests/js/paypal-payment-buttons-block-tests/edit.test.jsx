@@ -5670,7 +5670,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 	describe( 'Return URL', () => {
 		const label = 'Return URL (optional)';
-		const invalidUrl = 'Return URL must be a valid URL (e.g., http://example.com/thank-you).';
+		const invalidUrl = 'Return URL must be a valid URL (e.g., https://example.com/thank-you).';
 		const helpLine = 'Redirect customers here after payment.';
 
 		beforeEach( () => {
@@ -5723,6 +5723,16 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await user.type( await screen.findByLabelText( label ), 'h' );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { returnUrl: 'h' } );
+		} );
+
+		it( 'trims the whitespace a pasted URL brings at either end', async () => {
+			const user = userEvent.setup();
+			renderWith( '' );
+
+			await user.click( await screen.findByLabelText( label ) );
+			await user.paste( ' https://example.com/thanks ' );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { returnUrl: 'https://example.com/thanks' } );
 		} );
 
 		// People paste into this field, so a URL that is still being typed is not yet
@@ -5977,7 +5987,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			returnUrl: {
 				attributes: { returnUrl: 'example.com/thanks' },
 				testId: 'url-input-Return URL (optional)',
-				message: 'Return URL must be a valid URL (e.g., http://example.com/thank-you).',
+				message: 'Return URL must be a valid URL (e.g., https://example.com/thank-you).',
 				carrier: 'components-base-control__help',
 				visit: 'Return URL (optional)',
 			},
@@ -8148,11 +8158,14 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( setAttributes ).not.toHaveBeenCalled();
 			} );
 
-			// A required field emptied still leaves, but only by discarding.
-			it( 'offers Don’t save alone while the form is invalid', async () => {
+			// A form with an error still leaves, but only by discarding.
+			it.each( [
+				[ 'an emptied product name', { productName: '' } ],
+				[ 'a malformed return URL', { returnUrl: 'example.com/thanks' } ],
+			] )( 'offers Don’t save alone while the form has %s', async ( _label, change ) => {
 				const user = userEvent.setup();
 				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
-				await editForm( user, { ...saved, productName: '' } );
+				await editForm( user, { ...saved, ...change } );
 
 				expect( back() ).toBeEnabled();
 				await user.click( back() );
