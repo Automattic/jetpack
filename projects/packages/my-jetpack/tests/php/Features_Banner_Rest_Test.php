@@ -76,6 +76,27 @@ class Features_Banner_Rest_Test extends TestCase {
 		$this->assertFalse( REST_Main_Features::is_banner_dismissed() );
 	}
 
+	public function test_dismissing_again_still_succeeds() {
+		$this->register_routes();
+
+		wp_set_current_user( $this->create_user( 'admin', 'administrator' ) );
+		$this->dismiss();
+
+		$this->assertSame( 200, $this->dismiss()->get_status() );
+	}
+
+	public function test_reports_a_failed_save() {
+		$this->register_routes();
+
+		wp_set_current_user( $this->create_user( 'admin', 'administrator' ) );
+		add_filter( 'update_user_metadata', '__return_false' );
+
+		$response = $this->dismiss();
+
+		remove_filter( 'update_user_metadata', '__return_false' );
+		$this->assertSame( 500, $response->get_status() );
+	}
+
 	public function test_forbids_users_who_cannot_see_my_jetpack() {
 		$this->register_routes();
 

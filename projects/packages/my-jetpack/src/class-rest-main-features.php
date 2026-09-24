@@ -132,10 +132,13 @@ class REST_Main_Features {
 	/**
 	 * Hide the Features tab banner for the current user, for good.
 	 *
-	 * @return \WP_REST_Response
+	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function dismiss_banner() {
-		update_user_meta( get_current_user_id(), self::BANNER_DISMISSED_META, 1 );
+		// Checked first: update_user_meta() also returns false when the value is unchanged.
+		if ( ! self::is_banner_dismissed() && ! update_user_meta( get_current_user_id(), self::BANNER_DISMISSED_META, 1 ) ) {
+			return new WP_Error( 'banner_not_dismissed', __( 'The banner could not be dismissed.', 'jetpack-my-jetpack' ), array( 'status' => 500 ) );
+		}
 
 		return rest_ensure_response( true );
 	}
