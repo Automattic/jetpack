@@ -100,9 +100,12 @@ export const Identity = () => {
 
 	if ( mustLogIn && ! identity.canSignIn ) {
 		return (
-			<a className="jetpack-comments__login" href={ formSettings.loginUrl }>
-				{ strings.logInToComment }
-			</a>
+			<span className="jetpack-comments__who">
+				<span>{ strings.mustLogIn }</span>
+				<a className="jetpack-comments__login" href={ formSettings.loginUrl }>
+					{ strings.logIn }
+				</a>
+			</span>
 		);
 	}
 

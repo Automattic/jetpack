@@ -128,7 +128,7 @@ export const IdentityDialog = () => {
 			</div>
 			<p className="jetpack-comments__dialog-intro">
 				{ known && strings.commentingAs.replace( '%s', () => name ) }
-				{ ! known && ( mustLogIn ? strings.logInToComment : strings.intro ) }
+				{ ! known && ( mustLogIn ? strings.mustLogIn : strings.intro ) }
 			</p>
 			{ ! mustLogIn && ! known && (
 				<div className="jetpack-comments__guest">

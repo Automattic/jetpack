@@ -520,7 +520,8 @@ class Comment_Form {
 			'close'               => __( 'Close', 'jetpack-comments' ),
 			'edit'                => __( 'Edit', 'jetpack-comments' ),
 			'manageSubscriptions' => __( 'Manage subscriptions', 'jetpack-comments' ),
-			'logInToComment'      => __( 'Log in to comment', 'jetpack-comments' ),
+			'mustLogIn'           => __( 'You must be logged in to post a comment.', 'jetpack-comments' ),
+			'logIn'               => __( 'Log in', 'jetpack-comments' ),
 			'logInWithWordPress'  => __( 'Log in with WordPress.com', 'jetpack-comments' ),
 			'logOut'              => __( 'Log out', 'jetpack-comments' ),
 			/* translators: %s is the commenter's name. */

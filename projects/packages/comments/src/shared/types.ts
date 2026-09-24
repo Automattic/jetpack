@@ -74,7 +74,8 @@ export type Strings = {
 	close: string;
 	edit: string;
 	manageSubscriptions: string;
-	logInToComment: string;
+	mustLogIn: string;
+	logIn: string;
 	logInWithWordPress: string;
 	logOut: string;
 	commentingAs: string;
