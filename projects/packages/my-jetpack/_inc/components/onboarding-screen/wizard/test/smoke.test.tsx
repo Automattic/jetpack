@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { border, drafts, published } from '@wordpress/icons';
 import { Children, isValidElement } from 'react';
@@ -8,14 +8,77 @@ import { Wizard } from '../wizard';
 import type { UserEvent } from '@testing-library/user-event';
 import type { ReactElement, ReactNode } from 'react';
 
+/*
+ * The slice of `useConnection` the wizard reads. Held in a mutable object rather
+ * than re-mocked per test, because the hook hands the same object back on every
+ * render: a test moves it and re-renders, the way the store would.
+ */
+const mockConnection: {
+	handleRegisterSite: jest.Mock< Promise< unknown >, [] >;
+	siteIsRegistering: boolean;
+	userIsConnecting: boolean;
+	isUserConnected: boolean;
+	registrationError: Record< string, unknown > | false;
+} = {
+	handleRegisterSite: jest.fn(),
+	siteIsRegistering: false,
+	userIsConnecting: false,
+	isUserConnected: false,
+	registrationError: false,
+};
+
+const mockUseConnection = jest.fn( () => mockConnection );
+
+jest.mock( '@automattic/jetpack-connection', () => ( {
+	__esModule: true,
+	useConnection: ( ...args: unknown[] ) => mockUseConnection( ...( args as [] ) ),
+} ) );
+
+const mockRecordEvent = jest.fn();
+
+jest.mock( '../../../../hooks/use-analytics', () => ( {
+	__esModule: true,
+	default: () => ( { recordEvent: mockRecordEvent } ),
+} ) );
+
 const exitUrl = 'http://example.com/wp-admin/admin.php?page=my-jetpack';
 const dashboardUrl = 'http://example.com/wp-admin/';
 
-const setupWizard = () => {
+beforeEach( () => {
+	mockRecordEvent.mockClear();
+	mockUseConnection.mockClear();
+	mockConnection.handleRegisterSite.mockReset();
+	mockConnection.handleRegisterSite.mockResolvedValue( undefined );
+	mockConnection.siteIsRegistering = false;
+	mockConnection.userIsConnecting = false;
+	mockConnection.isUserConnected = false;
+	mockConnection.registrationError = false;
+} );
+
+/**
+ * Render the wizard.
+ *
+ * @param options                 - How the wizard is opened.
+ * @param options.isUserConnected - Whether the user has already been to WordPress.com.
+ * @return The user-event instance and a re-render that keeps the same props.
+ */
+const setupWizard = ( { isUserConnected = false } = {} ) => {
+	mockConnection.isUserConnected = isUserConnected;
+
 	const user = userEvent.setup();
-	render( <Wizard exitUrl={ exitUrl } dashboardUrl={ dashboardUrl } /> );
-	return user;
+	const { rerender } = render( <Wizard exitUrl={ exitUrl } dashboardUrl={ dashboardUrl } /> );
+
+	return {
+		user,
+		// Re-renders with the same props, so a move in the connection mock reaches
+		// the component the way a store update would.
+		refresh: () => rerender( <Wizard exitUrl={ exitUrl } dashboardUrl={ dashboardUrl } /> ),
+	};
 };
+
+const getStarted = () => screen.getByRole( 'button', { name: 'Get started' } );
+
+const heading = () => screen.getByRole( 'heading', { level: 1 } );
 
 // A rail row, found by its label rather than by position.
 const railStep = ( name: string ) =>
@@ -56,49 +119,147 @@ const PANEL_COPY = Object.values( PANEL_LINES ).map( lines =>
 
 const panelCopy = ( step: number ) => screen.getByText( PANEL_COPY[ step ] );
 
-// The start screen carries its own way forward; every question step after it
-// needs a choice before Continue is live.
+// Each question step needs a choice before Continue is live. The start step is
+// not advanced this way: it leaves wp-admin entirely.
 const advance = async ( user: UserEvent, times: number ) => {
 	for ( let i = 0; i < times; i++ ) {
-		const start = screen.queryByRole( 'button', { name: 'Get started' } );
-
-		if ( start ) {
-			await user.click( start );
-			continue;
-		}
-
 		await user.click( screen.getAllByRole( 'radio' )[ 0 ] );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 	}
 };
 
-describe( 'Wizard smoke', () => {
-	it( 'opens on the start screen and advances on its primary', async () => {
-		const user = setupWizard();
+describe( 'Wizard start screen', () => {
+	it( 'opens on the start screen while nobody is connected', () => {
+		setupWizard();
 
-		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent(
-			'Start with Jetpack for free'
-		);
+		expect( heading() ).toHaveTextContent( 'Start with Jetpack for free' );
 		// The start screen shows no progress of its own, so only the rail counts.
 		expect( screen.getByText( 'Step 1 of 4' ) ).toBeInTheDocument();
-
-		await user.click( screen.getByRole( 'button', { name: 'Get started' } ) );
-
-		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent(
-			'What is this site for?'
-		);
-		// The rail names the steps and the questions column counts them, so the
-		// counter is written twice from here on.
-		expect( screen.getAllByText( 'Step 2 of 4' ) ).toHaveLength( 2 );
+		expect( railGlyph( 'Connect' ) ).toBe( 'current' );
 	} );
 
-	it( 'takes the secondary route into setup too', async () => {
-		const user = setupWizard();
+	it( 'leaves one control on it: the account question is not asked here', () => {
+		setupWizard();
 
-		await user.click( screen.getByRole( 'button', { name: 'I already have an account' } ) );
+		// One control, not two: WordPress.com asks whether they already have an
+		// account, so this screen does not have to.
+		expect(
+			screen.queryByRole( 'button', { name: 'I already have an account' } )
+		).not.toBeInTheDocument();
+		expect( getStarted() ).toBeInTheDocument();
+	} );
 
-		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent(
-			'What is this site for?'
+	it( 'asks the connection to bring the user back to the wizard', () => {
+		setupWizard();
+
+		expect( mockUseConnection ).toHaveBeenCalledWith( {
+			from: 'jetpack-onboarding-wizard',
+			redirectUri: 'admin.php?page=my-jetpack&step=onboarding',
+		} );
+	} );
+
+	it( 'registers on its primary and hands off without advancing by itself', async () => {
+		const { user } = setupWizard();
+
+		await user.click( getStarted() );
+
+		await waitFor( () =>
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_myjetpack_onboarding_wizard_connect_success'
+			)
+		);
+
+		expect( mockConnection.handleRegisterSite ).toHaveBeenCalledTimes( 1 );
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_myjetpack_onboarding_wizard_connect_click'
+		);
+		// The browser is on its way to WordPress.com; the step does not move here.
+		expect( heading() ).toHaveTextContent( 'Start with Jetpack for free' );
+	} );
+
+	it( 'disables the primary while connecting, so a second click cannot register twice', async () => {
+		const { user, refresh } = setupWizard();
+
+		// Never settles: the button has to hold the busy state on its own.
+		mockConnection.handleRegisterSite.mockImplementation( () => new Promise( () => {} ) );
+
+		await user.click( getStarted() );
+
+		mockConnection.siteIsRegistering = true;
+		refresh();
+
+		expect( getStarted() ).toHaveAttribute( 'aria-disabled', 'true' );
+
+		await user.click( getStarted() );
+
+		expect( mockConnection.handleRegisterSite ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'stays busy while the browser is being sent to WordPress.com', () => {
+		mockConnection.userIsConnecting = true;
+		setupWizard();
+
+		expect( getStarted() ).toHaveAttribute( 'aria-disabled', 'true' );
+	} );
+
+	it( 'holds on the start screen when it fails, and says what happened', async () => {
+		const error = {
+			message: 'Site is inaccessible (Status 403)',
+			response: { code: 'site_inaccessible' },
+			name: 'ApiError',
+		};
+		mockConnection.handleRegisterSite.mockRejectedValue( error );
+
+		const { user, refresh } = setupWizard();
+
+		await user.click( getStarted() );
+
+		await waitFor( () =>
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_myjetpack_onboarding_wizard_connect_error',
+				{ error_code: 'site_inaccessible' }
+			)
+		);
+
+		mockConnection.registrationError = error;
+		refresh();
+
+		// It does not advance, and the button comes back so they can retry.
+		expect( heading() ).toHaveTextContent( 'Start with Jetpack for free' );
+		expect( getStarted() ).not.toHaveAttribute( 'aria-disabled', 'true' );
+
+		// A sentence first, the server's own words second.
+		expect(
+			screen.getByText( 'We could not connect this site. Please try again.' )
+		).toBeInTheDocument();
+		expect( screen.getByText( 'Site is inaccessible (Status 403)' ) ).toBeInTheDocument();
+
+		// The message interpolates the server's prose; only the code is reported.
+		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
+			'jetpack_myjetpack_onboarding_wizard_connect_error',
+			expect.objectContaining( { error: expect.anything() } )
+		);
+		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
+			'jetpack_myjetpack_onboarding_wizard_connect_success'
+		);
+	} );
+
+	it( 'reports a hand-off failure too, which never reaches the store', async () => {
+		// Fetching the authorization URL failed, so `registrationError` stays empty.
+		mockConnection.handleRegisterSite.mockRejectedValue( { message: '', name: 'JsonParseError' } );
+
+		const { user } = setupWizard();
+
+		await user.click( getStarted() );
+
+		await expect(
+			screen.findByText( 'We could not connect this site. Please try again.' )
+		).resolves.toBeInTheDocument();
+		// No message to show, so the code stands in for it.
+		expect( screen.getByText( 'JsonParseError' ) ).toBeInTheDocument();
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_myjetpack_onboarding_wizard_connect_error',
+			{ error_code: 'JsonParseError' }
 		);
 	} );
 
@@ -134,28 +295,45 @@ describe( 'Wizard smoke', () => {
 		);
 	} );
 
-	it( 'keeps the exit in the footer but not a second primary', async () => {
-		const user = setupWizard();
+	it( 'keeps the exit in the footer but not a second primary', () => {
+		setupWizard();
 
 		expect( screen.getByRole( 'link', { name: 'Skip setup' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Continue' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Back' } ) ).not.toBeInTheDocument();
+	} );
+} );
 
-		await advance( user, 1 );
-		expect( screen.getByRole( 'button', { name: 'Continue' } ) ).toBeInTheDocument();
+describe( 'Wizard resume after connecting', () => {
+	it( 'opens at the site-type step once the user is connected', () => {
+		setupWizard( { isUserConnected: true } );
+
+		expect( heading() ).toHaveTextContent( 'What is this site for?' );
+		// The rail names the steps and the questions column counts them, so the
+		// counter is written twice from here on.
+		expect( screen.getAllByText( 'Step 2 of 4' ) ).toHaveLength( 2 );
+		expect( screen.queryByRole( 'button', { name: 'Get started' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'gates Continue on the question steps', async () => {
-		const user = setupWizard();
+	it( 'shows Connect as done, because connecting is what step one is', () => {
+		setupWizard( { isUserConnected: true } );
 
-		await advance( user, 1 );
-
-		const cont = screen.getByRole( 'button', { name: 'Continue' } );
-		expect( cont ).toHaveAttribute( 'aria-disabled', 'true' );
-
-		await user.click( screen.getAllByRole( 'radio' )[ 0 ] );
-		expect( cont ).not.toHaveAttribute( 'aria-disabled', 'true' );
+		expect( railGlyph( 'Connect' ) ).toBe( 'done' );
+		expect( railGlyph( 'Your site' ) ).toBe( 'current' );
+		// The trap: a step the user has never seen must never take the tick.
+		expect( railGlyph( 'What you need' ) ).toBe( 'upcoming' );
+		expect( railGlyph( 'Finish' ) ).toBe( 'upcoming' );
 	} );
 
+	it( 'lets the user back to the start screen, but no further forward', () => {
+		setupWizard( { isUserConnected: true } );
+
+		expect( railStep( 'Connect' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
+		expect( railStep( 'What you need' ) ).toHaveAttribute( 'aria-disabled', 'true' );
+	} );
+} );
+
+describe( 'Wizard shell', () => {
 	it( 'sends the rail out to WordPress and the footer back to My Jetpack', () => {
 		setupWizard();
 
@@ -169,8 +347,8 @@ describe( 'Wizard smoke', () => {
 		expect( railExit.getAttribute( 'href' ) ).not.toBe( skip.getAttribute( 'href' ) );
 	} );
 
-	it( 'lists every step in the rail, marking the current one', async () => {
-		const user = setupWizard();
+	it( 'lists every step in the rail, marking the current one', () => {
+		setupWizard( { isUserConnected: true } );
 
 		const rail = screen.getByRole( 'navigation', { name: 'Setup steps' } );
 		expect( within( rail ).getByRole( 'list' ) ).toBeInTheDocument();
@@ -181,10 +359,6 @@ describe( 'Wizard smoke', () => {
 		).toEqual( [ 'Connect', 'Your site', 'What you need', 'Finish' ] );
 
 		// Core marks the current row aria-current="true", not "step".
-		expect( railStep( 'Connect' ) ).toHaveAttribute( 'aria-current', 'true' );
-		expect( railStep( 'Your site' ) ).not.toHaveAttribute( 'aria-current' );
-
-		await advance( user, 1 );
 		expect( railStep( 'Your site' ) ).toHaveAttribute( 'aria-current', 'true' );
 		expect( railStep( 'Connect' ) ).not.toHaveAttribute( 'aria-current' );
 	} );
@@ -203,31 +377,18 @@ describe( 'Wizard smoke', () => {
 		);
 	} );
 
-	it( 'ticks the steps behind the current one and leaves unreached steps dashed', async () => {
-		const user = setupWizard();
+	it( 'reads the glyphs off the current step, not off the furthest one reached', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
 
 		await advance( user, 1 );
-
-		expect( railGlyph( 'Connect' ) ).toBe( 'done' );
-		expect( railGlyph( 'Your site' ) ).toBe( 'current' );
-		// The trap: a step the user has never seen must never take the tick.
-		expect( railGlyph( 'What you need' ) ).toBe( 'upcoming' );
-		expect( railGlyph( 'Finish' ) ).toBe( 'upcoming' );
-	} );
-
-	it( 'reads the glyphs off the current step, not off the furthest one reached', async () => {
-		const user = setupWizard();
-
-		await advance( user, 2 );
 		expect( railGlyph( 'What you need' ) ).toBe( 'current' );
 
-		await user.click( railStep( 'Connect' ) );
+		await user.click( railStep( 'Your site' ) );
 
 		// Ground already covered stays clickable, but it is ahead of the user
 		// again, so it is dashed rather than ticked.
-		expect( railStep( 'What you need' ) ).not.toHaveAttribute( 'aria-disabled' );
-		expect( railGlyph( 'Connect' ) ).toBe( 'current' );
-		expect( railGlyph( 'Your site' ) ).toBe( 'upcoming' );
+		expect( railStep( 'What you need' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
+		expect( railGlyph( 'Your site' ) ).toBe( 'current' );
 		expect( railGlyph( 'What you need' ) ).toBe( 'upcoming' );
 	} );
 
@@ -243,37 +404,72 @@ describe( 'Wizard smoke', () => {
 	} );
 
 	it( 'ignores a click on a step beyond the furthest reached', async () => {
-		const user = setupWizard();
+		const { user } = setupWizard();
 
 		await user.click( railStep( 'What you need' ) );
 
-		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent(
-			'Start with Jetpack for free'
-		);
+		expect( heading() ).toHaveTextContent( 'Start with Jetpack for free' );
 	} );
 
 	it( 'goes back to a step already reached when its rail row is clicked', async () => {
-		const user = setupWizard();
+		const { user } = setupWizard( { isUserConnected: true } );
 
-		await advance( user, 2 );
-		expect( railStep( 'What you need' ) ).not.toHaveAttribute( 'aria-disabled' );
+		await advance( user, 1 );
+		expect( railStep( 'What you need' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
 
 		await user.click( railStep( 'Connect' ) );
-		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent(
-			'Start with Jetpack for free'
-		);
+		expect( heading() ).toHaveTextContent( 'Start with Jetpack for free' );
 
 		// Ground already covered stays reachable after stepping back.
-		expect( railStep( 'What you need' ) ).not.toHaveAttribute( 'aria-disabled' );
+		expect( railStep( 'What you need' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
+	} );
+
+	it( 'gates Continue on the question steps', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		const cont = screen.getByRole( 'button', { name: 'Continue' } );
+		expect( cont ).toHaveAttribute( 'aria-disabled', 'true' );
+
+		await user.click( screen.getAllByRole( 'radio' )[ 0 ] );
+		expect( cont ).not.toHaveAttribute( 'aria-disabled', 'true' );
+	} );
+
+	it( 'marks the chosen option as checked', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		const [ first, second ] = screen.getAllByRole( 'radio' );
+		expect( first ).not.toBeChecked();
+
+		await user.click( second );
+		expect( second ).toBeChecked();
+		expect( first ).not.toBeChecked();
+	} );
+
+	it( 'offers Back only once a step has been left', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await advance( user, 1 );
+		await user.click( screen.getByRole( 'button', { name: 'Back' } ) );
+
+		expect( heading() ).toHaveTextContent( 'What is this site for?' );
+	} );
+
+	it( 'replaces Continue with Finish on the last step', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await advance( user, 2 );
+
+		expect( screen.queryByRole( 'button', { name: 'Continue' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Finish' } ) ).toHaveAttribute( 'href', exitUrl );
 	} );
 
 	it( 'gives every step its own panel copy, and shows only the current one', async () => {
-		const user = setupWizard();
+		const { user } = setupWizard( { isUserConnected: true } );
 
-		expect( panelCopy( 0 ) ).toBeInTheDocument();
-		expect( screen.queryByText( PANEL_COPY[ 1 ] ) ).not.toBeInTheDocument();
+		expect( panelCopy( 1 ) ).toBeInTheDocument();
+		expect( screen.queryByText( PANEL_COPY[ 0 ] ) ).not.toBeInTheDocument();
 
-		for ( const step of [ 1, 2, 3 ] ) {
+		for ( const step of [ 2, 3 ] ) {
 			await advance( user, 1 );
 			expect( panelCopy( step ) ).toBeInTheDocument();
 			expect( screen.queryByText( PANEL_COPY[ step - 1 ] ) ).not.toBeInTheDocument();
@@ -312,40 +508,5 @@ describe( 'Wizard smoke', () => {
 		expect( panelCopy( 0 ) ).toHaveTextContent(
 			'Grow your audience. Speed up your site. Keep it secure.'
 		);
-	} );
-
-	it( 'marks the chosen option as checked', async () => {
-		const user = setupWizard();
-
-		await advance( user, 1 );
-
-		const [ first, second ] = screen.getAllByRole( 'radio' );
-		expect( first ).not.toBeChecked();
-
-		await user.click( second );
-		expect( second ).toBeChecked();
-		expect( first ).not.toBeChecked();
-	} );
-
-	it( 'offers Back only once a step has been left', async () => {
-		const user = setupWizard();
-
-		expect( screen.queryByRole( 'button', { name: 'Back' } ) ).not.toBeInTheDocument();
-
-		await advance( user, 1 );
-		await user.click( screen.getByRole( 'button', { name: 'Back' } ) );
-
-		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent(
-			'Start with Jetpack for free'
-		);
-	} );
-
-	it( 'replaces Continue with Finish on the last step', async () => {
-		const user = setupWizard();
-
-		await advance( user, 3 );
-
-		expect( screen.queryByRole( 'button', { name: 'Continue' } ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Finish' } ) ).toHaveAttribute( 'href', exitUrl );
 	} );
 } );

@@ -1,11 +1,19 @@
 import { getRedirectUrl, JetpackLogo } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { ThemeProvider } from '@wordpress/theme';
-import { Button, Icon, Link, Text } from '@wordpress/ui';
+import { Button, Icon, Link, Notice, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback } from 'react';
-import { START_INTENT, startBenefits } from '../lib';
+import { useCallback, useRef, useState } from 'react';
+import useAnalytics from '../../../../hooks/use-analytics';
+import {
+	CONNECTION_FROM,
+	CONNECTION_RETURN_URL,
+	connectionErrorCode,
+	connectionErrorDetail,
+	startBenefits,
+} from '../lib';
 import styles from '../styles.module.scss';
 
 type StartStepProps = {
@@ -13,26 +21,65 @@ type StartStepProps = {
 	titleId: string;
 	title: string;
 	description: string;
-	// Called with the route the user took, which is recorded and then followed.
-	onStart: ( intent: string ) => void;
 };
 
 /**
- * The start screen: what Jetpack does for the site, and the two ways in.
+ * The start screen: what Jetpack does for the site, and the way in.
  *
- * Both routes lead into setup; they differ only in which connection intent is
- * recorded, which stage 2 turns into an account.
+ * "Get started" registers the site and then hands the browser to WordPress.com to
+ * create or sign in to an account, because the features this wizard turns on need
+ * an owner: Newsletter keeps its subscribers behind a user token, and Activity
+ * Log's permission callback requires one outright. `redirectUri` brings them back
+ * to the wizard, which resumes past this step from the connection itself.
  *
  * @param props             - The component props.
  * @param props.titleId     - The id the panel region is labelled by.
  * @param props.title       - The screen's heading.
  * @param props.description - The line under the heading.
- * @param props.onStart     - Called with the chosen connection intent.
  * @return The rendered step.
  */
-export function StartStep( { titleId, title, description, onStart }: StartStepProps ) {
-	const handleCreate = useCallback( () => onStart( START_INTENT.create ), [ onStart ] );
-	const handleSignIn = useCallback( () => onStart( START_INTENT.signIn ), [ onStart ] );
+export function StartStep( { titleId, title, description }: StartStepProps ) {
+	const { handleRegisterSite, siteIsRegistering, userIsConnecting, registrationError } =
+		useConnection( { from: CONNECTION_FROM, redirectUri: CONNECTION_RETURN_URL } );
+	const { recordEvent } = useAnalytics();
+
+	// Only registration failures reach the store. Fetching the authorization URL can
+	// fail too, and that rejection is ours to hold or the screen says nothing.
+	const [ handoffError, setHandoffError ] = useState< unknown >( null );
+
+	const isConnecting = siteIsRegistering || userIsConnecting;
+	const error = registrationError || handoffError;
+
+	// The button is disabled while the request is in flight, which already swallows
+	// a second click. This closes the gap before that state has rendered, so a
+	// double click cannot register the site twice.
+	const inFlight = useRef( false );
+
+	const handleConnect = useCallback( () => {
+		if ( inFlight.current ) {
+			return;
+		}
+		inFlight.current = true;
+		setHandoffError( null );
+
+		recordEvent( 'jetpack_myjetpack_onboarding_wizard_connect_click' );
+
+		handleRegisterSite()
+			.then( () => {
+				// Nothing advances here: the browser is on its way to WordPress.com,
+				// and the wizard reads its step back off the connection on return.
+				recordEvent( 'jetpack_myjetpack_onboarding_wizard_connect_success' );
+			} )
+			.catch( ( caught: unknown ) => {
+				inFlight.current = false;
+				setHandoffError( caught );
+				// The code only: the message interpolates the server's prose, which
+				// can carry the site's own URL.
+				recordEvent( 'jetpack_myjetpack_onboarding_wizard_connect_error', {
+					error_code: connectionErrorCode( caught ),
+				} );
+			} );
+	}, [ handleRegisterSite, recordEvent ] );
 
 	return (
 		<div className={ styles.start }>
@@ -68,25 +115,34 @@ export function StartStep( { titleId, title, description, onStart }: StartStepPr
 			</ul>
 
 			<div className={ clsx( styles.wave, styles[ 'start-actions' ] ) }>
+				{ /*
+				 * Above the control it is about, so it is read before the retry.
+				 * A sentence a person can act on, and the server's own words under
+				 * it: mapping the causes to better copy is its own piece of work.
+				 */ }
+				{ error && (
+					<Notice.Root intent="error" className={ styles[ 'start-error' ] }>
+						<Notice.Title>
+							{ __( 'We could not connect this site. Please try again.', 'jetpack-my-jetpack' ) }
+						</Notice.Title>
+						<Notice.Description className={ styles[ 'start-error__detail' ] }>
+							{ connectionErrorDetail( error ) }
+						</Notice.Description>
+					</Notice.Root>
+				) }
+
 				{ /* Square corners from the theme's own radius scale, not a hardcoded zero. */ }
 				<ThemeProvider cornerRadius="none">
 					<Button
 						variant="solid"
 						className={ clsx( styles[ 'primary-green' ], styles[ 'start-primary' ] ) }
-						onClick={ handleCreate }
+						onClick={ handleConnect }
+						loading={ isConnecting }
+						loadingAnnouncement={ __( 'Connecting your site…', 'jetpack-my-jetpack' ) }
 					>
 						{ __( 'Get started', 'jetpack-my-jetpack' ) }
 					</Button>
 				</ThemeProvider>
-
-				{ /* A link in appearance only: it moves the wizard on, so it is a button. */ }
-				<Button
-					variant="unstyled"
-					className={ styles[ 'start-secondary' ] }
-					onClick={ handleSignIn }
-				>
-					{ __( 'I already have an account', 'jetpack-my-jetpack' ) }
-				</Button>
 
 				<Text variant="body-md" render={ <p /> } className={ styles[ 'start-terms' ] }>
 					{ createInterpolateElement(

@@ -244,7 +244,8 @@ class Initializer {
 		$redirect_args = self::get_onboarding_redirect_args(
 			$step,
 			$connection->is_connected(),
-			self::is_onboarding_available() && current_user_can( 'jetpack_connect' )
+			self::is_onboarding_available() && current_user_can( 'jetpack_connect' ),
+			self::is_onboarding_wizard_enabled()
 		);
 
 		if ( null !== $redirect_args ) {
@@ -325,15 +326,22 @@ class Initializer {
 	 * @param string $step                 The current `step` query param.
 	 * @param bool   $is_connected         Whether the site is connected to WordPress.com.
 	 * @param bool   $onboarding_available Whether the onboarding flow is available on this site.
+	 * @param bool   $wizard_enabled       Whether the takeover renders the setup wizard.
 	 * @return array|null Query args for the redirect, or null to stay on the current page.
 	 */
-	public static function get_onboarding_redirect_args( $step, $is_connected, $onboarding_available ) {
+	public static function get_onboarding_redirect_args( $step, $is_connected, $onboarding_available, $wizard_enabled = false ) {
 		if ( $onboarding_available && ! $is_connected && $step !== 'onboarding' ) {
 			// Redirect to onboarding if not connected
 			return array(
 				'page' => 'my-jetpack',
 				'step' => 'onboarding',
 			);
+		}
+
+		// The wizard connects mid-flow: the user authorizes on WordPress.com and is sent
+		// back here to finish setup, so a connected user on it has not finished.
+		if ( $step === 'onboarding' && $is_connected && $onboarding_available && $wizard_enabled ) {
+			return null;
 		}
 
 		if ( $step === 'onboarding' && ( ! $onboarding_available || $is_connected ) ) {
