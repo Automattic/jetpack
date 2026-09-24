@@ -62,8 +62,8 @@ Guests and users logged in to the site itself get no meta at all, because both
 are derivable from what core already keeps.
 
 The experience this replaces wrote `hc_post_as`, `hc_foreign_user_id`,
-`hc_avatar` and `hc_wpcom_id_sig`. Nothing here writes those, but `hc_avatar` is
-still read for comments that already carry one, for the Twitter avatars it may hold.
+`hc_avatar` and `hc_wpcom_id_sig`. Nothing here writes or reads those; a comment
+that carries them gets the Gravatar for its email like any other.
 
 The rule to apply when adding a key: **store a field in the same change that adds
 something which reads it.**

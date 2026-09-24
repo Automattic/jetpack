@@ -15,18 +15,6 @@ use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 class Avatars {
 
 	/**
-	 * Comment meta Highlander and Verbum wrote a stored avatar URL to.
-	 */
-	const AVATAR_META = 'hc_avatar';
-
-	/**
-	 * Hosts whose avatars are served.
-	 *
-	 * @var string[]
-	 */
-	private static $avatar_hosts = array( 'twimg.com' );
-
-	/**
 	 * Register the avatar filters.
 	 *
 	 * @return void
@@ -144,37 +132,11 @@ class Avatars {
 		$stored = get_comment_meta( $comment_id, Checkpoint::META_AVATAR, true );
 
 		if ( ! is_string( $stored ) || $stored === '' || 'https' !== wp_parse_url( $stored, PHP_URL_SCHEME ) ) {
-			$stored = get_comment_meta( $comment_id, self::AVATAR_META, true );
-
-			if ( ! is_string( $stored ) || $stored === '' || ! self::is_servable_avatar( $stored ) ) {
-				$stored = null;
-			}
+			$stored = null;
 		}
 
 		$resolved[ $key ] = null === $stored ? null : Image_CDN_Core::cdn_url( $stored, array( 'resize' => "$size,$size" ) );
 
 		return $resolved[ $key ];
-	}
-
-	/**
-	 * Whether a stored avatar URL is one we are willing to serve.
-	 *
-	 * @param string $url The stored avatar URL.
-	 * @return bool
-	 */
-	private static function is_servable_avatar( $url ) {
-		$host = wp_parse_url( $url, PHP_URL_HOST );
-
-		if ( ! is_string( $host ) ) {
-			return false;
-		}
-
-		foreach ( self::$avatar_hosts as $allowed ) {
-			if ( $host === $allowed || str_ends_with( $host, ".$allowed" ) ) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 }
