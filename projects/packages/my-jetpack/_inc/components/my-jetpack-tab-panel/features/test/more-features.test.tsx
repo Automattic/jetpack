@@ -32,16 +32,15 @@ const selection = {
 	onSelect: jest.fn(),
 } as unknown as FeatureSelection;
 
-const renderSection = ( $module = sharing, requested: Record< string, boolean > = {} ) =>
-	render(
-		<MoreFeatures
-			groups={ [
-				{ label: 'Engagement', states: [ getModuleFeatureState( $module, requested ) ] },
-			] }
-			selection={ selection }
-			jetpack="active"
-		/>
-	);
+const section = ( $module = sharing, requested: Record< string, boolean > = {} ) => (
+	<MoreFeatures
+		groups={ [ { label: 'Engagement', states: [ getModuleFeatureState( $module, requested ) ] } ] }
+		selection={ selection }
+		jetpack="active"
+	/>
+);
+
+const renderSection = ( ...args: Parameters< typeof section > ) => render( section( ...args ) );
 
 describe( 'MoreFeatures', () => {
 	it( 'says what to do in the Site Editor, and drops the status badge, where the block replaces the module', () => {
@@ -85,15 +84,13 @@ describe( 'MoreFeatures', () => {
 		const configured = { ...sharing, configure_url: 'https://example.com/settings' };
 		const link = () => screen.queryByRole( 'link', { name: 'Sharing Buttons settings' } );
 
-		const { unmount: unmountActive } = renderSection( { ...configured, activated: true } );
+		const { rerender } = renderSection( { ...configured, activated: true } );
 		expect( link() ).toHaveAttribute( 'href', 'https://example.com/settings' );
-		unmountActive();
 
-		const { unmount: unmountInactive } = renderSection( configured );
+		rerender( section( configured ) );
 		expect( link() ).not.toBeInTheDocument();
-		unmountInactive();
 
-		renderSection( configured, { 'module:sharedaddy': true } );
+		rerender( section( configured, { 'module:sharedaddy': true } ) );
 		expect( link() ).not.toBeInTheDocument();
 	} );
 

@@ -22,7 +22,7 @@ import type { ReactNode } from 'react';
 export function getModuleSettingsUrl( $module: MyJetpackModule ): string | undefined {
 	const url = $module.configure_url;
 	// Jetpack's fallback: a settings search, which for a module without options finds only its toggle.
-	const isSettingsSearch = Boolean( url?.includes( 'page=jetpack-settings#/settings?term=' ) );
+	const isSettingsSearch = url?.includes( 'page=jetpack-settings#/settings?term=' );
 
 	return isSettingsSearch && ! Object.keys( $module.options ?? {} ).length ? undefined : url;
 }

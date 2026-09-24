@@ -1,4 +1,4 @@
-import { filterMoreFeatures, getHiddenModules, groupMoreFeatures } from '../use-more-features';
+import { filterMoreFeatures, groupMoreFeatures } from '../use-more-features';
 import type { MyJetpackModule } from '../../../../types';
 
 const mod = ( slug: string, overrides: Partial< MyJetpackModule > = {} ): MyJetpackModule =>
@@ -143,31 +143,38 @@ describe( 'getHiddenModules', () => {
 		widgets: mod( 'widgets', { activated: true } ),
 		'widget-visibility': mod( 'widget-visibility' ),
 	};
-	const setBlockTheme = ( isBlockTheme: boolean ) => {
+	// A fresh copy per case: the page-load snapshot is module-scoped.
+	const hiddenOnLoad = async (
+		isBlockTheme: boolean,
+		...loads: Record< string, MyJetpackModule >[]
+	) => {
 		window.JetpackScriptData = {
 			myJetpack: { siteEditor: { isBlockTheme } },
 		} as Window[ 'JetpackScriptData' ];
+		let hidden: Set< string > = new Set();
+		await jest.isolateModulesAsync( async () => {
+			const { getHiddenModules } = await import( '../use-more-features' );
+			loads.forEach( load => ( hidden = getHiddenModules( load ) ) );
+		} );
+		return [ ...hidden ];
 	};
 
-	it( 'hides Google Fonts and, on a block theme, the widget modules, unless one is on', () => {
-		setBlockTheme( true );
-
-		expect( [ ...getHiddenModules( design, new Set() ) ] ).toEqual( [
+	it( 'hides Google Fonts and, on a block theme, the widget modules, unless one is on', async () => {
+		await expect( hiddenOnLoad( true, design ) ).resolves.toEqual( [
 			'google-fonts',
 			'widget-visibility',
 		] );
 	} );
 
-	it( 'keeps the widget modules on a classic theme', () => {
-		setBlockTheme( false );
-
-		expect( [ ...getHiddenModules( design, new Set() ) ] ).toEqual( [ 'google-fonts' ] );
+	it( 'keeps the widget modules on a classic theme', async () => {
+		await expect( hiddenOnLoad( false, design ) ).resolves.toEqual( [ 'google-fonts' ] );
 	} );
 
-	it( 'keeps a module switched off since the page loaded', () => {
-		setBlockTheme( true );
+	it( 'keeps a module switched off since the page loaded', async () => {
+		const off = { ...design, widgets: mod( 'widgets' ) };
 
-		expect( [ ...getHiddenModules( design, new Set( [ 'google-fonts' ] ) ) ] ).toEqual( [
+		await expect( hiddenOnLoad( true, design, off ) ).resolves.toEqual( [
+			'google-fonts',
 			'widget-visibility',
 		] );
 	} );

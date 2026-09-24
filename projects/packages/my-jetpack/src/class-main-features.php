@@ -647,7 +647,8 @@ class Main_Features {
 	 * Headings for the modules the feature list does not cover.
 	 *
 	 * Grouped by the job a site owner is doing, not by Jetpack's module tags, which describe
-	 * mechanism (the Image CDN is tagged Appearance). Anything unlisted falls into Other.
+	 * mechanism (the Image CDN is tagged Appearance). Anything unlisted falls into Other. Naming
+	 * the module of a plugin-delivered feature here gives the module its own row.
 	 *
 	 * @return array Groups, each with a label and its module slugs. The UI sorts both by name.
 	 */

@@ -4,7 +4,14 @@ import { useMemo } from 'react';
 import { moduleSwitchKey, useRequestedSwitches } from '../../../data/requested-switch-state';
 import { PRODUCT_MODULES } from '../products/mappings';
 import { useAllJetpackModules } from '../products/use-all-jetpack-modules';
-import { hasSearch, moduleFields, rankBy, searchTerms } from '../products/utils';
+import {
+	LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE,
+	compareModulesByName,
+	hasSearch,
+	moduleFields,
+	rankBy,
+	searchTerms,
+} from '../products/utils';
 import { getFeatureModuleSlug } from './feature-state';
 import { matchesFilter } from './use-feature-filter';
 import type { FeatureState } from './feature-state';
@@ -77,43 +84,37 @@ export function groupMoreFeatures(
 	requested: Record< string, boolean >,
 	hidden: ReadonlySet< string > = new Set()
 ): MoreFeaturesGroup[] {
-	const named = new Set( groups.flatMap( group => group.modules ) );
+	const groupOf = new Map(
+		groups.flatMap( ( group, index ) => group.modules.map( slug => [ slug, index ] as const ) )
+	);
 	// A plugin-delivered card switches its plugin, not the module it shares a slug with, so a
 	// module a group names still gets its own row: Protect's card vs. Brute Force Protection.
 	const covered = new Set(
-		features
-			.map( feature => ( { feature, slug: getFeatureModuleSlug( feature, productModules ) } ) )
-			.filter( ( { feature, slug } ) => feature.in_jetpack || ! named.has( slug ) )
-			.map( ( { slug } ) => slug )
+		features.flatMap( feature => {
+			const slug = getFeatureModuleSlug( feature, productModules );
+			return feature.in_jetpack || ! groupOf.has( slug ) ? [ slug ] : [];
+		} )
 	);
-	const remaining = new Map(
-		Object.values( modules )
-			.sort( ( a, b ) => ( a.name || a.module ).localeCompare( b.name || b.module ) )
-			.filter(
-				$module =>
-					$module.available && ! covered.has( $module.module ) && ! hidden.has( $module.module )
-			)
-			.map( $module => [ $module.module, getModuleFeatureState( $module, requested ) ] )
-	);
+	const grouped = groups.map( group => ( { label: group.label, states: [] as FeatureState[] } ) );
+	const other: FeatureState[] = [];
 
-	// Walks the name-sorted modules rather than each group's list, so every group reads A to Z.
-	const grouped = groups.map( group => {
-		const states = [ ...remaining ]
-			.filter( ( [ slug ] ) => group.modules.includes( slug ) )
-			.map( ( [ slug, state ] ) => {
-				remaining.delete( slug );
-				return state;
-			} );
+	// One pass over the name-sorted modules, so every group reads A to Z.
+	for ( const $module of Object.values( modules ).sort( compareModulesByName ) ) {
+		if ( ! $module.available || covered.has( $module.module ) || hidden.has( $module.module ) ) {
+			continue;
+		}
 
-		return { label: group.label, states };
-	} );
+		const index = groupOf.get( $module.module );
+		( index === undefined ? other : grouped[ index ].states ).push(
+			getModuleFeatureState( $module, requested )
+		);
+	}
 	// Sorted on the translated label, so the order holds in every locale.
 	grouped.sort( ( a, b ) => a.label.localeCompare( b.label ) );
 
-	return [
-		...grouped,
-		{ label: __( 'Other', 'jetpack-my-jetpack' ), states: [ ...remaining.values() ] },
-	].filter( group => group.states.length > 0 );
+	return [ ...grouped, { label: __( 'Other', 'jetpack-my-jetpack' ), states: other } ].filter(
+		group => group.states.length > 0
+	);
 }
 
 /**
@@ -162,39 +163,19 @@ const WIDGET_MODULES = [ 'widgets', 'widget-visibility' ];
 export function getDeprecatedModules(): string[] {
 	const isBlockTheme = Boolean( getScriptData()?.myJetpack?.siteEditor?.isBlockTheme );
 
-	return [ 'google-fonts', ...( isBlockTheme ? WIDGET_MODULES : [] ) ];
-}
-
-/**
- * The deprecated modules to leave out: those neither on now nor on when the page loaded.
- *
- * @param modules      - Every Jetpack module on the site.
- * @param activeOnLoad - The deprecated modules that were on when the page loaded.
- * @return The slugs to leave out.
- */
-export function getHiddenModules(
-	modules: Record< string, MyJetpackModule >,
-	activeOnLoad: ReadonlySet< string >
-): Set< string > {
-	return new Set(
-		getDeprecatedModules().filter(
-			slug => ! modules[ slug ]?.activated && ! activeOnLoad.has( slug )
-		)
-	);
+	return [ ...LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE, ...( isBlockTheme ? WIDGET_MODULES : [] ) ];
 }
 
 // Module-scoped so a module switched off here keeps its row, and its switch back on, until a reload.
 let deprecatedActiveOnLoad: ReadonlySet< string > | null = null;
 
 /**
- * The deprecated modules that were on when the modules first loaded.
+ * The deprecated modules to leave out: those that were off when the modules first loaded.
  *
  * @param modules - Every Jetpack module on the site.
- * @return The slugs, empty until the modules load.
+ * @return The slugs to leave out.
  */
-function getDeprecatedActiveOnLoad(
-	modules: Record< string, MyJetpackModule >
-): ReadonlySet< string > {
+export function getHiddenModules( modules: Record< string, MyJetpackModule > ): Set< string > {
 	// The store starts out as `{}`, not undefined: taking that as the page-load state would hide
 	// a module the moment it is switched off.
 	if ( ! deprecatedActiveOnLoad && Object.keys( modules ).length ) {
@@ -203,7 +184,7 @@ function getDeprecatedActiveOnLoad(
 		);
 	}
 
-	return deprecatedActiveOnLoad ?? new Set();
+	return new Set( getDeprecatedModules().filter( slug => ! deprecatedActiveOnLoad?.has( slug ) ) );
 }
 
 /**
@@ -228,7 +209,7 @@ export function useMoreFeatures( state: MainFeaturesState ): MoreFeaturesGroup[]
 						modules,
 						PRODUCT_MODULES,
 						requested,
-						getHiddenModules( modules, getDeprecatedActiveOnLoad( modules ) )
+						getHiddenModules( modules )
 					)
 				: [],
 		[ state, modules, requested ]
