@@ -17,8 +17,11 @@ export const MIN_LABEL_CONTRAST = 4.5;
 /** ΔE00 every earlier color must clear before a candidate may be picked for its hue. */
 export const PREFERRED_SEPARATION = 12;
 
-/** Degrees of hue one unit of OKLCH chroma is worth when ranking candidates. */
+/** Degrees of hue one unit of OKLCH chroma is worth when ranking candidates by hue. */
 const CHROMA_WEIGHT = 300;
+
+/** ΔE00 one unit of OKLCH chroma is worth when ranking candidates by distance. */
+const FAR_CHROMA_WEIGHT = 100;
 
 interface Candidate {
 	hex: string;
@@ -36,9 +39,11 @@ const toCandidate = ( hex: string, oklch = hexToOklch( hex ) ): Candidate => ( {
 	chroma: oklch.chroma,
 } );
 
-// Degrees from the anchor hue going round the wheel, less a bonus for saturation.
-const wheelRank = ( candidate: Candidate, anchorHue: number ): number =>
-	( ( candidate.hue - anchorHue + 360 ) % 360 ) - candidate.chroma * CHROMA_WEIGHT;
+// Lower ranks first. With an anchor: degrees from it going round the wheel. Without: farthest first. Both favor saturation.
+const rank = ( candidate: Candidate, distance: number, anchorHue: number | null ): number =>
+	anchorHue === null
+		? -( distance + candidate.chroma * FAR_CHROMA_WEIGHT )
+		: ( ( candidate.hue - anchorHue + 360 ) % 360 ) - candidate.chroma * CHROMA_WEIGHT;
 
 const LIGHTNESS_STEPS = Array.from( { length: 13 }, ( _, step ) => 0.45 + step * 0.025 );
 const CHROMA_STEPS = [ 0.12, 0.15, 0.18, 0.21 ];
@@ -155,12 +160,12 @@ const updateTracker = (
 };
 
 /**
- * Pick the next color: among unused candidates that clear `PREFERRED_SEPARATION` from every
- * earlier color, the one nearest the anchor hue; otherwise the farthest candidate.
+ * Pick the next color: the best-ranked unused candidate that clears `PREFERRED_SEPARATION` from
+ * every earlier color; otherwise the farthest candidate.
  *
  * @param tracker   - Tracker to read.
  * @param usedHexes - Hex values already placed; a used candidate is never picked.
- * @param anchorHue - Hue the wheel walk starts from, or null to always take the farthest.
+ * @param anchorHue - Hue to walk the wheel from, or null to rank by distance.
  * @return The picked candidate, or null if every candidate in the pool is used.
  */
 const pickNext = (
@@ -170,8 +175,8 @@ const pickNext = (
 ): Candidate | null => {
 	let farthestIndex = -1;
 	let farthestDistance = -Infinity;
-	let nearestHueIndex = -1;
-	let nearestHueRank = Infinity;
+	let preferredIndex = -1;
+	let preferredRank = Infinity;
 	for ( let i = 0; i < tracker.pool.length; i++ ) {
 		if ( usedHexes.has( tracker.pool[ i ].hex ) ) {
 			continue;
@@ -181,18 +186,18 @@ const pickNext = (
 			farthestDistance = distance;
 			farthestIndex = i;
 		}
-		if ( anchorHue !== null && distance >= PREFERRED_SEPARATION ) {
-			const rank = wheelRank( tracker.pool[ i ], anchorHue );
+		if ( distance >= PREFERRED_SEPARATION ) {
+			const candidateRank = rank( tracker.pool[ i ], distance, anchorHue );
 			if (
-				rank < nearestHueRank ||
-				( rank === nearestHueRank && distance > tracker.nearest[ nearestHueIndex ] )
+				candidateRank < preferredRank ||
+				( candidateRank === preferredRank && distance > tracker.nearest[ preferredIndex ] )
 			) {
-				nearestHueRank = rank;
-				nearestHueIndex = i;
+				preferredRank = candidateRank;
+				preferredIndex = i;
 			}
 		}
 	}
-	const index = nearestHueIndex === -1 ? farthestIndex : nearestHueIndex;
+	const index = preferredIndex === -1 ? farthestIndex : preferredIndex;
 	return index === -1 ? null : tracker.pool[ index ];
 };
 
@@ -224,13 +229,15 @@ export const createPaletteGenerator = (
 	let repeatCount = 0;
 
 	const nextColor = (): Candidate => {
+		// Alternate far and near, starting far: most charts show only the first two colors, so those must contrast.
+		const walkHue = ( palette.length - normalizedSeeds.length ) % 2 === 1 ? anchorHue : null;
 		if ( ! legibleExhausted ) {
 			legibleTracker ??= buildTracker(
 				legibleCandidatesFor( background, labelColors ),
 				palette,
 				usedHexes
 			);
-			const picked = pickNext( legibleTracker, usedHexes, anchorHue );
+			const picked = pickNext( legibleTracker, usedHexes, walkHue );
 			if ( picked ) {
 				return picked;
 			}
@@ -238,7 +245,7 @@ export const createPaletteGenerator = (
 		}
 		if ( ! gridExhausted ) {
 			gridTracker ??= buildTracker( getCandidateGrid(), palette, usedHexes );
-			const picked = pickNext( gridTracker, usedHexes, anchorHue );
+			const picked = pickNext( gridTracker, usedHexes, walkHue );
 			if ( picked ) {
 				return picked;
 			}

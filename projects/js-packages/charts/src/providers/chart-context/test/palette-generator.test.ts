@@ -94,12 +94,22 @@ describe( 'createPaletteGenerator', () => {
 			} );
 	} );
 
+	it.each( WP_ADMIN_THEME_COLORS )(
+		'sets the first generated color further from the %s scheme seed (%s) than the second',
+		( _scheme, seed ) => {
+			const [ seedColor, first, second ] = paletteOf( [ seed ], '#ffffff', 3 ).map( hexToViews );
+			expect( viewDistance( seedColor, first ) ).toBeGreaterThan(
+				viewDistance( seedColor, second )
+			);
+		}
+	);
+
 	it.each( [ '#007cba', '#3858e9', '#437aa8' ] )(
-		'places the first generated color just ahead of %s on the hue wheel',
+		'places the second generated color just ahead of %s on the hue wheel',
 		seed => {
 			const seedHue = hexToOklch( seed ).hue;
-			const nextHue = hexToOklch( paletteOf( [ seed ], '#ffffff', 2 )[ 1 ] ).hue;
-			expect( ( nextHue - seedHue + 360 ) % 360 ).toBeLessThan( 45 );
+			const walkedHue = hexToOklch( paletteOf( [ seed ], '#ffffff', 3 )[ 2 ] ).hue;
+			expect( ( walkedHue - seedHue + 360 ) % 360 ).toBeLessThan( 45 );
 		}
 	);
 
