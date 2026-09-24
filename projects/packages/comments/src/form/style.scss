@@ -1,123 +1,74 @@
 /**
- * The comment form: one bordered card holding the textarea, the identity block
- * and the submit row, each divided by a rule.
+ * The comment box: a round avatar beside the textarea, with everything else
+ * folded away underneath until the reader clicks in. Colours, fonts, borders
+ * and buttons are left to the theme.
  */
 
 .jetpack-comments {
-	--jetpack-comments-font-color: rgba(0, 0, 0, 0.8);
-	--jetpack-comments-border-color: #dcdcde;
-	--jetpack-comments-background-color: rgba(255, 255, 255, 0.6);
-	--jetpack-comments-wrapper-background-color: rgba(255, 255, 255, 0.6);
-	--jetpack-comments-content-background-color: rgba(255, 255, 255, 0.6);
-	--jetpack-comments-accent-color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #0675c4));
-	--jetpack-comments-accent-hover-color: var(--wp-components-color-accent-darker-10, var(--wp-admin-theme-color-darker-10, #055d9c));
-	--jetpack-comments-accent-text-color: var(--wp-components-color-accent-inverted, #fff);
-	--jetpack-comments-disabled-color: #a7aaad;
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+}
 
-	&.light {
-		--jetpack-comments-font-color: #3c434a;
-		--jetpack-comments-background-color: #fff;
-		--jetpack-comments-wrapper-background-color: #f9f9f9;
-		--jetpack-comments-content-background-color: #fff;
-	}
+.jetpack-comments__avatar {
+	flex-shrink: 0;
+	inline-size: 40px;
+	block-size: 40px;
+	border-radius: 50%;
+	object-fit: cover;
+}
 
-	&.dark {
-		--jetpack-comments-font-color: rgba(255, 255, 255, 0.8);
-		--jetpack-comments-border-color: rgba(255, 255, 255, 0.2);
-		--jetpack-comments-background-color: rgba(0, 0, 0, 0.7);
-		--jetpack-comments-wrapper-background-color: rgba(255, 255, 255, 0.1);
-		--jetpack-comments-content-background-color: rgba(255, 255, 255, 0.1);
-	}
-
-	color: var(--jetpack-comments-font-color);
-	background-color: var(--jetpack-comments-background-color);
-	border: 1px solid var(--jetpack-comments-border-color);
-	font-family: var(--wp--preset--font-family--system-font, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif);
-	font-size: 16px;
-
-	*,
-	*::before,
-	*::after {
-		box-sizing: border-box;
-	}
+.jetpack-comments__body {
+	flex: 1;
+	min-inline-size: 0;
 }
 
 .jetpack-comments__textarea {
-	all: initial;
-	box-sizing: border-box;
 	display: block;
+	box-sizing: border-box;
 	inline-size: 100%;
 	max-inline-size: 100%;
-	min-block-size: 96px;
-	padding: 16px;
-	margin: 0;
-	// Themes style `textarea` with more specificity than one class; pinned.
-	border: none !important;
-	border-radius: 0 !important;
-	box-shadow: none !important;
-	background: transparent !important;
-	color: var(--jetpack-comments-font-color);
-	font-family: inherit;
-	font-size: 16px;
-	font-weight: 400;
-	line-height: 1.4;
-	white-space: pre-wrap;
-	overflow-wrap: break-word;
 	overflow: hidden;
 	resize: none;
-	outline: none;
+}
 
-	&::placeholder {
-		color: var(--jetpack-comments-font-color);
-		opacity: 0.8;
+// Hidden, not just collapsed, so nothing inside a closed tray can take focus.
+// The visibility flip waits for the rows to finish collapsing.
+.jetpack-comments__tray {
+	display: grid;
+	grid-template-rows: 0fr;
+	visibility: hidden;
+	transition:
+		grid-template-rows 0.25s ease-in-out,
+		visibility 0s linear 0.25s;
+
+	&.is-open {
+		grid-template-rows: 1fr;
+		visibility: visible;
+		transition:
+			grid-template-rows 0.25s ease-in-out,
+			visibility 0s;
 	}
 
-	&:focus-visible {
-		outline: 1px solid var(--jetpack-comments-accent-color);
-		outline-offset: -1px;
+	// The negative margins give focus rings room inside the clipped box.
+	> div {
+		overflow: hidden;
+		margin: 0 -4px -4px;
+		padding: 0 4px 4px;
 	}
 }
 
-.jetpack-comments__footer {
+.jetpack-comments__actions {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
-	gap: 10px;
-	padding: 16px;
-	border-block-start: 1px solid var(--jetpack-comments-border-color);
-	justify-content: flex-end;
+	justify-content: space-between;
+	gap: 12px;
+	padding-block-start: 12px;
 }
 
 .jetpack-comments__submit {
-	all: unset;
-	display: inline-block;
-	padding: 7px 20px;
-	border: 1px solid transparent;
-	border-radius: 4px;
-	background: var(--jetpack-comments-accent-color);
-	color: var(--jetpack-comments-accent-text-color);
-	font-family: inherit;
-	font-size: 14px;
-	text-align: center;
-	text-decoration: none;
-	text-shadow: none;
-	white-space: nowrap;
-	cursor: pointer;
-
-	&:disabled {
-		background: transparent;
-		border-color: var(--jetpack-comments-border-color);
-		color: var(--jetpack-comments-disabled-color);
-		cursor: not-allowed;
-	}
-
-	&:not(:disabled):hover {
-		background: var(--jetpack-comments-accent-hover-color);
-	}
-
-	&:focus-visible {
-		outline: 2px solid var(--jetpack-comments-accent-color);
-		outline-offset: 1px;
-	}
+	margin-inline-start: auto;
 
 	&.is-busy {
 		cursor: progress;
@@ -126,4 +77,18 @@
 
 .jetpack-comments__fields {
 	display: contents;
+}
+
+// Named by its own class rather than the theme's .screen-reader-text, which is
+// not guaranteed to be there.
+.jetpack-comments__visually-hidden {
+	position: absolute;
+	inline-size: 1px;
+	block-size: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
 }

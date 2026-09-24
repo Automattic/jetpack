@@ -1,11 +1,11 @@
 import clsx from 'clsx';
 import { render } from 'preact';
 import { useContext, useEffect, useRef } from 'preact/hooks';
-import { CommentingAs, Identity } from '../identity';
+import { Identity } from '../identity';
+import { IdentityDialog } from '../identity/dialog';
 import { CommentSignals, createSignals } from '../shared/state';
 import { CommentField } from './comment-field';
 import { markSubmitted, resolveSubmitted, saveDraft } from './draft';
-import { SubmitButton } from './submit-button';
 import type { FormSettings } from '../shared/types';
 
 import './style.scss';
@@ -19,16 +19,56 @@ type CommentFormProps = {
 const DRAFT_DEBOUNCE_MS = 300;
 
 const CommentForm = ( { form }: CommentFormProps ) => {
-	const { formSettings, commentParent, commentValue, isEmptyComment, isSavingComment, isTrayOpen } =
-		useContext( CommentSignals );
+	const {
+		formSettings,
+		commentParent,
+		commentValue,
+		isEmptyComment,
+		isSavingComment,
+		signedIn,
+		isOpen,
+		isModalOpen,
+	} = useContext( CommentSignals );
+	const { isLoggedIn, mustLogIn, commenter, identity, strings } = JetpackComments;
 	const isSubmitting = useRef( false );
 
-	// Opens only as the comment goes from empty to not, so closing the tray mid-sentence sticks.
+	// Opens as the comment goes from empty to not, so a draft brought back opens it too.
 	useEffect( () => {
 		if ( ! isEmptyComment.value ) {
-			isTrayOpen.value = true;
+			isOpen.value = true;
 		}
-	}, [ isEmptyComment.value, isTrayOpen ] );
+	}, [ isEmptyComment.value, isOpen ] );
+
+	// Folds away on a click or a Tab that leaves the form with nothing typed.
+	// Clicks are read from pointerdown, not focusout: Safari fires focusout for a
+	// button inside the form too, with no relatedTarget to tell the two apart.
+	useEffect( () => {
+		const close = () => {
+			if ( isEmptyComment.peek() ) {
+				isOpen.value = false;
+			}
+		};
+
+		const onPointerDown = ( event: PointerEvent ) => {
+			if ( ! form.contains( event.target as Node ) ) {
+				close();
+			}
+		};
+
+		const onFocusOut = ( event: FocusEvent ) => {
+			if ( event.relatedTarget instanceof Node && ! form.contains( event.relatedTarget ) ) {
+				close();
+			}
+		};
+
+		document.addEventListener( 'pointerdown', onPointerDown );
+		form.addEventListener( 'focusout', onFocusOut );
+
+		return () => {
+			document.removeEventListener( 'pointerdown', onPointerDown );
+			form.removeEventListener( 'focusout', onFocusOut );
+		};
+	}, [ form, isEmptyComment, isOpen ] );
 
 	useEffect( () => {
 		const parentInput = form.querySelector< HTMLInputElement >( '#comment_parent' );
@@ -62,7 +102,17 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 	}, [ formSettings, commentValue.value ] );
 
 	useEffect( () => {
-		const onSubmit = () => {
+		const onSubmit = ( event: SubmitEvent ) => {
+			// A reader the site does not know is asked first; the dialog's own buttons submit again.
+			const isKnown =
+				isLoggedIn || signedIn.peek() || ( commenter.author !== '' && commenter.email !== '' );
+
+			if ( ! isKnown && ! isModalOpen.peek() ) {
+				event.preventDefault();
+				isModalOpen.value = true;
+				return;
+			}
+
 			if ( isSubmitting.current ) {
 				return;
 			}
@@ -94,25 +144,41 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 			window.removeEventListener( 'pageshow', onPageShow );
 			window.removeEventListener( 'pagehide', onPageHide );
 		};
-	}, [ form, formSettings, isSavingComment, commentValue ] );
+	}, [ form, formSettings, isSavingComment, commentValue, signedIn, isModalOpen ] );
+
+	const avatar = signedIn.value?.avatar || JetpackComments.avatarUrl;
+
+	// Only where there is no way to log in: with the popup, the dialog asks instead.
+	const isSubmitDisabled =
+		( mustLogIn && ! signedIn.value && identity.providers.length === 0 ) ||
+		isEmptyComment.value ||
+		isSavingComment.value;
 
 	return (
 		<>
-			<CommentField />
-			{ ! JetpackComments.isLoggedIn && (
-				<div
-					id={ `jetpack-comments-tray-${ formSettings.postId }` }
-					className={ clsx( 'jetpack-comments__tray', { 'is-open': isTrayOpen.value } ) }
-				>
-					<div>
+			{ avatar && (
+				<img className="jetpack-comments__avatar" src={ avatar } alt="" width="40" height="40" />
+			) }
+			<div className="jetpack-comments__body">
+				<CommentField />
+				<div className={ clsx( 'jetpack-comments__tray', { 'is-open': isOpen.value } ) }>
+					<div className="jetpack-comments__actions">
 						<Identity />
+						<button
+							id={ formSettings.submitId }
+							name={ formSettings.submitName }
+							type="submit"
+							className={ clsx( 'jetpack-comments__submit', formSettings.submitClass, {
+								'is-busy': isSavingComment.value,
+							} ) }
+							disabled={ isSubmitDisabled }
+						>
+							{ commentParent.value ? strings.reply : formSettings.submitLabel }
+						</button>
 					</div>
 				</div>
-			) }
-			<div className="jetpack-comments__footer">
-				<CommentingAs />
-				<SubmitButton />
 			</div>
+			<IdentityDialog />
 		</>
 	);
 };

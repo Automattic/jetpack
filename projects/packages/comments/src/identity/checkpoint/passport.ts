@@ -6,7 +6,7 @@
 
 import type { Passport, Provider } from '../../shared/types';
 
-const PROVIDERS: Provider[] = [ 'wordpress', 'google', 'facebook' ];
+const PROVIDERS: Provider[] = [ 'wordpress' ];
 
 /**
  * Who the display cookie says is back, if anyone.

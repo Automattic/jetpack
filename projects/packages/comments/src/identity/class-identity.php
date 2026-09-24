@@ -24,6 +24,7 @@ class Identity {
 		// and served to everyone, so who holds a passport comes from a cookie.
 		$settings = array(
 			'isLoggedIn' => is_user_logged_in(),
+			'avatarUrl'  => '',
 			'commenter'  => array(
 				'author' => $commenter['comment_author'],
 				'email'  => $commenter['comment_author_email'],
@@ -40,7 +41,7 @@ class Identity {
 				'displayCookie' => Passport::DISPLAY_COOKIE,
 				'cookiePath'    => COOKIEPATH,
 				'cookieDomain'  => COOKIE_DOMAIN ? COOKIE_DOMAIN : '',
-				'defaultAvatar' => Avatars::default_url( 74 ),
+				'defaultAvatar' => Avatars::default_url( 80 ),
 				'refreshUrl'    => Checkpoint_Endpoint::connect_url(),
 				'logoutUrl'     => admin_url( 'admin-ajax.php' ),
 				'logoutAction'  => Checkpoint_Endpoint::LOGOUT_ACTION,
@@ -48,18 +49,17 @@ class Identity {
 		);
 
 		if ( is_user_logged_in() ) {
-			$user             = wp_get_current_user();
-			$settings['user'] = array(
-				'avatarUrl'    => get_avatar_url( $user->ID, array( 'size' => 74 ) ),
-				'commentingAs' => sprintf(
-					/* translators: %s is the display name of the logged-in user. */
-					__( 'Commenting as %s', 'jetpack-comments' ),
-					$user->display_name
-				),
-			);
+			$user                  = wp_get_current_user();
+			$settings['avatarUrl'] = (string) get_avatar_url( $user->ID, array( 'size' => 80 ) );
+			$settings['user']      = array( 'name' => $user->display_name );
 
 			return $settings;
 		}
+
+		// A returning guest's Gravatar, from the email core saved for them; the site default for anyone else.
+		$settings['avatarUrl'] = $commenter['comment_author_email']
+			? (string) get_avatar_url( $commenter['comment_author_email'], array( 'size' => 80 ) )
+			: Avatars::default_url( 80 );
 
 		if ( ! Checkpoint::is_available() ) {
 			return $settings;

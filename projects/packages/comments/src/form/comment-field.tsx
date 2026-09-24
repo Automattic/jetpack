@@ -8,11 +8,14 @@ import { CommentSignals } from '../shared/state';
  */
 const resize = ( textarea: HTMLTextAreaElement ) => {
 	textarea.style.height = 'auto';
-	textarea.style.height = `${ textarea.scrollHeight }px`;
+	// scrollHeight stops at the padding edge; the border is added back for the border-box height.
+	textarea.style.height = `${
+		textarea.scrollHeight + textarea.offsetHeight - textarea.clientHeight
+	}px`;
 };
 
 export const CommentField = () => {
-	const { commentValue, commentParent } = useContext( CommentSignals );
+	const { commentValue, commentParent, isOpen } = useContext( CommentSignals );
 	const { strings, maxLength } = JetpackComments;
 	const textarea = useRef< HTMLTextAreaElement >( null );
 
@@ -47,11 +50,13 @@ export const CommentField = () => {
 			name="comment"
 			className="jetpack-comments__textarea"
 			ref={ textarea }
+			rows={ 2 }
 			required
 			maxLength={ maxLength }
 			aria-label={ commentParent.value ? strings.replyLabel : strings.commentLabel }
 			value={ commentValue.value }
 			placeholder={ commentParent.value ? strings.replyPlaceholder : strings.placeholder }
+			onFocus={ () => ( isOpen.value = true ) }
 			onInput={ event => {
 				resize( event.currentTarget );
 				commentValue.value = event.currentTarget.value;

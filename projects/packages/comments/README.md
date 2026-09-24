@@ -19,10 +19,11 @@ only makes the second, so on Simple the filter would be read before it was added
 
 The form renders on the site the comment is posted to, and posts to that site's own `wp-comments-post.php`. No iframe, and the only call to WordPress.com is the exchange behind a popup sign-in, so it behaves the same on Simple, Atomic and self-hosted.
 
-- A textarea that grows as you type.
-- Sign in with WordPress.com, Google or Facebook, through a popup rather than an iframe. See "The checkpoint" below.
-- Name, email and website for logged-out readers, honoring `require_name_email` and the comment cookies opt-in. These use core's own field names.
-- An identity line and a log-out link for readers logged in to the site itself.
+- A round avatar beside a textarea that grows as you type. Until the reader clicks in, that is all there is; the submit button slides out from underneath.
+- Everything is drawn in the theme's own styles. The textarea, inputs, links and submit button carry no colours or fonts of their own, and the submit button wears the classes core gives its own, so a block theme's button styles apply.
+- A reader the site does not know yet is asked who they are in a dialog when they submit: name, email and website under core's own field names, honoring `require_name_email`, plus the subscribe options below. "Save and post comment" carries core's cookies-consent field, so core saves their details; "No, thanks" posts without it. A guest whose details are saved posts straight through, with a "Commenting as" line and an Edit link back to the dialog.
+- Sign in with WordPress.com from the same dialog, through a popup rather than an iframe. See "The checkpoint" below. A sign-in that lands finishes the submit that opened the dialog.
+- A "Commenting as" line and a log-out link for readers the site knows, whether logged in to the site itself or through the popup.
 - Reply threading, by watching the `comment_parent` input WordPress rewrites.
 
 Sites that require registration take a popup sign-in as registration. Where no sign-in is available (a site with no blog token) they get a log-in prompt in place of the guest fields, and the submit button held disabled.
@@ -37,9 +38,17 @@ A successful exchange also sets two first-party cookies with the same expiry. `j
 
 A returning commenter is admitted on the passport alone for as long as it lasts, up to 30 days, without going back to WordPress.com. The form says so with a hidden `jetpack_comment_identity_passport` field, and the server reads the passport only when that field is posted, so a log-out that never reached the server still leaves the reader posting as the guest the form showed them as. That is deliberate: consent for this site was given on the connect page, and the exchange already returned everything the comment needs. "Log out" posts the `jetpack_comments_identity_logout` admin-ajax action, which takes both cookies back, and flags the page so the next popup carries `reauth=1`: WordPress.com keeps its own 30-day cookie for the person, and without that flag it would sign the same person straight back in. The flag lives in memory, so it covers switching accounts without a reload; after one, WordPress.com's cookie decides, as it already does on every other site. That is admin-ajax rather than REST because only the site's own host can clear its first-party cookie, and on Simple that host serves no REST API. A spent or expired code clears them and asks the reader to sign in again, and so does a passport marker posted after the passport itself is gone, say from a log-out in another tab.
 
-## Not here yet
+## Subscriptions
 
-**Subscriptions.** The "email me new comments" and "email me new posts" options, and the modal after submitting. Jetpack Subscriptions adds its checkboxes through `comment_form_submit_field`, which this form replaces wholesale, so they are dropped while the filter is on. On Simple the older `subscription_comment_form` output is removed for the same reason, so that no host shows a subscribe option rather than one showing it and another not.
+The dialog offers the subscribe checkboxes the host would have drawn itself, under the host's own field names, so the host's own handlers act on them when the comment posts. Jetpack Subscriptions appends its checkboxes to `comment_form_submit_field` at priority 10; this form's filter runs at 20 and reads them back out. On Simple, `subscription_comment_form()` is asked for its markup the same way and its `comment_form` action removed, so the options appear once. Each host keeps its own gating for which options exist and whether they start checked.
+
+Only readers who go through the dialog see them. A site user or a WordPress.com sign-in posts without it, and gets no subscribe option here.
+
+## Not here
+
+**Other sign-ins.** WordPress.com is the only sign-in offered. A reader is a guest, a site user, or signed in with WordPress.com.
+
+**Comment subscription management.** There is no modal after submitting and nothing to manage subscriptions from the form.
 
 ## What it stores
 
@@ -54,7 +63,7 @@ are derivable from what core already keeps.
 
 The experience this replaces wrote `hc_post_as`, `hc_foreign_user_id`,
 `hc_avatar` and `hc_wpcom_id_sig`. Nothing here writes those, but `hc_avatar` is
-still read for comments that already carry one, with the host check it always had.
+still read for comments that already carry one, for the Twitter avatars it may hold.
 
 The rule to apply when adding a key: **store a field in the same change that adds
 something which reads it.**
@@ -68,9 +77,8 @@ src/
   class-comments.php    the filter, and what to boot
   class-avatars.php     avatars on comments already written
   form/                 takeover, mount, nonce, layout, the text box, submit
-  identity/             who is commenting: guest fields, log-in prompt, attribution
+  identity/             who is commenting: the dialog, guest fields, attribution
     checkpoint/         the popup sign-in, the exchange, the passport cookie, its REST routes
-  ui/                   widgets shared across the form
   shared/               signals, and the PHP-to-JS settings shape
 ```
 
@@ -90,7 +98,7 @@ Two places check the filter, so one switch covers every environment. On Simple a
 | Self-hosted, Atomic | `plugins/jetpack`, in the Comments module | `Jetpack_Comments`, and its iframe to `jetpack.wordpress.com` |
 | Simple | `packages/jetpack-mu-wpcom`, in `load_verbum_comments()` | `Verbum_Comments` |
 
-The Comments module still has to be active on the Jetpack plugin side. Its settings screen is left in place, and the greeting and color scheme it sets are both applied here.
+The Comments module still has to be active on the Jetpack plugin side. Its settings screen is left in place. The greeting it sets is applied here; the color scheme is not, because the form takes its colours from the theme.
 
 ## Security
 

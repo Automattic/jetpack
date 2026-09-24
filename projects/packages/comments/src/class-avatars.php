@@ -24,7 +24,7 @@ class Avatars {
 	 *
 	 * @var string[]
 	 */
-	private static $avatar_hosts = array( 'graph.facebook.com', 'twimg.com' );
+	private static $avatar_hosts = array( 'twimg.com' );
 
 	/**
 	 * Register the avatar filters.

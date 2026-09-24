@@ -30,16 +30,6 @@ class Comment_Form {
 	const NONCE_NAME = 'jetpack_comments_form_nonce';
 
 	/**
-	 * Colour schemes the form can be drawn in.
-	 */
-	const COLOR_SCHEMES = array( 'transparent', 'light', 'dark' );
-
-	/**
-	 * Colour scheme used when the site has not chosen one.
-	 */
-	const DEFAULT_COLOR_SCHEME = 'transparent';
-
-	/**
 	 * Singleton instance.
 	 *
 	 * @var Comment_Form|null
@@ -224,7 +214,38 @@ class Comment_Form {
 			return $submit_field;
 		}
 
-		// Fires after this filter, and would draw a subscribe option this form has no room for.
+		// The subscribe checkboxes each host draws itself, read back to draw in the
+		// dialog under the host's own field names: Jetpack Subscriptions appends its
+		// own to the submit field at priority 10, and WordPress.com has a function.
+		$drawn = $submit_field;
+
+		if ( function_exists( 'subscription_comment_form' ) ) {
+			$drawn .= (string) subscription_comment_form( self::post_id(), false );
+		}
+
+		$labels = array(
+			'subscribe_comments' => __( 'Notify me of new comments by email.', 'jetpack-comments' ),
+			'subscribe'          => __( 'Notify me of new comments by email.', 'jetpack-comments' ),
+			'subscribe_blog'     => sprintf(
+				/* translators: %s is the site's name. */
+				__( 'Subscribe to keep up with %s.', 'jetpack-comments' ),
+				get_bloginfo( 'name' )
+			),
+		);
+
+		$args['subscriptions'] = array();
+
+		foreach ( $labels as $name => $label ) {
+			if ( preg_match( '/<input\b[^>]*\bname="' . $name . '"[^>]*>/', $drawn, $input ) ) {
+				$args['subscriptions'][] = array(
+					'name'    => $name,
+					'label'   => $label,
+					'checked' => false !== strpos( $input[0], 'checked' ),
+				);
+			}
+		}
+
+		// Fires after this filter, and would draw the subscribe options again below the form.
 		remove_action( 'comment_form', 'subscription_comment_form' );
 
 		$this->enqueue_assets( $args );
@@ -258,7 +279,7 @@ class Comment_Form {
 	 * @return string
 	 */
 	private function markup( $args = array() ) {
-		return '<div class="jetpack-comments ' . esc_attr( self::color_scheme() ) . '"'
+		return '<div class="jetpack-comments"'
 			. ' data-jetpack-comments="' . esc_attr(
 				(string) wp_json_encode(
 					self::form_settings( $args ),
@@ -280,17 +301,6 @@ class Comment_Form {
 		$post = get_post();
 
 		return $post ? $post->ID : 0;
-	}
-
-	/**
-	 * The colour scheme the site has chosen.
-	 *
-	 * @return string
-	 */
-	private static function color_scheme() {
-		$scheme = get_option( 'jetpack_comment_form_color_scheme', self::DEFAULT_COLOR_SCHEME );
-
-		return in_array( $scheme, self::COLOR_SCHEMES, true ) ? $scheme : self::DEFAULT_COLOR_SCHEME;
 	}
 
 	/**
@@ -354,11 +364,14 @@ class Comment_Form {
 
 		return array_merge(
 			array(
-				'requireNameEmail'   => (bool) get_option( 'require_name_email' ),
-				'showCookiesConsent' => (bool) get_option( 'show_comments_cookies_opt_in' ),
-				'mustLogIn'          => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
-				'maxLength'          => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
-				'strings'            => self::strings( $args ),
+				'requireNameEmail' => (bool) get_option( 'require_name_email' ),
+				'mustLogIn'        => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
+				'maxLength'        => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
+				'site'             => array(
+					'name'    => get_bloginfo( 'name' ),
+					'iconUrl' => (string) get_site_icon_url( 64 ),
+				),
+				'strings'          => self::strings( $args ),
 			),
 			Identity::settings()
 		);
@@ -375,12 +388,14 @@ class Comment_Form {
 		$permalink = get_permalink( $post_id );
 
 		$settings = array(
-			'postId'      => $post_id,
-			'loginUrl'    => wp_login_url( $permalink ),
-			'logoutUrl'   => '',
-			'submitId'    => $args['id_submit'] ?? 'submit',
-			'submitName'  => $args['name_submit'] ?? 'submit',
-			'submitLabel' => $args['label_submit'] ?? _x( 'Comment', 'verb', 'jetpack-comments' ),
+			'postId'        => $post_id,
+			'loginUrl'      => wp_login_url( $permalink ),
+			'logoutUrl'     => '',
+			'submitId'      => $args['id_submit'] ?? 'submit',
+			'submitName'    => $args['name_submit'] ?? 'submit',
+			'submitClass'   => $args['class_submit'] ?? 'submit',
+			'submitLabel'   => $args['label_submit'] ?? _x( 'Comment', 'verb', 'jetpack-comments' ),
+			'subscriptions' => $args['subscriptions'] ?? array(),
 		);
 
 		if ( is_user_logged_in() ) {
@@ -399,40 +414,28 @@ class Comment_Form {
 	 */
 	private static function strings( $args ) {
 		$strings = array(
-			'reply'               => _x( 'Reply', 'verb', 'jetpack-comments' ),
-			'commentLabel'        => _x( 'Comment', 'noun', 'jetpack-comments' ),
-			'replyLabel'          => _x( 'Reply', 'noun', 'jetpack-comments' ),
-			'placeholder'         => __( 'Write a comment...', 'jetpack-comments' ),
-			'replyPlaceholder'    => __( 'Write a reply...', 'jetpack-comments' ),
-			'name'                => __( 'Name', 'jetpack-comments' ),
-			'email'               => __( 'Email', 'jetpack-comments' ),
-			'emailPlaceholder'    => __( 'Email (Address never made public)', 'jetpack-comments' ),
-			'website'             => __( 'Website', 'jetpack-comments' ),
-			'websitePlaceholder'  => __( 'Website (Optional)', 'jetpack-comments' ),
-			'guestPrompt'         => __( 'Leave a comment.', 'jetpack-comments' ),
-			'mustLogInPrompt'     => __( 'Log in to leave a comment.', 'jetpack-comments' ),
-			'logIn'               => __( 'Log in', 'jetpack-comments' ),
-			'guestPromptRequired' => __( 'Provide your name and email to leave a comment.', 'jetpack-comments' ),
-			'saveDetails'         => __( 'Save my name, email, and website in this browser for the next time I comment.', 'jetpack-comments' ),
-			'logOut'              => __( 'Log out', 'jetpack-comments' ),
-			'logInOrProvide'      => __( 'Log in or provide your name and email to leave a comment.', 'jetpack-comments' ),
-			'logInOrProvideReply' => __( 'Log in or provide your name and email to leave a reply.', 'jetpack-comments' ),
-			'logInOptional'       => __( 'Leave a comment. (log in optional)', 'jetpack-comments' ),
-			'logInOptionalReply'  => __( 'Leave a reply. (log in optional)', 'jetpack-comments' ),
-			'logInToReply'        => __( 'Log in to leave a reply.', 'jetpack-comments' ),
-			/* translators: %1$s is the commenter's name, %2$s the provider (WordPress.com, Google, Facebook). The line ends before a "Log out" button. */
-			'signedInAs'          => __( '%1$s - Logged in via %2$s -', 'jetpack-comments' ),
-			'cancel'              => __( 'Cancel', 'jetpack-comments' ),
-			'settings'            => __( 'Settings', 'jetpack-comments' ),
-			'close'               => __( 'Close', 'jetpack-comments' ),
-			'providers'           => array(
-				'wordpress' => __( 'WordPress.com', 'jetpack-comments' ),
-				'google'    => __( 'Google', 'jetpack-comments' ),
-				'facebook'  => __( 'Facebook', 'jetpack-comments' ),
-				'mail'      => __( 'Email', 'jetpack-comments' ),
-			),
-			'signInFailed'        => __( 'We could not sign you in. Please try again.', 'jetpack-comments' ),
-			'signInRateLimited'   => __( 'Too many sign-in attempts. Please wait a moment and try again.', 'jetpack-comments' ),
+			'reply'              => _x( 'Reply', 'verb', 'jetpack-comments' ),
+			'commentLabel'       => _x( 'Comment', 'noun', 'jetpack-comments' ),
+			'replyLabel'         => _x( 'Reply', 'noun', 'jetpack-comments' ),
+			'placeholder'        => __( 'Write a comment...', 'jetpack-comments' ),
+			'replyPlaceholder'   => __( 'Write a reply...', 'jetpack-comments' ),
+			'name'               => __( 'Name', 'jetpack-comments' ),
+			'email'              => __( 'Email', 'jetpack-comments' ),
+			'emailHint'          => __( 'Address never made public', 'jetpack-comments' ),
+			'website'            => __( 'Website (optional)', 'jetpack-comments' ),
+			'intro'              => __( 'Add your name and email to post your comment.', 'jetpack-comments' ),
+			'saveAndPost'        => __( 'Save and post comment', 'jetpack-comments' ),
+			'postWithoutSaving'  => __( 'No, thanks. I just want to post a comment', 'jetpack-comments' ),
+			'close'              => __( 'Close', 'jetpack-comments' ),
+			'edit'               => __( 'Edit', 'jetpack-comments' ),
+			'logInToComment'     => __( 'Log in to comment', 'jetpack-comments' ),
+			'logInWithWordPress' => __( 'Log in with WordPress.com', 'jetpack-comments' ),
+			'logOut'             => __( 'Log out', 'jetpack-comments' ),
+			/* translators: %s is the commenter's name. */
+			'commentingAs'       => __( 'Commenting as %s', 'jetpack-comments' ),
+			'cancel'             => __( 'Cancel', 'jetpack-comments' ),
+			'signInFailed'       => __( 'We could not sign you in. Please try again.', 'jetpack-comments' ),
+			'signInRateLimited'  => __( 'Too many sign-in attempts. Please wait a moment and try again.', 'jetpack-comments' ),
 		);
 
 		/**

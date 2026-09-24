@@ -1,141 +1,166 @@
 /**
- * The identity block: guest fields when logged out, and the attribution line in
- * the submit row when logged in.
+ * The identity block: the line saying who is commenting in the actions row,
+ * and the dialog that asks a new reader. Inputs, links and buttons are the
+ * theme's; the dialog only needs a surface to sit on.
  */
 
-// Hidden, not just collapsed, so nothing inside a closed tray can take focus.
-// The visibility flip waits for the rows to finish collapsing.
-.jetpack-comments__tray {
-	display: grid;
-	grid-template-rows: 0fr;
-	visibility: hidden;
-	transition:
-		grid-template-rows 0.3s ease-in-out,
-		visibility 0s linear 0.3s;
-
-	&.is-open {
-		grid-template-rows: 1fr;
-		visibility: visible;
-		transition:
-			grid-template-rows 0.3s ease-in-out,
-			visibility 0s;
-	}
-
-	> div {
-		overflow: hidden;
-	}
-}
-
-.jetpack-comments__identity {
-	padding: 16px;
-	border-block-start: 1px solid var(--jetpack-comments-border-color);
-	background: var(--jetpack-comments-wrapper-background-color);
-}
-
-.jetpack-comments__prompt {
-	all: unset;
-	display: block;
-	padding-block-end: 16px;
-	font-size: 18px;
-	font-weight: 400;
-	color: var(--jetpack-comments-font-color);
+.jetpack-comments__who {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px 8px;
+	font-size: 0.875em;
 }
 
 .jetpack-comments__login {
-	display: inline-block;
-	padding: 7px 20px;
-	border: 1px solid var(--jetpack-comments-border-color);
-	border-radius: 4px;
+	font-size: 0.875em;
+}
+
+// A button that reads as a link, in the theme's link colour.
+.jetpack-comments__link-button {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: none;
+	box-shadow: none;
 	color: inherit;
-	font-size: 14px;
-	text-decoration: none;
+	font: inherit;
+	line-height: inherit;
+	text-decoration: underline;
+	cursor: pointer;
 
-	&:hover,
-	&:focus-visible {
-		border-color: var(--jetpack-comments-accent-color);
+	&:hover {
+		text-decoration: none;
 	}
 }
 
-.jetpack-comments__guest {
-	display: flex;
-	flex-direction: column;
-	border: 1px solid var(--jetpack-comments-border-color);
-	border-radius: 4px;
-}
+.jetpack-comments__dialog {
+	box-sizing: border-box;
+	inline-size: min(100% - 32px, 480px);
+	max-block-size: calc(100% - 32px);
+	padding: 24px;
+	border: 0;
+	border-radius: 8px;
+	background: var(--wp--preset--color--base, Canvas);
+	color: var(--wp--preset--color--contrast, CanvasText);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 
-.jetpack-comments__guest-field {
-	all: unset;
-	position: relative;
-	display: flex;
-	align-items: center;
-	block-size: 45px;
-	border-block-end: 1px solid var(--jetpack-comments-border-color);
-	color: var(--jetpack-comments-font-color);
-
-	svg {
-		position: absolute;
-		inset-block: 0;
-		inset-inline-start: 16px;
-		margin-block: auto;
-	}
-
-	input {
-		all: initial;
-		box-sizing: border-box;
-		inline-size: 100%;
-		block-size: 100%;
-		padding-inline: 44px 16px;
-		border: none;
-		background: transparent;
-		color: var(--jetpack-comments-font-color);
-		font-family: inherit;
-		font-size: 14px;
-
-		&::placeholder {
-			color: var(--jetpack-comments-font-color);
-			opacity: 0.8;
-		}
-
-		&:focus-visible {
-			outline: 1px solid var(--jetpack-comments-accent-color);
-			outline-offset: -1px;
-		}
+	&::backdrop {
+		background: rgba(0, 0, 0, 0.5);
 	}
 }
 
-.jetpack-comments__options {
-	padding: 16px 21px;
-	border-block-start: 1px solid var(--jetpack-comments-border-color);
-}
-
-.jetpack-comments__guest-field:last-child {
-	border-block-end: none;
-}
-
-.jetpack-comments__guest-field:has(+ .jetpack-comments__options) {
-	border-block-end: none;
-}
-
-
-.jetpack-comments__user {
+.jetpack-comments__dialog-header {
 	display: flex;
 	align-items: center;
 	gap: 10px;
-	margin-inline-end: auto;
-	font-size: 14px;
 }
 
-.jetpack-comments__avatar {
+.jetpack-comments__site-icon {
 	flex-shrink: 0;
-	// 39 not 37: the border-box reset puts the 1px frame inside the box.
-	inline-size: 39px;
-	block-size: 39px;
-	border: 1px solid var(--jetpack-comments-border-color);
-	border-radius: 4px;
-	background-color: var(--jetpack-comments-content-background-color);
+	inline-size: 32px;
+	block-size: 32px;
+	border-radius: 50%;
 }
 
-.jetpack-comments__logout {
+.jetpack-comments__dialog-title {
+	flex: 1;
+	min-inline-size: 0;
+	font-weight: 600;
+}
+
+.jetpack-comments__dialog-close {
+	display: inline-flex;
+	flex-shrink: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	box-shadow: none;
 	color: inherit;
-	font-size: 14px;
+	cursor: pointer;
+}
+
+.jetpack-comments__dialog-intro {
+	margin-block: 16px 24px;
+	text-align: center;
+}
+
+.jetpack-comments__guest {
+	display: grid;
+	gap: 16px;
+}
+
+.jetpack-comments__guest-field {
+	display: grid;
+	gap: 4px;
+
+	input {
+		display: block;
+		box-sizing: border-box;
+		inline-size: 100%;
+	}
+}
+
+.jetpack-comments__hint {
+	font-size: 0.875em;
+	font-style: italic;
+	opacity: 0.75;
+}
+
+.jetpack-comments__subscriptions {
+	display: grid;
+	gap: 8px;
+	margin-block-start: 16px;
+}
+
+.jetpack-comments__checkbox {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+
+	input {
+		flex-shrink: 0;
+		margin-block-start: 0.25em;
+	}
+}
+
+.jetpack-comments__dialog-actions {
+	display: grid;
+	justify-items: center;
+	gap: 12px;
+	margin-block-start: 24px;
+}
+
+.jetpack-comments__sign-in,
+.jetpack-comments__signing-in {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	font-size: 0.875em;
+}
+
+.jetpack-comments__wpcom {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.jetpack-comments__spinner {
+	box-sizing: border-box;
+	inline-size: 1em;
+	block-size: 1em;
+	border: 2px solid currentColor;
+	border-inline-start-color: transparent;
+	border-radius: 50%;
+	animation: jetpack-comments-spin 1s linear infinite;
+}
+
+@keyframes jetpack-comments-spin {
+
+	to {
+		transform: rotate(360deg);
+	}
 }

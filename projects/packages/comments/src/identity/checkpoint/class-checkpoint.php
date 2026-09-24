@@ -30,9 +30,9 @@ class Checkpoint {
 	const MESSAGE_ORIGIN = 'https://public-api.wordpress.com';
 
 	/**
-	 * Providers the popup can sign in with, in display order.
+	 * Providers the popup can sign in with.
 	 */
-	const PROVIDERS = array( 'wordpress', 'google', 'facebook' );
+	const PROVIDERS = array( 'wordpress' );
 
 	/**
 	 * POST field carrying the code the popup handed back.
