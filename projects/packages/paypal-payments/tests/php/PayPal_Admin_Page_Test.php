@@ -11,6 +11,8 @@ use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+require_once __DIR__ . '/trait-paypal-resource-fixtures.php';
+
 /**
  * Class PayPal_Admin_Page_Test
  *
@@ -18,6 +20,8 @@ use PHPUnit\Framework\TestCase;
  */
 #[CoversClass( PayPal_Admin_Page::class )]
 class PayPal_Admin_Page_Test extends TestCase {
+
+	use PayPal_Resource_Fixtures;
 
 	/**
 	 * Per-flag filter that forces the API-managed buttons on.
@@ -704,7 +708,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 	 * Test detail view shows the cheapest option for a link priced per option.
 	 */
 	public function test_detail_view_shows_the_from_price_for_priced_options() {
-		$output = $this->render_detail_view( $this->get_per_option_resource() );
+		$output = $this->render_detail_view( self::get_per_option_resource() );
 
 		$this->assertStringContainsString( '<tr><th scope="row">Price</th><td>From $24.50</td></tr>', $output );
 		$this->assertStringContainsString( '<tr><th scope="row">Currency</th><td>USD</td></tr>', $output );
@@ -714,7 +718,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 	 * Test detail view takes the currency from the options for a link priced per option.
 	 */
 	public function test_detail_view_shows_the_option_currency() {
-		$output = $this->render_detail_view( $this->get_per_option_yen_resource() );
+		$output = $this->render_detail_view( self::get_per_option_yen_resource() );
 
 		$this->assertStringContainsString( '<tr><th scope="row">Price</th><td>From ¥1000</td></tr>', $output );
 		$this->assertStringContainsString( '<tr><th scope="row">Currency</th><td>JPY</td></tr>', $output );
@@ -739,7 +743,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 	 * Test the email form posts only the resource ID.
 	 */
 	public function test_detail_view_email_form_posts_only_the_resource_id() {
-		$output = $this->render_detail_view( $this->get_per_option_resource() );
+		$output = $this->render_detail_view( self::get_per_option_resource() );
 
 		$this->assertStringContainsString( 'id="paypal-send-email-form"', $output );
 		$this->assertStringContainsString( '<input type="hidden" name="resource_id" value="PLB-ZC45RDYZRHS9" />', $output );
@@ -1106,31 +1110,6 @@ class PayPal_Admin_Page_Test extends TestCase {
 	}
 
 	/**
-	 * Mock a get_resource API response.
-	 *
-	 * @param array $resource The resource data to return.
-	 */
-	private function mock_get_resource_response( $resource ) {
-		add_filter(
-			'pre_http_request',
-			function ( $preempt, $args, $url ) use ( $resource ) {
-				if ( false !== strpos( $url, '/v1/oauth2/token' ) ) {
-					return $preempt;
-				}
-				return array(
-					'response' => array(
-						'code'    => 200,
-						'message' => '',
-					),
-					'body'     => wp_json_encode( $resource, JSON_UNESCAPED_SLASHES ),
-				);
-			},
-			10,
-			3
-		);
-	}
-
-	/**
 	 * Render the detail view for a resource as an admin.
 	 *
 	 * @param array $resource The resource PayPal returns.
@@ -1147,137 +1126,6 @@ class PayPal_Admin_Page_Test extends TestCase {
 		ob_start();
 		PayPal_Admin_Page::render_page();
 		return ob_get_clean();
-	}
-
-	/**
-	 * A payment priced per Size, with an unpriced Color, as PayPal returns it.
-	 *
-	 * @return array
-	 */
-	private function get_per_option_resource() {
-		return array(
-			'id'               => 'PLB-ZC45RDYZRHS9',
-			'integration_mode' => 'LINK',
-			'type'             => 'BUY_NOW',
-			'reusable'         => 'MULTIPLE',
-			'line_items'       => array(
-				array(
-					'name'                     => 'Test Widget',
-					'description'              => 'A widget in three sizes.',
-					'collect_shipping_address' => true,
-					'variants'                 => array(
-						'dimensions' => array(
-							array(
-								'name'    => 'Size',
-								'primary' => true,
-								'options' => array(
-									array(
-										'label'       => 'Small',
-										'unit_amount' => array(
-											'currency_code' => 'USD',
-											'value' => '24.50',
-										),
-									),
-									array(
-										'label'       => 'Medium',
-										'unit_amount' => array(
-											'currency_code' => 'USD',
-											'value' => '29.50',
-										),
-									),
-									array(
-										'label'       => 'Large',
-										'unit_amount' => array(
-											'currency_code' => 'USD',
-											'value' => '34.50',
-										),
-									),
-								),
-							),
-							array(
-								'name'    => 'Color',
-								'primary' => false,
-								'options' => array(
-									array( 'label' => 'Red' ),
-									array( 'label' => 'Blue' ),
-								),
-							),
-						),
-					),
-				),
-			),
-			'status'           => 'ACTIVE',
-			'create_time'      => '2026-09-11T17:32:35Z',
-			'payment_link'     => 'https://www.sandbox.paypal.com/ncp/payment/PLB-ZC45RDYZRHS9',
-		);
-	}
-
-	/**
-	 * A payment priced per option in yen, as PayPal returns it.
-	 *
-	 * @return array
-	 */
-	private function get_per_option_yen_resource() {
-		return array(
-			'id'               => 'PLB-Q5Z4GDYFS367',
-			'integration_mode' => 'LINK',
-			'type'             => 'BUY_NOW',
-			'reusable'         => 'MULTIPLE',
-			'line_items'       => array(
-				array(
-					'name'                     => 'Yen Widget',
-					'description'              => "First line.\nSecond line.\n\nAfter a blank line.",
-					'taxes'                    => array(
-						array(
-							'name'  => 'Sales Tax',
-							'type'  => 'FLAT',
-							'value' => '1500',
-						),
-					),
-					'shipping'                 => array(
-						array(
-							'type'                  => 'FLAT',
-							'value'                 => '500',
-							'additional_unit_value' => '200',
-						),
-					),
-					'handling'                 => array(
-						array(
-							'type'  => 'FLAT',
-							'value' => '400',
-						),
-					),
-					'collect_shipping_address' => false,
-					'variants'                 => array(
-						'dimensions' => array(
-							array(
-								'name'    => 'Size',
-								'primary' => true,
-								'options' => array(
-									array(
-										'label'       => 'Small',
-										'unit_amount' => array(
-											'currency_code' => 'JPY',
-											'value' => '1000',
-										),
-									),
-									array(
-										'label'       => 'Large',
-										'unit_amount' => array(
-											'currency_code' => 'JPY',
-											'value' => '2000',
-										),
-									),
-								),
-							),
-						),
-					),
-				),
-			),
-			'status'           => 'ACTIVE',
-			'create_time'      => '2026-09-16T16:39:34Z',
-			'payment_link'     => 'https://www.sandbox.paypal.com/ncp/payment/PLB-Q5Z4GDYFS367',
-		);
 	}
 
 	/**

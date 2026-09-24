@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\PaypalPayments;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+require_once __DIR__ . '/trait-paypal-resource-fixtures.php';
+
 /**
  * Class PayPal_Payment_Links_List_Table_Test
  *
@@ -17,6 +19,8 @@ use PHPUnit\Framework\TestCase;
  */
 #[CoversClass( PayPal_Payment_Links_List_Table::class )]
 class PayPal_Payment_Links_List_Table_Test extends TestCase {
+
+	use PayPal_Resource_Fixtures;
 
 	/**
 	 * Clean up after each test.
@@ -336,59 +340,8 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 	 */
 	public function test_column_price_shows_the_from_price_for_priced_options() {
 		$table = new PayPal_Payment_Links_List_Table();
-		$item  = array(
-			'id'           => 'PLB-ZC45RDYZRHS9',
-			'type'         => 'BUY_NOW',
-			'status'       => 'ACTIVE',
-			'create_time'  => '2026-09-11T17:32:35Z',
-			'payment_link' => 'https://www.sandbox.paypal.com/ncp/payment/PLB-ZC45RDYZRHS9',
-			'line_items'   => array(
-				array(
-					'name'     => 'Test Widget',
-					'variants' => array(
-						'dimensions' => array(
-							array(
-								'name'    => 'Size',
-								'primary' => true,
-								'options' => array(
-									array(
-										'label'       => 'Small',
-										'unit_amount' => array(
-											'currency_code' => 'USD',
-											'value' => '24.50',
-										),
-									),
-									array(
-										'label'       => 'Medium',
-										'unit_amount' => array(
-											'currency_code' => 'USD',
-											'value' => '29.50',
-										),
-									),
-									array(
-										'label'       => 'Large',
-										'unit_amount' => array(
-											'currency_code' => 'USD',
-											'value' => '34.50',
-										),
-									),
-								),
-							),
-							array(
-								'name'    => 'Color',
-								'primary' => false,
-								'options' => array(
-									array( 'label' => 'Red' ),
-									array( 'label' => 'Blue' ),
-								),
-							),
-						),
-					),
-				),
-			),
-		);
 
-		$this->assertSame( 'From $24.50', $table->column_price( $item ) );
+		$this->assertSame( 'From $24.50', $table->column_price( self::get_per_option_resource() ) );
 	}
 
 	/**
