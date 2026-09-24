@@ -202,6 +202,21 @@ test( 'the premium tooltip keeps focus on its icon and closes on Escape', async 
 	await expect( trigger ).toBeFocused();
 } );
 
+test( 'holding Enter on the premium tooltip leaves it open', async ( { page } ) => {
+	await page.setViewportSize( { width: 1440, height: 900 } );
+	await page.goto( 'http://boost-settings.test/' );
+	const trigger = page.locator( '.icon-tooltip-wrapper button' ).first();
+	const content = page.locator( '.icon-tooltip-container .components-popover__content' );
+
+	await trigger.focus();
+	// Pressing a key that is already down sends a repeat keydown, as holding it does.
+	for ( let i = 0; i < 4; i++ ) {
+		await page.keyboard.down( 'Enter' );
+		await expect( content ).toBeVisible();
+	}
+	await page.keyboard.up( 'Enter' );
+} );
+
 test( 'the premium tooltip rings its icon when focused, like other WordPress buttons', async ( {
 	page,
 } ) => {

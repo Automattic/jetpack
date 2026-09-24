@@ -84,11 +84,14 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	// Focus can stay on the trigger while its tooltip is open, so it handles the dialog keys too.
 	const handleTriggerKeyDown = useCallback(
 		( event: KeyboardEvent< HTMLElement > ) => {
+			// A held key repeats activation, so only its first press toggles.
+			if ( event.repeat && ( event.key === 'Enter' || event.key === ' ' ) ) {
+				event.preventDefault();
+				return;
+			}
 			// A link only activates on Enter; a button also activates on Space.
 			if ( hasTextTrigger && event.key === ' ' ) {
-				if ( ! event.repeat ) {
-					toggleTooltip( event );
-				}
+				toggleTooltip( event );
 				return;
 			}
 			if ( ! isVisible ) {
