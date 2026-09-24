@@ -55,6 +55,11 @@ class Initializer {
 	const FEATURES_TAB_FEATURE_FLAG = 'my-jetpack-features-tab';
 
 	/**
+	 * Feature flag that swaps the single-screen onboarding takeover for the setup wizard.
+	 */
+	const ONBOARDING_WIZARD_FEATURE_FLAG = 'my-jetpack-onboarding-wizard';
+
+	/**
 	 * Handle for the classic script that carries the React initial state.
 	 *
 	 * Plugins that render My Jetpack components on their own pages (Boost) depend on this name.
@@ -379,6 +384,15 @@ class Initializer {
 				'owner'       => 'my-jetpack',
 			)
 		);
+
+		Feature_Flags::register(
+			self::ONBOARDING_WIZARD_FEATURE_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Replace the single-screen onboarding takeover with the setup wizard.',
+				'owner'       => 'my-jetpack',
+			)
+		);
 	}
 
 	/**
@@ -390,6 +404,37 @@ class Initializer {
 	 */
 	public static function is_features_tab_enabled() {
 		return Feature_Flags::is_enabled( self::FEATURES_TAB_FEATURE_FLAG );
+	}
+
+	/**
+	 * Whether the onboarding takeover renders the setup wizard.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_onboarding_wizard_enabled() {
+		return Feature_Flags::is_enabled( self::ONBOARDING_WIZARD_FEATURE_FLAG );
+	}
+
+	/**
+	 * The wizard's configuration, or null while the takeover stays on its single screen.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array{exitUrl: string, dashboardUrl: string}|null
+	 */
+	public static function get_onboarding_wizard_state() {
+		if ( ! self::is_onboarding_wizard_enabled() ) {
+			return null;
+		}
+
+		return array(
+			// Where skipping the wizard lands: the admin menu is hidden, so leaving is always one click.
+			'exitUrl'      => admin_url( 'admin.php?page=my-jetpack' ),
+			// Where leaving Jetpack altogether lands: wp-admin's own dashboard.
+			'dashboardUrl' => admin_url(),
+		);
 	}
 
 	/**
@@ -654,6 +699,7 @@ class Initializer {
 				),
 				'mainFeatures'           => $features_tab_enabled ? Main_Features::get_state() : null,
 				'featuresBanner'         => $features_tab_enabled ? array( 'isDismissed' => REST_Main_Features::is_banner_dismissed() ) : null,
+				'onboardingWizard'       => self::get_onboarding_wizard_state(),
 				'plugins'                => Plugins_Installer::get_plugins(),
 				'themes'                 => Sync_Functions::get_themes(),
 				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
