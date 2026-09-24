@@ -20,6 +20,18 @@
 		}
 	},
 	"attributes": {
+		"playlistId": {
+			"type": "string",
+			"default": ""
+		},
+		"playlistTitle": {
+			"type": "string",
+			"default": ""
+		},
+		"playlistDescription": {
+			"type": "string",
+			"default": ""
+		},
 		"videos": {
 			"type": "array",
 			"items": {

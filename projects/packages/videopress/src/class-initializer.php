@@ -203,6 +203,7 @@ class Initializer {
 		Initial_State::init();
 		XMLRPC::init();
 		Block_Editor_Content::init();
+		Playlist_Index::init();
 
 		/*
 		 * These endpoints only add their routes on REST init, so defer calling
@@ -718,7 +719,7 @@ class Initializer {
 	 *
 	 * @return array Entries with guid, title, durationMs, height and poster keys.
 	 */
-	private static function sanitize_playlist_entries( $videos ) {
+	public static function sanitize_playlist_entries( $videos ) {
 		if ( ! is_array( $videos ) ) {
 			return array();
 		}

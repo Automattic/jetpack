@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Likes: deprecate the legacy Settings > Sharing methods in Jetpack_Likes_Settings, now that the Sharing screen renders and saves the Likes settings itself.

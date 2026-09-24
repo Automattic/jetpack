@@ -98,7 +98,6 @@ class Action_Bar {
 
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only checks on preview query args.
 		// Don't show on theme previews and block patterns source sites.
-		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 		$is_theme_demo = function_exists( 'wpcom_is_theme_demo_site' ) && wpcom_is_theme_demo_site();
 		// @phan-suppress-next-line PhanUndeclaredFunction -- Defined by jetpack-mu-wpcom, which is not a dependency; guarded by function_exists().
 		$is_pattern_source = function_exists( 'wpcom_has_blog_sticker' ) && wpcom_has_blog_sticker( 'block-patterns-source-site', $site_id );
@@ -218,7 +217,6 @@ class Action_Bar {
 	 * Print the bar's markup, then a loader that appends its CSS and JS after DOMContentLoaded.
 	 */
 	public static function footer() {
-		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 		$is_rtl = function_exists( 'wpcom_is_locale_rtl' ) ? wpcom_is_locale_rtl( get_user_locale() ) : is_rtl();
 		self::html( $is_rtl );
 
@@ -287,7 +285,6 @@ class Action_Bar {
 			if ( $folded ) {
 				update_user_attribute( $user_id, 'is_actionbar_folded', 1 );
 			} else {
-				// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 				delete_user_attribute( $user_id, 'is_actionbar_folded' );
 			}
 			return;
@@ -326,7 +323,6 @@ class Action_Bar {
 			return;
 		}
 		if ( function_exists( 'wpcom_switch_to_user_locale' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 			wpcom_switch_to_user_locale( get_current_user_id() );
 		} else {
 			switch_to_user_locale( get_current_user_id() );
@@ -341,7 +337,6 @@ class Action_Bar {
 			return;
 		}
 		if ( function_exists( 'wpcom_restore_current_locale' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 			wpcom_restore_current_locale();
 		} else {
 			restore_previous_locale();
@@ -359,7 +354,6 @@ class Action_Bar {
 			return $current_user->subs_email_default;
 		}
 		if ( function_exists( 'wpcom_subs_get_subscription_delivery_email_default' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 			return wpcom_subs_get_subscription_delivery_email_default();
 		}
 		return 'instantly';
@@ -474,7 +468,6 @@ class Action_Bar {
 		if ( ! function_exists( 'get_blavatar' ) ) {
 			return '';
 		}
-		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 		$blavatar_img = get_blavatar( get_option( 'siteurl' ), 50, Assets::staticize_subdomain( 'https://en.wordpress.com/i/logo/wpcom-gray-white.png' ) ); // phpcs:ignore WPCOM.I18nRules.LocalizedUrl.UnlocalizedUrl
 		if ( str_starts_with( $blavatar_img, '<img alt' ) ) {
 			$blavatar_img = "<img loading='lazy' alt" . substr( $blavatar_img, 8 );
@@ -537,7 +530,6 @@ class Action_Bar {
 		// Render this in the user's language.
 		self::switch_to_user_locale();
 
-		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 		$is_suspended = function_exists( 'is_suspended' ) && is_suspended( $site_id );
 
 		/*
@@ -581,13 +573,11 @@ class Action_Bar {
 		$is_following       = $subscription_id ? true : false;
 		$signup_url         = 'https://wordpress.com/start/';
 		$theme_slug         = get_stylesheet();
-		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
-		$theme_url   = function_exists( 'wpcom_get_theme_showcase_url' ) ? wpcom_get_theme_showcase_url( $theme_slug ) : 'https://wordpress.com/theme/' . $theme_slug;
-		$is_singular = false;
-		$is_folded   = $is_logged_in && self::is_folded( $current_user->ID );
-		$feed_id     = false;
+		$theme_url          = function_exists( 'wpcom_get_theme_showcase_url' ) ? wpcom_get_theme_showcase_url( $theme_slug ) : 'https://wordpress.com/theme/' . $theme_slug;
+		$is_singular        = false;
+		$is_folded          = $is_logged_in && self::is_folded( $current_user->ID );
+		$feed_id            = false;
 		if ( class_exists( 'FeedBag' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only class, guarded by class_exists above.
 			$feed_id = \FeedBag::get_feed_id_for_blog_id( $site_id );
 		}
 		$gdpr_applies = self::gdpr_applies();
@@ -998,9 +988,7 @@ class Action_Bar {
 		if ( ! function_exists( 'wpr_can_reblog_post' ) || ! function_exists( 'wpcom_can_user_make_a_reblog' ) ) {
 			return false;
 		}
-		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 		$post_ok = (bool) wpr_can_reblog_post( $site_id, $post_id );
-		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 		$user_ok = (bool) wpcom_can_user_make_a_reblog();
 		return $post_ok && $user_ok;
 	}

@@ -1,3 +1,4 @@
+import { speak } from '@wordpress/a11y';
 import { Popover } from '@wordpress/components';
 import { focus } from '@wordpress/dom';
 import { Icon, info } from '@wordpress/icons';
@@ -62,7 +63,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	const [ hoverTimeout, setHoverTimeout ] = useState( null );
 	const wrapperRef = useRef< HTMLDivElement >( null );
 	const popoverRef = useRef< HTMLDivElement >( null );
-	const triggerRef = useRef< HTMLAnchorElement >( null );
+	const triggerRef = useRef< HTMLElement >( null );
 	const hasTextTrigger = trigger !== undefined;
 	// Where focus should land after Tab leaves the tooltip. The effect below applies it, rather
 	// than the handler, because Popover puts focus back on the trigger as it unmounts.
@@ -80,14 +81,17 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		[ isVisible, setIsVisible, onTriggerClick ]
 	);
 
-	// Focus can stay on a text trigger while its tooltip is open, so it handles the dialog keys too.
+	// Focus can stay on the trigger while its tooltip is open, so it handles the dialog keys too.
 	const handleTriggerKeyDown = useCallback(
-		( event: KeyboardEvent< HTMLAnchorElement > ) => {
+		( event: KeyboardEvent< HTMLElement > ) => {
+			// A held key repeats activation, so only its first press toggles.
+			if ( event.repeat && ( event.key === 'Enter' || event.key === ' ' ) ) {
+				event.preventDefault();
+				return;
+			}
 			// A link only activates on Enter; a button also activates on Space.
-			if ( event.key === ' ' ) {
-				if ( ! event.repeat ) {
-					toggleTooltip( event );
-				}
+			if ( hasTextTrigger && event.key === ' ' ) {
+				toggleTooltip( event );
 				return;
 			}
 			if ( ! isVisible ) {
@@ -107,7 +111,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 				}
 			}
 		},
-		[ isVisible, hideTooltip, toggleTooltip ]
+		[ hasTextTrigger, isVisible, hideTooltip, toggleTooltip ]
 	);
 
 	const isAnchorWrapper = popoverAnchorStyle === 'wrapper';
@@ -151,10 +155,6 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		[ hideTooltip ]
 	);
 
-	const focusOnOpen =
-		isForcedToShow || ( hasTextTrigger && ! openedByHover.current )
-			? 'firstElement'
-			: ! openedByHover.current;
 	const args = {
 		// To be compatible with deprecating prop `position`.
 		position: placementsToPositions( placement ),
@@ -164,9 +164,9 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		resize: false,
 		flip: false,
 		offset, // The distance (in px) between the anchor and the popover.
-		// Focusing the popover itself puts Escape in reach even with nothing tabbable inside. A text
-		// trigger or caller-controlled popover moves focus to its first link, if it has one.
-		focusOnMount: focusOnOpen,
+		// Focus stays on the trigger, which handles the dialog keys; a caller-controlled popover
+		// has no trigger, so it focuses its first button instead.
+		focusOnMount: isForcedToShow ? 'firstElement' : false,
 		// Tab moves through the popover in document order rather than cycling inside it, and
 		// handlePopoverKeyDown decides where it lands on the way out.
 		constrainTabbing: false,
@@ -174,7 +174,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		ref: popoverRef,
 		onClose: () => {
 			const popover = popoverRef.current;
-			if ( hasTextTrigger && popover?.contains( popover.ownerDocument.activeElement ) ) {
+			if ( popover?.contains( popover.ownerDocument.activeElement ) ) {
 				focusAfterClose.current = triggerRef.current;
 			}
 			hideTooltip();
@@ -224,6 +224,14 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		destination?.focus();
 	}, [ isForcedToShow, isVisible ] );
 
+	// Focus stays on the trigger, so a screen reader hears the popover through an announcement.
+	useEffect( () => {
+		const popover = popoverRef.current;
+		if ( isVisible && ! openedByHover.current && popover ) {
+			speak( popover.innerText ?? popover.textContent, 'polite' );
+		}
+	}, [ isVisible ] );
+
 	const handleMouseEnter = useCallback( () => {
 		if ( hoverShow ) {
 			if ( hoverTimeout ) {
@@ -270,7 +278,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 				<>
 					{ /* A link, not a button, so it keeps the host page's link styling. */ }
 					<a
-						ref={ triggerRef }
+						ref={ triggerRef as React.RefObject< HTMLAnchorElement > }
 						href="#"
 						role="button"
 						className="icon-tooltip-trigger"
@@ -286,7 +294,13 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 				</>
 			) }
 			{ ! hasTextTrigger && ! isAnchorWrapper && (
-				<Button variant="link" aria-expanded={ isVisible } onClick={ toggleTooltip }>
+				<Button
+					ref={ triggerRef }
+					variant="link"
+					aria-expanded={ isVisible }
+					onClick={ toggleTooltip }
+					onKeyDown={ handleTriggerKeyDown }
+				>
 					<Icon className={ iconClassName } icon={ iconCode } size={ iconSize } />
 				</Button>
 			) }

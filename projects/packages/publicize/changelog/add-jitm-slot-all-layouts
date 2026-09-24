@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Show the Jetpack in-dashboard message above the tabs, from the shared slot.

@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Add a Stats tab (subscriber chart, engagement rates, recent posts) behind a disabled feature flag.

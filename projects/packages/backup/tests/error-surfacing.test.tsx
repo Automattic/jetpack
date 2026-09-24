@@ -234,7 +234,7 @@ describe( 'ErrorBoundary', () => {
 		expect( screen.getByText( 'Invalid time value' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Reload the page' } ) ).toBeInTheDocument();
 		// React logs the caught error, and so does componentDidCatch —
-		// @wordpress/jest-console fails the test unless that is claimed.
+		// The `jetpack-js-tools` console guard fails the test unless that is claimed.
 		expect( console ).toHaveErrored();
 	} );
 

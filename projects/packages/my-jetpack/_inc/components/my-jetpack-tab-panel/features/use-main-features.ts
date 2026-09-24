@@ -10,7 +10,7 @@ import {
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { queueActivationRequest } from '../../../data/queue-activation-request';
 import {
 	clearRequestedSwitch,
@@ -49,10 +49,10 @@ export type PluginAction = 'install' | 'activate' | 'deactivate';
  * Seeded from the page and replaced wholesale by each plugin action's response, so it is
  * never fetched on its own.
  *
- * @return The state.
+ * @return The state, and whether it is still the seed rather than a read of the site.
  */
-export function useMainFeatures(): MainFeaturesState {
-	const { data, isError } = useQuery( {
+export function useMainFeatures(): MainFeaturesState & { isPlaceholderData: boolean } {
+	const { data, isError, isPlaceholderData } = useQuery( {
 		queryKey: QUERY_KEY,
 		queryFn: () => apiFetch< MainFeaturesState >( { path: '/wpcom/v2/my-jetpack/site/features' } ),
 		// The page's own copy renders the grid immediately; it is never cached, so a remount
@@ -65,7 +65,11 @@ export function useMainFeatures(): MainFeaturesState {
 
 	// A failed read drops the placeholder, which would empty the grid and read as "this
 	// site has no features". The page's own copy is stale but it is not nothing.
-	return data ?? ( isError ? initialState() : EMPTY_STATE );
+	// Memoized because `useFeatureStates` keys its own memo on this object.
+	return useMemo(
+		() => ( { ...( data ?? ( isError ? initialState() : EMPTY_STATE ) ), isPlaceholderData } ),
+		[ data, isError, isPlaceholderData ]
+	);
 }
 
 /**

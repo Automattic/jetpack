@@ -281,43 +281,20 @@ class Twitter_Cards {
 
 	/**
 	 * Adds settings section and field.
+	 *
+	 * @deprecated $$next-version$$ Settings > Sharing renders the field itself.
 	 */
 	public static function settings_init() {
-		add_settings_section( 'jetpack-twitter-cards-settings', self::section_title(), '__return_false', 'sharing' );
-		add_settings_field(
-			'jetpack-twitter-cards-site-tag',
-			__( 'Twitter Site Tag', 'jetpack-post-media' ),
-			array( __CLASS__, 'settings_field' ),
-			'sharing',
-			'jetpack-twitter-cards-settings',
-			array(
-				'label_for' => 'jetpack-twitter-cards-site-tag',
-			)
-		);
-	}
-
-	/**
-	 * Name of the feature the settings field configures.
-	 *
-	 * @return string Section title.
-	 */
-	private static function section_title() {
-		return __( 'Twitter Cards', 'jetpack-post-media' );
+		_deprecated_function( __METHOD__, 'post-media-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Twitter_Site_Tag::render' );
 	}
 
 	/**
 	 * Add global sharing options.
 	 *
-	 * The title is printed here because `do_settings_fields()` prints fields
-	 * alone: a host that renders nothing else around them -- Settings > Sharing
-	 * with the Sharing module off -- would leave the field unlabelled.
+	 * @deprecated $$next-version$$ Settings > Sharing renders the field itself.
 	 */
 	public static function sharing_global_options() {
-		printf(
-			'<tr><td colspan="2"><h3>%s</h3></td></tr>',
-			esc_html( self::section_title() )
-		);
-		do_settings_fields( 'sharing', 'jetpack-twitter-cards-settings' );
+		_deprecated_function( __METHOD__, 'post-media-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Twitter_Site_Tag::render' );
 	}
 
 	/**
@@ -338,22 +315,20 @@ class Twitter_Cards {
 
 	/**
 	 * Output the settings field.
+	 *
+	 * @deprecated $$next-version$$ Settings > Sharing renders the field itself.
 	 */
 	public static function settings_field() {
-		wp_nonce_field( 'jetpack-twitter-cards-settings', 'jetpack_twitter_cards_nonce', false );
-		?>
-		<input type="text" id="jetpack-twitter-cards-site-tag" class="regular-text" name="jetpack-twitter-cards-site-tag" value="<?php echo esc_attr( get_option( 'jetpack-twitter-cards-site-tag' ) ); ?>" />
-		<p class="description" style="width: auto;"><?php esc_html_e( 'The Twitter username of the owner of this site\'s domain.', 'jetpack-post-media' ); ?></p>
-		<?php
+		_deprecated_function( __METHOD__, 'post-media-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Twitter_Site_Tag::render' );
 	}
 
 	/**
 	 * Validate the settings submission.
+	 *
+	 * @deprecated $$next-version$$ Settings > Sharing saves the field itself.
 	 */
 	public static function settings_validate() {
-		if ( isset( $_POST['jetpack_twitter_cards_nonce'] ) && wp_verify_nonce( $_POST['jetpack_twitter_cards_nonce'], 'jetpack-twitter-cards-settings' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			update_option( 'jetpack-twitter-cards-site-tag', isset( $_POST['jetpack-twitter-cards-site-tag'] ) ? trim( ltrim( wp_strip_all_tags( filter_var( wp_unslash( $_POST['jetpack-twitter-cards-site-tag'] ) ) ), '@' ) ) : '' );
-		}
+		_deprecated_function( __METHOD__, 'post-media-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Twitter_Site_Tag::save' );
 	}
 
 	/**
@@ -364,8 +339,5 @@ class Twitter_Cards {
 		add_filter( 'jetpack_open_graph_output', array( __CLASS__, 'twitter_cards_output' ) );
 		add_filter( 'jetpack_twitter_cards_site_tag', array( __CLASS__, 'site_tag' ), -99 );
 		add_filter( 'jetpack_twitter_cards_site_tag', array( __CLASS__, 'prioritize_creator_over_default_site' ), 99, 2 );
-		add_action( 'admin_init', array( __CLASS__, 'settings_init' ) );
-		add_action( 'sharing_global_options', array( __CLASS__, 'sharing_global_options' ) );
-		add_action( 'sharing_admin_update', array( __CLASS__, 'settings_validate' ) );
 	}
 }

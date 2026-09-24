@@ -3,6 +3,7 @@
 // Matches the product-card icon palette in ../products/styles.module.scss.
 $feature-icon-background: #003010;
 $feature-icon-foreground: #0ced57;
+$banner-foreground: #daffdc;
 
 .content {
 	display: flex;
@@ -10,6 +11,81 @@ $feature-icon-foreground: #0ced57;
 	gap: var(--wpds-dimension-gap-sm);
 	// The page footer sits straight under the grid, so the last row needs room.
 	padding-block-end: var(--wpds-dimension-padding-3xl);
+}
+
+// The AI Hub's dark-green banner, rebuilt: a package cannot import the
+// Jetpack plugin's shell.
+.banner {
+	align-items: flex-start;
+	background: $feature-icon-background;
+	border-radius: var(--wpds-border-radius-lg);
+	box-sizing: border-box;
+	display: flex;
+	// Keeps the orbs' stacking inside the banner, away from the sticky toolbar.
+	isolation: isolate;
+	margin-block-end: var(--wpds-dimension-gap-sm);
+	overflow: hidden;
+	padding: var(--wpds-dimension-padding-3xl);
+	position: relative;
+}
+
+.banner__content {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+	max-inline-size: 32.5rem;
+	position: relative;
+	z-index: 1;
+}
+
+// Two classes, to outweigh the tab wrapper's rule for every h2.
+.banner .banner__title {
+	color: $banner-foreground;
+	font-size: 32px;
+	font-weight: 500;
+	line-height: 40px;
+	margin: 0;
+}
+
+.banner__description {
+	color: $banner-foreground;
+	font-size: 13px;
+	line-height: 20px;
+	margin: 0;
+}
+
+// Two classes, to outweigh the Button's own colour rules.
+.banner .banner__close {
+	color: #fff;
+	inset-block-start: var(--wpds-dimension-padding-sm);
+	inset-inline-end: var(--wpds-dimension-padding-sm);
+	position: absolute;
+	z-index: 1;
+
+	&:hover:not(:disabled) {
+		color: $banner-foreground;
+	}
+}
+
+.banner__orb {
+	background: linear-gradient(to right, #04c, #48ff50);
+	block-size: 180px;
+	border-radius: 50%;
+	inline-size: 180px;
+	// Shared by both orbs, so the glow and the sphere share a vertical axis.
+	inset-inline-end: 56px;
+	pointer-events: none;
+	position: absolute;
+}
+
+.banner__orb--top {
+	filter: blur(25px);
+	inset-block-start: -96px;
+}
+
+// Deep enough that this short banner shows a glow, not the sphere's hard edge.
+.banner__orb--bottom {
+	inset-block-end: -140px;
 }
 
 .feature-grid {
@@ -51,6 +127,23 @@ $feature-icon-foreground: #0ced57;
 		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
 		outline-offset: calc(var(--wpds-border-width-focus) * -1);
 	}
+}
+
+// A card with nothing to open: no hover, and the chevron's column kept as
+// padding, so its switch lines up with the cards that have one.
+.feature-item--static {
+	padding-inline-end: calc(var(--wpds-dimension-padding-xl) + 36px);
+
+	&:hover {
+		background: var(--wpds-color-background-surface-neutral-strong);
+		border-color: var(--wpds-color-stroke-surface-neutral-weak);
+	}
+}
+
+// The interactive card's title is a button, which resets the font; WPDS would
+// give a heading element a font its own defense rule protects instead.
+.feature-item__static-title {
+	font: inherit;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -222,10 +315,54 @@ $feature-icon-foreground: #0ced57;
 }
 
 
-.empty-heading {
+// `Link` styles an anchor; rendered as a button it inherits the control chrome
+// that the UA stylesheet puts on one, so that has to come back off.
+.link-button {
+	appearance: none;
+	background: none;
+	border: 0;
+	cursor: pointer;
+	font: inherit;
+	padding: 0;
+	text-decoration: underline;
+}
 
-	@include gb.heading-x-large;
-	margin-block: 0;
+// Jetpack's other modules, under their group headings.
+.more-features {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg);
+	margin-block-start: var(--wpds-dimension-gap-xl);
+
+	h2 {
+		margin: 0;
+	}
+}
+
+.more-features__group {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md);
+}
+
+.more-features__inactive {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-md);
+}
+
+
+// EmptyState caps its own measure but sets no auto margins, so it needs both to
+// sit in the middle of the grid's column. The wider measure keeps the search
+// state's link on one line.
+.empty-state {
+	margin-inline: auto;
+	max-inline-size: var(--wpds-dimension-surface-width-md);
+	// A search term is echoed into both the heading and the link, and an
+	// unbroken one would otherwise run past the column.
+	overflow-wrap: anywhere;
+	padding-block: var(--wpds-dimension-padding-3xl);
 }
 
 // Sticky so the filters stay reachable while scrolling a long grid. The
@@ -321,12 +458,12 @@ $feature-icon-foreground: #0ced57;
 
 .bulk-bar {
 	align-items: center;
-	border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--wpds-dimension-gap-md);
-	padding-block: var(--wpds-dimension-padding-md);
-	padding-inline: var(--wpds-dimension-padding-xl);
+	margin-block-start: var(--wpds-dimension-gap-md);
+	padding-block-start: var(--wpds-dimension-padding-md);
 }
 
 .bulk-bar__count {
@@ -345,6 +482,7 @@ $feature-icon-foreground: #0ced57;
 		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	}
 }
+
 
 // The pills are the wide layout; the select is the narrow one. Only ever one.
 .filter-select {

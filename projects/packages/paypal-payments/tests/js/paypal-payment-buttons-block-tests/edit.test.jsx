@@ -10,6 +10,7 @@
 
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { doActionAsync, removeAction, removeFilter } from '@wordpress/hooks';
 import {
 	validateCustomerNotes,
 	validateVariants,
@@ -18,6 +19,10 @@ import {
 import Edit from '../../../src/paypal-payment-buttons/edit';
 import { broadcastConnectionChange } from '../../../src/paypal-payment-buttons/hooks/use-paypal-connection';
 import { forgetExistingLinks } from '../../../src/paypal-payment-buttons/utils/existing-links';
+import {
+	forgetPostSaves,
+	registerSaveSync,
+} from '../../../src/paypal-payment-buttons/utils/register-save-sync';
 import {
 	forgetSyncedRequests,
 	getCardRevision,
@@ -103,12 +108,24 @@ jest.mock( 'qrcode', () => ( {
 } ) );
 
 const mockMarkNotPersistent = jest.fn();
-const mockSavePost = jest.fn( () => Promise.resolve() );
+/**
+ * Run editor.savePost, as core/editor does once the post has saved.
+ *
+ * @param {object} [options] - Save options, as the editor passes them.
+ * @return {Promise} Settles once the handlers have run.
+ */
+const postSaved = ( options = {} ) =>
+	doActionAsync( 'editor.savePost', { id: 1, type: 'post' }, options );
+// A post save that succeeds. Resolving without postSaved() makes one fail.
+const mockSavePost = jest.fn( () => postSaved() );
+// Whether core/editor is saving. Set per test.
+let mockIsSavingPost = false;
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( {
 		__unstableMarkNextChangeAsNotPersistent: mockMarkNotPersistent,
 		savePost: mockSavePost,
 	} ),
+	useSelect: mapSelect => mapSelect( () => ( { isSavingPost: () => mockIsSavingPost } ) ),
 } ) );
 jest.mock( '@wordpress/editor', () => ( { store: 'core/editor' } ) );
 
@@ -611,6 +628,14 @@ jest.mock( '../../../src/paypal-payment-buttons/components/paypal-button-preview
 	};
 } );
 
+// The real save hooks, so postSaved() counts the save.
+beforeAll( () => registerSaveSync( () => true ) );
+afterAll( () => {
+	removeFilter( 'editor.preSavePost', 'jetpack/paypal-payment-buttons/sync-payments' );
+	removeAction( 'editor.savePost', 'jetpack/paypal-payment-buttons/saved-snackbar' );
+	removeAction( 'editor.savePost', 'jetpack/paypal-payment-buttons/post-saves' );
+} );
+
 describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 	const setAttributes = jest.fn();
 
@@ -696,6 +721,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 	beforeEach( () => {
 		jest.clearAllMocks();
+		forgetPostSaves();
+		mockIsSavingPost = false;
 		// One test runs on fake timers; leaving them on hangs every test after it.
 		jest.useRealTimers();
 		mockCopiedText.last = null;
@@ -8113,8 +8140,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				const user = userEvent.setup();
 				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
 				let finishSave;
-				mockSavePost.mockImplementationOnce(
-					() => new Promise( resolve => ( finishSave = resolve ) )
+				mockSavePost.mockImplementationOnce( () =>
+					new Promise( resolve => ( finishSave = resolve ) ).then( () => postSaved() )
 				);
 				await editForm( user );
 
@@ -8161,6 +8188,150 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 				expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
 				expect( setAttributes ).not.toHaveBeenCalled();
+				expect( mockSavePost ).not.toHaveBeenCalled();
+			} );
+
+			it( 'goes straight back once the post is saved from the toolbar', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user );
+
+				await act( () => postSaved() );
+				await user.click( back() );
+
+				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
+			} );
+
+			it( 'puts back only the changes since the post save on Don’t save, and shows the details', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				const view = await editForm( user );
+				await act( () => postSaved() );
+				// The merchant changes the price after the save.
+				view.rerender(
+					<Edit
+						attributes={ { ...edited, price: '14.00' } }
+						setAttributes={ setAttributes }
+						clientId="a"
+					/>
+				);
+
+				await user.click( back() );
+				await user.click( screen.getByRole( 'button', { name: 'Don’t save' } ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith(
+					expect.objectContaining( { productName: 'Pain au chocolat', price: '12.00' } )
+				);
+				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
+				expect( mockSavePost ).not.toHaveBeenCalled();
+			} );
+
+			it( 'asks after an autosave, and Don’t save puts back what the form opened with', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user );
+
+				await act( () => postSaved( { isAutosave: true } ) );
+				await user.click( back() );
+
+				expect( screen.getByRole( 'dialog', { name: 'Changes made' } ) ).toBeInTheDocument();
+				await user.click( screen.getByRole( 'button', { name: 'Don’t save' } ) );
+				expect( setAttributes ).toHaveBeenCalledWith(
+					expect.objectContaining( { productName: 'Croissant', price: '12.00' } )
+				);
+				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
+				expect( mockSavePost ).not.toHaveBeenCalled();
+			} );
+
+			it( 'keeps the form open when the post fails to save', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				mockSavePost.mockImplementationOnce( () => Promise.resolve() );
+				await editForm( user );
+
+				await user.click( back() );
+				await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+				expect( mockSavePost ).toHaveBeenCalledTimes( 1 );
+				await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
+				expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
+			} );
+
+			it( 'disables Save and Don’t save while the editor is already saving', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				mockIsSavingPost = true;
+				await editForm( user );
+
+				await user.click( back() );
+
+				const dialog = screen.getByRole( 'dialog', { name: 'Changes made' } );
+				expect( within( dialog ).getByRole( 'button', { name: 'Save' } ) ).toBeDisabled();
+				expect( within( dialog ).getByRole( 'button', { name: 'Don’t save' } ) ).toBeDisabled();
+			} );
+
+			it( 'closes the dialog and shows the details when the post saves', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user );
+				await user.click( back() );
+
+				await act( () => postSaved() );
+
+				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
+				expect( setAttributes ).not.toHaveBeenCalled();
+				expect( mockSavePost ).not.toHaveBeenCalled();
+			} );
+
+			it( 'keeps the dialog open through an autosave', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user );
+				await user.click( back() );
+
+				await act( () => postSaved( { isAutosave: true } ) );
+
+				expect( screen.getByRole( 'dialog', { name: 'Changes made' } ) ).toBeInTheDocument();
+				expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
+			} );
+
+			// What PayPal sets on a read while the form is open.
+			const fromPayPal = {
+				integrationMode: 'BUTTON',
+				scriptSrc: 'https://www.paypal.com/sdk/js?client-id=abc',
+				paymentLink: 'https://www.paypal.com/ncp/payment/PLB-DETAIL1-NEW',
+			};
+
+			it( 'goes straight back when only the link, SDK URL and mode changed', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user, { ...saved, ...fromPayPal } );
+
+				await user.click( back() );
+
+				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
+				expect( mockSavePost ).not.toHaveBeenCalled();
+			} );
+
+			it( 'keeps PayPal’s link, SDK URL and mode on Don’t save', async () => {
+				const user = userEvent.setup();
+				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+				await editForm( user, { ...edited, ...fromPayPal } );
+
+				await user.click( back() );
+				await user.click( screen.getByRole( 'button', { name: 'Don’t save' } ) );
+
+				expect( setAttributes ).toHaveBeenCalledTimes( 1 );
+				const [ putBack ] = setAttributes.mock.calls[ 0 ];
+				expect( putBack ).toMatchObject( { productName: 'Croissant' } );
+				Object.keys( fromPayPal ).forEach( key => expect( putBack ).not.toHaveProperty( key ) );
+				expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
 				expect( mockSavePost ).not.toHaveBeenCalled();
 			} );
 		} );

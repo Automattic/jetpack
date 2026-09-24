@@ -496,7 +496,7 @@ class Main_Features {
 	 * Mirrors `Jetpack_Modules_Overrides`: an `option_active_plugins` filter that adds or
 	 * drops the plugin whatever the stored list says, or a network activation.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.6.0
 	 *
 	 * @param string      $slug          WordPress.org plugin slug.
 	 * @param string|null $product_class The product behind the plugin, when it has one.
@@ -659,15 +659,81 @@ class Main_Features {
 	}
 
 	/**
-	 * Everything the Features tab renders from: the Jetpack plugin's status, each feature, and
-	 * whether the current user may install the plugins behind them.
+	 * Headings for the modules the feature list does not cover.
 	 *
-	 * @return array{jetpack: string, features: array, plugin_installs: string} The state.
+	 * Grouped by the job a site owner is doing, not by Jetpack's module tags, which describe
+	 * mechanism (the Image CDN is tagged Appearance). Anything unlisted falls into Other.
+	 *
+	 * @return array Ordered groups, each with a label and its module slugs.
+	 */
+	public static function get_module_groups() {
+		return array(
+			array(
+				'label'   => __( 'Security', 'jetpack-my-jetpack' ),
+				'modules' => array( 'account-protection', 'monitor', 'sso', 'waf' ),
+			),
+			array(
+				'label'   => __( 'Performance', 'jetpack-my-jetpack' ),
+				'modules' => array( 'photon', 'photon-cdn' ),
+			),
+			array(
+				'label'   => __( 'Search engines', 'jetpack-my-jetpack' ),
+				'modules' => array( 'sitemaps', 'seo-tools', 'canonical-urls', 'verification-tools' ),
+			),
+			array(
+				'label'   => __( 'Engagement', 'jetpack-my-jetpack' ),
+				'modules' => array(
+					'comments',
+					'likes',
+					'comment-likes',
+					'gravatar-hovercards',
+					'related-posts',
+					'infinite-scroll',
+					'sharedaddy',
+				),
+			),
+			array(
+				'label'   => __( 'Writing', 'jetpack-my-jetpack' ),
+				'modules' => array(
+					'blocks',
+					'markdown',
+					'latex',
+					'shortcodes',
+					'copy-post',
+					'custom-content-types',
+					'post-by-email',
+					'post-list',
+					'carousel',
+					'tiled-gallery',
+					'shortlinks',
+				),
+			),
+			array(
+				'label'   => __( 'Design', 'jetpack-my-jetpack' ),
+				'modules' => array( 'google-fonts', 'widgets', 'widget-visibility' ),
+			),
+			array(
+				'label'   => __( 'Earn', 'jetpack-my-jetpack' ),
+				'modules' => array( 'wordads' ),
+			),
+			array(
+				'label'   => __( 'Analytics', 'jetpack-my-jetpack' ),
+				'modules' => array( 'woocommerce-analytics' ),
+			),
+		);
+	}
+
+	/**
+	 * Everything the Features tab renders from: the Jetpack plugin's status, each feature, the
+	 * headings for Jetpack's other modules, and whether the current user may install plugins.
+	 *
+	 * @return array{jetpack: string, features: array, module_groups: array, plugin_installs: string} The state.
 	 */
 	public static function get_state() {
 		return array(
 			'jetpack'         => self::get_plugin_status( Product::JETPACK_PLUGIN_SLUG ),
 			'features'        => self::get_features(),
+			'module_groups'   => self::get_module_groups(),
 			'plugin_installs' => self::get_install_access(),
 		);
 	}

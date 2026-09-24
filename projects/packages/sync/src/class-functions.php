@@ -599,7 +599,7 @@ class Functions {
 	 * Lets `jetpack_is_private_site` report the site as private to WordPress.com without changing
 	 * the `blog_public` option itself, since core and other plugins do not expect a -1 there.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.2.0
 	 *
 	 * @return int -1 when private, otherwise the stored `blog_public` value.
 	 */

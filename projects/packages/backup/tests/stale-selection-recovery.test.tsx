@@ -21,7 +21,7 @@ jest.mock( '@wordpress/route', () => ( {
 	useParams: () => ( {} ),
 	// `search` is folded into the href rather than spread onto the node: React
 	// warns about an object-valued attribute on an `<a>`, and
-	// `@wordpress/jest-console` turns that warning into a suite failure.
+	// the `jetpack-js-tools` console guard turns that warning into a test failure.
 	Link: ( {
 		children,
 		to,

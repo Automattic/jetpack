@@ -108,24 +108,36 @@ export function recordPaymentRead( clientId, resourceId, held ) {
 }
 
 /**
- * Bump the card revision of each payment a PUT changed from its last read. Without a
- * read, a PUT is compared with block.json's defaults, which a named product differs from.
+ * Bump the card revision of each payment a PUT changed from its last read, and call
+ * reportSaved for each payment a PUT changed. Without a read, a PUT is compared with
+ * block.json's defaults, which a named product differs from.
  *
- * @param {Map} written - Block attributes written by each payment's PUTs, by payment id.
+ * @param {Map}      written     - The attributes and mode each PUT wrote, by payment id.
+ * @param {Function} reportSaved - Called once for each payment the PUTs changed.
  */
-function recordPaymentsWritten( written ) {
+function recordPaymentsWritten( written, reportSaved ) {
 	written.forEach( ( writes, resourceId ) => {
 		const held = paymentsHeld.get( resourceId );
 		// Blocks sharing a payment can PUT different values in any order, so the next save
 		// needs a fresh read to compare with.
 		paymentsHeld.delete( resourceId );
 
-		if (
-			writes.some(
-				attributes => Object.keys( getResourceAttributeUpdates( attributes, held ) ).length
-			)
-		) {
+		const changed = writes.some(
+			( { attributes } ) => Object.keys( getResourceAttributeUpdates( attributes, held ) ).length
+		);
+		if ( changed ) {
 			cardRevisions.set( resourceId, getCardRevision( resourceId ) + 1 );
+		}
+
+		// The first save after a reload PUTs every ready block, so reportSaved is called for a PUT
+		// that differs from the read, or has no read values. A switch to stacked sends BUTTON and
+		// leaves integrationMode as it was, so the mode is compared as sent.
+		if (
+			! held ||
+			changed ||
+			writes.some( ( { mode } ) => mode !== ( held.integrationMode || 'LINK' ) )
+		) {
+			reportSaved?.( false );
 		}
 	} );
 }
@@ -185,7 +197,7 @@ export function isReadyForPayPal( attributes ) {
  * @param {string}   clientId   - The block's client id.
  * @param {object}   attributes - The block's current attributes.
  * @param {object}   body       - The request body.
- * @return {Promise<object>} The API response, and the attributes to set on the block.
+ * @return {Promise<object>} The API response, created: true, and the attributes to set on the block.
  */
 async function createPayment( request, clientId, attributes, body ) {
 	const response = await request( { path: `${ API_BASE }/buttons`, method: 'POST', data: body } );
@@ -197,6 +209,7 @@ async function createPayment( request, clientId, attributes, body ) {
 
 	return {
 		response,
+		created: true,
 		updates: {
 			isApiManaged: true,
 			resourceId: response.id,
@@ -250,13 +263,14 @@ function reportStackedUnavailable( block, scriptSrc, reportError ) {
  * @param {Function} deps.updateBlockAttributes - Writes attributes onto a block by clientId.
  * @param {Function} deps.reportError           - Tells the merchant a block's save failed, and why.
  * @param {Function} deps.reportHeldBack        - Tells the merchant a block was not sent, and why.
+ * @param {Function} deps.reportSaved           - Called with true for a payment created, false for one changed.
  * @param {Set}      stackedResources           - Payments a stacked block in this save draws from.
- * @param {Map}      written                    - Collects the attributes each PUT wrote, by payment id.
+ * @param {Map}      written                    - Collects the attributes and mode each PUT wrote, by payment id.
  * @return {Promise<boolean>} True when the block's attributes changed.
  */
 async function syncBlock(
 	{ clientId, attributes },
-	{ request, updateBlockAttributes, reportError, reportHeldBack },
+	{ request, updateBlockAttributes, reportError, reportHeldBack, reportSaved },
 	stackedResources,
 	written
 ) {
@@ -328,11 +342,14 @@ async function syncBlock(
 				markExistingLinksDirty();
 
 				// Compared with what was read once every PUT has settled.
-				written.set( resourceId, [ ...( written.get( resourceId ) || [] ), attributes ] );
+				written.set( resourceId, [
+					...( written.get( resourceId ) || [] ),
+					{ attributes, mode: body.integration_mode },
+				] );
 
 				// The read-back is how a block switching to stacked gets its scriptSrc in the same
 				// save. Without one the response is the echo, which changes nothing.
-				result = { response, updates: resourceUpdatesFrom( attributes, response ) };
+				result = { response, created: false, updates: resourceUpdatesFrom( attributes, response ) };
 			} catch ( err ) {
 				if ( ! isNotFound( err ) ) {
 					throw err;
@@ -346,7 +363,12 @@ async function syncBlock(
 			result = await createPayment( request, clientId, attributes, ownBody );
 		}
 
-		const { response, updates } = result;
+		const { response, created, updates } = result;
+
+		// recordPaymentsWritten() calls reportSaved for an update once every PUT has settled.
+		if ( created ) {
+			reportSaved?.( true );
+		}
 
 		if ( Object.keys( updates ).length > 0 ) {
 			updateBlockAttributes( clientId, updates );
@@ -406,8 +428,9 @@ export async function syncBlocksBeforeSave( blocks, deps ) {
 		blocks.map( block => syncBlock( block, deps, stackedResources, written ) )
 	);
 
-	// Once every PUT has settled, so blocks sharing a payment bump its card revision once.
-	recordPaymentsWritten( written );
+	// Once every PUT has settled, so a shared payment gets at most one card revision bump
+	// and one reportSaved call.
+	recordPaymentsWritten( written, deps.reportSaved );
 
 	return results.some( Boolean );
 }
