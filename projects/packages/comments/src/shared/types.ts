@@ -67,6 +67,7 @@ export type Strings = {
 	name: string;
 	email: string;
 	emailHint: string;
+	required: string;
 	website: string;
 	intro: string;
 	saveAndPost: string;

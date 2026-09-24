@@ -82,17 +82,19 @@ export const IdentityDialog = () => {
 	// Only while open: a required field the browser cannot focus would stop the submit that opens it.
 	const required = requireNameEmail && isModalOpen.value;
 
+	// Drawn in the Jetpack Forms markup, so the forms stylesheet and the theme
+	// style these exactly as they do a Form block.
 	const fields = [
-		{ field: 'author' as const, type: 'text', autoComplete: 'name', label: strings.name, required },
+		{ field: 'author' as const, kind: 'name', type: 'text', label: strings.name, required },
 		{
 			field: 'email' as const,
+			kind: 'email',
 			type: 'email',
-			autoComplete: 'email',
 			label: strings.email,
 			hint: strings.emailHint,
 			required,
 		},
-		{ field: 'url' as const, type: 'url', autoComplete: 'url', label: strings.website },
+		{ field: 'url' as const, kind: 'url', type: 'url', label: strings.website },
 	];
 
 	const titleId = `jetpack-comments-dialog-title-${ formSettings.postId }`;
@@ -134,25 +136,29 @@ export const IdentityDialog = () => {
 				{ ! known && ( mustLogIn ? strings.mustLogIn : strings.intro ) }
 			</p>
 			{ ! mustLogIn && ! known && (
-				<div className="jetpack-comments__guest">
-					{ fields.map( ( { field, hint, ...input } ) => (
-						<div key={ field } className="jetpack-comments__guest-field">
-							<label htmlFor={ field }>
+				<div className="contact-form jetpack-comments__guest">
+					{ fields.map( ( { field, kind, hint, ...input } ) => (
+						<div
+							key={ field }
+							className={ `wp-block-jetpack-field-${ kind } grunion-field-${ kind }-wrap wp-block-jetpack-input-wrap grunion-field-wrap` }
+						>
+							<label
+								htmlFor={ field }
+								className={ `grunion-field-label ${ kind } wp-block-jetpack-label` }
+							>
 								{ input.label }
 								{ input.required && (
-									<>
-										{ ' ' }
-										<span className="required" aria-hidden="true">
-											*
-										</span>
-									</>
+									<span className="grunion-label-required" aria-hidden="true">
+										{ strings.required }
+									</span>
 								) }
 							</label>
 							<input
 								id={ field }
 								name={ field }
 								type={ input.type }
-								autoComplete={ input.autoComplete }
+								autoComplete={ kind }
+								className={ `${ kind } wp-block-jetpack-input grunion-field` }
 								required={ input.required }
 								value={ commenter.value[ field ] }
 								onInput={ event => update( field, event.currentTarget.value ) }
@@ -163,25 +169,32 @@ export const IdentityDialog = () => {
 				</div>
 			) }
 			{ ( known || ! mustLogIn ) && formSettings.subscriptions.length > 0 && (
-				<div className="jetpack-comments__subscriptions">
+				<div className="contact-form jetpack-comments__subscriptions">
 					{ formSettings.subscriptions.map( subscription => {
 						const id = `jetpack-comments-${ subscription.name }-${ formSettings.postId }`;
 
 						return (
-							<label
+							<div
 								key={ subscription.name }
-								className="jetpack-comments__checkbox"
-								htmlFor={ id }
+								className="wp-block-jetpack-field-checkbox is-style-list grunion-field-checkbox-wrap wp-block-jetpack-option-wrap grunion-field-wrap"
 							>
-								<input
-									id={ id }
-									type="checkbox"
-									name={ subscription.name }
-									value="subscribe"
-									defaultChecked={ subscription.checked }
-								/>
-								<span>{ subscription.label }</span>
-							</label>
+								<div className="contact-form__checkbox-wrap">
+									<input
+										id={ id }
+										type="checkbox"
+										name={ subscription.name }
+										value="subscribe"
+										className="checkbox wp-block-jetpack-option grunion-field"
+										defaultChecked={ subscription.checked }
+									/>
+									<label
+										htmlFor={ id }
+										className="grunion-field-label checkbox wp-block-jetpack-option"
+									>
+										{ subscription.label }
+									</label>
+								</div>
+							</div>
 						);
 					} ) }
 				</div>

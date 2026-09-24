@@ -106,23 +106,20 @@
 	text-align: center;
 }
 
+// Field layout only; the fields themselves wear the Jetpack Forms classes.
 .jetpack-comments__guest {
 	display: grid;
 	gap: 16px;
-}
-
-.jetpack-comments__guest-field {
-	display: grid;
-	gap: 4px;
 
 	input {
-		display: block;
 		box-sizing: border-box;
 		inline-size: 100%;
 	}
 }
 
 .jetpack-comments__hint {
+	display: block;
+	margin-block-start: 4px;
 	font-size: 0.875em;
 	font-style: italic;
 	opacity: 0.75;
@@ -132,17 +129,6 @@
 	display: grid;
 	gap: 8px;
 	margin-block-start: 16px;
-}
-
-.jetpack-comments__checkbox {
-	display: flex;
-	align-items: flex-start;
-	gap: 8px;
-
-	input {
-		flex-shrink: 0;
-		margin-block-start: 0.25em;
-	}
 }
 
 .jetpack-comments__dialog-actions {
