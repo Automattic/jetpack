@@ -1606,26 +1606,26 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 	}
 
 	/**
-	 * Test the CRM integration maps a symlinked install back to its folder in the plugins directory.
+	 * Test the CRM integration resolves a renamed white-label build installed via a symlink.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_get_crm_integration_follows_a_symlinked_plugin_folder() {
-		// What wp_register_plugin_realpath() records for plugins/zero-bs-crm -> /srv/crm-checkout.
-		$GLOBALS['wp_plugin_paths'][ wp_normalize_path( WP_PLUGIN_DIR . '/zero-bs-crm' ) ] = '/srv/crm-checkout';
-		define( 'ZBS_ROOTFILE', '/srv/crm-checkout/ZeroBSCRM.php' );
-		define( 'ZBS_ROOTPLUGIN', 'crm-checkout/ZeroBSCRM.php' );
-		update_option( 'active_plugins', array( 'zero-bs-crm/ZeroBSCRM.php' ) );
+	public function test_get_crm_integration_follows_a_symlinked_renamed_plugin_folder() {
+		// What wp_register_plugin_realpath() records for plugins/HereTogetherCRM -> /srv/crm-checkout.
+		$GLOBALS['wp_plugin_paths'][ wp_normalize_path( WP_PLUGIN_DIR . '/HereTogetherCRM' ) ] = '/srv/crm-checkout';
+		define( 'ZBS_ROOTFILE', '/srv/crm-checkout/HereTogetherCRM.php' );
+		define( 'ZBS_ROOTPLUGIN', 'crm-checkout/HereTogetherCRM.php' );
+		update_option( 'active_plugins', array( 'HereTogetherCRM/HereTogetherCRM.php' ) );
 
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations/zero-bs-crm' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertSame( 'zero-bs-crm/ZeroBSCRM', $data['pluginFile'] );
+		$this->assertSame( 'HereTogetherCRM/HereTogetherCRM', $data['pluginFile'] );
 		$this->assertTrue( $data['isActive'] );
 	}
 }
