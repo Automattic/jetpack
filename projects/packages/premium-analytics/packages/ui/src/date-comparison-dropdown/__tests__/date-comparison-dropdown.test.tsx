@@ -121,8 +121,15 @@ describe( 'DateComparisonDropdown', () => {
 
 		await user.hover( screen.getByRole( 'button', { name: 'Previous period' } ) );
 
+		// A `VisuallyHidden` node carrying the same text is always mounted (it
+		// backs `aria-describedby`), so it has to be excluded to actually prove
+		// the hover-triggered tooltip popup shows the text.
 		await expect(
-			screen.findByText( /June 1.+30, 2026/, undefined, { timeout: 3000 } )
+			screen.findByText(
+				/June 1.+30, 2026/,
+				{ ignore: '[data-visually-hidden]' },
+				{ timeout: 3000 }
+			)
 		).resolves.toBeVisible();
 	} );
 
