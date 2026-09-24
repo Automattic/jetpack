@@ -49,7 +49,7 @@ final class Settings_Form {
 	public const SECTION_LIKES = 'likes';
 
 	/**
-	 * Comment Likes alone, once a Simple site's post Likes moved to the block.
+	 * Comment Likes, which the Like buttons section shows in every variant.
 	 */
 	public const SECTION_COMMENT_LIKES = 'comment-likes';
 

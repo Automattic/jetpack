@@ -81,8 +81,15 @@ button). `Environment::legacy_sharing_switched_off()` and
 off wherever the block is a route, so the section lands on `BLOCK_CALL_TO_ACTION`
 with no way back, as a deactivated module does. The same holds on Jetpack for an
 active Sharing module with every service removed. Without a block route the
-options stay, since they are then the only way back. Simple's Comment Likes
-checkbox survives the switch: comments have no block to move to.
+options stay, since they are then the only way back.
+
+The Comment Likes checkbox shows in every variant of the Likes section, `OFF`
+and `BLOCK_CALL_TO_ACTION` included: comments have no block to move to, and the
+module runs without the Likes module. It saves as its own form section. Simple
+stores it in `jetpack_comment_likes_enabled`; Jetpack and Atomic switch the
+`comment-likes` module, which never reads that option. Turning the module on
+there makes `Likes_Section::can_offer_block()` false and puts the Likes settings
+back in use, so the section changes variant after the save.
 
 **Simple reuses `Jetpack_Likes_Settings` without the Likes module.**
 `wp-content/mu-plugins/likes/jetpack-likes-settings.php` is a shim that requires

@@ -153,11 +153,64 @@ class Likes_Section_Test extends BaseTestCase {
 	 */
 	public function test_offers_nothing_where_likes_cannot_render_at_all(): void {
 		$this->given_connection( false );
-		$this->given_modules( array() );
+		$this->given_modules( array( 'comment-likes' ) );
 
 		$markup = $this->render();
 
 		$this->assertStringNotContainsString( 'activate-likes', $markup );
+		$this->assertStringNotContainsString( 'jetpack_comment_likes_enabled', $markup );
 		$this->assertStringContainsString( 'Like buttons need a connection to WordPress.com', $markup );
+	}
+
+	/**
+	 * The checkbox a connected site gets, ticked from the Comment Likes module.
+	 *
+	 * @param string[] $modules Active modules.
+	 */
+	private function comment_likes_checkbox( array $modules ): string {
+		$this->given_connection( true );
+		$this->given_modules( $modules );
+
+		$markup = $this->render();
+
+		$this->assertStringContainsString( 'value="' . Settings_Form::SECTION_COMMENT_LIKES . '"', $markup );
+		$this->assertSame( 1, preg_match( '/<input[^>]*name="jetpack_comment_likes_enabled"[^>]*>/', $markup, $matches ) );
+
+		return $matches[0];
+	}
+
+	public function test_offers_comment_likes_alongside_the_like_button_options(): void {
+		$checkbox = $this->comment_likes_checkbox( array( 'likes', 'comment-likes' ) );
+
+		$this->assertStringContainsString( 'checked', $checkbox );
+	}
+
+	/**
+	 * Comment Likes run without the Likes module, so turning the buttons off must not hide them.
+	 */
+	public function test_offers_comment_likes_where_like_buttons_are_off(): void {
+		$checkbox = $this->comment_likes_checkbox( array() );
+
+		$this->assertStringNotContainsString( 'checked', $checkbox );
+		$this->assertStringContainsString( 'activate-likes', $this->render() );
+	}
+
+	public function test_offers_comment_likes_where_the_block_is_the_route(): void {
+		$this->given_block_theme();
+		$this->given_block( 'jetpack/like' );
+
+		$checkbox = $this->comment_likes_checkbox( array() );
+
+		$this->assertStringNotContainsString( 'checked', $checkbox );
+		$this->assertStringContainsString( 'site-editor.php', $this->render() );
+	}
+
+	/**
+	 * Simple has no module, so every module counts as active there; only the option may tick the box.
+	 */
+	public function test_ticks_comment_likes_from_the_option_on_simple(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->assertStringNotContainsString( 'checked', $this->comment_likes_checkbox( array() ) );
 	}
 }

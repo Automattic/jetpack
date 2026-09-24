@@ -39,7 +39,7 @@ final class Likes_Options {
 	}
 
 	/**
-	 * Whether comments can be liked. WordPress.com Simple only.
+	 * Whether comments can be liked, as WordPress.com Simple stores it. Elsewhere the module is the switch.
 	 */
 	public static function comment_likes_enabled(): bool {
 		/** This filter is documented in projects/plugins/jetpack/modules/likes/jetpack-likes-settings.php */

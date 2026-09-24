@@ -169,7 +169,7 @@ final class Post_Handler {
 			self::save_likes();
 		}
 
-		if ( in_array( Settings_Form::SECTION_COMMENT_LIKES, $sections, true ) && Environment::is_simple_site() ) {
+		if ( in_array( Settings_Form::SECTION_COMMENT_LIKES, $sections, true ) && Environment::likes_supported() ) {
 			self::save_comment_likes();
 		}
 
@@ -235,17 +235,31 @@ final class Post_Handler {
 			} else {
 				delete_option( 'disabled_reblogs' );
 			}
-
-			self::save_comment_likes();
 		}
 	}
 
 	/**
-	 * Save the Comment Likes checkbox, which WordPress.com Simple alone renders.
+	 * Save the Comment Likes checkbox: Simple's option, or the module everywhere else.
 	 */
 	private static function save_comment_likes(): void {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified by the caller.
-		update_option( 'jetpack_comment_likes_enabled', empty( $_POST['jetpack_comment_likes_enabled'] ) ? 0 : 1 );
+		$enabled = ! empty( $_POST['jetpack_comment_likes_enabled'] );
+
+		if ( Environment::is_simple_site() ) {
+			update_option( 'jetpack_comment_likes_enabled', $enabled ? 1 : 0 );
+			return;
+		}
+
+		// `deactivate()` fires its hooks even when the module was already off.
+		if ( Environment::comment_likes_enabled() === $enabled ) {
+			return;
+		}
+
+		if ( $enabled ) {
+			( new Modules() )->activate( 'comment-likes', false, false );
+		} else {
+			( new Modules() )->deactivate( 'comment-likes' );
+		}
 	}
 
 	/**

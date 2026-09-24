@@ -137,6 +137,16 @@ final class Environment {
 	}
 
 	/**
+	 * Whether the site owner has Comment Likes switched on.
+	 *
+	 * Simple keeps the switch in an option, since it has no modules; everywhere
+	 * else the module is the switch, and it never reads that option.
+	 */
+	public static function comment_likes_enabled(): bool {
+		return self::is_simple_site() ? Likes_Options::comment_likes_enabled() : self::comment_likes_module_running();
+	}
+
+	/**
 	 * Whether anything on this site still reads the Likes settings.
 	 *
 	 * Both features are gated on `disabled_likes` and the shared placement, so

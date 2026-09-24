@@ -180,6 +180,37 @@ class Environment_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Every module counts as active on Simple, so the option is the only switch there.
+	 */
+	public function test_comment_likes_follow_the_option_on_simple(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->assertFalse( Environment::comment_likes_enabled() );
+
+		update_option( 'jetpack_comment_likes_enabled', 1 );
+		$enabled = Environment::comment_likes_enabled();
+		delete_option( 'jetpack_comment_likes_enabled' );
+
+		$this->assertTrue( $enabled );
+	}
+
+	/**
+	 * The module never reads Simple's option, so a stray copy of it must not tick the box.
+	 */
+	public function test_comment_likes_follow_the_module_off_wpcom(): void {
+		update_option( 'jetpack_comment_likes_enabled', 1 );
+		$this->given_site( array( 'likes' ), true );
+		$without_module = Environment::comment_likes_enabled();
+
+		$this->given_site( array( 'likes', 'comment-likes' ), true );
+		$with_module = Environment::comment_likes_enabled();
+		delete_option( 'jetpack_comment_likes_enabled' );
+
+		$this->assertFalse( $without_module );
+		$this->assertTrue( $with_module );
+	}
+
+	/**
 	 * With both Likes modules off, nothing reads the Likes settings, which is
 	 * what takes the section to its off variant.
 	 */

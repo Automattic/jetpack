@@ -58,6 +58,8 @@ final class Likes_Section {
 				self::render_options();
 		}
 
+		self::render_comment_likes_option();
+
 		echo '</div>';
 	}
 
@@ -113,10 +115,6 @@ final class Likes_Section {
 			esc_html__( 'Add the Like block to your theme’s template.', 'jetpack-sharing-likes' )
 		);
 		self::render_site_editor_link();
-
-		if ( Environment::is_simple_site() ) {
-			self::render_comment_likes_form();
-		}
 	}
 
 	/**
@@ -204,10 +202,6 @@ final class Likes_Section {
 			</tbody>
 		</table>
 		<?php
-		if ( Environment::is_simple_site() ) {
-			self::render_comment_likes_option();
-		}
-
 		Settings_Form::render_fields( Settings_Form::SECTION_LIKES, (string) ob_get_clean() );
 	}
 
@@ -241,21 +235,11 @@ final class Likes_Section {
 	}
 
 	/**
-	 * Comment Likes on their own, for a Simple site whose post Likes moved to the block.
-	 */
-	private static function render_comment_likes_form(): void {
-		ob_start();
-		self::render_comment_likes_option();
-		Settings_Form::render_fields( Settings_Form::SECTION_COMMENT_LIKES, (string) ob_get_clean() );
-	}
-
-	/**
-	 * Comment Likes, WordPress.com Simple only.
-	 *
-	 * Rendered outside the post-likes table because it is unaffected by the
-	 * block: comments have no Like block to move to.
+	 * Comment Likes, in every variant: comments have no Like block to move to,
+	 * and the Comment Likes module runs with the Like buttons off.
 	 */
 	private static function render_comment_likes_option(): void {
+		ob_start();
 		?>
 		<table class="form-table">
 			<tbody>
@@ -263,7 +247,7 @@ final class Likes_Section {
 					<th scope="row"><label><?php esc_html_e( 'Comment Likes are', 'jetpack-sharing-likes' ); ?></label></th>
 					<td>
 						<label>
-							<input type="checkbox" name="jetpack_comment_likes_enabled" value="1" <?php checked( Likes_Options::comment_likes_enabled() ); ?> />
+							<input type="checkbox" name="jetpack_comment_likes_enabled" value="1" <?php checked( Environment::comment_likes_enabled() ); ?> />
 							<?php esc_html_e( 'On for all comments', 'jetpack-sharing-likes' ); ?>
 						</label>
 					</td>
@@ -271,5 +255,6 @@ final class Likes_Section {
 			</tbody>
 		</table>
 		<?php
+		Settings_Form::render_fields( Settings_Form::SECTION_COMMENT_LIKES, (string) ob_get_clean() );
 	}
 }

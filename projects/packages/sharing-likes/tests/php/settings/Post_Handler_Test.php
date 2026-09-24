@@ -378,8 +378,8 @@ class Post_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Reblogs and comment likes are Simple-only fields. Writing them from a
-	 * Jetpack save would persist settings the screen never rendered.
+	 * Reblogs are a Simple-only field, and Comment Likes save through their own
+	 * section. Writing either from here would persist settings the section never rendered.
 	 */
 	public function test_likes_save_ignores_the_simple_only_fields_off_wpcom(): void {
 		$this->log_in_as( 'administrator' );
@@ -419,11 +419,59 @@ class Post_Handler_Test extends BaseTestCase {
 		$this->assertSame( '1', (string) get_option( 'disabled_reblogs' ) );
 	}
 
-	public function test_comment_likes_save_writes_nothing_off_wpcom(): void {
+	/**
+	 * Save the Comment Likes section on a connected site running the given modules.
+	 *
+	 * @param string[]            $modules Active modules before the save.
+	 * @param string[]            $claimed Sections the form claims.
+	 * @param array<string,mixed> $payload Other fields the form submits.
+	 * @return string[] Active modules after the save.
+	 */
+	private function save_comment_likes_with( array $modules, array $claimed, array $payload ): array {
+		$this->given_connection( true );
+		$this->given_modules( $modules );
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( $claimed, $payload ) );
+
+		return array_values( (array) \Jetpack_Options::get_option( 'active_modules' ) );
+	}
+
+	/**
+	 * The module never reads Simple's option, so off wpcom the checkbox switches the module.
+	 */
+	public function test_comment_likes_save_turns_the_module_on_off_wpcom(): void {
+		$active = $this->save_comment_likes_with( array( 'likes' ), array( Settings_Form::SECTION_COMMENT_LIKES ), array( 'jetpack_comment_likes_enabled' => '1' ) );
+
+		$this->assertSame( array( 'likes', 'comment-likes' ), $active );
+		$this->assertFalse( get_option( 'jetpack_comment_likes_enabled' ) );
+	}
+
+	public function test_comment_likes_save_turns_the_module_off_off_wpcom(): void {
+		$active = $this->save_comment_likes_with( array( 'likes', 'comment-likes' ), array( Settings_Form::SECTION_COMMENT_LIKES ), array() );
+
+		$this->assertSame( array( 'likes' ), $active );
+	}
+
+	/**
+	 * An unchecked box posts nothing, so a save that never showed the checkbox must not read it as "off".
+	 */
+	public function test_save_leaves_the_comment_likes_module_alone_when_unclaimed(): void {
+		$active = $this->save_comment_likes_with( array( 'comment-likes' ), array( Settings_Form::SECTION_LIKES ), array( 'wpl_default' => 'on' ) );
+
+		$this->assertSame( array( 'comment-likes' ), $active );
+	}
+
+	/**
+	 * The section renders no checkbox without a connection, so a request claiming it switches nothing.
+	 */
+	public function test_comment_likes_save_writes_nothing_without_a_connection(): void {
+		$this->given_modules( array( 'likes' ) );
 		$this->log_in_as( 'administrator' );
 
 		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_COMMENT_LIKES ), array( 'jetpack_comment_likes_enabled' => '1' ) ) );
 
+		$this->assertSame( array( 'likes' ), array_values( (array) \Jetpack_Options::get_option( 'active_modules' ) ) );
 		$this->assertFalse( get_option( 'jetpack_comment_likes_enabled' ) );
 	}
 
