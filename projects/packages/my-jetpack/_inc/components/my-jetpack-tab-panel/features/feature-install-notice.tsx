@@ -20,32 +20,55 @@ type FeatureInstallNoticeProps = {
  */
 export function FeatureInstallNotice( { state, className }: FeatureInstallNoticeProps ) {
 	const { control } = state;
-	let plugin = '';
-
-	if ( control.kind === 'install-plugin' ) {
-		plugin = control.plugin;
-	} else if ( control.kind === 'install-jetpack' && ! control.installed ) {
-		plugin = 'jetpack';
-	}
-
-	const error = useInstallError( plugin );
 	const blockedReason = getInstallBlockReason( state );
 
-	if ( ! plugin || ( ! blockedReason && ! error ) ) {
+	if ( blockedReason ) {
+		return (
+			<Text variant="body-sm" className={ clsx( styles[ 'install-notice' ], className ) }>
+				{ blockedReason }
+			</Text>
+		);
+	}
+
+	// Only cards that offer an install read the mutation cache; module cards never can.
+	if ( control.kind === 'install-plugin' ) {
+		return <InstallError plugin={ control.plugin } className={ className } />;
+	}
+
+	if ( control.kind === 'install-jetpack' && ! control.installed ) {
+		return <InstallError plugin="jetpack" className={ className } />;
+	}
+
+	return null;
+}
+
+type InstallErrorProps = {
+	plugin: string;
+	className?: string;
+};
+
+/**
+ * Why the last install of a plugin failed, if it did.
+ *
+ * @param {InstallErrorProps} props           - The component props.
+ * @param {string}            props.plugin    - The plugin's slug, or `jetpack`.
+ * @param {string}            props.className - Extra class for the text.
+ * @return The rendered component, or null when the last install did not fail.
+ */
+function InstallError( { plugin, className }: InstallErrorProps ) {
+	const error = useInstallError( plugin );
+
+	if ( ! error ) {
 		return null;
 	}
 
 	return (
 		<Text
 			variant="body-sm"
-			className={ clsx(
-				styles[ 'install-notice' ],
-				error && ! blockedReason && styles[ 'install-notice--error' ],
-				className
-			) }
-			role={ blockedReason ? undefined : 'alert' }
+			className={ clsx( styles[ 'install-notice' ], styles[ 'install-notice--error' ], className ) }
+			role="alert"
 		>
-			{ blockedReason ?? error }
+			{ error }
 		</Text>
 	);
 }
