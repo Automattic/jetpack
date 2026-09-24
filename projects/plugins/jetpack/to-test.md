@@ -31,7 +31,7 @@ Jetpack 16.3 ships the new dashboard, but for now it is only offered on Simple a
 **1. First visit and date controls**
 
 1. Open Stats v2 for the first time. Confirm a welcome modal appears. Click outside it: it should stay open, and "Take a quick tour" should run the tour.
-2. In preview mode, confirm only the Traffic and Insights tabs show, and that a feedback banner appears.
+2. In preview mode, confirm only the Traffic, Insights and Subscribers tabs show, and that a feedback banner appears.
 3. Open the page options menu (⋯) and select Customize. Confirm the date controls hide while customizing. Leave customize mode.
 4. Open the date picker. Confirm it offers "Month to date", "Year to date" and a custom range calendar.
 5. Pick "Year to date" and compare with the previous year. Confirm the comparison starts on 1 January.
