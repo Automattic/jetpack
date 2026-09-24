@@ -24,6 +24,7 @@ export const IdentityDialog = () => {
 	const attempt = useRef( 0 );
 	const [ isSigningIn, setIsSigningIn ] = useState( false );
 	const [ signInError, setSignInError ] = useState( '' );
+	const submitOnSignIn = useRef( false );
 
 	useEffect( () => {
 		const element = dialog.current;
@@ -35,6 +36,16 @@ export const IdentityDialog = () => {
 		}
 	}, [ isModalOpen.value ] );
 
+	// The dialog was opened by a submit, so a sign-in that lands finishes it. From an
+	// effect, because the identity line renders the hidden code input on the same
+	// commit, and a submit made straight after setting signedIn posts without it.
+	useEffect( () => {
+		if ( submitOnSignIn.current && signedIn.value ) {
+			submitOnSignIn.current = false;
+			dialog.current?.closest( 'form' )?.requestSubmit();
+		}
+	}, [ signedIn.value ] );
+
 	const cancel = () => {
 		attempt.current++;
 		popup.current?.close();
@@ -42,10 +53,7 @@ export const IdentityDialog = () => {
 		setIsSigningIn( false );
 	};
 
-	// The dialog was opened by a submit, so a sign-in that lands finishes it.
-	const start = async ( event: MouseEvent ) => {
-		const form = ( event.currentTarget as HTMLButtonElement ).form;
-
+	const start = async () => {
 		setSignInError( '' );
 		setIsSigningIn( true );
 
@@ -63,8 +71,8 @@ export const IdentityDialog = () => {
 		setIsSigningIn( false );
 
 		if ( 'code' in result ) {
+			submitOnSignIn.current = true;
 			signedIn.value = { name: result.name, avatar: result.avatar, code: result.code };
-			form?.requestSubmit();
 		} else if ( 'error' in result ) {
 			setSignInError(
 				result.error === 'rate_limited' ? strings.signInRateLimited : strings.signInFailed
