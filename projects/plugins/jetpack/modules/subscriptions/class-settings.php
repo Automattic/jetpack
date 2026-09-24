@@ -21,6 +21,39 @@ class Settings {
 	public static $default_reply_to = 'comment';
 
 	/**
+	 * Exposes the subscribe placement settings through /wp/v2/settings so the editor can read and update them.
+	 *
+	 * Only site administrators can access them, since that endpoint requires the manage_options capability.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function register_placement_settings() {
+		$placement_options = array(
+			'jetpack_subscribe_floating_button_enabled', // Floating subscribe button.
+			'jetpack_subscribe_overlay_enabled', // Subscribe overlay.
+			'sm_enabled', // Subscribe pop-up (modal).
+			'jetpack_subscriptions_subscribe_navigation_enabled', // Subscribe block in the navigation menu.
+			'jetpack_subscriptions_subscribe_post_end_enabled', // Subscribe block at the end of each post.
+			'jetpack_subscriptions_login_navigation_enabled', // Subscriber Login block in the navigation menu.
+		);
+
+		foreach ( $placement_options as $option ) {
+			register_setting(
+				'general',
+				$option,
+				array(
+					'type'              => 'boolean',
+					'default'           => false,
+					'show_in_rest'      => true,
+					'sanitize_callback' => 'absint', // Keep 0/1 storage so a disabled option remains valid against the REST boolean schema.
+				)
+			);
+		}
+	}
+
+	/**
 	 * Validate the reply-to option.
 	 *
 	 * @param string $reply_to The reply-to option to validate.
