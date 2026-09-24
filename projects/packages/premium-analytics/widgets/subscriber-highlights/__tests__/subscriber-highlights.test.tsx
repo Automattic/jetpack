@@ -99,9 +99,9 @@ describe( 'SubscriberHighlightsWidget', () => {
 		await expect( screen.findByText( '428' ) ).resolves.toBeInTheDocument();
 		expect( tileValues() ).toEqual( [
 			expect.stringMatching( /^All-time subscribers.*428$/ ),
-			'30 days ago317',
-			'60 days ago186',
-			'90 days ago95',
+			expect.stringMatching( /^30 days ago.*317$/ ),
+			expect.stringMatching( /^60 days ago.*186$/ ),
+			expect.stringMatching( /^90 days ago.*95$/ ),
 		] );
 	} );
 
@@ -120,11 +120,51 @@ describe( 'SubscriberHighlightsWidget', () => {
 		await expect( screen.findByText( '428' ) ).resolves.toBeInTheDocument();
 		expect( tileValues() ).toEqual( [
 			expect.stringMatching( /^All-time subscribers.*428$/ ),
-			'30 days ago317',
-			'60 days ago186',
-			'90 days ago95',
-			'Social followers64',
+			expect.stringMatching( /^30 days ago.*317$/ ),
+			expect.stringMatching( /^60 days ago.*186$/ ),
+			expect.stringMatching( /^90 days ago.*95$/ ),
+			expect.stringMatching( /^Social followers.*64$/ ),
 		] );
+	} );
+
+	it( 'describes every history tile and the social tile with a note', async () => {
+		mockApiFetch.mockImplementation(
+			respondWith( {
+				total: 428,
+				paid: 0,
+				social: 64,
+				byDate: { '2026-08-16': 317, '2026-07-17': 186, '2026-06-17': 95 },
+			} )
+		);
+
+		render( <SubscriberHighlightsWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( '428' ) ).resolves.toBeInTheDocument();
+		for ( const note of [
+			'Total subscribers excluding social media subscribers',
+			'Total subscribers 30 days ago, excluding social media subscribers',
+			'Total subscribers 60 days ago, excluding social media subscribers',
+			'Total subscribers 90 days ago, excluding social media subscribers',
+			'Social media subscribers, not included in All-time subscribers',
+		] ) {
+			expect( screen.getByText( note ) ).toBeInTheDocument();
+		}
+	} );
+
+	it( 'describes every tile with a note when the site has paid subscribers', async () => {
+		mockApiFetch.mockImplementation( respondWith( { total: 428, paid: 117, social: 64 } ) );
+
+		render( <SubscriberHighlightsWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( '428' ) ).resolves.toBeInTheDocument();
+		for ( const note of [
+			'Total subscribers excluding social media subscribers',
+			'Paid WordPress.com subscribers',
+			'Email subscribers and free WordPress.com subscribers',
+			'Social media subscribers, not included in All-time subscribers',
+		] ) {
+			expect( screen.getByText( note ) ).toBeInTheDocument();
+		}
 	} );
 
 	it( 'hides the social tile rather than showing zero', async () => {
@@ -155,7 +195,7 @@ describe( 'SubscriberHighlightsWidget', () => {
 			expect.stringMatching( /^All-time subscribers.*428$/ ),
 			expect.stringMatching( /^Paid subscribers.*117$/ ),
 			expect.stringMatching( /^Free subscribers.*311$/ ),
-			'Social followers64',
+			expect.stringMatching( /^Social followers.*64$/ ),
 		] );
 		const requestedPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
 		expect( requestedPaths.some( path => path.includes( 'stats/subscribers' ) ) ).toBe( false );
@@ -210,9 +250,9 @@ describe( 'SubscriberHighlightsWidget', () => {
 		await expect( screen.findByText( '317' ) ).resolves.toBeInTheDocument();
 		expect( tileValues() ).toEqual( [
 			expect.stringMatching( /^All-time subscribers.*428$/ ),
-			'30 days ago317',
-			'60 days ago—',
-			'90 days ago—',
+			expect.stringMatching( /^30 days ago.*317$/ ),
+			expect.stringMatching( /^60 days ago.*—$/ ),
+			expect.stringMatching( /^90 days ago.*—$/ ),
 		] );
 	} );
 
@@ -226,9 +266,9 @@ describe( 'SubscriberHighlightsWidget', () => {
 		await expect( screen.findByText( '317' ) ).resolves.toBeInTheDocument();
 		expect( tileValues() ).toEqual( [
 			expect.stringMatching( /^All-time subscribers.*428$/ ),
-			'30 days ago317',
-			'60 days ago—',
-			'90 days ago0',
+			expect.stringMatching( /^30 days ago.*317$/ ),
+			expect.stringMatching( /^60 days ago.*—$/ ),
+			expect.stringMatching( /^90 days ago.*0$/ ),
 		] );
 	} );
 

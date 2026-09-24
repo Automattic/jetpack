@@ -41,6 +41,21 @@ const DAYS_AGO_LABELS: Record< ( typeof DAYS_AGO )[ number ], string > = {
 	90: __( '90 days ago', 'jetpack-premium-analytics-pkg' ),
 };
 
+const DAYS_AGO_NOTES: Record< ( typeof DAYS_AGO )[ number ], string > = {
+	30: __(
+		'Total subscribers 30 days ago, excluding social media subscribers',
+		'jetpack-premium-analytics-pkg'
+	),
+	60: __(
+		'Total subscribers 60 days ago, excluding social media subscribers',
+		'jetpack-premium-analytics-pkg'
+	),
+	90: __(
+		'Total subscribers 90 days ago, excluding social media subscribers',
+		'jetpack-premium-analytics-pkg'
+	),
+};
+
 type Tile = {
 	key: string;
 	label: string;
@@ -90,6 +105,10 @@ function SubscriberHighlightsReport() {
 						label: __( 'Social followers', 'jetpack-premium-analytics-pkg' ),
 						icon: share,
 						value: social ?? null,
+						note: __(
+							'Social media subscribers, not included in All-time subscribers',
+							'jetpack-premium-analytics-pkg'
+						),
 					},
 				]
 			: [];
@@ -99,6 +118,7 @@ function SubscriberHighlightsReport() {
 		label: DAYS_AGO_LABELS[ days ],
 		icon: scheduled,
 		value: past.counts[ index ] ?? null,
+		note: DAYS_AGO_NOTES[ days ],
 	} ) );
 
 	const tiles: Tile[] = [
