@@ -1,3 +1,4 @@
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { moduleSwitchKey, useRequestedSwitches } from '../../../data/requested-switch-state';
@@ -71,6 +72,7 @@ function getStateModule( state: FeatureState ): MyJetpackModule | null {
  *                       the map the cards resolve from: a module a pre-release gate hides on
  *                       its own card is still that card's, and must not surface here instead.
  * @param requested      - Switch key to the value asked of it.
+ * @param hidden         - Modules that do not apply to the site, left out entirely.
  * @return Non-empty groups by label, each sorted by name, with every leftover module under Other, last.
  */
 export function groupMoreFeatures(
@@ -78,7 +80,8 @@ export function groupMoreFeatures(
 	groups: MainFeatureModuleGroup[],
 	modules: Record< string, MyJetpackModule >,
 	productModules: Record< string, string >,
-	requested: Record< string, boolean >
+	requested: Record< string, boolean >,
+	hidden: ReadonlySet< string > = new Set()
 ): MoreFeaturesGroup[] {
 	const named = new Set( groups.flatMap( group => group.modules ) );
 	// A plugin-delivered card switches its plugin, not the module it shares a slug with, so a
@@ -92,7 +95,10 @@ export function groupMoreFeatures(
 	// Sorted by name, with the legacy modules dropped, the way the Products tab lists them.
 	const remaining = new Map(
 		filterAndSortModules( Object.values( modules ) )
-			.filter( $module => $module.available && ! covered.has( $module.module ) )
+			.filter(
+				$module =>
+					$module.available && ! covered.has( $module.module ) && ! hidden.has( $module.module )
+			)
 			.map( $module => [ $module.module, getModuleFeatureState( $module, requested ) ] )
 	);
 
@@ -150,6 +156,25 @@ export function filterMoreFeatures(
 }
 
 /**
+ * Classic-theme modules: a block theme has no widget areas for them to act on.
+ */
+const WIDGET_MODULES = [ 'widgets', 'widget-visibility' ];
+
+/**
+ * The modules that do not apply to the site, unless one is already on.
+ *
+ * @param modules - Every Jetpack module on the site.
+ * @return The slugs to leave out.
+ */
+export function getHiddenModules( modules: Record< string, MyJetpackModule > ): Set< string > {
+	const isBlockTheme = Boolean( getScriptData()?.myJetpack?.siteEditor?.isBlockTheme );
+
+	return new Set(
+		isBlockTheme ? WIDGET_MODULES.filter( slug => ! modules[ slug ]?.activated ) : []
+	);
+}
+
+/**
  * Jetpack's other modules, grouped for the Features tab.
  *
  * Empty unless Jetpack is active and its modules have loaded: only Jetpack serves the list.
@@ -170,7 +195,8 @@ export function useMoreFeatures( state: MainFeaturesState ): MoreFeaturesGroup[]
 						state.module_groups,
 						modules,
 						PRODUCT_MODULES,
-						requested
+						requested,
+						getHiddenModules( modules )
 					)
 				: [],
 		[ state, modules, requested ]

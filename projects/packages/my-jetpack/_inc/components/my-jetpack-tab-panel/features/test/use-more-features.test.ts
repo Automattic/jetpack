@@ -1,4 +1,4 @@
-import { filterMoreFeatures, groupMoreFeatures } from '../use-more-features';
+import { filterMoreFeatures, getHiddenModules, groupMoreFeatures } from '../use-more-features';
 import type { MyJetpackModule } from '../../../../types';
 
 const mod = ( slug: string, overrides: Partial< MyJetpackModule > = {} ): MyJetpackModule =>
@@ -127,5 +127,46 @@ describe( 'groupMoreFeatures', () => {
 		const found = filterMoreFeatures( grouped, 'active', 'monitor' );
 
 		expect( slugsOf( found ) ).toEqual( [ [ 'Security', [ 'monitor' ] ] ] );
+	} );
+} );
+
+describe( 'getHiddenModules', () => {
+	const widgets = {
+		widgets: mod( 'widgets', { activated: true } ),
+		'widget-visibility': mod( 'widget-visibility' ),
+	};
+	const setBlockTheme = ( isBlockTheme: boolean ) => {
+		window.JetpackScriptData = {
+			myJetpack: { siteEditor: { isBlockTheme } },
+		} as Window[ 'JetpackScriptData' ];
+	};
+
+	it( 'hides the widget modules on a block theme, unless one is on', () => {
+		setBlockTheme( true );
+
+		expect( [ ...getHiddenModules( widgets ) ] ).toEqual( [ 'widget-visibility' ] );
+	} );
+
+	it( 'hides nothing on a classic theme', () => {
+		setBlockTheme( false );
+
+		expect( [ ...getHiddenModules( widgets ) ] ).toEqual( [] );
+	} );
+
+	it( 'drops the Design group once nothing in it is left', () => {
+		const grouped = groupMoreFeatures(
+			[],
+			[ { label: 'Design', modules: [ 'widget-visibility' ] } ],
+			widgets,
+			{},
+			{},
+			new Set( [ 'widget-visibility' ] )
+		);
+
+		expect( grouped.map( group => group.label ) ).not.toContain( 'Design' );
+		// Hidden, not moved: it must not resurface under Other.
+		expect( slugsOf( grouped ).flatMap( ( [ , slugs ] ) => slugs ) ).not.toContain(
+			'widget-visibility'
+		);
 	} );
 } );
