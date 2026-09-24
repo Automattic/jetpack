@@ -110,6 +110,36 @@ async function draftShortRange( user: ReturnType< typeof userEvent.setup >, days
 	await shortenRangeTo( days );
 }
 
+/*
+ * Pins `Date` without faking `setTimeout`/`requestAnimationFrame`: the compare/period
+ * menus render through `DateControlPopover`'s `@wordpress/ui` Tooltip, whose floating-ui
+ * positioning schedules its own async updates. Faking those too raced Jest's virtual
+ * clock against that positioning, intermittently landing a state update outside any
+ * `act()` the test opened (WOOA7S-2182 follow-up).
+ */
+function pinSystemTime( date: Date ) {
+	jest
+		.useFakeTimers( {
+			doNotFake: [
+				'hrtime',
+				'nextTick',
+				'performance',
+				'queueMicrotask',
+				'requestAnimationFrame',
+				'cancelAnimationFrame',
+				'requestIdleCallback',
+				'cancelIdleCallback',
+				'setImmediate',
+				'clearImmediate',
+				'setInterval',
+				'clearInterval',
+				'setTimeout',
+				'clearTimeout',
+			],
+		} )
+		.setSystemTime( date );
+}
+
 describe( 'reportParamsAttributeField', () => {
 	it( 'declares the reportParams attribute the host renders in the header', () => {
 		expect( reportParamsAttributeField() ).toMatchObject( {
@@ -330,7 +360,7 @@ describe( 'report params field', () => {
 	it( 'commits a comparison range on selection', async () => {
 		// Pinned mid-month: on the last day of a 30-day month "Last 30 days" is a
 		// whole month and the entry reads "Previous month".
-		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00.000Z' ) );
+		pinSystemTime( new Date( '2026-06-15T12:00:00.000Z' ) );
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		const { latest } = renderField();
 
@@ -359,7 +389,7 @@ describe( 'report params field', () => {
 		 * stretch this guards against would be a no-op and the test would pass
 		 * on the unfixed code.
 		 */
-		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00.000Z' ) );
+		pinSystemTime( new Date( '2026-06-15T12:00:00.000Z' ) );
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		const { latest, unmount } = renderField();
 
