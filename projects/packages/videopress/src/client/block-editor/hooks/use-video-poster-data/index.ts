@@ -6,7 +6,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState, useRef, useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -89,8 +89,9 @@ export function useVideoPosterData( attributes: VideoBlockAttributes ) {
 							'This video could not be found in the Media Library. Restore it from the trash, if available, and try again.',
 							'jetpack-videopress-pkg'
 						)
-					: __(
+					: _x(
 							'Could not generate the video poster image. Please try again.',
+							'', // Keep the minifier from merging these translation calls.
 							'jetpack-videopress-pkg'
 						)
 			);
