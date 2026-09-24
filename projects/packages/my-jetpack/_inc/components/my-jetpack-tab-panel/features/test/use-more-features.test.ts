@@ -36,6 +36,7 @@ const groups = [
 	// Listed out of order: the group sorts by name, not by this list.
 	{ label: 'Security', modules: [ 'sso', 'waf', 'monitor' ] },
 	{ label: 'Design', modules: [ 'google-fonts' ] },
+	{ label: 'Analytics', modules: [ 'zeta' ] },
 	{ label: 'Earn', modules: [ 'wordads' ] },
 ];
 
@@ -45,10 +46,11 @@ const slugsOf = ( grouped: ReturnType< typeof groupMoreFeatures > ) =>
 describe( 'groupMoreFeatures', () => {
 	const grouped = groupMoreFeatures( features, groups, modules, { social: 'publicize' }, {} );
 
-	it( 'sorts each group by name, drops empty groups and leaves out covered, unavailable and legacy modules', () => {
+	it( 'sorts groups and their modules by name with Other last, drops empty groups and leaves out covered, unavailable and legacy modules', () => {
 		expect( slugsOf( grouped ) ).toEqual( [
+			[ 'Analytics', [ 'zeta' ] ],
 			[ 'Security', [ 'monitor', 'sso' ] ],
-			[ 'Other', [ 'alpha', 'zeta' ] ],
+			[ 'Other', [ 'alpha' ] ],
 		] );
 	} );
 
@@ -73,7 +75,7 @@ describe( 'groupMoreFeatures', () => {
 
 	it( 'shows the value a switch asked for while its request is out', () => {
 		const asked = groupMoreFeatures( features, groups, modules, {}, { 'module:monitor': true } );
-		const monitor = asked[ 0 ].states[ 0 ];
+		const monitor = asked[ 1 ].states[ 0 ];
 
 		expect( monitor.status ).toBe( 'active' );
 		expect( monitor.isSwitching ).toBe( true );
@@ -86,7 +88,7 @@ describe( 'groupMoreFeatures', () => {
 			);
 
 		expect( filtered( 'active' ) ).toEqual( [ 'sso' ] );
-		expect( filtered( 'inactive' ) ).toEqual( [ 'monitor', 'alpha', 'zeta' ] );
+		expect( filtered( 'inactive' ) ).toEqual( [ 'zeta', 'monitor', 'alpha' ] );
 		expect( filtered( 'security' ) ).toEqual( [] );
 		expect( filtered( 'essential' ) ).toEqual( [] );
 	} );

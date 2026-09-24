@@ -71,7 +71,7 @@ function getStateModule( state: FeatureState ): MyJetpackModule | null {
  *                       the map the cards resolve from: a module a pre-release gate hides on
  *                       its own card is still that card's, and must not surface here instead.
  * @param requested      - Switch key to the value asked of it.
- * @return Non-empty groups in order, each sorted by name, with every leftover module under Other.
+ * @return Non-empty groups by label, each sorted by name, with every leftover module under Other, last.
  */
 export function groupMoreFeatures(
 	features: MainFeature[],
@@ -101,6 +101,8 @@ export function groupMoreFeatures(
 
 		return { label: group.label, states };
 	} );
+	// Sorted on the translated label, so the order holds in every locale.
+	grouped.sort( ( a, b ) => a.label.localeCompare( b.label ) );
 
 	return [
 		...grouped,

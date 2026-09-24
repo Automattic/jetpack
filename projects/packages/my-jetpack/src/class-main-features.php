@@ -649,7 +649,7 @@ class Main_Features {
 	 * Grouped by the job a site owner is doing, not by Jetpack's module tags, which describe
 	 * mechanism (the Image CDN is tagged Appearance). Anything unlisted falls into Other.
 	 *
-	 * @return array Ordered groups, each with a label and its module slugs.
+	 * @return array Groups, each with a label and its module slugs. The UI sorts both by name.
 	 */
 	public static function get_module_groups() {
 		return array(
