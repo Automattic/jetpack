@@ -83,7 +83,7 @@ class Main_Features {
 			'anti-spam'     => array(
 				'info_url'         => 'https://akismet.com/',
 				'docs_url'         => 'https://akismet.com/support/',
-				'image'            => 'https://akismet.com/wp-content/uploads/2023/04/social-media.png',
+				'image'            => 'https://s0.wp.com/wp-content/themes/a8c/jetpack-2026/assets/legacy-hero-visual/anti-spam/hero-anti-spam.png',
 				'name'             => __( 'Akismet Anti-spam', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Stop comment and form spam without making visitors solve CAPTCHAs.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'Akismet filters spam out of your comments and form submissions in the background, so you stop moderating junk and visitors never have to prove they are human. When it gets one wrong, mark it and Akismet learns from your correction.', 'jetpack-my-jetpack' ),
