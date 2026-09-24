@@ -91,11 +91,6 @@ the plugin's copy of that class. `modules/likes.php` never loads on Simple;
 delete from `Jetpack_Likes_Settings` can therefore break Simple without a single
 reference in this repo.
 
-**`Jetpack_Likes_Settings::admin_settings_init()` and `admin_settings_callback()`
-are deprecated no-ops.** `Likes_Section` renders those settings and `Post_Handler`
-saves them. Neither this repo nor wpcom hooks the two methods any more; they stay
-for third parties that still call them.
-
 **`WP_SHARING_PLUGIN_URL` is not the same thing in both environments.** The
 plugin defines it with `plugin_dir_url()`; wpcom hardcodes a sun/moon-aware path
 in `post-flair.php`. Moving the admin assets out of `modules/sharedaddy/` is a
