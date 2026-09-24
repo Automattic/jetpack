@@ -65,13 +65,13 @@ function getStateModule( state: FeatureState ): MyJetpackModule | null {
  * Sort the modules the feature list leaves out under their headings.
  *
  * @param features       - The main features, whose modules are already on the tab.
- * @param groups         - The headings, each naming its modules in display order.
+ * @param groups         - The headings, each naming its modules.
  * @param modules        - Every Jetpack module on the site.
  * @param productModules - Product slug to module slug, where the two differ. Ungated, unlike
  *                       the map the cards resolve from: a module a pre-release gate hides on
  *                       its own card is still that card's, and must not surface here instead.
  * @param requested      - Switch key to the value asked of it.
- * @return Non-empty groups in order, with every leftover module under Other, by name.
+ * @return Non-empty groups in order, each sorted by name, with every leftover module under Other.
  */
 export function groupMoreFeatures(
 	features: MainFeature[],
@@ -90,14 +90,17 @@ export function groupMoreFeatures(
 			.map( $module => [ $module.module, getModuleFeatureState( $module, requested ) ] )
 	);
 
-	const grouped = groups.map( group => ( {
-		label: group.label,
-		states: group.modules.flatMap( slug => {
-			const state = remaining.get( slug );
-			remaining.delete( slug );
-			return state ? [ state ] : [];
-		} ),
-	} ) );
+	// Walks the name-sorted modules rather than each group's list, so every group reads A to Z.
+	const grouped = groups.map( group => {
+		const states = [ ...remaining ]
+			.filter( ( [ slug ] ) => group.modules.includes( slug ) )
+			.map( ( [ slug, state ] ) => {
+				remaining.delete( slug );
+				return state;
+			} );
+
+		return { label: group.label, states };
+	} );
 
 	return [
 		...grouped,

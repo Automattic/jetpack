@@ -33,7 +33,8 @@ const features = [
 ] as MainFeature[];
 
 const groups = [
-	{ label: 'Security', modules: [ 'monitor', 'sso', 'waf' ] },
+	// Listed out of order: the group sorts by name, not by this list.
+	{ label: 'Security', modules: [ 'sso', 'waf', 'monitor' ] },
 	{ label: 'Design', modules: [ 'google-fonts' ] },
 	{ label: 'Earn', modules: [ 'wordads' ] },
 ];
@@ -44,7 +45,7 @@ const slugsOf = ( grouped: ReturnType< typeof groupMoreFeatures > ) =>
 describe( 'groupMoreFeatures', () => {
 	const grouped = groupMoreFeatures( features, groups, modules, { social: 'publicize' }, {} );
 
-	it( 'keeps the listed order, drops empty groups and leaves out covered, unavailable and legacy modules', () => {
+	it( 'sorts each group by name, drops empty groups and leaves out covered, unavailable and legacy modules', () => {
 		expect( slugsOf( grouped ) ).toEqual( [
 			[ 'Security', [ 'monitor', 'sso' ] ],
 			[ 'Other', [ 'alpha', 'zeta' ] ],
