@@ -573,6 +573,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$order_request = end( $requests );
 		$this->assertStringEndsWith( '/v2/checkout/orders', $order_request['url'] );
 		$body = json_decode( $order_request['args']['body'], true );
+		$this->assertIsArray( $body );
 		$this->assertSame( 'CAPTURE', $body['intent'] );
 		$this->assertSame( '30.00', $body['purchase_units'][0]['amount']['value'] );
 		$this->assertSame( 'PLB-ORDER1', $body['purchase_units'][0]['custom_id'] );
@@ -598,6 +599,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 		PayPal_REST_Controller::handle_create_order( $request );
 
 		$body = json_decode( end( $requests )['args']['body'], true );
+		$this->assertIsArray( $body );
 		$this->assertSame( 'GET_FROM_FILE', $body['application_context']['shipping_preference'] );
 	}
 
@@ -720,9 +722,10 @@ class PayPal_REST_Controller_Test extends TestCase {
 			$result->get_data()
 		);
 		$this->assertCount( 1, $recorded );
-		$this->assertSame( 'CAPTURE999', get_post_meta( $recorded[0], PayPal_Orders::META_CAPTURE_ID, true ) );
+		$post_id = (int) reset( $recorded );
+		$this->assertSame( 'CAPTURE999', get_post_meta( $post_id, PayPal_Orders::META_CAPTURE_ID, true ) );
 
-		wp_delete_post( $recorded[0], true );
+		wp_delete_post( $post_id, true );
 	}
 
 	public function test_capture_order_tells_the_buyer_when_paypal_declines() {
