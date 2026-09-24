@@ -17,7 +17,7 @@ import { Slide01Gradient } from '../../testimonials/slide-01-gradient';
 import { canContinue, isLastStep, openingStep, TOTAL_STEPS, wizardSteps } from './lib';
 import { PanelArt } from './panel-art';
 import { PANEL_LINES } from './panel-type';
-import { PlaceholderStep } from './steps/placeholder-step';
+import { ChoiceStep } from './steps/choice-step';
 import { StartStep } from './steps/start-step';
 import styles from './styles.module.scss';
 import type { WizardState, WizardStep } from './lib';
@@ -101,6 +101,11 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	// The rail only lets the user back into ground already covered.
 	const [ furthestStep, setFurthestStep ] = useState< WizardStep >( step );
 	const [ choices, setChoices ] = useState< WizardState[ 'choices' ] >( {} );
+	/*
+	 * Held apart from `choices`, which is a set of fixed values the wizard will
+	 * report. This is the user's own words and stays on this screen.
+	 */
+	const [ siteTypeDetail, setSiteTypeDetail ] = useState( '' );
 
 	const titleId = useId();
 	const panelRef = useRef< HTMLElement >( null );
@@ -251,7 +256,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 											description={ meta.description }
 										/>
 									) : (
-										<PlaceholderStep
+										<ChoiceStep
 											titleId={ titleId }
 											title={ meta.title }
 											description={ meta.description }
@@ -259,6 +264,8 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 											options={ meta.options }
 											value={ choices[ step ] }
 											onChange={ handleChoice }
+											freeText={ siteTypeDetail }
+											onFreeTextChange={ setSiteTypeDetail }
 										/>
 									) }
 								</div>

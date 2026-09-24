@@ -311,7 +311,7 @@ describe( 'Wizard resume after connecting', () => {
 	it( 'opens at the site-type step once the user is connected', () => {
 		setupWizard( { isUserConnected: true } );
 
-		expect( heading() ).toHaveTextContent( 'What is this site for?' );
+		expect( heading() ).toHaveTextContent( "Tell us what you're building" );
 		// The rail names the steps and the questions column counts them, so the
 		// counter is written twice from here on.
 		expect( screen.getAllByText( 'Step 2 of 4' ) ).toHaveLength( 2 );
@@ -454,7 +454,7 @@ describe( 'Wizard shell', () => {
 		await advance( user, 1 );
 		await user.click( screen.getByRole( 'button', { name: 'Back' } ) );
 
-		expect( heading() ).toHaveTextContent( 'What is this site for?' );
+		expect( heading() ).toHaveTextContent( "Tell us what you're building" );
 	} );
 
 	it( 'replaces Continue with Finish on the last step', async () => {
@@ -511,5 +511,66 @@ describe( 'Wizard shell', () => {
 		expect( panelCopy( 0 ) ).toHaveTextContent(
 			'Grow your audience. Speed up your site. Keep it secure.'
 		);
+	} );
+} );
+
+describe( 'The site-type question', () => {
+	const siteTypeStep = () => setupWizard( { isUserConnected: true } );
+
+	const detailField = () =>
+		screen.queryByRole( 'textbox', { name: 'Tell us what this site is for' } );
+
+	it( 'offers the five answers, in the prototype’s order', () => {
+		siteTypeStep();
+
+		expect( screen.getAllByRole( 'radio' ).map( radio => radio.textContent ) ).toEqual( [
+			'A blog or publication',
+			'An online store',
+			'A portfolio or personal site',
+			'A business or brochure site',
+			'Something else…',
+		] );
+	} );
+
+	it( 'keeps the field shut until the answer that needs it is chosen', async () => {
+		const { user } = siteTypeStep();
+
+		expect( detailField() ).not.toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		expect( detailField() ).not.toBeInTheDocument();
+	} );
+
+	it( 'opens the field on Something else, with focus already in it', async () => {
+		const { user } = siteTypeStep();
+
+		await user.click( screen.getByRole( 'radio', { name: 'Something else…' } ) );
+
+		expect( detailField() ).toBeInTheDocument();
+		expect( detailField() ).toHaveFocus();
+	} );
+
+	it( 'shuts the field again when another answer is chosen', async () => {
+		const { user } = siteTypeStep();
+
+		await user.click( screen.getByRole( 'radio', { name: 'Something else…' } ) );
+		await user.type( detailField() as HTMLElement, 'A recipe site' );
+		expect( detailField() ).toHaveValue( 'A recipe site' );
+
+		await user.click( screen.getByRole( 'radio', { name: 'An online store' } ) );
+		expect( detailField() ).not.toBeInTheDocument();
+	} );
+
+	// The one answer that is not from a fixed set, so it is the one that must not
+	// be reported. Nothing is sent yet; this guards the shape when it is.
+	it( 'holds what was typed without recording it', async () => {
+		const { user } = siteTypeStep();
+
+		await user.click( screen.getByRole( 'radio', { name: 'Something else…' } ) );
+		await user.type( detailField() as HTMLElement, 'A recipe site' );
+
+		expect(
+			mockRecordEvent.mock.calls.some( call => JSON.stringify( call ).includes( 'recipe' ) )
+		).toBe( false );
 	} );
 } );
