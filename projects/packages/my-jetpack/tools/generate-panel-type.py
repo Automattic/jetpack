@@ -37,9 +37,7 @@ LINES = {
 	0: [ 'Grow your audience.', 'Speed up your site.', 'Keep it secure.' ],
 	1: [ "Tell us what you're", 'building.' ],
 	2: [ 'Only what you need.', "Nothing you don't." ],
-	# Step 4 is scaffolding: nothing is turned on and nothing is saved, so the
-	# panel must not say the setup is finished. Replace when the step is real.
-	3: [ 'Still being built.' ],
+	3: [ 'Ready when you are.' ],
 }
 
 OUT = Path( __file__ ).parent.parent / '_inc/components/onboarding-screen/wizard/panel-type.ts'

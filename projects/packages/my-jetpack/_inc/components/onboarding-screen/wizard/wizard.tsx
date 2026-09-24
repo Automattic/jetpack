@@ -26,9 +26,13 @@ import {
 import { PanelArt } from './panel-art';
 import { PANEL_LINES } from './panel-type';
 import { ChoiceStep } from './steps/choice-step';
+import { FeaturesStep } from './steps/features-step';
+import { FinishStep } from './steps/finish-step';
 import { StartStep } from './steps/start-step';
 import styles from './styles.module.scss';
+import { useApplySetupModules, useSetupModules } from './use-setup-modules';
 import type { SettleOutcome, WizardState, WizardStep } from './lib';
+import type { SetupModuleResult } from './use-setup-modules';
 import type { MouseEvent } from 'react';
 
 /*
@@ -115,6 +119,19 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	 */
 	const [ siteTypeDetail, setSiteTypeDetail ] = useState( '' );
 
+	const { modules } = useSetupModules();
+	const { apply, isApplying } = useApplySetupModules();
+	// Missing entries mean "leave it as the site has it", which for five of the six
+	// is already on. Written only when the user moves a switch.
+	const [ wantedModules, setWantedModules ] = useState< Record< string, boolean > >( {} );
+	const [ moduleResults, setModuleResults ] = useState< SetupModuleResult[] | null >( null );
+
+	const handleModuleChange = useCallback(
+		( slug: string, want: boolean ) =>
+			setWantedModules( current => ( { ...current, [ slug ]: want } ) ),
+		[]
+	);
+
 	const titleId = useId();
 	const panelRef = useRef< HTMLElement >( null );
 	const hasChangedStep = useRef( false );
@@ -157,6 +174,18 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 		setFurthestStep( current => ( next > current ? next : current ) );
 	}, [ step ] );
 
+	/*
+	 * Leaving the feature step is what switches the modules; the switches above only
+	 * record what was asked for. The step advances whatever came back, because the
+	 * finish screen's job is to report the failures rather than hide them here.
+	 */
+	const handleApplyAndContinue = useCallback( () => {
+		apply( modules, wantedModules ).then( results => {
+			setModuleResults( results );
+			handleNext();
+		} );
+	}, [ apply, modules, wantedModules, handleNext ] );
+
 	// The rail's rows are aria-disabled rather than disabled, so they stay focusable
 	// and keep announcing themselves. That makes swallowing the click our job.
 	const handleRailClick = useCallback(
@@ -171,9 +200,37 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 
 	const meta = steps[ step ];
 	const isStart = meta.kind === 'start';
+	const isFeatures = meta.kind === 'features';
 	const panelLines = PANEL_LINES[ step ];
 	const state: WizardState = { choices };
 	const wizardTitle = __( 'Set up Jetpack', 'jetpack-my-jetpack' );
+
+	const stepBody = {
+		start: <StartStep titleId={ titleId } title={ meta.title } description={ meta.description } />,
+		features: (
+			<FeaturesStep
+				titleId={ titleId }
+				title={ meta.title }
+				description={ meta.description }
+				modules={ modules }
+				wanted={ wantedModules }
+				onChange={ handleModuleChange }
+			/>
+		),
+		finish: <FinishStep titleId={ titleId } results={ moduleResults } />,
+		question: (
+			<ChoiceStep
+				titleId={ titleId }
+				title={ meta.title }
+				description={ meta.description }
+				options={ meta.options }
+				value={ choices[ step ] }
+				onChange={ handleChoice }
+				freeText={ siteTypeDetail }
+				onFreeTextChange={ setSiteTypeDetail }
+			/>
+		),
+	}[ meta.kind ];
 
 	const stepCount = sprintf(
 		/* translators: 1: number of the current step. 2: total number of steps. */
@@ -253,24 +310,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 							>
 								{ /* Keyed by step so the entrance replays as the content is swapped. */ }
 								<div key={ meta.id } className={ styles[ 'panel-content' ] }>
-									{ isStart ? (
-										<StartStep
-											titleId={ titleId }
-											title={ meta.title }
-											description={ meta.description }
-										/>
-									) : (
-										<ChoiceStep
-											titleId={ titleId }
-											title={ meta.title }
-											description={ meta.description }
-											options={ meta.options }
-											value={ choices[ step ] }
-											onChange={ handleChoice }
-											freeText={ siteTypeDetail }
-											onFreeTextChange={ setSiteTypeDetail }
-										/>
-									) }
+									{ stepBody }
 								</div>
 							</section>
 
@@ -313,8 +353,10 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 											<Button
 												variant="solid"
 												className={ styles[ 'primary-green' ] }
-												onClick={ handleNext }
+												onClick={ isFeatures ? handleApplyAndContinue : handleNext }
 												disabled={ ! canContinue( step, state ) }
+												loading={ isApplying }
+												loadingAnnouncement={ __( 'Setting up your site…', 'jetpack-my-jetpack' ) }
 											>
 												{ __( 'Continue', 'jetpack-my-jetpack' ) }
 											</Button>

@@ -987,6 +987,102 @@ $rail-row-min-height: 40px;
 	}
 }
 
+/* -------------------------------------------------------- feature step */
+
+/*
+ * The same hairline list as the answers above, with a switch on the end. The
+ * rows are not cards for the same reason: six boxes read as six objects, one
+ * list reads as one decision.
+ */
+.feature-rows {
+	display: flex;
+	flex-direction: column;
+}
+
+.feature-row__wrap {
+	animation: option-cascade $option-cascade-duration var(--wpds-motion-easing-expressive) both;
+	animation-delay: calc(#{$option-cascade-base} + var(--row-index) * #{$option-cascade-step});
+
+	@media (prefers-reduced-motion: reduce) {
+		animation-name: fade-in;
+	}
+
+	& + & .feature-row {
+		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	}
+}
+
+.feature-row {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-lg);
+	min-block-size: $row-min-height;
+	padding-block: var(--wpds-dimension-padding-lg);
+}
+
+.feature-row__copy {
+	min-inline-size: 0;
+	flex-grow: 1;
+}
+
+.feature-row__name {
+	display: block;
+	color: var(--wpds-color-foreground-content-neutral);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
+.feature-row__description {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	text-wrap: pretty;
+}
+
+/* --------------------------------------------------------- finish step */
+
+.finish-rows {
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.finish-row {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: var(--wpds-dimension-gap-lg);
+	padding-block: var(--wpds-dimension-padding-md);
+	animation: option-cascade $option-cascade-duration var(--wpds-motion-easing-expressive) both;
+	animation-delay: calc(#{$option-cascade-base} + var(--row-index) * #{$option-cascade-step});
+
+	@media (prefers-reduced-motion: reduce) {
+		animation-name: fade-in;
+	}
+
+	& + & {
+		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	}
+}
+
+.finish-row__name {
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+.finish-row__state {
+	flex-shrink: 0;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+/*
+ * The one row state that has to be read rather than skimmed, so it takes the
+ * error foreground rather than the weak neutral the others sit in.
+ */
+.finish-row__state--failed {
+	flex-shrink: 0;
+	color: var(--wpds-color-foreground-content-error);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
 /* ----------------------------------------------------------- start step */
 
 /*

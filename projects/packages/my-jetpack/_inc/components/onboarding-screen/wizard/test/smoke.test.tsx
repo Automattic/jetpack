@@ -41,6 +41,38 @@ jest.mock( '../../../../hooks/use-analytics', () => ( {
 	default: () => ( { recordEvent: mockRecordEvent } ),
 } ) );
 
+/*
+ * The six modules the feature step offers. Mocked here rather than driven through
+ * the modules store: these tests are about the shell and the way through it, and
+ * the hook has its own tests for what it does with the store.
+ */
+const mockModules = [
+	{ slug: 'stats', name: 'Jetpack Stats', description: 'Traffic insights.', activated: true },
+	{
+		slug: 'monitor',
+		name: 'Downtime Monitor',
+		description: 'Alerts if it goes down.',
+		activated: false,
+	},
+];
+
+const mockApply = jest.fn( ( modules: typeof mockModules, wanted: Record< string, boolean > ) =>
+	Promise.resolve(
+		modules.map( module => ( {
+			slug: module.slug,
+			name: module.name,
+			wanted: wanted[ module.slug ] ?? true,
+			ok: true,
+		} ) )
+	)
+);
+
+jest.mock( '../use-setup-modules', () => ( {
+	__esModule: true,
+	useSetupModules: () => ( { modules: mockModules, isLoading: false } ),
+	useApplySetupModules: () => ( { apply: mockApply, isApplying: false } ),
+} ) );
+
 const mockApiFetch = jest.fn( () => Promise.resolve( {} ) );
 
 jest.mock( '@wordpress/api-fetch', () => ( {
@@ -139,12 +171,18 @@ const PANEL_COPY = Object.values( PANEL_LINES ).map( lines =>
 
 const panelCopy = ( step: number ) => screen.getByText( PANEL_COPY[ step ] );
 
-// Each question step needs a choice before Continue is live. The start step is
-// not advanced this way: it leaves wp-admin entirely.
+// A question step needs a choice before Continue is live; the feature step starts
+// with every row answered. The start step is not advanced this way: it leaves
+// wp-admin entirely.
 const advance = async ( user: UserEvent, times: number ) => {
 	for ( let i = 0; i < times; i++ ) {
-		await user.click( screen.getAllByRole( 'radio' )[ 0 ] );
+		const radios = screen.queryAllByRole( 'radio' );
+		if ( radios.length ) {
+			await user.click( radios[ 0 ] );
+		}
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		// Leaving the feature step switches the modules, so the next one arrives async.
+		await waitFor( () => expect( screen.getByRole( 'heading', { level: 1 } ) ).toBeVisible() );
 	}
 };
 
@@ -614,9 +652,8 @@ describe( 'Leaving setup', () => {
 		// Walk to the last step, which is the only one that offers Finish.
 		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
-		await user.click( screen.getAllByRole( 'radio' )[ 0 ] );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
-		await user.click( screen.getByRole( 'link', { name: 'Finish' } ) );
+		await user.click( await screen.findByRole( 'link', { name: 'Finish' } ) );
 
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
 			path: '/my-jetpack/v1/site/onboarding/settled',
@@ -634,5 +671,68 @@ describe( 'Leaving setup', () => {
 		await user.click( screen.getByRole( 'link', { name: 'Skip setup' } ) );
 
 		await waitFor( () => expect( assignedHref() ).toBe( exitUrl ) );
+	} );
+} );
+
+describe( 'The feature step', () => {
+	const featureStep = async ( user: UserEvent ) => {
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+	};
+
+	it( 'lists the modules with Jetpack’s own names, every one switched on', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await featureStep( user );
+
+		expect( screen.getByRole( 'checkbox', { name: 'Jetpack Stats' } ) ).toBeChecked();
+		expect( screen.getByRole( 'checkbox', { name: 'Downtime Monitor' } ) ).toBeChecked();
+	} );
+
+	it( 'asks for what the switches say, not for what the site already does', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await featureStep( user );
+
+		await user.click( screen.getByRole( 'checkbox', { name: 'Downtime Monitor' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		expect( mockApply ).toHaveBeenCalledWith( mockModules, { monitor: false } );
+	} );
+
+	// The worst thing this flow could do is tick a module that never came on.
+	it( 'says which modules could not be changed', async () => {
+		mockApply.mockResolvedValueOnce( [
+			{ slug: 'stats', name: 'Jetpack Stats', wanted: true, ok: true },
+			{ slug: 'monitor', name: 'Downtime Monitor', wanted: true, ok: false },
+		] );
+
+		const { user } = setupWizard( { isUserConnected: true } );
+		await featureStep( user );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await waitFor( () =>
+			expect( heading() ).toHaveTextContent( '1 feature could not be changed' )
+		);
+		expect( screen.getByText( 'Could not be changed' ) ).toBeInTheDocument();
+	} );
+
+	it( 'does not claim a completion the user did not ask for', async () => {
+		mockApply.mockResolvedValueOnce( [
+			{ slug: 'stats', name: 'Jetpack Stats', wanted: false, ok: true },
+			{ slug: 'monitor', name: 'Downtime Monitor', wanted: false, ok: true },
+		] );
+
+		const { user } = setupWizard( { isUserConnected: true } );
+		await featureStep( user );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await waitFor( () => expect( heading() ).toHaveTextContent( 'Nothing changed on your site' ) );
+	} );
+
+	it( 'says so plainly when every one of them is on', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await featureStep( user );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await waitFor( () => expect( heading() ).toHaveTextContent( 'Your site is set up' ) );
 	} );
 } );
