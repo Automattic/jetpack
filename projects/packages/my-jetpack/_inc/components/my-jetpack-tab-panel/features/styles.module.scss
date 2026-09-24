@@ -1,9 +1,12 @@
+@use "sass:list";
+@use "sass:string";
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 // Matches the product-card icon palette in ../products/styles.module.scss.
 $feature-icon-background: #003010;
 $feature-icon-foreground: #0ced57;
 $banner-foreground: #daffdc;
+$band-ground: #f8f8f8;
 
 .content {
 	display: flex;
@@ -505,8 +508,8 @@ $banner-foreground: #daffdc;
 }
 
 
-// One height for every feature, sized to the tallest, so stepping never resizes
-// the dialog under the cursor; a longer body scrolls inside it.
+// One fixed height, so stepping never resizes the dialog under the cursor; a
+// longer body scrolls inside it.
 .modal-popup {
 	block-size: min(44rem, calc(100dvh - 5rem));
 	inline-size: min(42.5rem, calc(100vw - 3rem));
@@ -551,7 +554,7 @@ $banner-foreground: #daffdc;
 // on every step.
 .modal-band {
 	align-items: center;
-	background: #f8f8f8;
+	background: $band-ground;
 	block-size: 14rem;
 	box-sizing: border-box;
 	color: $feature-icon-background;
@@ -566,60 +569,38 @@ $banner-foreground: #daffdc;
 	position: relative;
 }
 
-// Registered so the band's colors and glow positions interpolate, which is what
-// morphs one feature's band into the next when stepping.
-@property --band-a {
-	syntax: "<color>";
-	inherits: true;
-	initial-value: #f3e4bf;
+// The band's custom properties, registered so they interpolate: that is what
+// morphs one feature's band into the next. band-palette.ts sets all of them.
+$band-props: (
+	a: "<color>",
+	b: "<color>",
+	c: "<color>",
+	ax: "<percentage>",
+	ay: "<percentage>",
+	bx: "<percentage>",
+	by: "<percentage>",
+	cx: "<percentage>",
+	cy: "<percentage>",
+);
+
+@each $name, $syntax in $band-props {
+
+	@property --band-#{$name} {
+		syntax: $syntax;
+		inherits: true;
+		initial-value: if($syntax == "<color>", transparent, 0%);
+	}
 }
 
-@property --band-b {
-	syntax: "<color>";
-	inherits: true;
-	initial-value: #d0d8f2;
-}
+// Every band property's name, for one transition that covers them all.
+@function band-prop-names() {
+	$names: ();
 
-@property --band-c {
-	syntax: "<color>";
-	inherits: true;
-	initial-value: #e3f0e0;
-}
+	@each $name, $syntax in $band-props {
+		$names: list.append($names, string.unquote("--band-#{$name}"), $separator: comma);
+	}
 
-@property --band-ax {
-	syntax: "<percentage>";
-	inherits: true;
-	initial-value: 24%;
-}
-
-@property --band-ay {
-	syntax: "<percentage>";
-	inherits: true;
-	initial-value: 22%;
-}
-
-@property --band-bx {
-	syntax: "<percentage>";
-	inherits: true;
-	initial-value: 66%;
-}
-
-@property --band-by {
-	syntax: "<percentage>";
-	inherits: true;
-	initial-value: 26%;
-}
-
-@property --band-cx {
-	syntax: "<percentage>";
-	inherits: true;
-	initial-value: 70%;
-}
-
-@property --band-cy {
-	syntax: "<percentage>";
-	inherits: true;
-	initial-value: 92%;
+	@return $names;
 }
 
 // One glow of the band, centered on that color's position.
@@ -638,22 +619,13 @@ $banner-foreground: #daffdc;
 		band-glow(38% 72%, a, 72%),
 		band-glow(44% 80%, b, 72%),
 		band-glow(60% 90%, c, 76%),
-		color-mix(in srgb, var(--band-c) 55%, #f8f8f8);
+		color-mix(in srgb, var(--band-c) 55%, #{$band-ground});
 	clip-path: polygon(calc(11% + $nudge) 0, 100% 0, 100% 100%, calc(60% + $nudge) 100%);
 	content: "";
 	inset: 0;
 	position: absolute;
 	transition-duration: 700ms;
-	transition-property:
-		--band-a,
-		--band-b,
-		--band-c,
-		--band-ax,
-		--band-ay,
-		--band-bx,
-		--band-by,
-		--band-cx,
-		--band-cy;
+	transition-property: band-prop-names();
 	transition-timing-function: ease;
 }
 
@@ -821,10 +793,11 @@ $banner-foreground: #daffdc;
 }
 
 // Beside text that wraps, a flex item shrinks unless told not to.
-.highlight-icon {
+.inline-icon {
 	flex-shrink: 0;
 }
 
+// auto-fit, so a feature with only one tier gets the full width.
 .modal-panels {
 	display: grid;
 	gap: var(--wpds-dimension-gap-xl);

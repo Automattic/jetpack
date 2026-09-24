@@ -10,7 +10,6 @@ const feature = {
 	in_jetpack: true,
 	plugin: '',
 	plans: [ { slug: 'complete', name: 'Jetpack Complete' } ],
-	paid_product: '',
 	paid_highlights: [ 'Secure file uploads' ],
 	upgrade: { path: '', name: '' },
 } as unknown as MainFeature;
@@ -42,7 +41,6 @@ const installedPlugin = {
 		plugin_url: 'https://wordpress.org/plugins/akismet/',
 		plans: [ { slug: 'security', name: 'Jetpack Security' } ],
 		upgrade: { path: '/add-akismet', name: 'Jetpack Akismet Anti-spam' },
-		paid_product: 'Jetpack Akismet Anti-spam',
 	},
 	status: 'inactive',
 	control: { kind: 'plugin', plugin: 'akismet' },

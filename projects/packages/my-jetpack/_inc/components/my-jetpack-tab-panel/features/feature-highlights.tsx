@@ -22,7 +22,7 @@ export function FeatureHighlights( { items, icon }: FeatureHighlightsProps ) {
 		<Stack direction="column" gap="sm" render={ <ul /> } className={ styles[ 'highlight-list' ] }>
 			{ items.map( item => (
 				<Stack key={ item } direction="row" align="start" gap="sm" render={ <li /> }>
-					<Icon icon={ icon } size={ 20 } className={ styles[ 'highlight-icon' ] } />
+					<Icon icon={ icon } size={ 20 } className={ styles[ 'inline-icon' ] } />
 					<Text variant="body-md">{ item }</Text>
 				</Stack>
 			) ) }

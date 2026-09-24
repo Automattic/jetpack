@@ -2,7 +2,7 @@ import { useViewportMatch } from '@wordpress/compose';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { check, chevronLeft, chevronRight } from '@wordpress/icons';
 import { Badge, Dialog, IconButton, Stack, Text } from '@wordpress/ui';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { getActivationStatusLabel } from '../utils';
 import { getArrowStep } from './arrow-navigation';
 import { getBandStyle } from './band-palette';
@@ -22,51 +22,67 @@ const CLOSE_ICON_ATTR = 'data-wp-ui-dialog-close-icon';
 
 type FeatureNeighbor = { slug: string; name: string };
 
-/**
- * The arrow key a step button answers to, for its tooltip and accessible description.
- *
- * @param key - Which arrow.
- * @return The shortcut.
- */
-function getArrowShortcut( key: 'left' | 'right' ) {
-	return key === 'left'
-		? {
-				displayShortcut: '←',
-				ariaKeyShortcut: 'ArrowLeft',
-				label: __( 'Left arrow', 'jetpack-my-jetpack' ),
-			}
-		: {
-				displayShortcut: '→',
-				ariaKeyShortcut: 'ArrowRight',
-				label: __( 'Right arrow', 'jetpack-my-jetpack' ),
-			};
-}
+type StepButtonProps = {
+	direction: 'previous' | 'next';
+	neighbor?: FeatureNeighbor;
+	rtl: boolean;
+	onStep: ( slug: string ) => void;
+};
 
 /**
- * The label for a step button, naming where it goes.
+ * A footer button that steps to a neighboring feature, naming it and the arrow key that does the same.
  *
- * @param direction - Which way the button steps.
- * @param neighbor  - The feature it steps to, if any.
- * @return The label.
+ * @param {StepButtonProps} props           - The component props.
+ * @param {string}          props.direction - Which way the button steps.
+ * @param {FeatureNeighbor} props.neighbor  - The feature it steps to, if any.
+ * @param {boolean}         props.rtl       - Whether the locale reads right to left.
+ * @param {Function}        props.onStep    - Switches the modal to another feature.
+ * @return The rendered component.
  */
-function getStepLabel( direction: 'previous' | 'next', neighbor?: FeatureNeighbor ): string {
-	if ( ! neighbor ) {
-		return direction === 'previous'
-			? __( 'Previous feature', 'jetpack-my-jetpack' )
-			: __( 'Next feature', 'jetpack-my-jetpack' );
+function StepButton( { direction, neighbor, rtl, onStep }: StepButtonProps ) {
+	const isLeft = ( direction === 'previous' ) !== rtl;
+	const onClick = useCallback( () => neighbor && onStep( neighbor.slug ), [ neighbor, onStep ] );
+
+	let label: string;
+	if ( neighbor ) {
+		label =
+			direction === 'previous'
+				? sprintf(
+						/* translators: %s is a feature name, such as "Stats". */
+						__( 'Previous: %s', 'jetpack-my-jetpack' ),
+						neighbor.name
+					)
+				: sprintf(
+						/* translators: %s is a feature name, such as "Stats". */
+						__( 'Next: %s', 'jetpack-my-jetpack' ),
+						neighbor.name
+					);
+	} else {
+		label =
+			direction === 'previous'
+				? __( 'Previous feature', 'jetpack-my-jetpack' )
+				: __( 'Next feature', 'jetpack-my-jetpack' );
 	}
 
-	return direction === 'previous'
-		? sprintf(
-				/* translators: %s is a feature name, such as "Stats". */
-				__( 'Previous: %s', 'jetpack-my-jetpack' ),
-				neighbor.name
-			)
-		: sprintf(
-				/* translators: %s is a feature name, such as "Stats". */
-				__( 'Next: %s', 'jetpack-my-jetpack' ),
-				neighbor.name
-			);
+	return (
+		<IconButton
+			icon={ isLeft ? chevronLeft : chevronRight }
+			label={ label }
+			shortcut={ {
+				displayShortcut: isLeft ? '←' : '→',
+				ariaKeyShortcut: isLeft ? 'ArrowLeft' : 'ArrowRight',
+				label: isLeft
+					? __( 'Left arrow', 'jetpack-my-jetpack' )
+					: __( 'Right arrow', 'jetpack-my-jetpack' ),
+			} }
+			variant="minimal"
+			tone="neutral"
+			size="small"
+			disabled={ ! neighbor }
+			focusableWhenDisabled
+			onClick={ onClick }
+		/>
+	);
 }
 
 type FeatureModalProps = {
@@ -117,8 +133,16 @@ export function FeatureModal( {
 		[ onClose ]
 	);
 
-	const popupRef = useRef< HTMLDivElement >( null );
+	const popupRef = useRef< HTMLDivElement | null >( null );
+	// Also held in state: the portal mounts the popup after the first effects run.
+	const [ popupNode, setPopupNode ] = useState< HTMLDivElement | null >( null );
+	const setPopupRef = useCallback( ( node: HTMLDivElement | null ) => {
+		popupRef.current = node;
+		setPopupNode( node );
+	}, [] );
 	const claimedRef = useRef< string | null >( null );
+	// Set by an arrow-key step, so the new feature's action takes focus wherever it was.
+	const steppedRef = useRef( false );
 
 	// The header's action, which is what the modal is open in order to reach — not the
 	// first link in the body.
@@ -144,7 +168,7 @@ export function FeatureModal( {
 			claimedRef.current === feature.slug ||
 			! popup ||
 			! active ||
-			( active !== popup && ! active.hasAttribute( CLOSE_ICON_ATTR ) )
+			( ! steppedRef.current && active !== popup && ! active.hasAttribute( CLOSE_ICON_ATTR ) )
 		) {
 			return;
 		}
@@ -153,43 +177,42 @@ export function FeatureModal( {
 
 		if ( action ) {
 			claimedRef.current = feature.slug;
+			steppedRef.current = false;
 			action.focus();
 		}
 	}, [ feature.slug, findAction, state ] );
 
+	const rtl = isRTL();
+
 	useEffect( () => {
 		const onKeyDown = ( event: KeyboardEvent ) => {
-			const step = getArrowStep( event, isRTL() );
-			const target = step === 'previous' ? previous : next;
+			const step = getArrowStep( event, rtl );
 
 			if ( ! step ) {
 				return;
 			}
 
 			event.preventDefault();
+			const target = step === 'previous' ? previous : next;
 
 			if ( target ) {
-				// Parked on the dialog, the claim above hands focus to the new feature's action.
-				popupRef.current?.focus();
+				steppedRef.current = true;
 				onStep( target.slug );
 			}
 		};
 
 		// Capture phase: the dialog stops keydown propagating, so bubbling never reaches us.
-		document.addEventListener( 'keydown', onKeyDown, true );
-		return () => document.removeEventListener( 'keydown', onKeyDown, true );
-	}, [ next, onStep, previous ] );
+		popupNode?.addEventListener( 'keydown', onKeyDown, true );
+		return () => popupNode?.removeEventListener( 'keydown', onKeyDown, true );
+	}, [ next, onStep, popupNode, previous, rtl ] );
 
 	// Only a centered dialog has room for a pinned footer; the phone sheet keeps its links in the body.
 	const isDesktop = useViewportMatch( 'small' );
-	const rtl = isRTL();
-	const onPrevious = useCallback( () => previous && onStep( previous.slug ), [ onStep, previous ] );
-	const onNext = useCallback( () => next && onStep( next.slug ), [ next, onStep ] );
 
 	return (
 		<Dialog.Root open onOpenChange={ onOpenChange }>
 			<Dialog.Popup
-				ref={ popupRef }
+				ref={ setPopupRef }
 				size="stretch"
 				className={ styles[ 'modal-popup' ] }
 				portal={ <Dialog.Portal className={ styles[ 'modal-portal' ] } /> }
@@ -245,7 +268,6 @@ export function FeatureModal( {
 						{ feature.long_description || product?.longDescription || feature.description }
 					</Dialog.Description>
 
-					{ /* auto-fit rather than fixed tracks: a feature with only one tier gets the full width. */ }
 					<div className={ styles[ 'modal-panels' ] }>
 						{ freeHighlights.length > 0 && (
 							<section className={ styles[ 'detail-section' ] }>
@@ -266,28 +288,13 @@ export function FeatureModal( {
 					<Dialog.Footer className={ styles[ 'modal-footer' ] }>
 						<FeatureLinks feature={ feature } />
 						<Stack direction="row" gap="xs" className={ styles[ 'modal-steps' ] }>
-							<IconButton
-								icon={ rtl ? chevronRight : chevronLeft }
-								label={ getStepLabel( 'previous', previous ) }
-								shortcut={ getArrowShortcut( rtl ? 'right' : 'left' ) }
-								variant="minimal"
-								tone="neutral"
-								size="small"
-								disabled={ ! previous }
-								focusableWhenDisabled
-								onClick={ onPrevious }
+							<StepButton
+								direction="previous"
+								neighbor={ previous }
+								rtl={ rtl }
+								onStep={ onStep }
 							/>
-							<IconButton
-								icon={ rtl ? chevronLeft : chevronRight }
-								label={ getStepLabel( 'next', next ) }
-								shortcut={ getArrowShortcut( rtl ? 'left' : 'right' ) }
-								variant="minimal"
-								tone="neutral"
-								size="small"
-								disabled={ ! next }
-								focusableWhenDisabled
-								onClick={ onNext }
-							/>
+							<StepButton direction="next" neighbor={ next } rtl={ rtl } onStep={ onStep } />
 						</Stack>
 					</Dialog.Footer>
 				) }

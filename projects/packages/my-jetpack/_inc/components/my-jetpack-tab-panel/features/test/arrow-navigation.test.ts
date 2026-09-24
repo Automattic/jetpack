@@ -6,6 +6,7 @@ const event = ( key: string, overrides = {} ) => ( {
 	ctrlKey: false,
 	metaKey: false,
 	shiftKey: false,
+	defaultPrevented: false,
 	target: null,
 	...overrides,
 } );
@@ -46,5 +47,17 @@ describe( 'getArrowStep', () => {
 		const target = { closest: () => null };
 
 		expect( getArrowStep( event( 'ArrowRight', { target } ), false ) ).toBe( 'next' );
+	} );
+
+	it( 'leaves a key something else already handled', () => {
+		expect( getArrowStep( event( 'ArrowRight', { defaultPrevented: true } ), false ) ).toBeNull();
+	} );
+
+	it( 'leaves the arrows to a menu or other arrow-key widget', () => {
+		const target = {
+			closest: ( selector: string ) => ( selector.includes( '[role="menu"]' ) ? {} : null ),
+		};
+
+		expect( getArrowStep( event( 'ArrowLeft', { target } ), false ) ).toBeNull();
 	} );
 } );

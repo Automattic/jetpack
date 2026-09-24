@@ -2,7 +2,7 @@ export type ArrowStep = 'previous' | 'next';
 
 type ArrowEvent = Pick<
 	KeyboardEvent,
-	'key' | 'altKey' | 'ctrlKey' | 'metaKey' | 'shiftKey' | 'target'
+	'key' | 'altKey' | 'ctrlKey' | 'metaKey' | 'shiftKey' | 'target' | 'defaultPrevented'
 >;
 
 /**
@@ -19,15 +19,21 @@ export function getArrowStep( event: ArrowEvent, rtl: boolean ): ArrowStep | nul
 		return null;
 	}
 
-	// A shortcut of its own: leave it to the browser.
-	if ( event.altKey || event.ctrlKey || event.metaKey || event.shiftKey ) {
+	// A shortcut of its own, or a key something else already handled: leave it be.
+	if (
+		event.defaultPrevented ||
+		event.altKey ||
+		event.ctrlKey ||
+		event.metaKey ||
+		event.shiftKey
+	) {
 		return null;
 	}
 
-	// A field gets the arrows first — there they move a caret or a selection.
+	// Fields and arrow-key widgets get the arrows first; there they move a caret or a selection.
 	if (
 		( event.target as HTMLElement | null )?.closest?.(
-			'input, textarea, select, [contenteditable="true"]'
+			'input, textarea, select, [contenteditable="true"], [role="menu"], [role="listbox"], [role="radiogroup"], [role="tablist"], [role="slider"]'
 		)
 	) {
 		return null;

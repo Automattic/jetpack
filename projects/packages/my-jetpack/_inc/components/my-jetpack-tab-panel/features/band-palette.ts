@@ -29,7 +29,7 @@ const PALETTES: Record< string, Palette > = {
 	videopress: [ PEACH, PERIWINKLE, YELLOW, 22, 26, 66, 20, 72, 96 ],
 };
 
-const DEFAULT: Palette = [ YELLOW, PERIWINKLE, MINT, 24, 22, 66, 26, 70, 92 ];
+const DEFAULT = PALETTES[ 'activity-log' ];
 
 /**
  * The custom properties that paint a feature's band.

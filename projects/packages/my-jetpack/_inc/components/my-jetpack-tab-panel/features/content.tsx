@@ -204,8 +204,8 @@ export function FeaturesContent() {
 			{ open && (
 				<FeatureModal
 					state={ open }
-					previous={ visible[ openIndex - 1 ]?.feature }
-					next={ openIndex < 0 ? undefined : visible[ openIndex + 1 ]?.feature }
+					previous={ openIndex > 0 ? visible[ openIndex - 1 ].feature : undefined }
+					next={ openIndex >= 0 ? visible[ openIndex + 1 ]?.feature : undefined }
 					position={ openIndex + 1 }
 					total={ visible.length }
 					onStep={ openFeature }

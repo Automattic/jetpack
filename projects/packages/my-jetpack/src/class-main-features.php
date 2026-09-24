@@ -515,9 +515,11 @@ class Main_Features {
 			);
 		}
 
-		$complete_class = Products::get_product_class( 'complete' );
+		$complete_class = in_array( 'complete', $definition['plans'] ?? array(), true )
+			? Products::get_product_class( 'complete' )
+			: null;
 
-		if ( $complete_class && in_array( 'complete', $definition['plans'] ?? array(), true ) ) {
+		if ( $complete_class ) {
 			return array(
 				'path' => '/add-complete',
 				'name' => $complete_class::get_title(),
@@ -849,7 +851,6 @@ class Main_Features {
 				'upgrade'          => self::get_upgrade( $definition ),
 				'screenshot'       => $definition['image'],
 				'plans'            => self::get_plan_badges( $definition ),
-				'paid_product'     => $definition['paid_product'] ?? '',
 				'info_url'         => $definition['info_url'],
 				'docs_url'         => $definition['docs_url'],
 				// Join keys: the UI reads live state from the module and plugin it names,

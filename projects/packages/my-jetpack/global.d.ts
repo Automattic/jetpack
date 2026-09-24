@@ -497,7 +497,6 @@ type MainFeature = {
 	upgrade: { path: string; name: string };
 	screenshot: string;
 	plans: Array< { slug: string; name: string } >;
-	paid_product: string;
 	info_url: string;
 	docs_url: string;
 	product: string;

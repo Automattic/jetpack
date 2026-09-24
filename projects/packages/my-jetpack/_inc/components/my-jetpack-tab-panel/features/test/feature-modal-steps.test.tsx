@@ -46,6 +46,8 @@ const openModal = ( props: { previous?: typeof stats; next?: typeof stats } ) =>
 describe( 'FeatureModal stepping', () => {
 	it( 'steps to the neighbouring features with the arrow keys', async () => {
 		const onStep = openModal( { previous: stats, next: podcast } );
+		// A browser traps focus in the dialog; jsdom leaves it on the body.
+		screen.getByRole( 'dialog' ).focus();
 
 		await userEvent.keyboard( '{ArrowRight}' );
 		await userEvent.keyboard( '{ArrowLeft}' );
@@ -55,6 +57,7 @@ describe( 'FeatureModal stepping', () => {
 
 	it( 'stays put at either end of the list', async () => {
 		const onStep = openModal( {} );
+		screen.getByRole( 'dialog' ).focus();
 
 		await userEvent.keyboard( '{ArrowRight}{ArrowLeft}' );
 

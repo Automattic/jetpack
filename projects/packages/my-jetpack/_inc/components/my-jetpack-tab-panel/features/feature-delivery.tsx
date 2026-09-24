@@ -86,7 +86,7 @@ export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 
 	return (
 		<Stack direction="row" align="start" gap="sm" className={ styles[ 'delivery-note' ] }>
-			<Icon icon={ info } size={ 20 } className={ styles[ 'highlight-icon' ] } />
+			<Icon icon={ info } size={ 20 } className={ styles[ 'inline-icon' ] } />
 			<Text variant="body-sm">
 				{ createInterpolateElement( note, {
 					plugin: feature.plugin_url ? (
