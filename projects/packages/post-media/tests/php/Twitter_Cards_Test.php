@@ -473,14 +473,10 @@ class Twitter_Cards_Test extends BaseTestCase {
 	 * Settings > Sharing renders and saves the Site Tag itself, on every screen that shows it.
 	 */
 	public function test_init_leaves_the_site_tag_setting_to_the_sharing_screen() {
-		remove_all_actions( 'admin_init' );
-		remove_all_actions( 'sharing_global_options' );
-		remove_all_actions( 'sharing_admin_update' );
-
 		Twitter_Cards::init();
 
-		$this->assertFalse( has_action( 'admin_init' ) );
-		$this->assertFalse( has_action( 'sharing_global_options' ) );
-		$this->assertFalse( has_action( 'sharing_admin_update' ) );
+		$this->assertFalse( has_action( 'admin_init', array( Twitter_Cards::class, 'settings_init' ) ) );
+		$this->assertFalse( has_action( 'sharing_global_options', array( Twitter_Cards::class, 'sharing_global_options' ) ) );
+		$this->assertFalse( has_action( 'sharing_admin_update', array( Twitter_Cards::class, 'settings_validate' ) ) );
 	}
 }

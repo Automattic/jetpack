@@ -13,6 +13,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../lib/class-jetpack-likes-settings.php';
+require_once __DIR__ . '/../lib/trait-section-environment.php';
 
 /**
  * @covers \Automattic\Jetpack\Sharing_Likes\Settings\Extras_Section
@@ -20,10 +21,24 @@ require_once __DIR__ . '/../lib/class-jetpack-likes-settings.php';
 #[CoversClass( Extras_Section::class )]
 class Extras_Section_Test extends BaseTestCase {
 
+	use Section_Environment;
+
+	/**
+	 * This section only exists where the services list is hidden, which is what a
+	 * site with no connection and no modules gives us.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		$this->set_up_site();
+		$this->given_connection( false );
+	}
+
 	/**
 	 * Leave nothing hooked for the next case.
 	 */
 	public function tear_down() {
+		$this->tear_down_site();
 		remove_all_actions( 'sharing_global_options' );
 		remove_all_filters( 'jetpack_disable_twitter_cards' );
 		ob_start();

@@ -279,19 +279,52 @@ class Settings_Page_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'value="' . Settings_Form::SECTION_LIKES . '"', $html );
 		$this->assertStringContainsString( 'value="' . Settings_Form::SECTION_PLACEMENT . '"', $html );
 
-		preg_match_all( '/<(?:input|select|textarea)\b[^>]*>/', $html, $fields );
-		foreach ( $fields[0] as $field ) {
-			if ( str_contains( $field, 'name="_wp' ) || str_contains( $field, 'name="jetpack_sharing_action"' ) || str_contains( $field, 'name="submit"' ) ) {
-				continue;
-			}
-			$this->assertStringContainsString( 'form="' . Settings_Form::ID . '"', $field );
-		}
+		$this->assert_every_field_joins_the_form( $html );
 
 		preg_match( '/<form[^>]*id="' . Settings_Form::ID . '"[^>]*>.*?name="_wpnonce" value="([^"]+)"/s', $html, $matches );
 
 		$this->assertNotEmpty( $matches, 'The page form carries no nonce.' );
 		$this->assertSame( 1, wp_verify_nonce( $matches[1], Settings_Form::NONCE_ACTION ) );
 		$this->assertStringContainsString( 'name="jetpack_sharing_action" value="save-settings"', $html );
+	}
+
+	/**
+	 * The services table's rows sit outside any form of their own, so the `form`
+	 * attribute is the only thing that submits them. A Likes-only screen never
+	 * renders that table, which is how the checkbox below escaped the check above.
+	 */
+	public function test_saves_the_services_sections_own_rows_through_the_same_button(): void {
+		$this->given_connection( true );
+		$this->given_modules( array( 'sharedaddy' ) );
+
+		$html = $this->render_screen();
+
+		$this->assertStringContainsString( 'name="disable_resources"', $html );
+		$this->assertStringContainsString( 'name="jetpack-twitter-cards-site-tag"', $html );
+		$this->assert_every_field_joins_the_form( $html );
+	}
+
+	/**
+	 * Every field on the screen names the page form, bar the ones the form prints itself.
+	 *
+	 * The services list nests its own forms, which its script submits over AJAX;
+	 * fields inside a form of their own need no `form` attribute.
+	 *
+	 * @param string $html Rendered screen.
+	 */
+	private function assert_every_field_joins_the_form( string $html ): void {
+		$loose = preg_replace( '/<form\b(?![^>]*id="' . Settings_Form::ID . '")[^>]*>.*?<\/form>/s', '', $html );
+
+		preg_match_all( '/<(?:input|select|textarea)\b[^>]*>/', (string) $loose, $fields );
+
+		$this->assertNotEmpty( $fields[0], 'The screen rendered no fields to check.' );
+
+		foreach ( $fields[0] as $field ) {
+			if ( str_contains( $field, 'name="_wp' ) || str_contains( $field, 'name="jetpack_sharing_action"' ) || str_contains( $field, 'name="submit"' ) ) {
+				continue;
+			}
+			$this->assertStringContainsString( 'form="' . Settings_Form::ID . '"', $field );
+		}
 	}
 
 	/**

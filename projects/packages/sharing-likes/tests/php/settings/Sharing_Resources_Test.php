@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../lib/trait-section-environment.php';
@@ -53,13 +54,43 @@ class Sharing_Resources_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The checkbox reflects the stored setting.
+	 * Stored settings and whether the box comes back ticked.
+	 *
+	 * @return array<string, array{0: mixed, 1: bool}>
 	 */
-	public function test_renders_the_stored_setting_while_sharing_configures(): void {
-		$this->given_sharing_configures();
-		update_option( Sharing_Resources::OPTION, 1 );
+	public static function provide_stored_settings(): array {
+		return array(
+			'on'      => array( 1, true ),
+			'off'     => array( 0, false ),
+			'not set' => array( null, false ),
+		);
+	}
 
-		$this->assertStringContainsString( 'name="disable_resources" checked=\'checked\'', Sharing_Resources::render() );
+	/**
+	 * The checkbox reflects the stored setting, and its label points at it.
+	 *
+	 * @param mixed $stored  Stored option value, or null to leave it unset.
+	 * @param bool  $checked Whether the box should come back ticked.
+	 * @dataProvider provide_stored_settings
+	 */
+	#[DataProvider( 'provide_stored_settings' )]
+	public function test_renders_the_stored_setting_while_sharing_configures( $stored, bool $checked ): void {
+		$this->given_sharing_configures();
+		if ( null !== $stored ) {
+			update_option( Sharing_Resources::OPTION, $stored );
+		}
+
+		$markup = Sharing_Resources::render();
+
+		$this->assertStringContainsString( '<label for="disable_css">Disable CSS and JS</label>', $markup );
+		$this->assertStringContainsString( 'id="disable_css" type="checkbox" name="disable_resources"', $markup );
+
+		// Not a bare "checked": the description says "If this option is checked".
+		if ( $checked ) {
+			$this->assertStringContainsString( 'name="disable_resources" checked=\'checked\'', $markup );
+		} else {
+			$this->assertStringNotContainsString( "checked='checked'", $markup );
+		}
 	}
 
 	/**
@@ -86,13 +117,14 @@ class Sharing_Resources_Test extends BaseTestCase {
 	public function test_save_stores_the_checkbox(): void {
 		$this->given_sharing_configures();
 
+		// The literal, because `sharing_init()` in the Jetpack plugin reads that name.
 		$_POST['disable_resources'] = 'on';
 		Sharing_Resources::save();
-		$this->assertSame( 1, get_option( Sharing_Resources::OPTION ) );
+		$this->assertSame( 1, get_option( 'sharedaddy_disable_resources' ) );
 
 		$_POST = array();
 		Sharing_Resources::save();
-		$this->assertSame( 0, get_option( Sharing_Resources::OPTION ) );
+		$this->assertSame( 0, get_option( 'sharedaddy_disable_resources' ) );
 	}
 
 	/**
