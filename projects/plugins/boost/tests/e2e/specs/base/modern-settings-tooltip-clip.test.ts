@@ -202,7 +202,9 @@ test( 'the premium tooltip keeps focus on its icon and closes on Escape', async 
 	await expect( trigger ).toBeFocused();
 } );
 
-test( 'the premium tooltip rings its icon on keyboard focus only', async ( { page } ) => {
+test( 'the premium tooltip rings its icon when focused, like other WordPress buttons', async ( {
+	page,
+} ) => {
 	await page.setViewportSize( { width: 1440, height: 900 } );
 	await page.goto( 'http://boost-settings.test/' );
 	const trigger = page.locator( '.icon-tooltip-wrapper button' ).first();
@@ -214,7 +216,7 @@ test( 'the premium tooltip rings its icon on keyboard focus only', async ( { pag
 	} ).toPass( { intervals: [ 0 ], timeout: 10000 } );
 	await expect( icon ).toHaveCSS( 'outline-style', 'solid' );
 
-	// Pressing the icon focuses the button too, but not visibly.
+	// A mouse press focuses the button too; the ring appears once it is released.
 	await page.reload();
 	const box = ( await icon.boundingBox() )!;
 	await page.mouse.move( box.x + box.width / 2, box.y + box.height / 2 );
@@ -222,4 +224,5 @@ test( 'the premium tooltip rings its icon on keyboard focus only', async ( { pag
 	await expect( trigger ).toBeFocused();
 	await expect( icon ).toHaveCSS( 'outline-style', 'none' );
 	await page.mouse.up();
+	await expect( icon ).toHaveCSS( 'outline-style', 'solid' );
 } );

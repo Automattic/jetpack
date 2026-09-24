@@ -77,11 +77,6 @@ $arrow-color: var(--jp-gray);
 	.components-button.is-link:focus:not(:disabled) {
 		box-shadow: none;
 	}
-
-	// The icon keeps focus while open, so only keyboard focus draws a ring.
-	.components-button.is-link:focus:not(:focus-visible) {
-		outline: none;
-	}
 }
 
 // A text trigger flows with the sentence around it.

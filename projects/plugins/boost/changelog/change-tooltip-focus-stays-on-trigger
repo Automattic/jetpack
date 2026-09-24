@@ -1,5 +1,4 @@
 Significance: patch
 Type: changed
-Comment: Test-only: tooltip text queries now skip the speak() live region.
 
-
+Critical CSS: Show the focus ring on the manual regeneration info icon after clicking it, as on other settings controls.
