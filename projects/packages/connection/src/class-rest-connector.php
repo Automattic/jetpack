@@ -744,14 +744,18 @@ class REST_Connector {
 	}
 
 	/**
-	 * Verify that user is allowed to disconnect Jetpack.
+	 * Verify that user is allowed to restore the connection.
+	 *
+	 * Users with only 'jetpack_connect_user' get through, but Manager::restore()
+	 * limits them to refreshing their own user token.
 	 *
 	 * @since 1.15.0
+	 * @since $$next-version$$ Also allows 'jetpack_connect_user'.
 	 *
-	 * @return bool|WP_Error Whether user has the capability 'jetpack_disconnect'.
+	 * @return bool|WP_Error Whether user has the capability 'jetpack_reconnect' or 'jetpack_connect_user'.
 	 */
 	public static function jetpack_reconnect_permission_check() {
-		if ( current_user_can( 'jetpack_reconnect' ) ) {
+		if ( current_user_can( 'jetpack_reconnect' ) || current_user_can( 'jetpack_connect_user' ) ) {
 			return true;
 		}
 

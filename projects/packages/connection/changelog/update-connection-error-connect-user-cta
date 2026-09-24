@@ -1,4 +1,4 @@
-Significance: patch
-Type: added
+Significance: minor
+Type: changed
 
-Flag a user's own broken account connection as one they can reconnect themselves.
+Let users without admin access restore their own broken account connection through the reconnect endpoint, without touching the site connection.

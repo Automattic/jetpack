@@ -11,12 +11,10 @@ jest.unstable_mockModule( '../../../components/use-connection', () => ( {
 } ) );
 
 // Restore-connection touches window/REST at import; stub it out.
-const relinkUser = jest.fn( () => Promise.resolve() );
 jest.unstable_mockModule( '../../use-restore-connection', () => ( {
 	__esModule: true,
 	default: () => ( {
 		restoreConnection: jest.fn(),
-		relinkUser,
 		isRestoringConnection: false,
 		restoreConnectionError: null,
 	} ),
@@ -183,69 +181,6 @@ describe( 'ConnectionError', () => {
 		expect( props.actions ).toHaveLength( 0 );
 		// The default "Restore Connection" fallback must also be suppressed.
 		expect( props.restoreConnectionCallback ).toBeNull();
-	} );
-
-	describe( "a non-admin's own broken user token", () => {
-		const ownTokenError = {
-			no_valid_user_token: {
-				'7': {
-					error_message: 'Your connection is broken.',
-					error_code: 'no_valid_user_token',
-					user_id: '7',
-					audience: 'user',
-					error_data: { action: 'none', self_service: 'connect_user' },
-				},
-			},
-		};
-
-		it.each( [
-			[ 'unlinks the stored token first', true ],
-			[ 'skips the unlink when no token is stored', false ],
-		] )( 'offers Reconnect your account and %s', ( _, isConnected ) => {
-			mockConnection( {
-				connectionErrors: ownTokenError,
-				userConnectionData: { currentUser: { id: 7, isConnected } },
-			} );
-
-			render( <ConnectionError /> );
-
-			const props = ConnectionErrorNotice.mock.calls[ 0 ][ 0 ];
-			expect( props.actions ).toHaveLength( 1 );
-			expect( props.actions[ 0 ].label ).toBe( 'Reconnect your account' );
-
-			props.actions[ 0 ].onClick();
-			expect( relinkUser ).toHaveBeenCalledWith( isConnected );
-		} );
-
-		// The notice has one CTA slot, so the first resolvable error in store order takes it.
-		it.each( [
-			[ 'relink first', [ 'no_valid_user_token', 'plugin_error' ], 'Reconnect your account' ],
-			[ 'reporter action first', [ 'plugin_error', 'no_valid_user_token' ], 'Update plugin' ],
-		] )( 'takes the CTA from the first of several own errors (%s)', ( _, order, label ) => {
-			const errors = {
-				...ownTokenError,
-				plugin_error: {
-					'7': {
-						error_message: 'The plugin needs updating.',
-						error_code: 'plugin_error',
-						user_id: '7',
-						audience: 'user',
-						error_data: { action: 'update_plugin', action_label: 'Update plugin' },
-					},
-				},
-			};
-			mockConnection( {
-				connectionErrors: Object.fromEntries( order.map( code => [ code, errors[ code ] ] ) ),
-				userConnectionData: { currentUser: { id: 7, isConnected: true } },
-			} );
-
-			render( <ConnectionError actionHandlers={ { update_plugin: jest.fn() } } /> );
-
-			const props = ConnectionErrorNotice.mock.calls[ 0 ][ 0 ];
-			expect( props.actions.map( action => action.label ) ).toEqual( [ label ] );
-			// Both errors are still described, whichever supplies the CTA.
-			expect( props.errorGroups ).toHaveLength( 2 );
-		} );
 	} );
 
 	// Only that user can restore their own token, so the notice drops the error —

@@ -147,6 +147,6 @@ $manager = new Manager( 'plugin-slug' );
 $manager->reconnect();
 ```
 
-If you want something smarter, you can use `restore()`. This method will check for your tokens health and refresh only what's needed.
+If you want something smarter, you can use `restore()`. This method will check for your tokens health and refresh only what's needed. For a user without `jetpack_reconnect` it only ever refreshes that user's own token, and returns a `WP_Error` for anything that needs the site connection restored.
 
 From your plugin, most likely you will want to make a request to `jetpack/v4/connection/reconnect`.

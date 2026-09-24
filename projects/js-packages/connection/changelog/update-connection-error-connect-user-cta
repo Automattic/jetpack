@@ -1,4 +1,4 @@
-Significance: minor
-Type: added
+Significance: patch
+Type: fixed
 
-Add a "Reconnect your account" action to connection error notices for users whose own account connection is broken.
+Show restore failures in connection error notices without the "ApiError:" prefix.

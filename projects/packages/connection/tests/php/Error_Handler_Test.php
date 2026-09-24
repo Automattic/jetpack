@@ -2848,9 +2848,8 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that a viewer's own broken user token is still shown to them without
-	 * jetpack_connect: relinking their own account is self-service (jetpack_connect_user),
-	 * which non-admins hold once the site has a connected owner.
+	 * Test that a viewer's own broken user token is shown to them without jetpack_connect,
+	 * with the default reconnect CTA: Manager::restore() limits them to their own token.
 	 */
 	public function test_get_displayable_errors_shows_own_user_error_to_non_admin() {
 		$owner_id = wp_insert_user(
@@ -2884,24 +2883,58 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'no_valid_user_token', $result );
 		$displayed = $result['no_valid_user_token'][ (string) $editor_id ];
 		$this->assertSame( 'user', $displayed['audience'] );
-		$this->assertSame(
-			'none',
-			$displayed['error_data']['action'],
-			'The reconnect CTA is site-scoped, so it is suppressed for a viewer who can only relink their own account.'
-		);
-		$this->assertSame( 'connect_user', $displayed['error_data']['self_service'] );
+		$this->assertArrayNotHasKey( 'action', $displayed['error_data'] ?? array() );
 	}
 
 	/**
-	 * Test that a reporter-declared action on a non-admin's own error is neither
-	 * replaced with 'none' nor flagged for self-service relinking.
+	 * Test that a non-admin's own error loses the reconnect CTA while a site connection error is on record.
 	 */
-	public function test_get_displayable_errors_keeps_reporter_action_on_own_error_for_non_admin() {
+	public function test_get_displayable_errors_withholds_non_admin_cta_while_site_connection_is_broken() {
+		$editor_id = $this->set_up_owner_and_viewer( 'editor' );
+		$this->store_verified_errors(
+			array(
+				'no_valid_blog_token' => array( '0' ),
+				'no_valid_user_token' => array( (string) $editor_id ),
+			)
+		);
+
+		$result = $this->error_handler->get_displayable_errors();
+
+		$this->assertArrayNotHasKey( 'no_valid_blog_token', $result, 'The site error itself stays hidden from a non-admin.' );
+		$displayed = $result['no_valid_user_token'][ (string) $editor_id ];
+		$this->assertSame( 'none', $displayed['error_data']['action'] );
+		$this->assertStringContainsString( 'Ask an administrator', $displayed['error_message'] );
+	}
+
+	/**
+	 * Test that an admin keeps the reconnect CTA on their own error alongside a site connection error.
+	 */
+	public function test_get_displayable_errors_keeps_admin_cta_while_site_connection_is_broken() {
+		$admin_id = $this->set_up_owner_and_viewer( 'administrator' );
+		$this->store_verified_errors(
+			array(
+				'no_valid_blog_token' => array( '0' ),
+				'no_valid_user_token' => array( (string) $admin_id ),
+			)
+		);
+
+		$result = $this->error_handler->get_displayable_errors();
+
+		$this->assertArrayNotHasKey( 'action', $result['no_valid_user_token'][ (string) $admin_id ]['error_data'] ?? array() );
+	}
+
+	/**
+	 * Creates a connected owner and a second user with the given role, and makes the second user current.
+	 *
+	 * @param string $role The viewer's role.
+	 * @return int The viewer's user ID.
+	 */
+	private function set_up_owner_and_viewer( $role ) {
 		$owner_id = wp_insert_user(
 			array(
-				'user_login' => 'declared_action_owner',
+				'user_login' => 'site_broken_owner',
 				'user_pass'  => 'password',
-				'user_email' => 'declared_action_owner@example.org',
+				'user_email' => 'site_broken_owner@example.org',
 				'role'       => 'administrator',
 			)
 		);
@@ -2909,44 +2942,22 @@ class Error_Handler_Test extends BaseTestCase {
 		\Jetpack_Options::update_option( 'master_user', $owner_id );
 		\Jetpack_Options::update_option( 'user_tokens', array( $owner_id => 'token.secret.' . $owner_id ) );
 
-		$editor_id = wp_insert_user(
+		$viewer_id = wp_insert_user(
 			array(
-				'user_login' => 'declared_action_editor',
+				'user_login' => 'site_broken_viewer',
 				'user_pass'  => 'password',
-				'user_email' => 'declared_action_editor@example.org',
-				'role'       => 'editor',
+				'user_email' => 'site_broken_viewer@example.org',
+				'role'       => $role,
 			)
 		);
-		$this->assertIsInt( $editor_id );
-		wp_set_current_user( $editor_id );
+		$this->assertIsInt( $viewer_id );
+		wp_set_current_user( $viewer_id );
 
-		update_option(
-			Error_Handler::STORED_VERIFIED_ERRORS_OPTION,
-			array(
-				'no_valid_user_token' => array(
-					(string) $editor_id => array(
-						'error_code'    => 'no_valid_user_token',
-						'user_id'       => (string) $editor_id,
-						'error_message' => 'Test message',
-						'error_data'    => array( 'action' => 'custom_action' ),
-						'timestamp'     => time(),
-						'nonce'         => 'test_nonce',
-						'error_type'    => 'xmlrpc',
-					),
-				),
-			)
-		);
-
-		$error_data = $this->error_handler->get_displayable_errors()['no_valid_user_token'][ (string) $editor_id ]['error_data'];
-
-		$this->assertSame( 'custom_action', $error_data['action'] );
-		$this->assertArrayNotHasKey( 'self_service', $error_data );
+		return $viewer_id;
 	}
 
 	/**
-	 * Test that a viewer who can restore the site keeps the reconnect CTA on their own
-	 * user-token error: the suppression above is about the missing capability, not the
-	 * audience.
+	 * Test that a viewer who can restore the site keeps the reconnect CTA on their own user-token error.
 	 */
 	public function test_get_displayable_errors_keeps_reconnect_on_own_error_for_admin() {
 		$owner_id = wp_insert_user(
@@ -2978,7 +2989,6 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$this->assertArrayHasKey( 'no_valid_user_token', $result );
 		$this->assertArrayNotHasKey( 'action', $result['no_valid_user_token'][ (string) $admin_id ]['error_data'] );
-		$this->assertArrayNotHasKey( 'self_service', $result['no_valid_user_token'][ (string) $admin_id ]['error_data'] );
 	}
 
 	/**

@@ -57,7 +57,7 @@ export default function useConnectionErrorNotice( {
 }: ConnectionErrorProps = {} ): UseConnectionErrorNoticeResult {
 	const { connectionErrors, connectionHealthErrors, connectionOwner, userConnectionData } =
 		useConnection( {} );
-	const { restoreConnection, relinkUser, isRestoringConnection, restoreConnectionError } =
+	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
 		useRestoreConnection();
 
 	// Everything below is derived from the store and handed to consumers that key
@@ -86,13 +86,6 @@ export default function useConnectionErrorNotice( {
 	}, [ connectionErrors, connectionHealthErrors, includeHealthErrors ] );
 
 	const currentUserId = userConnectionData?.currentUser?.id;
-
-	// `isConnected` means a token is stored locally, broken or not: that is what needs unlinking.
-	const hasStoredUserToken = userConnectionData?.currentUser?.isConnected !== false;
-	const relinkCurrentUser = useCallback(
-		() => relinkUser( hasStoredUserToken ),
-		[ relinkUser, hasStoredUserToken ]
-	);
 
 	// Not `currentUser.isMaster`: that goes false for the owner themselves once
 	// their token breaks, which is exactly when this runs.
@@ -128,10 +121,7 @@ export default function useConnectionErrorNotice( {
 		// can see. `displayableErrors` has already dropped the message-less errors and
 		// the ones belonging to other users (see `isOtherUsersConnectionError`), in
 		// store order, so the only condition left to apply here is the action itself.
-		const resolvable = displayableErrors.find(
-			error =>
-				error.error_data?.action !== 'none' || error.error_data?.self_service === 'connect_user'
-		);
+		const resolvable = displayableErrors.find( error => error.error_data?.action !== 'none' );
 
 		if ( resolvable ) {
 			return resolvable;
@@ -182,7 +172,6 @@ export default function useConnectionErrorNotice( {
 						restoreConnection,
 						isRestoringConnection,
 						reconnectTrackingEvent,
-						relinkUser: relinkCurrentUser,
 						navigate,
 					} )
 				: [],
@@ -195,7 +184,6 @@ export default function useConnectionErrorNotice( {
 			restoreConnection,
 			isRestoringConnection,
 			reconnectTrackingEvent,
-			relinkCurrentUser,
 			navigate,
 		]
 	);

@@ -26,7 +26,6 @@ function toErrorMessage( error: unknown ): string {
 /**
  * Restore connection hook.
  * It will initiate an API request attempting to restore the connection, or reconnect if it cannot be restored.
- * It also exposes `relinkUser`, which replaces only the current user's own broken token.
  *
  * @return {object} - The hook data.
  */
@@ -80,43 +79,10 @@ export default function useRestoreConnection() {
 		[ disconnectUserSuccess, setConnectionErrors, USER_CONNECTION_URL ]
 	);
 
-	/**
-	 * Replace the current user's broken token: unlink it, then send them to authorize again.
-	 *
-	 * The authorize redirect treats any stored token as connected, so it must go first.
-	 * Failures share `restoreConnectionError` with the restore flow.
-	 *
-	 * @param {boolean} hasStoredToken - Whether the user still has a local token to unlink.
-	 * @return {Promise< unknown >} - The API request promise.
-	 */
-	const relinkUser = useCallback(
-		( hasStoredToken = true ) => {
-			setIsRestoringConnection( true );
-			setRestoreConnectionError( null );
-
-			const unlink = hasStoredToken ? restApi.unlinkUser() : Promise.resolve();
-
-			return unlink
-				.then( () => {
-					disconnectUserSuccess();
-					setConnectionErrors( {} );
-					// Return to the screen the CTA was clicked on, not the My Jetpack default.
-					window.location.href = getUserConnectionUrl( { redirect_url: window.location.href } );
-				} )
-				.catch( ( error: unknown ) => {
-					setRestoreConnectionError( toErrorMessage( error ) );
-					setIsRestoringConnection( false );
-
-					throw error;
-				} );
-		},
-		[ disconnectUserSuccess, setConnectionErrors ]
-	);
-
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
 	}, [] );
 
-	return { restoreConnection, relinkUser, isRestoringConnection, restoreConnectionError };
+	return { restoreConnection, isRestoringConnection, restoreConnectionError };
 }

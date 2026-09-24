@@ -12,12 +12,10 @@ jest.unstable_mockModule( '../../../components/use-connection', () => ( {
 // members are module-level so the stub behaves like the real hook does now:
 // referentially stable across renders.
 const restoreConnection = jest.fn();
-const relinkUser = jest.fn();
 jest.unstable_mockModule( '../../use-restore-connection', () => ( {
 	__esModule: true,
 	default: () => ( {
 		restoreConnection,
-		relinkUser,
 		isRestoringConnection: false,
 		restoreConnectionError: null,
 	} ),
