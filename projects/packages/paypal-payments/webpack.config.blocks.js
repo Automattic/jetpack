@@ -18,6 +18,7 @@ const sharedWebpackConfig = {
 		'paypal-payment-buttons/editor': './src/paypal-payment-buttons/editor.js',
 		'paypal-payment-buttons/style': './src/paypal-payment-buttons/style.scss',
 		'paypal-payment-buttons/qr-code': './src/paypal-payment-buttons/qr-code.js',
+		'paypal-payment-buttons/checkout': './src/paypal-payment-buttons/checkout.js',
 	},
 	output: {
 		...jetpackWebpackConfig.output,

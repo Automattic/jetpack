@@ -534,6 +534,60 @@ describe( 'PayPalButtonPreview', () => {
 			).toBeInTheDocument();
 		} );
 
+		it( "draws stand-ins for PayPal's buttons for CHECKOUT, with no button of its own", () => {
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					format="CHECKOUT"
+					attributes={ { buttonShowPoweredBy: true, adjustableQuantity: true, maxQuantity: 4 } }
+				/>
+			);
+
+			expect(
+				document.querySelector( '.jetpack-paypal-button--checkout-format' )
+			).toBeInTheDocument();
+			expect( screen.getByText( 'Debit or Credit Card' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Premium Widget' ) ).toBeInTheDocument();
+			expect( screen.getByLabelText( 'Quantity' ) ).toHaveAttribute( 'max', '4' );
+			expect(
+				document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+			).not.toBeInTheDocument();
+			expect(
+				document.querySelector( '.jetpack-paypal-button__attribution' )
+			).not.toBeInTheDocument();
+		} );
+
+		it( 'draws the options as selects for CHECKOUT', () => {
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					format="CHECKOUT"
+					price=""
+					variantsEnabled
+					variants={ {
+						dimensions: [
+							{
+								name: 'Size',
+								primary: true,
+								options: [
+									{ label: 'Small', unit_amount: { currency_code: 'USD', value: '12.50' } },
+									{ label: 'Large', unit_amount: { currency_code: 'USD', value: '20.00' } },
+								],
+							},
+						],
+					} }
+				/>
+			);
+
+			const select = screen.getByLabelText( 'Size' );
+			expect( select.tagName ).toBe( 'SELECT' );
+			expect( select ).toHaveClass( 'jetpack-paypal-button__variant-select' );
+			expect( screen.getByRole( 'option', { name: 'Large ($20.00)' } ) ).toBeInTheDocument();
+			expect(
+				screen.queryByText( 'Options available — select at checkout:' )
+			).not.toBeInTheDocument();
+		} );
+
 		it( 'draws the SDK preview for STACKED', () => {
 			// PayPal draws the whole card from one container, so the button card gives way.
 			render(

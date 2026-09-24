@@ -76,6 +76,7 @@ A live preview appears showing exactly how your button will look on the publishe
 |--------|-------------|
 | Stacked | PayPal button + "Debit or Credit Card" secondary button |
 | Single | PayPal button only |
+| Checkout on this page | The product card with quantity and option pickers, then PayPal's own PayPal and card buttons. Buyers pay without leaving the site. Not offered for links whose tax or shipping rates come from the PayPal account: those fall back to the single button. |
 
 ### Editing and Deleting Payment Links
 

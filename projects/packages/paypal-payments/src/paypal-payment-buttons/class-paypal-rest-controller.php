@@ -331,6 +331,54 @@ class PayPal_REST_Controller {
 				),
 			)
 		);
+
+		// The on-site checkout. Buyers are logged out, so both routes are public; the
+		// amount comes from the payment link, never from the request.
+		register_rest_route(
+			self::REST_NAMESPACE,
+			self::ROUTE_BASE . '/orders',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( __CLASS__, 'handle_create_order' ),
+					'permission_callback' => array( __CLASS__, 'public_permission_check' ),
+					'args'                => array(
+						'resource_id' => array(
+							'required'          => true,
+							'type'              => 'string',
+							'pattern'           => '^PLB-[A-Za-z0-9]+$',
+							'sanitize_callback' => 'sanitize_text_field',
+							'description'       => __( 'The payment link being paid.', 'jetpack-paypal-payments' ),
+						),
+						'quantity'    => array(
+							'type'        => 'integer',
+							'default'     => 1,
+							'minimum'     => 1,
+							'maximum'     => 999,
+							'description' => __( 'How many units the buyer is paying for.', 'jetpack-paypal-payments' ),
+						),
+						'selection'   => array(
+							'type'                 => 'object',
+							'default'              => array(),
+							'additionalProperties' => array( 'type' => 'string' ),
+							'description'          => __( 'The chosen option per option group, for a payment link with options.', 'jetpack-paypal-payments' ),
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			self::ROUTE_BASE . '/orders/(?P<order_id>[A-Z0-9]{5,32})/capture',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( __CLASS__, 'handle_capture_order' ),
+					'permission_callback' => array( __CLASS__, 'public_permission_check' ),
+				),
+			)
+		);
 	}
 
 	/**
@@ -348,6 +396,121 @@ class PayPal_REST_Controller {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Permission check for the checkout routes: anyone, since buyers have no account here.
+	 *
+	 * @return true
+	 */
+	public static function public_permission_check() {
+		return true;
+	}
+
+	/**
+	 * Handle POST /paypal/orders -- start a payment for a payment link.
+	 *
+	 * The payment link is read from PayPal, through the short cache, and priced by
+	 * PayPal_Order_Builder. The buyer's request only names the link, a quantity and
+	 * the chosen options.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Request $request The REST request.
+	 * @return WP_REST_Response|WP_Error The order id on success, WP_Error on failure.
+	 */
+	public static function handle_create_order( WP_REST_Request $request ) {
+		$resource_id = $request->get_param( 'resource_id' );
+
+		if ( PayPal_API_Client::is_deleted_resource( $resource_id ) ) {
+			return new WP_Error(
+				'paypal_order_link_deleted',
+				__( 'This item is no longer for sale.', 'jetpack-paypal-payments' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$resource = PayPal_API_Client::get_resource_cached( $resource_id );
+		if ( is_wp_error( $resource ) ) {
+			return self::buyer_error( $resource );
+		}
+
+		$selection = $request->get_param( 'selection' );
+		$built     = PayPal_Order_Builder::build(
+			$resource,
+			$request->get_param( 'quantity' ),
+			is_array( $selection ) ? $selection : array()
+		);
+		if ( is_wp_error( $built ) ) {
+			return $built;
+		}
+
+		$collect_address = ! empty( $resource['line_items'][0]['collect_shipping_address'] );
+
+		$order = PayPal_API_Client::create_order(
+			array(
+				'intent'              => 'CAPTURE',
+				'purchase_units'      => array( $built['purchase_unit'] ),
+				'application_context' => array(
+					'brand_name'          => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
+					'shipping_preference' => $collect_address ? 'GET_FROM_FILE' : 'NO_SHIPPING',
+					'user_action'         => 'PAY_NOW',
+				),
+			)
+		);
+		if ( is_wp_error( $order ) ) {
+			return self::buyer_error( $order );
+		}
+
+		return new WP_REST_Response( array( 'id' => $order['id'] ?? '' ), 201 );
+	}
+
+	/**
+	 * Handle POST /paypal/orders/{order_id}/capture -- take the payment the buyer approved.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Request $request The REST request.
+	 * @return WP_REST_Response|WP_Error The order id and status on success, WP_Error on failure.
+	 */
+	public static function handle_capture_order( WP_REST_Request $request ) {
+		$order = PayPal_API_Client::capture_order( $request->get_param( 'order_id' ) );
+		if ( is_wp_error( $order ) ) {
+			return self::buyer_error( $order );
+		}
+
+		if ( 'COMPLETED' === ( $order['status'] ?? '' ) ) {
+			PayPal_Orders::record( $order );
+		}
+
+		return new WP_REST_Response(
+			array(
+				'id'     => $order['id'] ?? '',
+				'status' => $order['status'] ?? '',
+			),
+			200
+		);
+	}
+
+	/**
+	 * An API error as a buyer may see it.
+	 *
+	 * The merchant-facing messages name the account, the dashboard and the Payment
+	 * Links feature, none of which a buyer can act on, so they get one line. The
+	 * code and status stay, for the merchant reading the browser's network log.
+	 *
+	 * @param WP_Error $error The API error.
+	 * @return WP_Error
+	 */
+	private static function buyer_error( WP_Error $error ) {
+		$rest_error = self::api_error_to_rest_error( $error );
+		$data       = $rest_error->get_error_data();
+
+		return new WP_Error(
+			$rest_error->get_error_code(),
+			__( 'This payment could not be started. Please try again later.', 'jetpack-paypal-payments' ),
+			array( 'status' => $data['status'] ?? 503 )
+		);
 	}
 
 	/**
@@ -691,34 +854,9 @@ class PayPal_REST_Controller {
 		$result['embeds']     = PayPal_Admin_Page::count_published_embeds()[ $resource_id ] ?? 0;
 
 		// The editor's stacked preview loads PayPal's SDK from this until the block has a scriptSrc.
-		$result['sdk_url'] = self::get_sdk_url( $result['attributes']['currencyCode'] ?? 'USD' );
+		$result['sdk_url'] = PayPal_OAuth::get_sdk_url( $result['attributes']['currencyCode'] ?? 'USD' );
 
 		return new WP_REST_Response( $result, 200 );
-	}
-
-	/**
-	 * Build the PayPal SDK URL for the connected account, with the same parameters as
-	 * PayPal's stacked buttons snippet.
-	 *
-	 * @param string $currency The payment's currency.
-	 * @return string The URL, or '' when PayPal is disconnected.
-	 */
-	private static function get_sdk_url( $currency ) {
-		$credentials = PayPal_OAuth::get_credentials();
-		if ( false === $credentials ) {
-			return '';
-		}
-
-		// add_query_arg() leaves values as they are, and a client id can contain + / =.
-		return add_query_arg(
-			array(
-				'client-id'      => rawurlencode( $credentials['client_id'] ),
-				'components'     => 'hosted-buttons',
-				'enable-funding' => 'venmo',
-				'currency'       => rawurlencode( $currency ),
-			),
-			PayPal_OAuth::get_sdk_base_url()
-		);
 	}
 
 	/**

@@ -160,6 +160,36 @@ class PayPal_OAuth {
 	}
 
 	/**
+	 * The PayPal JavaScript SDK URL for the connected account.
+	 *
+	 * Same parameters as PayPal's stacked buttons snippet, with the component chosen
+	 * by the caller: `hosted-buttons` draws a payment link, `buttons` a checkout.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $currency   The payment's currency.
+	 * @param string $components The SDK components to load. Default 'hosted-buttons'.
+	 * @return string The URL, or '' when PayPal is disconnected.
+	 */
+	public static function get_sdk_url( $currency, $components = 'hosted-buttons' ) {
+		$credentials = self::get_credentials();
+		if ( false === $credentials ) {
+			return '';
+		}
+
+		// add_query_arg() leaves values as they are, and a client id can contain + / =.
+		return add_query_arg(
+			array(
+				'client-id'      => rawurlencode( $credentials['client_id'] ),
+				'components'     => $components,
+				'enable-funding' => 'venmo',
+				'currency'       => rawurlencode( $currency ),
+			),
+			self::get_sdk_base_url()
+		);
+	}
+
+	/**
 	 * Derive a symmetric encryption key from AUTH_KEY.
 	 *
 	 * Uses sodium_crypto_generichash (BLAKE2b) to derive a fixed-length

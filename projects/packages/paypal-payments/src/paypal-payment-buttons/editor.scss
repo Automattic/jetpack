@@ -907,6 +907,44 @@
 	}
 }
 
+// The one-line note under Embed as for a format with no controls of its own.
+.jetpack-paypal-payment-buttons__format-help {
+	margin: 0;
+	font-size: 12px;
+	color: #757575;
+}
+
+// Stand-ins for PayPal's checkout buttons, in PayPal's gold and black, at the
+// SDK's default rectangle height. No live SDK on the canvas for this format.
+.jetpack-paypal-button-preview__paypal-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	inline-size: 100%;
+	block-size: 45px;
+	border-radius: 4px;
+	font-size: 15px;
+	font-weight: 700;
+	cursor: default;
+}
+
+.jetpack-paypal-button-preview__paypal-button--paypal {
+	background: #ffc439;
+	color: #003087;
+
+	// The wordmark takes the text color, like the attribution line's does.
+	.jetpack-paypal-button__logo {
+		block-size: 20px;
+		inline-size: 66px;
+	}
+}
+
+.jetpack-paypal-button-preview__paypal-button--card {
+	background: #2c2e2f;
+	color: #fff;
+}
+
 // The payment URL beside its Copy button. Same layout as the Jetpack plugin's
 // shared clipboard row, which a package cannot import across the project
 // boundary. The field takes the leftover width so a long URL truncates rather

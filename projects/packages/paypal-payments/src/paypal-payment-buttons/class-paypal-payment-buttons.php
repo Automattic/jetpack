@@ -97,6 +97,16 @@ class PayPal_Payment_Buttons {
 	public const SDK_SCRIPT_HANDLE = 'paypal-payment-buttons-block-head';
 
 	/**
+	 * Script handle of the PayPal SDK loaded with the `buttons` component, for the
+	 * on-site checkout. Its own handle: the stacked format loads the SDK with the
+	 * `hosted-buttons` component, and one handle cannot hold two URLs.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
+	public const CHECKOUT_SDK_HANDLE = 'paypal-payment-buttons-checkout-sdk';
+
+	/**
 	 * Register the feature flags this package owns.
 	 *
 	 * Call it from every bootstrap before `init`, so the flag exists on every
@@ -908,22 +918,17 @@ class PayPal_Payment_Buttons {
 	 * @return string|void The rendered button HTML.
 	 */
 	private static function render_api_managed_button( $attributes ) {
-		$resource_id         = $attributes['resourceId'] ?? '';
-		$payment_url         = $attributes['paymentLink'] ?? '';
-		$product_name        = trim( (string) ( $attributes['productName'] ?? '' ) );
-		$currency            = $attributes['currencyCode'] ?? 'USD';
-		$product_description = trim( (string) ( $attributes['productDescription'] ?? '' ) );
-		$image_url           = $attributes['imageUrl'] ?? '';
-		$variants_enabled    = ! empty( $attributes['variantsEnabled'] );
-		$variants            = $attributes['variants'] ?? null;
-		$format              = $attributes['format'] ?? 'BUTTON';
-		$button_text         = trim( (string) ( $attributes['buttonText'] ?? '' ) );
-		$qr_show_caption     = ! empty( $attributes['qrShowCaption'] );
-		$qr_caption          = trim( (string) ( $attributes['qrCaption'] ?? '' ) );
-		$link_text           = trim( (string) ( $attributes['linkText'] ?? '' ) );
+		$resource_id     = $attributes['resourceId'] ?? '';
+		$payment_url     = $attributes['paymentLink'] ?? '';
+		$currency        = $attributes['currencyCode'] ?? 'USD';
+		$format          = $attributes['format'] ?? 'BUTTON';
+		$button_text     = trim( (string) ( $attributes['buttonText'] ?? '' ) );
+		$qr_show_caption = ! empty( $attributes['qrShowCaption'] );
+		$qr_caption      = trim( (string) ( $attributes['qrCaption'] ?? '' ) );
+		$link_text       = trim( (string) ( $attributes['linkText'] ?? '' ) );
 
 		// Validate — only known format values are accepted.
-		if ( ! in_array( $format, array( 'BUTTON', 'LINK', 'QR', 'STACKED' ), true ) ) {
+		if ( ! in_array( $format, array( 'BUTTON', 'LINK', 'QR', 'STACKED', 'CHECKOUT' ), true ) ) {
 			$format = 'BUTTON';
 		}
 
@@ -951,6 +956,16 @@ class PayPal_Payment_Buttons {
 
 		// Append BN code for revenue attribution tracking.
 		$action_url = esc_url( self::add_partner_attribution( $sanitized_payment_url ) );
+
+		// ─── CHECKOUT format: PayPal's buttons, paid without leaving the page ──
+		// Falls through to the single button when the page cannot take the payment:
+		// flag off, PayPal disconnected, or rates only PayPal's own checkout knows.
+		if ( 'CHECKOUT' === $format ) {
+			$checkout = self::render_inline_checkout( $attributes, $currency );
+			if ( $checkout ) {
+				return sprintf( '<div %s>%s</div>', get_block_wrapper_attributes(), $checkout );
+			}
+		}
 
 		// ─── STACKED format: PayPal draws the whole card ─────────────────
 		// Falls through to the single button when render_stacked_buttons() has nothing
@@ -1042,6 +1057,81 @@ class PayPal_Payment_Buttons {
 		}
 
 		// ─── BUTTON format (default): existing full button card ──────────
+		$parts         = self::product_card_parts( $attributes );
+		$image_html    = $parts['image_html'];
+		$product_html  = $parts['product_html'];
+		$variants_html = $parts['variants_html'];
+
+		$wrapper_attributes = get_block_wrapper_attributes();
+		// Width sizes this card, and the button fills it.
+		$block_style = self::style_attr( self::get_button_card_style( $attributes ) );
+
+		// A blank label would draw an unreadable button, so fall back to the same
+		// default the editor preview uses.
+		$label = '' !== $button_text ? $button_text : self::default_label();
+
+		$attribution_html = empty( $attributes['buttonShowPoweredBy'] )
+			? ''
+			: '<p class="jetpack-paypal-button__attribution">'
+				. sprintf(
+					/* translators: %s: the PayPal wordmark */
+					esc_html__( 'Powered by %s', 'jetpack-paypal-payments' ),
+					'<span class="jetpack-paypal-button__logo">PayPal</span>'
+				)
+				. '</p>';
+
+		// `is-style-outline` is the name core and the other Jetpack blocks already
+		// use, so themes recognize it.
+		$button_class = 'jetpack-paypal-button__checkout-link wp-element-button'
+			. ( self::is_outline_button( $attributes ) ? ' is-style-outline' : '' );
+		$button_style = self::style_attr( self::get_button_style( $attributes ) );
+
+		return sprintf(
+			'<div %6$s>
+	<div class="jetpack-paypal-button"%9$s>
+		%7$s
+		%1$s
+		%5$s
+		<div class="jetpack-paypal-button__buttons">
+			<a href="%2$s" class="%10$s"%11$s target="_blank" rel="noopener noreferrer">
+				<span class="jetpack-paypal-button__button-text">%3$s</span>
+				<span class="screen-reader-text">%8$s</span>
+			</a>
+		</div>
+		%4$s
+	</div>
+</div>',
+			$product_html,
+			$action_url,
+			esc_html( $label ),
+			$attribution_html,
+			$variants_html,
+			$wrapper_attributes,
+			$image_html,
+			esc_html__( 'PayPal (opens in a new tab)', 'jetpack-paypal-payments' ),
+			$block_style,
+			esc_attr( $button_class ),
+			$button_style
+		);
+	}
+
+	/**
+	 * The product card above the buttons: image, name, description, price and options.
+	 *
+	 * The BUTTON format lists the options for the buyer to pick at PayPal. The CHECKOUT
+	 * format draws them as selects, with a quantity field, since the buyer picks here.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @param bool  $selectable Whether the options and quantity are chosen on the page.
+	 * @return array image_html, product_html, variants_html and quantity_html, each '' when absent.
+	 */
+	private static function product_card_parts( array $attributes, $selectable = false ) {
+		$product_name        = trim( (string) ( $attributes['productName'] ?? '' ) );
+		$currency            = $attributes['currencyCode'] ?? 'USD';
+		$product_description = trim( (string) ( $attributes['productDescription'] ?? '' ) );
+		$image_url           = $attributes['imageUrl'] ?? '';
+		$variants_enabled    = ! empty( $attributes['variantsEnabled'] );
+		$variants            = $attributes['variants'] ?? null;
 
 		// Product image. PayPal receives it too, as the line item's image_url.
 		$image_html = '';
@@ -1095,14 +1185,14 @@ class PayPal_Payment_Buttons {
 		if ( $variants_enabled && ! empty( $variants['dimensions'] ) && is_array( $variants['dimensions'] ) ) {
 			$variant_groups = array();
 			foreach ( $variants['dimensions'] as $dimension ) {
-				$dim_name = esc_html( $dimension['name'] ?? '' );
+				$dim_name = trim( (string) ( $dimension['name'] ?? '' ) );
 				if ( '' === $dim_name || empty( $dimension['options'] ) ) {
 					continue;
 				}
 
 				$options_html = array();
 				foreach ( $dimension['options'] as $option ) {
-					$label = esc_html( $option['label'] ?? '' );
+					$label = trim( (string) ( $option['label'] ?? '' ) );
 					if ( '' === $label ) {
 						continue;
 					}
@@ -1111,83 +1201,158 @@ class PayPal_Payment_Buttons {
 					$option_value = (string) ( $option['unit_amount']['value'] ?? '' );
 					$option_price = '';
 					if ( '' !== $option_value && $option_value !== $price ) {
-						$option_price = ' <span class="jetpack-paypal-button__variant-price">'
-							. esc_html( self::format_price( $option_value, $currency ) )
-							. '</span>';
+						$option_price = self::format_price( $option_value, $currency );
+					}
+
+					if ( $selectable ) {
+						$options_html[] = sprintf(
+							'<option value="%s">%s</option>',
+							esc_attr( $label ),
+							esc_html( '' !== $option_price ? "$label ($option_price)" : $label )
+						);
+						continue;
 					}
 
 					$options_html[] = '<span class="jetpack-paypal-button__variant-option">'
-						. $label . $option_price . '</span>';
+						. esc_html( $label )
+						. ( '' !== $option_price ? ' <span class="jetpack-paypal-button__variant-price">' . esc_html( $option_price ) . '</span>' : '' )
+						. '</span>';
 				}
 
-				if ( ! empty( $options_html ) ) {
-					$variant_groups[] = '<div class="jetpack-paypal-button__variant-group">'
-						. '<span class="jetpack-paypal-button__variant-name">' . $dim_name . ':</span> '
-						. implode( '', $options_html )
-						. '</div>';
+				if ( empty( $options_html ) ) {
+					continue;
 				}
+
+				if ( $selectable ) {
+					$variant_groups[] = '<label class="jetpack-paypal-button__variant-group jetpack-paypal-button__variant-group--select">'
+						. '<span class="jetpack-paypal-button__variant-name">' . esc_html( $dim_name ) . '</span>'
+						. '<select class="jetpack-paypal-button__variant-select" data-dimension="' . esc_attr( $dim_name ) . '">'
+						. implode( '', $options_html )
+						. '</select></label>';
+					continue;
+				}
+
+				$variant_groups[] = '<div class="jetpack-paypal-button__variant-group">'
+					. '<span class="jetpack-paypal-button__variant-name">' . esc_html( $dim_name ) . ':</span> '
+					. implode( '', $options_html )
+					. '</div>';
 			}
 
 			if ( ! empty( $variant_groups ) ) {
-				$variants_html = '<div class="jetpack-paypal-button__variants">'
-					. '<p class="jetpack-paypal-button__variants-label">'
-					. esc_html__( 'Options available — select at checkout:', 'jetpack-paypal-payments' )
-					. '</p>'
+				$variants_label = $selectable
+					? ''
+					: '<p class="jetpack-paypal-button__variants-label">'
+						. esc_html__( 'Options available — select at checkout:', 'jetpack-paypal-payments' )
+						. '</p>';
+				$variants_html  = '<div class="jetpack-paypal-button__variants">'
+					. $variants_label
 					. implode( '', $variant_groups )
 					. '</div>';
 			}
 		}
 
-		$wrapper_attributes = get_block_wrapper_attributes();
-		// Width sizes this card, and the button fills it.
-		$block_style = self::style_attr( self::get_button_card_style( $attributes ) );
+		// A quantity field, when the payment allows more than one and the page takes the payment.
+		$quantity_html = '';
+		$max_quantity  = self::max_quantity( $attributes );
+		if ( $selectable && $max_quantity > 1 ) {
+			$quantity_html = sprintf(
+				'<label class="jetpack-paypal-button__quantity"><span class="jetpack-paypal-button__quantity-label">%s</span><input type="number" class="jetpack-paypal-button__quantity-input" value="1" min="1" max="%d" step="1" inputmode="numeric" /></label>',
+				esc_html__( 'Quantity', 'jetpack-paypal-payments' ),
+				$max_quantity
+			);
+		}
 
-		// A blank label would draw an unreadable button, so fall back to the same
-		// default the editor preview uses.
-		$label = '' !== $button_text ? $button_text : self::default_label();
+		return compact( 'image_html', 'product_html', 'variants_html', 'quantity_html' );
+	}
 
-		$attribution_html = empty( $attributes['buttonShowPoweredBy'] )
-			? ''
-			: '<p class="jetpack-paypal-button__attribution">'
-				. sprintf(
-					/* translators: %s: the PayPal wordmark */
-					esc_html__( 'Powered by %s', 'jetpack-paypal-payments' ),
-					'<span class="jetpack-paypal-button__logo">PayPal</span>'
-				)
-				. '</p>';
+	/**
+	 * The most units one order may hold: 1 unless the merchant allowed more.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return int
+	 */
+	private static function max_quantity( array $attributes ) {
+		if ( empty( $attributes['adjustableQuantity'] ) ) {
+			return 1;
+		}
 
-		// `is-style-outline` is the name core and the other Jetpack blocks already
-		// use, so themes recognize it.
-		$button_class = 'jetpack-paypal-button__checkout-link wp-element-button'
-			. ( self::is_outline_button( $attributes ) ? ' is-style-outline' : '' );
-		$button_style = self::style_attr( self::get_button_style( $attributes ) );
+		return max( 1, (int) ( $attributes['maxQuantity'] ?? 1 ) );
+	}
+
+	/**
+	 * The on-site checkout: the product card, the buyer's choices, and PayPal's buttons.
+	 *
+	 * PayPal draws the buttons from its SDK; checkout.js creates and captures the order
+	 * through the site's own REST routes, so the browser never names an amount.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array  $attributes The block attributes.
+	 * @param string $currency   The payment's currency, which the SDK is loaded for.
+	 * @return string|void The markup, or nothing when the page cannot take the payment.
+	 */
+	private static function render_inline_checkout( array $attributes, $currency ) {
+		if ( ! self::is_api_managed_enabled() || ! PayPal_Order_Builder::supports_attributes( $attributes ) ) {
+			return;
+		}
+
+		$sdk_url = PayPal_OAuth::get_sdk_url( $currency, 'buttons' );
+		if ( '' === $sdk_url ) {
+			return;
+		}
+
+		self::register_hooks();
+
+		// No version argument — a `?ver=` on the PayPal SDK URL causes a 400.
+		wp_enqueue_script( self::CHECKOUT_SDK_HANDLE, $sdk_url, array(), null, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+		self::enqueue_checkout_script();
+
+		$parts = self::product_card_parts( $attributes, true );
+
+		$container = sprintf(
+			'<div class="jetpack-paypal-button__inline-checkout" data-resource-id="%1$s" data-orders-url="%2$s" data-max-quantity="%3$d" data-success-message="%4$s" data-error-message="%5$s"></div>',
+			esc_attr( $attributes['resourceId'] ),
+			esc_url( rest_url( PayPal_REST_Controller::REST_NAMESPACE . PayPal_REST_Controller::ROUTE_BASE . '/orders' ) ),
+			self::max_quantity( $attributes ),
+			esc_attr__( 'Thank you! Your payment was successful.', 'jetpack-paypal-payments' ),
+			esc_attr__( 'Your payment could not be completed. Please try again.', 'jetpack-paypal-payments' )
+		);
 
 		return sprintf(
-			'<div %6$s>
-	<div class="jetpack-paypal-button"%9$s>
-		%7$s
-		%1$s
-		%5$s
-		<div class="jetpack-paypal-button__buttons">
-			<a href="%2$s" class="%10$s"%11$s target="_blank" rel="noopener noreferrer">
-				<span class="jetpack-paypal-button__button-text">%3$s</span>
-				<span class="screen-reader-text">%8$s</span>
-			</a>
-		</div>
+			'<div class="jetpack-paypal-button jetpack-paypal-button--checkout-format"%1$s>
+		%2$s
+		%3$s
 		%4$s
-	</div>
-</div>',
-			$product_html,
-			$action_url,
-			esc_html( $label ),
-			$attribution_html,
-			$variants_html,
-			$wrapper_attributes,
-			$image_html,
-			esc_html__( 'PayPal (opens in a new tab)', 'jetpack-paypal-payments' ),
-			$block_style,
-			esc_attr( $button_class ),
-			$button_style
+		%5$s
+		%6$s
+		<p class="jetpack-paypal-button__checkout-message" role="status" aria-live="polite" hidden></p>
+	</div>',
+			self::style_attr( self::get_button_card_style( $attributes ) ),
+			$parts['image_html'],
+			$parts['product_html'],
+			$parts['variants_html'],
+			$parts['quantity_html'],
+			$container
+		);
+	}
+
+	/**
+	 * Enqueue the checkout script on pages holding a checkout-format block.
+	 *
+	 * @since $$next-version$$
+	 * @return void
+	 */
+	private static function enqueue_checkout_script() {
+		Assets::register_script(
+			'jetpack-paypal-checkout',
+			'../../dist/paypal-payment-buttons/checkout.js',
+			__FILE__,
+			array(
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack-paypal-payments',
+				'enqueue'      => true,
+				'dependencies' => array( self::CHECKOUT_SDK_HANDLE ),
+			)
 		);
 	}
 
@@ -1273,22 +1438,28 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * Tag the PayPal SDK script with the namespace and the partner attribution id.
+	 * Tag a PayPal SDK script with its namespace and the partner attribution id.
 	 *
-	 * The strpos() checks keep each attribute single when a legacy block tags the same handle too.
+	 * Each handle gets a namespace of its own, since the stacked and checkout SDKs are
+	 * two instances on one page. The strpos() checks keep each attribute single when a
+	 * legacy block tags the same handle too.
 	 *
 	 * @param string $tag    The script tag.
 	 * @param string $handle The script handle.
 	 * @return string The tag.
 	 */
 	public static function tag_paypal_sdk_script( $tag, $handle ) {
-		if ( self::SDK_SCRIPT_HANDLE !== $handle ) {
+		$namespaces = array(
+			self::SDK_SCRIPT_HANDLE   => 'paypal_payment_buttons',
+			self::CHECKOUT_SDK_HANDLE => 'paypal_inline_checkout',
+		);
+		if ( ! isset( $namespaces[ $handle ] ) ) {
 			return $tag;
 		}
 
 		// Namespace it so another PayPal SDK on the page cannot collide with ours.
 		if ( false === strpos( $tag, 'data-namespace' ) ) {
-			$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-namespace="paypal_payment_buttons" src=$2', $tag );
+			$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-namespace="' . $namespaces[ $handle ] . '" src=$2', $tag );
 		}
 
 		// The SDK's own attribution channel, separate from the payment link's at_code —
@@ -1598,14 +1769,16 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * Register just the PayPal REST routes -- the subset the Jetpack loader uses,
-	 * without init_api()'s sharing and email-sender hookups.
+	 * Register the PayPal REST routes and the order record -- the subset the Jetpack
+	 * loader uses, without init_api()'s sharing and email-sender hookups.
 	 *
 	 * @since 0.9.0
+	 * @since $$next-version$$ Registers the order post type too.
 	 * @return void
 	 */
 	public static function init_rest_api() {
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		add_action( 'init', array( PayPal_Orders::class, 'register_post_type' ) );
 	}
 
 	/**
