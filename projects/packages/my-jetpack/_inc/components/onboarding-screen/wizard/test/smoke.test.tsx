@@ -149,12 +149,15 @@ describe( 'Wizard start screen', () => {
 		expect( getStarted() ).toBeInTheDocument();
 	} );
 
+	// skipPricingPage is load-bearing, not a preference: the plans page drops
+	// redirect_after_auth, so without it the user never comes back here.
 	it( 'asks the connection to bring the user back to the wizard', () => {
 		setupWizard();
 
 		expect( mockUseConnection ).toHaveBeenCalledWith( {
 			from: 'jetpack-onboarding-wizard',
 			redirectUri: 'admin.php?page=my-jetpack&step=onboarding',
+			skipPricingPage: true,
 		} );
 	} );
 
