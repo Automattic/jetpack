@@ -27,7 +27,6 @@ import { REPORTS } from '../registry';
 import {
 	getEarningsReportTabs,
 	getTabTitle,
-	hasAdsServed,
 	resolveSection,
 	useEarningsReportRecords,
 } from './config';
@@ -71,7 +70,8 @@ function EarningsReport(): JSX.Element {
 	const [ urlTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveSection );
 	const records = useEarningsReportRecords( urlTab );
 	const { tab, availableTabs } = records;
-	const showAdsServed = hasAdsServed( tab );
+	// Only the WordAds bucket records pageviews; the other tabs are amounts alone.
+	const showAdsServed = tab === 'wordads';
 	const tabs = useMemo(
 		() => getEarningsReportTabs().filter( ( { id } ) => availableTabs.includes( id ) ),
 		[ availableTabs ]
