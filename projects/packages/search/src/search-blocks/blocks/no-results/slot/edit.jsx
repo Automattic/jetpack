@@ -15,28 +15,32 @@ import { __ } from '@wordpress/i18n';
 
 const CONDITIONS = [ 'any', 'filtered', 'error' ];
 
-// Mirrors `No_Results::render_default_copy()`. An unscoped variant previews both lines even though
-// a visitor only ever sees one, so the author sees every state the variant covers.
+const normalizeCondition = stored => ( CONDITIONS.includes( stored ) ? stored : 'any' );
+
+// Mirrors `No_Results::render_default_copy()`. An unscoped variant yields the filtered state to a
+// `filtered` sibling on the front end, so it previews the filtered line only when there is none.
 // A function, not a constant, so the `__()` calls run after the editor's i18n is loaded rather than
 // being cached in the source locale at module init.
-const defaultMessages = condition => {
+const defaultMessages = ( condition, hasFilteredSibling ) => {
 	if ( condition === 'error' ) {
-		return [ __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' ) ];
+		return [ { text: __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' ) } ];
 	}
-	const messages = [];
-	if ( condition !== 'filtered' ) {
-		messages.push( __( 'No results found. Try a different search.', 'jetpack-search-pkg' ) );
-	}
-	messages.push(
-		__(
-			'No results match these filters. Try clearing some, or searching for something else.',
-			'jetpack-search-pkg'
-		)
+	const filtered = __(
+		'No results match these filters. Try clearing some, or searching for something else.',
+		'jetpack-search-pkg'
 	);
-	return messages;
+	if ( condition === 'filtered' ) {
+		return [ { text: filtered } ];
+	}
+	const unfiltered = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
+	if ( hasFilteredSibling ) {
+		return [ { text: unfiltered } ];
+	}
+	return [
+		{ label: __( 'Without filters', 'jetpack-search-pkg' ), text: unfiltered },
+		{ label: __( 'With filters', 'jetpack-search-pkg' ), text: filtered },
+	];
 };
-
-const normalizeCondition = stored => ( CONDITIONS.includes( stored ) ? stored : 'any' );
 
 // Keyed rather than branched: a `return __( … )` per branch reads better but
 // the production minifier folds the identical calls into one `__()` with a
@@ -92,11 +96,18 @@ export const conditionVariations = () => {
  */
 export default function NoResultsSlotEdit( { attributes, clientId } ) {
 	const condition = normalizeCondition( attributes?.condition );
-	const { hasInnerBlocks, isActive } = useSelect(
+	const { hasInnerBlocks, hasFilteredSibling, isActive } = useSelect(
 		select => {
 			const editor = select( blockEditorStore );
 			return {
 				hasInnerBlocks: editor.getBlockCount( clientId ) > 0,
+				hasFilteredSibling: editor
+					.getBlocks( editor.getBlockRootClientId( clientId ) )
+					.some(
+						block =>
+							block.clientId !== clientId &&
+							normalizeCondition( block.attributes?.condition ) === 'filtered'
+					),
 				isActive:
 					editor.isBlockSelected( clientId ) || editor.hasSelectedInnerBlock( clientId, true ),
 			};
@@ -116,7 +127,12 @@ export default function NoResultsSlotEdit( { attributes, clientId } ) {
 	return (
 		<div { ...blockProps } data-testid="no-results-variant">
 			{ ! hasInnerBlocks &&
-				defaultMessages( condition ).map( message => <p key={ message }>{ message }</p> ) }
+				defaultMessages( condition, hasFilteredSibling ).map( ( { label, text } ) => (
+					<p key={ text }>
+						{ label && <span className="jetpack-search-no-results__preview-label">{ label }</span> }
+						{ text }
+					</p>
+				) ) }
 			{ /* Never unmount `InnerBlocks`: the drop target comes from `useInnerBlocksProps`, and
 			     without it a drag onto an unselected variant resolves to the container, which rejects
 			     it. See AGENTS.md's "InnerBlocks appender boundary trap". */ }

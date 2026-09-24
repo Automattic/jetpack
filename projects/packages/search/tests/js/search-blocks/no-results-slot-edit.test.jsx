@@ -24,12 +24,15 @@ jest.mock( '@wordpress/i18n', () => ( {
 let mockInnerBlockCount = 0;
 let mockIsSelected = false;
 let mockHasSelectedInnerBlock = false;
+let mockSiblings = [];
 jest.mock( '@wordpress/data', () => ( {
 	useSelect: callback =>
 		callback( store => {
 			mockSelectedStores.push( store );
 			return {
 				getBlockCount: () => mockInnerBlockCount,
+				getBlockRootClientId: () => 'nr-1',
+				getBlocks: () => mockSiblings,
 				isBlockSelected: () => mockIsSelected,
 				hasSelectedInnerBlock: () => mockHasSelectedInnerBlock,
 			};
@@ -47,6 +50,7 @@ describe( 'NoResultsSlotEdit', () => {
 		mockInnerBlockCount = 0;
 		mockIsSelected = false;
 		mockHasSelectedInnerBlock = false;
+		mockSiblings = [];
 	} );
 
 	// Selecting by store object rather than the 'core/block-editor' string survives a store rename.
@@ -56,11 +60,23 @@ describe( 'NoResultsSlotEdit', () => {
 		expect( mockSelectedStores ).toContain( blockEditorStore );
 	} );
 
-	it( 'previews the filter-aware pair for an empty unscoped variant', () => {
+	it( 'previews the labelled filter-aware pair for an empty unscoped variant', () => {
+		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+
+		expect( screen.getByText( UNFILTERED_DEFAULT ) ).toHaveTextContent( 'Without filters' );
+		expect( screen.getByText( FILTERED_DEFAULT ) ).toHaveTextContent( 'With filters' );
+	} );
+
+	it( 'previews only the unfiltered line when a sibling covers the filtered state', () => {
+		mockSiblings = [
+			{ clientId: 'v-1', attributes: {} },
+			{ clientId: 'v-2', attributes: { condition: 'filtered' } },
+		];
 		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
 
 		expect( screen.getByText( UNFILTERED_DEFAULT ) ).toBeInTheDocument();
-		expect( screen.getByText( FILTERED_DEFAULT ) ).toBeInTheDocument();
+		expect( screen.queryByText( FILTERED_DEFAULT ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Without filters' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'narrows the preview to the matching message for a scoped variant', () => {
