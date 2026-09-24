@@ -41,7 +41,16 @@ class Twitter_Site_Tag_Test extends BaseTestCase {
 		$markup = Twitter_Site_Tag::render();
 
 		$this->assertStringContainsString( '<h3>Twitter Cards</h3>', $markup );
+		$this->assertStringContainsString( '<label for="jetpack-twitter-cards-site-tag">Twitter Site Tag</label>', $markup );
+		$this->assertStringContainsString( 'type="text" id="jetpack-twitter-cards-site-tag"', $markup );
 		$this->assertStringContainsString( 'name="jetpack-twitter-cards-site-tag" value="jetpack"', $markup );
+	}
+
+	/**
+	 * The width override is easy to tidy away; `Twitter_Site_Tag::render()` says why it stays.
+	 */
+	public function test_renders_a_description_that_overrides_the_screen_width(): void {
+		$this->assertStringContainsString( '<p class="description" style="width: auto;">The Twitter username', Twitter_Site_Tag::render() );
 	}
 
 	/**
@@ -72,9 +81,12 @@ class Twitter_Site_Tag_Test extends BaseTestCase {
 			'plain username'       => array( 'jetpack', 'jetpack' ),
 			'leading @'            => array( '@jetpack', 'jetpack' ),
 			'padded leading @'     => array( '  @jetpack ', 'jetpack' ),
+			'space after the @'    => array( '@ jetpack', 'jetpack' ),
 			'markup'               => array( '<b>jetpack</b>', 'jetpack' ),
+			'stray less-than'      => array( 'jetpack <', 'jetpack' ),
+			'unterminated tag'     => array( 'jetpack <foo', 'jetpack' ),
 			'cleared'              => array( '', '' ),
-			'not a string'         => array( array( 'jetpack' ), '' ),
+			'array posted'         => array( array( 'jetpack' ), '' ),
 			'slashed by WordPress' => array( 'jet\\\'pack', "jet'pack" ),
 		);
 	}
