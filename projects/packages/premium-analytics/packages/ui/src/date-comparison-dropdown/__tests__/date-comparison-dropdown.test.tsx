@@ -1,6 +1,7 @@
 import { TZDate } from '@date-fns/tz';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useState } from 'react';
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import type { ComparisonDateRangePreset } from '../../use-comparison-date-presets';
 
@@ -144,9 +145,14 @@ describe( 'DateComparisonDropdown', () => {
 
 		await user.hover( screen.getByRole( 'button', { name: 'Previous period' } ) );
 
+		// Skip the always-mounted description mirror; only the popup proves the hover.
 		await expect(
-			screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
-		).resolves.toHaveTextContent( /June 1.+30, 2026/ );
+			screen.findByText(
+				/June 1.+30, 2026/,
+				{ ignore: '[data-visually-hidden]' },
+				{ timeout: 3000 }
+			)
+		).resolves.toBeVisible();
 	} );
 
 	// A URL can carry a comparison whose preset the trigger cannot name — the
@@ -213,5 +219,32 @@ describe( 'DateComparisonDropdown', () => {
 		await user.keyboard( '{ArrowDown}' );
 
 		expect( screen.getByRole( 'menuitemradio', { name: 'No comparison' } ) ).toBeChecked();
+	} );
+
+	// Picking the first comparison gives the trigger its tooltip; the trigger must
+	// survive that, or focus returns to a detached node and drops to the page.
+	it( 'keeps focus on the trigger when a pick gives it a tooltip', async () => {
+		const user = userEvent.setup();
+
+		function Host() {
+			const [ presetId, setPresetId ] = useState< 'previous-period' | undefined >();
+
+			return (
+				<DateComparisonDropdown
+					presets={ presets }
+					enabled={ !! presetId }
+					presetId={ presetId }
+					onPresetChange={ () => setPresetId( 'previous-period' ) }
+					onClear={ () => setPresetId( undefined ) }
+				/>
+			);
+		}
+
+		render( <Host /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Compare' } ) );
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'Previous period' } ) );
+
+		expect( screen.getByRole( 'button', { name: 'Previous period' } ) ).toHaveFocus();
 	} );
 } );

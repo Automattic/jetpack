@@ -60,9 +60,10 @@ function renderField(
 		);
 	}
 
-	render( <Host /> );
+	const { unmount } = render( <Host /> );
 
 	return {
+		unmount,
 		saved,
 		latest: () => saved[ saved.length - 1 ]?.reportParams,
 		// Stands in for an undo, a dashboard reset, or another surface saving
@@ -360,7 +361,7 @@ describe( 'report params field', () => {
 		 */
 		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00.000Z' ) );
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		const { latest } = renderField();
+		const { latest, unmount } = renderField();
 
 		await user.click( screen.getByRole( 'button', { name: /compare/i } ) );
 		await user.click( await screen.findByRole( 'menuitemradio', { name: 'Previous 30 days' } ) );
@@ -374,6 +375,10 @@ describe( 'report params field', () => {
 			new Date( String( to ) ).getTime() - new Date( String( from ) ).getTime();
 
 		expect( span( params.compare_from, params.compare_to ) ).toBe( span( params.from, params.to ) );
+
+		// Unmount on the fake clock: jsdom reads every refocus as focus-visible, so the
+		// trigger tooltip is still opening, and would land in the next test.
+		unmount();
 	} );
 
 	// A widget can carry a preset with no window behind it, and it compares
