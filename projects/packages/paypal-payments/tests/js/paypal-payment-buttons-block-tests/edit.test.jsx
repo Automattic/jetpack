@@ -6037,7 +6037,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		/**
 		 * Whether a save over a block in this state sends the payment to PayPal.
 		 *
-		 * Checks the save's own reading of the errors, apart from the form's.
+		 * Runs the real save, so the test checks what the save sends.
 		 *
 		 * @param {string} key - The validationErrors key under test.
 		 * @return {Promise<boolean>} True when the save sent a request.

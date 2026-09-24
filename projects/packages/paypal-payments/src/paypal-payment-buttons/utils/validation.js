@@ -332,8 +332,8 @@ export function sanitizePayPalUrl( url ) {
 /**
  * Validate a return URL (optional field).
  *
- * An http or https URL with a lowercase scheme and a host, free of a username or spaces,
- * so the server accepts it unchanged. Empty means the buyer is not redirected anywhere.
+ * Matches what the server accepts: an http or https URL with a host. Empty means the
+ * buyer is not redirected anywhere.
  *
  * @param {string} value - The return URL.
  * @return {string|null} Error message or null if valid.
