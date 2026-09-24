@@ -193,8 +193,10 @@ the month shape and the to-date preset alike.
 The comparison options the given range offers, in display order: the previous
 period always; the week, month, and year shifts only while they cannot overlap
 the range (7, 28, and 364 inclusive days at most); an option resolving to the
-same window as another is folded into it as an alias, the weekday-aligned
-variant yielding to its calendar sibling. The weekday-aligned period is offered
+same window as another is folded into it as an alias; a weekday-aligned variant
+yields to whichever option it coincides with, not necessarily its calendar
+sibling (a single-day `previous-period-match-day-of-week` folds into
+`previous-week`). The weekday-aligned period is offered
 up to 28 days (except exact week multiples, which coincide with the previous
 period), the weekday-aligned year up to 364. Each option carries the resolved
 `range`, the `aliases` folded into it, a `label` naming the comparison target

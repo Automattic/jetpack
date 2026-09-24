@@ -223,15 +223,8 @@ function getOptionLabel(
 }
 
 /**
- * The comparison options the given range offers, in display order.
- *
- * Derived from the range alone — a custom range, a stepped window, or a preset
- * all resolve through the same rules: the previous period is always offered;
- * the week, month, and year shifts only while they cannot overlap the range;
- * and an option resolving to the same window as an earlier one is folded into
- * it as an alias, so a 7-day range lists no last-week entry. The weekday-aligned
- * period is offered up to four weeks and the weekday-aligned year up to the
- * year cap; both yield to any option they coincide with.
+ * The comparison options the given range offers, in display order. See the
+ * package README for the candidate rules and alias-folding behaviour.
  *
  * @param reference - The applied range (both ends required).
  * @param options   - The context the range was produced in; the preset it came
