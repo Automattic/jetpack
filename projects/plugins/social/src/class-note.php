@@ -22,9 +22,24 @@ class Note {
 	 */
 	public function enabled() {
 		$missing = new \stdClass();
-		if ( $missing === get_option( self::JETPACK_SOCIAL_NOTE_CPT, $missing ) ) {
-			add_option( self::JETPACK_SOCIAL_NOTE_CPT, false, '', true );
+		$enabled = get_option( self::JETPACK_SOCIAL_NOTE_CPT, $missing );
+		if ( $missing !== $enabled ) {
+			return (bool) $enabled;
 		}
+
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- add_option() can overwrite a concurrent enable.
+		$wpdb->query(
+			$wpdb->prepare(
+				"INSERT IGNORE INTO $wpdb->options ( option_name, option_value, autoload ) VALUES ( %s, %s, %s )",
+				self::JETPACK_SOCIAL_NOTE_CPT,
+				'',
+				'yes'
+			)
+		);
+		wp_cache_delete( self::JETPACK_SOCIAL_NOTE_CPT, 'options' );
+		wp_cache_delete( 'notoptions', 'options' );
+		wp_cache_delete( 'alloptions', 'options' );
 
 		return (bool) get_option( self::JETPACK_SOCIAL_NOTE_CPT );
 	}

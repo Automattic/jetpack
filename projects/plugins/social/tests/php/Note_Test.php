@@ -23,18 +23,63 @@ class Note_Test extends BaseTestCase {
 	 * Seed missing options without changing stored enabled or disabled values.
 	 */
 	public function test_enabled_seeds_missing_option_and_preserves_existing_values() {
-		$option = Note::JETPACK_SOCIAL_NOTE_CPT;
-		$note   = new Note();
+		$option  = Note::JETPACK_SOCIAL_NOTE_CPT;
+		$note    = new Note();
+		$inserts = 0;
+		$insert  = static function ( $result, $query ) use ( $option, &$inserts ) {
+			if ( false !== strpos( $query, 'INSERT IGNORE INTO' ) && false !== strpos( $query, $option ) ) {
+				++$inserts;
+				add_option( $option, false, '', true );
+			}
+			return $result;
+		};
 
 		delete_option( $option );
-		$this->assertSame( 'missing', get_option( $option, 'missing' ) );
-		$this->assertFalse( $note->enabled() );
-		$this->assertNotSame( 'missing', get_option( $option, 'missing' ) );
+		add_filter( 'wordbless_wpdb_query_results', $insert, 10, 2 );
+		try {
+			$this->assertSame( 'missing', get_option( $option, 'missing' ) );
+			$this->assertFalse( $note->enabled() );
+			$this->assertNotSame( 'missing', get_option( $option, 'missing' ) );
+			$this->assertFalse( $note->enabled() );
+			$this->assertSame( 1, $inserts );
 
-		update_option( $option, true );
-		$this->assertTrue( $note->enabled() );
+			update_option( $option, true );
+			$reads = did_filter( "option_{$option}" );
+			$this->assertTrue( $note->enabled() );
+			$this->assertSame( $reads + 1, did_filter( "option_{$option}" ) );
 
-		update_option( $option, false );
-		$this->assertFalse( $note->enabled() );
+			update_option( $option, false );
+			$this->assertFalse( $note->enabled() );
+			$this->assertSame( 1, $inserts );
+		} finally {
+			remove_filter( 'wordbless_wpdb_query_results', $insert );
+		}
+	}
+
+	/**
+	 * Do not replace an enable saved after the initial missing read.
+	 */
+	public function test_enabled_preserves_concurrent_enable() {
+		$option = Note::JETPACK_SOCIAL_NOTE_CPT;
+		$note   = new Note();
+		delete_option( $option );
+
+		$injected = false;
+		$enable   = static function ( $result, $query ) use ( $option, &$injected ) {
+			if ( ! $injected && false !== strpos( $query, 'INSERT IGNORE INTO' ) && false !== strpos( $query, $option ) ) {
+				$injected = true;
+				add_option( $option, true );
+			}
+			return $result;
+		};
+		add_filter( 'wordbless_wpdb_query_results', $enable, 10, 2 );
+
+		try {
+			$this->assertTrue( $note->enabled() );
+			$this->assertTrue( (bool) get_option( $option ) );
+			$this->assertTrue( $injected );
+		} finally {
+			remove_filter( 'wordbless_wpdb_query_results', $enable );
+		}
 	}
 }
