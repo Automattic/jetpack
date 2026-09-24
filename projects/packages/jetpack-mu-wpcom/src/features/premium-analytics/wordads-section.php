@@ -9,8 +9,8 @@
  */
 
 /**
- * Register the Ads section on a site whose plan includes WordAds, unless another owner already
- * holds the `ads` slug: an older dashboard package still registering the section itself.
+ * Register the Ads section on a site whose plan includes WordAds and that has WordAds on, unless
+ * another owner already holds the `ads` slug: an older dashboard package still registering the section itself.
  *
  * @since $$next-version$$
  *
@@ -19,6 +19,11 @@
  */
 function wpcom_premium_analytics_register_wordads_section( $registry ) {
 	if ( ! function_exists( 'wpcom_site_has_feature' ) || ! wpcom_site_has_feature( 'wordads' ) ) {
+		return;
+	}
+
+	// Classic Stats shows its Ads tab only while WordAds is on, not to every plan that could use it.
+	if ( ! wpcom_premium_analytics_wordads_is_enabled() ) {
 		return;
 	}
 
@@ -45,6 +50,27 @@ function wpcom_premium_analytics_register_wordads_section( $registry ) {
 			'default_layout'      => 'Automattic\\Jetpack\\PremiumAnalytics\\get_ads_section_default_layout',
 		)
 	);
+}
+
+/**
+ * Whether the site is using WordAds: the answer classic Stats reads as the sites API's
+ * `options.wordads`, so both dashboards show the Ads tab to the same sites.
+ *
+ * @since $$next-version$$
+ *
+ * @return bool
+ */
+function wpcom_premium_analytics_wordads_is_enabled() {
+	if ( ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ) {
+		// Simple keeps its own WordAds record. Until the wpcom function behind the
+		// SAL's has_wordads() is wired here, the plan feature alone decides, as before.
+		// TODO WOOA7S-2208: call that function.
+		return ! function_exists( 'wpcom_wordads_is_enabled' ) || (bool) wpcom_wordads_is_enabled();
+	}
+
+	// Atomic runs the Jetpack plugin, where classic reads the WordAds module. Not
+	// `available_only`: the module list is not loaded on every request that hydrates the registry.
+	return ( new \Automattic\Jetpack\Modules() )->is_active( 'wordads', false );
 }
 
 /**

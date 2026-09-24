@@ -1,14 +1,17 @@
 <?php
 /**
- * Tests for the Ads tab registered on the Premium Analytics dashboard by plan feature.
+ * Tests for the Ads tab registered on the Premium Analytics dashboard by plan feature and WordAds state.
  *
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section;
 use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
 use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use function Automattic\Jetpack\PremiumAnalytics\get_ads_section_default_layout;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
@@ -38,8 +41,18 @@ class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 		$instance->setValue( null, null );
 
 		wp_set_current_user( 0 );
+		Constants::clear_constants();
+		delete_option( 'jetpack_active_modules' );
 
 		parent::tear_down();
+	}
+
+	/**
+	 * Atomic with the plan feature and the WordAds module on: the shape every registering test uses.
+	 */
+	private function enable_wordads_on_atomic() {
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
+		update_option( 'jetpack_active_modules', array( 'wordads' ) );
 	}
 
 	/**
@@ -56,7 +69,7 @@ class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 	 * A plan carrying WordAds gets the tab, keyed by the `ads` slug the client expects.
 	 */
 	public function test_registers_the_ads_tab_when_the_plan_includes_wordads() {
-		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
+		$this->enable_wordads_on_atomic();
 		$user_id = wp_insert_user(
 			array(
 				'user_login' => 'wordads_admin',
@@ -90,10 +103,50 @@ class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * A plan that could use WordAds is not a site that does: on Atomic the module decides, as in
+	 * classic Stats.
+	 */
+	public function test_registers_nothing_on_atomic_while_the_wordads_module_is_off() {
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
+		update_option( 'jetpack_active_modules', array( 'stats' ) );
+
+		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, 'wordads/ads' ) );
+	}
+
+	/**
+	 * Simple reads its own WordAds record rather than the module list.
+	 */
+	public function test_simple_follows_the_wpcom_wordads_record() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
+		Functions\when( 'wpcom_wordads_is_enabled' )->justReturn( false );
+
+		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, 'wordads/ads' ) );
+	}
+
+	/**
+	 * Simple without the wpcom record wired keeps today's plan-only behaviour rather than losing the tab.
+	 *
+	 * Its own process: a Brain Monkey stub of the record function from another test would otherwise
+	 * make `function_exists()` true here.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_simple_falls_back_to_the_plan_feature_without_the_wpcom_record() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
+
+		$this->assertInstanceOf( Dashboard_Section::class, get_registered_dashboard_section( DASHBOARD_NAME, 'wordads/ads' ) );
+	}
+
+	/**
 	 * Another owner of the `ads` slug, such as the WordAds module on Atomic, keeps its tab.
 	 */
 	public function test_skips_when_the_ads_slug_is_taken() {
-		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
+		$this->enable_wordads_on_atomic();
 		register_dashboard_section( DASHBOARD_NAME, 'other/ads', array( 'label' => 'Ads' ) );
 
 		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, 'wordads/ads' ) );
