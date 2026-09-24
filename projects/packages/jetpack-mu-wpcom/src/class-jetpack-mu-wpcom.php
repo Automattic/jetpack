@@ -375,6 +375,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
 		require_once __DIR__ . '/features/font-smoothing-antialiased/font-smoothing-antialiased.php';
 		require_once __DIR__ . '/features/google-analytics/google-analytics.php';
+		require_once __DIR__ . '/features/hide-repeated-featured-image/hide-repeated-featured-image.php';
 		require_once __DIR__ . '/features/holiday-snow/class-holiday-snow.php';
 		require_once __DIR__ . '/features/launch-button/index.php';
 		require_once __DIR__ . '/features/layout-grid-usage-tracking/layout-grid-usage-tracking.php';
