@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Coming Soon: Respect the site's Coming Soon and search engine visibility settings when the option is missing or after a Playground import.
