@@ -675,6 +675,7 @@ class Main_Features {
 					'related-posts',
 					'infinite-scroll',
 					'sharedaddy',
+					'shortlinks',
 				),
 			),
 			array(
@@ -690,7 +691,6 @@ class Main_Features {
 					'post-list',
 					'carousel',
 					'tiled-gallery',
-					'shortlinks',
 				),
 			),
 			array(
