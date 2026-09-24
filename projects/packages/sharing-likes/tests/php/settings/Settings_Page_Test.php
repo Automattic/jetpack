@@ -56,6 +56,7 @@ class Settings_Page_Test extends BaseTestCase {
 		remove_all_actions( 'admin_menu' );
 		remove_all_actions( 'pre_admin_screen_sharing' );
 		remove_all_actions( 'sharing_global_options' );
+		remove_all_filters( 'jetpack_disable_twitter_cards' );
 
 		$submenu           = array();
 		$_registered_pages = array();
@@ -192,11 +193,13 @@ class Settings_Page_Test extends BaseTestCase {
 	 * sections render and the extras section does not, so there is exactly one.
 	 */
 	public function test_rules_off_between_sections_but_not_after_the_last(): void {
+		add_filter( 'jetpack_disable_twitter_cards', '__return_true' );
+
 		$this->assertSame( 1, substr_count( $this->render_screen(), '<hr />' ) );
 	}
 
 	/**
-	 * Hook a field onto `sharing_global_options`, as Twitter Cards does.
+	 * Hook a field onto `sharing_global_options`, as a third party does.
 	 */
 	private function given_extra_field(): void {
 		add_action(
@@ -222,7 +225,7 @@ class Settings_Page_Test extends BaseTestCase {
 
 	/**
 	 * Once both features moved to their blocks, placement governs nothing left on
-	 * the page. Fields like the Twitter Site Tag stay: the Sharing Buttons block reads it.
+	 * the page. Fields other features hang there stay, like Simple's Twitter username.
 	 */
 	public function test_leaves_the_block_prompts_and_the_extras_once_simple_switched_both_off(): void {
 		Constants::set_constant( 'IS_WPCOM', true );
@@ -276,13 +279,7 @@ class Settings_Page_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'value="' . Settings_Form::SECTION_LIKES . '"', $html );
 		$this->assertStringContainsString( 'value="' . Settings_Form::SECTION_PLACEMENT . '"', $html );
 
-		preg_match_all( '/<(?:input|select|textarea)\b[^>]*>/', $html, $fields );
-		foreach ( $fields[0] as $field ) {
-			if ( str_contains( $field, 'name="_wp' ) || str_contains( $field, 'name="jetpack_sharing_action"' ) || str_contains( $field, 'name="submit"' ) ) {
-				continue;
-			}
-			$this->assertStringContainsString( 'form="' . Settings_Form::ID . '"', $field );
-		}
+		$this->assert_every_field_joins_the_form( $html );
 
 		preg_match( '/<form[^>]*id="' . Settings_Form::ID . '"[^>]*>.*?name="_wpnonce" value="([^"]+)"/s', $html, $matches );
 
@@ -292,9 +289,50 @@ class Settings_Page_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The services table's rows sit outside any form of their own, so the `form`
+	 * attribute is the only thing that submits them. A Likes-only screen never
+	 * renders that table, which is how the checkbox below escaped the check above.
+	 */
+	public function test_saves_the_services_sections_own_rows_through_the_same_button(): void {
+		$this->given_connection( true );
+		$this->given_modules( array( 'sharedaddy' ) );
+
+		$html = $this->render_screen();
+
+		$this->assertStringContainsString( 'name="disable_resources"', $html );
+		$this->assertStringContainsString( 'name="jetpack-twitter-cards-site-tag"', $html );
+		$this->assert_every_field_joins_the_form( $html );
+	}
+
+	/**
+	 * Every field on the screen names the page form, bar the ones the form prints itself.
+	 *
+	 * The services list nests its own forms, which its script submits over AJAX;
+	 * fields inside a form of their own need no `form` attribute.
+	 *
+	 * @param string $html Rendered screen.
+	 */
+	private function assert_every_field_joins_the_form( string $html ): void {
+		$loose = preg_replace( '/<form\b(?![^>]*id="' . Settings_Form::ID . '")[^>]*>.*?<\/form>/s', '', $html );
+
+		preg_match_all( '/<(?:input|select|textarea)\b[^>]*>/', (string) $loose, $fields );
+
+		$this->assertNotEmpty( $fields[0], 'The screen rendered no fields to check.' );
+
+		foreach ( $fields[0] as $field ) {
+			if ( str_contains( $field, 'name="_wp' ) || str_contains( $field, 'name="jetpack_sharing_action"' ) || str_contains( $field, 'name="submit"' ) ) {
+				continue;
+			}
+			$this->assertStringContainsString( 'form="' . Settings_Form::ID . '"', $field );
+		}
+	}
+
+	/**
 	 * With no section offering settings, a Save button would save nothing.
 	 */
 	public function test_renders_no_save_button_without_settings(): void {
+		add_filter( 'jetpack_disable_twitter_cards', '__return_true' );
+
 		$this->assertStringNotContainsString( 'Save Changes', $this->render_screen() );
 	}
 }

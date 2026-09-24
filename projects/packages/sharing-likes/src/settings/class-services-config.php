@@ -280,13 +280,16 @@ final class Services_Config {
 	}
 
 	/**
-	 * The markup `sharing_global_options` produces.
+	 * The rows that close the settings table: the screen's own, then whatever
+	 * `sharing_global_options` adds. `Post_Handler::save_global_options()` saves them.
 	 *
 	 * Leaves out `Jetpack_Likes_Settings::admin_settings_init()`, which Simple
 	 * hangs on the action until CM-913: the Likes section owns those options,
 	 * and a second set of the same radios would join the same form.
 	 */
 	public static function global_options(): string {
+		$markup = Sharing_Resources::render() . Twitter_Site_Tag::render();
+
 		$unhooked = self::unhook_legacy_likes_options();
 
 		ob_start();
@@ -300,13 +303,13 @@ final class Services_Config {
 		 */
 		do_action( 'sharing_global_options' );
 
-		$markup = trim( (string) ob_get_clean() );
+		$markup .= (string) ob_get_clean();
 
 		foreach ( $unhooked as list( $callback, $priority ) ) {
 			add_action( 'sharing_global_options', $callback, $priority );
 		}
 
-		return $markup;
+		return trim( $markup );
 	}
 
 	/**
