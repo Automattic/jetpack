@@ -1,6 +1,6 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { border, drafts, published } from '@wordpress/icons';
+import { bell, chartBar, border, drafts, published } from '@wordpress/icons';
 import { Children, isValidElement } from 'react';
 import { startBenefits } from '../lib';
 import { PANEL_LINES } from '../panel-type';
@@ -47,11 +47,18 @@ jest.mock( '../../../../hooks/use-analytics', () => ( {
  * the hook has its own tests for what it does with the store.
  */
 const mockModules = [
-	{ slug: 'stats', name: 'Jetpack Stats', description: 'Traffic insights.', activated: true },
+	{
+		slug: 'stats',
+		name: 'Jetpack Stats',
+		description: 'Traffic insights.',
+		icon: chartBar,
+		activated: true,
+	},
 	{
 		slug: 'monitor',
 		name: 'Downtime Monitor',
 		description: 'Alerts if it goes down.',
+		icon: bell,
 		activated: false,
 	},
 ];
