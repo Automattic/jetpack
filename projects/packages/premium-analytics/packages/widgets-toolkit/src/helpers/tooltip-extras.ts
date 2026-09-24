@@ -1,11 +1,13 @@
 /**
  * Internal dependencies
  */
+import { resolvePrimarySeriesByGroup } from './resolve-series-names';
 import type {
 	ComparativeDatePointDate,
+	ComparativeLineChartSeries,
 	TooltipExtraSeries,
 } from '../components/chart-comparative-line/types';
-import type { DataFormat } from '../types';
+import type { CountLabel, DataFormat } from '../types';
 
 type TooltipData = {
 	datumByKey?: Record< string, unknown >;
@@ -65,28 +67,38 @@ export function appendTooltipExtras< T extends TooltipData >(
 	};
 }
 
+/** What a tooltip row reads after its value. */
+export type TooltipUnit = {
+	name: string;
+	countLabel?: CountLabel;
+};
+
 /**
- * The metric name for each tooltip row: the drawn series' own, plus each extra
- * the chart did not already name, named after itself.
+ * The unit for each tooltip row, keyed by row key. A comparison row reads its
+ * group's current period ('Visitors', not 'Visitors · previous period'); an
+ * extra the chart does not draw reads itself.
  *
- * @param seriesNames - The drawn series' names, keyed by series label.
- * @param extras      - The series to read out without drawing.
- * @return The names keyed by row key.
+ * @param series - The series the chart was handed.
+ * @param extras - The series to read out without drawing.
+ * @return The units keyed by row key.
  */
-export function resolveTooltipNames(
-	seriesNames: Map< string, string >,
+export function resolveTooltipUnits(
+	series: readonly ComparativeLineChartSeries[],
 	extras: readonly TooltipExtraSeries[] | undefined
-): Map< string, string > {
-	if ( ! extras?.length ) {
-		return seriesNames;
+): Map< string, TooltipUnit > {
+	const primarySeriesByGroup = resolvePrimarySeriesByGroup( series );
+	const units = new Map< string, TooltipUnit >();
+
+	for ( const item of series ) {
+		const source = ( item.group !== undefined && primarySeriesByGroup.get( item.group ) ) || item;
+		units.set( item.label, { name: source.label, countLabel: source.countLabel } );
 	}
 
-	const names = new Map( seriesNames );
-	extras.forEach( extra => {
-		if ( ! names.has( extra.label ) ) {
-			names.set( extra.label, extra.label );
+	extras?.forEach( extra => {
+		if ( ! units.has( extra.label ) ) {
+			units.set( extra.label, { name: extra.label, countLabel: extra.countLabel } );
 		}
 	} );
 
-	return names;
+	return units;
 }

@@ -9,6 +9,7 @@
 	"description": "VideoPress powered list of videos in a single customizable player. Build the playlist from your VideoPress library or video links.",
 	"keywords": [ "playlist", "video", "videopress", "series" ],
 	"textdomain": "jetpack-videopress-pkg",
+	"usesContext": [ "videopress/latestVideosPlaylist" ],
 	"supports": {
 		"html": false,
 		"align": [ "wide", "full" ],

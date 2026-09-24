@@ -220,6 +220,13 @@ jobs:
               exit 0
             fi
 
+            # Clone the WordPress installation, so stuff like maintenance mode getting enabled across tests doesn't interfere with other tests.
+            if [[ -n "$WORDPRESS_DEVELOP_DIR" && -d "$WORDPRESS_DEVELOP_DIR" ]]; then
+              cp -al "$WORDPRESS_DEVELOP_DIR" "$WORDPRESS_DEVELOP_DIR-$WORKERID"
+              export WORDPRESS_DEVELOP_DIR="$WORDPRESS_DEVELOP_DIR-$WORKERID"
+              export WORDPRESS_DIR="$WORDPRESS_DEVELOP_DIR/src"
+            fi
+
             EXIT=0
             while true; do
               P=$( flock "$QUEUEFILE.lock" sed -i -e '1{w/dev/stdout' -e 'd}' "$QUEUEFILE" )

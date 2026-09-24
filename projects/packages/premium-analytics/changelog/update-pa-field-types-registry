@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Widgets: name field controls through a field type registry; no user-facing change.
+
+

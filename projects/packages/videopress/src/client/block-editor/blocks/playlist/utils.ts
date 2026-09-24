@@ -5,7 +5,7 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Types
  */
-import type { PlaylistEntry } from './types';
+import type { PlaylistDisplayAttributes, PlaylistEntry } from './types';
 
 /**
  * Format a duration in milliseconds as a timecode, m:ss or h:mm:ss.
@@ -145,4 +145,42 @@ export function playlistEmbedUrl( guid: string, autoplay: boolean, muted = false
 export function withMetadataToken( url: string, token: string ): string {
 	const separator = url.includes( '?' ) ? '&' : '?';
 	return `${ url }${ separator }metadata_token=${ encodeURIComponent( token ) }`;
+}
+
+/**
+ * Build the wrapper class list the stylesheet keys layout, dark surface and
+ * the hide-* display toggles off, matching the PHP render.
+ *
+ * @param attributes - Display and playback options.
+ * @return Space-separated class list.
+ */
+export function playlistWrapperClasses( attributes: PlaylistDisplayAttributes ): string {
+	return [
+		'videopress-playlist',
+		`is-layout-${ attributes.layout }`,
+		attributes.darkPlayer ? 'is-dark' : '',
+		attributes.showThumbnail ? '' : 'hide-thumbnails',
+		attributes.showTitle ? '' : 'hide-titles',
+		attributes.showResolution ? '' : 'hide-resolutions',
+		attributes.showDuration ? '' : 'hide-durations',
+		attributes.showTotalRuntime ? '' : 'hide-runtime',
+	]
+		.filter( Boolean )
+		.join( ' ' );
+}
+
+/**
+ * Expose the chosen theme font presets to the stylesheet as CSS custom
+ * properties, the same way the PHP render does on the front end.
+ *
+ * @param entryTitleFontFamily - Font preset slug for the entry titles; empty inherits.
+ * @return Inline style declarations.
+ */
+export function playlistFontVariables( entryTitleFontFamily: string ): Record< string, string > {
+	const fontVariables: Record< string, string > = {};
+	if ( entryTitleFontFamily ) {
+		fontVariables[ '--vpp-entry-title-font' ] =
+			`var(--wp--preset--font-family--${ entryTitleFontFamily })`;
+	}
+	return fontVariables;
 }

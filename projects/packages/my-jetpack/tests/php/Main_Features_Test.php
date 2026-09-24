@@ -120,6 +120,7 @@ class Main_Features_Test extends TestCase {
 				'protect'    => 'https://wordpress.org/plugins/jetpack-protect/',
 				'search'     => 'https://wordpress.org/plugins/jetpack-search/',
 				'social'     => 'https://wordpress.org/plugins/jetpack-social/',
+				'stats'      => 'https://wordpress.org/plugins/jetpack-stats/',
 				'videopress' => 'https://wordpress.org/plugins/jetpack-videopress/',
 			),
 			$urls
@@ -257,8 +258,8 @@ class Main_Features_Test extends TestCase {
 
 		$this->assertSame( 'Akismet Anti-spam', $features['anti-spam']['plugin_name'] );
 		$this->assertSame( 'https://wordpress.org/plugins/akismet/', $features['anti-spam']['plugin_url'] );
-		$this->assertSame( '', $features['stats']['plugin_name'] );
-		$this->assertSame( '', $features['stats']['plugin_url'] );
+		$this->assertSame( '', $features['activity-log']['plugin_name'] );
+		$this->assertSame( '', $features['activity-log']['plugin_url'] );
 	}
 
 	/**
@@ -370,5 +371,25 @@ class Main_Features_Test extends TestCase {
 	 */
 	public function test_a_missing_plugin_reads_as_not_installed() {
 		$this->assertSame( Main_Features::PLUGIN_NOT_INSTALLED, Main_Features::get_plugin_status( 'zero-bs-crm' ) );
+	}
+
+	/**
+	 * A feature a host hid is left out, by its own slug or by its module's.
+	 */
+	public function test_features_a_host_hid_are_left_out() {
+		$hide = function ( $states ) {
+			$states['search']        = 'hidden';
+			$states['subscriptions'] = 'hidden';
+			return $states;
+		};
+		add_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+
+		$slugs = array_column( Main_Features::get_features(), 'slug' );
+
+		remove_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+
+		$this->assertNotContains( 'search', $slugs );
+		$this->assertNotContains( 'newsletter', $slugs );
+		$this->assertContains( 'stats', $slugs );
 	}
 }

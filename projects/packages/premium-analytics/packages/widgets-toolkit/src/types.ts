@@ -3,6 +3,7 @@
  */
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import type { ReportDataMap } from '@jetpack-premium-analytics/data';
+import type { TransformedText } from '@wordpress/i18n';
 
 export type OrdersSummary = ReportDataMap[ 'orders' ][ 'summary' ];
 
@@ -57,6 +58,13 @@ export type DataFormat = {
 	type: MetricFormat;
 	options?: FormatMetricValueOptions;
 };
+
+/**
+ * A count metric's unit in the locale's plural form for `count`, with `%s` for the
+ * formatted number: `count => _n( '%s View', '%s Views', count, domain )`.
+ * Whole-number counts only: the form follows the raw value, not a rounded one shown.
+ */
+export type CountLabel = ( count: number ) => TransformedText< `%s ${ string }` >;
 
 /**
  * Local stand-in for the `WidgetErrorConfig` type from `@automattic/dashboard`

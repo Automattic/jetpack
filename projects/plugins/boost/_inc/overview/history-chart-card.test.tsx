@@ -135,6 +135,7 @@ test( 'renders thirty daily bars for each device using score band colours and em
 			expect( bars[ index ] ).toHaveAttribute( 'fill', getScoreTierColor( tier ) )
 		);
 		expect( bars[ 3 ] ).toHaveAttribute( 'fill', 'var(--jetpack-boost-history-empty)' );
+		expect( bars[ 3 ] ).toHaveClass( 'boost-daily-history__bar--empty' );
 	}
 } );
 
@@ -185,12 +186,20 @@ test( 'retains a recorded zero and its poor-score colour rather than treating it
 		{ wrapper }
 	);
 	const chart = within( screen.getByRole( 'region', { name: 'Desktop score history' } ) );
-	await waitFor( () => {
-		const bar = getBars( chart.getByTestId( 'bar-chart' ) )[ 0 ];
-		expect( bar ).toHaveAttribute( 'fill', 'var(--jetpack-boost-score-poor)' );
+	const bar = await waitFor( () => {
+		const renderedBar = getBars( chart.getByTestId( 'bar-chart' ) )[ 0 ];
+		expect( renderedBar ).toHaveAttribute( 'fill', 'var(--jetpack-boost-score-poor)' );
+		return renderedBar;
 	} );
+	expect( bar ).toHaveClass( 'boost-daily-history__bar--zero' );
+	expect( bar ).not.toHaveClass( 'boost-daily-history__bar--empty' );
 	fireEvent.keyDown( chart.getByRole( 'grid' ), { key: 'ArrowRight' } );
 	await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveTextContent( '0/100' );
+	expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+		padding: '0px',
+		backgroundColor: 'rgba(0, 0, 0, 0)',
+		boxShadow: 'none',
+	} );
 } );
 
 test( 'exposes the date, grade, and both device metrics through keyboard tooltips', async () => {
@@ -309,6 +318,11 @@ test( 'shows nothing beyond the empty-day tooltip when an empty day is clicked',
 	await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
 		'No scores recorded for this day.'
 	);
+	expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+		padding: '0px',
+		backgroundColor: 'rgba(0, 0, 0, 0)',
+		boxShadow: 'none',
+	} );
 	await expect( screen.findByTestId( 'history-popover' ) ).rejects.toThrow();
 } );
 

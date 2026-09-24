@@ -246,6 +246,22 @@ describe( 'ConnectionError', () => {
 		expect( props.errorGroups[ 1 ].noticeLinks ).toEqual( [] );
 	} );
 
+	it( 'passes the rated severity to the notice', () => {
+		mockConnection( {
+			connectionErrors: {
+				invalid_token: {
+					2: { error_message: 'Owner token broken.', audience: 'owner', user_id: '2' },
+				},
+			},
+			connectionOwner: { id: 2, displayName: 'Owner' },
+			userConnectionData: { currentUser: { id: 7 } },
+		} );
+
+		render( <ConnectionError /> );
+
+		expect( ConnectionErrorNotice.mock.calls[ 0 ][ 0 ].severity ).toBe( 'warning' );
+	} );
+
 	// A feature's own framing is more specific than the shared title, and there is
 	// only one slot for it.
 	it( 'prefers a consumer-supplied context over the derived title', () => {

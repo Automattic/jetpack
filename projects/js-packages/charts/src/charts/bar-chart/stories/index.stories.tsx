@@ -163,6 +163,43 @@ export const PerPointColors: Story = {
 	},
 };
 
+export const DatumClasses: Story = {
+	args: {
+		width: 600,
+		height: 300,
+		data: [
+			{
+				label: 'Scores',
+				data: [
+					{ label: 'Empty', value: 0 },
+					{ label: 'Recorded', value: 80 },
+				],
+			},
+		],
+		barClassName: datum => ( datum.value === 0 ? 'bar-story-empty' : undefined ),
+		withTooltips: true,
+		tooltipStyle: { padding: 'var(--wpds-dimension-padding-lg)' },
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Use per-datum classes to keep zero-value marks visible and tooltipStyle to customize the tooltip box.',
+			},
+		},
+	},
+	render: args => (
+		<>
+			<style>
+				{
+					'.bar-story-empty { height: var(--wpds-dimension-gap-xs); translate: 0 calc(-1 * var(--wpds-dimension-gap-xs)); }'
+				}
+			</style>
+			<BarChart { ...args } />
+		</>
+	),
+};
+
 export const BandHighlight: Story = {
 	args: {
 		...SingleSeries.args,

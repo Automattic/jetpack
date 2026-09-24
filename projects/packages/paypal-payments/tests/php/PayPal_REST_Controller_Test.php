@@ -545,7 +545,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$data = $result->get_error_data();
 		// The REST controller normalizes 0 to 503.
-		$this->assertGreaterThan( 0, $data['status'] );
+		$this->assertSame( 503, $data['status'] );
 	}
 
 	// --- handle_delete_button: 404 treated as success ---

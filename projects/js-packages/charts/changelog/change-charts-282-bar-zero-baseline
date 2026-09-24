@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Bar chart: Start the value axis at zero by default; pass `zero: false` on the value scale to fit it to the data.

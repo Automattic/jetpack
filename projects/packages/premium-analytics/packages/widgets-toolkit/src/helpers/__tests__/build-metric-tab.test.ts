@@ -1,7 +1,15 @@
 /**
+ * External dependencies
+ */
+import { _n } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
 import { buildMetricTab } from '../build-metric-tab';
+
+const views = ( count: number ) =>
+	/* translators: %s: number of views. */
+	_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
 
 describe( 'buildMetricTab', () => {
 	it( 'reads the headline from summary, not by re-summing the data points', () => {
@@ -32,6 +40,20 @@ describe( 'buildMetricTab', () => {
 		} );
 
 		expect( tab.dataFormat ).toBe( dataFormat );
+	} );
+
+	it( 'passes countLabel through unchanged', () => {
+		const tab = buildMetricTab( {
+			primary: { summary: { views: 1 }, data: [] },
+			comparison: undefined,
+			hasComparison: false,
+			field: 'views',
+			label: 'Views',
+			countLabel: views,
+			zone: 'UTC',
+		} );
+
+		expect( tab.countLabel ).toBe( views );
 	} );
 
 	it( 'maps one point per row, oldest first, with a real Date', () => {

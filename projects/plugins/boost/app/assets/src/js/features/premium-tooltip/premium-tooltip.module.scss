@@ -35,6 +35,16 @@
 	fill: #8c8f94;
 }
 
+// The button has no box, since the icon is out of flow, so ring the icon.
+.tooltip > :global(.components-button.is-link):focus-visible {
+	outline: none;
+
+	svg {
+		outline: var(--wp-admin-border-width-focus, 2px) solid var(--wp-admin-theme-color, #3858e9);
+		border-radius: 2px;
+	}
+}
+
 .upgrade-cta {
 
 	p {

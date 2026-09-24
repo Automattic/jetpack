@@ -41,6 +41,8 @@ src/class-analytics.php                 # entry: loads build, registers menu + r
 src/dashboard-sections.php              # section API: registry helpers, preview scope, REST
 src/default-dashboard-sections.php      # the package's own sections, registered through that API
 docs/dashboard-sections.md              # how a section is registered, served and rendered (diagrams)
+src/widget-types.php                    # widget type API: registry helpers, metadata, availability filters
+docs/dashboard-widgets.md               # how a widget type is registered, served and imported (diagram)
 src/REST/class-api-proxy-controller.php # the WPCOM data proxy (PREFIX_CONFIG)
 src/REST/class-notices-controller.php   # /notices route
 src/Sync/                               # PA glue for the shared woocommerce_analytics sync module
@@ -84,6 +86,13 @@ REST, and fires that action once; `src/default-dashboard-sections.php` registers
 way. A section declares its default layout in the registration; the
 `jetpack_premium_analytics_dashboard_default_layout` filter lets another plugin add an instance to
 any section by id. `docs/dashboard-sections.md` walks through the whole path with diagrams.
+
+Add widget types from another plugin: hook `jetpack_premium_analytics_register_widget_types`,
+compare `WIDGET_API_VERSION`, and call `register_widget_types_from_manifest()` there with the manifest
+that plugin's wp-build generates (`register_widget_type()` registers a single type). The widget type
+registry hydrates on its first read, from the page boot dependencies or from REST, and fires that
+action once; `src/widget-types.php` registers the package's own build manifest the same way.
+`docs/dashboard-widgets.md` walks through the path.
 
 Depends on `jetpack-connection`, `jetpack-stats`, `jetpack-sync`, `jetpack-config`.
 
@@ -251,6 +260,12 @@ See Automattic/jetpack#50266 for the PR that established this contract.
   `@automattic/charts` follows the same rule under `packages/`, but under `widgets/` and
   `routes/` it must come from `@jetpack-premium-analytics/widgets-toolkit` instead. See
   `packages/externals/README.md`.
+- An internal package's public API is every name its root `src/index.ts` exports, including
+  names re-exported from a sub-barrel, whether by `export *` (`data` → `./hooks`) or by name
+  (`widgets-toolkit` → `useElementSize` from `./hooks`). Add a name there only when something
+  outside the package imports it — types included; `git grep` outside the package to check. A
+  sub-barrel name the root does not re-export, like `reportBookingsQuery` in
+  `data/src/queries/index.ts`, is internal and may serve the package's own imports.
 
 ## Comments and documentation
 
@@ -322,7 +337,8 @@ widgets/<widget-name>/
 Notes:
 
 - `name` lives in `widget.json` and MUST use the `jpa/` prefix
-  (e.g. `jpa/<widget-name>`). `widget.ts` no longer declares it.
+  (e.g. `jpa/<widget-name>`); a widget another plugin ships uses that plugin's namespace.
+  `widget.ts` no longer declares it.
 - Keep `render.tsx` thin: compose toolkit primitives (`WidgetRoot`,
   `OrderMetricWidget`, etc.) rather than reimplementing data fetching, chart wiring, or
   theming.

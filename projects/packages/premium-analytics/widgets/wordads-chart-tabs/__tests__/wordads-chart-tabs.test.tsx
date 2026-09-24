@@ -116,6 +116,12 @@ describe( 'useWordAdsChart', () => {
 			'Average CPM',
 			'Revenue',
 		] );
+		expect( metrics.map( metric => metric.countLabel?.( 2 ) ) ).toEqual( [
+			'%s Ads Served',
+			undefined,
+			undefined,
+		] );
+		expect( metrics[ 0 ].countLabel?.( 1 ) ).toBe( '%s Ad Served' );
 		expect( metrics[ 0 ].value ).toBe( 2000 );
 		expect( metrics[ 1 ].value ).toBeCloseTo( 4.875 );
 		expect( metrics[ 2 ].value ).toBeCloseTo( 9.75 );

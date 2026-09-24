@@ -67,6 +67,23 @@ describe( 'resolveFeatureState', () => {
 			expect( state.status ).toBe( 'active' );
 		} );
 
+		it( 'carries a host override on an installed standalone plugin', () => {
+			const state = resolve(
+				buildFeature( {
+					plugin: 'jetpack-boost',
+					plugin_status: 'inactive',
+					plugin_override: 'inactive',
+				} ),
+				'active'
+			);
+
+			expect( state.control ).toEqual( {
+				kind: 'plugin',
+				plugin: 'jetpack-boost',
+				override: 'inactive',
+			} );
+		} );
+
 		it( 'offers nothing when Jetpack ships the feature but its module is unavailable', () => {
 			const state = resolve( buildFeature( { in_jetpack: true, module: 'stats' } ), 'active', {
 				stats: buildModule( { available: false } ),
