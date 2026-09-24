@@ -1,0 +1,15 @@
+{
+	"name": "@automattic/jetpack-wordads-analytics-widget-earnings-history",
+	"version": "0.1.0-alpha",
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"@jetpack-premium-analytics/data": "workspace:@automattic/jetpack-premium-analytics-data@*",
+		"@jetpack-premium-analytics/externals": "workspace:@automattic/jetpack-premium-analytics-externals@*",
+		"@jetpack-premium-analytics/widgets-toolkit": "workspace:@automattic/jetpack-premium-analytics-widgets-toolkit@*",
+		"@wordpress/i18n": "^6.9.0",
+		"@wordpress/icons": "^16.0.0",
+		"@wordpress/widget-primitives": "0.7.0",
+		"react": "18.3.1"
+	}
+}

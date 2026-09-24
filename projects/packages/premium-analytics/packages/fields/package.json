@@ -12,11 +12,11 @@
 	"wpScriptModuleExports": "./build-module/index.mjs",
 	"types": "src/index.ts",
 	"dependencies": {
-		"@jetpack-premium-analytics/data": "workspace:*",
-		"@jetpack-premium-analytics/datetime": "workspace:*",
-		"@jetpack-premium-analytics/externals": "workspace:*",
-		"@jetpack-premium-analytics/routing": "workspace:*",
-		"@jetpack-premium-analytics/ui": "workspace:*",
+		"@jetpack-premium-analytics/data": "workspace:@automattic/jetpack-premium-analytics-data@*",
+		"@jetpack-premium-analytics/datetime": "workspace:@automattic/jetpack-premium-analytics-datetime@*",
+		"@jetpack-premium-analytics/externals": "workspace:@automattic/jetpack-premium-analytics-externals@*",
+		"@jetpack-premium-analytics/routing": "workspace:@automattic/jetpack-premium-analytics-routing@*",
+		"@jetpack-premium-analytics/ui": "workspace:@automattic/jetpack-premium-analytics-ui@*",
 		"@wordpress/components": "40.1.0",
 		"@wordpress/element": "8.7.0",
 		"@wordpress/i18n": "^6.9.0",
@@ -24,12 +24,17 @@
 		"@wordpress/private-apis": "1.55.0",
 		"@wordpress/widget-primitives": "0.7.0",
 		"date-fns": "4.4.0",
-		"react": "18.3.1"
+		"react": "18.3.1",
+		"react-dom": "18.3.1"
 	},
 	"devDependencies": {
-		"@jetpack-premium-analytics/icons": "workspace:*",
+		"@jetpack-premium-analytics/icons": "workspace:@automattic/jetpack-premium-analytics-icons@*",
 		"@storybook/react": "10.4.6",
+		"@testing-library/dom": "10.4.2",
 		"@testing-library/react": "16.3.3",
-		"@testing-library/user-event": "14.6.7"
+		"@testing-library/user-event": "14.6.7",
+		"@types/react": "18.3.31",
+		"storybook": "10.4.6",
+		"typescript": "6.0.3"
 	}
 }
