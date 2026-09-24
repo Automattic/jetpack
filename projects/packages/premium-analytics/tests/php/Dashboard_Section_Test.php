@@ -1371,9 +1371,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Ads is a preview tab, so a site whose WordAds registrant adds the section shows it.
+	 * Ads is out of the preview until it shows only on sites that use WordAds (WOOA7S-2208), so a
+	 * registered Ads section stays hidden from a previewing site owner.
 	 */
-	public function test_preview_scope_exposes_a_registered_ads_section() {
+	public function test_preview_scope_hides_a_registered_ads_section() {
 		$this->enable_every_section();
 		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
@@ -1387,11 +1388,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 			)
 		);
 
-		$this->assertSame(
-			array( 'traffic', 'insights', 'subscribers', 'ads' ),
-			get_dashboard_preview_scope_sections()
-		);
-		$this->assertTrue( is_dashboard_section_in_preview_scope( DASHBOARD_NAME, 'ads' ) );
+		$this->assertSame( array( 'traffic', 'insights', 'subscribers' ), get_dashboard_preview_scope_sections() );
+		$this->assertFalse( is_dashboard_section_in_preview_scope( DASHBOARD_NAME, 'ads' ) );
 		$this->assertFalse( is_dashboard_section_in_preview_scope( DASHBOARD_NAME, 'store' ) );
 	}
 
