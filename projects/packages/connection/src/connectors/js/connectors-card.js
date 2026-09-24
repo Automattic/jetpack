@@ -25,7 +25,7 @@ const ConnectorItem = connectors.__experimentalConnectorItem || connectors.Conne
 
 const { createElement, createInterpolateElement, useState, useEffect, useRef } = window.wp.element;
 const { __, _x, sprintf } = window.wp.i18n;
-const { Button, Modal, Notice } = window.wp.components;
+const { Button, Modal, Notice, Tooltip } = window.wp.components;
 const HStack = window.wp.components.__experimentalHStack || window.wp.components.HStack;
 const VStack = window.wp.components.__experimentalVStack || window.wp.components.VStack;
 const Text = window.wp.components.__experimentalText || window.wp.components.Text;
@@ -342,9 +342,10 @@ function StatusBadge( { label, modifier = 'connected' } ) {
  * @param {object|null}       props.user       - User data object with displayName, login, avatar.
  * @param {string|false|null} props.subtitle   - Override for the default login/email line. Pass false to hide entirely.
  * @param {object|null}       props.actionSlot - Optional element rendered at the end of the user row.
+ * @param {boolean}           props.showShield - Whether to show the protected-owner shield beside the title.
  * @return {object|null} React element or null.
  */
-function UserSection( { title, user, subtitle = null, actionSlot = null } ) {
+function UserSection( { title, user, subtitle = null, actionSlot = null, showShield = false } ) {
 	if ( ! user ) {
 		return null;
 	}
@@ -355,16 +356,7 @@ function UserSection( { title, user, subtitle = null, actionSlot = null } ) {
 	return createElement(
 		VStack,
 		{ spacing: 3, className: 'jetpack-connector__section' },
-		createElement(
-			Text,
-			{
-				variant: 'muted',
-				size: 11,
-				upperCase: true,
-				weight: 500,
-			},
-			title
-		),
+		createElement( SectionHeading, { title, showShield } ),
 		createElement(
 			HStack,
 			null,
@@ -451,6 +443,59 @@ function ConnectedPluginsSection() {
 }
 
 /**
+ * Uppercase section label, with an optional protected-owner shield.
+ *
+ * @param {object}  props            - Component props.
+ * @param {string}  props.title      - Section heading.
+ * @param {boolean} props.showShield - Whether to show the protected-owner shield.
+ * @return {object} React element.
+ */
+function SectionHeading( { title, showShield = false } ) {
+	const label = createElement(
+		Text,
+		{
+			variant: 'muted',
+			size: 11,
+			upperCase: true,
+			weight: 500,
+		},
+		title
+	);
+
+	if ( ! showShield ) {
+		return label;
+	}
+
+	return createElement(
+		HStack,
+		{ spacing: 1, expanded: false, alignment: 'center', justify: 'flex-start' },
+		label,
+		createElement( ProtectedOwnerShield )
+	);
+}
+
+/**
+ * Shield shown beside the Connection owner title while a protected owner is requested or stored.
+ *
+ * @return {object} React element.
+ */
+function ProtectedOwnerShield() {
+	const notice = __( 'Ownership is locked to this account.', 'jetpack-connection' );
+	const icon = createElement( 'span', {
+		className: 'dashicons dashicons-shield jetpack-connector__protected-owner-shield',
+		role: 'img',
+		tabIndex: 0,
+		'aria-label': notice,
+	} );
+
+	if ( ! Tooltip ) {
+		return createElement( 'span', { title: notice }, icon );
+	}
+
+	return createElement( Tooltip, { text: notice }, icon );
+}
+
+/**
  * Link-styled control that does not navigate.
  *
  * Protected-owner actions are display-only until the claim and recovery flows
@@ -524,10 +569,25 @@ function connectedAccountTitle( user ) {
 /**
  * Whether the current master is only a manager.
  *
- * @return {boolean} True when a linked admin should see the manager title.
+ * @return {boolean} True while no protected owner is established.
  */
 function masterIsManager() {
-	return Boolean( protectedOwner && currentUser && ! protectedOwner.isEstablished );
+	return Boolean( protectedOwner && ! protectedOwner.isEstablished );
+}
+
+/**
+ * Whether an unlinked admin must connect before the unclaimed spot can be confirmed.
+ *
+ * @return {boolean} True when the claim slot should ask the viewer to connect.
+ */
+function claimSlotNeedsConnection() {
+	return Boolean(
+		protectedOwner &&
+		! currentUser &&
+		! protectedOwner.hasAnchor &&
+		! protectedOwner.isEstablished &&
+		! protectedOwner.isConnectedNonAdmin
+	);
 }
 
 /**
@@ -536,15 +596,22 @@ function masterIsManager() {
  * @return {boolean} True when the slot should replace the connection-owner row.
  */
 function showProtectedOwnerSlot() {
-	if ( ! protectedOwner || ! currentUser ) {
+	if ( ! protectedOwner ) {
 		return false;
+	}
+
+	if ( ! currentUser ) {
+		return claimSlotNeedsConnection();
 	}
 
 	return ! protectedOwner.isEstablished || protectedOwner.isConnectedNonAdmin;
 }
 
 /**
- * Protected-owner slot shown to a linked admin.
+ * Protected-owner slot.
+ *
+ * The claim link is only rendered for a linked admin. An unlinked admin gets
+ * text telling them to use the connect button above.
  *
  * @return {object} React element.
  */
@@ -575,6 +642,19 @@ function ProtectedOwnerSection() {
 				{ support: createElement( InactiveLink ) }
 			)
 		);
+	} else if ( ! currentUser ) {
+		body = createElement(
+			Text,
+			{ size: 13 },
+			sprintf(
+				// translators: %s: "site" or "store".
+				__(
+					'Connect your account before you can confirm you are the %s owner.',
+					'jetpack-connection'
+				),
+				subjectNoun
+			)
+		);
 	} else {
 		body = createElement(
 			VStack,
@@ -592,12 +672,13 @@ function ProtectedOwnerSection() {
 				Text,
 				{ variant: 'muted', size: 12 },
 				sprintf(
-					// translators: %s: plugins requesting a protected owner, or a generic fallback.
+					// translators: %1$s: plugins requesting a protected owner, or a generic fallback. %2$s: "site" or "store".
 					__(
-						'Confirming ownership is requested by %s. This step secures that vital features are locked to one account. Ownership can be transferred later.',
+						'Confirming ownership is requested by %1$s, so important features stay tied to one account. Until an owner is confirmed, some features stay locked and the account that connected this %2$s is shown as a manager. Ownership can be transferred later.',
 						'jetpack-connection'
 					),
-					protectedOwnerRequestedBy()
+					protectedOwnerRequestedBy(),
+					subjectNoun
 				)
 			)
 		);
@@ -606,16 +687,10 @@ function ProtectedOwnerSection() {
 	return createElement(
 		VStack,
 		{ spacing: 3, className: 'jetpack-connector__section' },
-		createElement(
-			Text,
-			{
-				variant: 'muted',
-				size: 11,
-				upperCase: true,
-				weight: 500,
-			},
-			__( 'Connection owner', 'jetpack-connection' )
-		),
+		createElement( SectionHeading, {
+			title: __( 'Connection owner', 'jetpack-connection' ),
+			showShield: true,
+		} ),
 		body
 	);
 }
@@ -1363,7 +1438,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 				} )
 			: null,
 
-		// Manager row for a linked admin who is not the master.
+		// Manager row when the viewer is not the master, including an unlinked admin.
 		masterIsManager() && connectionOwner && ! currentUser?.isOwner
 			? createElement( UserSection, {
 					title: __( 'Connected as manager', 'jetpack-connection' ),
@@ -1380,6 +1455,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 					title: __( 'Connection owner', 'jetpack-connection' ),
 					user: connectionOwner,
 					subtitle: false,
+					showShield: Boolean( protectedOwner ),
 				} )
 			: null,
 
