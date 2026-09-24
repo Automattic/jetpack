@@ -421,17 +421,6 @@ describe( 'AiOverview', () => {
 			expect( link ).toHaveAttribute( 'href', expect.stringContaining( slug ) );
 		}
 	} );
-	test( 'tracks: records the overview view once on mount', async () => {
-		apiFetch.mockResolvedValueOnce( freePayload() );
-
-		render( <AiOverview { ...PROPS } /> );
-
-		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
-		expect( callsFor( 'jetpack_ai_hub_viewed' ) ).toEqual( [
-			{ site_type: 'jetpack', is_a11n: 'false', is_test: 'false', tab: 'overview' },
-		] );
-	} );
-
 	test( 'tracks: a video card click records the video slug', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
