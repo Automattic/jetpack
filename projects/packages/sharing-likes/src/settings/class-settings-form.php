@@ -59,7 +59,7 @@ final class Settings_Form {
 	public const SECTION_PLACEMENT = 'placement';
 
 	/**
-	 * Third-party fields hung off `sharing_global_options`.
+	 * The rows that close the services table, whenever that table is hidden.
 	 */
 	public const SECTION_EXTRAS = 'extras';
 

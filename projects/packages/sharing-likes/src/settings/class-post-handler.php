@@ -173,13 +173,30 @@ final class Post_Handler {
 			self::save_comment_likes();
 		}
 
-		// Once, from whichever section rendered `sharing_global_options`; never both.
+		// Once, from whichever section rendered `Services_Config::global_options()`; never both.
 		if ( array_intersect( array( Settings_Form::SECTION_SHARING, Settings_Form::SECTION_EXTRAS ), $sections ) ) {
-			/** This action is documented in projects/packages/sharing-likes/src/settings/class-services-config.php */
-			do_action( 'sharing_admin_update' );
+			self::save_global_options( $sections );
 		}
 
 		return self::redirect_url( true );
+	}
+
+	/**
+	 * Save the rows that close the settings table, ours and then third parties'.
+	 *
+	 * @param string[] $sections Sections the submitted form carried fields for.
+	 */
+	private static function save_global_options( array $sections ): void {
+		// Only the services section renders it, and `is_available()` can have turned true
+		// since the form was built, so the claim decides rather than the environment.
+		if ( in_array( Settings_Form::SECTION_SHARING, $sections, true ) ) {
+			Sharing_Resources::save();
+		}
+
+		Twitter_Site_Tag::save();
+
+		/** This action is documented in projects/packages/sharing-likes/src/settings/class-services-config.php */
+		do_action( 'sharing_admin_update' );
 	}
 
 	/**
