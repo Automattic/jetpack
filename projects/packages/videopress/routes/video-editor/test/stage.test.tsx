@@ -26,7 +26,11 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 
 jest.mock( '../../../src/dashboard/components/editor/editor-screen', () => ( {
 	__esModule: true,
-	default: () => <div data-testid="trim-cut-editor" />,
+	default: ( { onSelectTool }: { onSelectTool: ( tool: 'chapters' ) => void } ) => (
+		<div data-testid="trim-cut-editor">
+			<button onClick={ () => onSelectTool( 'chapters' ) }>Chapters</button>
+		</div>
+	),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
@@ -228,10 +232,14 @@ function installApi( api: ApiState ) {
  * Render the stage and wait until the video loaded and the manual-VTT probe
  * settled (the tool mounts locked-busy until then).
  *
+ * @param selectChapters - Switch from the default trim tool to chapters.
  * @return The render result.
  */
-async function renderReadyChapters() {
+async function renderReadyChapters( selectChapters = false ) {
 	const view = render( <Stage />, { wrapper: createTestWrapper( mockTestClient ) } );
+	if ( selectChapters ) {
+		await userEvent.setup().click( await screen.findByRole( 'button', { name: 'Chapters' } ) );
+	}
 	await expect( screen.findByTestId( 'chapters-preview-video' ) ).resolves.toBeInTheDocument();
 	// A 'manual' probe result clears aria-busy too (read-only, not locked),
 	// so this cannot deadlock that path.
@@ -313,11 +321,16 @@ describe( 'video-editor stage', () => {
 		expect( getApiFetchMock() ).not.toHaveBeenCalled();
 	} );
 
-	it( 'keeps chapters as the default when trim is enabled', async () => {
+	it( 'opens trim by default and allows switching to chapters', async () => {
 		setFeatures( { trimCut: true } );
 		installApi( { media: makeRawMedia(), metaPosts: [] } );
-		await renderReadyChapters();
-		expect( screen.queryByTestId( 'trim-cut-editor' ) ).not.toBeInTheDocument();
+		render( <Stage />, { wrapper: createTestWrapper( mockTestClient ) } );
+		await expect( screen.findByTestId( 'trim-cut-editor' ) ).resolves.toBeInTheDocument();
+		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Chapters' } ) );
+		await expect( screen.findByTestId( 'chapters-preview-video' ) ).resolves.toBeInTheDocument();
+		await waitFor( () =>
+			expect( screen.getByTestId( 'chapters-timeline-lock' ) ).not.toHaveAttribute( 'aria-busy' )
+		);
 		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Trim & cut' } ) );
 		expect( screen.getByTestId( 'trim-cut-editor' ) ).toBeInTheDocument();
 	} );
@@ -332,7 +345,7 @@ describe( 'video-editor stage', () => {
 	it( 'preserves unsaved chapters when switching tools is cancelled', async () => {
 		setFeatures( { trimCut: true } );
 		installApi( { media: makeRawMedia(), metaPosts: [] } );
-		await renderReadyChapters();
+		await renderReadyChapters( true );
 		await renameFirstChapter( userEvent.setup() );
 		const confirm = jest.spyOn( window, 'confirm' ).mockReturnValue( false );
 		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Trim & cut' } ) );

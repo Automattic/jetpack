@@ -605,11 +605,7 @@ function EditorReady( { video, onSelectTool }: ReadyProps ): ReactElement {
 function EditorRoute( { id }: { id: string } ): ReactElement {
 	const { video, isLoading } = useVideo( id );
 	const [ activeTool, setActiveTool ] = useState< EditorTool >( () =>
-		isTrimCutEnabled() &&
-		( ! isChaptersEditorEnabled() ||
-			new URLSearchParams( window.location.search ).get( 'tool' ) === 'trim' )
-			? 'trim'
-			: 'chapters'
+		isTrimCutEnabled() ? 'trim' : 'chapters'
 	);
 
 	if ( isLoading ) {

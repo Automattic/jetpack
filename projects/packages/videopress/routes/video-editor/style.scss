@@ -98,12 +98,11 @@
 		cursor: default;
 	}
 
-	&:hover:not(:disabled) {
+	&:hover:not(:disabled):not(.vp-video-editor__operation--active) {
 		background: var(--vp-gray-100);
 	}
 
-	&--active,
-	&--active:hover {
+	&--active {
 		background: var(--vp-accent);
 		color: #fff;
 	}
