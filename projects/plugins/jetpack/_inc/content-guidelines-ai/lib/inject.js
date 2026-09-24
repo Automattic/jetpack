@@ -306,16 +306,19 @@ function runAll() {
 			{ slug }
 		);
 
-		// Per-section generate button next to the Save button (the form's
-		// primary submit button lives in an HStack with the Clear button).
+		// Per-section generate button in the form's Save/Clear row. Keep Save at
+		// the row's outer edge: newer Gutenberg right-aligns [Clear][Save], older
+		// left-aligns [Save][Clear], so the Save button's position picks the side.
 		inject(
 			`button-${ slug }`,
 			() => {
 				const saveButton = form.querySelector( 'button[type="submit"]' );
 				const hStack = saveButton?.parentElement;
+				const isSaveLast = hStack?.lastElementChild === saveButton;
 				return hStack
 					? {
 							parent: hStack,
+							before: isSaveLast ? hStack.firstElementChild : null,
 							className: 'jetpack-content-guidelines-ai__section-button-container',
 						}
 					: null;

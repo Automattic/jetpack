@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Content Guidelines: Keep the Save button at the edge of each section's button row, now that Gutenberg aligns the row to the right.
