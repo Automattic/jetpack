@@ -204,9 +204,9 @@ for PROJECT in projects/*/*; do
 	# - package.json workspace deps should point to js-packages, not other projects.
 	if [[ -e "$PROJECT/package.json" ]]; then
 		while IFS=$'\t' read -r DEPTYPE PKG; do
-			EXIT=1
 			LINE=$(jq --stream -r --arg DEPTYPE "$DEPTYPE" --arg PKG "$PKG" 'if length == 1 then .[0][:-1] else .[0] end | if . == [$DEPTYPE,$PKG] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
 			if [[ "$PKG" == 'jetpack-js-tools' ]]; then
+				EXIT=1
 				# Special case that seems to be commonly added.
 				echo "::error file=$PROJECT/package.json${LINE}::Workspace dependency \`jetpack-js-tools\` should be inherited from the monorepo root (where needed in things like eslint, jest, or tsconfig configs), not declared directly at the package level."
 			elif [[ "$PKG" == '@automattic/jetpack-wp-build-polyfills' ]] ||
@@ -216,6 +216,7 @@ for PROJECT in projects/*/*; do
 			then
 				: # Existing issue. Should be fixed, but needs additional work and planning. Please don't add new exceptions here.
 			else
+				EXIT=1
 				XSLUG=$( jq -r --arg PKG "$PKG" '.[ $PKG ] // empty' <<<"$NONJSPACKAGES" );
 				if [[ -n "$XSLUG" ]]; then
 					echo "::error file=$PROJECT/package.json${LINE}::Workspace dependency \`$PKG\` is not a js-package. If $XSLUG needs a JS API, that API should be in a js-package that could be published to npm, as otherwise it's only usable inside the monorepo."
