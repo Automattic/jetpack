@@ -1,6 +1,7 @@
 import {
 	createPaletteGenerator,
 	MIN_BACKGROUND_CONTRAST,
+	MIN_LABEL_CONTRAST,
 	PREFERRED_SEPARATION,
 } from '../private/palette-generator';
 import { contrastRatio, hexToOklch, hexToViews, viewDistance } from '../private/perceptual-color';
@@ -17,9 +18,15 @@ const WP_ADMIN_THEME_COLORS = Object.entries( {
 	sunrise: '#ad631e',
 } );
 const PALETTE_SIZE = 6;
+const LABEL_COLORS = [ '#1e1e1e', '#f0f0f0' ];
 
-const paletteOf = ( seeds: string[], background: string, size = PALETTE_SIZE ): string[] => {
-	const colorAt = createPaletteGenerator( seeds, background );
+const paletteOf = (
+	seeds: string[],
+	background: string,
+	size = PALETTE_SIZE,
+	labelColors: string[] = LABEL_COLORS
+): string[] => {
+	const colorAt = createPaletteGenerator( seeds, background, labelColors );
 	return Array.from( { length: size }, ( _, index ) => colorAt( index ) );
 };
 
@@ -63,6 +70,28 @@ describe( 'createPaletteGenerator', () => {
 					} );
 			}
 		);
+
+		it.each( WP_ADMIN_THEME_COLORS )(
+			'gives every color generated from the %s scheme (%s) a label color with 4.5:1 on it',
+			( _scheme, seed ) => {
+				paletteOf( [ seed ], background )
+					.slice( 1 )
+					.forEach( color => {
+						const best = Math.max( ...LABEL_COLORS.map( label => contrastRatio( color, label ) ) );
+						expect( best ).toBeGreaterThanOrEqual( MIN_LABEL_CONTRAST );
+					} );
+			}
+		);
+	} );
+
+	it( 'keeps 3:1 against the background when no fill can reach 4.5:1 with the label colors', () => {
+		paletteOf( [ '#3858e9' ], '#ffffff', PALETTE_SIZE, [ '#777777' ] )
+			.slice( 1 )
+			.forEach( color => {
+				expect( contrastRatio( color, '#ffffff' ) ).toBeGreaterThanOrEqual(
+					MIN_BACKGROUND_CONTRAST
+				);
+			} );
 	} );
 
 	it.each( [ '#007cba', '#3858e9', '#437aa8' ] )(
@@ -76,7 +105,7 @@ describe( 'createPaletteGenerator', () => {
 
 	it( 'returns the same colors whatever order they are asked for in', () => {
 		const inOrder = paletteOf( [ '#3858e9' ], '#ffffff', 8 );
-		const colorAt = createPaletteGenerator( [ '#3858e9' ], '#ffffff' );
+		const colorAt = createPaletteGenerator( [ '#3858e9' ], '#ffffff', LABEL_COLORS );
 		expect( colorAt( 7 ) ).toBe( inOrder[ 7 ] );
 		expect( colorAt( 5 ) ).toBe( inOrder[ 5 ] );
 	} );

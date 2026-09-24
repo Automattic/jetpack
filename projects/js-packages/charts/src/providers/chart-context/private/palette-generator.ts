@@ -11,6 +11,9 @@ import type { ColorViews } from './perceptual-color';
 /** WCAG 1.4.11 non-text contrast, which a series mark needs against the chart background. */
 export const MIN_BACKGROUND_CONTRAST = 3;
 
+/** WCAG 1.4.3 text contrast, which a label drawn on a fill needs from at least one label color. */
+export const MIN_LABEL_CONTRAST = 4.5;
+
 /** ΔE00 every earlier color must clear before a candidate may be picked for its hue. */
 export const PREFERRED_SEPARATION = 12;
 
@@ -62,20 +65,33 @@ const getCandidateGrid = (): Candidate[] => {
 	return candidateGrid;
 };
 
-// Every provider on a page usually shares one background, so each filters the grid only once.
+// Every provider on a page usually shares one background and label pair, so each filters the grid only once.
 const legiblePools = new Map< string, Candidate[] >();
 
-const legibleCandidatesFor = ( rawBackground: string ): Candidate[] => {
+const legibleCandidatesFor = (
+	rawBackground: string,
+	labelColors: readonly string[]
+): Candidate[] => {
 	const background = rawBackground.toLowerCase();
-	let pool = legiblePools.get( background );
+	const key = [ background, ...labelColors.map( hex => hex.toLowerCase() ) ].join( '|' );
+	let pool = legiblePools.get( key );
 	if ( ! pool ) {
 		const backgroundLuminance = relativeLuminance( background );
-		pool = getCandidateGrid().filter(
+		const labelLuminances = labelColors.map( relativeLuminance );
+		const onBackground = getCandidateGrid().filter(
 			candidate =>
 				luminanceContrastRatio( candidate.luminance, backgroundLuminance ) >=
 				MIN_BACKGROUND_CONTRAST
 		);
-		legiblePools.set( background, pool );
+		const underLabels = onBackground.filter( candidate =>
+			labelLuminances.some(
+				labelLuminance =>
+					luminanceContrastRatio( candidate.luminance, labelLuminance ) >= MIN_LABEL_CONTRAST
+			)
+		);
+		// Label colors that no fill can serve would empty the pool; keep the background guarantee instead.
+		pool = underLabels.length > 0 ? underLabels : onBackground;
+		legiblePools.set( key, pool );
 	}
 	return pool;
 };
@@ -184,13 +200,15 @@ const pickNext = (
  * Build the series palette: the seeds, then colors that stay apart from every earlier color in
  * normal vision and under deuteranopia and protanopia.
  *
- * @param seeds      - Resolved hex palette slots, in slot order.
- * @param background - Resolved hex chart background.
+ * @param seeds       - Resolved hex palette slots, in slot order.
+ * @param background  - Resolved hex chart background.
+ * @param labelColors - Resolved hex label colors that may be drawn on a fill; each generated color reaches `MIN_LABEL_CONTRAST` with one of them.
  * @return The color at a palette index.
  */
 export const createPaletteGenerator = (
 	seeds: readonly string[],
-	background: string
+	background: string,
+	labelColors: readonly string[] = []
 ): ( ( index: number ) => string ) => {
 	const normalizedSeeds = seeds.map( hex => hex.toLowerCase() );
 	const palette: Candidate[] = normalizedSeeds.map( hex => toCandidate( hex ) );
@@ -207,7 +225,11 @@ export const createPaletteGenerator = (
 
 	const nextColor = (): Candidate => {
 		if ( ! legibleExhausted ) {
-			legibleTracker ??= buildTracker( legibleCandidatesFor( background ), palette, usedHexes );
+			legibleTracker ??= buildTracker(
+				legibleCandidatesFor( background, labelColors ),
+				palette,
+				usedHexes
+			);
 			const picked = pickNext( legibleTracker, usedHexes, anchorHue );
 			if ( picked ) {
 				return picked;

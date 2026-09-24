@@ -2043,12 +2043,13 @@ describe( 'ChartContext', () => {
 
 		describe( 'Background-aware generation', () => {
 			const seed = '#3858e9';
+			const labels = [ '#1e1e1e', '#f0f0f0' ];
 
 			it( 'wires the resolved dark background into the generator', () => {
 				// Fixture guard: proves index 1 actually depends on the background for this seed,
 				// so a match below can't pass by coincidence.
-				const onDark = createPaletteGenerator( [ seed ], '#1e1e1e' )( 1 );
-				const onLight = createPaletteGenerator( [ seed ], '#ffffff' )( 1 );
+				const onDark = createPaletteGenerator( [ seed ], '#1e1e1e', labels )( 1 );
+				const onLight = createPaletteGenerator( [ seed ], '#ffffff', labels )( 1 );
 				expect( onDark ).not.toBe( onLight );
 
 				renderWithSlots( [ seed ], { '--a8c-charts-color-background': '#1e1e1e' } );
@@ -2059,12 +2060,12 @@ describe( 'ChartContext', () => {
 			it( 'falls back to a white background when the resolved value does not normalize to hex', () => {
 				renderWithSlots( [ seed ], { '--a8c-charts-color-background': 'not-a-real-color' } );
 
-				expect( colorAt( 1 ) ).toBe( createPaletteGenerator( [ seed ], '#ffffff' )( 1 ) );
+				expect( colorAt( 1 ) ).toBe( createPaletteGenerator( [ seed ], '#ffffff', labels )( 1 ) );
 			} );
 
 			it( 'falls back to a white background when the background is transparent', () => {
-				const onWhite = createPaletteGenerator( [ seed ], '#ffffff' )( 1 );
-				const onBlack = createPaletteGenerator( [ seed ], '#000000' )( 1 );
+				const onWhite = createPaletteGenerator( [ seed ], '#ffffff', labels )( 1 );
+				const onBlack = createPaletteGenerator( [ seed ], '#000000', labels )( 1 );
 				expect( onWhite ).not.toBe( onBlack );
 
 				renderWithSlots( [ seed ], { '--a8c-charts-color-background': 'transparent' } );
@@ -2073,13 +2074,28 @@ describe( 'ChartContext', () => {
 			} );
 
 			it( 'falls back to a white background when the background is a translucent color', () => {
-				const onWhite = createPaletteGenerator( [ seed ], '#ffffff' )( 1 );
-				const onBlack = createPaletteGenerator( [ seed ], '#000000' )( 1 );
+				const onWhite = createPaletteGenerator( [ seed ], '#ffffff', labels )( 1 );
+				const onBlack = createPaletteGenerator( [ seed ], '#000000', labels )( 1 );
 				expect( onWhite ).not.toBe( onBlack );
 
 				renderWithSlots( [ seed ], { '--a8c-charts-color-background': 'rgba(0, 0, 0, 0.5)' } );
 
 				expect( colorAt( 1 ) ).toBe( onWhite );
+			} );
+
+			it( 'wires the resolved label colors into the generator, leaving out a see-through one', () => {
+				const firstSix = ( at: ( index: number ) => string ) =>
+					Array.from( { length: 6 }, ( _, index ) => at( index ) );
+				const inverseOnly = firstSix(
+					createPaletteGenerator( [ seed ], '#ffffff', [ '#f0f0f0' ] )
+				);
+				expect( inverseOnly ).not.toEqual(
+					firstSix( createPaletteGenerator( [ seed ], '#ffffff', labels ) )
+				);
+
+				renderWithSlots( [ seed ], { '--a8c-charts-color-label': 'transparent' } );
+
+				expect( firstSix( colorAt ) ).toEqual( inverseOnly );
 			} );
 
 			it( 'uses the resolved background for group colors when no seed resolves', () => {
@@ -2094,7 +2110,7 @@ describe( 'ChartContext', () => {
 					index: 0,
 				} ).color;
 
-				expect( groupColor ).toBe( createPaletteGenerator( [], background )( 0 ) );
+				expect( groupColor ).toBe( createPaletteGenerator( [], background, labels )( 0 ) );
 			} );
 		} );
 

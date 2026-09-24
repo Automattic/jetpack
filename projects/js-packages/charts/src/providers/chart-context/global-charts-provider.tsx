@@ -36,8 +36,22 @@ import type { FC, ReactNode } from 'react';
 interface ColorCache {
 	colors: string[];
 	background: string;
+	labelColors: string[];
 	colorAt: ( index: number ) => string;
 }
+
+// A see-through color (transparent, or any alpha below 1) says nothing about what it will look like
+// over the chart, so it resolves to null rather than let its RGB leak into the palette.
+const resolveOpaqueHex = ( pointer: string, element: HTMLElement | null ): string | null => {
+	const raw = resolveCssVariable( pointer, element );
+	if ( ! raw || d3Color( raw )?.opacity !== 1 ) {
+		return null;
+	}
+	const hex = normalizeColorToHex( pointer, element, resolveCssVariable );
+	return isValidHexColor( hex ) ? hex : null;
+};
+
+const PLACEHOLDER_LABEL_COLORS = [ '#1e1e1e', '#f0f0f0' ];
 
 export const GlobalChartsContext = createContext< GlobalChartsContextValue | null >( null );
 
@@ -94,7 +108,12 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 	const [ colorCache, setColorCache ] = useState< ColorCache >( () => ( {
 		colors: [],
 		background: '#ffffff',
-		colorAt: createPaletteGenerator( [ SERIES_SLOT_1_FALLBACK ], '#ffffff' ),
+		labelColors: PLACEHOLDER_LABEL_COLORS,
+		colorAt: createPaletteGenerator(
+			[ SERIES_SLOT_1_FALLBACK ],
+			'#ffffff',
+			PLACEHOLDER_LABEL_COLORS
+		),
 	} ) );
 
 	// Track if the color palette has been resolved from the DOM
@@ -119,26 +138,18 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			}
 		}
 
-		// A see-through background (transparent, or any alpha below 1) tells us nothing about
-		// what the chart will sit on, so treat it as unresolved rather than let its RGB
-		// leak into the palette (a transparent black would otherwise tune colors for a dark host).
-		const rawBackground = resolveCssVariable( CATALOG_POINTERS.background, wrapperRef.current );
-		const isOpaqueBackground = rawBackground ? d3Color( rawBackground )?.opacity === 1 : false;
-
-		const normalizedBackground = normalizeColorToHex(
-			CATALOG_POINTERS.background,
-			wrapperRef.current,
-			resolveCssVariable
-		);
 		const backgroundHex =
-			isOpaqueBackground && isValidHexColor( normalizedBackground )
-				? normalizedBackground
-				: '#ffffff';
+			resolveOpaqueHex( CATALOG_POINTERS.background, wrapperRef.current ) ?? '#ffffff';
+		// The two roles pie labels choose between on a fill; one left see-through is never painted there.
+		const labelColors = [ CATALOG_POINTERS.label, CATALOG_POINTERS.labelInverse ]
+			.map( pointer => resolveOpaqueHex( pointer, wrapperRef.current ) )
+			.filter( ( hex ): hex is string => hex !== null );
 
 		setColorCache( {
 			colors: resolvedColors,
 			background: backgroundHex,
-			colorAt: createPaletteGenerator( resolvedColors, backgroundHex ),
+			labelColors,
+			colorAt: createPaletteGenerator( resolvedColors, backgroundHex, labelColors ),
 		} );
 	}, [] );
 
@@ -152,9 +163,9 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		() => new Map()
 	);
 
-	// Keyed on the resolved colors and background, not the cache object, so a consumer passing an
+	// Keyed on the resolved colors, background and labels, not the cache object, so a consumer passing an
 	// inline `theme` cannot reset the map on every render.
-	const paletteKey = `${ colorCache.colors.join( ',' ) }|${ colorCache.background }`;
+	const paletteKey = `${ colorCache.colors.join( ',' ) }|${ colorCache.background }|${ colorCache.labelColors.join( ',' ) }`;
 
 	useEffect( () => {
 		// Create a completely new Map instance to trigger dependencies, e.g. useChartLegendItems
