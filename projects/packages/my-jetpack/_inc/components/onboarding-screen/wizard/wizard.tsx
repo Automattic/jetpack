@@ -1,3 +1,4 @@
+import { useConnection } from '@automattic/jetpack-connection';
 import { NavigableRegion } from '@wordpress/admin-ui';
 import {
 	FlexBlock,
@@ -13,7 +14,7 @@ import { Button, Icon, LinkButton, Stack, Text, VisuallyHidden } from '@wordpres
 import clsx from 'clsx';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Slide01Gradient } from '../../testimonials/slide-01-gradient';
-import { canContinue, isLastStep, TOTAL_STEPS, wizardSteps } from './lib';
+import { canContinue, isLastStep, openingStep, TOTAL_STEPS, wizardSteps } from './lib';
 import { PanelArt } from './panel-art';
 import { PANEL_LINES } from './panel-type';
 import { PlaceholderStep } from './steps/placeholder-step';
@@ -92,9 +93,13 @@ type WizardProps = {
  */
 export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	const steps = wizardSteps();
-	const [ step, setStep ] = useState< WizardStep >( 0 );
+
+	// Connecting leaves wp-admin for WordPress.com and comes back to a fresh page,
+	// so the opening step is read off the connection rather than remembered.
+	const { isUserConnected } = useConnection();
+	const [ step, setStep ] = useState< WizardStep >( () => openingStep( isUserConnected ) );
 	// The rail only lets the user back into ground already covered.
-	const [ furthestStep, setFurthestStep ] = useState< WizardStep >( 0 );
+	const [ furthestStep, setFurthestStep ] = useState< WizardStep >( step );
 	const [ choices, setChoices ] = useState< WizardState[ 'choices' ] >( {} );
 
 	const titleId = useId();
@@ -122,16 +127,6 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 		setStep( next );
 		setFurthestStep( current => ( next > current ? next : current ) );
 	}, [ step ] );
-
-	// The start screen's two routes both lead into setup; only the recorded
-	// intent differs, and stage 2 is what turns it into a connection.
-	const handleStart = useCallback(
-		( intent: string ) => {
-			handleChoice( intent );
-			handleNext();
-		},
-		[ handleChoice, handleNext ]
-	);
 
 	// The rail's rows are aria-disabled rather than disabled, so they stay focusable
 	// and keep announcing themselves. That makes swallowing the click our job.
@@ -254,7 +249,6 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 											titleId={ titleId }
 											title={ meta.title }
 											description={ meta.description }
-											onStart={ handleStart }
 										/>
 									) : (
 										<PlaceholderStep

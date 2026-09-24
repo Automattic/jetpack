@@ -210,14 +210,21 @@ class Initializer_Test extends BaseTestCase {
 		$to_home       = array( 'page' => 'my-jetpack' );
 
 		return array(
-			'available, disconnected, no step: redirect to onboarding' => array( '', false, true, $to_onboarding ),
-			'available, disconnected, on onboarding: stay' => array( 'onboarding', false, true, null ),
-			'available, connected, no step: stay'          => array( '', true, true, null ),
-			'available, connected, on onboarding: redirect home' => array( 'onboarding', true, true, $to_home ),
-			'unavailable, disconnected, no step: stay'     => array( '', false, false, null ),
-			'unavailable, disconnected, on onboarding: redirect home' => array( 'onboarding', false, false, $to_home ),
-			'unavailable, connected, no step: stay'        => array( '', true, false, null ),
-			'unavailable, connected, on onboarding: redirect home' => array( 'onboarding', true, false, $to_home ),
+			'available, disconnected, no step: redirect to onboarding' => array( '', false, true, false, $to_onboarding ),
+			'available, disconnected, on onboarding: stay' => array( 'onboarding', false, true, false, null ),
+			'available, connected, no step: stay'          => array( '', true, true, false, null ),
+			'available, connected, on onboarding: redirect home' => array( 'onboarding', true, true, false, $to_home ),
+			'unavailable, disconnected, no step: stay'     => array( '', false, false, false, null ),
+			'unavailable, disconnected, on onboarding: redirect home' => array( 'onboarding', false, false, false, $to_home ),
+			'unavailable, connected, no step: stay'        => array( '', true, false, false, null ),
+			'unavailable, connected, on onboarding: redirect home' => array( 'onboarding', true, false, false, $to_home ),
+			// The wizard sends the user to WordPress.com and back, so it has to survive connecting.
+			'wizard, connected, on onboarding: stay'       => array( 'onboarding', true, true, true, null ),
+			'wizard, disconnected, on onboarding: stay'    => array( 'onboarding', false, true, true, null ),
+			'wizard, disconnected, no step: redirect to onboarding' => array( '', false, true, true, $to_onboarding ),
+			'wizard, connected, no step: stay'             => array( '', true, true, true, null ),
+			// Availability still wins: the wizard cannot render where onboarding does not.
+			'wizard, connected, unavailable, on onboarding: redirect home' => array( 'onboarding', true, false, true, $to_home ),
 		);
 	}
 
@@ -230,11 +237,18 @@ class Initializer_Test extends BaseTestCase {
 	 * @param string     $step                 The `step` query param.
 	 * @param bool       $is_connected         Whether the site is connected.
 	 * @param bool       $onboarding_available Whether onboarding is available on this site.
+	 * @param bool       $wizard_enabled       Whether the takeover renders the wizard.
 	 * @param array|null $expected             Expected redirect query args, or null to stay.
 	 */
 	#[DataProvider( 'provide_onboarding_redirect_cases' )]
-	public function test_get_onboarding_redirect_args( $step, $is_connected, $onboarding_available, $expected ) {
-		$this->assertSame( $expected, Initializer::get_onboarding_redirect_args( $step, $is_connected, $onboarding_available ) );
+	public function test_get_onboarding_redirect_args( $step, $is_connected, $onboarding_available, $wizard_enabled, $expected ) {
+		$this->assertSame( $expected, Initializer::get_onboarding_redirect_args( $step, $is_connected, $onboarding_available, $wizard_enabled ) );
+
+		if ( ! $wizard_enabled ) {
+			// Omitting the argument has to decide exactly as passing it false does,
+			// so every existing caller keeps its behaviour.
+			$this->assertSame( $expected, Initializer::get_onboarding_redirect_args( $step, $is_connected, $onboarding_available ) );
+		}
 	}
 
 	/**
@@ -293,6 +307,50 @@ class Initializer_Test extends BaseTestCase {
 		$this->assertNotNull( $location, 'Expected admin_init() to redirect.' );
 		$this->assertStringContainsString( 'page=my-jetpack', $location );
 		$this->assertStringContainsString( 'step=onboarding', $location );
+	}
+
+	/**
+	 * A connected user stays on the onboarding page when the wizard is enabled,
+	 * because connecting happens halfway through it: they authorize on
+	 * WordPress.com and are sent back here to finish.
+	 *
+	 * Separate process for the same reason as the tests around it: admin_init()'s
+	 * real is_connected() call leaks Connection_Manager's invalidation-hook
+	 * registration flag across tests in a shared process.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_init_keeps_a_connected_user_on_the_wizard() {
+		$user_id = $this->log_in_as_admin();
+		$this->connect_owner( $user_id );
+		$this->enable_wizard_flag();
+		$_GET['step'] = 'onboarding';
+
+		$this->assertNull( $this->capture_admin_init_redirect() );
+	}
+
+	/**
+	 * With the wizard off, the same connected user is still sent home: the flag
+	 * is the only thing that changes this decision.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_init_still_redirects_a_connected_user_home_without_the_wizard() {
+		$user_id = $this->log_in_as_admin();
+		$this->connect_owner( $user_id );
+		$_GET['step'] = 'onboarding';
+
+		$location = $this->capture_admin_init_redirect();
+
+		$this->assertNotNull( $location );
+		$this->assertStringContainsString( 'page=my-jetpack', $location );
+		$this->assertStringNotContainsString( 'step=onboarding', $location );
 	}
 
 	/**

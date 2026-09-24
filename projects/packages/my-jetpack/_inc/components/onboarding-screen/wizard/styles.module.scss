@@ -159,13 +159,6 @@ $start-title-size: 28px;
 $start-title-line-height: 1.25;
 
 /*
- * WCAG 2.2 target size (2.5.8, AA) asks for 24px, and the secondary link's own
- * box is 20px — it is a standalone call to action, so the inline-link
- * exception does not cover it. No WPDS spacing token is 2px.
- */
-$start-secondary-target-padding: 2px;
-
-/*
  * The Site Editor's own measurements, read off wp-admin/site-editor.php: the
  * canvas inset, and the padding and height of one sidebar navigation row.
  * 6px has no token, so the row padding is written out whole.
@@ -1099,26 +1092,21 @@ $rail-row-min-height: 40px;
 }
 
 /*
- * Two classes deep: @wordpress/ui's unlayered wp-admin defense sets the font
- * from a custom property at one class, and would otherwise win the tie.
- *
- * Centred beneath the button, which spans the column, so the pair shares an
- * axis rather than an edge.
+ * The failure notice, above the control it is about. It keeps the column's
+ * width rather than the flex default, so it wraps against the same measure as
+ * the button under it.
  */
-.start-actions .start-secondary {
+.start-error {
 	align-self: stretch;
-	padding-block: $start-secondary-target-padding;
-	color: var(--wpds-color-foreground-content-neutral-weak);
-	cursor: var(--wpds-cursor-control);
-	font-family: var(--wpds-typography-font-family-body);
-	font-size: var(--wpds-typography-font-size-lg);
-	line-height: var(--wpds-typography-line-height-sm);
-	text-decoration: underline;
-	text-underline-offset: 0.2em;
+}
 
-	&:hover {
-		color: var(--wpds-color-foreground-content-neutral);
-	}
+/*
+ * The server's own words, in a secondary position under the plain sentence:
+ * readable if you look for it, and never the first thing read.
+ */
+.start-error .start-error__detail {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	overflow-wrap: anywhere;
 }
 
 .start-terms {

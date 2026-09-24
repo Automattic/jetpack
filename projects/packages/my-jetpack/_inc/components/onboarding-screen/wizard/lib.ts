@@ -57,16 +57,70 @@ export interface WizardStepMeta {
 	options: WizardStepOption[];
 }
 
-/**
- * The route into setup the start screen recorded. Stage 2 turns it into a
- * connection; here it is only remembered.
+/*
+ * What the connection records as the origin of this registration. Its own
+ * value, not the single-screen takeover's 'jetpack-onboarding', so the two
+ * flows stay separable in the connection funnel.
  */
-export const START_INTENT = {
-	// Create a WordPress.com account as part of setup.
-	create: 'new',
-	// Sign in to an account that already exists and connect this site to it.
-	signIn: 'existing',
-} as const;
+export const CONNECTION_FROM = 'jetpack-onboarding-wizard';
+
+/*
+ * Where WordPress.com sends the user back to once they have authorized. Relative
+ * to wp-admin, as every other connection consumer passes it. It carries no step:
+ * the wizard works out where to resume from the connection itself.
+ */
+export const CONNECTION_RETURN_URL = 'admin.php?page=my-jetpack&step=onboarding';
+
+/*
+ * Reported when the failure carries neither a server code nor an error name.
+ * A fixed slug, because this value is sent to Tracks and free text must not be.
+ */
+const UNKNOWN_CONNECTION_ERROR = 'unknown_error';
+
+/**
+ * The bounded code for a failed registration, safe to send to Tracks.
+ *
+ * Either the server's own `WP_Error` code or, when the request never got as far
+ * as a parsed body, the name of the error class the API client threw
+ * (`JsonParseError`, `Api404Error`, `FetchNetworkError`, and so on). Both are
+ * fixed vocabularies. The error's `message` is deliberately not considered:
+ * it interpolates the server's prose and can carry the site's own URL.
+ *
+ * @param error - The rejection from `handleRegisterSite`, or the stored error.
+ * @return A slug from a fixed set, never free text.
+ */
+export function connectionErrorCode( error: unknown ): string {
+	if ( ! error || typeof error !== 'object' ) {
+		return UNKNOWN_CONNECTION_ERROR;
+	}
+
+	const { response, name } = error as { response?: { code?: unknown }; name?: unknown };
+
+	if ( typeof response?.code === 'string' && response.code ) {
+		return response.code;
+	}
+
+	return typeof name === 'string' && name ? name : UNKNOWN_CONNECTION_ERROR;
+}
+
+/**
+ * The raw detail shown under the plain sentence a failure is reported with.
+ *
+ * Rendered only, and never sent anywhere: the message interpolates whatever the
+ * server said, which is what support needs and what telemetry must not have.
+ * Falls back to the code, so a failure that carried no message still says
+ * something more specific than "it did not work".
+ *
+ * @param error - The rejection from `handleRegisterSite`, or the stored error.
+ * @return The message, or the code when there is no message.
+ */
+export function connectionErrorDetail( error: unknown ): string {
+	const message = ( error as { message?: unknown } | null | undefined )?.message;
+
+	return typeof message === 'string' && message.trim()
+		? message.trim()
+		: connectionErrorCode( error );
+}
 
 export type WizardStep = 0 | 1 | 2 | 3;
 
@@ -202,6 +256,20 @@ export function startBenefits(): WizardBenefit[] {
 			text: __( 'Forms, newsletters and podcasting, built in', 'jetpack-my-jetpack' ),
 		},
 	];
+}
+
+/**
+ * Which step the wizard opens on after the round trip to WordPress.com.
+ *
+ * Derived, not stored: a `step` parameter would be editable by the person it
+ * describes. Keyed on the user connection rather than the site registration,
+ * because a blog token with no owner is a half-finished connect step.
+ *
+ * @param isUserConnected - Whether this user holds a WordPress.com token.
+ * @return The step index to open on.
+ */
+export function openingStep( isUserConnected: boolean ): WizardStep {
+	return isUserConnected ? 1 : 0;
 }
 
 /**
