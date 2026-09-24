@@ -5,7 +5,7 @@ import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { Link, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
-import { PRODUCT_STATUSES } from '../../constants';
+import { MyJetpackRoutes, PRODUCT_STATUSES } from '../../constants';
 import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
 import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
@@ -16,7 +16,6 @@ import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import { isLifetimePurchase } from '../../utils/is-lifetime-purchase';
 import { GoldenTokenTooltip } from '../golden-token/tooltip';
-import { getProductsSectionPath } from '../my-jetpack-tab-panel/utils';
 import styles from './style.module.scss';
 import type { FC } from 'react';
 
@@ -242,7 +241,7 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 				<li className={ styles[ 'actions-list-item' ] }>
 					<Link
 						onClick={ viewIncludedFeaturesClickHandler }
-						href={ getMyJetpackUrl( `#${ getProductsSectionPath( '?filter=included' ) }` ) }
+						href={ getMyJetpackUrl( `#${ MyJetpackRoutes.Features }` ) }
 					>
 						{ __( 'View included features', 'jetpack-my-jetpack' ) }
 					</Link>

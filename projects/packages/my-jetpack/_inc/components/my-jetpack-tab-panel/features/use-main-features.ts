@@ -13,8 +13,8 @@ import {
 	useRequestedSwitch,
 } from '../../../data/requested-switch-state';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
-import { setPendingSuccessNotice } from '../products/pending-notice';
-import { reloadPage } from '../products/reload-page';
+import { setPendingSuccessNotice } from '../../../utils/pending-notice';
+import { reloadPage } from '../../../utils/reload-page';
 import type { QueryClient } from '@tanstack/react-query';
 
 export const QUERY_KEY = [ 'my-jetpack-main-features' ];

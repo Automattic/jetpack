@@ -7,8 +7,8 @@ import {
 	useRequestedSwitches,
 } from '../../../data/requested-switch-state';
 import { getModuleStatus, getOverrideReason } from '../../modules-list/utils';
-import { getProductModules } from '../products/mappings';
-import { useAllJetpackModules } from '../products/use-all-jetpack-modules';
+import { getProductModules } from './mappings';
+import { useAllJetpackModules } from './use-all-jetpack-modules';
 import type { ProductCamelCase } from '../../../data/types';
 import type { JetpackModuleSlug, MyJetpackModule } from '../../../types';
 

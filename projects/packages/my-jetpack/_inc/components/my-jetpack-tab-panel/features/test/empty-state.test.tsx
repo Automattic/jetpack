@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { reloadPage } from '../../products/reload-page';
+import { reloadPage } from '../../../../utils/reload-page';
 import { FeaturesEmptyState } from '../empty-state';
 
-jest.mock( '../../products/reload-page', () => ( { reloadPage: jest.fn() } ) );
+jest.mock( '../../../../utils/reload-page', () => ( { reloadPage: jest.fn() } ) );
 
 const props = {
 	search: '',

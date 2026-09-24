@@ -9,10 +9,9 @@ import { moduleSwitchKey, useRequestedSwitch } from '../../data/requested-switch
 import { MyJetpackModule } from '../../types';
 import { getBlockThemeMigration } from '../../utils/block-theme-migration';
 import { getModuleActivationMessage } from '../../utils/module-benefit-messages';
+import { setPendingSuccessNotice } from '../../utils/pending-notice';
+import { reloadPage } from '../../utils/reload-page';
 import SecondaryButton from '../action-button/secondary-button';
-import { setPendingSuccessNotice } from '../my-jetpack-tab-panel/products/pending-notice';
-import { useProductFiltersContext } from '../my-jetpack-tab-panel/products/products-tracking-context';
-import { reloadPage } from '../my-jetpack-tab-panel/products/reload-page';
 import type { ChangeEvent } from 'react';
 
 export type ModuleToggleProps = {
@@ -45,7 +44,6 @@ export function useModuleActivation(
 ) {
 	const { updateJetpackModuleStatus: toggleModule } = useDispatch( modulesStore );
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
-	const { trackProductAction } = useProductFiltersContext() || {};
 
 	const storeIsUpdating = useSelect(
 		select => select( modulesStore ).isModuleUpdating( $module.module ),
@@ -102,17 +100,6 @@ export function useModuleActivation(
 
 	const setModuleActive = useCallback(
 		async ( active: boolean ) => {
-			// Track module activation/deactivation if we're in the Products tab context
-			if ( trackProductAction ) {
-				trackProductAction( {
-					action: active ? 'activate' : 'deactivate',
-					productSlug: $module.module,
-					productType: 'module',
-					productStatus: $module.activated ? 'active' : 'inactive',
-					productData: $module,
-				} );
-			}
-
 			const success = await requestModuleSwitch( toggleModule, $module.module, active );
 
 			if ( success && reload && MODULES_REQUIRING_RELOAD.includes( $module.module ) ) {
@@ -134,7 +121,7 @@ export function useModuleActivation(
 				action: active ? 'activation' : 'deactivation',
 			} );
 		},
-		[ toggleModule, $module, showToggleNotice, trackProductAction, reload ]
+		[ toggleModule, $module, showToggleNotice, reload ]
 	);
 
 	return { setModuleActive, isUpdating, isActive };

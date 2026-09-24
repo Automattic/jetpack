@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { hasSearch, rankBy, searchTerms } from '../products/utils';
+import { hasSearch, rankBy, searchTerms } from './search';
 import type { FeatureState } from './feature-state';
 
 /**

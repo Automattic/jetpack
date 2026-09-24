@@ -20,9 +20,8 @@ jest.mock( '../../../utils/get-purchase-plan-url', () => ( {
 	__esModule: true,
 	default: () => 'https://example.org/purchase',
 } ) );
-let mockProductsSection: { slug: string; label: string } | null = null;
 jest.mock( '@automattic/jetpack-script-data', () => ( {
-	getScriptData: () => ( { myJetpack: { productsSection: mockProductsSection } } ),
+	getScriptData: () => ( { myJetpack: {} } ),
 	getMyJetpackUrl: ( path = '' ) =>
 		`https://example.org/wp-admin/admin.php?page=my-jetpack${ path }`,
 } ) );
@@ -76,7 +75,6 @@ describe( 'PlansSection', () => {
 		} as ReturnType< typeof useProduct > );
 
 		setPurchases( [] );
-		mockProductsSection = null;
 	} );
 
 	describe( 'the license activation link', () => {
@@ -114,23 +112,12 @@ describe( 'PlansSection', () => {
 	describe( 'the "View included features" link', () => {
 		beforeEach( () => setPurchases( [ buildPurchase( 'Jetpack Security' ) ] ) );
 
-		it( 'points at the Products tab', () => {
+		it( 'points at the Features tab', () => {
 			render( <PlansSection /> );
 
 			expect( screen.getByRole( 'link', { name: 'View included features' } ) ).toHaveAttribute(
 				'href',
-				'https://example.org/wp-admin/admin.php?page=my-jetpack#/products?filter=included'
-			);
-		} );
-
-		it( 'points at the Features tab once it replaces Products', () => {
-			mockProductsSection = { slug: 'features', label: 'Features' };
-
-			render( <PlansSection /> );
-
-			expect( screen.getByRole( 'link', { name: 'View included features' } ) ).toHaveAttribute(
-				'href',
-				'https://example.org/wp-admin/admin.php?page=my-jetpack#/features?filter=included'
+				'https://example.org/wp-admin/admin.php?page=my-jetpack#/features'
 			);
 		} );
 	} );

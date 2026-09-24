@@ -1,16 +1,10 @@
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { moduleSwitchKey, useRequestedSwitches } from '../../../data/requested-switch-state';
-import { PRODUCT_MODULES } from '../products/mappings';
-import { useAllJetpackModules } from '../products/use-all-jetpack-modules';
-import {
-	filterAndSortModules,
-	hasSearch,
-	moduleFields,
-	rankBy,
-	searchTerms,
-} from '../products/utils';
 import { getFeatureModuleSlug } from './feature-state';
+import { PRODUCT_MODULES } from './mappings';
+import { filterAndSortModules, hasSearch, moduleFields, rankBy, searchTerms } from './search';
+import { useAllJetpackModules } from './use-all-jetpack-modules';
 import { matchesFilter } from './use-feature-filter';
 import type { FeatureState } from './feature-state';
 import type { FeatureFilter } from './use-feature-filter';
