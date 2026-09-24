@@ -13,10 +13,16 @@ import './style.scss';
  * @return The link, or nothing where the host offers no subscriptions.
  */
 const ManageSubscriptions = () => {
-	const { signedIn } = useContext( CommentSignals );
+	const { signedIn, commenter } = useContext( CommentSignals );
 	const { subscriptions, strings } = JetpackComments;
-	const url = signedIn.value ? subscriptions.signedInUrl : subscriptions.url;
-	const Icon = signedIn.value || ! subscriptions.byEmail ? BellIcon : EnvelopeIcon;
+	const byEmail = ! signedIn.value && subscriptions.byEmail;
+	const Icon = byEmail ? EnvelopeIcon : BellIcon;
+	let url = signedIn.value ? subscriptions.signedInUrl : subscriptions.url;
+
+	// The portal asks for an email address; hand it the one the comment will post under.
+	if ( url && byEmail && commenter.value.email ) {
+		url += `?email=${ encodeURIComponent( commenter.value.email ) }`;
+	}
 
 	if ( ! url ) {
 		return null;
