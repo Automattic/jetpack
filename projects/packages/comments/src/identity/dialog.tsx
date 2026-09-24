@@ -1,4 +1,3 @@
-import clsx from 'clsx';
 import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
 import { signIn } from './checkpoint/checkpoint';
@@ -113,16 +112,10 @@ export const IdentityDialog = () => {
 					</button>
 				</span>
 			) : (
-				<span className={ formSettings.submitWrapClass }>
-					<button
-						type="button"
-						className={ clsx( formSettings.submitClass, 'jetpack-comments__wpcom' ) }
-						onClick={ start }
-					>
-						<WordPressIcon />
-						{ strings.logInWithWordPress }
-					</button>
-				</span>
+				<button type="button" className="jetpack-comments__wpcom" onClick={ start }>
+					<WordPressIcon />
+					{ strings.logInWithWordPress }
+				</button>
 			) }
 			{ signInError && (
 				<span className="jetpack-comments__notice" role="status">

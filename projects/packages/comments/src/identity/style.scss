@@ -152,10 +152,38 @@
 	font-size: 0.875em;
 }
 
-.jetpack-comments__wpcom {
+// WordPress.com's own blue, not the theme's button: this one is ours.
+.jetpack-comments .jetpack-comments__wpcom {
 	display: inline-flex;
 	align-items: center;
-	gap: 0.5em;
+	gap: 0.75em;
+	margin: 0;
+	padding: 0.75em 1.5em;
+	border: 0;
+	border-radius: 4px;
+	background: #0675c4;
+	box-shadow: none;
+	color: #fff;
+	font: inherit;
+	font-weight: 600;
+	line-height: 1;
+	text-decoration: none;
+	cursor: pointer;
+
+	svg {
+		inline-size: 1.25em;
+		block-size: 1.25em;
+		fill: currentColor;
+	}
+
+	&:hover {
+		background: #055d9c;
+	}
+
+	&:focus-visible {
+		outline: 2px solid #0675c4;
+		outline-offset: 2px;
+	}
 }
 
 .jetpack-comments__spinner {
