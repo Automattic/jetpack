@@ -27,6 +27,7 @@ import {
 	getUserFriendlyError,
 	MAX_NAME_LENGTH,
 	MAX_DESCRIPTION_LENGTH,
+	MAX_RETURN_URL_LENGTH,
 	REQUIRED_FIELD_ERROR,
 } from '../../src/paypal-payment-buttons/utils/validation';
 import parity from '../fixtures/url-parity.json';
@@ -308,38 +309,47 @@ describe( 'validateDiscountAmount', () => {
 } );
 
 describe( 'validateReturnUrl', () => {
-	const httpsOnly = 'Return URL must use HTTPS (e.g., https://example.com/thank-you).';
+	const invalidUrl = 'Return URL must be a valid URL (e.g., http://example.com/thank-you).';
 
 	// The field is optional, so no URL is a valid answer.
 	it.each( [ null, undefined, '' ] )( 'returns null for %p', value => {
 		expect( validateReturnUrl( value ) ).toBeNull();
 	} );
 
-	it( 'returns null for an HTTPS URL', () => {
-		expect( validateReturnUrl( 'https://example.com/thanks' ) ).toBeNull();
-	} );
+	// PayPal takes both.
+	it.each( [ 'http://example.com/thanks', 'https://example.com/thanks' ] )(
+		'returns null for %s',
+		value => {
+			expect( validateReturnUrl( value ) ).toBeNull();
+		}
+	);
 
-	// PayPal's limit; an editor URL with its query string can run past it.
-	it( 'accepts a URL of exactly 127 characters, and rejects one more', () => {
-		const atLimit = 'https://example.com/'.padEnd( 127, 'a' );
-		expect( atLimit ).toHaveLength( 127 );
+	it( 'accepts a URL at the length limit, and rejects one more', () => {
+		const atLimit = 'https://example.com/'.padEnd( MAX_RETURN_URL_LENGTH, 'a' );
+		expect( atLimit ).toHaveLength( MAX_RETURN_URL_LENGTH );
 		expect( validateReturnUrl( atLimit ) ).toBeNull();
 		expect( validateReturnUrl( `${ atLimit }a` ) ).toBe(
-			'Return URL must be 127 characters or fewer.'
+			`Return URL must be ${ MAX_RETURN_URL_LENGTH } characters or fewer.`
 		);
 	} );
 
 	it( 'reports the scheme before the length', () => {
-		expect( validateReturnUrl( 'http://example.com/'.padEnd( 200, 'a' ) ) ).toBe( httpsOnly );
+		expect(
+			validateReturnUrl( 'ftp://example.com/'.padEnd( MAX_RETURN_URL_LENGTH + 1, 'a' ) )
+		).toBe( invalidUrl );
 	} );
 
 	it.each( [
-		[ 'plain HTTP', 'http://example.com/thanks' ],
 		[ 'a scheme-relative URL', '//example.com/thanks' ],
 		[ 'a bare host', 'example.com' ],
+		[ 'a URL with no scheme', 'example.com/thanks' ],
+		[ 'an FTP URL', 'ftp://example.com/thanks' ],
+		// The server lowercases the scheme, so PayPal would store a different URL.
+		[ 'an uppercase scheme', 'HTTPS://example.com' ],
+		[ 'a URL with a space', 'https://example.com/thank you' ],
 		[ 'the scheme on its own', 'https://' ],
 	] )( 'returns an error for %s', ( _label, value ) => {
-		expect( validateReturnUrl( value ) ).toBe( httpsOnly );
+		expect( validateReturnUrl( value ) ).toBe( invalidUrl );
 	} );
 } );
 

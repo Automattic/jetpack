@@ -105,11 +105,11 @@ class PayPal_Attribute_Mapper {
 	const MAX_BUTTON_TEXT_LENGTH = 50;
 
 	/**
-	 * Maximum return URL length PayPal accepts.
+	 * Maximum return URL length PayPal accepts. Measured: one more is a 400.
 	 *
 	 * @var int
 	 */
-	const MAX_RETURN_URL_LENGTH = 127;
+	const MAX_RETURN_URL_LENGTH = 1024;
 
 	/**
 	 * Maximum product id (SKU) length.
@@ -549,10 +549,11 @@ class PayPal_Attribute_Mapper {
 		// Optional: return URL validation.
 		if ( ! empty( $attributes['returnUrl'] ) ) {
 			$return_url = esc_url_raw( $attributes['returnUrl'] );
-			if ( empty( $return_url ) || ! wp_http_validate_url( $return_url ) || 0 !== strpos( $return_url, 'https://' ) ) {
+			// wp_http_validate_url() passes `//example.com`, so the scheme is checked too.
+			if ( empty( $return_url ) || ! wp_http_validate_url( $return_url ) || ! preg_match( '#^https?://#', $return_url ) ) {
 				return new WP_Error(
 					'invalid_return_url',
-					__( 'Return URL must be a valid HTTPS URL.', 'jetpack-paypal-payments' ),
+					__( 'Return URL must be a valid URL.', 'jetpack-paypal-payments' ),
 					array( 'status' => 400 )
 				);
 			}

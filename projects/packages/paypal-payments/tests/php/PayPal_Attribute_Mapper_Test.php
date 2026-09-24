@@ -482,14 +482,18 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 
 	/**
 	 * Test that an invalid return URL is rejected.
+	 *
+	 * @param string $return_url The invalid return URL to test.
+	 * @dataProvider invalid_return_url_provider
 	 */
-	public function test_validate_rejects_invalid_return_url() {
+	#[DataProvider( 'invalid_return_url_provider' )]
+	public function test_validate_rejects_invalid_return_url( $return_url ) {
 		$result = PayPal_Attribute_Mapper::validate_attributes(
 			array(
 				'productName'  => 'Widget',
 				'price'        => '10.00',
 				'currencyCode' => 'USD',
-				'returnUrl'    => 'javascript:alert(1)',
+				'returnUrl'    => $return_url,
 			)
 		);
 
@@ -498,10 +502,56 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * PayPal's limit: a return URL of 127 characters passes, one more is rejected.
+	 * Data provider for invalid return URLs.
+	 *
+	 * @return array[] Test cases.
 	 */
-	public function test_validate_caps_the_return_url_at_127_characters() {
-		$at_limit   = str_pad( 'https://example.com/', 127, 'a' );
+	public static function invalid_return_url_provider(): array {
+		return array(
+			'javascript'      => array( 'javascript:alert(1)' ),
+			'ftp'             => array( 'ftp://example.com/thanks' ),
+			// wp_http_validate_url() passes this one, so only the scheme check rejects it.
+			'scheme-relative' => array( '//example.com/thanks' ),
+		);
+	}
+
+	/**
+	 * Test that http and https return URLs are accepted. PayPal takes both.
+	 *
+	 * @param string $return_url The valid return URL to test.
+	 * @dataProvider valid_return_url_provider
+	 */
+	#[DataProvider( 'valid_return_url_provider' )]
+	public function test_validate_accepts_valid_return_url( $return_url ) {
+		$result = PayPal_Attribute_Mapper::validate_attributes(
+			array(
+				'productName'  => 'Widget',
+				'price'        => '10.00',
+				'currencyCode' => 'USD',
+				'returnUrl'    => $return_url,
+			)
+		);
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Data provider for valid return URLs.
+	 *
+	 * @return array[] Test cases.
+	 */
+	public static function valid_return_url_provider(): array {
+		return array(
+			'http'  => array( 'http://example.com/thanks' ),
+			'https' => array( 'https://example.com/thanks' ),
+		);
+	}
+
+	/**
+	 * PayPal's limit: a return URL at the cap passes, one more is rejected.
+	 */
+	public function test_validate_caps_the_return_url_length() {
+		$at_limit   = str_pad( 'https://example.com/', PayPal_Attribute_Mapper::MAX_RETURN_URL_LENGTH, 'a' );
 		$attributes = array(
 			'productName'  => 'Widget',
 			'price'        => '10.00',

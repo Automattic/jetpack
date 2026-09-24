@@ -123,9 +123,17 @@ describe( 'isReadyForPayPal', () => {
 		);
 	} );
 
-	// A bad URL warns, it has never blocked saving.
-	it( 'lets a bad return URL through', () => {
-		expect( isReadyForPayPal( { ...product, returnUrl: 'http://example.com' } ) ).toBe( true );
+	// PHP answers a bad one with a 400, so sending it would fail on every save.
+	it( 'holds back a bad return URL', () => {
+		expect( heldBackReason( { ...product, returnUrl: '//example.com/thanks' } ) ).toBe(
+			'Return URL must be a valid URL (e.g., http://example.com/thank-you).'
+		);
+	} );
+
+	it( 'accepts an http return URL', () => {
+		expect( isReadyForPayPal( { ...product, returnUrl: 'http://example.com/thanks' } ) ).toBe(
+			true
+		);
 	} );
 
 	it( 'ignores a stale product price once the options carry their own', () => {

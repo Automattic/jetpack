@@ -30,7 +30,6 @@ import {
 	syncBlocksBeforeSave,
 } from '../../../src/paypal-payment-buttons/utils/sync-on-save';
 import {
-	ADVISORY_ERROR_KEYS,
 	getValidationErrors,
 	REQUIRED_FIELD_ERROR,
 } from '../../../src/paypal-payment-buttons/utils/validation';
@@ -5671,7 +5670,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 	describe( 'Return URL', () => {
 		const label = 'Return URL (optional)';
-		const httpsOnly = 'Return URL must use HTTPS (e.g., https://example.com/thank-you).';
+		const invalidUrl = 'Return URL must be a valid URL (e.g., http://example.com/thank-you).';
 		const helpLine = 'Redirect customers here after payment.';
 
 		beforeEach( () => {
@@ -5728,46 +5727,36 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 		// People paste into this field, so a URL that is still being typed is not yet
 		// wrong. Nothing is said until the merchant leaves the field.
-		it( 'says nothing about HTTPS until the field is left', async () => {
-			renderWith( 'http://example.com' );
+		it( 'says nothing about a bad URL until the field is left', async () => {
+			renderWith( 'example.com' );
 
 			await expect( screen.findByLabelText( label ) ).resolves.toBeInTheDocument();
-			expect( screen.queryByText( httpsOnly ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( invalidUrl ) ).not.toBeInTheDocument();
 			expect( urlControl().getByText( helpLine ) ).toBeInTheDocument();
 		} );
 
-		it( 'asks for HTTPS once the field is left', async () => {
+		it( 'flags a bad URL once the field is left', async () => {
 			const user = userEvent.setup();
-			renderWith( 'http://example.com' );
+			renderWith( 'example.com' );
 
 			await visit( user, await screen.findByLabelText( label ) );
 
-			expect( urlControl().getByText( httpsOnly ) ).toBeInTheDocument();
+			expect( urlControl().getByText( invalidUrl ) ).toBeInTheDocument();
 			expect( screen.queryByText( helpLine ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'accepts an HTTPS URL', async () => {
-			const user = userEvent.setup();
-			renderWith( 'https://example.com/thanks' );
+		it.each( [ 'http://example.com/thanks', 'https://example.com/thanks' ] )(
+			'accepts %s',
+			async url => {
+				const user = userEvent.setup();
+				renderWith( url );
 
-			await visit( user, await screen.findByLabelText( label ) );
+				await visit( user, await screen.findByLabelText( label ) );
 
-			expect( screen.queryByText( httpsOnly ) ).not.toBeInTheDocument();
-			expect( urlControl().getByText( helpLine ) ).toBeInTheDocument();
-		} );
-
-		// A bad URL warns, it has never blocked saving. A blocking message would render
-		// in the error class instead.
-		it( 'still sends the payment with a bad URL', async () => {
-			const user = userEvent.setup();
-			renderWith( 'http://example.com' );
-
-			await visit( user, await screen.findByLabelText( label ) );
-
-			const message = urlControl().getByText( httpsOnly );
-			expect( message ).toHaveClass( 'components-base-control__help' );
-			expect( message ).not.toHaveClass( 'jetpack-paypal-payment-buttons__field-error' );
-		} );
+				expect( screen.queryByText( invalidUrl ) ).not.toBeInTheDocument();
+				expect( urlControl().getByText( helpLine ) ).toBeInTheDocument();
+			}
+		);
 	} );
 
 	describe( 'Product details', () => {
@@ -5917,7 +5906,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 		// getValidationErrors() reports every key on every call, so any input enumerates them.
 		const errorKeys = Object.keys( getValidationErrors( {} ) );
-		const blockingKeys = errorKeys.filter( key => ! ADVISORY_ERROR_KEYS.includes( key ) );
 
 		// Per key: the block state that triggers it, the control its message has to be
 		// inside, the field to leave first where the form waits for a visit, and the class
@@ -5987,9 +5975,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				carrier: 'jetpack-paypal-payment-buttons__field-error',
 			},
 			returnUrl: {
-				attributes: { returnUrl: 'http://example.com/thanks' },
+				attributes: { returnUrl: 'example.com/thanks' },
 				testId: 'url-input-Return URL (optional)',
-				message: 'Return URL must use HTTPS (e.g., https://example.com/thank-you).',
+				message: 'Return URL must be a valid URL (e.g., http://example.com/thank-you).',
 				carrier: 'components-base-control__help',
 				visit: 'Return URL (optional)',
 			},
@@ -6021,12 +6009,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( errorKeys.slice().sort() ).toEqual( Object.keys( cases ).sort() );
 		} );
 
-		// Nothing downstream can check which keys are advisory, so the list is spelled out
-		// here - adding a key lets a payment go to PayPal with that error on it.
-		it( 'treats the return URL as the only advisory error', () => {
-			expect( ADVISORY_ERROR_KEYS ).toEqual( [ 'returnUrl' ] );
-		} );
-
 		/**
 		 * Assert the error is on screen wearing the class editor.scss reddens.
 		 *
@@ -6045,8 +6027,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		/**
 		 * Whether a save over a block in this state sends the payment to PayPal.
 		 *
-		 * The test above covers the list itself; this covers the save reading it, rather
-		 * than only the form's own copy of the rule.
+		 * This covers the save reading the errors, rather than only the form's own copy
+		 * of the rule.
 		 *
 		 * @param {string} key - The validationErrors key under test.
 		 * @return {Promise<boolean>} True when the save sent a request.
@@ -6081,7 +6063,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			return requests.length > 0;
 		};
 
-		it.each( blockingKeys )( 'says what is wrong when %s blocks the save', async key => {
+		it.each( errorKeys )( 'says what is wrong when %s blocks the save', async key => {
 			const field = await showError( key );
 
 			expectStyledError( field, key );
@@ -6094,16 +6076,13 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				'data-initial-open',
 				String( checkoutOptions.contains( field ) )
 			);
+			const urlRedirect = panel( 'URL Redirect' );
+			expect( urlRedirect ).toHaveAttribute(
+				'data-initial-open',
+				String( urlRedirect.contains( field ) )
+			);
 
 			await expect( savesWith( key ) ).resolves.toBe( false );
-		} );
-
-		// The other half of the split: these warn and the merchant can still save.
-		it.each( ADVISORY_ERROR_KEYS )( 'warns about %s and still saves', async key => {
-			const field = await showError( key );
-
-			expectStyledError( field, key );
-			await expect( savesWith( key ) ).resolves.toBe( true );
 		} );
 	} );
 

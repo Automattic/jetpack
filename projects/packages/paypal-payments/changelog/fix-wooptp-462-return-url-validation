@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Accept http return URLs, and hold a payment back from PayPal while its return URL is invalid instead of failing on every save.

@@ -423,10 +423,9 @@ export default function ApiManagedEdit( {
 
 	const returnUrlError = errorFor( 'returnUrl' );
 
-	// Whether the form is valid: no validation errors on required fields or variants.
+	// Whether the form is valid: no validation errors on any field, variant or customer note.
 	// Derived over the errors rather than listed field by field, so a new one cannot be
-	// forgotten here. returnUrl stays out of the gate - a bad one warns and still saves,
-	// as it always has - which is what ADVISORY_ERROR_KEYS carries.
+	// forgotten here.
 	const isFormValid =
 		! hasBlockingError( validationErrors ) &&
 		variantErrors.length === 0 &&
@@ -1601,7 +1600,11 @@ export default function ApiManagedEdit( {
 					</>
 				) }
 			</PanelBody>
-			<PanelBody title={ __( 'URL Redirect', 'jetpack-paypal-payments' ) } initialOpen={ false }>
+			{ /* Opens itself on a bad return URL, which blocks the save. */ }
+			<PanelBody
+				title={ __( 'URL Redirect', 'jetpack-paypal-payments' ) }
+				initialOpen={ !! validationErrors.returnUrl }
+			>
 				{ /* URLInput takes no onBlur, so the wrapper catches it as it bubbles, and
 				     carries the error class too. URLInput gets exactly one class - it appends
 				     `__suggestions` to whatever it is given, and a second one in there
