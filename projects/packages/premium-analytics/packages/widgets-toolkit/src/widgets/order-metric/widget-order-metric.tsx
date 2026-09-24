@@ -8,7 +8,7 @@ import { useReportOrders } from '@jetpack-premium-analytics/data';
 import { ReportMetricWidget } from '../../components/report-metric';
 import { useWidgetRootContext } from '../../components/widget-root';
 import { getFormatByMetricKey } from '../../helpers';
-import type { OrderMetricKey } from '../../types';
+import type { CountLabel, OrderMetricKey } from '../../types';
 
 export type OrderMetricWidgetProps = {
 	metricKey: OrderMetricKey;
@@ -19,6 +19,8 @@ export type OrderMetricWidgetProps = {
 
 	/** The metric's name, for the chart legend. */
 	seriesLabel?: string;
+
+	seriesCountLabel?: CountLabel;
 };
 
 /**
@@ -31,6 +33,7 @@ export function OrderMetricWidget( {
 	emptyStateText,
 	errorText,
 	seriesLabel,
+	seriesCountLabel,
 }: OrderMetricWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
 
@@ -42,6 +45,7 @@ export function OrderMetricWidget( {
 			emptyStateText={ emptyStateText }
 			errorText={ errorText }
 			seriesLabel={ seriesLabel }
+			seriesCountLabel={ seriesCountLabel }
 		/>
 	);
 }

@@ -193,7 +193,7 @@ describe( 'ChartTooltip', () => {
 		expect( screen.getByText( '40' ) ).toBeInTheDocument();
 	} );
 
-	it( "hands getLabel each row's value spelled out in that row's format", () => {
+	it( "hands getLabel each row's value spelled out in that row's format, and the raw value", () => {
 		const getLabel = jest.fn( ( _datum, _index, key: string ) => key );
 
 		render(
@@ -213,12 +213,13 @@ describe( 'ChartTooltip', () => {
 			/>
 		);
 
-		expect( getLabel ).toHaveBeenCalledWith( { value: 18432 }, 0, 'Ads Served', '18,432' );
+		expect( getLabel ).toHaveBeenCalledWith( { value: 18432 }, 0, 'Ads Served', '18,432', 18432 );
 		expect( getLabel ).toHaveBeenCalledWith(
 			{ value: 0.15 },
 			1,
 			'Average CPM',
-			expect.stringMatching( /\$0\.15/ )
+			expect.stringMatching( /\$0\.15/ ),
+			0.15
 		);
 	} );
 
@@ -259,7 +260,7 @@ describe( 'ChartTooltip', () => {
 			/>
 		);
 
-		expect( getLabel ).toHaveBeenCalledWith( { value: null }, 0, 'Views', null );
-		expect( getLabel ).toHaveBeenCalledWith( { value: 0 }, 1, 'Visitors', '0' );
+		expect( getLabel ).toHaveBeenCalledWith( { value: null }, 0, 'Views', null, null );
+		expect( getLabel ).toHaveBeenCalledWith( { value: 0 }, 1, 'Visitors', '0', 0 );
 	} );
 } );

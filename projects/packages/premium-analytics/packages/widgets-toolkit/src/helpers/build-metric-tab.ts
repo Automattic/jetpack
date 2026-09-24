@@ -6,7 +6,7 @@ import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
  * Internal dependencies
  */
 import type { MetricTab } from '../components';
-import type { DataFormat } from '../types';
+import type { CountLabel, DataFormat } from '../types';
 
 /**
  * The shape `buildMetricTab` reads: a normalized Stats report's summary plus its
@@ -30,6 +30,7 @@ export type BuildMetricTabOptions< TReport extends MetricReport > = {
 	label: string;
 	/** Per-metric format override (e.g. currency); falls back to the chart default. */
 	dataFormat?: DataFormat;
+	countLabel?: CountLabel;
 	/** The timezone the reports were built and normalized under. */
 	zone: string;
 };
@@ -76,7 +77,8 @@ function toPoints( report: MetricReport | undefined, field: string, zone: string
 export function buildMetricTab< TReport extends MetricReport >(
 	options: BuildMetricTabOptions< TReport >
 ): MetricTab {
-	const { primary, comparison, hasComparison, field, label, dataFormat, zone } = options;
+	const { primary, comparison, hasComparison, field, label, dataFormat, countLabel, zone } =
+		options;
 	const previous = hasComparison ? toPoints( comparison, field, zone ) : undefined;
 	const hasPrevious = !! previous?.length;
 
@@ -88,5 +90,6 @@ export function buildMetricTab< TReport extends MetricReport >(
 		current: toPoints( primary, field, zone ),
 		previous: hasPrevious ? previous : undefined,
 		dataFormat,
+		countLabel,
 	};
 }

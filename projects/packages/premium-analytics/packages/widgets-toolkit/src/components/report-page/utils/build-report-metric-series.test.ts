@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { _n } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
 import { buildReportMetricSeries } from './build-report-metric-series';
@@ -48,6 +52,10 @@ const ZONE = 'Asia/Tokyo';
 
 const VIEWS = { key: 'views', label: 'Views' };
 const VISITORS = { key: 'visitors', label: 'Visitors' };
+
+const views = ( count: number ) =>
+	/* translators: %s: number of views. */
+	_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
 
 describe( 'buildReportMetricSeries', () => {
 	it( 'returns no series without primary data', () => {
@@ -114,6 +122,23 @@ describe( 'buildReportMetricSeries', () => {
 		// into one legend item; the section header names the dates.
 		expect( series.map( entry => entry.label ) ).toEqual( [ 'Views', 'Views · previous period' ] );
 		expect( series.map( entry => entry.group ) ).toEqual( [ 'views', 'views' ] );
+	} );
+
+	it( "carries each metric's count label, alone or beside others", () => {
+		const single = buildReportMetricSeries( {
+			primary: PRIMARY,
+			comparison: COMPARISON,
+			metrics: [ { ...VIEWS, countLabel: views } ],
+			zone: ZONE,
+		} );
+		const several = buildReportMetricSeries( {
+			primary: PRIMARY,
+			metrics: [ { ...VIEWS, countLabel: views }, VISITORS ],
+			zone: ZONE,
+		} );
+
+		expect( single[ 0 ].countLabel ).toBe( views );
+		expect( several.map( item => item.countLabel ) ).toEqual( [ views, undefined ] );
 	} );
 
 	it( 'treats missing metric fields as zero', () => {

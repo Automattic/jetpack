@@ -1,7 +1,11 @@
 /**
+ * External dependencies
+ */
+import { _n } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
-import { appendTooltipExtras, resolveTooltipNames } from '../tooltip-extras';
+import { appendTooltipExtras, resolveTooltipUnits } from '../tooltip-extras';
 
 const JULY_1 = new Date( '2026-07-01T00:00:00Z' );
 const JULY_2 = new Date( '2026-07-02T00:00:00Z' );
@@ -74,28 +78,66 @@ describe( 'appendTooltipExtras', () => {
 	} );
 } );
 
-describe( 'resolveTooltipNames', () => {
-	const seriesNames = new Map( [ [ 'Views', 'Views' ] ] );
+describe( 'resolveTooltipUnits', () => {
+	const views = ( count: number ) =>
+		/* translators: %s: number of views. */
+		_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
+	const impressions = ( count: number ) =>
+		/* translators: %s: number of impressions. */
+		_n( '%s Impression', '%s Impressions', count, 'jetpack-premium-analytics-pkg' );
 
-	it( 'hands the series names back as they are without extras', () => {
-		expect( resolveTooltipNames( seriesNames, undefined ) ).toBe( seriesNames );
-		expect( resolveTooltipNames( seriesNames, [] ) ).toBe( seriesNames );
+	it( "reads a comparison row as its group's current period, count label included", () => {
+		const units = resolveTooltipUnits(
+			[
+				{ label: 'Views', group: 'views', data: [], countLabel: views },
+				{ label: 'Visitors', group: 'visitors', data: [] },
+				{
+					label: 'Views · previous period',
+					group: 'views',
+					data: [],
+					options: { type: 'comparison' },
+				},
+				{
+					label: 'Visitors · previous period',
+					group: 'visitors',
+					data: [],
+					options: { type: 'comparison' },
+				},
+			],
+			undefined
+		);
+
+		expect( units.get( 'Views · previous period' ) ).toEqual( {
+			name: 'Views',
+			countLabel: views,
+		} );
+		expect( units.get( 'Visitors · previous period' ) ).toEqual( {
+			name: 'Visitors',
+			countLabel: undefined,
+		} );
 	} );
 
-	it( 'names each extra after itself', () => {
-		const names = resolveTooltipNames( seriesNames, [ CPM ] );
+	it( 'reads a group-less series as itself', () => {
+		const units = resolveTooltipUnits( [ { label: 'Likes', data: [] } ], undefined );
 
-		expect( names.get( 'Views' ) ).toBe( 'Views' );
-		expect( names.get( 'Average CPM' ) ).toBe( 'Average CPM' );
-		// The input map is not mutated.
-		expect( seriesNames.has( 'Average CPM' ) ).toBe( false );
+		expect( units.get( 'Likes' ) ).toEqual( { name: 'Likes', countLabel: undefined } );
 	} );
 
-	it( 'keeps the name resolved for a drawn series that is also listed as an extra', () => {
-		const names = resolveTooltipNames( new Map( [ [ 'July', 'Views' ] ] ), [
-			{ label: 'July', data: [] },
-		] );
+	it( "reads each extra as itself, without overriding a drawn series'", () => {
+		const units = resolveTooltipUnits(
+			[ { label: 'Views', group: 'views', data: [], countLabel: views } ],
+			[
+				{ label: 'Impressions', data: [], countLabel: impressions },
+				{ label: 'Views', data: [], countLabel: impressions },
+				CPM,
+			]
+		);
 
-		expect( names.get( 'July' ) ).toBe( 'Views' );
+		expect( units.get( 'Impressions' ) ).toEqual( {
+			name: 'Impressions',
+			countLabel: impressions,
+		} );
+		expect( units.get( 'Views' ) ).toEqual( { name: 'Views', countLabel: views } );
+		expect( units.get( 'Average CPM' ) ).toEqual( { name: 'Average CPM', countLabel: undefined } );
 	} );
 } );

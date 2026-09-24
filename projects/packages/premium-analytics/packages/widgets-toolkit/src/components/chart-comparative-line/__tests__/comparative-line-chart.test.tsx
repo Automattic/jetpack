@@ -3,6 +3,7 @@
  */
 import { render } from '@testing-library/react';
 import { setSettings } from '@wordpress/date';
+import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -145,7 +146,8 @@ type GetTooltipLabel = (
 	datum: { date: Date; realDate?: Date },
 	index: number,
 	key: string,
-	value: string
+	value: string,
+	rawValue?: number
 ) => string;
 
 type RecordedLineProps = {
@@ -189,13 +191,15 @@ function recordedProps(): RecordedLineProps {
  * @param index          - Its series index.
  * @param key            - The series it belongs to.
  * @param value          - Its value, as the tooltip spelled it out.
+ * @param rawValue       - The number `value` spells.
  * @return The rendered row label.
  */
 function tooltipLabelFor(
 	datum: { date: Date; realDate?: Date },
 	index = 0,
 	key = 'Views',
-	value = '100'
+	value = '100',
+	rawValue?: number
 ): string {
 	/* eslint-disable testing-library/render-result-naming-convention --
 	   This is the chart's `renderTooltip` prop and its return value, not
@@ -204,7 +208,7 @@ function tooltipLabelFor(
 		tooltipData: { datumByKey: { [ key ]: { datum, index, key } } },
 	} );
 
-	return tooltipNode.props.getLabel( datum, index, key, value );
+	return tooltipNode.props.getLabel( datum, index, key, value, rawValue );
 	/* eslint-enable testing-library/render-result-naming-convention */
 }
 
@@ -402,6 +406,54 @@ describe( 'ComparativeLineChart', () => {
 		// leading with 'Visitors · previous period'.
 		expect( tooltipLabelFor( COMPARISON_POINT, 3, 'Visitors · previous period', '30' ) ).toBe(
 			'30 Visitors · June 1, 2026'
+		);
+	} );
+
+	it( "reads a count metric's rows in the plural form each count calls for", () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		const views = ( count: number ) =>
+			/* translators: %s: number of views. */
+			_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
+		const [ current, comparison ] = SERIES_WITH_COMPARISON;
+
+		render(
+			<ComparativeLineChart
+				series={ [ { ...current, countLabel: views }, comparison ] }
+				dataFormat={ DATA_FORMAT }
+			/>
+		);
+
+		expect( tooltipLabelFor( { date: JULY_1 }, 0, 'Views', '1', 1 ) ).toBe(
+			'1 View · July 1, 2026'
+		);
+		// The comparison row has no count label of its own and borrows its group's.
+		expect( tooltipLabelFor( COMPARISON_POINT, 1, 'Views · previous period', '2', 2 ) ).toBe(
+			'2 Views · June 1, 2026'
+		);
+	} );
+
+	it( "reads an extra's row with the extra's own count label", () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		const impressions = ( count: number ) =>
+			/* translators: %s: number of impressions. */
+			_n( '%s Impression', '%s Impressions', count, 'jetpack-premium-analytics-pkg' );
+
+		render(
+			<ComparativeLineChart
+				series={ SERIES }
+				dataFormat={ DATA_FORMAT }
+				tooltipExtras={ [
+					{ label: 'Impressions', data: [ { date: JULY_1, value: 1 } ], countLabel: impressions },
+				] }
+			/>
+		);
+
+		expect( tooltipLabelFor( { date: JULY_1 }, 1, 'Impressions', '1', 1 ) ).toBe(
+			'1 Impression · July 1, 2026'
+		);
+		// The drawn series has no count label, so its name stays the unit.
+		expect( tooltipLabelFor( { date: JULY_1 }, 0, 'Views', '1', 1 ) ).toBe(
+			'1 Views · July 1, 2026'
 		);
 	} );
 
