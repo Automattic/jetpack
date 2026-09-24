@@ -700,9 +700,6 @@ CSS;
 						<span><?php esc_html_e( 'Then', 'jetpack-connection' ); ?></span>
 					</div>
 					<?php echo $this->build_sso_button(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaping done in build_sso_button() ?>
-					<a rel="nofollow" class="jetpack-sso-wrap__reauth" href="<?php echo esc_url( $this->build_sso_button_url( array( 'force_reauth' => '1' ) ) ); ?>">
-						<?php esc_html_e( 'Log in with another WordPress.com account', 'jetpack-connection' ); ?>
-					</a>
 				<?php else : ?>
 					<?php echo $this->build_sso_button( array(), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaping done in build_sso_button() ?>
 
