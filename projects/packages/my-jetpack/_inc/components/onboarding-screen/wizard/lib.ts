@@ -5,14 +5,12 @@ import {
 	cloud,
 	comment,
 	image,
-	megaphone,
 	page,
 	plus,
 	post,
 	postCommentsForm,
 	shield,
 	store,
-	trendingUp,
 } from '@wordpress/icons';
 
 /**
@@ -48,7 +46,7 @@ export interface WizardBenefit {
 /**
  * Which shape a step takes: the start screen, or a question with options.
  */
-export type WizardStepKind = 'start' | 'question';
+export type WizardStepKind = 'start' | 'question' | 'features' | 'finish';
 
 /**
  * A step, as the rail and the question column both read it.
@@ -219,43 +217,24 @@ export function wizardSteps(): WizardStepMeta[] {
 		},
 		{
 			id: 'features',
-			kind: 'question',
+			kind: 'features',
 			label: __( 'What you need', 'jetpack-my-jetpack' ),
-			title: __( 'The feature list is not decided yet', 'jetpack-my-jetpack' ),
+			title: __( "Here's what Jetpack will switch on", 'jetpack-my-jetpack' ),
 			description: __(
-				'These three are stand-ins for it. Picking one turns nothing on and saves nothing.',
+				'Most of these run by default. Turn off anything you do not want.',
 				'jetpack-my-jetpack'
 			),
-			options: [
-				{
-					value: 'protect',
-					label: __( 'Example: keeping the site safe', 'jetpack-my-jetpack' ),
-					description: __( 'A stand-in. Nothing is turned on.', 'jetpack-my-jetpack' ),
-					icon: shield,
-				},
-				{
-					value: 'grow',
-					label: __( 'Example: reaching more people', 'jetpack-my-jetpack' ),
-					description: __( 'A stand-in. Nothing is turned on.', 'jetpack-my-jetpack' ),
-					icon: megaphone,
-				},
-				{
-					value: 'speed',
-					label: __( 'Example: making the site faster', 'jetpack-my-jetpack' ),
-					description: __( 'A stand-in. Nothing is turned on.', 'jetpack-my-jetpack' ),
-					icon: trendingUp,
-				},
-			],
+			// The rows are the modules Jetpack reports, not a fixed list written here.
+			options: [],
 		},
 		{
 			id: 'done',
-			kind: 'question',
+			kind: 'finish',
 			label: __( 'Finish', 'jetpack-my-jetpack' ),
-			title: __( 'The rest of this is not built yet', 'jetpack-my-jetpack' ),
-			description: __(
-				'Nothing has been turned on and nothing is saved. This step exists so the end of the flow can be judged alongside the rest.',
-				'jetpack-my-jetpack'
-			),
+			// Written from what happened rather than here, because a finish screen that
+			// says the same thing whatever the result is the one thing it must not do.
+			title: '',
+			description: '',
 			options: [],
 		},
 	];
@@ -323,6 +302,23 @@ export function settleOnboarding( outcome: SettleOutcome ): Promise< unknown > {
 }
 
 /**
+ * Whether a module is switched on, given what the user has moved.
+ *
+ * The wizard recommends all six, so an untouched row is on even where the site
+ * has the module off — which is the whole point of offering Downtime Monitor,
+ * the one of the six that does not ship on. One function so the switch and the
+ * request cannot disagree, which they did: the row read as on while the request
+ * asked for no change, and the finish screen then said five of six.
+ *
+ * @param wanted - What the user has moved, by slug.
+ * @param slug   - The module in question.
+ * @return Whether it should end up on.
+ */
+export function isWanted( wanted: Record< string, boolean >, slug: string ): boolean {
+	return wanted[ slug ] ?? true;
+}
+
+/**
  * Which step the wizard opens on after the round trip to WordPress.com.
  *
  * Derived, not stored: a `step` parameter would be editable by the person it
@@ -348,7 +344,8 @@ export function openingStep( isUserConnected: boolean ): WizardStep {
 export function canContinue( step: WizardStep, state: WizardState ): boolean {
 	const meta = wizardSteps()[ step ];
 
-	// The start screen asks nothing, and carries its own way forward.
+	// The start screen asks nothing and carries its own way forward, and the feature
+	// step starts with every row answered.
 	return meta.kind === 'start' || meta.options.length === 0 || state.choices[ step ] !== undefined;
 }
 
