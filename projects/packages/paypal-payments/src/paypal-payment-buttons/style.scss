@@ -256,8 +256,13 @@ $paypal-wordmark: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/200
 	max-width: 320px;
 }
 
+// The min-width lets the field shrink below its default size, so the row fits
+// a narrow column, as core's Search block does. border-box counts the padding
+// and border in that minimum.
 .jetpack-paypal-button__qr-link-input {
 	flex: 1;
+	box-sizing: border-box;
+	min-width: 3rem;
 	font-size: 12px;
 	padding: 6px 8px;
 	border: 1px solid #ddd;
