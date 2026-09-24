@@ -4,13 +4,7 @@ import { useMemo } from 'react';
 import { moduleSwitchKey, useRequestedSwitches } from '../../../data/requested-switch-state';
 import { PRODUCT_MODULES } from '../products/mappings';
 import { useAllJetpackModules } from '../products/use-all-jetpack-modules';
-import {
-	filterAndSortModules,
-	hasSearch,
-	moduleFields,
-	rankBy,
-	searchTerms,
-} from '../products/utils';
+import { hasSearch, moduleFields, rankBy, searchTerms } from '../products/utils';
 import { getFeatureModuleSlug } from './feature-state';
 import { matchesFilter } from './use-feature-filter';
 import type { FeatureState } from './feature-state';
@@ -92,9 +86,9 @@ export function groupMoreFeatures(
 			.filter( ( { feature, slug } ) => feature.in_jetpack || ! named.has( slug ) )
 			.map( ( { slug } ) => slug )
 	);
-	// Sorted by name, with the legacy modules dropped, the way the Products tab lists them.
 	const remaining = new Map(
-		filterAndSortModules( Object.values( modules ) )
+		Object.values( modules )
+			.sort( ( a, b ) => ( a.name || a.module ).localeCompare( b.name || b.module ) )
 			.filter(
 				$module =>
 					$module.available && ! covered.has( $module.module ) && ! hidden.has( $module.module )
@@ -161,17 +155,55 @@ export function filterMoreFeatures(
 const WIDGET_MODULES = [ 'widgets', 'widget-visibility' ];
 
 /**
- * The modules that do not apply to the site, unless one is already on.
+ * Modules on their way out, offered only to a site already running them.
  *
- * @param modules - Every Jetpack module on the site.
- * @return The slugs to leave out.
+ * @return The slugs.
  */
-export function getHiddenModules( modules: Record< string, MyJetpackModule > ): Set< string > {
+export function getDeprecatedModules(): string[] {
 	const isBlockTheme = Boolean( getScriptData()?.myJetpack?.siteEditor?.isBlockTheme );
 
+	return [ 'google-fonts', ...( isBlockTheme ? WIDGET_MODULES : [] ) ];
+}
+
+/**
+ * The deprecated modules to leave out: those neither on now nor on when the page loaded.
+ *
+ * @param modules      - Every Jetpack module on the site.
+ * @param activeOnLoad - The deprecated modules that were on when the page loaded.
+ * @return The slugs to leave out.
+ */
+export function getHiddenModules(
+	modules: Record< string, MyJetpackModule >,
+	activeOnLoad: ReadonlySet< string >
+): Set< string > {
 	return new Set(
-		isBlockTheme ? WIDGET_MODULES.filter( slug => ! modules[ slug ]?.activated ) : []
+		getDeprecatedModules().filter(
+			slug => ! modules[ slug ]?.activated && ! activeOnLoad.has( slug )
+		)
 	);
+}
+
+// Module-scoped so a module switched off here keeps its row, and its switch back on, until a reload.
+let deprecatedActiveOnLoad: ReadonlySet< string > | null = null;
+
+/**
+ * The deprecated modules that were on when the modules first loaded.
+ *
+ * @param modules - Every Jetpack module on the site.
+ * @return The slugs, empty until the modules load.
+ */
+function getDeprecatedActiveOnLoad(
+	modules: Record< string, MyJetpackModule >
+): ReadonlySet< string > {
+	// The store starts out as `{}`, not undefined: taking that as the page-load state would hide
+	// a module the moment it is switched off.
+	if ( ! deprecatedActiveOnLoad && Object.keys( modules ).length ) {
+		deprecatedActiveOnLoad = new Set(
+			getDeprecatedModules().filter( slug => modules[ slug ]?.activated )
+		);
+	}
+
+	return deprecatedActiveOnLoad ?? new Set();
 }
 
 /**
@@ -196,7 +228,7 @@ export function useMoreFeatures( state: MainFeaturesState ): MoreFeaturesGroup[]
 						modules,
 						PRODUCT_MODULES,
 						requested,
-						getHiddenModules( modules )
+						getHiddenModules( modules, getDeprecatedActiveOnLoad( modules ) )
 					)
 				: [],
 		[ state, modules, requested ]
