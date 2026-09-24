@@ -581,13 +581,14 @@ $rail-row-min-height: 40px;
 }
 
 /*
- * pathLength normalises every path to 1, so one dash length draws all 14. The
- * prototype's cubic-bezier(0.23, 1, 0.32, 1) has no token; the expressive
- * easing is the nearest the design system carries.
+ * --draw-length is each path's own measured length, published by panel-art.tsx,
+ * because a dash length set from a stylesheet is in user units whatever
+ * pathLength says. The prototype's cubic-bezier(0.23, 1, 0.32, 1) has no token;
+ * the expressive easing is the nearest the design system carries.
  */
 .brand-panel__art-path {
-	stroke-dasharray: 1;
-	stroke-dashoffset: 1;
+	stroke-dasharray: var(--draw-length);
+	stroke-dashoffset: var(--draw-length);
 	animation-name: panel-draw;
 	animation-duration: $panel-art-draw-duration;
 	animation-timing-function: var(--wpds-motion-easing-expressive);
@@ -596,7 +597,9 @@ $rail-row-min-height: 40px;
 	@media (prefers-reduced-motion: reduce) {
 
 		// Drawn, not drawing: the paths arrive complete and the container fades.
+		// The dash goes too, since no animationend fires here to take it off.
 		animation: none;
+		stroke-dasharray: none;
 		stroke-dashoffset: 0;
 	}
 }
@@ -683,7 +686,7 @@ $rail-row-min-height: 40px;
 @keyframes panel-draw {
 
 	from {
-		stroke-dashoffset: 1;
+		stroke-dashoffset: var(--draw-length);
 	}
 
 	to {

@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { useLayoutEffect, useRef } from 'react';
 import styles from './styles.module.scss';
 
 /**
@@ -89,15 +90,42 @@ type PanelArtProps = {
 /**
  * The brand panel's artwork.
  *
- * Each path carries `pathLength={ 1 }`, which normalises its length so a single
- * `stroke-dasharray: 1` rule draws all 14 regardless of how long they really
- * are. Without it every path would need its own dash length.
+ * Each path's own length is measured and published as `--draw-length`, which the
+ * dash rules read. `pathLength` would be tidier, but Chrome only normalises
+ * against it for presentation attributes: a `stroke-dasharray` coming from a
+ * stylesheet stays in user units, so the whole bolt draws as a 1px dotted line
+ * at a third of a pixel wide and nothing appears on screen.
  *
  * @param props         - The component props.
  * @param props.animate - Whether the paths draw themselves in.
  * @return The rendered artwork.
  */
 export function PanelArt( { animate = false }: PanelArtProps ) {
+	const svgRef = useRef< SVGSVGElement >( null );
+
+	useLayoutEffect( () => {
+		if ( ! animate ) {
+			return;
+		}
+
+		const paths = Array.from( svgRef.current?.querySelectorAll( 'path' ) ?? [] );
+
+		// Chrome rasterises a dashed hairline at far lower coverage than a plain one,
+		// so a finished path left dashed renders a third as bright as a static one.
+		const clearDash = ( event: AnimationEvent ) =>
+			( event.currentTarget as SVGPathElement ).style.setProperty( 'stroke-dasharray', 'none' );
+
+		paths.forEach( path => {
+			// jsdom has no SVG geometry, so the measurement is skipped under test.
+			if ( typeof path.getTotalLength === 'function' ) {
+				path.style.setProperty( '--draw-length', `${ Math.ceil( path.getTotalLength() ) }` );
+			}
+			path.addEventListener( 'animationend', clearDash, { once: true } );
+		} );
+
+		return () => paths.forEach( path => path.removeEventListener( 'animationend', clearDash ) );
+	}, [ animate ] );
+
 	return (
 		<div
 			className={ clsx(
@@ -106,6 +134,7 @@ export function PanelArt( { animate = false }: PanelArtProps ) {
 			) }
 		>
 			<svg
+				ref={ svgRef }
 				viewBox={ ART_VIEW_BOX }
 				fill="none"
 				aria-hidden="true"
@@ -120,14 +149,12 @@ export function PanelArt( { animate = false }: PanelArtProps ) {
 						strokeWidth={ path.width }
 						strokeMiterlimit={ 10 }
 						/*
-						 * The widths are in the 660-wide viewBox, which the panel draws at
-						 * about two thirds, so both would render sub-pixel and thin out on
-						 * a 1x display. This holds them at their nominal width instead.
+						 * No vector-effect, as in the prototype. non-scaling-stroke moves
+						 * the dash lengths into screen pixels, which is the same trap as
+						 * pathLength above by another route.
 						 */
-						vectorEffect="non-scaling-stroke"
 						{ ...( animate
 							? {
-									pathLength: 1,
 									className: styles[ 'brand-panel__art-path' ],
 									style: {
 										animationDelay: `${ DRAW_DELAY_BASE_S + index * DRAW_DELAY_STEP_S }s`,
