@@ -1,0 +1,17 @@
+{
+	"name": "wordads/chart-tabs",
+	"title": "Ads summary",
+	"description": "Track ads served, average CPM, and revenue over the selected period.",
+	"help": {
+		"content": "Impressions, average CPM, and the revenue they earned over the selected period.",
+		"links": [
+			{
+				"label": "Learn more",
+				"href": "https://wordpress.com/support/wordads-and-earn/"
+			}
+		]
+	},
+	"category": "stats",
+	"presentation": "framed",
+	"textdomain": "jetpack-wordads-analytics-pkg"
+}

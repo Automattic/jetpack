@@ -1,0 +1,19 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"compilerOptions": {
+		// The dashboard's shared modules type-check from their source, as the
+		// dashboard package does itself; wp-build resolves the same specifiers to
+		// the script modules the page import map serves.
+		"paths": {
+			"@jetpack-premium-analytics/*": [ "../premium-analytics/packages/*/src" ]
+		}
+	},
+	// The dashboard package's ambient declarations too: its shared modules read the
+	// script data through `JetpackScriptData` augmentations that only an include reaches.
+	"include": [
+		"types/**/*",
+		"../premium-analytics/types/**/*",
+		"../premium-analytics/packages/*/src/**/*.d.ts",
+		"widgets/**/*"
+	]
+}

@@ -5264,6 +5264,64 @@ importers:
         specifier: 7.2.1
         version: 7.2.1(webpack@5.107.2)
 
+  projects/packages/wordads-analytics:
+    dependencies:
+      '@jetpack-premium-analytics/data':
+        specifier: link:../premium-analytics/packages/data
+        version: link:../premium-analytics/packages/data
+      '@jetpack-premium-analytics/datetime':
+        specifier: link:../premium-analytics/packages/datetime
+        version: link:../premium-analytics/packages/datetime
+      '@jetpack-premium-analytics/externals':
+        specifier: link:../premium-analytics/packages/externals
+        version: link:../premium-analytics/packages/externals
+      '@jetpack-premium-analytics/fields':
+        specifier: link:../premium-analytics/packages/fields
+        version: link:../premium-analytics/packages/fields
+      '@jetpack-premium-analytics/widgets-toolkit':
+        specifier: link:../premium-analytics/packages/widgets-toolkit
+        version: link:../premium-analytics/packages/widgets-toolkit
+      '@wordpress/element':
+        specifier: 8.7.0
+        version: 8.7.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/i18n':
+        specifier: 6.28.0
+        version: 6.28.0
+      '@wordpress/icons':
+        specifier: 16.0.0
+        version: 16.0.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/widget-primitives':
+        specifier: 0.7.0
+        version: 0.7.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+    devDependencies:
+      '@automattic/jetpack-wp-build-polyfills':
+        specifier: workspace:*
+        version: link:../wp-build-polyfills
+      '@babel/core':
+        specifier: 7.29.7
+        version: 7.29.7
+      '@types/react':
+        specifier: 18.3.31
+        version: 18.3.31
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260707.2
+        version: 7.0.0-dev.20260707.2
+      '@wordpress/browserslist-config':
+        specifier: 6.55.0
+        version: 6.55.0
+      '@wordpress/build':
+        specifier: 0.23.0
+        version: 0.23.0(patch_hash=151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022)(@babel/core@7.29.7)
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+
   projects/packages/wp-build-polyfills:
     dependencies:
       '@automattic/babel-plugin-replace-textdomain':
@@ -24466,6 +24524,30 @@ snapshots:
       - vite
 
   '@wordpress/browserslist-config@6.55.0': {}
+
+  '@wordpress/build@0.23.0(patch_hash=151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022)(@babel/core@7.29.7)':
+    dependencies:
+      '@emotion/babel-plugin': 11.13.5
+      '@wordpress/browserslist-config': 6.55.0
+      '@wordpress/style-runtime': 0.11.0
+      autoprefixer: 10.5.5(postcss@8.5.23)
+      browserslist: 4.28.9
+      browserslist-to-esbuild: 2.1.1(browserslist@4.28.9)
+      change-case: 4.1.2
+      chokidar: 4.0.3
+      cssnano: 7.1.9(postcss@8.5.23)
+      esbuild: 0.28.2
+      esbuild-plugin-babel: 0.2.3(@babel/core@7.29.7)
+      esbuild-sass-plugin: 3.7.0(esbuild@0.28.2)(sass-embedded@1.97.3)
+      fast-glob: 3.3.3
+      moment-timezone: 0.5.48
+      postcss: 8.5.23
+      postcss-modules: 6.0.1(postcss@8.5.23)
+      rtlcss: 4.3.0
+      sass-embedded: 1.97.3
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
 
   '@wordpress/build@0.23.0(patch_hash=151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022)(@babel/core@7.29.7)(@wordpress/boot@0.22.0(@date-fns/tz@1.5.0)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.55.0)(@wordpress/route@0.21.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@2.1.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
     dependencies:

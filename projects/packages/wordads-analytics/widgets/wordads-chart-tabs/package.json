@@ -1,0 +1,17 @@
+{
+	"name": "@automattic/jetpack-wordads-analytics-widget-chart-tabs",
+	"version": "0.1.0-alpha",
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"@jetpack-premium-analytics/data": "link:../../../premium-analytics/packages/data",
+		"@jetpack-premium-analytics/datetime": "link:../../../premium-analytics/packages/datetime",
+		"@jetpack-premium-analytics/fields": "link:../../../premium-analytics/packages/fields",
+		"@jetpack-premium-analytics/widgets-toolkit": "link:../../../premium-analytics/packages/widgets-toolkit",
+		"@wordpress/element": "8.7.0",
+		"@wordpress/i18n": "^6.9.0",
+		"@wordpress/icons": "^16.0.0",
+		"@wordpress/widget-primitives": "0.7.0",
+		"react": "18.3.1"
+	}
+}
