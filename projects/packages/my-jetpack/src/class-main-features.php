@@ -226,12 +226,12 @@ class Main_Features {
 				'interstitial'     => '/add-jetpack-ai',
 				'free_highlights'  => array(
 					/* translators: %d is the number of free requests, such as 20. */
-					sprintf( __( '%d requests to try it out', 'jetpack-my-jetpack' ), Products\Jetpack_Ai::FREE_REQUESTS ),
+					sprintf( _n( '%d request to try it out', '%d requests to try it out', Products\Jetpack_Ai::FREE_REQUESTS, 'jetpack-my-jetpack' ), Products\Jetpack_Ai::FREE_REQUESTS ),
 					__( 'Generate, rewrite and translate in the editor', 'jetpack-my-jetpack' ),
 				),
 				'paid_highlights'  => array(
 					/* translators: %d is the number of free requests, such as 20. */
-					sprintf( __( 'Keep creating after your %d free requests run out', 'jetpack-my-jetpack' ), Products\Jetpack_Ai::FREE_REQUESTS ),
+					sprintf( _n( 'Keep creating after your %d free request runs out', 'Keep creating after your %d free requests run out', Products\Jetpack_Ai::FREE_REQUESTS, 'jetpack-my-jetpack' ), Products\Jetpack_Ai::FREE_REQUESTS ),
 					__( 'Generate a logo for your site', 'jetpack-my-jetpack' ),
 					__( 'Priority support', 'jetpack-my-jetpack' ),
 				),

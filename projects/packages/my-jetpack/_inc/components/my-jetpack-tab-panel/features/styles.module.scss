@@ -637,6 +637,11 @@ $band-props: (
 	}
 }
 
+// clip-path and the glows have no logical form, so mirror the layer.
+:dir(rtl) .modal-band::before {
+	transform: scaleX(-1);
+}
+
 .modal-band__art {
 	align-items: center;
 	block-size: 100%;

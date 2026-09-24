@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useState } from 'react';
 import type { FeatureState } from './feature-state';
 
 type StepOrder = { key: string; features: MainFeature[] };
@@ -19,20 +19,25 @@ export function useStepOrder(
 	openSlug: string | null,
 	key: string
 ): MainFeature[] {
-	const orderRef = useRef< StepOrder | null >( null );
-	const current = orderRef.current;
-	const isStale =
-		! current ||
-		current.key !== key ||
-		// Opened before the catalog arrived: take the order once the feature shows up.
-		( ! current.features.some( feature => feature.slug === openSlug ) &&
-			visible.some( state => state.feature.slug === openSlug ) );
+	const [ order, setOrder ] = useState< StepOrder | null >( null );
 
+	let next = order;
 	if ( ! openSlug ) {
-		orderRef.current = null;
-	} else if ( isStale ) {
-		orderRef.current = { key, features: visible.map( state => state.feature ) };
+		next = null;
+	} else if (
+		! order ||
+		order.key !== key ||
+		// Opened before the catalog arrived: take the order once the feature shows up.
+		( ! order.features.some( feature => feature.slug === openSlug ) &&
+			visible.some( state => state.feature.slug === openSlug ) )
+	) {
+		next = { key, features: visible.map( state => state.feature ) };
 	}
 
-	return orderRef.current?.features ?? [];
+	// Updating state while rendering, only when the snapshot is out of date, so it settles.
+	if ( next !== order ) {
+		setOrder( next );
+	}
+
+	return next?.features ?? [];
 }

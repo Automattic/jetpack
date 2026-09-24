@@ -131,7 +131,7 @@ class Jetpack_Ai extends Module_Product {
 		$current_tier        = self::get_current_usage_tier();
 		$current_description = 0 === $current_tier
 			/* translators: %d is the number of free requests, such as 20. */
-			? sprintf( __( 'Up to %d requests', 'jetpack-my-jetpack' ), self::FREE_REQUESTS )
+			? sprintf( _n( 'Up to %d request', 'Up to %d requests', self::FREE_REQUESTS, 'jetpack-my-jetpack' ), self::FREE_REQUESTS )
 			/* translators: number of requests */
 			: sprintf( __( 'Up to %d requests per month', 'jetpack-my-jetpack' ), $current_tier );
 		$next_tier        = self::get_next_usage_tier();
