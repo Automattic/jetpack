@@ -22,6 +22,12 @@ let mockState: { active: boolean; available: boolean } | undefined;
 const mockSetState = jest.fn();
 const mockSetNotice = jest.fn();
 
+// speak() also writes the warning into `@wordpress/a11y`'s live region, so match the tooltip only.
+const warning = () =>
+	screen.queryByText( /Prerendering pages can be unsafe/, {
+		ignore: '#a11y-speak-polite, script, style',
+	} );
+
 const renderPrerender = ( row: boolean ) =>
 	render(
 		row ? (
@@ -81,9 +87,9 @@ describe( 'Prerender', () => {
 		const trigger = screen.getByRole( 'button', { name: 'be mindful' } );
 		trigger.focus();
 		fireEvent.click( trigger );
-		expect( screen.getByText( /Prerendering pages can be unsafe/ ) ).toBeTruthy();
+		expect( warning() ).toBeTruthy();
 		fireEvent.keyDown( trigger, { key: 'Escape' } );
-		expect( screen.queryByText( /Prerendering pages can be unsafe/ ) ).toBeNull();
+		expect( warning() ).toBeNull();
 		expect( trigger.ownerDocument.activeElement ).toBe( trigger );
 		expect( trigger.getAttribute( 'aria-expanded' ) ).toBe( 'false' );
 	} );
@@ -92,7 +98,7 @@ describe( 'Prerender', () => {
 		renderPrerender( false );
 		fireEvent.click( screen.getByRole( 'button', { name: 'be mindful' } ) );
 		fireEvent.pointerDown( document.body );
-		expect( screen.queryByText( /Prerendering pages can be unsafe/ ) ).toBeNull();
+		expect( warning() ).toBeNull();
 	} );
 
 	it( 'reflects an enabled module', () => {
@@ -106,16 +112,16 @@ describe( 'Prerender', () => {
 		const { recordBoostEvent } = jest.requireMock( '$lib/utils/analytics' );
 		renderPrerender( false );
 
-		expect( screen.queryByText( /Prerendering pages can be unsafe/ ) ).toBeNull();
+		expect( warning() ).toBeNull();
 		fireEvent.click( screen.getByRole( 'button', { name: 'be mindful' } ) );
 
 		expect( recordBoostEvent ).toHaveBeenCalledWith( 'prerender_warning_message_clicked', {} );
-		expect( screen.getByText( /Prerendering pages can be unsafe/ ) ).toBeTruthy();
+		expect( warning() ).toBeTruthy();
 		expect( screen.getByRole( 'link', { name: /^Learn more/ } ).getAttribute( 'href' ) ).toContain(
 			'jetpack-boost-unsafe-speculation-rules'
 		);
 
 		fireEvent.click( screen.getByRole( 'button', { name: 'be mindful' } ) );
-		expect( screen.queryByText( /Prerendering pages can be unsafe/ ) ).toBeNull();
+		expect( warning() ).toBeNull();
 	} );
 } );
