@@ -210,8 +210,7 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * Width and Border, for whichever element the format puts them on — the
-	 * checkout button or the QR frame.
+	 * Width and Border, for the QR frame.
 	 *
 	 * Every value is validated before the style engine sees it.
 	 * wp_style_engine_get_styles() is not a sanitizer: its only filter is
@@ -225,17 +224,7 @@ class PayPal_Payment_Buttons {
 	 * @return array A list of CSS declarations, empty when nothing is configured.
 	 */
 	private static function get_width_and_border_rules( $attributes ) {
-		$rules = array();
-
-		// max-width keeps a set Width inside the card. With no Width the stylesheet
-		// sizes the element.
-		$width = self::chosen_width( $attributes );
-		if ( '' !== $width ) {
-			$rules[] = sprintf( 'width:%s', $width );
-			$rules[] = 'max-width:100%';
-		}
-
-		return array_merge( $rules, self::get_border_rules( $attributes ) );
+		return array_merge( self::get_width_rules( $attributes ), self::get_border_rules( $attributes ) );
 	}
 
 	/**
@@ -249,11 +238,20 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
+	 * Width, for the button card. The button fills the card.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return string An inline CSS declaration list, empty when nothing is configured.
+	 */
+	private static function get_button_card_style( $attributes ) {
+		return self::css_rules( self::get_width_rules( $attributes ) );
+	}
+
+	/**
 	 * Margin, from the Border Settings panel.
 	 *
-	 * The button card and the QR card take this and nothing else — Width and Border
-	 * go on the button or the QR frame. A QR-to-BUTTON format switch can leave a
-	 * margin behind, so the card keeps reading it.
+	 * Only the QR card takes this. Width and Border go on the frame inside it.
+	 * Margin is a QR-only control, so the button card drops a margin left over from QR.
 	 *
 	 * Mirrors getMarginStyle() in utils/block-styles.js.
 	 *
@@ -280,17 +278,22 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * The chosen width, with its unit.
+	 * Width, for the button card or the QR frame.
 	 *
 	 * Width has its own unit, so it goes through as typed. The style engine never
 	 * sees it, so a spacing preset would be emitted raw — the width
 	 * control cannot produce one, and this keeps it that way.
 	 *
+	 * max-width keeps a set Width inside its container. With no Width the
+	 * stylesheet sizes the element. Mirrors getWidthStyle() in utils/block-styles.js.
+	 *
 	 * @param array $attributes The block attributes.
-	 * @return string The width, or '' when none is set.
+	 * @return array A list of CSS declarations, empty when none is set.
 	 */
-	private static function chosen_width( $attributes ) {
-		return self::plain_length( $attributes['blockWidth'] ?? '' );
+	private static function get_width_rules( $attributes ) {
+		$width = self::plain_length( $attributes['blockWidth'] ?? '' );
+
+		return '' === $width ? array() : array( sprintf( 'width:%s', $width ), 'max-width:100%' );
 	}
 
 	/**
@@ -510,8 +513,8 @@ class PayPal_Payment_Buttons {
 			array_merge(
 				self::get_text_rules( $attributes['buttonTextColor'] ?? '', $attributes['buttonFontSize'] ?? '' ),
 				$rules,
-				// Width and Border go on the button, not the card — see get_margin_style().
-				self::get_width_and_border_rules( $attributes )
+				// Width goes on the card around the button, see get_button_card_style().
+				self::get_border_rules( $attributes )
 			)
 		);
 	}
@@ -1082,8 +1085,8 @@ class PayPal_Payment_Buttons {
 		}
 
 		$wrapper_attributes = get_block_wrapper_attributes();
-		// Width and Border go on the button, not this card — see get_button_style().
-		$block_style = self::style_attr( self::get_margin_style( $attributes ) );
+		// Width sizes this card, and the button fills it.
+		$block_style = self::style_attr( self::get_button_card_style( $attributes ) );
 
 		// A blank label would draw an unreadable button, so fall back to the same
 		// default the editor preview uses.
