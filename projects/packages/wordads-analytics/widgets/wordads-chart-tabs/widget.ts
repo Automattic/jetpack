@@ -2,13 +2,11 @@
  * External dependencies
  */
 import {
+	type ChartDisplayChartType,
+	chartTypeAttributeField,
 	reportParamsAttributeField,
 	type ReportParamsFieldAttributes,
-} from '@jetpack-premium-analytics/fields';
-import {
-	chartTypeAttributeField,
-	type ChartDisplayChartType,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+} from '@automattic/jetpack-premium-analytics-api';
 /**
  * WordPress dependencies
  */

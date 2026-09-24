@@ -1283,6 +1283,18 @@ importers:
         specifier: 6.0.3
         version: 6.0.3
 
+  projects/js-packages/premium-analytics-api:
+    devDependencies:
+      '@types/react':
+        specifier: 18.3.31
+        version: 18.3.31
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260707.2
+        version: 7.0.0-dev.20260707.2
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+
   projects/js-packages/react-data-sync-client:
     dependencies:
       '@tanstack/react-query':
@@ -4197,6 +4209,9 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
     devDependencies:
+      '@automattic/jetpack-premium-analytics-api':
+        specifier: workspace:*
+        version: link:../../js-packages/premium-analytics-api
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
@@ -5266,21 +5281,9 @@ importers:
 
   projects/packages/wordads-analytics:
     dependencies:
-      '@jetpack-premium-analytics/data':
-        specifier: link:../premium-analytics/packages/data
-        version: link:../premium-analytics/packages/data
-      '@jetpack-premium-analytics/datetime':
-        specifier: link:../premium-analytics/packages/datetime
-        version: link:../premium-analytics/packages/datetime
-      '@jetpack-premium-analytics/externals':
-        specifier: link:../premium-analytics/packages/externals
-        version: link:../premium-analytics/packages/externals
-      '@jetpack-premium-analytics/fields':
-        specifier: link:../premium-analytics/packages/fields
-        version: link:../premium-analytics/packages/fields
-      '@jetpack-premium-analytics/widgets-toolkit':
-        specifier: link:../premium-analytics/packages/widgets-toolkit
-        version: link:../premium-analytics/packages/widgets-toolkit
+      '@automattic/jetpack-premium-analytics-api':
+        specifier: workspace:*
+        version: link:../../js-packages/premium-analytics-api
       '@wordpress/element':
         specifier: 8.7.0
         version: 8.7.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

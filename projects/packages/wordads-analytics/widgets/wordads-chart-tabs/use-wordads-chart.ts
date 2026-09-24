@@ -2,18 +2,18 @@
  * External dependencies
  */
 import {
-	useStatsWordAdsStats,
+	buildMetricTab,
 	type ReportParams,
 	type StatsPeriod,
 	type StatsWordAdsResponse,
-} from '@jetpack-premium-analytics/data';
+	useStatsWordAdsStats,
+} from '@automattic/jetpack-premium-analytics-api';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { WORDADS_CHART_METRICS } from './metrics';
-import { buildMetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
 
 export type WordAdsPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
 

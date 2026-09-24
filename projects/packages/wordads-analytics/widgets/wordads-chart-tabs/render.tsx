@@ -1,15 +1,16 @@
 /**
  * External dependencies
  */
-import { ReportScopeProvider, chartInterval } from '@jetpack-premium-analytics/data';
 import {
+	type ChartDisplayChartType,
+	chartInterval,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
+	ReportScopeProvider,
+	useWidgetRootContext,
 	WidgetRoot,
 	WidgetState,
-	useWidgetRootContext,
-	type ChartDisplayChartType,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+} from '@automattic/jetpack-premium-analytics-api';
 import { __ } from '@wordpress/i18n';
 import { megaphone } from '@wordpress/icons';
 /**

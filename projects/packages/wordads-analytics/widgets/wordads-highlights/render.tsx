@@ -2,17 +2,15 @@
  * External dependencies
  */
 import {
-	useStatsWordAdsEarnings,
-	type StatsWordAdsEarningsResponse,
-} from '@jetpack-premium-analytics/data';
-import {
+	type DataFormat,
 	MetricTileGrid,
 	MetricTileGridSkeleton,
+	type ReportParamsFieldAttributes,
+	type StatsWordAdsEarningsResponse,
+	useStatsWordAdsEarnings,
 	WidgetRoot,
 	WidgetState,
-	type DataFormat,
-	type ReportParamsFieldAttributes,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+} from '@automattic/jetpack-premium-analytics-api';
 import { __ } from '@wordpress/i18n';
 import { payment, receipt, tip } from '@wordpress/icons';
 /**

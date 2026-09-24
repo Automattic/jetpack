@@ -1,17 +1,18 @@
 /**
  * External dependencies
  */
-import { useStatsWordAdsEarnings } from '@jetpack-premium-analytics/data';
-import { Badge, Stack } from '@jetpack-premium-analytics/externals';
 import {
+	Badge,
 	EarningsHistoryList,
+	flattenEarningsBreakdown,
 	ReportLink,
+	type ReportParamsFieldAttributes,
+	Stack,
+	useStatsWordAdsEarnings,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
-	flattenEarningsBreakdown,
-	type ReportParamsFieldAttributes,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+} from '@automattic/jetpack-premium-analytics-api';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
 /**

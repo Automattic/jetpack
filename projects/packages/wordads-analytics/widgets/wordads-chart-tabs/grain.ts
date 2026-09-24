@@ -2,11 +2,11 @@
  * External dependencies
  */
 import {
-	PRESET_LAST_7_DAYS,
-	PRESET_LAST_30_DAYS,
 	PRESET_LAST_12_MONTHS,
-} from '@jetpack-premium-analytics/datetime';
-import type { ReportGrain } from '@jetpack-premium-analytics/fields';
+	PRESET_LAST_30_DAYS,
+	PRESET_LAST_7_DAYS,
+	type ReportGrain,
+} from '@automattic/jetpack-premium-analytics-api';
 /**
  * Internal dependencies
  */
