@@ -673,7 +673,6 @@ class Main_Features {
 					'comment-likes',
 					'gravatar-hovercards',
 					'related-posts',
-					'infinite-scroll',
 					'sharedaddy',
 					'shortlinks',
 				),
