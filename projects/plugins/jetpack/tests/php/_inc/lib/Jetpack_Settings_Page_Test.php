@@ -13,9 +13,13 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-settings-
 /**
  * Covers when the Modules page hands off to My Jetpack's Features list.
  *
+ * @covers Jetpack_Settings_Page::add_page_actions
  * @covers Jetpack_Settings_Page::get_features_list_redirect
+ * @covers Jetpack_Settings_Page::maybe_redirect_to_features_list
  */
+#[CoversMethod( Jetpack_Settings_Page::class, 'add_page_actions' )]
 #[CoversMethod( Jetpack_Settings_Page::class, 'get_features_list_redirect' )]
+#[CoversMethod( Jetpack_Settings_Page::class, 'maybe_redirect_to_features_list' )]
 class Jetpack_Settings_Page_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -37,6 +41,7 @@ class Jetpack_Settings_Page_Test extends WP_UnitTestCase {
 
 	public function tear_down() {
 		remove_all_filters( 'rest_enabled' );
+		remove_all_filters( 'wp_redirect' );
 		global $_registered_pages, $wp_actions;
 		$_registered_pages = $this->registered_pages;
 		$wp_actions        = $this->actions;
@@ -68,5 +73,39 @@ class Jetpack_Settings_Page_Test extends WP_UnitTestCase {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 
 		$this->assertNull( ( new Jetpack_Settings_Page() )->get_features_list_redirect() );
+	}
+
+	public function test_checks_for_the_redirect_before_the_page_loads() {
+		$page = new Jetpack_Settings_Page();
+		$page->add_page_actions( 'admin_page_jetpack_modules' );
+
+		$this->assertSame( 1, has_action( 'load-admin_page_jetpack_modules', array( $page, 'maybe_redirect_to_features_list' ) ) );
+	}
+
+	public function test_redirects_to_the_features_list() {
+		// Throw from the redirect so the test never reaches exit.
+		add_filter(
+			'wp_redirect',
+			function ( $location ) {
+				throw new RuntimeException( $location );
+			}
+		);
+
+		$this->expectException( RuntimeException::class );
+		$this->expectExceptionMessage( admin_url( 'admin.php?page=my-jetpack#/features?view=list' ) );
+		( new Jetpack_Settings_Page() )->maybe_redirect_to_features_list();
+	}
+
+	public function test_renders_the_page_when_there_is_nowhere_to_redirect() {
+		$this->expectNotToPerformAssertions();
+		add_filter( 'rest_enabled', '__return_false' );
+		add_filter(
+			'wp_redirect',
+			function () {
+				throw new RuntimeException( 'Unexpected redirect.' );
+			}
+		);
+
+		( new Jetpack_Settings_Page() )->maybe_redirect_to_features_list();
 	}
 }
