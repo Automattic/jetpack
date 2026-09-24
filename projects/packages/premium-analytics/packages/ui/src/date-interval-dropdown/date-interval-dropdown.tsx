@@ -108,7 +108,6 @@ export function DateIntervalDropdown( {
 					label={ triggerLabel }
 					disabled={ disabled }
 					onKeyDown={ openOnArrowDown( { isOpen, onToggle: () => setIsOpen( true ), disabled } ) }
-					aria-haspopup="true"
 				/>
 			}
 		>

@@ -4,7 +4,6 @@
 import { Popover, Tooltip, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import {
 	useId,
-	type AriaAttributes,
 	type KeyboardEventHandler,
 	type MouseEventHandler,
 	type ReactElement,
@@ -20,7 +19,6 @@ type DateControlPopoverProps = {
 	trigger: ReactElement< {
 		onClick?: MouseEventHandler;
 		onKeyDown?: KeyboardEventHandler;
-		'aria-haspopup'?: AriaAttributes[ 'aria-haspopup' ];
 	} >;
 
 	/** Names the popup for assistive tech; not drawn. */

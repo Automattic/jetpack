@@ -240,7 +240,6 @@ export function DatePeriodDropdown( {
 					{ ...triggerProps }
 					className={ clsx( 'date-period-dropdown__toggle', triggerProps?.className ) }
 					disabled={ disabled }
-					aria-haspopup="true"
 				>
 					{ attentionId !== undefined && (
 						// Keyed so a newer id starts the fade over without remounting the button.

@@ -134,7 +134,6 @@ export function DateComparisonDropdown( {
 							onToggle: () => setIsOpen( true ),
 							disabled,
 						} ) }
-						aria-haspopup="true"
 						// The trigger shows an abbreviation, so carry the full preset name
 						// for anyone not reading the glyphs — same as the preset pills.
 						aria-label={ selectedPreset?.label }
