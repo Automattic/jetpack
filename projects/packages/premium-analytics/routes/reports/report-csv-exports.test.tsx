@@ -85,6 +85,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
 		getEarningsStatus: jest.requireActual(
 			'../../packages/widgets-toolkit/src/components/wordads-earnings-history/fields'
 		).getEarningsStatus,
+		getKnownEmailRate: jest.requireActual(
+			'../../packages/widgets-toolkit/src/helpers/format-email-rate'
+		).getKnownEmailRate,
 		getWordAdsHistoryFields: () => [],
 		ReportCsvAction: jest.fn( () => null ),
 		ReportDrilldownTable: () => null,
@@ -182,7 +185,9 @@ jest.mock( './downloads/config', () => ( {
 } ) );
 
 jest.mock( './emails/config', () => ( {
+	getClicksRateSignals: jest.requireActual( './emails/config' ).getClicksRateSignals,
 	getEmailsFields: () => [],
+	getOpensRateSignals: jest.requireActual( './emails/config' ).getOpensRateSignals,
 	useEmailsReportRecords: jest.fn(),
 } ) );
 
@@ -489,6 +494,9 @@ describe( 'report CSV exports', () => {
 				opens_rate: 20,
 				clicks: 2,
 				clicks_rate: 4,
+				unique_opens: 8,
+				unique_clicks: 2,
+				total_sends: 40,
 			},
 			{
 				id: 2,
@@ -497,7 +505,11 @@ describe( 'report CSV exports', () => {
 				opens: 20,
 				opens_rate: 40,
 				clicks: 4,
-				clicks_rate: 8,
+				// Clicks with no attributable recipient: the click rate alone is unknown.
+				clicks_rate: 0,
+				unique_opens: 16,
+				unique_clicks: 0,
+				total_sends: 40,
 			},
 		];
 		useEmailsReportRecordsMock.mockReturnValue( {
@@ -509,8 +521,39 @@ describe( 'report CSV exports', () => {
 			EmailsReportPage,
 			'emails',
 			[ rows[ 1 ], rows[ 0 ] ],
-			[ 'Second email', '2026-02-01', 20, 40, 4, 8 ]
+			[ 'Second email', '2026-02-01', 20, 40, 4, undefined ]
 		);
+	} );
+
+	it( 'leaves Emails rates blank when the sends went unrecorded', () => {
+		// The summary collapses the unknown rate to 0; only `total_sends` gives it away.
+		const rows = [
+			{
+				id: 1,
+				label: 'Legacy email',
+				date: '2026-01-01',
+				opens: 120,
+				opens_rate: 0,
+				clicks: 5,
+				clicks_rate: 0,
+				unique_opens: 0,
+				unique_clicks: 0,
+				total_sends: 0,
+			},
+		];
+		useEmailsReportRecordsMock.mockReturnValue( {
+			...reportStatus,
+			rows,
+		} as unknown as ReturnType< typeof useEmailsReportRecords > );
+
+		expectCsvExport( EmailsReportPage, 'emails', rows, [
+			'Legacy email',
+			'2026-01-01',
+			120,
+			undefined,
+			5,
+			undefined,
+		] );
 	} );
 
 	it( 'configures the Referrers export in hierarchy order', () => {

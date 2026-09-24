@@ -85,7 +85,13 @@ export {
 	type CalendarHeatmapLayoutInput,
 	type FitWeekColumnsInput,
 } from './calendar-heatmap-layout';
-export { formatEmailRate, isEmailRateKnown, type EmailRateSignals } from './format-email-rate';
+export { compareOptionalNumbers } from './compare-optional-numbers';
+export {
+	formatEmailRate,
+	getKnownEmailRate,
+	isEmailRateKnown,
+	type EmailRateSignals,
+} from './format-email-rate';
 export { formatViewCount } from './format-view-count';
 export { MONTHS_IN_YEAR, monthOrder, type MonthKey } from './month-key';
 export {
