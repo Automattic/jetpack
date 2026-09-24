@@ -199,7 +199,7 @@ up to 28 days (except exact week multiples, which coincide with the previous
 period), the weekday-aligned year up to 364. Each option carries the resolved
 `range`, the `aliases` folded into it, a `label` naming the comparison target
 ("Previous 7 days", "Same period in July", "Same period in 2024", "Same period
-in 2024 (match day of week)") and a trigger `shortLabel`.
+last year (match day of week)") and a trigger `shortLabel`.
 
 **Parameters:**
 

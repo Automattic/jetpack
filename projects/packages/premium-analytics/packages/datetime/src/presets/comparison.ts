@@ -82,7 +82,7 @@ const SHORT_LABELS: Record< ComparisonPresetId, () => string > = {
 		/* translators: abbreviation for "Same period in <year>". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
 		_x( 'Prev. year', 'short comparison preset', 'jetpack-premium-analytics-pkg' ),
 	[ COMPARISON_PREVIOUS_YEAR_MATCH_DAY_OF_WEEK ]: () =>
-		/* translators: abbreviation for "Same period in <year> (match day of week)". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
+		/* translators: abbreviation for "Same period last year (match day of week)". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
 		_x( 'Prev. year (weekday)', 'short comparison preset', 'jetpack-premium-analytics-pkg' ),
 };
 
@@ -95,7 +95,7 @@ const SHORT_LABELS: Record< ComparisonPresetId, () => string > = {
  */
 function getMatchDayOfWeekLabel( siblingLabel: string ): string {
 	return sprintf(
-		/* translators: %s: a comparison option, e.g. "Previous 30 days" or "Same period in 2025". The suffix says the comparison starts on the same weekday. */
+		/* translators: %s: a comparison option, e.g. "Previous 30 days". The suffix says the comparison starts on the same weekday. */
 		_x( '%s (match day of week)', 'weekday-aligned comparison', 'jetpack-premium-analytics-pkg' ),
 		siblingLabel
 	);
@@ -177,8 +177,7 @@ function getPreviousSpanLabel( reference: Required< DateRange > ): string {
 
 /**
  * Label for an option, naming the comparison target rather than the offset: a
- * range set in 2025 offers "Same period in 2024". Both year entries name the year
- * before the range starts, so the weekday one never reads as the range's own year.
+ * range set in 2025 offers "Same period in 2024".
  *
  * @param id         - The comparison preset.
  * @param reference  - The applied range.
@@ -203,13 +202,17 @@ function getOptionLabel(
 		);
 	}
 
-	if ( id === COMPARISON_PREVIOUS_YEAR || id === COMPARISON_PREVIOUS_YEAR_MATCH_DAY_OF_WEEK ) {
-		const label = sprintf(
+	if ( id === COMPARISON_PREVIOUS_YEAR ) {
+		return sprintf(
 			/* translators: %s: the year the comparison period starts in, e.g. "2025". */
 			_x( 'Same period in %s', 'previous year comparison', 'jetpack-premium-analytics-pkg' ),
-			String( reference.from.getFullYear() - 1 )
+			String( comparison.from.getFullYear() )
 		);
-		return id === COMPARISON_PREVIOUS_YEAR ? label : getMatchDayOfWeekLabel( label );
+	}
+
+	// No year: 52 weeks back can start in a different year than the calendar entry names.
+	if ( id === COMPARISON_PREVIOUS_YEAR_MATCH_DAY_OF_WEEK ) {
+		return __( 'Same period last year (match day of week)', 'jetpack-premium-analytics-pkg' );
 	}
 
 	if ( id === COMPARISON_PREVIOUS_PERIOD_MATCH_DAY_OF_WEEK ) {

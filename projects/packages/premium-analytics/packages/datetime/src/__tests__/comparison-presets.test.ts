@@ -88,7 +88,7 @@ describe( 'comparison options', () => {
 			'Same period from last week',
 			'Same period in July',
 			'Same period in 2025',
-			'Same period in 2025 (match day of week)',
+			'Same period last year (match day of week)',
 		] );
 
 		const [ period, week, month, year, weekdayYear ] = getComparisonOptions( yesterday );
@@ -133,7 +133,7 @@ describe( 'comparison options', () => {
 			'Previous 7 days',
 			'Same period in July',
 			'Same period in 2025',
-			'Same period in 2025 (match day of week)',
+			'Same period last year (match day of week)',
 		] );
 		expect( getComparisonOptions( week )[ 0 ].range ).toEqual(
 			daysRange( [ 2026, 7, 17 ], [ 2026, 7, 23 ] )
@@ -146,7 +146,7 @@ describe( 'comparison options', () => {
 		expect( labels( thirtyDays ) ).toEqual( [
 			'Previous 30 days',
 			'Same period in 2025',
-			'Same period in 2025 (match day of week)',
+			'Same period last year (match day of week)',
 		] );
 	} );
 
@@ -172,7 +172,7 @@ describe( 'comparison options', () => {
 		expect( labels( july ) ).toEqual( [
 			'Previous month',
 			'Same period in 2025',
-			'Same period in 2025 (match day of week)',
+			'Same period last year (match day of week)',
 		] );
 		expect( getComparisonOptions( july )[ 0 ].range ).toEqual(
 			daysRange( [ 2026, 5, 1 ], [ 2026, 5, 30 ] )
@@ -190,7 +190,7 @@ describe( 'comparison options', () => {
 			'Previous month',
 			'Previous 28 days (match day of week)',
 			'Same period in 2025',
-			'Same period in 2025 (match day of week)',
+			'Same period last year (match day of week)',
 		] );
 		expect( getComparisonOptions( february )[ 0 ].range ).toEqual(
 			daysRange( [ 2026, 0, 1 ], [ 2026, 0, 31 ] )
@@ -230,7 +230,7 @@ describe( 'comparison options', () => {
 		expect( labels( pastRange ) ).toEqual( [
 			'Previous 57 days',
 			'Same period in 2024',
-			'Same period in 2024 (match day of week)',
+			'Same period last year (match day of week)',
 		] );
 	} );
 
@@ -241,7 +241,7 @@ describe( 'comparison options', () => {
 		expect( options.map( option => option.label ) ).toEqual( [
 			'Previous 61 days',
 			'Same period in 2027',
-			'Same period in 2027 (match day of week)',
+			'Same period last year (match day of week)',
 		] );
 		expect( options[ 1 ].range ).toEqual( daysRange( [ 2027, 0, 1 ], [ 2027, 2, 1 ] ) );
 		expect( options[ 2 ].range ).toEqual( daysRange( [ 2027, 0, 2 ], [ 2027, 2, 3 ] ) );
@@ -253,7 +253,7 @@ describe( 'comparison options', () => {
 
 		expect( options.map( option => option.label ) ).toEqual( [
 			'Previous 347 days',
-			'Same period in 2026 (match day of week)',
+			'Same period last year (match day of week)',
 		] );
 		expect( options[ 0 ].range ).toEqual( daysRange( [ 2026, 9, 1 ], [ 2027, 8, 11 ] ) );
 	} );
@@ -266,7 +266,7 @@ describe( 'comparison options', () => {
 			'Same period from last week',
 			'Same period in December',
 			'Same period in 2026',
-			'Same period in 2026 (match day of week)',
+			'Same period last year (match day of week)',
 		] );
 	} );
 
@@ -329,25 +329,20 @@ describe( 'comparison options', () => {
 		] );
 	} );
 
-	// 52 weeks back from 31 December is 1 January of the same year; the label
-	// follows the calendar entry above it rather than naming the range's own year.
-	it( 'names the weekday-aligned year after its calendar sibling on 31 December', () => {
-		const options = getComparisonOptions( daysRange( [ 2025, 11, 31 ], [ 2025, 11, 31 ] ) );
-		const weekdayYear = options.find( option => option.id === 'previous-year-match-day-of-week' );
+	it( 'names the calendar year a leap day pushes the comparison into', () => {
+		const options = getComparisonOptions( daysRange( [ 2024, 11, 31 ], [ 2025, 2, 1 ] ) );
+		const year = options.find( option => option.id === 'previous-year' );
 
-		expect( options.find( option => option.id === 'previous-year' )?.label ).toBe(
-			'Same period in 2024'
-		);
-		expect( weekdayYear?.label ).toBe( 'Same period in 2024 (match day of week)' );
-		expect( weekdayYear?.range ).toEqual( daysRange( [ 2025, 0, 1 ], [ 2025, 0, 1 ] ) );
+		expect( year?.label ).toBe( 'Same period in 2024' );
+		expect( year?.range ).toEqual( daysRange( [ 2024, 0, 1 ], [ 2024, 2, 1 ] ) );
 	} );
 
-	it( 'shifts the weekday-aligned year back 52 weeks and names the year it lands in', () => {
+	it( 'shifts the weekday-aligned year back 52 weeks', () => {
 		const tenDays = daysRange( [ 2026, 7, 21 ], [ 2026, 7, 30 ] );
 		const options = getComparisonOptions( tenDays );
 		const weekdayYear = options.find( option => option.id === 'previous-year-match-day-of-week' );
 
-		expect( weekdayYear?.label ).toBe( 'Same period in 2025 (match day of week)' );
+		expect( weekdayYear?.label ).toBe( 'Same period last year (match day of week)' );
 		expect( weekdayYear?.shortLabel ).toBe( 'Prev. year (weekday)' );
 		expect( weekdayYear?.range ).toEqual( daysRange( [ 2025, 7, 22 ], [ 2025, 7, 31 ] ) );
 		expect( options[ 1 ].shortLabel ).toBe( 'Prev. period (weekday)' );
