@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Settings > Sharing is only registered on sites that are connected or in offline mode, as it was before the screen moved into the jetpack-sharing-likes package. Amends an unreleased change.
+
+

@@ -7,9 +7,12 @@ Guidance for AI coding agents working on the Sharing & Likes package.
 Today it owns the wp-admin Settings > Sharing screen, under `src/settings/`: menu
 registration, the two feature sections (Sharing buttons, Like buttons), the
 shared placement section, the extras section, and the form handling for all of
-them. The Jetpack plugin registers it unconditionally from the `is_admin()`
-block in `load-jetpack.php`, so the screen and every section on it exist
-whichever modules are active.
+them. The Jetpack plugin hooks it up from the `is_admin()` block in
+`load-jetpack.php`, so the screen and every section on it exist whichever
+modules are active. The menu itself only registers where
+`Environment::settings_screen_supported()` holds (Simple, a connected site, or
+offline mode): anywhere else neither the modules nor their blocks load, so
+the screen would have nothing to offer.
 
 `Section_State` decides which of four variants a section renders. `Environment`
 reads the site facts it needs. Everything else renders.

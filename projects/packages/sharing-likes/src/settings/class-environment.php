@@ -78,6 +78,17 @@ final class Environment {
 	}
 
 	/**
+	 * Whether Settings > Sharing has anything to offer this site.
+	 *
+	 * Neither the legacy features nor their blocks load on a site that is neither
+	 * connected nor in offline mode. Checking sharing alone is enough: any site
+	 * that can have Like buttons (connected, or Simple) passes that check too.
+	 */
+	public static function settings_screen_supported(): bool {
+		return self::legacy_sharing_supported();
+	}
+
+	/**
 	 * Whether this site can have Like buttons at all.
 	 *
 	 * The Likes module declares `Requires Connection: Yes`, so without a
