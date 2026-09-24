@@ -75,12 +75,12 @@ export default function BlockSuggestionButtons( { blockName, blockModal } ) {
 
 	if ( suggestion ) {
 		return (
-			<div className="jetpack-content-guidelines-ai__suggestion-actions">
-				<Button variant="primary" onClick={ handleAccept }>
-					{ __( 'Accept suggestion', 'jetpack' ) }
-				</Button>
+			<div className="jetpack-content-guidelines-ai__suggestion-actions jetpack-content-guidelines-ai__suggestion-actions--end">
 				<Button variant="tertiary" onClick={ handleDismiss }>
 					{ __( 'Dismiss', 'jetpack' ) }
+				</Button>
+				<Button variant="primary" onClick={ handleAccept }>
+					{ __( 'Accept suggestion', 'jetpack' ) }
 				</Button>
 			</div>
 		);
