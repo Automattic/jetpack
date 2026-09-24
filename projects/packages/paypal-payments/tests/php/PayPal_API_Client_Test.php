@@ -233,29 +233,13 @@ class PayPal_API_Client_Test extends TestCase {
 		$this->set_up_connected_state();
 
 		$requests = array();
-		add_filter(
-			'pre_http_request',
-			function ( $preempt, $args, $url ) use ( &$requests ) {
-				$requests[] = array(
-					'url'  => $url,
-					'args' => $args,
-				);
-				return array(
-					'response' => array(
-						'code'    => 201,
-						'message' => '',
-					),
-					'body'     => wp_json_encode(
-						array(
-							'id'     => 'ORDER12345',
-							'status' => 'CREATED',
-						),
-						JSON_UNESCAPED_SLASHES
-					),
-				);
-			},
-			10,
-			3
+		$this->mock_http_response_collecting(
+			201,
+			array(
+				'id'     => 'ORDER12345',
+				'status' => 'CREATED',
+			),
+			$requests
 		);
 
 		$order  = array(
@@ -285,29 +269,13 @@ class PayPal_API_Client_Test extends TestCase {
 		$this->set_up_connected_state();
 
 		$requests = array();
-		add_filter(
-			'pre_http_request',
-			function ( $preempt, $args, $url ) use ( &$requests ) {
-				$requests[] = array(
-					'url'  => $url,
-					'args' => $args,
-				);
-				return array(
-					'response' => array(
-						'code'    => 201,
-						'message' => '',
-					),
-					'body'     => wp_json_encode(
-						array(
-							'id'     => 'ORDER12345',
-							'status' => 'COMPLETED',
-						),
-						JSON_UNESCAPED_SLASHES
-					),
-				);
-			},
-			10,
-			3
+		$this->mock_http_response_collecting(
+			201,
+			array(
+				'id'     => 'ORDER12345',
+				'status' => 'COMPLETED',
+			),
+			$requests
 		);
 
 		$result = PayPal_API_Client::capture_order( 'ORDER12345' );
@@ -1141,6 +1109,37 @@ class PayPal_API_Client_Test extends TestCase {
 
 		// Directly cache a fake token to avoid needing to mock the OAuth token exchange.
 		set_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY, PayPal_OAuth::encrypt( 'fake_access_token_12345' ), 3600 );
+	}
+
+	/**
+	 * Answer every PayPal request with one response, and collect what was sent.
+	 *
+	 * @param int   $status_code HTTP status code.
+	 * @param array $body        Response body, JSON-encoded for the mock.
+	 * @param array $requests    Filled by reference as [ url, args ] pairs.
+	 */
+	private function mock_http_response_collecting( $status_code, array $body, &$requests ) {
+		$requests = array();
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $status_code, $body, &$requests ) {
+				$requests[] = array(
+					'url'  => $url,
+					'args' => $args,
+				);
+
+				return array(
+					'response' => array(
+						'code'    => $status_code,
+						'message' => '',
+					),
+					'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+				);
+			},
+			10,
+			3
+		);
 	}
 
 	/**
