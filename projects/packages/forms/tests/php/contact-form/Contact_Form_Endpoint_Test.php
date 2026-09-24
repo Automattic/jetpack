@@ -1572,6 +1572,10 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		update_option( 'active_plugins', array( 'zero-bs-crm/ZeroBSCRM.php' ) );
 
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations/zero-bs-crm' );
+	public function test_get_crm_integration_falls_back_to_the_default_plugin_file() {
+		update_option( 'active_plugins', array( 'zero-bs-crm/ZeroBSCRM.php' ) );
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations/zero-bs-crm' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
