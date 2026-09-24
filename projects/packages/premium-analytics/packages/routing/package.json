@@ -7,17 +7,14 @@
 	"types": "src/index.ts",
 	"sideEffects": false,
 	"dependencies": {
-		"@jetpack-premium-analytics/data": "workspace:@automattic/jetpack-premium-analytics-data@*",
-		"@jetpack-premium-analytics/datetime": "workspace:@automattic/jetpack-premium-analytics-datetime@*",
+		"@jetpack-premium-analytics/data": "workspace:*",
+		"@jetpack-premium-analytics/datetime": "workspace:*",
 		"@wordpress/date": "5.55.0",
 		"@wordpress/route": "0.21.0",
 		"date-fns": "4.4.0",
-		"react": "18.3.1",
-		"react-dom": "18.3.1"
+		"react": "18.3.1"
 	},
 	"devDependencies": {
-		"@date-fns/tz": "1.5.0",
-		"@types/react": "18.3.31",
-		"typescript": "6.0.3"
+		"@date-fns/tz": "1.5.0"
 	}
 }

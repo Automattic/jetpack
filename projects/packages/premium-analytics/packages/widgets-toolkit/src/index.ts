@@ -362,8 +362,3 @@ export {
  * once instead of once per widget.
  */
 export { safeHttpUrl, tagRowGlyph } from '@jetpack-premium-analytics/ui';
-
-/**
- * Carries the toolkit's script data augmentation to every program that imports it.
- */
-export type {} from './jetpack-script-data.d.ts';
