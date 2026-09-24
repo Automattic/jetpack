@@ -188,23 +188,37 @@ describe( 'AI admin page (main.jsx)', () => {
 			mockApiFetch( { mcpGet: connectedMcpGet() } );
 		} );
 
-		test.each( [
-			'overview',
-			'features',
-			'scheduled-tasks',
-			'mcp',
-			'mcp/read',
-			'mcp/write',
-			'mcp/setup',
-		] )( 'records a direct visit to %s once', async view => {
-			window.history.replaceState( null, '', '#/' + view );
+		test.each( [ 'overview', 'features', 'mcp', 'mcp/read', 'mcp/write', 'mcp/setup' ] )(
+			'records a direct visit to %s once',
+			async view => {
+				window.history.replaceState( null, '', '#/' + view );
+				const { rerender } = render( <App /> );
+
+				await waitFor( () =>
+					expect( hubViews() ).toEqual( [
+						{
+							site_type: 'jetpack',
+							is_a11n: 'false',
+							is_test: 'false',
+							tab: view.split( '/' )[ 0 ],
+						},
+					] )
+				);
+				rerender( <App /> );
+				expect( hubViews() ).toHaveLength( 1 );
+			}
+		);
+
+		test( 'records a direct visit to scheduled-tasks once after the tab loads', async () => {
+			window.history.replaceState( null, '', '#/scheduled-tasks' );
 			const { rerender } = render( <App /> );
 
-			await waitFor( () =>
-				expect( hubViews() ).toEqual( [
-					{ site_type: 'jetpack', is_a11n: 'false', is_test: 'false', tab: view.split( '/' )[ 0 ] },
-				] )
-			);
+			await expect(
+				screen.findByRole( 'button', { name: 'Try again' } )
+			).resolves.toBeInTheDocument();
+			expect( hubViews() ).toEqual( [
+				{ site_type: 'jetpack', is_a11n: 'false', is_test: 'false', tab: 'scheduled-tasks' },
+			] );
 			rerender( <App /> );
 			expect( hubViews() ).toHaveLength( 1 );
 		} );
@@ -214,9 +228,13 @@ describe( 'AI admin page (main.jsx)', () => {
 			render( <App /> );
 			await waitFor( () => expect( viewedTabs() ).toEqual( [ 'overview' ] ) );
 
-			for ( const name of [ 'AI Features', 'Scheduled tasks', 'MCP and Connectors', 'Overview' ] ) {
-				await userEvent.click( screen.getByRole( 'tab', { name } ) );
-			}
+			await userEvent.click( screen.getByRole( 'tab', { name: 'AI Features' } ) );
+			await userEvent.click( screen.getByRole( 'tab', { name: 'Scheduled tasks' } ) );
+			await expect(
+				screen.findByRole( 'button', { name: 'Try again' } )
+			).resolves.toBeInTheDocument();
+			await userEvent.click( screen.getByRole( 'tab', { name: 'MCP and Connectors' } ) );
+			await userEvent.click( screen.getByRole( 'tab', { name: 'Overview' } ) );
 			expect( viewedTabs() ).toEqual( [
 				'overview',
 				'features',
