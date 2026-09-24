@@ -33,7 +33,10 @@ export const IdentityDialog = () => {
 		const element = dialog.current;
 
 		if ( isModalOpen.value && ! element?.open ) {
-			element?.showModal();
+			// Transparent where the theme paints a wrapper instead; the stylesheet's Canvas stands in.
+			const surface = getComputedStyle( document.body ).backgroundColor;
+			element!.style.backgroundColor = surface === 'rgba(0, 0, 0, 0)' ? '' : surface;
+			element!.showModal();
 		} else if ( ! isModalOpen.value && element?.open ) {
 			element.close();
 		}
@@ -134,7 +137,17 @@ export const IdentityDialog = () => {
 				<div className="jetpack-comments__guest">
 					{ fields.map( ( { field, hint, ...input } ) => (
 						<div key={ field } className="jetpack-comments__guest-field">
-							<label htmlFor={ field }>{ input.label }</label>
+							<label htmlFor={ field }>
+								{ input.label }
+								{ input.required && (
+									<>
+										{ ' ' }
+										<span className="required" aria-hidden="true">
+											*
+										</span>
+									</>
+								) }
+							</label>
 							<input
 								id={ field }
 								name={ field }
