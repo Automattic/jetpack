@@ -158,9 +158,6 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../connection
-      '@automattic/jetpack-explat':
-        specifier: workspace:*
-        version: link:../../packages/explat
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../script-data
@@ -1093,9 +1090,6 @@ importers:
       jest:
         specifier: 30.5.1
         version: 30.5.1
-      jetpack-js-tools:
-        specifier: workspace:*
-        version: link:../../../tools/js-tools
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1206,9 +1200,6 @@ importers:
       jest:
         specifier: 30.5.1
         version: 30.5.1
-      jetpack-js-tools:
-        specifier: workspace:*
-        version: link:../../../tools/js-tools
       tsdown:
         specifier: 0.22.14
         version: 0.22.14(@typescript/native-preview@7.0.0-dev.20260707.2)(typescript@6.0.3)
@@ -1514,9 +1505,6 @@ importers:
       jest:
         specifier: 30.5.1
         version: 30.5.1
-      jetpack-js-tools:
-        specifier: workspace:*
-        version: link:../../../tools/js-tools
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -2639,9 +2627,6 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
-      jetpack-js-tools:
-        specifier: workspace:*
-        version: link:../../../tools/js-tools
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
@@ -2927,9 +2912,6 @@ importers:
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
-      '@automattic/jetpack-explat':
-        specifier: workspace:*
-        version: link:../explat
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
@@ -3346,9 +3328,6 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
-      '@automattic/jetpack-explat':
-        specifier: workspace:*
-        version: link:../explat
       '@automattic/jetpack-licensing':
         specifier: workspace:*
         version: link:../../js-packages/licensing
@@ -4542,9 +4521,6 @@ importers:
       jest:
         specifier: 30.5.1
         version: 30.5.1
-      jetpack-js-tools:
-        specifier: workspace:*
-        version: link:../../../tools/js-tools
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
