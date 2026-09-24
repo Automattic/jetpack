@@ -189,7 +189,13 @@ JS;
 	 * free. Throttled and time-boxed, because WordPress.com can keep answering without a plan.
 	 */
 	private function maybe_refresh_plan() {
-		if ( ! Main::is_site_connected() || null !== Jetpack_Plan::get_wpcom_site_specific_features() ) {
+		if ( ! Main::is_site_connected() ) {
+			return;
+		}
+
+		// method_exists guard: an older plans package may win the autoloader on another plugin.
+		if ( method_exists( Jetpack_Plan::class, 'get_wpcom_site_specific_features' )
+			&& null !== Jetpack_Plan::get_wpcom_site_specific_features() ) {
 			return;
 		}
 
