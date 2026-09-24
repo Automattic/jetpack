@@ -632,12 +632,14 @@ $banner-foreground: #daffdc;
 
 // A soft wedge of the feature's colors; see band-palette.ts.
 .modal-band::before {
+	$nudge: 30px;
+
 	background:
 		band-glow(38% 72%, a, 72%),
 		band-glow(44% 80%, b, 72%),
 		band-glow(60% 90%, c, 76%),
 		color-mix(in srgb, var(--band-c) 55%, #f8f8f8);
-	clip-path: polygon(11% 0, 100% 0, 100% 100%, 60% 100%);
+	clip-path: polygon(calc(11% + $nudge) 0, 100% 0, 100% 100%, calc(60% + $nudge) 100%);
 	content: "";
 	inset: 0;
 	position: absolute;
