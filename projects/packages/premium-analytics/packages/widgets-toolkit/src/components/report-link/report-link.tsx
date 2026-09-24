@@ -39,7 +39,7 @@ export type ReportLinkProps = {
 	className?: string;
 
 	/**
-	 * Rendered in place of the label, e.g. a badge; the hover underline is dropped for it.
+	 * Rendered in place of the label, e.g. text with a count badge beside it.
 	 */
 	children?: ReactNode;
 };

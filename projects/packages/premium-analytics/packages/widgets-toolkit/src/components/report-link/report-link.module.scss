@@ -5,14 +5,10 @@
 	@include footer-link;
 }
 
-// A badge or other element stands in for the text: no underline, and the
-// flex context blockifies it so it stands its full height.
+// Text plus a badge: the flex context stands the badge at its full height
+// and keeps the hover underline on the text only.
 .hasContent {
 	display: inline-flex;
 	align-items: center;
-}
-
-.hasContent,
-.hasContent:hover {
-	text-decoration: none;
+	gap: var(--wpds-dimension-gap-xs);
 }

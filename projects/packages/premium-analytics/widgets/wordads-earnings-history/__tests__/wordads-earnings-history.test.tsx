@@ -113,32 +113,27 @@ describe( 'WordAdsEarningsHistory', () => {
 		render( <WordAdsEarningsHistory attributes={ {} } /> );
 		await expect( screen.findByText( 'July 2026' ) ).resolves.toBeInTheDocument();
 
-		expect(
-			screen.queryByRole( 'link', { name: /view adjustments history/ } )
-		).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /^Adjustments/ } ) ).not.toBeInTheDocument();
 	} );
 
 	it.each( [
-		[ 1, '1 adjustment', { '2026-03': { amount: '-2.50', pageviews: 0, status: 1 } } ],
+		[ 1, { '2026-03': { amount: '-2.50', pageviews: 0, status: 1 } } ],
 		[
 			2,
-			'2 adjustments',
 			{
 				'2026-03': { amount: '-2.50', pageviews: 0, status: 1 },
 				'2025-11': { amount: '12.00', pageviews: 0, status: 0 },
 			},
 		],
 	] )(
-		'counts %i adjustment row(s) in a line linking to the Adjustments tab',
-		async ( _count, label, adjustment ) => {
+		'counts %i adjustment row(s) in a badge beside the Adjustments link',
+		async ( count, adjustment ) => {
 			mockApiFetch.mockResolvedValue( { earnings: { ...EARNINGS.earnings, adjustment } } );
 			render( <WordAdsEarningsHistory attributes={ {} } /> );
 			await expect( screen.findByText( 'July 2026' ) ).resolves.toBeInTheDocument();
 
-			const link = screen.getByRole( 'link', {
-				name: `${ label }, view adjustments history`,
-			} );
-			expect( within( link ).getByText( label ) ).toBeInTheDocument();
+			const link = screen.getByRole( 'link', { name: `Adjustments ${ count }` } );
+			expect( within( link ).getByText( String( count ) ) ).toBeInTheDocument();
 			expect( link ).toHaveAttribute( 'href', expect.stringContaining( '/reports/earnings' ) );
 			expect( link ).toHaveAttribute( 'href', expect.stringContaining( 'section=adjustments' ) );
 			// The adjustment amounts stay on the report; the widget lists WordAds rows only.
