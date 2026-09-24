@@ -6,11 +6,14 @@ import { useCallback } from 'react';
 import { ModuleToggle } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
 import { getForcedReason } from './feature-state';
+import { useFeaturesTracking } from './features-tracking-context';
 import styles from './styles.module.scss';
 import { useFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
+import type { FeatureActionOrigin } from './features-tracking-context';
 
 type PluginToggleProps = {
+	state: FeatureState;
 	plugin: string;
 	isOn: boolean;
 	name: string;
@@ -21,15 +24,24 @@ type PluginToggleProps = {
  * The card switch for a feature switched by its standalone plugin.
  *
  * @param {PluginToggleProps} props             - The component props.
+ * @param {FeatureState}      props.state       - Live state for the feature.
  * @param {string}            props.plugin      - The plugin's slug.
  * @param {boolean}           props.isOn        - Whether the plugin is active.
  * @param {string}            props.name        - The feature's name, for the label and notice.
  * @param {string}            props.describedby - Id of the element stating whether it is on.
  * @return The rendered component.
  */
-function PluginToggle( { plugin, isOn, name, describedby }: PluginToggleProps ) {
+function PluginToggle( { state, plugin, isOn, name, describedby }: PluginToggleProps ) {
 	const { run, isBusy } = useFeaturePlugin( plugin, name );
-	const onChange = useCallback( () => run( isOn ? 'deactivate' : 'activate' ), [ isOn, run ] );
+	const tracking = useFeaturesTracking();
+	const onChange = useCallback( () => {
+		tracking?.trackFeatureAction( {
+			state,
+			action: isOn ? 'deactivate' : 'activate',
+			origin: 'card',
+		} );
+		run( isOn ? 'deactivate' : 'activate' );
+	}, [ isOn, run, state, tracking ] );
 
 	return (
 		<FormToggle
@@ -43,6 +55,8 @@ function PluginToggle( { plugin, isOn, name, describedby }: PluginToggleProps ) 
 }
 
 type InstallButtonProps = {
+	state?: FeatureState;
+	origin: FeatureActionOrigin;
 	plugin: string;
 	name: string;
 	label: string;
@@ -53,15 +67,28 @@ type InstallButtonProps = {
  * A compact button that installs, or activates, the plugin a feature is waiting on.
  *
  * @param {InstallButtonProps} props        - The component props.
+ * @param {FeatureState}       props.state  - Live state for the feature, where it is one feature's.
+ * @param {string}             props.origin - Whether the button is the card's or the modal's.
  * @param {string}             props.plugin - The plugin's slug, or `jetpack`.
  * @param {string}             props.name   - What to call it in the notice.
  * @param {string}             props.label  - The button's text.
  * @param {string}             props.action - Install when missing, activate when installed.
  * @return The rendered component.
  */
-export function InstallButton( { plugin, name, label, action }: InstallButtonProps ) {
+export function InstallButton( {
+	state,
+	origin,
+	plugin,
+	name,
+	label,
+	action,
+}: InstallButtonProps ) {
 	const { run, isBusy } = useFeaturePlugin( plugin, name );
-	const onClick = useCallback( () => run( action ), [ action, run ] );
+	const tracking = useFeaturesTracking();
+	const onClick = useCallback( () => {
+		tracking?.trackFeatureAction( { state, action, origin } );
+		run( action );
+	}, [ action, origin, run, state, tracking ] );
 
 	return (
 		<Button variant="outline" size="compact" disabled={ isBusy } onClick={ onClick }>
@@ -90,6 +117,17 @@ type FeatureActionProps = {
 export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 	const { control, feature } = state;
 	const pluginName = feature.plugin_name || feature.name;
+	const tracking = useFeaturesTracking();
+
+	const onModuleSwitch = useCallback(
+		( active: boolean ) =>
+			tracking?.trackFeatureAction( {
+				state,
+				action: active ? 'activate' : 'deactivate',
+				origin: 'card',
+			} ),
+		[ state, tracking ]
+	);
 
 	if ( state.pending ) {
 		return (
@@ -110,6 +148,7 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 					module={ control.module }
 					reloadAfterToggle={ false }
 					describedby={ describedby }
+					onSwitch={ onModuleSwitch }
 				/>
 			);
 		}
@@ -121,6 +160,7 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 
 			return (
 				<PluginToggle
+					state={ state }
 					plugin={ control.plugin }
 					isOn={ state.status === 'active' }
 					name={ pluginName }
@@ -131,6 +171,8 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 		case 'install-plugin':
 			return (
 				<InstallButton
+					state={ state }
+					origin="card"
 					plugin={ control.plugin }
 					name={ pluginName }
 					label={ __( 'Install', 'jetpack-my-jetpack' ) }
@@ -139,7 +181,7 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 			);
 
 		case 'install-jetpack':
-			return <JetpackButton installed={ control.installed } />;
+			return <JetpackButton state={ state } origin="card" installed={ control.installed } />;
 
 		default:
 			return null;
@@ -147,6 +189,8 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 }
 
 type JetpackButtonProps = {
+	state?: FeatureState;
+	origin?: FeatureActionOrigin;
 	installed: boolean;
 };
 
@@ -154,15 +198,23 @@ type JetpackButtonProps = {
  * Install, or activate, the Jetpack plugin for a feature only Jetpack ships.
  *
  * @param {JetpackButtonProps} props           - The component props.
+ * @param {FeatureState}       props.state     - Live state for the feature, where it is one feature's.
+ * @param {string}             props.origin    - Which control this is; the More Features section's by default.
  * @param {boolean}            props.installed - Whether Jetpack is installed but inactive.
  * @return The rendered component.
  */
-export function JetpackButton( { installed }: JetpackButtonProps ) {
+export function JetpackButton( {
+	state,
+	origin = 'more_features',
+	installed,
+}: JetpackButtonProps ) {
 	const activateLabel = __( 'Activate Jetpack', 'jetpack-my-jetpack' );
 	const installLabel = __( 'Install Jetpack', 'jetpack-my-jetpack' );
 
 	return (
 		<InstallButton
+			state={ state }
+			origin={ origin }
 			plugin="jetpack"
 			name="Jetpack"
 			label={ installed ? activateLabel : installLabel }

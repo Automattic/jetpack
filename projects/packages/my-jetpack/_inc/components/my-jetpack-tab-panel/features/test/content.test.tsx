@@ -31,6 +31,14 @@ let mockMainFeatures: Record< string, unknown > = {
 jest.mock( '../use-main-features', () => ( { useMainFeatures: () => mockMainFeatures } ) );
 
 let mockIsLoading = false;
+
+// The tab mounts its tracking provider, which would otherwise reach the connection and
+// analytics packages for a test about which layout renders.
+jest.mock( '../../../../hooks/use-analytics', () => ( {
+	__esModule: true,
+	default: () => ( { recordEvent: jest.fn() } ),
+} ) );
+
 jest.mock( '../feature-state', () => ( {
 	useFeatureStates: () => ( { states: mockStates, isLoading: mockIsLoading } ),
 } ) );

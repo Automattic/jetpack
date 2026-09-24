@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { reloadPage } from '../../products/reload-page';
 import { FeaturesEmptyState } from '../empty-state';
@@ -66,7 +66,8 @@ describe( 'FeaturesEmptyState', () => {
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Reload' } ) );
 
-		expect( reloadPage ).toHaveBeenCalled();
+		// Deferred a beat, so the click's Tracks pixel is not cancelled by the reload.
+		await waitFor( () => expect( reloadPage ).toHaveBeenCalled() );
 	} );
 
 	it( 'blames the missing catalog, not the search term, when both are in play', () => {

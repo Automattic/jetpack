@@ -1,5 +1,5 @@
 import { _n, sprintf } from '@wordpress/i18n';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router';
 import { BulkBar } from './bulk-bar';
 import { FeaturesEmptyState } from './empty-state';
@@ -8,6 +8,7 @@ import { FeatureList, UnswitchableNote } from './feature-list';
 import { FeatureModal } from './feature-modal';
 import { useFeatureStates } from './feature-state';
 import { FeaturesBanner } from './features-banner';
+import { FeaturesTrackingProvider, useFeaturesTracking } from './features-tracking-context';
 import { MenuPointer } from './menu-pointer';
 import { MoreFeatures } from './more-features';
 import styles from './styles.module.scss';
@@ -19,30 +20,67 @@ import { useMainFeatures } from './use-main-features';
 import { filterMoreFeatures, useMoreFeatures } from './use-more-features';
 import { useSidebarSync } from './use-sidebar-sync';
 import { useStepOrder } from './use-step-order';
+import type { FeatureState } from './feature-state';
 import type { FeaturesView } from './toolbar';
 import type { FeatureFilter } from './use-feature-filter';
 
+// Long enough that tracking a search reports the term someone settled on rather than
+// every prefix they typed on the way to it. Matches the Products tab.
+const SEARCH_TRACKING_DELAY = 500;
+
+/**
+ * Reads the grid's state out of the URL.
+ *
+ * @return The active filter, search term, layout, and the feature whose modal is open.
+ */
+function useFeaturesParams() {
+	const [ searchParams ] = useSearchParams();
+	const filterParam = searchParams.get( 'filter' ) || 'all';
+
+	return {
+		search: searchParams.get( 'search' ) || '',
+		filter: ( isFeatureFilter( filterParam ) ? filterParam : 'all' ) as FeatureFilter,
+		openSlug: searchParams.get( 'feature' ),
+		view: ( searchParams.get( 'view' ) === 'list' ? 'list' : 'grid' ) as FeaturesView,
+	};
+}
+
 /**
  * The Features content component.
+ *
+ * Wraps the tab in its tracking, which needs the grid's state to report what a click was
+ * made against — so the state is read here and the content below reads it again.
+ *
+ * @return The rendered component.
+ */
+export function FeaturesContent() {
+	const { filter, search, view } = useFeaturesParams();
+
+	return (
+		<FeaturesTrackingProvider filter={ filter } search={ search } view={ view }>
+			<FeaturesTabContent />
+		</FeaturesTrackingProvider>
+	);
+}
+
+/**
+ * The features themselves, with the toolbar above them and the modal over them.
  *
  * Owns the filter and the search term for the grid, both kept in the URL so a narrowed
  * list survives a reload and travels in a shared link.
  *
  * @return The rendered component.
  */
-export function FeaturesContent() {
+function FeaturesTabContent() {
 	const mainFeatures = useMainFeatures();
 	const { states, isLoading } = useFeatureStates( mainFeatures );
 	const { pointer, dismissPointer } = useSidebarSync( mainFeatures.features );
 	const moreFeatures = useMoreFeatures( mainFeatures );
+	const tracking = useFeaturesTracking();
 
 	const [ searchParams, setSearchParams ] = useSearchParams();
 
-	const search = searchParams.get( 'search' ) || '';
-	const filterParam = searchParams.get( 'filter' ) || 'all';
-	const filter: FeatureFilter = isFeatureFilter( filterParam ) ? filterParam : 'all';
-	const openSlug = searchParams.get( 'feature' );
-	const view: FeaturesView = searchParams.get( 'view' ) === 'list' ? 'list' : 'grid';
+	const { search, filter, openSlug, view } = useFeaturesParams();
 
 	const updateParams = useCallback(
 		( changes: Record< string, string | null > ) => {
@@ -102,37 +140,157 @@ export function FeaturesContent() {
 		) as Record< FeatureFilter, number >;
 	}, [ states, moreFeatures, filter ] );
 
+	const open = states.find( item => item.feature.slug === openSlug );
+
+	// Set by the grid so the view event can tell a card click from a link opened straight
+	// to a feature, which the URL alone cannot.
+	const openedFromCardRef = useRef( false );
+
 	const openFeature = useCallback(
-		( slug: string ) => updateParams( { feature: slug } ),
+		( slug: string ) => {
+			openedFromCardRef.current = true;
+			updateParams( { feature: slug } );
+		},
 		[ updateParams ]
 	);
 	const closeFeature = useCallback( () => updateParams( { feature: null } ), [ updateParams ] );
 
+	// The modal opens from a link as well as from a card, and closes by being navigated
+	// away from as well as by its own button, so both events are taken from the URL
+	// rather than from the handlers above.
+	const shownRef = useRef< string | null >( null );
+	const shownStateRef = useRef< FeatureState | null >( null );
+
+	useEffect( () => {
+		if ( ! tracking ) {
+			return;
+		}
+
+		if ( openSlug && open ) {
+			if ( shownRef.current !== openSlug ) {
+				tracking.trackModalView( open, openedFromCardRef.current ? 'card' : 'link' );
+				shownRef.current = openSlug;
+				openedFromCardRef.current = false;
+			}
+
+			// Kept current so closing reports the feature as the visitor left it.
+			shownStateRef.current = open;
+		}
+
+		if ( ! openSlug && shownRef.current ) {
+			if ( shownStateRef.current ) {
+				tracking.trackModalClose( shownStateRef.current );
+			}
+
+			shownRef.current = null;
+			shownStateRef.current = null;
+		}
+	}, [ open, openSlug, tracking ] );
+
+	const searchTimeoutRef = useRef< ReturnType< typeof setTimeout > | null >( null );
+	const trackedSearchRef = useRef( '' );
+	const pendingSearchRef = useRef( '' );
+	// Both read when the delay is up rather than when the key was pressed, so the count
+	// and the grid reported are the ones the visitor is looking at by then — the filter
+	// or the layout may have moved on since.
+	const visibleCountRef = useRef( 0 );
+	const trackingRef = useRef( tracking );
+
+	useEffect( () => {
+		visibleCountRef.current = visible.length;
+		trackingRef.current = tracking;
+	} );
+
+	const sendSearch = useCallback( () => {
+		const term = pendingSearchRef.current;
+		pendingSearchRef.current = '';
+
+		// An emptied box is the end of a search rather than one of its own.
+		if ( term && term !== trackedSearchRef.current ) {
+			trackingRef.current?.trackSearch( term, visibleCountRef.current );
+		}
+
+		trackedSearchRef.current = term;
+	}, [] );
+
+	// Dropped whenever something other than typing clears the term, so the next search
+	// starts from nothing: the timer would otherwise report a term already navigated away
+	// from, and the ref would swallow that same term when it is searched for again.
+	const forgetPendingSearch = useCallback( () => {
+		clearTimeout( searchTimeoutRef.current ?? undefined );
+		pendingSearchRef.current = '';
+		trackedSearchRef.current = '';
+	}, [] );
+
+	// Sent rather than dropped on the way out: a search abandoned for the thing it found
+	// is the one worth knowing about.
+	useEffect( () => {
+		return () => {
+			if ( searchTimeoutRef.current ) {
+				clearTimeout( searchTimeoutRef.current );
+				sendSearch();
+			}
+		};
+	}, [ sendSearch ] );
+
 	const onSearchChange = useCallback(
-		( term: string ) => updateParams( { search: term || null, feature: null } ),
-		[ updateParams ]
+		( term: string ) => {
+			updateParams( { search: term || null, feature: null } );
+
+			clearTimeout( searchTimeoutRef.current ?? undefined );
+			pendingSearchRef.current = term;
+			searchTimeoutRef.current = setTimeout( sendSearch, SEARCH_TRACKING_DELAY );
+		},
+		[ sendSearch, updateParams ]
+	);
+
+	// How many the grid would show, counted here rather than read from `counts`, which
+	// only holds the filters offered as pills — a plan badge can pick one that is not.
+	const countFor = useCallback(
+		( next: FeatureFilter ) => states.filter( state => matchesFilter( state, next ) ).length,
+		[ states ]
 	);
 
 	const onFilterChange = useCallback(
 		// Clears the search: a term in play replaces the grid outright, so a pill picked
 		// while searching would otherwise light up and change nothing.
-		( next: FeatureFilter ) =>
-			updateParams( { filter: next === 'all' ? null : next, search: null } ),
-		[ updateParams ]
+		( next: FeatureFilter ) => {
+			// The pills stay clickable while active, and picking the one already in play
+			// changes nothing to report.
+			if ( next !== filter ) {
+				tracking?.trackFilterChange( next, countFor( next ) );
+			}
+
+			forgetPendingSearch();
+			updateParams( { filter: next === 'all' ? null : next, search: null } );
+		},
+		[ countFor, filter, forgetPendingSearch, tracking, updateParams ]
 	);
 
 	// A plan badge answers "what else is in this?", so it filters and steps out of the modal.
 	const onFilterByPlan = useCallback(
-		( plan: FeatureFilter ) => updateParams( { filter: plan, feature: null, search: null } ),
-		[ updateParams ]
+		( plan: FeatureFilter ) => {
+			if ( plan !== filter ) {
+				tracking?.trackFilterChange( plan, countFor( plan ) );
+			}
+
+			forgetPendingSearch();
+			updateParams( { filter: plan, feature: null, search: null } );
+		},
+		[ countFor, filter, forgetPendingSearch, tracking, updateParams ]
 	);
 
 	const onViewChange = useCallback(
-		( next: FeaturesView ) => updateParams( { view: next === 'grid' ? null : next } ),
-		[ updateParams ]
+		( next: FeaturesView ) => {
+			if ( next !== view ) {
+				tracking?.trackViewChange( next );
+			}
+
+			updateParams( { view: next === 'grid' ? null : next } );
+		},
+		[ tracking, updateParams, view ]
 	);
 
-	const open = states.find( item => item.feature.slug === openSlug );
 	// Arrow keys step through what the grid shows, so a filter or search bounds them too.
 	// Retaken once modules land, since a status filter reads every pending feature as inactive.
 	const stepOrder = useStepOrder( visible, openSlug, `${ filter }|${ search }|${ isLoading }` );
