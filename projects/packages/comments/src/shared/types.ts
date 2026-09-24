@@ -53,6 +53,7 @@ export type FormSettings = {
 	submitId: string;
 	submitName: string;
 	submitClass: string;
+	submitWrapClass: string;
 	submitLabel: string;
 	subscriptions: Subscription[];
 };

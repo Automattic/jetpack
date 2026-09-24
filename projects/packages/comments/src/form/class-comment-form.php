@@ -387,15 +387,32 @@ class Comment_Form {
 		$post_id   = self::post_id();
 		$permalink = get_permalink( $post_id );
 
+		$id    = $args['id_submit'] ?? 'submit';
+		$name  = $args['name_submit'] ?? 'submit';
+		$label = $args['label_submit'] ?? _x( 'Comment', 'verb', 'jetpack-comments' );
+
+		// The classes come from the button template, not class_submit: on a block
+		// theme the Post Comments Form block bakes the theme's button classes into it.
+		$button = sprintf(
+			$args['submit_button'] ?? '<input name="%1$s" type="submit" id="%2$s" class="%3$s" value="%4$s" />',
+			esc_attr( $name ),
+			esc_attr( $id ),
+			esc_attr( $args['class_submit'] ?? 'submit' ),
+			esc_attr( $label )
+		);
+		$class  = preg_match( '/\bclass="([^"]*)"/', $button, $match ) ? $match[1] : 'submit';
+
 		$settings = array(
-			'postId'        => $post_id,
-			'loginUrl'      => wp_login_url( $permalink ),
-			'logoutUrl'     => '',
-			'submitId'      => $args['id_submit'] ?? 'submit',
-			'submitName'    => $args['name_submit'] ?? 'submit',
-			'submitClass'   => $args['class_submit'] ?? 'submit',
-			'submitLabel'   => $args['label_submit'] ?? _x( 'Comment', 'verb', 'jetpack-comments' ),
-			'subscriptions' => $args['subscriptions'] ?? array(),
+			'postId'          => $post_id,
+			'loginUrl'        => wp_login_url( $permalink ),
+			'logoutUrl'       => '',
+			'submitId'        => $id,
+			'submitName'      => $name,
+			'submitClass'     => $class,
+			// The block wraps its button the way the Buttons block does, so block-level button styles reach it.
+			'submitWrapClass' => false !== strpos( $class, 'wp-block-button__link' ) ? 'wp-block-button' : '',
+			'submitLabel'     => $label,
+			'subscriptions'   => $args['subscriptions'] ?? array(),
 		);
 
 		if ( is_user_logged_in() ) {

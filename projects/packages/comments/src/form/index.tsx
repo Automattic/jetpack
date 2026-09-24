@@ -164,17 +164,16 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 				<div className={ clsx( 'jetpack-comments__tray', { 'is-open': isOpen.value } ) }>
 					<div className="jetpack-comments__actions">
 						<Identity />
-						<button
-							id={ formSettings.submitId }
-							name={ formSettings.submitName }
-							type="submit"
-							className={ clsx( 'jetpack-comments__submit', formSettings.submitClass, {
-								'is-busy': isSavingComment.value,
-							} ) }
-							disabled={ isSubmitDisabled }
-						>
-							{ commentParent.value ? strings.reply : formSettings.submitLabel }
-						</button>
+						<span className={ clsx( 'jetpack-comments__submit', formSettings.submitWrapClass ) }>
+							<input
+								id={ formSettings.submitId }
+								name={ formSettings.submitName }
+								type="submit"
+								className={ clsx( formSettings.submitClass, { 'is-busy': isSavingComment.value } ) }
+								disabled={ isSubmitDisabled }
+								value={ commentParent.value ? strings.reply : formSettings.submitLabel }
+							/>
+						</span>
 					</div>
 				</div>
 			</div>

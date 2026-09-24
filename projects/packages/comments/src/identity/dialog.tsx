@@ -172,14 +172,15 @@ export const IdentityDialog = () => {
 			<div className="jetpack-comments__dialog-actions">
 				{ ! mustLogIn && (
 					<>
-						<button
-							type="submit"
-							name="wp-comment-cookies-consent"
-							value="yes"
-							className={ formSettings.submitClass }
-						>
-							{ strings.saveAndPost }
-						</button>
+						<span className={ formSettings.submitWrapClass }>
+							{ /* The label is what posts; core only checks that the consent field is set. */ }
+							<input
+								type="submit"
+								name="wp-comment-cookies-consent"
+								className={ formSettings.submitClass }
+								value={ strings.saveAndPost }
+							/>
+						</span>
 						<button type="submit" className="jetpack-comments__link-button">
 							{ strings.postWithoutSaving }
 						</button>

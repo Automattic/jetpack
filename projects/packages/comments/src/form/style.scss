@@ -70,7 +70,7 @@
 .jetpack-comments__submit {
 	margin-inline-start: auto;
 
-	&.is-busy {
+	.is-busy {
 		cursor: progress;
 	}
 }
