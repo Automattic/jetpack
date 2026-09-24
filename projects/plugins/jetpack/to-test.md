@@ -68,6 +68,8 @@ This section needs the Ads tab: use the ["To also see the Ads and Store tabs" se
 
 **Setup:** a Jetpack-connected site with the new Stats v2 dashboard (switch it on as described in the [Premium Analytics setup](#premium-analytics-setup) above), with location stats for the period you pick. Go to Stats v2 → Traffic tab.
 
+_The Regions and Cities tabs (steps 3–6, and the Regions and Cities part of step 10) need a plan that includes paid Stats. On other plans those tabs show a plan error, which is expected, not a bug: test the Countries steps only._
+
 1. Scroll to the Top locations widget and select View all.
 2. On the Countries tab, confirm a world map draws above the table, shaded for the countries the table lists.
 3. Switch to Regions. Confirm the map still shades whole countries (regions sum back up), and that hovering a country lists its regions in the tooltip, capped at 10 with an "…and N more locations" line.
