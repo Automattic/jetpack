@@ -143,6 +143,28 @@ $panel-art-width: 77%;
 $panel-art-draw-duration: 1.4s;
 
 /*
+ * The option rows' cascade, from the prototype's questions-card.tsx: 0.3s, a
+ * 10px rise, delay 0.12 + index * 0.05. Its own comment records why the step
+ * was cut from 0.12: at five options the commit button sat unusable for 1.29s,
+ * and the house bar is 30-80ms because "stagger is decoration and must never
+ * block interaction". None of the three has a WPDS step.
+ */
+$option-cascade-duration: 0.3s;
+$option-cascade-rise: 10px;
+$option-cascade-base: 0.12s;
+$option-cascade-step: 0.05s;
+
+/*
+ * The free-text field's reveal, from the same file: 0.22s of height with the
+ * opacity lagging 0.06s behind it over 0.16s, which is what stops the text
+ * smearing as the row opens. Height is animated as grid rows, since `auto` is
+ * not an animatable length.
+ */
+$freetext-open-duration: 0.22s;
+$freetext-fade-duration: 0.16s;
+$freetext-fade-delay: 0.06s;
+
+/*
  * The start column, from the prototype's app/page.tsx:40 — `max-w-md`, which
  * is Tailwind's 28rem, so 448px. `--wpds-dimension-surface-width-md` is 400px
  * and wraps the first benefit onto a second line.
@@ -672,6 +694,36 @@ $rail-row-min-height: 40px;
 	}
 }
 
+@keyframes option-cascade {
+
+	from {
+		opacity: 0;
+		transform: translateY($option-cascade-rise);
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+/*
+ * Only the row that holds the field animates; the padding is on the grid so it
+ * opens with the track rather than appearing before it.
+ */
+@keyframes freetext-open {
+
+	from {
+		grid-template-rows: 0fr;
+		padding-block-start: 0;
+	}
+
+	to {
+		grid-template-rows: 1fr;
+		padding-block-start: var(--wpds-dimension-padding-lg);
+	}
+}
+
 @keyframes fade-in {
 
 	from {
@@ -890,6 +942,43 @@ $rail-row-min-height: 40px;
 	&:focus-visible {
 		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
 		outline-offset: calc(-1 * var(--wpds-border-width-focus));
+	}
+
+	// --row-index is set on the element, so one rule staggers any number of rows.
+	animation: option-cascade $option-cascade-duration var(--wpds-motion-easing-expressive) both;
+	animation-delay: calc(#{$option-cascade-base} + var(--row-index) * #{$option-cascade-step});
+
+	@media (prefers-reduced-motion: reduce) {
+
+		// Still staggered, but as opacity alone: the rise is what reads as motion.
+		animation-name: fade-in;
+	}
+}
+
+/*
+ * The field an option opens. Grid rows rather than height, which cannot animate
+ * to `auto`; the inner element needs its own `min-block-size: 0` or the track
+ * refuses to collapse below the content.
+ */
+.step-freetext {
+	display: grid;
+	grid-template-rows: 1fr;
+	overflow: hidden;
+	animation: freetext-open $freetext-open-duration var(--wpds-motion-easing-expressive) both;
+	padding-block-start: var(--wpds-dimension-padding-lg);
+
+	> * {
+		min-block-size: 0;
+		animation: fade-in $freetext-fade-duration var(--wpds-motion-easing-subtle) both;
+		animation-delay: $freetext-fade-delay;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		animation: none;
+
+		> * {
+			animation-delay: 0s;
+		}
 	}
 }
 

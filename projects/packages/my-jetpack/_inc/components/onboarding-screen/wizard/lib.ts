@@ -2,8 +2,10 @@ import { __ } from '@wordpress/i18n';
 import {
 	chartBar,
 	cloud,
+	comment,
+	image,
 	megaphone,
-	people,
+	page,
 	plus,
 	post,
 	postCommentsForm,
@@ -21,7 +23,16 @@ export interface WizardStepOption {
 	// Not rendered by the hairline row, which is label-only; kept for stage 3.
 	description: string;
 	icon: typeof plus;
+	// Opens a text field for an answer the list does not cover.
+	freeText?: boolean;
 }
+
+/*
+ * The site-type answer that opens a text field. What the user then types stays
+ * on this screen: it is the one answer in the wizard that is not from a fixed
+ * set, and free text must never reach Tracks.
+ */
+export const SITE_TYPE_OTHER = 'other';
 
 /**
  * One row of the start screen's benefits list.
@@ -154,29 +165,54 @@ export function wizardSteps(): WizardStepMeta[] {
 			id: 'site-type',
 			kind: 'question',
 			label: __( 'Your site', 'jetpack-my-jetpack' ),
-			title: __( 'What is this site for?', 'jetpack-my-jetpack' ),
+			title: __( "Tell us what you're building", 'jetpack-my-jetpack' ),
+			/*
+			 * The prototype's line here says the site is new and there is nothing to
+			 * read yet, which is true of its own new-site scenario only. V1 asks every
+			 * site the same question, so the reassurance it carries is what survives.
+			 */
 			description: __(
-				'This step is still being built. Your answer is not saved yet, and nothing is set up from it.',
+				'Pick the closest fit — you can change any of this later.',
 				'jetpack-my-jetpack'
 			),
+			/*
+			 * Slugs rather than the prototype's prose values. Its label and stored
+			 * value disagree on the business row, and these go to Tracks.
+			 */
 			options: [
 				{
-					value: 'business',
-					label: __( 'A business or organization', 'jetpack-my-jetpack' ),
-					description: __( 'Services, bookings, or a storefront.', 'jetpack-my-jetpack' ),
-					icon: store,
-				},
-				{
-					value: 'publication',
+					value: 'blog',
 					label: __( 'A blog or publication', 'jetpack-my-jetpack' ),
 					description: __( 'Regular writing for an audience.', 'jetpack-my-jetpack' ),
 					icon: post,
 				},
 				{
-					value: 'personal',
-					label: __( 'A personal site', 'jetpack-my-jetpack' ),
-					description: __( 'A portfolio, a project, or somewhere to start.', 'jetpack-my-jetpack' ),
-					icon: people,
+					value: 'store',
+					label: __( 'An online store', 'jetpack-my-jetpack' ),
+					description: __( 'Selling products or taking orders.', 'jetpack-my-jetpack' ),
+					icon: store,
+				},
+				{
+					value: 'portfolio',
+					label: __( 'A portfolio or personal site', 'jetpack-my-jetpack' ),
+					description: __( 'Your work, a project, or somewhere to start.', 'jetpack-my-jetpack' ),
+					icon: image,
+				},
+				{
+					value: 'business',
+					label: __( 'A business or brochure site', 'jetpack-my-jetpack' ),
+					description: __(
+						'Services, opening hours, and how to get in touch.',
+						'jetpack-my-jetpack'
+					),
+					icon: page,
+				},
+				{
+					value: SITE_TYPE_OTHER,
+					label: __( 'Something else…', 'jetpack-my-jetpack' ),
+					description: __( 'Tell us in your own words.', 'jetpack-my-jetpack' ),
+					icon: comment,
+					freeText: true,
 				},
 			],
 		},
