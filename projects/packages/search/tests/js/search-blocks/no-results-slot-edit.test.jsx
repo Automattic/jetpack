@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { InnerBlocks, store as blockEditorStore } from '@wordpress/block-editor';
 import NoResultsSlotEdit, {
-	conditionLabel,
+	conditionVariations,
 } from '../../../src/search-blocks/blocks/no-results/slot/edit';
 
 const mockSelectedStores = [];
@@ -115,7 +115,7 @@ describe( 'NoResultsSlotEdit', () => {
 	it( 'paints no condition label on the canvas', () => {
 		render( <NoResultsSlotEdit attributes={ { condition: 'filtered' } } clientId="v-1" /> );
 
-		expect( screen.queryByText( 'Filters are active' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Filters Are Active' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows the appender only while the variant is selected', () => {
@@ -148,20 +148,27 @@ describe( 'NoResultsSlotEdit', () => {
 	} );
 } );
 
-describe( 'conditionLabel', () => {
+describe( 'conditionVariations', () => {
+	const activeTitle = attributes =>
+		conditionVariations().find( variation => variation.isActive( attributes ) )?.title;
+
 	it.each( [
-		[ 'any', 'Any empty search' ],
-		[ 'filtered', 'Filters are active' ],
-		[ 'error', 'Search failed' ],
-	] )( 'names the %s condition', ( condition, label ) => {
-		expect( conditionLabel( { condition } ) ).toBe( label );
+		[ 'any', 'Any Empty Search' ],
+		[ 'filtered', 'Filters Are Active' ],
+		[ 'error', 'Search Failed' ],
+	] )( 'names the %s condition', ( condition, title ) => {
+		expect( activeTitle( { condition } ) ).toBe( title );
 	} );
 
 	it.each( [
 		[ 'no saved condition', {} ],
 		[ 'an unknown condition', { condition: 'bogus' } ],
 		[ 'no attributes', undefined ],
-	] )( 'falls back to the unscoped label for %s', ( _label, attributes ) => {
-		expect( conditionLabel( attributes ) ).toBe( 'Any empty search' );
+	] )( 'falls back to the unscoped variation for %s', ( _label, attributes ) => {
+		expect( activeTitle( attributes ) ).toBe( 'Any Empty Search' );
+	} );
+
+	it( 'keeps every variation out of the inserter and the block switcher', () => {
+		expect( conditionVariations().map( variation => variation.scope ) ).toEqual( [ [], [], [] ] );
 	} );
 } );

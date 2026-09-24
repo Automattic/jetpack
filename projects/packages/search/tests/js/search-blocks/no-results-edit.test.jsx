@@ -49,9 +49,9 @@ jest.mock( '@wordpress/data', () => ( {
 
 const CONDITIONS = [ 'any', 'filtered', 'error' ];
 const LABELS = {
-	any: 'Any empty search',
-	filtered: 'Filters are active',
-	error: 'Search failed',
+	any: 'Any Empty Search',
+	filtered: 'Filters Are Active',
+	error: 'Search Failed',
 };
 
 describe( 'NoResultsEdit', () => {
@@ -84,7 +84,7 @@ describe( 'NoResultsEdit', () => {
 		render( <NoResultsEdit clientId="nr-1" /> );
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package.
-		fireEvent.click( screen.getByRole( 'button', { name: 'Filters are active' } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Filters Are Active' } ) );
 		expect( mockInsertBlock ).toHaveBeenCalledWith(
 			{ name: 'jetpack-search/no-results-slot', attributes: { condition: 'filtered' } },
 			1,
@@ -109,9 +109,9 @@ describe( 'NoResultsEdit', () => {
 		mockSlots = [ { attributes: { condition: 'any' } }, { attributes: { condition: 'error' } } ];
 		render( <NoResultsEdit clientId="nr-1" /> );
 
-		expect( screen.queryByRole( 'button', { name: 'Any empty search' } ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Search failed' } ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Filters are active' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Any Empty Search' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Search Failed' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Filters Are Active' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'appends new variants after the existing ones', () => {
@@ -119,7 +119,7 @@ describe( 'NoResultsEdit', () => {
 		render( <NoResultsEdit clientId="nr-1" /> );
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- see above.
-		fireEvent.click( screen.getByRole( 'button', { name: 'Search failed' } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Search Failed' } ) );
 		expect( mockInsertBlock ).toHaveBeenCalledWith( expect.anything(), 2, 'nr-1' );
 	} );
 
@@ -133,7 +133,7 @@ describe( 'NoResultsEdit', () => {
 		mockSlots = [ { attributes } ];
 		render( <NoResultsEdit clientId="nr-1" /> );
 
-		expect( screen.queryByRole( 'button', { name: 'Any empty search' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Any Empty Search' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'paints no label on the canvas', () => {

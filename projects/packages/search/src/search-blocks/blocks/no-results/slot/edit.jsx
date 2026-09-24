@@ -36,26 +36,50 @@ const defaultMessages = condition => {
 	return messages;
 };
 
+const normalizeCondition = stored => ( CONDITIONS.includes( stored ) ? stored : 'any' );
+
 // Keyed rather than branched: a `return __( … )` per branch reads better but
 // the production minifier folds the identical calls into one `__()` with a
 // computed msgid, which `i18n-check-webpack-plugin` rejects and which would
 // leave the strings untranslatable.
 export const conditionLabels = () => ( {
-	any: __( 'Any empty search', 'jetpack-search-pkg' ),
-	filtered: __( 'Filters are active', 'jetpack-search-pkg' ),
-	error: __( 'Search failed', 'jetpack-search-pkg' ),
+	any: __( 'Any Empty Search', 'jetpack-search-pkg' ),
+	filtered: __( 'Filters Are Active', 'jetpack-search-pkg' ),
+	error: __( 'Search Failed', 'jetpack-search-pkg' ),
+} );
+
+const conditionDescriptions = () => ( {
+	any: __(
+		'Shown when a search finds no results. Add blocks to replace the default message.',
+		'jetpack-search-pkg'
+	),
+	filtered: __(
+		'Shown when a search with filters applied finds no results. Add blocks to replace the default message.',
+		'jetpack-search-pkg'
+	),
+	error: __(
+		'Shown when the search request fails. Add blocks to replace the default message.',
+		'jetpack-search-pkg'
+	),
 } );
 
 /**
- * Per-condition display name for a variant, used as the block's `__experimentalLabel` so List view,
- * the breadcrumb, and the block toolbar name the condition instead of repeating the block title.
+ * One variation per condition, so the settings sidebar, List view, and breadcrumb all name the
+ * condition. Scoped out of the inserter and the block switcher: a variant's condition never changes.
  *
- * @param {object} attributes - Block attributes.
- * @return {string} The condition's label.
+ * @return {object[]} Block variations.
  */
-export const conditionLabel = attributes => {
-	const stored = attributes?.condition;
-	return conditionLabels()[ CONDITIONS.includes( stored ) ? stored : 'any' ];
+export const conditionVariations = () => {
+	const labels = conditionLabels();
+	const descriptions = conditionDescriptions();
+	return CONDITIONS.map( condition => ( {
+		name: condition,
+		title: labels[ condition ],
+		description: descriptions[ condition ],
+		attributes: { condition },
+		scope: [],
+		isActive: attributes => normalizeCondition( attributes?.condition ) === condition,
+	} ) );
 };
 
 /**
@@ -67,8 +91,7 @@ export const conditionLabel = attributes => {
  * @return {object} Rendered element.
  */
 export default function NoResultsSlotEdit( { attributes, clientId } ) {
-	const stored = attributes?.condition;
-	const condition = CONDITIONS.includes( stored ) ? stored : 'any';
+	const condition = normalizeCondition( attributes?.condition );
 	const { hasInnerBlocks, isActive } = useSelect(
 		select => {
 			const editor = select( blockEditorStore );

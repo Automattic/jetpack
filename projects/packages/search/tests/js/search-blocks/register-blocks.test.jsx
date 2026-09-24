@@ -53,23 +53,14 @@ describe( 'register-blocks', () => {
 		require( '../../../src/search-blocks/editor/register-blocks' );
 	} );
 
-	it( 'gives the no-results variant a per-condition __experimentalLabel', () => {
+	it( 'registers the no-results variant with its per-condition variations', () => {
 		const settings = settingsFor( 'jetpack-search/no-results-slot' );
 
-		expect( settings.__experimentalLabel ).toEqual( expect.any( Function ) );
-		expect( settings.__experimentalLabel( { condition: 'filtered' } ) ).toBe(
-			'Filters are active'
-		);
-		expect( settings.__experimentalLabel( {} ) ).toBe( 'Any empty search' );
-	} );
-
-	// The label is the variant's whole reason for overriding the block title; no other block wants one.
-	it( 'gives no other block an __experimentalLabel', () => {
-		const labelled = mockRegisterBlockType.mock.calls
-			.filter( ( [ , settings ] ) => settings?.__experimentalLabel )
-			.map( ( [ name ] ) => name );
-
-		expect( labelled ).toEqual( [ 'jetpack-search/no-results-slot' ] );
+		expect( settings.variations.map( variation => variation.name ) ).toEqual( [
+			'any',
+			'filtered',
+			'error',
+		] );
 	} );
 
 	// Per-block settings are spread before these three, so an entry can never clobber them.

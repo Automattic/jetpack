@@ -33,7 +33,7 @@ import FiltersPopoverEdit, { save as filtersPopoverSave } from '../blocks/filter
 import FiltersProductEdit, { save as filtersProductSave } from '../blocks/filters-product/edit';
 import NoResultsEdit, { save as noResultsSave } from '../blocks/no-results/edit';
 import NoResultsSlotEdit, {
-	conditionLabel,
+	conditionVariations,
 	save as noResultsSlotSave,
 } from '../blocks/no-results/slot/edit';
 import PoweredByEdit from '../blocks/powered-by/edit';
@@ -61,7 +61,7 @@ const BLOCKS = [
 		'jetpack-search/no-results-slot',
 		NoResultsSlotEdit,
 		noResultsSlotSave,
-		{ __experimentalLabel: conditionLabel },
+		{ variations: conditionVariations() },
 	],
 	[ 'jetpack-search/filter-checkbox', FilterCheckboxEdit ],
 	[ 'jetpack-search/filter-date', FilterDateEdit ],
