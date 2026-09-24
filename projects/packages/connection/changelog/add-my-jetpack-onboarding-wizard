@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Register the onboarding_completed option, which records that My Jetpack's setup flow has been run.

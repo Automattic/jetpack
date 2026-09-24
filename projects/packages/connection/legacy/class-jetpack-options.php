@@ -132,6 +132,7 @@ class Jetpack_Options {
 			'recommendations_first_run',           // (bool) Determines if the current recommendations are the initial default auto-loaded ones (without user input).
 			'historically_active_modules',         // (array) List of installed plugins/enabled modules that have at one point in time been active and working
 			'activity_log_default_activated',      // (bool) Whether the Activity Log module has been switched on once on a site with no Jetpack plugin, which has nothing equivalent to `Auto Activate: Yes`. Recorded so a later opt-out is not undone on the next request.
+			'onboarding_completed',                // (bool) Whether someone has been all the way through My Jetpack's setup flow. Site-wide, because that flow connects the site and switches modules on, so a second admin does not need it again.
 		);
 	}
 

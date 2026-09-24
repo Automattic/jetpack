@@ -229,6 +229,99 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Data provider for the decision once setup has been settled.
+	 *
+	 * @return array
+	 */
+	public static function provide_settled_onboarding_cases() {
+		return array(
+			// The whole point: no more interrupting someone who has been through it.
+			'settled, disconnected, no step: stay'       => array( '', false, null ),
+			// Asking for it by its own URL still works, so a skip is reversible and a
+			// second admin the site-wide flag does not cover can still run it.
+			'settled, disconnected, on onboarding: stay' => array( 'onboarding', false, null ),
+			// Connecting still ends it, exactly as it does for anyone else.
+			'settled, connected, on onboarding: redirect home' => array( 'onboarding', true, array( 'page' => 'my-jetpack' ) ),
+		);
+	}
+
+	/**
+	 * A user who has finished or skipped setup is not sent back into it.
+	 *
+	 * @dataProvider provide_settled_onboarding_cases
+	 *
+	 * @param string     $step         The `step` query param.
+	 * @param bool       $is_connected Whether the site is connected.
+	 * @param array|null $expected     Expected redirect query args, or null to stay.
+	 */
+	#[DataProvider( 'provide_settled_onboarding_cases' )]
+	public function test_settled_onboarding_is_not_offered_again( $step, $is_connected, $expected ) {
+		$this->assertSame(
+			$expected,
+			Initializer::get_onboarding_redirect_args( $step, $is_connected, true, false, true )
+		);
+	}
+
+	/**
+	 * Settling is two facts, and only one of them is site-wide.
+	 */
+	public function test_completion_is_site_wide_and_skipping_is_not() {
+		$this->assertFalse( Initializer::is_onboarding_settled() );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'wizard_skipper',
+				'user_pass'  => 'pass',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		update_user_meta( $user_id, Initializer::ONBOARDING_DISMISSED_USER_META, true );
+
+		$this->assertTrue( Initializer::is_onboarding_settled(), 'the user who skipped is settled' );
+
+		$other_id = wp_insert_user(
+			array(
+				'user_login' => 'wizard_newcomer',
+				'user_pass'  => 'pass',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $other_id );
+
+		$this->assertFalse(
+			Initializer::is_onboarding_settled(),
+			'one admin skipping must not answer for the next'
+		);
+
+		\Jetpack_Options::update_option( 'onboarding_completed', true );
+
+		$this->assertTrue(
+			Initializer::is_onboarding_settled(),
+			'finishing it settles the site, not just the person who did it'
+		);
+	}
+
+	/**
+	 * The takeover reaches the Jetpack screens, and only those.
+	 */
+	public function test_onboarding_screens_cover_jetpacks_own_pages() {
+		$screens = Initializer::get_onboarding_screens();
+
+		$this->assertContains( 'my-jetpack', $screens );
+		$this->assertContains( 'jetpack', $screens );
+
+		// The standalone products ship their own connection screens, so taking those
+		// over is their teams' call. The filter is how they would opt in.
+		$this->assertNotContains( 'jetpack-boost', $screens );
+		$this->assertNotContains( 'jetpack-protect', $screens );
+
+		add_filter( 'jetpack_my_jetpack_onboarding_screens', fn () => array( 'jetpack-boost' ) );
+		$this->assertSame( array( 'jetpack-boost' ), Initializer::get_onboarding_screens() );
+		remove_all_filters( 'jetpack_my_jetpack_onboarding_screens' );
+	}
+
+	/**
 	 * The redirect decision is correct for every combination of step,
 	 * connection state, and onboarding availability.
 	 *
@@ -302,9 +395,9 @@ class Initializer_Test extends BaseTestCase {
 	public function test_admin_init_redirects_disconnected_site_to_onboarding() {
 		$this->log_in_as_admin();
 
-		$location = $this->capture_admin_init_redirect();
+		$location = $this->capture_onboarding_redirect();
 
-		$this->assertNotNull( $location, 'Expected admin_init() to redirect.' );
+		$this->assertNotNull( $location, 'Expected a redirect.' );
 		$this->assertStringContainsString( 'page=my-jetpack', $location );
 		$this->assertStringContainsString( 'step=onboarding', $location );
 	}
@@ -329,7 +422,7 @@ class Initializer_Test extends BaseTestCase {
 		$this->enable_wizard_flag();
 		$_GET['step'] = 'onboarding';
 
-		$this->assertNull( $this->capture_admin_init_redirect() );
+		$this->assertNull( $this->capture_onboarding_redirect() );
 	}
 
 	/**
@@ -346,7 +439,7 @@ class Initializer_Test extends BaseTestCase {
 		$this->connect_owner( $user_id );
 		$_GET['step'] = 'onboarding';
 
-		$location = $this->capture_admin_init_redirect();
+		$location = $this->capture_onboarding_redirect();
 
 		$this->assertNotNull( $location );
 		$this->assertStringContainsString( 'page=my-jetpack', $location );
@@ -371,9 +464,9 @@ class Initializer_Test extends BaseTestCase {
 		Constants::set_constant( 'IS_WPCOM', true );
 		$_GET['step'] = 'onboarding';
 
-		$location = $this->capture_admin_init_redirect();
+		$location = $this->capture_onboarding_redirect();
 
-		$this->assertNotNull( $location, 'Expected admin_init() to redirect away from onboarding.' );
+		$this->assertNotNull( $location, 'Expected a redirect away from onboarding.' );
 		$this->assertStringContainsString( 'page=my-jetpack', $location );
 		$this->assertStringNotContainsString( 'step=onboarding', $location );
 	}
@@ -393,7 +486,7 @@ class Initializer_Test extends BaseTestCase {
 		$this->log_in_as_editor();
 
 		$this->assertFalse( current_user_can( 'jetpack_connect' ) );
-		$this->assertNull( $this->capture_admin_init_redirect() );
+		$this->assertNull( $this->capture_onboarding_redirect() );
 	}
 
 	/**
@@ -408,7 +501,7 @@ class Initializer_Test extends BaseTestCase {
 		$this->log_in_as_editor();
 		$_GET['step'] = 'onboarding';
 
-		$location = $this->capture_admin_init_redirect();
+		$location = $this->capture_onboarding_redirect();
 
 		$this->assertNotNull( $location, 'Expected a redirect away from onboarding.' );
 		$this->assertStringContainsString( 'page=my-jetpack', $location );
@@ -425,7 +518,7 @@ class Initializer_Test extends BaseTestCase {
 	 *                               Defaults to calling it directly.
 	 * @return string|null The redirect location, or null when no redirect happened.
 	 */
-	private function capture_admin_init_redirect( ?callable $trigger = null ) {
+	private function capture_onboarding_redirect( ?callable $trigger = null ) {
 		$location = null;
 		$capture  =
 			/** @return never */
@@ -433,7 +526,12 @@ class Initializer_Test extends BaseTestCase {
 				$location = $redirect_location;
 				throw new \Exception( 'Intercepted redirect to skip exit().' );
 			};
-		$trigger  = $trigger === null ? array( Initializer::class, 'admin_init' ) : $trigger;
+		$trigger  = $trigger === null ? array( Initializer::class, 'maybe_redirect_to_onboarding' ) : $trigger;
+
+		// The redirect now runs for every Jetpack screen rather than only on the
+		// My Jetpack page load, so it checks both before deciding anything.
+		$_GET['page']              = $_GET['page'] ?? 'my-jetpack';
+		$_SERVER['REQUEST_METHOD'] = 'GET';
 
 		add_filter( 'wp_redirect', $capture );
 		try {
@@ -604,7 +702,7 @@ class Initializer_Test extends BaseTestCase {
 		$this->set_up_partner_coupon();
 		$this->block_http();
 
-		$this->assertNull( $this->capture_admin_init_redirect() );
+		$this->assertNull( $this->capture_onboarding_redirect() );
 	}
 
 	/**
@@ -622,7 +720,7 @@ class Initializer_Test extends BaseTestCase {
 		$this->block_http();
 		$_GET['showCouponRedemption'] = '1';
 
-		$this->assertNull( $this->capture_admin_init_redirect() );
+		$this->assertNull( $this->capture_onboarding_redirect() );
 	}
 
 	/**

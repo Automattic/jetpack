@@ -41,10 +41,30 @@ jest.mock( '../../../../hooks/use-analytics', () => ( {
 	default: () => ( { recordEvent: mockRecordEvent } ),
 } ) );
 
+const mockApiFetch = jest.fn( () => Promise.resolve( {} ) );
+
+jest.mock( '@wordpress/api-fetch', () => ( {
+	__esModule: true,
+	default: ( ...args: unknown[] ) => mockApiFetch( ...( args as [] ) ),
+} ) );
+
 const exitUrl = 'http://example.com/wp-admin/admin.php?page=my-jetpack';
 const dashboardUrl = 'http://example.com/wp-admin/';
 
+// Where the wizard sent the browser, which is the only thing jsdom lets us see.
+const mockAssignLocation = jest.fn();
+
+jest.mock( '../assign-location', () => ( {
+	__esModule: true,
+	assignLocation: ( url: string ) => mockAssignLocation( url ),
+} ) );
+
+const assignedHref = () => mockAssignLocation.mock.calls.at( -1 )?.[ 0 ] ?? null;
+
 beforeEach( () => {
+	mockAssignLocation.mockClear();
+	mockApiFetch.mockClear();
+	mockApiFetch.mockResolvedValue( {} );
 	mockRecordEvent.mockClear();
 	mockUseConnection.mockClear();
 	mockConnection.handleRegisterSite.mockReset();
@@ -572,5 +592,47 @@ describe( 'The site-type question', () => {
 		expect(
 			mockRecordEvent.mock.calls.some( call => JSON.stringify( call ).includes( 'recipe' ) )
 		).toBe( false );
+	} );
+} );
+
+describe( 'Leaving setup', () => {
+	it( 'records a skip, then leaves', async () => {
+		const { user } = setupWizard();
+
+		await user.click( screen.getByRole( 'link', { name: 'Skip setup' } ) );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/my-jetpack/v1/site/onboarding/settled',
+			method: 'POST',
+			data: { outcome: 'skipped' },
+		} );
+	} );
+
+	it( 'records a finish rather than a skip', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		// Walk to the last step, which is the only one that offers Finish.
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		await user.click( screen.getAllByRole( 'radio' )[ 0 ] );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		await user.click( screen.getByRole( 'link', { name: 'Finish' } ) );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/my-jetpack/v1/site/onboarding/settled',
+			method: 'POST',
+			data: { outcome: 'completed' },
+		} );
+	} );
+
+	// A failed write costs the user being offered setup once more. Being held on a
+	// screen they asked to leave would cost a great deal more.
+	it( 'leaves even when the record fails', async () => {
+		mockApiFetch.mockRejectedValueOnce( new Error( 'nope' ) );
+		const { user } = setupWizard();
+
+		await user.click( screen.getByRole( 'link', { name: 'Skip setup' } ) );
+
+		await waitFor( () => expect( assignedHref() ).toBe( exitUrl ) );
 	} );
 } );
