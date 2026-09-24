@@ -33,8 +33,8 @@ class Identity {
 			'user'       => null,
 			'identity'   => array(
 				'blogId'        => Checkpoint::blog_id(),
-				'providers'     => array(),
-				'connect'       => array(),
+				'canSignIn'     => false,
+				'connect'       => null,
 				'origin'        => Checkpoint::MESSAGE_ORIGIN,
 				'codeField'     => Checkpoint::CODE_FIELD,
 				'passportField' => Checkpoint::PASSPORT_FIELD,
@@ -70,15 +70,10 @@ class Identity {
 		// window that opened the popup, and the refresh route issues a fresh one.
 		$challenge = rtrim( strtr( base64_encode( random_bytes( 32 ) ), '+/', '-_' ), '=' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- base64url is the wire format.
 
-		$settings['identity']['providers'] = Checkpoint::PROVIDERS;
+		$connect = Checkpoint::connect_url( $challenge );
 
-		foreach ( Checkpoint::PROVIDERS as $provider ) {
-			$connect = Checkpoint::connect_url( $provider, $challenge );
-
-			if ( ! is_wp_error( $connect ) ) {
-				$settings['identity']['connect'][ $provider ] = $connect;
-			}
-		}
+		$settings['identity']['canSignIn'] = true;
+		$settings['identity']['connect']   = is_wp_error( $connect ) ? null : $connect;
 
 		return $settings;
 	}

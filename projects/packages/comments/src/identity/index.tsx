@@ -53,7 +53,7 @@ export const Identity = () => {
 		);
 	}
 
-	if ( mustLogIn && identity.providers.length === 0 ) {
+	if ( mustLogIn && ! identity.canSignIn ) {
 		return (
 			<a className="jetpack-comments__login" href={ formSettings.loginUrl }>
 				{ strings.logInToComment }

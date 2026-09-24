@@ -114,11 +114,6 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 				'callback'            => array( $this, 'connect' ),
 				'permission_callback' => '__return_true',
 				'args'                => array(
-					'provider'  => array(
-						'type'     => 'string',
-						'required' => true,
-						'enum'     => Checkpoint::PROVIDERS,
-					),
 					'challenge' => array(
 						'type'              => 'string',
 						'required'          => true,
@@ -130,7 +125,7 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 	}
 
 	/**
-	 * A signed popup URL for one provider.
+	 * A signed popup URL.
 	 *
 	 * @param WP_REST_Request $request The request.
 	 * @return WP_REST_Response|WP_Error
@@ -142,7 +137,7 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 			return new WP_Error( 'not_enabled', __( 'Sign-in is not available on this site.', 'jetpack-comments' ), array( 'status' => 404 ) );
 		}
 
-		$connect = Checkpoint::connect_url( $request->get_param( 'provider' ), $request->get_param( 'challenge' ) );
+		$connect = Checkpoint::connect_url( $request->get_param( 'challenge' ) );
 
 		if ( is_wp_error( $connect ) ) {
 			return $connect;

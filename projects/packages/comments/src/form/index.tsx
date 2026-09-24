@@ -150,7 +150,7 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 
 	// Only where there is no way to log in: with the popup, the dialog asks instead.
 	const isSubmitDisabled =
-		( mustLogIn && ! signedIn.value && identity.providers.length === 0 ) ||
+		( mustLogIn && ! signedIn.value && ! identity.canSignIn ) ||
 		isEmptyComment.value ||
 		isSavingComment.value;
 

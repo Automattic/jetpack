@@ -4,8 +4,6 @@ export type Commenter = {
 	url: string;
 };
 
-export type Provider = 'wordpress';
-
 export type ConnectUrl = {
 	url: string;
 	expires: number;
@@ -13,15 +11,14 @@ export type ConnectUrl = {
 };
 
 export type Passport = {
-	provider: Provider;
 	name: string;
 	avatar: string;
 };
 
 export type IdentitySettings = {
 	blogId: number;
-	providers: Provider[];
-	connect: Partial< Record< Provider, ConnectUrl > >;
+	canSignIn: boolean;
+	connect: ConnectUrl | null;
 	origin: string;
 	codeField: string;
 	passportField: string;

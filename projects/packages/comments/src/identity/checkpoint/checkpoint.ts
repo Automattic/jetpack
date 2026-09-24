@@ -3,7 +3,7 @@
  */
 
 import { clearPassport } from './passport';
-import type { ConnectUrl, Provider } from '../../shared/types';
+import type { ConnectUrl } from '../../shared/types';
 
 export type CheckpointResult =
 	{ code: string; name: string; avatar: string } | { error: string } | { cancelled: true };
@@ -25,15 +25,14 @@ const CLOSED_POLL_MS = 250;
 let reauth = false;
 
 /**
- * The signed URL for a provider, re-signed by the site when the rendered one
- * has expired or was never there. A cached page hands out stale ones.
+ * The signed URL, re-signed by the site when the rendered one has expired or
+ * was never there. A cached page hands out stale ones.
  *
- * @param provider - Which sign-in.
  * @return The URL and its challenge.
  */
-const connectUrl = async ( provider: Provider ): Promise< ConnectUrl > => {
-	const { connect, refreshUrl } = JetpackComments.identity;
-	const current = connect[ provider ];
+const connectUrl = async (): Promise< ConnectUrl > => {
+	const { identity } = JetpackComments;
+	const current = identity.connect;
 
 	if ( current && current.expires - EXPIRY_MARGIN_S > Date.now() / 1000 ) {
 		return current;
@@ -47,8 +46,7 @@ const connectUrl = async ( provider: Provider ): Promise< ConnectUrl > => {
 		.replace( /\//g, '_' )
 		.replace( /=+$/, '' );
 
-	const url = new URL( refreshUrl );
-	url.searchParams.set( 'provider', provider );
+	const url = new URL( identity.refreshUrl );
 	url.searchParams.set( 'challenge', challenge );
 
 	const response = await fetch( url.toString(), { credentials: 'omit' } );
@@ -57,10 +55,9 @@ const connectUrl = async ( provider: Provider ): Promise< ConnectUrl > => {
 		throw new Error( response.status === 429 ? 'rate_limited' : 'server_error' );
 	}
 
-	const fresh = ( await response.json() ) as ConnectUrl;
-	connect[ provider ] = fresh;
+	identity.connect = ( await response.json() ) as ConnectUrl;
 
-	return fresh;
+	return identity.connect;
 };
 
 /**
@@ -69,12 +66,10 @@ const connectUrl = async ( provider: Provider ): Promise< ConnectUrl > => {
  * Opens the window synchronously, inside the click, so a popup blocker lets it
  * through; the URL is filled in once it is known to be fresh.
  *
- * @param provider - Which sign-in.
- * @param onOpen   - Receives the window, so the caller can close it on Cancel.
+ * @param onOpen - Receives the window, so the caller can close it on Cancel.
  * @return How it ended.
  */
 export const signIn = async (
-	provider: Provider,
 	onOpen: ( popup: Window | null ) => void
 ): Promise< CheckpointResult > => {
 	// Centred on the window that opens it.
@@ -98,7 +93,7 @@ export const signIn = async (
 	let connect: ConnectUrl;
 
 	try {
-		connect = await connectUrl( provider );
+		connect = await connectUrl();
 	} catch ( error ) {
 		popup.close();
 		return { error: error instanceof Error ? error.message : 'server_error' };

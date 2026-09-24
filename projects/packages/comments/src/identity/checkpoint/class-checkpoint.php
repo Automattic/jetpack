@@ -30,9 +30,9 @@ class Checkpoint {
 	const MESSAGE_ORIGIN = 'https://public-api.wordpress.com';
 
 	/**
-	 * Providers the popup can sign in with.
+	 * The provider the popup signs in with. Part of the signed URL WordPress.com verifies.
 	 */
-	const PROVIDERS = array( 'wordpress' );
+	const PROVIDER = 'wordpress';
 
 	/**
 	 * POST field carrying the code the popup handed back.
@@ -144,18 +144,17 @@ class Checkpoint {
 	}
 
 	/**
-	 * A signed popup URL for one provider.
+	 * A signed popup URL.
 	 *
 	 * A Jetpack or Atomic site proves itself with its blog token. On Simple the
 	 * code is already running inside WordPress.com, so the Consulate signs with
 	 * the key it will verify against.
 	 *
-	 * @param string $provider  One of PROVIDERS.
 	 * @param string $challenge The challenge to sign.
 	 * @return array|WP_Error url, expires, challenge.
 	 */
-	public static function connect_url( $provider, $challenge ) {
-		if ( ! in_array( $provider, self::PROVIDERS, true ) || ! self::is_challenge( $challenge ) ) {
+	public static function connect_url( $challenge ) {
+		if ( ! self::is_challenge( $challenge ) ) {
 			return new WP_Error( 'invalid_request', __( 'Invalid request.', 'jetpack-comments' ), array( 'status' => 400 ) );
 		}
 
@@ -169,7 +168,7 @@ class Checkpoint {
 
 		$params = array(
 			'blog_id'   => self::blog_id(),
-			'provider'  => $provider,
+			'provider'  => self::PROVIDER,
 			'challenge' => $challenge,
 			'origin'    => $origin,
 			'expires'   => time() + self::SIGNATURE_TTL,

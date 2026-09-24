@@ -51,7 +51,7 @@ export const IdentityDialog = () => {
 
 		const current = ++attempt.current;
 
-		const result = await signIn( 'wordpress', opened => {
+		const result = await signIn( opened => {
 			popup.current = opened;
 		} );
 
@@ -63,12 +63,7 @@ export const IdentityDialog = () => {
 		setIsSigningIn( false );
 
 		if ( 'code' in result ) {
-			signedIn.value = {
-				provider: 'wordpress',
-				name: result.name,
-				avatar: result.avatar,
-				code: result.code,
-			};
+			signedIn.value = { name: result.name, avatar: result.avatar, code: result.code };
 			form?.requestSubmit();
 		} else if ( 'error' in result ) {
 			setSignInError(
@@ -190,7 +185,7 @@ export const IdentityDialog = () => {
 						</button>
 					</>
 				) }
-				{ identity.providers.length > 0 && isSigningIn && (
+				{ identity.canSignIn && isSigningIn && (
 					<span className="jetpack-comments__signing-in">
 						<span className="jetpack-comments__spinner" aria-hidden="true" />
 						<button type="button" className="jetpack-comments__link-button" onClick={ cancel }>
@@ -198,7 +193,7 @@ export const IdentityDialog = () => {
 						</button>
 					</span>
 				) }
-				{ identity.providers.length > 0 && ! isSigningIn && (
+				{ identity.canSignIn && ! isSigningIn && (
 					<span className="jetpack-comments__sign-in">
 						<button
 							type="button"

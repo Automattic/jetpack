@@ -1,12 +1,9 @@
 /**
- * The display half of the passport: provider, name and avatar, in a cookie the
- * page can read. The page HTML is cached and shared, so this is the only place
+ * The display half of the passport: name and avatar, in a cookie the page can read. The page HTML is cached and shared, so this is the only place
  * a returning commenter's identity can come from.
  */
 
-import type { Passport, Provider } from '../../shared/types';
-
-const PROVIDERS: Provider[] = [ 'wordpress' ];
+import type { Passport } from '../../shared/types';
 
 /**
  * Who the display cookie says is back, if anyone.
@@ -33,18 +30,11 @@ export const readPassport = (): Passport | null => {
 		const data = JSON.parse( decodeURIComponent( raw ) ) as Record< string, unknown >;
 
 		// A network shares one cookie domain, so another site's sign-in can land here.
-		if (
-			! data ||
-			data.blog_id !== blogId ||
-			typeof data.name !== 'string' ||
-			typeof data.provider !== 'string' ||
-			! PROVIDERS.includes( data.provider as Provider )
-		) {
+		if ( ! data || data.blog_id !== blogId || typeof data.name !== 'string' ) {
 			return null;
 		}
 
 		return {
-			provider: data.provider as Provider,
 			name: data.name,
 			avatar:
 				( typeof data.avatar === 'string' && data.avatar ) ||
