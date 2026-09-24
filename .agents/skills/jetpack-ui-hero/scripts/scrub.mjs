@@ -14,6 +14,7 @@
  * Run it once per piece. Pick times either side of every beat, plus one after the
  * last, rather than reusing the defaults — they assume a ~9s piece.
  */
+import { execFileSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -32,6 +33,50 @@ if ( ! times.length || ! times.every( Number.isFinite ) ) {
 // A '#' in the path becomes a fragment if the URL is built by concatenation.
 const url = pathToFileURL( resolve( file ) ).href;
 mkdirSync( outDir, { recursive: true } );
+
+/**
+ * Fraction of pixels that differ materially between the final frame and the
+ * reduced-motion render.
+ *
+ * @param {string} dir   - Directory holding the two PNGs.
+ * @param {string} boxId - Scene box id, which names the files.
+ * @param {number} last  - The final scrubbed time.
+ * @return {boolean} True when the two really differ, not just in antialiasing.
+ */
+function differs( dir, boxId, last ) {
+	const a = `${ dir }/${ boxId }-${ String( last ).replace( '.', '_' ) }.png`;
+	const b = `${ dir }/${ boxId }-reduced-motion.png`;
+	let out;
+	try {
+		out = execFileSync(
+			'python3',
+			[
+				'-c',
+				`
+from PIL import Image, ImageChops
+a = Image.open(${ JSON.stringify( a ) }).convert('RGB')
+b = Image.open(${ JSON.stringify( b ) }).convert('RGB')
+if a.size != b.size:
+    print('1.0 size', a.size, b.size); raise SystemExit
+d = ImageChops.difference(a, b)
+# A channel delta under 24 is antialiasing, not a different picture.
+mask = d.convert('L').point(lambda v: 255 if v > 24 else 0)
+n = sum(mask.point(bool).getdata())
+print(n / (a.size[0] * a.size[1]), 'maxdelta', max(d.getextrema(), key=lambda t: t[1])[1])
+`,
+			],
+			{ encoding: 'utf8' }
+		);
+	} catch {
+		return true; // cannot measure it, so do not quietly pass it
+	}
+	const [ ratio, ...rest ] = out.trim().split( ' ' );
+	const pct = ( Number( ratio ) * 100 ).toFixed( 2 );
+	console.log(
+		`reduced-motion vs final frame: ${ pct }% of pixels differ (${ rest.join( ' ' ) })`
+	);
+	return Number( ratio ) > 0.005;
+}
 
 const seek = ( page, ms ) =>
 	page.evaluate(
@@ -125,7 +170,15 @@ try {
 
 	// The invariant, actually checked: reduced motion must land on the final frame.
 	// If it does not, some animation is missing `both` fill or runs infinitely.
-	if ( finalFrame && ! rmFrame.equals( finalFrame ) ) {
+	//
+	// Compared with a tolerance, not byte-for-byte: identical content still renders a
+	// few antialiasing pixels apart between two page loads, which made an exact
+	// comparison fail at random.
+	if (
+		finalFrame &&
+		! rmFrame.equals( finalFrame ) &&
+		differs( outDir, box, Math.max( ...times ) )
+	) {
 		console.error( `reduced motion does NOT match the last frame (t=${ Math.max( ...times ) }).` );
 		console.error(
 			`compare ${ outDir }/${ box }-reduced-motion.png against ${ outDir }/${ box }-${ String(
