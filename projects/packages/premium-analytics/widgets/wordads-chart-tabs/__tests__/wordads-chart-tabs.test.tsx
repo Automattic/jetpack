@@ -180,6 +180,50 @@ describe( 'useWordAdsChart', () => {
 		expect( result.current.metrics[ 0 ].current ).toHaveLength( 0 );
 	} );
 
+	it( 'leaves a gap in the CPM series where no ads were served', async () => {
+		mockApiFetch.mockResolvedValue( {
+			unit: 'month',
+			fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
+			data: [
+				[ '2026-05', 0, 0, 0 ],
+				[ '2026-06', 800, 3.25, 4.06 ],
+			],
+		} );
+
+		const reportParams: ReportParams = { from: '2026-05-01', to: '2026-06-30', interval: 'month' };
+		const { result } = renderHook( () => useWordAdsChart( reportParams, 'month' ), { wrapper } );
+
+		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+		const [ impressions, cpm, revenue ] = result.current.metrics;
+		expect( cpm.current.map( point => point.value ) ).toEqual( [ null, 4.06 ] );
+		expect( cpm.unavailable ).toBeUndefined();
+		expect( impressions.current.map( point => point.value ) ).toEqual( [ 0, 800 ] );
+		expect( revenue.current.map( point => point.value ) ).toEqual( [ 0, 3.25 ] );
+	} );
+
+	it( 'marks CPM unavailable when no ads were served in the whole range', async () => {
+		mockApiFetch.mockResolvedValue( {
+			unit: 'month',
+			fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
+			data: [
+				[ '2026-05', 0, 0, 0 ],
+				[ '2026-06', 0, 0, 0 ],
+			],
+		} );
+
+		const reportParams: ReportParams = { from: '2026-05-01', to: '2026-06-30', interval: 'month' };
+		const { result } = renderHook( () => useWordAdsChart( reportParams, 'month' ), { wrapper } );
+
+		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+		const [ impressions, cpm, revenue ] = result.current.metrics;
+		expect( cpm.unavailable ).toEqual( expect.any( String ) );
+		expect( impressions.unavailable ).toBeUndefined();
+		expect( revenue.unavailable ).toBeUndefined();
+		expect( result.current.isEmpty ).toBe( false );
+	} );
+
 	it( 'draws no comparison even when the params carry one', async () => {
 		mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
 			Promise.resolve( path.includes( 'date=2026-03-31' ) ? COMPARISON_RESPONSE : PRIMARY_RESPONSE )

@@ -54,7 +54,8 @@ export function appendTooltipExtras< T extends TooltipData >(
 
 		const point = extra.data.find( candidate => candidate.date.getTime() === hoveredTime );
 
-		if ( point?.value != null ) {
+		// A point with a null value still gets its row, which the tooltip reads as "No data".
+		if ( point ) {
 			// `index` only has to exist for the row shape; the tooltip orders rows itself.
 			augmented[ extra.label ] = { datum: point, index: offset, key: extra.label };
 			supplementaryRows[ extra.label ] = extra.dataFormat;
