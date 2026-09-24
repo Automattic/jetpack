@@ -48,6 +48,11 @@ function wpcom_post_opens_with_featured_image( int $post_id ): bool {
 			continue;
 		}
 
+		// A gallery shows the photo as one tile in a grid, so hiding the featured image would leave no header photo.
+		if ( $processor->has_class( 'wp-block-gallery' ) || $processor->has_class( 'wp-block-jetpack-tiled-gallery' ) ) {
+			return false;
+		}
+
 		if ( 'IMG' === $token ) {
 			return wpcom_featured_image_tag_is_attachment( $processor, $thumbnail_id );
 		}

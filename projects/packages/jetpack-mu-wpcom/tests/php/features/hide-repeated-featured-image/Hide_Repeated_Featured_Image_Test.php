@@ -95,6 +95,10 @@ class Hide_Repeated_Featured_Image_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( wpcom_post_opens_with_featured_image( $this->create_post( '<!-- wp:jetpack/paywall /-->' . $this->opening_photo() ) ) );
 	}
 
+	public function test_gallery_opening_with_the_photo() {
+		$this->assertFalse( wpcom_post_opens_with_featured_image( $this->create_post( '<!-- wp:gallery --><figure class="wp-block-gallery has-nested-images">' . $this->opening_photo() . '</figure><!-- /wp:gallery -->' ) ) );
+	}
+
 	public function test_post_without_a_featured_image() {
 		$post_id = wp_insert_post( array( 'post_content' => $this->opening_photo() ) );
 
