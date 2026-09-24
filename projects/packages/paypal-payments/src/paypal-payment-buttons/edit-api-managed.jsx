@@ -1649,49 +1649,47 @@ export default function ApiManagedEdit( {
 			{ accountHeader }
 			{ formatControls }
 
-			<div className="jetpack-paypal-payment-buttons__preview">
-				{ /* The inspector only mounts when the block is selected, so notices about a
-				     broken block go on the canvas. */ }
-				{ disconnectedNotice }
+			{ /* The inspector only mounts when the block is selected, so notices about a
+			     broken block go on the canvas. */ }
+			{ disconnectedNotice }
 
-				{ linkDeleted && (
-					<Notice status="warning" isDismissible={ false }>
-						{ __(
-							'This payment link was deleted from PayPal, so the published button shows nothing. Updating the post creates a new link with a new URL and QR code. Remove the block instead if you no longer sell this.',
-							'jetpack-paypal-payments'
-						) }
-					</Notice>
-				) }
+			{ linkDeleted && (
+				<Notice status="warning" isDismissible={ false }>
+					{ __(
+						'This payment link was deleted from PayPal, so the published button shows nothing. Updating the post creates a new link with a new URL and QR code. Remove the block instead if you no longer sell this.',
+						'jetpack-paypal-payments'
+					) }
+				</Notice>
+			) }
 
-				{ showLinkStep ? (
-					<p className="jetpack-paypal-payment-buttons__links-hint">
-						{ __(
-							'Choose a payment link you already have, or create a new one, in the block settings.',
-							'jetpack-paypal-payments'
-						) }
-					</p>
-				) : (
-					<PayPalButtonPreview
-						format={ activeFormat }
-						productName={ productName }
-						price={ price }
-						currencyCode={ currencyCode }
-						productDescription={ productDescription }
-						paymentLink={ paymentLink }
-						variantsEnabled={ variantsEnabled }
-						variants={ variants }
-						imageUrl={ imageUrl }
-						partnerAttributionId={ partnerAttributionId }
-						buttonText={ buttonText }
-						linkText={ linkText }
-						qrShowCaption={ qrShowCaption }
-						qrCaption={ qrCaption }
-						attributes={ attributes }
-						resource={ resource }
-						isSelected={ isSelected }
-					/>
-				) }
-			</div>
+			{ showLinkStep ? (
+				<p className="jetpack-paypal-payment-buttons__links-hint">
+					{ __(
+						'Choose a payment link you already have, or create a new one, in the block settings.',
+						'jetpack-paypal-payments'
+					) }
+				</p>
+			) : (
+				<PayPalButtonPreview
+					format={ activeFormat }
+					productName={ productName }
+					price={ price }
+					currencyCode={ currencyCode }
+					productDescription={ productDescription }
+					paymentLink={ paymentLink }
+					variantsEnabled={ variantsEnabled }
+					variants={ variants }
+					imageUrl={ imageUrl }
+					partnerAttributionId={ partnerAttributionId }
+					buttonText={ buttonText }
+					linkText={ linkText }
+					qrShowCaption={ qrShowCaption }
+					qrCaption={ qrCaption }
+					attributes={ attributes }
+					resource={ resource }
+					isSelected={ isSelected }
+				/>
+			) }
 
 			{ confirmDialogs }
 			{ showUnsavedConfirm && (

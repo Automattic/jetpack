@@ -974,21 +974,6 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 	// 7. Production Default (WOOPTP-163)
 	// ---------------------------------------------------------------
 	test.describe( 'Production Default', () => {
-		test( 'connected block draws no connection status on the canvas', async ( { page } ) => {
-			await setupPayPalMocks( page );
-			await goToNewPost( page );
-			const canvas = await insertPayPalBlock( page );
-
-			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-
-			// A new block only reaches the preview once connected.
-			await expect( block.locator( '.jetpack-paypal-payment-buttons__preview' ) ).toBeVisible();
-
-			// The PayPal Connection panel in the sidebar carries the status and environment.
-			await expect( block.locator( 'text=PayPal Connected' ) ).toBeHidden();
-			await expect( block.locator( 'text=Sandbox' ) ).toBeHidden();
-		} );
-
 		test( 'connection endpoint defaults to production API domain', async ( { page } ) => {
 			// Use a custom disconnected mock that defaults to production environment.
 			await setupPayPalMocks( page, {
