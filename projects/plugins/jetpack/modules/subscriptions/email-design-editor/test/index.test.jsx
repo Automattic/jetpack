@@ -30,9 +30,23 @@ jest.mock( '@wordpress/api-fetch', () => {
 
 const MockEmailEditor = () => null;
 
-jest.mock( '@woocommerce/email-editor', () => ( {
-	ExperimentalEmailEditor: MockEmailEditor,
-} ) );
+// What the real package resolves at module scope, which is why the entry imports the labels first.
+// A title as well as a description: the titles are words the filter otherwise answers only while
+// the Styles panel is on screen, and nothing is on screen yet when the package resolves them.
+let mockCapturedHeadingDescription = null;
+let mockCapturedHeadingTitle = null;
+
+jest.mock( '@woocommerce/email-editor', () => {
+	const { __ } = require( '@wordpress/i18n' );
+
+	mockCapturedHeadingDescription = __(
+		'Manage the fonts and typography used on headings.',
+		'jetpack'
+	);
+	mockCapturedHeadingTitle = __( 'Headings', 'jetpack' );
+
+	return { ExperimentalEmailEditor: MockEmailEditor };
+} );
 
 const mockRegisterBlockType = jest.fn();
 const mockGetBlockType = jest.fn();
@@ -196,6 +210,9 @@ const ELEMENT_ID = 'jetpack-email-design-editor';
 // into the registry the mount is watching.
 let mockIsolatedData = null;
 
+// The isolated `@wordpress/i18n`, so a test can ask it what the package's own strings resolve to.
+let mockIsolatedI18n = null;
+
 /**
  * The bootstrap response, in the shape the WordPress.com route returns it —
  * deliberately without the two settings that side strips before returning.
@@ -277,6 +294,7 @@ async function loadEntryPoint() {
 		mockRegisterBlockEditorStore( mockIsolatedData );
 		mockRegisterInterfaceStore( mockIsolatedData );
 		mockRegisterPanelStores( mockIsolatedData );
+		mockIsolatedI18n = require( '@wordpress/i18n' );
 		require( '../src/index' );
 	} );
 
@@ -1897,6 +1915,96 @@ describe( 'Email design editor entry point', () => {
 			[ 'a listings url', bootstrapBundle(), pageData( { urls: { back: '/x' } } ) ],
 		] )( 'throws rather than building a config without %s', ( _label, bundle, data ) => {
 			expect( () => buildEditorConfig( bundle, data ) ).toThrow();
+		} );
+	} );
+	// Rob could not tell which control changed which part of the email. NL-955.
+	describe( 'the Styles panel labels', () => {
+		const { relabelStylesSidebar } = jest.requireActual( '../src/styles-sidebar-labels' );
+
+		// The panel the words belong to. Present, the filter owns them; absent, something else is
+		// rendering in that region and they are not ours to answer.
+		const showStylesPanel = () => {
+			const panel = document.createElement( 'div' );
+
+			panel.id = 'null:email-styles-sidebar';
+			document.body.append( panel );
+
+			return () => panel.remove();
+		};
+
+		it.each( [
+			[ 'Headings', 'Titles & headings' ],
+			[ 'Text', 'Default text' ],
+			[ 'Layout', 'Spacing' ],
+		] )( 'answers %s with what it changes', ( source, ours ) => {
+			const hide = showStylesPanel();
+
+			expect( relabelStylesSidebar( source, source ) ).toBe( ours );
+
+			hide();
+		} );
+
+		it.each( [ 'Text', 'Headings', 'Layout' ] )(
+			'leaves %s to whatever else is rendering in that region',
+			source => {
+				expect( relabelStylesSidebar( source, source ) ).toBe( source );
+			}
+		);
+
+		it( 'answers a description of its own whether the panel is showing or not', () => {
+			// Sentences only this package says, so there is nothing to stay out of the way of.
+			expect(
+				relabelStylesSidebar(
+					'Manage the fonts and typography used on links.',
+					'Manage the fonts and typography used on links.'
+				)
+			).toContain( 'Links inside your post' );
+		} );
+
+		it( 'says which heading level moves the post title and which the site title', () => {
+			const described = relabelStylesSidebar(
+				'Manage the fonts and typography used on headings.',
+				'Manage the fonts and typography used on headings.'
+			);
+
+			expect( described ).toContain( 'H1 styles your post title' );
+
+			// The site title takes H2's font and not its size, so a creator who changes the size
+			// and watches nothing move is the complaint this screen already collected.
+			expect( described ).toContain( 'font only, not its size' );
+		} );
+
+		it( 'leaves a string we have no better name for as the package translated it', () => {
+			// The package says Typography as the nav item, the screen header and the panel inside
+			// it, and a source string cannot tell the three apart.
+			expect( relabelStylesSidebar( 'Typographie', 'Typography' ) ).toBe( 'Typographie' );
+		} );
+
+		it( 'does not answer with a property every object carries', () => {
+			// Held in a Map for this: `constructor` off an object literal is a function, which the
+			// sidebar would render as a label.
+			expect( relabelStylesSidebar( 'Constructeur', 'constructor' ) ).toBe( 'Constructeur' );
+		} );
+
+		it( 'relabels the package once the entry point has loaded', async () => {
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect(
+				mockIsolatedI18n.__( 'Manage the fonts and typography used on links.', 'jetpack' )
+			).toContain( 'Links inside your post' );
+		} );
+
+		it( 'relabels a screen the package titled before the entry point ran', async () => {
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			// Read where the package reads it: at module scope, which a filter registered after
+			// the package is imported never reaches, and where no panel is on screen yet.
+			expect( mockCapturedHeadingDescription ).toContain( 'H1 styles your post title' );
+			expect( mockCapturedHeadingTitle ).toBe( 'Titles & headings' );
 		} );
 	} );
 } );
