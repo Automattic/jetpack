@@ -10,6 +10,11 @@
  * `window.JetpackEmailDesignEditor` lands separately; until then nothing enqueues
  * this bundle and the mount below returns. See NL-848 and NL-851.
  */
+
+// Imported ahead of the package deliberately: it resolves its screens' titles and descriptions at
+// module scope, and a filter added any later never sees them.
+// eslint-disable-next-line import/order
+import { STYLES_SIDEBAR_ID } from './styles-sidebar-labels';
 import { ExperimentalEmailEditor } from '@woocommerce/email-editor';
 import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps } from '@wordpress/block-editor';
@@ -54,9 +59,6 @@ const SIDEBAR_SCOPE = 'core';
 // `PluginArea`, so the plugin name the interface store keys it under is literally `null`.
 // Re-check on a package bump, alongside the private-API note in the screen's PHP.
 const STYLES_SIDEBAR = 'null/email-styles-sidebar';
-
-// The panel's own container, which `ComplementaryArea` ids after the identifier.
-const STYLES_SIDEBAR_ID = STYLES_SIDEBAR.replace( '/', ':' );
 
 // Frames to wait for a panel React has not committed yet — far more than the one or two it takes,
 // and bounded so a panel that never arrives stops the search rather than polling forever.
