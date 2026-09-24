@@ -14,6 +14,7 @@ import edit from './edit';
 import { NewsletterPreviewModal } from './email-preview';
 import NewsletterMenu from './menu';
 import SubscribePanels from './panel';
+import TemplatePartSettingsPanel from './template-part-panel';
 
 const blockName = metadata.name.replace( 'jetpack/', '' );
 
@@ -102,6 +103,7 @@ const NewsletterEditor = () => {
 	return (
 		<>
 			<SubscribePanels />
+			<TemplatePartSettingsPanel />
 			{ shouldShowNewsletterMenu() && (
 				<>
 					{ PluginPreviewMenuItem ? (

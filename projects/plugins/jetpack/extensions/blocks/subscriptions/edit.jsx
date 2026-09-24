@@ -22,6 +22,7 @@ import { _n, sprintf, _x, __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { isEqual } from 'lodash';
 import { getActiveStyleName } from '../../shared/block-styles';
+import NewsletterSettingsPanel from '../../shared/components/newsletter-settings-panel';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { getPaidPlanLink } from '../../shared/memberships/utils';
 import './view.scss';
@@ -39,6 +40,7 @@ import {
 	DEFAULT_SUCCESS_MESSAGE,
 } from './constants';
 import SubscriptionControls from './controls';
+import { getPlacementByAppSource } from './settings-placements';
 
 const { getComputedStyle } = window;
 const isGradientAvailable = !! useGradient;
@@ -87,6 +89,7 @@ export function SubscriptionEdit( props ) {
 	}
 
 	const {
+		appSource,
 		borderRadius,
 		borderWeight,
 		buttonWidth,
@@ -103,6 +106,7 @@ export function SubscriptionEdit( props ) {
 		successMessage = DEFAULT_SUCCESS_MESSAGE,
 	} = validatedAttributes;
 
+	const settingsPlacement = getPlacementByAppSource( appSource );
 	const activeStyleName = getActiveStyleName( metadata.styles, className );
 	const isButtonOnlyStyle = activeStyleName === 'button';
 
@@ -245,6 +249,12 @@ export function SubscriptionEdit( props ) {
 			) }
 		>
 			<InspectorControls>
+				{ settingsPlacement && (
+					<NewsletterSettingsPanel
+						option={ settingsPlacement.option }
+						label={ settingsPlacement.label }
+					/>
+				) }
 				<SubscriptionControls
 					areNewsletterCategoriesEnabled={ areNewsletterCategoriesEnabled }
 					availableNewsletterCategories={ availableNewsletterCategories }
