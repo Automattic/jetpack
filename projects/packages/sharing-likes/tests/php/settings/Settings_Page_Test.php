@@ -263,7 +263,7 @@ class Settings_Page_Test extends BaseTestCase {
 
 	/**
 	 * Once both features moved to their blocks, placement governs nothing left on
-	 * the page. Fields other features hang there stay, like Simple's Twitter username.
+	 * the page. Fields third parties hang there stay.
 	 */
 	public function test_leaves_the_block_prompts_and_the_extras_once_simple_switched_both_off(): void {
 		Constants::set_constant( 'IS_WPCOM', true );
