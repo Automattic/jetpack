@@ -53,8 +53,13 @@ for ( const [ methodName, matcherName ] of Object.entries( matcherNames ) ) {
 		[ `${ matcherName }With` ]: createMatcher( methodName, true ),
 	} );
 
+	const reset = () => {
+		spy.mockClear();
+		asserted.delete( methodName );
+	};
+
 	// Ignore calls made while loading test files.
-	beforeAll( () => spy.mockClear() );
+	beforeAll( reset );
 
 	afterEach( () => {
 		try {
@@ -63,8 +68,7 @@ for ( const [ methodName, matcherName ] of Object.entries( matcherNames ) ) {
 				expect( console ).not[ matcherName ]();
 			}
 		} finally {
-			spy.mockClear();
-			asserted.delete( methodName );
+			reset();
 		}
 	} );
 }
