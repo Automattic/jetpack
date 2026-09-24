@@ -139,12 +139,11 @@ class PayPal_Email_Sender {
 		// Read the link, name and price from PayPal so the email matches the button.
 		$resource = PayPal_API_Client::get_resource_cached( $resource_id );
 		if ( is_wp_error( $resource ) ) {
-			// Pass on PayPal's status. A network error has status 0, so send 503.
-			$error_data = $resource->get_error_data();
-			$status     = (int) ( $error_data['status'] ?? 500 );
+			// Pass on PayPal's status, as the REST endpoints do.
+			$error = PayPal_REST_Controller::api_error_to_rest_error( $resource );
 			wp_send_json_error(
-				array( 'message' => $resource->get_error_message() ),
-				0 === $status ? 503 : $status,
+				array( 'message' => $error->get_error_message() ),
+				$error->get_error_data()['status'],
 				JSON_HEX_TAG | JSON_HEX_AMP
 			);
 		}
