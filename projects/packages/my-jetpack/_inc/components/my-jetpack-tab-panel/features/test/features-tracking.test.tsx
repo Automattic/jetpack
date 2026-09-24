@@ -160,6 +160,9 @@ const lastEvent = ( name: string ) =>
 
 beforeEach( () => {
 	jest.clearAllMocks();
+	mockModuleSwitch.onSwitch = undefined;
+	mockModal.onFilterByPlan = undefined;
+	mockGrid.onOpen = undefined;
 	mockUseAnalytics.mockReturnValue( { recordEvent } );
 } );
 
@@ -633,6 +636,39 @@ describe( 'A search left behind', () => {
 
 		expect( lastEvent( 'jetpack_myjetpack_features_search' ) ).toMatchObject( {
 			search_term: 'boost',
+		} );
+	} );
+} );
+
+describe( 'Which list a module was switched from', () => {
+	const moduleState = () =>
+		( {
+			feature: { slug: 'monitor', name: 'Monitor', plans: [] },
+			status: 'inactive',
+			control: { kind: 'module', module: { module: 'monitor', activated: false } },
+		} ) as unknown as FeatureState;
+
+	it( 'calls a module under More Features that section, not the grid', async () => {
+		renderTracked( <FeatureAction state={ moduleState() } origin="more_features" /> );
+
+		act( () => mockModuleSwitch.onSwitch?.( true ) );
+
+		expect( lastEvent( 'jetpack_myjetpack_feature_action' ) ).toMatchObject( {
+			action: 'activate',
+			origin: 'more_features',
+			feature_slug: 'monitor',
+			control_kind: 'module',
+		} );
+	} );
+
+	it( 'still calls the main grid the grid', async () => {
+		renderTracked( <FeatureAction state={ moduleState() } /> );
+
+		act( () => mockModuleSwitch.onSwitch?.( false ) );
+
+		expect( lastEvent( 'jetpack_myjetpack_feature_action' ) ).toMatchObject( {
+			action: 'deactivate',
+			origin: 'card',
 		} );
 	} );
 } );

@@ -14,6 +14,7 @@ import type { FeatureActionOrigin } from './features-tracking-context';
 
 type PluginToggleProps = {
 	state: FeatureState;
+	origin: FeatureActionOrigin;
 	plugin: string;
 	isOn: boolean;
 	name: string;
@@ -25,23 +26,24 @@ type PluginToggleProps = {
  *
  * @param {PluginToggleProps} props             - The component props.
  * @param {FeatureState}      props.state       - Live state for the feature.
+ * @param {string}            props.origin      - Which list this control sits in.
  * @param {string}            props.plugin      - The plugin's slug.
  * @param {boolean}           props.isOn        - Whether the plugin is active.
  * @param {string}            props.name        - The feature's name, for the label and notice.
  * @param {string}            props.describedby - Id of the element stating whether it is on.
  * @return The rendered component.
  */
-function PluginToggle( { state, plugin, isOn, name, describedby }: PluginToggleProps ) {
+function PluginToggle( { state, origin, plugin, isOn, name, describedby }: PluginToggleProps ) {
 	const { run, isBusy } = useFeaturePlugin( plugin, name );
 	const tracking = useFeaturesTracking();
 	const onChange = useCallback( () => {
 		tracking?.trackFeatureAction( {
 			state,
 			action: isOn ? 'deactivate' : 'activate',
-			origin: 'card',
+			origin,
 		} );
 		run( isOn ? 'deactivate' : 'activate' );
-	}, [ isOn, run, state, tracking ] );
+	}, [ isOn, origin, run, state, tracking ] );
 
 	return (
 		<FormToggle
@@ -100,6 +102,7 @@ export function InstallButton( {
 type FeatureActionProps = {
 	state: FeatureState;
 	describedby?: string;
+	origin?: FeatureActionOrigin;
 };
 
 /**
@@ -112,9 +115,10 @@ type FeatureActionProps = {
  * @param {FeatureActionProps} props             - The component props.
  * @param {FeatureState}       props.state       - Live state for the feature.
  * @param {string}             props.describedby - Id of the element stating whether it is on.
+ * @param {string}             props.origin      - Which list this control sits in.
  * @return The rendered component, or null when nothing here can switch the feature.
  */
-export function FeatureAction( { state, describedby }: FeatureActionProps ) {
+export function FeatureAction( { state, describedby, origin = 'card' }: FeatureActionProps ) {
 	const { control, feature } = state;
 	const pluginName = feature.plugin_name || feature.name;
 	const tracking = useFeaturesTracking();
@@ -124,9 +128,9 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 			tracking?.trackFeatureAction( {
 				state,
 				action: active ? 'activate' : 'deactivate',
-				origin: 'card',
+				origin,
 			} ),
-		[ state, tracking ]
+		[ origin, state, tracking ]
 	);
 
 	if ( state.pending ) {
@@ -161,6 +165,7 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 			return (
 				<PluginToggle
 					state={ state }
+					origin={ origin }
 					plugin={ control.plugin }
 					isOn={ state.status === 'active' }
 					name={ pluginName }
@@ -172,7 +177,7 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 			return (
 				<InstallButton
 					state={ state }
-					origin="card"
+					origin={ origin }
 					plugin={ control.plugin }
 					name={ pluginName }
 					label={ __( 'Install', 'jetpack-my-jetpack' ) }
@@ -181,7 +186,7 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 			);
 
 		case 'install-jetpack':
-			return <JetpackButton state={ state } origin="card" installed={ control.installed } />;
+			return <JetpackButton state={ state } origin={ origin } installed={ control.installed } />;
 
 		default:
 			return null;
