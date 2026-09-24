@@ -3,7 +3,6 @@
  */
 import {
 	useStatsEmailClicksBreakdown,
-	useStatsEmailOpensBreakdown,
 	type ReportParams,
 	type StatsEmailBreakdown,
 } from '@jetpack-premium-analytics/data';
@@ -40,9 +39,8 @@ function hasEmailActivity( summary: StatsEmailBreakdown[ 'summary' ] | undefined
  * not obvious from the code below.
  *
  * Tabs without a fixed composition stay hidden. Email tabs also require sends,
- * opens or clicks on the opens rate summary, or, when it has none, on the clicks
- * one (a legacy send has unrecorded sends and reports its opens only there). They
- * fail closed once the gate answers: no activity or an error hides them. Until then, a URL
+ * opens or clicks on the clicks rate summary, and fail closed once the gate
+ * answers: no activity or an error hides them. Until then, a URL
  * already naming an email tab keeps its tabs, so a reload doesn't render the
  * whole Post traffic page first and throw it away (WOOA7S-2059).
  *
@@ -66,26 +64,17 @@ export function usePostDetailTabs(
 	emailReportParams?: ReportParams,
 	emailScopeBlocked = false
 ) {
-	const opens = useStatsEmailOpensBreakdown( postId, 'rate', { enabled: postId > 0 } );
-	const opensHasActivity = hasEmailActivity(
-		( opens.data as StatsEmailBreakdown | undefined )?.summary
+	// Not the opens summary: it nulls every field when sends went unrecorded (legacy sends).
+	const gate = useStatsEmailClicksBreakdown( postId, 'rate', { enabled: postId > 0 } );
+	const hasEmailStats = hasEmailActivity(
+		( gate.data as StatsEmailBreakdown | undefined )?.summary
 	);
-	// Only an opens summary with no activity can hide a legacy send, so only then ask clicks.
-	const needsClicks = opens.isSuccess && ! opensHasActivity;
-	const clicks = useStatsEmailClicksBreakdown( postId, 'rate', {
-		enabled: postId > 0 && needsClicks,
-	} );
-	const hasEmailStats =
-		opensHasActivity ||
-		( needsClicks &&
-			hasEmailActivity( ( clicks.data as StatsEmailBreakdown | undefined )?.summary ) );
-	const gateSucceeded = opens.isSuccess && ( ! needsClicks || clicks.isSuccess );
 
 	const [ storedTab, setActiveTab ] = useActiveTab();
 	const storedIsEmailTab = EMAIL_TAB_IDS.includes( storedTab );
 	// Success-or-error, not `! isLoading`: that also goes false while the retryer
 	// is paused (background tab, offline blip), flipping the page back and forth.
-	const gateAnswered = gateSucceeded || opens.isError || ( needsClicks && clicks.isError );
+	const gateAnswered = gate.isSuccess || gate.isError;
 	const showEmailTabs = hasEmailStats || ( storedIsEmailTab && postId > 0 && ! gateAnswered );
 
 	const tabs = useMemo( () => {
@@ -104,7 +93,7 @@ export function usePostDetailTabs(
 
 	// Non-email/no-scope deep links normalize immediately; a pending or
 	// failed email-tab gate holds off so a real deep link isn't destroyed.
-	const canNormalize = ! storedIsEmailTab || postId <= 0 || gateSucceeded;
+	const canNormalize = ! storedIsEmailTab || postId <= 0 || gate.isSuccess;
 
 	useEffect( () => {
 		if ( canNormalize && storedTab !== activeTab ) {
