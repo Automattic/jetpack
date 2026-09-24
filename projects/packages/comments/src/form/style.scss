@@ -8,6 +8,7 @@
 	display: flex;
 	align-items: flex-start;
 	gap: 12px;
+	margin-block: 1em;
 }
 
 .jetpack-comments__avatar {
@@ -64,7 +65,7 @@
 	align-items: center;
 	justify-content: space-between;
 	gap: 12px;
-	padding-block-start: 12px;
+	padding-block-start: 1em;
 }
 
 .jetpack-comments__submit {
