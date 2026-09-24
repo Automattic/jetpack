@@ -57,7 +57,7 @@ class Main_Features {
 			'activity-log'  => array(
 				'info_url'         => 'https://jetpack.com/security/activity-log/',
 				'docs_url'         => 'https://jetpack.com/support/activity-log/',
-				'image'            => 'https://jetpack.com/wp-content/uploads/2020/05/421d9-95c1d-jetpack-activity-log-ui.png',
+				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/activity-log401x.png',
 				'name'             => __( 'Activity Log', 'jetpack-my-jetpack' ),
 				'description'      => __( 'See what changed on your site, when it happened, and who did it.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'When something breaks, see exactly what changed and who changed it, from published posts to plugin updates and logins. Every connected site gets its 20 most recent events for free.', 'jetpack-my-jetpack' ),
