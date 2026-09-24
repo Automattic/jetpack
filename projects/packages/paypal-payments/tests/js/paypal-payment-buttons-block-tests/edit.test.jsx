@@ -6757,8 +6757,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
 		} );
 
-		// The design draws no status row on the canvas, so the sidebar carries it.
-		it( 'shows the connection in the sidebar, not on the canvas', async () => {
+		it( 'shows Disconnect in the sidebar instead of a status on the canvas', async () => {
 			render(
 				<Edit
 					attributes={ {
@@ -6775,7 +6774,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.queryByText( 'PayPal Connected' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'shows the sandbox environment in the sidebar, not on the canvas', async () => {
+		it( 'shows the sandbox environment in the sidebar instead of a canvas badge', async () => {
 			render(
 				<Edit
 					attributes={ {

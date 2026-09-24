@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Make a % Width the same size in the editor as on the published page, fit the QR code link row in narrow columns, and remove the connection status and Sandbox badge from the editor canvas.
+Make a percentage Width the same size in the editor as on the published page, fit the QR code's link field and Copy Link button in narrow columns, and remove the connection status and Sandbox badge from the editor canvas.
