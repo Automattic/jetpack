@@ -14,13 +14,21 @@ import { Button, Icon, LinkButton, Stack, Text, VisuallyHidden } from '@wordpres
 import clsx from 'clsx';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Slide01Gradient } from '../../testimonials/slide-01-gradient';
-import { canContinue, isLastStep, openingStep, TOTAL_STEPS, wizardSteps } from './lib';
+import { assignLocation } from './assign-location';
+import {
+	canContinue,
+	isLastStep,
+	openingStep,
+	settleOnboarding,
+	TOTAL_STEPS,
+	wizardSteps,
+} from './lib';
 import { PanelArt } from './panel-art';
 import { PANEL_LINES } from './panel-type';
 import { ChoiceStep } from './steps/choice-step';
 import { StartStep } from './steps/start-step';
 import styles from './styles.module.scss';
-import type { WizardState, WizardStep } from './lib';
+import type { SettleOutcome, WizardState, WizardStep } from './lib';
 import type { MouseEvent } from 'react';
 
 /*
@@ -123,6 +131,22 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	const handleChoice = useCallback(
 		( value: string ) => setChoices( current => ( { ...current, [ step ]: value } ) ),
 		[ step ]
+	);
+
+	/*
+	 * Leaving is recorded before it happens, so the takeover does not interrupt this
+	 * person again. The navigation is in `finally`: a failed write only costs them
+	 * being offered setup once more, and holding them on a screen they asked to
+	 * leave would cost a great deal more.
+	 */
+	const handleExit = useCallback(
+		( outcome: SettleOutcome ) => ( event: MouseEvent< HTMLElement > ) => {
+			event.preventDefault();
+			settleOnboarding( outcome )
+				.catch( () => {} )
+				.finally( () => assignLocation( exitUrl ) );
+		},
+		[ exitUrl ]
 	);
 
 	const handleBack = useCallback( () => setStep( ( step - 1 ) as WizardStep ), [ step ] );
@@ -278,7 +302,12 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 								gap="md"
 								wrap="wrap"
 							>
-								<LinkButton variant="minimal" tone="neutral" href={ exitUrl }>
+								<LinkButton
+									variant="minimal"
+									tone="neutral"
+									href={ exitUrl }
+									onClick={ handleExit( 'skipped' ) }
+								>
 									{ __( 'Skip setup', 'jetpack-my-jetpack' ) }
 								</LinkButton>
 
@@ -291,11 +320,13 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 											</Button>
 										) }
 										{ isLastStep( step ) ? (
-											// Nothing is saved yet, so finishing is just leaving.
+											// Nothing else is saved yet, so finishing records that it
+											// happened and leaves.
 											<LinkButton
 												variant="solid"
 												className={ styles[ 'primary-green' ] }
 												href={ exitUrl }
+												onClick={ handleExit( 'completed' ) }
 											>
 												{ __( 'Finish', 'jetpack-my-jetpack' ) }
 											</LinkButton>

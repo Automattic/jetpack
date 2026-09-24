@@ -1,3 +1,4 @@
+import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import {
 	chartBar,
@@ -292,6 +293,33 @@ export function startBenefits(): WizardBenefit[] {
 			text: __( 'Forms, newsletters and podcasting, built in', 'jetpack-my-jetpack' ),
 		},
 	];
+}
+
+/**
+ * How the user left setup.
+ *
+ * Finishing is recorded for the whole site, because the flow connects the site
+ * and switches modules on; skipping is recorded against the person, so the first
+ * admin to say "not now" does not answer for everyone else.
+ */
+export type SettleOutcome = 'completed' | 'skipped';
+
+/**
+ * Record that setup has been settled, so the takeover stops interrupting.
+ *
+ * The caller navigates whether or not this lands. A failed write means the user
+ * is offered setup again on their next visit, which is a far better outcome than
+ * holding them on a screen they have asked to leave.
+ *
+ * @param outcome - Whether they finished or skipped.
+ * @return Resolves when the request has been answered.
+ */
+export function settleOnboarding( outcome: SettleOutcome ): Promise< unknown > {
+	return apiFetch( {
+		path: '/my-jetpack/v1/site/onboarding/settled',
+		method: 'POST',
+		data: { outcome },
+	} );
 }
 
 /**
