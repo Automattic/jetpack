@@ -1,5 +1,10 @@
 import '@testing-library/jest-dom';
-import { currentUserCan, getAdminUrl, isSimpleSite } from '@automattic/jetpack-script-data';
+import {
+	currentUserCan,
+	getAdminUrl,
+	getMyJetpackUrl,
+	isSimpleSite,
+} from '@automattic/jetpack-script-data';
 import { render, screen } from '@testing-library/react';
 import { isJetpackPluginActive } from '../../../../utils/is-jetpack-plugin-active';
 import { HelpFooter } from '../footer';
@@ -12,6 +17,7 @@ jest.mock( '../use-help-tracking', () => ( {
 
 const mockCurrentUserCan = currentUserCan as jest.MockedFunction< typeof currentUserCan >;
 const mockGetAdminUrl = getAdminUrl as jest.MockedFunction< typeof getAdminUrl >;
+const mockGetMyJetpackUrl = getMyJetpackUrl as jest.MockedFunction< typeof getMyJetpackUrl >;
 const mockIsSimpleSite = isSimpleSite as jest.MockedFunction< typeof isSimpleSite >;
 const mockIsJetpackPluginActive = isJetpackPluginActive as jest.MockedFunction<
 	typeof isJetpackPluginActive
@@ -22,6 +28,9 @@ describe( 'HelpFooter', () => {
 		jest.clearAllMocks();
 		mockCurrentUserCan.mockReturnValue( true );
 		mockGetAdminUrl.mockImplementation( path => `https://example.com/wp-admin/${ path }` );
+		mockGetMyJetpackUrl.mockImplementation(
+			( path = '' ) => `https://example.com/wp-admin/admin.php?page=my-jetpack${ path }`
+		);
 		mockIsJetpackPluginActive.mockReturnValue( true );
 		mockIsSimpleSite.mockReturnValue( false );
 	} );
@@ -32,6 +41,15 @@ describe( 'HelpFooter', () => {
 		expect( screen.getByRole( 'navigation', { name: 'Useful links' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'All Jetpack modules' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Debug information' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'sends All Jetpack modules to the Features list view', () => {
+		render( <HelpFooter /> );
+
+		expect( screen.getByRole( 'link', { name: 'All Jetpack modules' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/wp-admin/admin.php?page=my-jetpack#/features?view=list'
+		);
 	} );
 
 	it( 'hides the Useful links section on WordPress.com Simple sites', () => {

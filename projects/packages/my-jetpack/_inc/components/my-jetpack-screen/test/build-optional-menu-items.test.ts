@@ -23,7 +23,7 @@ describe( 'buildOptionalMenuItems', () => {
 			expect( items ).toHaveLength( 1 );
 			expect( items[ 0 ] ).toMatchObject( {
 				label: 'Modules',
-				href: 'https://example.com/wp-admin/admin.php?page=jetpack_modules',
+				href: 'https://example.com/wp-admin/admin.php?page=my-jetpack#/features?view=list',
 			} );
 		} );
 
