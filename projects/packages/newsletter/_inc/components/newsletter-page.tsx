@@ -1,4 +1,5 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { getSiteData } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -109,6 +110,13 @@ export default function NewsletterPage( {
 		? 'jetpack-newsletter-page__content jetpack-newsletter-page__content--padded'
 		: 'jetpack-newsletter-page__content';
 
+	const content = (
+		<>
+			<JitmSlot inset />
+			<div className={ contentClass }>{ children }</div>
+		</>
+	);
+
 	return (
 		<AdminPage
 			apiRoot={ getSiteData()?.rest_root }
@@ -133,10 +141,10 @@ export default function NewsletterPage( {
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-newsletter' ) }</Tabs.Tab>
 						</Tabs.List>
 					</div>
-					<div className={ contentClass }>{ children }</div>
+					{ content }
 				</Tabs.Root>
 			) : (
-				<div className={ contentClass }>{ children }</div>
+				content
 			) }
 		</AdminPage>
 	);

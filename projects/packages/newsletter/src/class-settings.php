@@ -59,13 +59,6 @@ class Settings {
 	private static $wp_build_original_screen_id = null;
 
 	/**
-	 * The dashboard screen hide_jitms_on_wp_build_dashboard() opts out of JITMs.
-	 *
-	 * @var string|null
-	 */
-	private static $jitm_opt_out_screen_id = null;
-
-	/**
 	 * Register Newsletter feature flags.
 	 *
 	 * @return void
@@ -280,7 +273,6 @@ class Settings {
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
-			self::maybe_opt_out_of_jitms( $page_suffix );
 		}
 	}
 
@@ -314,7 +306,6 @@ class Settings {
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
-			self::maybe_opt_out_of_jitms( $page_suffix );
 		}
 	}
 
@@ -633,41 +624,6 @@ class Settings {
 
 		$screen->id                        = self::$wp_build_original_screen_id;
 		self::$wp_build_original_screen_id = null;
-	}
-
-	/**
-	 * Opt the dashboard's screen out of JITMs while the wp-build dashboard serves it.
-	 *
-	 * @param string $screen_id The hook suffix the page was registered under, which is its screen ID.
-	 * @return void
-	 */
-	private static function maybe_opt_out_of_jitms( $screen_id ) {
-		// The legacy dashboard renders `#jp-admin-notices`, so it keeps its JITMs.
-		if ( ! self::is_modernized() ) {
-			return;
-		}
-
-		self::$jitm_opt_out_screen_id = $screen_id;
-		add_filter( 'jetpack_display_jitms_on_screen', array( __CLASS__, 'hide_jitms_on_wp_build_dashboard' ), 10, 2 );
-	}
-
-	/**
-	 * Keep JITMs off the wp-build dashboard, which has no `#jp-admin-notices` to show them in.
-	 *
-	 * Fetching a JITM records a view, so one the page hides would still be counted.
-	 *
-	 * @since 0.16.0
-	 *
-	 * @param bool   $show      Whether to show JITMs on the screen.
-	 * @param string $screen_id The screen ID.
-	 * @return bool
-	 */
-	public static function hide_jitms_on_wp_build_dashboard( $show, $screen_id ) {
-		if ( null !== self::$jitm_opt_out_screen_id && self::$jitm_opt_out_screen_id === $screen_id ) {
-			return false;
-		}
-
-		return $show;
 	}
 
 	/**
