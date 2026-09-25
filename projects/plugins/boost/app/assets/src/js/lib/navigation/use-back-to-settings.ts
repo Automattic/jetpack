@@ -5,7 +5,7 @@ import type { MouseEvent } from 'react';
 type BackToSettingsSource = 'back_button' | 'back_link' | 'breadcrumb';
 
 /**
- * Props for a control that goes back to Settings without reloading the page, recording which control was used.
+ * Goes back to Settings without reloading the page, recording which control was clicked.
  *
  * @param source - The control, sent as the `source` of `back_button_clicked`.
  * @return The Settings href and a click handler.
