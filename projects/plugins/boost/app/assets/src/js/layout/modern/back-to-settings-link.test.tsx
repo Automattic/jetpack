@@ -1,7 +1,7 @@
 /* No jest-dom or user-event in this project. */
-/* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute, testing-library/prefer-user-event */
+/* eslint-disable jest-dom/prefer-to-have-attribute, testing-library/prefer-user-event */
 import { fireEvent, render, screen } from '@testing-library/react';
-import SubpageBreadcrumbs from './subpage-breadcrumbs';
+import BackToSettingsLink from './back-to-settings-link';
 
 jest.mock( '$lib/navigation/navigation-context', () => ( {
 	useBoostNavigation: () => ( { returnToSettings: mockReturn, settingsHref: '/settings-href' } ),
@@ -10,30 +10,28 @@ jest.mock( '$lib/utils/analytics', () => ( { recordBoostEvent: jest.fn() } ) );
 
 const mockReturn = jest.fn();
 
-describe( 'SubpageBreadcrumbs', () => {
+describe( 'BackToSettingsLink', () => {
 	beforeEach( () => jest.clearAllMocks() );
 
-	it( 'links Boost to Settings and names the current page', () => {
-		render( <SubpageBreadcrumbs title="Cache debug log" /> );
+	it( 'links to Settings', () => {
+		render( <BackToSettingsLink /> );
 
-		expect( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) ).toBeTruthy();
-		expect( screen.getByRole( 'link', { name: 'Boost' } ).getAttribute( 'href' ) ).toBe(
+		expect( screen.getByRole( 'link', { name: 'Back to settings' } ).getAttribute( 'href' ) ).toBe(
 			'/settings-href'
 		);
-		expect( screen.getByText( 'Cache debug log' ) ).toBeTruthy();
 	} );
 
 	it( 'returns to Settings without a reload and records the click', () => {
 		const { recordBoostEvent } = jest.requireMock( '$lib/utils/analytics' );
-		render( <SubpageBreadcrumbs title="Cache debug log" /> );
+		render( <BackToSettingsLink /> );
 
-		const prevented = ! fireEvent.click( screen.getByRole( 'link', { name: 'Boost' } ) );
+		const prevented = ! fireEvent.click( screen.getByRole( 'link', { name: 'Back to settings' } ) );
 
 		expect( prevented ).toBe( true );
 		expect( mockReturn ).toHaveBeenCalledTimes( 1 );
 		expect( recordBoostEvent ).toHaveBeenCalledWith(
 			'back_button_clicked',
-			expect.objectContaining( { destination: '/', source: 'breadcrumb' } )
+			expect.objectContaining( { destination: '/', source: 'back_link' } )
 		);
 	} );
 } );
