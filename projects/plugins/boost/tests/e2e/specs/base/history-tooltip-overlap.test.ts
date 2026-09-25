@@ -363,6 +363,47 @@ test( 'Tabbing between daily charts preserves focus and resets the previous tool
 	await expect( tooltip ).toContainText( 'August 11, 2026' );
 } );
 
+test( 'Rings a keyboard-selected recorded day but not a hovered one', async ( { page } ) => {
+	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
+	const highlight = page.getByTestId( 'history-highlight' );
+	await hoverDay( chart, 21 );
+	await expect( highlight ).toHaveCSS( 'outline-style', 'none' );
+	await page.mouse.move( 0, 0 );
+	await chart.getByRole( 'grid' ).focus();
+	// An empty day's details are visible, and the browser rings them.
+	for ( const [ presses, date, outline ] of [
+		[ 1, 'August 11, 2026', 'none' ],
+		[ 21, 'September 1, 2026', 'solid' ],
+	] as const ) {
+		for ( let press = 0; press < presses; press++ ) {
+			await page.keyboard.press( 'ArrowRight' );
+		}
+		await expect( page.getByRole( 'tooltip' ) ).toContainText( date );
+		await expect( highlight ).toHaveCSS( 'outline-style', outline );
+	}
+	await page.keyboard.press( 'Escape' );
+	await expect( highlight ).toHaveCount( 0 );
+} );
+
+test( 'Clicking back into a keyboard-navigated chart moves focus without the ring', async ( {
+	page,
+} ) => {
+	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
+	await chart.getByRole( 'grid' ).focus();
+	for ( let press = 0; press < 22; press++ ) {
+		await page.keyboard.press( 'ArrowRight' );
+	}
+	await expect( page.locator( '[role="tooltip"]:focus-visible' ) ).toHaveCount( 1 );
+	await page.mouse.click( 5, 5 );
+	await hoverDay( chart, 21 );
+	await page.mouse.down();
+	await page.mouse.up();
+	// The chart re-selects its first day, which is empty here, so check the state the ring needs.
+	await expect( page.getByRole( 'tooltip' ).first() ).toBeFocused();
+	await expect( page.locator( '[role="tooltip"]:focus-visible' ) ).toHaveCount( 0 );
+	await expect( page.getByTestId( 'history-highlight' ) ).toHaveCSS( 'outline-style', 'none' );
+} );
+
 test( 'Tab from the paging controls reaches the chart once the day details close', async ( {
 	page,
 } ) => {

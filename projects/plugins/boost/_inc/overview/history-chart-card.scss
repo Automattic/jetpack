@@ -22,6 +22,12 @@ $tooltip-drop-shadow: 0 var(--wpds-border-width-xs) var(--wpds-border-width-sm) 
 		z-index: -1;
 	}
 
+	// A recorded day focuses visually hidden details, so its band shows the ring.
+	&:has([role="tooltip"]:focus-visible .boost-daily-history__score-tooltip) > &__highlight {
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+		outline-offset: calc(-1 * var(--wpds-border-width-focus));
+	}
+
 	&__body {
 		padding: 0;
 	}
