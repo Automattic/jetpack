@@ -2404,6 +2404,12 @@ importers:
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
+      '@testing-library/dom':
+        specifier: 10.4.2
+        version: 10.4.2
+      '@testing-library/jest-dom':
+        specifier: ^6.4.2
+        version: 6.9.1
       '@types/react':
         specifier: 18.3.31
         version: 18.3.31
@@ -2413,6 +2419,9 @@ importers:
       glob:
         specifier: 13.0.6
         version: 13.0.6
+      jest:
+        specifier: 30.5.1
+        version: 30.5.1
       react:
         specifier: 18.3.1
         version: 18.3.1
