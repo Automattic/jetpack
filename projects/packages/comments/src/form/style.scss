@@ -72,6 +72,12 @@
 .jetpack-comments__submit {
 	margin-inline-start: auto;
 
+	// Themes style their button but not its disabled state.
+	input:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
 	.is-busy {
 		cursor: progress;
 	}
