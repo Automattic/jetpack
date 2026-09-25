@@ -26,13 +26,18 @@ final class Comment_Likes_Section {
 	 * Render the section.
 	 */
 	public static function render(): void {
-		// The Like buttons section already explains what a disconnected site is missing.
-		if ( ! Environment::likes_supported() ) {
-			return;
-		}
-
 		printf( '<div class="jetpack-sharing-settings__section" id="%s">', esc_attr( self::ANCHOR ) );
 		printf( '<h2>%s</h2>', esc_html_x( 'Comment Likes', 'Settings header', 'jetpack-sharing-likes' ) );
+
+		// The module requires a connection, so offline mode gets no switch that would do nothing.
+		if ( ! Environment::likes_supported() ) {
+			printf(
+				'<p>%s</p>',
+				esc_html__( 'Comment Likes need a connection to WordPress.com. Connect your site to turn them on.', 'jetpack-sharing-likes' )
+			);
+			echo '</div>';
+			return;
+		}
 
 		if ( Environment::comment_likes_follow_likes_settings() ) {
 			Placement_Section::render_summary( Placement_Section::FEATURE_COMMENT_LIKES );

@@ -88,8 +88,10 @@ then the only way back.
 
 **Comment Likes are a section of their own, with no variants.** Comments have
 no block to move to, and the module runs without the Likes module, so
-`Comment_Likes_Section` renders wherever `Environment::likes_supported()` holds,
-and the Like buttons section describes the Likes module alone. The two platforms
+`Comment_Likes_Section` always renders, and the Like buttons section describes
+the Likes module alone. Where `Environment::likes_supported()` fails (offline
+mode), it says a connection is needed rather than offering a switch the module
+could not act on. The two platforms
 disagree on what Comment Likes read:
 
 - Simple stores the switch in `jetpack_comment_likes_enabled`, and wpcom's

@@ -134,14 +134,18 @@ class Comment_Likes_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The module requires a connection, and the Like buttons section already says so.
+	 * Every other section keeps its heading without a connection, so this one does too.
 	 */
-	public function test_renders_nothing_without_a_connection(): void {
+	public function test_says_a_connection_is_needed_instead_of_offering_the_switch(): void {
 		$this->given_modules( array( 'comment-likes' ) );
 
 		ob_start();
 		Comment_Likes_Section::render();
+		$markup = (string) ob_get_clean();
 
-		$this->assertSame( '', (string) ob_get_clean() );
+		$this->assertStringContainsString( '<h2>Comment Likes</h2>', $markup );
+		$this->assertStringContainsString( 'Comment Likes need a connection to WordPress.com.', $markup );
+		$this->assertStringNotContainsString( 'name="jetpack_comment_likes_enabled"', $markup );
+		$this->assertStringNotContainsString( 'value="' . Settings_Form::SECTION_COMMENT_LIKES . '"', $markup );
 	}
 }

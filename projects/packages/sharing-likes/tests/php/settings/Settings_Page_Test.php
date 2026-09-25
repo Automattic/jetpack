@@ -235,13 +235,13 @@ class Settings_Page_Test extends BaseTestCase {
 
 	/**
 	 * Sections are ruled off from one another, but a section that declines to
-	 * render must not leave a rule with nothing after it. Here the two feature
-	 * sections render and the extras section does not, so there is exactly one.
+	 * render must not leave a rule with nothing after it. Here the three feature
+	 * sections render and the extras section does not, so there are exactly two.
 	 */
 	public function test_rules_off_between_sections_but_not_after_the_last(): void {
 		add_filter( 'jetpack_disable_twitter_cards', '__return_true' );
 
-		$this->assertSame( 1, substr_count( $this->render_screen(), '<hr />' ) );
+		$this->assertSame( 2, substr_count( $this->render_screen(), '<hr />' ) );
 	}
 
 	/**
