@@ -45,7 +45,7 @@ p {
 		@at-root :where(#{&}) a {
 			color: $link-color;
 
-			// WordPress darkens a focused link; keep its focus ring but not that colour.
+			// Undo WordPress's darker a:focus text colour; its focus ring stays.
 			&:focus {
 				color: $link-color;
 			}
