@@ -86,6 +86,11 @@ $vpp-mono: ui-monospace, menlo, monospace;
 		text-decoration: none;
 	}
 
+	&.hide-player &__list-progress,
+	&__stage[hidden] {
+		display: none;
+	}
+
 	&.hide-player.is-layout-strip &__list {
 		margin-block-start: 0;
 	}

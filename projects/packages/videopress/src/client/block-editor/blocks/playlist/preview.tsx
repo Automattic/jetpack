@@ -30,7 +30,7 @@ type PlaylistPreviewProps = {
 /**
  * The front-end-mirroring preview rendered in the editor canvas, shared by
  * every block that renders a playlist. Without the player, entries are the
- * links the front end renders, kept from navigating away from the editor.
+ * links or buttons the front end renders, inert so the editor stays put.
  *
  * @param props              - Component props.
  * @param props.videos       - The entries to preview.
@@ -47,7 +47,9 @@ export default function PlaylistPreview( {
 	liveMetadata,
 	onSelect,
 }: PlaylistPreviewProps ) {
-	const { muteByDefault, showPlayer, showPositionNumber, showTotalRuntime } = attributes;
+	const { muteByDefault, showPlayer, entryClickAction, showPositionNumber, showTotalRuntime } =
+		attributes;
+	const opensInNewTab = ! showPlayer && entryClickAction !== 'show-player';
 	const current = videos[ currentIndex ];
 
 	/*
@@ -208,12 +210,12 @@ export default function PlaylistPreview( {
 
 							return (
 								<li className="videopress-playlist__entry" key={ `${ entry.guid }-${ index }` }>
-									{ showPlayer ? (
+									{ ! opensInNewTab ? (
 										<button
 											type="button"
 											className={ entryClasses }
 											aria-current={ isCurrent ? 'true' : undefined }
-											onClick={ () => onSelect( index ) }
+											onClick={ showPlayer ? () => onSelect( index ) : undefined }
 										>
 											{ entryContent }
 										</button>

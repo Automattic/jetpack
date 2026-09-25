@@ -6,12 +6,12 @@ import {
 	InspectorControls,
 	useSettings,
 } from '@wordpress/block-editor';
-import { PanelBody, ToggleControl } from '@wordpress/components';
+import { PanelBody, RadioControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 /**
  * Types
  */
-import type { PlaylistDisplayAttributes, PlaylistLayout } from './types';
+import type { PlaylistDisplayAttributes, PlaylistEntryClickAction, PlaylistLayout } from './types';
 
 type ControlsProps = {
 	attributes: PlaylistDisplayAttributes;
@@ -38,6 +38,7 @@ const LAYOUT_OPTIONS: LayoutOption[] = [
 export function PlaylistSettingsPanels( { attributes, setAttributes }: ControlsProps ) {
 	const {
 		showPlayer,
+		entryClickAction,
 		autoplayNext,
 		muteByDefault,
 		loopPlaylist,
@@ -60,26 +61,44 @@ export function PlaylistSettingsPanels( { attributes, setAttributes }: ControlsP
 		'jetpack-videopress-pkg'
 	);
 
+	// With the player hidden for good, the playback options have nothing to act on.
+	const playbackDisabled = ! showPlayer && entryClickAction !== 'show-player';
+
 	return (
 		<>
 			<PanelBody title={ __( 'Playback', 'jetpack-videopress-pkg' ) }>
 				<ToggleControl
 					__nextHasNoMarginBottom
 					label={ __( 'Show player', 'jetpack-videopress-pkg' ) }
-					help={ __(
-						'Turn off to list the videos only. Each one then opens on VideoPress in a new tab.',
-						'jetpack-videopress-pkg'
-					) }
+					help={ __( 'Turn off to show only the list of videos.', 'jetpack-videopress-pkg' ) }
 					checked={ showPlayer }
 					onChange={ ( value: boolean ) => setAttributes( { showPlayer: value } ) }
 				/>
-				{ /* The remaining options only apply to the block's own player. */ }
+				{ ! showPlayer && (
+					<RadioControl
+						label={ __( 'When a video is clicked', 'jetpack-videopress-pkg' ) }
+						selected={ entryClickAction }
+						options={ [
+							{
+								label: __( 'Open it on VideoPress in a new tab', 'jetpack-videopress-pkg' ),
+								value: 'new-tab',
+							},
+							{
+								label: __( 'Show the player and play it', 'jetpack-videopress-pkg' ),
+								value: 'show-player',
+							},
+						] }
+						onChange={ ( value: string ) =>
+							setAttributes( { entryClickAction: value as PlaylistEntryClickAction } )
+						}
+					/>
+				) }
 				<ToggleControl
 					__nextHasNoMarginBottom
 					label={ __( 'Autoplay next', 'jetpack-videopress-pkg' ) }
 					help={ loopPlaylist ? autoplayImpliedHelp : autoplayHelp }
 					checked={ autoplayNext || loopPlaylist }
-					disabled={ loopPlaylist || ! showPlayer }
+					disabled={ loopPlaylist || playbackDisabled }
 					onChange={ ( value: boolean ) => setAttributes( { autoplayNext: value } ) }
 				/>
 				<ToggleControl
@@ -87,7 +106,7 @@ export function PlaylistSettingsPanels( { attributes, setAttributes }: ControlsP
 					label={ __( 'Mute by default', 'jetpack-videopress-pkg' ) }
 					help={ __( 'Start playback muted.', 'jetpack-videopress-pkg' ) }
 					checked={ muteByDefault }
-					disabled={ ! showPlayer }
+					disabled={ playbackDisabled }
 					onChange={ ( value: boolean ) => setAttributes( { muteByDefault: value } ) }
 				/>
 				<ToggleControl
@@ -98,7 +117,7 @@ export function PlaylistSettingsPanels( { attributes, setAttributes }: ControlsP
 						'jetpack-videopress-pkg'
 					) }
 					checked={ loopPlaylist }
-					disabled={ ! showPlayer }
+					disabled={ playbackDisabled }
 					onChange={ ( value: boolean ) => setAttributes( { loopPlaylist: value } ) }
 				/>
 			</PanelBody>

@@ -56,6 +56,7 @@ const DEFAULT_ATTRIBUTES: LatestVideosPlaylistAttributes = {
 	layout: 'side-rail',
 	darkPlayer: false,
 	showPlayer: true,
+	entryClickAction: 'new-tab',
 	autoplayNext: false,
 	muteByDefault: false,
 	loopPlaylist: false,

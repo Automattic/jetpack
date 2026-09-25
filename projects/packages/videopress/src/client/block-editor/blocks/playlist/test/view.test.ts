@@ -253,6 +253,44 @@ describe( 'initPlaylistBlock', () => {
 		expect( entries[ 0 ] ).toHaveAttribute( 'target', '_blank' );
 	} );
 
+	it( 'reveals a hidden player on the first click and plays the clicked entry', () => {
+		document.body.innerHTML = `
+			<figure class="wp-block-videopress-playlist videopress-playlist is-layout-side-rail hide-player" data-autoplay-next="1" data-loop="0">
+				<div class="videopress-playlist__stage" hidden>
+					<div class="videopress-playlist__player"><iframe class="videopress-playlist__iframe" title="Video 1"></iframe></div>
+				</div>
+				<div class="videopress-playlist__list">
+					<ol class="videopress-playlist__entries">
+						<li><button type="button" class="videopress-playlist__select" data-guid="aaaaaaaa" data-embed-url="${ EMBED_A }"></button></li>
+						<li><button type="button" class="videopress-playlist__select" data-guid="bbbbbbbb" data-embed-url="${ EMBED_B }"></button></li>
+					</ol>
+				</div>
+			</figure>
+		`;
+		const root = document.querySelector< HTMLElement >( '.wp-block-videopress-playlist' );
+		const stage = root.querySelector< HTMLElement >( '.videopress-playlist__stage' );
+		const iframe = root.querySelector< HTMLIFrameElement >( '.videopress-playlist__iframe' );
+		initPlaylistBlock( root );
+
+		// Nothing loads until a visitor asks for a video.
+		expect( stage.hidden ).toBe( true );
+		expect( iframe ).not.toHaveAttribute( 'src' );
+
+		const entries = root.querySelectorAll< HTMLButtonElement >( '.videopress-playlist__select' );
+		entries[ 1 ].click();
+
+		expect( stage.hidden ).toBe( false );
+		expect( root ).not.toHaveClass( 'hide-player' );
+		expect( iframe.src ).toBe( EMBED_B );
+		expect( entries[ 1 ] ).toHaveClass( 'is-current' );
+		expect( entries[ 1 ] ).toHaveAttribute( 'aria-current', 'true' );
+
+		// Once revealed it is a normal playlist: clicking another entry switches videos.
+		entries[ 0 ].click();
+		expect( iframe.src ).toBe( EMBED_A );
+		expect( entries[ 0 ] ).toHaveClass( 'is-current' );
+	} );
+
 	it( 'does nothing on a block without playable entries', () => {
 		document.body.innerHTML = `
 			<figure class="wp-block-videopress-playlist" data-autoplay-next="1">

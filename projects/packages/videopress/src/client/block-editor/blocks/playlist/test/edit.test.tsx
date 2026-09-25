@@ -89,6 +89,7 @@ const DEFAULT_ATTRIBUTES: PlaylistAttributes = {
 	layout: 'side-rail',
 	darkPlayer: false,
 	showPlayer: true,
+	entryClickAction: 'new-tab',
 	autoplayNext: false,
 	muteByDefault: false,
 	loopPlaylist: false,
@@ -605,6 +606,41 @@ describe( 'PlaylistEdit', () => {
 		expect( screen.getByRole( 'checkbox', { name: 'Autoplay next' } ) ).toBeDisabled();
 		expect( screen.getByRole( 'checkbox', { name: 'Mute by default' } ) ).toBeDisabled();
 		expect( screen.getByRole( 'checkbox', { name: 'Loop playlist' } ) ).toBeDisabled();
+	} );
+
+	it( 'hides the click behavior while the player shows', async () => {
+		renderEdit( { videos: [ { guid: 'aaaaaaaa' } ] } );
+		// Let the live metadata lookup settle.
+		await expect( screen.findAllByText( 'First' ) ).resolves.toBeTruthy();
+		expect( screen.queryByText( 'When a video is clicked' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers the click behavior while the player is off', async () => {
+		const setAttributes = jest.fn();
+		renderEdit( { videos: [ { guid: 'aaaaaaaa' } ], showPlayer: false }, setAttributes );
+		expect(
+			screen.getByRole( 'radio', { name: 'Open it on VideoPress in a new tab' } )
+		).toBeChecked();
+
+		await userEvent.click( screen.getByRole( 'radio', { name: 'Show the player and play it' } ) );
+		expect( setAttributes ).toHaveBeenCalledWith( { entryClickAction: 'show-player' } );
+	} );
+
+	it( 'keeps entries as buttons and playback options on when a click reveals the player', async () => {
+		renderEdit( {
+			videos: [ { guid: 'aaaaaaaa' }, { guid: 'bbbbbbbb' } ],
+			showPlayer: false,
+			entryClickAction: 'show-player',
+		} );
+		await expect( screen.findAllByText( 'Second' ) ).resolves.toBeTruthy();
+
+		expect( screen.getByRole( 'figure' ) ).toHaveClass( 'hide-player' );
+		expect( screen.queryByTitle( 'Video Playlist player' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { current: true } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'checkbox', { name: 'Autoplay next' } ) ).toBeEnabled();
+		expect( screen.getByRole( 'checkbox', { name: 'Mute by default' } ) ).toBeEnabled();
+		expect( screen.getByRole( 'checkbox', { name: 'Loop playlist' } ) ).toBeEnabled();
 	} );
 
 	it( 'changes the per-entry display options from the sidebar', async () => {

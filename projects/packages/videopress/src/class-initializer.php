@@ -892,7 +892,12 @@ class Initializer {
 			? $block_attributes['layout']
 			: 'side-rail';
 
-		$show_player    = $enabled( 'showPlayer' );
+		$show_player = $enabled( 'showPlayer' );
+		// A hidden player can still be revealed by the first click on an entry.
+		$reveal_player  = ! $show_player
+			&& isset( $block_attributes['entryClickAction'] )
+			&& 'show-player' === $block_attributes['entryClickAction'];
+		$has_player     = $show_player || $reveal_player;
 		$show_thumbnail = $enabled( 'showThumbnail' );
 		$show_title     = $enabled( 'showTitle' );
 		$show_res       = $enabled( 'showResolution' );
@@ -985,11 +990,12 @@ class Initializer {
 				? sprintf( '<span class="videopress-playlist__entry-duration">%s</span>', esc_html( $timecode ) )
 				: '';
 
-			if ( $show_player ) {
+			if ( $has_player ) {
+				$is_current  = $show_player && 0 === $index;
 				$entry_open  = sprintf(
 					'<button type="button" class="videopress-playlist__select%1$s"%2$s data-guid="%3$s" data-embed-url="%4$s" data-title="%5$s" data-position="%6$s" data-details="%7$s" data-progress="%8$s">',
-					0 === $index ? ' is-current' : '',
-					0 === $index ? ' aria-current="true"' : '',
+					$is_current ? ' is-current' : '',
+					$is_current ? ' aria-current="true"' : '',
 					esc_attr( $entry['guid'] ),
 					esc_url( self::playlist_embed_url( $entry['guid'], true, $muted ) ),
 					esc_attr( $title ),
@@ -1053,18 +1059,28 @@ class Initializer {
 			)
 			: '';
 
-		// Without a player only the grid layout's runtime line remains of the stage.
-		$stage_markup = $show_player
-			? sprintf(
+		if ( $show_player ) {
+			$stage_markup = sprintf(
 				'<div class="videopress-playlist__stage">' .
 					'<div class="videopress-playlist__player"><iframe class="videopress-playlist__iframe" title="%1$s" src="%2$s" allowfullscreen allow="clipboard-write"></iframe></div>%3$s</div>',
 				esc_attr( $first_title ),
 				esc_url( self::playlist_embed_url( $first['guid'], false, $muted ) ),
 				$now_markup
-			)
-			: $now_markup;
+			);
+		} elseif ( $reveal_player ) {
+			// No src: nothing loads until the view script reveals the stage on a click.
+			$stage_markup = sprintf(
+				'<div class="videopress-playlist__stage" hidden>' .
+					'<div class="videopress-playlist__player"><iframe class="videopress-playlist__iframe" title="%1$s" allowfullscreen allow="clipboard-write"></iframe></div></div>%2$s',
+				esc_attr( $first_title ),
+				$now_markup
+			);
+		} else {
+			// Without a player only the grid layout's runtime line remains of the stage.
+			$stage_markup = $now_markup;
+		}
 
-		$progress_markup = $show_player && '' !== $total_timecode
+		$progress_markup = $has_player && '' !== $total_timecode
 			? sprintf(
 				'<span class="videopress-playlist__list-progress">%s</span>',
 				/* translators: 1: position of the current video. 2: number of videos. 3: total playlist timecode. */

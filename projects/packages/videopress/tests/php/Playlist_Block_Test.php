@@ -292,6 +292,55 @@ class Playlist_Block_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A hidden player set to show on click renders click-to-play entries and an
+	 * empty, hidden stage for the view script to reveal.
+	 */
+	public function test_render_hidden_player_revealed_on_click() {
+		$markup = VideoPress_Initializer::render_videopress_playlist_block(
+			$this->attributes(
+				array(
+					'showPlayer'       => false,
+					'entryClickAction' => 'show-player',
+				)
+			)
+		);
+
+		$this->assertStringContainsString( 'hide-player', $markup );
+		$this->assertStringContainsString( '<div class="videopress-playlist__stage" hidden>', $markup );
+		$this->assertStringContainsString(
+			'<iframe class="videopress-playlist__iframe" title="Video 1" allowfullscreen',
+			$markup
+		);
+
+		// Entries play in the block's player, but none is playing yet.
+		$this->assertSame( 2, substr_count( $markup, 'data-embed-url="https://videopress.com/embed/' ) );
+		$this->assertStringNotContainsString( 'href=', $markup );
+		$this->assertStringNotContainsString( 'is-current', $markup );
+		$this->assertStringNotContainsString( 'aria-current', $markup );
+
+		// The progress counter is there for once the player shows; CSS hides it until then.
+		$this->assertStringContainsString( 'videopress-playlist__list-progress', $markup );
+		$this->assertStringContainsString( '>Playlist<', $markup );
+	}
+
+	/**
+	 * An unknown click action falls back to opening entries in a new tab.
+	 */
+	public function test_render_hidden_player_ignores_unknown_click_action() {
+		$markup = VideoPress_Initializer::render_videopress_playlist_block(
+			$this->attributes(
+				array(
+					'showPlayer'       => false,
+					'entryClickAction' => 'popup',
+				)
+			)
+		);
+
+		$this->assertStringNotContainsString( 'videopress-playlist__stage', $markup );
+		$this->assertSame( 2, substr_count( $markup, 'target="_blank"' ) );
+	}
+
+	/**
 	 * Title font presets render as CSS custom properties; anything that isn't
 	 * a plain preset slug is dropped.
 	 */
