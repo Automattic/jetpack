@@ -557,12 +557,14 @@ describe( 'TopPostsWidget', () => {
 		expect( screen.getByText( 'No comparison data' ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders the empty state when there are no views', async () => {
+	it( 'renders the generic empty state when there are no views', async () => {
 		mockApiFetch.mockResolvedValue( { date: '2026-06-10', days: {} } );
 
 		render( <TopPostsWidget attributes={ {} } /> );
 
-		await expect( screen.findByText( 'No views in this period.' ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByText( 'We couldn’t find results for this time period.' )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'caps the visible posts list at the row limit including the homepage entry', async () => {

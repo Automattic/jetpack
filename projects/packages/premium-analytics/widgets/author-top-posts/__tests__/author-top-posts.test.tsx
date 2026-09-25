@@ -79,7 +79,7 @@ describe( 'AuthorTopPostsWidget', () => {
 		expect( requestedPath ).toContain( 'max=0' );
 	} );
 
-	it( 'shows the no-views empty state for an author missing from the period', async () => {
+	it( 'shows the generic empty state for an author missing from the period', async () => {
 		mockApiFetch.mockResolvedValue( TOP_AUTHORS_SUMMARY );
 
 		render(
@@ -87,7 +87,7 @@ describe( 'AuthorTopPostsWidget', () => {
 		);
 
 		await expect(
-			screen.findByText( 'No views recorded for this author’s posts in this period.' )
+			screen.findByText( 'We couldn’t find results for this time period.' )
 		).resolves.toBeInTheDocument();
 	} );
 

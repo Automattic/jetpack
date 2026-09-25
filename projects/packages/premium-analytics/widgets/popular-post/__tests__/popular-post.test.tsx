@@ -152,6 +152,19 @@ describe( 'PopularPostWidget', () => {
 		expect( topPostsRequests()[ 0 ] ).not.toContain( '2023' );
 	} );
 
+	it( 'names its own window, not the selected period, when the site has no views', async () => {
+		mockApiFetch.mockResolvedValue( {
+			...topPostsResponse,
+			summary: { postviews: [], total_views: 0 },
+		} );
+
+		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
+
+		await expect(
+			screen.findByText( 'No post views in the last 12 months.' )
+		).resolves.toBeInTheDocument();
+	} );
+
 	it( 'ignores a URL author scope unless the instance is author-scoped', async () => {
 		const reportParams = { ...yearReportParams( 2022 ), author_id: 7 };
 		const { unmount } = render( <PopularPostWidget attributes={ { reportParams } } /> );
@@ -164,7 +177,7 @@ describe( 'PopularPostWidget', () => {
 		render( <PopularPostWidget attributes={ { reportParams, authorScoped: true } } /> );
 
 		await expect(
-			screen.findByText( 'No views recorded for this author’s posts in this period.' )
+			screen.findByText( 'We couldn’t find results for this time period.' )
 		).resolves.toBeInTheDocument();
 		expect( topPostsRequests() ).toHaveLength( 0 );
 		expect(

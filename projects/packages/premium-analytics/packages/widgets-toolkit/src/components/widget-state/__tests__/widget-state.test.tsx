@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { search } from '@jetpack-premium-analytics/icons';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { chartBar } from '@wordpress/icons';
 import { useLayoutEffect, useState } from 'react';
@@ -218,28 +219,35 @@ describe( 'WidgetState', () => {
 		expect( onClick ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'renders no empty icon by default, but honors a caller icon distinct from the error icon', () => {
-		const providedGlyphPath = iconPathOf( <>{ chartBar }</> );
-		const errorGlyphPath = iconPathOf( errorStateIcon );
-		// Sanity: the sample and error source glyphs really are different.
-		expect( providedGlyphPath ).not.toBe( errorGlyphPath );
+	it( 'renders the generic magnifier and copy when the widget passes no empty state', () => {
+		const { container } = render(
+			<WidgetState isLoading={ false } isError={ false } isEmpty>
+				{ CONTENT }
+			</WidgetState>
+		);
+		expect(
+			screen.getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
+		expect( svgPathOf( container ) ).toBe( iconPathOf( <>{ search }</> ) );
+	} );
 
-		// Default empty state carries no icon — no domain-specific default glyph.
-		const { container: bareEmpty, unmount: unmountBare } = render(
+	it( 'renders no icon, not the generic magnifier, for a widget’s own copy that names none', () => {
+		const { container } = render(
 			<WidgetState
 				isLoading={ false }
 				isError={ false }
 				isEmpty
-				empty={ { description: 'No posts here.' } }
+				empty={ { description: 'Open an author to see their top posts here.' } }
 			>
 				{ CONTENT }
 			</WidgetState>
 		);
-		expect( svgPathOf( bareEmpty ) ).toBeNull();
-		unmountBare();
+		expect( screen.getByText( 'Open an author to see their top posts here.' ) ).toBeInTheDocument();
+		expect( svgPathOf( container ) ).toBeNull();
+	} );
 
-		// A caller-provided icon renders and stays distinct from the error glyph.
-		const { container: emptyContainer, unmount: unmountEmpty } = render(
+	it( 'renders the icon a widget names for its own copy instead of the generic magnifier', () => {
+		const { container } = render(
 			<WidgetState
 				isLoading={ false }
 				isError={ false }
@@ -249,12 +257,11 @@ describe( 'WidgetState', () => {
 				{ CONTENT }
 			</WidgetState>
 		);
-		const emptyIcon = svgPathOf( emptyContainer );
-		expect( emptyIcon ).toBe( providedGlyphPath );
-		expect( emptyIcon ).not.toBe( errorGlyphPath );
-		unmountEmpty();
+		expect( svgPathOf( container ) ).toBe( iconPathOf( <>{ chartBar }</> ) );
+	} );
 
-		const { container: errorContainer } = render(
+	it( 'renders the error glyph, not an empty-state one, when the fetch failed', () => {
+		const { container } = render(
 			<WidgetState
 				isLoading={ false }
 				isError
@@ -264,7 +271,7 @@ describe( 'WidgetState', () => {
 				{ CONTENT }
 			</WidgetState>
 		);
-		expect( svgPathOf( errorContainer ) ).toBe( errorGlyphPath );
+		expect( svgPathOf( container ) ).toBe( iconPathOf( errorStateIcon ) );
 	} );
 
 	it( 'leaves a refetch that resolves quickly alone, drawing no skeleton at all', () => {
