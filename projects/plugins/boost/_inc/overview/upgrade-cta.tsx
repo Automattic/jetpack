@@ -6,7 +6,7 @@ import { canOfferUpgrade } from './lib/use-modules-state';
 
 export default function UpgradeCTA() {
 	const container = useRef< HTMLSpanElement >( null );
-	const [ isUnanswered, setIsUnanswered ] = useState( false );
+	const [ showFallbackLink, setShowFallbackLink ] = useState( false );
 	useEffect( () => {
 		if ( ! container.current ) {
 			return;
@@ -14,7 +14,7 @@ export default function UpgradeCTA() {
 		const request: UpgradeSlotRequest = { container: container.current };
 		window.dispatchEvent( new CustomEvent( OVERVIEW_UPGRADE_EVENT, { detail: request } ) );
 		if ( ! request.unmount ) {
-			setIsUnanswered( true );
+			setShowFallbackLink( true );
 			return;
 		}
 		return () => request.unmount?.();
@@ -22,7 +22,7 @@ export default function UpgradeCTA() {
 	if ( ! canOfferUpgrade() ) {
 		return null;
 	}
-	if ( isUnanswered ) {
+	if ( showFallbackLink ) {
 		return <Link href={ upgradeHref }>{ __( 'Upgrade now', 'jetpack-boost' ) }</Link>;
 	}
 	return <span ref={ container } />;
