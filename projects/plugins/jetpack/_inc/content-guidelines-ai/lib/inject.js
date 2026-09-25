@@ -312,22 +312,22 @@ function runAll() {
 		// Per-section generate button in the form's Save/Clear row. Keep Save at
 		// the row's outer edge: newer Gutenberg right-aligns [Clear][Save], older
 		// left-aligns [Save][Clear], so the Save button's position picks the side.
+		const saveButton = form.querySelector( 'button[type="submit"]' );
+		const hStack = saveButton?.parentElement;
+		const isSaveLast = hStack?.lastElementChild === saveButton;
 		inject(
 			`button-${ slug }`,
-			() => {
-				const saveButton = form.querySelector( 'button[type="submit"]' );
-				const hStack = saveButton?.parentElement;
-				const isSaveLast = hStack?.lastElementChild === saveButton;
-				return hStack
+			() =>
+				hStack
 					? {
 							parent: hStack,
 							before: isSaveLast ? hStack.firstElementChild : null,
 							className: 'jetpack-content-guidelines-ai__section-button-container',
 						}
-					: null;
-			},
+					: null,
 			SectionGenerateButton,
-			{ slug }
+			// Newer Gutenberg's row has bare "Clear" and "Save", so use short labels.
+			{ slug, isShortLabel: isSaveLast }
 		);
 	}
 
