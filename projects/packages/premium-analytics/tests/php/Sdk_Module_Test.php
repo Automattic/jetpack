@@ -69,8 +69,21 @@ class Sdk_Module_Test extends TestCase {
 		);
 	}
 
+	/**
+	 * The registration the resolver finds in the fixture registry.
+	 *
+	 * @param bool $minified Whether to serve the minified bundle.
+	 * @return array
+	 */
+	private function registration( $minified = true ) {
+		$registration = get_sdk_module_registration( $this->modules(), array( 'build_url' => self::BUILD_URL ), $this->build_dir, $minified );
+		$this->assertIsArray( $registration );
+
+		return (array) $registration;
+	}
+
 	public function test_resolves_the_sdk_name_to_the_facade_bundle() {
-		$registration = get_sdk_module_registration( $this->modules(), array( 'build_url' => self::BUILD_URL ), $this->build_dir );
+		$registration = $this->registration();
 
 		$this->assertSame( self::BUILD_URL . 'modules/sdk/index.min.js', $registration['src'] );
 		$this->assertSame( array( '@jetpack-premium-analytics/widgets-toolkit' ), $registration['deps'] );
@@ -78,7 +91,7 @@ class Sdk_Module_Test extends TestCase {
 	}
 
 	public function test_serves_the_unminified_bundle_when_asked() {
-		$registration = get_sdk_module_registration( $this->modules(), array( 'build_url' => self::BUILD_URL ), $this->build_dir, false );
+		$registration = $this->registration( false );
 
 		$this->assertSame( self::BUILD_URL . 'modules/sdk/index.js', $registration['src'] );
 	}
@@ -89,9 +102,10 @@ class Sdk_Module_Test extends TestCase {
 
 	public function test_the_facade_id_is_the_one_wp_build_gives_the_sdk_package() {
 		// wp-build names a module after the package namespace and the folder under `packages/`.
-		$package = json_decode( file_get_contents( __DIR__ . '/../../package.json' ), true );
+		$package   = (array) json_decode( (string) file_get_contents( __DIR__ . '/../../package.json' ), true );
+		$namespace = $package['wpPlugin']['packageNamespace'] ?? null;
 
-		$this->assertSame( SDK_FACADE_MODULE_ID, '@' . $package['wpPlugin']['packageNamespace'] . '/sdk' );
+		$this->assertSame( SDK_FACADE_MODULE_ID, '@' . $namespace . '/sdk' );
 		$this->assertFileExists( __DIR__ . '/../../packages/sdk/package.json' );
 	}
 }
