@@ -63,6 +63,16 @@ describe( 'IconTooltip', () => {
 		expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'names the icon trigger', () => {
+		render( <IconTooltip { ...testProps } /> );
+		expect( screen.getByRole( 'button', { name: 'More information' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'names the icon trigger with iconLabel', () => {
+		render( <IconTooltip { ...testProps } iconLabel="About Image Quality" /> );
+		expect( screen.getByRole( 'button', { name: 'About Image Quality' } ) ).toBeInTheDocument();
+	} );
+
 	it( 'leaves focus alone when opening on hover', async () => {
 		const user = userEvent.setup();
 		render(

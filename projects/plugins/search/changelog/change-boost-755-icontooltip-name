@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Give information icons an accessible name for screen readers.

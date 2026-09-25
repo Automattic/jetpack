@@ -42,6 +42,11 @@ export type IconTooltipProps = {
 	iconCode?: ComponentProps< typeof Icon >[ 'icon' ];
 
 	/**
+	 * The accessible name of the icon trigger. Defaults to "More information".
+	 */
+	iconLabel?: string;
+
+	/**
 	 * The title of Popover.
 	 */
 	title?: string;
