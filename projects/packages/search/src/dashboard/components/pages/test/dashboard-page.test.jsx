@@ -14,9 +14,12 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 	getProductCheckoutUrl: jest.fn( () => 'https://example.com/checkout' ),
 } ) );
 
-jest.mock( '@automattic/jetpack-connection', () => ( {
+let mockHasConnectionError = false;
+
+jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => ( {
+	__esModule: true,
 	ConnectionError: () => <div data-testid="connection-error" />,
-	useConnectionErrorNotice: () => ( { hasConnectionError: false } ),
+	default: () => ( { hasConnectionError: mockHasConnectionError } ),
 } ) );
 
 jest.mock( '@wordpress/data', () => ( {
@@ -138,6 +141,7 @@ describe( 'DashboardPage', () => {
 		mockAIAgentAccessControl.mockClear();
 		mockWooCommerceProductSearchControl.mockClear();
 		window.history.replaceState( {}, '', DEFAULT_TEST_URL );
+		mockHasConnectionError = false;
 		mockSelectMethods = createSelectMethods();
 		mockDispatchMethods = {
 			removeNotice: jest.fn(),
@@ -547,6 +551,28 @@ describe( 'DashboardPage', () => {
 		);
 		expect( window.location.hash ).toBe( '#/overview' );
 		expect( window.location.search ).not.toContain( 'tab=' );
+	} );
+
+	test( 'renders the connection error notice above the tab panels, on every tab', () => {
+		mockHasConnectionError = true;
+
+		render( <DashboardPage /> );
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		const notice = screen.getByTestId( 'connection-error' );
+		expect( notice ).toBeInTheDocument();
+		expect( screen.getByTestId( 'module-control' ) ).toBeInTheDocument();
+
+		// The notice sits above the tab panels, so it can't scroll away with one
+		// tab's content and shows regardless of which tab is active.
+		const tabList = screen.getByRole( 'tablist' );
+		expect( notice.compareDocumentPosition( tabList ) ).toBe( Node.DOCUMENT_POSITION_PRECEDING );
+	} );
+
+	test( 'renders no connection error notice when the connection is healthy', () => {
+		render( <DashboardPage /> );
+
+		expect( screen.queryByTestId( 'connection-error' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'canonicalizes the URL when an external hashchange lands on a legacy slug', () => {
