@@ -22,9 +22,8 @@
 	margin-block-start: 0;
 }
 
-// `Notice.Root` (`@wordpress/ui`) ships with no margin of its own, so this
-// gives it the same trailing gap the status/trouble/warnings banners get.
-// `:empty` matches only when `<ConnectionError>` itself rendered null.
+// `Notice.Root` has no margin of its own: match the banners' gap,
+// and take no space when there is no error.
 .jpb-connection-error {
 	margin-block-end: 16px;
 
