@@ -19,6 +19,7 @@ use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_CONTAINS_PAYWALL
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
+use const Automattic\Jetpack\Extensions\Subscriptions\NEWSLETTER_COLUMN_ID;
 
 define( 'EARN_JWT_SIGNING_KEY', 'whatever=' );
 
@@ -234,6 +235,34 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		$this->assertSame( (string) $stored_access, get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true ) );
 		$this->assertSame( $expected_access, Jetpack_Memberships::get_post_access_level( $post_id ) );
 		$this->assertSame( $expected_paywalled, (bool) get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
+	}
+
+	/**
+	 * The Newsletter column in the posts list shows the access level visitors get, not the raw meta.
+	 *
+	 * @param string      $content         Post content.
+	 * @param string|null $stored_access   Access level stored on the post, or null for none.
+	 * @param string      $expected_access Access level expected from Jetpack_Memberships::get_post_access_level().
+	 * @param bool        $unused          Paywalled-content flag, covered by the test above.
+	 * @dataProvider paywall_access_level_provider
+	 */
+	#[DataProvider( 'paywall_access_level_provider' )]
+	public function test_newsletter_column_shows_effective_access_level( $content, $stored_access, $expected_access, $unused ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$labels = array(
+			'everybody'        => 'Everybody',
+			'subscribers'      => 'Subscribers',
+			'paid_subscribers' => 'Paid Subscribers',
+		);
+
+		$post_id = $this->factory->post->create( array( 'post_content' => $content ) );
+		if ( null !== $stored_access ) {
+			update_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, $stored_access );
+		}
+		Jetpack_Memberships::clear_post_access_level_cache();
+
+		ob_start();
+		\Automattic\Jetpack\Extensions\Subscriptions\render_newsletter_access_rows( NEWSLETTER_COLUMN_ID, $post_id );
+		$this->assertSame( $labels[ $expected_access ], ob_get_clean() );
 	}
 
 	/**

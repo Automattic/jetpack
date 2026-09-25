@@ -268,7 +268,7 @@ function render_newsletter_access_rows( $column_id, $post_id ) {
 		return;
 	}
 
-	$access_level = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+	$access_level = Jetpack_Memberships::get_post_access_level( $post_id );
 
 	switch ( $access_level ) {
 		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
