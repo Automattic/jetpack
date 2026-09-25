@@ -65,6 +65,7 @@ class WordAds_Premium_Analytics {
 			self::SECTION_ID,
 			array(
 				'label'               => __( 'Ads', 'jetpack' ),
+				'title'               => __( 'Ads performance', 'jetpack' ),
 				'order'               => 50,
 				'is_available'        => array( Capabilities::class, 'current_user_can_view_ad_reports' ),
 				// Only the chart supports dates, so it owns the control. No Ads widget

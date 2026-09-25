@@ -2,7 +2,10 @@ import { DataSyncProvider, queryClient } from '@automattic/jetpack-react-data-sy
 import { createRoot } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
-import { observeLegacyModulesState } from '../../../../_inc/overview/lib/modules-state-bridge';
+import {
+	observeLegacyModulesState,
+	observeLegacyOnboarding,
+} from '../../../../_inc/overview/lib/modules-state-bridge';
 import { OVERVIEW_UPGRADE_EVENT, upgradeHref } from '../../../../_inc/overview/lib/upgrade-bridge';
 import { licenseKeyHref, useCanRedeemLicenseKey } from './features/upgrade-cta/license-key-link';
 import './modern-overview-upgrade.scss';
@@ -11,6 +14,7 @@ import type { MouseEvent } from 'react';
 import type { UpgradeSlotRequest } from '../../../../_inc/overview/lib/upgrade-bridge';
 
 observeLegacyModulesState( queryClient );
+observeLegacyOnboarding( queryClient );
 
 async function handleUpgrade( event: MouseEvent< HTMLAnchorElement > ) {
 	const eventProperties = { identifier: 'historical-performance', destination: 'interstitial' };

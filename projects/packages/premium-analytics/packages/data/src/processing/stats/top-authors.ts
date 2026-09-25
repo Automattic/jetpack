@@ -70,7 +70,9 @@ function mergeStatsTopAuthorsPostRows(
 	primaryPosts: StatsTopPostsItem[],
 	comparisonPosts: StatsTopPostsItem[]
 ): StatsTopAuthorsPostComparisonItem[] {
-	const { rows } = mergeStatsComparisonRows<
+	// A post missing from the primary list may have zero views or sit past the
+	// endpoint's per-author cap, so comparison-only posts are dropped, as in top posts.
+	return mergeStatsComparisonRows<
 		StatsTopPostsItem,
 		StatsTopPostsItem,
 		StatsTopAuthorsPostComparisonItem
@@ -84,22 +86,7 @@ function mergeStatsTopAuthorsPostRows(
 			...post,
 			previousViews: previousValue,
 		} ),
-	} );
-
-	// Posts that only existed in the comparison period surface with zero current
-	// views, so their previous value is not silently dropped.
-	const primaryKeys = new Set(
-		primaryPosts.map( getAuthorPostKey ).filter( ( key ): key is string => key != null )
-	);
-	const droppedPosts = comparisonPosts
-		.filter( post => {
-			const key = getAuthorPostKey( post );
-
-			return key != null && ! primaryKeys.has( key );
-		} )
-		.map( post => ( { ...post, views: 0, previousViews: post.views } ) );
-
-	return [ ...rows, ...droppedPosts ];
+	} ).rows;
 }
 
 export function sanitizeStatsTopAuthorsResponse(

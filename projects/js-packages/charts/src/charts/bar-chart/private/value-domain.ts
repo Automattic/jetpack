@@ -41,23 +41,24 @@ export const countRenderedBars = (
 /**
  * An explicit domain for the value scale, or null to let visx fit one to the data.
  *
- * Fitting is right for ordinary varying data, but it collapses to zero height when every
- * value is the same, and produces no domain at all when no bucket has a reading.
+ * Zero goes into the domain here rather than through the scale's `zero` flag: visx applies
+ * `nice` before `zero`, which would leave the axis topping out at a raw maximum.
  *
- * @param data                - Every series handed to the chart.
- * @param hasComparisonSeries - Whether a comparison series is present.
- * @param isSeriesRendered    - Whether visx mounts a series, i.e. the legend shows it.
+ * @param data             - Every series handed to the chart.
+ * @param includeZero      - Whether the domain must span zero.
+ * @param isSeriesRendered - Whether visx mounts a series, i.e. the legend shows it.
  * @return Value domain, or null when visx should fit its own.
  */
 export const getValueScaleDomain = (
 	data: SeriesData[],
-	hasComparisonSeries: boolean,
+	includeZero: boolean,
 	isSeriesRendered: ( series: SeriesData ) => boolean
 ): [ number, number ] | null => {
 	let min = Infinity;
 	let max = -Infinity;
 
-	// Only hidden series are skipped. Comparison series count too: the comparison rule below widens the domain for them.
+	// Only hidden series are skipped. Comparison series count too: visx sees just the
+	// primary BarSeries and would fit a domain too narrow for the comparison shadows.
 	for ( const series of data ) {
 		if ( ! isSeriesRendered( series ) ) {
 			continue;
@@ -76,15 +77,12 @@ export const getValueScaleDomain = (
 		return [ ...EMPTY_DOMAIN ];
 	}
 
-	// Keep zero in the domain so bar length stays proportional to value. A non-zero
-	// baseline would exaggerate differences between periods.
+	// A flat series fitted by visx collapses to zero height, so it is anchored at zero regardless.
 	if ( min === max ) {
 		return min === 0 ? [ ...EMPTY_DOMAIN ] : [ Math.min( 0, min ), Math.max( 0, max ) ];
 	}
 
-	// visx only sees primary BarSeries and would compute a domain too narrow for the
-	// comparison shadows, which are drawn onto the scales the primary series established.
-	if ( hasComparisonSeries ) {
+	if ( includeZero ) {
 		return [ Math.min( 0, min ), Math.max( 0, max ) ];
 	}
 

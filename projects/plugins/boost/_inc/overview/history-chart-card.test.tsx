@@ -43,12 +43,13 @@ const history: PerformanceHistoryData = {
 };
 const callbacks = {
 	onRetry: jest.fn(),
-	onDismissFreshStart: jest.fn(),
 	onPrevious: jest.fn(),
 	onNext: jest.fn(),
 	range: window,
 	dayCount: 30 as const,
 	canGoNext: false,
+	canGoPrevious: true,
+	showSingleDate: false,
 };
 let queryClient: QueryClient;
 function wrapper( { children }: PropsWithChildren ) {
@@ -134,8 +135,39 @@ test( 'renders thirty daily bars for each device using score band colours and em
 			expect( bars[ index ] ).toHaveAttribute( 'fill', getScoreTierColor( tier ) )
 		);
 		expect( bars[ 3 ] ).toHaveAttribute( 'fill', 'var(--jetpack-boost-history-empty)' );
+		expect( bars[ 3 ] ).toHaveClass( 'boost-daily-history__bar--empty' );
 	}
 } );
+
+test.each( [ 1, 2 ] )(
+	'renders %i recorded days with empty stubs and the matching header',
+	async count => {
+		render(
+			<HistoryChartCard
+				data={ { ...history, periods: history.periods.slice( 0, count ) } }
+				hasOlderHistory={ false }
+				{ ...callbacks }
+				showSingleDate={ count === 1 }
+			/>,
+			{ wrapper }
+		);
+		const label =
+			count === 1
+				? dateI18n( 'M j, Y', timestamp, false )
+				: `${ dateI18n( 'M j', window.startDate, false ) } – ${ dateI18n( 'M j, Y', window.endDate, false ) }`;
+		expect( screen.getByText( label ) ).toBeInTheDocument();
+		for ( const chart of screen.getAllByTestId( 'bar-chart' ) ) {
+			await waitFor( () => expect( getBars( chart ) ).toHaveLength( 30 ) );
+			const bars = Array.from( getBars( chart ) );
+			expect(
+				bars.filter( bar => bar.getAttribute( 'fill' ) === 'var(--jetpack-boost-history-empty)' )
+			).toHaveLength( 30 - count );
+			expect(
+				bars.slice( 0, count ).every( bar => Number( bar.getAttribute( 'height' ) ) > 0 )
+			).toBe( true );
+		}
+	}
+);
 
 test( 'retains a recorded zero and its poor-score colour rather than treating it as missing', async () => {
 	render(
@@ -154,12 +186,20 @@ test( 'retains a recorded zero and its poor-score colour rather than treating it
 		{ wrapper }
 	);
 	const chart = within( screen.getByRole( 'region', { name: 'Desktop score history' } ) );
-	await waitFor( () => {
-		const bar = getBars( chart.getByTestId( 'bar-chart' ) )[ 0 ];
-		expect( bar ).toHaveAttribute( 'fill', 'var(--jetpack-boost-score-poor)' );
+	const bar = await waitFor( () => {
+		const renderedBar = getBars( chart.getByTestId( 'bar-chart' ) )[ 0 ];
+		expect( renderedBar ).toHaveAttribute( 'fill', 'var(--jetpack-boost-score-poor)' );
+		return renderedBar;
 	} );
+	expect( bar ).toHaveClass( 'boost-daily-history__bar--zero' );
+	expect( bar ).not.toHaveClass( 'boost-daily-history__bar--empty' );
 	fireEvent.keyDown( chart.getByRole( 'grid' ), { key: 'ArrowRight' } );
 	await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveTextContent( '0/100' );
+	expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+		padding: '0px',
+		backgroundColor: 'rgba(0, 0, 0, 0)',
+		boxShadow: 'none',
+	} );
 } );
 
 test( 'exposes the date, grade, and both device metrics through keyboard tooltips', async () => {
@@ -278,6 +318,11 @@ test( 'shows nothing beyond the empty-day tooltip when an empty day is clicked',
 	await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
 		'No scores recorded for this day.'
 	);
+	expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+		padding: '0px',
+		backgroundColor: 'rgba(0, 0, 0, 0)',
+		boxShadow: 'none',
+	} );
 	await expect( screen.findByTestId( 'history-popover' ) ).rejects.toThrow();
 } );
 
@@ -425,6 +470,7 @@ test.each( [ 15, 30 ] as const )(
 				{ ...callbacks }
 				dayCount={ dayCount }
 				canGoNext
+				canGoPrevious={ false }
 				hasOlderHistory={ false }
 			/>
 		);
@@ -466,12 +512,6 @@ test.each( [ { range: getHistoryWindow( 1 ) }, { isVisible: false } ] )(
 	}
 );
 
-test( 'dismisses the paid fresh-start notice', () => {
-	render( <HistoryChartCard data={ history } isFreshStart { ...callbacks } />, { wrapper } );
-	fireEvent.click( screen.getByRole( 'button', { name: 'Okay, got it!' } ) );
-	expect( callbacks.onDismissFreshStart ).toHaveBeenCalledTimes( 1 );
-} );
-
 test( 'shows the history error message and offers retry', () => {
 	render(
 		<HistoryChartCard
@@ -490,8 +530,6 @@ test( 'keeps the card padding for notices and drops it only for the charts', () 
 	/* eslint-disable testing-library/no-node-access */
 	const { rerender } = render( <HistoryChartCard isError { ...callbacks } />, { wrapper } );
 	const zeroPaddingBody = () => document.querySelector( '.boost-daily-history__body' );
-	expect( zeroPaddingBody() ).toBeNull();
-	rerender( <HistoryChartCard isFreshStart { ...callbacks } /> );
 	expect( zeroPaddingBody() ).toBeNull();
 	rerender( <HistoryChartCard isLoading { ...callbacks } /> );
 	expect( zeroPaddingBody() ).not.toBeNull();
@@ -531,24 +569,16 @@ test( 'transitions from an error to paid history', () => {
 	expect( screen.getAllByRole( 'grid', { name: 'Bar chart' } ) ).toHaveLength( 2 );
 } );
 
-test( 'keeps the fresh-start notice silent while announcing errors', () => {
+test( 'announces history errors in the assertive live region', () => {
 	// WordPress creates live regions outside the React test container.
 	/* eslint-disable testing-library/no-node-access */
-	const regions = [ 'polite', 'assertive' ].map( politeness => {
-		const id = `a11y-speak-${ politeness }`;
-		const region = document.getElementById( id ) ?? document.createElement( 'div' );
-		region.id = id;
-		region.className = 'a11y-speak-region';
-		region.textContent = '';
-		document.body.appendChild( region );
-		return region;
-	} );
+	const assertive =
+		document.getElementById( 'a11y-speak-assertive' ) ?? document.createElement( 'div' );
+	assertive.id = 'a11y-speak-assertive';
+	assertive.className = 'a11y-speak-region';
+	assertive.textContent = '';
+	document.body.appendChild( assertive );
 	/* eslint-enable testing-library/no-node-access */
-	const [ polite, assertive ] = regions;
-	const { rerender } = render( <HistoryChartCard isFreshStart { ...callbacks } />, { wrapper } );
-	expect( screen.getByRole( 'button', { name: 'Okay, got it!' } ) ).toBeInTheDocument();
-	expect( polite ).toBeEmptyDOMElement();
-	expect( assertive ).toBeEmptyDOMElement();
-	rerender( <HistoryChartCard isError { ...callbacks } /> );
+	render( <HistoryChartCard isError { ...callbacks } />, { wrapper } );
 	expect( assertive ).toHaveTextContent( 'Failed to load performance history' );
 } );

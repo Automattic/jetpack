@@ -51,9 +51,9 @@ const DATA_FORMAT = {
  */
 function latest(
 	points: SubscribersChartPoint[],
-	accessor: ( point: SubscribersChartPoint ) => number
+	accessor: ( point: SubscribersChartPoint ) => number | null
 ): number {
-	return points.length ? accessor( points[ points.length - 1 ] ) : 0;
+	return points.length ? ( accessor( points[ points.length - 1 ] ) ?? 0 ) : 0;
 }
 
 /**
@@ -62,7 +62,7 @@ function latest(
  */
 const METRIC_ACCESSORS: Record<
 	SubscribersChartMetricId,
-	( point: SubscribersChartPoint ) => number
+	( point: SubscribersChartPoint ) => number | null
 > = {
 	subscribers: point => point.subscribers,
 	paid: point => point.paid,
@@ -75,11 +75,12 @@ const METRIC_ACCESSORS: Record<
  */
 function buildMetrics( state: SubscribersChartState ): MetricTab[] {
 	return SUBSCRIBERS_CHART_METRICS.filter( ( { id } ) => id !== 'paid' || state.hasPaid ).map(
-		( { id, label } ) => {
+		( { id, label, countLabel } ) => {
 			const accessor = METRIC_ACCESSORS[ id ];
 			return {
 				key: id,
 				label,
+				countLabel,
 				value: latest( state.current, accessor ),
 				current: state.current.map( point => ( { date: point.date, value: accessor( point ) } ) ),
 			};
@@ -138,6 +139,7 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
 					groupLabel={ groupLabel }
+					baseline="padded"
 				/>
 			</WidgetState>
 		</div>

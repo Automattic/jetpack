@@ -25,6 +25,9 @@ class Plan_Info {
 	 */
 	public static $supports_search = true;
 
+	/** @var bool Whether the plan is free. */
+	public static $is_free = false;
+
 	/**
 	 * Whether the test plan is disabled due to overage.
 	 *
@@ -55,6 +58,15 @@ class Plan_Info {
 	 */
 	public function supports_search() {
 		return self::$supports_search;
+	}
+
+	/**
+	 * Whether the plan is free.
+	 *
+	 * @return bool
+	 */
+	public function is_free_search_plan() {
+		return self::$is_free;
 	}
 
 	/**

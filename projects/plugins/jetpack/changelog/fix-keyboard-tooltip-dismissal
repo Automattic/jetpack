@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Stats, Podcast and Premium Analytics: Return focus to bar charts after pressing Escape, and select the bar under the pointer for tooltips and pointer callbacks.

@@ -71,6 +71,7 @@ class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 		$this->assertInstanceOf( Dashboard_Section::class, $section );
 		$this->assertSame( 'ads', $section->slug );
 		$this->assertSame( 'Ads', $section->label );
+		$this->assertSame( 'Ads performance', $section->title );
 		$this->assertSame( 50, $section->order );
 		$this->assertTrue( $section->is_available() );
 		$this->assertSame(
