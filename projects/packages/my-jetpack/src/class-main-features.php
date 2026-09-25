@@ -556,8 +556,6 @@ class Main_Features {
 	/**
 	 * Whether the site pays for a product, not counting the product's own free plan.
 	 *
-	 * `has_paid_plan_for_product()` matches purchase slugs by substring, so `jetpack_search_free` passes for `jetpack_search`.
-	 *
 	 * @param string $product_class The product behind the feature.
 	 * @return bool
 	 */
@@ -567,23 +565,26 @@ class Main_Features {
 		}
 
 		$free_slug = $product_class::get_wpcom_free_product_slug();
-		$feature   = $product_class::$feature_identifying_paid_plan;
+		$purchases = Wpcom_Products::get_site_current_purchases();
+		$purchases = is_array( $purchases ) ? $purchases : array();
+		$paid      = $free_slug
+			? array_filter( $purchases, fn( $purchase ) => false === strpos( $purchase->product_slug, $free_slug ) )
+			: $purchases;
 
-		if ( ! $free_slug || ( $feature && $product_class::does_site_have_feature( $feature ) ) ) {
+		if ( count( $paid ) === count( $purchases ) ) {
 			return true;
 		}
 
-		$purchases  = Wpcom_Products::get_site_current_purchases();
+		/*
+		 * A free plan such as `jetpack_search_free` matches the paid slug by substring and gets the
+		 * same site feature, so only a purchase besides it counts.
+		 */
 		$paid_slugs = array_merge(
 			$product_class::get_paid_bundles_that_include_product(),
 			$product_class::get_paid_plan_product_slugs()
 		);
 
-		foreach ( is_array( $purchases ) ? $purchases : array() as $purchase ) {
-			if ( false !== strpos( $purchase->product_slug, $free_slug ) ) {
-				continue;
-			}
-
+		foreach ( $paid as $purchase ) {
 			foreach ( $paid_slugs as $paid_slug ) {
 				if ( false !== strpos( $purchase->product_slug, $paid_slug ) ) {
 					return true;

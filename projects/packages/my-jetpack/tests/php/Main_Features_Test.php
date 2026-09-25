@@ -523,6 +523,18 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * WordPress.com grants the free Search plan the same `search` site feature as the paid one.
+	 */
+	public function test_free_search_site_feature_still_offers_the_upgrade() {
+		$this->own( array( 'jetpack_search_free' ) );
+		set_transient( Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, array( 'active' => array( 'search' ) ), HOUR_IN_SECONDS );
+
+		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+
+		$this->assertSame( '/add-search', $upgrades['search']['path'] );
+	}
+
+	/**
 	 * A paid Search purchase covers the feature, free plan or not.
 	 */
 	public function test_no_upgrade_for_a_site_that_pays_for_search() {
