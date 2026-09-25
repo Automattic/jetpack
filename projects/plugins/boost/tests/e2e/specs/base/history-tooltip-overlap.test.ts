@@ -520,6 +520,32 @@ test( 'Day details reopen on hover after paging with the keyboard', async ( { pa
 	await expect( popover ).toContainText( 'September 3, 2026' );
 } );
 
+test( 'Tab moves straight through the charts while a hovered day shows its details', async ( {
+	page,
+} ) => {
+	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
+	const next = page.getByRole( 'button', { name: 'Next 30 days' } );
+	const grids = page.getByRole( 'grid' );
+	const popover = page.locator( '.boost-daily-history__popover' );
+	const press = async ( key: string, target: Locator ) => {
+		await page.keyboard.press( key );
+		await expect( target ).toBeFocused();
+		await expect( popover ).toBeVisible();
+	};
+	await hoverDay( chart, 21 );
+	await expect( popover ).toBeVisible();
+	await next.focus();
+	await press( 'Tab', grids.first() );
+	await press( 'Tab', grids.last() );
+	// Nothing on the fixture page follows the chart, so leaving it focuses no element.
+	await page.keyboard.press( 'Tab' );
+	await expect( page.locator( ':focus' ) ).toHaveCount( 0 );
+	await expect( popover ).toBeVisible();
+	await press( 'Shift+Tab', grids.last() );
+	await press( 'Shift+Tab', grids.first() );
+	await press( 'Shift+Tab', next );
+} );
+
 test( 'Hiding retained history removes a keyboard tooltip until another selection', async ( {
 	page,
 } ) => {

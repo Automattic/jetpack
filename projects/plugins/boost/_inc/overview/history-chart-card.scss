@@ -114,6 +114,13 @@ $tooltip-drop-shadow: 0 var(--wpds-border-width-xs) var(--wpds-border-width-sm) 
 	}
 }
 
+// The chart is the popover's trigger, and the day details hold nothing
+// focusable, so base-ui's guards around it would only be invisible Tab stops.
+[data-base-ui-focus-guard]:has(+ .boost-daily-history),
+.boost-daily-history + [data-base-ui-focus-guard] {
+	display: none;
+}
+
 .boost-daily-history,
 .boost-daily-history__popover {
 

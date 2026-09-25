@@ -50,7 +50,7 @@ const isDisabled = ( name: string ) => button( name ).getAttribute( 'aria-disabl
 
 beforeEach( () => {
 	mockRun.mockReset();
-	mockRun.mockResolvedValue( [] );
+	mockRun.mockResolvedValue( { attempted: 0, failed: [] } );
 } );
 
 describe( 'FeatureList with the shared selection', () => {
@@ -131,7 +131,7 @@ describe( 'FeatureList with the shared selection', () => {
 	} );
 
 	it( 'keeps the features that failed selected, for a retry', async () => {
-		mockRun.mockResolvedValue( [ 'akismet' ] );
+		mockRun.mockResolvedValue( { attempted: 1, failed: [ 'akismet' ] } );
 		render(
 			<SelectionHarness states={ [ akismet, pluginState( 'jetpack-search', 'inactive' ) ] } />
 		);

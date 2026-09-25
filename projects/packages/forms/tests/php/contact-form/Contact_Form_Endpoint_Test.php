@@ -4,6 +4,8 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 
 require_once __DIR__ . '/class-utility.php';
 
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -1561,5 +1563,69 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		$this->assertFalse( $found_source_sql, 'source=0 should not inject source filter SQL' );
 
 		remove_filter( 'wordbless_wpdb_query_results', $capture_query, 10 );
+	}
+
+	/**
+	 * Test the CRM integration reports the standard plugin path when the CRM is not loaded.
+	 */
+	public function test_get_crm_integration_falls_back_to_the_default_plugin_file() {
+		update_option( 'active_plugins', array( 'zero-bs-crm/ZeroBSCRM.php' ) );
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations/zero-bs-crm' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( 'zero-bs-crm/ZeroBSCRM', $data['pluginFile'] );
+		$this->assertTrue( $data['isActive'] );
+	}
+
+	/**
+	 * Test the CRM integration follows the path a white-label build reports for itself.
+	 *
+	 * Runs isolated because the CRM defines its path as a constant, which cannot be
+	 * unset for the tests that follow.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_crm_integration_follows_a_renamed_plugin_file() {
+		define( 'ZBS_ROOTFILE', WP_PLUGIN_DIR . '/HereTogetherCRM/HereTogetherCRM.php' );
+		define( 'ZBS_ROOTPLUGIN', 'HereTogetherCRM/HereTogetherCRM.php' );
+		update_option( 'active_plugins', array( 'HereTogetherCRM/HereTogetherCRM.php' ) );
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations/zero-bs-crm' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( 'HereTogetherCRM/HereTogetherCRM', $data['pluginFile'] );
+		$this->assertTrue( $data['isActive'] );
+	}
+
+	/**
+	 * Test the CRM integration resolves a renamed white-label build installed via a symlink.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_crm_integration_follows_a_symlinked_renamed_plugin_folder() {
+		// What wp_register_plugin_realpath() records for plugins/HereTogetherCRM -> /srv/crm-checkout.
+		$GLOBALS['wp_plugin_paths'][ wp_normalize_path( WP_PLUGIN_DIR . '/HereTogetherCRM' ) ] = '/srv/crm-checkout';
+		define( 'ZBS_ROOTFILE', '/srv/crm-checkout/HereTogetherCRM.php' );
+		define( 'ZBS_ROOTPLUGIN', 'crm-checkout/HereTogetherCRM.php' );
+		update_option( 'active_plugins', array( 'HereTogetherCRM/HereTogetherCRM.php' ) );
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations/zero-bs-crm' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( 'HereTogetherCRM/HereTogetherCRM', $data['pluginFile'] );
+		$this->assertTrue( $data['isActive'] );
 	}
 }

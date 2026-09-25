@@ -36,13 +36,15 @@ class Admin {
 	 * Action for `admin_menu` and `network_admin_menu`.
 	 */
 	public static function add_actions() {
+		$position = defined( Admin_Menu::class . '::POSITION_LAST' ) ? Admin_Menu::POSITION_LAST : 998;
+
 		self::$hookname = Admin_Menu::add_menu(
 			'Beta Tester',
 			'Beta Tester',
 			'update_plugins',
 			'jetpack-beta',
 			array( self::class, 'render' ),
-			Admin_Menu::POSITION_LAST
+			$position
 		);
 
 		if ( false !== self::$hookname ) {

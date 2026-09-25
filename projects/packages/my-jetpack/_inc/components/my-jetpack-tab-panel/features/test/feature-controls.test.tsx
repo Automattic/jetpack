@@ -84,6 +84,26 @@ describe( 'FeatureAction', () => {
 		expect( countControls() ).toBe( 1 );
 	} );
 
+	it( 'opens, instead of offering Install, a feature a plan runs without its plugin', () => {
+		render(
+			<FeatureAction
+				state={ buildState(
+					{ kind: 'install-plugin', plugin: 'jetpack-backup', runsWithoutPlugin: true },
+					{
+						status: 'active',
+						feature: buildFeature( { manage_url: 'https://example.com/backup' } ),
+					}
+				) }
+			/>
+		);
+
+		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/backup'
+		);
+		expect( countControls() ).toBe( 0 );
+	} );
+
 	it( 'installs the named plugin when its Install button is pressed', async () => {
 		render(
 			<FeatureAction state={ buildState( { kind: 'install-plugin', plugin: 'jetpack-boost' } ) } />
@@ -229,6 +249,23 @@ describe( 'FeatureModalActions', () => {
 
 		expect( screen.getByRole( 'button', { name: 'Install' } ) ).toBeInTheDocument();
 		expect( countControls() ).toBe( 1 );
+	} );
+
+	it( 'keeps Install beside Open for a feature a plan runs without its plugin', () => {
+		render(
+			<FeatureModalActions
+				state={ buildState(
+					{ kind: 'install-plugin', plugin: 'jetpack-backup', runsWithoutPlugin: true },
+					{
+						status: 'active',
+						feature: buildFeature( { manage_url: 'https://example.com/backup' } ),
+					}
+				) }
+			/>
+		);
+
+		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Install' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'offers Open beside the switch once the feature is running', () => {

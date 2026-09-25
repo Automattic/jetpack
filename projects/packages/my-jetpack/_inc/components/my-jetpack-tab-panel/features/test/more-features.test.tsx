@@ -1,16 +1,41 @@
-import { render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import useAnalytics from '../../../../hooks/use-analytics';
 import { FeatureItem, getModuleSettingsUrl } from '../feature-item';
+import { FeaturesTrackingProvider } from '../features-tracking-context';
 import { MoreFeatures } from '../more-features';
 import { getModuleFeatureState } from '../use-more-features';
 import type { MyJetpackModule } from '../../../../types';
 import type { FeatureSelection } from '../use-feature-selection';
 
+jest.mock( '../../../../hooks/use-analytics' );
+
+// The real switch reports through this; here it is held onto and called directly.
+const mockModuleSwitch: { onSwitch?: ( active: boolean ) => void } = {};
+
 jest.mock( '../../../module-toggle', () => ( {
-	ModuleToggle: ( { module: $module }: { module: MyJetpackModule } ) => (
+	ModuleToggle: ( {
+		module: $module,
+		onSwitch,
+	}: {
+		module: MyJetpackModule;
+		onSwitch?: ( active: boolean ) => void;
+	} ) => {
+		mockModuleSwitch.onSwitch = onSwitch;
+
 		// ds-allow: button -- a stand-in for the mocked control, never rendered in the product.
-		<button type="button">Toggle { $module.name }</button>
-	),
+		return <button type="button">Toggle { $module.name }</button>;
+	},
 } ) );
+
+const recordEvent = jest.fn();
+
+beforeEach( () => {
+	jest.clearAllMocks();
+	mockModuleSwitch.onSwitch = undefined;
+	( useAnalytics as jest.MockedFunction< typeof useAnalytics > ).mockReturnValue( { recordEvent } );
+} );
 
 const setSiteEditor = ( siteEditor: unknown ) => {
 	window.JetpackScriptData = {
@@ -140,5 +165,66 @@ describe( 'MoreFeatures', () => {
 
 		setSiteEditor( { isBlockTheme: false } );
 		expect( getModuleSettingsUrl( widgets ) ).toBe( 'https://example.com/widgets' );
+	} );
+} );
+
+describe( 'MoreFeatures tracking', () => {
+	it( 'names the section a module was switched from, through the real card', () => {
+		render(
+			<FeaturesTrackingProvider filter="all" search="" view="grid">
+				<MoreFeatures
+					groups={ [ { label: 'Engagement', states: [ getModuleFeatureState( sharing, {} ) ] } ] }
+					selection={ selection }
+					jetpack="active"
+				/>
+			</FeaturesTrackingProvider>
+		);
+
+		act( () => mockModuleSwitch.onSwitch?.( true ) );
+
+		expect( recordEvent ).toHaveBeenCalledWith(
+			'jetpack_myjetpack_feature_action',
+			expect.objectContaining( {
+				action: 'activate',
+				origin: 'more_features',
+				feature_slug: 'sharedaddy',
+			} )
+		);
+	} );
+
+	it( 'names the section behind its offer to activate Jetpack', async () => {
+		render(
+			<QueryClientProvider client={ new QueryClient() }>
+				<FeaturesTrackingProvider filter="all" search="" view="grid">
+					<MoreFeatures groups={ [] } selection={ selection } jetpack="inactive" />
+				</FeaturesTrackingProvider>
+			</QueryClientProvider>
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Activate Jetpack' } ) );
+
+		expect( recordEvent ).toHaveBeenCalledWith(
+			'jetpack_myjetpack_feature_action',
+			expect.objectContaining( { action: 'activate', origin: 'more_features' } )
+		);
+	} );
+	it( 'names the section from the list view too, not just the grid', () => {
+		render(
+			<FeaturesTrackingProvider filter="all" search="" view="list">
+				<MoreFeatures
+					groups={ [ { label: 'Engagement', states: [ getModuleFeatureState( sharing, {} ) ] } ] }
+					selection={ selection }
+					jetpack="active"
+					isList
+				/>
+			</FeaturesTrackingProvider>
+		);
+
+		act( () => mockModuleSwitch.onSwitch?.( true ) );
+
+		expect( recordEvent ).toHaveBeenCalledWith(
+			'jetpack_myjetpack_feature_action',
+			expect.objectContaining( { origin: 'more_features', feature_slug: 'sharedaddy' } )
+		);
 	} );
 } );
