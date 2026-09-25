@@ -14,7 +14,6 @@ const FALLBACK: InitialState = {
 	warnings: [],
 	upgradeUrl: 'https://wordpress.com/plans/',
 	activateUrl: 'https://wordpress.com/setup/transferring-hosted-site',
-	planNames: { business: 'Business', commerce: 'Commerce' },
 };
 
 /**
