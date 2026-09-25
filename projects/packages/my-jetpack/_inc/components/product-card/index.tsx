@@ -76,7 +76,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 		data: { ownedProducts },
 	} = useProductsByOwnership();
 	const isOwned = ownedProducts?.includes( slug );
-	const isForcedOff = !! useForcedOffReason( slug );
+	const isForcedOff = !! useForcedOffReason( slug, status ).reason;
 
 	const isError =
 		status === PRODUCT_STATUSES.EXPIRED || status === PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR;

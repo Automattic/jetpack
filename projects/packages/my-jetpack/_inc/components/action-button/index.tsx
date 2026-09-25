@@ -66,10 +66,15 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.ConnectionSkipPricing );
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
 	const { install: installStandalonePlugin, isPending: isInstalling } = useInstallPlugins( slug );
-	const forcedOffReason = useForcedOffReason( slug );
+
+	const { reason: forcedOffReason, isPending: isForcedOffPending } = useForcedOffReason(
+		slug,
+		status
+	);
 
 	const isBusy =
 		isActivating ||
+		isForcedOffPending ||
 		isProductDataLoading ||
 		isRefetching ||
 		isInstalling ||

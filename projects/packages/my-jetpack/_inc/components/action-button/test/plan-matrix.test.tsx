@@ -72,6 +72,8 @@ jest.mock( '@wordpress/ui', () => {
 			delete props.size;
 			delete props.openInNewTab;
 			delete props.nativeButton;
+			// The real Button disables itself while loading.
+			props.disabled = props.disabled ?? props.loading;
 			delete props.loading;
 			delete props.loadingAnnouncement;
 			delete props.intent;
@@ -158,7 +160,7 @@ const exactly = ( label: string ) => new RegExp( `^${ label }$` );
 describe( 'the product card primary action', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		mockUseForcedOffReason.mockReturnValue( null );
+		mockUseForcedOffReason.mockReturnValue( { reason: null, isPending: false } );
 	} );
 
 	it.each( MATRIX )( 'offers "$label" for $status', ( { status, isOwned, label } ) => {
@@ -179,7 +181,10 @@ describe( 'the product card primary action', () => {
 		PRODUCT_STATUSES.NEEDS_ACTIVATION,
 		PRODUCT_STATUSES.NEEDS_PLAN,
 	] )( 'offers nothing but the reason while the host keeps the module off: %s', status => {
-		mockUseForcedOffReason.mockReturnValue( 'Disabled by your host or site administrator' );
+		mockUseForcedOffReason.mockReturnValue( {
+			reason: 'Disabled by your host or site administrator',
+			isPending: false,
+		} );
 		mockUseProduct.mockReturnValue( { detail: { status }, isLoading: false, isRefetching: false } );
 		mockUseProductsByOwnership.mockReturnValue( { data: { ownedProducts: [] } } );
 
@@ -188,6 +193,12 @@ describe( 'the product card primary action', () => {
 		expect( screen.getByText( 'Disabled by your host or site administrator' ) ).toBeVisible();
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the action busy until it is known whether the host forced the module off', () => {
+		mockUseForcedOffReason.mockReturnValue( { reason: null, isPending: true } );
+
+		expect( primaryActionFor( PRODUCT_STATUSES.MODULE_DISABLED, true ) ).toBeDisabled();
 	} );
 
 	/*
