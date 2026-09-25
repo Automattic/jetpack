@@ -1,6 +1,7 @@
 import { isRTL, __ } from '@wordpress/i18n';
 import { check } from '@wordpress/icons';
 import { Icon, InputControl, Stack, Text } from '@wordpress/ui';
+import clsx from 'clsx';
 import { useCallback, useEffect, useRef } from 'react';
 import styles from '../styles.module.scss';
 import type { WizardStepOption } from '../lib';
@@ -160,11 +161,20 @@ export function ChoiceStep( {
 
 	return (
 		<Stack direction="column" gap="xl">
-			<Stack direction="column" gap="xs">
-				<Text variant="heading-2xl" id={ titleId } render={ <h1 /> }>
+			<Stack direction="column" gap="sm">
+				<Text
+					variant="heading-2xl"
+					id={ titleId }
+					render={ <h1 /> }
+					className={ clsx( styles[ 'step-title' ], styles.wave, styles[ 'wave-1' ] ) }
+				>
 					{ title }
 				</Text>
-				<Text variant="body-lg" render={ <p /> } className={ styles[ 'step-description' ] }>
+				<Text
+					variant="body-lg"
+					render={ <p /> }
+					className={ clsx( styles[ 'step-description' ], styles.wave, styles[ 'wave-2' ] ) }
+				>
 					{ description }
 				</Text>
 			</Stack>
@@ -175,7 +185,7 @@ export function ChoiceStep( {
 						ref={ groupRef }
 						role="radiogroup"
 						aria-labelledby={ titleId }
-						className={ styles[ 'step-options' ] }
+						className={ clsx( styles[ 'step-options' ], styles.wave, styles[ 'wave-3' ] ) }
 					>
 						{ options.map( ( option, index ) => (
 							<button

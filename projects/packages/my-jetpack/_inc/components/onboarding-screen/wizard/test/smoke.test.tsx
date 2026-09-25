@@ -482,14 +482,29 @@ describe( 'Wizard shell', () => {
 	it( 'goes back to a step already reached when its rail row is clicked', async () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 
-		await advance( user, 2 );
-		expect( heading() ).toHaveTextContent( 'Your site is set up' );
+		await advance( user, 1 );
+		expect( heading() ).toHaveTextContent( "Here's what we recommend for your site" );
 
 		await user.click( railStep( 'Your site' ) );
 		expect( heading() ).toHaveTextContent( "Tell us what you're building" );
 
 		// Ground already covered stays reachable after stepping back.
 		expect( railStep( 'What you need' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
+	} );
+
+	/*
+	 * The finish step takes the whole sheet: the rail counts steps that are all
+	 * behind you and the panel sells a flow you have just finished.
+	 */
+	it( 'drops the rail and the panel on the finish step', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		expect( screen.getByRole( 'navigation' ) ).toBeInTheDocument();
+
+		await advance( user, 2 );
+
+		expect( screen.queryByRole( 'navigation' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( PANEL_COPY[ 3 ] ) ).not.toBeInTheDocument();
 	} );
 
 	/*
@@ -545,8 +560,16 @@ describe( 'Wizard shell', () => {
 
 		await advance( user, 2 );
 
+		// The finish step carries its own two ways out instead of the footer's.
 		expect( screen.queryByRole( 'button', { name: 'Continue' } ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Finish' } ) ).toHaveAttribute( 'href', exitUrl );
+		expect( screen.getByRole( 'link', { name: 'Back to WordPress' } ) ).toHaveAttribute(
+			'href',
+			dashboardUrl
+		);
+		expect( screen.getByRole( 'link', { name: 'Go to My Jetpack' } ) ).toHaveAttribute(
+			'href',
+			exitUrl
+		);
 	} );
 
 	it( 'gives every step its own panel copy, and shows only the current one', async () => {
@@ -555,7 +578,8 @@ describe( 'Wizard shell', () => {
 		expect( panelCopy( 1 ) ).toBeInTheDocument();
 		expect( screen.queryByText( PANEL_COPY[ 0 ] ) ).not.toBeInTheDocument();
 
-		for ( const step of [ 2, 3 ] ) {
+		// Stops at the feature step: the finish step has no panel to carry copy.
+		for ( const step of [ 2 ] ) {
 			await advance( user, 1 );
 			expect( panelCopy( step ) ).toBeInTheDocument();
 			expect( screen.queryByText( PANEL_COPY[ step - 1 ] ) ).not.toBeInTheDocument();
@@ -678,7 +702,7 @@ describe( 'Leaving setup', () => {
 		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
-		await user.click( await screen.findByRole( 'link', { name: 'Finish' } ) );
+		await user.click( await screen.findByRole( 'link', { name: 'Back to WordPress' } ) );
 
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
 			path: '/my-jetpack/v1/site/onboarding/settled',
@@ -735,9 +759,9 @@ describe( 'The feature step', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
 		await waitFor( () =>
-			expect( heading() ).toHaveTextContent( '1 feature could not be changed' )
+			expect( heading() ).toHaveTextContent( 'Some features need another look' )
 		);
-		expect( screen.getByText( 'Could not be changed' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Not changed' ) ).toBeInTheDocument();
 	} );
 
 	it( 'does not claim a completion the user did not ask for', async () => {
@@ -758,7 +782,7 @@ describe( 'The feature step', () => {
 		await featureStep( user );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
-		await waitFor( () => expect( heading() ).toHaveTextContent( 'Your site is set up' ) );
+		await waitFor( () => expect( heading() ).toHaveTextContent( "You're all set" ) );
 	} );
 } );
 
@@ -811,7 +835,7 @@ describe( 'Guards on the way through', () => {
 		await advance( user, 2 );
 
 		expect( screen.queryByRole( 'link', { name: 'Skip setup' } ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Finish' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Back to WordPress' } ) ).toBeInTheDocument();
 	} );
 
 	// Every switch reports its own outcome, so a rejection is the request layer

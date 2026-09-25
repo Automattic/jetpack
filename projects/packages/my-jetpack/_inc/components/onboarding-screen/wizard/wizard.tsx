@@ -215,6 +215,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	const meta = steps[ step ];
 	const isStart = meta.kind === 'start';
 	const isFeatures = meta.kind === 'features';
+	const isFinish = meta.kind === 'finish';
 	const panelLines = PANEL_LINES[ step ];
 	const state: WizardState = { choices, freeText: siteTypeDetail };
 	const wizardTitle = __( 'Set up Jetpack', 'jetpack-my-jetpack' );
@@ -232,7 +233,15 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 				onChange={ handleModuleChange }
 			/>
 		),
-		finish: <FinishStep titleId={ titleId } results={ moduleResults } />,
+		finish: (
+			<FinishStep
+				titleId={ titleId }
+				results={ moduleResults }
+				dashboardUrl={ dashboardUrl }
+				exitUrl={ exitUrl }
+				onLeave={ handleExit( 'completed' ) }
+			/>
+		),
 		question: (
 			<ChoiceStep
 				titleId={ titleId }
@@ -256,62 +265,64 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 
 	return (
 		<ThemeProvider color={ { background: SHELL_BACKGROUND } }>
-			<div className={ styles.layout }>
+			<div className={ clsx( styles.layout, isFinish && styles[ 'layout--finish' ] ) }>
 				{ /*
 				 * The sidebar region, as the Site Editor builds it: a NavigableRegion
 				 * holding the screen's exit control, title, and navigation.
 				 */ }
-				<NavigableRegion ariaLabel={ wizardTitle } className={ styles.rail }>
-					<div className={ styles[ 'rail-head' ] }>
-						<LinkButton
-							variant="minimal"
-							tone="neutral"
-							size="compact"
-							href={ dashboardUrl }
-							aria-label={ __( 'Back to WordPress', 'jetpack-my-jetpack' ) }
-							className={ styles.exit }
+				{ ! isFinish && (
+					<NavigableRegion ariaLabel={ wizardTitle } className={ styles.rail }>
+						<div className={ styles[ 'rail-head' ] }>
+							<LinkButton
+								variant="minimal"
+								tone="neutral"
+								size="compact"
+								href={ dashboardUrl }
+								aria-label={ __( 'Back to WordPress', 'jetpack-my-jetpack' ) }
+								className={ styles.exit }
+							>
+								<LinkButton.Icon icon={ wordpress } />
+							</LinkButton>
+
+							<Heading level={ 2 } size="title" className={ styles[ 'rail-title' ] }>
+								{ wizardTitle }
+							</Heading>
+							<Text variant="body-md" className={ styles[ 'rail-count' ] }>
+								{ stepCount }
+							</Text>
+						</div>
+
+						{ /*
+						 * The <nav> itself is hidden below the panel breakpoint, so the collapsed
+						 * rail leaves no empty landmark behind, only its header.
+						 */ }
+						<nav
+							className={ styles[ 'rail-nav' ] }
+							aria-label={ __( 'Setup steps', 'jetpack-my-jetpack' ) }
 						>
-							<LinkButton.Icon icon={ wordpress } />
-						</LinkButton>
-
-						<Heading level={ 2 } size="title" className={ styles[ 'rail-title' ] }>
-							{ wizardTitle }
-						</Heading>
-						<Text variant="body-md" className={ styles[ 'rail-count' ] }>
-							{ stepCount }
-						</Text>
-					</div>
-
-					{ /*
-					 * The <nav> itself is hidden below the panel breakpoint, so the collapsed
-					 * rail leaves no empty landmark behind, only its header.
-					 */ }
-					<nav
-						className={ styles[ 'rail-nav' ] }
-						aria-label={ __( 'Setup steps', 'jetpack-my-jetpack' ) }
-					>
-						{ /* ItemGroup carries role="list", so each Item is a listitem. */ }
-						<ItemGroup className={ styles[ 'rail-steps' ] }>
-							{ steps.map( ( item, index ) => (
-								<Item
-									key={ item.id }
-									as="button"
-									type="button"
-									value={ index }
-									aria-current={ index === step ? 'true' : undefined }
-									aria-disabled={ index > furthestStep || undefined }
-									className={ styles[ 'rail-step' ] }
-									onClick={ handleRailClick }
-								>
-									<Stack direction="row" gap="sm" align="center" justify="start">
-										<Icon icon={ stepGlyph( index, step ) } aria-hidden="true" />
-										<FlexBlock>{ item.label }</FlexBlock>
-									</Stack>
-								</Item>
-							) ) }
-						</ItemGroup>
-					</nav>
-				</NavigableRegion>
+							{ /* ItemGroup carries role="list", so each Item is a listitem. */ }
+							<ItemGroup className={ styles[ 'rail-steps' ] }>
+								{ steps.map( ( item, index ) => (
+									<Item
+										key={ item.id }
+										as="button"
+										type="button"
+										value={ index }
+										aria-current={ index === step ? 'true' : undefined }
+										aria-disabled={ index > furthestStep || undefined }
+										className={ styles[ 'rail-step' ] }
+										onClick={ handleRailClick }
+									>
+										<Stack direction="row" gap="sm" align="center" justify="start">
+											<Icon icon={ stepGlyph( index, step ) } aria-hidden="true" />
+											<FlexBlock>{ item.label }</FlexBlock>
+										</Stack>
+									</Item>
+								) ) }
+							</ItemGroup>
+						</nav>
+					</NavigableRegion>
+				) }
 
 				<div className={ styles.canvas }>
 					{ /* Back to the light ramp: the questions are a white sheet on the dark shell. */ }
@@ -329,71 +340,76 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 								</div>
 							</section>
 
-							<Stack
-								className={ styles.footer }
-								align="center"
-								justify="space-between"
-								gap="md"
-								wrap="wrap"
-							>
-								{ /*
-								 * Gone on the last step, where the work is already done and Finish
-								 * is the way out. Skipping there would record this person as having
-								 * declined setup and never write the site-wide completion, so the
-								 * next admin would be offered it again on a configured site.
-								 */ }
-								{ isLastStep( step ) ? (
-									<span />
-								) : (
-									<LinkButton
-										variant="minimal"
-										tone="neutral"
-										href={ exitUrl }
-										onClick={ handleExit( 'skipped' ) }
-									>
-										{ __( 'Skip setup', 'jetpack-my-jetpack' ) }
-									</LinkButton>
-								) }
+							{ ! isFinish && (
+								<Stack
+									className={ styles.footer }
+									align="center"
+									justify="space-between"
+									gap="md"
+									wrap="wrap"
+								>
+									{ /*
+									 * Gone on the last step, where the work is already done and Finish
+									 * is the way out. Skipping there would record this person as having
+									 * declined setup and never write the site-wide completion, so the
+									 * next admin would be offered it again on a configured site.
+									 */ }
+									{ isLastStep( step ) ? (
+										<span />
+									) : (
+										<LinkButton
+											variant="minimal"
+											tone="neutral"
+											href={ exitUrl }
+											onClick={ handleExit( 'skipped' ) }
+										>
+											{ __( 'Skip setup', 'jetpack-my-jetpack' ) }
+										</LinkButton>
+									) }
 
-								{ /* The start screen carries its own primary, so the footer keeps only the exit. */ }
-								{ ! isStart && (
-									<Stack gap="sm">
-										{ step > firstStep && (
-											<Button
-												variant="minimal"
-												tone="neutral"
-												onClick={ handleBack }
-												disabled={ isApplying }
-											>
-												{ __( 'Back', 'jetpack-my-jetpack' ) }
-											</Button>
-										) }
-										{ isLastStep( step ) ? (
-											// Nothing else is saved yet, so finishing records that it
-											// happened and leaves.
-											<LinkButton
-												variant="solid"
-												className={ styles[ 'primary-green' ] }
-												href={ exitUrl }
-												onClick={ handleExit( 'completed' ) }
-											>
-												{ __( 'Finish', 'jetpack-my-jetpack' ) }
-											</LinkButton>
-										) : (
-											<Button
-												variant="solid"
-												className={ styles[ 'primary-green' ] }
-												onClick={ isFeatures ? handleApplyAndContinue : handleNext }
-												disabled={ ! canContinue( step, state ) || isApplying }
-												loading={ isApplying }
-												loadingAnnouncement={ __( 'Setting up your site…', 'jetpack-my-jetpack' ) }
-											>
-												{ __( 'Continue', 'jetpack-my-jetpack' ) }
-											</Button>
-										) }
-									</Stack>
-								) }
-							</Stack>
+									{ /* The start screen carries its own primary, so the footer keeps only the exit. */ }
+									{ ! isStart && (
+										<Stack gap="sm">
+											{ step > firstStep && (
+												<Button
+													variant="minimal"
+													tone="neutral"
+													onClick={ handleBack }
+													disabled={ isApplying }
+												>
+													{ __( 'Back', 'jetpack-my-jetpack' ) }
+												</Button>
+											) }
+											{ isLastStep( step ) ? (
+												// Nothing else is saved yet, so finishing records that it
+												// happened and leaves.
+												<LinkButton
+													variant="solid"
+													className={ styles[ 'primary-green' ] }
+													href={ exitUrl }
+													onClick={ handleExit( 'completed' ) }
+												>
+													{ __( 'Finish', 'jetpack-my-jetpack' ) }
+												</LinkButton>
+											) : (
+												<Button
+													variant="solid"
+													className={ styles[ 'primary-green' ] }
+													onClick={ isFeatures ? handleApplyAndContinue : handleNext }
+													disabled={ ! canContinue( step, state ) || isApplying }
+													loading={ isApplying }
+													loadingAnnouncement={ __(
+														'Setting up your site…',
+														'jetpack-my-jetpack'
+													) }
+												>
+													{ __( 'Continue', 'jetpack-my-jetpack' ) }
+												</Button>
+											) }
+										</Stack>
+									) }
+								</Stack>
+							) }
 						</div>
 					</ThemeProvider>
 				</div>
@@ -402,75 +418,77 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 				 * Kept off the shell's dark ramp, so the gradient panel's own colours are
 				 * exactly what they were before the shell went dark.
 				 */ }
-				<ThemeProvider color={ { background: CONTENT_BACKGROUND } }>
-					<div className={ styles[ 'brand-panel' ] }>
-						<div className={ styles[ 'brand-panel__inner' ] }>
-							{ /* Under the glow, which is why it comes first and carries z-index 0. */ }
-							<div className={ styles[ 'brand-panel__mesh' ] } aria-hidden="true">
-								<span
-									className={ clsx(
-										styles[ 'brand-panel__blob' ],
-										styles[ 'brand-panel__blob--1' ]
-									) }
+				{ ! isFinish && (
+					<ThemeProvider color={ { background: CONTENT_BACKGROUND } }>
+						<div className={ styles[ 'brand-panel' ] }>
+							<div className={ styles[ 'brand-panel__inner' ] }>
+								{ /* Under the glow, which is why it comes first and carries z-index 0. */ }
+								<div className={ styles[ 'brand-panel__mesh' ] } aria-hidden="true">
+									<span
+										className={ clsx(
+											styles[ 'brand-panel__blob' ],
+											styles[ 'brand-panel__blob--1' ]
+										) }
+									/>
+									<span
+										className={ clsx(
+											styles[ 'brand-panel__blob' ],
+											styles[ 'brand-panel__blob--2' ]
+										) }
+									/>
+									<span
+										className={ clsx(
+											styles[ 'brand-panel__blob' ],
+											styles[ 'brand-panel__blob--3' ]
+										) }
+									/>
+									<span
+										className={ clsx(
+											styles[ 'brand-panel__blob' ],
+											styles[ 'brand-panel__blob--4' ]
+										) }
+									/>
+								</div>
+
+								<Slide01Gradient
+									className={ styles[ 'brand-panel__glow' ] }
+									preserveAspectRatio="none"
 								/>
-								<span
-									className={ clsx(
-										styles[ 'brand-panel__blob' ],
-										styles[ 'brand-panel__blob--2' ]
-									) }
-								/>
-								<span
-									className={ clsx(
-										styles[ 'brand-panel__blob' ],
-										styles[ 'brand-panel__blob--3' ]
-									) }
-								/>
-								<span
-									className={ clsx(
-										styles[ 'brand-panel__blob' ],
-										styles[ 'brand-panel__blob--4' ]
-									) }
-								/>
+
+								{ /* Drawn in on the start step only; the prototype's other panels are static. */ }
+								<PanelArt animate={ isStart } />
+								{ /* Keyed by step so each line rises again when the copy is swapped. */ }
+								<p key={ meta.id } className={ styles[ 'brand-panel__copy' ] }>
+									{ /*
+									 * The lines are drawn as outlines, so the words themselves are
+									 * carried here — one sentence per step, not one per line.
+									 */ }
+									<VisuallyHidden render={ <span /> }>
+										{ panelLines.map( line => line.text ).join( ' ' ) }
+									</VisuallyHidden>
+
+									{ panelLines.map( line => (
+										<span key={ line.text } className={ styles[ 'brand-panel__line' ] }>
+											<svg
+												viewBox={ `0 ${ -TYPE_ASCENT } ${ line.ratio * TYPE_BOX } ${ TYPE_BOX }` }
+												style={ { inlineSize: `${ line.ratio }em`, blockSize: '1em' } }
+												fill="currentColor"
+												aria-hidden="true"
+												focusable="false"
+											>
+												<g
+													transform="scale(1, -1)"
+													// eslint-disable-next-line react/no-danger -- Generated by tools/generate-panel-type.py from the font's outlines; no user input reaches it.
+													dangerouslySetInnerHTML={ { __html: line.path } }
+												/>
+											</svg>
+										</span>
+									) ) }
+								</p>
 							</div>
-
-							<Slide01Gradient
-								className={ styles[ 'brand-panel__glow' ] }
-								preserveAspectRatio="none"
-							/>
-
-							{ /* Drawn in on the start step only; the prototype's other panels are static. */ }
-							<PanelArt animate={ isStart } />
-							{ /* Keyed by step so each line rises again when the copy is swapped. */ }
-							<p key={ meta.id } className={ styles[ 'brand-panel__copy' ] }>
-								{ /*
-								 * The lines are drawn as outlines, so the words themselves are
-								 * carried here — one sentence per step, not one per line.
-								 */ }
-								<VisuallyHidden render={ <span /> }>
-									{ panelLines.map( line => line.text ).join( ' ' ) }
-								</VisuallyHidden>
-
-								{ panelLines.map( line => (
-									<span key={ line.text } className={ styles[ 'brand-panel__line' ] }>
-										<svg
-											viewBox={ `0 ${ -TYPE_ASCENT } ${ line.ratio * TYPE_BOX } ${ TYPE_BOX }` }
-											style={ { inlineSize: `${ line.ratio }em`, blockSize: '1em' } }
-											fill="currentColor"
-											aria-hidden="true"
-											focusable="false"
-										>
-											<g
-												transform="scale(1, -1)"
-												// eslint-disable-next-line react/no-danger -- Generated by tools/generate-panel-type.py from the font's outlines; no user input reaches it.
-												dangerouslySetInnerHTML={ { __html: line.path } }
-											/>
-										</svg>
-									</span>
-								) ) }
-							</p>
 						</div>
-					</div>
-				</ThemeProvider>
+					</ThemeProvider>
+				) }
 			</div>
 		</ThemeProvider>
 	);
