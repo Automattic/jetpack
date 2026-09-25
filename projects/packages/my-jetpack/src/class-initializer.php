@@ -169,6 +169,11 @@ class Initializer {
 		 * just activated the plugin meets setup wherever they go first.
 		 */
 		add_action( 'admin_init', array( __CLASS__, 'maybe_redirect_to_onboarding' ) );
+
+		// Nothing else gets to talk over the takeover. See both methods for why it
+		// takes two hooks rather than one.
+		add_action( 'in_admin_header', array( __CLASS__, 'silence_onboarding_notices' ), PHP_INT_MAX );
+		add_filter( 'jetpack_display_jitms_on_screen', array( __CLASS__, 'hide_onboarding_jitms' ), 10, 2 );
 		// Registered on admin_menu (not admin_init) and well before priority 100000, so the
 		// counts it registers exist before the menu-badges renderer runs on admin_menu 100000.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_show_red_bubble' ), 30 );
@@ -460,6 +465,48 @@ class Initializer {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Empty the notice channels while the takeover is on screen.
+	 *
+	 * The takeover hides `.notice`, `.error` and `.updated` in CSS, which only
+	 * catches notices that use WordPress's own classes. Plenty do not, and a plugin
+	 * announcing itself in its own markup lands on top of a full-screen flow that
+	 * has no way to scroll past it.
+	 *
+	 * On `in_admin_header`, the last hook before `admin-header.php` prints notices,
+	 * so a notice registered late is caught too.
+	 *
+	 * @return void
+	 */
+	public static function silence_onboarding_notices() {
+		if ( ! self::is_onboarding_request() ) {
+			return;
+		}
+
+		remove_all_actions( 'admin_notices' );
+		remove_all_actions( 'all_admin_notices' );
+		remove_all_actions( 'network_admin_notices' );
+		remove_all_actions( 'user_admin_notices' );
+	}
+
+	/**
+	 * Keep Just In Time Messages off the takeover.
+	 *
+	 * Emptying the notice channels above would also drop the JITM, since that is how
+	 * it renders, but only after it has enqueued its script and stylesheet. This is
+	 * the package's own opt-out and it runs before any of that.
+	 *
+	 * The screen id cannot answer this on its own: the takeover and the My Jetpack
+	 * dashboard are the same screen, and only the query arg separates them.
+	 *
+	 * @param bool   $show      Whether to show JITMs on this screen.
+	 * @param string $screen_id The current screen's id.
+	 * @return bool
+	 */
+	public static function hide_onboarding_jitms( $show, $screen_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Required by the filter signature.
+		return self::is_onboarding_request() ? false : $show;
 	}
 
 	/**

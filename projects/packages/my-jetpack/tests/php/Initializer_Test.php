@@ -303,6 +303,58 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Nothing else gets to talk over the takeover.
+	 */
+	public function test_notice_channels_are_emptied_on_the_takeover() {
+		$channels = array( 'admin_notices', 'all_admin_notices', 'network_admin_notices', 'user_admin_notices' );
+
+		foreach ( $channels as $channel ) {
+			add_action( $channel, '__return_true' );
+		}
+
+		$_GET['step'] = 'onboarding';
+		Initializer::silence_onboarding_notices();
+
+		foreach ( $channels as $channel ) {
+			$this->assertFalse( has_action( $channel ), "$channel should be empty on the takeover" );
+		}
+	}
+
+	/**
+	 * Every other screen keeps its notices, including My Jetpack itself.
+	 */
+	public function test_notice_channels_are_left_alone_everywhere_else() {
+		add_action( 'admin_notices', '__return_true' );
+
+		unset( $_GET['step'] );
+		Initializer::silence_onboarding_notices();
+
+		$this->assertNotFalse( has_action( 'admin_notices' ) );
+		remove_action( 'admin_notices', '__return_true' );
+	}
+
+	/**
+	 * JITMs are opted out of by their own filter, not left to the notice sweep,
+	 * so they never enqueue their assets in the first place.
+	 */
+	public function test_jitms_are_hidden_on_the_takeover_only() {
+		// The takeover and the dashboard share this screen id, so it cannot decide.
+		$screen = 'jetpack_page_my-jetpack';
+
+		$_GET['step'] = 'onboarding';
+		$this->assertFalse( Initializer::hide_onboarding_jitms( true, $screen ) );
+
+		unset( $_GET['step'] );
+		$this->assertTrue( Initializer::hide_onboarding_jitms( true, $screen ) );
+
+		// A screen that had already opted out stays opted out.
+		$_GET['step'] = 'onboarding';
+		$this->assertFalse( Initializer::hide_onboarding_jitms( false, $screen ) );
+		unset( $_GET['step'] );
+		$this->assertFalse( Initializer::hide_onboarding_jitms( false, $screen ) );
+	}
+
+	/**
 	 * The takeover reaches the Jetpack screens, and only those.
 	 */
 	public function test_onboarding_screens_cover_jetpacks_own_pages() {
