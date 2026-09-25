@@ -74,3 +74,17 @@ export const EnvelopeIcon = () => (
 		/>
 	</svg>
 );
+
+// @wordpress/icons "pencil".
+export const PencilIcon = () => (
+	<svg
+		viewBox="0 0 24 24"
+		width="24"
+		height="24"
+		fill="currentColor"
+		aria-hidden="true"
+		focusable="false"
+	>
+		<path d="m19 7-3-3-8.5 8.5-1 4 4-1L19 7Zm-7 11.5H5V20h7v-1.5Z" />
+	</svg>
+);

@@ -1,7 +1,7 @@
 import { useContext } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
 import { logOut } from './checkpoint/checkpoint';
-import { BellIcon, EnvelopeIcon, LogOutIcon } from './icons';
+import { BellIcon, EnvelopeIcon, LogOutIcon, PencilIcon } from './icons';
 
 import './style.scss';
 
@@ -121,10 +121,12 @@ export const Identity = () => {
 				<span>{ strings.commentingAs.replace( '%s', () => commenter.author ) }</span>
 				<button
 					type="button"
-					className="jetpack-comments__link-button"
+					className="jetpack-comments__icon-link"
+					title={ strings.edit }
 					onClick={ () => ( isModalOpen.value = true ) }
 				>
-					{ strings.edit }
+					<span className="jetpack-comments__visually-hidden">{ strings.edit }</span>
+					<PencilIcon />
 				</button>
 				<ManageSubscriptions />
 			</span>
