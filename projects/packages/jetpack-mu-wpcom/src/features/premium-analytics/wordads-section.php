@@ -63,10 +63,9 @@ function wpcom_premium_analytics_register_wordads_section( $registry ) {
  */
 function wpcom_premium_analytics_wordads_is_enabled() {
 	if ( ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ) {
-		// The stickers the sites API's has_wordads() reads on Simple. Without the
-		// stickers API the plan feature alone decides, rather than no site getting the tab.
-		return ! function_exists( 'has_any_blog_stickers' )
-			|| (bool) has_any_blog_stickers( array( 'wordads-approved', 'wordads-approved-misfits' ), get_current_blog_id() );
+		// The stickers the sites API's has_wordads() reads on Simple.
+		return function_exists( 'has_any_blog_stickers' )
+			&& (bool) has_any_blog_stickers( array( 'wordads-approved', 'wordads-approved-misfits' ), get_current_blog_id() );
 	}
 
 	// Atomic runs the Jetpack plugin, where Odyssey Stats reads the WordAds module. Not

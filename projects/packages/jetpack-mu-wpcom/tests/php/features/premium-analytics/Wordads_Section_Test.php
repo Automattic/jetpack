@@ -10,8 +10,6 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section;
 use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
 use Brain\Monkey\Functions;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use function Automattic\Jetpack\PremiumAnalytics\get_ads_section_default_layout;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
@@ -144,24 +142,6 @@ class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 			array( array( 'wordads-approved', 'wordads-approved-misfits' ), get_current_blog_id() ),
 			$asked
 		);
-	}
-
-	/**
-	 * Simple without the stickers API keeps the plan-only behaviour rather than losing the tab.
-	 *
-	 * Its own process: a Brain Monkey stub of the stickers function from another test would otherwise
-	 * make `function_exists()` true here.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_simple_falls_back_to_the_plan_feature_without_the_stickers_api() {
-		Constants::set_constant( 'IS_WPCOM', true );
-		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
-
-		$this->assertInstanceOf( Dashboard_Section::class, get_registered_dashboard_section( DASHBOARD_NAME, 'wordads/ads' ) );
 	}
 
 	/**
