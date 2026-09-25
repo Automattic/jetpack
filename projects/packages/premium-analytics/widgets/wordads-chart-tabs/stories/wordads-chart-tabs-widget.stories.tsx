@@ -125,8 +125,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows the generic empty state (the magnifier
- * glyph and "We couldn’t find results for this time period.").
+ * Resolved with no rows: the widget shows the generic empty state.
  */
 export const Empty: Story = {
 	render: renderOnPreset( 'last-365-days' ),
