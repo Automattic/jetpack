@@ -6,9 +6,28 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
-import { getPlacementsForTemplate } from './settings-placements';
 
-// Rendered before the footer in the editor only; BlockEdit output is never saved.
+interface Placement {
+	label: string;
+	option: string;
+}
+
+const getSettingsPlacements = (): Placement[] => [
+	{
+		option: 'jetpack_subscribe_overlay_enabled',
+		label: __( 'Subscription overlay on homepage', 'jetpack' ),
+	},
+	{
+		option: 'sm_enabled',
+		label: __( 'Subscription pop-up in post', 'jetpack' ),
+	},
+	{
+		option: 'jetpack_subscribe_floating_button_enabled',
+		label: __( 'Floating button on bottom corner', 'jetpack' ),
+	},
+];
+
+// Rendered after the footer in the editor only; BlockEdit output is never saved.
 addFilter(
 	'editor.BlockEdit',
 	'jetpack/subscriptions/template-placements-notice',
@@ -32,31 +51,23 @@ addFilter(
 );
 
 /**
- * Lists the Newsletter placements enabled for the template being edited.
+ * Lists the Newsletter placements enabled on the site while a template is being edited.
  *
  * Only site administrators can read the settings, so others get nothing.
  *
- * @return {JSX.Element|null} The notice element, or null if no placements are enabled for this template.
+ * @return {JSX.Element|null} The notice element, or null if no placements are enabled.
  */
 function TemplatePlacementsNotice() {
-	const { templateSlug, settings } = useSelect( select => {
-		const { getCurrentPostType, getEditedPostAttribute } = select( editorStore );
-		const isTemplate = getCurrentPostType() === 'wp_template';
-
-		return {
-			templateSlug: isTemplate ? getEditedPostAttribute( 'slug' ) : null,
-			settings: isTemplate ? select( coreStore ).getEntityRecord( 'root', 'site' ) : null,
-		};
+	const settings = useSelect( select => {
+		const isTemplate = select( editorStore ).getCurrentPostType() === 'wp_template';
+		return isTemplate ? select( coreStore ).getEntityRecord( 'root', 'site' ) : null;
 	}, [] );
 
-	if ( ! templateSlug || ! settings ) {
+	if ( ! settings ) {
 		return null;
 	}
 
-	// Get the placements enabled for this template, and filter to those that are actually enabled in settings.
-	const enabled = getPlacementsForTemplate( templateSlug ).filter(
-		placement => settings[ placement.option ]
-	);
+	const enabled = getSettingsPlacements().filter( placement => settings[ placement.option ] );
 
 	if ( ! enabled.length ) {
 		return null;
