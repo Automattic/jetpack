@@ -11,6 +11,8 @@ use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+require_once __DIR__ . '/trait-paypal-resource-fixtures.php';
+
 /**
  * Class PayPal_Admin_Page_Test
  *
@@ -18,6 +20,8 @@ use PHPUnit\Framework\TestCase;
  */
 #[CoversClass( PayPal_Admin_Page::class )]
 class PayPal_Admin_Page_Test extends TestCase {
+
+	use PayPal_Resource_Fixtures;
 
 	/**
 	 * Per-flag filter that forces the API-managed buttons on.
@@ -63,6 +67,8 @@ class PayPal_Admin_Page_Test extends TestCase {
 		delete_transient( 'paypal_resource_plb-abc123' );
 		delete_transient( 'paypal_resource_plb-notfound' );
 		delete_transient( 'paypal_resource_plb-deleted' );
+		delete_transient( 'paypal_resource_plb-zc45rdyzrhs9' );
+		delete_transient( 'paypal_resource_plb-q5z4gdyfs367' );
 		PayPal_API_Client::forget_cached_resources();
 
 		// Reset $_GET superglobal.
@@ -689,6 +695,65 @@ class PayPal_Admin_Page_Test extends TestCase {
 	}
 
 	/**
+	 * Test detail view shows the product price in the Price and Currency rows.
+	 */
+	public function test_detail_view_shows_the_product_price() {
+		$output = $this->render_detail_view( $this->get_sample_resource() );
+
+		$this->assertStringContainsString( '<tr><th scope="row">Price</th><td>$29.99</td></tr>', $output );
+		$this->assertStringContainsString( '<tr><th scope="row">Currency</th><td>USD</td></tr>', $output );
+	}
+
+	/**
+	 * Test detail view shows the cheapest option for a link priced per option.
+	 */
+	public function test_detail_view_shows_the_from_price_for_priced_options() {
+		$output = $this->render_detail_view( self::get_per_option_resource() );
+
+		$this->assertStringContainsString( '<tr><th scope="row">Price</th><td>From $24.50</td></tr>', $output );
+		$this->assertStringContainsString( '<tr><th scope="row">Currency</th><td>USD</td></tr>', $output );
+	}
+
+	/**
+	 * Test detail view takes the currency from the options for a link priced per option.
+	 */
+	public function test_detail_view_shows_the_option_currency() {
+		$output = $this->render_detail_view( self::get_per_option_yen_resource() );
+
+		$this->assertStringContainsString( '<tr><th scope="row">Price</th><td>From ¥1000</td></tr>', $output );
+		$this->assertStringContainsString( '<tr><th scope="row">Currency</th><td>JPY</td></tr>', $output );
+		$this->assertStringNotContainsString( '<td>USD</td>', $output );
+	}
+
+	/**
+	 * Test detail view hides the Price and Currency rows for an unpriced link.
+	 */
+	public function test_detail_view_hides_the_price_rows_for_an_unpriced_link() {
+		$resource = $this->get_sample_resource();
+		unset( $resource['line_items'][0]['unit_amount'] );
+
+		$output = $this->render_detail_view( $resource );
+
+		$this->assertStringContainsString( '<tr><th scope="row">Product Name</th><td>Premium Widget</td></tr>', $output );
+		$this->assertStringNotContainsString( '<th scope="row">Price</th>', $output );
+		$this->assertStringNotContainsString( '<th scope="row">Currency</th>', $output );
+	}
+
+	/**
+	 * Test the email form posts only the resource ID.
+	 */
+	public function test_detail_view_email_form_posts_only_the_resource_id() {
+		$output = $this->render_detail_view( self::get_per_option_resource() );
+
+		$this->assertStringContainsString( 'id="paypal-send-email-form"', $output );
+		$this->assertStringContainsString( '<input type="hidden" name="resource_id" value="PLB-ZC45RDYZRHS9" />', $output );
+		$this->assertStringNotContainsString( 'name="price"', $output );
+		$this->assertStringNotContainsString( 'name="currency"', $output );
+		$this->assertStringNotContainsString( 'name="payment_link"', $output );
+		$this->assertStringNotContainsString( 'name="product_name"', $output );
+	}
+
+	/**
 	 * Test detail view shows description when present.
 	 */
 	public function test_detail_view_shows_description() {
@@ -1045,28 +1110,22 @@ class PayPal_Admin_Page_Test extends TestCase {
 	}
 
 	/**
-	 * Mock a get_resource API response.
+	 * Render the detail view for a resource as an admin.
 	 *
-	 * @param array $resource The resource data to return.
+	 * @param array $resource The resource PayPal returns.
+	 * @return string The page HTML.
 	 */
-	private function mock_get_resource_response( $resource ) {
-		add_filter(
-			'pre_http_request',
-			function ( $preempt, $args, $url ) use ( $resource ) {
-				if ( false !== strpos( $url, '/v1/oauth2/token' ) ) {
-					return $preempt;
-				}
-				return array(
-					'response' => array(
-						'code'    => 200,
-						'message' => '',
-					),
-					'body'     => wp_json_encode( $resource, JSON_UNESCAPED_SLASHES ),
-				);
-			},
-			10,
-			3
-		);
+	private function render_detail_view( $resource ) {
+		wp_set_current_user( $this->create_admin_user() );
+		$this->set_up_connected_state();
+		$this->mock_get_resource_response( $resource );
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = $resource['id'];
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		return ob_get_clean();
 	}
 
 	/**

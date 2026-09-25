@@ -33,6 +33,7 @@ use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
 use Jetpack;
 use WP_Error;
 
@@ -46,7 +47,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.4.0';
+	const PACKAGE_VERSION = '6.6.0';
 
 	/**
 	 * Feature flag that swaps the My Jetpack Products tab for a Features tab.
@@ -84,6 +85,7 @@ class Initializer {
 		'jetpack-social',
 		'jetpack-videopress',
 		'jetpack-search',
+		'jetpack-stats',
 	);
 
 	private const MY_JETPACK_SITE_INFO_TRANSIENT_KEY = 'my-jetpack-site-info';
@@ -206,15 +208,18 @@ class Initializer {
 	 * @return void
 	 */
 	public static function add_my_jetpack_menu_item() {
+		$menu_slug   = 'my-jetpack';
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
 			'edit_posts',
-			'my-jetpack',
+			$menu_slug,
 			array( __CLASS__, 'admin_page' ),
 			Admin_Menu::POSITION_FIRST
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+		// Users who can edit posts but have no Jetpack menu get an admin_page_ hook instead.
+		add_action( 'load-admin_page_' . $menu_slug, array( __CLASS__, 'admin_init' ) );
 	}
 
 	/**
@@ -228,8 +233,13 @@ class Initializer {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
 		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
 
-		// Handle onboarding redirects based on connection status
-		$redirect_args = self::get_onboarding_redirect_args( $step, $connection->is_connected(), self::is_onboarding_available() );
+		// Handle onboarding redirects based on connection status. Onboarding's only action is the
+		// connect request, which answers a user without `jetpack_connect` with a 403.
+		$redirect_args = self::get_onboarding_redirect_args(
+			$step,
+			$connection->is_connected(),
+			self::is_onboarding_available() && current_user_can( 'jetpack_connect' )
+		);
 
 		if ( null !== $redirect_args ) {
 			$admin_page = add_query_arg( $redirect_args, admin_url( 'admin.php' ) );
@@ -272,7 +282,7 @@ class Initializer {
 	 *
 	 * Coupons exist only with the Jetpack plugin, which supplies their products and images.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.5.0
 	 *
 	 * @return array{coupon: array, assetBaseUrl: string}|null
 	 */
@@ -538,11 +548,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function load_wp_build( $build_index ) {
-		// Hooked on either side of the require, so the alias holds only for the generated
-		// enqueue check it registers at the same priority.
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
-		require_once $build_index;
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
+		self::require_wp_build_with_screen_alias( $build_index );
 
 		// wp-build hooks module registration to wp_default_scripts, which has
 		// already fired by admin_menu — call it directly or the init module
@@ -555,6 +561,31 @@ class Initializer {
 			'my-jetpack',
 			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
 		);
+	}
+
+	/**
+	 * Require the generated build file with the screen ID aliased across its enqueue check.
+	 *
+	 * @see WP_Build_Screen_Id::load_with_alias()
+	 * @param string $build_index Path to the generated `build.php`.
+	 * @return void
+	 */
+	private static function require_wp_build_with_screen_alias( $build_index ) {
+		// Fallback: an older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
+		if ( method_exists( WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
+			WP_Build_Screen_Id::load_with_alias(
+				array( __CLASS__, 'alias_screen_id_for_wp_build' ),
+				array( __CLASS__, 'restore_screen_id_after_wp_build' ),
+				function () use ( $build_index ) {
+					require_once $build_index;
+				}
+			);
+			return;
+		}
+
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		require_once $build_index;
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
 	}
 
 	/**
@@ -611,6 +642,8 @@ class Initializer {
 			$sandboxed_domain = defined( 'JETPACK__SANDBOX_DOMAIN' ) ? JETPACK__SANDBOX_DOMAIN : '';
 		}
 
+		$features_tab_enabled = self::is_features_tab_enabled();
+
 		wp_localize_script(
 			$data_handle,
 			'myJetpackInitialState',
@@ -618,7 +651,8 @@ class Initializer {
 				'products'               => array(
 					'items' => Products::get_products(),
 				),
-				'mainFeatures'           => self::is_features_tab_enabled() ? Main_Features::get_state() : null,
+				'mainFeatures'           => $features_tab_enabled ? Main_Features::get_state() : null,
+				'featuresBanner'         => $features_tab_enabled ? array( 'isDismissed' => REST_Main_Features::is_banner_dismissed() ) : null,
 				'plugins'                => Plugins_Installer::get_plugins(),
 				'themes'                 => Sync_Functions::get_themes(),
 				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
@@ -650,6 +684,7 @@ class Initializer {
 				),
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'canUserViewStats'       => current_user_can( 'manage_options' ) || current_user_can( 'view_stats' ),
+				'hiddenFeatures'         => Feature_Visibility::get_hidden(),
 				'sandboxedDomain'        => $sandboxed_domain,
 				'isDevVersion'           => $is_dev_version,
 				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
@@ -725,7 +760,7 @@ class Initializer {
 	 *
 	 * Meaningful only after admin_menu has registered the page.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.5.0
 	 *
 	 * @return bool
 	 */
@@ -839,7 +874,7 @@ class Initializer {
 	public static function get_my_jetpack_flags() {
 		$flags = array(
 			'videoPressStats'          => Jetpack_Constants::is_true( 'JETPACK_MY_JETPACK_VIDEOPRESS_STATS_ENABLED' ),
-			'showFullJetpackStatsCard' => class_exists( 'Jetpack' ),
+			'showFullJetpackStatsCard' => class_exists( 'Jetpack' ) || Products\Stats::is_standalone_plugin_active(),
 			// Only says which destination `manage_url` is: the legacy Stats page
 			// caches its report and wants a `force_refresh` hint the dashboard does not.
 			'premiumAnalyticsEnabled'  => Products\Stats::is_premium_analytics_enabled(),

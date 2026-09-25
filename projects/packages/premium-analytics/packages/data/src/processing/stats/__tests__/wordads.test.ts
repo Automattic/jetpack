@@ -46,6 +46,32 @@ describe( 'Stats WordAds normalizers', () => {
 		] );
 	} );
 
+	it( 'nulls CPM for a bucket with no impressions and keeps a real zero CPM', () => {
+		const result = sanitizeStatsWordAdsStatsResponse( {
+			unit: 'month',
+			fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
+			data: [
+				[ '2026-05', 0, 0, 0 ],
+				[ '2026-06', 800, 0, 0 ],
+			],
+		} );
+
+		expect( result.data.map( row => row.cpm ) ).toEqual( [ null, 0 ] );
+		expect( result.summary.cpm ).toBe( 0 );
+	} );
+
+	it( 'nulls the CPM headline when the whole range has no impressions', () => {
+		const result = sanitizeStatsWordAdsStatsResponse( {
+			unit: 'day',
+			fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
+			data: [ [ '2026-06-01', 0, 0, 0 ] ],
+		} );
+
+		expect( result.summary ).toEqual(
+			expect.objectContaining( { impressions: 0, revenue: 0, cpm: null } )
+		);
+	} );
+
 	it( 'returns an empty report for empty WordAds stats payloads', () => {
 		expect( sanitizeStatsWordAdsStatsResponse( wordAdsStatsEmptyFixture ) ).toEqual( {
 			summary: {

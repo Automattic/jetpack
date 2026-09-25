@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { resolveFieldTypes } from '@jetpack-premium-analytics/fields';
 import type { WidgetActionRecord, WidgetRelevance, WidgetType } from '@wordpress/widget-primitives';
 
 /**
@@ -68,7 +69,12 @@ export function createStoryWidgetType(
 		name: manifest.name,
 		title: manifest.title,
 		icon: moduleDefinition.icon as WidgetType[ 'icon' ],
-		attributes: moduleDefinition.attributes as WidgetType[ 'attributes' ],
+		// Mirrors useWidgetTypes: a `type` naming a registered field type resolves here.
+		attributes: moduleDefinition.attributes
+			? resolveFieldTypes(
+					moduleDefinition.attributes as NonNullable< WidgetType[ 'attributes' ] >
+				)
+			: undefined,
 		example: moduleDefinition.example as WidgetType[ 'example' ],
 		...( manifest.description ? { description: manifest.description } : {} ),
 		...( manifest.category ? { category: manifest.category } : {} ),

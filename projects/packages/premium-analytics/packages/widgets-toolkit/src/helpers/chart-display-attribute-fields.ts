@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { ToggleGroupField } from '@jetpack-premium-analytics/fields';
 import { chartLine } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
@@ -39,8 +38,7 @@ export function chartTypeAttributeField<
 	return {
 		id: 'chartType',
 		label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
-		type: 'text',
-		Edit: ToggleGroupField,
+		type: 'jpa/toggle-group',
 		elements: CHART_DISPLAY_CHART_TYPES.map( chartType => ( {
 			value: chartType.id,
 			label: chartType.label,

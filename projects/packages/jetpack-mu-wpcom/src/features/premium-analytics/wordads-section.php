@@ -33,6 +33,7 @@ function wpcom_premium_analytics_register_wordads_section( $registry ) {
 		'wordads/ads',
 		array(
 			'label'               => __( 'Ads', 'jetpack-mu-wpcom' ),
+			'title'               => __( 'Ads performance', 'jetpack-mu-wpcom' ),
 			'order'               => 50,
 			'is_available'        => array( \Automattic\Jetpack\PremiumAnalytics\Capabilities::class, 'current_user_can_view_ad_reports' ),
 			// Only the chart supports dates, so it owns the control. No Ads widget

@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.52.0] - 2026-09-23
+### Added
+- Add a Latest Videos Playlist block that plays the site's newest VideoPress videos, with the number of videos set in the block settings. [#52665]
+
+### Changed
+- Inline player: Draw the facade's play button like the player's and show the player's loading spinner from the click until the player has mounted. [#52574]
+- Use the shared wp-build-polyfills helper to order the screen-ID alias around wp-build's generated enqueue check. [#52583]
+
+### Fixed
+- Exclude `wordpress-augmentations.d.ts` from published package. [#52650]
+- Fix private video playback on sites using WPML. [#52659]
+- Footer: Hide Products and Help links when My Jetpack is unavailable. [#52557]
+- Inline player: Show the poster of private videos, and of videos the server could not look up, before they are played instead of a black box. [#52574]
+
+## [0.51.1] - 2026-09-21
+### Fixed
+- Chapters: Explain which formatting requirements prevent chapters in video descriptions from being saved. [#52488]
+- Dashboard: Restore the admin screen ID after the wp-build enqueue check. [#52471]
+
 ## [0.51.0] - 2026-09-18
 ### Added
 - Add an inline player mode that loads the VideoPress player once per page instead of once per embedded frame. [#52244]
@@ -2255,6 +2274,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.52.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.51.1...v0.52.0
+[0.51.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.51.0...v0.51.1
 [0.51.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.50.2...v0.51.0
 [0.50.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.50.1...v0.50.2
 [0.50.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.50.0...v0.50.1

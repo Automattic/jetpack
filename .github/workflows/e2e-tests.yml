@@ -371,8 +371,7 @@ jobs:
           S3_ROOT: ${{ secrets.A8C_TEST_REPORTS_S3_ROOT }}
         run: |
           # One report per matrix job, each named with the run's timestamp.
-          find test-output -name 'ctrf-report-*.json' -type f -print0 |
-            xargs -0 -r -I{} aws s3 cp "{}" "$S3_ROOT/reports/ctrf/jetpack/"
+          find test-output -name 'ctrf-report-*.json' -type f -exec aws s3 cp {} "$S3_ROOT/reports/ctrf/jetpack/" \;
 
   slack-notification:
     name: "Slack notification"

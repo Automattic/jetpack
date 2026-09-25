@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Stats: Stop the pricing grid from coming back for up to 5 minutes after choosing Start for free.

@@ -1285,4 +1285,14 @@ EXPECTED;
 
 		$this->assertSame( 'Secure Sign On', $translated['sso']['name'] );
 	}
+
+	/**
+	 * Tests that a module's configure link opens the Settings page, searching for the module.
+	 */
+	public function test_module_configuration_url_opens_the_settings_page() {
+		$this->assertSame(
+			admin_url( 'admin.php?page=jetpack-settings' ) . '#/settings?term=markdown',
+			Jetpack::module_configuration_url( 'markdown' )
+		);
+	}
 } // end class

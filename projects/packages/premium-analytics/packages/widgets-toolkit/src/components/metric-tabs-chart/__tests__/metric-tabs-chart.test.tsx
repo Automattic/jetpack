@@ -3,6 +3,7 @@
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { setSettings } from '@wordpress/date';
+import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -40,6 +41,7 @@ type ChartProps = {
 	chartId?: string;
 	defaultHiddenSeries?: readonly string[];
 	legendInteractive?: boolean;
+	baseline?: 'zero' | 'padded';
 	onPointerDown?: ( params: PointerParams ) => void;
 	onPointerUp?: ( params: PointerParams ) => void;
 	onDatumActivate?: ( params: { datum: unknown } ) => void;
@@ -167,6 +169,27 @@ describe( 'MetricTabsChart', () => {
 
 		expect( screen.getByTestId( 'bar-chart' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'line-chart' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'hands the baseline to the line chart only', () => {
+		render(
+			<MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } baseline="padded" />
+		);
+		expect( mockLineSpy ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { baseline: 'padded' } )
+		);
+
+		render(
+			<MetricTabsChart
+				metrics={ [ METRIC ] }
+				dataFormat={ DATA_FORMAT }
+				chartType="bar"
+				baseline="padded"
+			/>
+		);
+		expect( mockBarSpy ).toHaveBeenLastCalledWith(
+			expect.not.objectContaining( { baseline: expect.anything() } )
+		);
 	} );
 
 	it( 'keeps the previous period as a same-group comparison series in both chart types', () => {
@@ -568,6 +591,31 @@ describe( 'MetricTabsChart tooltipMetrics', () => {
 		expect( recordedExtras( mockLineSpy ) ).toEqual( [
 			{ label: 'Visitors', data: VISITORS.current, dataFormat: DATA_FORMAT },
 			{ label: 'Average CPM', data: CPM.current, dataFormat: CURRENCY },
+		] );
+	} );
+
+	it( "hands each metric's count label to its series and to the tooltip extras", () => {
+		const views = ( count: number ) =>
+			/* translators: %s: number of views. */
+			_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
+		const visitors = ( count: number ) =>
+			/* translators: %s: number of visitors. */
+			_n( '%s Visitor', '%s Visitors', count, 'jetpack-premium-analytics-pkg' );
+
+		render(
+			<MetricTabsChart
+				metrics={ [
+					{ ...METRIC, countLabel: views },
+					{ ...VISITORS, countLabel: visitors },
+				] }
+				dataFormat={ DATA_FORMAT }
+				tooltipMetrics="all"
+			/>
+		);
+
+		expect( recordedSeries( mockLineSpy )[ 0 ].countLabel ).toBe( views );
+		expect( recordedExtras( mockLineSpy ) ).toEqual( [
+			expect.objectContaining( { label: 'Visitors', countLabel: visitors } ),
 		] );
 	} );
 

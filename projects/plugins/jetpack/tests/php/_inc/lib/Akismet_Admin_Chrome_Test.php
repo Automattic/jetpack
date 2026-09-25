@@ -212,6 +212,30 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'class="jp-footer__a8c-logo"', $footer );
 	}
 
+	public function test_wrap_ui_masthead_requires_available_my_jetpack() {
+		global $_registered_pages;
+
+		$_GET['page']    = 'jetpack_modules';
+		$render_masthead = function () {
+			$markup = $this->render(
+				static function () {
+					Jetpack_Admin_Page::wrap_ui( '__return_empty_string' );
+				}
+			);
+			return substr( $markup, 0, strpos( $markup, '</header>' ) );
+		};
+
+		$masthead = $render_masthead();
+		$this->assertSame( 2, substr_count( $masthead, 'page=my-jetpack#/overview' ), 'Both the logo and the title should link to My Jetpack.' );
+		$this->assertStringContainsString( '<a class="jp-masthead__logo-link"', $masthead );
+		unset( $_registered_pages[ get_plugin_page_hookname( 'my-jetpack', 'jetpack' ) ] );
+		$masthead = $render_masthead();
+		$this->assertStringNotContainsString( 'page=my-jetpack', $masthead );
+		$this->assertStringContainsString( '<span class="jp-masthead__logo-link">', $masthead );
+		$this->assertStringContainsString( '<svg', $masthead );
+		$this->assertMatchesRegularExpression( '/<h2 class="jp-masthead__title">\s*Jetpack\s*<span/', $masthead );
+	}
+
 	/**
 	 * With My Jetpack's Features tab on, the footer links to it under its new name.
 	 */

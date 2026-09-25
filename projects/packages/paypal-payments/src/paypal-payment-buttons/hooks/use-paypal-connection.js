@@ -8,6 +8,7 @@ import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-un
 import { useState, useEffect, useCallback, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { API_BASE } from '../utils/api-base';
+import { forgetExistingLinks } from '../utils/existing-links';
 import {
 	ONBOARD_CALLBACK_NAME,
 	ONBOARDING_FRAME_SHELL,
@@ -31,6 +32,10 @@ export const CONNECTION_CHANGED_EVENT = 'jetpack-paypal-payments-connection-chan
  * @param {boolean} connected - The new connection state.
  */
 export function broadcastConnectionChange( connected ) {
+	// A new connection may be another account, with its own links.
+	if ( connected ) {
+		forgetExistingLinks();
+	}
 	window.dispatchEvent( new CustomEvent( CONNECTION_CHANGED_EVENT, { detail: { connected } } ) );
 }
 

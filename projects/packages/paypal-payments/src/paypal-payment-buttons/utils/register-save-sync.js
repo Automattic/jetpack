@@ -1,5 +1,5 @@
 /**
- * Hook the payment sync into the post save.
+ * Hook the payment sync into the post save, and count the post saves for blocks to read.
  *
  * @package
  */
@@ -8,12 +8,53 @@ import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-un
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { dispatch, select } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { addFilter } from '@wordpress/hooks';
+import { addAction, addFilter } from '@wordpress/hooks';
 import { __, sprintf } from '@wordpress/i18n';
 import metadata from '../block.json';
 import { API_BASE } from './api-base';
 import { syncBlocksBeforeSave } from './sync-on-save';
 import { toast } from './toast';
+
+// Successful post saves other than autosaves.
+let postSaves = 0;
+const listeners = new Set();
+
+/**
+ * Set the count and call the listeners.
+ *
+ * @param {number} next - The new count.
+ */
+function update( next ) {
+	postSaves = next;
+	listeners.forEach( listener => listener() );
+}
+
+/**
+ * Call a function whenever the count changes.
+ *
+ * @param {Function} listener - Called with no arguments.
+ * @return {Function} Unsubscribes the listener.
+ */
+export function subscribeToPostSaves( listener ) {
+	listeners.add( listener );
+	return () => listeners.delete( listener );
+}
+
+/**
+ * How many post saves have succeeded.
+ *
+ * @return {number} The count, starting at 0.
+ */
+export function getPostSaveCount() {
+	return postSaves;
+}
+
+/**
+ * Forget the post saves counted. Tests start clean with this.
+ */
+export function forgetPostSaves() {
+	update( 0 );
+}
 
 /**
  * Every PayPal block in the post, inner blocks included.
@@ -48,11 +89,16 @@ async function isConnected() {
  *
  * Runs on `editor.preSavePost`, which awaits it and saves the content it returns.
  * The post is saved whether or not PayPal cooperated: an error is reported, and the
- * merchant can save again.
+ * merchant can save again. The success snackbar waits for `editor.savePost`, which runs
+ * after the post saves.
  *
  * @param {Function} isEnabled - Whether API-managed buttons are on for this site.
  */
 export function registerSaveSync( isEnabled ) {
+	// The success message, shown after the next post save that succeeds. It stays set through
+	// a failed post save, since PayPal already has the change.
+	let savedMessage = null;
+
 	addFilter(
 		'editor.preSavePost',
 		'jetpack/paypal-payment-buttons/sync-payments',
@@ -70,6 +116,8 @@ export function registerSaveSync( isEnabled ) {
 				return edits;
 			}
 
+			// One entry per payment this save created (true) or changed (false).
+			const saved = [];
 			const changed = await syncBlocksBeforeSave( blocks, {
 				request: apiFetch,
 				updateBlockAttributes: dispatch( blockEditorStore ).updateBlockAttributes,
@@ -91,7 +139,16 @@ export function registerSaveSync( isEnabled ) {
 						),
 						`jetpack-paypal-held-back-${ clientId }`
 					),
+				reportSaved: created => saved.push( created ),
 			} );
+
+			// Set before the `changed` check: a PUT can change the payment and leave the block as
+			// it is. The create message replaces a pending update message, and stays until shown.
+			if ( saved.includes( true ) ) {
+				savedMessage = __( 'Payment link successfully created.', 'jetpack-paypal-payments' );
+			} else if ( saved.length && ! savedMessage ) {
+				savedMessage = __( 'Payment link changes saved.', 'jetpack-paypal-payments' );
+			}
 
 			if ( ! changed ) {
 				return edits;
@@ -105,4 +162,28 @@ export function registerSaveSync( isEnabled ) {
 			return { ...edits, content };
 		}
 	);
+
+	// Runs after the post saves. An autosave skips the PayPal sync, so the message waits
+	// for the next save.
+	addAction(
+		'editor.savePost',
+		'jetpack/paypal-payment-buttons/saved-snackbar',
+		( post, options ) => {
+			if ( options?.isAutosave || ! savedMessage ) {
+				return;
+			}
+
+			toast( 'success', savedMessage, 'jetpack-paypal-saved' );
+			savedMessage = null;
+		}
+	);
+
+	// Runs after the post saves, and counts every save except autosaves.
+	addAction( 'editor.savePost', 'jetpack/paypal-payment-buttons/post-saves', ( post, options ) => {
+		if ( options?.isAutosave ) {
+			return;
+		}
+
+		update( postSaves + 1 );
+	} );
 }

@@ -3,6 +3,7 @@
  */
 import { render, screen } from '@testing-library/react';
 import { setSettings } from '@wordpress/date';
+import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -156,7 +157,8 @@ type TooltipProps = {
 		datum: { date?: Date; realDate?: Date },
 		index: number,
 		key: string,
-		value: string
+		value: string,
+		rawValue?: number
 	) => string;
 	layout?: string;
 };
@@ -375,6 +377,37 @@ describe( 'ComparativeBarChart', () => {
 				'30'
 			)
 		).toBe( '30 Visitors · June 1, 2026' );
+	} );
+
+	it( "reads a count metric's rows, comparison included, in the count's plural form", () => {
+		const views = ( count: number ) =>
+			/* translators: %s: number of views. */
+			_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
+		const [ current, comparison ] = SERIES_WITH_COMPARISON;
+
+		render(
+			<ComparativeBarChart
+				series={ [ { ...current, countLabel: views }, comparison ] }
+				dataFormat={ DATA_FORMAT }
+			/>
+		);
+
+		const { getLabel } = recordedProps().renderTooltip( {
+			tooltipData: { nearestDatum: { datum: { date: JULY_1, value: 1 }, key: current.label } },
+		} ).props;
+
+		expect( getLabel( { date: JULY_1 }, 0, current.label, '1', 1 ) ).toBe(
+			'1 View · July 1, 2026'
+		);
+		expect(
+			getLabel(
+				{ date: JULY_1, realDate: new Date( '2026-06-01T00:00:00Z' ) },
+				1,
+				comparison.label,
+				'1',
+				1
+			)
+		).toBe( '1 View · June 1, 2026' );
 	} );
 
 	it( 'renders the rows inline, the value spelled into each label', () => {

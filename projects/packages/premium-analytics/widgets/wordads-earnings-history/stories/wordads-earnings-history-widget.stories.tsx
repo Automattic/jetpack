@@ -18,6 +18,7 @@ import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 import {
 	forceWordAdsEarningsState,
 	registerReportMocks,
+	setReportMockResponse,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
@@ -50,7 +51,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "WordAds earnings" widget — WordAds earnings by period (amount, payment status), ported from the Jetpack Stats WordAds page. Ads served lives in the full report.',
+					'The "WordAds earnings" widget — WordAds earnings by period (amount, payment status), ported from the Jetpack Stats WordAds page. Ads served lives in the full report. A site with adjustment rows gets an "N adjustments" badge at the far end of the footer, into the Adjustments history tab of the report; the shared fixture has two, so the default story shows it.',
 			},
 		},
 	},
@@ -77,6 +78,30 @@ export const Error: Story = {
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: forceWordAdsEarningsState( 'error' ),
+};
+
+// The shared fixture carries adjustments; most sites have none.
+const NO_ADJUSTMENTS = {
+	earnings: {
+		total_earnings: 166.3,
+		total_amount_owed: 75.99,
+		wordads: {
+			'2026-05': { amount: '90.31', pageviews: 65921, status: 1 },
+			'2026-06': { amount: '75.99', pageviews: 59367, status: 0 },
+		},
+		sponsored: {},
+		adjustment: {},
+	},
+};
+
+/** No adjustment rows — the widget renders the list and footer alone. */
+export const NoAdjustments: Story = {
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => {
+		setReportMockResponse( 'wordads/earnings', NO_ADJUSTMENTS );
+		return () => setReportMockResponse( 'wordads/earnings', null );
+	},
 };
 
 /** Resolved but empty — no earnings history for this breakdown. */

@@ -1,6 +1,16 @@
 import { render, screen } from '@testing-library/react';
 import ErrorBoundary from '../index';
 
+// The `jetpack-js-tools` console guard registers the matcher but ships no types for it.
+declare global {
+	// eslint-disable-next-line @typescript-eslint/no-namespace
+	namespace jest {
+		interface Matchers< R > {
+			toHaveErrored(): R;
+		}
+	}
+}
+
 /**
  * Test helper that throws during render.
  */

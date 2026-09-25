@@ -23,8 +23,9 @@ import {
 	describeError,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
+	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
@@ -34,7 +35,7 @@ import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { DETAIL_GRID } from '../grid';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { useWidgetModules } from '../use-widget-modules';
-import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
+import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { toWidgetTypeBaseNames, withWidgetTypeAliases } from '../widget-type-aliases';
 import { authorHeaderSlots } from './components';
 import { AUTHOR_DETAIL_LAYOUT, AUTHOR_DETAIL_WIDGET_TYPE_ALIASES } from './config';
@@ -57,6 +58,7 @@ function AuthorDetail(): JSX.Element {
 	const summary = useAuthorSummary( Number( authorIdParam ) );
 
 	const widgetModules = useWidgetModules();
+	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
 
 	const { layout, setLayout, resetLayout } = useStoredDetailLayout(
 		PREFERENCES_SCOPE,
@@ -81,6 +83,28 @@ function AuthorDetail(): JSX.Element {
 	// it. WOOA7S-2137 anchors it on the author's first published content instead.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dateControls = useDetailDateControls( undefined, dateFilters );
+	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
+	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
+		{
+			presetId: dateFilters.presetId,
+			range: dateFilters.range,
+			interval: dateFilters.interval,
+			comparisonPresetId: dateFilters.comparisonPresetId,
+			appliedComparisonRange: dateFilters.appliedComparisonRange,
+		},
+		{ surface: 'author_detail', offersComparison: false }
+	);
+	const onDateChange = useCallback< typeof changeDateRange >(
+		( ...args ) => {
+			changeDateRange( ...args );
+			trackedOnChange( ...args );
+		},
+		[ changeDateRange, trackedOnChange ]
+	);
+	const onDateApply = useCallback( () => {
+		applyDateRange();
+		trackedOnApply();
+	}, [ applyDateRange, trackedOnApply ] );
 
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportDateParams( search );
@@ -96,7 +120,13 @@ function AuthorDetail(): JSX.Element {
 		startCustomizing,
 		resetToDefault,
 		onEditChange,
-	} = useDetailPageCustomize( layout, { enabled: canRenderWidgets, onLayoutReset: resetLayout } );
+		onLayoutChange,
+	} = useDetailPageCustomize( layout, {
+		enabled: canRenderWidgets,
+		onLayoutReset: resetLayout,
+		onLayoutChange: setLayout,
+		surface: 'author_detail',
+	} );
 
 	// The trail is fixed to Stats / All authors / Author regardless of which report
 	// the reader arrived from: the author list is this page's only parent.
@@ -162,9 +192,9 @@ function AuthorDetail(): JSX.Element {
 			<WidgetDashboard
 				widgetTypes={ pageWidgetTypes }
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
-				resolveWidgetModule={ resolveWidgetModuleWithI18n }
+				resolveWidgetModule={ resolveWidgetModule }
 				layout={ layout }
-				onLayoutChange={ setLayout }
+				onLayoutChange={ onLayoutChange }
 				onLayoutReset={ resetLayout }
 				gridSettings={ DETAIL_GRID }
 				editMode={ isCustomizing }
@@ -190,7 +220,14 @@ function AuthorDetail(): JSX.Element {
 						header={ authorHeaderSlots( { summary } ) }
 						// The presets render in every summary state, so the range stays
 						// adjustable while the author loads or errors.
-						controls={ <DateFiltersPanel { ...dateFilters } { ...dateControls } /> }
+						controls={
+							<DateFiltersPanel
+								{ ...dateFilters }
+								{ ...dateControls }
+								onChange={ onDateChange }
+								onApply={ onDateApply }
+							/>
+						}
 					>
 						{ canRenderWidgets ? (
 							<DetailPageSection>

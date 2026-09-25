@@ -43,7 +43,7 @@ class Protected_Owner {
 	 * Record a confirmed protected owner and lock the anchor.
 	 *
 	 * @since 9.3.0
-	 * @since $$next-version$$ No longer records how the owner was confirmed.
+	 * @since 9.6.0 No longer records how the owner was confirmed.
 	 *
 	 * @param int $wpcom_user_id The owner's WordPress.com user ID, as confirmed by WordPress.com.
 	 * @param int $local_user_id The owner's local WordPress user ID. Required here, though the
@@ -84,7 +84,7 @@ class Protected_Owner {
 	 * Deliberately narrow: `confirmed_at` records when the owner was originally confirmed, and
 	 * re-pointing a cache is not a new confirmation.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.5.0
 	 *
 	 * @param int $local_user_id The local user the anchored identity now holds.
 	 * @return bool Whether the anchor now names that local user.

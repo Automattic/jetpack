@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Tools: Replace `@wordpress/jest-console` with a simple set of mocks.
