@@ -6,9 +6,9 @@ import {
 	pluginSwitchKey,
 	useRequestedSwitches,
 } from '../../../data/requested-switch-state';
-import { getModuleStatus, getOverrideReason } from '../../modules-list/utils';
-import { getProductModules } from '../products/mappings';
-import { useAllJetpackModules } from '../products/use-all-jetpack-modules';
+import { getProductModules } from './mappings';
+import { getModuleStatus, getOverrideReason } from './module-availability';
+import { useAllJetpackModules } from './use-all-jetpack-modules';
 import type { ProductCamelCase } from '../../../data/types';
 import type { JetpackModuleSlug, MyJetpackModule } from '../../../types';
 
@@ -68,9 +68,9 @@ export function getForcedReason( state: FeatureState ): string | null {
 /**
  * The Jetpack module behind a feature, if any.
  *
- * A product's module is rarely named after it (Social runs 'publicize'). Resolved the way
- * the Products tab builds its cards, which also keeps the pre-release gate on Jetpack AI:
- * with the flag off that map drops AI, so no module resolves.
+ * A product's module is rarely named after it (Social runs 'publicize'). Resolved through
+ * `getProductModules()`, which also keeps the pre-release gate on Jetpack AI: with the
+ * flag off that map drops AI, so no module resolves.
  *
  * @param feature        - The feature, from the map-backed catalog.
  * @param productModules - Product slug to module slug, where the two differ.

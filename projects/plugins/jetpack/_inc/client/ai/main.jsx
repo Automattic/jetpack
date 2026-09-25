@@ -194,7 +194,7 @@ export default function App() {
 		masterEnabled = true,
 		masterForcedOff = '',
 		userConnectionUrl = 'admin.php?page=my-jetpack#/connection',
-		manageUrl = 'admin.php?page=my-jetpack#/products',
+		manageUrl = 'admin.php?page=my-jetpack#/features',
 		hasMyJetpack = true,
 		canConnectSite = true,
 		isOfflineMode = false,

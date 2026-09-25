@@ -1,4 +1,5 @@
 import { __, _x } from '@wordpress/i18n';
+import { MyJetpackRoutes } from '../../constants';
 
 type FooterMenuItem = {
 	href?: string;
@@ -15,7 +16,6 @@ type BuildOptionalMenuItemsArgs = {
 	isSiteConnected: boolean;
 	isJetpackPluginActive: boolean;
 	isSimpleSite: boolean;
-	modulesListPath: string;
 	onModulesClick: () => void;
 	onResetClick: () => void;
 	onResetKeyDown: ( event: KeyboardEvent ) => void;
@@ -28,15 +28,13 @@ const buildOptionalMenuItems = ( {
 	isSiteConnected,
 	isJetpackPluginActive,
 	isSimpleSite,
-	modulesListPath,
 	onModulesClick,
 	onResetClick,
 	onResetKeyDown,
 }: BuildOptionalMenuItemsArgs ): FooterMenuItem[] => {
 	const items: FooterMenuItem[] = [];
 
-	// The fallback jetpack_modules admin page is not registered on WordPress.com Simple sites,
-	// so the link would 404 there.
+	// The Features list view replaces the Modules screen. Simple sites already show only Features.
 	if ( userIsAdmin && isSiteConnected && isJetpackPluginActive && ! isSimpleSite ) {
 		items.push( {
 			label: _x(
@@ -48,7 +46,7 @@ const buildOptionalMenuItems = ( {
 				'Access the full list of Jetpack modules available on your site.',
 				'jetpack-my-jetpack'
 			),
-			href: `${ adminUrl }${ modulesListPath }`,
+			href: `${ adminUrl }admin.php?page=my-jetpack#${ MyJetpackRoutes.Features }?view=list`,
 			onClick: onModulesClick,
 		} );
 	}

@@ -346,7 +346,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			).resolves.toBeInTheDocument();
 			expect( screen.getByRole( 'link', { name: 'Manage in My Jetpack' } ) ).toHaveAttribute(
 				'href',
-				'admin.php?page=my-jetpack#/products'
+				'admin.php?page=my-jetpack#/features'
 			);
 			// One page-level notice — AiFeatures must not render a second copy.
 			expect( screen.getAllByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).toHaveLength( 1 );

@@ -480,7 +480,7 @@ class Main_Features {
 	/**
 	 * The paid bundles that include a feature, named for display.
 	 *
-	 * Named by the bundle products themselves, so the Features tab and the Products tab
+	 * Named by the bundle products themselves, so the Features tab and the rest of My Jetpack
 	 * call a plan the same thing.
 	 *
 	 * @param array $definition One feature's catalog entry.

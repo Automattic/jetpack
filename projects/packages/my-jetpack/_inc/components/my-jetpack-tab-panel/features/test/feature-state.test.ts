@@ -1,6 +1,6 @@
 import { PRODUCT_STATUSES } from '../../../../constants';
-import { PRODUCT_MODULES } from '../../products/mappings';
 import { resolveFeatureState } from '../feature-state';
+import { PRODUCT_MODULES } from '../mappings';
 import type { ProductCamelCase } from '../../../../data/types';
 import type { MyJetpackModule } from '../../../../types';
 

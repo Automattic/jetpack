@@ -29,8 +29,8 @@ use WorDBless\Users as WorDBless_Users;
 /**
  * Drives Product::get_status() across the plan matrix.
  *
- * The status asserted here is the value the REST API ships to the Products page, which
- * the card turns into its primary action. The status-to-action half of that contract is
+ * The status asserted here is the value the REST API ships to each product card, which
+ * turns it into its primary action. The status-to-action half of that contract is
  * covered by _inc/components/action-button/test/plan-matrix.test.tsx, and the two halves
  * are pinned to a shared vocabulary by Status_Vocabulary_Parity_Test.
  *
@@ -238,7 +238,7 @@ class Plan_Matrix_Test extends TestCase {
 	private const KNOWN_BROKEN = array();
 
 	/**
-	 * Every product that renders a card on the Products page.
+	 * Every product that renders a product card.
 	 *
 	 * @return array<string, class-string<Product>>
 	 */
@@ -313,7 +313,7 @@ class Plan_Matrix_Test extends TestCase {
 	}
 
 	/**
-	 * The status the Products page shows for one cell of the plan matrix.
+	 * The status a product card shows for one cell of the plan matrix.
 	 *
 	 * @param string $slug       Product slug.
 	 * @param string $ownership  One of the OWNERSHIP_* constants.

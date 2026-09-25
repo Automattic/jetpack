@@ -170,7 +170,7 @@ describe( 'PageNotice', () => {
 			<PageNotice
 				state={ state }
 				userConnectionUrl="admin.php?page=my-jetpack#/connection"
-				manageUrl="admin.php?page=my-jetpack#/products"
+				manageUrl="admin.php?page=my-jetpack#/features"
 				hasMyJetpack={ true }
 				{ ...overrides }
 			/>
@@ -284,7 +284,7 @@ describe( 'PageNotice', () => {
 			<PageNotice
 				state="master-off"
 				userConnectionUrl="admin.php?page=my-jetpack#/connection"
-				manageUrl="admin.php?page=my-jetpack#/products"
+				manageUrl="admin.php?page=my-jetpack#/features"
 				hasMyJetpack={ true }
 			/>
 		);
@@ -370,7 +370,7 @@ describe( 'PageNotice', () => {
 			).toBeInTheDocument();
 			expect( screen.getByRole( 'link', { name: 'Manage in My Jetpack' } ) ).toHaveAttribute(
 				'href',
-				'admin.php?page=my-jetpack#/products'
+				'admin.php?page=my-jetpack#/features'
 			);
 		} );
 

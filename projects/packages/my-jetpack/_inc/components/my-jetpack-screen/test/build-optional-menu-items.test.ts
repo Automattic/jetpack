@@ -10,7 +10,6 @@ const baseArgs = {
 	isSiteConnected: true,
 	isJetpackPluginActive: true,
 	isSimpleSite: false,
-	modulesListPath: 'admin.php?page=jetpack_modules',
 	onModulesClick: jest.fn(),
 	onResetClick: jest.fn(),
 	onResetKeyDown: jest.fn(),
@@ -24,7 +23,7 @@ describe( 'buildOptionalMenuItems', () => {
 			expect( items ).toHaveLength( 1 );
 			expect( items[ 0 ] ).toMatchObject( {
 				label: 'Modules',
-				href: 'https://example.com/wp-admin/admin.php?page=jetpack_modules',
+				href: 'https://example.com/wp-admin/admin.php?page=my-jetpack#/features?view=list',
 			} );
 		} );
 

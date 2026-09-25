@@ -2,8 +2,8 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { moduleSwitchKey, useRequestedSwitches } from '../../../data/requested-switch-state';
-import { PRODUCT_MODULES } from '../products/mappings';
-import { useAllJetpackModules } from '../products/use-all-jetpack-modules';
+import { getFeatureModuleSlug } from './feature-state';
+import { PRODUCT_MODULES } from './mappings';
 import {
 	LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE,
 	compareModulesByName,
@@ -11,8 +11,8 @@ import {
 	moduleFields,
 	rankBy,
 	searchTerms,
-} from '../products/utils';
-import { getFeatureModuleSlug } from './feature-state';
+} from './search';
+import { useAllJetpackModules } from './use-all-jetpack-modules';
 import { matchesFilter } from './use-feature-filter';
 import type { FeatureState } from './feature-state';
 import type { FeatureFilter } from './use-feature-filter';
@@ -115,8 +115,7 @@ export function groupMoreFeatures(
 /**
  * Narrow the groups to what the filter or search shows, dropping any left empty.
  *
- * A search replaces the filter, as it does for the main features, and ranks modules the way
- * the Products tab ranks them.
+ * A search replaces the filter and ranks the modules, as it does for the main features.
  *
  * @param groups - The grouped modules.
  * @param filter - The active filter.

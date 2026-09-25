@@ -13,7 +13,7 @@ import {
 	pluginSwitchKey,
 	setRequestedSwitch,
 } from '../../../data/requested-switch-state';
-import { getModuleStatus } from '../../modules-list/utils';
+import { getModuleStatus } from './module-availability';
 import { QUERY_KEY } from './use-main-features';
 import type { FeatureState } from './feature-state';
 

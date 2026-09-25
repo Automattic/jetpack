@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Plugin\Footer_Links;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
@@ -31,7 +32,46 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	 * @param string $hook Hook of current page.
 	 * @return void
 	 */
-	public function add_page_actions( $hook ) {} //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function add_page_actions( $hook ) {
+		add_action( "load-$hook", array( $this, 'maybe_redirect_to_features_list' ), 1 );
+	}
+
+	/**
+	 * Where this page sends people instead: My Jetpack's Features list, which replaces it.
+	 *
+	 * Offline Mode and a disabled REST API keep the page, because My Jetpack can't run there.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The URL, or null to render this page.
+	 */
+	public function get_features_list_redirect() {
+		if ( ! current_user_can( 'manage_options' )
+			|| ! $this->is_rest_api_enabled()
+			|| ! Footer_Links::is_my_jetpack_available()
+		) {
+			return null;
+		}
+
+		return admin_url( 'admin.php?page=my-jetpack#/features?view=list' );
+	}
+
+	/**
+	 * Send the request to the Features list when My Jetpack can show it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function maybe_redirect_to_features_list() {
+		$url = $this->get_features_list_redirect();
+		if ( null === $url ) {
+			return;
+		}
+
+		wp_safe_redirect( $url );
+		exit( 0 );
+	}
 
 	/**
 	 * Adds the Settings sub menu.

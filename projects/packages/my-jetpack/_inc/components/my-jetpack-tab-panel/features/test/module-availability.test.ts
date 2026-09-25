@@ -1,6 +1,6 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { getModuleStatus } from '../utils';
-import type { MyJetpackModule } from '../../../types';
+import { getModuleStatus } from '../module-availability';
+import type { MyJetpackModule } from '../../../../types';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getScriptData: jest.fn(),
