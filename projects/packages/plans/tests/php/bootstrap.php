@@ -14,3 +14,5 @@ define( 'WP_DEBUG', true );
 
 // Initialize WordPress test environment
 \Automattic\Jetpack\Test_Environment::init();
+
+require_once __DIR__ . '/stubs/class-store-product-list.php';
