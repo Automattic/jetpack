@@ -145,8 +145,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no points: the widget shows the generic empty state (the
- * magnifier glyph and "We couldn’t find results for this time period.").
+ * Resolved with no points: the widget shows the generic empty state.
  */
 export const Empty: Story = {
 	render: () => renderSubscribersChartOnPreset( 'last-365-days' ),

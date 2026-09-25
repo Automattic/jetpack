@@ -176,8 +176,7 @@ export const ErrorRetryable: StoryObj< TopPlatformsStoryControls > = {
 };
 
 /**
- * Resolved with no rows: the widget shows the generic empty state (the magnifier
- * glyph and "We couldn’t find results for this time period.").
+ * Resolved with no rows: the widget shows the generic empty state.
  */
 export const Empty: StoryObj< TopPlatformsStoryControls > = {
 	render: () => renderTopPlatformsOnPreset( 'last-year' ),
