@@ -55,7 +55,7 @@ export function observeLegacyModulesState( client: QueryClient ) {
 	};
 }
 
-// Register in the legacy bundle beside observeLegacyModulesState(), for the same reason.
+// Relays getting_started to the route bundle, which cannot read the legacy bundle's Data Sync cache.
 export function observeLegacyOnboarding( client: QueryClient ) {
 	let onboardingHeld = false;
 	const isOnboardingSaving = () =>
