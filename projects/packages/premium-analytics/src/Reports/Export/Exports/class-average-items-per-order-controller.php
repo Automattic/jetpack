@@ -19,7 +19,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Contr
  * Handles CSV exports for the Average Items Per Order report, supporting both
  * single interval and comparison interval data.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Average_Items_Per_Order_Controller extends Abstract_Csv_Report_Controller {
 

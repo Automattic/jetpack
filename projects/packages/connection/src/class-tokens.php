@@ -40,6 +40,17 @@ class Tokens {
 		);
 
 		$this->remove_lock();
+
+		/**
+		 * Fires after all connection tokens have been deleted from the local site.
+		 *
+		 * `Jetpack_Options::delete_option()` fires no action of its own, so this is the only
+		 * signal that the tokens backing the connection are gone. Anything holding derived
+		 * state — a memoized connection status, a cached credential — must recompute from here.
+		 *
+		 * @since 9.1.1
+		 */
+		do_action( 'jetpack_connection_tokens_deleted' );
 	}
 
 	/**
@@ -89,6 +100,8 @@ class Tokens {
 	/**
 	 * Perform the API request to validate only the blog.
 	 *
+	 * @since $$next-version$$ Returns a WP_Error, not false, when the request fails.
+	 *
 	 * @return bool|WP_Error Boolean with the test result. WP_Error if test cannot be performed.
 	 */
 	public function validate_blog_token() {
@@ -96,6 +109,12 @@ class Tokens {
 		if ( ! $blog_id ) {
 			return new WP_Error( 'site_not_registered', 'Site not registered.' );
 		}
+
+		// A missing blog token is broken, not unverifiable: the signed request would fail before it is sent.
+		if ( ! $this->get_access_token() ) {
+			return false;
+		}
+
 		$url = sprintf(
 			'%s/%s/v%s/%s',
 			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
@@ -107,8 +126,12 @@ class Tokens {
 		$method   = 'GET';
 		$response = Client::remote_request( compact( 'url', 'method' ) );
 
-		if ( is_wp_error( $response ) || ! wp_remote_retrieve_body( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return false;
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		if ( ! wp_remote_retrieve_body( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return new WP_Error( 'blog_token_check_failed', 'The blog token health check could not be performed.' );
 		}
 
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
@@ -377,27 +400,29 @@ class Tokens {
 		$user_tokens             = $this->get_user_tokens();
 
 		if ( $user_id ) {
+			$resolved_user_id = true === $user_id ? (int) Jetpack_Options::get_option( 'master_user' ) : (int) $user_id;
+
 			if ( ! $user_tokens ) {
-				return $suppress_errors ? false : new WP_Error( 'no_user_tokens', __( 'No user tokens found', 'jetpack-connection' ) );
+				return $suppress_errors ? false : new WP_Error( 'no_user_tokens', __( 'No user tokens found', 'jetpack-connection' ), array( 'user_id' => $resolved_user_id ) );
 			}
 			if ( true === $user_id ) { // connection owner.
-				$user_id = Jetpack_Options::get_option( 'master_user' );
-				if ( ! $user_id ) {
+				if ( ! $resolved_user_id ) {
 					return $suppress_errors ? false : new WP_Error( 'empty_master_user_option', __( 'No primary user defined', 'jetpack-connection' ) );
 				}
+				$user_id = $resolved_user_id;
 			}
 			if ( ! isset( $user_tokens[ $user_id ] ) || ! $user_tokens[ $user_id ] ) {
 				// translators: %s is the user ID.
-				return $suppress_errors ? false : new WP_Error( 'no_token_for_user', sprintf( __( 'No token for user %d', 'jetpack-connection' ), $user_id ) );
+				return $suppress_errors ? false : new WP_Error( 'no_token_for_user', sprintf( __( 'No token for user %d', 'jetpack-connection' ), $user_id ), array( 'user_id' => (int) $user_id ) );
 			}
 			$user_token_chunks = explode( '.', $user_tokens[ $user_id ] );
 			if ( empty( $user_token_chunks[1] ) || empty( $user_token_chunks[2] ) ) {
 				// translators: %s is the user ID.
-				return $suppress_errors ? false : new WP_Error( 'token_malformed', sprintf( __( 'Token for user %d is malformed', 'jetpack-connection' ), $user_id ) );
+				return $suppress_errors ? false : new WP_Error( 'token_malformed', sprintf( __( 'Token for user %d is malformed', 'jetpack-connection' ), $user_id ), array( 'user_id' => (int) $user_id ) );
 			}
 			if ( $user_token_chunks[2] !== (string) $user_id ) {
 				// translators: %1$d is the ID of the requested user. %2$d is the user ID found in the token.
-				return $suppress_errors ? false : new WP_Error( 'user_id_mismatch', sprintf( __( 'Requesting user_id %1$d does not match token user_id %2$d', 'jetpack-connection' ), $user_id, $user_token_chunks[2] ) );
+				return $suppress_errors ? false : new WP_Error( 'user_id_mismatch', sprintf( __( 'Requesting user_id %1$d does not match token user_id %2$d', 'jetpack-connection' ), $user_id, $user_token_chunks[2] ), array( 'user_id' => (int) $user_id ) );
 			}
 			$possible_normal_tokens[] = "{$user_token_chunks[0]}.{$user_token_chunks[1]}";
 		} else {
@@ -455,7 +480,7 @@ class Tokens {
 		if ( ! $valid_token ) {
 			if ( $user_id ) {
 				// translators: %d is the user ID.
-				return $suppress_errors ? false : new WP_Error( 'no_valid_user_token', sprintf( __( 'Invalid token for user %d', 'jetpack-connection' ), $user_id ) );
+				return $suppress_errors ? false : new WP_Error( 'no_valid_user_token', sprintf( __( 'Invalid token for user %d', 'jetpack-connection' ), $user_id ), array( 'user_id' => (int) $user_id ) );
 			} else {
 				return $suppress_errors ? false : new WP_Error( 'no_valid_blog_token', __( 'Invalid blog token', 'jetpack-connection' ) );
 			}

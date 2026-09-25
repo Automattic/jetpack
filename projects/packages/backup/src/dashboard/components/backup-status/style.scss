@@ -1,0 +1,106 @@
+// The first-run panel replaces the Overview's two-pane grid entirely, so
+// it lands directly inside `.jpb-dashboard-body__inner` — the same slot
+// the gate screens occupy, and it is sized to match them.
+// `EmptyState.Root`'s own `align-items: center` centers its children
+// inside the box, not the box inside its parent: it ships
+// `margin-inline: 0`, so in this dashboard's 1344px ribbon it would hug
+// the left edge. `.jpb-gates__card` solves the same problem the same way.
+.jpb-backup-status {
+	margin-block: 48px;
+	margin-inline: auto;
+	max-inline-size: 560px;
+
+	// `EmptyState.Root` stacks its children on a 4px gap, which is right
+	// for consecutive lines of text but leaves the bar reading as an
+	// underline welded to the heading. Give the row its own space.
+	&__progress {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		inline-size: 100%;
+		margin-block: 12px;
+	}
+
+	// `EmptyState` centers its children, which would otherwise shrink the
+	// bar to its intrinsic width. Let it take the row and keep the
+	// percentage readout beside it. The stock track is 1.5px tall, which
+	// reads as a divider rule rather than a progress element — most of all
+	// in indeterminate mode, where there is no filled portion to give it
+	// contrast.
+	// Deliberately scoped under `&__progress` rather than written flat.
+	// `@wordpress/components` styles the track through a runtime-injected
+	// emotion class of equal specificity, and emotion appends to `<head>`
+	// after the bundled stylesheet — so a flat `&__bar` rule would lose on
+	// source order no matter where this file sits in the build. One extra
+	// class wins it without reaching for `!important`.
+	&__progress &__bar {
+		flex: 1 1 auto;
+		min-inline-size: 0;
+		block-size: 4px;
+		border-radius: 2px;
+		overflow: hidden;
+
+		// ProgressBar's filled indicator is an absolutely-positioned
+		// `inline-block` that declares no `left`, so it lands on its static
+		// position — which, for an inline-level box, `text-align` decides.
+		// `EmptyState.Root` centers its contents, and that inherits in here
+		// and drags the filled portion to the middle of the track. Only
+		// visible on the determinate bar; the indeterminate one animates
+		// `left` explicitly and so is immune.
+		text-align: start;
+
+		> * {
+			block-size: 100%;
+		}
+	}
+}
+
+// Both strips sit above the two-pane grid rather than inside it:
+// `.jpb-overview` is a two-column grid at >= 961px, so a third child
+// would be auto-placed into the layout and push the detail pane onto its
+// own row. Wrapping them here keeps that grid untouched.
+
+// They are deliberately the same box in the same slot and differ only in
+// tint, so the shared half is written once — otherwise the two drift and
+// the sameness stops being true.
+.jpb-backup-status-banner,
+.jpb-backup-trouble-banner {
+	box-sizing: border-box;
+	inline-size: 100%;
+	margin-block-end: 16px;
+	padding: 12px 16px;
+	border-radius: 8px;
+}
+
+.jpb-backup-status-banner {
+	// `--wp-components-color-background-secondary` is used elsewhere in
+	// this dashboard but is declared by nothing — not by
+	// `@wordpress/components`, `/ui`, `/theme` or `/base-styles` — so it
+	// only ever resolves to its hardcoded fallback and never follows the
+	// admin colour scheme. This one is real, ships in `@wordpress/theme`,
+	// and is what `EmptyState.Icon` uses for the same job. No fallback: the
+	// design-system build injects those, and the linter rejects hand-written
+	// ones because they go stale.
+	background-color: var(--wpds-color-background-surface-neutral-weak);
+
+	// Matches the panel's bar so the two readings of "a backup is running"
+	// look like the same control — including the specificity bump, for the
+	// same reason.
+	& &__bar {
+		flex: 1 1 auto;
+		min-inline-size: 0;
+		block-size: 4px;
+		border-radius: 2px;
+		overflow: hidden;
+
+		> * {
+			block-size: 100%;
+		}
+	}
+}
+
+// Tinted as a warning rather than neutral: this one reports that
+// something is wrong, not that something is happening.
+.jpb-backup-trouble-banner {
+	background-color: var(--wpds-color-background-surface-warning-weak);
+}

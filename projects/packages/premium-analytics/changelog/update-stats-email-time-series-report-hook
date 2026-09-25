@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Stats: Email time series hooks now return comparison-aware report results and resolve hourly buckets into distinct per-hour intervals.

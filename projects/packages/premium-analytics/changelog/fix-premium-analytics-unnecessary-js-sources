@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Remove unnecessary TypeScript sources from the published package.

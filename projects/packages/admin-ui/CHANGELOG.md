@@ -5,9 +5,63 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.0] - 2026-09-23
+### Added
+- Honor `jetpack_feature_policy` when deciding which Jetpack items appear in the sidebar. [#52587]
+
+## [0.13.0] - 2026-09-21
+### Added
+- Sidebar: Add `Admin_Menu::add_top_level_menu()` so a Jetpack page outside the Jetpack menu can declare a visibility gate and appear in the `jetpack_admin_menu_visibility` filter. [#52351]
+
+### Fixed
+- Sidebar: Keep Jetpack menu items in alphabetical order, with My Jetpack first, even when a plugin passes an unsupported position. [#52337]
+
+## [0.12.1] - 2026-09-18
+### Changed
+- Update package dependencies. [#52187]
+
+## [0.12.0] - 2026-09-15
+### Added
+- Sidebar: Let menu items declare their gate and a stable key, and add the `jetpack_admin_menu_visibility` filter so hosts can show or hide an item. [#52102]
+
+## [0.11.4] - 2026-09-14
+### Fixed
+- Admin menu: Match the Jetpack logo's first paint to the active admin color scheme. [#52086]
+
+## [0.11.3] - 2026-09-09
+### Changed
+- Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+
+## [0.11.2] - 2026-09-08
+### Changed
+- Update package dependencies. [#51701]
+
+## [0.11.1] - 2026-09-01
+### Changed
+- Update package dependencies. [#51303]
+
+## [0.11.0] - 2026-08-26
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+## [0.10.0] - 2026-08-25
+### Changed
+- Load the CSS that hides core admin notices on Jetpack pages through the style queue instead of printing a style element. [#51474]
+
+### Deprecated
+- Deprecate `Admin_Menu::print_hide_core_admin_notices_style()`; `hide_core_admin_notices()` enqueues the CSS now. [#51474]
+
+## [0.9.15] - 2026-08-06
+### Changed
+- Update package dependencies. [#50509]
+
+## [0.9.14] - 2026-07-31
+### Changed
+- Update dependencies.
+
 ## [0.9.13] - 2026-07-27
 ### Changed
-- Update package dependencies.
+- Update package dependencies. [#50751]
 
 ## [0.9.12] - 2026-07-22
 ### Changed
@@ -331,6 +385,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing menu visibility issues.
 
+[0.14.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.13.0...0.14.0
+[0.13.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.12.1...0.13.0
+[0.12.1]: https://github.com/Automattic/jetpack-admin-ui/compare/0.12.0...0.12.1
+[0.12.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.11.4...0.12.0
+[0.11.4]: https://github.com/Automattic/jetpack-admin-ui/compare/0.11.3...0.11.4
+[0.11.3]: https://github.com/Automattic/jetpack-admin-ui/compare/0.11.2...0.11.3
+[0.11.2]: https://github.com/Automattic/jetpack-admin-ui/compare/0.11.1...0.11.2
+[0.11.1]: https://github.com/Automattic/jetpack-admin-ui/compare/0.11.0...0.11.1
+[0.11.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.10.0...0.11.0
+[0.10.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.9.15...0.10.0
+[0.9.15]: https://github.com/Automattic/jetpack-admin-ui/compare/0.9.14...0.9.15
+[0.9.14]: https://github.com/Automattic/jetpack-admin-ui/compare/0.9.13...0.9.14
 [0.9.13]: https://github.com/Automattic/jetpack-admin-ui/compare/0.9.12...0.9.13
 [0.9.12]: https://github.com/Automattic/jetpack-admin-ui/compare/0.9.11...0.9.12
 [0.9.11]: https://github.com/Automattic/jetpack-admin-ui/compare/0.9.10...0.9.11

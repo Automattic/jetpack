@@ -37,6 +37,25 @@
 	}
 }
 
+// The post-publish panel renders after the core "is now live" header and the
+// "What's next?" block, so the email confirmation is easy to scroll past. A
+// single highlight pass draws the eye to it, without a global notice's noise.
+.jetpack-subscribe-post-publish-panel {
+	animation: jetpack-subscribe-post-publish-highlight 2s ease-out 1;
+
+	@media (prefers-reduced-motion: reduce) {
+		animation: none;
+	}
+}
+
+@keyframes jetpack-subscribe-post-publish-highlight {
+
+	// Jetpack green, kept faint so body copy stays readable.
+	15% {
+		background-color: rgba(6, 158, 8, 0.12);
+	}
+}
+
 .paid-newsletters-post-publish-panel {
 
 	&__external_icon {

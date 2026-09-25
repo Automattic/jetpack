@@ -1,7 +1,6 @@
 <?php
 /**
- * Tests for the dashboard's data builders: the payload shapes each tab
- * hydrates from and the durable-option reads behind them.
+ * Tests for the dashboard's data builders and live module state.
  *
  * @package automattic/jetpack-seo
  */
@@ -9,6 +8,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * @covers \Automattic\Jetpack\SEO\Dashboard_Data
@@ -24,7 +24,52 @@ class DashboardDataTest extends SeoTestCase {
 			unregister_post_type( 'seo_book' );
 		}
 
+		\Jetpack_SEO_Utils::$enabled                    = true;
+		\Jetpack_SEO_Utils::$has_legacy_front_page_meta = false;
+		\Jetpack_Redux_State_Helper::$site_image        = '';
+		\Jetpack_AI_Settings::$is_ai_seo_enabled        = true;
+		delete_option( 'advanced_seo_title_formats' );
+		delete_option( 'jetpack_ai_seo_enabled' );
+		delete_option( 'jetpack_seo_sitemap_enabled' );
+		delete_option( 'jetpack_seo_canonical_urls_enabled' );
+		remove_all_filters( 'jetpack_active_modules' );
+		remove_all_filters( 'jetpack_ai_seo_enabled' );
+
+		self::reset_plan();
+
 		parent::tearDown();
+	}
+
+	/**
+	 * With the AI SEO control off the card stays available and reports the
+	 * control's state, so the dashboard disables the toggle rather than hiding
+	 * it and the saved choice stays visible.
+	 */
+	public function test_get_ai_data_reports_the_ai_seo_control_state() {
+		self::set_plan( 'jetpack_business' );
+		self::set_seo_tools_active( true );
+
+		$on = Dashboard_Data::get_ai_data()['enhancer'];
+
+		\Jetpack_AI_Settings::$is_ai_seo_enabled = false;
+
+		$off = Dashboard_Data::get_ai_data()['enhancer'];
+
+		$this->assertTrue( $on['available'], 'Precondition: available while the control is on.' );
+		$this->assertTrue( $on['aiSeoEnabled'] );
+		$this->assertTrue( $off['available'], 'The card stays available so it can be disabled, not hidden.' );
+		$this->assertFalse( $off['aiSeoEnabled'] );
+	}
+
+	/**
+	 * The plan and the feature filter still veto availability outright — those
+	 * are entitlement questions, not a switched-off control.
+	 */
+	public function test_get_ai_data_enhancer_unavailable_without_the_entitlement() {
+		self::set_plan( 'jetpack_free' );
+		self::set_seo_tools_active( true );
+
+		$this->assertFalse( Dashboard_Data::get_ai_data()['enhancer']['available'] );
 	}
 
 	/**
@@ -136,6 +181,8 @@ class DashboardDataTest extends SeoTestCase {
 	 * icon.
 	 */
 	public function test_get_site_data_shape() {
+		\Jetpack_Redux_State_Helper::$site_image = 'https://example.com/representative.jpg';
+
 		$site = Dashboard_Data::get_site_data();
 
 		$this->assertArrayHasKey( 'title', $site );
@@ -148,62 +195,150 @@ class DashboardDataTest extends SeoTestCase {
 		$this->assertIsString( $site['url'] );
 		$this->assertIsString( $site['icon'] );
 		$this->assertIsString( $site['image'] );
+		$this->assertSame( 'https://example.com/representative.jpg', $site['image'] );
 	}
 
 	/**
-	 * Reads the durable sitemap option without consulting the live module state
-	 * when the option is present (set or explicitly off).
+	 * @dataProvider provide_module_states
+	 * @param bool $sitemaps Whether sitemaps are active.
+	 * @param bool $canonical Whether canonical URLs are active.
 	 */
-	public function test_is_sitemap_enabled_reads_durable_option() {
-		$modules = new \Automattic\Jetpack\Modules();
+	#[DataProvider( 'provide_module_states' )]
+	public function test_dashboard_follows_modules_despite_conflicting_obsolete_options( $sitemaps, $canonical ) {
+		update_option( 'jetpack_seo_sitemap_enabled', ! $sitemaps );
+		update_option( 'jetpack_seo_canonical_urls_enabled', ! $canonical );
+		add_filter(
+			'jetpack_active_modules',
+			static function () use ( $sitemaps, $canonical ) {
+				return array_keys(
+					array_filter(
+						array(
+							'sitemaps'           => $sitemaps,
+							'canonical-urls'     => $canonical,
+							'verification-tools' => true,
+						)
+					)
+				);
+			}
+		);
 
-		update_option( Initializer::SITEMAP_ENABLED_OPTION, '1' );
-		$this->assertTrue( $this->invoke_private( Dashboard_Data::class, 'is_sitemap_enabled', $modules ) );
+		$settings = Dashboard_Data::get_settings_data();
+		$overview = Dashboard_Data::get_overview_data();
 
-		// Present-but-off: still read from the option, never the module fallback.
-		update_option( Initializer::SITEMAP_ENABLED_OPTION, '' );
-		$this->assertFalse( $this->invoke_private( Dashboard_Data::class, 'is_sitemap_enabled', $modules ) );
-
-		delete_option( Initializer::SITEMAP_ENABLED_OPTION );
+		$this->assertSame( $sitemaps, $settings['sitemap_active'] );
+		$this->assertSame( $sitemaps, $overview['site_visibility']['sitemap_active'] );
+		$this->assertSame( $canonical, $settings['canonical_active'] );
+		$this->assertTrue( $settings['verification_tools_active'] );
+		$this->assertArrayHasKey( 'organization', $settings['schema'] );
+		$this->assertArrayHasKey( 'defaults', $settings['schema'] );
 	}
 
 	/**
-	 * Reads the durable canonical-urls option without consulting the live module state
-	 * when the option is present (set or explicitly off).
+	 * @return array Module activation combinations.
 	 */
-	public function test_is_canonical_enabled_reads_durable_option() {
-		$modules = new \Automattic\Jetpack\Modules();
-
-		update_option( Initializer::CANONICAL_ENABLED_OPTION, '1' );
-		$this->assertTrue( $this->invoke_private( Dashboard_Data::class, 'is_canonical_enabled', $modules ) );
-
-		// Present-but-off: still read from the option, never the module fallback.
-		update_option( Initializer::CANONICAL_ENABLED_OPTION, '' );
-		$this->assertFalse( $this->invoke_private( Dashboard_Data::class, 'is_canonical_enabled', $modules ) );
-
-		delete_option( Initializer::CANONICAL_ENABLED_OPTION );
+	public static function provide_module_states() {
+		return array(
+			'both active'    => array( true, true ),
+			'both inactive'  => array( false, false ),
+			'sitemaps only'  => array( true, false ),
+			'canonical only' => array( false, true ),
+		);
 	}
 
 	/**
-	 * The Settings bootstrap sources `sitemap_active` / `canonical_active` from the durable
-	 * options, so the module toggles hydrate correctly without reading live module state.
+	 * A page type cleared through the site-settings API is stored as an empty
+	 * string; the Settings tab must receive an empty list for it, not a string.
 	 */
-	public function test_get_settings_data_reads_module_toggles_from_options() {
-		update_option( Initializer::SITEMAP_ENABLED_OPTION, '1' );
-		update_option( Initializer::CANONICAL_ENABLED_OPTION, '' );
+	public function test_get_settings_data_coerces_cleared_title_formats_to_lists() {
+		update_option(
+			'advanced_seo_title_formats',
+			array(
+				'front_page' => '',
+				'posts'      => array(
+					array(
+						'type'  => 'token',
+						'value' => 'post_title',
+					),
+					'not a token',
+				),
+				'pages'      => 'garbage',
+				'archives'   => array(
+					'type'  => 'token',
+					'value' => 'archive_title',
+				),
+			)
+		);
+
+		$formats = (array) Dashboard_Data::get_settings_data()['title_formats'];
+
+		$this->assertSame( array(), $formats['front_page'] );
+		$this->assertSame(
+			array(
+				array(
+					'type'  => 'token',
+					'value' => 'post_title',
+				),
+			),
+			$formats['posts']
+		);
+		$this->assertSame( array(), $formats['pages'] );
+		// An associative entry is one token's shape at the wrong depth, not a list.
+		$this->assertSame( array(), $formats['archives'] );
+	}
+
+	/**
+	 * A non-array option value yields no formats rather than a fatal.
+	 */
+	public function test_normalize_title_formats_rejects_non_arrays() {
+		$this->assertSame( array(), Dashboard_Data::normalize_title_formats( '' ) );
+		$this->assertSame( array(), Dashboard_Data::normalize_title_formats( false ) );
+		$this->assertSame( array(), Dashboard_Data::normalize_title_formats( 'a:1:{}' ) );
+	}
+
+	/**
+	 * Stored title formats stay visible but read-only while conflicting SEO output
+	 * disables Jetpack SEO, preventing a blank dashboard save from erasing them.
+	 */
+	public function test_get_settings_data_preserves_title_formats_while_output_is_disabled() {
+		$formats = array(
+			'front_page' => array(
+				array(
+					'type'  => 'token',
+					'value' => 'site_name',
+				),
+			),
+			'posts'      => array(
+				array(
+					'type'  => 'token',
+					'value' => 'post_title',
+				),
+			),
+			'pages'      => array(
+				array(
+					'type'  => 'token',
+					'value' => 'page_title',
+				),
+			),
+			'groups'     => array(
+				array(
+					'type'  => 'token',
+					'value' => 'group_title',
+				),
+			),
+			'archives'   => array(
+				array(
+					'type'  => 'token',
+					'value' => 'archive_title',
+				),
+			),
+		);
+		update_option( 'advanced_seo_title_formats', $formats );
+		\Jetpack_SEO_Utils::$enabled = false;
 
 		$settings = Dashboard_Data::get_settings_data();
 
-		$this->assertArrayHasKey( 'sitemap_active', $settings );
-		$this->assertArrayHasKey( 'canonical_active', $settings );
-		$this->assertArrayHasKey( 'schema', $settings );
-		$this->assertArrayHasKey( 'organization', $settings['schema'] );
-		$this->assertArrayHasKey( 'defaults', $settings['schema'] );
-		$this->assertTrue( $settings['sitemap_active'] );
-		$this->assertFalse( $settings['canonical_active'] );
-
-		delete_option( Initializer::SITEMAP_ENABLED_OPTION );
-		delete_option( Initializer::CANONICAL_ENABLED_OPTION );
+		$this->assertEquals( (object) $formats, $settings['title_formats'] );
+		$this->assertFalse( $settings['title_formats_editable'] );
 	}
 
 	/**
@@ -259,5 +394,36 @@ class DashboardDataTest extends SeoTestCase {
 
 		$overview = Dashboard_Data::get_overview_data();
 		$this->assertArrayNotHasKey( 'sitemap_url', $overview['site_visibility'] );
+	}
+
+	/**
+	 * `title_separator` must be the separator as *rendered*, not the raw
+	 * `document_title_separator` value. `wp_get_document_title()` runs the composed
+	 * title through the `document_title` filter, which WordPress texturizes by
+	 * default — so core's `-` reaches a visitor as an en dash. Previewing the raw
+	 * value showed `-` on every site running core's defaults, which render `–`.
+	 */
+	public function test_get_settings_data_title_separator_is_rendered_not_raw() {
+		$settings = Dashboard_Data::get_settings_data();
+
+		$this->assertArrayHasKey( 'title_separator', $settings );
+		$this->assertIsString( $settings['title_separator'] );
+		$this->assertSame( "\u{2013}", $settings['title_separator'] );
+	}
+
+	/**
+	 * A theme's own separator still wins — it is texturized, not replaced.
+	 */
+	public function test_get_settings_data_title_separator_honors_the_filter() {
+		$filter = static function () {
+			return '|';
+		};
+		add_filter( 'document_title_separator', $filter );
+
+		$settings = Dashboard_Data::get_settings_data();
+
+		remove_filter( 'document_title_separator', $filter );
+
+		$this->assertSame( '|', $settings['title_separator'] );
 	}
 }

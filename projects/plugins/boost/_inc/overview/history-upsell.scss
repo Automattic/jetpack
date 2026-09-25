@@ -1,0 +1,23 @@
+.jetpack-boost-overview__history-upsell {
+	--icon-height: var(--wpds-dimension-size-xs);
+
+	align-items: center;
+	padding: var(--wpds-dimension-padding-lg);
+
+	// The notice renders its intent icon as its last child.
+	> svg {
+		inline-size: var(--wpds-dimension-size-xs);
+		block-size: var(--wpds-dimension-size-xs);
+		margin-inline-end: var(--wpds-dimension-gap-sm);
+	}
+}
+
+.jetpack-boost-overview__history-preview {
+	grid-column: 2;
+	margin-block-start: var(--wpds-dimension-gap-lg);
+	min-inline-size: 0;
+
+	&[hidden] {
+		display: none;
+	}
+}

@@ -1,6 +1,6 @@
 {
 	"name": "jpa/video-detail-embeds",
-	"title": "Video embeds",
+	"title": "Used on posts & pages",
 	"description": "Pages where the selected video is embedded, sourced from Jetpack Stats.",
 	"help": {
 		"content": "Lists every page on your site where the selected video is embedded, so you can see where it is being watched.",

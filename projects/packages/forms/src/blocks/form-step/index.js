@@ -27,6 +27,13 @@ export const settings = {
 			gradients: true,
 			link: true,
 		},
+		background: {
+			backgroundImage: true,
+			backgroundSize: true,
+			__experimentalDefaultControls: {
+				backgroundImage: true,
+			},
+		},
 		spacing: {
 			padding: true,
 			margin: true,

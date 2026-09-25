@@ -75,11 +75,13 @@
 		"ai-response-feedback",
 		"ai-assistant-image-extension",
 		"ai-sidebar-toolbar-button",
+		"ai-sidebar-agent-notice",
+		"ai-sidebar-agent-support",
 		"ai-seo-enhancer",
 		"ai-correct-spelling",
 		"paypal-payment-buttons",
 		"image-studio",
-		"block-notes"
+		"zoom-scheduler"
 	],
 	"beta": [
 		"google-docs-embed",
@@ -116,6 +118,7 @@
 		"tock",
 		"videopress",
 		"voice-to-content",
-		"wordads"
+		"wordads",
+		"zoom-scheduler"
 	]
 }

@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove unused dependency on `@automattic/jetpack-explat`, which does not exist outside the monorepo.
+
+

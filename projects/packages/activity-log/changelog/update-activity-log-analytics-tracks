@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Send analytics events for Activity Log dashboard interactions by loading the Tracks library.

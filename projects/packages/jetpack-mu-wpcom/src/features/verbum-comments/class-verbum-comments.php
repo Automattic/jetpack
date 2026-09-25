@@ -237,6 +237,7 @@ class Verbum_Comments {
 					/* translators: %s is the name of the provider (WordPress, Facebook, Twitter) */
 					'Logged in via %s'                   => __( 'Logged in via %s', 'jetpack-mu-wpcom' ),
 					'Log out'                            => __( 'Log out', 'jetpack-mu-wpcom' ),
+					'Your browser is blocking the cookies needed to log in and comment here. Allow cookies in your privacy settings, then reload the page.' => __( 'Your browser is blocking the cookies needed to log in and comment here. Allow cookies in your privacy settings, then reload the page.', 'jetpack-mu-wpcom' ),
 					'Email'                              => __( 'Email', 'jetpack-mu-wpcom' ),
 					'(Address never made public)'        => __( '(Address never made public)', 'jetpack-mu-wpcom'), // phpcs:ignore PEAR.Functions.FunctionCallSignature.SpaceBeforeCloseBracket
 					'Instantly'                          => __( 'Instantly', 'jetpack-mu-wpcom' ),

@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Connection: Render informational-only connection error notices (no reconnect button) in the dashboard when an error's action is "none".

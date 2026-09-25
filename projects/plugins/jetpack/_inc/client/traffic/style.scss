@@ -1,6 +1,8 @@
 @use "../scss/functions/rem";
 @use "../scss/variables/colors";
+@use "../scss/calypso-colors";
 @use "../scss/mixins/breakpoints";
+@use "../scss/mixins/ui";
 @use "../scss/typography";
 
 .jp-form-google-label-unverified {
@@ -36,7 +38,7 @@
 	.components-external-link__icon {
 		width: 1.125rem;
 		height: 1.125rem;
-		margin-left: 6px;
+		margin-inline-start: 6px;
 		margin-top: -3px;
 	}
 }
@@ -66,11 +68,11 @@
 	align-items: center;
 
 	.gridicon:first-child {
-		margin-right: 5px;
+		margin-inline-end: 5px;
 	}
 
 	@include breakpoints.breakpoint( ">660px" ) {
-		border-left: 0;
+		border-inline-start: 0;
 	}
 
 	@include breakpoints.breakpoint( "<660px" ) {
@@ -79,12 +81,12 @@
 }
 
 .jp-form-site-verification-edit-button {
-	margin-left: 10px;
+	margin-inline-start: 10px;
 	overflow: visible;
 
 	@include breakpoints.breakpoint( "<660px" ) {
-		margin-left: 0;
-		margin-right: 5px;
+		margin-inline-start: 0;
+		margin-inline-end: 5px;
 		margin-top: 5px;
 	}
 }
@@ -103,15 +105,15 @@
 	align-content: center;
 
 	.dops-button {
-		margin-left: rem.convert(8px);
-		margin-right: rem.convert(8px);
+		margin-inline-start: rem.convert(8px);
+		margin-inline-end: rem.convert(8px);
 
 		&:first-child {
-			margin-left: 0;
+			margin-inline-start: 0;
 		}
 
 		&:last-child {
-			margin-right: 0;
+			margin-inline-end: 0;
 		}
 	}
 }
@@ -188,7 +190,7 @@ $twitter-pofile-image-padding: 17px;
 
 	&-label {
 		font-weight: 600;
-		margin-left: 0.5rem;
+		margin-inline-start: 0.5rem;
 	}
 }
 
@@ -215,16 +217,16 @@ $twitter-pofile-image-padding: 17px;
 	}
 
 	&-input-label {
-		margin-right: auto;
+		margin-inline-end: auto;
 	}
 
 	&-input-button::before {
 		content: "+";
-		margin-right: 4px;
+		margin-inline-end: 4px;
 	}
 
 	&-input-button:not(:first-of-type) {
-		margin-left: 0.5rem;
+		margin-inline-start: 0.5rem;
 	}
 
 	&-input-preview {
@@ -241,7 +243,7 @@ $twitter-pofile-image-padding: 17px;
 
 .jp-seo-yoast-promo-banner {
 	// Overwrites of dops-banner styles for purposes of Yoast ad
-	border-left-color: #a3286a !important;
+	border-inline-start-color: #a3286a !important;
 
 	.dops-banner__icon-plan {
 
@@ -256,44 +258,86 @@ $twitter-pofile-image-padding: 17px;
 	top: 1em;
 }
 
-.jp-stats-odyssey-disabled-notice {
+// site-stats.jsx still renders these classes for the inactive-Stats state.
+.jp-at-a-glance__stats-card {
+	padding: 0;
 
-	@include breakpoints.breakpoint("<480px") {
+	@include ui.dashboard-card-shadow;
+	margin-bottom: 24px;
 
-		a.dops-notice__action {
-			white-space: initial;
-		}
-
-		a.dops-notice__action .gridicon {
-			display: none;
-		}
-	}
-
-	@include breakpoints.breakpoint(">480px") {
-		width: calc(100% - 26px);
+	.jp-link-button {
+		background: colors.$white;
+		border: none;
+		padding: 2px 0;
 	}
 }
 
-.jp-stats-odyssey-toggle {
-	margin-bottom: 20px;
+.jp-at-a-glance__stats-inactive {
+	padding: rem.convert(16px);
+
+	@include breakpoints.breakpoint( ">660px" ) {
+		display: flex;
+		flex-wrap: nowrap;
+		flex-direction: row;
+		align-items: center;
+	}
 }
 
-.jp-stats-odyssey-toggle > .components-base-control {
-	margin-bottom: 0;
+.jp-at-a-glance__stats-inactive-icon {
+	padding: 0;
+	display: flex;
+	flex-grow: 0;
+
+	@include breakpoints.breakpoint( "<660px" ) {
+		display: none;
+	}
+}
+
+.jp-at-a-glance__stats-inactive-text {
+	font-size: typography.$font-body-small;
+	line-height: 1.5;
+	letter-spacing: -0.3px;
+	color: calypso-colors.$gray-80;
+	flex-grow: 1;
+
+	h3 {
+		margin: 0;
+		font-size: 15px;
+		font-weight: 700;
+		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
+		line-height: 136%;
+		color: colors.$black;
+	}
+
+	@include breakpoints.breakpoint( "<660px" ) {
+		padding: 0 0 rem.convert(16px);
+	}
+
+	@include breakpoints.breakpoint( ">660px" ) {
+		flex-basis: 50%;
+		padding: 0 rem.convert(16px);
+	}
+}
+
+.jp-at-a-glance__stats-inactive-button {
+	text-align: start;
+
+	button.dops-button.is-primary {
+		padding: 4px 20px;
+		font-size: typography.$font-body-small;
+
+		&:focus {
+			border: 1px solid colors.$white;
+			box-shadow: 0 0 0 1px colors.$black;
+		}
+	}
+
+	@include breakpoints.breakpoint( ">660px" ) {
+		flex-grow: 0;
+		margin-inline-start: 64px;
+	}
 }
 
 .jp-stats-form-fieldset {
 	margin-bottom: 20px;
-}
-
-.jp-stats-odyssey-badge {
-	color: #008710;
-	background-color: #d0e6b8;
-	border-radius: 3px;
-	font-size: 10px;
-	line-height: 18px;
-	margin-left: 8px;
-	padding: 0 6px;
-	text-transform: uppercase;
-	display: inline-block;
 }

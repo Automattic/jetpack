@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Gutenberg: Enable the React 19 experiment on 5% of Atomic sites.

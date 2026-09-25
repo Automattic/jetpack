@@ -1,4 +1,0 @@
-Significance: patch
-Type: security
-
-REST API: Require the `edit_others_posts` capability to create a shared connection, matching the update check.

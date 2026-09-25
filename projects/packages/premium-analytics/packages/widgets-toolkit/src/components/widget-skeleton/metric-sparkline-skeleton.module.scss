@@ -1,0 +1,47 @@
+/* Geometry from the design prototype's `metric` skeleton, which reads lighter
+ * than the loaded headline rather than tracing its 32px/40px type. Lengths are
+ * on WPDS dimension tokens; only the proportional widths stay literal, since no
+ * token expresses them. */
+$value-inline-size: 46%;
+$count-inline-size: 30%;
+
+/* The loaded headline aligns its count on the value's baseline
+ * (`popular-days`'s `.headline`). These placeholders hold no text, so their
+ * baseline is their bottom edge and `flex-end` reproduces that alignment. */
+.headline {
+	display: flex;
+	align-items: flex-end;
+	gap: var(--wpds-dimension-gap-sm);
+	padding-block-start: var(--wpds-dimension-padding-xs);
+}
+
+/* The prototype's 6px radius has no token here; 8px is the nearest, and at 32px
+ * the block is too tall for the browser to clamp it back to a smaller value. */
+.value {
+	inline-size: $value-inline-size;
+	block-size: var(--wpds-dimension-size-md);
+	border-radius: var(--wpds-border-radius-lg);
+}
+
+.count {
+	inline-size: $count-inline-size;
+	block-size: var(--wpds-dimension-size-3xs);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+/* The band takes whatever the headline leaves, as the loaded widgets' own
+ * `.chart` does; the minimum keeps it legible on a short tile. */
+.chart {
+	display: flex;
+	flex: 1 1 0;
+	min-block-size: var(--wpds-dimension-size-sm);
+	padding-block-start: var(--wpds-dimension-padding-md);
+}
+
+/* Same nearest-token substitution for 6px as `.value`. */
+.chartBlock {
+	align-self: stretch;
+	inline-size: 100%;
+	block-size: 100%;
+	border-radius: var(--wpds-border-radius-lg);
+}

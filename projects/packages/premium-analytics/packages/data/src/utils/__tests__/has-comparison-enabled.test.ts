@@ -10,7 +10,7 @@ jest.mock( '../preset-date-range', () => ( {
 } ) );
 
 jest.mock( '../interval', () => ( {
-	getDefaultIntervalForPeriod: jest.fn(),
+	resolveIntervalForRange: jest.fn(),
 } ) );
 /**
  * Internal dependencies

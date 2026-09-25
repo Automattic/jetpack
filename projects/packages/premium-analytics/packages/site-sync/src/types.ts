@@ -23,29 +23,33 @@ export type SyncStatus = {
 	isRunning: boolean;
 	/** Sync progress, 0–100, computed client-side. */
 	percentage: number;
-	/** Milestone (unix ts) when the dashboard-gating initial full sync first finished — seeded from script-data, refreshed live from the poll; else 0. */
+	/** Milestone (unix ts) when the analytics initial full sync first finished — seeded from script-data, refreshed live from the poll; else 0. */
 	initialFullSyncFinished: number;
-	/**
-	 * Whether the site has store data to sync (WooCommerce active). When false the
-	 * status is derived from Jetpack's generic initial full sync rather than the
-	 * woocommerce_analytics progress bucket.
-	 */
-	hasStoreData: boolean;
 };
 
-/**
- * Return type for the useSyncStatus hook.
- */
 export type UseSyncStatusReturn = {
 	data: SyncStatus | undefined;
 	error: Error | null;
-	isLoading: boolean;
 	isComplete: boolean;
-	isStalled: boolean;
 	/**
 	 * POST the full-sync trigger and resume polling. The returned promise always
 	 * resolves; failures surface via `error` so callers can `void triggerSync()`
 	 * from event handlers without an unhandled rejection.
 	 */
 	triggerSync: () => Promise< void >;
+};
+
+export type UseSyncStatusOptions = {
+	/**
+	 * Whether to watch the sync at all. `false` skips polling and auto-start, for
+	 * callers with nothing waiting on it — a site with no section that needs the
+	 * analytics data has no reason to run the sync.
+	 */
+	enabled?: boolean;
+
+	/**
+	 * Start the sync when the poll reports none started. Off by default: reading
+	 * the status should not have side effects.
+	 */
+	autoStart?: boolean;
 };

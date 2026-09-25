@@ -1,0 +1,33 @@
+/*
+ * The discard confirmation renders as an in-modal overlay rather than a
+ * nested Modal, which WordPress would dismiss or hide the host modal for.
+ */
+
+/* Transparent, but still catches clicks so the content behind stays inert. */
+.videopress-caption-manager__confirm-scrim {
+	position: absolute;
+	inset: 0;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.videopress-caption-manager__confirm-dialog {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+	padding: 24px;
+	max-inline-size: 22rem;
+
+	p {
+		margin: 0 0 16px;
+	}
+}
+
+.videopress-caption-manager__confirm-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}

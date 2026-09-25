@@ -44,8 +44,19 @@ function newspack_blocks_hpb_maximum_image_width() {
  * @param array $sizes Sizes for the sizes attribute.
  */
 function newspack_blocks_filter_hpb_sizes( $sizes ) {
+	/**
+	 * Disables automatic image sizes optimization for Homepage Posts Block.
+	 * By default, Newspack optimizes the 'sizes' attribute based on the
+	 * computed maximum image width. Set to true to use default WordPress behavior.
+	 *
+	 * @constant NEWSPACK_DISABLE_HPB_IMAGE_OPTIMISATION
+	 * @type     bool
+	 * @default  Image optimization enabled
+	 * @status   draft
+	 *
+	 * @example define( 'NEWSPACK_DISABLE_HPB_IMAGE_OPTIMISATION', true );
+	 */
 	if ( defined( 'NEWSPACK_DISABLE_HPB_IMAGE_OPTIMISATION' ) && NEWSPACK_DISABLE_HPB_IMAGE_OPTIMISATION ) {
-		// Allow disabling the image optimisation per-site.
 		return $sizes;
 	}
 	global $newspack_blocks_hpb_current_theme;
@@ -214,6 +225,25 @@ function newspack_blocks_get_homepage_articles_css_string( $attrs ) {
 }
 
 /**
+ * Gather all Homepage Articles blocks on the page and output only the needed CSS.
+ */
+function newspack_blocks_enqueue_block_homepage_articles_styles() {
+	global $newspack_blocks_hpb_all_blocks;
+	if ( ! is_array( $newspack_blocks_hpb_all_blocks ) ) {
+		$block_name = apply_filters( 'newspack_blocks_block_name', 'newspack-blocks/homepage-articles' );
+		$newspack_blocks_hpb_all_blocks = newspack_blocks_retrieve_homepage_articles_blocks(
+			parse_blocks( get_the_content() ),
+			$block_name
+		);
+		$all_used_attrs = newspack_blocks_collect_all_attribute_values( array_column( $newspack_blocks_hpb_all_blocks, 'attrs' ) );
+		$css_string = newspack_blocks_get_homepage_articles_css_string( $all_used_attrs );
+		wp_register_style( 'newspack-blocks-homepage-articles-inline', false, [], \NEWSPACK_BLOCKS__VERSION );
+		wp_enqueue_style( 'newspack-blocks-homepage-articles-inline' );
+		wp_add_inline_style( 'newspack-blocks-homepage-articles-inline', $css_string );
+	}
+}
+
+/**
  * Renders the `newspack-blocks/homepage-posts` block on server.
  *
  * @param array $attributes The block attributes.
@@ -232,23 +262,19 @@ function newspack_blocks_render_block_homepage_articles( $attributes ) {
 		return;
 	}
 
-	// Gather all Homepage Articles blocks on the page and output only the needed CSS.
-	// This CSS will be printed along with the first found block markup.
-	global $newspack_blocks_hpb_all_blocks;
-	$inline_style_html = '';
-	if ( ! is_array( $newspack_blocks_hpb_all_blocks ) ) {
-		$newspack_blocks_hpb_all_blocks = newspack_blocks_retrieve_homepage_articles_blocks(
-			parse_blocks( get_the_content() ),
-			$block_name
-		);
-		$all_used_attrs                 = newspack_blocks_collect_all_attribute_values( array_column( $newspack_blocks_hpb_all_blocks, 'attrs' ) );
-		$css_string                     = newspack_blocks_get_homepage_articles_css_string( $all_used_attrs );
-		ob_start();
-		?>
-			<style id="newspack-blocks-inline-css" type="text/css"><?php echo esc_html( $css_string ); ?></style>
-		<?php
-		$inline_style_html = ob_get_clean();
-	}
+	// If the block is rendered in wp_kses_post() call, ensure the `time` tag is allowed.
+	\add_filter(
+		'wp_kses_allowed_html',
+		function( $tags ) {
+			$tags['time'] = [
+				'class'    => true,
+				'datetime' => true,
+			];
+			return $tags;
+		}
+	);
+
+	newspack_blocks_enqueue_block_homepage_articles_styles();
 
 	// This will let the FSE plugin know we need CSS/JS now.
 	do_action( 'newspack_blocks_render_homepage_articles' );
@@ -308,19 +334,6 @@ function newspack_blocks_render_block_homepage_articles( $attributes ) {
 		$styles = 'color: ' . $attributes['customTextColor'] . ';';
 	}
 
-	// Handle custom taxonomies.
-	if ( isset( $attributes['customTaxonomies'] ) ) {
-		$custom_taxes = $attributes['customTaxonomies'];
-		unset( $attributes['customTaxonomies'] );
-		if ( is_array( $custom_taxes ) && ! empty( $custom_taxes ) ) {
-			foreach ( $custom_taxes as $tax ) {
-				if ( ! empty( $tax['slug'] ) && ! empty( $tax['terms'] ) ) {
-					$attributes[ $tax['slug'] ] = $tax['terms'];
-				}
-			}
-		}
-	}
-
 	$articles_rest_url = add_query_arg(
 		array_merge(
 			map_deep(
@@ -362,7 +375,6 @@ function newspack_blocks_render_block_homepage_articles( $attributes ) {
 		class="<?php echo esc_attr( $classes ); ?>"
 		style="<?php echo esc_attr( $styles ); ?>"
 		>
-		<?php echo $inline_style_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		<div data-posts data-current-post-id="<?php the_ID(); ?>">
 			<?php if ( '' !== $attributes['sectionHeader'] ) : ?>
 				<h2 class="article-section-title">
@@ -410,7 +422,7 @@ function newspack_blocks_render_block_homepage_articles( $attributes ) {
 	<?php
 
 	$content = ob_get_clean();
-	Newspack_Blocks::enqueue_view_assets( 'homepage-articles' );
+	Newspack_Blocks::enqueue_view_assets( 'homepage-articles', 'defer' );
 
 	return $content;
 }
@@ -428,6 +440,7 @@ function newspack_blocks_register_homepage_articles() {
 		apply_filters(
 			'newspack_blocks_block_args',
 			array(
+				'api_version'     => $block['apiVersion'],
 				'attributes'      => $block['attributes'],
 				'render_callback' => 'newspack_blocks_render_block_homepage_articles',
 				'supports'        => [],

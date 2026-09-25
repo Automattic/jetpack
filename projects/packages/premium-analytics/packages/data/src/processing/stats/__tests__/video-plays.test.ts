@@ -120,16 +120,18 @@ describe( 'mergeStatsVideoPlaysComparisonRows', () => {
 		);
 
 		expect( rows[ 0 ].previousPlays ).toBeUndefined();
+		expect( rows[ 0 ].previousImpressions ).toBeUndefined();
 		expect( hasComparison ).toBe( false );
 	} );
 
-	it( 'matches rows by video id when present', () => {
+	it( 'matches plays and impressions by video id when present', () => {
 		const { rows, hasComparison } = mergeStatsVideoPlaysComparisonRows(
-			makeReport( [ makeVideo( { id: 12, label: 'Launch video', plays: 10 } ) ] ),
-			makeReport( [ makeVideo( { id: 12, label: 'Launch video', plays: 4 } ) ] )
+			makeReport( [ makeVideo( { id: 12, label: 'Launch video', plays: 10, impressions: 20 } ) ] ),
+			makeReport( [ makeVideo( { id: 12, label: 'Launch video', plays: 4, impressions: 8 } ) ] )
 		);
 
 		expect( rows[ 0 ].previousPlays ).toBe( 4 );
+		expect( rows[ 0 ].previousImpressions ).toBe( 8 );
 		expect( hasComparison ).toBe( true );
 	} );
 } );

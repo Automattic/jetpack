@@ -161,6 +161,27 @@ class Jetpack_Carousel_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Adding the data attributes twice must not add them twice.
+	 *
+	 * Tiled Gallery output passes through this filter once as
+	 * 'jetpack_tiled_galleries_block_content', from inside the block's render
+	 * callback, and again as 'the_content' when single image galleries are enabled.
+	 * Both hooks see the same markup, so without a guard every carousel data-*
+	 * attribute is emitted twice. See JETPACK-1990.
+	 */
+	public function test_add_data_img_tags_and_enqueue_assets_is_idempotent() {
+		$attachment = $this->create_image_attachment_with_exif();
+		$content    = '<div class="tiled-gallery__item"><img alt="" data-id="' . $attachment->ID
+			. '" data-height="100" data-width="100" src="https://example.com/jetpack-icon.jpg" /></div>';
+
+		$once  = $this->instance->add_data_img_tags_and_enqueue_assets( $content );
+		$twice = $this->instance->add_data_img_tags_and_enqueue_assets( $once );
+
+		$this->assertSame( 1, substr_count( $once, 'data-attachment-id=' ) );
+		$this->assertSame( $once, $twice );
+	}
+
+	/**
 	 * When the EXIF display option is enabled (the default), add_data_to_images()
 	 * should include the data-image-meta attribute.
 	 */
@@ -191,5 +212,100 @@ class Jetpack_Carousel_Test extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'data-attachment-id', $attr );
 		$this->assertArrayHasKey( 'data-permalink', $attr );
 		$this->assertArrayHasKey( 'data-image-title', $attr );
+	}
+
+	/**
+	 * An attachment with no comments should not carry a data-comments-count attribute,
+	 * so galleries without comments pay nothing for it.
+	 */
+	public function test_add_data_to_images_omits_comments_count_when_there_are_none() {
+		$attachment = $this->create_image_attachment_with_exif();
+
+		$attr = $this->instance->add_data_to_images( array(), $attachment );
+
+		$this->assertArrayNotHasKey( 'data-comments-count', $attr );
+	}
+
+	/**
+	 * The carousel shows its "has comments" badge from this attribute, so it must
+	 * carry the attachment's approved comment count.
+	 */
+	public function test_add_data_to_images_includes_comments_count() {
+		$attachment = $this->create_image_attachment_with_exif();
+
+		self::factory()->comment->create_post_comments( $attachment->ID, 2 );
+
+		$attr = $this->instance->add_data_to_images( array(), get_post( $attachment->ID ) );
+
+		$this->assertArrayHasKey( 'data-comments-count', $attr );
+		$this->assertSame( 2, $attr['data-comments-count'] );
+	}
+
+	/**
+	 * Empty strings and numeric zeroes are never rendered in the EXIF panel, so they
+	 * should not be serialised into the page either.
+	 */
+	public function test_add_data_to_images_strips_empty_image_meta_values() {
+		update_option( 'carousel_display_exif', 1 );
+		$attachment = $this->create_image_attachment_with_exif();
+
+		wp_update_attachment_metadata(
+			$attachment->ID,
+			array(
+				'width'      => 100,
+				'height'     => 100,
+				'file'       => 'jetpack-icon.jpg',
+				'image_meta' => array(
+					'camera'        => 'JetpackCam',
+					'aperture'      => '0',
+					'focal_length'  => '0',
+					'shutter_speed' => '0',
+					'iso'           => '0',
+					'credit'        => '',
+					'copyright'     => '',
+					'orientation'   => '1',
+				),
+			)
+		);
+
+		$attr = $this->instance->add_data_to_images( array(), $attachment );
+		$meta = json_decode( html_entity_decode( $attr['data-image-meta'], ENT_QUOTES ), true );
+
+		$this->assertSame(
+			array(
+				'camera'      => 'JetpackCam',
+				'orientation' => '1',
+			),
+			$meta
+		);
+	}
+
+	/**
+	 * When every metadata value is empty there is nothing to show, so the attribute
+	 * should be dropped rather than emitted full of zeroes.
+	 */
+	public function test_add_data_to_images_omits_image_meta_when_all_values_are_empty() {
+		update_option( 'carousel_display_exif', 1 );
+		$attachment = $this->create_image_attachment_with_exif();
+
+		wp_update_attachment_metadata(
+			$attachment->ID,
+			array(
+				'width'      => 100,
+				'height'     => 100,
+				'file'       => 'jetpack-icon.jpg',
+				'image_meta' => array(
+					'camera'        => '',
+					'aperture'      => '0',
+					'focal_length'  => '0',
+					'shutter_speed' => '0.0',
+					'iso'           => '0',
+				),
+			)
+		);
+
+		$attr = $this->instance->add_data_to_images( array(), $attachment );
+
+		$this->assertArrayNotHasKey( 'data-image-meta', $attr );
 	}
 }

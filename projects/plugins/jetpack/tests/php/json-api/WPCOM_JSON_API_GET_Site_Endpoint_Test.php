@@ -46,6 +46,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 	 * Clean up after each test.
 	 */
 	public function tear_down() {
+		delete_option( 'jetpack_test_legacy_gating_blog_ids' );
 		$this->tear_down_rest_parity();
 		parent::tear_down();
 		WPCOM_JSON_API::init()->query         = array();
@@ -86,6 +87,118 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 'updates', $xmlrpc );
 		// assert_rest_parity() already asserts the bodies match; this pins the regression.
 		$this->assertSame( array_keys( $xmlrpc ), array_keys( $rest ) );
+	}
+
+	/**
+	 * Outside WordPress.com, `difm_lite_site_options` must be omitted from the get-site
+	 * `options` object even while a DIFM build is flagged in progress: the SAL getter
+	 * returns null on the non-WPCOM path and the endpoint must not emit the key at all.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_difm_lite_site_options_omitted_outside_wpcom() {
+		// The test bootstrap mocks has_blog_sticker() as get_option(), so this makes
+		// is_difm_lite_in_progress() report an active build in this environment.
+		update_option( 'difm-lite-in-progress', true );
+
+		list( $xmlrpc, $rest ) = $this->assert_rest_parity(
+			$this->get_endpoint(),
+			array( 'fields' => 'ID,options' )
+		);
+
+		$bodies = array(
+			'xmlrpc' => $xmlrpc,
+			'rest'   => $rest,
+		);
+		foreach ( $bodies as $transport => $body ) {
+			$this->assertArrayHasKey( 'options', $body, "get-site ($transport) did not render `options`." );
+			$options = (array) $body['options'];
+			if ( empty( $options['is_difm_lite_in_progress'] ) ) {
+				$this->markTestSkipped( 'Environment did not surface an in-progress DIFM build; nothing to assert.' );
+			}
+			$this->assertArrayNotHasKey(
+				'difm_lite_site_options',
+				$options,
+				"`difm_lite_site_options` must be omitted ($transport) when the SAL getter returns null."
+			);
+		}
+	}
+
+	/**
+	 * `is_legacy_gating_site` has to be emitted as a boolean when asked for by name.
+	 *
+	 * Clients read it to decide whether a plan change could move the site off the pre-2026 feature
+	 * gating, and skip that check entirely when it is false -- so a missing key or a non-boolean would
+	 * silently change behaviour for every site rather than erroring.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_is_legacy_gating_site_is_rendered_when_requested() {
+		list( $xmlrpc, $rest ) = $this->assert_rest_parity(
+			$this->get_endpoint(),
+			array(
+				'fields'  => 'ID,options',
+				'options' => 'is_legacy_gating_site',
+			)
+		);
+
+		foreach ( array(
+			'xmlrpc' => $xmlrpc,
+			'rest'   => $rest,
+		) as $transport => $body ) {
+			$this->assertArrayHasKey( 'options', $body, "get-site ($transport) did not render `options`." );
+			$options = (array) $body['options'];
+
+			$this->assertArrayHasKey(
+				'is_legacy_gating_site',
+				$options,
+				"`is_legacy_gating_site` must be emitted ($transport) when requested by name."
+			);
+			$this->assertIsBool(
+				$options['is_legacy_gating_site'],
+				"`is_legacy_gating_site` must be a boolean ($transport), not a truthy value."
+			);
+		}
+	}
+
+	/**
+	 * The rendered value has to be the predicate's verdict for the rendered site, not just any
+	 * boolean: clients skip the plan-change check entirely when it is false.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_is_legacy_gating_site_renders_the_predicate_verdict() {
+		global $blog_id;
+
+		if ( '1' === getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
+			$this->markTestSkipped( 'The real WPCOM_Features is loaded here, so the predicate is not controllable.' );
+		}
+
+		// The bootstrap mock reads this option; see tests/php/lib/class-wpcom-features.php.
+		update_option( 'jetpack_test_legacy_gating_blog_ids', array( (int) $blog_id ) );
+
+		list( $xmlrpc, $rest ) = $this->assert_rest_parity(
+			$this->get_endpoint(),
+			array(
+				'fields'  => 'ID,options',
+				'options' => 'is_legacy_gating_site',
+			)
+		);
+
+		foreach ( array(
+			'xmlrpc' => $xmlrpc,
+			'rest'   => $rest,
+		) as $transport => $body ) {
+			$options = (array) $body['options'];
+
+			$this->assertTrue(
+				$options['is_legacy_gating_site'],
+				"`is_legacy_gating_site` must render the predicate's verdict ($transport)."
+			);
+		}
 	}
 
 	/**

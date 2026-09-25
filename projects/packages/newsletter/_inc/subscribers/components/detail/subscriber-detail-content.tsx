@@ -1,9 +1,15 @@
 import Gravatar from '@automattic/jetpack-components/gravatar';
 import { Spinner } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { __, sprintf } from '@wordpress/i18n';
+import { decodeEntities } from '@wordpress/html-entities';
+import { __ } from '@wordpress/i18n';
 import { Card, Link, Stack, Text } from '@wordpress/ui';
-import { useSubscriberDetails, useSubscriberStats } from '../../data/use-subscriber-details';
+import {
+	useSubscribedNewsletterCategories,
+	useSubscriberDetails,
+	useSubscriberStats,
+} from '../../data/use-subscriber-details';
+import { formatMetric, formatRate } from '../../lib/format-metric';
 import { getSubscribedAt } from '../../lib/subscriber-helpers';
 import SubscriptionStatusCell from '../cells/subscription-status-cell';
 import SubscriptionTypeCell from '../cells/subscription-type-cell';
@@ -160,8 +166,20 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 		user_id: open.userId,
 	} );
 
+	const categoriesQuery = useSubscribedNewsletterCategories( {
+		subscription_id: open.subscriptionId,
+		user_id: open.userId,
+	} );
+
 	const subscriber = detailsQuery.data;
 	const stats = statsQuery.data;
+
+	const categoriesEnabled = !! categoriesQuery.data?.enabled;
+	// WordPress stores term names HTML-encoded (`Tips &amp; Tricks`) and WP.com passes them through
+	// as stored, so they have to be decoded before rendering as text.
+	const subscribedCategories = ( categoriesQuery.data?.newsletter_categories ?? [] )
+		.filter( category => category.subscribed )
+		.map( category => decodeEntities( category.name ) );
 
 	if ( detailsQuery.isLoading || ! subscriber ) {
 		return (
@@ -212,31 +230,15 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 			<Stack direction="row" gap="sm" wrap="wrap" className="jetpack-newsletter__detail-stats">
 				<StatCard
 					label={ __( 'Emails sent', 'jetpack-newsletter' ) }
-					value={ statsQuery.isLoading ? dash : String( emailsSent ) }
+					value={ statsQuery.isLoading ? dash : formatMetric( emailsSent ) }
 				/>
 				<StatCard
 					label={ __( 'Open rate', 'jetpack-newsletter' ) }
-					value={
-						statsQuery.isLoading || openRate === null
-							? dash
-							: sprintf(
-									// translators: %d: percentage value (without the % sign).
-									__( '%d%%', 'jetpack-newsletter' ),
-									openRate
-							  )
-					}
+					value={ statsQuery.isLoading ? dash : formatRate( openRate ) }
 				/>
 				<StatCard
 					label={ __( 'Click rate', 'jetpack-newsletter' ) }
-					value={
-						statsQuery.isLoading || clickRate === null
-							? dash
-							: sprintf(
-									// translators: %d: percentage value (without the % sign).
-									__( '%d%%', 'jetpack-newsletter' ),
-									clickRate
-							  )
-					}
+					value={ statsQuery.isLoading ? dash : formatRate( clickRate ) }
 				/>
 			</Stack>
 
@@ -246,11 +248,24 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 						label={ __( 'Date subscribed', 'jetpack-newsletter' ) }
 						value={ formatDate( getSubscribedAt( subscriber ) ) }
 					/>
+					{ categoriesEnabled ? (
+						<DetailRow
+							label={ __( 'Receives emails for', 'jetpack-newsletter' ) }
+							value={
+								subscribedCategories.length
+									? subscribedCategories.join( ', ' )
+									: __( 'Not subscribed to any newsletter categories', 'jetpack-newsletter' )
+							}
+						/>
+					) : null }
 					<DetailRow
 						label={ __( 'Email subscription', 'jetpack-newsletter' ) }
 						value={
 							subscriber.subscription_status ? (
-								<SubscriptionStatusCell status={ subscriber.subscription_status } />
+								<SubscriptionStatusCell
+									status={ subscriber.subscription_status }
+									reason={ subscriber.subscription_status_reason }
+								/>
 							) : null
 						}
 					/>
@@ -263,10 +278,6 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 
 			<DetailSection title={ __( 'Subscriber information', 'jetpack-newsletter' ) }>
 				<Stack direction="column" gap="md">
-					<DetailRow
-						label={ __( 'Joined', 'jetpack-newsletter' ) }
-						value={ formatDate( stats?.blog_registration_date ) }
-					/>
 					<DetailRow
 						label={ __( 'Email', 'jetpack-newsletter' ) }
 						value={ subscriber.email_address }

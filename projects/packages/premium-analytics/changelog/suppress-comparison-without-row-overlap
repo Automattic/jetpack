@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stats widgets: Suppress comparison UI when rows do not overlap.

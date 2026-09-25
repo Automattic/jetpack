@@ -5,38 +5,115 @@ import {
 	useSiteHomeUrl,
 	type StatsArchivesComparisonItem,
 	type StatsArchivesItem,
+	type PostThumbnailUrls,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
+import { Icon, Link as UiLink, Stack } from '@jetpack-premium-analytics/externals';
+import { createReportOriginSearch, pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
-import { MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
+import { MetricWithComparison, PostTitleLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Link as RouteLink } from '@wordpress/route';
-import { Link as UiLink } from '@wordpress/ui';
-import type { Field } from '@wordpress/dataviews';
+import { page as pageIcon, post as postIcon } from '@wordpress/icons';
+import { useSearch } from '@wordpress/route';
+import { useCallback, useMemo, useState } from 'react';
+/**
+ * Internal dependencies
+ */
+import styles from './fields.module.css';
+import type { ReportPostsTabId } from './tabs';
+import type { Field } from '@jetpack-premium-analytics/externals';
 
 const VIEWS_DATA_FORMAT = {
 	type: 'number',
 	options: { decimals: 0, useMultipliers: false },
 } as const;
 
-/**
- * Render the homepage title using the URL from core site settings.
- *
- * @param props       - Component props.
- * @param props.title - The homepage row title.
- * @return The linked title, or plain text while settings are unavailable.
- */
-function HomepageTitle( { title }: { title: string } ) {
-	const homeUrl = useSiteHomeUrl();
+type PostTitleProps = {
+	item: StatsTopPostsComparisonItem;
+	originSection: ReportPostsTabId;
+	thumbnailUrl?: string;
+};
 
-	if ( ! homeUrl ) {
-		return <>{ title }</>;
-	}
+/**
+ * Render a thumbnail or the post-type icon used by the detail header.
+ *
+ * @param props          - Component props.
+ * @param props.url      - Thumbnail URL.
+ * @param props.postType - Post type slug.
+ * @return The thumbnail slot.
+ */
+function PostThumbnail( { url, postType }: { url?: string; postType?: string } ): JSX.Element {
+	const [ failedUrl, setFailedUrl ] = useState< string >();
+	const showImage = Boolean( url && failedUrl !== url );
+	const handleError = useCallback( () => setFailedUrl( url ), [ url ] );
 
 	return (
-		<UiLink href={ homeUrl } variant="unstyled" openInNewTab rel="noopener noreferrer">
-			{ title }
-		</UiLink>
+		<span className={ styles.thumbnailSlot }>
+			{ showImage ? (
+				<img
+					src={ url }
+					alt=""
+					width={ 32 }
+					height={ 32 }
+					className={ styles.thumbnail }
+					onError={ handleError }
+				/>
+			) : (
+				<span data-testid="post-thumbnail-placeholder">
+					<Icon icon={ postType === 'page' ? pageIcon : postIcon } size={ 16 } />
+				</span>
+			) }
+		</span>
+	);
+}
+
+/**
+ * Render a post row's title. Rows with an ID drill into the internal post/page
+ * detail page, carrying the report's current date window so the detail page
+ * opens on the range being inspected; the public URL is the external fallback
+ * for rows without one.
+ *
+ * The API sends no URL for homepage rows, so they fall back to the site home
+ * resolved from core settings. They never take the detail page: the homepage
+ * is not a single post.
+ *
+ * @param {PostTitleProps} props - Component props.
+ * @return The linked or plain post title.
+ */
+function PostTitle( { item, originSection, thumbnailUrl }: PostTitleProps ): JSX.Element {
+	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
+	const detailSearch = useMemo(
+		() => ( {
+			...pickReportDateParams( search ),
+			...createReportOriginSearch( 'posts', originSection ),
+		} ),
+		[ search, originSection ]
+	);
+	const homeUrl = useSiteHomeUrl();
+
+	const isHomepage = item.type === 'homepage';
+	const title = String( item.label ?? '' );
+
+	return (
+		<Stack render={ <span /> } direction="row" gap="sm" align="center" className={ styles.title }>
+			<PostThumbnail
+				url={ thumbnailUrl }
+				postType={ typeof item.type === 'string' ? item.type : undefined }
+			/>
+			<PostTitleLink
+				id={ isHomepage ? undefined : item.id }
+				label={ title }
+				link={ isHomepage ? homeUrl : item.link }
+				search={ detailSearch }
+				classNames={ {
+					internal: styles.titleLink,
+					external: styles.titleLink,
+					plain: styles.titleLink,
+					text: styles.titleText,
+				} }
+				title={ title }
+			/>
+		</Stack>
 	);
 }
 
@@ -48,9 +125,15 @@ function HomepageTitle( { title }: { title: string } ) {
  * other routes.
  *
  * @param withComparison - Whether to render available period-over-period deltas.
+ * @param originSection  - The active Posts & Pages report tab.
+ * @param thumbnailUrls  - Thumbnail URLs keyed by post ID.
  * @return The field config.
  */
-export function getPostsFields( withComparison = false ): Field< StatsTopPostsComparisonItem >[] {
+export function getPostsFields(
+	withComparison: boolean,
+	originSection: ReportPostsTabId,
+	thumbnailUrls: PostThumbnailUrls = {}
+): Field< StatsTopPostsComparisonItem >[] {
 	return [
 		{
 			id: 'title',
@@ -58,29 +141,13 @@ export function getPostsFields( withComparison = false ): Field< StatsTopPostsCo
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => String( item.label ?? '' ),
-			render: ( { item } ) => {
-				const title = String( item.label ?? '' );
-
-				// The API sends no URL for homepage rows, so link them to the site
-				// home resolved from core settings. Posts with an ID drill into the
-				// post/page detail page; other rows without an ID stay plain text.
-				if ( item.type === 'homepage' ) {
-					return <HomepageTitle title={ title } />;
-				}
-
-				if ( ! item.id ) {
-					return <>{ title }</>;
-				}
-
-				return (
-					<RouteLink
-						to="/post/$postId"
-						params={ { postId: String( item.id ) } as unknown as never }
-					>
-						{ title }
-					</RouteLink>
-				);
-			},
+			render: ( { item } ) => (
+				<PostTitle
+					item={ item }
+					originSection={ originSection }
+					thumbnailUrl={ thumbnailUrls[ Number( item.id ) ] }
+				/>
+			),
 		},
 		{
 			id: 'views',

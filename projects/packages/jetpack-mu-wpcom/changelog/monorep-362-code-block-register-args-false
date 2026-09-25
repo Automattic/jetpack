@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Code Block: fix fatal error when the `register_block_type_args` filter returns false to cancel block registration.

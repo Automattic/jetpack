@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { makeLibraryItem } from '../../../test-utils/library-item';
 import { libraryFields } from '../fields';
+import { UploadActionsProvider } from '../upload-actions-context';
 import type { LibraryItem } from '../../../types/library';
 import type { Field } from '@wordpress/dataviews';
 
@@ -11,6 +12,50 @@ const getField = ( id: string ): Field< LibraryItem > => {
 	}
 	return field;
 };
+
+describe( 'title field upload pill', () => {
+	const uploadActions = {
+		promoteLocal: jest.fn(),
+		retryUpload: jest.fn(),
+		openVideoDetails: jest.fn(),
+	};
+
+	const renderTitle = ( item: LibraryItem ) => {
+		const TitleRender = getField( 'title' ).render as React.ComponentType< {
+			item: LibraryItem;
+		} >;
+		return render(
+			<UploadActionsProvider value={ uploadActions }>
+				<TitleRender item={ item } />
+			</UploadActionsProvider>
+		);
+	};
+
+	it( 'points a connection-caused failure at the connection notice', () => {
+		renderTitle(
+			makeLibraryItem( {
+				type: 'local',
+				upload: { status: 'failed', progress: 0, failureReason: 'connection' },
+			} )
+		);
+
+		expect( screen.getByText( 'Upload failed: Jetpack connection issue' ) ).toBeInTheDocument();
+	} );
+
+	it.each( [ [ 'other' as const ], [ undefined ] ] )(
+		'leaves the plain label on a failure attributed to %s',
+		failureReason => {
+			renderTitle(
+				makeLibraryItem( {
+					type: 'local',
+					upload: { status: 'failed', progress: 0, failureReason },
+				} )
+			);
+
+			expect( screen.getByText( 'Upload failed' ) ).toBeInTheDocument();
+		}
+	);
+} );
 
 describe( 'orientation field', () => {
 	const renderOrientation = ( item: LibraryItem ) => {

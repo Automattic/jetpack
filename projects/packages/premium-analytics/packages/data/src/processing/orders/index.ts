@@ -3,6 +3,7 @@
  */
 import { fetchReportOrders } from '../../api/report-orders-fetch';
 import { safeParseFloat, safeParseInt } from '../../utils/parsing';
+import { withBucketStamps } from '../utils';
 import type { Override } from '../../utils/types';
 
 type ReportsOrdersByDateResponse = Awaited< ReturnType< typeof fetchReportOrders > >;
@@ -28,12 +29,12 @@ type SanitizedOrdersByDateItem = Override<
 	}
 >;
 
-/**
- * Sanitize/process a single order item by converting strings to numbers
- */
-function sanitizeOrderItem( item: RawOrdersReportDataItem ): SanitizedOrdersByDateItem {
+function sanitizeOrderItem(
+	item: RawOrdersReportDataItem,
+	zone: string
+): SanitizedOrdersByDateItem {
 	return {
-		...item,
+		...withBucketStamps( item, zone ),
 		average_order_value: safeParseFloat( item.average_order_value ),
 		avg_items: safeParseFloat( item.avg_items ),
 		cogs_amount: safeParseFloat( item.cogs_amount ),
@@ -52,26 +53,21 @@ function sanitizeOrderItem( item: RawOrdersReportDataItem ): SanitizedOrdersByDa
 	};
 }
 
-/**
- * Processed response with numeric values
- */
 type SanitizedOrdersByDateResponse = {
 	summary: SanitizedOrdersByDateItem;
 	data: SanitizedOrdersByDateItem[];
 };
 
 /**
- * Sanitize the response from the reports/orders/by-date endpoint
- * Converts string values to numbers for easier calculations and charting.
- *
- * The `summary` single item has basically the same structure
- * as the `data` array items, so we can use the same mapper function for both.
+ * `summary` has the same shape as a `data` array item, so both go through the same
+ * mapper.
  */
 export const sanitizeReportOrdersResponse = (
-	response: ReportsOrdersByDateResponse
+	response: ReportsOrdersByDateResponse,
+	zone: string
 ): SanitizedOrdersByDateResponse => {
 	return {
-		summary: sanitizeOrderItem( response.summary ),
-		data: response.data.map( sanitizeOrderItem ),
+		summary: sanitizeOrderItem( response.summary, zone ),
+		data: response.data.map( item => sanitizeOrderItem( item, zone ) ),
 	};
 };

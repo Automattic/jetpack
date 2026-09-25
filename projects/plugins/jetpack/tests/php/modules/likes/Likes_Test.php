@@ -1,8 +1,20 @@
 <?php
 require __DIR__ . '/../../../../modules/likes.php';
 
+use Automattic\Jetpack\Constants;
+
 class Likes_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
+	/**
+	 * Clean up after the sharing menu tests, which set the active module list.
+	 */
+	public function tear_down() {
+		Jetpack_Options::delete_option( 'active_modules' );
+		Constants::clear_constants();
+
+		parent::tear_down();
+	}
 
 	/**
 	 * Test that the actions are not added if likes are not visible.

@@ -443,6 +443,48 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
+	 * Test that `authorize` deletes cached connected user data, so a cached
+	 * `error` sentinel from a previously broken token does not linger after
+	 * the user reconnects.
+	 */
+	public function test_authorize_deletes_cached_connected_user_data() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_authorize_deletes_cached_user_data',
+				'user_pass'  => '123',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		set_transient( "jetpack_connected_user_data_$user_id", 'error', 5 * MINUTE_IN_SECONDS );
+
+		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'get', 'update_user_token' ) )
+			->getMock();
+		$tokens->method( 'get' )->willReturn( 'usertoken.secret' );
+		$tokens->method( 'update_user_token' )->willReturn( true );
+
+		$manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
+			->onlyMethods( array( 'get_tokens', 'get_connection_owner_id' ) )
+			->getMock();
+		$manager->method( 'get_tokens' )->willReturn( $tokens );
+		$manager->method( 'get_connection_owner_id' )->willReturn( 123 );
+
+		$result = $manager->authorize(
+			array(
+				'state' => (string) $user_id,
+				'code'  => 'authorization_code',
+			)
+		);
+
+		$cached = get_transient( "jetpack_connected_user_data_$user_id" );
+
+		$this->assertSame( 'linked', $result );
+		$this->assertFalse( $cached );
+	}
+
+	/**
 	 * Unit test for the "Delete all tokens" functionality.
 	 */
 	public function test_delete_all_connection_tokens() {
@@ -456,6 +498,49 @@ class ManagerTest extends TestCase {
 		$manager = ( new Manager() )->set_plugin_instance( $stub );
 
 		$this->assertFalse( $manager->delete_all_connection_tokens() );
+	}
+
+	/**
+	 * Deleting the tokens directly must invalidate the memoized connection status.
+	 *
+	 * `Tokens::delete_all()` is reachable without going through a disconnect — `get_access_token()`
+	 * calls it when the token lock names a different site URL — so it has to invalidate on its own.
+	 */
+	public function test_deleting_tokens_invalidates_memoized_connection_status() {
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		Jetpack_Options::update_option( 'id', 1234 );
+		( new Manager() )->reset_connection_status();
+		$this->assertTrue( ( new Manager() )->is_connected(), 'Test setup failed: site should be connected.' );
+
+		( new Tokens() )->delete_all();
+
+		$this->assertFalse(
+			( new Manager() )->is_connected(),
+			'is_connected() should recompute after the tokens are deleted, without an explicit reset.'
+		);
+	}
+
+	/**
+	 * A failed re-registration must not leave `is_connected()` reporting the pre-teardown state.
+	 *
+	 * `Manager::register()` deletes the existing tokens before requesting new ones. When that
+	 * request fails the site is left with a blog ID and no tokens, and the memoized status has to
+	 * reflect that for the rest of the request.
+	 */
+	public function test_connection_status_is_invalidated_when_tokens_are_deleted_without_a_disconnect() {
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		Jetpack_Options::update_option( 'id', 1234 );
+		( new Manager() )->reset_connection_status();
+		$this->assertTrue( ( new Manager() )->is_connected(), 'Test setup failed: site should be connected.' );
+
+		// The cleanup `register()` performs before it asks WordPress.com for new tokens.
+		( new Manager() )->delete_all_connection_tokens( true );
+
+		$this->assertSame( 1234, Jetpack_Options::get_option( 'id' ), 'Test setup failed: the blog ID should survive the token deletion.' );
+		$this->assertFalse(
+			( new Manager() )->is_connected(),
+			'is_connected() should be false once the tokens are gone, even though the blog ID remains.'
+		);
 	}
 
 	/**
@@ -970,7 +1055,7 @@ class ManagerTest extends TestCase {
 			array( 'abcde:1:aaa', 'bogus signature', 'malformed_user_id' ),
 			array( 'bogus token', 'bogus signature', 'malformed_token' ),
 			array( 'abcde:1:987', 'bogus signature', 'unknown_user' ),
-			array( 'abcde:1:0', 'bogus signature', 'unknown_token' ),
+			array( 'abcde:1:0', 'bogus signature', 'tokens_locked' ),
 		);
 	}
 	/**
@@ -1351,7 +1436,7 @@ class ManagerTest extends TestCase {
 	 * `ArrayIterator::__construct()` object-backing notice once that error
 	 * object is iterated by the WP HTTP Requests library downstream.
 	 *
-	 * Compatible with PHP <8.1 where `setStaticPropertyValue()` cannot reach
+	 * Compatible with PHP <7.4.9 where `setStaticPropertyValue()` cannot reach
 	 * private static properties without `setAccessible(true)`.
 	 */
 	private function reset_plugin_storage() {
@@ -1359,7 +1444,7 @@ class ManagerTest extends TestCase {
 		try {
 			$reflection->setStaticPropertyValue( 'configured', true );
 			$reflection->setStaticPropertyValue( 'plugins', array() );
-		} catch ( \ReflectionException $e ) { // PHP <8.1: private statics need setAccessible.
+		} catch ( \ReflectionException $e ) { // PHP <7.4.9: setStaticPropertyValue can only access public properties
 			$values = array(
 				'configured' => true,
 				'plugins'    => array(),

@@ -11,13 +11,14 @@ import { getCommentFollowersFields } from './comment-followers/config/fields';
 import { getCommentsFields } from './comments/config/fields';
 import { getDownloadsFields } from './downloads/config/fields';
 import { getEmailsFields } from './emails/config/fields';
+import { getLocationFields } from './locations/config/fields';
 import { getArchivesFields, getPostsFields } from './posts/config/fields';
 import { getReferrerFields } from './referrers/config/fields';
 import { getSearchTermsFields } from './search-terms/config/fields';
 import { getTagsFields } from './tags/config/fields';
 import { getUtmFields } from './utm/config/fields';
 import { getVideosFields } from './videos/config/fields';
-import type { Field } from '@wordpress/dataviews';
+import type { Field } from '@jetpack-premium-analytics/externals';
 
 /**
  * Render a report table's numeric field for one row.
@@ -48,24 +49,25 @@ describe( 'report table count fields', () => {
 			throw new Error( 'Browser-locale formatting should not be used' );
 		} );
 
-		renderCountField( getPostsFields(), 'views', { views: 12345 } as never );
+		renderCountField( getPostsFields( false, 'posts-pages' ), 'views', { views: 12345 } as never );
 		renderCountField( getArchivesFields(), 'views', { views: 12345 } as never );
 		renderCountField( getCommentFollowersFields(), 'subscribers', { followers: 12345 } as never );
 		renderCountField( getVideosFields(), 'plays', { plays: 12345 } as never );
 		renderCountField( getVideosFields(), 'impressions', { impressions: 12345 } as never );
 		renderCountField( getDownloadsFields(), 'downloads', { downloads: 12345 } as never );
 		renderCountField( getClicksFields(), 'clicks', { clicks: 12345 } as never );
-		renderCountField( getCommentsFields(), 'comments', { value: 12345 } as never );
+		renderCountField( getCommentsFields( 'authors' ), 'comments', { value: 12345 } as never );
 		renderCountField( getTagsFields(), 'views', { value: 12345 } as never );
 		renderCountField( getReferrerFields(), 'views', { views: 12345 } as never );
 		renderCountField( getSearchTermsFields(), 'views', { views: 12345 } as never );
 		renderCountField( getUtmFields( 'source-medium' ), 'views', { views: 12345 } as never );
 		renderCountField( getEmailsFields(), 'opens', { opens: 12345 } as never );
+		renderCountField( getLocationFields(), 'views', { views: 12345 } as never );
 		renderCountField( getAnnualInsightsFields(), 'total_posts', {
 			total_posts: 12345,
 		} as never );
 
-		expect( screen.getAllByText( '12,345' ) ).toHaveLength( 14 );
+		expect( screen.getAllByText( '12,345' ) ).toHaveLength( 15 );
 	} );
 
 	it( 'formats Emails rates with the shared formatter', () => {
@@ -78,6 +80,7 @@ describe( 'report table count fields', () => {
 			opens_rate: 66.666,
 			opens: 100,
 			unique_opens: 66,
+			total_sends: 99,
 		} as never );
 
 		// Rounded to two decimals, unsigned — not `+66.67%`.
@@ -89,6 +92,18 @@ describe( 'report table count fields', () => {
 			opens_rate: 0,
 			opens: 5,
 			unique_opens: 0,
+			total_sends: 100,
+		} as never );
+
+		expect( screen.getByText( '—' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders an em dash for a rate on an email with no recorded sends', () => {
+		renderCountField( getEmailsFields(), 'opens_rate', {
+			opens_rate: 0,
+			opens: 0,
+			unique_opens: 0,
+			total_sends: 0,
 		} as never );
 
 		expect( screen.getByText( '—' ) ).toBeInTheDocument();
@@ -103,5 +118,17 @@ describe( 'report table count fields', () => {
 		renderCountField( getAnnualInsightsFields(), 'avg_comments', { avg_comments: 4 } as never );
 
 		expect( screen.getByText( '4.0' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the Annual insights image average to one decimal', () => {
+		renderCountField( getAnnualInsightsFields(), 'avg_images', { avg_images: 4 } as never );
+
+		expect( screen.getByText( '4.0' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the Annual insights words-per-post average whole, as legacy does', () => {
+		renderCountField( getAnnualInsightsFields(), 'avg_words', { avg_words: 1234.4 } as never );
+
+		expect( screen.getByText( '1,234' ) ).toBeInTheDocument();
 	} );
 } );

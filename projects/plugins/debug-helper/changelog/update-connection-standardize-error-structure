@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Broken Token: Use the connection error factory when generating sample connection errors.

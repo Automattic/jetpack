@@ -3,17 +3,17 @@ import {
 	sharedChartArgTypes,
 	ChartStoryArgs,
 } from '../../../stories/chart-decorator';
-import { legendArgTypes } from '../../../stories/legend-config';
+import { seriesLegendArgTypes } from '../../../stories/legend-config';
 import { temperatureData as sampleData } from '../../../stories/sample-data';
 import { sharedThemeArgs, themeArgTypes } from '../../../stories/theme-config';
 import { lineChartTooltipArgTypes } from '../../../stories/tooltip-config';
 import AreaChart from '../area-chart';
-import type { LegendStoryControls } from '../../../stories/legend-config';
+import type { SeriesLegendStoryControls } from '../../../stories/legend-config';
 import type { TooltipStoryControls } from '../../../stories/tooltip-config';
 import type { Meta } from '@storybook/react';
 
 export type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof AreaChart > > &
-	LegendStoryControls &
+	SeriesLegendStoryControls &
 	TooltipStoryControls;
 
 export const areaChartMetaArgs: Meta< StoryArgs > = {
@@ -24,7 +24,7 @@ export const areaChartMetaArgs: Meta< StoryArgs > = {
 	},
 	decorators: [ chartDecorator ],
 	argTypes: {
-		...legendArgTypes,
+		...seriesLegendArgTypes,
 		...themeArgTypes,
 		...sharedChartArgTypes,
 		...lineChartTooltipArgTypes,

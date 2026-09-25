@@ -403,4 +403,66 @@ class Filesystem_Utils_Test extends TestCase {
 		$this->assertInstanceOf( Boost_Cache_Error::class, $result );
 		$this->assertEquals( 'invalid-directory', $result->get_error_code() );
 	}
+
+	public function test_iterate_directory_skips_unopenable_subdirectory_without_throwing() {
+		if ( function_exists( 'posix_geteuid' ) && 0 === posix_geteuid() ) {
+			$this->markTestSkipped( 'Directory permission restrictions do not apply when running as root.' );
+		}
+
+		// Reproduces the "Updating failed. Uncaught UnexpectedValueException:
+		// RecursiveDirectoryIterator::__construct(...): Failed to open directory"
+		// crash seen when editing a template. A full-site walk (rebuild_all)
+		// reaches a subdirectory it cannot open — because a concurrent
+		// invalidation / garbage-collection pass removed it mid-walk, or its
+		// permissions changed — and RecursiveDirectoryIterator throws while
+		// descending. An unopenable (0000) directory triggers the same throw at
+		// the same point deterministically. The walk must be best-effort: skip
+		// the entry and keep going rather than let the exception abort the
+		// request.
+		$root     = $this->boost_cache_dir . '/cache/example.com';
+		$readable = $root . '/readable';
+		$locked   = $root . '/locked';
+		mkdir( $readable, 0755, true );
+		mkdir( $locked, 0755, true );
+		file_put_contents( $readable . '/page.html', 'cached page' );
+		file_put_contents( $locked . '/page.html', 'cached page' );
+		chmod( $locked, 0000 );
+
+		try {
+			$result = Filesystem_Utils::iterate_directory( $root, new Simple_Delete() );
+
+			// The walk completed instead of throwing...
+			$this->assertIsInt( $result );
+			// ...and the readable sibling was still swept rather than left behind.
+			$this->assertFalse( file_exists( $readable . '/page.html' ) );
+		} finally {
+			chmod( $locked, 0755 );
+		}
+	}
+
+	public function test_iterate_files_returns_error_for_unreadable_directory() {
+		if ( function_exists( 'posix_geteuid' ) && 0 === posix_geteuid() ) {
+			$this->markTestSkipped( 'Directory permission restrictions do not apply when running as root.' );
+		}
+
+		// iterate_files() passes validation for a chmod-0000 directory - realpath()
+		// and is_dir() only need search permission on the parent, which it has - but
+		// scandir() then fails because reading the directory itself is denied. The
+		// guard must return a controlled Boost_Cache_Error rather than let
+		// array_diff( false, ... ) raise a TypeError (the same TOCTOU class of bug
+		// this change fixes in iterate_directory()).
+		$dir = $this->boost_cache_dir . '/cache/unreadable';
+		mkdir( $dir, 0755, true );
+		file_put_contents( $dir . '/page.html', 'cached page' );
+		chmod( $dir, 0000 );
+
+		try {
+			$result = Filesystem_Utils::iterate_files( $dir, new Simple_Delete() );
+
+			$this->assertInstanceOf( Boost_Cache_Error::class, $result );
+			$this->assertEquals( 'could-not-read-directory', $result->get_error_code() );
+		} finally {
+			chmod( $dir, 0755 );
+		}
+	}
 }

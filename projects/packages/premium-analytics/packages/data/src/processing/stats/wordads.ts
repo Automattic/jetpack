@@ -15,7 +15,8 @@ export type StatsWordAdsRawResponse = {
 export type StatsWordAdsDataPoint = StatsTimeSeriesDataPoint & {
 	impressions?: number;
 	revenue?: number;
-	cpm?: number;
+	/** Null when no ads were served: CPM is undefined there, not zero. */
+	cpm?: number | null;
 };
 
 export type StatsWordAdsResponse = StatsNormalizedReport & {
@@ -44,12 +45,16 @@ export type StatsWordAdsEarningsRawResponse = {
 
 export type StatsWordAdsEarningsPeriod = {
 	amount: number;
-	pageviews: number;
+	/**
+	 * Ads served, or `undefined` when the payload has none: legacy rows carry
+	 * `"N/A"`, and sponsored and adjustment rows omit the field. `0` would
+	 * assert that no ads were served.
+	 */
+	pageviews: number | undefined;
 	/**
 	 * The payment status code, or `undefined` when the payload omits it. `0` is
 	 * itself a meaningful status ("Unpaid"), so a missing status must not
-	 * collapse into it — consumers would state a payment claim the API never
-	 * made.
+	 * collapse into it.
 	 */
 	status: number | undefined;
 };
@@ -88,55 +93,24 @@ function summarizeWordAdsStats(
 		...baseSummary,
 		impressions: totals.impressions,
 		revenue: totals.revenue,
-		cpm: totals.impressions ? ( totals.revenue / totals.impressions ) * 1000 : 0,
+		cpm: totals.impressions ? ( totals.revenue / totals.impressions ) * 1000 : null,
 	};
 }
 
-/**
- * Align a normalized WordAds report to `length` buckets by dropping trailing
- * buckets and recomputing the summary over the retained ones.
- *
- * The primary window is clamped to end yesterday (WordAds stats are computed
- * nightly), which drops its trailing bucket, while the comparison window sits in
- * the past and keeps every bucket — so a range ending today yields a comparison
- * one bucket longer than the primary. Trimming the comparison back to the
- * primary's bucket count keeps the two windows equal-length: the
- * period-over-period delta then compares like-sized windows, and the dashed
- * overlay aligns to the primary point-for-point (oldest-first) instead of
- * doubling its last point. The trailing bucket is the one dropped because the
- * surplus is the newest bucket, which has no counterpart in the clamped primary.
- *
- * @param report - The normalized WordAds report.
- * @param length - The bucket count to align to (the primary window's).
- * @return The report unchanged when already at or under `length`, otherwise a
- *         copy trimmed to `length` leading buckets with a recomputed summary.
- */
-export function sliceWordAdsStatsReport(
-	report: StatsWordAdsResponse,
-	length: number
-): StatsWordAdsResponse {
-	if ( report.data.length <= length ) {
-		return report;
-	}
-
-	// Narrow to the WordAds point array before slicing: indexing the
-	// StatsWordAdsResponse intersection widens `.slice()` back to the base
-	// normalized point, dropping the WordAds fields.
-	const points: StatsWordAdsDataPoint[] = report.data;
-	const data = points.slice( 0, length );
-
-	return { ...report, data, summary: summarizeWordAdsStats( data, report.summary ) };
+// WPCOM writes `cpm = 0` for a bucket with no impressions, as a divide-by-zero guard.
+function withoutUnservedCpm( row: StatsWordAdsDataPoint ): StatsWordAdsDataPoint {
+	return row.impressions === 0 ? { ...row, cpm: null } : row;
 }
 
 function normalizeEarningsPeriod( value: StatsRecord ): StatsWordAdsEarningsPeriod {
-	// Not `safeParseFloat`: its `fallback = 0` default fires on an explicit
-	// `undefined`, and `0` is itself a status ("Unpaid"), so an absent or
-	// unparseable status has to stay absent rather than collapse into it.
+	// Not `safeParseFloat`: its `fallback = 0` fires on an explicit `undefined`,
+	// and `0` means something for both fields, so an absent value must stay absent.
+	const pageviews = parseFloat( String( value.pageviews ) );
 	const status = parseFloat( String( value.status ) );
 
 	return {
 		amount: safeParseFloat( value.amount ),
-		pageviews: safeParseFloat( value.pageviews ),
+		pageviews: isNaN( pageviews ) ? undefined : pageviews,
 		status: isNaN( status ) ? undefined : status,
 	};
 }
@@ -162,6 +136,7 @@ export function sanitizeStatsWordAdsStatsResponse(
 
 	return {
 		...report,
+		data: report.data.map( withoutUnservedCpm ),
 		summary: summarizeWordAdsStats( report.data, report.summary ),
 	};
 }

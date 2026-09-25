@@ -26,7 +26,7 @@ The Legend component displays chart legends with support for both standalone usa
 | `fill`                | `(item: LegendItem) => string`           | `valueOrIdentityString` | Function that returns the fill color for each legend shape.                                                                                                                                |
 | `size`                | `(item: LegendItem) => string \| number` | `valueOrIdentityString` | Function that returns the size for each legend shape.                                                                                                                                      |
 | `labelFormat`         | `(item: unknown) => unknown`             | `valueOrIdentity`       | Function to format legend labels.                                                                                                                                                          |
-| `labelTransform`      | `(label: LegendItem) => LegendItem`      | `labelTransformFactory` | Function to transform legend label objects.                                                                                                                                                |
+| `labelTransform`      | `(label: LegendItem) => LegendItem`      | by item index           | Function to transform legend label objects. The default reads each item's color by its index, so two items with the same label keep their own colors.                                    |
 | `itemStyles`          | `LegendItemStyles`                       | see below               | CSS styles for each legend item. See `LegendItemStyles` type below.                                                                                                                        |
 | `labelClassName`      | `string`                                 | -                       | Additional CSS class name for legend labels.                                                                                                                                               |
 | `labelStyles`         | `LegendLabelStyles`                      | see below               | CSS styles for legend labels. See `LegendLabelStyles` type below.                                                                                                                          |
@@ -96,6 +96,12 @@ type BaseLegendItem = {
 
 	/** Optional custom styles for the shape */
 	shapeStyle?: CSSProperties & LineStyles;
+
+	/** Series labels this item controls; all members of a group for a collapsed group item */
+	seriesLabels?: string[];
+
+	/** Set to false for a static item that cannot be toggled or dimmed. */
+	interactive?: boolean;
 };
 ```
 
@@ -107,6 +113,8 @@ type BaseLegendItem = {
 - **`glyphSize`** (optional): Custom size for the glyph in pixels. When provided, the glyph will be rendered at `glyphSize * 2` dimensions
 - **`renderGlyph`** (optional): Custom function to render the glyph. Receives GlyphProps and returns a React node. Useful for custom symbols or complex glyphs
 - **`shapeStyle`** (optional): Additional CSS and line styles to apply to the shape. Supports standard CSSProperties plus visx LineStyles
+- **`seriesLabels`** (optional): The series labels this item controls. Auto-derived items set it to just the item's own series, unless `legend.collapseGroups` is on, in which case a group collapses to one item carrying every series it toggles (primary first). An interactive legend toggles all of these together
+- **`interactive`** (optional): Set to `false` to keep this item static inside an interactive legend. It renders without a button role, ignores clicks, and never dims; the `comparisonItem` option uses this for the "Comparison period" item
 
 ## GlyphProps Type
 

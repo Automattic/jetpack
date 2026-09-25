@@ -21,7 +21,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Csv_Report_Controller_Int
  * Merge strategies determine how original and comparison period data
  * are combined for CSV export.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 interface Merge_Strategy_Interface {
 

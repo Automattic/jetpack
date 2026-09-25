@@ -1,17 +1,16 @@
 /**
  * External dependencies
  */
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { DrilldownLeafCell } from '@jetpack-premium-analytics/ui';
-import { MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
+import { MetricWithComparison, PostDetailLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
-import { Link } from '@wordpress/route';
-import { Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import styles from './fields.module.css';
 import type { AuthorRow } from './aggregate';
-import type { Field } from '@wordpress/dataviews';
+import type { Field } from '@jetpack-premium-analytics/externals';
 import type { SyntheticEvent } from 'react';
 
 const UNTRACKED_AUTHORS_SENTINEL = 'Untracked Authors';
@@ -37,7 +36,7 @@ function handleAvatarError( event: SyntheticEvent< HTMLImageElement > ): void {
  * @param name - The raw author name.
  * @return The localized author display name.
  */
-function getAuthorName( name: string ): string {
+export function getAuthorName( name: string ): string {
 	if ( ! name || name === UNTRACKED_AUTHORS_SENTINEL ) {
 		return __( 'Untracked authors', 'jetpack-premium-analytics-pkg' );
 	}
@@ -65,9 +64,9 @@ export function getAuthorsFields( withComparison = false ): Field< AuthorRow >[]
 						<DrilldownLeafCell groupLabel={ getAuthorName( item.parentName ?? '' ) }>
 							<span>
 								{ item.postId ? (
-									<Link to="/post/$postId" params={ { postId: item.postId } as unknown as never }>
+									<PostDetailLink postId={ item.postId } report="authors">
 										{ item.label }
-									</Link>
+									</PostDetailLink>
 								) : (
 									item.label
 								) }
@@ -90,7 +89,7 @@ export function getAuthorsFields( withComparison = false ): Field< AuthorRow >[]
 							) }
 							className={ styles.avatar }
 						/>
-						<span>{ name }</span>
+						<span className={ styles.name }>{ name }</span>
 					</Stack>
 				);
 			},

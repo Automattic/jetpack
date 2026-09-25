@@ -160,6 +160,10 @@ class Jetpack_Signature {
 
 		$signature_details = compact( 'token', 'timestamp', 'nonce', 'body_hash', 'method', 'url' );
 
+		// This path currently can't ever be true. Every caller (Client::build_signed_request,
+		// Manager::internal_verify_xml_rpc_signature, Authorize_Json_Api, Server_Sandbox)
+		// derives the token_key param from the same $token->secret used to construct the Jetpack_Signature object
+		// — so $this->token and the passed $token key can never actually differ in practice.
 		if ( ! str_starts_with( $token, "$this->token:" ) ) {
 			return new WP_Error( 'token_mismatch', 'Incorrect token', compact( 'signature_details' ) );
 		}

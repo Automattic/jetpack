@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.38.0 - 2026-09-23
+### Added
+- Add a REST route to read and change the Stats settings, for the Settings tab in the Stats dashboard. [#52540]
+- Add the views chart and Stats link to the admin bar, and let any plugin that ships Stats add the Stats widget to the WordPress dashboard. [#52528]
+
+## 0.37.0 - 2026-09-21
+### Changed
+- Hide WordPress admin notices on the Stats dashboard, and let hosts show or hide the Stats sidebar entry. [#52351]
+
+## 0.36.0 - 2026-09-15
+### Added
+- Notices: Add an `include_details` parameter that returns a detail record per notice, so a dismissal can escalate, and accept a dismissal that omits `postponed_for`. [#52075]
+
+## 0.35.1 - 2026-09-08
+### Fixed
+- Stats: Fix endless spinner when the blog token is invalid. [#51998]
+
+## 0.35.0 - 2026-09-01
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+## 0.34.0 - 2026-08-25
+### Added
+- Add a filter for the post list table's views column link. [#51357]
+
+### Changed
+- Make the Blaze package a development-only dependency. [#51462]
+
+## 0.33.0 - 2026-08-20
+### Added
+- Show the Stats dashboard before the site is connected to WordPress.com, so a plan can be picked and the site connected from there. [#51200]
+
+### Changed
+- Load the post list Stats column CSS through the stylesheet queue. [#51353]
+- Load the Stats dashboard bootstrap script through the script queue. [#51355]
+- Update dependencies. [#51190]
+
+### Fixed
+- Return a clear error instead of a server error when a stats request is made before the site is connected to WordPress.com. [#51200]
+
+## 0.32.1 - 2026-08-10
+### Security
+- Cast the quick-edit post ID to an integer before requesting its view counts. [#51049]
+
+## 0.32.0 - 2026-08-03
+### Fixed
+- Stats Dashboard: Declare `wp-components` as a stylesheet dependency, so the dashboard's own component styling (Button, Card, Modal, etc.) no longer relies on another admin feature enqueuing it as a side effect, and is emitted in the correct cascade order. [#50881]
+
+## 0.31.11 - 2026-07-27
+### Changed
+- Update dependencies. [#50719]
+
 ## 0.31.10 - 2026-07-20
 ### Changed
 - Update dependencies. [#44736]

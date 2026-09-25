@@ -1,0 +1,22 @@
+// The package's card uses `var(--studio-blue-5)`, a Calypso global absent
+// outside Calypso. Supply it from the Color Studio palette.
+.site-launch-pre-launch-modal {
+	--studio-blue-5: #f7f8fe;
+}
+
+// Thumbnail passed into the shared modal's `preview` prop.
+.wpcom-pre-launch-site-modal__thumbnail {
+	// Sizes come from the wrapper's THUMBNAIL_WIDTH/HEIGHT constants.
+	flex-shrink: 0;
+	inline-size: var(--wpcom-pre-launch-thumbnail-width, 114px);
+	block-size: var(--wpcom-pre-launch-thumbnail-height, 88px);
+	overflow: hidden;
+	border-radius: 4px;
+	background-color: #f6f7f7;
+
+	iframe {
+		display: block;
+		// Undo any global `iframe { max-width: 100% }` that collapses the preview.
+		max-inline-size: none;
+	}
+}

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Tiled Gallery: fix images collapsing to ~105px in the editor when the canvas is not iframed

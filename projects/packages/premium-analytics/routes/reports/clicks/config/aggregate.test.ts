@@ -1,133 +1,47 @@
-import { aggregateClickRows, clicksToTimeSeries } from './aggregate';
-import type { StatsClicksItem, StatsNormalizedReport } from '@jetpack-premium-analytics/data';
-
-/**
- * Build a top-level click item with the requested total.
- *
- * @param views - The item's click count.
- * @return The click item.
- */
-function makeClickItem( views: number ): StatsClicksItem {
-	return {
-		label: 'jetpack.com',
-		views,
-		link: 'https://jetpack.com/',
-		icon: null,
-		labelIcon: 'external',
-		children: null,
-	};
-}
-
-const dailyReport: StatsNormalizedReport< StatsClicksItem > = {
-	summary: {},
-	data: [
-		{
-			time_interval: '2026-07-09',
-			date_start: '2026-07-09T00:00:00+00:00',
-			date_end: '2026-07-09T23:59:59+00:00',
-			items: [ makeClickItem( 8 ) ],
-		},
-		{
-			time_interval: '2026-07-10',
-			date_start: '2026-07-10T00:00:00+00:00',
-			date_end: '2026-07-10T23:59:59+00:00',
-			items: [ makeClickItem( 5 ) ],
-		},
-	],
-};
+import { aggregateClickRows } from './aggregate';
+import type {
+	StatsClicksComparisonItem,
+	StatsClicksItem,
+	StatsNormalizedReport,
+} from '@jetpack-premium-analytics/data';
 
 describe( 'report clicks aggregate', () => {
-	it( 'builds the chart from top-level totals without double-counting children', () => {
-		const report: StatsNormalizedReport< StatsClicksItem > = {
-			summary: {},
-			data: [
-				{
-					time_interval: '2026-06-01',
-					date_start: '2026-06-01T00:00:00+00:00',
-					date_end: '2026-06-01T23:59:59+00:00',
-					items: [
-						{
-							label: 'wordpress.org',
-							views: 12,
-							link: null,
-							icon: null,
-							labelIcon: null,
-							children: [
-								{
-									label: '/plugins/jetpack-search',
-									views: 8,
-									link: 'https://wordpress.org/plugins/jetpack-search',
-									icon: null,
-									labelIcon: 'external',
-									children: null,
-								},
-							],
-						},
-					],
-				},
-			],
-		};
+	it( 'preserves comparison values on click groups and nested URLs', () => {
+		const items: StatsClicksComparisonItem[] = [
+			{
+				label: 'wordpress.org',
+				views: 55,
+				previousValue: 40,
+				link: null,
+				icon: null,
+				labelIcon: null,
+				children: [
+					{
+						label: '/plugins/jetpack-search',
+						views: 42,
+						previousValue: 28,
+						link: 'https://wordpress.org/plugins/jetpack-search',
+						icon: null,
+						labelIcon: 'external',
+						children: null,
+					},
+				],
+			},
+		];
 
-		const series = clicksToTimeSeries( report );
-
-		expect( series.data[ 0 ] ).toEqual( expect.objectContaining( { clicks: 12, value: 12 } ) );
-		expect( series.summary ).toEqual( {
-			date_start: '2026-06-01T00:00:00+00:00',
-			date_end: '2026-06-01T23:59:59+00:00',
-		} );
-	} );
-
-	it( 'groups daily totals into ISO calendar weeks for the chart', () => {
-		const series = clicksToTimeSeries( dailyReport, 'week' );
-
-		expect( series.summary ).toEqual( {
-			date_start: '2026-07-09T00:00:00+00:00',
-			date_end: '2026-07-10T23:59:59+00:00',
-		} );
-		expect( series.data ).toEqual( [
+		expect( aggregateClickRows( { data: [ { items } ] } ) ).toEqual( [
 			expect.objectContaining( {
-				time_interval: '2026-07-06',
-				date_start: '2026-07-06T00:00:00+00:00',
-				date_end: '2026-07-10T23:59:59+00:00',
-				clicks: 13,
-				value: 13,
-			} ),
-		] );
-	} );
-
-	it( 'groups daily totals into calendar months for the chart', () => {
-		const reportWithNextMonth = {
-			...dailyReport,
-			data: [
-				...dailyReport.data,
-				{
-					time_interval: '2026-08-02',
-					date_start: '2026-08-02T00:00:00+00:00',
-					date_end: '2026-08-02T23:59:59+00:00',
-					items: [ makeClickItem( 3 ) ],
-				},
-			],
-		};
-		const series = clicksToTimeSeries( reportWithNextMonth, 'month' );
-
-		expect( series.summary ).toEqual( {
-			date_start: '2026-07-09T00:00:00+00:00',
-			date_end: '2026-08-02T23:59:59+00:00',
-		} );
-		expect( series.data ).toEqual( [
-			expect.objectContaining( {
-				time_interval: '2026-07-01',
-				date_start: '2026-07-01T00:00:00+00:00',
-				date_end: '2026-07-10T23:59:59+00:00',
-				clicks: 13,
-				value: 13,
+				id: 'wordpress.org',
+				clickedUrl: 'wordpress.org',
+				clicks: 55,
+				previousClicks: 40,
 			} ),
 			expect.objectContaining( {
-				time_interval: '2026-08-01',
-				date_start: '2026-08-01T00:00:00+00:00',
-				date_end: '2026-08-02T23:59:59+00:00',
-				clicks: 3,
-				value: 3,
+				id: 'wordpress.org|https://wordpress.org/plugins/jetpack-search',
+				parentId: 'wordpress.org',
+				clickedUrl: 'https://wordpress.org/plugins/jetpack-search',
+				clicks: 42,
+				previousClicks: 28,
 			} ),
 		] );
 	} );
@@ -291,5 +205,112 @@ describe( 'report clicks aggregate', () => {
 		] );
 		// A single-URL group stays one flat row — no drill-down parent.
 		expect( aggregateClickRows( report ) ).toHaveLength( 1 );
+	} );
+
+	it( 'returns no rows when the report is missing or carries no data', () => {
+		expect( aggregateClickRows() ).toEqual( [] );
+		expect( aggregateClickRows( undefined ) ).toEqual( [] );
+	} );
+
+	it( 'keeps an unlinked leaf, which the Clicks widget also lists', () => {
+		const report: StatsNormalizedReport< StatsClicksItem > = {
+			summary: {},
+			data: [
+				{
+					time_interval: '2026-06-01',
+					date_start: '2026-06-01T00:00:00+00:00',
+					date_end: '2026-06-01T23:59:59+00:00',
+					items: [
+						{
+							label: 'wordpress.org',
+							views: 9,
+							link: null,
+							icon: null,
+							labelIcon: null,
+							children: [
+								{
+									label: '/plugins/jetpack-search',
+									views: 6,
+									link: 'https://wordpress.org/plugins/jetpack-search',
+									icon: null,
+									labelIcon: 'external',
+									children: null,
+								},
+								{
+									label: 'untracked',
+									views: 3,
+									link: null,
+									icon: null,
+									labelIcon: null,
+									children: null,
+								},
+							],
+						},
+					],
+				},
+			],
+		};
+
+		const rows = aggregateClickRows( report );
+
+		expect( rows.map( row => row.clickedUrl ) ).toEqual( [
+			'wordpress.org',
+			'https://wordpress.org/plugins/jetpack-search',
+			'untracked',
+		] );
+		// The label carries the row, so the cell renders as plain text.
+		expect( rows[ 2 ] ).toMatchObject( {
+			id: 'wordpress.org|label:untracked',
+			parentId: 'wordpress.org',
+			clicks: 3,
+			href: undefined,
+		} );
+	} );
+
+	it( 'drops a leaf with no label and no URL, which has no stable id', () => {
+		const report: StatsNormalizedReport< StatsClicksItem > = {
+			summary: {},
+			data: [
+				{
+					time_interval: '2026-06-01',
+					date_start: '2026-06-01T00:00:00+00:00',
+					date_end: '2026-06-01T23:59:59+00:00',
+					items: [
+						{
+							label: 'wordpress.org',
+							views: 9,
+							link: null,
+							icon: null,
+							labelIcon: null,
+							children: [
+								{
+									label: '/plugins/jetpack-search',
+									views: 6,
+									link: 'https://wordpress.org/plugins/jetpack-search',
+									icon: null,
+									labelIcon: 'external',
+									children: null,
+								},
+								{
+									label: '',
+									views: 3,
+									link: null,
+									icon: null,
+									labelIcon: null,
+									children: null,
+								},
+							],
+						},
+					],
+				},
+			],
+		};
+
+		const rows = aggregateClickRows( report );
+
+		expect( rows.map( row => row.clickedUrl ) ).toEqual( [
+			'wordpress.org',
+			'https://wordpress.org/plugins/jetpack-search',
+		] );
 	} );
 } );

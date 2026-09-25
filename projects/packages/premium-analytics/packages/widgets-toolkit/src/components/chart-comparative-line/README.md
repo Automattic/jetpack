@@ -4,7 +4,7 @@ A **pure** line chart component for comparing time series data across different 
 
 ## Pure Component Design
 
-This component is **pure and self-contained**—it receives all styling via props and has no external dependencies on context providers or themes.
+This component is **pure** in its styling: it receives all styling via props rather than from a theme. It must still render inside a `GlobalChartsProvider`, which tells it the series the legend hides.
 
 ```tsx
 import { ComparativeLineChart } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -20,7 +20,6 @@ import { ComparativeLineChart } from '@jetpack-premium-analytics/widgets-toolkit
 
 - Predictable rendering — same props always produce the same output
 - Easy to test in isolation
-- No implicit dependencies to track
 
 ## Basic Usage
 
@@ -78,9 +77,12 @@ const series = [
 	},
 	{
 		label: 'Dec 25-31, 2023',
-		group: 'comparison',
+		// Same group as the metric it shadows, and `type: 'comparison'` is what
+		// makes `alignSeriesDates` re-date it onto the primary's axis.
+		group: 'primary',
 		data: [ ... ],
 		options: {
+			type: 'comparison',
 			stroke: '#F59E0B',
 			seriesLineStyle: { strokeDasharray: '4 4', strokeWidth: 1.5 },
 		},
@@ -122,13 +124,17 @@ function MyWidget( { series } ) {
 
 ## Props
 
-| Prop         | Type                           | Required | Description                                        |
-| ------------ | ------------------------------ | -------- | -------------------------------------------------- |
-| `series`     | `ComparativeLineChartSeries[]` | Yes      | Array of series with data                          |
-| `styles`     | `SeriesStyle[]`                | No       | Styles for each series (by index)                  |
-| `dataFormat` | `DataFormat`                   | Yes      | Format for values (Y-axis ticks and tooltips)      |
-| `tickFormat` | `string`                       | No       | Custom X-axis date format (date-fns format string) |
-| `className`  | `string`                       | No       | CSS class for the chart container                  |
+| Prop                  | Type                           | Required | Description                                                                                                                               |
+| --------------------- | ------------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `series`              | `ComparativeLineChartSeries[]` | Yes      | Array of series with data                                                                                                                 |
+| `styles`              | `SeriesStyle[]`                | No       | Styles for each series (by index)                                                                                                         |
+| `dataFormat`          | `DataFormat`                   | Yes      | Format for values (Y-axis ticks and tooltips)                                                                                             |
+| `tickFormat`          | `DateFormatName`               | No       | Named X-axis date format; uses the chart default when omitted                                                                             |
+| `className`           | `string`                       | No       | CSS class for the chart container                                                                                                         |
+| `chartId`             | `string`                       | No       | Identity the charts provider keys visibility on; generated when omitted. Change it whenever `defaultHiddenSeries` should be applied again |
+| `defaultHiddenSeries` | `readonly string[]`            | No       | Labels of series hidden until revealed from the legend. Applied once per `chartId`, so only useful with `legendInteractive`               |
+| `legendInteractive`   | `boolean`                      | No       | Let the reader click legend items to show and hide series; the first item stays locked. Defaults to `false`                               |
+| `baseline`            | `'zero' \| 'padded'`           | No       | Where the Y-axis starts. `zero` (default) for a per-period metric; `padded` for a cumulative count, see below                             |
 
 ## SeriesStyle Type
 
@@ -145,13 +151,22 @@ type SeriesStyle = {
 
 ## Date Alignment
 
-The component automatically aligns comparison series to the primary series for X-axis display:
+The component aligns previous-period series onto the axis dates for X-axis display:
 
-1. First series (`series[0]`) is the reference
-2. Comparison series dates are shifted to align with the primary
-3. Original dates are preserved for tooltip display
+1. The first series (`series[0]`) sets the axis dates
+2. Only series marked `options.type: 'comparison'` are shifted onto those dates — a second
+   current-period metric keeps its own
+3. The original date is preserved in `realDate` for tooltip display
 
 **Example**: A comparison series with Dec 25-31 dates will visually align to Jan 1-7 on the X-axis, but tooltips show the real Dec 25-31 dates.
+
+## Y-axis baseline
+
+The Y-axis starts at zero, so the line's height reads as the value and a week of near-identical values draws as a near-flat line. Hiding a series from the legend rescales the axis to what is visible.
+
+For a cumulative count such as total subscribers, a zero baseline flattens every change, while an axis fitted to the data turns a change of four into a cliff. Pass `baseline="padded"` and the axis starts a little below the data instead, so the data fills about half the chart; `getPaddedYAxis` in the helpers owns the padding, and the chart pads only the series the legend leaves visible. When the padding would reach zero, the axis is the zero baseline. A small change on a large count is labelled in full (4,190, 4,195) rather than as repeated compact labels (4.2K, 4.2K).
+
+A percentage metric always reads 0% to 100%, and an all-zero period keeps the empty-state axis below, whichever baseline is set.
 
 ## Empty State
 

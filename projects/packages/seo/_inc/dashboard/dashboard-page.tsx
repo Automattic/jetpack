@@ -43,7 +43,7 @@ const DashboardPage = ( { active, showFooter = true, flush = false, children }: 
 		<AdminPage
 			title="SEO"
 			subTitle={ __(
-				'Visibility tools for your site — sitemaps, search-engine settings, and more, in one place.',
+				'Make your site discoverable in search and social, and control AI access.',
 				'jetpack-seo'
 			) }
 			showFooter={ showFooter }

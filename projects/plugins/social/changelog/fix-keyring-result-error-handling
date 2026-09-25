@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Surface a visible error when fetching the keyring result fails during a connection, instead of failing silently.

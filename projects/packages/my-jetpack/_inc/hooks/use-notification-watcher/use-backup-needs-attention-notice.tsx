@@ -30,8 +30,7 @@ const useBackupNeedsAttentionNotice: NoticeHookType = ( redBubbleAlerts, isLoadi
 	// Using dateI18n() to apply internationalization and formatting.
 	const backupStatusLastUpdatedDate = dateI18n(
 		'F jS, Y g:ia',
-		// @todo Once we drop support for WordPress 6.9, `offset` should always be a number.
-		applyTimezone( lastUpdated, typeof offset === 'string' ? parseInt( offset ) : offset )
+		applyTimezone( lastUpdated, offset )
 	);
 
 	const troubleshootBackupsUrl = getRedirectUrl( 'jetpack-support-troubleshooting-backup' );

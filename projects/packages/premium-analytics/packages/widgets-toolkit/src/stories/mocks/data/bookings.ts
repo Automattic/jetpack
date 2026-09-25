@@ -5,6 +5,7 @@
  *
  * This module provides dynamic fixture generation based on request parameters.
  */
+import { wooBucketStamp } from '../../../__fixtures__/woo-bucket-stamp';
 import { seededRandom } from './orders-by-product-type';
 import type { fetchReportBookings } from '../../../../../data/src/api/report-bookings-fetch/report-bookings-fetch';
 
@@ -35,9 +36,6 @@ interface GenerateBookingsParams {
 	volume?: number;
 }
 
-/**
- * Generate date intervals
- */
 function generateDateIntervals(
 	from: string,
 	to: string,
@@ -88,23 +86,11 @@ function generateDateIntervals(
 	return intervals;
 }
 
-/**
- * Format a date in ISO format compatible with the API
- */
-function formatISODate( date: Date ): string {
-	return date.toISOString().replace( /\.\d{3}Z$/, '+00:00' );
-}
-
-/**
- * Format a date in YYYY-MM-DD format for time_interval
- */
+// `time_interval` is a date-only field.
 function formatDateOnly( date: Date ): string {
 	return date.toISOString().split( 'T' )[ 0 ];
 }
 
-/**
- * Generate mock booking data for a specific interval
- */
 function generateIntervalData(
 	start: Date,
 	end: Date,
@@ -117,8 +103,8 @@ function generateIntervalData(
 	if ( ! hasBookings ) {
 		return {
 			time_interval: formatDateOnly( start ),
-			date_start: formatISODate( start ),
-			date_end: formatISODate( end ),
+			date_start: wooBucketStamp( start ),
+			date_end: wooBucketStamp( end ),
 			status_unpaid: '0',
 			status_pending_confirmation: '0',
 			status_confirmed: '0',
@@ -134,18 +120,14 @@ function generateIntervalData(
 	// Generate varied booking counts for each status independently
 	// This creates more natural "wavy" data patterns
 
-	// Helper to generate a value with good variation
 	const generateCount = ( base: number, variance: number ): number => {
-		// Use sine-like wave pattern combined with randomness
 		const wave = Math.sin( random() * Math.PI * 2 ) * variance;
 		const noise = ( random() - 0.5 ) * variance;
 		return Math.max( 1, Math.round( base + wave + noise ) );
 	};
 
-	// Scale base values by volume parameter
 	const scaleFactor = volume / 5; // normalize around default volume of 5
 
-	// Generate each status with independent variation
 	const statusUnpaid = generateCount( 2 * scaleFactor, 3 * scaleFactor );
 	const statusPendingConfirmation = generateCount( 2 * scaleFactor, 2 * scaleFactor );
 	const statusConfirmed = generateCount( 3 * scaleFactor, 4 * scaleFactor );
@@ -153,15 +135,14 @@ function generateIntervalData(
 	const statusCancelled = generateCount( 2 * scaleFactor, 3 * scaleFactor );
 	const statusComplete = generateCount( 5 * scaleFactor, 6 * scaleFactor );
 
-	// Generate attendance statuses with variation
 	const attendanceBooked = generateCount( 3 * scaleFactor, 4 * scaleFactor );
 	const attendanceNoShow = generateCount( 1 * scaleFactor, 2 * scaleFactor );
 	const attendanceCheckedIn = generateCount( 4 * scaleFactor, 5 * scaleFactor );
 
 	return {
 		time_interval: formatDateOnly( start ),
-		date_start: formatISODate( start ),
-		date_end: formatISODate( end ),
+		date_start: wooBucketStamp( start ),
+		date_end: wooBucketStamp( end ),
 		status_unpaid: statusUnpaid.toString(),
 		status_pending_confirmation: statusPendingConfirmation.toString(),
 		status_confirmed: statusConfirmed.toString(),
@@ -174,9 +155,6 @@ function generateIntervalData(
 	};
 }
 
-/**
- * Calculate the summary from the array of data
- */
 function calculateSummary(
 	data: BookingsReportResponse[ 'data' ],
 	from: string,
@@ -221,8 +199,8 @@ function calculateSummary(
 		attendance_status_booked: totals.attendance_status_booked.toString(),
 		attendance_status_no_show: totals.attendance_status_no_show.toString(),
 		attendance_status_checked_in: totals.attendance_status_checked_in.toString(),
-		date_start: formatISODate( new Date( from ) ),
-		date_end: formatISODate( new Date( to ) ),
+		date_start: wooBucketStamp( new Date( from ) ),
+		date_end: wooBucketStamp( new Date( to ) ),
 	};
 }
 
@@ -231,18 +209,6 @@ function calculateSummary(
  *
  * @param params - Generation parameters based on the request
  * @return Mock data that matches the API format
- *
- * @example
- * ```ts
- * const mockData = generateBookings({
- *   from: '2025-11-15T00:00:00.000+00:00',
- *   to: '2025-12-14T23:59:59.999+00:00',
- *   interval: 'day',
- *   seed: 12345,
- *   density: 0.8,
- *   volume: 5,
- * });
- * ```
  */
 export function generateBookings( params: GenerateBookingsParams ): BookingsReportResponse {
 	const { from, to, interval = 'day', seed = Date.now(), density = 0.8, volume = 5 } = params;
@@ -262,9 +228,6 @@ export function generateBookings( params: GenerateBookingsParams ): BookingsRepo
 	};
 }
 
-/**
- * Filters a full spectrum of data to a specific date range
- */
 export function filterBookingsDataByDateRange(
 	fullData: BookingsReportResponse[ 'data' ],
 	requestFrom: string,
@@ -279,9 +242,6 @@ export function filterBookingsDataByDateRange(
 	} );
 }
 
-/**
- * Recalculates summary based on filtered data
- */
 export function recalculateBookingsSummary(
 	filteredData: BookingsReportResponse[ 'data' ],
 	from: string,
@@ -298,8 +258,8 @@ export function recalculateBookingsSummary(
 			attendance_status_booked: '0',
 			attendance_status_no_show: '0',
 			attendance_status_checked_in: '0',
-			date_start: formatISODate( new Date( from ) ),
-			date_end: formatISODate( new Date( to ) ),
+			date_start: wooBucketStamp( new Date( from ) ),
+			date_end: wooBucketStamp( new Date( to ) ),
 		};
 	}
 

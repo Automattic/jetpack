@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Premium Analytics: keep the year and the day on the traffic chart's time axis, which could previously skip the tick that named them, and stop the same label falling on two ticks in a row.

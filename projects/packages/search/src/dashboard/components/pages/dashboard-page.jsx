@@ -1,4 +1,5 @@
 import { AdminPage, Button, getProductCheckoutUrl } from '@automattic/jetpack-components';
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -248,7 +249,7 @@ export default function DashboardPage( { isLoading = false } ) {
 			editTemplateUrl: activeThemeStylesheet
 				? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
 						activeThemeStylesheet
-				  ) }%2F%2Fjetpack-search-product-results&canvas=edit`
+					) }%2F%2Fjetpack-search-product-results&canvas=edit`
 				: `${ siteAdminUrl }site-editor.php?p=%2Ftemplate`,
 			editLabel: __( 'Edit the product search template', 'jetpack-search-pkg' ),
 		};
@@ -327,23 +328,12 @@ export default function DashboardPage( { isLoading = false } ) {
 						<Tabs.List variant="minimal">
 							<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-search-pkg' ) }</Tabs.Tab>
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-search-pkg' ) }</Tabs.Tab>
-							<Tabs.Tab value="ai-answers">
-								{ __( 'AI Answers', 'jetpack-search-pkg' ) }
-								<span className="jp-search-dashboard-tabs__tab-preview-label">
-									&nbsp;{ __( '(Preview)', 'jetpack-search-pkg' ) }
-								</span>
-							</Tabs.Tab>
+							<Tabs.Tab value="ai-answers">{ __( 'AI Answers', 'jetpack-search-pkg' ) }</Tabs.Tab>
 						</Tabs.List>
 					</div>
+					<JitmSlot inset />
 					<Tabs.Panel value="overview">
 						<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
-							{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
-							<div className="jp-search-dashboard-row">
-								<div
-									id="jp-admin-notices"
-									className="jetpack-search-jitm-card sm-col-span-4 md-col-span-8 lg-col-span-12"
-								/>
-							</div>
 							{ isPageLoading && <Loading /> }
 							{ ! isPageLoading && (
 								<MockedSearchContent
@@ -356,7 +346,7 @@ export default function DashboardPage( { isLoading = false } ) {
 							<>
 								{ hasConnectionError && (
 									<Stack direction="column">
-										<ConnectionError />
+										<ConnectionError trackingContext="search" />
 									</Stack>
 								) }
 								{ isNewPricing && supportsInstantSearch && (
@@ -402,7 +392,9 @@ export default function DashboardPage( { isLoading = false } ) {
 															<ReaderChatControl
 																isAvailable={ isReaderChatControlAvailable }
 																isEnabled={ isReaderChatEnabled }
-																isSaving={ isSavingEitherOption || isOverLimit }
+																isSaving={
+																	isSavingEitherOption || ( isOverLimit && ! isReaderChatEnabled )
+																}
 																guidelinesUrl={ readerChatGuidelinesUrl }
 																updateOptions={ updateOptions }
 															/>

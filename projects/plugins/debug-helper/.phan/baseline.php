@@ -36,6 +36,7 @@ return [
         'modules/class-modules-helper.php' => ['PhanUndeclaredClassMethod'],
         'modules/class-protect-helper.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassStaticProperty'],
         'modules/class-scan-helper.php' => ['PhanSuspiciousValueComparison', 'PhanTypeConversionFromArray', 'PhanTypeMismatchReturnProbablyReal'],
+        'modules/class-social-helper.php' => ['PhanUndeclaredClassMethod'],
         'modules/class-sync-data-settings-tester.php' => ['PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredClass'],
         'modules/class-waf-helper.php' => ['PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod'],
         'modules/class-wpcom-api-request-faker-module.php' => ['PhanUndeclaredClassMethod'],

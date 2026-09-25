@@ -1,0 +1,969 @@
+/**
+ * External dependencies
+ */
+import {
+	PERIOD_CHANGE_ATTENTION_MS,
+	queryClient,
+	useRaisePeriodChange,
+	useReportScope,
+} from '@jetpack-premium-analytics/data';
+import { createTZDateFromParts, endOfDayTZ } from '@jetpack-premium-analytics/datetime';
+import { act, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { useCallback } from 'react';
+/**
+ * Internal dependencies
+ */
+import { DATE_FILTER_RANGE, DATE_FILTER_YEAR } from './config';
+import {
+	useActiveSection,
+	useDashboardSections,
+	useOnboarding,
+	useSectionDateFilter,
+} from './hooks';
+import { stage as Dashboard } from './stage';
+import type { SyncStatus } from '@jetpack-premium-analytics/site-sync';
+import type { ForwardedRef, ReactNode } from 'react';
+
+// Read inside the mocked functions, never at factory time — the factories run
+// while `./stage` is still importing, so these are in the temporal dead zone.
+// Base UI's `Tabs.Panel` defaults to `keepMounted={false}`, so only the active
+// section is ever in the DOM; `mockMountedSectionSlugs` keeps extras for one frame.
+let mockActiveSectionSlug = 'insights';
+const JULY_2026 = {
+	from: createTZDateFromParts( [ 2026, 6, 1 ], 'UTC' ),
+	to: endOfDayTZ( createTZDateFromParts( [ 2026, 6, 31 ], 'UTC' ), 'UTC' ),
+};
+let mockAppliedRange: Partial< typeof JULY_2026 > = { from: undefined, to: undefined };
+let mockMountedSectionSlugs: string[] | null = null;
+let mockSyncState: { data?: SyncStatus; error: Error | null; isComplete: boolean };
+let mockIsSyncFinished: boolean;
+const mockResetLayout = jest.fn();
+const mockTriggerSync = jest.fn( () => Promise.resolve() );
+
+jest.mock( '@jetpack-premium-analytics/site-sync', () => ( {
+	useSyncStatus: () => ( { ...mockSyncState, triggerSync: mockTriggerSync } ),
+} ) );
+
+jest.mock( '../site-readiness', () => ( {
+	isPremiumAnalyticsInitialSyncFinished: () => mockIsSyncFinished,
+} ) );
+
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	GlobalErrorProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
+} ) );
+
+jest.mock( '@jetpack-premium-analytics/externals', () => {
+	const { forwardRef } = jest.requireActual( 'react' );
+	// The stage hands a ref to the actions wrapper, so the stand-in must take one.
+	const Stack = forwardRef( ( { children }: { children: ReactNode }, ref: never ) => (
+		<div ref={ ref }>{ children }</div>
+	) );
+	Stack.displayName = 'Stack';
+	const VisuallyHidden = ( { children, role }: { children: ReactNode; role?: string } ) => (
+		<div role={ role }>{ children }</div>
+	);
+
+	return { Stack, VisuallyHidden };
+} );
+
+jest.mock( '@jetpack-premium-analytics/routing', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
+	useReportDateFilters: () => ( {
+		appliedRange: mockAppliedRange,
+		range: { from: undefined, to: undefined },
+		timeZone: 'UTC',
+		intervalOptions: [],
+		onChange: jest.fn(),
+		onApply: jest.fn(),
+		onIntervalChange: jest.fn(),
+	} ),
+} ) );
+
+jest.mock( '@jetpack-premium-analytics/ui', () => ( {
+	DateFiltersPanel: ( props: { attentionId?: number } ) => (
+		<>
+			<MockHeaderScopeProbe />
+			<MockAttentionProbe { ...props } />
+		</>
+	),
+	PeriodChangeStatus: jest.requireActual( '../../packages/ui/src/period-change-status' )
+		.PeriodChangeStatus,
+	DateIntervalDropdown: () => <span>interval control</span>,
+	DateYearFilter: ( { containerElement }: { containerElement?: HTMLElement | null } ) => (
+		<>
+			<span>year surface</span>
+			<span>{ containerElement ? 'measuring header' : 'measuring body' }</span>
+		</>
+	),
+	OnboardingWelcomeModal: ( { open }: { open: boolean } ) =>
+		open ? <div data-testid="onboarding-welcome-modal" /> : null,
+	// Forwards the ref and marks the notice slot, since the stage relies on
+	// both: the ref feeds the year surface's measurement, and the notice's
+	// place in the slot is asserted below.
+	SectionHeader: jest
+		.requireActual< typeof import( 'react' ) >( 'react' )
+		.forwardRef(
+			(
+				{ children, notice }: { children: ReactNode; notice?: ReactNode },
+				ref: ForwardedRef< HTMLDivElement >
+			) => (
+				<div ref={ ref }>
+					<div>{ children }</div>
+					<div data-testid="section-header-notice">{ notice }</div>
+				</div>
+			)
+		),
+	SectionTabPanel: ( { value, children }: { value: string; children: ReactNode } ) =>
+		( mockMountedSectionSlugs ?? [ mockActiveSectionSlug ] ).includes( value ) ? (
+			<div>{ children }</div>
+		) : null,
+	StatsBreadcrumbs: () => null,
+	StatsPageIcon: () => null,
+} ) );
+
+const mockTrackCustomize = {
+	start: jest.fn(),
+	layoutChange: jest.fn(),
+	exit: jest.fn(),
+	reset: jest.fn(),
+};
+
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	useTrackCustomize: () => mockTrackCustomize,
+	PageOptionsMenu: ( { onCustomize }: { onCustomize?: () => void } ) => (
+		<div data-testid="page-options-menu">
+			{ onCustomize && (
+				<button type="button" onClick={ onCustomize }>
+					Customize
+				</button>
+			) }
+		</div>
+	),
+	ResetLayoutAction: ( { onReset }: { onReset: () => void } ) => (
+		<button type="button" onClick={ onReset }>
+			Reset to default
+		</button>
+	),
+	useTrackedDateRangeApply: () => ( { trackedOnChange: () => {}, trackedOnApply: () => {} } ),
+} ) );
+
+jest.mock( '@wordpress/admin-ui', () => ( {
+	Page: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
+		<div>
+			<div data-testid="page-actions">{ actions }</div>
+			{ children }
+		</div>
+	),
+} ) );
+
+jest.mock( '@wordpress/components', () => ( {
+	Spinner: () => null,
+} ) );
+
+jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
+
+jest.mock( '@wordpress/data', () => ( { useSelect: () => [] } ) );
+
+/**
+ * Reads the scope the dashboard declares, from where the header's date controls
+ * render. Both halves derive from the one declaration, so the header reads it
+ * rather than being handed a prop.
+ *
+ * @return The declared scope, as text.
+ */
+function MockHeaderScopeProbe() {
+	const { offersComparison } = useReportScope();
+
+	return (
+		<span>{ offersComparison ? 'header offers comparison' : 'header offers no comparison' }</span>
+	);
+}
+
+/**
+ * Reads the scope the dashboard declares, from where the widgets actually render.
+ *
+ * @return The declared scope, as text.
+ */
+function MockScopeProbe() {
+	const { offersComparison } = useReportScope();
+	const raisePeriodChange = useRaisePeriodChange();
+	const openJuly = useCallback(
+		() => raisePeriodChange( 'traffic', JULY_2026 ),
+		[ raisePeriodChange ]
+	);
+
+	return (
+		<>
+			<span>{ offersComparison ? 'offers comparison' : 'no comparison' }</span>
+			<button type="button" onClick={ openJuly }>
+				Open July from a widget
+			</button>
+		</>
+	);
+}
+
+// Stands in for the period trigger: shows the id it was handed.
+const MockAttentionProbe = ( { attentionId }: { attentionId?: number } ) => (
+	<span data-testid="attention">{ attentionId ?? 'no attention' }</span>
+);
+
+// What the stand-in's Done commits, so a test can name the layout the stage was handed.
+const mockCommittedLayout = [ { uuid: 'moved', type: 'jpa/moved' } ];
+
+jest.mock( '@wordpress/widget-dashboard', () => {
+	const React = jest.requireActual( 'react' );
+
+	const EditModeContext = React.createContext( {
+		editMode: false,
+		onEditChange: () => {},
+		onLayoutChange: () => {},
+	} );
+
+	const WidgetDashboard = ( {
+		editMode = false,
+		onEditChange = () => {},
+		onLayoutChange = () => {},
+		children,
+	}: {
+		editMode?: boolean;
+		onEditChange?: ( next: boolean ) => void;
+		onLayoutChange?: ( layout: unknown ) => void;
+		children: ReactNode;
+	} ) => {
+		const value = React.useMemo(
+			() => ( { editMode, onEditChange, onLayoutChange } ),
+			[ editMode, onEditChange, onLayoutChange ]
+		);
+
+		return (
+			<EditModeContext.Provider value={ value }>
+				<div>{ children }</div>
+			</EditModeContext.Provider>
+		);
+	};
+
+	/**
+	 * The real dashboard hands `editMode` and `onEditChange` to `Actions` through its
+	 * context; the stand-in does the same so Done and Cancel round-trip. Customize is
+	 * the page options menu's, and the stage mounts this while customizing only.
+	 *
+	 * @return The stand-in edit toolbar.
+	 */
+	function Actions() {
+		const { editMode, onEditChange, onLayoutChange } = React.useContext( EditModeContext );
+		const cancel = React.useCallback( () => onEditChange( false ), [ onEditChange ] );
+		// Done commits the layout and leaves edit mode in one call, as the real `commit()` does.
+		const done = React.useCallback( () => {
+			onLayoutChange( mockCommittedLayout );
+			onEditChange( false );
+		}, [ onEditChange, onLayoutChange ] );
+
+		return (
+			<div data-testid="widget-dashboard-actions">
+				{ editMode ? (
+					<>
+						<button type="button" onClick={ cancel }>
+							Cancel
+						</button>
+						<button type="button" onClick={ done }>
+							Done
+						</button>
+					</>
+				) : null }
+			</div>
+		);
+	}
+	WidgetDashboard.Actions = Actions;
+	WidgetDashboard.NoWidgetsState = () => null;
+	WidgetDashboard.Widgets = () => <MockScopeProbe />;
+	WidgetDashboard.Commands = () => null;
+	WidgetDashboard.Policy = ( { children }: { children: ReactNode } ) => <>{ children }</>;
+
+	return { WidgetDashboard };
+} );
+
+jest.mock( './components', () => ( {
+	DashboardSections: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	// A marker, not the real banner, which owns its own preference. Covered
+	// here: which section the stage offers it on, and when.
+	FeedbackBanner: ( { enabled }: { enabled: boolean } ) =>
+		enabled ? <div data-testid="feedback-banner" /> : null,
+	OnboardingTour: () => <div data-testid="onboarding-tour" />,
+	onboardingTourSteps: () => [],
+	// A marker, not the real notice, which reads a query cache these tests do not
+	// stand up. Covered here: where the stage puts it.
+	RefreshFailureNotice: () => <div data-testid="refresh-failure-notice" />,
+	SectionSyncNotice: ( {
+		percentage,
+		hasError,
+		isRetrying,
+		onRetry,
+	}: {
+		percentage: number;
+		hasError: boolean;
+		isRetrying: boolean;
+		onRetry: () => void;
+	} ) => (
+		<div>
+			<span>{ `notice ${ percentage }% ${ hasError ? 'error' : 'syncing' }${
+				isRetrying ? ' retrying' : ''
+			}` }</span>
+			<button type="button" onClick={ onRetry }>
+				Try again
+			</button>
+		</div>
+	),
+} ) );
+
+jest.mock( '../widget-module-i18n', () => ( {
+	useWidgetModuleResolver: () => jest.fn(),
+	useWidgetTypesWithI18n: () => [ [], false ],
+} ) );
+
+jest.mock( './hooks', () => ( {
+	useActiveSection: jest.fn(),
+	useDashboardGridSettings: () => [ {} ],
+	useDashboardPolicy: () => () => true,
+	useDashboardSectionLayout: () => [ [], jest.fn(), mockResetLayout ],
+	useDashboardSections: jest.fn(),
+	useOnboarding: jest.fn(),
+	useSectionDateFilter: jest.fn(),
+} ) );
+
+beforeEach( () => {
+	mockSyncState = { data: undefined, error: null, isComplete: false };
+	mockIsSyncFinished = false;
+	mockMountedSectionSlugs = null;
+	mockTriggerSync.mockImplementation( () => Promise.resolve() );
+	useOnboardingMock.mockReturnValue( closedOnboarding );
+} );
+
+const useDashboardSectionsMock = jest.mocked( useDashboardSections );
+const useSectionDateFilterMock = jest.mocked( useSectionDateFilter );
+const useActiveSectionMock = jest.mocked( useActiveSection );
+const useOnboardingMock = jest.mocked( useOnboarding );
+
+const closedOnboarding = {
+	phase: 'closed' as const,
+	step: 0,
+	start: jest.fn(),
+	next: jest.fn(),
+	dismiss: jest.fn(),
+};
+
+/**
+ * Resolve the sections entity with one active section.
+ *
+ * @param overrides - Fields to override on that section.
+ */
+function mockSection( overrides: Record< string, unknown > = {} ) {
+	useDashboardSectionsMock.mockReturnValue( {
+		sections: [
+			{
+				slug: 'insights',
+				label: 'Insights',
+				title: 'Site insights',
+				date_filter: DATE_FILTER_YEAR,
+				...overrides,
+			},
+		],
+		hasResolved: true,
+	} as unknown as ReturnType< typeof useDashboardSections > );
+}
+
+describe( 'Dashboard report scope', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+	} );
+
+	it( 'declares no comparison for a section whose header offers none', () => {
+		mockSection();
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'no comparison' ) ).toBeInTheDocument();
+	} );
+
+	it( 'declares a comparison for a section whose header offers one', () => {
+		mockSection( { date_filter: DATE_FILTER_RANGE } );
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+	} );
+
+	it( 'declares no comparison for a range section that opted out', () => {
+		mockSection( {
+			date_filter: DATE_FILTER_RANGE,
+			date_filter_options: { with_date_comparison: false },
+		} );
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'no comparison' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'header offers no comparison' ) ).toBeInTheDocument();
+	} );
+
+	it( 'updates the scope when switching between sections', () => {
+		useDashboardSectionsMock.mockReturnValue( {
+			sections: [
+				{
+					slug: 'traffic',
+					label: 'Traffic',
+					title: 'Traffic',
+					date_filter: DATE_FILTER_RANGE,
+				},
+				{
+					slug: 'insights',
+					label: 'Insights',
+					title: 'Site insights',
+					date_filter: DATE_FILTER_YEAR,
+				},
+			],
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		const { rerender } = render( <Dashboard /> );
+
+		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
+
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+		rerender( <Dashboard /> );
+		expect( screen.getByText( 'no comparison' ) ).toBeInTheDocument();
+
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		rerender( <Dashboard /> );
+		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'Dashboard period change signal', () => {
+	const sections = [
+		{ slug: 'traffic', label: 'Traffic', title: 'Traffic', date_filter: DATE_FILTER_RANGE },
+		{
+			slug: 'insights',
+			label: 'Insights',
+			title: 'Activity insights',
+			date_filter: DATE_FILTER_YEAR,
+		},
+	];
+
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useDashboardSectionsMock.mockReturnValue( {
+			sections,
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+		mockAppliedRange = { from: undefined, to: undefined };
+	} );
+
+	it( 'draws attention to a period a widget set once the section shows it', async () => {
+		jest.useFakeTimers();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		const { rerender } = render( <Dashboard /> );
+		expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
+
+		await user.click( screen.getByRole( 'button', { name: 'Open July from a widget' } ) );
+
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		mockAppliedRange = JULY_2026;
+		rerender( <Dashboard /> );
+
+		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( /^\d+$/ );
+		await expect( screen.findByRole( 'status' ) ).resolves.toHaveTextContent(
+			'Date range updated to July 2026.'
+		);
+
+		act( () => {
+			jest.advanceTimersByTime( PERIOD_CHANGE_ATTENTION_MS );
+		} );
+		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( 'no attention' );
+		expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
+		jest.useRealTimers();
+	} );
+
+	it( 'lets a signal go when the reader lands on another section instead', async () => {
+		const user = userEvent.setup();
+		const { rerender } = render( <Dashboard /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Open July from a widget' } ) );
+
+		useActiveSectionMock.mockReturnValue( [ 'store', jest.fn() ] );
+		mockActiveSectionSlug = 'store';
+		rerender( <Dashboard /> );
+
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		mockAppliedRange = JULY_2026;
+		rerender( <Dashboard /> );
+
+		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( 'no attention' );
+		expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
+	} );
+} );
+
+describe( 'Dashboard refresh-failure notice', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+	} );
+
+	it( 'pins one notice in the section header band, however many sections there are', () => {
+		useDashboardSectionsMock.mockReturnValue( {
+			sections: [
+				{ slug: 'traffic', label: 'Traffic', title: 'Traffic', date_filter: DATE_FILTER_RANGE },
+				{ slug: 'insights', label: 'Insights', title: 'Insights', date_filter: DATE_FILTER_YEAR },
+			],
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+
+		render( <Dashboard /> );
+
+		// One page, one Retry: the notice speaks for the whole grid.
+		const notices = screen.getAllByTestId( 'refresh-failure-notice' );
+		expect( notices ).toHaveLength( 1 );
+
+		// Through the header's slot, so it pins with the band rather than
+		// scrolling away among the widgets.
+		expect( screen.getByTestId( 'section-header-notice' ) ).toContainElement( notices[ 0 ] );
+	} );
+} );
+
+describe( 'Dashboard feedback banner', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
+	} );
+
+	it( 'stands above the widgets of the default section', () => {
+		render( <Dashboard /> );
+
+		// `offers comparison` is where the widgets render; the banner reads above them.
+		const banner = screen.getByTestId( 'feedback-banner' );
+		expect( banner.compareDocumentPosition( screen.getByText( 'offers comparison' ) ) ).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING
+		);
+	} );
+
+	it( 'holds off on a section the copy does not speak for', () => {
+		useDashboardSectionsMock.mockReturnValue( {
+			sections: [
+				{ slug: 'traffic', label: 'Traffic', title: 'Traffic', date_filter: DATE_FILTER_RANGE },
+				{ slug: 'insights', label: 'Insights', title: 'Insights', date_filter: DATE_FILTER_YEAR },
+			],
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByTestId( 'feedback-banner' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'waits for the onboarding journey that introduces the tab', () => {
+		useOnboardingMock.mockReturnValue( { ...closedOnboarding, phase: 'modal' } );
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByTestId( 'feedback-banner' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'stands aside while the reader arranges the layout', async () => {
+		render( <Dashboard /> );
+		expect( screen.getByTestId( 'feedback-banner' ) ).toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+
+		expect( screen.queryByTestId( 'feedback-banner' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'Dashboard options menu', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+	} );
+
+	it( "follows the dashboard's own actions and Reset to default while customizing", async () => {
+		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
+
+		render( <Dashboard /> );
+		const menu = screen.getByTestId( 'page-options-menu' );
+
+		expect( screen.queryByTestId( 'widget-dashboard-actions' ) ).not.toBeInTheDocument();
+
+		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
+
+		const actions = screen.getByTestId( 'widget-dashboard-actions' );
+		const reset = screen.getByRole( 'button', { name: 'Reset to default' } );
+
+		// The menu's frame, the tour's anchor, comes last.
+		// eslint-disable-next-line testing-library/no-node-access -- order within the actions slot is what this test is for.
+		expect( actions.nextElementSibling ).toBe( reset );
+		// eslint-disable-next-line testing-library/no-node-access -- same order check.
+		expect( reset.nextElementSibling ).toContainElement( menu );
+	} );
+
+	it( 'tracks entering, leaving and resetting the customize mode', async () => {
+		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
+
+		render( <Dashboard /> );
+		const menu = screen.getByTestId( 'page-options-menu' );
+
+		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+
+		expect( mockTrackCustomize.start ).toHaveBeenCalledTimes( 1 );
+		expect( mockTrackCustomize.exit ).toHaveBeenCalledTimes( 1 );
+
+		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
+
+		expect( mockTrackCustomize.reset ).toHaveBeenCalledTimes( 1 );
+		expect( mockTrackCustomize.exit ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'hands the committed layout to the tracking before leaving edit mode', async () => {
+		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
+
+		render( <Dashboard /> );
+		const menu = screen.getByTestId( 'page-options-menu' );
+
+		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Done' } ) );
+
+		expect( mockTrackCustomize.layoutChange ).toHaveBeenCalledWith( [], mockCommittedLayout );
+		expect( mockTrackCustomize.layoutChange.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+			mockTrackCustomize.exit.mock.invocationCallOrder[ 0 ]
+		);
+	} );
+} );
+
+describe( 'Dashboard onboarding', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		useOnboardingMock.mockReturnValue( closedOnboarding );
+		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
+	} );
+
+	it( 'runs the journey on the default section at rest', () => {
+		render( <Dashboard /> );
+
+		expect( useOnboardingMock ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { enabled: true } )
+		);
+	} );
+
+	it( 'holds the journey while another section is active', () => {
+		useActiveSectionMock.mockReturnValue( [ 'store', jest.fn() ] );
+		mockActiveSectionSlug = 'store';
+
+		render( <Dashboard /> );
+
+		expect( useOnboardingMock ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { enabled: false } )
+		);
+	} );
+
+	it( 'opens the welcome modal when the journey reaches it', () => {
+		useOnboardingMock.mockReturnValue( { ...closedOnboarding, phase: 'modal' } );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByTestId( 'onboarding-welcome-modal' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'onboarding-tour' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'runs the tour once the modal hands over', () => {
+		useOnboardingMock.mockReturnValue( { ...closedOnboarding, phase: 'tour' } );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByTestId( 'onboarding-tour' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'onboarding-welcome-modal' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'Dashboard sync notice', () => {
+	beforeEach( () => {
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+	} );
+
+	it( 'annotates a section whose data is still syncing', () => {
+		mockSection( { requires_sync: true } );
+		mockSyncState = { data: { percentage: 40 } as SyncStatus, error: null, isComplete: false };
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'notice 40% syncing' ) ).toBeInTheDocument();
+	} );
+
+	it( 'leaves a section that does not depend on the sync unannotated', () => {
+		mockSection();
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByText( /^notice/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'drops the notice once the sync has finished', () => {
+		mockSection( { requires_sync: true } );
+		mockIsSyncFinished = true;
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByText( /^notice/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'reports the retry as in flight until it settles', async () => {
+		mockSection( { requires_sync: true } );
+		mockSyncState = { data: undefined, error: new Error( 'nope' ), isComplete: false };
+
+		let settleTrigger: () => void = () => {};
+		mockTriggerSync.mockImplementation(
+			() =>
+				new Promise< void >( resolve => {
+					settleTrigger = resolve;
+				} )
+		);
+
+		render( <Dashboard /> );
+		expect( screen.getByText( 'notice 0% error' ) ).toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+		expect( mockTriggerSync ).toHaveBeenCalledTimes( 1 );
+		// The notice derives its failure layout from these two together, so the
+		// stage's job is to report the retry as in flight for as long as it runs.
+		expect( screen.getByText( 'notice 0% error retrying' ) ).toBeInTheDocument();
+
+		await act( async () => {
+			settleTrigger();
+		} );
+		expect( screen.getByText( 'notice 0% error' ) ).toBeInTheDocument();
+	} );
+
+	it( 'refetches the reports once the sync completes', () => {
+		const invalidate = jest.spyOn( queryClient, 'invalidateQueries' ).mockImplementation();
+		mockSection( { requires_sync: true } );
+		mockSyncState = { data: undefined, error: null, isComplete: true };
+
+		render( <Dashboard /> );
+
+		// Widgets that rendered mid-sync are holding numbers the sync has since
+		// filled in.
+		expect( invalidate ).toHaveBeenCalledWith( { queryKey: [ 'reports' ] } );
+		invalidate.mockRestore();
+	} );
+} );
+
+describe( 'Dashboard header date control', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+	} );
+
+	it( 'renders the control by default', () => {
+		mockSection( { date_filter: DATE_FILTER_RANGE } );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders no control for a section that hands it to its widgets', () => {
+		mockSection( {
+			date_filter: DATE_FILTER_RANGE,
+			date_filter_options: { with_date_comparison: false, with_header_date_control: false },
+		} );
+
+		render( <Dashboard /> );
+
+		// The probe `DateFiltersPanel` renders is how we see whether it mounted.
+		expect( screen.queryByText( /^header offers/ ) ).not.toBeInTheDocument();
+	} );
+
+	// Moving the control must not strip the params the widgets fetch with.
+	it( 'keeps the comparison scope when only the placement moves', () => {
+		mockSection( {
+			date_filter: DATE_FILTER_RANGE,
+			date_filter_options: { with_date_comparison: true, with_header_date_control: false },
+		} );
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByText( /^header offers/ ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders neither the year surface nor the interval when a year section hands them over', () => {
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+		mockSection( {
+			date_filter_options: { with_date_comparison: false, with_header_date_control: false },
+		} );
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByText( /^year surface/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /^interval/ ) ).not.toBeInTheDocument();
+	} );
+
+	// A payload served before the field existed carries no placement.
+	it( 'keeps the control for a section that carries no placement', () => {
+		mockSection( {
+			date_filter: DATE_FILTER_RANGE,
+			date_filter_options: { with_date_comparison: true },
+		} );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps measuring the header after a tab switch unmounts the previous panel', () => {
+		useDashboardSectionsMock.mockReturnValue( {
+			sections: [
+				{
+					slug: 'traffic',
+					label: 'Traffic',
+					title: 'Traffic',
+					date_filter: DATE_FILTER_RANGE,
+				},
+				{
+					slug: 'insights',
+					label: 'Insights',
+					title: 'Site insights',
+					date_filter: DATE_FILTER_YEAR,
+				},
+			],
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		mockMountedSectionSlugs = [ 'traffic' ];
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		const { rerender } = render( <Dashboard /> );
+
+		// Tabs.Panel mounts the incoming panel a frame before the outgoing one
+		// unmounts. Model that overlap, then the leave, or the null never fires.
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+		mockMountedSectionSlugs = [ 'traffic', 'insights' ];
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+		rerender( <Dashboard /> );
+
+		mockMountedSectionSlugs = [ 'insights' ];
+		rerender( <Dashboard /> );
+
+		expect( screen.getByText( 'measuring header' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'measuring body' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'Dashboard customizing', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
+	} );
+
+	it( 'hides the date controls while customizing', async () => {
+		render( <Dashboard /> );
+		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+
+		expect( screen.queryByText( /^header offers/ ) ).not.toBeInTheDocument();
+		// The widgets keep reporting over the same range meanwhile.
+		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides the year surface too', async () => {
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+		mockSection();
+
+		render( <Dashboard /> );
+		expect( screen.getByText( 'year surface' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'interval control' ) ).toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+
+		expect( screen.queryByText( 'year surface' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'interval control' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers Customize from the page options menu, and withdraws it while customizing', async () => {
+		render( <Dashboard /> );
+		const menu = screen.getByTestId( 'page-options-menu' );
+
+		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
+
+		expect( within( menu ).queryByRole( 'button', { name: 'Customize' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Done' } ) ).toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Done' } ) );
+
+		expect( within( menu ).getByRole( 'button', { name: 'Customize' } ) ).toBeInTheDocument();
+	} );
+
+	it( "offers Reset to default beside the dashboard's own actions while customizing", async () => {
+		render( <Dashboard /> );
+		const menu = screen.getByTestId( 'page-options-menu' );
+		expect( screen.queryByRole( 'button', { name: 'Reset to default' } ) ).not.toBeInTheDocument();
+
+		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
+
+		expect( mockResetLayout ).toHaveBeenCalledTimes( 1 );
+		expect( screen.queryByRole( 'button', { name: 'Done' } ) ).not.toBeInTheDocument();
+		expect( within( menu ).getByRole( 'button', { name: 'Customize' } ) ).toBeInTheDocument();
+	} );
+
+	it.each( [ 'Done', 'Cancel' ] )( 'brings the date controls back on %s', async action => {
+		render( <Dashboard /> );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+		expect( screen.queryByText( /^header offers/ ) ).not.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: action } ) );
+
+		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+	} );
+} );

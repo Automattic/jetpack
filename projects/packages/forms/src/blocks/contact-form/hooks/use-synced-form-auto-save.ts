@@ -14,6 +14,12 @@ interface UseSyncedFormAutoSaveParams {
 	attributes: Record< string, unknown >;
 	currentInnerBlocks: Block[];
 	isSyncingRef: React.MutableRefObject< boolean >;
+	/**
+	 * Changes when `useSyncedFormLoader` finishes a sync — see that hook for why it has
+	 * to be a render-triggering value. Used only as an effect dependency, so the
+	 * baseline below is captured from the loaded-but-unedited form.
+	 */
+	syncGeneration: number;
 	editEntityRecord: (
 		kind: string,
 		name: string,
@@ -110,6 +116,7 @@ export function useSyncedFormAutoSave( {
 	attributes,
 	currentInnerBlocks,
 	isSyncingRef,
+	syncGeneration,
 	editEntityRecord,
 }: UseSyncedFormAutoSaveParams ): UseSyncedFormAutoSaveResult {
 	const pendingTimeoutRef = useRef< ReturnType< typeof setTimeout > | null >( null );
@@ -128,6 +135,8 @@ export function useSyncedFormAutoSave( {
 		if ( ! ref ) {
 			return;
 		}
+		const hadBaseline = baselineRef.current?.ref === ref;
+
 		// Only capture baseline after sync completes to ensure it reflects synced content
 		const baseline = captureBaseline(
 			ref,
@@ -138,8 +147,9 @@ export function useSyncedFormAutoSave( {
 			baselineRef
 		);
 
-		// Not ready or no changes - don't stage
-		if ( ! baseline ) {
+		// Not ready - don't stage. A baseline captured on this very run was serialized
+		// from the arguments below, so it would compare equal; skip the second pass.
+		if ( ! baseline || ! hadBaseline ) {
 			return;
 		}
 
@@ -163,7 +173,15 @@ export function useSyncedFormAutoSave( {
 			clearTimeout( timeoutId );
 			pendingTimeoutRef.current = null;
 		};
-	}, [ currentInnerBlocks, ref, syncedForm, editEntityRecord, attributes, isSyncingRef ] );
+	}, [
+		currentInnerBlocks,
+		ref,
+		syncedForm,
+		editEntityRecord,
+		attributes,
+		isSyncingRef,
+		syncGeneration,
+	] );
 
 	const flushPendingSave = useCallback( () => {
 		if ( ! ref ) {

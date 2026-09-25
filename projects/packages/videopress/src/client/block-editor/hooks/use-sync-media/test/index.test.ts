@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -21,6 +21,7 @@ const mockUseMediaDataUpdate = jest.fn();
 const mockUseVideoPosterData = jest.fn();
 const mockUploadTrackForGuid = jest.fn();
 const mockValidateChapters = jest.fn();
+const mockGenerateChaptersFile = jest.fn();
 
 const invalidateResolution = jest.fn();
 
@@ -64,7 +65,7 @@ jest.mock( '../../../../utils/video-chapters/extract-video-chapters', () => ( {
 
 jest.mock( '../../../../utils/video-chapters/generate-chapters-file', () => ( {
 	__esModule: true,
-	default: () => ( {} ),
+	default: ( ...args: unknown[] ) => mockGenerateChaptersFile( ...args ),
 } ) );
 
 jest.mock( '../../../../utils/video-chapters/validate-chapters', () => ( {
@@ -133,6 +134,7 @@ beforeEach( () => {
 	mockUseMediaDataUpdate.mockReturnValue( updateMediaHandler );
 	mockUseVideoPosterData.mockReturnValue( { isGeneratingPoster: false } );
 	mockValidateChapters.mockReturnValue( true );
+	mockGenerateChaptersFile.mockReturnValue( {} );
 } );
 
 describe( 'useSyncMedia auto-generated chapter upload', () => {
@@ -186,6 +188,40 @@ describe( 'useSyncMedia auto-generated chapter upload', () => {
 		expect( findTracksCall( setAttributes ) ).toBeUndefined();
 	} );
 
+	it( 'passes the real video duration (ms) to the chapters file generator', async () => {
+		mockUseVideoData.mockReturnValue( {
+			videoData: { duration: 90000 },
+			isRequestingVideoData: false,
+			videoBelongToSite: true,
+		} );
+		mockUploadTrackForGuid.mockResolvedValue(
+			'https://videos.files.wordpress.com/guid123/track.vtt'
+		);
+
+		renderThroughSave();
+
+		await waitFor( () => expect( mockGenerateChaptersFile ).toHaveBeenCalled() );
+
+		// The regenerated VTT's last cue must end at the real video end, not
+		// the generator's 999:59:59 sentinel — matching the syncChapters output.
+		expect( mockGenerateChaptersFile ).toHaveBeenCalledWith( baseAttributes.description, 90000 );
+	} );
+
+	it( 'falls back to the generator sentinel when the video duration is unknown', async () => {
+		mockUploadTrackForGuid.mockResolvedValue(
+			'https://videos.files.wordpress.com/guid123/track.vtt'
+		);
+
+		renderThroughSave();
+
+		await waitFor( () => expect( mockGenerateChaptersFile ).toHaveBeenCalled() );
+
+		expect( mockGenerateChaptersFile ).toHaveBeenCalledWith(
+			baseAttributes.description,
+			undefined
+		);
+	} );
+
 	it( 'stores the uploaded track and invalidates the embed when the upload resolves to a string', async () => {
 		mockUploadTrackForGuid.mockResolvedValue(
 			'https://videos.files.wordpress.com/guid123/track.vtt'
@@ -200,5 +236,55 @@ describe( 'useSyncMedia auto-generated chapter upload', () => {
 		expect( tracksCall[ 0 ].tracks[ 0 ].src ).toBe(
 			'https://videos.files.wordpress.com/guid123/track.vtt'
 		);
+	} );
+} );
+
+describe( 'useSyncMedia embed invalidation', () => {
+	/**
+	 * Render a save transition with an empty description, so the auto-generated
+	 * chapter branch is skipped and the field-based invalidation path runs.
+	 *
+	 * @param {VideoBlockAttributes} attributes - Block attributes to sync.
+	 * @return {object} The renderHook result.
+	 */
+	function renderSaveWithoutChapters( attributes: VideoBlockAttributes ) {
+		const setAttributes = jest.fn() as jest.MockedFunction< VideoBlockSetAttributesProps >;
+
+		mockUseSelect.mockReturnValue( true );
+		const utils = renderHook( () => useSyncMedia( attributes, setAttributes ) );
+
+		mockUseSelect.mockReturnValue( false );
+		utils.rerender();
+
+		return utils;
+	}
+
+	it( 'refreshes the player when the rating changes', async () => {
+		/*
+		 * Raising or lowering the rating adds or removes the age gate, but the
+		 * rating is not part of the embed URL, so without an explicit
+		 * invalidation the cached preview keeps rendering the stale gate.
+		 */
+		renderSaveWithoutChapters( { ...baseAttributes, description: '', rating: 'G' } );
+
+		await waitFor( () =>
+			expect( invalidateResolution ).toHaveBeenCalledWith( 'getEmbedPreview', [
+				'https://videopress.com/v/guid123',
+			] )
+		);
+	} );
+
+	it( 'leaves the player alone for fields the embed does not depend on', async () => {
+		renderSaveWithoutChapters( { ...baseAttributes, description: '', duration: 42 } );
+
+		await waitFor( () => expect( updateMediaHandler ).toHaveBeenCalled() );
+
+		// Settle the very promise the hook hangs its invalidation off, so a
+		// missing call is a real absence and not an assertion that ran early.
+		await act( async () => {
+			await updateMediaHandler.mock.results[ 0 ].value;
+		} );
+
+		expect( invalidateResolution ).not.toHaveBeenCalled();
 	} );
 } );

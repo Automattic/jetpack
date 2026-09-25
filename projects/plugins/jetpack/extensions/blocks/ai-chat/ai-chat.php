@@ -13,6 +13,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Search\Module_Control as Search_Module_Control;
 use Automattic\Jetpack\Search\Plan as Search_Plan;
+use Automattic\Jetpack\Search\Search_Blocks;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
@@ -21,6 +22,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+// Required directly rather than relying on the plugin bootstrap: on
+// WordPress.com Simple the extension files load through wpcom's own loader
+// and load-jetpack.php never runs. Without it the is_ai_enabled() master-gate
+// check below would fatal there.
+require_once __DIR__ . '/../../../_inc/lib/class-jetpack-ai-settings.php';
+
 /**
  * Registers our block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -28,8 +35,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function register_block() {
 	if (
-		( new Host() )->is_wpcom_simple()
-		|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
+		(
+			( new Host() )->is_wpcom_simple()
+			|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
+		)
+		&& \Jetpack_AI_Settings::is_ai_enabled()
 	) {
 		Blocks::jetpack_register_block(
 			__DIR__,
@@ -95,6 +105,7 @@ function add_ai_chat_block_data() {
 			'module_active'          => $search->is_active(),
 			'instant_search_enabled' => $search->is_instant_search_enabled(),
 			'plan_supports_search'   => $plan->supports_instant_search(),
+			'supports_paid_search'   => Search_Blocks::supports_paid_search(),
 		),
 	);
 	wp_add_inline_script(

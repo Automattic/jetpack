@@ -42,8 +42,7 @@ interface SalesByCouponStoryControls {
 type SalesByCouponStoryProps = SalesByCouponWidgetProps & SalesByCouponStoryControls;
 
 interface SalesByCouponDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		SalesByCouponStoryControls {}
+	extends WidgetDashboardWithWidgetControls, SalesByCouponStoryControls {}
 
 function getSalesByCouponAttributes(
 	withComparison = false,
@@ -73,12 +72,6 @@ function renderSalesByCouponOnPreset( preset: SelectablePresetId ) {
 	);
 }
 
-/**
- * Storybook dashboard wrapper for the Sales by coupon widget.
- *
- * @param {SalesByCouponDashboardStoryProps} props - Story controls.
- * @return The dashboard story surface with the widget rendered inside it.
- */
 function SalesByCouponDashboardStory( {
 	withComparison,
 	preset,

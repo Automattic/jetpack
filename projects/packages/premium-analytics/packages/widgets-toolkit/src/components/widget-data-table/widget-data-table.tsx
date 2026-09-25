@@ -1,14 +1,19 @@
 /**
  * External dependencies
  */
-import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
-import { useMemo, useState } from 'react';
+import {
+	DataViews,
+	type Field,
+	type SupportedLayouts,
+	type View,
+} from '@jetpack-premium-analytics/externals';
+import { usePaginatedView } from '@jetpack-premium-analytics/ui';
+import { useState } from 'react';
 /**
  * Internal dependencies
  */
 import './style.scss';
 import styles from './style.module.scss';
-import type { Field, SupportedLayouts, View } from '@wordpress/dataviews';
 import type { ReactNode } from 'react';
 
 const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
@@ -79,15 +84,16 @@ export function WidgetDataTable< Item >( {
 			} ) as View
 	);
 
-	const { data: pageItems, paginationInfo } = useMemo(
-		() => filterSortAndPaginate( data, view, fields ),
-		[ data, view, fields ]
-	);
+	const {
+		view: effectiveView,
+		data: pageItems,
+		paginationInfo,
+	} = usePaginatedView( data, view, fields, setView );
 
 	return (
 		<div className={ styles.root }>
 			<GenericDataViews< Item >
-				view={ view }
+				view={ effectiveView }
 				onChangeView={ setView }
 				fields={ fields }
 				data={ pageItems }

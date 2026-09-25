@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { CONNECTION_ERROR_NOTICE_EVENTS, trackConnectionErrorNoticeEvent } from './tracking';
 import type {
 	Action,
 	ConnectionErrorData,
@@ -9,10 +10,10 @@ import type {
 
 /**
  * Default tracking event fired when the fallback "Restore Connection" CTA is clicked.
- * Consumers (e.g. My Jetpack) can override this with their own namespaced event.
+ * Consumers can override this via `reconnectTrackingEvent`, but the canonical
+ * default lets every surface report the same event and split by `context`.
  */
-export const DEFAULT_RECONNECT_TRACKING_EVENT =
-	'jetpack_connection_error_notice_reconnect_cta_click';
+export const DEFAULT_RECONNECT_TRACKING_EVENT = CONNECTION_ERROR_NOTICE_EVENTS.reconnect;
 
 /**
  * The resolver's options: the public `ConnectionErrorProps` plus the two fields
@@ -42,6 +43,7 @@ export function resolveConnectionErrorActions(
 	{
 		actionHandlers = {},
 		trackingCallback = null,
+		trackingContext,
 		customActions = null,
 		restoreConnection,
 		isRestoringConnection,
@@ -64,9 +66,14 @@ export function resolveConnectionErrorActions(
 	}
 
 	const track = ( event?: string ) => {
-		if ( trackingCallback && event ) {
-			trackingCallback( event, {} );
+		if ( ! event ) {
+			return;
 		}
+		trackConnectionErrorNoticeEvent(
+			event,
+			{ trackingCallback, trackingContext, error: connectionError },
+			{}
+		);
 	};
 
 	const errorData: ConnectionErrorData = connectionError.error_data ?? {};
@@ -116,7 +123,9 @@ export function resolveConnectionErrorActions(
 			},
 		];
 	} else {
-		// Default action - restore connection.
+		// Default action - restore connection. The label stays generic on purpose:
+		// `restoreConnection()` restores the blog token and then walks the user
+		// through reconnecting their own account when that is also needed.
 		actions = [
 			{
 				label: __( 'Restore Connection', 'jetpack-connection-js' ),

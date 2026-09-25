@@ -12,27 +12,51 @@ const mockDispatch = jest.fn( () => ( {
 	createErrorNotice: mockCreateErrorNotice,
 } ) );
 
-jest.mock( '@wordpress/data', () => ( {
-	useRegistry: () => ( { dispatch: mockDispatch } ),
-} ) );
+// Override `useRegistry` only — a bare mock breaks other `@wordpress/data`
+// consumers; the fall-through resolves lazily since `requireActual` re-enters mid-init.
+jest.mock(
+	'@wordpress/data',
+	() =>
+		new Proxy(
+			{ useRegistry: () => ( { dispatch: mockDispatch } ) },
+			{
+				get: ( overrides, prop ) =>
+					prop in overrides
+						? overrides[ prop as keyof typeof overrides ]
+						: jest.requireActual( '@wordpress/data' )[ prop ],
+			}
+		)
+);
 
 describe( 'CsvDownloadButton', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'supports a solid page action without an icon', () => {
+	it( 'renders the widget footer action as an icon named by its label', () => {
+		render( <CsvDownloadButton onDownload={ jest.fn() } /> );
+
+		const button = screen.getByRole( 'button', { name: 'Download CSV' } );
+		expect( button ).toHaveTextContent( '' );
+		// The decorative SVG is intentionally hidden from the accessibility tree.
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( button.querySelector( 'svg' ) ).not.toBeNull();
+	} );
+
+	it( 'supports a solid page action with a visible label and no icon', () => {
 		render(
 			<CsvDownloadButton
 				onDownload={ jest.fn() }
 				label="Download"
 				variant="solid"
 				showIcon={ false }
+				showLabel
 			/>
 		);
 
 		const button = screen.getByRole( 'button', { name: 'Download' } );
 		expect( button ).toHaveClass( /is-solid/ );
+		expect( button ).toHaveTextContent( 'Download' );
 		// The decorative SVG is intentionally hidden from the accessibility tree.
 		// eslint-disable-next-line testing-library/no-node-access
 		expect( button.querySelector( 'svg' ) ).toBeNull();

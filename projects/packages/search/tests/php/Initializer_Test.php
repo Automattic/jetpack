@@ -288,9 +288,7 @@ class Initializer_Test extends Search_TestCase {
 	 */
 	private function invoke_init_search_blocks(): void {
 		$method = new ReflectionMethod( Initializer::class, 'init_search_blocks' );
-		// setAccessible() became a no-op in 8.1 and was deprecated in 8.5,
-		// but the package supports PHP 7.2+ where the call is still required
-		// for ReflectionMethod::invoke() to reach a protected method.
+		// @todo Remove this call once we no longer need to support PHP <8.1.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}

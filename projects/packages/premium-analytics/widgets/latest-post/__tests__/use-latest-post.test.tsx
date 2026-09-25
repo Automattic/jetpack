@@ -66,6 +66,47 @@ describe( 'useLatestPost', () => {
 		expect( result.current.isError ).toBe( false );
 	} );
 
+	it( 'does not carry one author’s post over as the next author’s placeholder', async () => {
+		mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) => {
+			if ( path.startsWith( '/wp/v2/posts?author=7' ) ) {
+				return Promise.resolve( [
+					{ id: 780, title: { rendered: 'By Priya' }, link: 'https://example.com/p/', date: '' },
+				] );
+			}
+
+			return Promise.resolve( path.startsWith( '/wp/v2/posts' ) ? [] : {} );
+		} );
+
+		const { result, rerender } = renderHook(
+			( { authorId }: { authorId: number } ) => useLatestPost( authorId ),
+			{ wrapper, initialProps: { authorId: 7 } }
+		);
+		await waitFor( () => expect( result.current.post?.id ).toBe( 780 ) );
+
+		rerender( { authorId: 9 } );
+		expect( result.current.post ).toBeNull();
+		expect( result.current.isLoading ).toBe( true );
+	} );
+
+	it( 'scopes the content request to the author when one is given', async () => {
+		mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) => {
+			if ( path.startsWith( '/wp/v2/posts' ) ) {
+				return Promise.resolve( [
+					{ id: 780, title: { rendered: 'By Priya' }, link: 'https://example.com/p/', date: '' },
+				] );
+			}
+
+			return Promise.resolve( {} );
+		} );
+
+		const { result } = renderHook( () => useLatestPost( 7 ), { wrapper } );
+
+		await waitFor( () => expect( result.current.post?.id ).toBe( 780 ) );
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { path: expect.stringMatching( /^\/wp\/v2\/posts\?author=7&/ ) } )
+		);
+	} );
+
 	it( 'returns a null post when the site has no published post', async () => {
 		mockApiFetch.mockImplementation(
 			( { path = '', url = '' }: { path?: string; url?: string } ) => {
@@ -85,7 +126,7 @@ describe( 'useLatestPost', () => {
 		expect( result.current.post ).toBeNull();
 	} );
 
-	it( 'still renders content with zeroed metrics when stats/post fails (private site)', async () => {
+	it( 'still renders content, with metrics unknown, when stats/post fails (private site)', async () => {
 		mockApiFetch.mockImplementation(
 			( { path = '', url = '' }: { path?: string; url?: string } ) => {
 				const target = path || url;
@@ -115,11 +156,15 @@ describe( 'useLatestPost', () => {
 				date: '2026-06-22T10:00:00',
 				imageUrl: '',
 				imageAlt: '',
-				views: 0,
-				likeCount: 0,
-				commentCount: 0,
+				// Unknown rather than zero: the content request succeeded, so the post
+				// renders, but a 403 on the metrics endpoint must not be shown as a
+				// real count of zero.
+				views: undefined,
+				likeCount: undefined,
+				commentCount: undefined,
 			} )
 		);
+		// The content request — the widget's own report — succeeded.
 		expect( result.current.isError ).toBe( false );
 	} );
 } );

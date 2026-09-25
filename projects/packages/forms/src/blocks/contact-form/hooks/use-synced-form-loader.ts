@@ -2,7 +2,7 @@
  * Hook to load synced form content into the editor (one-time sync on mount/ref change)
  */
 
-import { useEffect, useRef } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { filterSyncedAttributes } from '../util/form-sync.ts';
 import type { Block } from '@wordpress/blocks';
 
@@ -19,6 +19,13 @@ interface UseSyncedFormLoaderParams {
 
 interface UseSyncedFormLoaderResult {
 	isSyncingRef: React.MutableRefObject< boolean >;
+	/**
+	 * Opaque token that changes every time a sync finishes; depend on it, don't read it.
+	 * `isSyncingRef` is a ref because the debounced auto-save has to read it at fire
+	 * time, but ref writes don't re-render — so a consumer that skipped work while
+	 * syncing would never learn that syncing ended. This gives them that render.
+	 */
+	syncGeneration: number;
 }
 
 /**
@@ -63,6 +70,7 @@ export function useSyncedFormLoader( {
 }: UseSyncedFormLoaderParams ): UseSyncedFormLoaderResult {
 	// Track if we're currently syncing to prevent save-back loops
 	const isSyncingRef = useRef( false );
+	const [ syncGeneration, setSyncGeneration ] = useState( 0 );
 	const lastLoadedRefId = useRef< number | null >( null );
 	const animationFrameIdRef = useRef< number | null >( null );
 
@@ -101,6 +109,7 @@ export function useSyncedFormLoader( {
 		animationFrameIdRef.current = requestAnimationFrame( () => {
 			animationFrameIdRef.current = null;
 			isSyncingRef.current = false;
+			setSyncGeneration( generation => generation + 1 );
 		} );
 
 		// Cleanup: cancel pending rAF if component unmounts or effect re-runs
@@ -123,5 +132,5 @@ export function useSyncedFormLoader( {
 		setActiveStep,
 	] );
 
-	return { isSyncingRef };
+	return { isSyncingRef, syncGeneration };
 }

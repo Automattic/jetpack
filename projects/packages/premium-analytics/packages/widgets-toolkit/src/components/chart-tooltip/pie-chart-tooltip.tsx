@@ -1,12 +1,10 @@
 /**
  * External dependencies
  */
-import { RectShape } from '@automattic/charts/visx/legend';
-import { Stack } from '@wordpress/ui';
+import { RectShape, Stack, type DataPointPercentage } from '@jetpack-premium-analytics/externals';
 import styles from './chart-tooltip.module.scss';
 import { TooltipRow } from './tooltip-row';
 import type { DataFormat } from '../../types';
-import type { DataPointPercentage } from '@automattic/charts';
 
 /**
  * Internal dependencies
@@ -18,9 +16,6 @@ export type PieChartTooltipProps = {
 	 */
 	tooltipData: DataPointPercentage;
 
-	/**
-	 * Format configuration for the value display.
-	 */
 	dataFormat: DataFormat;
 };
 

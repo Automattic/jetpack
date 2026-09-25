@@ -1,5 +1,7 @@
+import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
+import { __ } from '@wordpress/i18n';
 import { LIBRARY_ITEM_QUERY_SEGMENT, LIBRARY_QUERY_KEY } from './use-library';
 import type { LibraryItem } from '../types/library';
 
@@ -84,10 +86,19 @@ async function mutationFn( vars: UpdatePosterVars ): Promise< { poster?: string 
  * updates the cached item directly so the UI reflects the new poster without
  * an extra refetch.
  *
+ * Notices fire from the hook rather than from per-call `onSuccess`/`onError`
+ * options because the caller can legitimately unmount mid-flight: the control
+ * is gated on `! isProcessing`, and `isProcessing` is itself derived from the
+ * poster being absent — which is exactly the state this mutation creates while
+ * it polls. A per-call callback dies with the observer, so the poster would
+ * change with no feedback at all. Mutation-level callbacks survive it.
+ *
  * @return A TanStack Query UseMutationResult for UpdatePosterVars.
  */
 export function useUpdateVideoPoster() {
 	const client = useQueryClient();
+	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
+
 	return useMutation< { poster?: string }, Error, UpdatePosterVars >( {
 		mutationFn,
 		onSuccess: ( { poster }, vars ) => {
@@ -98,6 +109,10 @@ export function useUpdateVideoPoster() {
 				);
 			}
 			client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
+			createSuccessNotice( __( 'Thumbnail updated.', 'jetpack-videopress-pkg' ) );
+		},
+		onError: () => {
+			createErrorNotice( __( 'Failed to update thumbnail.', 'jetpack-videopress-pkg' ) );
 		},
 	} );
 }

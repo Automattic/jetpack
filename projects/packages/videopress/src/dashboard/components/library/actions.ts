@@ -17,6 +17,8 @@ type Api = {
 const isVideoPressIdle = ( item: LibraryItem ) =>
 	item.type === 'videopress' && item.upload.status === 'idle';
 
+const isLocalIdle = ( item: LibraryItem ) => item.type === 'local' && item.upload.status === 'idle';
+
 /**
  * Eligibility for a privacy action: the item must be an idle VideoPress video
  * that does not already have the target privacy. Local items, in-flight videos,
@@ -49,12 +51,19 @@ const PRIVACY_ACTIONS: { idSuffix: string; label: string; privacy: LibraryItemPr
 /**
  * Build the DataViews actions array for the Library tab. Eligibility predicates
  * gate per-row availability based on `item.type` and `item.upload.status`. The
- * Delete and privacy actions set `supportsBulk: true` and use `isEligible` to
- * filter out items that can't accept the change (local items, in-flight videos,
- * or videos already at the target privacy). DataViews silently skips ineligible
- * items, so a mixed selection only applies to the rows that qualify. Rows with a
- * delete already in flight are ineligible for every action so a slow delete
- * can't be double-fired or raced by an edit.
+ * Delete, privacy, and Upload to VideoPress actions set `supportsBulk: true`
+ * and use `isEligible` to filter out items that can't accept the change
+ * (in-flight videos, videos already at the target privacy, non-local items for
+ * the promote). DataViews silently skips ineligible items, so a mixed selection
+ * only applies to the rows that qualify. Rows with a delete already in flight
+ * are ineligible for every action so a slow delete can't be double-fired or
+ * raced by an edit.
+ *
+ * Invariant: every idle row — local or VideoPress — must satisfy at least one
+ * `supportsBulk` action's `isEligible`. DataViews disables an item's selection
+ * checkbox when no bulk action applies to it, so a row type with zero
+ * bulk-capable actions silently becomes unselectable in both layouts (the bug
+ * behind JETPACK-2032, where local rows only had single-item actions).
  *
  * @param api - Hook mutators forwarded into the action callbacks.
  * @return The actions array for `<DataViews>`.
@@ -102,7 +111,10 @@ export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
 			id: 'delete',
 			label: __( 'Delete', 'jetpack-videopress-pkg' ),
 			supportsBulk: true,
-			isEligible: isVideoPressIdle,
+			// Local rows are deletable too: the pipeline is a plain core
+			// DELETE /wp/v2/media/{id}?force=true either way, with nothing
+			// VideoPress-specific about it.
+			isEligible: item => isVideoPressIdle( item ) || isLocalIdle( item ),
 			callback: items => {
 				api.deleteItems( items.map( i => i.id ) );
 			},
@@ -111,19 +123,19 @@ export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
 			id: 'upload-to-vp',
 			label: __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ),
 			isPrimary: true,
-			supportsBulk: false,
+			supportsBulk: true,
 			// On WordPress.com Simple the promote mutation routes through
 			// wpcom/v2/videopress/promote (in-process — the file is already on
 			// WordPress.com storage); elsewhere it walks /videopress/v1/upload/{id}.
 			// Allowlist on 'idle' (matching the design note at the top of this
 			// file) so a row whose promote is already in flight — overlaid as
 			// 'promoting' — can't double-fire it.
-			isEligible: item => item.type === 'local' && item.upload.status === 'idle',
+			isEligible: isLocalIdle,
+			// Fan out per item: promoteLocal owns per-id in-flight state (a
+			// re-entrant id is a no-op) and each promote settles independently
+			// with its own notice and row overlay.
 			callback: items => {
-				const [ item ] = items;
-				if ( item ) {
-					api.promoteLocal( item.id );
-				}
+				items.forEach( item => api.promoteLocal( item.id ) );
 			},
 		},
 		{

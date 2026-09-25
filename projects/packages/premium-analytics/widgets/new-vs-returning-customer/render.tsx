@@ -24,14 +24,9 @@ type NewVsReturningCustomerWidgetProps =
 	};
 
 /**
- * New vs returning customer widget.
- *
  * Thin composition over WidgetRoot: WidgetRoot provides the query client, chart
  * theme, and resolved report params; NewVsReturningCustomerWidget renders the
  * customer breakdown donut chart.
- *
- * @param {NewVsReturningCustomerWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function NewVsReturningCustomerRender( {
 	attributes = {},

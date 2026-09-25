@@ -41,12 +41,10 @@ export function buildPaymentStatusData(
 	const unpaidNetSales = summary.unpaid_net_sales;
 	const totalSales = paidNetSales + unpaidNetSales;
 
-	// Calculate comparison totals
 	const comparisonPaidNetSales = comparisonOrders?.summary?.paid_net_sales || 0;
 	const comparisonUnpaidNetSales = comparisonOrders?.summary?.unpaid_net_sales || 0;
 	const comparisonTotalSales = comparisonPaidNetSales + comparisonUnpaidNetSales;
 
-	// If there are no sales, return empty state
 	if ( totalSales === 0 ) {
 		return {
 			chartData: [],
@@ -56,14 +54,12 @@ export function buildPaymentStatusData(
 		};
 	}
 
-	// Build chart data
 	const chartData: DonutChartData = [
 		{
 			label: __( 'Paid', 'jetpack-premium-analytics-pkg' ),
 			value: paidNetSales,
 			valueDisplay: formatMetricValue( paidNetSales, 'currency', {
 				useMultipliers: true,
-				decimals: 0,
 			} ),
 		},
 		{
@@ -71,19 +67,16 @@ export function buildPaymentStatusData(
 			value: unpaidNetSales,
 			valueDisplay: formatMetricValue( unpaidNetSales, 'currency', {
 				useMultipliers: true,
-				decimals: 0,
 			} ),
 		},
 	];
 
-	// Build legend data
 	const legendData: LegendItem[] = [
 		{
 			label: __( 'Paid', 'jetpack-premium-analytics-pkg' ),
 			value: paidNetSales,
 			displayValue: formatMetricValue( paidNetSales, 'currency', {
 				useMultipliers: true,
-				decimals: 0,
 			} ),
 			comparison: comparisonOrders ? comparisonPaidNetSales : undefined,
 		},
@@ -92,7 +85,6 @@ export function buildPaymentStatusData(
 			value: unpaidNetSales,
 			displayValue: formatMetricValue( unpaidNetSales, 'currency', {
 				useMultipliers: true,
-				decimals: 0,
 			} ),
 			comparison: comparisonOrders ? comparisonUnpaidNetSales : undefined,
 		},

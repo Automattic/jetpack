@@ -2,7 +2,7 @@
 	color: var(--wpds-color-foreground-content-neutral);
 	padding: var(--wpds-dimension-padding-sm);
 	margin: 0;
-	box-shadow: var(--wpds-elevation-sm);
+	box-shadow: 0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005;
 	min-width: 200px;
 }
 
@@ -13,6 +13,18 @@
 
 .label {
 	flex: 1;
+}
+
+// MetricValue's sm face, so "No data" reads as a value, not a label.
+.value {
+	font-weight: 500;
+	font-size: var(--wpds-typography-font-size-sm);
+	line-height: var(--wpds-typography-line-height-sm);
+}
+
+// A row with no swatch holds its width, so every label starts flush.
+.indicatorSpacer {
+	flex: none;
 }
 
 // Override visx-tooltip ONLY when our custom tooltip components are used.

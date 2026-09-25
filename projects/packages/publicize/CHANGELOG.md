@@ -5,6 +5,89 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.87.1] - 2026-09-21
+### Changed
+- Connections: Open the Instagram Business help link as the WordPress.com support doc inside the Help Center on WordPress.com sites. [#52436]
+- Exclude source map files from the distributed package. [#52304]
+- Update package dependencies. [#52187]
+
+### Fixed
+- Bluesky: Pre-fill the handle field when reconnecting an account. [#52187]
+- Dashboard: Target contextual messages at the Social screen again, and show them on every tab. [#52471]
+
+## [0.87.0] - 2026-09-15
+### Added
+- Connections: Add a REST endpoint to receive updated connections from WordPress.com. [#52128]
+
+### Changed
+- Hide the Social sidebar item when Social is not active. [#52156]
+- Update package dependencies. [#52200] [#52297]
+
+### Fixed
+- Link preview: Remove Nextdoor and keep the remaining service icons on one row. [#52082]
+
+## [0.86.2] - 2026-09-09
+### Changed
+- Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+
+## [0.86.1] - 2026-09-08
+### Changed
+- Update package dependencies. [#51701]
+
+## [0.86.0] - 2026-09-01
+### Changed
+- Sharing activity: Update status badges. [#51601]
+- Update package dependencies. [#51303] [#51727] [#51802]
+
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+## [0.85.1] - 2026-08-25
+### Changed
+- Only include social connection data in the script data for users who can access Publicize. [#51483]
+- Update dependencies. [#51456]
+
+## [0.85.0] - 2026-08-20
+### Added
+- Connections: Explain why an Instagram Business connection found no accounts to choose from. [#51282]
+
+### Changed
+- Update dependencies. [#51190]
+- Update package dependencies. [#51399]
+
+## [0.84.4] - 2026-08-10
+### Added
+- Add the platform-specific input step for the new connection flow. [#50804]
+
+### Changed
+- Update package dependencies. [#50509] [#51008]
+
+### Fixed
+- Fix the social sharing sidebar failing to load in the editor on WordPress 6.9. [#50509]
+- Prevent unrelated editor hyperlinks from appearing in custom social messages. [#50994]
+
+## [0.84.3] - 2026-08-03
+### Changed
+- Surface a visible error when fetching the keyring result fails during a connection, instead of failing silently. [#50822]
+
+### Fixed
+- Load JS translation catalogs and stamp the package text domain on the wp-build dashboard bundle. [#50762]
+- Social Image Generator: Share the current generated image after changing the template. [#50903]
+
+## [0.84.2] - 2026-07-27
+### Security
+- REST API: Require the `edit_others_posts` capability to create a shared connection, matching the update check. [#50722]
+
+### Added
+- Add a connection-flow state machine to the social store. [#50772]
+- Add the admin UI v2 feature flag. [#50733]
+- Add the connection-flow modal and open it from the Social dashboard behind the admin UI v2 flag. [#50775]
+- Add the platform picker step for the new connection flow. [#50773]
+
+### Changed
+- Update package dependencies. [#50683] [#50751] [#50753]
+- Use the same connection management UI in the block editor sidebar as on the Social admin page. [#50731]
+
 ## [0.84.1] - 2026-07-20
 ### Changed
 - Update package dependencies. [#50510] [#50529] [#50582]
@@ -1576,6 +1659,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.87.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.87.0...v0.87.1
+[0.87.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.86.2...v0.87.0
+[0.86.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.86.1...v0.86.2
+[0.86.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.86.0...v0.86.1
+[0.86.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.85.1...v0.86.0
+[0.85.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.85.0...v0.85.1
+[0.85.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.4...v0.85.0
+[0.84.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.3...v0.84.4
+[0.84.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.2...v0.84.3
+[0.84.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.1...v0.84.2
 [0.84.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.0...v0.84.1
 [0.84.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.5...v0.84.0
 [0.83.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.4...v0.83.5

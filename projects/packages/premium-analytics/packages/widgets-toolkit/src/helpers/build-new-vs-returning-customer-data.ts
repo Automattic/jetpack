@@ -43,12 +43,10 @@ export function buildNewVsReturningCustomerData(
 	const newCustomers = customers.summary.new_customers;
 	const returningCustomers = customers.summary.returning_customers;
 
-	// Pick comparison totals
 	const comparisonTotalCustomers = comparisonCustomers?.summary?.total_customers || 0;
 	const comparisonNewCustomers = comparisonCustomers?.summary?.new_customers || 0;
 	const comparisonReturningCustomers = comparisonCustomers?.summary?.returning_customers || 0;
 
-	// If there are no customers, return empty state
 	if ( totalCustomers === 0 ) {
 		return {
 			chartData: [],
@@ -58,8 +56,7 @@ export function buildNewVsReturningCustomerData(
 		};
 	}
 
-	// Build chart data showing customer counts
-	// Note: Returning customers first to match design (larger segment first)
+	// Returning first to match the design: the larger segment leads.
 	const chartData: DonutChartData = [
 		{
 			label: __( 'Returning', 'jetpack-premium-analytics-pkg' ),
@@ -79,7 +76,7 @@ export function buildNewVsReturningCustomerData(
 		},
 	];
 
-	// Build legend data (same order as chart)
+	// Same order as the chart.
 	const legendData: LegendItem[] = [
 		{
 			label: __( 'Returning', 'jetpack-premium-analytics-pkg' ),

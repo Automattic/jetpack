@@ -1,5 +1,12 @@
-import { Tooltip, TooltipContext } from '@visx/xychart';
-import { useContext, useEffect, useCallback, useMemo } from 'react';
+import { TooltipContext } from '@visx/xychart';
+import clsx from 'clsx';
+import { useContext, useEffect, useCallback, useMemo, useRef } from 'react';
+import { ChartInstanceContext } from '../../charts/private/chart-instance-context';
+import { useGlobalChartsContext } from '../../providers/chart-context/hooks/use-global-charts-context';
+import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
+import { useChartScopeElement, useStandaloneScopeClass } from '../../providers/chart-scope';
+import { resolveCssVariable } from '../../utils';
+import { XyChartTooltip } from './xy-chart-tooltip';
 import type { SeriesData, DataPointDate } from '../../types';
 import type { RenderTooltipParams, XyChartTooltipProps } from '../../visx/types';
 import type { ReactNode } from 'react';
@@ -13,8 +20,10 @@ export type FlattenedTooltipData = {
 };
 
 // Enhanced tooltip with keyboard navigation and accessibility
-interface AccessibleTooltipProps
-	extends Omit< XyChartTooltipProps< DataPointDate >, 'renderTooltip' > {
+interface AccessibleTooltipProps extends Omit<
+	XyChartTooltipProps< DataPointDate >,
+	'renderTooltip'
+> {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	selectedIndex?: number | undefined;
 	tooltipRef?: ( element: HTMLDivElement | null ) => void;
@@ -43,9 +52,22 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 	keyboardFocusedClassName,
 	series = [],
 	mode = 'group',
+	verticalCrosshairStyle,
+	horizontalCrosshairStyle,
 	...props
 } ) => {
 	const tooltipContext = useContext( TooltipContext );
+	const scopeElement = useChartScopeElement();
+
+	// The stroke is read at the scope element, which a consumer can set outside the chart's own ancestors; see TOKENS.md#the-svg-bridge.
+	const crosshairStroke = useMemo( () => {
+		const stroke = resolveCssVariable( CATALOG_POINTERS.grid, scopeElement );
+
+		// Passing `stroke: undefined` would erase the crosshair: it overrides visx's own value, and SVG's initial `stroke` is `none`.
+		return stroke ? { stroke } : undefined;
+	}, [ scopeElement ] );
+
+	const standaloneScopeClass = useStandaloneScopeClass();
 
 	const tooltipData = useMemo( () => {
 		if ( mode !== 'individual' ) return [];
@@ -77,12 +99,57 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 		return flattened;
 	}, [ series, mode ] );
 
+	// Tracks whether this effect opened a tooltip, so it only closes its own.
+	const hasKeyboardSelection = useRef( false );
+
+	// visx's own `hideTooltip` is debounced by 400ms, long enough for a stale datum to be
+	// repainted against a changed series list. This is the undebounced close it wraps.
+	const closeTooltipNow = useCallback( () => {
+		tooltipContext?.updateTooltip( {
+			tooltipOpen: false,
+			tooltipLeft: undefined,
+			tooltipTop: undefined,
+			tooltipData: undefined,
+		} );
+		// Don't include tooltipContext in the dependency array to avoid loop.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
+
+	const chartId = useContext( ChartInstanceContext )?.chartId;
+	const { getHiddenSeries } = useGlobalChartsContext();
+	const hiddenSeriesKey = chartId
+		? JSON.stringify( [ ...getHiddenSeries( chartId ) ].sort() )
+		: undefined;
+	const lastHiddenSeriesKey = useRef( hiddenSeriesKey );
+
+	// Hiding a series re-points every tooltip index at a different series, so a tooltip opened by
+	// the pointer would keep showing a datum that is no longer on the chart. Nothing else closes
+	// it: the pointer has not moved, so visx never fires the leave that would.
+	useEffect( () => {
+		const changed = lastHiddenSeriesKey.current !== hiddenSeriesKey;
+		lastHiddenSeriesKey.current = hiddenSeriesKey;
+
+		// A keyboard selection is reconciled by `useKeyboardNavigation` instead, which either
+		// re-shows the tooltip at a valid index or clears the selection for the branch below.
+		if ( changed && selectedIndex === undefined ) {
+			closeTooltipNow();
+		}
+	}, [ hiddenSeriesKey, selectedIndex, closeTooltipNow ] );
+
 	// Handle tooltip highlighting for keyboard navigation
 	useEffect( () => {
 		if ( selectedIndex === undefined ) {
-			tooltipContext?.hideTooltip();
+			// visx debounces the hide and cancels only the most recently scheduled one,
+			// so hiding on every run leaves earlier hides pending. One of those lands
+			// mid-navigation and closes the tooltip the user is reading.
+			if ( hasKeyboardSelection.current ) {
+				hasKeyboardSelection.current = false;
+				closeTooltipNow();
+			}
 			return;
 		}
+
+		hasKeyboardSelection.current = true;
 
 		if ( mode === 'group' ) {
 			// Show all series at the selected data point index in single tooltip.
@@ -105,7 +172,7 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 				tooltipContext?.showTooltip( {
 					datum: tooltipItem.datum,
 					key: tooltipItem.seriesLabel,
-					index: tooltipItem.seriesIndex,
+					index: tooltipItem.dataPointIndex,
 				} );
 			}
 		}
@@ -128,7 +195,7 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 						tabIndex={ -1 }
 						role="tooltip"
 						aria-atomic="true"
-						className={ keyboardFocusedClassName }
+						className={ clsx( standaloneScopeClass, keyboardFocusedClassName ) }
 						data-testid={ `chart-tooltip-${ selectedIndex }` }
 						key={ `chart-tooltip-${ selectedIndex }` }
 					>
@@ -138,14 +205,21 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 			}
 
 			return (
-				<div role="tooltip" aria-live="polite">
+				<div className={ standaloneScopeClass } role="tooltip" aria-live="polite">
 					{ tooltipContent }
 				</div>
 			);
 		};
-	}, [ renderTooltip, selectedIndex, tooltipRef, keyboardFocusedClassName ] );
+	}, [ renderTooltip, selectedIndex, tooltipRef, keyboardFocusedClassName, standaloneScopeClass ] );
 
-	return <Tooltip { ...props } renderTooltip={ focusableRenderTooltip } />;
+	return (
+		<XyChartTooltip
+			{ ...props }
+			verticalCrosshairStyle={ { ...crosshairStroke, ...verticalCrosshairStyle } }
+			horizontalCrosshairStyle={ { ...crosshairStroke, ...horizontalCrosshairStyle } }
+			renderTooltip={ focusableRenderTooltip }
+		/>
+	);
 };
 
 // Keyboard navigation hook for charts
@@ -159,6 +233,18 @@ interface UseKeyboardNavigationProps {
 	 * Total number of navigation points (length of tooltip data array)
 	 */
 	totalPoints: number;
+	/**
+	 * Called with the selected index on Enter or Space, so a chart can treat the
+	 * keyboard selection the way it treats a click.
+	 */
+	onActivate?: ( index: number ) => void;
+	preventTooltipScroll?: boolean;
+	/**
+	 * Identity of the series the navigation indexes run over, for charts whose index space depends
+	 * on which series are visible. Swapping one hidden series for another of the same length leaves
+	 * `totalPoints` unchanged, so the count alone cannot detect it.
+	 */
+	visibleSeriesKey?: string;
 }
 
 export const useKeyboardNavigation = ( {
@@ -168,23 +254,92 @@ export const useKeyboardNavigation = ( {
 	setIsNavigating,
 	chartRef,
 	totalPoints,
+	onActivate,
+	preventTooltipScroll = false,
+	visibleSeriesKey,
 }: UseKeyboardNavigationProps ) => {
+	// `chartRef` sits inside the focusable grid, so the grid is what focus returns to and is measured against.
+	const getChartRoot = useCallback(
+		(): HTMLElement | null =>
+			chartRef.current?.closest< HTMLElement >( '[role="grid"]' ) ?? chartRef.current,
+		[ chartRef ]
+	);
+
+	const focusWithoutScrollIfNeeded = useCallback(
+		( element: HTMLElement | null | undefined ) => {
+			if ( preventTooltipScroll ) {
+				element?.focus( { preventScroll: true } );
+			} else {
+				element?.focus();
+			}
+		},
+		[ preventTooltipScroll ]
+	);
+
 	// Focus the tooltip as soon as it is rendered
 	const tooltipRef = useCallback(
 		( element: HTMLDivElement | null ) => {
 			if ( element && selectedIndex !== undefined ) {
-				element.focus();
+				focusWithoutScrollIfNeeded( element );
 			}
 		},
-		[ selectedIndex ]
+		[ focusWithoutScrollIfNeeded, selectedIndex ]
 	);
 
-	// On each focus of chart, reset the selectedIndex to 0, if keyboard navigation is not already active
-	const onChartFocus = useCallback( () => {
-		if ( ! isNavigating && selectedIndex !== undefined ) {
-			setSelectedIndex( 0 );
+	const previousTotalPoints = useRef( totalPoints );
+	const previousVisibleSeriesKey = useRef( visibleSeriesKey );
+
+	// Hiding or showing a series moves every index onto a different bar. The count alone misses a
+	// swap that keeps it the same, such as hiding one series while revealing another of equal length.
+	// Clear rather than clamp once focus has left the chart: a new tooltip would pull focus back.
+	useEffect( () => {
+		const countChanged = previousTotalPoints.current !== totalPoints;
+		const seriesChanged = previousVisibleSeriesKey.current !== visibleSeriesKey;
+		previousTotalPoints.current = totalPoints;
+		previousVisibleSeriesKey.current = visibleSeriesKey;
+
+		if ( ( ! countChanged && ! seriesChanged ) || selectedIndex === undefined ) {
+			return;
 		}
-	}, [ isNavigating, selectedIndex, setSelectedIndex ] );
+
+		const { activeElement } = document;
+		const focusIsInChart = activeElement !== null && !! getChartRoot()?.contains( activeElement );
+
+		// A swap that leaves the count alone gives the same index a different series, so unlike a
+		// count change there is no shorter range to clamp into.
+		if ( totalPoints === 0 || ! focusIsInChart || ! countChanged ) {
+			setSelectedIndex( undefined );
+			setIsNavigating( false );
+			// Clearing unmounts the focused tooltip, which would drop focus to the body.
+			if ( focusIsInChart ) {
+				focusWithoutScrollIfNeeded( getChartRoot() );
+			}
+			return;
+		}
+
+		setSelectedIndex( Math.min( selectedIndex, totalPoints - 1 ) );
+	}, [
+		selectedIndex,
+		totalPoints,
+		visibleSeriesKey,
+		setSelectedIndex,
+		setIsNavigating,
+		getChartRoot,
+		focusWithoutScrollIfNeeded,
+	] );
+
+	// Returning focus from the tooltip must not restore the selection Escape just cleared.
+	const onChartFocus = useCallback(
+		( event: React.FocusEvent< HTMLDivElement > ) => {
+			if ( event.currentTarget.contains( event.relatedTarget ) ) {
+				return;
+			}
+			if ( ! isNavigating && selectedIndex !== undefined ) {
+				setSelectedIndex( 0 );
+			}
+		},
+		[ isNavigating, selectedIndex, setSelectedIndex ]
+	);
 
 	// On each blur of chart, keyboard navigation should restart from first tooltip
 	const onChartBlur = useCallback( () => {
@@ -193,40 +348,44 @@ export const useKeyboardNavigation = ( {
 
 	const onChartKeyDown = useCallback(
 		( event: React.KeyboardEvent< HTMLDivElement > ) => {
-			if ( totalPoints === 0 ) return;
-
-			// Keep focus on the chart if tab is pressed
-			if ( event.key === 'Tab' ) {
-				chartRef.current?.focus();
+			if ( event.key === 'Tab' || event.key === 'Escape' ) {
+				// Consuming Escape with nothing open would swallow the first Escape of a surrounding Modal.
+				if ( event.key === 'Escape' && selectedIndex !== undefined ) {
+					event.preventDefault();
+				}
+				focusWithoutScrollIfNeeded( getChartRoot() );
 				setSelectedIndex( undefined );
 				setIsNavigating( false );
 				return;
 			}
+
+			if ( totalPoints === 0 ) return;
 
 			const currentSelectedIndex = selectedIndex === undefined ? -1 : selectedIndex;
 
-			if ( currentSelectedIndex + 1 >= totalPoints && [ 'ArrowRight' ].includes( event.key ) ) {
-				chartRef.current?.focus();
-				setSelectedIndex( undefined );
-				setIsNavigating( false );
-				return;
-			}
-
-			event.preventDefault();
-
-			if ( [ 'ArrowRight' ].includes( event.key ) ) {
+			// WAI-ARIA grid: arrows stop at the first and last cell.
+			if ( event.key === 'ArrowRight' ) {
+				event.preventDefault();
 				setIsNavigating( true );
-				setSelectedIndex( ( currentSelectedIndex + 1 ) % totalPoints );
-			} else if ( [ 'ArrowLeft' ].includes( event.key ) ) {
+				setSelectedIndex( Math.min( currentSelectedIndex + 1, totalPoints - 1 ) );
+			} else if ( event.key === 'ArrowLeft' ) {
+				event.preventDefault();
 				setIsNavigating( true );
-				setSelectedIndex( ( currentSelectedIndex - 1 + totalPoints ) % totalPoints );
-			} else if ( event.key === 'Escape' ) {
-				setSelectedIndex( undefined );
-				setIsNavigating( false );
-				chartRef.current?.focus();
+				setSelectedIndex( Math.max( currentSelectedIndex - 1, 0 ) );
+			} else if ( ( event.key === 'Enter' || event.key === ' ' ) && selectedIndex !== undefined ) {
+				event.preventDefault();
+				onActivate?.( selectedIndex );
 			}
 		},
-		[ totalPoints, selectedIndex, setSelectedIndex, setIsNavigating, chartRef ]
+		[
+			totalPoints,
+			selectedIndex,
+			setSelectedIndex,
+			setIsNavigating,
+			getChartRoot,
+			focusWithoutScrollIfNeeded,
+			onActivate,
+		]
 	);
 
 	return {
@@ -236,6 +395,3 @@ export const useKeyboardNavigation = ( {
 		onChartKeyDown,
 	};
 };
-
-// Re-export the base Tooltip for backwards compatibility
-export { Tooltip };

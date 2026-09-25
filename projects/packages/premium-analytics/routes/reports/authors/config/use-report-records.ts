@@ -45,5 +45,6 @@ export function useAuthorsReportRecords( reportParams: ReportParams ) {
 		rows,
 		hasComparison: authors.hasComparison,
 		isLoading: authors.isLoading,
+		isFetching: authors.isFetching,
 	};
 }

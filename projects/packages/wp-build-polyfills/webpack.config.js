@@ -1,8 +1,8 @@
 /**
  * Webpack configuration for wp-build-polyfills.
  *
- * Bundles `@wordpress` packages not available in WordPress Core < 7.0
- * as both classic scripts (IIFE) and script modules (ESM).
+ * Bundles the `@wordpress` packages `WP_Build_Polyfills` registers, as both
+ * classic scripts (IIFE) and script modules (ESM).
  *
  * IIFE builds use `@wordpress/dependency-extraction-webpack-plugin` (via
  * jetpack-webpack-config's StandardPlugins) for externals and .asset.php.
@@ -158,8 +158,8 @@ const sharedConfig = {
 };
 
 // Plugins disabled for all polyfill builds: no CSS is bundled, and the i18n
-// loader/checker are unnecessary since Core doesn't provide translations for
-// these packages (they aren't shipped with Core in the first place).
+// loader/checker serve this package's own text domain, which the bundles never
+// use — their strings are upstream ones in Core's `default` domain.
 const disabledPlugins = {
 	MiniCssExtractPlugin: false,
 	MiniCssWithRtlPlugin: false,
@@ -183,6 +183,21 @@ const classicPolyfills = [
 		name: 'private-apis',
 		packageName: '@wordpress/private-apis',
 		library: [ 'wp', 'privateApis' ],
+		// Re-allows the Core modules that the WordPress versions this polyfill
+		// replaces private-apis on still opt in with; see the wrapper.
+		entry: path.join( packageRoot, 'src', 'js', 'private-apis.mjs' ),
+	},
+	{
+		name: 'rich-text',
+		packageName: '@wordpress/rich-text',
+		library: [ 'wp', 'richText' ],
+		// rich-text unlocks `privateApis` from @wordpress/compose at module
+		// scope, and Core versions this polyfill targets ship compose without
+		// that export — externalizing compose would make the polyfill throw
+		// the very "Cannot unlock an undefined object" it exists to fix.
+		// Core's compose does not opt into private-apis at all, so the
+		// bundled copy's opt-in cannot collide with it.
+		bundlePackages: [ '@wordpress/compose' ],
 	},
 	{
 		name: 'theme',
@@ -205,6 +220,7 @@ const modulePolyfills = [
 		// a11y's wpScriptModuleExports points to a separate module entry.
 		subEntry: 'build-module/module/index.mjs',
 	},
+	{ name: 'widget-primitives', packageName: '@wordpress/widget-primitives' },
 ];
 
 // ── IIFE configs (classic scripts) ──────────────────────────────────────────
@@ -217,7 +233,7 @@ const iifeConfigs = classicPolyfills.map( polyfill => ( {
 	name: `script-${ polyfill.name }`,
 	...sharedConfig,
 	entry: {
-		index: resolveEntry( polyfill.packageName ),
+		index: polyfill.entry ?? resolveEntry( polyfill.packageName ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,
@@ -230,9 +246,12 @@ const iifeConfigs = classicPolyfills.map( polyfill => ( {
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: {
-				requestMap: {
-					[ polyfill.packageName ]: { external: false },
-				},
+				requestMap: Object.fromEntries(
+					[ polyfill.packageName, ...( polyfill.bundlePackages ?? [] ) ].map( pkg => [
+						pkg,
+						{ external: false },
+					] )
+				),
 			},
 			...disabledPlugins,
 		} ),

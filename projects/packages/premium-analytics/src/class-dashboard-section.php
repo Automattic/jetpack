@@ -10,11 +10,36 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 /**
  * Represents a dashboard section.
  *
- * A dashboard section is the server-owned model behind a top-level dashboard
- * tab. It carries display metadata plus availability and default-layout
- * callbacks that can be extended by consumers.
+ * The server-owned model behind a top-level dashboard tab.
  */
 final class Dashboard_Section {
+
+	/**
+	 * Date-filter surface offering the rolling date-range picker (today, last 7
+	 * days, a custom range, …) plus the comparison control. The default.
+	 *
+	 * @since 0.2.0
+	 * @var string
+	 */
+	const DATE_FILTER_RANGE = 'range';
+
+	/**
+	 * Date-filter surface offering all time plus one entry per calendar year,
+	 * for sections whose data is read as whole history rather than as a
+	 * rolling window.
+	 *
+	 * @since 0.2.0
+	 * @var string
+	 */
+	const DATE_FILTER_YEAR = 'year';
+
+	/**
+	 * Date-filter surfaces a section may declare.
+	 *
+	 * @since 0.2.0
+	 * @var string[]
+	 */
+	const DATE_FILTERS = array( self::DATE_FILTER_RANGE, self::DATE_FILTER_YEAR );
 
 	/**
 	 * Dashboard identifier.
@@ -38,11 +63,20 @@ final class Dashboard_Section {
 	public $slug;
 
 	/**
-	 * Display label.
+	 * Display label, naming the section's tab.
 	 *
 	 * @var string
 	 */
 	public $label;
+
+	/**
+	 * Section heading, deliberately distinct from the tab label: the tab reads
+	 * `Traffic` where the heading reads `Site traffic`. Null falls back to the label.
+	 *
+	 * @since 0.3.0
+	 * @var string|null
+	 */
+	public $title = null;
 
 	/**
 	 * Sort order.
@@ -50,6 +84,43 @@ final class Dashboard_Section {
 	 * @var int
 	 */
 	public $order = 10;
+
+	/**
+	 * Which shape the section's date filter takes, as one of self::DATE_FILTERS.
+	 *
+	 * Shape only. Where it renders and what it supports are
+	 * self::$date_filter_options.
+	 *
+	 * @since 0.2.0
+	 * @var string
+	 */
+	public $date_filter = self::DATE_FILTER_RANGE;
+
+	/**
+	 * What the section's date filter supports, and where it renders.
+	 *
+	 * - `with_date_comparison`: false drops the comparison param from every widget fetch in the
+	 *   section, not just the chrome.
+	 * - `with_header_date_control`: false hands the control to the section's widgets, which may
+	 *   save the range onto the widget instance rather than the URL.
+	 *
+	 * @since 0.3.0
+	 * @since 0.5.0 Added `with_header_date_control`.
+	 * @var array
+	 */
+	public $date_filter_options = array(
+		'with_date_comparison'     => true,
+		'with_header_date_control' => true,
+	);
+
+	/**
+	 * Whether the section's data only reaches WordPress.com through the analytics
+	 * full sync, so its numbers are incomplete until that sync has finished once.
+	 *
+	 * @since 0.4.0
+	 * @var bool
+	 */
+	public $requires_sync = false;
 
 	/**
 	 * Availability flag or callback.
@@ -99,6 +170,12 @@ final class Dashboard_Section {
 	 * @return bool
 	 */
 	public function is_available() {
+		// The preview scope is about the rollout rather than the site, so it sits ahead of the
+		// section's own check.
+		if ( ! is_dashboard_section_in_preview_scope( $this->dashboard_name, $this->slug ) ) {
+			return false;
+		}
+
 		if ( is_callable( $this->is_available ) ) {
 			return (bool) call_user_func( $this->is_available, $this );
 		}
@@ -107,7 +184,7 @@ final class Dashboard_Section {
 	}
 
 	/**
-	 * Returns the section's default widget layout.
+	 * Returns the section's default widget layout, run through the default-layout filter.
 	 *
 	 * @return array Array of widget instances.
 	 */
@@ -115,6 +192,23 @@ final class Dashboard_Section {
 		$layout = is_callable( $this->default_layout )
 			? call_user_func( $this->default_layout, $this )
 			: $this->default_layout;
+		$layout = is_array( $layout ) ? array_values( $layout ) : array();
+
+		/**
+		 * Filters a dashboard section's default widget layout.
+		 *
+		 * Each entry matches the dashboard's widget instance shape: `uuid`, `type`, optional
+		 * `attributes`, optional `placement`. Runs for every section, so a callback adding an
+		 * instance to one switches on `$section_id`.
+		 *
+		 * @since 0.8.0 Runs from the section, with its declared layout and its
+		 *                         namespaced id; it received an empty array and any alias before.
+		 *
+		 * @param array             $layout     The section's declared default widget instances.
+		 * @param string            $section_id Namespaced section identifier, e.g. `analytics/traffic`.
+		 * @param Dashboard_Section $section    The section.
+		 */
+		$layout = apply_filters( DASHBOARD_DEFAULT_LAYOUT_FILTER, $layout, $this->id, $this );
 
 		return is_array( $layout ) ? array_values( $layout ) : array();
 	}
@@ -126,11 +220,15 @@ final class Dashboard_Section {
 	 */
 	public function to_array() {
 		return array(
-			'id'             => $this->id,
-			'slug'           => $this->slug,
-			'label'          => $this->label,
-			'order'          => (int) $this->order,
-			'default_layout' => $this->get_default_layout(),
+			'id'                  => $this->id,
+			'slug'                => $this->slug,
+			'label'               => $this->label,
+			'title'               => $this->title,
+			'order'               => (int) $this->order,
+			'date_filter'         => $this->date_filter,
+			'date_filter_options' => $this->date_filter_options,
+			'requires_sync'       => $this->requires_sync,
+			'default_layout'      => $this->get_default_layout(),
 		);
 	}
 
@@ -149,8 +247,36 @@ final class Dashboard_Section {
 			$this->label = (string) $args['label'];
 		}
 
+		// An empty string is a registrant saying "none", not a heading: kept as-is it
+		// would defeat the label fallback and render an `<h2>` with no accessible name.
+		if ( isset( $args['title'] ) ) {
+			$title       = (string) $args['title'];
+			$this->title = '' === $title ? null : $title;
+		}
+
 		if ( isset( $args['order'] ) ) {
 			$this->order = (int) $args['order'];
+		}
+
+		// An unrecognized surface keeps the default rather than reaching the
+		// dashboard, where the frontend has no filter to render for it.
+		if ( isset( $args['date_filter'] ) && in_array( $args['date_filter'], self::DATE_FILTERS, true ) ) {
+			$this->date_filter = (string) $args['date_filter'];
+		}
+
+		// Merged over the defaults so a partial array keeps the rest, and narrowed
+		// to the known options, which is all the dashboard renders.
+		if ( isset( $args['date_filter_options'] ) && is_array( $args['date_filter_options'] ) ) {
+			$options = array_merge( $this->date_filter_options, $args['date_filter_options'] );
+
+			$this->date_filter_options = array(
+				'with_date_comparison'     => (bool) $options['with_date_comparison'],
+				'with_header_date_control' => (bool) $options['with_header_date_control'],
+			);
+		}
+
+		if ( isset( $args['requires_sync'] ) ) {
+			$this->requires_sync = (bool) $args['requires_sync'];
 		}
 
 		if ( array_key_exists( 'is_available', $args ) ) {

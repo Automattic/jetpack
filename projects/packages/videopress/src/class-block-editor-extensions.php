@@ -162,6 +162,19 @@ class Block_Editor_Extensions {
 			'imagesURLBase'               => plugin_dir_url( __DIR__ ) . 'build/images/',
 			'playerBridgeUrl'             => plugins_url( '../build/lib/player-bridge.js', __FILE__ ),
 			'webpackPublicPath'           => plugins_url( '../build/', __FILE__ ),
+			// Mirrors Admin_UI::is_chapters_editor_enabled() so the block editor can
+			// hide the "Manage chapters" toolbar button without a round trip.
+			// wp_localize_script() casts scalars to strings, so this arrives client-side
+			// as '1' when enabled and '' when not — same shape as isVideoPressModuleActive
+			// and isStandaloneActive above. Read it as a truthy check, never `=== true`.
+			'chaptersEditorEnabled'       => Admin_UI::is_chapters_editor_enabled(),
+			// Set when the site renders players from the shared bundle: the block editor then previews videos the same way.
+			'inlinePlayer'                => Inline_Player::is_enabled()
+				? array_merge(
+					Inline_Player::get_asset_config(),
+					array( 'preloadDisabled' => Data::get_videopress_player_preload_disabled() )
+				)
+				: null,
 		);
 
 		// Expose initial state of site connection

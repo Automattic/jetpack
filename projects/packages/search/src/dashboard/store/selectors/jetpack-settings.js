@@ -22,6 +22,12 @@ const jetpackSettingSelectors = {
 		Object.prototype.hasOwnProperty.call( state.jetpackSettings, 'reader_chat' ),
 	isReaderChatEnabled: state => state.jetpackSettings.reader_chat,
 	isAiAnswersEnabled: state => !! state.jetpackSettings.ai_answers_enabled,
+	// The stored choice, ungated — shown while the master switch is off so a
+	// saved setting isn't misreported back to the user as off.
+	isAiAnswersSaved: state => !! state.jetpackSettings.ai_answers_saved,
+	// Treat a missing value as on, so a back end that predates the field doesn't
+	// gate the toggle.
+	isAiMasterEnabled: state => state.jetpackSettings.ai_master_enabled !== false,
 	isSearchSuggestionsEnabled: state => !! state.jetpackSettings.search_suggestions_enabled,
 	isWooCommerceSearchTemplateOverrideEnabled: state =>
 		!! state.jetpackSettings.override_woocommerce_search_template,

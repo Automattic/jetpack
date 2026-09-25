@@ -1,0 +1,1086 @@
+<?php
+/**
+ * Tests for the Jetpack AI admin page script data.
+ *
+ * The Overview and AI Features views are public on self-hosted sites, gated on
+ * Atomic and VIP, and remain filterable by the host.
+ *
+ * @package automattic/jetpack
+ */
+
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-ai-page.php';
+
+/**
+ * Class Jetpack_AI_Page_Test
+ *
+ * @covers \Jetpack_AI_Feature_Flags
+ * @covers \Jetpack_AI_Page
+ */
+#[CoversClass( Jetpack_AI_Feature_Flags::class )]
+#[CoversClass( Jetpack_AI_Page::class )]
+class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
+	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
+	/**
+	 * Reset the proxied-request marker and the scripts registry.
+	 */
+	public function tear_down() {
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+		unset( $GLOBALS['wp_scripts'] );
+		unset( $GLOBALS['submenu'] );
+		delete_transient( 'jetpack_ai_overview_plan_info' );
+		Status_Cache::clear();
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		remove_all_filters( 'agents_manager_should_load' );
+		remove_all_filters( 'agents_manager_agent_id' );
+		remove_all_filters( 'agents_manager_agent_providers' );
+		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
+		remove_all_filters( 'jetpack_ai_admin_config' );
+		remove_all_filters( 'jetpack_active_modules' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks' );
+		remove_all_filters( 'jetpack_is_connection_ready' );
+		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_filters( 'jetpack_my_jetpack_should_initialize' );
+		Jetpack_Options::delete_option( 'tos_agreed' );
+		Jetpack_Options::delete_option( 'user_tokens' );
+		wp_set_current_user( 0 );
+		remove_all_actions( 'admin_print_scripts-jetpack_page_jetpack-ai' );
+		remove_all_actions( 'admin_print_styles-jetpack_page_jetpack-ai' );
+		remove_all_actions( 'load-jetpack_page_jetpack-ai' );
+		unset( $GLOBALS['wp_styles'] );
+		Constants::clear_constants();
+
+		parent::tear_down();
+	}
+
+	/**
+	 * Serve a fixed purchase list and site plan, so the plan-name lookup reads
+	 * known data instead of contacting WordPress.com.
+	 *
+	 * @param array  $purchases Purchase objects the site owns.
+	 * @param string $plan_slug Slug of the site's current plan, or '' for a free site.
+	 */
+	private function given_site( array $purchases, $plan_slug = '' ) {
+		delete_transient( 'jetpack_ai_overview_plan_info' );
+
+		add_filter(
+			'pre_transient_my-jetpack-purchases',
+			function () use ( $purchases ) {
+				return $purchases;
+			}
+		);
+
+		// Set the plan through the package's own API: Current_Plan::get() memoises
+		// into a private static, so filtering the option read is not enough.
+		\Automattic\Jetpack\Current_Plan::update_from_site_record(
+			array(
+				'plan' => array(
+					'product_slug' => '' === $plan_slug ? 'jetpack_free' : $plan_slug,
+					'features'     => array( 'active' => array( 'ai-assistant' ) ),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Answer is_woa_site() without the Atomic constants.
+	 *
+	 * @param bool $is_woa Whether the site should look like WoA.
+	 */
+	private function given_woa( $is_woa ) {
+		Status_Cache::set( 'is_woa_site', $is_woa );
+	}
+
+	/**
+	 * A standalone Jetpack AI subscription.
+	 *
+	 * @return object
+	 */
+	private function jetpack_ai_purchase() {
+		return (object) array(
+			'product_slug'  => 'jetpack_ai_yearly',
+			'product_name'  => 'Jetpack AI Assistant',
+			'expiry_status' => 'active',
+			'expiry_date'   => '2027-03-15T00:00:00+00:00',
+		);
+	}
+
+	/**
+	 * Run page_admin_scripts() against a fresh scripts registry and decode the
+	 * jetpackAiSettings payload it injects.
+	 *
+	 * @return array Decoded payload.
+	 */
+	private function get_injected_settings() {
+		unset( $GLOBALS['wp_scripts'] );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
+		$this->assertSame( 1, preg_match( '/var jetpackAiSettings = (\{.*\});/', $inline, $matches ) );
+
+		$settings = json_decode( $matches[1], true );
+		$this->assertIsArray( $settings );
+
+		return $settings;
+	}
+
+	/**
+	 * Create a page whose menu registration has already returned its hook.
+	 *
+	 * @return Jetpack_AI_Page
+	 */
+	private function get_page_with_registered_hook() {
+		return new class() extends Jetpack_AI_Page {
+			/**
+			 * Return the hook assigned to the Jetpack AI menu page.
+			 *
+			 * @return string
+			 */
+			public function get_page_hook() {
+				return 'jetpack_page_jetpack-ai';
+			}
+		};
+	}
+
+	/**
+	 * The standalone page registers through the shared Jetpack admin menu.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_page_hook_registers_jetpack_ai_menu() {
+		$this->assertSame( 'jetpack_page_jetpack-ai', ( new Jetpack_AI_Page() )->get_page_hook() );
+	}
+
+	/**
+	 * The standalone controller registers scripts, styles, and the page loader.
+	 */
+	public function test_add_actions_registers_standalone_page_hooks() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		add_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
+
+		$page = $this->get_page_with_registered_hook();
+		$page->add_actions();
+
+		$this->assertNotFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
+		$this->assertNotFalse( has_action( 'admin_print_styles-jetpack_page_jetpack-ai', array( $page, 'admin_styles' ) ) );
+		$this->assertNotFalse( has_action( 'load-jetpack_page_jetpack-ai', array( $page, 'load_agents_manager' ) ) );
+	}
+
+	/**
+	 * Simple sites keep the Hub's own layout without the standalone base stylesheet.
+	 */
+	public function test_add_actions_skips_standalone_styles_on_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		add_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
+
+		$page = $this->get_page_with_registered_hook();
+		$page->add_actions();
+
+		$this->assertNotFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
+		$this->assertFalse( has_action( 'admin_print_styles-jetpack_page_jetpack-ai', array( $page, 'admin_styles' ) ) );
+	}
+
+	/**
+	 * A disconnected site does not expose the page outside offline mode.
+	 */
+	public function test_add_actions_skips_disconnected_site() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		add_filter( 'jetpack_is_connection_ready', '__return_false', PHP_INT_MAX );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+
+		$page = new Jetpack_AI_Page();
+		$page->add_actions();
+
+		$this->assertFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
+	}
+
+	/**
+	 * Offline mode does not expose the page to users without admin access.
+	 */
+	public function test_add_actions_skips_non_admin_in_offline_mode() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$page = new Jetpack_AI_Page();
+		$page->add_actions();
+
+		$this->assertFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
+	}
+
+	/**
+	 * A host that cannot register the menu does not attach page-specific hooks.
+	 */
+	public function test_add_actions_stops_when_menu_registration_fails() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		add_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
+
+		$page = new class() extends Jetpack_AI_Page {
+			/**
+			 * Simulate a host declining to register the menu.
+			 *
+			 * @return false
+			 */
+			public function get_page_hook() {
+				return false;
+			}
+		};
+		$page->add_actions();
+
+		$this->assertFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
+	}
+
+	/**
+	 * The standalone stylesheet keeps the legacy Jetpack style metadata.
+	 */
+	public function test_admin_styles_enqueues_legacy_jetpack_stylesheet() {
+		( new Jetpack_AI_Page() )->admin_styles();
+
+		$style = wp_styles()->registered['jetpack-admin'];
+		$min   = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
+		$this->assertTrue( wp_style_is( 'jetpack-admin', 'enqueued' ) );
+		$this->assertStringEndsWith( "css/jetpack-admin{$min}.css", $style->src );
+		$this->assertSame( 'replace', $style->extra['rtl'] );
+		$this->assertSame( $min, $style->extra['suffix'] );
+	}
+
+	/**
+	 * The Overview and AI Features views render publicly on self-hosted sites.
+	 */
+	public function test_features_view_flag_is_on_for_self_hosted_site() {
+		$this->given_woa( false );
+		// My Jetpack does not initialise in offline mode, which is how CI runs.
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_true' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertArrayHasKey( 'showFeaturesView', $settings );
+		$this->assertTrue( $settings['showFeaturesView'] );
+		$this->assertFalse( $settings['showA12sBadge'] );
+		$this->assertFalse( $settings['isTest'] );
+		$this->assertSame( 'admin.php?page=my-jetpack#/connection', $settings['userConnectionUrl'] );
+		$this->assertArrayHasKey( 'featureFlags', $settings );
+		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
+	}
+
+	/**
+	 * VIP removes My Jetpack from outside this codebase, so every link the notice
+	 * offers has to fall back to the classic Jetpack screens.
+	 */
+	public function test_vip_site_uses_jetpack_user_connection_url() {
+		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+		// Without this the offline-mode CI run would report My Jetpack absent
+		// whether or not the VIP branch works.
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_true' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['hasMyJetpack'] );
+		$this->assertSame( 'admin.php?page=jetpack-settings#/connect-user', $settings['userConnectionUrl'] );
+		$this->assertSame( 'admin.php?page=jetpack_modules', $settings['manageUrl'] );
+	}
+
+	/**
+	 * The notice only offers a connect link to a user the site would let connect it.
+	 */
+	public function test_admin_can_connect_site() {
+		// Offline mode maps jetpack_connect to do_not_allow; pin it off so the role decides.
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['canConnectSite'] );
+	}
+
+	/**
+	 * A user without manage_options cannot connect the site.
+	 */
+	public function test_subscriber_cannot_connect_site() {
+		// Offline mode maps jetpack_connect to do_not_allow; pin it off so the role decides.
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['canConnectSite'] );
+	}
+
+	/**
+	 * The AI Answers row links to the Search dashboard while a host leaves it registered.
+	 */
+	public function test_search_settings_url_points_at_the_search_dashboard() {
+		$GLOBALS['submenu'] = array(
+			'jetpack' => array( array( 'Search', 'manage_options', 'jetpack-search', 'Jetpack Search' ) ),
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-search#/ai-answers' ), $settings['searchSettingsUrl'] );
+	}
+
+	/**
+	 * Search registers menu-less (parent '') when its submenu filter says no; the
+	 * page is still reachable, so the link stays.
+	 */
+	public function test_search_settings_url_survives_a_menu_less_registration() {
+		$GLOBALS['submenu'] = array(
+			'' => array( array( 'Search', 'manage_options', 'jetpack-search', 'Jetpack Search' ) ),
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-search#/ai-answers' ), $settings['searchSettingsUrl'] );
+	}
+
+	/**
+	 * VIP removes the page on admin_menu; the row then gets no link rather than a dead one.
+	 */
+	public function test_search_settings_url_is_empty_when_the_page_was_removed() {
+		$GLOBALS['submenu'] = array(
+			'jetpack' => array( array( 'Settings', 'manage_options', 'jetpack-settings', 'Jetpack Settings' ) ),
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( '', $settings['searchSettingsUrl'] );
+	}
+
+	/**
+	 * Every notice input reaches the page. Each one defaults permissive in the
+	 * client, so a dropped key silences the notice instead of erring.
+	 */
+	public function test_notice_inputs_are_injected() {
+		$settings = $this->get_injected_settings();
+
+		foreach ( array( 'isConnected', 'hostAllowsAi', 'masterEnabled', 'masterForcedOff', 'canConnectSite' ) as $key ) {
+			$this->assertArrayHasKey( $key, $settings );
+		}
+
+		$this->assertIsBool( $settings['isConnected'] );
+		$this->assertIsBool( $settings['hostAllowsAi'] );
+		$this->assertIsBool( $settings['masterEnabled'] );
+		$this->assertSame( '', $settings['masterForcedOff'] );
+		$this->assertIsBool( $settings['canConnectSite'] );
+	}
+
+	/**
+	 * Each known route picks a different documentation URL, so each must survive
+	 * the allowlist intact.
+	 */
+	public function test_known_forced_off_routes_are_injected_intact() {
+		foreach (
+			array(
+				Jetpack_AI_Settings::FORCED_OFF_ROUTE_FILTER,
+				Jetpack_AI_Settings::FORCED_OFF_ROUTE_FILTER_VIP,
+				Jetpack_AI_Settings::FORCED_OFF_ROUTE_MODULES,
+			) as $route
+		) {
+			$filter = static function ( $config ) use ( $route ) {
+				$config['masterForcedOff'] = $route;
+				return $config;
+			};
+			add_filter( 'jetpack_ai_admin_config', $filter );
+
+			$settings = $this->get_injected_settings();
+
+			remove_filter( 'jetpack_ai_admin_config', $filter );
+			$this->assertSame( $route, $settings['masterForcedOff'] );
+		}
+	}
+
+	/**
+	 * The client picks a documentation URL off this value, so nothing outside the
+	 * known routes may reach it.
+	 */
+	public function test_unknown_forced_off_route_is_dropped() {
+		$filter = static function ( $config ) {
+			$config['masterForcedOff'] = 'something-else';
+			return $config;
+		};
+		add_filter( 'jetpack_ai_admin_config', $filter );
+
+		$settings = $this->get_injected_settings();
+
+		remove_filter( 'jetpack_ai_admin_config', $filter );
+		$this->assertSame( '', $settings['masterForcedOff'] );
+	}
+
+	/**
+	 * A filter handing back a config without the link keys must not warn.
+	 */
+	public function test_missing_link_keys_do_not_warn() {
+		$filter = static function () {
+			return array();
+		};
+		add_filter( 'jetpack_ai_admin_config', $filter );
+
+		$settings = $this->get_injected_settings();
+
+		remove_filter( 'jetpack_ai_admin_config', $filter );
+		$this->assertSame( '', $settings['userConnectionUrl'] );
+		$this->assertSame( '', $settings['manageUrl'] );
+		$this->assertFalse( $settings['canConnectSite'] );
+	}
+
+	/**
+	 * Offline mode reaches the page, so the notice has to be able to name it.
+	 */
+	public function test_offline_mode_is_reported_to_the_page() {
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['isOfflineMode'] );
+	}
+
+	/**
+	 * A site that is not in offline mode says so.
+	 */
+	public function test_offline_mode_is_reported_as_false_when_the_site_is_online() {
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['isOfflineMode'] );
+	}
+
+	/**
+	 * The turned-off notice sends people to My Jetpack wherever it loads.
+	 */
+	public function test_manage_url_points_at_my_jetpack_when_it_loads() {
+		$this->given_woa( false );
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_true' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['hasMyJetpack'] );
+		$this->assertSame( 'admin.php?page=my-jetpack#/products', $settings['manageUrl'] );
+	}
+
+	/**
+	 * Hosts that keep My Jetpack out get the legacy modules page instead.
+	 */
+	public function test_manage_url_falls_back_to_the_modules_page_without_my_jetpack() {
+		$this->given_woa( false );
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['hasMyJetpack'] );
+		$this->assertSame( 'admin.php?page=jetpack_modules', $settings['manageUrl'] );
+	}
+
+	/**
+	 * Internal self-hosted requests still present the views as public UI.
+	 */
+	public function test_self_hosted_internal_request_has_no_a12s_badge() {
+		$this->given_woa( false );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['showFeaturesView'] );
+		$this->assertFalse( $settings['showA12sBadge'] );
+		$this->assertTrue( $settings['isTest'] );
+	}
+
+	/**
+	 * The views remain hidden from an ordinary Atomic request.
+	 */
+	public function test_features_view_flag_is_off_for_ordinary_woa_site() {
+		$this->given_woa( true );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['showFeaturesView'] );
+		$this->assertFalse( $settings['showA12sBadge'] );
+		$this->assertFalse( $settings['isTest'] );
+	}
+
+	/**
+	 * The views remain hidden from VIP sites, including internal requests.
+	 */
+	public function test_features_view_flag_is_off_for_vip_site() {
+		$this->given_woa( false );
+		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['showFeaturesView'] );
+		$this->assertTrue( $settings['isTest'] );
+	}
+
+	/**
+	 * The views remain hidden from Simple sites, including internal requests.
+	 */
+	public function test_features_view_flag_is_off_for_simple_site() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->given_woa( false );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['showFeaturesView'] );
+		$this->assertFalse( $settings['showA12sBadge'] );
+		$this->assertTrue( $settings['isTest'] );
+	}
+
+	/**
+	 * A proxied Atomic request retains access for internal testing.
+	 */
+	public function test_features_view_flag_is_on_for_proxied_woa_site() {
+		$this->given_woa( true );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['showFeaturesView'] );
+		$this->assertTrue( $settings['showA12sBadge'] );
+		$this->assertTrue( $settings['isTest'] );
+		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
+	}
+
+	/**
+	 * Hosts retain final control over the views.
+	 */
+	public function test_features_view_flag_can_be_filtered_by_the_host() {
+		$this->given_woa( false );
+		add_filter(
+			'jetpack_ai_admin_config',
+			function ( $config ) {
+				$config['showGatedViews'] = false;
+
+				return $config;
+			}
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['showFeaturesView'] );
+		$this->assertSame( '', $settings['planName'] );
+	}
+
+	/**
+	 * Hosts can replace the MCP endpoint contract without copying the page.
+	 */
+	public function test_admin_settings_can_be_filtered_by_the_host() {
+		add_filter(
+			'jetpack_ai_admin_config',
+			function ( $config ) {
+				$config['mcpSettingsApi'] = array(
+					'path'   => '/wpcom/v2/sites/123/mcp-abilities',
+					'format' => 'wpcom',
+				);
+
+				return $config;
+			}
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame(
+			array(
+				'path'   => '/wpcom/v2/sites/123/mcp-abilities',
+				'format' => 'wpcom',
+			),
+			$settings['mcpSettingsApi']
+		);
+	}
+
+	/**
+	 * The Scheduled tasks experience is registered as a default-off feature flag.
+	 */
+	public function test_scheduled_tasks_feature_flag_is_registered() {
+		Jetpack_AI_Feature_Flags::register();
+
+		$this->assertSame(
+			array(
+				'default'     => false,
+				'description' => 'Enable the Scheduled tasks tab and Agents Manager sidebar in AI Hub.',
+				'owner'       => 'jetpack-ai',
+				'name'        => 'ai-hub-scheduled-tasks',
+			),
+			\Automattic\Jetpack\Feature_Flags\Feature_Flags::get( Jetpack_AI_Feature_Flags::SCHEDULED_TASKS )
+		);
+	}
+
+	/**
+	 * WordPress.com can enable the Scheduled tasks experience through the feature flag filter.
+	 */
+	public function test_scheduled_tasks_view_can_be_enabled_by_feature_flag() {
+		add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
+	}
+
+	/**
+	 * The AI Hub page loads the Agents Manager shell with its admin page.
+	 */
+	public function test_add_page_actions_loads_agents_manager() {
+		$page = new Jetpack_AI_Page();
+		$page->add_page_actions( 'jetpack_page_jetpack-ai' );
+
+		$this->assertNotFalse(
+			has_action( 'load-jetpack_page_jetpack-ai', array( $page, 'load_agents_manager' ) )
+		);
+	}
+
+	/**
+	 * The Agents Manager shell stays dormant while Scheduled tasks are disabled.
+	 */
+	public function test_agents_manager_shell_is_disabled_by_default() {
+		$page = new Jetpack_AI_Page();
+		$page->load_agents_manager();
+
+		$this->assertFalse( apply_filters( 'agents_manager_should_load', false ) );
+		$this->assertSame( array(), apply_filters( 'agents_manager_agent_providers', array() ) );
+		$this->assertSame( array(), apply_filters( 'jetpack_ai_sidebar_agents_manager_data', array() ) );
+	}
+
+	/**
+	 * The AI Hub page requests the generic Agents Manager shell.
+	 */
+	public function test_agents_manager_shell_uses_wp_orchestrator() {
+		add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
+
+		$page = new Jetpack_AI_Page();
+		$page->load_agents_manager();
+
+		$agents_manager = \Automattic\Jetpack\Agents_Manager\Agents_Manager::get_instance();
+
+		$this->assertInstanceOf( \Automattic\Jetpack\Agents_Manager\Agents_Manager::class, $agents_manager );
+		$this->assertNotFalse(
+			has_action( 'admin_enqueue_scripts', array( $agents_manager, 'enqueue_scripts' ) )
+		);
+		$this->assertTrue( apply_filters( 'agents_manager_should_load', false ) );
+		$this->assertSame( 'wp-orchestrator', apply_filters( 'agents_manager_agent_id', null ) );
+	}
+
+	/**
+	 * The AI Hub Agents Manager includes the scheduled task starter prompts.
+	 */
+	public function test_agents_manager_uses_scheduled_task_empty_view() {
+		add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
+
+		$user_id = self::factory()->user->create(
+			array(
+				'display_name' => 'Sanja',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$page = new Jetpack_AI_Page();
+		$page->load_agents_manager();
+
+		$providers = apply_filters( 'agents_manager_agent_providers', array() );
+		$this->assertContains(
+			add_query_arg(
+				'ver',
+				JETPACK__VERSION,
+				plugins_url( '_inc/jetpack-ai-scheduled-tasks-provider.js', JETPACK__PLUGIN_FILE )
+			),
+			$providers
+		);
+
+		$data = apply_filters( 'jetpack_ai_sidebar_agents_manager_data', array() );
+		$this->assertSame( 'Howdy Sanja! Let’s schedule a task.', $data['emptyViewHeading'] );
+		$this->assertSame( 'Got a different request? Ask away.', $data['emptyViewHelp'] );
+		$this->assertSame(
+			array(
+				array(
+					'id'         => 'create-daily-reminder',
+					'label'      => 'Create a daily reminder',
+					'prompt'     => 'Create a daily reminder',
+					'autoSubmit' => true,
+				),
+				array(
+					'id'         => 'draft-weekly-post',
+					'label'      => 'Draft a weekly post',
+					'prompt'     => 'Draft a weekly post',
+					'autoSubmit' => true,
+				),
+				array(
+					'id'         => 'schedule-monthly-report',
+					'label'      => 'Schedule a monthly report',
+					'prompt'     => 'Schedule a monthly report',
+					'autoSubmit' => true,
+				),
+			),
+			$data['scheduledTaskEmptyViewSuggestions']
+		);
+	}
+
+	/**
+	 * The connection store and the Agents Manager JWT client both read this
+	 * state, so it goes out whether or not Scheduled tasks is on.
+	 */
+	public function test_connection_initial_state_is_injected_without_scheduled_tasks() {
+		unset( $GLOBALS['wp_scripts'] );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
+		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
+	}
+
+	/**
+	 * The Tracks sender is enqueued once tracking is consented to.
+	 */
+	public function test_tracks_script_is_enqueued_with_tracking_consent() {
+		delete_option( 'jetpack_offline_mode' );
+		Jetpack_Options::update_option( 'tos_agreed', true );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$this->assertTrue( wp_script_is( 'jp-tracks', 'registered' ) );
+		$this->assertTrue( wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
+	}
+
+	/**
+	 * The sender stays out without tracking consent.
+	 */
+	public function test_tracks_script_stays_out_without_tracking_consent() {
+		Jetpack_Options::update_option( 'tos_agreed', false );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$this->assertFalse( wp_script_is( 'jp-tracks', 'registered' ) );
+		$this->assertFalse( wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
+	}
+
+	/**
+	 * Offline mode never talks to WordPress.com, consented or not.
+	 */
+	public function test_tracks_script_is_not_enqueued_in_offline_mode() {
+		Jetpack_Options::update_option( 'tos_agreed', true );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$this->assertFalse( wp_script_is( 'jp-tracks', 'registered' ) );
+		$this->assertFalse( wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
+	}
+
+	/**
+	 * The tracksUserData slot is null without a linked WordPress.com account,
+	 * even when consent lets the identity lookup actually run.
+	 */
+	public function test_tracks_user_data_is_null_without_a_linked_account() {
+		delete_option( 'jetpack_offline_mode' );
+		Jetpack_Options::update_option( 'tos_agreed', true );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertArrayHasKey( 'tracksUserData', $settings );
+		$this->assertNull( $settings['tracksUserData'] );
+	}
+
+	/**
+	 * The tracksUserData slot is null in offline mode — the lookup could call WordPress.com.
+	 */
+	public function test_tracks_user_data_is_null_in_offline_mode() {
+		Jetpack_Options::update_option( 'tos_agreed', true );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertNull( $settings['tracksUserData'] );
+	}
+
+	/**
+	 * The tracksUserData slot names the linked WordPress.com account.
+	 */
+	public function test_tracks_user_data_names_the_linked_account() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'tracks_identity_user',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		delete_option( 'jetpack_offline_mode' );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		Jetpack_Options::update_option( 'user_tokens', array( $user_id => "dummy.usertoken.$user_id" ) );
+		set_transient(
+			"jetpack_connected_user_data_$user_id",
+			array(
+				'ID'          => 777,
+				'login'       => 'wpcomuser',
+				'email'       => 'wpcomuser@example.com',
+				'user_locale' => 'en',
+			)
+		);
+
+		try {
+			$settings = $this->get_injected_settings();
+
+			$this->assertSame(
+				array(
+					'userid'   => 777,
+					'username' => 'wpcomuser',
+				),
+				$settings['tracksUserData']
+			);
+		} finally {
+			delete_transient( "jetpack_connected_user_data_$user_id" );
+		}
+	}
+
+	/**
+	 * The Tracks audience properties ride the same payload (AIINT-586): isTest
+	 * is the environment flag, isA11n the identity flag. The test environment
+	 * defines no is_automattician() and connects no user, so isA11n is false.
+	 */
+	public function test_tracks_audience_properties_default_to_false() {
+		$settings = $this->get_injected_settings();
+
+		$this->assertArrayHasKey( 'isA11n', $settings );
+		$this->assertArrayHasKey( 'isTest', $settings );
+		$this->assertFalse( $settings['isA11n'] );
+		$this->assertFalse( $settings['isTest'] );
+	}
+
+	/**
+	 * The usage endpoint proxies as the current user, so the page reports
+	 * whether their own account is linked. The test environment links nobody.
+	 */
+	public function test_user_connection_flag_is_false_without_a_linked_account() {
+		$settings = $this->get_injected_settings();
+
+		$this->assertArrayHasKey( 'isUserConnected', $settings );
+		$this->assertFalse( $settings['isUserConnected'] );
+	}
+
+	/**
+	 * A proxied request is a test environment regardless of who made it, so
+	 * isTest follows jetpack_is_internal_testing_environment().
+	 */
+	public function test_tracks_is_test_follows_internal_testing_environment() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['isTest'] );
+	}
+
+	/**
+	 * A WordPress.com site names its own plan, never the Jetpack purchase that
+	 * happens to grant AI.
+	 */
+	public function test_wpcom_site_shows_its_own_plan() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->given_woa( true );
+		$this->given_site(
+			array(
+				$this->jetpack_ai_purchase(),
+				(object) array(
+					'product_slug'  => 'business-bundle',
+					'product_name'  => 'WordPress.com Business',
+					'expiry_status' => 'active',
+				),
+			),
+			'business-bundle'
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( 'Business', $settings['planName'] );
+	}
+
+	/**
+	 * With no Dotcom plan to name, the card shows nothing rather than falling
+	 * back to the Jetpack name.
+	 */
+	public function test_wpcom_site_shows_nothing_when_its_plan_is_unknown() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->given_woa( true );
+		$this->given_site( array( $this->jetpack_ai_purchase() ), 'business-bundle' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( '', $settings['planName'] );
+	}
+
+	/**
+	 * Self-hosted sites keep the Jetpack purchase name, brand prefix trimmed.
+	 */
+	public function test_self_hosted_site_shows_the_jetpack_plan() {
+		$this->given_woa( false );
+		$this->given_site( array( $this->jetpack_ai_purchase() ) );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( 'AI Assistant', $settings['planName'] );
+	}
+
+	/**
+	 * An expired purchase names nothing, so a lapsed site cannot read as paid.
+	 */
+	public function test_expired_purchase_is_not_named() {
+		$expired                = $this->jetpack_ai_purchase();
+		$expired->expiry_status = 'expired';
+
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->given_woa( false );
+		$this->given_site( array( $expired ) );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( '', $settings['planName'] );
+	}
+
+	/**
+	 * The lookup is memoised for an hour, so the admin page does not repeat a
+	 * purchase call that can reach out to WordPress.com on every render.
+	 */
+	public function test_a_cached_name_is_reused() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		set_transient(
+			'jetpack_ai_overview_plan_info',
+			array( 'name' => 'Cached' ),
+			HOUR_IN_SECONDS
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( 'Cached', $settings['planName'] );
+	}
+
+	/**
+	 * Atomic skips the plan lookup while the views remain gated.
+	 */
+	public function test_plan_name_is_absent_on_ordinary_woa_site() {
+		$this->given_woa( true );
+		$this->given_site( array( $this->jetpack_ai_purchase() ) );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( '', $settings['planName'] );
+	}
+
+	/**
+	 * Answer Modules::is_active() without writing the active_modules option.
+	 *
+	 * The filter runs after the availability intersection, so a module the
+	 * generated module-headings.php does not know about still reads as active.
+	 *
+	 * @param string[] $modules Slugs to report as active.
+	 */
+	private function given_active_modules( array $modules ) {
+		add_filter(
+			'jetpack_active_modules',
+			function () use ( $modules ) {
+				return $modules;
+			}
+		);
+	}
+
+	/**
+	 * The self-hosted Activity Log page exists only while its module is on.
+	 */
+	public function test_activity_log_url_points_at_the_local_page_when_the_module_is_active() {
+		$this->given_woa( false );
+		$this->given_active_modules( array( 'activity-log' ) );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame(
+			admin_url( 'admin.php?page=jetpack-activity-log' ),
+			$settings['activityLogUrl']
+		);
+	}
+
+	/**
+	 * Deactivating the module unregisters the page, so the row is dropped
+	 * rather than linking somewhere that 404s.
+	 */
+	public function test_activity_log_url_is_empty_when_the_module_is_inactive() {
+		$this->given_woa( false );
+		$this->given_active_modules( array() );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( '', $settings['activityLogUrl'] );
+	}
+
+	/**
+	 * Atomic links to WordPress.com, which the native module never gates.
+	 */
+	public function test_activity_log_url_stays_on_wpcom_for_woa_regardless_of_the_module() {
+		$this->given_woa( true );
+		$this->given_active_modules( array() );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertStringStartsWith(
+			'https://wordpress.com/activity-log/',
+			$settings['activityLogUrl']
+		);
+	}
+
+	public function test_wp_build_loads_only_on_the_ai_page() {
+		$method = new ReflectionMethod( Jetpack_AI_Page::class, 'is_ai_admin_request' );
+		// @todo Remove once we drop PHP < 8.1 support. `setAccessible()` is
+		// deprecated in 8.5 (a no-op since 8.1), so only call it where it's needed.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		// The check is admin-gated, and is_admin() is false by default under PHPUnit.
+		set_current_screen( 'dashboard' );
+
+		$_GET['page'] = 'jetpack-ai';
+		$this->assertTrue( $method->invoke( null ), 'Should load on the AI Hub page.' );
+
+		$_GET['page'] = 'jetpack';
+		$this->assertFalse( $method->invoke( null ), 'Should not load on another Jetpack page.' );
+
+		unset( $_GET['page'] );
+		$this->assertFalse( $method->invoke( null ), 'Should not load without a page parameter.' );
+
+		set_current_screen( 'front' );
+		$_GET['page'] = 'jetpack-ai';
+		$this->assertFalse( $method->invoke( null ), 'Should not load outside wp-admin.' );
+		unset( $_GET['page'] );
+	}
+
+	public function test_wp_build_page_id_is_not_the_menu_slug() {
+		$this->assertNotSame( 'jetpack-ai', Jetpack_AI_Page::WP_BUILD_PAGE_ID );
+	}
+
+	/**
+	 * With the legacy bundle gone, a missing build has to say so rather than render blank.
+	 */
+	public function test_render_explains_a_missing_build() {
+		if ( Jetpack_AI_Page::should_render_wp_build() ) {
+			$this->markTestSkipped( 'The generated render function is present in this checkout.' );
+		}
+
+		ob_start();
+		( new Jetpack_AI_Page() )->page_render();
+		$output = (string) ob_get_clean();
+
+		$this->assertStringContainsString( 'notice-error', $output );
+		$this->assertStringNotContainsString( 'jetpack-ai-root', $output, 'The legacy mount point is gone.' );
+	}
+}

@@ -1,0 +1,6 @@
+// The message renders through @wordpress/ui's `Text`, which sets its own 13px
+// `body-md` font-size on the element, so an inherited value cannot override it.
+.jp-connection__help-footer {
+	font-size: var(--font-body);
+	line-height: 1.5;
+}

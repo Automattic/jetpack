@@ -35,5 +35,6 @@ export function useReferrersReportRecords( reportParams: ReportParams ) {
 		refetch: report.refetch,
 		rows,
 		isLoading: report.isLoading,
+		isFetching: report.isFetching,
 	};
 }

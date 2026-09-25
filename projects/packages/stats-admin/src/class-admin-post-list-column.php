@@ -47,7 +47,7 @@ class Admin_Post_List_Column {
 	 */
 	public function __construct() {
 		// Add an icon to see stats in WordPress.com for a particular post.
-		add_action( 'admin_print_styles-edit.php', array( $this, 'stats_load_admin_css' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'stats_load_admin_css' ) );
 
 		add_filter( 'manage_posts_columns', array( $this, 'add_stats_post_table' ) );
 		add_filter( 'manage_pages_columns', array( $this, 'add_stats_post_table' ) );
@@ -60,16 +60,19 @@ class Admin_Post_List_Column {
 	 * Load CSS needed for Stats column width in WP-Admin area.
 	 *
 	 * @since 4.7.0
+	 * @since 0.33.0 Added the `$hook_suffix` parameter.
+	 *
+	 * @param string $hook_suffix The current admin page.
 	 */
-	public function stats_load_admin_css() {
-		?>
-		<style type="text/css">
-			.wp-list-table.fixed .column-stats {
-				width: 9em;
-				white-space: nowrap;
-			}
-		</style>
-		<?php
+	public function stats_load_admin_css( $hook_suffix = '' ) {
+		if ( 'edit.php' !== $hook_suffix ) {
+			return;
+		}
+
+		wp_add_inline_style(
+			'common',
+			'.wp-list-table.fixed .column-stats { width: 9em; white-space: nowrap; }'
+		);
 	}
 
 	/**
@@ -122,6 +125,19 @@ class Admin_Post_List_Column {
 						)
 					);
 				}
+
+				/**
+				 * Filters where the post list table's views column links to.
+				 *
+				 * Lets a newer analytics dashboard claim the entry point without this
+				 * package knowing about it.
+				 *
+				 * @since 0.34.0
+				 *
+				 * @param string $stats_post_url Stats URL for the post.
+				 * @param int    $post_id        The post the row belongs to.
+				 */
+				$stats_post_url = apply_filters( 'jetpack_stats_post_list_column_url', $stats_post_url, $post_id );
 
 				static $post_views = null;
 
@@ -235,7 +251,7 @@ class Admin_Post_List_Column {
 		if ( $wp_query->posts ) {
 			$post_ids = wp_list_pluck( $wp_query->posts, 'ID' );
 		} elseif ( wp_doing_ajax() && ! empty( $_POST['action'] ) && 'inline-save' === $_POST['action'] && ! empty( $_POST['post_ID'] ) && check_ajax_referer( 'inlineeditnonce', '_inline_edit' ) ) {
-			$post_ids = array( sanitize_text_field( wp_unslash( $_POST['post_ID'] ) ) );
+			$post_ids = array( absint( wp_unslash( $_POST['post_ID'] ) ) );
 		} else {
 			return array();
 		}

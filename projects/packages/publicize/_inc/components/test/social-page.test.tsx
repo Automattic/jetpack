@@ -75,4 +75,36 @@ describe( 'SocialPage', () => {
 		expect( screen.queryByRole( 'tab', { name: 'Settings' } ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'overview-content' ) ).toBeInTheDocument();
 	} );
+
+	it( 'keeps one JITM container across tab switches', () => {
+		mockCurrentUserCan.mockReturnValue( true );
+
+		const { rerender } = render(
+			<SocialPage activeTab="overview">
+				<div />
+			</SocialPage>
+		);
+		const notices = screen.getByTestId( 'jp-jitm-slot' );
+
+		rerender(
+			<SocialPage activeTab="settings">
+				<div />
+			</SocialPage>
+		);
+
+		expect( screen.getByTestId( 'jp-jitm-slot' ) ).toBe( notices );
+	} );
+
+	it( 'renders the JITM container without the tab chrome', () => {
+		mockCurrentUserCan.mockReturnValue( false );
+
+		render(
+			<SocialPage activeTab="overview">
+				<div />
+			</SocialPage>
+		);
+
+		expect( screen.queryAllByRole( 'tab' ) ).toHaveLength( 0 );
+		expect( screen.getByTestId( 'jp-jitm-slot' ) ).toBeInTheDocument();
+	} );
 } );

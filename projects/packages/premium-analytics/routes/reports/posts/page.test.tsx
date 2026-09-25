@@ -1,15 +1,16 @@
 /**
  * External dependencies
  */
+import { usePostThumbnails } from '@jetpack-premium-analytics/data';
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
 	ReportDrilldownTable,
 	ReportErrorState,
 	ReportRecordsTable,
-	RowsCsvDownloadButton,
+	ReportCsvAction,
 	useReportCsvExport,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
@@ -23,6 +24,11 @@ jest.mock( './config', () => ( {
 	usePostsReportRecords: jest.fn(),
 } ) );
 
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	usePostThumbnails: jest.fn(),
+} ) );
+
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/',
@@ -32,6 +38,8 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => null,
+	StatsBreadcrumbs: () => null,
+	StatsPageIcon: () => null,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
@@ -52,7 +60,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ReportPageTabs: () => null,
 	ReportDrilldownTable: jest.fn( () => null ),
 	ReportRecordsTable: jest.fn( () => null ),
-	RowsCsvDownloadButton: jest.fn( ( { label }: { label: string } ) => <button>{ label }</button> ),
+	ReportCsvAction: jest.fn( () => <button>Download</button> ),
 	useReportCsvExport: jest.fn(),
 	useReportRetry: ( refetch: () => unknown ) => () => {
 		void refetch();
@@ -74,12 +82,13 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 const useRecordsMock = jest.mocked( usePostsReportRecords );
+const usePostThumbnailsMock = jest.mocked( usePostThumbnails );
 const useSectionTabMock = jest.mocked( useSectionTab );
 const useReportCsvExportMock = jest.mocked( useReportCsvExport );
 const reportDrilldownTableMock = jest.mocked( ReportDrilldownTable );
 const reportErrorStateMock = jest.mocked( ReportErrorState );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
-const rowsCsvDownloadButtonMock = jest.mocked( RowsCsvDownloadButton );
+const reportCsvActionMock = jest.mocked( ReportCsvAction );
 
 /**
  * Build the report records used by the page tests.
@@ -109,6 +118,7 @@ function buildRecords( {
 					label: 'Hello world',
 					views: 12,
 					link: 'https://example.com/hello-world',
+					type: 'post',
 				},
 			],
 			hasComparison: false,
@@ -129,6 +139,7 @@ function buildRecords( {
 describe( 'PostsReportPage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		usePostThumbnailsMock.mockReturnValue( {} );
 		useSectionTabMock.mockReturnValue( [ 'posts-pages', jest.fn() ] );
 		useReportCsvExportMock.mockImplementation( options => ( {
 			canExport: true,
@@ -155,17 +166,14 @@ describe( 'PostsReportPage', () => {
 			} )
 		);
 
-		const { columns } = rowsCsvDownloadButtonMock.mock.calls[ 0 ][ 0 ];
+		const { columns } = reportCsvActionMock.mock.calls[ 0 ][ 0 ];
 		expect( columns.map( column => column.getValue( records.posts.rows[ 0 ] ) ) ).toEqual( [
 			'Hello world',
 			12,
 			'https://example.com/hello-world',
 		] );
-		expect( rowsCsvDownloadButtonMock.mock.calls[ 0 ][ 0 ] ).toEqual(
+		expect( reportCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(
 			expect.objectContaining( {
-				label: 'Download',
-				variant: 'solid',
-				showIcon: false,
 				filename: 'top-posts-2026-06-01_2026-06-30',
 				rows: records.posts.rows,
 			} )
@@ -180,6 +188,21 @@ describe( 'PostsReportPage', () => {
 		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ].isLoading ).toBe( true );
 	} );
 
+	it( 'resolves thumbnails for the visible posts page', () => {
+		const records = buildRecords();
+		useRecordsMock.mockReturnValue( records );
+
+		render( <PostsReportPage /> );
+
+		expect( usePostThumbnailsMock ).toHaveBeenCalledWith( [] );
+
+		act( () => {
+			reportRecordsTableMock.mock.calls[ 0 ][ 0 ].onChangePageItems?.( records.posts.rows );
+		} );
+
+		expect( usePostThumbnailsMock ).toHaveBeenLastCalledWith( records.posts.rows );
+	} );
+
 	it( 'does not render a page action when the hook disables export', () => {
 		useRecordsMock.mockReturnValue( buildRecords() );
 		useReportCsvExportMock.mockReturnValue( {
@@ -191,7 +214,7 @@ describe( 'PostsReportPage', () => {
 		render( <PostsReportPage /> );
 
 		expect( screen.queryByTestId( 'page-actions' ) ).not.toBeInTheDocument();
-		expect( rowsCsvDownloadButtonMock ).not.toHaveBeenCalled();
+		expect( reportCsvActionMock ).not.toHaveBeenCalled();
 	} );
 
 	it( 'configures the active Archives tab with its own rows and filename', () => {
@@ -217,7 +240,7 @@ describe( 'PostsReportPage', () => {
 				status: records.archives,
 			} )
 		);
-		const { columns } = rowsCsvDownloadButtonMock.mock.calls[ 0 ][ 0 ];
+		const { columns } = reportCsvActionMock.mock.calls[ 0 ][ 0 ];
 		expect( columns.map( column => column.getValue( records.archives.rows[ 0 ] ) ) ).toEqual( [
 			'/category/news',
 			8,
@@ -248,7 +271,7 @@ describe( 'PostsReportPage', () => {
 
 		render( <PostsReportPage /> );
 
-		const { columns, rows } = rowsCsvDownloadButtonMock.mock.calls[ 0 ][ 0 ];
+		const { columns, rows } = reportCsvActionMock.mock.calls[ 0 ][ 0 ];
 		expect( rows.map( row => columns.map( column => column.getValue( row ) ) ) ).toEqual( [
 			[ 'Tags', 300, '' ],
 			[ 'Tags > video', 80, 'https://example.com/tag/video/' ],

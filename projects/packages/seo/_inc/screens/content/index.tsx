@@ -2,7 +2,7 @@ import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { pencil } from '@wordpress/icons';
-import { useNavigate } from '@wordpress/route';
+import { useNavigate, useSearch } from '@wordpress/route';
 import { Badge, IconButton, Link } from '@wordpress/ui';
 import useSeoPosts from '../../data/use-seo-posts';
 import styles from './style.module.scss';
@@ -20,6 +20,10 @@ const DESCRIPTION_FIELD = 'description';
 // Filter-only field id for search visibility; the displayed column is
 // 'searchVisibility'.
 const SEARCH_FIELD = 'searchFilter';
+// Filter-only field id for SEO-title set/not-set; the displayed column is
+// 'seoTitle'. Lets the Overview "SEO title set" ring deep-link to the rows
+// that still need a title.
+const TITLE_FIELD = 'titleFilter';
 
 // Schema filter sentinel for the no-override rows. The schema column's raw
 // value for those rows is '' (empty meta); the filter element uses this value
@@ -52,6 +56,32 @@ const DEFAULT_VIEW: View = {
 };
 
 const defaultLayouts = { table: {} };
+
+// The Overview's coverage rings deep-link here via `?needs=` (see needsToFilter).
+type ContentSearch = Record< string, unknown > & { needs?: string };
+type ViewFilter = NonNullable< View[ 'filters' ] >[ number ];
+
+/**
+ * Map an Overview `?needs=` value to the DataViews filter that narrows the list
+ * to the rows still missing that field.
+ *
+ * @param needs - The `?needs=` query value (schema | title | description | search).
+ * @return The matching filter, or null when the value is absent or unrecognized.
+ */
+function needsToFilter( needs: string | undefined ): ViewFilter | null {
+	switch ( needs ) {
+		case 'schema':
+			return { field: SCHEMA_FIELD, operator: 'is', value: SCHEMA_DEFAULT };
+		case 'title':
+			return { field: TITLE_FIELD, operator: 'is', value: 'not_set' };
+		case 'description':
+			return { field: DESCRIPTION_FIELD, operator: 'is', value: 'not_set' };
+		case 'search':
+			return { field: SEARCH_FIELD, operator: 'is', value: 'hidden' };
+		default:
+			return null;
+	}
+}
 
 interface EditButtonProps {
 	item: ContentRow;
@@ -100,8 +130,19 @@ function schemaLabel( schemaType: ContentRow[ 'schemaType' ] ): string {
  * @return The Content stage content.
  */
 const ContentScreen: FC = () => {
-	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
 	const navigate = useNavigate();
+
+	// Overview coverage rings deep-link here with `?needs=` to pre-filter the list
+	// to the rows still missing that field. Seed the initial view once from it; the
+	// filter then behaves like any user-applied filter (visible chip, dismissable).
+	const search = useSearch( {
+		from: '/content' as unknown as never,
+		strict: false,
+	} ) as ContentSearch;
+	const [ view, setView ] = useState< View >( () => {
+		const filter = needsToFilter( search.needs );
+		return filter ? { ...DEFAULT_VIEW, filters: [ filter ] } : DEFAULT_VIEW;
+	} );
 
 	const { items, isLoading, postTypeOptions } = useSeoPosts();
 
@@ -177,6 +218,19 @@ const ContentScreen: FC = () => {
 						{ item.hasCustomTitle ? setLabel : notSetLabel }
 					</Badge>
 				),
+			},
+			{
+				id: TITLE_FIELD,
+				label: __( 'SEO title set', 'jetpack-seo' ),
+				elements: [
+					{ value: 'set', label: setLabel },
+					{ value: 'not_set', label: notSetLabel },
+				],
+				filterBy: { operators: [ 'is' ] as Operator[] },
+				enableSorting: false,
+				enableHiding: false,
+				render: () => null,
+				getValue: ( { item } ) => ( item.hasCustomTitle ? 'set' : 'not_set' ),
 			},
 			{
 				id: 'metaDescription',

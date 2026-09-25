@@ -16,6 +16,20 @@ export const form_editor = {
 	category: 'choice',
 };
 
+/*
+ * Deliberately no `conditional_logic` declaration, so this block gets no panel.
+ *
+ * An image-select field submits a JSON document describing the choice
+ * (`{"perceived":"A","selected":"a","label":"Blue",...}`), not the label the rule builder
+ * offers as a value. All three evaluators would compare that document against `Blue` and
+ * never match, so `is` would be permanently false and `is not` permanently true: a rule
+ * would hide its field forever and the answer would then be dropped at storage.
+ *
+ * Comparing the decoded `label` in every evaluator is the real fix, but that is value-shape
+ * handling in exactly the place where the JS and PHP evaluators already drift. Offering no
+ * rule is better than offering one that cannot fire.
+ */
+
 export const settings = {
 	...defaultSettings,
 	title: __( 'Image Select Field', 'jetpack-forms' ),

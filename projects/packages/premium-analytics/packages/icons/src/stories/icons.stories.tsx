@@ -1,4 +1,4 @@
-import { Icon, Stack } from '@wordpress/ui';
+import { Icon, Stack } from '@jetpack-premium-analytics/externals';
 import * as icons from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
 

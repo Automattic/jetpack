@@ -82,6 +82,32 @@ describe( 'PreviewPlayer', () => {
 		expect( screen.queryByText( 'Processing' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'reloads the embed when the saved title or thumbnail changes, not on unrelated re-renders', () => {
+		const { rerender } = render( <PreviewPlayer video={ baseVideo } /> );
+		const initial = screen.getByTitle( 'Video preview' );
+
+		// Unrelated field change: same iframe instance, playback undisturbed.
+		rerender( <PreviewPlayer video={ { ...baseVideo, durationSeconds: 61 } } /> );
+		expect( screen.getByTitle( 'Video preview' ) ).toBe( initial );
+
+		// A committed rename remounts the iframe so the embed re-fetches.
+		rerender( <PreviewPlayer video={ { ...baseVideo, title: 'Renamed' } } /> );
+		const afterRename = screen.getByTitle( 'Video preview' );
+		expect( afterRename ).not.toBe( initial );
+
+		// A new poster remounts it again.
+		rerender(
+			<PreviewPlayer
+				video={ {
+					...baseVideo,
+					title: 'Renamed',
+					thumbnailUrl: 'https://example.test/poster-2.jpg',
+				} }
+			/>
+		);
+		expect( screen.getByTitle( 'Video preview' ) ).not.toBe( afterRename );
+	} );
+
 	it( 'plays local items without a GUID through a native video element', () => {
 		render( <PreviewPlayer video={ { ...baseVideo, type: 'local', guid: '' } } /> );
 

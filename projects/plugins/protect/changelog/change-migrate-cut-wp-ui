@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Replace internal ContextualUpgradeTrigger upgrade prompts with @wordpress/ui Notice composition. Internal refactor with a Notice-style visual refresh.

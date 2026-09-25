@@ -26,9 +26,28 @@ type QueryParams< T > = {
 	options?: Pick< UseQueryOptions< T, WP_Error >, 'enabled' | 'gcTime' | 'refetchOnMount' >;
 	errorMessage?: string;
 };
+
+/**
+ * Build the react-query key for a `useSimpleQuery` entry.
+ *
+ * Exported so that code updating a query's cache (e.g. after a mutation) can address the entry
+ * without re-deriving the key shape by hand — a mismatch there is a silent no-op.
+ *
+ * @param {object} descriptor       - The query descriptor.
+ * @param {string} descriptor.name  - The query's unique name.
+ * @param {object} descriptor.query - The API fetch options.
+ * @return The react-query key.
+ */
+export const getSimpleQueryKey = ( {
+	name,
+	query,
+}: {
+	name: string;
+	query: APIFetchOptions< true >;
+} ) => [ name, query ];
 const useSimpleQuery = < T >( { name, query, options, errorMessage }: QueryParams< T > ) => {
 	const queryResult = useQuery< T, WP_Error >( {
-		queryKey: [ name, query ],
+		queryKey: getSimpleQueryKey( { name, query } ),
 		queryFn: () => apiFetch< T >( query ),
 		refetchOnWindowFocus: false,
 		refetchIntervalInBackground: false,

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Premium Analytics: make the Simple admin menu label translatable by passing it to the package as a closure.

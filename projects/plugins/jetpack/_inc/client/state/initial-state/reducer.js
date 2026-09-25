@@ -3,7 +3,6 @@ import { merge } from 'lodash';
 import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
 import { isCurrentUserLinked } from 'state/connection';
 import { getPlanDuration } from 'state/plans/reducer';
-import { getSiteProducts } from 'state/site-products';
 
 export const initialState = ( state = window.Initial_State, action ) => {
 	switch ( action.type ) {
@@ -380,16 +379,6 @@ export function isSiteVisibleToSearchEngines( state ) {
 }
 
 /**
- * Returns the site's boost speed scores from the last time it was checked
- *
- * @param {object} state - Global state tree
- * @return {object}        the boost speed scores and timestamp
- */
-export function getLatestBoostSpeedScores( state ) {
-	return state.jetpack.initialState.siteData?.latestBoostSpeedScores;
-}
-
-/**
  * Return the WP API nonce.
  *
  * @param {object} state - Global state tree
@@ -549,17 +538,6 @@ export function showScan( state ) {
 }
 
 /**
- * Determines if the Jetpack Recommendations should be displayed
- *
- * @param {object} state - Global state tree
- *
- * @return {boolean} True if the Jetpack Recommendations should be displayed, false otherwise.
- */
-export function showRecommendations( state ) {
-	return state.jetpack.initialState.siteData?.showRecommendations ?? false;
-}
-
-/**
  * Determines if My Jetpack should be referenced.
  *
  * @param {object} state - Global state tree
@@ -567,26 +545,6 @@ export function showRecommendations( state ) {
  */
 export function showMyJetpack( state ) {
 	return state.jetpack.initialState.siteData?.showMyJetpack ?? true;
-}
-
-/**
- * Get an array of new recommendations for this site
- *
- * @param {object} state - Global state tree
- * @return {Array} - Array of recommendation slugs
- */
-export function getNewRecommendations( state ) {
-	return state.jetpack.initialState?.newRecommendations ?? [];
-}
-
-/**
- * Get a count of new recommendations for this site
- *
- * @param {object} state - Global state tree
- * @return {number} - Count of recommendations
- */
-export function getNewRecommendationsCount( state ) {
-	return getNewRecommendations( state ).length;
 }
 
 /**
@@ -645,16 +603,6 @@ export function getPartnerSubsidiaryId( state ) {
 }
 
 /**
- * Returns the partner coupon associated with this site, if any.
- *
- * @param {object} state - Global state tree
- * @return {object|boolean} partner coupon if exists or false.
- */
-export function getPartnerCoupon( state ) {
-	return state.jetpack.initialState?.partnerCoupon;
-}
-
-/**
  * Return an upgrade URL
  *
  * @param {object}  state        - Global state tree
@@ -706,64 +654,6 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 };
 
 /**
- * Returns the list of products that are available for purchase in the initial state.
- *
- * @param {object} state - Global state tree
- * @return {Array} - Array of Products that you can purchase.
- */
-export function getStaticProductsForPurchase( state ) {
-	return state.jetpack.initialState?.products ?? {};
-}
-
-/**
- * Returns the list of products that are available for purchase.
- *
- * @param {object} state - Global state tree
- * @return {Array} of Products that you can purchase.
- */
-export function getProductsForPurchase( state ) {
-	const staticProducts = state.jetpack.initialState?.products ?? {};
-	const wpcomUser = state.jetpack.initialState?.userData?.currentUser?.wpcomUser ?? {};
-	const currencyCode = wpcomUser?.user_currency || null;
-	const jetpackProducts = getSiteProducts( state );
-	const products = {};
-
-	for ( const [ key, product ] of Object.entries( staticProducts ) ) {
-		products[ key ] = {
-			title: product.title,
-			slug: product.slug,
-			key: key,
-			description: product.description,
-			features: product.features,
-			disclaimer: product.disclaimer,
-			available: jetpackProducts?.[ product.slug ]?.available ?? false,
-			currencyCode: currencyCode ?? jetpackProducts?.[ product.slug ]?.currency_code ?? '',
-			showPromotion: product.show_promotion,
-			promotionPercentage: product.discount_percent,
-			includedInPlans: product.included_in_plans,
-			fullPrice: jetpackProducts?.[ product.slug ]?.cost ?? '',
-			saleCoupon: jetpackProducts?.[ product.slug ]?.sale_coupon,
-			upgradeUrl: getRedirectUrl( 'jetpack-product-description-checkout', {
-				path: product.slug,
-			} ),
-		};
-	}
-
-	return products;
-}
-
-/**
- * The current step of the Recommendations.
- *
- * @param {*} state - Global state tree.
- *
- * @return {string} The current Recommendations step.
- */
-export function getInitialRecommendationsStep( state ) {
-	return state.jetpack.initialState?.recommendationsStep ?? '';
-}
-
-/**
  * Get the connection errors.
  *
  * @param {object} state - Global state tree.
@@ -795,16 +685,6 @@ export function isSafari( state ) {
  */
 export function doNotUseConnectionIframe( state ) {
 	return !! state.jetpack.initialState.doNotUseConnectionIframe;
-}
-
-/**
- * Check if WooCommerce is currently installed and active
- *
- * @param {object} state - Global state tree.
- * @return {boolean} True, the plugin is installed and active
- */
-export function isWooCommerceActive( state ) {
-	return !! state.jetpack.initialState.isWooCommerceActive;
 }
 
 /**
@@ -879,16 +759,6 @@ export function isLikeBlockAvailable( state ) {
 }
 
 /**
- * Get the Jetpack Manage info
- *
- * @param {object} state - Global state tree.
- * @return {object} Jetpack Manage info
- */
-export function getJetpackManageInfo( state ) {
-	return state.jetpack.initialState.jetpackManage;
-}
-
-/**
  * Returns true if Subscription Site feature is enabled on the site.
  *
  * @param {object} state - Global state tree.
@@ -926,4 +796,28 @@ export function subscriptionSiteEditSupported( state ) {
  */
 export function isSeoEnhancerAvailable( state ) {
 	return 'ai_seo_enhancer_enabled' in state.jetpack.initialState.getModules[ 'seo-tools' ].options;
+}
+
+/**
+ * Returns whether Jetpack AI is effectively enabled, as the server computed it
+ * through the full gate chain. Defaults to true when absent so the UI never
+ * reports AI off on its own authority.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} Whether Jetpack AI is effectively enabled.
+ */
+export function isAiEnabled( state ) {
+	return state.jetpack.initialState.isAiEnabled ?? true;
+}
+
+/**
+ * Returns whether the AI SEO feature is effectively enabled, as the server
+ * computed it (its own toggle plus the AI gates). Defaults to true when absent
+ * so the UI never reports the feature off on its own authority.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} Whether the AI SEO feature is effectively enabled.
+ */
+export function isAiSeoEnabled( state ) {
+	return state.jetpack.initialState.isAiSeoEnabled ?? true;
 }

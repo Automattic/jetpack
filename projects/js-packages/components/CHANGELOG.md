@@ -2,9 +2,79 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [3.2.0] - 2026-09-23
+### Added
+- IconTooltip: Add a `trigger` prop that renders a text trigger in place of the icon, and a `closeOnClickOutside` prop to keep a tooltip open while the visitor works elsewhere on the page. [#52704]
+
+### Fixed
+- Tooltips: Open info tooltips with Enter or Space, close them with Escape, and keep hover tooltips from taking focus. [#52661]
+- Tooltips: Resume tab order from the tooltip's trigger when focus leaves it. [#52661]
+
+## [3.1.2] - 2026-09-23
+### Fixed
+- DiffViewer: Fix some inefficient regular expressions. [#52582]
+- Footer: Hide Products and Help links when My Jetpack is unavailable. [#52557]
+
+## [3.1.1] - 2026-09-21
+### Changed
+- Update dependencies.
+
+## [3.1.0] - 2026-09-18
+### Added
+- IconTooltip: Add a `popoverClassName` prop to style the popover when it renders outside its wrapper. [#52465]
+
+### Changed
+- JetpackFooter: Link to the My Jetpack Features tab when it replaces the Products tab. [#52346]
+- Update package dependencies. [#52187]
+
+### Fixed
+- Notice, PricingTable: Keep the icons colored now that @wordpress/icons 16 draws them as strokes. [#52187]
+
+## [3.0.3] - 2026-09-15
+### Changed
+- Update package dependencies. [#52297]
+
+## [3.0.2] - 2026-09-14
+### Changed
+- Update dependencies.
+
+## [3.0.1] - 2026-09-09
+### Changed
+- Update dependencies.
+
+## [3.0.0] - 2026-09-08
+### Changed
+- Update package dependencies. [#51701]
+
+### Removed
+- Remove the deprecated Chip component in favor of Badge from @wordpress/ui. [#51927]
+- Remove unused components. [#51976]
+
+### Fixed
+- Admin page: Fix the page overlapping the admin menu in right-to-left languages. [#51963]
+
+## [2.3.0] - 2026-09-01
+### Added
+- Upsell Banner: Add an optional dismiss button. [#51441]
+
+### Changed
+- Update package dependencies. [#51303] [#51802]
+
+## [2.2.0] - 2026-08-19
+### Added
+- Gravatar: pick a stable Color Studio background color per email for initials identity avatars via bg_color [#50578]
+
+## [2.1.1] - 2026-08-06
+### Changed
+- Update package dependencies. [#50509]
+
+## [2.1.0] - 2026-08-03
+### Changed
+- Decorative card: Build on the shared Card component, inline the unlink glyph, and hide the card from assistive technology. [#50861]
+
 ## [2.0.1] - 2026-07-27
 ### Changed
-- Update package dependencies.
+- Update package dependencies. [#50751]
 
 ## [2.0.0] - 2026-07-22
 ### Removed
@@ -1893,6 +1963,18 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[3.2.0]: https://github.com/Automattic/jetpack-components/compare/3.1.2...3.2.0
+[3.1.2]: https://github.com/Automattic/jetpack-components/compare/3.1.1...3.1.2
+[3.1.1]: https://github.com/Automattic/jetpack-components/compare/3.1.0...3.1.1
+[3.1.0]: https://github.com/Automattic/jetpack-components/compare/3.0.3...3.1.0
+[3.0.3]: https://github.com/Automattic/jetpack-components/compare/3.0.2...3.0.3
+[3.0.2]: https://github.com/Automattic/jetpack-components/compare/3.0.1...3.0.2
+[3.0.1]: https://github.com/Automattic/jetpack-components/compare/3.0.0...3.0.1
+[3.0.0]: https://github.com/Automattic/jetpack-components/compare/2.3.0...3.0.0
+[2.3.0]: https://github.com/Automattic/jetpack-components/compare/2.2.0...2.3.0
+[2.2.0]: https://github.com/Automattic/jetpack-components/compare/2.1.1...2.2.0
+[2.1.1]: https://github.com/Automattic/jetpack-components/compare/2.1.0...2.1.1
+[2.1.0]: https://github.com/Automattic/jetpack-components/compare/2.0.1...2.1.0
 [2.0.1]: https://github.com/Automattic/jetpack-components/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/Automattic/jetpack-components/compare/1.12.17...2.0.0
 [1.12.17]: https://github.com/Automattic/jetpack-components/compare/1.12.16...1.12.17

@@ -3,10 +3,13 @@
  */
 import './copy-code-row.scss';
 import { Button, Popover } from '@wordpress/components';
-import { useCopyToClipboard } from '@wordpress/compose';
-import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
+import { useRef, useCallback } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { copySmall, check } from '@wordpress/icons';
+/**
+ * Internal dependencies
+ */
+import useCopyConfirmation from '../../hooks/use-copy-confirmation';
 
 type CopyCodeRowProps = {
 	text: string;
@@ -20,9 +23,8 @@ type CopyCodeRowProps = {
  * @return {JSX.Element} The copy code row component.
  */
 export const CopyCodeRow = ( { text, label }: CopyCodeRowProps ) => {
-	const [ showCopyConfirmation, setShowCopyConfirmation ] = useState( false );
-	const timeoutIdRef = useRef< number | null >( null );
 	const textRef = useRef< HTMLSpanElement >( null );
+	const { ref, copied: showCopyConfirmation } = useCopyConfirmation( text, 2000 );
 
 	const handleTextClick = useCallback( () => {
 		if ( ! textRef.current ) {
@@ -47,26 +49,6 @@ export const CopyCodeRow = ( { text, label }: CopyCodeRowProps ) => {
 		},
 		[ handleTextClick ]
 	);
-
-	const ref = useCopyToClipboard( text, () => {
-		setShowCopyConfirmation( true );
-		if ( timeoutIdRef.current ) {
-			clearTimeout( timeoutIdRef.current );
-		}
-		timeoutIdRef.current = setTimeout( () => {
-			setShowCopyConfirmation( false );
-		}, 2000 );
-	} );
-
-	useEffect( () => {
-		return () => {
-			if ( timeoutIdRef.current ) {
-				clearTimeout( timeoutIdRef.current );
-			}
-		};
-	}, [] );
-	/* translators: %s: label for the code row (e.g. "Embed code", "Shortcode") */
-	const buttonLabel = __( 'Copy %s', 'jetpack-forms' );
 
 	return (
 		<div className="jetpack-form-embed-code__row">
@@ -104,7 +86,11 @@ export const CopyCodeRow = ( { text, label }: CopyCodeRowProps ) => {
 						ref={ ref }
 						icon={ copySmall }
 						size="compact"
-						label={ sprintf( buttonLabel, label.toLowerCase() ) }
+						label={ sprintf(
+							/* translators: %s: label for the code row (e.g. "Embed code", "Shortcode") */
+							__( 'Copy %s', 'jetpack-forms' ),
+							label.toLowerCase()
+						) }
 					/>
 				) }
 			</div>

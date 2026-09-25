@@ -1,5 +1,5 @@
 import { InspectorControls, BlockControls } from '@wordpress/block-editor';
-import { PanelBody, ToggleControl } from '@wordpress/components';
+import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
 import { isValidElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldId from './jetpack-field-id-control.jsx';
@@ -8,6 +8,7 @@ import ToolbarRequiredGroup from './toolbar-required-group.jsx';
 
 const JetpackFieldControls = ( {
 	attributes,
+	helpTextSupport = false,
 	id,
 	required,
 	setAttributes,
@@ -34,6 +35,17 @@ const JetpackFieldControls = ( {
 					'jetpack-forms'
 				) }
 				__nextHasNoMarginBottom={ true }
+			/>
+		),
+		helpTextSupport && (
+			<TextControl
+				key="helpText"
+				label={ __( 'Help text', 'jetpack-forms' ) }
+				value={ attributes.helpText || '' }
+				onChange={ value => setAttributes( { helpText: value || undefined } ) }
+				help={ __( 'Shown below the field to explain what to enter.', 'jetpack-forms' ) }
+				__nextHasNoMarginBottom={ true }
+				__next40pxDefaultSize={ true }
 			/>
 		),
 		<JetpackFieldWidth key="width" setAttributes={ setAttributes } width={ width } />,

@@ -6,23 +6,24 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { getMockRouteLinkUrl, setMockRouteSearch } from '../../../../tests/js/route-test-utils';
 import { getCommentFollowersFields } from './fields';
-import type { ReactNode } from 'react';
 
 // The router is built dynamically at runtime, so a field-level test has no
 // router to mount. Render `Link` as the anchor it becomes, keeping `to`/`params`
 // assertable.
-jest.mock( '@wordpress/route', () => ( {
-	Link: ( {
-		to,
-		params,
-		children,
-	}: {
-		to: string;
-		params: Record< string, string >;
-		children: ReactNode;
-	} ) => <a href={ to.replace( /\$(\w+)/g, ( _match, key ) => params[ key ] ) }>{ children }</a>,
-} ) );
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual( '../../../../tests/js/route-test-utils' );
+
+	return mockWordPressRoute;
+} );
+
+setMockRouteSearch( {
+	from: '2026-06-01',
+	to: '2026-06-16',
+	interval: 'day',
+	foreign: 'drop-me',
+} );
 
 /**
  * Mount the post field's render component for a table row.
@@ -55,7 +56,14 @@ describe( 'comment followers fields', () => {
 		} );
 
 		const link = screen.getByRole( 'link', { name: 'Hello world' } );
-		expect( link ).toHaveAttribute( 'href', '/post/42' );
+		const url = getMockRouteLinkUrl( link );
+		expect( url.pathname ).toBe( '/post/42' );
+		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			ref: 'comment-followers',
+		} );
 		// Navigation stays in the app, so the row must not open a new tab.
 		expect( link ).not.toHaveAttribute( 'target' );
 	} );

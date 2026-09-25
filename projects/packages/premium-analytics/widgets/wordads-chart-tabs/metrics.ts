@@ -1,31 +1,34 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import type { DataFormat } from '@jetpack-premium-analytics/widgets-toolkit';
+import type { CountLabel, DataFormat } from '@jetpack-premium-analytics/widgets-toolkit';
 
-// Persisted in the `metrics` attribute; each id doubles as the WordAds response
-// field the tab reads.
+// Each id doubles as the WordAds response field the tab reads.
 export type WordAdsChartMetricId = 'impressions' | 'cpm' | 'revenue';
 
 export type WordAdsChartMetric = {
 	id: WordAdsChartMetricId;
 	label: string;
 	dataFormat?: DataFormat;
+	countLabel?: CountLabel;
 };
 
 // Currency for revenue/CPM; Ads Served falls back to the chart's count format.
-const CURRENCY_FORMAT: DataFormat = {
-	type: 'currency',
-	options: { decimals: 2 },
-};
+const CURRENCY_FORMAT: DataFormat = { type: 'currency' };
 
-// Single source for the settings checkboxes and the rendered tabs, in tab order.
+// Canonical metric definitions, in tab order.
 export const WORDADS_CHART_METRICS: WordAdsChartMetric[] = [
-	{ id: 'impressions', label: __( 'Ads Served', 'jetpack-premium-analytics-pkg' ) },
+	{
+		id: 'impressions',
+		label: __( 'Ads Served', 'jetpack-premium-analytics-pkg' ),
+		countLabel: count =>
+			/* translators: %s: number of ads served. */
+			_n( '%s Ad Served', '%s Ads Served', count, 'jetpack-premium-analytics-pkg' ),
+	},
 	{
 		id: 'cpm',
 		label: __( 'Average CPM', 'jetpack-premium-analytics-pkg' ),
@@ -37,8 +40,3 @@ export const WORDADS_CHART_METRICS: WordAdsChartMetric[] = [
 		dataFormat: CURRENCY_FORMAT,
 	},
 ];
-
-// Default for new widget instances: every metric enabled.
-export const DEFAULT_WORDADS_CHART_METRICS: WordAdsChartMetricId[] = WORDADS_CHART_METRICS.map(
-	metric => metric.id
-);

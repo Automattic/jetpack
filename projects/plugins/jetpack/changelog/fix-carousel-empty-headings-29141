@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Change empty h2 and h3 tags in Carousel to div tags to fix SEO and accessibility warnings.

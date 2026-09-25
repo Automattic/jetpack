@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Automattic\Jetpack\Account_Protection\Settings as Account_Protection_Settings;
+use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
@@ -139,6 +140,8 @@ class Jetpack_Protect {
 
 		REST_Controller::init();
 		My_Jetpack_Initializer::init();
+		// Activity Log. No-ops while the `activity-log` module is off.
+		Jetpack_Activity_Log::initialize();
 		Site_Health::init();
 
 		// Sets up JITMS.
@@ -170,7 +173,11 @@ class Jetpack_Protect {
 			'manage_options',
 			'jetpack-protect',
 			array( $this, 'plugin_settings_page' ),
-			5
+			null,
+			array(
+				'product' => 'protect',
+				'key'     => 'jetpack-protect',
+			)
 		);
 
 		add_action( 'load-' . $page_suffix, array( $this, 'enqueue_admin_scripts' ) );

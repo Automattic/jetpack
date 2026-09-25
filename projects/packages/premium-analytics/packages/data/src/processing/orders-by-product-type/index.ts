@@ -35,9 +35,6 @@ type SanitizedOrdersByProductTypeByDateItem = Override<
 	}
 >;
 
-/**
- * Sanitize/process a single orders by product type item by converting strings to numbers
- */
 function sanitizeOrdersByProductTypeItem(
 	item: RawOrdersByProductTypeReportDataItem
 ): SanitizedOrdersByProductTypeByDateItem {
@@ -57,18 +54,12 @@ function sanitizeOrdersByProductTypeItem(
 	};
 }
 
-/**
- * Processed response with numeric values
- */
 type SanitizedOrdersByProductTypeByDateResponse = {
 	summary: SanitizedOrdersByProductTypeByDateItem;
 	data: SanitizedOrdersByProductTypeByDateItem[];
 };
 
 /**
- * Sanitize the response from the reports/orders-by-product-type/by-date endpoint
- * Converts string values to numbers for easier calculations and charting.
- *
  * The `summary` single item has basically the same structure
  * as the `data` array items, so we can use the same mapper function for both.
  */

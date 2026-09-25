@@ -37,9 +37,6 @@ interface SearchTermViewsState {
  * Delegates fetching, caching, and normalization to `useStatsSearchTerms` from
  * `@jetpack-premium-analytics/data`. When comparison params are present, the hook
  * fetches both periods and pairs each primary term with its comparison view count.
- *
- * @param {UseSearchTermViewsArgs} args - Hook arguments.
- * @return The current data/loading/error state.
  */
 export default function useSearchTermViews( {
 	reportParams,

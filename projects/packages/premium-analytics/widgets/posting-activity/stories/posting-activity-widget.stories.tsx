@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 import apiFetch from '@wordpress/api-fetch';
 import { getUnixTime, startOfDay, subDays } from 'date-fns';
 /**
@@ -16,11 +16,13 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { siteLocaleArgTypes, withSiteLocale } from '../../stories/with-site-locale';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import PostingActivityRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
+import type { SiteLocaleControls } from '../../stories/with-site-locale';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -37,9 +39,6 @@ const STREAK_DAYS = 365;
  * The story-local streak middleware below would otherwise shadow
  * `setReportMockState`, so use the shared story-side override helper that
  * re-registers ahead of story-local middleware when a forced state is set.
- *
- * @param state - The forced report-mock state.
- * @return The `beforeEach` cleanup callback.
  */
 function forceStreakState( state: 'loading' | 'error' | 'empty' ) {
 	forceStatsMockState( STATS_STREAK_PATH_FRAGMENT, state );
@@ -53,8 +52,6 @@ function forceStreakState( state: 'loading' | 'error' | 'empty' ) {
  * matching the raw `stats/streak` payload the sanitizer reads (`{ data: { <ts>:
  * count } }`). A seeded pseudo-random walk leaves clear gaps and busy stretches
  * so the heatmap reads as real posting activity rather than uniform noise.
- *
- * @return The raw streak response.
  */
 function buildStreakResponse() {
 	const today = startOfDay( new Date() );
@@ -109,39 +106,37 @@ apiFetch.use( streakMocksMiddleware );
 
 const POSTING_ACTIVITY_RENDER_MODULE = 'storybook/posting-activity';
 
+// The card draws its own pinned last-12-months window, so every story shares
+// one query key: `forceStatsMockState` evicts the cache on both edges, which is
+// what keeps the forced-state stories isolated from each other.
 function renderPostingActivity() {
 	return <PostingActivityRender attributes={ { reportParams: getDefaultQueryParams() } } />;
-}
-
-// Distinct preset → own query-cache entry; see forceStatsMockState.
-function renderPostingActivityOnPreset( preset: PresetType ) {
-	return (
-		<PostingActivityRender
-			attributes={ { reportParams: getDefaultQueryParams( false, preset ) } }
-		/>
-	);
 }
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/PostingActivity',
 	component: PostingActivityRender,
 	tags: [ 'autodocs' ],
+	decorators: [ withSiteLocale ],
+	argTypes: { ...siteLocaleArgTypes },
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "Posting activity" widget. Renders a calendar (contribution-style) heatmap of the number of posts published per day for the dashboard date range. The streak module has no comparison period, so the heatmap renders without deltas.',
+					'The "Monthly posting activity" widget: one mini calendar per month of the last 12, shaded by the posts published each day, with the month names beneath. The window is the widget\'s own; the dashboard date range does not move it. The close-up canvas is a one-column cell, so the grid scrolls sideways there; `WidgetDashboardWithWidget` below shows the full-width placement, where the months spread out.',
 			},
 		},
 	},
-} satisfies Meta< typeof PostingActivityRender >;
+} satisfies Meta< ComponentProps< typeof PostingActivityRender > & SiteLocaleControls >;
 
 export default meta;
 
-type Story = StoryObj< Partial< ComponentProps< typeof PostingActivityRender > > >;
+type Story = StoryObj<
+	Partial< ComponentProps< typeof PostingActivityRender > > & SiteLocaleControls
+>;
 
 /**
- * Default populated state — a year of posting activity for the current period.
+ * Default populated state — the last 12 months of posting activity.
  */
 export const Default: Story = {
 	render: renderPostingActivity,
@@ -153,7 +148,7 @@ export const Default: Story = {
  * mock is forced to never resolve for the duration of this story.
  */
 export const Loading: Story = {
-	render: () => renderPostingActivityOnPreset( 'last-90-days' ),
+	render: renderPostingActivity,
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
@@ -165,18 +160,17 @@ export const Loading: Story = {
  * re-runs the query — still mocked as failing while this story is active).
  */
 export const Error: Story = {
-	render: () => renderPostingActivityOnPreset( 'last-7-days' ),
+	render: renderPostingActivity,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => forceStreakState( 'error' ),
 };
 
 /**
- * Resolved with no posts in the range: the widget shows its empty state (the
- * neutral calendar glyph and the "posts will appear here" message).
+ * Resolved with no posts in the last 12 months: the widget shows its empty state.
  */
 export const Empty: Story = {
-	render: () => renderPostingActivityOnPreset( 'last-365-days' ),
+	render: renderPostingActivity,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => forceStreakState( 'empty' ),
@@ -198,6 +192,9 @@ export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetContr
 	render: args => <PostingActivityDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		// The Insights default: full width, one row.
+		widgetWidth: 3,
+		widgetHeight: 1,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,

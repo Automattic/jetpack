@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for Premium Analytics dashboard layout defaults.
+ * Tests for the dashboard default-layout primitives and the package's bundled defaults.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -8,73 +8,143 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Constants;
-use PHPUnit\Framework\TestCase;
-use WP_REST_Server;
+use Automattic\Jetpack\Status\Cache;
+use WorDBless\BaseTestCase;
 
-require_once __DIR__ . '/../../src/dashboard-layout.php';
+require_once __DIR__ . '/../../src/dashboard-sections.php';
+require_once __DIR__ . '/../../src/default-dashboard-sections.php';
 
 /**
- * Tests for Premium Analytics dashboard layout defaults.
+ * Tests for the dashboard default-layout primitives and the package's bundled defaults.
  */
-class Dashboard_Layout_Test extends TestCase {
-
-	const ROUTE        = '/wpcom/v2/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/default-layout';
-	const LEGACY_ROUTE = '/jetpack/v4/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/default-layout';
+class Dashboard_Layout_Test extends BaseTestCase {
 
 	/**
-	 * Reset REST globals and constants between tests.
+	 * Default-layout filter callback a test hooked, removed on tear down.
+	 *
+	 * @var callable|null
 	 */
-	protected function tearDown(): void {
-		global $wp_rest_server;
-		$wp_rest_server = null;
-		Constants::clear_constants();
-		parent::tearDown();
+	private $layout_filter = null;
+
+	/**
+	 * Register the built-in sections, whose layouts these tests read.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		register_default_dashboard_sections();
 	}
 
 	/**
-	 * The default-layout route uses the WPCOM namespace.
+	 * Reset the section registry, constants, and availability filters between tests.
 	 */
-	public function test_default_layout_route_uses_wpcom_v2_namespace() {
-		global $wp_rest_server;
-		$wp_rest_server = new WP_REST_Server();
-
-		if ( false === has_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_default_layout_route' ) ) {
-			add_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_default_layout_route' );
+	public function tear_down() {
+		if ( null !== $this->layout_filter ) {
+			remove_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, $this->layout_filter );
+			$this->layout_filter = null;
 		}
 
-		do_action( 'rest_api_init' );
+		$instance = new \ReflectionProperty( Dashboard_Section_Registry::class, 'instance' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance->setAccessible( true );
+		}
+		$instance->setValue( null, null );
 
-		$routes = rest_get_server()->get_routes();
-
-		$this->assertArrayHasKey( self::ROUTE, $routes );
-		$this->assertArrayNotHasKey( self::LEGACY_ROUTE, $routes );
+		Constants::clear_constants();
+		// The default layout reaches Host::is_wpcom_platform(), which memoizes
+		// `is_woa_site` past Constants::clear_constants().
+		Cache::clear();
+		remove_all_filters( VIDEOPRESS_AVAILABLE_FILTER );
+		parent::tear_down();
 	}
 
 	/**
-	 * Non-Premium-Analytics dashboards are left untouched.
+	 * Hook a default-layout filter callback for the duration of the test.
+	 *
+	 * @param callable $callback Filter callback receiving the layout and the section id.
+	 * @return void
 	 */
-	public function test_seed_default_dashboard_layout_ignores_other_dashboards() {
-		$layout = array(
+	private function filter_default_layout( callable $callback ) {
+		$this->layout_filter = $callback;
+		add_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, $callback, 10, 2 );
+	}
+
+	/**
+	 * Widget types a built-in section serves as its default layout.
+	 *
+	 * @param string $section_id Section identifier.
+	 * @return string[]
+	 */
+	private function served_layout_types( $section_id ) {
+		$section = get_registered_dashboard_section( DASHBOARD_NAME, $section_id );
+
+		$this->assertInstanceOf( Dashboard_Section::class, $section );
+
+		return array_column( $section->get_default_layout(), 'type' );
+	}
+
+	/**
+	 * Assert a layout holds exactly the expected instances, in order and placement.
+	 *
+	 * @param array $expected Map of uuid to `[ type, width, height, order ]`.
+	 * @param array $layout   Widget instances.
+	 * @return void
+	 */
+	private function assert_layout_instances( array $expected, array $layout ) {
+		$this->assertSame( array_keys( $expected ), array_column( $layout, 'uuid' ) );
+
+		$layout_by_uuid = array_column( $layout, null, 'uuid' );
+
+		foreach ( $expected as $uuid => $instance ) {
+			list( $type, $width, $height, $order ) = $instance;
+
+			$this->assertSame( $type, $layout_by_uuid[ $uuid ]['type'], $uuid );
+			$this->assertSame(
+				array(
+					'width'  => $width,
+					'height' => $height,
+					'order'  => $order,
+				),
+				$layout_by_uuid[ $uuid ]['placement'],
+				$uuid
+			);
+		}
+	}
+
+	/**
+	 * The instance helper carries the placement and any attributes.
+	 */
+	public function test_widget_instance_carries_placement_and_attributes() {
+		$this->assertSame(
 			array(
-				'uuid' => 'existing-widget',
-				'type' => 'example/widget',
+				'uuid'       => 'example-instance',
+				'type'       => 'example/widget',
+				'attributes' => array( 'view' => 'compact' ),
+				'placement'  => array(
+					'width'  => 2,
+					'height' => 1,
+					'order'  => 3,
+				),
 			),
+			get_dashboard_default_widget_instance( 'example-instance', 'example/widget', 3, 2, 1, array( 'view' => 'compact' ) )
 		);
-
-		$this->assertSame( $layout, seed_default_dashboard_layout( $layout, 'other_dashboard' ) );
 	}
 
 	/**
-	 * The base Premium Analytics dashboard keeps using the traffic tab default.
+	 * Empty attributes are omitted rather than serialized as an empty object.
 	 */
-	public function test_dashboard_name_resolves_traffic_default() {
-		$layout       = get_dashboard_default_layout_for( DASHBOARD_NAME );
-		$traffic      = get_dashboard_default_layout_for( DASHBOARD_TRAFFIC_SECTION_ID );
-		$layout_types = array_column( $layout, 'type' );
+	public function test_widget_instance_omits_empty_attributes() {
+		$instance = get_dashboard_default_widget_instance( 'example-instance', 'example/widget', 0 );
 
-		$this->assertSame( $traffic, $layout );
-		$this->assertContains( 'jpa/traffic-chart', $layout_types );
-		$this->assertNotContains( 'jpa/hello-world', $layout_types );
+		$this->assertArrayNotHasKey( 'attributes', $instance );
+		$this->assertSame(
+			array(
+				'width'  => 1,
+				'height' => 1,
+				'order'  => 0,
+			),
+			$instance['placement']
+		);
 	}
 
 	/**
@@ -82,10 +152,26 @@ class Dashboard_Layout_Test extends TestCase {
 	 * Jetpack sites (this test env), Simple-only widget instances are dropped.
 	 */
 	public function test_traffic_default_excludes_simple_only_widgets_on_self_hosted() {
-		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_TRAFFIC_SECTION_ID ), 'type' );
+		$layout_types = $this->served_layout_types( 'analytics/traffic' );
 
 		$this->assertNotContains( 'jpa/file-downloads', $layout_types, 'Simple-only widget instances must not be part of the default layout on self-hosted sites.' );
 		$this->assertContains( 'jpa/clicks', $layout_types, 'Regular widget instances remain in the default layout.' );
+	}
+
+	/**
+	 * The Top videos instance follows VideoPress, which this test env lacks.
+	 */
+	public function test_traffic_default_excludes_videopress_widget_without_videopress() {
+		$this->assertNotContains( 'jpa/videopress', $this->served_layout_types( 'analytics/traffic' ), 'Top videos must not be part of the default layout without VideoPress.' );
+	}
+
+	/**
+	 * With VideoPress, the Top videos instance is back in the default layout.
+	 */
+	public function test_traffic_default_keeps_videopress_widget_with_videopress() {
+		add_filter( VIDEOPRESS_AVAILABLE_FILTER, '__return_true' );
+
+		$this->assertContains( 'jpa/videopress', $this->served_layout_types( 'analytics/traffic' ) );
 	}
 
 	/**
@@ -94,202 +180,215 @@ class Dashboard_Layout_Test extends TestCase {
 	public function test_traffic_default_keeps_simple_only_widgets_on_wpcom_simple() {
 		Constants::set_constant( 'IS_WPCOM', true );
 
-		$layout_types = array_column( get_dashboard_default_layout_for( DASHBOARD_TRAFFIC_SECTION_ID ), 'type' );
-
-		$this->assertContains( 'jpa/file-downloads', $layout_types );
+		$this->assertContains( 'jpa/file-downloads', $this->served_layout_types( 'analytics/traffic' ) );
 	}
 
 	/**
-	 * Traffic section aliases resolve to the same default layout.
+	 * Shares is Simple-only too, so the Insights default drops it on self-hosted
+	 * Jetpack sites (this test env).
 	 */
-	public function test_traffic_aliases_resolve_same_default_layout() {
-		$this->assertSame(
-			get_dashboard_default_layout_for( DASHBOARD_TRAFFIC_SECTION_ID ),
-			get_dashboard_default_layout_for( 'analytics/traffic' )
+	public function test_insights_default_excludes_shares_on_self_hosted() {
+		$layout_types = $this->served_layout_types( 'analytics/insights' );
+
+		$this->assertNotContains( 'jpa/shares', $layout_types, 'Simple-only widget instances must not be part of the default layout on self-hosted sites.' );
+		$this->assertContains( 'jpa/tags', $layout_types, 'Regular widget instances remain in the default layout.' );
+	}
+
+	/**
+	 * WPCOM Simple keeps Shares in the Insights default.
+	 */
+	public function test_insights_default_keeps_shares_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->assertContains( 'jpa/shares', $this->served_layout_types( 'analytics/insights' ) );
+	}
+
+	/**
+	 * A plugin adds a widget instance to one section's default through the filter,
+	 * and the other sections are left alone.
+	 */
+	public function test_filter_adds_a_widget_to_one_section_default() {
+		$this->filter_default_layout(
+			static function ( $layout, $section_id ) {
+				if ( 'analytics/traffic' === $section_id ) {
+					$layout[] = get_dashboard_default_widget_instance( 'example-instance', 'example/widget', 20 );
+				}
+
+				return $layout;
+			}
 		);
+
+		$this->assertContains( 'example/widget', $this->served_layout_types( 'analytics/traffic' ) );
+		$this->assertNotContains( 'example/widget', $this->served_layout_types( 'analytics/insights' ) );
 	}
 
 	/**
-	 * The traffic tab receives its bundled traffic widgets.
+	 * The availability policy runs after the additions, so an unsupported instance a
+	 * plugin adds is dropped like a bundled one.
 	 */
-	public function test_seed_default_dashboard_layout_adds_traffic_widgets() {
-		$layout              = seed_default_dashboard_layout( array(), DASHBOARD_TRAFFIC_SECTION_ID );
-		$layout_by_uuid      = array_column( $layout, null, 'uuid' );
-		$layout_types        = array_column( $layout, 'type' );
-		$utm_widget_uuid     = 'default-utm-insights-widget-instance';
-		$top_posts_uuid      = 'default-stats-top-posts-widget-instance';
-		$traffic_chart_uuid  = 'default-traffic-chart-widget-instance';
-		$file_downloads_uuid = 'default-file-downloads-widget-instance';
+	public function test_availability_policy_covers_instances_the_filter_adds() {
+		$this->filter_default_layout(
+			static function ( $layout, $section_id ) {
+				if ( 'analytics/insights' === $section_id ) {
+					$layout[] = get_dashboard_default_widget_instance( 'example-downloads', 'jpa/file-downloads', 20 );
+				}
 
-		$this->assertContains( 'jpa/traffic-chart', $layout_types );
-		$this->assertContains( 'jpa/stats-top-posts', $layout_types );
-		$this->assertContains( 'jpa/referrers', $layout_types );
-		$this->assertContains( 'jpa/authors', $layout_types );
-		$this->assertContains( 'jpa/videopress', $layout_types );
-		$this->assertContains( 'jpa/plan-usage', $layout_types );
-		$this->assertArrayHasKey( 'default-locations-widget-instance', $layout_by_uuid );
-		$this->assertArrayHasKey( $utm_widget_uuid, $layout_by_uuid );
-		$this->assertArrayHasKey( $file_downloads_uuid, $layout_by_uuid );
+				return $layout;
+			}
+		);
+
+		$this->assertNotContains( 'jpa/file-downloads', $this->served_layout_types( 'analytics/insights' ) );
+	}
+
+	/**
+	 * The Traffic tab declares its bundled widgets on the three-column grid.
+	 */
+	public function test_traffic_section_declares_the_bundled_widgets() {
+		$layout         = get_traffic_section_default_layout();
+		$layout_by_uuid = array_column( $layout, null, 'uuid' );
+
+		// Widths fill the three-column grid; every tile is two rows tall.
+		$this->assert_layout_instances(
+			array(
+				'default-traffic-chart-widget-instance'   => array( 'jpa/traffic-chart', 3, 2, 0 ),
+				'default-stats-top-posts-widget-instance' => array( 'jpa/stats-top-posts', 1, 2, 1 ),
+				'default-referrers-widget-instance'       => array( 'jpa/referrers', 1, 2, 2 ),
+				'default-devices-widget-instance'         => array( 'jpa/devices', 1, 2, 3 ),
+				'default-locations-widget-instance'       => array( 'jpa/locations', 2, 2, 4 ),
+				'default-top-platforms-widget-instance'   => array( 'jpa/top-platforms', 1, 2, 5 ),
+				'default-utm-insights-widget-instance'    => array( 'jpa/utm-insights', 1, 2, 6 ),
+				'default-clicks-widget-instance'          => array( 'jpa/clicks', 1, 2, 7 ),
+				'default-videopress-widget-instance'      => array( 'jpa/videopress', 1, 2, 8 ),
+				'default-authors-widget-instance'         => array( 'jpa/authors', 1, 2, 9 ),
+				'default-search-terms-widget-instance'    => array( 'jpa/search-terms', 1, 2, 10 ),
+				'default-file-downloads-widget-instance'  => array( 'jpa/file-downloads', 1, 2, 11 ),
+			),
+			$layout
+		);
+
+		// Plan usage is intentionally not a default (and held back entirely while the paid plan is revised).
+		$this->assertNotContains( 'jpa/plan-usage', array_column( $layout, 'type' ) );
 
 		$this->assertSame(
 			array(
-				'uuid'       => $utm_widget_uuid,
-				'type'       => 'jpa/utm-insights',
-				'attributes' => array(
-					'utmDimension' => 'utm_source,utm_medium',
-					'max'          => 10,
-				),
-				'placement'  => array(
-					'width'  => 1,
-					'height' => 2,
-					'order'  => 8,
-				),
+				'utmDimension' => 'utm_source,utm_medium',
 			),
-			$layout_by_uuid[ $utm_widget_uuid ]
+			$layout_by_uuid['default-utm-insights-widget-instance']['attributes']
 		);
-
-		$this->assertSame(
-			array(
-				'uuid'       => $top_posts_uuid,
-				'type'       => 'jpa/stats-top-posts',
-				'attributes' => array(
-					'max' => 10,
-				),
-				'placement'  => array(
-					'width'  => 1,
-					'height' => 2,
-					'order'  => 1,
-				),
-			),
-			$layout_by_uuid[ $top_posts_uuid ]
-		);
-
-		$this->assertSame( 'jpa/traffic-chart', $layout_by_uuid[ $traffic_chart_uuid ]['type'] );
 	}
 
 	/**
-	 * The insights tab receives its bundled stats widgets.
+	 * The Insights tab declares its bundled stats widgets.
 	 */
-	public function test_seed_default_dashboard_layout_adds_insights_widgets() {
-		$layout         = seed_default_dashboard_layout( array(), DASHBOARD_INSIGHTS_SECTION_ID );
+	public function test_insights_section_declares_the_bundled_widgets() {
+		$layout         = get_insights_section_default_layout();
 		$layout_by_uuid = array_column( $layout, null, 'uuid' );
 		$layout_types   = array_column( $layout, 'type' );
 
-		$this->assertContains( 'jpa/annual-highlights', $layout_types );
-		$this->assertContains( 'jpa/all-time-stats', $layout_types );
-		$this->assertContains( 'jpa/latest-post', $layout_types );
-		$this->assertContains( 'jpa/posting-activity', $layout_types );
+		// In the design's three-column rows.
+		$this->assert_layout_instances(
+			array(
+				'default-annual-highlights-widget-instance' => array( 'jpa/annual-highlights', 3, 1, 0 ),
+				'default-all-time-stats-widget-instance'   => array( 'jpa/all-time-stats', 1, 2, 1 ),
+				'default-most-popular-time-widget-instance' => array( 'jpa/most-popular-time', 1, 2, 2 ),
+				'default-most-popular-day-widget-instance' => array( 'jpa/most-popular-day', 1, 2, 3 ),
+				'default-popular-post-widget-instance'     => array( 'jpa/popular-post', 2, 2, 4 ),
+				'default-latest-post-widget-instance'      => array( 'jpa/latest-post', 1, 2, 5 ),
+				'default-posting-activity-widget-instance' => array( 'jpa/posting-activity', 3, 1, 6 ),
+				'default-views-over-years-widget-instance' => array( 'jpa/views-over-years', 3, 2, 7 ),
+				'default-tags-widget-instance'             => array( 'jpa/tags', 2, 2, 8 ),
+				'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 9 ),
+				'default-shares-widget-instance'           => array( 'jpa/shares', 1, 2, 10 ),
+				'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 2, 2, 11 ),
+			),
+			$layout
+		);
+
 		$this->assertNotContains( 'jpa/authors', $layout_types );
 		$this->assertNotContains( 'jpa/videopress', $layout_types );
 		// Emails is not an Insights module — it lives on the Subscribers tab.
 		$this->assertNotContains( 'jpa/stats-emails', $layout_types );
-		$this->assertContains( 'jpa/shares', $layout_types );
-		$this->assertSame(
-			array(
-				'uuid'       => 'default-shares-widget-instance',
-				'type'       => 'jpa/shares',
-				'attributes' => array(
-					'max' => 10,
-				),
-				'placement'  => array(
-					'width'  => 1,
-					'height' => 2,
-					'order'  => 8,
-				),
-			),
-			$layout_by_uuid['default-shares-widget-instance']
+		// The Comments module ships as two focused widgets, not one toggled widget.
+		$this->assertNotContains( 'jpa/comments', $layout_types );
+		// The period widgets are held back while their return is decided (WOOA7S-2020).
+		$this->assertNotContains( 'jpa/total-views', $layout_types );
+		$this->assertNotContains( 'jpa/total-visitors', $layout_types );
+		$this->assertNotContains( 'jpa/popular-days', $layout_types );
+		$this->assertNotContains( 'jpa/popular-hours', $layout_types );
+
+		// Highlights falls back to the widget's own default metric list.
+		$this->assertArrayNotHasKey(
+			'attributes',
+			$layout_by_uuid['default-annual-highlights-widget-instance']
 		);
-		$this->assertSame(
-			get_dashboard_default_layout_for( DASHBOARD_INSIGHTS_SECTION_ID ),
-			get_dashboard_default_layout_for( 'analytics/insights' )
+
+		// All-time stats has no attributes: it always shows every total.
+		$this->assertArrayNotHasKey(
+			'attributes',
+			$layout_by_uuid['default-all-time-stats-widget-instance']
 		);
 	}
 
 	/**
-	 * The subscribers tab receives its bundled subscriber widgets.
+	 * The Subscribers tab declares its bundled subscriber widgets.
 	 */
-	public function test_seed_default_dashboard_layout_adds_subscribers_widgets() {
-		$layout         = seed_default_dashboard_layout( array(), DASHBOARD_SUBSCRIBERS_SECTION_ID );
+	public function test_subscribers_section_declares_the_bundled_widgets() {
+		$layout         = get_subscribers_section_default_layout();
 		$layout_by_uuid = array_column( $layout, null, 'uuid' );
-		$layout_types   = array_column( $layout, 'type' );
 
-		$this->assertContains( 'jpa/subscriber-highlights', $layout_types );
-		$this->assertContains( 'jpa/subscribers-chart', $layout_types );
-		$this->assertContains( 'jpa/subscribers-list', $layout_types );
-		$this->assertContains( 'jpa/stats-emails', $layout_types );
+		// Each row fills the three-column grid.
+		$this->assert_layout_instances(
+			array(
+				'default-subscribers-chart-widget-instance' => array( 'jpa/subscribers-chart', 3, 2, 0 ),
+				'default-subscriber-highlights-widget-instance' => array( 'jpa/subscriber-highlights', 3, 1, 1 ),
+				'default-subscribers-list-widget-instance' => array( 'jpa/subscribers-list', 1, 2, 2 ),
+				'default-subscribers-emails-widget-instance' => array( 'jpa/stats-emails', 2, 2, 3 ),
+			),
+			$layout
+		);
+
+		// No attributes, so the highlights show every metric the widget offers.
+		$this->assertArrayNotHasKey( 'attributes', $layout_by_uuid['default-subscriber-highlights-widget-instance'] );
+
 		$this->assertSame(
 			array(
-				'uuid'       => 'default-subscribers-list-widget-instance',
-				'type'       => 'jpa/subscribers-list',
-				'attributes' => array(
-					'max' => 6,
-				),
-				'placement'  => array(
-					'width'  => 2,
-					'height' => 2,
-					'order'  => 2,
-				),
+				'metric' => 'opens',
 			),
-			$layout_by_uuid['default-subscribers-list-widget-instance']
-		);
-		$this->assertSame(
-			array(
-				'uuid'       => 'default-subscribers-emails-widget-instance',
-				'type'       => 'jpa/stats-emails',
-				'attributes' => array(
-					'max'    => 10,
-					'metric' => 'opens',
-				),
-				'placement'  => array(
-					'width'  => 2,
-					'height' => 2,
-					'order'  => 3,
-				),
-			),
-			$layout_by_uuid['default-subscribers-emails-widget-instance']
-		);
-		$this->assertSame(
-			get_dashboard_default_layout_for( DASHBOARD_SUBSCRIBERS_SECTION_ID ),
-			get_dashboard_default_layout_for( 'analytics/subscribers' )
+			$layout_by_uuid['default-subscribers-emails-widget-instance']['attributes']
 		);
 	}
 
 	/**
-	 * The store tab receives its bundled store widgets.
+	 * The Store tab declares its bundled store widgets.
 	 */
-	public function test_seed_default_dashboard_layout_adds_store_widgets() {
-		$layout       = seed_default_dashboard_layout( array(), DASHBOARD_STORE_SECTION_ID );
-		$layout_types = array_column( $layout, 'type' );
+	public function test_store_section_declares_the_bundled_widgets() {
+		$layout_types = array_column( get_store_section_default_layout(), 'type' );
 
 		$this->assertContains( 'jpa/store-performance', $layout_types );
 		$this->assertContains( 'jpa/total-sales-over-time', $layout_types );
 		$this->assertContains( 'jpa/conversion-rate', $layout_types );
 		$this->assertContains( 'jpa/orders-over-time', $layout_types );
 		$this->assertContains( 'jpa/top-performing-products', $layout_types );
-		$this->assertSame(
-			get_dashboard_default_layout_for( DASHBOARD_STORE_SECTION_ID ),
-			get_dashboard_default_layout_for( 'woocommerce/store' )
-		);
 	}
 
 	/**
-	 * An existing default instance is not duplicated.
+	 * The Ads layout the two registrants share declares the WordAds widgets in the prototype's order.
 	 */
-	public function test_seed_default_dashboard_layout_does_not_duplicate_existing_widget() {
-		$existing_widget = array(
-			'uuid' => 'default-utm-insights-widget-instance',
-			'type' => 'jpa/utm-insights',
+	public function test_ads_layout_helper_declares_the_wordads_widgets() {
+		$layout = get_ads_section_default_layout();
+
+		// Widths fill the three-column grid.
+		$this->assert_layout_instances(
+			array(
+				'default-wordads-chart-tabs-widget-instance' => array( 'jpa/wordads-chart-tabs', 3, 2, 0 ),
+				'default-wordads-highlights-widget-instance' => array( 'jpa/wordads-highlights', 3, 1, 1 ),
+				'default-wordads-earnings-history-widget-instance' => array( 'jpa/wordads-earnings-history', 1, 2, 2 ),
+			),
+			$layout
 		);
 
-		$layout  = seed_default_dashboard_layout( array( $existing_widget ), DASHBOARD_TRAFFIC_SECTION_ID );
-		$widgets = array_filter(
-			$layout,
-			static function ( $widget ) {
-				return 'default-utm-insights-widget-instance' === $widget['uuid'];
-			}
-		);
-
-		$this->assertCount( 1, $widgets );
-		$this->assertSame( $existing_widget, reset( $widgets ) );
+		foreach ( $layout as $instance ) {
+			$this->assertArrayNotHasKey( 'attributes', $instance, $instance['uuid'] );
+		}
 	}
 }

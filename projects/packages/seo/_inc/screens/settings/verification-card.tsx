@@ -1,15 +1,21 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { TextControl } from '@wordpress/components';
-import { __, sprintf, _n } from '@wordpress/i18n';
-import { Badge, Card, CollapsibleCard, Stack } from '@wordpress/ui';
+import { TextControl, ToggleControl } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import { globe } from '@wordpress/icons';
+import { Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
+import CardTitleIcon from '../../components/card-title-icon';
+import StatusIndicator from '../../components/status-indicator';
 import { VERIFICATION_SERVICES } from '../../data/verification-services';
 import GoogleVerificationField from './google-verification-field';
+import type { SettingStatus } from '../../components/status-indicator';
 import type { SettingsResponse, VerificationKey } from '../../data/settings-types';
 import type { FC } from 'react';
 
 interface Props {
 	value: SettingsResponse[ 'verification' ];
+	active: boolean;
+	onToggle: ( active: boolean ) => void;
 	onChange: ( key: VerificationKey, value: string ) => void;
 	/** Save the current value — called on blur (auto-save, no Save button). */
 	onCommit?: () => void;
@@ -19,23 +25,48 @@ interface Props {
 	onOpenChange?: ( open: boolean ) => void;
 }
 
+const description = __(
+	"Confirm you own this site to unlock each service's own tools, like Google Search Console, for tracking performance and submitting your sitemap.",
+	'jetpack-seo'
+);
+
 // Per-service input hints, keyed by the shared service id. The service list and
 // brand labels live in `data/verification-services` (single source of truth).
-const HINTS: Record< VerificationKey, string > = {
-	google: __(
-		'Paste the "content" attribute from the Google Search Console meta tag.',
+//
+// Each hint names where to fetch the tag and says both forms are accepted. This
+// page saves through `/jetpack/v4/settings`, which validates the value
+// (`validate_verification_service()`) and stores it; the code is unwrapped from a
+// pasted tag on the way in (`class.jetpack-core-api-module-endpoints.php`) and
+// again at render (`jetpack_verification_print_meta()`). Both unwrappers expect
+// the `<meta name="…" content="…" />` shape the services actually emit.
+// Deliberately not repeating each service's own name for the tag ("HTML tag",
+// "HTML Meta Tag", …): those are third-party UI labels that drift out of date.
+//
+// Google is absent by design — its field is the keyring component below, which
+// carries its own hint.
+const HINTS: Record< Exclude< VerificationKey, 'google' >, string > = {
+	bing: __(
+		'Paste the verification tag from Bing Webmaster Tools, or just the code inside it.',
 		'jetpack-seo'
 	),
-	bing: __( 'Bing Webmaster Tools meta tag.', 'jetpack-seo' ),
-	pinterest: __( 'Pinterest meta tag.', 'jetpack-seo' ),
-	yandex: __( 'Yandex Webmaster meta tag.', 'jetpack-seo' ),
-	facebook: __( 'Facebook domain verification meta tag.', 'jetpack-seo' ),
+	pinterest: __(
+		'Paste the verification tag from Pinterest, or just the code inside it.',
+		'jetpack-seo'
+	),
+	yandex: __(
+		'Paste the verification tag from Yandex Webmaster, or just the code inside it.',
+		'jetpack-seo'
+	),
+	facebook: __(
+		'Paste the domain verification tag from Meta Business, or just the code inside it.',
+		'jetpack-seo'
+	),
 };
-
-const notSetLabel = __( 'Not set', 'jetpack-seo' );
 
 const VerificationCard: FC< Props > = ( {
 	value,
+	active,
+	onToggle,
 	onChange,
 	onCommit,
 	disabled,
@@ -43,6 +74,13 @@ const VerificationCard: FC< Props > = ( {
 	onOpenChange,
 } ) => {
 	const verifiedCount = VERIFICATION_SERVICES.filter( ( { key } ) => !! value[ key ] ).length;
+	const controlsDisabled = disabled || ! active;
+
+	// All five services are optional and almost nobody verifies with more than
+	// one, so a single verified service counts as done rather than a fraction of
+	// five (JETPACK-2051). This module therefore never reports 'in-progress'.
+	const verificationStatus: SettingStatus =
+		active && verifiedCount > 0 ? 'complete' : 'not-started';
 
 	// CollapsibleCard.Root takes either controlled (`open`/`onOpenChange`) or
 	// uncontrolled (`defaultOpen`) props — one at a time.
@@ -50,28 +88,42 @@ const VerificationCard: FC< Props > = ( {
 
 	return (
 		<CollapsibleCard.Root { ...collapsibleProps }>
-			<CollapsibleCard.Header>
+			<CollapsibleCard.Header render={ <h2 /> }>
 				<Stack direction="row" justify="space-between" align="center" gap="sm">
-					<Card.Title>{ __( 'Site verification', 'jetpack-seo' ) }</Card.Title>
-					<Badge intent={ verifiedCount > 0 ? 'stable' : 'draft' }>
-						{ verifiedCount > 0
-							? sprintf(
-									/* translators: %d: number of verification services configured */
-									_n( '%d set', '%d set', verifiedCount, 'jetpack-seo' ),
-									verifiedCount
-							  )
-							: notSetLabel }
-					</Badge>
+					<Card.Title>
+						{ /* `globe`, matching the Overview card — and a checkmark would double up
+						     on the status indicator beside it. */ }
+						<CardTitleIcon icon={ globe } title={ __( 'Site verification', 'jetpack-seo' ) } />
+					</Card.Title>
+					<CollapsibleCard.HeaderDescription>
+						<StatusIndicator status={ verificationStatus } />
+					</CollapsibleCard.HeaderDescription>
 				</Stack>
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
 				<Stack direction="column" gap="lg">
+					{ /* Body copy: this is the module's own prose, not a hint attached to a
+					     field. The muted `body-sm` treatment is reserved for the latter. */ }
+					<Text variant="body-md" render={ <p /> }>
+						{ description }
+					</Text>
+					<ToggleControl
+						label={ __( 'Enable site verification', 'jetpack-seo' ) }
+						help={ __(
+							'Adds your saved verification codes to the site so supported services can confirm ownership.',
+							'jetpack-seo'
+						) }
+						checked={ active }
+						onChange={ onToggle }
+						disabled={ disabled }
+						__nextHasNoMarginBottom
+					/>
 					{ /* Google gets the keyring auto-verify flow; the rest are simple code fields. */ }
 					<GoogleVerificationField
 						value={ value.google }
 						onChange={ next => onChange( 'google', next ) }
 						onCommit={ onCommit }
-						disabled={ disabled }
+						disabled={ controlsDisabled }
 					/>
 					<Stack direction="column" gap="md">
 						{ VERIFICATION_SERVICES.filter( ( { key } ) => key !== 'google' ).map(
@@ -83,7 +135,7 @@ const VerificationCard: FC< Props > = ( {
 									onChange={ next => onChange( key, next ) }
 									onBlur={ onCommit }
 									help={ HINTS[ key ] }
-									disabled={ disabled }
+									disabled={ controlsDisabled }
 									__next40pxDefaultSize
 									__nextHasNoMarginBottom
 								/>

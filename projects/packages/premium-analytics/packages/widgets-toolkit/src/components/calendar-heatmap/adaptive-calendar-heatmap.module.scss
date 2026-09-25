@@ -1,0 +1,26 @@
+.root {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+/* Measured tile area (the ref lives here). No scroll — columns trim to fit.
+   Column, not row: WidgetState's loading and error wrappers have no intrinsic
+   width, so as row flex items they collapse against the inline-start edge
+   instead of filling the tile. */
+.content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 0;
+	min-width: 0;
+	min-height: 0;
+}
+
+/* Center a grid whose covered period is too short to fill the measured
+   width. */
+.heatmap {
+	min-width: 0;
+	justify-content: center;
+}

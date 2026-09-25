@@ -6,6 +6,7 @@ build/**         production-include
 # Files to exclude from the mirror repo, but included in the monorepo.
 # (see also entries in the monorepo root .gitattributes)
 # Remember to end all directories with `/**` to properly tag every file.
+/build/**/*.map   production-exclude
 src/Readme.md     production-exclude
 src/client/**     production-exclude
 src/**/test/**    production-exclude
@@ -15,4 +16,6 @@ src/**/*.jsx      production-exclude
 src/**/*.scss     production-exclude
 declarations.d.ts production-exclude
 global.d.ts       production-exclude
+packages/**       production-exclude
 routes/**         production-exclude
+/wordpress-augmentations.d.ts  production-exclude

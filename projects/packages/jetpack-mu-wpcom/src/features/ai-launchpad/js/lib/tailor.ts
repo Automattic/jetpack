@@ -1,10 +1,11 @@
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
+import { commitTailoring, type PreparedTailoring } from './commit-tailoring.ts';
 import { selectFallback } from './fallback.ts';
 import { requestJwt } from './jwt.ts';
 import { buildTailorPrompt, chooseTailoringMenu } from './prompts.ts';
 import { parseAgentResponse } from './schema-validator.ts';
-import type { TailoredOutput, TailorResult, TailorSource, WizardInput } from './types.ts';
+import type { SiteCopy, TailoredOutput, TailorResult, WizardInput } from './types.ts';
 
 const AI_QUERY_ENDPOINT = 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query';
 const AI_QUERY_TIMEOUT_MS = 40_000;
@@ -18,6 +19,25 @@ interface AiQueryResponse {
  * failures worth a second attempt.
  */
 type FetchOutcome = { ok: true; output: TailoredOutput } | { ok: false; retryable: boolean };
+
+/**
+ * Mints a session id for a tailoring run, or '' when `crypto.randomUUID` isn't available.
+ *
+ * `crypto.randomUUID` is undefined outside a secure context and on older Safari/Firefox, and
+ * throws rather than returning undefined — unguarded, that would reject `tailor()` before any
+ * tailoring happens, and every caller catches, so the user would see an empty launchpad instead
+ * of a list. This purely analytical id must not be able to break list rendering; the server
+ * already treats an empty `ai_session_id` as absent.
+ *
+ * @return A UUID, or '' when unavailable.
+ */
+function mintAiSessionId(): string {
+	try {
+		return crypto.randomUUID();
+	} catch {
+		return '';
+	}
+}
 
 /**
  * Call jetpack-ai-query once with the combined prompt and return the validated
@@ -127,65 +147,43 @@ async function fetchAvailableTaskIds( goal: string ): Promise< readonly string[]
 }
 
 /**
- * Persist the tailored output via Stream B's PUT /tailored. The timing/attempt
- * telemetry rides along as query params so the server's `tailored` Logstash
- * record carries it; there is no separate client-side event.
+ * Produce a tailored output for the wizard input without writing it anywhere:
+ * the AI call, or the deterministic fallback when it fails or returns nothing
+ * usable. Safe to run speculatively while the user is still filling the wizard.
  *
- * @param output               - The tailored output to persist.
- * @param source               - Whether the output came from AI or the fallback.
- * @param telemetry            - Tailoring telemetry for the server's Logstash record.
- * @param telemetry.durationMs - How long tailoring took so far, in milliseconds.
- * @param telemetry.attempts   - How many jetpack-ai-query attempts were made.
+ * @param input - The collected wizard input.
+ * @param copy  - The site-language copy the fallback drafts are written from.
+ * @return The prepared tailoring, awaiting a commit.
  */
-async function persist(
-	output: TailoredOutput,
-	source: TailorSource,
-	telemetry: { durationMs: number; attempts: number }
-): Promise< void > {
-	await apiFetch( {
-		path: addQueryArgs( '/wpcom/v2/ai-launchpad/tailored', {
-			source,
-			duration_ms: telemetry.durationMs,
-			attempts: telemetry.attempts,
-		} ),
-		method: 'PUT',
-		data: output,
-	} );
+export async function prepareTailoring(
+	input: WizardInput,
+	copy: SiteCopy
+): Promise< PreparedTailoring > {
+	const start = performance.now();
+	// One id per tailoring run, not per attempt: a retry re-rolls the same checklist. Minted
+	// here rather than server-side so it survives a failed PUT, where the client still renders
+	// a list and still fires events against it.
+	const aiSessionId = mintAiSessionId();
+	const availableTaskIds = await fetchAvailableTaskIds( input.goal );
+	const { output, attempts } = await fetchAiOutputWithRetry( input, availableTaskIds );
+
+	return {
+		source: output ? 'ai' : 'fallback',
+		output: output ?? selectFallback( input, copy ),
+		durationMs: Math.round( performance.now() - start ),
+		attempts,
+		aiSessionId,
+	};
 }
 
 /**
- * Tailor the launchpad from the wizard input, falling back to the deterministic
- * picker on any failure and persisting the result tagged with its source.
+ * Tailor the launchpad from the wizard input and write the result, falling back
+ * to the deterministic picker on any failure.
  *
  * @param input - The collected wizard input.
+ * @param copy  - The site-language copy the fallback drafts are written from.
  * @return The tailored result, tagged with whether it came from AI or fallback.
  */
-export async function tailor( input: WizardInput ): Promise< TailorResult > {
-	const start = performance.now();
-	const availableTaskIds = await fetchAvailableTaskIds( input.goal );
-	const { output: aiOutput, attempts } = await fetchAiOutputWithRetry( input, availableTaskIds );
-
-	if ( aiOutput ) {
-		try {
-			await persist( aiOutput, 'ai', {
-				durationMs: Math.round( performance.now() - start ),
-				attempts,
-			} );
-			return { source: 'ai', output: aiOutput };
-		} catch {
-			// PUT rejected the AI output; fall through to the deterministic fallback below.
-		}
-	}
-
-	const fallbackOutput = selectFallback( input );
-	try {
-		// `attempts` counts the failed AI calls that preceded the fallback.
-		await persist( fallbackOutput, 'fallback', {
-			durationMs: Math.round( performance.now() - start ),
-			attempts,
-		} );
-	} catch {
-		// Even if the write fails, still return the fallback so the consumer renders a list, not an empty launchpad.
-	}
-	return { source: 'fallback', output: fallbackOutput };
+export async function tailor( input: WizardInput, copy: SiteCopy ): Promise< TailorResult > {
+	return commitTailoring( await prepareTailoring( input, copy ), input, copy );
 }

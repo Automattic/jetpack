@@ -1520,6 +1520,51 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Get the DIFM Lite site options exposed to the frontend while a build is in progress.
+	 *
+	 * Returns null unless the site has an active DIFM Lite build and the code is
+	 * running on WordPress.com, where the DIFM Lite library exists.
+	 *
+	 * @return array|null
+	 */
+	public function get_difm_lite_site_options() {
+		if ( ! $this->is_difm_lite_in_progress() ) {
+			return null;
+		}
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM || ! function_exists( 'require_lib' ) ) {
+			return null;
+		}
+		require_lib( 'difm-lite' );
+		if ( ! class_exists( '\DIFM_Lite_Options' ) ) {
+			// Fail closed if the library did not define the class; this method
+			// documents null for every path where the options are unavailable.
+			return null;
+		}
+		// The submission state is canonical on the purchase blog. This site may be
+		// the stickered staging build target, whose own options blob is empty, so
+		// resolve to the purchase blog before reading — otherwise a post-submit
+		// staging target reports itself as pre-submit.
+		//
+		// resolve_purchase_site_id() ships in the wpcom DIFM Lite site-role
+		// pointers change. This Jetpack code can deploy before that lands, so
+		// fall back to the current blog when it is unavailable — no retargeted
+		// builds can exist until that change is live, so the current blog is the
+		// purchase blog in that window.
+		$purchase_blog_id = $this->blog_id;
+		// @phan-suppress-next-line PhanUndeclaredClassReference -- wpcom-only class, guarded above.
+		if ( method_exists( '\DIFM_Lite_Options', 'resolve_purchase_site_id' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only class, guarded above.
+			$purchase_blog_id = \DIFM_Lite_Options::resolve_purchase_site_id( $this->blog_id );
+		}
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only class, guarded above.
+		$difm_lite_options = new \DIFM_Lite_Options( $purchase_blog_id );
+		return array(
+			// @phan-suppress-next-line PhanUndeclaredClassProperty -- wpcom-only class, guarded above.
+			'is_website_content_submitted' => (bool) $difm_lite_options->is_website_content_submitted,
+		);
+	}
+
+	/**
 	 * Check if the site has the gating-business-q1 blog sticker.
 	 *
 	 * @return bool
@@ -1532,6 +1577,19 @@ abstract class SAL_Site {
 			return wpcomsh_is_site_sticker_active( 'gating-business-q1' );
 		}
 		return false;
+	}
+
+	/**
+	 * Whether the site is still on the pre-2026 feature gating.
+	 *
+	 * @return bool
+	 */
+	public function is_legacy_gating_site() {
+		if ( ! method_exists( 'WPCOM_Features', 'is_legacy_gating_site' ) ) {
+			return false;
+		}
+
+		return (bool) WPCOM_Features::is_legacy_gating_site( $this->blog_id );
 	}
 
 	/**
@@ -1818,6 +1876,16 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Get the state of any block on the site's outgoing email.
+	 *
+	 * @return array|null `status` (`blocked` or `at_risk`), `reason` and `expires_on`,
+	 *                    or null if the site has never been blocked.
+	 */
+	public function get_atomic_email_block() {
+		return null;
+	}
+
+	/**
 	 * Get Jetpack recovery mode status.
 	 *
 	 * @return array|null
@@ -1825,5 +1893,15 @@ abstract class SAL_Site {
 	public function get_jetpack_recovery_mode_status() {
 		$status = get_option( 'jetpack_recovery_mode_status' );
 		return is_array( $status ) ? $status : null;
+	}
+
+	/**
+	 * Whether WordPress.com accounts must have two-step authentication to log in through SSO.
+	 *
+	 * @return bool
+	 */
+	public function get_jetpack_sso_require_two_step() {
+		/** This filter is documented in projects/packages/connection/src/sso/class-helpers.php */
+		return (bool) apply_filters( 'jetpack_sso_require_two_step', get_option( 'jetpack_sso_require_two_step', false ) );
 	}
 }

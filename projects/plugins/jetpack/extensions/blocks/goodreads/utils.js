@@ -51,6 +51,11 @@ export const GOODREADS_ORDER_OPTIONS = [
 	{ label: __( 'Descending', 'jetpack' ), value: 'd' },
 ];
 
+// The server only enqueues widget script URLs matching exactly what this function
+// can produce: host, endpoint path shape, and the per-endpoint query parameters are
+// all allowlisted by get_validated_script_url() in render.php. Any change to the
+// URLs built here (new query params, different host or path) must update that
+// validator in the same change, or the front end will silently stop loading the widget.
 export function createGoodreadsEmbedLink( { attributes } ) {
 	const {
 		bookNumber,
@@ -73,7 +78,15 @@ export function createGoodreadsEmbedLink( { attributes } ) {
 		return;
 	}
 
-	let link = `https://www.goodreads.com/review/custom_widget/${ goodreadsId }.${ customTitle }?num_books=${ bookNumber }&order=${ orderOption }&shelf=${ shelfOption }&show_author=${
+	// Goodreads accepts literal slashes in widget titles, but returns a 404 when
+	// they are percent-encoded. Encode each title segment independently so other
+	// URL delimiters cannot change the path, query, or fragment.
+	const encodedTitle = ( customTitle || GOODREADS_DEFAULT_TITLE )
+		.split( '/' )
+		.map( titleSegment => encodeURIComponent( titleSegment ) )
+		.join( '/' );
+
+	let link = `https://www.goodreads.com/review/custom_widget/${ goodreadsId }.${ encodedTitle }?num_books=${ bookNumber }&order=${ orderOption }&shelf=${ shelfOption }&show_author=${
 		showAuthor ? 1 : 0
 	}&show_cover=${ showCover ? 1 : 0 }&show_rating=${ showRating ? 1 : 0 }&show_review=${
 		showReview ? 1 : 0
@@ -82,7 +95,7 @@ export function createGoodreadsEmbedLink( { attributes } ) {
 	}&sort=${ sortOption }&widget_id=${ widgetId }`;
 
 	if ( style === 'grid' ) {
-		link = `https://www.goodreads.com/review/grid_widget/${ goodreadsId }.${ customTitle }?cover_size=medium&num_books=${ bookNumber }&order=${ orderOption }&shelf=${ shelfOption }&sort=${ sortOption }&widget_id=${ widgetId }`;
+		link = `https://www.goodreads.com/review/grid_widget/${ goodreadsId }.${ encodedTitle }?cover_size=medium&num_books=${ bookNumber }&order=${ orderOption }&shelf=${ shelfOption }&sort=${ sortOption }&widget_id=${ widgetId }`;
 	}
 
 	return link;

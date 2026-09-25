@@ -23,6 +23,7 @@ $tools = array(
 	// Theme Tools.
 	'theme-tools.php',
 	'theme-tools/social-links.php',
+	'theme-tools/random-redirect.php',
 	'theme-tools/featured-content.php',
 	'theme-tools/responsive-videos.php',
 	'theme-tools/site-logo.php',
@@ -31,6 +32,8 @@ $tools = array(
 	'theme-tools/content-options.php',
 	// Needed for VideoPress, so videos keep working in existing posts/pages when the module is deactivated.
 	'videopress/class.videopress-gutenberg.php',
+	// Reprint export. Registers nothing off Pressable and WordPress.com (Atomic).
+	'reprint-export.php',
 );
 
 // Some features are only available when connected to WordPress.com.

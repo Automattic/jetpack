@@ -70,10 +70,50 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 		$token = $this->token_from_request();
 		if ( null !== $token ) {
 			$this->set_token_cookie( $token );
+			$this->maybe_link_wpcom_user_id( $token );
 			return $token;
 		}
 
 		return $this->token_from_cookie();
+	}
+
+	/**
+	 * Self-heals the local user's wpcom_user_id meta from a freshly-verified magic-link
+	 * token, so future requests can resolve this visitor's subscriptions via the
+	 * authoritative filter (see get_subscriptions_for_logged_in_user() in access-check.php)
+	 * without needing another magic-link round trip once the token/cookie expires.
+	 *
+	 * Safe because the token's user_id was just verified by WordPress.com's own session
+	 * at subscribe.wordpress.com -- never read from anything stored locally. A local
+	 * account's email is not proof of identity by itself (anyone with admin access could
+	 * type in any email when creating a local user), so this additionally requires the
+	 * local account's own email to match the token's blog_subscriber email before linking,
+	 * to avoid mis-linking a local account to whichever WordPress.com session happens to
+	 * be active in the browser (e.g. a shared device) when the two aren't otherwise related.
+	 *
+	 * @param string $token The raw token string from the incoming request.
+	 * @return void
+	 */
+	private function maybe_link_wpcom_user_id( $token ) {
+		if ( ! is_user_logged_in() ) {
+			return;
+		}
+
+		$payload = $this->decode_token( $token );
+		if ( empty( $payload['user_id'] ) || empty( $payload['blog_subscriber'] ) ) {
+			return;
+		}
+
+		$local_user = wp_get_current_user();
+		if ( strcasecmp( $local_user->user_email, $payload['blog_subscriber'] ) !== 0 ) {
+			return;
+		}
+
+		if ( (int) get_user_meta( $local_user->ID, 'wpcom_user_id', true ) === (int) $payload['user_id'] ) {
+			return;
+		}
+
+		update_user_meta( $local_user->ID, 'wpcom_user_id', (int) $payload['user_id'] );
 	}
 
 	/**

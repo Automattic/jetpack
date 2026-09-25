@@ -1,7 +1,3 @@
-/**
- * External dependencies
- */
-
 export type GlobalErrorType = 'network' | 'auth' | 'server' | null;
 
 type Listener = () => void;

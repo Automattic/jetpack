@@ -41,15 +41,15 @@ class Surface_Visibility {
 	 * Whether to offer an existing install the chance to opt into the new SEO experience.
 	 *
 	 * The single source of truth for the opt-in surfaces (legacy Traffic-page banner, My
-	 * Jetpack card). True only when the SEO product is available (the {@see Initializer::FEATURE_FILTER}
-	 * flag is on) and the surface isn't visible yet — and since {@see self::is_visible()}
-	 * already returns true for WordPress.com and for self-hosted installs that have opted in,
-	 * "not visible" cleanly means "a self-hosted install that hasn't opted in".
+	 * Jetpack card). True only when the SEO product is available and the surface isn't
+	 * visible yet — and since {@see self::is_visible()} already returns true for
+	 * WordPress.com and for self-hosted installs that have opted in, "not visible"
+	 * cleanly means "a self-hosted install that hasn't opted in".
 	 *
 	 * @return bool
 	 */
 	public static function is_optin_available() {
-		return (bool) apply_filters( Initializer::FEATURE_FILTER, false ) && ! self::is_visible();
+		return Initializer::is_available() && ! self::is_visible();
 	}
 
 	/**

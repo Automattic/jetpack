@@ -1,0 +1,18 @@
+@use "../../styles/footer-link" as *;
+
+.reportLink {
+
+	@include footer-link;
+}
+
+// A badge or other element stands in for the text: no underline, and the
+// flex context blockifies it so it stands its full height.
+.hasContent {
+	display: inline-flex;
+	align-items: center;
+}
+
+.hasContent,
+.hasContent:hover {
+	text-decoration: none;
+}

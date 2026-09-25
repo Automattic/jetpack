@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { useImportCompletionRefresh } from '../data/use-import-completion-refresh';
+import { useNewsletterCategories } from '../data/use-newsletter-categories';
 import { installDataViewsFooterI18n } from '../lib/dataviews-i18n';
 import { getBlogId } from '../lib/site';
 import { isOpenSubscriberRemoved, toFiniteNumber } from '../lib/subscriber-helpers';
@@ -58,19 +59,32 @@ export default function SubscribersBody( {
 	// connection-gated users, or on Settings-only sites.
 	useImportCompletionRefresh( importRefreshEnabled );
 
+	// Warm the newsletter-categories cache while the list loads, so the Add Subscribers category
+	// picker renders immediately when the modal opens instead of popping in after its own round
+	// trip. Gated to the same import-capable audience as the completion poll so it never fetches on
+	// the Settings tab or for connection-gated users. Shares the query key the modal reads.
+	useNewsletterCategories( { enabled: importRefreshEnabled } );
+
+	const [ isSelfOnly, setIsSelfOnly ] = useState( false );
+	const [ isNudgeDismissed, setNudgeDismissed ] = useState( false );
+	const dismissNudge = useCallback( () => setNudgeDismissed( true ), [] );
+
 	const [ isAddOpen, setAddOpen ] = useState( false );
-	const openAdd = useCallback( () => setAddOpen( true ), [] );
+	const openAdd = useCallback( () => {
+		setAddOpen( true );
+		setNudgeDismissed( true );
+	}, [] );
 	const closeAdd = useCallback( () => setAddOpen( false ), [] );
 
 	useEffect( () => {
 		if ( window.location.hash !== ADD_SUBSCRIBERS_HASH ) {
 			return;
 		}
-		setAddOpen( true );
+		openAdd();
 		const url = new URL( window.location.href );
 		url.hash = '';
 		window.history.replaceState( window.history.state, '', url.toString() );
-	}, [] );
+	}, [ openAdd ] );
 
 	const navigate = useNavigate();
 	const search = useSearch( {
@@ -123,12 +137,20 @@ export default function SubscribersBody( {
 				onAddSubscribers={ openAdd }
 				onViewSubscriber={ handleViewSubscriber }
 				onSubscribersRemoved={ handleSubscribersRemoved }
+				onSelfOnlyChange={ setIsSelfOnly }
 			/>
 			<AddSubscribersModal isOpen={ isAddOpen } onClose={ closeAdd } />
 		</>
 	);
 
-	const actions = <HeaderActions blogId={ blogId } onAddSubscribers={ openAdd } />;
+	const actions = (
+		<HeaderActions
+			blogId={ blogId }
+			onAddSubscribers={ openAdd }
+			showSelfOnlyNudge={ isSelfOnly && ! isNudgeDismissed && ! isAddOpen }
+			onDismissSelfOnlyNudge={ dismissNudge }
+		/>
+	);
 
 	return <>{ children( { body, actions } ) }</>;
 }

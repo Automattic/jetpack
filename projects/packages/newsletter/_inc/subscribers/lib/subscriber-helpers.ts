@@ -1,4 +1,11 @@
-import type { RemoveSubscriberPayload, Subscriber } from '../data/types';
+import type { RemoveSubscriberPayload, Subscriber, SubscriberDetails } from '../data/types';
+
+// Trailing `Z` or `±HH:MM` / `±HHMM` offset.
+const HAS_TIMEZONE = /(?:Z|[+-]\d{2}:?\d{2})$/i;
+
+// WP.com passes through a zero date when the record carries no subscription timestamp, rather
+// than omitting the field. Rendering it would print a year-0000 date, so treat it as absent.
+const ZERO_DATE = /^0000-00-00/;
 
 /**
  * Coerce a URL search-param value into a positive finite number.
@@ -15,20 +22,44 @@ export function toFiniteNumber( value: unknown ): number | undefined {
 }
 
 /**
- * Best-effort subscription date — Calypso prefers `wpcom_date_subscribed`, falling back to the
- * email subscription date for email-only subscribers. Returns the value with a `+00:00` suffix
- * appended (matching Calypso's `getFormattedSubscriptionDate` helper) so the date renders in the
- * caller's locale rather than UTC.
+ * Turn a naive UTC timestamp into ISO 8601, leaving zoned ones alone; zero dates come back empty.
  *
- * @param subscriber - Subscriber.
+ * @param raw - Date string from either payload shape.
  * @return ISO-ish date string or empty.
  */
-export function getSubscribedAt( subscriber: Subscriber ): string {
-	const raw = subscriber.wpcom_date_subscribed || subscriber.email_date_subscribed || '';
-	if ( ! raw ) {
+function normalizeDate( raw?: string | null ): string {
+	if ( ! raw || ZERO_DATE.test( raw ) ) {
 		return '';
 	}
-	return `${ raw }+00:00`;
+	return HAS_TIMEZONE.test( raw ) ? raw : `${ raw.replace( ' ', 'T' ) }+00:00`;
+}
+
+/**
+ * Earliest of the subscriber's Reader and email subscription dates.
+ *
+ * Matches WP.com's date sort, which orders by the earlier non-zero date. List dates are naive UTC,
+ * individual dates already carry an offset. `date_subscribed` is the fallback when the pair is missing.
+ *
+ * @param subscriber - Subscriber row or detail payload.
+ * @return ISO-ish date string or empty.
+ */
+export function getSubscribedAt( subscriber: Subscriber | SubscriberDetails ): string {
+	const isValid = ( date: string ) => !! date && ! Number.isNaN( Date.parse( date ) );
+	// The individual endpoint also returns cancelled email subscriptions, which report
+	// `Not subscribed`; the list never fetches them, so skip them to keep both views in step.
+	const emailDate =
+		subscriber.subscription_status === 'Not subscribed' ? null : subscriber.email_date_subscribed;
+	const dates = [ subscriber.wpcom_date_subscribed, emailDate ]
+		.map( normalizeDate )
+		.filter( isValid );
+
+	if ( ! dates.length ) {
+		const fallback = normalizeDate( ( subscriber as SubscriberDetails ).date_subscribed );
+		return isValid( fallback ) ? fallback : '';
+	}
+	return dates.reduce( ( earliest, date ) =>
+		Date.parse( date ) < Date.parse( earliest ) ? date : earliest
+	);
 }
 
 /**
@@ -102,22 +133,4 @@ export function isOpenSubscriberRemoved(
 			( !! userId && removedUserId === userId )
 		);
 	} );
-}
-
-/**
- * Whether the subscribers list is empty except for the site owner. The WP.com endpoint always
- * returns the owner in the list (it only flags `is_owner_subscribed` rather than filtering them
- * out), so a brand-new site reports a single row and DataViews' `empty` slot never fires. Mirrors
- * Calypso's `hasNoSubscriberOtherThanAdmin` launchpad condition so the caller can present the
- * cold-start empty state instead.
- *
- * @param total             - Total subscriber count for the current (unfiltered) query.
- * @param isOwnerSubscribed - Whether the site owner is among the subscribers (`is_owner_subscribed`).
- * @return True when there are no subscribers, or the only subscriber is the owner.
- */
-export function hasNoSubscribersOtherThanOwner(
-	total: number,
-	isOwnerSubscribed: boolean
-): boolean {
-	return total === 0 || ( total === 1 && isOwnerSubscribed );
 }

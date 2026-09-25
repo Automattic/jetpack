@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { Text } from '@wordpress/ui';
+import { Link, Text } from '@wordpress/ui';
 import '../../disconnect-survey/_jp-connect_disconnect-survey-card.scss';
 import DisconnectSurvey from '../../disconnect-survey';
 import type { MouseEvent } from 'react';
@@ -30,13 +30,13 @@ const StepSurvey = ( { onExit, onFeedBackProvided, isSubmittingFeedback }: StepS
 				onSubmit={ onFeedBackProvided }
 				isSubmittingFeedback={ isSubmittingFeedback }
 			/>
-			<a
+			<Link
 				className="jp-connection__disconnect-dialog__link jp-connection__disconnect-dialog__link--bold"
 				href="#"
 				onClick={ onExit }
 			>
 				{ __( 'Skip for now', 'jetpack-connection-js' ) }
-			</a>
+			</Link>
 		</div>
 	);
 };

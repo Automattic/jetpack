@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+PayPal Payment Buttons: only register the onboarding endpoint while the API-managed buttons flag is on.

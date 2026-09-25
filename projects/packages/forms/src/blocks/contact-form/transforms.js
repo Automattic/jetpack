@@ -60,6 +60,7 @@ const transformContactFieldShortcode = shortcode => {
 		placeholder: getAttributeValue( 'contact-field', 'placeholder', shortcode ),
 		required: getAttributeValue( 'contact-field', 'required', shortcode ),
 		options: getAttributeValue( 'contact-field', 'options', shortcode ),
+		helpText: getAttributeValue( 'contact-field', 'helptext', shortcode ),
 	};
 
 	const blockName = getContactFieldBlockName(

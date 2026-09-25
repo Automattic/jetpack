@@ -58,7 +58,7 @@ function with_consecutive( ...$args ) {
 		$funcs[] = new Callback(
 			function ( $value ) use ( $value_sets, $i ) {
 				static $set = null;
-				$set        = $set ?? $value_sets[ $i ]; // @phan-suppress-current-line PhanTypePossiblyInvalidDimOffset -- False positive.
+				$set      ??= $value_sets[ $i ]; // @phan-suppress-current-line PhanTypePossiblyInvalidDimOffset -- False positive.
 				if ( ! $set ) {
 					$n = count( $value_sets[ $i ] ); // @phan-suppress-current-line PhanTypePossiblyInvalidDimOffset -- False positive.
 					throw new InvalidArgumentException( "More calls than argument sets. Use `->expects( \$this->exactly( $n ) )` or the like when mocking the method to avoid this." );

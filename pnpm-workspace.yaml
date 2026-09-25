@@ -7,6 +7,7 @@ packages:
   - tools/e2e-commons/no-lighthouse
   - tools/js-tools
   - tools/performance
+  - tools/port-verification
   - .github/files/coverage-munger
 
 engineStrict: true
@@ -19,6 +20,7 @@ optimisticRepeatInstall: false
 # Be strict about peer deps
 autoInstallPeers: false
 dedupePeerDependents: false
+dedupePeers: false
 strictPeerDependencies: true
 
 # No hoisting by default.
@@ -35,15 +37,8 @@ minimumReleaseAgeExclude:
   - '@woocommerce/*'
   - '@wordpress/*'
   - 'gridicons'
-  - 'i18n-calypso'
-  # Renovate security update: webpack-dev-server@5.2.6
-  - webpack-dev-server@5.2.6
-  # Renovate security update: js-yaml@4.3.0 || 5.2.2
-  - js-yaml@4.3.0 || 5.2.2
-  # Renovate security update: sharp@0.35.0
-  - sharp@0.35.0
-  # Renovate security update: react-router@7.18.0
-  - react-router@7.18.0
+  - 'wpcom-proxy-request'
+
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
@@ -59,11 +54,10 @@ strictDepBuilds: true
 verifyDepsBeforeRun: install
 allowBuilds:
   # Tries to download/install stuff if optional deps weren't installed.
-  '@swc/core': false
   esbuild: false
   unrs-resolver: false
-  # Tries to rebuild its bundled libs if a newer version of libvips-dev is installed, which probably isn't.
-  sharp: false
+  # Tries to rebuild itself if an environment variable is set.
+  '@parcel/watcher': false
   # Attempt to show "remember to install other stuff" spam.
   svelte-preprocess: false
   # Attempt to show "support me" spam.
@@ -76,8 +70,6 @@ blockExoticSubdeps: true
 
 # Some optional dependencies we don't actually need.
 ignoredOptionalDependencies:
-  - '@oxc-parser/binding-wasm32-wasi' # https://github.com/oxc-project/oxc/issues/21038
-  - '@rolldown/binding-wasm32-wasi' # https://github.com/rolldown/rolldown/issues/8974
   - sass-embedded-all-unknown # Brings in `sass`; platforms we support should have a binary package instead of this.
   - sass-embedded-unknown-all # Brings in `sass`; platforms we support should have a binary package instead of this.
 
@@ -88,6 +80,12 @@ patchedDependencies:
   # See also https://github.com/WordPress/gutenberg/issues/39619
   react-autosize-textarea: .pnpm-patches/react-autosize-textarea.patch
 
-  # uuid up to v11 had CommonJS files with ESM content too.
-  # No bug report, because it's already fixed in the latest versions.
-  "uuid@<11": .pnpm-patches/uuid.patch
+  # The wp-admin page template delegates boot init modules to initSinglePage(),
+  # but WordPress cores bundling an older @wordpress/boot (e.g. WP 7.0) ignore
+  # the option, so init modules never run there. The patch runs them in the
+  # inline bootstrap instead. Remove once the template runs init modules itself
+  # upstream (or Jetpack's WP floor ships a boot with initModules support).
+  # It also restores the `boot-layout-container` class on the mount element,
+  # which those older cores' Boot uses to size the page to the viewport; 0.22.0
+  # dropped it and WordPress/gutenberg#82112 (unreleased) brings it back.
+  "@wordpress/build": .pnpm-patches/@wordpress__build.patch

@@ -330,6 +330,7 @@ export class PodcastPlayer extends Component {
 						currentTime={ currentTime }
 						onTimeChange={ this.handleTimeChange }
 						onMetadataLoaded={ this.updateMediaData }
+						preload="none"
 					/>
 				</Header>
 

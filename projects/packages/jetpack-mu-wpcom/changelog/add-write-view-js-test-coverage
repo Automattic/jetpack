@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Write: Extract the image-formatting and pure text helpers out of view.js into standalone modules with unit tests.

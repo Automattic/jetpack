@@ -22,11 +22,14 @@ jest.mock( './config', () => ( {
 		},
 	],
 	getCommentsReportTabs: () => [ { id: 'authors', label: 'Authors' } ],
+	// No tab declares a heading yet, so the real helper reads the label back.
+	getTabTitle: ( id: string ) => ( id === 'authors' ? 'Authors' : id ),
 	resolveTabId: ( value: string | undefined ) => value ?? 'authors',
 	useCommentsReportRecords: jest.fn(),
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/',
 	useSectionTab: () => [ 'authors', jest.fn() ],
 } ) );

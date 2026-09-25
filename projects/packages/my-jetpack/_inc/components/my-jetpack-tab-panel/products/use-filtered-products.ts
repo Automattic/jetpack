@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useAllProducts } from '../../../data/products/use-all-products';
-import { CATEGORY_CARDS_AND_MODULES, PRODUCT_MODULES } from './mappings';
+import { getHiddenFeatures } from '../../../data/utils/get-my-jetpack-window-state';
+import { CATEGORY_CARDS_AND_MODULES, getProductModules } from './mappings';
 import { ProductFilter } from './types';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
 import { buildCards, filterAndSortModules, getSectionTitle, searchAndRankItems } from './utils';
@@ -43,16 +44,17 @@ export function useFilteredProducts( { search, selectedFilter }: UseFilteredProd
 
 	// Build every category's cards and modules up front so search can always scan every
 	// product/module regardless of the selected category filter.
-	const allSections = useMemo(
-		() =>
-			ALL_CATEGORIES.map( ( [ category, { cards, modules } ] ) => ( {
-				id: category,
-				title: getSectionTitle( category ),
-				cards: buildCards( cards, allProducts, allModules, PRODUCT_MODULES ),
-				modules: filterAndSortModules( modules.map( slug => allModules[ slug ] ) ),
-			} ) ),
-		[ allProducts, allModules ]
-	);
+	const allSections = useMemo( () => {
+		const hidden = getHiddenFeatures();
+		const isListed = ( slug: string ) => ! hidden.includes( slug );
+
+		return ALL_CATEGORIES.map( ( [ category, { cards, modules } ] ) => ( {
+			id: category,
+			title: getSectionTitle( category ),
+			cards: buildCards( cards.filter( isListed ), allProducts, allModules, getProductModules() ),
+			modules: filterAndSortModules( modules.filter( isListed ).map( slug => allModules[ slug ] ) ),
+		} ) );
+	}, [ allProducts, allModules ] );
 
 	// The browse view honors the selected category filter; the default 'all' view hides the
 	// 'recommended' category (it is reachable via its own filter and would duplicate cards).

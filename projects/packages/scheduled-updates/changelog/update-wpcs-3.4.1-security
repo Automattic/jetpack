@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Exclude the WordPress.WP.EnqueuedResourceParameters sniff in the dev-only phpcs config (GHSA-3pwp-g2mj-5p3v). No change to the shipped package.
+
+

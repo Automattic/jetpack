@@ -15,9 +15,8 @@ import {
 import { toDay, type DataPointDate } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
- * Normalized activity state: one point per calendar day of the visible page
- * plus paging controls and the request's load/error flags. `hasData`
- * distinguishes the first load from refetches.
+ * One point per calendar day of the visible page. `hasData` distinguishes the
+ * first load from refetches.
  */
 export interface PostTrafficActivityState {
 	days: DataPointDate[];
@@ -37,22 +36,9 @@ export interface PostTrafficActivityState {
 }
 
 /**
- * Fetch the scoped post's daily view activity for the dashboard's report
- * params and expose one page of it. The caller derives `pageSpanDays` from
- * the card width (whole week columns that fit), so one page always fills the
- * card exactly: a range at or under one page pads backward to
- * `range end − (pageSpanDays − 1)` with blank filler weeks, and a longer
- * range is paged — the newest page shows first and the header arrows step
- * through the range one page at a time, the oldest page padding backward the
- * same way. Every calendar day of the page gets a point so the heatmap grid
- * stays complete, but days without traffic — and filler days outside the
- * selected range — carry `null`: the design renders them as blank cells
- * rather than zero labels.
- *
- * @param postId       - The scoped post ID (0 disables the request).
- * @param reportParams - The dashboard date range.
- * @param pageSpanDays - Days one page spans (a whole number of weeks).
- * @return The visible page's daily points, paging controls, and load/error state.
+ * The caller derives `pageSpanDays` from the card width (whole week columns that
+ * fit), so one page always fills the card exactly; a range longer than a page is
+ * paged, newest first. A `postId` of 0 disables the request.
  */
 export default function usePostTrafficActivity(
 	postId: number,
@@ -82,12 +68,9 @@ export default function usePostTrafficActivity(
 		const history = data?.data ?? [];
 		const viewsByDay = new Map( history.map( day => [ day.date, day.views ] ) );
 
-		// Pages snap to week boundaries: the chart grids Monday-start week
-		// columns from the window's first week, so an unaligned window would
-		// span one more column than the width measurement sized the card for.
-		// With both bounds aligned, a page is exactly `pageSpanDays / 7`
-		// columns; the days past the range edges inside those weeks stay
-		// blank filler.
+		// Pages snap to week boundaries: the chart grids Monday-start week columns
+		// from the window's first week, so an unaligned window would span one more
+		// column than the width measurement sized the card for.
 		const firstWeekStart = startOfWeek( parseISO( from ), { weekStartsOn: 1 } );
 		const newestPageEnd = endOfWeek( parseISO( to ), { weekStartsOn: 1 } );
 		const paged = firstWeekStart < subDays( newestPageEnd, pageSpanDays - 1 );
@@ -95,23 +78,28 @@ export default function usePostTrafficActivity(
 		let pageEnd = subDays( newestPageEnd, pageOffset * pageSpanDays );
 		let pageStart = subDays( pageEnd, pageSpanDays - 1 );
 
-		// The oldest page of a paged range clamps to the range's first week
-		// and fills forward (overlapping the previous page), instead of
-		// padding months of out-of-range blanks before it. Short ranges keep
-		// padding backward from the range end so the grid still fills the card.
+		// The oldest page clamps to the range's first week and fills forward,
+		// overlapping the previous page, instead of padding months of
+		// out-of-range blanks before it.
 		if ( paged && pageStart < firstWeekStart ) {
 			pageStart = firstWeekStart;
 			const clampedEnd = addDays( firstWeekStart, pageSpanDays - 1 );
 			pageEnd = clampedEnd < newestPageEnd ? clampedEnd : newestPageEnd;
 		}
 
-		const points = eachDayOfInterval( { start: pageStart, end: pageEnd } ).map( date => {
+		// No points past the range end, so the chart's ragged-edge option hides the
+		// newest week's future cells. `pageEnd` itself stays week-aligned so the
+		// column count still matches the width measurement.
+		const rangeEnd = parseISO( to );
+		const pointsEnd = rangeEnd < pageEnd ? rangeEnd : pageEnd;
+
+		const points = eachDayOfInterval( { start: pageStart, end: pointsEnd } ).map( date => {
 			const dateString = format( date, 'yyyy-MM-dd' );
 			const inRange = dateString >= from && dateString <= to;
 			const views = inRange ? viewsByDay.get( dateString ) : undefined;
 
-			// Blank (null) for no-traffic and filler days, per the design —
-			// not a `0` label.
+			// Blank (null) for no-traffic and leading filler days, per the
+			// design — not a `0` label.
 			return { dateString, value: views ? views : null };
 		} );
 

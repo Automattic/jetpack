@@ -148,15 +148,12 @@ class Clear_Filters_Render_Test extends TestCase {
 	 * The wrapper must drop both the static `hidden` attribute and the bind —
 	 * leaving the bind in place would re-hide the button as soon as JS sees
 	 * `state.hasActiveFilters` is false.
-	 *
-	 * Uses `preg_match` directly so the test runs on PHPUnit 8.5 (PHP 7.2),
-	 * which predates `assertMatchesRegularExpression()`.
 	 */
 	public function test_hide_when_inactive_false_drops_hidden_and_bind() {
 		$markup = $this->render( array( 'hideWhenInactive' => false ) );
 		$this->assertStringNotContainsString( 'data-wp-bind--hidden', $markup );
 		// Once the bind is gone, any `<div … hidden …>` would have to be a
 		// bare `hidden` attribute — exactly what the toggle should suppress.
-		$this->assertSame( 0, preg_match( '/<div[^>]*\bhidden\b[^>]*>/', $markup ) );
+		$this->assertDoesNotMatchRegularExpression( '/<div[^>]*\bhidden\b[^>]*>/', $markup );
 	}
 }

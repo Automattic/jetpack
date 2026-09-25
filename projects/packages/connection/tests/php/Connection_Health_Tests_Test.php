@@ -51,10 +51,15 @@ class Connection_Health_Tests_Test extends TestCase {
 		unset( $_SERVER['SERVER_PORT'], $_SERVER['HTTP_X_FORWARDED_PORT'], $_SERVER['HTTPS'] );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_filters( 'jetpack_is_in_safe_mode' );
 		remove_all_filters( 'jetpack_debugger_run_self_test' );
 		remove_all_filters( 'jetpack_connection_reconnect_url' );
 		remove_all_filters( 'jetpack_connection_support_url' );
+		remove_all_filters( 'jetpack_connection_bypass_error_reporting_gate' );
 		remove_all_actions( 'jetpack_connection_tests_loaded' );
+		// Also invalidates the Error_Handler singleton's displayable-errors cache,
+		// which would otherwise leak into tests run later in the same process.
+		Error_Handler::get_instance()->delete_all_errors();
 	}
 
 	/**
@@ -443,6 +448,169 @@ class Connection_Health_Tests_Test extends TestCase {
 		$this->assertFalse( $result['pass'] );
 	}
 
+	/**
+	 * Test an SSL-verification result reports a verified local_state error to the Error_Handler.
+	 */
+	public function test_wpcom_connection_test_ssl_failure_reports_connection_error() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$result = $this->evaluate_response(
+			array(
+				'connected'  => false,
+				'message'    => 'Example Site is not connected.',
+				'error_code' => 'wpcom_ssl_verification_failed',
+			)
+		);
+
+		$this->assertFalse( $result['pass'] );
+		// The dedicated result names the real cause and offers no reconnect.
+		$this->assertStringContainsString( 'SSL certificate', $result['short_description'] );
+
+		$verified_errors = Error_Handler::get_instance()->get_verified_errors();
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', $verified_errors );
+
+		// Attributed to the site (blog token), not a user.
+		$this->assertArrayHasKey( '0', $verified_errors['wpcom_ssl_verification_failed'] );
+
+		$error = $verified_errors['wpcom_ssl_verification_failed']['0'];
+		$this->assertSame( Error_Handler::ERROR_TYPE_LOCAL_STATE, $error['error_type'] );
+		$this->assertSame( '', $error['error_direction'] );
+		// The reporter declares the remedy with the error: no reconnect CTA.
+		$this->assertSame( 'none', $error['error_data']['action'] );
+	}
+
+	/**
+	 * Test a connected result clears a previously reported SSL-verification error.
+	 */
+	public function test_wpcom_connection_test_pass_clears_ssl_error() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->evaluate_response(
+			array(
+				'connected'  => false,
+				'error_code' => 'wpcom_ssl_verification_failed',
+			)
+		);
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+
+		$this->evaluate_response( array( 'connected' => true ) );
+
+		$this->assertArrayNotHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+		$this->assertArrayNotHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_stored_errors() );
+	}
+
+	/**
+	 * Test a blocked result clears a previously reported SSL-verification error.
+	 *
+	 * A 4xx/5xx from the site means WP.com completed the TLS handshake to get it,
+	 * so a lingering SSL error is provably stale.
+	 */
+	public function test_wpcom_connection_test_blocked_result_clears_ssl_error() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->evaluate_response(
+			array(
+				'connected'  => false,
+				'error_code' => 'wpcom_ssl_verification_failed',
+			)
+		);
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+
+		$this->evaluate_response(
+			array(
+				'connected'        => false,
+				'error_code'       => 'xmlrpc_request_blocked',
+				'site_http_status' => 403,
+			)
+		);
+
+		$this->assertArrayNotHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
+	}
+
+	/**
+	 * Test an SSL-verification result preserves a previously reported blocked error.
+	 *
+	 * A failed TLS handshake proves nothing about a blockage, so the blocked error
+	 * is inconclusive-preserved (bounded by ERROR_LIFE_TIME).
+	 */
+	public function test_wpcom_connection_test_ssl_result_preserves_blocked_error() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->evaluate_response(
+			array(
+				'connected'        => false,
+				'error_code'       => 'xmlrpc_request_blocked',
+				'site_http_status' => 403,
+			)
+		);
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
+
+		$this->evaluate_response(
+			array(
+				'connected'  => false,
+				'error_code' => 'wpcom_ssl_verification_failed',
+			)
+		);
+
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+	}
+
+	/**
+	 * Test a definitive non-SSL failure clears a previously reported SSL error.
+	 */
+	public function test_wpcom_connection_test_other_failure_clears_ssl_error() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->evaluate_response(
+			array(
+				'connected'  => false,
+				'error_code' => 'wpcom_ssl_verification_failed',
+			)
+		);
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+
+		$this->evaluate_response(
+			array(
+				'connected' => false,
+				'message'   => 'Invalid token.',
+			)
+		);
+
+		$this->assertArrayNotHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+	}
+
+	/**
+	 * Test an inconclusive result preserves previously reported local_state errors.
+	 *
+	 * WP.com flags probe failures it could not classify (e.g. timeouts) as
+	 * inconclusive; they neither confirm nor disprove a stored error, and clearing
+	 * on them would flap the notice for a broken site that is occasionally slow.
+	 */
+	public function test_wpcom_connection_test_inconclusive_result_preserves_errors() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->evaluate_response(
+			array(
+				'connected'  => false,
+				'error_code' => 'wpcom_ssl_verification_failed',
+			)
+		);
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+
+		$result = $this->evaluate_response(
+			array(
+				'connected'    => false,
+				'message'      => 'Example Site is not connected.',
+				'inconclusive' => true,
+			)
+		);
+
+		$this->assertFalse( $result['pass'] );
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+	}
+
 	// -------------------------------------------------------------------------
 	// test__identity_crisis
 	// -------------------------------------------------------------------------
@@ -529,7 +697,96 @@ class Connection_Health_Tests_Test extends TestCase {
 	 */
 	public function test_wpcom_connection_test_skipped_when_not_connected() {
 		$result = $this->tests->run_test( 'test__wpcom_connection_test' );
-		$this->assertEquals( 'skipped', $result['pass'] );
+		$this->assertSame( 'skipped', $result['pass'] );
+	}
+
+	/**
+	 * Force the two deliberate-state checks off so a skip can only come from the
+	 * connection itself.
+	 *
+	 * Both are checked before the connection, and Status caches each result, so a test
+	 * that does not pin them can pass through a branch it did not mean to exercise.
+	 */
+	private function disable_offline_and_safe_mode() {
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		add_filter( 'jetpack_is_in_safe_mode', '__return_false' );
+	}
+
+	/**
+	 * Test the skip explains that the site is not talking to WordPress.com, rather
+	 * than blaming a deliberate state such as offline mode.
+	 */
+	public function test_wpcom_connection_test_skip_reports_missing_connection() {
+		$this->disable_offline_and_safe_mode();
+
+		$result = $this->tests->run_test( 'test__wpcom_connection_test' );
+
+		$this->assertSame( 'skipped', $result['pass'] );
+		$this->assertSame(
+			'Your site is not communicating with WordPress.com, so this test was skipped.',
+			$result['short_description']
+		);
+	}
+
+	/**
+	 * Test the skip names offline mode, which is a deliberate state rather than a
+	 * communication failure.
+	 */
+	public function test_wpcom_connection_test_skip_reports_offline_mode() {
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$result = $this->tests->run_test( 'test__wpcom_connection_test' );
+
+		$this->assertSame( 'skipped', $result['pass'] );
+		$this->assertSame(
+			'Your site is in Offline Mode, so this test was skipped.',
+			$result['short_description']
+		);
+	}
+
+	/**
+	 * Test the skip names safe mode. Offline mode is checked first, so it has to be
+	 * ruled out for this branch to be reached.
+	 */
+	public function test_wpcom_connection_test_skip_reports_safe_mode() {
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		add_filter( 'jetpack_is_in_safe_mode', '__return_true' );
+
+		$result = $this->tests->run_test( 'test__wpcom_connection_test' );
+
+		$this->assertSame( 'skipped', $result['pass'] );
+		$this->assertSame(
+			'Your site is in Safe Mode, so this test was skipped.',
+			$result['short_description']
+		);
+	}
+
+	/**
+	 * Test the skip names the earlier failure. Offline mode, safe mode, and the
+	 * connection are all checked first, so each has to be ruled out to reach it.
+	 */
+	public function test_wpcom_connection_test_skip_reports_earlier_failure() {
+		$this->disable_offline_and_safe_mode();
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		( new Manager() )->reset_connection_status();
+
+		// Only run_tests() sets this, and it would need an earlier test to fail first.
+		$reflection = new \ReflectionClass( Connection_Health_Tests::class );
+		$property   = $reflection->getProperty( 'pass' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $this->tests, false );
+
+		$result = $this->tests->run_test( 'test__wpcom_connection_test' );
+
+		$this->assertSame( 'skipped', $result['pass'] );
+		$this->assertSame(
+			'A previous connection health test failed, so this test was skipped.',
+			$result['short_description']
+		);
 	}
 
 	/**
@@ -588,6 +845,132 @@ class Connection_Health_Tests_Test extends TestCase {
 	}
 
 	/**
+	 * Test a blocked result reports a verified local_state error to the Error_Handler.
+	 */
+	public function test_wpcom_connection_test_blocked_reports_connection_error() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->evaluate_response(
+			array(
+				'connected'        => false,
+				'message'          => 'XML-RPC request was blocked.',
+				'error_code'       => 'xmlrpc_request_blocked',
+				'site_http_status' => 403,
+			)
+		);
+
+		$verified_errors = Error_Handler::get_instance()->get_verified_errors();
+
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', $verified_errors );
+
+		// Attributed to the site (blog token), not a user.
+		$this->assertArrayHasKey( '0', $verified_errors['xmlrpc_request_blocked'] );
+
+		$error = $verified_errors['xmlrpc_request_blocked']['0'];
+		$this->assertSame( Error_Handler::ERROR_TYPE_LOCAL_STATE, $error['error_type'] );
+		$this->assertSame( '', $error['error_direction'] );
+		$this->assertSame( 403, $error['error_data']['site_http_status'] );
+		// The reporter declares the remedy with the error: no reconnect CTA.
+		$this->assertSame( 'none', $error['error_data']['action'] );
+	}
+
+	/**
+	 * Test a connected result clears a previously reported blocked error.
+	 */
+	public function test_wpcom_connection_test_pass_clears_blocked_error() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->evaluate_response(
+			array(
+				'connected'        => false,
+				'error_code'       => 'xmlrpc_request_blocked',
+				'site_http_status' => 403,
+			)
+		);
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
+
+		$this->evaluate_response( array( 'connected' => true ) );
+
+		$this->assertArrayNotHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
+		$this->assertArrayNotHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_stored_errors() );
+	}
+
+	/**
+	 * Test a definitive non-blocked failure clears a previously reported blocked error.
+	 *
+	 * WP.com ran its test and reported something other than a blockage, so a
+	 * lingering blocked error (with its "don't reconnect" advice) is stale.
+	 */
+	public function test_wpcom_connection_test_other_failure_clears_blocked_error() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->evaluate_response(
+			array(
+				'connected'        => false,
+				'error_code'       => 'xmlrpc_request_blocked',
+				'site_http_status' => 403,
+			)
+		);
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
+
+		$this->evaluate_response(
+			array(
+				'connected' => false,
+				'message'   => 'Invalid token.',
+			)
+		);
+
+		$this->assertArrayNotHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
+	}
+
+	/**
+	 * Test a service-error envelope (no `connected` property) preserves the blocked error.
+	 *
+	 * A WP.com 5xx envelope proves nothing about the site's blockage — the
+	 * test-connection logic may never have run — so the error must survive.
+	 */
+	public function test_wpcom_connection_test_error_envelope_preserves_blocked_error() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->evaluate_response(
+			array(
+				'connected'        => false,
+				'error_code'       => 'xmlrpc_request_blocked',
+				'site_http_status' => 403,
+			)
+		);
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
+
+		$this->evaluate_response( array( 'error' => 'internal_server_error' ), 500 );
+
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
+	}
+
+	/**
+	 * Test a malformed (non-JSON) response body preserves the blocked error.
+	 *
+	 * A non-JSON body (e.g. a proxy error page) decodes to null — inconclusive,
+	 * so the error must survive.
+	 */
+	public function test_wpcom_connection_test_malformed_body_preserves_blocked_error() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->evaluate_response(
+			array(
+				'connected'        => false,
+				'error_code'       => 'xmlrpc_request_blocked',
+				'site_http_status' => 403,
+			)
+		);
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
+
+		$result = $this->tests->evaluate_wpcom_connection_result( 'test__wpcom_connection_test', null, 200 );
+
+		$this->assertFalse( $result['pass'] );
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
+	}
+
+	/**
 	 * Test the blocked-request result omits the HTTP status when it is unknown.
 	 */
 	public function test_wpcom_connection_test_blocked_without_status_code() {
@@ -601,6 +984,28 @@ class Connection_Health_Tests_Test extends TestCase {
 
 		$this->assertFalse( $result['pass'] );
 		$this->assertStringContainsString( 'blocked', $result['short_description'] );
+		$this->assertStringNotContainsString( 'HTTP', $result['short_description'] );
+		// The explanation is shared with the status-code variant, so it must still be present.
+		$this->assertStringContainsString( 'security plugin, firewall, or server rule', $result['short_description'] );
+	}
+
+	/**
+	 * Test the blocked-request result carries its own heading rather than relying on
+	 * the generic fallback.
+	 */
+	public function test_wpcom_connection_test_blocked_has_specific_label() {
+		$result = $this->evaluate_response(
+			array(
+				'connected'        => false,
+				'error_code'       => 'xmlrpc_request_blocked',
+				'site_http_status' => 403,
+			)
+		);
+
+		$this->assertSame( 'Your site is blocking requests from WordPress.com', $result['label'] );
+		// Both variants share one explanation sentence.
+		$this->assertStringContainsString( '(HTTP 403).', $result['short_description'] );
+		$this->assertStringContainsString( 'security plugin, firewall, or server rule', $result['short_description'] );
 	}
 
 	/**

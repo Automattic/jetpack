@@ -2027,6 +2027,10 @@ class User_Agent_Info {
 			'perplexitybot', // index builder https://docs.perplexity.ai/guides/bots
 			'perplexity-user', // human-triggered visit https://docs.perplexity.ai/guides/bots
 
+			// Pinterest https://help.pinterest.com/en/business/article/pinterestbot
+			'pinterest/0.2',
+			'pinterestbot',
+
 			// Meta https://developers.facebook.com/docs/sharing/webmasters/web-crawlers/
 			'facebookbot', // AI data scraper https://darkvisitors.com/agents/facebookbot
 			'facebookexternalhit', // shares https://developers.facebook.com/docs/sharing/webmasters/web-crawlers/#identify

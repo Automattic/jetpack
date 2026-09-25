@@ -29,9 +29,8 @@ registerStatsMocks();
 
 const TOP_POSTS_RENDER_MODULE = 'storybook/top-posts';
 
-// Attribute metadata flows through from the module to drive the host-rendered
-// chrome: the high-relevance `contentView` control in the framed header and the
-// settings fields. `presentation` comes from widget.json ( 'framed' ).
+// Attribute metadata flows through to drive host chrome: the high-relevance
+// `contentView` control and settings fields. `presentation` comes from widget.json.
 const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 interface TopPostsStoryControls {
@@ -40,8 +39,7 @@ interface TopPostsStoryControls {
 }
 
 interface TopPostsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		TopPostsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, TopPostsStoryControls {}
 
 const withTopPostsCanvas: Decorator = Story => (
 	<div style={ { width: '100%', height: '340px' } }>
@@ -53,7 +51,6 @@ function renderTopPostsWidget( { withComparison, contentView }: TopPostsStoryCon
 	return (
 		<TopPostsRender
 			attributes={ {
-				max: 10,
 				contentView,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
@@ -73,7 +70,6 @@ function TopPostsDashboardStory( {
 			renderModule={ TOP_POSTS_RENDER_MODULE }
 			renderComponent={ TopPostsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {
-				max: 10,
 				contentView,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
@@ -159,7 +155,6 @@ function renderTopPostsOnPreset( preset: PresetType ) {
 	return (
 		<TopPostsRender
 			attributes={ {
-				max: 10,
 				contentView: 'posts',
 				reportParams: getDefaultQueryParams( false, preset ),
 			} }

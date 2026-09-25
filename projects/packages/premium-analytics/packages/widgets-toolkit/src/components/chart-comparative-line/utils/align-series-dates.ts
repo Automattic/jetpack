@@ -1,22 +1,13 @@
 /**
  * Internal dependencies
  */
+import { resolvePrimarySeriesByGroup } from '../../../helpers/resolve-series-names';
 import type { ComparativeLineChartSeries } from '../types';
 
 /**
- * Aligns comparison series dates to primary series dates by index.
- *
- * Each comparison point gets assigned the date of the corresponding primary point
- * (same index), ensuring both series align perfectly on the X-axis regardless of
- * their original date intervals. Original dates are preserved in realDate for tooltips.
- *
- * This approach handles:
- * - Different period lengths (e.g., weeks starting on different days)
- * - Partial intervals at period boundaries
- * - Any time granularity (daily, weekly, monthly)
- *
- * @param series - Array of series data where index 0 is primary and index 1+ are comparison
- * @return New array with aligned series (comparison dates match primary, originals in realDate)
+ * Aligns comparison points onto the primary series by index, keeping their real dates
+ * in `realDate` for tooltips. A grouped comparison aligns to its group's current
+ * period; an ungrouped one keeps the historical behavior of aligning to series[0].
  */
 export function alignSeriesDates(
 	series: ComparativeLineChartSeries[]
@@ -25,18 +16,30 @@ export function alignSeriesDates(
 		return series;
 	}
 
-	const [ primary, ...rest ] = series;
+	const fallbackPrimary = series[ 0 ];
 
-	if ( ! primary.data.length ) {
+	// Preserve the historical no-data contract, including the original array
+	// reference, when the chart's axis-setting series has no points.
+	if ( ! fallbackPrimary.data.length ) {
 		return series;
 	}
 
-	const alignedRest = rest.map( comparisonSeries => {
-		if ( ! comparisonSeries.data.length ) {
+	const primarySeriesByGroup = resolvePrimarySeriesByGroup( series );
+
+	return series.map( comparisonSeries => {
+		if ( ! comparisonSeries.data.length || comparisonSeries.options?.type !== 'comparison' ) {
 			return comparisonSeries;
 		}
 
-		// Check if alignment is needed by comparing first dates
+		const primary =
+			( comparisonSeries.group !== undefined
+				? primarySeriesByGroup.get( comparisonSeries.group )
+				: undefined ) ?? fallbackPrimary;
+
+		if ( ! primary.data.length ) {
+			return comparisonSeries;
+		}
+
 		const primaryFirstDate = primary.data[ 0 ]?.date;
 		const comparisonFirstDate = comparisonSeries.data[ 0 ]?.date;
 
@@ -46,29 +49,23 @@ export function alignSeriesDates(
 		const comparisonFirstMs =
 			comparisonFirstDate instanceof Date ? comparisonFirstDate.getTime() : comparisonFirstDate;
 
-		// If dates already align, return as-is
 		if ( primaryFirstMs === comparisonFirstMs ) {
 			return comparisonSeries;
 		}
 
-		// Align by index: each comparison point gets the primary point's date
 		return {
 			...comparisonSeries,
 			data: comparisonSeries.data.map( ( point, index ) => {
-				// Use corresponding primary date, or last primary date if comparison has more points
+				// A longer comparison series falls back to the last primary date.
 				const primaryDate =
 					primary.data[ index ]?.date ?? primary.data[ primary.data.length - 1 ]?.date;
 
 				return {
 					...point,
-					// Use primary's date for X-axis alignment
 					date: primaryDate,
-					// Preserve original date for tooltip display
 					realDate: point.date,
 				};
 			} ),
 		};
 	} );
-
-	return [ primary, ...alignedRest ];
 }

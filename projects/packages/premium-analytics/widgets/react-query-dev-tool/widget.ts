@@ -10,8 +10,6 @@ import { bug } from '@wordpress/icons';
 export type ReactQueryDevToolAttributes = Record< never, never >;
 
 /**
- * Widget type definition.
- *
  * Developer tool, dropped from production at registration time by the
  * `jetpack_premium_analytics_registrable_widget_types` filter
  * (widget-availability.php). This metadata only describes the type for the

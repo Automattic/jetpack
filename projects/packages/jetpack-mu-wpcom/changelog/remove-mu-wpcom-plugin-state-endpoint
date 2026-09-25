@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Remove an internal Atomic REST endpoint that was added and removed within the same release cycle, so it never shipped in a tagged version and needs no user-facing entry.

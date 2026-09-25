@@ -21,3 +21,41 @@
 		}
 	}
 }
+
+/*
+ * The pre-rendered upgrade nudge shares its markup with the editor's paid-block
+ * banner, but not its stylesheet: the spacing lives in
+ * extended-blocks/paid-blocks/editor.scss, which never loads on the frontend.
+ * Without it the banner collapses to the height of its own button, leaving the
+ * Upgrade button flush against the top and bottom edges and the description
+ * running underneath it instead of wrapping.
+ */
+.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper {
+	flex-wrap: wrap;
+
+	.banner-title,
+	.banner-description {
+		margin-block: 10px;
+		margin-inline-end: 10px;
+	}
+
+	.components-button {
+		margin-block: 10px;
+	}
+}
+
+/*
+ * The nudge is printed as a sibling of the block it belongs to, so inside a
+ * flex container it becomes a flex item and shrinks to its content width. A
+ * Form block saved with a layout attribute renders a column flex container
+ * with align-items: flex-start, and the Forms rule that stretches children
+ * only covers forms saved without one, so the banner ends up narrower than the
+ * field it is warning about.
+ *
+ * Use width rather than flex-basis: the container may be a column, where
+ * flex-basis sizes the block axis and would leave the width untouched.
+ */
+.jetpack-upgrade-plan-banner {
+	width: 100%;
+	box-sizing: border-box;
+}

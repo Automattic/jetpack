@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add an Authors dashboard widget showing top authors by views via the Jetpack Stats API (through the stats-admin proxy), with a common stats query in the data package.

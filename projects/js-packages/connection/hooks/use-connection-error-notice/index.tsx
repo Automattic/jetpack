@@ -1,11 +1,18 @@
+import { useCallback, useMemo } from 'react';
 import ConnectionErrorNotice from '../../components/connection-error-notice';
 import useConnection from '../../components/use-connection';
 import useRestoreConnection from '../../hooks/use-restore-connection';
+import { getConnectionErrorDetails, isConnectionErrorMap } from './error-details';
 import { resolveConnectionErrorActions } from './resolve-actions';
+import { getConnectionErrorSeverity } from './severity';
+import { CONNECTION_ERROR_NOTICE_EVENTS, trackConnectionErrorNoticeEvent } from './tracking';
 import type {
 	ConnectionErrorMap,
+	ConnectionErrorNoticeLink,
 	ConnectionErrorObject,
 	ConnectionErrorProps,
+	ConnectionErrorSeverity,
+	ConnectionErrorViewer,
 	UseConnectionErrorNoticeResult,
 } from './types';
 import type { ReactElement } from 'react';
@@ -16,6 +23,15 @@ export type {
 	ConnectionErrorMap,
 	ConnectionErrorObject,
 } from './types';
+
+/**
+ * Default for the optional `actionHandlers` option.
+ *
+ * Hoisted rather than written as a `= {}` default, which would be a new object
+ * on every render and so invalidate the `actions` memo below for every caller
+ * that supplies no handlers of its own.
+ */
+const NO_ACTION_HANDLERS: NonNullable< ConnectionErrorProps[ 'actionHandlers' ] > = {};
 
 /**
  * Connection error notice hook.
@@ -31,80 +47,232 @@ export type {
  * @return {UseConnectionErrorNoticeResult} - The hook data, including resolved `actions`.
  */
 export default function useConnectionErrorNotice( {
-	actionHandlers = {},
+	actionHandlers = NO_ACTION_HANDLERS,
 	trackingCallback = null,
+	trackingContext,
 	customActions = null,
 	reconnectTrackingEvent,
 	navigate,
 	includeHealthErrors = false,
 }: ConnectionErrorProps = {} ): UseConnectionErrorNoticeResult {
-	const { connectionErrors, connectionHealthErrors } = useConnection( {} );
+	const { connectionErrors, connectionHealthErrors, connectionOwner, userConnectionData } =
+		useConnection( {} );
 	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
 		useRestoreConnection();
 
-	// connectionErrors is typed as Array<string|object> but is actually a nested
-	// object at runtime; the store selector can also fall back to `[]`. Normalize
-	// to a map so the returned value is honest to the ConnectionErrorMap contract.
-	const storedErrorMap: ConnectionErrorMap =
-		connectionErrors && typeof connectionErrors === 'object' && ! Array.isArray( connectionErrors )
-			? ( connectionErrors as unknown as ConnectionErrorMap )
+	// Everything below is derived from the store and handed to consumers that key
+	// effects and memos off it (My Jetpack re-sets its notice whenever these
+	// change identity), so each derivation is memoized: a fresh array or object
+	// every render would re-fire that work on renders where nothing moved.
+	const errorMap: ConnectionErrorMap = useMemo( () => {
+		// connectionErrors is typed as Array<string|object> but is actually a nested
+		// object at runtime; the store selector can also fall back to `[]`. Normalize
+		// to a map so the returned value is honest to the ConnectionErrorMap contract.
+		const storedErrorMap: ConnectionErrorMap = isConnectionErrorMap( connectionErrors )
+			? connectionErrors
 			: {};
-	// `connectionHealthErrors` is typed as a `ConnectionErrorMap` at the store
-	// boundary (selector defaults to `{}`, never an array), so no normalization
-	// is needed — just guard against a caller that never populated the slot.
-	// Only consumers that opted in (i.e. actually ran the probe) inherit it; for
-	// everyone else the shared health slot is invisible.
-	const healthErrorMap: ConnectionErrorMap = includeHealthErrors
-		? connectionHealthErrors ?? {}
-		: {};
+		// `connectionHealthErrors` is typed as a `ConnectionErrorMap` at the store
+		// boundary (selector defaults to `{}`, never an array), so no normalization
+		// is needed — just guard against a caller that never populated the slot.
+		// Only consumers that opted in (i.e. actually ran the probe) inherit it; for
+		// everyone else the shared health slot is invisible.
+		const healthErrorMap: ConnectionErrorMap = includeHealthErrors
+			? ( connectionHealthErrors ?? {} )
+			: {};
 
-	// Precedence: real WPCOM-reported store errors win; health-check failures are
-	// the fallback so a broken connection still surfaces when the store is empty.
-	const errorMap: ConnectionErrorMap = Object.keys( storedErrorMap ).length
-		? storedErrorMap
-		: healthErrorMap;
-	const connectionErrorList = Object.values( errorMap ).shift();
-	const firstError: ConnectionErrorObject | undefined =
-		connectionErrorList && Object.values( connectionErrorList ).length
-			? Object.values( connectionErrorList ).shift()
-			: undefined;
+		// Precedence: real WPCOM-reported store errors win; health-check failures are
+		// the fallback so a broken connection still surfaces when the store is empty.
+		return Object.keys( storedErrorMap ).length ? storedErrorMap : healthErrorMap;
+	}, [ connectionErrors, connectionHealthErrors, includeHealthErrors ] );
 
-	const connectionErrorMessage = firstError?.error_message;
-	const hasConnectionError = Boolean( connectionErrorMessage );
+	const currentUserId = userConnectionData?.currentUser?.id;
 
-	const actions = firstError
-		? resolveConnectionErrorActions( firstError, {
-				actionHandlers,
-				trackingCallback,
-				customActions,
-				restoreConnection,
-				isRestoringConnection,
-				reconnectTrackingEvent,
-				navigate,
-		  } )
-		: [];
+	// Not `currentUser.isMaster`: that goes false for the owner themselves once
+	// their token breaks, which is exactly when this runs.
+	const isCurrentUserConnectionOwner = Boolean(
+		connectionOwner && connectionOwner.id === currentUserId
+	);
+
+	// Gated on `jetpack_connect` server-side, so this is absent for viewers who are
+	// not allowed to know who the owner is.
+	const ownerName = connectionOwner?.displayName;
+
+	const viewer: ConnectionErrorViewer = useMemo(
+		() => ( {
+			currentUserId,
+			isOwner: isCurrentUserConnectionOwner,
+			ownerName,
+		} ),
+		[ currentUserId, isCurrentUserConnectionOwner, ownerName ]
+	);
+
+	// Everything a notice needs to describe these errors — title, message groups
+	// with their scope lines, and the links to offer beneath them. Derived here so
+	// every consumer presents the same errors the same way; see `error-details`.
+	const {
+		errors: displayableErrors,
+		title: errorTitle,
+		groups: errorGroups,
+		showSupportLink,
+	} = useMemo( () => getConnectionErrorDetails( errorMap, viewer ), [ errorMap, viewer ] );
+
+	const actionError: ConnectionErrorObject | undefined = useMemo( () => {
+		// The CTA comes from an error the viewer can actually resolve, and one they
+		// can see. `displayableErrors` has already dropped the message-less errors and
+		// the ones belonging to other users (see `isOtherUsersConnectionError`), in
+		// store order, so the only condition left to apply here is the action itself.
+		const resolvable = displayableErrors.find( error => error.error_data?.action !== 'none' );
+
+		if ( resolvable ) {
+			return resolvable;
+		}
+
+		// Nothing actionable, but something is still on screen: describe the first
+		// error the viewer was actually shown, so the message and the CTA suppression
+		// derived from it match the notice around them.
+		if ( displayableErrors.length ) {
+			return displayableErrors[ 0 ];
+		}
+
+		// Nothing displayable either, so no notice is rendered (`hasConnectionError`
+		// is false below). Fall back to the first error in the map, filtered or not,
+		// so `connectionError` still describes something to a caller reading it for
+		// the error's type rather than for a CTA.
+		const connectionErrorList = Object.values( errorMap ).shift();
+
+		return connectionErrorList ? Object.values( connectionErrorList ).shift() : undefined;
+	}, [ displayableErrors, errorMap ] );
+
+	// Message and CTA describe the same error.
+	const connectionErrorMessage = actionError?.error_message;
+
+	// Whether there is a notice at all is the displayable set's to answer, not
+	// `actionError`'s: its last-resort fallback reaches into the unfiltered map, so
+	// keying off it would report an error the viewer is never shown. Consumers gate
+	// their own notice chrome on this flag and would wrap an empty notice in it,
+	// and `<ConnectionError />` below would fall back to rendering that error's
+	// message — the filtering undone by the flag that was meant to respect it.
+	const hasConnectionError = displayableErrors.length > 0;
+
+	// How much of a problem the break is for this viewer. Derived here so a notice
+	// and a status surface built on this hook cannot rate the same break differently.
+	const severity: ConnectionErrorSeverity | null = useMemo(
+		() => getConnectionErrorSeverity( displayableErrors, viewer ),
+		[ displayableErrors, viewer ]
+	);
+
+	const actions = useMemo(
+		() =>
+			actionError
+				? resolveConnectionErrorActions( actionError, {
+						actionHandlers,
+						trackingCallback,
+						trackingContext,
+						customActions,
+						restoreConnection,
+						isRestoringConnection,
+						reconnectTrackingEvent,
+						navigate,
+					} )
+				: [],
+		[
+			actionError,
+			actionHandlers,
+			trackingCallback,
+			trackingContext,
+			customActions,
+			restoreConnection,
+			isRestoringConnection,
+			reconnectTrackingEvent,
+			navigate,
+		]
+	);
+
+	// The two links a notice can carry (Site Health and Contact Support) render
+	// outside `actions`, and hook-mode consumers draw them in their own JSX — so
+	// expose the same wired trackers the package's `<ConnectionError />` uses.
+	// Each attributes the click to the error that actually supplied the link, not
+	// to `actionError` (the CTA's error), which in a multi-error notice can be a
+	// different one; `actionError` remains the fallback.
+	const trackNoticeLinkClick = useCallback(
+		( link: ConnectionErrorNoticeLink ) => {
+			const source =
+				displayableErrors.find( error => error.error_data?.notice_link?.url === link.url ) ??
+				actionError;
+			// Report only the path, never the per-site absolute URL: the host, any
+			// query string, and (under the `jetpack_connection_get_verified_errors`
+			// filter) a possible token must not reach Tracks.
+			let linkPath: string | null;
+			try {
+				linkPath = new URL( link.url, window.location.href ).pathname;
+			} catch {
+				linkPath = null;
+			}
+			trackConnectionErrorNoticeEvent(
+				CONNECTION_ERROR_NOTICE_EVENTS.noticeLink,
+				{ trackingCallback, trackingContext, error: source },
+				{ link_url: linkPath }
+			);
+		},
+		[ trackingCallback, trackingContext, displayableErrors, actionError ]
+	);
+
+	const trackSupportLinkClick = useCallback( () => {
+		// The support link is notice-wide; attribute it to the first error that
+		// asked for it — representative when more than one did.
+		const source = displayableErrors.find( error => error.error_data?.support_link ) ?? actionError;
+		trackConnectionErrorNoticeEvent( CONNECTION_ERROR_NOTICE_EVENTS.supportLink, {
+			trackingCallback,
+			trackingContext,
+			error: source,
+		} );
+	}, [ trackingCallback, trackingContext, displayableErrors, actionError ] );
 
 	return {
 		hasConnectionError,
+		severity,
 		connectionErrorMessage,
-		connectionError: firstError, // Full error object with error_type, etc.
+		connectionError: actionError, // Full error object with error_type, etc.
 		connectionErrors: errorMap, // All errors for advanced use cases.
+		displayableErrors,
+		errorTitle,
+		errorGroups,
+		showSupportLink,
+		viewer,
 		actions, // Resolved CTA actions for the connection error.
+		trackNoticeLinkClick,
+		trackSupportLinkClick,
 		restoreConnection,
 		isRestoringConnection,
 		restoreConnectionError,
+		connectionOwner,
+		isCurrentUserConnectionOwner,
+		currentUserId,
 	};
 }
 
-export const ConnectionError = ( {
+/**
+ * The package's ready-made connection error notice: the hook wired to the
+ * presentational component.
+ *
+ * @param {ConnectionErrorProps} props - Action resolution options, plus an optional `context` line.
+ * @return {ReactElement | null} The notice, or null when there is no error to show.
+ */
+export function ConnectionError( {
 	context,
 	...props
-}: ConnectionErrorProps = {} ): ReactElement | null => {
+}: ConnectionErrorProps = {} ): ReactElement | null {
 	const {
 		hasConnectionError,
+		severity,
 		connectionErrorMessage,
 		connectionError,
+		errorTitle,
+		errorGroups,
+		showSupportLink,
 		actions,
+		trackNoticeLinkClick,
+		trackSupportLinkClick,
 		restoreConnection,
 		isRestoringConnection,
 		restoreConnectionError,
@@ -126,8 +294,15 @@ export const ConnectionError = ( {
 				actions.length === 0 && ! suppressRestoreFallback ? restoreConnection : null
 			}
 			message={ connectionErrorMessage }
-			context={ context }
+			errorGroups={ errorGroups }
+			showSupportLink={ showSupportLink }
+			// A feature-supplied context line is more specific than the shared title,
+			// so it wins the one slot the notice has for it.
+			context={ context ?? errorTitle }
 			actions={ actions }
+			onNoticeLinkClick={ trackNoticeLinkClick }
+			onSupportLinkClick={ trackSupportLinkClick }
+			severity={ severity ?? 'error' }
 		/>
 	);
-};
+}

@@ -23,14 +23,9 @@ type ConversionRateWidgetProps = WidgetRenderProps< ConversionRateRenderAttribut
 };
 
 /**
- * Conversion rate widget.
- *
  * Thin composition over WidgetRoot: WidgetRoot provides the query client,
  * chart theme, and resolved report params; ConversionRateWidget fetches the
  * conversion-rate report and renders the funnel.
- *
- * @param {ConversionRateWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function ConversionRateRender( {
 	attributes = {},

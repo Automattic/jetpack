@@ -1,5 +1,6 @@
 export {
 	POST_DETAIL_TAB_IDS,
+	EMAIL_TAB_IDS,
 	DEFAULT_TAB_ID,
 	getTabLabel,
 	getPostDetailTabs,
@@ -10,4 +11,4 @@ export {
 
 export { POST_DETAIL_TAB_LAYOUTS } from './tab-layouts';
 
-export { EMAIL_WIDGET_TYPE_ALIASES } from './email-widget-variants';
+export { POST_DETAIL_WIDGET_TYPE_ALIASES } from './widget-variants';

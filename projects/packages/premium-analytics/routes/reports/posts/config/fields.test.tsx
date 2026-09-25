@@ -1,11 +1,16 @@
 /**
  * External dependencies
  */
-import { useSiteHomeUrl, type StatsTopPostsComparisonItem } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import {
+	useSiteHomeUrl,
+	type PostThumbnailUrls,
+	type StatsTopPostsComparisonItem,
+} from '@jetpack-premium-analytics/data';
+import { fireEvent, render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { setMockRouteSearch } from '../../../../tests/js/route-test-utils';
 import {
 	buildArchiveCsvRows,
 	buildArchiveRows,
@@ -13,26 +18,22 @@ import {
 	getPostsFields,
 	type ArchiveRow,
 } from './fields';
-import type { ReactNode } from 'react';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	useSiteHomeUrl: jest.fn(),
 } ) );
 
 // The router is built dynamically at runtime, so a field-level test has no
-// router to mount. Render `Link` as the anchor it becomes, keeping `to`/
-// `params` assertable, matching the other report field tests.
-jest.mock( '@wordpress/route', () => ( {
-	Link: ( {
-		to,
-		params,
-		children,
-	}: {
-		to: string;
-		params: Record< string, string >;
-		children: ReactNode;
-	} ) => <a href={ to.replace( /\$(\w+)/g, ( _match, key ) => params[ key ] ) }>{ children }</a>,
-} ) );
+// router to mount. Render `Link` as the anchor it becomes, keeping `to`,
+// `params`, and `search` assertable, matching the other report field
+// tests.
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual( '../../../../tests/js/route-test-utils' );
+
+	return mockWordPressRoute;
+} );
+
+setMockRouteSearch( { from: '2026-03-01', to: '2026-03-10', interval: 'day' } );
 
 const mockUseSiteHomeUrl = useSiteHomeUrl as jest.MockedFunction< typeof useSiteHomeUrl >;
 
@@ -47,11 +48,17 @@ const homepage: StatsTopPostsComparisonItem = {
 /**
  * Mount the posts title field's render component for a table row.
  *
- * @param item - The top-posts row to render the title cell for.
+ * @param item          - The top-posts row to render the title cell for.
+ * @param thumbnailUrls - Thumbnail URLs keyed by post ID.
  * @return The Testing Library render result.
  */
-function renderTitleField( item: StatsTopPostsComparisonItem ) {
-	const field = getPostsFields().find( candidate => candidate.id === 'title' );
+function renderTitleField(
+	item: StatsTopPostsComparisonItem,
+	thumbnailUrls: PostThumbnailUrls = {}
+) {
+	const field = getPostsFields( false, 'posts-pages', thumbnailUrls ).find(
+		candidate => candidate.id === 'title'
+	);
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
 	const TitleField = field?.render;
 
@@ -88,7 +95,9 @@ function renderArchiveTitleField( item: ArchiveRow ) {
  * @return The Testing Library render result.
  */
 function renderPostViewsField( item: StatsTopPostsComparisonItem, withComparison = false ) {
-	const field = getPostsFields( withComparison ).find( candidate => candidate.id === 'views' );
+	const field = getPostsFields( withComparison, 'posts-pages' ).find(
+		candidate => candidate.id === 'views'
+	);
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
 	const ViewsField = field?.render;
 
@@ -123,18 +132,44 @@ describe( 'posts title field', () => {
 		mockUseSiteHomeUrl.mockReset();
 	} );
 
+	it( 'renders the post thumbnail beside its title', () => {
+		renderTitleField(
+			{
+				id: 42,
+				label: 'Hello world',
+				views: 12,
+				link: 'https://example.com/hello-world/',
+				type: 'post',
+			},
+			{ 42: 'https://example.com/thumb.jpg' }
+		);
+
+		const thumbnail = screen.getByRole( 'presentation' );
+		expect( thumbnail ).toHaveAttribute( 'src', 'https://example.com/thumb.jpg' );
+
+		fireEvent.error( thumbnail );
+		expect( screen.getByTestId( 'post-thumbnail-placeholder' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the post-type placeholder when a row has no thumbnail', () => {
+		renderTitleField( homepage );
+
+		expect( screen.getByTestId( 'post-thumbnail-placeholder' ) ).toBeInTheDocument();
+	} );
+
 	it( 'links the homepage row to the site home URL', () => {
 		mockUseSiteHomeUrl.mockReturnValue( 'https://example.com/' );
 
 		renderTitleField( homepage );
 
+		// The homepage has no post-detail page, so its title is the outbound link
+		// and carries the external-link marker.
 		const link = screen.getByRole( 'link', {
-			name: /Homepage \(Latest posts\).*opens in a new tab/i,
+			name: 'Homepage (Latest posts)(opens in a new tab)',
 		} );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
-		expect( screen.getByRole( 'img', { name: '(opens in a new tab)' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders plain text when the site home URL is unavailable', () => {
@@ -159,7 +194,7 @@ describe( 'posts title field', () => {
 		expect( screen.queryByText( '+61%' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'drills a row with a post ID into the post detail page', () => {
+	it( 'drills a row with a post ID into the post detail page, carrying the date range', () => {
 		renderTitleField( {
 			id: 42,
 			label: 'Hello world',
@@ -168,20 +203,45 @@ describe( 'posts title field', () => {
 			type: 'post',
 		} );
 
-		expect( screen.getByRole( 'link', { name: 'Hello world' } ) ).toHaveAttribute(
-			'href',
-			'/post/42'
-		);
+		const link = screen.getByRole( 'link', { name: 'Hello world' } );
+		const href = link.getAttribute( 'href' ) ?? '';
+		const search = new URL( href, 'https://example.com' ).searchParams;
+
+		expect( href ).toContain( '/post/42' );
+		// The detail page must open on the range the report is showing, not
+		// reseed its own defaults.
+		expect( search.get( 'from' ) ).toBe( '2026-03-01' );
+		expect( search.get( 'to' ) ).toBe( '2026-03-10' );
+		expect( search.get( 'post_url' ) ).toBe( 'https://example.com/hello-world/' );
+		// A row with a detail page carries no link out to the live post.
+		expect( link ).not.toHaveAttribute( 'target' );
+		// The referring report travels in the URL so the detail breadcrumb can
+		// link back to the tab the visitor came from.
+		expect( search.get( 'ref' ) ).toBe( 'posts' );
+		expect( search.get( 'ref_section' ) ).toBe( 'posts-pages' );
 	} );
 
-	// Every row the API returns carries an ID, and the ID-less homepage row is
-	// caught by the branch above, so this only guards against a malformed row
-	// linking to `/post/undefined`.
-	it( 'renders a row with no post ID as plain text rather than a broken link', () => {
+	// Guards against a malformed row linking to `/post/undefined`.
+	it( 'renders a row with no post ID and no URL as plain text rather than a broken link', () => {
 		renderTitleField( { label: 'Uncategorized', views: 3, link: null, type: 'post' } );
 
 		expect( screen.getByText( 'Uncategorized' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'falls back to the public URL when a row has no post ID', () => {
+		renderTitleField( {
+			label: 'Uncategorized',
+			views: 3,
+			link: 'https://example.com/uncategorized/',
+			type: 'post',
+		} );
+
+		const link = screen.getByRole( 'link', {
+			name: 'Uncategorized(opens in a new tab)',
+		} );
+		expect( link ).toHaveAttribute( 'href', 'https://example.com/uncategorized/' );
+		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 
 	it( 'shows the archives views delta when comparison is enabled', () => {

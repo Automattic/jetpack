@@ -1,113 +1,90 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
-import { trendingUp } from '@wordpress/icons';
+import { __, _n } from '@wordpress/i18n';
+import { people } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
+
+/**
+ * External dependencies
+ */
+import {
+	reportParamsAttributeField,
+	type ReportParamsFieldAttributes,
+} from '@jetpack-premium-analytics/fields';
+import {
+	chartTypeAttributeField,
+	type ChartDisplayChartType,
+	type CountLabel,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
  * Internal dependencies
  */
-import { ArrayCheckboxField, SelectField } from '@jetpack-premium-analytics/fields';
+import { DEFAULT_REPORT_PARAMS } from './default-report-params';
+import { SUBSCRIBERS_GRAIN } from './grain';
 
 /**
- * Granularity the chart can be grouped by. `auto` follows the dashboard date
- * range (a wide range buckets by month, a narrow one by day); an explicit
- * value sticks across range changes.
+ * How the selected metric is drawn. The shared chart-display list keeps every
+ * chart widget's dropdown identical and ties it to the toolkit's own union.
  */
-export type SubscribersChartGranularity = 'auto' | 'day' | 'week' | 'month';
+export type SubscribersChartType = ChartDisplayChartType;
 
 /**
- * The metric tabs the chart can show, in display order: the persisted id and
- * label of each metric. Single source for the settings checkboxes and the
- * chart tabs so the two cannot drift apart. The Paid subscribers tab only
- * renders when the site has paid subscribers, even while selected.
+ * The metric tabs the chart shows, in display order: the id, label and tooltip
+ * unit of each metric. The Paid subscribers tab only renders when the site has paid
+ * subscribers.
  */
 export const SUBSCRIBERS_CHART_METRICS = [
-	{ id: 'subscribers', label: __( 'Subscribers', 'jetpack-premium-analytics-pkg' ) },
-	{ id: 'paid', label: __( 'Paid subscribers', 'jetpack-premium-analytics-pkg' ) },
-] as const satisfies readonly { id: string; label: string }[];
+	{
+		id: 'subscribers',
+		label: __( 'Subscribers', 'jetpack-premium-analytics-pkg' ),
+		countLabel: count =>
+			/* translators: %s: number of subscribers. */
+			_n( '%s Subscriber', '%s Subscribers', count, 'jetpack-premium-analytics-pkg' ),
+	},
+	{
+		id: 'paid',
+		label: __( 'Paid subscribers', 'jetpack-premium-analytics-pkg' ),
+		countLabel: count =>
+			/* translators: %s: number of paid subscribers. */
+			_n( '%s Paid subscriber', '%s Paid subscribers', count, 'jetpack-premium-analytics-pkg' ),
+	},
+] as const satisfies readonly { id: string; label: string; countLabel: CountLabel }[];
 
 /**
- * Identifier persisted in the widget's `metrics` attribute for one metric tab.
+ * Identifier of one metric tab.
  */
 export type SubscribersChartMetricId = ( typeof SUBSCRIBERS_CHART_METRICS )[ number ][ 'id' ];
 
 /**
- * Configurable attributes for the Subscribers chart widget. Report params
- * still reach it through WidgetRoot: the dashboard date range, or
- * `attributes.reportParams` when a host injects them (e.g. Storybook and
- * dashboard previews).
+ * The widget owns its date control because no other Subscribers widget reads a range.
  *
- * @property granularity - Bucket size within the dashboard range. Defaults to `auto`.
- * @property metrics     - Metric tabs to show in the chart. Defaults to every metric.
+ * @property chartType - How to draw the selected metric. Defaults to `line`.
  */
-export type SubscribersChartAttributes = {
-	granularity?: SubscribersChartGranularity;
-	metrics?: SubscribersChartMetricId[];
+export type SubscribersChartAttributes = Partial< ReportParamsFieldAttributes > & {
+	chartType?: SubscribersChartType;
 };
 
 /**
- * Default selection for new widget instances: every metric enabled.
- */
-export const DEFAULT_SUBSCRIBERS_CHART_METRICS: SubscribersChartMetricId[] =
-	SUBSCRIBERS_CHART_METRICS.map( metric => metric.id );
-
-/**
- * Widget type definition.
- *
- * Ported from the Jetpack Stats `stats-subscribers-chart-section` card in
- * wp-calypso. The date range and previous-period comparison follow the
- * dashboard picker; the legacy interval segmented control is the
- * `granularity` attribute (`relevance: 'high'`), so the widget host renders
- * its control. It only chooses the bucket size within that range. The
- * `metrics` attribute selects which tabs render; `example.attributes` doubles
- * as the defaults applied to new instances.
+ * Ported from the Jetpack Stats `stats-subscribers-chart-section` card. The
+ * bucket size follows the selected window rather than a control of its own, so
+ * the date field offers the window alone.
+ * `example.attributes` doubles as the defaults applied to new instances.
  */
 export default {
-	icon: trendingUp,
+	icon: people,
 	attributes: [
-		{
-			id: 'granularity',
-			label: __( 'Group by', 'jetpack-premium-analytics-pkg' ),
-			type: 'text',
-			Edit: SelectField,
-			elements: [
-				{
-					label: __( 'Auto', 'jetpack-premium-analytics-pkg' ),
-					value: 'auto',
-				},
-				{
-					label: __( 'By days', 'jetpack-premium-analytics-pkg' ),
-					value: 'day',
-				},
-				{
-					label: __( 'By weeks', 'jetpack-premium-analytics-pkg' ),
-					value: 'week',
-				},
-				{
-					label: __( 'By months', 'jetpack-premium-analytics-pkg' ),
-					value: 'month',
-				},
-			],
-			relevance: 'high',
-		},
-		{
-			id: 'metrics',
-			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
-			type: 'array',
-			relevance: 'high',
-			Edit: ArrayCheckboxField,
-			elements: SUBSCRIBERS_CHART_METRICS.map( metric => ( {
-				value: metric.id,
-				label: metric.label,
-			} ) ),
-		},
+		reportParamsAttributeField< SubscribersChartAttributes >( {
+			grain: SUBSCRIBERS_GRAIN,
+			offersComparison: false,
+		} ),
+		chartTypeAttributeField(),
 	] as WidgetAttributeField< SubscribersChartAttributes >[],
 	example: {
 		attributes: {
-			granularity: 'auto',
-			metrics: DEFAULT_SUBSCRIBERS_CHART_METRICS,
+			reportParams: DEFAULT_REPORT_PARAMS,
+			chartType: 'line',
 		},
 	},
 };

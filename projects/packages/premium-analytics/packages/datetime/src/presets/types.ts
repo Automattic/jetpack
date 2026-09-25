@@ -8,12 +8,16 @@ export const PRESET_LAST_7_DAYS = 'last-7-days' as const;
 export const PRESET_LAST_30_DAYS = 'last-30-days' as const;
 export const PRESET_LAST_90_DAYS = 'last-90-days' as const;
 export const PRESET_LAST_365_DAYS = 'last-365-days' as const;
+export const PRESET_MONTH_TO_DATE = 'month-to-date' as const;
 export const PRESET_LAST_MONTH = 'last-month' as const;
+export const PRESET_YEAR_TO_DATE = 'year-to-date' as const;
 export const PRESET_LAST_12_MONTHS = 'last-12-months' as const;
 export const PRESET_LAST_YEAR = 'last-year' as const;
 
 /**
- * All selectable (non-custom) preset IDs, in display order.
+ * All selectable (non-custom) preset IDs, in display order. Wider than what the
+ * menu offers: a preset the design has dropped stays here so a saved layout or
+ * a bookmark naming it still resolves to its range.
  */
 export const SELECTABLE_PRESETS = [
 	PRESET_TODAY,
@@ -23,10 +27,21 @@ export const SELECTABLE_PRESETS = [
 	PRESET_LAST_30_DAYS,
 	PRESET_LAST_90_DAYS,
 	PRESET_LAST_365_DAYS,
+	PRESET_MONTH_TO_DATE,
 	PRESET_LAST_MONTH,
+	PRESET_YEAR_TO_DATE,
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_YEAR,
 ] as const;
+
+export type SelectablePresetId = ( typeof SELECTABLE_PRESETS )[ number ];
+
+/**
+ * The all-time marker. On the year surface it covers every year the surface
+ * lists; on a detail page's quick surface it runs from the resource's own start
+ * (its publish date) through today.
+ */
+export const PRESET_ALL_TIME = 'all-time' as const;
 
 /**
  * Quick presets shown as surface pills in the date-range filter.
@@ -39,14 +54,36 @@ export const QUICK_SURFACE_PRESETS = [
 ] as const;
 
 /**
- * Union of the selectable preset identifiers.
+ * Every preset a quick surface can render as a pill: the rolling windows, plus
+ * all time where the surface opts into it.
  */
-export type SelectablePresetId = ( typeof SELECTABLE_PRESETS )[ number ];
+export type QuickSurfacePresetId = SelectablePresetId | typeof PRESET_ALL_TIME;
 
 /**
- * The all-time marker: one range covering every year the year surface lists.
+ * The period menu in display order, grouped by the scale each window measures.
+ * Each group renders as a separated block, narrowest scale first.
+ *
+ * All time sits in its own group rather than with the years: it is not one, and
+ * only some surfaces offer it.
  */
-export const PRESET_ALL_TIME = 'all-time' as const;
+export const MENU_SURFACE_PRESET_GROUPS = [
+	[ PRESET_TODAY, PRESET_YESTERDAY, PRESET_LAST_24_HOURS, PRESET_LAST_7_DAYS, PRESET_LAST_30_DAYS ],
+	[ PRESET_MONTH_TO_DATE, PRESET_LAST_MONTH ],
+	[ PRESET_YEAR_TO_DATE, PRESET_LAST_12_MONTHS ],
+	[ PRESET_ALL_TIME ],
+] as const;
+
+/**
+ * What the period menu offers unless a surface says otherwise. All time is left
+ * out: only a surface with a start date to anchor it can offer one.
+ */
+export const MENU_SURFACE_PRESETS = SELECTABLE_PRESETS;
+
+/**
+ * What a resource detail page (post, video) offers: the whole menu, plus all
+ * time, which such a page anchors on the resource's own publish date.
+ */
+export const DETAIL_SURFACE_PRESETS = [ ...MENU_SURFACE_PRESETS, PRESET_ALL_TIME ] as const;
 
 /**
  * Prefix of the per-year preset IDs, e.g. `year-2024`.
@@ -77,9 +114,6 @@ export type ComputablePresetId = SelectablePresetId | YearSurfacePresetId;
  */
 export const PRESET_CUSTOM = 'custom' as const;
 
-/**
- * Primary preset: any computable preset, or 'custom'.
- */
 export type PrimaryPresetId = ComputablePresetId | typeof PRESET_CUSTOM;
 
 /**

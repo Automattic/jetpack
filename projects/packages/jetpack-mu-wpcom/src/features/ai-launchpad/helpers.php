@@ -107,7 +107,7 @@ if ( ! function_exists( 'wpcom_ai_launchpad_tracks_context' ) ) {
 	 * The shared analytics context merged into every AI Launchpad Tracks event, mirroring the
 	 * client-side context in `js/lib/tracks.ts`. Values are null until the corresponding data
 	 * exists. Only model-inferred fields are included — never the user's raw title/description
-	 * (`brand_name`/`tagline` echo them near-verbatim and are excluded).
+	 * (`brand_name` echoes them near-verbatim and is excluded).
 	 *
 	 * @param string[]|null $rendered_task_ids The rendered task ids, when the caller has them.
 	 * @return array The context props.
@@ -141,10 +141,185 @@ if ( ! function_exists( 'wpcom_ai_launchpad_tracks_context' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wpcom_ai_launchpad_is_test' ) ) {
+	/**
+	 * Whether this request comes from a development or test environment.
+	 *
+	 * Environment-based, never user-based. The AI property standard keeps `is_test` and
+	 * `is_a11n` independently filterable, so an Automattician working on a production site is
+	 * a11n but not test. The standard also lists a set of internal Atomic client IDs, which is
+	 * deliberately not implemented here: the reference implementation
+	 * (packages/agents-manager, is_dev_mode()) gates that clause behind AT_PROXIED_REQUEST,
+	 * which would make this user-based again, and ungated it would risk reporting real Atomic
+	 * sites as tests. Automattician sessions on real test sites are covered by is_a11n instead.
+	 *
+	 * @return bool
+	 */
+	function wpcom_ai_launchpad_is_test() {
+		$host = wp_parse_url( get_site_url(), PHP_URL_HOST );
+
+		if ( ! is_string( $host ) || '' === $host ) {
+			return false;
+		}
+
+		$host = strtolower( $host );
+
+		if ( 'localhost' === $host ) {
+			return true;
+		}
+
+		foreach ( array( '.jurassic.tube', '.jurassic.ninja' ) as $suffix ) {
+			if ( substr( $host, - strlen( $suffix ) ) === $suffix ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_is_a11n' ) ) {
+	/**
+	 * Whether an Automattician is acting on this site.
+	 *
+	 * Mirrors the platform split used elsewhere in the package: on Simple the platform's own
+	 * is_automattician() is authoritative, and on Atomic the a8c proxy is what identifies us.
+	 * Both branches fail closed when their primitive is missing.
+	 *
+	 * Records who is acting, not who owns the site — an Automattician working on a customer's
+	 * site is a11n, a customer working on an a8c-owned site is not.
+	 *
+	 * @return bool
+	 */
+	function wpcom_ai_launchpad_is_a11n() {
+		if ( ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ) {
+			return function_exists( 'is_automattician' ) && (bool) is_automattician();
+		}
+
+		return \Automattic\Jetpack\Constants::is_true( 'AT_PROXIED_REQUEST' );
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_standard_props' ) ) {
+	/**
+	 * The AI standard Tracks properties, merged into every AI Launchpad event by both
+	 * recorders — the server one below and the client one in `js/lib/tracks.ts`, which reads
+	 * this same array from the page's `window.wpcomAiLaunchpadTracks` global.
+	 *
+	 * Every value is a string or an int, never null: the standard requires the string "none"
+	 * for a missing value, because null breaks group-by aggregations downstream.
+	 *
+	 * @return array The standard props.
+	 */
+	function wpcom_ai_launchpad_standard_props() {
+		$ai_output = get_option( 'wpcom_ai_launchpad_ai_output' );
+
+		$string_or_none = static function ( $value ) {
+			return is_string( $value ) && '' !== $value ? $value : 'none';
+		};
+
+		$source        = $string_or_none( is_array( $ai_output ) ? ( $ai_output['source'] ?? null ) : null );
+		$ai_session_id = $string_or_none( is_array( $ai_output ) ? ( $ai_output['ai_session_id'] ?? null ) : null );
+
+		// Redundant with $source by construction. The standard requires it and cross-product AI
+		// dashboards group by it, so it is derived here rather than stored a second time.
+		$outcome = 'none';
+		if ( 'ai' === $source ) {
+			$outcome = 'success';
+		} elseif ( 'fallback' === $source ) {
+			$outcome = 'error';
+		}
+
+		return array(
+			'channel'       => 'web',
+			'surface'       => 'dashboard',
+			// The Site Setup page's own $pagenow, hardcoded rather than read live: the two
+			// server-fired events fire inside REST requests, where $pagenow is index.php, and
+			// the two recorders have to report the same screen for the same user.
+			'screen'        => 'admin.php',
+			'ref'           => 'experiment_wpcom_launchpad_personalization_202607_v1',
+			'site_type'     => ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ? 'simple' : 'atomic',
+			'agent_name'    => 'ai_launchpad',
+			'agent_version' => \Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION,
+			// Stringified rather than left as PHP bools: http_build_query() (both PHP Tracks
+			// clients end in one) renders a bool as "1"/"0", while the client recorder's
+			// encodeURIComponent() renders it as "true"/"false" — the same logical value would
+			// reach Tracks differently depending on which recorder fired it. The literal strings
+			// 'true'/'false' are what the Fieldguide standard documents and the only
+			// representation both encoders pass through unchanged.
+			'is_test'       => wpcom_ai_launchpad_is_test() ? 'true' : 'false',
+			'is_a11n'       => wpcom_ai_launchpad_is_a11n() ? 'true' : 'false',
+			// Explicit rather than left to the Tracks super prop: on the client the super prop
+			// is missing on about one page-view fire in twenty, which understates every
+			// per-site rate that uses `viewed` as its denominator.
+			'blog_id'       => (int) get_wpcom_blog_id(),
+			'source'        => $source,
+			'outcome'       => $outcome,
+			'ai_session_id' => $ai_session_id,
+		);
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_shape_tracks_identity' ) ) {
+	/**
+	 * Reduces a Tracks client identity to the two fields the browser is allowed to see.
+	 *
+	 * The client helper also returns an email address, a blog id and a locale. Only the id and
+	 * the login may reach a JS global, so this rebuilds the array rather than unsetting keys —
+	 * a field added to the helper later cannot leak through by default.
+	 *
+	 * @param mixed $identity The raw identity from Jetpack_Tracks_Client, or false.
+	 * @return array|null The id and login, or null when the identity is unusable.
+	 */
+	function wpcom_ai_launchpad_shape_tracks_identity( $identity ) {
+		if ( ! is_array( $identity ) || empty( $identity['userid'] ) || empty( $identity['username'] ) ) {
+			return null;
+		}
+
+		return array(
+			'userid'   => (int) $identity['userid'],
+			'username' => (string) $identity['username'],
+		);
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_tracks_identity' ) ) {
+	/**
+	 * The Tracks user identity the client recorder pushes as `identifyUser`, on Atomic only.
+	 *
+	 * On Simple, wpcom's stats.php already pushes identifyUser for every admin page load. On
+	 * Atomic nothing does, so without this the client events would land anonymous. The local
+	 * user id is not usable there — Tracks wants the connected WordPress.com identity.
+	 *
+	 * Returns only the id and the login: the Tracks client helper also hands back an email
+	 * address, which must not reach a JS global.
+	 *
+	 * @return array|null The identity, or null on Simple / when no connected user is available.
+	 */
+	function wpcom_ai_launchpad_tracks_identity() {
+		if ( ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ) {
+			return null;
+		}
+
+		if ( ! class_exists( 'Jetpack_Tracks_Client' ) ) {
+			return null;
+		}
+
+		return wpcom_ai_launchpad_shape_tracks_identity( \Jetpack_Tracks_Client::get_connected_user_tracks_identity() );
+	}
+}
+
 if ( ! function_exists( 'wpcom_ai_launchpad_record_tracks_event' ) ) {
 	/**
-	 * Records an AI Launchpad Tracks event server-side with the shared context merged in,
-	 * so call sites can't forget it. Explicit props win over the context.
+	 * Records an AI Launchpad Tracks event server-side, merging three layers before it is sent:
+	 *
+	 * 1. `wpcom_ai_launchpad_standard_props()` — the AI standard props shared with the client
+	 *    recorder. Applied first and never dropped: "none" and "false" are values, not gaps.
+	 * 2. `wpcom_ai_launchpad_tracks_context( $rendered_task_ids )` — the feature-specific
+	 *    context (goal, niche, rendered list, …). Its null-valued keys are filtered out here
+	 *    (mirroring the client recorder) rather than reaching Tracks as literal "null" strings,
+	 *    so an unset context value is simply absent, unlike an unset standard prop.
+	 * 3. `$props`, the call site's own properties, which win over both of the above.
 	 *
 	 * @param string        $event_name        The Tracks event name, already feature-prefixed.
 	 * @param array         $props             Event properties. No PII: task IDs are fine, free text is not.
@@ -152,14 +327,20 @@ if ( ! function_exists( 'wpcom_ai_launchpad_record_tracks_event' ) ) {
 	 * @return void
 	 */
 	function wpcom_ai_launchpad_record_tracks_event( $event_name, $props = array(), $rendered_task_ids = null ) {
-		$props = array_merge( wpcom_ai_launchpad_tracks_context( $rendered_task_ids ), $props );
-		// Null-valued props are omitted, mirroring the client recorder.
-		$props = array_filter(
-			$props,
+		$context = array_merge( wpcom_ai_launchpad_tracks_context( $rendered_task_ids ), $props );
+
+		// Null-valued context props are omitted, mirroring the client recorder: the Tracks
+		// pipeline would otherwise record them as literal "null" strings.
+		$context = array_filter(
+			$context,
 			static function ( $value ) {
 				return null !== $value;
 			}
 		);
+
+		// Merged outside that filter, and first, so the standard props are never dropped
+		// (`is_test: 'false'` is a value, not a gap) and a call site still wins over both.
+		$props = array_merge( wpcom_ai_launchpad_standard_props(), $context );
 
 		/**
 		 * Fires for every server-side AI Launchpad analytics event, before it is sent to
@@ -212,5 +393,159 @@ if ( ! function_exists( 'wpcom_ai_launchpad_get_ai_task_ids' ) ) {
 		}
 
 		return $task_ids;
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_site_locale' ) ) {
+	/**
+	 * The site's own language, as opposed to the language the current request is being read in.
+	 *
+	 * `get_locale()` is not it on WordPress.com Simple: there the locale follows the logged-in user
+	 * through wp-admin and the REST calls it makes, so a French site read by an Italian admin reports
+	 * Italian — and the pages we create, plus the language the AI is told to write in, would follow
+	 * the reader instead of the site. `get_blog_lang_code()` is the blog's own `lang_id` setting.
+	 * Same resolution the coming-soon page already uses for the same reason.
+	 *
+	 * @return string A WordPress locale, or a WordPress.com language code on Simple.
+	 */
+	function wpcom_ai_launchpad_site_locale() {
+		if ( function_exists( 'get_blog_lang_code' ) ) {
+			$code = get_blog_lang_code();
+			// Empty when the blog has no language set; fall through to the request's own.
+			if ( is_string( $code ) && '' !== $code ) {
+				return $code;
+			}
+		}
+
+		return get_locale();
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_in_site_language' ) ) {
+	/**
+	 * Runs a callback with translations switched to the site language.
+	 *
+	 * Requests from wp-admin, its REST calls included, translate into the admin user's language. Copy
+	 * that ends up in the site's own posts and pages is public content and follows the site language.
+	 *
+	 * A site language WordPress cannot load — the pack is missing or mid-install — falls back to
+	 * English rather than to whatever the reader happens to use, which would publish one admin's
+	 * language onto a site that does not speak it, and give the next admin a different page.
+	 *
+	 * @param callable $callback The callback to run.
+	 * @return mixed The callback's return value.
+	 */
+	function wpcom_ai_launchpad_in_site_language( $callback ) {
+		$site_locale = wpcom_ai_launchpad_site_locale();
+		$switched    = false;
+
+		if ( $site_locale !== determine_locale() ) {
+			// en_US is always switchable, so the fallback cannot fail in turn.
+			$switched = switch_to_locale( $site_locale ) || switch_to_locale( 'en_US' );
+		}
+
+		try {
+			return $callback();
+		} finally {
+			if ( $switched ) {
+				restore_previous_locale();
+			}
+		}
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_site_copy' ) ) {
+	/**
+	 * The copy the client writes into the site's posts and pages, in the site language.
+	 *
+	 * The `fallback_*` templates take the site name as their `%s`; the client fills it in.
+	 *
+	 * @return array<string, string|string[]>
+	 */
+	function wpcom_ai_launchpad_site_copy() {
+		return wpcom_ai_launchpad_in_site_language(
+			static function () {
+				return array(
+					'about_page_title'            => _x( 'About', 'page title', 'jetpack-mu-wpcom' ),
+					'contact_page_title'          => _x( 'Contact', 'page title', 'jetpack-mu-wpcom' ),
+					'contact_page_heading'        => __( 'Get in touch', 'jetpack-mu-wpcom' ),
+					'contact_form_name_label'     => __( 'Name', 'jetpack-mu-wpcom' ),
+					'contact_form_email_label'    => __( 'Email', 'jetpack-mu-wpcom' ),
+					'contact_form_message_label'  => __( 'Message', 'jetpack-mu-wpcom' ),
+					'events_page_title'           => _x( 'Events', 'page title', 'jetpack-mu-wpcom' ),
+					'events_page_heading'         => __( 'Upcoming events', 'jetpack-mu-wpcom' ),
+					'event_name_placeholder'      => __( 'Event name', 'jetpack-mu-wpcom' ),
+					'event_details_placeholder'   => __( 'Date, time, and place', 'jetpack-mu-wpcom' ),
+					'video_page_title'            => _x( 'Videos', 'page title', 'jetpack-mu-wpcom' ),
+					'video_page_heading'          => _x( 'Watch', 'video page heading', 'jetpack-mu-wpcom' ),
+					'gallery_page_title'          => _x( 'Gallery', 'page title', 'jetpack-mu-wpcom' ),
+					'gallery_page_heading'        => _x( 'Take a look', 'gallery page heading', 'jetpack-mu-wpcom' ),
+					'portfolio_piece_placeholder' => __( 'What this project was, who it was for, and what you did.', 'jetpack-mu-wpcom' ),
+					'fallback_site_name'          => _x( 'your new site', 'stands in for a blank site name', 'jetpack-mu-wpcom' ),
+					/* translators: %s: the site name. */
+					'fallback_post_title'         => __( 'Getting started with %s', 'jetpack-mu-wpcom' ),
+					/* translators: %s: the site name. */
+					'fallback_post_subtitle'      => __( 'Introduce %s to your readers.', 'jetpack-mu-wpcom' ),
+					'fallback_post_paragraphs'    => array(
+						/* translators: %s: the site name. */
+						__( 'This is the first post on %s. It marks the starting point of something new, and there is plenty more to come.', 'jetpack-mu-wpcom' ),
+						__( 'Thanks for being here at the very beginning. Stay tuned for what comes next.', 'jetpack-mu-wpcom' ),
+					),
+					'fallback_about_paragraphs'   => array(
+						/* translators: %s: the site name. */
+						__( 'This is where the story of %s begins. Use this page to share who is behind the site and what it is all about.', 'jetpack-mu-wpcom' ),
+						__( 'Tell visitors how it started, what they can expect to find here, and where it is headed next.', 'jetpack-mu-wpcom' ),
+					),
+				);
+			}
+		);
+	}
+}
+
+if ( ! function_exists( 'wpcom_ai_launchpad_script_translations' ) ) {
+	/**
+	 * Inline JS that installs the translation catalogs of the page's wp-build bundles into `wp.i18n`.
+	 *
+	 * Core's `load_script_textdomain()` on a registered, never-enqueued handle per bundle picks up the
+	 * platform filters that point this package's catalogs at `languages/mu-plugins/`, which no URL
+	 * serves for the client-side loader the other wp-build dashboards use.
+	 *
+	 * @param string $manifest_file Path to the build's `i18n-manifest.json` (from `stamp-textdomains`).
+	 * @param string $build_url     URL of the build directory the bundles are served from.
+	 * @param string $route         The wp-build route whose bundles to cover, besides the shared modules and scripts.
+	 * @param string $domain        The text domain.
+	 * @return string|null The inline script, or null when no bundle has a catalog for this locale.
+	 */
+	function wpcom_ai_launchpad_script_translations( $manifest_file, $build_url, $route = 'site-setup', $domain = 'jetpack-mu-wpcom' ) {
+		if ( ! is_readable( $manifest_file ) ) {
+			return null;
+		}
+		$manifest = json_decode( (string) file_get_contents( $manifest_file ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local build artifact.
+		$bundles  = is_array( $manifest ) && isset( $manifest['bundles'] ) && is_array( $manifest['bundles'] ) ? $manifest['bundles'] : array();
+
+		$scripts = array();
+		foreach ( $bundles as $index => $bundle ) {
+			// The manifest lists paths under the build directory's own name, e.g. `build/routes/x/content.js`.
+			if ( ! is_string( $bundle ) || ! preg_match( '#^[^/]+/(routes/' . preg_quote( $route, '#' ) . '|scripts|modules)/#', $bundle ) ) {
+				continue;
+			}
+			$handle = 'wpcom-ai-launchpad-i18n-' . $index;
+			wp_register_script( $handle, trailingslashit( $build_url ) . substr( $bundle, strpos( $bundle, '/' ) + 1 ), array(), false, false ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NoExplicitVersion -- Never printed; only registered so core can locate its catalog.
+			$json = load_script_textdomain( $handle, $domain );
+			wp_deregister_script( $handle );
+			if ( ! $json ) {
+				continue;
+			}
+
+			$data     = json_decode( $json, true );
+			$messages = $data['locale_data'][ $domain ] ?? $data['locale_data']['messages'] ?? null;
+			if ( ! is_array( $messages ) || array() === $messages ) {
+				continue;
+			}
+			// HEX_TAG keeps a literal "</script>" in a translation from closing the inline script tag.
+			$scripts[] = 'wp.i18n.setLocaleData( ' . wp_json_encode( $messages, JSON_HEX_TAG | JSON_HEX_AMP ) . ', ' . wp_json_encode( $domain, JSON_HEX_TAG | JSON_HEX_AMP ) . ' );';
+		}
+
+		return $scripts ? implode( "\n", $scripts ) : null;
 	}
 }

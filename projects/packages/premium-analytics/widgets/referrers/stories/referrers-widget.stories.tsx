@@ -36,23 +36,18 @@ interface ReferrersStoryControls {
 }
 
 interface ReferrersDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		ReferrersStoryControls {}
+	extends WidgetDashboardWithWidgetControls, ReferrersStoryControls {}
 
 function renderReferrersWidget( { withComparison }: ReferrersStoryControls ) {
 	return (
-		<ReferrersRender
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
+		<ReferrersRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />
 	);
 }
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderReferrersOnPreset( preset: PresetType ) {
 	return (
-		<ReferrersRender
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( false, preset ) } }
-		/>
+		<ReferrersRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />
 	);
 }
 
@@ -66,7 +61,7 @@ function ReferrersDashboardStory( {
 			widgetType={ storyWidgetType }
 			renderModule={ REFERRERS_RENDER_MODULE }
 			renderComponent={ ReferrersRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
 }
@@ -112,9 +107,8 @@ export const WithComparison: Story = {
  * First load: the fetch is in flight, so the widget shows its loading state. The
  * mock is forced to never resolve for the duration of this story.
  *
- * Forced through `forceStatsMockState`: `stats/referrers` is answered by the
- * legacy stats mocks before the shared `setReportMockState` override can
- * intercept it.
+ * Uses `forceStatsMockState`: the legacy stats mocks answer `stats/referrers`
+ * before `setReportMockState` can intercept it.
  */
 export const Loading: Story = {
 	render: () => renderReferrersOnPreset( 'last-90-days' ),

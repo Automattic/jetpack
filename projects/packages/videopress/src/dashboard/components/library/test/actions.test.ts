@@ -55,6 +55,27 @@ describe( 'buildLibraryActions', () => {
 		expect( actions.find( a => a.id === 'manage-captions' )?.isEligible?.( idle ) ).toBe( true );
 	} );
 
+	it( 'makes an idle local row deletable (plain attachment delete)', () => {
+		const actions = buildLibraryActions( makeApi() );
+		const local = item( { type: 'local' } );
+
+		expect( actions.find( a => a.id === 'delete' )?.isEligible?.( local ) ).toBe( true );
+	} );
+
+	it( 'gives every idle row a bulk-capable action so DataViews enables its checkbox', () => {
+		// DataViews disables an item's selection checkbox when no
+		// `supportsBulk` action is eligible for it (useHasAPossibleBulkAction,
+		// same gate in the grid and table layouts). Local rows used to have
+		// zero bulk-capable actions and were silently unselectable
+		// (JETPACK-2032); this pins the invariant for both row types.
+		const actions = buildLibraryActions( makeApi() );
+		const hasAPossibleBulkAction = ( row: ReturnType< typeof item > ) =>
+			actions.some( a => a.supportsBulk && ( ! a.isEligible || a.isEligible( row ) ) );
+
+		expect( hasAPossibleBulkAction( item() ) ).toBe( true );
+		expect( hasAPossibleBulkAction( item( { type: 'local' } ) ) ).toBe( true );
+	} );
+
 	it( 'offers Upload to VideoPress for idle local items on every host', () => {
 		const local = item( { type: 'local' } );
 		const eligible = ( actions: ReturnType< typeof buildLibraryActions > ) =>
@@ -72,6 +93,19 @@ describe( 'buildLibraryActions', () => {
 		} finally {
 			unsetSimpleSite();
 		}
+	} );
+
+	it( 'fans a bulk Upload to VideoPress out to every selected item', () => {
+		const api = makeApi();
+		const action = buildLibraryActions( api ).find( a => a.id === 'upload-to-vp' );
+
+		expect( action?.supportsBulk ).toBe( true );
+
+		const rows = [ item( { type: 'local', id: '11' } ), item( { type: 'local', id: '12' } ) ];
+		if ( action && 'callback' in action ) {
+			action.callback( rows, { registry: {} } );
+		}
+		expect( api.promoteLocal.mock.calls ).toEqual( [ [ '11' ], [ '12' ] ] );
 	} );
 
 	it( 'makes a local row with any operation in flight ineligible for Upload to VideoPress', () => {

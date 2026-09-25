@@ -62,6 +62,7 @@ export const JETPACK_PRODUCTS_WITH_CARD = [
 ] as const;
 
 export const JETPACK_PRODUCTS_WITHOUT_CARD = [
+	'activity-log',
 	'complete',
 	'creator',
 	'extras',
@@ -92,7 +93,7 @@ export const PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN = [ 'anti-spam', 'boost', 'c
  * deactivating them from My Jetpack must force a full page load so that UI is
  * re-rendered with the new state.
  */
-export const PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE = [ 'jetpack-forms', 'videopress' ];
+export const PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE = [ 'jetpack-ai', 'jetpack-forms', 'videopress' ];
 
 /**
  * Non-paid here means that the module is available for free users,
@@ -100,6 +101,8 @@ export const PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE = [ 'jetpack-forms', 'videopre
  */
 export const JETPACK_NON_PAID_MODULES = [
 	'account-protection',
+	'activity-log',
+	'ai',
 	'blaze',
 	'blocks',
 	'canonical-urls',

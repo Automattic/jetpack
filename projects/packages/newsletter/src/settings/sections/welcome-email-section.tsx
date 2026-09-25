@@ -6,7 +6,7 @@ import { getSiteType } from '@automattic/jetpack-script-data';
 import { DataForm, type Field } from '@wordpress/dataviews';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Card, Fieldset, Text } from '@wordpress/ui';
+import { Button, Card, Fieldset, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -106,28 +106,28 @@ export function WelcomeEmailSection( {
 				<Card.Title>{ __( 'Welcome email message', 'jetpack-newsletter' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
-				<p>
-					<Text>
+				<Stack direction="column" gap="xl">
+					<Text variant="body-md" render={ <p /> }>
 						{ __(
 							'Sent to your email subscribers when they subscribe to your newsletter.',
 							'jetpack-newsletter'
 						) }
 					</Text>
-				</p>
-				<Fieldset.Root disabled={ ! isNewsletterEnabled }>
-					<DataForm
-						data={ formData }
-						fields={ fields }
-						form={ {
-							layout: {
-								type: 'regular',
-								labelPosition: 'top',
-							},
-							fields: [ 'welcome_message' ],
-						} }
-						onChange={ handleDataFormChange }
-					/>
-				</Fieldset.Root>
+					<Fieldset.Root disabled={ ! isNewsletterEnabled }>
+						<DataForm
+							data={ formData }
+							fields={ fields }
+							form={ {
+								layout: {
+									type: 'regular',
+									labelPosition: 'top',
+								},
+								fields: [ 'welcome_message' ],
+							} }
+							onChange={ handleDataFormChange }
+						/>
+					</Fieldset.Root>
+				</Stack>
 				<div className="newsletter-card-footer">
 					<Button
 						onClick={ handleSave }

@@ -2,6 +2,9 @@
  * External dependencies
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
+import { loadI18nCatalogs } from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
+import { ensureDashboardEntities } from '@jetpack-premium-analytics/data';
+import { registerFieldTypes } from '@jetpack-premium-analytics/fields';
 import apiFetch from '@wordpress/api-fetch';
 import { store as bootStore } from '@wordpress/boot';
 import { dispatch } from '@wordpress/data';
@@ -40,9 +43,27 @@ function setupApiFetch(): void {
  * Runs before routes render.
  */
 export async function init(): Promise< void > {
+	// Kick off the JS translation catalog downloads first (async), then do the
+	// synchronous setup in parallel while they're in flight.
+	const catalogs = loadI18nCatalogs( 'jetpack-premium-analytics-pkg', import.meta.url );
+
 	setupApiFetch();
 
-	dispatch( bootStore ).updateMenuItem( 'dashboard', {
+	// Before any widget type resolves: attributes name these types.
+	registerFieldTypes();
+
+	// boot 0.19 types its store against @wordpress/data 10.52 while the repo
+	// pins 10.51, so `dispatch( bootStore )` collapses to `never` until the
+	// data family moves to the same release train.
+	const bootActions = dispatch( bootStore ) as {
+		updateMenuItem: ( id: string, item: { icon: unknown } ) => void;
+	};
+	bootActions.updateMenuItem( 'dashboard', {
 		icon: chartBar,
 	} );
+
+	await catalogs;
+
+	// After the catalogs: the entity labels are built with `__()` at call time.
+	ensureDashboardEntities();
 }

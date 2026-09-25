@@ -1,6 +1,6 @@
 {
 	"name": "jpa/authors",
-	"title": "Authors",
+	"title": "Popular authors",
 	"description": "Top authors by views, with their most viewed posts.",
 	"help": {
 		"content": "The authors whose content received the most views.",

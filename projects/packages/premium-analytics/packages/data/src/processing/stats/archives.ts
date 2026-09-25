@@ -1,4 +1,5 @@
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
@@ -34,7 +35,7 @@ function normalizeArchiveChildren(
 			.map( ( [ taxonomy, terms ] ) => {
 				const children = coerceStatsArray< StatsRecord >( terms )
 					.map( term => ( {
-						label: getStatsLabel( term.value ),
+						label: decodeHtmlText( getStatsLabel( term.value ) ),
 						value: safeParseFloat( term.views ),
 						link: term.href,
 						children: null,
@@ -54,7 +55,12 @@ function normalizeArchiveChildren(
 	return coerceStatsArray< StatsRecord >( archiveItems )
 		.filter( item => Boolean( item.value ) )
 		.map( item => ( {
-			label: archiveType === 'home' ? getStatsLabel( item.href ) : getStatsLabel( item.value ),
+			// The `home` archive has no title of its own, so its label is a URL — entity
+			// decoding a URL would corrupt query strings like `?a=1&copy=2`.
+			label:
+				archiveType === 'home'
+					? getStatsLabel( item.href )
+					: decodeHtmlText( getStatsLabel( item.value ) ),
 			value: safeParseFloat( item.views ),
 			link: item.href,
 			children: null,
@@ -140,9 +146,8 @@ export function sanitizeStatsArchivesResponse(
 	};
 }
 
-// Archive nodes match across periods by label within the same parent —
-// merging children against the matched parent's children means same-named
-// terms under different parents cannot cross-match.
+// Labels are only unique within a parent; children merge against the matched
+// parent's children, so same-named terms elsewhere cannot cross-match.
 function getStatsArchiveKey( item: StatsArchivesItem ): string | null {
 	const label = getStatsLabel( item.label );
 	return label === '' ? null : label;

@@ -5,21 +5,22 @@ import { useReportVisitors } from '@jetpack-premium-analytics/data';
 import {
 	ReportMetricWidget,
 	useWidgetRootContext,
+	type CountLabel,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 
-/**
- * Visitor metric widget component.
- *
- * Fetches and displays visitor trends for the report params provided by the
- * shared WidgetRoot.
- */
+const visitorsCountLabel: CountLabel = count =>
+	/* translators: %s: number of visitors. */
+	_n( '%s Visitor', '%s Visitors', count, 'jetpack-premium-analytics-pkg' );
+
 export function VisitorMetricWidget() {
 	const { reportParams } = useWidgetRootContext();
 
 	return (
 		<ReportMetricWidget
 			metricKey="visitors"
+			seriesLabel={ __( 'Visitors', 'jetpack-premium-analytics-pkg' ) }
+			seriesCountLabel={ visitorsCountLabel }
 			data={ useReportVisitors( reportParams ) }
 			dataFormat={ {
 				type: 'number',

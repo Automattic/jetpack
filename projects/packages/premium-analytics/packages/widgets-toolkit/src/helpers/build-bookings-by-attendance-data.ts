@@ -10,7 +10,6 @@ import type { LegendItem } from '../components';
 import type { DonutChartData } from '../components/chart-donut/donut-chart';
 import type { ReportDataMap } from '@jetpack-premium-analytics/data';
 
-// Color for cancelled status
 const CANCELLED_COLOR = 'rgb(240, 240, 240)';
 
 export interface BookingsByAttendanceData {
@@ -42,14 +41,12 @@ export function buildBookingsByAttendanceData(
 	const { summary } = bookings;
 	const comparisonSummary = comparisonBookings?.summary;
 
-	// Attendance status keys from the bookings summary
 	type AttendanceStatusKey =
 		| 'attendance_status_booked'
 		| 'attendance_status_checked_in'
 		| 'attendance_status_no_show'
 		| 'status_cancelled';
 
-	// Define status mapping with user-friendly labels
 	const statusMap: Array< { key: AttendanceStatusKey; label: string } > = [
 		{
 			key: 'attendance_status_booked',
@@ -69,7 +66,6 @@ export function buildBookingsByAttendanceData(
 		},
 	];
 
-	// Calculate values for each status
 	const statusValues = statusMap.map( status => {
 		const value = summary[ status.key ] || 0;
 		const comparisonValue = comparisonSummary ? comparisonSummary[ status.key ] || 0 : 0;
@@ -81,7 +77,6 @@ export function buildBookingsByAttendanceData(
 		};
 	} );
 
-	// Calculate total bookings across all statuses
 	const totalBookings = statusValues.reduce( ( sum, status ) => sum + status.value, 0 );
 
 	const comparisonTotalBookings = statusValues.reduce(
@@ -89,7 +84,6 @@ export function buildBookingsByAttendanceData(
 		0
 	);
 
-	// If there are no bookings, return empty state
 	if ( totalBookings === 0 ) {
 		return {
 			chartData: [],
@@ -99,10 +93,8 @@ export function buildBookingsByAttendanceData(
 		};
 	}
 
-	// Filter out statuses with zero bookings
 	const statusesWithData = statusValues.filter( status => status.value > 0 );
 
-	// Build chart data
 	const chartData: DonutChartData = statusesWithData.map( status => ( {
 		label: status.label,
 		value: status.value,
@@ -113,7 +105,6 @@ export function buildBookingsByAttendanceData(
 		...( status.key === 'status_cancelled' && { color: CANCELLED_COLOR } ),
 	} ) );
 
-	// Build legend data
 	const legendData: LegendItem[] = statusesWithData.map( status => ( {
 		label: status.label,
 		value: status.value,

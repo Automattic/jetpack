@@ -86,9 +86,6 @@ function toPlatformView(
 
 /**
  * Fetch platform views (browser or OS) via the shared Stats data layer.
- *
- * @param {UsePlatformViewsArgs} args - Hook arguments.
- * @return The current data/loading/error state.
  */
 export default function usePlatformViews( {
 	reportParams,

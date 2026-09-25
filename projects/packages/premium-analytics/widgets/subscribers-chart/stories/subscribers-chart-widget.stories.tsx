@@ -14,14 +14,21 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
+	siteTimeZoneArgTypes,
+	withSiteTimeZone,
+	type SiteTimeZoneControls,
+} from '../../stories/with-site-time-zone';
+import {
+	paidSubscribersArgTypes,
+	withPaidSubscribers,
+	type PaidSubscribersControls,
+} from '../../stories/with-paid-subscribers';
+import {
 	registerReportMocks,
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SubscribersChartRender from '../render';
-import widgetDefinition, {
-	DEFAULT_SUBSCRIBERS_CHART_METRICS,
-	type SubscribersChartMetricId,
-} from '../widget';
+import widgetDefinition, { type SubscribersChartType } from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -31,30 +38,27 @@ registerReportMocks();
 
 const SUBSCRIBERS_CHART_RENDER_MODULE = 'storybook/subscribers-chart';
 
-// Carry the widget's metadata, including the metric-visibility attribute schema
-// so the dashboard story's settings drawer renders the real controls.
+// Carry the widget's metadata, including the attribute schema so the dashboard
+// story's settings drawer renders the real controls.
 const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
-interface SubscribersChartStoryControls {
-	withComparison: boolean;
-	metrics: SubscribersChartMetricId[];
+interface SubscribersChartStoryControls extends SiteTimeZoneControls, PaidSubscribersControls {
+	chartType: SubscribersChartType;
 }
 
-const METRIC_ARG_TYPES = {
-	metrics: {
-		control: 'check',
-		options: DEFAULT_SUBSCRIBERS_CHART_METRICS,
+const CHART_TYPE_ARG_TYPES = {
+	chartType: {
+		control: 'inline-radio',
+		options: [ 'line', 'bar' ] satisfies SubscribersChartType[],
 	},
 } as const;
 
-const ALL_METRICS_ARGS = {
-	metrics: DEFAULT_SUBSCRIBERS_CHART_METRICS,
-} as const;
+const DEFAULT_CHART_ARGS = { chartType: 'line' } as const;
 
-function renderSubscribersChart( { withComparison, metrics }: SubscribersChartStoryControls ) {
+function renderSubscribersChart( { chartType }: SubscribersChartStoryControls ) {
 	return (
 		<SubscribersChartRender
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ), metrics } }
+			attributes={ { reportParams: getDefaultQueryParams( false ), chartType } }
 		/>
 	);
 }
@@ -72,15 +76,21 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/SubscribersChart',
 	component: SubscribersChartRender,
 	tags: [ 'autodocs' ],
+	decorators: [ withSiteTimeZone ],
+	beforeEach: withPaidSubscribers,
 	argTypes: {
-		withComparison: { control: 'boolean' },
-		...METRIC_ARG_TYPES,
+		...siteTimeZoneArgTypes,
+		...paidSubscribersArgTypes,
+		...CHART_TYPE_ARG_TYPES,
+	},
+	args: {
+		hasPaidSubscribers: false,
 	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'Subscriber growth over time. The date range and previous-period comparison follow the dashboard picker; the "Group by" control is the `granularity` attribute and the tab selection is the `metrics` attribute (both `relevance: \'high\'`), exposed by the widget host. When comparison is on, the previous period is overlaid as a same-colour dashed line and the headline shows the period-over-period delta. The Paid subscribers tab renders only when the site has paid subscribers, even while selected. Data comes from `useStatsSubscribersReport`; in Storybook it is served by `registerReportMocks`.',
+					"Subscriber growth over time. The widget hosts its own date range control in its header, saved onto the widget instance; the bucket size follows the selected window, and the control offers no comparison, matching the Ads chart. The \"Chart type\" control is the `chartType` attribute (`relevance: 'high'`), exposed by the widget host; which metric is plotted is the chart's own tab selection. The Paid subscribers tab renders only when the site has paid subscribers. Data comes from `useStatsSubscribersReport`; in Storybook it is served by `registerReportMocks`.",
 			},
 		},
 	},
@@ -91,29 +101,24 @@ export default meta;
 type Story = StoryObj< SubscribersChartStoryControls >;
 
 /**
- * The widget on its own, current period only.
+ * The widget on its own, on the range its header control defaults to. Turn on
+ * "Has paid subscribers" to add the Paid subscribers metric beside Subscribers.
  */
 export const Default: Story = {
 	render: renderSubscribersChart,
-	args: { withComparison: false, ...ALL_METRICS_ARGS },
+	args: { ...DEFAULT_CHART_ARGS },
 	decorators: [ withWidgetCanvas ],
 };
 
 /**
- * Same close-up with the dashboard comparison range applied, so the previous
- * period is overlaid as a dashed line and the headline shows the delta.
+ * The same widget drawn as bars — the `chartType` attribute set to `bar`.
  */
-export const WithComparison: Story = {
+export const BarChart: Story = {
 	render: renderSubscribersChart,
-	args: { withComparison: true, ...ALL_METRICS_ARGS },
+	args: { chartType: 'bar' },
 	decorators: [ withWidgetCanvas ],
 };
 
-/**
- * First load: the fetch is in flight, so the widget shows its loading state (the
- * metric tabs over the chart's loading overlay). The mock is forced to never
- * resolve for the duration of this story.
- */
 export const Loading: Story = {
 	render: () => renderSubscribersChartOnPreset( 'last-90-days' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
@@ -154,12 +159,10 @@ export const Empty: Story = {
 };
 
 interface SubscribersChartDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		SubscribersChartStoryControls {}
+	extends WidgetDashboardWithWidgetControls, SubscribersChartStoryControls {}
 
 function SubscribersChartDashboardStory( {
-	withComparison,
-	metrics,
+	chartType,
 	...dashboardArgs
 }: SubscribersChartDashboardStoryProps ) {
 	return (
@@ -168,24 +171,33 @@ function SubscribersChartDashboardStory( {
 			widgetType={ storyWidgetType }
 			renderModule={ SUBSCRIBERS_CHART_RENDER_MODULE }
 			renderComponent={ SubscribersChartRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( withComparison ), metrics } }
+			// The real header control edits this attribute; the harness renders the
+			// widget's declared header, so the story starts it where the app does.
+			attributes={ {
+				reportParams: getDefaultQueryParams( false ),
+				chartType,
+			} }
 		/>
 	);
 }
 
 /**
- * Renders the real registered widget through the shared dashboard harness.
+ * Renders the real registered widget through the shared dashboard harness,
+ * including the date control the widget declares in its own header.
+ *
+ * Full width, as the Subscribers default layout places it: narrower than that and
+ * the host collapses the header controls behind the settings icon.
  */
 export const WidgetDashboardWithWidget: StoryObj< SubscribersChartDashboardStoryProps > = {
 	render: args => <SubscribersChartDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		withComparison: true,
-		...ALL_METRICS_ARGS,
+		widgetWidth: 3,
+		...DEFAULT_CHART_ARGS,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
-		...METRIC_ARG_TYPES,
+		...paidSubscribersArgTypes,
+		...CHART_TYPE_ARG_TYPES,
 	},
 };

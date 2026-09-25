@@ -14,8 +14,6 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 export type PostTrafficActivityAttributes = Record< never, never >;
 
 /**
- * Widget type definition.
- *
  * The post detail Traffic view's activity card, replacing the legacy Calypso
  * post detail months table (`post-detail-table-section`) per the new design:
  * the scoped post's daily views over the dashboard date range as a calendar

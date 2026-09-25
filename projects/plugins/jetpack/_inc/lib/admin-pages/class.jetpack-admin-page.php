@@ -7,6 +7,8 @@
 
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Identity_Crisis;
+use Automattic\Jetpack\Plugin\Admin_Chrome_Logo;
+use Automattic\Jetpack\Plugin\Footer_Links;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -106,8 +108,8 @@ abstract class Jetpack_Admin_Page {
 			return;
 		}
 
-		// Check if we are looking at the main dashboard.
-		if ( isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- View logic.
+		// The Settings app draws its own header and footer.
+		if ( isset( $_GET['page'] ) && 'jetpack-settings' === $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- View logic.
 			$this->page_render();
 			return;
 		}
@@ -164,6 +166,26 @@ abstract class Jetpack_Admin_Page {
 	}
 
 	/**
+	 * Fallback redirect meta tag if the REST API is disabled.
+	 *
+	 * @return void
+	 */
+	public function add_fallback_head_meta() {
+		echo '<meta http-equiv="refresh" content="0; url=?page=jetpack_modules">';
+	}
+
+	/**
+	 * Fallback meta tag wrapped in noscript tags for all browsers in case they have JavaScript disabled.
+	 *
+	 * @return void
+	 */
+	public function add_noscript_head_meta() {
+		echo '<noscript>';
+		$this->add_fallback_head_meta();
+		echo '</noscript>';
+	}
+
+	/**
 	 * Checks the site plan and deactivates modules that were active but are no longer included in the plan.
 	 *
 	 * @since 4.4.0
@@ -179,6 +201,7 @@ abstract class Jetpack_Admin_Page {
 				$page->base,
 				array(
 					'toplevel_page_jetpack',
+					'jetpack_page_jetpack-settings',
 					'admin_page_jetpack_modules',
 					'jetpack_page_vaultpress',
 					'jetpack_page_stats',
@@ -255,7 +278,10 @@ abstract class Jetpack_Admin_Page {
 		// If Jetpack is connected OR in offline mode, this will be false.
 		$connectable = ! Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode();
 
-		$jetpack_admin_url = admin_url( 'admin.php?page=jetpack' );
+		$my_jetpack_available = Footer_Links::is_my_jetpack_available();
+		$my_jetpack_url       = admin_url( 'admin.php?page=my-jetpack#/overview' );
+		$jetpack_logo         = Admin_Chrome_Logo::render( 20, '', __( 'Jetpack logo', 'jetpack' ) );
+
 		$jetpack_about_url = ! $connectable
 			? admin_url( 'admin.php?page=jetpack_about' )
 			: Redirect::get_url( 'jetpack' );
@@ -271,14 +297,17 @@ abstract class Jetpack_Admin_Page {
 			<header class="jp-masthead">
 				<div class="jp-masthead__inside-container">
 					<div class="jp-masthead__title-container">
-						<a class="jp-masthead__logo-link" href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/overview' ) ); ?>">
-							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" height="20" aria-label="<?php esc_attr_e( 'Jetpack logo', 'jetpack' ); ?>"><path fill="#069e08" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z"></path></svg>
-						</a>
+						<?php if ( $my_jetpack_available ) : ?>
+							<a class="jp-masthead__logo-link" href="<?php echo esc_url( $my_jetpack_url ); ?>"><?php echo $jetpack_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG built above. ?></a>
+						<?php else : ?>
+							<span class="jp-masthead__logo-link"><?php echo $jetpack_logo; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG built above. ?></span>
+						<?php endif; ?>
 						<h2 class="jp-masthead__title">
 							<?php
 							// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- View logic only.
-							$page          = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
-							$current_label = '';
+							$page            = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+							$is_offline_mode = ( new Status() )->is_offline_mode();
+							$current_label   = '';
 							if ( 'jetpack_modules' === $page ) {
 								$current_label = __( 'Modules', 'jetpack' );
 							} elseif ( 'jetpack_about' === $page ) {
@@ -286,13 +315,23 @@ abstract class Jetpack_Admin_Page {
 							} elseif ( 'jetpack-debugger' === $page ) {
 								$current_label = __( 'Debug', 'jetpack' );
 							}
+
+							// "Jetpack" is a product name, do not translate.
 							?>
 							<?php if ( $current_label ) : ?>
-								<a class="jp-masthead__title-link" href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/overview' ) ); ?>">Jetpack</a><?php // "Jetpack" is a product name, do not translate. ?>
+								<?php if ( $my_jetpack_available ) : ?>
+									<a class="jp-masthead__title-link" href="<?php echo esc_url( $my_jetpack_url ); ?>">Jetpack</a>
+								<?php else : ?>
+									Jetpack
+								<?php endif; ?>
 								<span class="jp-masthead__title-separator" aria-hidden="true">/</span>
+								<?php if ( $is_offline_mode ) : ?>
+									<span class="jp-masthead__title-offline"><?php esc_html_e( 'Offline Mode', 'jetpack' ); ?></span>
+									<span class="jp-masthead__title-separator" aria-hidden="true">/</span>
+								<?php endif; ?>
 								<span class="jp-masthead__title-current"><?php echo esc_html( $current_label ); ?></span>
 							<?php else : ?>
-								Jetpack<?php // "Jetpack" is a product name, do not translate. ?>
+								Jetpack
 							<?php endif; ?>
 						</h2>
 					</div>
@@ -320,16 +359,9 @@ abstract class Jetpack_Admin_Page {
 									}
 									?>
 								</span>
-							<?php } else { ?>
+							<?php } elseif ( current_user_can( 'jetpack_manage_modules' ) ) { ?>
 								<span class="dops-button-group">
-									<a href="<?php echo esc_url( $jetpack_admin_url ); ?>" type="button" class="dops-button is-compact"><?php esc_html_e( 'Dashboard', 'jetpack' ); ?></a>
-														<?php
-														if ( current_user_can( 'jetpack_manage_modules' ) ) {
-															?>
-										<a href="<?php echo esc_url( $jetpack_admin_url . '#/settings' ); ?>" type="button" class="dops-button is-compact"><?php esc_html_e( 'Settings', 'jetpack' ); ?></a>
-															<?php
-														}
-														?>
+									<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack-settings#/settings' ) ); ?>" type="button" class="dops-button is-compact"><?php esc_html_e( 'Settings', 'jetpack' ); ?></a>
 								</span>
 							<?php } ?>
 						</div>
@@ -374,9 +406,10 @@ abstract class Jetpack_Admin_Page {
 						</svg>
 						<span class="jp-footer__module-name"><?php esc_html_e( 'Jetpack', 'jetpack' ); ?></span>
 					</div>
-					<?php if ( ! ( new Host() )->is_wpcom_platform() ) : ?>
+					<?php if ( ! ( new Host() )->is_wpcom_platform() && $my_jetpack_available ) : ?>
+						<?php $products_section = Footer_Links::get_my_jetpack_products_section(); ?>
 					<div class="jp-footer__menu">
-						<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/products' ) ); ?>" class="jp-footer__menu-item"><?php echo esc_html_x( 'Products', 'Navigation item', 'jetpack' ); ?></a>
+						<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/' . $products_section['slug'] ) ); ?>" class="jp-footer__menu-item"><?php echo esc_html( $products_section['label'] ); ?></a>
 						<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/help' ) ); ?>" class="jp-footer__menu-item"><?php echo esc_html_x( 'Help', 'Navigation item', 'jetpack' ); ?></a>
 					</div>
 					<?php endif; ?>

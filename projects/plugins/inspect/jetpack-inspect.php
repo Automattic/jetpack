@@ -12,7 +12,7 @@
  * Description: Inspect HTTP incoming and outgoing requests and responses.
  * Author: pyronaur
  * Author URI: https://automattic.com
- * Requires at least: 6.9
+ * Requires at least: 7.0
  * Text Domain: jetpack-inspect
  *
  * @package automattic/jetpack-inspect

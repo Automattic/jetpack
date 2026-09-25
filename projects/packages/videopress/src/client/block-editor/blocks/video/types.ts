@@ -1,6 +1,19 @@
 import { trackKindOptionProps } from '../../../lib/video-tracks/types';
 
 type playerStatuses = 'ready' | 'playing' | 'paused' | 'ended' | 'stalled';
+
+/**
+ * Player UI elements that can be shown or hidden through iframeApi.customize.set().
+ */
+export type PlayerCustomizationOptions = {
+	bigPlayButton?: boolean;
+	playPauseAnimation?: boolean;
+	controlBar?: boolean;
+	shareButton?: boolean;
+	showPoster?: boolean;
+	title?: boolean;
+};
+
 declare global {
 	interface Window {
 		VideoPressIframeApi: (
@@ -28,13 +41,7 @@ declare global {
 				seek: ( time: number ) => void;
 			};
 			customize?: {
-				set: ( options: {
-					bigPlayButton?: boolean;
-					playPauseAnimation?: boolean;
-					controlBar?: boolean;
-					shareButton?: boolean;
-					posterImage?: boolean;
-				} ) => void;
+				set: ( options: PlayerCustomizationOptions ) => void;
 			};
 		};
 	}
@@ -152,6 +159,8 @@ export type VideoControlProps = {
 
 export type PosterPanelProps = VideoControlProps & {
 	isGeneratingPoster?: boolean;
+	posterError?: string | null;
+	onRetryPoster?: () => void;
 	videoBelongToSite?: boolean;
 };
 

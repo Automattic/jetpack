@@ -15,7 +15,7 @@ $spacing-lg: variables.$grid-unit-20;      // 16px
 	}
 
 	&__heading {
-		font-weight: var(--wpds-typography-font-weight-medium, 499) !important;
+		font-weight: var(--wpds-typography-font-weight-emphasis, 499) !important;
 	}
 
 	&__footer {
@@ -94,7 +94,7 @@ $spacing-lg: variables.$grid-unit-20;      // 16px
 	}
 
 	&__tooltip-date {
-		font-weight: var(--wpds-typography-font-weight-medium, 499);
+		font-weight: var(--wpds-typography-font-weight-emphasis, 499);
 		margin-bottom: $spacing-xs;
 	}
 
@@ -128,5 +128,12 @@ $spacing-lg: variables.$grid-unit-20;      // 16px
 	.inside {
 		padding: 0;
 		margin: 0;
+	}
+
+	// Core rounds dashboard postboxes to 8px but leaves overflow visible, so the
+	// footer has to round with the box or its background covers the corner.
+	.newsletter-widget__footer {
+		border-end-start-radius: variables.$radius-large;
+		border-end-end-radius: variables.$radius-large;
 	}
 }

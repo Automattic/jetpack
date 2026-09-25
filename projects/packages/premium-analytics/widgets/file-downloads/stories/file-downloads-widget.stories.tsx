@@ -36,23 +36,18 @@ interface FileDownloadsStoryControls {
 }
 
 interface FileDownloadsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		FileDownloadsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, FileDownloadsStoryControls {}
 
 function renderFileDownloadsWidget( { withComparison }: FileDownloadsStoryControls ) {
 	return (
-		<FileDownloadsRender
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
+		<FileDownloadsRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />
 	);
 }
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderFileDownloadsOnPreset( preset: PresetType ) {
 	return (
-		<FileDownloadsRender
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( false, preset ) } }
-		/>
+		<FileDownloadsRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />
 	);
 }
 
@@ -66,7 +61,7 @@ function FileDownloadsDashboardStory( {
 			widgetType={ storyWidgetType }
 			renderModule={ FILE_DOWNLOADS_RENDER_MODULE }
 			renderComponent={ FileDownloadsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
 }

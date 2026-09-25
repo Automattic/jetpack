@@ -51,6 +51,7 @@ const connection: Connection = {
 const previewData: ConnectionPreviewData = {
 	description: 'Description',
 	excerpt: 'Excerpt',
+	hyperlinks: [],
 	image: 'https://example.com/image.jpg',
 	isLoading: false,
 	media: [],

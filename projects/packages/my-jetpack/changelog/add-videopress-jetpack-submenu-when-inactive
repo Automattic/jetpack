@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Force a full page reload after activating or deactivating VideoPress from the products list or the add-videopress interstitial, so the wp-admin sidebar menu item is re-rendered with the link matching the new activation state.

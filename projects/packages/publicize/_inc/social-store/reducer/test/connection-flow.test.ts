@@ -1,7 +1,9 @@
 import { setKeyringResult, setReconnectingAccount } from '../../actions/connection-data';
 import {
+	goToNextStep,
 	goToPreviousStep,
 	selectPlatform,
+	setConnectionFlowInput,
 	startConnectionFlow,
 } from '../../actions/connection-flow';
 import { CANCEL_CONNECTION_FLOW } from '../../actions/constants';
@@ -81,6 +83,65 @@ describe( 'connectionFlow reducer', () => {
 			const prior: ConnectionFlowState = { step: 'authorizing', selectedServiceId: 'facebook' };
 
 			expect( connectionFlow( prior, setKeyringResult( undefined ) ) ).toBe( prior );
+		} );
+	} );
+
+	describe( 'forward step transitions', () => {
+		it( 'platform-input advances to authorizing', () => {
+			const prior: ConnectionFlowState = { step: 'platform-input', selectedServiceId: 'mastodon' };
+
+			expect( connectionFlow( prior, goToNextStep() ).step ).toBe( 'authorizing' );
+		} );
+
+		it( 'steps without a forward transition of their own stay put', () => {
+			const prior: ConnectionFlowState = { step: 'select-platform' };
+
+			expect( connectionFlow( prior, goToNextStep() ) ).toBe( prior );
+		} );
+	} );
+
+	describe( 'inputs', () => {
+		it( 'records entered values', () => {
+			const prior: ConnectionFlowState = { step: 'platform-input', selectedServiceId: 'bluesky' };
+
+			const state = connectionFlow( prior, setConnectionFlowInput( 'handle', 'me.bsky.social' ) );
+
+			expect( state.inputs ).toEqual( { handle: 'me.bsky.social' } );
+		} );
+
+		it( 'survives going back to the picker', () => {
+			const prior: ConnectionFlowState = {
+				step: 'platform-input',
+				selectedServiceId: 'bluesky',
+				inputs: { handle: 'me.bsky.social' },
+			};
+
+			expect( connectionFlow( prior, goToPreviousStep() ) ).toEqual( {
+				...prior,
+				step: 'select-platform',
+			} );
+		} );
+
+		it( 'is cleared when a new flow starts', () => {
+			const prior: ConnectionFlowState = {
+				step: 'platform-input',
+				selectedServiceId: 'bluesky',
+				inputs: { handle: 'me.bsky.social' },
+			};
+
+			expect(
+				connectionFlow( prior, startConnectionFlow( { origin: 'dashboard' } ) ).inputs
+			).toBeUndefined();
+		} );
+
+		it( 'is cleared on cancel', () => {
+			const prior: ConnectionFlowState = {
+				step: 'platform-input',
+				selectedServiceId: 'bluesky',
+				inputs: { handle: 'me.bsky.social' },
+			};
+
+			expect( connectionFlow( prior, CANCEL ) ).toEqual( {} );
 		} );
 	} );
 

@@ -1,6 +1,7 @@
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
+import { promoteOnSimple } from '../../client/lib/promote-on-simple';
 import { LIBRARY_QUERY_KEY } from './use-library';
 
 type UploadStatusResponse = {
@@ -136,51 +137,11 @@ export type UploadFromLibraryVariables = {
 	onProgress?: ( percent: number ) => void;
 };
 
-type WpcomPromoteResponse = {
-	guid: string;
-	media_id: number;
-	// Present (true) when the attachment was already on VideoPress and the
-	// endpoint reported success idempotently instead of re-promoting.
-	already_videopress?: boolean;
-};
+// The implementation lives in client/lib so the VideoPress block's
+// media-library picker can share it (client never imports from dashboard);
+// re-exported here to keep the dashboard-side import surface unchanged.
+export { promoteOnSimple };
 
-/**
- * Promote a local attachment in-process on WordPress.com Simple. The file
- * already lives on WordPress.com storage, so there is no chunked upload to
- * walk: a single POST creates the videos-table row and enqueues the
- * transcode. Promotion is in-place — the attachment keeps its id (no
- * sibling attachment is created), and the next library refetch shows the
- * same row as a processing VideoPress video.
- *
- * @param attachmentId - The numeric or string WordPress attachment ID.
- * @return The VideoPress GUID and (unchanged) media post ID.
- */
-export async function promoteOnSimple(
-	attachmentId: string | number
-): Promise< UploadFromLibraryResult > {
-	let result: WpcomPromoteResponse;
-	try {
-		result = await apiFetch< WpcomPromoteResponse >( {
-			path: `/wpcom/v2/videopress/promote/${ attachmentId }`,
-			method: 'POST',
-		} );
-	} catch ( err ) {
-		// apiFetch rejects REST errors as plain { code, message } objects;
-		// normalize to Error so the mutation's declared error type stays
-		// truthful and stage-level notices can rely on `.message`.
-		if ( err instanceof Error ) {
-			throw err;
-		}
-		const message = ( err as { message?: string } )?.message;
-		throw new Error(
-			typeof message === 'string' && message !== ''
-				? message
-				: 'Failed to promote video to VideoPress.',
-			{ cause: err }
-		);
-	}
-	return { guid: result.guid, mediaId: result.media_id };
-}
 /**
  * Promote an existing local WordPress media attachment to a
  * VideoPress-hosted video. On WordPress.com Simple this is one in-process

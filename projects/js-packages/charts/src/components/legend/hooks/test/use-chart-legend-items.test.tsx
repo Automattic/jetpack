@@ -247,6 +247,130 @@ describe( 'useChartLegendItems', () => {
 		} );
 	} );
 
+	describe( 'Comparison item (SeriesData)', () => {
+		const comparisonData: SeriesData[] = [
+			{ label: 'Views', group: 'views', data: [ { label: 'Mon', value: 100 } ] },
+			{
+				label: 'Views — previous',
+				group: 'views',
+				options: { type: 'comparison' as const, seriesLineStyle: { strokeDasharray: '4 4' } },
+				data: [ { label: 'Mon', value: 90 } ],
+			},
+		];
+
+		test( 'is off by default', () => {
+			const { result } = renderHook(
+				() => useChartLegendItems( comparisonData, { collapseGroups: true } ),
+				{ wrapper }
+			);
+
+			expect( result.current.map( item => item.label ) ).toEqual( [ 'Views' ] );
+		} );
+
+		test( 'appends a static item styled like the comparison series', () => {
+			const { result } = renderHook(
+				() =>
+					useChartLegendItems(
+						comparisonData,
+						{ collapseGroups: true, comparisonItem: true },
+						'line'
+					),
+				{ wrapper }
+			);
+
+			expect( result.current.map( item => item.label ) ).toEqual( [
+				'Views',
+				'Comparison period',
+			] );
+			expect( result.current[ 1 ].interactive ).toBe( false );
+			expect( result.current[ 1 ].shapeStyle ).toMatchObject( { strokeDasharray: '4 4' } );
+			expect( result.current[ 1 ].color ).toBe( result.current[ 0 ].color );
+		} );
+
+		test( 'uses a string option as the label', () => {
+			const { result } = renderHook(
+				() =>
+					useChartLegendItems( comparisonData, {
+						collapseGroups: true,
+						comparisonItem: 'Previous period',
+					} ),
+				{ wrapper }
+			);
+
+			expect( result.current.map( item => item.label ) ).toEqual( [ 'Views', 'Previous period' ] );
+		} );
+
+		test( 'adds nothing when the comparison series already has its own item', () => {
+			const { result } = renderHook(
+				() => useChartLegendItems( comparisonData, { comparisonItem: true } ),
+				{ wrapper }
+			);
+
+			expect( result.current.map( item => item.label ) ).toEqual( [ 'Views', 'Views — previous' ] );
+		} );
+
+		test( 'styles a current-period series by its own line styles, not the theme index', () => {
+			const theme = {
+				seriesLineStyles: [ { strokeWidth: 2 } ],
+				legend: { shapeStyles: [ {}, { strokeDasharray: '2 2' } ] },
+			};
+			const themedWrapper = ( { children }: { children: ReactNode } ) => (
+				<GlobalChartsProvider theme={ theme }>{ children }</GlobalChartsProvider>
+			);
+			const pairedData: SeriesData[] = [
+				{ label: 'Views', group: 'views', data: [ { label: 'Mon', value: 100 } ] },
+				{ label: 'Visitors', group: 'visitors', data: [ { label: 'Mon', value: 50 } ] },
+			];
+
+			const { result } = renderHook( () => useChartLegendItems( pairedData, {}, 'line' ), {
+				wrapper: themedWrapper,
+			} );
+
+			expect( result.current[ 1 ].shapeStyle ).toEqual( { strokeWidth: 2 } );
+		} );
+
+		test( "takes the first metric's color when several metrics carry a comparison", () => {
+			const pairedData: SeriesData[] = [
+				{ label: 'Views', group: 'views', data: [ { label: 'Mon', value: 100 } ] },
+				{
+					label: 'Views — previous',
+					group: 'views',
+					options: { type: 'comparison' as const },
+					data: [ { label: 'Mon', value: 90 } ],
+				},
+				{ label: 'Visitors', group: 'visitors', data: [ { label: 'Mon', value: 50 } ] },
+				{
+					label: 'Visitors — previous',
+					group: 'visitors',
+					options: { type: 'comparison' as const },
+					data: [ { label: 'Mon', value: 40 } ],
+				},
+			];
+
+			const { result } = renderHook(
+				() => useChartLegendItems( pairedData, { collapseGroups: true, comparisonItem: true } ),
+				{ wrapper }
+			);
+
+			expect( result.current.map( item => item.label ) ).toEqual( [
+				'Views',
+				'Visitors',
+				'Comparison period',
+			] );
+			expect( result.current[ 0 ].color ).not.toBe( result.current[ 1 ].color );
+			expect( result.current[ 2 ].color ).toBe( result.current[ 0 ].color );
+		} );
+
+		test( 'adds nothing when no series is a comparison', () => {
+			const { result } = renderHook(
+				() => useChartLegendItems( [ comparisonData[ 0 ] ], { comparisonItem: true } ),
+				{ wrapper }
+			);
+
+			expect( result.current.map( item => item.label ) ).toEqual( [ 'Views' ] );
+		} );
+	} );
+
 	describe( 'Label and Color', () => {
 		test( 'preserves label and color from data', () => {
 			const data: DataPointPercentageCalculated[] = [
@@ -263,6 +387,158 @@ describe( 'useChartLegendItems', () => {
 
 			expect( result.current[ 0 ].label ).toBe( 'Test Label' );
 			expect( result.current[ 0 ].color ).toBeDefined();
+		} );
+	} );
+
+	describe( 'Group collapsing (SeriesData)', () => {
+		const groupedComparisonData: SeriesData[] = [
+			{ label: 'Views', group: 'views', data: [ { label: 'Mon', value: 100 } ] },
+			{
+				label: 'Views — previous',
+				group: 'views',
+				options: { type: 'comparison' as const },
+				data: [ { label: 'Mon', value: 90 } ],
+			},
+			{ label: 'Visitors', group: 'visitors', data: [ { label: 'Mon', value: 50 } ] },
+			{
+				label: 'Visitors — previous',
+				group: 'visitors',
+				options: { type: 'comparison' as const },
+				data: [ { label: 'Mon', value: 45 } ],
+			},
+		];
+
+		describe( 'by default', () => {
+			test( 'keeps one item per series for a comparison group', () => {
+				const { result } = renderHook( () => useChartLegendItems( groupedComparisonData ), {
+					wrapper,
+				} );
+
+				expect( result.current ).toHaveLength( 4 );
+				expect( result.current.map( item => item.label ) ).toEqual( [
+					'Views',
+					'Views — previous',
+					'Visitors',
+					'Visitors — previous',
+				] );
+			} );
+
+			test( 'gives each item only its own series label', () => {
+				const { result } = renderHook( () => useChartLegendItems( groupedComparisonData ), {
+					wrapper,
+				} );
+
+				expect( result.current.map( item => item.seriesLabels ) ).toEqual( [
+					[ 'Views' ],
+					[ 'Views — previous' ],
+					[ 'Visitors' ],
+					[ 'Visitors — previous' ],
+				] );
+			} );
+
+			test( 'preserves the original series order for interleaved groups', () => {
+				// `group` predates collapsing and was used for colour coordination, so existing
+				// charts may interleave grouped series. The default legend must not reorder them.
+				const interleaved: SeriesData[] = [
+					{ label: 'Views', group: 'views', data: [ { label: 'Mon', value: 100 } ] },
+					{ label: 'Visitors', group: 'visitors', data: [ { label: 'Mon', value: 50 } ] },
+					{
+						label: 'Views — previous',
+						group: 'views',
+						options: { type: 'comparison' as const },
+						data: [ { label: 'Mon', value: 90 } ],
+					},
+					{
+						label: 'Visitors — previous',
+						group: 'visitors',
+						options: { type: 'comparison' as const },
+						data: [ { label: 'Mon', value: 45 } ],
+					},
+				];
+
+				const { result } = renderHook( () => useChartLegendItems( interleaved ), { wrapper } );
+
+				expect( result.current.map( item => item.label ) ).toEqual( [
+					'Views',
+					'Visitors',
+					'Views — previous',
+					'Visitors — previous',
+				] );
+			} );
+		} );
+
+		describe( 'with collapseGroups enabled', () => {
+			const collapsed = () =>
+				renderHook( () => useChartLegendItems( groupedComparisonData, { collapseGroups: true } ), {
+					wrapper,
+				} );
+
+			test( 'collapses series that share a group into one item per group', () => {
+				const { result } = collapsed();
+
+				expect( result.current ).toHaveLength( 2 );
+			} );
+
+			test( 'uses the primary (non-comparison) series label for the grouped item', () => {
+				const { result } = collapsed();
+
+				expect( result.current[ 0 ].label ).toBe( 'Views' );
+				expect( result.current[ 1 ].label ).toBe( 'Visitors' );
+			} );
+
+			test( 'exposes all member series labels via seriesLabels, primary first', () => {
+				const { result } = collapsed();
+
+				expect( result.current[ 0 ].seriesLabels ).toEqual( [ 'Views', 'Views — previous' ] );
+				expect( result.current[ 1 ].seriesLabels ).toEqual( [ 'Visitors', 'Visitors — previous' ] );
+			} );
+
+			test( 'collapses a shared group that has no comparison series', () => {
+				const sharedGroupNoComparison: SeriesData[] = [
+					{ label: 'A', group: 'metrics', data: [ { label: 'x', value: 1 } ] },
+					{ label: 'B', group: 'metrics', data: [ { label: 'x', value: 2 } ] },
+				];
+
+				const { result } = renderHook(
+					() => useChartLegendItems( sharedGroupNoComparison, { collapseGroups: true } ),
+					{ wrapper }
+				);
+
+				expect( result.current ).toHaveLength( 1 );
+				expect( result.current[ 0 ].label ).toBe( 'A' );
+				expect( result.current[ 0 ].seriesLabels ).toEqual( [ 'A', 'B' ] );
+			} );
+
+			test( 'does not collapse series with distinct group values', () => {
+				const distinctGroups: SeriesData[] = [
+					{ label: 'A', group: 'a', data: [ { label: 'x', value: 1 } ] },
+					{ label: 'B', group: 'b', data: [ { label: 'x', value: 2 } ] },
+				];
+
+				const { result } = renderHook(
+					() => useChartLegendItems( distinctGroups, { collapseGroups: true } ),
+					{ wrapper }
+				);
+
+				expect( result.current ).toHaveLength( 2 );
+				expect( result.current.map( item => item.label ) ).toEqual( [ 'A', 'B' ] );
+			} );
+
+			test( 'leaves ungrouped series as individual items with their own seriesLabels', () => {
+				const ungrouped: SeriesData[] = [
+					{ label: 'One', data: [ { label: 'x', value: 1 } ] },
+					{ label: 'Two', data: [ { label: 'x', value: 2 } ] },
+				];
+
+				const { result } = renderHook(
+					() => useChartLegendItems( ungrouped, { collapseGroups: true } ),
+					{ wrapper }
+				);
+
+				expect( result.current ).toHaveLength( 2 );
+				expect( result.current[ 0 ].seriesLabels ).toEqual( [ 'One' ] );
+				expect( result.current[ 1 ].seriesLabels ).toEqual( [ 'Two' ] );
+			} );
 		} );
 	} );
 } );

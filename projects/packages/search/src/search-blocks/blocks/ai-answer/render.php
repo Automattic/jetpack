@@ -3,16 +3,12 @@
  * AI Answer block render.
  *
  * Renders the panel scaffold that the Interactivity store hydrates with the
- * streaming brief / extended AI answer. The author's decision to insert the
- * block in their post content is the only opt-in switch — there's no site-wide
- * option gate here. The `jetpack_search_ai_answers_enabled` option still
- * governs the instant-search overlay's AI Answers, which is the default UX
- * on any search page; the embedded block is an explicit opt-in surface.
+ * streaming AI answer. Inserting the block is its own opt-in switch — the
+ * `jetpack_search_ai_answers_enabled` option governs the overlay, not the block.
  *
- * AI Answer is a paid feature, so the render is additionally gated on the
- * site having a paid Search plan. Free / no-plan sites emit nothing — the
- * saved block instance is silently hidden on the front end, matching how
- * WordAds / Premium Content behave when their plan check fails.
+ * The gates below (paid Search plan, host AI opt-out, Jetpack AI master
+ * switch) emit nothing when they fail, matching how WordAds / Premium
+ * Content hide on a failed plan check.
  *
  * @package automattic/jetpack-search
  */
@@ -24,6 +20,16 @@ namespace Automattic\Jetpack\Search;
 // scaffold, no `data-wp-interactive` div, no Interactivity hydration). The
 // editor surface shows an upgrade prompt instead — see `edit.js`.
 if ( ! Search_Blocks::supports_paid_search() ) {
+	return;
+}
+
+// Host-owner AI opt-out (core's wp_supports_ai() / WP_AI_SUPPORT). The overlay
+// already honors it through the plugin's filter gate; the block must agree.
+if ( ! AI_Answers::host_allows_ai() ) {
+	return;
+}
+
+if ( ! AI_Answers::should_enforce_master() ) {
 	return;
 }
 

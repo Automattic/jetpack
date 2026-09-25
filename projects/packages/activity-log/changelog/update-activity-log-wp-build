@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Build the Activity Log dashboard with wp-build (boot script modules) instead of webpack.

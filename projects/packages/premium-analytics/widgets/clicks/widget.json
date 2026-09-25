@@ -1,6 +1,6 @@
 {
 	"name": "jpa/clicks",
-	"title": "Clicks",
+	"title": "Top links clicked",
 	"description": "Most clicked external links on your site.",
 	"help": {
 		"content": "The external links your visitors clicked most often, sorted by clicks.",

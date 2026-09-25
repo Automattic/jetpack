@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Adopt the shared @wordpress/admin-ui Breadcrumbs in the post detail page and remove the custom StatsBreadcrumbs component.

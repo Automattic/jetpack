@@ -169,4 +169,80 @@ describe( 'ConfirmationForm', () => {
 		expect( screen.getByText( 'Additional User 1' ) ).toBeInTheDocument();
 		expect( screen.queryByLabelText( 'Additional User 1' ) ).not.toBeInTheDocument(); // Should not be selectable
 	} );
+
+	describe( 'empty account list', () => {
+		const emptyKeyringResult = {
+			ID: 987654,
+			service: 'instagram-business',
+			external_ID: 'ig-user-1',
+			external_name: 'IG User',
+			external_display: 'IG User',
+			additional_external_users: [],
+		};
+
+		const renderEmpty = reason =>
+			render(
+				<ConfirmationForm
+					keyringResult={ {
+						...emptyKeyringResult,
+						additional_external_users_empty_reason: reason,
+					} }
+					onComplete={ jest.fn() }
+				/>
+			);
+
+		beforeEach( () => {
+			setup( { connections: [] } );
+		} );
+
+		test.each( [
+			[
+				'no_instagram_account',
+				/None of your Facebook Pages has an Instagram professional account linked/,
+			],
+			[ 'no_pages', /You don't manage any Facebook Pages/ ],
+			[ 'page_access_denied', /We couldn't access your Facebook Pages/ ],
+			[ 'account_check_failed', /We couldn't check your Instagram account just now/ ],
+			[ 'service_error', /Facebook didn't respond/ ],
+		] )( 'explains the %s reason', ( reason, message ) => {
+			renderEmpty( reason );
+
+			expect( screen.getByText( message ) ).toBeInTheDocument();
+		} );
+
+		test.each( [
+			[ 'null', null ],
+			[ 'absent', undefined ],
+			[ 'unknown', 'some_future_reason' ],
+		] )( 'falls back to the generic message for a %s reason', ( _label, reason ) => {
+			renderEmpty( reason );
+
+			expect( screen.getByText( 'No accounts/pages found.' ) ).toBeInTheDocument();
+		} );
+
+		test( 'keeps the "no more accounts" message when all accounts are already connected', () => {
+			setup( {
+				connections: [ { service_name: 'instagram-business', external_id: 'ig-account-1' } ],
+			} );
+
+			render(
+				<ConfirmationForm
+					keyringResult={ {
+						...emptyKeyringResult,
+						additional_external_users: [
+							{
+								external_ID: 'ig-account-1',
+								external_name: 'IG Account 1',
+								external_profile_picture: '',
+							},
+						],
+						additional_external_users_empty_reason: 'no_instagram_account',
+					} }
+					onComplete={ jest.fn() }
+				/>
+			);
+
+			expect( screen.getByText( 'No more accounts/pages found.' ) ).toBeInTheDocument();
+		} );
+	} );
 } );

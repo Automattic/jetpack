@@ -15,10 +15,9 @@ import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 const setOrganizationField = jest.fn();
 const commitBreadcrumbList = jest.fn();
 const setLocalBusinessField = jest.fn();
-const saveOrganization = jest.fn();
-const saveLocalBusiness = jest.fn();
+const saveOrganizationEntity = jest.fn();
 
-// Resettable per test so each can vary the configured state the header badge reflects.
+// Resettable per test so each can vary the configured state the card reflects.
 let mockForm: SchemaSettingsForm;
 
 const makeForm = ( overrides: Partial< SchemaSettingsForm > = {} ): SchemaSettingsForm => ( {
@@ -34,8 +33,7 @@ const makeForm = ( overrides: Partial< SchemaSettingsForm > = {} ): SchemaSettin
 	commitBreadcrumbList,
 	setOrganizationField,
 	setLocalBusinessField,
-	saveOrganization,
-	saveLocalBusiness,
+	saveOrganizationEntity,
 	...overrides,
 } );
 
@@ -44,7 +42,22 @@ jest.unstable_mockModule( '../../../data/use-schema-settings', () => ( {
 } ) );
 
 jest.unstable_mockModule( '../schema-settings/style.module.scss', () => ( {
-	default: { pairedFields: 'schema-paired-fields', pairError: 'schema-pair-error' },
+	// Every class the components under test read. A missing key resolves to
+	// `undefined` and silently passes any `toHaveClass` assertion — see #50619.
+	default: {
+		pairedFields: 'schema-paired-fields',
+		pairError: 'schema-pair-error',
+		entityGroup: 'schema-entity-group',
+		saveError: 'schema-save-error',
+		muted: 'schema-muted',
+		fieldLabel: 'schema-field-label',
+		profileInput: 'schema-profile-input',
+		profileError: 'schema-profile-error',
+		fieldError: 'schema-field-error',
+		openingHoursRow: 'schema-opening-hours-row',
+		dayLabel: 'schema-day-label',
+		avatar: 'schema-avatar',
+	},
 } ) );
 
 const { default: schemaStyles } = await import( '../schema-settings/style.module.scss' );
@@ -55,17 +68,19 @@ const bootstrap: SchemaSettings = makeSchemaSettings();
 
 const renderCard = () => render( <SchemaCard initialSettings={ bootstrap } /> );
 
-const expandOrganization = () =>
+// The Save button's visible label is "Save" but its accessible name is set
+// explicitly, because this tab renders several "Save" buttons. Query by the
+// accessible name — a `{ name: 'Save' }` query would no longer match.
+const saveName = 'Save schema settings';
+
+// The Organization name field's visible label is the one-word "Name", but its
+// accessible name is qualified because the Author profile card on the same tab
+// also has a "Name" field.
+const orgNameField = 'Organization name';
+
+const expandCard = () =>
 	// eslint-disable-next-line testing-library/prefer-user-event -- single click; fireEvent avoids the user-event devDep (lockfile churn).
-	fireEvent.click( screen.getByRole( 'button', { name: /Organization/ } ) );
-
-const expandLocalBusiness = () =>
-	// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
-	fireEvent.click( screen.getByRole( 'button', { name: /Local business/ } ) );
-
-const expandBreadcrumbs = () =>
-	// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
-	fireEvent.click( screen.getByRole( 'button', { name: /Breadcrumbs/ } ) );
+	fireEvent.click( screen.getByRole( 'button', { name: /Schema/ } ) );
 
 describe( 'SchemaCard', () => {
 	beforeEach( () => {
@@ -73,57 +88,176 @@ describe( 'SchemaCard', () => {
 		mockForm = makeForm();
 	} );
 
-	it( 'renders all three schema sections collapsed by default', () => {
+	it( 'renders one collapsed module, not a card per schema type', () => {
 		renderCard();
 
-		for ( const name of [ /Breadcrumbs/, /Organization/, /Local business/ ] ) {
-			expect( screen.getByRole( 'button', { name } ) ).toHaveAttribute( 'aria-expanded', 'false' );
-		}
+		// The Breadcrumbs / Organization / Local business controls all live inside a
+		// single "Schema" module now, so there is exactly one collapsible header and
+		// no sibling cards to expand.
+		const headers = screen.getAllByRole( 'button', { expanded: false } );
+		expect( headers ).toHaveLength( 1 );
+		// Exact name, not a regex: the status lives in `CollapsibleCard.HeaderDescription`
+		// so it must be the trigger's *description*, never part of its name. A loose
+		// /Schema/ would still pass if "Not started" leaked back into the name.
+		expect( headers[ 0 ] ).toHaveAccessibleName( 'Schema' );
+		expect( headers[ 0 ] ).toHaveAccessibleDescription( 'In progress' );
+		// The module header is a real heading, matching the other Settings modules.
+		expect( screen.getByRole( 'heading', { level: 2, name: /Schema/ } ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders the Organization form with the Site Title as the name placeholder', () => {
+	it( 'counts the smart defaults as configured — the default state is In progress', () => {
 		renderCard();
-		expandOrganization();
 
-		// With no stored override the field is empty and shows the Site Title as a
-		// placeholder, so an empty save keeps tracking the Site Title (no drift).
-		const nameField = screen.getByRole( 'textbox', { name: /Organization name/ } );
-		expect( nameField ).toHaveValue( '' );
-		expect( nameField ).toHaveAttribute( 'placeholder', 'Acme Co' );
-		expect( screen.getByRole( 'button', { name: /Add profile/ } ) ).toBeInTheDocument();
+		const header = screen.getByRole( 'button', { name: /Schema/ } );
+		expect( header ).toHaveAttribute( 'aria-expanded', 'false' );
+		// Name + description are covered by their Site Title / Tagline defaults (the
+		// preferred state), so a site that hasn't added social links reads as In
+		// progress — not Not started.
+		expect( header ).toHaveTextContent( 'In progress' );
 	} );
 
-	it( 'renders the enabled Breadcrumbs card and updates its toggle', () => {
+	it( 'shows Not started only when even the smart defaults are empty', () => {
+		mockForm = makeForm( {
+			organization: { name: '', description: '', sameAs: [], email: '' },
+			defaults: { name: '', description: '' },
+		} );
 		renderCard();
-		expandBreadcrumbs();
 
-		const toggle = screen.getByRole( 'checkbox', { name: 'Enable breadcrumb schema' } );
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Not started' );
+	} );
+
+	it( 'shows "Complete" once the Organization has profile links', () => {
+		mockForm = makeForm( {
+			organization: { name: '', description: '', sameAs: [ 'https://x.com/acme' ], email: '' },
+		} );
+		renderCard();
+
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Complete' );
+	} );
+
+	it( 'does not count an empty profile row toward completion', () => {
+		// "Add profile" seeds an empty row. That is not a configured link — and it
+		// can never be persisted, because `cleanOrganization` strips it so the form
+		// never becomes dirty. Counting it would leave the header claiming
+		// "Complete" for a value that will never reach the server.
+		mockForm = makeForm( {
+			organization: { name: '', description: '', sameAs: [ '' ], email: '' },
+		} );
+		renderCard();
+
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'In progress' );
+	} );
+
+	it( 'does not count an invalid or duplicate profile link toward completion', () => {
+		// The status must reflect what would be *stored*. `cleanProfileUrls` drops
+		// malformed and duplicate rows on save, so counting them would let the header
+		// read "Complete" while Save is disabled on that very validation error.
+		mockForm = makeForm( {
+			organization: { name: '', description: '', sameAs: [ 'not a url' ], email: '' },
+		} );
+		const view = renderCard();
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'In progress' );
+		view.unmount();
+
+		// A duplicate collapses to one link, so it still counts — once.
+		mockForm = makeForm( {
+			organization: {
+				name: '',
+				description: '',
+				sameAs: [ 'https://x.com/acme', 'https://x.com/acme' ],
+				email: '',
+			},
+		} );
+		renderCard();
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Complete' );
+	} );
+
+	it( 'does not count a whitespace-only name or description', () => {
+		mockForm = makeForm( {
+			organization: { name: '   ', description: '\t', sameAs: [], email: '' },
+			defaults: { name: '', description: '' },
+		} );
+		renderCard();
+
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Not started' );
+	} );
+
+	it( 'falls back to the site defaults when the override is only whitespace', () => {
+		// The backend trims the override and then falls back to site identity, so a
+		// stray space must not drop the module below what the Site Title already earns.
+		mockForm = makeForm( {
+			organization: { name: '   ', description: ' ', sameAs: [], email: '' },
+		} );
+		renderCard();
+
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'In progress' );
+	} );
+
+	it( 'counts an explicit value, not just its default', () => {
+		// The rule is "has a value OR its smart default". Every other status test
+		// leaves the overrides empty and varies only the defaults, so without this
+		// the explicit-value half of the rule could be deleted and CI stay green.
+		mockForm = makeForm( {
+			organization: { name: 'Acme Inc', description: 'We do things', sameAs: [], email: '' },
+			defaults: { name: '', description: '' },
+		} );
+		renderCard();
+
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'In progress' );
+	} );
+
+	it( 'ignores the contact email in the completion status', () => {
+		// Email is deliberately excluded from the count — pinned so the documented
+		// decision can't drift. It is the one field trunk's "N of 4 set" badge counted.
+		mockForm = makeForm( {
+			organization: { name: '', description: '', sameAs: [], email: 'hi@acme.test' },
+			defaults: { name: '', description: '' },
+		} );
+		renderCard();
+
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Not started' );
+	} );
+
+	it( 'renders the Breadcrumbs toggle on and turns it off through the hook', () => {
+		renderCard();
+		expandCard();
+
+		const toggle = screen.getByRole( 'checkbox', { name: 'Breadcrumbs' } );
 		expect( toggle ).toBeChecked();
-		expect( screen.getByText( 'Enabled' ) ).toBeInTheDocument();
-		expect(
-			screen.queryByRole( 'textbox', { name: /Organization name/ } )
-		).not.toBeInTheDocument();
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
 		fireEvent.click( toggle );
 		expect( commitBreadcrumbList ).toHaveBeenCalledWith( { enabled: false } );
 	} );
 
-	it( 'renders an explicitly disabled Breadcrumbs card without changing the Organization badge', () => {
+	it( 'renders the Breadcrumbs toggle off and turns it on through the hook', () => {
+		// The fixture defaults to enabled, so without this the `checked` binding could
+		// be hard-coded to `true` and every other card test would still pass.
 		mockForm = makeForm( { breadcrumbList: { enabled: false } } );
 		renderCard();
+		expandCard();
 
-		expect( screen.getByRole( 'button', { name: /Breadcrumbs/ } ) ).toHaveTextContent( 'Disabled' );
-		expect( screen.getByText( '2 of 4 set' ) ).toBeInTheDocument();
-		expandBreadcrumbs();
-		expect(
-			screen.getByRole( 'checkbox', { name: 'Enable breadcrumb schema' } )
-		).not.toBeChecked();
+		const toggle = screen.getByRole( 'checkbox', { name: 'Breadcrumbs' } );
+		expect( toggle ).not.toBeChecked();
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
+		fireEvent.click( toggle );
+		expect( commitBreadcrumbList ).toHaveBeenCalledWith( { enabled: true } );
 	} );
 
-	it( 'adds a social-profile row through the hook', () => {
+	it( 'shows the Organization fields and the nested local-business toggle', () => {
 		renderCard();
-		expandOrganization();
+		expandCard();
+
+		const nameField = screen.getByRole( 'textbox', { name: orgNameField } );
+		expect( nameField ).toHaveValue( '' );
+		expect( nameField ).toHaveAttribute( 'placeholder', 'Acme Co' );
+		expect( screen.getByRole( 'checkbox', { name: /local business/ } ) ).toBeInTheDocument();
+	} );
+
+	it( 'adds an Organization social-profile row through the hook', () => {
+		renderCard();
+		expandCard();
 		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
 		fireEvent.click( screen.getByRole( 'button', { name: /Add profile/ } ) );
 
@@ -132,7 +266,7 @@ describe( 'SchemaCard', () => {
 
 	it( 'hides LocalBusiness fields until the toggle is enabled', () => {
 		const view = renderCard();
-		expandLocalBusiness();
+		expandCard();
 
 		expect( screen.queryByRole( 'textbox', { name: /Street address/ } ) ).not.toBeInTheDocument();
 
@@ -141,15 +275,15 @@ describe( 'SchemaCard', () => {
 			localBusiness: { ...mockForm.localBusiness, enabled: true },
 		} );
 		renderCard();
-		expandLocalBusiness();
+		expandCard();
 
 		expect( screen.getByRole( 'textbox', { name: /Street address/ } ) ).toBeInTheDocument();
-		expect( screen.getByText( /Google requires it/ ) ).toBeInTheDocument();
+		expect( screen.getByText( /Google requires an address/ ) ).toBeInTheDocument();
 	} );
 
 	it( 'updates the LocalBusiness toggle through the hook', () => {
 		renderCard();
-		expandLocalBusiness();
+		expandCard();
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
 		fireEvent.click( screen.getByRole( 'checkbox', { name: /local business/ } ) );
@@ -157,22 +291,179 @@ describe( 'SchemaCard', () => {
 		expect( setLocalBusinessField ).toHaveBeenCalledWith( { enabled: true } );
 	} );
 
-	it( 'saves Organization and Local business independently', () => {
+	it( 'saves the Organization and local business together with one button', () => {
 		mockForm = makeForm( {
 			isOrganizationDirty: true,
 			isLocalBusinessDirty: true,
 		} );
 		renderCard();
-		expandOrganization();
-		expandLocalBusiness();
+		expandCard();
+
+		// A single Save at the bottom of the module persists both sections together —
+		// there is no separate "Save organization" / "Save local business".
+		// `getByRole` throws on more than one match, so this is also the assertion
+		// that there is exactly ONE Save in the module.
+		const save = screen.getByRole( 'button', { name: saveName } );
+		// The accessible name disambiguates it from the tab's other Save buttons, but
+		// the visible label must stay the plain "Save" the other modules use.
+		expect( save ).toHaveTextContent( 'Save' );
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- single click; fireEvent avoids lockfile churn.
-		fireEvent.click( screen.getByRole( 'button', { name: 'Save organization' } ) );
-		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
-		fireEvent.click( screen.getByRole( 'button', { name: 'Save local business' } ) );
+		fireEvent.click( save );
 
-		expect( saveOrganization ).toHaveBeenCalledTimes( 1 );
-		expect( saveLocalBusiness ).toHaveBeenCalledTimes( 1 );
+		expect( saveOrganizationEntity ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'keeps the single Save disabled until something is dirty', () => {
+		renderCard();
+		expandCard();
+
+		expect( screen.getByRole( 'button', { name: saveName } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
+	it.each( [
+		[ 'the Organization is', { isOrganizationDirty: true } ],
+		[ 'the local business is', { isLocalBusinessDirty: true } ],
+	] )( 'enables the single Save when %s dirty', ( _label, dirty ) => {
+		mockForm = makeForm( dirty );
+		renderCard();
+		expandCard();
+
+		expect( screen.getByRole( 'button', { name: saveName } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
+	it( 'disables the Save and the auto-saving toggle while a save is in flight', () => {
+		// The `isSaving` arm of the disabled expression, and `disabled={ isSaving }` on
+		// the Breadcrumbs toggle. `makeForm` hardcodes `isSaving: false`, so without
+		// this both could be deleted and every other card test would still pass.
+		mockForm = makeForm( { isSaving: true, isOrganizationDirty: true } );
+		renderCard();
+		expandCard();
+
+		expect( screen.getByRole( 'button', { name: saveName } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.getByRole( 'checkbox', { name: 'Breadcrumbs' } ) ).toBeDisabled();
+	} );
+
+	it( 'enables the Save when a valid local business and valid profile links are set', () => {
+		// The positive path through BOTH validators. Without it, a validator that
+		// rejects everything — leaving Save permanently stuck — ships green.
+		mockForm = makeForm( {
+			isOrganizationDirty: true,
+			isLocalBusinessDirty: true,
+			organization: {
+				name: 'Acme Co',
+				description: 'We make things',
+				sameAs: [ 'https://twitter.com/acme', 'https://www.linkedin.com/company/acme' ],
+				email: 'hi@acme.test',
+			},
+			localBusiness: {
+				...EMPTY_LOCAL_BUSINESS,
+				enabled: true,
+				address: {
+					streetAddress: '123 Main St',
+					addressLocality: 'Springfield',
+					addressRegion: 'IL',
+					postalCode: '62701',
+					addressCountry: 'US',
+				},
+				telephone: '+1 (555) 123-4567',
+				priceRange: 'x'.repeat( 99 ),
+				geo: { latitude: '40.7128', longitude: '-74.0060' },
+				// Overnight hours: closing earlier than opening is legitimate.
+				openingHours: {
+					...EMPTY_LOCAL_BUSINESS.openingHours,
+					Mo: { opens: '20:45', closes: '06:15' },
+				},
+			},
+		} );
+		renderCard();
+		expandCard();
+
+		expect( screen.getByRole( 'button', { name: saveName } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.queryByText( 'Fix the highlighted fields to save.' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'ignores stale local-business errors while the local business is switched off', () => {
+		// The `localBusiness.enabled &&` short-circuit. Invalid values behind a
+		// switched-off toggle are hidden and normalized server-side, so they must not
+		// block saving the Organization.
+		mockForm = makeForm( {
+			isOrganizationDirty: true,
+			localBusiness: {
+				...EMPTY_LOCAL_BUSINESS,
+				enabled: false,
+				geo: { latitude: '40.7128', longitude: '' },
+			},
+		} );
+		renderCard();
+		expandCard();
+
+		expect( screen.getByRole( 'button', { name: saveName } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
+	it( 'flags a duplicated profile URL and blocks the Save', () => {
+		// Dedupe is a live feature with no coverage anywhere in the suite otherwise —
+		// the branch could be deleted and all 33 suites would stay green.
+		mockForm = makeForm( {
+			isOrganizationDirty: true,
+			organization: {
+				name: '',
+				description: '',
+				sameAs: [ 'https://twitter.com/acme', 'https://twitter.com/acme' ],
+				email: '',
+			},
+		} );
+		renderCard();
+		expandCard();
+
+		expect( screen.getByText( 'This profile URL is already listed.' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: saveName } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
+	it( 'tells the reader why the Save is blocked and points the button at the reason', () => {
+		// The button is focusable while disabled (@wordpress/ui sets `aria-disabled`,
+		// not the native attribute), and the offending field can be off screen.
+		mockForm = makeForm( {
+			isOrganizationDirty: true,
+			organization: { name: '', description: '', sameAs: [ 'not a url' ], email: '' },
+		} );
+		renderCard();
+		expandCard();
+
+		const message = screen.getByText( 'Fix the highlighted fields to save.' );
+		expect( screen.getByRole( 'button', { name: saveName } ) ).toHaveAttribute(
+			'aria-describedby',
+			message.id
+		);
+	} );
+
+	it( 'groups the Organization details and local business under a named fieldset', () => {
+		// The three cards each carried their own heading; one card would leave these
+		// as flat siblings with only a visual rule to convey the grouping.
+		renderCard();
+		expandCard();
+
+		expect( screen.getByRole( 'group', { name: 'Organization details' } ) ).toContainElement(
+			screen.getByRole( 'textbox', { name: orgNameField } )
+		);
 	} );
 
 	it( 'pairs the compact Local business fields without pairing Street address', () => {
@@ -180,7 +471,7 @@ describe( 'SchemaCard', () => {
 			localBusiness: { ...mockForm.localBusiness, enabled: true },
 		} );
 		renderCard();
-		expandLocalBusiness();
+		expandCard();
 
 		const expectPair = ( first: HTMLElement, second: HTMLElement ) => {
 			// eslint-disable-next-line testing-library/no-node-access -- the wrapper is the layout contract under test.
@@ -220,7 +511,7 @@ describe( 'SchemaCard', () => {
 			},
 		} );
 		renderCard();
-		expandLocalBusiness();
+		expandCard();
 
 		const error = screen.getByText( 'Enter both latitude and longitude, or leave both blank.' );
 		expect( error ).toHaveClass( schemaStyles.pairError );
@@ -232,7 +523,7 @@ describe( 'SchemaCard', () => {
 			'aria-describedby',
 			error.id
 		);
-		expect( screen.getByRole( 'button', { name: 'Save local business' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'button', { name: saveName } ) ).toHaveAttribute(
 			'aria-disabled',
 			'true'
 		);
@@ -250,7 +541,7 @@ describe( 'SchemaCard', () => {
 			},
 		} );
 		renderCard();
-		expandLocalBusiness();
+		expandCard();
 
 		expect( screen.getByRole( 'textbox', { name: 'Country' } ) ).toHaveAttribute(
 			'aria-invalid',
@@ -265,7 +556,7 @@ describe( 'SchemaCard', () => {
 			'true'
 		);
 		expect( screen.getByText( 'Enter fewer than 100 characters.' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Save local business' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'button', { name: saveName } ) ).toHaveAttribute(
 			'aria-disabled',
 			'true'
 		);
@@ -276,20 +567,20 @@ describe( 'SchemaCard', () => {
 			localBusiness: { ...mockForm.localBusiness, enabled: true },
 		} );
 		renderCard();
-		expandLocalBusiness();
+		expandCard();
 
+		const country = screen.getByRole( 'textbox', { name: 'Country' } );
 		// eslint-disable-next-line testing-library/prefer-user-event -- single controlled change; see note above.
-		fireEvent.change( screen.getByRole( 'textbox', { name: 'Country' } ), {
-			target: { value: 'us' },
-		} );
+		fireEvent.change( country, { target: { value: 'us' } } );
 		expect( setLocalBusinessField ).toHaveBeenCalledWith( {
 			address: { ...mockForm.localBusiness.address, addressCountry: 'US' },
 		} );
 
+		// ASCII-only, which is the whole reason `uppercaseAscii` exists instead of
+		// `.toUpperCase()` — the latter folds a long s to "S" and would invent a
+		// valid-looking country code out of one that isn't.
 		// eslint-disable-next-line testing-library/prefer-user-event -- single controlled change; see note above.
-		fireEvent.change( screen.getByRole( 'textbox', { name: 'Country' } ), {
-			target: { value: 'uſ' },
-		} );
+		fireEvent.change( country, { target: { value: 'uſ' } } );
 		expect( setLocalBusinessField ).toHaveBeenLastCalledWith( {
 			address: { ...mockForm.localBusiness.address, addressCountry: 'Uſ' },
 		} );
@@ -308,45 +599,16 @@ describe( 'SchemaCard', () => {
 			},
 		} );
 		renderCard();
-		expandLocalBusiness();
+		expandCard();
 
 		expect( screen.getByLabelText( missingField ) ).toHaveAttribute( 'aria-invalid', 'true' );
 		const error = screen.getByText( 'Enter both opening and closing times, or leave both blank.' );
 		expect( error ).toHaveClass( schemaStyles.pairError );
-		expect( screen.getByLabelText( 'Monday opens' ) ).toHaveAttribute(
-			'aria-describedby',
-			error.id
-		);
-		expect( screen.getByLabelText( 'Monday closes' ) ).toHaveAttribute(
-			'aria-describedby',
-			error.id
-		);
-		expect( screen.getByRole( 'button', { name: 'Save local business' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
-	} );
-
-	it( 'allows valid international details and overnight hours', () => {
-		mockForm = makeForm( {
-			isLocalBusinessDirty: true,
-			localBusiness: {
-				...mockForm.localBusiness,
-				enabled: true,
-				address: { ...mockForm.localBusiness.address, addressCountry: 'US' },
-				telephone: '+1 (555) 123-4567',
-				priceRange: '💶'.repeat( 99 ),
-				openingHours: {
-					...mockForm.localBusiness.openingHours,
-					Mo: { opens: '20:45', closes: '06:15' },
-				},
-			},
-		} );
-		renderCard();
-		expandLocalBusiness();
-
-		expect( screen.getByText( /closing time earlier than opening/ ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Save local business' } ) ).not.toHaveAttribute(
+		// Both inputs point at the shared message, so either one announces the reason.
+		for ( const field of [ 'Monday opens', 'Monday closes' ] ) {
+			expect( screen.getByLabelText( field ) ).toHaveAttribute( 'aria-describedby', error.id );
+		}
+		expect( screen.getByRole( 'button', { name: saveName } ) ).toHaveAttribute(
 			'aria-disabled',
 			'true'
 		);
@@ -357,7 +619,7 @@ describe( 'SchemaCard', () => {
 			localBusiness: { ...mockForm.localBusiness, enabled: true },
 		} );
 		renderCard();
-		expandLocalBusiness();
+		expandCard();
 
 		const input = screen.getByLabelText( 'Monday opens' ) as HTMLInputElement;
 		input.value = '09:00';
@@ -376,156 +638,37 @@ describe( 'SchemaCard', () => {
 		} );
 	} );
 
-	it( 'disables saving when a social profile URL is invalid', () => {
+	it( 'disables the single Save when either the Organization or the local business is invalid', () => {
+		// An invalid Organization URL disables the shared Save…
 		mockForm = makeForm( {
 			isOrganizationDirty: true,
 			organization: { name: '', description: '', sameAs: [ 'not a url' ], email: '' },
 		} );
-		renderCard();
-		expandOrganization();
-
+		const view = renderCard();
+		expandCard();
 		expect(
 			screen.getByText( 'Enter a valid URL that starts with http:// or https://.' )
 		).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Save organization' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'button', { name: saveName } ) ).toHaveAttribute(
 			'aria-disabled',
 			'true'
 		);
-	} );
+		view.unmount();
 
-	it( 'keeps Local business saving enabled when Organization URLs are invalid', () => {
+		// …and so does a local-business error, even when the Organization fields are fine.
 		mockForm = makeForm( {
-			isOrganizationDirty: true,
-			isLocalBusinessDirty: true,
-			organization: { name: '', description: '', sameAs: [ 'not a url' ], email: '' },
-		} );
-		renderCard();
-		expandOrganization();
-		expandLocalBusiness();
-
-		expect( screen.getByRole( 'button', { name: 'Save organization' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
-		expect( screen.getByRole( 'button', { name: 'Save local business' } ) ).not.toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
-	} );
-
-	it( 'keeps Organization saving enabled when Local business values are invalid', () => {
-		mockForm = makeForm( {
-			isOrganizationDirty: true,
 			isLocalBusinessDirty: true,
 			localBusiness: {
-				...mockForm.localBusiness,
+				...EMPTY_LOCAL_BUSINESS,
 				enabled: true,
 				geo: { latitude: '40.7128', longitude: '' },
 			},
 		} );
 		renderCard();
-		expandOrganization();
-		expandLocalBusiness();
-
-		expect( screen.getByRole( 'button', { name: 'Save organization' } ) ).not.toHaveAttribute(
+		expandCard();
+		expect( screen.getByRole( 'button', { name: saveName } ) ).toHaveAttribute(
 			'aria-disabled',
 			'true'
 		);
-		expect( screen.getByRole( 'button', { name: 'Save local business' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
-	} );
-
-	it( 'allows full social profile URLs', () => {
-		mockForm = makeForm( {
-			isOrganizationDirty: true,
-			organization: {
-				name: '',
-				description: '',
-				sameAs: [ 'https://bsky.app/profile/acme.example' ],
-				email: '',
-			},
-		} );
-		renderCard();
-		expandOrganization();
-
-		expect(
-			screen.queryByText( 'Enter a valid URL that starts with http:// or https://.' )
-		).not.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Save organization' } ) ).not.toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
-	} );
-
-	it( 'disables saving when social profile URLs are duplicated', () => {
-		mockForm = makeForm( {
-			isOrganizationDirty: true,
-			organization: {
-				name: '',
-				description: '',
-				sameAs: [
-					'https://bsky.app/profile/acme.example',
-					' https://bsky.app/profile/acme.example ',
-				],
-				email: '',
-			},
-		} );
-		renderCard();
-		expandOrganization();
-
-		expect( screen.getAllByText( 'This profile URL is already listed.' ) ).toHaveLength( 1 );
-		expect( screen.getByRole( 'button', { name: 'Save organization' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
-	} );
-
-	it( 'shows the configured-field count in the header', () => {
-		renderCard();
-
-		// Site Title + Tagline come through as defaults → 2 of 4 before any input.
-		expect( screen.getByText( '2 of 4 set' ) ).toBeInTheDocument();
-	} );
-
-	it( 'counts a social profile toward the header badge', () => {
-		mockForm = makeForm( {
-			organization: { name: '', description: '', sameAs: [ 'https://x.com/acme' ], email: '' },
-		} );
-		renderCard();
-
-		expect( screen.getByText( '3 of 4 set' ) ).toBeInTheDocument();
-	} );
-
-	it( 'shows Local business status without changing the four-field Organization count', () => {
-		const view = renderCard();
-		expect( screen.getByRole( 'button', { name: /Local business/ } ) ).toHaveTextContent(
-			'Disabled'
-		);
-		expect( screen.getByText( '2 of 4 set' ) ).toBeInTheDocument();
-
-		view.unmount();
-		mockForm = makeForm( {
-			localBusiness: {
-				...mockForm.localBusiness,
-				enabled: true,
-			},
-		} );
-		renderCard();
-		expect( screen.getByRole( 'button', { name: /Local business/ } ) ).toHaveTextContent(
-			'Enabled'
-		);
-		expect( screen.getByText( '2 of 4 set' ) ).toBeInTheDocument();
-	} );
-
-	it( 'shows "Not set" when nothing is configured (no site identity either)', () => {
-		mockForm = makeForm( {
-			organization: { name: '', description: '', sameAs: [], email: '' },
-			defaults: { name: '', description: '' },
-		} );
-		renderCard();
-
-		expect( screen.getByText( 'Not set' ) ).toBeInTheDocument();
 	} );
 } );

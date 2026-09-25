@@ -1,22 +1,24 @@
 import { render, screen } from '@testing-library/react';
+import { getMockRouteLinkUrl, setMockRouteSearch } from '../../../../tests/js/route-test-utils';
 import { getUtmFields } from './fields';
 import type { UtmReportRow } from './aggregate';
-import type { ReactNode } from 'react';
 
 // The router is built dynamically at runtime, so a field-level test has no
 // router to mount. Render `Link` as the anchor it becomes, keeping `to`/`params`
 // assertable.
-jest.mock( '@wordpress/route', () => ( {
-	Link: ( {
-		to,
-		params,
-		children,
-	}: {
-		to: string;
-		params: Record< string, string >;
-		children: ReactNode;
-	} ) => <a href={ to.replace( /\$(\w+)/g, ( _match, key ) => params[ key ] ) }>{ children }</a>,
-} ) );
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual( '../../../../tests/js/route-test-utils' );
+
+	return mockWordPressRoute;
+} );
+
+setMockRouteSearch( {
+	from: '2026-06-01',
+	to: '2026-06-16',
+	interval: 'day',
+	section: 'campaign',
+	foreign: 'drop-me',
+} );
 
 const row: UtmReportRow = {
 	id: 'post-41',
@@ -59,7 +61,15 @@ describe( 'UTM report fields', () => {
 		render( <UtmField item={ row } field={ field as never } /> );
 
 		const link = screen.getByRole( 'link', { name: row.label } );
-		expect( link ).toHaveAttribute( 'href', '/post/41' );
+		const url = getMockRouteLinkUrl( link );
+		expect( url.pathname ).toBe( '/post/41' );
+		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			ref: 'utm',
+			ref_section: 'source-medium',
+		} );
 		expect( link ).not.toHaveAttribute( 'target' );
 		// eslint-disable-next-line testing-library/no-node-access -- An external-link icon would be an SVG inside the anchor.
 		expect( link.querySelector( 'svg' ) ).not.toBeInTheDocument();

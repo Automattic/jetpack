@@ -3,6 +3,7 @@
  */
 import { fetchReportBookings } from '../../api/report-bookings-fetch';
 import { safeParseInt } from '../../utils/parsing';
+import { withBucketStamps } from '../utils';
 import type { Override } from '../../utils/types';
 
 type ReportsBookingsByDateResponse = Awaited< ReturnType< typeof fetchReportBookings > >;
@@ -39,12 +40,12 @@ type SanitizedBookingsSummaryItem = Override<
 	}
 >;
 
-/**
- * Sanitize/process a single booking item by converting strings to numbers
- */
-function sanitizeBookingItem( item: RawBookingsReportDataItem ): SanitizedBookingsByDateItem {
+function sanitizeBookingItem(
+	item: RawBookingsReportDataItem,
+	zone: string
+): SanitizedBookingsByDateItem {
 	return {
-		...item,
+		...withBucketStamps( item, zone ),
 		status_unpaid: safeParseInt( item.status_unpaid ),
 		status_pending_confirmation: safeParseInt( item.status_pending_confirmation ),
 		status_confirmed: safeParseInt( item.status_confirmed ),
@@ -57,14 +58,12 @@ function sanitizeBookingItem( item: RawBookingsReportDataItem ): SanitizedBookin
 	};
 }
 
-/**
- * Sanitize/process a single booking summary item by converting strings to numbers
- */
 function sanitizeBookingSummaryItem(
-	item: RawBookingsReportSummaryItem
+	item: RawBookingsReportSummaryItem,
+	zone: string
 ): SanitizedBookingsSummaryItem {
 	return {
-		...item,
+		...withBucketStamps( item, zone ),
 		status_unpaid: safeParseInt( item.status_unpaid ),
 		status_pending_confirmation: safeParseInt( item.status_pending_confirmation ),
 		status_confirmed: safeParseInt( item.status_confirmed ),
@@ -77,26 +76,21 @@ function sanitizeBookingSummaryItem(
 	};
 }
 
-/**
- * Processed response with numeric values
- */
 type SanitizedBookingsByDateResponse = {
 	summary: SanitizedBookingsSummaryItem;
 	data: SanitizedBookingsByDateItem[];
 };
 
 /**
- * Sanitize the response from the reports/bookings/by-date endpoint
- * Converts string values to numbers for easier calculations and charting.
- *
  * The `summary` and `data` items have different structures (summary lacks time_interval),
  * so we use different sanitizer functions for each.
  */
 export const sanitizeReportBookingsResponse = (
-	response: ReportsBookingsByDateResponse
+	response: ReportsBookingsByDateResponse,
+	zone: string
 ): SanitizedBookingsByDateResponse => {
 	return {
-		summary: sanitizeBookingSummaryItem( response.summary ),
-		data: response.data.map( sanitizeBookingItem ),
+		summary: sanitizeBookingSummaryItem( response.summary, zone ),
+		data: response.data.map( item => sanitizeBookingItem( item, zone ) ),
 	};
 };

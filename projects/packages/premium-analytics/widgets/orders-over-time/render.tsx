@@ -6,9 +6,10 @@ import {
 	ReportCsvDownloadButton,
 	WidgetFooter,
 	WidgetRoot,
+	type CountLabel,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -26,15 +27,14 @@ type OrdersOverTimeWidgetProps = WidgetRenderProps< OrdersOverTimeRenderAttribut
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
+const ordersCountLabel: CountLabel = count =>
+	/* translators: %s: number of orders. */
+	_n( '%s Order', '%s Orders', count, 'jetpack-premium-analytics-pkg' );
+
 /**
- * Orders over time widget.
- *
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; OrderMetricWidget fetches
  * the orders report and renders the order count metric over time.
- *
- * @param {OrdersOverTimeWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function OrdersOverTimeRender( {
 	attributes = {},
@@ -45,6 +45,8 @@ export default function OrdersOverTimeRender( {
 			<div className={ styles.root }>
 				<OrderMetricWidget
 					metricKey="orders_no"
+					seriesLabel={ __( 'Orders', 'jetpack-premium-analytics-pkg' ) }
+					seriesCountLabel={ ordersCountLabel }
 					emptyStateText={ __( 'No orders in this period.', 'jetpack-premium-analytics-pkg' ) }
 					errorText={ __(
 						"We couldn't load orders. Please try again in a moment.",

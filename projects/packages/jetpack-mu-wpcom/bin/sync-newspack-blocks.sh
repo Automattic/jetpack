@@ -20,12 +20,13 @@ if [[ $1 =~ ^--release= ]]
 then
 	MODE=release
 	NAME=${key_value}
-	URL=https://github.com/Automattic/newspack-blocks/releases/download/$NAME/newspack-blocks.zip
+	# The workspace monorepo tags each plugin's releases as `<plugin>@<version>`.
+	URL=https://github.com/Automattic/newspack-workspace/releases/download/newspack-blocks@$NAME/newspack-blocks.zip
 elif [[ $1 =~ ^--branch= ]]
 then
 	MODE=branch
 	NAME=${key_value}
-	URL=https://github.com/Automattic/newspack-blocks/archive/$NAME.zip
+	URL=https://github.com/Automattic/newspack-workspace/archive/$NAME.zip
 elif [[ $1 =~ ^--path= ]]
 then
 	MODE=path
@@ -37,11 +38,11 @@ then
     echo "Usage: pnpm run sync:newspack-blocks [arguments]"
     echo
     echo Possible arguments:
-    echo --branch=master
-    echo "--path=/path/to/newspack-blocks"
-    echo --release=v4.0.0
+    echo --branch=main
+    echo "--path=/path/to/newspack-workspace/plugins/newspack-blocks"
+    echo --release=4.30.3
     echo
-    echo You can find the latest release ID on https://github.com/Automattic/newspack-blocks/releases/latest
+    echo "You can find the latest release on https://github.com/Automattic/newspack-workspace/releases?q=newspack-blocks"
     echo
     exit 1
 fi
@@ -56,7 +57,7 @@ then
 	if [ -f "$TARGET"/version.txt ]; then
 		CURRENT_VERSION=$(< "$TARGET"/version.txt )
 
-		if [[ "$CURRENT_VERSION" == "$NAME" ]]; then
+		if [[ "$CURRENT_VERSION" == "v$NAME" ]]; then
 			echo "The current version $CURRENT_VERSION of the newspack-blocks is synced."
 			read -rp "Do you want to proceed anyway? (y/N): " proceed
 			if [[ ! "$proceed" =~ ^[Yy]$ ]]; then

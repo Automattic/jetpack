@@ -1,0 +1,56 @@
+.root {
+	display: flex;
+	flex-direction: column;
+	block-size: 100%;
+	min-block-size: 0;
+	overflow: hidden;
+}
+
+.list {
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+/* Match compact leaderboard rows. */
+.row {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-lg);
+	min-block-size: 36px;
+}
+
+/* The UA's [hidden] rule loses to .row's display, so restate it here. */
+.row[hidden] {
+	display: none;
+}
+
+.label {
+	min-inline-size: 0;
+	overflow: hidden;
+	color: var(--wpds-color-foreground-content-neutral);
+	font-size: var(--wpds-typography-font-size-md);
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.label a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.label a:hover,
+.label a:focus {
+	text-decoration: underline;
+}
+
+.value {
+	color: var(--wpds-color-foreground-content-neutral);
+	font-size: var(--wpds-typography-font-size-md);
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+	text-align: end;
+}

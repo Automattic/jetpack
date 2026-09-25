@@ -7,6 +7,7 @@
  */
 import { fetchReportVisitors } from '../api';
 import { sanitizeReportVisitorsResponse } from '../processing/visitors';
+import { resolveReportTimeZone } from '../utils/report-timezone';
 import type { ReportDataMap } from '../types';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
@@ -18,21 +19,17 @@ const getReportVisitorsQueryKey = ( p: RequestReportVisitorsParams ) =>
 export function reportVisitorsQuery(
 	params: RequestReportVisitorsParams
 ): UseQueryOptions< ReportDataMap[ 'visitors' ] > {
+	const timezone = resolveReportTimeZone();
+
 	return {
-		queryKey: getReportVisitorsQueryKey( params ),
+		queryKey: [ ...getReportVisitorsQueryKey( params ), timezone ],
 		queryFn: async () => {
 			const response = await fetchReportVisitors( params );
-			return sanitizeReportVisitorsResponse( response );
+			return sanitizeReportVisitorsResponse( response, timezone );
 		},
 
-		/**
-		 * Enable the query only if the from, to, and interval are set.
-		 */
 		enabled: !! ( params.from && params.to && params.interval ),
 
-		/**
-		 * Keep previous data while fetching new data to prevent blank states
-		 */
 		placeholderData: previousData => previousData,
 	};
 }

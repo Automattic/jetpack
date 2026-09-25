@@ -165,6 +165,46 @@ describe( 'useEmptyTrash', () => {
 		} );
 	} );
 
+	it( 'uses the singular success message when a single response is deleted', async () => {
+		const apiFetchModule = await import( '@wordpress/api-fetch' );
+		apiFetchModule.default.mockImplementationOnce( () => Promise.resolve( { deleted: 1 } ) );
+		const { useDispatch } = await import( '@wordpress/data' );
+
+		const { result } = renderHook( () => useEmptyTrash() );
+
+		await act( async () => {
+			await result.current.onConfirmEmptying();
+		} );
+
+		const mockDispatch = useDispatch( 'notices' );
+		await waitFor( () => {
+			expect( mockDispatch.createSuccessNotice ).toHaveBeenCalledWith(
+				'Response deleted permanently.',
+				{ type: 'snackbar', id: 'empty-trash' }
+			);
+		} );
+	} );
+
+	it( 'shows an error notice when the API call fails', async () => {
+		const apiFetchModule = await import( '@wordpress/api-fetch' );
+		apiFetchModule.default.mockImplementationOnce( () => Promise.reject( new Error( 'boom' ) ) );
+		const { useDispatch } = await import( '@wordpress/data' );
+
+		const { result } = renderHook( () => useEmptyTrash() );
+
+		await act( async () => {
+			await result.current.onConfirmEmptying();
+		} );
+
+		const mockDispatch = useDispatch( 'notices' );
+		await waitFor( () => {
+			expect( mockDispatch.createErrorNotice ).toHaveBeenCalledWith( 'Could not empty trash.', {
+				type: 'snackbar',
+				id: 'empty-trash-error',
+			} );
+		} );
+	} );
+
 	it( 'does not call API when isEmpty is true', async () => {
 		const useInboxDataModule = await import( '../../../../src/dashboard/hooks/use-inbox-data' );
 		useInboxDataModule.default.mockReturnValueOnce( {

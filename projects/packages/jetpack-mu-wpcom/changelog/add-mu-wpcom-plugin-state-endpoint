@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Plugin State: Add an internal Atomic REST endpoint reporting whether a single plugin is installed and active.

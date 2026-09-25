@@ -1,11 +1,16 @@
 /**
  * External dependencies
  */
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
+import { MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import type { StatsFileDownloadsItem } from '@jetpack-premium-analytics/data';
-import type { Field } from '@wordpress/dataviews';
+import type { StatsFileDownloadsComparisonItem } from '@jetpack-premium-analytics/data';
+import type { Field } from '@jetpack-premium-analytics/externals';
+
+const DOWNLOADS_DATA_FORMAT = {
+	type: 'number',
+	options: { decimals: 0, useMultipliers: false },
+} as const;
 
 /**
  * The visible file label, preferring the filename supplied by the endpoint.
@@ -13,16 +18,19 @@ import type { Field } from '@wordpress/dataviews';
  * @param item - A normalized file-download row.
  * @return The file label.
  */
-function getFileLabel( item: StatsFileDownloadsItem ): string {
+function getFileLabel( item: StatsFileDownloadsComparisonItem ): string {
 	return item.shortLabel ?? String( item.label ?? '' );
 }
 
 /**
  * DataViews fields for the File downloads records table.
  *
+ * @param withComparison - Whether to render available period-over-period deltas.
  * @return The field config.
  */
-export function getDownloadsFields(): Field< StatsFileDownloadsItem >[] {
+export function getDownloadsFields(
+	withComparison = false
+): Field< StatsFileDownloadsComparisonItem >[] {
 	return [
 		{
 			id: 'file',
@@ -51,12 +59,12 @@ export function getDownloadsFields(): Field< StatsFileDownloadsItem >[] {
 			label: __( 'Downloads', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.downloads,
 			render: ( { item } ) => (
-				<>
-					{ formatMetricValue( item.downloads, 'number', {
-						decimals: 0,
-						useMultipliers: false,
-					} ) }
-				</>
+				<MetricWithComparison
+					value={ item.downloads }
+					previousValue={ withComparison ? item.previousDownloads : undefined }
+					dataFormat={ DOWNLOADS_DATA_FORMAT }
+					fontSize="md"
+				/>
 			),
 		},
 	];

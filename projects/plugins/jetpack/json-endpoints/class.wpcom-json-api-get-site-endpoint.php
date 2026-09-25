@@ -101,6 +101,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'garden_is_provisioned'       => '(bool) If the Garden site is provisioned.',
 		'is_wpcom_flex'               => '(bool) If the site is a Flex site',
 		'big_sky_enabled'             => '(bool) Whether the Big Sky AI assistant is enabled for this site.',
+		'atomic_email_block'          => '(object) State of the block on the site\'s outgoing email, with `status` (`blocked` while a block is active, `at_risk` once it has expired), `reason` and `expires_on` keys, or null when the site has no block history. WordPress.com platform only.',
 		'hosting_provider_guess'      => '(string) Guess of the hosting provider. WordPress.com platform only; only returned when explicitly requested via the fields parameter.',
 		'environment_type'            => '(string) The WP_ENVIRONMENT_TYPE of the site as synced by Jetpack. WordPress.com platform only; only returned when explicitly requested via the fields parameter.',
 	);
@@ -224,7 +225,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'was_created_with_blank_canvas_design',
 		'videopress_storage_used',
 		'is_difm_lite_in_progress',
+		'difm_lite_site_options',
 		'is_gating_business_q1',
+		'is_legacy_gating_site',
 		'site_intent',
 		'site_partner_bundle',
 		'onboarding_segment',
@@ -242,6 +245,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'wpcom_admin_interface',
 		'wpcom_classic_early_release',
 		'jetpack_recovery_mode_status',
+		'jetpack_sso_require_two_step',
 		'apm_enabled',
 		'wpcom_ai_launchpad_enabled',
 		'wpcom_ai_launchpad_dismissed',
@@ -270,6 +274,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'garden_is_provisioned',
 		'is_wpcom_flex',
 		'big_sky_enabled',
+		'atomic_email_block',
 	);
 
 	/**
@@ -317,6 +322,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'wpcom_admin_interface',
 		'wpcom_classic_early_release',
 		'jetpack_recovery_mode_status',
+		'jetpack_sso_require_two_step',
 		'apm_enabled',
 	);
 
@@ -678,6 +684,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'big_sky_enabled':
 				$response[ $key ] = $this->site->is_big_sky_enabled();
 				break;
+			case 'atomic_email_block':
+				$response[ $key ] = $this->site->get_atomic_email_block();
+				break;
 			case 'hosting_provider_guess':
 				// WordPress.com platform decoration, computed only when explicitly requested
 				// via `fields` so default `_all` responses are unchanged.
@@ -951,8 +960,17 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'is_difm_lite_in_progress':
 					$options[ $key ] = $site->is_difm_lite_in_progress();
 					break;
+				case 'difm_lite_site_options':
+					$difm_lite_site_options = $site->get_difm_lite_site_options();
+					if ( null !== $difm_lite_site_options ) {
+						$options[ $key ] = (object) $difm_lite_site_options;
+					}
+					break;
 				case 'is_gating_business_q1':
 					$options[ $key ] = $site->is_gating_business_q1();
+					break;
+				case 'is_legacy_gating_site':
+					$options[ $key ] = $site->is_legacy_gating_site();
 					break;
 				case 'site_intent':
 					$options[ $key ] = $site->get_site_intent();
@@ -1009,6 +1027,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'jetpack_recovery_mode_status':
 					$options[ $key ] = $site->get_jetpack_recovery_mode_status();
+					break;
+				case 'jetpack_sso_require_two_step':
+					$options[ $key ] = $site->get_jetpack_sso_require_two_step();
 					break;
 				case 'apm_enabled':
 					$options[ $key ] = $site->get_apm_enabled();
@@ -1096,6 +1117,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			unset( $response->plan );
 			unset( $response->products );
 			unset( $response->zendesk_site_meta );
+			unset( $response->atomic_email_block );
 		}
 
 		// render additional options.

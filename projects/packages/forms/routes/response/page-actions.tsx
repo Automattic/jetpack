@@ -1,140 +1,147 @@
 /**
  * WordPress dependencies
  */
-import { DropdownMenu } from '@wordpress/components';
-import { useRegistry } from '@wordpress/data';
-import { useCallback, useMemo } from '@wordpress/element';
+import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { moreVertical } from '@wordpress/icons';
-import { useNavigate } from '@wordpress/route';
 import * as React from 'react';
 /**
  * Internal dependencies
  */
-import { getActions } from '../responses/actions.tsx';
+import { getShortcutLabel } from './use-keyboard-shortcuts.ts';
+import { canRunAction } from './use-response-actions.ts';
 /**
  * Types
  */
-import type { Action, Registry } from '../../src/dashboard/inbox/stage/types.tsx';
+import type { ResponseActions } from './use-response-actions.ts';
 import type { FormResponse } from '../../src/types/index.ts';
-
-const VIEW_BY_STATUS: Record< FormResponse[ 'status' ], string > = {
-	publish: 'inbox',
-	spam: 'spam',
-	trash: 'trash',
-};
-
-type Control = {
-	title: string;
-	onClick: () => void;
-	isDestructive?: boolean;
-};
 
 /**
  * Top-bar actions for the standalone single response page.
  *
- * All actions live in a single three-dot dropdown (the `controls` API closes the
- * menu automatically on selection). Reuses the responses route action callbacks;
- * status-changing actions navigate back to the relevant responses list
- * afterwards, since the response leaves the current view.
+ * The handlers come from `useResponseActions`, which the page owns so that the
+ * keyboard shortcuts run the same code — this component only decides which ones to
+ * offer, based on the response's current status.
  *
- * @param props          - Component props.
- * @param props.response - The response being viewed.
+ * Built from explicit `MenuItem` children rather than `DropdownMenu`'s `controls`
+ * prop: `controls` renders a plain `Button` with a fixed set of props and has no
+ * passthrough, so it cannot show the `shortcut` hints that make the keyboard
+ * shortcuts discoverable. The trade-off is that children have to close the menu
+ * themselves, which `controls` did automatically.
+ *
+ * @param props                 - Component props.
+ * @param props.response        - The response being viewed.
+ * @param props.responseActions - The page's shared action handlers.
+ * @param props.isBlocked       - Whether another mutation on this response is in flight
+ *                              (e.g. the spam confirmation dialog saving).
+ * @param props.onOpenChange    - Reports the menu's open state, so the page can suspend
+ *                              its keyboard shortcuts while it is showing.
  * @return The actions dropdown.
  */
 export default function SingleResponseActions( {
 	response,
+	responseActions,
+	isBlocked = false,
+	onOpenChange,
 }: {
 	response: FormResponse;
+	responseActions: ResponseActions;
+	isBlocked?: boolean;
+	onOpenChange?: ( isOpen: boolean ) => void;
 } ): React.JSX.Element {
-	const registry = useRegistry() as unknown as Registry;
-	const navigate = useNavigate();
+	const {
+		isPending,
+		markAsSpam,
+		markAsNotSpam,
+		moveToTrash,
+		restore,
+		deletePermanently,
+		toggleRead,
+		editForm,
+		goToList,
+	} = responseActions;
 
-	const actions = useMemo( () => getActions( { navigate, searchParams: {} } ), [ navigate ] );
-	const currentView = VIEW_BY_STATUS[ response.status ] || 'inbox';
-
-	const runAction = useCallback(
-		async ( action: Action, navigateAway: boolean ) => {
-			await action.callback?.( [ response ], { registry } );
-			if ( navigateAway ) {
-				navigate( { to: `/responses/${ currentView }` } );
-			}
-		},
-		[ response, registry, navigate, currentView ]
-	);
-
-	// Grouped controls — nested arrays render as separate menu groups, and the
-	// `controls` API closes the dropdown automatically when an item is selected.
-	// Handlers are inlined since they're only used here and all invalidate
-	// together with `runAction` whenever the response changes.
-	const controls = useMemo< Control[][] >( () => {
-		const toggleRead: Control = {
-			title: response.is_unread
-				? __( 'Mark as read', 'jetpack-forms' )
-				: __( 'Mark as unread', 'jetpack-forms' ),
-			onClick: () =>
-				runAction(
-					response.is_unread ? actions.markAsReadAction : actions.markAsUnreadAction,
-					false
-				),
-		};
-
-		let statusControls: Control[];
-		if ( response.status === 'spam' ) {
-			statusControls = [
-				{
-					title: __( 'Not spam', 'jetpack-forms' ),
-					onClick: () => runAction( actions.markAsNotSpamAction, true ),
-				},
-				{
-					title: __( 'Trash', 'jetpack-forms' ),
-					onClick: () => runAction( actions.moveToTrashAction, true ),
-				},
-			];
-		} else if ( response.status === 'trash' ) {
-			statusControls = [
-				{
-					title: __( 'Restore', 'jetpack-forms' ),
-					onClick: () => runAction( actions.restoreAction, true ),
-				},
-				{
-					title: __( 'Delete permanently', 'jetpack-forms' ),
-					onClick: () => runAction( actions.deleteAction, true ),
-					isDestructive: true,
-				},
-			];
-		} else {
-			statusControls = [
-				{
-					title: __( 'Mark as spam', 'jetpack-forms' ),
-					onClick: () => runAction( actions.markAsSpamAction, true ),
-				},
-				{
-					title: __( 'Trash', 'jetpack-forms' ),
-					onClick: () => runAction( actions.moveToTrashAction, true ),
-				},
-			];
-		}
-
-		const groups: Control[][] = [ [ toggleRead ], statusControls ];
-
-		if ( response.edit_form_url ) {
-			groups.push( [
-				{
-					title: __( 'Edit form', 'jetpack-forms' ),
-					onClick: () => actions.editFormAction.callback?.( [ response ], { registry } ),
-				},
-			] );
-		}
-
-		return groups;
-	}, [ response, runAction, actions, registry ] );
+	// Rendered from the same table the handlers are guarded on, so the menu cannot
+	// offer an action that would silently do nothing (or hide one that works).
+	const can = ( action: Parameters< typeof canRunAction >[ 0 ] ) =>
+		canRunAction( action, response.status );
 
 	return (
 		<DropdownMenu
 			icon={ moreVertical }
 			label={ __( 'Actions', 'jetpack-forms' ) }
-			controls={ controls }
-		/>
+			toggleProps={ { disabled: isPending || isBlocked, isBusy: isPending } }
+			// The page suspends its shortcuts while this is open. Escape closes the
+			// menu, and without this it would navigate back to the list at the same
+			// time.
+			onToggle={ onOpenChange }
+		>
+			{ ( { onClose }: { onClose: () => void } ) => {
+				// Every item closes the menu first, so the page is not left with an open
+				// dropdown over a response that has just changed underneath it.
+				const run = ( action: () => void ) => () => {
+					onClose();
+					action();
+				};
+
+				return (
+					<>
+						<MenuGroup>
+							<MenuItem onClick={ run( toggleRead ) }>
+								{ response.is_unread
+									? __( 'Mark as read', 'jetpack-forms' )
+									: __( 'Mark as unread', 'jetpack-forms' ) }
+							</MenuItem>
+							<MenuItem onClick={ run( () => window.print() ) }>
+								{ __( 'Print', 'jetpack-forms' ) }
+							</MenuItem>
+						</MenuGroup>
+
+						<MenuGroup>
+							{ can( 'markAsNotSpam' ) && (
+								<MenuItem onClick={ run( markAsNotSpam ) }>
+									{ __( 'Not spam', 'jetpack-forms' ) }
+								</MenuItem>
+							) }
+							{ can( 'restore' ) && (
+								<MenuItem onClick={ run( restore ) }>{ __( 'Restore', 'jetpack-forms' ) }</MenuItem>
+							) }
+							{ can( 'markAsSpam' ) && (
+								<MenuItem
+									shortcut={ getShortcutLabel( 'markAsSpam' ) }
+									onClick={ run( markAsSpam ) }
+								>
+									{ __( 'Mark as spam', 'jetpack-forms' ) }
+								</MenuItem>
+							) }
+							{ can( 'moveToTrash' ) && (
+								<MenuItem
+									shortcut={ getShortcutLabel( 'moveToTrash' ) }
+									onClick={ run( moveToTrash ) }
+								>
+									{ __( 'Trash', 'jetpack-forms' ) }
+								</MenuItem>
+							) }
+							{ can( 'deletePermanently' ) && (
+								<MenuItem isDestructive onClick={ run( deletePermanently ) }>
+									{ __( 'Delete permanently', 'jetpack-forms' ) }
+								</MenuItem>
+							) }
+						</MenuGroup>
+
+						<MenuGroup>
+							<MenuItem shortcut={ getShortcutLabel( 'goToList' ) } onClick={ run( goToList ) }>
+								{ __( 'Back to responses', 'jetpack-forms' ) }
+							</MenuItem>
+							{ response.edit_form_url && (
+								<MenuItem onClick={ run( editForm ) }>
+									{ __( 'Edit form', 'jetpack-forms' ) }
+								</MenuItem>
+							) }
+						</MenuGroup>
+					</>
+				);
+			} }
+		</DropdownMenu>
 	);
 }

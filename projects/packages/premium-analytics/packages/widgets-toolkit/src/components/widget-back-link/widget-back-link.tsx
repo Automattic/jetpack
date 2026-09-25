@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
+import { Button, Icon } from '@jetpack-premium-analytics/externals';
 import { chevronLeft } from '@wordpress/icons';
-import { Button, Icon } from '@wordpress/ui';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -15,9 +15,6 @@ export type WidgetBackLinkProps = {
 	 */
 	label: string;
 
-	/**
-	 * Callback fired when the user navigates back to the parent view.
-	 */
 	onClick: () => void;
 
 	/**
@@ -34,11 +31,6 @@ export type WidgetBackLinkProps = {
 /**
  * Small back link used by drill-down widget bodies.
  *
- * @param props           - Component props.
- * @param props.label     - Visible parent-view label.
- * @param props.onClick   - Back navigation callback.
- * @param props.ariaLabel - Optional accessible label.
- * @param props.className - Optional additional class name.
  * @return The rendered back link.
  */
 export function WidgetBackLink( {

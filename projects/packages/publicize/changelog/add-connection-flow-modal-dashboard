@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add the connection-flow modal and open it from the Social dashboard behind the admin UI v2 flag.

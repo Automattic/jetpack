@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Plan expiry notices: sites on the new expiry notices no longer see the legacy plan-renewal admin notice.

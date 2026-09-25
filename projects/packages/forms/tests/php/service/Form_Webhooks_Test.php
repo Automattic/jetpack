@@ -484,6 +484,91 @@ class Form_Webhooks_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test webhook logs the response headers when they come back as a case-insensitive dictionary.
+	 */
+	public function test_send_webhooks_logs_dictionary_headers() {
+		$response_data = $this->run_webhook_with_response(
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => '{"success":true}',
+				'headers'  => new CaseInsensitiveDictionary( array( 'Content-Type' => 'application/json' ) ),
+			)
+		);
+
+		$this->assertIsArray( $response_data['headers'] );
+		$this->assertEquals( 'application/json', $response_data['headers']['content-type'] );
+	}
+
+	/**
+	 * Test webhook logs the response headers when they come back as a plain array.
+	 *
+	 * A pre_http_request filter, a mocked transport, or another plugin filtering the response can
+	 * hand back plain array headers instead of a case-insensitive dictionary.
+	 */
+	public function test_send_webhooks_logs_plain_array_headers() {
+		$response_data = $this->run_webhook_with_response(
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => '{"success":true}',
+				'headers'  => array( 'content-type' => 'application/json' ),
+			)
+		);
+
+		$this->assertIsArray( $response_data['headers'] );
+		$this->assertEquals( 'application/json', $response_data['headers']['content-type'] );
+	}
+
+	/**
+	 * Test webhook logs an empty header list when the response has no headers at all.
+	 */
+	public function test_send_webhooks_logs_missing_headers() {
+		$response_data = $this->run_webhook_with_response(
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => '{"success":true}',
+			)
+		);
+
+		$this->assertIsArray( $response_data['headers'] );
+		$this->assertSame( array(), $response_data['headers'] );
+	}
+
+	/**
+	 * Test webhook logs an empty header list when the headers are an unexpected type.
+	 */
+	public function test_send_webhooks_logs_unexpected_header_type() {
+		$response_data = $this->run_webhook_with_response(
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => '{"success":true}',
+				'headers'  => 'content-type: application/json',
+			)
+		);
+
+		$this->assertIsArray( $response_data['headers'] );
+		$this->assertSame( array(), $response_data['headers'] );
+	}
+
+	/**
+	 * Test webhook logs an empty header list when the headers are an object without getAll().
+	 */
+	public function test_send_webhooks_logs_header_object_without_get_all() {
+		$headers               = new \stdClass();
+		$headers->content_type = 'application/json';
+
+		$response_data = $this->run_webhook_with_response(
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => '{"success":true}',
+				'headers'  => $headers,
+			)
+		);
+
+		$this->assertIsArray( $response_data['headers'] );
+		$this->assertSame( array(), $response_data['headers'] );
+	}
+
+	/**
 	 * Test webhook logs error to post meta.
 	 */
 	public function test_send_webhooks_logs_error() {
@@ -1850,6 +1935,49 @@ class Form_Webhooks_Test extends BaseTestCase {
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
 		$this->assertTrue( $http_request_made, 'HTTP request should be made for valid public HTTPS URLs' );
+	}
+
+	/**
+	 * Helper method to run a webhook against a canned HTTP response and return the logged response meta.
+	 *
+	 * @param array $http_response The response a pre_http_request filter should short-circuit with.
+	 * @return array The decoded _jetpack_forms_webhook_response meta.
+	 */
+	private function run_webhook_with_response( $http_response ) {
+		$form   = $this->create_mock_form(
+			array(
+				'webhooks' => array(
+					array(
+						'webhook_id' => 'test-webhook',
+						'url'        => 'https://example.com/webhook',
+						'format'     => 'json',
+						'method'     => 'POST',
+						'enabled'    => true,
+					),
+				),
+			)
+		);
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$post_id = $this->create_feedback_post( $form, $fields );
+
+		add_filter(
+			'pre_http_request',
+			function () use ( $http_response ) {
+				return $http_response;
+			}
+		);
+
+		$webhooks = Form_Webhooks::init();
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
+
+		$response_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_response', true );
+		$this->assertNotEmpty( $response_meta, 'The webhook response should be logged to post meta' );
+
+		$response_data = json_decode( $response_meta, true );
+		$this->assertIsArray( $response_data, 'The logged webhook response should decode to an array' );
+
+		return $response_data;
 	}
 
 	/**

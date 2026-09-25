@@ -26,16 +26,15 @@ body:
         - Jetpack
         - Backup
         - Boost
-        - Beta
-        - Debug Helper
-        - Migration
-        - mu wpcom
         - Protect
         - Search
         - Social
-        - Super Cache
+        - Stats
         - VaultPress
         - VideoPress
+        - Beta
+        - Debug Helper
+        - Wpcomsh
         - None / Other
       multiple: true
     validations:

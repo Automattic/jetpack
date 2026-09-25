@@ -173,31 +173,40 @@ class Current_Plan {
 			return false;
 		}
 
-		// Decode the results.
-		$results = json_decode( $body, true );
+		return self::update_from_site_record( json_decode( $body, true ) );
+	}
 
-		if ( ! is_array( $results ) ) {
+	/**
+	 * Given a decoded `/sites/%d` record, attempt to set the site's plan and products from it.
+	 *
+	 * @since 0.12.0
+	 *
+	 * @param array $record The decoded site record from the WordPress.com `/sites/%d` endpoint.
+	 * @return bool Was the plan successfully updated?
+	 */
+	public static function update_from_site_record( $record ) {
+		if ( ! is_array( $record ) ) {
 			return false;
 		}
 
-		if ( isset( $results['products'] ) ) {
+		if ( isset( $record['products'] ) ) {
 			// Store the site's products in an option and return true if updated.
-			self::store_data_in_option( self::SITE_PRODUCTS_OPTION, $results['products'] );
+			self::store_data_in_option( self::SITE_PRODUCTS_OPTION, $record['products'] );
 		}
 
-		if ( ! isset( $results['plan'] ) ) {
+		if ( ! isset( $record['plan'] ) ) {
 			return false;
 		}
 
 		$current_plan = get_option( self::PLAN_OPTION, array() );
 
-		if ( ! empty( $current_plan ) && $current_plan === $results['plan'] ) {
+		if ( ! empty( $current_plan ) && $current_plan === $record['plan'] ) {
 			// Bail if the plans array hasn't changed.
 			return false;
 		}
 
 		// Store the new plan in an option and return true if updated.
-		$result = self::store_data_in_option( self::PLAN_OPTION, $results['plan'] );
+		$result = self::store_data_in_option( self::PLAN_OPTION, $record['plan'] );
 
 		if ( $result ) {
 			// Reset the cache since we've just updated the plan.
@@ -217,13 +226,21 @@ class Current_Plan {
 	private static function store_data_in_option( $option, $data ) {
 		$result = update_option( $option, $data, true );
 
-		// If something goes wrong with the update, so delete the current option and then update it.
-		if ( ! $result ) {
-			delete_option( $option );
-			$result = update_option( $option, $data, true );
+		if ( $result ) {
+			return true;
 		}
 
-		return $result;
+		// update_option() also reports false when the stored value already matches, which is not a
+		// failure. Both options are autoloaded, so reading it as one rewrites them on every
+		// unchanged fetch and drops the alloptions cache with it.
+		if ( get_option( $option ) === $data ) {
+			return true;
+		}
+
+		// If the update genuinely failed, delete the option and write it again.
+		delete_option( $option );
+
+		return update_option( $option, $data, true );
 	}
 
 	/**
@@ -251,7 +268,16 @@ class Current_Plan {
 			'1.1'
 		);
 
-		return self::update_from_sites_response( $response );
+		$updated = self::update_from_sites_response( $response );
+
+		// The shared site record cache can still hold a record older than this response, and a
+		// cached read stores the plan again. Dropping it keeps that older record from reverting
+		// what this fetch just stored.
+		if ( ! is_wp_error( $response ) ) {
+			Manager::delete_cached_site_data();
+		}
+
+		return $updated;
 	}
 
 	/**

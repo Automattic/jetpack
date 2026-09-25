@@ -13,14 +13,14 @@ const path = require( 'path' );
 const { strip } = require( './strip-unminified-prod-lib.js' );
 
 const buildDir = path.join( process.cwd(), 'build' );
-const { deletedFiles, patchedFiles, skipped } = strip( buildDir );
+const { deletedFiles, stubbedFiles, patchedFiles, skipped } = strip( buildDir );
 
 if ( skipped ) {
 	// eslint-disable-next-line no-console
 	console.log( `[strip-unminified-prod] no build/ at ${ buildDir }, skipping.` );
-} else if ( deletedFiles || patchedFiles ) {
+} else if ( deletedFiles || stubbedFiles || patchedFiles ) {
 	// eslint-disable-next-line no-console
 	console.log(
-		`[strip-unminified-prod] removed ${ deletedFiles } unminified file(s); patched ${ patchedFiles } PHP loader(s).`
+		`[strip-unminified-prod] removed ${ deletedFiles } unminified file(s); replaced ${ stubbedFiles } with i18n stub(s); patched ${ patchedFiles } PHP loader(s).`
 	);
 }

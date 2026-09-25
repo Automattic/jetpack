@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Write: Keep indented list items when saving, so nested lists survive save, preview, and opening in the block editor.

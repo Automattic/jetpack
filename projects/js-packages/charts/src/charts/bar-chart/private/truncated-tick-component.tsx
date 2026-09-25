@@ -11,7 +11,7 @@ import type { FC, CSSProperties } from 'react';
  * @return The bandwidth of the scale
  */
 const getScaleBandwidth = < Scale extends AxisScale >( scale?: Scale ) => {
-	return scale && 'bandwidth' in scale ? scale.bandwidth() ?? 0 : 0;
+	return scale && 'bandwidth' in scale ? ( scale.bandwidth() ?? 0 ) : 0;
 };
 interface TruncatedTickComponentProps extends TickRendererProps {
 	/** Which axis this tick belongs to */

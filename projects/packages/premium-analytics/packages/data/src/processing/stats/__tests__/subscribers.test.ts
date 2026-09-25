@@ -13,8 +13,8 @@ describe( 'Stats subscribers normalizers', () => {
 			expect.objectContaining( {
 				subscribers: 22,
 				subscribers_paid: 5,
-				date_start: '2026-06-24T00:00:00+00:00',
-				date_end: '2026-06-25T23:59:59+00:00',
+				date_start: '2026-06-24T00:00:00',
+				date_end: '2026-06-25T23:59:59',
 			} )
 		);
 		expect( result.data ).toEqual( [
@@ -32,6 +32,22 @@ describe( 'Stats subscribers normalizers', () => {
 				subscribers_paid: 3,
 				items: [],
 			} ),
+		] );
+	} );
+
+	it( 'keeps a null count as null rather than parsing it to zero', () => {
+		const result = sanitizeStatsSubscribersResponse( {
+			unit: 'month',
+			fields: [ 'period', 'subscribers', 'subscribers_paid' ],
+			data: [
+				[ '2026-04', 0, 0 ],
+				[ '2026-03', null, null ],
+			],
+		} );
+
+		expect( result.data ).toEqual( [
+			expect.objectContaining( { subscribers: null, subscribers_paid: null } ),
+			expect.objectContaining( { subscribers: 0, subscribers_paid: 0 } ),
 		] );
 	} );
 

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Change EXIF data rendering to be dynamic via JavaScript to resolve empty list accessibility warning.

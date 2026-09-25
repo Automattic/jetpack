@@ -67,6 +67,10 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 		wp_set_current_user( $this->user_id );
+
+		// The pre-render only runs for connected users now, so seed the tokens.
+		\Jetpack_Options::update_option( 'user_tokens', array( $this->user_id => 'test.token.' . $this->user_id ) );
+		\Jetpack_Options::update_option( 'id', 12345 );
 	}
 
 	/**
@@ -78,7 +82,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		remove_action( 'in_admin_header', array( $this->preservation, 'print_sidebar_docking_gate_script' ) );
 
 		// Clean up filters tests may add.
-		remove_all_filters( 'agents_manager_use_unified_experience' );
+		remove_all_filters( 'agents_manager_should_load' );
 		remove_all_filters( 'agents_manager_variant' );
 
 		// Restore any filesystem global a test stubbed out.
@@ -107,7 +111,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	private function enable_preservation() {
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'dashboard' );
-		add_filter( 'agents_manager_use_unified_experience', '__return_true' );
+		add_filter( 'agents_manager_should_load', '__return_true' );
 	}
 
 	/**
@@ -225,20 +229,20 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the constructor registers the early dock-sync script hook.
+	 * Tests that the constructor registers the early docking-gate script hook.
 	 */
-	public function test_constructor_registers_sync_script_hook() {
+	public function test_constructor_registers_docking_gate_script_hook() {
 		$this->assertNotFalse(
 			has_action( 'in_admin_header', array( $this->preservation, 'print_sidebar_docking_gate_script' ) ),
-			'The docking viewport height gate script must be hooked into the admin body.'
+			'The docking gate script must be hooked into the admin header.'
 		);
 	}
 
 	/**
-	 * Tests that the dock-height sync script is printed when the
+	 * Tests that the docking-gate script is printed when the
 	 * docked-open shell is pre-rendered.
 	 */
-	public function test_print_sync_script_outputs_when_pre_rendering() {
+	public function test_print_docking_gate_script_outputs_when_pre_rendering() {
 		$this->enable_preservation();
 		$this->cache_open_state( true );
 
@@ -260,9 +264,9 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the dock-sync script is not printed when nothing is pre-rendered.
+	 * Tests that the docking-gate script is not printed when nothing is pre-rendered.
 	 */
-	public function test_print_sync_script_noop_when_not_pre_rendering() {
+	public function test_print_docking_gate_script_noop_when_not_pre_rendering() {
 		$this->enable_preservation();
 		$this->cache_open_state( false );
 
@@ -323,7 +327,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		set_current_screen( 'dashboard' );
 		$this->cache_open_state( true );
 
-		// No unified experience filter added -> no active variant -> no app loaded.
+		// No integration requests the shell, so there is no active variant.
 		$this->assertSame( 'foo bar', $this->preservation->add_preopen_body_classes( 'foo bar' ) );
 	}
 
@@ -338,7 +342,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		add_filter(
 			'agents_manager_variant',
 			static function () {
-				return 'wp-admin-disconnected';
+				return 'gutenberg-disconnected';
 			}
 		);
 

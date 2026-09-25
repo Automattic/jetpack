@@ -84,6 +84,7 @@ class Defaults {
 		'jetpack_options',
 		'jetpack_portfolio',
 		'jetpack_portfolio_posts_per_page',
+		'jetpack_premium_analytics_enabled',
 		'jetpack_protect_global_whitelist',
 		'jetpack_protect_key',
 		'jetpack_publicize_options',
@@ -168,6 +169,8 @@ class Defaults {
 		'users_can_register',
 		'verification_services_codes',
 		'videopress_auto_subtitles_disabled',
+		'videopress_player_preload_disabled',
+		'videopress_playlist_index',
 		'videopress_private_enabled_for_site',
 		'wordads_ccpa_enabled',
 		'wordads_ccpa_privacy_policy_url',
@@ -364,6 +367,8 @@ class Defaults {
 		'jetpack_connection_active_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_jetpack_connection_active_plugins' ),
 		'jetpack_package_versions'          => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_jetpack_package_versions' ),
 		'jetpack_sync_active_modules'       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_jetpack_sync_active_modules' ),
+		// Carries the `blog_public` value, but reports -1 when the site is private.
+		'jetpack_site_visibility'           => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_site_visibility' ),
 	);
 
 	/**
@@ -831,6 +836,9 @@ class Defaults {
 		'hc_foreign_user_id',
 		'hc_post_as',
 		'hc_wpcom_id_sig',
+		'jetpack_comment_identity_avatar',
+		'jetpack_comment_identity_id',
+		'jetpack_comment_identity_provider',
 		'protocol',
 	);
 

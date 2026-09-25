@@ -13,8 +13,16 @@ require __DIR__ . '/../../../../.phan/config.base.php';
 return make_phan_config(
 	dirname( __DIR__ ),
 	array(
-		'+stubs'          => array( 'wpcom' ),
-		'parse_file_list' => array(
+		'+stubs'             => array( 'wpcom' ),
+		// CI analyses an unbuilt checkout, so the generated wp-build PHP is absent
+		// there. Exclude it locally too, or its `function_exists()` guards read as
+		// unused suppressions on a built checkout only. The render-page stub declares
+		// one of those same symbols and would do likewise.
+		'exclude_file_regex' => array(
+			'build/',
+			'tests/php/stubs/wp-build-render-page\.php',
+		),
+		'parse_file_list'    => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.
 			// Wherever feasible we should really clean up this sort of thing instead of adding stuff here.
 			//
@@ -22,6 +30,7 @@ return make_phan_config(
 			// If there are truly optional dependencies or circular dependencies that can't be cleaned up, one package may list the
 			// other in 'require-dev' and `extra.dependencies.test-only' instead. See packages/config for an example.
 			__DIR__ . '/../../../plugins/jetpack/jetpack.php',                             // JETPACK__VERSION
+			__DIR__ . '/../../../plugins/jetpack/functions.global.php',                    // function jetpack_is_internal_testing_environment
 			__DIR__ . '/../../../plugins/jetpack/class.jetpack.php',                       // class Jetpack
 			__DIR__ . '/../../../plugins/jetpack/_inc/lib/class-jetpack-ai-helper.php',    // class Jetpack_AI_Helper
 			__DIR__ . '/../../../plugins/jetpack/3rd-party/class.jetpack-amp-support.php', // class Jetpack_AMP_Support

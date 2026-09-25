@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  * Handles CSV exports for the Coupon Use Over Time report, supporting both
  * single interval and comparison interval data.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Coupon_Use_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 

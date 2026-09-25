@@ -20,21 +20,13 @@ type BookingsRevenueByCustomerTypeRenderAttributes = BookingsRevenueByCustomerTy
 
 type BookingsRevenueByCustomerTypeWidgetProps =
 	WidgetRenderProps< BookingsRevenueByCustomerTypeRenderAttributes > & {
-		/**
-		 * Dashboard error handler.
-		 */
 		setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 	};
 
 /**
- * Bookings revenue by customer type widget.
- *
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; BookingsRevenueByCustomerTypeWidget
  * fetches the bookings customers report and renders the revenue breakdown.
- *
- * @param {BookingsRevenueByCustomerTypeWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function BookingsRevenueByCustomerTypeRender( {
 	attributes = {},

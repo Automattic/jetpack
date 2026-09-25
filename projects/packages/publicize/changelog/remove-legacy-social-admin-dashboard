@@ -1,5 +1,0 @@
-Significance: patch
-Type: removed
-Comment: Remove the legacy Social admin dashboard now that the modernized dashboard is the default. The `rsm_jetpack_ui_modernization_social` opt-out filter is gone and the modernized dashboard is the only Social admin experience.
-
-

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sidebar: register the VaultPress menu item through Jetpack's admin menu API so it sorts with the other Jetpack pages.

@@ -9,8 +9,28 @@
 
 // eslint-disable-next-line import/no-unresolved -- Provided by WordPress at runtime via wp_register_script_module.
 import { store, getElement } from '@wordpress/interactivity';
-// eslint-disable-next-line import/no-unresolved -- Provided by WordPress at runtime via wp_register_script_module.
+/* eslint-disable import/no-unresolved -- wpcom-write/* modules are provided by WordPress at runtime via wp_register_script_module. */
+import {
+	IMAGE_SIZE_SLUGS,
+	IMAGE_ALIGNS,
+	getMediaIdFromImg,
+	setFigureSize,
+	setFigureAlignment,
+	getFigureAlignment,
+	libraryThumbUrl,
+} from 'wpcom-write/image-format';
+import {
+	parsePostId,
+	escapeAttr,
+	rgbToHex,
+	isSafePasteHref,
+	getEmbedUrl,
+	parseMarkdownListShortcut,
+	parseMarkdownQuoteShortcut,
+	describeSaveError,
+} from 'wpcom-write/text-helpers';
 import { createUndoHistory } from 'wpcom-write/undo-history';
+/* eslint-enable import/no-unresolved */
 
 // Translated strings passed from PHP via wp_print_inline_script_tag.
 const i18n = window.wpcomWriteStrings || {};
@@ -18,11 +38,33 @@ const i18n = window.wpcomWriteStrings || {};
 // Tracks the blockquote currently containing the cursor, for citation placeholder lifecycle.
 let activeBlockquote = null;
 
+/*
+ * The pencil on the per-image edit button, which this file builds at runtime
+ * rather than rendering server-side. Every other icon lives in icons.php —
+ * this is the one that can't, so keep the two in sync by hand. It draws with
+ * `currentColor` like the rest, taking the button's color and its states.
+ */
+const EDIT_ICON_SVG =
+	'<svg class="bw-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>';
+
 // Autosave configuration.
 const AUTOSAVE_INTERVAL_MS = 30000; // 30 seconds.
 const AUTOSAVE_MESSAGE_DURATION_MS = 2000;
 const AUTOSAVE_STORAGE_KEY = 'wpcom-write-autosave-draft';
 const ANON_DRAFT_STORAGE_KEY = 'wpcom-write-anon-draft';
+
+// Marks the one-off "you're using Write" note as already shown in this browser.
+const EDITOR_NOTE_STORAGE_KEY = 'wpcom-write-editor-note-seen';
+
+// Marks this browser as having left Write for the Block editor. Written to a
+// cookie, the only store write.php can read, and to localStorage, the only one
+// that survives Safari's seven-day cap on script-set cookies (ITP 2.1).
+// Also read by projects/packages/newsletter/src/writing-prompt/prompt-panel.jsx,
+// from a package that does not depend on this one: the name is all they share.
+const BLOCK_EDITOR_PREFERRED_KEY = 'wpcom-write-block-editor-preferred';
+
+// Chromium and Firefox clamp cookie lifetime to 400 days; more is a no-op.
+const BLOCK_EDITOR_PREFERRED_MAX_AGE = 400 * 24 * 60 * 60;
 
 /**
  * Whether the editor is running on a logged-out page that opts into the
@@ -43,6 +85,24 @@ const ANON_EDITOR_OPENED_AT = typeof Date !== 'undefined' ? Date.now() : 0;
 
 // Guards `wpcom_write_editor_anon_write_start` to once per session.
 let anonWriteStartTracked = false;
+
+/**
+ * Read the funnel `source` from the current URL, sanitized to [a-z0-9_-]
+ * (lowercased first, mirroring PHP sanitize_key). '' when absent. Kept identical
+ * to the anon open-event reader on the server so the whole anon funnel reports
+ * one consistent source across signup.
+ *
+ * @return {string} Sanitized source, or '' when not present.
+ */
+function getAnonSource() {
+	try {
+		return ( new URLSearchParams( window.location.search ).get( 'source' ) || '' )
+			.toLowerCase()
+			.replace( /[^a-z0-9_-]/g, '' );
+	} catch {
+		return '';
+	}
+}
 
 /**
  * Fire a client-side Tracks event via the `_tkq` queue. Anon callers share the
@@ -112,7 +172,11 @@ function maybeTrackAnonWriteStart( text ) {
 		return;
 	}
 	anonWriteStartTracked = true;
-	recordTracksEvent( 'wpcom_write_editor_anon_write_start' );
+	const anonSource = getAnonSource();
+	recordTracksEvent(
+		'wpcom_write_editor_anon_write_start',
+		anonSource ? { source: anonSource } : {}
+	);
 }
 
 /**
@@ -191,6 +255,74 @@ function clearAnonDraft() {
 		window.localStorage.removeItem( ANON_DRAFT_STORAGE_KEY );
 	} catch {
 		// No-op: if we can't clear it, the worst case is a stale recovery banner next visit.
+	}
+}
+
+/**
+ * Whether this browser has already been shown the one-off editor note.
+ *
+ * Reports "seen" when storage is unreadable: a visitor whose dismissal can
+ * never be recorded is better off never being shown the note.
+ *
+ * @return {boolean} True if the note has been shown, or cannot be tracked.
+ */
+function hasSeenEditorNote() {
+	try {
+		return window.localStorage.getItem( EDITOR_NOTE_STORAGE_KEY ) !== null;
+	} catch {
+		return true;
+	}
+}
+
+/**
+ * Record that this browser has been shown the editor note.
+ */
+function markEditorNoteSeen() {
+	try {
+		window.localStorage.setItem( EDITOR_NOTE_STORAGE_KEY, '1' );
+	} catch {
+		// No-op: worst case the note shows again on the next visit.
+	}
+}
+
+/**
+ * Record that this browser chose the Block editor over Write.
+ *
+ * `Secure` is conditional, the JS counterpart of the `is_ssl()` our setcookie()
+ * calls pass: unconditional, it would drop the cookie on an http:// sandbox.
+ */
+function markBlockEditorPreferred() {
+	try {
+		window.localStorage.setItem( BLOCK_EDITOR_PREFERRED_KEY, '1' );
+	} catch {
+		// No-op: the cookie below is the fallback, where it is available.
+	}
+	try {
+		document.cookie =
+			BLOCK_EDITOR_PREFERRED_KEY +
+			'=1; path=/; max-age=' +
+			BLOCK_EDITOR_PREFERRED_MAX_AGE +
+			'; SameSite=Lax' +
+			( window.location.protocol === 'https:' ? '; Secure' : '' );
+	} catch {
+		// No-op: worst case the prompt widget keeps offering Write.
+	}
+}
+
+// Click-away listener for the first-visit note, mirroring the topbar popovers.
+let editorNoteCloseHandler = null;
+
+/**
+ * Hide the first-visit note and detach its click-away listener.
+ *
+ * Callers record their own Tracks reason, so the funnel can tell "Got it" from
+ * the block-editor switch from a click elsewhere.
+ */
+function hideEditorNote() {
+	state.showEditorNote = false;
+	if ( editorNoteCloseHandler ) {
+		document.removeEventListener( 'click', editorNoteCloseHandler );
+		editorNoteCloseHandler = null;
 	}
 }
 
@@ -345,18 +477,6 @@ function formatRelativeDate( dateStr ) {
 		day: 'numeric',
 		year: 'numeric',
 	} ).format( new Date( dateStr ) );
-}
-
-/**
- * Check whether raw user input is a bare numeric post ID.
- *
- * @param {string} input - Raw user input from the post picker URL field.
- * @return {number|null} Post ID or null if not a bare numeric string.
- */
-function parsePostId( input ) {
-	const trimmed = input.trim();
-	if ( /^\d+$/.test( trimmed ) ) return parseInt( trimmed, 10 );
-	return null;
 }
 
 // Save/restore the selection so we can insert images after the modal closes.
@@ -638,33 +758,10 @@ function getContent() {
 	return cachedContent;
 }
 
-// Image size presets we ship. Wide/full layouts and custom widths stay in the
-// block editor (see RSM-3472).
-const IMAGE_SIZE_SLUGS = [ 'thumbnail', 'medium', 'large', 'full' ];
-
-// Image alignment values we ship. All three are made explicit on save —
-// every image gets an `align*` class on the figure and an `align`
-// attribute in the block JSON, including center, so themes can rely on
-// the class to position the figure (many don't center unaligned figures
-// by default).
-const IMAGE_ALIGNS = [ 'left', 'center', 'right' ];
-
 // Cache of media library size lookups keyed by attachment ID.  Populated
 // at upload time from the API response, then again lazily when the user
 // changes the size of a figure loaded from a saved post.
 const mediaSizesCache = new Map();
-
-/**
- * Read the attachment ID embedded in `wp-image-<id>` on an `<img>`.
- *
- * @param {HTMLImageElement} img - The image element.
- * @return {number|null} Numeric attachment ID, or null when the class is absent.
- */
-function getMediaIdFromImg( img ) {
-	if ( ! img ) return null;
-	const match = img.className.match( /(?:^|\s)wp-image-(\d+)(?:\s|$)/ );
-	return match ? parseInt( match[ 1 ], 10 ) : null;
-}
 
 /**
  * Get the registered media-library sizes for an attachment, caching the
@@ -729,17 +826,6 @@ function trackMediaSizeSwap( promise ) {
 }
 
 /**
- * Toggle a size class on a figure, replacing any existing one.
- *
- * @param {Element} fig  - The figure element.
- * @param {string}  slug - A size slug or '' (clear).
- */
-function setFigureSize( fig, slug ) {
-	IMAGE_SIZE_SLUGS.forEach( s => fig.classList.remove( 'size-' + s ) );
-	if ( slug ) fig.classList.add( 'size-' + slug );
-}
-
-/**
  * Infer a size slug for a figure by matching the img's current src against
  * the media library's registered sizes. Used when a figure loaded from
  * outside Write (e.g. block-editor default insert) has no `size-X` class
@@ -764,35 +850,6 @@ async function inferSizeFromImgSrc( fig ) {
 		if ( sizes[ slug ]?.source_url === src ) return slug;
 	}
 	return '';
-}
-
-/**
- * Toggle an alignment class on a figure, replacing any existing one.  Always
- * adds one of alignleft/aligncenter/alignright so the published view centers
- * reliably (themes key off these classes; unaligned figures don't center
- * consistently across themes).
- *
- * @param {Element} fig   - The figure element.
- * @param {string}  align - 'left', 'center', or 'right'.
- */
-function setFigureAlignment( fig, align ) {
-	fig.classList.remove( 'alignleft', 'alignright', 'aligncenter' );
-	if ( align === 'left' ) fig.classList.add( 'alignleft' );
-	else if ( align === 'right' ) fig.classList.add( 'alignright' );
-	else fig.classList.add( 'aligncenter' );
-}
-
-/**
- * Read the current alignment from a figure's class list. Returns 'center'
- * when no align class is set.
- *
- * @param {Element} fig - The figure element.
- * @return {string} 'left', 'center', or 'right'.
- */
-function getFigureAlignment( fig ) {
-	if ( fig.classList.contains( 'alignleft' ) ) return 'left';
-	if ( fig.classList.contains( 'alignright' ) ) return 'right';
-	return 'center';
 }
 
 /**
@@ -1013,30 +1070,6 @@ function focusModalInput() {
 		);
 		if ( target ) target.focus();
 	} );
-}
-
-/**
- * Escape a string for safe interpolation into an HTML attribute value.
- *
- * @param {string} str - Raw string value.
- * @return {string} HTML-attribute-safe string.
- */
-function escapeAttr( str ) {
-	return str.replace( /&/g, '&amp;' ).replace( /"/g, '&quot;' );
-}
-
-/**
- * Convert an rgb() color string to hex (#rrggbb). Returns the input
- * unchanged if it is not in rgb() format.
- *
- * @param {string} rgb - A CSS color value, e.g. "rgb(214, 54, 56)".
- * @return {string} Hex color string, e.g. "#d63638".
- */
-function rgbToHex( rgb ) {
-	const m = rgb.match( /^rgb\(\s*(\d+),\s*(\d+),\s*(\d+)\s*\)$/ );
-	if ( ! m ) return rgb;
-	const hex = i => ( '0' + parseInt( m[ i ], 10 ).toString( 16 ) ).slice( -2 );
-	return '#' + hex( 1 ) + hex( 2 ) + hex( 3 );
 }
 
 /**
@@ -1285,23 +1318,75 @@ function sanitizePasteNode( el ) {
 }
 
 /**
- * Whether `href` is safe to preserve on a pasted link. Allows http(s),
- * mailto, tel, and same-document/relative URLs; everything else (notably
- * `javascript:`, `vbscript:`, and `data:`) is rejected so a pasted link
- * can't smuggle script execution past the sanitizer.
+ * Serialize a <ul>/<ol> as core/list block markup, recursing into sublists.
  *
- * @param {string} href - The href value to check.
- * @return {boolean} True when the href is safe to keep.
+ * contentEditable produces two shapes for the same indented item, and both have
+ * to round-trip. Nested, where the sublist sits inside its parent <li>:
+ * `<ul><li>Parent<ul><li>Child</li></ul></li></ul>`. Sibling, where it follows
+ * the <li>: `<ul><li>Parent</li><ul><li>Child</li></ul></ul>`. The sibling shape
+ * is what document.execCommand( 'indent' ) and most pasted HTML produce; it
+ * renders identically, so a serializer that only walks direct-child <li>
+ * elements drops those items with nothing to show the writer.
+ *
+ * Sublists are emitted as nested core/list inner blocks, matching what
+ * `@wordpress/blocks` serialize() produces for the equivalent block tree, so the
+ * block editor reopens the list without an invalid-content warning.
+ *
+ * @param {Element} listEl - A <ul> or <ol> element.
+ * @return {string} Serialized core/list block markup.
  */
-function isSafePasteHref( href ) {
-	if ( ! href ) return false;
-	const trimmed = href.trim();
-	if ( ! trimmed ) return false;
-	// Relative / same-document / query / fragment URLs have no scheme.
-	if ( /^[#/?]/.test( trimmed ) || trimmed.startsWith( './' ) || trimmed.startsWith( '../' ) ) {
-		return true;
-	}
-	return /^(https?:|mailto:|tel:)/i.test( trimmed );
+function serializeList( listEl ) {
+	// Group children into items, attaching each sibling-shaped sublist to the
+	// <li> it follows. A sublist with no <li> before it has no owner, and
+	// core/list cannot express an inner list without a parent core/list-item,
+	// so its items are pulled up to this level rather than inventing an empty
+	// bullet the writer never typed: one level of indent is lost, no content is.
+	const items = [];
+	const collect = el => {
+		for ( const child of el.children ) {
+			const childTag = child.tagName.toLowerCase();
+			if ( childTag === 'li' ) {
+				items.push( { li: child, sublists: [] } );
+			} else if ( childTag === 'ul' || childTag === 'ol' ) {
+				if ( items.length ) items[ items.length - 1 ].sublists.push( child );
+				else collect( child );
+			}
+		}
+	};
+	collect( listEl );
+
+	const listItems = items.length
+		? items
+				.map( ( { li, sublists } ) => {
+					// Clone so lifting nested lists out doesn't disturb the editor DOM.
+					const clone = li.cloneNode( true );
+					const nested = [];
+					for ( const child of Array.from( clone.children ) ) {
+						const childTag = child.tagName.toLowerCase();
+						if ( childTag === 'ul' || childTag === 'ol' ) {
+							nested.push( child );
+							child.remove();
+						}
+					}
+					// Strip the lone <br> placeholder contentEditable leaves in an
+					// otherwise empty item, matching what the paragraph, heading
+					// and quote branches below already do.  Needed here because
+					// indenting an empty item leaves the <li> holding just a <br>
+					// plus its sublist, which would otherwise serialize a stray
+					// line break ahead of the nested list.
+					const text = clone.innerHTML.trim().replace( /^<br\s*\/?>$/, '' );
+					// Nested sublists sit inside the <li> so they come first in
+					// document order; sibling ones follow the <li> entirely.
+					const inner = [ ...nested, ...sublists ].map( serializeList ).join( '' );
+					return `<!-- wp:list-item -->\n<li>${ text }${ inner }</li>\n<!-- /wp:list-item -->`;
+				} )
+				.join( '\n\n' )
+		: '<!-- wp:list-item -->\n<li></li>\n<!-- /wp:list-item -->';
+
+	const ordered = listEl.tagName.toLowerCase() === 'ol';
+	const listTag = ordered ? 'ol' : 'ul';
+	const attrs = ordered ? ' {"ordered":true}' : '';
+	return `<!-- wp:list${ attrs } -->\n<${ listTag } class="wp-block-list">${ listItems }</${ listTag }>\n<!-- /wp:list -->`;
 }
 
 /**
@@ -1494,7 +1579,7 @@ function convertToBlocks( html ) {
 			// comment attributes (see serializeAttributes in @wordpress/blocks).
 			const jsonAttr = Object.keys( attrs ).length
 				? ' ' +
-				  JSON.stringify( attrs )
+					JSON.stringify( attrs )
 						.replaceAll( '\\\\', '\\u005c' )
 						.replaceAll( '--', '\\u002d\\u002d' )
 						.replaceAll( '<', '\\u003c' )
@@ -1509,21 +1594,7 @@ function convertToBlocks( html ) {
 				`<!-- wp:quote${ jsonAttr } -->\n<blockquote class="wp-block-quote"${ quoteAlignAttr }>${ quoteInner }${ citeHtml }</blockquote>\n<!-- /wp:quote -->`
 			);
 		} else if ( tag === 'ul' || tag === 'ol' ) {
-			// Wrap each <li> in wp:list-item block comments.
-			const liNodes = Array.from( node.querySelectorAll( ':scope > li' ) );
-			const listItems = liNodes.length
-				? liNodes
-						.map(
-							li =>
-								`<!-- wp:list-item -->\n<li>${ li.innerHTML.trim() }</li>\n<!-- /wp:list-item -->`
-						)
-						.join( '\n' )
-				: '<!-- wp:list-item -->\n<li></li>\n<!-- /wp:list-item -->';
-			const listTag = tag === 'ol' ? 'ol' : 'ul';
-			const attrs = tag === 'ol' ? ' {"ordered":true}' : '';
-			blocks.push(
-				`<!-- wp:list${ attrs } -->\n<${ listTag } class="wp-block-list">${ listItems }</${ listTag }>\n<!-- /wp:list -->`
-			);
+			blocks.push( serializeList( node ) );
 		} else if ( tag === 'hr' ) {
 			blocks.push(
 				'<!-- wp:separator -->\n<hr class="wp-block-separator has-alpha-channel-opacity"/>\n<!-- /wp:separator -->'
@@ -1628,26 +1699,6 @@ function clearSlashText() {
 			parent.innerHTML = '<br>';
 		}
 	}
-}
-
-/**
- * Convert a YouTube/Vimeo URL to an embeddable URL.
- *
- * @param {string} url - The video URL to convert.
- * @return {string|null} The embeddable URL, or null if not recognized.
- */
-function getEmbedUrl( url ) {
-	// YouTube
-	let match = url.match(
-		/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/
-	);
-	if ( match ) return 'https://www.youtube.com/embed/' + match[ 1 ];
-
-	// Vimeo
-	match = url.match( /vimeo\.com\/(\d+)/ );
-	if ( match ) return 'https://player.vimeo.com/video/' + match[ 1 ];
-
-	return null;
 }
 
 /**
@@ -2078,7 +2129,7 @@ function addDeleteButtons() {
 		// images (RSM-3980).
 		const editBtn = document.createElement( 'button' );
 		editBtn.className = 'bw-img-edit';
-		editBtn.innerHTML = '<span class="dashicons dashicons-edit" aria-hidden="true"></span>';
+		editBtn.innerHTML = EDIT_ICON_SVG;
 		editBtn.contentEditable = 'false';
 		editBtn.setAttribute( 'aria-label', i18n.editImage || 'Edit image' );
 		editBtn.setAttribute( 'title', i18n.editImage || 'Edit image' );
@@ -2343,19 +2394,6 @@ let libraryFetchToken = 0;
 const LIBRARY_PER_PAGE = 24;
 
 /**
- * Pick the smallest reasonable thumbnail URL for the grid. Falls back to the
- * full-size source_url for images without registered sizes (e.g. uploads that
- * pre-date a media setting change).
- *
- * @param {object} media - Media item from /wp/v2/media.
- * @return {string} The thumbnail URL to render.
- */
-function libraryThumbUrl( media ) {
-	const sizes = media.media_details?.sizes;
-	return sizes?.thumbnail?.source_url || sizes?.medium?.source_url || media.source_url || '';
-}
-
-/**
  * Render the library strip into #bw-library-grid. Always replaces — the strip
  * holds the most recent items (or current search results) only.  Thumbnails
  * are <button>s; the container has aria-label, so individual items use plain
@@ -2533,23 +2571,6 @@ function insertNewList( listTag ) {
 }
 
 /**
- * Detect a markdown list shortcut in a paragraph's text.
- *
- * Returns 'ul' for `-`, `*`, or `+`, 'ol' for `1.`, otherwise null. Captured
- * before the trigger space is inserted, so the marker should be the only
- * content — trailing whitespace is allowed to tolerate a stray <br>-only text
- * node that contentEditable can leave in an otherwise-empty block.
- *
- * @param {string} text - The paragraph's text content.
- * @return {'ul'|'ol'|null} The list tag to create, or null.
- */
-function parseMarkdownListShortcut( text ) {
-	if ( /^[-*+]\s*$/.test( text ) ) return 'ul';
-	if ( /^1\.\s*$/.test( text ) ) return 'ol';
-	return null;
-}
-
-/**
  * Replace a paragraph with a fresh list containing one empty item, and move the cursor into it.
  *
  * @param {HTMLElement} paragraph - The paragraph to convert.
@@ -2566,21 +2587,6 @@ function applyMarkdownListShortcut( paragraph, listTag ) {
 	state.formatUList = listTag === 'ul';
 	state.formatOList = listTag === 'ol';
 	state.insideList = true;
-}
-
-/**
- * Detect a markdown blockquote shortcut in a paragraph's text.
- *
- * Returns true for a lone `>` marker. Captured before the trigger space is
- * inserted, so the marker should be the only content — trailing whitespace is
- * allowed to tolerate a stray <br>-only text node that contentEditable can
- * leave in an otherwise-empty block, matching parseMarkdownListShortcut.
- *
- * @param {string} text - The paragraph's text content.
- * @return {boolean} Whether the text is a blockquote shortcut.
- */
-function parseMarkdownQuoteShortcut( text ) {
-	return /^>\s*$/.test( text );
 }
 
 /**
@@ -5972,16 +5978,24 @@ const { state } = store( 'wpcom-write', {
 				// GET the browser cancels on unload — so a synchronous navigate
 				// would drop this event. The wait is bounded (and skipped entirely
 				// when Tracks isn't loaded) so the handoff is never stalled.
+				const anonSource = getAnonSource();
 				await recordTracksEventBeforeUnload( 'wpcom_write_editor_anon_publish_click', {
 					word_count: words,
 					time_to_publish_ms: Date.now() - ANON_EDITOR_OPENED_AT,
 					draft_size_bytes:
 						typeof Blob !== 'undefined' ? new Blob( [ draftContent ] ).size : draftContent.length,
+					...( anonSource ? { source: anonSource } : {} ),
 				} );
 
 				// Anon visitors hand off to the signup flow, which reads the draft
-				// from localStorage and publishes after signup completes.
-				window.location.assign( 'https://wordpress.com/setup/write-on' );
+				// from localStorage and publishes after signup completes. Forward
+				// `source` so the funnel stays attributable across the signup hop
+				// (the flow itself must read it for this to reach its Tracks events).
+				window.location.assign(
+					anonSource
+						? `https://wordpress.com/setup/write-on?source=${ encodeURIComponent( anonSource ) }`
+						: 'https://wordpress.com/setup/write-on'
+				);
 				return;
 			}
 			await savePost( 'publish' );
@@ -6095,6 +6109,86 @@ const { state } = store( 'wpcom-write', {
 			state.showRecoveryBanner = false;
 		},
 
+		// --- First-visit editor note ---
+
+		/**
+		 * Dismiss the first-visit note and hand focus to the writing area.
+		 */
+		dismissEditorNote() {
+			hideEditorNote();
+			recordTracksEvent( 'wpcom_write_editor_note_dismissed', {
+				action: 'got_it',
+				source: state.source || '',
+			} );
+			const content = getContent();
+			if ( content ) {
+				content.focus();
+				// Park the caret after anything the server seeded — a bare focus()
+				// collapses to the start, i.e. inside a blogging prompt's quote.
+				placeCursorAtEnd( content );
+			}
+		},
+
+		/**
+		 * Leave for the block editor from the note or the Tips panel.
+		 *
+		 * Both offer the switch before anyone has typed, where openInBlockEditor()
+		 * would answer "Please write something" instead. A new post with nothing
+		 * in it has nothing worth saving, so hand it straight to a blank
+		 * post-new.php, forwarding the prompt so the block editor seeds it as it
+		 * always has. Anything already on screen — including a seeded prompt the
+		 * visitor has not touched — goes through the save, so the block editor
+		 * opens on the same words rather than on a fresh post.
+		 *
+		 * Taking either of those two ways out stops prompt answers coming back
+		 * here: the widget stops offering Write, and write.php diverts a prompt
+		 * answer that arrives anyway. The kebab's openInBlockEditor() is exempt
+		 * — a per-post escape hatch, not a choice of editor.
+		 */
+		switchToBlockEditor() {
+			if ( isAnon() ) {
+				return;
+			}
+			markBlockEditorPreferred();
+			state.showHelp = false;
+			if ( ! state.editPostId && ! hasWritableContent() ) {
+				allowLeave = true;
+				window.location.href =
+					state.adminUrl +
+					'post-new.php' +
+					( state.answerPromptId
+						? '?answer_prompt=' + encodeURIComponent( state.answerPromptId )
+						: '' );
+				return;
+			}
+			const { actions: a } = store( 'wpcom-write' );
+			a.openInBlockEditor();
+		},
+
+		/**
+		 * Dismiss the note by leaving for the block editor.
+		 *
+		 * Lets the pixel dispatch first: switchToBlockEditor() navigates
+		 * synchronously on an untouched new post, which is the common case here.
+		 */
+		async openInBlockEditorFromNote() {
+			hideEditorNote();
+			await recordTracksEventBeforeUnload( 'wpcom_write_editor_note_dismissed', {
+				action: 'block_editor',
+				source: state.source || '',
+			} );
+			const { actions: a } = store( 'wpcom-write' );
+			a.switchToBlockEditor();
+		},
+
+		handleEditorNoteKeyDown( event ) {
+			if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				const { actions: a } = store( 'wpcom-write' );
+				a.dismissEditorNote();
+			}
+		},
+
 		// --- Unsupported content warning ---
 		goBack() {
 			const sameOrigin =
@@ -6181,34 +6275,6 @@ const SAVE_STALL_THRESHOLD_MS = 30000;
 // first as the diagnostic, then the abort surfaces as a recoverable
 // `save_failed` with error_code 'AbortError'.
 const SAVE_REQUEST_TIMEOUT_MS = SAVE_STALL_THRESHOLD_MS + 15000;
-// Cap free-text error strings so a pathological message can't bloat the payload.
-const MAX_ERROR_MESSAGE_LENGTH = 200;
-
-/**
- * Normalize an unknown thrown value into a small, Tracks-friendly descriptor.
- *
- * Handles the shapes `wp.apiFetch` actually rejects with: WP REST errors
- * ( `{ code, message, data: { status } }` ), native/AbortError ( `{ name,
- * message }` ), and non-object throws as a last resort.
- *
- * @param {*} err - The thrown value.
- * @return {{ code: string, status: (number|null), message: string }} Descriptor.
- */
-function describeSaveError( err ) {
-	if ( ! err || typeof err !== 'object' ) {
-		const raw = err === undefined ? '' : String( err );
-		return { code: 'unknown', status: null, message: raw.slice( 0, MAX_ERROR_MESSAGE_LENGTH ) };
-	}
-	// Prefer the specific REST `code` (always a string, e.g. 'rest_cannot_edit');
-	// fall back to `name` ('AbortError', 'TypeError', …). Guard on a string code
-	// because a DOMException carries a numeric `.code` (AbortError is 20), which
-	// would otherwise shadow the 'AbortError' name and break the timeout message
-	// and telemetry error_code.
-	const code = ( typeof err.code === 'string' && err.code ) || err.name || 'unknown';
-	const status = err.data && typeof err.data.status === 'number' ? err.data.status : null;
-	const message = String( err.message || '' ).slice( 0, MAX_ERROR_MESSAGE_LENGTH );
-	return { code: String( code ), status, message };
-}
 
 /**
  * Fire the `wpcom_write_editor_save_failed` Tracks event.
@@ -6506,8 +6572,14 @@ async function performSave( postStatus, isAutosave = false, saveCtx = {} ) {
 		tagData.tags = [ ...new Set( [ ...( state.existingTagIds || [] ), ...newTagIds ] ) ];
 	}
 
-	// If editing, PUT to the existing post. If new, POST to create.
-	const path = isEditing ? state.postsPath + '/' + state.editPostId : state.postsPath;
+	// If editing, PUT to the existing post. If new, POST to create. On a new
+	// prompt answer, forward answer_prompt so the server-side
+	// jetpack_setup_blogging_prompt_response hook (rest_after_insert_post) tags
+	// the post as a prompt answer and stamps the roundup meta.
+	let path = isEditing ? state.postsPath + '/' + state.editPostId : state.postsPath;
+	if ( ! isEditing && state.answerPromptId ) {
+		path += '?answer_prompt=' + encodeURIComponent( state.answerPromptId );
+	}
 
 	// Prep is done; a stall from here on is the main save request itself.
 	stallPhase = 'save_request';
@@ -6536,8 +6608,14 @@ async function performSave( postStatus, isAutosave = false, saveCtx = {} ) {
 			state.editPostId = post.id;
 		}
 
-		// Keep existingTagIds in sync so the next save in this session merges correctly.
-		if ( tagData.tags ) {
+		// Keep existingTagIds in sync so the next save in this session merges
+		// correctly. Prefer the response's list over what we sent: the server can
+		// attach terms of its own after the insert — the dailyprompt tags stamped
+		// on a prompt answer by rest_after_insert_post — and the next save would
+		// drop them if we only tracked the client's view.
+		if ( Array.isArray( post.tags ) ) {
+			state.existingTagIds = post.tags;
+		} else if ( tagData.tags ) {
 			state.existingTagIds = tagData.tags;
 		}
 
@@ -6573,19 +6651,22 @@ async function performSave( postStatus, isAutosave = false, saveCtx = {} ) {
 				// the user later presses Back.
 				document.documentElement.style.visibility = 'hidden';
 
-				// On a Coming Soon site the published post is still private. Tag
-				// the redirect so the post-publish next-steps checklist (launch +
-				// share) surfaces on the post the author lands on. Public sites
-				// redirect to the bare permalink, unchanged.
+				// Tag the redirect so the post-publish surfaces know the author has
+				// just published from Write: the next-steps checklist (launch +
+				// share) on a Coming Soon site, and the one-question survey on any
+				// site. Both gate themselves server-side on top of this marker.
+				// `source` rides along so survey responses can be segmented by the
+				// same entry point the funnel records at editor open.
 				let destination = post.link;
-				if ( state.isComingSoon ) {
-					try {
-						const url = new URL( post.link );
-						url.searchParams.set( state.publishedMarker || 'wpcom_write_published', '1' );
-						destination = url.href;
-					} catch {
-						// Fall back to the bare permalink if it can't be parsed.
+				try {
+					const url = new URL( post.link );
+					url.searchParams.set( state.publishedMarker || 'wpcom_write_published', '1' );
+					if ( state.source ) {
+						url.searchParams.set( 'source', state.source );
 					}
+					destination = url.href;
+				} catch {
+					// Fall back to the bare permalink if it can't be parsed.
 				}
 				window.location.href = destination;
 			}, 800 );
@@ -6686,6 +6767,48 @@ const autosaveReady = setInterval( () => {
 		if ( savedDraftId && String( state.editPostId ) === savedDraftId ) {
 			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
 		}
+	}
+
+	// Introduce the editor once per browser, unless a modal already owns the
+	// screen (the unsupported-content warning, or a post picker opened by a
+	// server-side error) — those are blocking and would fight for focus.
+	if (
+		! isAnon() &&
+		! state.unsupportedWarning &&
+		! state.openPostError &&
+		! hasSeenEditorNote()
+	) {
+		markEditorNoteSeen();
+		state.showEditorNote = true;
+		recordTracksEvent( 'wpcom_write_editor_note_shown', { source: state.source || '' } );
+		// Focus the dialog itself, not a control inside it: screen readers then
+		// read the label and the message, and Tab still reaches every action.
+		// The note arrives a beat after the page does, so leave the caret where it
+		// is if the visitor has already started typing.
+		requestAnimationFrame( () => {
+			const note = document.querySelector( '.bw-editor-note' );
+			if ( ! note || note.ownerDocument.activeElement?.closest( '.bw-title, .bw-content' ) ) {
+				return;
+			}
+			note.focus();
+		} );
+
+		// The note overlaps the topbar menus it points at, so a click anywhere
+		// else has to clear it the way the other popovers do.
+		editorNoteCloseHandler = e => {
+			if ( e.target.closest( '.bw-editor-note' ) ) return;
+			hideEditorNote();
+			recordTracksEvent( 'wpcom_write_editor_note_dismissed', {
+				action: 'clicked_away',
+				source: state.source || '',
+			} );
+		};
+		setTimeout( () => {
+			// Escape could already have closed the note in the meantime.
+			if ( editorNoteCloseHandler ) {
+				document.addEventListener( 'click', editorNoteCloseHandler );
+			}
+		}, 0 );
 	}
 
 	// Populate relative dates in the post picker draft list.

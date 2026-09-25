@@ -1,4 +1,4 @@
-import type { ChartLegendConfig } from '../types';
+import type { ChartLegendConfig, SeriesChartLegendConfig } from '../types';
 
 /**
  * Flat Storybook controls corresponding to `legendArgTypes`. These are story-only
@@ -21,6 +21,15 @@ export type LegendStoryControls = {
 	legendInteractive?: boolean;
 	legendShapeStyles?: ChartLegendConfig[ 'shapeStyles' ];
 	legendItemStyles?: ChartLegendConfig[ 'itemStyles' ];
+};
+
+/**
+ * Flat controls for charts built from `SeriesData` (line, bar, area), which additionally expose
+ * `legendCollapseGroups`. Point charts (pie, semi-circle pie) use the base `LegendStoryControls`,
+ * since collapsing legend rows by `group` is meaningless for their data.
+ */
+export type SeriesLegendStoryControls = LegendStoryControls & {
+	legendCollapseGroups?: boolean;
 };
 
 /**
@@ -112,6 +121,21 @@ export const legendArgTypes = {
 };
 
 /**
+ * `legendArgTypes` plus the `legendCollapseGroups` control. Spread this in stories for charts built
+ * from `SeriesData` (line, bar, area); point charts use the base `legendArgTypes` so the control
+ * does not appear where it has no effect.
+ */
+export const seriesLegendArgTypes = {
+	...legendArgTypes,
+	legendCollapseGroups: {
+		control: { type: 'boolean' as const },
+		table: { category: 'Legend' },
+		description:
+			"Collapse series sharing a `group` into one legend item, labelled by the group's primary series. Combined with legendInteractive, that item toggles every series in its group.",
+	},
+};
+
+/**
  * Extracts flat legend story args into a `ChartLegendConfig` object.
  * Use in story render functions to bridge flat Storybook controls to the nested `legend` prop.
  *
@@ -119,7 +143,7 @@ export const legendArgTypes = {
  * @return The legend config object, or undefined if no legend args are set.
  */
 export function extractLegendConfig< T = ChartLegendConfig >(
-	args: Partial< LegendStoryControls >
+	args: Partial< SeriesLegendStoryControls >
 ): T | undefined {
 	const {
 		legendPosition,
@@ -127,6 +151,7 @@ export function extractLegendConfig< T = ChartLegendConfig >(
 		legendOrientation,
 		legendShape,
 		legendInteractive,
+		legendCollapseGroups,
 		legendItemClassName,
 		legendMaxWidth,
 		legendTextOverflow,
@@ -140,6 +165,7 @@ export function extractLegendConfig< T = ChartLegendConfig >(
 		legendOrientation !== undefined ||
 		legendShape !== undefined ||
 		legendInteractive !== undefined ||
+		legendCollapseGroups !== undefined ||
 		legendItemClassName !== undefined ||
 		legendMaxWidth !== undefined ||
 		legendTextOverflow !== undefined ||
@@ -150,7 +176,9 @@ export function extractLegendConfig< T = ChartLegendConfig >(
 		return undefined;
 	}
 
-	const config: ChartLegendConfig = {};
+	// Typed as the series variant so `collapseGroups` is assignable here; stories for point-based
+	// charts simply never set the corresponding control.
+	const config: SeriesChartLegendConfig = {};
 
 	if ( legendOrientation !== undefined ) {
 		config.orientation = legendOrientation as ChartLegendConfig[ 'orientation' ];
@@ -162,10 +190,13 @@ export function extractLegendConfig< T = ChartLegendConfig >(
 		config.alignment = legendAlignment as ChartLegendConfig[ 'alignment' ];
 	}
 	if ( legendShape !== undefined ) {
-		config.shape = legendShape as unknown as ChartLegendConfig[ 'shape' ];
+		config.shape = legendShape as unknown as SeriesChartLegendConfig[ 'shape' ];
 	}
 	if ( legendInteractive !== undefined ) {
 		config.interactive = legendInteractive as boolean;
+	}
+	if ( legendCollapseGroups !== undefined ) {
+		config.collapseGroups = legendCollapseGroups as boolean;
 	}
 	if ( legendItemClassName !== undefined ) {
 		config.itemClassName = legendItemClassName as string;

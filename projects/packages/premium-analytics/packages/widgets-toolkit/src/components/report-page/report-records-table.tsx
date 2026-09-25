@@ -1,14 +1,21 @@
 /**
  * External dependencies
  */
-import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
-import { useMemo, useState } from 'react';
+import {
+	DataViews,
+	type Action,
+	type Field,
+	type SupportedLayouts,
+	type View,
+} from '@jetpack-premium-analytics/externals';
+import { usePaginatedView } from '@jetpack-premium-analytics/ui';
+import { useCallback, useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
 import { ReportPageSection } from './report-page-layout';
 import styles from './report-records-table.module.scss';
-import type { Action, Field, SupportedLayouts, View } from '@wordpress/dataviews';
+import './report-records-table.scss';
 import type { ComponentProps, ReactElement, ReactNode } from 'react';
 
 const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
@@ -59,6 +66,18 @@ export interface ReportRecordsTableProps< Item > {
 	empty?: ReactNode;
 	/** Page size choices (defaults to 10/25/50/100). */
 	perPageSizes?: number[];
+	/**
+	 * Called after every view change, with the view the table just moved to.
+	 *
+	 * The table still owns its view state; this only reports it outwards, for
+	 * a page whose data request depends on the view — a filter the API applies
+	 * server-side, say. Remounting the table (a `key` per tab) resets the view
+	 * but not the page's copy, which the page has to clear for itself, or the
+	 * request stays scoped by a filter the table no longer shows.
+	 */
+	onChangeView?: ( view: View ) => void;
+	/** Called with the rows on the current page after client-side view processing. */
+	onChangePageItems?: ( items: Item[] ) => void;
 	/** Whether a record's primary field should render as an interactive link. */
 	isItemClickable?: ( item: Item ) => boolean;
 	/** Render the primary-field link while preserving DataViews table styling. */
@@ -92,6 +111,8 @@ export function ReportRecordsTable< Item >( {
 	actions,
 	empty,
 	perPageSizes = DEFAULT_PER_PAGE_SIZES,
+	onChangeView,
+	onChangePageItems,
 	isItemClickable,
 	renderItemLink,
 }: ReportRecordsTableProps< Item > ) {
@@ -104,22 +125,46 @@ export function ReportRecordsTable< Item >( {
 				search: '',
 				// DataViews renders only the columns listed in `view.fields` —
 				// there is no "all fields" default — so seed it with every
-				// configured field. `initialView` can still narrow it.
-				fields: fields.map( field => field.id ),
+				// configured field. `initialView` can still narrow it. A primary
+				// field (title, media, description) has its own column, so listing
+				// it here would draw it twice.
+				fields: fields
+					.map( field => field.id )
+					.filter(
+						id =>
+							! [
+								initialView?.titleField,
+								initialView?.mediaField,
+								initialView?.descriptionField,
+							].includes( id )
+					),
 				...initialView,
 			} ) as View
 	);
 
-	const { data: pageItems, paginationInfo } = useMemo(
-		() => filterSortAndPaginate( data, view, fields ),
-		[ data, view, fields ]
+	const handleChangeView = useCallback(
+		( nextView: View ) => {
+			setView( nextView );
+			onChangeView?.( nextView );
+		},
+		[ onChangeView ]
 	);
+
+	const {
+		view: effectiveView,
+		data: pageItems,
+		paginationInfo,
+	} = usePaginatedView( data, view, fields, handleChangeView );
+
+	useEffect( () => {
+		onChangePageItems?.( pageItems );
+	}, [ onChangePageItems, pageItems ] );
 
 	return (
 		<ReportPageSection className={ styles.root }>
 			<GenericDataViews< Item >
-				view={ view }
-				onChangeView={ setView }
+				view={ effectiveView }
+				onChangeView={ handleChangeView }
 				fields={ fields }
 				data={ pageItems }
 				getItemId={ getItemId }

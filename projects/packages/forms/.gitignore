@@ -1,5 +1,6 @@
 .cache/
 build/
+build-module
 dist/
 node_modules/
 vendor/

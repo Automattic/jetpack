@@ -66,7 +66,7 @@ const CoverImageControl = ( {
 
 	const renderTrigger = useCallback(
 		( { open }: { open: () => void } ) => (
-			<Button variant="secondary" onClick={ open } disabled={ disabled }>
+			<Button variant="secondary" onClick={ open } disabled={ disabled } accessibleWhenDisabled>
 				{ triggerLabel }
 			</Button>
 		),
@@ -94,7 +94,13 @@ const CoverImageControl = ( {
 					render={ renderTrigger }
 				/>
 				{ hasImage && (
-					<Button variant="tertiary" isDestructive onClick={ onRemove } disabled={ disabled }>
+					<Button
+						variant="tertiary"
+						isDestructive
+						onClick={ onRemove }
+						disabled={ disabled }
+						accessibleWhenDisabled
+					>
 						{ __( 'Remove', 'jetpack-podcast' ) }
 					</Button>
 				) }

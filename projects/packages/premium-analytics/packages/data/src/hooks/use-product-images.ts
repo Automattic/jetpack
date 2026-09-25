@@ -10,7 +10,6 @@ import { addQueryArgs } from '@wordpress/url';
 import { sanitizeReportProductsResponse } from '../processing/products';
 import type { ProductImage } from '../types/product-image';
 
-// Infer the product ID type from the sanitized products response
 type ProductId = ReturnType<
 	typeof sanitizeReportProductsResponse
 >[ 'data' ][ number ][ 'product_id' ];
@@ -30,10 +29,6 @@ export interface ProductImageResponse {
 	}[];
 }
 
-/**
- * Fetches product images from the WooCommerce REST API
- * @param productIds
- */
 async function fetchProductImages(
 	productIds: ProductId[]
 ): Promise< ( ProductImage & { productId: ProductId } )[] > {
@@ -41,7 +36,6 @@ async function fetchProductImages(
 		return [];
 	}
 
-	// Use the include parameter to get only the products we need
 	const queryArgs = {
 		include: productIds.join( ',' ),
 		per_page: productIds.length,
@@ -67,10 +61,6 @@ const getProductImagesQueryKey = ( params: UseProductImagesParams ) =>
 	// The sort makes `[ 1, 2 ]` and `[ 2, 1 ]` share a cache entry.
 	[ 'product-images', [ ...params.productIds ].sort().join( ',' ) ] as const;
 
-/**
- * Hook to fetch product images for a list of product IDs
- * @param params - Object containing the list of product IDs to fetch images for
- */
 export function useProductImages( params: UseProductImagesParams ) {
 	return useQuery( {
 		queryKey: getProductImagesQueryKey( params ),

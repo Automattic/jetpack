@@ -31,6 +31,11 @@ import FilterWcStockStatusEdit from '../blocks/filter-wc-stock-status/edit';
 import FiltersEdit, { save as filtersSave } from '../blocks/filters/edit';
 import FiltersPopoverEdit, { save as filtersPopoverSave } from '../blocks/filters-popover/edit';
 import FiltersProductEdit, { save as filtersProductSave } from '../blocks/filters-product/edit';
+import NoResultsEdit, { save as noResultsSave } from '../blocks/no-results/edit';
+import NoResultsSlotEdit, {
+	conditionLabel,
+	save as noResultsSlotSave,
+} from '../blocks/no-results/slot/edit';
 import PoweredByEdit from '../blocks/powered-by/edit';
 import ResultsCountEdit from '../blocks/results-count/edit';
 import ResultsListEdit from '../blocks/results-list/edit';
@@ -51,6 +56,13 @@ const BLOCKS = [
 	[ 'jetpack-search/ai-answer', AiAnswerEdit ],
 	[ 'jetpack-search/search-input', SearchInputEdit ],
 	[ 'jetpack-search/results-list', ResultsListEdit ],
+	[ 'jetpack-search/no-results', NoResultsEdit, noResultsSave ],
+	[
+		'jetpack-search/no-results-slot',
+		NoResultsSlotEdit,
+		noResultsSlotSave,
+		{ __experimentalLabel: conditionLabel },
+	],
 	[ 'jetpack-search/filter-checkbox', FilterCheckboxEdit ],
 	[ 'jetpack-search/filter-date', FilterDateEdit ],
 	[ 'jetpack-search/active-filters', ActiveFiltersEdit ],
@@ -84,7 +96,7 @@ setCategories(
 					...category,
 					title: __( 'Search', 'jetpack-search-pkg' ),
 					icon: <JetpackLogo showText={ false } height={ 24 } width={ 24 } />,
-			  }
+				}
 			: category
 	)
 );
@@ -137,7 +149,7 @@ addFilter(
 	}
 );
 
-BLOCKS.forEach( ( [ name, edit, blockSave ] ) => {
+BLOCKS.forEach( ( [ name, edit, blockSave, extraSettings ] ) => {
 	if ( ! isWooCommerceBlocksEnabled && wcOnlyBlocks.has( name ) ) {
 		return;
 	}
@@ -157,5 +169,11 @@ BLOCKS.forEach( ( [ name, edit, blockSave ] ) => {
 	// `icon` here overrides whatever server-side metadata block.json carries
 	// — the centralized per-block glyph (`BLOCK_ICONS[ name ]`) renders in
 	// the inserter, breadcrumb, and toolbar instead of the dashicon fallback.
-	registerBlockType( name, { edit, save: blockSave ?? save, icon: BLOCK_ICONS[ name ] } );
+	// Spread first so a per-block entry can never clobber `edit`, `save`, or `icon`.
+	registerBlockType( name, {
+		...extraSettings,
+		edit,
+		save: blockSave ?? save,
+		icon: BLOCK_ICONS[ name ],
+	} );
 } );

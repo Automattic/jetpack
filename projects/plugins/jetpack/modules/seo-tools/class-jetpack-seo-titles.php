@@ -97,8 +97,15 @@ class Jetpack_SEO_Titles {
 			return $default_title;
 		}
 
-		// If it's a singular -- page or post -- check for a meta title override.
-		if ( 'pages' === $page_type || 'posts' === $page_type ) {
+		// If it's a singular -- page or post -- check for a meta title override. Also
+		// check a static front page, where get_post() returns that page. On a latest-posts
+		// homepage it would instead return the first post in the loop, letting the newest
+		// post's SEO title hijack the homepage title.
+		$check_post_meta = 'pages' === $page_type
+			|| 'posts' === $page_type
+			|| ( 'front_page' === $page_type && 'page' === get_option( 'show_on_front' ) );
+
+		if ( $check_post_meta ) {
 			$post = get_post();
 			if ( $post instanceof WP_Post ) {
 				$custom_title = get_post_meta( $post->ID, Jetpack_SEO_Posts::HTML_TITLE_META_KEY, true );
@@ -302,6 +309,12 @@ class Jetpack_SEO_Titles {
 	 */
 	public static function sanitize_title_formats( $title_formats ) {
 		foreach ( $title_formats as &$format_array ) {
+			// The API accepts an empty string as "clear this page type"; store it as
+			// the empty list every reader expects, and don't iterate a string.
+			if ( ! is_array( $format_array ) ) {
+				$format_array = array();
+				continue;
+			}
 			foreach ( $format_array as &$item ) {
 				if ( 'string' === $item['type'] ) {
 					// From `wp_strip_all_tags`, but omitting the `trim` portion since we want spacing preserved.
@@ -337,7 +350,10 @@ class Jetpack_SEO_Titles {
 			'archives'   => array(),
 		);
 
+		// Sanitize the stored formats too: a page type saved as '' before this guard
+		// existed would otherwise survive every partial save from Calypso.
 		$previous_formats = self::get_custom_title_formats();
+		$previous_formats = is_array( $previous_formats ) ? self::sanitize_title_formats( $previous_formats ) : array();
 
 		$result = array_merge( $empty_formats, $previous_formats, $new_formats );
 

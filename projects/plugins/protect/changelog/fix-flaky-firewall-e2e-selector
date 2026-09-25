@@ -1,3 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Scope the Protect firewall E2E assertions to the Firewall tab panel to fix a flaky Playwright strict-mode failure, and correct an inaccurate code comment about tab-panel mounting. No functional change.

@@ -1,7 +1,9 @@
 /* eslint-disable jsdoc/require-param, jsdoc/require-returns */
 
 import { __ } from '@wordpress/i18n';
+import { search } from '@wordpress/icons';
 import { Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
+import CardTitleIcon from '../../components/card-title-icon';
 import getSite from '../../data/get-site';
 import styles from './social-previews-card.module.scss';
 import type { SiteData } from '../../data/get-site';
@@ -127,17 +129,23 @@ const SocialPreviewsCard: FC< Props > = ( { description } ) => {
 	if ( ! site ) {
 		return null;
 	}
+	const previewDescription = description || site.tagline;
 
 	return (
 		<CollapsibleCard.Root defaultOpen={ false }>
-			<CollapsibleCard.Header>
-				<Card.Title>{ __( 'Search & social previews', 'jetpack-seo' ) }</Card.Title>
+			<CollapsibleCard.Header render={ <h2 /> }>
+				<Card.Title>
+					<CardTitleIcon
+						icon={ search }
+						title={ __( 'Search & social previews', 'jetpack-seo' ) }
+					/>
+				</Card.Title>
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
 				<Stack direction="column" gap="xl">
 					<Text variant="body-md" render={ <p /> }>
 						{ __(
-							'A preview of how your home page looks in search results and when shared on social media. It updates as you edit the front-page description above.',
+							'How your home page looks in search results and social shares. Updates as you edit the front-page description above.',
 							'jetpack-seo'
 						) }
 					</Text>
@@ -151,7 +159,7 @@ const SocialPreviewsCard: FC< Props > = ( { description } ) => {
 									{ __( 'Google search result', 'jetpack-seo' ) }
 								</Stack>
 							</Text>
-							<GooglePreview site={ site } description={ description } />
+							<GooglePreview site={ site } description={ previewDescription } />
 						</Stack>
 						<Stack direction="column" gap="md">
 							<Text variant="heading-lg" render={ <h3 /> }>
@@ -160,7 +168,7 @@ const SocialPreviewsCard: FC< Props > = ( { description } ) => {
 									{ __( 'Facebook', 'jetpack-seo' ) }
 								</Stack>
 							</Text>
-							<LinkCardPreview site={ site } description={ description } />
+							<LinkCardPreview site={ site } description={ previewDescription } />
 						</Stack>
 						<Stack direction="column" gap="md">
 							<Text variant="heading-lg" render={ <h3 /> }>
@@ -169,7 +177,7 @@ const SocialPreviewsCard: FC< Props > = ( { description } ) => {
 									{ __( 'X (Twitter)', 'jetpack-seo' ) }
 								</Stack>
 							</Text>
-							<LinkCardPreview site={ site } description={ description } />
+							<LinkCardPreview site={ site } description={ previewDescription } />
 						</Stack>
 					</Stack>
 				</Stack>

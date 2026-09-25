@@ -1,39 +1,21 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
-import { tag } from '@wordpress/icons';
+import { category } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
-export type TagsAttributes = {
-	/**
-	 * Maximum number of rows to display.
-	 */
-	max?: number;
-};
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type TagsAttributes = Record< never, never >;
 
 /**
- * Widget type definition for the Tags & categories widget.
- *
- * Ported from the Jetpack Stats "Tags & categories" module. Lists the site's
- * most visited tags and categories for the selected period, ranked by views.
- *
- * Data: read from the `stats/tags` endpoint via `useStatsTags`. A row can group
- * several tags/categories that share a post; those grouped rows have no single
- * archive URL and drill down to their individual members instead.
+ * Ported from the Jetpack Stats "Tags & categories" module: most-visited tags
+ * and categories, ranked by views. Grouped rows (multiple tags on one post)
+ * have no single archive URL and drill down to their members instead.
  */
 export default {
-	icon: tag,
-	attributes: [
-		{
-			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
-			type: 'integer',
-		},
-	] as WidgetAttributeField< TagsAttributes >[],
+	icon: category,
+	attributes: [] as WidgetAttributeField< TagsAttributes >[],
 	example: {
-		attributes: {
-			max: 10,
-		},
+		attributes: {},
 	},
 };

@@ -35,15 +35,6 @@ type LegendProps = {
 	hideValue?: boolean;
 };
 
-/**
- * Pure Legend component that renders a grid of legend items.
- * Does not depend on any context provider - all data flows through props.
- *
- * For widgets using GlobalChartsProvider, use LegendWithTheme instead.
- */
-/**
- * Determines the number of grid columns based on visibility options.
- */
 function getTemplateColumns( hideValue: boolean, withComparison: boolean ): string {
 	if ( hideValue ) {
 		return withComparison ? '1fr auto' : '1fr';
@@ -51,6 +42,10 @@ function getTemplateColumns( hideValue: boolean, withComparison: boolean ): stri
 	return withComparison ? '1fr auto auto' : '1fr auto';
 }
 
+/**
+ * Context-free legend grid: colors and values arrive through props. Widgets
+ * rendering inside a `GlobalChartsProvider` use `LegendWithTheme` instead.
+ */
 export function Legend( { items, withComparison = false, hideValue = false }: LegendProps ) {
 	return (
 		<Grid

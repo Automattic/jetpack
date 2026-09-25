@@ -1,3 +1,4 @@
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { Notice } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -23,7 +24,12 @@ export const encodeValueForShortcodeAttribute = value => {
 };
 
 export const getPaidPlanLink = alreadyHasTierPlans => {
-	const link = 'https://wordpress.com/earn/payments/' + location.hostname;
+	// Self-hosted Jetpack sites manage payments from Jetpack Cloud, which serves the
+	// same screens under /monetize rather than /earn.
+	const base = isWpcomPlatformSite()
+		? 'https://wordpress.com/earn/payments/'
+		: 'https://cloud.jetpack.com/monetize/payments/';
+	const link = base + location.hostname;
 	// We force the "Newsletters plan" link only if there is no plans already created
 	return alreadyHasTierPlans ? link : link + '#add-tier-plan';
 };

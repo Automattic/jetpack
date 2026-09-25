@@ -1,21 +1,16 @@
 /**
- * Mocks: the data package reads the site timezone from the WordPress core
- * store. Pin the timezone to UTC so day-bound math is deterministic
- * regardless of the machine timezone running the tests.
+ * Pin the reporting timezone to UTC for deterministic day-bound math. Stubs
+ * `reportingTimeZone()` directly rather than the `datetime` barrel: the interval
+ * rules import `localTZDate` via a relative path a barrel stub can't reach.
  */
-jest.mock( '@jetpack-premium-analytics/data', () => {
-	const { TZDateMini } = jest.requireActual( '@date-fns/tz' );
-	return {
-		getSiteTimezone: () => '+00:00',
-		dateToISOStringWithLocalTZ: ( date: Date ) => new Date( date.getTime() ).toISOString(),
-		localTZDate: ( value: number | Date ) =>
-			new TZDateMini( typeof value === 'number' ? value : value.getTime(), '+00:00' ),
-	};
-} );
+jest.mock( '@jetpack-premium-analytics/datetime', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/datetime' ),
+	reportingTimeZone: () => '+00:00',
+} ) );
 /**
  * External dependencies
  */
-import { endOfDay } from 'date-fns';
+import { TZDate } from '@date-fns/tz';
 /**
  * Internal dependencies
  */
@@ -24,8 +19,12 @@ import { buildRangePatch } from '../build-range-patch';
 describe( 'buildRangePatch', () => {
 	// A rolling sub-day window: `to` sits mid-day, exactly where end-of-day
 	// rounding would corrupt it.
-	const from = new Date( '2026-07-09T14:30:00.000Z' );
-	const to = new Date( '2026-07-10T14:30:00.000Z' );
+	const from = new TZDate( '2026-07-09T14:30:00.000+00:00', 'UTC' );
+	const to = new TZDate( '2026-07-10T14:30:00.000+00:00', 'UTC' );
+
+	// A window long enough to allow day buckets, for the cases about carrying a
+	// selection rather than about coercing it.
+	const wideTo = new TZDate( '2026-07-19T14:30:00.000+00:00', 'UTC' );
 
 	it( 'returns null when there is nothing to stage', () => {
 		expect( buildRangePatch( { effective: {} } ) ).toBeNull();
@@ -40,14 +39,93 @@ describe( 'buildRangePatch', () => {
 		} );
 
 		expect( patch ).toEqual( {
-			from: '2026-07-09T14:30:00.000Z',
-			to: '2026-07-10T14:30:00.000Z',
+			from: '2026-07-09T14:30:00.000+00:00',
+			to: '2026-07-10T14:30:00.000+00:00',
 			preset: 'last-24-hours',
+			interval: 'hour',
 		} );
 	} );
 
+	it( 'keeps the current interval when the preset is unchanged and still allows it', () => {
+		const patch = buildRangePatch( {
+			nextRange: { from, to: wideTo },
+			nextPresetId: 'last-30-days',
+			effective: { preset: 'last-30-days', interval: 'week' },
+		} );
+
+		expect( patch?.interval ).toBe( 'week' );
+	} );
+
+	it( 'clamps an unsupported interval to the range default', () => {
+		const patch = buildRangePatch( {
+			nextRange: { from, to },
+			nextPresetId: 'last-24-hours',
+			effective: { preset: 'last-24-hours', interval: 'month' },
+		} );
+
+		expect( patch?.interval ).toBe( 'hour' );
+	} );
+
+	it( 'carries a still-allowed interval across a preset change', () => {
+		const patch = buildRangePatch( {
+			nextRange: { from, to: wideTo },
+			nextPresetId: 'last-30-days',
+			effective: { preset: 'last-7-days', interval: 'day' },
+		} );
+
+		// `day` is allowed for last-30-days too, so the selection survives.
+		expect( patch?.interval ).toBe( 'day' );
+	} );
+
+	// A day bucket on a day-long window draws the whole range as one bar.
+	it( 'coerces a day bucket when switching to a day-long preset', () => {
+		for ( const preset of [ 'last-7-days', 'last-30-days' ] as const ) {
+			const patch = buildRangePatch( {
+				nextRange: { from, to },
+				nextPresetId: 'last-24-hours',
+				effective: { preset, interval: 'day' },
+			} );
+
+			expect( patch?.interval ).toBe( 'hour' );
+		}
+	} );
+
+	it( 'coerces an interval the new preset disallows', () => {
+		const patch = buildRangePatch( {
+			nextRange: { from, to },
+			nextPresetId: 'last-24-hours',
+			effective: { preset: 'last-30-days', interval: 'week' },
+		} );
+
+		expect( patch?.interval ).toBe( 'hour' );
+	} );
+
+	it( 'carries the interval through a manual edit that leaves a preset', () => {
+		const patch = buildRangePatch( {
+			nextRange: { from, to: wideTo },
+			nextPresetId: 'custom',
+			effective: { preset: 'last-7-days', interval: 'day' },
+		} );
+
+		expect( patch?.interval ).toBe( 'day' );
+	} );
+
+	// A stepped window carries no preset, so the same rule has to reach it
+	// through the range length rather than through the preset table.
+	it( 'coerces a day bucket on a day-long custom range', () => {
+		const patch = buildRangePatch( {
+			nextRange: { from, to },
+			nextPresetId: 'custom',
+			effective: { preset: 'last-7-days', interval: 'day' },
+		} );
+
+		expect( patch?.interval ).toBe( 'hour' );
+	} );
+
 	it( 'extends calendar and manual edits to the end of the day', () => {
-		const expected = endOfDay( to ).getTime();
+		// The end of the *site's* day (pinned to UTC above), whatever the host.
+		// A literal instant, so the expectation cannot drift with `endOfDayTZ`.
+		const expected = new TZDate( '2026-07-10T23:59:59.999+00:00', 'UTC' ).getTime();
 
 		const custom = buildRangePatch( {
 			nextRange: { from, to },
@@ -61,6 +139,18 @@ describe( 'buildRangePatch', () => {
 		expect( expected ).toBeGreaterThan( to.getTime() );
 	} );
 
+	it( 'keeps an exact range untouched even when it leaves a preset', () => {
+		const patch = buildRangePatch( {
+			nextRange: { from, to },
+			nextPresetId: 'custom',
+			exactRange: true,
+			effective: {},
+		} );
+
+		expect( patch?.from ).toBe( '2026-07-09T14:30:00.000+00:00' );
+		expect( patch?.to ).toBe( '2026-07-10T14:30:00.000+00:00' );
+	} );
+
 	it( 're-derives the comparison range from the new primary range when enabled', () => {
 		const patch = buildRangePatch( {
 			nextRange: { from, to },
@@ -69,8 +159,28 @@ describe( 'buildRangePatch', () => {
 		} );
 
 		expect( patch ).toMatchObject( {
-			compare_from: '2026-07-08T14:30:00.000Z',
-			compare_to: '2026-07-09T14:30:00.000Z',
+			compare_from: '2026-07-08T14:29:59.999+00:00',
+			compare_to: '2026-07-09T14:29:59.999+00:00',
+			compare_preset: 'previous-period',
+		} );
+	} );
+
+	// The menu derives from the range, so a preset the new range no longer
+	// offers is staged as the previous period rather than left stranded.
+	it( 'falls back to the previous period when the new range drops the preset', () => {
+		const patch = buildRangePatch( {
+			nextRange: {
+				from: new TZDate( '2026-08-01T00:00:00.000+00:00', 'UTC' ),
+				to: new TZDate( '2026-08-30T23:59:59.999+00:00', 'UTC' ),
+			},
+			nextPresetId: 'last-30-days',
+			effective: { comp: '1', compare_preset: 'previous-month' },
+		} );
+
+		expect( patch ).toMatchObject( {
+			compare_from: '2026-07-02T00:00:00.000+00:00',
+			compare_to: '2026-07-31T23:59:59.999+00:00',
+			compare_preset: 'previous-period',
 		} );
 	} );
 
@@ -88,6 +198,26 @@ describe( 'buildRangePatch', () => {
 	it( 'stages only the preset when the range is absent', () => {
 		expect( buildRangePatch( { nextPresetId: 'last-7-days', effective: {} } ) ).toEqual( {
 			preset: 'last-7-days',
+		} );
+	} );
+
+	it( 'derives the comparison from the preset being staged, not the one it replaces', () => {
+		// `last-12-months` as read on 20 August 2026, staged over a 7-day window.
+		// Measured as the 7-day preset would be, the previous period starts on
+		// 12 September; as the to-date preset, twelve months back on the first.
+		const patch = buildRangePatch( {
+			nextRange: {
+				from: new TZDate( '2025-09-01T00:00:00.000Z', 'UTC' ),
+				to: new TZDate( '2026-08-20T23:59:59.999Z', 'UTC' ),
+			},
+			nextPresetId: 'last-12-months',
+			effective: { preset: 'last-7-days', comp: '1', compare_preset: 'previous-period' },
+		} );
+
+		expect( patch ).toMatchObject( {
+			preset: 'last-12-months',
+			compare_from: '2024-09-01T00:00:00.000+00:00',
+			compare_to: '2025-08-20T23:59:59.999+00:00',
 		} );
 	} );
 } );

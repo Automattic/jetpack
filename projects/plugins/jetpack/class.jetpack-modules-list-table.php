@@ -20,11 +20,131 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
  */
 class Jetpack_Modules_List_Table extends WP_List_Table {
 
+	/**
+	 * Order in which product groups are displayed on the page.
+	 *
+	 * @var string[]
+	 */
+	const PRODUCT_GROUP_ORDER = array( 'growth', 'performance', 'security', 'other' );
+
+	/**
+	 * Map of module slug to product group.
+	 *
+	 * Modeled on the Offline Mode dashboard grouping so the modules page reads
+	 * as a set of focused product areas. Any module not listed falls back to
+	 * the "other" group.
+	 *
+	 * @return array<string, string> Module slug => product group slug.
+	 */
+	public static function get_module_product_groups_map() {
+		return array(
+			// Grow your audience.
+			'blaze'                 => 'growth',
+			'comment-likes'         => 'growth',
+			'comments'              => 'growth',
+			'contact-form'          => 'growth',
+			'gravatar-hovercards'   => 'growth',
+			'likes'                 => 'growth',
+			'publicize'             => 'growth',
+			'related-posts'         => 'growth',
+			'sharedaddy'            => 'growth',
+			'simple-payments'       => 'growth',
+			'stats'                 => 'growth',
+			'subscriptions'         => 'growth',
+			'woocommerce-analytics' => 'growth',
+			'wordads'               => 'growth',
+			'wpcom-reader'          => 'growth',
+
+			// Speed up your site.
+			'carousel'              => 'performance',
+			'google-fonts'          => 'performance',
+			'infinite-scroll'       => 'performance',
+			'photon'                => 'performance',
+			'photon-cdn'            => 'performance',
+			'search'                => 'performance',
+			'tiled-gallery'         => 'performance',
+			'videopress'            => 'performance',
+
+			// Protect your site.
+			'account-protection'    => 'security',
+			'monitor'               => 'security',
+			'notes'                 => 'security',
+			'protect'               => 'security',
+			'sso'                   => 'security',
+			'vaultpress'            => 'security',
+			'waf'                   => 'security',
+		);
+	}
+
+	/**
+	 * Get the product group slug for a given module.
+	 *
+	 * @param string $slug Module slug.
+	 * @return string Product group slug.
+	 */
+	public static function get_module_product_group( $slug ) {
+		$map = self::get_module_product_groups_map();
+
+		return $map[ $slug ] ?? 'other';
+	}
+
+	/**
+	 * Get the translated display name for a product group.
+	 *
+	 * @param string $group Product group slug.
+	 * @return string Translated group name.
+	 */
+	public static function get_product_group_name( $group ) {
+		switch ( $group ) {
+			case 'growth':
+				return __( 'Grow your audience', 'jetpack' );
+			case 'performance':
+				return __( 'Speed up your site', 'jetpack' );
+			case 'security':
+				return __( 'Protect your site', 'jetpack' );
+			default:
+				return __( 'Other features', 'jetpack' );
+		}
+	}
+
+	/**
+	 * Whether a module is flagged as recommended.
+	 *
+	 * @param array $module Module data (with raw, untranslated module tags).
+	 * @return bool
+	 */
+	public static function is_module_recommended( $module ) {
+		return ! empty( $module['module_tags'] ) && in_array( 'Recommended', (array) $module['module_tags'], true );
+	}
+
+	/**
+	 * Remove the legacy `vaultpress` module from the modules screen.
+	 *
+	 * The `vaultpress` module is a leftover stub for the original standalone
+	 * VaultPress plugin. It is hard-coded as never activatable (see
+	 * Jetpack_Admin::is_module_available()) and is unrelated to the modern
+	 * VaultPress Backup product, which is delivered through My Jetpack and the
+	 * standalone Jetpack VaultPress Backup plugin rather than a Jetpack module.
+	 * Showing a permanently-unavailable row that merely reuses the modern
+	 * product's name is misleading, so we drop it from this screen only. Other
+	 * surfaces (REST, the React dashboard, standalone plugins) are unaffected.
+	 *
+	 * @param array $modules Array of Jetpack modules keyed by slug.
+	 * @return array Modules without the legacy `vaultpress` entry.
+	 */
+	public static function hide_legacy_vaultpress_module( $modules ) {
+		unset( $modules['vaultpress'] );
+		return $modules;
+	}
+
 	/** Constructor. */
 	public function __construct() {
 		parent::__construct();
 
 		Jetpack::init();
+
+		// Scope this to the modules screen so REST/React/standalone surfaces keep the legacy slug.
+		add_filter( 'jetpack_modules_list_table_items', array( __CLASS__, 'hide_legacy_vaultpress_module' ) );
 
 		if ( $this->compat_fields && is_array( $this->compat_fields ) ) {
 			array_push( $this->compat_fields, 'all_items' );
@@ -84,11 +204,21 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			true
 		);
 
+		$modules_for_js = (array) Jetpack::get_translated_modules( $this->all_items );
+		foreach ( array_keys( $modules_for_js ) as $slug ) {
+			$group = self::get_module_product_group( $slug );
+
+			$modules_for_js[ $slug ]['product_group']      = $group;
+			$modules_for_js[ $slug ]['product_group_name'] = self::get_product_group_name( $group );
+			// Detect recommendation from the raw (untranslated) module tags.
+			$modules_for_js[ $slug ]['recommended'] = isset( $this->all_items[ $slug ] ) && self::is_module_recommended( $this->all_items[ $slug ] );
+		}
+
 		wp_localize_script(
 			'jetpack-modules-list-table',
 			'jetpackModulesData',
 			array(
-				'modules'   => Jetpack::get_translated_modules( $this->all_items ),
+				'modules'   => $modules_for_js,
 				'i18n'      => array(
 					'search_placeholder' => __( 'Search modules…', 'jetpack' ),
 				),
@@ -117,28 +247,48 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	public function js_templates() {
 		?>
 		<script type="text/html" id="tmpl-Jetpack_Modules_List_Table_Template">
-			<# var i = 0;
+			<# var i = 0; var currentGroup = null;
 			if ( data.items.length ) {
 			_.each( data.items, function( item, key, list ) {
-				if ( item === undefined ) return; #>
-				<tr class="jetpack-module <# if ( ++i % 2 ) { #> alternate<# } #><# if ( item.activated ) { #> active<# } #><# if ( ! item.available ) { #> unavailable<# } #>" id="{{{ item.module }}}">
+				if ( item === undefined ) return;
+				if ( item.product_group !== currentGroup ) {
+					currentGroup = item.product_group; #>
+					<tr class="jetpack-module-group-header" data-group="{{ item.product_group }}">
+						<td colspan="2"><h2 class="jetpack-module-group-header__title">{{ item.product_group_name }}</h2></td>
+					</tr>
+				<# } #>
+				<tr class="jetpack-module<# if ( ++i % 2 ) { #> alternate<# } #><# if ( item.activated ) { #> active<# } #><# if ( ! item.available ) { #> unavailable<# } #>" id="{{{ item.module }}}">
 					<th scope="row" class="check-column">
-						<input type="checkbox" name="modules[]" value="{{{ item.module }}}" {{{ item.disabled }}} />
+						<# if ( item.available ) { #><input type="checkbox" name="modules[]" value="{{{ item.module }}}" {{{ item.disabled }}} /><# } #>
 					</th>
-					<td class='name column-name'>
-						<p class='info'><a href="{{{item.learn_more_button}}}" target="blank" style="text-decoration: none;">{{{ item.name }}}</a></p>
-						<div class="row-actions">
-						<# if ( item.configurable ) { #>
-							<span class='configure'>{{{ item.configurable }}}</span>
-						<# } #>
-						<# if ( item.activated && 'vaultpress' !== item.module && item.available ) { #>
-							<span class='delete'><a class="dops-button is-compact" href="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.deactivate_nonce }}}"><?php esc_html_e( 'Deactivate', 'jetpack' ); ?></a></span>
-						<# } else if ( item.available ) { #>
-							<span class='activate'><a class="dops-button is-compact" href="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>?page=jetpack&#038;action=activate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.activate_nonce }}}"><?php esc_html_e( 'Activate', 'jetpack' ); ?></a></span>
-						<# } #>
-						<# if ( ! item.available ) { #>
-							<p class='unavailable_reason'>{{{ item.unavailable_reason }}}</p>
-						<# } #>
+					<td class="name column-name">
+						<div class="jetpack-module__body">
+							<div class="jetpack-module__info">
+								<# if ( item.learn_more_button ) { #><a class="jetpack-module__name" href="{{{ item.learn_more_button }}}" target="_blank" rel="noopener noreferrer">{{ item.name }}</a><# } else { #><span class="jetpack-module__name">{{ item.name }}</span><# } #>
+								<# if ( item.description ) { #><span class="jetpack-module__description">{{ item.description }}</span><# } #>
+							</div>
+							<div class="jetpack-module__meta">
+								<span class="jetpack-module__badges">
+									<# if ( item.recommended && item.available ) { #><span class="jetpack-module__badge is-recommended"><?php esc_html_e( 'Recommended', 'jetpack' ); ?></span><# } #>
+									<# if ( item.available ) { #>
+										<# if ( item.activated ) { #><span class="jetpack-module__badge is-active"><?php esc_html_e( 'Active', 'jetpack' ); ?></span><# } else { #><span class="jetpack-module__badge is-inactive"><?php esc_html_e( 'Inactive', 'jetpack' ); ?></span><# } #>
+									<# } #>
+								</span>
+								<div class="row-actions">
+									<# if ( item.configurable ) { #>
+										<span class="configure">{{{ item.configurable }}}</span>
+									<# } #>
+									<# if ( item.available ) { #>
+										<# if ( item.activated ) { #>
+											<a class="jetpack-module__toggle is-active" role="switch" aria-checked="true" href="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.deactivate_nonce }}}"><span class="jetpack-module__toggle-track"><span class="jetpack-module__toggle-thumb"></span></span><span class="screen-reader-text"><?php esc_html_e( 'Deactivate', 'jetpack' ); ?></span></a>
+										<# } else { #>
+											<a class="jetpack-module__toggle" role="switch" aria-checked="false" href="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>?page=jetpack&#038;action=activate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.activate_nonce }}}"><span class="jetpack-module__toggle-track"><span class="jetpack-module__toggle-thumb"></span></span><span class="screen-reader-text"><?php esc_html_e( 'Activate', 'jetpack' ); ?></span></a>
+										<# } #>
+									<# } else { #>
+										<span class="jetpack-module__unavailable">{{ item.unavailable_reason }}</span>
+									<# } #>
+								</div>
+							</div>
 						</div>
 					</td>
 				</tr>
@@ -288,6 +438,48 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	}
 
 	/**
+	 * Print the module rows grouped by product group.
+	 *
+	 * Overrides WP_List_Table::display_rows() so the server-rendered (no-JS)
+	 * output matches the grouped, card-style layout produced by the Backbone
+	 * template.
+	 */
+	public function display_rows() {
+		$buckets = array();
+		foreach ( self::PRODUCT_GROUP_ORDER as $group ) {
+			$buckets[ $group ] = array();
+		}
+
+		foreach ( $this->items as $item ) {
+			$group               = self::get_module_product_group( $item['module'] );
+			$buckets[ $group ][] = $item;
+		}
+
+		foreach ( $buckets as $group => $items ) {
+			if ( empty( $items ) ) {
+				continue;
+			}
+			$this->group_header_row( $group );
+			foreach ( $items as $item ) {
+				$this->single_row( $item );
+			}
+		}
+	}
+
+	/**
+	 * Print a product group header row.
+	 *
+	 * @param string $group Product group slug.
+	 */
+	protected function group_header_row( $group ) {
+		printf(
+			'<tr class="jetpack-module-group-header" data-group="%1$s"><td colspan="2"><h2 class="jetpack-module-group-header__title">%2$s</h2></td></tr>',
+			esc_attr( $group ),
+			esc_html( self::get_product_group_name( $group ) )
+		);
+	}
+
+	/**
 	 * Print a single row of the table.
 	 *
 	 * @param object|array $item Item.
@@ -296,90 +488,81 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		static $i  = 0;
 		$row_class = ( ( ++$i ) % 2 ) ? ' alternate' : '';
 
+		$available = Jetpack_Admin::is_module_available( $item );
+
 		if ( ! empty( $item['activated'] ) ) {
 			$row_class .= ' active';
 		}
-
-		if ( ! Jetpack_Admin::is_module_available( $item ) ) {
+		if ( ! $available ) {
 			$row_class .= ' unavailable';
 		}
 
 		echo '<tr class="jetpack-module' . esc_attr( $row_class ) . '" id="' . esc_attr( $item['module'] ) . '">';
-		$this->single_row_columns( $item );
+
+		echo '<th scope="row" class="check-column">';
+		if ( $available ) {
+			printf( '<input type="checkbox" name="modules[]" value="%s" />', esc_attr( $item['module'] ) );
+		}
+		echo '</th>';
+
+		echo '<td class="name column-name">';
+		echo '<div class="jetpack-module__body">';
+
+		echo '<div class="jetpack-module__info">';
+		if ( ! empty( $item['learn_more_button'] ) ) {
+			printf(
+				'<a class="jetpack-module__name" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+				esc_url( $item['learn_more_button'] ),
+				wp_kses_post( wptexturize( $item['name'] ) )
+			);
+		} else {
+			echo '<span class="jetpack-module__name">' . wp_kses_post( wptexturize( $item['name'] ) ) . '</span>';
+		}
+		if ( ! empty( $item['description'] ) ) {
+			echo '<span class="jetpack-module__description">' . esc_html( wp_strip_all_tags( $item['description'] ) ) . '</span>';
+		}
+		echo '</div>';
+
+		echo '<div class="jetpack-module__meta">';
+		echo '<span class="jetpack-module__badges">';
+		if ( $available && self::is_module_recommended( $item ) ) {
+			echo '<span class="jetpack-module__badge is-recommended">' . esc_html__( 'Recommended', 'jetpack' ) . '</span>';
+		}
+		if ( $available ) {
+			if ( ! empty( $item['activated'] ) ) {
+				echo '<span class="jetpack-module__badge is-active">' . esc_html__( 'Active', 'jetpack' ) . '</span>';
+			} else {
+				echo '<span class="jetpack-module__badge is-inactive">' . esc_html__( 'Inactive', 'jetpack' ) . '</span>';
+			}
+		}
+		echo '</span>';
+
+		echo '<div class="row-actions">';
+		if ( ! empty( $item['configurable'] ) ) {
+			echo '<span class="configure">' . wp_kses_post( $item['configurable'] ) . '</span>';
+		}
+		if ( $available ) {
+			echo $this->get_module_toggle_html( $item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
+		} elseif ( ! empty( $item['unavailable_reason'] ) ) {
+			echo '<span class="jetpack-module__unavailable">' . wp_kses_post( $item['unavailable_reason'] ) . '</span>';
+		}
+		// Close .row-actions, .jetpack-module__meta, and .jetpack-module__body.
+		echo '</div></div></div>';
+		echo '</td>';
 		echo '</tr>';
 	}
 
 	/**
-	 * Table classes.
+	 * Build the activate/deactivate toggle control markup for a module row.
 	 *
-	 * @return string[] HTML.
-	 */
-	public function get_table_classes() {
-		return array( 'table', 'table-bordered', 'wp-list-table', 'widefat', 'fixed' );
-	}
-
-	/**
-	 * Column checkbox.
-	 *
-	 * @param object|array $item Item.
+	 * @param object|array $item Module data.
 	 * @return string HTML.
 	 */
-	public function column_cb( $item ) {
-		if ( ! Jetpack_Admin::is_module_available( $item ) ) {
-			return '';
-		}
+	protected function get_module_toggle_html( $item ) {
+		$is_active = ! empty( $item['activated'] );
 
-		return sprintf( '<input type="checkbox" name="modules[]" value="%s" />', $item['module'] );
-	}
-
-	/**
-	 * Column icon.
-	 *
-	 * @return string HTML.
-	 */
-	public function column_icon() {
-		$badge_text = '';
-		$free_text  = '';
-		ob_start();
-		?>
-		<a href="#TB_inline?width=600&height=550&inlineId=more-info-module-settings-modal" class="thickbox">
-			<div class="module-image">
-				<p><span class="module-image-badge"><?php echo esc_html( $badge_text ); ?></span><span class="module-image-free" style="display: none"><?php echo esc_html( $free_text ); ?></span></p>
-			</div>
-		</a>
-		<?php
-		return ob_get_clean();
-	}
-
-	/**
-	 * Column name.
-	 *
-	 * @param object|array $item Item.
-	 * @return string HTML.
-	 */
-	public function column_name( $item ) {
-		$actions = array(
-			'info' => sprintf( '<a href="%s" target="blank">%s</a>', esc_url( $item['learn_more_button'] ), esc_html__( 'Feature Info', 'jetpack' ) ),
-		);
-
-		if ( ! empty( $item['configurable'] ) ) {
-			$actions['configure'] = $item['configurable'];
-		}
-
-		if ( empty( $item['activated'] ) && Jetpack_Admin::is_module_available( $item ) ) {
-			$url                 = wp_nonce_url(
-				Jetpack::admin_url(
-					array(
-						'page'   => 'jetpack',
-						'action' => 'activate',
-						'module' => $item['module'],
-					)
-				),
-				'jetpack_activate-' . $item['module']
-			);
-			$actions['activate'] = sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html__( 'Activate', 'jetpack' ) );
-		} elseif ( ! empty( $item['activated'] ) ) {
-			$url               = wp_nonce_url(
+		if ( $is_active ) {
+			$url   = wp_nonce_url(
 				Jetpack::admin_url(
 					array(
 						'page'   => 'jetpack',
@@ -389,64 +572,49 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				),
 				'jetpack_deactivate-' . $item['module']
 			);
-			$actions['delete'] = sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html__( 'Deactivate', 'jetpack' ) );
+			$label = sprintf(
+				/* translators: %s: Jetpack module name. */
+				__( 'Deactivate %s', 'jetpack' ),
+				$item['name']
+			);
+			$class = 'jetpack-module__toggle is-active';
+			$aria  = 'true';
+		} else {
+			$url   = wp_nonce_url(
+				Jetpack::admin_url(
+					array(
+						'page'   => 'jetpack',
+						'action' => 'activate',
+						'module' => $item['module'],
+					)
+				),
+				'jetpack_activate-' . $item['module']
+			);
+			$label = sprintf(
+				/* translators: %s: Jetpack module name. */
+				__( 'Activate %s', 'jetpack' ),
+				$item['name']
+			);
+			$class = 'jetpack-module__toggle';
+			$aria  = 'false';
 		}
 
-		return $this->row_actions( $actions ) . wptexturize( $item['name'] );
+		return sprintf(
+			'<a class="%1$s" role="switch" aria-checked="%2$s" href="%3$s"><span class="jetpack-module__toggle-track"><span class="jetpack-module__toggle-thumb"></span></span><span class="screen-reader-text">%4$s</span></a>',
+			esc_attr( $class ),
+			esc_attr( $aria ),
+			esc_url( $url ),
+			esc_html( $label )
+		);
 	}
 
 	/**
-	 * Column description.
+	 * Table classes.
 	 *
-	 * @param object|array $item Item.
-	 * @return string HTML.
+	 * @return string[] HTML.
 	 */
-	public function column_description( $item ) {
-		ob_start();
-		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
-		/** This action is documented in class.jetpack-admin.php */
-		echo apply_filters( 'jetpack_short_module_description', $item['description'], $item['module'] );
-		/** This action is documented in class.jetpack-admin.php */
-		do_action( 'jetpack_learn_more_button_' . $item['module'] );
-		echo '<div id="more-info-' . $item['module'] . '" class="more-info">';
-		/** This action is documented in class.jetpack-admin.php */
-		do_action( 'jetpack_module_more_info_' . $item['module'] );
-		echo '</div>';
-		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
-		return ob_get_clean();
-	}
-
-	/**
-	 * Return module tags HTML.
-	 *
-	 * @param object|array $item Item.
-	 * @return string HTML.
-	 */
-	public function column_module_tags( $item ) {
-		$module_tags = array();
-		foreach ( array_map( 'jetpack_get_module_i18n_tag', $item['module_tags'] ) as $module_tag ) {
-			$module_tags[] = sprintf( '<a href="%3$s" data-title="%2$s">%1$s</a>', esc_html( $module_tag ), esc_attr( $module_tag ), esc_url( add_query_arg( 'module_tag', rawurlencode( $module_tag ) ) ) );
-		}
-		return implode( ', ', $module_tags );
-	}
-
-	/**
-	 * Column default value.
-	 *
-	 * @param object|array $item Item.
-	 * @param string       $column_name Column name.
-	 * @return string
-	 */
-	public function column_default( $item, $column_name ) {
-		switch ( $column_name ) {
-			case 'icon':
-			case 'name':
-			case 'description':
-				return '';
-			default:
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
-				return print_r( $item, true );
-		}
+	public function get_table_classes() {
+		return array( 'table', 'table-bordered', 'wp-list-table', 'widefat', 'fixed' );
 	}
 
 	/**

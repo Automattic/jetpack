@@ -11,6 +11,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
 
 /**
  * Adds the "Jetpack > Podcast" wp-admin screen.
@@ -20,17 +21,18 @@ class Admin_Page {
 	const ADMIN_PAGE_SLUG = 'jetpack-podcast';
 
 	/**
-	 * Where the Podcast item sits in the Jetpack submenu on self-hosted.
+	 * Where the Podcast item used to sit in the Jetpack submenu on self-hosted.
 	 *
-	 * Placed after content/product items like Newsletter and Search (10), and
-	 * above Activity Log (12) so Activity Log stays immediately before Settings (13).
+	 * Unread since Podcast registers without a position; kept so consumers do not fatal.
+	 *
+	 * @deprecated 2.1.1
 	 */
 	const MENU_POSITION = 11;
 
 	/**
 	 * Slug emitted by `@wordpress/build`. wp-build's auto-generated enqueue
 	 * callback only fires when `$screen->id` matches this value, so we alias
-	 * the screen id via `current_screen` without changing the user-facing URL.
+	 * the screen id around that check without changing the user-facing URL.
 	 */
 	const WP_BUILD_SLUG = 'jetpack-podcast-dashboard';
 
@@ -40,6 +42,20 @@ class Admin_Page {
 	 * @var bool
 	 */
 	private static $initialized = false;
+
+	/**
+	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
+	 *
+	 * @var string|null
+	 */
+	private static $wp_build_original_screen_id = null;
+
+	/**
+	 * The dashboard screen hide_jitms_on_wp_build_dashboard() opts out of JITMs.
+	 *
+	 * @var string|null
+	 */
+	private static $jitm_opt_out_screen_id = null;
 
 	/**
 	 * Wire admin hooks. Idempotent.
@@ -88,12 +104,18 @@ class Admin_Page {
 				'manage_options',
 				self::ADMIN_PAGE_SLUG,
 				$callback,
-				self::MENU_POSITION
+				null,
+				// Podcast has no My Jetpack product class, so the module is the only gate available.
+				array(
+					'module' => 'podcast',
+					'key'    => 'jetpack-podcast',
+				)
 			);
 		}
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+			self::opt_out_of_jitms( $page_suffix );
 		}
 	}
 
@@ -103,6 +125,25 @@ class Admin_Page {
 	public static function admin_init() {
 		// MediaUpload (cover-image-control) reads wp.media.view — only defined after this runs.
 		add_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
+	}
+
+	/**
+	 * Load the Tracks transport for the dashboard's client-side events.
+	 *
+	 * `jetpackAnalytics.tracks.recordEvent()` only pushes onto `window._tkq`,
+	 * which stays an inert array until `w.js` loads and drains it. Nothing
+	 * supplies that on Atomic or self-hosted, so without this the queue grows
+	 * for the life of the page. Simple is skipped because stats.php already
+	 * prints the same script on `admin_footer`, and loading it twice would
+	 * re-drain a queue that has already been flushed.
+	 */
+	public static function enqueue_tracks_transport() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 	}
 
 	/**
@@ -116,8 +157,7 @@ class Admin_Page {
 			return;
 		}
 
-		self::load_wp_build();
-		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		self::load_wp_build_with_screen_alias();
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_podcast_script_data' ) );
 	}
 
@@ -152,8 +192,10 @@ class Admin_Page {
 			'is_connected'        => $is_wpcom || ( new Connection_Manager( 'jetpack' ) )->is_connected(),
 			'show_url_hosts'      => Settings::SHOW_URL_HOSTS,
 			'show_url_max_length' => Settings::SHOW_URL_MAX_LENGTH,
+			'feed_limit_max'      => Settings::feed_limit_max(),
 			'preload'             => rest_preload_api_request( array(), '/wpcom/v2/podcast/settings' ),
 			'selected_category'   => self::get_selected_category(),
+			'tracks_user_data'    => self::get_tracks_user_data(),
 			'upgrade'             => array(
 				'product_slug' => $is_wpcom ? 'premium' : 'jetpack_growth_yearly',
 				'plan_name'    => $is_wpcom ? 'Premium' : 'Growth',
@@ -161,6 +203,32 @@ class Admin_Page {
 		);
 
 		return $data;
+	}
+
+	/**
+	 * Connected-user identity for Tracks, so client events aren't anonymous on
+	 * Atomic and self-hosted. Null on Simple, where stats.php already pushes
+	 * `identifyUser` before our bundle runs.
+	 *
+	 * Deliberately narrower than `get_connected_user_tracks_identity()`, which
+	 * also returns email, blogid and locale — none of which Tracks needs here.
+	 *
+	 * @return array{userid:mixed, username:mixed}|null
+	 */
+	private static function get_tracks_user_data() {
+		if ( ! class_exists( 'Jetpack_Tracks_Client' ) ) {
+			return null;
+		}
+
+		$identity = \Jetpack_Tracks_Client::get_connected_user_tracks_identity();
+		if ( ! is_array( $identity ) || ! isset( $identity['userid'] ) || ! isset( $identity['username'] ) ) {
+			return null;
+		}
+
+		return array(
+			'userid'   => $identity['userid'],
+			'username' => $identity['username'],
+		);
 	}
 
 	/**
@@ -208,16 +276,86 @@ class Admin_Page {
 	}
 
 	/**
-	 * Alias the current screen id to wp-build's expected slug.
+	 * Load wp-build with the screen ID aliased across its generated enqueue check.
 	 *
-	 * @param \WP_Screen|null $screen The current screen object (passed by WP).
+	 * @see WP_Build_Screen_Id::load_with_alias()
+	 * @return void
 	 */
-	public static function alias_screen_id_for_wp_build( $screen ) {
-		if ( ! is_object( $screen ) ) {
+	private static function load_wp_build_with_screen_alias() {
+		// Fallback: an older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
+		if ( method_exists( WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
+			WP_Build_Screen_Id::load_with_alias(
+				array( __CLASS__, 'alias_screen_id_for_wp_build' ),
+				array( __CLASS__, 'restore_screen_id_after_wp_build' ),
+				function () {
+					self::load_wp_build();
+				}
+			);
 			return;
 		}
 
-		$screen->id = self::WP_BUILD_SLUG;
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		self::load_wp_build();
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
+	}
+
+	/**
+	 * Alias the current screen id to wp-build's expected slug.
+	 *
+	 * @since 2.1.3 Takes no argument; hooked on `admin_enqueue_scripts`.
+	 */
+	public static function alias_screen_id_for_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
+			return;
+		}
+
+		self::$wp_build_original_screen_id = $screen->id;
+		$screen->id                        = self::WP_BUILD_SLUG;
+	}
+
+	/**
+	 * Undo alias_screen_id_for_wp_build(), so code after the generated check sees the real screen ID.
+	 *
+	 * @since 2.1.3
+	 */
+	public static function restore_screen_id_after_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen || null === self::$wp_build_original_screen_id ) {
+			return;
+		}
+
+		$screen->id                        = self::$wp_build_original_screen_id;
+		self::$wp_build_original_screen_id = null;
+	}
+
+	/**
+	 * Opt the dashboard's screen out of JITMs.
+	 *
+	 * @param string $screen_id The hook suffix the page was registered under, which is its screen ID.
+	 */
+	private static function opt_out_of_jitms( $screen_id ) {
+		self::$jitm_opt_out_screen_id = $screen_id;
+		add_filter( 'jetpack_display_jitms_on_screen', array( __CLASS__, 'hide_jitms_on_wp_build_dashboard' ), 10, 2 );
+	}
+
+	/**
+	 * Keep JITMs off the wp-build dashboard, which has no `#jp-admin-notices` to show them in.
+	 *
+	 * Fetching a JITM records a view, so one the page hides would still be counted.
+	 *
+	 * @since 2.1.3
+	 *
+	 * @param bool   $show      Whether to show JITMs on the screen.
+	 * @param string $screen_id The screen ID.
+	 * @return bool
+	 */
+	public static function hide_jitms_on_wp_build_dashboard( $show, $screen_id ) {
+		if ( null !== self::$jitm_opt_out_screen_id && self::$jitm_opt_out_screen_id === $screen_id ) {
+			return false;
+		}
+
+		return $show;
 	}
 
 	/**

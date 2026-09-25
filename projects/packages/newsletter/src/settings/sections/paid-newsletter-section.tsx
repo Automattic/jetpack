@@ -3,10 +3,9 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import { getSiteType } from '@automattic/jetpack-script-data';
-import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Card, Text } from '@wordpress/ui';
+import { Button, Card, LinkButton, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -18,14 +17,7 @@ interface PaidNewsletterSectionProps {
 }
 
 /**
- * Paid Newsletter Section Component
- *
- * Uses `@wordpress/components` Button + a native `<fieldset>` because this is
- * the one button-as-link case in the dashboard. WP UI's Button rendered as
- * `<a>` (`render={ <a /> }`) inherits wp-admin's global `a { color: #2271b1 }`
- * — that rule is unlayered, while WP UI's button color sits in
- * `@layer wp-ui-components`, and unlayered always wins over layered. Worth a
- * Gutenberg-side fix; out of scope for this PR.
+ * Paid Newsletter Section Component.
  *
  * @param {PaidNewsletterSectionProps} props - Component props
  * @return {JSX.Element | null} The paid newsletter section or null if URL not available
@@ -60,27 +52,28 @@ export function PaidNewsletterSection( {
 				<Card.Title>{ __( 'Paid newsletter', 'jetpack-newsletter' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
-				<p>
-					<Text>
+				<Stack direction="column" gap="xl" align="start">
+					<Text variant="body-md" render={ <p /> }>
 						{ __(
 							'Earn money through your Newsletter. Reward your most loyal subscribers with exclusive content or add a paywall to monetize content.',
 							'jetpack-newsletter'
 						) }
 					</Text>
-				</p>
-				<fieldset disabled={ ! isNewsletterEnabled }>
-					<Button
-						__next40pxDefaultSize
-						variant="primary"
-						href={ newsletterScriptData.setupPaymentPlansUrl }
-						target="_blank"
-						rel="noopener noreferrer"
-						disabled={ ! isNewsletterEnabled }
-						onClick={ handlePaidPlansClick }
-					>
-						{ buttonText }
-					</Button>
-				</fieldset>
+					{ isNewsletterEnabled ? (
+						<LinkButton
+							variant="solid"
+							href={ newsletterScriptData.setupPaymentPlansUrl }
+							openInNewTab
+							onClick={ handlePaidPlansClick }
+						>
+							{ buttonText }
+						</LinkButton>
+					) : (
+						<Button variant="solid" disabled>
+							{ buttonText }
+						</Button>
+					) }
+				</Stack>
 			</Card.Content>
 		</Card.Root>
 	);

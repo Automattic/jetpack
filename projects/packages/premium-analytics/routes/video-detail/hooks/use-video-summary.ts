@@ -2,11 +2,14 @@
  * External dependencies
  */
 import { useStatsSingleVideo } from '@jetpack-premium-analytics/data';
+import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { useCallback } from '@wordpress/element';
 
 export type VideoSummary = {
 	title?: string;
 	publishedDate?: string;
+	/** The video's poster-frame URL, when the endpoint returns a safe http(s) one. */
+	posterUrl?: string;
 	isLoading: boolean;
 	/** Whether the single-video request failed — the page must not present a fallback title as real data. */
 	isError: boolean;
@@ -41,6 +44,9 @@ export function useVideoSummary( videoId: number ): VideoSummary {
 	return {
 		title: post?.title,
 		publishedDate: post?.date,
+		// The poster is remote report data used verbatim as an image source, so
+		// it goes through the shared http(s) guard like every other report URL.
+		posterUrl: safeHttpUrl( post?.poster ) ?? undefined,
 		isLoading,
 		isError,
 		isNotFound: isSuccess && ( ! hasValidId || ! isVideoMimeType ),

@@ -1,31 +1,64 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets\Logo;
-use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
 require_once __DIR__ . '/class.jetpack-admin-page.php';
-require_once __DIR__ . '/class-jetpack-redux-state-helper.php';
 
 /**
- * Builds the landing page and its menu.
+ * Registers the Jetpack menu parent, whose page only redirects.
  */
 class Jetpack_React_Page extends Jetpack_Admin_Page {
 	/**
-	 * Show the landing page only when Jetpack is connected.
+	 * Register the menu parent before the site connects too.
 	 *
 	 * @var bool
 	 */
 	protected $dont_show_if_not_active = false;
 
 	/**
-	 * Used for fallback when REST API is disabled.
+	 * Legacy hashes the Settings page renders; they forward there with their hash.
 	 *
-	 * @var bool
+	 * Mirrors `settingsRoutes` in `_inc/client/main.jsx`, plus the connection screens.
+	 *
+	 * @since $$next-version$$
+	 * @var string[]
 	 */
-	protected $is_redirecting = false;
+	const SETTINGS_ROUTES = array(
+		'/settings',
+		'/security',
+		'/performance',
+		'/writing',
+		'/sharing',
+		'/discussion',
+		'/earn',
+		'/reader',
+		'/traffic',
+		'/privacy',
+		'/setup',
+		'/connect-user',
+		'/connect-user-setup',
+	);
+
+	/**
+	 * Forwards Settings hashes with their hash, maps known routes, and falls back for the rest.
+	 *
+	 * @var string
+	 */
+	const LEGACY_ROUTE_REDIRECT_SCRIPT = <<<'JS'
+function ( settings, forward, routes, fallback ) {
+	var hash = window.location.hash;
+	var path = hash.replace( /^#\/?/, '/' ).split( '?' )[ 0 ] || '/';
+	var target = fallback;
+	if ( forward.indexOf( path ) !== -1 ) {
+		target = settings + hash;
+	} else if ( Object.prototype.hasOwnProperty.call( routes, path ) ) {
+		target = routes[ path ];
+	}
+	window.location.replace( target );
+}
+JS;
 
 	/**
 	 * Add the main admin Jetpack menu.
@@ -33,7 +66,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @return string|false Return value from WordPress's `add_menu_page()`.
 	 */
 	public function get_page_hook() {
-		$icon = ( new Logo() )->get_base64_logo();
+		$logo = new Logo();
+		// Keep this fallback in sync with Jetpack_Network::add_network_admin_menu().
+		$icon = method_exists( $logo, 'get_base64_admin_menu_logo' ) ? $logo->get_base64_admin_menu_logo() : $logo->get_base64_logo();
 		return add_menu_page( 'Jetpack', 'Jetpack', 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), $icon, 3 );
 	}
 
@@ -60,14 +95,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			return; // No need to handle the fallback redirection if we are not on the Jetpack page.
 		}
 
-		// Adding a redirect meta tag if the REST API is disabled.
-		if ( ! $this->is_rest_api_enabled() ) {
-			$this->is_redirecting = true;
-			add_action( 'admin_head', array( $this, 'add_fallback_head_meta' ) );
-		}
-
-		// Adding a redirect meta tag wrapped in noscript tags for all browsers in case they have JavaScript disabled.
-		add_action( 'admin_head', array( $this, 'add_noscript_head_meta' ) );
+		// After the action handlers and the connection controller, which exit when they act.
+		add_action( "load-$hook", array( $this, 'render_redirect_document' ), PHP_INT_MAX );
 
 		// If this is the first time the user is viewing the admin, don't show JITMs.
 		// This filter is added just in time because this function is called on admin_menu
@@ -99,137 +128,183 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Determine whether a user can access the Jetpack Settings page.
+	 * Where links into page=jetpack land.
 	 *
-	 * Rules are:
-	 * - user is allowed to see the Jetpack Admin
-	 * - site is connected or in offline mode
-	 * - non-admins only need access to the settings when there are modules they can manage.
+	 * Settings hashes keep their hash on the Settings page. Admins go to My Jetpack
+	 * wherever it runs; everyone else, and a request with a pending error, lands on
+	 * Settings. While the partner coupon screen applies, every route goes there.
 	 *
-	 * @return bool $can_access_settings Can the user access settings.
+	 * @return array{settings: string, forward: string[], routes: array<string, string>, fallback: string}
 	 */
-	private function can_access_settings() {
-		$connection = new Connection_Manager( 'jetpack' );
-		$status     = new Status();
-
-		// User must have the necessary permissions to see the Jetpack settings pages.
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			return false;
-		}
-
-		// In offline mode, allow access to admins.
-		if ( $status->is_offline_mode() && current_user_can( 'manage_options' ) ) {
-			return true;
-		}
-
-		// If not in offline mode but site is not connected, bail.
-		if ( ! Jetpack::is_connection_ready() ) {
-			return false;
-		}
-
-		/*
-		 * Additional checks for non-admins.
-		*/
-		if ( ! current_user_can( 'manage_options' ) ) {
-			// If the site isn't connected at all, bail.
-			if ( ! $connection->has_connected_owner() ) {
-				return false;
-			}
-
-			/*
-			 * If they haven't connected their own account yet,
-			 * they have no use for the settings page.
-			 * They will not be able to manage any settings.
-			 */
-			if ( ! $connection->is_user_connected() ) {
-				return false;
-			}
-
-			/*
-			 * Non-admins only have access to settings
-			 * for the following modules:
-			 * - Publicize
-			 * - Post By Email
-			 * If those modules are not available, bail.
-			 */
-			if (
-				! Jetpack::is_module_active( 'post-by-email' )
-					&& (
-						! Jetpack::is_module_active( 'publicize' ) ||
-						! current_user_can( 'publish_posts' )
-					)
-			) {
-				return false;
-			}
-		}
-
-		// fallback.
-		return true;
-	}
-
-	/**
-	 * Jetpack Settings sub-link.
-	 *
-	 * @since 4.3.0
-	 * @since 9.7.0 If Connection does not have an owner, restrict it to admins
-	 */
-	public function jetpack_add_settings_sub_nav_item() {
-		if ( $this->can_access_settings() ) {
-			Admin_Menu::add_menu(
-				__( 'Settings', 'jetpack' ),
-				__( 'Settings', 'jetpack' ),
-				'jetpack_admin_page',
-				Jetpack::admin_url( array( 'page' => 'jetpack#/settings' ) ),
-				null,
-				13
+	public static function get_legacy_route_redirects() {
+		$settings_url  = admin_url( 'admin.php?page=jetpack-settings' );
+		$coupon_screen = self::get_partner_coupon_redirect();
+		if ( $coupon_screen ) {
+			return array(
+				'settings' => $settings_url,
+				'forward'  => array(),
+				'routes'   => array(),
+				'fallback' => $coupon_screen,
 			);
 		}
-	}
 
-	/**
-	 * Fallback redirect meta tag if the REST API is disabled.
-	 *
-	 * @return void
-	 */
-	public function add_fallback_head_meta() {
-		echo '<meta http-equiv="refresh" content="0; url=?page=jetpack_modules">';
-	}
+		$table = array(
+			'settings' => $settings_url,
+			'forward'  => self::SETTINGS_ROUTES,
+			'routes'   => array(),
+			'fallback' => $settings_url,
+		);
 
-	/**
-	 * Fallback meta tag wrapped in noscript tags for all browsers in case they have JavaScript disabled.
-	 *
-	 * @return void
-	 */
-	public function add_noscript_head_meta() {
-		echo '<noscript>';
-		$this->add_fallback_head_meta();
-		echo '</noscript>';
-	}
-
-	/**
-	 * Add action to render page specific HTML.
-	 *
-	 * @return void
-	 */
-	public function page_render() {
-		/** This action is already documented in class.jetpack-admin-page.php */
-		do_action( 'jetpack_notices' );
-
-		// Fetch static.html.
-		$static_html = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static.html' ); //phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, Not fetching a remote file.
-
-		if ( false === $static_html ) {
-
-			// If we still have nothing, display an error.
-			echo '<p>';
-			esc_html_e( 'Error fetching static.html. Try running: ', 'jetpack' );
-			echo '<code>pnpm run distclean && pnpm jetpack build plugins/jetpack</code>';
-			echo '</p>';
-		} else {
-			// We got the static.html so let's display it.
-			echo $static_html; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		if ( ! self::should_redirect_legacy_routes() ) {
+			return $table;
 		}
+
+		$pricing_url     = Redirect::get_url( 'jetpack-plans' );
+		$table['routes'] = array(
+			'/plans'        => $pricing_url,
+			'/plans-prompt' => $pricing_url,
+			'/newsletter'   => admin_url( 'admin.php?page=jetpack-newsletter' ),
+		);
+
+		if ( self::can_use_my_jetpack() ) {
+			$my_jetpack = admin_url( 'admin.php?page=my-jetpack' );
+
+			foreach ( array( 'akismet', 'backup', 'scan', 'search', 'security', 'videopress' ) as $product ) {
+				$table['routes'][ '/product/' . $product ] = $my_jetpack . '#/add-' . $product;
+			}
+
+			$table['routes']['/license/activation'] = $my_jetpack . '#/add-license';
+
+			foreach ( array( '/reconnect', '/disconnect', '/woo-setup' ) as $route ) {
+				$table['routes'][ $route ] = $my_jetpack . '#/connection';
+			}
+
+			$table['fallback'] = $my_jetpack;
+		}
+
+		return $table;
 	}
+
+	/**
+	 * Whether this request may leave Settings.
+	 *
+	 * @return bool
+	 */
+	public static function should_redirect_legacy_routes() {
+		// A pending error only renders via the Settings app's state notices.
+		return ! Jetpack::state( 'error' );
+	}
+
+	/**
+	 * Print the legacy route redirect; it runs in the browser because the server never sees the hash.
+	 */
+	public function print_legacy_route_redirect() {
+		$table = self::get_legacy_route_redirects();
+		$flags = JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP;
+
+		wp_print_inline_script_tag(
+			sprintf(
+				'( %s )( %s, %s, %s, %s );',
+				self::LEGACY_ROUTE_REDIRECT_SCRIPT,
+				wp_json_encode( $table['settings'], $flags ),
+				wp_json_encode( $table['forward'], $flags ),
+				wp_json_encode( (object) $table['routes'], $flags ),
+				wp_json_encode( $table['fallback'], $flags )
+			)
+		);
+	}
+
+	/**
+	 * Replace page=jetpack with the redirect document; nothing else renders here.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return never
+	 */
+	public function render_redirect_document() {
+		$table = self::get_legacy_route_redirects();
+		if ( $table['settings'] === $table['fallback'] ) {
+			// Settings renders this request's notices, so its state must survive the hop.
+			Jetpack::restate();
+		}
+
+		$this->print_redirect_document();
+		exit( 0 );
+	}
+
+	/**
+	 * Print a bare document that only redirects.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function print_redirect_document() {
+		?>
+<!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+<meta charset="<?php echo esc_attr( get_bloginfo( 'charset' ) ); ?>">
+<title>Jetpack</title><?php // "Jetpack" is a product name, do not translate. ?>
+		<?php
+		if ( $this->is_rest_api_enabled() ) {
+			$this->print_legacy_route_redirect();
+			$this->add_noscript_head_meta();
+		} else {
+			$this->add_fallback_head_meta();
+		}
+		?>
+</head>
+<body></body>
+</html>
+		<?php
+	}
+
+	/**
+	 * Whether My Jetpack can take over for the current user.
+	 *
+	 * @return bool
+	 */
+	private static function can_use_my_jetpack() {
+		return current_user_can( 'manage_options' )
+			&& class_exists( 'Automattic\Jetpack\My_Jetpack\Initializer' )
+			&& method_exists( 'Automattic\Jetpack\My_Jetpack\Initializer', 'should_initialize' )
+			&& \Automattic\Jetpack\My_Jetpack\Initializer::should_initialize();
+	}
+
+	/**
+	 * The My Jetpack coupon screen, while it should replace this page.
+	 *
+	 * An older My Jetpack bounces showCouponRedemption back here, so only forward to one that renders it.
+	 *
+	 * @return string|null
+	 */
+	private static function get_partner_coupon_redirect() {
+		if (
+			! class_exists( 'Automattic\Jetpack\My_Jetpack\Initializer' )
+			|| ! method_exists( 'Automattic\Jetpack\My_Jetpack\Initializer', 'get_partner_coupon_screen' )
+			|| null === \Automattic\Jetpack\My_Jetpack\Initializer::get_partner_coupon_screen()
+		) {
+			return null;
+		}
+
+		return admin_url( 'admin.php?page=my-jetpack&showCouponRedemption=1' );
+	}
+
+	/**
+	 * Formerly added the Settings sub-link.
+	 *
+	 * @since 4.3.0
+	 * @deprecated $$next-version$$ Jetpack_Settings_React_Page registers the Settings page.
+	 */
+	public function jetpack_add_settings_sub_nav_item() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+	}
+
+	/**
+	 * Nothing renders here: render_redirect_document() exits on load.
+	 *
+	 * @return void
+	 */
+	public function page_render() {}
 	/**
 	 * Allow robust deep links to React.
 	 *
@@ -248,7 +323,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		}
 
 		$allowed_paths = array(
-			'product-purchased' => admin_url( '/admin.php?page=jetpack#/recommendations/product-purchased' ),
+			'product-purchased' => admin_url( 'admin.php?page=jetpack' ),
 		);
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -260,63 +335,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Load styles for static page.
+	 * Nothing loads here: render_redirect_document() exits on load.
 	 */
-	public function additional_styles() {
-		Jetpack_Admin_Page::load_wrapper_styles();
-	}
-
-	/**
-	 * Load admin page scripts.
-	 */
-	public function page_admin_scripts() {
-		if ( $this->is_redirecting ) {
-			return; // No need for scripts on a fallback page.
-		}
-
-		$status              = new Status();
-		$is_offline_mode     = $status->is_offline_mode();
-		$site_suffix         = $status->get_site_suffix();
-		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin.asset.php';
-		$script_dependencies = array( 'jquery', 'wp-polyfill' );
-		$version             = JETPACK__VERSION;
-		if ( file_exists( $script_deps_path ) ) {
-			$asset_manifest      = include $script_deps_path;
-			$script_dependencies = $asset_manifest['dependencies'];
-			$version             = $asset_manifest['version'];
-		}
-
-		$blog_id_prop = '';
-		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
-			$blog_id = Connection_Manager::get_site_id( true );
-			if ( $blog_id ) {
-				$blog_id_prop = ', currentBlogID: "' . (int) $blog_id . '"';
-			}
-		}
-
-		wp_enqueue_script(
-			'react-plugin',
-			plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
-			$script_dependencies,
-			$version,
-			true
-		);
-
-		if ( ! $is_offline_mode && Jetpack::is_connection_ready() ) {
-			// Required for Analytics.
-			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
-		}
-
-		wp_set_script_translations( 'react-plugin', 'jetpack' );
-
-		// Add objects to be passed to the initial state of the app.
-		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
-		wp_add_inline_script( 'react-plugin', 'var Initial_State=' . wp_json_encode( Jetpack_Redux_State_Helper::get_initial_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';', 'before' );
-
-		// This will set the default URL of the jp_redirects lib.
-		wp_add_inline_script( 'react-plugin', 'var jetpack_redirects = { currentSiteRawUrl: "' . $site_suffix . '"' . $blog_id_prop . ' };', 'before' );
-
-		// Adds Connection package initial state.
-		Connection_Initial_State::render_script( 'react-plugin' );
-	}
+	public function page_admin_scripts() {}
 }

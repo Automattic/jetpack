@@ -1,4 +1,5 @@
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
@@ -56,7 +57,7 @@ export interface StatsTagsItem extends StatsNormalizedItemBase< StatsTagsChildIt
 const tagIcon = ( type: unknown ) => ( type === 'category' ? 'folder' : String( type ?? '' ) );
 
 function getTagName( tag: StatsRecord ): string {
-	return typeof tag.name === 'string' ? tag.name : '';
+	return decodeHtmlText( tag.name, '' );
 }
 
 function getTagLink( tag: StatsRecord ): string | null {
@@ -75,7 +76,7 @@ function normalizeStatsTagsItem( item: StatsRecord ): StatsTagsItem {
 	return {
 		label: labels,
 		labelText: labels.map( label => label.label ).join( ', ' ),
-		link: hasChildren ? null : labels[ 0 ]?.link ?? null,
+		link: hasChildren ? null : ( labels[ 0 ]?.link ?? null ),
 		value: safeParseFloat( item.views ),
 		...( hasChildren
 			? {
@@ -86,7 +87,7 @@ function normalizeStatsTagsItem( item: StatsRecord ): StatsTagsItem {
 						link: getTagLink( tag ),
 						children: null,
 					} ) ),
-			  }
+				}
 			: {} ),
 	};
 }

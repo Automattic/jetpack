@@ -45,8 +45,21 @@ describe( 'useReportCsvExport', () => {
 		expect( rows ).toEqual( originalRows );
 	} );
 
+	it( 'uses the prefix as the filename for an all-time report', () => {
+		const rows = [ { title: 'Post', views: 1 } ];
+		const { result } = renderHook( () =>
+			useReportCsvExport( {
+				rows,
+				filenamePrefix: 'annual-insights',
+				status: readyStatus,
+			} )
+		);
+
+		expect( result.current.filename ).toBe( 'annual-insights' );
+	} );
+
 	it.each( [
-		[ 'the feature is disabled', false, readyStatus, [ { title: 'Post', views: 1 } ] ],
+		[ 'the server disables CSV exports', false, readyStatus, [ { title: 'Post', views: 1 } ] ],
 		[ 'there are no rows', true, readyStatus, [] ],
 		[
 			'the report is loading',

@@ -5,6 +5,95 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.0] - 2026-09-21
+### Changed
+- Daily Writing Prompt: Stop offering the Write editor after a switch to the Block editor. [#52230]
+- Exclude source map files from the distributed package. [#52304]
+- Update package dependencies. [#52187]
+
+### Fixed
+- Dashboard: Restore the admin screen ID after the wp-build enqueue check. [#52471]
+
+## [0.15.0] - 2026-09-15
+### Added
+- Daily Writing Prompt: Add a "Freshly Pressed" tab listing the posts WordPress.com is currently featuring. [#52077]
+- Subscribers: Show a dismissible notice on WordPress.com sites explaining why subscriber counts may have changed. [#52233]
+- Subscriptions: Add an Action Bar visibility toggle on WordPress.com Simple sites. [#52136]
+
+### Changed
+- Hide the Newsletter sidebar item when Newsletter is not active. [#52156]
+- Update package dependencies. [#52200] [#52297]
+
+## [0.14.1] - 2026-09-09
+### Changed
+- Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+
+## [0.14.0] - 2026-09-08
+### Changed
+- Update package dependencies. [#51701]
+- Writing Prompt: Open the Write editor to answer a prompt on WordPress.com sites. [#51671]
+
+### Removed
+- Remove the transitional Subscribers announcement page and redirect its URL to Newsletter. [#51906]
+
+## [0.13.0] - 2026-09-01
+### Changed
+- Make writing-prompt, paid-plan, and subscribers-announcement actions real links. [#51558]
+- Update package dependencies. [#51303] [#51802]
+
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+### Fixed
+- Prevent unsupported date filtering on the Subscribers page. [#51782]
+
+## [0.12.7] - 2026-08-25
+### Changed
+- Update dependencies. [#51423]
+
+## [0.12.6] - 2026-08-20
+### Changed
+- Update dependencies. [#51423]
+
+## [0.12.5] - 2026-08-20
+### Changed
+- Update package dependencies. [#51190] [#51399]
+
+### Fixed
+- Make newsletter settings save feedback consistent and allow sender settings to save with Enter. [#51261]
+- Newsletter: Fix a fatal error on the settings page caused by Gutenberg removing a private API that DataViews toggle and radio fields relied on. [#51363]
+- Normalize spacing in Newsletter settings cards. [#51264]
+
+## [0.12.4] - 2026-08-10
+### Changed
+- Update package dependencies. [#50509] [#51008]
+
+### Fixed
+- Fix the settings page rendering blank on WordPress 6.9. [#50509]
+- Subscribers: Remove the misleading "Joined" field from the subscriber profile, which showed the site's creation date rather than a per-subscriber date. [#51054]
+- Subscribers: Restore the option to assign imported subscribers to specific newsletter categories on CSV upload and manual add. [#51007]
+- Subscribers: Show your own subscription in the list instead of an empty state when you are the only subscriber, with a prompt pointing at the Add subscribers button. [#50923]
+
+## [0.12.3] - 2026-08-03
+### Changed
+- Categories: Deep-link the subscribe block help text to the "Subscribe to specific categories" section. [#50937]
+
+### Fixed
+- Categories: Add categories inline instead of linking out to wp-admin, so a new category appears and is selected without a page refresh. [#50878]
+- Load JS translation catalogs and stamp the package text domain on the wp-build dashboard bundles. [#50762]
+- Only show the Subscribers announcement page on sites that predate the Subscribers move. [#50874]
+- Remove the Subscribers announcement page entirely on sites that postdate the Subscribers move, instead of leaving an unstyled fallback page behind. [#50874]
+- Subscribe modal heading: Remove the duplicated "Button only" note from the card description. [#50974]
+- Subscribers: Show the newsletter categories a subscriber receives emails for, and restore the missing subscription date, in the subscriber details panel. [#50877]
+
+## [0.12.2] - 2026-07-27
+### Changed
+- Update package dependencies. [#50751] [#50753]
+
+### Fixed
+- Register wp-build polyfills on the legacy settings page so the admin bundle loads when the wp-theme script handle isn't registered. [#50587]
+- Subscribers dashboard: Refresh the subscriber list automatically once an import finishes and show a success or failure notice, without requiring a page reload. [#50756]
+
 ## [0.12.1] - 2026-07-20
 ### Changed
 - Refresh the Daily Writing Prompt widget layout and fix its styling on self-hosted Jetpack. [#50500]
@@ -289,6 +378,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.16.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.15.0...v0.16.0
+[0.15.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.14.1...v0.15.0
+[0.14.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.14.0...v0.14.1
+[0.14.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.13.0...v0.14.0
+[0.13.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.7...v0.13.0
+[0.12.7]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.6...v0.12.7
+[0.12.6]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.5...v0.12.6
+[0.12.5]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.4...v0.12.5
+[0.12.4]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.3...v0.12.4
+[0.12.3]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.2...v0.12.3
+[0.12.2]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.1...v0.12.2
 [0.12.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.11.2...v0.12.0
 [0.11.2]: https://github.com/Automattic/jetpack-newsletter/compare/v0.11.1...v0.11.2

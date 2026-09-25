@@ -36,14 +36,8 @@ export function reportProductsQuery(
 			return sanitizeReportProductsResponse( response );
 		},
 
-		/**
-		 * Enable the query only if the from and to are set.
-		 */
 		enabled: !! ( params.from && params.to ),
 
-		/**
-		 * Keep previous data while fetching new data to prevent blank states
-		 */
 		placeholderData: previousData => previousData,
 	};
 }

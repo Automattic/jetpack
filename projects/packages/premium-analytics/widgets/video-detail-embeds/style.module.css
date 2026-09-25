@@ -6,10 +6,9 @@
 	overflow: hidden;
 }
 
-/* Hosts the WidgetState (or the no-video prompt); its `.ready` wrapper fills
+/* Hosts the WidgetState (or the no-video prompt); its `.root` wrapper fills
    this box so the list can scroll within the widget frame. */
 .content {
-	position: relative;
 	display: flex;
 	flex-direction: column;
 	flex: 1 1 0;
@@ -42,7 +41,7 @@
 	display: block;
 	min-block-size: 36px;
 	padding-block: var(--wpds-dimension-padding-sm);
-	padding-inline: var(--wpds-dimension-padding-sm);
+	padding-inline: var(--wpds-dimension-padding-md);
 	overflow: hidden;
 	color: var(--wpds-color-foreground-interactive-brand);
 	text-overflow: ellipsis;

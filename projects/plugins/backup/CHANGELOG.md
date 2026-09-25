@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [3.9] - 2026-08-11
+### Added
+- Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed. [#51154]
+
+### Changed
+- General: Update composer.lock files. [#48743]
+- General: Update minimum WordPress version to 6.9. [#49021]
+- Tested up to WordPress 7.0. [#48114]
+- Update composer.lock files. [#49415]
+- Updated package dependencies. [#48735] [#49793] [#48064] [#48329] [#48683] [#49448] [#50436]
+
+### Fixed
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active. [#49994]
+
 ## [3.8] - 2026-04-11
 ### Added
 - Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
@@ -362,6 +376,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Use `absoluteRuntime` in babel JS build to avoid module not found errors.
 
 [2.2-beta]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.1...2.2-beta
+[3.9]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.8...3.9
 [3.8]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.7.1...3.8
 [3.7.1]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.6...3.7.1
 [3.6]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.5...3.6

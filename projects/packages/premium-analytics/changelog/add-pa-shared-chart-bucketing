@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stats reports: keep data requests day-bucketed and group chart intervals client-side via a shared helper; fixes the Posts report table totals changing with the chart interval.

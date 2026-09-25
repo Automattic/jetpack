@@ -1,4 +1,7 @@
 import { useMemo } from 'react';
+// Imported from the module rather than the `providers` barrel: that barrel pulls
+// `use-chart-registration`, which imports this file's own barrel back.
+import { useChartFormatting } from '../providers/chart-context/hooks/use-chart-formatting';
 import { parseAsLocalDate } from '../utils';
 import type { SeriesData } from '../types';
 
@@ -7,7 +10,7 @@ import type { SeriesData } from '../types';
  *
  * This hook extracts the common data transformation logic used in both line-chart
  * and bar-chart components. It:
- * 1. Parses date strings into Date objects using parseAsLocalDate
+ * 1. Parses date strings into Date objects, dated in the provider's time zone
  * 2. Sorts data points by date when date properties are present
  * 3. Returns the original data unchanged when no date properties are found
  *
@@ -15,6 +18,10 @@ import type { SeriesData } from '../types';
  * @return {SeriesData[]} The transformed and sorted data
  */
 export const useChartDataTransform = ( data: SeriesData[] ) => {
+	// A naive `dateString` names no zone, so without this it would be read in the
+	// viewer's and then relabeled in the host's, and the two never cancel.
+	const { timeZone } = useChartFormatting();
+
 	return useMemo( () => {
 		// Check if the first data point has date or dateString properties
 		const firstPoint = data?.[ 0 ]?.data?.[ 0 ];
@@ -35,7 +42,7 @@ export const useChartDataTransform = ( data: SeriesData[] ) => {
 					if ( 'date' in point && point.date ) {
 						date = point.date;
 					} else if ( 'dateString' in point && point.dateString ) {
-						date = parseAsLocalDate( point.dateString );
+						date = parseAsLocalDate( point.dateString, timeZone );
 					}
 
 					return {
@@ -48,5 +55,5 @@ export const useChartDataTransform = ( data: SeriesData[] ) => {
 					return a.date.getTime() - b.date.getTime();
 				} ),
 		} ) );
-	}, [ data ] );
+	}, [ data, timeZone ] );
 };

@@ -53,7 +53,7 @@ export default function UpsellPage( { isLoading = false } ) {
 	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
 	const checkSiteHasSearchProduct = useCallback( () => {
 		restApi.setApiNonce( APINonce );
-		return fetchSearchPlanInfo().then( response => response?.supports_search );
+		return fetchSearchPlanInfo().then( response => response?.supports_instant_search );
 	}, [ APINonce, fetchSearchPlanInfo ] );
 
 	const { run: sendToCartPaid, hasCheckoutStarted: hasCheckoutStartedPaid } =
@@ -153,7 +153,7 @@ const OldPricingComponent = ( { sendToCart } ) => {
 		<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 			{ hasConnectionError && (
 				<Col lg={ 12 } md={ 12 } sm={ 12 }>
-					<ConnectionError />
+					<ConnectionError trackingContext="search" />
 				</Col>
 			) }
 			<Col lg={ 6 } md={ 6 } sm={ 4 }>
@@ -220,7 +220,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 		: new Intl.NumberFormat( localeSlug, {
 				notation: 'compact',
 				compactDisplay: 'short',
-		  } ).format( paidRequestsLimitRaw );
+			} ).format( paidRequestsLimitRaw );
 
 	const unitPrice = useSelect( select => select( STORE_ID ).getAdditionalUnitPrice(), [] );
 	const unitQuantityRaw = useSelect( select => select( STORE_ID ).getAdditionalUnitQuantity(), [] );
@@ -233,7 +233,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 		<Container horizontalSpacing={ 8 } className="jp-search-upsell-container">
 			{ hasConnectionError && (
 				<Col lg={ 12 } md={ 12 } sm={ 12 }>
-					<ConnectionError />
+					<ConnectionError trackingContext="search" />
 				</Col>
 			) }
 
@@ -564,7 +564,7 @@ const searchBlocksPricingItems = [
 const aiAnswersPricingItems = [
 	{
 		id: 'ai-answers',
-		name: __( 'AI Answers (Preview)', 'jetpack-search-pkg' ),
+		name: __( 'AI Answers', 'jetpack-search-pkg' ),
 		tooltipInfo: __(
 			'Let visitors ask a question and get an instant, AI-generated answer drawn from your own content — right at the top of the search results.',
 			'jetpack-search-pkg'

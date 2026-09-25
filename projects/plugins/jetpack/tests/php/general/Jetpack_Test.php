@@ -110,8 +110,8 @@ class Jetpack_Test extends WP_UnitTestCase {
 	 * Make sure that MockJetpack creates separate instances of `Jetpack` and `Automattic\Jetpack\Connection\Manager`.
 	 */
 	public function test_static_binding() {
-		$this->assertNotEquals( spl_object_hash( MockJetpack::init() ), spl_object_hash( Jetpack::init() ) );
-		$this->assertNotEquals( spl_object_hash( MockJetpack::connection() ), spl_object_hash( Jetpack::connection() ) );
+		$this->assertNotEquals( spl_object_id( MockJetpack::init() ), spl_object_id( Jetpack::init() ) );
+		$this->assertNotEquals( spl_object_id( MockJetpack::connection() ), spl_object_id( Jetpack::connection() ) );
 	}
 
 	/**
@@ -1156,5 +1156,143 @@ EXPECTED;
 		Jetpack_Options::update_option( 'version', '10.5' );
 		Jetpack::plugin_deactivation();
 		$this->assertFalse( Jetpack_Options::get_option( 'version' ) );
+	}
+
+	/**
+	 * The Connection package fetches the site record and announces it; the plugin is what turns
+	 * that into a refreshed plan. This drives the whole path — the hook registration, the
+	 * response envelope the callback rebuilds, and Current_Plan consuming it — so breaking any
+	 * one of the three fails here rather than silently leaving the plan stale.
+	 */
+	public function test_site_data_action_refreshes_the_cached_plan() {
+		delete_option( 'jetpack_active_plan' );
+		delete_option( 'jetpack_site_products' );
+
+		do_action(
+			'jetpack_site_data_fetched',
+			array(
+				'ID'       => 1234,
+				'plan'     => array( 'product_slug' => 'jetpack_security_t1_yearly' ),
+				'products' => array( array( 'product_slug' => 'jetpack_backup_t1_yearly' ) ),
+			)
+		);
+
+		$this->assertSame(
+			array( 'product_slug' => 'jetpack_security_t1_yearly' ),
+			get_option( 'jetpack_active_plan' ),
+			'The plan from the site record should be cached.'
+		);
+		$this->assertSame(
+			array( array( 'product_slug' => 'jetpack_backup_t1_yearly' ) ),
+			get_option( 'jetpack_site_products' ),
+			'The products from the site record should be cached.'
+		);
+	}
+
+	/**
+	 * A body with no plan must leave the cached plan alone rather than clearing it, otherwise a
+	 * partial response would downgrade the site.
+	 */
+	public function test_site_data_action_keeps_the_plan_when_the_record_has_none() {
+		update_option( 'jetpack_active_plan', array( 'product_slug' => 'jetpack_complete' ) );
+
+		do_action( 'jetpack_site_data_fetched', array( 'ID' => 1234 ) );
+
+		$this->assertSame(
+			array( 'product_slug' => 'jetpack_complete' ),
+			get_option( 'jetpack_active_plan' )
+		);
+	}
+
+	/**
+	 * Data provider for test_get_registration_error_description.
+	 *
+	 * @return array
+	 */
+	public static function provider_registration_error_description() {
+		$long         = str_repeat( 'a', 400 );
+		$real_message = 'Jetpack experienced an issue trying to save options (cannot_save_secrets). We suggest that you contact your hosting provider, and ask them for help checking that the options table is writable on your site.';
+
+		return array(
+			'a status code is not copy'         => array( 'wpcom_5??', '503', '' ),
+			'a status code as an int'           => array( 'wpcom_408', 408, '' ),
+			'the jetpack_id response body'      => array( 'jetpack_id', 'Error Details: Jetpack ID is empty. Do not publicly post this error message! {"body":"..."}', '' ),
+			'a real message is kept'            => array( 'cannot_save_secrets', $real_message, $real_message ),
+			'an empty message stays empty'      => array( 'missing_secrets', '', '' ),
+			'an over-long message is truncated' => array( 'some_code', $long, str_repeat( 'a', 250 ) ),
+		);
+	}
+
+	/**
+	 * @param string     $error_code The error code.
+	 * @param string|int $message    The error message.
+	 * @param string     $expected   The expected description.
+	 * @dataProvider provider_registration_error_description
+	 */
+	#[DataProvider( 'provider_registration_error_description' )]
+	public function test_get_registration_error_description( $error_code, $message, $expected ) {
+		$this->assertSame( $expected, Jetpack::get_registration_error_description( $error_code, $message ) );
+	}
+
+	/**
+	 * Truncation must not split a multibyte character, or the notice renders a replacement glyph.
+	 */
+	public function test_get_registration_error_description_does_not_split_multibyte_characters() {
+		$message = str_repeat( 'é', 400 );
+
+		$description = Jetpack::get_registration_error_description( 'some_code', $message );
+
+		$this->assertSame( str_repeat( 'é', 250 ), $description );
+		$this->assertSame( 250, mb_strlen( $description ) );
+	}
+
+	/**
+	 * The module list is globbed from `modules/` at runtime while the names come from the
+	 * generated `module-headings.php`, so a module can exist with no entry in that map. The
+	 * untranslated header has to survive that, or the name reaches clients as null.
+	 */
+	public function test_get_translated_modules_keeps_the_header_text_when_there_is_no_translation() {
+		$modules = array(
+			'nope' => array(
+				'module'            => 'nope',
+				'name'              => 'Untranslated Module',
+				'description'       => 'Ships before the headings are rebuilt.',
+				'short_description' => 'Ships before the headings…',
+				'module_tags'       => array( 'Recommended' ),
+			),
+		);
+
+		$translated = Jetpack::get_translated_modules( $modules );
+
+		$this->assertSame( 'Untranslated Module', $translated['nope']['name'] );
+		$this->assertSame( 'Ships before the headings are rebuilt.', $translated['nope']['description'] );
+		$this->assertSame( 'Ships before the headings…', $translated['nope']['short_description'] );
+		$this->assertSame( array( 'Recommended' ), $translated['nope']['module_tags'] );
+	}
+
+	/**
+	 * A module that is in the map keeps being translated.
+	 */
+	public function test_get_translated_modules_translates_a_module_it_has_an_entry_for() {
+		$modules = array(
+			'sso' => array(
+				'module' => 'sso',
+				'name'   => 'Placeholder',
+			),
+		);
+
+		$translated = Jetpack::get_translated_modules( $modules );
+
+		$this->assertSame( 'Secure Sign On', $translated['sso']['name'] );
+	}
+
+	/**
+	 * Tests that a module's configure link opens the Settings page, searching for the module.
+	 */
+	public function test_module_configuration_url_opens_the_settings_page() {
+		$this->assertSame(
+			admin_url( 'admin.php?page=jetpack-settings' ) . '#/settings?term=markdown',
+			Jetpack::module_configuration_url( 'markdown' )
+		);
 	}
 } // end class

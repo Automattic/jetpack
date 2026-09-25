@@ -10,7 +10,6 @@ use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/verbum-comments/assets/class-verbum-block-utils.php';
-require_once __DIR__ . '/../../trait-wp-version-test-helpers.php';
 
 /**
  * Test class for Verbum_Block_Utils.
@@ -19,7 +18,20 @@ require_once __DIR__ . '/../../trait-wp-version-test-helpers.php';
  */
 #[CoversClass( Verbum_Block_Utils::class )]
 class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
-	use Jetpack_Mu_Wpcom_WP_Version_Test_Helpers;
+
+	/**
+	 * Runs the routine before each test is executed.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		// `wp_render_layout_support_flag()` (since WP 7.1) calls `wp_get_global_settings()`,
+		// which winds up in our `wpcom_block_global_styles_frontend()` which tries to call wpcom-only
+		// functions (wpcom_site_has_feature et al.) that aren't defined in the test env,
+		// Detach the incidental filter so that doesn't break.
+		// `\WorDBless\BaseTestCase::tear_down()` will restore the hook for future tests.
+		remove_filter( 'wp_theme_json_data_user', 'wpcom_block_global_styles_frontend' );
+	}
 
 	/**
 	 * Ensure string comments are not modified when 'render_verbum_blocks' is applied
@@ -47,13 +59,12 @@ class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
 		$comment_content  = '<!-- wp:paragraph --><p>test</p><!-- /wp:paragraph --><!-- wp:list --><ul><!-- wp:list-item --><li>1</li><!-- /wp:list-item --><!-- wp:list-item --><li>2</li><!-- /wp:list-item --><!-- wp:list-item --><li>3</li><!-- /wp:list-item --></ul><!-- /wp:list --><!-- wp:quote --><blockquote class="wp-block-quote"><!-- wp:paragraph --><p>something</p><!-- /wp:paragraph --><cite>someone</cite></blockquote><!-- /wp:quote -->';
 		$filtered_content = preg_replace( '/\R+/', '', Verbum_Block_Utils::render_verbum_blocks( $comment_content ) );
 
-		// WordPress trunk (7.0+) removed layout classes from block output (Gutenberg PR #71207).
-		// We need to handle both old (with classes) and new (without classes) formats.
-		// @todo Simplify to a single expected value once WP 7.0 is the minimum supported version.
-		$expected_content_wp7 = '<p>test</p><ul><li>1</li><li>2</li><li>3</li></ul><blockquote class="wp-block-quote"><p>something</p><cite>someone</cite></blockquote>';
-		$expected_content_wp6 = '<p>test</p><ul><li>1</li><li>2</li><li>3</li></ul><blockquote class="wp-block-quote is-layout-flow wp-block-quote-is-layout-flow"><p>something</p><cite>someone</cite></blockquote>';
-
-		$expected_content = $this->get_version_specific_expected_html( $expected_content_wp7, $expected_content_wp6 );
+		/*
+		 * The classes here come from core's block rendering, not from Verbum: `wp-block-paragraph`
+		 * since WordPress 7.0, and the quote's layout classes for longer than that. Update them
+		 * when core changes rather than reading anything into them.
+		 */
+		$expected_content = '<p class="wp-block-paragraph">test</p><ul><li>1</li><li>2</li><li>3</li></ul><blockquote class="wp-block-quote is-layout-flow wp-block-quote-is-layout-flow"><p class="wp-block-paragraph">something</p><cite>someone</cite></blockquote>';
 
 		$this->assertSame( $expected_content, $filtered_content );
 	}

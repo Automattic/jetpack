@@ -13,6 +13,8 @@ export type SubscriptionStatus =
 	| 'Blocked'
 	| string;
 
+export type SubscriptionStatusReason = 'emails_paused' | 'bounced' | 'blocked';
+
 export type SubscriptionPlan = {
 	subscription_id?: number;
 	is_comp: boolean;
@@ -36,14 +38,15 @@ export type Subscriber = {
 	email_address: string;
 	avatar?: string;
 	subscription_status: SubscriptionStatus;
+	subscription_status_reason?: SubscriptionStatusReason | null;
 
 	// WP.com-side subscription (null when subscriber is email-only).
 	wpcom_subscription_id?: number;
-	wpcom_date_subscribed?: string;
+	wpcom_date_subscribed?: string | null;
 
 	// Email-side subscription (always present for email subscribers).
 	email_subscription_id?: number;
-	email_date_subscribed?: string;
+	email_date_subscribed?: string | null;
 
 	// Paid / comp subscriptions, only present when `use_new_helper=true`.
 	plans?: SubscriptionPlan[];
@@ -105,12 +108,7 @@ export type AddSubscribersResponse = {
 };
 
 export type ImportJobStatus =
-	| 'pending'
-	| 'awaiting'
-	| 'importing'
-	| 'imported'
-	| 'failed'
-	| 'cancelled';
+	'pending' | 'awaiting' | 'importing' | 'imported' | 'failed' | 'cancelled';
 
 export type ImportJob = {
 	id: number;
@@ -137,11 +135,51 @@ export type SubscriberDetails = Subscriber & {
 	country?: SubscriberCountry | null;
 	url?: string | null;
 	open_rate?: number;
+
+	// Date of whichever subscription the endpoint resolved. Unlike the list, the individual dates
+	// are full ISO strings with an offset, and the `wpcom_`/`email_` pair is null when absent.
+	date_subscribed?: string;
+};
+
+export type NewsletterCategory = {
+	id: number;
+	name: string;
+	slug?: string;
+	description?: string;
+	parent?: number;
+	subscription_count?: number;
+	// Only present on the per-subscriber response: false when the subscriber opted out of this
+	// category. WP.com stores opt-outs, so every site category comes back and `subscribed` is the
+	// discriminator — not the presence of the entry.
+	subscribed?: boolean;
+};
+
+export type SubscribedNewsletterCategories = {
+	// Whether the site has Newsletter categories turned on. When false the categories are
+	// meaningless and the UI hides the field entirely (mirrors Calypso).
+	enabled: boolean;
+	newsletter_categories: NewsletterCategory[];
+};
+
+// Site-level newsletter categories (the `/wpcom/v2/newsletter-categories` list), independent of
+// any one subscriber. Same shape as the per-subscriber response minus the `subscribed`
+// discriminator — used to gate and populate the "add to specific categories" import picker.
+export type NewsletterCategoriesData = {
+	// Whether the site has Newsletter categories turned on. Sourced from the site option, so it
+	// tracks the Newsletter settings toggle. When false the import picker is hidden entirely.
+	enabled: boolean;
+	newsletter_categories: NewsletterCategory[];
+};
+
+// Payload for the add-subscribers import. `categories` carries the ids selected in the import
+// picker; omitted/empty when the user doesn't assign any, matching Calypso's `importCsvSubscribers`.
+export type AddSubscribersPayload = {
+	emails: string[];
+	categories?: number[];
 };
 
 export type SubscriberStats = {
 	emails_sent: number;
 	unique_opens: number;
 	unique_clicks: number;
-	blog_registration_date?: string;
 };

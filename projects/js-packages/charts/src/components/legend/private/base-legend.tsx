@@ -1,6 +1,7 @@
 import { Group } from '@visx/group';
 import { LegendItem, LegendLabel, LegendOrdinal, LegendShape } from '@visx/legend';
 import { scaleOrdinal } from '@visx/scale';
+import { _x, sprintf } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import {
@@ -11,11 +12,13 @@ import {
 	useCallback,
 	useContext,
 } from 'react';
+import { ChartInstanceContext } from '../../../charts/private/chart-instance-context';
 import { useTextTruncation } from '../../../hooks';
 import { GlobalChartsContext, useGlobalChartsTheme } from '../../../providers';
-import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from '../utils';
+import { useStandaloneScopeClass } from '../../../providers/chart-scope';
+import { valueOrIdentity, valueOrIdentityString } from '../utils';
 import styles from './base-legend.module.scss';
-import type { BaseLegendProps } from '../types';
+import type { BaseLegendItem, BaseLegendProps } from '../types';
 
 const ALIGNMENT_TO_FLEX = {
 	start: 'flex-start',
@@ -57,6 +60,52 @@ const LegendText = ( {
 	);
 };
 
+// Interactive items get a toggle affordance; non-interactive items only need a label
+// when hidden, since a visible item's own text already serves as its accessible name.
+const getLegendItemAriaLabel = (
+	text: string,
+	value: BaseLegendItem[ 'value' ],
+	visible: boolean,
+	interactive: boolean
+) => {
+	const accessibleText =
+		value != null && value !== ''
+			? sprintf(
+					/* translators: 1: legend item label; 2: legend item value. */
+					_x( '%1$s, %2$s', 'legend item label and value', 'jetpack-charts' ),
+					text,
+					String( value )
+				)
+			: text;
+
+	if ( interactive ) {
+		if ( visible ) {
+			return sprintf(
+				/* translators: %s: legend item label (e.g. a series or segment name) */
+				_x(
+					'%s: visible. Toggle visibility.',
+					'visible interactive legend item',
+					'jetpack-charts'
+				),
+				accessibleText
+			);
+		}
+		return sprintf(
+			/* translators: %s: legend item label (e.g. a series or segment name) */
+			_x( '%s: hidden. Toggle visibility.', 'hidden interactive legend item', 'jetpack-charts' ),
+			accessibleText
+		);
+	}
+	if ( visible ) {
+		return undefined;
+	}
+	return sprintf(
+		/* translators: %s: legend item label (e.g. a series or segment name) */
+		_x( '%s: hidden', 'hidden non-interactive legend item', 'jetpack-charts' ),
+		accessibleText
+	);
+};
+
 /*
  * Base legend component that displays color-coded items with labels based on visx LegendOrdinal.
  * We avoid using LegendOrdinal directly to enable support for advanced features such as interactivity.
@@ -74,7 +123,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 			fill = valueOrIdentityString,
 			size = valueOrIdentityString,
 			labelFormat = valueOrIdentity,
-			labelTransform = labelTransformFactory,
+			labelTransform,
 			itemStyles,
 			itemClassName,
 			labelStyles,
@@ -102,12 +151,25 @@ export const BaseLegend: ForwardRefExoticComponent<
 
 		const theme = useGlobalChartsTheme();
 		const context = useContext( GlobalChartsContext );
+		const chartInstanceContext = useContext( ChartInstanceContext );
+		const standaloneScopeClass = useStandaloneScopeClass();
 
+		// Keep duplicate labels: a static comparison item can share a metric's name.
+		const domain = items.map( item => item.label );
 		const legendScale = scaleOrdinal( {
-			domain: items.map( item => item.label ),
+			domain,
 			range: items.map( item => item.color ),
 		} );
-		const domain = legendScale.domain();
+		const defaultLabelTransform = useCallback< NonNullable< BaseLegendProps[ 'labelTransform' ] > >(
+			( { labelFormat: format } ) =>
+				( datum, index ) => ( {
+					datum,
+					index,
+					text: String( format( datum, index ) ),
+					value: items[ index ].color,
+				} ),
+			[ items ]
+		);
 
 		const getShapeStyle = useCallback(
 			( { index }: { index: number } ) => items[ index ]?.shapeStyle,
@@ -116,60 +178,68 @@ export const BaseLegend: ForwardRefExoticComponent<
 
 		// Handle legend item clicks for interactive mode
 		const handleLegendClick = useCallback(
-			( seriesLabel: string ) => {
+			( seriesLabels: string[] ) => {
 				if ( interactive && chartId && context ) {
-					context.toggleSeriesVisibility( chartId, seriesLabel );
+					const representativeVisible = context.isSeriesVisible( chartId, seriesLabels[ 0 ] );
+					seriesLabels.forEach( label =>
+						context.setSeriesVisibility( chartId, label, ! representativeVisible )
+					);
 				}
 			},
 			[ interactive, chartId, context ]
 		);
 
-		// Check if a series is visible
+		// Disabling interaction for the whole legend still preserves its series' visibility state.
 		const isSeriesVisible = useCallback(
 			( seriesLabel: string ) => {
-				if ( ! interactive || ! chartId || ! context ) {
+				if ( chartInstanceContext?.isSeriesVisible ) {
+					return chartInstanceContext.isSeriesVisible( seriesLabel );
+				}
+				if ( ! chartId || ! context ) {
 					return true;
 				}
 				return context.isSeriesVisible( chartId, seriesLabel );
 			},
-			[ interactive, chartId, context ]
+			[ chartId, chartInstanceContext, context ]
 		);
 
 		// Create event handlers to avoid inline arrow functions
 		const createClickHandler = useCallback(
-			( labelText: string ) => {
-				if ( ! interactive ) {
+			( seriesLabels: string[], itemInteractive: boolean ) => {
+				if ( ! itemInteractive ) {
 					return undefined;
 				}
-				return () => handleLegendClick( labelText );
+				return () => handleLegendClick( seriesLabels );
 			},
-			[ interactive, handleLegendClick ]
+			[ handleLegendClick ]
 		);
 
 		const createKeyDownHandler = useCallback(
-			( labelText: string ) => {
-				if ( ! interactive ) {
+			( seriesLabels: string[], itemInteractive: boolean ) => {
+				if ( ! itemInteractive ) {
 					return undefined;
 				}
 				return ( event: KeyboardEvent ) => {
 					if ( event.key === 'Enter' || event.key === ' ' ) {
 						event.preventDefault();
-						handleLegendClick( labelText );
+						handleLegendClick( seriesLabels );
 					}
 				};
 			},
-			[ interactive, handleLegendClick ]
+			[ handleLegendClick ]
 		);
 
 		const flexAlignment = ALIGNMENT_TO_FLEX[ alignment ] ?? 'center';
+		const staticItemRole = interactive ? undefined : 'listitem';
 
 		return render ? (
 			render( items )
 		) : (
 			<LegendOrdinal
 				scale={ legendScale }
+				domain={ domain }
 				labelFormat={ labelFormat }
-				labelTransform={ labelTransform }
+				labelTransform={ labelTransform ?? defaultLabelTransform }
 			>
 				{ labels => (
 					<Stack
@@ -179,23 +249,29 @@ export const BaseLegend: ForwardRefExoticComponent<
 						align={ orientation === 'vertical' ? flexAlignment : undefined }
 						justify={ orientation === 'horizontal' ? flexAlignment : undefined }
 						wrap={ orientation === 'horizontal' ? 'wrap' : undefined }
-						role="list"
+						role={ interactive ? undefined : 'list' }
 						data-testid={ `legend-${ orientation }` }
-						className={ clsx( styles.legend, className ) }
+						className={ clsx( standaloneScopeClass, styles.legend, className ) }
 						style={ theme.legend?.containerStyles }
 					>
 						{ labels.map( ( label, i ) => {
-							const visible = isSeriesVisible( label.text );
-							const handleClick = createClickHandler( label.text );
-							const handleKeyDown = createKeyDownHandler( label.text );
 							const matchedItem = items[ i ];
+							// A grouped item toggles/reads every series it controls; a plain item just its own.
+							const seriesLabels = matchedItem?.seriesLabels?.length
+								? matchedItem.seriesLabels
+								: [ label.text ];
+							const visible =
+								matchedItem?.interactive === false || isSeriesVisible( seriesLabels[ 0 ] );
+							const itemInteractive = interactive && matchedItem?.interactive !== false;
+							const handleClick = createClickHandler( seriesLabels, itemInteractive );
+							const handleKeyDown = createKeyDownHandler( seriesLabels, itemInteractive );
 
 							return (
 								<LegendItem
 									className={ clsx(
 										'visx-legend-item',
 										styles[ 'legend-item' ],
-										interactive && styles[ 'legend-item--interactive' ],
+										itemInteractive && styles[ 'legend-item--interactive' ],
 										! visible && styles[ 'legend-item--inactive' ],
 										itemClassName
 									) }
@@ -209,14 +285,16 @@ export const BaseLegend: ForwardRefExoticComponent<
 									}
 									onClick={ handleClick }
 									onKeyDown={ handleKeyDown }
-									role={ interactive ? 'button' : undefined }
-									tabIndex={ interactive ? 0 : undefined }
-									aria-pressed={ interactive ? visible : undefined }
-									aria-label={
-										interactive
-											? `${ label.text }: ${ visible ? 'visible' : 'hidden' }. Toggle visibility.`
-											: undefined
-									}
+									// A static item in an interactive legend has no list to belong to.
+									role={ itemInteractive ? 'button' : staticItemRole }
+									tabIndex={ itemInteractive ? 0 : undefined }
+									aria-pressed={ itemInteractive ? visible : undefined }
+									aria-label={ getLegendItemAriaLabel(
+										label.text,
+										matchedItem?.value,
+										visible,
+										itemInteractive
+									) }
 								>
 									{ items[ i ]?.renderGlyph ? (
 										<svg

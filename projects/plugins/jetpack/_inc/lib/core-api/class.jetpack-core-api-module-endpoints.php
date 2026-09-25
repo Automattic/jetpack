@@ -92,6 +92,14 @@ class Jetpack_Core_API_Module_Toggle_Endpoint extends Jetpack_Core_API_XMLRPC_Co
 		}
 
 		if ( Jetpack::activate_module( $module_slug, false, false ) ) {
+			if ( ! Jetpack::is_module_active( $module_slug ) ) {
+				return new WP_Error(
+					'module_forced',
+					esc_html__( 'The requested Jetpack module is disabled by your host or site administrator, so it stays off.', 'jetpack' ),
+					array( 'status' => 409 )
+				);
+			}
+
 			return rest_ensure_response(
 				array(
 					'code'    => 'success',
@@ -153,7 +161,18 @@ class Jetpack_Core_API_Module_Toggle_Endpoint extends Jetpack_Core_API_XMLRPC_Co
 			);
 		}
 
-		if ( Jetpack::deactivate_module( $module_slug ) ) {
+		$deactivated = Jetpack::deactivate_module( $module_slug );
+
+		// A module that was never saved as active leaves nothing to change, so check the outcome.
+		if ( Jetpack::is_module_active( $module_slug ) ) {
+			return new WP_Error(
+				'module_forced',
+				esc_html__( 'The requested Jetpack module is enabled by your host or site administrator, so it stays on.', 'jetpack' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		if ( $deactivated ) {
 			return rest_ensure_response(
 				array(
 					'code'    => 'success',
@@ -263,7 +282,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 		$failed    = array();
 
 		foreach ( $request['modules'] as $module ) {
-			if ( Jetpack::activate_module( $module, false, false ) ) {
+			if ( Jetpack::activate_module( $module, false, false ) && Jetpack::is_module_active( $module ) ) {
 				$activated[] = $module;
 			} else {
 				$failed[] = $module;
@@ -453,7 +472,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 		}
 
-		$settings = Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( 'settings' );
+		$settings = Jetpack_Core_Json_Api_Endpoints::filter_options_for_response(
+			Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( 'settings' )
+		);
 
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -664,6 +685,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			// Get option attributes, including the group it belongs to.
 			$option_attrs = $options[ $option ];
 
+			// Everything outside the Post by Email group requires the admin capability.
+			if ( 'post-by-email' !== $option_attrs['jp_group'] && ! current_user_can( 'jetpack_configure_modules' ) ) {
+				$not_updated[ $option ] = REST_Connector::get_user_permissions_error_msg();
+				continue;
+			}
+
 			// If this is a module option and the related module isn't active for any reason, continue with the next one.
 			if ( 'settings' !== $option_attrs['jp_group'] ) {
 				if ( ! Jetpack::is_module( $option_attrs['jp_group'] ) ) {
@@ -808,17 +835,27 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$grouped_options_current = (array) get_option( 'verification_services_codes' );
 					$grouped_options         = $grouped_options_current;
 
-					// Extracts the content attribute from the HTML meta tag if needed.
-					if ( preg_match( '#.*<meta name="(?:[^"]+)" content="([^"]+)" />.*#i', $value, $matches ) ) {
-						$grouped_options[ $option ] = $matches[1];
-					} else {
-						$grouped_options[ $option ] = $value;
+					$validated_code = jetpack_verification_validate_code( $value );
+					if ( false === $validated_code ) {
+						$error = esc_html__( 'The site verification code is invalid.', 'jetpack' );
+						break;
 					}
+
+					$grouped_options[ $option ] = $validated_code;
 
 					// If option value was the same, consider it done.
 					$updated = $grouped_options_current !== $grouped_options
 						? update_option( 'verification_services_codes', $grouped_options )
 						: true;
+					break;
+
+				case Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION:
+					Jetpack_SEO_Utils::update_front_page_meta_description( $value );
+					$response[ $option ] = Jetpack_SEO_Utils::get_front_page_meta_description();
+					// The helper returns an empty string for a successful clear or
+					// same-value write, so use its authoritative getter for the response
+					// and treat every valid request reaching this switch as handled.
+					$updated = true;
 					break;
 
 				case 'sharing_services':
@@ -1299,11 +1336,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$params = $request->get_body_params();
 				}
 				$options = Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( $params );
-				foreach ( $options as $option => $definition ) {
-					if ( in_array( $options[ $option ]['jp_group'], array( 'post-by-email' ), true ) ) {
-						$module = $options[ $option ]['jp_group'];
-						break;
-					}
+
+				// The Post by Email gate applies only when the request contains nothing else.
+				$groups = array_values( array_unique( array_column( $options, 'jp_group' ) ) );
+				if ( array( 'post-by-email' ) === $groups ) {
+					$module = 'post-by-email';
 				}
 			}
 			// User is trying to create, regenerate or delete its PbE.

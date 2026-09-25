@@ -9,6 +9,7 @@ declare module '@automattic/jetpack-script-data' {
 		jetpack?: {
 			flags: {
 				showJetpackBranding: boolean;
+				skipPhotonDomain: boolean;
 			};
 		};
 	}

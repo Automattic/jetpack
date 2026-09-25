@@ -8,48 +8,32 @@ import { useReportOrders } from '@jetpack-premium-analytics/data';
 import { ReportMetricWidget } from '../../components/report-metric';
 import { useWidgetRootContext } from '../../components/widget-root';
 import { getFormatByMetricKey } from '../../helpers';
-import type { OrderMetricKey } from '../../types';
+import type { CountLabel, OrderMetricKey } from '../../types';
 
 export type OrderMetricWidgetProps = {
-	/**
-	 * The metric key to display from the data
-	 */
 	metricKey: OrderMetricKey;
 
-	/**
-	 * Copy for the empty state.
-	 */
 	emptyStateText?: string;
 
-	/**
-	 * Copy for the error state.
-	 */
 	errorText?: string;
+
+	/** The metric's name, for the chart legend. */
+	seriesLabel?: string;
+
+	seriesCountLabel?: CountLabel;
 };
 
 /**
- * Order Metric Widget Component
+ * Order-related metrics over time, with comparison support.
  *
- * A widget that displays order-related metrics over time with comparison support.
- * This component must be used within a WidgetRoot which provides reportParams
- * via context.
- *
- * @param {object}         props                - Component props
- * @param {OrderMetricKey} props.metricKey      - The metric key to display
- * @param {string}         props.emptyStateText - Copy for the empty state
- * @param {string}         props.errorText      - Copy for the error state
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <OrderMetricWidget metricKey="total_sales" />
- * </WidgetRoot>
- * ```
+ * Must render within a WidgetRoot, which provides reportParams via context.
  */
 export function OrderMetricWidget( {
 	metricKey,
 	emptyStateText,
 	errorText,
+	seriesLabel,
+	seriesCountLabel,
 }: OrderMetricWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
 
@@ -60,6 +44,8 @@ export function OrderMetricWidget( {
 			dataFormat={ getFormatByMetricKey( metricKey ) }
 			emptyStateText={ emptyStateText }
 			errorText={ errorText }
+			seriesLabel={ seriesLabel }
+			seriesCountLabel={ seriesCountLabel }
 		/>
 	);
 }

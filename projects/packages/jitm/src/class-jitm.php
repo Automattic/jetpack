@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class JITM {
 
-	const PACKAGE_VERSION = '4.3.49';
+	const PACKAGE_VERSION = '5.0.6';
 
 	/**
 	 * List of screen IDs where JITMs are allowed to display.
@@ -115,6 +115,65 @@ class JITM {
 			self::$configured_instance = self::get_instance();
 		}
 		return self::$configured_instance;
+	}
+
+	/**
+	 * Clears admin notices from the current screen, keeping JITMs.
+	 *
+	 * A screen that opted out through `jetpack_display_jitms_on_screen` has nothing
+	 * to keep, so it stays silent.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function suppress_foreign_admin_notices() {
+		foreach ( array( 'admin_notices', 'all_admin_notices' ) as $hook ) {
+			$ours = self::collect_own_callbacks( $hook );
+
+			remove_all_actions( $hook );
+
+			foreach ( $ours as $priority => $callbacks ) {
+				foreach ( $callbacks as $callback ) {
+					add_action( $hook, $callback['function'], $priority, $callback['accepted_args'] );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Returns our callbacks on $hook, keyed by priority.
+	 *
+	 * Matched by class: `prepare_jitms()` hooks the cached instance and
+	 * `get_instance()` builds a fresh one, so comparing objects would miss.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $hook Hook name.
+	 * @return array<int, array<int, array{function: callable, accepted_args: int}>>
+	 */
+	private static function collect_own_callbacks( $hook ) {
+		global $wp_filter;
+
+		$kept = array();
+
+		if ( ! isset( $wp_filter[ $hook ] ) || ! is_object( $wp_filter[ $hook ] ) ) {
+			return $kept;
+		}
+
+		foreach ( $wp_filter[ $hook ]->callbacks as $priority => $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				if (
+					is_array( $callback['function'] )
+					&& isset( $callback['function'][0] )
+					&& $callback['function'][0] instanceof self
+				) {
+					$kept[ $priority ][] = $callback;
+				}
+			}
+		}
+
+		return $kept;
 	}
 
 	/**

@@ -7,9 +7,9 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Initializer;
-use Automattic\Jetpack\My_Jetpack\Module_Product;
-use Automattic\Jetpack\My_jetpack\Products;
+use Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class responsible for handling the Jetpack Stats product
  */
-class Stats extends Module_Product {
+class Stats extends Hybrid_Product {
 	/**
 	 * The product slug
 	 *
@@ -48,14 +48,18 @@ class Stats extends Module_Product {
 	 *
 	 * @var string|null
 	 */
-	public static $plugin_slug = self::JETPACK_PLUGIN_SLUG;
+	public static $plugin_slug = 'jetpack-stats';
 
 	/**
 	 * The Plugin file associated with stats
 	 *
-	 * @var string|null
+	 * @var string[]
 	 */
-	public static $plugin_filename = self::JETPACK_PLUGIN_FILENAME;
+	public static $plugin_filename = array(
+		'jetpack-stats/jetpack-stats.php',
+		'stats/jetpack-stats.php',
+		'jetpack-stats-dev/jetpack-stats.php',
+	);
 
 	/**
 	 * Stats only requires site connection, not user connection
@@ -63,13 +67,6 @@ class Stats extends Module_Product {
 	 * @var bool
 	 */
 	public static $requires_user_connection = false;
-
-	/**
-	 * Stats does not have a standalone plugin (yet?)
-	 *
-	 * @var bool
-	 */
-	public static $has_standalone_plugin = false;
 
 	/**
 	 * Whether this product has a free offering
@@ -124,7 +121,7 @@ class Stats extends Module_Product {
 	/**
 	 * Get the internationalized features list
 	 *
-	 * @return array CRM features list
+	 * @return array Stats features list
 	 */
 	public static function get_features() {
 		return array(
@@ -132,9 +129,11 @@ class Stats extends Module_Product {
 			__( 'Traffic stats and trends for post and pages', 'jetpack-my-jetpack' ),
 			__( 'Detailed statistics about links leading to your site', 'jetpack-my-jetpack' ),
 			__( 'GDPR compliant', 'jetpack-my-jetpack' ),
-			__( 'Access to upcoming advanced features', 'jetpack-my-jetpack' ),
+			/* translators: UTM refers to the Urchin Tracking Module campaign parameters appended to a URL. */
+			__( 'UTM tracking', 'jetpack-my-jetpack' ),
+			__( 'Device stats', 'jetpack-my-jetpack' ),
+			__( 'Region and city locations', 'jetpack-my-jetpack' ),
 			__( 'Priority support', 'jetpack-my-jetpack' ),
-			__( 'Commercial use', 'jetpack-my-jetpack' ),
 		);
 	}
 
@@ -188,10 +187,16 @@ class Stats extends Module_Product {
 	 */
 	public static function get_status() {
 		$status = parent::get_status();
-		if ( Products::STATUS_MODULE_DISABLED === $status && ! Initializer::is_registered() ) {
+		if ( in_array( $status, array( Products::STATUS_MODULE_DISABLED, Products::STATUS_NEEDS_PLAN ), true ) && ! Initializer::is_registered() ) {
 			// If the site has never been connected before, show the "Learn more" CTA,
 			// that points to the add Stats product interstitial.
-			$status = Products::STATUS_NEEDS_FIRST_SITE_CONNECTION;
+			return Products::STATUS_NEEDS_FIRST_SITE_CONNECTION;
+		}
+		if ( Products::STATUS_NEEDS_PLAN === $status ) {
+			// Recognizing the standalone plugin makes the base class ask an unowned site to
+			// buy a plan while that plugin is inactive, but Stats is free from the Jetpack
+			// plugin, so the card keeps offering activation.
+			$status = Products::STATUS_NEEDS_ACTIVATION;
 		}
 		return $status;
 	}
@@ -298,11 +303,45 @@ class Stats extends Module_Product {
 	}
 
 	/**
+	 * Mirrors `Analytics::MENU_PAGE_SLUG`, spelled out because My Jetpack does not
+	 * depend on the premium-analytics package.
+	 *
+	 * @since 5.42.0
+	 */
+	const PREMIUM_ANALYTICS_PAGE_SLUG = 'jetpack-premium-analytics-wp-admin';
+
+	/**
+	 * Whether the Premium Analytics dashboard is the site's analytics UI.
+	 *
+	 * Guarded like the other `class_exists( 'Jetpack' )` checks here: My Jetpack
+	 * also ships in plugins without the Jetpack plugin. Public so the UI flags
+	 * report the same answer the URLs are built from.
+	 *
+	 * @since 5.42.0
+	 *
+	 * @return bool
+	 */
+	public static function is_premium_analytics_enabled() {
+		return class_exists( 'Jetpack' )
+			&& method_exists( 'Jetpack', 'is_premium_analytics_enabled' )
+			&& \Jetpack::is_premium_analytics_enabled();
+	}
+
+	/**
 	 * Get the WordPress.com URL for purchasing Jetpack Stats for the current site.
+	 *
+	 * Null once Premium Analytics is the analytics UI: the tier purchase
+	 * screen was a Calypso route inside the Odyssey bundle, so it left with that
+	 * dashboard. Null is also the base-class default, which falls the action
+	 * button back to the existing `#/add-stats` interstitial.
 	 *
 	 * @return ?string
 	 */
 	public static function get_purchase_url() {
+		if ( self::is_premium_analytics_enabled() ) {
+			return null;
+		}
+
 		$status = static::get_status();
 		if ( $status === Products::STATUS_NEEDS_FIRST_SITE_CONNECTION ) {
 			return null;
@@ -318,11 +357,27 @@ class Stats extends Module_Product {
 	}
 
 	/**
+	 * Get the URL the user is taken to after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		// Names the plan the Free-vs-Paid question was already answered with here, so the Stats
+		// dashboard's own pricing grid renders the dashboard instead of asking it a second time,
+		// and records the choice as free rather than as one it cannot name.
+		return add_query_arg( 'stats_plan_chosen', 'free', static::get_manage_url() );
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
+		if ( self::is_premium_analytics_enabled() ) {
+			return admin_url( 'admin.php?page=' . self::PREMIUM_ANALYTICS_PAGE_SLUG );
+		}
+
 		return admin_url( 'admin.php?page=stats' );
 	}
 

@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 335" width="1000" height="335" role="img" aria-label="The WordAds module registers the Ads section on self-hosted sites and skips the WordPress.com platform, jetpack-mu-wpcom registers it on Atomic and Simple by plan feature, both at priority 20 skipping an existing ads slug, and the standalone plugin has no registrant.">
+  <style>
+    text { font: 12px ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; fill: #1f2328; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; }
+    .title { font-weight: 600; }
+    .muted { fill: #57606a; }
+    .box { fill: #ffffff; stroke: #1f2328; stroke-width: 1.2; }
+    .box-accent { fill: #ddf4ff; stroke: #0969da; stroke-width: 1.4; }
+    .box-muted { fill: #f6f8fa; stroke: #8c959f; stroke-width: 1.2; stroke-dasharray: 4 3; }
+    .lane { fill: #f6f8fa; stroke: #d0d7de; stroke-width: 1; }
+    .edge { stroke: #1f2328; stroke-width: 1.3; fill: none; }
+    .edge-dashed { stroke-dasharray: 5 4; }
+    .arrowhead { fill: #1f2328; }
+    @media (prefers-color-scheme: dark) {
+      text { fill: #e6edf3; }
+      .muted { fill: #8b949e; }
+      .box { fill: #0d1117; stroke: #e6edf3; }
+      .box-accent { fill: #0c2d6b; stroke: #58a6ff; }
+      .box-muted { fill: #161b22; stroke: #6e7681; }
+      .lane { fill: #161b22; stroke: #30363d; }
+      .edge { stroke: #e6edf3; }
+      .arrowhead { fill: #e6edf3; }
+    }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path class="arrowhead" d="M 0 0 L 10 5 L 0 10 z"/>
+    </marker>
+  </defs>
+  <rect class="lane" x="20" y="25" width="230" height="295" rx="6"/>
+  <text class="title" x="135" y="48" text-anchor="middle">Self-hosted Jetpack</text>
+  <rect class="lane" x="270" y="25" width="230" height="295" rx="6"/>
+  <text class="title" x="385" y="48" text-anchor="middle">Atomic</text>
+  <rect class="lane" x="520" y="25" width="230" height="295" rx="6"/>
+  <text class="title" x="635" y="48" text-anchor="middle">WordPress.com Simple</text>
+  <rect class="lane" x="770" y="25" width="210" height="295" rx="6"/>
+  <text class="title" x="875" y="48" text-anchor="middle">Standalone plugin</text>
+  <rect class="box" x="35" y="80" width="445" height="66" rx="4"/>
+  <text class="title" x="258" y="101" text-anchor="middle">WordAds module, Jetpack plugin</text>
+  <text class="muted" x="258" y="117" text-anchor="middle">active module on a connected site; skips the WordPress.com platform</text>
+  <text class="mono" x="258" y="133" text-anchor="middle">modules/wordads/php/class-wordads-premium-analytics.php</text>
+  <rect class="box" x="350" y="170" width="380" height="66" rx="4"/>
+  <text class="title" x="540" y="191" text-anchor="middle">jetpack-mu-wpcom</text>
+  <text class="mono" x="540" y="207" text-anchor="middle">wpcom_site_has_feature( 'wordads' )</text>
+  <text class="mono" x="540" y="223" text-anchor="middle">src/features/premium-analytics/wordads-section.php</text>
+  <rect class="box-muted" x="780" y="112" width="190" height="72" rx="4"/>
+  <text class="title" x="875" y="134" text-anchor="middle">no registrant</text>
+  <text class="muted" x="875" y="150" text-anchor="middle">no Ads section</text>
+  <text class="muted" x="875" y="166" text-anchor="middle">without WordAds</text>
+  <rect class="box-accent" x="35" y="275" width="695" height="44" rx="4"/>
+  <text class="title" x="382" y="293" text-anchor="middle">Dashboard_Section_Registry: wordads/ads, slug ads</text>
+  <text class="muted" x="382" y="309" text-anchor="middle">both hook at priority 20 and skip an existing ads slug (deploy skew)</text>
+  <polyline class="edge" points="140,146 140,275" marker-end="url(#arrow)"/>
+  <polyline class="edge edge-dashed" points="310,146 310,166"/>
+  <text class="mono muted" x="318" y="161">skips: is_wpcom_platform()</text>
+  <polyline class="edge" points="440,236 440,275" marker-end="url(#arrow)"/>
+  <polyline class="edge" points="635,236 635,275" marker-end="url(#arrow)"/>
+  <text class="muted" x="432" y="262" text-anchor="end">owner: mu-wpcom</text>
+</svg>

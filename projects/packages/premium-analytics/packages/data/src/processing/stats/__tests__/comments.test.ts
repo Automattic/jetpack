@@ -1,4 +1,4 @@
-import { sanitizeStatsCommentsResponse } from '..';
+import { sanitizeStatsCommentsResponse, selectStatsCommentsRows } from '..';
 import { commentsFixture } from '../__fixtures__/comments';
 
 describe( 'Stats comments normalizer', () => {
@@ -16,8 +16,8 @@ describe( 'Stats comments normalizer', () => {
 		expect( result.data ).toEqual( [
 			expect.objectContaining( {
 				time_interval: '2026-06-16',
-				date_start: '2026-06-16T00:00:00+00:00',
-				date_end: '2026-06-16T23:59:59+00:00',
+				date_start: '2026-06-16T00:00:00',
+				date_end: '2026-06-16T23:59:59',
 				items: [
 					{
 						label: 'authors',
@@ -28,7 +28,7 @@ describe( 'Stats comments normalizer', () => {
 								value: 12,
 								iconClassName: 'avatar-user',
 								icon: 'https://secure.gravatar.com/avatar/5a83891a81b057fed56930a6aaaf7b3c?d=mm',
-								link: null,
+								link: 'edit-comments.php?user_id=1662656',
 								className: 'module-content-list-item-large',
 								actions: [ { type: 'follow', data: false } ],
 								children: null,
@@ -73,14 +73,55 @@ describe( 'Stats comments normalizer', () => {
 				children: [
 					expect.objectContaining( {
 						label: 'Aggie',
-						// The raw `?s=<email>` fragment is not a URL; it maps to the
-						// comment management screen filtered to that author. WPCOM-user
-						// rows (`?user_id=<id>`) have no wp-admin equivalent and stay
-						// unlinked (covered above).
+						// Not a URL: the comment screen filtered to that author.
 						link: 'edit-comments.php?s=aggie%40example.com',
 					} ),
 				],
 			} ),
+		] );
+	} );
+
+	// The endpoint sends the email unencoded, so a `+` is a literal plus and
+	// must not be read as a form-encoded space.
+	it( 'keeps a plus-addressed guest email intact', () => {
+		const result = sanitizeStatsCommentsResponse( {
+			authors: [ { name: 'Aggie', comments: 2, link: '?s=aggie+tag@example.com' } ],
+		} );
+
+		expect( result.data[ 0 ].items[ 0 ].children[ 0 ].link ).toBe(
+			'edit-comments.php?s=aggie%2Btag%40example.com'
+		);
+	} );
+
+	it( 'links WordPress.com users to the comment screen filtered by user id', () => {
+		const result = sanitizeStatsCommentsResponse( {
+			authors: [ { name: 'Bo', comments: 7, link: '?user_id=1662656' } ],
+		} );
+
+		expect( result.data[ 0 ].items[ 0 ].children[ 0 ].link ).toBe(
+			'edit-comments.php?user_id=1662656'
+		);
+	} );
+
+	it( 'leaves a row unlinked when the fragment is neither a user id nor an email', () => {
+		const result = sanitizeStatsCommentsResponse( {
+			authors: [
+				{ name: 'Zero', comments: 1, link: '?user_id=0' },
+				{ name: 'Negative', comments: 1, link: '?user_id=-3' },
+				{ name: 'Decimal', comments: 1, link: '?user_id=12.5' },
+				{ name: 'Both', comments: 1, link: '?user_id=abc&s=a@b.com' },
+				{ name: 'Empty', comments: 1, link: '?s=' },
+			],
+		} );
+
+		expect(
+			result.data[ 0 ].items[ 0 ].children.map( child => [ child.label, child.link ] )
+		).toEqual( [
+			[ 'Zero', null ],
+			[ 'Negative', null ],
+			[ 'Decimal', null ],
+			[ 'Both', null ],
+			[ 'Empty', null ],
 		] );
 	} );
 
@@ -123,5 +164,141 @@ describe( 'Stats comments normalizer', () => {
 			summary: { total_comments: 0 },
 			data: [],
 		} );
+	} );
+} );
+
+describe( 'selectStatsCommentsRows', () => {
+	it( 'flattens the authors group into ranked rows keyed on the gravatar hash', () => {
+		const report = sanitizeStatsCommentsResponse( {
+			authors: [
+				{ name: 'Aggie', comments: 2, link: '?s=aggie@example.com', gravatar: 'g/aggie?s=48' },
+				{ name: 'Bo', comments: 7, link: '?user_id=1662656', gravatar: 'g/bo?s=48' },
+			],
+		} );
+
+		expect( selectStatsCommentsRows( report, 'authors' ) ).toEqual( [
+			{
+				id: 'g/bo?d=mm',
+				label: 'Bo',
+				value: 7,
+				avatarUrl: 'g/bo?d=mm',
+				link: 'edit-comments.php?user_id=1662656',
+			},
+			{
+				id: 'g/aggie?d=mm',
+				label: 'Aggie',
+				value: 2,
+				avatarUrl: 'g/aggie?d=mm',
+				link: 'edit-comments.php?s=aggie%40example.com',
+			},
+		] );
+	} );
+
+	it( 'flattens the posts group and keeps the post id for drill-through', () => {
+		const report = sanitizeStatsCommentsResponse( commentsFixture );
+
+		expect( selectStatsCommentsRows( report, 'posts' ) ).toEqual( [
+			{
+				id: '41',
+				label: 'Hello world',
+				value: 10,
+				link: 'https://example.com/hello/',
+				postId: '41',
+				avatarUrl: undefined,
+			},
+		] );
+	} );
+
+	// An author with no gravatar falls back to a label-derived key, and carries no
+	// avatar. Guards the first step of the authors id fallback chain.
+	it( 'keys an author with no gravatar on the label and leaves the avatar unset', () => {
+		const report = sanitizeStatsCommentsResponse( {
+			authors: [ { name: 'Aggie', comments: 2, link: '?s=aggie@example.com' } ],
+		} );
+
+		expect( selectStatsCommentsRows( report, 'authors' ) ).toEqual( [
+			{
+				id: 'author-Aggie',
+				label: 'Aggie',
+				value: 2,
+				avatarUrl: undefined,
+				link: 'edit-comments.php?s=aggie%40example.com',
+			},
+		] );
+	} );
+
+	// Consumers guard the permalink themselves, so the raw link has to survive
+	// here — a post with no id keys its row on it.
+	it( 'keeps the raw link as the row id when a post has no id', () => {
+		const report = sanitizeStatsCommentsResponse( {
+			posts: [ { name: 'Hello world', comments: 3, link: 'javascript:alert(1)' } ],
+		} );
+
+		expect( selectStatsCommentsRows( report, 'posts' ) ).toEqual( [
+			{
+				id: 'javascript:alert(1)',
+				label: 'Hello world',
+				value: 3,
+				link: 'javascript:alert(1)',
+				postId: undefined,
+				avatarUrl: undefined,
+			},
+		] );
+	} );
+
+	// Guards the third step of the posts id fallback chain: neither an id nor a
+	// link to key on.
+	it( 'keys a post with neither an id nor a link on the label', () => {
+		const report = sanitizeStatsCommentsResponse( {
+			posts: [ { name: 'Hello world', comments: 3 } ],
+		} );
+
+		expect( selectStatsCommentsRows( report, 'posts' ) ).toEqual( [
+			{
+				id: 'post-Hello world',
+				label: 'Hello world',
+				value: 3,
+				link: undefined,
+				postId: undefined,
+				avatarUrl: undefined,
+			},
+		] );
+	} );
+
+	// Post id 0 is falsy but present, so the null check must be `!= null` rather
+	// than a truthiness test — otherwise the row silently falls through to the
+	// link/label key and loses its `postId`.
+	it( 'treats post id 0 as a real id rather than a missing one', () => {
+		const report = sanitizeStatsCommentsResponse( {
+			posts: [ { id: 0, name: 'Hello world', comments: 3, link: 'https://example.com/hello/' } ],
+		} );
+
+		expect( selectStatsCommentsRows( report, 'posts' ) ).toEqual( [
+			expect.objectContaining( { id: '0', postId: '0' } ),
+		] );
+	} );
+
+	it( 'trims to maxRows, treating 0 and undefined as all rows', () => {
+		const report = sanitizeStatsCommentsResponse( {
+			authors: [
+				{ name: 'Aggie', comments: 2 },
+				{ name: 'Bo', comments: 7 },
+				{ name: 'Cy', comments: 5 },
+			],
+		} );
+
+		expect( selectStatsCommentsRows( report, 'authors', 2 ).map( row => row.label ) ).toEqual( [
+			'Bo',
+			'Cy',
+		] );
+		expect( selectStatsCommentsRows( report, 'authors', 0 ) ).toHaveLength( 3 );
+		expect( selectStatsCommentsRows( report, 'authors' ) ).toHaveLength( 3 );
+	} );
+
+	it( 'returns no rows for an unresolved or empty report', () => {
+		expect( selectStatsCommentsRows( undefined, 'authors' ) ).toEqual( [] );
+		expect(
+			selectStatsCommentsRows( sanitizeStatsCommentsResponse( { authors: [] } ), 'posts' )
+		).toEqual( [] );
 	} );
 } );

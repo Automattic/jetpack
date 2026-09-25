@@ -1,5 +1,0 @@
-Significance: patch
-Type: compat
-
-Notifications: show the notification bell in the admin bar on the Post editor and Site editor,
-now that Gutenberg 23.6+ renders the admin bar there.

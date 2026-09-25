@@ -17,6 +17,7 @@ use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
+use Automattic\Jetpack_Boost\Lib\Body_Close_Locator;
 use Automattic\Jetpack_Boost\Lib\Output_Filter;
 
 /**
@@ -214,6 +215,7 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 
 		// Handle exclusions.
 		add_filter( 'script_loader_tag', array( $this, 'handle_exclusions' ), 10, 2 );
+		add_filter( 'js_do_concat', array( $this, 'should_concatenate' ), 10, 2 );
 
 		$this->output_filter->add_callback( array( $this, 'handle_output_stream' ) );
 	}
@@ -427,8 +429,13 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	}
 
 	/**
-	 * Insert the buffered script tags just before the body tag if possible in the last buffer
-	 * otherwise at append it at the end.
+	 * Insert the buffered script tags just before the document's closing body
+	 * tag if the last buffer holds one, otherwise append them at the end.
+	 *
+	 * The closing tag is located with an HTML tokenizer rather than string
+	 * search: a literal '</body>' inside a script's source (document.write),
+	 * a textarea, a comment or an attribute value is content, not markup, and
+	 * inserting there corrupts the page (BOOST-585).
 	 *
 	 * @param string $buffer String buffer.
 	 *
@@ -439,13 +446,37 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 		// Reset tags in case there's another buffer after this one.
 		$this->buffered_script_tags = array();
 
-		if ( str_contains( $buffer, '</body>' ) ) {
-			$buffer = str_replace( '</body>', $script_tags . '</body>', $buffer );
-		} else {
-			$buffer .= $script_tags;
+		// Nothing to insert: both branches below are identity operations, so
+		// skip the buffer scan entirely. Any other feature registering an
+		// Output_Filter on the same global hook — Lcp does — calls this a
+		// second time per request.
+		if ( '' === $script_tags ) {
+			return $buffer;
 		}
 
-		return $buffer;
+		$position = Body_Close_Locator::find( $buffer );
+		if ( null === $position ) {
+			return $buffer . $script_tags;
+		}
+
+		return substr_replace( $buffer, $script_tags, $position, 0 );
+	}
+
+	/**
+	 * Handles that must keep their place in the document, as provided by
+	 * `jetpack_boost_render_blocking_js_exclude_handles`.
+	 *
+	 * @return array
+	 */
+	private function get_exclude_handles() {
+		/**
+		 * Filter to provide an array of registered script handles that should not be moved to the end of the document.
+		 *
+		 * @param array $script_handles array of script handles. Remove any scripts that should not be moved to the end of the documents.
+		 *
+		 * @since   1.0.0
+		 */
+		return (array) apply_filters( 'jetpack_boost_render_blocking_js_exclude_handles', array() );
 	}
 
 	/**
@@ -457,20 +488,31 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	 * @return string
 	 */
 	public function handle_exclusions( $tag, $handle ) {
-		/**
-		 * Filter to provide an array of registered script handles that should not be moved to the end of the document.
-		 *
-		 * @param array $script_handles array of script handles. Remove any scripts that should not be moved to the end of the documents.
-		 *
-		 * @since   1.0.0
-		 */
-		$exclude_handles = apply_filters( 'jetpack_boost_render_blocking_js_exclude_handles', array() );
-
-		if ( ! in_array( $handle, $exclude_handles, true ) ) {
+		if ( ! in_array( $handle, $this->get_exclude_handles(), true ) ) {
 			return $tag;
 		}
 
 		return $this->add_ignore_attribute( $tag );
+	}
+
+	/**
+	 * Whether Minify JS may concatenate a script, given the handles excluded from deferral.
+	 *
+	 * Concatenated scripts share one <script> tag, but handle_exclusions() marks a script's own
+	 * tag - a concatenated script has none to mark, so this module would move it.
+	 *
+	 * @param mixed  $do_concat Whether the script may be concatenated, as left by earlier filters.
+	 * @param string $handle    Script handle from register_ or enqueue_ methods.
+	 *
+	 * @return mixed False when this module vetoes, otherwise $do_concat unchanged.
+	 */
+	public function should_concatenate( $do_concat, $handle ) {
+		if ( $do_concat && in_array( $handle, $this->get_exclude_handles(), true ) ) {
+			return false;
+		}
+
+		// Not a fresh boolean: Concatenate_JS concatenates only on `true === $do_concat`.
+		return $do_concat;
 	}
 
 	/**

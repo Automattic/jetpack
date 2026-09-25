@@ -20,15 +20,15 @@ export default function ActivityDetail( { item }: Props ) {
 		<Card.Root className="jpb-activity-detail">
 			<Card.Content>
 				<Stack direction="column" gap="sm">
-					<Text variant="heading-md" render={ <h3 /> }>
+					<Text variant="heading-md" render={ <h2 /> }>
 						{ item.title }
 					</Text>
 					<Text variant="body-sm" className="jpb-text-muted">
 						{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }
 						{ ' · ' }
-						{ item.actor.name }
+						<bdi>{ item.actor.name }</bdi>
 					</Text>
-					{ item.summary && <Text>{ item.summary }</Text> }
+					{ item.summary && <Text dir="auto">{ item.summary }</Text> }
 				</Stack>
 			</Card.Content>
 		</Card.Root>

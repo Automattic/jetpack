@@ -37,8 +37,7 @@ class Inline_Search_Correction {
 	 * @since 0.48.0
 	 */
 	public function enqueue_styles() {
-		$corrected_query_html = $this->get_corrected_query_html();
-		if ( empty( $corrected_query_html ) ) {
+		if ( '' === $this->get_corrected_query_message() ) {
 			return;
 		}
 
@@ -49,11 +48,15 @@ class Inline_Search_Correction {
 	/**
 	 * Register and configure the JavaScript for displaying the corrected query notice.
 	 *
+	 * Passes a plain-text message (not HTML). The front-end builds the notice with
+	 * textContent so user-controlled query text is never parsed as HTML.
+	 * Avoids wp_localize_script(), which html_entity_decodes values (core #25280).
+	 *
 	 * @since 0.48.0
 	 */
 	public function register_corrected_query_script() {
-		$corrected_query_html = $this->get_corrected_query_html();
-		if ( empty( $corrected_query_html ) ) {
+		$message = $this->get_corrected_query_message();
+		if ( '' === $message ) {
 			return;
 		}
 
@@ -70,16 +73,17 @@ class Inline_Search_Correction {
 			)
 		);
 
-		wp_localize_script(
+		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
+		wp_add_inline_script(
 			$handle,
-			'JetpackSearchCorrectedQuery',
-			array(
-				'html'      => $corrected_query_html,
-				'selectors' => $this->get_title_selectors(),
-				'i18n'      => array(
-					'error' => esc_html__( 'Error displaying search correction', 'jetpack-search-pkg' ),
+			'window.JetpackSearchCorrectedQuery=' . wp_json_encode(
+				array(
+					'message'   => $message,
+					'selectors' => $this->get_title_selectors(),
 				),
-			)
+				JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES
+			) . ';',
+			'before'
 		);
 	}
 
@@ -159,11 +163,14 @@ class Inline_Search_Correction {
 	}
 
 	/**
-	 * Generate the HTML for the corrected query notice.
+	 * Generate the plain-text message for the corrected query notice.
 	 *
-	 * @return string The HTML for the corrected query notice or empty string if none.
+	 * Returns text only — never HTML. The front-end must insert this via
+	 * textContent (or equivalent), not insertAdjacentHTML / innerHTML.
+	 *
+	 * @return string The notice message, or empty string if none.
 	 */
-	private function get_corrected_query_html() {
+	public function get_corrected_query_message() {
 		global $wp_query;
 		$original_query = $wp_query->get( 's' );
 		$search_result  = $this->get_search_result();
@@ -172,15 +179,10 @@ class Inline_Search_Correction {
 			return '';
 		}
 
-		$message = sprintf(
-			/* translators: %s: Original search term the user entered */
-			esc_html__( 'No results for "%s"', 'jetpack-search-pkg' ),
-			esc_html( $original_query )
-		);
-
 		return sprintf(
-			'<p class="jetpack-search-corrected-query">%s</p>',
-			$message
+			/* translators: %s: Original search term the user entered */
+			__( 'No results for "%s"', 'jetpack-search-pkg' ),
+			$original_query
 		);
 	}
 

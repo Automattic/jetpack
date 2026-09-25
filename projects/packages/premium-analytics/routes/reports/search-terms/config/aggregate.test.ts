@@ -1,4 +1,4 @@
-import { aggregateSearchTermRows, searchTermsToTimeSeries } from './aggregate';
+import { aggregateSearchTermRows } from './aggregate';
 import type { StatsNormalizedReport, StatsSearchTermsItem } from '@jetpack-premium-analytics/data';
 
 describe( 'report search terms aggregate', () => {
@@ -43,10 +43,42 @@ describe( 'report search terms aggregate', () => {
 	};
 
 	it( 'aggregates known terms and renders encrypted searches as a regular row', () => {
-		expect( aggregateSearchTermRows( report, 'Unknown search terms' ) ).toEqual( [
+		expect( aggregateSearchTermRows( report, 'Unknown search terms' ) ).toEqual( {
+			rows: [
+				{ id: 'term:wordpress analytics', term: 'wordpress analytics', views: 8 },
+				{ id: 'term:jetpack stats', term: 'jetpack stats', views: 2 },
+				{ id: 'unknown-search-terms', term: 'Unknown search terms', views: 10 },
+			],
+			hasComparison: false,
+		} );
+	} );
+
+	it( 'uses the summarized encrypted count without folding other terms into Unknown', () => {
+		const summarizedReport: StatsNormalizedReport< StatsSearchTermsItem > = {
+			summary: {
+				encrypted_search_terms: 12,
+				other_search_terms: 99,
+			},
+			data: [
+				{
+					...report.data[ 0 ],
+					items: [
+						{
+							label: 'wordpress analytics',
+							views: 8,
+							className: 'user-selectable',
+							children: null,
+						},
+					],
+					// Summary metadata is authoritative when both shapes are present.
+					encrypted_search_terms: 4,
+				},
+			],
+		};
+
+		expect( aggregateSearchTermRows( summarizedReport, 'Unknown search terms' ).rows ).toEqual( [
 			{ id: 'term:wordpress analytics', term: 'wordpress analytics', views: 8 },
-			{ id: 'term:jetpack stats', term: 'jetpack stats', views: 2 },
-			{ id: 'unknown-search-terms', term: 'Unknown search terms', views: 10 },
+			{ id: 'unknown-search-terms', term: 'Unknown search terms', views: 12 },
 		] );
 	} );
 
@@ -60,47 +92,7 @@ describe( 'report search terms aggregate', () => {
 			} ) ),
 		};
 
-		expect( aggregateSearchTermRows( emptyReport, 'Unknown search terms' ) ).toEqual( [] );
-	} );
-
-	it( 'includes known and encrypted views in each chart bucket', () => {
-		const series = searchTermsToTimeSeries( report, 'day' );
-
-		expect( series.summary ).toEqual( {
-			date_start: '2026-06-03T00:00:00+00:00',
-			date_end: '2026-06-04T23:59:59+00:00',
-		} );
-		expect( series.data.map( point => point.views ) ).toEqual( [ 9, 11 ] );
-	} );
-
-	it( 'groups daily totals into ISO weeks starting on Monday', () => {
-		const series = searchTermsToTimeSeries( report, 'week' );
-
-		expect( series.data ).toEqual( [
-			expect.objectContaining( {
-				time_interval: '2026-06-01',
-				date_start: '2026-06-01T00:00:00+00:00',
-				date_end: '2026-06-04T23:59:59+00:00',
-				views: 20,
-			} ),
-		] );
-		expect( series.summary ).toEqual( {
-			date_start: '2026-06-03T00:00:00+00:00',
-			date_end: '2026-06-04T23:59:59+00:00',
-		} );
-	} );
-
-	it( 'groups daily totals into calendar months', () => {
-		const series = searchTermsToTimeSeries( report, 'month' );
-
-		expect( series.data ).toEqual( [
-			expect.objectContaining( {
-				time_interval: '2026-06-01',
-				date_start: '2026-06-01T00:00:00+00:00',
-				date_end: '2026-06-04T23:59:59+00:00',
-				views: 20,
-			} ),
-		] );
+		expect( aggregateSearchTermRows( emptyReport, 'Unknown search terms' ).rows ).toEqual( [] );
 	} );
 
 	it( 'omits the unknown row when the payload has no encrypted aggregate', () => {
@@ -114,7 +106,264 @@ describe( 'report search terms aggregate', () => {
 		};
 
 		expect(
-			aggregateSearchTermRows( reportWithoutEncrypted, 'Unknown search terms' )
+			aggregateSearchTermRows( reportWithoutEncrypted, 'Unknown search terms' ).rows
 		).toHaveLength( 2 );
+	} );
+
+	it( 'matches known and encrypted rows and treats absent known terms as zero', () => {
+		const comparisonReport: StatsNormalizedReport< StatsSearchTermsItem > = {
+			summary: {},
+			data: [
+				{
+					...report.data[ 0 ],
+					items: [
+						{
+							label: 'wordpress analytics',
+							views: 1,
+							className: 'user-selectable',
+							children: null,
+						},
+						{
+							label: 'comparison-only term',
+							views: 9,
+							className: 'user-selectable',
+							children: null,
+						},
+					],
+					encrypted_search_terms: 2,
+				},
+				{
+					...report.data[ 1 ],
+					items: [
+						{
+							label: 'wordpress analytics',
+							views: 3,
+							className: 'user-selectable',
+							children: null,
+						},
+					],
+					encrypted_search_terms: 3,
+				},
+			],
+		};
+
+		expect( aggregateSearchTermRows( report, 'Unknown search terms', comparisonReport ) ).toEqual( {
+			rows: [
+				{
+					id: 'term:wordpress analytics',
+					term: 'wordpress analytics',
+					views: 8,
+					previousViews: 4,
+				},
+				{
+					id: 'term:jetpack stats',
+					term: 'jetpack stats',
+					views: 2,
+					previousViews: 0,
+				},
+				{
+					id: 'unknown-search-terms',
+					term: 'Unknown search terms',
+					views: 10,
+					previousViews: 5,
+				},
+			],
+			hasComparison: true,
+		} );
+	} );
+
+	it( 'preserves an explicit zero for the encrypted comparison aggregate', () => {
+		const zeroComparisonReport: StatsNormalizedReport< StatsSearchTermsItem > = {
+			summary: {},
+			data: report.data.map( point => ( {
+				...point,
+				items: [],
+				encrypted_search_terms: 0,
+			} ) ),
+		};
+		const result = aggregateSearchTermRows( report, 'Unknown search terms', zeroComparisonReport );
+
+		expect( result.rows ).toContainEqual( {
+			id: 'unknown-search-terms',
+			term: 'Unknown search terms',
+			views: 10,
+			previousViews: 0,
+		} );
+		expect( result.hasComparison ).toBe( true );
+	} );
+
+	it( 'treats an empty settled comparison report as zero for every primary row', () => {
+		const emptyComparisonReport: StatsNormalizedReport< StatsSearchTermsItem > = {
+			summary: { encrypted_search_terms: 0 },
+			data: [],
+		};
+
+		expect(
+			aggregateSearchTermRows( report, 'Unknown search terms', emptyComparisonReport )
+		).toEqual( {
+			rows: [
+				{
+					id: 'term:wordpress analytics',
+					term: 'wordpress analytics',
+					views: 8,
+					previousViews: 0,
+				},
+				{
+					id: 'term:jetpack stats',
+					term: 'jetpack stats',
+					views: 2,
+					previousViews: 0,
+				},
+				{
+					id: 'unknown-search-terms',
+					term: 'Unknown search terms',
+					views: 10,
+					previousViews: 0,
+				},
+			],
+			hasComparison: true,
+		} );
+	} );
+
+	it( 'leaves previousViews undefined for a term missing from a truncated comparison', () => {
+		// other_search_terms > 0 means the comparison list does not include
+		// every term, so "wordpress analytics" stays a real zero while
+		// "jetpack stats" is simply absent from the truncated list.
+		const truncatedComparisonReport: StatsNormalizedReport< StatsSearchTermsItem > = {
+			summary: { other_search_terms: 5 },
+			data: [
+				{
+					...report.data[ 0 ],
+					items: [
+						{
+							label: 'wordpress analytics',
+							views: 0,
+							className: 'user-selectable',
+							children: null,
+						},
+					],
+					encrypted_search_terms: 0,
+				},
+				{ ...report.data[ 1 ], items: [], encrypted_search_terms: 0 },
+			],
+		};
+
+		const result = aggregateSearchTermRows(
+			report,
+			'Unknown search terms',
+			truncatedComparisonReport
+		);
+		const wordpressAnalyticsRow = result.rows.find( row => row.id === 'term:wordpress analytics' );
+		const jetpackStatsRow = result.rows.find( row => row.id === 'term:jetpack stats' );
+
+		expect( wordpressAnalyticsRow?.previousViews ).toBe( 0 );
+		expect( jetpackStatsRow?.previousViews ).toBeUndefined();
+		expect( result.hasComparison ).toBe( true );
+	} );
+
+	it( 'treats a missing term as zero when the comparison list is short and reports no overflow', () => {
+		const untruncatedComparisonReport: StatsNormalizedReport< StatsSearchTermsItem > = {
+			summary: { other_search_terms: -34 },
+			data: [
+				{
+					...report.data[ 0 ],
+					items: [
+						{
+							label: 'wordpress analytics',
+							views: 0,
+							className: 'user-selectable',
+							children: null,
+						},
+					],
+					encrypted_search_terms: 0,
+				},
+				{ ...report.data[ 1 ], items: [], encrypted_search_terms: 0 },
+			],
+		};
+
+		const result = aggregateSearchTermRows(
+			report,
+			'Unknown search terms',
+			untruncatedComparisonReport
+		);
+		const wordpressAnalyticsRow = result.rows.find( row => row.id === 'term:wordpress analytics' );
+		const jetpackStatsRow = result.rows.find( row => row.id === 'term:jetpack stats' );
+
+		expect( wordpressAnalyticsRow?.previousViews ).toBe( 0 );
+		expect( jetpackStatsRow?.previousViews ).toBe( 0 );
+		expect( result.hasComparison ).toBe( true );
+	} );
+
+	/**
+	 * A summarized comparison list that shares no term with the primary report and
+	 * reports no overflow, as `period=day` summarize mode never does.
+	 *
+	 * @param count     - Distinct terms in the list.
+	 * @param encrypted - Encrypted searches, which the endpoint counts against the same cap.
+	 * @return The comparison report.
+	 */
+	function makeCappedComparison(
+		count: number,
+		encrypted = 0
+	): StatsNormalizedReport< StatsSearchTermsItem > {
+		return {
+			summary: { other_search_terms: 0, total_search_terms: 0, encrypted_search_terms: encrypted },
+			data: [
+				{
+					...report.data[ 0 ],
+					items: Array.from( { length: count }, ( _, index ) => ( {
+						label: `filler term ${ index }`,
+						views: count - index,
+						className: 'user-selectable',
+						children: null,
+					} ) ),
+					encrypted_search_terms: 0,
+				},
+			],
+		};
+	}
+
+	it( 'treats a comparison list at the endpoint cap as truncated even without an overflow count', () => {
+		const result = aggregateSearchTermRows(
+			report,
+			'Unknown search terms',
+			makeCappedComparison( 500 )
+		);
+
+		expect(
+			result.rows.find( row => row.id === 'term:wordpress analytics' )?.previousViews
+		).toBeUndefined();
+		expect(
+			result.rows.find( row => row.id === 'term:jetpack stats' )?.previousViews
+		).toBeUndefined();
+		expect( result.hasComparison ).toBe( true );
+	} );
+
+	it( 'counts the Unknown row against the cap, since encrypted searches take one of its slots', () => {
+		const result = aggregateSearchTermRows(
+			report,
+			'Unknown search terms',
+			makeCappedComparison( 499, 42 )
+		);
+
+		expect(
+			result.rows.find( row => row.id === 'term:wordpress analytics' )?.previousViews
+		).toBeUndefined();
+		expect( result.rows.find( row => row.id === 'unknown-search-terms' )?.previousViews ).toBe(
+			42
+		);
+	} );
+
+	it( 'treats a comparison list under the endpoint cap as complete', () => {
+		const result = aggregateSearchTermRows(
+			report,
+			'Unknown search terms',
+			makeCappedComparison( 499 )
+		);
+
+		expect( result.rows.find( row => row.id === 'term:wordpress analytics' )?.previousViews ).toBe(
+			0
+		);
+		expect( result.rows.find( row => row.id === 'term:jetpack stats' )?.previousViews ).toBe( 0 );
 	} );
 } );

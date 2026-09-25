@@ -1,8 +1,6 @@
 /**
- * The stories render the data-connected widget fed by the shared
- * report-mock harness. `registerReportMocks` routes the `stats/` site summary
- * (`/proxy/v1.1/stats`) — including the `views_best_day*` fields this widget
- * reads — through `routeStatsReport()`, so no story-scoped middleware is needed.
+ * `registerReportMocks` already routes the `/proxy/v1.1/stats` site summary this
+ * widget reads, so no story-scoped middleware is needed.
  */
 /**
  * External dependencies
@@ -22,6 +20,7 @@ import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
 	setReportMockState,
+	type ReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import MostPopularDayRender from '../render';
 import widgetDefinition from '../widget';
@@ -40,19 +39,11 @@ const MOST_POPULAR_DAY_RENDER_MODULE = 'storybook/most-popular-day';
 const SITE_SUMMARY_PATH_FRAGMENT = 'proxy/v1.1/stats';
 
 /**
- * Forces the site-summary request into the given state for a story's lifetime.
- *
- * `useStatsSite()` has a constant query key — the all-time summary ignores the
- * dashboard date range — so distinct date presets cannot give the forced-state
- * stories their own cache entries. Instead, drop the cached summary from the
- * shared query client so the widget re-fetches and hits the forced mock, and
- * drop it again on cleanup so a forced empty/error result doesn't leak into the
- * other stories' shared cache entry.
- *
- * @param state - The forced report-mock state.
- * @return The `beforeEach` cleanup callback.
+ * `useStatsSite()` has a constant query key, so distinct date presets cannot give
+ * the forced-state stories their own cache entries. Evict the cached summary
+ * instead — on entry so the forced mock is hit, on cleanup so it does not leak.
  */
-function forceSiteSummaryState( state: 'loading' | 'error' | 'empty' ) {
+function forceSiteSummaryState( state: ReportMockState ) {
 	queryClient.removeQueries( { queryKey: [ 'stats', 'site' ] } );
 	setReportMockState( SITE_SUMMARY_PATH_FRAGMENT, state );
 	return () => {
@@ -61,10 +52,6 @@ function forceSiteSummaryState( state: 'loading' | 'error' | 'empty' ) {
 	};
 }
 
-/**
- * Renders the data-connected widget for the close-up stories.
- * @return The rendered widget.
- */
 function renderMostPopularDay() {
 	return <MostPopularDayRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
@@ -108,14 +95,26 @@ export const Loading: Story = {
 };
 
 /**
- * The fetch failed: the widget shows its error state with a Retry action (which
- * re-runs the query — still mocked as failing while this story is active).
+ * The reader cannot see this site's stats — a permission-gated 403. The widget
+ * states that neutrally and offers no Retry, which could not help.
  */
 export const Error: Story = {
 	render: renderMostPopularDay,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => forceSiteSummaryState( 'error' ),
+};
+
+/**
+ * The fetch failed in a way that can heal — the proxy's `no_connection` 403: the
+ * widget shows its retryable copy with a Retry action, which re-runs the query
+ * (still mocked as failing while this story is active).
+ */
+export const ErrorRetryable: Story = {
+	render: renderMostPopularDay,
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => forceSiteSummaryState( 'error-retryable' ),
 };
 
 /**
@@ -129,13 +128,6 @@ export const Empty: Story = {
 	beforeEach: () => forceSiteSummaryState( 'empty' ),
 };
 
-/**
- * Renders the data-connected widget through the shared dashboard harness, so it
- * appears exactly as it does in product (framed card, sizing, edit mode).
- *
- * @param {WidgetDashboardWithWidgetControls} dashboardArgs - The dashboard story controls.
- * @return The widget mounted inside the real `WidgetDashboard`.
- */
 function MostPopularDayDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory

@@ -13,7 +13,9 @@ const NotificationsSettings = ( {
 	emailSubject,
 	emailNotifications,
 	instanceId,
-	postAuthorEmail,
+	autoRecipient,
+	autoRecipientSource,
+	autoSubject,
 } ) => {
 	const [ localNotificationRecipients, setLocalNotificationRecipients ] =
 		useState( notificationRecipients );
@@ -62,7 +64,9 @@ const NotificationsSettings = ( {
 				emailSubject={ emailSubject }
 				emailNotifications={ emailNotifications }
 				instanceId={ instanceId }
-				postAuthorEmail={ postAuthorEmail }
+				autoRecipient={ autoRecipient }
+				autoRecipientSource={ autoRecipientSource }
+				autoSubject={ autoSubject }
 				setAttributes={ setAttributes }
 			/>
 			<>

@@ -7,6 +7,7 @@
  *
  * This module provides dynamic fixture generation based on request parameters.
  */
+import { wooBucketStamp } from '../../../__fixtures__/woo-bucket-stamp';
 import type { fetchReportOrders } from '../../../../../data/src/api/report-orders-fetch/report-orders-fetch';
 
 /**
@@ -55,13 +56,6 @@ export function seededRandom( seed: number ): () => number {
 	};
 }
 
-/**
- * Generate date intervals
- * @param from     - Start date
- * @param to       - End date
- * @param interval - Interval type
- * @return Array of date intervals
- */
 function generateDateIntervals(
 	from: string,
 	to: string,
@@ -113,23 +107,11 @@ function generateDateIntervals(
 	return intervals;
 }
 
-/**
- * Format a date in ISO format compatible with the API
- */
-function formatISODate( date: Date ): string {
-	return date.toISOString().replace( /\.\d{3}Z$/, '+00:00' );
-}
-
-/**
- * Format a date in YYYY-MM-DD format for time_interval
- */
+// `time_interval` is a date-only field.
 function formatDateOnly( date: Date ): string {
 	return date.toISOString().split( 'T' )[ 0 ];
 }
 
-/**
- * Generate mock order data for a specific interval
- */
 function generateIntervalData(
 	start: Date,
 	end: Date,
@@ -137,14 +119,13 @@ function generateIntervalData(
 	sparsity: number,
 	avgOrders: number
 ): OrdersReportResponse[ 'data' ][ 0 ] {
-	// Determine if this interval has orders
 	const hasOrders = random() < sparsity;
 
 	if ( ! hasOrders ) {
 		return {
 			time_interval: formatDateOnly( start ),
-			date_start: formatISODate( start ),
-			date_end: formatISODate( end ),
+			date_start: wooBucketStamp( start ),
+			date_end: wooBucketStamp( end ),
 			orders_no: '0',
 			orders_value_net: '0.0',
 			orders_value_gross: '0.0',
@@ -163,15 +144,12 @@ function generateIntervalData(
 		};
 	}
 
-	// Generate number of orders (variation around the average)
 	const ordersNo = Math.max( 1, Math.floor( avgOrders + ( random() - 0.5 ) * avgOrders ) );
 
-	// Generate realistic values
 	const avgOrderValue = 50 + random() * 150; // Between $50 and $200
 	const totalSales = ordersNo * avgOrderValue;
 	const avgItems = 1.5 + random() * 1.5; // Between 1.5 and 3 items per order
 
-	// Calculate other values based on realistic relationships
 	const coupons = totalSales * ( 0.1 + random() * 0.3 ); // 10-40% in coupons
 	const ordersValueGross = totalSales * ( 1.1 + random() * 0.3 ); // +10-40%
 	const ordersValueNet = totalSales - coupons * 0.5; // Partial discount
@@ -188,8 +166,8 @@ function generateIntervalData(
 
 	return {
 		time_interval: formatDateOnly( start ),
-		date_start: formatISODate( start ),
-		date_end: formatISODate( end ),
+		date_start: wooBucketStamp( start ),
+		date_end: wooBucketStamp( end ),
 		orders_no: ordersNo.toString(),
 		orders_value_net: ordersValueNet.toFixed( 2 ),
 		orders_value_gross: ordersValueGross.toFixed( 2 ),
@@ -208,9 +186,6 @@ function generateIntervalData(
 	};
 }
 
-/**
- * Calculate the summary from the array of data
- */
 function calculateSummary(
 	data: OrdersReportResponse[ 'data' ],
 	from: string,
@@ -272,8 +247,8 @@ function calculateSummary(
 		paid_net_sales: totals.paid_net_sales.toFixed( 2 ),
 		unpaid_orders_count: totals.unpaid_orders_count.toString(),
 		unpaid_net_sales: totals.unpaid_net_sales.toFixed( 2 ),
-		date_start: formatISODate( new Date( from ) ),
-		date_end: formatISODate( new Date( to ) ),
+		date_start: wooBucketStamp( new Date( from ) ),
+		date_end: wooBucketStamp( new Date( to ) ),
 	};
 }
 
@@ -282,18 +257,6 @@ function calculateSummary(
  *
  * @param params - Generation parameters based on the request
  * @return Mock data that matches the API format
- *
- * @example
- * ```ts
- * const mockData = generateOrdersByProductType({
- *   from: '2025-11-15T00:00:00.000+00:00',
- *   to: '2025-12-14T23:59:59.999+00:00',
- *   interval: 'day',
- *   seed: 12345,   // For reproducible data
- *   density: 0.3,  // 30% of days with orders
- *   volume: 3,     // 3 orders per active day
- * });
- * ```
  */
 export function generateOrdersByProductType( params: GenerateOrdersParams ): OrdersReportResponse {
 	const { from, to, interval = 'day', seed = Date.now(), density = 0.9, volume = 7 } = params;
@@ -348,7 +311,6 @@ export function recalculateSummary(
 	from: string,
 	to: string
 ): OrdersReportResponse[ 'summary' ] {
-	// If no data, return zeros
 	if ( filteredData.length === 0 ) {
 		return {
 			orders_no: '0',
@@ -366,12 +328,11 @@ export function recalculateSummary(
 			paid_net_sales: '0.0',
 			unpaid_orders_count: '0',
 			unpaid_net_sales: '0.0',
-			date_start: formatISODate( new Date( from ) ),
-			date_end: formatISODate( new Date( to ) ),
+			date_start: wooBucketStamp( new Date( from ) ),
+			date_end: wooBucketStamp( new Date( to ) ),
 		};
 	}
 
-	// Calculate from filtered data
 	return calculateSummary( filteredData, from, to );
 }
 

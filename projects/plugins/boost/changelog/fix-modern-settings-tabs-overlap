@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Keep the modern dashboard tabs clickable after scrolling Settings, and align the first Settings card with Overview, when the modernization filter is on. No change with the filter off.
+
+

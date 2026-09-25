@@ -59,9 +59,6 @@ const DEVICE_LABELS: Record< string, string > = {
 
 /**
  * Converts a StatsDevicesItem from the data layer to the widget's DeviceView shape.
- *
- * @param item - Normalized device item from the data layer.
- * @return DeviceView with a human-readable display label.
  */
 function toDeviceView( item: StatsDevicesComparisonItem ): DeviceView {
 	const key = typeof item.label === 'string' ? item.label : String( item.label );
@@ -75,9 +72,6 @@ function toDeviceView( item: StatsDevicesComparisonItem ): DeviceView {
 
 /**
  * Fetch device percentages for the Devices widget via the shared Stats data layer.
- *
- * @param {UseDeviceViewsArgs} args - Hook arguments.
- * @return The current data/loading/error state.
  */
 export default function useDeviceViews( {
 	reportParams,

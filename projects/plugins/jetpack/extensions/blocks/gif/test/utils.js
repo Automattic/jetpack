@@ -92,6 +92,14 @@ describe( 'Gif Block utils', () => {
 			);
 		} );
 
+		test( 'falls back to a text search when shortlink resolution fails', async () => {
+			testEmbedUrl.mockRejectedValueOnce( new Error( 'Request failed' ) );
+
+			await expect( getUrl( 'https://gph.is/g/aKnlLW3' ) ).resolves.toBe(
+				`https://api.giphy.com/v1/gifs/search?q=https%3A%2F%2Fgph.is%2Fg%2FaKnlLW3&api_key=${ GIPHY_API_KEY }&limit=10`
+			);
+		} );
+
 		test( 'treats searchText as a query string for other URL-like non-matches', async () => {
 			await expect( getUrl( 'https://this.does.not/work' ) ).resolves.toBe(
 				`https://api.giphy.com/v1/gifs/search?q=https%3A%2F%2Fthis.does.not%2Fwork&api_key=${ GIPHY_API_KEY }&limit=10`

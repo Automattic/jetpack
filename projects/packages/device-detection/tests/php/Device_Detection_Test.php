@@ -50,6 +50,19 @@ class Device_Detection_Test extends TestCase {
 	}
 
 	/**
+	 * An iPad is excluded from the phone kinds wherever the name sits in the user agent,
+	 * including at the very start, where a truthy check on the position would miss it.
+	 */
+	public function test_ipad_at_the_start_of_the_user_agent_is_not_a_phone() {
+		$_SERVER['HTTP_USER_AGENT'] = 'ipad; iphone os 17_0 like mac os x';
+
+		$device_info = Device_Detection::get_info();
+
+		$this->assertFalse( $device_info['is_phone'] );
+		$this->assertTrue( $device_info['is_tablet'] );
+	}
+
+	/**
 	 * The get_browser tests.
 	 *
 	 * @param string $ua User agent string.

@@ -102,22 +102,10 @@ class Jetpack_Likes {
 		}
 
 		add_filter( 'jetpack_module_configuration_url_likes', array( $this, 'jetpack_likes_configuration_url' ) );
-		add_action( 'admin_print_scripts-settings_page_sharing', array( $this, 'load_jp_css' ) );
-		add_filter( 'sharing_show_buttons_on_row_start', array( $this, 'configuration_target_area' ) );
 
-		$publicize_active  = Jetpack::is_module_active( 'publicize' );
 		$sharedaddy_active = Jetpack::is_module_active( 'sharedaddy' );
 
-		if ( $publicize_active && ! $sharedaddy_active ) {
-			// we have a sharing page but not the global options area.
-			add_action( 'pre_admin_screen_sharing', array( $this->settings, 'sharing_block' ), 20 );
-			add_action( 'pre_admin_screen_sharing', array( $this->settings, 'updated_message' ), -10 );
-		}
-
 		if ( ! $sharedaddy_active ) {
-			add_action( 'admin_init', array( $this->settings, 'process_update_requests_if_sharedaddy_not_loaded' ) );
-			add_action( 'sharing_global_options', array( $this->settings, 'admin_settings_showbuttonon_init' ), 19 );
-			add_action( 'sharing_admin_update', array( $this->settings, 'admin_settings_showbuttonon_callback' ), 19 );
 			add_action( 'admin_init', array( $this->settings, 'add_meta_box' ) );
 		} else {
 			add_filter( 'sharing_meta_box_title', array( $this->settings, 'add_likes_to_sharing_meta_box_title' ) );
@@ -130,8 +118,6 @@ class Jetpack_Likes {
 
 		add_action( 'save_post', array( $this->settings, 'meta_box_save' ) );
 		add_action( 'edit_attachment', array( $this->settings, 'meta_box_save' ) );
-		add_action( 'sharing_global_options', array( $this->settings, 'admin_settings_init' ), 20 );
-		add_action( 'sharing_admin_update', array( $this->settings, 'admin_settings_callback' ), 20 );
 	}
 
 	/**
@@ -164,12 +150,26 @@ class Jetpack_Likes {
 
 	/**
 	 * Loads Jetpack's CSS on the sharing page so we can use .jetpack-targetable
+	 *
+	 * @deprecated $$next-version$$ Settings > Sharing is a plain WordPress settings screen now.
+	 *
+	 * @return void
 	 */
 	public function load_jp_css() {
-		/**
-		* Do we really need `admin_styles`? With the new admin UI, it's breaking some bits.
-		* Jetpack::init()->admin_styles();
-		*/
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+	}
+
+	/**
+	 * Adds in the jetpack-targetable class so when we visit sharing#likes our like settings get highlighted by a yellow box
+	 *
+	 * @deprecated $$next-version$$ The Likes settings have a section of their own on Settings > Sharing.
+	 *
+	 * @param string $html row heading for the sharedaddy "which page" setting.
+	 * @return string The unchanged $html.
+	 */
+	public function configuration_target_area( $html = '' ) {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		return $html;
 	}
 
 	/**
@@ -206,18 +206,7 @@ class Jetpack_Likes {
 	}
 
 	/**
-	 * Adds in the jetpack-targetable class so when we visit sharing#likes our like settings get highlighted by a yellow box
-	 *
-	 * @param string $html row heading for the sharedaddy "which page" setting.
-	 * @return string $html with the jetpack-targetable class and likes id. tbody gets closed after the like settings
-	 */
-	public function configuration_target_area( $html = '' ) {
-		$html = "<tbody id='likes' class='jetpack-targetable'>" . $html;
-		return $html;
-	}
-
-	/**
-	 * Options to be added to the discussion page (see also admin_settings_init, etc below for Sharing settings page)
+	 * Options to be added to the discussion page. The Sharing settings live in Sharing_Likes\Settings\Likes_Section.
 	 */
 	public function admin_discussion_likes_settings_init() {
 		// Add a temporary section, until we can move the setting out of there and with the rest of the email notification settings.

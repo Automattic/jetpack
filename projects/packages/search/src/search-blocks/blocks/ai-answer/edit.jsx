@@ -11,6 +11,10 @@
  * gate in render.php so authors don't insert a block that won't render. The
  * paid-plan flag is localized onto `window.JetpackSearchBlocksConfig`
  * (`supportsPaidSearch`); the source of truth is the matching PHP gate.
+ *
+ * The Jetpack AI master switch gates the block the same way (`aiMasterEnabled`
+ * on the same config object), and its notice wins over the upgrade prompt —
+ * never upsell a plan while site-wide AI is off.
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { Button, PanelBody, Placeholder, TextControl, ToggleControl } from '@wordpress/components';
@@ -24,10 +28,10 @@ const SAMPLE_CITATIONS = [
 // Editor preview defaults to "paid" when the localized config isn't present
 // (e.g. a Jest harness or a non-enqueued bundle context) so existing tests
 // see the full preview and the gate is opt-in via an explicit `false`.
-const supportsPaidSearch = () =>
+const configFlagOn = key =>
 	typeof window === 'undefined' ||
 	! window.JetpackSearchBlocksConfig ||
-	window.JetpackSearchBlocksConfig.supportsPaidSearch !== false;
+	window.JetpackSearchBlocksConfig[ key ] !== false;
 
 const UPGRADE_URL = 'https://jetpack.com/upgrade/search/?utm_source=ai-answer-block';
 
@@ -42,7 +46,21 @@ const UPGRADE_URL = 'https://jetpack.com/upgrade/search/?utm_source=ai-answer-bl
 export default function AiAnswerEdit( { attributes, setAttributes } ) {
 	const blockProps = useBlockProps();
 
-	if ( ! supportsPaidSearch() ) {
+	if ( ! configFlagOn( 'aiMasterEnabled' ) ) {
+		return (
+			<div { ...blockProps }>
+				<Placeholder
+					label={ __( 'AI Answer', 'jetpack-search-pkg' ) }
+					instructions={ __(
+						'Jetpack AI is turned off for this site, so visitors won’t see this block. Turn Jetpack AI on to show AI-generated answers in your search results.',
+						'jetpack-search-pkg'
+					) }
+				/>
+			</div>
+		);
+	}
+
+	if ( ! configFlagOn( 'supportsPaidSearch' ) ) {
 		return (
 			<div { ...blockProps }>
 				<Placeholder

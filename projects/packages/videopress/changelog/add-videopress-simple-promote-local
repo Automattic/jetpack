@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-VideoPress: allow promoting existing local videos to VideoPress on WordPress.com Simple via an in-process wpcom/v2 endpoint

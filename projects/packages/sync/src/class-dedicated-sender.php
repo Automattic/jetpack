@@ -85,7 +85,7 @@ class Dedicated_Sender {
 			return false;
 		}
 
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Recommended
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Recommended -- Only substring-matched against a fixed literal; never output or stored.
 		$check_url = self::prepare_url_for_dedicated_request_check( wp_unslash( $_SERVER['REQUEST_URI'] ) );
 		if ( strpos( $check_url, 'jetpack/v4/sync/spawn-sync' ) !== false ) {
 			return true;
@@ -101,7 +101,7 @@ class Dedicated_Sender {
 			return false;
 		}
 
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Recommended
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Recommended -- Only substring-matched against a fixed literal; never output or stored.
 		$check_url = self::prepare_url_for_dedicated_request_check( wp_unslash( $_GET['rest_route'] ) );
 		if ( strpos( $check_url, 'jetpack/v4/sync/spawn-sync' ) !== false ) {
 			return true;

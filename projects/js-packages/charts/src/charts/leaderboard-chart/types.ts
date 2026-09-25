@@ -1,20 +1,19 @@
 import { type ReactNode } from 'react';
 import { BaseChartProps, LeaderboardEntry } from '../../types';
 
-export interface LeaderboardChartProps
-	extends Pick<
-		BaseChartProps< LeaderboardEntry >,
-		| 'className'
-		| 'data'
-		| 'showLegend'
-		| 'legend'
-		| 'chartId'
-		| 'width'
-		| 'height'
-		| 'size'
-		| 'gap'
-		| 'animation'
-	> {
+export interface LeaderboardChartProps extends Pick<
+	BaseChartProps< LeaderboardEntry >,
+	| 'className'
+	| 'data'
+	| 'showLegend'
+	| 'legend'
+	| 'chartId'
+	| 'width'
+	| 'height'
+	| 'size'
+	| 'gap'
+	| 'animation'
+> {
 	/**
 	 * Whether to show comparison data
 	 */
@@ -36,9 +35,9 @@ export interface LeaderboardChartProps
 	secondaryColor?: string;
 
 	/**
-	 * Formatter for values
+	 * Formatter for values. May return an element, e.g. to attach a tooltip.
 	 */
-	valueFormatter?: ( value: number ) => string;
+	valueFormatter?: ( value: number ) => ReactNode;
 
 	/**
 	 * Formatter for delta values
@@ -65,8 +64,6 @@ export interface LeaderboardChartProps
 	 */
 	style?: React.CSSProperties & {
 		'--a8c-charts-border-radius-leaderboard-bar'?: string;
-		/** @deprecated Use `--a8c-charts-border-radius-leaderboard-bar`. */
-		'--a8c--charts--leaderboard--bar--border-radius'?: string;
 	};
 
 	/**

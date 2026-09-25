@@ -3,99 +3,37 @@
  */
 import {
 	useStatsVideoPlays,
-	useStatsVideoPlaysSummary,
 	type ReportParams,
-	type StatsChartBucketPeriod,
-	type StatsVideoPlaysItem,
+	type StatsVideoPlaysComparisonItem,
 } from '@jetpack-premium-analytics/data';
-import { useCallback, useMemo } from '@wordpress/element';
-/**
- * Internal dependencies
- */
-import { videosToTimeSeries } from './aggregate';
+import { useMemo } from '@wordpress/element';
 
-const EMPTY_VIDEO_ROWS: StatsVideoPlaysItem[] = [];
+const EMPTY_VIDEO_ROWS: StatsVideoPlaysComparisonItem[] = [];
 
 /**
- * Fetch the Videos report chart from daily plays and its table from the range summary.
+ * Fetch the Videos report table from the range summary.
  *
  * @param reportParams - The shared report-window parameters.
- * @param chartPeriod  - The chart's bucket period.
- * @return Chart data and table records.
+ * @return Table records and request state.
  */
-export function useVideosReportRecords(
-	reportParams: ReportParams,
-	chartPeriod: StatsChartBucketPeriod
-) {
-	const chartParams = useMemo(
+export function useVideosReportRecords( reportParams: ReportParams ) {
+	const summaryParams = useMemo(
 		() => ( {
 			...reportParams,
 			max: 0,
-			summarize: 0,
-			period: 'day',
+			summarize: 1,
+			complete_stats: 1,
 		} ),
 		[ reportParams ]
 	);
-	const videos = useStatsVideoPlays( chartParams );
-	const summary = useStatsVideoPlaysSummary( reportParams );
-	const primaryData = videos.primary.data;
-	const comparisonData = videos.comparison.data;
-	const summaryData = summary.data;
-	const primaryLinksById = useMemo( () => {
-		const links = new Map< string, string >();
-
-		for ( const point of primaryData?.data ?? [] ) {
-			for ( const video of point.items ) {
-				if ( video.id != null && video.link ) {
-					links.set( String( video.id ), video.link );
-				}
-			}
-		}
-
-		return links;
-	}, [ primaryData ] );
-	const rows = useMemo( () => {
-		if ( ! summaryData ) {
-			return EMPTY_VIDEO_ROWS;
-		}
-
-		return summaryData.data.flatMap( point =>
-			point.items.map( row => ( {
-				...row,
-				link:
-					row.link ??
-					( row.id != null ? primaryLinksById.get( String( row.id ) ) : undefined ) ??
-					null,
-			} ) )
-		);
-	}, [ summaryData, primaryLinksById ] );
-
-	const chartPrimary = useMemo(
-		() => videosToTimeSeries( primaryData, chartPeriod ),
-		[ primaryData, chartPeriod ]
-	);
-	const chartComparison = useMemo( () => {
-		if ( ! reportParams.compare_from || ! reportParams.compare_to || ! comparisonData ) {
-			return undefined;
-		}
-
-		return videosToTimeSeries( comparisonData, chartPeriod );
-	}, [ reportParams.compare_from, reportParams.compare_to, comparisonData, chartPeriod ] );
-	const videosRefetch = videos.refetch;
-	const summaryRefetch = summary.refetch;
-	const refetch = useCallback( async () => {
-		await Promise.all( [ videosRefetch(), summaryRefetch() ] );
-	}, [ videosRefetch, summaryRefetch ] );
+	const summary = useStatsVideoPlays( summaryParams );
 
 	return {
-		isError: videos.isError || summary.isError,
-		refetch,
-		chart: {
-			primary: chartPrimary,
-			comparison: chartComparison,
-			isLoading: videos.isLoading,
-		},
-		rows,
+		isError: summary.primary.isError,
+		refetch: summary.refetch,
+		rows: summary.comparisonRows?.rows ?? EMPTY_VIDEO_ROWS,
+		hasComparison: summary.hasComparison,
 		isLoading: summary.isLoading,
+		isFetching: summary.isFetching,
 	};
 }

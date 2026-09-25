@@ -23,3 +23,23 @@
 .hideLevelMarkers :global(.dataviews-view-table__level) {
 	visibility: hidden;
 }
+
+/* Keep the fold control on the title's baseline. */
+.titleCell {
+	display: inline-flex;
+	gap: var(--wpds-dimension-gap-xs);
+	align-items: center;
+
+	/* A flex item's `min-width: auto` would otherwise pin this to its content. */
+	min-inline-size: 0;
+}
+
+/* DataViews caps this cell and asks for an ellipsis but never clips, so a
+   long title would otherwise push the fold control out of the clipped card. */
+.titleContent {
+	min-inline-size: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+

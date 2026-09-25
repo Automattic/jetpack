@@ -1,21 +1,27 @@
 /**
  * External dependencies
  */
+import { Button, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
-import { sprintf, __ } from '@wordpress/i18n';
-import { SelectControl } from '@wordpress/ui';
-import clsx from 'clsx';
-import { useCallback, useMemo } from 'react';
+import { MenuGroup, MenuItem, NavigableMenu } from '@wordpress/components';
+import { __, _x } from '@wordpress/i18n';
+import { check, chevronDown, plus } from '@wordpress/icons';
+import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
+import { DateControlPopover } from '../date-control-popover';
+import {
+	DATE_CONTROL_TRIGGER_DEFAULTS,
+	openOnArrowDown,
+	type DateControlTriggerProps,
+} from '../utils/date-control-trigger';
 import type { ComparisonDateRangePreset } from '../use-comparison-date-presets';
 import type { ComparisonPresetId } from '@jetpack-premium-analytics/datetime';
-import './date-comparison-dropdown.scss';
 
 const NO_COMPARISON_VALUE = 'no-comparison';
 
-type ComparisonSelectItem = {
+type ComparisonMenuItem = {
 	value: string;
 	label: string;
 };
@@ -25,139 +31,145 @@ type DateComparisonDropdownProps = {
 	 * Available comparison presets (e.g., previous-period, previous-month)
 	 */
 	presets: ComparisonDateRangePreset[];
-	/**
-	 * Whether comparison is enabled
-	 */
 	enabled: boolean;
-	/**
-	 * Currently selected comparison preset ID
-	 */
 	presetId?: ComparisonPresetId;
 	/**
-	 * Visible label rendered by the select itself. When provided, the trigger
-	 * shows only the comparison range; otherwise the trigger carries the
-	 * "Compare to:" prefix and the label stays visually hidden.
+	 * Names the trigger, and with no comparison active is also its visible
+	 * text. Defaults to "Compare" / "Compare to" depending on the state.
 	 */
 	label?: string;
-	/**
-	 * Callback when a comparison preset is selected
-	 */
+	/** Greys the trigger out but keeps it focusable: a passing state, not a missing control. */
+	disabled?: boolean;
+	/** The trigger's look, over a neutral outline at the default size. */
+	triggerProps?: DateControlTriggerProps;
 	onPresetChange: ( id: ComparisonPresetId ) => void;
-	/**
-	 * Callback when comparison is cleared
-	 */
 	onClear: () => void;
 };
-
-type ComparisonTriggerLabelArgs = {
-	selectedPreset?: ComparisonDateRangePreset;
-	removeCompareToPrefix: boolean;
-	noComparisonLabel: string;
-};
-
-/**
- * Builds the comparison trigger label from the active preset range.
- *
- * @param {ComparisonTriggerLabelArgs} args - Label formatting inputs.
- * @return Trigger label text.
- */
-export function getComparisonTriggerLabel( {
-	selectedPreset,
-	removeCompareToPrefix,
-	noComparisonLabel,
-}: ComparisonTriggerLabelArgs ): string {
-	if ( ! selectedPreset?.range?.from || ! selectedPreset.range.to ) {
-		return noComparisonLabel;
-	}
-
-	if ( removeCompareToPrefix ) {
-		return formatDateRange( selectedPreset.range );
-	}
-
-	return sprintf(
-		// translators: %s is the comparison range label
-		__( 'Compare to: %s', 'jetpack-premium-analytics-pkg' ),
-		formatDateRange( selectedPreset.range )
-	);
-}
 
 export function DateComparisonDropdown( {
 	presets,
 	enabled,
 	presetId,
 	label,
+	disabled = false,
+	triggerProps,
 	onPresetChange,
 	onClear,
 }: DateComparisonDropdownProps ) {
 	const noComparisonLabel = __( 'No comparison', 'jetpack-premium-analytics-pkg' );
-	const selectComparisonLabel = __( 'Select comparison', 'jetpack-premium-analytics-pkg' );
+	const additiveLabel = __( 'Compare', 'jetpack-premium-analytics-pkg' );
+	const compareToLabel = __( 'Compare to', 'jetpack-premium-analytics-pkg' );
 
-	const items = useMemo( (): ComparisonSelectItem[] => {
+	// "No comparison" closes the menu as the way out, after the options.
+	const items = useMemo( (): ComparisonMenuItem[] => {
 		return [
-			{
-				value: NO_COMPARISON_VALUE,
-				label: noComparisonLabel,
-			},
 			...presets.map( preset => ( {
 				value: preset.id,
 				label: preset.label,
 			} ) ),
+			{
+				value: NO_COMPARISON_VALUE,
+				label: noComparisonLabel,
+			},
 		];
 	}, [ noComparisonLabel, presets ] );
 
+	// A preset folded into another entry checks that entry. One the current
+	// range cannot produce leaves the trigger with nothing to name, so the
+	// control falls back to its additive state.
 	const selectedPreset = useMemo(
-		() => ( presetId ? presets.find( preset => preset.id === presetId ) : undefined ),
-		[ presetId, presets ]
-	);
-
-	const selectedValue = enabled && presetId ? presetId : NO_COMPARISON_VALUE;
-	const isComparisonActive = selectedValue !== NO_COMPARISON_VALUE;
-
-	const selectedItem = useMemo(
-		() => items.find( item => item.value === selectedValue ) ?? items[ 0 ] ?? null,
-		[ items, selectedValue ]
-	);
-
-	const triggerLabel = useMemo(
 		() =>
-			isComparisonActive
-				? getComparisonTriggerLabel( {
-						selectedPreset,
-						removeCompareToPrefix: !! label,
-						noComparisonLabel,
-				  } )
-				: noComparisonLabel,
-		[ isComparisonActive, label, noComparisonLabel, selectedPreset ]
+			enabled && presetId
+				? presets.find( preset => preset.id === presetId || preset.aliases.includes( presetId ) )
+				: undefined,
+		[ enabled, presetId, presets ]
 	);
 
-	const handleValueChange = useCallback(
-		( item: ComparisonSelectItem | null ) => {
-			if ( ! item?.value ) {
-				return;
-			}
+	const selectedValue = selectedPreset?.id ?? NO_COMPARISON_VALUE;
+	const isComparisonActive = !! selectedPreset;
 
-			if ( item.value === NO_COMPARISON_VALUE ) {
+	const handleSelect = useCallback(
+		( value: string ) => {
+			if ( value === NO_COMPARISON_VALUE ) {
 				onClear();
 				return;
 			}
 
-			onPresetChange( item.value as ComparisonPresetId );
+			onPresetChange( value as ComparisonPresetId );
 		},
 		[ onClear, onPresetChange ]
 	);
 
+	const controlLabel = label ?? ( isComparisonActive ? compareToLabel : additiveLabel );
+	const [ isOpen, setIsOpen ] = useState( false );
+
+	/*
+	 * Additive: `Compare +` until a preset is picked, then a trigger naming it —
+	 * spelled out rather than a bare `+`, since a glyph alone read as decoration.
+	 * Names the preset, not the period.
+	 */
 	return (
-		<SelectControl
-			className={ clsx( 'date-comparison-dropdown__select', {
-				'date-comparison-dropdown__select--active': isComparisonActive,
-			} ) }
-			items={ items }
-			value={ selectedItem }
-			onValueChange={ handleValueChange }
-			triggerContent={ () => triggerLabel }
-			label={ label ?? __( 'Compare to', 'jetpack-premium-analytics-pkg' ) }
-			hideLabelFromVision={ ! label }
-			placeholder={ selectComparisonLabel }
-		/>
+		<Stack direction="row" align="center" gap="sm">
+			{ selectedPreset ? (
+				<span>
+					{ _x(
+						'vs',
+						'prefix naming what a report is compared against',
+						'jetpack-premium-analytics-pkg'
+					) }
+				</span>
+			) : null }
+
+			<DateControlPopover
+				align="start"
+				title={ controlLabel }
+				open={ isOpen }
+				onOpenChange={ setIsOpen }
+				// The window the abbreviation stands for. Over the additive state
+				// a tooltip would repeat the label, so it stays empty there.
+				tooltip={ selectedPreset && formatDateRange( selectedPreset.range ) }
+				trigger={
+					<Button
+						{ ...DATE_CONTROL_TRIGGER_DEFAULTS }
+						{ ...triggerProps }
+						disabled={ disabled }
+						onKeyDown={ openOnArrowDown( {
+							isOpen,
+							onToggle: () => setIsOpen( true ),
+							disabled,
+						} ) }
+						// The trigger shows an abbreviation, so carry the full preset name
+						// for anyone not reading the glyphs — same as the preset pills.
+						aria-label={ selectedPreset?.label }
+					>
+						{ selectedPreset?.shortLabel ?? additiveLabel }
+						<Icon icon={ isComparisonActive ? chevronDown : plus } size={ 18 } />
+					</Button>
+				}
+			>
+				<NavigableMenu role="menu" aria-label={ controlLabel }>
+					<MenuGroup>
+						{ items.map( item => {
+							const isSelected = item.value === selectedValue;
+
+							return (
+								<MenuItem
+									key={ item.value }
+									role="menuitemradio"
+									isSelected={ isSelected }
+									icon={ isSelected ? check : undefined }
+									onClick={ () => {
+										handleSelect( item.value );
+										setIsOpen( false );
+									} }
+								>
+									{ item.label }
+								</MenuItem>
+							);
+						} ) }
+					</MenuGroup>
+				</NavigableMenu>
+			</DateControlPopover>
+		</Stack>
 	);
 }

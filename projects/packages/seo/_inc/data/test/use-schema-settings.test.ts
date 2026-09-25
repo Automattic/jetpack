@@ -42,7 +42,7 @@ describe( 'useSchemaSettings', () => {
 		expect( result.current.isLocalBusinessDirty ).toBe( false );
 	} );
 
-	it( 'saves only Organization and preserves pending LocalBusiness edits', async () => {
+	it( 'saves the Organization entity — organization and local business — in one request', async () => {
 		const onSave = jest.fn();
 		const { result } = renderHook( () => useSchemaSettings( RESPONSE, onSave ) );
 
@@ -53,34 +53,59 @@ describe( 'useSchemaSettings', () => {
 		expect( result.current.isOrganizationDirty ).toBe( true );
 		expect( result.current.isLocalBusinessDirty ).toBe( true );
 
-		const saved = {
-			breadcrumbList: RESPONSE.breadcrumbList,
+		const saved: SchemaSettings = {
+			...RESPONSE,
 			organization: { ...RESPONSE.organization, sameAs: [ 'https://twitter.com/acme' ] },
-			localBusiness: RESPONSE.localBusiness,
-			defaults: RESPONSE.defaults,
+			localBusiness: { ...RESPONSE.localBusiness, telephone: '+1 555 123 4567' },
 		};
 		mockApiFetch.mockResolvedValueOnce( saved );
 
-		act( () => result.current.saveOrganization() );
+		act( () => result.current.saveOrganizationEntity() );
 
 		await waitFor( () => expect( result.current.isOrganizationDirty ).toBe( false ) );
-		expect( createInfoNotice ).toHaveBeenCalledWith( 'Saving organization…', expect.anything() );
+		// One Save persists both sections, so neither stays dirty afterward.
+		expect( result.current.isLocalBusinessDirty ).toBe( false );
+		expect( createInfoNotice ).toHaveBeenCalledWith( 'Saving schema settings…', expect.anything() );
 
 		const post = mockApiFetch.mock.calls.find(
 			( [ options ] ) => ( options as { method?: string } ).method === 'POST'
 		);
 		const options = post![ 0 ] as {
 			path: string;
-			data: Pick< SchemaSettings, 'organization' >;
+			data: Pick< SchemaSettings, 'organization' | 'localBusiness' >;
 		};
 		expect( options.path ).toBe( '/jetpack/v4/seo/schema-settings' );
-		expect( options.data ).toEqual( {
-			organization: { ...RESPONSE.organization, sameAs: [ 'https://twitter.com/acme' ] },
-		} );
-		expect( result.current.localBusiness.telephone ).toBe( '+1 555 123 4567' );
-		expect( result.current.isLocalBusinessDirty ).toBe( true );
+		expect( Object.keys( options.data ).sort() ).toEqual( [ 'localBusiness', 'organization' ] );
+		expect( options.data.organization.sameAs ).toEqual( [ 'https://twitter.com/acme' ] );
+		expect( options.data.localBusiness.telephone ).toBe( '+1 555 123 4567' );
 		expect( onSave ).toHaveBeenCalledWith( saved );
 		expect( createSuccessNotice ).toHaveBeenCalled();
+	} );
+
+	it( 'ignores a second Save while one is in flight', async () => {
+		const { result } = renderHook( () => useSchemaSettings( RESPONSE ) );
+
+		act( () => result.current.setOrganizationField( { name: 'Acme' } ) );
+
+		let release: ( settings: SchemaSettings ) => void = () => {};
+		mockApiFetch.mockReturnValueOnce(
+			new Promise< unknown >( resolve => {
+				release = resolve as ( settings: SchemaSettings ) => void;
+			} )
+		);
+
+		act( () => result.current.saveOrganizationEntity() );
+		expect( result.current.isSaving ).toBe( true );
+
+		// The in-flight guard drops the extra clicks rather than firing more requests.
+		act( () => result.current.saveOrganizationEntity() );
+		act( () => result.current.commitBreadcrumbList( { enabled: false } ) );
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+		// The dropped toggle must not leave the UI showing an unsent change.
+		expect( result.current.breadcrumbList ).toEqual( { enabled: true } );
+
+		act( () => release( RESPONSE ) );
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
 	} );
 
 	it( 'auto-saves the BreadcrumbList toggle without dragging in pending edits', async () => {
@@ -115,59 +140,45 @@ describe( 'useSchemaSettings', () => {
 		expect( createSuccessNotice ).toHaveBeenCalled();
 	} );
 
-	it( 'reports a failed BreadcrumbList auto-save', async () => {
+	it( 'reports a failed BreadcrumbList auto-save and rolls the toggle back', async () => {
 		const { result } = renderHook( () => useSchemaSettings( RESPONSE ) );
+		expect( result.current.breadcrumbList ).toEqual( { enabled: true } );
 
 		mockApiFetch.mockRejectedValueOnce( new Error( 'nope' ) );
 
 		act( () => result.current.commitBreadcrumbList( { enabled: false } ) );
+		// Optimistically flips immediately for feedback…
+		expect( result.current.breadcrumbList ).toEqual( { enabled: false } );
 		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
 
+		// …then reverts to the last-saved value when the save fails.
+		expect( result.current.breadcrumbList ).toEqual( { enabled: true } );
 		expect( createErrorNotice ).toHaveBeenCalledWith( 'nope', expect.anything() );
 	} );
 
-	it( 'saves only LocalBusiness and preserves pending Organization edits', async () => {
+	it( 'reports a failed Organization-entity save and keeps the edits pending', async () => {
 		const { result } = renderHook( () => useSchemaSettings( RESPONSE ) );
 
 		act( () => {
-			result.current.setOrganizationField( { name: 'Pending organization' } );
-			result.current.setLocalBusinessField( {
-				enabled: true,
-				address: { ...RESPONSE.localBusiness.address, streetAddress: '123 Main St' },
-			} );
+			result.current.setOrganizationField( { name: 'Acme' } );
+			result.current.setLocalBusinessField( { telephone: '+1 555 123 4567' } );
 		} );
+
+		mockApiFetch.mockRejectedValueOnce( new Error( 'nope' ) );
+
+		act( () => result.current.saveOrganizationEntity() );
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+
+		expect( createErrorNotice ).toHaveBeenCalledWith( 'nope', expect.anything() );
+		// Unlike the auto-saving toggle, explicit field edits are kept so the admin
+		// can retry without retyping.
+		expect( result.current.organization.name ).toBe( 'Acme' );
+		expect( result.current.localBusiness.telephone ).toBe( '+1 555 123 4567' );
 		expect( result.current.isOrganizationDirty ).toBe( true );
 		expect( result.current.isLocalBusinessDirty ).toBe( true );
-
-		const saved: SchemaSettings = {
-			...RESPONSE,
-			localBusiness: {
-				...RESPONSE.localBusiness,
-				enabled: true,
-				address: { ...RESPONSE.localBusiness.address, streetAddress: '123 Main St' },
-			},
-		};
-		mockApiFetch.mockResolvedValueOnce( saved );
-
-		act( () => result.current.saveLocalBusiness() );
-		await waitFor( () => expect( result.current.isLocalBusinessDirty ).toBe( false ) );
-		expect( createInfoNotice ).toHaveBeenCalledWith( 'Saving local business…', expect.anything() );
-
-		const post = mockApiFetch.mock.calls.find(
-			( [ options ] ) => ( options as { method?: string } ).method === 'POST'
-		);
-		const options = post![ 0 ] as {
-			data: { localBusiness: { enabled: boolean; address: { streetAddress: string } } };
-		};
-		expect( options.data.localBusiness.enabled ).toBe( true );
-		expect( options.data.localBusiness.address.streetAddress ).toBe( '123 Main St' );
-		expect( Object.keys( options.data ) ).toEqual( [ 'localBusiness' ] );
-		expect( result.current.localBusiness ).toEqual( saved.localBusiness );
-		expect( result.current.organization.name ).toBe( 'Pending organization' );
-		expect( result.current.isOrganizationDirty ).toBe( true );
 	} );
 
-	it( 'trims and uppercases the country code when saving LocalBusiness settings', async () => {
+	it( 'trims and uppercases the country code when saving the Organization entity', async () => {
 		const { result } = renderHook( () => useSchemaSettings( RESPONSE ) );
 
 		act( () =>
@@ -184,7 +195,7 @@ describe( 'useSchemaSettings', () => {
 			},
 		};
 		mockApiFetch.mockResolvedValueOnce( saved );
-		act( () => result.current.saveLocalBusiness() );
+		act( () => result.current.saveOrganizationEntity() );
 		await waitFor( () => expect( createSuccessNotice ).toHaveBeenCalled() );
 
 		const post = mockApiFetch.mock.calls.find(
@@ -219,16 +230,51 @@ describe( 'useSchemaSettings', () => {
 		expect( result.current.isOrganizationDirty ).toBe( true );
 
 		mockApiFetch.mockResolvedValueOnce( RESPONSE );
-		act( () => result.current.saveOrganization() );
+		act( () => result.current.saveOrganizationEntity() );
 		await waitFor( () => expect( createSuccessNotice ).toHaveBeenCalled() );
 
 		const post = mockApiFetch.mock.calls.find(
 			( [ options ] ) => ( options as { method?: string } ).method === 'POST'
 		);
 		const options = post![ 0 ] as {
-			data: Pick< SchemaSettings, 'organization' >;
+			data: Pick< SchemaSettings, 'organization' | 'localBusiness' >;
 		};
 		expect( options.data.organization.sameAs ).toEqual( [ 'https://twitter.com/acme' ] );
+		// Only the Organization was touched, so only the Organization is sent.
 		expect( Object.keys( options.data ) ).toEqual( [ 'organization' ] );
+	} );
+
+	it.each( [
+		[ 'the Organization alone', { organization: true, localBusiness: false }, [ 'organization' ] ],
+		[
+			'the local business alone',
+			{ organization: false, localBusiness: true },
+			[ 'localBusiness' ],
+		],
+		[ 'both', { organization: true, localBusiness: true }, [ 'localBusiness', 'organization' ] ],
+	] )( 'sends only what changed when %s is edited', async ( _label, edit, expected ) => {
+		// The route merges partial payloads, so an untouched section keeps whatever is
+		// stored. Sending both unconditionally would let a save here overwrite a
+		// local-business edit made in another tab with this tab's stale copy.
+		const { result } = renderHook( () => useSchemaSettings( RESPONSE ) );
+
+		act( () => {
+			if ( edit.organization ) {
+				result.current.setOrganizationField( { name: 'Acme Inc' } );
+			}
+			if ( edit.localBusiness ) {
+				result.current.setLocalBusinessField( { telephone: '+1 555 123 4567' } );
+			}
+		} );
+
+		mockApiFetch.mockResolvedValueOnce( RESPONSE );
+		act( () => result.current.saveOrganizationEntity() );
+		await waitFor( () => expect( createSuccessNotice ).toHaveBeenCalled() );
+
+		const post = mockApiFetch.mock.calls.find(
+			( [ options ] ) => ( options as { method?: string } ).method === 'POST'
+		);
+		const options = post![ 0 ] as { data: Partial< SchemaSettings > };
+		expect( Object.keys( options.data ).sort() ).toEqual( expected );
 	} );
 } );
