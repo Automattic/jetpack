@@ -2,7 +2,7 @@ import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { acceptSectionSuggestion } from '../lib/dom';
+import { acceptSectionSuggestion, getTextareaBox } from '../lib/dom';
 import { recordGuidelinesEvent } from '../lib/tracks';
 import { AI_STORE_NAME } from '../store';
 import DiffView from './diff-view';
@@ -33,9 +33,7 @@ export default function SuggestionActions( { slug } ) {
 			const textarea = form.querySelector( 'textarea' );
 			if ( textarea ) {
 				setOriginal( textarea.value || '' );
-				// Newer Gutenberg draws the border on the textarea's wrapper.
-				const hasBorder = parseFloat( window.getComputedStyle( textarea ).borderTopWidth );
-				const box = hasBorder ? textarea : textarea.parentElement;
+				const box = getTextareaBox( textarea );
 				if ( box.offsetHeight > 0 ) {
 					setTextareaHeight( box.offsetHeight );
 				} else {
