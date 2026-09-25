@@ -152,15 +152,17 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: retry } ],
 				} }
-				empty={ {
-					icon: reports,
-					description: hasSelection
-						? __( 'No activity for this email in this period.', 'jetpack-premium-analytics-pkg' )
-						: __(
-								'Open an email report to see its timeline here.',
-								'jetpack-premium-analytics-pkg'
-							),
-				} }
+				empty={
+					hasSelection
+						? undefined
+						: {
+								icon: reports,
+								description: __(
+									'Open an email report to see its timeline here.',
+									'jetpack-premium-analytics-pkg'
+								),
+							}
+				}
 				// The chart is the whole content here, so its block replaces the
 				// generic stacked lines.
 				renderLoading={ <MetricTabsChartSkeleton /> }

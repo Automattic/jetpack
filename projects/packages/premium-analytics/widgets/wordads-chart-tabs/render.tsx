@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { ReportScopeProvider, chartInterval } from '@jetpack-premium-analytics/data';
-import { megaphone } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
@@ -56,10 +55,6 @@ function WordAdsChartTabsInner( { chartType }: { chartType?: ChartDisplayChartTy
 						'jetpack-premium-analytics-pkg'
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-				} }
-				empty={ {
-					icon: megaphone,
-					description: __( 'No WordAds data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
