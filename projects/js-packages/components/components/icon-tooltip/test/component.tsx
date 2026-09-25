@@ -68,7 +68,7 @@ describe( 'IconTooltip', () => {
 		expect( screen.getByRole( 'button', { name: 'About Image Quality' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'leaves focus alone when opening on hover', async () => {
+	it( 'leaves focus alone when opening on hover, and closes on Escape from anywhere', async () => {
 		const user = userEvent.setup();
 		render(
 			<>
@@ -80,6 +80,9 @@ describe( 'IconTooltip', () => {
 		await user.click( field );
 		await user.hover( screen.getByTestId( 'icon-tooltip_wrapper' ) );
 		expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
+		expect( field ).toHaveFocus();
+		await user.keyboard( '{Escape}' );
+		expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
 		expect( field ).toHaveFocus();
 	} );
 
