@@ -12,7 +12,7 @@ import {
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
-} from '@automattic/jetpack-premium-analytics-api';
+} from '@automattic/jetpack-premium-analytics-sdk';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
 /**

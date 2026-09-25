@@ -1,6 +1,6 @@
 {
-	"name": "automattic/jetpack-premium-analytics-api",
-	"description": "The API the Premium Analytics dashboard provides to plugins that extend it.",
+	"name": "automattic/jetpack-premium-analytics-sdk",
+	"description": "The SDK the Premium Analytics dashboard provides to plugins that extend it.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {},

@@ -1,7 +1,7 @@
 /**
- * The dashboard's implementation of `@automattic/jetpack-premium-analytics-api`, registered under
- * that name by `src/public-api-module.php`. The shared modules stay external, so a widget that
- * imports the API gets the same instances the dashboard renders with.
+ * The dashboard's implementation of `@automattic/jetpack-premium-analytics-sdk`, registered under
+ * that name by `src/sdk-module.php`. The shared modules stay external, so a widget that
+ * imports the SDK gets the same instances the dashboard renders with.
  */
 export {
 	EarningsHistoryList,

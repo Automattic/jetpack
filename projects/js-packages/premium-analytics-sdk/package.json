@@ -1,16 +1,16 @@
 {
-	"name": "@automattic/jetpack-premium-analytics-api",
+	"name": "@automattic/jetpack-premium-analytics-sdk",
 	"version": "0.1.0-alpha",
 	"private": true,
-	"description": "The API the Premium Analytics dashboard provides to plugins that extend it.",
-	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/premium-analytics-api/#readme",
+	"description": "The SDK the Premium Analytics dashboard provides to plugins that extend it.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/premium-analytics-sdk/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Premium Analytics Api"
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Premium Analytics Sdk"
 	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/js-packages/premium-analytics-api"
+		"directory": "projects/js-packages/premium-analytics-sdk"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",

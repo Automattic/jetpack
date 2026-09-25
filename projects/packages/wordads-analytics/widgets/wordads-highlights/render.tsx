@@ -10,7 +10,7 @@ import {
 	useStatsWordAdsEarnings,
 	WidgetRoot,
 	WidgetState,
-} from '@automattic/jetpack-premium-analytics-api';
+} from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
 import { payment, receipt, tip } from '@wordpress/icons';
 /**

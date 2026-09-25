@@ -6,7 +6,7 @@ import {
 	PRESET_LAST_30_DAYS,
 	PRESET_LAST_7_DAYS,
 	type ReportGrain,
-} from '@automattic/jetpack-premium-analytics-api';
+} from '@automattic/jetpack-premium-analytics-sdk';
 /**
  * Internal dependencies
  */

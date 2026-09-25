@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { defaultReportParamsForGrain } from '@automattic/jetpack-premium-analytics-api';
+import { defaultReportParamsForGrain } from '@automattic/jetpack-premium-analytics-sdk';
 /**
  * Internal dependencies
  */

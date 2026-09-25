@@ -7,7 +7,7 @@ import {
 	type StatsPeriod,
 	type StatsWordAdsResponse,
 	useStatsWordAdsStats,
-} from '@automattic/jetpack-premium-analytics-api';
+} from '@automattic/jetpack-premium-analytics-sdk';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**

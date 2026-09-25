@@ -1283,7 +1283,7 @@ importers:
         specifier: 6.0.3
         version: 6.0.3
 
-  projects/js-packages/premium-analytics-api:
+  projects/js-packages/premium-analytics-sdk:
     devDependencies:
       '@types/react':
         specifier: 18.3.31
@@ -4209,9 +4209,9 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
     devDependencies:
-      '@automattic/jetpack-premium-analytics-api':
+      '@automattic/jetpack-premium-analytics-sdk':
         specifier: workspace:*
-        version: link:../../js-packages/premium-analytics-api
+        version: link:../../js-packages/premium-analytics-sdk
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
@@ -5281,9 +5281,9 @@ importers:
 
   projects/packages/wordads-analytics:
     dependencies:
-      '@automattic/jetpack-premium-analytics-api':
+      '@automattic/jetpack-premium-analytics-sdk':
         specifier: workspace:*
-        version: link:../../js-packages/premium-analytics-api
+        version: link:../../js-packages/premium-analytics-sdk
       '@wordpress/element':
         specifier: 8.7.0
         version: 8.7.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

@@ -383,7 +383,7 @@ class Analytics {
 		$build_entry = self::$build_entry ?? __DIR__ . '/../build/build.php';
 		if ( file_exists( $build_entry ) ) {
 			require_once $build_entry;
-			require_once __DIR__ . '/public-api-module.php';
+			require_once __DIR__ . '/sdk-module.php';
 		}
 	}
 

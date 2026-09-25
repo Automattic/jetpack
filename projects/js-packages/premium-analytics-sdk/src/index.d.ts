@@ -1,7 +1,8 @@
 /**
- * The API the Premium Analytics dashboard provides to plugins that build widgets for it. The
- * dashboard registers the implementation at runtime as the `@automattic/jetpack-premium-analytics-api`
- * script module; a consumer's build leaves imports of this package external.
+ * The SDK the Premium Analytics dashboard provides to plugins that extend it: today, everything a
+ * widget imports. The dashboard registers the implementation at runtime as the
+ * `@automattic/jetpack-premium-analytics-sdk` script module; a consumer's build leaves imports of
+ * this package external.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars -- PoC: the contract gets precise types before the package is published. */
 import type { ComponentType } from 'react';

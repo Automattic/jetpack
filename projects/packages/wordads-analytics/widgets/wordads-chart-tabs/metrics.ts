@@ -5,7 +5,7 @@ import { __, _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import type { CountLabel, DataFormat } from '@automattic/jetpack-premium-analytics-api';
+import type { CountLabel, DataFormat } from '@automattic/jetpack-premium-analytics-sdk';
 
 // Each id doubles as the WordAds response field the tab reads.
 export type WordAdsChartMetricId = 'impressions' | 'cpm' | 'revenue';

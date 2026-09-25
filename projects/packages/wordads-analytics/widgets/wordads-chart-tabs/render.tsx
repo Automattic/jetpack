@@ -10,7 +10,7 @@ import {
 	useWidgetRootContext,
 	WidgetRoot,
 	WidgetState,
-} from '@automattic/jetpack-premium-analytics-api';
+} from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
 import { megaphone } from '@wordpress/icons';
 /**

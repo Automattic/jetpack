@@ -6,7 +6,7 @@ import {
 	chartTypeAttributeField,
 	reportParamsAttributeField,
 	type ReportParamsFieldAttributes,
-} from '@automattic/jetpack-premium-analytics-api';
+} from '@automattic/jetpack-premium-analytics-sdk';
 /**
  * WordPress dependencies
  */

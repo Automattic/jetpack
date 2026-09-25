@@ -4,7 +4,7 @@
 	"private": true,
 	"type": "module",
 	"dependencies": {
-		"@automattic/jetpack-premium-analytics-api": "workspace:*",
+		"@automattic/jetpack-premium-analytics-sdk": "workspace:*",
 		"@wordpress/element": "8.7.0",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^16.0.0",
