@@ -330,7 +330,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 * Tests whether a URL belonging to a whitelisted list can be used in a block.
 	 */
 	public function test_validate_block_embed_url() {
-		$url           = 'https://automattic.com/tos/';
+		$url           = 'https://wordpress.com/tos/';
 		$allowed_hosts = array( 'wordpress.com' );
 
 		$validated_url = Jetpack_Gutenberg::validate_block_embed_url( $url, $allowed_hosts );
@@ -342,7 +342,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 * Tests whether a URL matches a specific regex.
 	 */
 	public function test_validate_block_embed_regex() {
-		$url     = 'https://automattic.com/tos/';
+		$url     = 'https://wordpress.com/tos/';
 		$allowed = array( '#^https?:\/\/(www.)?wordpress\.com(\/)?([^\/]+)?(\/)?$#' );
 
 		$validated_url = Jetpack_Gutenberg::validate_block_embed_url( $url, $allowed, true );
