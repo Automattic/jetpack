@@ -13,7 +13,7 @@ type SubpageBreadcrumbsProps = {
  *
  * @param props       - Component props.
  * @param props.title - The page's title, the trailing crumb.
- * @param props.tone  - The "Boost" link's tone.
+ * @param props.tone  - The link's tone.
  */
 const SubpageBreadcrumbs = ( { title, tone = 'neutral' }: SubpageBreadcrumbsProps ) => {
 	const { href, onClick } = useBackToSettings( 'breadcrumb' );
