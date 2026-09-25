@@ -1,4 +1,7 @@
 import { __ } from '@wordpress/i18n';
+import DeleteVideoConfirmationModal, {
+	getDeleteVideoConfirmationTitle,
+} from '../delete-video-confirmation-modal';
 import type { LibraryItem, LibraryItemPrivacy } from '../../types/library';
 import type { Action } from '@wordpress/dataviews';
 
@@ -115,9 +118,16 @@ export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
 			// DELETE /wp/v2/media/{id}?force=true either way, with nothing
 			// VideoPress-specific about it.
 			isEligible: item => isVideoPressIdle( item ) || isLocalIdle( item ),
-			callback: items => {
-				api.deleteItems( items.map( i => i.id ) );
-			},
+			modalHeader: ( items: LibraryItem[] ) => getDeleteVideoConfirmationTitle( items.length ),
+			RenderModal: ( { items, closeModal } ) => (
+				<DeleteVideoConfirmationModal
+					onCancel={ () => closeModal?.() }
+					onConfirm={ () => {
+						api.deleteItems( items.map( i => i.id ) );
+						closeModal?.();
+					} }
+				/>
+			),
 		},
 		{
 			id: 'upload-to-vp',
