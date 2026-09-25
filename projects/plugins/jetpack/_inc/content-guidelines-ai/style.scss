@@ -73,6 +73,12 @@ $cg-diff-removed: #f8d7da;
 	box-sizing: border-box;
 }
 
+// Match the section textarea, which Gutenberg 23.9+ renders with @wordpress/ui.
+.guidelines__list-item .jetpack-content-guidelines-ai__diff {
+	padding: 10px 12px;
+	line-height: 1.4;
+}
+
 .jetpack-content-guidelines-ai__diff-added {
 	background: $cg-diff-added;
 	text-decoration: none;
@@ -131,9 +137,10 @@ $cg-diff-removed: #f8d7da;
 	}
 }
 
-// Hide Gutenberg's DataForm and Save/Clear when a suggestion is active.
-// Also hide the per-section generate button since Accept/Dismiss replaces it.
-.has-jetpack-suggestion:not(.block-guideline-modal) > :first-child > :not(.jetpack-content-guidelines-ai__actions-container) {
+// While a suggestion is active, the diff replaces the section textarea and
+// Accept/Dismiss replace the Save/Clear row. The DataForm stays for its label.
+.has-jetpack-suggestion:not(.block-guideline-modal) > :first-child > :not(:first-child, .jetpack-content-guidelines-ai__actions-container),
+.has-jetpack-suggestion:not(.block-guideline-modal) :has(> textarea) {
 	display: none;
 }
 
