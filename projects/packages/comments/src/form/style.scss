@@ -1,3 +1,9 @@
+// The plain form inside stays unseen until the script mounts the app or
+// leaves it in place, so the swap does not flash. A noscript style reveals it.
+.jetpack-comments:not(.is-mounted):not(.is-plain) {
+	visibility: hidden;
+}
+
 .jetpack-comments.is-mounted {
 	margin-block: 1em;
 }

@@ -179,7 +179,11 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 
 // A page cache can pair settings from an older release with this bundle. The
 // mount holds a plain form for that case, and for a script that never runs.
-if ( JetpackComments.version === JETPACK_COMMENTS_VERSION ) {
+if ( JetpackComments.version !== JETPACK_COMMENTS_VERSION ) {
+	document
+		.querySelectorAll( '.jetpack-comments' )
+		.forEach( element => element.classList.add( 'is-plain' ) );
+} else {
 	document.querySelectorAll< HTMLElement >( '.jetpack-comments' ).forEach( element => {
 		const form = element.closest( 'form' );
 

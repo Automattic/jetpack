@@ -347,7 +347,17 @@ class Comment_Form {
 
 		if ( is_singular() && comments_open() ) {
 			wp_enqueue_style( self::HANDLE );
+			add_action( 'wp_head', array( __CLASS__, 'print_noscript_style' ) );
 		}
+	}
+
+	/**
+	 * Show the plain form where no script will ever replace it.
+	 *
+	 * @return void
+	 */
+	public static function print_noscript_style() {
+		echo '<noscript><style>.jetpack-comments{visibility:visible!important}</style></noscript>';
 	}
 
 	/**
