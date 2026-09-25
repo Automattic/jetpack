@@ -4,7 +4,7 @@ import { Icon, Link, Stack } from '@wordpress/ui';
 import { useBackToSettings } from '$lib/navigation/use-back-to-settings';
 
 /**
- * A visible route back to Settings, like the legacy page's "Go back" button.
+ * A "Back to settings" link to place above a sub-page's content.
  */
 const BackToSettingsLink = () => {
 	const { href, onClick } = useBackToSettings( 'back_link' );
