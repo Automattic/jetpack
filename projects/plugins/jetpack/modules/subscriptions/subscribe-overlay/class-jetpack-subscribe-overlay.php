@@ -10,8 +10,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-require_once __DIR__ . '/../class-jetpack-subscribe-template-parts.php';
-
 /**
  * Jetpack_Subscribe_Overlay class.
  */
@@ -46,7 +44,6 @@ class Jetpack_Subscribe_Overlay {
 		}
 
 		add_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
-		add_filter( 'get_block_templates', array( $this, 'get_block_templates_filter' ), 10, 3 );
 
 		add_filter(
 			'jetpack_options_whitelist',
@@ -84,24 +81,6 @@ class Jetpack_Subscribe_Overlay {
 		}
 
 		return $block_template;
-	}
-
-	/**
-	 * Lists the Subscribe Overlay template part in the Site Editor.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param WP_Block_Template[] $query_result  Templates found so far.
-	 * @param array               $query         Template query arguments.
-	 * @param string              $template_type Template type.
-	 * @return WP_Block_Template[]
-	 */
-	public function get_block_templates_filter( $query_result, $query, $template_type ) {
-		if ( 'wp_template_part' !== $template_type || ! get_option( 'jetpack_subscribe_overlay_enabled', false ) ) {
-			return $query_result;
-		}
-
-		return Jetpack_Subscribe_Template_Parts::add_to_list( $query_result, $query, $template_type, $this->get_template() );
 	}
 
 	/**

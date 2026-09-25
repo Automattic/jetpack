@@ -1,7 +1,6 @@
 Significance: minor
 Type: enhancement
 
-Newsletter: List enabled subscribe template parts in the Site Editor before they are customized.
 Newsletter: Make subscribe placement settings available to the editor for site administrators.
 Newsletter: Let site admins turn off subscribe placements from the Site Editor, in the template part or Subscribe block settings.
 Newsletter: Show site admins a link to turn off the floating button, overlay, pop-up, and end-of-post Subscribe block from the live site.

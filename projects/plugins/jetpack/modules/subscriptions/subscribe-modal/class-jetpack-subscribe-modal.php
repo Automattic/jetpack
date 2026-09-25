@@ -9,8 +9,6 @@
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
-require_once __DIR__ . '/../class-jetpack-subscribe-template-parts.php';
-
 /**
  * Jetpack_Subscribe_Modal class.
  */
@@ -53,7 +51,6 @@ class Jetpack_Subscribe_Modal {
 			add_action( 'wp_footer', array( $this, 'add_subscribe_modal_to_frontend' ) );
 		}
 		add_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
-		add_filter( 'get_block_templates', array( $this, 'get_block_templates_filter' ), 10, 3 );
 	}
 
 	/**
@@ -143,24 +140,6 @@ class Jetpack_Subscribe_Modal {
 		}
 
 		return $block_template;
-	}
-
-	/**
-	 * Lists the Subscribe Modal template part in the Site Editor.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param WP_Block_Template[] $query_result  Templates found so far.
-	 * @param array               $query         Template query arguments.
-	 * @param string              $template_type Template type.
-	 * @return WP_Block_Template[]
-	 */
-	public function get_block_templates_filter( $query_result, $query, $template_type ): array {
-		if ( 'wp_template_part' !== $template_type || ! get_option( 'sm_enabled', false ) ) {
-			return $query_result;
-		}
-
-		return Jetpack_Subscribe_Template_Parts::add_to_list( $query_result, $query, $template_type, $this->get_template() );
 	}
 
 	/**
