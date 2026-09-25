@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Blocks: Hide Search blocks from the widgets inserter while the Overlay search experience is active, because they cannot load in the Overlay sidebar.
+Blocks: Stop offering Search blocks in the Overlay search sidebar's widget inserter, where they cannot load.
