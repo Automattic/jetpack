@@ -1,6 +1,8 @@
 import { AdminPage, Button, getProductCheckoutUrl } from '@automattic/jetpack-components';
 import JitmSlot from '@automattic/jetpack-components/jitm-slot';
-import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
+import useConnectionErrorNotice, {
+	ConnectionError,
+} from '@automattic/jetpack-connection/use-connection-error-notice';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Stack, Tabs } from '@wordpress/ui';
@@ -332,6 +334,11 @@ export default function DashboardPage( { isLoading = false } ) {
 						</Tabs.List>
 					</div>
 					<JitmSlot inset />
+					{ hasConnectionError && (
+						<Stack direction="column" className="jp-search-dashboard-connection-error">
+							<ConnectionError trackingContext="search" />
+						</Stack>
+					) }
 					<Tabs.Panel value="overview">
 						<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
 							{ isPageLoading && <Loading /> }
@@ -344,11 +351,6 @@ export default function DashboardPage( { isLoading = false } ) {
 						</div>
 						{ ! isPageLoading && (
 							<>
-								{ hasConnectionError && (
-									<Stack direction="column">
-										<ConnectionError trackingContext="search" />
-									</Stack>
-								) }
 								{ isNewPricing && supportsInstantSearch && (
 									<PlanInfo
 										hasIndex={ postCount !== 0 }
