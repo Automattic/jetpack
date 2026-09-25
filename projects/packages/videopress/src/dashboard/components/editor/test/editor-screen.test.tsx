@@ -229,6 +229,7 @@ beforeEach( () => {
 		output_duration_ms: 10000,
 		operations: [],
 		can_restore_original: false,
+		can_retry: false,
 		job: idleJob,
 		updated: '2026-09-20T00:00:00Z',
 	} );
@@ -363,7 +364,7 @@ it( 'retries the stored failed restore without issuing another restore request',
 			ignore: '.a11y-speak-region, .a11y-speak-region *',
 		} )
 	).toBeInTheDocument();
-	await user.click( screen.getByRole( 'button', { name: 'Retry processing' } ) );
+	await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 	expect( retryProcessing ).toHaveBeenCalledWith( { guid: video.guid, jobId: processingJob.id } );
 	expect( restore ).toHaveBeenCalledTimes( 1 );
 	expect( save ).not.toHaveBeenCalled();
@@ -376,7 +377,7 @@ it( 'retries an accepted save that failed while its unchanged draft remains in t
 	await user.click( screen.getByRole( 'button', { name: 'Update video' } ) );
 	setEdits( { can_retry: true, job: { ...processingJob, status: 'failed' } } );
 	refresh();
-	await user.click( screen.getByRole( 'button', { name: 'Retry processing' } ) );
+	await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 	expect( retryProcessing ).toHaveBeenCalledWith( { guid: video.guid, jobId: processingJob.id } );
 	expect( save ).toHaveBeenCalledTimes( 1 );
 	expect( copy ).not.toHaveBeenCalled();
@@ -393,7 +394,7 @@ it( 'keeps a modified draft saveable without retrying older stored instructions'
 			ignore: '.a11y-speak-region, .a11y-speak-region *',
 		} )
 	).toBeInTheDocument();
-	expect( screen.queryByRole( 'button', { name: 'Retry processing' } ) ).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 	await user.click( screen.getByRole( 'button', { name: 'Update video' } ) );
 	expect( save ).toHaveBeenCalledWith(
@@ -792,7 +793,7 @@ it( 'shows indeterminate server progress and does not offer edits during process
 	expect( screen.queryByRole( 'button', { name: 'More actions' } ) ).not.toBeInTheDocument();
 } );
 
-it( 'does not retry a failed server job when there are no local edits to submit', () => {
+it( 'does not offer a retry when the failed server job cannot be retried', () => {
 	setEdits( { job: { ...processingJob, status: 'failed' } } );
 	renderEditor();
 	expect(
@@ -997,7 +998,7 @@ it( 'retries a failed copy after returning with missing playback metadata', asyn
 		/>,
 		{ wrapper: createTestWrapper() }
 	);
-	await user.click( screen.getByRole( 'button', { name: 'Retry processing' } ) );
+	await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 	expect( retryProcessing ).toHaveBeenCalledWith( { guid: video.guid, jobId: processingJob.id } );
 	expect( save ).not.toHaveBeenCalled();
 	expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(

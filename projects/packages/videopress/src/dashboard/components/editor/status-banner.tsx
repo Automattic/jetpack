@@ -39,7 +39,7 @@ export default function StudioEditorStatusBanner( {
 		job?.error?.message ||
 		__( 'Something went wrong applying your edits.', 'jetpack-videopress-pkg' );
 	let action = onRetry;
-	let label: string = __( 'Retry processing', 'jetpack-videopress-pkg' );
+	let label: string = __( 'Retry', 'jetpack-videopress-pkg' );
 	let intent: 'error' | 'warning' | 'info' = 'error';
 	if ( conflict ) {
 		message = __(
