@@ -21,3 +21,14 @@
 .jpb-dashboard-body__inner > .jp-jitm-slot .jitm-card {
 	margin-block-start: 0;
 }
+
+// `Notice.Root` (`@wordpress/ui`) ships with no margin of its own, so this
+// gives it the same trailing gap the status/trouble/warnings banners get.
+// `:empty` matches only when `<ConnectionError>` itself rendered null.
+.jpb-connection-error {
+	margin-block-end: 16px;
+
+	&:empty {
+		display: none;
+	}
+}

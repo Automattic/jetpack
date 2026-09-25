@@ -54,8 +54,14 @@ export default function DashboardLayout( { children, actions }: Props ) {
 		>
 			<div className="jpb-dashboard-body">
 				<div className="jpb-dashboard-body__inner">
-					{ /* Above the gate: a broken token can still pass `useGateState`'s checks. */ }
-					<ConnectionError trackingContext="backup" />
+					{ /*
+					 * Above the gate: a broken token can still pass `useGateState`'s checks.
+					 * `Notice.Root` carries no margin of its own, so the wrapper supplies
+					 * the banners' spacing and collapses via `:empty` when there is no error.
+					 */ }
+					<div className="jpb-connection-error">
+						<ConnectionError trackingContext="backup" />
+					</div>
 					<JitmSlot />
 					<Gates>{ children }</Gates>
 				</div>
