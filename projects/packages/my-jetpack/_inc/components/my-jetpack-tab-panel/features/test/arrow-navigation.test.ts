@@ -1,4 +1,4 @@
-import { getArrowStep } from '../arrow-navigation';
+import { getArrowStep, getStepKey } from '../arrow-navigation';
 
 const event = ( key: string, overrides = {} ) => ( {
 	key,
@@ -59,5 +59,14 @@ describe( 'getArrowStep', () => {
 		};
 
 		expect( getArrowStep( event( 'ArrowLeft', { target } ), false ) ).toBeNull();
+	} );
+} );
+
+describe( 'getStepKey', () => {
+	it( 'puts previous on the left in LTR and on the right in RTL', () => {
+		expect( getStepKey( 'previous', false ) ).toBe( 'ArrowLeft' );
+		expect( getStepKey( 'next', false ) ).toBe( 'ArrowRight' );
+		expect( getStepKey( 'previous', true ) ).toBe( 'ArrowRight' );
+		expect( getStepKey( 'next', true ) ).toBe( 'ArrowLeft' );
 	} );
 } );

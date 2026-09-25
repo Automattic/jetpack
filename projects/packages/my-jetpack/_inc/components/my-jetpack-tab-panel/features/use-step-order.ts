@@ -11,7 +11,7 @@ type StepOrder = { key: string; features: MainFeature[] };
  *
  * @param visible  - The features the grid shows now.
  * @param openSlug - The feature the modal shows, or null while it is closed.
- * @param key      - Changes whenever the filter or search does.
+ * @param key      - Changes whenever the filter, the search or the module read does.
  * @return The features to step through, in grid order.
  */
 export function useStepOrder(

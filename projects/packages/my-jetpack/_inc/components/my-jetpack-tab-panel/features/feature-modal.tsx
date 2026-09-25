@@ -4,7 +4,7 @@ import { check, chevronLeft, chevronRight } from '@wordpress/icons';
 import { Badge, Dialog, IconButton, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getActivationStatusLabel } from '../utils';
-import { getArrowStep } from './arrow-navigation';
+import { getArrowStep, getStepKey } from './arrow-navigation';
 import { getBandStyle } from './band-palette';
 import { FeatureBand } from './feature-band';
 import { FeatureDelivery } from './feature-delivery';
@@ -40,7 +40,8 @@ type StepButtonProps = {
  * @return The rendered component.
  */
 function StepButton( { direction, neighbor, rtl, onStep }: StepButtonProps ) {
-	const isLeft = ( direction === 'previous' ) !== rtl;
+	const key = getStepKey( direction, rtl );
+	const isLeft = key === 'ArrowLeft';
 	const onClick = useCallback( () => neighbor && onStep( neighbor.slug ), [ neighbor, onStep ] );
 
 	let label: string;
@@ -70,7 +71,7 @@ function StepButton( { direction, neighbor, rtl, onStep }: StepButtonProps ) {
 			label={ label }
 			shortcut={ {
 				displayShortcut: isLeft ? '←' : '→',
-				ariaKeyShortcut: isLeft ? 'ArrowLeft' : 'ArrowRight',
+				ariaKeyShortcut: key,
 				label: isLeft
 					? __( 'Left arrow', 'jetpack-my-jetpack' )
 					: __( 'Right arrow', 'jetpack-my-jetpack' ),
@@ -165,7 +166,8 @@ export function FeatureModal( {
 		const active = popup?.ownerDocument.activeElement;
 
 		if (
-			claimedRef.current === feature.slug ||
+			// An arrow step back to a feature claimed before still moves focus to its action.
+			( claimedRef.current === feature.slug && steppedToRef.current !== feature.slug ) ||
 			! popup ||
 			! active ||
 			( steppedToRef.current !== feature.slug &&

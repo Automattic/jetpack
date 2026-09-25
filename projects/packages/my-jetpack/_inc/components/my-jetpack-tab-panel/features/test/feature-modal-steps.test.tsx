@@ -98,6 +98,42 @@ describe( 'FeatureModal stepping', () => {
 		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toHaveFocus();
 	} );
 
+	it( 'moves focus to the action again when stepping back past a feature without one', async () => {
+		const forms = { slug: 'forms', name: 'Forms' };
+		const withAction = ( slug: string, manage_url?: string ) =>
+			( {
+				...state,
+				feature: { ...state.feature, slug, name: slug, manage_url },
+			} ) as FeatureState;
+		const modal = ( current: FeatureState, previous?: typeof stats, next?: typeof stats ) => (
+			<FeatureModal
+				state={ current }
+				previous={ previous }
+				next={ next }
+				position={ 1 }
+				total={ 3 }
+				onStep={ jest.fn() }
+				onClose={ jest.fn() }
+				onFilterByPlan={ jest.fn() }
+			/>
+		);
+		const { rerender } = render( modal( withAction( 'forms' ), undefined, podcast ) );
+		await waitFor( () => expect( screen.getByRole( 'button', { name: 'Close' } ) ).toHaveFocus() );
+
+		await userEvent.keyboard( '{ArrowRight}' );
+		rerender( modal( withAction( 'podcast', '/podcast' ), forms, stats ) );
+		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toHaveFocus();
+
+		await userEvent.keyboard( '{ArrowRight}' );
+		rerender( modal( withAction( 'stats' ), podcast ) );
+		screen.getByRole( 'dialog' ).focus();
+
+		await userEvent.keyboard( '{ArrowLeft}' );
+		rerender( modal( withAction( 'podcast', '/podcast' ), forms, stats ) );
+
+		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toHaveFocus();
+	} );
+
 	it( 'resets a failed band image when stepping to a feature with its own', () => {
 		const withScreenshot = ( slug: string, name: string ) =>
 			( {
@@ -127,6 +163,8 @@ describe( 'FeatureModal stepping', () => {
 		rerender( modal( withScreenshot( 'podcast', 'Podcast' ) ) );
 
 		expect( screen.getByAltText( 'Podcast in use' ) ).toBeInTheDocument();
+		// React 18 warns about `fetchPriority`; the jest-console matcher types aren't visible to this package.
+		// @ts-expect-error -- toHaveErrored is registered globally by @wordpress/jest-console.
 		expect( console ).toHaveErrored();
 	} );
 

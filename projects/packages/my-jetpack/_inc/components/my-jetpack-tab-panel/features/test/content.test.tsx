@@ -30,8 +30,9 @@ let mockMainFeatures: Record< string, unknown > = {
 
 jest.mock( '../use-main-features', () => ( { useMainFeatures: () => mockMainFeatures } ) );
 
+let mockIsLoading = false;
 jest.mock( '../feature-state', () => ( {
-	useFeatureStates: () => ( { states: mockStates, isLoading: false } ),
+	useFeatureStates: () => ( { states: mockStates, isLoading: mockIsLoading } ),
 } ) );
 
 jest.mock( '../feature-item', () => ( { FeatureItem: () => <div>grid card</div> } ) );
@@ -69,6 +70,7 @@ const renderAt = ( url: string ) => {
 describe( 'FeaturesContent', () => {
 	beforeEach( () => {
 		mockStates = [ activeStats ];
+		mockIsLoading = false;
 		mockGroups = [];
 		mockMainFeatures = {
 			jetpack: 'active',
@@ -256,5 +258,33 @@ describe( 'FeaturesContent', () => {
 			position: 2,
 			total: 3,
 		} );
+	} );
+
+	it( 'retakes the step order once the modules a status filter reads have landed', () => {
+		const feature = ( slug: string, status: string, pending = false ) =>
+			( {
+				...activeStats,
+				feature: { ...activeStats.feature, slug, name: slug },
+				status,
+				pending,
+			} ) as FeatureState;
+		mockIsLoading = true;
+		mockStates = [
+			feature( 'stats', 'inactive', true ),
+			feature( 'forms', 'inactive', true ),
+			feature( 'podcast', 'inactive', true ),
+		];
+		const { rerenderAt } = renderAt( '/features?filter=inactive&feature=forms' );
+
+		mockIsLoading = false;
+		mockStates = [
+			feature( 'stats', 'active' ),
+			feature( 'forms', 'inactive' ),
+			feature( 'podcast', 'inactive' ),
+		];
+		rerenderAt();
+
+		expect( mockModalProps ).toMatchObject( { next: { slug: 'podcast' }, position: 1, total: 2 } );
+		expect( mockModalProps?.previous ).toBeUndefined();
 	} );
 } );

@@ -134,7 +134,8 @@ export function FeaturesContent() {
 
 	const open = states.find( item => item.feature.slug === openSlug );
 	// Arrow keys step through what the grid shows, so a filter or search bounds them too.
-	const stepOrder = useStepOrder( visible, openSlug, `${ filter }|${ search }` );
+	// Retaken once modules land, since a status filter reads every pending feature as inactive.
+	const stepOrder = useStepOrder( visible, openSlug, `${ filter }|${ search }|${ isLoading }` );
 	const openIndex = stepOrder.findIndex( feature => feature.slug === openSlug );
 
 	// Neither read has anything to say yet: a seed-only catalog is not a failure to load

@@ -6,9 +6,18 @@ type ArrowEvent = Pick<
 >;
 
 /**
- * Which way an arrow key should step through the feature list.
+ * The arrow key that steps one way, following reading direction: left is previous in LTR and next in RTL.
  *
- * Left means previous in LTR and next in RTL, following reading direction.
+ * @param step - The way to step.
+ * @param rtl  - Whether the locale reads right to left.
+ * @return The key that steps that way.
+ */
+export function getStepKey( step: ArrowStep, rtl: boolean ): 'ArrowLeft' | 'ArrowRight' {
+	return ( step === 'previous' ) !== rtl ? 'ArrowLeft' : 'ArrowRight';
+}
+
+/**
+ * Which way an arrow key should step through the feature list.
  *
  * @param event - The keydown to interpret.
  * @param rtl   - Whether the locale reads right to left.
@@ -39,7 +48,5 @@ export function getArrowStep( event: ArrowEvent, rtl: boolean ): ArrowStep | nul
 		return null;
 	}
 
-	const back = event.key === 'ArrowLeft' ? ! rtl : rtl;
-
-	return back ? 'previous' : 'next';
+	return event.key === getStepKey( 'previous', rtl ) ? 'previous' : 'next';
 }
