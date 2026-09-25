@@ -32,6 +32,8 @@ const withLayout = () => {
 const politeRegion = () => document.getElementById( 'a11y-speak-polite' );
 
 describe( 'IconTooltip', () => {
+	afterEach( () => jest.useRealTimers() );
+
 	const testProps: IconTooltipProps = {
 		title: 'Title',
 		children: <div>Content block</div>,
@@ -324,16 +326,18 @@ describe( 'IconTooltip', () => {
 	} );
 
 	it( 'closes a hover tooltip shortly after the pointer leaves, unless it comes back', async () => {
-		const user = userEvent.setup();
+		jest.useFakeTimers();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		render( <IconTooltip { ...testProps } hoverShow /> );
 		const wrapper = screen.getByTestId( 'icon-tooltip_wrapper' );
 		await user.hover( wrapper );
 		await user.unhover( wrapper );
 		await user.hover( wrapper );
-		await new Promise( resolve => setTimeout( resolve, 150 ) );
+		await act( () => jest.advanceTimersByTimeAsync( 150 ) );
 		expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
 		await user.unhover( wrapper );
-		await waitFor( () => expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument() );
+		await act( () => jest.advanceTimersByTimeAsync( 150 ) );
+		expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the icon tooltip', () => {
