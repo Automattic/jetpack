@@ -2,7 +2,7 @@ import { useAiFeature } from '@automattic/jetpack-ai-client';
 import { Button, Tooltip } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { useSectionHasDraft } from '../hooks/use-drafts';
@@ -11,7 +11,7 @@ import { readSectionDraft } from '../lib/drafts';
 import { recordGuidelinesEvent } from '../lib/tracks';
 import { AI_STORE_NAME } from '../store';
 
-export default function SectionGenerateButton( { slug } ) {
+export default function SectionGenerateButton( { slug, isShortLabel = false } ) {
 	const { createErrorNotice } = useDispatch( noticesStore );
 	const { startSectionLoading, stopSectionLoading, setSuggestion, showUpgradeNotice } =
 		useDispatch( AI_STORE_NAME );
@@ -22,8 +22,12 @@ export default function SectionGenerateButton( { slug } ) {
 		[ slug ]
 	);
 	const isEmpty = ! useSectionHasDraft( slug );
-	const generateLabel = __( 'Generate guidelines', 'jetpack' );
-	const improveLabel = __( 'Improve guidelines', 'jetpack' );
+	const generateLabel = isShortLabel
+		? _x( 'Generate', 'button label: generate guidelines with AI', 'jetpack' )
+		: __( 'Generate guidelines', 'jetpack' );
+	const improveLabel = isShortLabel
+		? _x( 'Improve', 'button label: improve guidelines with AI', 'jetpack' )
+		: __( 'Improve guidelines', 'jetpack' );
 	const label = isEmpty ? generateLabel : improveLabel;
 
 	const handleClick = useCallback( async () => {
