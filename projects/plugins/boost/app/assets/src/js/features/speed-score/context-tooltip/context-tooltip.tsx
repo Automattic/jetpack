@@ -7,7 +7,7 @@ const ContextTooltip = () => {
 	return (
 		<IconTooltip
 			title=""
-			label={ __( 'About the Overall Score', 'jetpack-boost' ) }
+			label={ __( 'How the Overall Score is graded', 'jetpack-boost' ) }
 			placement={ 'bottom' }
 			className={ styles.tooltip }
 			iconSize={ 22 }
