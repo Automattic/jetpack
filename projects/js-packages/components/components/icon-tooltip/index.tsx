@@ -45,7 +45,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	placement = 'bottom-end',
 	animate = true,
 	iconCode = info,
-	iconLabel,
+	label,
 	iconSize = 18,
 	offset = 10,
 	title,
@@ -299,7 +299,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 				<Button
 					ref={ triggerRef }
 					variant="link"
-					aria-label={ iconLabel ?? __( 'More information', 'jetpack-components' ) }
+					aria-label={ label ?? __( 'More information', 'jetpack-components' ) }
 					aria-expanded={ isVisible }
 					onClick={ toggleTooltip }
 					onKeyDown={ handleTriggerKeyDown }

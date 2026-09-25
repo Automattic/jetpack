@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-IconTooltip: Give the icon trigger an accessible name, and add an `iconLabel` prop to set a more specific one.
+IconTooltip: Give the icon trigger an accessible name, and add a `label` prop to set a more specific one.
