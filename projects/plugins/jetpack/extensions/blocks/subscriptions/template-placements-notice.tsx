@@ -1,7 +1,6 @@
 import colorStudio from '@automattic/color-studio';
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { addFilter } from '@wordpress/hooks';
@@ -54,17 +53,16 @@ addFilter(
 /**
  * Lists the Newsletter placements enabled on the site while a template is being edited.
  *
- * Only site administrators can read the settings, so others get nothing.
- *
  * @return {JSX.Element|null} The notice element, or null if no placements are enabled.
  */
 function TemplatePlacementsNotice() {
-	const settings = useSelect( select => {
-		const isTemplate = select( editorStore ).getCurrentPostType() === 'wp_template';
-		return isTemplate ? select( coreStore ).getEntityRecord( 'root', 'site' ) : null;
-	}, [] );
+	const isTemplate = useSelect(
+		select => select( editorStore ).getCurrentPostType() === 'wp_template',
+		[]
+	);
+	const settings = window?.Jetpack_Editor_Initial_State?.jetpack?.subscribe_placements;
 
-	if ( ! settings ) {
+	if ( ! isTemplate || ! settings ) {
 		return null;
 	}
 

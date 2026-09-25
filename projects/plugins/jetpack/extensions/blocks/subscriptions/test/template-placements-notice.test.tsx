@@ -3,7 +3,6 @@ import { useSelect } from '@wordpress/data';
 import { applyFilters } from '@wordpress/hooks';
 import '../template-placements-notice';
 
-jest.mock( '@wordpress/core-data', () => ( { store: 'core' } ) );
 jest.mock( '@wordpress/editor', () => ( { store: 'core/editor' } ) );
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -19,14 +18,13 @@ jest.mock( '@wordpress/data', () => {
 	} );
 } );
 
-const mockEditorState = ( postType: string, settings?: Record< string, boolean > ) => {
+const mockEditorState = ( postType: string, placements?: Record< string, boolean > ) => {
 	( useSelect as jest.Mock ).mockImplementation( callback =>
-		callback( ( store: string ) =>
-			store === 'core/editor'
-				? { getCurrentPostType: () => postType }
-				: { getEntityRecord: () => settings }
-		)
+		callback( () => ( { getCurrentPostType: () => postType } ) )
 	);
+	Object.assign( window, {
+		Jetpack_Editor_Initial_State: { jetpack: { subscribe_placements: placements } },
+	} );
 };
 
 const BlockEdit = () => <div>Block content</div>;
@@ -51,7 +49,7 @@ describe( 'TemplatePlacementsNotice', () => {
 	it.each( [
 		[ 'outside a template', 'post', { slug: 'footer' }, { sm_enabled: true } ],
 		[ 'on a non-footer template part', 'wp_template', { slug: 'header' }, { sm_enabled: true } ],
-		[ 'when settings are unreadable (non-admins)', 'wp_template', { slug: 'footer' }, undefined ],
+		[ 'for non-admins, who get no placement values', 'wp_template', { slug: 'footer' }, undefined ],
 		[ 'when no placement is enabled', 'wp_template', { slug: 'footer' }, { sm_enabled: false } ],
 	] )( 'renders nothing %s', ( _label, postType, attributes, settings ) => {
 		mockEditorState( postType, settings );

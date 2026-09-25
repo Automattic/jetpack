@@ -11,7 +11,6 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service;
 use Automattic\Jetpack\Modules;
-use Automattic\Jetpack\Modules\Subscriptions\Settings;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Request;
 use Jetpack_Gutenberg;
@@ -24,7 +23,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once __DIR__ . '/class-jetpack-subscription-site.php';
 require_once __DIR__ . '/constants.php';
-require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 
 /**
@@ -189,8 +187,6 @@ function register_block() {
 			return $options;
 		}
 	);
-
-	add_action( 'rest_api_init', array( Settings::class, 'register_placement_settings' ) );
 
 	// If called via REST API, we need to register later in the lifecycle
 	if ( ( new Host() )->is_wpcom_platform() && ! Request::is_frontend() ) {
