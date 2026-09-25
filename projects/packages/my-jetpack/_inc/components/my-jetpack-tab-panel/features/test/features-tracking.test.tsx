@@ -12,6 +12,7 @@ import { FeaturesTrackingProvider } from '../features-tracking-context';
 import type { FeatureState } from '../feature-state';
 import type { FeaturesView } from '../toolbar';
 import type { FeatureFilter } from '../use-feature-filter';
+import type { MoreFeaturesGroup } from '../use-more-features';
 import type { ReactNode } from 'react';
 
 const mockRun = jest.fn();
@@ -90,9 +91,13 @@ jest.mock( '../feature-list', () => ( {
 	FeatureList: () => <div>list rows</div>,
 	UnswitchableNote: () => null,
 } ) );
+// The real narrowing is kept: a count or a result_count is only right if it answers for
+// this section as well as for the grid.
+let mockMoreFeatures: MoreFeaturesGroup[] = [];
+
 jest.mock( '../use-more-features', () => ( {
 	...jest.requireActual( '../use-more-features' ),
-	useMoreFeatures: () => [],
+	useMoreFeatures: () => mockMoreFeatures,
 } ) );
 // The plan badges live inside the real modal; here the handler is held onto and called.
 const mockModal: { onFilterByPlan?: ( plan: string ) => void } = {};
@@ -129,6 +134,14 @@ const buildState = ( control: FeatureState[ 'control' ], overrides = {} ): Featu
 		...overrides,
 	} ) as FeatureState;
 
+// A row as the More Features section builds one: a module, carrying no plan.
+const moduleRow = ( slug: string, name: string ): FeatureState =>
+	( {
+		feature: { slug, name, description: '', plans: [], essential: false },
+		status: 'inactive',
+		control: { kind: 'module', module: { module: slug, name, description: '' } },
+	} ) as unknown as FeatureState;
+
 const renderAt = ( url: string ) =>
 	render(
 		<QueryClientProvider client={ new QueryClient() }>
@@ -151,7 +164,13 @@ const renderTracked = ( children: ReactNode, grid: Grid = {} ) =>
 		</FeaturesTrackingProvider>
 	);
 
-const SEARCH_SETTLE = 700;
+// Comfortably past the tab's own delay, so a loaded CI worker cannot land a timer after
+// the wait that is meant to contain it.
+const SEARCH_SETTLE = 1500;
+
+// Same reason, for the waits that expect a timer to have fired: the default is 1s, which
+// leaves a 500ms debounce almost no room.
+const SETTLED = { timeout: 5000 };
 
 const eventNames = () => recordEvent.mock.calls.map( ( [ name ] ) => name );
 
@@ -160,6 +179,7 @@ const lastEvent = ( name: string ) =>
 
 beforeEach( () => {
 	jest.clearAllMocks();
+	mockMoreFeatures = [];
 	mockModuleSwitch.onSwitch = undefined;
 	mockModal.onFilterByPlan = undefined;
 	mockGrid.onOpen = undefined;
@@ -202,10 +222,12 @@ describe( 'Features tab toolbar tracking', () => {
 
 		await userEvent.type( screen.getByRole( 'searchbox', { name: 'Search features' } ), 'boost' );
 
-		await waitFor( () =>
-			expect( lastEvent( 'jetpack_myjetpack_features_search' ) ).toMatchObject( {
-				search_term: 'boost',
-			} )
+		await waitFor(
+			() =>
+				expect( lastEvent( 'jetpack_myjetpack_features_search' ) ).toMatchObject( {
+					search_term: 'boost',
+				} ),
+			SETTLED
 		);
 
 		expect(
@@ -402,7 +424,7 @@ describe( 'Empty state tracking', () => {
 		// The event is recorded on the click; the reload follows a beat later so the
 		// queued pixel is not cancelled by it.
 		expect( reloadPage ).not.toHaveBeenCalled();
-		await waitFor( () => expect( reloadPage ).toHaveBeenCalled() );
+		await waitFor( () => expect( reloadPage ).toHaveBeenCalled(), SETTLED );
 	} );
 
 	it( 'records leaving for the support search', async () => {
@@ -555,7 +577,10 @@ describe( 'What is not worth an event', () => {
 		const box = screen.getByRole( 'searchbox', { name: 'Search features' } );
 
 		await userEvent.type( box, 'boost' );
-		await waitFor( () => expect( eventNames() ).toContain( 'jetpack_myjetpack_features_search' ) );
+		await waitFor(
+			() => expect( eventNames() ).toContain( 'jetpack_myjetpack_features_search' ),
+			SETTLED
+		);
 		await userEvent.clear( box );
 		await new Promise( resolve => setTimeout( resolve, SEARCH_SETTLE ) );
 
@@ -571,7 +596,10 @@ describe( 'What is not worth an event', () => {
 		const box = screen.getByRole( 'searchbox', { name: 'Search features' } );
 
 		await userEvent.type( box, 'boost' );
-		await waitFor( () => expect( eventNames() ).toContain( 'jetpack_myjetpack_features_search' ) );
+		await waitFor(
+			() => expect( eventNames() ).toContain( 'jetpack_myjetpack_features_search' ),
+			SETTLED
+		);
 
 		// Picking a filter clears the term, so typing it again is a new search.
 		await userEvent.click( screen.getByRole( 'button', { name: /Inactive/ } ) );
@@ -593,12 +621,41 @@ describe( 'How many a filter would show', () => {
 		);
 		act( () => mockModal.onFilterByPlan?.( 'complete' ) );
 
-		// Two of the three fixtures are on the Complete plan; `counts` never holds that
-		// filter unless it is already in play, which is what made this read as 0.
+		// Both fixtures are on the Complete plan; `counts` never holds that filter unless it
+		// is already in play, which is what made this read as 0.
 		expect( lastEvent( 'jetpack_myjetpack_features_filter_change' ) ).toMatchObject( {
 			filter: 'complete',
 			count: 2,
 		} );
+	} );
+
+	it( 'counts the More Features rows the pill counts, not the grid alone', async () => {
+		mockMoreFeatures = [ { label: 'Engagement', states: [ moduleRow( 'monitor', 'Monitor' ) ] } ];
+		renderAt( '/features' );
+
+		await userEvent.click( screen.getByRole( 'button', { name: /Inactive/ } ) );
+
+		// Boost from the grid, Monitor from the section below it.
+		expect( lastEvent( 'jetpack_myjetpack_features_filter_change' ) ).toMatchObject( {
+			filter: 'inactive',
+			count: 2,
+		} );
+	} );
+
+	it( 'counts a search the same way, over both lists', async () => {
+		mockMoreFeatures = [ { label: 'Engagement', states: [ moduleRow( 'monitor', 'Monitor' ) ] } ];
+		renderAt( '/features' );
+
+		await userEvent.type( screen.getByRole( 'searchbox', { name: 'Search features' } ), 'monitor' );
+
+		await waitFor(
+			() =>
+				expect( lastEvent( 'jetpack_myjetpack_features_search' ) ).toMatchObject( {
+					search_term: 'monitor',
+					result_count: 1,
+				} ),
+			SETTLED
+		);
 	} );
 } );
 
@@ -636,6 +693,20 @@ describe( 'A search left behind', () => {
 
 		expect( lastEvent( 'jetpack_myjetpack_features_search' ) ).toMatchObject( {
 			search_term: 'boost',
+		} );
+	} );
+
+	it( 'closes details left open when the tab goes, so views and closes still pair up', async () => {
+		const { unmount } = renderAt( '/features?feature=stats' );
+
+		await waitFor(
+			() => expect( eventNames() ).toContain( 'jetpack_myjetpack_feature_modal_view' ),
+			SETTLED
+		);
+		unmount();
+
+		expect( lastEvent( 'jetpack_myjetpack_feature_modal_close' ) ).toMatchObject( {
+			feature_slug: 'stats',
 		} );
 	} );
 } );

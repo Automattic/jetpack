@@ -127,18 +127,25 @@ function FeaturesTabContent() {
 		mainFeatures.jetpack === 'active'
 	);
 
+	// Both lists, since a filter narrows both: the pills, and the count the filter event
+	// reports, are answers about the whole tab rather than about the grid alone.
+	const countable = useMemo(
+		() => [ ...states, ...moreFeatures.flatMap( group => group.states ) ],
+		[ states, moreFeatures ]
+	);
+
 	// Counted against every feature, not the visible ones, so a pill says how many it
 	// would show rather than how many survived the filter already in play.
-	const counts = useMemo( () => {
-		const countable = [ ...states, ...moreFeatures.flatMap( group => group.states ) ];
-
-		return Object.fromEntries(
-			getFeatureFilters( filter ).map( ( { value } ) => [
-				value,
-				countable.filter( state => matchesFilter( state, value ) ).length,
-			] )
-		) as Record< FeatureFilter, number >;
-	}, [ states, moreFeatures, filter ] );
+	const counts = useMemo(
+		() =>
+			Object.fromEntries(
+				getFeatureFilters( filter ).map( ( { value } ) => [
+					value,
+					countable.filter( state => matchesFilter( state, value ) ).length,
+				] )
+			) as Record< FeatureFilter, number >,
+		[ countable, filter ]
+	);
 
 	const open = states.find( item => item.feature.slug === openSlug );
 
@@ -197,9 +204,20 @@ function FeaturesTabContent() {
 	const trackingRef = useRef( tracking );
 
 	useEffect( () => {
-		visibleCountRef.current = visible.length;
+		// Everything the search turned up, More Features included, since it searches both.
+		visibleCountRef.current = shownCount;
 		trackingRef.current = tracking;
 	} );
+
+	// Leaving the tab with the details open closes them, so it is reported as a close:
+	// otherwise every such visit is a view the events never answer.
+	useEffect( () => {
+		return () => {
+			if ( shownRef.current && shownStateRef.current ) {
+				trackingRef.current?.trackModalClose( shownStateRef.current );
+			}
+		};
+	}, [] );
 
 	const sendSearch = useCallback( () => {
 		const term = pendingSearchRef.current;
@@ -244,11 +262,11 @@ function FeaturesTabContent() {
 		[ sendSearch, updateParams ]
 	);
 
-	// How many the grid would show, counted here rather than read from `counts`, which
+	// How many the tab would show, counted here rather than read from `counts`, which
 	// only holds the filters offered as pills — a plan badge can pick one that is not.
 	const countFor = useCallback(
-		( next: FeatureFilter ) => states.filter( state => matchesFilter( state, next ) ).length,
-		[ states ]
+		( next: FeatureFilter ) => countable.filter( state => matchesFilter( state, next ) ).length,
+		[ countable ]
 	);
 
 	const onFilterChange = useCallback(
