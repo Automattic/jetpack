@@ -44,6 +44,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	placement = 'bottom-end',
 	animate = true,
 	iconCode = info,
+	label,
 	iconSize = 18,
 	offset = 10,
 	title,
@@ -312,6 +313,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 				<Button
 					ref={ triggerRef }
 					variant="link"
+					aria-label={ label }
 					aria-expanded={ isVisible }
 					onClick={ toggleTooltip }
 					onKeyDown={ handleTriggerKeyDown }

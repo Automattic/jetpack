@@ -116,7 +116,7 @@ const StageInner = () => {
 		paginationInfo: totalPagination,
 		isLoading: isTotalLoading,
 		isError: isTotalError,
-	} = useLibrary( TOTAL_COUNT_VIEW );
+	} = useLibrary( TOTAL_COUNT_VIEW, { poll: false } );
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
 	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();

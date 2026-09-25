@@ -154,6 +154,11 @@ $tooltip-drop-shadow: 0 var(--wpds-border-width-xs) var(--wpds-border-width-sm) 
 	}
 }
 
+// Read-only and aria-hidden; a mouse passes through, a tap stays on the box.
+.boost-daily-history__positioner[data-mouse] {
+	pointer-events: none;
+}
+
 .boost-daily-history__popover .boost-daily-history__score-tooltip {
 	inline-size: calc(var(--wpds-dimension-surface-width-xs) + var(--wpds-dimension-padding-2xl) + var(--wpds-border-width-xs));
 	padding: calc(var(--wpds-dimension-padding-lg) + var(--wpds-border-width-xs));
