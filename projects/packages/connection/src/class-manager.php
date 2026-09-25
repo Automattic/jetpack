@@ -2610,16 +2610,9 @@ class Manager {
 	/**
 	 * Validate the tokens, and refresh the invalid ones.
 	 *
-	 * @since $$next-version$$ Limits users without 'jetpack_reconnect' to refreshing their own user token.
-	 *
 	 * @return string|bool|WP_Error True if connection restored or string indicating what's to be done next. A `WP_Error` object or false otherwise.
 	 */
 	public function restore() {
-		// Must run first: every other path below can re-register the whole site.
-		if ( ! current_user_can( 'jetpack_reconnect' ) ) {
-			return $this->restore_current_user();
-		}
-
 		// If this is a site connection we need to trigger a full reconnection as our only secure means of
 		// communication with WPCOM, aka the blog token, is compromised.
 		if ( $this->is_site_connection() ) {
@@ -2654,48 +2647,6 @@ class Manager {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Restore for a user who may not reconnect the site: replace their own user token, nothing else.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string|WP_Error 'authorize' when the user should authorize again, a `WP_Error` object otherwise.
-	 */
-	private function restore_current_user() {
-		$user_id = get_current_user_id();
-
-		// Unlinking the owner would leave the site without one.
-		if ( ! $user_id || $this->is_site_connection() || $this->get_connection_owner_id() === $user_id ) {
-			return new WP_Error(
-				'restore_requires_administrator',
-				__( 'An administrator needs to restore the Jetpack connection.', 'jetpack-connection' ),
-				array( 'status' => 403 )
-			);
-		}
-
-		// Relinking goes over the blog token, so it must work before anything is unlinked.
-		if ( true !== $this->get_tokens()->validate_blog_token() ) {
-			return new WP_Error(
-				'restore_requires_administrator',
-				__( 'The site connection is broken. An administrator needs to restore it before you can reconnect your account.', 'jetpack-connection' ),
-				array( 'status' => 409 )
-			);
-		}
-
-		( new Tracking() )->record_user_event( 'restore_connection_refresh_user_token' );
-
-		// Not forced, unlike refresh_user_token(): the local token only goes once WordPress.com has unlinked it.
-		if ( $this->is_user_connected( $user_id ) && ! $this->disconnect_user( $user_id ) ) {
-			return new WP_Error(
-				'restore_unlink_failed',
-				__( 'Your account could not be disconnected from WordPress.com. Please try again.', 'jetpack-connection' ),
-				array( 'status' => 502 )
-			);
-		}
-
-		return 'authorize';
 	}
 
 	/**
@@ -3480,12 +3431,63 @@ class Manager {
 	/**
 	 * Disconnect the user from WP.com, and initiate the reconnect process.
 	 *
-	 * @return bool
+	 * @since $$next-version$$ Added the `$force` parameter.
+	 *
+	 * @param bool $force Whether to remove the local token even if WordPress.com does not confirm the unlink.
+	 *                    When false, only the current user's own token is refreshed, never the owner's,
+	 *                    and only over a healthy blog token.
+	 * @return true|string|WP_Error True when forced. Otherwise 'authorize' when the user should authorize again, a `WP_Error` object on failure.
 	 */
-	public function refresh_user_token() {
-		( new Tracking() )->record_user_event( 'restore_connection_refresh_user_token' );
-		$this->disconnect_user( null, true, true );
-		return true;
+	public function refresh_user_token( $force = true ) {
+		$user_id = get_current_user_id();
+
+		if ( ! $force ) {
+			// Unlinking the owner would leave the site without one.
+			if ( ! $user_id || $this->is_site_connection() || $this->get_connection_owner_id() === $user_id ) {
+				return new WP_Error(
+					'restore_requires_administrator',
+					__( 'An administrator needs to restore the Jetpack connection.', 'jetpack-connection' ),
+					array( 'status' => 403 )
+				);
+			}
+
+			// Relinking goes over the blog token, so it must work before anything is unlinked.
+			$blog_token_health = $this->get_tokens()->validate_blog_token();
+
+			if ( is_wp_error( $blog_token_health ) ) {
+				return new WP_Error(
+					'restore_check_failed',
+					__( 'The site connection could not be checked. Please try again shortly.', 'jetpack-connection' ),
+					array( 'status' => 503 )
+				);
+			}
+
+			if ( true !== $blog_token_health ) {
+				return new WP_Error(
+					'restore_requires_administrator',
+					__( 'The site connection is broken. An administrator needs to restore it before you can reconnect your account.', 'jetpack-connection' ),
+					array( 'status' => 409 )
+				);
+			}
+		}
+
+		// A forced refresh unlinks even without a stored token, as it always has.
+		if ( $force || $this->is_user_connected( $user_id ) ) {
+			( new Tracking() )->record_user_event( 'restore_connection_refresh_user_token' );
+
+			// Unforced, the local token only goes once WordPress.com has unlinked it.
+			$unlinked = $this->disconnect_user( $force ? null : $user_id, $force, $force );
+
+			if ( ! $force && ! $unlinked ) {
+				return new WP_Error(
+					'restore_unlink_failed',
+					__( 'Your account could not be disconnected from WordPress.com. Please try again.', 'jetpack-connection' ),
+					array( 'status' => 502 )
+				);
+			}
+		}
+
+		return $force ? true : 'authorize';
 	}
 
 	/**

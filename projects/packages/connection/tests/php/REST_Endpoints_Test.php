@@ -482,6 +482,24 @@ class REST_Endpoints_Test extends TestCase {
 	}
 
 	/**
+	 * `restore()` with no current user (cron, WP-CLI) still restores the whole site.
+	 */
+	public function test_restore_without_current_user_restores_site() {
+		wp_set_current_user( 0 );
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
+		add_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
+		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10, 3 );
+
+		$result = ( new Manager() )->restore();
+
+		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10 );
+		remove_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
 	 * A non-admin without `jetpack_connect_user` still cannot use `connection/reconnect`.
 	 */
 	public function test_connection_reconnect_rejects_non_admin_without_connect_user() {
@@ -512,6 +530,18 @@ class REST_Endpoints_Test extends TestCase {
 
 		$this->assertEquals( 409, $unlinked['response']->get_status() );
 		$this->assertEquals( 'restore_requires_administrator', $unlinked['response']->get_data()['code'] );
+		$this->assertSame( array(), $unlinked['users'] );
+		$this->assertSame( 0, $unlinked['site_disconnects'] );
+	}
+
+	/**
+	 * A non-admin is asked to retry, before anything is unlinked, when the blog token check cannot run.
+	 */
+	public function test_connection_reconnect_non_admin_when_blog_token_check_fails() {
+		$unlinked = $this->dispatch_non_admin_reconnect( null );
+
+		$this->assertEquals( 503, $unlinked['response']->get_status() );
+		$this->assertEquals( 'restore_check_failed', $unlinked['response']->get_data()['code'] );
 		$this->assertSame( array(), $unlinked['users'] );
 		$this->assertSame( 0, $unlinked['site_disconnects'] );
 	}
@@ -580,9 +610,9 @@ class REST_Endpoints_Test extends TestCase {
 	/**
 	 * Dispatch `connection/reconnect` as a non-admin holding `jetpack_connect_user`.
 	 *
-	 * @param bool   $blog_token_healthy What the blog token health check reports.
-	 * @param string $xmlrpc_mock        The method mocking the WordPress.com unlink response.
-	 * @param string $options_mock       The method mocking the connection options.
+	 * @param bool|null $blog_token_healthy What the blog token health check reports, or null for a failed check.
+	 * @param string    $xmlrpc_mock        The method mocking the WordPress.com unlink response.
+	 * @param string    $options_mock       The method mocking the connection options.
 	 * @return array The response, the IDs passed to `jetpack_unlinked_user`, and the site disconnect count.
 	 */
 	private function dispatch_non_admin_reconnect( $blog_token_healthy, $xmlrpc_mock = 'mock_xmlrpc_success', $options_mock = 'mock_jetpack_options' ) {
@@ -602,6 +632,16 @@ class REST_Endpoints_Test extends TestCase {
 		$blog_token_check = static function ( $response, $args, $url ) use ( $blog_token_healthy ) {
 			if ( ! str_contains( $url, 'jetpack-token-health/blog' ) ) {
 				return $response;
+			}
+
+			if ( null === $blog_token_healthy ) {
+				return array(
+					'body'     => '',
+					'response' => array(
+						'code'    => 500,
+						'message' => 'failed',
+					),
+				);
 			}
 
 			return array(

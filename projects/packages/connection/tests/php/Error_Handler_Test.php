@@ -2849,7 +2849,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 	/**
 	 * Test that a viewer's own broken user token is shown to them without jetpack_connect,
-	 * with the default reconnect CTA: Manager::restore() limits them to their own token.
+	 * with the default reconnect CTA: the reconnect endpoint limits them to their own token.
 	 */
 	public function test_get_displayable_errors_shows_own_user_error_to_non_admin() {
 		$owner_id = wp_insert_user(
@@ -2904,6 +2904,40 @@ class Error_Handler_Test extends BaseTestCase {
 		$displayed = $result['no_valid_user_token'][ (string) $editor_id ];
 		$this->assertSame( 'none', $displayed['error_data']['action'] );
 		$this->assertStringContainsString( 'Ask an administrator', $displayed['error_message'] );
+	}
+
+	/**
+	 * Test that an inbound-only site error does not withhold a non-admin's reconnect CTA: the relink is outbound.
+	 */
+	public function test_get_displayable_errors_keeps_non_admin_cta_for_inbound_site_error() {
+		$editor_id = $this->set_up_owner_and_viewer( 'editor' );
+		$this->store_verified_errors(
+			array(
+				'xmlrpc_request_blocked' => array( '0' ),
+				'no_valid_user_token'    => array( (string) $editor_id ),
+			)
+		);
+
+		$result = $this->error_handler->get_displayable_errors();
+
+		$this->assertArrayNotHasKey( 'action', $result['no_valid_user_token'][ (string) $editor_id ]['error_data'] ?? array() );
+	}
+
+	/**
+	 * Test that an unattributable error is not read as a broken site connection.
+	 */
+	public function test_get_displayable_errors_keeps_non_admin_cta_for_unattributable_error() {
+		$editor_id = $this->set_up_owner_and_viewer( 'editor' );
+		$this->store_verified_errors(
+			array(
+				'no_valid_blog_token' => array( 'invalid' ),
+				'no_valid_user_token' => array( (string) $editor_id ),
+			)
+		);
+
+		$result = $this->error_handler->get_displayable_errors();
+
+		$this->assertArrayNotHasKey( 'action', $result['no_valid_user_token'][ (string) $editor_id ]['error_data'] ?? array() );
 	}
 
 	/**

@@ -325,7 +325,7 @@ class Error_Handler {
 			// Viewer-wide, so resolved once rather than per error.
 			$viewer_can_connect      = current_user_can( 'jetpack_connect' );
 			$viewer_can_connect_user = current_user_can( 'jetpack_connect_user' );
-			$site_connection_broken  = ! $viewer_can_connect && $this->has_site_connection_error( $verified_errors );
+			$site_connection_broken  = ! $viewer_can_connect && $this->has_site_connection_error( $verified_errors, $owner_id );
 
 			foreach ( $verified_errors as $error_code => $users ) {
 				// Only process error codes that are meant to be displayed to users.
@@ -797,22 +797,32 @@ class Error_Handler {
 	}
 
 	/**
-	 * Whether a displayable error is on record for the site (blog token) connection.
+	 * Whether a displayable site-audience error is on record that would stop a user relinking.
+	 *
+	 * Codes that survive owner promotion are inbound failures (WordPress.com cannot reach or
+	 * verify the site), which leave the outbound, blog-token-signed relink working.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param array $verified_errors The verified errors, keyed by error code then user ID.
+	 * @param int   $owner_id        The local user ID of the connection owner, or 0 if there is none.
 	 * @return bool
 	 */
-	private function has_site_connection_error( $verified_errors ) {
+	private function has_site_connection_error( $verified_errors, $owner_id ) {
 		foreach ( $verified_errors as $error_code => $users ) {
-			if ( 'invalid_connection_owner' === $error_code || null === $this->get_error_display_config( $error_code ) || ! is_array( $users ) ) {
+			$display_config = $this->get_error_display_config( $error_code );
+
+			if ( null === $display_config || ! empty( $display_config['survives_owner_promotion'] ) || ! is_array( $users ) ) {
 				continue;
 			}
 
-			// 'invalid' would cast to 0, but belongs to no token at all.
 			foreach ( array_keys( $users ) as $user_id ) {
-				if ( 'invalid' !== $user_id && 0 === (int) $user_id ) {
+				// Must precede classification, which would cast 'invalid' to 0 and read it as 'site'.
+				if ( 'invalid' === $user_id ) {
+					continue;
+				}
+
+				if ( 'site' === $this->classify_error_audience( $user_id, $owner_id ) ) {
 					return true;
 				}
 			}
