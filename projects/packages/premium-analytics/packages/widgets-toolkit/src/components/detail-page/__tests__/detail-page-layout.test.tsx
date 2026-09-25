@@ -32,6 +32,13 @@ describe( 'DetailPageLayout', () => {
 		expect( screen.getByText( 'Video published today.' ) ).toBeInTheDocument();
 	} );
 
+	it( 'leaves the header out when a page state stands in for the resource', () => {
+		render( <DetailPageLayout tabs={ <div role="tablist" /> }>not sent</DetailPageLayout> );
+
+		expect( screen.queryByRole( 'heading', { level: 2 } ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'not sent' ) ).toBeInTheDocument();
+	} );
+
 	it( 'renders the date controls it is given', () => {
 		render(
 			<DetailPageLayout
