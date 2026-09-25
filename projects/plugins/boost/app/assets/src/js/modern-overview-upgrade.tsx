@@ -6,7 +6,7 @@ import {
 	observeLegacyModulesState,
 	observeLegacyOnboarding,
 } from '../../../../_inc/overview/lib/modules-state-bridge';
-import { OVERVIEW_UPGRADE_EVENT } from '../../../../_inc/overview/lib/upgrade-bridge';
+import { OVERVIEW_UPGRADE_EVENT, upgradeHref } from '../../../../_inc/overview/lib/upgrade-bridge';
 import { licenseKeyHref, useCanRedeemLicenseKey } from './features/upgrade-cta/license-key-link';
 import './modern-overview-upgrade.scss';
 import { recordBoostEvent, recordBoostEventAndRedirect } from './lib/utils/analytics';
@@ -24,7 +24,7 @@ async function handleUpgrade( event: MouseEvent< HTMLAnchorElement > ) {
 	}
 	event.preventDefault();
 	await recordBoostEventAndRedirect(
-		'admin.php?page=my-jetpack#/add-boost',
+		upgradeHref,
 		'performance_history_upgrade_cta_click',
 		eventProperties
 	);
@@ -55,7 +55,7 @@ window.addEventListener( OVERVIEW_UPGRADE_EVENT, ( event: Event ) => {
 		root.render(
 			<DataSyncProvider>
 				<span className="jb-modern-upgrade-actions">
-					<Link href="admin.php?page=my-jetpack#/add-boost" onClick={ handleUpgrade }>
+					<Link href={ upgradeHref } onClick={ handleUpgrade }>
 						{ __( 'Upgrade now', 'jetpack-boost' ) }
 					</Link>
 					<OverviewLicenseKeyLink />
