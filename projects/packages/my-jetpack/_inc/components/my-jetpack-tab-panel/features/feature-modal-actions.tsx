@@ -120,8 +120,7 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 				</LinkButton>
 			) : null }
 
-			{ /* Forced off explains itself under "How to get it"; forced on has no such section. */ }
-			{ forcedReason && isActive ? <Badge intent="medium">{ forcedReason }</Badge> : null }
+			{ forcedReason ? <Badge intent="medium">{ forcedReason }</Badge> : null }
 
 			{ control.kind === 'module' && ! forcedReason ? (
 				<ModuleSwitch module={ control.module } name={ feature.name } />

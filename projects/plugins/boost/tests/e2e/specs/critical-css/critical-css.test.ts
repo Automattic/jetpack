@@ -144,7 +144,7 @@ test.describe.serial( 'Critical CSS module', () => {
 					.includes( '/jetpack-boost-ds/critical-css-state/action/request-regenerate' ) &&
 				response.request().method() === 'POST'
 		);
-		await page.getByRole( 'button', { name: 'Regenerate' } ).click();
+		await page.getByRole( 'button', { name: 'Regenerate', exact: true } ).click();
 		/*
 		 * Assert the action succeeded rather than matching only ok() responses, so a
 		 * failed request (e.g. nonce/permission) fails fast with its status instead of

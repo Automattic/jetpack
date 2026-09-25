@@ -1,4 +1,6 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { formatNumber } from '@automattic/number-formatters';
+
+const PLACEHOLDER = '—';
 
 /**
  * Format a metric count, or its placeholder when unavailable.
@@ -7,7 +9,7 @@ import { __, sprintf } from '@wordpress/i18n';
  * @return Localized metric.
  */
 export function formatMetric( value: number | null | undefined ): string {
-	return value === null || value === undefined ? '—' : new Intl.NumberFormat().format( value );
+	return value === null || value === undefined ? PLACEHOLDER : formatNumber( value );
 }
 
 /**
@@ -18,10 +20,8 @@ export function formatMetric( value: number | null | undefined ): string {
  */
 export function formatRate( value: number | null | undefined ): string {
 	return value === null || value === undefined
-		? '—'
-		: sprintf(
-				/* translators: %d: Percentage value without the percent sign. */
-				__( '%d%%', 'jetpack-newsletter' ),
-				Math.round( value )
-			);
+		? PLACEHOLDER
+		: formatNumber( value / 100, {
+				numberFormatOptions: { style: 'percent' },
+			} );
 }

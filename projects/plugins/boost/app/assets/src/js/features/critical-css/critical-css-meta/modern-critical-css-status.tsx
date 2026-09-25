@@ -40,10 +40,12 @@ export default function ModernCriticalCssStatus( { cssState, isGenerating, progr
 			<div className={ styles.well } data-testid="critical-css-meta">
 				<Stack direction="column" gap="sm">
 					<Stack direction="row" justify="space-between" align="center" gap="sm">
-						<Stack direction="row" align="center" gap="xs">
-							<Text>{ __( 'Critical CSS', 'jetpack-boost' ) }</Text>
+						<Stack direction="row" align="center" gap="sm">
+							<Text variant="heading-md">{ __( 'Critical CSS', 'jetpack-boost' ) }</Text>
 							<IconTooltip
 								className={ styles[ 'info-icon' ] }
+								iconSize={ 20 }
+								label={ __( 'What is Critical CSS?', 'jetpack-boost' ) }
 								placement="bottom"
 								{ ...tooltipLayer }
 							>

@@ -1,9 +1,12 @@
+@use "sass:list";
+@use "sass:string";
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 // Matches the product-card icon palette in ../products/styles.module.scss.
 $feature-icon-background: #003010;
 $feature-icon-foreground: #0ced57;
 $banner-foreground: #daffdc;
+$band-ground: #f8f8f8;
 
 .content {
 	display: flex;
@@ -234,6 +237,7 @@ $banner-foreground: #daffdc;
 	align-self: center;
 	display: flex;
 	flex-shrink: 0;
+	gap: var(--wpds-dimension-gap-md);
 	justify-content: flex-end;
 	min-inline-size: 2.25rem;
 	// The padding is the point: it raises a margin around the control above the
@@ -514,15 +518,22 @@ $banner-foreground: #daffdc;
 }
 
 
-// Sized to its content between a floor and the viewport, not pinned: at a fixed
-// 50rem most features left a third of the dialog empty. The floor keeps the
-// common ones the same height, so stepping does not resize under the cursor.
+// One fixed height, so stepping never resizes the dialog under the cursor; a
+// longer body scrolls inside it.
 .modal-popup {
-	block-size: auto;
+	block-size: min(44rem, calc(100dvh - 5rem));
 	inline-size: min(42.5rem, calc(100vw - 3rem));
 	max-block-size: calc(100dvh - 5rem);
 	max-inline-size: min(42.5rem, calc(100vw - 3rem));
-	min-block-size: min(34rem, calc(100dvh - 5rem));
+	// Boot runs a view transition on every URL change, stepping included, and
+	// its stage snapshot paints over anything unnamed. Named, the modal and its
+	// backdrop get layers of their own above it and cross-fade instead.
+	view-transition-name: jetpack-feature-modal;
+}
+
+// @wordpress/ui's backdrop test id; feature-modal-steps.test.tsx pins it.
+.modal-portal :global([data-testid="dialog-backdrop"]) {
+	view-transition-name: jetpack-feature-modal-backdrop;
 }
 
 // Mounts already open, so `@wordpress/ui`'s entrance never plays. Rise in by
@@ -554,10 +565,10 @@ $banner-foreground: #daffdc;
 // on every step.
 .modal-band {
 	align-items: center;
-	background: $feature-icon-background;
+	background: $band-ground;
 	block-size: 14rem;
 	box-sizing: border-box;
-	color: $feature-icon-foreground;
+	color: $feature-icon-background;
 	display: flex;
 	flex: 0 0 auto;
 	justify-content: center;
@@ -569,12 +580,85 @@ $banner-foreground: #daffdc;
 	position: relative;
 }
 
-.modal-band .modal-step {
+// The band's custom properties, registered so they interpolate: that is what
+// morphs one feature's band into the next. band-palette.ts sets all of them.
+$band-props: (
+	a: "<color>",
+	b: "<color>",
+	c: "<color>",
+	ax: "<percentage>",
+	ay: "<percentage>",
+	bx: "<percentage>",
+	by: "<percentage>",
+	cx: "<percentage>",
+	cy: "<percentage>",
+);
+
+@each $name, $syntax in $band-props {
+
+	@property --band-#{$name} {
+		syntax: $syntax;
+		inherits: true;
+		initial-value: if($syntax == "<color>", transparent, 0%);
+	}
+}
+
+// Every band property's name, for one transition that covers them all.
+@function band-prop-names() {
+	$names: ();
+
+	@each $name, $syntax in $band-props {
+		$names: list.append($names, string.unquote("--band-#{$name}"), $separator: comma);
+	}
+
+	@return $names;
+}
+
+// One glow of the band, centered on that color's position.
+@function band-glow($size, $name, $fade) {
+	$at: var(--band-#{$name}x) var(--band-#{$name}y);
+	$color: var(--band-#{$name});
+
+	@return radial-gradient($size at $at, $color, transparent $fade);
+}
+
+// A soft wedge of the feature's colors; see band-palette.ts.
+.modal-band::before {
+	$nudge: 30px;
+
+	background:
+		band-glow(38% 72%, a, 72%),
+		band-glow(44% 80%, b, 72%),
+		band-glow(60% 90%, c, 76%),
+		color-mix(in srgb, var(--band-c) 55%, #{$band-ground});
+	clip-path: polygon(calc(11% + $nudge) 0, 100% 0, 100% 100%, calc(60% + $nudge) 100%);
+	content: "";
+	inset: 0;
+	position: absolute;
+	transition-duration: 700ms;
+	transition-property: band-prop-names();
+	transition-timing-function: ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.modal-band::before {
+		transition: none;
+	}
+}
+
+// clip-path and the glows have no logical form, so mirror the layer.
+:dir(rtl) .modal-band::before {
+	transform: scaleX(-1);
+}
+
+.modal-band__art {
 	align-items: center;
 	block-size: 100%;
 	display: flex;
 	inline-size: 100%;
 	justify-content: center;
+	position: relative;
 }
 
 // `contain`, not `cover`: every one of these assets is square or portrait, so
@@ -640,19 +724,53 @@ $banner-foreground: #daffdc;
 	}
 }
 
-.modal-body {
-	container-type: inline-size;
+.modal-header {
+	align-items: center;
+	gap: var(--wpds-dimension-gap-md);
 }
 
-.modal-body .modal-step {
+// Only the name and actions wrap, so close keeps its corner on a phone.
+.modal-header__main {
+	align-items: center;
+	display: flex;
+	flex: 1 1 0;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-md);
+	min-inline-size: 0;
+}
+
+.modal-heading {
+	flex: 1 1 12rem;
+	min-inline-size: 0;
+}
+
+.modal-footer {
+	align-items: center;
+	border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	gap: var(--wpds-dimension-gap-md);
+	justify-content: space-between;
+	padding-block: var(--wpds-dimension-padding-md);
+}
+
+// Right-hand even when a feature has no links to sit beside them.
+.modal-steps {
+	margin-inline-start: auto;
+}
+
+.modal-body {
+	container-type: inline-size;
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg);
 }
 
-// The switch and the way in, pushed to the end of the row the name starts.
-// Sized to the title and badge rows beside it, so the tile is flush with both
-// rather than floating between them.
+// Top, not centered: on a phone the name and actions wrap to two rows
+// beside it.
+.modal-icon {
+	align-self: flex-start;
+}
+
+// Sized to the title and badge rows beside it, so the tile is flush with both.
 .modal-icon .feature-icon {
 	block-size: 3.25rem;
 	inline-size: 3.25rem;
@@ -664,9 +782,7 @@ $banner-foreground: #daffdc;
 }
 
 .modal-actions {
-	align-self: center;
 	flex-shrink: 0;
-	margin-inline-start: auto;
 
 	// A narrow dialog must wrap the row, never the words inside a button.
 	a,
@@ -675,63 +791,61 @@ $banner-foreground: #daffdc;
 	}
 }
 
-// auto-fit rather than three fixed tracks: Activity Log, Blaze, Newsletter and
-// Podcast render no highlights, and an empty track would leave a dead column.
+.delivery-note {
+	background: var(--wpds-color-background-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-md);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	padding-block: var(--wpds-dimension-padding-sm);
+	padding-inline: var(--wpds-dimension-padding-md);
+}
+
+.highlight-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+
+	li {
+		margin: 0;
+	}
+}
+
+// Beside text that wraps, a flex item shrinks unless told not to.
+.inline-icon {
+	flex-shrink: 0;
+}
+
+// auto-fit, so a feature with only one tier gets the full width.
 .modal-panels {
 	display: grid;
 	gap: var(--wpds-dimension-gap-xl);
-	grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
 }
 
-// Replaces the filled panel, which cost 40px of padding and 32px of margin
-// per section — 216px across three, inside a 624px budget.
 .detail-section {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-sm);
-	position: relative;
-
-	// Centred in the column gap rather than drawn as a border, so all three
-	// columns keep an identical content width.
-	& + &::before {
-		background: var(--wpds-color-stroke-surface-neutral-weak);
-		content: "";
-		inline-size: var(--wpds-border-width-xs);
-		inset-block: 0;
-		inset-inline-start: calc(var(--wpds-dimension-gap-xl) / -2);
-		position: absolute;
-	}
 }
 
 // The grid collapses when the MODAL narrows, not the viewport: the popup
 // shrinks long before any phone breakpoint would fire.
-@container (max-width: 34rem) {
+@container (max-width: 30rem) {
 
 	.modal-panels {
 		grid-template-columns: minmax(0, 1fr);
 	}
-
-	// Stacked now, so the rule between sections turns horizontal.
-	.detail-section + .detail-section::before {
-		block-size: var(--wpds-border-width-xs);
-		inline-size: auto;
-		inset-block: calc(var(--wpds-dimension-gap-xl) / -2) auto;
-		inset-inline: 0;
-	}
-}
-
-
-.badge-link {
-	background: none;
-	border: 0;
-	cursor: pointer;
-	display: inline-flex;
-	padding: 0;
-	text-decoration: none;
 }
 
 .paid-routes {
-	margin-block-start: var(--wpds-dimension-gap-md);
+	margin-block-start: var(--wpds-dimension-gap-sm);
+}
+
+.plan-link {
+	background: none;
+	border: 0;
+	cursor: pointer;
+	font: inherit;
+	padding: 0;
 }
 
 // The artwork took nearly a third of the dialog's height at its desktop size,
@@ -754,9 +868,9 @@ $banner-foreground: #daffdc;
 		inline-size: 100%;
 		inset-block: auto 0;
 		inset-inline: 0 auto;
+		block-size: auto;
 		max-block-size: calc(100% - 2.5rem);
 		max-inline-size: none;
-		min-block-size: 0;
 		transform: none;
 		// Core's own mobile entrance: the sheet rises from below the screen.
 		animation-duration: var(--wpds-motion-duration-md);

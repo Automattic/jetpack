@@ -5,7 +5,7 @@
 		width: 100%;
 		padding: 16px 24px;
 		height: auto;
-		text-align: left;
+		text-align: start;
 		border-radius: 0;
 		box-shadow: none;
 
@@ -38,7 +38,7 @@
 		width: 100%;
 		background: none;
 		border: none;
-		text-align: left;
+		text-align: start;
 		border-radius: 0;
 
 		// Reset browser link styles when rendered as <a>
@@ -299,7 +299,7 @@ ol.jetpack-ai-mcp-setup__steps {
 
 	&__steps {
 		margin: 0;
-		padding-left: 20px;
+		padding-inline-start: 20px;
 
 		li {
 			margin-bottom: 8px;
