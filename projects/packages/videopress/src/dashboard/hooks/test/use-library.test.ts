@@ -10,6 +10,8 @@ import {
 	nextProcessingPoll,
 	toLibraryItem,
 	LIBRARY_POLL_INTERVAL_MS,
+	PROCESSING_POLL_SLOW_INTERVAL_MS,
+	PROCESSING_POLL_BACKOFF_MS,
 	PROCESSING_POLL_MAX_MS,
 } from '../use-library';
 import type { View } from '@wordpress/dataviews';
@@ -77,6 +79,11 @@ describe( 'viewToQueryArgs', () => {
 } );
 
 describe( 'libraryRefetchInterval', () => {
+	it( 'backs off after the first minute', () => {
+		expect( libraryRefetchInterval( true, PROCESSING_POLL_BACKOFF_MS - 1 ) ).toBe( 5000 );
+		expect( libraryRefetchInterval( true, PROCESSING_POLL_BACKOFF_MS ) ).toBe( 15000 );
+	} );
+
 	it( 'does not poll when nothing is processing', () => {
 		expect( libraryRefetchInterval( false, 0 ) ).toBe( false );
 		// Elapsed time is irrelevant once processing has cleared.
@@ -86,7 +93,7 @@ describe( 'libraryRefetchInterval', () => {
 	it( 'polls while processing and under the cap', () => {
 		expect( libraryRefetchInterval( true, 0 ) ).toBe( LIBRARY_POLL_INTERVAL_MS );
 		expect( libraryRefetchInterval( true, PROCESSING_POLL_MAX_MS - 1 ) ).toBe(
-			LIBRARY_POLL_INTERVAL_MS
+			PROCESSING_POLL_SLOW_INTERVAL_MS
 		);
 	} );
 
@@ -108,7 +115,7 @@ describe( 'nextProcessingPoll', () => {
 		const stamped = nextProcessingPoll( null, [ '7' ], 1_000 ).anchor;
 		const underCap = nextProcessingPoll( stamped, [ '7' ], 1_000 + PROCESSING_POLL_MAX_MS - 1 );
 		expect( underCap.anchor ).toBe( stamped );
-		expect( underCap.interval ).toBe( LIBRARY_POLL_INTERVAL_MS );
+		expect( underCap.interval ).toBe( PROCESSING_POLL_SLOW_INTERVAL_MS );
 		const atCap = nextProcessingPoll( stamped, [ '7' ], 1_000 + PROCESSING_POLL_MAX_MS );
 		expect( atCap.interval ).toBe( false );
 	} );

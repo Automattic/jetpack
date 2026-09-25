@@ -150,7 +150,7 @@ export function useVideoCopyStatus( guid: string, requestId: string | null ) {
 			processingStartRef.current = anchor;
 			return interval;
 		},
-		refetchOnWindowFocus: state => isCopyPending( state.state.data ),
+		refetchOnWindowFocus: state => ( isCopyPending( state.state.data ) ? 'always' : false ),
 	} );
 	const attachmentId = query.data?.attachment_id;
 	const status = query.data?.job?.status;

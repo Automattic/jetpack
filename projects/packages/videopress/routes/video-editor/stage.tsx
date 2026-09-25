@@ -603,10 +603,12 @@ function EditorReady( { video, onSelectTool }: ReadyProps ): ReactElement {
  * @return The screen element.
  */
 function EditorRoute( { id }: { id: string } ): ReactElement {
-	const { video, isLoading } = useVideo( id );
 	const [ activeTool, setActiveTool ] = useState< EditorTool >( () =>
 		isTrimCutEnabled() ? 'trim' : 'chapters'
 	);
+	const { video, isLoading } = useVideo( id, {
+		poll: activeTool !== 'trim' || ! isTrimCutEnabled(),
+	} );
 
 	if ( isLoading ) {
 		return (

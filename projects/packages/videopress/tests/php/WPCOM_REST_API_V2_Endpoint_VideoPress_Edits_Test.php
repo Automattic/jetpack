@@ -484,4 +484,20 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits_Test extends BaseTestCase {
 			\Brain\Monkey\tearDown();
 		}
 	}
+	/** Retry the failed job identity, leaving operation selection to the backend. */
+	public function test_retry_proxies_job_identity() {
+		$response = $this->dispatch( 'POST', array( 'job_id' => '123' ), 'edits/retry' );
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( '/rest/v1.1/videos/AbCd1234/edits/retry', wp_parse_url( $this->requests[0]['url'], PHP_URL_PATH ) );
+		$this->assertSame( array( 'job_id' => '123' ), json_decode( $this->requests[0]['args']['body'], true ) );
+	}
+
+	/** Reject malformed or unauthorized retries before calling the backend. */
+	public function test_retry_requires_job_identity_and_video_ownership() {
+		$this->assertSame( 400, $this->dispatch( 'POST', array(), 'edits/retry' )->get_status() );
+		$this->assertSame( 400, $this->dispatch( 'POST', array( 'job_id' => 'nope' ), 'edits/retry' )->get_status() );
+		$this->login_as( 'author' );
+		$this->assertSame( 403, $this->dispatch( 'POST', array( 'job_id' => '123' ), 'edits/retry' )->get_status() );
+		$this->assertEmpty( $this->requests );
+	}
 }

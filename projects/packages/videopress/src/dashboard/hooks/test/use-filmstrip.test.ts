@@ -1,7 +1,7 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import { createTestWrapper } from '../../test-utils/query-client-wrapper';
-import useFilmstrip, { isStoryboard } from '../use-filmstrip';
+import { createTestQueryClient, createTestWrapper } from '../../test-utils/query-client-wrapper';
+import useFilmstrip, { FILMSTRIP_QUERY_KEY, isStoryboard } from '../use-filmstrip';
 import type { Storyboard } from '../../types/edits';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
@@ -32,6 +32,54 @@ describe( 'useFilmstrip', () => {
 		} );
 		rerender();
 		expect( apiFetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'waits for processing and replaces a cached missing storyboard when ready', async () => {
+		const client = createTestQueryClient();
+		client.setQueryData( [ FILMSTRIP_QUERY_KEY, 'source12' ], null );
+		jest.mocked( apiFetch ).mockResolvedValue( storyboard );
+		const { result, rerender } = renderHook( ( { ready } ) => useFilmstrip( 'source12', ready ), {
+			initialProps: { ready: false },
+			wrapper: createTestWrapper( client ),
+		} );
+		expect( apiFetch ).not.toHaveBeenCalled();
+		rerender( { ready: true } );
+		await waitFor( () => expect( result.current.status ).toBe( 'storyboard' ) );
+	} );
+
+	it( 'recovers thumbnails generated after playback becomes ready, then stops polling', async () => {
+		jest.useFakeTimers();
+		try {
+			jest
+				.mocked( apiFetch )
+				.mockRejectedValueOnce( { code: 'storyboard_unavailable' } )
+				.mockResolvedValue( storyboard );
+			const { result } = renderHook( () => useFilmstrip( 'source12' ), {
+				wrapper: createTestWrapper(),
+			} );
+			await act( async () => jest.advanceTimersByTimeAsync( 1 ) );
+			expect( apiFetch ).toHaveBeenCalledTimes( 1 );
+			await act( async () => jest.advanceTimersByTimeAsync( 15000 ) );
+			expect( result.current.status ).toBe( 'storyboard' );
+			await act( async () => jest.advanceTimersByTimeAsync( 60000 ) );
+			expect( apiFetch ).toHaveBeenCalledTimes( 2 );
+		} finally {
+			jest.useRealTimers();
+		}
+	} );
+
+	it( 'bounds retries for a video with no storyboard', async () => {
+		jest.useFakeTimers();
+		try {
+			jest.mocked( apiFetch ).mockRejectedValue( { code: 'storyboard_unavailable' } );
+			renderHook( () => useFilmstrip( 'source12' ), { wrapper: createTestWrapper() } );
+			await act( async () => jest.advanceTimersByTimeAsync( 120001 ) );
+			const calls = jest.mocked( apiFetch ).mock.calls.length;
+			await act( async () => jest.advanceTimersByTimeAsync( 60000 ) );
+			expect( apiFetch ).toHaveBeenCalledTimes( calls );
+		} finally {
+			jest.useRealTimers();
+		}
 	} );
 
 	it( 'falls back to a neutral timeline when the storyboard service fails', async () => {

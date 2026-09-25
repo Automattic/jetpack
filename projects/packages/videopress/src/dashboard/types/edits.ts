@@ -39,6 +39,8 @@ export type VideoEdits = {
 	output_duration_ms: number;
 	operations: ApiEditOperation[];
 	can_restore_original: boolean;
+	/** Older services omit retry support. */
+	can_retry?: boolean;
 	job: EditsJob;
 	/** ISO8601 timestamp of the last edit-state change. */
 	updated: string;

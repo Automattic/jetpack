@@ -4,6 +4,7 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useNavigate } from '@wordpress/route';
 import { useRestoreOriginal } from '../../../hooks/use-restore-original';
+import { useRetryVideoProcessing } from '../../../hooks/use-retry-video-processing';
 import {
 	useSaveVideoCopy,
 	useVideoCopyStatus,
@@ -48,6 +49,9 @@ jest.mock( '../../../hooks/use-filmstrip', () => ( {
 	default: () => ( { status: 'unavailable' } ),
 } ) );
 jest.mock( '../../../hooks/use-video-edits', () => ( { useVideoEdits: jest.fn() } ) );
+jest.mock( '../../../hooks/use-retry-video-processing', () => ( {
+	useRetryVideoProcessing: jest.fn(),
+} ) );
 jest.mock( '../../../hooks/use-restore-original', () => ( { useRestoreOriginal: jest.fn() } ) );
 jest.mock( '../../../hooks/use-save-video-edits', () => ( {
 	...jest.requireActual( '../../../hooks/use-save-video-edits' ),
@@ -95,6 +99,7 @@ jest.mock( '../preview/preview-player', () => {
 const video = makeLibraryItem( { guid: 'clip123', durationSeconds: 10 } );
 const save = jest.fn();
 const restore = jest.fn();
+const retryProcessing = jest.fn();
 const copy = jest.fn();
 const refetch = jest.fn();
 const refetchCopy = jest.fn();
@@ -229,6 +234,10 @@ beforeEach( () => {
 	} );
 	setCopyStatus();
 	jest.mocked( useSaveVideoEdits ).mockReturnValue( { mutateAsync: save } as never );
+	jest
+		.mocked( useRetryVideoProcessing )
+		.mockReturnValue( { mutateAsync: retryProcessing } as never );
+	retryProcessing.mockResolvedValue( { guid: video.guid, revision: 2, job: processingJob } );
 	jest.mocked( useRestoreOriginal ).mockReturnValue( { mutateAsync: restore } as never );
 	jest.mocked( useSaveVideoCopy ).mockReturnValue( { mutateAsync: copy } as never );
 	save.mockResolvedValue( { guid: video.guid, revision: 2, job: processingJob } );
@@ -325,7 +334,7 @@ it( 'submits the current edits against their loaded revision and waits for the c
 	);
 } );
 
-it( 'restores the original only after confirmation and retries the failed restore action', async () => {
+it( 'retries the stored failed restore without issuing another restore request', async () => {
 	setEdits( {
 		can_restore_original: true,
 		operations: [ { type: 'trim', start_ms: 1000, end_ms: 9000 } ],
@@ -340,6 +349,7 @@ it( 'restores the original only after confirmation and retries the failed restor
 	await user.click( screen.getByRole( 'button', { name: 'Restore original' } ) );
 	expect( restore ).toHaveBeenCalledWith( { guid: video.guid } );
 	setEdits( {
+		can_retry: true,
 		job: {
 			...processingJob,
 			status: 'failed',
@@ -353,17 +363,29 @@ it( 'restores the original only after confirmation and retries the failed restor
 			ignore: '.a11y-speak-region, .a11y-speak-region *',
 		} )
 	).toBeInTheDocument();
-	await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
-	expect( screen.getByRole( 'dialog', { name: 'Restore original?' } ) ).toBeInTheDocument();
-	await user.click( screen.getByRole( 'button', { name: 'Restore original' } ) );
-	expect( restore ).toHaveBeenCalledTimes( 2 );
+	await user.click( screen.getByRole( 'button', { name: 'Retry processing' } ) );
+	expect( retryProcessing ).toHaveBeenCalledWith( { guid: video.guid, jobId: processingJob.id } );
+	expect( restore ).toHaveBeenCalledTimes( 1 );
 	expect( save ).not.toHaveBeenCalled();
 } );
 
-it( 'offers a save retry for a failed edit job without discarding the local draft', async () => {
+it( 'retries an accepted save that failed while its unchanged draft remains in the editor', async () => {
 	const { user, refresh } = renderEditor();
 	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
-	setEdits( { job: { ...processingJob, status: 'failed' } } );
+	await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+	await user.click( screen.getByRole( 'button', { name: 'Update video' } ) );
+	setEdits( { can_retry: true, job: { ...processingJob, status: 'failed' } } );
+	refresh();
+	await user.click( screen.getByRole( 'button', { name: 'Retry processing' } ) );
+	expect( retryProcessing ).toHaveBeenCalledWith( { guid: video.guid, jobId: processingJob.id } );
+	expect( save ).toHaveBeenCalledTimes( 1 );
+	expect( copy ).not.toHaveBeenCalled();
+} );
+
+it( 'keeps a modified draft saveable without retrying older stored instructions', async () => {
+	const { user, refresh } = renderEditor();
+	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
+	setEdits( { can_retry: true, job: { ...processingJob, status: 'failed' } } );
 	refresh();
 	expect(
 		screen.getByText( 'Something went wrong applying your edits.', {
@@ -371,7 +393,8 @@ it( 'offers a save retry for a failed edit job without discarding the local draf
 			ignore: '.a11y-speak-region, .a11y-speak-region *',
 		} )
 	).toBeInTheDocument();
-	await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+	expect( screen.queryByRole( 'button', { name: 'Retry processing' } ) ).not.toBeInTheDocument();
+	await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 	await user.click( screen.getByRole( 'button', { name: 'Update video' } ) );
 	expect( save ).toHaveBeenCalledWith(
 		expect.objectContaining( { operations: [ { type: 'cut', start_ms: 0, end_ms: 2000 } ] } )
@@ -962,4 +985,23 @@ it( 'detects source edits made while a pending copy was away from the editor', a
 		'true'
 	);
 	expect( screen.getAllByRole( 'slider', { name: /Cut/ } ) ).toHaveLength( 2 );
+} );
+
+it( 'retries a failed copy after returning with missing playback metadata', async () => {
+	setEdits( { can_retry: true, job: { ...processingJob, status: 'failed' } } );
+	const user = userEvent.setup();
+	render(
+		<TrimCutEditor
+			video={ { ...video, isProcessing: true, durationSeconds: 0 } }
+			onSelectTool={ jest.fn() }
+		/>,
+		{ wrapper: createTestWrapper() }
+	);
+	await user.click( screen.getByRole( 'button', { name: 'Retry processing' } ) );
+	expect( retryProcessing ).toHaveBeenCalledWith( { guid: video.guid, jobId: processingJob.id } );
+	expect( save ).not.toHaveBeenCalled();
+	expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
+		'aria-disabled',
+		'true'
+	);
 } );

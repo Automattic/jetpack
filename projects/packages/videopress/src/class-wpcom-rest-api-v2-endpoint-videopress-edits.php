@@ -116,6 +116,26 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits {
 				'permission_callback' => array( $this, 'permissions_check' ),
 			)
 		);
+		register_rest_route(
+			'wpcom/v2',
+			'videopress/(?P<guid>[A-Za-z0-9]{8})/edits/retry',
+			array(
+				'args'                => array_merge(
+					$guid_arg,
+					array(
+						'job_id' => array(
+							'type'     => 'string',
+							'pattern'  => '^[0-9]+$',
+							'required' => true,
+						),
+					)
+				),
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'retry_edits' ),
+				'permission_callback' => array( $this, 'permissions_check' ),
+			)
+		);
+
 		$copy_args = array_merge(
 			$guid_arg,
 			array(
@@ -193,6 +213,20 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits {
 				'base_revision' => $request['base_revision'],
 				'operations'    => $request['operations'],
 			)
+		);
+	}
+
+	/**
+	 * Retry the exact failed job without changing the video's identity.
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function retry_edits( $request ) {
+		return $this->proxy_request(
+			sprintf( 'videos/%s/edits/retry', $request['guid'] ),
+			'POST',
+			array( 'job_id' => $request['job_id'] )
 		);
 	}
 

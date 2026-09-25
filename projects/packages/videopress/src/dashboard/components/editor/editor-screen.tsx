@@ -7,6 +7,7 @@ import EditorOperationsPanel from '../../../../routes/video-editor/operations-pa
 import { usePreviewTransport } from '../../../client/components/chapters-editor/preview/use-preview-transport';
 import { canRedo, canUndo } from '../../../client/components/chapters-editor/state/history';
 import useFilmstrip from '../../hooks/use-filmstrip';
+import { useVideo } from '../../hooks/use-video';
 import VideoLayout from '../video-layout';
 import { videoTabPath } from '../video-nav';
 import ConfirmDialog from './confirm-dialog';
@@ -43,7 +44,6 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 	const { createSuccessNotice } = useGlobalNotices();
 	const completedCopyRef = useRef< string | null >( null );
 	const transport = usePreviewTransport();
-	const filmstrip = useFilmstrip( video.guid );
 	const navigate = useNavigate();
 	const [ sourceReady, setSourceReady ] = useState( false );
 	const [ sourceDuration, setSourceDuration ] = useState( 0 );
@@ -56,6 +56,9 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 		( video.isProcessing || video.durationSeconds <= 0 ) &&
 		jobStatus !== 'complete' &&
 		jobStatus !== 'failed';
+	// The route observes the same media cache; only uploads without an edit job need its timer.
+	useVideo( video.id, { poll: jobStatus === 'idle' || editor.isError } );
+	const filmstrip = useFilmstrip( video.guid, ! waitingForVideo && ! editor.isLoading );
 	const durationMismatch = Boolean(
 		editor.edits &&
 		sourceDuration > 0 &&
@@ -225,15 +228,21 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 							</Notice.Description>
 						</Notice.Root>
 					) }
-					<CopyStatusBanner session={ copySession } onReload={ () => setConfirm( 'reload' ) } />
+					<CopyStatusBanner
+						session={ copySession }
+						onReload={ () => setConfirm( 'reload' ) }
+						onOpenVideo={ href => {
+							if ( confirmNavigation() ) {
+								navigate( { href } );
+							}
+						} }
+					/>
 					<StatusBanner
 						job={ editor.edits?.job }
 						conflict={ editor.conflict }
 						onRetry={
-							! editor.locked &&
-							! copySession.locked &&
-							( editor.lastAction === 'restore' || ( editor.dirty && ! locked ) )
-								? () => setConfirm( editor.lastAction )
+							editor.canRetry && ! copySession.locked
+								? () => void editor.retryProcessing()
 								: undefined
 						}
 						onReloadLatest={ () => setConfirm( 'reload' ) }

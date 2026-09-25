@@ -112,7 +112,7 @@ describe( 'useVideoEdits — fetch and cache', () => {
 } );
 
 describe( 'useVideoEdits — polling while a job is processing', () => {
-	it( 'refetches every 2s while job.status is processing, then stops on complete', async () => {
+	it( 'refetches every 5s while job.status is processing, then stops on complete', async () => {
 		jest.useFakeTimers();
 
 		mockedApiFetch

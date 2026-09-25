@@ -198,7 +198,13 @@ describe( 'useCopySession', () => {
 		expect( result.current.request ).toBe( request );
 		expect( useVideoCopyStatus ).toHaveBeenLastCalledWith( request.guid, request.requestId );
 
-		render( <CopyStatusBanner session={ result.current } onReload={ jest.fn() } /> );
+		render(
+			<CopyStatusBanner
+				session={ result.current }
+				onOpenVideo={ jest.fn() }
+				onReload={ jest.fn() }
+			/>
+		);
 		expect(
 			screen.getByText( 'Your current video is unchanged.', {
 				exact: false,

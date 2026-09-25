@@ -9,7 +9,7 @@ type Props = {
 	job?: EditsJob;
 	/** Whether the local session conflicts with the server revision. */
 	conflict: boolean;
-	/** Re-submit the current session (failed banner). */
+	/** Reprocess the stored failed job (failed banner). */
 	onRetry?: () => void;
 	/** Refetch and re-baseline on the server state (conflict banner). */
 	onReloadLatest: () => void;
@@ -39,7 +39,7 @@ export default function StudioEditorStatusBanner( {
 		job?.error?.message ||
 		__( 'Something went wrong applying your edits.', 'jetpack-videopress-pkg' );
 	let action = onRetry;
-	let label: string = __( 'Retry', 'jetpack-videopress-pkg' );
+	let label: string = __( 'Retry processing', 'jetpack-videopress-pkg' );
 	let intent: 'error' | 'warning' | 'info' = 'error';
 	if ( conflict ) {
 		message = __(

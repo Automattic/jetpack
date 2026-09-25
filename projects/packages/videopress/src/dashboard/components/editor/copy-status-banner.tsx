@@ -1,19 +1,25 @@
 import { ProgressBar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
+import { videoTabPath } from '../video-nav';
 import type { useCopySession } from './use-copy-session';
 
-type Props = { session: ReturnType< typeof useCopySession >; onReload: () => void };
+type Props = {
+	session: ReturnType< typeof useCopySession >;
+	onReload: () => void;
+	onOpenVideo: ( href: string ) => void;
+};
 
 /**
  * Report copy progress and preserve safe retries when the acceptance response is lost.
  *
- * @param props          - Component props.
- * @param props.session  - Copy request lifecycle.
- * @param props.onReload - Reload a conflicting source revision.
+ * @param props             - Component props.
+ * @param props.session     - Copy request lifecycle.
+ * @param props.onReload    - Reload a conflicting source revision.
+ * @param props.onOpenVideo - Open a created video to retry its failed processing.
  * @return Copy status, or nothing before a request.
  */
-export default function CopyStatusBanner( { session, onReload }: Props ) {
+export default function CopyStatusBanner( { session, onReload, onOpenVideo }: Props ) {
 	if ( ! session.request ) {
 		return null;
 	}
@@ -44,6 +50,16 @@ export default function CopyStatusBanner( { session, onReload }: Props ) {
 						'The new video could not be created. Your current video and edits are unchanged.',
 						'jetpack-videopress-pkg'
 					) );
+		const attachmentId = session.status.data?.attachment_id;
+		if ( attachmentId ) {
+			action = (
+				<Notice.ActionButton
+					onClick={ () => onOpenVideo( videoTabPath( String( attachmentId ), 'editor' ) ) }
+				>
+					{ __( 'Open new video', 'jetpack-videopress-pkg' ) }
+				</Notice.ActionButton>
+			);
+		}
 	} else if ( ! session.submitting ) {
 		if ( session.needsAssistance ) {
 			message = __(
