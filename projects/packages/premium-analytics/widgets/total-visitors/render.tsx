@@ -14,7 +14,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { people } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -85,10 +84,6 @@ function TotalVisitorsMetric() {
 					),
 					onRetry: refetch,
 				} ) }
-				empty={ {
-					icon: people,
-					description: __( 'No visitors in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
 				renderLoading={ <MetricSparklineSkeleton /> }
 			>
 				<div className={ styles.body }>
