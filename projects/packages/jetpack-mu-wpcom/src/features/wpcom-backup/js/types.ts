@@ -49,6 +49,11 @@ export type InitialState = {
 	warnings: TransferWarning[];
 	upgradeUrl: string;
 	activateUrl: string;
+	/** Localized names of the plans that include backups. */
+	planNames: {
+		business: string;
+		commerce: string;
+	};
 };
 
 declare global {

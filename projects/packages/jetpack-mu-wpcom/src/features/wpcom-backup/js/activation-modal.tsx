@@ -4,6 +4,7 @@ import { Badge, Button, Dialog, Link, LinkButton, Stack, Text } from '@wordpress
 import { splitDomainName } from './domain.ts';
 import { canProceed, hasAnyBlockingError, needsPlanUpgrade } from './eligibility.ts';
 import { ErrorContentInfo } from './error-content-info.tsx';
+import { ViewTracker, recordActivationConfirm } from './tracks.ts';
 import type { DomainNames, TransferError, TransferWarning } from './types.ts';
 
 /**
@@ -138,6 +139,7 @@ export function TransferActivationModal( {
 	return (
 		<Dialog.Root open onOpenChange={ open => ! open && onClose() }>
 			<Dialog.Popup className="wpcom-backup__modal" size="medium">
+				<ViewTracker eventName="calypso_dashboard_hosting_feature_activation_modal_impression" />
 				<Dialog.Header>
 					<Dialog.Title>
 						{ errors.length > 0
@@ -169,7 +171,7 @@ export function TransferActivationModal( {
 				<Dialog.Footer>
 					{ /* An anchor cannot be disabled, so a blocked transfer gets a button instead. */ }
 					{ canProceed( isEligible, errors ) ? (
-						<LinkButton variant="solid" href={ activateUrl }>
+						<LinkButton variant="solid" href={ activateUrl } onClick={ recordActivationConfirm }>
 							{ actionLabel }
 						</LinkButton>
 					) : (

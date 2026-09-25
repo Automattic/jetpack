@@ -5,6 +5,7 @@ import {
 	findHoldingErrors,
 	isAtomicSiteWithoutBusinessPlan,
 } from './eligibility.ts';
+import { ViewTracker } from './tracks.ts';
 import type { TransferError } from './types.ts';
 import type { ReactNode } from 'react';
 
@@ -44,12 +45,18 @@ export function ErrorContentInfo( { errors }: { errors: TransferError[] } ) {
 	return (
 		<Stack direction="column" gap="sm">
 			{ blocking && (
-				<Notice.Root intent={ blocking.intent }>
-					<Notice.Description>
-						{ blocking.message }
-						{ blocking.supportUrl && <LearnMore supportUrl={ blocking.supportUrl } /> }
-					</Notice.Description>
-				</Notice.Root>
+				<>
+					<ViewTracker
+						eventName="calypso_dashboard_hosting_feature_activation_modal_blocking_error_impression"
+						properties={ { code: blocking.code } }
+					/>
+					<Notice.Root intent={ blocking.intent }>
+						<Notice.Description>
+							{ blocking.message }
+							{ blocking.supportUrl && <LearnMore supportUrl={ blocking.supportUrl } /> }
+						</Notice.Description>
+					</Notice.Root>
+				</>
 			) }
 			{ holds.length > 0 && (
 				<Card.Root>
@@ -62,6 +69,10 @@ export function ErrorContentInfo( { errors }: { errors: TransferError[] } ) {
 						<Stack direction="column" gap="lg">
 							{ holds.map( hold => (
 								<Stack key={ hold.code } className="wpcom-backup__hold" direction="column" gap="sm">
+									<ViewTracker
+										eventName="calypso_dashboard_hosting_feature_activation_modal_holding_error_impression"
+										properties={ { code: hold.code } }
+									/>
 									<Text variant="heading-sm" render={ <h3 /> }>
 										{ hold.title }
 									</Text>

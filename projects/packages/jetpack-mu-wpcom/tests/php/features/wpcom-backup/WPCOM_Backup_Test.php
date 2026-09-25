@@ -84,6 +84,31 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Without a back URL, checkout's back button falls back to the plans page.
+	 */
+	public function test_upgrade_url_returns_a_reader_who_backs_out_to_this_page() {
+		parse_str(
+			(string) wp_parse_url( WPCOM_Backup::get_upgrade_url( 'example.wordpress.com' ), PHP_URL_QUERY ),
+			$args
+		);
+
+		$this->assertSame( WPCOM_Backup::get_page_url(), rawurldecode( $args['checkoutBackUrl'] ) );
+	}
+
+	/**
+	 * A cached lookup is served as-is, so WordPress.com is asked at most once a day per locale.
+	 */
+	public function test_plan_names_are_served_from_the_cache() {
+		$names = array(
+			'business' => 'Creator',
+			'commerce' => 'Entrepreneur',
+		);
+		set_transient( 'wpcom_backup_plan_names_' . get_user_locale(), $names );
+
+		$this->assertSame( $names, WPCOM_Backup::get_plan_names() );
+	}
+
+	/**
 	 * The code is what the page maps to its own copy, so an entry without one
 	 * cannot be rendered and must be dropped.
 	 */
@@ -217,6 +242,7 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 		);
 		Constants::clear_constants();
 		WPCOM_Backup::reset();
+		delete_transient( 'wpcom_backup_plan_names_' . get_user_locale() );
 
 		parent::tear_down();
 	}
@@ -504,7 +530,7 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 		$payload = (array) $this->localized_initial_state();
 
 		$this->assertSame(
-			array( 'state', 'domain', 'isEligible', 'errors', 'warnings', 'upgradeUrl', 'activateUrl' ),
+			array( 'state', 'domain', 'isEligible', 'errors', 'warnings', 'upgradeUrl', 'activateUrl', 'planNames' ),
 			array_keys( $payload )
 		);
 		$this->assertSame( WPCOM_Backup::STATE_UPGRADE, $payload['state'] );

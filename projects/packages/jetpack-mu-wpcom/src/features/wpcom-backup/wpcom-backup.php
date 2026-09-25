@@ -66,6 +66,14 @@ class WPCOM_Backup {
 	const STATE_ACTIVATE = 'activate';
 
 	/**
+	 * Plan names the upgrade prompt falls back to when WordPress.com cannot name them.
+	 */
+	const DEFAULT_PLAN_NAMES = array(
+		'business' => 'Business',
+		'commerce' => 'Commerce',
+	);
+
+	/**
 	 * Whether this page registered the Backup slug on this request.
 	 *
 	 * @var bool
@@ -330,6 +338,8 @@ class WPCOM_Backup {
 			: null;
 		$warnings    = self::get_transfer_warnings( $eligibility );
 
+		Common\wpcom_enqueue_tracking_scripts( $handle );
+
 		wp_localize_script(
 			$handle,
 			'wpcomBackupInitialState',
@@ -343,6 +353,8 @@ class WPCOM_Backup {
 				'warnings'    => $warnings,
 				'upgradeUrl'  => self::get_upgrade_url( $domain ),
 				'activateUrl' => self::get_activate_url( $warnings ),
+				// Only the upgrade prompt names plans, and looking them up is not free.
+				'planNames'   => self::STATE_UPGRADE === $state ? self::get_plan_names() : self::DEFAULT_PLAN_NAMES,
 			)
 		);
 	}
@@ -520,18 +532,64 @@ class WPCOM_Backup {
 	}
 
 	/**
+	 * Localized names of the plans that include backups, as WordPress.com sells them.
+	 *
+	 * Cached per locale: on WoA each name is a request to WordPress.com, and on Simple
+	 * it loads the billing stack.
+	 *
+	 * @return array{business: string, commerce: string}
+	 */
+	public static function get_plan_names() {
+		if ( ! method_exists( '\Automattic\Jetpack\Plans', 'get_plan_short_name' ) ) {
+			return self::DEFAULT_PLAN_NAMES;
+		}
+
+		$cache_key = 'wpcom_backup_plan_names_' . get_user_locale();
+		$cached    = get_transient( $cache_key );
+
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
+		$names    = self::DEFAULT_PLAN_NAMES;
+		$resolved = true;
+
+		foreach ( array(
+			'business' => 'business-bundle',
+			'commerce' => 'ecommerce-bundle',
+		) as $key => $slug ) {
+			$name = \Automattic\Jetpack\Plans::get_plan_short_name( $slug );
+
+			if ( is_string( $name ) && '' !== $name ) {
+				$names[ $key ] = $name;
+			} else {
+				$resolved = false;
+			}
+		}
+
+		// Retry a failed lookup sooner, so one bad request does not pin the fallback for a day.
+		set_transient( $cache_key, $names, $resolved ? DAY_IN_SECONDS : HOUR_IN_SECONDS );
+
+		return $names;
+	}
+
+	/**
 	 * Checkout, with the plan that includes backups already in the cart.
 	 *
-	 * Matches the dashboard's upsell CTA, which sells the plan rather than opening
-	 * a comparison the reader has to navigate. `redirect_to` returns the buyer here,
-	 * where the page now offers the activation the new plan just unlocked.
+	 * `redirect_to` returns a buyer here to activate what they just bought, and
+	 * `checkoutBackUrl` returns someone who backs out; without it checkout falls back to /plans.
 	 *
 	 * @param string $domain Site domain.
 	 * @return string
 	 */
 	public static function get_upgrade_url( $domain ) {
+		$page_url = rawurlencode( self::get_page_url() );
+
 		return add_query_arg(
-			array( 'redirect_to' => rawurlencode( self::get_page_url() ) ),
+			array(
+				'redirect_to'     => $page_url,
+				'checkoutBackUrl' => $page_url,
+			),
 			'https://wordpress.com/checkout/' . rawurlencode( (string) $domain ) . '/business'
 		);
 	}

@@ -7,6 +7,12 @@ import { Callout } from './callout.tsx';
 import { needsConfirmation } from './eligibility.ts';
 import { upsell } from './icons.tsx';
 import { backupsCalloutIllustration } from './illustration.ts';
+import {
+	TRACKS_FEATURE_ID,
+	ViewTracker,
+	recordActivationConfirm,
+	recordTracksEvent,
+} from './tracks.ts';
 import type { InitialState } from './types.ts';
 
 /**
@@ -17,6 +23,8 @@ import type { InitialState } from './types.ts';
  * @return The rendered prompt.
  */
 export function UpgradeScreen( { state }: { state: InitialState } ) {
+	const upsellProps = { upsell_id: TRACKS_FEATURE_ID, upsell_feature_id: TRACKS_FEATURE_ID };
+
 	return (
 		<Callout
 			icon={ backup }
@@ -34,17 +42,25 @@ export function UpgradeScreen( { state }: { state: InitialState } ) {
 						{ sprintf(
 							/* translators: %1$s and %2$s are WordPress.com plan names, e.g. "Business" and "Commerce". */
 							__( 'Available on the WordPress.com %1$s and %2$s plans.', 'jetpack-mu-wpcom' ),
-							'Business',
-							'Commerce'
+							state.planNames.business,
+							state.planNames.commerce
 						) }
 					</Text>
 				</>
 			}
 			actions={
-				<LinkButton variant="solid" size="compact" href={ state.upgradeUrl }>
-					<LinkButton.Icon icon={ upsell } />
-					{ __( 'Upgrade plan', 'jetpack-mu-wpcom' ) }
-				</LinkButton>
+				<>
+					<ViewTracker eventName="calypso_dashboard_upsell_impression" properties={ upsellProps } />
+					<LinkButton
+						variant="solid"
+						size="compact"
+						href={ state.upgradeUrl }
+						onClick={ () => recordTracksEvent( 'calypso_dashboard_upsell_click', upsellProps ) }
+					>
+						<LinkButton.Icon icon={ upsell } />
+						{ __( 'Upgrade plan', 'jetpack-mu-wpcom' ) }
+					</LinkButton>
+				</>
 			}
 		/>
 	);
@@ -64,8 +80,25 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 	// exists to explain errors and confirm warnings, so it would be empty.
 	const showModalFirst = needsConfirmation( state.isEligible, state.errors, state.warnings );
 
+	const handleClick = () => {
+		recordTracksEvent( 'calypso_dashboard_hosting_feature_activation_click', {
+			feature_id: TRACKS_FEATURE_ID,
+			show_modal: showModalFirst,
+		} );
+
+		if ( showModalFirst ) {
+			setIsModalOpen( true );
+		} else {
+			recordActivationConfirm();
+		}
+	};
+
 	return (
 		<>
+			<ViewTracker
+				eventName="calypso_dashboard_hosting_feature_activation_impression"
+				properties={ { feature_id: TRACKS_FEATURE_ID } }
+			/>
 			<Callout
 				icon={ backup }
 				title={ __( 'Activate backups for this site', 'jetpack-mu-wpcom' ) }
@@ -83,11 +116,16 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 				}
 				actions={
 					showModalFirst ? (
-						<Button variant="solid" size="compact" onClick={ () => setIsModalOpen( true ) }>
+						<Button variant="solid" size="compact" onClick={ handleClick }>
 							{ __( 'Activate backups', 'jetpack-mu-wpcom' ) }
 						</Button>
 					) : (
-						<LinkButton variant="solid" size="compact" href={ state.activateUrl }>
+						<LinkButton
+							variant="solid"
+							size="compact"
+							href={ state.activateUrl }
+							onClick={ handleClick }
+						>
 							{ __( 'Activate backups', 'jetpack-mu-wpcom' ) }
 						</LinkButton>
 					)
@@ -116,26 +154,32 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
  */
 export function InProgressScreen() {
 	return (
-		<Callout
-			icon={ backup }
-			title={ __( 'Setting up backups', 'jetpack-mu-wpcom' ) }
-			image={ backupsCalloutIllustration }
-			description={
-				<>
-					<Text>
-						{ __(
-							'Your site is being moved to our hosting platform so backups can be switched on.',
-							'jetpack-mu-wpcom'
-						) }
-					</Text>
-					<Text>
-						{ __(
-							'This usually takes a few minutes. You can keep using your site while it happens, and we will email you when it is done.',
-							'jetpack-mu-wpcom'
-						) }
-					</Text>
-				</>
-			}
-		/>
+		<>
+			<ViewTracker
+				eventName="calypso_dashboard_hosting_transfer_in_progress_impression"
+				properties={ { feature_id: TRACKS_FEATURE_ID } }
+			/>
+			<Callout
+				icon={ backup }
+				title={ __( 'Setting up backups', 'jetpack-mu-wpcom' ) }
+				image={ backupsCalloutIllustration }
+				description={
+					<>
+						<Text>
+							{ __(
+								'Your site is being moved to our hosting platform so backups can be switched on.',
+								'jetpack-mu-wpcom'
+							) }
+						</Text>
+						<Text>
+							{ __(
+								'This usually takes a few minutes. You can keep using your site while it happens, and we will email you when it is done.',
+								'jetpack-mu-wpcom'
+							) }
+						</Text>
+					</>
+				}
+			/>
+		</>
 	);
 }
