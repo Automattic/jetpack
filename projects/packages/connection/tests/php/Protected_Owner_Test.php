@@ -974,6 +974,202 @@ class Protected_Owner_Test extends TestCase {
 		$this->assertTrue( ( new Manager() )->is_ownership_transferable() );
 	}
 
+	// ── resolve_protected_owner_state ────────────────────────────────────
+
+	/**
+	 * Eligibility is being an administrator, so a lesser role is told it is not.
+	 */
+	public function test_state_is_not_eligible_for_a_non_administrator() {
+		wp_set_current_user( $this->actor( 'editor' ) );
+
+		$manager = $this->manager( $this->owner_id, false, $this->never() );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_NOT_ELIGIBLE, $state['status'] );
+	}
+
+	/**
+	 * An administrator with no token has no WordPress.com identity to confirm yet.
+	 */
+	public function test_state_needs_a_connection_before_an_admin_can_establish() {
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $this->owner_id, false, $this->never(), false );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_NEEDS_CONNECT_TO_ESTABLISH, $state['status'] );
+	}
+
+	/**
+	 * A connected administrator is the one case that can go on to establish.
+	 */
+	public function test_state_can_establish_for_a_connected_administrator() {
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $this->owner_id, array( 'ID' => 77 ) );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_CAN_ESTABLISH, $state['status'] );
+	}
+
+	/**
+	 * An anchored site with nobody holding the master slot needs the owner back.
+	 */
+	public function test_state_needs_an_owner_reconnect_when_the_master_slot_is_vacant() {
+		$this->anchor();
+		$this->act_as_administrator();
+
+		$manager = $this->manager( false, false, $this->never() );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_NEEDS_OWNER_RECONNECT, $state['status'] );
+	}
+
+	/**
+	 * A resolved zero means the owner could not be identified, which is not evidence of a
+	 * different one — the same account still holds the slot, with no token left to prove it.
+	 */
+	public function test_state_needs_an_owner_reconnect_when_the_owner_cannot_be_identified() {
+		$this->anchor();
+		Utils::set_wpcom_user_id( $this->owner_id, self::ANCHORED_WPCOM_ID );
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $this->owner_id, false, $this->never(), false );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_NEEDS_OWNER_RECONNECT, $state['status'] );
+	}
+
+	/**
+	 * An agency holding master while the protected owner is away is a gated state, not a broken
+	 * one, so it is reported as needing a different owner rather than a reconnect.
+	 */
+	public function test_state_needs_a_different_owner_when_another_account_holds_master() {
+		$this->anchor();
+		Utils::set_wpcom_user_id( $this->owner_id, 9999 );
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $this->owner_id, false, $this->never() );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_NEEDS_DIFFERENT_OWNER, $state['status'] );
+	}
+
+	/**
+	 * A matching owner means the gate would have answered true, so the caller is told to ask again
+	 * rather than handed a reason that no longer applies.
+	 */
+	public function test_state_asks_for_a_re_evaluation_when_the_owner_matches_after_all() {
+		$this->anchor();
+		Utils::set_wpcom_user_id( $this->owner_id, self::ANCHORED_WPCOM_ID );
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $this->owner_id, false, $this->never() );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_RE_EVALUATE, $state['status'] );
+		$this->assertTrue( $manager->has_protected_owner(), 'RE_EVALUATE must only be reachable when the gate agrees.' );
+	}
+
+	/**
+	 * The flag reads the current user's own binding, so the anchored user is recognised.
+	 */
+	public function test_the_state_flags_the_current_user_as_the_protected_owner() {
+		$this->anchor();
+		Utils::set_wpcom_user_id( $this->owner_id, self::ANCHORED_WPCOM_ID );
+		$this->act_as_administrator();
+
+		$manager = $this->manager( false, false, $this->never() );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_NEEDS_OWNER_RECONNECT, $state['status'] );
+		$this->assertTrue( $state['is_current_user_the_po'] );
+	}
+
+	/**
+	 * Another connected administrator is not mistaken for the anchored identity.
+	 */
+	public function test_the_state_does_not_flag_a_bystander_as_the_protected_owner() {
+		$this->anchor();
+		$bystander = $this->candidate( 'bystander' );
+		Utils::set_wpcom_user_id( $bystander, 9999 );
+		wp_set_current_user( $bystander );
+
+		$manager = $this->manager( $bystander, false, $this->never() );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertFalse( $state['is_current_user_the_po'] );
+	}
+
+	/**
+	 * Without an anchor the flag has nothing to compare against and stays false.
+	 */
+	public function test_the_state_flag_is_false_when_there_is_no_anchor() {
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $this->owner_id, array( 'ID' => 77 ) );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_CAN_ESTABLISH, $state['status'] );
+		$this->assertFalse( $state['is_current_user_the_po'] );
+	}
+
+	/**
+	 * Re-pointing moves the cached local ID and leaves the confirmation alone: the match key is
+	 * `wpcom_user_id`, and re-pointing a cache is not a new confirmation.
+	 */
+	public function test_repointing_the_anchor_preserves_when_it_was_confirmed() {
+		$this->anchor();
+		$before = Protected_Owner::get();
+		$second = $this->candidate( 'owner_second_account' );
+
+		Protected_Owner::repoint( $second );
+		$after = Protected_Owner::get();
+
+		$this->assertIsArray( $before );
+		$this->assertIsArray( $after );
+		$this->assertSame( $second, (int) $after['local_user_id'] );
+		$this->assertSame( $before['confirmed_at'], $after['confirmed_at'] );
+	}
+
+	/**
+	 * An anchor without the cached local ID re-points without a warning.
+	 */
+	public function test_repoint_tolerates_an_anchor_with_no_cached_local_id() {
+		Jetpack_Options::update_option(
+			Protected_Owner::OPTION,
+			array(
+				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
+				'confirmed_at'  => '2026-01-01T00:00:00Z',
+			)
+		);
+
+		$this->assertTrue( Protected_Owner::repoint( $this->owner_id ) );
+
+		$anchor = Protected_Owner::get();
+		$this->assertIsArray( $anchor );
+		$this->assertSame( $this->owner_id, (int) $anchor['local_user_id'] );
+	}
+
+	/**
+	 * A site WordPress.com holds no owner for changes no ownership, whoever connects.
+	 */
+	public function test_connecting_to_an_unowned_site_changes_no_ownership() {
+		$agency = $this->candidate( 'agency' );
+		Jetpack_Options::update_option( 'master_user', $agency );
+		$this->act_as_administrator();
+
+		$record = array(
+			'has_owner'            => false,
+			'matches'              => false,
+			'is_caller'            => false,
+			'caller_wpcom_user_id' => self::BYSTANDER_WPCOM_ID,
+		);
+
+		$this->assertFalse( $this->reconciling_manager( $record )->reconcile_protected_owner() );
+		$this->assertSame( $agency, (int) Jetpack_Options::get_option( 'master_user' ) );
+	}
+
 	// ── reconcile_protected_owner ────────────────────────────────────────
 
 	/**
