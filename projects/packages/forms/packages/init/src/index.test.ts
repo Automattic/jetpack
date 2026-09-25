@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import formsPackage from '../../../package.json';
+import formsPackage from '../../../package.json' with { type: 'json' };
 
 const loadI18nCatalogs = jest.fn();
 jest.unstable_mockModule(
