@@ -420,6 +420,23 @@ describe( 'FeatureItem install notice', () => {
 		expect( screen.getByRole( 'button', { name: 'Install' } ) ).toBeEnabled();
 	} );
 
+	it( 'says nothing about blocked installs for a feature the plan already runs', () => {
+		render(
+			<FeatureItem
+				state={ buildState( {
+					kind: 'install-plugin',
+					plugin: 'jetpack-boost',
+					runsWithoutPlugin: true,
+					blocked: 'disabled',
+				} ) }
+				onOpen={ jest.fn() }
+			/>
+		);
+
+		expect( screen.queryByText( /Plugin installs are turned off/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Install' } ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'says nothing for an install that has not been tried, or one with nothing in the way', () => {
 		render( <FeatureItem state={ install() } onOpen={ jest.fn() } /> );
 

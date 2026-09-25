@@ -88,7 +88,9 @@ export function getInstallBlockReason( state: FeatureState ): string | null {
 
 	if (
 		( control.kind !== 'install-plugin' && control.kind !== 'install-jetpack' ) ||
-		! control.blocked
+		! control.blocked ||
+		// Already running on the plan, so there is nothing to ask anyone to install.
+		( control.kind === 'install-plugin' && control.runsWithoutPlugin )
 	) {
 		return null;
 	}
