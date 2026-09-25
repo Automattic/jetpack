@@ -5,7 +5,7 @@
 	"description": "WordAds: the Ads section and widgets of the Premium Analytics dashboard.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/wordads-analytics/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[Package] WordAds"
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Wordads Analytics"
 	},
 	"repository": {
 		"type": "git",
