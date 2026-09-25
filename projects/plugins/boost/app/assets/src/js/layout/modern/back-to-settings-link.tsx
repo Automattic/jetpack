@@ -1,27 +1,17 @@
 import { __, isRTL } from '@wordpress/i18n';
 import { arrowLeft, arrowRight } from '@wordpress/icons';
 import { Icon, Link, Stack } from '@wordpress/ui';
-import { useBoostNavigation } from '$lib/navigation/navigation-context';
-import { recordBoostEvent } from '$lib/utils/analytics';
+import { useBackToSettings } from '$lib/navigation/use-back-to-settings';
 
 /**
  * A visible route back to Settings, like the legacy page's "Go back" button.
  */
 const BackToSettingsLink = () => {
-	const { returnToSettings, settingsHref } = useBoostNavigation();
-
-	const handleBack = ( e: React.MouseEvent ) => {
-		e.preventDefault();
-		recordBoostEvent( 'back_button_clicked', {
-			current_page: window.location.href.replace( window.location.origin, '' ),
-			destination: '/',
-		} );
-		returnToSettings();
-	};
+	const { href, onClick } = useBackToSettings( 'back_link' );
 
 	return (
 		<Stack
-			render={ <Link href={ settingsHref } onClick={ handleBack } /> }
+			render={ <Link href={ href } onClick={ onClick } /> }
 			direction="row"
 			gap="xs"
 			align="center"

@@ -33,7 +33,7 @@ describe( 'SubpageBreadcrumbs', () => {
 		expect( mockReturn ).toHaveBeenCalledTimes( 1 );
 		expect( recordBoostEvent ).toHaveBeenCalledWith(
 			'back_button_clicked',
-			expect.objectContaining( { destination: '/' } )
+			expect.objectContaining( { destination: '/', source: 'breadcrumb' } )
 		);
 	} );
 } );

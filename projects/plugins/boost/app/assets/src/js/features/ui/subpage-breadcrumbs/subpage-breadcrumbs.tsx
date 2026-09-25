@@ -1,7 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { Link, Text } from '@wordpress/ui';
-import { useBoostNavigation } from '$lib/navigation/navigation-context';
-import { recordBoostEvent } from '$lib/utils/analytics';
+import { useBackToSettings } from '$lib/navigation/use-back-to-settings';
 import styles from './subpage-breadcrumbs.module.scss';
 
 type SubpageBreadcrumbsProps = {
@@ -17,23 +16,14 @@ type SubpageBreadcrumbsProps = {
  * @param props.tone  - The "Boost" link's tone.
  */
 const SubpageBreadcrumbs = ( { title, tone = 'neutral' }: SubpageBreadcrumbsProps ) => {
-	const { returnToSettings, settingsHref } = useBoostNavigation();
-
-	const handleBack = ( e: React.MouseEvent ) => {
-		e.preventDefault();
-		recordBoostEvent( 'back_button_clicked', {
-			current_page: window.location.href.replace( window.location.origin, '' ),
-			destination: '/',
-		} );
-		returnToSettings();
-	};
+	const { href, onClick } = useBackToSettings( 'breadcrumb' );
 
 	return (
 		<nav aria-label={ __( 'Breadcrumbs', 'jetpack-boost' ) }>
 			<ul className={ styles.breadcrumbs }>
 				<li>
 					<Text variant="body-lg">
-						<Link tone={ tone } href={ settingsHref } onClick={ handleBack }>
+						<Link tone={ tone } href={ href } onClick={ onClick }>
 							{ 'Boost' /** "Boost" is a product name, do not translate. */ }
 						</Link>
 					</Text>

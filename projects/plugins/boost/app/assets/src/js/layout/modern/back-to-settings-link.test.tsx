@@ -31,7 +31,7 @@ describe( 'BackToSettingsLink', () => {
 		expect( mockReturn ).toHaveBeenCalledTimes( 1 );
 		expect( recordBoostEvent ).toHaveBeenCalledWith(
 			'back_button_clicked',
-			expect.objectContaining( { destination: '/' } )
+			expect.objectContaining( { destination: '/', source: 'back_link' } )
 		);
 	} );
 } );
