@@ -8,7 +8,8 @@ import './style.scss';
 
 /**
  * Asks a reader who they are on their way to posting, and which subscriptions
- * they want where the host offers any.
+ * they want where the host offers any. A saved guest can also open it on its
+ * own to change their details.
  *
  * It sits inside the form, so its fields post with the comment. For a guest,
  * "Save and post" is the submit button carrying core's cookies-consent field
@@ -18,7 +19,7 @@ import './style.scss';
  * @return The dialog.
  */
 export const IdentityDialog = () => {
-	const { formSettings, commenter, commentParent, signedIn, isModalOpen } =
+	const { formSettings, commenter, commentParent, signedIn, isModalOpen, isEditing, isSavedGuest } =
 		useContext( CommentSignals );
 	const { site, strings, user, isLoggedIn, mustLogIn, requireNameEmail, identity } =
 		JetpackComments;
@@ -79,6 +80,27 @@ export const IdentityDialog = () => {
 		commenter.value = { ...commenter.value, [ field ]: value };
 	};
 
+	// Writes the cookies core would on the next comment, so an edit outlives the page.
+	const save = () => {
+		const { cookieHash, cookiePath, cookieDomain } = identity;
+		const expires = new Date( Date.now() + 365 * 24 * 60 * 60 * 1000 ).toUTCString();
+		const suffix = `; expires=${ expires }; path=${ cookiePath || '/' }${
+			cookieDomain ? `; domain=${ cookieDomain }` : ''
+		}; SameSite=Lax${ window.location.protocol === 'https:' ? '; Secure' : '' }`;
+		const { author, email, url } = commenter.value;
+
+		document.cookie = `comment_author_${ cookieHash }=${ encodeURIComponent( author ) }${ suffix }`;
+		document.cookie = `comment_author_email_${ cookieHash }=${ encodeURIComponent( email ) }${ suffix }`;
+		document.cookie = `comment_author_url_${ cookieHash }=${ encodeURIComponent( url ) }${ suffix }`;
+
+		isModalOpen.value = false;
+	};
+
+	const close = () => {
+		isModalOpen.value = false;
+		isEditing.value = false;
+	};
+
 	// Only while open: a required field the browser cannot focus would stop the submit that opens it.
 	const required = requireNameEmail && isModalOpen.value;
 
@@ -98,9 +120,11 @@ export const IdentityDialog = () => {
 	];
 
 	const titleId = `jetpack-comments-dialog-title-${ formSettings.postId }`;
-	const known = isLoggedIn || signedIn.value !== null;
-	const name = user ? user.name : ( signedIn.value?.name ?? '' );
+	const editing = isEditing.value;
+	const known = ! editing && ( isLoggedIn || signedIn.value !== null || isSavedGuest );
+	const name = user ? user.name : ( signedIn.value?.name ?? commenter.value.author );
 	const submitLabel = commentParent.value ? strings.reply : formSettings.submitLabel;
+	const showFields = ! known && ! mustLogIn;
 
 	const signInBlock = ! known && identity.canSignIn && (
 		<div className="jetpack-comments__sign-in">
@@ -130,7 +154,7 @@ export const IdentityDialog = () => {
 			ref={ dialog }
 			className="jetpack-comments__dialog"
 			aria-labelledby={ titleId }
-			onClose={ () => ( isModalOpen.value = false ) }
+			onClose={ close }
 		>
 			<div className="jetpack-comments__dialog-header">
 				{ site.iconUrl && (
@@ -145,11 +169,7 @@ export const IdentityDialog = () => {
 				<span id={ titleId } className="jetpack-comments__dialog-title">
 					{ site.name }
 				</span>
-				<button
-					type="button"
-					className="jetpack-comments__dialog-close"
-					onClick={ () => ( isModalOpen.value = false ) }
-				>
+				<button type="button" className="jetpack-comments__dialog-close" onClick={ close }>
 					<span className="jetpack-comments__visually-hidden">{ strings.close }</span>
 					<CloseIcon />
 				</button>
@@ -163,12 +183,12 @@ export const IdentityDialog = () => {
 					{ strings.commentingAs.replace( '%s', () => name ) }
 				</p>
 			) }
-			{ ! known && ! mustLogIn && (
+			{ showFields && ! editing && (
 				<p className="jetpack-comments__dialog-intro">
 					{ identity.canSignIn ? strings.introOr : strings.intro }
 				</p>
 			) }
-			{ ! mustLogIn && ! known && (
+			{ showFields && (
 				<div className="contact-form jetpack-comments__guest">
 					{ fields.map( ( { field, kind, hint, ...input } ) => (
 						<div
@@ -201,7 +221,7 @@ export const IdentityDialog = () => {
 					) ) }
 				</div>
 			) }
-			{ ( known || ! mustLogIn ) && formSettings.subscriptions.length > 0 && (
+			{ ! editing && ( known || ! mustLogIn ) && formSettings.subscriptions.length > 0 && (
 				<div className="contact-form jetpack-comments__subscriptions">
 					{ formSettings.subscriptions.map( subscription => {
 						const id = `jetpack-comments-${ subscription.name }-${ formSettings.postId }`;
@@ -233,12 +253,19 @@ export const IdentityDialog = () => {
 				</div>
 			) }
 			<div className="jetpack-comments__dialog-actions">
+				{ editing && (
+					<span className={ formSettings.submitWrapClass }>
+						<button type="button" className={ formSettings.submitClass } onClick={ save }>
+							{ strings.save }
+						</button>
+					</span>
+				) }
 				{ known && (
 					<span className={ formSettings.submitWrapClass }>
 						<input type="submit" className={ formSettings.submitClass } value={ submitLabel } />
 					</span>
 				) }
-				{ ! known && ! mustLogIn && (
+				{ showFields && ! editing && (
 					<>
 						<span className={ formSettings.submitWrapClass }>
 							{ /* The label is what posts; core only checks that the consent field is set. */ }

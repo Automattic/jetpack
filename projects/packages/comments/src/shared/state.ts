@@ -35,6 +35,15 @@ export function createSignals( formSettings: FormSettings ) {
 	// The dialog asking a reader the site does not know who they are.
 	const isModalOpen = signal( false );
 
+	// The same dialog opened by a saved guest to change their details, with nothing else in it.
+	const isEditing = signal( false );
+
+	// A guest whose details core saved on their last comment.
+	const isSavedGuest =
+		! JetpackComments.isLoggedIn &&
+		JetpackComments.commenter.author !== '' &&
+		JetpackComments.commenter.email !== '';
+
 	return {
 		formSettings,
 		commentValue,
@@ -45,6 +54,8 @@ export function createSignals( formSettings: FormSettings ) {
 		signedIn,
 		isOpen,
 		isModalOpen,
+		isEditing,
+		isSavedGuest,
 	} as const;
 }
 

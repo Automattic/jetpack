@@ -49,8 +49,9 @@ const ManageSubscriptions = () => {
  * @return The identity line, or nothing.
  */
 export const Identity = () => {
-	const { formSettings, signedIn, isModalOpen } = useContext( CommentSignals );
-	const { user, commenter, mustLogIn, identity, strings } = JetpackComments;
+	const { formSettings, commenter, signedIn, isModalOpen, isEditing, isSavedGuest } =
+		useContext( CommentSignals );
+	const { user, mustLogIn, identity, strings } = JetpackComments;
 
 	if ( user ) {
 		return (
@@ -115,15 +116,20 @@ export const Identity = () => {
 		);
 	}
 
-	if ( commenter.author && commenter.email ) {
+	if ( isSavedGuest ) {
+		const edit = () => {
+			isEditing.value = true;
+			isModalOpen.value = true;
+		};
+
 		return (
 			<span className="jetpack-comments__who">
-				<span>{ strings.commentingAs.replace( '%s', () => commenter.author ) }</span>
+				<span>{ strings.commentingAs.replace( '%s', () => commenter.value.author ) }</span>
 				<button
 					type="button"
 					className="jetpack-comments__icon-link"
 					title={ strings.edit }
-					onClick={ () => ( isModalOpen.value = true ) }
+					onClick={ edit }
 				>
 					<span className="jetpack-comments__visually-hidden">{ strings.edit }</span>
 					<PencilIcon />

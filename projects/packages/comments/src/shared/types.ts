@@ -23,6 +23,7 @@ export type IdentitySettings = {
 	codeField: string;
 	passportField: string;
 	displayCookie: string;
+	cookieHash: string;
 	cookiePath: string;
 	cookieDomain: string;
 	defaultAvatar: string;
@@ -71,6 +72,7 @@ export type Strings = {
 	website: string;
 	intro: string;
 	introOr: string;
+	save: string;
 	saveAndPost: string;
 	postWithoutSaving: string;
 	close: string;

@@ -39,6 +39,7 @@ class Identity {
 				'codeField'     => Checkpoint::CODE_FIELD,
 				'passportField' => Checkpoint::PASSPORT_FIELD,
 				'displayCookie' => Passport::DISPLAY_COOKIE,
+				'cookieHash'    => COOKIEHASH,
 				'cookiePath'    => COOKIEPATH,
 				'cookieDomain'  => COOKIE_DOMAIN ? COOKIE_DOMAIN : '',
 				'defaultAvatar' => Avatars::default_url( 80 ),

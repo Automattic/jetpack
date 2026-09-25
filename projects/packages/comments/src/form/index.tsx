@@ -28,8 +28,9 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 		signedIn,
 		isOpen,
 		isModalOpen,
+		isSavedGuest,
 	} = useContext( CommentSignals );
-	const { isLoggedIn, mustLogIn, commenter, identity, strings } = JetpackComments;
+	const { isLoggedIn, mustLogIn, identity, strings } = JetpackComments;
 	const isSubmitting = useRef( false );
 
 	// Opens as the comment goes from empty to not, so a draft brought back opens it too.
@@ -105,8 +106,7 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 		const onSubmit = ( event: SubmitEvent ) => {
 			// A reader the site does not know is asked who they are first, and anyone is
 			// asked about subscriptions where there are any. The dialog's own buttons submit again.
-			const isKnown =
-				isLoggedIn || signedIn.peek() || ( commenter.author !== '' && commenter.email !== '' );
+			const isKnown = isLoggedIn || signedIn.peek() || isSavedGuest;
 
 			if ( ( ! isKnown || formSettings.subscriptions.length > 0 ) && ! isModalOpen.peek() ) {
 				event.preventDefault();
@@ -145,7 +145,7 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 			window.removeEventListener( 'pageshow', onPageShow );
 			window.removeEventListener( 'pagehide', onPageHide );
 		};
-	}, [ form, formSettings, isSavingComment, commentValue, signedIn, isModalOpen ] );
+	}, [ form, formSettings, isSavingComment, commentValue, signedIn, isModalOpen, isSavedGuest ] );
 
 	const avatar = signedIn.value?.avatar || JetpackComments.avatarUrl;
 
@@ -186,6 +186,10 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 					</div>
 				</div>
 			</div>
+			{ /* Consent was given when the details were saved; without it core would clear them on this post. */ }
+			{ isSavedGuest && ! signedIn.value && (
+				<input type="hidden" name="wp-comment-cookies-consent" value="yes" />
+			) }
 			<IdentityDialog />
 		</>
 	);
