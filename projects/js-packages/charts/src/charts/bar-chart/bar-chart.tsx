@@ -272,16 +272,27 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	const visibleSeriesKey = useMemo( () => JSON.stringify( primaryKeys ), [ primaryKeys ] );
 
-	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
-		selectedIndex,
-		setSelectedIndex,
-		isNavigating,
-		setIsNavigating,
-		chartRef,
-		totalPoints,
-		onActivate: activateSelectedBar,
-		visibleSeriesKey,
-	} );
+	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown, onChartPointerMove } =
+		useKeyboardNavigation( {
+			selectedIndex,
+			setSelectedIndex,
+			isNavigating,
+			setIsNavigating,
+			chartRef,
+			totalPoints,
+			onActivate: activateSelectedBar,
+			visibleSeriesKey,
+		} );
+
+	const handlePointerMove = useCallback(
+		( { key, index }: { key: string; index: number } ) => {
+			const seriesIndex = primaryKeys.indexOf( key );
+			if ( seriesIndex >= 0 ) {
+				onChartPointerMove( index * primaryKeys.length + seriesIndex );
+			}
+		},
+		[ primaryKeys, onChartPointerMove ]
+	);
 
 	const comparisonEntries = useMemo( () => {
 		const primaryByGroup = new Map< string | undefined, { label: string; index: number } >(
@@ -745,6 +756,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												withTooltips={ withTooltips }
 												onPointerDown={ onPointerDown }
 												onPointerUp={ onPointerUp }
+												onPointerMove={ handlePointerMove }
 											/>
 										) }
 

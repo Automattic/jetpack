@@ -419,11 +419,12 @@ test( 'Rings a keyboard-selected recorded day but not a hovered one', async ( { 
 	await expect( highlight ).toHaveCount( 0 );
 } );
 
-test( 'Clicking back into a keyboard-navigated chart moves focus without the ring', async ( {
+test( 'Clicking back into a keyboard-navigated chart focuses the chart without the ring', async ( {
 	page,
 } ) => {
 	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
-	await chart.getByRole( 'grid' ).focus();
+	const grid = chart.getByRole( 'grid' );
+	await grid.focus();
 	for ( let press = 0; press < 22; press++ ) {
 		await page.keyboard.press( 'ArrowRight' );
 	}
@@ -432,10 +433,37 @@ test( 'Clicking back into a keyboard-navigated chart moves focus without the rin
 	await hoverDay( chart, 21 );
 	await page.mouse.down();
 	await page.mouse.up();
-	// The chart re-selects its first day, which is empty here, so check the state the ring needs.
-	await expect( page.getByRole( 'tooltip' ).first() ).toBeFocused();
-	await expect( page.locator( '[role="tooltip"]:focus-visible' ) ).toHaveCount( 0 );
+	await expect( grid ).toBeFocused();
+	await expect( page.locator( '.boost-daily-history__popover' ) ).toContainText(
+		'September 1, 2026'
+	);
 	await expect( page.getByTestId( 'history-highlight' ) ).toHaveCSS( 'outline-style', 'none' );
+} );
+
+test( 'Hovering a day ends the keyboard selection, and arrows continue from it', async ( {
+	page,
+} ) => {
+	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
+	const grid = chart.getByRole( 'grid' );
+	const highlight = page.getByTestId( 'history-highlight' );
+	const popoverDate = page.locator(
+		'.boost-daily-history__popover .jetpack-boost-overview__tooltip-date'
+	);
+	await grid.focus();
+	for ( let press = 0; press < 6; press++ ) {
+		await page.keyboard.press( 'ArrowRight' );
+	}
+	await expect( page.getByRole( 'tooltip' ) ).toBeFocused();
+	await hoverDay( chart, 23 );
+	await expect( grid ).toBeFocused();
+	await expect( popoverDate ).toHaveText( 'September 3, 2026' );
+	await expect( highlight ).toHaveCSS( 'outline-style', 'none' );
+	await expect( chart.locator( '.visx-bar' ).nth( 5 ) ).toHaveCSS( 'stroke', 'none' );
+	await hoverDay( chart, 22 );
+	await expect( popoverDate ).toHaveText( 'September 2, 2026' );
+	await page.keyboard.press( 'ArrowRight' );
+	await expect( page.getByRole( 'tooltip' ) ).toContainText( 'September 3, 2026' );
+	await expect( highlight ).toHaveCSS( 'outline-style', 'solid' );
 } );
 
 test( 'Tab from the paging controls reaches the chart once the day details close', async ( {
