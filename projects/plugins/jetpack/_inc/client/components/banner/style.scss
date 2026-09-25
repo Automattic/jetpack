@@ -129,8 +129,7 @@
 	.dops-banner__icon-circle {
 		color: #fff;
 		display: none;
-		// Paired with the SVG's translate(1px, 4px) below: kept physical so the
-		// 1px padding asymmetry still cancels the nudge (rule below, in RTL too).
+		// Kept physical: 1px asymmetry cancels SVG's translate(1px, 4px) below.
 		padding: 3px 4px 4px 3px;
 	}
 

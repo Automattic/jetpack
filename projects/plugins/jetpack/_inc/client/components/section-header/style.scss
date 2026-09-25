@@ -39,7 +39,8 @@
 	white-space: nowrap;
 	overflow: hidden;
 	width: 100%;
-	padding-inline-end: rem.convert(8px);
+	// Kept physical: paired with the physical long-content-fade mixin below.
+	padding-right: rem.convert(8px);
 	min-width: 0; // weird fix for overflowing items
 
 	&::before {
