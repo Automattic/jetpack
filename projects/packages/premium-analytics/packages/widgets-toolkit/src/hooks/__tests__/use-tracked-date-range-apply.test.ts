@@ -75,14 +75,20 @@ describe( 'useTrackedDateRangeApply', () => {
 		} );
 	} );
 
-	it( 'records a custom range without a preset', () => {
+	// Over a year allows months only; the rendered 30 days would keep weeks.
+	it( 'records a custom range staged in the same tick from its own dates', () => {
 		const { trackedOnChange, trackedOnApply } = renderTracked();
 
-		act( () => trackedOnChange( LAST_7_DAYS, 'custom' ) );
-		act( () => trackedOnApply() );
+		act( () => {
+			trackedOnChange(
+				{ from: new Date( '2025-01-01T00:00:00Z' ), to: new Date( '2026-02-04T00:00:00Z' ) },
+				'custom'
+			);
+			trackedOnApply();
+		} );
 
 		const properties = trackedProperties();
-		expect( properties ).toMatchObject( { range_type: 'custom' } );
+		expect( properties ).toMatchObject( { range_type: 'custom', interval: 'month' } );
 		expect( properties ).not.toHaveProperty( 'preset' );
 	} );
 
