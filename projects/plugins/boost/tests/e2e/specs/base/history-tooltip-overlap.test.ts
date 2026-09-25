@@ -496,6 +496,30 @@ test( 'Tab from the paging controls reaches the chart once the day details close
 	}
 } );
 
+test( 'Day details reopen on hover after paging with the keyboard', async ( { page } ) => {
+	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
+	const popover = page.locator( '.boost-daily-history__popover' );
+	await hoverDay( chart, 21 );
+	await expect( popover ).toBeVisible();
+	// Resting on the heading keeps the pointer inside the chart without sitting on a redrawn bar.
+	await chart.getByRole( 'heading', { name: 'Desktop' } ).hover();
+	await page.getByRole( 'button', { name: 'Previous 30 days' } ).focus();
+	await page.keyboard.press( 'Enter' );
+	await expect( page.getByText( 'Jul 12 – Aug 10, 2026' ) ).toBeVisible();
+	await page.keyboard.press( 'Tab' );
+	await page.keyboard.press( 'Enter' );
+	await expect( page.getByText( 'Aug 11 – Sep 9, 2026' ) ).toBeVisible();
+	await hoverDay( chart, 22 );
+	await expect( popover ).toContainText( 'September 2, 2026' );
+	await page.keyboard.press( 'Escape' );
+	await expect( popover ).toBeHidden();
+	await hoverDay( chart, 23 );
+	await expect( popover ).toBeHidden();
+	await page.mouse.move( 0, 0 );
+	await hoverDay( chart, 23 );
+	await expect( popover ).toContainText( 'September 3, 2026' );
+} );
+
 test( 'Hiding retained history removes a keyboard tooltip until another selection', async ( {
 	page,
 } ) => {
