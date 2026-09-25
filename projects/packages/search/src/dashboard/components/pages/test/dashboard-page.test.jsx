@@ -14,7 +14,7 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 	getProductCheckoutUrl: jest.fn( () => 'https://example.com/checkout' ),
 } ) );
 
-jest.mock( '../../../../../../../js-packages/connection/index.jsx', () => ( {
+jest.mock( '@automattic/jetpack-connection', () => ( {
 	ConnectionError: () => <div data-testid="connection-error" />,
 	useConnectionErrorNotice: () => ( { hasConnectionError: false } ),
 } ) );

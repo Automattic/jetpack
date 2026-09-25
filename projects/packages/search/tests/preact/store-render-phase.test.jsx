@@ -1,11 +1,4 @@
 /* eslint-disable testing-library/no-unnecessary-act -- Preact render does not wrap updates in act. */
-/**
- * Runs react-redux against preact/compat, the way the Instant Search bundle ships.
- *
- * Mounts with preact's own `render`, matching src/instant-search/index.jsx, so this
- * exercises the production pairing rather than React 18 like the main Jest config.
- */
-
 import { render } from 'preact';
 import { act } from 'preact/test-utils';
 import { connect, Provider } from 'react-redux';

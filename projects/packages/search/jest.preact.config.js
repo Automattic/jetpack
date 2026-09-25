@@ -1,8 +1,7 @@
 const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
 
-// Mirrors tools/webpack.instant.config.js: the Instant Search bundle aliases React to
-// preact/compat, so react-redux runs against Preact's hooks in production. The main Jest
-// config runs real React, which cannot catch a regression on that path.
+// Aliases React to preact/compat as tools/webpack.instant.config.js does, so react-redux
+// runs against Preact's hooks the way it does in the Instant Search bundle.
 module.exports = {
 	...baseConfig,
 	roots: [ '<rootDir>/tests/preact' ],
@@ -17,13 +16,13 @@ module.exports = {
 			require.resolve
 		),
 	},
-	// Several of preact's entry points publish ESM, so let Babel transform it — the same
-	// allowlist shape the base config uses for `marked/` and `uuid/`.
+	// Several of preact's entry points publish ESM. This replaces the base config's allowlist,
+	// so add any other ESM package a test here needs.
 	transformIgnorePatterns: [ '/node_modules/(?!.*/node_modules/)(?!preact/)' ],
 	moduleNameMapper: {
 		...baseConfig.moduleNameMapper,
-		// webpack's `react` alias covers subpaths; Jest's mapper does not, so the JSX
-		// runtime has to be redirected explicitly or JSX compiles against real React.
+		// Jest compiles JSX with the automatic runtime (the bundle uses classic), so
+		// `react/jsx-runtime` must be redirected too or it resolves to real React.
 		// Absolute paths: pnpm's isolated node_modules means a bare 'preact/compat'
 		// will not resolve from inside react-redux's own tree.
 		'^react/jsx-runtime$': require.resolve( 'preact/compat/jsx-runtime' ),
