@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 // ESM test: static jest.mock does not work under --experimental-vm-modules, so mock the modules
@@ -9,6 +9,8 @@ const mockSubmitSurvey = jest.fn< ( data: unknown ) => Promise< unknown > >();
 const mockSetApiRoot = jest.fn();
 const mockSetApiNonce = jest.fn();
 const mockRecordEvent = jest.fn();
+const mockFetch = jest.fn< typeof fetch >();
+const originalFetch = globalThis.fetch;
 
 jest.unstable_mockModule( '@automattic/jetpack-api', () => ( {
 	__esModule: true,
@@ -37,6 +39,12 @@ describe( 'DisconnectDialog', () => {
 
 	beforeEach( () => {
 		jest.clearAllMocks();
+		globalThis.fetch = mockFetch;
+		mockFetch.mockResolvedValue( { json: async () => ( { success: true } ) } as Response );
+	} );
+
+	afterAll( () => {
+		globalThis.fetch = originalFetch;
 	} );
 
 	describe( 'Initially', () => {
@@ -126,11 +134,8 @@ describe( 'DisconnectDialog', () => {
 			connectedSiteId: 123,
 			pluginScreenDisconnectCallback: deactivate,
 		};
-		const mockFetch = jest.fn< typeof fetch >();
 
 		beforeEach( () => {
-			global.fetch = mockFetch;
-			mockFetch.mockResolvedValue( { json: async () => ( { success: true } ) } as Response );
 			mockSubmitSurvey.mockResolvedValue( { success: true } );
 		} );
 
@@ -187,6 +192,47 @@ describe( 'DisconnectDialog', () => {
 			await waitFor( () => expect( deactivate ).toHaveBeenCalled() );
 		} );
 
+		it( 'still deactivates when the proxy reports a failure', async () => {
+			mockSubmitSurvey.mockResolvedValueOnce( { success: false, code: 'nope' } );
+			const user = userEvent.setup();
+			render( <DisconnectDialog { ...pluginsProps } connectedUser={ { ID: 7, login: 'me' } } /> );
+
+			await user.click( screen.getByRole( 'button', { name: 'Deactivate' } ) );
+			await user.click( screen.getByRole( 'radio', { name: "It's buggy." } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Submit and deactivate' } ) );
+
+			await waitFor( () => expect( deactivate ).toHaveBeenCalled() );
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_disconnect_survey_error',
+				expect.objectContaining( { disconnect_reason: 'buggy' } )
+			);
+		} );
+
+		it( 'deactivates after five seconds when the answer is still being sent', async () => {
+			jest.useFakeTimers();
+			try {
+				mockSubmitSurvey.mockReturnValueOnce( new Promise( () => {} ) );
+				const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+				render( <DisconnectDialog { ...pluginsProps } connectedUser={ { ID: 7, login: 'me' } } /> );
+
+				await user.click( screen.getByRole( 'button', { name: 'Deactivate' } ) );
+				await user.click( screen.getByRole( 'radio', { name: "It's buggy." } ) );
+				await user.click( screen.getByRole( 'button', { name: 'Submit and deactivate' } ) );
+
+				await act( async () => {
+					jest.advanceTimersByTime( 4999 );
+				} );
+				expect( deactivate ).not.toHaveBeenCalled();
+
+				await act( async () => {
+					jest.advanceTimersByTime( 1 );
+				} );
+				expect( deactivate ).toHaveBeenCalledTimes( 1 );
+			} finally {
+				jest.useRealTimers();
+			}
+		} );
+
 		it( 'deactivates without sending anything when the survey is skipped', async () => {
 			const user = userEvent.setup();
 			render( <DisconnectDialog { ...pluginsProps } hasConnectedUser={ false } /> );
@@ -224,6 +270,53 @@ describe( 'DisconnectDialog', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Deactivate' } ) );
 
 			expect( deactivate ).toHaveBeenCalledTimes( 1 );
+		} );
+	} );
+
+	describe( 'after disconnecting from the dashboard', () => {
+		const dashboardProps = {
+			...testProps,
+			connectedSiteId: 123,
+			connectedUser: { ID: 7, login: 'me' },
+		};
+
+		/**
+		 * Disconnect, open the survey, and submit an answer.
+		 *
+		 * @param {ReturnType<typeof userEvent.setup>} user - The user-event instance.
+		 */
+		const submitAnswer = async ( user: ReturnType< typeof userEvent.setup > ) => {
+			mockDisconnectSite.mockResolvedValueOnce( undefined );
+			await user.click( screen.getByRole( 'button', { name: 'Disconnect' } ) );
+			await user.click( await screen.findByRole( 'button', { name: 'Help us improve' } ) );
+			await user.click( screen.getByRole( 'radio', { name: "It's buggy." } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Submit Feedback' } ) );
+		};
+
+		it( 'sends the answer with the user ID and thanks the user', async () => {
+			const user = userEvent.setup();
+			render( <DisconnectDialog { ...dashboardProps } /> );
+
+			await submitAnswer( user );
+
+			await expect( screen.findByText( 'Thank you!' ) ).resolves.toBeInTheDocument();
+			expect( JSON.parse( mockFetch.mock.calls[ 0 ][ 1 ].body as string ) ).toEqual( {
+				site_id: 123,
+				user_id: 7,
+				survey_id: 'jetpack-plugin-disconnect',
+				survey_responses: { 'why-cancel': { response: 'buggy', text: null } },
+			} );
+			expect( mockSubmitSurvey ).not.toHaveBeenCalled();
+		} );
+
+		it( 'still thanks the user when the submission fails', async () => {
+			mockFetch.mockRejectedValueOnce( new Error( 'offline' ) );
+			const user = userEvent.setup();
+			render( <DisconnectDialog { ...dashboardProps } /> );
+
+			await submitAnswer( user );
+
+			await expect( screen.findByText( 'Thank you!' ) ).resolves.toBeInTheDocument();
 		} );
 	} );
 } );

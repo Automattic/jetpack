@@ -41,6 +41,24 @@ class Jetpack_Redux_State_Helper {
 	}
 
 	/**
+	 * Generate the state for the plugins page: the minimal state plus what the deactivation survey needs.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array
+	 */
+	public static function get_plugins_page_state() {
+		$state = self::get_minimal_state();
+
+		$state['pluginDeactivation'] = array(
+			'siteId'           => (int) Jetpack_Options::get_option( 'id' ),
+			'hasConnectedUser' => ( new Connection_Manager() )->has_connected_user(),
+		);
+
+		return $state;
+	}
+
+	/**
 	 * Generate the initial state array to be used by the Redux store.
 	 */
 	public static function get_initial_state() {

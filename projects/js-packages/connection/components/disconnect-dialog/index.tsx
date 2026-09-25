@@ -278,12 +278,14 @@ const DisconnectDialog = ( {
 
 			if ( context === 'plugins' ) {
 				// Don't let a slow response hold up deactivation.
-				const timeout = new Promise< void >( resolve =>
-					setTimeout( resolve, SURVEY_SUBMIT_TIMEOUT_MS )
-				);
-				Promise.race( [ sendSurvey( surveyData, tracksSurveyData ), timeout ] ).then( () =>
-					pluginScreenDisconnectCallback?.()
-				);
+				let timer: ReturnType< typeof setTimeout >;
+				const timeout = new Promise< void >( resolve => {
+					timer = setTimeout( resolve, SURVEY_SUBMIT_TIMEOUT_MS );
+				} );
+				Promise.race( [ sendSurvey( surveyData, tracksSurveyData ), timeout ] ).then( () => {
+					clearTimeout( timer );
+					pluginScreenDisconnectCallback?.();
+				} );
 				return;
 			}
 
@@ -372,7 +374,11 @@ const DisconnectDialog = ( {
 			// We do not have the information needed to record the response.
 			// return early and move to the last step in the flow anyway.
 			if ( ! canProvideFeedback() ) {
-				setIsFeedbackProvided( true );
+				if ( context === 'plugins' ) {
+					pluginScreenDisconnectCallback?.();
+				} else {
+					setIsFeedbackProvided( true );
+				}
 				return;
 			}
 
@@ -400,6 +406,8 @@ const DisconnectDialog = ( {
 			_submitSurvey,
 			setIsFeedbackProvided,
 			canProvideFeedback,
+			context,
+			pluginScreenDisconnectCallback,
 			connectedSiteId,
 			connectedUser,
 			defaultTracksArgs,
