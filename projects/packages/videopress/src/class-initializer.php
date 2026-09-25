@@ -136,6 +136,7 @@ class Initializer {
 			new WPCOM_REST_API_V2_Endpoint_VideoPress_Caption_Tracks();
 			new WPCOM_REST_API_V2_Attachment_VideoPress_Field();
 			new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
+			new WPCOM_REST_API_V2_Endpoint_VideoPress_Edits();
 		};
 		add_action( 'rest_api_init', $register_rest_api_v2_endpoints, 0 );
 		add_action( 'restapi_theme_init', $register_rest_api_v2_endpoints, 0 );
