@@ -25,7 +25,12 @@ import {
 import { sanitizeFormatting } from '../../utils/date-formatting';
 // Imported from the module rather than the `chart-scope` barrel: the barrel also pulls `use-standalone-scope-class`, which imports `GlobalChartsContext` back from this file. That cycle resolves today only because the binding is read lazily inside the hook body.
 import { ChartScopeContext } from '../chart-scope/chart-scope-context';
-import { CATALOG_POINTERS } from './private/catalog-pointers';
+import {
+	BACKGROUND_FALLBACK,
+	CATALOG_POINTERS,
+	LABEL_FALLBACK,
+	LABEL_INVERSE_FALLBACK,
+} from './private/catalog-pointers';
 import { createPaletteGenerator } from './private/palette-generator';
 import { SERIES_PALETTE_POINTERS, SERIES_SLOT_1_FALLBACK } from './private/series-palette';
 import { defaultTheme } from './themes';
@@ -51,7 +56,7 @@ const resolveOpaqueHex = ( pointer: string, element: HTMLElement | null ): strin
 	return isValidHexColor( hex ) ? hex : null;
 };
 
-const PLACEHOLDER_LABEL_COLORS = [ '#1e1e1e', '#f0f0f0' ];
+const PLACEHOLDER_LABEL_COLORS = [ LABEL_FALLBACK, LABEL_INVERSE_FALLBACK ];
 
 export const GlobalChartsContext = createContext< GlobalChartsContextValue | null >( null );
 
@@ -107,11 +112,11 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 	// never builds the candidate grid and SSR matches the unthemed client palette.
 	const [ colorCache, setColorCache ] = useState< ColorCache >( () => ( {
 		colors: [],
-		background: '#ffffff',
+		background: BACKGROUND_FALLBACK,
 		labelColors: PLACEHOLDER_LABEL_COLORS,
 		colorAt: createPaletteGenerator(
 			[ SERIES_SLOT_1_FALLBACK ],
-			'#ffffff',
+			BACKGROUND_FALLBACK,
 			PLACEHOLDER_LABEL_COLORS
 		),
 	} ) );
@@ -139,7 +144,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		}
 
 		const backgroundHex =
-			resolveOpaqueHex( CATALOG_POINTERS.background, wrapperRef.current ) ?? '#ffffff';
+			resolveOpaqueHex( CATALOG_POINTERS.background, wrapperRef.current ) ?? BACKGROUND_FALLBACK;
 		// The two roles pie labels choose between on a fill; one left see-through is never painted there.
 		const labelColors = [ CATALOG_POINTERS.label, CATALOG_POINTERS.labelInverse ]
 			.map( pointer => resolveOpaqueHex( pointer, wrapperRef.current ) )
