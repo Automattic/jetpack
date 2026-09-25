@@ -34,32 +34,30 @@ final class Comment_Likes_Section {
 		printf( '<div class="jetpack-sharing-settings__section" id="%s">', esc_attr( self::ANCHOR ) );
 		printf( '<h2>%s</h2>', esc_html_x( 'Comment Likes', 'Settings header', 'jetpack-sharing-likes' ) );
 
-		$follows_likes_settings = Environment::comment_likes_follow_likes_settings();
-
-		if ( $follows_likes_settings ) {
+		if ( Environment::comment_likes_follow_likes_settings() ) {
 			Placement_Section::render_summary( Placement_Section::FEATURE_COMMENT_LIKES );
 		}
 
-		self::render_toggle();
-
-		// With Like buttons running, their own section already shows this setting.
-		if ( $follows_likes_settings && ! Environment::likes_module_running() ) {
-			self::render_sitewide_default();
-		}
+		self::render_fields();
 
 		echo '</div>';
 	}
 
 	/**
-	 * The on/off switch: Simple's option, or the module on Atomic and Jetpack sites.
+	 * The on/off switch, plus the sitewide Likes default when nothing else on the screen shows it.
+	 *
+	 * The switch is Simple's option, or the module on Atomic and Jetpack sites.
 	 */
-	private static function render_toggle(): void {
+	private static function render_fields(): void {
+		// With Like buttons running, their own section already shows the default.
+		$shows_default = Environment::comment_likes_follow_likes_settings() && ! Environment::likes_module_running();
+
 		ob_start();
 		?>
 		<table class="form-table">
 			<tbody>
 				<tr>
-					<th scope="row"><label><?php esc_html_e( 'Comment Likes', 'jetpack-sharing-likes' ); ?></label></th>
+					<th scope="row"></th>
 					<td>
 						<label>
 							<input type="checkbox" name="jetpack_comment_likes_enabled" value="1" <?php checked( Environment::comment_likes_enabled() ); ?> />
@@ -67,24 +65,19 @@ final class Comment_Likes_Section {
 						</label>
 					</td>
 				</tr>
+				<?php
+				if ( $shows_default ) {
+					Likes_Section::render_sitewide_default_row( __( 'Comment Likes are', 'jetpack-sharing-likes' ) );
+				}
+				?>
 			</tbody>
 		</table>
 		<?php
 		Settings_Form::render_fields( Settings_Form::SECTION_COMMENT_LIKES, (string) ob_get_clean() );
-	}
 
-	/**
-	 * The sitewide Likes default, for a site whose Like buttons are off but whose Comment Likes still read it.
-	 */
-	private static function render_sitewide_default(): void {
-		ob_start();
-		?>
-		<table class="form-table">
-			<tbody>
-				<?php Likes_Section::render_sitewide_default_row( __( 'Comment Likes are', 'jetpack-sharing-likes' ) ); ?>
-			</tbody>
-		</table>
-		<?php
-		Settings_Form::render_fields( Settings_Form::SECTION_LIKES, (string) ob_get_clean() );
+		if ( $shows_default ) {
+			// The default saves through the Like buttons handler, which only runs for a claimed section.
+			Settings_Form::render_fields( Settings_Form::SECTION_LIKES, '' );
+		}
 	}
 }
