@@ -1,5 +1,5 @@
 /* No jest-dom in this project. */
-/* eslint-disable testing-library/no-node-access, testing-library/prefer-user-event, jest-dom/prefer-to-have-attribute */
+/* eslint-disable testing-library/no-node-access, testing-library/prefer-user-event, jest-dom/prefer-to-have-attribute, jest-dom/prefer-in-document */
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import Settings from './settings';
 
@@ -79,6 +79,20 @@ describe( 'Settings', () => {
 		expect( screen.getAllByRole( 'heading', { name: 'Cornerstone pages' } ) ).toHaveLength( 1 );
 		expect( screen.getAllByText( 'cornerstone description' ) ).toHaveLength( 1 );
 		expect( screen.getAllByText( 'Added: Homepage' ) ).toHaveLength( 1 );
+	} );
+
+	it( 'renders the section titles as h3s beneath the page h2', () => {
+		render( <Settings /> );
+
+		expect(
+			screen.getAllByRole( 'heading', { level: 3 } ).map( heading => heading.textContent )
+		).toEqual( [
+			'Cornerstone pagesAdded: Homepage',
+			'Page loadingManage how your page content is loaded for visitors.',
+			'Code optimizationReduce the code needed to load your site.',
+			'ImagesTools to load and deliver images more efficiently.',
+		] );
+		expect( screen.queryByRole( 'heading', { level: 2 } ) ).toBeNull();
 	} );
 
 	it( 'starts with only Cornerstone collapsed and lets each section toggle independently', () => {
