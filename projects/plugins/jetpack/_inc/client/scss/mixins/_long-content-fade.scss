@@ -58,4 +58,20 @@
 		width: $size;
 		height: auto;
 	}
+
+	// Logical "right", for callers that must also mirror on wp-build RTL pages.
+	// The gradient has no logical form, so hand-mirror it for `dir="rtl"`.
+	@if $direction == "inline-end" {
+		background: linear-gradient(to right, rgba($color, 0), $color 90%);
+		top: $edge;
+		bottom: $edge;
+		inset-inline-end: $edge;
+		inset-inline-start: auto;
+		width: $size;
+		height: auto;
+
+		[dir="rtl"] & { /*rtl:ignore*/
+			background: linear-gradient(to left, rgba($color, 0), $color 90%);
+		}
+	}
 }

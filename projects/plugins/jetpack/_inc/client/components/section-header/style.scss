@@ -39,13 +39,12 @@
 	white-space: nowrap;
 	overflow: hidden;
 	width: 100%;
-	// Kept physical: paired with the physical long-content-fade mixin below.
-	padding-right: rem.convert(8px);
+	padding-inline-end: rem.convert(8px);
 	min-width: 0; // weird fix for overflowing items
 
 	&::before {
 
-		@include long-content-fade.long-content-fade( $size: 8px, $color : calypso-colors.$white );
+		@include long-content-fade.long-content-fade( $size: 8px, $color : calypso-colors.$white, $direction: inline-end );
 	}
 
 	.has-card-badge & {

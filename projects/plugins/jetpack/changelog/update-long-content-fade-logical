@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Settings: Mirror the fade on long section headers and copy fields for right-to-left languages.
