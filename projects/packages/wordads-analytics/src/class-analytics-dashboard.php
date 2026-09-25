@@ -67,14 +67,14 @@ class Analytics_Dashboard {
 	/**
 	 * Register the Ads section unless another owner already holds the `ads` slug.
 	 *
-	 * Skipped with the widget types when the dashboard's contract moved past this build: a tab
-	 * whose every widget is unavailable is worse than no tab.
+	 * Also skipped when the dashboard's widget contract moved past this build: a tab whose every
+	 * widget is unavailable is worse than no tab.
 	 *
 	 * @param object $registry The section registry being hydrated.
 	 * @return void
 	 */
 	public static function register_section( $registry ) {
-		if ( ! self::supports_widget_contract() || self::dashboard_has_section_slug( $registry, DASHBOARD_NAME, 'ads' ) ) {
+		if ( self::widget_contract_moved_on() || self::dashboard_has_section_slug( $registry, DASHBOARD_NAME, 'ads' ) ) {
 			return;
 		}
 
@@ -120,7 +120,7 @@ class Analytics_Dashboard {
 	 * @return void
 	 */
 	public static function register_widget_types( $registry ) {
-		if ( ! self::supports_widget_contract() ) {
+		if ( ! defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' ) || self::widget_contract_moved_on() ) {
 			return;
 		}
 
@@ -140,13 +140,16 @@ class Analytics_Dashboard {
 	}
 
 	/**
-	 * Whether the dashboard's widget contract is the major this package was built against.
+	 * Whether the dashboard's widget contract moved to a major this package was not built against.
+	 *
+	 * Undefined is not a mismatch: the sections REST route hydrates the section registry before
+	 * the dashboard loads the file that defines the version.
 	 *
 	 * @return bool
 	 */
-	private static function supports_widget_contract() {
+	private static function widget_contract_moved_on() {
 		return defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' )
-			&& version_compare( \Automattic\Jetpack\PremiumAnalytics\WIDGET_API_VERSION, '2', '<' );
+			&& version_compare( \Automattic\Jetpack\PremiumAnalytics\WIDGET_API_VERSION, '2', '>=' );
 	}
 
 	/**
