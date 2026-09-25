@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { getApiFetchMock, mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestWrapper } from '../../test-utils/query-client-wrapper';
 import { setSimpleSite, unsetSimpleSite } from '../../test-utils/simple-site';
@@ -208,6 +208,66 @@ describe( 'useLibrary', () => {
 
 		await waitFor( () => expect( result.current.items.length ).toBeGreaterThan( 0 ) );
 		expect( result.current.items[ 0 ].title ).toBe( 'Molly’s “Best” Day' );
+	} );
+
+	describe( 'polling a processing item', () => {
+		beforeEach( () => {
+			jest.useFakeTimers();
+			mockApiFetch( async () => ( {
+				headers: { get: ( name: string ) => ( name.startsWith( 'X-WP-Total' ) ? '1' : null ) },
+				json: async () => [
+					{ id: 5, mime_type: 'video/videopress', jetpack_videopress: { guid: 'abc' } },
+				],
+			} ) );
+		} );
+
+		afterEach( () => {
+			jest.useRealTimers();
+		} );
+
+		it.each( [
+			[ 'polls by default', undefined, 2 ],
+			[ 'holds off when polling is off', { poll: false }, 1 ],
+		] )( '%s', async ( _label, options, expectedFetches ) => {
+			const { result } = renderHook( () => useLibrary( DEFAULT_VIEW, options ), {
+				wrapper: createTestWrapper(),
+			} );
+			await waitFor( () => expect( result.current.items[ 0 ]?.isProcessing ).toBe( true ) );
+
+			await act( async () => {
+				jest.advanceTimersByTime( LIBRARY_POLL_INTERVAL_MS );
+			} );
+
+			expect( getApiFetchMock() ).toHaveBeenCalledTimes( expectedFetches );
+		} );
+	} );
+} );
+
+describe( 'toLibraryItem', () => {
+	it( 'maps a video/videopress attachment whose guid has not arrived yet to a processing VideoPress item', () => {
+		const item = toLibraryItem(
+			{
+				id: 11,
+				title: { rendered: 'Just uploaded' },
+				mime_type: 'video/videopress',
+				media_details: {},
+				jetpack_videopress: { guid: '' },
+			},
+			false
+		);
+
+		expect( item.type ).toBe( 'videopress' );
+		expect( item.isProcessing ).toBe( true );
+	} );
+
+	it( 'keeps a guid-less attachment with a regular video mime local', () => {
+		const item = toLibraryItem(
+			{ id: 12, title: { rendered: 'On disk' }, mime_type: 'video/mp4', media_details: {} },
+			false
+		);
+
+		expect( item.type ).toBe( 'local' );
+		expect( item.isProcessing ).toBe( false );
 	} );
 } );
 

@@ -215,7 +215,9 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
  */
 export function toLibraryItem( raw: ApiMediaItem, simple: boolean ): LibraryItem {
 	const vp = raw.jetpack_videopress;
-	const isVideoPress = Boolean( vp?.guid );
+	// Jetpack sites create the attachment as `video/videopress` before its guid
+	// arrives, so the mime alone marks it VideoPress (the `type` filter agrees).
+	const isVideoPress = Boolean( vp?.guid ) || raw.mime_type === 'video/videopress';
 	const details = raw.media_details;
 	// Self-hosted nests poster/duration/finished under `media_details.videopress`;
 	// WordPress.com Simple omits that sub-object and returns a ready-to-play `thumb` +
@@ -401,10 +403,12 @@ export function nextProcessingPoll(
 /**
  * Fetch and cache the VideoPress media library from /wp/v2/media.
  *
- * @param view - The current DataViews view (sort, filters, search, pagination).
+ * @param view         - The current DataViews view (sort, filters, search, pagination).
+ * @param options      - Query options.
+ * @param options.poll - Poll processing items visible in the library.
  * @return Items, loading/error state, pagination info, and a refetch callback.
  */
-export function useLibrary( view: View ) {
+export function useLibrary( view: View, { poll = true }: { poll?: boolean } = {} ) {
 	// Anchor for when the current processing set was first seen, so the
 	// VIDP-298 poll cap can measure elapsed time across refetches without
 	// causing re-renders. Stored in a ref, not state, so mutating it never
@@ -427,7 +431,9 @@ export function useLibrary( view: View ) {
 		refetchInterval: q => {
 			const { anchor, interval } = nextProcessingPoll(
 				processingStartRef.current,
-				( q.state.data?.items ?? [] ).filter( item => item.isProcessing ).map( item => item.id ),
+				( poll ? ( q.state.data?.items ?? [] ) : [] )
+					.filter( item => item.isProcessing )
+					.map( item => item.id ),
 				Date.now()
 			);
 			processingStartRef.current = anchor;
@@ -438,7 +444,8 @@ export function useLibrary( view: View ) {
 		// fresh state — and it's the recovery path once the poll cap above has
 		// fired: a transcode that genuinely outlasts the cap flips to ready on
 		// the next focus instead of never.
-		refetchOnWindowFocus: q => Boolean( q.state.data?.items.some( item => item.isProcessing ) ),
+		refetchOnWindowFocus: q =>
+			poll && Boolean( q.state.data?.items.some( item => item.isProcessing ) ),
 	} );
 
 	return {

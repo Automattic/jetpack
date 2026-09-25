@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import { makeLibraryItem } from '../../../src/dashboard/test-utils/library-item';
 import { makeVideoFile } from '../../../src/dashboard/test-utils/video-file';
 import { stage as Stage } from '../stage';
 import type { LibraryItem } from '../../../src/dashboard/types/library';
@@ -16,11 +17,17 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // The grid itself is not under test; a stand-in marks whether the listing owns
-// the viewport.
+// the viewport and which rows it was handed.
 jest.mock( '@wordpress/dataviews', () => ( {
 	__esModule: true,
 	...jest.requireActual( '@wordpress/dataviews' ),
-	DataViews: () => <div data-testid="dataviews" />,
+	DataViews: ( { data }: { data: LibraryItem[] } ) => (
+		<ul data-testid="dataviews">
+			{ data.map( item => (
+				<li key={ item.id }>{ item.id }</li>
+			) ) }
+		</ul>
+	),
 } ) );
 
 jest.mock( '../../../src/dashboard/components/dashboard-layout', () => ( {
@@ -46,20 +53,30 @@ jest.mock( '../../../src/client/components/caption-manager-modal/lazy', () => ( 
 let mockLibraryTotal: number | null = 3;
 let mockItems: LibraryItem[] = [];
 let mockIsError = false;
+const mockUseLibrary = jest.fn();
 jest.mock( '../../../src/dashboard/hooks/use-library', () => ( {
 	LIBRARY_QUERY_KEY: 'videopress-library',
-	useLibrary: () => ( {
-		items: mockItems,
-		isLoading: mockLibraryTotal === null,
-		isError: mockIsError,
-		error: null,
-		paginationInfo:
-			mockLibraryTotal === null ? undefined : { totalItems: mockLibraryTotal, totalPages: 1 },
-		refetch: jest.fn(),
-	} ),
+	useLibrary: ( ...args: unknown[] ) => {
+		mockUseLibrary( ...args );
+		return {
+			items: mockItems,
+			isLoading: mockLibraryTotal === null,
+			isError: mockIsError,
+			error: null,
+			paginationInfo:
+				mockLibraryTotal === null ? undefined : { totalItems: mockLibraryTotal, totalPages: 1 },
+			refetch: jest.fn(),
+		};
+	},
 } ) );
 
-let mockQueue: Array< { id: string; status: string; progress: number; file: File } > = [];
+let mockQueue: Array< {
+	id: string;
+	status: string;
+	progress: number;
+	file: File;
+	mediaId?: string;
+} > = [];
 const mockStartUpload = jest.fn();
 jest.mock( '../../../src/dashboard/hooks/use-upload', () => ( {
 	useUpload: () => ( {
@@ -184,5 +201,53 @@ describe( 'library stage empty state', () => {
 
 		// The dropzone's copy follows `allowMultiple`, which follows the plan.
 		expect( screen.getByText( 'Drag and drop your video here' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'library stage upload hand-off', () => {
+	const renderedRowIds = () =>
+		within( screen.getByTestId( 'dataviews' ) )
+			.queryAllByRole( 'listitem' )
+			.map( row => row.textContent );
+
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockLibraryTotal = 1;
+		mockIsError = false;
+		mockItems = [ makeLibraryItem( { id: '7' } ) ];
+		mockQueue = [];
+		mockFreeTier = { isAtLimit: false, isFree: false, isUnlimited: true, videoCount: 0, limit: 1 };
+	} );
+
+	it.each( [
+		[ 'keeps polling while bytes are still being sent', 0.5, true ],
+		[ 'holds off polling once every byte is sent and the server is finishing up', 1, false ],
+	] )( '%s', ( _label, progress, poll ) => {
+		mockQueue = [ { id: 'q1', status: 'uploading', progress, file: makeVideoFile( 'a.mp4' ) } ];
+
+		render( <Stage /> );
+
+		expect( mockUseLibrary ).toHaveBeenCalledWith( expect.objectContaining( { perPage: 12 } ), {
+			poll,
+		} );
+	} );
+
+	it( 'keeps a finished upload’s row until the listing has its attachment, then shows only that', () => {
+		mockQueue = [
+			{
+				id: 'q1',
+				status: 'success',
+				progress: 1,
+				mediaId: '101',
+				file: makeVideoFile( 'a.mp4' ),
+			},
+		];
+
+		const { rerender } = render( <Stage /> );
+		expect( renderedRowIds() ).toEqual( [ 'q1', '7' ] );
+
+		mockItems = [ makeLibraryItem( { id: '101', isProcessing: true } ), ...mockItems ];
+		rerender( <Stage /> );
+		expect( renderedRowIds() ).toEqual( [ '101', '7' ] );
 	} );
 } );
