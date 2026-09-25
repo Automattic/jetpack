@@ -399,6 +399,16 @@ export function getApiRootUrl( state ) {
 }
 
 /**
+ * Return the data the plugins page needs to send the deactivation survey.
+ *
+ * @param {object} state - Global state tree
+ * @return {object|undefined} The site ID and whether any user is connected.
+ */
+export function getPluginDeactivationData( state ) {
+	return state.jetpack.initialState?.pluginDeactivation;
+}
+
+/**
  * Returns the registration nonce.
  *
  * @deprecated since 14.5
