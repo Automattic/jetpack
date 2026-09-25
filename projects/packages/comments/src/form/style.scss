@@ -5,6 +5,9 @@
 }
 
 .jetpack-comments.is-mounted {
+	// The theme's textarea inset, but never a cramped one.
+	--jetpack-comments-pad: max(var(--jetpack-comments-inset, 1em), 1em);
+
 	margin-block: 1em;
 }
 
@@ -24,6 +27,7 @@
 	// Two lines plus the padding; field-sizing ignores rows.
 	min-block-size: 3lh;
 	field-sizing: content;
+	padding: var(--jetpack-comments-pad);
 	resize: none;
 
 	// Pinned: themes reach for a textarea's border with every kind of selector.
@@ -72,9 +76,7 @@
 	justify-content: space-between;
 	gap: 12px;
 	margin: 0 -4px -4px;
-	padding:
-		0 calc(var(--jetpack-comments-inset, 1em) + 4px)
-		calc(var(--jetpack-comments-inset, 1em) + 4px);
+	padding: 0 calc(var(--jetpack-comments-pad) + 4px) calc(var(--jetpack-comments-pad) + 4px);
 }
 
 .jetpack-comments__identity {
