@@ -10,6 +10,7 @@ import SuggestionBadge from '../components/suggestion-badge';
 import UpgradeNotice from '../components/upgrade-notice';
 import WelcomeBanner from '../components/welcome-banner';
 import { VALID_SECTIONS } from '../constants';
+import { getTextareaBox } from './dom';
 import { getBlockModalTextarea, startDraftTracking } from './drafts';
 
 // Each injection point tracks both the DOM container and its React root.
@@ -289,16 +290,17 @@ function runAll() {
 			{ slug }
 		);
 
-		// Suggestion actions (diff + accept/dismiss) after the DataForm, so the
-		// field label stays above the diff.
+		// Suggestion actions (diff + accept/dismiss) right after the textarea box,
+		// so the diff takes the textarea's exact place under the field label.
 		inject(
 			`actions-${ slug }`,
 			() => {
-				const vStack = form.firstElementChild;
-				return vStack?.firstElementChild
+				const textarea = form.querySelector( 'textarea' );
+				const box = textarea && getTextareaBox( textarea );
+				return box
 					? {
-							parent: vStack,
-							before: vStack.firstElementChild.nextSibling,
+							parent: box.parentElement,
+							before: box.nextSibling,
 							className: 'jetpack-content-guidelines-ai__actions-container',
 						}
 					: null;

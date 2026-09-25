@@ -48,7 +48,10 @@ jest.mock( '@wordpress/components', () => ( {
 	),
 	Spinner: () => <span className="components-spinner" />,
 } ) );
-jest.mock( '../lib/dom', () => ( { acceptSectionSuggestion: jest.fn() } ) );
+jest.mock( '../lib/dom', () => ( {
+	...jest.requireActual( '../lib/dom' ),
+	acceptSectionSuggestion: jest.fn(),
+} ) );
 jest.mock( '../lib/tracks', () => ( { recordGuidelinesEvent: jest.fn() } ) );
 
 const clearSuggestion = jest.fn();

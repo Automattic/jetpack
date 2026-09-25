@@ -137,10 +137,11 @@ $cg-diff-removed: #f8d7da;
 	}
 }
 
-// While a suggestion is active, the diff replaces the section textarea and
-// Accept/Dismiss replace the Save/Clear row. The DataForm stays for its label.
-.has-jetpack-suggestion:not(.block-guideline-modal) > :first-child > :not(:first-child, .jetpack-content-guidelines-ai__actions-container),
-.has-jetpack-suggestion:not(.block-guideline-modal) :has(> textarea) {
+// While a suggestion is active, the diff replaces the section textarea box
+// (the element right before our container) and Accept/Dismiss replace the
+// Save/Clear row.
+.has-jetpack-suggestion:not(.block-guideline-modal) > :first-child > :not(:first-child),
+.has-jetpack-suggestion :has(+ .jetpack-content-guidelines-ai__actions-container) {
 	display: none;
 }
 
