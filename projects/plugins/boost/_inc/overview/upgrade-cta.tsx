@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import { useEffect, useRef, useState } from 'react';
-import { OVERVIEW_UPGRADE_EVENT, type UpgradeSlotRequest } from './lib/upgrade-bridge';
+import { OVERVIEW_UPGRADE_EVENT, type UpgradeSlotRequest, upgradeHref } from './lib/upgrade-bridge';
 import { canOfferUpgrade } from './lib/use-modules-state';
 
 export default function UpgradeCTA() {
@@ -23,11 +23,7 @@ export default function UpgradeCTA() {
 		return null;
 	}
 	if ( isUnanswered ) {
-		return (
-			<Link href="admin.php?page=my-jetpack#/add-boost">
-				{ __( 'Upgrade now', 'jetpack-boost' ) }
-			</Link>
-		);
+		return <Link href={ upgradeHref }>{ __( 'Upgrade now', 'jetpack-boost' ) }</Link>;
 	}
 	return <span ref={ container } />;
 }
