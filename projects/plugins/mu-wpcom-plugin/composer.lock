@@ -1557,7 +1557,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "52764a02f7867f37ec72958cc18598f547bb556a"
+                "reference": "012672bb63ad7427d70ea303cf220752f75a6fd4"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1580,7 +1580,6 @@
                 "automattic/jetpack-rtc": "@dev",
                 "automattic/jetpack-stats-admin": "@dev",
                 "automattic/jetpack-status": "@dev",
-                "automattic/jetpack-wordads-analytics": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",
                 "automattic/scheduled-updates": "@dev",
                 "php": ">=8.1",
@@ -1590,6 +1589,7 @@
             "require-dev": {
                 "automattic/jetpack-podcast": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
+                "automattic/jetpack-wordads-analytics": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
                 "yoast/phpunit-polyfills": "^4.0.0"
@@ -1610,6 +1610,11 @@
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-jetpack-mu-wpcom.php"
+                },
+                "dependencies": {
+                    "test-only": [
+                        "packages/wordads-analytics"
+                    ]
                 }
             },
             "autoload": {
@@ -2361,76 +2366,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Everything needed to allow syncing to the WP.com infrastructure.",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "automattic/jetpack-wordads-analytics",
-            "version": "dev-trunk",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/wordads-analytics",
-                "reference": "82b6a8ba70d7fbe121dee3055c48a162da01533a"
-            },
-            "require": {
-                "automattic/jetpack-premium-analytics": "@dev",
-                "php": ">=7.4"
-            },
-            "require-dev": {
-                "automattic/jetpack-test-environment": "@dev",
-                "automattic/phpunit-select-config": "@dev",
-                "yoast/phpunit-polyfills": "^4.0.0"
-            },
-            "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autorelease": true,
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-wordads-analytics",
-                "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
-                },
-                "textdomain": "jetpack-wordads-analytics-pkg",
-                "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-analytics-dashboard.php"
-                },
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-wordads-analytics/compare/v${old}...v${new}"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "scripts": {
-                "build-development": [
-                    "pnpm run build"
-                ],
-                "build-production": [
-                    "pnpm run build-production"
-                ],
-                "watch": [
-                    "Composer\\Config::disableProcessTimeout",
-                    "pnpm run watch"
-                ],
-                "phpunit": [
-                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ],
-                "test-php-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "WordAds: the Ads section and widgets of the Premium Analytics dashboard.",
             "transport-options": {
                 "relative": true
             }
