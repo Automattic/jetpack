@@ -43,7 +43,7 @@ function card( key: string, guid: string, page = 1, hidden = false ): string {
  */
 function setUpBlock( cards: string, loadMore = false ): HTMLElement {
 	document.body.innerHTML = `
-		<div class="wp-block-videopress-all-playlists videopress-all-playlists is-layout-list" data-playlist-total="3" data-video-total="7" data-per-page="1" data-summary="Showing %1$s of %2$s">
+		<div class="wp-block-videopress-all-playlists videopress-all-playlists is-layout-list" data-playlist-total="3" data-per-page="1" data-summary="Showing %1$s of %2$s">
 			<div class="videopress-all-playlists__header"><span class="videopress-all-playlists__summary">Showing 1 of 3</span></div>
 			<ul class="videopress-all-playlists__items">${ cards }</ul>
 			${

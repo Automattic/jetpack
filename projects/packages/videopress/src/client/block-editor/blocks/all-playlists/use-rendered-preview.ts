@@ -11,11 +11,6 @@ import type { AllPlaylistsAttributes } from './types';
 
 export type PreviewStatus = 'loading' | 'ready' | 'error';
 
-export type IndexStats = {
-	playlists: number;
-	videos: number;
-};
-
 export type RenderedPreview = {
 	status: PreviewStatus;
 	// The server-rendered cards and pagination, without the header the editor
@@ -23,27 +18,21 @@ export type RenderedPreview = {
 	html: string;
 	// The header's "N playlists" / "Showing X of N" line.
 	summary: string;
-	// What the playlist index holds, as reported by the render.
-	stats: IndexStats;
 };
-
-const EMPTY_STATS: IndexStats = { playlists: 0, videos: 0 };
 
 /**
  * Split the server render into what the canvas shows: the header's summary
- * line, the index totals stamped on the wrapper, and the markup without the
- * header (the editor renders the heading as an inner block).
+ * line and the markup without the header (the editor renders the heading as
+ * an inner block).
  *
  * @param html - Rendered block markup.
  * @return The preview parts; empty when the markup carries no block.
  */
-export function splitRenderedPreview(
-	html: string
-): Pick< RenderedPreview, 'html' | 'summary' | 'stats' > {
+export function splitRenderedPreview( html: string ): Pick< RenderedPreview, 'html' | 'summary' > {
 	const document = new DOMParser().parseFromString( html, 'text/html' );
 	const wrapper = document.querySelector< HTMLElement >( '[data-playlist-total]' );
 	if ( ! wrapper ) {
-		return { html: '', summary: '', stats: EMPTY_STATS };
+		return { html: '', summary: '' };
 	}
 
 	const header = wrapper.querySelector( '.videopress-all-playlists__header' );
@@ -53,10 +42,6 @@ export function splitRenderedPreview(
 	return {
 		html: wrapper.outerHTML,
 		summary,
-		stats: {
-			playlists: Number( wrapper.getAttribute( 'data-playlist-total' ) ) || 0,
-			videos: Number( wrapper.getAttribute( 'data-video-total' ) ) || 0,
-		},
 	};
 }
 
@@ -82,7 +67,6 @@ export default function useRenderedPreview( attributes: AllPlaylistsAttributes )
 		status: 'loading',
 		html: '',
 		summary: '',
-		stats: EMPTY_STATS,
 	} );
 
 	useEffect( () => {
@@ -111,7 +95,7 @@ export default function useRenderedPreview( attributes: AllPlaylistsAttributes )
 			} )
 			.catch( () => {
 				if ( ! cancelled ) {
-					setPreview( { status: 'error', html: '', summary: '', stats: EMPTY_STATS } );
+					setPreview( { status: 'error', html: '', summary: '' } );
 				}
 			} );
 

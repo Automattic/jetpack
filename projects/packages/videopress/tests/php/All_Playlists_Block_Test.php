@@ -250,7 +250,6 @@ class All_Playlists_Block_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'videopress-all-playlists is-layout-gallery is-pagination-numbered', $markup );
 		$this->assertStringContainsString( '--vpap-columns:4"', $markup );
 		$this->assertStringContainsString( 'data-playlist-total="2"', $markup );
-		$this->assertStringContainsString( 'data-video-total="2"', $markup );
 		$this->assertStringContainsString( '<div class="videopress-all-playlists__header"><h2 class="videopress-all-playlists__heading">Playlists</h2>', $markup );
 		$this->assertStringContainsString( '<span class="videopress-all-playlists__summary">2 playlists</span>', $markup );
 		$this->assertSame( 2, substr_count( $markup, 'class="videopress-all-playlists__item ' ) );

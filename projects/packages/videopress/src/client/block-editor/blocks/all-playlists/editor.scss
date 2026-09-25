@@ -2,7 +2,7 @@
  * All Playlists block — editor styles.
  *
  * The canvas reuses the front-end stylesheet (view.scss); these rules cover
- * the sidebar source card, the loading skeleton and the empty state.
+ * the loading skeleton and the empty state.
  */
 
 .videopress-all-playlists-editor {
@@ -22,56 +22,6 @@
 	.videopress-all-playlists__heading {
 		flex: 1 1 auto;
 		min-inline-size: 0;
-	}
-
-	&__source {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 10px;
-		padding: 9px 10px;
-		border: 1px solid #e0e0e0;
-		border-radius: 2px;
-		background: #fafafa;
-	}
-
-	&__source-text {
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-		min-inline-size: 0;
-	}
-
-	&__source-name {
-		font-size: 12.5px;
-		font-weight: 500;
-		line-height: 1.3;
-	}
-
-	&__source-count {
-		font-family: ui-monospace, Menlo, monospace;
-		font-size: 10.5px;
-		line-height: 1.4;
-		color: #757575;
-	}
-
-	&__source-dot {
-		flex: 0 0 auto;
-		inline-size: 8px;
-		block-size: 8px;
-		border-radius: 50%;
-		background: #dcdcdc;
-
-		&.is-ready {
-			background: #2e8540;
-		}
-	}
-
-	&__help {
-		margin: 7px 0 0;
-		font-size: 11.5px;
-		line-height: 1.45;
-		color: #757575;
 	}
 
 	&__control {

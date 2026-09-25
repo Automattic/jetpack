@@ -44,7 +44,7 @@ const DEFAULT_ATTRIBUTES: AllPlaylistsAttributes = {
 };
 
 const RENDERED =
-	'<div class="wp-block-videopress-all-playlists videopress-all-playlists is-layout-gallery" data-playlist-total="2" data-video-total="9">' +
+	'<div class="wp-block-videopress-all-playlists videopress-all-playlists is-layout-gallery" data-playlist-total="2">' +
 	'<div class="videopress-all-playlists__header"><h2 class="videopress-all-playlists__heading">Playlists</h2><span class="videopress-all-playlists__summary">2 playlists</span></div>' +
 	'<ul class="videopress-all-playlists__items">' +
 	'<li class="videopress-all-playlists__item is-poster-loading" data-page="1"><span data-guid="aaaaaaaa">Card one</span></li>' +
@@ -111,12 +111,14 @@ describe( 'AllPlaylistsEdit', () => {
 		expect( hydratePosterMock.mock.calls[ 0 ][ 0 ] ).toHaveTextContent( 'Card one' );
 	} );
 
-	it( 'summarizes the index from the rendered markup', async () => {
+	it( 'has no Source panel in the sidebar', async () => {
 		apiFetchMock.mockResolvedValue( { rendered: RENDERED } );
 
 		renderEdit();
+		await expect( screen.findByText( 'Card one' ) ).resolves.toBeInTheDocument();
 
-		await expect( screen.findByText( '2 playlists · 9 videos' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Source' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Playlist index' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows the empty state, keeping the heading editable', async () => {
@@ -126,7 +128,6 @@ describe( 'AllPlaylistsEdit', () => {
 
 		await expect( screen.findByText( 'No playlists yet' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByTestId( 'heading-inner-blocks' ) ).toBeInTheDocument();
-		expect( screen.getByText( '0 playlists · 0 videos' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows the error state when rendering fails', async () => {

@@ -13,7 +13,7 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { RawHTML, useEffect, useRef } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -83,7 +83,7 @@ export default function AllPlaylistsEdit( {
 		showTotalRuntime,
 		pagination,
 	} = attributes;
-	const { status, html, summary, stats } = useRenderedPreview( attributes );
+	const { status, html, summary } = useRenderedPreview( attributes );
 
 	const styleVars = blockStyleVars( attributes );
 	const blockProps = useBlockProps( {
@@ -120,48 +120,8 @@ export default function AllPlaylistsEdit( {
 		</div>
 	);
 
-	const indexSummary = sprintf(
-		/* translators: 1: number of playlists, e.g. "18 playlists". 2: number of videos, e.g. "214 videos". */
-		__( '%1$s · %2$s', 'jetpack-videopress-pkg' ),
-		sprintf(
-			/* translators: %d: number of playlists in the index. */
-			_n( '%d playlist', '%d playlists', stats.playlists, 'jetpack-videopress-pkg' ),
-			stats.playlists
-		),
-		sprintf(
-			/* translators: %d: number of videos across the indexed playlists. */
-			_n( '%d video', '%d videos', stats.videos, 'jetpack-videopress-pkg' ),
-			stats.videos
-		)
-	);
-
 	const inspectorControls = (
 		<InspectorControls>
-			<PanelBody title={ __( 'Source', 'jetpack-videopress-pkg' ) }>
-				<div className="videopress-all-playlists-editor__source">
-					<span className="videopress-all-playlists-editor__source-text">
-						<span className="videopress-all-playlists-editor__source-name">
-							{ __( 'Playlist index', 'jetpack-videopress-pkg' ) }
-						</span>
-						<span className="videopress-all-playlists-editor__source-count">{ indexSummary }</span>
-					</span>
-					<span
-						className={
-							stats.playlists > 0
-								? 'videopress-all-playlists-editor__source-dot is-ready'
-								: 'videopress-all-playlists-editor__source-dot'
-						}
-						aria-hidden="true"
-					/>
-				</div>
-				<p className="videopress-all-playlists-editor__help">
-					{ __(
-						'Posters come from the first VideoPress video in each playlist.',
-						'jetpack-videopress-pkg'
-					) }
-				</p>
-			</PanelBody>
-
 			<PanelBody title={ __( 'Display', 'jetpack-videopress-pkg' ) }>
 				<ToggleGroupControl
 					__next40pxDefaultSize

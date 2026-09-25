@@ -321,7 +321,6 @@ class All_Playlists_Block {
 			return '';
 		}
 
-		$total_videos = array_sum( array_map( 'count', array_column( $playlists, 'videos' ) ) );
 		$per_page     = $settings['per_page'];
 		$pages        = (int) ceil( $total / $per_page );
 		$is_load_more = 'load-more' === $settings['pagination'];
@@ -369,7 +368,6 @@ class All_Playlists_Block {
 				'class'               => implode( ' ', $classes ),
 				'style'               => '--vpap-columns:' . $settings['columns'] . ';' . $style_vars['style'],
 				'data-playlist-total' => (string) $total,
-				'data-video-total'    => (string) $total_videos,
 				'data-per-page'       => (string) $per_page,
 				/* translators: 1: number of playlists shown. 2: number of playlists on the site. */
 				'data-summary'        => __( 'Showing %1$s of %2$s', 'jetpack-videopress-pkg' ),
