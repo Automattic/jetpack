@@ -371,6 +371,7 @@ class Jetpack_AI_Page {
 			'blogId'            => $blog_id ? (int) $blog_id : 0,
 			'activityLogUrl'    => $activity_log_url,
 			'seoSettingsUrl'    => $seo_settings_url,
+			'searchSettingsUrl' => self::get_search_settings_url(),
 			'siteAdminUrl'      => admin_url(),
 			'userConnectionUrl' => esc_url_raw( $config['userConnectionUrl'] ?? '' ),
 			'manageUrl'         => esc_url_raw( $config['manageUrl'] ?? '' ),
@@ -491,6 +492,30 @@ class Jetpack_AI_Page {
 			: '';
 
 		return '' !== $email && '@automattic.com' === substr( $email, -15 );
+	}
+
+	/**
+	 * The Search dashboard page the AI Answers row links to, or '' once a host
+	 * has removed it. Removal is remove_submenu_page() on `admin_menu`, which only
+	 * unsets the registry entry — menu_page_url() still answers for the page and
+	 * wp-admin then denies it — so the registry is read after that hook has run.
+	 *
+	 * @return string
+	 */
+	private static function get_search_settings_url() {
+		global $submenu;
+
+		// Search registers under the Jetpack menu, or menu-less (parent '') when
+		// `jetpack_search_should_add_search_submenu` says no; both are reachable.
+		foreach ( array( 'jetpack', '' ) as $parent ) {
+			foreach ( (array) ( $submenu[ $parent ] ?? array() ) as $item ) {
+				if ( isset( $item[2] ) && 'jetpack-search' === $item[2] ) {
+					return admin_url( 'admin.php?page=jetpack-search#/ai-answers' );
+				}
+			}
+		}
+
+		return '';
 	}
 
 	/**
