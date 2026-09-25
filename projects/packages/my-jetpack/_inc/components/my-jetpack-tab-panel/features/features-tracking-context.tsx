@@ -122,12 +122,15 @@ export function FeaturesTrackingProvider( {
 		[ filter, search, view ]
 	);
 
+	// `current_filter` repeats `previous_filter` here, so that the filter in play when a
+	// click happened can be read the same way on every event this tab sends.
 	const trackFilterChange = useCallback(
 		( next: FeatureFilter, count: number ) => {
 			recordEvent( 'jetpack_myjetpack_features_filter_change', {
 				event_version: EVENT_VERSION,
 				filter: next,
 				previous_filter: filter,
+				current_filter: filter,
 				count,
 				view,
 				...when( 'search_term', search ),

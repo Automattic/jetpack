@@ -777,3 +777,57 @@ describe( 'Which list a module was switched from', () => {
 		} );
 	} );
 } );
+
+describe( "The modal's own switches", () => {
+	it( 'records activating a module-backed feature from the modal', async () => {
+		renderTracked(
+			<FeatureModalActions
+				state={ buildState( {
+					kind: 'module',
+					module: { module: 'stats', available: true, activated: false },
+				} as unknown as FeatureState[ 'control' ] ) }
+			/>
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: /Activate/ } ) );
+
+		expect( lastEvent( 'jetpack_myjetpack_feature_action' ) ).toMatchObject( {
+			action: 'activate',
+			origin: 'modal',
+			control_kind: 'module',
+		} );
+		// Recording must not have replaced the switch it reports.
+		expect( mockSetModuleActive ).toHaveBeenCalledWith( true );
+	} );
+
+	it( 'records deactivating a plugin-backed feature from the modal', async () => {
+		renderTracked(
+			<FeatureModalActions
+				state={ buildState( { kind: 'plugin', plugin: 'jetpack-boost' }, { status: 'active' } ) }
+			/>
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: /Deactivate/ } ) );
+
+		expect( lastEvent( 'jetpack_myjetpack_feature_action' ) ).toMatchObject( {
+			action: 'deactivate',
+			origin: 'modal',
+			control_kind: 'plugin',
+		} );
+		expect( mockRun ).toHaveBeenCalledWith( expect.objectContaining( { action: 'deactivate' } ) );
+	} );
+} );
+
+describe( 'The filter in play, on every event', () => {
+	it( 'is readable on the filter change itself, not only on the events around it', async () => {
+		renderAt( '/features?filter=active' );
+
+		await userEvent.click( screen.getByRole( 'button', { name: /Inactive/ } ) );
+
+		expect( lastEvent( 'jetpack_myjetpack_features_filter_change' ) ).toMatchObject( {
+			filter: 'inactive',
+			previous_filter: 'active',
+			current_filter: 'active',
+		} );
+	} );
+} );
