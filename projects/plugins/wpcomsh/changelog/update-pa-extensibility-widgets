@@ -1,5 +1,5 @@
 Significance: patch
 Type: changed
-Comment: Update composer.lock: jetpack-mu-wpcom lists the WordAds package as a test-only dependency.
+Comment: Update composer.lock: jetpack-mu-wpcom lists the Ads package as a test-only dependency.
 
 

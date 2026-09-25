@@ -11,7 +11,7 @@ use Automattic\Jetpack\WordAds\Analytics_Dashboard;
 /**
  * Hands the Ads section and its widget types to the Premium Analytics dashboard.
  *
- * The section, its layout and the widgets live in the jetpack-wordads-analytics package; this class decides
+ * The section, its layout and the widgets live in the jetpack-ads package; this class decides
  * that a site running the module gets them. On the WordPress.com platform jetpack-mu-wpcom decides
  * by plan feature and this registrant stays out.
  *

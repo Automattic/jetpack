@@ -14,4 +14,4 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-jetpack-wordads-analytics is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
+jetpack-ads is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)

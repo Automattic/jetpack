@@ -24,19 +24,19 @@ const CURRENCY_FORMAT: DataFormat = { type: 'currency' };
 export const WORDADS_CHART_METRICS: WordAdsChartMetric[] = [
 	{
 		id: 'impressions',
-		label: __( 'Ads Served', 'jetpack-wordads-analytics-pkg' ),
+		label: __( 'Ads Served', 'jetpack-ads-pkg' ),
 		countLabel: count =>
 			/* translators: %s: number of ads served. */
-			_n( '%s Ad Served', '%s Ads Served', count, 'jetpack-wordads-analytics-pkg' ),
+			_n( '%s Ad Served', '%s Ads Served', count, 'jetpack-ads-pkg' ),
 	},
 	{
 		id: 'cpm',
-		label: __( 'Average CPM', 'jetpack-wordads-analytics-pkg' ),
+		label: __( 'Average CPM', 'jetpack-ads-pkg' ),
 		dataFormat: CURRENCY_FORMAT,
 	},
 	{
 		id: 'revenue',
-		label: __( 'Revenue', 'jetpack-wordads-analytics-pkg' ),
+		label: __( 'Revenue', 'jetpack-ads-pkg' ),
 		dataFormat: CURRENCY_FORMAT,
 	},
 ];

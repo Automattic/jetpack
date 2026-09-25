@@ -1673,7 +1673,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "e77971b15ed63e7345093b5cd9a664632e858bd2"
+                "reference": "bffd63a4d600796f31106b3902106b27f0e09421"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1702,10 +1702,10 @@
                 "symfony/filesystem": "^6.0.0"
             },
             "require-dev": {
+                "automattic/jetpack-ads": "@dev",
                 "automattic/jetpack-podcast": "@dev",
                 "automattic/jetpack-premium-analytics": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
-                "automattic/jetpack-wordads-analytics": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
                 "yoast/phpunit-polyfills": "^4.0.0"
@@ -1730,7 +1730,7 @@
                 "dependencies": {
                     "test-only": [
                         "packages/premium-analytics",
-                        "packages/wordads-analytics"
+                        "packages/ads"
                     ]
                 }
             },

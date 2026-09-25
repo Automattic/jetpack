@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ab5bd7d2acbe20f4325c435d267e73e8",
+    "content-hash": "40f7aec3bd037553704121e2806c6a9f",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -339,6 +339,76 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Generic Jetpack wp-admin UI elements",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-ads",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/ads",
+                "reference": "076b033ad32f06a08e15ce365b74a6243ed08c4c"
+            },
+            "require": {
+                "automattic/jetpack-premium-analytics": "@dev",
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autorelease": true,
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-ads",
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-ads-pkg",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-analytics-dashboard.php"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-ads/compare/v${old}...v${new}"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "WordAds: the Ads section and widgets of the Premium Analytics dashboard.",
             "transport-options": {
                 "relative": true
             }
@@ -4229,76 +4299,6 @@
             }
         },
         {
-            "name": "automattic/jetpack-wordads-analytics",
-            "version": "dev-trunk",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/wordads-analytics",
-                "reference": "82b6a8ba70d7fbe121dee3055c48a162da01533a"
-            },
-            "require": {
-                "automattic/jetpack-premium-analytics": "@dev",
-                "php": ">=7.4"
-            },
-            "require-dev": {
-                "automattic/jetpack-test-environment": "@dev",
-                "automattic/phpunit-select-config": "@dev",
-                "yoast/phpunit-polyfills": "^4.0.0"
-            },
-            "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autorelease": true,
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-wordads-analytics",
-                "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
-                },
-                "textdomain": "jetpack-wordads-analytics-pkg",
-                "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-analytics-dashboard.php"
-                },
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-wordads-analytics/compare/v${old}...v${new}"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "scripts": {
-                "build-development": [
-                    "pnpm run build"
-                ],
-                "build-production": [
-                    "pnpm run build-production"
-                ],
-                "watch": [
-                    "Composer\\Config::disableProcessTimeout",
-                    "pnpm run watch"
-                ],
-                "phpunit": [
-                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ],
-                "test-php-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "WordAds: the Ads section and widgets of the Premium Analytics dashboard.",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
             "name": "automattic/jetpack-wp-abilities",
             "version": "dev-trunk",
             "dist": {
@@ -6497,6 +6497,7 @@
         "automattic/jetpack-account-protection": 20,
         "automattic/jetpack-activity-log": 20,
         "automattic/jetpack-admin-ui": 20,
+        "automattic/jetpack-ads": 20,
         "automattic/jetpack-agents-manager": 20,
         "automattic/jetpack-assets": 20,
         "automattic/jetpack-autoloader": 20,
@@ -6546,7 +6547,6 @@
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-videopress": 20,
         "automattic/jetpack-waf": 20,
-        "automattic/jetpack-wordads-analytics": 20,
         "automattic/jetpack-wp-abilities": 20,
         "automattic/jetpack-wp-build-polyfills": 20,
         "automattic/patchwork-redefine-exit": 20,

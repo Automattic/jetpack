@@ -9,9 +9,9 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  * Earnings cards the widget shows, in display order.
  */
 export const WORDADS_EARNINGS_METRICS = [
-	{ id: 'earnings', label: __( 'Earnings', 'jetpack-wordads-analytics-pkg' ) },
-	{ id: 'paid', label: __( 'Paid', 'jetpack-wordads-analytics-pkg' ) },
-	{ id: 'outstanding', label: __( 'Outstanding amount', 'jetpack-wordads-analytics-pkg' ) },
+	{ id: 'earnings', label: __( 'Earnings', 'jetpack-ads-pkg' ) },
+	{ id: 'paid', label: __( 'Paid', 'jetpack-ads-pkg' ) },
+	{ id: 'outstanding', label: __( 'Outstanding amount', 'jetpack-ads-pkg' ) },
 ] as const satisfies readonly { id: string; label: string }[];
 
 export type WordAdsEarningsMetricId = ( typeof WORDADS_EARNINGS_METRICS )[ number ][ 'id' ];

@@ -47,10 +47,7 @@ export default function useWordAdsChart( reportParams: ReportParams, period: Wor
 				// Only CPM goes null, when nothing was served: a ratio of nothing, not a zero.
 				...( primaryData?.summary[ metric.id ] === null
 					? {
-							unavailable: __(
-								'No ads were served in this period.',
-								'jetpack-wordads-analytics-pkg'
-							),
+							unavailable: __( 'No ads were served in this period.', 'jetpack-ads-pkg' ),
 						}
 					: {} ),
 			} ) ),

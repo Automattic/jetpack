@@ -2,7 +2,7 @@
 /**
  * Tests for the Ads registrants of the Premium Analytics dashboard.
  *
- * @package automattic/jetpack-wordads-analytics
+ * @package automattic/jetpack-ads
  */
 
 namespace Automattic\Jetpack\WordAds;
@@ -126,7 +126,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 
 		$chart = $registry->get_registered( 'wordads/chart-tabs' );
 		$this->assertNotNull( $chart );
-		$this->assertSame( 'jetpack-wordads-analytics/widgets/wordads-chart-tabs/render', $chart->render_module );
+		$this->assertSame( 'jetpack-ads/widgets/wordads-chart-tabs/render', $chart->render_module );
 		$this->assertSame( Analytics_Dashboard::TEXTDOMAIN, $chart->textdomain );
 		$this->assertStringContainsString( 'build/i18n-manifest.json?ver=' . Analytics_Dashboard::PACKAGE_VERSION, $chart->i18n_manifest );
 		// A candidate's own text domain wins over the package default.

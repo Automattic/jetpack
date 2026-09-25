@@ -2,7 +2,7 @@
 /**
  * The Ads section and widgets of the Premium Analytics dashboard.
  *
- * @package automattic/jetpack-wordads-analytics
+ * @package automattic/jetpack-ads
  */
 
 namespace Automattic\Jetpack\WordAds;
@@ -49,7 +49,7 @@ class Analytics_Dashboard {
 	/**
 	 * Text domain of the widget metadata and of the built widget bundles.
 	 */
-	const TEXTDOMAIN = 'jetpack-wordads-analytics-pkg';
+	const TEXTDOMAIN = 'jetpack-ads-pkg';
 
 	/**
 	 * Hook both registrants on the dashboard's registry actions.
@@ -82,8 +82,8 @@ class Analytics_Dashboard {
 			DASHBOARD_NAME,
 			self::SECTION_ID,
 			array(
-				'label'               => __( 'Ads', 'jetpack-wordads-analytics-pkg' ),
-				'title'               => __( 'Ads performance', 'jetpack-wordads-analytics-pkg' ),
+				'label'               => __( 'Ads', 'jetpack-ads-pkg' ),
+				'title'               => __( 'Ads performance', 'jetpack-ads-pkg' ),
 				'order'               => 50,
 				'is_available'        => array( Capabilities::class, 'current_user_can_view_ad_reports' ),
 				// Only the chart supports dates, so it owns the control. No Ads widget
@@ -125,12 +125,12 @@ class Analytics_Dashboard {
 		}
 
 		self::load_build();
-		if ( ! function_exists( 'jetpack_wordads_analytics_get_registered_widget_modules' ) ) {
+		if ( ! function_exists( 'jetpack_ads_get_registered_widget_modules' ) ) {
 			return;
 		}
 
 		register_widget_types_from_manifest(
-			jetpack_wordads_analytics_get_registered_widget_modules(),
+			jetpack_ads_get_registered_widget_modules(),
 			array(
 				'textdomain'    => self::TEXTDOMAIN,
 				'i18n_manifest' => add_query_arg( 'ver', self::PACKAGE_VERSION, plugins_url( 'i18n-manifest.json', self::build_dir() . '/build.php' ) ),
@@ -159,7 +159,7 @@ class Analytics_Dashboard {
 	 * @return void
 	 */
 	private static function load_build() {
-		if ( function_exists( 'jetpack_wordads_analytics_get_registered_widget_modules' ) ) {
+		if ( function_exists( 'jetpack_ads_get_registered_widget_modules' ) ) {
 			return;
 		}
 		$loader = self::build_dir() . '/build.php';

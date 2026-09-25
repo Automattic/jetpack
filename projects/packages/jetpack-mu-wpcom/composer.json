@@ -39,7 +39,7 @@
 		"brain/monkey": "^2.6.2",
 		"automattic/phpunit-select-config": "@dev",
 		"automattic/jetpack-premium-analytics": "@dev",
-		"automattic/jetpack-wordads-analytics": "@dev"
+		"automattic/jetpack-ads": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -98,7 +98,7 @@
 		"dependencies": {
 			"test-only": [
 				"packages/premium-analytics",
-				"packages/wordads-analytics"
+				"packages/ads"
 			]
 		}
 	},

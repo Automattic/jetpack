@@ -1,16 +1,16 @@
 {
-	"name": "@automattic/jetpack-wordads-analytics",
+	"name": "@automattic/jetpack-ads",
 	"version": "0.1.0-alpha",
 	"private": true,
 	"description": "WordAds: the Ads section and widgets of the Premium Analytics dashboard.",
-	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/wordads-analytics/#readme",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/ads/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[Package] Wordads Analytics"
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Ads"
 	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/packages/wordads-analytics"
+		"directory": "projects/packages/ads"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -47,9 +47,9 @@
 		"typescript": "6.0.3"
 	},
 	"wpPlugin": {
-		"name": "jetpack_wordads_analytics",
-		"packageNamespace": "jetpack-wordads-analytics",
-		"handlePrefix": "jetpack-wordads-analytics",
+		"name": "jetpack_ads",
+		"packageNamespace": "jetpack-ads",
+		"handlePrefix": "jetpack-ads",
 		"externalNamespaces": {
 			"automattic": {
 				"global": "automattic",

@@ -1,5 +1,5 @@
 {
-	"name": "@automattic/jetpack-wordads-analytics-widget-highlights",
+	"name": "@automattic/jetpack-ads-widget-highlights",
 	"version": "0.1.0-alpha",
 	"private": true,
 	"type": "module",

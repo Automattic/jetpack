@@ -1962,6 +1962,52 @@ importers:
         specifier: 7.2.1
         version: 7.2.1(webpack@5.107.2)
 
+  projects/packages/ads:
+    dependencies:
+      '@automattic/jetpack-premium-analytics-sdk':
+        specifier: workspace:*
+        version: link:../../js-packages/premium-analytics-sdk
+      '@wordpress/element':
+        specifier: 8.7.0
+        version: 8.7.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/i18n':
+        specifier: 6.28.0
+        version: 6.28.0
+      '@wordpress/icons':
+        specifier: 16.0.0
+        version: 16.0.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/widget-primitives':
+        specifier: 0.7.0
+        version: 0.7.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+    devDependencies:
+      '@automattic/jetpack-wp-build-polyfills':
+        specifier: workspace:*
+        version: link:../wp-build-polyfills
+      '@babel/core':
+        specifier: 7.29.7
+        version: 7.29.7
+      '@types/react':
+        specifier: 18.3.31
+        version: 18.3.31
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260707.2
+        version: 7.0.0-dev.20260707.2
+      '@wordpress/browserslist-config':
+        specifier: 6.55.0
+        version: 6.55.0
+      '@wordpress/build':
+        specifier: 0.23.0
+        version: 0.23.0(patch_hash=151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022)(@babel/core@7.29.7)
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+
   projects/packages/agents-manager:
     devDependencies:
       '@automattic/jetpack-webpack-config':
@@ -5257,52 +5303,6 @@ importers:
       webpack-cli:
         specifier: 7.2.1
         version: 7.2.1(webpack@5.107.2)
-
-  projects/packages/wordads-analytics:
-    dependencies:
-      '@automattic/jetpack-premium-analytics-sdk':
-        specifier: workspace:*
-        version: link:../../js-packages/premium-analytics-sdk
-      '@wordpress/element':
-        specifier: 8.7.0
-        version: 8.7.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/i18n':
-        specifier: 6.28.0
-        version: 6.28.0
-      '@wordpress/icons':
-        specifier: 16.0.0
-        version: 16.0.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/widget-primitives':
-        specifier: 0.7.0
-        version: 0.7.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
-    devDependencies:
-      '@automattic/jetpack-wp-build-polyfills':
-        specifier: workspace:*
-        version: link:../wp-build-polyfills
-      '@babel/core':
-        specifier: 7.29.7
-        version: 7.29.7
-      '@types/react':
-        specifier: 18.3.31
-        version: 18.3.31
-      '@typescript/native-preview':
-        specifier: 7.0.0-dev.20260707.2
-        version: 7.0.0-dev.20260707.2
-      '@wordpress/browserslist-config':
-        specifier: 6.55.0
-        version: 6.55.0
-      '@wordpress/build':
-        specifier: 0.23.0
-        version: 0.23.0(patch_hash=151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022)(@babel/core@7.29.7)
-      typescript:
-        specifier: 6.0.3
-        version: 6.0.3
 
   projects/packages/wp-build-polyfills:
     dependencies:

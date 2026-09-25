@@ -1,10 +1,11 @@
 {
-	"name": "@automattic/jetpack-wordads-analytics-widget-earnings-history",
+	"name": "@automattic/jetpack-ads-widget-chart-tabs",
 	"version": "0.1.0-alpha",
 	"private": true,
 	"type": "module",
 	"dependencies": {
 		"@automattic/jetpack-premium-analytics-sdk": "workspace:*",
+		"@wordpress/element": "8.7.0",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^16.0.0",
 		"@wordpress/widget-primitives": "0.7.0",

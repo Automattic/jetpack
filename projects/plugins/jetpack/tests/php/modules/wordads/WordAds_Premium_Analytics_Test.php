@@ -17,7 +17,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/wordads/php/class-wordads-premium-an
 require_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-premium-analytics/src/dashboard-sections.php';
 require_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-premium-analytics/src/default-dashboard-sections.php';
 require_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-premium-analytics/src/widget-types.php';
-require_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-wordads-analytics/src/class-analytics-dashboard.php';
+require_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-ads/src/class-analytics-dashboard.php';
 
 /**
  * The module hands the Ads section and widget types to the dashboard through the WordAds package.

@@ -75,11 +75,11 @@ function WordAdsHighlightsReport() {
 				error={ {
 					description: __(
 						"We couldn't load WordAds earnings. Please try again in a moment.",
-						'jetpack-wordads-analytics-pkg'
+						'jetpack-ads-pkg'
 					),
 					actions: [
 						{
-							label: __( 'Retry', 'jetpack-wordads-analytics-pkg' ),
+							label: __( 'Retry', 'jetpack-ads-pkg' ),
 							onClick: () => {
 								refetch();
 							},

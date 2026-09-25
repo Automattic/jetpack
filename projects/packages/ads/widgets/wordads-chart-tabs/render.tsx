@@ -54,13 +54,13 @@ function WordAdsChartTabsInner( { chartType }: { chartType?: ChartDisplayChartTy
 				error={ {
 					description: __(
 						"We couldn't load WordAds data. Please try again in a moment.",
-						'jetpack-wordads-analytics-pkg'
+						'jetpack-ads-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-wordads-analytics-pkg' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-ads-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
 					icon: megaphone,
-					description: __( 'No WordAds data in this period.', 'jetpack-wordads-analytics-pkg' ),
+					description: __( 'No WordAds data in this period.', 'jetpack-ads-pkg' ),
 				} }
 				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
@@ -68,7 +68,7 @@ function WordAdsChartTabsInner( { chartType }: { chartType?: ChartDisplayChartTy
 					metrics={ metrics }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
-					groupLabel={ __( 'WordAds metric', 'jetpack-wordads-analytics-pkg' ) }
+					groupLabel={ __( 'WordAds metric', 'jetpack-ads-pkg' ) }
 					// As the classic chart: one hover reads out all three, whichever tab is up.
 					tooltipMetrics="all"
 				/>

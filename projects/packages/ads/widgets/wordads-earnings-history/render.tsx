@@ -52,14 +52,12 @@ function WordAdsEarningsHistoryReport() {
 					error={ {
 						description: __(
 							"We couldn't load WordAds earnings. Please try again in a moment.",
-							'jetpack-wordads-analytics-pkg'
+							'jetpack-ads-pkg'
 						),
-						actions: [
-							{ label: __( 'Retry', 'jetpack-wordads-analytics-pkg' ), onClick: refetch },
-						],
+						actions: [ { label: __( 'Retry', 'jetpack-ads-pkg' ), onClick: refetch } ],
 					} }
 					empty={ {
-						description: __( 'No earnings history to show yet.', 'jetpack-wordads-analytics-pkg' ),
+						description: __( 'No earnings history to show yet.', 'jetpack-ads-pkg' ),
 					} }
 				>
 					<EarningsHistoryList rows={ rows } />
@@ -68,7 +66,7 @@ function WordAdsEarningsHistoryReport() {
 			<WidgetFooter>
 				<ReportLink
 					report="earnings"
-					ariaLabel={ __( 'View all earnings history', 'jetpack-wordads-analytics-pkg' ) }
+					ariaLabel={ __( 'View all earnings history', 'jetpack-ads-pkg' ) }
 				/>
 				{ /* Second in the footer: View all keeps its place, this takes the far end. */ }
 				{ adjustmentCount > 0 && (
@@ -81,7 +79,7 @@ function WordAdsEarningsHistoryReport() {
 								'%d adjustment, view adjustments history',
 								'%d adjustments, view adjustments history',
 								adjustmentCount,
-								'jetpack-wordads-analytics-pkg'
+								'jetpack-ads-pkg'
 							),
 							adjustmentCount
 						) }
@@ -89,12 +87,7 @@ function WordAdsEarningsHistoryReport() {
 						<Badge intent="high">
 							{ sprintf(
 								/* translators: %d: number of adjustment rows in the site's earnings history. */
-								_n(
-									'%d adjustment',
-									'%d adjustments',
-									adjustmentCount,
-									'jetpack-wordads-analytics-pkg'
-								),
+								_n( '%d adjustment', '%d adjustments', adjustmentCount, 'jetpack-ads-pkg' ),
 								adjustmentCount
 							) }
 						</Badge>

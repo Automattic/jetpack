@@ -4,7 +4,7 @@
  *
  * Simple runs no Jetpack plugin, and on Atomic the WordAds module is routinely off while the plan
  * includes WordAds, so the plan feature decides here and the module registrant skips the platform.
- * The section, its layout and the widgets come from the jetpack-wordads-analytics package, which
+ * The section, its layout and the widgets come from the jetpack-ads package, which
  * the Jetpack plugin bundles: WordPress.com loads that copy, so this package does not.
  *
  * @package automattic/jetpack-mu-wpcom

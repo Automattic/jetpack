@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-wordads-analytics",
+	"name": "automattic/jetpack-ads",
 	"description": "WordAds: the Ads section and widgets of the Premium Analytics dashboard.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
@@ -51,16 +51,16 @@
 	"extra": {
 		"autorelease": true,
 		"autotagger": true,
-		"mirror-repo": "Automattic/jetpack-wordads-analytics",
+		"mirror-repo": "Automattic/jetpack-ads",
 		"branch-alias": {
 			"dev-trunk": "0.1.x-dev"
 		},
-		"textdomain": "jetpack-wordads-analytics-pkg",
+		"textdomain": "jetpack-ads-pkg",
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-analytics-dashboard.php"
 		},
 		"changelogger": {
-			"link-template": "https://github.com/Automattic/jetpack-wordads-analytics/compare/v${old}...v${new}"
+			"link-template": "https://github.com/Automattic/jetpack-ads/compare/v${old}...v${new}"
 		}
 	},
 	"config": {
