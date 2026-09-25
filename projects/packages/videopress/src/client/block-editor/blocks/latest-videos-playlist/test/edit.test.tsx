@@ -201,4 +201,21 @@ describe( 'LatestVideosPlaylistEdit', () => {
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Show player' } ) );
 		expect( setAttributes ).toHaveBeenCalledWith( { showPlayer: false } );
 	} );
+
+	it( 'offers the click behavior with the player off and hands it to the canvas', async () => {
+		const setAttributes = jest.fn();
+		renderEdit( { showPlayer: false, entryClickAction: 'show-player' }, setAttributes );
+		await waitFor( () => expect( providedContext?.status ).toBe( 'ready' ) );
+
+		expect( providedContext?.attributes ).toMatchObject( {
+			showPlayer: false,
+			entryClickAction: 'show-player',
+		} );
+		expect( screen.getByRole( 'radio', { name: 'Show the player and play it' } ) ).toBeChecked();
+
+		await userEvent.click(
+			screen.getByRole( 'radio', { name: 'Open it on VideoPress in a new tab' } )
+		);
+		expect( setAttributes ).toHaveBeenCalledWith( { entryClickAction: 'new-tab' } );
+	} );
 } );

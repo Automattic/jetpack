@@ -187,6 +187,20 @@ describe( 'PlaylistEdit inside a Latest Videos Playlist block', () => {
 		expect( screen.queryByRole( 'button', { name: /Remove/ } ) ).not.toBeInTheDocument();
 	} );
 
+	it( "follows the parent's player settings", async () => {
+		renderAsLatestVideosCanvas( {
+			attributes: { ...DEFAULT_ATTRIBUTES, showPlayer: false, entryClickAction: 'new-tab' },
+		} );
+		await expect( screen.findByText( 'Second' ) ).resolves.toBeInTheDocument();
+
+		expect( screen.getByRole( 'figure' ) ).toHaveClass( 'hide-player' );
+		expect( screen.queryByTitle( 'First' ) ).not.toBeInTheDocument();
+		expect( screen.getAllByRole( 'link' )[ 0 ] ).toHaveAttribute(
+			'href',
+			'https://videopress.com/v/aaaaaaaa'
+		);
+	} );
+
 	it( "shows the parent's loading state", () => {
 		renderAsLatestVideosCanvas( { status: 'loading', videos: [] } );
 		expect( screen.getByText( 'Loading your latest videos…' ) ).toBeInTheDocument();
