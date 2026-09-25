@@ -1,7 +1,9 @@
 import { render, screen } from '@testing-library/react';
+import { makeLibraryItem } from '../../../src/dashboard/test-utils/library-item';
 import { makeVideoFile } from '../../../src/dashboard/test-utils/video-file';
 import { stage as Stage } from '../stage';
 import type { LibraryItem } from '../../../src/dashboard/types/library';
+import type { View } from '@wordpress/dataviews';
 import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch', () => ( {
@@ -20,7 +22,9 @@ jest.mock( '@wordpress/route', () => ( {
 jest.mock( '@wordpress/dataviews', () => ( {
 	__esModule: true,
 	...jest.requireActual( '@wordpress/dataviews' ),
-	DataViews: () => <div data-testid="dataviews" />,
+	DataViews: ( { isLoading }: { isLoading: boolean } ) => (
+		<div data-testid="dataviews" aria-busy={ isLoading } />
+	),
 } ) );
 
 jest.mock( '../../../src/dashboard/components/dashboard-layout', () => ( {
@@ -41,20 +45,20 @@ jest.mock( '../../../src/client/components/caption-manager-modal/lazy', () => ( 
 	default: () => null,
 } ) );
 
-// `null` models the in-flight count: useLibrary reports no paginationInfo
-// until the request answers.
-let mockLibraryTotal: number | null = 3;
+let mockLibraryTotal = 3;
 let mockItems: LibraryItem[] = [];
+let mockIsLoading = false;
+let mockIsTotalLoading = false;
 let mockIsError = false;
+let mockIsTotalError = false;
 jest.mock( '../../../src/dashboard/hooks/use-library', () => ( {
 	LIBRARY_QUERY_KEY: 'videopress-library',
-	useLibrary: () => ( {
+	useLibrary: ( view: View ) => ( {
 		items: mockItems,
-		isLoading: mockLibraryTotal === null,
-		isError: mockIsError,
+		isLoading: view.perPage === 1 ? mockIsTotalLoading : mockIsLoading,
+		isError: view.perPage === 1 ? mockIsTotalError : mockIsError,
 		error: null,
-		paginationInfo:
-			mockLibraryTotal === null ? undefined : { totalItems: mockLibraryTotal, totalPages: 1 },
+		paginationInfo: { totalItems: mockLibraryTotal, totalPages: mockLibraryTotal ? 1 : 0 },
 		refetch: jest.fn(),
 	} ),
 } ) );
@@ -111,20 +115,54 @@ describe( 'library stage empty state', () => {
 		mockItems = [];
 		mockQueue = [];
 		mockLibraryTotal = 3;
+		mockIsLoading = false;
+		mockIsTotalLoading = false;
 		mockIsError = false;
+		mockIsTotalError = false;
 		mockFreeTier = { isAtLimit: false, isFree: false, isUnlimited: true, videoCount: 0, limit: 1 };
 	} );
 
-	it( 'starts in a loading state while the count request is in flight', () => {
-		// The initial render must not guess: neither the grid skeleton nor the
-		// dropzone paints until the unfiltered count answers.
-		mockLibraryTotal = null;
+	it.each( [
+		[ 'both requests are pending', true, true ],
+		[ 'the count finishes first', true, false ],
+		[ 'the listing finishes first', false, true ],
+	] )( 'keeps DataViews loading when %s', ( _label, listingLoading, countLoading ) => {
+		mockLibraryTotal = 0;
+		mockIsLoading = listingLoading;
+		mockIsTotalLoading = countLoading;
+
+		const { rerender } = render( <Stage /> );
+
+		expect( screen.getByTestId( 'dataviews' ) ).toHaveAttribute( 'aria-busy', 'true' );
+		expect( screen.queryByText( 'Upload your first video' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Upload video' } ) ).toBeInTheDocument();
+
+		mockIsLoading = false;
+		mockIsTotalLoading = false;
+		rerender( <Stage /> );
+
+		expect( screen.getByText( 'Upload your first video' ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows fetched videos without waiting for the count', () => {
+		mockLibraryTotal = 0;
+		mockIsTotalLoading = true;
+		mockItems = [ makeLibraryItem() ];
 
 		render( <Stage /> );
 
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'dataviews' ) ).toHaveAttribute( 'aria-busy', 'false' );
 		expect( screen.queryByText( 'Upload your first video' ) ).not.toBeInTheDocument();
-		expect( screen.queryByTestId( 'dataviews' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'does not treat a failed count as an empty library', () => {
+		mockLibraryTotal = 0;
+		mockIsTotalError = true;
+
+		render( <Stage /> );
+
+		expect( screen.getByTestId( 'dataviews' ) ).toHaveAttribute( 'aria-busy', 'false' );
+		expect( screen.queryByText( 'Upload your first video' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the upload dropzone instead of the grid when the library is empty', () => {
