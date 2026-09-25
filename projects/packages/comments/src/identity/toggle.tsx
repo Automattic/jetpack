@@ -12,7 +12,7 @@ type ToggleProps = {
 };
 
 /**
- * Verbum's toggle switch, over a real checkbox so it posts with the form.
+ * Verbum's toggle switch, drawn on the checkbox itself so it posts with the form.
  *
  * @param props                - Component props.
  * @param props.id             - Element id, shared with the label.
@@ -36,7 +36,6 @@ export const Toggle = ( props: ToggleProps ) => {
 				type="checkbox"
 				defaultChecked={ defaultChecked }
 			/>
-			<span className="jetpack-comments__toggle-button" />
 			<span className="jetpack-comments__toggle-text">{ label }</span>
 		</label>
 	);

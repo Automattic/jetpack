@@ -1,9 +1,10 @@
 @use "@wordpress/base-styles/colors";
 
-// Verbum's toggle, as it ships there. The resets keep a theme's checkbox and
-// label rules off it.
+$accent: #3858e9;
+
+// Verbum's switch, drawn on the checkbox itself rather than a sibling, so the
+// click lands on the control and nothing depends on label forwarding.
 .jetpack-comments__dialog .jetpack-comments__toggle {
-	all: unset;
 	display: inline-flex;
 	gap: 10px;
 	align-items: flex-start;
@@ -11,24 +12,46 @@
 	cursor: pointer;
 
 	input[type="checkbox"] {
-		all: unset;
-		opacity: 0;
-		position: absolute;
-		transform: scale(0);
+		appearance: none;
+		box-sizing: content-box;
+		flex-shrink: 0;
+		position: relative;
+		inline-size: 36px;
+		block-size: 18px;
+		margin: 4px 0 0;
+		padding: 0;
+		border: 1px solid colors.$black;
+		border-radius: 9px;
+		background: colors.$white;
+		cursor: pointer;
 
-		&:checked + .jetpack-comments__toggle-button {
-			background: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
+		&::before {
+			content: "";
+			position: absolute;
+			inset-block-start: 2px;
+			inset-inline-start: 2px;
+			inline-size: 14px;
+			block-size: 14px;
+			border-radius: 50%;
+			background: colors.$black;
+			transition:
+				transform 0.3s,
+				background 0.3s;
+		}
+
+		&:checked {
 			border-color: transparent;
+			background: $accent;
+
+			&::before {
+				transform: translateX(18px);
+				background: colors.$white;
+			}
 		}
 
-		&:focus + .jetpack-comments__toggle-button {
-			outline: 1px solid var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
-		}
-
-		&:checked + .jetpack-comments__toggle-button::after {
-			left: calc(100% - 2px);
-			transform: translateX(-100%);
-			background: colors.$white;
+		&:focus-visible {
+			outline: 1px solid $accent;
+			outline-offset: 2px;
 		}
 	}
 
@@ -38,31 +61,5 @@
 		font-size: 0.875rem;
 		font-weight: 500;
 		line-height: 22px;
-	}
-
-	.jetpack-comments__toggle-button {
-		all: unset;
-		cursor: pointer;
-		width: 36px;
-		min-width: 36px;
-		height: 18px;
-		background: colors.$white;
-		display: block;
-		margin-top: 4px;
-		border-radius: 9px;
-		position: relative;
-		border: 1px solid colors.$black;
-
-		&::after {
-			content: "";
-			position: absolute;
-			top: 2px;
-			left: 2px;
-			width: 14px;
-			height: 14px;
-			background: colors.$black;
-			border-radius: 50%;
-			transition: 0.3s;
-		}
 	}
 }
