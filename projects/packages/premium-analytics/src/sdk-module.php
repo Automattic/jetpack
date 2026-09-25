@@ -20,6 +20,8 @@ const SDK_FACADE_MODULE_ID = '@jetpack-premium-analytics/sdk';
 /**
  * Resolve the facade module's registration from the build's module registry.
  *
+ * @internal Feeds register_sdk_script_module() and its tests; not part of the package's public surface.
+ *
  * @param array[] $modules   The modules of `build/modules/registry.php`.
  * @param array   $constants The constants of `build/constants.php`.
  * @param string  $build_dir Directory of the build, which holds the asset files.
