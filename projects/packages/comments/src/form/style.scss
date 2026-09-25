@@ -67,9 +67,7 @@
 	padding: 1em 4px 4px;
 }
 
-// Themes style their button but not its disabled state.
 .jetpack-comments__submit input:disabled {
-	opacity: 0.5;
 	cursor: not-allowed;
 }
 
