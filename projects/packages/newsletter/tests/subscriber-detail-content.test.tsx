@@ -186,6 +186,20 @@ describe( 'SubscriberDetailContent', () => {
 		expect( screen.queryByText( 'Receives emails for' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'formats open and click rates as locale-aware percentages', async () => {
+		mockFetchSubscriberStats.mockResolvedValue( {
+			emails_sent: 10,
+			unique_opens: 5,
+			unique_clicks: 1,
+		} );
+
+		renderPanel();
+
+		await expect( screen.findByText( 'Open rate' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( '50%' ) ).toBeInTheDocument();
+		expect( screen.getByText( '10%' ) ).toBeInTheDocument();
+	} );
+
 	it( 'renders the date the individual endpoint reports', async () => {
 		renderPanel();
 
