@@ -289,15 +289,16 @@ function runAll() {
 			{ slug }
 		);
 
-		// Suggestion actions (diff + accept/dismiss) at top of form.
+		// Suggestion actions (diff + accept/dismiss) after the DataForm, so the
+		// field label stays above the diff.
 		inject(
 			`actions-${ slug }`,
 			() => {
 				const vStack = form.firstElementChild;
-				return vStack
+				return vStack?.firstElementChild
 					? {
 							parent: vStack,
-							before: vStack.firstChild,
+							before: vStack.firstElementChild.nextSibling,
 							className: 'jetpack-content-guidelines-ai__actions-container',
 						}
 					: null;
