@@ -108,17 +108,23 @@ jest.mock( '../use-more-features', () => ( {
 	useMoreFeatures: () => mockMoreFeatures,
 } ) );
 // The plan badges live inside the real modal; here the handler is held onto and called.
-const mockModal: { onFilterByPlan?: ( plan: string ) => void } = {};
+const mockModal: {
+	onFilterByPlan?: ( plan: string ) => void;
+	onStep?: ( slug: string ) => void;
+} = {};
 
 jest.mock( '../feature-modal', () => ( {
 	FeatureModal: ( {
 		onClose,
 		onFilterByPlan,
+		onStep,
 	}: {
 		onClose: () => void;
 		onFilterByPlan: ( plan: string ) => void;
+		onStep: ( slug: string ) => void;
 	} ) => {
 		mockModal.onFilterByPlan = onFilterByPlan;
+		mockModal.onStep = onStep;
 
 		// ds-allow: button -- stands in for the real modal, which is not under test.
 		return <button onClick={ onClose }>close modal</button>;
@@ -191,6 +197,7 @@ beforeEach( () => {
 	mockPending = false;
 	mockModuleSwitch.onSwitch = undefined;
 	mockModal.onFilterByPlan = undefined;
+	mockModal.onStep = undefined;
 	mockGrid.onOpen = undefined;
 	mockUseAnalytics.mockReturnValue( { recordEvent } );
 } );
@@ -284,6 +291,25 @@ describe( 'Features tab modal tracking', () => {
 		expect(
 			eventNames().filter( name => name === 'jetpack_myjetpack_feature_modal_view' )
 		).toHaveLength( 1 );
+	} );
+
+	it( 'closes the feature stepped away from, and says the next was stepped to', async () => {
+		renderAt( '/features?feature=stats' );
+
+		await waitFor( () =>
+			expect( eventNames() ).toContain( 'jetpack_myjetpack_feature_modal_view' )
+		);
+		act( () => mockModal.onStep?.( 'boost' ) );
+
+		const modalEvents = recordEvent.mock.calls
+			.filter( ( [ name ] ) => name.startsWith( 'jetpack_myjetpack_feature_modal_' ) )
+			.map( ( [ name, props ] ) => [ name, props.feature_slug, props.trigger ] );
+
+		expect( modalEvents ).toEqual( [
+			[ 'jetpack_myjetpack_feature_modal_view', 'stats', 'link' ],
+			[ 'jetpack_myjetpack_feature_modal_close', 'stats', undefined ],
+			[ 'jetpack_myjetpack_feature_modal_view', 'boost', 'step' ],
+		] );
 	} );
 
 	it( 'waits for a deep-linked feature to load before recording its view', () => {

@@ -20,8 +20,8 @@ export type EmptyStateAction = 'reload' | 'support_search' | 'explore_all';
  */
 export type FeatureActionOrigin = 'card' | 'modal' | 'more_features';
 
-/** How a feature's details came to be open: opened from the grid, or linked straight to. */
-export type ModalTrigger = 'card' | 'link';
+/** How a feature's details came to be open: from the grid, a link, or stepping from another's. */
+export type ModalTrigger = 'card' | 'link' | 'step';
 
 // This tab replaces the Products tab, whose events answer the same questions under
 // different prop names. Stamping the schema lets a query tell the two apart, and bumping

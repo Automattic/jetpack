@@ -21,6 +21,7 @@ import { filterMoreFeatures, useMoreFeatures } from './use-more-features';
 import { useSidebarSync } from './use-sidebar-sync';
 import { useStepOrder } from './use-step-order';
 import type { FeatureState } from './feature-state';
+import type { ModalTrigger } from './features-tracking-context';
 import type { FeaturesView } from './toolbar';
 import type { FeatureFilter } from './use-feature-filter';
 
@@ -154,13 +155,20 @@ function FeaturesTabContent() {
 
 	const open = states.find( item => item.feature.slug === openSlug );
 
-	// Set by the grid so the view event can tell a card click from a link opened straight
-	// to a feature, which the URL alone cannot.
-	const openedFromCardRef = useRef( false );
+	// Set by the grid and the modal's arrows so the view event can tell them from a link
+	// opened straight to a feature, which the URL alone cannot.
+	const openTriggerRef = useRef< ModalTrigger >( 'link' );
 
 	const openFeature = useCallback(
 		( slug: string ) => {
-			openedFromCardRef.current = true;
+			openTriggerRef.current = 'card';
+			updateParams( { feature: slug } );
+		},
+		[ updateParams ]
+	);
+	const stepFeature = useCallback(
+		( slug: string ) => {
+			openTriggerRef.current = 'step';
 			updateParams( { feature: slug } );
 		},
 		[ updateParams ]
@@ -181,9 +189,14 @@ function FeaturesTabContent() {
 		// A deep link can land before the modules do, and a placeholder reads inactive.
 		if ( openSlug && open && ! open.pending ) {
 			if ( shownRef.current !== openSlug ) {
-				tracking.trackModalView( open, openedFromCardRef.current ? 'card' : 'link' );
+				// Stepping swaps the feature without closing the modal, so the one left is closed here.
+				if ( shownRef.current && shownStateRef.current ) {
+					tracking.trackModalClose( shownStateRef.current );
+				}
+
+				tracking.trackModalView( open, openTriggerRef.current );
 				shownRef.current = openSlug;
-				openedFromCardRef.current = false;
+				openTriggerRef.current = 'link';
 			}
 
 			// Kept current so closing reports the feature as the visitor left it.
@@ -393,7 +406,7 @@ function FeaturesTabContent() {
 					next={ openIndex >= 0 ? stepOrder[ openIndex + 1 ] : undefined }
 					position={ openIndex + 1 }
 					total={ stepOrder.length }
-					onStep={ openFeature }
+					onStep={ stepFeature }
 					onClose={ closeFeature }
 					onFilterByPlan={ onFilterByPlan }
 				/>
