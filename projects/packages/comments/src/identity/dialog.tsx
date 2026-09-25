@@ -1,70 +1,58 @@
 import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
-import { signIn } from './checkpoint/checkpoint';
+import { emailHasAccount, signIn } from './checkpoint/checkpoint';
 import { CloseIcon, WordPressIcon } from './icons';
-import type { Commenter } from '../shared/types';
 
-import './style.scss';
+import './dialog.scss';
 
 /**
- * Asks a reader who they are on their way to posting, and which subscriptions
- * they want where the host offers any. A saved guest can also open it on its
- * own to change their details.
+ * Asks a reader who they are on their way to posting, plus any subscribe options
+ * the host offers. A saved guest opens it alone to edit their details.
  *
- * It sits inside the form, so its fields post with the comment. For a guest,
- * "Save and post" is the submit button carrying core's cookies-consent field
- * and "No, thanks" submits without it, so core clears any saved details. A
- * reader the site knows gets one plain submit.
+ * It sits inside the form, so its fields post with the comment. "Save and post"
+ * carries core's cookies-consent field and "No, thanks" does not, so core clears
+ * any saved details on the latter.
  *
  * @return The dialog.
  */
 export const IdentityDialog = () => {
-	const { formSettings, commenter, commentParent, signedIn, isModalOpen, isEditing, isSavedGuest } =
+	const { formSettings, commenter, commentParent, signedIn, isKnown, isDialogOpen, isEditing } =
 		useContext( CommentSignals );
-	const { site, strings, user, isLoggedIn, mustLogIn, requireNameEmail, identity } =
-		JetpackComments;
+	const { site, strings, user, mustLogIn, requireNameEmail, identity } = JetpackComments;
 	const dialog = useRef< HTMLDialogElement >( null );
 	const popup = useRef< Window | null >( null );
-	// Bumped per sign-in, so a popup closed to open another cannot answer for it.
-	const attempt = useRef( 0 );
+	// Bumped per attempt, so a popup or request abandoned for another cannot answer for it.
+	const signInAttempt = useRef( 0 );
+	const emailAttempt = useRef( 0 );
+	const emailTimer = useRef( 0 );
 	const [ isSigningIn, setIsSigningIn ] = useState( false );
 	const [ signInError, setSignInError ] = useState( '' );
-	// Whether the email typed belongs to a WordPress.com account, which the site would turn away.
 	const [ emailTaken, setEmailTaken ] = useState( false );
 	const [ checkingEmail, setCheckingEmail ] = useState( false );
-	const emailCheck = useRef( { timer: 0, attempt: 0 } );
 
 	useEffect( () => {
 		const element = dialog.current;
 
-		if ( isModalOpen.value && ! element?.open ) {
-			// Transparent where the theme paints a wrapper instead; the stylesheet's Canvas stands in.
+		if ( isDialogOpen.value && ! element?.open ) {
+			// The page's own surface; the stylesheet's Canvas stands in where the body is transparent.
 			const surface = getComputedStyle( document.body ).backgroundColor;
 			element!.style.backgroundColor = surface === 'rgba(0, 0, 0, 0)' ? '' : surface;
 			element!.showModal();
-		} else if ( ! isModalOpen.value && element?.open ) {
+		} else if ( ! isDialogOpen.value && element?.open ) {
 			element.close();
 		}
-	}, [ isModalOpen.value ] );
-
-	const cancel = () => {
-		attempt.current++;
-		popup.current?.close();
-		popup.current = null;
-		setIsSigningIn( false );
-	};
+	}, [ isDialogOpen.value ] );
 
 	const start = async () => {
 		setSignInError( '' );
 		setIsSigningIn( true );
 
-		const current = ++attempt.current;
-
+		const current = ++signInAttempt.current;
 		const result = await signIn( opened => {
 			popup.current = opened;
 		} );
 
-		if ( current !== attempt.current ) {
+		if ( current !== signInAttempt.current ) {
 			return;
 		}
 
@@ -80,43 +68,23 @@ export const IdentityDialog = () => {
 		}
 	};
 
-	const update = ( field: keyof Commenter, value: string ) => {
-		commenter.value = { ...commenter.value, [ field ]: value };
-	};
-
 	const checkEmail = async ( email: string ) => {
-		const current = ++emailCheck.current.attempt;
-		window.clearTimeout( emailCheck.current.timer );
+		const current = ++emailAttempt.current;
+		window.clearTimeout( emailTimer.current );
 
-		if ( ! identity.emailUrl || ! /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test( email ) ) {
+		if ( ! /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test( email ) ) {
 			setEmailTaken( false );
 			setCheckingEmail( false );
 			return;
 		}
 
 		setCheckingEmail( true );
+		const taken = await emailHasAccount( email );
 
-		let account = false;
-
-		try {
-			const url = new URL( identity.emailUrl );
-			url.searchParams.set( 'email', email );
-			const response = await fetch( url.toString(), { credentials: 'omit' } );
-			account =
-				response.ok && ( ( await response.json() ) as { account?: boolean } ).account === true;
-		} catch {
-			// Unreachable: the site still has its own screen for this.
-		}
-
-		if ( current === emailCheck.current.attempt ) {
-			setEmailTaken( account );
+		if ( current === emailAttempt.current ) {
+			setEmailTaken( taken );
 			setCheckingEmail( false );
 		}
-	};
-
-	const onEmailInput = ( email: string ) => {
-		window.clearTimeout( emailCheck.current.timer );
-		emailCheck.current.timer = window.setTimeout( () => checkEmail( email ), 500 );
 	};
 
 	// Writes the cookies core would on the next comment, so an edit outlives the page.
@@ -132,19 +100,18 @@ export const IdentityDialog = () => {
 		document.cookie = `comment_author_email_${ cookieHash }=${ encodeURIComponent( email ) }${ suffix }`;
 		document.cookie = `comment_author_url_${ cookieHash }=${ encodeURIComponent( url ) }${ suffix }`;
 
-		isModalOpen.value = false;
+		isDialogOpen.value = false;
 	};
 
 	const close = () => {
-		isModalOpen.value = false;
+		isDialogOpen.value = false;
 		isEditing.value = false;
 	};
 
 	// Only while open: a required field the browser cannot focus would stop the submit that opens it.
-	const required = requireNameEmail && isModalOpen.value;
+	const required = requireNameEmail && isDialogOpen.value;
 
-	// Drawn in the Jetpack Forms markup, so the forms stylesheet and the theme
-	// style these exactly as they do a Form block.
+	// The Jetpack Forms markup, so the forms stylesheet and the theme style these as a Form block.
 	const fields = [
 		{ field: 'author' as const, kind: 'name', type: 'text', label: strings.name, required },
 		{
@@ -160,33 +127,10 @@ export const IdentityDialog = () => {
 
 	const titleId = `jetpack-comments-dialog-title-${ formSettings.postId }`;
 	const editing = isEditing.value;
-	const known = ! editing && ( isLoggedIn || signedIn.value !== null || isSavedGuest );
-	const name = user ? user.name : ( signedIn.value?.name ?? commenter.value.author );
-	const submitLabel = commentParent.value ? strings.reply : formSettings.submitLabel;
+	const known = ! editing && isKnown.value;
 	const showFields = ! known && ! mustLogIn;
-
-	const signInBlock = ! known && identity.canSignIn && (
-		<div className="jetpack-comments__sign-in">
-			{ isSigningIn ? (
-				<span className="jetpack-comments__signing-in">
-					<span className="jetpack-comments__spinner" aria-hidden="true" />
-					<button type="button" className="jetpack-comments__link-button" onClick={ cancel }>
-						{ strings.cancel }
-					</button>
-				</span>
-			) : (
-				<button type="button" className="jetpack-comments__wpcom" onClick={ start }>
-					<WordPressIcon />
-					{ strings.logInWithWordPress }
-				</button>
-			) }
-			{ signInError && (
-				<span className="jetpack-comments__notice" role="status">
-					{ signInError }
-				</span>
-			) }
-		</div>
-	);
+	const holdButtons = emailTaken || checkingEmail;
+	const { submit } = formSettings;
 
 	return (
 		<dialog
@@ -216,10 +160,43 @@ export const IdentityDialog = () => {
 			{ ! known && mustLogIn && (
 				<p className="jetpack-comments__dialog-intro">{ strings.mustLogIn }</p>
 			) }
-			{ signInBlock }
+			{ ! known && identity.canSignIn && (
+				<div className="jetpack-comments__sign-in">
+					{ isSigningIn ? (
+						<span className="jetpack-comments__signing-in">
+							<span className="jetpack-comments__spinner" aria-hidden="true" />
+							<button
+								type="button"
+								className="jetpack-comments__link-button"
+								onClick={ () => {
+									signInAttempt.current++;
+									popup.current?.close();
+									popup.current = null;
+									setIsSigningIn( false );
+								} }
+							>
+								{ strings.cancel }
+							</button>
+						</span>
+					) : (
+						<button type="button" className="jetpack-comments__wpcom" onClick={ start }>
+							<WordPressIcon />
+							{ strings.logInWithWordPress }
+						</button>
+					) }
+					{ signInError && (
+						<span className="jetpack-comments__notice" role="status">
+							{ signInError }
+						</span>
+					) }
+				</div>
+			) }
 			{ known && (
 				<p className="jetpack-comments__dialog-intro">
-					{ strings.commentingAs.replace( '%s', () => name ) }
+					{ strings.commentingAs.replace(
+						'%s',
+						() => user?.name ?? signedIn.value?.name ?? commenter.value.author
+					) }
 				</p>
 			) }
 			{ showFields && ! editing && (
@@ -255,9 +232,12 @@ export const IdentityDialog = () => {
 								required={ input.required }
 								value={ commenter.value[ field ] }
 								onInput={ event => {
-									update( field, event.currentTarget.value );
+									const { value } = event.currentTarget;
+									commenter.value = { ...commenter.value, [ field ]: value };
+
 									if ( field === 'email' ) {
-										onEmailInput( event.currentTarget.value );
+										window.clearTimeout( emailTimer.current );
+										emailTimer.current = window.setTimeout( () => checkEmail( value ), 500 );
 									}
 								} }
 								onBlur={ field === 'email' ? () => checkEmail( commenter.value.email ) : undefined }
@@ -305,11 +285,11 @@ export const IdentityDialog = () => {
 			) }
 			<div className="jetpack-comments__dialog-actions">
 				{ editing && (
-					<span className={ formSettings.submitWrapClass }>
+					<span className={ submit.wrapClass }>
 						<button
 							type="button"
-							className={ formSettings.submitClass }
-							disabled={ emailTaken || checkingEmail }
+							className={ submit.class }
+							disabled={ holdButtons }
 							onClick={ save }
 						>
 							{ strings.save }
@@ -317,26 +297,30 @@ export const IdentityDialog = () => {
 					</span>
 				) }
 				{ known && (
-					<span className={ formSettings.submitWrapClass }>
-						<input type="submit" className={ formSettings.submitClass } value={ submitLabel } />
+					<span className={ submit.wrapClass }>
+						<input
+							type="submit"
+							className={ submit.class }
+							value={ commentParent.value ? strings.reply : submit.label }
+						/>
 					</span>
 				) }
 				{ showFields && ! editing && (
 					<>
-						<span className={ formSettings.submitWrapClass }>
-							{ /* The label is what posts; core only checks that the consent field is set. */ }
+						<span className={ submit.wrapClass }>
+							{ /* The label is what posts; core only checks that the field is set. */ }
 							<input
 								type="submit"
 								name="wp-comment-cookies-consent"
-								className={ formSettings.submitClass }
-								disabled={ emailTaken || checkingEmail }
+								className={ submit.class }
+								disabled={ holdButtons }
 								value={ strings.saveAndPost }
 							/>
 						</span>
 						<button
 							type="submit"
 							className="jetpack-comments__link-button"
-							disabled={ emailTaken || checkingEmail }
+							disabled={ holdButtons }
 						>
 							{ strings.postWithoutSaving }
 						</button>

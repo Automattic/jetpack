@@ -10,15 +10,7 @@ import type { FormSettings } from '../shared/types';
 
 import './style.scss';
 
-type CommentFormProps = {
-	form: HTMLFormElement;
-};
-
-// Long enough to stop a synchronous write landing on every keystroke, short
-// enough that a reader who navigates away mid-sentence keeps it.
-const DRAFT_DEBOUNCE_MS = 300;
-
-const CommentForm = ( { form }: CommentFormProps ) => {
+const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 	const {
 		formSettings,
 		commentParent,
@@ -26,27 +18,26 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 		isEmptyComment,
 		isSavingComment,
 		signedIn,
-		isOpen,
-		isModalOpen,
 		isSavedGuest,
+		isKnown,
+		isTrayOpen,
+		isDialogOpen,
 	} = useContext( CommentSignals );
-	const { isLoggedIn, mustLogIn, identity, strings } = JetpackComments;
+	const { mustLogIn, identity, strings, avatarUrl, avatarWrapClass } = JetpackComments;
 	const isSubmitting = useRef( false );
 
-	// Opens as the comment goes from empty to not, so a draft brought back opens it too.
 	useEffect( () => {
 		if ( ! isEmptyComment.value ) {
-			isOpen.value = true;
+			isTrayOpen.value = true;
 		}
-	}, [ isEmptyComment.value, isOpen ] );
+	}, [ isEmptyComment.value, isTrayOpen ] );
 
-	// Folds away on a click or a Tab that leaves the form with nothing typed.
 	// Clicks are read from pointerdown, not focusout: Safari fires focusout for a
 	// button inside the form too, with no relatedTarget to tell the two apart.
 	useEffect( () => {
 		const close = () => {
 			if ( isEmptyComment.peek() ) {
-				isOpen.value = false;
+				isTrayOpen.value = false;
 			}
 		};
 
@@ -69,7 +60,7 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 			document.removeEventListener( 'pointerdown', onPointerDown );
 			form.removeEventListener( 'focusout', onFocusOut );
 		};
-	}, [ form, isEmptyComment, isOpen ] );
+	}, [ form, isEmptyComment, isTrayOpen ] );
 
 	useEffect( () => {
 		const parentInput = form.querySelector< HTMLInputElement >( '#comment_parent' );
@@ -84,9 +75,8 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 
 		readParent();
 
-		// #comment_parent is a hidden input, whose `value` IDL attribute writes
-		// straight through to the content attribute, so the assignment core's
-		// comment-reply.js makes is one this sees.
+		// A hidden input's `value` writes through to the attribute, so this sees
+		// the assignment core's comment-reply.js makes.
 		const observer = new MutationObserver( readParent );
 		observer.observe( parentInput, { attributes: true, attributeFilter: [ 'value' ] } );
 
@@ -94,22 +84,16 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 	}, [ form, commentParent ] );
 
 	useEffect( () => {
-		const timer = setTimeout(
-			() => saveDraft( formSettings.postId, commentValue.value ),
-			DRAFT_DEBOUNCE_MS
-		);
+		const timer = setTimeout( () => saveDraft( formSettings.postId, commentValue.value ), 300 );
 
 		return () => clearTimeout( timer );
 	}, [ formSettings, commentValue.value ] );
 
 	useEffect( () => {
 		const onSubmit = ( event: SubmitEvent ) => {
-			// A reader the site does not know is asked who they are first; the dialog's own buttons submit again.
-			const isKnown = isLoggedIn || signedIn.peek() || isSavedGuest;
-
-			if ( ! isKnown && ! isModalOpen.peek() ) {
+			if ( ! isKnown.peek() && ! isDialogOpen.peek() ) {
 				event.preventDefault();
-				isModalOpen.value = true;
+				isDialogOpen.value = true;
 				return;
 			}
 
@@ -131,8 +115,7 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 			}
 		};
 
-		// Flush whatever the debounce above is still holding. Safe for bfcache in
-		// a way beforeunload is not.
+		// Flushes the debounce above; safe for bfcache in a way beforeunload is not.
 		const onPageHide = () => saveDraft( formSettings.postId, commentValue.peek() );
 
 		form.addEventListener( 'submit', onSubmit );
@@ -144,20 +127,15 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 			window.removeEventListener( 'pageshow', onPageShow );
 			window.removeEventListener( 'pagehide', onPageHide );
 		};
-	}, [ form, formSettings, isSavingComment, commentValue, signedIn, isModalOpen, isSavedGuest ] );
+	}, [ form, formSettings, isSavingComment, commentValue, isKnown, isDialogOpen ] );
 
-	const avatar = signedIn.value?.avatar || JetpackComments.avatarUrl;
-
-	// Only where there is no way to log in: with the popup, the dialog asks instead.
-	const isSubmitDisabled =
-		( mustLogIn && ! signedIn.value && ! identity.canSignIn ) ||
-		isEmptyComment.value ||
-		isSavingComment.value;
+	const avatar = signedIn.value?.avatar || avatarUrl;
+	const { submit } = formSettings;
 
 	return (
 		<>
 			{ avatar && (
-				<div className={ clsx( 'jetpack-comments__avatar', JetpackComments.avatarWrapClass ) }>
+				<div className={ clsx( 'jetpack-comments__avatar', avatarWrapClass ) }>
 					<img
 						className="avatar avatar-40 photo wp-block-avatar__image"
 						src={ avatar }
@@ -169,23 +147,27 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 			) }
 			<div className="jetpack-comments__body">
 				<CommentField />
-				<div className={ clsx( 'jetpack-comments__tray', { 'is-open': isOpen.value } ) }>
+				<div className={ clsx( 'jetpack-comments__tray', { 'is-open': isTrayOpen.value } ) }>
 					<div className="jetpack-comments__actions">
-						<span className={ clsx( 'jetpack-comments__submit', formSettings.submitWrapClass ) }>
+						<span className={ clsx( 'jetpack-comments__submit', submit.wrapClass ) }>
 							<input
-								id={ formSettings.submitId }
-								name={ formSettings.submitName }
+								id={ submit.id }
+								name={ submit.name }
 								type="submit"
-								className={ clsx( formSettings.submitClass, { 'is-busy': isSavingComment.value } ) }
-								disabled={ isSubmitDisabled }
-								value={ commentParent.value ? strings.reply : formSettings.submitLabel }
+								className={ clsx( submit.class, { 'is-busy': isSavingComment.value } ) }
+								disabled={
+									( mustLogIn && ! signedIn.value && ! identity.canSignIn ) ||
+									isEmptyComment.value ||
+									isSavingComment.value
+								}
+								value={ commentParent.value ? strings.reply : submit.label }
 							/>
 						</span>
 						<Identity />
 					</div>
 				</div>
 			</div>
-			{ /* Consent was given when the details were saved; without it core would clear them on this post. */ }
+			{ /* Core clears saved details on any post without this. */ }
 			{ isSavedGuest && ! signedIn.value && (
 				<input type="hidden" name="wp-comment-cookies-consent" value="yes" />
 			) }
@@ -204,8 +186,7 @@ document.querySelectorAll< HTMLElement >( '.jetpack-comments' ).forEach( element
 	let formSettings: FormSettings;
 
 	try {
-		// `||` rather than `??`: wp_json_encode() returns false on bad input, which
-		// reaches the attribute as an empty string that JSON.parse() would throw on.
+		// `||`: wp_json_encode() gives false on bad input, which arrives as an empty attribute.
 		formSettings = JSON.parse( element.dataset.jetpackComments || '{}' ) as FormSettings;
 	} catch {
 		return;

@@ -19,53 +19,20 @@ use WP_Error;
  */
 class Checkpoint {
 
-	/**
-	 * The popup, which mints a one-time code.
-	 */
-	const CONNECT_URL = 'https://public-api.wordpress.com/connect/';
-
-	/**
-	 * The only origin a result is accepted from.
-	 */
+	const CONNECT_URL    = 'https://public-api.wordpress.com/connect/';
 	const MESSAGE_ORIGIN = 'https://public-api.wordpress.com';
-
-	/**
-	 * The provider the popup signs in with. Part of the signed URL WordPress.com verifies.
-	 */
-	const PROVIDER = 'wordpress';
-
-	/**
-	 * POST field carrying the code the popup handed back.
-	 */
+	// Part of the signed URL WordPress.com verifies.
+	const PROVIDER   = 'wordpress';
 	const CODE_FIELD = 'jetpack_comment_identity_code';
-
-	/**
-	 * POST field the form sends when it rendered as signed in on the passport.
-	 * Without it the passport is left alone, so a reader whose log-out never
-	 * reached the server still posts as the guest the form showed them as.
-	 */
+	// Sent when the form rendered as signed in on the passport. Without it the passport is
+	// left alone, so a log-out that never reached the server still posts as the guest shown.
 	const PASSPORT_FIELD = 'jetpack_comment_identity_passport';
-
-	/**
-	 * How long a signed popup URL stays good. WordPress.com rejects an expiry
-	 * past ten minutes out, so a minute is left for clock skew.
-	 */
+	// WordPress.com rejects an expiry past ten minutes out; a minute is left for clock skew.
 	const SIGNATURE_TTL = 9 * MINUTE_IN_SECONDS;
-
-	/**
-	 * Comment meta: the opaque per-site id WordPress.com derives for the commenter.
-	 */
-	const META_ID = 'jetpack_comment_identity_id';
-
-	/**
-	 * Comment meta: which provider they signed in with.
-	 */
+	// Comment meta: WordPress.com's opaque per-site id for the commenter, their provider, and their avatar.
+	const META_ID       = 'jetpack_comment_identity_id';
 	const META_PROVIDER = 'jetpack_comment_identity_provider';
-
-	/**
-	 * Comment meta: the avatar the provider gave.
-	 */
-	const META_AVATAR = 'jetpack_comment_identity_avatar';
+	const META_AVATAR   = 'jetpack_comment_identity_avatar';
 
 	/**
 	 * Singleton instance.
@@ -144,11 +111,7 @@ class Checkpoint {
 	}
 
 	/**
-	 * A signed popup URL.
-	 *
-	 * A Jetpack or Atomic site proves itself with its blog token. On Simple the
-	 * code is already running inside WordPress.com, so the Consulate signs with
-	 * the key it will verify against.
+	 * A signed popup URL: with the blog token, or on Simple with the Consulate's own key.
 	 *
 	 * @param string $challenge The challenge to sign.
 	 * @return array|WP_Error url, expires, challenge.
@@ -392,10 +355,7 @@ class Checkpoint {
 	}
 
 	/**
-	 * Record who left the comment, for the avatar and for moderation.
-	 *
-	 * Reads the identity admitted on this request rather than $_POST, so any
-	 * other producer reaching comment_post writes nothing here.
+	 * Record who left the comment, from the identity admitted on this request rather than $_POST.
 	 *
 	 * @param int $comment_id The comment ID.
 	 * @return void

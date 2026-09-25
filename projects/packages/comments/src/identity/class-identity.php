@@ -20,7 +20,7 @@ class Identity {
 	public static function settings() {
 		$commenter = wp_get_current_commenter();
 
-		// Nothing under `identity` is about the visitor. This HTML is page-cached
+		// Nothing under `identity` is about the visitor: the HTML is page-cached
 		// and served to everyone, so who holds a passport comes from a cookie.
 		$settings = array(
 			'isLoggedIn' => is_user_logged_in(),
@@ -35,6 +35,8 @@ class Identity {
 				'blogId'        => Checkpoint::blog_id(),
 				'canSignIn'     => false,
 				'connect'       => null,
+				'connectUrl'    => Checkpoint_Endpoint::connect_url(),
+				'emailUrl'      => Checkpoint_Endpoint::email_url(),
 				'origin'        => Checkpoint::MESSAGE_ORIGIN,
 				'codeField'     => Checkpoint::CODE_FIELD,
 				'passportField' => Checkpoint::PASSPORT_FIELD,
@@ -43,8 +45,6 @@ class Identity {
 				'cookiePath'    => COOKIEPATH,
 				'cookieDomain'  => COOKIE_DOMAIN ? COOKIE_DOMAIN : '',
 				'defaultAvatar' => Avatars::default_url( 80 ),
-				'refreshUrl'    => Checkpoint_Endpoint::connect_url(),
-				'emailUrl'      => Checkpoint_Endpoint::email_url(),
 				'logoutUrl'     => admin_url( 'admin-ajax.php' ),
 				'logoutAction'  => Checkpoint_Endpoint::LOGOUT_ACTION,
 			),
@@ -58,7 +58,6 @@ class Identity {
 			return $settings;
 		}
 
-		// A returning guest's Gravatar, from the email core saved for them; the site default for anyone else.
 		$settings['avatarUrl'] = $commenter['comment_author_email']
 			? html_entity_decode( (string) get_avatar_url( $commenter['comment_author_email'], array( 'size' => 80 ) ), ENT_QUOTES )
 			: Avatars::default_url( 80 );
@@ -67,9 +66,8 @@ class Identity {
 			return $settings;
 		}
 
-		// The signed URLs get cached too, so visitors share a challenge until it
-		// expires. That is fine: the challenge only filters messages to the
-		// window that opened the popup, and the refresh route issues a fresh one.
+		// Visitors share this challenge until it expires: it only filters messages
+		// to the window that opened the popup, and the connect route issues fresh ones.
 		$challenge = rtrim( strtr( base64_encode( random_bytes( 32 ) ), '+/', '-_' ), '=' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- base64url is the wire format.
 
 		$connect = Checkpoint::connect_url( $challenge );

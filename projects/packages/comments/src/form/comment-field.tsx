@@ -15,7 +15,7 @@ const resize = ( textarea: HTMLTextAreaElement ) => {
 };
 
 export const CommentField = () => {
-	const { commentValue, commentParent, isOpen } = useContext( CommentSignals );
+	const { commentValue, commentParent, isTrayOpen } = useContext( CommentSignals );
 	const { strings, maxLength } = JetpackComments;
 	const textarea = useRef< HTMLTextAreaElement >( null );
 
@@ -56,7 +56,7 @@ export const CommentField = () => {
 			aria-label={ commentParent.value ? strings.replyLabel : strings.commentLabel }
 			value={ commentValue.value }
 			placeholder={ commentParent.value ? strings.replyPlaceholder : strings.placeholder }
-			onFocus={ () => ( isOpen.value = true ) }
+			onFocus={ () => ( isTrayOpen.value = true ) }
 			onInput={ event => {
 				resize( event.currentTarget );
 				commentValue.value = event.currentTarget.value;

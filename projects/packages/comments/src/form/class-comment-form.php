@@ -14,20 +14,9 @@ use Automattic\Jetpack\Assets;
  */
 class Comment_Form {
 
-	/**
-	 * Script and style handle.
-	 */
-	const HANDLE = 'jetpack-comments';
-
-	/**
-	 * Nonce action guarding a comment submission.
-	 */
+	const HANDLE       = 'jetpack-comments';
 	const NONCE_ACTION = 'jetpack_comments_form';
-
-	/**
-	 * POST field carrying the nonce.
-	 */
-	const NONCE_NAME = 'jetpack_comments_form_nonce';
+	const NONCE_NAME   = 'jetpack_comments_form_nonce';
 
 	/**
 	 * Singleton instance.
@@ -70,15 +59,10 @@ class Comment_Form {
 		add_filter( 'comment_form_fields', array( $this, 'comment_form_fields' ) );
 		add_filter( 'comment_form_logged_in', array( $this, 'comment_form_logged_in' ) );
 		add_filter( 'comment_form_defaults', array( $this, 'comment_form_defaults' ), 20 );
-
-		// Past 10, where Jetpack Subscriptions adds its checkboxes: this replaces
-		// the field wholesale, so it has to see what everyone else has added.
+		// Past 10, where Jetpack Subscriptions adds its checkboxes, so this sees them before replacing the field.
 		add_filter( 'comment_form_submit_field', array( $this, 'render' ), 20, 2 );
-
 		add_action( 'comment_form_must_log_in_after', array( $this, 'render_must_log_in' ) );
-
 		add_filter( 'comment_reply_link', array( $this, 'comment_reply_link' ), 10, 4 );
-
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_assets' ) );
 		add_action( 'pre_comment_on_post', array( $this, 'verify_nonce' ) );
 	}
@@ -105,34 +89,10 @@ class Comment_Form {
 		}
 
 		$respond_id = esc_attr( $args['respond_id'] );
-		$reply_url  = esc_url( add_query_arg( 'replytocom', $comment->comment_ID . '#' . $respond_id ) );
+		$reply_to   = sprintf( $args['reply_to_text'], get_comment_author( $comment ) );
 
-		$reply_to = sprintf( $args['reply_to_text'], get_comment_author( $comment ) );
-
-		$link = sprintf(
-			'<a class="comment-reply-link" href="%s"%s onclick="return addComment.moveForm( \'%s-%d\', \'%d\', \'%s\', \'%d\' )">%s</a>',
-			$reply_url,
-			$args['show_reply_to_text'] ? '' : ' aria-label="' . esc_attr( $reply_to ) . '"',
-			esc_attr( $args['add_below'] ),
-			$comment->comment_ID,
-			$comment->comment_ID,
-			$respond_id,
-			$post->ID,
-			wp_kses( $args['show_reply_to_text'] ? $reply_to : $args['reply_text'], self::reply_text_html() )
-		);
-
-		return wp_kses( $args['before'], wp_kses_allowed_html( 'post' ) )
-			. $link
-			. wp_kses( $args['after'], wp_kses_allowed_html( 'post' ) );
-	}
-
-	/**
-	 * Markup a theme may put inside its reply link, such as an icon.
-	 *
-	 * @return array
-	 */
-	private static function reply_text_html() {
-		return array(
+		// A theme may put an icon inside its reply link.
+		$reply_text_html = array(
 			'svg' => array(
 				'class'           => true,
 				'aria-hidden'     => true,
@@ -148,10 +108,26 @@ class Comment_Form {
 				'xlink:href' => true,
 			),
 		);
+
+		$link = sprintf(
+			'<a class="comment-reply-link" href="%s"%s onclick="return addComment.moveForm( \'%s-%d\', \'%d\', \'%s\', \'%d\' )">%s</a>',
+			esc_url( add_query_arg( 'replytocom', $comment->comment_ID . '#' . $respond_id ) ),
+			$args['show_reply_to_text'] ? '' : ' aria-label="' . esc_attr( $reply_to ) . '"',
+			esc_attr( $args['add_below'] ),
+			$comment->comment_ID,
+			$comment->comment_ID,
+			$respond_id,
+			$post->ID,
+			wp_kses( $args['show_reply_to_text'] ? $reply_to : $args['reply_text'], $reply_text_html )
+		);
+
+		return wp_kses( $args['before'], wp_kses_allowed_html( 'post' ) )
+			. $link
+			. wp_kses( $args['after'], wp_kses_allowed_html( 'post' ) );
 	}
 
 	/**
-	 * Whether this form should replace core's for a post's type.
+	 * Whether this form replaces core's for a post's type.
 	 *
 	 * @param int|null $post_id Post being commented on. Defaults to the current one.
 	 * @return bool
@@ -164,7 +140,7 @@ class Comment_Form {
 	}
 
 	/**
-	 * Drop every field core would draw, so the app can draw its own.
+	 * Drop every field core would draw.
 	 *
 	 * @param array $fields Comment form fields, the textarea included.
 	 * @return array
@@ -174,7 +150,7 @@ class Comment_Form {
 	}
 
 	/**
-	 * Suppress core's logged-in line, which the app draws itself.
+	 * Suppress core's logged-in line.
 	 *
 	 * @param string $logged_in_as The "logged in as" markup.
 	 * @return string
@@ -223,7 +199,7 @@ class Comment_Form {
 			return $submit_field;
 		}
 
-		$args['subscriptions'] = self::subscriptions( $submit_field );
+		$args['subscriptions'] = Subscriptions::checkboxes( $submit_field );
 
 		// Fires after this filter, and would draw the subscribe options again below the form.
 		remove_action( 'comment_form', 'subscription_comment_form' );
@@ -231,46 +207,6 @@ class Comment_Form {
 		$this->enqueue_assets( $args );
 
 		return $this->markup( $args );
-	}
-
-	/**
-	 * The subscribe checkboxes each host draws itself, read back to draw in the
-	 * dialog under the host's own field names: Jetpack Subscriptions appends its
-	 * own to the submit field at priority 10, and WordPress.com has a function.
-	 *
-	 * @param string $submit_field The submit field after the filters before this one.
-	 * @return array Each with the field `name`, the `label` to show and whether it starts `checked`.
-	 */
-	private static function subscriptions( $submit_field ) {
-		$drawn = $submit_field;
-
-		if ( function_exists( 'subscription_comment_form' ) ) {
-			$drawn .= (string) subscription_comment_form( self::post_id(), false );
-		}
-
-		$labels = array(
-			'subscribe_comments' => __( 'Notify me of new comments by email.', 'jetpack-comments' ),
-			'subscribe'          => __( 'Notify me of new comments by email.', 'jetpack-comments' ),
-			'subscribe_blog'     => sprintf(
-				/* translators: %s is the site's name. */
-				__( 'Subscribe to keep up with %s.', 'jetpack-comments' ),
-				get_bloginfo( 'name' )
-			),
-		);
-
-		$subscriptions = array();
-
-		foreach ( $labels as $name => $label ) {
-			if ( preg_match( '/<input\b[^>]*\bname="' . $name . '"[^>]*>/', $drawn, $input ) ) {
-				$subscriptions[] = array(
-					'name'    => $name,
-					'label'   => $label,
-					'checked' => false !== strpos( $input[0], 'checked' ),
-				);
-			}
-		}
-
-		return $subscriptions;
 	}
 
 	/**
@@ -288,7 +224,7 @@ class Comment_Form {
 		// Core skips the submit field on this branch, so the hosts never draw their
 		// checkboxes. Run that filter here without this class on it, to ask them.
 		remove_filter( 'comment_form_submit_field', array( $this, 'render' ), 20 );
-		$args['subscriptions'] = self::subscriptions( (string) apply_filters( 'comment_form_submit_field', '', $args ) );
+		$args['subscriptions'] = Subscriptions::checkboxes( (string) apply_filters( 'comment_form_submit_field', '', $args ) );
 		add_filter( 'comment_form_submit_field', array( $this, 'render' ), 20, 2 );
 
 		$this->enqueue_assets( $args );
@@ -325,7 +261,7 @@ class Comment_Form {
 	 *
 	 * @return int
 	 */
-	private static function post_id() {
+	public static function post_id() {
 		$post = get_post();
 
 		return $post ? $post->ID : 0;
@@ -380,7 +316,7 @@ class Comment_Form {
 		Assets::enqueue_script( self::HANDLE );
 		wp_enqueue_style( self::HANDLE );
 
-		// The dialog draws its fields in the Jetpack Forms markup, so it takes that stylesheet too.
+		// The dialog draws its fields in the Jetpack Forms markup.
 		if ( wp_style_is( 'grunion.css', 'registered' ) ) {
 			wp_enqueue_style( 'grunion.css' );
 		}
@@ -397,92 +333,19 @@ class Comment_Form {
 
 		return array_merge(
 			array(
-				'requireNameEmail' => (bool) get_option( 'require_name_email' ),
-				'mustLogIn'        => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
-				'maxLength'        => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
-				'avatarWrapClass'  => self::avatar_wrap_class(),
-				'site'             => array(
+				'requireNameEmail'    => (bool) get_option( 'require_name_email' ),
+				'mustLogIn'           => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
+				'maxLength'           => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
+				'avatarWrapClass'     => Avatars::block_wrap_class(),
+				'site'                => array(
 					'name'    => get_bloginfo( 'name' ),
 					'iconUrl' => (string) get_site_icon_url( 64 ),
 				),
-				'subscriptions'    => self::subscriptions_links(),
-				'strings'          => self::strings( $args ),
+				'manageSubscriptions' => Subscriptions::manage_links(),
+				'strings'             => self::strings( $args ),
 			),
 			Identity::settings()
 		);
-	}
-
-	/**
-	 * The classes the theme's Avatar block wrapper carries, duotone included.
-	 *
-	 * Block supports add the duotone class at render and register its SVG for
-	 * the footer, so the wrapper goes through that support the way the block does.
-	 *
-	 * @return string
-	 */
-	private static function avatar_wrap_class() {
-		$class = 'wp-block-avatar';
-
-		if ( ! class_exists( 'WP_Duotone' ) || ! class_exists( 'WP_Block' ) ) {
-			return $class;
-		}
-
-		$parsed = array(
-			'blockName'    => 'core/avatar',
-			'attrs'        => array(),
-			'innerBlocks'  => array(),
-			'innerHTML'    => '',
-			'innerContent' => array(),
-		);
-
-		$html = \WP_Duotone::render_duotone_support( '<div class="' . $class . '"></div>', $parsed, new \WP_Block( $parsed ) );
-
-		return preg_match( '/class="([^"]*)"/', (string) $html, $match ) ? $match[1] : $class;
-	}
-
-	/**
-	 * Where a reader manages their subscriptions to this site, the way the Action Bar links it.
-	 *
-	 * A WordPress.com account manages them in the Reader: the subscription itself
-	 * when the site knows it exists, else the list filtered to this site. Anyone
-	 * else manages them by email address. The page is cached for a reader the popup
-	 * signs in, so their link is decided in the browser from `signedInUrl`.
-	 *
-	 * @return array `url` and `byEmail` for the reader the page rendered for, and `signedInUrl`. All empty where the host offers no subscriptions.
-	 */
-	private static function subscriptions_links() {
-		$links = array(
-			'url'         => '',
-			'byEmail'     => true,
-			'signedInUrl' => '',
-		);
-
-		if ( ! function_exists( 'subscription_comment_form' ) && ! class_exists( 'Jetpack_Subscriptions' ) ) {
-			return $links;
-		}
-
-		$host = (string) wp_parse_url( home_url(), PHP_URL_HOST );
-
-		$links['url']         = 'https://subscribe.wordpress.com/';
-		$links['signedInUrl'] = 'https://wordpress.com/reader/subscriptions?s=' . rawurlencode( $host );
-
-		if ( ! is_user_logged_in() || ! function_exists( 'wpcom_subs_is_subscribed' ) ) {
-			return $links;
-		}
-
-		$subscription_id = wpcom_subs_is_subscribed(
-			array(
-				'user_id' => get_current_user_id(),
-				'blog_id' => Checkpoint::blog_id(),
-			)
-		);
-
-		$links['byEmail'] = false;
-		$links['url']     = $subscription_id
-			? 'https://wordpress.com/reader/subscriptions/' . (int) $subscription_id
-			: $links['signedInUrl'];
-
-		return $links;
 	}
 
 	/**
@@ -510,25 +373,21 @@ class Comment_Form {
 		);
 		$class  = preg_match( '/\bclass="([^"]*)"/', $button, $match ) ? $match[1] : 'submit';
 
-		$settings = array(
-			'postId'          => $post_id,
-			'loginUrl'        => wp_login_url( $permalink ),
-			'logoutUrl'       => '',
-			'submitId'        => $id,
-			'submitName'      => $name,
-			'submitClass'     => $class,
-			// The block wraps its button the way the Buttons block does, so block-level button styles reach it.
-			'submitWrapClass' => false !== strpos( $class, 'wp-block-button__link' ) ? 'wp-block-button' : '',
-			'submitLabel'     => $label,
-			'subscriptions'   => $args['subscriptions'] ?? array(),
-		);
-
-		if ( is_user_logged_in() ) {
+		return array(
+			'postId'        => $post_id,
+			'loginUrl'      => wp_login_url( $permalink ),
 			// wp_logout_url() runs the URL through esc_html(), which encodes single quotes too.
-			$settings['logoutUrl'] = html_entity_decode( wp_logout_url( $permalink ), ENT_QUOTES );
-		}
-
-		return $settings;
+			'logoutUrl'     => is_user_logged_in() ? html_entity_decode( wp_logout_url( $permalink ), ENT_QUOTES ) : '',
+			'submit'        => array(
+				'id'        => $id,
+				'name'      => $name,
+				'class'     => $class,
+				// The block wraps its button the way the Buttons block does, so block-level button styles reach it.
+				'wrapClass' => false !== strpos( $class, 'wp-block-button__link' ) ? 'wp-block-button' : '',
+				'label'     => $label,
+			),
+			'subscriptions' => $args['subscriptions'] ?? array(),
+		);
 	}
 
 	/**
@@ -583,10 +442,8 @@ class Comment_Form {
 	/**
 	 * Require a comment to arrive with a nonce this site issued.
 	 *
-	 * Worth being plain about the strength of this. For a logged-in reader the
-	 * nonce is tied to their session and is real CSRF cover. For a logged-out one
-	 * it is the same string for everybody, for up to 24 hours, so it proves the
-	 * sender loaded a page from this site and nothing more.
+	 * For a logged-out reader it is the same string for everybody, for up to 24
+	 * hours, so it proves the sender loaded a page from this site and nothing more.
 	 *
 	 * @param int $comment_post_id The post being commented on.
 	 * @return void
@@ -603,8 +460,26 @@ class Comment_Form {
 			return;
 		}
 
-		if ( self::verify_logged_out_nonce( $nonce ) ) {
-			return;
+		// A page cache can hand a logged-in reader a copy rendered for nobody, so
+		// the nonce they post is the anonymous one. wp_verify_nonce() reads the
+		// session token from the logged-in cookie, not the current user, so the
+		// cookie has to go too for the hash to match what a visitor was served.
+		if ( defined( 'LOGGED_IN_COOKIE' ) && isset( $_COOKIE[ LOGGED_IN_COOKIE ] ) ) {
+			$user_id = get_current_user_id();
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Stashed and put back untouched.
+			$cookie = $_COOKIE[ LOGGED_IN_COOKIE ];
+
+			unset( $_COOKIE[ LOGGED_IN_COOKIE ] );
+			wp_set_current_user( 0 );
+
+			$valid = (bool) wp_verify_nonce( $nonce, self::NONCE_ACTION );
+
+			$_COOKIE[ LOGGED_IN_COOKIE ] = $cookie;
+			wp_set_current_user( $user_id );
+
+			if ( $valid ) {
+				return;
+			}
 		}
 
 		wp_die(
@@ -615,40 +490,5 @@ class Comment_Form {
 				'back_link' => true,
 			)
 		);
-	}
-
-	/**
-	 * Check a nonce against the one a logged-out reader would have been given.
-	 *
-	 * A page cache can hand a logged-in reader a copy rendered for nobody, so the
-	 * nonce they post is the anonymous one. wp_verify_nonce() hashes the user ID
-	 * together with wp_get_session_token(), and that token is read from the
-	 * logged-in cookie rather than from the current user, so clearing the user is
-	 * not enough on its own: the cookie has to go too, or the hash still carries
-	 * their session and can never match what an anonymous visitor was served.
-	 *
-	 * @param string $nonce The nonce submitted with the comment.
-	 * @return bool
-	 */
-	private static function verify_logged_out_nonce( $nonce ) {
-		if ( ! defined( 'LOGGED_IN_COOKIE' ) || ! isset( $_COOKIE[ LOGGED_IN_COOKIE ] ) ) {
-			// Nothing to strip, so the check above already ran as this reader.
-			return false;
-		}
-
-		$user_id = get_current_user_id();
-
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Stashed and put back untouched, for core to read as it would have.
-		$cookie = $_COOKIE[ LOGGED_IN_COOKIE ];
-
-		unset( $_COOKIE[ LOGGED_IN_COOKIE ] );
-		wp_set_current_user( 0 );
-
-		$valid = (bool) wp_verify_nonce( $nonce, self::NONCE_ACTION );
-
-		$_COOKIE[ LOGGED_IN_COOKIE ] = $cookie;
-		wp_set_current_user( $user_id );
-
-		return $valid;
 	}
 }

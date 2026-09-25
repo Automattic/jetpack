@@ -11,38 +11,23 @@ import type { Commenter, FormSettings, SignedIn } from './types';
  * @return The signals for a single form.
  */
 export function createSignals( formSettings: FormSettings ) {
+	const { isLoggedIn, commenter: saved } = JetpackComments;
+
 	const commentValue = signal( readDraft( formSettings.postId ) );
-
 	const isEmptyComment = computed( () => commentValue.value.trim() === '' );
-
 	const isSavingComment = signal( false );
-
 	const commentParent = signal( 0 );
-
-	const commenter = signal< Commenter >( {
-		author: JetpackComments.commenter.author,
-		email: JetpackComments.commenter.email,
-		url: JetpackComments.commenter.url,
-	} );
+	const commenter = signal< Commenter >( { ...saved } );
 
 	const passport = readPassport();
-
 	const signedIn = signal< SignedIn | null >( passport ? { ...passport, code: null } : null );
 
-	// Everything under the textarea: out while the reader is in the form or has something typed.
-	const isOpen = signal( false );
+	const isSavedGuest = ! isLoggedIn && saved.author !== '' && saved.email !== '';
+	const isKnown = computed( () => isLoggedIn || signedIn.value !== null || isSavedGuest );
 
-	// The dialog asking a reader the site does not know who they are.
-	const isModalOpen = signal( false );
-
-	// The same dialog opened by a saved guest to change their details, with nothing else in it.
+	const isTrayOpen = signal( false );
+	const isDialogOpen = signal( false );
 	const isEditing = signal( false );
-
-	// A guest whose details core saved on their last comment.
-	const isSavedGuest =
-		! JetpackComments.isLoggedIn &&
-		JetpackComments.commenter.author !== '' &&
-		JetpackComments.commenter.email !== '';
 
 	return {
 		formSettings,
@@ -52,21 +37,18 @@ export function createSignals( formSettings: FormSettings ) {
 		commentParent,
 		commenter,
 		signedIn,
-		isOpen,
-		isModalOpen,
-		isEditing,
 		isSavedGuest,
+		isKnown,
+		isTrayOpen,
+		isDialogOpen,
+		isEditing,
 	} as const;
 }
 
 export type CommentSignalsValue = ReturnType< typeof createSignals >;
 
-/**
- * Every form renders inside a Provider, so this default is never the one in use.
- * It is empty because createContext() insists on a value, and building real
- * signals here would read the settings blob and sessionStorage at import time,
- * before either is known to be there.
- */
+// Never the value in use: every form renders inside a Provider. Building real
+// signals here would read the settings blob and sessionStorage at import time.
 export const CommentSignals = createContext< CommentSignalsValue >(
 	undefined as unknown as CommentSignalsValue
 );

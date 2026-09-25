@@ -6,20 +6,18 @@ import { BellIcon, EnvelopeIcon, LogOutIcon, PencilIcon } from './icons';
 import './style.scss';
 
 /**
- * Where the reader manages their subscriptions to this site: a bell for a
- * WordPress.com account, which manages them in the Reader, and an envelope for
- * anyone managing them by email address.
+ * Where the reader manages their subscriptions: the Reader for a WordPress.com
+ * account, the email portal for anyone else.
  *
  * @return The link, or nothing where the host offers no subscriptions.
  */
 const ManageSubscriptions = () => {
 	const { signedIn, commenter } = useContext( CommentSignals );
-	const { subscriptions, strings } = JetpackComments;
-	const byEmail = ! signedIn.value && subscriptions.byEmail;
+	const { manageSubscriptions: links, strings } = JetpackComments;
+	const byEmail = ! signedIn.value && links.byEmail;
 	const Icon = byEmail ? EnvelopeIcon : BellIcon;
-	let url = signedIn.value ? subscriptions.signedInUrl : subscriptions.url;
+	let url = signedIn.value ? links.signedInUrl : links.url;
 
-	// The portal asks for an email address; hand it the one the comment will post under.
 	if ( url && byEmail && commenter.value.email ) {
 		url += `?email=${ encodeURIComponent( commenter.value.email ) }`;
 	}
@@ -43,13 +41,12 @@ const ManageSubscriptions = () => {
 };
 
 /**
- * Who the comment will be attributed to, for a reader the site already knows,
- * and a way to change that. A new reader is asked in the dialog instead.
+ * Who the comment will be attributed to, for a reader the site already knows.
  *
- * @return The identity line, or nothing.
+ * @return The identity line, or nothing for a reader the dialog will ask.
  */
 export const Identity = () => {
-	const { formSettings, commenter, signedIn, isModalOpen, isEditing, isSavedGuest } =
+	const { formSettings, commenter, signedIn, isDialogOpen, isEditing, isSavedGuest } =
 		useContext( CommentSignals );
 	const { user, mustLogIn, identity, strings } = JetpackComments;
 
@@ -73,16 +70,8 @@ export const Identity = () => {
 	if ( signedIn.value ) {
 		const current = signedIn.value;
 
-		const leave = async () => {
-			// Always, even on a fresh code with no passport yet: the site takes back
-			// any httponly cookie, and the next popup is told to ask the provider again.
-			await logOut();
-
-			signedIn.value = null;
-		};
-
 		// A fresh sign-in posts its code; a returning one posts a marker, so the
-		// server uses the passport only when this was on screen.
+		// server reads the passport only when this was on screen.
 		return (
 			<span className="jetpack-comments__who">
 				<span>{ strings.commentingAs.replace( '%s', () => current.name ) }</span>
@@ -90,7 +79,10 @@ export const Identity = () => {
 					type="button"
 					className="jetpack-comments__icon-link"
 					title={ strings.logOut }
-					onClick={ leave }
+					onClick={ async () => {
+						await logOut();
+						signedIn.value = null;
+					} }
 				>
 					<span className="jetpack-comments__visually-hidden">{ strings.logOut }</span>
 					<LogOutIcon />
@@ -109,19 +101,12 @@ export const Identity = () => {
 		return (
 			<span className="jetpack-comments__who">
 				<span>{ strings.mustLogIn }</span>
-				<a className="jetpack-comments__login" href={ formSettings.loginUrl }>
-					{ strings.logIn }
-				</a>
+				<a href={ formSettings.loginUrl }>{ strings.logIn }</a>
 			</span>
 		);
 	}
 
 	if ( isSavedGuest ) {
-		const edit = () => {
-			isEditing.value = true;
-			isModalOpen.value = true;
-		};
-
 		return (
 			<span className="jetpack-comments__who">
 				<span>{ strings.commentingAs.replace( '%s', () => commenter.value.author ) }</span>
@@ -129,7 +114,10 @@ export const Identity = () => {
 					type="button"
 					className="jetpack-comments__icon-link"
 					title={ strings.edit }
-					onClick={ edit }
+					onClick={ () => {
+						isEditing.value = true;
+						isDialogOpen.value = true;
+					} }
 				>
 					<span className="jetpack-comments__visually-hidden">{ strings.edit }</span>
 					<PencilIcon />

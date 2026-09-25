@@ -1,9 +1,3 @@
-/**
- * The comment box: a round avatar beside the textarea, with everything else
- * folded away underneath until the reader clicks in. Colours, fonts, borders
- * and buttons are left to the theme.
- */
-
 .jetpack-comments {
 	display: flex;
 	align-items: flex-start;
@@ -40,7 +34,6 @@
 }
 
 // Hidden, not just collapsed, so nothing inside a closed tray can take focus.
-// The visibility flip waits for the rows to finish collapsing.
 .jetpack-comments__tray {
 	display: grid;
 	grid-template-rows: 0fr;
@@ -62,10 +55,9 @@
 	}
 }
 
-// The negative margins give focus rings room inside the tray's clipped box.
-// Top-aligned, so the identity line sits by the textarea rather than
-// halfway down a tall theme button. Reversed: the submit comes first in the
-// DOM so Tab reaches it straight from the textarea, but it draws on the end.
+// Reversed so the submit precedes the identity links in the DOM, and Tab
+// reaches it straight from the textarea. The negative margins give focus
+// rings room inside the tray's clipped box.
 .jetpack-comments__actions {
 	display: flex;
 	flex-direction: row-reverse;
@@ -78,6 +70,7 @@
 }
 
 .jetpack-comments__submit {
+
 	// Themes style their button but not its disabled state.
 	input:disabled {
 		opacity: 0.5;
@@ -93,8 +86,6 @@
 	display: contents;
 }
 
-// Named by its own class rather than the theme's .screen-reader-text, which is
-// not guaranteed to be there.
 .jetpack-comments__visually-hidden {
 	position: absolute;
 	inline-size: 1px;

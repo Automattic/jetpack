@@ -15,10 +15,17 @@ export type Passport = {
 	avatar: string;
 };
 
+/** `code` is set until the comment posts and the passport takes over. */
+export type SignedIn = Passport & {
+	code: string | null;
+};
+
 export type IdentitySettings = {
 	blogId: number;
 	canSignIn: boolean;
 	connect: ConnectUrl | null;
+	connectUrl: string;
+	emailUrl: string;
 	origin: string;
 	codeField: string;
 	passportField: string;
@@ -27,21 +34,11 @@ export type IdentitySettings = {
 	cookiePath: string;
 	cookieDomain: string;
 	defaultAvatar: string;
-	refreshUrl: string;
-	emailUrl: string;
 	logoutUrl: string;
 	logoutAction: string;
 };
 
-/**
- * Who the reader signed in as through the popup, or the passport that brought
- * them back. `code` is set until the comment posts and the passport takes over.
- */
-export type SignedIn = Passport & {
-	code: string | null;
-};
-
-/** A subscribe checkbox the host would have drawn itself, posted under the host's own field name. */
+/** A subscribe checkbox the host draws itself, posted under the host's own field name. */
 export type Subscription = {
 	name: string;
 	label: string;
@@ -52,11 +49,13 @@ export type FormSettings = {
 	postId: number;
 	loginUrl: string;
 	logoutUrl: string;
-	submitId: string;
-	submitName: string;
-	submitClass: string;
-	submitWrapClass: string;
-	submitLabel: string;
+	submit: {
+		id: string;
+		name: string;
+		class: string;
+		wrapClass: string;
+		label: string;
+	};
 	subscriptions: Subscription[];
 };
 
@@ -95,13 +94,12 @@ export type Settings = {
 	requireNameEmail: boolean;
 	mustLogIn: boolean;
 	maxLength: number;
-	/** The site user's avatar, the saved guest's, or the site default. Empty when avatars are off. */
+	/** Empty when the site shows no avatars. */
 	avatarUrl: string;
-	/** The theme's Avatar block wrapper classes, so the form avatar is styled like the thread's. */
 	avatarWrapClass: string;
 	site: { name: string; iconUrl: string };
-	/** Where a reader manages their subscriptions to this site. URLs are empty where the host offers none. */
-	subscriptions: { url: string; byEmail: boolean; signedInUrl: string };
+	/** URLs are empty where the host offers no subscriptions. */
+	manageSubscriptions: { url: string; byEmail: boolean; signedInUrl: string };
 	strings: Strings;
 	commenter: Commenter;
 	user: { name: string } | null;

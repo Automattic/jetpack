@@ -14,36 +14,22 @@ use WP_REST_Response;
 use WP_REST_Server;
 
 /**
- * A fresh signed popup URL once the rendered one has expired, and a way to log out.
+ * A fresh signed popup URL, whether an email has an account, and a way to log out.
  *
- * The URL is a `wpcom/v2` route registered through the WPCOM REST API v2 loader,
- * so one definition is reachable same-origin on self-hosted and Atomic, and
- * through `public-api.wordpress.com/wpcom/v2/sites/{id}/…` on Simple. Log out
- * is admin-ajax instead: it has to clear a first-party cookie, which only the
- * site's own host can do, and on Simple that host serves no REST API.
+ * The routes are `wpcom/v2`, registered through the WPCOM REST API v2 loader, so
+ * one definition is same-origin on self-hosted and Atomic and served through
+ * `public-api.wordpress.com/wpcom/v2/sites/{id}/…` on Simple. Log out is
+ * admin-ajax instead: only the site's own host can clear its first-party cookie,
+ * and on Simple that host serves no REST API.
  *
- * Both are open to anyone. The first signs nothing a visitor could not get by
- * loading the page. The second only takes a cookie away from the browser that
- * sent it, and carries no nonce because one rendered for a logged-out reader
- * outlives the page cache it sits in. SameSite=Lax keeps a cross-site request
- * from carrying the passport, and a browser that says the request is
- * cross-site is turned away, so a page elsewhere cannot force a log-out.
+ * All are open to anyone. Log out carries no nonce because one rendered for a
+ * logged-out reader outlives the page cache; SameSite=Lax keeps a cross-site
+ * request from carrying the passport, and one that says it is cross-site is refused.
  */
 class Checkpoint_Endpoint extends WP_REST_Controller {
 
-	/**
-	 * Route serving a signed popup URL, under the `wpcom/v2` namespace.
-	 */
 	const CONNECT_ROUTE = 'comments/identity/connect';
-
-	/**
-	 * Route saying whether an email belongs to a WordPress.com account, under the same namespace.
-	 */
-	const EMAIL_ROUTE = 'comments/identity/email';
-
-	/**
-	 * The admin-ajax action that takes the passport back.
-	 */
+	const EMAIL_ROUTE   = 'comments/identity/email';
 	const LOGOUT_ACTION = 'jetpack_comments_identity_logout';
 
 	/**
@@ -71,7 +57,7 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 	}
 
 	/**
-	 * Register the route and the log-out action. Safe to call more than once.
+	 * Register the routes and the log-out action. Safe to call more than once.
 	 *
 	 * @return void
 	 */
@@ -132,6 +118,23 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 	public function register_routes() {
 		register_rest_route(
 			$this->namespace,
+			'/' . self::CONNECT_ROUTE,
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'connect' ),
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'challenge' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'validate_callback' => array( Checkpoint::class, 'is_challenge' ),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/' . self::EMAIL_ROUTE,
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -142,23 +145,6 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 						'type'     => 'string',
 						'format'   => 'email',
 						'required' => true,
-					),
-				),
-			)
-		);
-
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base,
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'connect' ),
-				'permission_callback' => '__return_true',
-				'args'                => array(
-					'challenge' => array(
-						'type'              => 'string',
-						'required'          => true,
-						'validate_callback' => array( Checkpoint::class, 'is_challenge' ),
 					),
 				),
 			)
@@ -191,11 +177,9 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 	}
 
 	/**
-	 * Whether an email belongs to a WordPress.com account.
+	 * Whether an email belongs to a WordPress.com account, which Simple turns a guest comment away for.
 	 *
-	 * WordPress.com turns away a guest comment under an account's email with a
-	 * log-in screen, so the form asks first and can say so in place. Only Simple
-	 * has that rule, and only Simple can answer; every other host says no.
+	 * Only Simple has that rule and only Simple can answer; every other host says no.
 	 *
 	 * @param WP_REST_Request $request The request.
 	 * @return WP_REST_Response|WP_Error

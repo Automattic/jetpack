@@ -1,0 +1,184 @@
+.jetpack-comments__dialog {
+	box-sizing: border-box;
+	inline-size: min(100% - 32px, 480px);
+	max-block-size: calc(100% - 32px);
+	padding: 32px;
+	border: 0;
+	border-radius: 8px;
+	// The page's own colours, not a preset the theme may not use; the
+	// background is replaced with the body's when the dialog opens.
+	background: Canvas;
+	color: inherit;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+
+	&::backdrop {
+		background: rgba(0, 0, 0, 0.5);
+	}
+}
+
+.jetpack-comments__dialog-header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.jetpack-comments__site-icon {
+	flex-shrink: 0;
+	inline-size: 32px;
+	block-size: 32px;
+	border-radius: 50%;
+}
+
+.jetpack-comments__dialog-title {
+	flex: 1;
+	min-inline-size: 0;
+	font-weight: 600;
+}
+
+// Nested under .jetpack-comments to outrank a theme's `.comment-form` rules.
+.jetpack-comments .jetpack-comments__dialog-close {
+	display: inline-flex;
+	flex-shrink: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	box-shadow: none;
+	color: inherit;
+	cursor: pointer;
+}
+
+.jetpack-comments .jetpack-comments__dialog-intro {
+	margin: 24px 0;
+	text-align: center;
+}
+
+.jetpack-comments .jetpack-comments__link-button {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: none;
+	box-shadow: none;
+	color: inherit;
+	font: inherit;
+	line-height: inherit;
+	text-decoration: underline;
+	cursor: pointer;
+
+	&:hover {
+		text-decoration: none;
+	}
+}
+
+.jetpack-comments__guest {
+	display: grid;
+	gap: 16px;
+
+	input {
+		box-sizing: border-box;
+		inline-size: 100%;
+	}
+}
+
+.jetpack-comments__hint {
+	display: block;
+	margin-block-start: 4px;
+	font-size: 0.875em;
+	font-style: italic;
+	opacity: 0.75;
+}
+
+// A warning has to be seen, so this one does not defer to the theme.
+.jetpack-comments__notice {
+	display: block;
+	margin-block-start: 12px;
+	padding: 12px 16px;
+	border-inline-start: 4px solid #d63638;
+	border-radius: 4px;
+	background: rgba(214, 54, 56, 0.08);
+	font-weight: 500;
+}
+
+.jetpack-comments .grunion-field[aria-invalid="true"] {
+	border-color: #d63638;
+	box-shadow: 0 0 0 1px #d63638;
+}
+
+.jetpack-comments__subscriptions {
+	display: grid;
+	gap: 12px;
+	margin-block-start: 24px;
+}
+
+.jetpack-comments__dialog-actions {
+	display: grid;
+	justify-items: center;
+	gap: 16px;
+	margin-block-start: 32px;
+}
+
+.jetpack-comments__sign-in {
+	display: grid;
+	justify-items: center;
+	gap: 8px;
+	margin-block: 32px;
+}
+
+.jetpack-comments__signing-in {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 0.875em;
+}
+
+// WordPress.com's Blueberry, not the theme's button.
+.jetpack-comments .jetpack-comments__wpcom {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.75em;
+	margin: 0;
+	padding: 0.75em 1.5em;
+	border: 0;
+	border-radius: 4px;
+	background: #3858e9;
+	box-shadow: none;
+	color: #fff;
+	font: inherit;
+	font-weight: 600;
+	line-height: 1;
+	text-decoration: none;
+	cursor: pointer;
+
+	svg {
+		inline-size: 1.5em;
+		block-size: 1.5em;
+		fill: currentColor;
+	}
+
+	&:hover {
+		background: #183ad6;
+	}
+
+	&:focus-visible {
+		outline: 2px solid #3858e9;
+		outline-offset: 2px;
+	}
+}
+
+.jetpack-comments__spinner {
+	box-sizing: border-box;
+	inline-size: 1em;
+	block-size: 1em;
+	border: 2px solid currentColor;
+	border-inline-start-color: transparent;
+	border-radius: 50%;
+	animation: jetpack-comments-spin 1s linear infinite;
+}
+
+@keyframes jetpack-comments-spin {
+
+	to {
+		transform: rotate(360deg);
+	}
+}

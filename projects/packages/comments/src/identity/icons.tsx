@@ -22,7 +22,7 @@ export const CloseIcon = () => (
 	</svg>
 );
 
-// @wordpress/icons "login", mirrored so the arrow leaves the door.
+// @wordpress/icons "login", mirrored: the set has no logout.
 export const LogOutIcon = () => (
 	<svg
 		viewBox="0 0 24 24"

@@ -77,10 +77,11 @@ something which reads it.**
 
 ```
 src/
-  class-comments.php    the filter, and what to boot
-  class-avatars.php     avatars on comments already written
-  form/                 takeover, mount, nonce, layout, the text box, submit
-  identity/             who is commenting: the dialog, guest fields, attribution
+  class-comments.php       the filter, and what to boot
+  class-avatars.php        avatars, on comments already written and beside the form
+  class-subscriptions.php  the host's subscribe checkboxes, and where to manage them
+  form/                    takeover, mount, nonce, layout, the text box, submit
+  identity/                who is commenting: the dialog, attribution
     checkpoint/         the popup sign-in, the exchange, the passport cookie, its REST routes
   shared/               signals, and the PHP-to-JS settings shape
 ```

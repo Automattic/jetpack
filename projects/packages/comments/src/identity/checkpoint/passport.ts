@@ -1,6 +1,7 @@
 /**
- * The display half of the passport: name and avatar, in a cookie the page can read. The page HTML is cached and shared, so this is the only place
- * a returning commenter's identity can come from.
+ * The display half of the passport: name and avatar, in a cookie the page can
+ * read. The HTML is cached and shared, so this is the only place a returning
+ * commenter's identity can come from.
  */
 
 import type { Passport } from '../../shared/types';
@@ -46,7 +47,7 @@ export const readPassport = (): Passport | null => {
 };
 
 /**
- * Forget the display cookie now, without waiting on the server's response.
+ * Forget the display cookie now, without waiting on the server.
  */
 export const clearPassport = (): void => {
 	const { displayCookie, cookiePath, cookieDomain } = JetpackComments.identity;

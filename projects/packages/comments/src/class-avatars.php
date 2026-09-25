@@ -1,6 +1,6 @@
 <?php
 /**
- * Avatars for comments already written.
+ * Avatars for comments, and for the reader about to leave one.
  *
  * @package automattic/jetpack-comments
  */
@@ -43,7 +43,7 @@ class Avatars {
 			$args['url']          = $url;
 			$args['found_avatar'] = true;
 		} elseif ( self::is_signed_in( (int) $id_or_email->comment_ID ) ) {
-			// The provider had no photo, so show the site default rather than a Gravatar the commenter never chose.
+			// The provider had no photo: the site default, not a Gravatar the commenter never chose.
 			$args['force_default'] = true;
 		}
 
@@ -89,8 +89,7 @@ class Avatars {
 			// Re-enters wpcom_avatar_url() with no comment, so it returns early there.
 			$url_class = wpcom_get_avatar_url( '', $size, '', true, true );
 
-			// Built for HTML, so its query string is joined with &amp;. Gravatar
-			// reads that as a parameter named amp;d and ignores the default.
+			// Built for HTML, so its query string is joined with &amp;, which Gravatar reads as a parameter named amp;d.
 			return is_array( $url_class ) ? html_entity_decode( (string) $url_class[0], ENT_QUOTES ) : '';
 		}
 
@@ -101,6 +100,34 @@ class Avatars {
 				'force_default' => true,
 			)
 		);
+	}
+
+	/**
+	 * The classes the theme's Avatar block wrapper carries, duotone included.
+	 *
+	 * Block supports add the duotone class at render and register its SVG for
+	 * the footer, so the wrapper goes through that support the way the block does.
+	 *
+	 * @return string
+	 */
+	public static function block_wrap_class() {
+		$class = 'wp-block-avatar';
+
+		if ( ! class_exists( 'WP_Duotone' ) || ! class_exists( 'WP_Block' ) ) {
+			return $class;
+		}
+
+		$parsed = array(
+			'blockName'    => 'core/avatar',
+			'attrs'        => array(),
+			'innerBlocks'  => array(),
+			'innerHTML'    => '',
+			'innerContent' => array(),
+		);
+
+		$html = \WP_Duotone::render_duotone_support( '<div class="' . $class . '"></div>', $parsed, new \WP_Block( $parsed ) );
+
+		return preg_match( '/class="([^"]*)"/', (string) $html, $match ) ? $match[1] : $class;
 	}
 
 	/**
