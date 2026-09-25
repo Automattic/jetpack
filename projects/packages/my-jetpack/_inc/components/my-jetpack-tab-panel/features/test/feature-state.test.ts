@@ -1,6 +1,6 @@
 import { PRODUCT_STATUSES } from '../../../../constants';
 import { PRODUCT_MODULES } from '../../products/mappings';
-import { resolveFeatureState } from '../feature-state';
+import { getForcedReason, resolveFeatureState } from '../feature-state';
 import type { ProductCamelCase } from '../../../../data/types';
 import type { MyJetpackModule } from '../../../../types';
 
@@ -202,6 +202,47 @@ describe( 'resolveFeatureState, for a feature its own plugin switches', () => {
 		expect(
 			resolveFeatureState( protect, 'not-installed', undefined, runningModule, {} ).status
 		).toBe( 'inactive' );
+	} );
+} );
+
+describe( 'resolveFeatureState, for a module the plan does not cover', () => {
+	// Search ships in Jetpack and as a plugin, and is unavailable without a Search plan.
+	const search = buildFeature( {
+		slug: 'search',
+		in_jetpack: true,
+		product: 'search',
+		plugin: 'jetpack-search',
+	} );
+
+	const forcedOff = {
+		search: buildModule( {
+			module: 'search',
+			available: false,
+			activated: false,
+			override: 'inactive',
+		} ),
+	};
+
+	it.each( [ 'not-installed', 'inactive' ] as const )(
+		'explains a host override instead of offering a %s plugin',
+		plugin_status => {
+			const state = resolve( { ...search, plugin_status }, 'active', forcedOff );
+
+			expect( state.control ).toEqual( { kind: 'module', module: forcedOff.search } );
+			expect( state.status ).toBe( 'inactive' );
+			expect( getForcedReason( state ) ).toBe( 'Disabled by your host or site administrator' );
+		}
+	);
+
+	it( 'still offers the plugin when nothing forced the module', () => {
+		const unforced = {
+			search: buildModule( { module: 'search', available: false, activated: false } ),
+		};
+
+		expect( resolve( search, 'active', unforced ).control ).toEqual( {
+			kind: 'install-plugin',
+			plugin: 'jetpack-search',
+		} );
 	} );
 } );
 
