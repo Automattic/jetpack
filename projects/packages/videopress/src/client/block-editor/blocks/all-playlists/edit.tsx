@@ -73,16 +73,8 @@ export default function AllPlaylistsEdit( {
 	attributes,
 	setAttributes,
 }: BlockEditProps< AllPlaylistsAttributes > ) {
-	const {
-		layout,
-		columns,
-		perPage,
-		orderBy,
-		showDescription,
-		showVideoCount,
-		showTotalRuntime,
-		pagination,
-	} = attributes;
+	const { layout, columns, perPage, orderBy, showDescription, showVideoCount, pagination } =
+		attributes;
 	const { status, html, summary } = useRenderedPreview( attributes );
 
 	const styleVars = blockStyleVars( attributes );
@@ -195,12 +187,6 @@ export default function AllPlaylistsEdit( {
 					label={ __( 'Video count', 'jetpack-videopress-pkg' ) }
 					checked={ showVideoCount }
 					onChange={ ( value: boolean ) => setAttributes( { showVideoCount: value } ) }
-				/>
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ __( 'Total runtime', 'jetpack-videopress-pkg' ) }
-					checked={ showTotalRuntime }
-					onChange={ ( value: boolean ) => setAttributes( { showTotalRuntime: value } ) }
 				/>
 			</PanelBody>
 

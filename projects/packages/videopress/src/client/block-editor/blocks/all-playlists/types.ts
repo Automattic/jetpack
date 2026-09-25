@@ -23,7 +23,6 @@ export type AllPlaylistsAttributes = BlockStyleAttributes & {
 	orderBy: AllPlaylistsOrder;
 	showDescription: boolean;
 	showVideoCount: boolean;
-	showTotalRuntime: boolean;
 	pagination: AllPlaylistsPagination;
 };
 

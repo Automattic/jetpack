@@ -63,10 +63,6 @@
 			"type": "boolean",
 			"default": true
 		},
-		"showTotalRuntime": {
-			"type": "boolean",
-			"default": false
-		},
 		"pagination": {
 			"type": "string",
 			"enum": [ "numbered", "load-more" ],

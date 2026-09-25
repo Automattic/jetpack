@@ -185,27 +185,25 @@ class All_Playlists_Block_Test extends BaseTestCase {
 	public function test_settings_normalizes_attributes() {
 		$this->assertSame(
 			array(
-				'layout'             => 'gallery',
-				'columns'            => 3,
-				'per_page'           => 6,
-				'order_by'           => 'newest',
-				'show_description'   => true,
-				'show_video_count'   => true,
-				'show_total_runtime' => false,
-				'pagination'         => 'numbered',
+				'layout'           => 'gallery',
+				'columns'          => 3,
+				'per_page'         => 6,
+				'order_by'         => 'newest',
+				'show_description' => true,
+				'show_video_count' => true,
+				'pagination'       => 'numbered',
 			),
 			All_Playlists_Block::settings( 'nope' )
 		);
 
 		$settings = All_Playlists_Block::settings(
 			array(
-				'layout'           => 'list',
-				'columns'          => 99,
-				'perPage'          => 0,
-				'orderBy'          => 'random',
-				'showDescription'  => false,
-				'showTotalRuntime' => 1,
-				'pagination'       => 'load-more',
+				'layout'          => 'list',
+				'columns'         => 99,
+				'perPage'         => 0,
+				'orderBy'         => 'random',
+				'showDescription' => false,
+				'pagination'      => 'load-more',
 			)
 		);
 		$this->assertSame( 'list', $settings['layout'] );
@@ -213,7 +211,6 @@ class All_Playlists_Block_Test extends BaseTestCase {
 		$this->assertSame( All_Playlists_Block::MIN_PER_PAGE, $settings['per_page'] );
 		$this->assertSame( 'newest', $settings['order_by'] );
 		$this->assertFalse( $settings['show_description'] );
-		$this->assertTrue( $settings['show_total_runtime'] );
 		$this->assertSame( 'load-more', $settings['pagination'] );
 	}
 
@@ -272,8 +269,7 @@ class All_Playlists_Block_Test extends BaseTestCase {
 		$this->assertStringContainsString( '0 videos</span>', $markup );
 		$this->assertSame( 1, substr_count( $markup, 'videopress-all-playlists__link' ) );
 
-		// Runtime is off by default; no pagination for a single page.
-		$this->assertStringNotContainsString( 'videopress-all-playlists__runtime', $markup );
+		// No pagination for a single page.
 		$this->assertStringNotContainsString( 'videopress-all-playlists__pagination', $markup );
 		$this->assertStringNotContainsString( 'videopress-all-playlists__load-more', $markup );
 	}
@@ -330,22 +326,20 @@ class All_Playlists_Block_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Description and badge can be hidden, and the total runtime shown.
+	 * Description and badge can be hidden.
 	 */
 	public function test_render_honors_the_per_card_toggles() {
 		$this->seed_index( array( 'one' => $this->record( 'One', $this->create_post(), 7, 'Text' ) ) );
 
 		$markup = All_Playlists_Block::render(
 			array(
-				'showDescription'  => false,
-				'showVideoCount'   => false,
-				'showTotalRuntime' => true,
+				'showDescription' => false,
+				'showVideoCount'  => false,
 			)
 		);
 
 		$this->assertStringNotContainsString( 'videopress-all-playlists__description', $markup );
 		$this->assertStringNotContainsString( 'videopress-all-playlists__badge', $markup );
-		$this->assertStringContainsString( '<span class="videopress-all-playlists__runtime">1 hr 10 min</span>', $markup );
 	}
 
 	/**

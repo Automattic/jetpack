@@ -35,7 +35,6 @@ describe( 'all playlists block registration', () => {
 		expect( attributes.orderBy.default ).toBe( 'newest' );
 		expect( attributes.showDescription.default ).toBe( true );
 		expect( attributes.showVideoCount.default ).toBe( true );
-		expect( attributes.showTotalRuntime.default ).toBe( false );
 		expect( attributes.pagination.default ).toBe( 'numbered' );
 
 		// Dynamic block: save() keeps only the heading inner block in the post.

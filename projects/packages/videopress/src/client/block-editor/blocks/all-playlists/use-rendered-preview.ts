@@ -53,16 +53,8 @@ export function splitRenderedPreview( html: string ): Pick< RenderedPreview, 'ht
  * @return The rendered markup, the index totals and the loading state.
  */
 export default function useRenderedPreview( attributes: AllPlaylistsAttributes ): RenderedPreview {
-	const {
-		layout,
-		columns,
-		perPage,
-		orderBy,
-		showDescription,
-		showVideoCount,
-		showTotalRuntime,
-		pagination,
-	} = attributes;
+	const { layout, columns, perPage, orderBy, showDescription, showVideoCount, pagination } =
+		attributes;
 	const [ preview, setPreview ] = useState< RenderedPreview >( {
 		status: 'loading',
 		html: '',
@@ -83,7 +75,6 @@ export default function useRenderedPreview( attributes: AllPlaylistsAttributes )
 					orderBy,
 					showDescription,
 					showVideoCount,
-					showTotalRuntime,
 					pagination,
 				},
 			} ),
@@ -102,16 +93,7 @@ export default function useRenderedPreview( attributes: AllPlaylistsAttributes )
 		return () => {
 			cancelled = true;
 		};
-	}, [
-		layout,
-		columns,
-		perPage,
-		orderBy,
-		showDescription,
-		showVideoCount,
-		showTotalRuntime,
-		pagination,
-	] );
+	}, [ layout, columns, perPage, orderBy, showDescription, showVideoCount, pagination ] );
 
 	return preview;
 }

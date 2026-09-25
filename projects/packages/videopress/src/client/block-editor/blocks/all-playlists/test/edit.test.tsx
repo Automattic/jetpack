@@ -39,7 +39,6 @@ const DEFAULT_ATTRIBUTES: AllPlaylistsAttributes = {
 	orderBy: 'newest',
 	showDescription: true,
 	showVideoCount: true,
-	showTotalRuntime: false,
 	pagination: 'numbered',
 };
 

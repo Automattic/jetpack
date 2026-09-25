@@ -108,7 +108,7 @@ class All_Playlists_Block {
 	 *
 	 * @param mixed $block_attributes Block attributes; anything but an array counts as none.
 	 *
-	 * @return array{layout: string, columns: int, per_page: int, order_by: string, show_description: bool, show_video_count: bool, show_total_runtime: bool, pagination: string}
+	 * @return array{layout: string, columns: int, per_page: int, order_by: string, show_description: bool, show_video_count: bool, pagination: string}
 	 */
 	public static function settings( $block_attributes ) {
 		$block_attributes = is_array( $block_attributes ) ? $block_attributes : array();
@@ -128,14 +128,13 @@ class All_Playlists_Block {
 		};
 
 		return array(
-			'layout'             => $pick( 'layout', self::LAYOUTS ),
-			'columns'            => $clamp( 'columns', self::MIN_COLUMNS, self::MAX_COLUMNS, self::DEFAULT_COLUMNS ),
-			'per_page'           => $clamp( 'perPage', self::MIN_PER_PAGE, self::MAX_PER_PAGE, self::DEFAULT_PER_PAGE ),
-			'order_by'           => $pick( 'orderBy', self::ORDERS ),
-			'show_description'   => $flag( 'showDescription', true ),
-			'show_video_count'   => $flag( 'showVideoCount', true ),
-			'show_total_runtime' => $flag( 'showTotalRuntime', false ),
-			'pagination'         => $pick( 'pagination', self::PAGINATIONS ),
+			'layout'           => $pick( 'layout', self::LAYOUTS ),
+			'columns'          => $clamp( 'columns', self::MIN_COLUMNS, self::MAX_COLUMNS, self::DEFAULT_COLUMNS ),
+			'per_page'         => $clamp( 'perPage', self::MIN_PER_PAGE, self::MAX_PER_PAGE, self::DEFAULT_PER_PAGE ),
+			'order_by'         => $pick( 'orderBy', self::ORDERS ),
+			'show_description' => $flag( 'showDescription', true ),
+			'show_video_count' => $flag( 'showVideoCount', true ),
+			'pagination'       => $pick( 'pagination', self::PAGINATIONS ),
 		);
 	}
 
@@ -473,21 +472,6 @@ class All_Playlists_Block {
 		);
 		if ( $settings['show_description'] && '' !== $playlist['description'] ) {
 			$body .= sprintf( '<p class="videopress-all-playlists__description">%s</p>', esc_html( $playlist['description'] ) );
-		}
-		if ( $settings['show_total_runtime'] ) {
-			$runtime = Initializer::playlist_runtime_label(
-				array_sum(
-					array_map(
-						function ( $video ) {
-							return isset( $video['durationMs'] ) && is_numeric( $video['durationMs'] ) ? (int) $video['durationMs'] : 0;
-						},
-						$playlist['videos']
-					)
-				)
-			);
-			if ( '' !== $runtime ) {
-				$body .= sprintf( '<span class="videopress-all-playlists__runtime">%s</span>', esc_html( $runtime ) );
-			}
 		}
 		$body .= sprintf(
 			'<span class="videopress-all-playlists__poster-note">%s</span>',
