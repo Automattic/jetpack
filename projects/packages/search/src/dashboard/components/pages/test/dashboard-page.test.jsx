@@ -16,10 +16,9 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 
 let mockHasConnectionError = false;
 
-jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => ( {
-	__esModule: true,
+jest.mock( '@automattic/jetpack-connection', () => ( {
 	ConnectionError: () => <div data-testid="connection-error" />,
-	default: () => ( { hasConnectionError: mockHasConnectionError } ),
+	useConnectionErrorNotice: () => ( { hasConnectionError: mockHasConnectionError } ),
 } ) );
 
 jest.mock( '@wordpress/data', () => ( {

@@ -1,8 +1,6 @@
 import { AdminPage, Button, getProductCheckoutUrl } from '@automattic/jetpack-components';
 import JitmSlot from '@automattic/jetpack-components/jitm-slot';
-import useConnectionErrorNotice, {
-	ConnectionError,
-} from '@automattic/jetpack-connection/use-connection-error-notice';
+import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Stack, Tabs } from '@wordpress/ui';
