@@ -21,7 +21,7 @@ import type { JetpackModuleSlug, MyJetpackModule } from '../../../types';
 export type FeatureControl =
 	| { kind: 'module'; module: MyJetpackModule }
 	| { kind: 'plugin'; plugin: string; override?: 'active' | 'inactive' }
-	| { kind: 'install-plugin'; plugin: string }
+	| { kind: 'install-plugin'; plugin: string; runsWithoutPlugin?: true }
 	| { kind: 'install-jetpack'; installed: boolean }
 	| { kind: 'none' };
 
@@ -133,11 +133,20 @@ export function resolveFeatureState(
 		const moduleIsOn = Boolean( $module?.available && $module.activated );
 
 		if ( feature.plugin_status === 'not-installed' ) {
+			// A plan runs Backup and Scan in the cloud with no plugin. Shim until JETPACK-2620,
+			// JETPACK-2805 and JETPACK-2806 settle where those land.
+			const runsWithoutPlugin =
+				Boolean( product?.hasPaidPlanForProduct ) && product?.status === PRODUCT_STATUSES.ACTIVE;
+
 			return {
 				feature,
 				product,
-				status: moduleIsOn ? 'active' : 'inactive',
-				control: { kind: 'install-plugin', plugin: feature.plugin },
+				status: moduleIsOn || runsWithoutPlugin ? 'active' : 'inactive',
+				control: {
+					kind: 'install-plugin',
+					plugin: feature.plugin,
+					...( runsWithoutPlugin && { runsWithoutPlugin: true as const } ),
+				},
 			};
 		}
 

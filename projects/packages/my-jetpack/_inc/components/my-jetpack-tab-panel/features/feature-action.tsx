@@ -1,7 +1,7 @@
 import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { FormToggle } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/ui';
+import { Button, LinkButton } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { ModuleToggle } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
@@ -129,6 +129,15 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 			);
 
 		case 'install-plugin':
+			// Already running on the plan, so the card opens it; Install stays in the modal.
+			if ( control.runsWithoutPlugin && feature.manage_url ) {
+				return (
+					<LinkButton href={ feature.manage_url } variant="outline" size="compact">
+						{ __( 'Open', 'jetpack-my-jetpack' ) }
+					</LinkButton>
+				);
+			}
+
 			return (
 				<InstallButton
 					plugin={ control.plugin }

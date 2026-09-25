@@ -204,3 +204,49 @@ describe( 'resolveFeatureState, for a feature its own plugin switches', () => {
 		).toBe( 'inactive' );
 	} );
 } );
+
+describe( 'resolveFeatureState, for a feature a plan runs without its plugin', () => {
+	const backup = buildFeature( {
+		slug: 'backup',
+		plugin: 'jetpack-backup',
+		plugin_status: 'not-installed',
+		product: 'backup',
+	} );
+
+	const withProduct = ( product: ProductCamelCase ) =>
+		resolveFeatureState( backup, 'active', product, {}, {} );
+
+	it( 'is active and opens in place of Install when a paid plan runs it', () => {
+		const state = withProduct( {
+			hasPaidPlanForProduct: true,
+			status: PRODUCT_STATUSES.ACTIVE,
+		} as ProductCamelCase );
+
+		expect( state.status ).toBe( 'active' );
+		expect( state.control ).toEqual( {
+			kind: 'install-plugin',
+			plugin: 'jetpack-backup',
+			runsWithoutPlugin: true,
+		} );
+	} );
+
+	it( 'still offers Install when no paid plan covers it', () => {
+		const state = withProduct( {
+			hasPaidPlanForProduct: false,
+			status: PRODUCT_STATUSES.ACTIVE,
+		} as ProductCamelCase );
+
+		expect( state.status ).toBe( 'inactive' );
+		expect( state.control ).toEqual( { kind: 'install-plugin', plugin: 'jetpack-backup' } );
+	} );
+
+	it( 'still offers Install when the plan covers it but it is not running', () => {
+		const state = withProduct( {
+			hasPaidPlanForProduct: true,
+			status: PRODUCT_STATUSES.ABSENT_WITH_PLAN,
+		} as ProductCamelCase );
+
+		expect( state.status ).toBe( 'inactive' );
+		expect( state.control ).toEqual( { kind: 'install-plugin', plugin: 'jetpack-backup' } );
+	} );
+} );
