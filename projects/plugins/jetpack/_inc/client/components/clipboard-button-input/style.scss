@@ -7,19 +7,18 @@
 	.dops-clipboard-button {
 		position: absolute;
 		top: 50%;
-		// Kept physical: paired with the physical long-content-fade mixin used below.
-		right: 4px;
+		inset-inline-end: 4px;
 		transform: translateY(-50%);
 		overflow: visible;
 
 		&:not(:disabled)::before {
 
-			@include long-content-fade.long-content-fade( $size: 16px );
-			right: calc(100% + 1px);
+			@include long-content-fade.long-content-fade( $size: 16px, $direction: inline-end );
+			inset-inline-end: calc(100% + 1px);
 		}
 
 		&:focus::before {
-			right: calc(100% + 3px);
+			inset-inline-end: calc(100% + 3px);
 		}
 	}
 }
