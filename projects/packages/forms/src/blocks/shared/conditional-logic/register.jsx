@@ -69,7 +69,10 @@ export const withConditionalLogic = createHigherOrderComponent(
 							setAttributes={ props.setAttributes }
 						/>
 					) : (
-						<ConditionalLogicUpsell blockName={ props.name } />
+						<ConditionalLogicUpsell
+							blockName={ props.name }
+							conditionalLogic={ props.attributes.conditionalLogic }
+						/>
 					) }
 				</Suspense>
 			</>

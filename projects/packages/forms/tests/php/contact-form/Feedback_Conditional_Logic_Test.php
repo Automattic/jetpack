@@ -22,7 +22,7 @@ class Feedback_Conditional_Logic_Test extends BaseTestCase {
 	}
 
 	protected function tear_down() {
-		remove_filter( 'jetpack_forms_conditional_logic_enabled', '__return_true' );
+		remove_all_filters( 'jetpack_forms_conditional_logic_enabled' );
 		parent::tear_down();
 		unset( $_POST );
 	}

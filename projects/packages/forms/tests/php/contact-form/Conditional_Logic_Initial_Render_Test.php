@@ -200,7 +200,6 @@ class Conditional_Logic_Initial_Render_Test extends BaseTestCase {
 	}
 
 	public function test_nothing_is_marked_when_the_feature_is_off() {
-		remove_filter( 'jetpack_forms_conditional_logic_enabled', '__return_true' );
 		add_filter( 'jetpack_forms_conditional_logic_enabled', '__return_false' );
 
 		$body = $this->render_body();
