@@ -269,7 +269,7 @@ function TosNotice() {
 		),
 		{
 			tos: createElement( 'a', {
-				href: 'https://wordpress.com/tos/',
+				href: 'https://automattic.com/tos/',
 				target: '_blank',
 				rel: 'noopener noreferrer',
 			} ),
