@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Overview: Let the pointer take over from the arrow keys in the score history, instead of flickering between the hovered and selected days.

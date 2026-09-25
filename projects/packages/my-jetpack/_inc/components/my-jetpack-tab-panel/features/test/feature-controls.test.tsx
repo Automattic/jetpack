@@ -249,7 +249,7 @@ describe( 'FeatureModalActions', () => {
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'leaves the reason for a module forced off to "How to get it"', () => {
+	it( 'says why a module forced off cannot be switched, in place of the switch', () => {
 		const forcedOff = {
 			...forcedModule,
 			activated: false,
@@ -258,7 +258,7 @@ describe( 'FeatureModalActions', () => {
 
 		render( <FeatureModalActions state={ buildState( { kind: 'module', module: forcedOff } ) } /> );
 
-		expect( screen.queryByText( /by your host or site administrator/ ) ).not.toBeInTheDocument();
+		expect( screen.getByText( /by your host or site administrator/ ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
 } );

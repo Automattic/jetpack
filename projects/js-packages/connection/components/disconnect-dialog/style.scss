@@ -94,13 +94,13 @@
 			height: 80px;
 			background: linear-gradient(to bottom, rgba(0, 0, 0, 0), var(--jp-white-off));
 			bottom: calc(100% + 1px);
-			left: 0;
+			inset-inline-start: 0;
 		}
 	}
 
 	&__btn-dismiss {
 		background: var(--jp-black) !important;
-		margin-right: 10px;
+		margin-inline-end: 10px;
 	}
 
 	&__btn-disconnect {

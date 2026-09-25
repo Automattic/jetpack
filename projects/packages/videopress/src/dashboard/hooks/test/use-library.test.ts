@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { getApiFetchMock, mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestWrapper } from '../../test-utils/query-client-wrapper';
 import { setSimpleSite, unsetSimpleSite } from '../../test-utils/simple-site';
@@ -10,6 +10,8 @@ import {
 	nextProcessingPoll,
 	toLibraryItem,
 	LIBRARY_POLL_INTERVAL_MS,
+	PROCESSING_POLL_SLOW_INTERVAL_MS,
+	PROCESSING_POLL_BACKOFF_MS,
 	PROCESSING_POLL_MAX_MS,
 } from '../use-library';
 import type { View } from '@wordpress/dataviews';
@@ -77,6 +79,11 @@ describe( 'viewToQueryArgs', () => {
 } );
 
 describe( 'libraryRefetchInterval', () => {
+	it( 'backs off after the first minute', () => {
+		expect( libraryRefetchInterval( true, PROCESSING_POLL_BACKOFF_MS - 1 ) ).toBe( 5000 );
+		expect( libraryRefetchInterval( true, PROCESSING_POLL_BACKOFF_MS ) ).toBe( 15000 );
+	} );
+
 	it( 'does not poll when nothing is processing', () => {
 		expect( libraryRefetchInterval( false, 0 ) ).toBe( false );
 		// Elapsed time is irrelevant once processing has cleared.
@@ -86,7 +93,7 @@ describe( 'libraryRefetchInterval', () => {
 	it( 'polls while processing and under the cap', () => {
 		expect( libraryRefetchInterval( true, 0 ) ).toBe( LIBRARY_POLL_INTERVAL_MS );
 		expect( libraryRefetchInterval( true, PROCESSING_POLL_MAX_MS - 1 ) ).toBe(
-			LIBRARY_POLL_INTERVAL_MS
+			PROCESSING_POLL_SLOW_INTERVAL_MS
 		);
 	} );
 
@@ -108,7 +115,7 @@ describe( 'nextProcessingPoll', () => {
 		const stamped = nextProcessingPoll( null, [ '7' ], 1_000 ).anchor;
 		const underCap = nextProcessingPoll( stamped, [ '7' ], 1_000 + PROCESSING_POLL_MAX_MS - 1 );
 		expect( underCap.anchor ).toBe( stamped );
-		expect( underCap.interval ).toBe( LIBRARY_POLL_INTERVAL_MS );
+		expect( underCap.interval ).toBe( PROCESSING_POLL_SLOW_INTERVAL_MS );
 		const atCap = nextProcessingPoll( stamped, [ '7' ], 1_000 + PROCESSING_POLL_MAX_MS );
 		expect( atCap.interval ).toBe( false );
 	} );
@@ -208,6 +215,66 @@ describe( 'useLibrary', () => {
 
 		await waitFor( () => expect( result.current.items.length ).toBeGreaterThan( 0 ) );
 		expect( result.current.items[ 0 ].title ).toBe( 'Molly’s “Best” Day' );
+	} );
+
+	describe( 'polling a processing item', () => {
+		beforeEach( () => {
+			jest.useFakeTimers();
+			mockApiFetch( async () => ( {
+				headers: { get: ( name: string ) => ( name.startsWith( 'X-WP-Total' ) ? '1' : null ) },
+				json: async () => [
+					{ id: 5, mime_type: 'video/videopress', jetpack_videopress: { guid: 'abc' } },
+				],
+			} ) );
+		} );
+
+		afterEach( () => {
+			jest.useRealTimers();
+		} );
+
+		it.each( [
+			[ 'polls by default', undefined, 2 ],
+			[ 'holds off when polling is off', { poll: false }, 1 ],
+		] )( '%s', async ( _label, options, expectedFetches ) => {
+			const { result } = renderHook( () => useLibrary( DEFAULT_VIEW, options ), {
+				wrapper: createTestWrapper(),
+			} );
+			await waitFor( () => expect( result.current.items[ 0 ]?.isProcessing ).toBe( true ) );
+
+			await act( async () => {
+				jest.advanceTimersByTime( LIBRARY_POLL_INTERVAL_MS );
+			} );
+
+			expect( getApiFetchMock() ).toHaveBeenCalledTimes( expectedFetches );
+		} );
+	} );
+} );
+
+describe( 'toLibraryItem', () => {
+	it( 'maps a video/videopress attachment whose guid has not arrived yet to a processing VideoPress item', () => {
+		const item = toLibraryItem(
+			{
+				id: 11,
+				title: { rendered: 'Just uploaded' },
+				mime_type: 'video/videopress',
+				media_details: {},
+				jetpack_videopress: { guid: '' },
+			},
+			false
+		);
+
+		expect( item.type ).toBe( 'videopress' );
+		expect( item.isProcessing ).toBe( true );
+	} );
+
+	it( 'keeps a guid-less attachment with a regular video mime local', () => {
+		const item = toLibraryItem(
+			{ id: 12, title: { rendered: 'On disk' }, mime_type: 'video/mp4', media_details: {} },
+			false
+		);
+
+		expect( item.type ).toBe( 'local' );
+		expect( item.isProcessing ).toBe( false );
 	} );
 } );
 
@@ -376,6 +443,23 @@ describe( 'on WordPress.com Simple', () => {
 			expect( withDimensions( 1080, 1080 ).orientation ).toBeNull();
 			expect( withDimensions( undefined, undefined ).orientation ).toBeNull();
 			expect( withDimensions( 1920, undefined ).orientation ).toBeNull();
+		} );
+
+		it( 'keeps the original upload separate from the rendered playback source', () => {
+			const raw = {
+				id: 11,
+				source_url: 'https://example.com/edited.mp4',
+				media_details: {
+					original: 'https://example.com/simple-original.mov',
+					videopress: { original: 'https://example.com/original.mov' },
+				},
+			};
+			expect( toLibraryItem( raw, false ).originalUrl ).toBe( 'https://example.com/original.mov' );
+			expect(
+				toLibraryItem( { ...raw, media_details: { original: raw.media_details.original } }, true )
+					.originalUrl
+			).toBe( 'https://example.com/simple-original.mov' );
+			expect( toLibraryItem( { ...raw, media_details: {} }, false ).originalUrl ).toBeUndefined();
 		} );
 
 		it( 'picks the best MP4 rendition for playbackUrl (dvd → std → hd)', () => {

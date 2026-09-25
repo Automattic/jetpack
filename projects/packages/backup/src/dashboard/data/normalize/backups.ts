@@ -63,6 +63,7 @@ export function normalizeBackup( entry: RawBackupEntry ): Backup {
 		isBackup: toBoolean( entry.is_backup ),
 		isDiscarded: toBoolean( entry.discarded ),
 		hasStats: Boolean( entry.stats && Object.keys( entry.stats ).length > 0 ),
+		hasWarnings: Boolean( entry.has_warnings ),
 	};
 }
 

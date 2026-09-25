@@ -18,9 +18,9 @@
 |---|---|---|
 | PHP unit tests (PHPUnit) | 532 tests, 1289 assertions | ✅ All passing |
 | JS unit tests (Jest) | 509 tests, 20 suites | ✅ All passing |
-| E2E tests (Playwright) | 42 specs, 0 skipped | ✅ All passing |
+| E2E tests (Playwright) | 41 specs, 0 skipped | ✅ All passing |
 | Manual-only test points | 13 | Pending |
-| **Total** | **1083** | **PHPUnit + Jest + Playwright green** |
+| **Total** | **1082** | **PHPUnit + Jest + Playwright green** |
 
 ---
 
@@ -88,7 +88,7 @@ All files live in `projects/packages/paypal-payments/tests/js/`. Modules contain
 
 **Pass criteria:** 100% pass rate, zero skipped. ✅ Met
 
-### 2.3 E2E Tests — 42 specs (Playwright) ✅ 0 skipped
+### 2.3 E2E Tests — 41 specs (Playwright) ✅ 0 skipped
 
 **Run command:**
 ```bash
@@ -109,7 +109,7 @@ pnpm test:run
 | Error Flow | ✅ | Empty name disabled, zero price disabled, blur field error, API 400 notice | WOOPTP-154 |
 | Legacy Block Compatibility | ✅ | Legacy paste-code indicator in the editor, front-end rendering of V1 markup | WOOPTP-154 |
 | Disconnect Flow | ✅ | Disconnect and delete via sidebar InspectorControls | WOOPTP-154 |
-| Production Default | ✅ | Connected badge, environment defaults to production | WOOPTP-163 |
+| Production Default | ✅ | Connect request defaults to the production environment | WOOPTP-163 |
 | Token Pre-validation | ✅ | 403 shows Payment Links guidance + stays on Credentials, 403 clears partial state, 5xx does not block connection | WOOPTP-164 |
 | SVG Block Icon | ✅ | SVG in block inserter, SVG in block toolbar | WOOPTP-166 |
 | Format Switcher | ✅ | Button/Link/QR selection, switching format without recreating the product, front-end anchor and standalone QR canvas | WOOPTP-390 |
@@ -242,7 +242,7 @@ All of the following must be true before the PR is submitted:
 |---|---|---|
 | PHP unit tests | 532/532 pass, 1289 assertions | ✅ |
 | JS unit tests | 509/509 pass, 20 suites | ✅ |
-| E2E tests | 42/42 pass, 0 skipped | ✅ |
+| E2E tests | 41/41 pass, 0 skipped | ✅ |
 | Manual checklist | All 13 points checked | Pending |
 | Zero critical security issues | From PHP adversarial council review (Priority 2) | Pending |
 | Product confirmations | BN code approach (WOOPTP-187) ✅ + RUB sanctions flag ✅ | ✅ Done — RUB confirmed NOT allowed on the Pay Links & Buttons API. Removed from readme. Never present in code. |

@@ -35,6 +35,7 @@ import { useMcpSettings } from './mcp/use-mcp-settings';
 import { getSiteLevelEnabled } from './mcp/utils';
 import McpWrite from './mcp/write';
 import AiOverview from './overview';
+import { EVENTS, recordAiHubEvent } from './tracks';
 
 // Split into its own chunk: only this tab uses DataViews and the AI client.
 const ScheduledTasks = lazy(
@@ -195,6 +196,7 @@ export default function App() {
 		userConnectionUrl = 'admin.php?page=my-jetpack#/connection',
 		manageUrl = 'admin.php?page=my-jetpack#/features',
 		hasMyJetpack = true,
+		canConnectSite = true,
 		isOfflineMode = false,
 		showFeaturesView = false,
 		showA12sBadge = false,
@@ -261,6 +263,12 @@ export default function App() {
 	// The first path segment names the owning tab, so sub-views keep their
 	// parent tab (MCP and Connectors) selected.
 	const activeTab = view.split( '/' )[ 0 ];
+
+	useEffect( () => {
+		if ( showFeaturesView ) {
+			recordAiHubEvent( EVENTS.VIEWED, { tab: activeTab } );
+		}
+	}, [ activeTab, showFeaturesView ] );
 
 	useEffect( () => {
 		if ( ! isLoading && hasMcpAccess && isMcpContext && ! mcpViewedRecorded.current ) {
@@ -439,6 +447,7 @@ export default function App() {
 					userConnectionUrl={ userConnectionUrl }
 					manageUrl={ manageUrl }
 					hasMyJetpack={ hasMyJetpack }
+					canConnectSite={ canConnectSite }
 				/>
 
 				{ isMcpContext && (

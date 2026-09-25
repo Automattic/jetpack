@@ -98,7 +98,7 @@
 		box-shadow: none;
 
 		&:first-child {
-			border-right: 0;
+			border-inline-end: 0;
 		}
 
 		&.is-primary {
@@ -107,7 +107,7 @@
 			border: 1.5px solid colors.$black;
 
 			&:last-child {
-				border-left: 0;
+				border-inline-start: 0;
 			}
 		}
 	}

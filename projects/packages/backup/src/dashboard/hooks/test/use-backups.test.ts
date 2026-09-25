@@ -23,6 +23,7 @@ function backup( overrides: Partial< Backup > = {} ): Backup {
 		isBackup: true,
 		isDiscarded: false,
 		hasStats: true,
+		hasWarnings: false,
 		...overrides,
 	};
 }
@@ -54,6 +55,7 @@ describe( 'summarizeBackups', () => {
 			state: 'no-backups',
 			progress: 0,
 			isInitialBackup: true,
+			hasWarnings: false,
 		} );
 	} );
 
@@ -117,6 +119,21 @@ describe( 'summarizeBackups', () => {
 
 	it( 'reports a usable restore point as complete', () => {
 		expect( summarizeBackups( [ backup() ] ).state ).toBe( 'complete' );
+	} );
+
+	it( 'carries the completed backup’s warnings through', () => {
+		expect( summarizeBackups( [ backup( { hasWarnings: true } ) ] ).hasWarnings ).toBe( true );
+		expect( summarizeBackups( [ backup() ] ).hasWarnings ).toBe( false );
+	} );
+
+	it( 'reads warnings off the usable backup, not a failed attempt ahead of it', () => {
+		const summary = summarizeBackups( [
+			backup( { id: 'failed', status: 'error-will-retry', hasStats: false } ),
+			backup( { id: 'good', hasWarnings: true } ),
+		] );
+
+		expect( summary.state ).toBe( 'complete' );
+		expect( summary.hasWarnings ).toBe( true );
 	} );
 } );
 

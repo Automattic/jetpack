@@ -34,6 +34,7 @@ const COUNT_FORMAT: DataFormat = {
 };
 
 const DAYS_AGO = [ 30, 60, 90 ] as const;
+const MONTH_AGO = [ 30 ] as const;
 
 const DAYS_AGO_LABELS: Record< ( typeof DAYS_AGO )[ number ], string > = {
 	30: __( '30 days ago', 'jetpack-premium-analytics-pkg' ),
@@ -63,8 +64,25 @@ type Tile = {
 	label: string;
 	icon: typeof people;
 	value: number | null;
+	previousValue?: number | null;
 	note?: string;
 };
+
+function freeCount( total?: number, paid?: number ) {
+	return total !== undefined && paid !== undefined ? Math.max( 0, total - paid ) : undefined;
+}
+
+// The 30-day bucket is the same count as `subscribers/counts`, stored when it last changed, so it compares like with like.
+function valueMonthAgo( current?: number, monthAgo?: number ) {
+	if ( current === undefined || monthAgo === undefined ) {
+		return null;
+	}
+	// MetricDelta has no percentage from zero and would show its placeholder instead.
+	if ( monthAgo === 0 && current !== 0 ) {
+		return null;
+	}
+	return monthAgo;
+}
 
 function SubscriberHighlightsReport() {
 	const counts = useStatsSubscribersCounts();
@@ -76,8 +94,19 @@ function SubscriberHighlightsReport() {
 	// Without counts the card can't tell which tiles a site should see, so it shows the error rather than guessing.
 	const countsFailed = counts.isError && total === undefined;
 	const hasPaidSubscribers = ( paid ?? 0 ) > 0;
-	const showsHistory = ! counts.isLoading && ! countsFailed && ! hasPaidSubscribers;
+	const countsReady = ! counts.isLoading && ! countsFailed;
+	const showsHistory = countsReady && ! hasPaidSubscribers;
+	const showsChange = countsReady && hasPaidSubscribers;
 	const past = useStatsSubscribersDaysAgo( DAYS_AGO, { enabled: showsHistory } );
+	const monthAgo = useStatsSubscribersDaysAgo( MONTH_AGO, { enabled: showsChange } );
+
+	const free = freeCount( total, paid );
+	const totalMonthAgo = valueMonthAgo( total, monthAgo.counts[ 0 ] );
+	const paidMonthAgo = valueMonthAgo( paid, monthAgo.paidCounts[ 0 ] );
+	const freeMonthAgo = valueMonthAgo(
+		free,
+		freeCount( monthAgo.counts[ 0 ], monthAgo.paidCounts[ 0 ] )
+	);
 
 	const breakdownTiles: Tile[] = [
 		{
@@ -85,17 +114,31 @@ function SubscriberHighlightsReport() {
 			label: __( 'Paid subscribers', 'jetpack-premium-analytics-pkg' ),
 			icon: payment,
 			value: paid ?? null,
-			note: __( 'Paid WordPress.com subscribers', 'jetpack-premium-analytics-pkg' ),
+			previousValue: paidMonthAgo,
+			note:
+				paidMonthAgo !== null
+					? __(
+							'Paid WordPress.com subscribers. The change is since 30 days ago.',
+							'jetpack-premium-analytics-pkg'
+						)
+					: __( 'Paid WordPress.com subscribers', 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			key: 'free',
 			label: __( 'Free subscribers', 'jetpack-premium-analytics-pkg' ),
 			icon: envelope,
-			value: total !== undefined && paid !== undefined ? Math.max( 0, total - paid ) : null,
-			note: __(
-				'Email subscribers and free WordPress.com subscribers',
-				'jetpack-premium-analytics-pkg'
-			),
+			value: free ?? null,
+			previousValue: freeMonthAgo,
+			note:
+				freeMonthAgo !== null
+					? __(
+							'Email subscribers and free WordPress.com subscribers. The change is since 30 days ago.',
+							'jetpack-premium-analytics-pkg'
+						)
+					: __(
+							'Email subscribers and free WordPress.com subscribers',
+							'jetpack-premium-analytics-pkg'
+						),
 		},
 	];
 
@@ -107,6 +150,7 @@ function SubscriberHighlightsReport() {
 						label: __( 'Social followers', 'jetpack-premium-analytics-pkg' ),
 						icon: share,
 						value: social ?? null,
+						previousValue: hasPaidSubscribers ? null : undefined,
 						note: sprintf(
 							/* translators: %s is the label of the All-time subscribers tile. */
 							__( 'Social media subscribers, not included in %s', 'jetpack-premium-analytics-pkg' ),
@@ -130,10 +174,17 @@ function SubscriberHighlightsReport() {
 			label: ALL_TIME_LABEL,
 			icon: people,
 			value: total ?? null,
-			note: __(
-				'Total subscribers excluding social media subscribers',
-				'jetpack-premium-analytics-pkg'
-			),
+			previousValue: hasPaidSubscribers ? totalMonthAgo : undefined,
+			note:
+				hasPaidSubscribers && totalMonthAgo !== null
+					? __(
+							'Total subscribers excluding social media subscribers. The change is since 30 days ago.',
+							'jetpack-premium-analytics-pkg'
+						)
+					: __(
+							'Total subscribers excluding social media subscribers',
+							'jetpack-premium-analytics-pkg'
+						),
 		},
 		...( hasPaidSubscribers ? breakdownTiles : historyTiles ),
 		...socialTiles,
@@ -148,7 +199,7 @@ function SubscriberHighlightsReport() {
 		<div className={ styles.root }>
 			<WidgetState
 				isLoading={ isLoading }
-				isFetching={ counts.isFetching || past.isFetching }
+				isFetching={ counts.isFetching || past.isFetching || monthAgo.isFetching }
 				// `placeholderData` keeps the last counts on screen, so a transient refetch failure should not replace them with an error.
 				isError={ countsFailed || ( showsHistory && past.isError && ! hasHistory ) }
 				isEmpty={ ! hasCounts }
@@ -162,8 +213,12 @@ function SubscriberHighlightsReport() {
 							label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
 							onClick: () => {
 								counts.refetch();
+								// `refetch()` ignores `enabled`, so only the active series is asked again.
 								if ( showsHistory ) {
 									past.refetch();
+								}
+								if ( showsChange ) {
+									monthAgo.refetch();
 								}
 							},
 						},

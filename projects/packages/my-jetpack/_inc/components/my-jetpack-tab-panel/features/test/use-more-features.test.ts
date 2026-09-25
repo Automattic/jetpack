@@ -22,7 +22,7 @@ const modules = Object.fromEntries(
 		mod( 'zeta' ),
 		mod( 'alpha' ),
 		mod( 'waf', { available: false } ),
-		// Legacy: hidden while it is off.
+		// Deprecated: left out by the hidden set, as the hook passes it.
 		mod( 'google-fonts' ),
 	].map( $module => [ $module.module, $module ] )
 );
@@ -33,8 +33,10 @@ const features = [
 ] as MainFeature[];
 
 const groups = [
-	{ label: 'Security', modules: [ 'monitor', 'sso', 'waf' ] },
+	// Listed out of order: the group sorts by name, not by this list.
+	{ label: 'Security', modules: [ 'sso', 'waf', 'monitor' ] },
 	{ label: 'Design', modules: [ 'google-fonts' ] },
+	{ label: 'Analytics', modules: [ 'zeta' ] },
 	{ label: 'Earn', modules: [ 'wordads' ] },
 ];
 
@@ -42,12 +44,20 @@ const slugsOf = ( grouped: ReturnType< typeof groupMoreFeatures > ) =>
 	grouped.map( group => [ group.label, group.states.map( state => state.feature.slug ) ] );
 
 describe( 'groupMoreFeatures', () => {
-	const grouped = groupMoreFeatures( features, groups, modules, { social: 'publicize' }, {} );
+	const grouped = groupMoreFeatures(
+		features,
+		groups,
+		modules,
+		{ social: 'publicize' },
+		{},
+		new Set( [ 'google-fonts' ] )
+	);
 
-	it( 'keeps the listed order, drops empty groups and leaves out covered, unavailable and legacy modules', () => {
+	it( 'sorts groups and their modules by name with Other last, drops empty groups and leaves out covered, unavailable and hidden modules', () => {
 		expect( slugsOf( grouped ) ).toEqual( [
+			[ 'Analytics', [ 'zeta' ] ],
 			[ 'Security', [ 'monitor', 'sso' ] ],
-			[ 'Other', [ 'alpha', 'zeta' ] ],
+			[ 'Other', [ 'alpha' ] ],
 		] );
 	} );
 
@@ -72,7 +82,7 @@ describe( 'groupMoreFeatures', () => {
 
 	it( 'shows the value a switch asked for while its request is out', () => {
 		const asked = groupMoreFeatures( features, groups, modules, {}, { 'module:monitor': true } );
-		const monitor = asked[ 0 ].states[ 0 ];
+		const monitor = asked.find( group => group.label === 'Security' )!.states[ 0 ];
 
 		expect( monitor.status ).toBe( 'active' );
 		expect( monitor.isSwitching ).toBe( true );
@@ -85,7 +95,7 @@ describe( 'groupMoreFeatures', () => {
 			);
 
 		expect( filtered( 'active' ) ).toEqual( [ 'sso' ] );
-		expect( filtered( 'inactive' ) ).toEqual( [ 'monitor', 'alpha', 'zeta' ] );
+		expect( filtered( 'inactive' ) ).toEqual( [ 'zeta', 'monitor', 'alpha' ] );
 		expect( filtered( 'security' ) ).toEqual( [] );
 		expect( filtered( 'essential' ) ).toEqual( [] );
 	} );
@@ -105,5 +115,63 @@ describe( 'groupMoreFeatures', () => {
 		const found = filterMoreFeatures( grouped, 'active', 'monitor' );
 
 		expect( slugsOf( found ) ).toEqual( [ [ 'Security', [ 'monitor' ] ] ] );
+	} );
+} );
+
+describe( 'getHiddenModules', () => {
+	const design = {
+		'google-fonts': mod( 'google-fonts' ),
+		widgets: mod( 'widgets', { activated: true } ),
+		'widget-visibility': mod( 'widget-visibility' ),
+	};
+	// A fresh copy per case: the page-load snapshot is module-scoped.
+	const hiddenOnLoad = async (
+		isBlockTheme: boolean,
+		...loads: Record< string, MyJetpackModule >[]
+	) => {
+		window.JetpackScriptData = {
+			myJetpack: { siteEditor: { isBlockTheme } },
+		} as Window[ 'JetpackScriptData' ];
+		let hidden: Set< string > = new Set();
+		await jest.isolateModulesAsync( async () => {
+			const { getHiddenModules } = await import( '../use-more-features' );
+			loads.forEach( load => ( hidden = getHiddenModules( load ) ) );
+		} );
+		return [ ...hidden ];
+	};
+
+	it( 'hides Google Fonts and, on a block theme, the widget modules, unless one is on', async () => {
+		await expect( hiddenOnLoad( true, design ) ).resolves.toEqual( [
+			'google-fonts',
+			'widget-visibility',
+		] );
+	} );
+
+	it( 'keeps the widget modules on a classic theme', async () => {
+		await expect( hiddenOnLoad( false, design ) ).resolves.toEqual( [ 'google-fonts' ] );
+	} );
+
+	it( 'keeps a module switched off since the page loaded', async () => {
+		const off = { ...design, widgets: mod( 'widgets' ) };
+
+		await expect( hiddenOnLoad( true, design, off ) ).resolves.toEqual( [
+			'google-fonts',
+			'widget-visibility',
+		] );
+	} );
+
+	it( 'drops the Design group once nothing in it is left', () => {
+		const grouped = groupMoreFeatures(
+			[],
+			[ { label: 'Design', modules: [ 'google-fonts', 'widget-visibility' ] } ],
+			design,
+			{},
+			{},
+			new Set( [ 'google-fonts', 'widget-visibility' ] )
+		);
+
+		expect( grouped.map( group => group.label ) ).not.toContain( 'Design' );
+		// Hidden, not moved: they must not resurface under Other.
+		expect( slugsOf( grouped ).flatMap( ( [ , slugs ] ) => slugs ) ).toEqual( [ 'widgets' ] );
 	} );
 } );

@@ -19,7 +19,7 @@ import { EVENTS, recordAiHubEvent } from '../tracks';
 // features invite you to try them (AI SEO opens its settings), disabled ones
 // link to documentation via registered Jetpack Redirects handlers. A row with
 // a single `action` shows that link in both states.
-const getSections = seoSettingsUrl => [
+const getSections = ( seoSettingsUrl, searchSettingsUrl ) => [
 	{
 		key: 'content',
 		title: __( 'Content', 'jetpack' ),
@@ -100,12 +100,10 @@ const getSections = seoSettingsUrl => [
 					'Help visitors and AI agents find answers in your content, via Jetpack Search.',
 					'jetpack'
 				),
-				enabledAction: {
-					label: __( 'Open Search Settings', 'jetpack' ),
-					// The toggle lives on the Search dashboard's AI tab, not Overview.
-					href: 'admin.php?page=jetpack-search#/ai-answers',
-				},
-				disabledAction: {
+				enabledAction: searchSettingsUrl
+					? { label: __( 'Open Search Settings', 'jetpack' ), href: searchSettingsUrl }
+					: undefined,
+				action: {
 					label: __( 'Learn more', 'jetpack' ),
 					href: getRedirectUrl( 'jetpack-ai-settings-search-learn-more' ),
 					external: true,
@@ -254,7 +252,9 @@ export default function AiFeatures( {
 
 	const seoSettingsUrl =
 		features.ai_seo?.can_manage === true ? window?.jetpackAiSettings?.seoSettingsUrl : undefined;
-	const sections = visibleSections( getSections( seoSettingsUrl ), features );
+	// '' where the host removed the Search dashboard; the row then keeps Learn more.
+	const searchSettingsUrl = window?.jetpackAiSettings?.searchSettingsUrl;
+	const sections = visibleSections( getSections( seoSettingsUrl, searchSettingsUrl ), features );
 
 	const handleToggle = useCallback(
 		( key, enabled ) => {

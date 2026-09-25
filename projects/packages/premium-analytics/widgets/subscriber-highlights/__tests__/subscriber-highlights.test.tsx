@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 /**
@@ -26,6 +26,7 @@ type Responses = {
 	social?: number;
 	failCounts?: boolean;
 	byDate?: Record< string, number | null >;
+	paidByDate?: Record< string, number | null >;
 	failDates?: string[];
 };
 
@@ -35,6 +36,7 @@ function respondWith( {
 	social,
 	failCounts = false,
 	byDate = {},
+	paidByDate = {},
 	failDates = [],
 }: Responses ) {
 	return ( { path }: { path: string } ) => {
@@ -65,13 +67,33 @@ function respondWith( {
 			date,
 			unit: 'day',
 			fields: [ 'period', 'subscribers', 'subscribers_paid' ],
-			data: date in byDate ? [ [ date, byDate[ date ], 0 ] ] : [],
+			data:
+				date in byDate
+					? [ [ date, byDate[ date ], date in paidByDate ? paidByDate[ date ] : 0 ] ]
+					: [],
 		} );
 	};
 }
 
 function tileValues() {
-	return screen.getAllByRole( 'listitem' ).map( tile => tile.textContent );
+	return screen.getAllByRole( 'listitem' ).map( item => item.textContent );
+}
+
+function tile( label: string ) {
+	const match = screen
+		.getAllByRole( 'listitem' )
+		.find( item => item.textContent?.startsWith( label ) );
+	if ( ! match ) {
+		throw new Error( `No tile labelled ${ label }` );
+	}
+	return match;
+}
+
+function requestedSeriesDates() {
+	return mockApiFetch.mock.calls
+		.map( call => call[ 0 ].path as string )
+		.filter( path => path.includes( 'stats/subscribers' ) )
+		.map( path => new URL( path, 'https://example.test' ).searchParams.get( 'date' ) );
 }
 
 describe( 'SubscriberHighlightsWidget', () => {
@@ -181,14 +203,7 @@ describe( 'SubscriberHighlightsWidget', () => {
 	} );
 
 	it( 'shows paid, free and social instead of the history when the site has paid subscribers', async () => {
-		mockApiFetch.mockImplementation(
-			respondWith( {
-				total: 428,
-				paid: 117,
-				social: 64,
-				byDate: { '2026-08-16': 317 },
-			} )
-		);
+		mockApiFetch.mockImplementation( respondWith( { total: 428, paid: 117, social: 64 } ) );
 
 		render( <SubscriberHighlightsWidget attributes={ {} } /> );
 
@@ -199,8 +214,115 @@ describe( 'SubscriberHighlightsWidget', () => {
 			expect.stringMatching( /^Free subscribers.*311$/ ),
 			expect.stringMatching( /^Social followers.*64$/ ),
 		] );
-		const requestedPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
-		expect( requestedPaths.some( path => path.includes( 'stats/subscribers' ) ) ).toBe( false );
+		expect( requestedSeriesDates() ).toEqual( [ '2026-08-16' ] );
+	} );
+
+	it( 'shows each count with its change since 30 days ago when the site has paid subscribers', async () => {
+		mockApiFetch.mockImplementation(
+			respondWith( {
+				total: 428,
+				paid: 117,
+				byDate: { '2026-08-16': 400 },
+				paidByDate: { '2026-08-16': 100 },
+			} )
+		);
+
+		render( <SubscriberHighlightsWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( '+7%' ) ).resolves.toBeInTheDocument();
+		expect( within( tile( 'All-time subscribers' ) ).getByText( '428' ) ).toBeInTheDocument();
+		expect( within( tile( 'All-time subscribers' ) ).getByText( '+7%' ) ).toBeInTheDocument();
+		expect( within( tile( 'Paid subscribers' ) ).getByText( '117' ) ).toBeInTheDocument();
+		expect( within( tile( 'Paid subscribers' ) ).getByText( '+17%' ) ).toBeInTheDocument();
+		expect( within( tile( 'Free subscribers' ) ).getByText( '311' ) ).toBeInTheDocument();
+		expect( within( tile( 'Free subscribers' ) ).getByText( '+4%' ) ).toBeInTheDocument();
+		expect(
+			within( tile( 'Paid subscribers' ) ).getByText(
+				'Paid WordPress.com subscribers. The change is since 30 days ago.'
+			)
+		).toBeInTheDocument();
+	} );
+
+	it( 'shows the counts before the 30-day change arrives', async () => {
+		mockApiFetch.mockImplementation( ( request: { path: string } ) =>
+			request.path.includes( 'stats/subscribers' )
+				? new Promise( () => {} )
+				: respondWith( { total: 428, paid: 117 } )( request )
+		);
+
+		render( <SubscriberHighlightsWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( '428' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows no change on a tile with no count 30 days ago', async () => {
+		mockApiFetch.mockImplementation(
+			respondWith( {
+				total: 428,
+				paid: 117,
+				byDate: { '2026-08-16': 400 },
+				paidByDate: { '2026-08-16': null },
+			} )
+		);
+
+		render( <SubscriberHighlightsWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( '+7%' ) ).resolves.toBeInTheDocument();
+		expect( within( tile( 'Paid subscribers' ) ).queryByText( /%$/ ) ).not.toBeInTheDocument();
+		expect( within( tile( 'Free subscribers' ) ).queryByText( /%$/ ) ).not.toBeInTheDocument();
+		expect(
+			within( tile( 'Paid subscribers' ) ).getByText( 'Paid WordPress.com subscribers' )
+		).toBeInTheDocument();
+	} );
+
+	it( 'shows no change on a tile that was zero 30 days ago', async () => {
+		mockApiFetch.mockImplementation(
+			respondWith( {
+				total: 428,
+				paid: 117,
+				byDate: { '2026-08-16': 400 },
+				paidByDate: { '2026-08-16': 0 },
+			} )
+		);
+
+		render( <SubscriberHighlightsWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( '+7%' ) ).resolves.toBeInTheDocument();
+		expect( within( tile( 'Paid subscribers' ) ).queryByText( '—' ) ).not.toBeInTheDocument();
+		expect( within( tile( 'Paid subscribers' ) ).queryByText( /%$/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the counts rather than the error when the 30-day request fails', async () => {
+		mockApiFetch.mockImplementation(
+			respondWith( { total: 428, paid: 117, failDates: [ '2026-08-16' ] } )
+		);
+
+		render( <SubscriberHighlightsWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( '428' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( ERROR_TEXT ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /%$/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'asks for the 30-day count again when Retry recovers the counts on a paid site', async () => {
+		mockApiFetch.mockImplementation( respondWith( { failCounts: true } ) );
+
+		render( <SubscriberHighlightsWidget attributes={ {} } /> );
+
+		const retry = await screen.findByRole( 'button', { name: 'Retry' } );
+		mockApiFetch.mockClear();
+		mockApiFetch.mockImplementation(
+			respondWith( {
+				total: 428,
+				paid: 117,
+				byDate: { '2026-08-16': 400 },
+				paidByDate: { '2026-08-16': 100 },
+			} )
+		);
+		await userEvent.setup( { advanceTimers: jest.advanceTimersByTime } ).click( retry );
+
+		await expect( screen.findByText( '+7%' ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'shows the error instead of guessing the tiles when the counts request fails', async () => {

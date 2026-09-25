@@ -8,7 +8,10 @@ import ActivityList, { activityQueryArgs } from '../components/activity-list';
 import BackupDetail from '../components/backup-detail';
 import BackupNowButton from '../components/backup-now-button';
 import BackupStatusPanel, { replacesOverview } from '../components/backup-status';
-import BackupStatusBanner, { BackupTroubleBanner } from '../components/backup-status/banner';
+import BackupStatusBanner, {
+	BackupTroubleBanner,
+	BackupWarningsBanner,
+} from '../components/backup-status/banner';
 import DashboardLayout from '../components/dashboard-layout';
 import NextScheduledBackup from '../components/next-scheduled-backup';
 import QueryError from '../components/query-error';
@@ -202,6 +205,7 @@ function OverviewBody() {
 		state: backupsState,
 		progress,
 		isInitialBackup,
+		hasWarnings,
 		error: backupsError,
 		isRefetching: backupsRefetching,
 		refetch: refetchBackups,
@@ -323,6 +327,7 @@ function OverviewBody() {
 			 * loading, so the terminal case still reports immediately.
 			 */ }
 			{ ! restorePointsLoading && <BackupTroubleBanner state={ backupsState } /> }
+			{ backupsState === 'complete' && hasWarnings && <BackupWarningsBanner /> }
 			{ /*
 			 * When the next one runs, above the storage section because that is the
 			 * order legacy reads in.

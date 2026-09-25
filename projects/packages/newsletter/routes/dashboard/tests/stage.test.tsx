@@ -36,6 +36,11 @@ jest.mock( '@automattic/jetpack-connection/use-connection', () => ( {
 	default: () => mockConnection(),
 } ) );
 
+jest.mock( '@automattic/jetpack-connection/get-user-connection-url', () => ( {
+	getUserConnectionUrl: ( options: { from?: string; redirect_url?: string } ) =>
+		`https://example.com/wp-admin/admin.php?connect_from=${ options.from }&redirect_url=${ options.redirect_url }`,
+} ) );
+
 jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => mockSearch(),
 } ) );
@@ -82,7 +87,16 @@ jest.mock( '../../../_inc/subscribers/lib/query-client', () => ( {
 } ) );
 
 jest.mock( '../../../src/settings/newsletter-settings', () => ( {
-	NewsletterSettingsBody: () => null,
+	NewsletterSettingsBody: ( {
+		hasConnectedOwner,
+		connectUrl,
+	}: {
+		hasConnectedOwner?: boolean;
+		connectUrl?: string;
+	} ) =>
+		hasConnectedOwner === false ? (
+			<div data-testid="settings-owner-warning" data-connect-url={ connectUrl } />
+		) : null,
 } ) );
 
 jest.mock( '../components/overview-body', () => ( {
@@ -264,6 +278,39 @@ describe( 'Newsletter dashboard Stage connection gate', () => {
 
 		expect( screen.getByTestId( 'subscribers-body' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'connection-gate' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'Newsletter dashboard Stage Settings owner warning', () => {
+	it( 'passes hasConnectedOwner and connectUrl so the Settings tab can warn a disconnected owner', () => {
+		mockSearch.mockReturnValue( { tab: 'settings' } );
+
+		render( <Stage /> );
+
+		const warning = screen.getByTestId( 'settings-owner-warning' );
+		expect( warning ).toBeInTheDocument();
+		expect( warning ).toHaveAttribute(
+			'data-connect-url',
+			'https://example.com/wp-admin/admin.php?connect_from=jetpack-newsletter&redirect_url=https://example.com/wp-admin/admin.php?page=jetpack-newsletter'
+		);
+	} );
+
+	it( 'does not warn when the owner is connected', () => {
+		mockConnection.mockReturnValue( connected );
+		mockSearch.mockReturnValue( { tab: 'settings' } );
+
+		render( <Stage /> );
+
+		expect( screen.queryByTestId( 'settings-owner-warning' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'does not warn on a Simple site even without a Jetpack connection', () => {
+		mockIsSimpleSite.mockReturnValue( true );
+		mockSearch.mockReturnValue( { tab: 'settings' } );
+
+		render( <Stage /> );
+
+		expect( screen.queryByTestId( 'settings-owner-warning' ) ).not.toBeInTheDocument();
 	} );
 } );
 

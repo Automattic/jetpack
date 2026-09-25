@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Replace the Products tab with the Features tab, and remove the Products page.
+Show the Features tab in place of the Products tab by default, and link the footer's modules links to the Features list view.

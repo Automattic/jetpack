@@ -27,6 +27,11 @@ class Jetpack_Ai extends Module_Product {
 	const UPGRADED_TIER_SLUG = 'upgraded';
 
 	/**
+	 * How many requests a site gets before it has to upgrade.
+	 */
+	const FREE_REQUESTS = 20;
+
+	/**
 	 * The product slug
 	 *
 	 * @var string
@@ -125,7 +130,8 @@ class Jetpack_Ai extends Module_Product {
 
 		$current_tier        = self::get_current_usage_tier();
 		$current_description = 0 === $current_tier
-			? __( 'Up to 20 requests', 'jetpack-my-jetpack' )
+			/* translators: %d is the number of free requests, such as 20. */
+			? sprintf( _n( 'Up to %d request', 'Up to %d requests', self::FREE_REQUESTS, 'jetpack-my-jetpack' ), self::FREE_REQUESTS )
 			/* translators: number of requests */
 			: sprintf( __( 'Up to %d requests per month', 'jetpack-my-jetpack' ), $current_tier );
 		$next_tier        = self::get_next_usage_tier();
