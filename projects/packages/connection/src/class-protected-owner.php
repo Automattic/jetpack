@@ -40,7 +40,7 @@ class Protected_Owner {
 	}
 
 	/**
-	 * Record a confirmed protected owner and lock the anchor.
+	 * Record the owner WordPress.com has confirmed for this site.
 	 *
 	 * @since 9.3.0
 	 * @since 9.6.0 No longer records how the owner was confirmed.
