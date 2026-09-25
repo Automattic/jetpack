@@ -87,7 +87,7 @@ class Avatars {
 	public static function default_url( $size ) {
 		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
 			// Re-enters wpcom_avatar_url() with no comment, so it returns early there.
-			$url_class = wpcom_get_avatar_url( '', $size, '', true, true );
+			$url_class = wpcom_get_avatar_url( '', $size, '', false, true );
 
 			// Built for HTML, so its query string is joined with &amp;, which Gravatar reads as a parameter named amp;d.
 			return is_array( $url_class ) ? html_entity_decode( (string) $url_class[0], ENT_QUOTES ) : '';

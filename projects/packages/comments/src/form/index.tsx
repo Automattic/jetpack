@@ -129,7 +129,8 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		};
 	}, [ form, formSettings, isSavingComment, commentValue, isKnown, isDialogOpen ] );
 
-	const avatar = signedIn.value?.avatar || avatarUrl;
+	// Empty when the site shows no avatars, which a popup sign-in's does not override.
+	const avatar = avatarUrl && ( signedIn.value?.avatar || avatarUrl );
 	const { submit } = formSettings;
 
 	return (

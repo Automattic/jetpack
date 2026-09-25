@@ -58,9 +58,11 @@ class Identity {
 			return $settings;
 		}
 
-		$settings['avatarUrl'] = $commenter['comment_author_email']
-			? html_entity_decode( (string) get_avatar_url( $commenter['comment_author_email'], array( 'size' => 80 ) ), ENT_QUOTES )
-			: Avatars::default_url( 80 );
+		if ( get_option( 'show_avatars' ) ) {
+			$settings['avatarUrl'] = $commenter['comment_author_email']
+				? html_entity_decode( (string) get_avatar_url( $commenter['comment_author_email'], array( 'size' => 80 ) ), ENT_QUOTES )
+				: Avatars::default_url( 80 );
+		}
 
 		if ( ! Checkpoint::is_available() ) {
 			return $settings;
