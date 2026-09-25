@@ -39,10 +39,7 @@ final class Likes_Options {
 	}
 
 	/**
-	 * Whether the Comment Likes option is on.
-	 *
-	 * - On WordPress.com Simple, this option is what switches Comment Likes on and off.
-	 * - On Atomic and Jetpack sites, the Comment Likes module does that, and this option is unused.
+	 * Whether the Comment Likes option is on. Only WordPress.com Simple reads it.
 	 */
 	public static function comment_likes_enabled(): bool {
 		/** This filter is documented in projects/plugins/jetpack/modules/likes/jetpack-likes-settings.php */

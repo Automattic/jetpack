@@ -147,10 +147,7 @@ final class Environment {
 	}
 
 	/**
-	 * Whether Comment Likes read the Likes settings: the sitewide default and placement.
-	 *
-	 * - On Atomic and self-hosted Jetpack sites, the module only renders where `is_likes_visible()` holds.
-	 * - On WordPress.com Simple, Comment Likes only read `jetpack_comment_likes_enabled`.
+	 * Whether Comment Likes read the Likes settings: the sitewide default and placement. Simple's do not.
 	 */
 	public static function comment_likes_follow_likes_settings(): bool {
 		return ! self::is_simple_site() && self::comment_likes_module_running();
@@ -160,9 +157,7 @@ final class Environment {
 	 * Whether anything on this site still reads the Likes settings.
 	 *
 	 * Both features are gated on `disabled_likes` and the shared placement, so
-	 * either one keeps those controls worth showing. Switching the buttons off
-	 * for every post does not end that: posts still opt in one by one, and
-	 * Comment Likes reads the same settings either way.
+	 * either one running makes the Likes placement defaults the ones that apply.
 	 */
 	public static function likes_settings_in_use(): bool {
 		return self::likes_module_running() || self::comment_likes_module_running();

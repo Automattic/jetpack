@@ -98,8 +98,8 @@ disagree on what Comment Likes read:
 
 `Environment::comment_likes_follow_likes_settings()` is that split. Where it
 holds, the section states where Comment Likes appear, placement stays on screen
-with both button features off, and once the Likes module is off the section
-also carries the sitewide default (`Likes_Section::render_sitewide_default_row()`),
+with both button features off, and whenever the Like buttons section shows no
+options, the section also carries the sitewide default (`Likes_Section::render_sitewide_default_row()`),
 claiming `Settings_Form::SECTION_LIKES` so the Likes save handles it. That is
 why Comment Likes do not hold back the Like block route.
 

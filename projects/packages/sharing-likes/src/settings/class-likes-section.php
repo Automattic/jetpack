@@ -92,8 +92,7 @@ final class Likes_Section {
 	 * Whether the Like block is a route we can send this site down.
 	 *
 	 * A block theme alone is not enough: the block must be registered, and the
-	 * theme must have a single post template to add it to. Comment Likes do not
-	 * hold the route back, since `Comment_Likes_Section` keeps the settings they read.
+	 * theme must have a single post template to add it to.
 	 */
 	private static function can_offer_block(): bool {
 		return Environment::is_block_theme()

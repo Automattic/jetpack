@@ -44,7 +44,7 @@ final class Settings_Form {
 	public const SECTION_SHARING = 'sharing';
 
 	/**
-	 * The Like buttons settings.
+	 * The Like buttons settings, or just their sitewide default when `Comment_Likes_Section` renders it.
 	 */
 	public const SECTION_LIKES = 'likes';
 

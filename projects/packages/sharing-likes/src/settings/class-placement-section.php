@@ -39,7 +39,7 @@ final class Placement_Section {
 	 * Where a feature's buttons currently appear, stated inside that feature's
 	 * own section.
 	 *
-	 * This setting governs both features but lives in neither, so each section
+	 * This setting governs several features but lives in none, so each section
 	 * says what it means for that feature and links here to change it. It also
 	 * surfaces a placement that hides the buttons entirely, which is otherwise
 	 * only visible on this section further down the page.
