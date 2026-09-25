@@ -86,6 +86,17 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * Brute Force Protection sits with Security, Shortlinks with Engagement, and Infinite Scroll in Other.
+	 */
+	public function test_module_groups_place_the_regrouped_modules() {
+		$groups = array_column( Main_Features::get_module_groups(), 'modules', 'label' );
+
+		$this->assertContains( 'protect', $groups['Security'] );
+		$this->assertContains( 'shortlinks', $groups['Engagement'] );
+		$this->assertNotContains( 'infinite-scroll', array_merge( ...array_values( $groups ) ) );
+	}
+
+	/**
 	 * The essential set is what a site is nudged towards, so it is asserted explicitly
 	 * rather than left to whoever edits the catalog next.
 	 */

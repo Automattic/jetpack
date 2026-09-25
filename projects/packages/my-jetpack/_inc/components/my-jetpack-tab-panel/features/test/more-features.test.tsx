@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { getModuleSettingsUrl } from '../feature-item';
+import { FeatureItem, getModuleSettingsUrl } from '../feature-item';
 import { MoreFeatures } from '../more-features';
 import { getModuleFeatureState } from '../use-more-features';
 import type { MyJetpackModule } from '../../../../types';
@@ -92,6 +92,31 @@ describe( 'MoreFeatures', () => {
 
 		rerender( section( configured, { 'module:sharedaddy': true } ) );
 		expect( link() ).not.toBeInTheDocument();
+	} );
+
+	it( 'links to no settings where the Site Editor block replaces the module', () => {
+		setSiteEditor( {
+			isBlockTheme: true,
+			isSharingBlockAvailable: true,
+			activeThemeStylesheet: 'twentytwentyfour',
+		} );
+
+		renderSection( { ...sharing, activated: true, configure_url: 'https://example.com/settings' } );
+
+		expect(
+			screen.getByText( 'Legacy sharing buttons cannot be customized on block themes.' )
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /settings/ } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'leaves the settings link to the details of a card that opens them', () => {
+		setSiteEditor( { isBlockTheme: false } );
+		const active = { ...sharing, activated: true, configure_url: 'https://example.com/settings' };
+
+		render( <FeatureItem state={ getModuleFeatureState( active, {} ) } onOpen={ jest.fn() } /> );
+
+		expect( screen.getByText( sharing.name ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /settings/ } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'drops a settings link that would lead only to the module\u2019s own switch', () => {
