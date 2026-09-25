@@ -150,23 +150,21 @@ export function FeatureItem( {
 				<Text variant="body-md" className={ styles[ 'feature-item__description' ] }>
 					{ migration?.notice ?? feature.description }
 				</Text>
-
-				{ settingsUrl && (
-					<Link
-						href={ settingsUrl }
-						className={ styles[ 'feature-item__settings' ] }
-						aria-label={ sprintf(
-							/* translators: %s is the feature name. */
-							__( '%s settings', 'jetpack-my-jetpack' ),
-							feature.name
-						) }
-					>
-						{ __( 'Settings', 'jetpack-my-jetpack' ) }
-					</Link>
-				) }
 			</span>
 
 			<span className={ styles[ 'feature-action-slot' ] }>
+				{ settingsUrl && (
+					<Link
+						href={ settingsUrl }
+						aria-label={ sprintf(
+							/* translators: %s is the feature name. */
+							__( 'Configure %s', 'jetpack-my-jetpack' ),
+							feature.name
+						) }
+					>
+						{ __( 'Configure', 'jetpack-my-jetpack' ) }
+					</Link>
+				) }
 				<FeatureAction state={ state } describedby={ migration ? undefined : statusId } />
 			</span>
 
