@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Admin_UI;
 
+use Automattic\Jetpack\Feature_Policy;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 use Jetpack_Tracks_Client;
@@ -17,7 +18,7 @@ use Jetpack_Tracks_Client;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.13.0';
+	const PACKAGE_VERSION = '0.14.0';
 
 	/**
 	 * Slug used for the upgrade menu item and redirect URL.
@@ -608,6 +609,11 @@ class Admin_Menu {
 	 * @return array Map of item key to one of the VISIBILITY_* states.
 	 */
 	private static function get_visibility_states() {
+		// This filter is one a policy feeds, and nothing else need have read the policy this request.
+		if ( method_exists( Feature_Policy::class, 'ensure_hooks' ) ) {
+			Feature_Policy::ensure_hooks();
+		}
+
 		$states = array();
 		$items  = array_merge( self::$menu_items, self::$top_level_items );
 

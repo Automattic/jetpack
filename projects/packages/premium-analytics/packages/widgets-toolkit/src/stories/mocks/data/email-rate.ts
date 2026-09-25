@@ -10,8 +10,14 @@
  */
 export function buildEmailRateResponse( metric: 'opens' | 'clicks' ) {
 	if ( metric === 'clicks' ) {
-		return { total_sends: 1000, total_opens: 400, total_clicks: 40, clicks_rate: 0.0381 };
+		return {
+			total_clicks: 40,
+			unique_clicks: 38,
+			total_sends: 1000,
+			total_opens: 400,
+			clicks_rate: 0.038,
+		};
 	}
 
-	return { total_sends: 1000, total_opens: 400, unique_opens: 380, opens_rate: 0.381 };
+	return { total_sends: 1000, unique_opens: 381, total_opens: 400, opens_rate: 0.381 };
 }

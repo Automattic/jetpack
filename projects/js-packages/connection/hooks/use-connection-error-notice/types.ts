@@ -108,6 +108,14 @@ export interface ConnectionErrorProps {
 }
 
 /**
+ * How much of a problem the errors are for the viewer.
+ *
+ * `warning` marks a break only somebody else can repair, so the viewer is being
+ * told rather than asked to act.
+ */
+export type ConnectionErrorSeverity = 'error' | 'warning';
+
+/**
  * Identity of the person looking at the notice, used to phrase an error's scope
  * from their point of view ("Your account" vs "Another user's account").
  */
@@ -177,6 +185,8 @@ export interface UseConnectionErrorNoticeResult {
 	 * this never wraps an empty notice.
 	 */
 	hasConnectionError: boolean;
+	/** How much of a problem it is for this viewer, or null when nothing is broken. */
+	severity: ConnectionErrorSeverity | null;
 	/** The effective error's message, if any. */
 	connectionErrorMessage: string | undefined;
 	/** The full effective error object (with `error_type`, `error_data`, etc.). */

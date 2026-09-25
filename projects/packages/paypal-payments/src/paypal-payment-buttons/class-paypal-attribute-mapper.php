@@ -109,7 +109,7 @@ class PayPal_Attribute_Mapper {
 	 *
 	 * @var int
 	 */
-	const MAX_RETURN_URL_LENGTH = 127;
+	const MAX_RETURN_URL_LENGTH = 1024;
 
 	/**
 	 * Maximum product id (SKU) length.
@@ -549,10 +549,11 @@ class PayPal_Attribute_Mapper {
 		// Optional: return URL validation.
 		if ( ! empty( $attributes['returnUrl'] ) ) {
 			$return_url = esc_url_raw( $attributes['returnUrl'] );
-			if ( empty( $return_url ) || ! wp_http_validate_url( $return_url ) || 0 !== strpos( $return_url, 'https://' ) ) {
+			// wp_http_validate_url() accepts `//example.com`, so check the scheme as well.
+			if ( empty( $return_url ) || ! wp_http_validate_url( $return_url ) || ! preg_match( '#^https?://#', $return_url ) ) {
 				return new WP_Error(
 					'invalid_return_url',
-					__( 'Return URL must be a valid HTTPS URL.', 'jetpack-paypal-payments' ),
+					__( 'Return URL must be a valid URL.', 'jetpack-paypal-payments' ),
 					array( 'status' => 400 )
 				);
 			}

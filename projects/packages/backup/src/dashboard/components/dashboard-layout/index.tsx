@@ -1,5 +1,6 @@
 import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { Page } from '@wordpress/admin-ui';
 import { __ } from '@wordpress/i18n';
 import Gates from '../gates';
@@ -52,6 +53,7 @@ export default function DashboardLayout( { children, actions }: Props ) {
 		>
 			<div className="jpb-dashboard-body">
 				<div className="jpb-dashboard-body__inner">
+					<JitmSlot />
 					<Gates>{ children }</Gates>
 				</div>
 			</div>

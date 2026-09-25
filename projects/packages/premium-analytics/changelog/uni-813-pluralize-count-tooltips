@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: Show "1 Subscriber" rather than "1 Subscribers" in tooltips, using each language's plural rules.

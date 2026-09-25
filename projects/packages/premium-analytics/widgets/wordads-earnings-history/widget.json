@@ -3,7 +3,7 @@
 	"title": "WordAds earnings",
 	"description": "Your WordAds earnings by period, with amounts and payment status.",
 	"help": {
-		"content": "Each row is one payment period, with what you earned and whether it has been paid. Open the full report for ads served and the rest of the history."
+		"content": "What each billing month earned from programmatic ads, and whether it has been paid. Whole months only, so the month in progress isn’t listed."
 	},
 	"category": "stats",
 	"presentation": "framed"

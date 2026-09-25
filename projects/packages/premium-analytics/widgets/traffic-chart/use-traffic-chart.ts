@@ -106,6 +106,7 @@ export default function useTrafficChart(
 						hasComparison: isViewsVisitors ? vvHasComparison : lcHasComparison,
 						field: metric.id,
 						label: metric.label,
+						countLabel: metric.countLabel,
 						zone: isViewsVisitors ? vvZone : lcZone,
 					} ),
 					counterpartKey: 'counterpartId' in metric ? metric.counterpartId : undefined,

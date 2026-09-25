@@ -7,9 +7,12 @@ Guidance for AI coding agents working on the Sharing & Likes package.
 Today it owns the wp-admin Settings > Sharing screen, under `src/settings/`: menu
 registration, the two feature sections (Sharing buttons, Like buttons), the
 shared placement section, the extras section, and the form handling for all of
-them. The Jetpack plugin registers it unconditionally from the `is_admin()`
-block in `load-jetpack.php`, so the screen and every section on it exist
-whichever modules are active.
+them. The Jetpack plugin hooks it up from the `is_admin()` block in
+`load-jetpack.php`, so the screen and every section on it exist whichever
+modules are active. The menu itself only registers where
+`Environment::settings_screen_supported()` holds (Simple, a connected site, or
+offline mode): anywhere else neither the modules nor their blocks load, so
+the screen would have nothing to offer.
 
 `Section_State` decides which of four variants a section renders. `Environment`
 reads the site facts it needs. Everything else renders.
@@ -88,14 +91,6 @@ the plugin's copy of that class. `modules/likes.php` never loads on Simple;
 delete from `Jetpack_Likes_Settings` can therefore break Simple without a single
 reference in this repo.
 
-**Simple still hangs the Likes settings on `sharing_global_options`**, from
-`wp-content/mu-plugins/likes/jetpack-likes.php`, until CM-913 removes that hookup.
-`Services_Config::global_options()` leaves `admin_settings_init()` out wherever it
-fires the action: the Likes section renders those settings itself, and a second
-set of the same radios would join the same form. Do not delete
-`admin_settings_init()` or `admin_settings_callback()` from `Jetpack_Likes_Settings`
-before that lands; wpcom still calls them.
-
 **`WP_SHARING_PLUGIN_URL` is not the same thing in both environments.** The
 plugin defines it with `plugin_dir_url()`; wpcom hardcodes a sun/moon-aware path
 in `post-flair.php`. Moving the admin assets out of `modules/sharedaddy/` is a
@@ -119,34 +114,44 @@ the top of the page, `sharing_global_options` at the end of the services table,
 `sharing_admin_update` on any save that rendered that action's fields, and
 `sharing_show_buttons_on_row_start` / `_end` around the placement row. All four
 are now documented here rather than in `modules/sharedaddy/sharing.php`, which no
-longer fires any of them.
+longer fires any of them. Nothing in the monorepo hooks
+`pre_admin_screen_sharing` either; it fires for third parties only.
 
-`sharing_global_options` is the one with a gap to watch. It normally fires from
-`Services_Config`, which only renders when the Sharing section configures, but its
-consumers are not all gated on that module — `Twitter_Cards` hangs the Twitter
-Site Tag there and is gated only on `jetpack_disable_twitter_cards`. That is what
-`Extras_Section` is for: whenever the services list is hidden, it renders the same
-action as a section of its own, and a save fires `sharing_admin_update` for it.
+`Services_Config::global_options()` is where that action fires. The rows it
+returns close the services table: the screen's own two first, `Sharing_Resources`
+("Disable CSS and JS") and `Twitter_Site_Tag`, then whatever third parties hang
+off the action. `Post_Handler::save_global_options()` saves them the same way:
+the screen's own fields under the screen's nonce, then `sharing_admin_update`.
+Nothing in the monorepo hooks either action any more. A setting the screen shows
+belongs in a class here with `is_available()`, `render()` and `save()`, not on a
+hook.
 
-The Site Tag is worth that trouble because it still drives output with both
+Not every row depends on the Sharing module, which is what `Extras_Section` is
+for: whenever the services list is hidden, it renders the same rows as a section
+of its own. `Sharing_Resources` never reaches it, since it only affects legacy
+buttons; `Twitter_Site_Tag` does. The Site Tag still drives output with both
 Sharing and Publicize off. Open Graph is not the reason — `Jetpack::check_open_graph()`
 only enables it for those two modules, so the `twitter:site` meta tag does go away.
 The Sharing Buttons block is: `Sharing_Source_Block::sharing_x_via()` reads the same
 `jetpack_twitter_cards_site_tag` filter for the X share URL's `via`, and that block is
 registered on `init` whatever the modules are doing. Which is the route this screen
-sends people down when it offers `BLOCK_CALL_TO_ACTION`.
+sends people down when it offers `BLOCK_CALL_TO_ACTION`. Simple shows the field
+too, although its Twitter Cards read `twitter_via`: wpcom serves and saves
+`jetpack-twitter-cards-site-tag` from `twitter_via` there, so the field manages
+the value Simple uses. Do not give Simple a second field for `twitter_via`.
 
-Firing that action under a nonce its consumers did not mint is not free, and the
-rule is not "consumers verify their own nonces" — check before adding one.
-`Twitter_Cards` names its own field, so it saves correctly. A consumer that
-verifies `sharing-options` — `Jetpack_Likes_Settings::admin_settings_callback()`,
-hooked on Simple — fails closed and silently saves nothing. A consumer that
-verifies nothing and relies on the caller having done it — sharedaddy's
-`sharing_global_resources_save()` — writes unconditionally. Only the last is
-dangerous, and it is safe today only because its own field renders from the same
-action, so the form posts it back. A consumer that saves without rendering would
-reset its setting on every save, which is also why the hook only fires when one of
-its two hosts was on screen.
+Each `save()` bails where its `render()` would have printed nothing: an unchecked
+box posts nothing, so saving a field that was not on screen would switch it off.
+That is also why `sharing_admin_update` only fires when one of its two hosts was
+on screen. A `save()` alone is not enough for a field whose availability can move
+between the two requests, though — a service added since the form was built flips
+`Sharing_Resources::is_available()` on — so `Post_Handler` gates that one on the
+services section having claimed the form too. Firing it under a nonce its consumers did not mint is not free, and the
+rule is not "consumers verify their own nonces" — check before adding one. A
+consumer that verifies the old screen's `sharing-options` nonce fails closed and
+silently saves nothing. A consumer that
+verifies nothing, relying on the caller having done it, writes whatever the
+request carries.
 
 ## Placement defaults
 

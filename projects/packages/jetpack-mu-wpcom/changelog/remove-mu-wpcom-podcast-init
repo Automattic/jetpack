@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Stop bundling the podcast package; Jetpack provides it on Simple and Atomic.

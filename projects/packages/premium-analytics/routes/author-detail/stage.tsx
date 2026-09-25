@@ -35,7 +35,7 @@ import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { DETAIL_GRID } from '../grid';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { useWidgetModules } from '../use-widget-modules';
-import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
+import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { toWidgetTypeBaseNames, withWidgetTypeAliases } from '../widget-type-aliases';
 import { authorHeaderSlots } from './components';
 import { AUTHOR_DETAIL_LAYOUT, AUTHOR_DETAIL_WIDGET_TYPE_ALIASES } from './config';
@@ -58,6 +58,7 @@ function AuthorDetail(): JSX.Element {
 	const summary = useAuthorSummary( Number( authorIdParam ) );
 
 	const widgetModules = useWidgetModules();
+	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
 
 	const { layout, setLayout, resetLayout } = useStoredDetailLayout(
 		PREFERENCES_SCOPE,
@@ -119,7 +120,13 @@ function AuthorDetail(): JSX.Element {
 		startCustomizing,
 		resetToDefault,
 		onEditChange,
-	} = useDetailPageCustomize( layout, { enabled: canRenderWidgets, onLayoutReset: resetLayout } );
+		onLayoutChange,
+	} = useDetailPageCustomize( layout, {
+		enabled: canRenderWidgets,
+		onLayoutReset: resetLayout,
+		onLayoutChange: setLayout,
+		surface: 'author_detail',
+	} );
 
 	// The trail is fixed to Stats / All authors / Author regardless of which report
 	// the reader arrived from: the author list is this page's only parent.
@@ -185,9 +192,9 @@ function AuthorDetail(): JSX.Element {
 			<WidgetDashboard
 				widgetTypes={ pageWidgetTypes }
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
-				resolveWidgetModule={ resolveWidgetModuleWithI18n }
+				resolveWidgetModule={ resolveWidgetModule }
 				layout={ layout }
-				onLayoutChange={ setLayout }
+				onLayoutChange={ onLayoutChange }
 				onLayoutReset={ resetLayout }
 				gridSettings={ DETAIL_GRID }
 				editMode={ isCustomizing }

@@ -1,4 +1,4 @@
-import { queueActivationRequest } from '../queue-activation-request';
+import { holdActivationQueue, queueActivationRequest } from '../queue-activation-request';
 
 const flush = () => new Promise( resolve => setTimeout( resolve, 0 ) );
 
@@ -75,5 +75,42 @@ describe( 'queueActivationRequest', () => {
 		expect( secondStarted ).toBe( false );
 
 		jest.useRealTimers();
+	} );
+} );
+
+describe( 'holdActivationQueue', () => {
+	it( 'starts at once, and holds requests queued even before it until it settles', async () => {
+		const order: string[] = [];
+		let releaseQueued: () => void = () => undefined;
+		let releaseHold: () => void = () => undefined;
+
+		const queued = queueActivationRequest(
+			() => new Promise< void >( resolve => ( releaseQueued = resolve ) )
+		);
+		const after = queueActivationRequest( () => {
+			order.push( 'after:start' );
+			return Promise.resolve();
+		} );
+
+		await flush();
+
+		const held = holdActivationQueue( () => {
+			order.push( 'hold:start' );
+			return new Promise< void >( resolve => ( releaseHold = resolve ) );
+		} );
+
+		// Starts while the request ahead of it is still out.
+		expect( order ).toEqual( [ 'hold:start' ] );
+
+		releaseQueued();
+		await queued;
+		await flush();
+
+		expect( order ).toEqual( [ 'hold:start' ] );
+
+		releaseHold();
+		await Promise.all( [ held, after ] );
+
+		expect( order ).toEqual( [ 'hold:start', 'after:start' ] );
 	} );
 } );

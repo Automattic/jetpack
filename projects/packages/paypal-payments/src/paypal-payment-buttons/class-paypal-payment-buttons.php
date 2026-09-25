@@ -210,8 +210,7 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * Width and Border, for whichever element the format puts them on — the
-	 * checkout button or the QR frame.
+	 * Width and Border, for the QR frame.
 	 *
 	 * Every value is validated before the style engine sees it.
 	 * wp_style_engine_get_styles() is not a sanitizer: its only filter is
@@ -225,17 +224,7 @@ class PayPal_Payment_Buttons {
 	 * @return array A list of CSS declarations, empty when nothing is configured.
 	 */
 	private static function get_width_and_border_rules( $attributes ) {
-		$rules = array();
-
-		// max-width keeps a set Width inside the card. With no Width the stylesheet
-		// sizes the element.
-		$width = self::chosen_width( $attributes );
-		if ( '' !== $width ) {
-			$rules[] = sprintf( 'width:%s', $width );
-			$rules[] = 'max-width:100%';
-		}
-
-		return array_merge( $rules, self::get_border_rules( $attributes ) );
+		return array_merge( self::get_width_rules( $attributes ), self::get_border_rules( $attributes ) );
 	}
 
 	/**
@@ -249,11 +238,20 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
+	 * Width, for the button card. The button fills the card.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return string An inline CSS declaration list, empty when nothing is configured.
+	 */
+	private static function get_button_card_style( $attributes ) {
+		return self::css_rules( self::get_width_rules( $attributes ) );
+	}
+
+	/**
 	 * Margin, from the Border Settings panel.
 	 *
-	 * The button card and the QR card take this and nothing else — Width and Border
-	 * go on the button or the QR frame. A QR-to-BUTTON format switch can leave a
-	 * margin behind, so the card keeps reading it.
+	 * Only the QR card takes this. Width and Border go on the frame inside it.
+	 * Margin is a QR-only control, so the button card drops a margin left over from QR.
 	 *
 	 * Mirrors getMarginStyle() in utils/block-styles.js.
 	 *
@@ -280,17 +278,22 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * The chosen width, with its unit.
+	 * Width, for the button card or the QR frame.
 	 *
 	 * Width has its own unit, so it goes through as typed. The style engine never
 	 * sees it, so a spacing preset would be emitted raw — the width
 	 * control cannot produce one, and this keeps it that way.
 	 *
+	 * max-width keeps a set Width inside its container. With no Width the
+	 * stylesheet sizes the element. Mirrors getWidthStyle() in utils/block-styles.js.
+	 *
 	 * @param array $attributes The block attributes.
-	 * @return string The width, or '' when none is set.
+	 * @return array A list of CSS declarations, empty when none is set.
 	 */
-	private static function chosen_width( $attributes ) {
-		return self::plain_length( $attributes['blockWidth'] ?? '' );
+	private static function get_width_rules( $attributes ) {
+		$width = self::plain_length( $attributes['blockWidth'] ?? '' );
+
+		return '' === $width ? array() : array( sprintf( 'width:%s', $width ), 'max-width:100%' );
 	}
 
 	/**
@@ -510,8 +513,8 @@ class PayPal_Payment_Buttons {
 			array_merge(
 				self::get_text_rules( $attributes['buttonTextColor'] ?? '', $attributes['buttonFontSize'] ?? '' ),
 				$rules,
-				// Width and Border go on the button, not the card — see get_margin_style().
-				self::get_width_and_border_rules( $attributes )
+				// Width goes on the card around the button, see get_button_card_style().
+				self::get_border_rules( $attributes )
 			)
 		);
 	}
@@ -815,11 +818,87 @@ class PayPal_Payment_Buttons {
 	 *
 	 * @param string $price    The price value.
 	 * @param string $currency The ISO currency code.
-	 * @return string Formatted price string (e.g., "$29.99").
+	 * @return string Formatted price string (e.g., "$29.99"), or '' for a blank price.
 	 */
 	public static function format_price( $price, $currency ) {
+		// A blank price returns ''. Compare to '' so a price of 0 still shows.
+		if ( '' === trim( (string) $price ) ) {
+			return '';
+		}
+
 		$symbol = self::$currency_symbols[ $currency ] ?? $currency;
 		return $symbol . $price;
+	}
+
+	/**
+	 * The formatted price of a payment link.
+	 *
+	 * The product price, or "From $29.99" with the cheapest option when the
+	 * options have prices. Matches linkPrice() in utils/link-price.js.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $attributes The link's block attributes.
+	 * @return string The formatted price, or ''.
+	 */
+	public static function link_price( array $attributes ) {
+		$price    = self::product_price( $attributes );
+		$currency = $attributes['currencyCode'] ?? 'USD';
+
+		if ( '' !== $price ) {
+			return self::format_price( $price, $currency );
+		}
+
+		if ( empty( $attributes['variantsEnabled'] ) ) {
+			return '';
+		}
+
+		$lowest = self::get_lowest_variant_price( $attributes['variants'] ?? null );
+		if ( null === $lowest ) {
+			return '';
+		}
+
+		return sprintf(
+			/* translators: %s: formatted price, e.g. "$29.99" */
+			__( 'From %s', 'jetpack-paypal-payments' ),
+			self::format_price( $lowest, $currency )
+		);
+	}
+
+	/**
+	 * The product-level price, trimmed.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $attributes The link's block attributes.
+	 * @return string The price, or '' when blank or the options have prices.
+	 */
+	private static function product_price( array $attributes ) {
+		$variants_enabled = ! empty( $attributes['variantsEnabled'] );
+		$variants         = $attributes['variants'] ?? null;
+
+		// PayPal drops the product-level amount once the options have their own
+		// prices, but the block keeps whatever the merchant typed. Ignore it.
+		if ( $variants_enabled && PayPal_Attribute_Mapper::variants_have_pricing( $variants ) ) {
+			return '';
+		}
+
+		// Trim like the editor preview. A price of 0 stays, since callers compare to ''.
+		return trim( (string) ( $attributes['price'] ?? '' ) );
+	}
+
+	/**
+	 * The formatted price of a payment resource from PayPal.
+	 *
+	 * Matches resourcePrice() in utils/link-price.js.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $resource A payment resource.
+	 * @return string The formatted price, or ''.
+	 */
+	public static function resource_price( array $resource ) {
+		return self::link_price( PayPal_Attribute_Mapper::api_response_to_attributes( $resource ) );
 	}
 
 	/**
@@ -832,7 +911,6 @@ class PayPal_Payment_Buttons {
 		$resource_id         = $attributes['resourceId'] ?? '';
 		$payment_url         = $attributes['paymentLink'] ?? '';
 		$product_name        = trim( (string) ( $attributes['productName'] ?? '' ) );
-		$price               = $attributes['price'] ?? '';
 		$currency            = $attributes['currencyCode'] ?? 'USD';
 		$product_description = trim( (string) ( $attributes['productDescription'] ?? '' ) );
 		$image_url           = $attributes['imageUrl'] ?? '';
@@ -992,36 +1070,15 @@ class PayPal_Payment_Buttons {
 			);
 		}
 
-		// PayPal drops the product-level amount once the options have their own
-		// prices, but the block keeps whatever the merchant typed. Ignore it.
-		if ( $variants_enabled && PayPal_Attribute_Mapper::variants_have_pricing( $variants ) ) {
-			$price = '';
-		}
-
-		// Headline price: the product price, or the cheapest option when there is none.
-		// PayPal accepts a price of 0, so the empty test is '' — empty() drops it.
-		// Trimmed, as the editor preview does.
-		$price      = trim( (string) $price );
-		$price_html = '';
-		if ( '' !== $price ) {
+		// The option list below hides option prices that match the product price.
+		$price          = self::product_price( $attributes );
+		$headline_price = self::link_price( $attributes );
+		$price_html     = '';
+		if ( '' !== $headline_price ) {
 			$price_html = sprintf(
 				'<span class="jetpack-paypal-button__product-price">%s</span>',
-				esc_html( self::format_price( $price, $currency ) )
+				esc_html( $headline_price )
 			);
-		} elseif ( $variants_enabled ) {
-			$lowest = self::get_lowest_variant_price( $variants );
-			if ( null !== $lowest ) {
-				$price_html = sprintf(
-					'<span class="jetpack-paypal-button__product-price">%s</span>',
-					esc_html(
-						sprintf(
-							/* translators: %s: formatted price, e.g. "$29.99" */
-							__( 'From %s', 'jetpack-paypal-payments' ),
-							self::format_price( $lowest, $currency )
-						)
-					)
-				);
-			}
 		}
 
 		// The card needs a name, description or price. The image is outside it.
@@ -1082,8 +1139,8 @@ class PayPal_Payment_Buttons {
 		}
 
 		$wrapper_attributes = get_block_wrapper_attributes();
-		// Width and Border go on the button, not this card — see get_button_style().
-		$block_style = self::style_attr( self::get_margin_style( $attributes ) );
+		// Width sizes this card, and the button fills it.
+		$block_style = self::style_attr( self::get_button_card_style( $attributes ) );
 
 		// A blank label would draw an unreadable button, so fall back to the same
 		// default the editor preview uses.

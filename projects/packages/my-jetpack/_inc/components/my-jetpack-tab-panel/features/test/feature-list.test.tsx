@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { FeatureList } from '../feature-list';
+import { SelectionHarness } from './helpers/selection-harness';
 import type { FeatureState } from '../feature-state';
 import type { ReactNode } from 'react';
 
@@ -34,6 +34,15 @@ const crm = pluginState( 'crm', 'inactive', {
 	control: { kind: 'install-plugin', plugin: 'crm' },
 } );
 
+const forcedStats = {
+	feature: { slug: 'stats', name: 'stats' },
+	status: 'active',
+	control: {
+		kind: 'module',
+		module: { module: 'stats', available: true, activated: true, override: 'active' },
+	},
+} as FeatureState;
+
 const checkbox = ( name: string ) => screen.getByRole( 'checkbox', { name } );
 const button = ( name: string ) => screen.getByRole( 'button', { name } );
 // @wordpress/ui buttons stay focusable when disabled, so they carry aria-disabled instead.
@@ -44,9 +53,9 @@ beforeEach( () => {
 	mockRun.mockResolvedValue( [] );
 } );
 
-describe( 'FeatureList', () => {
+describe( 'FeatureList with the shared selection', () => {
 	it( 'selects every switchable row, and only those, from the select-all box', async () => {
-		render( <FeatureList states={ [ akismet, boost, crm ] } onOpen={ jest.fn() } /> );
+		render( <SelectionHarness states={ [ akismet, boost, crm ] } /> );
 
 		await userEvent.click( checkbox( 'Select all features' ) );
 
@@ -56,8 +65,31 @@ describe( 'FeatureList', () => {
 		expect( screen.getByRole( 'status' ) ).toHaveTextContent( '2 selected' );
 	} );
 
+	it( 'offers no checkbox for a module a host forced on or off', async () => {
+		render( <SelectionHarness states={ [ akismet, forcedStats ] } /> );
+
+		expect( screen.queryByRole( 'checkbox', { name: 'Select stats' } ) ).not.toBeInTheDocument();
+
+		await userEvent.click( checkbox( 'Select all features' ) );
+
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( '1 selected' );
+	} );
+
+	it( 'offers no checkbox for a plugin a host forced on or off', async () => {
+		const forcedBoost = pluginState( 'boost', 'active', {
+			control: { kind: 'plugin', plugin: 'boost', override: 'active' },
+		} );
+		render( <SelectionHarness states={ [ akismet, forcedBoost ] } /> );
+
+		expect( screen.queryByRole( 'checkbox', { name: 'Select boost' } ) ).not.toBeInTheDocument();
+
+		await userEvent.click( checkbox( 'Select all features' ) );
+
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( '1 selected' );
+	} );
+
 	it( 'shows select-all as partly checked when only some rows are picked', async () => {
-		render( <FeatureList states={ [ akismet, boost ] } onOpen={ jest.fn() } /> );
+		render( <SelectionHarness states={ [ akismet, boost ] } /> );
 
 		await userEvent.click( checkbox( 'Select akismet' ) );
 
@@ -65,7 +97,7 @@ describe( 'FeatureList', () => {
 	} );
 
 	it( 'explains a row that cannot be picked', () => {
-		render( <FeatureList states={ [ crm ] } onOpen={ jest.fn() } /> );
+		render( <SelectionHarness states={ [ crm ] } /> );
 
 		expect( checkbox( 'Select crm' ) ).toBeDisabled();
 		expect( checkbox( 'Select crm' ) ).toHaveAccessibleDescription(
@@ -74,7 +106,7 @@ describe( 'FeatureList', () => {
 	} );
 
 	it( 'offers only the action the selection can use, and clears the selection after it', async () => {
-		render( <FeatureList states={ [ akismet, boost ] } onOpen={ jest.fn() } /> );
+		render( <SelectionHarness states={ [ akismet, boost ] } /> );
 
 		expect( isDisabled( 'Activate' ) ).toBe( true );
 
@@ -90,9 +122,7 @@ describe( 'FeatureList', () => {
 	} );
 
 	it( 'holds the bar while any row still has a switch in flight', async () => {
-		render(
-			<FeatureList states={ [ akismet, { ...boost, isSwitching: true } ] } onOpen={ jest.fn() } />
-		);
+		render( <SelectionHarness states={ [ akismet, { ...boost, isSwitching: true } ] } /> );
 
 		await userEvent.click( checkbox( 'Select akismet' ) );
 
@@ -103,10 +133,7 @@ describe( 'FeatureList', () => {
 	it( 'keeps the features that failed selected, for a retry', async () => {
 		mockRun.mockResolvedValue( [ 'akismet' ] );
 		render(
-			<FeatureList
-				states={ [ akismet, pluginState( 'jetpack-search', 'inactive' ) ] }
-				onOpen={ jest.fn() }
-			/>
+			<SelectionHarness states={ [ akismet, pluginState( 'jetpack-search', 'inactive' ) ] } />
 		);
 
 		await userEvent.click( checkbox( 'Select akismet' ) );
@@ -118,9 +145,7 @@ describe( 'FeatureList', () => {
 	} );
 
 	it( 'holds plugins out of a bulk Deactivate while Jetpack is inactive, and says why', async () => {
-		render(
-			<FeatureList states={ [ boost ] } onOpen={ jest.fn() } canDeactivatePlugins={ false } />
-		);
+		render( <SelectionHarness states={ [ boost ] } canDeactivatePlugins={ false } /> );
 
 		await userEvent.click( checkbox( 'Select boost' ) );
 
