@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Content Guidelines: Align the AI buttons with Gutenberg's right-aligned action rows, keeping the primary button last.
+Content Guidelines: Fix the AI button alignment and the loading shimmer after recent Gutenberg changes.
