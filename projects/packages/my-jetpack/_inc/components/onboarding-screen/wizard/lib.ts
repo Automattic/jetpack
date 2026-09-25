@@ -173,7 +173,7 @@ export function wizardSteps(): WizardStepMeta[] {
 			 * site the same question, so the reassurance it carries is what survives.
 			 */
 			description: __(
-				'Pick the closest fit — you can change any of this later.',
+				'Pick the closest fit. It only shapes what we suggest next.',
 				'jetpack-my-jetpack'
 			),
 			/*
@@ -221,9 +221,9 @@ export function wizardSteps(): WizardStepMeta[] {
 			id: 'features',
 			kind: 'features',
 			label: __( 'What you need', 'jetpack-my-jetpack' ),
-			title: __( "Here's what Jetpack will switch on", 'jetpack-my-jetpack' ),
+			title: __( "Here's what we recommend for your site", 'jetpack-my-jetpack' ),
 			description: __(
-				'Most of these run by default. Turn off anything you do not want.',
+				'Most of these already run on a new site. Switch off anything you would rather not have.',
 				'jetpack-my-jetpack'
 			),
 			// The rows are the modules Jetpack reports, not a fixed list written here.

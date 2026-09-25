@@ -1,6 +1,7 @@
 import { FormToggle } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, Stack, Text } from '@wordpress/ui';
+import clsx from 'clsx';
 import { useCallback, useId } from 'react';
 import { isWanted } from '../lib';
 import styles from '../styles.module.scss';
@@ -106,11 +107,20 @@ export function FeaturesStep( {
 }: FeaturesStepProps ) {
 	return (
 		<Stack direction="column" gap="xl">
-			<Stack direction="column" gap="xs">
-				<Text variant="heading-2xl" id={ titleId } render={ <h1 /> }>
+			<Stack direction="column" gap="sm">
+				<Text
+					variant="heading-2xl"
+					id={ titleId }
+					render={ <h1 /> }
+					className={ clsx( styles[ 'step-title' ], styles.wave, styles[ 'wave-1' ] ) }
+				>
 					{ title }
 				</Text>
-				<Text variant="body-lg" render={ <p /> } className={ styles[ 'step-description' ] }>
+				<Text
+					variant="body-lg"
+					render={ <p /> }
+					className={ clsx( styles[ 'step-description' ], styles.wave, styles[ 'wave-2' ] ) }
+				>
 					{ description }
 				</Text>
 			</Stack>
@@ -135,7 +145,7 @@ export function FeaturesStep( {
 				</Text>
 			) }
 
-			<div className={ styles[ 'feature-rows' ] }>
+			<div className={ clsx( styles[ 'feature-rows' ], styles.wave, styles[ 'wave-3' ] ) }>
 				{ modules.map( ( module, index ) => (
 					<div
 						key={ module.slug }

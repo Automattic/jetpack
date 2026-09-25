@@ -180,6 +180,36 @@ $option-cascade-base: 0.12s;
 $option-cascade-step: 0.05s;
 
 /*
+ * The beats a column arrives on, from the prototype's finish celebration: its
+ * copy blocks land 0.1s apart from 0.2s. Ours are a shade wider apart because a
+ * step has fewer, larger blocks than that screen does.
+ */
+$heading-tracking: -0.025em;
+$wave-base: 0.1s;
+$wave-step: 0.08s;
+
+/*
+ * The finish screen's badge and the discs washing out from behind it. Scales,
+ * durations and delays are the prototype's, measured. The reference it came
+ * from used 28, 34 and 30, which on a full-width sheet is the whole window
+ * turning green rather than a bloom.
+ */
+$finish-badge-size: 64px;
+$finish-wash-1: 12;
+$finish-wash-2: 15;
+$finish-wash-3: 13;
+$finish-wash-duration-1: 1.4s;
+$finish-wash-duration-2: 1.8s;
+$finish-wash-duration-3: 1.6s;
+
+/*
+ * No CSS spring exists. This overshoots and settles, which is what the
+ * prototype's stiffness 400 / damping 18 does on scale. It is on scale only:
+ * a spring on opacity dips below 1 on the way and reads as a blink.
+ */
+$finish-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+/*
  * The free-text field's reveal. The prototype grows the row's height and lags
  * the opacity behind it; ours takes its space in one frame and only fades,
  * which was Adam's call on 25 Sep. Nothing grows, so nothing can read as slow,
@@ -836,6 +866,15 @@ $rail-row-min-height: 40px;
 
 /* ----------------------------------------------------------- step body */
 
+/*
+ * The prototype sets its headings at -0.025em. WPDS has no letter-spacing token
+ * in any family, so this is the value, named.
+ */
+.step-title {
+	letter-spacing: $heading-tracking;
+	text-wrap: balance;
+}
+
 .step-description {
 	color: var(--wpds-color-foreground-content-neutral-weak);
 	text-wrap: pretty;
@@ -1072,6 +1111,23 @@ $rail-row-min-height: 40px;
 	text-wrap: pretty;
 }
 
+/*
+ * The finish step takes the whole sheet. Hiding the rail and the panel here
+ * rather than not rendering them keeps the grid and the region landmarks intact
+ * for the steps either side of it.
+ */
+.layout--finish {
+
+	.rail,
+	.brand-panel {
+		display: none;
+	}
+
+	.canvas {
+		grid-column: 1 / -1;
+	}
+}
+
 /* --------------------------------------------------------- finish step */
 
 .finish-rows {
@@ -1119,6 +1175,230 @@ $rail-row-min-height: 40px;
 	font-weight: var(--wpds-typography-font-weight-emphasis);
 }
 
+/* --------------------------------------------------------- finish step */
+
+/*
+ * The whole sheet, centred. There is nothing left to navigate here: the rail
+ * counts steps that are all behind you and the panel sells a flow you have just
+ * finished, so both are gone and this takes their place.
+ */
+.finish {
+	display: flex;
+	min-block-size: 100%;
+	align-items: center;
+	justify-content: center;
+	padding-block: var(--wpds-dimension-padding-3xl);
+	padding-inline: var(--wpds-dimension-padding-lg);
+	text-align: center;
+}
+
+/*
+ * Every gap on this screen lives on a container here rather than as a margin on
+ * the thing below it. @wordpress/ui's own spacing is layered, so a margin set
+ * from a class of ours loses to it silently and the column collapses shut.
+ */
+.finish-column {
+	display: flex;
+	inline-size: 100%;
+	max-inline-size: $step-column-width;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xl);
+}
+
+.finish-head {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+}
+
+.finish-summary {
+	display: flex;
+	inline-size: 100%;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md);
+}
+
+.finish-badge {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	inline-size: $finish-badge-size;
+	block-size: $finish-badge-size;
+	border-radius: 50%;
+}
+
+/*
+ * The mark itself. Scale springs and opacity does not: a spring undershoots
+ * below 1 on the way in, and on opacity that reads as a blink rather than a
+ * bounce.
+ */
+.finish-mark {
+	display: flex;
+	animation:
+		finish-mark-scale var(--wpds-motion-duration-lg) $finish-spring both,
+		fade-in var(--wpds-motion-duration-md) var(--wpds-motion-easing-subtle) both;
+	animation-delay: $wave-base;
+
+	@media (prefers-reduced-motion: reduce) {
+		animation: fade-in var(--wpds-motion-duration-md) var(--wpds-motion-easing-subtle) both;
+	}
+}
+
+/*
+ * Three discs washing outward from behind the mark. Under reduced motion they
+ * are not rendered at all, which is why the component asks in JavaScript rather
+ * than leaving it to a media query.
+ */
+.finish-wash {
+	position: absolute;
+	inset: 0;
+	border-radius: 50%;
+	animation: finish-wash $finish-wash-duration-1 ease-out both;
+	animation-delay: $wave-base + 0.1s;
+	background: var(--jp-green-50);
+	filter: blur(6px);
+	opacity: 0.25;
+	--finish-wash-scale: #{$finish-wash-1};
+}
+
+.finish-wash--2 {
+	animation-duration: $finish-wash-duration-2;
+	animation-delay: $wave-base + 0.2s;
+	filter: blur(8px);
+	opacity: 0.15;
+	--finish-wash-scale: #{$finish-wash-2};
+}
+
+.finish-wash--3 {
+	animation-duration: $finish-wash-duration-3;
+	animation-delay: $wave-base + 0.4s;
+	background: var(--jp-white);
+	filter: blur(6px);
+	opacity: 0.3;
+	--finish-wash-scale: #{$finish-wash-3};
+}
+
+.finish-title {
+	letter-spacing: $heading-tracking;
+	color: var(--wpds-color-foreground-content-neutral);
+	text-wrap: balance;
+}
+
+.finish-lede {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	text-wrap: pretty;
+}
+
+.finish-card {
+	display: flex;
+	inline-size: 100%;
+	flex-direction: column;
+	margin: 0;
+	padding: 0;
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-lg);
+	list-style: none;
+	text-align: start;
+}
+
+.finish-row {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-md);
+	padding-block: var(--wpds-dimension-padding-sm);
+	padding-inline: var(--wpds-dimension-padding-md);
+
+	& + & {
+		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	}
+}
+
+/*
+ * A filled disc for what is on, a hollow one for what is not. The shape carries
+ * the difference as well as the colour, so it survives being read in greyscale.
+ */
+.finish-row__glyph {
+	display: flex;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+	inline-size: var(--wpds-dimension-size-2xs);
+	block-size: var(--wpds-dimension-size-2xs);
+	border-radius: 50%;
+	background: var(--wpds-color-background-surface-neutral-strong);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+
+	svg {
+		inline-size: var(--wpds-dimension-size-3xs);
+		block-size: var(--wpds-dimension-size-3xs);
+		fill: currentColor;
+	}
+}
+
+.finish-row__glyph--on {
+	background: var(--jp-green-50);
+	color: var(--jp-white);
+}
+
+.finish-row__name {
+	min-inline-size: 0;
+	flex-grow: 1;
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+.finish-row__state {
+	flex-shrink: 0;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-variant-numeric: tabular-nums;
+}
+
+.finish-note {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-variant-numeric: tabular-nums;
+}
+
+.finish-actions {
+	display: flex;
+	inline-size: 100%;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+}
+
+.finish-primary {
+	justify-content: center;
+	padding-block: var(--wpds-dimension-padding-md);
+}
+
+.finish-secondary {
+	justify-content: center;
+}
+
+@keyframes finish-mark-scale {
+
+	from {
+		transform: scale(0);
+	}
+
+	to {
+		transform: none;
+	}
+}
+
+@keyframes finish-wash {
+
+	from {
+		opacity: inherit;
+		transform: scale(1);
+	}
+
+	to {
+		opacity: 0;
+		transform: scale(var(--finish-wash-scale));
+	}
+}
+
 /* ----------------------------------------------------------- start step */
 
 /*
@@ -1146,6 +1426,26 @@ $rail-row-min-height: 40px;
 	@media (prefers-reduced-motion: reduce) {
 		animation-name: fade-in;
 	}
+}
+
+/*
+ * The prototype's own beats for a column arriving: 0.2s apart, starting at 0.1.
+ * Named rather than written per element, because four screens now use them.
+ */
+.wave-1 {
+	animation-delay: $wave-base;
+}
+
+.wave-2 {
+	animation-delay: $wave-base + $wave-step;
+}
+
+.wave-3 {
+	animation-delay: $wave-base + 2 * $wave-step;
+}
+
+.wave-4 {
+	animation-delay: $wave-base + 3 * $wave-step;
 }
 
 .start-logo {
