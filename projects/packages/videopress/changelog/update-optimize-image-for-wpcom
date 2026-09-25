@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Optimize `src/dashboard/components/onboarding-modal/images/videopress-cover-2x.png`. Should be no visual change.
+
+
