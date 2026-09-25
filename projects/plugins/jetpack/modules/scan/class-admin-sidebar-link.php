@@ -1,6 +1,6 @@
 <?php
 /**
- * A class that adds a scan and backup link to the admin sidebar.
+ * A class that adds a scan link to the admin sidebar.
  *
  * @package automattic/jetpack
  */
@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Scan;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\My_Jetpack\Products\Backup;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Core_Json_Api_Endpoints;
@@ -61,7 +60,7 @@ class Admin_Sidebar_Link {
 	}
 
 	/**
-	 * Adds a link to the Scan and Backup page.
+	 * Adds a link to the Scan page.
 	 */
 	public function maybe_add_admin_link() {
 		if ( ! $this->should_show_link() ) {
@@ -94,23 +93,13 @@ class Admin_Sidebar_Link {
 				array( 'key' => 'jetpack-scan-cloud' )
 			);
 		}
-
-		if ( $this->should_show_backup() ) {
-			Admin_Menu::add_menu(
-				/** "VaultPress Backup" is a product name, do not translate. */
-				'VaultPress Backup',
-				'VaultPress Backup <span aria-hidden="true">↗</span>',
-				'manage_options',
-				esc_url( Redirect::get_url( 'calypso-backups' ) ),
-				null,
-				Admin_Menu::POSITION_EXTERNAL,
-				array( 'key' => 'jetpack-backup-cloud' )
-			);
-		}
 	}
 
 	/**
 	 * Refreshes the state cache via API call. Called via cron.
+	 *
+	 * Still warms the rewind state, which this class no longer reads itself:
+	 * Jetpack_Core_Json_Api_Endpoints::rewind_data() serves it from that cache.
 	 */
 	public function refresh_state_cache() {
 		Jetpack_Core_Json_Api_Endpoints::get_scan_state();
@@ -123,7 +112,7 @@ class Admin_Sidebar_Link {
 	 * @return boolean
 	 */
 	private function should_show_link() {
-		// Jetpack Scan/Backup is currently not supported on multisite.
+		// Jetpack Scan is currently not supported on multisite.
 		if ( is_multisite() ) {
 			return false;
 		}
@@ -134,7 +123,7 @@ class Admin_Sidebar_Link {
 			return false;
 		}
 
-		return $this->should_show_scan() || $this->should_show_backup() || $this->should_show_scan_history_only();
+		return $this->should_show_scan() || $this->should_show_scan_history_only();
 	}
 
 	/**
@@ -160,17 +149,6 @@ class Admin_Sidebar_Link {
 	}
 
 	/**
-	 * Check if we should display the Backup menu item.
-	 *
-	 * It will only be displayed if site has Backup enabled and the stand-alone Backup plugin is not active, because it will have a menu item of its own.
-	 *
-	 * @return boolean
-	 */
-	private function should_show_backup() {
-		return $this->has_backup() && ! $this->has_backup_plugin();
-	}
-
-	/**
 	 * Detects if Scan is enabled.
 	 *
 	 * @return boolean
@@ -192,30 +170,6 @@ class Admin_Sidebar_Link {
 	 */
 	private function has_protect_plugin() {
 		return class_exists( 'Jetpack_Protect' );
-	}
-
-	/**
-	 * Detects if Backup is enabled.
-	 *
-	 * @return boolean
-	 */
-	private function has_backup() {
-		$this->maybe_refresh_transient_cache();
-		$rewind_state = get_transient( 'jetpack_rewind_state' );
-		if ( ! $rewind_state ) {
-			return false;
-		}
-
-		return isset( $rewind_state->state ) && 'unavailable' !== $rewind_state->state;
-	}
-
-	/**
-	 * Detects if Backup plugin is active.
-	 *
-	 * @return boolean
-	 */
-	private function has_backup_plugin() {
-		return Backup::is_standalone_plugin_active();
 	}
 
 	/**

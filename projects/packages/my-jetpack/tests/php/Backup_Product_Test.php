@@ -6,6 +6,8 @@ use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\My_Jetpack\Products\Backup;
 use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -112,6 +114,23 @@ class Backup_Product_Test extends TestCase {
 		activate_plugins( 'jetpack/jetpack.php' );
 		deactivate_plugins( Backup::get_installed_plugin_filename() );
 		$this->assertSame( Redirect::get_url( 'my-jetpack-manage-backup' ), Backup::get_manage_url() );
+	}
+
+	/**
+	 * Manage and checkout land on the dashboard once the Jetpack plugin has initialized the package.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_backup_urls_target_the_dashboard_the_jetpack_plugin_hosts() {
+		activate_plugins( 'jetpack/jetpack.php' );
+		deactivate_plugins( Backup::get_installed_plugin_filename() );
+		do_action( 'jetpack_backup_initialized' );
+
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-backup' ), Backup::get_manage_url() );
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-backup' ), Backup::get_post_checkout_url() );
 	}
 
 	/**

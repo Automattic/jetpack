@@ -1,9 +1,9 @@
 <?php
 /**
  * Tests for Jetpack::should_eager_load_packages(), the request-type gate that
- * decides whether the admin/REST-only packages (the Import package and My
- * Jetpack) are initialized eagerly at plugins_loaded or deferred off the
- * front-end GET path.
+ * decides whether the admin/REST-only packages (the Import package, the bundled
+ * Backup dashboard, and My Jetpack) are initialized eagerly at plugins_loaded or
+ * deferred off the front-end GET path.
  *
  * @package automattic/jetpack
  */
@@ -33,6 +33,13 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	private $original_import_rest_priority;
 
 	/**
+	 * Original priority for the deferred Backup REST callback, or false if absent.
+	 *
+	 * @var int|false
+	 */
+	private $original_backup_rest_priority;
+
+	/**
 	 * Original priority for the deferred My Jetpack REST callback, or false if absent.
 	 *
 	 * @var int|false
@@ -54,9 +61,11 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 		$this->original_request_method = $_SERVER['REQUEST_METHOD'] ?? null;
 
 		$this->original_import_rest_priority     = has_action( 'rest_api_init', array( Jetpack::class, 'configure_import_package' ) );
+		$this->original_backup_rest_priority     = has_action( 'rest_api_init', array( Jetpack::class, 'configure_backup_package' ) );
 		$this->original_my_jetpack_rest_priority = has_action( 'rest_api_init', array( \Automattic\Jetpack\My_Jetpack\Initializer::class, 'init' ) );
 
 		remove_action( 'rest_api_init', array( Jetpack::class, 'configure_import_package' ), 0 );
+		remove_action( 'rest_api_init', array( Jetpack::class, 'configure_backup_package' ), 0 );
 		remove_action( 'rest_api_init', array( \Automattic\Jetpack\My_Jetpack\Initializer::class, 'init' ), 0 );
 	}
 
@@ -72,9 +81,13 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 		remove_filter( 'wp_doing_cron', '__return_true' );
 		Constants::clear_single_constant( 'WP_CLI' );
 		remove_action( 'rest_api_init', array( Jetpack::class, 'configure_import_package' ), 0 );
+		remove_action( 'rest_api_init', array( Jetpack::class, 'configure_backup_package' ), 0 );
 		remove_action( 'rest_api_init', array( \Automattic\Jetpack\My_Jetpack\Initializer::class, 'init' ), 0 );
 		if ( false !== $this->original_import_rest_priority ) {
 			add_action( 'rest_api_init', array( Jetpack::class, 'configure_import_package' ), $this->original_import_rest_priority );
+		}
+		if ( false !== $this->original_backup_rest_priority ) {
+			add_action( 'rest_api_init', array( Jetpack::class, 'configure_backup_package' ), $this->original_backup_rest_priority );
 		}
 		if ( false !== $this->original_my_jetpack_rest_priority ) {
 			add_action( 'rest_api_init', array( \Automattic\Jetpack\My_Jetpack\Initializer::class, 'init' ), $this->original_my_jetpack_rest_priority );
@@ -250,6 +263,43 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A plain front-end GET defers the Backup package to REST requests instead of
+	 * eagerly loading it at plugins_loaded.
+	 */
+	public function test_front_end_get_defers_backup_to_rest_api_init() {
+		set_current_screen( 'front' );
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		$jetpack = Jetpack::init();
+		$jetpack->configure();
+
+		$this->assertSame(
+			0,
+			has_action( 'rest_api_init', array( Jetpack::class, 'configure_backup_package' ) )
+		);
+	}
+
+	/**
+	 * An admin request keeps Backup eager, so it does not register the deferred
+	 * REST bootstrap callback.
+	 */
+	public function test_admin_request_does_not_defer_backup_to_rest_api_init() {
+		$this->skip_unless_backup_is_supported();
+		$this->connect_owner();
+		$this->force_unfire_action( 'jetpack_backup_initialized' );
+		set_current_screen( 'dashboard' );
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		$jetpack = Jetpack::init();
+		$jetpack->configure();
+
+		$this->assertFalse(
+			has_action( 'rest_api_init', array( Jetpack::class, 'configure_backup_package' ) )
+		);
+		$this->assertGreaterThanOrEqual( 1, did_action( 'jetpack_backup_initialized' ) );
+	}
+
+	/**
 	 * A plain front-end GET defers My Jetpack initialization to REST requests.
 	 */
 	public function test_front_end_get_defers_my_jetpack_to_rest_api_init() {
@@ -293,12 +343,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 */
 	public function test_deferred_import_routes_register_when_rest_api_init_fires() {
 		// The importer only registers its REST routes for a connected owner.
-		$owner = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		Jetpack_Options::update_option( 'blog_token', 'dummy.blogtoken' );
-		Jetpack_Options::update_option( 'id', 1234 );
-		Jetpack_Options::update_option( 'master_user', $owner );
-		Jetpack_Options::update_option( 'user_tokens', array( $owner => "dummy.usertoken.$owner" ) );
-		Jetpack::connection()->reset_connection_status();
+		$this->connect_owner();
 
 		// Start from a clean slate so registration can only happen via the re-add below.
 		$this->force_unfire_action( 'jetpack_import_initialized' );
@@ -336,5 +381,79 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 			$this->has_route_under( '/my-jetpack/v1' ),
 			'Deferred My Jetpack bootstrap did not register its REST routes when rest_api_init fired.'
 		);
+	}
+
+	/**
+	 * End-to-end counterpart for Backup, via `/has-backup-plan`, which only `initialize()` registers.
+	 */
+	public function test_deferred_backup_routes_register_when_rest_api_init_fires() {
+		$this->skip_unless_backup_is_supported();
+		$this->connect_owner();
+
+		// Clean slate so registration can only happen via the re-add below.
+		$this->force_unfire_action( 'jetpack_backup_initialized' );
+		remove_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\V0005\\Jetpack_Backup', 'register_rest_routes' ) );
+
+		// Mirror the gate's deferred front-end-GET wiring.
+		add_action( 'rest_api_init', array( Jetpack::class, 'configure_backup_package' ), 0 );
+
+		$GLOBALS['wp_rest_server'] = new WP_REST_Server();
+		do_action( 'rest_api_init' );
+
+		$this->assertTrue(
+			$this->has_route_under( '/jetpack/v4/has-backup-plan' ),
+			'Deferred Backup bootstrap did not register its REST routes when rest_api_init fired.'
+		);
+	}
+
+	/**
+	 * A site without a connected owner does not get the Backup dashboard.
+	 */
+	public function test_backup_needs_a_connected_owner() {
+		$this->skip_unless_backup_is_supported();
+		Jetpack_Options::update_option( 'blog_token', 'dummy.blogtoken' );
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack::connection()->reset_connection_status();
+		$this->force_unfire_action( 'jetpack_backup_initialized' );
+
+		Jetpack::configure_backup_package();
+
+		$this->assertSame( 0, did_action( 'jetpack_backup_initialized' ) );
+	}
+
+	/**
+	 * A host can keep the Backup dashboard off, as WordPress.com does for WoA sites without a backup plan.
+	 */
+	public function test_backup_dashboard_can_be_filtered_off() {
+		$this->skip_unless_backup_is_supported();
+		$this->connect_owner();
+		$this->force_unfire_action( 'jetpack_backup_initialized' );
+		add_filter( 'jetpack_backup_dashboard_enabled', '__return_false' );
+
+		Jetpack::configure_backup_package();
+		remove_filter( 'jetpack_backup_dashboard_enabled', '__return_false' );
+
+		$this->assertSame( 0, did_action( 'jetpack_backup_initialized' ) );
+	}
+
+	/**
+	 * Connect the site with an administrator as its owner.
+	 */
+	private function connect_owner() {
+		$owner = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		Jetpack_Options::update_option( 'blog_token', 'dummy.blogtoken' );
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'master_user', $owner );
+		Jetpack_Options::update_option( 'user_tokens', array( $owner => "dummy.usertoken.$owner" ) );
+		Jetpack::connection()->reset_connection_status();
+	}
+
+	/**
+	 * Skip a test whose subject is the bundled Backup dashboard, which multisite never gets.
+	 */
+	private function skip_unless_backup_is_supported() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'The bundled Backup dashboard is not initialized on multisite.' );
+		}
 	}
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Backup: Send Manage and checkout to the in-plugin Backup dashboard when the Jetpack plugin hosts it.
