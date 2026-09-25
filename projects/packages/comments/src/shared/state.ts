@@ -11,7 +11,7 @@ import type { Commenter, FormSettings, SignedIn } from './types';
  * @return The signals for a single form.
  */
 export function createSignals( formSettings: FormSettings ) {
-	const { isLoggedIn, commenter: saved } = JetpackComments;
+	const { isLoggedIn, mustLogIn, commenter: saved } = JetpackComments;
 
 	const commentValue = signal( readDraft( formSettings.postId ) );
 	const isEmptyComment = computed( () => commentValue.value.trim() === '' );
@@ -22,7 +22,8 @@ export function createSignals( formSettings: FormSettings ) {
 	const passport = readPassport();
 	const signedIn = signal< SignedIn | null >( passport ? { ...passport, code: null } : null );
 
-	const isSavedGuest = ! isLoggedIn && saved.author !== '' && saved.email !== '';
+	// A site that now requires registration no longer knows a guest, saved or not.
+	const isSavedGuest = ! isLoggedIn && ! mustLogIn && saved.author !== '' && saved.email !== '';
 	const isKnown = computed( () => isLoggedIn || signedIn.value !== null || isSavedGuest );
 
 	const isTrayOpen = signal( false );
