@@ -3,6 +3,7 @@
  */
 import {
 	ReportCsvAction,
+	ReportEmptyState,
 	ReportErrorState,
 	ReportRecordsTable,
 	useReportCsvExport,
@@ -35,6 +36,7 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	ReportEmptyState: jest.fn( () => <div data-testid="report-empty-state" /> ),
 	ReportErrorState: jest.fn( ( { title, onRetry }: { title: string; onRetry: () => void } ) => (
 		<div data-testid="report-error-state">
 			<span>{ title }</span>
@@ -72,20 +74,32 @@ const useRecordsMock = jest.mocked( useVideosReportRecords );
 const useReportCsvExportMock = jest.mocked( useReportCsvExport );
 const reportCsvActionMock = jest.mocked( ReportCsvAction );
 const getVideosFieldsMock = jest.mocked( getVideosFields );
+const reportEmptyStateMock = jest.mocked( ReportEmptyState );
 const reportErrorStateMock = jest.mocked( ReportErrorState );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
+
+const videoRow = {
+	id: 7,
+	label: 'Settled video',
+	plays: 3,
+	impressions: 9,
+	watch_time: 0.5,
+	retention_rate: 40,
+	link: null,
+	children: null,
+} satisfies StatsVideoPlaysComparisonItem;
 
 /**
  * Build the report records used by the page test.
  *
- * @param overrides - The fields to override on the successful-empty default.
+ * @param overrides - The fields to override on the settled one-row default.
  * @return The mocked records hook result.
  */
 function buildRecords( overrides: Partial< ReturnType< typeof useVideosReportRecords > > = {} ) {
 	return {
 		isError: false,
 		refetch: jest.fn(),
-		rows: [],
+		rows: [ videoRow ],
 		hasComparison: false,
 		isLoading: false,
 		isFetching: false,
@@ -254,6 +268,26 @@ describe( 'VideosReportPage', () => {
 		expect( getItemId( video ) ).toBe( 'https://example.com/video/' );
 		expect( getItemId( { ...video, link: null } ) ).toBe( 'video:Launch video' );
 		expect( getItemId( { ...video, label: '', link: null } ) ).toBe( 'video:unknown' );
+	} );
+
+	it( 'replaces the records table with the empty state when the period has no rows', () => {
+		useRecordsMock.mockReturnValue( buildRecords( { rows: [] } ) );
+
+		render( <VideosReportPage /> );
+
+		expect( screen.getByTestId( 'report-empty-state' ) ).toBeInTheDocument();
+		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
+	} );
+
+	it( 'keeps the loading table while a changed range is fetching over no rows', () => {
+		useRecordsMock.mockReturnValue( buildRecords( { rows: [], isFetching: true } ) );
+
+		render( <VideosReportPage /> );
+
+		expect( reportEmptyStateMock ).not.toHaveBeenCalled();
+		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
+			expect.objectContaining( { data: [], isLoading: true } )
+		);
 	} );
 
 	it( 'renders the error state instead of the records table', () => {
