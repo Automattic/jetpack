@@ -54,8 +54,8 @@ function wpcom_premium_analytics_register_wordads_section( $registry ) {
 }
 
 /**
- * Whether the site is using WordAds: the answer classic Stats reads as the sites API's
- * `options.wordads`, so both dashboards show the Ads tab to the same sites.
+ * Whether the site is using WordAds, read as classic Stats in wp-admin reads it: the
+ * approval stickers on Simple, the WordAds module on Atomic.
  *
  * @since $$next-version$$
  *
@@ -69,7 +69,7 @@ function wpcom_premium_analytics_wordads_is_enabled() {
 			|| (bool) has_any_blog_stickers( array( 'wordads-approved', 'wordads-approved-misfits' ), get_current_blog_id() );
 	}
 
-	// Atomic runs the Jetpack plugin, where classic reads the WordAds module. Not
+	// Atomic runs the Jetpack plugin, where Odyssey Stats reads the WordAds module. Not
 	// `available_only`: the module list is not loaded on every request that hydrates the registry.
 	return ( new \Automattic\Jetpack\Modules() )->is_active( 'wordads', false );
 }
