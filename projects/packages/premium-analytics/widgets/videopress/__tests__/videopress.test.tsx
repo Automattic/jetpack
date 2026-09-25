@@ -154,19 +154,7 @@ describe( 'VideoPressWidget', () => {
 		);
 	} );
 
-	it( 'shows the generic empty state when the period has no video plays', async () => {
-		mockApiFetch.mockResolvedValue( buildResponse( [] ) );
-
-		renderInDashboard(
-			<VideoPressWidget attributes={ { reportParams: { from: '2026-06-01', to: '2026-06-16' } } } />
-		);
-
-		await expect(
-			screen.findByText( 'We couldn’t find results for this time period.' )
-		).resolves.toBeInTheDocument();
-	} );
-
-	it( 'keeps the View all link when the period has no video plays', async () => {
+	it( 'shows the generic empty state and keeps the View all link when the period has no video plays', async () => {
 		mockApiFetch.mockResolvedValue( buildResponse( [] ) );
 
 		renderInDashboard(
