@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Premium Analytics: Show the empty state in chart widgets for a period the Stats API answers with zero or missing values, keep the Traffic chart's tabs at zero with the no-results message in the chart, and show zeros or placeholders in highlight and Insights widgets instead of an empty message.
