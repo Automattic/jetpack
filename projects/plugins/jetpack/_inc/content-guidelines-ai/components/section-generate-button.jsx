@@ -2,7 +2,7 @@ import { useAiFeature } from '@automattic/jetpack-ai-client';
 import { Button, Tooltip } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { useSectionHasDraft } from '../hooks/use-drafts';
@@ -23,10 +23,10 @@ export default function SectionGenerateButton( { slug, isShortLabel = false } ) 
 	);
 	const isEmpty = ! useSectionHasDraft( slug );
 	const generateLabel = isShortLabel
-		? _x( 'Generate', 'button label: generate guidelines with AI', 'jetpack' )
+		? __( 'Generate', 'jetpack' )
 		: __( 'Generate guidelines', 'jetpack' );
 	const improveLabel = isShortLabel
-		? _x( 'Improve', 'button label: improve guidelines with AI', 'jetpack' )
+		? __( 'Improve', 'jetpack' )
 		: __( 'Improve guidelines', 'jetpack' );
 	const label = isEmpty ? generateLabel : improveLabel;
 
