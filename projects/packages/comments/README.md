@@ -46,7 +46,7 @@ A returning commenter is admitted on the passport alone for as long as it lasts,
 
 The dialog offers the subscribe checkboxes the host would have drawn itself, under the host's own field names, so the host's own handlers act on them when the comment posts. Jetpack Subscriptions appends its checkboxes to `comment_form_submit_field` at priority 10; this form's filter runs at 20 and reads them back out. On Simple, `subscription_comment_form()` is asked for its markup the same way and its `comment_form` action removed, so the options appear once. Each host keeps its own gating for which options exist and whether they start checked.
 
-Only a reader going through the dialog sees them: a new guest, or a WordPress.com sign-in on the way in. A reader the site already knows posts without the dialog and gets no subscribe option here. Jetpack Subscriptions draws them for posts only, and WordPress.com stops drawing one the reader already holds.
+The dialog draws them in Jetpack Subscriptions' own markup, so a theme's styles for those reach them. Only a reader going through the dialog sees them: a new guest, or a WordPress.com sign-in on the way in. A reader the site already knows posts without the dialog and gets no subscribe option here. Jetpack Subscriptions draws them for posts only, and WordPress.com stops drawing one the reader already holds.
 
 ## Not here
 

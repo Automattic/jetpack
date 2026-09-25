@@ -61,22 +61,6 @@
 	cursor: pointer;
 }
 
-.jetpack-comments__guest {
-	display: grid;
-	gap: 16px;
-
-	input {
-		box-sizing: border-box;
-		inline-size: 100%;
-	}
-}
-
-.jetpack-comments__hint {
-	display: block;
-	margin-block-start: 4px;
-	font-size: 0.875em;
-}
-
 // A warning has to be seen, so this one does not defer to the theme.
 .jetpack-comments__notice {
 	display: block;
@@ -86,14 +70,8 @@
 	background: rgba(214, 54, 56, 0.08);
 }
 
-.jetpack-comments .grunion-field[aria-invalid="true"] {
+.jetpack-comments__dialog input[aria-invalid="true"] {
 	border-color: #d63638;
-}
-
-.jetpack-comments__subscriptions {
-	display: grid;
-	gap: 12px;
-	margin-block-start: 24px;
 }
 
 .jetpack-comments__dialog-actions {

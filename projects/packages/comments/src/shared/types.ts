@@ -69,7 +69,6 @@ export type Strings = {
 	email: string;
 	emailHint: string;
 	emailHasAccount: string;
-	required: string;
 	website: string;
 	intro: string;
 	introOr: string;

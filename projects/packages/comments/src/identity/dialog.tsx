@@ -111,18 +111,17 @@ export const IdentityDialog = () => {
 	// Only while open: a required field the browser cannot focus would stop the submit that opens it.
 	const required = requireNameEmail && isDialogOpen.value;
 
-	// The Jetpack Forms markup, so the forms stylesheet and the theme style these as a Form block.
+	// Core's own comment-form markup, so a theme's styles for it reach these too.
 	const fields = [
-		{ field: 'author' as const, kind: 'name', type: 'text', label: strings.name, required },
+		{ field: 'author' as const, type: 'text', autoComplete: 'name', label: strings.name, required },
 		{
 			field: 'email' as const,
-			kind: 'email',
 			type: 'email',
+			autoComplete: 'email',
 			label: strings.email,
-			hint: strings.emailHint,
 			required,
 		},
-		{ field: 'url' as const, kind: 'url', type: 'url', label: strings.website },
+		{ field: 'url' as const, type: 'url', autoComplete: 'url', label: strings.website },
 	];
 
 	const titleId = `jetpack-comments-dialog-title-${ formSettings.postId }`;
@@ -204,85 +203,73 @@ export const IdentityDialog = () => {
 					{ identity.canSignIn ? strings.introOr : strings.intro }
 				</p>
 			) }
-			{ showFields && (
-				<div className="contact-form jetpack-comments__guest">
-					{ fields.map( ( { field, kind, hint, ...input } ) => (
-						<div
-							key={ field }
-							className={ `wp-block-jetpack-field-${ kind } grunion-field-${ kind }-wrap wp-block-jetpack-input-wrap grunion-field-wrap` }
-						>
-							<label
-								htmlFor={ field }
-								className={ `grunion-field-label ${ kind } wp-block-jetpack-label` }
-							>
-								{ input.label }
-								{ input.required && (
-									<span className="grunion-label-required" aria-hidden="true">
-										{ strings.required }
+			{ showFields &&
+				fields.map( ( { field, ...input } ) => (
+					<p key={ field } className={ `comment-form-${ field }` }>
+						<label htmlFor={ field }>
+							{ input.label }
+							{ input.required && (
+								<>
+									{ ' ' }
+									<span className="required" aria-hidden="true">
+										*
 									</span>
-								) }
-							</label>
-							<input
-								id={ field }
-								name={ field }
-								type={ input.type }
-								autoComplete={ kind }
-								className={ `${ kind } wp-block-jetpack-input grunion-field` }
-								aria-invalid={ field === 'email' && emailTaken ? 'true' : undefined }
-								required={ input.required }
-								value={ commenter.value[ field ] }
-								onInput={ event => {
-									const { value } = event.currentTarget;
-									commenter.value = { ...commenter.value, [ field ]: value };
-
-									if ( field === 'email' ) {
-										window.clearTimeout( emailTimer.current );
-										emailTimer.current = window.setTimeout( () => checkEmail( value ), 500 );
-									}
-								} }
-								onBlur={ field === 'email' ? () => checkEmail( commenter.value.email ) : undefined }
-							/>
-							{ hint && <span className="jetpack-comments__hint">{ hint }</span> }
-							{ field === 'email' && emailTaken && (
-								<span className="jetpack-comments__notice" role="alert">
-									{ strings.emailHasAccount }
-								</span>
+								</>
 							) }
-						</div>
-					) ) }
-				</div>
-			) }
-			{ ! editing && ( known || ! mustLogIn ) && formSettings.subscriptions.length > 0 && (
-				<div className="contact-form jetpack-comments__subscriptions">
-					{ formSettings.subscriptions.map( subscription => {
-						const id = `jetpack-comments-${ subscription.name }-${ formSettings.postId }`;
+						</label>
+						<input
+							id={ field }
+							name={ field }
+							type={ input.type }
+							autoComplete={ input.autoComplete }
+							aria-describedby={ field === 'email' ? 'email-notes' : undefined }
+							aria-invalid={ field === 'email' && emailTaken ? 'true' : undefined }
+							required={ input.required }
+							value={ commenter.value[ field ] }
+							onInput={ event => {
+								const { value } = event.currentTarget;
+								commenter.value = { ...commenter.value, [ field ]: value };
 
-						return (
-							<div
-								key={ subscription.name }
-								className="wp-block-jetpack-field-checkbox is-style-list grunion-field-checkbox-wrap wp-block-jetpack-option-wrap grunion-field-wrap"
-							>
-								<div className="contact-form__checkbox-wrap">
-									<input
-										id={ id }
-										type="checkbox"
-										name={ subscription.name }
-										value="subscribe"
-										className="checkbox wp-block-jetpack-option grunion-field"
-										defaultChecked={ subscription.checked }
-									/>
-									<label
-										htmlFor={ id }
-										className="grunion-field-label checkbox wp-block-jetpack-option"
-									>
-										{ subscription.label }
-									</label>
-								</div>
-							</div>
-						);
-					} ) }
-				</div>
-			) }
+								if ( field === 'email' ) {
+									window.clearTimeout( emailTimer.current );
+									emailTimer.current = window.setTimeout( () => checkEmail( value ), 500 );
+								}
+							} }
+							onBlur={ field === 'email' ? () => checkEmail( commenter.value.email ) : undefined }
+						/>
+						{ field === 'email' && (
+							<span id="email-notes" className="comment-notes">
+								{ strings.emailHint }
+							</span>
+						) }
+						{ field === 'email' && emailTaken && (
+							<span className="jetpack-comments__notice" role="alert">
+								{ strings.emailHasAccount }
+							</span>
+						) }
+					</p>
+				) ) }
+			{ ! editing &&
+				( known || ! mustLogIn ) &&
+				formSettings.subscriptions.map( subscription => {
+					const id = `jetpack-comments-${ subscription.name }-${ formSettings.postId }`;
+
+					// Jetpack Subscriptions' own markup, for the same reason.
+					return (
+						<p key={ subscription.name } className="comment-subscription-form">
+							<input
+								id={ id }
+								type="checkbox"
+								name={ subscription.name }
+								value="subscribe"
+								defaultChecked={ subscription.checked }
+							/>{ ' ' }
+							<label htmlFor={ id } className="subscribe-label">
+								{ subscription.label }
+							</label>
+						</p>
+					);
+				} ) }
 			<div className="jetpack-comments__dialog-actions">
 				{ editing && (
 					<span className={ submit.wrapClass }>

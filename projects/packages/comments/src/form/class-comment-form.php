@@ -373,11 +373,6 @@ class Comment_Form {
 
 		Assets::enqueue_script( self::HANDLE );
 		wp_enqueue_style( self::HANDLE );
-
-		// The dialog draws its fields in the Jetpack Forms markup.
-		if ( wp_style_is( 'grunion.css', 'registered' ) ) {
-			wp_enqueue_style( 'grunion.css' );
-		}
 	}
 
 	/**
@@ -454,7 +449,6 @@ class Comment_Form {
 			'email'               => __( 'Email', 'jetpack-comments' ),
 			'emailHint'           => __( 'Address never made public', 'jetpack-comments' ),
 			'emailHasAccount'     => __( 'That email belongs to a WordPress.com account. Log in with WordPress.com to use it, or enter a different email.', 'jetpack-comments' ),
-			'required'            => __( '(required)', 'jetpack-comments' ),
 			'website'             => __( 'Website (optional)', 'jetpack-comments' ),
 			'intro'               => __( 'Add your name and email to post your comment.', 'jetpack-comments' ),
 			'introOr'             => __( 'Or add your name and email to post your comment.', 'jetpack-comments' ),
