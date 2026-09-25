@@ -12,7 +12,6 @@ use Automattic\Jetpack\WordAds\Analytics_Dashboard;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
-use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
 
 // Required by path, like the section API below: the vendored classmap predates these classes.
@@ -23,6 +22,8 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'vendor/automattic/jetpack-premium-anal
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'vendor/automattic/jetpack-premium-analytics/src/widget-types.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'vendor/automattic/jetpack-wordads-analytics/src/class-analytics-dashboard.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/premium-analytics/wordads-section.php';
+
+require_once __DIR__ . '/wordads-manifest-stand-in.php';
 
 /**
  * The plan feature decides; the WordAds package registers.
@@ -85,17 +86,15 @@ class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID ) );
 	}
 
-	public function test_skips_when_the_ads_slug_is_taken() {
+	public function test_registers_the_widget_types_with_the_plan_feature() {
 		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
-		add_action(
-			'jetpack_premium_analytics_register_dashboard_sections',
-			static function () {
-				register_dashboard_section( DASHBOARD_NAME, 'other/ads', array( 'label' => 'Other Ads' ) );
-			},
-			15
-		);
 
-		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID ) );
-		$this->assertNotNull( get_registered_dashboard_section( DASHBOARD_NAME, 'other/ads' ) );
+		$this->assertNotNull( Widget_Type_Registry::get_instance()->get_registered( 'wordads/chart-tabs' ) );
+	}
+
+	public function test_skips_the_widget_types_without_the_plan_feature() {
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( false );
+
+		$this->assertNull( Widget_Type_Registry::get_instance()->get_registered( 'wordads/chart-tabs' ) );
 	}
 }
