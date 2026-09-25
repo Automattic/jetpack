@@ -1,21 +1,15 @@
 .jetpack-comments.is-mounted {
-	display: flex;
-	align-items: flex-start;
-	gap: 12px;
 	margin-block: 1em;
 }
 
-.jetpack-comments__avatar {
-	flex-shrink: 0;
-}
-
-.jetpack-comments__body {
-	flex: 1;
-	min-inline-size: 0;
+// One box around the textarea and the footer, in the post's own colours
+// and the theme's textarea radius. Nested to outrank a block theme's rules.
+.jetpack-comments .jetpack-comments__box {
+	border: 2px solid currentColor;
+	border-radius: var(--jetpack-comments-radius, 0);
 }
 
 // Grows with its content where supported; elsewhere it scrolls, like core's.
-// Nested to outrank a block theme's `.wp-block-post-comments-form textarea`.
 .jetpack-comments .jetpack-comments__textarea {
 	display: block;
 	box-sizing: border-box;
@@ -23,10 +17,12 @@
 	// Two lines plus the padding; field-sizing ignores rows.
 	min-block-size: 3lh;
 	field-sizing: content;
-	// The post's own surface and text, not the theme's input colours.
+	border: 0;
+	border-radius: 0;
 	background: transparent;
+	box-shadow: none;
 	color: inherit;
-	border: 2px solid currentColor;
+	outline: none;
 	resize: none;
 }
 
@@ -52,18 +48,29 @@
 	}
 }
 
-// Reversed so the submit precedes the identity links in the DOM, and Tab
+// Reversed so the submit precedes the identity line in the DOM, and Tab
 // reaches it straight from the textarea. The negative margins give focus
 // rings room inside the tray's clipped box.
 .jetpack-comments__actions {
 	display: flex;
 	flex-direction: row-reverse;
 	flex-wrap: wrap;
-	align-items: flex-start;
+	align-items: center;
 	justify-content: space-between;
 	gap: 12px;
 	margin: 0 -4px -4px;
-	padding: 1em 4px 4px;
+	padding: 0 calc(1em + 4px) 1em;
+}
+
+.jetpack-comments__identity {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.75em;
+}
+
+.jetpack-comments__avatar {
+	flex-shrink: 0;
+	border-radius: var(--jetpack-comments-radius, 0);
 }
 
 .jetpack-comments__submit input:disabled {

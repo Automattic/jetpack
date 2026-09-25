@@ -76,12 +76,12 @@ export type Strings = {
 	saveAndPost: string;
 	postWithoutSaving: string;
 	close: string;
-	edit: string;
-	manageSubscriptions: string;
+	change: string;
 	mustLogIn: string;
 	logIn: string;
 	logInWithWordPress: string;
 	logOut: string;
+	viaWordPress: string;
 	commentingAs: string;
 	cancel: string;
 	signInFailed: string;
@@ -98,8 +98,6 @@ export type Settings = {
 	/** Empty when the site shows no avatars. */
 	avatarUrl: string;
 	site: { name: string; iconUrl: string };
-	/** URLs are empty where the host offers no subscriptions. */
-	manageSubscriptions: { url: string; byEmail: boolean; signedInUrl: string };
 	strings: Strings;
 	commenter: Commenter;
 	user: { name: string } | null;

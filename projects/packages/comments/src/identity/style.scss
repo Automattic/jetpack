@@ -2,17 +2,18 @@
 	display: inline-flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 4px 8px;
+	gap: 0.25em;
 }
 
 // Nested under .jetpack-comments to outrank a theme's `.comment-form button`.
-.jetpack-comments .jetpack-comments__icon-link {
-	display: inline-flex;
+.jetpack-comments .jetpack-comments__link-button {
 	margin: 0;
 	padding: 0;
 	border: 0;
 	background: none;
 	box-shadow: none;
 	color: inherit;
+	font: inherit;
+	text-decoration: underline;
 	cursor: pointer;
 }

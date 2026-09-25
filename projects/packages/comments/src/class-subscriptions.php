@@ -1,6 +1,6 @@
 <?php
 /**
- * The subscribe options each host offers, and where a reader manages them.
+ * The subscribe options each host offers.
  *
  * @package automattic/jetpack-comments
  */
@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Comments;
 
 /**
- * Reads the host's own subscribe checkboxes back, and links to its own management pages.
+ * Reads the host's own subscribe checkboxes back.
  */
 class Subscriptions {
 
@@ -52,50 +52,5 @@ class Subscriptions {
 		}
 
 		return $checkboxes;
-	}
-
-	/**
-	 * Where a reader manages their subscriptions to this site, the way the Action Bar links it.
-	 *
-	 * A WordPress.com account manages them in the Reader: the subscription itself
-	 * when the site knows it exists, else the list filtered to this site. Anyone
-	 * else manages them by email address. The page is cached for a reader the popup
-	 * signs in, so the browser picks `signedInUrl` for them.
-	 *
-	 * @return array `url` and `byEmail` for the reader the page rendered for, and `signedInUrl`. All empty where the host offers no subscriptions.
-	 */
-	public static function manage_links() {
-		$links = array(
-			'url'         => '',
-			'byEmail'     => true,
-			'signedInUrl' => '',
-		);
-
-		if ( ! function_exists( 'subscription_comment_form' ) && ! class_exists( 'Jetpack_Subscriptions' ) ) {
-			return $links;
-		}
-
-		$host = (string) wp_parse_url( home_url(), PHP_URL_HOST );
-
-		$links['url']         = 'https://subscribe.wordpress.com/';
-		$links['signedInUrl'] = 'https://wordpress.com/reader/subscriptions?s=' . rawurlencode( $host );
-
-		if ( ! is_user_logged_in() || ! function_exists( 'wpcom_subs_is_subscribed' ) ) {
-			return $links;
-		}
-
-		$subscription_id = wpcom_subs_is_subscribed(
-			array(
-				'user_id' => get_current_user_id(),
-				'blog_id' => Checkpoint::blog_id(),
-			)
-		);
-
-		$links['byEmail'] = false;
-		$links['url']     = $subscription_id
-			? 'https://wordpress.com/reader/subscriptions/' . (int) $subscription_id
-			: $links['signedInUrl'];
-
-		return $links;
 	}
 }

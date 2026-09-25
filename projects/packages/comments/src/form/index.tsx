@@ -135,19 +135,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 
 	return (
 		<>
-			{ /* The Avatar block's markup, so the theme styles it like the thread's. */ }
-			{ avatar && (
-				<div className="jetpack-comments__avatar wp-block-avatar">
-					<img
-						className="avatar avatar-40 photo wp-block-avatar__image"
-						src={ avatar }
-						alt=""
-						width="40"
-						height="40"
-					/>
-				</div>
-			) }
-			<div className="jetpack-comments__body">
+			<div className="jetpack-comments__box">
 				<CommentField />
 				<div className={ clsx( 'jetpack-comments__tray', { 'is-open': isTrayOpen.value } ) }>
 					<div className="jetpack-comments__actions">
@@ -165,7 +153,18 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 								value={ commentParent.value ? strings.reply : submit.label }
 							/>
 						</span>
-						<Identity />
+						<span className="jetpack-comments__identity">
+							{ avatar && (
+								<img
+									className="jetpack-comments__avatar avatar avatar-40 photo"
+									src={ avatar }
+									alt=""
+									width="40"
+									height="40"
+								/>
+							) }
+							<Identity />
+						</span>
 					</div>
 				</div>
 			</div>
@@ -208,5 +207,14 @@ if ( JetpackComments.version === JETPACK_COMMENTS_VERSION ) {
 			</CommentSignals.Provider>,
 			element
 		);
+
+		// The box wears the radius the theme gives its textarea; nothing exposes it otherwise.
+		const textarea = element.querySelector( 'textarea' );
+		if ( textarea ) {
+			element.style.setProperty(
+				'--jetpack-comments-radius',
+				getComputedStyle( textarea ).borderRadius
+			);
+		}
 	} );
 }

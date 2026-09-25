@@ -1,44 +1,8 @@
 import { useContext } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
 import { logOut } from './checkpoint/checkpoint';
-import { BellIcon, EnvelopeIcon, LogOutIcon, PencilIcon } from './icons';
 
 import './style.scss';
-
-/**
- * Where the reader manages their subscriptions: the Reader for a WordPress.com
- * account, the email portal for anyone else.
- *
- * @return The link, or nothing where the host offers no subscriptions.
- */
-const ManageSubscriptions = () => {
-	const { signedIn, commenter } = useContext( CommentSignals );
-	const { manageSubscriptions: links, strings } = JetpackComments;
-	const byEmail = ! signedIn.value && links.byEmail;
-	const Icon = byEmail ? EnvelopeIcon : BellIcon;
-	let url = signedIn.value ? links.signedInUrl : links.url;
-
-	if ( url && byEmail && commenter.value.email ) {
-		url += `?email=${ encodeURIComponent( commenter.value.email ) }`;
-	}
-
-	if ( ! url ) {
-		return null;
-	}
-
-	return (
-		<a
-			className="jetpack-comments__icon-link"
-			href={ url }
-			title={ strings.manageSubscriptions }
-			target="_blank"
-			rel="noopener"
-		>
-			<span className="jetpack-comments__visually-hidden">{ strings.manageSubscriptions }</span>
-			<Icon />
-		</a>
-	);
-};
 
 /**
  * Who the comment will be attributed to, for a reader the site already knows.
@@ -53,16 +17,7 @@ export const Identity = () => {
 	if ( user ) {
 		return (
 			<span className="jetpack-comments__who">
-				<span>{ strings.commentingAs.replace( '%s', () => user.name ) }</span>
-				<a
-					className="jetpack-comments__icon-link"
-					href={ formSettings.logoutUrl }
-					title={ strings.logOut }
-				>
-					<span className="jetpack-comments__visually-hidden">{ strings.logOut }</span>
-					<LogOutIcon />
-				</a>
-				<ManageSubscriptions />
+				{ user.name } (<a href={ formSettings.logoutUrl }>{ strings.logOut }</a>)
 			</span>
 		);
 	}
@@ -74,20 +29,18 @@ export const Identity = () => {
 		// server reads the passport only when this was on screen.
 		return (
 			<span className="jetpack-comments__who">
-				<span>{ strings.commentingAs.replace( '%s', () => current.name ) }</span>
+				{ strings.viaWordPress.replace( '%s', () => current.name ) } (
 				<button
 					type="button"
-					className="jetpack-comments__icon-link"
-					title={ strings.logOut }
+					className="jetpack-comments__link-button"
 					onClick={ async () => {
 						await logOut();
 						signedIn.value = null;
 					} }
 				>
-					<span className="jetpack-comments__visually-hidden">{ strings.logOut }</span>
-					<LogOutIcon />
+					{ strings.logOut }
 				</button>
-				<ManageSubscriptions />
+				)
 				{ current.code !== null ? (
 					<input type="hidden" name={ identity.codeField } value={ current.code } />
 				) : (
@@ -100,8 +53,7 @@ export const Identity = () => {
 	if ( mustLogIn && ! identity.canSignIn ) {
 		return (
 			<span className="jetpack-comments__who">
-				<span>{ strings.mustLogIn }</span>
-				<a href={ formSettings.loginUrl }>{ strings.logIn }</a>
+				{ strings.mustLogIn } <a href={ formSettings.loginUrl }>{ strings.logIn }</a>
 			</span>
 		);
 	}
@@ -109,20 +61,18 @@ export const Identity = () => {
 	if ( isSavedGuest ) {
 		return (
 			<span className="jetpack-comments__who">
-				<span>{ strings.commentingAs.replace( '%s', () => commenter.value.author ) }</span>
+				{ commenter.value.author } (
 				<button
 					type="button"
-					className="jetpack-comments__icon-link"
-					title={ strings.edit }
+					className="jetpack-comments__link-button"
 					onClick={ () => {
 						isEditing.value = true;
 						isDialogOpen.value = true;
 					} }
 				>
-					<span className="jetpack-comments__visually-hidden">{ strings.edit }</span>
-					<PencilIcon />
+					{ strings.change }
 				</button>
-				<ManageSubscriptions />
+				)
 			</span>
 		);
 	}
