@@ -5,6 +5,7 @@ import ActionButton from '../index';
 
 const mockUseProduct = jest.fn();
 const mockUseProductsByOwnership = jest.fn();
+const mockUseForcedOffReason = jest.fn();
 
 jest.mock( '../../../data/products/use-product', () => ( {
 	__esModule: true,
@@ -14,6 +15,11 @@ jest.mock( '../../../data/products/use-product', () => ( {
 jest.mock( '../../../data/products/use-products-by-ownership', () => ( {
 	__esModule: true,
 	default: () => mockUseProductsByOwnership(),
+} ) );
+
+jest.mock( '../../../hooks/use-forced-off-reason', () => ( {
+	__esModule: true,
+	default: ( ...args ) => mockUseForcedOffReason( ...args ),
 } ) );
 
 /*
@@ -66,12 +72,16 @@ jest.mock( '@wordpress/ui', () => {
 			delete props.size;
 			delete props.openInNewTab;
 			delete props.nativeButton;
+			// The real Button disables itself while loading.
+			props.disabled = props.disabled ?? props.loading;
 			delete props.loading;
 			delete props.loadingAnnouncement;
+			delete props.intent;
 			return react.createElement( tag, props, children );
 		};
 
 	return {
+		Badge: asElement( 'span' ),
 		Button: asElement( 'button' ),
 		Link: asElement( 'a' ),
 		LinkButton: asElement( 'a' ),
@@ -150,6 +160,7 @@ const exactly = ( label: string ) => new RegExp( `^${ label }$` );
 describe( 'the product card primary action', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		mockUseForcedOffReason.mockReturnValue( { reason: null, isPending: false } );
 	} );
 
 	it.each( MATRIX )( 'offers "$label" for $status', ( { status, isOwned, label } ) => {
@@ -162,6 +173,32 @@ describe( 'the product card primary action', () => {
 		UPSELL_LABELS.forEach( upsell => {
 			expect( action ).not.toHaveTextContent( exactly( upsell ) );
 		} );
+	} );
+
+	it.each( [
+		PRODUCT_STATUSES.INACTIVE,
+		PRODUCT_STATUSES.MODULE_DISABLED,
+		PRODUCT_STATUSES.NEEDS_ACTIVATION,
+		PRODUCT_STATUSES.NEEDS_PLAN,
+	] )( 'offers nothing but the reason while the host keeps the module off: %s', status => {
+		mockUseForcedOffReason.mockReturnValue( {
+			reason: 'Disabled by your host or site administrator',
+			isPending: false,
+		} );
+		mockUseProduct.mockReturnValue( { detail: { status }, isLoading: false, isRefetching: false } );
+		mockUseProductsByOwnership.mockReturnValue( { data: { ownedProducts: [] } } );
+
+		render( <ActionButton slug="stats" tracksIdentifier="test_card" /> );
+
+		expect( screen.getByText( 'Disabled by your host or site administrator' ) ).toBeVisible();
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the action busy until it is known whether the host forced the module off', () => {
+		mockUseForcedOffReason.mockReturnValue( { reason: null, isPending: true } );
+
+		expect( primaryActionFor( PRODUCT_STATUSES.MODULE_DISABLED, true ) ).toBeDisabled();
 	} );
 
 	/*
