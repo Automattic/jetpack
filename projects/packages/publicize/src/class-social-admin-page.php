@@ -11,6 +11,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\IdentityCrisis\UI as Identity_Crisis_UI;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Status\Host;
 
@@ -137,6 +138,14 @@ class Social_Admin_Page {
 			if ( apply_filters( 'jetpack_social_should_refresh_plan_data', true ) ) {
 				Current_Plan::refresh_from_wpcom();
 			}
+		}
+
+		// An older connection package may predate the method.
+		if (
+			function_exists( 'jetpack_social_jetpack_social_dashboard_wp_admin_render_page' )
+			&& method_exists( Identity_Crisis_UI::class, 'set_container_id' )
+		) {
+			Identity_Crisis_UI::set_container_id( 'jetpack-social-identity-crisis-container' );
 		}
 
 		/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Show the Safe Mode screen on more dashboards when the site's connection has an identity problem.

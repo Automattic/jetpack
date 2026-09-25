@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Move the Safe Mode modal wrapper to the shared jetpack-idc package; no behavior change.
+
+

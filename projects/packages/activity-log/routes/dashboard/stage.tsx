@@ -1,4 +1,5 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
+import IDCModal from '@automattic/jetpack-idc/idc-modal';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ActivityLog from '../../src/js/components/ActivityLog';
 import '../../src/js/style.scss';
@@ -26,6 +27,7 @@ const queryClient = new QueryClient( {
 const Stage = () => (
 	<QueryClientProvider client={ queryClient }>
 		<ThemeProvider>
+			<IDCModal />
 			<ActivityLog />
 		</ThemeProvider>
 	</QueryClientProvider>

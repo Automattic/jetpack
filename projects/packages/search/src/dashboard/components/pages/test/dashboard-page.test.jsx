@@ -28,6 +28,8 @@ jest.mock( 'store', () => ( {
 	STORE_ID: 'jetpack-search-plugin',
 } ) );
 
+jest.mock( '@automattic/jetpack-idc/idc-modal', () => () => <div data-testid="idc-modal" /> );
+
 jest.mock( 'components/global-notices', () => () => <div data-testid="notices-list" /> );
 jest.mock( 'components/loading', () => () => <div data-testid="loading" /> );
 jest.mock( 'components/mocked-search', () => () => <div data-testid="mocked-search" /> );

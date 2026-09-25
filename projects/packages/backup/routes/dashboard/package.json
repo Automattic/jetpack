@@ -3,6 +3,7 @@
 	"private": true,
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-idc": "workspace:*",
 		"@tanstack/react-query": "5.102.8",
 		"@types/react": "18.3.31",
 		"@wordpress/admin-ui": "2.10.0",

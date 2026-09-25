@@ -3,9 +3,12 @@ import { useState, useCallback } from 'react';
 import styles from './styles.module.scss';
 
 /**
- * Wrapper for the IDC Screen to display it in a modal.
+ * Container for the Safe Mode (identity crisis) screen, shown in a modal.
  *
- * @return {import('react').Component|null} The IDC Screen modal component.
+ * The connection package's own script mounts the screen into this container
+ * once IDC state carries a `containerID` and safe mode isn't confirmed yet.
+ *
+ * @return {import('react').ReactElement|null} The IDC Screen modal component.
  */
 function IDCModal() {
 	const [ isOpen, setOpen ] = useState( true );
@@ -28,7 +31,7 @@ function IDCModal() {
 
 	return (
 		<Modal onRequestClose={ closeModal } overlayClassName={ styles.modal }>
-			<div id={ containerID } className={ styles.container }></div>
+			<div id={ containerID } className={ styles.container } data-testid="jp-idc-modal-container" />
 		</Modal>
 	);
 }

@@ -13,6 +13,7 @@ use Automattic\Jetpack\Agents_Manager\Agents_Manager;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\IdentityCrisis\UI as Identity_Crisis_UI;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -146,6 +147,18 @@ class Jetpack_AI_Page {
 	 */
 	public function add_page_actions( $hook ) {
 		add_action( 'load-' . $hook, array( $this, 'load_agents_manager' ) );
+		add_action( 'load-' . $hook, array( $this, 'set_idc_container_id' ) );
+	}
+
+	/**
+	 * Point the Safe Mode screen at the AI Hub's own container.
+	 *
+	 * An older connection package may predate the method.
+	 */
+	public function set_idc_container_id() {
+		if ( self::should_render_wp_build() && method_exists( Identity_Crisis_UI::class, 'set_container_id' ) ) {
+			Identity_Crisis_UI::set_container_id( 'jetpack-ai-hub-identity-crisis-container' );
+		}
 	}
 
 	/**

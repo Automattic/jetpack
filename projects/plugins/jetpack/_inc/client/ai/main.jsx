@@ -15,6 +15,7 @@
 
 import { AdminPage, GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import IDCModal from '@automattic/jetpack-idc/idc-modal';
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, Icon } from '@wordpress/icons';
@@ -406,6 +407,7 @@ export default function App() {
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 		>
+			<IDCModal />
 			{ tabViews.length > 1 && (
 				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal" ref={ tabsRef }>
 					<Tabs.Root value={ activeTab } onValueChange={ navigateToView }>

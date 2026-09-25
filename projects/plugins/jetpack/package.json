@@ -53,6 +53,7 @@
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-idc": "workspace:*",
 		"@automattic/jetpack-my-jetpack": "workspace:*",
 		"@automattic/jetpack-publicize": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",

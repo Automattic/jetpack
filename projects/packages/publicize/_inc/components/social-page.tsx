@@ -1,5 +1,6 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import JitmSlot from '@automattic/jetpack-components/jitm-slot';
+import IDCModal from '@automattic/jetpack-idc/idc-modal';
 import { currentUserCan, getSiteData } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -91,6 +92,7 @@ export default function SocialPage( {
 	const content = (
 		<>
 			<JitmSlot inset />
+			<IDCModal />
 			<div className="jetpack-social-page__content jetpack-social-page__content--padded">
 				{ children }
 			</div>

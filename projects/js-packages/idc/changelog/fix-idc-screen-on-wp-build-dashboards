@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a lightweight idc-modal export for wp-build dashboards to show the Safe Mode screen in a modal.

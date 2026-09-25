@@ -1,6 +1,7 @@
 // Side-effect import: registers the apiFetch preload middleware.
 import './preload';
 import AdminPage from '@automattic/jetpack-components/admin-page';
+import IDCModal from '@automattic/jetpack-idc/idc-modal';
 import { getAdminUrl, getScriptData, getSiteData } from '@automattic/jetpack-script-data';
 import { Spinner } from '@wordpress/components';
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from '@wordpress/element';
@@ -196,6 +197,7 @@ const App = () => {
 	if ( isLoading ) {
 		return (
 			<AdminPage title={ PAGE_TITLE } subTitle={ PAGE_SUBTITLE }>
+				<IDCModal />
 				<div className="podcast__loading">
 					<Spinner />
 				</div>
@@ -207,6 +209,7 @@ const App = () => {
 		const siteName = getSiteData()?.title?.trim() ?? '';
 		return (
 			<AdminPage title={ PAGE_TITLE } subTitle={ PAGE_SUBTITLE }>
+				<IDCModal />
 				<div className="podcast__tab-content podcast__tab-content--wide">
 					<ErrorBoundary>
 						<Suspense fallback={ <TabFallback /> }>
@@ -241,6 +244,7 @@ const App = () => {
 
 	return (
 		<AdminPage title={ PAGE_TITLE } subTitle={ PAGE_SUBTITLE } actions={ headerActions }>
+			<IDCModal />
 			<Tabs.Root value={ activeTab } onValueChange={ handleTabChange }>
 				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal" ref={ tablistRef }>
 					<Tabs.List variant="minimal">

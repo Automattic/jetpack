@@ -1,4 +1,5 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
+import IDCModal from '@automattic/jetpack-idc/idc-modal';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import './boost-page.scss';
@@ -22,6 +23,7 @@ export default function BoostPage( { isSubpage, children, subpage, actions }: Pr
 			apiNonce={ wpApiSettings.nonce }
 			showFooter={ ! isSubpage }
 		>
+			<IDCModal />
 			<div hidden={ isSubpage }>
 				<div className="jetpack-boost-page__content">
 					{ /* The JITM script moves its card here, since the page template hides the default spot. */ }

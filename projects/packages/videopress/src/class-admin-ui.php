@@ -12,6 +12,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\IdentityCrisis\UI as Identity_Crisis_UI;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Status;
@@ -346,6 +347,11 @@ class Admin_UI {
 	 */
 	public static function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
+
+		// An older connection package may predate the method.
+		if ( self::is_modernized() && method_exists( Identity_Crisis_UI::class, 'set_container_id' ) ) {
+			Identity_Crisis_UI::set_container_id( 'jetpack-videopress-identity-crisis-container' );
+		}
 	}
 
 	/**

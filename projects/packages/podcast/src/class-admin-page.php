@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Podcast;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\IdentityCrisis\UI as Identity_Crisis_UI;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
@@ -126,6 +127,14 @@ class Admin_Page {
 		// MediaUpload (cover-image-control) reads wp.media.view — only defined after this runs.
 		add_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
+
+		// An older connection package may predate the method.
+		if (
+			function_exists( 'jetpack_podcast_jetpack_podcast_dashboard_wp_admin_render_page' )
+			&& method_exists( Identity_Crisis_UI::class, 'set_container_id' )
+		) {
+			Identity_Crisis_UI::set_container_id( 'jetpack-podcast-identity-crisis-container' );
+		}
 	}
 
 	/**
