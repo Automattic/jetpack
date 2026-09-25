@@ -1508,8 +1508,17 @@ class Manager {
 		// The identity is disclosed only to the owner it names, so this branch is the one place the
 		// site can learn it. Anchoring here is not establishing: WordPress.com already accepted a
 		// claim, and this catches up a site that never recorded it or lost the record.
+		$caller_wpcom_user_id = (int) ( $record['caller_wpcom_user_id'] ?? 0 );
+
 		if ( ! empty( $record['is_caller'] ) ) {
-			return $this->adopt_protected_owner( $user_id, (int) ( $record['wpcom_user_id'] ?? 0 ), $anchor );
+			return $this->adopt_protected_owner( $user_id, $caller_wpcom_user_id, $anchor );
+		}
+
+		// Connecting cleared this, and it is the caller's own identity rather than the owner's, so
+		// it is written whoever they are. Nothing is anchored on this path, so an early write
+		// cannot strand a half-finished lock.
+		if ( $caller_wpcom_user_id ) {
+			Utils::set_wpcom_user_id( $user_id, $caller_wpcom_user_id );
 		}
 
 		// Somebody else is connecting. WordPress.com confirms the anchored identity rather than
@@ -1529,7 +1538,8 @@ class Manager {
 	 * @since $$next-version$$
 	 *
 	 * @param int        $user_id       The connecting local user.
-	 * @param int        $wpcom_user_id The identity WordPress.com holds as the owner of record.
+	 * @param int        $wpcom_user_id The connecting user's WordPress.com identity, which this
+	 *                                  branch has just been told is the owner of record.
 	 * @param array|null $anchor        What this site has anchored, if anything.
 	 * @return bool Whether the anchor now names that identity.
 	 */
@@ -1578,7 +1588,7 @@ class Manager {
 	 */
 	protected function query_protected_owner_record( $anchored_wpcom_user_id ) {
 		$xml = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
-		$xml->query( 'jetpack.getProtectedOwner', array( 'anchored_wpcom_user_id' => $anchored_wpcom_user_id ) );
+		$xml->query( 'jetpack.reconcileProtectedOwner', array( 'anchored_wpcom_user_id' => $anchored_wpcom_user_id ) );
 
 		if ( $xml->isError() ) {
 			return null;

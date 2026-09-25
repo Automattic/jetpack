@@ -30,6 +30,8 @@ class Protected_Owner_Test extends TestCase {
 
 	const ANCHORED_WPCOM_ID = 4242;
 
+	const BYSTANDER_WPCOM_ID = 7777;
+
 	/**
 	 * Administrator standing in as the connection owner.
 	 *
@@ -997,10 +999,10 @@ class Protected_Owner_Test extends TestCase {
 	 */
 	private function owner_answer( $wpcom_user_id = self::ANCHORED_WPCOM_ID ) {
 		return array(
-			'has_owner'     => true,
-			'matches'       => true,
-			'is_caller'     => true,
-			'wpcom_user_id' => $wpcom_user_id,
+			'has_owner'            => true,
+			'matches'              => true,
+			'is_caller'            => true,
+			'caller_wpcom_user_id' => $wpcom_user_id,
 		);
 	}
 
@@ -1012,10 +1014,10 @@ class Protected_Owner_Test extends TestCase {
 	 */
 	private function bystander_answer( $matches ) {
 		return array(
-			'has_owner'     => true,
-			'matches'       => $matches,
-			'is_caller'     => false,
-			'wpcom_user_id' => 0,
+			'has_owner'            => true,
+			'matches'              => $matches,
+			'is_caller'            => false,
+			'caller_wpcom_user_id' => self::BYSTANDER_WPCOM_ID,
 		);
 	}
 
@@ -1094,6 +1096,20 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
+	 * Connecting clears every user's binding, so the answer writes back the caller's own identity
+	 * whether or not they own the site.
+	 */
+	public function test_a_bystander_connecting_still_gets_their_binding_back() {
+		$this->anchor();
+		$this->act_as_administrator();
+		Utils::delete_wpcom_user_id( $this->owner_id );
+
+		$this->reconciling_manager( $this->bystander_answer( true ) )->reconcile_protected_owner();
+
+		$this->assertSame( self::BYSTANDER_WPCOM_ID, Utils::get_wpcom_user_id( $this->owner_id ) );
+	}
+
+	/**
 	 * A bystander cannot: with nothing anchored there is no identity to confirm.
 	 */
 	public function test_a_bystander_cannot_re_anchor_a_site_that_failed_to_confirm() {
@@ -1131,10 +1147,10 @@ class Protected_Owner_Test extends TestCase {
 		$this->act_as_administrator();
 
 		$record = array(
-			'has_owner'     => false,
-			'matches'       => false,
-			'is_caller'     => false,
-			'wpcom_user_id' => 0,
+			'has_owner'            => false,
+			'matches'              => false,
+			'is_caller'            => false,
+			'caller_wpcom_user_id' => self::BYSTANDER_WPCOM_ID,
 		);
 
 		$this->assertFalse( $this->reconciling_manager( $record )->reconcile_protected_owner() );
@@ -1286,7 +1302,7 @@ class Protected_Owner_Test extends TestCase {
 
 		$this->assertTrue( ( new Manager() )->reconcile_protected_owner() );
 
-		$this->assertStringContainsString( '<methodName>jetpack.getProtectedOwner</methodName>', $sent->body );
+		$this->assertStringContainsString( '<methodName>jetpack.reconcileProtectedOwner</methodName>', $sent->body );
 		$this->assertStringContainsString( '<name>anchored_wpcom_user_id</name>', $sent->body );
 		$this->assertStringContainsString( '<int>' . self::ANCHORED_WPCOM_ID . '</int>', $sent->body );
 	}
