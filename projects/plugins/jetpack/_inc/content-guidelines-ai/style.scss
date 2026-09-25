@@ -99,11 +99,6 @@ $cg-diff-removed: #f8d7da;
 	justify-content: flex-end;
 }
 
-// Gutenberg before 24.0 left-aligns the section's [Save][Clear] row.
-form:has(button[type="submit"]:first-child) .jetpack-content-guidelines-ai__suggestion-actions--end {
-	justify-content: flex-start;
-}
-
 // Green shimmer overlay on the textarea during AI generation.
 // We make the textarea wrapper positioned so the ::after overlay works.
 // Newer Gutenberg renders the section textarea with @wordpress/ui, whose

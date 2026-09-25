@@ -110,6 +110,35 @@ describe( 'SuggestionActions', () => {
 		expect( acceptSectionSuggestion ).not.toHaveBeenCalled();
 	} );
 
+	it.each( [
+		[
+			'right-aligned with Accept last',
+			'<button>Clear</button><button type="submit">Save</button>',
+			[ 'Dismiss', 'Accept suggestion' ],
+		],
+		[
+			'left-aligned with Accept first',
+			'<button type="submit">Save</button><button>Clear</button>',
+			[ 'Accept suggestion', 'Dismiss' ],
+		],
+	] )( 'orders Accept/Dismiss %s to match the Save row', ( _, row, expected ) => {
+		setup( { suggestion: 'newguideline' } );
+		const item = document.createElement( 'li' );
+		item.className = 'guidelines__list-item';
+		item.dataset.slug = 'copy';
+		item.innerHTML = `<form><textarea rows="4">old</textarea><div>${ row }</div></form>`;
+		document.body.appendChild( item );
+
+		render( <SuggestionActions slug="copy" /> );
+
+		const names = screen
+			.getAllByRole( 'button', { name: /^(Accept suggestion|Dismiss)$/ } )
+			.map( button => button.textContent );
+		expect( names ).toEqual( expected );
+
+		document.body.removeChild( item );
+	} );
+
 	it( 'captures the current section draft as the diff baseline and flags the form', async () => {
 		// Single-word draft/suggestion so the diff is one clean removed token.
 		setup( { suggestion: 'newguideline' } );

@@ -17,6 +17,7 @@ export default function SuggestionActions( { slug } ) {
 
 	const [ original, setOriginal ] = useState( '' );
 	const [ textareaHeight, setTextareaHeight ] = useState( null );
+	const [ isSaveFirst, setIsSaveFirst ] = useState( false );
 
 	// Direct DOM class manipulation is necessary because this component is rendered in
 	// a separate React root injected into Gutenberg's page — we can't control classes
@@ -47,6 +48,11 @@ export default function SuggestionActions( { slug } ) {
 			}
 		}
 
+		// Match the Save/Clear row: Gutenberg 24.0+ right-aligns [Clear][Save],
+		// older versions left-align [Save][Clear].
+		const saveButton = form.querySelector( 'button[type="submit"]' );
+		setIsSaveFirst( !! saveButton && saveButton === saveButton.parentElement.firstElementChild );
+
 		form.classList.toggle( 'has-jetpack-suggestion', !! suggestion );
 		form.classList.toggle( 'is-jetpack-loading', sectionLoading && ! suggestion );
 		return () => {
@@ -68,6 +74,17 @@ export default function SuggestionActions( { slug } ) {
 		return null;
 	}
 
+	const acceptButton = (
+		<Button variant="primary" onClick={ handleAccept }>
+			{ __( 'Accept suggestion', 'jetpack' ) }
+		</Button>
+	);
+	const dismissButton = (
+		<Button variant="tertiary" onClick={ handleDismiss }>
+			{ __( 'Dismiss', 'jetpack' ) }
+		</Button>
+	);
+
 	return (
 		<div className="jetpack-content-guidelines-ai__suggestion">
 			<DiffView
@@ -76,14 +93,17 @@ export default function SuggestionActions( { slug } ) {
 				onAccept={ handleAccept }
 				height={ textareaHeight }
 			/>
-			<div className="jetpack-content-guidelines-ai__suggestion-actions jetpack-content-guidelines-ai__suggestion-actions--end">
-				<Button variant="tertiary" onClick={ handleDismiss }>
-					{ __( 'Dismiss', 'jetpack' ) }
-				</Button>
-				<Button variant="primary" onClick={ handleAccept }>
-					{ __( 'Accept suggestion', 'jetpack' ) }
-				</Button>
-			</div>
+			{ isSaveFirst ? (
+				<div className="jetpack-content-guidelines-ai__suggestion-actions">
+					{ acceptButton }
+					{ dismissButton }
+				</div>
+			) : (
+				<div className="jetpack-content-guidelines-ai__suggestion-actions jetpack-content-guidelines-ai__suggestion-actions--end">
+					{ dismissButton }
+					{ acceptButton }
+				</div>
+			) }
 		</div>
 	);
 }
