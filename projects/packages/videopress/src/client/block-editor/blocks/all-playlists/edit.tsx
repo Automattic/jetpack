@@ -17,6 +17,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { blockStyleVars } from './block-style-vars';
 import { hydratePoster } from './hydrate-poster';
 import { MAX_COLUMNS, MAX_PER_PAGE, MIN_COLUMNS, MIN_PER_PAGE } from './types';
 import useRenderedPreview from './use-rendered-preview';
@@ -84,8 +85,14 @@ export default function AllPlaylistsEdit( {
 	} = attributes;
 	const { status, html, summary, stats } = useRenderedPreview( attributes );
 
+	const styleVars = blockStyleVars( attributes );
 	const blockProps = useBlockProps( {
-		className: `videopress-all-playlists-editor videopress-all-playlists is-layout-${ layout }`,
+		className: [
+			'videopress-all-playlists-editor videopress-all-playlists',
+			`is-layout-${ layout }`,
+			...styleVars.classes,
+		].join( ' ' ),
+		style: styleVars.style,
 	} );
 	const headingProps = useInnerBlocksProps(
 		{ className: 'videopress-all-playlists__heading' },

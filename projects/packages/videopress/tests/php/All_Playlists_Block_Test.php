@@ -293,6 +293,44 @@ class All_Playlists_Block_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Typography and color set on the block reach the wrapper as variables the
+	 * stylesheet applies to the headings; unsafe values are dropped.
+	 */
+	public function test_render_forwards_block_styles_to_the_headings() {
+		$this->seed_index( array( 'one' => $this->record( 'One', $this->create_post() ) ) );
+
+		$markup = All_Playlists_Block::render(
+			array(
+				'fontFamily' => 'heading',
+				'fontSize'   => 'large',
+				'style'      => array(
+					'typography' => array(
+						'fontStyle'  => 'italic',
+						'fontWeight' => '700; color: red',
+						'lineHeight' => 1.4,
+					),
+					'color'      => array( 'text' => 'var:preset|color|primary' ),
+				),
+			)
+		);
+
+		foreach ( array( 'font-family', 'font-size', 'font-style', 'line-height', 'color' ) as $property ) {
+			$this->assertStringContainsString( 'has-vpap-' . $property, $markup );
+		}
+		$this->assertStringNotContainsString( 'has-vpap-font-weight', $markup );
+		$this->assertStringContainsString( '--vpap-font-family:var(--wp--preset--font-family--heading);', $markup );
+		$this->assertStringContainsString( '--vpap-font-size:var(--wp--preset--font-size--large);', $markup );
+		$this->assertStringContainsString( '--vpap-font-style:italic;', $markup );
+		$this->assertStringContainsString( '--vpap-line-height:1.4;', $markup );
+		$this->assertStringContainsString( '--vpap-color:var(--wp--preset--color--primary)', $markup );
+		$this->assertStringNotContainsString( 'color: red', $markup );
+
+		$plain = All_Playlists_Block::render( array() );
+		$this->assertStringNotContainsString( 'has-vpap-', $plain );
+		$this->assertStringNotContainsString( '--vpap-font', $plain );
+	}
+
+	/**
 	 * Description and badge can be hidden, and the total runtime shown.
 	 */
 	public function test_render_honors_the_per_card_toggles() {

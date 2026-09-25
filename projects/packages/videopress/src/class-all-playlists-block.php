@@ -210,6 +210,90 @@ class All_Playlists_Block {
 	}
 
 	/**
+	 * The typography and color settings the Styles tab stores on the block, as
+	 * CSS custom properties plus a marker class per property.
+	 *
+	 * Block supports put these on the wrapper, but headings inside it keep the
+	 * theme's heading styles instead of inheriting, so the stylesheet applies the
+	 * variables to the titles and the header heading only when a value is set.
+	 *
+	 * @param mixed $block_attributes Block attributes.
+	 *
+	 * @return array{classes: string[], style: string}
+	 */
+	public static function block_style_vars( $block_attributes ) {
+		$block_attributes = is_array( $block_attributes ) ? $block_attributes : array();
+		$style_attribute  = isset( $block_attributes['style'] ) && is_array( $block_attributes['style'] ) ? $block_attributes['style'] : array();
+		$typography       = isset( $style_attribute['typography'] ) && is_array( $style_attribute['typography'] ) ? $style_attribute['typography'] : array();
+		$color            = isset( $style_attribute['color'] ) && is_array( $style_attribute['color'] ) ? $style_attribute['color'] : array();
+
+		$preset = function ( $type, $slug ) {
+			return is_string( $slug ) && preg_match( '/^[a-z0-9-]+$/i', $slug )
+				? 'var(--wp--preset--' . $type . '--' . strtolower( $slug ) . ')'
+				: null;
+		};
+
+		$values = array(
+			'font-family'     => $preset( 'font-family', $block_attributes['fontFamily'] ?? null ) ?? ( $typography['fontFamily'] ?? null ),
+			'font-size'       => $preset( 'font-size', $block_attributes['fontSize'] ?? null ) ?? ( $typography['fontSize'] ?? null ),
+			'font-style'      => $typography['fontStyle'] ?? null,
+			'font-weight'     => $typography['fontWeight'] ?? null,
+			'line-height'     => $typography['lineHeight'] ?? null,
+			'letter-spacing'  => $typography['letterSpacing'] ?? null,
+			'text-transform'  => $typography['textTransform'] ?? null,
+			'text-decoration' => $typography['textDecoration'] ?? null,
+			'color'           => $preset( 'color', $block_attributes['textColor'] ?? null ) ?? ( $color['text'] ?? null ),
+		);
+
+		$classes = array();
+		$style   = '';
+		foreach ( $values as $property => $value ) {
+			$value = self::sanitize_style_value( $value );
+			if ( null === $value ) {
+				continue;
+			}
+			$classes[] = 'has-vpap-' . $property;
+			$style    .= '--vpap-' . $property . ':' . $value . ';';
+		}
+
+		return array(
+			'classes' => $classes,
+			'style'   => $style,
+		);
+	}
+
+	/**
+	 * Keep a style value to what a font or color setting can hold: presets
+	 * (including the `var:preset|type|slug` notation) and plain CSS values.
+	 *
+	 * @param mixed $value Raw attribute value.
+	 *
+	 * @return string|null The value, or null when it is empty or unsafe.
+	 */
+	private static function sanitize_style_value( $value ) {
+		if ( is_int( $value ) || is_float( $value ) ) {
+			$value = (string) $value;
+		}
+		if ( ! is_string( $value ) ) {
+			return null;
+		}
+
+		$value = trim( $value );
+		if ( preg_match( '/^var:preset\|([a-z0-9-]+)\|([a-z0-9-]+)$/i', $value, $matches ) ) {
+			$value = 'var(--wp--preset--' . strtolower( $matches[1] ) . '--' . strtolower( $matches[2] ) . ')';
+		}
+
+		if ( '' === $value
+			|| ! preg_match( '/^[A-Za-z0-9 ,.%#\/+"\'()-]+$/', $value )
+			|| preg_match( '/(url|expression|image)\s*\(/i', $value )
+		) {
+			return null;
+		}
+
+		return $value;
+	}
+
+	/**
 	 * The page a numbered pagination is showing, from the request.
 	 *
 	 * @return int 1-based page number.
@@ -270,16 +354,20 @@ class All_Playlists_Block {
 			$pagination = $pages > 1 ? self::render_numbered_pagination( $current_page, $pages ) : '';
 		}
 
-		$classes = array(
-			'videopress-all-playlists',
-			'is-layout-' . $settings['layout'],
-			'is-pagination-' . $settings['pagination'],
+		$style_vars = self::block_style_vars( $block_attributes );
+		$classes    = array_merge(
+			array(
+				'videopress-all-playlists',
+				'is-layout-' . $settings['layout'],
+				'is-pagination-' . $settings['pagination'],
+			),
+			$style_vars['classes']
 		);
 
 		$wrapper_attributes = get_block_wrapper_attributes(
 			array(
 				'class'               => implode( ' ', $classes ),
-				'style'               => '--vpap-columns:' . $settings['columns'] . ';',
+				'style'               => '--vpap-columns:' . $settings['columns'] . ';' . $style_vars['style'],
 				'data-playlist-total' => (string) $total,
 				'data-video-total'    => (string) $total_videos,
 				'data-per-page'       => (string) $per_page,

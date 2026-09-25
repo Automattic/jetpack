@@ -2,7 +2,21 @@ export type AllPlaylistsLayout = 'gallery' | 'list';
 export type AllPlaylistsOrder = 'newest' | 'oldest' | 'title';
 export type AllPlaylistsPagination = 'numbered' | 'load-more';
 
-export type AllPlaylistsAttributes = {
+/**
+ * What the block's typography and color supports store, read back so the
+ * headings can follow the Styles tab.
+ */
+export type BlockStyleAttributes = {
+	fontFamily?: string;
+	fontSize?: string;
+	textColor?: string;
+	style?: {
+		typography?: Record< string, string | number | undefined >;
+		color?: { text?: string };
+	};
+};
+
+export type AllPlaylistsAttributes = BlockStyleAttributes & {
 	layout: AllPlaylistsLayout;
 	columns: number;
 	perPage: number;

@@ -186,8 +186,25 @@
 		padding-block-start: 12px;
 	}
 
-	// Titles are headings: the theme's heading styles and the block's own
-	// typography and color settings apply, so only the margin is reset here.
+	// Typography and color set on the block in the Styles tab reach the headings
+	// too: theme heading rules would otherwise beat inheritance. The header's
+	// Heading block still wins with its own settings, which WordPress writes
+	// inline or with !important.
+	@each $property in (font-family, font-size, font-style, font-weight, line-height, letter-spacing, text-transform, text-decoration, color) {
+
+		&.has-vpap-#{$property} &__title,
+		&.has-vpap-#{$property} &__header > :is(h1, h2, h3, h4, h5, h6),
+		&.has-vpap-#{$property} &__heading > :is(h1, h2, h3, h4, h5, h6) {
+			#{$property}: var(--vpap-#{$property});
+		}
+	}
+
+	&.has-vpap-font-family &__summary {
+		font-family: inherit;
+	}
+
+	// Titles are headings: the theme's heading styles apply unless the block
+	// sets its own, so only the margin is reset here.
 	&__title {
 		margin: 0;
 
