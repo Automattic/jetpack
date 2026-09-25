@@ -96,7 +96,6 @@ export type Settings = {
 	maxLength: number;
 	/** Empty when the site shows no avatars. */
 	avatarUrl: string;
-	avatarWrapClass: string;
 	site: { name: string; iconUrl: string };
 	/** URLs are empty where the host offers no subscriptions. */
 	manageSubscriptions: { url: string; byEmail: boolean; signedInUrl: string };

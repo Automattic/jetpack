@@ -250,10 +250,8 @@ class Comment_Form {
 					JSON_UNESCAPED_SLASHES | JSON_HEX_AMP
 				)
 			) . '"></div>'
-			. '<div class="jetpack-comments__fields">'
 			. get_comment_id_fields( self::post_id() )
-			. wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME, false, false )
-			. '</div>';
+			. wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME, false, false );
 	}
 
 	/**
@@ -336,7 +334,6 @@ class Comment_Form {
 				'requireNameEmail'    => (bool) get_option( 'require_name_email' ),
 				'mustLogIn'           => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
 				'maxLength'           => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
-				'avatarWrapClass'     => Avatars::block_wrap_class(),
 				'site'                => array(
 					'name'    => get_bloginfo( 'name' ),
 					'iconUrl' => (string) get_site_icon_url( 64 ),

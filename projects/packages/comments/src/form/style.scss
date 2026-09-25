@@ -7,16 +7,7 @@
 
 .jetpack-comments__avatar {
 	flex-shrink: 0;
-	inline-size: 40px;
-	block-size: 40px;
-
-	img {
-		display: block;
-		inline-size: 100%;
-		block-size: 100%;
-		border-radius: 50%;
-		object-fit: cover;
-	}
+	border-radius: 50%;
 }
 
 .jetpack-comments__body {
@@ -28,7 +19,6 @@
 	display: block;
 	box-sizing: border-box;
 	inline-size: 100%;
-	max-inline-size: 100%;
 	overflow: hidden;
 	resize: none;
 }
@@ -69,21 +59,10 @@
 	padding: 1em 4px 4px;
 }
 
-.jetpack-comments__submit {
-
-	// Themes style their button but not its disabled state.
-	input:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
-
-	.is-busy {
-		cursor: progress;
-	}
-}
-
-.jetpack-comments__fields {
-	display: contents;
+// Themes style their button but not its disabled state.
+.jetpack-comments__submit input:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
 }
 
 .jetpack-comments__visually-hidden {

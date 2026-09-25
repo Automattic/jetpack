@@ -23,7 +23,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		isTrayOpen,
 		isDialogOpen,
 	} = useContext( CommentSignals );
-	const { mustLogIn, identity, strings, avatarUrl, avatarWrapClass } = JetpackComments;
+	const { mustLogIn, identity, strings, avatarUrl } = JetpackComments;
 	const isSubmitting = useRef( false );
 
 	useEffect( () => {
@@ -135,15 +135,13 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 	return (
 		<>
 			{ avatar && (
-				<div className={ clsx( 'jetpack-comments__avatar', avatarWrapClass ) }>
-					<img
-						className="avatar avatar-40 photo wp-block-avatar__image"
-						src={ avatar }
-						alt=""
-						width="40"
-						height="40"
-					/>
-				</div>
+				<img
+					className="jetpack-comments__avatar avatar avatar-40 photo"
+					src={ avatar }
+					alt=""
+					width="40"
+					height="40"
+				/>
 			) }
 			<div className="jetpack-comments__body">
 				<CommentField />
@@ -154,7 +152,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 								id={ submit.id }
 								name={ submit.name }
 								type="submit"
-								className={ clsx( submit.class, { 'is-busy': isSavingComment.value } ) }
+								className={ submit.class }
 								disabled={
 									( mustLogIn && ! signedIn.value && ! identity.canSignIn ) ||
 									isEmptyComment.value ||

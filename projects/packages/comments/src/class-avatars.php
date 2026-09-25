@@ -1,6 +1,6 @@
 <?php
 /**
- * Avatars for comments, and for the reader about to leave one.
+ * Avatars for comments already written.
  *
  * @package automattic/jetpack-comments
  */
@@ -100,34 +100,6 @@ class Avatars {
 				'force_default' => true,
 			)
 		);
-	}
-
-	/**
-	 * The classes the theme's Avatar block wrapper carries, duotone included.
-	 *
-	 * Block supports add the duotone class at render and register its SVG for
-	 * the footer, so the wrapper goes through that support the way the block does.
-	 *
-	 * @return string
-	 */
-	public static function block_wrap_class() {
-		$class = 'wp-block-avatar';
-
-		if ( ! class_exists( 'WP_Duotone' ) || ! class_exists( 'WP_Block' ) ) {
-			return $class;
-		}
-
-		$parsed = array(
-			'blockName'    => 'core/avatar',
-			'attrs'        => array(),
-			'innerBlocks'  => array(),
-			'innerHTML'    => '',
-			'innerContent' => array(),
-		);
-
-		$html = \WP_Duotone::render_duotone_support( '<div class="' . $class . '"></div>', $parsed, new \WP_Block( $parsed ) );
-
-		return preg_match( '/class="([^"]*)"/', (string) $html, $match ) ? $match[1] : $class;
 	}
 
 	/**
