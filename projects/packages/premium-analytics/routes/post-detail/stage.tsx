@@ -106,7 +106,6 @@ function PostDetail(): JSX.Element {
 		setActiveTab,
 		layout: fixedLayout,
 		isEmailNotSent,
-		isEmailSendPending,
 	} = usePostDetailTabs( postId, emailScope?.reportParams, emailScopeBlocked, summary.type );
 
 	// The stored per-tab arrangement, layered over the fixed composition.
@@ -137,9 +136,6 @@ function PostDetail(): JSX.Element {
 	// The email header names the send ("Email sent on…"), so a post that was
 	// never sent gets the page-level state in place of the header and widgets.
 	const showNotSent = isEmailTab && isEmailNotSent;
-	// Until the type and the send check both answer, the tab may still turn
-	// into that state, so it draws no header rather than one it may drop.
-	const hideHeader = showNotSent || ( isEmailTab && ( summary.isLoading || isEmailSendPending ) );
 
 	const widgetModules = useWidgetModules();
 	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
@@ -233,7 +229,7 @@ function PostDetail(): JSX.Element {
 						<DetailPageLayout
 							tabs={ <SectionTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 							header={
-								hideHeader
+								showNotSent
 									? undefined
 									: postHeaderSlots( {
 											summary,

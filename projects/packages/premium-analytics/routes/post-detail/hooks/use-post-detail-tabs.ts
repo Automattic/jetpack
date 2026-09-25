@@ -62,7 +62,7 @@ function hasEmailActivity( summary: StatsEmailBreakdown[ 'summary' ] | undefined
  *                          widgets surface their own error states instead of the
  *                          tab staying permanently blank.
  * @param postType          - The post type slug, once known.
- * @return Visible tabs, the active tab and layout, the active-tab setter, whether the post was never sent as a newsletter, and whether that is still being checked.
+ * @return Visible tabs, the active tab and layout, the active-tab setter, and whether the post was never sent as a newsletter.
  */
 export function usePostDetailTabs(
 	postId: number,
@@ -93,9 +93,6 @@ export function usePostDetailTabs(
 	// The type is checked too: it arrives on its own request, and a page must
 	// never say it was not sent as a newsletter while its tabs are still up.
 	const isEmailNotSent = postType === 'post' && gate.isSuccess && ! hasEmailStats;
-	// Until it answers, an email tab cannot tell its header and widgets from the
-	// not-sent state, and drawing either first makes the tab jump.
-	const isEmailSendPending = gateEnabled && ! gate.isSuccess && ! gate.isError;
 
 	const tabs = useMemo( () => {
 		const allTabs = getPostDetailTabs();
@@ -129,7 +126,7 @@ export function usePostDetailTabs(
 			return fixed;
 		}
 
-		if ( isEmailNotSent || isEmailSendPending ) {
+		if ( isEmailNotSent ) {
 			return [];
 		}
 
@@ -144,14 +141,7 @@ export function usePostDetailTabs(
 				reportParams: emailReportParams,
 			},
 		} ) );
-	}, [
-		activeTab,
-		isEmailTab,
-		isEmailNotSent,
-		isEmailSendPending,
-		emailReportParams,
-		emailScopeBlocked,
-	] );
+	}, [ activeTab, isEmailTab, isEmailNotSent, emailReportParams, emailScopeBlocked ] );
 
 	return {
 		tabs,
@@ -159,6 +149,5 @@ export function usePostDetailTabs(
 		setActiveTab,
 		layout,
 		isEmailNotSent,
-		isEmailSendPending,
 	};
 }
