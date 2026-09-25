@@ -3,7 +3,7 @@
 $accent: #3858e9;
 
 // Verbum's switch, drawn on the checkbox itself rather than a sibling, so the
-// click lands on the control and nothing depends on label forwarding.
+// click lands on the control. Pinned: themes reach for inputs with !important.
 .jetpack-comments__dialog .jetpack-comments__toggle {
 	display: inline-flex;
 	gap: 10px;
@@ -12,45 +12,46 @@ $accent: #3858e9;
 	cursor: pointer;
 
 	input[type="checkbox"] {
-		appearance: none;
-		box-sizing: content-box;
+		appearance: none !important;
+		box-sizing: content-box !important;
 		flex-shrink: 0;
-		position: relative;
-		inline-size: 36px;
-		block-size: 18px;
-		margin: 4px 0 0;
-		padding: 0;
-		border: 1px solid colors.$black;
-		border-radius: 9px;
-		background: colors.$white;
+		position: relative !important;
+		inline-size: 36px !important;
+		block-size: 18px !important;
+		margin: 4px 0 0 !important;
+		padding: 0 !important;
+		border: 1px solid colors.$black !important;
+		border-radius: 9px !important;
+		background: colors.$white !important;
+		box-shadow: none !important;
 		cursor: pointer;
 
 		&::before {
 			content: "";
-			position: absolute;
+			position: absolute !important;
 			inset-block-start: 2px;
 			inset-inline-start: 2px;
-			inline-size: 14px;
-			block-size: 14px;
-			border-radius: 50%;
-			background: colors.$black;
+			inline-size: 14px !important;
+			block-size: 14px !important;
+			border-radius: 50% !important;
+			background: colors.$black !important;
 			transition:
 				transform 0.3s,
 				background 0.3s;
 		}
 
 		&:checked {
-			border-color: transparent;
-			background: $accent;
+			border-color: transparent !important;
+			background: $accent !important;
 
 			&::before {
 				transform: translateX(18px);
-				background: colors.$white;
+				background: colors.$white !important;
 			}
 		}
 
 		&:focus-visible {
-			outline: 1px solid $accent;
+			outline: 1px solid $accent !important;
 			outline-offset: 2px;
 		}
 	}

@@ -91,32 +91,32 @@ $accent-hover: #2145e6;
 	}
 
 	.jetpack-comments__input {
-		display: block;
-		inline-size: 100%;
-		block-size: 40px;
-		padding: 6px variables.$grid-unit-15;
-		border: variables.$border-width solid colors.$gray-600;
-		border-radius: variables.$radius-small;
-		background: colors.$white;
-		box-shadow: none;
-		color: colors.$gray-900;
-		font-family: inherit;
+		display: block !important;
+		inline-size: 100% !important;
+		block-size: 40px !important;
+		padding: 6px variables.$grid-unit-15 !important;
+		border: variables.$border-width solid colors.$gray-600 !important;
+		border-radius: variables.$radius-small !important;
+		background: colors.$white !important;
+		box-shadow: none !important;
+		color: colors.$gray-900 !important;
+		font-family: inherit !important;
 		// Fonts smaller than 16px make mobile Safari zoom.
-		font-size: 16px;
-		line-height: normal;
-		// Themes outline inputs; the ring below is the focus cue instead.
-		outline: 0;
+		font-size: 16px !important;
+		line-height: normal !important;
+		// Pinned: themes reach for inputs with !important of their own.
+		outline: 0 !important;
 
 		&:focus,
 		&:focus-visible {
-			border-color: $accent;
-			box-shadow: 0 0 0 1px $accent;
-			outline: 0;
+			border-color: $accent !important;
+			box-shadow: 0 0 0 1px $accent !important;
+			outline: 0 !important;
 		}
 
 		&[aria-invalid="true"] {
-			border-color: colors.$alert-red;
-			box-shadow: 0 0 0 1px colors.$alert-red;
+			border-color: colors.$alert-red !important;
+			box-shadow: 0 0 0 1px colors.$alert-red !important;
 		}
 	}
 
@@ -143,54 +143,54 @@ $accent-hover: #2145e6;
 	}
 
 	.jetpack-comments__button {
-		display: inline-flex;
+		display: inline-flex !important;
 		align-items: center;
 		justify-content: center;
-		block-size: 40px;
-		margin: 0;
-		padding: 0 variables.$grid-unit-20;
-		border: 0;
-		border-radius: variables.$radius-small;
-		font-family: inherit;
-		font-size: variables.$default-font-size;
-		font-weight: 400;
-		line-height: 1;
-		text-decoration: none;
+		block-size: 40px !important;
+		margin: 0 !important;
+		padding: 0 variables.$grid-unit-20 !important;
+		border: 0 !important;
+		border-radius: variables.$radius-small !important;
+		font-family: inherit !important;
+		font-size: variables.$default-font-size !important;
+		font-weight: 400 !important;
+		line-height: 1 !important;
+		text-decoration: none !important;
 		cursor: pointer;
 
 		&.is-primary {
-			background: $accent;
-			color: colors.$white;
+			background: $accent !important;
+			color: colors.$white !important;
 
 			&:hover:not(:disabled) {
-				background: $accent-hover;
+				background: $accent-hover !important;
 			}
 
 			&:disabled {
-				opacity: 0.5;
+				opacity: 0.5 !important;
 				cursor: not-allowed;
 			}
 		}
 
 		&.is-link {
-			padding: 0;
-			background: none;
-			color: $accent;
-			text-decoration: underline;
+			padding: 0 !important;
+			background: none !important;
+			color: $accent !important;
+			text-decoration: underline !important;
 
 			&:hover:not(:disabled) {
-				color: $accent-hover;
+				color: $accent-hover !important;
 			}
 
 			&:disabled {
-				color: colors.$gray-600;
+				color: colors.$gray-600 !important;
 				cursor: not-allowed;
 			}
 		}
 
 		&:focus-visible {
-			box-shadow: 0 0 0 2px colors.$white, 0 0 0 4px $accent;
-			outline: 2px solid transparent;
+			box-shadow: 0 0 0 2px colors.$white, 0 0 0 4px $accent !important;
+			outline: 2px solid transparent !important;
 		}
 	}
 
@@ -208,35 +208,35 @@ $accent-hover: #2145e6;
 	}
 
 	.jetpack-comments__wpcom {
-		display: inline-flex;
+		display: inline-flex !important;
 		align-items: center;
 		gap: variables.$grid-unit-15;
-		block-size: 40px;
-		margin: 0;
-		padding: 0 variables.$grid-unit-30;
-		border: 0;
-		border-radius: variables.$radius-small;
-		background: $accent;
-		color: colors.$white;
-		font-family: inherit;
-		font-size: variables.$default-font-size;
-		font-weight: 500;
-		line-height: 1;
+		block-size: 40px !important;
+		margin: 0 !important;
+		padding: 0 variables.$grid-unit-30 !important;
+		border: 0 !important;
+		border-radius: variables.$radius-small !important;
+		background: $accent !important;
+		color: colors.$white !important;
+		font-family: inherit !important;
+		font-size: variables.$default-font-size !important;
+		font-weight: 500 !important;
+		line-height: 1 !important;
 		cursor: pointer;
 
 		svg {
 			inline-size: 20px;
-			block-size: 20px;
+			block-size: 20px !important;
 			fill: currentColor;
 		}
 
 		&:hover {
-			background: $accent-hover;
+			background: $accent-hover !important;
 		}
 
 		&:focus-visible {
-			box-shadow: 0 0 0 2px colors.$white, 0 0 0 4px $accent;
-			outline: 2px solid transparent;
+			box-shadow: 0 0 0 2px colors.$white, 0 0 0 4px $accent !important;
+			outline: 2px solid transparent !important;
 		}
 	}
 
