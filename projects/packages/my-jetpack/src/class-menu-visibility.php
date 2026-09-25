@@ -33,6 +33,7 @@ class Menu_Visibility {
 	 * @return void
 	 */
 	public static function init() {
+		// Activating a plugin loads this class after an older plugin's admin-ui may already have loaded.
 		if ( ! method_exists( Admin_Menu::class, 'set_visibility_resolver' ) ) {
 			return;
 		}
