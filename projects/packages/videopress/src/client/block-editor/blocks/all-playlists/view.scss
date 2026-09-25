@@ -6,6 +6,9 @@
  */
 
 .videopress-all-playlists {
+	// Padding from the Styles tab stays inside the block's width.
+	box-sizing: border-box;
+
 	--vpap-columns: 3;
 	--vpap-muted: rgba(30, 30, 30, 0.62);
 	--vpap-rule: rgba(30, 30, 30, 0.1);
