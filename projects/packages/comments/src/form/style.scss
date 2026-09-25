@@ -20,6 +20,8 @@
 	display: block;
 	box-sizing: border-box;
 	inline-size: 100%;
+	// Two lines plus the padding; field-sizing ignores rows.
+	min-block-size: 3lh;
 	field-sizing: content;
 }
 
