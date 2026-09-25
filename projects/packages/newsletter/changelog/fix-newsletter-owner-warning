@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Settings: Warn when no site owner is connected to WordPress.com, and disable the form, as the previous screen did.

@@ -20,6 +20,7 @@
 	"type": "module",
 	"exports": {
 		".": "./index.jsx",
+		"./get-user-connection-url": "./helpers/get-user-connection-url.ts",
 		"./hooks/use-product-checkout-workflow": "./hooks/use-product-checkout-workflow/index.tsx",
 		"./state/store-id": "./state/store-id.jsx",
 		"./use-connection": "./components/use-connection/index.ts",
