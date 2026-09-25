@@ -2,7 +2,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import { Icon, Stack, Text } from '@wordpress/ui';
-import { getForcedReason } from './feature-state';
+import { getForcedReason, getInstallBlockReason } from './feature-state';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
 
@@ -20,9 +20,10 @@ type FeatureDeliveryProps = {
 function getNote( state: FeatureState, pluginName: string ): string {
 	const { feature, control } = state;
 
-	// Each note describes the modal's button, and a blocked install has none.
-	if ( 'blocked' in control && control.blocked ) {
-		return '';
+	// A blocked install has no button to describe, so the note says why instead.
+	const blockedReason = getInstallBlockReason( state );
+	if ( blockedReason ) {
+		return blockedReason;
 	}
 
 	switch ( control.kind ) {

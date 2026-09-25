@@ -274,12 +274,11 @@ export function FeatureModal( {
 					</p>
 
 					<FeatureDelivery state={ state } />
+					<FeatureInstallNotice state={ state } errorsOnly />
 
 					<Dialog.Description>
 						{ feature.long_description || product?.longDescription || feature.description }
 					</Dialog.Description>
-
-					<FeatureInstallNotice state={ state } />
 
 					<div className={ styles[ 'modal-panels' ] }>
 						{ freeHighlights.length > 0 && (

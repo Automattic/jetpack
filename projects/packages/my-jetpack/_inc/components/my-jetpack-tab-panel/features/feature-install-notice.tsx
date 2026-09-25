@@ -8,19 +8,29 @@ import type { FeatureState } from './feature-state';
 type FeatureInstallNoticeProps = {
 	state: FeatureState;
 	className?: string;
+	errorsOnly?: boolean;
 };
 
 /**
  * Why a feature's plugin can't be installed here, or why the last install failed.
  *
- * @param {FeatureInstallNoticeProps} props           - The component props.
- * @param {FeatureState}              props.state     - Live state for the feature.
- * @param {string}                    props.className - Extra class for the text.
+ * @param {FeatureInstallNoticeProps} props            - The component props.
+ * @param {FeatureState}              props.state      - Live state for the feature.
+ * @param {string}                    props.className  - Extra class for the text.
+ * @param {boolean}                   props.errorsOnly - Leave a blocked install to FeatureDelivery.
  * @return The rendered component, or null when there is nothing to say.
  */
-export function FeatureInstallNotice( { state, className }: FeatureInstallNoticeProps ) {
+export function FeatureInstallNotice( {
+	state,
+	className,
+	errorsOnly = false,
+}: FeatureInstallNoticeProps ) {
 	const { control } = state;
 	const blockedReason = getInstallBlockReason( state );
+
+	if ( blockedReason && errorsOnly ) {
+		return null;
+	}
 
 	if ( blockedReason ) {
 		return (
