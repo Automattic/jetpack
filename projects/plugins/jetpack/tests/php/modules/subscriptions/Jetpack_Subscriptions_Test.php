@@ -5,7 +5,6 @@ require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subsc
 require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/subscriptions.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/paywall/paywall.php';
-require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
@@ -201,125 +200,64 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	/**
 	 * @return array
 	 */
-	public static function paywall_access_level_on_save_provider() {
+	public static function paywall_access_level_provider() {
 		$without_paywall = "<!-- wp:paragraph -->\n<p>Everything is free</p>\n<!-- /wp:paragraph -->";
 
 		return array(
 			'paywall block, no access set'           => array( self::PAYWALL_POST_CONTENT, null, 'subscribers', true ),
 			'paywall block, access everybody'        => array( self::PAYWALL_POST_CONTENT, 'everybody', 'subscribers', true ),
 			'paywall block, access paid subscribers' => array( self::PAYWALL_POST_CONTENT, 'paid_subscribers', 'paid_subscribers', true ),
-			'no paywall block, no access set'        => array( $without_paywall, null, '', false ),
+			'no paywall block, no access set'        => array( $without_paywall, null, 'everybody', false ),
 			'no paywall block, access everybody'     => array( $without_paywall, 'everybody', 'everybody', false ),
 		);
 	}
 
 	/**
-	 * Saves that skip the block editor must still gate a post with a Paywall block.
+	 * Posts saved outside the block editor must still be gated by their Paywall block.
 	 *
 	 * @param string      $content            Post content.
-	 * @param string|null $initial_access     Access level stored before the save hook runs.
-	 * @param string      $expected_access    Access level expected after the save hook runs.
+	 * @param string|null $stored_access      Access level stored on the post, or null for none.
+	 * @param string      $expected_access    Access level expected from Jetpack_Memberships::get_post_access_level().
 	 * @param bool        $expected_paywalled Whether the post is flagged as containing paywalled content.
-	 * @dataProvider paywall_access_level_on_save_provider
+	 * @dataProvider paywall_access_level_provider
 	 */
-	#[DataProvider( 'paywall_access_level_on_save_provider' )]
-	public function test_paywall_block_sets_access_level_on_save( $content, $initial_access, $expected_access, $expected_paywalled ) {
+	#[DataProvider( 'paywall_access_level_provider' )]
+	public function test_paywall_block_gates_post_without_access_level( $content, $stored_access, $expected_access, $expected_paywalled ) {
 		$post_id = $this->factory->post->create( array( 'post_content' => $content ) );
-		if ( null !== $initial_access ) {
-			update_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, $initial_access );
+		if ( null !== $stored_access ) {
+			update_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, $stored_access );
 		}
+		Jetpack_Memberships::clear_post_access_level_cache();
 
 		\Automattic\Jetpack\Extensions\Subscriptions\add_paywalled_content_post_meta( $post_id, get_post( $post_id ) );
 
-		$this->assertSame( $expected_access, get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true ) );
+		$this->assertSame( (string) $stored_access, get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true ) );
+		$this->assertSame( $expected_access, Jetpack_Memberships::get_post_access_level( $post_id ) );
 		$this->assertSame( $expected_paywalled, (bool) get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
 	}
 
 	/**
-	 * An access row added after the auto-gate, as the WXR importer does, replaces the auto-gated row.
+	 * Removing the Paywall block makes a post with no stored access level public again.
 	 */
-	public function test_later_access_level_replaces_auto_gate() {
+	public function test_removing_paywall_block_ungates_post() {
 		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
 		register_subscription_block();
 
 		$post_id = $this->factory->post->create( array( 'post_content' => self::PAYWALL_POST_CONTENT ) );
-		$this->assertSame( 'subscribers', get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true ) );
-
-		add_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, 'paid_subscribers' );
-
-		$this->assertSame( array( 'paid_subscribers' ), get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, false ) );
-		$this->assertTrue( (bool) get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
-	}
-
-	/**
-	 * An access level updated after the auto-gate also updates the paywalled-content flag.
-	 */
-	public function test_later_access_level_update_clears_paywalled_flag() {
-		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
-		register_subscription_block();
-
-		$post_id = $this->factory->post->create( array( 'post_content' => self::PAYWALL_POST_CONTENT ) );
+		Jetpack_Memberships::clear_post_access_level_cache();
+		$this->assertSame( 'subscribers', Jetpack_Memberships::get_post_access_level( $post_id ) );
 		$this->assertTrue( (bool) get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
 
-		update_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, 'everybody' );
-
-		$this->assertSame( array( 'everybody' ), get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, false ) );
-		$this->assertEmpty( get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
-	}
-
-	/**
-	 * The v1.2 posts endpoint writes metadata after wp_after_insert_post, so a paid post created with
-	 * `operation: add` must not read back as the auto-gated `subscribers`.
-	 */
-	public function test_v1_2_posts_new_with_added_paid_access_keeps_paid_access() {
-		global $blog_id;
-
-		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
-		register_subscription_block();
-		wp_set_current_user( $this->admin_user_id );
-
-		if ( ! defined( 'WPCOM_JSON_API__BASE' ) ) {
-			define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
-		}
-		$_SERVER['REQUEST_METHOD'] = 'POST';
-		$_SERVER['HTTP_HOST']      = '127.0.0.1';
-		$_SERVER['REQUEST_URI']    = '/';
-
-		$api                = WPCOM_JSON_API::init();
-		$api->token_details = array( 'blog_id' => $blog_id );
-		$api->post_body     = wp_json_encode(
+		wp_update_post(
 			array(
-				'title'    => 'Paid post',
-				'content'  => self::PAYWALL_POST_CONTENT,
-				'status'   => 'draft',
-				'metadata' => array(
-					array(
-						'key'       => META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
-						'value'     => 'paid_subscribers',
-						'operation' => 'add',
-					),
-				),
-			),
-			JSON_UNESCAPED_SLASHES
+				'ID'           => $post_id,
+				'post_content' => "<!-- wp:paragraph -->\n<p>Free part</p>\n<!-- /wp:paragraph -->",
+			)
 		);
-		$api->content_type  = 'application/json';
+		Jetpack_Memberships::clear_post_access_level_cache();
 
-		$endpoint = null;
-		foreach ( $api->endpoints as $methods ) {
-			// @phan-suppress-next-line PhanTypeSuspiciousNonTraversableForeach -- The registry nests endpoints by method; the property docblock is one level short.
-			foreach ( $methods as $candidate ) {
-				if ( '/sites/%s/posts/new' === $candidate->path && '1.2' === $candidate->min_version ) {
-					$endpoint = $candidate;
-				}
-			}
-		}
-		$this->assertNotNull( $endpoint, 'The v1.2 posts/new endpoint should be registered.' );
-
-		$response = $endpoint->callback( sprintf( '/sites/%d/posts/new', $blog_id ), $blog_id );
-
-		$this->assertIsArray( $response );
-		$this->assertSame( array( 'paid_subscribers' ), get_post_meta( $response['ID'], META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, false ) );
-		$this->assertTrue( (bool) get_post_meta( $response['ID'], META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
+		$this->assertSame( 'everybody', Jetpack_Memberships::get_post_access_level( $post_id ) );
+		$this->assertEmpty( get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
 	}
 
 	/**

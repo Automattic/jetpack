@@ -177,8 +177,6 @@ function register_block() {
 	add_action( 'init', __NAMESPACE__ . '\maybe_prevent_super_cache_caching' );
 
 	add_action( 'wp_after_insert_post', __NAMESPACE__ . '\add_paywalled_content_post_meta', 99, 2 );
-	add_action( 'added_post_meta', __NAMESPACE__ . '\replace_auto_gate_with_later_access_level', 10, 4 );
-	add_action( 'updated_post_meta', __NAMESPACE__ . '\replace_auto_gate_with_later_access_level', 10, 4 );
 
 	add_filter(
 		'jetpack_options_whitelist',
@@ -230,10 +228,7 @@ function register_newsletter_access_column( $columns ) {
 }
 
 /**
- * Add a meta to prevent publication on firehose, ES AI or Reader.
- *
- * Also gates a post with a Paywall block whose access is still "everybody": the editor sets
- * this on insert, but REST, WP-CLI, importer and agent saves skip the editor and gate nothing.
+ * Add a meta to prevent publication on firehose, ES AI or Reader
  *
  * @param int      $post_id Post id being saved.
  * @param \WP_Post $post Post being saved.
@@ -246,87 +241,20 @@ function add_paywalled_content_post_meta( int $post_id, \WP_Post $post ) {
 
 	$access_level = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 
-	if (
-		( empty( $access_level ) || ! is_string( $access_level ) || Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level )
-		&& has_block( \Automattic\Jetpack\Extensions\Paywall\BLOCK_NAME, $post )
-	) {
-		// Own a fresh row instead of updating one, so replace_auto_gate_with_later_access_level() can
-		// drop it by ID when an importer or the v1.x posts endpoints add their own row afterwards.
-		delete_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS );
-		$access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS;
-		$meta_id      = add_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, $access_level, true );
-		if ( $meta_id ) {
-			auto_gated_access_meta_id( $post_id, $meta_id );
-		}
-	}
-
-	update_paywalled_content_flag( $post_id, $access_level );
-}
-
-/**
- * Remembers the access row the auto-gate created for a post during this request.
- *
- * @param int      $post_id Post ID.
- * @param int|null $meta_id Row ID to remember, 0 to forget it, null to read.
- * @return int The remembered row ID, or 0.
- */
-function auto_gated_access_meta_id( $post_id, $meta_id = null ) {
-	static $meta_ids = array();
-
-	if ( null !== $meta_id ) {
-		$meta_ids[ $post_id ] = (int) $meta_id;
-	}
-
-	return $meta_ids[ $post_id ] ?? 0;
-}
-
-/**
- * Lets an access level written after the auto-gate win.
- *
- * The WXR importer and the v1.x posts endpoints write their meta after wp_after_insert_post, and
- * get_post_meta() returns the oldest row, so the auto-gated row has to go or be re-read.
- *
- * @param int    $meta_id    Row that was added or updated.
- * @param int    $post_id    Post ID.
- * @param string $meta_key   Meta key.
- * @param mixed  $meta_value New meta value.
- * @return void
- */
-function replace_auto_gate_with_later_access_level( $meta_id, $post_id, $meta_key, $meta_value ) {
-	if ( META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS !== $meta_key ) {
-		return;
-	}
-
-	$own_meta_id = auto_gated_access_meta_id( $post_id );
-	if ( ! $own_meta_id ) {
-		return;
-	}
-
-	if ( $own_meta_id !== (int) $meta_id ) {
-		delete_metadata_by_mid( 'post', $own_meta_id );
-	}
-	auto_gated_access_meta_id( $post_id, 0 );
-
-	update_paywalled_content_flag( $post_id, $meta_value );
-}
-
-/**
- * Keeps the "contains paywalled content" flag in step with an access level.
- *
- * @param int   $post_id      Post ID.
- * @param mixed $access_level Access level.
- * @return void
- */
-function update_paywalled_content_flag( $post_id, $access_level ) {
+	// A Paywall block gates the post whatever the stored access level; see Jetpack_Memberships::get_post_access_level().
+	$is_paywalled = has_block( \Automattic\Jetpack\Extensions\Paywall\BLOCK_NAME, $post );
 	switch ( $access_level ) {
 		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS_ALL_TIERS:
 		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
 		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS:
-			update_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true );
-			return;
+			$is_paywalled = true;
 	}
-
-	delete_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT );
+	if ( $is_paywalled ) {
+		update_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, $is_paywalled );
+	}
+	if ( ! $is_paywalled ) {
+		delete_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT );
+	}
 }
 
 /**
