@@ -95,7 +95,10 @@ $cg-diff-removed: #f8d7da;
 
 // Green shimmer overlay on the textarea during AI generation.
 // We make the textarea wrapper positioned so the ::after overlay works.
-.is-jetpack-loading .components-textarea-control {
+// Newer Gutenberg renders the section textarea with @wordpress/ui, whose
+// hashed-class wrapper is the textarea's parent and draws the border.
+.is-jetpack-loading .components-textarea-control,
+.is-jetpack-loading :has(> textarea:not(.components-textarea-control__input)) {
 	position: relative;
 
 	&::after {
@@ -111,7 +114,8 @@ $cg-diff-removed: #f8d7da;
 	}
 }
 
-.is-jetpack-loading textarea {
+.is-jetpack-loading textarea,
+.is-jetpack-loading :has(> textarea:not(.components-textarea-control__input)) {
 	border-color: var(--jp-green-40, $cg-green) !important;
 	pointer-events: none;
 }
