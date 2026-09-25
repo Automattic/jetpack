@@ -10,6 +10,9 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -32,9 +35,8 @@ class Conditional_Logic_Plan_Gate_Test extends BaseTestCase {
 	 * @return Contact_Form
 	 */
 	private function build_form( bool $available = true ): Contact_Form {
-		if ( ! $available ) {
-			add_filter( 'jetpack_forms_conditional_logic_enabled', '__return_false' );
-		}
+		// Before the fields: constructing them already consults the gate.
+		add_filter( 'jetpack_forms_conditional_logic_enabled', $available ? '__return_true' : '__return_false' );
 
 		$form = new Contact_Form( array( 'id' => 'cf-plan-gate-test' ) );
 
@@ -98,11 +100,42 @@ class Conditional_Logic_Plan_Gate_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Isolated because the stub defines global WordPress.com functions for the rest of the process.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @dataProvider provide_wpcom_features
+	 * @param array $features Feature slug => whether the site has it.
+	 * @param bool  $expected Whether conditional logic should be available.
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	#[DataProvider( 'provide_wpcom_features' )]
+	public function test_wordpress_com_gates_on_its_own_feature_map( $features, $expected ) {
+		$GLOBALS['wpcom_test_features'] = $features;
+		require_once __DIR__ . '/../fixtures/wpcom-features-stub.php';
+
+		$this->assertSame( $expected, Jetpack_Forms::is_conditional_logic_enabled() );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_wpcom_features() {
+		return array(
+			// Jetpack's free plan includes the slug, so falling back to it would unlock the feature.
+			'slug unknown to WordPress.com' => array( array(), false ),
+			'plan without the feature'      => array( array( 'form-conditional-logic' => false ), false ),
+			'plan with the feature'         => array( array( 'form-conditional-logic' => true ), true ),
+		);
+	}
+
+	/**
 	 * @dataProvider provide_availability
 	 * @param string $filter The filter callback forcing availability.
 	 * @param bool   $expected Whether the editor should offer the builder.
 	 */
-	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_availability' )]
+	#[DataProvider( 'provide_availability' )]
 	public function test_the_editor_feature_map_matches_the_runtime( $filter, $expected ) {
 		add_filter( 'jetpack_forms_conditional_logic_enabled', $filter );
 
@@ -177,8 +210,6 @@ class Conditional_Logic_Plan_Gate_Test extends BaseTestCase {
 	}
 
 	public function test_the_same_form_hides_the_field_when_available() {
-		add_filter( 'jetpack_forms_conditional_logic_enabled', '__return_true' );
-
 		$form = $this->build_form();
 
 		$this->assertFalse(

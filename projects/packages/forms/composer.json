@@ -11,7 +11,6 @@
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-device-detection": "@dev",
 		"automattic/jetpack-external-connections": "@dev",
-		"automattic/jetpack-feature-flags": "@dev",
 		"automattic/jetpack-jwt": "@dev",
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-menu-badges": "@dev",

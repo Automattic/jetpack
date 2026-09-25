@@ -1272,7 +1272,7 @@ class Contact_Form_Block {
 		// - modules: the useModuleStatus hook reads this to decide whether to show the block
 		// or an "Activate Forms" placeholder.
 		// - feature_flags: hasFeatureFlag() reads this for central-form-management,
-		// form-webhooks, and multistep-form.
+		// form-webhooks, multistep-form, and form-conditional-logic.
 		wp_localize_script(
 			Shared_Stores_Assets::SCRIPT_HANDLE,
 			'Jetpack_Editor_Initial_State',

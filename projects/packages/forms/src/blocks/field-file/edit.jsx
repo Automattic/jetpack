@@ -127,6 +127,7 @@ export default function FileFieldEdit( props ) {
 							requiredPlan={ fieldFileAvailability?.details?.required_plan }
 							title={ __( 'Upgrade to a paid plan to use file uploads.', 'jetpack-forms' ) }
 							block="jetpack/field-file"
+							context="editor-canvas"
 						/>
 					) }
 				{ children }

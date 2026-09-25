@@ -20,7 +20,11 @@ await jest.unstable_mockModule( '@automattic/jetpack-shared-extension-utils', ()
 } ) );
 
 await jest.unstable_mockModule( '@automattic/jetpack-shared-extension-utils/components', () => ( {
-	Nudge: ( { title } ) => <p>{ title }</p>,
+	Nudge: ( { title, description } ) => (
+		<p>
+			{ title } { description }
+		</p>
+	),
 } ) );
 
 await jest.unstable_mockModule( '../../../../../src/blocks/contact-form/child-blocks.js', () => ( {
@@ -76,13 +80,13 @@ const noop = () => {};
 const BlockEdit = ( { name } ) => <div>edit: { name }</div>;
 const WrappedBlockEdit = withConditionalLogic( BlockEdit );
 
-const renderBlock = ( name, isSelected = true ) =>
+const renderBlock = ( name, isSelected = true, attributes = {} ) =>
 	render(
 		<WrappedBlockEdit
 			name={ name }
 			isSelected={ isSelected }
 			clientId="abc"
-			attributes={ {} }
+			attributes={ attributes }
 			setAttributes={ noop }
 		/>
 	);
@@ -118,8 +122,23 @@ describe( 'withConditionalLogic', () => {
 
 		await user.click( await screen.findByRole( 'button', { name: 'Add conditional logic' } ) );
 
-		expect( screen.getByText( 'Upgrade to use conditional logic.' ) ).toBeInTheDocument();
+		expect( screen.getByText( /Upgrade to use conditional logic\./ ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Add conditions' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( "tells the author when the plan no longer applies a field's saved conditions", async () => {
+		mockHasFeatureFlag.mockReturnValueOnce( false );
+		renderBlock( 'jetpack/field-text', true, {
+			conditionalLogic: {
+				enabled: true,
+				action: 'show',
+				groups: [ { rules: [ { field: 'field_1', operator: 'is', value: 'yes' } ] } ],
+			},
+		} );
+
+		await expect(
+			screen.findByText( /conditions are not applied on your current plan/ )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'renders a non-field block untouched, without loading the panel', () => {
