@@ -211,6 +211,20 @@ class Environment_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Simple's Comment Likes read only their own option, whatever the modules say.
+	 */
+	public function test_comment_likes_follow_the_likes_settings_off_wpcom_only(): void {
+		$this->given_site( array( 'comment-likes' ), true );
+		$jetpack = Environment::comment_likes_follow_likes_settings();
+
+		Constants::set_constant( 'IS_WPCOM', true );
+		$simple = Environment::comment_likes_follow_likes_settings();
+
+		$this->assertTrue( $jetpack );
+		$this->assertFalse( $simple );
+	}
+
+	/**
 	 * With both Likes modules off, nothing reads the Likes settings, which is
 	 * what takes the section to its off variant.
 	 */

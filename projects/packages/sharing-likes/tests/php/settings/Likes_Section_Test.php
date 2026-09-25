@@ -71,10 +71,6 @@ class Likes_Section_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'activate-likes', $markup );
 	}
 
-	/**
-	 * Comment Likes has no block equivalent, so a site running it is never sent
-	 * down the block route -- and the module that serves it stays switchable.
-	 */
 	public function test_offers_the_way_back_where_the_block_is_not(): void {
 		$this->given_connection( true );
 		$this->given_modules( array() );
@@ -89,11 +85,7 @@ class Likes_Section_Test extends BaseTestCase {
 		$this->assertSame( 1, wp_verify_nonce( $matches[1], Likes_Section::NONCE_ACTION ) );
 	}
 
-	/**
-	 * Simple has no Comment Likes module to keep switchable, so the gate that
-	 * holds the block route back for it elsewhere does not apply there.
-	 */
-	public function test_nudges_toward_the_block_on_simple_despite_comment_likes(): void {
+	public function test_nudges_toward_the_block_on_simple(): void {
 		Constants::set_constant( 'IS_WPCOM', true );
 		$this->given_block_theme();
 		$this->given_block( 'jetpack/like' );
@@ -103,12 +95,51 @@ class Likes_Section_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'Use the Like block', $markup );
 		$this->assertStringContainsString( 'name="jetpack_sharing_action" value="switch-to-block-likes"', $markup );
 		$this->assertStringContainsString( 'name="wpl_default"', $markup );
-		$this->assertStringContainsString( 'name="jetpack_comment_likes_enabled"', $markup );
 	}
 
 	/**
-	 * Once switched off, the legacy options go and the Site Editor is the next
-	 * step. Comment Likes stays: comments have no block to move to.
+	 * Comment Likes keep the settings they read in their own section, so they do
+	 * not hold the block route back.
+	 */
+	public function test_offers_the_block_to_a_site_running_comment_likes_alone(): void {
+		$this->given_block_theme();
+		$this->given_block( 'jetpack/like' );
+		$this->given_connection( true );
+		$this->given_modules( array( 'comment-likes' ) );
+
+		$markup = $this->render();
+
+		$this->assertStringContainsString( 'site-editor.php', $markup );
+		$this->assertStringNotContainsString( 'name="wpl_default"', $markup );
+	}
+
+	public function test_nudges_toward_the_block_with_both_likes_modules_running(): void {
+		$this->given_block_theme();
+		$this->given_block( 'jetpack/like' );
+		$this->given_connection( true );
+		$this->given_modules( array( 'likes', 'comment-likes' ) );
+
+		$markup = $this->render();
+
+		$this->assertStringContainsString( 'name="jetpack_sharing_action" value="switch-to-block-likes"', $markup );
+		$this->assertStringContainsString( 'name="wpl_default"', $markup );
+	}
+
+	/**
+	 * The section describes the Like buttons alone: Comment Likes running does not make them look on.
+	 */
+	public function test_says_like_buttons_are_off_while_comment_likes_run(): void {
+		$this->given_connection( true );
+		$this->given_modules( array( 'comment-likes' ) );
+
+		$markup = $this->render();
+
+		$this->assertStringContainsString( 'activate-likes', $markup );
+		$this->assertStringNotContainsString( 'name="wpl_default"', $markup );
+	}
+
+	/**
+	 * Once switched off, the legacy options go and the Site Editor is the next step.
 	 */
 	public function test_sends_simple_to_the_site_editor_once_switched_off(): void {
 		Constants::set_constant( 'IS_WPCOM', true );
@@ -126,8 +157,6 @@ class Likes_Section_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'switch-to-block-likes', $markup );
 		$this->assertStringNotContainsString( 'name="wpl_default"', $markup );
 		$this->assertStringNotContainsString( 'name="jetpack_reblogs_enabled"', $markup );
-		$this->assertStringContainsString( 'value="' . Settings_Form::SECTION_COMMENT_LIKES . '"', $markup );
-		$this->assertStringContainsString( '<input form="' . Settings_Form::ID . '" type="checkbox" name="jetpack_comment_likes_enabled"', $markup );
 	}
 
 	/**
@@ -158,59 +187,6 @@ class Likes_Section_Test extends BaseTestCase {
 		$markup = $this->render();
 
 		$this->assertStringNotContainsString( 'activate-likes', $markup );
-		$this->assertStringNotContainsString( 'jetpack_comment_likes_enabled', $markup );
 		$this->assertStringContainsString( 'Like buttons need a connection to WordPress.com', $markup );
-	}
-
-	/**
-	 * The checkbox a connected site gets, ticked from the Comment Likes module.
-	 *
-	 * @param string[] $modules Active modules.
-	 */
-	private function comment_likes_checkbox( array $modules ): string {
-		$this->given_connection( true );
-		$this->given_modules( $modules );
-
-		$markup = $this->render();
-
-		$this->assertStringContainsString( 'value="' . Settings_Form::SECTION_COMMENT_LIKES . '"', $markup );
-		$this->assertSame( 1, preg_match( '/<input[^>]*name="jetpack_comment_likes_enabled"[^>]*>/', $markup, $matches ) );
-
-		return $matches[0];
-	}
-
-	public function test_offers_comment_likes_alongside_the_like_button_options(): void {
-		$checkbox = $this->comment_likes_checkbox( array( 'likes', 'comment-likes' ) );
-
-		$this->assertStringContainsString( 'checked', $checkbox );
-	}
-
-	/**
-	 * Comment Likes run without the Likes module, so turning the buttons off must not hide them.
-	 */
-	public function test_offers_comment_likes_where_like_buttons_are_off(): void {
-		$checkbox = $this->comment_likes_checkbox( array() );
-
-		$this->assertStringNotContainsString( 'checked', $checkbox );
-		$this->assertStringContainsString( 'activate-likes', $this->render() );
-	}
-
-	public function test_offers_comment_likes_where_the_block_is_the_route(): void {
-		$this->given_block_theme();
-		$this->given_block( 'jetpack/like' );
-
-		$checkbox = $this->comment_likes_checkbox( array() );
-
-		$this->assertStringNotContainsString( 'checked', $checkbox );
-		$this->assertStringContainsString( 'site-editor.php', $this->render() );
-	}
-
-	/**
-	 * Simple has no module, so every module counts as active there; only the option may tick the box.
-	 */
-	public function test_ticks_comment_likes_from_the_option_on_simple(): void {
-		Constants::set_constant( 'IS_WPCOM', true );
-
-		$this->assertStringNotContainsString( 'checked', $this->comment_likes_checkbox( array() ) );
 	}
 }

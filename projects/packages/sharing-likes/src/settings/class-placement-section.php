@@ -10,8 +10,8 @@ declare( strict_types = 1 );
 namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 /**
- * Renders "Show buttons on", which governs where both sharing buttons and Like
- * buttons appear. Its own section because it belongs to neither feature alone.
+ * Renders "Show buttons on", which governs where sharing buttons, Like buttons,
+ * and Jetpack's Comment Likes appear. Its own section because it belongs to no feature alone.
  */
 final class Placement_Section {
 
@@ -31,6 +31,11 @@ final class Placement_Section {
 	public const FEATURE_LIKES = 'likes';
 
 	/**
+	 * Identifies the Comment Likes section to `render_summary()`.
+	 */
+	public const FEATURE_COMMENT_LIKES = 'comment-likes';
+
+	/**
 	 * Where a feature's buttons currently appear, stated inside that feature's
 	 * own section.
 	 *
@@ -48,15 +53,22 @@ final class Placement_Section {
 		$labels = array_map( array( __CLASS__, 'label_for' ), self::selected_post_types() );
 
 		if ( $labels === array() ) {
-			$summary = self::FEATURE_LIKES === $feature
-				? __( 'Like buttons are currently not shown anywhere.', 'jetpack-sharing-likes' )
-				: __( 'Sharing buttons are currently not shown anywhere.', 'jetpack-sharing-likes' );
-		} elseif ( self::FEATURE_LIKES === $feature ) {
-			/* translators: %s: comma-separated list of places, for example "Posts, Pages". */
-			$summary = sprintf( __( 'Like buttons currently appear on: %s.', 'jetpack-sharing-likes' ), implode( ', ', $labels ) );
+			$nowhere = array(
+				self::FEATURE_SHARING       => __( 'Sharing buttons are currently not shown anywhere.', 'jetpack-sharing-likes' ),
+				self::FEATURE_LIKES         => __( 'Like buttons are currently not shown anywhere.', 'jetpack-sharing-likes' ),
+				self::FEATURE_COMMENT_LIKES => __( 'Comment Likes are currently not shown anywhere.', 'jetpack-sharing-likes' ),
+			);
+			$summary = $nowhere[ $feature ] ?? $nowhere[ self::FEATURE_SHARING ];
 		} else {
-			/* translators: %s: comma-separated list of places, for example "Posts, Pages". */
-			$summary = sprintf( __( 'Sharing buttons currently appear on: %s.', 'jetpack-sharing-likes' ), implode( ', ', $labels ) );
+			$somewhere = array(
+				/* translators: %s: comma-separated list of places, for example "Posts, Pages". */
+				self::FEATURE_SHARING       => __( 'Sharing buttons currently appear on: %s.', 'jetpack-sharing-likes' ),
+				/* translators: %s: comma-separated list of places, for example "Posts, Pages". */
+				self::FEATURE_LIKES         => __( 'Like buttons currently appear on: %s.', 'jetpack-sharing-likes' ),
+				/* translators: %s: comma-separated list of places, for example "Posts, Pages". */
+				self::FEATURE_COMMENT_LIKES => __( 'Comment Likes currently appear on comments on: %s.', 'jetpack-sharing-likes' ),
+			);
+			$summary   = sprintf( $somewhere[ $feature ] ?? $somewhere[ self::FEATURE_SHARING ], implode( ', ', $labels ) );
 		}
 
 		printf(
@@ -132,16 +144,29 @@ final class Placement_Section {
 	 * legible without a second line of copy.
 	 */
 	private static function heading(): string {
-		$sharing = Section_State::configures( Sharing_Section::state() );
-		$likes   = Section_State::configures( Likes_Section::state() );
+		$key = implode(
+			'+',
+			array_keys(
+				array_filter(
+					array(
+						'sharing'  => Section_State::configures( Sharing_Section::state() ),
+						'likes'    => Section_State::configures( Likes_Section::state() ),
+						'comments' => Environment::comment_likes_follow_likes_settings(),
+					)
+				)
+			)
+		);
 
-		if ( $sharing && $likes ) {
-			return __( 'Where sharing and Like buttons appear', 'jetpack-sharing-likes' );
-		}
+		$headings = array(
+			'sharing+likes+comments' => __( 'Where sharing buttons, Like buttons, and Comment Likes appear', 'jetpack-sharing-likes' ),
+			'sharing+likes'          => __( 'Where sharing and Like buttons appear', 'jetpack-sharing-likes' ),
+			'sharing+comments'       => __( 'Where sharing buttons and Comment Likes appear', 'jetpack-sharing-likes' ),
+			'likes+comments'         => __( 'Where Like buttons and Comment Likes appear', 'jetpack-sharing-likes' ),
+			'likes'                  => __( 'Where Like buttons appear', 'jetpack-sharing-likes' ),
+			'comments'               => __( 'Where Comment Likes appear', 'jetpack-sharing-likes' ),
+		);
 
-		return $sharing
-			? __( 'Where sharing buttons appear', 'jetpack-sharing-likes' )
-			: __( 'Where Like buttons appear', 'jetpack-sharing-likes' );
+		return $headings[ $key ] ?? __( 'Where sharing buttons appear', 'jetpack-sharing-likes' );
 	}
 
 	/**

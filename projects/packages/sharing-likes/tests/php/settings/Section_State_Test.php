@@ -60,26 +60,29 @@ class Section_State_Test extends TestCase {
 	}
 
 	/**
-	 * @return array<string, array{0: string, 1: string, 2: bool}>
+	 * @return array<string, array{0: string, 1: string, 2: bool, 3: bool}>
 	 */
 	public static function provide_placement(): array {
 		return array(
-			'both configure'           => array( Section_State::CONFIGURE, Section_State::CONFIGURE, true ),
-			'sharing only'             => array( Section_State::CONFIGURE_WITH_BLOCK_NUDGE, Section_State::OFF, true ),
-			'likes only'               => array( Section_State::BLOCK_CALL_TO_ACTION, Section_State::CONFIGURE, true ),
-			'both off'                 => array( Section_State::OFF, Section_State::OFF, false ),
-			'both moved to the blocks' => array( Section_State::BLOCK_CALL_TO_ACTION, Section_State::BLOCK_CALL_TO_ACTION, false ),
+			'both configure'                          => array( Section_State::CONFIGURE, Section_State::CONFIGURE, false, true ),
+			'sharing only'                            => array( Section_State::CONFIGURE_WITH_BLOCK_NUDGE, Section_State::OFF, false, true ),
+			'likes only'                              => array( Section_State::BLOCK_CALL_TO_ACTION, Section_State::CONFIGURE, false, true ),
+			'both off'                                => array( Section_State::OFF, Section_State::OFF, false, false ),
+			'both moved to the blocks'                => array( Section_State::BLOCK_CALL_TO_ACTION, Section_State::BLOCK_CALL_TO_ACTION, false, false ),
+			'both off, Comment Likes running'         => array( Section_State::OFF, Section_State::OFF, true, true ),
+			'both moved to the blocks, Comment Likes' => array( Section_State::BLOCK_CALL_TO_ACTION, Section_State::BLOCK_CALL_TO_ACTION, true, true ),
 		);
 	}
 
 	/**
-	 * @param string $sharing_state Variant the Sharing buttons section renders.
-	 * @param string $likes_state   Variant the Like buttons section renders.
-	 * @param bool   $expected      Whether the placement section renders.
+	 * @param string $sharing_state        Variant the Sharing buttons section renders.
+	 * @param string $likes_state          Variant the Like buttons section renders.
+	 * @param bool   $comment_likes_follow Whether Comment Likes read the placement.
+	 * @param bool   $expected             Whether the placement section renders.
 	 * @dataProvider provide_placement
 	 */
 	#[DataProvider( 'provide_placement' )]
-	public function test_placement_section_visibility( string $sharing_state, string $likes_state, bool $expected ): void {
-		$this->assertSame( $expected, Section_State::shows_placement( $sharing_state, $likes_state ) );
+	public function test_placement_section_visibility( string $sharing_state, string $likes_state, bool $comment_likes_follow, bool $expected ): void {
+		$this->assertSame( $expected, Section_State::shows_placement( $sharing_state, $likes_state, $comment_likes_follow ) );
 	}
 }

@@ -454,6 +454,23 @@ class Post_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * With Like buttons off, the Comment Likes section carries the sitewide default, and claims it for the Likes save.
+	 */
+	public function test_comment_likes_section_saves_the_sitewide_default_it_shows(): void {
+		$active = $this->save_comment_likes_with(
+			array( 'comment-likes' ),
+			array( Settings_Form::SECTION_COMMENT_LIKES, Settings_Form::SECTION_LIKES ),
+			array(
+				'jetpack_comment_likes_enabled' => '1',
+				'wpl_default'                   => 'off',
+			)
+		);
+
+		$this->assertSame( array( 'comment-likes' ), $active );
+		$this->assertSame( '1', (string) get_option( 'disabled_likes' ) );
+	}
+
+	/**
 	 * An unchecked box posts nothing, so a save that never showed the checkbox must not read it as "off".
 	 */
 	public function test_save_leaves_the_comment_likes_module_alone_when_unclaimed(): void {

@@ -237,6 +237,28 @@ class Settings_Page_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Comment Likes follow the placement, so it stays on screen with the Like
+	 * buttons off, headed by the one feature it still governs.
+	 */
+	public function test_keeps_placement_for_comment_likes_after_the_like_buttons(): void {
+		$this->given_connection( true );
+		$this->given_modules( array( 'comment-likes' ) );
+		add_filter( 'jetpack_disable_twitter_cards', '__return_true' );
+
+		$html = $this->render_screen();
+
+		$this->assertStringContainsString( 'Where Comment Likes appear', $html );
+		$this->assertGreaterThan(
+			strpos( $html, 'id="' . Likes_Section::ANCHOR . '"' ),
+			strpos( $html, 'id="' . Comment_Likes_Section::ANCHOR . '"' )
+		);
+		$this->assertLessThan(
+			strpos( $html, 'id="' . Placement_Section::ANCHOR . '"' ),
+			strpos( $html, 'id="' . Comment_Likes_Section::ANCHOR . '"' )
+		);
+	}
+
+	/**
 	 * Hook a field onto `sharing_global_options`, as a third party does.
 	 */
 	private function given_extra_field(): void {

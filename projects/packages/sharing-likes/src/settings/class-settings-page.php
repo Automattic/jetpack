@@ -63,11 +63,12 @@ final class Settings_Page {
 		$sections = array(
 			array( Sharing_Section::class, 'render' ),
 			array( Likes_Section::class, 'render' ),
+			array( Comment_Likes_Section::class, 'render' ),
 		);
 
 		$sharing_state = Sharing_Section::state();
 
-		if ( Section_State::shows_placement( $sharing_state, Likes_Section::state() ) ) {
+		if ( Section_State::shows_placement( $sharing_state, Likes_Section::state(), Environment::comment_likes_follow_likes_settings() ) ) {
 			$sections[] = array( Placement_Section::class, 'render' );
 		}
 

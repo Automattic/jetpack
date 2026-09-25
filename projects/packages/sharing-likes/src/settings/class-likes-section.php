@@ -58,8 +58,6 @@ final class Likes_Section {
 				self::render_options();
 		}
 
-		self::render_comment_likes_option();
-
 		echo '</div>';
 	}
 
@@ -71,7 +69,7 @@ final class Likes_Section {
 	public static function state(): string {
 		return Section_State::for_section(
 			self::can_offer_block(),
-			Environment::likes_settings_in_use(),
+			Environment::likes_module_running(),
 			Environment::legacy_likes_switched_off()
 		);
 	}
@@ -93,16 +91,13 @@ final class Likes_Section {
 	/**
 	 * Whether the Like block is a route we can send this site down.
 	 *
-	 * A block theme alone is not enough. All of these must hold too:
-	 * - the block is registered;
-	 * - the theme has a single post template to add it to;
-	 * - Comment Likes is not running as a module, since comments have no block to
-	 *   move to. Simple has no module to switch off, so it is exempt.
+	 * A block theme alone is not enough: the block must be registered, and the
+	 * theme must have a single post template to add it to. Comment Likes do not
+	 * hold the route back, since `Comment_Likes_Section` keeps the settings they read.
 	 */
 	private static function can_offer_block(): bool {
 		return Environment::is_block_theme()
 			&& Environment::like_block_registered()
-			&& ( Environment::is_simple_site() || ! Environment::comment_likes_module_running() )
 			&& '' !== Environment::single_template_editor_url();
 	}
 
@@ -171,30 +166,13 @@ final class Likes_Section {
 	private static function render_options(): void {
 		Placement_Section::render_summary( Placement_Section::FEATURE_LIKES );
 
-		$likes_enabled_sitewide = Likes_Options::likes_enabled_sitewide();
-
 		ob_start();
 		?>
 		<table class="form-table">
 			<tbody>
-				<tr>
-					<th scope="row"><label><?php esc_html_e( 'WordPress.com Likes are', 'jetpack-sharing-likes' ); ?></label></th>
-					<td>
-						<div>
-							<label>
-								<input type="radio" name="wpl_default" value="on" <?php checked( $likes_enabled_sitewide ); ?> />
-								<?php esc_html_e( 'On for all posts', 'jetpack-sharing-likes' ); ?>
-							</label>
-						</div>
-						<div>
-							<label>
-								<input type="radio" name="wpl_default" value="off" <?php checked( ! $likes_enabled_sitewide ); ?> />
-								<?php esc_html_e( 'Turned on per post', 'jetpack-sharing-likes' ); ?>
-							</label>
-						</div>
-					</td>
-				</tr>
 				<?php
+				self::render_sitewide_default_row( __( 'WordPress.com Likes are', 'jetpack-sharing-likes' ) );
+
 				if ( Environment::is_simple_site() ) {
 					self::render_reblog_option();
 				}
@@ -203,6 +181,36 @@ final class Likes_Section {
 		</table>
 		<?php
 		Settings_Form::render_fields( Settings_Form::SECTION_LIKES, (string) ob_get_clean() );
+	}
+
+	/**
+	 * "On for all posts" or "Turned on per post", which Like buttons and Comment Likes both read.
+	 *
+	 * Whichever section renders it claims `Settings_Form::SECTION_LIKES` for it.
+	 *
+	 * @param string $label Row heading, naming the feature the reader is configuring.
+	 */
+	public static function render_sitewide_default_row( string $label ): void {
+		$likes_enabled_sitewide = Likes_Options::likes_enabled_sitewide();
+		?>
+		<tr>
+			<th scope="row"><label><?php echo esc_html( $label ); ?></label></th>
+			<td>
+				<div>
+					<label>
+						<input type="radio" name="wpl_default" value="on" <?php checked( $likes_enabled_sitewide ); ?> />
+						<?php esc_html_e( 'On for all posts', 'jetpack-sharing-likes' ); ?>
+					</label>
+				</div>
+				<div>
+					<label>
+						<input type="radio" name="wpl_default" value="off" <?php checked( ! $likes_enabled_sitewide ); ?> />
+						<?php esc_html_e( 'Turned on per post', 'jetpack-sharing-likes' ); ?>
+					</label>
+				</div>
+			</td>
+		</tr>
+		<?php
 	}
 
 	/**
@@ -232,31 +240,5 @@ final class Likes_Section {
 			</td>
 		</tr>
 		<?php
-	}
-
-	/**
-	 * The Comment Likes checkbox, saved as a form section of its own.
-	 *
-	 * Shown whether the Like buttons are on, off, or replaced by the block: Comment
-	 * Likes run without them, and comments have no Like block to move to.
-	 */
-	private static function render_comment_likes_option(): void {
-		ob_start();
-		?>
-		<table class="form-table">
-			<tbody>
-				<tr>
-					<th scope="row"><label><?php esc_html_e( 'Comment Likes are', 'jetpack-sharing-likes' ); ?></label></th>
-					<td>
-						<label>
-							<input type="checkbox" name="jetpack_comment_likes_enabled" value="1" <?php checked( Environment::comment_likes_enabled() ); ?> />
-							<?php esc_html_e( 'On for all comments', 'jetpack-sharing-likes' ); ?>
-						</label>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-		<?php
-		Settings_Form::render_fields( Settings_Form::SECTION_COMMENT_LIKES, (string) ob_get_clean() );
 	}
 }
