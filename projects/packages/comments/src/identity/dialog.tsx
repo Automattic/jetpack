@@ -251,6 +251,7 @@ export const IdentityDialog = () => {
 								type={ input.type }
 								autoComplete={ kind }
 								className={ `${ kind } wp-block-jetpack-input grunion-field` }
+								aria-invalid={ field === 'email' && emailTaken ? 'true' : undefined }
 								required={ input.required }
 								value={ commenter.value[ field ] }
 								onInput={ event => {

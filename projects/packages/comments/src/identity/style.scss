@@ -118,10 +118,20 @@
 	}
 }
 
+// A warning has to be seen, so this one does not defer to the theme.
 .jetpack-comments__notice {
 	display: block;
-	margin-block-start: 8px;
-	font-size: 0.875em;
+	margin-block-start: 12px;
+	padding: 12px 16px;
+	border-inline-start: 4px solid #d63638;
+	border-radius: 4px;
+	background: rgba(214, 54, 56, 0.08);
+	font-weight: 500;
+}
+
+.jetpack-comments .grunion-field[aria-invalid="true"] {
+	border-color: #d63638;
+	box-shadow: 0 0 0 1px #d63638;
 }
 
 .jetpack-comments__hint {
