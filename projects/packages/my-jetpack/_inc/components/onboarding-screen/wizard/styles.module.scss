@@ -143,6 +143,23 @@ $panel-art-width: 77%;
 $panel-art-draw-duration: 1.4s;
 
 /*
+ * The prototype's easing, on everything ported from it. Not a WPDS token, and
+ * the difference is the whole point. The expressive token is
+ * cubic-bezier(0.25, 0, 0, 1), which starts at a standstill, so a box opening
+ * on it crawls and then snaps. This one leaves at full speed and decelerates
+ * into the end, which is what reads as smooth.
+ */
+$house-easing: cubic-bezier(0.23, 1, 0.32, 1);
+
+/*
+ * The question column's measure. The surface-width scale steps 400, 560, 720,
+ * and it sat on 720 — wider than the start screen's own 448, so the two read as
+ * different pages. 470 keeps the feature rows' two-line descriptions from
+ * clamping harder than they already do, which 400 would not.
+ */
+$step-column-width: 470px;
+
+/*
  * The feature row's icon tile, from the prototype's group-step.tsx: `size-12`,
  * so 48px. The size scale stops at 40 (--wpds-dimension-size-lg), and a 40px
  * tile around a 20px glyph leaves too little ground for the dark fill to read
@@ -415,12 +432,12 @@ $rail-row-min-height: 40px;
 
 .panel-content {
 	inline-size: 100%;
-	max-inline-size: var(--wpds-dimension-surface-width-xl);
+	max-inline-size: $step-column-width;
 	margin-block: auto;
 	margin-inline: auto;
 	animation-name: step-enter;
 	animation-duration: var(--wpds-motion-duration-md);
-	animation-timing-function: var(--wpds-motion-easing-expressive);
+	animation-timing-function: $house-easing;
 
 	@media (prefers-reduced-motion: reduce) {
 		animation-name: none;
@@ -613,15 +630,14 @@ $rail-row-min-height: 40px;
 /*
  * --draw-length is each path's own measured length, published by panel-art.tsx,
  * because a dash length set from a stylesheet is in user units whatever
- * pathLength says. The prototype's cubic-bezier(0.23, 1, 0.32, 1) has no token;
- * the expressive easing is the nearest the design system carries.
+ * pathLength says.
  */
 .brand-panel__art-path {
 	stroke-dasharray: var(--draw-length);
 	stroke-dashoffset: var(--draw-length);
 	animation-name: panel-draw;
 	animation-duration: $panel-art-draw-duration;
-	animation-timing-function: var(--wpds-motion-easing-expressive);
+	animation-timing-function: $house-easing;
 	animation-fill-mode: forwards;
 
 	@media (prefers-reduced-motion: reduce) {
@@ -663,7 +679,7 @@ $rail-row-min-height: 40px;
 	opacity: 0;
 	animation-name: panel-line;
 	animation-duration: var(--wpds-motion-duration-xl);
-	animation-timing-function: var(--wpds-motion-easing-expressive);
+	animation-timing-function: $house-easing;
 	animation-fill-mode: forwards;
 
 	// Sibling-counted rather than nth-child: the visually hidden copy shares the
@@ -723,12 +739,10 @@ $rail-row-min-height: 40px;
 
 	from {
 		grid-template-rows: 0fr;
-		padding-block-start: 0;
 	}
 
 	to {
 		grid-template-rows: 1fr;
-		padding-block-start: var(--wpds-dimension-padding-lg);
 	}
 }
 
@@ -896,7 +910,7 @@ $rail-row-min-height: 40px;
 	}
 
 	// --row-index is set on the element, so one rule staggers any number of rows.
-	animation: option-cascade $option-cascade-duration var(--wpds-motion-easing-expressive) both;
+	animation: option-cascade $option-cascade-duration $house-easing both;
 	animation-delay: calc(#{$option-cascade-base} + var(--row-index) * #{$option-cascade-step});
 
 	@media (prefers-reduced-motion: reduce) {
@@ -915,11 +929,14 @@ $rail-row-min-height: 40px;
 	display: grid;
 	grid-template-rows: 1fr;
 	overflow: hidden;
-	animation: freetext-open $freetext-open-duration var(--wpds-motion-easing-expressive) both;
-	padding-block-start: var(--wpds-dimension-padding-lg);
+	animation: freetext-open $freetext-open-duration $house-easing both;
 
 	> * {
 		min-block-size: 0;
+
+		// Inside the box the height opens, so the gap grows with it rather than
+		// appearing first and leaving the field to catch up.
+		padding-block-start: var(--wpds-dimension-padding-lg);
 		animation: fade-in $freetext-fade-duration var(--wpds-motion-easing-subtle) both;
 		animation-delay: $freetext-fade-delay;
 	}
@@ -1012,7 +1029,7 @@ $rail-row-min-height: 40px;
 }
 
 .feature-row__wrap {
-	animation: option-cascade $option-cascade-duration var(--wpds-motion-easing-expressive) both;
+	animation: option-cascade $option-cascade-duration $house-easing both;
 	animation-delay: calc(#{$option-cascade-base} + var(--row-index) * #{$option-cascade-step});
 
 	@media (prefers-reduced-motion: reduce) {
@@ -1104,7 +1121,7 @@ $rail-row-min-height: 40px;
 	justify-content: space-between;
 	gap: var(--wpds-dimension-gap-lg);
 	padding-block: var(--wpds-dimension-padding-md);
-	animation: option-cascade $option-cascade-duration var(--wpds-motion-easing-expressive) both;
+	animation: option-cascade $option-cascade-duration $house-easing both;
 	animation-delay: calc(#{$option-cascade-base} + var(--row-index) * #{$option-cascade-step});
 
 	@media (prefers-reduced-motion: reduce) {
@@ -1156,7 +1173,7 @@ $rail-row-min-height: 40px;
 .wave {
 	animation-name: step-enter;
 	animation-duration: var(--wpds-motion-duration-lg);
-	animation-timing-function: var(--wpds-motion-easing-expressive);
+	animation-timing-function: $house-easing;
 	animation-fill-mode: both;
 
 	@media (prefers-reduced-motion: reduce) {
