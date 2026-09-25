@@ -467,6 +467,13 @@ type MainFeaturePluginStatus = 'not-installed' | 'inactive' | 'active';
 type MainFeaturesState = {
 	jetpack: MainFeaturePluginStatus;
 	features: MainFeature[];
+	// Optional: a plugin carrying an older copy of this package sends none.
+	module_groups?: MainFeatureModuleGroup[];
+};
+
+type MainFeatureModuleGroup = {
+	label: string;
+	modules: string[];
 };
 
 type MainFeature = {
@@ -482,6 +489,8 @@ type MainFeature = {
 	plugin_name: string;
 	plugin_url: string;
 	plugin_status: MainFeaturePluginStatus;
+	// Set when the host forces the plugin, so the owner's switch would only flip back.
+	plugin_override: '' | 'active' | 'inactive';
 	paid_highlights: string[];
 	plans: Array< { slug: string; name: string } >;
 	paid_product: string;
@@ -495,6 +504,7 @@ type MainFeature = {
 interface Window {
 	myJetpackInitialState?: {
 		mainFeatures: MainFeaturesState | null;
+		featuresBanner: { isDismissed: boolean } | null;
 		siteSuffix: string;
 		siteUrl: string;
 		latestBoostSpeedScores: {
@@ -518,6 +528,7 @@ interface Window {
 		fileSystemWriteAccess: 'yes' | 'no';
 		isStatsModuleActive: string;
 		canUserViewStats: boolean;
+		hiddenFeatures?: Array< string >;
 		isUserFromKnownHost: string;
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;

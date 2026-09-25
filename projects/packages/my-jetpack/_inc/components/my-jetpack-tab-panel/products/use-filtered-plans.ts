@@ -4,6 +4,7 @@ import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../../
 import { useAllProducts } from '../../../data/products/use-all-products';
 import { WP_Error } from '../../../data/types';
 import useSimpleQuery from '../../../data/use-simple-query';
+import { getHiddenFeatures } from '../../../data/utils/get-my-jetpack-window-state';
 import { JetpackProductWithCard } from '../../../types';
 import { getProductModules } from './mappings';
 import { ProductSection } from './types';
@@ -39,10 +40,13 @@ export function useFilteredPlans( { search }: UseFilteredPlansOptions ): {
 
 	const { modules: allModules, isLoading: isLoadingModules } = useAllJetpackModules();
 
+	const hidden = getHiddenFeatures();
+
 	const list = ( purchases || [] ).map< ProductSection >( purchase => {
 		const $products = Object.entries( products || {} ).filter(
 			( [ slug, item ] ) =>
 				JETPACK_PRODUCTS_WITH_CARD.includes( slug as JetpackProductWithCard ) &&
+				! hidden.includes( slug ) &&
 				item.relatedPlanSlugs.includes( purchase.product_slug )
 		);
 
@@ -63,7 +67,11 @@ export function useFilteredPlans( { search }: UseFilteredPlansOptions ): {
 	list.push( {
 		id: 'free',
 		title: __( 'Free', 'jetpack-my-jetpack' ),
-		modules: filterAndSortModules( JETPACK_NON_PAID_MODULES.map( slug => allModules[ slug ] ) ),
+		modules: filterAndSortModules(
+			JETPACK_NON_PAID_MODULES.filter( slug => ! hidden.includes( slug ) ).map(
+				slug => allModules[ slug ]
+			)
+		),
 	} );
 
 	return {

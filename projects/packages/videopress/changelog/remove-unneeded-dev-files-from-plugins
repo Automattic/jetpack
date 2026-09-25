@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Exclude `wordpress-augmentations.d.ts` from published package.

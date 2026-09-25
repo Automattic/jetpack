@@ -1,5 +1,6 @@
-import { formatNumberCompact, formatNumber } from '@automattic/number-formatters';
+import { formatNumberCompact } from '@automattic/number-formatters';
 import { LinearGradient } from '@visx/gradient';
+import { scaleCanBeZeroed } from '@visx/scale';
 import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
@@ -37,14 +38,21 @@ import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
+import { formatReading, isInvalidReading, isReading } from '../private/readings';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType } from '../private/time-axis';
 import { buildTimeAxisOptions } from '../private/time-axis-options';
+import { hasOnlyWholeNumbers, WholeNumberTicks } from '../private/whole-number-ticks';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
 import styles from './line-chart.module.scss';
-import { LineChartAnnotation, LineChartAnnotationsOverlay, LineChartGlyph } from './private';
+import {
+	LineChartAnnotation,
+	LineChartAnnotationsOverlay,
+	LineChartGlyph,
+	NearestPointerEvents,
+} from './private';
 import type { RenderLineGlyphProps, LineChartProps, TooltipDatum } from './types';
 import type {
 	BucketInfo,
@@ -123,9 +131,14 @@ export const renderDefaultTooltip = (
 	const tooltipPoints: TooltipDatum[] = Object.entries( tooltipData?.datumByKey || {} )
 		.map( ( [ key, { datum } ] ) => ( {
 			key,
-			value: datum.value as number,
+			value: datum.value ?? null,
 		} ) )
-		.sort( ( a, b ) => b.value - a.value );
+		.sort( ( a, b ) => {
+			if ( a.value === null && b.value === null ) return 0;
+			if ( a.value === null ) return 1;
+			if ( b.value === null ) return -1;
+			return b.value - a.value;
+		} );
 
 	return (
 		<div
@@ -149,7 +162,7 @@ export const renderDefaultTooltip = (
 				>
 					<span className={ styles[ 'line-chart__tooltip-label' ] }>{ point.key }:</span>
 					<span className={ styles[ 'line-chart__tooltip-value' ] }>
-						{ formatNumber( point.value ) }
+						{ formatReading( point.value ) }
 					</span>
 				</Stack>
 			) ) }
@@ -158,20 +171,40 @@ export const renderDefaultTooltip = (
 };
 
 const validateData = ( data: SeriesData[] ) => {
-	if ( ! data?.length ) return 'No data available';
+	if ( ! data?.length ) return __( 'No data available', 'jetpack-charts' );
 
 	const hasInvalidData = data.some( series =>
 		series.data.some(
 			( point: DataPointDate | DataPoint ) =>
-				isNaN( point.value as number ) ||
-				point.value === null ||
-				point.value === undefined ||
+				isInvalidReading( point.value, { allowMissing: true } ) ||
 				( 'date' in point && point.date && isNaN( point.date.getTime() ) )
 		)
 	);
 
-	if ( hasInvalidData ) return 'Invalid data';
+	if ( hasInvalidData ) return __( 'Invalid data', 'jetpack-charts' );
 	return null;
+};
+
+// visx derives the y domain from the readings, which fails when they have no range: none at all
+// leaves no domain, and a flat line collapses it to one value that d3 draws mid-height.
+const getFallbackYDomain = (
+	readingExtent: [ number, number ] | undefined,
+	isLogScale: boolean
+): [ number, number ] | undefined => {
+	// A log scale cannot reach zero, so its empty axis starts at 1.
+	const emptyDomain: [ number, number ] = isLogScale ? [ 1, 10 ] : [ 0, 1 ];
+
+	if ( ! readingExtent ) {
+		return emptyDomain;
+	}
+
+	const [ min, max ] = readingExtent;
+
+	if ( min !== max || isLogScale ) {
+		return undefined;
+	}
+
+	return min === 0 ? emptyDomain : [ Math.min( 0, min ), Math.max( 0, max ) ];
 };
 
 // Inner component to access DataContext and provide scale data to ref
@@ -318,28 +351,42 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			return seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
 		}, [ seriesWithVisibility ] );
 
-		// When series visibility changes — via the interactive legend or programmatically —
-		// and rescaling is opted out, pin the value axis to the full data range so it stays
-		// put instead of visx rescaling the domain to whatever is currently visible and
-		// making the axis jump. Default is to rescale, matching the pre-existing behaviour
-		// and AreaChart's `rescaleYOnVisibilityChange`.
-		const stableYDomain = useMemo< [ number, number ] | undefined >( () => {
-			if ( rescaleYOnVisibilityChange ) {
+		// The value extent of the series visx will scale to. Pinning the axis
+		// (`rescaleYOnVisibilityChange: false`) measures hidden series too, so hiding
+		// one leaves the axis where it is.
+		const yDomain = useMemo< [ number, number ] | undefined >( () => {
+			// A log scale cannot hold zero; visx ignores the flag there, and so does this.
+			const includeZero =
+				options?.yScale?.zero === true &&
+				scaleCanBeZeroed( { type: options.yScale.type ?? 'linear' } );
+			if ( rescaleYOnVisibilityChange && ! includeZero ) {
 				return undefined;
 			}
 			let min = Infinity;
 			let max = -Infinity;
 			for ( const series of dataSorted ) {
+				if ( rescaleYOnVisibilityChange && ! isSeriesVisible( series.label ) ) {
+					continue;
+				}
 				for ( const point of series.data ?? [] ) {
 					const value = point?.value;
-					if ( typeof value === 'number' && Number.isFinite( value ) ) {
+					if ( isReading( value ) ) {
 						min = Math.min( min, value );
 						max = Math.max( max, value );
 					}
 				}
 			}
+			// Zero goes into the domain rather than through the scale's `zero` flag: visx
+			// applies `nice` before `zero`, which leaves the top of a zeroed axis unrounded.
+			if ( includeZero ) {
+				if ( min === Infinity ) {
+					return undefined;
+				}
+				// A series that is all zeros has no span, and d3 draws a spanless domain at mid-height.
+				return max === 0 && min === 0 ? [ 0, 1 ] : [ Math.min( 0, min ), Math.max( 0, max ) ];
+			}
 			return min < max ? [ min, max ] : undefined;
-		}, [ rescaleYOnVisibilityChange, dataSorted ] );
+		}, [ rescaleYOnVisibilityChange, dataSorted, isSeriesVisible, options?.yScale ] );
 
 		// Keyboard navigation steps through x positions, and the grouped tooltip
 		// reads every series at that position; the first series names the point.
@@ -366,7 +413,37 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			preventTooltipScroll: tooltipPlacement === 'below-axis',
 		} );
 
+		// visx's d3.extent skips null/undefined/NaN, so when every visible series is all null
+		// (e.g. entirely before a site launched) the y scale has no domain. Zoom filters nothing.
+		const visibleReadingExtent = useMemo< [ number, number ] | undefined >( () => {
+			let min = Infinity;
+			let max = -Infinity;
+			for ( const series of dataSorted ) {
+				if ( ! isSeriesVisible( series.label ) ) {
+					continue;
+				}
+				for ( const point of series.data ) {
+					const value = point?.value;
+					if ( isReading( value ) ) {
+						min = Math.min( min, value );
+						max = Math.max( max, value );
+					}
+				}
+			}
+			return min <= max ? [ min, max ] : undefined;
+		}, [ dataSorted, isSeriesVisible ] );
+
+		const hasWholeNumberValues = useMemo(
+			() => hasOnlyWholeNumbers( dataSorted.filter( series => isSeriesVisible( series.label ) ) ),
+			[ dataSorted, isSeriesVisible ]
+		);
+
 		const chartOptions = useMemo( () => {
+			const fallbackYDomain = getFallbackYDomain(
+				visibleReadingExtent,
+				options?.yScale?.type === 'log'
+			);
+
 			return {
 				axis: {
 					x: buildTimeAxisOptions( {
@@ -396,11 +473,21 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 					type: 'linear' as const,
 					nice: true,
 					zero: false,
-					...( stableYDomain ? { domain: stableYDomain } : {} ),
+					...( fallbackYDomain ? { domain: fallbackYDomain } : {} ),
+					...( yDomain ? { domain: yDomain } : {} ),
 					...options?.yScale,
 				},
 			};
-		}, [ options, dataSorted, width, zoom.domain, stableYDomain, formatting, isSeriesVisible ] );
+		}, [
+			options,
+			dataSorted,
+			width,
+			zoom.domain,
+			yDomain,
+			visibleReadingExtent,
+			formatting,
+			isSeriesVisible,
+		] );
 
 		// Classified from the rendered series, like the axis above: a hidden
 		// hourly line must not leave the tooltip naming an hour the axis dropped.
@@ -592,24 +679,42 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 											// xScale and yScale could be set in Axis as well, but they are `scale` props there.
 											xScale={ chartOptions.xScale }
 											yScale={ chartOptions.yScale }
-											onPointerDown={ zoom.handlers.onPointerDown }
-											onPointerUp={ zoom.handlers.onPointerUp }
-											onPointerMove={ zoom.handlers.onPointerMove }
 											onPointerOut={ onPointerOut }
-											pointerEventsDataKey="nearest"
 										>
+											<NearestPointerEvents { ...zoom.handlers } />
 											{ /* With every series hidden there is no data to scale against, so the grid and
 											     axes are dropped while the empty state stands in — otherwise they render
 											     squished at the top. */ }
-											{ ! allSeriesHidden && gridVisibility !== 'none' && (
-												<Grid columns={ false } numTicks={ 4 } />
-											) }
-											{ ! allSeriesHidden && chartOptions.axis.x.display && (
-												<Axis { ...chartOptions.axis.x } />
-											) }
-											{ ! allSeriesHidden && chartOptions.axis.y.display && (
-												<Axis { ...chartOptions.axis.y } />
-											) }
+											<WholeNumberTicks
+												axis="y"
+												numTicks={ chartOptions.axis.y.numTicks }
+												enabled={
+													hasWholeNumberValues &&
+													! chartOptions.axis.y.tickValues &&
+													! options?.yScale?.domain
+												}
+											>
+												{ tickValues => (
+													<>
+														{ ! allSeriesHidden && gridVisibility !== 'none' && (
+															<Grid
+																columns={ false }
+																numTicks={ chartOptions.axis.y.numTicks }
+																{ ...{ tickValues: tickValues ?? chartOptions.axis.y.tickValues } }
+															/>
+														) }
+														{ ! allSeriesHidden && chartOptions.axis.x.display && (
+															<Axis { ...chartOptions.axis.x } />
+														) }
+														{ ! allSeriesHidden && chartOptions.axis.y.display && (
+															<Axis
+																{ ...chartOptions.axis.y }
+																{ ...( tickValues ? { tickValues } : {} ) }
+															/>
+														) }
+													</>
+												) }
+											</WholeNumberTicks>
 
 											{ allSeriesHidden ? (
 												<SvgEmptyState

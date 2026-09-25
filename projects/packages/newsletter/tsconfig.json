@@ -1,4 +1,5 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
-	"include": [ "src", "routes/**/*" ]
+	"include": [ "src", "routes/**/*" ],
+	"exclude": [ "**/*.test.ts", "**/*.test.tsx" ]
 }

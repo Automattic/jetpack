@@ -164,9 +164,20 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 						// (post_status 'inherit') core maps edit_post to edit_posts for
 						// the post author, which a Contributor has and which does not
 						// imply the media rights this route needs.
-						return Data::can_perform_action()
-							&& current_user_can( 'upload_files' )
-							&& current_user_can( 'edit_post', self::get_video_attachment_id( $request->get_param( 'video_guid' ) ) );
+						if ( ! Data::can_perform_action() || ! current_user_can( 'upload_files' ) ) {
+							return false;
+						}
+
+						$attachment_id = self::get_video_attachment_id( $request->get_param( 'video_guid' ) );
+						if ( ! $attachment_id ) {
+							return new WP_Error(
+								'videopress_attachment_not_found',
+								__( 'This video could not be found in the Media Library. Restore it from the trash, if available, and try again.', 'jetpack-videopress-pkg' ),
+								array( 'status' => 403 )
+							);
+						}
+
+						return current_user_can( 'edit_post', $attachment_id );
 					},
 				),
 			)

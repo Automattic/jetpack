@@ -30,6 +30,8 @@ Main chart component with responsive behavior by default.
 | `gridVisibility` | `'x' \| 'y' \| 'xy' \| 'none'` | orientation-based | Grid line visibility |
 | `tooltipPlacement` | `'auto' \| 'beside'` | `'auto'` | Tooltip placement mode. See [beside tooltip positioning and clipping](./?path=/docs/js-packages-charts-library-charts-bar-chart--docs#beside-tooltips). |
 | `tooltipAnchorTop` | `number` | - | Override the top anchor for auto or beside placement in SVG coordinates; values less than `margin.top` are above the plot, and negative values are above the SVG. Clipping bounds can clamp the tooltip back into view. |
+| `barClassName` | `(datum: DataPointDate) => string \| undefined` | - | Additional CSS class for each primary bar; retains `visx-bar`. |
+| `tooltipStyle` | `CSSProperties` | - | Inline styles merged over the tooltip box defaults. |
 | `renderTooltip` | `(params: RenderTooltipParams) => ReactNode` | - | Custom tooltip render function |
 | `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }` | calculated | Chart margins |
 | `options` | `ChartOptions` | `{}` | Advanced axis and scale configuration |
@@ -124,13 +126,14 @@ See [bar color configuration](./?path=/docs/js-packages-charts-library-charts-ba
 type ChartOptions = {
 	yScale?: {
 		type?: 'linear' | 'band';
-		zero?: boolean;
+		zero?: boolean; // Value axis only. Defaults to true; false fits the axis to the data.
 		domain?: [number, number];
 		nice?: boolean;
 		padding?: number;
 	};
 	xScale?: {
 		type?: 'time' | 'linear' | 'band';
+		zero?: boolean; // Value axis of a horizontal chart; same default as yScale.zero.
 		domain?: [Date, Date] | [number, number];
 		padding?: number;
 	};
@@ -172,4 +175,4 @@ type SeriesChartLegendConfig = {
 };
 ```
 
-Grid lines follow axis ticks (explicit or derived) from `options.axis.x.tickValues` and `options.axis.y.tickValues`.
+Grid lines use `tickValues` (explicit or derived) from the corresponding `options.axis.x` or `options.axis.y` options. Otherwise, they use that axis's `numTicks`, defaulting to four; the scale determines the actual number of ticks.

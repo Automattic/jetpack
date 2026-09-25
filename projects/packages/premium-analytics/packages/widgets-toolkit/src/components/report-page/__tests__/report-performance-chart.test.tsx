@@ -13,8 +13,17 @@ jest.mock( '../../../hooks', () => ( {
 } ) );
 
 jest.mock( '../../chart-comparative-line', () => ( {
-	ComparativeLineChart: ( { series }: { series: unknown[] } ) => (
-		<div data-testid="comparative-line-chart">
+	ComparativeLineChart: ( {
+		series,
+	}: {
+		series: { countLabel?: ( count: number ) => string }[];
+	} ) => (
+		<div
+			data-testid="comparative-line-chart"
+			data-count-labels={ series
+				.map( entry => `${ entry.countLabel?.( 1 ) }|${ entry.countLabel?.( 2 ) }` )
+				.join( ',' ) }
+		>
 			{ series.length === 0 ? 'No data available' : 'Chart' }
 		</div>
 	),
@@ -61,5 +70,14 @@ describe( 'ReportPerformanceChart', () => {
 
 		expect( screen.getByTestId( 'comparative-line-chart' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'loading-overlay' ) ).toBeInTheDocument();
+	} );
+
+	it( 'pluralizes the tooltip unit of each default metric', () => {
+		render( <ReportPerformanceChart interval="day" timezone="UTC" primary={ PRIMARY } /> );
+
+		expect( screen.getByTestId( 'comparative-line-chart' ) ).toHaveAttribute(
+			'data-count-labels',
+			'%s View|%s Views,%s Visitor|%s Visitors,%s Comment|%s Comments,%s Like|%s Likes'
+		);
 	} );
 } );

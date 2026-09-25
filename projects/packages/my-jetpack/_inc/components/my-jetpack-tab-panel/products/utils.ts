@@ -244,7 +244,10 @@ function cardFields( card: CardItem, categories?: string[] ): Array< ScoredField
  * @param {string[] | undefined} categories - The module's category labels.
  * @return The weighted fields to match against.
  */
-function moduleFields( module: MyJetpackModule, categories?: string[] ): Array< ScoredField > {
+export function moduleFields(
+	module: MyJetpackModule,
+	categories?: string[]
+): Array< ScoredField > {
 	return [
 		{ value: module.name, weight: 3 },
 		{ value: module.search_terms, weight: 2 },

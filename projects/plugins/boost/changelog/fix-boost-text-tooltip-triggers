@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Settings: Close the Page Cache example and Cornerstone Pages warning tooltips with Escape, and the warning with a click elsewhere.

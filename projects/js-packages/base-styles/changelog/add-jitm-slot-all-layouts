@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep the Jetpack in-dashboard message slot out of the scrollable page middle.

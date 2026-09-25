@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Tooltips: Keep focus on information icons when their tooltips open, announce the content to screen readers, and show a focus ring after clicking them.

@@ -3,11 +3,8 @@ import 'jetpack-js-tools/jest/setup-jest-dom';
 // Test dependencies come from the plugin, not the wp-build route package.
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { act, render, screen, within } from '@testing-library/react';
-import { MutationObserver, QueryClient } from '@tanstack/react-query';
-import {
-	observeLegacyModulesState,
-	ONBOARDING_SAVE_META,
-} from '../../_inc/overview/lib/modules-state-bridge';
+import { QueryClient } from '@tanstack/react-query';
+import { observeLegacyOnboarding } from '../../_inc/overview/lib/modules-state-bridge';
 import { ONBOARDING_CHANGE_EVENT } from '../../_inc/runtime-contract';
 import { stage as Stage } from './stage';
 import type { ReactNode } from 'react';
@@ -116,7 +113,7 @@ const changeOnboarding = ( value: boolean ) =>
 const observeLegacyGettingStarted = ( value: boolean ) => {
 	const legacy = new QueryClient();
 	legacy.setQueryData( [ 'getting_started' ], value );
-	return { legacy, stopObserving: observeLegacyModulesState( legacy ) };
+	return { legacy, stopObserving: observeLegacyOnboarding( legacy ) };
 };
 
 const setGettingStarted = ( value: boolean ) => {
@@ -353,45 +350,6 @@ describe( 'Boost dashboard stage', () => {
 		expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
 		expect( routeReady ).not.toHaveBeenCalled();
 		window.removeEventListener( 'jetpack-boost:route-ready', routeReady );
-	} );
-
-	it( 'keeps the loader through a pending save until it lands', async () => {
-		setGettingStarted( true );
-		window.history.replaceState( null, '', '/?page=jetpack-boost#/getting-started' );
-		const { legacy, stopObserving } = observeLegacyGettingStarted( true );
-		render( <Stage /> );
-		const saves: Array< { resolve: ( value: boolean ) => void; reject: ( e: Error ) => void } > =
-			[];
-		const save = () =>
-			new MutationObserver< boolean, Error, boolean >( legacy, {
-				meta: ONBOARDING_SAVE_META,
-				mutationFn: () =>
-					new Promise< boolean >( ( resolve, reject ) => saves.push( { resolve, reject } ) ),
-				onMutate: () => legacy.setQueryData( [ 'getting_started' ], false ),
-				onSuccess: ( value: boolean ) => legacy.setQueryData( [ 'getting_started' ], value ),
-				onError: () => legacy.setQueryData( [ 'getting_started' ], true ),
-			} )
-				.mutate( false )
-				.catch( () => undefined );
-
-		await act( async () => {
-			void save();
-			window.history.replaceState( null, '', '/?page=jetpack-boost' );
-		} );
-		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
-
-		await act( async () => saves[ 0 ].reject( new Error( 'Save failed' ) ) );
-		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
-
-		await act( async () => {
-			void save();
-		} );
-		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
-
-		await act( async () => saves[ 1 ].resolve( false ) );
-		expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute( 'data-visible', 'true' );
-		expect( screen.queryByRole( 'status', { name: 'Loading' } ) ).not.toBeInTheDocument();
-		stopObserving();
 	} );
 
 	it( "follows the webpack app's getting_started value both ways", () => {

@@ -96,14 +96,6 @@ const comparisonReport: StatsDrilldownSourceReport< StatsTopAuthorsComparisonIte
 							link: 'https://example.com/analytical-engine/',
 							children: null,
 						},
-						{
-							id: 4,
-							label: 'Earlier post',
-							views: 0,
-							previousViews: 3,
-							link: null,
-							children: null,
-						},
 					],
 				},
 			],
@@ -209,16 +201,6 @@ describe( 'report authors aggregate', () => {
 				postId: '1',
 				views: 6,
 				previousViews: 4,
-			},
-			{
-				id: 'id:42|post:id:4',
-				parentId: 'id:42',
-				parentName: 'Ada Lovelace',
-				label: 'Earlier post',
-				avatarUrl: null,
-				postId: '4',
-				views: 0,
-				previousViews: 3,
 			},
 		] );
 	} );
