@@ -78,7 +78,8 @@ class Main_Features {
 					'free'    => true,
 				),
 				'plans'            => array( 'security', 'complete' ),
-				'paid_product'     => __( 'Jetpack VaultPress Backup', 'jetpack-my-jetpack' ),
+				// The WordPress.com site feature the Activity Log package gates its paid history on.
+				'paid_feature'     => 'full-activity-log',
 			),
 			'anti-spam'     => array(
 				'info_url'         => 'https://akismet.com/',
@@ -268,7 +269,6 @@ class Main_Features {
 					'free'    => true,
 				),
 				'plans'            => array( 'complete' ),
-				'paid_product'     => __( 'Jetpack Complete', 'jetpack-my-jetpack' ),
 			),
 			'newsletter'    => array(
 				'info_url'         => 'https://jetpack.com/newsletter/',
@@ -295,7 +295,6 @@ class Main_Features {
 					'free'    => true,
 				),
 				'plans'            => array( 'growth', 'complete' ),
-				'paid_product'     => __( 'Jetpack Growth', 'jetpack-my-jetpack' ),
 			),
 			'podcast'       => array(
 				'info_url'         => 'https://jetpack.com/podcast/',
@@ -323,7 +322,6 @@ class Main_Features {
 					'free'    => true,
 				),
 				'plans'            => array( 'growth', 'complete' ),
-				'paid_product'     => __( 'Jetpack Growth', 'jetpack-my-jetpack' ),
 			),
 			'protect'       => array(
 				'info_url'         => 'https://jetpack.com/protect/',
@@ -517,7 +515,7 @@ class Main_Features {
 		);
 
 		// Nothing to sell a site that already pays for the feature, directly or through a bundle.
-		if ( $product_class && $product_class::has_paid_plan_for_product() ) {
+		if ( $product_class && self::pays_for_product( $product_class ) ) {
 			return $none;
 		}
 
@@ -527,6 +525,11 @@ class Main_Features {
 			if ( $bundle_class && $bundle_class::has_paid_plan_for_product() ) {
 				return $none;
 			}
+		}
+
+		// Covers plans no bundle class lists, such as the legacy Jetpack Personal, Premium and Professional.
+		if ( ! empty( $definition['paid_feature'] ) && Product::does_site_have_feature( $definition['paid_feature'] ) ) {
+			return $none;
 		}
 
 		if ( ! empty( $definition['interstitial'] ) ) {
@@ -548,6 +551,47 @@ class Main_Features {
 		}
 
 		return $none;
+	}
+
+	/**
+	 * Whether the site pays for a product, not counting the product's own free plan.
+	 *
+	 * `has_paid_plan_for_product()` matches purchase slugs by substring, so `jetpack_search_free` passes for `jetpack_search`.
+	 *
+	 * @param string $product_class The product behind the feature.
+	 * @return bool
+	 */
+	private static function pays_for_product( $product_class ) {
+		if ( ! $product_class::has_paid_plan_for_product() ) {
+			return false;
+		}
+
+		$free_slug = $product_class::get_wpcom_free_product_slug();
+		$feature   = $product_class::$feature_identifying_paid_plan;
+
+		if ( ! $free_slug || ( $feature && $product_class::does_site_have_feature( $feature ) ) ) {
+			return true;
+		}
+
+		$purchases  = Wpcom_Products::get_site_current_purchases();
+		$paid_slugs = array_merge(
+			$product_class::get_paid_bundles_that_include_product(),
+			$product_class::get_paid_plan_product_slugs()
+		);
+
+		foreach ( is_array( $purchases ) ? $purchases : array() as $purchase ) {
+			if ( false !== strpos( $purchase->product_slug, $free_slug ) ) {
+				continue;
+			}
+
+			foreach ( $paid_slugs as $paid_slug ) {
+				if ( false !== strpos( $purchase->product_slug, $paid_slug ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**

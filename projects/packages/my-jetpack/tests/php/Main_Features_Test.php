@@ -232,17 +232,17 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * A feature that can be upgraded must say what to buy.
+	 * A feature with a product page of its own must say what that page sells.
 	 */
-	public function test_features_with_paid_highlights_name_a_paid_product() {
+	public function test_features_with_an_interstitial_name_a_paid_product() {
 		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
-			if ( empty( $feature['paid_highlights'] ) ) {
+			if ( empty( $feature['interstitial'] ) ) {
 				continue;
 			}
 
 			$this->assertNotEmpty(
 				$feature['paid_product'] ?? '',
-				"Feature {$slug} lists paid highlights but no paid product."
+				"Feature {$slug} has an interstitial but no paid product."
 			);
 		}
 	}
@@ -497,6 +497,40 @@ class Main_Features_Test extends TestCase {
 		$this->assertSame( '', $upgrades['podcast']['path'] );
 		$this->assertSame( '', $upgrades['newsletter']['path'] );
 		$this->assertSame( '/add-complete', $upgrades['activity-log']['path'] );
+	}
+
+	/**
+	 * A plan no bundle class lists still covers Activity Log when WordPress.com grants its paid history.
+	 */
+	public function test_no_activity_log_upgrade_for_a_site_with_full_activity_log() {
+		$this->own( array( 'jetpack_personal' ) );
+		set_transient( Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, array( 'active' => array( 'full-activity-log' ) ), HOUR_IN_SECONDS );
+
+		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+
+		$this->assertSame( '', $upgrades['activity-log']['path'] );
+	}
+
+	/**
+	 * A free Search purchase shares its slug's prefix with the paid one, and must not count as paying.
+	 */
+	public function test_free_search_purchase_still_offers_the_upgrade() {
+		$this->own( array( 'jetpack_search_free' ) );
+
+		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+
+		$this->assertSame( '/add-search', $upgrades['search']['path'] );
+	}
+
+	/**
+	 * A paid Search purchase covers the feature, free plan or not.
+	 */
+	public function test_no_upgrade_for_a_site_that_pays_for_search() {
+		$this->own( array( 'jetpack_search_free', 'jetpack_search' ) );
+
+		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+
+		$this->assertSame( '', $upgrades['search']['path'] );
 	}
 
 	/**
