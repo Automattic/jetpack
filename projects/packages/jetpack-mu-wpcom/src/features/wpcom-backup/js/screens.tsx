@@ -1,4 +1,4 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { backup } from '@wordpress/icons';
 import { Button, LinkButton, Text } from '@wordpress/ui';
 import { useState } from 'react';
@@ -16,17 +16,6 @@ import {
 import type { InitialState } from './types.ts';
 
 /**
- * Names of the plans that include backups. Mirrors Calypso's `getPlanNames()`, and is a
- * function so the strings translate at render.
- *
- * @return Plan names, keyed by plan.
- */
-const getPlanNames = () => ( {
-	business: __( 'Business', 'jetpack-mu-wpcom' ),
-	commerce: __( 'Commerce', 'jetpack-mu-wpcom' ),
-} );
-
-/**
  * Shown when the site's plan does not include backups.
  *
  * @param props       - Component props.
@@ -35,7 +24,6 @@ const getPlanNames = () => ( {
  */
 export function UpgradeScreen( { state }: { state: InitialState } ) {
 	const upsellProps = { upsell_id: TRACKS_FEATURE_ID, upsell_feature_id: TRACKS_FEATURE_ID };
-	const planNames = getPlanNames();
 
 	return (
 		<Callout
@@ -43,22 +31,12 @@ export function UpgradeScreen( { state }: { state: InitialState } ) {
 			title={ __( 'Secure your content with Jetpack Backups', 'jetpack-mu-wpcom' ) }
 			image={ backupsCalloutIllustration }
 			description={
-				<>
-					<Text>
-						{ __(
-							'Protect your site with scheduled and real-time backups—giving you the ultimate “undo” button and peace of mind that your content is always safe.',
-							'jetpack-mu-wpcom'
-						) }
-					</Text>
-					<Text>
-						{ sprintf(
-							/* translators: %1$s and %2$s are WordPress.com plan names, e.g. "Business" and "Commerce". */
-							__( 'Available on the WordPress.com %1$s and %2$s plans.', 'jetpack-mu-wpcom' ),
-							planNames.business,
-							planNames.commerce
-						) }
-					</Text>
-				</>
+				<Text>
+					{ __(
+						'Protect your site with scheduled and real-time backups—giving you the ultimate “undo” button and peace of mind that your content is always safe.',
+						'jetpack-mu-wpcom'
+					) }
+				</Text>
 			}
 			actions={
 				<>
