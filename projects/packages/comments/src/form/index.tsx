@@ -158,13 +158,15 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 	return (
 		<>
 			{ avatar && (
-				<img
-					className="jetpack-comments__avatar avatar avatar-40 photo"
-					src={ avatar }
-					alt=""
-					width="40"
-					height="40"
-				/>
+				<div className={ clsx( 'jetpack-comments__avatar', JetpackComments.avatarWrapClass ) }>
+					<img
+						className="avatar avatar-40 photo wp-block-avatar__image"
+						src={ avatar }
+						alt=""
+						width="40"
+						height="40"
+					/>
+				</div>
 			) }
 			<div className="jetpack-comments__body">
 				<CommentField />

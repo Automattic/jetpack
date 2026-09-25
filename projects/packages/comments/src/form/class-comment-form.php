@@ -400,6 +400,7 @@ class Comment_Form {
 				'requireNameEmail' => (bool) get_option( 'require_name_email' ),
 				'mustLogIn'        => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
 				'maxLength'        => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
+				'avatarWrapClass'  => self::avatar_wrap_class(),
 				'site'             => array(
 					'name'    => get_bloginfo( 'name' ),
 					'iconUrl' => (string) get_site_icon_url( 64 ),
@@ -409,6 +410,34 @@ class Comment_Form {
 			),
 			Identity::settings()
 		);
+	}
+
+	/**
+	 * The classes the theme's Avatar block wrapper carries, duotone included.
+	 *
+	 * Block supports add the duotone class at render and register its SVG for
+	 * the footer, so the wrapper goes through that support the way the block does.
+	 *
+	 * @return string
+	 */
+	private static function avatar_wrap_class() {
+		$class = 'wp-block-avatar';
+
+		if ( ! class_exists( 'WP_Duotone' ) || ! class_exists( 'WP_Block' ) ) {
+			return $class;
+		}
+
+		$parsed = array(
+			'blockName'    => 'core/avatar',
+			'attrs'        => array(),
+			'innerBlocks'  => array(),
+			'innerHTML'    => '',
+			'innerContent' => array(),
+		);
+
+		$html = \WP_Duotone::render_duotone_support( '<div class="' . $class . '"></div>', $parsed, new \WP_Block( $parsed ) );
+
+		return preg_match( '/class="([^"]*)"/', (string) $html, $match ) ? $match[1] : $class;
 	}
 
 	/**

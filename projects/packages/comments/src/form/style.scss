@@ -15,8 +15,14 @@
 	flex-shrink: 0;
 	inline-size: 40px;
 	block-size: 40px;
-	border-radius: 50%;
-	object-fit: cover;
+
+	img {
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+		border-radius: 50%;
+		object-fit: cover;
+	}
 }
 
 .jetpack-comments__body {

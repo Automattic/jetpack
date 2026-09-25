@@ -93,6 +93,8 @@ export type Settings = {
 	maxLength: number;
 	/** The site user's avatar, the saved guest's, or the site default. Empty when avatars are off. */
 	avatarUrl: string;
+	/** The theme's Avatar block wrapper classes, so the form avatar is styled like the thread's. */
+	avatarWrapClass: string;
 	site: { name: string; iconUrl: string };
 	/** Where a reader manages their subscriptions to this site. URLs are empty where the host offers none. */
 	subscriptions: { url: string; byEmail: boolean; signedInUrl: string };
