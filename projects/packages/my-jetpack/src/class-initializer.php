@@ -642,6 +642,8 @@ class Initializer {
 			$sandboxed_domain = defined( 'JETPACK__SANDBOX_DOMAIN' ) ? JETPACK__SANDBOX_DOMAIN : '';
 		}
 
+		$features_tab_enabled = self::is_features_tab_enabled();
+
 		wp_localize_script(
 			$data_handle,
 			'myJetpackInitialState',
@@ -649,7 +651,8 @@ class Initializer {
 				'products'               => array(
 					'items' => Products::get_products(),
 				),
-				'mainFeatures'           => self::is_features_tab_enabled() ? Main_Features::get_state() : null,
+				'mainFeatures'           => $features_tab_enabled ? Main_Features::get_state() : null,
+				'featuresBanner'         => $features_tab_enabled ? array( 'isDismissed' => REST_Main_Features::is_banner_dismissed() ) : null,
 				'plugins'                => Plugins_Installer::get_plugins(),
 				'themes'                 => Sync_Functions::get_themes(),
 				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),

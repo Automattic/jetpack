@@ -24,6 +24,7 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -250,13 +251,14 @@ class Jetpack_Backup {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
 
 		if ( self::is_wp_build_dashboard_active() ) {
-			// The modernized Backup overview is a focused, full-screen product
-			// surface. Suppress JITMs and other core/plugin admin notices so they
-			// don't reflow on top of the dual-pane layout. Mirrors how Jetpack
-			// Forms handles its dashboard page
-			// (`plugins/forms/src/dashboard/class-dashboard.php`).
-			remove_all_actions( 'admin_notices' );
-			remove_all_actions( 'all_admin_notices' );
+			// Notices reflow the dual-pane layout, so clear them but keep our own.
+			// An older jetpack-jitm may predate the helper; the fallback costs the JITM.
+			if ( method_exists( JITM::class, 'suppress_foreign_admin_notices' ) ) {
+				JITM::suppress_foreign_admin_notices();
+			} else {
+				remove_all_actions( 'admin_notices' );
+				remove_all_actions( 'all_admin_notices' );
+			}
 		}
 	}
 

@@ -24,8 +24,9 @@ import {
 	DetailPageShell,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
+	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
@@ -66,6 +67,28 @@ function PostDetail(): JSX.Element {
 	// The resource, date range, and comparison all live in the URL search params.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
+	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
+	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
+		{
+			presetId: dateFilters.presetId,
+			range: dateFilters.range,
+			interval: dateFilters.interval,
+			comparisonPresetId: dateFilters.comparisonPresetId,
+			appliedComparisonRange: dateFilters.appliedComparisonRange,
+		},
+		{ surface: 'post_detail', offersComparison: false }
+	);
+	const onDateChange = useCallback< typeof changeDateRange >(
+		( ...args ) => {
+			changeDateRange( ...args );
+			trackedOnChange( ...args );
+		},
+		[ changeDateRange, trackedOnChange ]
+	);
+	const onDateApply = useCallback( () => {
+		applyDateRange();
+		trackedOnApply();
+	}, [ applyDateRange, trackedOnApply ] );
 
 	// The email tabs report over the first 30 days after the send rather than
 	// the URL range (WOOA7S-1945): their widgets take these params in place of
@@ -135,7 +158,13 @@ function PostDetail(): JSX.Element {
 	// traffic tab keeps its selection. The design has no comparison on this page
 	// either — the panel reads that from the scope the stage declares.
 	const dateFiltersPanel = isEmailTab ? null : (
-		<DateFiltersPanel { ...dateFilters } { ...dateControls } attentionId={ attentionId } />
+		<DateFiltersPanel
+			{ ...dateFilters }
+			{ ...dateControls }
+			onChange={ onDateChange }
+			onApply={ onDateApply }
+			attentionId={ attentionId }
+		/>
 	);
 
 	return (

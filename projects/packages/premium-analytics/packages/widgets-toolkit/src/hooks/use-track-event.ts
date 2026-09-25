@@ -3,6 +3,13 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getScriptData } from '@automattic/jetpack-script-data';
+import { resolveIntervalForRange } from '@jetpack-premium-analytics/data';
+import { PRESET_CUSTOM } from '@jetpack-premium-analytics/datetime';
+import {
+	deriveComparisonRange,
+	encodeRangeToSearchParams,
+	type ReportDateFilters,
+} from '@jetpack-premium-analytics/routing';
 import { useCallback, useMemo, useRef } from 'react';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
@@ -60,7 +67,7 @@ export function useTrackEvent() {
 }
 
 /**
- * The page a customize event came from.
+ * The page a tracked event came from.
  */
 export type TrackingSurface = 'dashboard' | 'post_detail' | 'author_detail' | 'video_detail';
 
@@ -127,4 +134,92 @@ export function useTrackCustomize( surface?: TrackingSurface, section?: string )
 			reset: () => trackEvent( 'jetpack_premium_analytics_customize_reset', properties ),
 		};
 	}, [ section, surface, trackEvent ] );
+}
+
+type DateRangeApplyContext = {
+	surface: TrackingSurface;
+
+	/** The dashboard section slug. */
+	section?: string;
+
+	/** Whether the surface shows the comparison; detail pages keep it in the URL but never draw it. */
+	offersComparison: boolean;
+};
+
+type DateRangeState = Pick<
+	ReportDateFilters,
+	'presetId' | 'range' | 'interval' | 'comparisonPresetId' | 'appliedComparisonRange'
+>;
+
+type StagedRange = Parameters< ReportDateFilters[ 'onChange' ] >;
+
+/**
+ * Records `jetpack_premium_analytics_date_range_apply`. Call `trackedOnChange` beside the date filters'
+ * `onChange`: a quick preset stages and applies in one tick, before `state` catches up.
+ *
+ * @param {DateRangeState}        state   - The date filters' rendered range, interval and comparison.
+ * @param {DateRangeApplyContext} context - Where the range is applied.
+ * @return `trackedOnChange` to remember a staged range, and `trackedOnApply` to record its apply.
+ */
+export function useTrackedDateRangeApply(
+	{ presetId, range, interval, comparisonPresetId, appliedComparisonRange }: DateRangeState,
+	{ surface, section, offersComparison }: DateRangeApplyContext
+) {
+	const trackEvent = useTrackEvent();
+	const staged = useRef< StagedRange | null >( null );
+
+	const trackedOnChange = useCallback( ( ...args: StagedRange ) => {
+		staged.current = args;
+	}, [] );
+
+	const trackedOnApply = useCallback( () => {
+		const [ stagedRange, stagedPresetId, options ] = staged.current ?? [];
+		staged.current = null;
+
+		const appliedPresetId = stagedPresetId ?? presetId;
+		const appliedRange = stagedRange?.from && stagedRange.to ? stagedRange : range;
+
+		if ( ! appliedRange.from || ! appliedRange.to ) {
+			return;
+		}
+
+		// Encoded and resolved the way `buildRangePatch` stages them, so the event matches the URL.
+		const { from, to } = encodeRangeToSearchParams(
+			{ from: appliedRange.from, to: appliedRange.to },
+			{ presetId: appliedPresetId, exactRange: options?.exactRange }
+		);
+		const isCustom = ! appliedPresetId || appliedPresetId === PRESET_CUSTOM;
+		// A comparison linked without a preset commits as the previous period, so test the range too.
+		const comparison =
+			offersComparison && ( comparisonPresetId || appliedComparisonRange )
+				? deriveComparisonRange( {
+						comp: '1',
+						from,
+						to,
+						preset: appliedPresetId,
+						compare_preset: comparisonPresetId,
+					} )?.compare_preset
+				: undefined;
+
+		trackEvent( 'jetpack_premium_analytics_date_range_apply', {
+			surface,
+			...( section ? { section } : {} ),
+			range_type: isCustom ? 'custom' : 'preset',
+			...( isCustom ? {} : { preset: appliedPresetId } ),
+			interval: resolveIntervalForRange( appliedPresetId, from, to, interval ),
+			comparison: comparison ?? 'none',
+		} );
+	}, [
+		presetId,
+		range,
+		interval,
+		comparisonPresetId,
+		appliedComparisonRange,
+		trackEvent,
+		surface,
+		section,
+		offersComparison,
+	] );
+
+	return { trackedOnChange, trackedOnApply };
 }

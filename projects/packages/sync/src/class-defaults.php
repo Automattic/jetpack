@@ -170,6 +170,7 @@ class Defaults {
 		'verification_services_codes',
 		'videopress_auto_subtitles_disabled',
 		'videopress_player_preload_disabled',
+		'videopress_playlist_index',
 		'videopress_private_enabled_for_site',
 		'wordads_ccpa_enabled',
 		'wordads_ccpa_privacy_policy_url',

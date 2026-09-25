@@ -20,8 +20,8 @@ import { ZERO_DECIMAL_CURRENCIES } from './currency-symbols';
  */
 export const MAX_NAME_LENGTH = 127;
 export const MAX_DESCRIPTION_LENGTH = 2048;
-// PayPal rejects a longer return URL, and an editor URL can run past this.
-export const MAX_RETURN_URL_LENGTH = 127;
+// PayPal rejects a longer return URL with a 400.
+export const MAX_RETURN_URL_LENGTH = 1024;
 // Caps the Product ID input. The server answers a longer one with product_id_too_long.
 export const MAX_PRODUCT_ID_LENGTH = 50;
 // PayPal rejects a third custom checkout field with a 400.
@@ -332,7 +332,7 @@ export function sanitizePayPalUrl( url ) {
 /**
  * Validate a return URL (optional field).
  *
- * HTTPS only - a rule this block has always enforced on its own. Empty means the
+ * Matches what the server accepts: an http or https URL with a host. Empty means the
  * buyer is not redirected anywhere.
  *
  * @param {string} value - The return URL.
@@ -343,9 +343,9 @@ export function validateReturnUrl( value ) {
 		return null;
 	}
 
-	if ( ! /^https:\/\/.+/.test( value ) ) {
+	if ( ! /^https?:\/\/[^/?#@\s]+(?:[/?#]\S*)?$/.test( value ) ) {
 		return __(
-			'Return URL must use HTTPS (e.g., https://example.com/thank-you).',
+			'Return URL must be a valid URL (e.g., https://example.com/thank-you).',
 			'jetpack-paypal-payments'
 		);
 	}
@@ -379,15 +379,6 @@ export function validateCurrency( value ) {
 }
 
 /**
- * Error keys that warn the merchant without blocking the save.
- *
- * A bad return URL has always saved - PayPal takes the button either way, and the
- * merchant is told what is wrong. Everything else getValidationErrors() reports
- * blocks the save.
- */
-export const ADVISORY_ERROR_KEYS = [ 'returnUrl' ];
-
-/**
  * Error keys whose control sits outside the Checkout Options panel.
  *
  * The panel opens itself on an error from one of its own fields. Listing the
@@ -408,7 +399,7 @@ export const NON_CHECKOUT_ERROR_KEYS = [
  * @param {string[]} exclude - Keys to skip.
  * @return {string|null} The message, or null when there is nothing to report.
  */
-export function firstBlockingError( errors, exclude = ADVISORY_ERROR_KEYS ) {
+export function firstBlockingError( errors, exclude = [] ) {
 	const found = Object.entries( errors ).find(
 		( [ field, message ] ) => message && ! exclude.includes( field )
 	);
@@ -514,13 +505,13 @@ export function getValidationErrors( {
 }
 
 /**
- * Whether any error is one that blocks the save.
+ * Whether any field has an error. Any error blocks the save.
  *
  * Derived rather than a hand-written list of fields, so a new key cannot be
  * forgotten on the gate side.
  *
  * @param {object} errors - Errors from getValidationErrors().
- * @return {boolean} True when a blocking field is in error.
+ * @return {boolean} True when a field has an error.
  */
 export function hasBlockingError( errors ) {
 	return null !== firstBlockingError( errors );

@@ -289,6 +289,7 @@ export {
 	useStoredDetailLayout,
 	useTrackCustomize,
 	useTrackEvent,
+	useTrackedDateRangeApply,
 	useWidgetDrillDown,
 } from './hooks';
 
