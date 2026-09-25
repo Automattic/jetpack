@@ -533,7 +533,6 @@ class Protected_Owner_Test extends TestCase {
 
 		$this->assertSame( self::ANCHORED_WPCOM_ID, $anchor['wpcom_user_id'] ?? null );
 		$this->assertSame( $this->owner_id, $anchor['local_user_id'] ?? null );
-		$this->assertTrue( $anchor['locked'] ?? false );
 		$this->assertMatchesRegularExpression(
 			'/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/',
 			$anchor['confirmed_at'] ?? '',
@@ -957,7 +956,7 @@ class Protected_Owner_Test extends TestCase {
 		Protected_Owner::set( self::ANCHORED_WPCOM_ID, $this->owner_id );
 
 		$this->assertSame(
-			array( 'wpcom_user_id', 'local_user_id', 'locked', 'confirmed_at' ),
+			array( 'wpcom_user_id', 'local_user_id', 'confirmed_at' ),
 			array_keys( (array) Protected_Owner::get() )
 		);
 	}
@@ -966,49 +965,13 @@ class Protected_Owner_Test extends TestCase {
 	 * An anchor without a WordPress.com ID names nobody and is not usable.
 	 */
 	public function test_an_anchor_without_a_wpcom_user_id_is_not_usable() {
-		Jetpack_Options::update_option( 'protected_owner', array( 'locked' => true ) );
+		Jetpack_Options::update_option( 'protected_owner', array( 'confirmed_at' => '2026-01-01T00:00:00Z' ) );
 
 		$this->assertNull( Protected_Owner::get() );
 		$this->assertFalse( Protected_Owner::is_locked() );
 		$this->assertTrue( ( new Manager() )->is_ownership_transferable() );
 	}
 
-	/**
-	 * An unlocked anchor names an owner without protecting one, so the gate must not answer yes
-	 * even when that owner is exactly who is connected.
-	 */
-	public function test_an_unlocked_anchor_does_not_protect_the_matching_owner() {
-		Jetpack_Options::update_option(
-			'protected_owner',
-			array(
-				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
-				'locked'        => false,
-			)
-		);
-		Utils::set_wpcom_user_id( $this->owner_id, self::ANCHORED_WPCOM_ID );
-
-		$manager = $this->manager( $this->owner_id, false, $this->never() );
-
-		$this->assertFalse( $manager->has_protected_owner() );
-		$this->assertTrue( $manager->is_ownership_transferable() );
-	}
-
-	/**
-	 * An unlocked anchor is still an anchor, but it does not lock ownership.
-	 */
-	public function test_an_unlocked_anchor_does_not_lock_ownership() {
-		Jetpack_Options::update_option(
-			'protected_owner',
-			array(
-				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
-				'locked'        => false,
-			)
-		);
-
-		$this->assertNotNull( Protected_Owner::get() );
-		$this->assertFalse( Protected_Owner::is_locked() );
-		$this->assertTrue( ( new Manager() )->is_ownership_transferable() );
-	}
 	// ── reconcile_protected_owner ────────────────────────────────────────
 
 	/**
@@ -1071,33 +1034,75 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
-	 * Failing closed does not forget, so restoring the lock later costs nothing and the owner is
-	 * not asked to confirm again.
+	 * An anchor nobody could confirm is dropped rather than suspended, so no state is left for a
+	 * later connection to complete.
 	 */
-	public function test_failing_closed_keeps_the_record_intact() {
+	public function test_failing_closed_drops_the_record() {
 		$this->anchor();
 		$this->act_as_administrator();
-		$before = Protected_Owner::get();
 
 		$this->reconciling_manager( null )->reconcile_protected_owner();
-		$after = Protected_Owner::get();
 
-		$this->assertIsArray( $before );
-		$this->assertIsArray( $after );
-		$this->assertSame( $before['wpcom_user_id'], $after['wpcom_user_id'] );
-		$this->assertSame( $before['confirmed_at'], $after['confirmed_at'] );
+		$this->assertNull( Protected_Owner::get() );
 	}
 
 	/**
-	 * A suspended anchor locks again once WordPress.com can confirm it.
+	 * Recovering after a failure needs the owner, because the answer names them to nobody else.
 	 */
-	public function test_a_suspended_anchor_locks_again_when_wpcom_confirms() {
+	public function test_the_owner_re_anchors_a_site_that_failed_to_confirm() {
 		$this->anchor();
 		$this->act_as_administrator();
 		$this->reconciling_manager( null )->reconcile_protected_owner();
 
 		$this->assertTrue( $this->reconciling_manager( $this->owner_answer() )->reconcile_protected_owner() );
 		$this->assertTrue( Protected_Owner::is_locked() );
+	}
+
+	/**
+	 * WordPress.com naming a different owner replaces the anchor rather than re-pointing the old
+	 * one, which would leave the site anchored to the account that no longer owns it.
+	 */
+	public function test_a_changed_owner_replaces_the_anchored_identity() {
+		$this->anchor();
+		$this->act_as_administrator();
+
+		$this->reconciling_manager( $this->owner_answer( 9999 ) )->reconcile_protected_owner();
+
+		$anchor = Protected_Owner::get();
+		$this->assertIsArray( $anchor );
+		$this->assertSame( 9999, (int) $anchor['wpcom_user_id'] );
+	}
+
+	/**
+	 * A failed anchor write leaves no binding behind for a later connection to build on.
+	 */
+	public function test_a_failed_anchor_write_leaves_no_binding() {
+		$this->act_as_administrator();
+		Utils::delete_wpcom_user_id( $this->owner_id );
+
+		$block = static function ( $value, $old_value ) {
+			return $old_value;
+		};
+		add_filter( 'pre_update_option_jetpack_options', $block, 10, 2 );
+
+		$result = $this->reconciling_manager( $this->owner_answer() )->reconcile_protected_owner();
+
+		remove_filter( 'pre_update_option_jetpack_options', $block, 10 );
+
+		$this->assertFalse( $result );
+		$this->assertSame( 0, Utils::get_wpcom_user_id( $this->owner_id ) );
+	}
+
+	/**
+	 * A bystander cannot: with nothing anchored there is no identity to confirm.
+	 */
+	public function test_a_bystander_cannot_re_anchor_a_site_that_failed_to_confirm() {
+		$this->anchor();
+		$this->act_as_administrator();
+		$this->reconciling_manager( null )->reconcile_protected_owner();
+
+		$this->assertFalse( $this->reconciling_manager( $this->bystander_answer( false ) )->reconcile_protected_owner() );
+		$this->assertNull( Protected_Owner::get() );
 	}
 
 	/**

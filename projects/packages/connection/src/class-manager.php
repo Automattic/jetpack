@@ -1488,9 +1488,11 @@ class Manager {
 		$record = $this->query_protected_owner_record( (int) ( $anchor['wpcom_user_id'] ?? 0 ) );
 
 		// Unreachable, refused, or answered by a WordPress.com that does not implement the method
-		// are all "cannot confirm", and none of them is a reason to keep trusting the anchor.
+		// are all "cannot confirm", and none of them is a reason to keep trusting the anchor. It is
+		// dropped rather than suspended: an anchor nobody confirmed is not state to leave lying
+		// around for somebody else's connection to complete.
 		if ( ! is_array( $record ) || ! isset( $record['has_owner'] ) ) {
-			Protected_Owner::set_locked( false );
+			Protected_Owner::clear();
 
 			return false;
 		}
@@ -1507,18 +1509,16 @@ class Manager {
 		// site can learn it. Anchoring here is not establishing: WordPress.com already accepted a
 		// claim, and this catches up a site that never recorded it or lost the record.
 		if ( ! empty( $record['is_caller'] ) ) {
-			return $this->adopt_protected_owner( $user_id, (int) ( $record['wpcom_user_id'] ?? 0 ), (bool) $anchor );
+			return $this->adopt_protected_owner( $user_id, (int) ( $record['wpcom_user_id'] ?? 0 ), $anchor );
 		}
 
 		// Somebody else is connecting. WordPress.com confirms the anchored identity rather than
 		// naming the owner, so the answer is the same whoever asks.
 		if ( empty( $record['matches'] ) ) {
-			Protected_Owner::set_locked( false );
+			Protected_Owner::clear();
 
 			return false;
 		}
-
-		Protected_Owner::set_locked( true );
 
 		return true;
 	}
@@ -1528,29 +1528,31 @@ class Manager {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param int  $user_id       The connecting local user.
-	 * @param int  $wpcom_user_id The identity WordPress.com holds as the owner of record.
-	 * @param bool $anchored      Whether this site already has an anchor.
-	 * @return bool Whether the anchor is now locked to that identity.
+	 * @param int        $user_id       The connecting local user.
+	 * @param int        $wpcom_user_id The identity WordPress.com holds as the owner of record.
+	 * @param array|null $anchor        What this site has anchored, if anything.
+	 * @return bool Whether the anchor now names that identity.
 	 */
-	private function adopt_protected_owner( $user_id, $wpcom_user_id, $anchored ) {
+	private function adopt_protected_owner( $user_id, $wpcom_user_id, $anchor ) {
 		// An owner without an identity is a malformed answer, and trusting it would lock the site
 		// to nobody.
 		if ( ! $wpcom_user_id ) {
-			Protected_Owner::set_locked( false );
+			Protected_Owner::clear();
 
+			return false;
+		}
+
+		// Anchored before the binding, so a failed write leaves nothing behind for a later
+		// connection to build on. Re-pointing only moves the cached local ID, so it is right only
+		// while the anchored identity is the one WordPress.com just confirmed.
+		if ( $anchor && (int) $anchor['wpcom_user_id'] === $wpcom_user_id ) {
+			Protected_Owner::repoint( $user_id );
+		} elseif ( ! Protected_Owner::set( $wpcom_user_id, $user_id ) ) {
 			return false;
 		}
 
 		// Connecting clears the binding, so this writes back the one the answer just confirmed.
 		Utils::set_wpcom_user_id( $user_id, $wpcom_user_id );
-
-		if ( $anchored ) {
-			Protected_Owner::repoint( $user_id );
-			Protected_Owner::set_locked( true );
-		} elseif ( ! Protected_Owner::set( $wpcom_user_id, $user_id ) ) {
-			return false;
-		}
 
 		// Eligibility for the master slot is being an administrator here, which the owner of record
 		// need not be.

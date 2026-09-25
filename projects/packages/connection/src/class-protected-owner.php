@@ -64,7 +64,6 @@ class Protected_Owner {
 		$anchor = array(
 			'wpcom_user_id' => $wpcom_user_id,
 			'local_user_id' => $local_user_id,
-			'locked'        => true,
 			'confirmed_at'  => gmdate( 'Y-m-d\TH:i:s\Z' ),
 		);
 
@@ -126,53 +125,18 @@ class Protected_Owner {
 	}
 
 	/**
-	 * Lock or unlock the anchor without disturbing what it records.
+	 * Get the anchor, but only while it protects somebody.
 	 *
-	 * Unlocking is how a site fails closed without forgetting: the anchor keeps the identity it
-	 * recorded and only stops counting as protection, so a later verification restores the lock
-	 * without asking the owner to confirm again.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param bool $locked Whether the anchor should protect its owner.
-	 * @return bool Whether the anchor is now in that state.
-	 */
-	public static function set_locked( $locked ) {
-		$anchor = self::get();
-
-		if ( ! $anchor ) {
-			return false;
-		}
-
-		$locked = (bool) $locked;
-
-		if ( ! empty( $anchor['locked'] ) === $locked ) {
-			return true;
-		}
-
-		$anchor['locked'] = $locked;
-
-		if ( Jetpack_Options::update_option( self::OPTION, $anchor ) ) {
-			return true;
-		}
-
-		return Jetpack_Options::get_option( self::OPTION ) === $anchor;
-	}
-
-	/**
-	 * Get the anchor, but only while it is locked.
-	 *
-	 * An unlocked anchor names an owner without preventing ownership moving, so it protects
-	 * nobody and callers gating on protection must not see it.
+	 * The anchor is dropped the moment WordPress.com stops confirming it, so holding one and
+	 * being protected by it are the same thing. Kept as the name gates read by, which says what
+	 * the call site means rather than what the storage happens to be.
 	 *
 	 * @since 9.3.0
 	 *
-	 * @return array|null The locked anchor, or null when there is none.
+	 * @return array|null The anchor, or null when there is none.
 	 */
 	public static function get_locked() {
-		$anchor = self::get();
-
-		return ( $anchor && ! empty( $anchor['locked'] ) ) ? $anchor : null;
+		return self::get();
 	}
 
 	/**
