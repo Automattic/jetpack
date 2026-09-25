@@ -6,6 +6,7 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import { Icon, external } from '@wordpress/icons';
 
 interface Placement {
 	label: string;
@@ -101,9 +102,10 @@ function TemplatePlacementsNotice() {
 				href={ getAdminUrl( 'admin.php?page=jetpack-newsletter&p=%2F%3Ftab%3Dsettings' ) }
 				target="_blank"
 				rel="noopener noreferrer"
-				style={ { color: 'inherit' } }
+				style={ { color: 'inherit', display: 'inline-flex', alignItems: 'center', gap: '2px' } }
 			>
 				{ __( 'Manage in Newsletter settings', 'jetpack' ) }
+				<Icon icon={ external } size={ 16 } style={ { fill: 'currentColor' } } />
 			</a>
 		</div>
 	);
