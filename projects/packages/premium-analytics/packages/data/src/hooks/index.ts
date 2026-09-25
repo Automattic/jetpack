@@ -18,6 +18,7 @@ export { useReportVisitorsByLocation } from './use-report-visitors-by-location';
 export { useReportBookings } from './use-report-bookings';
 export { useReportSessionsByDevice } from './use-report-sessions-by-device';
 export { useStatsSite } from './use-stats-site';
+export { useViewerCountry } from './use-viewer-country';
 export {
 	useStatsPost,
 	type StatsPostField,

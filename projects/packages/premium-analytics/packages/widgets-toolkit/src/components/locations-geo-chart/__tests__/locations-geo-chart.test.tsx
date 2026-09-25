@@ -9,6 +9,10 @@ import { act, render } from '@testing-library/react';
 import { LocationsGeoChart } from '../locations-geo-chart';
 import type { LocationsGeoRow } from '../build-geo-data';
 
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	useViewerCountry: () => ( { data: null } ),
+} ) );
+
 jest.mock( '@jetpack-premium-analytics/externals', () => ( {
 	GeoChart: jest.fn( () => <div data-testid="geo-chart" /> ),
 } ) );
