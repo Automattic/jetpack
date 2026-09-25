@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use core SnackbarNotices instead of Jetpack GlobalNotices.

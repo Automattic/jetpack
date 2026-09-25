@@ -1,7 +1,7 @@
-import { useGlobalNotices } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { Link } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
@@ -29,7 +29,7 @@ export function Reconnect( { connection, service }: ReconnectProps ) {
 		completeReconnect,
 	} = useDispatch( socialStore );
 
-	const { createErrorNotice } = useGlobalNotices();
+	const { createErrorNotice } = useDispatch( noticesStore );
 
 	const { canManageConnection, isReconnectingThis } = useSelect(
 		select => {
@@ -71,7 +71,8 @@ export function Reconnect( { connection, service }: ReconnectProps ) {
 					__(
 						'The reconnection could not be completed. Please try again.',
 						'jetpack-publicize-pkg'
-					)
+					),
+					{ type: 'snackbar' }
 				);
 				return;
 			}

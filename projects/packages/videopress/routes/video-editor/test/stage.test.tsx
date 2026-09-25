@@ -59,13 +59,29 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 	Breadcrumbs: () => <a href="/">VideoPress</a>,
 } ) );
 
+jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => ( {
+	__esModule: true,
+	default: () => ( { hasConnectionError: false } ),
+	ConnectionError: () => null,
+} ) );
+
 // Variables referenced inside jest.mock() factories must be prefixed with
 // "mock" (case-insensitive) to satisfy Jest's babel-jest hoisting rules.
 const mockSuccessNotice = jest.fn();
 const mockWarningNotice = jest.fn();
 const mockErrorNotice = jest.fn();
-jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
-	useGlobalNotices: () => ( {
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+jest.mock( '@wordpress/data', () => ( {
+	combineReducers: jest.fn( reducers => reducers ),
+	createReduxStore: jest.fn( () => ( { name: 'mock-store' } ) ),
+	createSelector: jest.fn( selector => selector ),
+	keyedReducer: jest.fn( ( _key, reducer ) => reducer ),
+	register: jest.fn(),
+	select: jest.fn( () => ( {} ) ),
+	dispatch: jest.fn( () => ( {} ) ),
+	useSelect: jest.fn( () => ( {} ) ),
+	useRegistry: jest.fn( () => ( { select: jest.fn(), dispatch: jest.fn() } ) ),
+	useDispatch: () => ( {
 		createSuccessNotice: mockSuccessNotice,
 		createWarningNotice: mockWarningNotice,
 		createErrorNotice: mockErrorNotice,
@@ -502,7 +518,9 @@ describe( 'video-editor stage', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 
-		await waitFor( () => expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Chapters saved.' ) );
+		await waitFor( () =>
+			expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Chapters saved.', { type: 'snackbar' } )
+		);
 		// A valid set announces success and nothing else.
 		expect( mockWarningNotice ).not.toHaveBeenCalled();
 		// The POSTed description is exactly the serializer's rewrite of the
@@ -548,7 +566,8 @@ describe( 'video-editor stage', () => {
 
 		// …but the outcome notice must not read as an unqualified success.
 		expect( mockWarningNotice ).toHaveBeenCalledWith(
-			'Chapters saved to the description, but they won’t appear in the player until they meet the requirements.'
+			'Chapters saved to the description, but they won’t appear in the player until they meet the requirements.',
+			{ type: 'snackbar' }
 		);
 		expect( mockSuccessNotice ).not.toHaveBeenCalled();
 	} );
@@ -567,7 +586,9 @@ describe( 'video-editor stage', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 
 		await waitFor( () =>
-			expect( mockErrorNotice ).toHaveBeenCalledWith( 'Failed to save chapters.' )
+			expect( mockErrorNotice ).toHaveBeenCalledWith( 'Failed to save chapters.', {
+				type: 'snackbar',
+			} )
 		);
 		// The sync must never run over a description that failed to save,
 		// and the session stays dirty for another attempt.
