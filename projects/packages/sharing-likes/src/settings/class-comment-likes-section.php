@@ -49,8 +49,8 @@ final class Comment_Likes_Section {
 	 * The switch is Simple's option, or the module on Atomic and Jetpack sites.
 	 */
 	private static function render_fields(): void {
-		// With Like buttons running, their own section already shows the default.
-		$shows_default = Environment::comment_likes_follow_likes_settings() && ! Environment::likes_module_running();
+		$shows_default = Environment::comment_likes_follow_likes_settings()
+			&& ! Section_State::configures( Likes_Section::state() );
 
 		ob_start();
 		?>

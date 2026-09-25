@@ -102,6 +102,23 @@ class Comment_Likes_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A Like buttons module switched off through its settings shows no options, so the default moves here.
+	 */
+	public function test_keeps_the_default_once_the_like_buttons_are_switched_off(): void {
+		update_option( 'disabled_likes', 1 );
+		update_option( 'disabled_reblogs', 1 );
+		$this->given_block_theme();
+		$this->given_block( 'jetpack/like' );
+
+		$markup = $this->render_with( array( 'likes', 'comment-likes' ) );
+
+		delete_option( 'disabled_likes' );
+		delete_option( 'disabled_reblogs' );
+
+		$this->assertStringContainsString( 'name="wpl_default"', $markup );
+	}
+
+	/**
 	 * Nothing reads the Likes settings with both modules off, so only the switch is left.
 	 */
 	public function test_offers_only_the_switch_with_both_likes_modules_off(): void {
