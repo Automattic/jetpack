@@ -137,6 +137,7 @@ const Header = () => (
 			className={ styles[ 'info-icon' ] }
 			popoverClassName={ styles.popover }
 			title={ __( 'Image Quality', 'jetpack-boost' ) }
+			label={ __( 'About Image Quality', 'jetpack-boost' ) }
 			iconSize={ 22 }
 			{ ...useTooltipLayer() }
 		>

@@ -1,7 +1,6 @@
 import { speak } from '@wordpress/a11y';
 import { Popover } from '@wordpress/components';
 import { focus } from '@wordpress/dom';
-import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
 import clsx from 'clsx';
 import {
@@ -299,7 +298,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 				<Button
 					ref={ triggerRef }
 					variant="link"
-					aria-label={ label ?? __( 'More information', 'jetpack-components' ) }
+					aria-label={ label }
 					aria-expanded={ isVisible }
 					onClick={ toggleTooltip }
 					onKeyDown={ handleTriggerKeyDown }
