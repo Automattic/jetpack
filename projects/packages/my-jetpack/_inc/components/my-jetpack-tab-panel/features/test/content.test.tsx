@@ -30,8 +30,9 @@ let mockMainFeatures: Record< string, unknown > = {
 
 jest.mock( '../use-main-features', () => ( { useMainFeatures: () => mockMainFeatures } ) );
 
+let mockIsLoading = false;
 jest.mock( '../feature-state', () => ( {
-	useFeatureStates: () => ( { states: mockStates, isLoading: false } ),
+	useFeatureStates: () => ( { states: mockStates, isLoading: mockIsLoading } ),
 } ) );
 
 jest.mock( '../feature-item', () => ( { FeatureItem: () => <div>grid card</div> } ) );
@@ -39,25 +40,37 @@ jest.mock( '../feature-list', () => ( {
 	FeatureList: () => <div>list rows</div>,
 	UnswitchableNote: () => null,
 } ) );
-jest.mock( '../feature-modal', () => ( { FeatureModal: () => null } ) );
+let mockModalProps: Record< string, unknown > | null = null;
+jest.mock( '../feature-modal', () => ( {
+	FeatureModal: ( props: Record< string, unknown > ) => {
+		mockModalProps = props;
+		return null;
+	},
+} ) );
 jest.mock( '../use-more-features', () => ( {
 	...jest.requireActual( '../use-more-features' ),
 	useMoreFeatures: () => mockGroups,
 } ) );
 jest.mock( '../features-banner', () => ( { FeaturesBanner: () => null } ) );
 
-const renderAt = ( url: string ) =>
-	render(
-		<QueryClientProvider client={ new QueryClient() }>
-			<MemoryRouter initialEntries={ [ url ] }>
-				<FeaturesContent />
-			</MemoryRouter>
-		</QueryClientProvider>
-	);
+const tree = ( url: string, client: QueryClient ) => (
+	<QueryClientProvider client={ client }>
+		<MemoryRouter initialEntries={ [ url ] }>
+			<FeaturesContent />
+		</MemoryRouter>
+	</QueryClientProvider>
+);
+const renderAt = ( url: string ) => {
+	const client = new QueryClient();
+	const view = render( tree( url, client ) );
+
+	return { ...view, rerenderAt: () => view.rerender( tree( url, client ) ) };
+};
 
 describe( 'FeaturesContent', () => {
 	beforeEach( () => {
 		mockStates = [ activeStats ];
+		mockIsLoading = false;
 		mockGroups = [];
 		mockMainFeatures = {
 			jetpack: 'active',
@@ -162,5 +175,116 @@ describe( 'FeaturesContent', () => {
 			screen.queryByRole( 'checkbox', { name: 'Select all features' } )
 		).not.toBeInTheDocument();
 		expect( screen.getByText( 'No features match “nothing-matches-this”.' ) ).toBeInTheDocument();
+	} );
+
+	it( 'steps the modal through the features the filter shows, skipping the rest', () => {
+		const feature = ( slug: string, status: string ) =>
+			( {
+				...activeStats,
+				feature: { ...activeStats.feature, slug, name: slug },
+				status,
+			} ) as FeatureState;
+		mockStates = [
+			feature( 'stats', 'active' ),
+			feature( 'anti-spam', 'inactive' ),
+			feature( 'forms', 'active' ),
+			feature( 'podcast', 'active' ),
+		];
+		mockModalProps = null;
+
+		renderAt( '/features?filter=active&feature=forms' );
+
+		expect( mockModalProps ).toMatchObject( {
+			previous: { slug: 'stats' },
+			next: { slug: 'podcast' },
+			position: 2,
+			total: 3,
+		} );
+	} );
+
+	it( 'steps through a feature opened before the catalog carried it, once it arrives', () => {
+		mockStates = [];
+		mockMainFeatures = { jetpack: 'active', features: [], isPlaceholderData: true };
+
+		const { rerenderAt } = renderAt( '/features?feature=forms' );
+
+		const feature = ( slug: string ) =>
+			( {
+				...activeStats,
+				feature: { ...activeStats.feature, slug, name: slug },
+				status: 'active',
+			} ) as FeatureState;
+		mockStates = [ feature( 'stats' ), feature( 'forms' ), feature( 'podcast' ) ];
+		mockMainFeatures = {
+			jetpack: 'active',
+			features: [ { slug: 'stats' } ],
+			isPlaceholderData: false,
+		};
+		rerenderAt();
+
+		expect( mockModalProps ).toMatchObject( {
+			previous: { slug: 'stats' },
+			next: { slug: 'podcast' },
+			position: 2,
+			total: 3,
+		} );
+	} );
+
+	it( 'keeps stepping from a feature switched out of the status filter it was opened under', () => {
+		const feature = ( slug: string, status: string ) =>
+			( {
+				...activeStats,
+				feature: { ...activeStats.feature, slug, name: slug },
+				status,
+			} ) as FeatureState;
+		mockStates = [
+			feature( 'stats', 'inactive' ),
+			feature( 'forms', 'inactive' ),
+			feature( 'podcast', 'inactive' ),
+		];
+		const url = '/features?filter=inactive&feature=forms';
+		const { rerenderAt } = renderAt( url );
+
+		mockStates = [
+			feature( 'stats', 'inactive' ),
+			feature( 'forms', 'active' ),
+			feature( 'podcast', 'inactive' ),
+		];
+		rerenderAt();
+
+		expect( mockModalProps ).toMatchObject( {
+			previous: { slug: 'stats' },
+			next: { slug: 'podcast' },
+			position: 2,
+			total: 3,
+		} );
+	} );
+
+	it( 'retakes the step order once the modules a status filter reads have landed', () => {
+		const feature = ( slug: string, status: string, pending = false ) =>
+			( {
+				...activeStats,
+				feature: { ...activeStats.feature, slug, name: slug },
+				status,
+				pending,
+			} ) as FeatureState;
+		mockIsLoading = true;
+		mockStates = [
+			feature( 'stats', 'inactive', true ),
+			feature( 'forms', 'inactive', true ),
+			feature( 'podcast', 'inactive', true ),
+		];
+		const { rerenderAt } = renderAt( '/features?filter=inactive&feature=forms' );
+
+		mockIsLoading = false;
+		mockStates = [
+			feature( 'stats', 'active' ),
+			feature( 'forms', 'inactive' ),
+			feature( 'podcast', 'inactive' ),
+		];
+		rerenderAt();
+
+		expect( mockModalProps ).toMatchObject( { next: { slug: 'podcast' }, position: 1, total: 2 } );
+		expect( mockModalProps?.previous ).toBeUndefined();
 	} );
 } );
