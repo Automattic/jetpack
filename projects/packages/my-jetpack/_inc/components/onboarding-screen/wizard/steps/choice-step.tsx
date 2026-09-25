@@ -58,24 +58,7 @@ function FreeTextField( {
 	const wrapperRef = useRef< HTMLDivElement >( null );
 
 	useEffect( () => {
-		const wrapper = wrapperRef.current;
-
-		wrapper?.querySelector( 'input' )?.focus();
-
-		/*
-		 * The clipping is only there to hide the box while it grows. Left on, it
-		 * also cuts the field's focus ring, which is drawn outside the control, so
-		 * all that survives is its top edge floating above the field.
-		 */
-		const unclip = ( event: AnimationEvent ) => {
-			if ( event.target === wrapper ) {
-				wrapper?.style.setProperty( 'overflow', 'visible' );
-			}
-		};
-
-		wrapper?.addEventListener( 'animationend', unclip );
-
-		return () => wrapper?.removeEventListener( 'animationend', unclip );
+		wrapperRef.current?.querySelector( 'input' )?.focus();
 	}, [] );
 
 	const handleChange = useCallback(
