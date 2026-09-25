@@ -20,6 +20,7 @@ import { getCategories, registerBlockType, setCategories } from '@wordpress/bloc
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import ActiveFiltersEdit from '../blocks/active-filters/edit';
+import aiAnswerMetadata from '../blocks/ai-answer/block.json';
 import AiAnswerEdit from '../blocks/ai-answer/edit';
 import ClearFiltersEdit from '../blocks/clear-filters/edit';
 import FilterCheckboxEdit from '../blocks/filter-checkbox/edit';
@@ -170,10 +171,14 @@ BLOCKS.forEach( ( [ name, edit, blockSave, extraSettings ] ) => {
 	// — the centralized per-block glyph (`BLOCK_ICONS[ name ]`) renders in
 	// the inserter, breadcrumb, and toolbar instead of the dashicon fallback.
 	// Spread first so a per-block entry can never clobber `edit`, `save`, or `icon`.
-	registerBlockType( name, {
+	const settings = {
 		...extraSettings,
 		edit,
 		save: blockSave ?? save,
 		icon: BLOCK_ICONS[ name ],
-	} );
+	};
+	if ( name === aiAnswerMetadata.name && config.aiMasterEnabled === false ) {
+		settings.supports = { ...aiAnswerMetadata.supports, inserter: false };
+	}
+	registerBlockType( name, settings );
 } );

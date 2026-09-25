@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-AI Answer: Show the disabled notice before the upgrade prompt when the host turns AI off.
+AI Answer: Hide the block from the inserter when Jetpack AI is disabled and show the disabled notice before the upgrade prompt.
