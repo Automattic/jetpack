@@ -16,13 +16,17 @@
 }
 
 // Grows with its content where supported; elsewhere it scrolls, like core's.
-.jetpack-comments__textarea {
+// Nested to outrank a block theme's `.wp-block-post-comments-form textarea`.
+.jetpack-comments .jetpack-comments__textarea {
 	display: block;
 	box-sizing: border-box;
 	inline-size: 100%;
 	// Two lines plus the padding; field-sizing ignores rows.
 	min-block-size: 3lh;
 	field-sizing: content;
+	// The post's own surface and text, not the theme's input colours.
+	background: transparent;
+	color: inherit;
 }
 
 // Hidden, not just collapsed, so nothing inside a closed tray can take focus.
