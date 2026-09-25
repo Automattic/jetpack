@@ -89,6 +89,34 @@ function getEmptyDayColor( page: Page ) {
 	} );
 }
 
+/**
+ * Taps a day, then taps its open box and checks the tap stays on the box.
+ *
+ * @param page - The fixture page.
+ * @param tap  - Sends one touch tap at a viewport point.
+ */
+async function expectTapStaysOnBox( page: Page, tap: ( x: number, y: number ) => Promise< void > ) {
+	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
+	const bar = ( await chart.locator( '.visx-bar' ).nth( 21 ).boundingBox() )!;
+	await tap( bar.x + bar.width / 2, bar.y + bar.height / 2 );
+	const popover = page.locator( '.boost-daily-history__popover' );
+	const date = popover.locator( '.jetpack-boost-overview__tooltip-date' );
+	await expect( date ).toHaveText( 'September 1, 2026' );
+	await expect( popover ).toHaveCSS( 'pointer-events', 'auto' );
+	const box = ( await popover.boundingBox() )!;
+	const target = [ box.x + 20, bar.y + bar.height / 2 ];
+	expect(
+		await page.evaluate(
+			( [ px, py ] ) =>
+				Boolean( document.elementFromPoint( px, py )?.closest( '.boost-daily-history__popover' ) ),
+			target
+		)
+	).toBe( true );
+	await tap( target[ 0 ], target[ 1 ] );
+	await expect( popover ).toBeVisible();
+	await expect( date ).toHaveText( 'September 1, 2026' );
+}
+
 test.use( {
 	viewport: { width: 1280, height: 900 },
 	timezoneId: 'America/Los_Angeles',
@@ -168,22 +196,18 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		expect( popupBox.x ).toBeGreaterThan( barCenter );
 		await expect( popover ).toHaveCSS( 'pointer-events', 'none' );
 		// One jump per day, each onto the day the previous box covers.
-		for ( let index = 21; index <= 27; index++ ) {
+		for ( let index = 22; index <= 27; index++ ) {
 			const bar = ( await bars.nth( index ).boundingBox() )!;
 			const x = bar.x + bar.width / 2;
+			const box = ( await surface.boundingBox() )!;
+			expect( x ).toBeGreaterThan( box.x );
+			expect( x ).toBeLessThan( box.x + box.width );
+			expect( barMiddle ).toBeGreaterThan( box.y );
+			expect( barMiddle ).toBeLessThan( box.y + box.height );
 			await page.mouse.move( x, barMiddle );
 			await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText(
 				`September ${ index - 20 }, 2026`
 			);
-			expect(
-				await page.evaluate(
-					( [ px, py ] ) =>
-						Boolean(
-							document.elementFromPoint( px, py )?.closest( '.boost-daily-history__popover' )
-						),
-					[ x, barMiddle ]
-				)
-			).toBe( false );
 		}
 		await page.mouse.move( 0, 0 );
 		await expect( popover ).toBeHidden();
@@ -554,27 +578,27 @@ test.describe( 'Day details on touch', () => {
 	test.use( { hasTouch: true } );
 
 	test( 'a tap on the open box reaches nothing under it', async ( { page } ) => {
-		const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
-		const bar = ( await chart.locator( '.visx-bar' ).nth( 21 ).boundingBox() )!;
-		await page.touchscreen.tap( bar.x + bar.width / 2, bar.y + bar.height / 2 );
-		const popover = page.locator( '.boost-daily-history__popover' );
-		const date = popover.locator( '.jetpack-boost-overview__tooltip-date' );
-		await expect( date ).toHaveText( 'September 1, 2026' );
-		await expect( popover ).toHaveCSS( 'pointer-events', 'auto' );
-		const box = ( await popover.boundingBox() )!;
-		const target = [ box.x + 20, bar.y + bar.height / 2 ];
 		expect(
-			await page.evaluate(
-				( [ px, py ] ) =>
-					Boolean(
-						document.elementFromPoint( px, py )?.closest( '.boost-daily-history__popover' )
-					),
-				target
-			)
+			await page.evaluate( () => matchMedia( '(hover: none) and (pointer: coarse)' ).matches )
 		).toBe( true );
-		await page.touchscreen.tap( target[ 0 ], target[ 1 ] );
-		await expect( popover ).toBeVisible();
-		await expect( date ).toHaveText( 'September 1, 2026' );
+		await expectTapStaysOnBox( page, ( x, y ) => page.touchscreen.tap( x, y ) );
+	} );
+} );
+
+test( 'a tap on the open box reaches nothing under it on a touchscreen laptop', async ( {
+	page,
+} ) => {
+	// A fine, hover-capable primary pointer whose taps still arrive as touch.
+	expect(
+		await page.evaluate( () => matchMedia( '(hover: hover) and (pointer: fine)' ).matches )
+	).toBe( true );
+	const session = await page.context().newCDPSession( page );
+	await expectTapStaysOnBox( page, async ( x, y ) => {
+		await session.send( 'Input.dispatchTouchEvent', {
+			type: 'touchStart',
+			touchPoints: [ { x, y } ],
+		} );
+		await session.send( 'Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] } );
 	} );
 } );
 

@@ -156,11 +156,8 @@
 }
 
 // Read-only and aria-hidden; a mouse passes through, a tap stays on the box.
-@media (hover: hover) and (pointer: fine) {
-
-	.boost-daily-history__positioner {
-		pointer-events: none;
-	}
+.boost-daily-history__positioner[data-mouse] {
+	pointer-events: none;
 }
 
 .boost-daily-history__popover .boost-daily-history__score-tooltip {
