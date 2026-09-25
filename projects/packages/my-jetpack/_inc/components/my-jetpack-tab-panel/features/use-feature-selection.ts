@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { useFeaturesTracking } from './features-tracking-context';
 import { isBulkSwitchable, useBulkFeatureSwitch } from './use-bulk-feature-switch';
 import type { FeatureState } from './feature-state';
 
@@ -33,6 +34,7 @@ export function useFeatureSelection(
 ): FeatureSelection {
 	const [ selected, setSelected ] = useState< Set< string > >( () => new Set() );
 	const { run, isRunning } = useBulkFeatureSwitch();
+	const tracking = useFeaturesTracking();
 	// Rows in flight also count, so a run started before the view last changed still holds the bar.
 	const isBusy = isRunning || states.some( state => state.isSwitching );
 
@@ -80,7 +82,14 @@ export function useFeatureSelection(
 	// Clears only what was sent, so a row picked mid-run survives, and keeps failures for a retry.
 	const switchStates = useCallback(
 		async ( targets: FeatureState[], active: boolean ) => {
-			const failed = await run( targets, active );
+			const { attempted, failed } = await run( targets, active );
+
+			tracking?.trackBulkAction( {
+				action: active ? 'activate' : 'deactivate',
+				attempted,
+				failed,
+			} );
+
 			setSelected( previous => {
 				const next = new Set( previous );
 				targets.forEach( state => next.delete( state.feature.slug ) );
@@ -88,7 +97,7 @@ export function useFeatureSelection(
 				return next;
 			} );
 		},
-		[ run ]
+		[ run, tracking ]
 	);
 
 	return {
