@@ -42,13 +42,15 @@ export declare const PRESET_LAST_7_DAYS: string;
 export declare const PRESET_LAST_30_DAYS: string;
 export declare const PRESET_LAST_12_MONTHS: string;
 
-// Data.
+// Data. The WordAds hooks are provisional: they move to the Ads package once the SDK exposes the
+// generic report hooks they are built on.
 export declare function useStatsWordAdsStats( ...args: any[] ): any;
 export declare function useStatsWordAdsEarnings( ...args: any[] ): any;
 export type StatsWordAdsResponse = any;
 export type StatsWordAdsEarningsResponse = any;
 
-// Ads earnings history, shared with the dashboard's Earnings report until that report moves out.
+// Ads earnings history, provisional too: shared with the dashboard's Earnings report until that report
+// moves to the Ads package.
 export declare const EarningsHistoryList: AnyComponent;
 export declare function flattenEarningsBreakdown( ...args: any[] ): any;
 
