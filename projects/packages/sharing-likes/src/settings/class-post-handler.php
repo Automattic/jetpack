@@ -239,7 +239,7 @@ final class Post_Handler {
 	}
 
 	/**
-	 * Save the Comment Likes checkbox: Simple's option, or the module everywhere else.
+	 * Save the Comment Likes checkbox: the option on Simple, the module on Atomic and Jetpack sites.
 	 */
 	private static function save_comment_likes(): void {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified by the caller.

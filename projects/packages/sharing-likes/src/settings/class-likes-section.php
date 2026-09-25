@@ -235,8 +235,10 @@ final class Likes_Section {
 	}
 
 	/**
-	 * Comment Likes, in every variant: comments have no Like block to move to,
-	 * and the Comment Likes module runs with the Like buttons off.
+	 * The Comment Likes checkbox, saved as a form section of its own.
+	 *
+	 * Shown whether the Like buttons are on, off, or replaced by the block: Comment
+	 * Likes run without them, and comments have no Like block to move to.
 	 */
 	private static function render_comment_likes_option(): void {
 		ob_start();

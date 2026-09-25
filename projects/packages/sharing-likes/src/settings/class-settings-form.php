@@ -49,7 +49,7 @@ final class Settings_Form {
 	public const SECTION_LIKES = 'likes';
 
 	/**
-	 * Comment Likes, which the Like buttons section shows in every variant.
+	 * Comment Likes, which save on their own whatever the Like buttons are doing.
 	 */
 	public const SECTION_COMMENT_LIKES = 'comment-likes';
 

@@ -137,10 +137,10 @@ final class Environment {
 	}
 
 	/**
-	 * Whether the site owner has Comment Likes switched on.
+	 * Whether Comment Likes are switched on for this site.
 	 *
-	 * Simple keeps the switch in an option, since it has no modules; everywhere
-	 * else the module is the switch, and it never reads that option.
+	 * - On WordPress.com Simple, which has no modules: the `jetpack_comment_likes_enabled` option.
+	 * - On Atomic and self-hosted Jetpack sites: the Comment Likes module, which never reads that option.
 	 */
 	public static function comment_likes_enabled(): bool {
 		return self::is_simple_site() ? Likes_Options::comment_likes_enabled() : self::comment_likes_module_running();
