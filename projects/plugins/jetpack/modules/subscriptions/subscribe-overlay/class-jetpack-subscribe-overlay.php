@@ -168,7 +168,6 @@ HTML;
 						</div>
 						<div class="jetpack-subscribe-overlay__content">
 							<?php block_template_part( self::BLOCK_TEMPLATE_PART_SLUG ); ?>
-							<?php Jetpack_Subscribe_Template_Parts::render_admin_note( __( 'Turn off this pop-up', 'jetpack' ) ); ?>
 						</div>
 					</div>
 			<?php

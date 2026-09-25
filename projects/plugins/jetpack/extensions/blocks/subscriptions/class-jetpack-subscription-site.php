@@ -192,25 +192,6 @@ class Jetpack_Subscription_Site {
 			return;
 		}
 
-		// Added at render time so the admin note never ends up in a saved template.
-		add_filter(
-			'render_block_jetpack/subscriptions',
-			function ( $block_content, $block ) {
-				if ( ( $block['attrs']['appSource'] ?? '' ) !== 'subscribe-block-post-end' ) {
-					return $block_content;
-				}
-
-				require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-jetpack-subscribe-template-parts.php';
-
-				ob_start();
-				\Jetpack_Subscribe_Template_Parts::render_admin_note( __( 'Turn off this section', 'jetpack' ) );
-
-				return $block_content . ob_get_clean();
-			},
-			10,
-			2
-		);
-
 		if ( ! wp_is_block_theme() ) { // Fallback for classic themes.
 			add_filter(
 				'the_content',

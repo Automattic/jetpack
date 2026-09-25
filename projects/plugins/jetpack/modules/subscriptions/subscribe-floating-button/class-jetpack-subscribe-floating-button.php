@@ -138,12 +138,8 @@ class Jetpack_Subscribe_Floating_Button {
 	 * @return void
 	 */
 	public function add_subscribe_floating_button_to_frontend() {
-		if ( $this->should_user_see_floating_button() ) {
-			// The WordPress.com Action Bar sits in the same corner; it enqueues this handle when it renders.
-			$has_action_bar = wp_script_is( 'wpcom-actionbar-placeholder', 'enqueued' );
-			?>
-				<div class="jetpack-subscribe-floating-button<?php echo $has_action_bar ? ' has-action-bar' : ''; ?>">
-					<?php Jetpack_Subscribe_Template_Parts::render_admin_note( __( 'Turn off this button', 'jetpack' ) ); ?>
+		if ( $this->should_user_see_floating_button() ) { ?>
+				<div class="jetpack-subscribe-floating-button">
 					<?php block_template_part( self::BLOCK_TEMPLATE_PART_SLUG ); ?>
 				</div>
 			<?php

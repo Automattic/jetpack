@@ -3,17 +3,4 @@
 	z-index: 50000; /* Same as WP.com Action bar */
 	bottom: 0;
 	right: 0;
-	display: flex;
-	flex-direction: column;
-	align-items: flex-end;
-}
-
-.jetpack-subscribe-floating-button.has-action-bar {
-	bottom: 30px;
-}
-
-.jetpack-subscribe-floating-button .jetpack-subscribe-admin-note {
-	position: relative;
-	top: 15px;
-	margin: 0 20px;
 }

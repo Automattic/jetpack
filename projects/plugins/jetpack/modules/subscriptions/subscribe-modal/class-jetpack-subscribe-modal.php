@@ -116,7 +116,6 @@ class Jetpack_Subscribe_Modal {
 					<div class="jetpack-subscribe-modal">
 						<div class="jetpack-subscribe-modal__modal-content">
 							<?php block_template_part( self::BLOCK_TEMPLATE_PART_SLUG ); ?>
-							<?php Jetpack_Subscribe_Template_Parts::render_admin_note( __( 'Turn off this pop-up', 'jetpack' ) ); ?>
 						</div>
 					</div>
 			<?php
