@@ -14,7 +14,8 @@ import { createEditSession, editSessionReducer, sessionEditsEqual } from './stat
 import { isDirty, sessionToOperations } from './state/serialize';
 import type { EditSession, EditSessionAction } from './state/edit-session';
 import type { HistoryAction } from '../../../client/components/chapters-editor/state/history';
-import type { ApiEditOperation, SaveEditsResponse, VideoEdits } from '../../types/edits';
+import type { SaveVideoCopyVars } from '../../hooks/use-save-video-copy';
+import type { SaveEditsResponse, VideoEdits } from '../../types/edits';
 import type { LibraryItem } from '../../types/library';
 
 const reducer = withHistory< EditSession, EditSessionAction >( editSessionReducer, {
@@ -25,11 +26,11 @@ const reducer = withHistory< EditSession, EditSessionAction >( editSessionReduce
 /**
  * Keep local edits against the revision they were made on until a processing job commits.
  *
- * @param video          - The attachment being edited.
- * @param copyOperations - Recover the draft from a pending copy after navigation.
+ * @param video       - The attachment being edited.
+ * @param copyRequest - Recover the draft and its revision from a pending copy after navigation.
  * @return The edit session, processing state, and save/restore actions.
  */
-export function useEditSession( video: LibraryItem, copyOperations?: ApiEditOperation[] ) {
+export function useEditSession( video: LibraryItem, copyRequest?: SaveVideoCopyVars | null ) {
 	const query = useVideoEdits( video.guid );
 	const saveMutation = useSaveVideoEdits();
 	const restoreMutation = useRestoreOriginal();
@@ -94,12 +95,13 @@ export function useEditSession( video: LibraryItem, copyOperations?: ApiEditOper
 			}
 		} else if ( ! currentBaseline ) {
 			adopt( edits );
-			if ( copyOperations ) {
+			if ( copyRequest ) {
 				dispatch( {
 					type: 'LOAD',
-					operations: copyOperations,
+					operations: copyRequest.operations,
 					durationMs: edits.original_duration_ms,
 				} );
+				setConflict( copyRequest.baseRevision !== edits.revision );
 			}
 		} else if ( edits.revision !== currentBaseline.revision ) {
 			if ( pendingJob || current.dirty ) {
@@ -110,7 +112,7 @@ export function useEditSession( video: LibraryItem, copyOperations?: ApiEditOper
 				adopt( edits );
 			}
 		}
-	}, [ query.edits, pending, adopt, client, copyOperations ] );
+	}, [ query.edits, pending, adopt, client, copyRequest ] );
 
 	const guardedDispatch = useCallback( ( action: HistoryAction< EditSessionAction > ) => {
 		if ( ! stateRef.current.locked && ! stateRef.current.conflict ) {

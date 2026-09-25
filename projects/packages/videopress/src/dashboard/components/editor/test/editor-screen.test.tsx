@@ -944,3 +944,22 @@ it( 'continues to warn if a copy submission has not been confirmed', async () =>
 	window.dispatchEvent( event );
 	expect( event.defaultPrevented ).toBe( true );
 } );
+
+it( 'detects source edits made while a pending copy was away from the editor', async () => {
+	const { user, unmount } = renderEditor();
+	await saveCopy( user );
+	unmount();
+	setEdits( { revision: 3, operations: [ { type: 'trim', start_ms: 1000, end_ms: 9000 } ] } );
+	setCopyStatus( copyResponse( { ...processingJob, status: 'failed' } ) );
+	renderEditor();
+	expect(
+		screen.getByText( 'This video was edited somewhere else since you opened the editor.', {
+			ignore: '.a11y-speak-region, .a11y-speak-region *',
+		} )
+	).toBeInTheDocument();
+	expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
+		'aria-disabled',
+		'true'
+	);
+	expect( screen.getAllByRole( 'slider', { name: /Cut/ } ) ).toHaveLength( 2 );
+} );

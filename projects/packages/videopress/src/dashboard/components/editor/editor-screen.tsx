@@ -39,7 +39,7 @@ type ConfirmAction = 'save' | 'discard' | 'restore' | 'reload';
  */
 export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 	const copySession = useCopySession( video.guid );
-	const editor = useEditSession( video, copySession.request?.operations );
+	const editor = useEditSession( video, copySession.request );
 	const { createSuccessNotice } = useGlobalNotices();
 	const completedCopyRef = useRef< string | null >( null );
 	const transport = usePreviewTransport();
