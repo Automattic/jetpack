@@ -107,4 +107,25 @@ class PHPAutoloaderTest extends TestCase {
 		$this->assertFalse( PHP_Autoloader::load_class( SharedTestClass::class ) );
 		$this->assertFalse( class_exists( SharedTestClass::class, false ) );
 	}
+
+	/**
+	 * Tests that a mapped class file that no longer exists on disk is treated
+	 * as a miss instead of fataling the request.
+	 */
+	public function test_load_class_does_nothing_when_class_file_no_longer_exists() {
+		$loader = $this->getMockBuilder( Version_Loader::class )
+			->disableOriginalConstructor()
+			->onlyMethods( array( 'find_class_file' ) )
+			->getMock();
+
+		global $jetpack_autoloader_loader;
+		$jetpack_autoloader_loader = $loader;
+		$loader->expects( $this->once() )
+			->method( 'find_class_file' )
+			->with( SharedTestClass::class )
+			->willReturn( TEST_PLUGIN_DIR . '/src/RemovedByUpdate.php' );
+
+		$this->assertFalse( PHP_Autoloader::load_class( SharedTestClass::class ) );
+		$this->assertFalse( class_exists( SharedTestClass::class, false ) );
+	}
 }
