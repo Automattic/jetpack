@@ -289,6 +289,22 @@ class Initializer {
 
 		// Register Latest Videos Playlist block.
 		self::register_videopress_latest_videos_playlist_block();
+
+		// Register All Playlists block.
+		self::register_videopress_all_playlists_block();
+	}
+
+	/**
+	 * Register the All Playlists block, which lists the site's Video Playlist
+	 * blocks from the playlist index.
+	 *
+	 * @param string|null $metadata_file Path to the block.json metadata file. Defaults to the
+	 *                                   package build output; tests can point it at a fixture.
+	 *
+	 * @return void
+	 */
+	public static function register_videopress_all_playlists_block( $metadata_file = null ) {
+		All_Playlists_Block::register( $metadata_file );
 	}
 
 	/**
