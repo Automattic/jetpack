@@ -1,4 +1,5 @@
 import { FormToggle } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { Icon, Stack, Text } from '@wordpress/ui';
 import { useCallback, useId } from 'react';
 import { isWanted } from '../lib';
@@ -12,6 +13,8 @@ type FeaturesStepProps = {
 	title: string;
 	description: string;
 	modules: SetupModule[];
+	// True while the site is still being asked what it runs.
+	isLoading?: boolean;
 	// Missing entries mean the module keeps whatever the site already does.
 	wanted: Record< string, boolean >;
 	onChange: ( slug: string, want: boolean ) => void;
@@ -87,6 +90,7 @@ function FeatureRow( {
  * @param props.title       - The step heading.
  * @param props.description - The line under the heading.
  * @param props.modules     - The modules on offer, in order.
+ * @param props.isLoading   - Whether the site's answer is still on its way.
  * @param props.wanted      - What the user has asked for, by slug.
  * @param props.onChange    - Called with a slug and its new value.
  * @return The rendered step.
@@ -96,6 +100,7 @@ export function FeaturesStep( {
 	title,
 	description,
 	modules,
+	isLoading = false,
 	wanted,
 	onChange,
 }: FeaturesStepProps ) {
@@ -109,6 +114,26 @@ export function FeaturesStep( {
 					{ description }
 				</Text>
 			</Stack>
+
+			{ /*
+			 * A heading promising a list needs a list under it. Neither of these is a
+			 * theoretical state: the modules come from a request, and a site whose
+			 * Jetpack has none of the six reports none.
+			 */ }
+			{ isLoading && (
+				<Text variant="body-lg" render={ <p /> } className={ styles[ 'step-description' ] }>
+					{ __( 'Checking what this site already runs…', 'jetpack-my-jetpack' ) }
+				</Text>
+			) }
+
+			{ ! isLoading && modules.length === 0 && (
+				<Text variant="body-lg" render={ <p /> } className={ styles[ 'step-description' ] }>
+					{ __(
+						'There is nothing to switch on here. You can turn features on any time from Jetpack settings.',
+						'jetpack-my-jetpack'
+					) }
+				</Text>
+			) }
 
 			<div className={ styles[ 'feature-rows' ] }>
 				{ modules.map( ( module, index ) => (
