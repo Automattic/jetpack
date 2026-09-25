@@ -39,13 +39,15 @@ function hasEmailActivity( summary: StatsEmailBreakdown[ 'summary' ] | undefined
  *
  * Tabs without a fixed composition stay hidden. Only a standard post can be
  * sent as a newsletter, so the email tabs hide once the post type is known to
- * be anything else (a page, a custom post type). Otherwise they show for every
- * post, so a deep link into one never falls back to Post traffic; once the
- * clicks rate summary answers with no sends, opens or clicks, `isEmailNotSent`
- * is set and an email tab has no layout, leaving the page to say the post was
- * never sent in place of widgets that would all be empty. While the summary
- * loads or after it fails, the email tabs keep their widgets, which surface
- * their own loading and error states.
+ * be anything else (a page, a custom post type). Until the type is known they
+ * show only when the URL already names an email tab, so a deep link never
+ * falls back to Post traffic.
+ *
+ * Once the clicks rate summary answers with no sends, opens or clicks for a
+ * standard post, `isEmailNotSent` is set and an email tab has no layout,
+ * leaving the page to say the post was never sent in place of widgets that
+ * would all be empty. While the summary loads or after it fails, the email
+ * tabs keep their widgets, which surface their own loading and error states.
  *
  * A hidden-tab URL is replaced with the first visible tab, without adding a
  * history entry.
@@ -60,7 +62,7 @@ function hasEmailActivity( summary: StatsEmailBreakdown[ 'summary' ] | undefined
  *                          widgets surface their own error states instead of the
  *                          tab staying permanently blank.
  * @param postType          - The post type slug, once known.
- * @return Visible tabs, the active tab and layout, the active-tab setter, and whether the post was never sent as a newsletter.
+ * @return Visible tabs, the active tab and layout, the active-tab setter, whether the post was never sent as a newsletter, and whether that is still being checked.
  */
 export function usePostDetailTabs(
 	postId: number,
@@ -68,21 +70,32 @@ export function usePostDetailTabs(
 	emailScopeBlocked = false,
 	postType?: string
 ) {
-	// The type is unknown until the summary loads; hiding the tabs meanwhile
-	// would throw away an email deep link.
-	const showEmailTabs = postId > 0 && ( postType === undefined || postType === 'post' );
+	const [ storedTab, setActiveTab ] = useActiveTab();
+
+	// The type is unknown until the summary loads. Meanwhile only a URL that
+	// already names an email tab keeps them, so a deep link survives without
+	// every page flashing tabs it will lose.
+	const showEmailTabs =
+		postId > 0 &&
+		( postType === 'post' || ( postType === undefined && EMAIL_TAB_IDS.includes( storedTab ) ) );
 
 	// Not the opens summary: it nulls every field when sends went unrecorded (legacy sends).
-	const gate = useStatsEmailClicksBreakdown( postId, 'rate', { enabled: showEmailTabs } );
+	// Runs alongside the summary rather than after it, so the not-sent answer is
+	// ready when the type arrives.
+	const gateEnabled = postId > 0 && ( postType === undefined || postType === 'post' );
+	const gate = useStatsEmailClicksBreakdown( postId, 'rate', { enabled: gateEnabled } );
 	const hasEmailStats = hasEmailActivity(
 		( gate.data as StatsEmailBreakdown | undefined )?.summary
 	);
 
 	// Success, not `! isLoading`: that also goes false while the retryer is
 	// paused (background tab, offline blip), which would flash the not-sent state.
-	const isEmailNotSent = gate.isSuccess && ! hasEmailStats;
-
-	const [ storedTab, setActiveTab ] = useActiveTab();
+	// The type is checked too: it arrives on its own request, and a page must
+	// never say it was not sent as a newsletter while its tabs are still up.
+	const isEmailNotSent = postType === 'post' && gate.isSuccess && ! hasEmailStats;
+	// Until it answers, an email tab cannot tell its header and widgets from the
+	// not-sent state, and drawing either first makes the tab jump.
+	const isEmailSendPending = gateEnabled && ! gate.isSuccess && ! gate.isError;
 
 	const tabs = useMemo( () => {
 		const allTabs = getPostDetailTabs();
@@ -116,7 +129,7 @@ export function usePostDetailTabs(
 			return fixed;
 		}
 
-		if ( isEmailNotSent ) {
+		if ( isEmailNotSent || isEmailSendPending ) {
 			return [];
 		}
 
@@ -131,7 +144,14 @@ export function usePostDetailTabs(
 				reportParams: emailReportParams,
 			},
 		} ) );
-	}, [ activeTab, isEmailTab, isEmailNotSent, emailReportParams, emailScopeBlocked ] );
+	}, [
+		activeTab,
+		isEmailTab,
+		isEmailNotSent,
+		isEmailSendPending,
+		emailReportParams,
+		emailScopeBlocked,
+	] );
 
 	return {
 		tabs,
@@ -139,5 +159,6 @@ export function usePostDetailTabs(
 		setActiveTab,
 		layout,
 		isEmailNotSent,
+		isEmailSendPending,
 	};
 }
