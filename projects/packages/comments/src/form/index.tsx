@@ -158,7 +158,13 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 	return (
 		<>
 			{ avatar && (
-				<img className="jetpack-comments__avatar" src={ avatar } alt="" width="40" height="40" />
+				<img
+					className="jetpack-comments__avatar avatar avatar-40 photo"
+					src={ avatar }
+					alt=""
+					width="40"
+					height="40"
+				/>
 			) }
 			<div className="jetpack-comments__body">
 				<CommentField />
