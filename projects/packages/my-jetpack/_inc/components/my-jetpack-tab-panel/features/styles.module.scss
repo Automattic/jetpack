@@ -213,10 +213,6 @@ $band-ground: #f8f8f8;
 	margin: 0;
 }
 
-.feature-item__settings {
-	align-self: flex-start;
-}
-
 .feature-item__chevron {
 	align-self: center;
 	color: var(--wpds-color-foreground-content-neutral);
@@ -232,6 +228,7 @@ $band-ground: #f8f8f8;
 	align-self: center;
 	display: flex;
 	flex-shrink: 0;
+	gap: var(--wpds-dimension-gap-md);
 	justify-content: flex-end;
 	min-inline-size: 2.25rem;
 	// The padding is the point: it raises a margin around the control above the

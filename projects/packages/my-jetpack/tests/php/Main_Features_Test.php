@@ -60,29 +60,24 @@ class Main_Features_Test extends TestCase {
 
 	/**
 	 * A module listed twice, or one a main feature already switches, would never show where it
-	 * is listed. A plugin-delivered feature switches its plugin, so it covers no module.
+	 * is listed. A feature's module is its own, or else the one its product is named after.
 	 */
 	public function test_module_groups_list_each_module_once_and_skip_main_features() {
-		// The Jetpack-delivered products whose module is named differently. That map lives in
-		// the UI's `PRODUCT_MODULES`, which this package's PHP cannot read.
-		$product_modules = array( 'publicize', 'contact-form', 'ai' );
+		// The modules a product owns under a different name. That map lives in the UI's
+		// `PRODUCT_MODULES`, which this package's PHP cannot read.
+		$product_modules = array( 'vaultpress', 'publicize', 'contact-form', 'ai' );
 
-		$definitions = array_filter(
-			Main_Features::get_feature_definitions(),
-			fn( $definition ) => ! empty( $definition['delivery']['jetpack'] )
-		);
-		$grouped     = array_merge( ...array_column( Main_Features::get_module_groups(), 'modules' ) );
-		$covered     = array_filter(
-			array_merge(
-				$product_modules,
-				array_column( $definitions, 'module' ),
-				// A product whose module is named after it covers that slug too.
-				array_column( $definitions, 'product' )
+		$grouped = array_merge( ...array_column( Main_Features::get_module_groups(), 'modules' ) );
+		$covered = array_merge(
+			$product_modules,
+			array_map(
+				fn( $definition ) => empty( $definition['module'] ) ? ( $definition['product'] ?? '' ) : $definition['module'],
+				Main_Features::get_feature_definitions()
 			)
 		);
 
 		$this->assertSame( array_unique( $grouped ), $grouped );
-		$this->assertSame( array(), array_values( array_intersect( $grouped, $covered ) ) );
+		$this->assertSame( array(), array_values( array_intersect( $grouped, array_filter( $covered ) ) ) );
 	}
 
 	/**
@@ -106,7 +101,7 @@ class Main_Features_Test extends TestCase {
 		);
 		sort( $essential );
 
-		$this->assertSame( array( 'boost', 'jetpack-forms', 'protect', 'stats' ), $essential );
+		$this->assertSame( array( 'boost', 'jetpack-forms', 'protect-dashboard', 'stats' ), $essential );
 	}
 
 	/**
@@ -150,16 +145,16 @@ class Main_Features_Test extends TestCase {
 
 		$this->assertSame(
 			array(
-				'anti-spam'  => 'https://wordpress.org/plugins/akismet/',
-				'backup'     => 'https://wordpress.org/plugins/jetpack-backup/',
-				'blaze'      => 'https://wordpress.org/plugins/blaze-ads/',
-				'boost'      => 'https://wordpress.org/plugins/jetpack-boost/',
-				'crm'        => 'https://wordpress.org/plugins/zero-bs-crm/',
-				'protect'    => 'https://wordpress.org/plugins/jetpack-protect/',
-				'search'     => 'https://wordpress.org/plugins/jetpack-search/',
-				'social'     => 'https://wordpress.org/plugins/jetpack-social/',
-				'stats'      => 'https://wordpress.org/plugins/jetpack-stats/',
-				'videopress' => 'https://wordpress.org/plugins/jetpack-videopress/',
+				'anti-spam'         => 'https://wordpress.org/plugins/akismet/',
+				'backup'            => 'https://wordpress.org/plugins/jetpack-backup/',
+				'blaze'             => 'https://wordpress.org/plugins/blaze-ads/',
+				'boost'             => 'https://wordpress.org/plugins/jetpack-boost/',
+				'crm'               => 'https://wordpress.org/plugins/zero-bs-crm/',
+				'protect-dashboard' => 'https://wordpress.org/plugins/jetpack-protect/',
+				'search'            => 'https://wordpress.org/plugins/jetpack-search/',
+				'social'            => 'https://wordpress.org/plugins/jetpack-social/',
+				'stats'             => 'https://wordpress.org/plugins/jetpack-stats/',
+				'videopress'        => 'https://wordpress.org/plugins/jetpack-videopress/',
 			),
 			$urls
 		);

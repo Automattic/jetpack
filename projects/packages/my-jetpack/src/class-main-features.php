@@ -54,7 +54,7 @@ class Main_Features {
 		}
 
 		$definitions[ $locale ] = array(
-			'activity-log'  => array(
+			'activity-log'      => array(
 				'info_url'         => 'https://jetpack.com/security/activity-log/',
 				'docs_url'         => 'https://jetpack.com/support/activity-log/',
 				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/activity-log.png',
@@ -81,7 +81,7 @@ class Main_Features {
 				// The WordPress.com site feature the Activity Log package gates its paid history on.
 				'paid_feature'     => 'full-activity-log',
 			),
-			'anti-spam'     => array(
+			'anti-spam'         => array(
 				'info_url'         => 'https://akismet.com/',
 				'docs_url'         => 'https://akismet.com/support/',
 				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/anti-spam.png',
@@ -111,7 +111,7 @@ class Main_Features {
 				'plans'            => array( 'security', 'complete' ),
 				'paid_product'     => __( 'Jetpack Akismet Anti-spam', 'jetpack-my-jetpack' ),
 			),
-			'backup'        => array(
+			'backup'            => array(
 				'info_url'         => 'https://jetpack.com/backup/',
 				'docs_url'         => 'https://jetpack.com/support/backup/',
 				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/backup.png',
@@ -136,7 +136,7 @@ class Main_Features {
 				'plans'            => array( 'security', 'complete' ),
 				'paid_product'     => __( 'Jetpack VaultPress Backup', 'jetpack-my-jetpack' ),
 			),
-			'blaze'         => array(
+			'blaze'             => array(
 				'info_url'         => 'https://jetpack.com/blaze/',
 				'docs_url'         => 'https://jetpack.com/support/blaze/',
 				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/blaze.png',
@@ -154,7 +154,7 @@ class Main_Features {
 					'free'        => false,
 				),
 			),
-			'boost'         => array(
+			'boost'             => array(
 				'info_url'         => 'https://jetpack.com/boost/',
 				'docs_url'         => 'https://jetpack.com/support/jetpack-boost/',
 				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/boost.png',
@@ -185,7 +185,7 @@ class Main_Features {
 				'plans'            => array( 'complete' ),
 				'paid_product'     => __( 'Jetpack Boost', 'jetpack-my-jetpack' ),
 			),
-			'crm'           => array(
+			'crm'               => array(
 				'info_url'         => 'https://jetpackcrm.com/',
 				'docs_url'         => 'https://kb.jetpackcrm.com/article-categories/getting-started/',
 				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/crm.png',
@@ -215,7 +215,7 @@ class Main_Features {
 				'plans'            => array( 'complete' ),
 				'paid_product'     => __( 'Jetpack CRM Entrepreneur', 'jetpack-my-jetpack' ),
 			),
-			'jetpack-ai'    => array(
+			'jetpack-ai'        => array(
 				'info_url'         => 'https://jetpack.com/ai/',
 				'docs_url'         => 'https://jetpack.com/support/create-better-content-with-jetpack-ai/',
 				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/jetpack-ai-1.png',
@@ -244,7 +244,7 @@ class Main_Features {
 				'plans'            => array( 'complete' ),
 				'paid_product'     => __( 'Jetpack AI Assistant', 'jetpack-my-jetpack' ),
 			),
-			'jetpack-forms' => array(
+			'jetpack-forms'     => array(
 				'info_url'         => 'https://jetpack.com/forms/',
 				'docs_url'         => 'https://jetpack.com/support/jetpack-blocks/contact-form/',
 				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/jetpack-forms.png',
@@ -270,7 +270,7 @@ class Main_Features {
 				),
 				'plans'            => array( 'complete' ),
 			),
-			'newsletter'    => array(
+			'newsletter'        => array(
 				'info_url'         => 'https://jetpack.com/newsletter/',
 				'docs_url'         => 'https://jetpack.com/support/newsletter/',
 				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/newsletter.png',
@@ -296,7 +296,7 @@ class Main_Features {
 				),
 				'plans'            => array( 'growth', 'complete' ),
 			),
-			'podcast'       => array(
+			'podcast'           => array(
 				'info_url'         => 'https://jetpack.com/podcast/',
 				'docs_url'         => 'https://jetpack.com/support/jetpack-podcast/',
 				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/podcast.png',
@@ -323,7 +323,7 @@ class Main_Features {
 				),
 				'plans'            => array( 'growth', 'complete' ),
 			),
-			'protect'       => array(
+			'protect-dashboard' => array(
 				'info_url'         => 'https://jetpack.com/protect/',
 				'docs_url'         => 'https://jetpack.com/support/jetpack-protect/',
 				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/protect.png',
@@ -332,6 +332,8 @@ class Main_Features {
 				'long_description' => __( 'Your WordPress version, plugins and themes are checked daily against a database of known vulnerabilities, with results in your dashboard. Login attacks are blocked automatically, and you can block specific IP addresses yourself.', 'jetpack-my-jetpack' ),
 				'icon'             => 'shield',
 				'product'          => 'protect',
+				// Not `protect`: that module is Brute Force Protection, which has its own row.
+				'module'           => 'protect-dashboard',
 				'essential'        => true,
 				'interstitial'     => '/add-protect',
 				'free_highlights'  => array(
@@ -354,7 +356,7 @@ class Main_Features {
 				'plans'            => array( 'security', 'complete' ),
 				'paid_product'     => __( 'Jetpack Scan', 'jetpack-my-jetpack' ),
 			),
-			'search'        => array(
+			'search'            => array(
 				'info_url'         => 'https://jetpack.com/search/',
 				'docs_url'         => 'https://jetpack.com/support/search/',
 				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/search.png',
@@ -383,7 +385,7 @@ class Main_Features {
 				'plans'            => array( 'complete' ),
 				'paid_product'     => __( 'Jetpack Search', 'jetpack-my-jetpack' ),
 			),
-			'social'        => array(
+			'social'            => array(
 				'info_url'         => 'https://jetpack.com/social/',
 				'docs_url'         => 'https://jetpack.com/support/jetpack-social/',
 				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/social.png',
@@ -412,7 +414,7 @@ class Main_Features {
 				'plans'            => array( 'growth', 'complete' ),
 				'paid_product'     => __( 'Jetpack Social', 'jetpack-my-jetpack' ),
 			),
-			'stats'         => array(
+			'stats'             => array(
 				'info_url'         => 'https://jetpack.com/stats/',
 				'docs_url'         => 'https://jetpack.com/support/jetpack-stats/',
 				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/stats.png',
@@ -442,7 +444,7 @@ class Main_Features {
 				'plans'            => array( 'growth', 'complete' ),
 				'paid_product'     => __( 'Jetpack Stats', 'jetpack-my-jetpack' ),
 			),
-			'videopress'    => array(
+			'videopress'        => array(
 				'info_url'         => 'https://jetpack.com/videopress/',
 				'docs_url'         => 'https://jetpack.com/support/jetpack-videopress/',
 				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/videopress-3.png',
@@ -800,8 +802,7 @@ class Main_Features {
 	 * Headings for the modules the feature list does not cover.
 	 *
 	 * Grouped by the job a site owner is doing, not by Jetpack's module tags, which describe
-	 * mechanism (the Image CDN is tagged Appearance). Anything unlisted falls into Other. Naming
-	 * the module of a plugin-delivered feature here gives the module its own row.
+	 * mechanism (the Image CDN is tagged Appearance). Anything unlisted falls into Other.
 	 *
 	 * @return array Groups, each with a label and its module slugs. The UI sorts both by name.
 	 */

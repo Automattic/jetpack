@@ -82,7 +82,7 @@ describe( 'MoreFeatures', () => {
 	it( 'links to an active module\u2019s settings, and to nothing while it is off or switching', () => {
 		setSiteEditor( { isBlockTheme: false } );
 		const configured = { ...sharing, configure_url: 'https://example.com/settings' };
-		const link = () => screen.queryByRole( 'link', { name: 'Sharing Buttons settings' } );
+		const link = () => screen.queryByRole( 'link', { name: 'Configure Sharing Buttons' } );
 
 		const { rerender } = renderSection( { ...configured, activated: true } );
 		expect( link() ).toHaveAttribute( 'href', 'https://example.com/settings' );
@@ -106,7 +106,7 @@ describe( 'MoreFeatures', () => {
 		expect(
 			screen.getByText( 'Legacy sharing buttons cannot be customized on block themes.' )
 		).toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: /settings/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /^Configure / } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'leaves the settings link to the details of a card that opens them', () => {
@@ -116,7 +116,7 @@ describe( 'MoreFeatures', () => {
 		render( <FeatureItem state={ getModuleFeatureState( active, {} ) } onOpen={ jest.fn() } /> );
 
 		expect( screen.getByText( sharing.name ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: /settings/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /^Configure / } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'drops a settings link that would lead only to the module\u2019s own switch', () => {

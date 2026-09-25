@@ -87,16 +87,9 @@ export function groupMoreFeatures(
 	const groupOf = new Map(
 		groups.flatMap( ( group, index ) => group.modules.map( slug => [ slug, index ] as const ) )
 	);
-	// A plugin-delivered card switches its plugin, not the module it shares a slug with, so a
-	// module a group names still gets its own row: Protect's card vs. Brute Force Protection.
 	const covered = new Set(
-		features.flatMap( feature => {
-			const slug = getFeatureModuleSlug( feature, productModules );
-			return feature.in_jetpack || ! groupOf.has( slug ) ? [ slug ] : [];
-		} )
+		features.map( feature => getFeatureModuleSlug( feature, productModules ) )
 	);
-	// Selection, ids and keys all run on the slug, so a row sharing one with a card needs its own.
-	const featureSlugs = new Set( features.map( feature => feature.slug ) );
 	const grouped = groups.map( group => ( { label: group.label, states: [] as FeatureState[] } ) );
 	const other: FeatureState[] = [];
 
@@ -106,13 +99,10 @@ export function groupMoreFeatures(
 			continue;
 		}
 
-		const state = getModuleFeatureState( $module, requested );
-		if ( featureSlugs.has( $module.module ) ) {
-			state.feature.slug = moduleSwitchKey( $module.module );
-		}
-
 		const index = groupOf.get( $module.module );
-		( index === undefined ? other : grouped[ index ].states ).push( state );
+		( index === undefined ? other : grouped[ index ].states ).push(
+			getModuleFeatureState( $module, requested )
+		);
 	}
 	// Sorted on the translated label, so the order holds in every locale.
 	grouped.sort( ( a, b ) => a.label.localeCompare( b.label ) );
