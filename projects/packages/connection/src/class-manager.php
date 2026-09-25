@@ -1468,14 +1468,15 @@ class Manager {
 	 * them, and whether the user connecting is them — so the lock, the binding and the master slot
 	 * are all decided together rather than from two calls that could disagree.
 	 *
-	 * Fails closed without forgetting. Unreachable, refused and unimplemented all unlock rather
-	 * than trust the anchor; the identity survives, so a later reconcile restores the lock without
-	 * asking the owner to confirm again.
+	 * Fails closed. Unreachable, refused and unimplemented all drop the anchor rather than trust
+	 * it, so nothing is left for another user's connection to confirm back into place. Recovery
+	 * then needs the owner, because the answer names them to nobody else. A refused delete leaves
+	 * the anchor standing and the gates satisfied; that write is the only mechanism there is.
 	 *
 	 * @internal Hooked on `jetpack_user_authorized`.
 	 * @since $$next-version$$
 	 *
-	 * @return bool Whether the anchor is verified and locked.
+	 * @return bool Whether WordPress.com confirmed the anchored identity.
 	 */
 	public function reconcile_protected_owner() {
 		$user_id = get_current_user_id();
