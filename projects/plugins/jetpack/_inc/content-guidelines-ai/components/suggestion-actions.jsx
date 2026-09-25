@@ -33,9 +33,10 @@ export default function SuggestionActions( { slug } ) {
 			const textarea = form.querySelector( 'textarea' );
 			if ( textarea ) {
 				setOriginal( textarea.value || '' );
-				const box = getTextareaBox( textarea );
-				if ( box.offsetHeight > 0 ) {
-					setTextareaHeight( box.offsetHeight );
+				// getBoundingClientRect keeps fractional heights that offsetHeight rounds.
+				const boxHeight = getTextareaBox( textarea ).getBoundingClientRect().height;
+				if ( boxHeight > 0 ) {
+					setTextareaHeight( boxHeight );
 				} else {
 					// Fallback when textarea is hidden (e.g. collapsed accordion).
 					// Compute height from rows attribute to match the textarea.
