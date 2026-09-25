@@ -1,15 +1,16 @@
 <?php
 /**
- * Tests for the Ads tab registered on the Premium Analytics dashboard by plan feature.
+ * Tests for the Ads registrants on the WordPress.com platform.
  *
  * @package automattic/jetpack-mu-wpcom
  */
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
-use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section;
 use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
+use Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry;
+use Automattic\Jetpack\WordAds\Analytics_Dashboard;
 use Brain\Monkey\Functions;
-use function Automattic\Jetpack\PremiumAnalytics\get_ads_section_default_layout;
+use PHPUnit\Framework\Attributes\CoversFunction;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
@@ -19,105 +20,82 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'vendor/automattic/jetpack-premium-anal
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'vendor/automattic/jetpack-premium-analytics/src/class-enablement-setting.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'vendor/automattic/jetpack-premium-analytics/src/dashboard-sections.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'vendor/automattic/jetpack-premium-analytics/src/default-dashboard-sections.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'vendor/automattic/jetpack-premium-analytics/src/widget-types.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'vendor/automattic/jetpack-wordads-analytics/src/class-analytics-dashboard.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/premium-analytics/wordads-section.php';
 
 /**
- * Tests for the WordAds section registrant.
+ * The plan feature decides; the WordAds package registers.
+ *
+ * @covers ::wpcom_premium_analytics_register_wordads_section
+ * @covers ::wpcom_premium_analytics_register_wordads_widget_types
  */
+#[CoversFunction( 'wpcom_premium_analytics_register_wordads_section' )]
+#[CoversFunction( 'wpcom_premium_analytics_register_wordads_widget_types' )]
 class Wordads_Section_Test extends \WorDBless\BaseTestCase {
 
 	/**
-	 * Reset the shared section registry between tests.
+	 * Reset the dashboard registries between tests.
 	 */
 	public function tear_down() {
-
-		$instance = new ReflectionProperty( Dashboard_Section_Registry::class, 'instance' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$instance->setAccessible( true );
+		foreach ( array( Dashboard_Section_Registry::class, Widget_Type_Registry::class ) as $class ) {
+			$instance = new ReflectionProperty( $class, 'instance' );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$instance->setAccessible( true );
+			}
+			$instance->setValue( null, null );
 		}
-		$instance->setValue( null, null );
 
 		wp_set_current_user( 0 );
 
 		parent::tear_down();
 	}
 
-	/**
-	 * The registrant runs after the package's own tabs, so an existing Ads tab is found first.
-	 */
-	public function test_registrant_hooks_after_the_package_registrant() {
-		$this->assertSame(
-			20,
-			has_action( 'jetpack_premium_analytics_register_dashboard_sections', 'wpcom_premium_analytics_register_wordads_section' )
-		);
+	public function test_registrants_hook_after_the_package_registrants() {
+		$this->assertSame( 20, has_action( 'jetpack_premium_analytics_register_dashboard_sections', 'wpcom_premium_analytics_register_wordads_section' ) );
+		$this->assertSame( 20, has_action( 'jetpack_premium_analytics_register_widget_types', 'wpcom_premium_analytics_register_wordads_widget_types' ) );
 	}
 
-	/**
-	 * A plan carrying WordAds gets the tab, keyed by the `ads` slug the client expects.
-	 */
-	public function test_registers_the_ads_tab_when_the_plan_includes_wordads() {
+	public function test_registers_the_ads_section_when_the_plan_includes_wordads() {
 		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'wordads_admin',
-				'user_pass'  => 'password',
-				'role'       => 'administrator',
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'wordads_admin',
+					'user_pass'  => 'password',
+					'role'       => 'administrator',
+				)
 			)
 		);
-		wp_set_current_user( $user_id );
 
-		$section = get_registered_dashboard_section( DASHBOARD_NAME, 'wordads/ads' );
+		$section = get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID );
 
-		$this->assertInstanceOf( Dashboard_Section::class, $section );
+		$this->assertNotNull( $section );
 		$this->assertSame( 'ads', $section->slug );
-		$this->assertSame( 'Ads', $section->label );
-		$this->assertSame( 'Ads performance', $section->title );
-		$this->assertSame( 50, $section->order );
 		$this->assertTrue( $section->is_available() );
 		$this->assertSame(
-			array_column( get_ads_section_default_layout(), 'uuid' ),
-			array_column( $section->get_default_layout(), 'uuid' )
+			array( 'wordads/chart-tabs', 'wordads/highlights', 'wordads/earnings-history' ),
+			array_column( $section->get_default_layout(), 'type' )
 		);
 	}
 
-	/**
-	 * Without the plan feature there is nothing to report on, so no tab.
-	 */
-	public function test_registers_nothing_without_the_plan_feature() {
+	public function test_skips_without_the_plan_feature() {
 		Functions\when( 'wpcom_site_has_feature' )->justReturn( false );
 
-		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, 'wordads/ads' ) );
+		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID ) );
 	}
 
-	/**
-	 * Another owner of the `ads` slug, such as the WordAds module on Atomic, keeps its tab.
-	 */
 	public function test_skips_when_the_ads_slug_is_taken() {
 		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
-		register_dashboard_section( DASHBOARD_NAME, 'other/ads', array( 'label' => 'Ads' ) );
+		add_action(
+			'jetpack_premium_analytics_register_dashboard_sections',
+			static function () {
+				register_dashboard_section( DASHBOARD_NAME, 'other/ads', array( 'label' => 'Other Ads' ) );
+			},
+			15
+		);
 
-		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, 'wordads/ads' ) );
-		$this->assertInstanceOf( Dashboard_Section::class, get_registered_dashboard_section( DASHBOARD_NAME, 'other/ads' ) );
-	}
-
-	/**
-	 * A dashboard package without the slug lookup is read through its full section list.
-	 */
-	public function test_slug_lookup_falls_back_to_the_section_list() {
-		$registry = new class() {
-			/**
-			 * Sections of any dashboard.
-			 *
-			 * @param string $dashboard_name Dashboard identifier.
-			 * @return object[]
-			 */
-			public function get_all_registered( $dashboard_name ) {
-				return 'ads_dashboard' === $dashboard_name ? array( (object) array( 'slug' => 'ads' ) ) : array();
-			}
-		};
-
-		$this->assertTrue( wpcom_premium_analytics_dashboard_has_section_slug( $registry, 'ads_dashboard', 'ads' ) );
-		$this->assertFalse( wpcom_premium_analytics_dashboard_has_section_slug( $registry, 'ads_dashboard', 'traffic' ) );
-		$this->assertFalse( wpcom_premium_analytics_dashboard_has_section_slug( $registry, 'other_dashboard', 'ads' ) );
+		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID ) );
+		$this->assertNotNull( get_registered_dashboard_section( DASHBOARD_NAME, 'other/ads' ) );
 	}
 }

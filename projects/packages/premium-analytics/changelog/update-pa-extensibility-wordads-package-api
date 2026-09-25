@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Dashboard: register the public widget API as the `@automattic/jetpack-premium-analytics-api` script module.
