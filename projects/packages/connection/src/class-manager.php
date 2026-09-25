@@ -1486,15 +1486,21 @@ class Manager {
 		}
 
 		$anchor = Protected_Owner::get();
-		$record = $this->query_protected_owner_record( (int) ( $anchor['wpcom_user_id'] ?? 0 ) );
 
-		// Unreachable, refused, or answered by a WordPress.com that does not implement the method
-		// are all "cannot confirm", and none of them is a reason to keep trusting the anchor. It is
-		// dropped rather than suspended: an anchor nobody confirmed is not state to leave lying
-		// around for somebody else's connection to complete.
+		// Nothing anchored is nothing to reconcile, and a site with no protected owner must behave
+		// exactly as it did before this existed — including making no request. Such a site reaches
+		// an owner through the claim instead, which is where confirming belongs.
+		if ( ! $anchor ) {
+			return false;
+		}
+
+		$record = $this->query_protected_owner_record( (int) $anchor['wpcom_user_id'] );
+
+		// Silence is not an answer. Unreachable, refused and unimplemented leave the anchor exactly
+		// as it was: it was confirmed once, and a request that never arrived is no evidence against
+		// it. Dropping a good lock because WordPress.com had a bad minute costs a merchant their
+		// payouts until the owner happens to connect again.
 		if ( ! is_array( $record ) || ! isset( $record['has_owner'] ) ) {
-			Protected_Owner::clear();
-
 			return false;
 		}
 
@@ -1548,8 +1554,6 @@ class Manager {
 		// An owner without an identity is a malformed answer, and trusting it would lock the site
 		// to nobody.
 		if ( ! $wpcom_user_id ) {
-			Protected_Owner::clear();
-
 			return false;
 		}
 

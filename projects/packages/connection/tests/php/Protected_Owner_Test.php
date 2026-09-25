@@ -1220,34 +1220,34 @@ class Protected_Owner_Test extends TestCase {
 	// ── cannot confirm ───────────────────────────────────────────────────
 
 	/**
-	 * An unreachable WordPress.com unlocks rather than trusting what is stored. A site that cannot
-	 * confirm who owns it must not be running anything that pays out.
+	 * An unreachable WordPress.com changes nothing: the anchor was confirmed once, and a request
+	 * that never arrived is no evidence against it.
 	 */
-	public function test_an_unreachable_wpcom_unlocks_the_anchor() {
+	public function test_an_unreachable_wpcom_leaves_the_anchor_alone() {
 		$this->anchor();
 		$this->act_as_administrator();
 
 		$this->assertFalse( $this->reconciling_manager( null )->reconcile_protected_owner() );
-		$this->assertFalse( Protected_Owner::is_locked() );
+		$this->assertTrue( Protected_Owner::is_locked() );
 	}
 
 	/**
-	 * An anchor nobody could confirm is dropped rather than suspended, so no state is left for a
-	 * later connection to complete.
+	 * Nothing about the record moves, so the owner is not asked to confirm again over a blip.
 	 */
-	public function test_failing_closed_drops_the_record() {
+	public function test_silence_keeps_the_record_intact() {
 		$this->anchor();
 		$this->act_as_administrator();
+		$before = Protected_Owner::get();
 
 		$this->reconciling_manager( null )->reconcile_protected_owner();
 
-		$this->assertNull( Protected_Owner::get() );
+		$this->assertSame( $before, Protected_Owner::get() );
 	}
 
 	/**
-	 * Recovering after a failure needs the owner, because the answer names them to nobody else.
+	 * A reachable WordPress.com confirms the anchor an earlier silence left alone.
 	 */
-	public function test_the_owner_re_anchors_a_site_that_failed_to_confirm() {
+	public function test_a_confirming_answer_after_silence_keeps_the_lock() {
 		$this->anchor();
 		$this->act_as_administrator();
 		$this->reconciling_manager( null )->reconcile_protected_owner();
@@ -1306,18 +1306,6 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
-	 * A bystander cannot: with nothing anchored there is no identity to confirm.
-	 */
-	public function test_a_bystander_cannot_re_anchor_a_site_that_failed_to_confirm() {
-		$this->anchor();
-		$this->act_as_administrator();
-		$this->reconciling_manager( null )->reconcile_protected_owner();
-
-		$this->assertFalse( $this->reconciling_manager( $this->bystander_answer( false ) )->reconcile_protected_owner() );
-		$this->assertNull( Protected_Owner::get() );
-	}
-
-	/**
 	 * Nobody is connecting, so there is nothing to reconcile and nothing is asked.
 	 */
 	public function test_reconciling_without_a_current_user_asks_nothing() {
@@ -1356,24 +1344,27 @@ class Protected_Owner_Test extends TestCase {
 	// ── the owner connects ───────────────────────────────────────────────
 
 	/**
-	 * The owner of record connecting to a site that never recorded the claim anchors it, without
-	 * asking them to confirm all over again.
+	 * A site with nothing anchored has nothing to reconcile and asks nothing, which is what keeps a
+	 * site with no protected owner behaving exactly as it did before. Such a site reaches an owner
+	 * through the claim, where confirming belongs.
 	 */
-	public function test_the_owner_connecting_anchors_a_site_with_no_record() {
+	public function test_an_unanchored_site_asks_nothing() {
 		$this->act_as_administrator();
 
-		$this->assertTrue( $this->reconciling_manager( $this->owner_answer() )->reconcile_protected_owner() );
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'query_protected_owner_record' ) )
+			->getMock();
+		$manager->expects( $this->never() )->method( 'query_protected_owner_record' );
 
-		$anchor = Protected_Owner::get();
-		$this->assertIsArray( $anchor );
-		$this->assertSame( self::ANCHORED_WPCOM_ID, (int) $anchor['wpcom_user_id'] );
-		$this->assertTrue( Protected_Owner::is_locked() );
+		$this->assertFalse( $manager->reconcile_protected_owner() );
+		$this->assertNull( Protected_Owner::get() );
 	}
 
 	/**
 	 * Connecting clears the binding, so the answer that confirmed the owner writes it back.
 	 */
 	public function test_the_owner_connecting_writes_their_binding_back() {
+		$this->anchor();
 		$this->act_as_administrator();
 		Utils::delete_wpcom_user_id( $this->owner_id );
 
@@ -1429,12 +1420,12 @@ class Protected_Owner_Test extends TestCase {
 	 * An owner without an identity is a malformed answer, and trusting it would lock the site to
 	 * nobody at all.
 	 */
-	public function test_an_owner_answer_without_an_identity_unlocks() {
+	public function test_an_owner_answer_without_an_identity_changes_nothing() {
 		$this->anchor();
 		$this->act_as_administrator();
 
 		$this->assertFalse( $this->reconciling_manager( $this->owner_answer( 0 ) )->reconcile_protected_owner() );
-		$this->assertFalse( Protected_Owner::is_locked() );
+		$this->assertTrue( Protected_Owner::is_locked() );
 	}
 
 	// ── somebody else connects ───────────────────────────────────────────
@@ -1444,7 +1435,7 @@ class Protected_Owner_Test extends TestCase {
 	 * confirms the anchored identity rather than naming its owner, so the answer does not depend on
 	 * who is asking — otherwise a contributor linking their account would unlock the site.
 	 */
-	public function test_a_secondary_user_connecting_does_not_unlock_the_anchor() {
+	public function test_a_secondary_user_connecting_does_not_disturb_the_anchor() {
 		$agency = $this->candidate( 'agency' );
 		$this->anchor();
 		Jetpack_Options::update_option( 'master_user', $agency );
@@ -1456,15 +1447,16 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
-	 * A record naming somebody else outranks the local anchor.
+	 * A record naming somebody else outranks the local anchor, which is dropped: WordPress.com
+	 * answered, and the answer says this site is anchored to the wrong account.
 	 */
-	public function test_a_record_naming_another_account_unlocks_the_anchor() {
+	public function test_a_record_naming_another_account_clears_the_anchor() {
 		$this->anchor();
 		$this->act_as_administrator();
 
 		$this->reconciling_manager( $this->bystander_answer( false ) )->reconcile_protected_owner();
 
-		$this->assertFalse( Protected_Owner::is_locked() );
+		$this->assertNull( Protected_Owner::get() );
 	}
 
 	/**
