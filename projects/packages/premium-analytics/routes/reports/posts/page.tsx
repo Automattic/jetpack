@@ -211,7 +211,7 @@ function PostsReport(): JSX.Element {
 				onRetry={ retry }
 			/>
 		);
-	} else if ( ! activeRecords.isFetching && activeRecords.rows.length === 0 ) {
+	} else if ( ! activeRecords.isLoading && activeRecords.rows.length === 0 ) {
 		tableReplacement = <ReportEmptyState />;
 	}
 

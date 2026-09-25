@@ -279,8 +279,10 @@ describe( 'VideosReportPage', () => {
 		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
 	} );
 
-	it( 'keeps the loading table while a changed range is fetching over no rows', () => {
-		useRecordsMock.mockReturnValue( buildRecords( { rows: [], isFetching: true } ) );
+	it( 'keeps the loading table while a changed range is loading over no rows', () => {
+		useRecordsMock.mockReturnValue(
+			buildRecords( { rows: [], isLoading: true, isFetching: true } )
+		);
 
 		render( <VideosReportPage /> );
 
@@ -288,6 +290,15 @@ describe( 'VideosReportPage', () => {
 		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
 			expect.objectContaining( { data: [], isLoading: true } )
 		);
+	} );
+
+	it( 'keeps the empty state while the same empty range revalidates', () => {
+		useRecordsMock.mockReturnValue( buildRecords( { rows: [], isFetching: true } ) );
+
+		render( <VideosReportPage /> );
+
+		expect( screen.getByTestId( 'report-empty-state' ) ).toBeInTheDocument();
+		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
 	} );
 
 	it( 'renders the error state instead of the records table', () => {

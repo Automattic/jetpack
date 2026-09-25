@@ -3,6 +3,7 @@
  */
 import {
 	hasComparisonEnabled,
+	isAwaitingData,
 	useStatsSearchTerms,
 	type ReportParams,
 } from '@jetpack-premium-analytics/data';
@@ -40,7 +41,8 @@ export function useSearchTermsReportRecords( reportParams: ReportParams ) {
 		! report.comparison.isPlaceholderData &&
 		! report.comparison.isError;
 	const isLoading =
-		report.primary.isLoading || ( comparisonEnabled && report.comparison.isLoading );
+		isAwaitingData( report.primary ) ||
+		( comparisonEnabled && isAwaitingData( report.comparison ) );
 	const isFetching =
 		report.primary.isFetching || ( comparisonEnabled && report.comparison.isFetching );
 

@@ -334,8 +334,8 @@ describe( 'PostsReportPage', () => {
 		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
 	} );
 
-	it( 'keeps the loading table while the active report refetches over no posts', () => {
-		const records = buildRecords( { isFetching: true } );
+	it( 'keeps the loading table while a changed range is loading over no posts', () => {
+		const records = buildRecords( { isLoading: true, isFetching: true } );
 		records.posts.rows = [];
 		useRecordsMock.mockReturnValue( records );
 
@@ -343,6 +343,17 @@ describe( 'PostsReportPage', () => {
 
 		expect( reportEmptyStateMock ).not.toHaveBeenCalled();
 		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ].isLoading ).toBe( true );
+	} );
+
+	it( 'keeps the empty state while the same empty range revalidates', () => {
+		const records = buildRecords( { isFetching: true } );
+		records.posts.rows = [];
+		useRecordsMock.mockReturnValue( records );
+
+		render( <PostsReportPage /> );
+
+		expect( screen.getByTestId( 'report-empty-state' ) ).toBeInTheDocument();
+		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
 	} );
 
 	it( 'shows the empty state for the Archives tab from its own rows', () => {

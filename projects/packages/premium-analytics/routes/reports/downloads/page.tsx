@@ -105,7 +105,7 @@ function DownloadsReport(): JSX.Element {
 				onRetry={ retry }
 			/>
 		);
-	} else if ( ! isRecordsLoading && records.rows.length === 0 ) {
+	} else if ( ! records.isLoading && records.rows.length === 0 ) {
 		tableReplacement = <ReportEmptyState />;
 	}
 
