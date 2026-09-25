@@ -180,14 +180,12 @@ $option-cascade-base: 0.12s;
 $option-cascade-step: 0.05s;
 
 /*
- * The free-text field's reveal, from the same file: 0.22s of height with the
- * opacity lagging 0.06s behind it over 0.16s, which is what stops the text
- * smearing as the row opens. Height is animated as grid rows, since `auto` is
- * not an animatable length.
+ * The free-text field's reveal. The prototype grows the row's height and lags
+ * the opacity behind it; ours takes its space in one frame and only fades,
+ * which was Adam's call on 25 Sep. Nothing grows, so nothing can read as slow,
+ * and the field needs no clipping, which is what sliced its focus ring in half.
  */
-$freetext-open-duration: 0.22s;
 $freetext-fade-duration: 0.16s;
-$freetext-fade-delay: 0.06s;
 
 /*
  * The start column, from the prototype's app/page.tsx:40 — `max-w-md`, which
@@ -731,21 +729,6 @@ $rail-row-min-height: 40px;
 	}
 }
 
-/*
- * Only the row that holds the field animates; the padding is on the grid so it
- * opens with the track rather than appearing before it.
- */
-@keyframes freetext-open {
-
-	from {
-		grid-template-rows: 0fr;
-	}
-
-	to {
-		grid-template-rows: 1fr;
-	}
-}
-
 @keyframes fade-in {
 
 	from {
@@ -926,27 +909,11 @@ $rail-row-min-height: 40px;
  * refuses to collapse below the content.
  */
 .step-freetext {
-	display: grid;
-	grid-template-rows: 1fr;
-	overflow: hidden;
-	animation: freetext-open $freetext-open-duration $house-easing both;
-
-	> * {
-		min-block-size: 0;
-
-		// Inside the box the height opens, so the gap grows with it rather than
-		// appearing first and leaving the field to catch up.
-		padding-block-start: var(--wpds-dimension-padding-lg);
-		animation: fade-in $freetext-fade-duration var(--wpds-motion-easing-subtle) both;
-		animation-delay: $freetext-fade-delay;
-	}
+	padding-block-start: var(--wpds-dimension-padding-lg);
+	animation: fade-in $freetext-fade-duration var(--wpds-motion-easing-subtle) both;
 
 	@media (prefers-reduced-motion: reduce) {
-		animation: none;
-
-		> * {
-			animation-delay: 0s;
-		}
+		animation-duration: 0s;
 	}
 }
 
