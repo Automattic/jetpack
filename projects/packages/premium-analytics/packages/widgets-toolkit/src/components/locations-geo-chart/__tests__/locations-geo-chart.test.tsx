@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useViewerCountry } from '@jetpack-premium-analytics/data';
 import { GeoChart } from '@jetpack-premium-analytics/externals';
 import { act, render } from '@testing-library/react';
 /**
@@ -10,7 +11,7 @@ import { LocationsGeoChart } from '../locations-geo-chart';
 import type { LocationsGeoRow } from '../build-geo-data';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
-	useViewerCountry: () => ( { data: null } ),
+	useViewerCountry: jest.fn(),
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/externals', () => ( {
@@ -18,6 +19,7 @@ jest.mock( '@jetpack-premium-analytics/externals', () => ( {
 } ) );
 
 const geoChartMock = jest.mocked( GeoChart );
+const useViewerCountryMock = jest.mocked( useViewerCountry );
 
 const ROWS: LocationsGeoRow[] = [
 	{ label: 'Taipei City', value: 40, countryCode: 'TW', countryFull: 'Taiwan' },
@@ -32,6 +34,7 @@ function lastChartProps() {
 describe( 'LocationsGeoChart', () => {
 	beforeEach( () => {
 		geoChartMock.mockClear();
+		useViewerCountryMock.mockReturnValue( { data: null } as ReturnType< typeof useViewerCountry > );
 		removeErrorMock.mockClear();
 		( window as Window & { google?: unknown } ).google = {
 			visualization: { errors: { removeError: removeErrorMock } },
@@ -72,6 +75,14 @@ describe( 'LocationsGeoChart', () => {
 		);
 
 		expect( lastChartProps() ).toMatchObject( { region: 'world', resolution: 'countries' } );
+	} );
+
+	it( "draws disputed borders from the viewer's country", () => {
+		useViewerCountryMock.mockReturnValue( { data: 'IN' } as ReturnType< typeof useViewerCountry > );
+
+		render( <LocationsGeoChart rows={ ROWS } mode="country" /> );
+
+		expect( lastChartProps() ).toMatchObject( { domain: 'IN' } );
 	} );
 
 	it( 'keeps the error on screen where no fallback map follows', () => {
