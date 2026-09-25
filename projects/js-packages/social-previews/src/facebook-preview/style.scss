@@ -173,7 +173,7 @@
 
 .facebook-preview__info {
 	position: absolute;
-	right: 15px;
+	inset-inline-end: 15px;
 	top: -10px;
 
 	display: flex;
@@ -200,12 +200,12 @@
 
 	.facebook-preview__image,
 	.facebook-preview__custom-image {
-		border-top-right-radius: inherit;
-		border-top-left-radius: inherit;
+		border-start-end-radius: inherit;
+		border-start-start-radius: inherit;
 
 		img {
-			border-top-right-radius: inherit;
-			border-top-left-radius: inherit;
+			border-start-end-radius: inherit;
+			border-start-start-radius: inherit;
 		}
 	}
 }

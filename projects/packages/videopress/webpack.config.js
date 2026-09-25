@@ -75,6 +75,12 @@ module.exports = [
 			'block-editor/blocks/latest-videos-playlist/index':
 				'./src/client/block-editor/blocks/latest-videos-playlist/index.ts',
 
+			// All Playlists block
+			'block-editor/blocks/all-playlists/index':
+				'./src/client/block-editor/blocks/all-playlists/index.tsx',
+			'block-editor/blocks/all-playlists/view':
+				'./src/client/block-editor/blocks/all-playlists/view.ts',
+
 			'lib/token-bridge': './src/client/lib/token-bridge/index.ts',
 			'lib/player-bridge': './src/client/lib/player-bridge/index.ts',
 			'lib/inline-player': './src/client/lib/inline-player/index.ts',

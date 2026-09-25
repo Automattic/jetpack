@@ -6,12 +6,14 @@ import { ONBOARDING_CHANGE_EVENT } from '../../runtime-contract';
 import {
 	MODULES_SAVE_META,
 	observeLegacyModulesState,
+	observeLegacyOnboarding,
 	ONBOARDING_SAVE_META,
 	OVERVIEW_MODULES_CHANGE_EVENT,
 } from './modules-state-bridge';
 
 let client: QueryClient;
-let unsubscribe: () => void;
+let unsubscribeModules: () => void;
+let unsubscribeOnboarding: () => void;
 const onChange = jest.fn();
 const onOnboardingChange = jest.fn();
 const onboardingValues = () =>
@@ -23,11 +25,13 @@ beforeEach( () => {
 	onOnboardingChange.mockClear();
 	window.addEventListener( OVERVIEW_MODULES_CHANGE_EVENT, onChange );
 	window.addEventListener( ONBOARDING_CHANGE_EVENT, onOnboardingChange );
-	unsubscribe = observeLegacyModulesState( client );
+	unsubscribeModules = observeLegacyModulesState( client );
+	unsubscribeOnboarding = observeLegacyOnboarding( client );
 } );
 
 afterEach( () => {
-	unsubscribe();
+	unsubscribeModules();
+	unsubscribeOnboarding();
 	window.removeEventListener( OVERVIEW_MODULES_CHANGE_EVENT, onChange );
 	window.removeEventListener( ONBOARDING_CHANGE_EVENT, onOnboardingChange );
 	client.clear();
@@ -202,7 +206,7 @@ test.each( [ true, false ] )(
 			getting_started: { value: true, nonce: 'test' },
 		};
 		queryClient.clear();
-		const stop = observeLegacyModulesState( queryClient );
+		const stop = observeLegacyOnboarding( queryClient );
 		let resolveSave: ( value: Response ) => void;
 		let rejectSave: ( error: Error ) => void;
 		const originalFetch = globalThis.fetch;

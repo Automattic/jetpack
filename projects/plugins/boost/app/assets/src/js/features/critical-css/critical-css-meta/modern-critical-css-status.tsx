@@ -45,6 +45,7 @@ export default function ModernCriticalCssStatus( { cssState, isGenerating, progr
 							<IconTooltip
 								className={ styles[ 'info-icon' ] }
 								iconSize={ 20 }
+								label={ __( 'What is Critical CSS?', 'jetpack-boost' ) }
 								placement="bottom"
 								{ ...tooltipLayer }
 							>
