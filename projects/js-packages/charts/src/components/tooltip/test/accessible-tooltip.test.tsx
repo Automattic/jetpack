@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { LineChartUnresponsive } from '../../../charts/line-chart/line-chart';
 import { GlobalChartsProvider } from '../../../providers';
 import { ChartScopeContext } from '../../../providers/chart-scope';
@@ -128,11 +128,17 @@ describe( 'AccessibleTooltip', () => {
 } );
 
 // Mirrors the charts' markup: the focusable grid wraps the element `chartRef` points at.
-const NavigationHarness = ( { totalPoints }: { totalPoints: number } ) => {
+const NavigationHarness = ( {
+	totalPoints,
+	trackBlur = false,
+}: {
+	totalPoints: number;
+	trackBlur?: boolean;
+} ) => {
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >();
 	const [ isNavigating, setIsNavigating ] = useState( false );
 	const chartRef = useRef< HTMLDivElement >( null );
-	const { onChartKeyDown } = useKeyboardNavigation( {
+	const { onChartKeyDown, onChartBlur, onPointerTakeover } = useKeyboardNavigation( {
 		selectedIndex,
 		setSelectedIndex,
 		isNavigating,
@@ -140,14 +146,22 @@ const NavigationHarness = ( { totalPoints }: { totalPoints: number } ) => {
 		chartRef,
 		totalPoints,
 	} );
+	const takeOverAtFour = useCallback( () => onPointerTakeover( 4 ), [ onPointerTakeover ] );
 
 	return (
 		<>
-			<div role="grid" aria-label="Harness" tabIndex={ 0 } onKeyDown={ onChartKeyDown }>
+			<div
+				role="grid"
+				aria-label="Harness"
+				tabIndex={ 0 }
+				onKeyDown={ onChartKeyDown }
+				onBlur={ trackBlur ? onChartBlur : undefined }
+			>
 				<div ref={ chartRef } data-testid="selected-index">
 					{ selectedIndex ?? 'none' }
 					<button type="button">Inside</button>
 				</div>
+				<div data-testid="point-4" onPointerMove={ takeOverAtFour } />
 			</div>
 			<button type="button">Outside</button>
 		</>
@@ -205,6 +219,57 @@ describe( 'useKeyboardNavigation', () => {
 
 		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
 		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
+	} );
+
+	it( 'hands a keyboard selection to the pointer and continues from where the pointer is', async () => {
+		const { user } = await navigate( 2 );
+
+		screen.getByRole( 'button', { name: 'Inside' } ).focus();
+		await user.hover( screen.getByTestId( 'point-4' ) );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
+		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
+
+		await user.keyboard( '{ArrowRight}' );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( '5' );
+	} );
+
+	it( 'restarts from the first point once focus leaves after the pointer took over', async () => {
+		const user = userEvent.setup();
+		render( <NavigationHarness totalPoints={ 6 } trackBlur /> );
+		const grid = screen.getByRole( 'grid', { name: 'Harness' } );
+
+		act( () => grid.focus() );
+		await user.keyboard( '{ArrowRight}{ArrowRight}' );
+		await user.hover( screen.getByTestId( 'point-4' ) );
+		act( () => screen.getByRole( 'button', { name: 'Outside' } ).focus() );
+		act( () => grid.focus() );
+		await user.keyboard( '{ArrowRight}' );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( '0' );
+	} );
+
+	it( 'leaves focus outside the chart when the pointer ends a selection', async () => {
+		const { user } = await navigate( 2 );
+		const outside = screen.getByRole( 'button', { name: 'Outside' } );
+
+		outside.focus();
+		await user.hover( screen.getByTestId( 'point-4' ) );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
+		expect( outside ).toHaveFocus();
+	} );
+
+	it( 'ignores the pointer when there is no keyboard selection', async () => {
+		const user = userEvent.setup();
+		render( <NavigationHarness totalPoints={ 6 } /> );
+
+		screen.getByRole( 'grid', { name: 'Harness' } ).focus();
+		await user.hover( screen.getByTestId( 'point-4' ) );
+		await user.keyboard( '{ArrowRight}' );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( '0' );
 	} );
 
 	// The page sees the event after the handler, so this is what a surrounding scroll or Modal gets.

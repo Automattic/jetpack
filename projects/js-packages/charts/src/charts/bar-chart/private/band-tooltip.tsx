@@ -45,6 +45,7 @@ export function nearestBandIndex< Datum >(
  * @param root0.withTooltips  - Whether pointer events update the tooltip.
  * @param root0.onPointerDown - Receives the corrected pointer-down datum.
  * @param root0.onPointerUp   - Receives the corrected pointer-up datum.
+ * @param root0.onPointerMove - Receives the corrected datum under a moving pointer.
  * @return No visual content.
  */
 export function BandTooltip( {
@@ -53,10 +54,12 @@ export function BandTooltip( {
 	withTooltips,
 	onPointerDown,
 	onPointerUp,
-}: { keys: string[]; groupPadding: number } & Pick<
-	BarChartProps,
-	'withTooltips' | 'onPointerDown' | 'onPointerUp'
-> ) {
+	onPointerMove,
+}: {
+	keys: string[];
+	groupPadding: number;
+	onPointerMove?: ( selection: PointerSelection ) => void;
+} & Pick< BarChartProps, 'withTooltips' | 'onPointerDown' | 'onPointerUp' > ) {
 	const { xScale, yScale, dataRegistry, horizontal } = useContext( DataContext );
 	const { showTooltip } = useContext( TooltipContext );
 	const scale = ( horizontal ? yScale : xScale ) as BandScale | undefined;
@@ -110,13 +113,6 @@ export function BandTooltip( {
 	const handlePointer = useCallback< PointerHandler >(
 		params => {
 			const selections = getSelections( params );
-			if ( withTooltips && params?.event.type !== 'pointerup' ) {
-				selections.forEach( showTooltip );
-			}
-			const callback = params?.event.type === 'pointerdown' ? onPointerDown : onPointerUp;
-			if ( params?.event.type === 'pointermove' || ! callback ) {
-				return;
-			}
 			const nearest = selections.reduce(
 				( best, selection ) => {
 					const distance = ( value: typeof selection ) =>
@@ -125,13 +121,23 @@ export function BandTooltip( {
 				},
 				undefined as ( typeof selections )[ number ] | undefined
 			);
+			if ( params?.event.type === 'pointermove' && nearest ) {
+				onPointerMove?.( nearest );
+			}
+			if ( withTooltips && params?.event.type !== 'pointerup' ) {
+				selections.forEach( showTooltip );
+			}
+			const callback = params?.event.type === 'pointerdown' ? onPointerDown : onPointerUp;
+			if ( params?.event.type === 'pointermove' || ! callback ) {
+				return;
+			}
 			if ( nearest ) {
 				callback( nearest );
 			}
 		},
-		[ getSelections, withTooltips, showTooltip, onPointerDown, onPointerUp ]
+		[ getSelections, withTooltips, showTooltip, onPointerDown, onPointerUp, onPointerMove ]
 	);
-	useEventEmitter( 'pointermove', withTooltips ? handlePointer : undefined );
+	useEventEmitter( 'pointermove', withTooltips || onPointerMove ? handlePointer : undefined );
 	useEventEmitter( 'pointerdown', handlePointer );
 	useEventEmitter( 'pointerup', onPointerUp ? handlePointer : undefined );
 	return null;
