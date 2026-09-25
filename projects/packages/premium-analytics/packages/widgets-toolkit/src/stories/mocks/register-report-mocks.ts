@@ -803,6 +803,28 @@ function buildFollowersResponse( max: number ) {
 }
 
 /**
+ * The mocked subscriber totals on `day`, shared by `stats/subscribers` and `subscribers/counts` so the two agree.
+ *
+ * @param day - The day to total.
+ * @return Email and WordPress.com subscribers, and paid subscribers.
+ */
+function mockSubscribersOn( day: Date ) {
+	// Anchor growth to a fixed day so totals stay in a realistic range and stay
+	// continuous across the current/previous windows.
+	const anchorDay = Math.floor( Date.now() / DAY_MS ) - 400;
+	const absDay = Math.floor( day.getTime() / DAY_MS );
+	// Upward trend plus a ~44-day wave that doesn't align with a 30-day window, so
+	// the previous-period series stays out of phase and its dashed line diverges visibly.
+	const trend = ( absDay - anchorDay ) * 9;
+	const wave = 420 * Math.sin( absDay / 7 ) + 180 * Math.cos( absDay / 11 );
+	const subscribers = Math.max( 0, Math.round( 900 + trend + wave ) );
+	const paid = mockSitePaidSubscribers
+		? Math.max( 0, Math.round( subscribers * 0.32 + 120 * Math.sin( absDay / 6 ) ) )
+		: 0;
+	return { subscribers, paid };
+}
+
+/**
  * Builds the stats/subscribers time-series response. Values are anchored to each
  * bucket's absolute date so the current window trends above the previous one
  * (continuous across both windows, wavy so the comparison overlay reads clearly);
@@ -815,10 +837,6 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 	const unit = query.get( 'unit' ) || 'day';
 	const quantity = Math.max( 1, Math.min( 60, parseInt( query.get( 'quantity' ) || '30', 10 ) ) );
 	const endDate = parseDateParam( query.get( 'date' ), new Date() );
-
-	// Anchor growth to a fixed day so totals stay in a realistic range and stay
-	// continuous across the current/previous windows.
-	const anchorDay = Math.floor( Date.now() / DAY_MS ) - 400;
 	const stepDays = unit === 'week' ? 7 : 1;
 
 	const rows = Array.from( { length: quantity }, ( _, index ) => {
@@ -844,15 +862,7 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 			period = bucket.toISOString().slice( 0, 10 );
 		}
 
-		const absDay = Math.floor( bucket.getTime() / DAY_MS );
-		// Upward trend plus a ~44-day wave that doesn't align with a 30-day window, so
-		// the previous-period series stays out of phase and its dashed line diverges visibly.
-		const trend = ( absDay - anchorDay ) * 9;
-		const wave = 420 * Math.sin( absDay / 7 ) + 180 * Math.cos( absDay / 11 );
-		const subscribers = Math.max( 0, Math.round( 900 + trend + wave ) );
-		const paid = mockSitePaidSubscribers
-			? Math.max( 0, Math.round( subscribers * 0.32 + 120 * Math.sin( absDay / 6 ) ) )
-			: 0;
+		const { subscribers, paid } = mockSubscribersOn( bucket );
 
 		return [ period, subscribers, paid ];
 	} );
@@ -1554,7 +1564,7 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 	}
 
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_COUNTS_PATH ) ) {
-		return buildStatsSubscribersCountsData( mockSitePaidSubscribers );
+		return buildStatsSubscribersCountsData( mockSubscribersOn( new Date() ) );
 	}
 
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_PATH ) ) {

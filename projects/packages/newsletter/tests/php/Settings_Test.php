@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Newsletter\Tests;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Newsletter\Settings;
+use Automattic\Jetpack\Newsletter\Subscriber_Stats_Controller;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
@@ -36,6 +37,7 @@ class Settings_Test extends BaseTestCase {
 		parent::set_up();
 
 		// Reset the in-process Host platform cache so per-test constants take effect.
+		\Automattic\Jetpack\Constants::clear_constants();
 		\Automattic\Jetpack\Status\Cache::clear();
 		Feature_Flags::reset();
 
@@ -46,6 +48,17 @@ class Settings_Test extends BaseTestCase {
 			$property->setAccessible( true );
 		}
 		$property->setValue( null, false );
+
+		// Reset Subscriber_Stats_Controller's own static registration guard, and the
+		// rest_api_init hook it may have attached in an earlier test, so route
+		// presence assertions don't depend on test execution order.
+		$stats_reflection = new \ReflectionClass( Subscriber_Stats_Controller::class );
+		$stats_property   = $stats_reflection->getProperty( 'registered' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$stats_property->setAccessible( true );
+		}
+		$stats_property->setValue( null, false );
+		remove_all_actions( 'rest_api_init' );
 
 		// Clear any existing hooks.
 		remove_all_actions( 'admin_menu' );
@@ -61,7 +74,6 @@ class Settings_Test extends BaseTestCase {
 		// Clear the load action registered by add_wp_admin_menu on success.
 		remove_all_actions( 'load-jetpack_page_jetpack-newsletter' );
 		remove_all_actions( 'load-admin_page_jetpack-newsletter' );
-		remove_filter( 'jetpack_display_jitms_on_screen', array( Settings::class, 'hide_jitms_on_wp_build_dashboard' ) );
 	}
 
 	/**
@@ -83,7 +95,6 @@ class Settings_Test extends BaseTestCase {
 
 		remove_all_filters( Settings::MODERNIZATION_FILTER );
 		remove_all_filters( 'jetpack_show_newsletter_menu_item' );
-		remove_filter( 'jetpack_display_jitms_on_screen', array( Settings::class, 'hide_jitms_on_wp_build_dashboard' ) );
 		remove_all_filters( 'site_url' );
 		remove_all_filters( 'home_url' );
 		remove_all_filters( 'jetpack_feature_flag_enabled' );
@@ -262,7 +273,7 @@ class Settings_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'default'     => false,
-				'description' => 'Enable the Newsletter Overview tab.',
+				'description' => 'Enable the Newsletter Overview and Stats tabs.',
 				'owner'       => 'jetpack-newsletter',
 				'name'        => Settings::OVERVIEW_FEATURE_FLAG,
 			),
@@ -291,6 +302,64 @@ class Settings_Test extends BaseTestCase {
 		$data = ( new Settings() )->add_script_data( array() );
 
 		$this->assertTrue( $data['newsletter']['overviewEnabled'] );
+	}
+
+	/**
+	 * Test that the Stats REST routes are not registered while the Overview flag
+	 * that also gates them is disabled (the default).
+	 *
+	 * Unlike Overview's own UI chrome, Stats exposes real subscriber/email data
+	 * over REST, so the routes themselves — not just the UI — must stay
+	 * unregistered while off. Stats is a temporary standalone page that shares
+	 * Overview's flag rather than getting its own.
+	 */
+	public function test_register_feature_flags_does_not_register_stats_routes_when_overview_disabled() {
+		global $wp_rest_server;
+		$wp_rest_server = new \WP_REST_Server();
+
+		Settings::register_feature_flags();
+		do_action( 'rest_api_init' );
+
+		$routes = rest_get_server()->get_routes();
+		$this->assertArrayNotHasKey( '/wpcom/v2/newsletter/stats/subscribers', $routes );
+		$this->assertArrayNotHasKey( '/wpcom/v2/newsletter/stats/emails/summary', $routes );
+		$this->assertArrayNotHasKey( '/wpcom/v2/newsletter/stats/recent-posts', $routes );
+	}
+
+	/**
+	 * Test that the Stats REST routes are registered once the shared Overview
+	 * flag is enabled.
+	 */
+	public function test_register_feature_flags_registers_stats_routes_when_overview_enabled() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG, '__return_true' );
+
+		global $wp_rest_server;
+		$wp_rest_server = new \WP_REST_Server();
+
+		Settings::register_feature_flags();
+		do_action( 'rest_api_init' );
+
+		$routes = rest_get_server()->get_routes();
+		$this->assertArrayHasKey( '/wpcom/v2/newsletter/stats/subscribers', $routes );
+		$this->assertArrayHasKey( '/wpcom/v2/newsletter/stats/emails/summary', $routes );
+		$this->assertArrayHasKey( '/wpcom/v2/newsletter/stats/recent-posts', $routes );
+	}
+
+	public function test_does_not_register_stats_routes_on_wpcom_simple() {
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+		\Automattic\Jetpack\Status\Cache::clear();
+		add_filter( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG, '__return_true' );
+
+		global $wp_rest_server;
+		$wp_rest_server = new \WP_REST_Server();
+
+		Settings::register_feature_flags();
+		do_action( 'rest_api_init' );
+
+		$routes = rest_get_server()->get_routes();
+		$this->assertArrayNotHasKey( '/wpcom/v2/newsletter/stats/subscribers', $routes );
+		$this->assertArrayNotHasKey( '/wpcom/v2/newsletter/stats/emails/summary', $routes );
+		$this->assertArrayNotHasKey( '/wpcom/v2/newsletter/stats/recent-posts', $routes );
 	}
 
 	/**
@@ -567,22 +636,9 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The wp-build dashboard opts its own screen out of JITMs, and no other.
+	 * A hidden menu item registers under another screen ID.
 	 */
-	public function test_modernized_dashboard_opts_its_screen_out_of_jitms() {
-		$this->connect_site_with_subscriptions();
-
-		( new Settings() )->add_wp_admin_menu();
-
-		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-newsletter' ) );
-		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-social' ) );
-		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', false, 'jetpack_page_jetpack-social' ) );
-	}
-
-	/**
-	 * A hidden menu item registers under another screen ID, and that is the one opted out.
-	 */
-	public function test_hidden_menu_item_opts_its_own_screen_out_of_jitms() {
+	public function test_hidden_menu_item_registers_under_its_own_screen() {
 		$this->connect_site_with_subscriptions();
 		wp_set_current_user(
 			wp_insert_user(
@@ -599,12 +655,18 @@ class Settings_Test extends BaseTestCase {
 		$settings->add_wp_admin_menu();
 
 		$this->assertNotFalse( has_action( 'load-admin_page_jetpack-newsletter', array( $settings, 'admin_init' ) ) );
-		$this->assertFalse( apply_filters( 'jetpack_display_jitms_on_screen', true, 'admin_page_jetpack-newsletter' ) );
-		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-newsletter' ) );
 	}
 
-	public function test_legacy_dashboard_keeps_jitms() {
+	/**
+	 * Both dashboards render the JITM slot, so neither opts its screen out.
+	 */
+	public function test_dashboard_keeps_jitms() {
 		$this->connect_site_with_subscriptions();
+
+		( new Settings() )->add_wp_admin_menu();
+
+		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-newsletter' ) );
+
 		add_filter( Settings::MODERNIZATION_FILTER, '__return_false' );
 
 		( new Settings() )->add_wp_admin_menu();

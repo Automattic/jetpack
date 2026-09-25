@@ -12,6 +12,7 @@ import type {
 	ComparativeLineChartSeries,
 	ComparativeDatePointDate,
 } from '../components/chart-comparative-line/types';
+import type { CountLabel } from '../types';
 
 export type TimeSeriesData = {
 	date_start: string;
@@ -51,6 +52,7 @@ type BuildTimeSeriesChartOptions< T extends TimeSeriesData > = {
 	 * Omit it and each series is labelled with its own range.
 	 */
 	label?: string;
+	countLabel?: CountLabel;
 };
 
 /**
@@ -65,6 +67,7 @@ type BuildTimeSeriesChartOptions< T extends TimeSeriesData > = {
  * @param options.zone              - The reports' reporting timezone.
  * @param options.emptyDataFallback - What to return when the primary response has no points.
  * @param options.label             - Metric name for both series' labels; omit for date ranges.
+ * @param options.countLabel        - The tooltip's unit when the metric is a count.
  * @return The chart series, current period first.
  */
 export function buildTimeSeriesChartData< T extends TimeSeriesData >( {
@@ -74,6 +77,7 @@ export function buildTimeSeriesChartData< T extends TimeSeriesData >( {
 	zone,
 	emptyDataFallback = 'empty-array',
 	label,
+	countLabel,
 }: BuildTimeSeriesChartOptions< T > ): ComparativeLineChartSeries[] {
 	if ( ! primary.data?.length ) {
 		if ( emptyDataFallback === 'no-data-series' ) {
@@ -98,6 +102,7 @@ export function buildTimeSeriesChartData< T extends TimeSeriesData >( {
 		data: mapTimeSeriesToLineChartData( primary.data, metricKey, zone ),
 		group: 'primary',
 		options: {},
+		countLabel,
 	};
 
 	if ( ! comparison?.data?.length ) {

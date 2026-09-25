@@ -49,7 +49,6 @@
 		"@wordpress/base-styles": "13.1.0",
 		"@wordpress/browserslist-config": "6.55.0",
 		"jest": "30.5.1",
-		"jetpack-js-tools": "workspace:*",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
 		"webpack": "5.107.2",

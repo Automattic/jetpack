@@ -302,6 +302,34 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Items a host hides reach the page with the rest of its state.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @return void
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_enqueue_scripts_publishes_the_items_a_host_hid() {
+		$_GET['page'] = 'my-jetpack';
+		require_once __DIR__ . '/stubs/wp-build-render-page.php';
+		wp_register_script( 'wp-jp-i18n-loader', 'https://example.org/i18n.js', array(), '1.0.0', true );
+		add_filter(
+			'jetpack_my_jetpack_feature_visibility',
+			function ( $states ) {
+				$states['search'] = 'hidden';
+				return $states;
+			}
+		);
+
+		Initializer::enqueue_scripts();
+
+		$localized = wp_scripts()->get_data( Initializer::DATA_SCRIPT_HANDLE, 'data' );
+		$this->assertStringContainsString( '"hiddenFeatures":["search"]', $localized );
+	}
+
+	/**
 	 * Onboarding loads its webpack bundle after the state it reads.
 	 *
 	 * @runInSeparateProcess

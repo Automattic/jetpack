@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 31ea0de96c5a9925494a9a092183573b7da919d9.
+ * Stubs automatically generated from WordPress.com commit 3dc13e3af3c4dcd37bb5da40e8ae1ec3f15adf35.
  */
 
 namespace {
@@ -52,6 +52,12 @@ namespace {
         public static function localize_url($url, $the_locale = \null)
         {
         }
+    }
+    /**
+     * @phan-return mixed
+     */
+    function wpcom_is_locale_rtl($locale)
+    {
     }
     /**
      * @return bool
@@ -744,9 +750,6 @@ namespace {
     function wpcom_is_vip_theme($stylesheet = '', $ignore_partner_themes = \false)
     {
     }
-    function wpcom_actionbar_enqueue_scripts()
-    {
-    }
     /**
      * @param int|array $job_id
      * @param string $prefix
@@ -792,6 +795,12 @@ namespace {
      * @return array{string, string}|false
      */
     function wpcom_get_avatar_url($id_or_email, $size = '96', $default = '', $force_display = \false, $force_default = \false)
+    {
+    }
+    /**
+     * @phan-return mixed
+     */
+    function get_blavatar($url, $size = '96', $default = \false)
     {
     }
     /**
@@ -1022,6 +1031,12 @@ namespace {
     function wpcom_enhanced_excerpt_extract_excerpt($args)
     {
     }
+    class FeedBag
+    {
+        public static function get_feed_id_for_blog_id($blog_id)
+        {
+        }
+    }
     function add_jetpack_submenu()
     {
     }
@@ -1199,6 +1214,18 @@ namespace {
     function get_count_private_blog_users($blog_id)
     {
     }
+    /**
+     * @phan-return mixed
+     */
+    function wpr_can_reblog_post($blog_id, $post_id)
+    {
+    }
+    /**
+     * @return boolean
+     */
+    function wpcom_can_user_make_a_reblog()
+    {
+    }
     class WPCOM_RelatedPosts extends \Jetpack_RelatedPosts
     {
         /**
@@ -1324,12 +1351,34 @@ namespace {
     {
     }
     /**
+     * @return string
+     */
+    function wpcom_subs_get_subscription_delivery_email_default()
+    {
+    }
+    /**
+     * @param mixed $site
+     * @return string
+     */
+    function wpcom_is_theme_demo_site($site = \null)
+    {
+    }
+    /**
      * @return boolean
      */
     function wpcom_is_child_theme()
     {
     }
     function queue_publish_post($post_id, $post = \null, $old_post_status = \null)
+    {
+    }
+    /**
+     * @param int $user_id
+     * @param string $meta_key
+     * @param mixed $meta_value
+     * @return bool
+     */
+    function delete_user_attribute($user_id, $meta_key, $meta_value = '')
     {
     }
     /**
@@ -1526,6 +1575,12 @@ namespace {
     {
     }
     /**
+     * @phan-return mixed
+     */
+    function is_suspended($_blog_id = \NULL)
+    {
+    }
+    /**
      * @param string $new_path
      * @param string $path
      * @return string
@@ -1557,6 +1612,13 @@ namespace {
      * @return bool
      */
     function wpcom_is_premium_theme($stylesheet = '')
+    {
+    }
+    /**
+     * @param string $stylesheet
+     * @return string
+     */
+    function wpcom_get_theme_showcase_url($stylesheet = '')
     {
     }
     class Jetpack_Fonts_Typekit
@@ -1624,6 +1686,14 @@ namespace {
     {
     }
     /**
+     * @param int $user_id
+     * @param bool $fallback_to_blog
+     * @return bool|string
+     */
+    function wpcom_switch_to_user_locale($user_id = \null, $fallback_to_blog = \true)
+    {
+    }
+    /**
      * @param int $blog_id
      * @return bool|string
      */
@@ -1635,6 +1705,13 @@ namespace {
      * @return bool|string
      */
     function wpcom_switch_to_locale($_locale)
+    {
+    }
+    /**
+     * @param $unload_locale
+     * @return bool|string
+     */
+    function wpcom_restore_current_locale($unload_locale = \false)
     {
     }
     /**

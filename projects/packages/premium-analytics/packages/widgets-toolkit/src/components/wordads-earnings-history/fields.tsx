@@ -2,14 +2,15 @@
  * External dependencies
  */
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
-import { Badge, Icon, Popover, VisuallyHidden } from '@jetpack-premium-analytics/externals';
+import { Badge } from '@jetpack-premium-analytics/externals';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { info } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import { compareOptionalNumbers } from '../../helpers/compare-optional-numbers';
+import { InfoTip } from '../info-tip';
 import styles from './earnings-status-badge.module.scss';
 import type { StatsWordAdsEarningsBreakdown } from '@jetpack-premium-analytics/data';
 import type { Field } from '@jetpack-premium-analytics/externals';
@@ -140,25 +141,6 @@ export function formatEarningsPeriod( period: string ): string {
 }
 
 /**
- * Numeric sort that keeps rows without a count last in either direction.
- *
- * @param a         - One field value.
- * @param b         - The other field value.
- * @param direction - The sort direction.
- * @return The comparator result.
- */
-function compareOptionalCounts( a: unknown, b: unknown, direction: 'asc' | 'desc' ): number {
-	const aCount = typeof a === 'number' ? a : undefined;
-	const bCount = typeof b === 'number' ? b : undefined;
-
-	if ( aCount === undefined || bCount === undefined ) {
-		return ( aCount === undefined ? 1 : 0 ) - ( bCount === undefined ? 1 : 0 );
-	}
-
-	return direction === 'asc' ? aCount - bCount : bCount - aCount;
-}
-
-/**
  * A payment status as a badge. A pending status puts its reason in an info icon
  * beside the badge; any other status keeps its explanation on the badge itself.
  *
@@ -170,22 +152,12 @@ export function EarningsStatusBadge( { status }: { status: number | undefined } 
 	const { label, tooltip, intent, detail } = getEarningsStatus( status );
 
 	if ( detail ) {
-		// Click-open like the widget header's info icon; non-modal, so Tab leaves and closes it.
 		return (
 			<span className={ styles.root }>
-				<Popover.Root>
-					<Popover.Trigger aria-label={ detail } className={ styles.info }>
-						<Icon icon={ info } size={ 16 } />
-					</Popover.Trigger>
-					<Popover.Popup className={ styles.popup }>
-						<Popover.Arrow />
-						<VisuallyHidden render={ <Popover.Title /> }>{ detail }</VisuallyHidden>
-						<Popover.Description>
-							<span className={ styles.reason }>{ detail }</span>
-							{ tooltip }
-						</Popover.Description>
-					</Popover.Popup>
-				</Popover.Root>
+				<InfoTip label={ detail } size={ 16 }>
+					<span className={ styles.reason }>{ detail }</span>
+					{ tooltip }
+				</InfoTip>
 				<Badge intent={ intent }>{ label }</Badge>
 			</span>
 		);
@@ -232,9 +204,7 @@ export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 		{
 			id: 'pageviews',
 			label: __( 'Ads Served', 'jetpack-premium-analytics-pkg' ),
-			// The default sort would call `localeCompare` on a missing count and throw.
-			// DataViews hands `sort` the field values, not the items, despite its types.
-			sort: ( a, b, direction ) => compareOptionalCounts( a, b, direction ),
+			sort: compareOptionalNumbers,
 			render: ( { item } ) => (
 				<>{ item.pageviews === undefined ? '—' : formatMetricValue( item.pageviews, 'number' ) }</>
 			),

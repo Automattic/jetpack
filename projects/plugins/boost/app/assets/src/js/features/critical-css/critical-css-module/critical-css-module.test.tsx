@@ -50,7 +50,7 @@ test( 'shows one license link in the Critical CSS card with its premium tooltip 
 
 	const card = screen.getByTestId( 'module-card' );
 	// eslint-disable-next-line testing-library/prefer-user-event -- The tooltip opens on mousedown, and this project does not provide user-event.
-	fireEvent.mouseDown( within( card ).getAllByRole( 'button' )[ 1 ] );
+	fireEvent.click( within( card ).getAllByRole( 'button' )[ 1 ] );
 
 	expect( within( card ).getByText( 'Manual Critical CSS regeneration' ) ).toBeTruthy();
 	expect( within( card ).getAllByRole( 'link', { name: 'Use license key' } ) ).toHaveLength( 1 );

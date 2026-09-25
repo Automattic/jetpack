@@ -5,6 +5,7 @@ import { Button } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { ModuleToggle } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
+import { getForcedReason } from './feature-state';
 import styles from './styles.module.scss';
 import { useFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
@@ -78,7 +79,8 @@ type FeatureActionProps = {
  * The card's control, as the feature map decides it.
  *
  * Nothing here reloads the page, unlike the Products tab's switches, so several features
- * can be flipped in a row; the wp-admin sidebar catches up on the next load.
+ * can be flipped in a row; the wp-admin sidebar is refreshed in place after each switch
+ * (see `use-sidebar-sync.ts`).
  *
  * @param {FeatureActionProps} props             - The component props.
  * @param {FeatureState}       props.state       - Live state for the feature.
@@ -97,7 +99,12 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 	}
 
 	switch ( control.kind ) {
-		case 'module':
+		case 'module': {
+			// FeatureItem shows why, under the description: this slot does not shrink.
+			if ( getForcedReason( state ) ) {
+				return null;
+			}
+
 			return (
 				<ModuleToggle
 					module={ control.module }
@@ -105,8 +112,13 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 					describedby={ describedby }
 				/>
 			);
+		}
 
 		case 'plugin':
+			if ( control.override ) {
+				return null;
+			}
+
 			return (
 				<PluginToggle
 					plugin={ control.plugin }

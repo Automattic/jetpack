@@ -13,7 +13,8 @@ namespace Automattic\Jetpack\Sharing_Likes\Settings;
  * Registers Settings > Sharing and renders its sections.
  *
  * Registration does not depend on any module being active, so the screen and
- * every section on it exist whatever the site is running.
+ * every section on it exist whatever the site is running, as long as it can
+ * run them at all: see `Environment::settings_screen_supported()`.
  */
 final class Settings_Page {
 
@@ -34,6 +35,10 @@ final class Settings_Page {
 	 * Add the submenu entry under Settings.
 	 */
 	public static function register_menu(): void {
+		if ( ! Environment::settings_screen_supported() ) {
+			return;
+		}
+
 		add_submenu_page(
 			'options-general.php',
 			__( 'Sharing Settings', 'jetpack-sharing-likes' ),

@@ -35,6 +35,7 @@ export { default as Col } from './components/layout/col/index.tsx';
 export { default as Testimonials } from './components/testimonials/index.tsx';
 export { default as Container } from './components/layout/container/index.tsx';
 export { default as CopyToClipboard } from './components/copy-to-clipboard/index.tsx';
+export { default as JitmSlot } from './components/jitm-slot/index.tsx';
 export * from './components/icons/index.tsx';
 export { default as ThemeProvider } from './components/theme-provider/index.tsx';
 export { default as Text, H2, H3, Title } from './components/text/index.tsx';

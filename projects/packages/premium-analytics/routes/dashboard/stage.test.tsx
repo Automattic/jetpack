@@ -146,6 +146,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			Reset to default
 		</button>
 	),
+	useTrackedDateRangeApply: () => ( { trackedOnChange: () => {}, trackedOnApply: () => {} } ),
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
@@ -317,7 +318,7 @@ jest.mock( './components', () => ( {
 } ) );
 
 jest.mock( '../widget-module-i18n', () => ( {
-	resolveWidgetModuleWithI18n: jest.fn(),
+	useWidgetModuleResolver: () => jest.fn(),
 	useWidgetTypesWithI18n: () => [ [], false ],
 } ) );
 

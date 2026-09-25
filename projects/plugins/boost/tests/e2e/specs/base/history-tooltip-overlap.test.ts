@@ -409,9 +409,7 @@ test( 'Hiding retained history removes a keyboard tooltip until another selectio
 	await expect( page.getByRole( 'tooltip' ) ).toBeVisible();
 } );
 
-test( 'Score cards show signed badges, points help, and responsive dividers', async ( {
-	page,
-} ) => {
+test( 'Score cards show gain badges, points help, and responsive dividers', async ( { page } ) => {
 	await page.goto( 'http://boost-history.test/?scores' );
 	const desktop = page.getByRole( 'region', { name: 'Desktop', exact: true } );
 	const mobile = page.getByRole( 'region', { name: 'Mobile', exact: true } ).first();
@@ -442,11 +440,11 @@ test( 'Score cards show signed badges, points help, and responsive dividers', as
 	const positiveBadge = desktop.first().getByText( '+10 points', { exact: true } );
 	await expect( positiveBadge ).toHaveCSS( 'background-color', 'rgb(222, 235, 250)' );
 	await expect( positiveBadge ).toHaveCSS( 'color', 'rgb(0, 27, 79)' );
-	const negativeBadge = mobile.getByText( '-10 points', { exact: true } );
-	await expect( negativeBadge ).toHaveCSS( 'background-color', 'rgb(255, 255, 255)' );
-	await expect( negativeBadge ).toHaveCSS( 'border-top-width', '1px' );
-	await expect( negativeBadge ).toHaveCSS( 'border-top-style', 'solid' );
-	await expect( negativeBadge ).toHaveCSS( 'border-top-color', 'rgb(219, 219, 219)' );
+	const clampedBadge = mobile.getByText( '0 points', { exact: true } );
+	await expect( clampedBadge ).toHaveCSS( 'background-color', 'rgb(255, 255, 255)' );
+	await expect( clampedBadge ).toHaveCSS( 'border-top-width', '1px' );
+	await expect( clampedBadge ).toHaveCSS( 'border-top-style', 'solid' );
+	await expect( clampedBadge ).toHaveCSS( 'border-top-color', 'rgb(219, 219, 219)' );
 	await expect( desktop.nth( 1 ).getByText( /points/ ) ).toHaveCount( 0 );
 	await expect( desktop.nth( 1 ).getByRole( 'button' ) ).toHaveCount( 0 );
 	const pointsHelp = page.getByText( 'Points gained from optimizations', { exact: true } );

@@ -10,11 +10,9 @@ declare( strict_types = 1 );
 namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 /**
- * Hosts whatever third parties hang off `sharing_global_options`.
+ * Hosts the rows that close the services table whenever that table is hidden.
  *
- * Those settings normally land at the end of the services table, so this
- * section only renders when the services table does not: Twitter Cards adds its
- * site tag there, and its owning feature is not gated on the Sharing module.
+ * Some of them, like the Twitter Site Tag, do not depend on the Sharing module.
  */
 final class Extras_Section {
 
