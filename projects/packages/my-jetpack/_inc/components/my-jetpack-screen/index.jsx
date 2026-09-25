@@ -27,7 +27,7 @@ import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
 import { useReplayPendingNotice } from '../my-jetpack-tab-panel/products/pending-notice';
-import { resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
+import { getModulesListPath, resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
 import buildOptionalMenuItems from './build-optional-menu-items';
 import styles from './styles.module.scss';
@@ -171,6 +171,7 @@ export default function MyJetpackScreen() {
 		isSiteConnected,
 		isJetpackPluginActive,
 		isSimpleSite: isSimpleSite(),
+		modulesListPath: getModulesListPath(),
 		onModulesClick: () => recordEvent( 'jetpack_myjetpack_footer_link_click', { link: 'modules' } ),
 		onResetClick: () => resetJetpackOptions(),
 		onResetKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
