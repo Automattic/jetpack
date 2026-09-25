@@ -140,6 +140,8 @@ export const TOTAL_STEPS = wizardSteps().length;
 export interface WizardState {
 	// The option chosen on each step, keyed by step index.
 	choices: Partial< Record< WizardStep, string > >;
+	// What was typed into the field a `freeText` option opens, if anything.
+	freeText?: string;
 }
 
 /**
@@ -346,7 +348,24 @@ export function canContinue( step: WizardStep, state: WizardState ): boolean {
 
 	// The start screen asks nothing and carries its own way forward, and the feature
 	// step starts with every row answered.
-	return meta.kind === 'start' || meta.options.length === 0 || state.choices[ step ] !== undefined;
+	if ( meta.kind === 'start' || meta.options.length === 0 ) {
+		return true;
+	}
+
+	const choice = state.choices[ step ];
+
+	if ( choice === undefined ) {
+		return false;
+	}
+
+	/*
+	 * An option that opens a field is not answered until the field is. Otherwise the
+	 * wizard focuses someone into a box and then lets them walk straight past it,
+	 * and the answer it records is "other" with nothing after it.
+	 */
+	return meta.options.find( option => option.value === choice )?.freeText
+		? Boolean( state.freeText?.trim() )
+		: true;
 }
 
 /**

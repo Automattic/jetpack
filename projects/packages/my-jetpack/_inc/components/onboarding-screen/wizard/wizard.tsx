@@ -109,9 +109,15 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	// Connecting leaves wp-admin for WordPress.com and comes back to a fresh page,
 	// so the opening step is read off the connection rather than remembered.
 	const { isUserConnected } = useConnection();
-	const [ step, setStep ] = useState< WizardStep >( () => openingStep( isUserConnected ) );
+	/*
+	 * The floor, not just the starting point. Connecting is done and cannot be
+	 * undone here, so a connected user must not be able to walk back onto a screen
+	 * whose only button would register the site a second time.
+	 */
+	const firstStep = openingStep( isUserConnected );
+	const [ step, setStep ] = useState< WizardStep >( firstStep );
 	// The rail only lets the user back into ground already covered.
-	const [ furthestStep, setFurthestStep ] = useState< WizardStep >( step );
+	const [ furthestStep, setFurthestStep ] = useState< WizardStep >( firstStep );
 	const [ choices, setChoices ] = useState< WizardState[ 'choices' ] >( {} );
 	/*
 	 * Held apart from `choices`, which is a set of fixed values the wizard will
@@ -119,7 +125,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	 */
 	const [ siteTypeDetail, setSiteTypeDetail ] = useState( '' );
 
-	const { modules } = useSetupModules();
+	const { modules, isLoading: modulesLoading } = useSetupModules();
 	const { apply, isApplying } = useApplySetupModules();
 	// Missing entries mean "leave it as the site has it", which for five of the six
 	// is already on. Written only when the user moves a switch.
@@ -166,7 +172,10 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 		[ exitUrl ]
 	);
 
-	const handleBack = useCallback( () => setStep( ( step - 1 ) as WizardStep ), [ step ] );
+	const handleBack = useCallback(
+		() => setStep( Math.max( step - 1, firstStep ) as WizardStep ),
+		[ step, firstStep ]
+	);
 
 	const handleNext = useCallback( () => {
 		const next = ( step + 1 ) as WizardStep;
@@ -180,10 +189,15 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	 * finish screen's job is to report the failures rather than hide them here.
 	 */
 	const handleApplyAndContinue = useCallback( () => {
-		apply( modules, wantedModules ).then( results => {
-			setModuleResults( results );
-			handleNext();
-		} );
+		apply( modules, wantedModules )
+			.then( setModuleResults )
+			/*
+			 * Every switch already reports its own success or failure, so a rejection
+			 * here is the request layer itself giving out. The finish screen says
+			 * nothing changed rather than the step sitting on a spinner for ever.
+			 */
+			.catch( () => setModuleResults( [] ) )
+			.finally( handleNext );
 	}, [ apply, modules, wantedModules, handleNext ] );
 
 	// The rail's rows are aria-disabled rather than disabled, so they stay focusable
@@ -191,18 +205,18 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	const handleRailClick = useCallback(
 		( event: MouseEvent< HTMLElement > ) => {
 			const index = Number( ( event.currentTarget as HTMLButtonElement ).value ) as WizardStep;
-			if ( index <= furthestStep ) {
+			if ( index <= furthestStep && index >= firstStep ) {
 				setStep( index );
 			}
 		},
-		[ furthestStep ]
+		[ furthestStep, firstStep ]
 	);
 
 	const meta = steps[ step ];
 	const isStart = meta.kind === 'start';
 	const isFeatures = meta.kind === 'features';
 	const panelLines = PANEL_LINES[ step ];
-	const state: WizardState = { choices };
+	const state: WizardState = { choices, freeText: siteTypeDetail };
 	const wizardTitle = __( 'Set up Jetpack', 'jetpack-my-jetpack' );
 
 	const stepBody = {
@@ -213,6 +227,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 				title={ meta.title }
 				description={ meta.description }
 				modules={ modules }
+				isLoading={ modulesLoading }
 				wanted={ wantedModules }
 				onChange={ handleModuleChange }
 			/>
@@ -321,20 +336,35 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 								gap="md"
 								wrap="wrap"
 							>
-								<LinkButton
-									variant="minimal"
-									tone="neutral"
-									href={ exitUrl }
-									onClick={ handleExit( 'skipped' ) }
-								>
-									{ __( 'Skip setup', 'jetpack-my-jetpack' ) }
-								</LinkButton>
+								{ /*
+								 * Gone on the last step, where the work is already done and Finish
+								 * is the way out. Skipping there would record this person as having
+								 * declined setup and never write the site-wide completion, so the
+								 * next admin would be offered it again on a configured site.
+								 */ }
+								{ isLastStep( step ) ? (
+									<span />
+								) : (
+									<LinkButton
+										variant="minimal"
+										tone="neutral"
+										href={ exitUrl }
+										onClick={ handleExit( 'skipped' ) }
+									>
+										{ __( 'Skip setup', 'jetpack-my-jetpack' ) }
+									</LinkButton>
+								) }
 
 								{ /* The start screen carries its own primary, so the footer keeps only the exit. */ }
 								{ ! isStart && (
 									<Stack gap="sm">
-										{ step > 0 && (
-											<Button variant="minimal" tone="neutral" onClick={ handleBack }>
+										{ step > firstStep && (
+											<Button
+												variant="minimal"
+												tone="neutral"
+												onClick={ handleBack }
+												disabled={ isApplying }
+											>
 												{ __( 'Back', 'jetpack-my-jetpack' ) }
 											</Button>
 										) }
@@ -354,7 +384,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 												variant="solid"
 												className={ styles[ 'primary-green' ] }
 												onClick={ isFeatures ? handleApplyAndContinue : handleNext }
-												disabled={ ! canContinue( step, state ) }
+												disabled={ ! canContinue( step, state ) || isApplying }
 												loading={ isApplying }
 												loadingAnnouncement={ __( 'Setting up your site…', 'jetpack-my-jetpack' ) }
 											>

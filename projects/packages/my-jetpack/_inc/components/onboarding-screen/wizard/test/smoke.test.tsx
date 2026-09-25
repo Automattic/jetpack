@@ -482,14 +482,32 @@ describe( 'Wizard shell', () => {
 	it( 'goes back to a step already reached when its rail row is clicked', async () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 
-		await advance( user, 1 );
-		expect( railStep( 'What you need' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
+		await advance( user, 2 );
+		expect( heading() ).toHaveTextContent( 'Your site is set up' );
 
-		await user.click( railStep( 'Connect' ) );
-		expect( heading() ).toHaveTextContent( 'Start with Jetpack for free' );
+		await user.click( railStep( 'Your site' ) );
+		expect( heading() ).toHaveTextContent( "Tell us what you're building" );
 
 		// Ground already covered stays reachable after stepping back.
 		expect( railStep( 'What you need' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
+	} );
+
+	/*
+	 * Connecting is done and cannot be undone here. The connect screen's only
+	 * button registers the site, so reaching it again would offer to do that twice.
+	 */
+	it( 'will not let a connected user back onto the connect screen', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		expect( screen.queryByRole( 'button', { name: 'Back' } ) ).not.toBeInTheDocument();
+
+		await user.click( railStep( 'Connect' ) );
+		expect( heading() ).toHaveTextContent( "Tell us what you're building" );
+
+		await advance( user, 1 );
+		await user.click( screen.getByRole( 'button', { name: 'Back' } ) );
+		expect( heading() ).toHaveTextContent( "Tell us what you're building" );
+		expect( screen.queryByRole( 'button', { name: 'Get started' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'gates Continue on the question steps', async () => {
@@ -741,5 +759,99 @@ describe( 'The feature step', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
 		await waitFor( () => expect( heading() ).toHaveTextContent( 'Your site is set up' ) );
+	} );
+} );
+
+describe( 'Guards on the way through', () => {
+	// The wizard focuses you into a field; it should not then let you walk past it
+	// and record "other" with nothing after it.
+	it( 'will not commit Something else with nothing typed', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await user.click( screen.getByRole( 'radio', { name: 'Something else…' } ) );
+		// @wordpress/ui marks a blocked button aria-disabled and keeps it focusable,
+		// rather than using the native attribute.
+		expect( screen.getByRole( 'button', { name: 'Continue' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+
+		await user.type(
+			screen.getByRole( 'textbox', { name: 'Tell us what this site is for' } ),
+			'A recipe site'
+		);
+		expect( screen.getByRole( 'button', { name: 'Continue' } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
+	it( 'treats whitespace as nothing typed', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await user.click( screen.getByRole( 'radio', { name: 'Something else…' } ) );
+		await user.type(
+			screen.getByRole( 'textbox', { name: 'Tell us what this site is for' } ),
+			'   '
+		);
+
+		expect( screen.getByRole( 'button', { name: 'Continue' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
+	// Skipping records this person as having declined and never writes the
+	// site-wide completion, so it must not be the way out of a finished flow.
+	it( 'drops Skip setup once the work is done', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		expect( screen.getByRole( 'link', { name: 'Skip setup' } ) ).toBeInTheDocument();
+
+		await advance( user, 2 );
+
+		expect( screen.queryByRole( 'link', { name: 'Skip setup' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Finish' } ) ).toBeInTheDocument();
+	} );
+
+	// Every switch reports its own outcome, so a rejection is the request layer
+	// itself giving out. The step must still move rather than sit on a spinner.
+	it( 'still reaches the finish screen when switching blows up', async () => {
+		mockApply.mockRejectedValueOnce( new Error( 'nope' ) );
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await waitFor( () => expect( heading() ).toHaveTextContent( 'Nothing changed on your site' ) );
+	} );
+} );
+
+describe( 'Keyboard on the site-type question', () => {
+	// Arrowing onto the row only previews it. Taking focus there is a trap: the
+	// arrow keys belong to the radio group, and a text field swallows them.
+	it( 'leaves focus on the row when Something else is arrowed onto', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		const radios = screen.getAllByRole( 'radio' );
+		radios[ 3 ].focus();
+		await user.keyboard( '{ArrowDown}' );
+
+		expect( screen.getByRole( 'radio', { name: 'Something else…' } ) ).toHaveFocus();
+
+		// And the list still wraps, which it cannot do from inside a text field.
+		await user.keyboard( '{ArrowDown}' );
+		expect( screen.getByRole( 'radio', { name: 'A blog or publication' } ) ).toHaveFocus();
+	} );
+
+	it( 'still moves focus into the field when the row is clicked', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await user.click( screen.getByRole( 'radio', { name: 'Something else…' } ) );
+
+		expect(
+			screen.getByRole( 'textbox', { name: 'Tell us what this site is for' } )
+		).toHaveFocus();
 	} );
 } );

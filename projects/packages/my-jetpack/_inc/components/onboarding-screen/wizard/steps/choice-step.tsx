@@ -35,30 +35,37 @@ const HORIZONTAL_STEP_BY_KEY: Record< string, number > = {
 /**
  * The field an option opens, and the only thing that mounts with it.
  *
- * Focus is moved here on mount rather than by `autoFocus`, and the difference is
- * not cosmetic: the field exists because the user chose the row above it, so this
- * carries their action on. `autoFocus` would also fire on a step that opened with
- * the answer already chosen, taking focus from the heading on arrival.
+ * Focus is moved here on mount rather than by `autoFocus`, and only when the row
+ * was activated deliberately. Arrowing onto the row merely previews it, and
+ * taking focus then is a trap: the arrow keys belong to the radio group, so once
+ * they land in a text field there is no way back up the list.
  *
  * The ref sits on the wrapper and the input is found inside it, because the
  * control owns its own markup and forwarding is not part of its contract.
  *
- * @param props          - The component props.
- * @param props.value    - What has been typed so far.
- * @param props.onChange - Called with what the user types.
+ * @param props           - The component props.
+ * @param props.value     - What has been typed so far.
+ * @param props.onChange  - Called with what the user types.
+ * @param props.takeFocus - Whether to move focus into the field on mount.
  * @return The rendered field.
  */
 function FreeTextField( {
 	value,
 	onChange,
+	takeFocus,
 }: {
 	value: string;
 	onChange: ( value: string ) => void;
+	takeFocus: boolean;
 } ) {
 	const wrapperRef = useRef< HTMLDivElement >( null );
 
 	useEffect( () => {
-		wrapperRef.current?.querySelector( 'input' )?.focus();
+		if ( takeFocus ) {
+			wrapperRef.current?.querySelector( 'input' )?.focus();
+		}
+		// Only ever on mount: moving focus later would fight whoever has it.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
 	const handleChange = useCallback(
@@ -108,9 +115,17 @@ export function ChoiceStep( {
 	onFreeTextChange,
 }: ChoiceStepProps ) {
 	const groupRef = useRef< HTMLDivElement >( null );
+	/*
+	 * Whether the last answer was committed rather than merely arrowed onto. The
+	 * field only takes focus for a deliberate choice.
+	 */
+	const chosenDeliberately = useRef( false );
 
 	const handleClick = useCallback(
-		( event: MouseEvent< HTMLButtonElement > ) => onChange( event.currentTarget.value ),
+		( event: MouseEvent< HTMLButtonElement > ) => {
+			chosenDeliberately.current = true;
+			onChange( event.currentTarget.value );
+		},
 		[ onChange ]
 	);
 
@@ -132,6 +147,7 @@ export function ChoiceStep( {
 					( radios.indexOf( event.currentTarget ) + offset + radios.length ) % radios.length
 				];
 
+			chosenDeliberately.current = false;
 			next.focus();
 			onChange( next.value );
 		},
@@ -194,7 +210,11 @@ export function ChoiceStep( {
 					 * stop the user cannot see.
 					 */ }
 					{ chosen?.freeText && onFreeTextChange && (
-						<FreeTextField value={ freeText } onChange={ onFreeTextChange } />
+						<FreeTextField
+							value={ freeText }
+							onChange={ onFreeTextChange }
+							takeFocus={ chosenDeliberately.current }
+						/>
 					) }
 				</div>
 			) }
