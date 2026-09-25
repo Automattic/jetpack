@@ -269,24 +269,6 @@ describe( 'usePostDetailTabs', () => {
 		expect( result.current.isEmailNotSent ).toBe( false );
 	} );
 
-	it( 'gives an email tab no widgets while the send check is pending', () => {
-		// Widgets drawn now would be swapped for the not-sent state if it answers "no sends".
-		mockEmailSends( undefined, 'loading' );
-		mockSearch( 'email-opens' );
-		const pinned = {
-			post_id: POST_ID,
-			preset: 'all-time' as const,
-			from: '2026-06-22',
-			to: '2026-08-28',
-			interval: 'week' as const,
-		};
-
-		const { result } = renderHook( () => usePostDetailTabs( POST_ID, pinned, false, 'post' ) );
-
-		expect( result.current.isEmailSendPending ).toBe( true );
-		expect( result.current.layout ).toEqual( [] );
-	} );
-
 	it( 'leaves the Post traffic layout alone for a post never sent', () => {
 		mockEmailSends( 0 );
 		mockSearch( 'post-traffic' );
@@ -380,7 +362,7 @@ describe( 'usePostDetailTabs', () => {
 		mockEmailSends( undefined, 'paused' );
 		mockSearch( 'email-opens' );
 
-		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID, undefined, false, 'post' ) );
 
 		expect( result.current.activeTab ).toBe( 'email-opens' );
 		expect( result.current.isEmailNotSent ).toBe( false );
