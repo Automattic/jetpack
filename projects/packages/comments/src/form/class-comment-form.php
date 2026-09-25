@@ -335,6 +335,9 @@ class Comment_Form {
 			return;
 		}
 
+		// The asset version is the script's hash, so a stylesheet-only change would ship under a cached URL.
+		$asset = include dirname( __DIR__, 2 ) . '/build/comments.asset.php';
+
 		Assets::register_script(
 			self::HANDLE,
 			'../../build/comments.js',
@@ -342,6 +345,7 @@ class Comment_Form {
 			array(
 				'in_footer' => true,
 				'strategy'  => 'defer',
+				'version'   => $asset['version'] . '-' . (string) filemtime( dirname( __DIR__, 2 ) . '/build/comments.css' ),
 			)
 		);
 
