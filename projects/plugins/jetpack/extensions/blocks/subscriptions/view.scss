@@ -1,4 +1,5 @@
 @use "sass:string";
+@use "@automattic/color-studio/dist/color-variables" as cs;
 
 @function x($var-name, $fallback) {
 
@@ -141,4 +142,28 @@
 		margin-left: 0 !important;
 		margin-top: 0 !important;
 	}
+}
+
+.jetpack-subscribe-admin-note {
+	box-sizing: border-box;
+	margin-block: 8px;
+	margin-inline: 0;
+	padding: 8px 12px;
+	border: 1px solid cs.$studio-gray-5;
+	border-radius: 4px;
+	background: cs.$studio-white;
+	color: cs.$studio-gray-90;
+	font-family: system-ui, sans-serif;
+	font-size: 13px;
+	line-height: 1.4;
+	text-align: start;
+
+	a {
+		color: inherit;
+		text-decoration: underline;
+	}
+}
+
+.jetpack-subscribe-admin-note__visibility {
+	color: cs.$studio-gray-70;
 }
