@@ -172,7 +172,6 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 			{ isSavedGuest && ! signedIn.value && (
 				<input type="hidden" name="wp-comment-cookies-consent" value="yes" />
 			) }
-			<IdentityDialog />
 		</>
 	);
 };
@@ -203,13 +202,23 @@ if ( JetpackComments.version !== JETPACK_COMMENTS_VERSION ) {
 		// Before the signals read the draft, so a comment that landed is not offered back.
 		resolveSubmitted( formSettings.postId );
 
+		const signals = createSignals( formSettings );
+
 		element.replaceChildren();
 		element.classList.add( 'is-mounted' );
 		render(
-			<CommentSignals.Provider value={ createSignals( formSettings ) }>
+			<CommentSignals.Provider value={ signals }>
 				<CommentForm form={ form } />
 			</CommentSignals.Provider>,
 			element
+		);
+
+		// Outside the form and the theme's comment-form rules; its fields point back with `form`.
+		render(
+			<CommentSignals.Provider value={ signals }>
+				<IdentityDialog formId={ form.id } />
+			</CommentSignals.Provider>,
+			document.body.appendChild( document.createElement( 'div' ) )
 		);
 
 		// The box wears the radius and inset the theme gives its textarea; nothing exposes them otherwise.

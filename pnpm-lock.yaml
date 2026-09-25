@@ -2343,6 +2343,9 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
+      '@wordpress/base-styles':
+        specifier: 13.1.0
+        version: 13.1.0
       '@wordpress/browserslist-config':
         specifier: 6.55.0
         version: 6.55.0
@@ -36641,7 +36644,7 @@ snapshots:
       neo-async: 2.6.2
     optionalDependencies:
       sass-embedded: 1.97.3
-      webpack: 5.107.2(webpack-cli@7.2.1)
+      webpack: 5.107.2(postcss@8.5.23)(webpack-cli@7.2.1)
 
   sax@1.6.1: {}
 
@@ -38027,7 +38030,7 @@ snapshots:
       import-local: 3.2.0
       interpret: 3.1.1
       rechoir: 0.8.0
-      webpack: 5.107.2(webpack-cli@7.2.1)
+      webpack: 5.107.2(postcss@8.5.23)(webpack-cli@7.2.1)
       webpack-merge: 6.0.1
 
   webpack-dev-middleware@8.3.0(webpack@5.107.2):

@@ -9,13 +9,17 @@ import './dialog.scss';
  * Asks a reader who they are on their way to posting, plus any subscribe options
  * the host offers. A saved guest opens it alone to edit their details.
  *
- * It sits inside the form, so its fields post with the comment. "Save and post"
+ * It renders outside the form, away from the theme's comment-form styles, and its
+ * fields post with the comment through the `form` attribute. "Save and post"
  * carries core's cookies-consent field and "No, thanks" does not, so core clears
  * any saved details on the latter.
  *
+ * @param props        - Component props.
+ * @param props.formId - The id of the comment form the fields post with.
  * @return The dialog.
  */
-export const IdentityDialog = () => {
+export const IdentityDialog = ( props: { formId: string } ) => {
+	const { formId } = props;
 	const { formSettings, commenter, commentParent, signedIn, isKnown, isDialogOpen, isEditing } =
 		useContext( CommentSignals );
 	const { site, strings, user, mustLogIn, requireNameEmail, identity } = JetpackComments;
@@ -129,7 +133,6 @@ export const IdentityDialog = () => {
 	const known = ! editing && isKnown.value;
 	const showFields = ! known && ! mustLogIn;
 	const holdButtons = emailTaken || checkingEmail;
-	const { submit } = formSettings;
 
 	return (
 		<dialog
@@ -166,7 +169,7 @@ export const IdentityDialog = () => {
 							<span className="jetpack-comments__spinner" aria-hidden="true" />
 							<button
 								type="button"
-								className="jetpack-comments__link-button"
+								className="jetpack-comments__button is-link"
 								onClick={ () => {
 									signInAttempt.current++;
 									popup.current?.close();
@@ -205,23 +208,17 @@ export const IdentityDialog = () => {
 			) }
 			{ showFields &&
 				fields.map( ( { field, ...input } ) => (
-					<p key={ field } className={ `comment-form-${ field }` }>
-						<label htmlFor={ field }>
+					<div key={ field } className="jetpack-comments__field">
+						<label htmlFor={ field } className="jetpack-comments__label">
 							{ input.label }
-							{ input.required && (
-								<>
-									{ ' ' }
-									<span className="required" aria-hidden="true">
-										*
-									</span>
-								</>
-							) }
 						</label>
 						<input
 							id={ field }
 							name={ field }
+							form={ formId }
 							type={ input.type }
 							autoComplete={ input.autoComplete }
+							className="jetpack-comments__input"
 							aria-describedby={ field === 'email' ? 'email-notes' : undefined }
 							aria-invalid={ field === 'email' && emailTaken ? 'true' : undefined }
 							required={ input.required }
@@ -238,7 +235,7 @@ export const IdentityDialog = () => {
 							onBlur={ field === 'email' ? () => checkEmail( commenter.value.email ) : undefined }
 						/>
 						{ field === 'email' && (
-							<span id="email-notes" className="comment-notes">
+							<span id="email-notes" className="jetpack-comments__help">
 								{ strings.emailHint }
 							</span>
 						) }
@@ -247,66 +244,61 @@ export const IdentityDialog = () => {
 								{ strings.emailHasAccount }
 							</span>
 						) }
-					</p>
+					</div>
 				) ) }
 			{ ! editing &&
 				( known || ! mustLogIn ) &&
 				formSettings.subscriptions.map( subscription => {
 					const id = `jetpack-comments-${ subscription.name }-${ formSettings.postId }`;
 
-					// Jetpack Subscriptions' own markup, for the same reason.
 					return (
-						<p key={ subscription.name } className="comment-subscription-form">
+						<label key={ subscription.name } htmlFor={ id } className="jetpack-comments__checkbox">
 							<input
 								id={ id }
+								form={ formId }
 								type="checkbox"
 								name={ subscription.name }
 								value="subscribe"
 								defaultChecked={ subscription.checked }
-							/>{ ' ' }
-							<label htmlFor={ id } className="subscribe-label">
-								{ subscription.label }
-							</label>
-						</p>
+							/>
+							<span>{ subscription.label }</span>
+						</label>
 					);
 				} ) }
 			<div className="jetpack-comments__dialog-actions">
 				{ editing && (
-					<span className={ submit.wrapClass }>
-						<button
-							type="button"
-							className={ submit.class }
-							disabled={ holdButtons }
-							onClick={ save }
-						>
-							{ strings.save }
-						</button>
-					</span>
+					<button
+						type="button"
+						className="jetpack-comments__button is-primary"
+						disabled={ holdButtons }
+						onClick={ save }
+					>
+						{ strings.save }
+					</button>
 				) }
 				{ known && (
-					<span className={ submit.wrapClass }>
-						<input
-							type="submit"
-							className={ submit.class }
-							value={ commentParent.value ? strings.reply : submit.label }
-						/>
-					</span>
+					<input
+						type="submit"
+						form={ formId }
+						className="jetpack-comments__button is-primary"
+						value={ commentParent.value ? strings.reply : formSettings.submit.label }
+					/>
 				) }
 				{ showFields && ! editing && (
 					<>
-						<span className={ submit.wrapClass }>
-							{ /* The label is what posts; core only checks that the field is set. */ }
-							<input
-								type="submit"
-								name="wp-comment-cookies-consent"
-								className={ submit.class }
-								disabled={ holdButtons }
-								value={ strings.saveAndPost }
-							/>
-						</span>
+						{ /* The label is what posts; core only checks that the field is set. */ }
+						<input
+							type="submit"
+							form={ formId }
+							name="wp-comment-cookies-consent"
+							className="jetpack-comments__button is-primary"
+							disabled={ holdButtons }
+							value={ strings.saveAndPost }
+						/>
 						<button
 							type="submit"
-							className="jetpack-comments__link-button"
+							form={ formId }
+							className="jetpack-comments__button is-link"
 							disabled={ holdButtons }
 						>
 							{ strings.postWithoutSaving }
