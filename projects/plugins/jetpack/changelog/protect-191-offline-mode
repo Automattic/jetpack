@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Account Protection: Disable the password-breach check and verification code flow when Jetpack is in offline mode (e.g. local/dev environments with JETPACK_DEV_DEBUG=true).
