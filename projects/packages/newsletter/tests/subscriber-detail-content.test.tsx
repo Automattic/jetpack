@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import SubscriberDetailContent from '../_inc/subscribers/components/detail/subscriber-detail-content';
+import { formatRate } from '../routes/dashboard/components/helpers/format-metric';
 import type {
 	SubscribedNewsletterCategories,
 	SubscriberDetails,
@@ -184,6 +185,20 @@ describe( 'SubscriberDetailContent', () => {
 
 		await expect( screen.findByText( 'Subscription type' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Receives emails for' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'formats open and click rates as locale-aware percentages', async () => {
+		mockFetchSubscriberStats.mockResolvedValue( {
+			emails_sent: 10,
+			unique_opens: 5,
+			unique_clicks: 1,
+		} );
+
+		renderPanel();
+
+		await expect( screen.findByText( 'Open rate' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( formatRate( 50 ) ) ).toBeInTheDocument();
+		expect( screen.getByText( formatRate( 10 ) ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders the date the individual endpoint reports', async () => {
