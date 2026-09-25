@@ -1,6 +1,5 @@
 import { createContext, useCallback, useContext, useMemo } from 'react';
 import useAnalytics from '../../../hooks/use-analytics';
-import type { EmptyStateReason } from './empty-state';
 import type { FeatureState } from './feature-state';
 import type { FeaturesView } from './toolbar';
 import type { FeatureFilter } from './use-feature-filter';
@@ -9,12 +8,15 @@ import type { ReactNode } from 'react';
 export type FeatureActionType = 'install' | 'activate' | 'deactivate';
 export type BulkActionType = 'activate' | 'deactivate';
 
+/** What emptied the grid, in the order the empty states are checked. */
+export type EmptyStateReason = 'no-catalog' | 'search' | 'active' | 'inactive' | 'none';
+
 /** The way out an empty state offers, whichever one it is showing. */
 export type EmptyStateAction = 'reload' | 'support_search' | 'explore_all';
 
 /**
  * Which control the click came from, since the card and the modal offer the same actions.
- * `more_features` is that section's own offer to activate Jetpack, which names no feature.
+ * `more_features` is any control in that section, including its offer to activate Jetpack.
  */
 export type FeatureActionOrigin = 'card' | 'modal' | 'more_features';
 

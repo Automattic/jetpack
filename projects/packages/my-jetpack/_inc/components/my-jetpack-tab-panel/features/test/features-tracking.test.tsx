@@ -71,8 +71,16 @@ const mockStates = [
 	},
 ] as unknown as FeatureState[];
 
+// Stands in for modules still loading, when each feature is a placeholder reading inactive.
+let mockPending = false;
+
 jest.mock( '../feature-state', () => ( {
-	useFeatureStates: () => ( { states: mockStates, isLoading: false } ),
+	useFeatureStates: () => ( {
+		states: mockPending
+			? mockStates.map( state => ( { ...state, pending: true, status: 'inactive' } ) )
+			: mockStates,
+		isLoading: mockPending,
+	} ),
 	// Nothing here is forced by a host, which is what leaves the switches on show.
 	getForcedReason: () => null,
 } ) );
@@ -180,6 +188,7 @@ const lastEvent = ( name: string ) =>
 beforeEach( () => {
 	jest.clearAllMocks();
 	mockMoreFeatures = [];
+	mockPending = false;
 	mockModuleSwitch.onSwitch = undefined;
 	mockModal.onFilterByPlan = undefined;
 	mockGrid.onOpen = undefined;
@@ -275,6 +284,27 @@ describe( 'Features tab modal tracking', () => {
 		expect(
 			eventNames().filter( name => name === 'jetpack_myjetpack_feature_modal_view' )
 		).toHaveLength( 1 );
+	} );
+
+	it( 'waits for a deep-linked feature to load before recording its view', () => {
+		mockPending = true;
+		const { rerender } = renderAt( '/features?feature=stats' );
+
+		expect( eventNames() ).not.toContain( 'jetpack_myjetpack_feature_modal_view' );
+
+		mockPending = false;
+		rerender(
+			<QueryClientProvider client={ new QueryClient() }>
+				<MemoryRouter initialEntries={ [ '/features?feature=stats' ] }>
+					<FeaturesContent />
+				</MemoryRouter>
+			</QueryClientProvider>
+		);
+
+		expect( lastEvent( 'jetpack_myjetpack_feature_modal_view' ) ).toMatchObject( {
+			feature_slug: 'stats',
+			feature_status: 'active',
+		} );
 	} );
 } );
 
@@ -626,6 +656,10 @@ describe( 'How many a filter would show', () => {
 		expect( lastEvent( 'jetpack_myjetpack_features_filter_change' ) ).toMatchObject( {
 			filter: 'complete',
 			count: 2,
+		} );
+		// The badge also steps out of the modal, which is a close.
+		expect( lastEvent( 'jetpack_myjetpack_feature_modal_close' ) ).toMatchObject( {
+			feature_slug: 'stats',
 		} );
 	} );
 

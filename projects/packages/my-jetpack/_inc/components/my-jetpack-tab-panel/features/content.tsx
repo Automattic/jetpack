@@ -33,15 +33,20 @@ const SEARCH_TRACKING_DELAY = 500;
  *
  * @return The active filter, search term, layout, and the feature whose modal is open.
  */
-function useFeaturesParams() {
+function useFeaturesParams(): {
+	search: string;
+	filter: FeatureFilter;
+	openSlug: string | null;
+	view: FeaturesView;
+} {
 	const [ searchParams ] = useSearchParams();
 	const filterParam = searchParams.get( 'filter' ) || 'all';
 
 	return {
 		search: searchParams.get( 'search' ) || '',
-		filter: ( isFeatureFilter( filterParam ) ? filterParam : 'all' ) as FeatureFilter,
+		filter: isFeatureFilter( filterParam ) ? filterParam : 'all',
 		openSlug: searchParams.get( 'feature' ),
-		view: ( searchParams.get( 'view' ) === 'list' ? 'list' : 'grid' ) as FeaturesView,
+		view: searchParams.get( 'view' ) === 'list' ? 'list' : 'grid',
 	};
 }
 
@@ -173,7 +178,8 @@ function FeaturesTabContent() {
 			return;
 		}
 
-		if ( openSlug && open ) {
+		// A deep link can land before the modules do, and a placeholder reads inactive.
+		if ( openSlug && open && ! open.pending ) {
 			if ( shownRef.current !== openSlug ) {
 				tracking.trackModalView( open, openedFromCardRef.current ? 'card' : 'link' );
 				shownRef.current = openSlug;

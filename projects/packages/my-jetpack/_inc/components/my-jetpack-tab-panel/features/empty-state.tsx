@@ -7,6 +7,7 @@ import { reloadPage } from '../products/reload-page';
 import { hasSearch } from '../products/utils';
 import { useFeaturesTracking } from './features-tracking-context';
 import styles from './styles.module.scss';
+import type { EmptyStateReason } from './features-tracking-context';
 import type { FeatureFilter } from './use-feature-filter';
 import type { ReactNode } from 'react';
 
@@ -53,9 +54,6 @@ export type FeaturesEmptyStateProps = {
 	hasCatalog: boolean;
 	onFilterChange: ( filter: FeatureFilter ) => void;
 };
-
-/** What emptied the grid, in the order the states below are checked. */
-export type EmptyStateReason = 'no-catalog' | 'search' | 'active' | 'inactive' | 'none';
 
 /**
  * Which empty state the grid fell into.
