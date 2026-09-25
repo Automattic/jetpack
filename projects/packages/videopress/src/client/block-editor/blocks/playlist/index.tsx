@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { InnerBlocks } from '@wordpress/block-editor';
 import { registerBlockType } from '@wordpress/blocks';
 /**
  * Internal dependencies
@@ -22,8 +23,8 @@ registerBlockType< PlaylistAttributes >( name, {
 	category,
 	title,
 	icon,
-	// Dynamic block: the markup is produced by the render callback in
-	// Initializer::render_videopress_playlist_block().
-	save: () => null,
+	// Dynamic block: only the title heading inner block is saved; the rest of
+	// the markup is produced by Initializer::render_videopress_playlist_block().
+	save: () => <InnerBlocks.Content />,
 	attributes,
 } );

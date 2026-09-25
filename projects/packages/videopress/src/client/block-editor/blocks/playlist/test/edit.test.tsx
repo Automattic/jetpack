@@ -18,11 +18,21 @@ jest.mock( '../use-playlist-id', () => ( {
 	default: jest.fn(),
 } ) );
 
+const mockSetPlaylistTitle = jest.fn();
+jest.mock( '../use-title-heading', () => ( {
+	__esModule: true,
+	default: () => ( { template: [], setPlaylistTitle: mockSetPlaylistTitle } ),
+} ) );
+
 // Editing mode the inner playlist asks for when a Latest Videos Playlist owns it.
 const mockUseBlockEditingMode = jest.fn();
 
 jest.mock( '@wordpress/block-editor', () => ( {
 	useBlockProps: ( props: Record< string, unknown > = {} ) => props,
+	useInnerBlocksProps: ( props: Record< string, unknown > = {} ) => ( {
+		...props,
+		'data-testid': 'title-heading',
+	} ),
 	useBlockEditingMode: ( mode?: string ) => mockUseBlockEditingMode( mode ),
 	InspectorControls: ( { children }: { children: React.ReactNode } ) => (
 		<div data-testid="inspector-controls">{ children }</div>
@@ -85,6 +95,7 @@ const DEFAULT_ATTRIBUTES: PlaylistAttributes = {
 	playlistId: 'playlist-1',
 	playlistTitle: '',
 	playlistDescription: '',
+	showPlaylistTitle: true,
 	videos: [],
 	layout: 'side-rail',
 	darkPlayer: false,
@@ -182,6 +193,7 @@ describe( 'PlaylistEdit inside a Latest Videos Playlist block', () => {
 
 		expect( screen.queryByTestId( 'inspector-controls' ) ).not.toBeInTheDocument();
 		expect( screen.queryByPlaceholderText( 'Paste a video URL' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'title-heading' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: /Remove/ } ) ).not.toBeInTheDocument();
 	} );
 
@@ -733,5 +745,38 @@ describe( 'PlaylistEdit', () => {
 		await userEvent.keyboard( '{ArrowUp}' );
 
 		expect( setAttributes ).not.toHaveBeenCalled();
+	} );
+
+	it( 'renders the title heading above the preview while it is shown', async () => {
+		renderEdit( { videos: [ { guid: 'aaaaaaaa' } ] } );
+		await expect( screen.findByTitle( 'First' ) ).resolves.toBeInTheDocument();
+
+		const heading = screen.getByTestId( 'title-heading' );
+		expect( heading ).toHaveClass( 'videopress-playlist__heading' );
+		expect(
+			screen
+				.getByRole( 'figure' )
+				// eslint-disable-next-line testing-library/no-node-access -- the assertion is about sibling order.
+				.querySelector( ':scope > .videopress-playlist__heading ~ .videopress-playlist__body' )
+		).not.toBeNull();
+	} );
+
+	it( 'renders no title heading once it is hidden', () => {
+		renderEdit( { showPlaylistTitle: false } );
+		expect( screen.queryByTestId( 'title-heading' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'edits the title, description and heading toggle from the sidebar', async () => {
+		const setAttributes = jest.fn();
+		renderEdit( {}, setAttributes );
+
+		await userEvent.type( screen.getByRole( 'textbox', { name: 'Title' } ), 'S' );
+		expect( mockSetPlaylistTitle ).toHaveBeenCalledWith( 'S' );
+
+		await userEvent.type( screen.getByRole( 'textbox', { name: 'Description' } ), 'D' );
+		expect( setAttributes ).toHaveBeenCalledWith( { playlistDescription: 'D' } );
+
+		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Show title as heading' } ) );
+		expect( setAttributes ).toHaveBeenCalledWith( { showPlaylistTitle: false } );
 	} );
 } );

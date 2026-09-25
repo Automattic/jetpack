@@ -376,6 +376,26 @@ class Latest_Videos_Playlist_Block_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A dynamic playlist has no title, so no heading renders even when one is
+	 * stored or passed in.
+	 */
+	public function test_render_has_no_title_heading() {
+		$this->create_video( 'library1', '2024-01-01 10:00:00' );
+
+		$markup = VideoPress_Initializer::render_videopress_latest_videos_playlist_block(
+			array(
+				'playlistTitle'     => 'Injected',
+				'showPlaylistTitle' => true,
+			),
+			'<h2 class="wp-block-heading">Injected</h2>'
+		);
+
+		$this->assertStringContainsString( 'data-guid="library1"', $markup );
+		$this->assertStringNotContainsString( 'videopress-playlist__heading', $markup );
+		$this->assertStringNotContainsString( 'Injected', $markup );
+	}
+
+	/**
 	 * Without VideoPress videos the block renders nothing.
 	 */
 	public function test_render_returns_empty_without_videos() {

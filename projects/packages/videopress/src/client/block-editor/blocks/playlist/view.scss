@@ -22,6 +22,15 @@ $vpp-mono: ui-monospace, menlo, monospace;
 	margin: 0;
 	color: var(--vpp-text);
 
+	// The title: a core Heading block, so theme heading styles apply.
+	&__heading > :is(h1, h2, h3, h4, h5, h6) {
+		margin-block: 0 0.75em;
+	}
+
+	&.is-dark &__heading > :is(h1, h2, h3, h4, h5, h6):not(.has-text-color) {
+		color: var(--vpp-text);
+	}
+
 	&.is-dark {
 		--vpp-text: #f2f1ee;
 		--vpp-muted: #8f8d88;
