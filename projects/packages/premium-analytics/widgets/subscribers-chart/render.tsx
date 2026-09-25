@@ -118,7 +118,8 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 				// refetch failure keeps the chart visible; only surface the error
 				// when there is nothing to show.
 				isError={ state.current.length === 0 && state.isError }
-				isEmpty={ state.current.length === 0 }
+				// `stats/subscribers` answers a window before the site had any with `null` rows.
+				isEmpty={ ! state.current.some( point => ( point.subscribers ?? 0 ) > 0 ) }
 				error={ {
 					description: __(
 						"We couldn't load subscriber data. Please try again in a moment.",

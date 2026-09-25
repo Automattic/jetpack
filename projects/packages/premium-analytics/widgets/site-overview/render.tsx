@@ -12,7 +12,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { comment, globe, people, seen, starEmpty } from '@wordpress/icons';
+import { comment, people, seen, starEmpty } from '@wordpress/icons';
 import { Text } from '@jetpack-premium-analytics/externals';
 import { useMemo } from 'react';
 /**
@@ -107,11 +107,6 @@ function SiteOverviewReport( {
 		);
 	}
 
-	// The summary endpoint resolves to a flat totals object even for an idle
-	// period, so "empty" is every visible metric at zero, not a missing payload.
-	const isEmpty =
-		! summary || visibleMetrics.every( ( { id } ) => TILE_CONFIG[ id ].value( summary ) === 0 );
-
 	const tiles = visibleMetrics.map( ( { id, label } ) => {
 		const { icon, note, value: metricValue } = TILE_CONFIG[ id ];
 		const value = summary ? metricValue( summary ) : 0;
@@ -133,17 +128,14 @@ function SiteOverviewReport( {
 				isLoading={ isLoading || primary.isPending }
 				isFetching={ isFetching }
 				isError={ ! summary && isError }
-				isEmpty={ isEmpty }
+				// Highlights have no empty state: an idle period shows its zeros.
+				isEmpty={ false }
 				error={ {
 					description: __(
 						"We couldn't load the site overview. Please try again in a moment.",
 						'jetpack-premium-analytics-pkg'
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-				} }
-				empty={ {
-					icon: globe,
-					description: __( 'No stats recorded for this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 				renderLoading={ <MetricTileGridSkeleton tiles={ visibleMetrics.length } /> }
 			>

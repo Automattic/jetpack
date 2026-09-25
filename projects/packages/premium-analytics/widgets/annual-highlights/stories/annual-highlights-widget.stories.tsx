@@ -102,8 +102,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no years: the widget shows its empty state (the neutral calendar
- * glyph and "No highlights for this year.").
+ * Resolved with no years: every tile shows zero.
  */
 export const Empty: Story = {
 	render: renderAnnualHighlights,

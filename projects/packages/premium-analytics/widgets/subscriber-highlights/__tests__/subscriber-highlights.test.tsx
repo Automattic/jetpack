@@ -455,14 +455,13 @@ describe( 'SubscriberHighlightsWidget', () => {
 		expect( screen.queryByText( ERROR_TEXT ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'shows the WidgetState empty state when no request carries a count', async () => {
+	it( 'shows zero for the current count and placeholders for the past counts, not an empty state, when no request carries a count', async () => {
 		mockApiFetch.mockImplementation( respondWith( {} ) );
 
 		render( <SubscriberHighlightsWidget attributes={ {} } /> );
 
-		await expect(
-			screen.findByText( 'No subscriber counts available yet.' )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'All-time subscribers' ) ).not.toBeInTheDocument();
+		await expect( screen.findByText( 'All-time subscribers' ) ).resolves.toBeInTheDocument();
+		expect( within( tile( 'All-time subscribers' ) ).getByText( '0' ) ).toBeInTheDocument();
+		expect( screen.getAllByText( '—' ) ).toHaveLength( 3 );
 	} );
 } );

@@ -324,6 +324,29 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( screen.queryByTestId( 'metric-tabs-chart' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'renders the empty state for a zero-filled timeline, not a flat line', async () => {
+		mockApiFetch.mockResolvedValue( {
+			timeline: {
+				...OPENS_TIMELINE_RESPONSE.timeline,
+				data: OPENS_TIMELINE_RESPONSE.timeline.data.map( ( [ date ] ) => [ date, 0 ] ),
+			},
+		} );
+
+		render(
+			<EmailTimeSeriesWidget
+				attributes={ {
+					reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 },
+					metric: 'opens',
+				} }
+			/>
+		);
+
+		await expect(
+			screen.findByText( 'No activity for this email in this period.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByTestId( 'metric-tabs-chart' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'shows loading instead of the stale empty state once a new range drags on', async () => {
 		const emptyResponse = {
 			timeline: { unit: 'day', fields: [ 'date', 'opens_count' ], data: [] },

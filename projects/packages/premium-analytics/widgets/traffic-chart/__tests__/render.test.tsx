@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -62,6 +62,7 @@ function chartClickHandler(): ( date: Date ) => void {
 
 beforeEach( () => {
 	mockDrillDown.mockClear();
+	mockMetricTabsChart.mockClear();
 	mockUseTrafficChart.mockReset();
 	mockUseTrafficChart.mockReturnValue( {
 		metrics: [
@@ -134,5 +135,38 @@ describe( 'TrafficChart drill-down', () => {
 		chartClickHandler()( clicked );
 
 		expect( mockDrillDown ).toHaveBeenCalledWith( clicked, 'month' );
+	} );
+} );
+
+describe( 'TrafficChart with an idle window', () => {
+	// `stats/visits` answers an idle window with a zero for every bucket, not with no rows.
+	const zeroFilled = ( key: string, label: string ) => ( {
+		key,
+		label,
+		value: 0,
+		current: [
+			{ date: new Date( '2026-05-01' ), value: 0 },
+			{ date: new Date( '2026-05-02' ), value: 0 },
+		],
+	} );
+
+	it( 'keeps the tabs and hands the chart the no-results message for its plot', () => {
+		mockUseTrafficChart.mockReturnValue( {
+			metrics: [ zeroFilled( 'views', 'Views' ), zeroFilled( 'visitors', 'Visitors' ) ],
+			isLoading: false,
+			isFetching: false,
+			isError: false,
+			refetch: jest.fn(),
+		} );
+
+		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } /> );
+
+		const calls = mockMetricTabsChart.mock.calls;
+		const { empty } = calls[ calls.length - 1 ][ 0 ];
+		render( empty );
+
+		expect(
+			screen.getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
 	} );
 } );

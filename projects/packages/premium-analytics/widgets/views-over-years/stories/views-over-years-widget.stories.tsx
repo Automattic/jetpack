@@ -149,7 +149,7 @@ export const ErrorRetryable: Story = {
 };
 
 /**
- * Empty — a site the endpoint has no views for.
+ * Empty — a site the endpoint has no views for: the current month alone, at zero.
  */
 export const Empty: Story = {
 	render: renderViewsOverYears,

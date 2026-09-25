@@ -233,6 +233,89 @@ describe( 'MetricTabsChart', () => {
 		expect( screen.queryByText( '300' ) ).not.toBeInTheDocument();
 	} );
 
+	describe( 'with an empty state', () => {
+		const EMPTY_TEXT = 'Nothing in this window.';
+		const zeroFilled: MetricTab = {
+			...METRIC,
+			value: 0,
+			previousValue: undefined,
+			current: METRIC.current.map( point => ( { ...point, value: 0 } ) ),
+			previous: undefined,
+		};
+
+		it( 'shows it in the plot for a zero-filled window, keeping the tabs', () => {
+			render(
+				<MetricTabsChart
+					metrics={ [ zeroFilled, { ...zeroFilled, key: 'visitors', label: 'Visitors' } ] }
+					dataFormat={ DATA_FORMAT }
+					empty={ <p>{ EMPTY_TEXT }</p> }
+				/>
+			);
+
+			expect( screen.queryByTestId( 'line-chart' ) ).not.toBeInTheDocument();
+			expect( screen.getByText( EMPTY_TEXT ) ).toBeInTheDocument();
+			expect( screen.getAllByRole( 'tab' ) ).toHaveLength( 2 );
+		} );
+
+		it( 'shows it for a window of gaps only', () => {
+			const gaps = {
+				...zeroFilled,
+				current: METRIC.current.map( point => ( { ...point, value: null } ) ),
+			};
+
+			render(
+				<MetricTabsChart
+					metrics={ [ gaps ] }
+					dataFormat={ DATA_FORMAT }
+					empty={ <p>{ EMPTY_TEXT }</p> }
+				/>
+			);
+
+			expect( screen.getByText( EMPTY_TEXT ) ).toBeInTheDocument();
+		} );
+
+		it( 'still draws a zero window against a previous period that has readings', () => {
+			render(
+				<MetricTabsChart
+					metrics={ [ { ...zeroFilled, previous: METRIC.previous } ] }
+					dataFormat={ DATA_FORMAT }
+					empty={ <p>{ EMPTY_TEXT }</p> }
+				/>
+			);
+
+			expect( screen.getByTestId( 'line-chart' ) ).toBeInTheDocument();
+			expect( screen.queryByText( EMPTY_TEXT ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'keeps an unavailable metric’s reason rather than calling it empty', () => {
+			const reason = "Hourly data isn't available for this metric.";
+
+			render(
+				<MetricTabsChart
+					metrics={ [ { ...zeroFilled, unavailable: reason } ] }
+					dataFormat={ DATA_FORMAT }
+					empty={ <p>{ EMPTY_TEXT }</p> }
+				/>
+			);
+
+			expect( screen.queryByText( EMPTY_TEXT ) ).not.toBeInTheDocument();
+			expect( screen.getAllByText( reason ) ).not.toHaveLength( 0 );
+		} );
+	} );
+
+	it( 'draws a zero-filled window as a line when no empty state is given', () => {
+		render(
+			<MetricTabsChart
+				metrics={ [
+					{ ...METRIC, current: [ { date: new Date(), value: 0 } ], previous: undefined },
+				] }
+				dataFormat={ DATA_FORMAT }
+			/>
+		);
+
+		expect( screen.getByTestId( 'line-chart' ) ).toBeInTheDocument();
+	} );
+
 	// A point's date is the instant it is: the component passes it through, and
 	// the site's zone decides which calendar day that instant lands on.
 	it.each( [

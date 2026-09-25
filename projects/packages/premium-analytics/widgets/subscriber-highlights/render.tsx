@@ -5,7 +5,6 @@ import {
 	useStatsSubscribersCounts,
 	useStatsSubscribersDaysAgo,
 } from '@jetpack-premium-analytics/data';
-import { customer } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTileGrid,
 	MetricTileGridSkeleton,
@@ -127,7 +126,7 @@ function SubscriberHighlightsReport() {
 			key: 'free',
 			label: __( 'Free subscribers', 'jetpack-premium-analytics-pkg' ),
 			icon: envelope,
-			value: free ?? null,
+			value: free ?? 0,
 			previousValue: freeMonthAgo,
 			note:
 				freeMonthAgo !== null
@@ -173,7 +172,7 @@ function SubscriberHighlightsReport() {
 			key: 'total',
 			label: ALL_TIME_LABEL,
 			icon: people,
-			value: total ?? null,
+			value: total ?? 0,
 			previousValue: hasPaidSubscribers ? totalMonthAgo : undefined,
 			note:
 				hasPaidSubscribers && totalMonthAgo !== null
@@ -190,8 +189,6 @@ function SubscriberHighlightsReport() {
 		...socialTiles,
 	];
 
-	const hasCounts = tiles.some( tile => tile.value !== null );
-	// Scoped to the history: the All-time tile is in `tiles` whenever counts load, so `hasCounts` can never report the history as missing.
 	const hasHistory = past.counts.some( count => count !== undefined );
 	const isLoading = counts.isLoading || ( showsHistory && past.isLoading );
 
@@ -202,7 +199,8 @@ function SubscriberHighlightsReport() {
 				isFetching={ counts.isFetching || past.isFetching || monthAgo.isFetching }
 				// `placeholderData` keeps the last counts on screen, so a transient refetch failure should not replace them with an error.
 				isError={ countsFailed || ( showsHistory && past.isError && ! hasHistory ) }
-				isEmpty={ ! hasCounts }
+				// Highlights have no empty state: a missing current count shows zero, a missing past count its placeholder.
+				isEmpty={ false }
 				error={ {
 					description: __(
 						"We couldn't load subscriber highlights. Please try again in a moment.",
@@ -223,10 +221,6 @@ function SubscriberHighlightsReport() {
 							},
 						},
 					],
-				} }
-				empty={ {
-					icon: customer,
-					description: __( 'No subscriber counts available yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 				renderLoading={ <MetricTileGridSkeleton tiles={ tiles.length } /> }
 			>

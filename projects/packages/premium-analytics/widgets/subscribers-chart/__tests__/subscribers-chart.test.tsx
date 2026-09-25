@@ -114,6 +114,24 @@ describe( 'SubscribersChartWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-headline', '5' );
 	} );
 
+	it( 'shows the empty state for a window of null counts, not an empty plot', async () => {
+		mockUseStatsSubscribersReport.mockReturnValue(
+			reportWith( [
+				{ date_start: '2015-01-01T00:00:00', subscribers: null, subscribers_paid: null },
+				{ date_start: '2015-01-02T00:00:00', subscribers: null, subscribers_paid: null },
+			] )
+		);
+
+		render(
+			<SubscribersChartWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } />
+		);
+
+		await expect(
+			screen.findByText( 'No subscriber data in this period.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByTestId( 'metric-tabs-chart' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'offers the Paid subscribers tab only when the site has paid subscribers', async () => {
 		mockUseStatsSubscribersReport.mockReturnValue(
 			reportWith( [ { date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: 2 } ] )

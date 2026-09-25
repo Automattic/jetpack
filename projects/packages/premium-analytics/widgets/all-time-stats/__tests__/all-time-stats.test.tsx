@@ -66,6 +66,14 @@ describe( 'AllTimeStatsWidget', () => {
 		expect( screen.queryByText( '47', { selector: '[aria-hidden]' } ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'shows every total as zero, not an empty state, when the payload has no totals', async () => {
+		mockApiFetch.mockResolvedValue( {} );
+		renderWidget();
+
+		await expect( screen.findByText( 'Views' ) ).resolves.toBeInTheDocument();
+		expect( screen.getAllByText( '0' ) ).toHaveLength( 4 );
+	} );
+
 	it( 'ignores a metrics subset persisted by an earlier version', async () => {
 		renderWidget( { metrics: [ 'views' ] } );
 
