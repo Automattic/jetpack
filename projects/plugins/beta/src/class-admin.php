@@ -36,7 +36,6 @@ class Admin {
 	 * Action for `admin_menu` and `network_admin_menu`.
 	 */
 	public static function add_actions() {
-		// An older admin-ui, loaded first by another plugin, may predate the position tiers.
 		$position = defined( Admin_Menu::class . '::POSITION_LAST' ) ? Admin_Menu::POSITION_LAST : 998;
 
 		self::$hookname = Admin_Menu::add_menu(

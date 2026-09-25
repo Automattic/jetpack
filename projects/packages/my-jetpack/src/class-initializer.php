@@ -208,7 +208,6 @@ class Initializer {
 	 * @return void
 	 */
 	public static function add_my_jetpack_menu_item() {
-		// An older admin-ui, loaded first by another plugin, may predate the position tiers.
 		$position    = defined( Admin_Menu::class . '::POSITION_FIRST' ) ? Admin_Menu::POSITION_FIRST : -10;
 		$menu_slug   = 'my-jetpack';
 		$page_suffix = Admin_Menu::add_menu(

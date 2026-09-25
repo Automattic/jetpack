@@ -68,7 +68,6 @@ class Admin_Sidebar_Link {
 			return;
 		}
 
-		// An older admin-ui, loaded first by another plugin, may predate the position tiers.
 		$position = defined( Admin_Menu::class . '::POSITION_EXTERNAL' ) ? Admin_Menu::POSITION_EXTERNAL : 100;
 
 		if ( $this->should_show_scan() ) {

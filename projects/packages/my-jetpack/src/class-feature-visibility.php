@@ -46,7 +46,6 @@ class Feature_Visibility {
 			return array();
 		}
 
-		// An older admin-ui, loaded first by another plugin, may predate the visibility states.
 		$hidden = defined( Admin_Menu::class . '::VISIBILITY_HIDDEN' ) ? Admin_Menu::VISIBILITY_HIDDEN : 'hidden';
 
 		return array_keys(

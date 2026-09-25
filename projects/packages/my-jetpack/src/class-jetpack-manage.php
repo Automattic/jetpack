@@ -187,7 +187,6 @@ class Jetpack_Manage {
 			$args = array( 'site' => $blog_id );
 		}
 
-		// An older admin-ui, loaded first by another plugin, may predate the position tiers.
 		$position = defined( Admin_Menu::class . '::POSITION_EXTERNAL' ) ? Admin_Menu::POSITION_EXTERNAL : 100;
 
 		return Admin_Menu::add_menu(

@@ -1077,7 +1077,6 @@ class Jetpack_Subscriptions {
 			array( 'site' => $blog_id ? $blog_id : $status->get_site_suffix() )
 		);
 
-		// An older admin-ui, loaded first by another plugin, may predate the position tiers.
 		$position = defined( Admin_Menu::class . '::POSITION_EXTERNAL' ) ? Admin_Menu::POSITION_EXTERNAL : 100;
 
 		Admin_Menu::add_menu(
