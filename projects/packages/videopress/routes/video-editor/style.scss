@@ -155,6 +155,9 @@
 
 // The timeline docked below the canvas, full width.
 .vp-video-editor__timeline-section {
+	min-inline-size: 0;
+	margin: 0;
+	border: 0;
 	border-block-start: 1px solid var(--vp-gray-200);
 	padding-block: 16px 20px;
 	padding-inline: 24px;

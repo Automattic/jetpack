@@ -16,6 +16,7 @@ const VIDEO_TESTID = 'studio-editor-preview-video';
 // jsdom's media element implements neither play() nor pause(); stub them to
 // fire the events a real element would so the hook's state machine runs.
 beforeEach( () => {
+	jest.clearAllMocks();
 	mockApiFetch( () => ( {} ) );
 	jest.mocked( fetchVideoItem ).mockResolvedValue( { original: '' } as never );
 	jest.spyOn( window.HTMLMediaElement.prototype, 'play' ).mockImplementation( function (
@@ -204,4 +205,15 @@ describe( 'StudioEditorPreviewPlayer', () => {
 		expect( getVideo().currentTime ).toBe( 1.5 );
 		expect( onTimeUpdate ).toHaveBeenLastCalledWith( 1500 );
 	} );
+} );
+
+it( 'shows a processing placeholder without fetching the original, then loads it on completion', () => {
+	const onSourceReadyChange = jest.fn();
+	const { rerender } = renderPlayer( { processing: true, onSourceReadyChange } );
+	expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'This video is processing.' );
+	expect( screen.queryByTestId( VIDEO_TESTID ) ).not.toBeInTheDocument();
+	expect( fetchVideoItem ).not.toHaveBeenCalled();
+	expect( onSourceReadyChange ).toHaveBeenLastCalledWith( false );
+	rerender( <StudioEditorPreviewPlayer { ...defaultProps } processing={ false } /> );
+	expect( getVideo() ).toHaveAttribute( 'src', defaultProps.video.originalUrl );
 } );

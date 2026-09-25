@@ -16,6 +16,7 @@ export type StudioEditorPreviewPlayerHandle = ChaptersPreviewPlayerHandle;
 type Props = {
 	video: LibraryItem;
 	session: EditSession;
+	processing?: boolean;
 	/** The untouched source: rendition URLs may already include saved edits. */
 	masterUrl?: string;
 	onTimeUpdate?: ( currentMs: number ) => void;
@@ -30,6 +31,7 @@ const StudioEditorPreviewPlayer = forwardRef< StudioEditorPreviewPlayerHandle, P
 			video,
 			session,
 			masterUrl,
+			processing = false,
 			onTimeUpdate,
 			onDurationChange,
 			onPlayingChange,
@@ -42,9 +44,9 @@ const StudioEditorPreviewPlayer = forwardRef< StudioEditorPreviewPlayerHandle, P
 		const original = useQuery( {
 			queryKey: [ 'videopress-original-source', guid, isPrivate ],
 			queryFn: async () => ( await fetchVideoItem( { guid, isPrivate } ) )?.original || null,
-			enabled: Boolean( guid ) && ! masterUrl && ! video.originalUrl,
+			enabled: ! processing && Boolean( guid ) && ! masterUrl && ! video.originalUrl,
 		} );
-		const sourceUrl = masterUrl || video.originalUrl || original.data;
+		const sourceUrl = processing ? null : masterUrl || video.originalUrl || original.data;
 		const token = usePlaybackTokenQuery( guid, isPrivate && Boolean( sourceUrl ) );
 		const {
 			currentMs,
@@ -87,7 +89,19 @@ const StudioEditorPreviewPlayer = forwardRef< StudioEditorPreviewPlayerHandle, P
 		const tokenFailed = isPrivate && ( token.isError || ( token.isSuccess && ! token.data ) );
 
 		let placeholder = <Spinner />;
-		if ( ! sourceUrl && ! original.isFetching ) {
+		if ( processing ) {
+			placeholder = (
+				<div role="status">
+					<Spinner />
+					<p>
+						{ __(
+							'This video is processing. You can leave this page and come back later.',
+							'jetpack-videopress-pkg'
+						) }
+					</p>
+				</div>
+			);
+		} else if ( ! sourceUrl && ! original.isFetching ) {
 			placeholder = <p>{ __( 'The original video is unavailable.', 'jetpack-videopress-pkg' ) }</p>;
 		} else if ( tokenFailed ) {
 			placeholder = (
@@ -119,7 +133,7 @@ const StudioEditorPreviewPlayer = forwardRef< StudioEditorPreviewPlayerHandle, P
 					) : (
 						<div className="vp-studio-editor-preview__placeholder">{ placeholder }</div>
 					) }
-					{ playbackError && (
+					{ ! processing && playbackError && (
 						<p className="vp-studio-editor-preview__error" role="alert">
 							{ playbackError }
 						</p>

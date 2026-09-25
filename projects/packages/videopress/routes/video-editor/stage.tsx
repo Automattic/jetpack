@@ -624,6 +624,10 @@ function EditorRoute( { id }: { id: string } ): ReactElement {
 		return <EditorNotFound videoId={ id } />;
 	}
 
+	if ( activeTool === 'trim' && isTrimCutEnabled() ) {
+		return <TrimCutEditor key={ video.guid } video={ video } onSelectTool={ setActiveTool } />;
+	}
+
 	if ( video.isProcessing || video.durationSeconds <= 0 ) {
 		// A video without a known duration can't host a timeline. useVideo
 		// keeps polling while processing, so the editor appears on its own
@@ -642,11 +646,7 @@ function EditorRoute( { id }: { id: string } ): ReactElement {
 		);
 	}
 
-	return activeTool === 'trim' && isTrimCutEnabled() ? (
-		<TrimCutEditor key={ video.guid } video={ video } onSelectTool={ setActiveTool } />
-	) : (
-		<EditorReady key={ video.guid } video={ video } onSelectTool={ setActiveTool } />
-	);
+	return <EditorReady key={ video.guid } video={ video } onSelectTool={ setActiveTool } />;
 }
 
 const StageInner = () => {

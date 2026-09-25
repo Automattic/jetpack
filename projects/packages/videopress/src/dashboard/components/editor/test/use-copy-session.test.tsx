@@ -34,6 +34,7 @@ const accepted: SaveVideoCopyResponse = {
 let status: SaveVideoCopyResponse | undefined;
 
 beforeEach( () => {
+	sessionStorage.clear();
 	jest.clearAllMocks();
 	status = undefined;
 	mutate.mockResolvedValue( accepted );
@@ -243,4 +244,64 @@ describe( 'useCopySession', () => {
 		expect( result.current.request?.requestId ).toBe( request.requestId );
 		expect( result.current.locked ).toBe( true );
 	} );
+} );
+
+it( 'resumes an accepted copy after remounting without submitting another job', async () => {
+	const { result: firstResult, unmount: unmountFirst } = renderHook( () =>
+		useCopySession( request.guid )
+	);
+	await act( async () => firstResult.current.submit( request ) );
+	unmountFirst();
+	const {
+		result: secondResult,
+		rerender: rerenderSecond,
+		unmount: unmountSecond,
+	} = renderHook( () => useCopySession( request.guid ) );
+	expect( secondResult.current.request ).toEqual( request );
+	expect( secondResult.current.saved ).toBe( true );
+	expect( secondResult.current.locked ).toBe( true );
+	expect( useVideoCopyStatus ).toHaveBeenLastCalledWith( request.guid, request.requestId );
+	expect( mutate ).toHaveBeenCalledTimes( 1 );
+	status = { ...accepted, attachment_id: 17, job: { ...accepted.job, status: 'complete' } };
+	rerenderSecond();
+	unmountSecond();
+	const { result: thirdResult } = renderHook( () => useCopySession( request.guid ) );
+	expect( thirdResult.current.request ).toBeNull();
+} );
+
+it( 'keeps an interrupted copy request recoverable across navigation until acceptance is confirmed', async () => {
+	mutate.mockRejectedValueOnce( new Error( 'Connection lost' ) );
+	const { result: firstResult, unmount: unmountFirst } = renderHook( () =>
+		useCopySession( request.guid )
+	);
+	await act( async () => firstResult.current.submit( request ) );
+	expect( firstResult.current.saved ).toBe( false );
+	unmountFirst();
+	const { result: secondResult, rerender: rerenderSecond } = renderHook( () =>
+		useCopySession( request.guid )
+	);
+	expect( secondResult.current.request ).toEqual( request );
+	expect( secondResult.current.saved ).toBe( false );
+	status = accepted;
+	rerenderSecond();
+	expect( secondResult.current.saved ).toBe( true );
+	expect( mutate ).toHaveBeenCalledTimes( 1 );
+} );
+
+it( 'can still save when browser storage is unavailable', async () => {
+	const get = jest.spyOn( Storage.prototype, 'getItem' ).mockImplementation( () => {
+		throw new Error( 'Storage blocked' );
+	} );
+	const set = jest.spyOn( Storage.prototype, 'setItem' ).mockImplementation( () => {
+		throw new Error( 'Storage blocked' );
+	} );
+	try {
+		const { result } = renderHook( () => useCopySession( request.guid ) );
+		await act( async () => result.current.submit( request ) );
+		expect( result.current.saved ).toBe( true );
+		expect( mutate ).toHaveBeenCalledWith( request );
+	} finally {
+		get.mockRestore();
+		set.mockRestore();
+	}
 } );

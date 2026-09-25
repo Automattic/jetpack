@@ -65,7 +65,7 @@ jest.mock( '../preview/preview-player', () => {
 	const { forwardRef, useImperativeHandle } = jest.requireActual( 'react' );
 	return {
 		__esModule: true,
-		default: forwardRef( ( { onSourceReadyChange, onDurationChange }, ref ) => {
+		default: forwardRef( ( { onSourceReadyChange, onDurationChange, processing }, ref ) => {
 			useImperativeHandle( ref, () => ( {
 				seekTo: jest.fn(),
 				play: jest.fn(),
@@ -73,6 +73,9 @@ jest.mock( '../preview/preview-player', () => {
 				togglePlay: jest.fn(),
 				isPlaying: () => false,
 			} ) );
+			if ( processing ) {
+				return <div role="status">Video processing placeholder</div>;
+			}
 			return (
 				<video
 					aria-label="Original video preview"
@@ -206,6 +209,7 @@ function copyResponse( job: EditsJob = processingJob ): SaveVideoCopyResponse {
 }
 
 beforeEach( () => {
+	sessionStorage.clear();
 	jest.clearAllMocks();
 	confirmNavigation = jest.spyOn( window, 'confirm' ).mockReturnValue( false );
 	jest.mocked( useNavigate ).mockReturnValue( navigate );
@@ -833,4 +837,110 @@ it( 'suspends editor shortcuts until the save dialog is dismissed', async () => 
 		'aria-disabled',
 		'true'
 	);
+} );
+
+it.each( [ 'update', 'copy' ] )(
+	'stops warning on navigation after an accepted %s save',
+	async mode => {
+		const { user, refresh } = renderEditor();
+		if ( mode === 'copy' ) {
+			await saveCopy( user );
+		} else {
+			await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Update video' } ) );
+		}
+		const event = new Event( 'beforeunload', { cancelable: true } );
+		window.dispatchEvent( event );
+		expect( event.defaultPrevented ).toBe( false );
+		await user.click( screen.getByRole( 'tab', { name: 'Details' } ) );
+		expect( confirmNavigation ).not.toHaveBeenCalled();
+
+		if ( mode === 'copy' ) {
+			setCopyStatus( copyResponse( { ...processingJob, status: 'failed' } ) );
+		} else {
+			setEdits( { job: { ...processingJob, status: 'failed' } } );
+		}
+		refresh();
+		const failedEvent = new Event( 'beforeunload', { cancelable: true } );
+		window.dispatchEvent( failedEvent );
+		expect( failedEvent.defaultPrevented ).toBe( true );
+	}
+);
+
+it( 'keeps a processing copy in the editor and unlocks it when the job completes', () => {
+	const processingVideo = { ...video, durationSeconds: 0, isProcessing: true };
+	setEdits( { job: processingJob } );
+	const { rerender } = render(
+		<TrimCutEditor video={ processingVideo } onSelectTool={ selectTool } />,
+		{ wrapper: createTestWrapper() }
+	);
+	expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Video processing placeholder' );
+	expect( screen.getByRole( 'button', { name: 'Play' } ) ).toBeDisabled();
+	expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
+		'aria-disabled',
+		'true'
+	);
+	expect( screen.getByRole( 'button', { name: 'Chapters' } ) ).toBeDisabled();
+	setEdits( { job: { ...processingJob, status: 'complete' }, revision: 3 } );
+	rerender( <TrimCutEditor video={ processingVideo } onSelectTool={ selectTool } /> );
+	loadOriginal();
+	expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
+	expect( screen.getByRole( 'button', { name: 'New cut' } ) ).not.toHaveAttribute(
+		'aria-disabled',
+		'true'
+	);
+} );
+
+it( 'shows the failed job and retained original when attachment metadata never finished', () => {
+	setEdits( {
+		job: {
+			...processingJob,
+			status: 'failed',
+			error: { code: 'transcode_failed', message: 'The edited video could not be processed.' },
+		},
+	} );
+	render(
+		<TrimCutEditor
+			video={ { ...video, durationSeconds: 0, isProcessing: true } }
+			onSelectTool={ selectTool }
+		/>,
+		{ wrapper: createTestWrapper() }
+	);
+	loadOriginal();
+	expect(
+		screen.getByText( 'The edited video could not be processed.', {
+			ignore: '.a11y-speak-region, .a11y-speak-region *',
+		} )
+	).toBeInTheDocument();
+	expect( screen.getByRole( 'button', { name: 'New cut' } ) ).not.toHaveAttribute(
+		'aria-disabled',
+		'true'
+	);
+	expect( screen.queryByText( 'Video processing placeholder' ) ).not.toBeInTheDocument();
+} );
+
+it( 'restores the pending copy draft after returning to the source editor', async () => {
+	const { user, unmount } = renderEditor();
+	await saveCopy( user );
+	unmount();
+	renderEditor();
+	expect( screen.getByRole( 'button', { name: 'New cut' } ) ).toHaveAttribute(
+		'aria-disabled',
+		'true'
+	);
+	expect( screen.getAllByRole( 'slider', { name: /Cut/ } ) ).toHaveLength( 2 );
+	const event = new Event( 'beforeunload', { cancelable: true } );
+	window.dispatchEvent( event );
+	expect( event.defaultPrevented ).toBe( false );
+	expect( copy ).toHaveBeenCalledTimes( 1 );
+} );
+
+it( 'continues to warn if a copy submission has not been confirmed', async () => {
+	copy.mockRejectedValueOnce( new Error( 'Connection interrupted' ) );
+	const { user } = renderEditor();
+	await saveCopy( user );
+	const event = new Event( 'beforeunload', { cancelable: true } );
+	window.dispatchEvent( event );
+	expect( event.defaultPrevented ).toBe( true );
 } );

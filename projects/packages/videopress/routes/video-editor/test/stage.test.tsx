@@ -375,6 +375,7 @@ describe( 'video-editor stage', () => {
 	} );
 
 	it( 'shows the processing state instead of the editor while the video transcodes', async () => {
+		setFeatures( { chaptersEditor: true, trimCut: false } );
 		installApi( {
 			media: makeRawMedia( {
 				media_details: { videopress: { duration: 60000, finished: false } },
@@ -393,6 +394,7 @@ describe( 'video-editor stage', () => {
 	} );
 
 	it( 'shows the processing state for a video without a known duration', async () => {
+		setFeatures( { trimCut: false } );
 		installApi( {
 			media: makeRawMedia( {
 				media_details: {
@@ -767,5 +769,11 @@ describe( 'video-editor stage', () => {
 		expect( navigate ).not.toHaveBeenCalled();
 
 		confirmSpy.mockRestore();
+	} );
+	it( 'mounts trim and its status query even when a copy has no attachment duration yet', async () => {
+		setFeatures( { trimCut: true } );
+		installApi( { media: makeRawMedia( { media_details: {} } ), metaPosts: [] } );
+		render( <Stage />, { wrapper: createTestWrapper( mockTestClient ) } );
+		await expect( screen.findByTestId( 'trim-cut-editor' ) ).resolves.toBeInTheDocument();
 	} );
 } );

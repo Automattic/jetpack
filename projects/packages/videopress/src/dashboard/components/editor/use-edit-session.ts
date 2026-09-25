@@ -14,7 +14,7 @@ import { createEditSession, editSessionReducer, sessionEditsEqual } from './stat
 import { isDirty, sessionToOperations } from './state/serialize';
 import type { EditSession, EditSessionAction } from './state/edit-session';
 import type { HistoryAction } from '../../../client/components/chapters-editor/state/history';
-import type { SaveEditsResponse, VideoEdits } from '../../types/edits';
+import type { ApiEditOperation, SaveEditsResponse, VideoEdits } from '../../types/edits';
 import type { LibraryItem } from '../../types/library';
 
 const reducer = withHistory< EditSession, EditSessionAction >( editSessionReducer, {
@@ -25,10 +25,11 @@ const reducer = withHistory< EditSession, EditSessionAction >( editSessionReduce
 /**
  * Keep local edits against the revision they were made on until a processing job commits.
  *
- * @param video - The attachment being edited.
+ * @param video          - The attachment being edited.
+ * @param copyOperations - Recover the draft from a pending copy after navigation.
  * @return The edit session, processing state, and save/restore actions.
  */
-export function useEditSession( video: LibraryItem ) {
+export function useEditSession( video: LibraryItem, copyOperations?: ApiEditOperation[] ) {
 	const query = useVideoEdits( video.guid );
 	const saveMutation = useSaveVideoEdits();
 	const restoreMutation = useRestoreOriginal();
@@ -51,7 +52,7 @@ export function useEditSession( video: LibraryItem ) {
 	const session = history.present;
 	const dirty = baseline !== null && isDirty( session, baseline.operations );
 	const locked =
-		! baseline || requestPending || Boolean( pending ) || query.edits?.job.status === 'processing';
+		! baseline || requestPending || Boolean( pending ) || query.edits?.job?.status === 'processing';
 	const stateRef = useRef( { session, baseline, locked, dirty, conflict } );
 	stateRef.current = { session, baseline, locked, dirty, conflict };
 
@@ -93,6 +94,13 @@ export function useEditSession( video: LibraryItem ) {
 			}
 		} else if ( ! currentBaseline ) {
 			adopt( edits );
+			if ( copyOperations ) {
+				dispatch( {
+					type: 'LOAD',
+					operations: copyOperations,
+					durationMs: edits.original_duration_ms,
+				} );
+			}
 		} else if ( edits.revision !== currentBaseline.revision ) {
 			if ( pendingJob || current.dirty ) {
 				pendingRef.current = null;
@@ -102,7 +110,7 @@ export function useEditSession( video: LibraryItem ) {
 				adopt( edits );
 			}
 		}
-	}, [ query.edits, pending, adopt, client ] );
+	}, [ query.edits, pending, adopt, client, copyOperations ] );
 
 	const guardedDispatch = useCallback( ( action: HistoryAction< EditSessionAction > ) => {
 		if ( ! stateRef.current.locked && ! stateRef.current.conflict ) {
@@ -168,6 +176,7 @@ export function useEditSession( video: LibraryItem ) {
 		history,
 		session,
 		dirty,
+		hasUnsavedChanges: dirty && ! pending,
 		locked,
 		conflict,
 		lastAction,

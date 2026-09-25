@@ -38,8 +38,8 @@ type ConfirmAction = 'save' | 'discard' | 'restore' | 'reload';
  * @return The trim and cut editing screen.
  */
 export default function TrimCutEditor( { video, onSelectTool }: Props ) {
-	const editor = useEditSession( video );
 	const copySession = useCopySession( video.guid );
+	const editor = useEditSession( video, copySession.request?.operations );
 	const { createSuccessNotice } = useGlobalNotices();
 	const completedCopyRef = useRef< string | null >( null );
 	const transport = usePreviewTransport();
@@ -48,14 +48,21 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 	const [ sourceReady, setSourceReady ] = useState( false );
 	const [ sourceDuration, setSourceDuration ] = useState( 0 );
 	const [ confirm, setConfirm ] = useState< ConfirmAction | null >( null );
-	const dirtyRef = useRef( editor.dirty );
-	dirtyRef.current = editor.dirty;
+	const hasUnsavedChanges = editor.hasUnsavedChanges && ! copySession.saved;
+	const dirtyRef = useRef( hasUnsavedChanges );
+	dirtyRef.current = hasUnsavedChanges;
+	const jobStatus = editor.edits?.job?.status;
+	const waitingForVideo =
+		( video.isProcessing || video.durationSeconds <= 0 ) &&
+		jobStatus !== 'complete' &&
+		jobStatus !== 'failed';
 	const durationMismatch = Boolean(
 		editor.edits &&
 		sourceDuration > 0 &&
 		Math.abs( sourceDuration - editor.edits.original_duration_ms ) > 1000
 	);
 	const locked =
+		waitingForVideo ||
 		editor.locked ||
 		copySession.locked ||
 		editor.conflict ||
@@ -73,7 +80,7 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 	);
 
 	useEffect( () => {
-		if ( ! editor.dirty ) {
+		if ( ! hasUnsavedChanges ) {
 			return;
 		}
 		const beforeUnload = ( event: BeforeUnloadEvent ) => {
@@ -91,7 +98,7 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 			window.removeEventListener( 'beforeunload', beforeUnload );
 			window.removeEventListener( 'popstate', popState );
 		};
-	}, [ editor.dirty, confirmNavigation, navigate, video.id ] );
+	}, [ hasUnsavedChanges, confirmNavigation, navigate, video.id ] );
 
 	useEffect( () => {
 		const result = copySession.status.data;
@@ -197,6 +204,7 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 						} }
 						canRestoreOriginal={
 							Boolean( editor.edits?.can_restore_original ) &&
+							! waitingForVideo &&
 							! editor.locked &&
 							! editor.conflict &&
 							! copySession.conflict &&
@@ -233,7 +241,7 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 					<div className="vp-video-editor__body">
 						<EditorOperationsPanel
 							activeTool="trim"
-							disabled={ editor.locked || copySession.locked }
+							disabled={ waitingForVideo || editor.locked || copySession.locked }
 							onSelect={ tool => {
 								if ( tool !== 'trim' && confirmNavigation() ) {
 									onSelectTool( tool );
@@ -259,6 +267,7 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 										<PreviewPlayer
 											ref={ transport.playerRef }
 											video={ video }
+											processing={ waitingForVideo }
 											session={ editor.session }
 											onTimeUpdate={ transport.onTimeUpdate }
 											onPlayingChange={ transport.onPlayingChange }
@@ -266,7 +275,8 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 											onDurationChange={ setSourceDuration }
 										/>
 									</div>
-									<div
+									<fieldset
+										disabled={ waitingForVideo }
 										className="vp-video-editor__timeline-section"
 										aria-busy={ editor.locked || copySession.locked || undefined }
 									>
@@ -284,10 +294,10 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 											locked={ locked }
 											onScrubStart={ transport.onScrubStart }
 											onScrubEnd={ transport.onScrubEnd }
-											shortcutsEnabled={ confirm === null }
+											shortcutsEnabled={ confirm === null && ! waitingForVideo }
 											filmstrip={ filmstrip }
 										/>
-									</div>
+									</fieldset>
 								</div>
 							) }
 						</div>
