@@ -135,7 +135,7 @@ async function fixDeps( pkg ) {
 	// Currently @types/wordpress__block-editor is the only one still in use; see also https://github.com/WordPress/gutenberg/issues/67691
 	if ( pkg.name.startsWith( '@types/wordpress__' ) && pkg.dependencies ) {
 		for ( const k of Object.keys( pkg.dependencies ) ) {
-			if ( k.startsWith( '@wordpress/' ) ) {
+			if ( k.startsWith( '@wordpress/' ) || k === '@types/react' ) {
 				pkg.dependencies[ k ] = '*';
 			}
 		}
@@ -180,6 +180,26 @@ async function fixDeps( pkg ) {
  * @return {object} Modified pkg.
  */
 function fixPeerDeps( pkg ) {
+	// Deps that still depend on React <19.
+	const reactOldPkgs = new Set( [
+		// Still on 18.
+		'@woocommerce/email-editor', // direct dep from plugins/jetpack
+	] );
+	if ( reactOldPkgs.has( pkg.name ) ) {
+		for ( const p of [ 'react', 'react-dom' ] ) {
+			if ( ! pkg.peerDependencies?.[ p ] ) {
+				continue;
+			}
+
+			if (
+				pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^18|18\.x)/ ) &&
+				! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^19|19\.x)/ )
+			) {
+				pkg.peerDependencies[ p ] += ' || ^19';
+			}
+		}
+	}
+
 	// Outdated eslint deps.
 	const eslintOldPkgs = new Set( [
 		'eslint-plugin-import', // https://github.com/import-js/eslint-plugin-import/issues/3227
@@ -306,6 +326,19 @@ function afterAllResolved( lockfile ) {
 			throw new Error(
 				// prettier-ignore
 				`You don't need \`jest-environment-jsdom\`. Our base config in \`tools/js-tools/jest/config.base.js\` already sets up a JSDOM environment from \`tools/js-tools/jest/fix-environment-jsdom.mjs\`, use that instead. pdWQjU-1vl-p2`
+			);
+		}
+
+		// Now that we've moved to React 19, prevent React 18 from being re-installed.
+		if (
+			k.startsWith( 'react@18.' ) ||
+			k.startsWith( 'react-dom@18.' ) ||
+			k.startsWith( '@types/react@18.' ) ||
+			k.startsWith( '@types/react-dom@18.' )
+		) {
+			throw new Error(
+				// prettier-ignore
+				`We've moved to React 19. Something you've done has tried to install \`${ k }\`, which would be likely to cause problems.`
 			);
 		}
 
