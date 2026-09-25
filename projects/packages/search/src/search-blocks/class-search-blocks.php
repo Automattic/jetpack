@@ -692,7 +692,7 @@ class Search_Blocks {
 					// visitors won't actually get.
 					'defaultResultsPerPage'      => Helper::resolve_results_per_page(),
 					'maxResultsPerPage'          => Helper::get_max_posts_per_page(),
-					'hideFromWidgetsInserter'    => self::should_hide_blocks_from_widgets_inserter(),
+					'hideFromWidgetArea'         => self::widget_area_hiding_blocks(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
@@ -701,20 +701,23 @@ class Search_Blocks {
 	}
 
 	/**
-	 * Whether to keep the Search blocks out of the widgets editor inserter.
+	 * The widget area whose inserter must not offer the Search blocks, if the current screen edits widgets.
 	 *
 	 * The legacy Overlay's sidebar renders on `wp_footer`, after a block theme has printed the importmap, so a block's view module can't resolve `jetpack-search/store` and never hydrates.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return bool
+	 * @return string|null Sidebar ID, or null when no area needs hiding.
 	 */
-	public static function should_hide_blocks_from_widgets_inserter(): bool {
+	public static function widget_area_hiding_blocks(): ?string {
 		if ( ! is_registered_sidebar( Instant_Search::INSTANT_SEARCH_SIDEBAR ) || ! function_exists( 'get_current_screen' ) ) {
-			return false;
+			return null;
 		}
 		$screen = get_current_screen();
-		return $screen && in_array( $screen->id, array( 'widgets', 'customize' ), true );
+		if ( ! $screen || ! in_array( $screen->id, array( 'widgets', 'customize' ), true ) ) {
+			return null;
+		}
+		return Instant_Search::INSTANT_SEARCH_SIDEBAR;
 	}
 
 	/**

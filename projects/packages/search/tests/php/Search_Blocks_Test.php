@@ -310,14 +310,14 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * @dataProvider provider_hide_blocks_from_widgets_inserter
+	 * @dataProvider provider_widget_area_hiding_blocks
 	 *
 	 * @param bool        $sidebar_registered Whether the legacy Overlay sidebar is registered.
 	 * @param string|null $screen_id          Current admin screen, or null for none.
-	 * @param bool        $expected           Expected gate result.
+	 * @param bool        $expect_overlay     Whether the Overlay sidebar is expected, rather than null.
 	 */
-	#[DataProvider( 'provider_hide_blocks_from_widgets_inserter' )]
-	public function test_should_hide_blocks_from_widgets_inserter( bool $sidebar_registered, ?string $screen_id, bool $expected ) {
+	#[DataProvider( 'provider_widget_area_hiding_blocks' )]
+	public function test_widget_area_hiding_blocks( bool $sidebar_registered, ?string $screen_id, bool $expect_overlay ) {
 		if ( $sidebar_registered ) {
 			register_sidebar( array( 'id' => Instant_Search::INSTANT_SEARCH_SIDEBAR ) );
 		}
@@ -326,7 +326,10 @@ class Search_Blocks_Test extends TestCase {
 		}
 
 		try {
-			$this->assertSame( $expected, Search_Blocks::should_hide_blocks_from_widgets_inserter() );
+			$this->assertSame(
+				$expect_overlay ? Instant_Search::INSTANT_SEARCH_SIDEBAR : null,
+				Search_Blocks::widget_area_hiding_blocks()
+			);
 		} finally {
 			unregister_sidebar( Instant_Search::INSTANT_SEARCH_SIDEBAR );
 			unset( $GLOBALS['current_screen'] );
@@ -334,11 +337,11 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
-	 * Cases for `test_should_hide_blocks_from_widgets_inserter`.
+	 * Cases for `test_widget_area_hiding_blocks`.
 	 *
 	 * @return array<string, array{0: bool, 1: string|null, 2: bool}>
 	 */
-	public static function provider_hide_blocks_from_widgets_inserter(): array {
+	public static function provider_widget_area_hiding_blocks(): array {
 		return array(
 			'overlay sidebar, widgets screen'    => array( true, 'widgets', true ),
 			'overlay sidebar, customizer'        => array( true, 'customize', true ),

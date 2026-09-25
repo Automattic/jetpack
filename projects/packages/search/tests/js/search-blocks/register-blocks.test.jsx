@@ -82,8 +82,10 @@ describe( 'register-blocks', () => {
 	} );
 } );
 
-describe( 'register-blocks inserter gate', () => {
-	const INSERTER_FILTER = 'jetpack-search/hide-from-widgets-inserter';
+describe( 'register-blocks widget area gate', () => {
+	const HOOK = 'blockEditor.__unstableCanInsertBlockType';
+	const OVERLAY_AREA = 'jetpack-instant-search-side-bar';
+	const SEARCH_BLOCK = { name: 'jetpack-search/filter-checkbox' };
 
 	const loadWithConfig = config => {
 		let addFilter;
@@ -93,29 +95,86 @@ describe( 'register-blocks inserter gate', () => {
 			addFilter.mockClear();
 			require( '../../../src/search-blocks/editor/register-blocks' );
 		} );
-		return addFilter.mock.calls.find( ( [ , namespace ] ) => namespace === INSERTER_FILTER )?.[ 2 ];
+		return addFilter.mock.calls.find( ( [ hookName ] ) => hookName === HOOK )?.[ 2 ];
 	};
+
+	const editorWith = blocks => ( {
+		getBlock: clientId => blocks[ clientId ] ?? null,
+		getBlockParentsByBlockName: ( clientId, blockName ) =>
+			( blocks[ clientId ]?.parents ?? [] ).filter( id => blocks[ id ].name === blockName ),
+	} );
+
+	const editor = editorWith( {
+		overlay: { name: 'core/widget-area', attributes: { id: OVERLAY_AREA } },
+		footer: { name: 'core/widget-area', attributes: { id: 'sidebar-1' } },
+		overlayFilters: { name: 'jetpack-search/filters', attributes: {}, parents: [ 'overlay' ] },
+		footerFilters: { name: 'jetpack-search/filters', attributes: {}, parents: [ 'footer' ] },
+	} );
 
 	afterEach( () => {
 		delete globalThis.JetpackSearchBlocksConfig;
+		delete window.wp;
 	} );
 
-	it( 'hides Search blocks from the inserter when the gate is on', () => {
-		const filter = loadWithConfig( { hideFromWidgetsInserter: true } );
-
-		expect(
-			filter( { supports: { html: false } }, 'jetpack-search/filter-checkbox' ).supports
-		).toEqual( { html: false, inserter: false } );
+	it( 'registers no filter when no widget area needs hiding', () => {
+		expect( loadWithConfig( { hideFromWidgetArea: null } ) ).toBeUndefined();
 	} );
 
-	it( 'leaves blocks from other namespaces insertable', () => {
-		const filter = loadWithConfig( { hideFromWidgetsInserter: true } );
-		const settings = { supports: { html: false } };
+	it( 'blocks Search blocks in the named widget area', () => {
+		const canInsert = loadWithConfig( { hideFromWidgetArea: OVERLAY_AREA } );
 
-		expect( filter( settings, 'core/search' ) ).toBe( settings );
+		expect( canInsert( true, SEARCH_BLOCK, 'overlay', editor ) ).toBe( false );
 	} );
 
-	it( 'registers no inserter filter when the gate is off', () => {
-		expect( loadWithConfig( { hideFromWidgetsInserter: false } ) ).toBeUndefined();
+	it( 'blocks Search blocks inside a container in the named widget area', () => {
+		const canInsert = loadWithConfig( { hideFromWidgetArea: OVERLAY_AREA } );
+
+		expect( canInsert( true, SEARCH_BLOCK, 'overlayFilters', editor ) ).toBe( false );
+	} );
+
+	it( 'allows Search blocks in other widget areas', () => {
+		const canInsert = loadWithConfig( { hideFromWidgetArea: OVERLAY_AREA } );
+
+		expect( canInsert( true, SEARCH_BLOCK, 'footer', editor ) ).toBe( true );
+		expect( canInsert( true, SEARCH_BLOCK, 'footerFilters', editor ) ).toBe( true );
+	} );
+
+	it( 'allows other blocks in the named widget area', () => {
+		const canInsert = loadWithConfig( { hideFromWidgetArea: OVERLAY_AREA } );
+
+		expect( canInsert( true, { name: 'core/paragraph' }, 'overlay', editor ) ).toBe( true );
+	} );
+
+	it( 'never allows a block core already refused', () => {
+		const canInsert = loadWithConfig( { hideFromWidgetArea: OVERLAY_AREA } );
+
+		expect( canInsert( false, SEARCH_BLOCK, 'footer', editor ) ).toBe( false );
+	} );
+
+	it.each( [
+		[ `sidebar-widgets-${ OVERLAY_AREA }`, false ],
+		[ 'sidebar-widgets-sidebar-1', true ],
+	] )(
+		'in the Customizer, with section %s expanded, allows Search blocks: %s',
+		( expanded, allowed ) => {
+			window.wp = { customize: { section: id => ( { expanded: () => id === expanded } ) } };
+			const canInsert = loadWithConfig( { hideFromWidgetArea: OVERLAY_AREA } );
+
+			expect( canInsert( true, SEARCH_BLOCK, '', editorWith( {} ) ) ).toBe( allowed );
+		}
+	);
+
+	it( 'in the Customizer, blocks Search blocks inside a container in the named area', () => {
+		window.wp = {
+			customize: {
+				section: id => ( { expanded: () => id === `sidebar-widgets-${ OVERLAY_AREA }` } ),
+			},
+		};
+		const canInsert = loadWithConfig( { hideFromWidgetArea: OVERLAY_AREA } );
+		const customizerEditor = editorWith( {
+			filters: { name: 'jetpack-search/filters', attributes: {} },
+		} );
+
+		expect( canInsert( true, SEARCH_BLOCK, 'filters', customizerEditor ) ).toBe( false );
 	} );
 } );
