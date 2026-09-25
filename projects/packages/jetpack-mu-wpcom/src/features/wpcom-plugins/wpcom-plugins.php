@@ -8,6 +8,27 @@
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 /**
+ * Load Agents Manager on the plugin management and installation screens.
+ *
+ * @param bool $should_load Whether another integration already requested Agents Manager.
+ * @return bool Whether Agents Manager should load.
+ */
+function wpcom_plugins_should_load_agents_manager( $should_load ) {
+	global $pagenow;
+
+	if ( $should_load || ! is_admin() ) {
+		return $should_load;
+	}
+
+	if ( ! in_array( $pagenow, array( 'plugins.php', 'plugin-install.php' ), true ) ) {
+		return false;
+	}
+
+	return (bool) get_option( 'big_sky_enable', false );
+}
+add_filter( 'agents_manager_should_load', 'wpcom_plugins_should_load_agents_manager' );
+
+/**
  * Displays a banner before the plugin browser that links to the WP.com Plugins Marketplace.
  */
 function wpcom_plugins_show_banner() {
