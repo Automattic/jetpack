@@ -22,7 +22,7 @@ use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
  * and Atomic where the plan includes WordAds. Everything registers when the dashboard's registries
  * hydrate, so a call on a site without the dashboard is inert.
  *
- * @since 0.1.0-alpha
+ * @since $$next-version$$
  */
 class Analytics_Dashboard {
 
@@ -60,22 +60,21 @@ class Analytics_Dashboard {
 	 * @return void
 	 */
 	public static function init() {
-		if ( false === has_action( self::REGISTER_SECTIONS_ACTION, array( __CLASS__, 'register_section' ) ) ) {
-			add_action( self::REGISTER_SECTIONS_ACTION, array( __CLASS__, 'register_section' ), 20 );
-		}
-		if ( false === has_action( self::REGISTER_WIDGET_TYPES_ACTION, array( __CLASS__, 'register_widget_types' ) ) ) {
-			add_action( self::REGISTER_WIDGET_TYPES_ACTION, array( __CLASS__, 'register_widget_types' ), 20 );
-		}
+		add_action( self::REGISTER_SECTIONS_ACTION, array( __CLASS__, 'register_section' ), 20 );
+		add_action( self::REGISTER_WIDGET_TYPES_ACTION, array( __CLASS__, 'register_widget_types' ), 20 );
 	}
 
 	/**
 	 * Register the Ads section unless another owner already holds the `ads` slug.
 	 *
+	 * Skipped with the widget types when the dashboard's contract moved past this build: a tab
+	 * whose every widget is unavailable is worse than no tab.
+	 *
 	 * @param object $registry The section registry being hydrated.
 	 * @return void
 	 */
 	public static function register_section( $registry ) {
-		if ( self::dashboard_has_section_slug( $registry, DASHBOARD_NAME, 'ads' ) ) {
+		if ( ! self::supports_widget_contract() || self::dashboard_has_section_slug( $registry, DASHBOARD_NAME, 'ads' ) ) {
 			return;
 		}
 
@@ -115,15 +114,13 @@ class Analytics_Dashboard {
 	 * Register the widget types from the package's build manifest.
 	 *
 	 * Loads the generated build first: after `init` it registers the widget script modules on the
-	 * spot, so they reach the page import map the same request. Skipped when the dashboard's widget
-	 * contract has moved to a major this package was not built against.
+	 * spot, so they reach the page import map the same request.
 	 *
 	 * @param object $registry The widget type registry being hydrated.
 	 * @return void
 	 */
 	public static function register_widget_types( $registry ) {
-		if ( ! defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' )
-			|| version_compare( \Automattic\Jetpack\PremiumAnalytics\WIDGET_API_VERSION, '2', '>=' ) ) {
+		if ( ! self::supports_widget_contract() ) {
 			return;
 		}
 
@@ -140,6 +137,16 @@ class Analytics_Dashboard {
 			),
 			$registry
 		);
+	}
+
+	/**
+	 * Whether the dashboard's widget contract is the major this package was built against.
+	 *
+	 * @return bool
+	 */
+	private static function supports_widget_contract() {
+		return defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' )
+			&& version_compare( \Automattic\Jetpack\PremiumAnalytics\WIDGET_API_VERSION, '2', '<' );
 	}
 
 	/**

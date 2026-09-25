@@ -51,11 +51,9 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A second init() must not double-hook the registrants.
+	 * Both registrants hook after the dashboard package's own, which run at priority 10.
 	 */
-	public function test_init_hooks_both_registrants_after_the_dashboard_ones_once() {
-		Analytics_Dashboard::init();
-		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- the repeat is the point: a second init() must not hook twice.
+	public function test_init_hooks_both_registrants_after_the_dashboard_ones() {
 		Analytics_Dashboard::init();
 
 		$this->assertSame( 20, has_action( Analytics_Dashboard::REGISTER_SECTIONS_ACTION, array( Analytics_Dashboard::class, 'register_section' ) ) );
