@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { computePrimaryRange } from '@jetpack-premium-analytics/datetime';
+import { computePrimaryRange, localTZDate } from '@jetpack-premium-analytics/datetime';
 import { act, renderHook } from '@testing-library/react';
 /**
  * Internal dependencies
@@ -81,7 +81,7 @@ describe( 'useTrackedDateRangeApply', () => {
 
 		act( () => {
 			trackedOnChange(
-				{ from: new Date( '2025-01-01T00:00:00Z' ), to: new Date( '2026-02-04T00:00:00Z' ) },
+				{ from: localTZDate( '2025-01-01', 'UTC' ), to: localTZDate( '2026-02-04', 'UTC' ) },
 				'custom'
 			);
 			trackedOnApply();
