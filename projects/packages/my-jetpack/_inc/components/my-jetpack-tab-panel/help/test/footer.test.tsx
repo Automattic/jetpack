@@ -30,6 +30,7 @@ describe( 'HelpFooter', () => {
 		mockGetAdminUrl.mockImplementation( path => `https://example.com/wp-admin/${ path }` );
 		mockIsJetpackPluginActive.mockReturnValue( true );
 		mockIsSimpleSite.mockReturnValue( false );
+		mockGetScriptData.mockReturnValue( undefined );
 	} );
 
 	it( 'shows the Useful links section for an admin with the Jetpack plugin active', () => {

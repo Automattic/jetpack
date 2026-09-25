@@ -26,9 +26,8 @@ import { useQueryParameter } from '../../hooks/use-query-parameter';
 import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
-import { MY_JETPACK_SECTION_FEATURES } from '../my-jetpack-tab-panel/constants';
 import { useReplayPendingNotice } from '../my-jetpack-tab-panel/products/pending-notice';
-import { getProductsSection, resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
+import { getModulesListPath, resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
 import buildOptionalMenuItems from './build-optional-menu-items';
 import styles from './styles.module.scss';
@@ -172,7 +171,7 @@ export default function MyJetpackScreen() {
 		isSiteConnected,
 		isJetpackPluginActive,
 		isSimpleSite: isSimpleSite(),
-		isFeaturesTabEnabled: getProductsSection() === MY_JETPACK_SECTION_FEATURES,
+		modulesListPath: getModulesListPath(),
 		onModulesClick: () => recordEvent( 'jetpack_myjetpack_footer_link_click', { link: 'modules' } ),
 		onResetClick: () => resetJetpackOptions(),
 		onResetKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
