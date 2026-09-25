@@ -230,6 +230,31 @@ describe( 'resolveFeatureState, for a feature a plan runs without its plugin', (
 		} );
 	} );
 
+	it.each( [
+		PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING,
+		PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR,
+		PRODUCT_STATUSES.EXPIRING_SOON,
+	] )( 'stays active and opens while the plan reports %s', status => {
+		const state = withProduct( { hasPaidPlanForProduct: true, status } as ProductCamelCase );
+
+		expect( state.status ).toBe( 'active' );
+		expect( state.control ).toEqual( {
+			kind: 'install-plugin',
+			plugin: 'jetpack-backup',
+			runsWithoutPlugin: true,
+		} );
+	} );
+
+	it( 'offers Install again once the plan has expired', () => {
+		const state = withProduct( {
+			hasPaidPlanForProduct: true,
+			status: PRODUCT_STATUSES.EXPIRED,
+		} as ProductCamelCase );
+
+		expect( state.status ).toBe( 'inactive' );
+		expect( state.control ).toEqual( { kind: 'install-plugin', plugin: 'jetpack-backup' } );
+	} );
+
 	it( 'still offers Install when no paid plan covers it', () => {
 		const state = withProduct( {
 			hasPaidPlanForProduct: false,

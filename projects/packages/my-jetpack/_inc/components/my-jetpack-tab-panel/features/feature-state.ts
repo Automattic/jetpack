@@ -12,6 +12,14 @@ import { useAllJetpackModules } from '../products/use-all-jetpack-modules';
 import type { ProductCamelCase } from '../../../data/types';
 import type { JetpackModuleSlug, MyJetpackModule } from '../../../types';
 
+// A running product reports these rather than `active` once its plan needs attention or nears expiry.
+const RUNNING_ON_PLAN_STATUSES: string[] = [
+	PRODUCT_STATUSES.ACTIVE,
+	PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING,
+	PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR,
+	PRODUCT_STATUSES.EXPIRING_SOON,
+];
+
 /**
  * What a feature's card offers, decided by the feature map and what is on the site.
  *
@@ -136,7 +144,8 @@ export function resolveFeatureState(
 			// A plan runs Backup and Scan in the cloud with no plugin. Shim until JETPACK-2620,
 			// JETPACK-2805 and JETPACK-2806 settle where those land.
 			const runsWithoutPlugin =
-				Boolean( product?.hasPaidPlanForProduct ) && product?.status === PRODUCT_STATUSES.ACTIVE;
+				Boolean( product?.hasPaidPlanForProduct ) &&
+				RUNNING_ON_PLAN_STATUSES.includes( product?.status ?? '' );
 
 			return {
 				feature,
