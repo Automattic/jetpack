@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Sharing_Likes\Settings;
 use Automattic\Jetpack\Constants;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../lib/class-sharing-service.php';
@@ -256,6 +257,36 @@ class Settings_Page_Test extends BaseTestCase {
 			strpos( $html, 'id="' . Placement_Section::ANCHOR . '"' ),
 			strpos( $html, 'id="' . Comment_Likes_Section::ANCHOR . '"' )
 		);
+	}
+
+	/**
+	 * @return array<string, array{0: string[], 1: string}>
+	 */
+	public static function provide_placement_headings(): array {
+		return array(
+			'all three'            => array( array( 'sharedaddy', 'likes', 'comment-likes' ), 'Where sharing buttons, Like buttons, and Comment Likes appear' ),
+			'sharing and likes'    => array( array( 'sharedaddy', 'likes' ), 'Where sharing and Like buttons appear' ),
+			'sharing and comments' => array( array( 'sharedaddy', 'comment-likes' ), 'Where sharing buttons and Comment Likes appear' ),
+			'likes and comments'   => array( array( 'likes', 'comment-likes' ), 'Where Like buttons and Comment Likes appear' ),
+			'likes alone'          => array( array( 'likes' ), 'Where Like buttons appear' ),
+			'comments alone'       => array( array( 'comment-likes' ), 'Where Comment Likes appear' ),
+			'sharing alone'        => array( array( 'sharedaddy' ), 'Where sharing buttons appear' ),
+		);
+	}
+
+	/**
+	 * A key missing from the heading map silently falls back to the sharing-only heading.
+	 *
+	 * @param string[] $modules Active modules.
+	 * @param string   $heading Expected placement heading.
+	 * @dataProvider provide_placement_headings
+	 */
+	#[DataProvider( 'provide_placement_headings' )]
+	public function test_names_every_feature_placement_governs( array $modules, string $heading ): void {
+		$this->given_connection( true );
+		$this->given_modules( $modules );
+
+		$this->assertStringContainsString( '<h2>' . $heading . '</h2>', $this->render_screen() );
 	}
 
 	/**

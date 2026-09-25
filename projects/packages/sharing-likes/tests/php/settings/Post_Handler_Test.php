@@ -382,23 +382,18 @@ class Post_Handler_Test extends BaseTestCase {
 	 * section. Writing either from here would persist settings the section never rendered.
 	 */
 	public function test_likes_save_ignores_the_simple_only_fields_off_wpcom(): void {
-		$this->log_in_as( 'administrator' );
-
-		$this->dispatch(
-			'save-settings',
-			Settings_Form::NONCE_ACTION,
-			$this->claiming(
-				array( Settings_Form::SECTION_LIKES ),
-				array(
-					'wpl_default'                   => 'on',
-					'jetpack_reblogs_enabled'       => 'off',
-					'jetpack_comment_likes_enabled' => '1',
-				)
+		$active = $this->save_comment_likes_with(
+			array( 'likes' ),
+			array( Settings_Form::SECTION_LIKES ),
+			array(
+				'wpl_default'                   => 'on',
+				'jetpack_reblogs_enabled'       => 'off',
+				'jetpack_comment_likes_enabled' => '1',
 			)
 		);
 
 		$this->assertFalse( get_option( 'disabled_reblogs' ) );
-		$this->assertFalse( get_option( 'jetpack_comment_likes_enabled' ) );
+		$this->assertSame( array( 'likes' ), $active );
 	}
 
 	/**
@@ -417,6 +412,16 @@ class Post_Handler_Test extends BaseTestCase {
 		$this->assertSame( '1', (string) get_option( 'jetpack_comment_likes_enabled' ) );
 		$this->assertSame( '1', (string) get_option( 'disabled_likes' ) );
 		$this->assertSame( '1', (string) get_option( 'disabled_reblogs' ) );
+	}
+
+	public function test_comment_likes_save_turns_the_option_off_on_simple(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+		update_option( 'jetpack_comment_likes_enabled', 1 );
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_COMMENT_LIKES ) ) );
+
+		$this->assertSame( '0', (string) get_option( 'jetpack_comment_likes_enabled' ) );
 	}
 
 	/**
@@ -438,7 +443,7 @@ class Post_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The module never reads Simple's option, so off wpcom the checkbox switches the module.
+	 * Off wpcom the checkbox switches the module, not Simple's option.
 	 */
 	public function test_comment_likes_save_turns_the_module_on_off_wpcom(): void {
 		$active = $this->save_comment_likes_with( array( 'likes' ), array( Settings_Form::SECTION_COMMENT_LIKES ), array( 'jetpack_comment_likes_enabled' => '1' ) );
@@ -451,6 +456,21 @@ class Post_Handler_Test extends BaseTestCase {
 		$active = $this->save_comment_likes_with( array( 'likes', 'comment-likes' ), array( Settings_Form::SECTION_COMMENT_LIKES ), array() );
 
 		$this->assertSame( array( 'likes' ), $active );
+	}
+
+	public function test_comment_likes_save_fires_no_deactivation_for_a_module_already_off(): void {
+		$fired = 0;
+		add_action(
+			'jetpack_pre_deactivate_module',
+			function () use ( &$fired ) {
+				++$fired;
+			}
+		);
+
+		$this->save_comment_likes_with( array( 'likes' ), array( Settings_Form::SECTION_COMMENT_LIKES ), array() );
+		remove_all_actions( 'jetpack_pre_deactivate_module' );
+
+		$this->assertSame( 0, $fired );
 	}
 
 	/**

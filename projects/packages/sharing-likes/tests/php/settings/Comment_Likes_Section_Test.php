@@ -40,6 +40,8 @@ class Comment_Likes_Section_Test extends BaseTestCase {
 		Constants::clear_constants();
 		delete_option( 'jetpack_comment_likes_enabled' );
 		delete_option( 'sharing-options' );
+		delete_option( 'disabled_likes' );
+		delete_option( 'disabled_reblogs' );
 		ob_start();
 		Settings_Form::render();
 		ob_end_clean();
@@ -98,6 +100,7 @@ class Comment_Likes_Section_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'checked', $this->checkbox( $markup ) );
 		$this->assertStringContainsString( 'Comment Likes currently appear on comments on: Posts, Pages.', $markup );
 		$this->assertStringContainsString( 'name="wpl_default"', $markup );
+		$this->assertStringContainsString( 'Comment Likes are', $markup );
 		$this->assertStringContainsString( 'value="' . Settings_Form::SECTION_LIKES . '"', $markup );
 	}
 
@@ -111,9 +114,6 @@ class Comment_Likes_Section_Test extends BaseTestCase {
 		$this->given_block( 'jetpack/like' );
 
 		$markup = $this->render_with( array( 'likes', 'comment-likes' ) );
-
-		delete_option( 'disabled_likes' );
-		delete_option( 'disabled_reblogs' );
 
 		$this->assertStringContainsString( 'name="wpl_default"', $markup );
 	}
@@ -130,8 +130,7 @@ class Comment_Likes_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Every module counts as active on Simple, and its Comment Likes read neither
-	 * placement nor the sitewide default: only the option ticks the box there.
+	 * Simple's Comment Likes read neither placement nor the sitewide default.
 	 */
 	public function test_offers_only_the_switch_on_simple(): void {
 		Constants::set_constant( 'IS_WPCOM', true );
