@@ -200,6 +200,34 @@ describe( 'FeaturesContent', () => {
 		} );
 	} );
 
+	it( 'steps through a feature opened before the catalog carried it, once it arrives', () => {
+		mockStates = [];
+		mockMainFeatures = { jetpack: 'active', features: [], isPlaceholderData: true };
+
+		const { rerenderAt } = renderAt( '/features?feature=forms' );
+
+		const feature = ( slug: string ) =>
+			( {
+				...activeStats,
+				feature: { ...activeStats.feature, slug, name: slug },
+				status: 'active',
+			} ) as FeatureState;
+		mockStates = [ feature( 'stats' ), feature( 'forms' ), feature( 'podcast' ) ];
+		mockMainFeatures = {
+			jetpack: 'active',
+			features: [ { slug: 'stats' } ],
+			isPlaceholderData: false,
+		};
+		rerenderAt();
+
+		expect( mockModalProps ).toMatchObject( {
+			previous: { slug: 'stats' },
+			next: { slug: 'podcast' },
+			position: 2,
+			total: 3,
+		} );
+	} );
+
 	it( 'keeps stepping from a feature switched out of the status filter it was opened under', () => {
 		const feature = ( slug: string, status: string ) =>
 			( {

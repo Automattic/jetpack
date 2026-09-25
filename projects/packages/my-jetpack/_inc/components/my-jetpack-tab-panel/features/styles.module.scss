@@ -754,7 +754,8 @@ $band-props: (
 	gap: var(--wpds-dimension-gap-lg);
 }
 
-// Top, not centred: on a phone the name and actions wrap to two rows beside it.
+// Top, not centered: on a phone the name and actions wrap to two rows
+// beside it.
 .modal-icon {
 	align-self: flex-start;
 }

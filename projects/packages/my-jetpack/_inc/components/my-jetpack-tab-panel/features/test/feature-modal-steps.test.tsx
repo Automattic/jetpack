@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FeatureModal } from '../feature-modal';
 import type { FeatureState } from '../feature-state';
@@ -48,7 +48,7 @@ describe( 'FeatureModal stepping', () => {
 		mockIsDesktop = true;
 	} );
 
-	it( 'steps to the neighbouring features with the arrow keys', async () => {
+	it( 'steps to the neighboring features with the arrow keys', async () => {
 		const onStep = openModal( { previous: stats, next: podcast } );
 		// A browser traps focus in the dialog; jsdom leaves it on the body.
 		screen.getByRole( 'dialog' ).focus();
@@ -96,6 +96,38 @@ describe( 'FeatureModal stepping', () => {
 
 		expect( onStep ).toHaveBeenCalledWith( 'podcast' );
 		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toHaveFocus();
+	} );
+
+	it( 'resets a failed band image when stepping to a feature with its own', () => {
+		const withScreenshot = ( slug: string, name: string ) =>
+			( {
+				...state,
+				feature: {
+					...state.feature,
+					slug,
+					name,
+					screenshot: `https://jetpack.com/${ slug }.png`,
+				},
+			} ) as FeatureState;
+		const modal = ( current: FeatureState ) => (
+			<FeatureModal
+				state={ current }
+				position={ 1 }
+				total={ 2 }
+				onStep={ jest.fn() }
+				onClose={ jest.fn() }
+				onFilterByPlan={ jest.fn() }
+			/>
+		);
+		const { rerender } = render( modal( withScreenshot( 'forms', 'Forms' ) ) );
+
+		fireEvent.error( screen.getByAltText( 'Forms in use' ) );
+		expect( screen.queryByAltText( 'Forms in use' ) ).not.toBeInTheDocument();
+
+		rerender( modal( withScreenshot( 'podcast', 'Podcast' ) ) );
+
+		expect( screen.getByAltText( 'Podcast in use' ) ).toBeInTheDocument();
+		expect( console ).toHaveErrored();
 	} );
 
 	it( 'names the backdrop the way the view-transition rule expects', () => {

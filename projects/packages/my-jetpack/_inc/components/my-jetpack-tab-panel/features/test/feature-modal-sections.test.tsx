@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FeatureDelivery } from '../feature-delivery';
+import { FeatureModal } from '../feature-modal';
 import { FeaturePaid } from '../feature-paid';
 import type { FeatureState } from '../feature-state';
 
@@ -157,5 +158,48 @@ describe( 'FeaturePaid', () => {
 			feature: 'anti-spam',
 			target: '/add-akismet',
 		} );
+	} );
+} );
+
+describe( 'FeatureModal Free column', () => {
+	const modalState = ( freeHighlights: string[] ) =>
+		( {
+			feature: {
+				slug: 'forms',
+				name: 'Forms',
+				description: 'Build forms.',
+				long_description: '',
+				free_highlights: freeHighlights,
+				paid_highlights: [],
+				plans: [],
+				upgrade: { path: '', name: '' },
+			},
+			status: 'active',
+			control: { kind: 'none' },
+		} ) as unknown as FeatureState;
+
+	const renderModal = ( modalFeatureState: FeatureState ) =>
+		render(
+			<FeatureModal
+				state={ modalFeatureState }
+				position={ 1 }
+				total={ 1 }
+				onStep={ jest.fn() }
+				onClose={ jest.fn() }
+				onFilterByPlan={ jest.fn() }
+			/>
+		);
+
+	it( 'shows the Free column when the feature has free highlights', () => {
+		renderModal( modalState( [ 'Unlimited forms' ] ) );
+
+		expect( screen.getByRole( 'heading', { name: 'Free' } ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Unlimited forms' ) ).toBeInTheDocument();
+	} );
+
+	it( 'leaves out the Free column when the feature has no free highlights', () => {
+		renderModal( modalState( [] ) );
+
+		expect( screen.queryByRole( 'heading', { name: 'Free' } ) ).not.toBeInTheDocument();
 	} );
 } );

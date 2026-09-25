@@ -224,7 +224,7 @@ export function FeatureModal( {
 				<div className={ styles[ 'modal-band' ] } style={ getBandStyle( feature.slug ) }>
 					<Dialog.CloseIcon className={ styles[ 'modal-band__close' ] } />
 					<div className={ styles[ 'modal-band__art' ] }>
-						<FeatureBand feature={ feature } />
+						<FeatureBand key={ feature.slug } feature={ feature } />
 					</div>
 				</div>
 
