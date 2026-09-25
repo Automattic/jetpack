@@ -15,6 +15,7 @@ import { NewsletterPreviewModal } from './email-preview';
 import NewsletterMenu from './menu';
 import SubscribePanels from './panel';
 import TemplatePartSettingsPanel from './template-part-panel';
+import './template-placements-notice';
 
 const blockName = metadata.name.replace( 'jetpack/', '' );
 
