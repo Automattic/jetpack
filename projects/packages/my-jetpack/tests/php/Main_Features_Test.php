@@ -496,7 +496,7 @@ class Main_Features_Test extends TestCase {
 
 		$this->assertSame( '', $upgrades['podcast']['path'] );
 		$this->assertSame( '', $upgrades['newsletter']['path'] );
-		$this->assertSame( '/add-complete', $upgrades['activity-log']['path'] );
+		$this->assertSame( '/add-security', $upgrades['activity-log']['path'] );
 	}
 
 	/**
@@ -546,13 +546,17 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * Without a product page of its own, the upgrade sells Jetpack Complete and says so.
+	 * Without a product page of its own, the upgrade sells the cheapest bundle that includes the feature.
 	 */
-	public function test_upgrade_falls_back_to_complete() {
+	public function test_upgrade_falls_back_to_the_cheapest_bundle() {
 		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
 
-		$this->assertSame( '/add-complete', $upgrades['activity-log']['path'] );
-		$this->assertSame( 'Jetpack Complete', $upgrades['activity-log']['name'] );
+		$this->assertSame( '/add-security', $upgrades['activity-log']['path'] );
+		$this->assertSame( 'Jetpack Security', $upgrades['activity-log']['name'] );
+		$this->assertSame( '/add-growth', $upgrades['newsletter']['path'] );
+		$this->assertSame( '/add-growth', $upgrades['podcast']['path'] );
+		$this->assertSame( 'Jetpack Growth', $upgrades['podcast']['name'] );
+		$this->assertSame( '/add-complete', $upgrades['jetpack-forms']['path'] );
 		$this->assertSame( '/add-akismet', $upgrades['anti-spam']['path'] );
 		$this->assertSame(
 			array(
@@ -561,5 +565,18 @@ class Main_Features_Test extends TestCase {
 			),
 			$upgrades['blaze']
 		);
+	}
+
+	/**
+	 * The upgrade sells the first bundle listed, so Complete, the priciest, must come last.
+	 */
+	public function test_plans_list_complete_last() {
+		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
+			$plans = $feature['plans'] ?? array();
+
+			if ( in_array( 'complete', $plans, true ) ) {
+				$this->assertSame( 'complete', end( $plans ), "Feature {$slug} lists a bundle after Complete." );
+			}
+		}
 	}
 }

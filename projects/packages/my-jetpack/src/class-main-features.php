@@ -502,7 +502,7 @@ class Main_Features {
 	}
 
 	/**
-	 * Where the modal's Upgrade button goes: the feature's own product page, else Jetpack Complete.
+	 * Where the modal's Upgrade button goes: the feature's own product page, else the cheapest bundle that includes it.
 	 *
 	 * @param array       $definition    A single entry from the feature catalog.
 	 * @param string|null $product_class The product behind the feature, when it has one.
@@ -539,15 +539,16 @@ class Main_Features {
 			);
 		}
 
-		$complete_class = in_array( 'complete', $definition['plans'] ?? array(), true )
-			? Products::get_product_class( 'complete' )
-			: null;
+		// Plans list the cheapest bundle first, so this sells the least a site needs to buy.
+		foreach ( $definition['plans'] ?? array() as $plan ) {
+			$bundle_class = Products::get_product_class( $plan );
 
-		if ( $complete_class ) {
-			return array(
-				'path' => '/add-complete',
-				'name' => $complete_class::get_title(),
-			);
+			if ( $bundle_class ) {
+				return array(
+					'path' => '/add-' . $plan,
+					'name' => $bundle_class::get_title(),
+				);
+			}
 		}
 
 		return $none;
