@@ -35,6 +35,7 @@ p {
 // @wordpress/ui links keep their own tone.
 @mixin settings-content(
 	$link-color: var(--wp-admin-theme-link-color),
+	$link-active-color: null,
 	$yield-links: false
 ) {
 	font-size: 16px;
@@ -43,6 +44,16 @@ p {
 
 		@at-root :where(#{&}) a {
 			color: $link-color;
+
+			// WordPress darkens a focused link; keep its focus ring but not that colour.
+			&:focus {
+				color: $link-color;
+			}
+
+			&:hover,
+			&:active {
+				color: $link-active-color;
+			}
 		}
 	} @else {
 
@@ -120,8 +131,9 @@ p {
 .jb-modern-settings-popovers {
 
 	@include settings-content(
-		var(--wp-admin-theme-link-color, var(--wpds-color-foreground-interactive-brand)),
-		true
+		$link-color: var(--wp-admin-theme-link-color, var(--wpds-color-foreground-interactive-brand)),
+		$link-active-color: var(--wpds-color-foreground-interactive-brand-active),
+		$yield-links: true
 	);
 }
 
