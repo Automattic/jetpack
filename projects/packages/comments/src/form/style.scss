@@ -20,15 +20,16 @@
 	field-sizing: content;
 	resize: none;
 
+	// Pinned: themes reach for a textarea's border with every kind of selector.
 	&,
 	&:focus,
 	&:focus-visible {
-		border: 0;
-		border-radius: 0;
-		background: transparent;
-		box-shadow: none;
+		border: 0 !important;
+		border-radius: 0 !important;
+		background: transparent !important;
+		box-shadow: none !important;
 		color: inherit;
-		outline: none;
+		outline: none !important;
 	}
 }
 
@@ -65,7 +66,9 @@
 	justify-content: space-between;
 	gap: 12px;
 	margin: 0 -4px -4px;
-	padding: 0 calc(1em + 4px) 1em;
+	padding:
+		0 calc(var(--jetpack-comments-inset, 1em) + 4px)
+		calc(var(--jetpack-comments-inset, 1em) + 4px);
 }
 
 .jetpack-comments__identity {

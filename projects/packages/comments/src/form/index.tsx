@@ -208,13 +208,12 @@ if ( JetpackComments.version === JETPACK_COMMENTS_VERSION ) {
 			element
 		);
 
-		// The box wears the radius the theme gives its textarea; nothing exposes it otherwise.
+		// The box wears the radius and inset the theme gives its textarea; nothing exposes them otherwise.
 		const textarea = element.querySelector( 'textarea' );
 		if ( textarea ) {
-			element.style.setProperty(
-				'--jetpack-comments-radius',
-				getComputedStyle( textarea ).borderRadius
-			);
+			const { borderRadius, paddingInlineStart } = getComputedStyle( textarea );
+			element.style.setProperty( '--jetpack-comments-radius', borderRadius );
+			element.style.setProperty( '--jetpack-comments-inset', paddingInlineStart );
 		}
 	} );
 }
