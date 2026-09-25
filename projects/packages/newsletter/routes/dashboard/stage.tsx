@@ -87,12 +87,12 @@ const Stage = () => {
 	const canManageSubscribers =
 		isSimpleSite() || ( isRegistered && hasConnectedOwner && isUserConnected );
 
-	// Simple sites have no Jetpack connection to check.
 	const settingsHasConnectedOwner = isSimpleSite() || hasConnectedOwner;
 	const connectUrl = useMemo(
 		() =>
 			getUserConnectionUrl( {
 				from: 'jetpack-newsletter',
+				redirect_url: getRedirectUri(),
 			} ),
 		[]
 	);

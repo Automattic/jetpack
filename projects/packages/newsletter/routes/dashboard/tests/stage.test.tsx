@@ -37,8 +37,8 @@ jest.mock( '@automattic/jetpack-connection/use-connection', () => ( {
 } ) );
 
 jest.mock( '@automattic/jetpack-connection/get-user-connection-url', () => ( {
-	getUserConnectionUrl: ( options: { from?: string } ) =>
-		`https://example.com/wp-admin/admin.php?connect_from=${ options.from }`,
+	getUserConnectionUrl: ( options: { from?: string; redirect_url?: string } ) =>
+		`https://example.com/wp-admin/admin.php?connect_from=${ options.from }&redirect_url=${ options.redirect_url }`,
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
@@ -291,7 +291,7 @@ describe( 'Newsletter dashboard Stage Settings owner warning', () => {
 		expect( warning ).toBeInTheDocument();
 		expect( warning ).toHaveAttribute(
 			'data-connect-url',
-			'https://example.com/wp-admin/admin.php?connect_from=jetpack-newsletter'
+			'https://example.com/wp-admin/admin.php?connect_from=jetpack-newsletter&redirect_url=https://example.com/wp-admin/admin.php?page=jetpack-newsletter'
 		);
 	} );
 
