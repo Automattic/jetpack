@@ -298,6 +298,46 @@ describe( 'ModuleToggle', () => {
 		await waitFor( () => expect( mockToggleModule ).toHaveBeenCalledTimes( 2 ) );
 	} );
 
+	it.each( [
+		[ 'off', true, false ],
+		[ 'on', false, true ],
+	] )(
+		'tells a surface tracking its own events that the click asked for %s',
+		async ( _label, activated, asked ) => {
+			const onSwitch = jest.fn();
+
+			render(
+				<ModuleToggle
+					module={ buildModule( { module: 'sitemaps', name: 'Sitemaps', activated } ) }
+					onSwitch={ onSwitch }
+				/>
+			);
+
+			await userEvent.click( screen.getByRole( 'checkbox' ) );
+
+			expect( onSwitch ).toHaveBeenCalledWith( asked );
+		}
+	);
+
+	it.each( blockThemeModules )(
+		'tells that surface about switching legacy %s to the block, too',
+		async ( module, switchLabel ) => {
+			const onSwitch = jest.fn();
+			mockToggleModule.mockResolvedValue( true );
+
+			render(
+				<ModuleToggle
+					module={ legacyModule( { module, activated: true } ) }
+					onSwitch={ onSwitch }
+				/>
+			);
+
+			await userEvent.click( screen.getByRole( 'button', { name: switchLabel } ) );
+
+			expect( onSwitch ).toHaveBeenCalledWith( false );
+		}
+	);
+
 	it( 'does not reload for a regular module and shows an inline notice instead', async () => {
 		render( <ModuleToggle module={ buildModule( { module: 'sitemaps', name: 'Sitemaps' } ) } /> );
 

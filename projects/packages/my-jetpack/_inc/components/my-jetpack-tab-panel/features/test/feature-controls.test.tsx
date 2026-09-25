@@ -79,6 +79,26 @@ describe( 'FeatureAction', () => {
 		expect( countControls() ).toBe( 1 );
 	} );
 
+	it( 'opens, instead of offering Install, a feature a plan runs without its plugin', () => {
+		render(
+			<FeatureAction
+				state={ buildState(
+					{ kind: 'install-plugin', plugin: 'jetpack-backup', runsWithoutPlugin: true },
+					{
+						status: 'active',
+						feature: buildFeature( { manage_url: 'https://example.com/backup' } ),
+					}
+				) }
+			/>
+		);
+
+		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/backup'
+		);
+		expect( countControls() ).toBe( 0 );
+	} );
+
 	it( 'installs the named plugin when its Install button is pressed', async () => {
 		render(
 			<FeatureAction state={ buildState( { kind: 'install-plugin', plugin: 'jetpack-boost' } ) } />
@@ -174,6 +194,23 @@ describe( 'FeatureModalActions', () => {
 		expect( countControls() ).toBe( 1 );
 	} );
 
+	it( 'keeps Install beside Open for a feature a plan runs without its plugin', () => {
+		render(
+			<FeatureModalActions
+				state={ buildState(
+					{ kind: 'install-plugin', plugin: 'jetpack-backup', runsWithoutPlugin: true },
+					{
+						status: 'active',
+						feature: buildFeature( { manage_url: 'https://example.com/backup' } ),
+					}
+				) }
+			/>
+		);
+
+		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Install' } ) ).toBeInTheDocument();
+	} );
+
 	it( 'offers Open beside the switch once the feature is running', () => {
 		render(
 			<FeatureModalActions
@@ -249,7 +286,7 @@ describe( 'FeatureModalActions', () => {
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'leaves the reason for a module forced off to "How to get it"', () => {
+	it( 'says why a module forced off cannot be switched, in place of the switch', () => {
 		const forcedOff = {
 			...forcedModule,
 			activated: false,
@@ -258,7 +295,7 @@ describe( 'FeatureModalActions', () => {
 
 		render( <FeatureModalActions state={ buildState( { kind: 'module', module: forcedOff } ) } /> );
 
-		expect( screen.queryByText( /by your host or site administrator/ ) ).not.toBeInTheDocument();
+		expect( screen.getByText( /by your host or site administrator/ ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
 } );

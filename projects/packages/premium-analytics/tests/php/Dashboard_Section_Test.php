@@ -1158,15 +1158,19 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The customer preview exposes the Traffic and Insights tabs and nothing else.
+	 * The customer preview exposes the Traffic, Insights and Subscribers tabs and nothing else
+	 * of the package's own.
 	 */
-	public function test_preview_scope_leaves_only_the_traffic_and_insights_sections() {
+	public function test_preview_scope_leaves_only_the_preview_sections() {
 		$this->enable_every_section();
 		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
 		register_default_dashboard_sections();
 
-		$this->assertSame( array( 'analytics/traffic', 'analytics/insights' ), $this->available_section_ids() );
+		$this->assertSame(
+			array( 'analytics/traffic', 'analytics/insights', 'analytics/subscribers' ),
+			$this->available_section_ids()
+		);
 	}
 
 	/**
@@ -1234,7 +1238,11 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		register_default_dashboard_sections();
 
-		$this->assertSameSize( PREVIEW_SECTIONS, $this->available_section_ids() );
+		// The package's own preview tabs; Ads is a plugin section, so it is not registered here.
+		$this->assertSame(
+			array( 'analytics/traffic', 'analytics/insights', 'analytics/subscribers' ),
+			$this->available_section_ids()
+		);
 	}
 
 	/**
@@ -1255,7 +1263,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$registered = Dashboard_Section_Registry::get_instance()->get_all_registered( DASHBOARD_NAME );
 
 		$this->assertSameSize( $registered, $this->available_section_ids() );
-		$this->assertGreaterThan( count( PREVIEW_SECTIONS ), count( $this->available_section_ids() ) );
+		$this->assertContains( 'woocommerce/store', $this->available_section_ids() );
 		$this->assertSameSize( $registered, get_dashboard_preview_scope_sections() );
 	}
 
@@ -1321,7 +1329,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 			'requires_sync'
 		);
 
-		$this->assertSame( array( false, false ), $requires_sync );
+		$this->assertSame( array( false, false, false ), $requires_sync );
 	}
 
 	/**
@@ -1344,7 +1352,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		register_default_dashboard_sections();
 
-		$section = get_available_dashboard_section_for_route( DASHBOARD_NAME, 'analytics/subscribers' );
+		$section = get_available_dashboard_section_for_route( DASHBOARD_NAME, 'woocommerce/store' );
 
 		$this->assertInstanceOf( \WP_Error::class, $section );
 		$this->assertSame( 'dashboard_section_unavailable', $section->get_error_code() );
@@ -1359,7 +1367,30 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		register_default_dashboard_sections();
 
-		$this->assertSame( array( 'traffic', 'insights' ), get_dashboard_preview_scope_sections() );
+		$this->assertSame( array( 'traffic', 'insights', 'subscribers' ), get_dashboard_preview_scope_sections() );
+	}
+
+	/**
+	 * Ads is out of the preview until it shows only on sites that use WordAds (WOOA7S-2208), so a
+	 * registered Ads section stays hidden from a previewing site owner.
+	 */
+	public function test_preview_scope_hides_a_registered_ads_section() {
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		register_default_dashboard_sections();
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'wordads/ads',
+			array(
+				'label' => 'Ads',
+				'order' => 50,
+			)
+		);
+
+		$this->assertSame( array( 'traffic', 'insights', 'subscribers' ), get_dashboard_preview_scope_sections() );
+		$this->assertFalse( is_dashboard_section_in_preview_scope( DASHBOARD_NAME, 'ads' ) );
+		$this->assertFalse( is_dashboard_section_in_preview_scope( DASHBOARD_NAME, 'store' ) );
 	}
 
 	/**
@@ -1427,7 +1458,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$data = apply_filters( 'jetpack_admin_js_script_data', array() );
 
-		$this->assertSame( array( 'traffic', 'insights' ), $data['premium_analytics']['preview_sections'] );
+		$this->assertSame(
+			array( 'traffic', 'insights', 'subscribers' ),
+			$data['premium_analytics']['preview_sections']
+		);
 	}
 
 	/**
@@ -1444,7 +1478,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'has_videopress'   => true,
-				'preview_sections' => array( 'traffic', 'insights' ),
+				'preview_sections' => array( 'traffic', 'insights', 'subscribers' ),
 			),
 			$data['premium_analytics']
 		);

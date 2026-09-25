@@ -64,6 +64,11 @@ describe( 'normalizeBackup', () => {
 		expect( normalizeBackup( entry( { stats: undefined } ) ).hasStats ).toBe( false );
 		expect( normalizeBackup( entry() ).hasStats ).toBe( true );
 	} );
+
+	it( 'carries `has_warnings` through as `hasWarnings`', () => {
+		expect( normalizeBackup( entry( { has_warnings: true } ) ).hasWarnings ).toBe( true );
+		expect( normalizeBackup( entry() ).hasWarnings ).toBe( false );
+	} );
 } );
 
 describe( 'normalizeBackups', () => {

@@ -132,6 +132,21 @@ describe( 'useTrafficChart', () => {
 		expect( metrics[ 3 ].value ).toBe( 50 );
 	} );
 
+	it( 'pluralizes the tooltip unit of each metric', async () => {
+		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
+
+		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+		expect(
+			result.current.metrics.map( metric => [ metric.countLabel?.( 1 ), metric.countLabel?.( 2 ) ] )
+		).toEqual( [
+			[ '%s View', '%s Views' ],
+			[ '%s Visitor', '%s Visitors' ],
+			[ '%s Comment', '%s Comments' ],
+			[ '%s Like', '%s Likes' ],
+		] );
+	} );
+
 	it( 'maps one chart point per period, oldest first', async () => {
 		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Show a sent but unopened email's open and click rates as 0% instead of a dash, show the email tabs for emails whose sends went unrecorded, and leave unknown rates blank in the Emails export.

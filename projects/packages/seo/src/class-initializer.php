@@ -60,20 +60,6 @@ class Initializer {
 	const SCRIPT_DATA_KEY = 'seo';
 
 	/**
-	 * Option recording whether sitemap generation is enabled.
-	 *
-	 * Read in place of the standalone `sitemaps` module's active state. Module-active
-	 * state is filtered against the modules present on disk, so once that module is
-	 * removed it would read as inactive even for sites that had it on. A one-time
-	 * migration in the Jetpack plugin seeds this option from the site's existing module
-	 * state and keeps it in sync while the legacy module still exists. See
-	 * `Jetpack::migrate_sitemaps_module_to_seo_option()`.
-	 *
-	 * @var string
-	 */
-	const SITEMAP_ENABLED_OPTION = 'jetpack_seo_sitemap_enabled';
-
-	/**
 	 * Option recording that the user has deliberately turned the site's sitemap OFF,
 	 * so WordPress core's own sitemap should be suppressed too ("off" means no sitemap
 	 * at all, not a fallback to `/wp-sitemap.xml`).
@@ -88,20 +74,6 @@ class Initializer {
 	 * @var string
 	 */
 	const SUPPRESS_WP_SITEMAP_OPTION = 'jetpack_seo_suppress_wp_sitemap';
-
-	/**
-	 * Option recording whether canonical URLs are enabled.
-	 *
-	 * Read in place of the standalone `canonical-urls` module's active state. Module-active
-	 * state is filtered against the modules present on disk, so once that module is
-	 * removed it would read as inactive even for sites that had it on. A one-time
-	 * migration in the Jetpack plugin seeds this option from the site's existing module
-	 * state and keeps it in sync while the legacy module still exists. See
-	 * `Jetpack::migrate_canonical_urls_module_to_seo_option()`.
-	 *
-	 * @var string
-	 */
-	const CANONICAL_ENABLED_OPTION = 'jetpack_seo_canonical_urls_enabled';
 
 	/**
 	 * Option recording whether the Jetpack SEO surface is discoverable on this site.

@@ -1501,6 +1501,29 @@ class Manager {
 	}
 
 	/**
+	 * Claim this site's protected ownership for the current user with WordPress.com.
+	 *
+	 * Split from `set_protected_owner()` so the decision it drives can be exercised without a
+	 * network. The identity travels in the signature rather than the payload, so nothing is sent.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array|null The record, or null when WordPress.com could not answer.
+	 */
+	protected function assert_protected_owner_record() {
+		$xml = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
+		$xml->query( 'jetpack.assertProtectedOwner' );
+
+		if ( $xml->isError() ) {
+			return null;
+		}
+
+		$response = $xml->getResponse();
+
+		return is_array( $response ) ? $response : null;
+	}
+
+	/**
 	 * Record a user as the protected owner and promote them to connection owner.
 	 *
 	 * Gated on `jetpack_connect` rather than on a role: a host can narrow that capability and
@@ -1509,6 +1532,7 @@ class Manager {
 	 *
 	 * @since 9.3.0
 	 * @since 9.6.0 No longer takes how the owner was confirmed.
+	 * @since $$next-version$$ WordPress.com records the owner before anything is anchored here.
 	 *
 	 * @param int $user_id The local user to anchor.
 	 * @return true|WP_Error True on success, WP_Error otherwise.
@@ -1535,11 +1559,42 @@ class Manager {
 			);
 		}
 
-		// Fail closed: this is false for a user with no token and for one WordPress.com cannot
-		// confirm, and an unverified identity must never be written down and locked.
-		$owner_data = $this->get_connected_user_data( $user_id );
+		// The claim is signed as the current user, so it can only ever anchor the current user.
+		// Anchoring somebody else would be an owner assignment they never agreed to.
+		if ( $user_id !== get_current_user_id() ) {
+			return new WP_Error(
+				'protected_owner_not_self',
+				__( 'A protected owner can only be recorded by the user confirming it.', 'jetpack-connection' ),
+				array( 'status' => 400 )
+			);
+		}
 
-		if ( empty( $owner_data['ID'] ) ) {
+		// WordPress.com is asked before anything is written here. It owns the record, so a claim it
+		// has not accepted must not leave a locked anchor behind on this site.
+		$record = $this->assert_protected_owner_record();
+
+		// Fail closed: unreachable, refused, or a WordPress.com that does not implement the call.
+		// A site that cannot get an answer must not end up protecting anybody on its own say-so.
+		if ( ! is_array( $record ) || empty( $record['status'] ) ) {
+			return new WP_Error(
+				'protected_owner_unconfirmed',
+				__( 'Could not reach WordPress.com to confirm the protected owner.', 'jetpack-connection' ),
+				array( 'status' => 503 )
+			);
+		}
+
+		// Somebody else already holds this site. Beyond support there is no way past this, which is
+		// the point: an owner that could be overwritten by the next claimant protects nobody.
+		if ( 'locked_to_other' === $record['status'] ) {
+			return new WP_Error(
+				'protected_owner_claimed_by_other',
+				__( 'This site is already protected by a different WordPress.com account. Contact support.', 'jetpack-connection' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		// Only an accepted claim is anchored: any other verdict is refused, even one carrying an ID.
+		if ( ! in_array( $record['status'], array( 'recorded', 'already_yours' ), true ) || empty( $record['wpcom_user_id'] ) ) {
 			return new WP_Error(
 				'protected_owner_not_verified',
 				__( 'Could not confirm the protected owner with WordPress.com.', 'jetpack-connection' ),
@@ -1549,9 +1604,9 @@ class Manager {
 
 		// Store the binding the anchor will be compared against, so the gate reads local state from
 		// here on. Routed through the deduping writer, which clears the ID off any previous holder.
-		Utils::set_wpcom_user_id( $user_id, (int) $owner_data['ID'] );
+		Utils::set_wpcom_user_id( $user_id, (int) $record['wpcom_user_id'] );
 
-		if ( ! Protected_Owner::set( (int) $owner_data['ID'], $user_id ) ) {
+		if ( ! Protected_Owner::set( (int) $record['wpcom_user_id'], $user_id ) ) {
 			return new WP_Error(
 				'protected_owner_not_stored',
 				__( 'Could not store the protected owner.', 'jetpack-connection' ),
@@ -3431,12 +3486,63 @@ class Manager {
 	/**
 	 * Disconnect the user from WP.com, and initiate the reconnect process.
 	 *
-	 * @return bool
+	 * @since $$next-version$$ Added the `$force` parameter.
+	 *
+	 * @param bool $force Whether to remove the local token even if WordPress.com does not confirm the unlink.
+	 *                    When false, only the current user's own token is refreshed, never the owner's,
+	 *                    and only over a healthy blog token.
+	 * @return true|string|WP_Error True when forced. Otherwise 'authorize' when the user should authorize again, a `WP_Error` object on failure.
 	 */
-	public function refresh_user_token() {
-		( new Tracking() )->record_user_event( 'restore_connection_refresh_user_token' );
-		$this->disconnect_user( null, true, true );
-		return true;
+	public function refresh_user_token( $force = true ) {
+		$user_id = get_current_user_id();
+
+		if ( ! $force ) {
+			// Unlinking the owner would leave the site without one.
+			if ( ! $user_id || $this->is_site_connection() || $this->get_connection_owner_id() === $user_id ) {
+				return new WP_Error(
+					'restore_requires_administrator',
+					__( 'An administrator needs to restore the Jetpack connection.', 'jetpack-connection' ),
+					array( 'status' => 403 )
+				);
+			}
+
+			// Relinking goes over the blog token, so it must work before anything is unlinked.
+			$blog_token_health = $this->get_tokens()->validate_blog_token();
+
+			if ( is_wp_error( $blog_token_health ) ) {
+				return new WP_Error(
+					'restore_check_failed',
+					__( 'The site connection could not be checked. Please try again shortly.', 'jetpack-connection' ),
+					array( 'status' => 503 )
+				);
+			}
+
+			if ( true !== $blog_token_health ) {
+				return new WP_Error(
+					'restore_requires_administrator',
+					__( 'The site connection is broken. An administrator needs to restore it before you can reconnect your account.', 'jetpack-connection' ),
+					array( 'status' => 409 )
+				);
+			}
+		}
+
+		// A forced refresh unlinks even without a stored token, as it always has.
+		if ( $force || $this->is_user_connected( $user_id ) ) {
+			( new Tracking() )->record_user_event( 'restore_connection_refresh_user_token' );
+
+			// Unforced, the local token only goes once WordPress.com has unlinked it.
+			$unlinked = $this->disconnect_user( $force ? null : $user_id, $force, $force );
+
+			if ( ! $force && ! $unlinked ) {
+				return new WP_Error(
+					'restore_unlink_failed',
+					__( 'Your account could not be disconnected from WordPress.com. Please try again.', 'jetpack-connection' ),
+					array( 'status' => 502 )
+				);
+			}
+		}
+
+		return $force ? true : 'authorize';
 	}
 
 	/**

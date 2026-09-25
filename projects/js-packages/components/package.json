@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "3.1.2",
+	"version": "3.2.0",
 	"description": "Jetpack Components Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/components/#readme",
 	"bugs": {
@@ -53,6 +53,11 @@
 			"types": "./build/components/jetpack-logo/index.d.ts",
 			"default": "./build/components/jetpack-logo/index.js"
 		},
+		"./jitm-slot": {
+			"jetpack:src": "./components/jitm-slot/index.tsx",
+			"types": "./build/components/jitm-slot/index.d.ts",
+			"default": "./build/components/jitm-slot/index.js"
+		},
 		"./pricing-table": {
 			"jetpack:src": "./components/pricing-table/index.tsx",
 			"types": "./build/components/pricing-table/index.d.ts",
@@ -88,6 +93,7 @@
 		"@automattic/number-formatters": "workspace:*",
 		"@babel/runtime": "^7",
 		"@gravatar-com/hovercards": "0.16.0",
+		"@wordpress/a11y": "4.55.0",
 		"@wordpress/admin-ui": "2.10.0",
 		"@wordpress/browserslist-config": "6.55.0",
 		"@wordpress/components": "40.1.0",

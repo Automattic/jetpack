@@ -36,7 +36,7 @@ $color__back-link: #787c82;
 		svg {
 			fill: #000;
 			height: 16px;
-			margin-right: 4px;
+			margin-inline-end: 4px;
 			margin-top: -3px;
 			vertical-align: middle;
 			width: 16px;
@@ -109,13 +109,13 @@ $color__back-link: #787c82;
 
 .jetpack-about__images {
 	text-align: center;
-	margin-left: 48px;
+	margin-inline-start: 48px;
 	order: 2;
 
 	@media screen and (max-width: 782px) {
-		margin-left: 0;
+		margin-inline-start: 0;
 		order: 0;
-		text-align: left;
+		text-align: start;
 		width: 100%;
 	}
 
@@ -226,7 +226,7 @@ $color__back-link: #787c82;
 		.name,
 		.desc,
 		.details-link {
-			margin-left: 152px;
+			margin-inline-start: 152px;
 		}
 
 		.name h3 {
@@ -257,7 +257,7 @@ $color__back-link: #787c82;
 		padding: 16px;
 
 		.meta {
-			margin-right: 1em;
+			margin-inline-end: 1em;
 		}
 
 		.num-ratings {

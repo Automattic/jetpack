@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Bar chart: End a keyboard selection when the pointer moves over the chart, instead of flickering between the hovered and selected bars.

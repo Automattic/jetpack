@@ -43,6 +43,7 @@ class Jetpack_Redux_State_Helper_Test extends WP_UnitTestCase {
 
 		$_wp_theme_features = $this->theme_features;
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+		Jetpack_Options::delete_option( array( 'id', 'user_tokens' ) );
 		parent::tear_down();
 	}
 
@@ -87,5 +88,56 @@ class Jetpack_Redux_State_Helper_Test extends WP_UnitTestCase {
 		}
 		$this->assertArrayNotHasKey( 'showRecommendations', $state['siteData'] );
 		$this->assertArrayNotHasKey( 'latestBoostSpeedScores', $state['siteData'] );
+	}
+
+	/**
+	 * A registered site with no connected user reports its blog ID and no user.
+	 */
+	public function test_plugins_page_state_for_a_site_without_a_connected_user() {
+		Jetpack_Options::update_option( 'id', 1234 );
+
+		$state = Jetpack_Redux_State_Helper::get_plugins_page_state();
+
+		$this->assertArrayHasKey( 'WP_API_nonce', $state );
+		$this->assertSame(
+			array(
+				'siteId'                 => 1234,
+				'hasConnectedUser'       => false,
+				'isCurrentUserConnected' => false,
+			),
+			$state['pluginDeactivation']
+		);
+	}
+
+	/**
+	 * A site with a connected user says so, and whether the current user is that user.
+	 */
+	public function test_plugins_page_state_for_a_site_with_a_connected_user() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'connected_admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'user_tokens', array( $user_id => "dummy.usertoken.$user_id" ) );
+
+		$state = Jetpack_Redux_State_Helper::get_plugins_page_state();
+		$this->assertTrue( $state['pluginDeactivation']['hasConnectedUser'] );
+		$this->assertFalse( $state['pluginDeactivation']['isCurrentUserConnected'] );
+
+		wp_set_current_user( $user_id );
+		$state = Jetpack_Redux_State_Helper::get_plugins_page_state();
+		$this->assertTrue( $state['pluginDeactivation']['isCurrentUserConnected'] );
+	}
+
+	/**
+	 * A site that never registered has no blog ID to send.
+	 */
+	public function test_plugins_page_state_for_an_unregistered_site() {
+		$state = Jetpack_Redux_State_Helper::get_plugins_page_state();
+
+		$this->assertSame( 0, $state['pluginDeactivation']['siteId'] );
 	}
 }

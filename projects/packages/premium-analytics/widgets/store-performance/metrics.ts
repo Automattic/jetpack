@@ -1,11 +1,11 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import type { MetricKey } from '@jetpack-premium-analytics/widgets-toolkit';
+import type { CountLabel, MetricKey } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
  * Identifier of one store metric tab.
@@ -23,6 +23,7 @@ export type StorePerformanceMetric = {
 	description: string;
 	metricType: 'general' | 'booking' | 'visitors' | 'conversion' | 'customers';
 	metricKey: MetricKey;
+	countLabel?: CountLabel;
 };
 
 /**
@@ -48,6 +49,9 @@ export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 		),
 		metricType: 'general',
 		metricKey: 'orders_no',
+		countLabel: count =>
+			/* translators: %s: number of orders. */
+			_n( '%s Order', '%s Orders', count, 'jetpack-premium-analytics-pkg' ),
 	},
 	{
 		id: 'bookings',
@@ -58,6 +62,9 @@ export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 		),
 		metricType: 'booking',
 		metricKey: 'orders_no',
+		countLabel: count =>
+			/* translators: %s: number of bookings. */
+			_n( '%s Booking', '%s Bookings', count, 'jetpack-premium-analytics-pkg' ),
 	},
 	{
 		id: 'visitors',
@@ -68,6 +75,9 @@ export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 		),
 		metricType: 'visitors',
 		metricKey: 'visitors',
+		countLabel: count =>
+			/* translators: %s: number of visitors. */
+			_n( '%s Visitor', '%s Visitors', count, 'jetpack-premium-analytics-pkg' ),
 	},
 	{
 		id: 'conversion-rate',
@@ -88,5 +98,8 @@ export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 		),
 		metricType: 'customers',
 		metricKey: 'customers',
+		countLabel: count =>
+			/* translators: %s: number of customers. */
+			_n( '%s Customer', '%s Customers', count, 'jetpack-premium-analytics-pkg' ),
 	},
 ];

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Fix a just-uploaded video briefly showing up a second time as a local video in the Library.

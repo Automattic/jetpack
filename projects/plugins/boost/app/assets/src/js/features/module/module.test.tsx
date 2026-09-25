@@ -148,7 +148,7 @@ describe( 'Module', () => {
 		);
 
 		expect( screen.getByText( 'Failed to load module' ) ).toBeTruthy();
-		expect( screen.getByRole( 'heading', { level: 3 } ).textContent ).toBe( 'Concatenate JS' );
+		expect( screen.getByRole( 'heading', { level: 4 } ).textContent ).toBe( 'Concatenate JS' );
 		expect( screen.getByText( 'Error: kaboom' ) ).toBeTruthy();
 	} );
 } );

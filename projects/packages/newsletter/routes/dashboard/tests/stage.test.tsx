@@ -1,0 +1,377 @@
+// The Newsletter dashboard route stage owns the `jetpack_newsletter_tab_view`
+// Tracks event. Two contracts matter:
+//
+// 1. The event fires once on initial mount carrying the landing tab (so a
+//    visitor who deep-links to `?tab=settings` is counted as a Settings view),
+//    and once per subsequent active-tab change.
+// 2. React 18 StrictMode's dev-only mount/cleanup/remount cycle MUST NOT
+//    produce a duplicate fire. The implementation guards this with a `useRef`
+//    keyed on the last tracked tab — refs persist across the simulated
+//    remount, so the second `useEffect` setup finds the active tab already
+//    recorded and bails out.
+
+const mockRecordEvent = jest.fn();
+const mockInitialize = jest.fn();
+const mockSearch = jest.fn< { tab?: string }, [] >();
+const mockIsSimpleSite = jest.fn< boolean, [] >();
+const mockConnection = jest.fn< Record< string, unknown >, [] >();
+const mockGetNewsletterScriptData = jest.fn();
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: {
+		initialize: ( ...args: unknown[] ) => mockInitialize( ...args ),
+		tracks: { recordEvent: ( ...args: unknown[] ) => mockRecordEvent( ...args ) },
+	},
+} ) );
+
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getSiteData: () => ( { admin_url: 'https://example.com/wp-admin/' } ),
+	getSiteType: () => 'jetpack',
+	isSimpleSite: () => mockIsSimpleSite(),
+} ) );
+
+jest.mock( '@automattic/jetpack-connection/use-connection', () => ( {
+	__esModule: true,
+	default: () => mockConnection(),
+} ) );
+
+jest.mock( '@automattic/jetpack-connection/get-user-connection-url', () => ( {
+	getUserConnectionUrl: ( options: { from?: string; redirect_url?: string } ) =>
+		`https://example.com/wp-admin/admin.php?connect_from=${ options.from }&redirect_url=${ options.redirect_url }`,
+} ) );
+
+jest.mock( '@wordpress/route', () => ( {
+	useSearch: () => mockSearch(),
+} ) );
+
+// QueryClientProvider has no behavior relevant to this test; render children
+// directly so we don't have to spin up a real `QueryClient`.
+jest.mock( '@tanstack/react-query', () => ( {
+	QueryClientProvider: ( { children }: { children: React.ReactNode } ) => <>{ children }</>,
+} ) );
+
+jest.mock( '@wordpress/ui', () => ( {
+	Tabs: {
+		Panel: ( { children }: { children: React.ReactNode } ) => <>{ children }</>,
+	},
+} ) );
+
+// SubscribersBody is a render-prop component; the Stage passes a function
+// that builds the panels. The mock invokes it with empty slot data so the
+// downstream render path is exercised without any data-views machinery, and
+// records the `importRefreshEnabled` prop so we can assert the poll gating.
+let mockImportRefreshEnabled: boolean | undefined;
+
+jest.mock( '../../../_inc/subscribers/components/subscribers-body', () => ( {
+	__esModule: true,
+	default: ( {
+		importRefreshEnabled,
+		children,
+	}: {
+		importRefreshEnabled: boolean;
+		children: ( ctx: { body: React.ReactNode; actions: React.ReactNode } ) => React.ReactNode;
+	} ) => {
+		mockImportRefreshEnabled = importRefreshEnabled;
+		return <>{ children( { body: <div data-testid="subscribers-body" />, actions: null } ) }</>;
+	},
+} ) );
+
+jest.mock( '../../../_inc/subscribers/components/connection-gate', () => ( {
+	__esModule: true,
+	default: () => <div data-testid="connection-gate" />,
+} ) );
+
+jest.mock( '../../../_inc/subscribers/lib/query-client', () => ( {
+	queryClient: {},
+} ) );
+
+jest.mock( '../../../src/settings/newsletter-settings', () => ( {
+	NewsletterSettingsBody: ( {
+		hasConnectedOwner,
+		connectUrl,
+	}: {
+		hasConnectedOwner?: boolean;
+		connectUrl?: string;
+	} ) =>
+		hasConnectedOwner === false ? (
+			<div data-testid="settings-owner-warning" data-connect-url={ connectUrl } />
+		) : null,
+} ) );
+
+jest.mock( '../components/overview-body', () => ( {
+	__esModule: true,
+	default: () => null,
+} ) );
+
+jest.mock( '../components/subscriber-stats-chart', () => ( {
+	__esModule: true,
+	default: () => <div data-testid="subscriber-stats-chart" />,
+} ) );
+
+jest.mock( '../../../src/settings/script-data', () => ( {
+	getNewsletterScriptData: () => mockGetNewsletterScriptData(),
+} ) );
+
+// NewsletterPage's render output is irrelevant for the analytics contract;
+// reduce it to a children passthrough so the test doesn't depend on the
+// shell's tab nav, AdminPage wiring, or SCSS imports.
+jest.mock( '../../../_inc/components/newsletter-page', () => ( {
+	__esModule: true,
+	default: ( { children }: { children: React.ReactNode } ) => <>{ children }</>,
+} ) );
+
+// SCSS side-effect imports — no-op in jest.
+jest.mock( '../../../src/settings/style.scss', () => ( {} ), { virtual: true } );
+jest.mock( '../route.scss', () => ( {} ), { virtual: true } );
+
+// Imports must come after the jest.mock factories above.
+import { render, screen } from '@testing-library/react';
+import { StrictMode } from 'react';
+import { stage as Stage } from '../stage';
+
+beforeEach( () => {
+	mockRecordEvent.mockReset();
+	mockInitialize.mockReset();
+	mockSearch.mockReset();
+	mockSearch.mockReturnValue( {} );
+	mockIsSimpleSite.mockReset();
+	mockIsSimpleSite.mockReturnValue( false );
+	mockConnection.mockReset();
+	mockGetNewsletterScriptData.mockReset();
+	mockGetNewsletterScriptData.mockReturnValue( {
+		subscriberManagementEnabled: true,
+		overviewEnabled: true,
+		tracksUserData: { userid: 1, username: 'tester' },
+	} );
+	mockConnection.mockReturnValue( {
+		isRegistered: false,
+		hasConnectedOwner: false,
+		isUserConnected: false,
+		siteIsRegistering: false,
+		userIsConnecting: false,
+		handleRegisterSite: jest.fn(),
+	} );
+	mockImportRefreshEnabled = undefined;
+} );
+
+const connected = {
+	isRegistered: true,
+	hasConnectedOwner: true,
+	isUserConnected: true,
+	siteIsRegistering: false,
+	userIsConnecting: false,
+	handleRegisterSite: jest.fn(),
+};
+
+describe( 'Newsletter dashboard Stage analytics', () => {
+	it( 'records jetpack_newsletter_tab_view once on initial mount with the landing tab', () => {
+		render( <Stage /> );
+
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_tab_view', {
+			site_type: 'jetpack',
+			tab: 'overview',
+		} );
+	} );
+
+	it( 'records Subscribers as the landing tab when Overview is disabled', () => {
+		mockGetNewsletterScriptData.mockReturnValue( {
+			subscriberManagementEnabled: true,
+			overviewEnabled: false,
+			tracksUserData: { userid: 1, username: 'tester' },
+		} );
+
+		render( <Stage /> );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_tab_view', {
+			site_type: 'jetpack',
+			tab: 'subscribers',
+		} );
+	} );
+
+	it( 'records the Settings tab when the route deep-links to ?tab=settings', () => {
+		mockSearch.mockReturnValue( { tab: 'settings' } );
+
+		render( <Stage /> );
+
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_tab_view', {
+			site_type: 'jetpack',
+			tab: 'settings',
+		} );
+	} );
+
+	it( 'records again with the new tab when the active tab flips', () => {
+		const { rerender } = render( <Stage /> );
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+
+		// Simulate the route flipping `?tab=settings`; useSearch's next return
+		// drives the activeTab dep and re-runs the tab-view effect.
+		mockSearch.mockReturnValue( { tab: 'settings' } );
+		rerender( <Stage /> );
+
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 2 );
+		expect( mockRecordEvent ).toHaveBeenLastCalledWith( 'jetpack_newsletter_tab_view', {
+			site_type: 'jetpack',
+			tab: 'settings',
+		} );
+	} );
+
+	it( 'does not re-fire when re-rendered with the same active tab', () => {
+		const { rerender } = render( <Stage /> );
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+
+		// Re-render without touching mockSearch — activeTab stays 'overview'.
+		rerender( <Stage /> );
+
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'dedupes React 18 StrictMode mount/cleanup/remount so only one event fires', () => {
+		render(
+			<StrictMode>
+				<Stage />
+			</StrictMode>
+		);
+
+		// Without the `useRef` dedupe, StrictMode dev-mode would run the
+		// useEffect setup twice on mount and we'd see 2 calls here.
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'initializes analytics once on mount with the tracks user data', () => {
+		render( <Stage /> );
+
+		expect( mockInitialize ).toHaveBeenCalledTimes( 1 );
+		expect( mockInitialize ).toHaveBeenCalledWith( 1, 'tester' );
+	} );
+} );
+
+describe( 'Newsletter dashboard Stage connection gate', () => {
+	it( 'shows the connection gate on a disconnected non-Simple site', () => {
+		mockSearch.mockReturnValue( { tab: 'subscribers' } );
+
+		render( <Stage /> );
+
+		expect( screen.getByTestId( 'connection-gate' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'subscribers-body' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'bypasses the gate on a Simple site even without a Jetpack connection', () => {
+		// Simple sites are hosted on WP.com and never carry a Jetpack
+		// connection; the subscriber endpoints resolve directly to WP.com.
+		mockIsSimpleSite.mockReturnValue( true );
+		mockSearch.mockReturnValue( { tab: 'subscribers' } );
+
+		render( <Stage /> );
+
+		expect( screen.getByTestId( 'subscribers-body' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'connection-gate' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows the subscribers body on a fully connected non-Simple site', () => {
+		mockConnection.mockReturnValue( connected );
+		mockSearch.mockReturnValue( { tab: 'subscribers' } );
+
+		render( <Stage /> );
+
+		expect( screen.getByTestId( 'subscribers-body' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'connection-gate' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'Newsletter dashboard Stage Settings owner warning', () => {
+	it( 'passes hasConnectedOwner and connectUrl so the Settings tab can warn a disconnected owner', () => {
+		mockSearch.mockReturnValue( { tab: 'settings' } );
+
+		render( <Stage /> );
+
+		const warning = screen.getByTestId( 'settings-owner-warning' );
+		expect( warning ).toBeInTheDocument();
+		expect( warning ).toHaveAttribute(
+			'data-connect-url',
+			'https://example.com/wp-admin/admin.php?connect_from=jetpack-newsletter&redirect_url=https://example.com/wp-admin/admin.php?page=jetpack-newsletter'
+		);
+	} );
+
+	it( 'does not warn when the owner is connected', () => {
+		mockConnection.mockReturnValue( connected );
+		mockSearch.mockReturnValue( { tab: 'settings' } );
+
+		render( <Stage /> );
+
+		expect( screen.queryByTestId( 'settings-owner-warning' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'does not warn on a Simple site even without a Jetpack connection', () => {
+		mockIsSimpleSite.mockReturnValue( true );
+		mockSearch.mockReturnValue( { tab: 'settings' } );
+
+		render( <Stage /> );
+
+		expect( screen.queryByTestId( 'settings-owner-warning' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'Newsletter dashboard Stage import-poll gating', () => {
+	// The import-completion poll lives in the always-mounted SubscribersBody. It must run only for a
+	// visitor who can actually import AND is on the Subscribers tab, so it doesn't hit the WP.com
+	// import endpoint on the Settings tab, for connection-gated users, or on Settings-only sites.
+	it( 'enables the poll for a connected visitor on the Subscribers tab', () => {
+		mockConnection.mockReturnValue( connected );
+		mockSearch.mockReturnValue( { tab: 'subscribers' } );
+
+		render( <Stage /> );
+
+		expect( mockImportRefreshEnabled ).toBe( true );
+	} );
+
+	it( 'disables the poll on the Settings tab, even when connected', () => {
+		mockConnection.mockReturnValue( connected );
+		mockSearch.mockReturnValue( { tab: 'settings' } );
+
+		render( <Stage /> );
+
+		expect( mockImportRefreshEnabled ).toBe( false );
+	} );
+
+	it( 'disables the poll for a connection-gated visitor', () => {
+		// Default mocks: disconnected non-Simple site → cannot manage subscribers.
+		render( <Stage /> );
+
+		expect( mockImportRefreshEnabled ).toBe( false );
+	} );
+} );
+
+describe( 'Newsletter dashboard Stage Stats tab gating', () => {
+	// Stats exposes real subscriber/email data over REST, so it must stay
+	// unreachable — not just hidden from nav — while the shared Overview flag
+	// that also gates it is off. Stats is a temporary standalone page that
+	// shares Overview's flag rather than getting its own.
+	it( 'does not render the Stats panel when overviewEnabled is false, even via ?tab=stats', () => {
+		mockGetNewsletterScriptData.mockReturnValue( {
+			subscriberManagementEnabled: true,
+			overviewEnabled: false,
+			tracksUserData: { userid: 1, username: 'tester' },
+		} );
+		mockSearch.mockReturnValue( { tab: 'stats' } );
+
+		render( <Stage /> );
+
+		expect( screen.queryByTestId( 'subscriber-stats-chart' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders the Stats panel when overviewEnabled is true and the route deep-links to ?tab=stats', () => {
+		mockGetNewsletterScriptData.mockReturnValue( {
+			subscriberManagementEnabled: true,
+			overviewEnabled: true,
+			tracksUserData: { userid: 1, username: 'tester' },
+		} );
+		mockSearch.mockReturnValue( { tab: 'stats' } );
+
+		render( <Stage /> );
+
+		expect( screen.getByTestId( 'subscriber-stats-chart' ) ).toBeInTheDocument();
+	} );
+} );

@@ -426,8 +426,8 @@ function wpcom_add_jetpack_submenu() {
 
 	// Atomic loads Podcast through the Jetpack module, which the owner can switch
 	// off, and this builder runs either way. is_active() is always true on Simple,
-	// where the package loads unconditionally.
-	if ( ( new Modules() )->is_active( 'podcast' ) ) {
+	// where the package loads unconditionally. The package ships with Jetpack, not this one.
+	if ( class_exists( Podcast_Admin_Page::class ) && ( new Modules() )->is_active( 'podcast' ) ) {
 		Podcast_Admin_Page::add_wp_admin_submenu();
 	}
 

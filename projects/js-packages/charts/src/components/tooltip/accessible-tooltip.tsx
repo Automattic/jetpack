@@ -341,10 +341,41 @@ export const useKeyboardNavigation = ( {
 		[ isNavigating, selectedIndex, setSelectedIndex ]
 	);
 
+	// The point the pointer took over a keyboard selection at, where the next arrow key continues from.
+	const pointerIndex = useRef< number | undefined >( undefined );
+
+	// The pointer is the latest input, so it ends a keyboard selection instead of competing with it.
+	const onChartPointerMove = useCallback(
+		( index: number ) => {
+			if ( selectedIndex === undefined ) {
+				if ( pointerIndex.current !== undefined ) {
+					pointerIndex.current = index;
+				}
+				return;
+			}
+			const root = getChartRoot();
+			const activeElement = root?.ownerDocument.activeElement;
+			// Focus elsewhere on the page stays there; a hover must not pull it back into the chart.
+			if ( activeElement && root.contains( activeElement ) ) {
+				pointerIndex.current = index;
+				focusWithoutScrollIfNeeded( root );
+			}
+			setSelectedIndex( undefined );
+			setIsNavigating( false );
+		},
+		[ selectedIndex, setSelectedIndex, setIsNavigating, getChartRoot, focusWithoutScrollIfNeeded ]
+	);
+
 	// On each blur of chart, keyboard navigation should restart from first tooltip
-	const onChartBlur = useCallback( () => {
-		setIsNavigating( false );
-	}, [ setIsNavigating ] );
+	const onChartBlur = useCallback(
+		( event: React.FocusEvent< HTMLDivElement > ) => {
+			setIsNavigating( false );
+			if ( ! event.currentTarget.contains( event.relatedTarget ) ) {
+				pointerIndex.current = undefined;
+			}
+		},
+		[ setIsNavigating ]
+	);
 
 	const onChartKeyDown = useCallback(
 		( event: React.KeyboardEvent< HTMLDivElement > ) => {
@@ -356,12 +387,16 @@ export const useKeyboardNavigation = ( {
 				focusWithoutScrollIfNeeded( getChartRoot() );
 				setSelectedIndex( undefined );
 				setIsNavigating( false );
+				pointerIndex.current = undefined;
 				return;
 			}
 
 			if ( totalPoints === 0 ) return;
 
-			const currentSelectedIndex = selectedIndex === undefined ? -1 : selectedIndex;
+			const currentSelectedIndex = selectedIndex ?? pointerIndex.current ?? -1;
+			if ( event.key === 'ArrowRight' || event.key === 'ArrowLeft' ) {
+				pointerIndex.current = undefined;
+			}
 
 			// WAI-ARIA grid: arrows stop at the first and last cell.
 			if ( event.key === 'ArrowRight' ) {
@@ -393,5 +428,6 @@ export const useKeyboardNavigation = ( {
 		onChartFocus,
 		onChartBlur,
 		onChartKeyDown,
+		onChartPointerMove,
 	};
 };

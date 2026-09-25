@@ -78,6 +78,17 @@ final class Environment {
 	}
 
 	/**
+	 * Whether Settings > Sharing has anything to offer this site.
+	 *
+	 * Neither the legacy features nor their blocks load on a site that is neither
+	 * connected nor in offline mode. Checking sharing alone is enough: any site
+	 * that can have Like buttons (connected, or Simple) passes that check too.
+	 */
+	public static function settings_screen_supported(): bool {
+		return self::legacy_sharing_supported();
+	}
+
+	/**
 	 * Whether this site can have Like buttons at all.
 	 *
 	 * The Likes module declares `Requires Connection: Yes`, so without a
@@ -135,6 +146,17 @@ final class Environment {
 	 */
 	public static function likes_settings_in_use(): bool {
 		return self::likes_module_running() || self::comment_likes_module_running();
+	}
+
+	/**
+	 * Whether anything on this site reads the Twitter Site Tag option.
+	 *
+	 * Twitter Cards read it, and through them the Sharing Buttons block's X `via`.
+	 * Simple's Twitter Cards read `twitter_via`, which wpcom serves and saves this option from.
+	 */
+	public static function twitter_site_tag_used(): bool {
+		/** This filter is documented in projects/plugins/jetpack/class.jetpack.php */
+		return ! apply_filters( 'jetpack_disable_twitter_cards', false );
 	}
 
 	/**

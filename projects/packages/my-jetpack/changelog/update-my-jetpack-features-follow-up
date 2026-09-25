@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Features tab: Show a Configure link beside the switch of an active module, and stop Brute Force Protection from switching the Protect card on.

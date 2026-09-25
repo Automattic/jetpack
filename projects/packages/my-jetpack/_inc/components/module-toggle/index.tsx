@@ -20,6 +20,8 @@ export type ModuleToggleProps = {
 	describedby?: string;
 	/** False keeps the page in place, leaving the sidebar to catch up on the next load. */
 	reloadAfterToggle?: boolean;
+	/** Called with what the click asked for, for surfaces that record their own events. */
+	onSwitch?: ( active: boolean ) => void;
 };
 
 // Modules that register a server-rendered wp-admin sidebar item. Toggling them
@@ -151,6 +153,7 @@ export function ModuleToggle( {
 	module: $module,
 	describedby,
 	reloadAfterToggle = true,
+	onSwitch,
 }: ModuleToggleProps ) {
 	const { setModuleActive, isUpdating, isActive } = useModuleActivation( $module, {
 		reload: reloadAfterToggle,
@@ -158,10 +161,16 @@ export function ModuleToggle( {
 	const blockThemeMigration = getBlockThemeMigration( $module );
 
 	const onChange = useCallback(
-		( event: ChangeEvent< HTMLInputElement > ) => setModuleActive( event.target.checked ),
-		[ setModuleActive ]
+		( event: ChangeEvent< HTMLInputElement > ) => {
+			onSwitch?.( event.target.checked );
+			setModuleActive( event.target.checked );
+		},
+		[ onSwitch, setModuleActive ]
 	);
-	const deactivateModule = useCallback( () => setModuleActive( false ), [ setModuleActive ] );
+	const deactivateModule = useCallback( () => {
+		onSwitch?.( false );
+		setModuleActive( false );
+	}, [ onSwitch, setModuleActive ] );
 
 	if ( blockThemeMigration ) {
 		// The stored value, not the asked-for one: the two branches are different actions,
