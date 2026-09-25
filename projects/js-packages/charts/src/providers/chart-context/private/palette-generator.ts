@@ -229,7 +229,7 @@ export const createPaletteGenerator = (
 	let repeatCount = 0;
 
 	const nextColor = (): Candidate => {
-		// Alternate far and near, starting far: most charts show only the first two colors, so those must contrast.
+		// Alternate far and near, starting far: charts often use the first two colors for comparison, so those must contrast.
 		const walkHue = ( palette.length - normalizedSeeds.length ) % 2 === 1 ? anchorHue : null;
 		if ( ! legibleExhausted ) {
 			legibleTracker ??= buildTracker(
