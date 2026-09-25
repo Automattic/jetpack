@@ -175,29 +175,35 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 	);
 };
 
-document.querySelectorAll< HTMLElement >( '.jetpack-comments' ).forEach( element => {
-	const form = element.closest( 'form' );
+// A page cache can pair settings from an older release with this bundle. The
+// mount holds a plain form for that case, and for a script that never runs.
+if ( JetpackComments.version === JETPACK_COMMENTS_VERSION ) {
+	document.querySelectorAll< HTMLElement >( '.jetpack-comments' ).forEach( element => {
+		const form = element.closest( 'form' );
 
-	if ( ! form ) {
-		return;
-	}
+		if ( ! form ) {
+			return;
+		}
 
-	let formSettings: FormSettings;
+		let formSettings: FormSettings;
 
-	try {
-		// `||`: wp_json_encode() gives false on bad input, which arrives as an empty attribute.
-		formSettings = JSON.parse( element.dataset.jetpackComments || '{}' ) as FormSettings;
-	} catch {
-		return;
-	}
+		try {
+			// `||`: wp_json_encode() gives false on bad input, which arrives as an empty attribute.
+			formSettings = JSON.parse( element.dataset.jetpackComments || '{}' ) as FormSettings;
+		} catch {
+			return;
+		}
 
-	// Before the signals read the draft, so a comment that landed is not offered back.
-	resolveSubmitted( formSettings.postId );
+		// Before the signals read the draft, so a comment that landed is not offered back.
+		resolveSubmitted( formSettings.postId );
 
-	render(
-		<CommentSignals.Provider value={ createSignals( formSettings ) }>
-			<CommentForm form={ form } />
-		</CommentSignals.Provider>,
-		element
-	);
-} );
+		element.replaceChildren();
+		element.classList.add( 'is-mounted' );
+		render(
+			<CommentSignals.Provider value={ createSignals( formSettings ) }>
+				<CommentForm form={ form } />
+			</CommentSignals.Provider>,
+			element
+		);
+	} );
+}

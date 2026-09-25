@@ -237,7 +237,7 @@ class Comment_Form {
 	}
 
 	/**
-	 * The app's mount point, and the hidden fields it posts with.
+	 * The app's mount point, holding a plain form until the script takes over, and the hidden fields both post with.
 	 *
 	 * @param array $args Comment form arguments.
 	 * @return string
@@ -249,9 +249,69 @@ class Comment_Form {
 					self::form_settings( $args ),
 					JSON_UNESCAPED_SLASHES | JSON_HEX_AMP
 				)
-			) . '"></div>'
+			) . '">'
+			. self::plain_form( $args )
+			. '</div>'
 			. get_comment_id_fields( self::post_id() )
 			. wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME, false, false );
+	}
+
+	/**
+	 * Core's own fields and submit, for a page whose settings another release rendered or whose script never ran.
+	 *
+	 * @param array $args Comment form arguments.
+	 * @return string
+	 */
+	private static function plain_form( $args ) {
+		if ( get_option( 'comment_registration' ) && ! is_user_logged_in() ) {
+			return '<p class="must-log-in">' . sprintf(
+				/* translators: %s is a link to the log-in page. */
+				esc_html__( 'You must be %s to post a comment.', 'jetpack-comments' ),
+				'<a href="' . esc_url( wp_login_url( get_permalink( self::post_id() ) ) ) . '">' . esc_html__( 'logged in', 'jetpack-comments' ) . '</a>'
+			) . '</p>';
+		}
+
+		$required = (bool) get_option( 'require_name_email' );
+		$html     = '<p class="comment-form-comment"><label for="comment">' . esc_html_x( 'Comment', 'noun', 'jetpack-comments' ) . '</label>'
+			. '<textarea id="comment" name="comment" rows="4" required></textarea></p>';
+
+		if ( ! is_user_logged_in() ) {
+			$commenter = wp_get_current_commenter();
+			$fields    = array(
+				'author' => array( __( 'Name', 'jetpack-comments' ), 'text', $commenter['comment_author'], $required ),
+				'email'  => array( __( 'Email', 'jetpack-comments' ), 'email', $commenter['comment_author_email'], $required ),
+				'url'    => array( __( 'Website', 'jetpack-comments' ), 'url', $commenter['comment_author_url'], false ),
+			);
+
+			foreach ( $fields as $name => list( $label, $type, $value, $is_required ) ) {
+				$html .= sprintf(
+					'<p class="comment-form-%1$s"><label for="%1$s">%2$s</label><input id="%1$s" name="%1$s" type="%3$s" value="%4$s"%5$s /></p>',
+					$name,
+					esc_html( $label ),
+					$type,
+					esc_attr( $value ),
+					$is_required ? ' required' : ''
+				);
+			}
+		}
+
+		return $html . sprintf( $args['submit_field'] ?? '<p class="form-submit">%1$s %2$s</p>', self::submit_button( $args ), '' );
+	}
+
+	/**
+	 * The submit button, from the template the theme or block set.
+	 *
+	 * @param array $args Comment form arguments.
+	 * @return string
+	 */
+	private static function submit_button( $args ) {
+		return sprintf(
+			$args['submit_button'] ?? '<input name="%1$s" type="submit" id="%2$s" class="%3$s" value="%4$s" />',
+			esc_attr( $args['name_submit'] ?? 'submit' ),
+			esc_attr( $args['id_submit'] ?? 'submit' ),
+			esc_attr( $args['class_submit'] ?? 'submit' ),
+			esc_attr( $args['label_submit'] ?? _x( 'Comment', 'verb', 'jetpack-comments' ) )
+		);
 	}
 
 	/**
@@ -331,6 +391,7 @@ class Comment_Form {
 
 		return array_merge(
 			array(
+				'version'             => Comments::PACKAGE_VERSION,
 				'requireNameEmail'    => (bool) get_option( 'require_name_email' ),
 				'mustLogIn'           => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
 				'maxLength'           => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
@@ -355,20 +416,9 @@ class Comment_Form {
 		$post_id   = self::post_id();
 		$permalink = get_permalink( $post_id );
 
-		$id    = $args['id_submit'] ?? 'submit';
-		$name  = $args['name_submit'] ?? 'submit';
-		$label = $args['label_submit'] ?? _x( 'Comment', 'verb', 'jetpack-comments' );
-
 		// The classes come from the button template, not class_submit: on a block
 		// theme the Post Comments Form block bakes the theme's button classes into it.
-		$button = sprintf(
-			$args['submit_button'] ?? '<input name="%1$s" type="submit" id="%2$s" class="%3$s" value="%4$s" />',
-			esc_attr( $name ),
-			esc_attr( $id ),
-			esc_attr( $args['class_submit'] ?? 'submit' ),
-			esc_attr( $label )
-		);
-		$class  = preg_match( '/\bclass="([^"]*)"/', $button, $match ) ? $match[1] : 'submit';
+		$class = preg_match( '/\bclass="([^"]*)"/', self::submit_button( $args ), $match ) ? $match[1] : 'submit';
 
 		return array(
 			'postId'        => $post_id,
@@ -376,12 +426,12 @@ class Comment_Form {
 			// wp_logout_url() runs the URL through esc_html(), which encodes single quotes too.
 			'logoutUrl'     => is_user_logged_in() ? html_entity_decode( wp_logout_url( $permalink ), ENT_QUOTES ) : '',
 			'submit'        => array(
-				'id'        => $id,
-				'name'      => $name,
+				'id'        => $args['id_submit'] ?? 'submit',
+				'name'      => $args['name_submit'] ?? 'submit',
 				'class'     => $class,
 				// The block wraps its button the way the Buttons block does, so block-level button styles reach it.
 				'wrapClass' => false !== strpos( $class, 'wp-block-button__link' ) ? 'wp-block-button' : '',
-				'label'     => $label,
+				'label'     => $args['label_submit'] ?? _x( 'Comment', 'verb', 'jetpack-comments' ),
 			),
 			'subscriptions' => $args['subscriptions'] ?? array(),
 		);

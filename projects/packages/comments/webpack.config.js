@@ -2,6 +2,7 @@
  * Builds the Jetpack Comments front-end bundle.
  */
 
+import fs from 'fs';
 import path from 'path';
 import jetpackTargets from '@automattic/jetpack-webpack-config/targets';
 import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
@@ -89,6 +90,11 @@ export default {
 		new webpack.ProvidePlugin( {
 			h: [ 'preact', 'h' ],
 			Fragment: [ 'preact', 'Fragment' ],
+		} ),
+		new webpack.DefinePlugin( {
+			JETPACK_COMMENTS_VERSION: JSON.stringify(
+				JSON.parse( fs.readFileSync( path.join( __dirname, 'package.json' ), 'utf8' ) ).version
+			),
 		} ),
 	],
 	watchOptions: {

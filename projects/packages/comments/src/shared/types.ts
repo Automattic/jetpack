@@ -90,6 +90,8 @@ export type Strings = {
 };
 
 export type Settings = {
+	/** The package version that rendered the page, checked against the bundle's before it takes over. */
+	version: string;
 	isLoggedIn: boolean;
 	requireNameEmail: boolean;
 	mustLogIn: boolean;
@@ -107,4 +109,5 @@ export type Settings = {
 
 declare global {
 	const JetpackComments: Settings;
+	const JETPACK_COMMENTS_VERSION: string;
 }

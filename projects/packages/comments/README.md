@@ -26,6 +26,7 @@ The form renders on the site the comment is posted to, and posts to that site's 
 - Sign in with WordPress.com from the same dialog, through a popup rather than an iframe. See "The checkpoint" below. A sign-in that lands keeps the dialog open with a "Commenting as" line, the subscribe options where the host offers any, and one submit, rather than posting on its own.
 - A "Commenting as" line and a log-out link for readers the site knows, whether logged in to the site itself or through the popup.
 - Reply threading, by watching the `comment_parent` input WordPress rewrites.
+- Core's own fields and submit sit inside the mount until the script takes over, and stay when it cannot: a page cache pairing settings from an older release with a newer bundle, or a script that never ran.
 
 Sites that require registration take a popup sign-in as registration. Where no sign-in is available (a site with no blog token) they get a log-in prompt in place of the guest fields, and the submit button held disabled.
 
