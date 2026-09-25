@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
 import { emailHasAccount, signIn } from './checkpoint/checkpoint';
 import { CloseIcon, WordPressIcon } from './icons';
+import { Toggle } from './toggle';
 
 import './dialog.scss';
 
@@ -38,9 +39,6 @@ export const IdentityDialog = ( props: { formId: string } ) => {
 		const element = dialog.current;
 
 		if ( isDialogOpen.value && ! element?.open ) {
-			// The page's own surface; the stylesheet's Canvas stands in where the body is transparent.
-			const surface = getComputedStyle( document.body ).backgroundColor;
-			element!.style.backgroundColor = surface === 'rgba(0, 0, 0, 0)' ? '' : surface;
 			element!.showModal();
 		} else if ( ! isDialogOpen.value && element?.open ) {
 			element.close();
@@ -252,17 +250,15 @@ export const IdentityDialog = ( props: { formId: string } ) => {
 					const id = `jetpack-comments-${ subscription.name }-${ formSettings.postId }`;
 
 					return (
-						<label key={ subscription.name } htmlFor={ id } className="jetpack-comments__checkbox">
-							<input
-								id={ id }
-								form={ formId }
-								type="checkbox"
-								name={ subscription.name }
-								value="subscribe"
-								defaultChecked={ subscription.checked }
-							/>
-							<span>{ subscription.label }</span>
-						</label>
+						<Toggle
+							key={ subscription.name }
+							id={ id }
+							name={ subscription.name }
+							value="subscribe"
+							form={ formId }
+							defaultChecked={ subscription.checked }
+							label={ subscription.label }
+						/>
 					);
 				} ) }
 			<div className="jetpack-comments__dialog-actions">

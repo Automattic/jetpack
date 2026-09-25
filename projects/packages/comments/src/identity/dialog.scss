@@ -29,130 +29,160 @@ $accent-hover: #2145e6;
 	}
 }
 
-.jetpack-comments__dialog-header {
-	display: flex;
-	align-items: center;
-	gap: variables.$grid-unit-15;
-}
+// Nested for specificity: a theme's `input[type=text]` would otherwise win.
+.jetpack-comments__dialog {
 
-.jetpack-comments__site-icon {
-	flex-shrink: 0;
-	border-radius: variables.$radius-round;
-}
-
-.jetpack-comments__dialog-title {
-	flex: 1;
-	min-inline-size: 0;
-	font-size: variables.$font-size-large;
-	font-weight: 500;
-}
-
-.jetpack-comments__dialog-close {
-	display: inline-flex;
-	flex-shrink: 0;
-	margin: 0;
-	padding: variables.$grid-unit-05;
-	border: 0;
-	border-radius: variables.$radius-small;
-	background: none;
-	color: colors.$gray-900;
-	cursor: pointer;
-
-	&:hover {
-		color: $accent;
+	.jetpack-comments__dialog-header {
+		display: flex;
+		align-items: center;
+		gap: variables.$grid-unit-15;
 	}
 
-	&:focus-visible {
-		outline: 2px solid $accent;
-		outline-offset: 1px;
-	}
-}
-
-.jetpack-comments__dialog-intro {
-	margin: variables.$grid-unit-30 0;
-	color: colors.$gray-700;
-	text-align: center;
-}
-
-.jetpack-comments__field {
-	margin-block-start: variables.$grid-unit-20;
-}
-
-.jetpack-comments__label {
-	display: block;
-	margin-block-end: variables.$grid-unit-10;
-	font-size: variables.$font-size-x-small;
-	font-weight: 500;
-	line-height: 1.4;
-	text-transform: uppercase;
-}
-
-.jetpack-comments__input {
-	display: block;
-	inline-size: 100%;
-	block-size: 40px;
-	padding: 6px variables.$grid-unit-15;
-	border: variables.$border-width solid colors.$gray-600;
-	border-radius: variables.$radius-small;
-	background: colors.$white;
-	box-shadow: none;
-	color: colors.$gray-900;
-	font-family: inherit;
-	// Fonts smaller than 16px make mobile Safari zoom.
-	font-size: 16px;
-	line-height: normal;
-
-	&:focus {
-		border-color: $accent;
-		box-shadow: 0 0 0 1px $accent;
-		outline: 2px solid transparent;
-	}
-
-	&[aria-invalid="true"] {
-		border-color: colors.$alert-red;
-		box-shadow: 0 0 0 1px colors.$alert-red;
-	}
-}
-
-.jetpack-comments__help {
-	display: block;
-	margin-block-start: variables.$grid-unit-10;
-	color: colors.$gray-700;
-	font-size: variables.$font-size-small;
-}
-
-.jetpack-comments__notice {
-	display: block;
-	margin-block-start: variables.$grid-unit-10;
-	padding: variables.$grid-unit-10 variables.$grid-unit-15;
-	border-inline-start: 4px solid colors.$alert-red;
-	background: colors.$gray-100;
-}
-
-.jetpack-comments__checkbox {
-	display: flex;
-	align-items: flex-start;
-	gap: variables.$grid-unit-15;
-	margin-block-start: variables.$grid-unit-20;
-	cursor: pointer;
-
-	input {
+	.jetpack-comments__site-icon {
 		flex-shrink: 0;
-		appearance: none;
-		inline-size: 20px;
-		block-size: 20px;
+		border-radius: variables.$radius-round;
+	}
+
+	.jetpack-comments__dialog-title {
+		flex: 1;
+		min-inline-size: 0;
+		font-size: variables.$font-size-large;
+		font-weight: 500;
+	}
+
+	.jetpack-comments__dialog-close {
+		display: inline-flex;
+		flex-shrink: 0;
 		margin: 0;
-		border: variables.$border-width solid colors.$gray-900;
+		padding: variables.$grid-unit-05;
+		border: 0;
 		border-radius: variables.$radius-small;
-		background: colors.$white;
+		background: none;
+		color: colors.$gray-900;
 		cursor: pointer;
 
-		&:checked {
+		&:hover {
+			color: $accent;
+		}
+
+		&:focus-visible {
+			outline: 2px solid $accent;
+			outline-offset: 1px;
+		}
+	}
+
+	.jetpack-comments__dialog-intro {
+		margin: variables.$grid-unit-30 0;
+		color: colors.$gray-700;
+		text-align: center;
+	}
+
+	.jetpack-comments__field {
+		margin-block-start: variables.$grid-unit-20;
+	}
+
+	.jetpack-comments__label {
+		display: block;
+		margin-block-end: variables.$grid-unit-10;
+		font-size: variables.$font-size-x-small;
+		font-weight: 500;
+		line-height: 1.4;
+		text-transform: uppercase;
+	}
+
+	.jetpack-comments__input {
+		display: block;
+		inline-size: 100%;
+		block-size: 40px;
+		padding: 6px variables.$grid-unit-15;
+		border: variables.$border-width solid colors.$gray-600;
+		border-radius: variables.$radius-small;
+		background: colors.$white;
+		box-shadow: none;
+		color: colors.$gray-900;
+		font-family: inherit;
+		// Fonts smaller than 16px make mobile Safari zoom.
+		font-size: 16px;
+		line-height: normal;
+
+		&:focus {
 			border-color: $accent;
-			background:
-				$accent
-				url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z'/%3E%3C/svg%3E")
-				center/20px no-repeat;
+			box-shadow: 0 0 0 1px $accent;
+			outline: 2px solid transparent;
+		}
+
+		&[aria-invalid="true"] {
+			border-color: colors.$alert-red;
+			box-shadow: 0 0 0 1px colors.$alert-red;
+		}
+	}
+
+	.jetpack-comments__help {
+		display: block;
+		margin-block-start: variables.$grid-unit-10;
+		color: colors.$gray-700;
+		font-size: variables.$font-size-small;
+	}
+
+	.jetpack-comments__notice {
+		display: block;
+		margin-block-start: variables.$grid-unit-10;
+		padding: variables.$grid-unit-10 variables.$grid-unit-15;
+		border-inline-start: 4px solid colors.$alert-red;
+		background: colors.$gray-100;
+	}
+
+	.jetpack-comments__dialog-actions {
+		display: grid;
+		justify-items: center;
+		gap: variables.$grid-unit-20;
+		margin-block-start: variables.$grid-unit-40;
+	}
+
+	.jetpack-comments__button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		block-size: 40px;
+		margin: 0;
+		padding: 0 variables.$grid-unit-20;
+		border: 0;
+		border-radius: variables.$radius-small;
+		font-family: inherit;
+		font-size: variables.$default-font-size;
+		font-weight: 400;
+		line-height: 1;
+		text-decoration: none;
+		cursor: pointer;
+
+		&.is-primary {
+			background: $accent;
+			color: colors.$white;
+
+			&:hover:not(:disabled) {
+				background: $accent-hover;
+			}
+
+			&:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+			}
+		}
+
+		&.is-link {
+			padding: 0;
+			background: none;
+			color: $accent;
+			text-decoration: underline;
+
+			&:hover:not(:disabled) {
+				color: $accent-hover;
+			}
+
+			&:disabled {
+				color: colors.$gray-600;
+				cursor: not-allowed;
+			}
 		}
 
 		&:focus-visible {
@@ -160,120 +190,61 @@ $accent-hover: #2145e6;
 			outline: 2px solid transparent;
 		}
 	}
-}
 
-.jetpack-comments__dialog-actions {
-	display: grid;
-	justify-items: center;
-	gap: variables.$grid-unit-20;
-	margin-block-start: variables.$grid-unit-40;
-}
+	.jetpack-comments__sign-in {
+		display: grid;
+		justify-items: center;
+		gap: variables.$grid-unit-10;
+		margin-block: variables.$grid-unit-40;
+	}
 
-.jetpack-comments__button {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	block-size: 40px;
-	margin: 0;
-	padding: 0 variables.$grid-unit-20;
-	border: 0;
-	border-radius: variables.$radius-small;
-	font-family: inherit;
-	font-size: variables.$default-font-size;
-	font-weight: 400;
-	line-height: 1;
-	text-decoration: none;
-	cursor: pointer;
+	.jetpack-comments__signing-in {
+		display: inline-flex;
+		align-items: center;
+		gap: variables.$grid-unit-10;
+	}
 
-	&.is-primary {
+	.jetpack-comments__wpcom {
+		display: inline-flex;
+		align-items: center;
+		gap: variables.$grid-unit-15;
+		block-size: 40px;
+		margin: 0;
+		padding: 0 variables.$grid-unit-30;
+		border: 0;
+		border-radius: variables.$radius-small;
 		background: $accent;
 		color: colors.$white;
+		font-family: inherit;
+		font-size: variables.$default-font-size;
+		font-weight: 500;
+		line-height: 1;
+		cursor: pointer;
 
-		&:hover:not(:disabled) {
+		svg {
+			inline-size: 20px;
+			block-size: 20px;
+			fill: currentColor;
+		}
+
+		&:hover {
 			background: $accent-hover;
 		}
 
-		&:disabled {
-			opacity: 0.5;
-			cursor: not-allowed;
+		&:focus-visible {
+			box-shadow: 0 0 0 2px colors.$white, 0 0 0 4px $accent;
+			outline: 2px solid transparent;
 		}
 	}
 
-	&.is-link {
-		padding: 0;
-		background: none;
-		color: $accent;
-		text-decoration: underline;
-
-		&:hover:not(:disabled) {
-			color: $accent-hover;
-		}
-
-		&:disabled {
-			color: colors.$gray-600;
-			cursor: not-allowed;
-		}
+	.jetpack-comments__spinner {
+		inline-size: 16px;
+		block-size: 16px;
+		border: 2px solid colors.$gray-300;
+		border-inline-start-color: $accent;
+		border-radius: variables.$radius-round;
+		animation: jetpack-comments-spin 1s linear infinite;
 	}
-
-	&:focus-visible {
-		box-shadow: 0 0 0 2px colors.$white, 0 0 0 4px $accent;
-		outline: 2px solid transparent;
-	}
-}
-
-.jetpack-comments__sign-in {
-	display: grid;
-	justify-items: center;
-	gap: variables.$grid-unit-10;
-	margin-block: variables.$grid-unit-40;
-}
-
-.jetpack-comments__signing-in {
-	display: inline-flex;
-	align-items: center;
-	gap: variables.$grid-unit-10;
-}
-
-.jetpack-comments__wpcom {
-	display: inline-flex;
-	align-items: center;
-	gap: variables.$grid-unit-15;
-	block-size: 40px;
-	margin: 0;
-	padding: 0 variables.$grid-unit-30;
-	border: 0;
-	border-radius: variables.$radius-small;
-	background: $accent;
-	color: colors.$white;
-	font-family: inherit;
-	font-size: variables.$default-font-size;
-	font-weight: 500;
-	line-height: 1;
-	cursor: pointer;
-
-	svg {
-		inline-size: 20px;
-		block-size: 20px;
-		fill: currentColor;
-	}
-
-	&:hover {
-		background: $accent-hover;
-	}
-
-	&:focus-visible {
-		box-shadow: 0 0 0 2px colors.$white, 0 0 0 4px $accent;
-		outline: 2px solid transparent;
-	}
-}
-
-.jetpack-comments__spinner {
-	inline-size: 16px;
-	block-size: 16px;
-	border: 2px solid colors.$gray-300;
-	border-inline-start-color: $accent;
-	border-radius: variables.$radius-round;
-	animation: jetpack-comments-spin 1s linear infinite;
 }
 
 @keyframes jetpack-comments-spin {
