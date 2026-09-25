@@ -97,6 +97,6 @@ without them still falls back to it — the section date state this widget no lo
 follows. So the outer component defaults the attribute
 (`attributes.reportParams ?? DEFAULT_REPORT_PARAMS`) and wraps `WidgetRoot` in the scope
 its body supports (`<ReportScopeProvider offersComparison={ false }>` for a report with
-no comparison). `widgets/wordads-chart-tabs/` is the reference.
+no comparison). `projects/packages/wordads-analytics/widgets/wordads-chart-tabs/` is the reference.
 
 <!-- TODO: link to the canonical widget API declaration (contract types). -->
