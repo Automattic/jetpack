@@ -1,11 +1,11 @@
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import useConnectionErrorNotice from '@automattic/jetpack-connection/use-connection-error-notice';
-import { DropZone, Spinner, Tooltip } from '@wordpress/components';
+import { DropZone, Tooltip } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Button, Card, VisuallyHidden } from '@wordpress/ui';
+import { Button, Card } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
@@ -112,7 +112,11 @@ const StageInner = () => {
 	// notice this dashboard already renders carries the diagnosis and the
 	// reconnect button, so the row only has to point at it.
 	const { hasConnectionError } = useConnectionErrorNotice();
-	const { paginationInfo: totalPagination } = useLibrary( TOTAL_COUNT_VIEW, { poll: false } );
+	const {
+		paginationInfo: totalPagination,
+		isLoading: isTotalLoading,
+		isError: isTotalError,
+	} = useLibrary( TOTAL_COUNT_VIEW, { poll: false } );
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
 	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();
@@ -399,29 +403,21 @@ const StageInner = () => {
 			onChangeSelection={ setSelection }
 			getItemId={ getItemId }
 			paginationInfo={ paginationInfo }
-			isLoading={ isLoading }
+			isLoading={ isLoading || ( isTotalLoading && renderedItems.length === 0 ) }
 			defaultLayouts={ defaultLayouts }
 		/>
 	);
 
-	// The empty-library verdict, in the same order the viewport decides it
-	// below: a failed listing wins, then anything listable (fetched rows or
-	// in-flight uploads), then the undecided wait, and only then does a
-	// settled count of zero mean "empty". Shared with the header, which
-	// drops its Upload button while the dropzone owns that affordance —
-	// "Upload video" beside "Select a video to upload" was two buttons for
-	// one action.
+	// The hook defaults its count to zero; only settled, successful reads confirm an empty library.
 	const showsEmptyDropzone =
+		! isLoading &&
+		! isTotalLoading &&
 		! isError &&
+		! isTotalError &&
 		items.length === 0 &&
 		uploadQueue.length === 0 &&
-		totalPagination !== undefined &&
 		totalPagination.totalItems === 0;
 
-	// The viewport's four mutually exclusive surfaces, flattened out of
-	// nested ternaries so each branch can say why it exists. Order matters:
-	// error first, then anything already listable, then the undecided wait,
-	// then the empty-vs-listing verdict.
 	const renderViewport = () => {
 		// A failed listing request would otherwise render as DataViews'
 		// "No results" — indistinguishable from an empty library. Surface
@@ -441,27 +437,6 @@ const StageInner = () => {
 					error={ libraryError }
 					onRetry={ () => void refetch() }
 				/>
-			);
-		}
-
-		// Anything to list — fetched rows or in-flight uploads being spliced
-		// in — and the listing owns the surface, whatever the count says.
-		if ( items.length > 0 || uploadQueue.length > 0 ) {
-			return renderDataViews();
-		}
-
-		// The initial state: the unfiltered count hasn't answered yet, so
-		// whether this library is empty is genuinely unknown. Painting the
-		// grid skeleton and then swapping in the dropzone (or vice versa)
-		// reads as the page loading twice; an explicit wait reads as loading
-		// once. `undefined` rather than `isLoading` so a background refetch
-		// of a settled count never re-shows the wait.
-		if ( totalPagination === undefined ) {
-			return (
-				<div className="vp-library__deciding" role="status">
-					<Spinner />
-					<VisuallyHidden>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</VisuallyHidden>
-				</div>
 			);
 		}
 
@@ -493,8 +468,7 @@ const StageInner = () => {
 			);
 		}
 
-		// A non-empty library whose current view matched nothing is a filter
-		// story, and DataViews' own "No results" tells it.
+		// DataViews owns loading and filtered results, including "No results".
 		return renderDataViews();
 	};
 

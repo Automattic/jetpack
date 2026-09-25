@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Prevent the empty library prompt from appearing while videos are loading.
