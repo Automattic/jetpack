@@ -242,7 +242,7 @@ describe( 'usePostDetailTabs', () => {
 		};
 		const { stage, commit } = mockSearch( 'email-opens' );
 
-		const { result } = renderHook( () => usePostDetailTabs( POST_ID, pinned ) );
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID, pinned, false, 'post' ) );
 
 		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [
 			'post-traffic',
@@ -255,6 +255,36 @@ describe( 'usePostDetailTabs', () => {
 		expect( result.current.layout ).toEqual( [] );
 		expect( stage ).not.toHaveBeenCalled();
 		expect( commit ).not.toHaveBeenCalled();
+	} );
+
+	it( 'does not flag a post as never sent until its type is known', () => {
+		// The send check can answer before the post summary; a page answers
+		// "no sends" too, and must not show the newsletter state meanwhile.
+		mockEmailSends( 0 );
+		mockSearch( 'email-opens' );
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
+
+		expect( result.current.activeTab ).toBe( 'email-opens' );
+		expect( result.current.isEmailNotSent ).toBe( false );
+	} );
+
+	it( 'gives an email tab no widgets while the send check is pending', () => {
+		// Widgets drawn now would be swapped for the not-sent state if it answers "no sends".
+		mockEmailSends( undefined, 'loading' );
+		mockSearch( 'email-opens' );
+		const pinned = {
+			post_id: POST_ID,
+			preset: 'all-time' as const,
+			from: '2026-06-22',
+			to: '2026-08-28',
+			interval: 'week' as const,
+		};
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID, pinned, false, 'post' ) );
+
+		expect( result.current.isEmailSendPending ).toBe( true );
+		expect( result.current.layout ).toEqual( [] );
 	} );
 
 	it( 'leaves the Post traffic layout alone for a post never sent', () => {
@@ -311,7 +341,7 @@ describe( 'usePostDetailTabs', () => {
 		mockEmailSends( undefined, 'loading' );
 		mockSearch( 'post-traffic' );
 
-		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID, undefined, false, 'post' ) );
 
 		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [
 			'post-traffic',
@@ -319,6 +349,17 @@ describe( 'usePostDetailTabs', () => {
 			'email-clicks',
 		] );
 		expect( result.current.isEmailNotSent ).toBe( false );
+	} );
+
+	it( 'shows only Post traffic while the type loads on a visit that names no email tab', () => {
+		// A page would otherwise show the email tabs, then lose them once its
+		// type arrives.
+		mockEmailSends( undefined, 'loading' );
+		mockSearch( 'post-traffic' );
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
+
+		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [ 'post-traffic' ] );
 	} );
 
 	it( 'shows the deep-linked email tab while the send summary is loading', () => {
@@ -349,7 +390,9 @@ describe( 'usePostDetailTabs', () => {
 		const { stage, commit } = mockSearch( 'email-opens' );
 		mockEmailSends( undefined, 'loading' );
 
-		const { result, rerender } = renderHook( () => usePostDetailTabs( POST_ID ) );
+		const { result, rerender } = renderHook( () =>
+			usePostDetailTabs( POST_ID, undefined, false, 'post' )
+		);
 		expect( result.current.isEmailNotSent ).toBe( false );
 
 		mockEmailSends( 0 );
