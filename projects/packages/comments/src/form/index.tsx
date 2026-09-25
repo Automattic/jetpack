@@ -171,7 +171,6 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 				<CommentField />
 				<div className={ clsx( 'jetpack-comments__tray', { 'is-open': isOpen.value } ) }>
 					<div className="jetpack-comments__actions">
-						<Identity />
 						<span className={ clsx( 'jetpack-comments__submit', formSettings.submitWrapClass ) }>
 							<input
 								id={ formSettings.submitId }
@@ -182,6 +181,7 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 								value={ commentParent.value ? strings.reply : formSettings.submitLabel }
 							/>
 						</span>
+						<Identity />
 					</div>
 				</div>
 			</div>

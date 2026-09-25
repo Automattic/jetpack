@@ -64,9 +64,11 @@
 
 // The negative margins give focus rings room inside the tray's clipped box.
 // Top-aligned, so the identity line sits by the textarea rather than
-// halfway down a tall theme button.
+// halfway down a tall theme button. Reversed: the submit comes first in the
+// DOM so Tab reaches it straight from the textarea, but it draws on the end.
 .jetpack-comments__actions {
 	display: flex;
+	flex-direction: row-reverse;
 	flex-wrap: wrap;
 	align-items: flex-start;
 	justify-content: space-between;
@@ -76,8 +78,6 @@
 }
 
 .jetpack-comments__submit {
-	margin-inline-start: auto;
-
 	// Themes style their button but not its disabled state.
 	input:disabled {
 		opacity: 0.5;
