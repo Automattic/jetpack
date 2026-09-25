@@ -136,7 +136,8 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 			},
 		];
 	}, [ chartReport, field, metric, active.timezone ] );
-	const hasPoints = ( chartReport?.data?.length ?? 0 ) > 0;
+	// The timeline zero-fills every bucket of a window without opens or clicks.
+	const hasPoints = metricTabs[ 0 ].current.some( point => point.value > 0 );
 
 	return (
 		<div className={ styles.root }>

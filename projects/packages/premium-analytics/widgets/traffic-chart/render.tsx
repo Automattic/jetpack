@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
@@ -10,7 +11,7 @@ import {
 	defaultPeriodForInterval,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { reports } from '@jetpack-premium-analytics/icons';
+import { search } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
@@ -73,9 +74,6 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 		refetch,
 	} = useTrafficChart( reportParams, period );
 	const groupLabel = __( 'Traffic metric', 'jetpack-premium-analytics-pkg' );
-	// A metric the endpoint can't serve at this bucket size carries its own
-	// explanation, so it must not count toward emptiness and hide that message.
-	const servedMetrics = metricTabs.filter( metric => ! metric.unavailable );
 
 	return (
 		<div className={ styles.root }>
@@ -85,21 +83,14 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 				// `useTrafficChart` already gates `isError` per query on that query
 				// having no rows, so a transient refetch failure keeps the chart.
 				isError={ isError }
-				// `[].every()` is true, so the length check keeps an all-unavailable chart
-				// out of the empty state, which would replace those explanations with "no data".
-				isEmpty={
-					servedMetrics.length > 0 && servedMetrics.every( metric => metric.current.length === 0 )
-				}
+				// `stats/visits` zero-fills every bucket of an idle window, so emptiness is judged per metric inside the chart, where the tabs keep showing their zeros.
+				isEmpty={ false }
 				error={ {
 					description: __(
 						"We couldn't load traffic data. Please try again in a moment.",
 						'jetpack-premium-analytics-pkg'
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-				} }
-				empty={ {
-					icon: reports,
-					description: __( 'No traffic data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
@@ -110,6 +101,15 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 					groupLabel={ groupLabel }
 					tickResolution={ period }
 					onDatumClick={ openBucket }
+					empty={
+						<ChartEmptyState
+							icon={ search }
+							text={ __(
+								'We couldn’t find results for this time period.',
+								'jetpack-premium-analytics-pkg'
+							) }
+						/>
+					}
 				/>
 			</WidgetState>
 		</div>
