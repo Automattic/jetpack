@@ -217,7 +217,9 @@ export function viewToQueryArgs( view: View ): Record< string, string | number >
  */
 export function toLibraryItem( raw: ApiMediaItem, simple: boolean ): LibraryItem {
 	const vp = raw.jetpack_videopress;
-	const isVideoPress = Boolean( vp?.guid );
+	// Jetpack sites create the attachment as `video/videopress` before its guid
+	// arrives, so the mime alone marks it VideoPress (the `type` filter agrees).
+	const isVideoPress = Boolean( vp?.guid ) || raw.mime_type === 'video/videopress';
 	const details = raw.media_details;
 	// Self-hosted nests poster/duration/finished under `media_details.videopress`;
 	// WordPress.com Simple omits that sub-object and returns a ready-to-play `thumb` +

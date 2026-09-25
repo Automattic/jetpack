@@ -32,6 +32,8 @@ jest.mock( '../../../client/hooks/use-resumable-uploader', () => ( {
 	} ),
 } ) );
 
+const uploadedMedia = { id: 101, guid: 'abc123', src: 'https://example.com/a.mp4' };
+
 const tokenError = () =>
 	Object.assign( new Error( 'No token provided' ), {
 		code: 'videopress_no_upload_token',
@@ -182,34 +184,59 @@ describe( 'useUpload', () => {
 	} );
 
 	it( 'dispatches the next queued upload after the active one succeeds', () => {
+		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+		const file1 = new File( [ 'x' ], 'a.mp4', { type: 'video/mp4' } );
+		const file2 = new File( [ 'y' ], 'b.mp4', { type: 'video/mp4' } );
+
+		act( () => {
+			result.current.startUpload( file1 );
+			result.current.startUpload( file2 );
+		} );
+
+		// Before success fires, only file1 has been handed to the legacy uploader.
+		expect( mockUploadHandler ).toHaveBeenCalledTimes( 1 );
+		expect( mockUploadHandler ).toHaveBeenLastCalledWith( file1 );
+
+		act( () => {
+			lastCallbacks.onSuccess?.( uploadedMedia );
+		} );
+
+		expect( mockUploadHandler ).toHaveBeenCalledTimes( 2 );
+		expect( mockUploadHandler ).toHaveBeenLastCalledWith( file2 );
+	} );
+
+	it( 'keeps a finished upload, tagged with its attachment id, until the listing has refetched', async () => {
 		jest.useFakeTimers();
 		try {
-			const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
-			const file1 = new File( [ 'x' ], 'a.mp4', { type: 'video/mp4' } );
-			const file2 = new File( [ 'y' ], 'b.mp4', { type: 'video/mp4' } );
+			const client = createTestQueryClient();
+			let finishRefetch: () => void = () => {};
+			jest.spyOn( client, 'invalidateQueries' ).mockReturnValue(
+				new Promise( resolve => {
+					finishRefetch = resolve;
+				} )
+			);
+			const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper( client ) } );
 
 			act( () => {
-				result.current.startUpload( file1 );
-				result.current.startUpload( file2 );
+				result.current.startUpload( new File( [ 'x' ], 'a.mp4', { type: 'video/mp4' } ) );
 			} );
-
-			// Before success fires, only file1 has been handed to the legacy uploader.
-			expect( mockUploadHandler ).toHaveBeenCalledTimes( 1 );
-			expect( mockUploadHandler ).toHaveBeenLastCalledWith( file1 );
-
-			// Simulate the legacy uploader finishing the first upload.
 			act( () => {
-				lastCallbacks.onSuccess?.();
+				lastCallbacks.onSuccess?.( uploadedMedia );
+				jest.runOnlyPendingTimers();
 			} );
 
-			// Removing the success'd item is debounced by 2s; flush timers
-			// so the success-removal + next-dispatch both run.
+			expect( result.current.uploadQueue ).toEqual( [
+				expect.objectContaining( { status: 'success', mediaId: '101' } ),
+			] );
+
+			await act( async () => {
+				finishRefetch();
+			} );
 			act( () => {
 				jest.runOnlyPendingTimers();
 			} );
 
-			expect( mockUploadHandler ).toHaveBeenCalledTimes( 2 );
-			expect( mockUploadHandler ).toHaveBeenLastCalledWith( file2 );
+			expect( result.current.uploadQueue ).toEqual( [] );
 		} finally {
 			jest.useRealTimers();
 		}

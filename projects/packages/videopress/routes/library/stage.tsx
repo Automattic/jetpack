@@ -99,6 +99,10 @@ const StageInner = () => {
 	// table) until the post-delete refetch removes them from the listing.
 	const [ deletingIds, setDeletingIds ] = useState< Set< string > >( () => new Set() );
 
+	const { uploadQueue, retryUpload } = useUpload();
+	// Every byte is sent but the server is still creating the attachment, which
+	// a poll would list half-made; the upload's response triggers the refetch.
+	const isFinalizingUpload = uploadQueue.some( u => u.status === 'uploading' && u.progress >= 1 );
 	const {
 		items,
 		isLoading,
@@ -106,8 +110,7 @@ const StageInner = () => {
 		isError,
 		error: libraryError,
 		refetch,
-	} = useLibrary( view );
-	const { uploadQueue, retryUpload } = useUpload();
+	} = useLibrary( view, { poll: ! isFinalizingUpload } );
 	// Read the store's existing errors so a failed row can name the cause; the
 	// notice this dashboard already renders carries the diagnosis and the
 	// reconnect button, so the row only has to point at it.
@@ -344,8 +347,10 @@ const StageInner = () => {
 	// Splice in-flight uploads at the top of the listing so the user sees
 	// their upload immediately, before the next server refetch.
 	const renderedItems = useMemo< LibraryItem[] >( () => {
+		const listedIds = new Set( items.map( item => item.id ) );
 		const inFlight: LibraryItem[] = uploadQueue
-			.filter( u => u.status === 'pending' || u.status === 'uploading' || u.status === 'failed' )
+			// A finished upload keeps its row until the listing has the attachment.
+			.filter( u => ! ( u.mediaId && listedIds.has( u.mediaId ) ) )
 			.map( u => ( {
 				id: u.id,
 				guid: '',
