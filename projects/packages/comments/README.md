@@ -22,8 +22,8 @@ The form renders on the site the comment is posted to, and posts to that site's 
 - A round avatar beside a textarea that grows as you type. Until the reader clicks in, that is all there is; the submit button slides out from underneath.
 - Everything is drawn in the theme's own styles. The textarea, inputs, links and submit button carry no colours or fonts of their own, and the submit button wears the classes core gives its own, so a block theme's button styles apply.
 - A reader the site does not know yet is asked who they are in a dialog when they submit: name, email and website under core's own field names, honoring `require_name_email`. "Save and post comment" carries core's cookies-consent field, so core saves their details; "No, thanks" posts without it. A guest whose details are saved posts straight through, with a "Commenting as" line and an Edit link back to the dialog.
-- Where the host offers subscribe options (see "Subscriptions" below) the dialog opens for everyone, so a reader the site knows sees a "Commenting as" line, the checkboxes and one submit.
-- Sign in with WordPress.com from the same dialog, through a popup rather than an iframe. See "The checkpoint" below. A sign-in that lands puts the dialog in that known-reader state rather than posting, so the subscribe options can still be chosen.
+- A reader the site knows, whether logged in, signed in through the popup or a guest with saved details, posts straight through with no dialog.
+- Sign in with WordPress.com from the same dialog, through a popup rather than an iframe. See "The checkpoint" below. A sign-in that lands keeps the dialog open with a "Commenting as" line, the subscribe options where the host offers any, and one submit, rather than posting on its own.
 - A "Commenting as" line and a log-out link for readers the site knows, whether logged in to the site itself or through the popup.
 - Reply threading, by watching the `comment_parent` input WordPress rewrites.
 
@@ -43,7 +43,7 @@ A returning commenter is admitted on the passport alone for as long as it lasts,
 
 The dialog offers the subscribe checkboxes the host would have drawn itself, under the host's own field names, so the host's own handlers act on them when the comment posts. Jetpack Subscriptions appends its checkboxes to `comment_form_submit_field` at priority 10; this form's filter runs at 20 and reads them back out. On Simple, `subscription_comment_form()` is asked for its markup the same way and its `comment_form` action removed, so the options appear once. Each host keeps its own gating for which options exist and whether they start checked.
 
-When there are any, every submit goes through the dialog, so site users and WordPress.com sign-ins see them too. Jetpack Subscriptions draws them for posts only, and WordPress.com stops drawing one the reader already holds.
+Only a reader going through the dialog sees them: a new guest, or a WordPress.com sign-in on the way in. A reader the site already knows posts without the dialog and gets no subscribe option here. Jetpack Subscriptions draws them for posts only, and WordPress.com stops drawing one the reader already holds.
 
 ## Not here
 
