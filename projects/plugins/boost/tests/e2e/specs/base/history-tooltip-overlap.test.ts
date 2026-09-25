@@ -363,6 +363,28 @@ test( 'Tabbing between daily charts preserves focus and resets the previous tool
 	await expect( tooltip ).toContainText( 'August 11, 2026' );
 } );
 
+test( 'Rings a keyboard-selected recorded day but not a hovered one', async ( { page } ) => {
+	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
+	const highlight = page.getByTestId( 'history-highlight' );
+	await hoverDay( chart, 21 );
+	await expect( highlight ).toHaveCSS( 'outline-style', 'none' );
+	await page.mouse.move( 0, 0 );
+	await chart.getByRole( 'grid' ).focus();
+	// An empty day's details are visible, and the browser rings them.
+	for ( const [ presses, date, outline ] of [
+		[ 1, 'August 11, 2026', 'none' ],
+		[ 21, 'September 1, 2026', 'solid' ],
+	] as const ) {
+		for ( let press = 0; press < presses; press++ ) {
+			await page.keyboard.press( 'ArrowRight' );
+		}
+		await expect( page.getByRole( 'tooltip' ) ).toContainText( date );
+		await expect( highlight ).toHaveCSS( 'outline-style', outline );
+	}
+	await page.keyboard.press( 'Escape' );
+	await expect( highlight ).toHaveCount( 0 );
+} );
+
 test( 'Tab from the paging controls reaches the chart once the day details close', async ( {
 	page,
 } ) => {
